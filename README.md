@@ -1,152 +1,52 @@
 # Dataset Management Framework (Datumaro)
 
-A framework to build, transform, and analyze datasets.
+A framework and tool to build, transform, and analyze datasets.
 
 <!--lint disable fenced-code-flag-->
 ```
-CVAT annotations  --                              ---> Annotation tool
-                     \                          /
-COCO-like dataset -----> Datumaro ---> dataset ------> Model training
-                     /                          \
-VOC-like dataset  --                              ---> Publication etc.
+VOC dataset                                  ---> Annotation tool
+     +                                     /
+COCO dataset -----> Datumaro ---> dataset ------> Model training
+     +                                     \
+CVAT annotations                             ---> Publication, statistics etc.
 ```
 <!--lint enable fenced-code-flag-->
 
-## Contents
+# Table of Contents
 
-- [Documentation](#documentation)
+- [Examples](#examples)
 - [Features](#features)
 - [Installation](#installation)
 - [Usage](#usage)
-- [Examples](#examples)
+- [User manual](docs/user_manual.md)
 - [Contributing](#contributing)
 
-## Documentation
-
-- [User manual](docs/user_manual.md)
-- [Design document](docs/design.md)
-- [Contributing](CONTRIBUTING.md)
-
-## Features
-
-- Dataset format conversions:
-  - COCO (`image_info`, `instances`, `person_keypoints`, `captions`, `labels`*)
-    - [Format specification](http://cocodataset.org/#format-data)
-    - [Dataset example](tests/assets/coco_dataset)
-    - `labels` are our extension - like `instances` with only `category_id`
-  - PASCAL VOC (`classification`, `detection`, `segmentation` (class, instances), `action_classification`, `person_layout`)
-    - [Format specification](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/htmldoc/index.html)
-    - [Dataset example](tests/assets/voc_dataset)
-  - YOLO (`bboxes`)
-    - [Format specification](https://github.com/AlexeyAB/darknet#how-to-train-pascal-voc-data)
-    - [Dataset example](tests/assets/yolo_dataset)
-  - TF Detection API (`bboxes`, `masks`)
-    - Format specifications: [bboxes](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/using_your_own_dataset.md), [masks](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/instance_segmentation.md)
-    - [Dataset example](tests/assets/tf_detection_api_dataset)
-  - MOT sequences
-    - [Format specification](https://arxiv.org/pdf/1906.04567.pdf)
-    - [Dataset example](tests/assets/mot_dataset)
-  - CVAT
-    - [Format specification](https://github.com/opencv/cvat/blob/develop/cvat/apps/documentation/xml_format.md)
-    - [Dataset example](tests/assets/cvat_dataset)
-  - LabelMe
-    - [Format specification](http://labelme.csail.mit.edu/Release3.0)
-    - [Dataset example](tests/assets/labelme_dataset)
-- Dataset building operations:
-  - Merging multiple datasets into one
-  - Dataset filtering with custom conditions, for instance:
-    - remove polygons of a certain class
-    - remove images without a specific class
-    - remove `occluded` annotations from images
-    - keep only vertically-oriented images
-    - remove small area bounding boxes from annotations
-  - Annotation conversions, for instance:
-    - polygons to instance masks and vise-versa
-    - apply a custom colormap for mask annotations
-    - rename or remove dataset labels
-- Dataset comparison
-- Model integration:
-  - Inference (OpenVINO and custom models)
-  - Explainable AI ([RISE algorithm](https://arxiv.org/abs/1806.07421))
-
-> Check the [design document](docs/design.md) for a full list of features
-
-## Installation
-
-Optionally, create a virtual environment:
-
-``` bash
-python -m pip install virtualenv
-python -m virtualenv venv
-. venv/bin/activate
-```
-
-Install Datumaro package:
-
-``` bash
-pip install 'git+https://github.com/opencv/cvat#egg=datumaro&subdirectory=datumaro'
-```
-
-## Usage
-
-There are several options available:
-- [A standalone command-line tool](#standalone-tool)
-- [A python module](#python-module)
-
-### Standalone tool
-
-<!--lint disable fenced-code-flag-->
-```
-    User
-        |
-        v
-+------------------+
-|       CVAT       |
-+--------v---------+       +------------------+       +--------------+
-| Datumaro module  | ----> | Datumaro project | <---> | Datumaro CLI | <--- User
-+------------------+       +------------------+       +--------------+
-```
-<!--lint enable fenced-code-flag-->
-
-``` bash
-datum --help
-python -m datumaro --help
-```
-
-### Python module
-
-Datumaro can be used in custom scripts as a library in the following way:
-
-``` python
-from datumaro.components.project import Project # project-related things
-import datumaro.components.extractor # annotations and high-level interfaces
-# etc.
-project = Project.load('directory')
-```
-
 ## Examples
+
+[(Back to top)](#table-of-contents)
 
 <!--lint disable list-item-indent-->
 <!--lint disable list-item-bullet-indent-->
 
-- Convert [PASCAL VOC](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/index.html#data) to COCO, keep only images with `cat` class presented:
+- Convert PASCAL VOC dataset to COCO format, keep only images with `cat` class presented:
   ```bash
   # Download VOC dataset:
   # http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar
   datum convert --input-format voc --input-path <path/to/voc> \
-                --output-format coco --filter '/item[annotation/label="cat"]'
+                --output-format coco \
+                --filter '/item[annotation/label="cat"]'
   ```
 
-- Convert only non-occluded annotations from a CVAT-annotated project to TFrecord:
+- Convert only non-`occluded` annotations from a [CVAT](https://github.com/opencv/cvat) project to TFrecord:
   ```bash
   # export Datumaro dataset in CVAT UI, extract somewhere, go to the project dir
-  datum project extract --filter '/item/annotation[occluded="False"]' \
+  datum project filter -e '/item/annotation[occluded="False"]' \
     --mode items+anno --output-dir not_occluded
   datum project export --project not_occluded \
     --format tf_detection_api -- --save-images
   ```
 
-- Annotate COCO, extract image subset, re-annotate it in CVAT, update old dataset:
+- Annotate MS COCO dataset, extract image subset, re-annotate it in [CVAT](https://github.com/opencv/cvat), update old dataset:
   ```bash
   # Download COCO dataset http://cocodataset.org/#download
   # Put images to coco/images/ and annotations to coco/annotations/
@@ -159,7 +59,7 @@ project = Project.load('directory')
   datum project export --format coco
   ```
 
-- Annotate instance polygons in CVAT, export as masks in COCO:
+- Annotate instance polygons in [CVAT](https://github.com/opencv/cvat), export as masks in COCO:
   ```bash
   datum convert --input-format cvat --input-path <path/to/cvat.xml> \
                 --output-format coco -- --segmentation-mode masks
@@ -198,8 +98,117 @@ project = Project.load('directory')
 <!--lint enable list-item-bullet-indent-->
 <!--lint enable list-item-indent-->
 
+## Features
+
+[(Back to top)](#table-of-contents)
+
+- Dataset reading, writing, conversion in any direction. Supported formats:
+  - [COCO](http://cocodataset.org/#format-data) (`image_info`, `instances`, `person_keypoints`, `captions`, `labels`*)
+  - [PASCAL VOC](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/htmldoc/index.html) (`classification`, `detection`, `segmentation`, `action_classification`, `person_layout`)
+  - [YOLO](https://github.com/AlexeyAB/darknet#how-to-train-pascal-voc-data) (`bboxes`)
+  - [TF Detection API](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/using_your_own_dataset.md) (`bboxes`, `masks`)
+  - [MOT sequences](https://arxiv.org/pdf/1906.04567.pdf)
+  - [CVAT](https://github.com/opencv/cvat/blob/develop/cvat/apps/documentation/xml_format.md)
+  - [LabelMe](http://labelme.csail.mit.edu/Release3.0)
+- Dataset building
+  - Merging multiple datasets into one
+  - Dataset filtering by a custom criteria:
+    - remove polygons of a certain class
+    - remove images without a specific class
+    - remove `occluded` annotations from images
+    - keep only vertically-oriented images
+    - remove small area bounding boxes from annotations
+  - Annotation conversions, for instance:
+    - polygons to instance masks and vise-versa
+    - apply a custom colormap for mask annotations
+    - rename or remove dataset labels
+- Dataset quality checking
+  - Simple checking for errors
+  - Comparison with model infernece
+  - Merging and comparison of multiple datasets
+- Dataset comparison
+- Dataset statistics (image mean and std, annotation statistics)
+- Model integration
+  - Inference (OpenVINO, Caffe, PyTorch, TensorFlow, MxNet, etc.)
+  - Explainable AI ([RISE algorithm](https://arxiv.org/abs/1806.07421))
+
+> Check [the design document](docs/design.md) for a full list of features.
+> Check [the user manual](docs/user_manual.md) for usage instructions.
+
+## Installation
+
+[(Back to top)](#table-of-contents)
+
+Optionally, create a virtual environment:
+
+``` bash
+python -m pip install virtualenv
+python -m virtualenv venv
+. venv/bin/activate
+```
+
+Install Datumaro package:
+
+``` bash
+pip install 'git+https://github.com/openvinotoolkit/datumaro'
+```
+
+## Usage
+
+[(Back to top)](#table-of-contents)
+
+There are several options available:
+- [A standalone command-line tool](#standalone-tool)
+- [A python module](#python-module)
+
+### Standalone tool
+
+Datuaro as a standalone tool allows to do various dataset operations from
+the command line interface:
+
+``` bash
+datum --help
+python -m datumaro --help
+```
+
+### Python module
+
+Datumaro can be used in custom scripts as a Python module. Used this way, it
+allows to use its features from the existing codebase, enabling dataset
+reading, exporting and iteration capabilities, simplifying integration of custom
+formats and providing high performance operations:
+
+``` python
+from datumaro.components.project import Project # project-related things
+import datumaro.components.extractor # annotations and high-level interfaces
+
+# load a Datumaro project
+project = Project.load('directory')
+
+# create a dataset
+dataset = project.make_dataset()
+
+# keep only annotated images
+dataset = dataset.select(lambda item: len(item.annotations) != 0)
+
+# change dataset labels
+dataset = dataset.transform(project.env.transforms.get('remap_labels'),
+  {'cat': 'dog', # rename cat to dog
+    'truck': 'car', # rename truck to car
+    'person': '', # remove this label
+  }, default='delete')
+
+for item in dataset:
+  print(item.id, item.annotations)
+
+# export the resulting dataset in COCO format
+project.env.converters.get('coco').convert(dataset, save_dir='dst/dir')
+```
+
 ## Contributing
 
-Feel free to [open an Issue](https://github.com/opencv/cvat/issues/new) if you
+[(Back to top)](#table-of-contents)
+
+Feel free to [open an Issue](https://github.com/opencv/cvat/issues/new), if you
 think something needs to be changed. You are welcome to participate in development,
 development instructions are available in our [developer manual](CONTRIBUTING.md).
