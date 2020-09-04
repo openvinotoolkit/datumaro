@@ -1,6 +1,6 @@
 # Dataset Management Framework (Datumaro)
 
-A framework and tool to build, transform, and analyze datasets.
+A framework and CLI tool to build, transform, and analyze datasets.
 
 <!--lint disable fenced-code-flag-->
 ```
