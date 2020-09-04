@@ -174,7 +174,7 @@ python -m datumaro --help
 ### Python module
 
 Datumaro can be used in custom scripts as a Python module. Used this way, it
-allows to use its features from the existing codebase, enabling dataset
+allows to use its features from an existing codebase, enabling dataset
 reading, exporting and iteration capabilities, simplifying integration of custom
 formats and providing high performance operations:
 
@@ -205,10 +205,12 @@ for item in dataset:
 project.env.converters.get('coco').convert(dataset, save_dir='dst/dir')
 ```
 
+> Check our [developer guide](docs/developer_guide.md) for additional information.
+
 ## Contributing
 
 [(Back to top)](#table-of-contents)
 
 Feel free to [open an Issue](https://github.com/opencv/cvat/issues/new), if you
 think something needs to be changed. You are welcome to participate in development,
-development instructions are available in our [developer manual](CONTRIBUTING.md).
+instructions are available in our [contribution guide](CONTRIBUTING.md).
