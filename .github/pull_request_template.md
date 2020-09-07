@@ -1,20 +1,11 @@
-<!---
-Copyright (C) 2020 Intel Corporation
-
-SPDX-License-Identifier: MIT
--->
-
-<!-- Check contributing guide here:
-https://github.com/openvinotoolkit/datumaro/blob/develop/CONTRIBUTING.md
--->
+<!-- Contributing guide: https://github.com/openvinotoolkit/datumaro/blob/develop/CONTRIBUTING.md -->
 
 ### Summary
 <!--
 Resolves #111 and #222.
 Depends on #1000 (for series of dependent commits).
 
-This PR introduces this capability and deprecates that functionality
-to make the project better in this and that area.
+This PR introduces this capability to make the project better in this and that.
 
 - Added this feature
 - Removed that feature
@@ -23,8 +14,7 @@ to make the project better in this and that area.
 
 ### How to test
 <!-- Describe the testing procedure for reviewers, if changes are
-not fully covered by unit tests or manual testing can be complicated.
--->
+not fully covered by unit tests or manual testing can be complicated. -->
 
 ### Checklist
 <!-- Put an 'x' in all the boxes that apply -->
