@@ -114,7 +114,7 @@ CVAT annotations                             ---> Publication, statistics etc.
   - Merging multiple datasets into one
   - Dataset filtering by a custom criteria:
     - remove polygons of a certain class
-    - remove images without a specific class
+    - remove images without annotations of a specific class
     - remove `occluded` annotations from images
     - keep only vertically-oriented images
     - remove small area bounding boxes from annotations
