@@ -211,6 +211,6 @@ project.env.converters.get('coco').convert(dataset, save_dir='dst/dir')
 
 [(Back to top)](#table-of-contents)
 
-Feel free to [open an Issue](https://github.com/opencv/cvat/issues/new), if you
+Feel free to [open an Issue](https://github.com/openvinotoolkit/datumaro/issues/new), if you
 think something needs to be changed. You are welcome to participate in development,
 instructions are available in our [contribution guide](CONTRIBUTING.md).
