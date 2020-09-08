@@ -28,10 +28,10 @@
 
 ## Installation
 
-### Prerequisites
+### Dependencies
 
-- Python (3.5+)
-- OpenVINO (optional)
+- Python (3.6+)
+- Optional: OpenVINO, TensforFlow, PyTorch, MxNet, Caffe, Accuracy Checker
 
 ### Installation steps
 
@@ -45,10 +45,10 @@ python -m virtualenv venv
 
 Install:
 ``` bash
-pip install 'git+https://github.com/opencv/cvat#egg=datumaro&subdirectory=datumaro'
+pip install 'git+https://github.com/openvinotoolkit/datumaro'
 ```
 
-> You can change the installation branch with `.../cvat@<branch_name>#egg...`
+> You can change the installation branch with `...@<branch_name>`
 > Also note `--force-reinstall` parameter in this case.
 
 ## Interfaces
