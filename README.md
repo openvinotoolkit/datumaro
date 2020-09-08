@@ -1,5 +1,7 @@
 # Dataset Management Framework (Datumaro)
 
+![Travis badge - develop](https://travis-ci.org/openvinotoolkit/datumaro.svg?branch=develop)
+
 A framework and CLI tool to build, transform, and analyze datasets.
 
 <!--lint disable fenced-code-flag-->
