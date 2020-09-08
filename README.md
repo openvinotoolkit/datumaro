@@ -141,6 +141,11 @@ CVAT annotations                             ---> Publication, statistics etc.
 
 [(Back to top)](#table-of-contents)
 
+### Dependencies
+
+- Python (3.6+)
+- Optional: OpenVINO, TensforFlow, PyTorch, MxNet, Caffe, Accuracy Checker
+
 Optionally, create a virtual environment:
 
 ``` bash
