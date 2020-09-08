@@ -53,6 +53,7 @@ setuptools.setup(
         'GitPython',
         'lxml',
         'matplotlib',
+        'numpy>=1.17.3',
         'opencv-python',
         'Pillow',
         'pycocotools',
