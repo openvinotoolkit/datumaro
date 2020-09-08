@@ -3,25 +3,16 @@ language: python
 cache: pip
 
 python:
-  - '3.5'
   - '3.6'
   - '3.7'
   - '3.8'
 
 jobs:
-  # exclude:
-  #   - dist: bionic
-  #     python: '3.5'
   include:
     - dist: xenial
     - dist: bionic
 
-    - python: '3.5'
-      install:
-        - pip install matplotlib<3.1 tensorflow
-        - pip install -e ./
-
-        install:
+install:
   - pip install -e ./
 
   # plugins
