@@ -1,18 +1,29 @@
 language: python
 
+cache: pip
+
 python:
   - '3.5'
   - '3.6'
   - '3.7'
   - '3.8'
 
+jobs:
+  exclude:
+    - dist: bionic
+      python: '3.5'
+  include:
+    - dist: xenial
+    - dist: bionic
+
 install:
+  - pip install -r requirements.txt
   - pip install -e ./
 
   # plugins
   - pip install tensorflow
 
 script:
-  - python -m unittest -v discover
+  - python -m unittest discover -v
 
   - datum -h
