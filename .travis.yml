@@ -11,8 +11,18 @@ matrix:
   include:
     - dist: xenial
 
+    # measure coverage here
     - dist: bionic
       python: '3.6'
+      before_install:
+        - pip install coverage
+      script:
+        - coverage run -m unittest discover -v
+        - datum -h
+      after_success:
+        - coverage xml
+        - bash <(curl -Ls https://coverage.codacy.com/get.sh) report -r coverage.xml
+
     - dist: bionic
       python: '3.7'
     - dist: bionic
@@ -20,11 +30,8 @@ matrix:
 
 install:
   - pip install -e ./
-
-  # plugins
   - pip install tensorflow
 
 script:
   - python -m unittest discover -v
-
   - datum -h
