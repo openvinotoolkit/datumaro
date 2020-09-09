@@ -21,7 +21,7 @@ matrix:
         - datum -h
       after_success:
         - coverage xml
-        - bash <(curl -Ls https://coverage.codacy.com/get.sh) report
+        - bash <(curl -Ls https://coverage.codacy.com/get.sh) report -r coverage.xml
 
     - dist: bionic
       python: '3.7'
