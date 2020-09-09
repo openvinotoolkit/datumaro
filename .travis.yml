@@ -14,11 +14,12 @@ matrix:
     # measure coverage here
     - dist: bionic
       python: '3.6'
+      before_install:
+        - pip install coverage
       script:
         - coverage run -m unittest discover -v
         - datum -h
       after_success:
-        - pip install coverage
         - coverage xml
         - bash <(curl -Ls https://coverage.codacy.com/get.sh) report
 
