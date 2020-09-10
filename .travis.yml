@@ -18,7 +18,7 @@ matrix:
         - pip install coverage
       script:
         - coverage run -m unittest discover -v
-        - datum -h
+        - coverage run -a datum.py -h
       after_success:
         - coverage xml
         - bash <(curl -Ls https://coverage.codacy.com/get.sh) report -r coverage.xml
