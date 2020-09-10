@@ -447,7 +447,8 @@ def filter_command(args):
     if not args.filter:
         raise CliException("Expected a filter expression ('-e' argument)")
 
-    dataset.filter_project(save_dir=dst_dir, expr=args.filter, **filter_args)
+    dataset.filter_project(save_dir=dst_dir,
+        filter_expr=args.filter, **filter_args)
 
     log.info("Subproject has been extracted to '%s'" % dst_dir)
 
@@ -565,6 +566,8 @@ def diff_command(args):
 
     return 0
 
+_ediff_default_if = ['id', 'group'] # avoid https://bugs.python.org/issue16399
+
 def build_ediff_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(help="Compare projects for equality",
         description="""
@@ -583,9 +586,9 @@ def build_ediff_parser(parser_ctor=argparse.ArgumentParser):
         help="Ignore item attribute (repeatable)")
     parser.add_argument('-ia', '--ignore-attr', action='append',
         help="Ignore annotation attribute (repeatable)")
-    parser.add_argument('-if', '--ignore-field',
-        action='append', default=['id', 'group'],
-        help="Ignore annotation field (repeatable, default: %(default)s)")
+    parser.add_argument('-if', '--ignore-field', action='append',
+        help="Ignore annotation field (repeatable, default: %s)" % \
+            _ediff_default_if)
     parser.add_argument('--match-images', action='store_true',
         help='Match dataset items by images instead of ids')
     parser.add_argument('--all', action='store_true',
@@ -600,6 +603,8 @@ def ediff_command(args):
     first_project = load_project(args.project_dir)
     second_project = load_project(args.other_project_dir)
 
+    if args.ignore_field:
+        args.ignore_field = _ediff_default_if
     comparator = ExactComparator(
         match_images=args.match_images,
         ignored_fields=args.ignore_field,
