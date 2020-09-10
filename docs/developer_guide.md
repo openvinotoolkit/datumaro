@@ -1,3 +1,5 @@
+# Dataset Management Framework (Datumaro) API and developer manual
+
 ## Basics
 
 The center part of the library is the `Dataset` class, which allows to iterate

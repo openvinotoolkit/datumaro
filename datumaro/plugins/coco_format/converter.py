@@ -85,7 +85,7 @@ class _TaskConverter:
     def write(self, path):
         next_id = self._min_ann_id
         for ann in self.annotations:
-            if ann['id'] is None:
+            if not ann['id']:
                 ann['id'] = next_id
                 next_id += 1
 
