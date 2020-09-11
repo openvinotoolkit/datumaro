@@ -2,8 +2,9 @@
 
 ## Basics
 
-The center part of the library is the `Dataset` class, which allows to iterate
-over its elements. `DatasetItem`, an element of a dataset, represents a single
+The center part of the library is the `Dataset` class, which represents
+a dataset and allows to iterate over its elements.
+`DatasetItem`, an element of a dataset, represents a single
 dataset entry with annotations - an image, video sequence, audio track etc.
 It can contain only annotated data or meta information, only annotations, or
 all of this.
@@ -25,8 +26,8 @@ Extractors -> Dataset -> Converter
 
 1. Data is read (or produced) by one or many `Extractor`s and merged
   into a `Dataset`
-1. A dataset is processed in some way
-1. A dataset is saved with a `Converter`
+1. The dataset is processed in some way
+1. The dataset is saved with a `Converter`
 
 Datumaro has a number of dataset and annotation features:
 - iteration over dataset elements
@@ -37,30 +38,122 @@ Datumaro has a number of dataset and annotation features:
 - various annotation operations
 
 ```python
-from datumaro.components.project import Environment
+from datumaro.components.project import Environment, Dataset
+from datumaro.components.extractor import Bbox, Polygon, DatasetItem
 
 # Import and save a dataset
 env = Environment()
 dataset = env.make_importer('voc')('src/dir').make_dataset()
 env.converters.get('coco').convert(dataset, save_dir='dst/dir')
+
+# Create a dataset, convert polygons to masks, save in PASCAL VOC format
+dataset = Dataset.from_iterable([
+    DatasetItem(id='image1', annotations=[
+        Bbox(x=1, y=2, w=3, h=4, label=1),
+        Polygon([1, 2, 3, 2, 4, 4], label=2, attributes={'occluded': True}),
+    ]),
+], categories=['cat', 'dog', 'person'])
+dataset = dataset.transform(env.transforms.get('polygons_to_masks'))
+env.converters.get('voc').convert(dataset, save_dir='dst/dir')
 ```
+
+### The Dataset class
+
+The `Dataset` class from the `datumaro.components.project` module represents
+a dataset, consisting of multiple `DatasetItem`s. Annotations are
+represented by members of the `datumaro.components.extractor` module,
+such as `Label`, `Mask` or `Polygon`. A dataset can contain items from one or
+multiple subsets (e.g. `train`, `test`, `val` etc.), the list of dataset subsets
+is available at `dataset.subsets`.
+
+Datasets typically have annotations, and these annotations can
+require additional information to be interpreted correctly. For instance, it
+can include class names, class hierarchy, keypoint connections,
+class colors for masks, class attributes.
+This information is stored in `dataset.categories`, which is a mapping from
+`AnnotationType` to a corresponding `...Categories` class. Each annotation type
+can have its `Categories`. Typically, there will be a `LabelCategories` object.
+Annotations and other categories adress dataset labels
+by their indices in this object.
+
+The main operation for a dataset is iteration over its elements.
+An item corresponds to a single image, a video sequence, etc. There are also
+few other operations available, such as filtration (`dataset.select`) and
+transformations (`dataset.transform`). A dataset can be created from extractors
+or other datasets with `dataset.from_extractors` and directly from items with
+`dataset.from_iterable`. A dataset is an extractor itself. If it is created from
+multiple extractors, their categories must match, and their contents will be
+merged.
+
+A dataset item is an element of a dataset. Its `id` is a name of a
+corresponding image. There can be some image `attributes`,
+an `image` and `annotations`.
+
+```python
+# create a dataset from other datasets
+dataset = Dataset.from_extractors(dataset1, dataset2)
+
+# or directly from items
+dataset = Dataset.from_iterable([
+    DatasetItem(id='image1', annotations=[
+        Bbox(x=1, y=2, w=3, h=4, label=1),
+        Polygon([1, 2, 3, 2, 4, 4], label=2),
+    ]),
+], categories=['cat', 'dog', 'person'])
+
+# keep only annotated images
+dataset = dataset.select(lambda item: len(item.annotations) != 0)
+
+# change dataset labels
+dataset = dataset.transform(project.env.transforms.get('remap_labels'),
+  {'cat': 'dog', # rename cat to dog
+    'truck': 'car', # rename truck to car
+    'person': '', # remove this label
+  }, default='delete')
+
+# iterate over elements
+for item in dataset:
+  print(item.id, item.annotations)
+
+# iterate over subsets
+for subset_name in dataset.subsets():
+  subset = dataset.get_subset(subset_name) # a dataset, again
+  for item in subset:
+    print(item.id, item.annotations)
+```
+
+### Projects
+
+Projects are intended for complex use of Datumaro. They provide means of
+persistence, of extending, and CLI operation for Datasets. A project can
+be converted to a Dataset with `project.make_dataset`. Project datasets
+can have multiple data sources, which are merged on dataset creation. They
+can have a hierarchy. Project configuration is available in `project.config`.
+
+The `Environment` class is responsible for accessing built-in and
+project-specific plugins. For a project, there is an instance of
+related `Environment` in `project.env`.
 
 ## Library contents
 
 ### Dataset Formats
 
+The framework provides functions to read and write datasets in specific formats.
+It is supported by `Extractor`s, `Importer`s, and `Converter`s.
+
 Dataset reading is supported by `Extractor`s and `Importer`s:
 - An `Extractor` produces a list of `DatasetItem`s corresponding
-to the dataset.
-- An `Importer` creates a project from the data source location.
+to the dataset. Annotations are available in the `DatasetItem.annotations` list
+- An `Importer` creates a project from a data source location
 
-It is possible to add custom Extractors and Importers. To do this, you need
+It is possible to add custom `Extractor`s and `Importer`s. To do this, you need
 to put an `Extractor` and `Importer` implementations to a plugin directory.
 
 Dataset writing is supported by `Converter`s.
-A Converter produces a dataset of a specific format from dataset items.
+A `Converter` produces a dataset of a specific format from dataset items.
 It is possible to add custom `Converter`s. To do this, you need to put a
-Converter implementation script to a plugin directory.
+`Converter` implementation script to a plugin directory.
+
 
 ### Dataset Conversions ("Transforms")
 
