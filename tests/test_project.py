@@ -239,6 +239,35 @@ class ProjectTest(TestCase):
 
         self.assertEqual(n1 + n2, len(dataset))
 
+    def test_cant_merge_different_categories(self):
+        class TestExtractor1(Extractor):
+            def __iter__(self):
+                return iter([])
+
+            def categories(self):
+                return { AnnotationType.label:
+                    LabelCategories.from_iterable(['a', 'b']) }
+
+        class TestExtractor2(Extractor):
+            def __iter__(self):
+                return iter([])
+
+            def categories(self):
+                return { AnnotationType.label:
+                    LabelCategories.from_iterable(['b', 'a']) }
+
+        e_name1 = 'e1'
+        e_name2 = 'e2'
+
+        project = Project()
+        project.env.extractors.register(e_name1, lambda p: TestExtractor1(p))
+        project.env.extractors.register(e_name2, lambda p: TestExtractor2(p))
+        project.add_source('source1', { 'format': e_name1 })
+        project.add_source('source2', { 'format': e_name2 })
+
+        with self.assertRaisesRegex(Exception, "different categories"):
+            dataset = project.make_dataset()
+
     def test_project_filter_can_be_applied(self):
         class TestExtractor(Extractor):
             def __iter__(self):
