@@ -260,13 +260,13 @@ class ProjectTest(TestCase):
         e_name2 = 'e2'
 
         project = Project()
-        project.env.extractors.register(e_name1, lambda p: TestExtractor1(p))
-        project.env.extractors.register(e_name2, lambda p: TestExtractor2(p))
+        project.env.extractors.register(e_name1, TestExtractor1)
+        project.env.extractors.register(e_name2, TestExtractor2)
         project.add_source('source1', { 'format': e_name1 })
         project.add_source('source2', { 'format': e_name2 })
 
         with self.assertRaisesRegex(Exception, "different categories"):
-            dataset = project.make_dataset()
+            project.make_dataset()
 
     def test_project_filter_can_be_applied(self):
         class TestExtractor(Extractor):
