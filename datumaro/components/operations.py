@@ -49,10 +49,9 @@ def merge_annotations_equal(a, b):
 def merge_categories(sources):
     categories = {}
     for source in sources:
-        categories.update(source)
-    for source in sources:
         for cat_type, source_cat in source.items():
-            if not categories[cat_type] == source_cat:
+            existing_cat = categories.setdefault(cat_type, source_cat)
+            if existing_cat != source_cat:
                 raise NotImplementedError(
                     "Merging of datasets with different categories is "
                     "only allowed in 'merge' command.")
