@@ -101,7 +101,7 @@ class _TaskConverter:
         return self._data['categories']
 
     def _get_ann_id(self, annotation):
-        ann_id = annotation.id
+        ann_id = 0 if self._context._reindex else annotation.id
         if ann_id:
             self._min_ann_id = max(ann_id, self._min_ann_id)
         return ann_id
@@ -465,6 +465,9 @@ class CocoConverter(Converter):
         parser.add_argument('--allow-attributes',
             type=str_to_bool, default=True,
             help="Allow export of attributes (default: %(default)s)")
+        parser.add_argument('--reindex', action='store_true',
+            help="Assign new indices to images and annotations "
+                "(default: %(default)s)")
         parser.add_argument('--tasks', type=cls._split_tasks_string,
             help="COCO task filter, comma-separated list of {%s} "
                 "(default: all)" % ', '.join(t.name for t in CocoTask))
@@ -482,7 +485,7 @@ class CocoConverter(Converter):
 
     def __init__(self, extractor, save_dir,
             tasks=None, segmentation_mode=None, crop_covered=False,
-            allow_attributes=True, **kwargs):
+            allow_attributes=True, reindex=False, **kwargs):
         super().__init__(extractor, save_dir, **kwargs)
 
         assert tasks is None or isinstance(tasks, (CocoTask, list, str))
@@ -509,6 +512,7 @@ class CocoConverter(Converter):
 
         self._crop_covered = crop_covered
         self._allow_attributes = allow_attributes
+        self._reindex = reindex
 
         self._image_ids = {}
 
@@ -531,8 +535,11 @@ class CocoConverter(Converter):
     def _get_image_id(self, item):
         image_id = self._image_ids.get(item.id)
         if image_id is None:
-            image_id = cast(item.attributes.get('id'), int,
-                len(self._image_ids) + 1)
+            if not self._reindex:
+                image_id = cast(item.attributes.get('id'), int,
+                    len(self._image_ids) + 1)
+            else:
+                image_id = len(self._image_ids) + 1
             self._image_ids[item.id] = image_id
         return image_id
 
