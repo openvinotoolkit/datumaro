@@ -78,7 +78,7 @@ class MotsImporterTest(TestCase):
 
     def test_can_import(self):
         target = Dataset.from_iterable([
-            DatasetItem(id=1, subset='a', image=np.ones((5, 1)), annotations=[
+            DatasetItem(id=1, subset='train', image=np.ones((5, 1)), annotations=[
                 Mask(np.array([[0, 0, 0, 1, 0]]), label=3,
                     attributes={'track_id': 1}),
                 Mask(np.array([[0, 0, 1, 0, 0]]), label=2,
@@ -86,11 +86,11 @@ class MotsImporterTest(TestCase):
                 Mask(np.array([[1, 1, 0, 0, 0]]), label=3,
                     attributes={'track_id': 3}),
             ]),
-            DatasetItem(id=2, subset='a', image=np.ones((5, 1)), annotations=[
+            DatasetItem(id=2, subset='train', image=np.ones((5, 1)), annotations=[
                 Mask(np.array([[1, 0, 0, 0, 0]]), label=3,
                     attributes={'track_id': 2}),
             ]),
-            DatasetItem(id=3, subset='b', image=np.ones((5, 1)), annotations=[
+            DatasetItem(id=3, subset='val', image=np.ones((5, 1)), annotations=[
                 Mask(np.array([[0, 1, 0, 0, 0]]), label=0,
                     attributes={'track_id': 1}),
             ]),
