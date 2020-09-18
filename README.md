@@ -112,6 +112,7 @@ CVAT annotations                             ---> Publication, statistics etc.
   - [YOLO](https://github.com/AlexeyAB/darknet#how-to-train-pascal-voc-data) (`bboxes`)
   - [TF Detection API](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/using_your_own_dataset.md) (`bboxes`, `masks`)
   - [MOT sequences](https://arxiv.org/pdf/1906.04567.pdf)
+  - [MOTS PNG](https://www.vision.rwth-aachen.de/page/mots)
   - [CVAT](https://github.com/opencv/cvat/blob/develop/cvat/apps/documentation/xml_format.md)
   - [LabelMe](http://labelme.csail.mit.edu/Release3.0)
 - Dataset building

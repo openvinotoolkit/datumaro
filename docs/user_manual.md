@@ -94,6 +94,9 @@ List of supported formats:
 - MOT sequences
   - [Format specification](https://arxiv.org/pdf/1906.04567.pdf)
   - [Dataset example](../tests/assets/mot_dataset)
+- MOTS (png)
+  - [Format specification](https://www.vision.rwth-aachen.de/page/mots)
+  - [Dataset example](../tests/assets/mots_dataset)
 - CVAT
   - [Format specification](https://github.com/opencv/cvat/blob/develop/cvat/apps/documentation/xml_format.md)
   - [Dataset example](../tests/assets/cvat_dataset)
