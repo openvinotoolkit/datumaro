@@ -23,7 +23,7 @@ except ImportError:
 from datumaro.util.image_cache import ImageCache as _ImageCache
 
 
-def load_image(path):
+def load_image(path, dtype=np.float32):
     """
     Reads an image in the HWC Grayscale/BGR(A) float [0; 255] format.
     """
@@ -31,11 +31,11 @@ def load_image(path):
     if _IMAGE_BACKEND == _IMAGE_BACKENDS.cv2:
         import cv2
         image = cv2.imread(path, cv2.IMREAD_UNCHANGED)
-        image = image.astype(np.float32)
+        image = image.astype(dtype)
     elif _IMAGE_BACKEND == _IMAGE_BACKENDS.PIL:
         from PIL import Image
         image = Image.open(path)
-        image = np.asarray(image, dtype=np.float32)
+        image = np.asarray(image, dtype=dtype)
         if len(image.shape) == 3 and image.shape[2] in {3, 4}:
             image[:, :, :3] = image[:, :, 2::-1] # RGB to BGR
     else:
@@ -48,7 +48,7 @@ def load_image(path):
         assert image.shape[2] in {3, 4}
     return image
 
-def save_image(path, image, create_dir=False, **kwargs):
+def save_image(path, image, create_dir=False, dtype=np.uint8, **kwargs):
     # NOTE: Check destination path for existence
     # OpenCV silently fails if target directory does not exist
     dst_dir = osp.dirname(path)
@@ -72,7 +72,7 @@ def save_image(path, image, create_dir=False, **kwargs):
                 int(cv2.IMWRITE_JPEG_QUALITY), kwargs.get('jpeg_quality', 75)
             ]
 
-        image = image.astype(np.uint8)
+        image = image.astype(dtype)
         cv2.imwrite(path, image, params=params)
     elif _IMAGE_BACKEND == _IMAGE_BACKENDS.PIL:
         from PIL import Image
@@ -82,7 +82,7 @@ def save_image(path, image, create_dir=False, **kwargs):
         if kwargs.get('jpeg_quality') == 100:
             params['subsampling'] = 0
 
-        image = image.astype(np.uint8)
+        image = image.astype(dtype)
         if len(image.shape) == 3 and image.shape[2] in {3, 4}:
             image[:, :, :3] = image[:, :, 2::-1] # BGR to RGB
         image = Image.fromarray(image)
@@ -90,7 +90,7 @@ def save_image(path, image, create_dir=False, **kwargs):
     else:
         raise NotImplementedError()
 
-def encode_image(image, ext, **kwargs):
+def encode_image(image, ext, dtype=np.uint8, **kwargs):
     if not kwargs:
         kwargs = {}
 
@@ -107,7 +107,7 @@ def encode_image(image, ext, **kwargs):
                 int(cv2.IMWRITE_JPEG_QUALITY), kwargs.get('jpeg_quality', 75)
             ]
 
-        image = image.astype(np.uint8)
+        image = image.astype(dtype)
         success, result = cv2.imencode(ext, image, params=params)
         if not success:
             raise Exception("Failed to encode image to '%s' format" % (ext))
@@ -123,7 +123,7 @@ def encode_image(image, ext, **kwargs):
         if kwargs.get('jpeg_quality') == 100:
             params['subsampling'] = 0
 
-        image = image.astype(np.uint8)
+        image = image.astype(dtype)
         if len(image.shape) == 3 and image.shape[2] in {3, 4}:
             image[:, :, :3] = image[:, :, 2::-1] # BGR to RGB
         image = Image.fromarray(image)
@@ -133,16 +133,16 @@ def encode_image(image, ext, **kwargs):
     else:
         raise NotImplementedError()
 
-def decode_image(image_bytes):
+def decode_image(image_bytes, dtype=np.float32):
     if _IMAGE_BACKEND == _IMAGE_BACKENDS.cv2:
         import cv2
         image = np.frombuffer(image_bytes, dtype=np.uint8)
         image = cv2.imdecode(image, cv2.IMREAD_UNCHANGED)
-        image = image.astype(np.float32)
+        image = image.astype(dtype)
     elif _IMAGE_BACKEND == _IMAGE_BACKENDS.PIL:
         from PIL import Image
         image = Image.open(BytesIO(image_bytes))
-        image = np.asarray(image, dtype=np.float32)
+        image = np.asarray(image, dtype=dtype)
         if len(image.shape) == 3 and image.shape[2] in {3, 4}:
             image[:, :, :3] = image[:, :, 2::-1] # RGB to BGR
     else:
