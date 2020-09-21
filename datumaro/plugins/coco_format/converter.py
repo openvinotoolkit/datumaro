@@ -550,13 +550,7 @@ class CocoConverter(Converter):
     def apply(self):
         self._make_dirs()
 
-        for subset_name in self._extractor.subsets() or [None]:
-            if subset_name:
-                subset = self._extractor.get_subset(subset_name)
-            else:
-                subset_name = DEFAULT_SUBSET_NAME
-                subset = self._extractor
-
+        for subset_name, subset in self._extractor.subsets().items():
             task_converters = self._make_task_converters()
             for task_conv in task_converters.values():
                 task_conv.save_categories(subset)

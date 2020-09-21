@@ -13,24 +13,11 @@ from datumaro.util.image import Image
 
 
 class ImageDirImporter(Importer):
-    EXTRACTOR_NAME = 'image_dir'
-
-    def __call__(self, path, **extra_params):
-        from datumaro.components.project import Project # cyclic import
-        project = Project()
-
+    @classmethod
+    def find_sources(cls, path):
         if not osp.isdir(path):
-            raise Exception("Can't find a directory at '%s'" % path)
-
-        source_name = osp.basename(osp.normpath(path))
-        project.add_source(source_name, {
-            'url': source_name,
-            'format': self.EXTRACTOR_NAME,
-            'options': dict(extra_params),
-        })
-
-        return project
-
+            return []
+        return [{ 'url': path, 'format': 'image_dir' }]
 
 class ImageDirExtractor(SourceExtractor):
     def __init__(self, url):
@@ -38,7 +25,6 @@ class ImageDirExtractor(SourceExtractor):
 
         assert osp.isdir(url), url
 
-        items = []
         for dirpath, _, filenames in os.walk(url):
             for name in filenames:
                 path = osp.join(dirpath, name)
@@ -50,17 +36,7 @@ class ImageDirExtractor(SourceExtractor):
                     continue
 
                 item_id = osp.relpath(osp.splitext(path)[0], url)
-                items.append(DatasetItem(id=item_id, image=image))
-
-        self._items = items
-
-    def __iter__(self):
-        for item in self._items:
-            yield item
-
-    def __len__(self):
-        return len(self._items)
-
+                self._items.append(DatasetItem(id=item_id, image=image))
 
 class ImageDirConverter(Converter):
     DEFAULT_IMAGE_EXT = '.jpg'

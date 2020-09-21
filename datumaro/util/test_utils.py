@@ -10,6 +10,7 @@ import shutil
 import tempfile
 
 from datumaro.components.extractor import AnnotationType
+from datumaro.components.project import Project
 from datumaro.util import find
 
 
@@ -119,3 +120,19 @@ def compare_datasets_strict(test, expected, actual):
             test.assertEqual(item_a, item_b,
                 '%s:\n%s\nvs.\n%s\n' % \
                 (idx, item_a, item_b))
+
+def test_save_and_load(test, source_dataset, converter, test_dir, importer,
+        target_dataset=None, importer_args=None, compare=None):
+    converter(source_dataset, test_dir)
+
+    if importer_args is None:
+        importer_args = {}
+    parsed_dataset = Project.import_from(test_dir, importer, **importer_args) \
+        .make_dataset()
+
+    if target_dataset is None:
+        target_dataset = source_dataset
+
+    if not compare:
+        compare = compare_datasets
+    compare(test, expected=target_dataset, actual=parsed_dataset)

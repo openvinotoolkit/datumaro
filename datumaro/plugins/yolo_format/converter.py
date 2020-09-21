@@ -9,7 +9,7 @@ import os.path as osp
 from collections import OrderedDict
 
 from datumaro.components.converter import Converter
-from datumaro.components.extractor import AnnotationType
+from datumaro.components.extractor import AnnotationType, DEFAULT_SUBSET_NAME
 
 from .format import YoloPath
 
@@ -43,13 +43,10 @@ class YoloConverter(Converter):
 
         subset_lists = OrderedDict()
 
-        for subset_name in extractor.subsets() or [None]:
-            if subset_name and subset_name in YoloPath.SUBSET_NAMES:
-                subset = extractor.get_subset(subset_name)
-            elif not subset_name:
+        for subset_name, subset in self._extractor.subsets().items():
+            if not subset_name or subset_name == DEFAULT_SUBSET_NAME:
                 subset_name = YoloPath.DEFAULT_SUBSET_NAME
-                subset = extractor
-            else:
+            elif subset_name not in YoloPath.SUBSET_NAMES:
                 log.warn("Skipping subset export '%s'. "
                     "If specified, the only valid names are %s" % \
                     (subset_name, ', '.join(

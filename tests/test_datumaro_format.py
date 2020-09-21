@@ -3,34 +3,26 @@ import numpy as np
 
 from unittest import TestCase
 from datumaro.components.project import Dataset
-from datumaro.components.project import Project
-from datumaro.components.extractor import (Extractor, DatasetItem,
+from datumaro.components.extractor import (DatasetItem,
     AnnotationType, Label, Mask, Points, Polygon,
     PolyLine, Bbox, Caption,
     LabelCategories, MaskCategories, PointsCategories
 )
-from datumaro.plugins.datumaro_format.importer import DatumaroImporter
+from datumaro.plugins.datumaro_format.extractor import DatumaroImporter
 from datumaro.plugins.datumaro_format.converter import DatumaroConverter
 from datumaro.util.mask_tools import generate_colormap
 from datumaro.util.image import Image
-from datumaro.util.test_utils import TestDir, compare_datasets_strict
+from datumaro.util.test_utils import (TestDir, compare_datasets_strict,
+    test_save_and_load)
 
 
 class DatumaroConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None):
-        converter(source_dataset, test_dir)
-
-        if importer_args is None:
-            importer_args = {}
-        parsed_dataset = Project.import_from(
-            test_dir, 'datumaro', **importer_args).make_dataset()
-
-        if target_dataset is None:
-            target_dataset = source_dataset
-
-        compare_datasets_strict(self,
-            expected=target_dataset, actual=parsed_dataset)
+        return test_save_and_load(self, source_dataset, converter, test_dir,
+            importer='datumaro',
+            target_dataset=target_dataset, importer_args=importer_args,
+            compare=compare_datasets_strict)
 
     @property
     def test_dataset(self):

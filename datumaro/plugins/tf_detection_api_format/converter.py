@@ -73,17 +73,7 @@ class TfDetectionApiConverter(Converter):
         self._get_label = get_label
         self._get_label_id = map_label_id
 
-        subsets = self._extractor.subsets()
-        if len(subsets) == 0:
-            subsets = [ None ]
-
-        for subset_name in subsets:
-            if subset_name:
-                subset = self._extractor.get_subset(subset_name)
-            else:
-                subset_name = DEFAULT_SUBSET_NAME
-                subset = self._extractor
-
+        for subset_name, subset in self._extractor.subsets().items():
             labelmap_path = osp.join(self._save_dir, DetectionApiPath.LABELMAP_FILE)
             with codecs.open(labelmap_path, 'w', encoding='utf8') as f:
                 for label, idx in label_ids.items():
