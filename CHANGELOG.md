@@ -13,7 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - MOTS png mask format support (<https://github.com/openvinotoolkit/datumaro/21>)
 
 ### Changed
--
+- Implementation of format plugins simplified (<https://github.com/openvinotoolkit/datumaro/pull/22>)
+- `default` is now a default subset name, instead of `None`. The values are interchangeable. (<https://github.com/openvinotoolkit/datumaro/pull/22>)
+- Improved performance of transforms (<https://github.com/openvinotoolkit/datumaro/pull/22>)
 
 ### Deprecated
 -
