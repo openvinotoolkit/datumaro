@@ -3,9 +3,13 @@
 #
 # SPDX-License-Identifier: MIT
 
+import attr
+from attr import attrs, attrib
+
 from datumaro.components.config import Config, \
     DefaultConfig as _DefaultConfig, \
     SchemaBuilder as _SchemaBuilder
+from datumaro.util.attrs_util import default_if_none, not_empty
 
 
 SOURCE_SCHEMA = _SchemaBuilder() \
@@ -33,7 +37,6 @@ PROJECT_SCHEMA = _SchemaBuilder() \
     .add('project_name', str) \
     .add('format_version', int) \
     \
-    .add('subsets', list) \
     .add('sources', lambda: _DefaultConfig(
         lambda v=None: Source(v))) \
     .add('models', lambda: _DefaultConfig(
@@ -61,3 +64,11 @@ PROJECT_DEFAULT_CONFIG = Config({
     'project_dir': '',
     'env_dir': '.datumaro',
 }, mutable=False, schema=PROJECT_SCHEMA)
+
+@attrs
+class ProjectConfig:
+    project_name = attrib(default='undefined', type=str,
+        validator=[default_if_none(str), not_empty])
+
+    vcs_detached = attrib(default=False, type=bool,
+        attributes={'internal': True})

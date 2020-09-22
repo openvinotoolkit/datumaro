@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 from collections import defaultdict
+from enum import Enum
 from glob import glob
 import git
 import importlib
@@ -584,12 +585,6 @@ class Project:
         project.save(save_dir)
         return project
 
-    @staticmethod
-    def import_from(path, dataset_format, env=None, **kwargs):
-        if env is None:
-            env = Environment()
-        importer = env.make_importer(dataset_format)
-        return importer(path, **kwargs)
 
     def __init__(self, config=None):
         self.config = Config(config,
@@ -614,15 +609,6 @@ class Project:
             return self.config.sources[name]
         except KeyError:
             raise KeyError("Source '%s' is not found" % name)
-
-    def get_subsets(self):
-        return self.config.subsets
-
-    def set_subsets(self, value):
-        if not value:
-            self.config.remove('subsets')
-        else:
-            self.config.subsets = value
 
     def add_model(self, name, value=None):
         if value is None or isinstance(value, (dict, Config)):
@@ -667,3 +653,163 @@ def load_project_as_dataset(url):
     # implement the function declared above
     return Project.load(url).make_dataset()
 # pylint: enable=function-redefined
+
+
+MergeStrategy = Enum('MergeStrategy', ['ours', 'theirs', 'conflict'])
+
+class CrudProxy:
+    @property
+    def _data(self):
+        raise NotImplementedError()
+
+    def add(self, name, value):
+        raise NotImplementedError()
+
+    def remove(self, name):
+        raise NotImplementedError()
+
+    def __len__(self):
+        raise NotImplementedError()
+
+    def __getitem__(self, name):
+        raise NotImplementedError()
+
+    def __iter__(self):
+        raise NotImplementedError()
+
+    def items(self):
+        raise NotImplementedError()
+
+    def __contains__(self, name):
+        raise NotImplementedError()
+
+class ProjectRemotes(CrudProxy):
+    project
+
+    def check_updates(self, name=None):
+        raise NotImplementedError()
+
+    def fetch(self, name=None):
+        raise NotImplementedError()
+
+    def pull(self, name=None):
+        raise NotImplementedError()
+
+    def push(self, name=None):
+        raise NotImplementedError()
+
+class ProjectVcs: # aka gitwrapper
+    project
+    detached / readonly
+    git
+    dvc
+
+    @property
+    def remotes(self):  # -> Dict-like proxy (CRUD) + pull, push, check
+        raise NotImplementedError()
+
+    @property
+    def refs(self):
+        raise NotImplementedError()
+
+    @property
+    def tags(self):
+        raise NotImplementedError()
+
+    def push(self):
+        raise NotImplementedError()
+
+    def pull(self):
+        raise NotImplementedError()
+
+    def check_updates(self):
+        raise NotImplementedError()
+
+    def fetch(self):
+        raise NotImplementedError()
+
+    def tag(self):
+        raise NotImplementedError()
+
+    def checkout(self, ref):
+        raise NotImplementedError()
+
+    def add(self, path):
+        raise NotImplementedError()
+
+    def commit(self, message=None):
+        raise NotImplementedError()
+
+
+class Project:
+    @classmethod
+    def import_from(cls, path, dataset_format=None, env=None, **format_options):
+        if env is None:
+            env = Environment()
+        if not dataset_format:
+            dataset_format = env.detect_dataset(path)
+        importer = env.make_importer(dataset_format)
+        return importer(path, **kwargs)
+
+    @classmethod
+    def generate(cls, path, config=None):
+        config = Config(config)
+        config.project_dir = save_dir
+        project = Project(config)
+        project.save(save_dir)
+        return project
+
+    @classmethod
+    def load(cls, path):
+        raise NotImplementedError()
+
+    def save(self, path=None):
+        raise NotImplementedError()
+
+    def __init__(self, config=None, env=None):
+        raise NotImplementedError()
+
+    @property
+    def sources(self):  # -> Dict-like proxy (CRUD) + pull, push(TBD), check, make_dataset
+        raise NotImplementedError()
+
+    @property
+    def models(self):  # -> Dict-like proxy (CRUD) + pull, push(TBD), check, make_model
+        raise NotImplementedError()
+
+    @property
+    def vcs(self):  # -> VcsProxy
+        raise NotImplementedError()
+
+    @property
+    def own_dataset(self):  # -> DatasetProxy
+        raise NotImplementedError()
+
+    @property
+    def config(self):
+        raise NotImplementedError()
+
+    @property
+    def env(self):
+        raise NotImplementedError()
+
+    def make_dataset(self):  # -> DatasetProxy
+        raise NotImplementedError()
+
+    def publish(self):
+        # build + tag + push?
+        raise NotImplementedError()
+
+    @property
+    def build_targets(self):  # -> Dict-like proxy (CRUD)
+        raise NotImplementedError()
+
+    def build(self, target=None):
+        raise NotImplementedError()
+
+
+def merge_projects(a, b, strategy: MergeStrategy = None):
+    raise NotImplementedError()
+
+def compare_projects(a, b, **options):
+    raise NotImplementedError()
