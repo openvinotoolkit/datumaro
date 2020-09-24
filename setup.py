@@ -50,7 +50,6 @@ setuptools.setup(
     install_requires=[
         'attrs>=19.3.0',
         'defusedxml',
-        'GitPython',
         'lxml',
         'matplotlib',
         'numpy>=1.17.3',
@@ -64,6 +63,7 @@ setuptools.setup(
     extras_require={
         'tf': ['tensorflow'],
         'tf-gpu': ['tensorflow-gpu'],
+        'vcs': ['GitPython', 'dvc'],
     },
     entry_points={
         'console_scripts': [

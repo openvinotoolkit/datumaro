@@ -5,7 +5,7 @@
 from collections import defaultdict
 from enum import Enum
 from glob import glob
-import git
+from typing import Union, List
 import importlib
 import inspect
 import logging as log
@@ -97,46 +97,6 @@ class PluginRegistry(Registry):
                 k = CliPlugin._get_name(v)
                 self.register(k, v)
 
-class GitWrapper:
-    def __init__(self, config=None):
-        self.repo = None
-
-        if config is not None and config.project_dir:
-            self.init(config.project_dir)
-
-    @staticmethod
-    def _git_dir(base_path):
-        return osp.join(base_path, '.git')
-
-    @classmethod
-    def spawn(cls, path):
-        spawn = not osp.isdir(cls._git_dir(path))
-        repo = git.Repo.init(path=path)
-        if spawn:
-            repo.config_writer().set_value("user", "name", "User") \
-                .set_value("user", "email", "user@nowhere.com") \
-                .release()
-            # gitpython does not support init, use git directly
-            repo.git.init()
-            repo.git.commit('-m', 'Initial commit', '--allow-empty')
-        return repo
-
-    def init(self, path):
-        self.repo = self.spawn(path)
-        return self.repo
-
-    def is_initialized(self):
-        return self.repo is not None
-
-    def create_submodule(self, name, dst_dir, **kwargs):
-        self.repo.create_submodule(name, dst_dir, **kwargs)
-
-    def has_submodule(self, name):
-        return name in [submodule.name for submodule in self.repo.submodules]
-
-    def remove_submodule(self, name, **kwargs):
-        return self.repo.submodule(name).remove(**kwargs)
-
 def load_project_as_dataset(url):
     # symbol forward declaration
     raise NotImplementedError()
@@ -151,8 +111,6 @@ class Environment:
 
         self.models = ModelRegistry(config)
         self.sources = SourceRegistry(config)
-
-        self.git = GitWrapper(config)
 
         env_dir = osp.join(config.project_dir, config.env_dir)
         builtin = self._load_builtin_plugins()
@@ -300,7 +258,7 @@ class Environment:
         self.models.unregister(name)
 
 class ProjectDataset(Dataset):
-    def __init__(self, project):
+    def __init__(self, project, only_own=False):
         super().__init__()
 
         self._project = project
@@ -308,15 +266,16 @@ class ProjectDataset(Dataset):
         env = self.env
 
         sources = {}
-        for s_name, source in config.sources.items():
-            s_format = source.format or env.PROJECT_EXTRACTOR_NAME
-            options = {}
-            options.update(source.options)
+        if not only_own:
+            for s_name, source in config.sources.items():
+                s_format = source.format or env.PROJECT_EXTRACTOR_NAME
+                options = {}
+                options.update(source.options)
 
-            url = source.url
-            if not source.url:
-                url = osp.join(config.project_dir, config.sources_dir, s_name)
-            sources[s_name] = env.make_extractor(s_format, url, **options)
+                url = source.url
+                if not source.url:
+                    url = osp.join(config.project_dir, config.sources_dir, s_name)
+                sources[s_name] = env.make_extractor(s_format, url, **options)
         self._sources = sources
 
         own_source = None
@@ -541,58 +500,6 @@ class ProjectDataset(Dataset):
         self._save_branch_project(dataset, save_dir=save_dir)
 
 class Project:
-    @classmethod
-    def load(cls, path):
-        path = osp.abspath(path)
-        config_path = osp.join(path, PROJECT_DEFAULT_CONFIG.env_dir,
-            PROJECT_DEFAULT_CONFIG.project_filename)
-        config = Config.parse(config_path)
-        config.project_dir = path
-        config.project_filename = osp.basename(config_path)
-        return Project(config)
-
-    def save(self, save_dir=None):
-        config = self.config
-
-        if save_dir is None:
-            assert config.project_dir
-            project_dir = config.project_dir
-        else:
-            project_dir = save_dir
-
-        env_dir = osp.join(project_dir, config.env_dir)
-        save_dir = osp.abspath(env_dir)
-
-        project_dir_existed = osp.exists(project_dir)
-        env_dir_existed = osp.exists(env_dir)
-        try:
-            os.makedirs(save_dir, exist_ok=True)
-
-            config_path = osp.join(save_dir, config.project_filename)
-            config.dump(config_path)
-        except BaseException:
-            if not env_dir_existed:
-                shutil.rmtree(save_dir, ignore_errors=True)
-            if not project_dir_existed:
-                shutil.rmtree(project_dir, ignore_errors=True)
-            raise
-
-    @staticmethod
-    def generate(save_dir, config=None):
-        config = Config(config)
-        config.project_dir = save_dir
-        project = Project(config)
-        project.save(save_dir)
-        return project
-
-
-    def __init__(self, config=None):
-        self.config = Config(config,
-            fallback=PROJECT_DEFAULT_CONFIG, schema=PROJECT_SCHEMA)
-        self.env = Environment(self.config)
-
-    def make_dataset(self):
-        return ProjectDataset(self)
 
     def add_source(self, name, value=None):
         if value is None or isinstance(value, (dict, Config)):
@@ -669,77 +576,234 @@ class CrudProxy:
         raise NotImplementedError()
 
     def __len__(self):
-        raise NotImplementedError()
+        return len(self._data)
 
     def __getitem__(self, name):
-        raise NotImplementedError()
+        return self._data[name]
 
     def __iter__(self):
-        raise NotImplementedError()
+        return self._data.items()
 
     def items(self):
-        raise NotImplementedError()
+        return self._data.items()
 
     def __contains__(self, name):
-        raise NotImplementedError()
+        return name in self._data
 
 class ProjectRemotes(CrudProxy):
-    project
+    def __init__(self, project_vcs):
+        self._vcs = project_vcs
 
     def check_updates(self, name=None):
-        raise NotImplementedError()
+        self._vcs.dvc.check_remote(name)
 
     def fetch(self, name=None):
-        raise NotImplementedError()
+        self._vcs.dvc.fetch_remote(name)
 
     def pull(self, name=None):
-        raise NotImplementedError()
+        self._vcs.dvc.pull_remote(name)
 
     def push(self, name=None):
+        self._vcs.dvc.push_remote(name)
+
+    @CrudProxy._data
+    def _data(self):
+        return self._vcs.dvc.list_remotes()
+
+    def add(self, name, value):
+        self._vcs.dvc.add_remote(name, value)
+
+    def remove(self, name):
+        self._vcs.dvc.remove_remote(name)
+
+class _RemotesProxy(CrudProxy):
+    def __init__(self, project, config_field):
+        self._project = project
+        self._field = config_field
+
+    @CrudProxy._data
+    def _data(self):
+        return self._project.config[self._field]
+
+    def check_updates(self, name=None):
+        self._project.vcs.remotes.check_remote(name)
+
+    def fetch(self, name=None):
+        self._project.vcs.remotes.fetch_remote(name)
+
+    def pull(self, name=None):
+        self._project.vcs.remotes.pull_remote(name)
+
+    def push(self, name=None):
+        self._project.vcs.remotes.push_remote(name)
+
+    def add(self, name, value):
+        value = self._data.set(name, value)
+        self._project.vcs.remotes.add(name, value)
+
+    def remove(self, name):
+        self._data.remove(name)
+        self._project.vcs.remotes.remove(name)
+
+class ProjectModels(_RemotesProxy):
+    def __init__(self, project):
+        super().__init__(project, 'models')
+
+class ProjectSources(_RemotesProxy):
+    def __init__(self, project):
+        super().__init__(project, 'sources')
+
+class GitWrapper:
+    @staticmethod
+    def import_module():
+        import git
+        return git
+
+    try:
+        module = import_module()
+    except ImportError:
+        module = None
+
+    def __init__(self, project_dir):
+        self._project_dir = project_dir
+        self.repo = None
+
+        if osp.isdir(project_dir):
+            self.init()
+
+    @staticmethod
+    def _git_dir(base_path):
+        return osp.join(base_path, '.git')
+
+    def init(self):
+        path = self._project_dir
+        spawn = not osp.isdir(cls._git_dir(path))
+        repo = cls.module.Repo.init(path=path)
+        if spawn:
+            repo.config_writer() \
+                .set_value("user", "name", "User") \
+                .set_value("user", "email", "<>") \
+                .release()
+            # gitpython does not support init, use git directly
+            repo.git.init()
+            repo.git.commit('-m', 'Initial commit', '--allow-empty')
+        self.repo = repo
+        return self.repo
+
+    def is_initialized(self):
+        return self.repo is not None
+
+class DvcWrapper:
+    @staticmethod
+    def import_module():
+        import dvc
+        return dvc
+
+    try:
+        module = import_module()
+    except ImportError:
+        module = None
+
+    def __init__(self, project_dir):
+        self.project_dir = project_dir
+
+    def init(self):
+        self._run_command('init')
+
+    def _run_command(self, name, *args, **kwargs):
         raise NotImplementedError()
 
-class ProjectVcs: # aka gitwrapper
-    project
-    detached / readonly
-    git
-    dvc
+
+class ProjectVcs:
+    def __init__(self, project, readonly=False):
+        self._project = project
+        self._readonly = readonly
+
+        if not self._project.config.detached:
+            try:
+                GitWrapper.import_module()
+                DvcWrapper.import_module()
+                self._git = GitWrapper(project.config.project_dir)
+                self._dvc = DvcWrapper(project.config.project_dir)
+            except ImportError as e:
+                log.warning("Failed to init versioning for the project: %s", e)
+                self._git = None
+                self._dvc = None
+
+        self._remotes = ProjectRemotes(self)
 
     @property
-    def remotes(self):  # -> Dict-like proxy (CRUD) + pull, push, check
-        raise NotImplementedError()
+    def git(self) -> GitWrapper:
+        if not self._git:
+            raise ImportError("Git is not available.")
+        return self._git
 
     @property
-    def refs(self):
-        raise NotImplementedError()
+    def dvc(self) -> DvcWrapper:
+        if not self._dvc:
+            raise ImportError("DVC is not available.")
+        return self._dvc
 
     @property
-    def tags(self):
-        raise NotImplementedError()
+    def detached(self):
+        return self._project.config.detached or not self._git or not self._dvc
+
+    @property
+    def writeable(self):
+        return not self._detached and not self._readonly
+
+    @property
+    def readable(self):
+        return not self._detached
+
+    @property
+    def remotes(self) -> ProjectRemotes:
+        return self._remotes
+
+    @property
+    def refs(self) -> List[str]:
+        return self.git.refs()
+
+    @property
+    def tags(self) -> List[str]:
+        return self.git.tags()
 
     def push(self):
-        raise NotImplementedError()
+        self.dvc.push(own_source)
+        self.git.push()
 
     def pull(self):
-        raise NotImplementedError()
+        # order matters
+        self.git.pull()
+        self.dvc.pull(own_source)
 
-    def check_updates(self):
-        raise NotImplementedError()
+    def check_updates(self) -> List[str]:
+        updated_refs = self.git.check_updates()
+        return updated_refs
 
     def fetch(self):
-        raise NotImplementedError()
+        self.git.fetch()
+        self.dvc.fetch(own_source)
 
-    def tag(self):
-        raise NotImplementedError()
+    def tag(self, name):
+        self.git.tag(name)
 
     def checkout(self, ref):
-        raise NotImplementedError()
+        self.git.checkout(ref)
 
     def add(self, path):
-        raise NotImplementedError()
+        self.dvc.add(path)
+
+    def reset(self, path):
+        self.dvc.reset(path)
 
     def commit(self, message=None):
-        raise NotImplementedError()
+        self.dvc.commit()
+        self.git.commit(message)
 
+    def init(self):
+        self.git.init()
+        self.dvc.init()
 
 class Project:
     @classmethod
@@ -752,7 +816,7 @@ class Project:
         return importer(path, **kwargs)
 
     @classmethod
-    def generate(cls, path, config=None):
+    def generate(cls, save_dir, config=None):
         config = Config(config)
         config.project_dir = save_dir
         project = Project(config)
@@ -761,13 +825,48 @@ class Project:
 
     @classmethod
     def load(cls, path):
-        raise NotImplementedError()
+        path = osp.abspath(path)
+        config_path = osp.join(path, PROJECT_DEFAULT_CONFIG.env_dir,
+            PROJECT_DEFAULT_CONFIG.project_filename)
+        config = Config.parse(config_path)
+        config.project_dir = path
+        config.project_filename = osp.basename(config_path)
+        return Project(config)
 
-    def save(self, path=None):
-        raise NotImplementedError()
+    def save(self, save_dir=None):
+        config = self.config
 
-    def __init__(self, config=None, env=None):
-        raise NotImplementedError()
+        if save_dir is None:
+            assert config.project_dir
+            project_dir = config.project_dir
+        else:
+            project_dir = save_dir
+
+        env_dir = osp.join(project_dir, config.env_dir)
+        save_dir = osp.abspath(env_dir)
+
+        project_dir_existed = osp.exists(project_dir)
+        env_dir_existed = osp.exists(env_dir)
+        try:
+            os.makedirs(save_dir, exist_ok=True)
+
+            config_path = osp.join(save_dir, config.project_filename)
+            config.dump(config_path)
+        except BaseException:
+            if not env_dir_existed:
+                shutil.rmtree(save_dir, ignore_errors=True)
+            if not project_dir_existed:
+                shutil.rmtree(project_dir, ignore_errors=True)
+            raise
+
+    def __init__(self, config=None):
+        self._config = Config(config,
+            fallback=PROJECT_DEFAULT_CONFIG, schema=PROJECT_SCHEMA)
+        self._env = Environment(self.config)
+        self._vcs = None
+        if not self._config.detached and osp.isdir(self._config.project_dir):
+            self._vcs = ProjectVcs(self)
+        self._dataset = None
 
     @property
     def sources(self):  # -> Dict-like proxy (CRUD) + pull, push(TBD), check, make_dataset
@@ -778,23 +877,25 @@ class Project:
         raise NotImplementedError()
 
     @property
-    def vcs(self):  # -> VcsProxy
-        raise NotImplementedError()
+    def vcs(self) -> Union[None, ProjectVcs]:
+        return self._vcs
 
     @property
-    def own_dataset(self):  # -> DatasetProxy
-        raise NotImplementedError()
+    def own_dataset(self) -> ProjectDataset:
+        if self._dataset is None:
+            self._dataset = ProjectDataset(self, only_own=True)
+        return self._dataset
 
     @property
-    def config(self):
-        raise NotImplementedError()
+    def config(self) -> Config:
+        return self._config
 
     @property
-    def env(self):
-        raise NotImplementedError()
+    def env(self) -> Environment:
+        return self._env
 
-    def make_dataset(self):  # -> DatasetProxy
-        raise NotImplementedError()
+    def make_dataset(self) -> ProjectDataset:
+        return ProjectDataset(self)
 
     def publish(self):
         # build + tag + push?
