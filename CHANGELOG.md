@@ -26,7 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 
-## 10/24/2020 - Release v0.1.1
+## 09/24/2020 - Release v0.1.1
 ### Added
 - `reindex` option in COCO and CVAT converters (<https://github.com/openvinotoolkit/datumaro/pull/18>)
 - Support for relative paths in LabelMe format (<https://github.com/openvinotoolkit/datumaro/pull/19>)
