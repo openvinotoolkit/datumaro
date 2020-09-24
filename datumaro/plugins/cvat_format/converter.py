@@ -158,9 +158,9 @@ class _SubsetWriter:
         self._writer.close_root()
 
     def _write_item(self, item, index):
-        image_info = OrderedDict([
-            ("id", str(cast(item.attributes.get('frame'), int, index))),
-        ])
+        if not self._context._reindex:
+            index = cast(item.attributes.get('frame'), int, index)
+        image_info = OrderedDict([ ("id", str(index)), ])
         filename = item.id + CvatPath.IMAGE_EXT
         image_info["name"] = filename
         if item.has_image:
@@ -309,6 +309,18 @@ class _SubsetWriter:
 
 class CvatConverter(Converter):
     DEFAULT_IMAGE_EXT = CvatPath.IMAGE_EXT
+
+    @classmethod
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument('--reindex', action='store_true',
+            help="Assign new indices to frames (default: %(default)s)")
+        return parser
+
+    def __init__(self, extractor, save_dir, reindex=False, **kwargs):
+        super().__init__(extractor, save_dir, **kwargs)
+
+        self._reindex = reindex
 
     def apply(self):
         images_dir = osp.join(self._save_dir, CvatPath.IMAGES_DIR)

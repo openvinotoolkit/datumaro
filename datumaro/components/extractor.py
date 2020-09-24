@@ -3,9 +3,10 @@
 #
 # SPDX-License-Identifier: MIT
 
-from collections import namedtuple
 from enum import Enum
+from typing import List, Dict
 import numpy as np
+import os.path as osp
 
 import attr
 from attr import attrs, attrib
@@ -584,6 +585,9 @@ class SourceExtractor(Extractor):
             subset = None
         self._subset = subset
 
+        self._categories = {}
+        self._items = []
+
     def subsets(self):
         return [self._subset]
 
@@ -592,13 +596,39 @@ class SourceExtractor(Extractor):
             raise Exception("Unknown subset '%s' requested" % name)
         return self
 
+    def categories(self):
+        return self._categories
+
+    def __iter__(self):
+        for item in self._items:
+            yield item
+
+    def __len__(self):
+        return len(self._items)
+
 class Importer:
     @classmethod
     def detect(cls, path):
+        return len(cls.find_subsets(path)) != 0
+
+    @classmethod
+    def find_subsets(cls, path) -> List[Dict]:
+        """Returns a list of Sources"""
         raise NotImplementedError()
 
     def __call__(self, path, **extra_params):
-        raise NotImplementedError()
+        from datumaro.components.project import Project # cyclic import
+        project = Project()
+
+        subsets = self.find_subsets(path)
+        if len(subsets) == 0:
+            raise Exception("Failed to find dataset at '%s'" % path)
+
+        for desc in subsets:
+            source_name = osp.splitext(osp.basename(desc['url']))[0]
+            project.add_source(source_name, desc)
+
+        return project
 
 class Transform(Extractor):
     @staticmethod

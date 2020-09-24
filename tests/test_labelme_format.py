@@ -30,7 +30,7 @@ class LabelMeConverterTest(TestCase):
 
     def test_can_save_and_load(self):
         source_dataset = Dataset.from_iterable([
-            DatasetItem(id=1, subset='train',
+            DatasetItem(id='dir1/1', subset='train',
                 image=np.ones((16, 16, 3)),
                 annotations=[
                     Bbox(0, 4, 4, 8, label=2, group=2),
@@ -54,7 +54,7 @@ class LabelMeConverterTest(TestCase):
         })
 
         target_dataset = Dataset.from_iterable([
-            DatasetItem(id=1, subset='train',
+            DatasetItem(id='dir1/1', subset='train',
                 image=np.ones((16, 16, 3)),
                 annotations=[
                     Bbox(0, 4, 4, 8, label=0, group=2, id=0,
@@ -96,18 +96,6 @@ class LabelMeConverterTest(TestCase):
                 partial(LabelMeConverter.convert, save_images=True),
                 test_dir, target_dataset=target_dataset)
 
-    def test_cant_save_dataset_with_relative_paths(self):
-        expected_dataset = Dataset.from_iterable([
-            DatasetItem(id='dir/1', image=np.ones((2, 6, 3))),
-        ], categories={
-            AnnotationType.label: LabelCategories(),
-        })
-
-        with self.assertRaisesRegex(Exception, r'only supports flat'):
-            with TestDir() as test_dir:
-                self._test_save_and_load(expected_dataset,
-                    LabelMeConverter.convert, test_dir)
-
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'labelme_dataset')
 
@@ -139,7 +127,7 @@ class LabelMeImporterTest(TestCase):
         ]
 
         target_dataset = Dataset.from_iterable([
-            DatasetItem(id='img1', image=img1,
+            DatasetItem(id='example_folder/img1', image=img1,
                 annotations=[
                     Polygon([43, 34, 45, 34, 45, 37, 43, 37],
                         label=0, id=0,

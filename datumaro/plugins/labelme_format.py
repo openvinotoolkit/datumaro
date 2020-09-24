@@ -49,10 +49,14 @@ class LabelMeExtractor(SourceExtractor):
         }
 
         items = []
-        for p in sorted(p for p in os.listdir(path) if p.endswith('.xml')):
+        for p in os.listdir(path):
+            if not p.endswith('.xml'):
+                continue
             root = ElementTree.parse(osp.join(path, p))
 
-            image_path = osp.join(path, root.find('filename').text)
+            item_id = osp.join(root.find('folder').text or '',
+                root.find('filename').text)
+            image_path = osp.join(path, item_id)
             image_size = None
             imagesize_elem = root.find('imagesize')
             if imagesize_elem is not None:
@@ -63,7 +67,7 @@ class LabelMeExtractor(SourceExtractor):
 
             annotations = self._parse_annotations(root, path, categories)
 
-            items.append(DatasetItem(id=osp.splitext(p)[0],
+            items.append(DatasetItem(id=osp.splitext(item_id)[0],
                 subset=self._subset, image=image, annotations=annotations))
         return items, categories
 
@@ -298,8 +302,8 @@ class LabelMeConverter(Converter):
             os.makedirs(osp.join(subset_dir, LabelMePath.MASKS_DIR),
                 exist_ok=True)
 
-            for item in subset:
-                self._save_item(item, subset_dir)
+            for index, item in enumerate(subset):
+                self._save_item(item, subset_dir, index)
 
     def _get_label(self, label_id):
         if label_id is None:
@@ -307,14 +311,10 @@ class LabelMeConverter(Converter):
         return self._extractor.categories()[AnnotationType.label] \
             .items[label_id].name
 
-    def _save_item(self, item, subset_dir):
+    def _save_item(self, item, subset_dir, index):
         from lxml import etree as ET
 
         log.debug("Converting item '%s'", item.id)
-
-        if '/' in item.id:
-            raise Exception("Can't export item '%s': "
-                "LabelMe format only supports flat image layout" % item.id)
 
         image_filename = self._make_image_filename(item)
         if self._save_images:
@@ -324,8 +324,8 @@ class LabelMeConverter(Converter):
                 log.debug("Item '%s' has no image", item.id)
 
         root_elem = ET.Element('annotation')
-        ET.SubElement(root_elem, 'filename').text = image_filename
-        ET.SubElement(root_elem, 'folder').text = ''
+        ET.SubElement(root_elem, 'filename').text = osp.basename(image_filename)
+        ET.SubElement(root_elem, 'folder').text = osp.dirname(image_filename)
 
         source_elem = ET.SubElement(root_elem, 'source')
         ET.SubElement(source_elem, 'sourceImage').text = ''
@@ -384,7 +384,8 @@ class LabelMeConverter(Converter):
                 ET.SubElement(poly_elem, 'username').text = \
                     str(ann.attributes.pop('username', ''))
             elif ann.type == AnnotationType.mask:
-                mask_filename = '%s_mask_%s.png' % (item.id, obj_id)
+                mask_filename = '%s_mask_%s.png' % \
+                    (item.id.replace('/', '_'), obj_id)
                 save_image(osp.join(subset_dir, LabelMePath.MASKS_DIR,
                         mask_filename),
                     self._paint_mask(ann.image))
@@ -424,7 +425,7 @@ class LabelMeConverter(Converter):
                 ET.SubElement(parts_elem, 'hasparts').text = ''
                 ET.SubElement(parts_elem, 'ispartof').text = str(leader_id)
 
-        xml_path = osp.join(subset_dir, '%s.xml' % item.id)
+        xml_path = osp.join(subset_dir, 'item_%09d.xml' % index)
         with open(xml_path, 'w', encoding='utf-8') as f:
             xml_data = ET.tostring(root_elem, encoding='unicode',
                 pretty_print=True)

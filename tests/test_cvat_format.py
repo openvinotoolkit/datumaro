@@ -276,3 +276,19 @@ class CvatConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(expected_dataset,
                 CvatConverter.convert, test_dir)
+
+    def test_reindex(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id='some/name1', image=np.ones((4, 2, 3)),
+                attributes={'frame': 40}),
+        ], categories={ AnnotationType.label: LabelCategories() })
+
+        expected_dataset = Dataset.from_iterable([
+            DatasetItem(id='some/name1', image=np.ones((4, 2, 3)),
+                attributes={'frame': 0}),
+        ], categories={ AnnotationType.label: LabelCategories() })
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(source_dataset,
+                partial(CvatConverter.convert, reindex=True), test_dir,
+                target_dataset=expected_dataset)

@@ -495,3 +495,22 @@ class CocoConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
                 CocoConverter.convert, test_dir, target_dataset=target_dataset)
+
+    def test_reindex(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id=2, image=np.ones((4, 2, 3)), annotations=[
+                Polygon([0, 0, 4, 0, 4, 4], label=0, id=5),
+            ], attributes={'id': 22})
+        ], categories=[str(i) for i in range(10)])
+
+        target_dataset = Dataset.from_iterable([
+            DatasetItem(id=2, image=np.ones((4, 2, 3)), annotations=[
+                Polygon([0, 0, 4, 0, 4, 4], label=0, id=1, group=1,
+                    attributes={'is_crowd': False}),
+            ], attributes={'id': 1})
+        ], categories=[str(i) for i in range(10)])
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(source_dataset,
+                partial(CocoConverter.convert, reindex=True),
+                test_dir, target_dataset=target_dataset)
