@@ -2,38 +2,22 @@
 #
 # SPDX-License-Identifier: MIT
 
-from collections import defaultdict
-from enum import Enum
-from glob import glob
-from typing import Union, List
-import importlib
 import inspect
 import logging as log
 import os
 import os.path as osp
 import shutil
-import sys
+from collections import defaultdict
+from enum import Enum
+from glob import glob
+from typing import List, Union
 
-from datumaro.components.config import Config, DEFAULT_FORMAT
-from datumaro.components.config_model import (Model, Source,
-    PROJECT_DEFAULT_CONFIG, PROJECT_SCHEMA)
-from datumaro.components.launcher import ModelTransform
+from datumaro.components.config import DEFAULT_FORMAT, Config
+from datumaro.components.config_model import (PROJECT_DEFAULT_CONFIG,
+    PROJECT_SCHEMA)
 from datumaro.components.dataset import Dataset
-
-
-def import_foreign_module(name, path, package=None):
-    module = None
-    default_path = sys.path.copy()
-    try:
-        sys.path = [ osp.abspath(path), ] + default_path
-        sys.modules.pop(name, None) # remove from cache
-        module = importlib.import_module(name, package=package)
-        sys.modules.pop(name) # remove from cache
-    except Exception:
-        raise
-    finally:
-        sys.path = default_path
-    return module
+from datumaro.components.launcher import ModelTransform
+from datumaro.util.os_util import import_foreign_module
 
 
 class Registry:
@@ -59,28 +43,6 @@ class Registry:
 
     def get(self, key):
         return self.items[key] # returns a class / ctor
-
-
-class ModelRegistry(Registry):
-    def __init__(self, config=None):
-        super().__init__(config, item_type=Model)
-
-    def load(self, config):
-        # TODO: list default dir, insert values
-        if 'models' in config:
-            for name, model in config.models.items():
-                self.register(name, model)
-
-
-class SourceRegistry(Registry):
-    def __init__(self, config=None):
-        super().__init__(config, item_type=Source)
-
-    def load(self, config):
-        # TODO: list default dir, insert values
-        if 'sources' in config:
-            for name, source in config.sources.items():
-                self.register(name, source)
 
 class PluginRegistry(Registry):
     def __init__(self, config=None, builtin=None, local=None):
@@ -108,9 +70,6 @@ class Environment:
     def __init__(self, config=None):
         config = Config(config,
             fallback=PROJECT_DEFAULT_CONFIG, schema=PROJECT_SCHEMA)
-
-        self.models = ModelRegistry(config)
-        self.sources = SourceRegistry(config)
 
         env_dir = osp.join(config.project_dir, config.env_dir)
         builtin = self._load_builtin_plugins()
@@ -231,11 +190,11 @@ class Environment:
     @classmethod
     def _load_plugins2(cls, plugins_dir):
         from datumaro.components.extractor import Transform
-        from datumaro.components.extractor import SourceExtractor
+        from datumaro.components.extractor import Extractor
         from datumaro.components.extractor import Importer
         from datumaro.components.converter import Converter
         from datumaro.components.launcher import Launcher
-        types = [SourceExtractor, Converter, Importer, Launcher, Transform]
+        types = [Extractor, Converter, Importer, Launcher, Transform]
 
         return cls._load_plugins(plugins_dir, types)
 
@@ -250,12 +209,6 @@ class Environment:
 
     def make_converter(self, name, *args, **kwargs):
         return self.converters.get(name)(*args, **kwargs)
-
-    def register_model(self, name, model):
-        self.models.register(name, model)
-
-    def unregister_model(self, name):
-        self.models.unregister(name)
 
 class ProjectDataset(Dataset):
     def __init__(self, project, only_own=False):
@@ -499,69 +452,6 @@ class ProjectDataset(Dataset):
                 remove_empty=remove_empty)
         self._save_branch_project(dataset, save_dir=save_dir)
 
-class Project:
-
-    def add_source(self, name, value=None):
-        if value is None or isinstance(value, (dict, Config)):
-            value = Source(value)
-        self.config.sources[name] = value
-        self.env.sources.register(name, value)
-
-    def remove_source(self, name):
-        self.config.sources.remove(name)
-        self.env.sources.unregister(name)
-
-    def get_source(self, name):
-        try:
-            return self.config.sources[name]
-        except KeyError:
-            raise KeyError("Source '%s' is not found" % name)
-
-    def add_model(self, name, value=None):
-        if value is None or isinstance(value, (dict, Config)):
-            value = Model(value)
-        self.env.register_model(name, value)
-        self.config.models[name] = value
-
-    def get_model(self, name):
-        try:
-            return self.env.models.get(name)
-        except KeyError:
-            raise KeyError("Model '%s' is not found" % name)
-
-    def remove_model(self, name):
-        self.config.models.remove(name)
-        self.env.unregister_model(name)
-
-    def make_executable_model(self, name):
-        model = self.get_model(name)
-        return self.env.make_launcher(model.launcher,
-            **model.options, model_dir=self.local_model_dir(name))
-
-    def make_source_project(self, name):
-        source = self.get_source(name)
-
-        config = Config(self.config)
-        config.remove('sources')
-        config.remove('subsets')
-        project = Project(config)
-        project.add_source(name, source)
-        return project
-
-    def local_model_dir(self, model_name):
-        return osp.join(
-            self.config.env_dir, self.config.models_dir, model_name)
-
-    def local_source_dir(self, source_name):
-        return osp.join(self.config.sources_dir, source_name)
-
-# pylint: disable=function-redefined
-def load_project_as_dataset(url):
-    # implement the function declared above
-    return Project.load(url).make_dataset()
-# pylint: enable=function-redefined
-
-
 MergeStrategy = Enum('MergeStrategy', ['ours', 'theirs', 'conflict'])
 
 class CrudProxy:
@@ -582,7 +472,7 @@ class CrudProxy:
         return self._data[name]
 
     def __iter__(self):
-        return self._data.items()
+        return self._data.keys()
 
     def items(self):
         return self._data.items()
@@ -605,6 +495,12 @@ class ProjectRemotes(CrudProxy):
 
     def push(self, name=None):
         self._vcs.dvc.push_remote(name)
+
+    def set_default(self, name):
+        self._vcs.dvc.set_default_remote(name)
+
+    def get_default(self):
+        return self._vcs.dvc.get_default_remote()
 
     @CrudProxy._data
     def _data(self):
@@ -634,9 +530,6 @@ class _RemotesProxy(CrudProxy):
     def pull(self, name=None):
         self._project.vcs.remotes.pull_remote(name)
 
-    def push(self, name=None):
-        self._project.vcs.remotes.push_remote(name)
-
     def add(self, name, value):
         value = self._data.set(name, value)
         self._project.vcs.remotes.add(name, value)
@@ -649,9 +542,21 @@ class ProjectModels(_RemotesProxy):
     def __init__(self, project):
         super().__init__(project, 'models')
 
+    def __getitem__(self, name):
+        try:
+            return super().__getitem__(name)
+        except KeyError:
+            raise KeyError("Unknown model '%s'" % name)
+
 class ProjectSources(_RemotesProxy):
     def __init__(self, project):
         super().__init__(project, 'sources')
+
+    def __getitem__(self, name):
+        try:
+            return super().__getitem__(name)
+        except KeyError:
+            raise KeyError("Unknown source '%s'" % name)
 
 class GitWrapper:
     @staticmethod
@@ -664,34 +569,69 @@ class GitWrapper:
     except ImportError:
         module = None
 
+    def _git_dir(self):
+        return osp.join(self._project_dir, '.git')
+
     def __init__(self, project_dir):
         self._project_dir = project_dir
         self.repo = None
 
-        if osp.isdir(project_dir):
-            self.init()
-
-    @staticmethod
-    def _git_dir(base_path):
-        return osp.join(base_path, '.git')
+        if osp.isdir(project_dir) and osp.isdir(self._git_dir()):
+            self.repo = self.module.Repo(project_dir)
 
     def init(self):
-        path = self._project_dir
-        spawn = not osp.isdir(cls._git_dir(path))
-        repo = cls.module.Repo.init(path=path)
-        if spawn:
-            repo.config_writer() \
-                .set_value("user", "name", "User") \
-                .set_value("user", "email", "<>") \
-                .release()
-            # gitpython does not support init, use git directly
-            repo.git.init()
-            repo.git.commit('-m', 'Initial commit', '--allow-empty')
-        self.repo = repo
-        return self.repo
+        assert self.repo is None
+        repo = self.module.Repo.init(path=self._project_dir)
+        repo.config_writer() \
+            .set_value("user", "name", "User") \
+            .set_value("user", "email", "<>") \
+            .release()
+        # gitpython does not support init, use git directly
+        repo.git.init()
 
-    def is_initialized(self):
-        return self.repo is not None
+        self.repo = repo
+
+    @property
+    def refs(self) -> List[str]:
+        return [t.name for t in self.repo.refs]
+
+    @property
+    def tags(self) -> List[str]:
+        return [t.name for t in self.repo.tags]
+
+    def push(self, remote=None):
+        args = [remote] if remote else []
+        self.repo.remote(*args).push()
+
+    def pull(self, remote=None):
+        args = [remote] if remote else []
+        self.repo.remote(*args).pull()
+
+    def check_updates(self, remote=None) -> List[str]:
+        args = [remote] if remote else []
+        remote = self.repo.remote(*args)
+        prev_refs = {r.name: r.commit.hexsha for r in remote.refs}
+        remote.update()
+        new_refs = {r.name: r.commit.hexsha for r in remote.refs}
+        updated_refs = [(prev_refs.get(n), new_refs.get(n))
+            for n, _ in (set(prev_refs.items()) ^ set(new_refs.items()))]
+        return updated_refs
+
+    def fetch(self, remote=None):
+        args = [remote] if remote else []
+        self.repo.remote(*args).fetch()
+
+    def tag(self, name):
+        self.repo.create_tag(name)
+
+    def checkout(self, ref):
+        self.repo.head.reference = self.repo.refs[ref]
+
+    def add(self, paths):
+        self.repo.index.add(paths)
+
+    def commit(self, message):
+        self.repo.index.commit(message)
 
 class DvcWrapper:
     @staticmethod
@@ -704,15 +644,41 @@ class DvcWrapper:
     except ImportError:
         module = None
 
+    def _dvc_dir(self):
+        return osp.join(self._project_dir, '.dvc')
+
     def __init__(self, project_dir):
-        self.project_dir = project_dir
+        self._project_dir = project_dir
+        self.repo = None
+
+        if osp.isdir(project_dir) and osp.isdir(self._dvc_dir()):
+            self.repo = self.module.repo.Repo(project_dir)
 
     def init(self):
-        self._run_command('init')
+        assert self.repo is None
+        self.repo = self.module.repo.Repo.init(self._project_dir)
 
-    def _run_command(self, name, *args, **kwargs):
-        raise NotImplementedError()
+    def push(self, remote=None):
+        self.repo.push(remote=remote)
 
+    def pull(self, remote=None):
+        self.repo.pull(remote=remote)
+
+    def check_updates(self, remote=None):
+        self.fetch(remote) # can't be done other way now?
+
+    def fetch(self, remote=None):
+        self.repo.fetch(remote=remote)
+
+    def checkout(self):
+        self.repo.checkout()
+
+    def add(self, path):
+        self.repo.add(path)
+        return self.repo.scm.files_to_track
+
+    def commit(self, message=None):
+        return self.repo.scm.files_to_track
 
 class ProjectVcs:
     def __init__(self, project, readonly=False):
@@ -769,13 +735,13 @@ class ProjectVcs:
         return self.git.tags()
 
     def push(self):
-        self.dvc.push(own_source)
+        self.dvc.push()
         self.git.push()
 
     def pull(self):
         # order matters
         self.git.pull()
-        self.dvc.pull(own_source)
+        self.dvc.pull()
 
     def check_updates(self) -> List[str]:
         updated_refs = self.git.check_updates()
@@ -783,25 +749,27 @@ class ProjectVcs:
 
     def fetch(self):
         self.git.fetch()
-        self.dvc.fetch(own_source)
+        self.dvc.fetch()
 
     def tag(self, name):
         self.git.tag(name)
 
     def checkout(self, ref):
+        # order matters
         self.git.checkout(ref)
+        self.dvc.checkout()
 
     def add(self, path):
-        self.dvc.add(path)
+        updated_paths = self.dvc.add(path)
+        self.git.add(updated_paths)
 
-    def reset(self, path):
-        self.dvc.reset(path)
-
-    def commit(self, message=None):
+    def commit(self, message):
+        # order matters
         self.dvc.commit()
         self.git.commit(message)
 
     def init(self):
+        # order matters
         self.git.init()
         self.dvc.init()
 
@@ -866,15 +834,17 @@ class Project:
         self._vcs = None
         if not self._config.detached and osp.isdir(self._config.project_dir):
             self._vcs = ProjectVcs(self)
+        self._sources = ProjectSources(self)
+        self._models = ProjectModels(self)
         self._dataset = None
 
     @property
-    def sources(self):  # -> Dict-like proxy (CRUD) + pull, push(TBD), check, make_dataset
-        raise NotImplementedError()
+    def sources(self) -> ProjectSources:
+        return self._sources
 
     @property
-    def models(self):  # -> Dict-like proxy (CRUD) + pull, push(TBD), check, make_model
-        raise NotImplementedError()
+    def models(self) -> ProjectModels:
+        return self._models
 
     @property
     def vcs(self) -> Union[None, ProjectVcs]:
@@ -914,3 +884,24 @@ def merge_projects(a, b, strategy: MergeStrategy = None):
 
 def compare_projects(a, b, **options):
     raise NotImplementedError()
+
+
+# class Project:
+
+#     def make_executable_model(self, name):
+#         model = self.get_model(name)
+#         return self.env.make_launcher(model.launcher,
+#             **model.options, model_dir=self.local_model_dir(name))
+
+#     def local_model_dir(self, model_name):
+#         return osp.join(
+#             self.config.env_dir, self.config.models_dir, model_name)
+
+#     def local_source_dir(self, source_name):
+#         return osp.join(self.config.sources_dir, source_name)
+
+# pylint: disable=function-redefined
+def load_project_as_dataset(url):
+    # implement the function declared above
+    return Project.load(url).make_dataset()
+# pylint: enable=function-redefined
