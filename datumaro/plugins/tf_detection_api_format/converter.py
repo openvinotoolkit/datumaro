@@ -15,7 +15,7 @@ from datumaro.components.extractor import (AnnotationType, DEFAULT_SUBSET_NAME,
     LabelCategories
 )
 from datumaro.components.converter import Converter
-from datumaro.util.image import encode_image
+from datumaro.util.image import encode_image, BytesImage
 from datumaro.util.annotation_util import (max_bbox,
     find_group_leader, find_instances)
 from datumaro.util.mask_tools import merge_masks
@@ -207,11 +207,16 @@ class TfDetectionApiConverter(Converter):
         return tf_example
 
     def _save_image(self, item, path=None):
+        src_ext = item.image.ext
         dst_ext = osp.splitext(osp.basename(path))[1]
         fmt = DetectionApiPath.IMAGE_EXT_FORMAT.get(dst_ext)
         if not fmt:
             log.warning("Item '%s': can't find format string for the '%s' "
                 "image extension, the corresponding field will be empty." % \
                 (item.id, dst_ext))
-        buffer = encode_image(item.image.data, dst_ext)
+
+        if src_ext == dst_ext and isinstance(item.image, BytesImage):
+            buffer = item.image.get_bytes()
+        else:
+            buffer = encode_image(item.image.data, dst_ext)
         return buffer, fmt

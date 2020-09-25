@@ -62,7 +62,7 @@ class CvatImporterTest(TestCase):
     def test_can_load_video(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='frame_000010', subset='annotations',
-                image=np.ones((20, 25, 3)),
+                image=255 * np.ones((20, 25, 3)),
                 annotations=[
                     Bbox(3, 4, 7, 1, label=2,
                         id=0,
@@ -81,7 +81,7 @@ class CvatImporterTest(TestCase):
                         }),
                 ], attributes={'frame': 10}),
             DatasetItem(id='frame_000013', subset='annotations',
-                image=np.ones((20, 25, 3)),
+                image=255 * np.ones((20, 25, 3)),
                 annotations=[
                     Bbox(7, 6, 7, 2, label=2,
                         id=0,
