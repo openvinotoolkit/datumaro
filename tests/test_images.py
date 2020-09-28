@@ -99,8 +99,8 @@ class BytesImageTest(TestCase):
 
             for args in [
                 { 'data': image_bytes },
-                { 'data': lambda: image_bytes },
-                { 'data': lambda: image_bytes, 'ext': '.jpg' },
+                { 'data': lambda _: image_bytes },
+                { 'data': lambda _: image_bytes, 'ext': '.jpg' },
                 { 'data': image_bytes, 'path': path },
                 { 'data': image_bytes, 'path': path, 'size': (2, 4) },
                 { 'data': image_bytes, 'path': path, 'size': (2, 4) },

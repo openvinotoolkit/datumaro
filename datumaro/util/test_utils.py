@@ -9,8 +9,6 @@ import os.path as osp
 import shutil
 import tempfile
 
-import numpy as np
-
 from datumaro.components.extractor import AnnotationType
 from datumaro.util import find
 
