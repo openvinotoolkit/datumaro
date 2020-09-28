@@ -253,7 +253,7 @@ class Image:
             (self.has_data and np.array_equal(self.data, other.data) or \
                 not self.has_data)
 
-class BytesImage(Image):
+class ByteImage(Image):
     def __init__(self, data=None, path=None, ext=None, cache=None, size=None):
         loader = None
         if data is not None:

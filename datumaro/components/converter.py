@@ -9,7 +9,7 @@ import os.path as osp
 import shutil
 
 from datumaro.components.cli_plugin import CliPlugin
-from datumaro.util.image import save_image, BytesImage
+from datumaro.util.image import save_image, ByteImage
 
 
 class IConverter:
@@ -74,7 +74,7 @@ class Converter(IConverter, CliPlugin):
         os.makedirs(osp.dirname(path), exist_ok=True)
         if src_ext == dst_ext and osp.isfile(item.image.path):
             shutil.copyfile(item.image.path, path)
-        elif src_ext == dst_ext and isinstance(item.image, BytesImage):
+        elif src_ext == dst_ext and isinstance(item.image, ByteImage):
             with open(path, 'wb') as f:
                 f.write(item.image.get_bytes())
         else:

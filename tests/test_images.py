@@ -5,7 +5,7 @@ from unittest import TestCase
 
 from datumaro.util.test_utils import TestDir
 from datumaro.util.image import (lazy_image, load_image, save_image, \
-    Image, BytesImage, encode_image)
+    Image, ByteImage, encode_image)
 from datumaro.util.image_cache import ImageCache
 
 
@@ -85,8 +85,8 @@ class BytesImageTest(TestCase):
     def test_lazy_image_shape(self):
         data = encode_image(np.ones((5, 6, 3)), 'png')
 
-        image_lazy = BytesImage(data=data, size=(2, 4))
-        image_eager = BytesImage(data=data)
+        image_lazy = ByteImage(data=data, size=(2, 4))
+        image_eager = ByteImage(data=data)
 
         self.assertEqual((2, 4), image_lazy.size)
         self.assertEqual((5, 6), image_eager.size)
@@ -108,7 +108,7 @@ class BytesImageTest(TestCase):
                 { 'path': path, 'size': (2, 4) },
             ]:
                 with self.subTest(**args):
-                    img = BytesImage(**args)
+                    img = ByteImage(**args)
                     # pylint: disable=pointless-statement
                     self.assertEqual('data' in args, img.has_data)
                     if img.has_data:

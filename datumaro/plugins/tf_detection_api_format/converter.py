@@ -15,7 +15,7 @@ from datumaro.components.extractor import (AnnotationType, DEFAULT_SUBSET_NAME,
     LabelCategories
 )
 from datumaro.components.converter import Converter
-from datumaro.util.image import encode_image, BytesImage
+from datumaro.util.image import encode_image, ByteImage
 from datumaro.util.annotation_util import (max_bbox,
     find_group_leader, find_instances)
 from datumaro.util.mask_tools import merge_masks
@@ -215,7 +215,7 @@ class TfDetectionApiConverter(Converter):
                 "image extension, the corresponding field will be empty." % \
                 (item.id, dst_ext))
 
-        if src_ext == dst_ext and isinstance(item.image, BytesImage):
+        if src_ext == dst_ext and isinstance(item.image, ByteImage):
             buffer = item.image.get_bytes()
         else:
             buffer = encode_image(item.image.data, dst_ext)
