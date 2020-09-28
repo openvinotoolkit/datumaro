@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 ### Removed
--
+- `image/depth` value from VOC export (<https://github.com/openvinotoolkit/datumaro/pull/27>)
 
 ### Fixed
 -
