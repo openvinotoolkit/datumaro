@@ -68,8 +68,8 @@ class Converter(IConverter, CliPlugin):
 
         path = path or self._make_image_filename(item)
 
-        src_ext = item.image.ext
-        dst_ext = osp.splitext(osp.basename(path))[1]
+        src_ext = item.image.ext.lower()
+        dst_ext = osp.splitext(osp.basename(path))[1].lower()
 
         os.makedirs(osp.dirname(path), exist_ok=True)
         if src_ext == dst_ext and osp.isfile(item.image.path):
