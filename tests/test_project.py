@@ -363,6 +363,11 @@ class ProjectTest(TestCase):
         item = next(iter(merged))
         self.assertEqual(3, len(item.annotations))
 
+    def test_can_create(self):
+        with TestDir() as test_dir:
+            project = Project.generate(save_dir=test_dir)
+            project
+
 class DatasetFilterTest(TestCase):
     @staticmethod
     def test_item_representations():

@@ -610,7 +610,7 @@ class Importer:
             desc['options'] = params
 
             source_name = osp.splitext(osp.basename(desc['url']))[0]
-            project.add_source(source_name, desc)
+            project.sources.add(source_name, desc)
 
         return project
 

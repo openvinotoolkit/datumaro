@@ -502,7 +502,7 @@ class ProjectRemotes(CrudProxy):
     def get_default(self):
         return self._vcs.dvc.get_default_remote()
 
-    @CrudProxy._data
+    @CrudProxy._data.getter
     def _data(self):
         return self._vcs.dvc.list_remotes()
 
@@ -517,26 +517,31 @@ class _RemotesProxy(CrudProxy):
         self._project = project
         self._field = config_field
 
-    @CrudProxy._data
+    @CrudProxy._data.getter
     def _data(self):
         return self._project.config[self._field]
 
     def check_updates(self, name=None):
-        self._project.vcs.remotes.check_remote(name)
+        if self._project.vcs.readable:
+            self._project.vcs.remotes.check_remote(name)
 
     def fetch(self, name=None):
-        self._project.vcs.remotes.fetch_remote(name)
+        if self._project.vcs.writeable:
+            self._project.vcs.remotes.fetch_remote(name)
 
     def pull(self, name=None):
-        self._project.vcs.remotes.pull_remote(name)
+        if self._project.vcs.writeable:
+            self._project.vcs.remotes.pull_remote(name)
 
     def add(self, name, value):
         value = self._data.set(name, value)
-        self._project.vcs.remotes.add(name, value)
+        if self._project.vcs.writeable:
+            self._project.vcs.remotes.add(name, value)
 
     def remove(self, name):
         self._data.remove(name)
-        self._project.vcs.remotes.remove(name)
+        if self._project.vcs.writeable:
+            self._project.vcs.remotes.remove(name)
 
 class ProjectModels(_RemotesProxy):
     def __init__(self, project):
@@ -565,7 +570,7 @@ class GitWrapper:
         return git
 
     try:
-        module = import_module()
+        module = import_module.__func__()
     except ImportError:
         module = None
 
@@ -579,8 +584,14 @@ class GitWrapper:
         if osp.isdir(project_dir) and osp.isdir(self._git_dir()):
             self.repo = self.module.Repo(project_dir)
 
+    @property
+    def initialized(self):
+        return self.repo is not None
+
     def init(self):
-        assert self.repo is None
+        if self.initialized:
+            return
+
         repo = self.module.Repo.init(path=self._project_dir)
         repo.config_writer() \
             .set_value("user", "name", "User") \
@@ -640,7 +651,7 @@ class DvcWrapper:
         return dvc
 
     try:
-        module = import_module()
+        module = import_module.__func__()
     except ImportError:
         module = None
 
@@ -654,8 +665,14 @@ class DvcWrapper:
         if osp.isdir(project_dir) and osp.isdir(self._dvc_dir()):
             self.repo = self.module.repo.Repo(project_dir)
 
+    @property
+    def initialized(self):
+        return self.repo is not None
+
     def init(self):
-        assert self.repo is None
+        if self.initialized:
+            return
+
         self.repo = self.module.repo.Repo.init(self._project_dir)
 
     def push(self, remote=None):
@@ -680,19 +697,22 @@ class DvcWrapper:
     def commit(self, message=None):
         return self.repo.scm.files_to_track
 
+    def add_remote(self, name, config=None):
+        raise NotImplementedError()
+
 class ProjectVcs:
     def __init__(self, project, readonly=False):
         self._project = project
         self._readonly = readonly
 
-        if not self._project.config.detached:
+        if not project.config.detached:
             try:
                 GitWrapper.import_module()
                 DvcWrapper.import_module()
                 self._git = GitWrapper(project.config.project_dir)
                 self._dvc = DvcWrapper(project.config.project_dir)
             except ImportError as e:
-                log.warning("Failed to init versioning for the project: %s", e)
+                log.warning("Failed to init VCS for the project: %s", e)
                 self._git = None
                 self._dvc = None
 
@@ -716,11 +736,13 @@ class ProjectVcs:
 
     @property
     def writeable(self):
-        return not self._detached and not self._readonly
+        return not self.detached and not self._readonly and \
+            self.git.initialized and self.dvc.initialized
 
     @property
     def readable(self):
-        return not self._detached
+        return not self.detached and \
+            self.git.initialized and self.dvc.initialized
 
     @property
     def remotes(self) -> ProjectRemotes:
@@ -773,6 +795,10 @@ class ProjectVcs:
         self.git.init()
         self.dvc.init()
 
+    def status(self):
+        # check status of the files and remotes
+        raise NotImplementedError()
+
 class Project:
     @classmethod
     def import_from(cls, path, dataset_format=None, env=None, **format_options):
@@ -781,7 +807,7 @@ class Project:
         if not dataset_format:
             dataset_format = env.detect_dataset(path)
         importer = env.make_importer(dataset_format)
-        return importer(path, **kwargs)
+        return importer(path, **format_options)
 
     @classmethod
     def generate(cls, save_dir, config=None):
@@ -831,9 +857,7 @@ class Project:
         self._config = Config(config,
             fallback=PROJECT_DEFAULT_CONFIG, schema=PROJECT_SCHEMA)
         self._env = Environment(self.config)
-        self._vcs = None
-        if not self._config.detached and osp.isdir(self._config.project_dir):
-            self._vcs = ProjectVcs(self)
+        self._vcs = ProjectVcs(self)
         self._sources = ProjectSources(self)
         self._models = ProjectModels(self)
         self._dataset = None
@@ -847,7 +871,7 @@ class Project:
         return self._models
 
     @property
-    def vcs(self) -> Union[None, ProjectVcs]:
+    def vcs(self) -> ProjectVcs:
         return self._vcs
 
     @property

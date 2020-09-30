@@ -3,13 +3,9 @@
 #
 # SPDX-License-Identifier: MIT
 
-import attr
-from attr import attrs, attrib
-
 from datumaro.components.config import Config, \
     DefaultConfig as _DefaultConfig, \
     SchemaBuilder as _SchemaBuilder
-from datumaro.util.attrs_util import default_if_none, not_empty
 
 
 SOURCE_SCHEMA = _SchemaBuilder() \
@@ -49,6 +45,7 @@ PROJECT_SCHEMA = _SchemaBuilder() \
     .add('project_filename', str, internal=True) \
     .add('project_dir', str, internal=True) \
     .add('env_dir', str, internal=True) \
+    .add('detached', bool, internal=True) \
     .build()
 
 PROJECT_DEFAULT_CONFIG = Config({
@@ -63,12 +60,5 @@ PROJECT_DEFAULT_CONFIG = Config({
     'project_filename': 'config.yaml',
     'project_dir': '',
     'env_dir': '.datumaro',
+    'detached': False,
 }, mutable=False, schema=PROJECT_SCHEMA)
-
-@attrs
-class ProjectConfig:
-    project_name = attrib(default='undefined', type=str,
-        validator=[default_if_none(str), not_empty])
-
-    vcs_detached = attrib(default=False, type=bool,
-        attributes={'internal': True})
