@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
--
+- `ByteImage` class to represent encoded images in memory and avoid recoding on save (<https://github.com/openvinotoolkit/datumaro/pull/27>)
 
 ### Changed
 - Implementation of format plugins simplified (<https://github.com/openvinotoolkit/datumaro/pull/22>)
@@ -19,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 ### Removed
--
+- `image/depth` value from VOC export (<https://github.com/openvinotoolkit/datumaro/pull/27>)
 
 ### Fixed
 - Zero division errors in dataset statistics (<https://github.com/openvinotoolkit/datumaro/pull/31>)
