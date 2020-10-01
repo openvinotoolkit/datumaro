@@ -12,12 +12,7 @@ from datumaro.components.cli_plugin import CliPlugin
 from datumaro.util.image import save_image
 
 
-class IConverter:
-    @classmethod
-    def convert(cls, extractor, save_dir, **options):
-        raise NotImplementedError("Should be implemented in a subclass")
-
-class Converter(IConverter, CliPlugin):
+class Converter(CliPlugin):
     DEFAULT_IMAGE_EXT = None
 
     @classmethod
@@ -65,7 +60,7 @@ class Converter(IConverter, CliPlugin):
         image = item.image.data
         if image is None:
             log.warning("Item '%s' has no image", item.id)
-            return item.image.path
+            return
 
         path = path or self._make_image_filename(item)
 

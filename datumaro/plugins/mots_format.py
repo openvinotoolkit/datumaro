@@ -11,10 +11,9 @@ import numpy as np
 import os
 import os.path as osp
 
-from datumaro.components.extractor import (SourceExtractor, DEFAULT_SUBSET_NAME,
+from datumaro.components.extractor import (SourceExtractor, Importer,
     DatasetItem, AnnotationType, Mask, LabelCategories
 )
-from datumaro.components.extractor import Importer
 from datumaro.components.converter import Converter
 from datumaro.util.image import load_image, save_image
 from datumaro.util.mask_tools import merge_masks
@@ -81,7 +80,7 @@ class MotsPngExtractor(SourceExtractor):
             if class_id == 0:
                 continue # background
             if class_id == 10 and \
-                    len(self._categories[AnnotationType.label].items) < 10:
+                    len(self._categories[AnnotationType.label]) < 10:
                 z_order = 1
                 class_id = self._categories[AnnotationType.label].find(
                     MotsLabels.ignored.name)[0]
@@ -95,13 +94,8 @@ class MotsPngExtractor(SourceExtractor):
 
 class MotsImporter(Importer):
     @classmethod
-    def find_subsets(cls, path):
-        if not osp.isdir(path):
-            raise Exception("Expected directory path, got '%s'" % path)
-        path = osp.normpath(path)
-
-        subsets = []
-        subsets.extend(MotsPngExtractor.detect_dataset(path))
+    def find_sources(cls, path):
+        subsets = MotsPngExtractor.detect_dataset(path)
         if not subsets:
             for p in os.listdir(path):
                 detected = MotsPngExtractor.detect_dataset(osp.join(path, p))
@@ -115,10 +109,7 @@ class MotsPngConverter(Converter):
     DEFAULT_IMAGE_EXT = MotsPath.IMAGE_EXT
 
     def apply(self):
-        for subset_name in self._extractor.subsets():
-            subset = self._extractor.get_subset(subset_name)
-            subset_name = subset_name or DEFAULT_SUBSET_NAME
-
+        for subset_name, subset in self._extractor.subsets().items():
             subset_dir = osp.join(self._save_dir, subset_name)
             images_dir = osp.join(subset_dir, MotsPath.IMAGE_DIR)
             anno_dir = osp.join(subset_dir, MotsPath.MASKS_DIR)

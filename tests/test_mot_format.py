@@ -4,28 +4,21 @@ import os.path as osp
 
 from unittest import TestCase
 from datumaro.components.project import Dataset
-from datumaro.components.extractor import (Extractor, DatasetItem,
+from datumaro.components.extractor import (DatasetItem,
     AnnotationType, Bbox, LabelCategories
 )
 from datumaro.components.project import Project
 from datumaro.plugins.mot_format import MotSeqGtConverter, MotSeqImporter
-from datumaro.util.test_utils import TestDir, compare_datasets
+from datumaro.util.test_utils import (TestDir, compare_datasets,
+    test_save_and_load)
 
 
 class MotConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None):
-        converter(source_dataset, test_dir)
-
-        if importer_args is None:
-            importer_args = {}
-        parsed_dataset = MotSeqImporter()(test_dir, **importer_args) \
-            .make_dataset()
-
-        if target_dataset is None:
-            target_dataset = source_dataset
-
-        compare_datasets(self, expected=target_dataset, actual=parsed_dataset)
+        return test_save_and_load(self, source_dataset, converter, test_dir,
+            importer='mot_seq',
+            target_dataset=target_dataset, importer_args=importer_args)
 
     def test_can_save_bboxes(self):
         source_dataset = Dataset.from_iterable([

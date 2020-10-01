@@ -1,7 +1,7 @@
 import numpy as np
 
 from datumaro.components.extractor import (DatasetItem, Label, Bbox,
-    Caption, Mask, Points)
+    Caption, Mask, Points, DEFAULT_SUBSET_NAME)
 from datumaro.components.project import Dataset
 from datumaro.components.operations import DistanceComparator, ExactComparator
 
@@ -156,7 +156,7 @@ class ExactComparatorTest(TestCase):
         _, _, a_extra_items, b_extra_items, errors = comp.compare_datasets(a, b)
 
         self.assertEqual({('1', 'train')}, a_extra_items)
-        self.assertEqual({('3', '')}, b_extra_items)
+        self.assertEqual({('3', DEFAULT_SUBSET_NAME)}, b_extra_items)
         self.assertEqual(1, len(errors), errors)
 
     def test_annotation_comparison(self):

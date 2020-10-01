@@ -8,7 +8,7 @@ import os.path as osp
 
 from datumaro.components.extractor import (SourceExtractor, DatasetItem,
     AnnotationType, Label, RleMask, Points, Polygon, PolyLine, Bbox, Caption,
-    LabelCategories, MaskCategories, PointsCategories
+    LabelCategories, MaskCategories, PointsCategories, Importer
 )
 from datumaro.util.image import Image
 
@@ -32,16 +32,6 @@ class DatumaroExtractor(SourceExtractor):
             parsed_anns = json.load(f)
         self._categories = self._load_categories(parsed_anns)
         self._items = self._load_items(parsed_anns)
-
-    def categories(self):
-        return self._categories
-
-    def __iter__(self):
-        for item in self._items:
-            yield item
-
-    def __len__(self):
-        return len(self._items)
 
     @staticmethod
     def _load_categories(parsed):
@@ -155,3 +145,8 @@ class DatumaroExtractor(SourceExtractor):
                 raise NotImplementedError()
 
         return loaded
+
+class DatumaroImporter(Importer):
+    @classmethod
+    def find_sources(cls, path):
+        return cls._find_sources_recursive(path, '.json', 'datumaro')

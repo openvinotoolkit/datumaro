@@ -3,19 +3,22 @@ import numpy as np
 import os.path as osp
 
 from unittest import TestCase, skipIf
+
 from datumaro.components.project import Dataset
-from datumaro.components.extractor import (Extractor, DatasetItem,
+from datumaro.components.extractor import (DatasetItem,
     AnnotationType, Bbox, Mask, LabelCategories
 )
 from datumaro.components.project import Project
 from datumaro.util.image import Image
-from datumaro.util.test_utils import TestDir, compare_datasets
+from datumaro.util.test_utils import (TestDir, compare_datasets,
+    test_save_and_load)
 from datumaro.util.tf_util import check_import
 
 try:
-    from datumaro.plugins.tf_detection_api_format.importer import TfDetectionApiImporter
-    from datumaro.plugins.tf_detection_api_format.extractor import TfDetectionApiExtractor
-    from datumaro.plugins.tf_detection_api_format.converter import TfDetectionApiConverter
+    from datumaro.plugins.tf_detection_api_format.extractor import \
+        TfDetectionApiExtractor, TfDetectionApiImporter
+    from datumaro.plugins.tf_detection_api_format.converter import \
+        TfDetectionApiConverter
     import_failed = False
 except ImportError:
     import_failed = True
@@ -35,17 +38,9 @@ except ImportError:
 class TfrecordConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None):
-        converter(source_dataset, test_dir)
-
-        if importer_args is None:
-            importer_args = {}
-        parsed_dataset = TfDetectionApiImporter()(test_dir, **importer_args) \
-            .make_dataset()
-
-        if target_dataset is None:
-            target_dataset = source_dataset
-
-        compare_datasets(self, expected=target_dataset, actual=parsed_dataset)
+        return test_save_and_load(self, source_dataset, converter, test_dir,
+            importer='tf_detection_api',
+            target_dataset=target_dataset, importer_args=importer_args)
 
     def test_can_save_bboxes(self):
         test_dataset = Dataset.from_iterable([

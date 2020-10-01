@@ -323,21 +323,10 @@ class CvatConverter(Converter):
         self._reindex = reindex
 
     def apply(self):
-        images_dir = osp.join(self._save_dir, CvatPath.IMAGES_DIR)
-        os.makedirs(images_dir, exist_ok=True)
-        self._images_dir = images_dir
+        self._images_dir = osp.join(self._save_dir, CvatPath.IMAGES_DIR)
+        os.makedirs(self._images_dir, exist_ok=True)
 
-        subsets = self._extractor.subsets()
-        if len(subsets) == 0:
-            subsets = [ None ]
-
-        for subset_name in subsets:
-            if subset_name:
-                subset = self._extractor.get_subset(subset_name)
-            else:
-                subset_name = DEFAULT_SUBSET_NAME
-                subset = self._extractor
-
+        for subset_name, subset in self._extractor.subsets().items():
             with open(osp.join(self._save_dir, '%s.xml' % subset_name), 'w') as f:
                 writer = _SubsetWriter(f, subset_name, subset, self)
                 writer.write()

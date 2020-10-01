@@ -19,7 +19,8 @@ from datumaro.plugins.coco_format.converter import (
 )
 from datumaro.plugins.coco_format.importer import CocoImporter
 from datumaro.util.image import Image
-from datumaro.util.test_utils import TestDir, compare_datasets
+from datumaro.util.test_utils import (TestDir, compare_datasets,
+    test_save_and_load)
 
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'coco_dataset')
@@ -52,16 +53,9 @@ class CocoImporterTest(TestCase):
 class CocoConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None):
-        converter(source_dataset, test_dir)
-
-        if importer_args is None:
-            importer_args = {}
-        parsed_dataset = CocoImporter()(test_dir, **importer_args).make_dataset()
-
-        if target_dataset is None:
-            target_dataset = source_dataset
-
-        compare_datasets(self, expected=target_dataset, actual=parsed_dataset)
+        return test_save_and_load(self, source_dataset, converter, test_dir,
+            importer='coco',
+            target_dataset=target_dataset, importer_args=importer_args)
 
     def test_can_save_and_load_captions(self):
         expected_dataset = Dataset.from_iterable([

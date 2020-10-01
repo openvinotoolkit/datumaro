@@ -9,7 +9,7 @@ import os.path as osp
 import re
 
 from datumaro.components.extractor import (SourceExtractor, DatasetItem,
-    AnnotationType, Bbox, Mask, LabelCategories
+    AnnotationType, Bbox, Mask, LabelCategories, Importer
 )
 from datumaro.util.image import Image, decode_image, lazy_image
 from datumaro.util.tf_util import import_tf as _import_tf
@@ -38,25 +38,12 @@ class TfDetectionApiExtractor(SourceExtractor):
         self._items = items
         self._categories = self._load_categories(labels)
 
-    def categories(self):
-        return self._categories
-
-    def __iter__(self):
-        for item in self._items:
-            yield item
-
-    def __len__(self):
-        return len(self._items)
-
     @staticmethod
     def _load_categories(labels):
-        label_categories = LabelCategories()
-        labels = sorted(labels.items(), key=lambda item: item[1])
-        for label, _ in labels:
-            label_categories.add(label)
-        return {
-            AnnotationType.label: label_categories
-        }
+        label_categories = LabelCategories().from_iterable(
+            e[0] for e in sorted(labels.items(), key=lambda item: item[1])
+        )
+        return { AnnotationType.label: label_categories }
 
     @classmethod
     def _parse_labelmap(cls, text):
@@ -193,3 +180,8 @@ class TfDetectionApiExtractor(SourceExtractor):
                 attributes={'source_id': frame_id}))
 
         return dataset_items, dataset_labels
+
+class TfDetectionApiImporter(Importer):
+    @classmethod
+    def find_sources(cls, path):
+        return cls._find_sources_recursive(path, '.tfrecord', 'tf_detection_api')

@@ -3,7 +3,7 @@ from unittest import TestCase
 import numpy as np
 
 from datumaro.components.extractor import (Bbox, Caption, DatasetItem,
-    Extractor, Label, Mask, Points, Polygon, PolyLine,
+    Extractor, Label, Mask, Points, Polygon, PolyLine, DEFAULT_SUBSET_NAME,
     LabelCategories, PointsCategories, MaskCategories, AnnotationType)
 from datumaro.components.operations import (FailedAttrVotingError,
     IntersectMerge, NoMatchingAnnError, NoMatchingItemError, WrongGroupError,
@@ -17,19 +17,16 @@ class TestOperations(TestCase):
         expected_mean = [100, 50, 150]
         expected_std = [20, 50, 10]
 
-        class TestExtractor(Extractor):
-            def __iter__(self):
-                return iter([
-                    DatasetItem(id=1, image=np.random.normal(
-                        expected_mean, expected_std,
-                        size=(w, h, 3))
-                    )
-                    for i, (w, h) in enumerate([
-                        (3000, 100), (800, 600), (400, 200), (700, 300)
-                    ])
-                ])
+        dataset = Dataset.from_iterable([
+            DatasetItem(id=1, image=np.random.normal(
+                expected_mean, expected_std, size=(w, h, 3))
+            )
+            for i, (w, h) in enumerate([
+                (3000, 100), (800, 600), (400, 200), (700, 300)
+            ])
+        ])
 
-        actual_mean, actual_std = mean_std(TestExtractor())
+        actual_mean, actual_std = mean_std(dataset)
 
         for em, am in zip(expected_mean, actual_mean):
             self.assertAlmostEqual(em, am, places=0)
@@ -223,8 +220,10 @@ class TestMultimerge(TestCase):
         compare_datasets(self, expected, merged)
         self.assertEqual(
             [
-                NoMatchingItemError(item_id=('1', ''), sources={1, 2}),
-                NoMatchingItemError(item_id=('3', ''), sources={0, 2}),
+                NoMatchingItemError(item_id=('1', DEFAULT_SUBSET_NAME),
+                    sources={1, 2}),
+                NoMatchingItemError(item_id=('3', DEFAULT_SUBSET_NAME),
+                    sources={0, 2}),
             ],
             sorted((e for e in merger.errors
                     if isinstance(e, NoMatchingItemError)),
@@ -232,8 +231,8 @@ class TestMultimerge(TestCase):
         )
         self.assertEqual(
             [
-                NoMatchingAnnError(item_id=('2', ''), sources={0, 1},
-                    ann=source2.get('2').annotations[1]),
+                NoMatchingAnnError(item_id=('2', DEFAULT_SUBSET_NAME),
+                    sources={0, 1}, ann=source2.get('2').annotations[1]),
             ],
             sorted((e for e in merger.errors
                     if isinstance(e, NoMatchingAnnError)),
@@ -333,10 +332,10 @@ class TestMultimerge(TestCase):
         compare_datasets(self, expected, merged, ignored_attrs={'score'})
         self.assertEqual(
             [
-                NoMatchingAnnError(item_id=('1', ''), sources={2},
-                    ann=source0.get('1').annotations[5]),
-                NoMatchingAnnError(item_id=('1', ''), sources={1, 2},
-                    ann=source0.get('1').annotations[0]),
+                NoMatchingAnnError(item_id=('1', DEFAULT_SUBSET_NAME),
+                    sources={2}, ann=source0.get('1').annotations[5]),
+                NoMatchingAnnError(item_id=('1', DEFAULT_SUBSET_NAME),
+                    sources={1, 2}, ann=source0.get('1').annotations[0]),
             ],
             sorted((e for e in merger.errors
                     if isinstance(e, NoMatchingAnnError)),

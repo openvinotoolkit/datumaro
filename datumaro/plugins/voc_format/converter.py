@@ -151,13 +151,7 @@ class VocConverter(Converter):
             categories()[AnnotationType.label].items[label_id].name
 
     def save_subsets(self):
-        for subset_name in self._extractor.subsets() or [None]:
-            if subset_name:
-                subset = self._extractor.get_subset(subset_name)
-            else:
-                subset_name = DEFAULT_SUBSET_NAME
-                subset = self._extractor
-
+        for subset_name, subset in self._extractor.subsets().items():
             class_lists = OrderedDict()
             clsdet_list = OrderedDict()
             action_list = OrderedDict()

@@ -9,10 +9,9 @@ import numpy as np
 import os
 import os.path as osp
 
-from datumaro.components.extractor import (SourceExtractor, DEFAULT_SUBSET_NAME,
+from datumaro.components.extractor import (SourceExtractor, Importer,
     DatasetItem, AnnotationType, Mask, Bbox, Polygon, LabelCategories
 )
-from datumaro.components.extractor import Importer
 from datumaro.components.converter import Converter
 from datumaro.util.image import Image, save_image
 from datumaro.util.mask_tools import load_mask, find_mask_bbox
@@ -30,16 +29,6 @@ class LabelMeExtractor(SourceExtractor):
         items, categories = self._parse(path)
         self._categories = categories
         self._items = items
-
-    def categories(self):
-        return self._categories
-
-    def __iter__(self):
-        for item in self._items:
-            yield item
-
-    def __len__(self):
-        return len(self._items)
 
     def _parse(self, path):
         categories = {
@@ -233,42 +222,13 @@ class LabelMeExtractor(SourceExtractor):
 
 
 class LabelMeImporter(Importer):
-    _EXTRACTOR_NAME = 'label_me'
+    EXTRACTOR = 'label_me'
 
     @classmethod
-    def detect(cls, path):
-        if not osp.isdir(path):
-            return False
-        return len(cls.find_subsets(path)) != 0
-
-    def __call__(self, path, **extra_params):
-        from datumaro.components.project import Project # cyclic import
-        project = Project()
-
-        subset_paths = self.find_subsets(path)
-        if len(subset_paths) == 0:
-            raise Exception("Failed to find 'label_me' dataset at '%s'" % path)
-
-        for subset_path, subset_name in subset_paths:
-            params = {}
-            if subset_name:
-                params['subset_name'] = subset_name
-            params.update(extra_params)
-
-            source_name = osp.splitext(osp.basename(subset_path))[0]
-            project.add_source(source_name, {
-                'url': subset_path,
-                'format': self._EXTRACTOR_NAME,
-                'options': params,
-            })
-
-        return project
-
-    @staticmethod
-    def find_subsets(path):
+    def find_sources(cls, path):
         subset_paths = []
         if not osp.isdir(path):
-            raise Exception("Expected directory path, got '%s'" % path)
+            return []
 
         path = osp.normpath(path)
 
@@ -276,13 +236,15 @@ class LabelMeImporter(Importer):
             return len([p for p in os.listdir(d) if p.endswith('.xml')]) != 0
 
         if has_annotations(path):
-            subset_paths = [(path, None)]
+            subset_paths.append({'url': path, 'format': cls.EXTRACTOR})
         else:
             for d in os.listdir(path):
                 subset = d
                 d = osp.join(path, d)
                 if osp.isdir(d) and has_annotations(d):
-                    subset_paths.append((d, subset))
+                    subset_paths.append({'url': d, 'format': cls.EXTRACTOR,
+                        'options': {'subset_name': subset}
+                    })
         return subset_paths
 
 
@@ -290,13 +252,7 @@ class LabelMeConverter(Converter):
     DEFAULT_IMAGE_EXT = LabelMePath.IMAGE_EXT
 
     def apply(self):
-        for subset_name in self._extractor.subsets() or [None]:
-            if subset_name:
-                subset = self._extractor.get_subset(subset_name)
-            else:
-                subset_name = DEFAULT_SUBSET_NAME
-                subset = self._extractor
-
+        for subset_name, subset in self._extractor.subsets().items():
             subset_dir = osp.join(self._save_dir, subset_name)
             os.makedirs(subset_dir, exist_ok=True)
             os.makedirs(osp.join(subset_dir, LabelMePath.MASKS_DIR),
@@ -308,8 +264,7 @@ class LabelMeConverter(Converter):
     def _get_label(self, label_id):
         if label_id is None:
             return ''
-        return self._extractor.categories()[AnnotationType.label] \
-            .items[label_id].name
+        return self._extractor.categories()[AnnotationType.label][label_id].name
 
     def _save_item(self, item, subset_dir, index):
         from lxml import etree as ET
