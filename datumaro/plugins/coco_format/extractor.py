@@ -43,17 +43,7 @@ class _CocoExtractor(SourceExtractor):
 
         loader = self._make_subset_loader(path)
         self._load_categories(loader)
-        self._items = self._load_items(loader)
-
-    def categories(self):
-        return self._categories
-
-    def __iter__(self):
-        for item in self._items.values():
-            yield item
-
-    def __len__(self):
-        return len(self._items)
+        self._items = list(self._load_items(loader).values())
 
     @staticmethod
     def _make_subset_loader(path):

@@ -4,29 +4,21 @@ import os.path as osp
 
 from unittest import TestCase
 from datumaro.components.project import Dataset
-from datumaro.components.extractor import (Extractor, DatasetItem,
+from datumaro.components.extractor import (DatasetItem,
     AnnotationType, Bbox, Mask, Polygon, LabelCategories
 )
 from datumaro.components.project import Project
-from datumaro.plugins.labelme_format import LabelMeImporter, \
-    LabelMeConverter
-from datumaro.util.test_utils import TestDir, compare_datasets
+from datumaro.plugins.labelme_format import LabelMeImporter, LabelMeConverter
+from datumaro.util.test_utils import (TestDir, compare_datasets,
+    test_save_and_load)
 
 
 class LabelMeConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None):
-        converter(source_dataset, test_dir)
-
-        if importer_args is None:
-            importer_args = {}
-        parsed_dataset = LabelMeImporter()(test_dir, **importer_args) \
-            .make_dataset()
-
-        if target_dataset is None:
-            target_dataset = source_dataset
-
-        compare_datasets(self, expected=target_dataset, actual=parsed_dataset)
+        return test_save_and_load(self, source_dataset, converter, test_dir,
+            importer='label_me',
+            target_dataset=target_dataset, importer_args=importer_args)
 
     def test_can_save_and_load(self):
         source_dataset = Dataset.from_iterable([

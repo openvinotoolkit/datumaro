@@ -9,9 +9,9 @@ import os.path as osp
 import re
 
 from datumaro.components.extractor import (SourceExtractor, DatasetItem,
-    AnnotationType, Bbox, Mask, LabelCategories
+    AnnotationType, Bbox, Mask, LabelCategories, Importer
 )
-from datumaro.util.image import Image, decode_image, lazy_image
+from datumaro.util.image import ByteImage, decode_image, lazy_image
 from datumaro.util.tf_util import import_tf as _import_tf
 
 from .format import DetectionApiPath
@@ -38,25 +38,12 @@ class TfDetectionApiExtractor(SourceExtractor):
         self._items = items
         self._categories = self._load_categories(labels)
 
-    def categories(self):
-        return self._categories
-
-    def __iter__(self):
-        for item in self._items:
-            yield item
-
-    def __len__(self):
-        return len(self._items)
-
     @staticmethod
     def _load_categories(labels):
-        label_categories = LabelCategories()
-        labels = sorted(labels.items(), key=lambda item: item[1])
-        for label, _ in labels:
-            label_categories.add(label)
-        return {
-            AnnotationType.label: label_categories
-        }
+        label_categories = LabelCategories().from_iterable(
+            e[0] for e in sorted(labels.items(), key=lambda item: item[1])
+        )
+        return { AnnotationType.label: label_categories }
 
     @classmethod
     def _parse_labelmap(cls, text):
@@ -180,16 +167,21 @@ class TfDetectionApiExtractor(SourceExtractor):
 
             image_params = {}
             if frame_image:
-                image_params['data'] = lazy_image(frame_image, decode_image)
+                image_params['data'] = frame_image
             if frame_filename:
                 image_params['path'] = osp.join(images_dir, frame_filename)
 
             image = None
             if image_params:
-                image = Image(**image_params, size=image_size)
+                image = ByteImage(**image_params, size=image_size)
 
             dataset_items.append(DatasetItem(id=item_id, subset=subset,
                 image=image, annotations=annotations,
                 attributes={'source_id': frame_id}))
 
         return dataset_items, dataset_labels
+
+class TfDetectionApiImporter(Importer):
+    @classmethod
+    def find_sources(cls, path):
+        return cls._find_sources_recursive(path, '.tfrecord', 'tf_detection_api')

@@ -9,15 +9,10 @@ import os.path as osp
 import shutil
 
 from datumaro.components.cli_plugin import CliPlugin
-from datumaro.util.image import save_image
+from datumaro.util.image import save_image, ByteImage
 
 
-class IConverter:
-    @classmethod
-    def convert(cls, extractor, save_dir, **options):
-        raise NotImplementedError("Should be implemented in a subclass")
-
-class Converter(IConverter, CliPlugin):
+class Converter(CliPlugin):
     DEFAULT_IMAGE_EXT = None
 
     @classmethod
@@ -54,7 +49,7 @@ class Converter(IConverter, CliPlugin):
     def _find_image_ext(self, item):
         src_ext = None
         if item.has_image:
-            src_ext = osp.splitext(osp.basename(item.image.path))[1]
+            src_ext = item.image.ext
 
         return self._image_ext or src_ext or self._default_image_ext
 
@@ -62,18 +57,20 @@ class Converter(IConverter, CliPlugin):
         return item.id + self._find_image_ext(item)
 
     def _save_image(self, item, path=None):
-        image = item.image.data
-        if image is None:
+        if not item.image.has_data:
             log.warning("Item '%s' has no image", item.id)
-            return item.image.path
+            return
 
         path = path or self._make_image_filename(item)
 
-        src_ext = osp.splitext(osp.basename(item.image.path))[1]
-        dst_ext = osp.splitext(osp.basename(path))[1]
+        src_ext = item.image.ext.lower()
+        dst_ext = osp.splitext(osp.basename(path))[1].lower()
 
         os.makedirs(osp.dirname(path), exist_ok=True)
         if src_ext == dst_ext and osp.isfile(item.image.path):
             shutil.copyfile(item.image.path, path)
+        elif src_ext == dst_ext and isinstance(item.image, ByteImage):
+            with open(path, 'wb') as f:
+                f.write(item.image.get_bytes())
         else:
-            save_image(path, image)
+            save_image(path, item.image.data)

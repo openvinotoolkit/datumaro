@@ -226,10 +226,7 @@ class DatumaroConverter(Converter):
         os.makedirs(annotations_dir, exist_ok=True)
         self._annotations_dir = annotations_dir
 
-        subsets = self._extractor.subsets() or [None]
-        subsets = [n or DEFAULT_SUBSET_NAME for n in subsets]
-        subsets = { name: _SubsetWriter(name, self) for name in subsets }
-
+        subsets = {s: _SubsetWriter(s, self) for s in self._extractor.subsets()}
         for subset, writer in subsets.items():
             writer.write_categories(self._extractor.categories())
 

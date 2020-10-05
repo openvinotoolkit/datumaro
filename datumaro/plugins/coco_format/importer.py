@@ -26,13 +26,13 @@ class CocoImporter(Importer):
     @classmethod
     def detect(cls, path):
         with logging_disabled(log.WARN):
-            return len(cls.find_subsets(path)) != 0
+            return len(cls.find_sources(path)) != 0
 
     def __call__(self, path, **extra_params):
         from datumaro.components.project import Project # cyclic import
         project = Project()
 
-        subsets = self.find_subsets(path)
+        subsets = self.find_sources(path)
 
         if len(subsets) == 0:
             raise Exception("Failed to find 'coco' dataset at '%s'" % path)
@@ -69,7 +69,7 @@ class CocoImporter(Importer):
         return project
 
     @staticmethod
-    def find_subsets(path):
+    def find_sources(path):
         if path.endswith('.json') and osp.isfile(path):
             subset_paths = [path]
         else:

@@ -15,7 +15,7 @@ from datumaro.components.extractor import (AnnotationType, DEFAULT_SUBSET_NAME,
     LabelCategories
 )
 from datumaro.components.converter import Converter
-from datumaro.util.image import encode_image
+from datumaro.util.image import encode_image, ByteImage
 from datumaro.util.annotation_util import (max_bbox,
     find_group_leader, find_instances)
 from datumaro.util.mask_tools import merge_masks
@@ -73,17 +73,7 @@ class TfDetectionApiConverter(Converter):
         self._get_label = get_label
         self._get_label_id = map_label_id
 
-        subsets = self._extractor.subsets()
-        if len(subsets) == 0:
-            subsets = [ None ]
-
-        for subset_name in subsets:
-            if subset_name:
-                subset = self._extractor.get_subset(subset_name)
-            else:
-                subset_name = DEFAULT_SUBSET_NAME
-                subset = self._extractor
-
+        for subset_name, subset in self._extractor.subsets().items():
             labelmap_path = osp.join(self._save_dir, DetectionApiPath.LABELMAP_FILE)
             with codecs.open(labelmap_path, 'w', encoding='utf8') as f:
                 for label, idx in label_ids.items():
@@ -207,11 +197,16 @@ class TfDetectionApiConverter(Converter):
         return tf_example
 
     def _save_image(self, item, path=None):
-        dst_ext = osp.splitext(osp.basename(path))[1]
+        src_ext = item.image.ext.lower()
+        dst_ext = osp.splitext(osp.basename(path))[1].lower()
         fmt = DetectionApiPath.IMAGE_EXT_FORMAT.get(dst_ext)
         if not fmt:
             log.warning("Item '%s': can't find format string for the '%s' "
                 "image extension, the corresponding field will be empty." % \
                 (item.id, dst_ext))
-        buffer = encode_image(item.image.data, dst_ext)
+
+        if src_ext == dst_ext and isinstance(item.image, ByteImage):
+            buffer = item.image.get_bytes()
+        else:
+            buffer = encode_image(item.image.data, dst_ext)
         return buffer, fmt

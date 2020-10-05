@@ -10,6 +10,7 @@ import shutil
 import tempfile
 
 from datumaro.components.extractor import AnnotationType
+from datumaro.components.project import Project
 from datumaro.util import find
 
 
@@ -80,7 +81,8 @@ def _compare_annotations(expected, actual, ignored_attrs=None):
     actual.attributes = b_attr
     return r
 
-def compare_datasets(test, expected, actual, ignored_attrs=None):
+def compare_datasets(test, expected, actual, ignored_attrs=None,
+        require_images=False):
     compare_categories(test, expected.categories(), actual.categories())
 
     test.assertEqual(sorted(expected.subsets()), sorted(actual.subsets()))
@@ -90,6 +92,10 @@ def compare_datasets(test, expected, actual, ignored_attrs=None):
             x.subset == item_a.subset)
         test.assertFalse(item_b is None, item_a.id)
         test.assertEqual(item_a.attributes, item_b.attributes)
+        if require_images or \
+                item_a.has_image and item_a.image.has_data and \
+                item_b.has_image and item_b.image.has_data:
+            test.assertEqual(item_a.image, item_b.image, item_a.id)
         test.assertEqual(len(item_a.annotations), len(item_b.annotations))
         for ann_a in item_a.annotations:
             # We might find few corresponding items, so check them all
@@ -119,3 +125,19 @@ def compare_datasets_strict(test, expected, actual):
             test.assertEqual(item_a, item_b,
                 '%s:\n%s\nvs.\n%s\n' % \
                 (idx, item_a, item_b))
+
+def test_save_and_load(test, source_dataset, converter, test_dir, importer,
+        target_dataset=None, importer_args=None, compare=None):
+    converter(source_dataset, test_dir)
+
+    if importer_args is None:
+        importer_args = {}
+    parsed_dataset = Project.import_from(test_dir, importer, **importer_args) \
+        .make_dataset()
+
+    if target_dataset is None:
+        target_dataset = source_dataset
+
+    if not compare:
+        compare = compare_datasets
+    compare(test, expected=target_dataset, actual=parsed_dataset)

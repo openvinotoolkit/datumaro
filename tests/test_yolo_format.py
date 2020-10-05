@@ -3,11 +3,11 @@ import os.path as osp
 
 from unittest import TestCase
 
-from datumaro.components.extractor import (Extractor, DatasetItem,
+from datumaro.components.extractor import (DatasetItem,
     AnnotationType, Bbox, LabelCategories,
 )
 from datumaro.components.project import Project, Dataset
-from datumaro.plugins.yolo_format.importer import YoloImporter
+from datumaro.plugins.yolo_format.extractor import YoloImporter
 from datumaro.plugins.yolo_format.converter import YoloConverter
 from datumaro.util.image import Image, save_image
 from datumaro.util.test_utils import TestDir, compare_datasets
@@ -41,7 +41,6 @@ class YoloFormatTest(TestCase):
         })
 
         with TestDir() as test_dir:
-
             YoloConverter.convert(source_dataset, test_dir, save_images=True)
             parsed_dataset = YoloImporter()(test_dir).make_dataset()
 
@@ -61,7 +60,6 @@ class YoloFormatTest(TestCase):
         })
 
         with TestDir() as test_dir:
-
             YoloConverter.convert(source_dataset, test_dir)
 
             save_image(osp.join(test_dir, 'obj_train_data', '1.jpg'),
@@ -84,7 +82,6 @@ class YoloFormatTest(TestCase):
         })
 
         with TestDir() as test_dir:
-
             YoloConverter.convert(source_dataset, test_dir)
 
             parsed_dataset = YoloImporter()(test_dir,
@@ -107,7 +104,6 @@ class YoloFormatTest(TestCase):
         for save_images in {True, False}:
             with self.subTest(save_images=save_images):
                 with TestDir() as test_dir:
-
                     YoloConverter.convert(source_dataset, test_dir,
                         save_images=save_images)
                     parsed_dataset = YoloImporter()(test_dir).make_dataset()

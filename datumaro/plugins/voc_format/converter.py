@@ -151,13 +151,7 @@ class VocConverter(Converter):
             categories()[AnnotationType.label].items[label_id].name
 
     def save_subsets(self):
-        for subset_name in self._extractor.subsets() or [None]:
-            if subset_name:
-                subset = self._extractor.get_subset(subset_name)
-            else:
-                subset_name = DEFAULT_SUBSET_NAME
-                subset = self._extractor
-
+        for subset_name, subset in self._extractor.subsets().items():
             class_lists = OrderedDict()
             clsdet_list = OrderedDict()
             action_list = OrderedDict()
@@ -204,15 +198,10 @@ class VocConverter(Converter):
 
                     if item.has_image:
                         h, w = item.image.size
-                        if item.image.has_data:
-                            image_shape = item.image.data.shape
-                            c = 1 if len(image_shape) == 2 else image_shape[2]
-                        else:
-                            c = 3
                         size_elem = ET.SubElement(root_elem, 'size')
                         ET.SubElement(size_elem, 'width').text = str(w)
                         ET.SubElement(size_elem, 'height').text = str(h)
-                        ET.SubElement(size_elem, 'depth').text = str(c)
+                        ET.SubElement(size_elem, 'depth').text = ''
 
                     item_segmented = 0 < len(masks)
                     ET.SubElement(root_elem, 'segmented').text = \
@@ -343,17 +332,17 @@ class VocConverter(Converter):
                     action_list[item.id] = None
                     segm_list[item.id] = None
 
-                if self._tasks & {VocTask.classification, VocTask.detection,
-                        VocTask.action_classification, VocTask.person_layout}:
-                    self.save_clsdet_lists(subset_name, clsdet_list)
-                    if self._tasks & {VocTask.classification}:
-                        self.save_class_lists(subset_name, class_lists)
-                if self._tasks & {VocTask.action_classification}:
-                    self.save_action_lists(subset_name, action_list)
-                if self._tasks & {VocTask.person_layout}:
-                    self.save_layout_lists(subset_name, layout_list)
-                if self._tasks & {VocTask.segmentation}:
-                    self.save_segm_lists(subset_name, segm_list)
+            if self._tasks & {VocTask.classification, VocTask.detection,
+                    VocTask.action_classification, VocTask.person_layout}:
+                self.save_clsdet_lists(subset_name, clsdet_list)
+                if self._tasks & {VocTask.classification}:
+                    self.save_class_lists(subset_name, class_lists)
+            if self._tasks & {VocTask.action_classification}:
+                self.save_action_lists(subset_name, action_list)
+            if self._tasks & {VocTask.person_layout}:
+                self.save_layout_lists(subset_name, layout_list)
+            if self._tasks & {VocTask.segmentation}:
+                self.save_segm_lists(subset_name, segm_list)
 
     def save_action_lists(self, subset_name, action_list):
         if not action_list:

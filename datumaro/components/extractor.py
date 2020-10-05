@@ -4,6 +4,7 @@
 # SPDX-License-Identifier: MIT
 
 from enum import Enum
+from glob import glob
 from typing import List, Dict
 import numpy as np
 import os.path as osp
@@ -109,6 +110,15 @@ class LabelCategories(Categories):
         if index is not None:
             return index, self.items[index]
         return index, None
+
+    def __getitem__(self, idx):
+        return self.items[idx]
+
+    def __len__(self):
+        return len(self.items)
+
+    def __iter__(self):
+        return iter(self.items)
 
 @attrs
 class Label(Annotation):
@@ -457,12 +467,15 @@ class Caption(Annotation):
     _type = AnnotationType.caption
     caption = attrib(converter=str)
 
+
+DEFAULT_SUBSET_NAME = 'default'
+
 @attrs
 class DatasetItem:
     id = attrib(converter=lambda x: str(x).replace('\\', '/'),
         type=str, validator=not_empty)
     annotations = attrib(factory=list, validator=default_if_none(list))
-    subset = attrib(default='', validator=default_if_none(str))
+    subset = attrib(converter=lambda v: v or DEFAULT_SUBSET_NAME, default=None)
     path = attrib(factory=list, validator=default_if_none(list))
 
     image = attrib(type=Image, default=None)
@@ -503,15 +516,7 @@ class IExtractor:
     def select(self, pred):
         raise NotImplementedError()
 
-class _DatasetFilter:
-    def __init__(self, iterable, predicate):
-        self.iterable = iterable
-        self.predicate = predicate
-
-    def __iter__(self):
-        return filter(self.predicate, self.iterable)
-
-class _ExtractorBase(IExtractor):
+class Extractor(IExtractor):
     def __init__(self, length=None, subsets=None):
         self._length = length
         self._subsets = subsets
@@ -533,75 +538,51 @@ class _ExtractorBase(IExtractor):
             self._init_cache()
         return self._length
 
-    def subsets(self):
+    def subsets(self) -> Dict[str, IExtractor]:
         if self._subsets is None:
             self._init_cache()
-        return list(self._subsets)
+        return {name or DEFAULT_SUBSET_NAME: self.get_subset(name)
+            for name in self._subsets}
 
     def get_subset(self, name):
-        if name in self.subsets():
+        if self._subsets is None:
+            self._init_cache()
+        if name in self._subsets:
             return self.select(lambda item: item.subset == name)
         else:
-            raise Exception("Unknown subset '%s' requested" % name)
+            raise Exception("Unknown subset '%s', available subsets: %s" % \
+                (name, set(self._subsets)))
 
     def transform(self, method, *args, **kwargs):
         return method(self, *args, **kwargs)
 
-class DatasetIteratorWrapper(_ExtractorBase):
-    def __init__(self, iterable, categories, subsets=None):
-        super().__init__(length=None, subsets=subsets)
-        self._iterable = iterable
-        self._categories = categories
-
-    def __iter__(self):
-        return iter(self._iterable)
-
-    def categories(self):
-        return self._categories
-
     def select(self, pred):
-        return DatasetIteratorWrapper(
-            _DatasetFilter(self, pred), self.categories(), self.subsets())
+        class _DatasetFilter(Extractor):
+            def __init__(self, _):
+                super().__init__()
+            def __iter__(_):
+                return filter(pred, iter(self))
+            def categories(_):
+                return self.categories()
 
-class Extractor(_ExtractorBase):
-    def __init__(self, length=None):
-        super().__init__(length=None)
+        return self.transform(_DatasetFilter)
 
     def categories(self):
         return {}
 
-    def select(self, pred):
-        return DatasetIteratorWrapper(
-            _DatasetFilter(self, pred), self.categories(), self.subsets())
-
-DEFAULT_SUBSET_NAME = 'default'
-
-
 class SourceExtractor(Extractor):
     def __init__(self, length=None, subset=None):
-        super().__init__(length=length)
-
-        if subset == DEFAULT_SUBSET_NAME:
-            subset = None
-        self._subset = subset
+        self._subset = subset or DEFAULT_SUBSET_NAME
+        super().__init__(length=length, subsets=[self._subset])
 
         self._categories = {}
         self._items = []
-
-    def subsets(self):
-        return [self._subset]
-
-    def get_subset(self, name):
-        if name != self._subset:
-            raise Exception("Unknown subset '%s' requested" % name)
-        return self
 
     def categories(self):
         return self._categories
 
     def __iter__(self):
-        for item in self._items:
-            yield item
+        yield from self._items
 
     def __len__(self):
         return len(self._items)
@@ -609,26 +590,38 @@ class SourceExtractor(Extractor):
 class Importer:
     @classmethod
     def detect(cls, path):
-        return len(cls.find_subsets(path)) != 0
+        return len(cls.find_sources(path)) != 0
 
     @classmethod
-    def find_subsets(cls, path) -> List[Dict]:
-        """Returns a list of Sources"""
+    def find_sources(cls, path) -> List[Dict]:
         raise NotImplementedError()
 
     def __call__(self, path, **extra_params):
         from datumaro.components.project import Project # cyclic import
         project = Project()
 
-        subsets = self.find_subsets(path)
-        if len(subsets) == 0:
+        sources = self.find_sources(osp.normpath(path))
+        if len(sources) == 0:
             raise Exception("Failed to find dataset at '%s'" % path)
 
-        for desc in subsets:
+        for desc in sources:
+            params = dict(extra_params)
+            params.update(desc.get('options', {}))
+            desc['options'] = params
+
             source_name = osp.splitext(osp.basename(desc['url']))[0]
             project.add_source(source_name, desc)
 
         return project
+
+    @classmethod
+    def _find_sources_recursive(cls, path, ext, extractor_name, filename='*'):
+        if path.endswith(ext) and osp.isfile(path):
+            sources = [{'url': path, 'format': extractor_name}]
+        else:
+            sources = [{'url': p, 'format': extractor_name} for p in
+                glob(osp.join(path, '**', filename + ext), recursive=True)]
+        return sources
 
 class Transform(Extractor):
     @staticmethod
@@ -646,6 +639,19 @@ class Transform(Extractor):
 
     def categories(self):
         return self._extractor.categories()
+
+    def subsets(self):
+        if self._subsets is None:
+            self._subsets = set(self._extractor.subsets())
+        return self._subsets
+
+    def __len__(self):
+        assert self._length in {None, 'parent'} or isinstance(self._length, int)
+        if self._length is None and \
+                    self.__iter__.__func__ == Transform.__iter__ \
+                or self._length == 'parent':
+            self._length = len(self._extractor)
+        return super().__len__()
 
     def transform_item(self, item: DatasetItem) -> DatasetItem:
         raise NotImplementedError()

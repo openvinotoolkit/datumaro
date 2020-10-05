@@ -43,12 +43,6 @@ class _VocExtractor(SourceExtractor):
         ))
         self._items = self._load_subset_list(path)
 
-    def categories(self):
-        return self._categories
-
-    def __len__(self):
-        return len(self._items)
-
     def _get_label_id(self, label):
         label_id, _ = self._categories[AnnotationType.label].find(label)
         assert label_id is not None, label

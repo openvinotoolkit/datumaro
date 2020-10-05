@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+from collections import Counter
 from enum import Enum
 import logging as log
 import os.path as osp
@@ -11,7 +12,7 @@ import re
 import pycocotools.mask as mask_utils
 
 from datumaro.components.extractor import (Transform, AnnotationType,
-    RleMask, Polygon, Bbox,
+    RleMask, Polygon, Bbox, DEFAULT_SUBSET_NAME,
     LabelCategories, MaskCategories, PointsCategories
 )
 from datumaro.components.cli_plugin import CliPlugin
@@ -262,7 +263,7 @@ class Reindex(Transform, CliPlugin):
 
     def __init__(self, extractor, start=1):
         super().__init__(extractor)
-
+        self._length = 'parent'
         self._start = start
 
     def __iter__(self):
@@ -294,6 +295,13 @@ class MapSubsets(Transform, CliPlugin):
         elif not isinstance(mapping, dict):
             mapping = dict(tuple(m) for m in mapping)
         self._mapping = mapping
+
+        if extractor._subsets:
+            counts = Counter(mapping.get(s, s) or DEFAULT_SUBSET_NAME
+                for s in extractor._subsets)
+            if all(c == 1 for c in counts.values()):
+                self._length = 'parent'
+            self._subsets = set(counts)
 
     def transform_item(self, item):
         return self.wrap_item(item,
@@ -358,6 +366,9 @@ class RandomSplit(Transform, CliPlugin):
             parts.append((boundary, subset))
 
         self._parts = parts
+
+        self._subsets = set(s[0] for s in splits)
+        self._length = 'parent'
 
     def _find_split(self, index):
         for boundary, subset in self._parts:

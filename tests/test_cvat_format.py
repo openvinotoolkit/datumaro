@@ -4,14 +4,15 @@ import os.path as osp
 
 from unittest import TestCase
 from datumaro.components.project import Dataset
-from datumaro.components.extractor import (Extractor, DatasetItem,
+from datumaro.components.extractor import (DatasetItem,
     AnnotationType, Points, Polygon, PolyLine, Bbox, Label,
     LabelCategories,
 )
-from datumaro.plugins.cvat_format.importer import CvatImporter
+from datumaro.plugins.cvat_format.extractor import CvatImporter
 from datumaro.plugins.cvat_format.converter import CvatConverter
 from datumaro.util.image import Image
-from datumaro.util.test_utils import TestDir, compare_datasets
+from datumaro.util.test_utils import (TestDir, compare_datasets,
+    test_save_and_load)
 
 
 DUMMY_IMAGE_DATASET_DIR = osp.join(osp.dirname(__file__),
@@ -62,7 +63,7 @@ class CvatImporterTest(TestCase):
     def test_can_load_video(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='frame_000010', subset='annotations',
-                image=np.ones((20, 25, 3)),
+                image=255 * np.ones((20, 25, 3)),
                 annotations=[
                     Bbox(3, 4, 7, 1, label=2,
                         id=0,
@@ -81,7 +82,7 @@ class CvatImporterTest(TestCase):
                         }),
                 ], attributes={'frame': 10}),
             DatasetItem(id='frame_000013', subset='annotations',
-                image=np.ones((20, 25, 3)),
+                image=255 * np.ones((20, 25, 3)),
                 annotations=[
                     Bbox(7, 6, 7, 2, label=2,
                         id=0,
@@ -141,16 +142,9 @@ class CvatImporterTest(TestCase):
 class CvatConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None):
-        converter(source_dataset, test_dir)
-
-        if importer_args is None:
-            importer_args = {}
-        parsed_dataset = CvatImporter()(test_dir, **importer_args).make_dataset()
-
-        if target_dataset is None:
-            target_dataset = source_dataset
-
-        compare_datasets(self, expected=target_dataset, actual=parsed_dataset)
+        return test_save_and_load(self, source_dataset, converter, test_dir,
+            importer='cvat',
+            target_dataset=target_dataset, importer_args=importer_args)
 
     def test_can_save_and_load(self):
         label_categories = LabelCategories()

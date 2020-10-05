@@ -9,7 +9,7 @@ from defusedxml import ElementTree
 
 from datumaro.components.extractor import (SourceExtractor, DatasetItem,
     AnnotationType, Points, Polygon, PolyLine, Bbox, Label,
-    LabelCategories
+    LabelCategories, Importer
 )
 from datumaro.util.image import Image
 
@@ -31,18 +31,8 @@ class CvatExtractor(SourceExtractor):
         super().__init__(subset=osp.splitext(osp.basename(path))[0])
 
         items, categories = self._parse(path)
-        self._items = self._load_items(items)
+        self._items = list(self._load_items(items).values())
         self._categories = categories
-
-    def categories(self):
-        return self._categories
-
-    def __iter__(self):
-        for item in self._items.values():
-            yield item
-
-    def __len__(self):
-        return len(self._items)
 
     @classmethod
     def _parse(cls, path):
@@ -314,3 +304,8 @@ class CvatExtractor(SourceExtractor):
                 annotations=item_desc.get('annotations'),
                 attributes={'frame': int(frame_id)})
         return parsed
+
+class CvatImporter(Importer):
+    @classmethod
+    def find_sources(cls, path):
+        return cls._find_sources_recursive(path, '.xml', 'cvat')

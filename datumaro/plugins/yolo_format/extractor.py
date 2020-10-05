@@ -8,7 +8,7 @@ import os.path as osp
 import re
 
 from datumaro.components.extractor import (SourceExtractor, Extractor,
-    DatasetItem, AnnotationType, Bbox, LabelCategories
+    DatasetItem, AnnotationType, Bbox, LabelCategories, Importer
 )
 from datumaro.util import split_path
 from datumaro.util.image import Image
@@ -180,22 +180,18 @@ class YoloExtractor(SourceExtractor):
 
         return label_categories
 
-    def categories(self):
-        return self._categories
-
     def __iter__(self):
         for subset in self._subsets.values():
             for item in subset:
                 yield item
 
     def __len__(self):
-        length = 0
-        for subset in self._subsets.values():
-            length += len(subset)
-        return length
-
-    def subsets(self):
-        return list(self._subsets)
+        return sum(len(s) for s in self._subsets.values())
 
     def get_subset(self, name):
         return self._subsets[name]
+
+class YoloImporter(Importer):
+    @classmethod
+    def find_sources(cls, path):
+        return cls._find_sources_recursive(path, '.data', 'yolo')
