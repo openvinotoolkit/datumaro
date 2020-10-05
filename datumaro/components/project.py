@@ -7,6 +7,7 @@ import logging as log
 import os
 import os.path as osp
 import shutil
+import urllib.parse
 from collections import defaultdict
 from enum import Enum
 from glob import glob
@@ -471,6 +472,9 @@ class CrudProxy:
     def __getitem__(self, name):
         return self._data[name]
 
+    def get(self, name, default=None):
+        return self._data.get(name, default)
+
     def __iter__(self):
         return self._data.keys()
 
@@ -507,7 +511,9 @@ class ProjectRemotes(CrudProxy):
         return self._vcs.dvc.list_remotes()
 
     def add(self, name, value):
-        self._vcs.dvc.add_remote(name, value)
+        if osp.isdir(value['url']):
+            value['url'] = 'local://' + value['url']
+        return self._vcs.dvc.add_remote(name, value)
 
     def remove(self, name):
         self._vcs.dvc.remove_remote(name)
@@ -534,9 +540,7 @@ class _RemotesProxy(CrudProxy):
             self._project.vcs.remotes.pull_remote(name)
 
     def add(self, name, value):
-        value = self._data.set(name, value)
-        if self._project.vcs.writeable:
-            self._project.vcs.remotes.add(name, value)
+        return self._data.set(name, value)
 
     def remove(self, name):
         self._data.remove(name)
@@ -698,12 +702,15 @@ class DvcWrapper:
         return self.repo.scm.files_to_track
 
     def add_remote(self, name, config=None):
+        self.module.main.main('remote', 'add', name)
+
+    def remove_remote(self, name):
         raise NotImplementedError()
 
 class ProjectVcs:
     def __init__(self, project, readonly=False):
         self._project = project
-        self._readonly = readonly
+        self.readonly = readonly
 
         if not project.config.detached:
             try:
@@ -736,11 +743,14 @@ class ProjectVcs:
 
     @property
     def writeable(self):
-        return not self.detached and not self._readonly and \
-            self.git.initialized and self.dvc.initialized
+        return not self.detached and not self.readonly and self.initialized
 
     @property
     def readable(self):
+        return not self.detached and self.initialized
+
+    @property
+    def initialized(self):
         return not self.detached and \
             self.git.initialized and self.dvc.initialized
 
@@ -815,6 +825,9 @@ class Project:
         config.project_dir = save_dir
         project = Project(config)
         project.save(save_dir)
+        if not project.vcs.detached and not project.vcs.readonly and \
+                not project.vcs.initialized:
+            project.vcs.commit("Initial commit")
         return project
 
     @classmethod
@@ -852,6 +865,11 @@ class Project:
             if not project_dir_existed:
                 shutil.rmtree(project_dir, ignore_errors=True)
             raise
+
+        if not self.vcs.detached and not self.vcs.readonly and \
+                not self.vcs.initialized:
+            self._vcs = ProjectVcs(self)
+            self.vcs.init()
 
     def __init__(self, config=None):
         self._config = Config(config,

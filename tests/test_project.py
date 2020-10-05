@@ -2,9 +2,9 @@ import numpy as np
 import os
 import os.path as osp
 
-from unittest import TestCase
+from unittest import TestCase, skipIf
 
-from datumaro.components.project import Project, Environment, Dataset
+from datumaro.components.project import Project, Environment, Dataset, GitWrapper, DvcWrapper
 from datumaro.components.config_model import Source, Model
 from datumaro.components.launcher import Launcher, ModelTransform
 from datumaro.components.extractor import (Extractor, DatasetItem,
@@ -363,10 +363,39 @@ class ProjectTest(TestCase):
         item = next(iter(merged))
         self.assertEqual(3, len(item.annotations))
 
+
+no_vcs_installed = False
+try:
+    import git # pylint: disable=unused-import
+    import dvc # pylint: disable=unused-import
+except ImportError:
+    no_vcs_installed = True
+
+@skipIf(no_vcs_installed, "No VCS modules (Git, DVC) installed")
+class ProjectVcsTest(TestCase):
     def test_can_create(self):
         with TestDir() as test_dir:
+            Project.generate(save_dir=test_dir)
+
+            git = GitWrapper(test_dir)
+            self.assertRegex(git.repo.head.commit.message, r'initial commit')
+
+    def test_add_source(self):
+        with TestDir() as test_dir:
+            os.makedirs(osp.join(test_dir, 'test_source'))
+
             project = Project.generate(save_dir=test_dir)
-            project
+            project.vcs.remotes.add('r1', { 'url': test_dir })
+            project.sources.add('s1', { 'url': 'remote://r1/test_source' })
+            project.save()
+            project.vcs.commit("Added a source")
+
+            self.assertTrue('s1' in project.vcs.remotes)
+            self.assertEqual(project.vcs.remotes['r1'].url,
+                'local://' + test_dir)
+
+    def test_
+
 
 class DatasetFilterTest(TestCase):
     @staticmethod
