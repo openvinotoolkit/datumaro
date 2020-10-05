@@ -8,6 +8,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+-
+
+### Changed
+-
+
+### Deprecated
+-
+
+### Removed
+-
+
+### Fixed
+-
+
+### Security
+-
+
+
+## 10/05/2020 - Release v0.1.2
+### Added
 - `ByteImage` class to represent encoded images in memory and avoid recoding on save (<https://github.com/openvinotoolkit/datumaro/pull/27>)
 
 ### Changed
