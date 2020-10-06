@@ -485,6 +485,8 @@ class CrudProxy:
         return name in self._data
 
 class ProjectRemotes(CrudProxy):
+    SUPPORTED_PROTOCOLS = {'local', 'remote', 'git'}
+
     def __init__(self, project_vcs):
         self._vcs = project_vcs
 
@@ -513,10 +515,23 @@ class ProjectRemotes(CrudProxy):
     def add(self, name, value):
         if osp.isdir(value['url']):
             value['url'] = 'local://' + value['url']
+        self.validate_url(value['url'])
+
         return self._vcs.dvc.add_remote(name, value)
 
     def remove(self, name):
         self._vcs.dvc.remove_remote(name)
+
+    @classmethod
+    def validate_url(cls, url):
+        url_parts = urllib.parse.urlsplit(value['url'])
+        if url_parts.scheme not in cls.SUPPORTED_PROTOCOLS:
+            raise NotImplementedError(
+                "Invalid remote '%s': scheme '%s' is not supported, the only"
+                "available are: %s" % \
+                (url, url_parts.scheme, ', '.join(cls.SUPPORTED_PROTOCOLS))
+            )
+        return url_parts
 
 class _RemotesProxy(CrudProxy):
     def __init__(self, project, config_field):
@@ -547,6 +562,13 @@ class _RemotesProxy(CrudProxy):
         if self._project.vcs.writeable:
             self._project.vcs.remotes.remove(name)
 
+    @classmethod
+    def _validate_url(cls, url):
+        url_parts = ProjectRemotes._validate_url(url)
+        if not url_parts.path:
+            raise ValueError("URL must contain path, url: '%s'" % url)
+        return url_parts
+
 class ProjectModels(_RemotesProxy):
     def __init__(self, project):
         super().__init__(project, 'models')
@@ -566,6 +588,33 @@ class ProjectSources(_RemotesProxy):
             return super().__getitem__(name)
         except KeyError:
             raise KeyError("Unknown source '%s'" % name)
+
+    def add(self, name, value):
+        if name in self:
+            raise Exception("Source '%s' already exists" % name)
+
+        url_parts = self._validate_url(value['url'])
+
+        if url_parts.scheme == 'remote':
+            remote_name = url_parts.netloc
+            if not remote_name in self._project.vcs.remotes:
+                raise Exception("Can't find remote '%s'" % remote_name)
+        elif self._project.vcs.writeable:
+            remote_name = self._make_remote_name(name)
+            self._project.vcs.remotes.add(remote_name, {
+                'url': value['url']
+            })
+
+        value['url'] = url_parts.path
+        value['remote'] = remote_name
+        return super().add(name, value)
+
+    @classmethod
+    def _make_remote_name(cls, name):
+        return 'source-%s'
+
+    def make_dataset(self):
+        raise NotImplementedError()
 
 class GitWrapper:
     @staticmethod
@@ -825,9 +874,6 @@ class Project:
         config.project_dir = save_dir
         project = Project(config)
         project.save(save_dir)
-        if not project.vcs.detached and not project.vcs.readonly and \
-                not project.vcs.initialized:
-            project.vcs.commit("Initial commit")
         return project
 
     @classmethod

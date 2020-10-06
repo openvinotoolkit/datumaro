@@ -58,7 +58,6 @@ def make_parser():
     _LogManager._define_loglevel_option(parser)
 
     known_contexts = [
-        ('project', contexts.project, "Actions on projects (datasets)"),
         ('source', contexts.source, "Actions on data sources"),
         ('model', contexts.model, "Actions on models"),
     ]
