@@ -103,7 +103,7 @@ class VocConverter(Converter):
         self._allow_attributes = allow_attributes
 
         if label_map is None:
-            label_map = LabelmapType.source
+            label_map = LabelmapType.source.name
         self._load_categories(label_map)
 
     def apply(self):
