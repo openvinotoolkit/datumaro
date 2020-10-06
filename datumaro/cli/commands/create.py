@@ -48,20 +48,11 @@ def create_command(args):
 
     project_env_dir = osp.join(project_dir, DEFAULT_CONFIG.env_dir)
     if osp.isdir(project_env_dir) and os.listdir(project_env_dir):
-        if not args.overwrite:
+        if args.overwrite:
+            shutil.rmtree(project_env_dir, ignore_errors=True)
+        else:
             raise CliException("Directory '%s' already exists "
                 "(pass --overwrite to overwrite)" % project_env_dir)
-        else:
-            shutil.rmtree(project_env_dir, ignore_errors=True)
-
-    own_dataset_dir = osp.join(project_dir, DEFAULT_CONFIG.dataset_dir)
-    if osp.isdir(own_dataset_dir) and os.listdir(own_dataset_dir):
-        if not args.overwrite:
-            raise CliException("Directory '%s' already exists "
-                "(pass --overwrite to overwrite)" % own_dataset_dir)
-        else:
-            # NOTE: remove the dir to avoid using data from previous project
-            shutil.rmtree(own_dataset_dir)
 
     project_name = args.name
     if project_name is None:
