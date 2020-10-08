@@ -9,6 +9,7 @@ from datumaro.components.extractor import (Extractor, LabelCategories,
     AnnotationType, DatasetItem, DEFAULT_SUBSET_NAME)
 from datumaro.components.dataset_filter import \
     XPathDatasetFilter, XPathAnnotationsFilter
+from datumaro.components.environment import Environment
 
 
 class Dataset(Extractor):
@@ -69,6 +70,8 @@ class Dataset(Extractor):
 
     def __init__(self, categories=None):
         super().__init__()
+
+        self._env = None
 
         self._subsets = {}
 
@@ -184,3 +187,29 @@ class Dataset(Extractor):
         # TODO: implement properly with merging and annotations remapping
         from .operations import merge_categories
         return merge_categories(sources)
+
+    def export(self, converter, save_dir):
+        if isinstance(converter, str):
+            converter = self.env.make_converter(converter)
+
+        save_dir = osp.abspath(save_dir)
+        save_dir_existed = osp.exists(save_dir)
+        try:
+            os.makedirs(save_dir, exist_ok=True)
+            converter(self, save_dir)
+        except BaseException:
+            if not save_dir_existed:
+                shutil.rmtree(save_dir)
+            raise
+
+    def transform(self, method, *args, **kwargs):
+        if isinstance(method, str):
+            method = self.env.make_transform(method)
+
+        return super().transform(method, **kwargs)
+
+    @property
+    def env(self):
+        if not self._env:
+            self._env = Environment()
+        return self._env

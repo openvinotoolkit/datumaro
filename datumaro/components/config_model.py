@@ -29,14 +29,31 @@ class Model(Config):
         super().__init__(config, schema=MODEL_SCHEMA)
 
 
+BUILDSTAGE_SCHEMA = _SchemaBuilder() \
+    .add('type', str) \
+    .add('parameters', str) \
+    .build()
+
+class BuildStage(Config):
+    def __init__(self, config=None):
+        super().__init__(config, schema=BUILDSTAGE_SCHEMA)
+
+BUILDTARGET_SCHEMA = _SchemaBuilder() \
+    .add('stages', list) \
+    .build()
+
+class BuildTarget(Config):
+    def __init__(self, config=None):
+        super().__init__(config, schema=BUILDTARGET_SCHEMA)
+
+
 PROJECT_SCHEMA = _SchemaBuilder() \
     .add('project_name', str) \
     .add('format_version', int) \
     \
-    .add('sources', lambda: _DefaultConfig(
-        lambda v=None: Source(v))) \
-    .add('models', lambda: _DefaultConfig(
-        lambda v=None: Model(v))) \
+    .add('sources', lambda: _DefaultConfig(lambda v=None: Source(v))) \
+    .add('models', lambda: _DefaultConfig(lambda v=None: Model(v))) \
+    .add('build_targets', lambda: _DefaultConfig(lambda v=None: BuildTarget(v))) \
     \
     .add('models_dir', str, internal=True) \
     .add('plugins_dir', str, internal=True) \

@@ -10,8 +10,8 @@ import shutil
 
 from datumaro.components.operations import DistanceComparator
 
-from ...util import MultilineFormatter
-from ...util.project import generate_next_file_name, load_project
+from ..util import MultilineFormatter
+from ..util.project import generate_next_file_name, load_project
 from .diff import DiffVisualizer
 
 

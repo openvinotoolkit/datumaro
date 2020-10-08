@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MIT
 
-import inspect
 import logging as log
 import os
 import os.path as osp
@@ -11,205 +10,19 @@ import urllib.parse
 from collections import defaultdict
 from enum import Enum
 from glob import glob
-from typing import List, Union
+from typing import List
 
 from datumaro.components.config import DEFAULT_FORMAT, Config
 from datumaro.components.config_model import (PROJECT_DEFAULT_CONFIG,
     PROJECT_SCHEMA)
+from datumaro.components.environment import Environment
 from datumaro.components.dataset import Dataset
 from datumaro.components.launcher import ModelTransform
-from datumaro.util.os_util import import_foreign_module
 
-
-class Registry:
-    def __init__(self, config=None, item_type=None):
-        self.item_type = item_type
-
-        self.items = {}
-
-        if config is not None:
-            self.load(config)
-
-    def load(self, config):
-        pass
-
-    def register(self, name, value):
-        if self.item_type:
-            value = self.item_type(value)
-        self.items[name] = value
-        return value
-
-    def unregister(self, name):
-        return self.items.pop(name, None)
-
-    def get(self, key):
-        return self.items[key] # returns a class / ctor
-
-class PluginRegistry(Registry):
-    def __init__(self, config=None, builtin=None, local=None):
-        super().__init__(config)
-
-        from datumaro.components.cli_plugin import CliPlugin
-
-        if builtin is not None:
-            for v in builtin:
-                k = CliPlugin._get_name(v)
-                self.register(k, v)
-        if local is not None:
-            for v in local:
-                k = CliPlugin._get_name(v)
-                self.register(k, v)
 
 def load_project_as_dataset(url):
     # symbol forward declaration
     raise NotImplementedError()
-
-class Environment:
-    _builtin_plugins = None
-    PROJECT_EXTRACTOR_NAME = 'datumaro_project'
-
-    def __init__(self, config=None):
-        config = Config(config,
-            fallback=PROJECT_DEFAULT_CONFIG, schema=PROJECT_SCHEMA)
-
-        env_dir = osp.join(config.project_dir, config.env_dir)
-        builtin = self._load_builtin_plugins()
-        custom = self._load_plugins2(osp.join(env_dir, config.plugins_dir))
-        select = lambda seq, t: [e for e in seq if issubclass(e, t)]
-        from datumaro.components.extractor import Transform
-        from datumaro.components.extractor import SourceExtractor
-        from datumaro.components.extractor import Importer
-        from datumaro.components.converter import Converter
-        from datumaro.components.launcher import Launcher
-        self.extractors = PluginRegistry(
-            builtin=select(builtin, SourceExtractor),
-            local=select(custom, SourceExtractor)
-        )
-        self.extractors.register(self.PROJECT_EXTRACTOR_NAME,
-            load_project_as_dataset)
-
-        self.importers = PluginRegistry(
-            builtin=select(builtin, Importer),
-            local=select(custom, Importer)
-        )
-        self.launchers = PluginRegistry(
-            builtin=select(builtin, Launcher),
-            local=select(custom, Launcher)
-        )
-        self.converters = PluginRegistry(
-            builtin=select(builtin, Converter),
-            local=select(custom, Converter)
-        )
-        self.transforms = PluginRegistry(
-            builtin=select(builtin, Transform),
-            local=select(custom, Transform)
-        )
-
-    @staticmethod
-    def _find_plugins(plugins_dir):
-        plugins = []
-        if not osp.exists(plugins_dir):
-            return plugins
-
-        for plugin_name in os.listdir(plugins_dir):
-            p = osp.join(plugins_dir, plugin_name)
-            if osp.isfile(p) and p.endswith('.py'):
-                plugins.append((plugins_dir, plugin_name, None))
-            elif osp.isdir(p):
-                plugins += [(plugins_dir,
-                        osp.splitext(plugin_name)[0] + '.' + osp.basename(p),
-                        osp.splitext(plugin_name)[0]
-                    )
-                    for p in glob(osp.join(p, '*.py'))]
-        return plugins
-
-    @classmethod
-    def _import_module(cls, module_dir, module_name, types, package=None):
-        module = import_foreign_module(osp.splitext(module_name)[0], module_dir,
-            package=package)
-
-        exports = []
-        if hasattr(module, 'exports'):
-            exports = module.exports
-        else:
-            for symbol in dir(module):
-                if symbol.startswith('_'):
-                    continue
-                exports.append(getattr(module, symbol))
-
-        exports = [s for s in exports
-            if inspect.isclass(s) and issubclass(s, types) and not s in types]
-
-        return exports
-
-    @classmethod
-    def _load_plugins(cls, plugins_dir, types):
-        types = tuple(types)
-
-        plugins = cls._find_plugins(plugins_dir)
-
-        all_exports = []
-        for module_dir, module_name, package in plugins:
-            try:
-                exports = cls._import_module(module_dir, module_name, types,
-                    package)
-            except Exception as e:
-                module_search_error = ImportError
-                try:
-                    module_search_error = ModuleNotFoundError # python 3.6+
-                except NameError:
-                    pass
-
-                message = ["Failed to import module '%s': %s", module_name, e]
-                if isinstance(e, module_search_error):
-                    log.debug(*message)
-                else:
-                    log.warning(*message)
-                continue
-
-            log.debug("Imported the following symbols from %s: %s" % \
-                (
-                    module_name,
-                    ', '.join(s.__name__ for s in exports)
-                )
-            )
-            all_exports.extend(exports)
-
-        return all_exports
-
-    @classmethod
-    def _load_builtin_plugins(cls):
-        if not cls._builtin_plugins:
-            plugins_dir = osp.join(
-                __file__[: __file__.rfind(osp.join('datumaro', 'components'))],
-                osp.join('datumaro', 'plugins')
-            )
-            assert osp.isdir(plugins_dir), plugins_dir
-            cls._builtin_plugins = cls._load_plugins2(plugins_dir)
-        return cls._builtin_plugins
-
-    @classmethod
-    def _load_plugins2(cls, plugins_dir):
-        from datumaro.components.extractor import Transform
-        from datumaro.components.extractor import Extractor
-        from datumaro.components.extractor import Importer
-        from datumaro.components.converter import Converter
-        from datumaro.components.launcher import Launcher
-        types = [Extractor, Converter, Importer, Launcher, Transform]
-
-        return cls._load_plugins(plugins_dir, types)
-
-    def make_extractor(self, name, *args, **kwargs):
-        return self.extractors.get(name)(*args, **kwargs)
-
-    def make_importer(self, name, *args, **kwargs):
-        return self.importers.get(name)(*args, **kwargs)
-
-    def make_launcher(self, name, *args, **kwargs):
-        return self.launchers.get(name)(*args, **kwargs)
-
-    def make_converter(self, name, *args, **kwargs):
-        return self.converters.get(name)(*args, **kwargs)
 
 class ProjectDataset(Dataset):
     def __init__(self, project, only_own=False):
@@ -372,7 +185,7 @@ class ProjectDataset(Dataset):
                 shutil.rmtree(save_dir, ignore_errors=True)
             raise
 
-    @property
+    @Dataset.env.getter
     def env(self):
         return self._project.env
 
@@ -384,74 +197,13 @@ class ProjectDataset(Dataset):
     def sources(self):
         return self._sources
 
-    def _save_branch_project(self, extractor, save_dir=None):
-        extractor = Dataset.from_extractors(extractor) # apply lazy transforms
-
-        # NOTE: probably this function should be in the ViewModel layer
-        save_dir = osp.abspath(save_dir)
-        if save_dir:
-            dst_project = Project()
-        else:
-            if not self.config.project_dir:
-                raise Exception("Either a save directory or a project "
-                    "directory should be specified")
-            save_dir = self.config.project_dir
-
-            dst_project = Project(Config(self.config))
-            dst_project.config.remove('project_dir')
-            dst_project.config.remove('sources')
-        dst_project.config.project_name = osp.basename(save_dir)
-
-        dst_dataset = dst_project.make_dataset()
-        dst_dataset.define_categories(extractor.categories())
-        dst_dataset.update(extractor)
-
-        dst_dataset.save(save_dir=save_dir, merge=True)
-
-    def transform_project(self, method, save_dir=None, **method_kwargs):
-        # NOTE: probably this function should be in the ViewModel layer
-        if isinstance(method, str):
-            method = self.env.make_transform(method)
-
-        transformed = self.transform(method, **method_kwargs)
-        self._save_branch_project(transformed, save_dir=save_dir)
-
-    def apply_model(self, model, save_dir=None, batch_size=1):
+    def apply_model(self, model, batch_size=1):
         # NOTE: probably this function should be in the ViewModel layer
         if isinstance(model, str):
             launcher = self._project.make_executable_model(model)
 
-        self.transform_project(ModelTransform, launcher=launcher,
-            save_dir=save_dir, batch_size=batch_size)
-
-    def export_project(self, save_dir, converter,
-            filter_expr=None, filter_annotations=False, remove_empty=False):
-        # NOTE: probably this function should be in the ViewModel layer
-        dataset = self
-        if filter_expr:
-            dataset = dataset.filter(filter_expr,
-                filter_annotations=filter_annotations,
-                remove_empty=remove_empty)
-
-        save_dir = osp.abspath(save_dir)
-        save_dir_existed = osp.exists(save_dir)
-        try:
-            os.makedirs(save_dir, exist_ok=True)
-            converter(dataset, save_dir)
-        except BaseException:
-            if not save_dir_existed:
-                shutil.rmtree(save_dir)
-            raise
-
-    def filter_project(self, filter_expr, filter_annotations=False,
-            save_dir=None, remove_empty=False):
-        # NOTE: probably this function should be in the ViewModel layer
-        dataset = self
-        if filter_expr:
-            dataset = dataset.filter(filter_expr,
-                filter_annotations=filter_annotations,
-                remove_empty=remove_empty)
-        self._save_branch_project(dataset, save_dir=save_dir)
+        return self.transform(ModelTransform, launcher=launcher,
+            batch_size=batch_size)
 
 MergeStrategy = Enum('MergeStrategy', ['ours', 'theirs', 'conflict'])
 
@@ -546,13 +298,9 @@ class _RemotesProxy(CrudProxy):
         if self._project.vcs.readable:
             self._project.vcs.remotes.check_remote(name)
 
-    def fetch(self, name=None):
-        if self._project.vcs.writeable:
-            self._project.vcs.remotes.fetch_remote(name)
-
     def pull(self, name=None):
         if self._project.vcs.writeable:
-            self._project.vcs.remotes.pull_remote(name)
+            self._project.vcs.dvc.update_imports(name)
 
     def add(self, name, value):
         return self._data.set(name, value)
@@ -579,6 +327,15 @@ class ProjectModels(_RemotesProxy):
         except KeyError:
             raise KeyError("Unknown model '%s'" % name)
 
+    def model_dir(self, name):
+        return osp.join(self.config.env_dir, self.config.models_dir, name)
+
+    # TODO:
+    # def make_executable_model(self, name):
+    #     model = self.get_model(name)
+    #     return self.env.make_launcher(model.launcher,
+    #         **model.options, model_dir=self.local_model_dir(name))
+
 class ProjectSources(_RemotesProxy):
     def __init__(self, project):
         super().__init__(project, 'sources')
@@ -601,20 +358,55 @@ class ProjectSources(_RemotesProxy):
                 raise Exception("Can't find remote '%s'" % remote_name)
         elif self._project.vcs.writeable:
             remote_name = self._make_remote_name(name)
-            self._project.vcs.remotes.add(remote_name, {
-                'url': value['url']
-            })
+            self._project.vcs.remotes.add(remote_name, { 'url': value['url'] })
 
-        value['url'] = url_parts.path
+        if self._project.vcs.writeable:
+            self._project.vcs.dvc.import_url(urllib.parse.urlunsplit(
+                url_parts._replace(scheme='remote', netloc=remote_name)
+            ), out=self.source_dir(name))
+
+        value['url'] = osp.normpath(url_parts.path)
         value['remote'] = remote_name
-        return super().add(name, value)
+        value = super().add(name, value)
+
+        self._project.build_targets.add_target(name)
+
+        return value
+
+    def remove(self, name):
+        super().remove(name)
+        self._project.build_targets.remove_target(name)
 
     @classmethod
     def _make_remote_name(cls, name):
         return 'source-%s'
 
-    def make_dataset(self):
+    def make_dataset(self, name):
         raise NotImplementedError()
+
+    def source_dir(self, name):
+        return osp.join(self._project.config.project_dir, name)
+
+class ProjectBuildTargets(CrudProxy):
+    def __init__(self, project):
+        self._project = project
+
+    @CrudProxy._data.getter
+    def _data(self):
+        return self._project.config.build_targets
+
+    def add_target(self, name):
+        raise NotImplementedError()
+
+    def add_stage(self, target, name, value, prev=None):
+        raise NotImplementedError()
+
+    def remove_target(self, name):
+        raise NotImplementedError()
+
+    def remove_stage(self, target, name):
+        raise NotImplementedError()
+
 
 class GitWrapper:
     @staticmethod
@@ -740,14 +532,22 @@ class DvcWrapper:
     def fetch(self, remote=None):
         self.repo.fetch(remote=remote)
 
+    def import_url(self, url, out=None):
+        self.repo.import_url(url, out=out)
+        return self.repo.scm.files_to_track
+
+    def update_imports(self, targets=None):
+        self.repo.update(targets)
+
     def checkout(self):
         self.repo.checkout()
 
-    def add(self, path):
-        self.repo.add(path)
+    def add(self, paths):
+        self.repo.add(paths)
         return self.repo.scm.files_to_track
 
-    def commit(self, message=None):
+    def commit(self, paths):
+        self.repo.commit(paths, recursive=True)
         return self.repo.scm.files_to_track
 
     def add_remote(self, name, config=None):
@@ -815,20 +615,20 @@ class ProjectVcs:
     def tags(self) -> List[str]:
         return self.git.tags()
 
-    def push(self):
+    def push(self, remote=None):
         self.dvc.push()
         self.git.push()
 
-    def pull(self):
+    def pull(self, remote=None):
         # order matters
         self.git.pull()
         self.dvc.pull()
 
-    def check_updates(self) -> List[str]:
+    def check_updates(self, remote=None) -> List[str]:
         updated_refs = self.git.check_updates()
         return updated_refs
 
-    def fetch(self):
+    def fetch(self, remote=None):
         self.git.fetch()
         self.dvc.fetch()
 
@@ -840,13 +640,19 @@ class ProjectVcs:
         self.git.checkout(ref)
         self.dvc.checkout()
 
-    def add(self, path):
-        updated_paths = self.dvc.add(path)
+    def add(self, paths):
+        if not paths:
+            paths = [self._project.config.project_dir]
+        updated_paths = self.dvc.add(paths)
         self.git.add(updated_paths)
 
-    def commit(self, message):
+    def commit(self, paths, message):
         # order matters
-        self.dvc.commit()
+        if not paths:
+            paths = glob(
+                osp.join(self._project.config.project_dir, '**', '*.dvc'),
+                recursive=True)
+        self.dvc.commit(paths)
         self.git.commit(message)
 
     def init(self):
@@ -924,7 +730,7 @@ class Project:
         self._vcs = ProjectVcs(self)
         self._sources = ProjectSources(self)
         self._models = ProjectModels(self)
-        self._dataset = None
+        self._build_targets = ProjectBuildTargets(self)
 
     @property
     def sources(self) -> ProjectSources:
@@ -935,14 +741,12 @@ class Project:
         return self._models
 
     @property
-    def vcs(self) -> ProjectVcs:
-        return self._vcs
+    def build_targets(self) -> ProjectBuildTargets:
+        return self._build_targets
 
     @property
-    def own_dataset(self) -> ProjectDataset:
-        if self._dataset is None:
-            self._dataset = ProjectDataset(self, only_own=True)
-        return self._dataset
+    def vcs(self) -> ProjectVcs:
+        return self._vcs
 
     @property
     def config(self) -> Config:
@@ -952,20 +756,17 @@ class Project:
     def env(self) -> Environment:
         return self._env
 
-    def make_dataset(self) -> ProjectDataset:
+    def make_dataset(self, target=None) -> ProjectDataset:
         return ProjectDataset(self)
 
     def publish(self):
         # build + tag + push?
         raise NotImplementedError()
 
-    @property
-    def build_targets(self):  # -> Dict-like proxy (CRUD)
-        raise NotImplementedError()
-
     def build(self, target=None):
-        raise NotImplementedError()
-
+        if target is None:
+            target = 'project'
+        return self.build_targets.build(target)
 
 def merge_projects(a, b, strategy: MergeStrategy = None):
     raise NotImplementedError()
@@ -973,20 +774,6 @@ def merge_projects(a, b, strategy: MergeStrategy = None):
 def compare_projects(a, b, **options):
     raise NotImplementedError()
 
-
-# class Project:
-
-#     def make_executable_model(self, name):
-#         model = self.get_model(name)
-#         return self.env.make_launcher(model.launcher,
-#             **model.options, model_dir=self.local_model_dir(name))
-
-#     def local_model_dir(self, model_name):
-#         return osp.join(
-#             self.config.env_dir, self.config.models_dir, model_name)
-
-#     def local_source_dir(self, source_name):
-#         return osp.join(self.config.sources_dir, source_name)
 
 # pylint: disable=function-redefined
 def load_project_as_dataset(url):

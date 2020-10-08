@@ -1,4 +1,3 @@
-
 # Copyright (C) 2019-2020 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
@@ -24,7 +23,6 @@ from ...util import (CliException, MultilineFormatter, add_subparser,
     make_file_name)
 from ...util.project import generate_next_file_name, load_project
 from .diff import DiffVisualizer
-
 
 
 class FilterModes(Enum):
@@ -97,6 +95,8 @@ def build_export_parser(parser_ctor=argparse.ArgumentParser):
         """ % ', '.join(builtins),
         formatter_class=MultilineFormatter)
 
+    parser.add_argument('target', default='project',
+        help="Targets to do export for (default: '%(default)s')")
     parser.add_argument('-e', '--filter', default=None,
         help="Filter expression for dataset items")
     parser.add_argument('--filter-mode', default=FilterModes.i.name,
@@ -143,14 +143,11 @@ def export_command(args):
     filter_args = FilterModes.make_filter_args(args.filter_mode)
 
     log.info("Loading the project...")
-    dataset = project.make_dataset()
+    dataset = project.make_dataset(args.target)
 
     log.info("Exporting the project...")
-    dataset.export_project(
-        save_dir=dst_dir,
-        converter=converter_proxy,
-        filter_expr=args.filter,
-        **filter_args)
+    dataset = dataset.filter(args.filter, **filter_args)
+    dataset.export(converter_proxy, save_dir=dst_dir)
     log.info("Project exported to '%s' as '%s'" % \
         (dst_dir, args.format))
 

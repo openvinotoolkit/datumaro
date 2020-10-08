@@ -1,4 +1,3 @@
-
 # Copyright (C) 2019-2020 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
@@ -28,9 +27,7 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
             - a dataset in a supported format (check 'formats' section below)|n
             - a Datumaro project|n
             |n
-            The source can be a local path or a remote link.
-            Each source type has its own parameters, which can be checked by:|n
-            '%s'.|n
+            The source can be a local path or a remote link.|n
             |n
             Formats:|n
             Datasets come in a wide variety of formats. Each dataset
@@ -57,7 +54,7 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
             |s|sadd path/to/cvat.xml -f cvat -n mysource -p somewhere/|n
             - Add a remote link to a COCO-like dataset:|n
             |s|sadd git://example.net/repo/path/to/coco/dir -f coco|n
-        """ % ('%(prog)s SOURCE_TYPE --help', ', '.join(builtins)),
+        """ % ', '.join(builtins),
         formatter_class=MultilineFormatter,
         add_help=False)
     parser.add_argument('url',
@@ -70,6 +67,8 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
         help="Source dataset format")
     parser.add_argument('--no-check', action='store_true',
         help="Skip source correctness checking")
+    parser.add_argument('--no-pull', action='store_true',
+        help="Do not pull the source")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to operate on (default: current dir)")
     parser.add_argument('extra_args', nargs=argparse.REMAINDER,
@@ -103,7 +102,11 @@ def add_command(args):
     if args.copy:
         raise NotImplementedError()
 
-    if not args.no_check:
+    if not args.no_pull:
+        log.info("Pulling the source...")
+        project.sources.pull(name)
+
+    if not (args.no_check or args.no_pull):
         log.info("Checking the source...")
         project.sources[name].make_dataset()
 
