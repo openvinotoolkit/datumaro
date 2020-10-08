@@ -11,7 +11,7 @@ import re
 from datumaro.components.extractor import (SourceExtractor, DatasetItem,
     AnnotationType, Bbox, Mask, LabelCategories, Importer
 )
-from datumaro.util.image import Image, decode_image, lazy_image
+from datumaro.util.image import ByteImage, decode_image, lazy_image
 from datumaro.util.tf_util import import_tf as _import_tf
 
 from .format import DetectionApiPath
@@ -167,13 +167,13 @@ class TfDetectionApiExtractor(SourceExtractor):
 
             image_params = {}
             if frame_image:
-                image_params['data'] = lazy_image(frame_image, decode_image)
+                image_params['data'] = frame_image
             if frame_filename:
                 image_params['path'] = osp.join(images_dir, frame_filename)
 
             image = None
             if image_params:
-                image = Image(**image_params, size=image_size)
+                image = ByteImage(**image_params, size=image_size)
 
             dataset_items.append(DatasetItem(id=item_id, subset=subset,
                 image=image, annotations=annotations,

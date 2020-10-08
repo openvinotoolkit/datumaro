@@ -220,6 +220,10 @@ class Image:
         return self._path
 
     @property
+    def ext(self):
+        return osp.splitext(osp.basename(self.path))[1]
+
+    @property
     def data(self):
         if callable(self._data):
             return self._data()
@@ -247,4 +251,45 @@ class Image:
             (np.array_equal(self.size, other.size)) and \
             (self.has_data == other.has_data) and \
             (self.has_data and np.array_equal(self.data, other.data) or \
+                not self.has_data)
+
+class ByteImage(Image):
+    def __init__(self, data=None, path=None, ext=None, cache=None, size=None):
+        loader = None
+        if data is not None:
+            if callable(data) and not isinstance(data, lazy_image):
+                data = lazy_image(path, loader=data, cache=cache)
+            loader = lambda _: decode_image(self.get_bytes())
+
+        super().__init__(path=path, size=size, loader=loader, cache=cache)
+        if data is None and loader is None:
+            # unset defaults for regular images
+            # to avoid random file reading to bytes
+            self._data = None
+
+        self._bytes_data = data
+        if ext:
+            ext = ext.lower()
+            if not ext.startswith('.'):
+                ext = '.' + ext
+        self._ext = ext
+
+    def get_bytes(self):
+        if callable(self._bytes_data):
+            return self._bytes_data()
+        return self._bytes_data
+
+    @property
+    def ext(self):
+        if self._ext:
+            return self._ext
+        return super().ext
+
+    def __eq__(self, other):
+        if not isinstance(other, __class__):
+            return super().__eq__(other)
+        return \
+            (np.array_equal(self.size, other.size)) and \
+            (self.has_data == other.has_data) and \
+            (self.has_data and self.get_bytes() == other.get_bytes() or \
                 not self.has_data)

@@ -31,6 +31,10 @@ def find_version(file_path=None):
 with open('README.md', 'r') as fh:
     long_description = fh.read()
 
+setuptools.dist.Distribution().fetch_build_eggs([
+    'Cython>=0.27.3' # required for pycocotools and others, if need to compile
+])
+
 setuptools.setup(
     name="datumaro",
     version=find_version(),

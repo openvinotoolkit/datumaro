@@ -82,7 +82,7 @@ class VocImportTest(TestCase):
             def __iter__(self):
                 return iter([
                     DatasetItem(id='2007_000001', subset='train',
-                        image=Image(path='2007_000001.jpg', size=(20, 10)),
+                        image=Image(path='2007_000001.jpg', size=(10, 20)),
                         annotations=[
                             Label(self._label(l.name))
                             for l in VOC.VocLabel if l.value % 2 == 1
@@ -119,7 +119,7 @@ class VocImportTest(TestCase):
                         ]
                     ),
                     DatasetItem(id='2007_000002', subset='test',
-                        image=np.zeros((20, 10, 3))),
+                        image=np.ones((10, 20, 3))),
                 ])
 
         dataset = Project.import_from(DUMMY_DATASET_DIR, 'voc').make_dataset()

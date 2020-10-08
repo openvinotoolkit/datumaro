@@ -1138,13 +1138,13 @@ def compute_ann_statistics(dataset):
     stats['unannotated images count'] = len(stats['unannotated images'])
 
     for label_info in label_stat['distribution'].values():
-        label_info[1] = label_info[0] / label_stat['count']
+        label_info[1] = label_info[0] / (label_stat['count'] or 1)
 
     for label_attr in label_stat['attributes'].values():
         label_attr['values count'] = len(label_attr['values present'])
         label_attr['values present'] = sorted(label_attr['values present'])
         for attr_info in label_attr['distribution'].values():
-            attr_info[1] = attr_info[0] / label_attr['count']
+            attr_info[1] = attr_info[0] / (label_attr['count'] or 1)
 
     # numpy.sum might be faster, but could overflow with large datasets.
     # Python's int can transparently mutate to be of indefinite precision (long)
@@ -1153,7 +1153,7 @@ def compute_ann_statistics(dataset):
     segm_stat['avg. area'] = total_pixels / (len(segm_areas) or 1.0)
 
     for label_info in segm_stat['pixel distribution'].values():
-        label_info[1] = label_info[0] / total_pixels
+        label_info[1] = label_info[0] / (total_pixels or 1)
 
     if len(segm_areas) != 0:
         hist, bins = np.histogram(segm_areas)

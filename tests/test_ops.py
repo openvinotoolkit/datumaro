@@ -87,7 +87,7 @@ class TestOperations(TestCase):
                     },
                     'attributes': {
                         'x': {
-                            'count': 2, # unnotations with no label are skipped
+                            'count': 2, # annotations with no label are skipped
                             'values count': 2,
                             'values present': ['1', '2'],
                             'distribution': {
@@ -96,7 +96,7 @@ class TestOperations(TestCase):
                             },
                         },
                         'y': {
-                            'count': 2, # unnotations with no label are skipped
+                            'count': 2, # annotations with no label are skipped
                             'values count': 1,
                             'values present': ['2'],
                             'distribution': {
@@ -125,6 +125,54 @@ class TestOperations(TestCase):
                         'label_1': [0, 0.0],
                         'label_2': [4, 4/17],
                         'label_3': [13, 13/17],
+                    },
+                }
+            },
+        }
+
+        actual = compute_ann_statistics(dataset)
+
+        self.assertEqual(expected, actual)
+
+    def test_stats_with_empty_dataset(self):
+        dataset = Dataset.from_iterable([
+            DatasetItem(id=1),
+            DatasetItem(id=3),
+        ], categories=['label_%s' % i for i in range(4)])
+
+        expected = {
+            'images count': 2,
+            'annotations count': 0,
+            'unannotated images count': 2,
+            'unannotated images': ['1', '3'],
+            'annotations by type': {
+                'label': { 'count': 0, },
+                'polygon': { 'count': 0, },
+                'polyline': { 'count': 0, },
+                'bbox': { 'count': 0, },
+                'mask': { 'count': 0, },
+                'points': { 'count': 0, },
+                'caption': { 'count': 0, },
+            },
+            'annotations': {
+                'labels': {
+                    'count': 0,
+                    'distribution': {
+                        'label_0': [0, 0.0],
+                        'label_1': [0, 0.0],
+                        'label_2': [0, 0.0],
+                        'label_3': [0, 0.0],
+                    },
+                    'attributes': {}
+                },
+                'segments': {
+                    'avg. area': 0,
+                    'area distribution': [],
+                    'pixel distribution': {
+                        'label_0': [0, 0.0],
+                        'label_1': [0, 0.0],
+                        'label_2': [0, 0.0],
+                        'label_3': [0, 0.0],
                     },
                 }
             },
