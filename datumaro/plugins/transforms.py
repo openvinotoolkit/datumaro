@@ -355,24 +355,27 @@ class RandomSplit(Transform, CliPlugin):
 
         dataset_size = len(extractor)
         indices = list(range(dataset_size))
-
         random.seed(seed)
         random.shuffle(indices)
         parts = []
         s = 0
-        for subset, ratio in splits:
+        lower_boundary = 0
+        for split_idx, (subset, ratio) in enumerate(splits):
             s += ratio
-            boundary = int(s * dataset_size)
-            parts.append((boundary, subset))
-
+            upper_boundary = int(s * dataset_size)
+            if split_idx == len(splits) - 1:
+                upper_boundary = dataset_size
+            subset_indices = set(indices[lower_boundary : upper_boundary])
+            parts.append((subset_indices, subset))
+            lower_boundary = upper_boundary
         self._parts = parts
 
         self._subsets = set(s[0] for s in splits)
         self._length = 'parent'
 
     def _find_split(self, index):
-        for boundary, subset in self._parts:
-            if index < boundary:
+        for subset_indices, subset in self._parts:
+            if index in subset_indices:
                 return subset
         return subset # all the possible remainder goes to the last split
 
