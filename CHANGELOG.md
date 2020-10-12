@@ -20,7 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 ### Fixed
--
+- Randomness of random split transform (<https://github.com/openvinotoolkit/datumaro/pull/38>)
+- `Transform.subsets()` method (<https://github.com/openvinotoolkit/datumaro/pull/38>)
 
 ### Security
 -
@@ -43,8 +44,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Zero division errors in dataset statistics (<https://github.com/openvinotoolkit/datumaro/pull/31>)
-- Randomness of random split transform (<https://github.com/openvinotoolkit/datumaro/pull/38>)
-- `Transform.subsets()` method (<https://github.com/openvinotoolkit/datumaro/pull/38>)
 
 ### Security
 -
