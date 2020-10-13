@@ -8,6 +8,6 @@ class DetectionApiPath:
     ANNOTATIONS_DIR = 'annotations'
 
     DEFAULT_IMAGE_EXT = '.jpg'
-    IMAGE_EXT_FORMAT = {'.jpg': 'jpeg', '.png': 'png'}
+    IMAGE_EXT_FORMAT = {'.jpg': 'jpeg', '.jpeg': 'jpeg', '.png': 'png'}
 
     LABELMAP_FILE = 'label_map.pbtxt'
