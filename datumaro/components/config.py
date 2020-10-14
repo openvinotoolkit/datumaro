@@ -232,6 +232,3 @@ class DefaultConfig(Config):
             return super().set(key, value)
         else:
             return super().set(key, value)
-
-
-DEFAULT_FORMAT = 'datumaro'

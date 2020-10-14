@@ -292,6 +292,48 @@ def merge_command(args):
 
     return 0
 
+def build_apply_parser(parser_ctor=argparse.ArgumentParser):
+    parser = parser_ctor(help="Apply some operations to project",
+        description="""
+            Applies several operations to a dataset
+            and produces a new dataset.
+        """ % ', '.join(builtins),
+        formatter_class=MultilineFormatter)
+
+    parser.add_argument('file',
+        help="Path to a file with a list of transforms and other actions")
+    parser.add_argument('-o', '--output-dir', dest='dst_dir', default=None,
+        help="Directory to save output (default: current dir)")
+    parser.add_argument('--overwrite', action='store_true',
+        help="Overwrite existing files in the save directory")
+    parser.add_argument('-p', '--project', dest='project_dir', default='.',
+        help="Directory of the project to operate on (default: current dir)")
+    parser.set_defaults(command=apply_command)
+
+    return parser
+
+def apply_command(args):
+    project = load_project(args.project_dir)
+
+    dst_dir = args.dst_dir
+    if dst_dir:
+        if not args.overwrite and osp.isdir(dst_dir) and os.listdir(dst_dir):
+            raise CliException("Directory '%s' already exists "
+                "(pass --overwrite to overwrite)" % dst_dir)
+    else:
+        dst_dir = generate_next_file_name('%s-apply' % \
+            project.config.project_name)
+    dst_dir = osp.abspath(dst_dir)
+
+    pipeline = project.build_targets.read_pipeline(args.path)
+    dataset = project.build_targets.apply_pipeline(pipeline)
+
+    dataset.save(dst_dir)
+
+    log.info("Results have been saved to '%s'" % dst_dir)
+
+    return 0
+
 def build_transform_parser(parser_ctor=argparse.ArgumentParser):
     builtins = sorted(Environment().transforms.items)
 
@@ -308,6 +350,8 @@ def build_transform_parser(parser_ctor=argparse.ArgumentParser):
         """ % ', '.join(builtins),
         formatter_class=MultilineFormatter)
 
+    parser.add_argument('-f', '--file',
+        help="Path to a file with a list of transforms and other actions")
     parser.add_argument('-t', '--transform', required=True,
         help="Transform to apply to the project")
     parser.add_argument('-o', '--output-dir', dest='dst_dir', default=None,

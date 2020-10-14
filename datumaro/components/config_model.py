@@ -30,6 +30,7 @@ class Model(Config):
 
 
 BUILDSTAGE_SCHEMA = _SchemaBuilder() \
+    .add('name', str) \
     .add('type', str) \
     .add('parameters', str) \
     .build()
@@ -40,11 +41,20 @@ class BuildStage(Config):
 
 BUILDTARGET_SCHEMA = _SchemaBuilder() \
     .add('stages', list) \
+    .add('parents', list) \
     .build()
 
 class BuildTarget(Config):
     def __init__(self, config=None):
         super().__init__(config, schema=BUILDTARGET_SCHEMA)
+
+    @property
+    def root(self):
+        return self.stages[0]
+
+    @property
+    def head(self):
+        return self.stages[-1]
 
 
 PROJECT_SCHEMA = _SchemaBuilder() \

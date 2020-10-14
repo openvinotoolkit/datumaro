@@ -91,3 +91,17 @@ def str_to_bool(s):
 
 def filter_dict(d, exclude_keys):
     return { k: v for k, v in d.items() if k not in exclude_keys }
+
+def make_file_name(s):
+    # adapted from
+    # https://docs.djangoproject.com/en/2.1/_modules/django/utils/text/#slugify
+    """
+    Normalizes string, converts to lowercase, removes non-alpha characters,
+    and converts spaces to hyphens.
+    """
+    import unicodedata, re
+    s = unicodedata.normalize('NFKD', s).encode('ascii', 'ignore')
+    s = s.decode()
+    s = re.sub(r'[^\w\s-]', '', s).strip().lower()
+    s = re.sub(r'[-\s]+', '-', s)
+    return s

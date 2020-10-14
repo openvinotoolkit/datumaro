@@ -12,6 +12,8 @@ from datumaro.components.dataset_filter import \
 from datumaro.components.environment import Environment
 
 
+DEFAULT_FORMAT = 'datumaro'
+
 class Dataset(Extractor):
     class Subset(Extractor):
         def __init__(self, parent):
@@ -213,3 +215,11 @@ class Dataset(Extractor):
         if not self._env:
             self._env = Environment()
         return self._env
+
+    def save(self, save_dir, **kwargs):
+        self.export(DEFAULT_FORMAT, save_dir=save_dir, **kwargs)
+
+    @staticmethod
+    def load(path, **kwargs):
+        extractor = Environment().make_extractor(DEFAULT_FORMAT, path, **kwargs)
+        return Dataset.from_extractors(extractor)

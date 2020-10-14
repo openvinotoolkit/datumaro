@@ -3,21 +3,24 @@
 # SPDX-License-Identifier: MIT
 
 import logging as log
+import networkx as nx
 import os
 import os.path as osp
 import shutil
 import urllib.parse
+import yaml
 from collections import defaultdict
 from enum import Enum
 from glob import glob
 from typing import List
 
-from datumaro.components.config import DEFAULT_FORMAT, Config
+from datumaro.components.config import Config
 from datumaro.components.config_model import (PROJECT_DEFAULT_CONFIG,
-    PROJECT_SCHEMA)
+    PROJECT_SCHEMA, BuildStage)
 from datumaro.components.environment import Environment
-from datumaro.components.dataset import Dataset
+from datumaro.components.dataset import Dataset, DEFAULT_FORMAT
 from datumaro.components.launcher import ModelTransform
+from datumaro.util import make_file_name, find
 
 
 def load_project_as_dataset(url):
@@ -387,6 +390,10 @@ class ProjectSources(_RemotesProxy):
     def source_dir(self, name):
         return osp.join(self._project.config.project_dir, name)
 
+
+BuildStageType = Enum('BuildStageType',
+    ['source', 'project', 'export', 'transform'])
+
 class ProjectBuildTargets(CrudProxy):
     def __init__(self, project):
         self._project = project
@@ -396,17 +403,256 @@ class ProjectBuildTargets(CrudProxy):
         return self._project.config.build_targets
 
     def add_target(self, name):
-        raise NotImplementedError()
+        return self._data.set(name, {
+            'stages': [
+                BuildStage({
+                    'name': self.BASE_STAGE,
+                    'type': BuildStageType.source.name,
+                })
+            ]
+        })
 
     def add_stage(self, target, name, value, prev=None):
-        raise NotImplementedError()
+        if prev is None:
+            prev = self.BASE_STAGE
+        target = self._data[target]
+        prev_stage = find(enumerate(target.stages), lambda e: e[1].name == prev)
+        if prev_stage is None:
+            raise KeyError("Can't find stage '%s'" % prev)
+        prev_stage = prev_stage[0]
+
+        return target.stages.insert(prev_stage + 1, value)
 
     def remove_target(self, name):
-        raise NotImplementedError()
+        self._data.remove(name)
 
     def remove_stage(self, target, name):
-        raise NotImplementedError()
+        target = self._data[target]
+        prev_stage = find(enumerate(target.stages), lambda e: e[1].name == prev)
+        if prev_stage is None:
+            raise KeyError("Can't find stage '%s'" % prev)
+        target.stages.remove()
 
+    MAIN_TARGET = 'project'
+    BASE_STAGE = 'root'
+    def _get_build_graph(self):
+        graph = nx.DiGraph()
+        for target_name, target in self._data.items():
+            if target_name == self.MAIN_TARGET:
+                # main target combines all the others
+                prev_stages = [t.head.name for t in self._data
+                    if t != self.MAIN_TARGET]
+            else:
+                prev_stages = [t.head.name for t in target.parents]
+
+            for stage_name, stage in target.stages:
+                stage_name = self._make_target_name(target_name, stage_name)
+                graph.add_node(stage_name, config=stage)
+                for prev_stage in prev_stages:
+                    graph.add_edge(prev_stage, stage_name)
+                prev_stages = [stage_name]
+
+        return graph
+
+    @staticmethod
+    def _make_target_name(target, stage=None):
+        if stage:
+            return '%s.%s' % (target, stage)
+        return target
+
+    @classmethod
+    def _split_target_name(cls, name):
+        if '.' in name:
+            target, stage = name.split('.', maxsplit=1)
+        else:
+            target = name
+            stage = cls.BASE_STAGE
+        return target, stage
+
+    def _get_target_subgraph(self, target):
+        def _is_root(g, n):
+            return g.in_degree(n) == 0
+
+        full_graph = self._get_build_graph()
+
+        target_parents = set()
+        visited = set()
+        to_visit = set()
+        while to_visit:
+            current = to_visit.pop()
+            visited.add(current)
+
+            for pred in current.predecessors:
+                if _is_root(full_graph, pred):
+                    target_parents.add(pred)
+                elif pred not in visited:
+                    to_visit.add(pred)
+
+        target_parents.add(target)
+
+        return full_graph.subgraph(target_parents)
+
+    def _get_target_config(self, name):
+        """Returns a target or stage description"""
+        target, stage = self._split_target_name(name)
+        target_config = self._data[target]
+        stage_config = find(target_config.stages, lambda s: s.name == stage)
+        return stage_config
+
+    def make_pipeline(self, target):
+        # a subgraph with all the target dependencies
+        target_subgraph = self._get_target_subgraph(target)
+        pipeline = []
+        for node_name, node in target_subgraph.nodes.items():
+            entry = {
+                'name': node_name,
+                'parents': list(target_subgraph.predecessors(node_name)),
+                'type': node.type,
+                'parameters': node.parameters,
+            }
+            pipeline.append(entry)
+        return pipeline
+
+    def generate_pipeline(self, target):
+        pipeline = self.make_pipeline(target)
+        path = self._project.config.pipelines_dir
+        dir_existed = osp.isdir(path)
+        try:
+            os.makedirs(path, exist_ok=True)
+            self.write_pipeline(pipeline,
+                osp.join(path, make_file_name(target) + '.yml'))
+        except BaseException:
+            if not dir_existed:
+                shutil.rmtree(path, ignore_errors=True)
+            raise
+
+        return path
+
+    @classmethod
+    def _read_pipeline_graph(cls, pipeline):
+        graph = nx.DiGraph()
+        for entry in pipeline:
+            target_name = entry['name']
+            target = {
+                'type': entry['type'],
+                'parameters': entry['parameters'],
+            }
+            parents = entry['parents']
+
+            graph.add_node(target_name, config=target)
+            for prev_stage in parents:
+                graph.add_edge(prev_stage, target_name)
+
+        return graph
+
+    def apply_pipeline(self, pipeline):
+        def _is_root(g, n):
+            return g.in_degree(n) == 0
+
+        graph = self._read_pipeline_graph(pipeline)
+
+        head = None
+
+        # Use DFS to traverse the graph and initialize nodes from roots to tops
+        to_visit = list()
+        while to_visit:
+            current_name = to_visit.pop()
+            current = graph.nodes[current_name]
+
+            assert current_name.get('dataset') is None
+
+            if _is_root(graph, current_name):
+                assert current['config']['type'] == BuildStageType.source.name, \
+                    "A pipeline root can only be a source"
+                source, _ = self._split_target_name(current_name)
+                current['dataset'] = self.make_extractor(source)
+                continue
+
+            parents_uninitialized = []
+            parent_datasets = []
+            for p_name, parent in graph.nodes[current_name].predecessors.items():
+                dataset = parent.get('dataset')
+                if dataset is None:
+                    parents_uninitialized.append(p_name)
+                else:
+                    parent_datasets.append(dataset)
+
+            if parents_uninitialized:
+                to_visit.append(current_name)
+                to_visit.extend(parents_uninitialized)
+                continue
+
+            type_ = BuildStageType[current['config']['type']]
+            params = current['config']['parameters']
+            if type_ == BuildStageType.transform:
+                name = params.pop('name')
+                try:
+                    transform = project.env.transforms.get(name)
+                except KeyError:
+                    raise CliException("Unknown transform '%s'" % name)
+
+                # fused, unless required multiple times
+                dataset = transform(*parent_datasets, **params)
+                if 1 < graph.out_degree(current_name):
+                    # if multiple consumers, avoid reapplying the whole stack
+                    # for each one
+                    dataset = Dataset.from_extractors(parent_datasets)
+
+            elif type_ == BuildStageType.export:
+                name = params.pop('name')
+                try:
+                    converter = project.env.converters.get(name)
+                except KeyError:
+                    raise CliException("Unknown converter '%s'" % name)
+
+                if 1 < len(parent_datasets):
+                    parent_datasets = [Dataset.from_extractors(parent_datasets)]
+                dataset = converter(*parent_datasets, **params)
+
+            else:
+                raise NotImplementedError("Unknown stage type '%s'")
+
+            if graph.out_degree(current_name) == 0:
+                assert head is None, "A pipeline can have only one " \
+                    "main target, but it has at least 2: %s, %s" % \
+                    (head, current_name)
+                head = current_name
+
+        return graph.nodes[head].dataset
+
+    @staticmethod
+    def write_pipeline(pipeline, path):
+        # force encoding and newline to produce same files on different OSes
+        # this should be used by DVC later, which checks file hashes
+        with open(path, 'w', encoding='utf-8', newline='') as f:
+            yaml.safe_dump(pipeline, f)
+
+    @staticmethod
+    def read_pipeline(path):
+        with open(path) as f:
+            return yaml.safe_load(f)
+
+    def make_dataset(self, target):
+        assert target in self
+
+        pipeline = self.make_pipeline(target)
+        return self.apply_pipeline(pipeline)
+
+    def build(self, target):
+        assert target in self
+
+        if not self._project.vcs.readable:
+            raise Exception("Can't build a project without VCS support")
+
+        def _rpath(p):
+            return osp.relpath(p, self._project.config.project_dir)
+
+        pipeline_file = _rpath(self.generate_pipeline(target))
+        out_dir = _rpath(osp.join(self._project.config.build_dir,
+            make_file_name(target)))
+        self._project.vcs.dvc.run(cmd=['datum', 'process', pipeline_file],
+            deps=[pipeline_file], outs=[out_dir], name=target)
+        self._project.vcs.dvc.repro(target)
 
 class GitWrapper:
     @staticmethod
@@ -555,6 +801,19 @@ class DvcWrapper:
 
     def remove_remote(self, name):
         raise NotImplementedError()
+
+    def run(self, name, cmd, deps=None, outs=None):
+        args = []
+        for d in deps:
+            args.append('-d')
+            args.append(d)
+        for o in outs:
+            args.append('-o')
+            args.append(o)
+        self.module.main.main('run', '-n', name, *args, *cmd)
+
+    def repro(self, target):
+        self.module.main.main('repro', target)
 
 class ProjectVcs:
     def __init__(self, project, readonly=False):
@@ -757,7 +1016,9 @@ class Project:
         return self._env
 
     def make_dataset(self, target=None) -> ProjectDataset:
-        return ProjectDataset(self)
+        if target is None:
+            target = 'project'
+        return self.build_targets.make_dataset(target)
 
     def publish(self):
         # build + tag + push?
