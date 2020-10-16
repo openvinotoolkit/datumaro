@@ -59,8 +59,6 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
         add_help=False)
     parser.add_argument('url',
         help="Path to the source dataset")
-    parser.add_argument('--copy', action='store_true',
-        help="Copy source dataset contents into the project")
     parser.add_argument('-n', '--name',
         help="Name of the new source")
     parser.add_argument('-f', '--format', required=True,
@@ -108,7 +106,7 @@ def add_command(args):
 
     if not (args.no_check or args.no_pull):
         log.info("Checking the source...")
-        project.sources[name].make_dataset()
+        project.sources.make_dataset(name)
 
     project.save()
 

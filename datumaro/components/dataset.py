@@ -190,7 +190,7 @@ class Dataset(Extractor):
         from .operations import merge_categories
         return merge_categories(sources)
 
-    def export(self, converter, save_dir):
+    def export(self, converter, save_dir, **kwargs):
         if isinstance(converter, str):
             converter = self.env.make_converter(converter)
 
@@ -198,7 +198,7 @@ class Dataset(Extractor):
         save_dir_existed = osp.exists(save_dir)
         try:
             os.makedirs(save_dir, exist_ok=True)
-            converter(self, save_dir)
+            converter(self, save_dir=save_dir, **kwargs)
         except BaseException:
             if not save_dir_existed:
                 shutil.rmtree(save_dir)

@@ -105,3 +105,18 @@ def make_file_name(s):
     s = re.sub(r'[^\w\s-]', '', s).strip().lower()
     s = re.sub(r'[-\s]+', '-', s)
     return s
+
+def generate_next_name(names, basename, sep='.', suffix='', default=None):
+    pattern = re.compile(r'%s(?:%s(\d+))?%s' % \
+        tuple(map(re.escape, [basename, sep, suffix])))
+    matches = [match for match in (pattern.match(n) for n in names) if match]
+
+    max_idx = max([cast(match[1], int, 0) for match in matches], default=None)
+    if max_idx is None:
+        if default is not None:
+            idx = sep + str(default)
+        else:
+            idx = ''
+    else:
+        idx = sep + str(max_idx + 1)
+    return basename + idx + suffix

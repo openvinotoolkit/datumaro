@@ -9,184 +9,44 @@ import os.path as osp
 import shutil
 import urllib.parse
 import yaml
-from collections import defaultdict
 from enum import Enum
 from glob import glob
 from typing import List
 
 from datumaro.components.config import Config
 from datumaro.components.config_model import (PROJECT_DEFAULT_CONFIG,
-    PROJECT_SCHEMA, BuildStage)
+    PROJECT_SCHEMA)
 from datumaro.components.environment import Environment
-from datumaro.components.dataset import Dataset, DEFAULT_FORMAT
+from datumaro.components.dataset import Dataset
 from datumaro.components.launcher import ModelTransform
-from datumaro.util import make_file_name, find
+from datumaro.util import make_file_name, find, generate_next_name
 
 
 def load_project_as_dataset(url):
     # symbol forward declaration
     raise NotImplementedError()
 
-class ProjectDataset(Dataset):
-    def __init__(self, project, only_own=False):
+class ProjectSourceDataset(Dataset):
+    def __init__(self, project, source):
         super().__init__()
 
         self._project = project
-        config = self.config
-        env = self.env
+        self._env = project.env
 
-        sources = {}
-        if not only_own:
-            for s_name, source in config.sources.items():
-                s_format = source.format or env.PROJECT_EXTRACTOR_NAME
-                options = {}
-                options.update(source.options)
+        config = project.sources[source]
+        self._config = config
+        self._local_dir = project.sources.source_dir(source)
 
-                url = source.url
-                if not source.url:
-                    url = osp.join(config.project_dir, config.sources_dir, s_name)
-                sources[s_name] = env.make_extractor(s_format, url, **options)
-        self._sources = sources
+        dataset = Dataset.from_extractors(
+            env.make_extractor(config.format, config.url, **config.options))
 
-        own_source = None
-        own_source_dir = osp.join(config.project_dir, config.dataset_dir)
-        if config.project_dir and osp.isdir(own_source_dir):
-            log.disable(log.INFO)
-            own_source = env.make_importer(DEFAULT_FORMAT)(own_source_dir) \
-                .make_dataset()
-            log.disable(log.NOTSET)
+        self._subsets = dataset._subsets
+        self._categories = dataset._categories
 
-        # merge categories
-        # TODO: implement properly with merging and annotations remapping
-        categories = self._merge_categories(s.categories()
-            for s in self._sources.values())
-        # ovewrite with own categories
-        if own_source is not None and (not categories or len(own_source) != 0):
-            categories.update(own_source.categories())
-        self._categories = categories
-
-        # merge items
-        subsets = defaultdict(lambda: self.Subset(self))
-        for source_name, source in self._sources.items():
-            log.debug("Loading '%s' source contents..." % source_name)
-            for item in source:
-                existing_item = subsets[item.subset].items.get(item.id)
-                if existing_item is not None:
-                    path = existing_item.path
-                    if item.path != path:
-                        path = None # NOTE: move to our own dataset
-                    item = self._merge_items(existing_item, item, path=path)
-                else:
-                    s_config = config.sources[source_name]
-                    if s_config and \
-                            s_config.format != env.PROJECT_EXTRACTOR_NAME:
-                        # NOTE: consider imported sources as our own dataset
-                        path = None
-                    else:
-                        path = [source_name] + (item.path or [])
-                    item = item.wrap(path=path)
-
-                subsets[item.subset].items[item.id] = item
-
-        # override with our items, fallback to existing images
-        if own_source is not None:
-            log.debug("Loading own dataset...")
-            for item in own_source:
-                existing_item = subsets[item.subset].items.get(item.id)
-                if existing_item is not None:
-                    item = item.wrap(path=None,
-                        image=self._merge_images(existing_item, item))
-
-                subsets[item.subset].items[item.id] = item
-
-        # TODO: implement subset remapping when needed
-        subsets_filter = config.subsets
-        if len(subsets_filter) != 0:
-            subsets = { k: v for k, v in subsets.items() if k in subsets_filter}
-        self._subsets = dict(subsets)
-
-        self._length = None
-
-    def iterate_own(self):
-        return self.select(lambda item: not item.path)
-
-    def get(self, item_id, subset=None, path=None):
-        if path:
-            source = path[0]
-            rest_path = path[1:]
-            return self._sources[source].get(
-                item_id=item_id, subset=subset, path=rest_path)
-        return super().get(item_id, subset)
-
-    def put(self, item, item_id=None, subset=None, path=None):
-        if path is None:
-            path = item.path
-
-        if path:
-            source = path[0]
-            rest_path = path[1:]
-            # TODO: reverse remapping
-            self._sources[source].put(item,
-                item_id=item_id, subset=subset, path=rest_path)
-
-        if item_id is None:
-            item_id = item.id
-        if subset is None:
-            subset = item.subset
-
-        item = item.wrap(path=path)
-        if subset not in self._subsets:
-            self._subsets[subset] = self.Subset(self)
-        self._subsets[subset].items[item_id] = item
-        self._length = None
-
-        return item
-
-    def save(self, save_dir=None, merge=False, recursive=True,
-            save_images=False):
+    def save(self, save_dir=None, **kwargs):
         if save_dir is None:
-            assert self.config.project_dir
-            save_dir = self.config.project_dir
-            project = self._project
-        else:
-            merge = True
-
-        if merge:
-            project = Project(Config(self.config))
-            project.config.remove('sources')
-
-        save_dir = osp.abspath(save_dir)
-        dataset_save_dir = osp.join(save_dir, project.config.dataset_dir)
-
-        converter_kwargs = {
-            'save_images': save_images,
-        }
-
-        save_dir_existed = osp.exists(save_dir)
-        try:
-            os.makedirs(save_dir, exist_ok=True)
-            os.makedirs(dataset_save_dir, exist_ok=True)
-
-            if merge:
-                # merge and save the resulting dataset
-                self.env.converters.get(DEFAULT_FORMAT).convert(
-                    self, dataset_save_dir, **converter_kwargs)
-            else:
-                if recursive:
-                    # children items should already be updated
-                    # so we just save them recursively
-                    for source in self._sources.values():
-                        if isinstance(source, ProjectDataset):
-                            source.save(**converter_kwargs)
-
-                self.env.converters.get(DEFAULT_FORMAT).convert(
-                    self.iterate_own(), dataset_save_dir, **converter_kwargs)
-
-            project.save(save_dir)
-        except BaseException:
-            if not save_dir_existed and osp.isdir(save_dir):
-                shutil.rmtree(save_dir, ignore_errors=True)
-            raise
+            save_dir = self._local_dir
+        super().export(self.config.format, save_dir=save_dir, **kwargs)
 
     @Dataset.env.getter
     def env(self):
@@ -194,11 +54,7 @@ class ProjectDataset(Dataset):
 
     @property
     def config(self):
-        return self._project.config
-
-    @property
-    def sources(self):
-        return self._sources
+        return self._config
 
     def apply_model(self, model, batch_size=1):
         # NOTE: probably this function should be in the ViewModel layer
@@ -240,7 +96,7 @@ class CrudProxy:
         return name in self._data
 
 class ProjectRemotes(CrudProxy):
-    SUPPORTED_PROTOCOLS = {'local', 'remote', 'git'}
+    SUPPORTED_PROTOCOLS = {'local', 'remote', 'git', 's3', 'ssh'}
 
     def __init__(self, project_vcs):
         self._vcs = project_vcs
@@ -333,11 +189,10 @@ class ProjectModels(_RemotesProxy):
     def model_dir(self, name):
         return osp.join(self.config.env_dir, self.config.models_dir, name)
 
-    # TODO:
-    # def make_executable_model(self, name):
-    #     model = self.get_model(name)
-    #     return self.env.make_launcher(model.launcher,
-    #         **model.options, model_dir=self.local_model_dir(name))
+    def make_executable_model(self, name):
+        model = self.get_model(name)
+        return self.env.make_launcher(model.launcher,
+            **model.options, model_dir=self.local_model_dir(name))
 
 class ProjectSources(_RemotesProxy):
     def __init__(self, project):
@@ -385,14 +240,14 @@ class ProjectSources(_RemotesProxy):
         return 'source-%s'
 
     def make_dataset(self, name):
-        raise NotImplementedError()
+        return ProjectSourceDataset(self._project, name)
 
     def source_dir(self, name):
         return osp.join(self._project.config.project_dir, name)
 
 
 BuildStageType = Enum('BuildStageType',
-    ['source', 'project', 'export', 'transform'])
+    ['source', 'project', 'export', 'transform', 'filter'])
 
 class ProjectBuildTargets(CrudProxy):
     def __init__(self, project):
@@ -405,28 +260,39 @@ class ProjectBuildTargets(CrudProxy):
     def add_target(self, name):
         return self._data.set(name, {
             'stages': [
-                BuildStage({
+                {
                     'name': self.BASE_STAGE,
                     'type': BuildStageType.source.name,
-                })
+                }
             ]
         })
 
-    def add_stage(self, target, name, value, prev=None):
+    def add_stage(self, target, value, prev=None, name=None):
         if prev is None:
             prev = self.BASE_STAGE
+
         target = self._data[target]
+
         prev_stage = find(enumerate(target.stages), lambda e: e[1].name == prev)
         if prev_stage is None:
             raise KeyError("Can't find stage '%s'" % prev)
         prev_stage = prev_stage[0]
 
-        return target.stages.insert(prev_stage + 1, value)
+        name = value.get('name') or name
+        if not name:
+            value['name'] = generate_next_name((s.name for s in target.stages),
+                value['type'], sep='-')
+
+        target.stages.insert(prev_stage + 1, value)
+        return value
 
     def remove_target(self, name):
+        assert name != self.MAIN_TARGET, "Can't remove the main target"
         self._data.remove(name)
 
     def remove_stage(self, target, name):
+        assert name not in {self.BASE_STAGE}, "Can't remove a default stage"
+
         target = self._data[target]
         prev_stage = find(enumerate(target.stages), lambda e: e[1].name == prev)
         if prev_stage is None:
@@ -508,7 +374,7 @@ class ProjectBuildTargets(CrudProxy):
                 'name': node_name,
                 'parents': list(target_subgraph.predecessors(node_name)),
                 'type': node.type,
-                'parameters': node.parameters,
+                'params': node.parameters,
             }
             pipeline.append(entry)
         return pipeline
@@ -535,7 +401,7 @@ class ProjectBuildTargets(CrudProxy):
             target_name = entry['name']
             target = {
                 'type': entry['type'],
-                'parameters': entry['parameters'],
+                'params': entry['params'],
             }
             parents = entry['parents']
 
@@ -565,7 +431,7 @@ class ProjectBuildTargets(CrudProxy):
                 assert current['config']['type'] == BuildStageType.source.name, \
                     "A pipeline root can only be a source"
                 source, _ = self._split_target_name(current_name)
-                current['dataset'] = self.make_extractor(source)
+                current['dataset'] = self._project.sources.make_dataset(source)
                 continue
 
             parents_uninitialized = []
@@ -583,34 +449,46 @@ class ProjectBuildTargets(CrudProxy):
                 continue
 
             type_ = BuildStageType[current['config']['type']]
-            params = current['config']['parameters']
-            if type_ == BuildStageType.transform:
-                name = params.pop('name')
-                try:
-                    transform = project.env.transforms.get(name)
-                except KeyError:
-                    raise CliException("Unknown transform '%s'" % name)
+            params = current['config']['params']
+            if type_ in {BuildStageType.transform, BuildStageType.filter}:
+                if type_ == BuildStageType.transform:
+                    name = current['config']['kind']
+                    try:
+                        transform = project.env.transforms.get(name)
+                    except KeyError:
+                        raise CliException("Unknown transform '%s'" % name)
 
-                # fused, unless required multiple times
-                dataset = transform(*parent_datasets, **params)
+                    # fused, unless required multiple times
+                    dataset = transform(*parent_datasets, **params)
+                elif type_ == BuildStageType.filter:
+                    if 1 < len(parent_datasets):
+                        dataset = Dataset.from_extractors(parent_datasets)
+                    else:
+                        dataset = parent_datasets[0]
+                    dataset = dataset.filter(**params)
+
                 if 1 < graph.out_degree(current_name):
                     # if multiple consumers, avoid reapplying the whole stack
                     # for each one
                     dataset = Dataset.from_extractors(parent_datasets)
 
             elif type_ == BuildStageType.export:
-                name = params.pop('name')
+                name = current['config']['kind']
                 try:
                     converter = project.env.converters.get(name)
                 except KeyError:
                     raise CliException("Unknown converter '%s'" % name)
 
                 if 1 < len(parent_datasets):
-                    parent_datasets = [Dataset.from_extractors(parent_datasets)]
-                dataset = converter(*parent_datasets, **params)
+                    dataset = Dataset.from_extractors(parent_datasets)
+                else:
+                    dataset = parent_datasets[0]
+                converter(dataset, **params)
 
             else:
                 raise NotImplementedError("Unknown stage type '%s'")
+
+            current['dataset'] = dataset
 
             if graph.out_degree(current_name) == 0:
                 assert head is None, "A pipeline can have only one " \
@@ -618,7 +496,7 @@ class ProjectBuildTargets(CrudProxy):
                     (head, current_name)
                 head = current_name
 
-        return graph.nodes[head].dataset
+        return graph, head
 
     @staticmethod
     def write_pipeline(pipeline, path):
@@ -636,7 +514,8 @@ class ProjectBuildTargets(CrudProxy):
         assert target in self
 
         pipeline = self.make_pipeline(target)
-        return self.apply_pipeline(pipeline)
+        graph, head = self.apply_pipeline(pipeline)
+        return graph.nodes[head].dataset
 
     def build(self, target):
         assert target in self
