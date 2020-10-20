@@ -53,7 +53,7 @@ class ImagenetFormatTest(TestCase):
 
             compare_datasets(self, source_dataset, parsed_dataset)
 
-    def test_can_save_and_load_multiple_labels(self):
+    def test_can_save_and_load_with_multiple_labels(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='1', subset='train',
                 image=np.ones((8, 8, 3)),

@@ -21,7 +21,6 @@ class ImagenetPath:
 class ImagenetExtractor(SourceExtractor):
     def __init__(self, path):
         assert osp.isfile(path), path
-
         super().__init__(subset=osp.splitext(osp.basename(path))[0])
 
         labels = osp.join(osp.dirname(path), ImagenetPath.LABELS_FILE)
@@ -88,10 +87,12 @@ class ImagenetConverter(Converter):
             annotation = ''
             for item in subset:
                 image_name = self._make_image_filename(item)
-                if len(item.annotations) == 1:
+                if (len(item.annotations) == 1
+                        and item.annotations[0].type == AnnotationType.label):
                     label = item.annotations[0].label
                     if label not in image_labels:
-                        image_dir = osp.join(images_dir, item.id[:-(len(item.id.split('_')[-1]) + 1)])
+                        image_dir = osp.join(images_dir,
+                            item.id[:-(len(item.id.split('_')[-1]) + 1)])
                         os.makedirs(image_dir, exist_ok=True)
                         image_labels[label] = image_dir
                     annotation += '%s %s\n' % (image_name, label)
@@ -103,6 +104,8 @@ class ImagenetConverter(Converter):
                         image_labels[label] = image_dir
                     annotation += '%s' % image_name
                     for anno in item.annotations:
+                        if anno.type != AnnotationType.label:
+                            continue
                         annotation += ' %s' % anno.label
                     annotation += '\n'
 
