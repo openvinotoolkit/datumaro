@@ -14,11 +14,11 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         help="Files or directories to start track")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to operate on (default: current dir)")
-    parser.set_defaults(command=commit_command)
+    parser.set_defaults(command=track_command)
 
     return parser
 
-def add_command(args):
+def track_command(args):
     project = load_project(args.project_dir)
 
     project.vcs.add(args.paths)

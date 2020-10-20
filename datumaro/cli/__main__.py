@@ -58,20 +58,26 @@ def make_parser():
     _LogManager._define_loglevel_option(parser)
 
     known_contexts = [
-        ('remote', contexts.remote, "Actions on remotes"),
-        ('source', contexts.source, "Actions on data sources"),
-        ('model', contexts.model, "Actions on models"),
+        # ('remote', contexts.remote, "Actions with remotes"),
+        ('source', contexts.source, "Actions with data sources"),
+        ('model', contexts.model, "Actions with models"),
     ]
     known_commands = [
         ('create', commands.create, "Create project"),
         ('add', commands.add, "Add data source to project"),
         ('remove', commands.remove, "Remove data source from project"),
-        ('export', commands.export, "Export project or source"),
         ('track', commands.track, "Start tracking of a file"),
         ('commit', commands.commit, "Commit changes in tracked files"),
         ('pull', commands.pull, "Pull updates from remote repository"),
         ('push', commands.push, "Push updates to remote repository"),
+        ('export', commands.export, "Export project in some format"),
+        ('filter', commands.filter, "Filter project"),
+        ('transform', commands.transform, "Transform project"),
+        ('apply', commands.apply, "Apply few transforms"),
+        ('build', commands.build, "Build project"),
         ('merge', commands.merge, "Merge projects"),
+        ('diff', commands.diff, "Compare projects with intersection"),
+        ('ediff', commands.ediff, "Compare projects for equality"),
         ('convert', commands.convert, "Convert dataset"),
         ('explain', commands.explain, "Run Explainable AI algorithm for model"),
     ]

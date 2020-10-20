@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: MIT
 
 from datumaro.components.config import Config, \
-    DefaultConfig as _DefaultConfig, \
+    DictConfig as _DictConfig, \
     SchemaBuilder as _SchemaBuilder
 
 
@@ -12,6 +12,7 @@ SOURCE_SCHEMA = _SchemaBuilder() \
     .add('url', str) \
     .add('format', str) \
     .add('options', dict) \
+    .add('remote', str) \
     .build()
 
 class Source(Config):
@@ -47,6 +48,7 @@ BUILDTARGET_SCHEMA = _SchemaBuilder() \
 class BuildTarget(Config):
     def __init__(self, config=None):
         super().__init__(config, schema=BUILDTARGET_SCHEMA)
+        self.stages = [BuildStage(o) for o in self.stages]
 
     @property
     def root(self):
@@ -61,14 +63,17 @@ PROJECT_SCHEMA = _SchemaBuilder() \
     .add('project_name', str) \
     .add('format_version', int) \
     \
-    .add('sources', lambda: _DefaultConfig(lambda v=None: Source(v))) \
-    .add('models', lambda: _DefaultConfig(lambda v=None: Model(v))) \
-    .add('build_targets', lambda: _DefaultConfig(lambda v=None: BuildTarget(v))) \
+    .add('sources', lambda: _DictConfig(lambda v=None: Source(v))) \
+    .add('models', lambda: _DictConfig(lambda v=None: Model(v))) \
+    .add('build_targets', lambda: _DictConfig(lambda v=None: BuildTarget(v))) \
     \
     .add('models_dir', str, internal=True) \
     .add('plugins_dir', str, internal=True) \
     .add('sources_dir', str, internal=True) \
     .add('dataset_dir', str, internal=True) \
+    .add('dvc_aux_dir', str, internal=True) \
+    .add('pipelines_dir', str, internal=True) \
+    .add('build_dir', str, internal=True) \
     .add('project_filename', str, internal=True) \
     .add('project_dir', str, internal=True) \
     .add('env_dir', str, internal=True) \
@@ -83,6 +88,9 @@ PROJECT_DEFAULT_CONFIG = Config({
     'dataset_dir': 'dataset',
     'models_dir': 'models',
     'plugins_dir': 'plugins',
+    'dvc_aux_dir': 'dvc_aux',
+    'pipelines_dir': 'dvc_pipelines',
+    'build_dir': 'dvc_pipelines',
 
     'project_filename': 'config.yaml',
     'project_dir': '',

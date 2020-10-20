@@ -8,13 +8,13 @@ import logging as log
 
 from datumaro.components.operations import ExactComparator
 
-from ...util import MultilineFormatter
-from ...util.project import generate_next_file_name, load_project
+from ..util import MultilineFormatter
+from ..util.project import generate_next_file_name, load_project
 
 
 _ediff_default_if = ['id', 'group'] # avoid https://bugs.python.org/issue16399
 
-def build_ediff_parser(parser_ctor=argparse.ArgumentParser):
+def build_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(help="Compare projects for equality",
         description="""
         Compares two projects for equality.|n

@@ -2,11 +2,13 @@
 #
 # SPDX-License-Identifier: MIT
 
+from glob import glob
 import inspect
 import logging as log
 import os
 import os.path as osp
 
+from datumaro.components.config import Config
 from datumaro.util.os_util import import_foreign_module
 
 
@@ -55,6 +57,8 @@ class Environment:
     PROJECT_EXTRACTOR_NAME = 'datumaro_project'
 
     def __init__(self, config=None):
+        from datumaro.components.project import \
+            PROJECT_DEFAULT_CONFIG, PROJECT_SCHEMA, load_project_as_dataset
         config = Config(config,
             fallback=PROJECT_DEFAULT_CONFIG, schema=PROJECT_SCHEMA)
 

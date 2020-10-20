@@ -15,11 +15,13 @@ from typing import List
 
 from datumaro.components.config import Config
 from datumaro.components.config_model import (PROJECT_DEFAULT_CONFIG,
-    PROJECT_SCHEMA)
+    PROJECT_SCHEMA, BuildStage)
 from datumaro.components.environment import Environment
 from datumaro.components.dataset import Dataset
 from datumaro.components.launcher import ModelTransform
 from datumaro.util import make_file_name, find, generate_next_name
+from datumaro.util.os_util import catch_output
+from datumaro.util.log_utils import logging_disabled
 
 
 def load_project_as_dataset(url):
@@ -32,13 +34,15 @@ class ProjectSourceDataset(Dataset):
 
         self._project = project
         self._env = project.env
+        env = project.env
 
         config = project.sources[source]
         self._config = config
         self._local_dir = project.sources.source_dir(source)
 
         dataset = Dataset.from_extractors(
-            env.make_extractor(config.format, config.url, **config.options))
+            env.make_extractor(config.format,
+                self._local_dir, **config.options))
 
         self._subsets = dataset._subsets
         self._categories = dataset._categories
@@ -87,16 +91,16 @@ class CrudProxy:
         return self._data.get(name, default)
 
     def __iter__(self):
-        return self._data.keys()
+        return iter(self._data.keys())
 
     def items(self):
-        return self._data.items()
+        return iter(self._data.items())
 
     def __contains__(self, name):
         return name in self._data
 
 class ProjectRemotes(CrudProxy):
-    SUPPORTED_PROTOCOLS = {'local', 'remote', 'git', 's3', 'ssh'}
+    SUPPORTED_PROTOCOLS = {'', 'remote', 'git', 's3', 'ssh'}
 
     def __init__(self, project_vcs):
         self._vcs = project_vcs
@@ -124,8 +128,6 @@ class ProjectRemotes(CrudProxy):
         return self._vcs.dvc.list_remotes()
 
     def add(self, name, value):
-        if osp.isdir(value['url']):
-            value['url'] = 'local://' + value['url']
         self.validate_url(value['url'])
 
         return self._vcs.dvc.add_remote(name, value)
@@ -135,7 +137,7 @@ class ProjectRemotes(CrudProxy):
 
     @classmethod
     def validate_url(cls, url):
-        url_parts = urllib.parse.urlsplit(value['url'])
+        url_parts = urllib.parse.urlsplit(url)
         if url_parts.scheme not in cls.SUPPORTED_PROTOCOLS:
             raise NotImplementedError(
                 "Invalid remote '%s': scheme '%s' is not supported, the only"
@@ -158,23 +160,37 @@ class _RemotesProxy(CrudProxy):
             self._project.vcs.remotes.check_remote(name)
 
     def pull(self, name=None):
-        if self._project.vcs.writeable:
-            self._project.vcs.dvc.update_imports(name)
+        if not self._project.vcs.writeable:
+            raise Exception("Can't pull in read-only repository")
+
+        if name and name not in self:
+            raise KeyError("Unknown source '%s'" % name)
+
+        paths = []
+        if name:
+            paths = [self.aux_path(name)]
+        self._project.vcs.dvc.update_imports(paths)
 
     def add(self, name, value):
         return self._data.set(name, value)
 
-    def remove(self, name):
-        self._data.remove(name)
-        if self._project.vcs.writeable:
-            self._project.vcs.remotes.remove(name)
+    @classmethod
+    def _make_remote_name(cls, name):
+        raise NotImplementedError("Should be implemented in a subclass")
 
     @classmethod
     def _validate_url(cls, url):
-        url_parts = ProjectRemotes._validate_url(url)
+        url_parts = ProjectRemotes.validate_url(url)
         if not url_parts.path:
             raise ValueError("URL must contain path, url: '%s'" % url)
         return url_parts
+
+    def aux_dir(self):
+        return osp.join(self._project.config.project_dir,
+            self._project.config.env_dir, self._project.config.dvc_aux_dir)
+
+    def aux_path(self, name):
+        return osp.join(self.aux_dir(), name + '.dvc')
 
 class ProjectModels(_RemotesProxy):
     def __init__(self, project):
@@ -217,11 +233,22 @@ class ProjectSources(_RemotesProxy):
         elif self._project.vcs.writeable:
             remote_name = self._make_remote_name(name)
             self._project.vcs.remotes.add(remote_name, { 'url': value['url'] })
+        else:
+            raise Exception("Can't update read-only project")
 
         if self._project.vcs.writeable:
+            source_dir = self.source_dir(name)
+            os.makedirs(source_dir, exist_ok=True)
+            os.makedirs(self.aux_dir(), exist_ok=True)
+
+            path = url_parts.path
+            if not url_parts.scheme:
+                path = '' # all goes to the remote
+            aux_path = self.aux_path(name)
             self._project.vcs.dvc.import_url(urllib.parse.urlunsplit(
-                url_parts._replace(scheme='remote', netloc=remote_name)
-            ), out=self.source_dir(name))
+                url_parts._replace(scheme='remote',
+                    netloc=remote_name, path=path)
+            ), out=source_dir, dvc_path=aux_path, download=False)
 
         value['url'] = osp.normpath(url_parts.path)
         value['remote'] = remote_name
@@ -229,15 +256,50 @@ class ProjectSources(_RemotesProxy):
 
         self._project.build_targets.add_target(name)
 
+        if self._project.vcs.writeable:
+            self._project.vcs.git.add([
+                aux_path,
+                osp.join(self._project.config.project_dir, '.gitignore'),
+            ])
+
         return value
 
-    def remove(self, name):
-        super().remove(name)
+    def remove(self, name, force=False, keep_data=True):
+        """Force - ignores errors and tries to wipe remaining data"""
+
+        if name not in self._data and not force:
+            raise KeyError("Unknown source '%s'" % name)
+
         self._project.build_targets.remove_target(name)
+        self._data.remove(name)
+
+        if force and not keep_data:
+            source_dir = self.source_dir(name)
+            if osp.isdir(source_dir):
+                shutil.rmtree(source_dir, ignore_errors=True)
+
+        if not self._project.vcs.writeable:
+            return
+
+        aux_file = self.aux_path(name)
+        if osp.isfile(aux_file):
+            try:
+                self._project.vcs.dvc.remove(aux_file, outs=not keep_data)
+            except Exception:
+                if force:
+                    os.remove(aux_file)
+                else:
+                    raise
+
+        try:
+            self._project.vcs.remotes.remove(name)
+        except Exception:
+            if not force:
+                raise
 
     @classmethod
     def _make_remote_name(cls, name):
-        return 'source-%s'
+        return name
 
     def make_dataset(self, name):
         return ProjectSourceDataset(self._project, name)
@@ -245,9 +307,12 @@ class ProjectSources(_RemotesProxy):
     def source_dir(self, name):
         return osp.join(self._project.config.project_dir, name)
 
+    def aux_path(self, name):
+        return osp.join(self.aux_dir(), name + '.dvc')
+
 
 BuildStageType = Enum('BuildStageType',
-    ['source', 'project', 'export', 'transform', 'filter'])
+    ['source', 'project', 'transform', 'filter'])
 
 class ProjectBuildTargets(CrudProxy):
     def __init__(self, project):
@@ -255,15 +320,25 @@ class ProjectBuildTargets(CrudProxy):
 
     @CrudProxy._data.getter
     def _data(self):
-        return self._project.config.build_targets
+        data = self._project.config.build_targets
+        if self.MAIN_TARGET not in data:
+            data[self.MAIN_TARGET] = {
+                'stages': [
+                    BuildStage({
+                        'name': self.BASE_STAGE,
+                        'type': BuildStageType.project.name,
+                    }),
+                ]
+            }
+        return data
 
     def add_target(self, name):
         return self._data.set(name, {
             'stages': [
-                {
+                Buildstage({
                     'name': self.BASE_STAGE,
                     'type': BuildStageType.source.name,
-                }
+                }),
             ]
         })
 
@@ -283,7 +358,7 @@ class ProjectBuildTargets(CrudProxy):
             value['name'] = generate_next_name((s.name for s in target.stages),
                 value['type'], sep='-')
 
-        target.stages.insert(prev_stage + 1, value)
+        target.stages.insert(prev_stage + 1, BuildStage(value))
         return value
 
     def remove_target(self, name):
@@ -294,10 +369,10 @@ class ProjectBuildTargets(CrudProxy):
         assert name not in {self.BASE_STAGE}, "Can't remove a default stage"
 
         target = self._data[target]
-        prev_stage = find(enumerate(target.stages), lambda e: e[1].name == prev)
-        if prev_stage is None:
-            raise KeyError("Can't find stage '%s'" % prev)
-        target.stages.remove()
+        idx = find(enumerate(target.stages), lambda e: e[1].name == name)
+        if idx is None:
+            raise KeyError("Can't find stage '%s'" % name)
+        target.stages.remove(idx)
 
     MAIN_TARGET = 'project'
     BASE_STAGE = 'root'
@@ -306,13 +381,13 @@ class ProjectBuildTargets(CrudProxy):
         for target_name, target in self._data.items():
             if target_name == self.MAIN_TARGET:
                 # main target combines all the others
-                prev_stages = [t.head.name for t in self._data
-                    if t != self.MAIN_TARGET]
+                prev_stages = [t.head.name for n, t in self.items()
+                    if n != self.MAIN_TARGET]
             else:
                 prev_stages = [t.head.name for t in target.parents]
 
-            for stage_name, stage in target.stages:
-                stage_name = self._make_target_name(target_name, stage_name)
+            for stage in target.stages:
+                stage_name = self._make_target_name(target_name, stage['name'])
                 graph.add_node(stage_name, config=stage)
                 for prev_stage in prev_stages:
                     graph.add_edge(prev_stage, stage_name)
@@ -381,16 +456,11 @@ class ProjectBuildTargets(CrudProxy):
 
     def generate_pipeline(self, target):
         pipeline = self.make_pipeline(target)
-        path = self._project.config.pipelines_dir
-        dir_existed = osp.isdir(path)
-        try:
-            os.makedirs(path, exist_ok=True)
-            self.write_pipeline(pipeline,
-                osp.join(path, make_file_name(target) + '.yml'))
-        except BaseException:
-            if not dir_existed:
-                shutil.rmtree(path, ignore_errors=True)
-            raise
+        path = osp.join(self._project.config.project_dir,
+            self._project.config.pipelines_dir)
+        os.makedirs(path, exist_ok=True)
+        self.write_pipeline(pipeline,
+            osp.join(path, make_file_name(target) + '.yml'))
 
         return path
 
@@ -471,19 +541,6 @@ class ProjectBuildTargets(CrudProxy):
                     # if multiple consumers, avoid reapplying the whole stack
                     # for each one
                     dataset = Dataset.from_extractors(parent_datasets)
-
-            elif type_ == BuildStageType.export:
-                name = current['config']['kind']
-                try:
-                    converter = project.env.converters.get(name)
-                except KeyError:
-                    raise CliException("Unknown converter '%s'" % name)
-
-                if 1 < len(parent_datasets):
-                    dataset = Dataset.from_extractors(parent_datasets)
-                else:
-                    dataset = parent_datasets[0]
-                converter(dataset, **params)
 
             else:
                 raise NotImplementedError("Unknown stage type '%s'")
@@ -609,6 +666,7 @@ class GitWrapper:
         self.repo.head.reference = self.repo.refs[ref]
 
     def add(self, paths):
+        paths = [p for p in paths if osp.isfile(p)]
         self.repo.index.add(paths)
 
     def commit(self, message):
@@ -618,6 +676,8 @@ class DvcWrapper:
     @staticmethod
     def import_module():
         import dvc
+        import dvc.repo
+        import dvc.main
         return dvc
 
     try:
@@ -633,7 +693,8 @@ class DvcWrapper:
         self.repo = None
 
         if osp.isdir(project_dir) and osp.isdir(self._dvc_dir()):
-            self.repo = self.module.repo.Repo(project_dir)
+            with logging_disabled():
+                self.repo = self.module.repo.Repo(project_dir)
 
     @property
     def initialized(self):
@@ -643,56 +704,114 @@ class DvcWrapper:
         if self.initialized:
             return
 
-        self.repo = self.module.repo.Repo.init(self._project_dir)
+        with logging_disabled():
+            self.repo = self.module.repo.Repo.init(self._project_dir)
 
     def push(self, remote=None):
-        self.repo.push(remote=remote)
+        args = ['push']
+        if remote:
+            args.append(remote)
+        self._exec(args)
 
     def pull(self, remote=None):
-        self.repo.pull(remote=remote)
+        args = ['pull']
+        if remote:
+            args.append(remote)
+        self._exec(args)
 
     def check_updates(self, remote=None):
-        self.fetch(remote) # can't be done other way now?
+        args = ['fetch'] # no other way now?
+        if remote:
+            args.append(remote)
+        self._exec(args)
 
     def fetch(self, remote=None):
-        self.repo.fetch(remote=remote)
+        args = ['fetch']
+        if remote:
+            args.append(remote)
+        self._exec(args)
 
-    def import_url(self, url, out=None):
-        self.repo.import_url(url, out=out)
-        return self.repo.scm.files_to_track
+    def import_url(self, url, out=None, dvc_path=None, download=True):
+        args = ['import-url']
+        if dvc_path:
+            args.append('--file')
+            args.append(dvc_path)
+        if not download:
+            args.append('--no-exec')
+        args.append(url)
+        if out:
+            args.append(out)
+        self._exec(args)
 
     def update_imports(self, targets=None):
-        self.repo.update(targets)
+        args = ['update']
+        if targets:
+            args.extend(targets)
+        self._exec(args)
 
-    def checkout(self):
-        self.repo.checkout()
+    def checkout(self, targets=None):
+        args = ['checkout']
+        if targets:
+            args.extend(targets)
+        self._exec(args)
 
     def add(self, paths):
-        self.repo.add(paths)
-        return self.repo.scm.files_to_track
+        args = ['add']
+        if paths:
+            if isinstance(paths, str):
+                args.append(paths)
+            else:
+                args.extend(paths)
+        self._exec(args)
+
+    def remove(self, paths, outs=False):
+        args = ['remove']
+        if outs:
+            args.append('--outs')
+        if paths:
+            if isinstance(paths, str):
+                args.append(paths)
+            else:
+                args.extend(paths)
+        self._exec(args)
 
     def commit(self, paths):
-        self.repo.commit(paths, recursive=True)
-        return self.repo.scm.files_to_track
+        args = ['commit', '--recursive']
+        if paths:
+            args.extend(path)
+        self._exec(args)
 
-    def add_remote(self, name, config=None):
-        self.module.main.main('remote', 'add', name)
+    def add_remote(self, name, config):
+        self._exec(['remote', 'add', name, config['url']])
 
     def remove_remote(self, name):
+        self._exec(['remote', 'remove', name])
+
+    def list_remotes(self):
         raise NotImplementedError()
 
     def run(self, name, cmd, deps=None, outs=None):
-        args = []
+        args = ['run', '-n', name]
         for d in deps:
             args.append('-d')
             args.append(d)
         for o in outs:
             args.append('-o')
             args.append(o)
-        self.module.main.main('run', '-n', name, *args, *cmd)
+        args.extend(cmd)
+        self._exec(args)
 
     def repro(self, target):
-        self.module.main.main('repro', target)
+        self._exec(['repro', target])
+
+    def _exec(self, args):
+        log.debug("Calling DVC main with args: %s", args)
+        with catch_output() as (stdout, stderr), logging_disabled(log.INFO):
+            retcode = self.module.main.main(args)
+        if retcode != 0:
+            raise Exception(
+                stdout.getvalue().decode('utf-8') + \
+                stderr.getvalue().decode('utf-8'))
 
 class ProjectVcs:
     def __init__(self, project, readonly=False):
@@ -849,17 +968,23 @@ class Project:
 
             config_path = osp.join(save_dir, config.project_filename)
             config.dump(config_path)
+
+            if not self.vcs.detached and not self.vcs.readonly and \
+                    not self.vcs.initialized:
+                self._vcs = ProjectVcs(self) # TODO: handle different save_dir
+                self.vcs.init()
+            if self.vcs.writeable:
+                self.vcs.git.add([
+                    osp.join(project_dir, config.env_dir),
+                    osp.join(project_dir, '.dvc', 'config'),
+                    osp.join(project_dir, '.gitignore'),
+                ])
         except BaseException:
             if not env_dir_existed:
                 shutil.rmtree(save_dir, ignore_errors=True)
             if not project_dir_existed:
                 shutil.rmtree(project_dir, ignore_errors=True)
             raise
-
-        if not self.vcs.detached and not self.vcs.readonly and \
-                not self.vcs.initialized:
-            self._vcs = ProjectVcs(self)
-            self.vcs.init()
 
     def __init__(self, config=None):
         self._config = Config(config,
@@ -894,7 +1019,7 @@ class Project:
     def env(self) -> Environment:
         return self._env
 
-    def make_dataset(self, target=None) -> ProjectDataset:
+    def make_dataset(self, target=None) -> Dataset:
         if target is None:
             target = 'project'
         return self.build_targets.make_dataset(target)

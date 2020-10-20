@@ -3,19 +3,13 @@
 # SPDX-License-Identifier: MIT
 
 import argparse
-import json
 import logging as log
-import os
-import os.path as osp
 import shutil
 
-from datumaro.components.cli_plugin import CliPlugin
-from datumaro.components.project import \
-    PROJECT_DEFAULT_CONFIG as DEFAULT_CONFIG
-from datumaro.components.project import Environment, Project
+from datumaro.components.project import Environment
 
-from ...util import CliException, MultilineFormatter, add_subparser
-from ...util.project import generate_next_name, load_project
+from ..util import CliException, MultilineFormatter, add_subparser
+from ..util.project import generate_next_name, load_project
 
 
 def build_add_parser(parser_ctor=argparse.ArgumentParser):
@@ -97,9 +91,6 @@ def add_command(args):
         'options': extra_args,
     })
 
-    if args.copy:
-        raise NotImplementedError()
-
     if not args.no_pull:
         log.info("Pulling the source...")
         project.sources.pull(name)
@@ -136,25 +127,9 @@ def remove_command(args):
     name = args.name
     if not name:
         raise CliException("Expected source name")
-    try:
-        project.get_source(name)
-    except KeyError:
-        if not args.force:
-            raise CliException("Source '%s' does not exist" % name)
 
-    if project.env.git.has_submodule(name):
-        if args.force:
-            log.warning("Forcefully removing the '%s' source..." % name)
-
-        project.env.git.remove_submodule(name, force=args.force)
-
-    source_dir = osp.join(project.config.project_dir,
-        project.local_source_dir(name))
-    project.remove_source(name)
+    project.sources.remove(name, force=args.force, keep_data=args.keep_data)
     project.save()
-
-    if not args.keep_data:
-        shutil.rmtree(source_dir, ignore_errors=True)
 
     log.info("Source '%s' has been removed from the project" % name)
 
@@ -177,7 +152,7 @@ def info_command(args):
     project = load_project(args.project_dir)
 
     if args.name:
-        source = project.get_source(args.name)
+        source = project.sources[args.name]
         print(source)
     else:
         for name, conf in project.config.sources.items():

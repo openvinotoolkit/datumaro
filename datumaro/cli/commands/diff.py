@@ -12,10 +12,10 @@ from datumaro.components.operations import DistanceComparator
 
 from ..util import MultilineFormatter
 from ..util.project import generate_next_file_name, load_project
-from .diff import DiffVisualizer
+from ..contexts.project.diff import DiffVisualizer
 
 
-def build_diff_parser(parser_ctor=argparse.ArgumentParser):
+def build_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(help="Compare projects",
         description="""
         Compares two projects, match annotations by distance.|n

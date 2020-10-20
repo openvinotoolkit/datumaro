@@ -18,7 +18,7 @@ from datumaro.components.project import Project
 from ..util import CliException, MultilineFormatter
 
 
-def build_create_parser(parser_ctor=argparse.ArgumentParser):
+def build_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(help="Create empty project",
         description="""
             Create a new empty project.|n

@@ -18,6 +18,7 @@ from datumaro.components.operations import (DistanceComparator,
 from datumaro.components.project import \
     PROJECT_DEFAULT_CONFIG as DEFAULT_CONFIG
 from datumaro.components.project import Environment, Project, BuildStageType
+from datumaro.util import str_to_bool
 
 from ...util import (CliException, MultilineFormatter, add_subparser,
     make_file_name)
@@ -111,10 +112,6 @@ def build_export_parser(parser_ctor=argparse.ArgumentParser):
         help="Directory of the project to operate on (default: current dir)")
     parser.add_argument('-f', '--format', required=True,
         help="Output format")
-    parser.add_argument('--stage', type=str_to_bool, default=True,
-        help="Include this action as a project build step (default: %(default)s)")
-    parser.add_argument('--apply', type=str_to_bool, default=True,
-        help="Run this action immediately (default: %(default)s)")
     parser.add_argument('extra_args', nargs=argparse.REMAINDER, default=None,
         help="Additional arguments for converter (pass '-- -h' for help)")
     parser.set_defaults(command=export_command)
@@ -148,31 +145,15 @@ def export_command(args):
         filter_args = FilterModes.make_filter_args(args.filter_mode)
         filter_args['expr'] = args.filter
 
-        # add filter stage
-        project.build_targets.add_stage(args.target, {
-            'type': BuildStageType.transform.name,
-            'kind': 'filter',
-            'params': dict(filter_args),
-        })
+    log.info("Loading the project...")
+    dataset = project.make_dataset(args.target)
 
-    # add export stage
-    project.build_targets.add_stage(args.target, {
-        'type': BuildStageType.export.name,
-        'kind': args.format,
-        'params': dict(extra_args),
-    })
+    log.info("Exporting the project...")
+    if args.filter:
+        dataset = dataset.filter(**filter_args)
+    dataset.export(converter_proxy, save_dir=dst_dir)
 
-    if args.apply:
-        log.info("Loading the project...")
-        dataset = project.make_dataset(args.target)
-
-        log.info("Exporting the project...")
-        dataset.export(converter_proxy, save_dir=dst_dir)
-
-        log.info("Project exported to '%s'" % dst_dir)
-
-    if args.stage:
-        project.save()
+    log.info("Project exported to '%s'" % dst_dir)
 
     return 0
 
@@ -214,7 +195,7 @@ def build_filter_parser(parser_ctor=argparse.ArgumentParser):
         """,
         formatter_class=MultilineFormatter)
 
-    parser.add_argument('target', default='project',
+    parser.add_argument('target', default='project', nargs='?',
         help="Project target to apply transform to (default: project)")
     parser.add_argument('-e', '--filter', default=None,
         help="XML XPath filter expression for dataset items")
@@ -268,8 +249,7 @@ def filter_command(args):
         raise CliException("Expected a filter expression ('-e' argument)")
 
     project.build_targets.add_stage(args.target, {
-        'type': BuildStageType.transform.name,
-        'kind': 'filter',
+        'type': BuildStageType.filter.name,
         'params': dict(filter_args),
     })
 
@@ -340,7 +320,7 @@ def build_apply_parser(parser_ctor=argparse.ArgumentParser):
         description="""
             Applies several operations to a dataset
             and produces a new dataset.
-        """ % ', '.join(builtins),
+        """,
         formatter_class=MultilineFormatter)
 
     parser.add_argument('file',
@@ -397,7 +377,7 @@ def build_transform_parser(parser_ctor=argparse.ArgumentParser):
         """ % ', '.join(builtins),
         formatter_class=MultilineFormatter)
 
-    parser.add_argument('target', default='project',
+    parser.add_argument('target', default='project', nargs='?',
         help="Project target to apply transform to (default: project)")
     parser.add_argument('-t', '--transform', required=True,
         help="Transform to apply to the project")
@@ -449,12 +429,35 @@ def transform_command(args):
         log.info("Transforming...")
 
         dataset = project.make_dataset(args.target)
-        dataset.save(save_dir)
+        dataset.save(dst_dir)
 
         log.info("Transform results have been saved to '%s'" % dst_dir)
 
     if args.stage:
         project.save()
+
+    return 0
+
+def build_build_parser(parser_ctor=argparse.ArgumentParser):
+    parser = parser_ctor(help="Build project",
+        description="""
+        """,
+        formatter_class=MultilineFormatter)
+
+    parser.add_argument('target', default='project', nargs='?',
+        help="Project target to apply transform to (default: project)")
+    parser.add_argument('-p', '--project', dest='project_dir', default='.',
+        help="Directory of the project to operate on (default: current dir)")
+    parser.set_defaults(command=build_command)
+
+    return parser
+
+def build_command(args):
+    project = load_project(args.project_dir)
+
+    project.build(args.target)
+
+    log.info("Results have been saved to '%s'" % dst_dir)
 
     return 0
 

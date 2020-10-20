@@ -7,13 +7,11 @@ import argparse
 import logging as log
 import os
 import os.path as osp
-import re
 
-from datumaro.components.config import DEFAULT_FORMAT
 from datumaro.components.project import Environment
 
-from ...util import CliException, MultilineFormatter, add_subparser
-from ...util.project import load_project, \
+from ..util import CliException, MultilineFormatter, add_subparser
+from ..util.project import load_project, \
     generate_next_name, generate_next_file_name
 
 

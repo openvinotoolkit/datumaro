@@ -3,7 +3,9 @@
 #
 # SPDX-License-Identifier: MIT
 
+from contextlib import contextmanager
 import importlib
+import os
 import os.path as osp
 import subprocess
 import sys
@@ -32,3 +34,41 @@ def import_foreign_module(name, path, package=None):
     finally:
         sys.path = default_path
     return module
+
+@contextmanager
+def suppress_output(stdout=True, stderr=False):
+    with open(os.devnull, "w") as devnull:
+        if stdout:
+            old_stdout = sys.stdout
+            sys.stdout = devnull
+
+        if stderr:
+            old_stderr = sys.stderr
+            sys.stderr = devnull
+
+        try:
+            yield
+        finally:
+            if stdout:
+                sys.stdout = old_stdout
+            if stderr:
+                sys.stderr = old_stderr
+
+@contextmanager
+def catch_output():
+    from io import BytesIO
+
+    stdout = BytesIO()
+    stderr = BytesIO()
+
+    old_stdout = sys.stdout
+    sys.stdout = stdout
+
+    old_stderr = sys.stderr
+    sys.stderr = stderr
+
+    try:
+        yield stdout, stderr
+    finally:
+        sys.stdout = old_stdout
+        sys.stderr = old_stderr

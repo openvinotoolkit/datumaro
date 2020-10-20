@@ -221,7 +221,7 @@ class Config:
 yaml.add_multi_representer(Config, Config.yaml_representer)
 
 
-class DefaultConfig(Config):
+class DictConfig(Config):
     def __init__(self, default=None):
         super().__init__()
         self.__dict__['_default'] = default

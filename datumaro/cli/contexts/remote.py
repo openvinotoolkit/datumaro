@@ -15,9 +15,9 @@ from datumaro.components.project import \
     PROJECT_DEFAULT_CONFIG as DEFAULT_CONFIG
 from datumaro.components.project import Environment, Project
 
-from ...util import (CliException, MultilineFormatter, add_subparser,
+from ..util import (CliException, MultilineFormatter, add_subparser,
     make_file_name)
-from ...util.project import generate_next_file_name, load_project
+from ..util.project import generate_next_file_name, load_project
 
 
 RemoteTypes = Enum('RemoteTypes', ['local', 'git'])
@@ -119,7 +119,7 @@ def add_command(args):
         if name is None:
             name = osp.splitext(osp.basename(args.url))[0]
 
-        project.sources.add(name, {
+        project.remotes.add(name, {
             'type': args.source_type,
             'url': args.url,
             'branch': args.branch,
@@ -195,28 +195,10 @@ def remove_command(args):
 
     name = args.name
     if not name:
-        raise CliException("Expected source name")
-    try:
-        project.get_source(name)
-    except KeyError:
-        if not args.force:
-            raise CliException("Source '%s' does not exist" % name)
+        raise CliException("Expected remote name")
 
-    if project.env.git.has_submodule(name):
-        if args.force:
-            log.warning("Forcefully removing the '%s' source..." % name)
-
-        project.env.git.remove_submodule(name, force=args.force)
-
-    source_dir = osp.join(project.config.project_dir,
-        project.local_source_dir(name))
-    project.remove_source(name)
+    project.remotes.remove(name)
     project.save()
-
-    if not args.keep_data:
-        shutil.rmtree(source_dir, ignore_errors=True)
-
-    log.info("Source '%s' has been removed from the project" % name)
 
     return 0
 
