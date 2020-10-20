@@ -17,29 +17,29 @@ class ImagenetFormatTest(TestCase):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='label_0_1', subset='train',
                 image=np.ones((8, 8, 3)),
-                annotations=[Label(1)]
+                annotations=[Label(0)]
             ),
             DatasetItem(id='label_0_2', subset='train',
                 image=np.ones((10, 10, 3)),
-                annotations=[Label(1)]
+                annotations=[Label(0)]
             ),
             DatasetItem(id='label_0_1', subset='train',
                 image=np.ones((10, 10, 3)),
-                annotations=[Label(1)]
+                annotations=[Label(0)]
             ),
 
             DatasetItem(id='label_1_1', subset='train',
                 image=np.ones((8, 8, 3)),
-                annotations=[Label(2)]
+                annotations=[Label(1)]
             ),
             DatasetItem(id='label_1_2', subset='train',
                 image=np.ones((10, 10, 3)),
-                annotations=[Label(2)]
+                annotations=[Label(1)]
             ),
 
             DatasetItem(id='label_5_1', subset='train',
                 image=np.ones((8, 8, 3)),
-                annotations=[Label(6)]
+                annotations=[Label(5)]
             ),
         ], categories={
             AnnotationType.label: LabelCategories.from_iterable(
@@ -61,7 +61,7 @@ class ImagenetFormatTest(TestCase):
             ),
             DatasetItem(id='label_0_1', subset='train',
                 image=np.ones((10, 10, 3)),
-                annotations=[Label(1)]
+                annotations=[Label(0)]
             ),
             DatasetItem(id='2', subset='train',
                 image=np.ones((10, 10, 3)),
@@ -103,15 +103,15 @@ class ImagenetImporterTets(TestCase):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='label_0_1', subset='train',
                 image=np.ones((8, 8, 3)),
-                annotations=[Label(1)]
+                annotations=[Label(0)]
             ),
             DatasetItem(id='label_0_2', subset='train',
                 image=np.ones((10, 10, 3)),
-                annotations=[Label(1)]
+                annotations=[Label(0)]
             ),
             DatasetItem(id='label_1_1', subset='train',
                 image=np.ones((8, 8, 3)),
-                annotations=[Label(2)]
+                annotations=[Label(1)]
             ),
         ], categories={
             AnnotationType.label: LabelCategories.from_iterable(

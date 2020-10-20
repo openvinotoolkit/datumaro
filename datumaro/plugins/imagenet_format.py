@@ -81,41 +81,33 @@ class ImagenetConverter(Converter):
         images_dir = osp.join(subset_dir, ImagenetPath.IMAGES_DIR)
         os.makedirs(images_dir, exist_ok=True)
         self._images_dir = images_dir
-        image_labels = {}
+        image_dirs = {}
         for subset_name, subset in self._extractor.subsets().items():
             annotation_file = osp.join(subset_dir, '%s.txt' % subset_name)
-            annotation = ''
+            labels = {}
             for item in subset:
                 image_name = self._make_image_filename(item)
-                if (len(item.annotations) == 1
-                        and item.annotations[0].type == AnnotationType.label):
-                    label = item.annotations[0].label
-                    if label not in image_labels:
-                        image_dir = osp.join(images_dir,
-                            item.id[:-(len(item.id.split('_')[-1]) + 1)])
-                        os.makedirs(image_dir, exist_ok=True)
-                        image_labels[label] = image_dir
-                    annotation += '%s %s\n' % (image_name, label)
-                else:
-                    label = -1
-                    if label not in image_labels:
-                        image_dir = osp.join(images_dir, 'others')
-                        os.makedirs(image_dir, exist_ok=True)
-                        image_labels[label] = image_dir
-                    annotation += '%s' % image_name
-                    for anno in item.annotations:
-                        if anno.type != AnnotationType.label:
-                            continue
-                        annotation += ' %s' % anno.label
-                    annotation += '\n'
+                labels[image_name] =  [p.label for p in item.annotations]
 
                 if self._save_images:
-                    if item.has_image and item.image.has_data:
-                        self._save_image(item, osp.join(image_labels[label], image_name))
-                    else:
-                        log.warning("Item '%s' has no image" % item.id)
+                    for label in labels[image_name]:
+                        if label not in image_dirs:
+                            image_dirs[label] = osp.join(images_dir,
+                                        extractor.categories()[AnnotationType.label][label].name)
+                            os.makedirs(image_dirs[label], exist_ok=True)
+
+                        self._save_image(item, osp.join(image_dirs[label], image_name))
+
+                    if not labels[image_name]:
+                        label = -1
+                        if label not in image_dirs:
+                            image_dirs[label] = osp.join(images_dir, 'no_label')
+                            os.makedirs(image_dirs[label], exist_ok=True)
+
+                        self._save_image(item, osp.join(image_dirs[label], image_name))
             with open(annotation_file, 'w', encoding='utf-8') as f:
-                f.write(annotation)
+                f.writelines(['%s %s\n' % (image_name, ' '.join([str(label)
+                            for label in labels[image_name]])) for image_name in labels])
 
         labels_file = osp.join(subset_dir, ImagenetPath.LABELS_FILE)
         with open(labels_file, 'w', encoding='utf-8') as f:
