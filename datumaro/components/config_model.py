@@ -7,6 +7,8 @@ from datumaro.components.config import Config, \
     DictConfig as _DictConfig, \
     SchemaBuilder as _SchemaBuilder
 
+from datumaro.util import find
+
 
 SOURCE_SCHEMA = _SchemaBuilder() \
     .add('url', str) \
@@ -58,6 +60,15 @@ class BuildTarget(Config):
     def head(self):
         return self.stages[-1]
 
+    def find_stage(self, stage):
+        return find(self.stages, lambda x: x.name == stage)
+
+    def get_stage(self, stage):
+        res = self.find_stage(stage)
+        if res is None:
+            raise KeyError("Unknown stage '%s'" % stage)
+        return res
+
 
 PROJECT_SCHEMA = _SchemaBuilder() \
     .add('project_name', str) \
@@ -90,7 +101,7 @@ PROJECT_DEFAULT_CONFIG = Config({
     'plugins_dir': 'plugins',
     'dvc_aux_dir': 'dvc_aux',
     'pipelines_dir': 'dvc_pipelines',
-    'build_dir': 'dvc_pipelines',
+    'build_dir': 'build',
 
     'project_filename': 'config.yaml',
     'project_dir': '',

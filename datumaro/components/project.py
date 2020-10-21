@@ -312,7 +312,7 @@ class ProjectSources(_RemotesProxy):
 
 
 BuildStageType = Enum('BuildStageType',
-    ['source', 'project', 'transform', 'filter'])
+    ['source', 'project', 'transform', 'filter', 'convert'])
 
 class ProjectBuildTargets(CrudProxy):
     def __init__(self, project):
@@ -381,10 +381,11 @@ class ProjectBuildTargets(CrudProxy):
         for target_name, target in self._data.items():
             if target_name == self.MAIN_TARGET:
                 # main target combines all the others
-                prev_stages = [t.head.name for n, t in self.items()
-                    if n != self.MAIN_TARGET]
+                prev_stages = [self._make_target_name(n, t.head.name)
+                    for n, t in self.items() if n != self.MAIN_TARGET]
             else:
-                prev_stages = [t.head.name for t in target.parents]
+                prev_stages = [self._make_target_name(t, self[t].head.name)
+                    for t in target.parents]
 
             for stage in target.stages:
                 stage_name = self._make_target_name(target_name, stage['name'])
@@ -411,6 +412,9 @@ class ProjectBuildTargets(CrudProxy):
         return target, stage
 
     def _get_target_subgraph(self, target):
+        if '.' not in target:
+            target = self._make_target_name(target, self[target].head.name)
+
         def _is_root(g, n):
             return g.in_degree(n) == 0
 
@@ -418,12 +422,11 @@ class ProjectBuildTargets(CrudProxy):
 
         target_parents = set()
         visited = set()
-        to_visit = set()
+        to_visit = {target}
         while to_visit:
             current = to_visit.pop()
             visited.add(current)
-
-            for pred in current.predecessors:
+            for pred in full_graph.predecessors(current):
                 if _is_root(full_graph, pred):
                     target_parents.add(pred)
                 elif pred not in visited:
@@ -437,7 +440,7 @@ class ProjectBuildTargets(CrudProxy):
         """Returns a target or stage description"""
         target, stage = self._split_target_name(name)
         target_config = self._data[target]
-        stage_config = find(target_config.stages, lambda s: s.name == stage)
+        stage_config = target_config.get_stage(stage)
         return stage_config
 
     def make_pipeline(self, target):
@@ -448,19 +451,21 @@ class ProjectBuildTargets(CrudProxy):
             entry = {
                 'name': node_name,
                 'parents': list(target_subgraph.predecessors(node_name)),
-                'type': node.type,
-                'params': node.parameters,
+                'type': node['config'].type,
+                'params': node['config'].parameters,
             }
             pipeline.append(entry)
         return pipeline
 
     def generate_pipeline(self, target):
-        pipeline = self.make_pipeline(target)
+        real_target = self._normalize_target(target)
+
+        pipeline = self.make_pipeline(real_target)
         path = osp.join(self._project.config.project_dir,
-            self._project.config.pipelines_dir)
+            self._project.config.env_dir, self._project.config.pipelines_dir)
         os.makedirs(path, exist_ok=True)
-        self.write_pipeline(pipeline,
-            osp.join(path, make_file_name(target) + '.yml'))
+        path = osp.join(path, make_file_name(target) + '.yml')
+        self.write_pipeline(pipeline, path)
 
         return path
 
@@ -482,31 +487,32 @@ class ProjectBuildTargets(CrudProxy):
         return graph
 
     def apply_pipeline(self, pipeline):
-        def _is_root(g, n):
-            return g.in_degree(n) == 0
+        if len(pipeline) == 0:
+            raise Exception("Can't run empty pipeline")
 
         graph = self._read_pipeline_graph(pipeline)
 
         head = None
+        for node in graph.nodes:
+            if graph.out_degree(node) == 0:
+                assert head is None, "A pipeline can have only one " \
+                    "main target, but it has at least 2: %s, %s" % \
+                    (head, node)
+                head = node
+        assert head is not None, "A pipeline must have a finishing node"
 
         # Use DFS to traverse the graph and initialize nodes from roots to tops
-        to_visit = list()
+        to_visit = [head]
         while to_visit:
             current_name = to_visit.pop()
             current = graph.nodes[current_name]
 
-            assert current_name.get('dataset') is None
-
-            if _is_root(graph, current_name):
-                assert current['config']['type'] == BuildStageType.source.name, \
-                    "A pipeline root can only be a source"
-                source, _ = self._split_target_name(current_name)
-                current['dataset'] = self._project.sources.make_dataset(source)
-                continue
+            assert current.get('dataset') is None
 
             parents_uninitialized = []
             parent_datasets = []
-            for p_name, parent in graph.nodes[current_name].predecessors.items():
+            for p_name in graph.predecessors(current_name):
+                parent = graph.nodes[p_name]
                 dataset = parent.get('dataset')
                 if dataset is None:
                     parents_uninitialized.append(p_name)
@@ -542,16 +548,20 @@ class ProjectBuildTargets(CrudProxy):
                     # for each one
                     dataset = Dataset.from_extractors(parent_datasets)
 
+            elif type_ == BuildStageType.source:
+                source, _ = self._split_target_name(current_name)
+                dataset = self._project.sources.make_dataset(source)
+
+            elif type_ == BuildStageType.project:
+                if 1 < len(parent_datasets):
+                    dataset = Dataset.from_extractors(parent_datasets)
+                else:
+                    dataset = parent_datasets[0]
+
             else:
-                raise NotImplementedError("Unknown stage type '%s'")
+                raise NotImplementedError("Unknown stage type '%s'" % type_)
 
             current['dataset'] = dataset
-
-            if graph.out_degree(current_name) == 0:
-                assert head is None, "A pipeline can have only one " \
-                    "main target, but it has at least 2: %s, %s" % \
-                    (head, current_name)
-                head = current_name
 
         return graph, head
 
@@ -568,15 +578,22 @@ class ProjectBuildTargets(CrudProxy):
             return yaml.safe_load(f)
 
     def make_dataset(self, target):
-        assert target in self
+        target = self._normalize_target(target)
 
         pipeline = self.make_pipeline(target)
         graph, head = self.apply_pipeline(pipeline)
         return graph.nodes[head].dataset
 
-    def build(self, target):
-        assert target in self
+    def _normalize_target(self, target):
+        if '.' not in target:
+            real_target = self._make_target_name(target, self[target].head.name)
+        else:
+            t, s = self._split_target_name(target)
+            assert self[t].get_stage(s), target
+            real_target = target
+        return real_target
 
+    def build(self, target):
         if not self._project.vcs.readable:
             raise Exception("Can't build a project without VCS support")
 
@@ -584,10 +601,13 @@ class ProjectBuildTargets(CrudProxy):
             return osp.relpath(p, self._project.config.project_dir)
 
         pipeline_file = _rpath(self.generate_pipeline(target))
-        out_dir = _rpath(osp.join(self._project.config.build_dir,
-            make_file_name(target)))
-        self._project.vcs.dvc.run(cmd=['datum', 'process', pipeline_file],
-            deps=[pipeline_file], outs=[out_dir], name=target)
+
+        if target not in self._project.vcs.dvc.list_stages():
+            out_dir = _rpath(self._project.config.build_dir)
+            self._project.vcs.dvc.run(
+                cmd=['datum', 'apply', '--build', '--overwrite',
+                    '-o', out_dir, pipeline_file],
+                deps=[pipeline_file], outs=[out_dir], name=target)
         self._project.vcs.dvc.repro(target)
 
 class GitWrapper:
@@ -789,6 +809,9 @@ class DvcWrapper:
 
     def list_remotes(self):
         raise NotImplementedError()
+
+    def list_stages(self):
+        return set(s.addressing for s in self.repo.stages)
 
     def run(self, name, cmd, deps=None, outs=None):
         args = ['run', '-n', name]

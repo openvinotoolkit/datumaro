@@ -4,6 +4,9 @@
 
 from collections import OrderedDict, defaultdict
 from typing import Iterable, Union, Dict, List
+import os
+import os.path as osp
+import shutil
 
 from datumaro.components.extractor import (Extractor, LabelCategories,
     AnnotationType, DatasetItem, DEFAULT_SUBSET_NAME)
@@ -192,7 +195,7 @@ class Dataset(Extractor):
 
     def export(self, converter, save_dir, **kwargs):
         if isinstance(converter, str):
-            converter = self.env.make_converter(converter)
+            converter = self.env.converters[converter]
 
         save_dir = osp.abspath(save_dir)
         save_dir_existed = osp.exists(save_dir)
@@ -206,7 +209,7 @@ class Dataset(Extractor):
 
     def transform(self, method, *args, **kwargs):
         if isinstance(method, str):
-            method = self.env.make_transform(method)
+            method = self.env.transforms[method]
 
         return super().transform(method, **kwargs)
 

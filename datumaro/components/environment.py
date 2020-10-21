@@ -36,6 +36,9 @@ class Registry:
     def get(self, key):
         return self.items[key] # returns a class / ctor
 
+    def __getitem__(self, key):
+        return self.get(key)
+
 class PluginRegistry(Registry):
     def __init__(self, config=None, builtin=None, local=None):
         super().__init__(config)

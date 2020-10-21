@@ -329,6 +329,8 @@ def build_apply_parser(parser_ctor=argparse.ArgumentParser):
         help="Directory to save output (default: current dir)")
     parser.add_argument('--overwrite', action='store_true',
         help="Overwrite existing files in the save directory")
+    parser.add_argument('--build', action='store_true',
+        help="Consider this invocation a build step")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to operate on (default: current dir)")
     parser.set_defaults(command=apply_command)
@@ -348,16 +350,16 @@ def apply_command(args):
             project.config.project_name)
     dst_dir = osp.abspath(dst_dir)
 
-    pipeline = project.build_targets.read_pipeline(args.path)
+    pipeline = project.build_targets.read_pipeline(args.file)
     graph, head = project.build_targets.apply_pipeline(pipeline)
     head_node = graph.nodes[head]
-    if head_node['type'] != BuildStageType.export.name:
+    if head_node['config']['type'] != BuildStageType.convert.name:
         dataset = head_node['dataset']
         dataset.save(dst_dir)
     else:
-        dst_dir = head_node['params']['save_dir']
+        raise NotImplementedError()
 
-    log.info("Results have been saved to '%s'" % dst_dir)
+    log.warning("Results have been saved to '%s'" % dst_dir)
 
     return 0
 
@@ -456,8 +458,6 @@ def build_command(args):
     project = load_project(args.project_dir)
 
     project.build(args.target)
-
-    log.info("Results have been saved to '%s'" % dst_dir)
 
     return 0
 
