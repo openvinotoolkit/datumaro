@@ -5,7 +5,6 @@
 import os
 import os.path as osp
 from glob import glob
-import logging as log
 
 from datumaro.components.extractor import (DatasetItem, Label,
     LabelCategories, AnnotationType, SourceExtractor, Importer
@@ -87,7 +86,8 @@ class ImagenetConverter(Converter):
             labels = {}
             for item in subset:
                 image_name = self._make_image_filename(item)
-                labels[image_name] =  [p.label for p in item.annotations]
+                labels[image_name] =  [p.label for p in item.annotations
+                                        if p.type == AnnotationType.label]
 
                 if self._save_images:
                     for label in labels[image_name]:
