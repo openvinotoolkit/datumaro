@@ -35,7 +35,8 @@ class Model(Config):
 BUILDSTAGE_SCHEMA = _SchemaBuilder() \
     .add('name', str) \
     .add('type', str) \
-    .add('parameters', str) \
+    .add('kind', str) \
+    .add('params', dict) \
     .build()
 
 class BuildStage(Config):

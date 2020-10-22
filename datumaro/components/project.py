@@ -343,15 +343,16 @@ class ProjectBuildTargets(CrudProxy):
         })
 
     def add_stage(self, target, value, prev=None, name=None):
-        if prev is None:
-            prev = self.BASE_STAGE
-
         target = self._data[target]
 
-        prev_stage = find(enumerate(target.stages), lambda e: e[1].name == prev)
-        if prev_stage is None:
-            raise KeyError("Can't find stage '%s'" % prev)
-        prev_stage = prev_stage[0]
+        if prev:
+            prev_stage = find(enumerate(target.stages),
+                lambda e: e[1].name == prev)
+            if prev_stage is None:
+                raise KeyError("Can't find stage '%s'" % prev)
+            prev_stage = prev_stage[0]
+        else:
+            prev_stage = len(target.stages) - 1
 
         name = value.get('name') or name
         if not name:
@@ -378,7 +379,7 @@ class ProjectBuildTargets(CrudProxy):
     BASE_STAGE = 'root'
     def _get_build_graph(self):
         graph = nx.DiGraph()
-        for target_name, target in self._data.items():
+        for target_name, target in self.items():
             if target_name == self.MAIN_TARGET:
                 # main target combines all the others
                 prev_stages = [self._make_target_name(n, t.head.name)
@@ -415,9 +416,6 @@ class ProjectBuildTargets(CrudProxy):
         if '.' not in target:
             target = self._make_target_name(target, self[target].head.name)
 
-        def _is_root(g, n):
-            return g.in_degree(n) == 0
-
         full_graph = self._get_build_graph()
 
         target_parents = set()
@@ -427,9 +425,8 @@ class ProjectBuildTargets(CrudProxy):
             current = to_visit.pop()
             visited.add(current)
             for pred in full_graph.predecessors(current):
-                if _is_root(full_graph, pred):
-                    target_parents.add(pred)
-                elif pred not in visited:
+                target_parents.add(pred)
+                if pred not in visited:
                     to_visit.add(pred)
 
         target_parents.add(target)
@@ -451,8 +448,7 @@ class ProjectBuildTargets(CrudProxy):
             entry = {
                 'name': node_name,
                 'parents': list(target_subgraph.predecessors(node_name)),
-                'type': node['config'].type,
-                'params': node['config'].parameters,
+                'config': dict(node['config']),
             }
             pipeline.append(entry)
         return pipeline
@@ -474,11 +470,8 @@ class ProjectBuildTargets(CrudProxy):
         graph = nx.DiGraph()
         for entry in pipeline:
             target_name = entry['name']
-            target = {
-                'type': entry['type'],
-                'params': entry['params'],
-            }
             parents = entry['parents']
+            target = BuildStage(entry['config'])
 
             graph.add_node(target_name, config=target)
             for prev_stage in parents:
@@ -524,15 +517,15 @@ class ProjectBuildTargets(CrudProxy):
                 to_visit.extend(parents_uninitialized)
                 continue
 
-            type_ = BuildStageType[current['config']['type']]
-            params = current['config']['params']
+            type_ = BuildStageType[current['config'].type]
+            params = current['config'].params
             if type_ in {BuildStageType.transform, BuildStageType.filter}:
                 if type_ == BuildStageType.transform:
-                    name = current['config']['kind']
+                    kind = current['config'].kind
                     try:
-                        transform = project.env.transforms.get(name)
+                        transform = self._project.env.transforms.get(kind)
                     except KeyError:
-                        raise CliException("Unknown transform '%s'" % name)
+                        raise CliException("Unknown transform '%s'" % kind)
 
                     # fused, unless required multiple times
                     dataset = transform(*parent_datasets, **params)
@@ -582,7 +575,7 @@ class ProjectBuildTargets(CrudProxy):
 
         pipeline = self.make_pipeline(target)
         graph, head = self.apply_pipeline(pipeline)
-        return graph.nodes[head].dataset
+        return graph.nodes[head]['dataset']
 
     def _normalize_target(self, target):
         if '.' not in target:

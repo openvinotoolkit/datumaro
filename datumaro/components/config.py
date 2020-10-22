@@ -158,6 +158,9 @@ class Config:
         except Exception:
             return False
 
+    def __repr__(self):
+        return repr(dict(self))
+
     def update(self, other):
         for k, v in other.items():
             self.set(k, v)

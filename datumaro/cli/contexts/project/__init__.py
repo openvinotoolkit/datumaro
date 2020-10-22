@@ -248,10 +248,17 @@ def filter_command(args):
     if not args.filter:
         raise CliException("Expected a filter expression ('-e' argument)")
 
-    project.build_targets.add_stage(args.target, {
-        'type': BuildStageType.filter.name,
-        'params': dict(filter_args),
-    })
+    if args.target == project.build_targets.MAIN_TARGET:
+        targets = [t for t in project.build_targets
+            if t != project.build_targets.MAIN_TARGET]
+    else:
+        targets = [args.target]
+
+    for target in targets:
+        project.build_targets.add_stage(target, {
+            'type': BuildStageType.filter.name,
+            'params': dict(filter_args),
+        })
 
     if args.apply:
         log.info("Filtering...")
@@ -421,11 +428,18 @@ def transform_command(args):
     if hasattr(transform, 'from_cmdline'):
         extra_args = transform.from_cmdline(args.extra_args)
 
-    project.build_targets.add_stage(args.target, {
-        'type': BuildStageType.transform.name,
-        'kind': args.transform,
-        'params': dict(extra_args),
-    })
+    if args.target == project.build_targets.MAIN_TARGET:
+        targets = [t for t in project.build_targets
+            if t != project.build_targets.MAIN_TARGET]
+    else:
+        targets = [args.target]
+
+    for target in targets:
+        project.build_targets.add_stage(target, {
+            'type': BuildStageType.transform.name,
+            'kind': args.transform,
+            'params': dict(extra_args),
+        })
 
     if args.apply:
         log.info("Transforming...")
