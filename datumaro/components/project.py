@@ -100,7 +100,7 @@ class CrudProxy:
         return name in self._data
 
 class ProjectRemotes(CrudProxy):
-    SUPPORTED_PROTOCOLS = {'', 'remote', 'git', 's3', 'ssh'}
+    SUPPORTED_PROTOCOLS = {'', 'remote', 'git', 's3', 'ssh', 'http', 'https'}
 
     def __init__(self, project_vcs):
         self._vcs = project_vcs
@@ -335,7 +335,7 @@ class ProjectBuildTargets(CrudProxy):
     def add_target(self, name):
         return self._data.set(name, {
             'stages': [
-                Buildstage({
+                BuildStage({
                     'name': self.BASE_STAGE,
                     'type': BuildStageType.source.name,
                 }),
@@ -538,7 +538,7 @@ class ProjectBuildTargets(CrudProxy):
                     dataset = transform(*parent_datasets, **params)
                 elif type_ == BuildStageType.filter:
                     if 1 < len(parent_datasets):
-                        dataset = Dataset.from_extractors(parent_datasets)
+                        dataset = Dataset.from_extractors(*parent_datasets)
                     else:
                         dataset = parent_datasets[0]
                     dataset = dataset.filter(**params)
@@ -546,7 +546,7 @@ class ProjectBuildTargets(CrudProxy):
                 if 1 < graph.out_degree(current_name):
                     # if multiple consumers, avoid reapplying the whole stack
                     # for each one
-                    dataset = Dataset.from_extractors(parent_datasets)
+                    dataset = Dataset.from_extractors(*parent_datasets)
 
             elif type_ == BuildStageType.source:
                 source, _ = self._split_target_name(current_name)
@@ -554,7 +554,7 @@ class ProjectBuildTargets(CrudProxy):
 
             elif type_ == BuildStageType.project:
                 if 1 < len(parent_datasets):
-                    dataset = Dataset.from_extractors(parent_datasets)
+                    dataset = Dataset.from_extractors(*parent_datasets)
                 else:
                     dataset = parent_datasets[0]
 
@@ -593,7 +593,7 @@ class ProjectBuildTargets(CrudProxy):
             real_target = target
         return real_target
 
-    def build(self, target):
+    def build(self, target, force=False):
         if not self._project.vcs.readable:
             raise Exception("Can't build a project without VCS support")
 
@@ -608,7 +608,8 @@ class ProjectBuildTargets(CrudProxy):
                 cmd=['datum', 'apply', '--build', '--overwrite',
                     '-o', out_dir, pipeline_file],
                 deps=[pipeline_file], outs=[out_dir], name=target)
-        self._project.vcs.dvc.repro(target)
+        else:
+            self._project.vcs.dvc.repro(target, force=force)
 
 class GitWrapper:
     @staticmethod
@@ -822,19 +823,26 @@ class DvcWrapper:
             args.append('-o')
             args.append(o)
         args.extend(cmd)
+        self._exec(args, hide_output=False)
+
+    def repro(self, target, force=False):
+        args = ['repro']
+        if force:
+            args.append('--force')
+        args.append(target)
         self._exec(args)
 
-    def repro(self, target):
-        self._exec(['repro', target])
-
-    def _exec(self, args):
+    def _exec(self, args, hide_output=True):
         log.debug("Calling DVC main with args: %s", args)
         with catch_output() as (stdout, stderr), logging_disabled(log.INFO):
             retcode = self.module.main.main(args)
+        stdout = stdout.getvalue().decode('utf-8')
+        stderr = stderr.getvalue().decode('utf-8')
         if retcode != 0:
-            raise Exception(
-                stdout.getvalue().decode('utf-8') + \
-                stderr.getvalue().decode('utf-8'))
+            raise Exception(stdout + stderr)
+        if not hide_output:
+            print(stdout + stderr)
+        return stdout, stderr
 
 class ProjectVcs:
     def __init__(self, project, readonly=False):
@@ -1051,10 +1059,10 @@ class Project:
         # build + tag + push?
         raise NotImplementedError()
 
-    def build(self, target=None):
+    def build(self, target=None, force=False):
         if target is None:
             target = 'project'
-        return self.build_targets.build(target)
+        return self.build_targets.build(target, force=force)
 
 def merge_projects(a, b, strategy: MergeStrategy = None):
     raise NotImplementedError()

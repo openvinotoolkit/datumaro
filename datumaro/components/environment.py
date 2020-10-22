@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+from functools import partial
 from glob import glob
 import inspect
 import logging as log
@@ -200,4 +201,10 @@ class Environment:
         return self.launchers.get(name)(*args, **kwargs)
 
     def make_converter(self, name, *args, **kwargs):
-        return self.converters.get(name)(*args, **kwargs)
+        r = self.converters.get(name)
+        if inspect.isclass(r):
+            r = partial(r.convert, *args, **kwargs)
+        return r
+
+    def make_transform(self, name, *args, **kwargs):
+        return partial(self.transforms.get(name), *args, **kwargs)

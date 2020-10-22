@@ -195,7 +195,7 @@ class Dataset(Extractor):
 
     def export(self, converter, save_dir, **kwargs):
         if isinstance(converter, str):
-            converter = self.env.converters[converter]
+            converter = self.env.make_converter(converter)
 
         save_dir = osp.abspath(save_dir)
         save_dir_existed = osp.exists(save_dir)
@@ -209,7 +209,7 @@ class Dataset(Extractor):
 
     def transform(self, method, *args, **kwargs):
         if isinstance(method, str):
-            method = self.env.transforms[method]
+            method = self.env.make_transform(method)
 
         return super().transform(method, **kwargs)
 

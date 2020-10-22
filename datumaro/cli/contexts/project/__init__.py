@@ -355,11 +355,11 @@ def apply_command(args):
     head_node = graph.nodes[head]
     if head_node['config']['type'] != BuildStageType.convert.name:
         dataset = head_node['dataset']
-        dataset.save(dst_dir)
+        dataset.save(dst_dir, save_images=args.build)
     else:
         raise NotImplementedError()
 
-    log.warning("Results have been saved to '%s'" % dst_dir)
+    log.info("Results have been saved to '%s'" % dst_dir)
 
     return 0
 
@@ -448,6 +448,8 @@ def build_build_parser(parser_ctor=argparse.ArgumentParser):
 
     parser.add_argument('target', default='project', nargs='?',
         help="Project target to apply transform to (default: project)")
+    parser.add_argument('-f', '--force', action='store_true',
+        help="Rerun build for the target, even if it has no changes")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to operate on (default: current dir)")
     parser.set_defaults(command=build_command)
@@ -457,7 +459,7 @@ def build_build_parser(parser_ctor=argparse.ArgumentParser):
 def build_command(args):
     project = load_project(args.project_dir)
 
-    project.build(args.target)
+    project.build(args.target, force=args.force)
 
     return 0
 
