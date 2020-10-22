@@ -1,3 +1,4 @@
+
 # Copyright (C) 2020 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
@@ -13,49 +14,32 @@ from datumaro.components.converter import Converter
 
 
 class ImagenetPath:
-    LABELS_FILE = 'synsets.txt'
-    IMAGES_DIR = 'data'
+    IMAGES_EXT = '.jpg'
 
 
 class ImagenetExtractor(SourceExtractor):
     def __init__(self, path):
-        assert osp.isfile(path), path
-        super().__init__(subset=osp.splitext(osp.basename(path))[0])
+        assert osp.isdir(path), path
+        super().__init__()
 
-        labels = osp.join(osp.dirname(path), ImagenetPath.LABELS_FILE)
-        labels = self._parse_labels(labels)
-
-        self._categories = self._load_categories(labels)
+        self._categories = self._load_categories(path)
         self._items = list(self._load_items(path).values())
 
-    @staticmethod
-    def _parse_labels(path):
-        with open(path, encoding='utf-8') as labels_file:
-            return [s.strip() for s in labels_file]
-
-    def _load_categories(self, labels):
+    def _load_categories(self, path):
         label_cat = LabelCategories()
-        for label in labels:
-            label_cat.add(label)
-
+        for images_dir in os.listdir(path):
+            label_cat.add(images_dir)
         return { AnnotationType.label: label_cat }
 
     def _load_items(self, path):
         items = {}
-        images_path = osp.join(osp.dirname(path), ImagenetPath.IMAGES_DIR)
-        with open(path, encoding='utf-8') as f:
-            for line in f:
-                item = line.split()
-                image_name = item[0]
-                labels_id = item[1:]
-                image_path = osp.join(images_path,
-                    image_name[:-(len(image_name.split('_')[-1]) + 1)], image_name)
-                anno = []
-                for label_id in labels_id:
-                    anno += [Label(label=label_id)]
-                items[image_name[:-4]] = DatasetItem(
-                    id=image_name[:-4], subset=self._subset,
-                    image=image_path, annotations=anno
+        for images_dir in os.listdir(path):
+            for image_path in glob(osp.join(path, images_dir, '*.jpg')):
+                image_name = osp.splitext(osp.basename(image_path))[0]
+                label_id = self._categories[AnnotationType.label].find(images_dir)[0]
+                items[image_name] = DatasetItem(
+                    id=image_name, image=image_path,
+                    annotations=[Label(label=label_id)]
                 )
         return items
 
@@ -63,54 +47,26 @@ class ImagenetExtractor(SourceExtractor):
 class ImagenetImporter(Importer):
     @classmethod
     def find_sources(cls, path):
-        subset_paths = [p for p in glob(osp.join(path, '*.txt'))
-                 if 'synsets' not in osp.basename(p)]
-        sources = []
-        for subset_path in subset_paths:
-            sources += cls._find_sources_recursive(subset_path, '.txt', 'imagenet')
-        return sources
+        if not osp.isdir(path):
+            return []
+        return [{ 'url': path, 'format': 'imagenet' }]
 
 
 class ImagenetConverter(Converter):
-    DEFAULT_IMAGE_EXT = '.jpg'
+    DEFAULT_IMAGE_EXT = ImagenetPath.IMAGES_EXT
 
     def apply(self):
         subset_dir = self._save_dir
         extractor = self._extractor
-        images_dir = osp.join(subset_dir, ImagenetPath.IMAGES_DIR)
-        os.makedirs(images_dir, exist_ok=True)
-        self._images_dir = images_dir
         image_dirs = {}
-        for subset_name, subset in self._extractor.subsets().items():
-            annotation_file = osp.join(subset_dir, '%s.txt' % subset_name)
-            labels = {}
-            for item in subset:
+        for subset in self._extractor.subsets().items():
+            for item in subset[1]:
                 image_name = self._make_image_filename(item)
-                labels[image_name] =  [p.label for p in item.annotations
-                                        if p.type == AnnotationType.label]
-
-                if self._save_images:
-                    for label in labels[image_name]:
+                if item.annotations[0].type == AnnotationType.label:
+                    label = item.annotations[0].label
+                    if self._save_images:
                         if label not in image_dirs:
-                            image_dirs[label] = osp.join(images_dir,
-                                        extractor.categories()[AnnotationType.label][label].name)
+                            image_dirs[label] = osp.join(subset_dir,
+                                extractor.categories()[AnnotationType.label][label].name)
                             os.makedirs(image_dirs[label], exist_ok=True)
-
                         self._save_image(item, osp.join(image_dirs[label], image_name))
-
-                    if not labels[image_name]:
-                        label = -1
-                        if label not in image_dirs:
-                            image_dirs[label] = osp.join(images_dir, 'no_label')
-                            os.makedirs(image_dirs[label], exist_ok=True)
-
-                        self._save_image(item, osp.join(image_dirs[label], image_name))
-            with open(annotation_file, 'w', encoding='utf-8') as f:
-                f.writelines(['%s %s\n' % (image_name, ' '.join([str(label)
-                            for label in labels[image_name]])) for image_name in labels])
-
-        labels_file = osp.join(subset_dir, ImagenetPath.LABELS_FILE)
-        with open(labels_file, 'w', encoding='utf-8') as f:
-            f.write('\n'.join(l.name
-                for l in extractor.categories()[AnnotationType.label])
-            )
