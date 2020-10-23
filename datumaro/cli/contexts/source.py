@@ -4,7 +4,6 @@
 
 import argparse
 import logging as log
-import shutil
 
 from datumaro.components.project import Environment
 
@@ -109,8 +108,8 @@ def build_remove_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(help="Remove source from project",
         description="Remove a source from a project.")
 
-    parser.add_argument('-n', '--name', required=True,
-        help="Name of the source to be removed")
+    parser.add_argument('names', nargs='+',
+        help="Names of the sources to be removed")
     parser.add_argument('--force', action='store_true',
         help="Ignore possible errors during removal")
     parser.add_argument('--keep-data', action='store_true',
@@ -124,21 +123,21 @@ def build_remove_parser(parser_ctor=argparse.ArgumentParser):
 def remove_command(args):
     project = load_project(args.project_dir)
 
-    name = args.name
-    if not name:
+    if not args.names:
         raise CliException("Expected source name")
 
-    project.sources.remove(name, force=args.force, keep_data=args.keep_data)
+    for name in args.names:
+        project.sources.remove(name, force=args.force, keep_data=args.keep_data)
     project.save()
 
-    log.info("Source '%s' has been removed from the project" % name)
+    log.info("Source '%s' has been removed from the project" % args.name)
 
     return 0
 
 def build_info_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor()
 
-    parser.add_argument('-n', '--name',
+    parser.add_argument('name', nargs='?',
         help="Source name")
     parser.add_argument('-v', '--verbose', action='store_true',
         help="Show details")
@@ -155,10 +154,10 @@ def info_command(args):
         source = project.sources[args.name]
         print(source)
     else:
-        for name, conf in project.config.sources.items():
+        for name, conf in project.sources.items():
             print(name)
             if args.verbose:
-                print(dict(conf))
+                print(conf)
 
 def build_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(description="""

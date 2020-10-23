@@ -4,6 +4,7 @@
 # SPDX-License-Identifier: MIT
 
 from contextlib import contextmanager
+from io import StringIO
 import importlib
 import os
 import os.path as osp
@@ -56,10 +57,8 @@ def suppress_output(stdout=True, stderr=False):
 
 @contextmanager
 def catch_output():
-    from io import BytesIO
-
-    stdout = BytesIO()
-    stderr = BytesIO()
+    stdout = StringIO()
+    stderr = StringIO()
 
     old_stdout = sys.stdout
     sys.stdout = stdout

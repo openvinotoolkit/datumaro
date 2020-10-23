@@ -4,10 +4,9 @@
 # SPDX-License-Identifier: MIT
 
 import os
-import re
 
 from datumaro.components.project import Project
-from datumaro.util import cast, generate_next_name
+from datumaro.util import generate_next_name
 
 
 def load_project(project_dir):

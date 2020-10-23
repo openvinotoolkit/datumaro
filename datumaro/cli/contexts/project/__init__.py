@@ -591,13 +591,9 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         formatter_class=MultilineFormatter)
 
     subparsers = parser.add_subparsers()
-    add_subparser(subparsers, 'create', build_create_parser)
-    add_subparser(subparsers, 'import', build_import_parser)
     add_subparser(subparsers, 'export', build_export_parser)
     add_subparser(subparsers, 'filter', build_filter_parser)
     add_subparser(subparsers, 'merge', build_merge_parser)
-    add_subparser(subparsers, 'diff', build_diff_parser)
-    add_subparser(subparsers, 'ediff', build_ediff_parser)
     add_subparser(subparsers, 'transform', build_transform_parser)
     add_subparser(subparsers, 'info', build_info_parser)
     add_subparser(subparsers, 'stats', build_stats_parser)

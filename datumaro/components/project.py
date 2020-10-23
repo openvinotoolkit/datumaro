@@ -20,8 +20,7 @@ from datumaro.components.environment import Environment
 from datumaro.components.dataset import Dataset
 from datumaro.components.launcher import ModelTransform
 from datumaro.util import make_file_name, find, generate_next_name
-from datumaro.util.os_util import catch_output
-from datumaro.util.log_utils import logging_disabled
+from datumaro.util.log_utils import logging_disabled, catch_logs
 
 
 def load_project_as_dataset(url):
@@ -75,12 +74,6 @@ class CrudProxy:
     def _data(self):
         raise NotImplementedError()
 
-    def add(self, name, value):
-        raise NotImplementedError()
-
-    def remove(self, name):
-        raise NotImplementedError()
-
     def __len__(self):
         return len(self._data)
 
@@ -128,12 +121,18 @@ class ProjectRemotes(CrudProxy):
         return self._vcs.dvc.list_remotes()
 
     def add(self, name, value):
-        self.validate_url(value['url'])
+        url_parts = self.validate_url(value['url'])
+        if not url_parts.scheme:
+            value['url'] = osp.abspath(value['url'])
 
         return self._vcs.dvc.add_remote(name, value)
 
-    def remove(self, name):
-        self._vcs.dvc.remove_remote(name)
+    def remove(self, name, force=False):
+        try:
+            self._vcs.dvc.remove_remote(name)
+        except Exception:
+            if not force:
+                raise
 
     @classmethod
     def validate_url(cls, url):
@@ -230,27 +229,27 @@ class ProjectSources(_RemotesProxy):
             remote_name = url_parts.netloc
             if not remote_name in self._project.vcs.remotes:
                 raise Exception("Can't find remote '%s'" % remote_name)
+            path = url_parts.path
         elif self._project.vcs.writeable:
             remote_name = self._make_remote_name(name)
             self._project.vcs.remotes.add(remote_name, { 'url': value['url'] })
+            path = '' # all goes to the remote
         else:
             raise Exception("Can't update read-only project")
 
+        source_dir = osp.relpath(self.source_dir(name),
+            self._project.config.project_dir)
+
         if self._project.vcs.writeable:
-            source_dir = self.source_dir(name)
             os.makedirs(source_dir, exist_ok=True)
             os.makedirs(self.aux_dir(), exist_ok=True)
 
-            path = url_parts.path
-            if not url_parts.scheme:
-                path = '' # all goes to the remote
             aux_path = self.aux_path(name)
-            self._project.vcs.dvc.import_url(urllib.parse.urlunsplit(
-                url_parts._replace(scheme='remote',
-                    netloc=remote_name, path=path)
-            ), out=source_dir, dvc_path=aux_path, download=False)
+            self._project.vcs.dvc.import_url(
+                urllib.parse.urlunsplit(('remote', remote_name, path, '', '')),
+                out=source_dir, dvc_path=aux_path, download=False)
 
-        value['url'] = osp.normpath(url_parts.path)
+        value['url'] = source_dir
         value['remote'] = remote_name
         value = super().add(name, value)
 
@@ -273,13 +272,13 @@ class ProjectSources(_RemotesProxy):
         self._project.build_targets.remove_target(name)
         self._data.remove(name)
 
+        if not self._project.vcs.writeable:
+            return
+
         if force and not keep_data:
             source_dir = self.source_dir(name)
             if osp.isdir(source_dir):
                 shutil.rmtree(source_dir, ignore_errors=True)
-
-        if not self._project.vcs.writeable:
-            return
 
         aux_file = self.aux_path(name)
         if osp.isfile(aux_file):
@@ -291,11 +290,7 @@ class ProjectSources(_RemotesProxy):
                 else:
                     raise
 
-        try:
-            self._project.vcs.remotes.remove(name)
-        except Exception:
-            if not force:
-                raise
+        self._project.vcs.remotes.remove(name, force=force)
 
     @classmethod
     def _make_remote_name(cls, name):
@@ -554,6 +549,8 @@ class ProjectBuildTargets(CrudProxy):
             else:
                 raise NotImplementedError("Unknown stage type '%s'" % type_)
 
+            if head == current_name and not isinstance(dataset, Dataset):
+                dataset = Dataset.from_extractors(dataset)
             current['dataset'] = dataset
 
         return graph, head
@@ -802,7 +799,8 @@ class DvcWrapper:
         self._exec(['remote', 'remove', name])
 
     def list_remotes(self):
-        raise NotImplementedError()
+        out = self._exec(['remote', 'list'])
+        return dict(line.split() for line in out.split('\n') if line)
 
     def list_stages(self):
         return set(s.addressing for s in self.repo.stages)
@@ -827,15 +825,15 @@ class DvcWrapper:
 
     def _exec(self, args, hide_output=True):
         log.debug("Calling DVC main with args: %s", args)
-        with catch_output() as (stdout, stderr), logging_disabled(log.INFO):
+
+        with catch_logs('dvc') as logs:
             retcode = self.module.main.main(args)
-        stdout = stdout.getvalue().decode('utf-8')
-        stderr = stderr.getvalue().decode('utf-8')
+        logs = logs.getvalue()
         if retcode != 0:
-            raise Exception(stdout + stderr)
+            raise Exception(logs)
         if not hide_output:
-            print(stdout + stderr)
-        return stdout, stderr
+            print(logs)
+        return logs
 
 class ProjectVcs:
     def __init__(self, project, readonly=False):
