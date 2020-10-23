@@ -59,7 +59,7 @@ class ImagenetTxtImporter(Importer):
     @classmethod
     def find_sources(cls, path):
         subset_paths = [p for p in glob(osp.join(path, '*.txt'))
-                 if 'synsets' not in osp.basename(p)]
+            if 'synsets' not in osp.basename(p)]
         sources = []
         for subset_path in subset_paths:
             sources += cls._find_sources_recursive(subset_path, '.txt', 'imagenet_txt')
@@ -77,7 +77,7 @@ class ImagenetTxtConverter(Converter):
             labels = {}
             for item in subset:
                 labels[item.id] = [str(p.label) for p in item.annotations
-                                        if p.type == AnnotationType.label]
+                    if p.type == AnnotationType.label]
 
             with open(annotation_file, 'w', encoding='utf-8') as f:
                 f.writelines(['%s %s\n' % (item_id, ' '.join(labels[item_id])) for item_id in labels])
