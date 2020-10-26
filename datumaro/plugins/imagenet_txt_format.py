@@ -90,13 +90,10 @@ class ImagenetTxtConverter(Converter):
                 labels[item.id] = [str(p.label) for p in item.annotations
                     if p.type == AnnotationType.label]
 
-                if self._save_images:
-                    if item.has_image and item.image.has_data:
-                        self._save_image(item,
-                            osp.join(self._save_dir, ImagenetTxtPath.IMAGE_DIR,
-                                self._make_image_filename(item)))
-                    else:
-                        log.debug("Item '%s' has no image info", item.id)
+                if self._save_images and item.has_image:
+                    self._save_image(item,
+                        osp.join(self._save_dir, ImagenetTxtPath.IMAGE_DIR,
+                            self._make_image_filename(item)))
 
             with open(annotation_file, 'w', encoding='utf-8') as f:
                 f.writelines(['%s %s\n' % (item_id, ' '.join(labels[item_id]))

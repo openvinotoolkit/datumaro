@@ -40,7 +40,8 @@ class ImagenetFormatTest(TestCase):
 
             parsed_dataset = ImagenetImporter()(test_dir).make_dataset()
 
-            compare_datasets(self, source_dataset, parsed_dataset)
+            compare_datasets(self, source_dataset, parsed_dataset,
+                require_images=True)
 
     def test_can_save_and_load_with_multiple_labels(self):
         source_dataset = Dataset.from_iterable([
@@ -80,7 +81,8 @@ class ImagenetFormatTest(TestCase):
 
             parsed_dataset = ImagenetImporter()(test_dir).make_dataset()
 
-            compare_datasets(self, source_dataset, parsed_dataset)
+            compare_datasets(self, source_dataset, parsed_dataset,
+                require_images=True)
 
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'imagenet_dataset')
@@ -103,7 +105,7 @@ class ImagenetImporterTest(TestCase):
 
         dataset = Project.import_from(DUMMY_DATASET_DIR, 'imagenet').make_dataset()
 
-        compare_datasets(self, expected_dataset, dataset)
+        compare_datasets(self, expected_dataset, dataset, require_images=True)
 
     def test_can_detect_imagenet(self):
         self.assertTrue(ImagenetImporter.detect(DUMMY_DATASET_DIR))
