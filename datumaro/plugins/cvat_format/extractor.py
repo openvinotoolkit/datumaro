@@ -86,7 +86,7 @@ class CvatExtractor(SourceExtractor):
                     }
             elif ev == 'end':
                 if el.tag == 'attribute' and attributes is not None:
-                    attr_value = el.text
+                    attr_value = el.text or ''
                     if el.text in ['true', 'false']:
                         attr_value = attr_value == 'true'
                     else:

@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Randomness of random split transform (<https://github.com/openvinotoolkit/datumaro/pull/38>)
 - `Transform.subsets()` method (<https://github.com/openvinotoolkit/datumaro/pull/38>)
 - Supported unknown image formats in TF Detection API converter (<https://github.com/openvinotoolkit/datumaro/pull/40>)
+- Supported empty attribute values in CVAT extractor (<https://github.com/openvinotoolkit/datumaro/pull/45>)
 
 ### Security
 -
