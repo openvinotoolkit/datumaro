@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import json
 import logging as log
 import networkx as nx
 import os
@@ -683,6 +684,13 @@ class GitWrapper:
     def commit(self, message):
         self.repo.index.commit(message)
 
+    def status(self):
+        diff = self.repo.index.diff(None)
+        return {
+            osp.relpath(d.a_rawpath.decode(), self._project_dir): d.change_type
+            for d in diff
+        }
+
 class DvcWrapper:
     @staticmethod
     def import_module():
@@ -823,6 +831,13 @@ class DvcWrapper:
         args.append(target)
         self._exec(args)
 
+    def status(self, targets=None):
+        args = ['status', '--show-json']
+        if targets:
+            args.extend(targets)
+        out = self._exec(args)
+        return json.loads(out)
+
     def _exec(self, args, hide_output=True):
         log.debug("Calling DVC main with args: %s", args)
 
@@ -940,8 +955,11 @@ class ProjectVcs:
         self.dvc.init()
 
     def status(self):
-        # check status of the files and remotes
-        raise NotImplementedError()
+        # check status of files and remotes
+        uncomitted = {}
+        uncomitted.update(self.git.status())
+        uncomitted.update(self.dvc.status())
+        return uncomitted
 
 class Project:
     @classmethod
