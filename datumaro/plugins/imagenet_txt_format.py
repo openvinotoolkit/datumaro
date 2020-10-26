@@ -4,7 +4,6 @@
 # SPDX-License-Identifier: MIT
 
 from glob import glob
-import logging as log
 import os
 import os.path as osp
 
