@@ -37,7 +37,7 @@ class ImagenetExtractor(SourceExtractor):
     def _load_items(self, path):
         items = {}
         for image_path in glob(osp.join(path, '*', '*')):
-            if osp.splitext(image_path)[1] not in ImagenetPath.IMAGES_EXT:
+            if osp.splitext(image_path)[1] != ImagenetPath.IMAGES_EXT:
                 continue
             label = osp.basename(osp.dirname(image_path))
             image_name = osp.splitext(osp.basename(image_path))[0][len(label) + 1:]
