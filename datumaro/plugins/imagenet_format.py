@@ -37,17 +37,18 @@ class ImagenetExtractor(SourceExtractor):
     def _load_items(self, path):
         items = {}
         for image_path in glob(osp.join(path, '*', '*')):
-            images_dir = osp.basename(osp.dirname(image_path))
-            image_name = osp.splitext(osp.basename(image_path))[0][len(images_dir) + 1:]
-            item = items.get(image_name)
-            if item is None:
-                item = DatasetItem(id=image_name, subset=self._subset,
-                    image=Image(path=image_path))
-            annotations = item.annotations
-            if images_dir != ImagenetPath.IMAGES_DIR_NO_LABEL:
-                label = self._categories[AnnotationType.label].find(images_dir)[0]
-                annotations.append(Label(label=label))
-            items[image_name] = item
+            if osp.splitext(osp.basename(image_path))[1] == ImagenetPath.IMAGES_EXT:
+                images_dir = osp.basename(osp.dirname(image_path))
+                image_name = osp.splitext(osp.basename(image_path))[0][len(images_dir) + 1:]
+                item = items.get(image_name)
+                if item is None:
+                    item = DatasetItem(id=image_name, subset=self._subset,
+                        image=Image(path=image_path))
+                annotations = item.annotations
+                if images_dir != ImagenetPath.IMAGES_DIR_NO_LABEL:
+                    label = self._categories[AnnotationType.label].find(images_dir)[0]
+                    annotations.append(Label(label=label))
+                items[image_name] = item
         return items
 
 
