@@ -675,11 +675,14 @@ class GitWrapper:
         self.repo.create_tag(name)
 
     def checkout(self, ref):
-        self.repo.head.reference = self.repo.refs[ref]
+        self.repo.git.checkout(ref)
 
-    def add(self, paths):
-        paths = [p for p in paths if osp.isfile(p)]
-        self.repo.index.add(paths)
+    def add(self, paths, all=False):
+        if not all:
+            paths = [p for p in paths if osp.isfile(p)]
+            self.repo.index.add(paths)
+        else:
+            self.repo.git.add(all=True)
 
     def commit(self, message):
         self.repo.index.commit(message)
@@ -797,7 +800,7 @@ class DvcWrapper:
     def commit(self, paths):
         args = ['commit', '--recursive']
         if paths:
-            args.extend(path)
+            args.extend(paths)
         self._exec(args)
 
     def add_remote(self, name, config):
@@ -835,7 +838,7 @@ class DvcWrapper:
         args = ['status', '--show-json']
         if targets:
             args.extend(targets)
-        out = self._exec(args)
+        out = self._exec(args).splitlines()[-1]
         return json.loads(out)
 
     def _exec(self, args, hide_output=True):
@@ -903,11 +906,11 @@ class ProjectVcs:
 
     @property
     def refs(self) -> List[str]:
-        return self.git.refs()
+        return self.git.refs
 
     @property
     def tags(self) -> List[str]:
-        return self.git.tags()
+        return self.git.tags
 
     def push(self, remote=None):
         self.dvc.push()
@@ -929,16 +932,16 @@ class ProjectVcs:
     def tag(self, name):
         self.git.tag(name)
 
-    def checkout(self, ref):
+    def checkout(self, ref, update_data=True):
         # order matters
         self.git.checkout(ref)
-        self.dvc.checkout()
+        if update_data:
+            self.dvc.checkout()
 
     def add(self, paths):
         if not paths:
             paths = [self._project.config.project_dir]
-        updated_paths = self.dvc.add(paths)
-        self.git.add(updated_paths)
+        self.dvc.add(paths)
 
     def commit(self, paths, message):
         # order matters
@@ -947,6 +950,7 @@ class ProjectVcs:
                 osp.join(self._project.config.project_dir, '**', '*.dvc'),
                 recursive=True)
         self.dvc.commit(paths)
+        self.git.add(None, all=True)
         self.git.commit(message)
 
     def init(self):

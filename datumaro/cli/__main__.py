@@ -71,6 +71,8 @@ def make_parser():
         ('commit', commands.commit, "Commit changes in tracked files"),
         ('pull', commands.pull, "Pull updates from remote repository"),
         ('push', commands.push, "Push updates to remote repository"),
+        ('checkout', commands.checkout, "Switch to another branch or revision"),
+        ('refs', commands.refs, "List revisions"),
         ('export', commands.export, "Export project in some format"),
         ('filter', commands.filter, "Filter project"),
         ('transform', commands.transform, "Transform project"),

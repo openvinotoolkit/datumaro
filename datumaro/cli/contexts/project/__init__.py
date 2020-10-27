@@ -260,9 +260,10 @@ def filter_command(args):
             'params': dict(filter_args),
         })
 
-    if project.vcs.status():
+    status = project.vcs.status()
+    if status:
         raise CliException("Can't transform project " \
-            "when there are uncommitted changes.")
+            "when there are uncommitted changes: %s" % status)
 
     if args.apply:
         log.info("Filtering...")
@@ -445,9 +446,10 @@ def transform_command(args):
             'params': dict(extra_args),
         })
 
-    if project.vcs.status():
+    status = project.vcs.status()
+    if status:
         raise CliException("Can't transform project " \
-            "when there are uncommitted changes.")
+            "when there are uncommitted changes: %s" % status)
 
     if args.apply:
         log.info("Transforming...")
@@ -481,9 +483,10 @@ def build_build_parser(parser_ctor=argparse.ArgumentParser):
 def build_command(args):
     project = load_project(args.project_dir)
 
-    if not args.force and project.vcs.status():
+    status = project.vcs.status()
+    if not args.force and status:
         raise CliException("Can't build project " \
-            "when there are uncommitted changes.")
+            "when there are uncommitted changes: %s" % status)
 
     project.build(args.target, force=args.force)
 
