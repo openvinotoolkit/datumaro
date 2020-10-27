@@ -134,6 +134,78 @@ def remove_command(args):
 
     return 0
 
+def build_fetch_parser(parser_ctor=argparse.ArgumentParser):
+    parser = parser_ctor()
+
+    parser.add_argument('names', nargs='*', default='project',
+        help="Names of sources (default: %(default)s)")
+    parser.add_argument('-p', '--project', dest='project_dir', default='.',
+        help="Directory of the project to operate on (default: current dir)")
+    parser.set_defaults(command=fetch_command)
+
+    return parser
+
+def fetch_command(args):
+    project = load_project(args.project_dir)
+
+    project.sources.fetch(args.names)
+
+    return 0
+
+def build_pull_parser(parser_ctor=argparse.ArgumentParser):
+    parser = parser_ctor()
+
+    parser.add_argument('names', nargs='*', default='project',
+        help="Names of sources (default: %(default)s)")
+    parser.add_argument('-p', '--project', dest='project_dir', default='.',
+        help="Directory of the project to operate on (default: current dir)")
+    parser.set_defaults(command=pull_command)
+
+    return parser
+
+def pull_command(args):
+    project = load_project(args.project_dir)
+
+    project.sources.pull(args.names)
+
+    return 0
+
+def build_push_parser(parser_ctor=argparse.ArgumentParser):
+    parser = parser_ctor()
+
+    parser.add_argument('names', nargs='*', default='project',
+        help="Names of sources (default: %(default)s)")
+    parser.add_argument('-p', '--project', dest='project_dir', default='.',
+        help="Directory of the project to operate on (default: current dir)")
+    parser.set_defaults(command=push_command)
+
+    return parser
+
+def push_command(args):
+    project = load_project(args.project_dir)
+
+    project.sources.push(args.names)
+
+    return 0
+
+def build_checkout_parser(parser_ctor=argparse.ArgumentParser):
+    parser = parser_ctor()
+
+    parser.add_argument('names', nargs='*', default='project',
+        help="Names of sources (default: %(default)s)")
+    parser.add_argument('-p', '--project', dest='project_dir', default='.',
+        help="Directory of the project to operate on (default: current dir)")
+    parser.set_defaults(command=checkout_command)
+
+    return parser
+
+def checkout_command(args):
+    project = load_project(args.project_dir)
+
+    project.sources.checkout(args.names)
+
+    return 0
+
 def build_info_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor()
 
@@ -177,6 +249,10 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     subparsers = parser.add_subparsers()
     add_subparser(subparsers, 'add', build_add_parser)
     add_subparser(subparsers, 'remove', build_remove_parser)
+    add_subparser(subparsers, 'fetch', build_fetch_parser)
+    add_subparser(subparsers, 'checkout', build_checkout_parser)
+    add_subparser(subparsers, 'pull', build_pull_parser)
+    add_subparser(subparsers, 'push', build_push_parser)
     add_subparser(subparsers, 'info', build_info_parser)
 
     return parser

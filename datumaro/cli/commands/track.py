@@ -11,7 +11,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor()
 
     parser.add_argument('paths', nargs='+',
-        help="Files or directories to start track")
+        help="Track files or directories")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to operate on (default: current dir)")
     parser.set_defaults(command=track_command)

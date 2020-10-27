@@ -4,6 +4,10 @@
 
 # pylint: disable=redefined-builtin
 
-from . import (create, add, explain, export, remove, merge, convert, apply,
-    diff, ediff, commit, pull, push, track, checkout, refs,
-    transform, filter, build)
+from . import (
+    create, add, remove,
+    explain,
+    export, merge, convert, apply, transform, filter, build, update,
+    diff, ediff,
+    commit, fetch, pull, push, track, checkout, refs, status,
+)

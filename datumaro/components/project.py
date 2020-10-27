@@ -921,9 +921,10 @@ class ProjectVcs:
         self.git.pull()
         self.dvc.pull()
 
-    def check_updates(self, remote=None) -> List[str]:
+    def check_updates(self, targets=None) -> List[str]:
         updated_refs = self.git.check_updates()
-        return updated_refs
+        updated_remotes = self.remotes.check_updates(targets)
+        return updated_refs, updated_remotes
 
     def fetch(self, remote=None):
         self.git.fetch()
@@ -932,11 +933,11 @@ class ProjectVcs:
     def tag(self, name):
         self.git.tag(name)
 
-    def checkout(self, ref, update_data=True):
+    def checkout(self, rev=None, targets=None):
         # order matters
-        self.git.checkout(ref)
-        if update_data:
-            self.dvc.checkout()
+        if rev:
+            self.git.checkout(rev)
+        self.dvc.checkout(targets)
 
     def add(self, paths):
         if not paths:
