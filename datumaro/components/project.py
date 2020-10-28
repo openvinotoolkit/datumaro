@@ -94,13 +94,10 @@ class CrudProxy:
         return name in self._data
 
 class ProjectRemotes(CrudProxy):
-    SUPPORTED_PROTOCOLS = {'', 'remote', 'git', 's3', 'ssh', 'http', 'https'}
+    SUPPORTED_PROTOCOLS = {'', 'remote', 's3', 'ssh', 'http', 'https'}
 
     def __init__(self, project_vcs):
         self._vcs = project_vcs
-
-    def check_updates(self, name=None):
-        self._vcs.dvc.check_remote(name)
 
     def fetch(self, name=None):
         self._vcs.dvc.fetch_remote(name)
@@ -119,14 +116,18 @@ class ProjectRemotes(CrudProxy):
 
     @CrudProxy._data.getter
     def _data(self):
-        return self._vcs.dvc.list_remotes()
+        return self._vcs._project.config.remotes
 
     def add(self, name, value):
         url_parts = self.validate_url(value['url'])
         if not url_parts.scheme:
             value['url'] = osp.abspath(value['url'])
 
-        return self._vcs.dvc.add_remote(name, value)
+        value = self._data.set(name, value)
+
+        if value.type == 'url':
+            self._vcs.dvc.add_remote(name, value)
+        return value
 
     def remove(self, name, force=False):
         try:
@@ -155,21 +156,60 @@ class _RemotesProxy(CrudProxy):
     def _data(self):
         return self._project.config[self._field]
 
-    def check_updates(self, name=None):
-        if self._project.vcs.readable:
-            self._project.vcs.remotes.check_remote(name)
-
-    def pull(self, name=None):
+    def pull(self, names=None):
         if not self._project.vcs.writeable:
             raise Exception("Can't pull in read-only repository")
 
-        if name and name not in self:
-            raise KeyError("Unknown source '%s'" % name)
+        if not names:
+            names = []
 
-        paths = []
-        if name:
-            paths = [self.aux_path(name)]
-        self._project.vcs.dvc.update_imports(paths)
+        for name in names:
+            if name and name not in self:
+                raise KeyError("Unknown source '%s'" % name)
+
+        self._project.vcs.dvc.update_imports(
+            [self.aux_path(name) for name in names])
+
+    def fetch(self, names=None):
+        if not self._project.vcs.readable:
+            raise Exception("Can't fetch in read-only repository")
+
+        if not names:
+            names = []
+
+        for name in names:
+            if name and name not in self:
+                raise KeyError("Unknown source '%s'" % name)
+
+        self._project.vcs.dvc.fetch(
+            [self.aux_path(name) for name in names])
+
+    def checkout(self, names=None):
+        if not self._project.vcs.writeable:
+            raise Exception("Can't checkout in read-only repository")
+
+        if not names:
+            names = []
+
+        for name in names:
+            if name and name not in self:
+                raise KeyError("Unknown source '%s'" % name)
+
+        self._project.vcs.dvc.checkout(
+            [self.aux_path(name) for name in names])
+
+    def push(self, names=None):
+        if not self._project.vcs.writeable:
+            raise Exception("Can't push in read-only repository")
+
+        if not names:
+            names = []
+
+        for name in names:
+            if name and name not in self:
+                raise KeyError("Unknown source '%s'" % name)
+
+        self._project.vcs.dvc.push([self.aux_path(name) for name in names])
 
     def add(self, name, value):
         return self._data.set(name, value)
@@ -228,12 +268,16 @@ class ProjectSources(_RemotesProxy):
 
         if url_parts.scheme == 'remote':
             remote_name = url_parts.netloc
-            if not remote_name in self._project.vcs.remotes:
-                raise Exception("Can't find remote '%s'" % remote_name)
+            remote_conf = self._project.vcs.remotes[remote_name]
             path = url_parts.path
+            if path.startswith('/') and len(path) != 1:
+                path = path[1:]
         elif self._project.vcs.writeable:
             remote_name = self._make_remote_name(name)
-            self._project.vcs.remotes.add(remote_name, { 'url': value['url'] })
+            remote_conf = self._project.vcs.remotes.add(remote_name, {
+                'url': value['url'],
+                'type': 'url',
+            })
             path = '' # all goes to the remote
         else:
             raise Exception("Can't update read-only project")
@@ -246,21 +290,21 @@ class ProjectSources(_RemotesProxy):
             os.makedirs(self.aux_dir(), exist_ok=True)
 
             aux_path = self.aux_path(name)
-            self._project.vcs.dvc.import_url(
-                urllib.parse.urlunsplit(('remote', remote_name, path, '', '')),
-                out=source_dir, dvc_path=aux_path, download=False)
+            if remote_conf.type == 'url':
+                self._project.vcs.dvc.import_url(
+                    urllib.parse.urlunsplit(('remote', remote_name, path, '', '')),
+                    out=source_dir, dvc_path=aux_path, download=False)
+            elif remote_conf.type == 'git':
+                self._project.vcs.dvc.import_(remote_conf.url, path=path,
+                    out=source_dir, dvc_path=aux_path)
+            else:
+                raise Exception("Unknown remote type '%s'" % remote_conf.type)
 
         value['url'] = source_dir
         value['remote'] = remote_name
         value = super().add(name, value)
 
         self._project.build_targets.add_target(name)
-
-        if self._project.vcs.writeable:
-            self._project.vcs.git.add([
-                aux_path,
-                osp.join(self._project.config.project_dir, '.gitignore'),
-            ])
 
         return value
 
@@ -729,28 +773,55 @@ class DvcWrapper:
         with logging_disabled():
             self.repo = self.module.repo.Repo.init(self._project_dir)
 
-    def push(self, remote=None):
+    def push(self, targets=None, remote=None):
         args = ['push']
         if remote:
+            args.append('--remote')
             args.append(remote)
+        if targets:
+            args.extend(targets)
         self._exec(args)
 
-    def pull(self, remote=None):
+    def pull(self, targets=None, remote=None):
         args = ['pull']
         if remote:
+            args.append('--remote')
             args.append(remote)
+        if targets:
+            args.extend(targets)
         self._exec(args)
 
-    def check_updates(self, remote=None):
+    def check_updates(self, targets=None, remote=None):
         args = ['fetch'] # no other way now?
         if remote:
+            args.append('--remote')
             args.append(remote)
+        if targets:
+            args.extend(targets)
         self._exec(args)
 
-    def fetch(self, remote=None):
+    def fetch(self, targets=None, remote=None):
         args = ['fetch']
         if remote:
+            args.append('--remote')
             args.append(remote)
+        if targets:
+            args.extend(targets)
+        self._exec(args)
+
+    def import_(self, url, path, out=None, dvc_path=None, rev=None):
+        args = ['import']
+        if dvc_path:
+            args.append('--file')
+            args.append(dvc_path)
+        if rev:
+            args.append('--rev')
+            args.append(rev)
+        if out:
+            args.append('-o')
+            args.append(out)
+        args.append(url)
+        args.append(path)
         self._exec(args)
 
     def import_url(self, url, out=None, dvc_path=None, download=True):
@@ -765,8 +836,11 @@ class DvcWrapper:
             args.append(out)
         self._exec(args)
 
-    def update_imports(self, targets=None):
+    def update_imports(self, targets=None, rev=None):
         args = ['update']
+        if rev:
+            args.append('--rev')
+            args.append(rev)
         if targets:
             args.extend(targets)
         self._exec(args)
@@ -914,11 +988,11 @@ class ProjectVcs:
 
     def push(self, remote=None):
         self.dvc.push()
-        self.git.push()
+        self.git.push(remote=remote)
 
     def pull(self, remote=None):
         # order matters
-        self.git.pull()
+        self.git.pull(remote=remote)
         self.dvc.pull()
 
     def check_updates(self, targets=None) -> List[str]:
@@ -927,7 +1001,7 @@ class ProjectVcs:
         return updated_refs, updated_remotes
 
     def fetch(self, remote=None):
-        self.git.fetch()
+        self.git.fetch(remote=remote)
         self.dvc.fetch()
 
     def tag(self, name):

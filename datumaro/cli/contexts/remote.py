@@ -12,11 +12,19 @@ from ..util.project import load_project, generate_next_name
 def build_add_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor()
 
-    parser.add_argument('url', help="Path to the remote")
     parser.add_argument('-n', '--name',
         help="Name of the new remote")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to operate on (default: current dir)")
+
+    sp = parser.add_subparsers(dest='type')
+
+    url_parser = sp.add_parser('url')
+    url_parser.add_argument('url', help="Path to the remote")
+
+    git_parser = sp.add_parser('git')
+    git_parser.add_argument('url', help="Repository url")
+    git_parser.add_argument('--rev')
 
     parser.set_defaults(command=add_command)
 
@@ -29,7 +37,13 @@ def add_command(args):
     if not name:
         name = generate_next_name(project.vcs.remotes, 'remote',
             sep='-', default=1)
-    project.vcs.remotes.add(name, { 'url': args.url })
+    config = {
+        'url': args.url,
+        'type': args.type,
+    }
+    if args.type == 'git':
+        config['options'] = {'rev': args.rev}
+    project.vcs.remotes.add(name, config)
     project.save()
 
     log.info("Remote '%s' has been added to the project" % name)

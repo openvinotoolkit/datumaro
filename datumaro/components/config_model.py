@@ -10,6 +10,17 @@ from datumaro.components.config import Config, \
 from datumaro.util import find
 
 
+REMOTE_SCHEMA = _SchemaBuilder() \
+    .add('url', str) \
+    .add('type', str) \
+    .add('options', dict) \
+    .build()
+
+class Remote(Config):
+    def __init__(self, config=None):
+        super().__init__(config, schema=REMOTE_SCHEMA)
+
+
 SOURCE_SCHEMA = _SchemaBuilder() \
     .add('url', str) \
     .add('format', str) \
@@ -75,6 +86,7 @@ PROJECT_SCHEMA = _SchemaBuilder() \
     .add('project_name', str) \
     .add('format_version', int) \
     \
+    .add('remotes', lambda: _DictConfig(lambda v=None: Remote(v))) \
     .add('sources', lambda: _DictConfig(lambda v=None: Source(v))) \
     .add('models', lambda: _DictConfig(lambda v=None: Model(v))) \
     .add('build_targets', lambda: _DictConfig(lambda v=None: BuildTarget(v))) \
