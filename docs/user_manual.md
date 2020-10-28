@@ -100,6 +100,7 @@ List of supported formats:
 - ImageNet (`classification`, `detection`)
   - [Dataset example](../tests/assets/imagenet_dataset)
   - [Dataset example (txt for classification)](../tests/assets/imagenet_txt_dataset)
+  - Detection format is the same as in PASCAL VOC
 - CVAT
   - [Format specification](https://github.com/opencv/cvat/blob/develop/cvat/apps/documentation/xml_format.md)
   - [Dataset example](../tests/assets/cvat_dataset)
