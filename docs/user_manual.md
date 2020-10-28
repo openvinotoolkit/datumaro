@@ -97,6 +97,9 @@ List of supported formats:
 - MOTS (png)
   - [Format specification](https://www.vision.rwth-aachen.de/page/mots)
   - [Dataset example](../tests/assets/mots_dataset)
+- ImageNet (`classification`, `detection`)
+  - [Dataset example](../tests/assets/imagenet_dataset)
+  - [Dataset example (txt for classification)](../tests/assets/imagenet_txt_dataset)
 - CVAT
   - [Format specification](https://github.com/opencv/cvat/blob/develop/cvat/apps/documentation/xml_format.md)
   - [Dataset example](../tests/assets/cvat_dataset)
