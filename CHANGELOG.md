@@ -25,6 +25,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 -
 
+## 10/28/2020 - Release v0.1.3
+### Added
+- `ImageNet` and `ImageNetTxt` dataset formats (<https://github.com/openvinotoolkit/datumaro/pull/41>)
+
+### Changed
+-
+
+### Deprecated
+-
+
+### Removed
+-
+
+### Fixed
+- Default `label-map` parameter value for VOC converter (<https://github.com/openvinotoolkit/datumaro/pull/34>)
+- Randomness of random split transform (<https://github.com/openvinotoolkit/datumaro/pull/38>)
+- `Transform.subsets()` method (<https://github.com/openvinotoolkit/datumaro/pull/38>)
+- Supported unknown image formats in TF Detection API converter (<https://github.com/openvinotoolkit/datumaro/pull/40>)
+- Supported empty attribute values in CVAT extractor (<https://github.com/openvinotoolkit/datumaro/pull/45>)
+
+### Security
+-
+
 
 ## 10/05/2020 - Release v0.1.2
 ### Added

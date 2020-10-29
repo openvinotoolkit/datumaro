@@ -643,7 +643,7 @@ class Transform(Extractor):
     def subsets(self):
         if self._subsets is None:
             self._subsets = set(self._extractor.subsets())
-        return self._subsets
+        return super().subsets()
 
     def __len__(self):
         assert self._length in {None, 'parent'} or isinstance(self._length, int)
