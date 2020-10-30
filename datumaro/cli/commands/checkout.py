@@ -12,8 +12,8 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 
     parser.add_argument('rev', nargs='?',
         help="Commit or tag (default: restore current)")
-    parser.add_argument('targets', nargs='*', default='project',
-        help="Names of sources and models (default: %(default)s)")
+    parser.add_argument('targets', nargs='*',
+        help="Names of sources and models")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to operate on (default: current dir)")
     parser.set_defaults(command=checkout_command)

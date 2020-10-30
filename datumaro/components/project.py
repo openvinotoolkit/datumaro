@@ -628,6 +628,15 @@ class ProjectBuildTargets(CrudProxy):
             real_target = target
         return real_target
 
+    @classmethod
+    def pipeline_sources(cls, pipeline):
+        sources = set()
+        for item in pipeline:
+            if item['config']['type'] == BuildStageType.source.name:
+                s, _ = cls._split_target_name(item['name'])
+                sources.add(s)
+        return list(sources)
+
     def build(self, target, force=False):
         if not self._project.vcs.readable:
             raise Exception("Can't build a project without VCS support")
@@ -635,16 +644,29 @@ class ProjectBuildTargets(CrudProxy):
         def _rpath(p):
             return osp.relpath(p, self._project.config.project_dir)
 
+        try:
+            status = self._project.vcs.dvc.status([make_file_name(target)])
+            if not status:
+                return
+        except Exception:
+            pass
+
+        pipeline = self.make_pipeline(target)
+        sources = self.pipeline_sources(pipeline)
+        self._project.sources.checkout(sources)
+
+        out_dir = osp.join(self._project.config.project_dir,
+            self._project.config.build_dir)
+
         pipeline_file = _rpath(self.generate_pipeline(target))
 
-        if target not in self._project.vcs.dvc.list_stages():
-            out_dir = _rpath(self._project.config.build_dir)
-            self._project.vcs.dvc.run(
-                cmd=['datum', 'apply', '--build', '--overwrite',
-                    '-o', out_dir, pipeline_file],
-                deps=[pipeline_file], outs=[out_dir], name=target)
-        else:
-            self._project.vcs.dvc.repro(target, force=force)
+        out_dir = _rpath(out_dir)
+        self._project.vcs.dvc.run(
+            cmd=['datum', 'apply', '--build', '--overwrite',
+                '-o', out_dir, pipeline_file],
+            deps=[pipeline_file] + [
+                self._project.sources.source_dir(s) for s in sources],
+            outs=[out_dir], name=target, force=True)
 
 class GitWrapper:
     @staticmethod
@@ -890,22 +912,25 @@ class DvcWrapper:
     def list_stages(self):
         return set(s.addressing for s in self.repo.stages)
 
-    def run(self, name, cmd, deps=None, outs=None):
+    def run(self, name, cmd, deps=None, outs=None, force=False):
         args = ['run', '-n', name]
+        if force:
+            args.append('--force')
         for d in deps:
             args.append('-d')
             args.append(d)
         for o in outs:
-            args.append('-o')
+            args.append('--outs')
             args.append(o)
         args.extend(cmd)
         self._exec(args, hide_output=False)
 
-    def repro(self, target, force=False):
+    def repro(self, targets=None, force=False):
         args = ['repro']
         if force:
             args.append('--force')
-        args.append(target)
+        if targets:
+            args.extend(targets)
         self._exec(args)
 
     def status(self, targets=None):

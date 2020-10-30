@@ -68,7 +68,8 @@ class Converter(CliPlugin):
 
         os.makedirs(osp.dirname(path), exist_ok=True)
         if src_ext == dst_ext and osp.isfile(item.image.path):
-            shutil.copyfile(item.image.path, path)
+            if item.image.path != path:
+                shutil.copyfile(item.image.path, path)
         elif src_ext == dst_ext and isinstance(item.image, ByteImage):
             with open(path, 'wb') as f:
                 f.write(item.image.get_bytes())

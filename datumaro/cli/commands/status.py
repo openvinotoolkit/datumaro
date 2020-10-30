@@ -19,6 +19,6 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 def status_command(args):
     project = load_project(args.project_dir)
 
-    project.vcs.status()
+    print(project.vcs.status())
 
     return 0

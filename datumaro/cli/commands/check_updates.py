@@ -10,8 +10,8 @@ from ..util.project import load_project
 def build_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor()
 
-    parser.add_argument('targets', nargs='*', default='project',
-        help="Names of sources and models (default: %(default)s)")
+    parser.add_argument('targets', nargs='*',
+        help="Names of sources and models")
     parser.add_argument('-r', '--remote',
         help="Name of the remote")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',

@@ -260,7 +260,7 @@ def filter_command(args):
             'params': dict(filter_args),
         })
 
-    status = project.vcs.status()
+    status = project.vcs.dvc.status()
     if status:
         raise CliException("Can't transform project " \
             "when there are uncommitted changes: %s" % status)
@@ -391,8 +391,8 @@ def build_transform_parser(parser_ctor=argparse.ArgumentParser):
         """ % ', '.join(builtins),
         formatter_class=MultilineFormatter)
 
-    parser.add_argument('target', default='project', nargs='?',
-        help="Project target to apply transform to (default: project)")
+    parser.add_argument('target', nargs='?', default='project',
+        help="Project target to apply transform to (default: all)")
     parser.add_argument('-t', '--transform', required=True,
         help="Transform to apply to the project")
     parser.add_argument('-o', '--output-dir', dest='dst_dir', default=None,
@@ -415,13 +415,23 @@ def transform_command(args):
     project = load_project(args.project_dir)
 
     dst_dir = args.dst_dir
+
+    if args.stage and args.target not in project.sources and \
+            args.target != project.build_targets.MAIN_TARGET:
+        raise CliException("Adding a stage is only allowed for "
+            "source or project targets")
+
     if dst_dir:
         if not args.overwrite and osp.isdir(dst_dir) and os.listdir(dst_dir):
             raise CliException("Directory '%s' already exists "
                 "(pass --overwrite to overwrite)" % dst_dir)
     else:
-        dst_dir = generate_next_file_name('%s-%s' % \
-            (project.config.project_name, make_file_name(args.transform)))
+        if args.target == project.build_targets.MAIN_TARGET:
+            dst_dir = generate_next_file_name('%s-%s' % \
+                (project.config.project_name, make_file_name(args.transform)))
+        else:
+            dst_dir = project.sources.source_dir(args.target)
+
     dst_dir = osp.abspath(dst_dir)
 
     try:
@@ -434,30 +444,37 @@ def transform_command(args):
         extra_args = transform.from_cmdline(args.extra_args)
 
     if args.target == project.build_targets.MAIN_TARGET:
-        targets = [t for t in project.build_targets
+        sources = [t for t in project.build_targets
             if t != project.build_targets.MAIN_TARGET]
     else:
-        targets = [args.target]
+        sources = [args.target]
 
-    for target in targets:
-        project.build_targets.add_stage(target, {
+    for source in sources:
+        project.build_targets.add_stage(source, {
             'type': BuildStageType.transform.name,
             'kind': args.transform,
             'params': dict(extra_args),
         })
 
-    status = project.vcs.status()
-    if status:
-        raise CliException("Can't transform project " \
-            "when there are uncommitted changes: %s" % status)
+    # status = project.vcs.dvc.status()
+    # if status:
+    #     raise CliException("Can't transform project " \
+    #         "when there are uncommitted changes: %s" % status)
 
     if args.apply:
         log.info("Transforming...")
 
-        dataset = project.make_dataset(args.target)
-        dataset.save(dst_dir)
+        if args.dst_dir:
+            dataset = project.make_dataset(args.target)
+            dataset.save(dst_dir)
 
-        log.info("Transform results have been saved to '%s'" % dst_dir)
+            log.info("Transform results have been saved to '%s'" % dst_dir)
+        else:
+            for source in sources:
+                dataset = project.make_dataset(source)
+                dataset.export(project.sources[source].format,
+                    save_dir=project.sources.source_dir(source),
+                    save_images=True)
 
     if args.stage:
         project.save()
@@ -467,6 +484,7 @@ def transform_command(args):
 def build_build_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(help="Build project",
         description="""
+            Pulls related sources and builds the target
         """,
         formatter_class=MultilineFormatter)
 
@@ -483,7 +501,7 @@ def build_build_parser(parser_ctor=argparse.ArgumentParser):
 def build_command(args):
     project = load_project(args.project_dir)
 
-    status = project.vcs.status()
+    status = project.vcs.dvc.status()
     if not args.force and status:
         raise CliException("Can't build project " \
             "when there are uncommitted changes: %s" % status)

@@ -137,8 +137,8 @@ def remove_command(args):
 def build_fetch_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor()
 
-    parser.add_argument('names', nargs='*', default='project',
-        help="Names of sources (default: %(default)s)")
+    parser.add_argument('names', nargs='*',
+        help="Names of sources")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to operate on (default: current dir)")
     parser.set_defaults(command=fetch_command)
@@ -155,8 +155,8 @@ def fetch_command(args):
 def build_pull_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor()
 
-    parser.add_argument('names', nargs='*', default='project',
-        help="Names of sources (default: %(default)s)")
+    parser.add_argument('names', nargs='*',
+        help="Names of sources")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to operate on (default: current dir)")
     parser.set_defaults(command=pull_command)
@@ -173,8 +173,8 @@ def pull_command(args):
 def build_push_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor()
 
-    parser.add_argument('names', nargs='*', default='project',
-        help="Names of sources (default: %(default)s)")
+    parser.add_argument('names', nargs='+',
+        help="Names of sources")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to operate on (default: current dir)")
     parser.set_defaults(command=push_command)
@@ -186,13 +186,18 @@ def push_command(args):
 
     project.sources.push(args.names)
 
+    for source in args.names:
+        stages = project.build_targets[source].stages
+        stages[:] = stages[:1]
+    project.save()
+
     return 0
 
 def build_checkout_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor()
 
-    parser.add_argument('names', nargs='*', default='project',
-        help="Names of sources (default: %(default)s)")
+    parser.add_argument('names', nargs='*',
+        help="Names of sources")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to operate on (default: current dir)")
     parser.set_defaults(command=checkout_command)
@@ -203,6 +208,39 @@ def checkout_command(args):
     project = load_project(args.project_dir)
 
     project.sources.checkout(args.names)
+
+    return 0
+
+def build_update_parser(parser_ctor=argparse.ArgumentParser):
+    parser = parser_ctor(description="""
+        Pulls updates from remotes and updates build stages
+        """)
+
+    parser.add_argument('names', nargs='+',
+        help="Names of sources to update")
+    parser.add_argument('--renew', action='store_true',
+        help="Removes existing pipelines for these sources")
+    parser.add_argument('-p', '--project', dest='project_dir', default='.',
+        help="Directory of the project to operate on (default: current dir)")
+    parser.set_defaults(command=update_command)
+
+    return parser
+
+def update_command(args):
+    project = load_project(args.project_dir)
+
+    for source in args.names:
+        if source not in project.sources:
+            raise KeyError("Unknown source '%s'" % source)
+
+    project.sources.pull(args.names)
+    for source in args.names:
+        if args.renew:
+            stages = project.build_targets[source].stages
+            stages[:] = stages[:1]
+        project.build_targets.build(source)
+
+    project.save()
 
     return 0
 
@@ -253,6 +291,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     add_subparser(subparsers, 'checkout', build_checkout_parser)
     add_subparser(subparsers, 'pull', build_pull_parser)
     add_subparser(subparsers, 'push', build_push_parser)
+    add_subparser(subparsers, 'update', build_push_parser)
     add_subparser(subparsers, 'info', build_info_parser)
 
     return parser
