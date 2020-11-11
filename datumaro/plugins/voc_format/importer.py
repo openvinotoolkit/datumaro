@@ -10,6 +10,22 @@ from datumaro.components.extractor import Importer
 
 from .format import VocTask, VocPath
 
+def find_path(root_path, path, depth=4):
+    level, is_found = 0, False
+    full_path = None
+    while level < depth and not is_found:
+        full_path = osp.join(root_path, path)
+        paths = glob(full_path)
+        if paths:
+            full_path = paths[0] # ignore all after the first one
+            is_found = osp.isdir(full_path)
+        else:
+            full_path = None
+
+        level += 1
+        root_path = osp.join(root_path, '*')
+
+    return full_path
 
 class VocImporter(Importer):
     _TASKS = [
@@ -40,13 +56,14 @@ class VocImporter(Importer):
         return project
 
     @classmethod
-    def find_sources(cls, path):
+    def find_sources(cls, root_path):
         subset_paths = []
         for task, extractor_type, task_dir in cls._TASKS:
-            task_dir = osp.join(path, VocPath.SUBSETS_DIR, task_dir)
-            if not osp.isdir(task_dir):
+            task_path = find_path(root_path, osp.join(VocPath.SUBSETS_DIR, task_dir))
+
+            if not task_path:
                 continue
-            task_subsets = [p for p in glob(osp.join(task_dir, '*.txt'))
+            task_subsets = [p for p in glob(osp.join(task_path, '*.txt'))
                 if '_' not in osp.basename(p)]
             subset_paths += [(task, extractor_type, p) for p in task_subsets]
         return subset_paths
