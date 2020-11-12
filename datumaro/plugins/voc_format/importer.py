@@ -56,10 +56,10 @@ class VocImporter(Importer):
         return project
 
     @classmethod
-    def find_sources(cls, root_path):
+    def find_sources(cls, path):
         subset_paths = []
         for task, extractor_type, task_dir in cls._TASKS:
-            task_path = find_path(root_path, osp.join(VocPath.SUBSETS_DIR, task_dir))
+            task_path = find_path(path, osp.join(VocPath.SUBSETS_DIR, task_dir))
 
             if not task_path:
                 continue
