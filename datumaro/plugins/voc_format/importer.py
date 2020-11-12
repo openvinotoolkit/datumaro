@@ -57,11 +57,19 @@ class VocImporter(Importer):
 
     @classmethod
     def find_sources(cls, path):
+        # find root path for the dataset
+        root_path = path
+        for task, extractor_type, task_dir in cls._TASKS:
+            task_path = find_path(root_path, osp.join(VocPath.SUBSETS_DIR, task_dir))
+            if task_path:
+                root_path = osp.dirname(osp.dirname(task_path))
+                break
+
         subset_paths = []
         for task, extractor_type, task_dir in cls._TASKS:
-            task_path = find_path(path, osp.join(VocPath.SUBSETS_DIR, task_dir))
+            task_path = osp.join(root_path, VocPath.SUBSETS_DIR, task_dir)
 
-            if not task_path:
+            if not osp.isdir(task_path):
                 continue
             task_subsets = [p for p in glob(osp.join(task_path, '*.txt'))
                 if '_' not in osp.basename(p)]
