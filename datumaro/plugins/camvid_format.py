@@ -15,7 +15,6 @@ from datumaro.components.extractor import (SourceExtractor, DatasetItem,
 )
 from datumaro.components.converter import Converter
 from datumaro.util.mask_tools import paint_mask, lazy_mask
-from datumaro.util import find
 from datumaro.util.image import save_image
 
 CamvidLabelMap = OrderedDict([
