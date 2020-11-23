@@ -81,7 +81,7 @@ class _CocoExtractor(SourceExtractor):
         label_map = {}
         for idx, cat in enumerate(cats):
             label_map[cat['id']] = idx
-            categories.add(name=cat['name'], parent=cat['supercategory'])
+            categories.add(name=cat['name'], parent=cat.get('supercategory'))
 
         return categories, label_map
     # pylint: enable=no-self-use
