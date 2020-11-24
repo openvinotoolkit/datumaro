@@ -15,6 +15,7 @@ from datumaro.components.extractor import (AnnotationType, CompiledMask,
                                            DatasetItem, Importer,
                                            LabelCategories, Mask,
                                            MaskCategories, SourceExtractor)
+from datumaro.util import str_to_bool
 from datumaro.util.image import save_image
 from datumaro.util.mask_tools import lazy_mask, paint_mask
 
@@ -135,6 +136,7 @@ class CamvidExtractor(SourceExtractor):
                 inverse_cls_colormap = \
                     self._categories[AnnotationType.mask].inverse_colormap
                 mask = lazy_mask(gt_path, inverse_cls_colormap)
+                # loading mask through cache
                 mask = mask()
                 classes = np.unique(mask)
                 item_annotations = []
