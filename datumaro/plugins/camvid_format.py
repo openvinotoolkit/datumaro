@@ -3,19 +3,20 @@
 #
 # SPDX-License-Identifier: MIT
 
-from glob import glob
 import os
 import os.path as osp
-import numpy as np
 from collections import OrderedDict
 from enum import Enum
+from glob import glob
 
-from datumaro.components.extractor import (SourceExtractor, DatasetItem,
-    AnnotationType, Mask, CompiledMask, Importer, LabelCategories, MaskCategories
-)
+import numpy as np
 from datumaro.components.converter import Converter
-from datumaro.util.mask_tools import paint_mask, lazy_mask
+from datumaro.components.extractor import (AnnotationType, CompiledMask,
+                                           DatasetItem, Importer,
+                                           LabelCategories, Mask,
+                                           MaskCategories, SourceExtractor)
 from datumaro.util.image import save_image
+from datumaro.util.mask_tools import lazy_mask, paint_mask
 
 CamvidLabelMap = OrderedDict([
     ('Animal', (64, 128, 64)),
@@ -61,15 +62,23 @@ class CamvidPath:
 def parse_label_map(path):
     if not path:
         return None
+
     label_map = OrderedDict()
     with open(path, 'r') as f:
         for line in f:
-            if not line:
+            # skip empty and commented lines
+            line = line.strip()
+            if not line or line and line[0] == '#':
                 continue
+
+            # color, name
             label_desc = line.strip().split()
-            color  = (int(label_desc[0]), int(label_desc[1]),
-                int(label_desc[2]))
             name = label_desc[3]
+            if name in label_map:
+                raise ValueError("Label '%s' is already defined" % name)
+
+            color = tuple([int(c) for c in label_desc[:-1]])
+
             label_map[name] = color
     return label_map
 
@@ -121,8 +130,8 @@ class CamvidExtractor(SourceExtractor):
             for line in f:
                 image, gt = line.split()
                 item_id = ('/'.join(gt.split('/')[2:]))[:-len(CamvidPath.IMAGE_EXT)]
-                image_path = osp.join(self._dataset_dir, image[1:])
-                gt_path = osp.join(self._dataset_dir, gt[1:])
+                image_path = osp.join(self._dataset_dir, (image, image[1:]) [image[0] == '/'])
+                gt_path = osp.join(self._dataset_dir, (gt, gt[1:]) [gt[0] == '/'])
                 inverse_cls_colormap = \
                     self._categories[AnnotationType.mask].inverse_colormap
                 mask = lazy_mask(gt_path, inverse_cls_colormap)
@@ -133,7 +142,7 @@ class CamvidExtractor(SourceExtractor):
                     image = self._lazy_extract_mask(mask, label_id)
                     item_annotations.append(Mask(image=image, label=label_id))
                 items[item_id] = DatasetItem(id=item_id, subset=self._subset,
-                    image=osp.join(image_path), annotations=item_annotations)
+                    image=image_path, annotations=item_annotations)
         return items
 
     @staticmethod
@@ -144,7 +153,7 @@ class CamvidExtractor(SourceExtractor):
 class CamvidImporter(Importer):
     @classmethod
     def find_sources(cls, path):
-        subset_paths = [p for p in glob(osp.join(path, '*.txt'))
+        subset_paths = [p for p in glob(osp.join(path, '**.txt'), recursive=True)
             if osp.basename(p) != CamvidPath.LABELMAP_FILE]
         sources = []
         for subset_path in subset_paths:
@@ -157,6 +166,17 @@ LabelmapType = Enum('LabelmapType', ['camvid', 'source'])
 
 class CamvidConverter(Converter):
     DEFAULT_IMAGE_EXT = '.png'
+
+    @classmethod
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+
+        parser.add_argument('--apply-colormap', type=str_to_bool, default=True,
+            help="Use colormap for class masks "
+                "(default: %(default)s)")
+        parser.add_argument('--label-map', type=cls._get_labelmap, default=None,
+            help="Labelmap file path or one of %s" % \
+                ', '.join(t.name for t in LabelmapType))
 
     def __init__(self, extractor, save_dir,
             apply_colormap=True, label_map=None, **kwargs):
@@ -175,17 +195,14 @@ class CamvidConverter(Converter):
         for subset_name, subset in self._extractor.subsets().items():
             segm_list = []
             for item in subset:
-                masks = []
-                for a in item.annotations:
-                    if a.type == AnnotationType.mask:
-                        masks.append(a)
+                masks = [a for a in item.annotations
+                    if a.type == AnnotationType.mask]
 
                 if masks:
                     compiled_mask = CompiledMask.from_instance_masks(masks)
 
-                    self.save_segm(
-                        osp.join(subset_dir, subset_name + CamvidPath.SEGM_DIR, item.id + CamvidPath.IMAGE_EXT),
-                        compiled_mask.class_mask)
+                    self.save_segm(osp.join(subset_dir, subset_name + CamvidPath.SEGM_DIR,
+                        item.id + CamvidPath.IMAGE_EXT), compiled_mask.class_mask)
 
                     self._save_image(item,
                         osp.join(subset_dir, subset_name, item.id + CamvidPath.IMAGE_EXT))
@@ -220,6 +237,14 @@ class CamvidConverter(Converter):
         if label_map_source == LabelmapType.camvid.name:
             # use the default Camvid colormap
             label_map = CamvidLabelMap
+
+        elif label_map_source == LabelmapType.source.name and \
+                AnnotationType.mask not in self._extractor.categories():
+            # generate colormap for input labels
+            labels = self._extractor.categories() \
+                .get(AnnotationType.label, LabelCategories())
+            label_map = OrderedDict((item.name, None)
+                for item in labels.items)
 
         elif label_map_source == LabelmapType.source.name and \
                 AnnotationType.mask in self._extractor.categories():

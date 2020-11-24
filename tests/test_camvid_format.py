@@ -1,18 +1,17 @@
-from functools import partial
-import numpy as np
 import os.path as osp
 from collections import OrderedDict
-
+from functools import partial
 from unittest import TestCase
 
-from datumaro.components.extractor import (Extractor, DatasetItem,
-    AnnotationType, Mask,
-)
-from datumaro.components.project import Project
-from datumaro.util.test_utils import (TestDir, compare_datasets,
-    test_save_and_load)
 import datumaro.plugins.camvid_format as Camvid
-from datumaro.plugins.camvid_format import CamvidImporter, CamvidConverter
+import numpy as np
+from datumaro.components.extractor import (AnnotationType, DatasetItem,
+                                           Extractor, Mask)
+from datumaro.components.project import Dataset, Project
+from datumaro.plugins.camvid_format import CamvidConverter, CamvidImporter
+from datumaro.util.test_utils import (TestDir, compare_datasets,
+                                      test_save_and_load)
+
 
 class CamvidFormatTest(TestCase):
     def test_can_write_and_parse_labelmap(self):
@@ -36,44 +35,42 @@ class TestExtractorBase(Extractor):
 
 class CamvidImportTest(TestCase):
     def test_can_import(self):
-        class DstExtractor(TestExtractorBase):
-            def __iter__(self):
-                return iter([
-                    DatasetItem(id='0001TP_008550', subset='test',
-                        image=np.ones((2, 5, 3)),
-                        annotations=[
-                            Mask(image=np.array([[1, 1, 1, 0, 0], [0, 0, 0, 0, 0]]), label=0),
-                            Mask(image=np.array([[0, 0, 0, 0, 0], [1, 1, 1, 1, 1]]), label=17),
-                            Mask(image=np.array([[0, 0, 0, 1, 1], [0, 0, 0, 0, 0]]), label=21),
-                        ]
-                    ),
-                    DatasetItem(id='0001TP_008580', subset='test',
-                        image=np.ones((2, 5, 3)),
-                        annotations=[
-                            Mask(image=np.array([[1, 1, 0, 0, 0], [0, 0, 0, 0, 0]]), label=1),
-                            Mask(image=np.array([[0, 0, 1, 0, 0], [1, 1, 1, 1, 0]]), label=3),
-                            Mask(image=np.array([[0, 0, 0, 1, 1], [0, 0, 0, 0, 1]]), label=26),
-                        ]
-                    ),
-                    DatasetItem(id='0001TP_006690', subset='train',
-                        image=np.ones((1, 5, 3)),
-                        annotations=[
-                            Mask(image=np.array([[1, 1, 0, 1, 1]]), label=2),
-                            Mask(image=np.array([[0, 0, 1, 0, 0]]), label=17),
-                        ]
-                    ),
-                    DatasetItem(id='0016E5_07959', subset = 'val',
-                        image=np.ones((1, 5, 3)),
-                        annotations=[
-                            Mask(image=np.array([[1, 1, 1, 0, 0]]), label=0),
-                            Mask(image=np.array([[0, 0, 0, 1, 1]]), label=7),
-                        ]
-                    ),
-                ])
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id='0001TP_008550', subset='test',
+                image=np.ones((1, 5, 3)),
+                annotations=[
+                    Mask(image=np.array([[1, 1, 0, 0, 0]]), label=0),
+                    Mask(image=np.array([[0, 0, 1, 0, 0]]), label=17),
+                    Mask(image=np.array([[0, 0, 0, 1, 1]]), label=21),
+                ]
+            ),
+            DatasetItem(id='0001TP_008580', subset='test',
+                image=np.ones((1, 5, 3)),
+                annotations=[
+                    Mask(image=np.array([[1, 1, 0, 0, 0]]), label=1),
+                    Mask(image=np.array([[0, 0, 1, 0, 0]]), label=3),
+                    Mask(image=np.array([[0, 0, 0, 1, 1]]), label=26),
+                ]
+            ),
+            DatasetItem(id='0001TP_006690', subset='train',
+                image=np.ones((1, 5, 3)),
+                annotations=[
+                    Mask(image=np.array([[1, 1, 0, 1, 1]]), label=2),
+                    Mask(image=np.array([[0, 0, 1, 0, 0]]), label=17),
+                ]
+            ),
+            DatasetItem(id='0016E5_07959', subset = 'val',
+                image=np.ones((1, 5, 3)),
+                annotations=[
+                    Mask(image=np.array([[1, 1, 1, 0, 0]]), label=0),
+                    Mask(image=np.array([[0, 0, 0, 1, 1]]), label=7),
+                ]
+            ),
+        ], categories=Camvid.make_camvid_categories())
 
-        dataset = Project.import_from(DUMMY_DATASET_DIR, 'camvid').make_dataset()
+        parsed_dataset = Project.import_from(DUMMY_DATASET_DIR, 'camvid').make_dataset()
 
-        compare_datasets(self, DstExtractor(), dataset)
+        compare_datasets(self, source_dataset, parsed_dataset)
 
     def test_can_detect_camvid(self):
         self.assertTrue(CamvidImporter.detect(DUMMY_DATASET_DIR))
@@ -97,21 +94,10 @@ class CamvidConverterTest(TestCase):
                     ]),
                 ])
 
-        class DstExtractor(TestExtractorBase):
-            def __iter__(self):
-                return iter([
-                    DatasetItem(id='a/b/1', subset='test',
-                        image=np.ones((2, 5, 3)), annotations=[
-                        Mask(image=np.array([[0, 0, 0, 1, 0]]), label=0),
-                        Mask(image=np.array([[0, 1, 1, 0, 0]]), label=3),
-                        Mask(image=np.array([[1, 0, 0, 0, 1]]), label=4),
-                    ]),
-                ])
-
         with TestDir() as test_dir:
             self._test_save_and_load(TestExtractor(),
                 partial(CamvidConverter.convert, label_map='camvid'),
-                test_dir, target_dataset=DstExtractor())
+                test_dir)
 
     def test_can_save_camvid_segm_unpainted(self):
         class TestExtractor(TestExtractorBase):
@@ -162,8 +148,7 @@ class CamvidConverterTest(TestCase):
     def test_dataset_with_source_labelmap(self):
         class SrcExtractor(TestExtractorBase):
             def __iter__(self):
-                yield DatasetItem(id=1, image=np.ones((8, 8, 3)),
-                annotations=[
+                yield DatasetItem(id=1, image=np.ones((8, 8, 3)), annotations=[
                     Mask(image=np.array([[1, 1, 0, 1, 0]]), label=1),
                     Mask(image=np.array([[0, 0, 1, 0, 1]]), label=2),
                 ])
@@ -177,8 +162,7 @@ class CamvidConverterTest(TestCase):
 
         class DstExtractor(TestExtractorBase):
             def __iter__(self):
-                yield DatasetItem(id=1, image=np.ones((8, 8, 3)),
-                annotations=[
+                yield DatasetItem(id=1, image=np.ones((8, 8, 3)), annotations=[
                     Mask(image=np.array([[1, 1, 0, 1, 0]]), label=self._label('label_1')),
                     Mask(image=np.array([[0, 0, 1, 0, 1]]), label=self._label('label_2')),
                 ])
