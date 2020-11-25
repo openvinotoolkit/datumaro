@@ -6,7 +6,7 @@ from unittest import TestCase
 import datumaro.plugins.camvid_format as Camvid
 import numpy as np
 from datumaro.components.extractor import (AnnotationType, DatasetItem,
-                                           Extractor, Mask)
+                                           Extractor, LabelCategories, Mask)
 from datumaro.components.project import Dataset, Project
 from datumaro.plugins.camvid_format import CamvidConverter, CamvidImporter
 from datumaro.util.test_utils import (TestDir, compare_datasets,
@@ -39,31 +39,31 @@ class CamvidImportTest(TestCase):
             DatasetItem(id='0001TP_008550', subset='test',
                 image=np.ones((1, 5, 3)),
                 annotations=[
-                    Mask(image=np.array([[1, 1, 0, 0, 0]]), label=0),
-                    Mask(image=np.array([[0, 0, 1, 0, 0]]), label=17),
-                    Mask(image=np.array([[0, 0, 0, 1, 1]]), label=21),
+                    Mask(image=np.array([[1, 1, 0, 0, 0]]), label=1),
+                    Mask(image=np.array([[0, 0, 1, 0, 0]]), label=18),
+                    Mask(image=np.array([[0, 0, 0, 1, 1]]), label=22),
                 ]
             ),
             DatasetItem(id='0001TP_008580', subset='test',
                 image=np.ones((1, 5, 3)),
                 annotations=[
-                    Mask(image=np.array([[1, 1, 0, 0, 0]]), label=1),
-                    Mask(image=np.array([[0, 0, 1, 0, 0]]), label=3),
-                    Mask(image=np.array([[0, 0, 0, 1, 1]]), label=26),
+                    Mask(image=np.array([[1, 1, 0, 0, 0]]), label=2),
+                    Mask(image=np.array([[0, 0, 1, 0, 0]]), label=4),
+                    Mask(image=np.array([[0, 0, 0, 1, 1]]), label=27),
                 ]
             ),
             DatasetItem(id='0001TP_006690', subset='train',
                 image=np.ones((1, 5, 3)),
                 annotations=[
-                    Mask(image=np.array([[1, 1, 0, 1, 1]]), label=2),
-                    Mask(image=np.array([[0, 0, 1, 0, 0]]), label=17),
+                    Mask(image=np.array([[1, 1, 0, 1, 1]]), label=3),
+                    Mask(image=np.array([[0, 0, 1, 0, 0]]), label=18),
                 ]
             ),
             DatasetItem(id='0016E5_07959', subset = 'val',
                 image=np.ones((1, 5, 3)),
                 annotations=[
-                    Mask(image=np.array([[1, 1, 1, 0, 0]]), label=0),
-                    Mask(image=np.array([[0, 0, 0, 1, 1]]), label=7),
+                    Mask(image=np.array([[1, 1, 1, 0, 0]]), label=1),
+                    Mask(image=np.array([[0, 0, 0, 1, 1]]), label=8),
                 ]
             ),
         ], categories=Camvid.make_camvid_categories())
@@ -145,7 +145,42 @@ class CamvidConverterTest(TestCase):
             self._test_save_and_load(TestExtractor(),
                 partial(CamvidConverter.convert, label_map='camvid'), test_dir)
 
-    def test_dataset_with_source_labelmap(self):
+    def test_dataset_with_source_labelmap_undefined(self):
+        class SrcExtractor(TestExtractorBase):
+            def __iter__(self):
+                yield DatasetItem(id=1, image=np.ones((1, 5, 3)), annotations=[
+                    Mask(image=np.array([[1, 1, 0, 1, 0]]), label=1),
+                    Mask(image=np.array([[0, 0, 1, 0, 1]]), label=2),
+                ])
+
+            def categories(self):
+                label_cat = LabelCategories()
+                label_cat.add('Label_1')
+                label_cat.add('label_2')
+                return {
+                    AnnotationType.label: label_cat,
+                }
+
+        class DstExtractor(TestExtractorBase):
+            def __iter__(self):
+                yield DatasetItem(id=1, image=np.ones((1, 5, 3)), annotations=[
+                    Mask(image=np.array([[1, 1, 0, 1, 0]]), label=self._label('Label_1')),
+                    Mask(image=np.array([[0, 0, 1, 0, 1]]), label=self._label('label_2')),
+                ])
+
+            def categories(self):
+                label_map = OrderedDict()
+                label_map['background'] = None
+                label_map['Label_1'] = None
+                label_map['label_2'] = None
+                return Camvid.make_camvid_categories(label_map)
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(SrcExtractor(),
+                partial(CamvidConverter.convert, label_map='source'),
+                test_dir, target_dataset=DstExtractor())
+
+    def test_dataset_with_source_labelmap_defined(self):
         class SrcExtractor(TestExtractorBase):
             def __iter__(self):
                 yield DatasetItem(id=1, image=np.ones((8, 8, 3)), annotations=[

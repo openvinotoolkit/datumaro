@@ -15,11 +15,12 @@ from datumaro.components.extractor import (AnnotationType, CompiledMask,
                                            DatasetItem, Importer,
                                            LabelCategories, Mask,
                                            MaskCategories, SourceExtractor)
-from datumaro.util import str_to_bool
+from datumaro.util import find, str_to_bool
 from datumaro.util.image import save_image
 from datumaro.util.mask_tools import lazy_mask, paint_mask
 
 CamvidLabelMap = OrderedDict([
+    ('Void', (0, 0, 0)),
     ('Animal', (64, 128, 64)),
     ('Archway', (192, 0, 128)),
     ('Bicyclist', (0, 128, 192)),
@@ -50,9 +51,25 @@ CamvidLabelMap = OrderedDict([
     ('Truck_Bus', (192, 128, 192)),
     ('Tunnel', (64, 0, 64)),
     ('VegetationMisc', (192, 192, 0)),
-    ('Void', (0, 0, 0)),
     ('Wall', (64, 192, 0))
 ])
+
+def generate_colormap(length=256):
+    def get_bit(number, index):
+        return (number >> index) & 1
+
+    colormap = np.zeros((length, 3), dtype=int)
+    indices = np.arange(length, dtype=int)
+
+    for j in range(7, -1, -1):
+        for c in range(3):
+            colormap[:, c] |= get_bit(indices, c) << j
+        indices >>= 3
+
+    return OrderedDict(
+        (id, tuple(color)) for id, color in enumerate(colormap)
+    )
+
 
 class CamvidPath:
     LABELMAP_FILE = 'label_colors.txt'
@@ -74,11 +91,16 @@ def parse_label_map(path):
 
             # color, name
             label_desc = line.strip().split()
-            name = label_desc[3]
+
+            if 2 < len(label_desc):
+                name = label_desc[3]
+                color = tuple([int(c) for c in label_desc[:-1]])
+            else:
+                name = label_desc[0]
+                color = None
+
             if name in label_map:
                 raise ValueError("Label '%s' is already defined" % name)
-
-            color = tuple([int(c) for c in label_desc[:-1]])
 
             label_map[name] = color
     return label_map
@@ -86,20 +108,29 @@ def parse_label_map(path):
 def write_label_map(path, label_map):
     with open(path, 'w') as f:
         for label_name, label_desc in label_map.items():
-            f.write('%s %s %s %s\n' % (label_desc[0],
-                label_desc[1], label_desc[2], label_name))
+            if label_desc:
+                color_rgb = ' '.join(str(c) for c in label_desc)
+            else:
+                color_rgb = ''
+            f.write('%s %s\n' % (color_rgb, label_name))
 
 def make_camvid_categories(label_map=None):
     if label_map is None:
         label_map = CamvidLabelMap
+
     categories = {}
     label_categories = LabelCategories()
     for label, desc in label_map.items():
         label_categories.add(label)
     categories[AnnotationType.label] = label_categories
-    label_id = lambda label: label_categories.find(label)[0]
-    colormap = { label_id(name): (desc[0], desc[1], desc[2])
-        for name, desc in label_map.items() }
+
+    has_colors = any(v is not None for v in label_map.values())
+    if not has_colors: # generate new colors
+        colormap = generate_colormap(len(label_map))
+    else: # only copy defined colors
+        label_id = lambda label: label_categories.find(label)[0]
+        colormap = { label_id(name): (desc[0], desc[1], desc[2])
+            for name, desc in label_map.items() }
     mask_categories = MaskCategories(colormap)
     mask_categories.inverse_colormap # pylint: disable=pointless-statement
     categories[AnnotationType.mask] = mask_categories
@@ -270,6 +301,18 @@ class CamvidConverter(Converter):
             raise Exception("Wrong labelmap specified, "
                 "expected one of %s or a file path" % \
                 ', '.join(t.name for t in LabelmapType))
+
+        # There must always be a label with color (0, 0, 0) at index 0
+        bg_label = find(label_map.items(), lambda x: x[1] == (0, 0, 0))
+        if bg_label is not None:
+            bg_label = bg_label[0]
+        else:
+            bg_label = 'background'
+            if bg_label not in label_map:
+                has_colors = any(v is not None for v in label_map.values())
+                color = (0, 0, 0) if has_colors else None
+                label_map[bg_label] = color
+        label_map.move_to_end(bg_label, last=False)
 
         self._categories = make_camvid_categories(label_map)
         self._label_map = label_map
