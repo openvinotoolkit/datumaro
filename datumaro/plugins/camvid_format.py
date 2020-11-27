@@ -12,12 +12,12 @@ from glob import glob
 import numpy as np
 from datumaro.components.converter import Converter
 from datumaro.components.extractor import (AnnotationType, CompiledMask,
-                                           DatasetItem, Importer,
-                                           LabelCategories, Mask,
-                                           MaskCategories, SourceExtractor)
+    DatasetItem, Importer, LabelCategories, Mask,
+    MaskCategories, SourceExtractor)
 from datumaro.util import find, str_to_bool
 from datumaro.util.image import save_image
-from datumaro.util.mask_tools import lazy_mask, paint_mask
+from datumaro.util.mask_tools import lazy_mask, paint_mask, generate_colormap
+
 
 CamvidLabelMap = OrderedDict([
     ('Void', (0, 0, 0)),
@@ -53,23 +53,6 @@ CamvidLabelMap = OrderedDict([
     ('VegetationMisc', (192, 192, 0)),
     ('Wall', (64, 192, 0))
 ])
-
-def generate_colormap(length=256):
-    def get_bit(number, index):
-        return (number >> index) & 1
-
-    colormap = np.zeros((length, 3), dtype=int)
-    indices = np.arange(length, dtype=int)
-
-    for j in range(7, -1, -1):
-        for c in range(3):
-            colormap[:, c] |= get_bit(indices, c) << j
-        indices >>= 3
-
-    return OrderedDict(
-        (id, tuple(color)) for id, color in enumerate(colormap)
-    )
-
 
 class CamvidPath:
     LABELMAP_FILE = 'label_colors.txt'
@@ -144,7 +127,6 @@ class CamvidExtractor(SourceExtractor):
         self._dataset_dir = osp.dirname(path)
         super().__init__(subset=osp.splitext(osp.basename(path))[0])
 
-
         self._categories = self._load_categories(self._dataset_dir)
         self._items = list(self._load_items(path).values())
 
@@ -163,11 +145,13 @@ class CamvidExtractor(SourceExtractor):
                 objects = line.split()
                 image = objects[0]
                 item_id = ('/'.join(image.split('/')[2:]))[:-len(CamvidPath.IMAGE_EXT)]
-                image_path = osp.join(self._dataset_dir, (image, image[1:]) [image[0] == '/'])
+                image_path = osp.join(self._dataset_dir,
+                    (image, image[1:])[image[0] == '/'])
                 item_annotations = []
                 if 1 < len(objects):
                     gt = objects[1]
-                    gt_path = osp.join(self._dataset_dir, (gt, gt[1:]) [gt[0] == '/'])
+                    gt_path = osp.join(self._dataset_dir,
+                        (gt, gt[1:]) [gt[0] == '/'])
                     inverse_cls_colormap = \
                         self._categories[AnnotationType.mask].inverse_colormap
                     mask = lazy_mask(gt_path, inverse_cls_colormap)
@@ -208,8 +192,7 @@ class CamvidConverter(Converter):
         parser = super().build_cmdline_parser(**kwargs)
 
         parser.add_argument('--apply-colormap', type=str_to_bool, default=True,
-            help="Use colormap for class masks "
-                "(default: %(default)s)")
+            help="Use colormap for class masks (default: %(default)s)")
         parser.add_argument('--label-map', type=cls._get_labelmap, default=None,
             help="Labelmap file path or one of %s" % \
                 ', '.join(t.name for t in LabelmapType))
@@ -237,14 +220,16 @@ class CamvidConverter(Converter):
                 if masks:
                     compiled_mask = CompiledMask.from_instance_masks(masks)
 
-                    self.save_segm(osp.join(subset_dir, subset_name + CamvidPath.SEGM_DIR,
-                        item.id + CamvidPath.IMAGE_EXT), compiled_mask.class_mask)
+                    self.save_segm(osp.join(subset_dir,
+                            subset_name + CamvidPath.SEGM_DIR,
+                            item.id + CamvidPath.IMAGE_EXT),
+                        compiled_mask.class_mask)
                     segm_list[item.id] = True
                 else:
                     segm_list[item.id] = False
 
-                self._save_image(item,
-                    osp.join(subset_dir, subset_name, item.id + CamvidPath.IMAGE_EXT))
+                self._save_image(item, osp.join(subset_dir, subset_name,
+                    item.id + CamvidPath.IMAGE_EXT))
 
             self.save_segm_lists(subset_name, segm_list)
         self.save_label_map()
@@ -268,7 +253,8 @@ class CamvidConverter(Converter):
                         item + CamvidPath.IMAGE_EXT)
                 else:
                     path_mask = ''
-                f.write('/%s/%s %s\n' % (subset_name, item + CamvidPath.IMAGE_EXT, path_mask))
+                f.write('/%s/%s %s\n' % (subset_name,
+                    item + CamvidPath.IMAGE_EXT, path_mask))
 
     def save_label_map(self):
         path = osp.join(self._save_dir, CamvidPath.LABELMAP_FILE)
