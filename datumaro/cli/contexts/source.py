@@ -46,10 +46,9 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
             |s|s|s|sto the project somewhere else:|n
             |s|sadd path/to/cvat.xml -f cvat -n mysource -p somewhere/|n
             - Add a remote link to a COCO-like dataset:|n
-            |s|sadd git://example.net/repo/path/to/coco/dir -f coco|n
+            |s|sadd git://example.net/repo/path/to/coco/dir -f coco
         """ % ', '.join(builtins),
-        formatter_class=MultilineFormatter,
-        add_help=False)
+        formatter_class=MultilineFormatter)
     parser.add_argument('url',
         help="Path to the source dataset")
     parser.add_argument('-n', '--name',
@@ -63,7 +62,7 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to operate on (default: current dir)")
     parser.add_argument('extra_args', nargs=argparse.REMAINDER,
-        help="Additional arguments for output format (pass '-- -h' for help)")
+        help="Additional arguments for extractor (pass '-- -h' for help)")
     parser.set_defaults(command=add_command)
 
     return parser
@@ -73,16 +72,19 @@ def add_command(args):
 
     name = args.name
     if name is None:
-        name = generate_next_name(list(project.sources), 'source', sep='-')
+        name = generate_next_name(list(project.sources), 'source',
+            sep='-', default='1')
 
-    extra_args = {}
-    if args.extra_args:
-        try:
-            extractor = project.env.extractors[args.format]
-        except KeyError:
-            raise CliException("Extractor for format '%s' is not found" % \
-                args.format)
-        extra_args = extractor.from_cmdline(args.extra_args)
+    try:
+        importer = project.env.importers[args.format]
+    except KeyError:
+        raise CliException("Extractor for format '%s' is not found" % \
+            args.format)
+
+    if hasattr(importer, 'parse_cmdline_args'):
+        extra_args = importer.parse_cmdline_args(args.extra_args)
+    else:
+        extra_args = {}
 
     project.sources.add(name, {
         'url': args.url,
@@ -130,7 +132,8 @@ def remove_command(args):
         project.sources.remove(name, force=args.force, keep_data=args.keep_data)
     project.save()
 
-    log.info("Source '%s' has been removed from the project" % args.name)
+    log.info("Sources '%s' have been removed from the project" % \
+        ', '.join(args.names))
 
     return 0
 

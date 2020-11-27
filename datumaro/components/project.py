@@ -16,7 +16,7 @@ from typing import List
 
 from datumaro.components.config import Config
 from datumaro.components.config_model import (PROJECT_DEFAULT_CONFIG,
-    PROJECT_SCHEMA, BuildStage)
+    PROJECT_SCHEMA, BuildStage, Source, Remote)
 from datumaro.components.environment import Environment
 from datumaro.components.dataset import Dataset
 from datumaro.components.launcher import ModelTransform
@@ -38,12 +38,20 @@ class ProjectSourceDataset(Dataset):
 
         config = project.sources[source]
         self._config = config
-        self._local_dir = project.sources.source_dir(source)
+        self._local_dir = osp.join(project.sources.source_dir(source),
+            config.url)
 
-        dataset = Dataset.from_extractors(
-            env.make_extractor(config.format,
-                self._local_dir, **config.options))
+        importer = env.make_importer(config.format)
+        detected_sources = importer(self._local_dir, **config.options)
 
+        extractors = []
+        for src_conf in detected_sources:
+            src_conf = Source(src_conf)
+            extractors.append(env.make_extractor(src_conf.format,
+                osp.join(self._local_dir, src_conf.url), **src_conf.options
+            ))
+
+        dataset = Dataset.from_extractors(*extractors)
         self._subsets = dataset._subsets
         self._categories = dataset._categories
 
@@ -123,6 +131,8 @@ class ProjectRemotes(CrudProxy):
         if not url_parts.scheme:
             value['url'] = osp.abspath(value['url'])
 
+        if not isinstance(value, Remote):
+            value = Remote(value)
         value = self._data.set(name, value)
 
         if value.type == 'url':
@@ -162,6 +172,10 @@ class _RemotesProxy(CrudProxy):
 
         if not names:
             names = []
+        elif isinstance(names, str):
+            names = [names]
+        else:
+            names = list(names)
 
         for name in names:
             if name and name not in self:
@@ -176,6 +190,10 @@ class _RemotesProxy(CrudProxy):
 
         if not names:
             names = []
+        elif isinstance(names, str):
+            names = [names]
+        else:
+            names = list(names)
 
         for name in names:
             if name and name not in self:
@@ -190,6 +208,10 @@ class _RemotesProxy(CrudProxy):
 
         if not names:
             names = []
+        elif isinstance(names, str):
+            names = [names]
+        else:
+            names = list(names)
 
         for name in names:
             if name and name not in self:
@@ -204,6 +226,10 @@ class _RemotesProxy(CrudProxy):
 
         if not names:
             names = []
+        elif isinstance(names, str):
+            names = [names]
+        else:
+            names = list(names)
 
         for name in names:
             if name and name not in self:
@@ -269,8 +295,8 @@ class ProjectSources(_RemotesProxy):
         if url_parts.scheme == 'remote':
             remote_name = url_parts.netloc
             remote_conf = self._project.vcs.remotes[remote_name]
-            path = url_parts.path
-            if path.startswith('/') and len(path) != 1:
+            path = osp.normpath(url_parts.path)
+            if path.startswith('/'):
                 path = path[1:]
         elif self._project.vcs.writeable:
             remote_name = self._make_remote_name(name)
@@ -300,7 +326,7 @@ class ProjectSources(_RemotesProxy):
             else:
                 raise Exception("Unknown remote type '%s'" % remote_conf.type)
 
-        value['url'] = source_dir
+        value['url'] = osp.basename(path)
         value['remote'] = remote_name
         value = super().add(name, value)
 
@@ -745,7 +771,13 @@ class GitWrapper:
 
     def add(self, paths, all=False):
         if not all:
-            paths = [p for p in paths if osp.isfile(p)]
+            paths = [
+                p2 for p in paths
+                for p2 in glob(osp.join(p, '**', '*'), recursive=True)
+                if osp.isdir(p)
+            ] + [
+                p for p in paths if osp.isfile(p)
+            ]
             self.repo.index.add(paths)
         else:
             self.repo.git.add(all=True)
@@ -1050,7 +1082,16 @@ class ProjectVcs:
                 osp.join(self._project.config.project_dir, '**', '*.dvc'),
                 recursive=True)
         self.dvc.commit(paths)
-        self.git.add(None, all=True)
+
+        project_dir = self._project.config.project_dir
+        env_dir = self._project.config.env_dir
+        self.git.add([
+            osp.join(project_dir, env_dir),
+            osp.join(project_dir, '.dvc', 'config'),
+            osp.join(project_dir, '.dvc', '.gitignore'),
+            osp.join(project_dir, '.gitignore'),
+            osp.join(project_dir, '.dvcignore'),
+        ] + list(self.git.status()))
         self.git.commit(message)
 
     def init(self):
@@ -1121,7 +1162,9 @@ class Project:
                 self.vcs.git.add([
                     osp.join(project_dir, config.env_dir),
                     osp.join(project_dir, '.dvc', 'config'),
+                    osp.join(project_dir, '.dvc', '.gitignore'),
                     osp.join(project_dir, '.gitignore'),
+                    osp.join(project_dir, '.dvcignore'),
                 ])
         except BaseException:
             if not env_dir_existed:

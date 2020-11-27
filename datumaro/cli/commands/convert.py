@@ -66,7 +66,12 @@ def convert_command(args):
     except KeyError:
         raise CliException("Converter for format '%s' is not found" % \
             args.output_format)
-    extra_args = converter.from_cmdline(args.extra_args)
+
+    if hasattr(converter, 'parse_cmdline_args'):
+        extra_args = converter.parse_cmdline_args(args.extra_args)
+    else:
+        extra_args = {}
+
     def converter_proxy(extractor, save_dir):
         return converter.convert(extractor, save_dir, **extra_args)
 
@@ -102,8 +107,6 @@ def convert_command(args):
     else:
         try:
             importer = env.make_importer(args.input_format)
-            if hasattr(importer, 'from_cmdline'):
-                extra_args = importer.from_cmdline()
         except KeyError:
             raise CliException("Importer for format '%s' is not found" % \
                 args.input_format)

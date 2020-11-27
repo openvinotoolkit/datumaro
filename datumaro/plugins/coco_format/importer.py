@@ -29,9 +29,6 @@ class CocoImporter(Importer):
             return len(cls.find_sources(path)) != 0
 
     def __call__(self, path, **extra_params):
-        from datumaro.components.project import Project # cyclic import
-        project = Project()
-
         subsets = self.find_sources(path)
 
         if len(subsets) == 0:
@@ -50,6 +47,7 @@ class CocoImporter(Importer):
                 "Only one type will be used: %s" \
                 % (", ".join(t.name for t in ann_types), selected_ann_type.name))
 
+        sources = []
         for ann_files in subsets.values():
             for ann_type, ann_file in ann_files.items():
                 if ann_type in conflicting_types:
@@ -59,14 +57,13 @@ class CocoImporter(Importer):
                         continue
                 log.info("Found a dataset at '%s'" % ann_file)
 
-                source_name = osp.splitext(osp.basename(ann_file))[0]
-                project.add_source(source_name, {
+                sources.append({
                     'url': ann_file,
                     'format': self._COCO_EXTRACTORS[ann_type],
                     'options': dict(extra_params),
                 })
 
-        return project
+        return sources
 
     @staticmethod
     def find_sources(path):

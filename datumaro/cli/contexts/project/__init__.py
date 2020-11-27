@@ -17,7 +17,8 @@ from datumaro.components.operations import (DistanceComparator,
     ExactComparator, compute_ann_statistics, compute_image_statistics, mean_std)
 from datumaro.components.project import \
     PROJECT_DEFAULT_CONFIG as DEFAULT_CONFIG
-from datumaro.components.project import Environment, Project, BuildStageType
+from datumaro.components.project import (Environment, Project, BuildStageType,
+    ProjectBuildTargets)
 from datumaro.util import str_to_bool
 
 from ...util import (CliException, MultilineFormatter, add_subparser,
@@ -132,12 +133,16 @@ def export_command(args):
     dst_dir = osp.abspath(dst_dir)
 
     try:
-        converter = project.env.converters.get(args.format)
+        converter = project.env.converters[args.format]
     except KeyError:
         raise CliException("Converter for format '%s' is not found" % \
             args.format)
 
-    extra_args = converter.from_cmdline(args.extra_args)
+    if hasattr(importer, 'parse_cmdline_args'):
+        extra_args = converter.parse_cmdline_args(args.extra_args)
+    else:
+        extra_args = {}
+
     def converter_proxy(extractor, save_dir):
         return converter.convert(extractor, save_dir, **extra_args)
 
@@ -391,7 +396,9 @@ def build_transform_parser(parser_ctor=argparse.ArgumentParser):
         """ % ', '.join(builtins),
         formatter_class=MultilineFormatter)
 
-    parser.add_argument('target', nargs='?', default='project',
+    parser.add_argument('_positionals', nargs=argparse.REMAINDER,
+        help=argparse.SUPPRESS) # workaround for -- eaten by positionals
+    parser.add_argument('target', nargs='?',
         help="Project target to apply transform to (default: all)")
     parser.add_argument('-t', '--transform', required=True,
         help="Transform to apply to the project")
@@ -405,13 +412,22 @@ def build_transform_parser(parser_ctor=argparse.ArgumentParser):
         help="Include this action as a project build step (default: %(default)s)")
     parser.add_argument('--apply', type=str_to_bool, default=True,
         help="Run this action immediately (default: %(default)s)")
-    parser.add_argument('extra_args', nargs=argparse.REMAINDER, default=None,
+    parser.add_argument('extra_args', nargs=argparse.REMAINDER,
         help="Additional arguments for transformation (pass '-- -h' for help)")
     parser.set_defaults(command=transform_command)
 
     return parser
 
 def transform_command(args):
+    has_sep = '--' in args._positionals
+    if has_sep:
+        pos = args._positionals.index('--')
+    else:
+        pos = 1
+    args.target = (args._positionals[:pos] or \
+        [ProjectBuildTargets.MAIN_TARGET])[0]
+    args.extra_args = args._positionals[pos + has_sep:]
+
     project = load_project(args.project_dir)
 
     dst_dir = args.dst_dir
@@ -435,13 +451,14 @@ def transform_command(args):
     dst_dir = osp.abspath(dst_dir)
 
     try:
-        transform = project.env.transforms.get(args.transform)
+        transform = project.env.transforms[args.transform]
     except KeyError:
         raise CliException("Transform '%s' is not found" % args.transform)
 
-    extra_args = {}
-    if hasattr(transform, 'from_cmdline'):
-        extra_args = transform.from_cmdline(args.extra_args)
+    if hasattr(transform, 'parse_cmdline_args'):
+        extra_args = transform.parse_cmdline_args(args.extra_args)
+    else:
+        extra_args = {}
 
     if args.target == project.build_targets.MAIN_TARGET:
         sources = [t for t in project.build_targets
@@ -456,10 +473,10 @@ def transform_command(args):
             'params': dict(extra_args),
         })
 
-    # status = project.vcs.dvc.status()
-    # if status:
-    #     raise CliException("Can't transform project " \
-    #         "when there are uncommitted changes: %s" % status)
+    status = project.vcs.dvc.status()
+    if status:
+        raise CliException("Can't transform project " \
+            "when there are uncommitted changes: %s" % status)
 
     if args.apply:
         log.info("Transforming...")
@@ -472,12 +489,20 @@ def transform_command(args):
         else:
             for source in sources:
                 dataset = project.make_dataset(source)
+                dst_dir = project.sources.source_dir(source)
+                shutil.rmtree(dst_dir, ignore_errors=True)
                 dataset.export(project.sources[source].format,
-                    save_dir=project.sources.source_dir(source),
-                    save_images=True)
+                    save_dir=dst_dir, save_images=True)
+                project.sources[source].url = ''
 
-    if args.stage:
-        project.save()
+            if not args.stage:
+                for source in sources:
+                    project.build_targets[source].stages = \
+                        project.build_targets[source].stages[:-1]
+
+            log.info("Finished")
+
+    project.save()
 
     return 0
 
@@ -572,7 +597,7 @@ def info_command(args):
         print("  source '%s':" % source_name)
         print("    format:", source.format)
         print("    url:", source.url)
-        print("    location:", project.local_source_dir(source_name))
+        print("    location:", project.sources.source_dir(source_name))
 
     def print_extractor_info(extractor, indent=''):
         print("%slength:" % indent, len(extractor))

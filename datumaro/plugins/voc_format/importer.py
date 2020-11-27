@@ -21,23 +21,19 @@ class VocImporter(Importer):
     ]
 
     def __call__(self, path, **extra_params):
-        from datumaro.components.project import Project # cyclic import
-        project = Project()
-
         subset_paths = self.find_sources(path)
         if len(subset_paths) == 0:
             raise Exception("Failed to find 'voc' dataset at '%s'" % path)
 
-        for task, extractor_type, subset_path in subset_paths:
-            project.add_source('%s-%s' %
-                (task.name, osp.splitext(osp.basename(subset_path))[0]),
-            {
+        sources = []
+        for _, extractor_type, subset_path in subset_paths:
+            sources.append({
                 'url': subset_path,
                 'format': extractor_type,
                 'options': dict(extra_params),
             })
 
-        return project
+        return sources
 
     @classmethod
     def find_sources(cls, path):

@@ -597,22 +597,18 @@ class Importer:
         raise NotImplementedError()
 
     def __call__(self, path, **extra_params):
-        from datumaro.components.project import Project # cyclic import
-        project = Project()
-
-        sources = self.find_sources(osp.normpath(path))
-        if len(sources) == 0:
+        found_sources = self.find_sources(osp.normpath(path))
+        if len(found_sources) == 0:
             raise Exception("Failed to find dataset at '%s'" % path)
 
-        for desc in sources:
+        sources = []
+        for desc in found_sources:
             params = dict(extra_params)
             params.update(desc.get('options', {}))
             desc['options'] = params
+            sources.append(desc)
 
-            source_name = osp.splitext(osp.basename(desc['url']))[0]
-            project.sources.add(source_name, desc)
-
-        return project
+        return sources
 
     @classmethod
     def _find_sources_recursive(cls, path, ext, extractor_name, filename='*'):

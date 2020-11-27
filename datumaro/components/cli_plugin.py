@@ -31,7 +31,7 @@ class CliPlugin:
         return argparse.ArgumentParser(**args)
 
     @classmethod
-    def from_cmdline(cls, args=None):
+    def parse_cmdline_args(cls, args=None):
         if args and args[0] == '--':
             args = args[1:]
         parser = cls.build_cmdline_parser()

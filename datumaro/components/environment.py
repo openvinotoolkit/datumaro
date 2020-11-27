@@ -35,7 +35,8 @@ class Registry:
         return self.items.pop(name, None)
 
     def get(self, key):
-        return self.items[key] # returns a class / ctor
+        """Returns a class or a factory function"""
+        return self.items[key]
 
     def __getitem__(self, key):
         return self.get(key)
