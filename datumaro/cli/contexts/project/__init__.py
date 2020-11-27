@@ -490,7 +490,6 @@ def transform_command(args):
             for source in sources:
                 dataset = project.make_dataset(source)
                 dst_dir = project.sources.source_dir(source)
-                shutil.rmtree(dst_dir, ignore_errors=True)
                 dataset.export(project.sources[source].format,
                     save_dir=dst_dir, save_images=True)
                 project.sources[source].url = ''
