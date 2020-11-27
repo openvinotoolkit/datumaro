@@ -160,20 +160,23 @@ class CamvidExtractor(SourceExtractor):
         items = {}
         with open(path, encoding='utf-8') as f:
             for line in f:
-                image, gt = line.split()
-                item_id = ('/'.join(gt.split('/')[2:]))[:-len(CamvidPath.IMAGE_EXT)]
+                objects = line.split()
+                image = objects[0]
+                item_id = ('/'.join(image.split('/')[2:]))[:-len(CamvidPath.IMAGE_EXT)]
                 image_path = osp.join(self._dataset_dir, (image, image[1:]) [image[0] == '/'])
-                gt_path = osp.join(self._dataset_dir, (gt, gt[1:]) [gt[0] == '/'])
-                inverse_cls_colormap = \
-                    self._categories[AnnotationType.mask].inverse_colormap
-                mask = lazy_mask(gt_path, inverse_cls_colormap)
-                # loading mask through cache
-                mask = mask()
-                classes = np.unique(mask)
                 item_annotations = []
-                for label_id in classes:
-                    image = self._lazy_extract_mask(mask, label_id)
-                    item_annotations.append(Mask(image=image, label=label_id))
+                if 1 < len(objects):
+                    gt = objects[1]
+                    gt_path = osp.join(self._dataset_dir, (gt, gt[1:]) [gt[0] == '/'])
+                    inverse_cls_colormap = \
+                        self._categories[AnnotationType.mask].inverse_colormap
+                    mask = lazy_mask(gt_path, inverse_cls_colormap)
+                    # loading mask through cache
+                    mask = mask()
+                    classes = np.unique(mask)
+                    for label_id in classes:
+                        image = self._lazy_extract_mask(mask, label_id)
+                        item_annotations.append(Mask(image=image, label=label_id))
                 items[item_id] = DatasetItem(id=item_id, subset=self._subset,
                     image=image_path, annotations=item_annotations)
         return items
@@ -226,7 +229,7 @@ class CamvidConverter(Converter):
         os.makedirs(subset_dir, exist_ok=True)
 
         for subset_name, subset in self._extractor.subsets().items():
-            segm_list = []
+            segm_list = {}
             for item in subset:
                 masks = [a for a in item.annotations
                     if a.type == AnnotationType.mask]
@@ -236,13 +239,14 @@ class CamvidConverter(Converter):
 
                     self.save_segm(osp.join(subset_dir, subset_name + CamvidPath.SEGM_DIR,
                         item.id + CamvidPath.IMAGE_EXT), compiled_mask.class_mask)
+                    segm_list[item.id] = True
+                else:
+                    segm_list[item.id] = False
 
-                    self._save_image(item,
-                        osp.join(subset_dir, subset_name, item.id + CamvidPath.IMAGE_EXT))
+                self._save_image(item,
+                    osp.join(subset_dir, subset_name, item.id + CamvidPath.IMAGE_EXT))
 
-                    segm_list.append(item.id)
-
-                self.save_segm_lists(subset_name, segm_list)
+            self.save_segm_lists(subset_name, segm_list)
         self.save_label_map()
 
     def save_segm(self, path, mask, colormap=None):
@@ -259,8 +263,12 @@ class CamvidConverter(Converter):
         ann_file = osp.join(self._save_dir, subset_name + '.txt')
         with open(ann_file, 'w') as f:
             for item in segm_list:
-                f.write('/%s/%s /%s/%s\n' % (subset_name, item + CamvidPath.IMAGE_EXT,
-                    subset_name + CamvidPath.SEGM_DIR, item + CamvidPath.IMAGE_EXT))
+                if segm_list[item]:
+                    path_mask = '/%s/%s' % (subset_name + CamvidPath.SEGM_DIR,
+                        item + CamvidPath.IMAGE_EXT)
+                else:
+                    path_mask = ''
+                f.write('/%s/%s %s\n' % (subset_name, item + CamvidPath.IMAGE_EXT, path_mask))
 
     def save_label_map(self):
         path = osp.join(self._save_dir, CamvidPath.LABELMAP_FILE)
