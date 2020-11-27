@@ -97,7 +97,9 @@ def build_export_parser(parser_ctor=argparse.ArgumentParser):
         """ % ', '.join(builtins),
         formatter_class=MultilineFormatter)
 
-    parser.add_argument('target', default='project',
+    parser.add_argument('_positionals', nargs=argparse.REMAINDER,
+        help=argparse.SUPPRESS) # workaround for -- eaten by positionals
+    parser.add_argument('target', nargs='?', default='project',
         help="Targets to do export for (default: '%(default)s')")
     parser.add_argument('-e', '--filter', default=None,
         help="Filter expression for dataset items")
@@ -120,6 +122,15 @@ def build_export_parser(parser_ctor=argparse.ArgumentParser):
     return parser
 
 def export_command(args):
+    has_sep = '--' in args._positionals
+    if has_sep:
+        pos = args._positionals.index('--')
+    else:
+        pos = 1
+    args.target = (args._positionals[:pos] or \
+        [ProjectBuildTargets.MAIN_TARGET])[0]
+    args.extra_args = args._positionals[pos + has_sep:]
+
     project = load_project(args.project_dir)
 
     dst_dir = args.dst_dir
@@ -138,7 +149,7 @@ def export_command(args):
         raise CliException("Converter for format '%s' is not found" % \
             args.format)
 
-    if hasattr(importer, 'parse_cmdline_args'):
+    if hasattr(converter, 'parse_cmdline_args'):
         extra_args = converter.parse_cmdline_args(args.extra_args)
     else:
         extra_args = {}
@@ -200,6 +211,8 @@ def build_filter_parser(parser_ctor=argparse.ArgumentParser):
         """,
         formatter_class=MultilineFormatter)
 
+    parser.add_argument('_positionals', nargs=argparse.REMAINDER,
+        help=argparse.SUPPRESS) # workaround for -- eaten by positionals
     parser.add_argument('target', default='project', nargs='?',
         help="Project target to apply transform to (default: project)")
     parser.add_argument('-e', '--filter', default=None,
@@ -225,6 +238,15 @@ def build_filter_parser(parser_ctor=argparse.ArgumentParser):
     return parser
 
 def filter_command(args):
+    has_sep = '--' in args._positionals
+    if has_sep:
+        pos = args._positionals.index('--')
+    else:
+        pos = 1
+    args.target = (args._positionals[:pos] or \
+        [ProjectBuildTargets.MAIN_TARGET])[0]
+    args.extra_args = args._positionals[pos + has_sep:]
+
     project = load_project(args.project_dir)
 
     if not args.dry_run:
