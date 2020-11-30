@@ -101,6 +101,28 @@ class CrudProxy:
     def __contains__(self, name):
         return name in self._data
 
+class ProjectRepositories(CrudProxy):
+    def __init__(self, project_vcs):
+        self._vcs = project_vcs
+
+    def set_default(self, name):
+        if name not in self:
+            raise Exception("Unknown repository name '%s'" % name)
+        self._vcs._project.config.default_repo = name
+
+    def get_default(self):
+        return self._vcs._project.config.default_repo
+
+    @CrudProxy._data.getter
+    def _data(self):
+        return self._vcs.git.list_remotes()
+
+    def add(self, name, url):
+        self._vcs.git.add_remote(name, url)
+
+    def remove(self, name):
+        self._vcs.git.remove_remote(name)
+
 class ProjectRemotes(CrudProxy):
     SUPPORTED_PROTOCOLS = {'', 'remote', 's3', 'ssh', 'http', 'https'}
 
@@ -792,6 +814,15 @@ class GitWrapper:
             for d in diff
         }
 
+    def list_remotes(self):
+        return { r.name: r.url for r in self.repo.remotes }
+
+    def add_remote(self, name, url):
+        self.repo.create_remote(name, url)
+
+    def remove_remote(self, name):
+        self.repo.delete_remote(name)
+
 class DvcWrapper:
     @staticmethod
     def import_module():
@@ -941,6 +972,16 @@ class DvcWrapper:
         out = self._exec(['remote', 'list'])
         return dict(line.split() for line in out.split('\n') if line)
 
+    def get_default_remote(self):
+        out = self._exec(['remote', 'default'])
+        if out == 'No default remote set' or 1 < len(out.split()):
+            return None
+        return out
+
+    def set_default_remote(self, name):
+        assert name and 1 < len(name.split()), "Invalid remote name '%s'" % name
+        self._exec(['remote', 'default', name])
+
     def list_stages(self):
         return set(s.addressing for s in self.repo.stages)
 
@@ -1001,6 +1042,7 @@ class ProjectVcs:
                 self._dvc = None
 
         self._remotes = ProjectRemotes(self)
+        self._repos = ProjectRepositories(self)
 
     @property
     def git(self) -> GitWrapper:
@@ -1034,6 +1076,10 @@ class ProjectVcs:
     @property
     def remotes(self) -> ProjectRemotes:
         return self._remotes
+
+    @property
+    def repositories(self) -> ProjectRepositories:
+        return self._repos
 
     @property
     def refs(self) -> List[str]:

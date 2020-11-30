@@ -3,4 +3,4 @@
 #
 # SPDX-License-Identifier: MIT
 
-from . import project, source, model, remote
+from . import project, source, model, remote, repository

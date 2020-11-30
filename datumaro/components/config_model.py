@@ -86,6 +86,7 @@ PROJECT_SCHEMA = _SchemaBuilder() \
     .add('project_name', str) \
     .add('format_version', int) \
     \
+    .add('default_repo', str) \
     .add('remotes', lambda: _DictConfig(lambda v=None: Remote(v))) \
     .add('sources', lambda: _DictConfig(lambda v=None: Source(v))) \
     .add('models', lambda: _DictConfig(lambda v=None: Model(v))) \
@@ -116,6 +117,7 @@ PROJECT_DEFAULT_CONFIG = Config({
     'pipelines_dir': 'dvc_pipelines',
     'build_dir': 'build',
 
+    'default_repo': 'origin',
     'project_filename': 'config.yaml',
     'project_dir': '',
     'env_dir': '.datumaro',

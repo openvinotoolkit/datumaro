@@ -5,26 +5,17 @@
 import argparse
 import logging as log
 
-from ..util import CliException, MultilineFormatter, add_subparser
+from ..util import MultilineFormatter, add_subparser
 from ..util.project import load_project, generate_next_name
 
 
 def build_add_parser(parser_ctor=argparse.ArgumentParser):
-    parser = parser_ctor()
+    parser = parser_ctor(help="Add a repository link")
 
-    parser.add_argument('-n', '--name',
-        help="Name of the new remote")
+    parser.add_argument('url', help="Repository url")
+    parser.add_argument('-n', '--name', help="Name of the new remote")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to operate on (default: current dir)")
-
-    sp = parser.add_subparsers(dest='type')
-
-    url_parser = sp.add_parser('url')
-    url_parser.add_argument('url', help="Path to the remote")
-
-    git_parser = sp.add_parser('git')
-    git_parser.add_argument('url', help="Repository url")
-    git_parser.add_argument('--rev')
 
     parser.set_defaults(command=add_command)
 
@@ -35,29 +26,20 @@ def add_command(args):
 
     name = args.name
     if not name:
-        name = generate_next_name(project.vcs.remotes, 'remote',
-            sep='-', default=1)
-    config = {
-        'url': args.url,
-        'type': args.type,
-    }
-    if args.type == 'git':
-        config['options'] = {'rev': args.rev}
-    project.vcs.remotes.add(name, config)
+        name = generate_next_name(project.vcs.repositories, 'remote',
+            sep='-', default='1')
+    project.vcs.repositories.add(name, args.url)
     project.save()
 
-    log.info("Remote '%s' has been added to the project" % name)
+    log.info("Repository '%s' has been added to the project" % name)
 
     return 0
 
 def build_remove_parser(parser_ctor=argparse.ArgumentParser):
-    parser = parser_ctor(help="Remove remote from project",
-        description="Remove a remote from project.")
+    parser = parser_ctor(help="Remove a repository link")
 
-    parser.add_argument('names', nargs='+',
-        help="Names of the remotes to be removed")
-    parser.add_argument('-f', '--force', action='store_true',
-        help="Ignore possible errors during removal")
+    parser.add_argument('name',
+        help="Name of the repository to be removed")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to operate on (default: current dir)")
     parser.set_defaults(command=remove_command)
@@ -67,21 +49,16 @@ def build_remove_parser(parser_ctor=argparse.ArgumentParser):
 def remove_command(args):
     project = load_project(args.project_dir)
 
-    if not args.names:
-        raise CliException("Expected remote name")
-
-    for name in args.names:
-        project.vcs.remotes.remove(name, force=args.force)
+    project.vcs.repositories.remove(args.name)
     project.save()
 
     return 0
 
 def build_default_parser(parser_ctor=argparse.ArgumentParser):
-    parser = parser_ctor(help="Set or display the default remote",
-        description="Set or display the default remote.")
+    parser = parser_ctor(help="Set or display the default repository")
 
     parser.add_argument('name', nargs='?',
-        help="Name of the remote to set as default")
+        help="Name of the repository to set as default")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to operate on (default: current dir)")
     parser.set_defaults(command=default_command)
@@ -92,20 +69,20 @@ def default_command(args):
     project = load_project(args.project_dir)
 
     if not args.name:
-        default = project.vcs.remotes.get_default()
+        default = project.vcs.repositories.get_default()
         if default:
             print(default)
         else:
-            print("The default remote is not set.")
+            print("The default repository is not set.")
 
     else:
-        project.vcs.remotes.set_default(args.name)
+        project.vcs.repositories.set_default(args.name)
         project.save()
 
     return 0
 
 def build_info_parser(parser_ctor=argparse.ArgumentParser):
-    parser = parser_ctor()
+    parser = parser_ctor(help="Display repository info")
 
     parser.add_argument('name', nargs='?',
         help="Remote name")
@@ -121,17 +98,17 @@ def info_command(args):
     project = load_project(args.project_dir)
 
     if args.name:
-        remote = project.vcs.remotes[args.name]
+        remote = project.vcs.repositories[args.name]
         print(remote)
     else:
-        for name, conf in project.vcs.remotes.items():
+        for name, conf in project.vcs.repositories.items():
             print(name)
             if args.verbose:
                 print(conf)
 
 def build_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(description="""
-            Manipulate remote data sources of a project.|n
+            Manipulate repositories of the project.|n
             |n
             By default, the project to be operated on is searched for
             in the current directory. An additional '-p' argument can be

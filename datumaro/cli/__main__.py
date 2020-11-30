@@ -59,6 +59,7 @@ def make_parser():
 
     known_contexts = [
         ('project', contexts.project, "Actions with project (deprecated)"),
+        ('repo', contexts.repository, "Actions with repositories"),
         ('remote', contexts.remote, "Actions with remotes"),
         ('source', contexts.source, "Actions with data sources"),
         ('model', contexts.model, "Actions with models"),
