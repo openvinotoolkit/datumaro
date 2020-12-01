@@ -18,7 +18,7 @@ from datumaro.components.config import Config
 from datumaro.components.config_model import (PROJECT_DEFAULT_CONFIG,
     PROJECT_SCHEMA, BuildStage, Source, Remote)
 from datumaro.components.environment import Environment
-from datumaro.components.dataset import Dataset
+from datumaro.components.dataset import Dataset, DEFAULT_FORMAT
 from datumaro.components.launcher import ModelTransform
 from datumaro.util import make_file_name, find, generate_next_name
 from datumaro.util.log_utils import logging_disabled, catch_logs
@@ -639,6 +639,12 @@ class ProjectBuildTargets(CrudProxy):
                 else:
                     dataset = parent_datasets[0]
 
+            elif type_ == BuildStageType.convert:
+                if 1 < len(parent_datasets):
+                    dataset = Dataset.from_extractors(*parent_datasets)
+                else:
+                    dataset = parent_datasets[0]
+
             else:
                 raise NotImplementedError("Unknown stage type '%s'" % type_)
 
@@ -685,36 +691,100 @@ class ProjectBuildTargets(CrudProxy):
                 sources.add(s)
         return list(sources)
 
-    def build(self, target, force=False):
-        if not self._project.vcs.readable:
-            raise Exception("Can't build a project without VCS support")
-
+    def build(self, target, force=False, out_dir=None):
         def _rpath(p):
             return osp.relpath(p, self._project.config.project_dir)
 
-        try:
-            status = self._project.vcs.dvc.status([make_file_name(target)])
-            if not status:
-                return
-        except Exception:
-            pass
+        def _source_dvc_path(source):
+            return _rpath(osp.join(
+                self._project.config.project_dir,
+                self._project.config.env_dir,
+                self._project.config.dvc_aux_dir,
+                source + '.dvc'
+            ))
+
+        def _reset_sources(sources):
+            # call 'dvc repro' to download original source data
+            # 'dvc repro' requires data to be available,
+            # so call 'dvc checkout' or 'dvc pull' before
+            self._project.sources.checkout(related_sources)
+            self._project.vcs.dvc.repro([_source_dvc_path(s)
+                for s in related_sources])
+
+        def _restore_sources(sources):
+            self._project.vcs.git.checkout(None, [_source_dvc_path(s)
+                for s in related_sources])
+            self._project.sources.checkout(related_sources)
+
+
+        if not self._project.vcs.writeable:
+            raise Exception("Can't build project without VCS support")
+
+        if '.' in target:
+            raw_target, target_stage = self._split_target_name(target)
+            if not target_stage:
+                raise Exception("Wrong target name '%s' - expected "
+                    "stage name after the separator" % target)
+        else:
+            raw_target = target
+            target_stage = None
+
+        if raw_target not in self:
+            raise Exception("Unknown target '%s'" % raw_target)
+
+        if target_stage and target_stage != self[raw_target].head.name:
+            # build is not inplace, need to generate or ask output dir
+            inplace = False
+        else:
+            inplace = not out_dir
+
+        if inplace:
+            if target == self.MAIN_TARGET:
+                out_dir = osp.join(self._project.config.project_dir,
+                    self._project.config.build_dir)
+            elif target == raw_target:
+                out_dir = self._project.sources.source_dir(target)
+
+        if not out_dir:
+            raise Exception("Output directory is not specified.")
 
         pipeline = self.make_pipeline(target)
-        sources = self.pipeline_sources(pipeline)
-        self._project.sources.checkout(sources)
+        related_sources = self.pipeline_sources(pipeline)
 
-        out_dir = osp.join(self._project.config.project_dir,
-            self._project.config.build_dir)
+        if inplace:
+            try:
+                stage_dvc_filename = make_file_name(raw_target)
+                status = self._project.vcs.dvc.status([stage_dvc_filename])
+                if not (not status or _is_deleted(status)) and not force:
+                    raise Exception("Can't build project when there are "
+                        "unsaved changes in the output directory: '%s'" % \
+                        out_dir)
+            except DvcWrapper.DvcError:
+                pass
+        else:
+            if osp.isdir(out_dir) and os.listdir(out_dir) and not force:
+                raise Exception("Can't build project when output directory" \
+                    "is not empty")
 
-        pipeline_file = _rpath(self.generate_pipeline(target))
+        try:
+            _reset_sources(related_sources)
 
-        out_dir = _rpath(out_dir)
-        self._project.vcs.dvc.run(
-            cmd=['datum', 'apply', '--build', '--overwrite',
-                '-o', out_dir, pipeline_file],
-            deps=[pipeline_file] + [
-                self._project.sources.source_dir(s) for s in sources],
-            outs=[out_dir], name=target, force=True)
+            graph, head = self.apply_pipeline(pipeline)
+            head_node = graph.nodes[head]
+            dataset = head_node['dataset']
+
+            dst_format = DEFAULT_FORMAT
+            options = {'save_images': True}
+            if raw_target in self._project.sources:
+                dst_format = self._project.sources[raw_target].format
+            elif head_node['config']['type'] == BuildStageType.convert.name:
+                dst_format = head_node['config'].kind
+                options.update(head_node['config'].params)
+            dataset.export(dst_format, save_dir=out_dir, **options)
+
+        finally:
+            _restore_sources(related_sources)
+
 
 class GitWrapper:
     @staticmethod
@@ -788,8 +858,14 @@ class GitWrapper:
     def tag(self, name):
         self.repo.create_tag(name)
 
-    def checkout(self, ref):
-        self.repo.git.checkout(ref)
+    def checkout(self, ref=None, paths=None):
+        args = []
+        if ref:
+            args.append(ref)
+        if paths:
+            args.append('--')
+            args.extend(paths)
+        self.repo.git.checkout(*args)
 
     def add(self, paths, all=False):
         if not all:
@@ -838,6 +914,9 @@ class DvcWrapper:
 
     def _dvc_dir(self):
         return osp.join(self._project_dir, '.dvc')
+
+    class DvcError(Exception):
+        pass
 
     def __init__(self, project_dir):
         self._project_dir = project_dir
@@ -1020,7 +1099,7 @@ class DvcWrapper:
             retcode = self.module.main.main(args)
         logs = logs.getvalue()
         if retcode != 0:
-            raise Exception(logs)
+            raise self.DvcError(logs)
         if not hide_output:
             print(logs)
         return logs
