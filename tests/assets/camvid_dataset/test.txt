@@ -1,0 +1,2 @@
+/test/0001TP_008550.png /testannot/0001TP_008550.png
+/test/0001TP_008580.png /testannot/0001TP_008580.png
