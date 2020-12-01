@@ -163,8 +163,8 @@ class CamvidConverterTest(TestCase):
         class SrcExtractor(TestExtractorBase):
             def __iter__(self):
                 yield DatasetItem(id=1, image=np.ones((1, 5, 3)), annotations=[
-                    Mask(image=np.array([[1, 1, 0, 1, 0]]), label=1),
-                    Mask(image=np.array([[0, 0, 1, 0, 1]]), label=2),
+                    Mask(image=np.array([[1, 1, 0, 1, 0]]), label=0),
+                    Mask(image=np.array([[0, 0, 1, 0, 0]]), label=1),
                 ])
 
             def categories(self):
@@ -179,7 +179,7 @@ class CamvidConverterTest(TestCase):
             def __iter__(self):
                 yield DatasetItem(id=1, image=np.ones((1, 5, 3)), annotations=[
                     Mask(image=np.array([[1, 1, 0, 1, 0]]), label=self._label('Label_1')),
-                    Mask(image=np.array([[0, 0, 1, 0, 1]]), label=self._label('label_2')),
+                    Mask(image=np.array([[0, 0, 1, 0, 0]]), label=self._label('label_2')),
                 ])
 
             def categories(self):
