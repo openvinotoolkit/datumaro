@@ -74,7 +74,8 @@ class ImagenetConverter(Converter):
         labels = {}
         for item in self._extractor:
             image_name = item.id
-            labels[image_name] = set(p.label for p in item.annotations)
+            labels[image_name] = [p.label for p in item.annotations
+                if p.type == AnnotationType.label]
             for label in labels[image_name]:
                 label_name = extractor.categories()[AnnotationType.label][label].name
                 self._save_image(item, osp.join(subset_dir, label_name,
