@@ -3,9 +3,11 @@
 #
 # SPDX-License-Identifier: MIT
 
+import attr
 import os
 import os.path as osp
 import re
+from contextlib import contextmanager
 from itertools import islice
 
 
@@ -121,3 +123,92 @@ def generate_next_name(names, basename, sep='.', suffix='', default=None):
     else:
         idx = sep + str(max_idx + 1)
     return basename + idx + suffix
+
+def optional_arg_decorator(fn):
+    def wrapped_decorator(*args):
+        if len(args) == 1 and callable(args[0]):
+            return fn(args[0])
+
+        else:
+            def real_decorator(decoratee):
+                return fn(decoratee, *args)
+
+            return real_decorator
+
+    return wrapped_decorator
+
+class RollbackManager:
+    @attr.attrs
+    class Handler:
+        callback = attr.attrib()
+        enabled = attr.attrib(default=True)
+        ignore_errors = attr.attrib(default=False)
+
+    def __init__(self):
+        self._handlers = {}
+        self.enabled = True
+
+    def add(self, callback, name=None, enabled=True, ignore_errors=False):
+        name = name or hash(callback)
+        assert name not in self._handlers
+        self._handlers[name] = self.Handler(callback,
+            enabled=enabled, ignore_errors=ignore_errors)
+        return name
+
+    def remove(self, name):
+        self._handlers.pop(name)
+
+    def enable(self, name=None):
+        if name:
+            self._handlers[name].enabled = True
+        else:
+            self.enabled = True
+
+    def disable(self, name=None):
+        if name:
+            self._handlers[name].enabled = False
+        else:
+            self.enabled = False
+
+    def clean(self):
+        if not self.enabled:
+            return
+        for handler in self._handlers.values():
+            if handler.enabled:
+                try:
+                    handler.callback()
+                except: # pylint: disable=bare-except
+                    if not handler.ignore_errors:
+                        raise
+
+    def __enter__(self):
+        return self
+
+    # pylint: disable=redefined-builtin
+    def __exit__(self, type=None, value=None, traceback=None):
+        self.clean()
+    # pylint: enable=redefined-builtin
+
+@contextmanager
+def rollback():
+    manager = RollbackManager()
+
+    try:
+        yield manager
+    finally:
+        manager.clean()
+
+@optional_arg_decorator
+def error_rollback(func, arg_name='rollback'):
+    def wrapped_func(*args, **kwargs):
+        manager = RollbackManager()
+        try:
+            kwargs[arg_name] = manager
+            func(*args, **kwargs)
+        except:
+            manager.clean()
+            raise
+    wrapped_func.__name__ = func.__name__
+    wrapped_func.__module__ = func.__module__
+    wrapped_func.__doc__ = func.__doc__
+    return wrapped_func

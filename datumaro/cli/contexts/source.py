@@ -6,6 +6,7 @@ import argparse
 import logging as log
 
 from datumaro.components.project import Environment
+from datumaro.util import error_rollback
 
 from ..util import CliException, MultilineFormatter, add_subparser
 from ..util.project import generate_next_name, load_project
@@ -67,7 +68,8 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
-def add_command(args):
+@error_rollback('cleanup')
+def add_command(args, cleanup=None):
     project = load_project(args.project_dir)
 
     name = args.name
@@ -91,6 +93,9 @@ def add_command(args):
         'format': args.format,
         'options': extra_args,
     })
+    cleanup.add(lambda: project.sources.remove(name,
+            force=True, keep_data=False),
+        ignore_errors=True)
 
     if not args.no_pull:
         log.info("Pulling the source...")

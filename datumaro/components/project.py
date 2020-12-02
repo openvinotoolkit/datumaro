@@ -20,7 +20,8 @@ from datumaro.components.config_model import (PROJECT_DEFAULT_CONFIG,
 from datumaro.components.environment import Environment
 from datumaro.components.dataset import Dataset, DEFAULT_FORMAT
 from datumaro.components.launcher import ModelTransform
-from datumaro.util import make_file_name, find, generate_next_name
+from datumaro.util import (make_file_name, find, generate_next_name,
+    error_rollback)
 from datumaro.util.log_utils import logging_disabled, catch_logs
 
 
@@ -308,7 +309,8 @@ class ProjectSources(_RemotesProxy):
         except KeyError:
             raise KeyError("Unknown source '%s'" % name)
 
-    def add(self, name, value):
+    @error_rollback
+    def add(self, name, value, rollback=None):
         if name in self:
             raise Exception("Source '%s' already exists" % name)
 
@@ -327,6 +329,8 @@ class ProjectSources(_RemotesProxy):
                 'type': 'url',
             })
             path = '' # all goes to the remote
+            rollback.add(lambda: self._project.vcs.remotes.remove(remote_name),
+                ignore_errors=True)
         else:
             raise Exception("Can't update read-only project")
 
@@ -335,9 +339,12 @@ class ProjectSources(_RemotesProxy):
 
         if self._project.vcs.writeable:
             os.makedirs(source_dir, exist_ok=True)
-            os.makedirs(self.aux_dir(), exist_ok=True)
+            rollback.add(lambda: shutil.rmtree(source_dir, ignore_errors=True))
 
+            os.makedirs(self.aux_dir(), exist_ok=True)
             aux_path = self.aux_path(name)
+            rollback.add(lambda: os.remove(aux_path), ignore_errors=True)
+
             if remote_conf.type == 'url':
                 self._project.vcs.dvc.import_url(
                     urllib.parse.urlunsplit(('remote', remote_name, path, '', '')),
@@ -1236,7 +1243,10 @@ class ProjectVcs:
         # order matters
         if rev:
             self.git.checkout(rev)
-        self.dvc.checkout(targets)
+
+        sources = [t for t in targets if t in self._project.sources]
+        if sources:
+            self._project.sources.checkout(sources)
 
     def add(self, paths):
         if not paths:
