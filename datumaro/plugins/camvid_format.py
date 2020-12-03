@@ -101,6 +101,18 @@ def make_camvid_categories(label_map=None):
     if label_map is None:
         label_map = CamvidLabelMap
 
+    # There must always be a label with color (0, 0, 0) at index 0
+    bg_label = find(label_map.items(), lambda x: x[1] == (0, 0, 0))
+    if bg_label is not None:
+        bg_label = bg_label[0]
+    else:
+        bg_label = 'background'
+        if bg_label not in label_map:
+            has_colors = any(v is not None for v in label_map.values())
+            color = (0, 0, 0) if has_colors else None
+            label_map[bg_label] = color
+    label_map.move_to_end(bg_label, last=False)
+
     categories = {}
     label_categories = LabelCategories()
     for label, desc in label_map.items():
@@ -130,12 +142,14 @@ class CamvidExtractor(SourceExtractor):
         self._categories = self._load_categories(self._dataset_dir)
         self._items = list(self._load_items(path).values())
 
-    @staticmethod
-    def _load_categories(path):
+    def _load_categories(self, path):
         label_map = None
         label_map_path = osp.join(path, CamvidPath.LABELMAP_FILE)
         if osp.isfile(label_map_path):
             label_map = parse_label_map(label_map_path)
+        else:
+            label_map = CamvidLabelMap
+        self._labels = [label for label in label_map]
         return make_camvid_categories(label_map)
 
     def _load_items(self, path):
@@ -158,9 +172,13 @@ class CamvidExtractor(SourceExtractor):
                     # loading mask through cache
                     mask = mask()
                     classes = np.unique(mask)
+                    labels = self._categories[AnnotationType.label]._indices
+                    labels = { labels[label_name]: label_name
+                        for label_name in labels }
                     for label_id in classes:
-                        image = self._lazy_extract_mask(mask, label_id)
-                        item_annotations.append(Mask(image=image, label=label_id))
+                        if labels[label_id] in self._labels:
+                            image = self._lazy_extract_mask(mask, label_id)
+                            item_annotations.append(Mask(image=image, label=label_id))
                 items[item_id] = DatasetItem(id=item_id, subset=self._subset,
                     image=image_path, annotations=item_annotations)
         return items
@@ -218,7 +236,9 @@ class CamvidConverter(Converter):
                     if a.type == AnnotationType.mask]
 
                 if masks:
-                    compiled_mask = CompiledMask.from_instance_masks(masks)
+                    compiled_mask = CompiledMask.from_instance_masks(masks,
+                        instance_labels=[self._label_id_mapping(m.label)
+                            for m in masks])
 
                     self.save_segm(osp.join(subset_dir,
                             subset_name + CamvidPath.SEGM_DIR,
@@ -228,8 +248,9 @@ class CamvidConverter(Converter):
                 else:
                     segm_list[item.id] = False
 
-                self._save_image(item, osp.join(subset_dir, subset_name,
-                    item.id + CamvidPath.IMAGE_EXT))
+                if self._save_images:
+                    self._save_image(item, osp.join(subset_dir, subset_name,
+                        item.id + CamvidPath.IMAGE_EXT))
 
             self.save_segm_lists(subset_name, segm_list)
         self.save_label_map()
@@ -258,6 +279,9 @@ class CamvidConverter(Converter):
 
     def save_label_map(self):
         path = osp.join(self._save_dir, CamvidPath.LABELMAP_FILE)
+        labels = self._extractor.categories()[AnnotationType.label]._indices
+        if len(self._label_map) > len(labels):
+            self._label_map.pop('background')
         write_label_map(path, self._label_map)
 
     def _load_categories(self, label_map_source):
@@ -296,17 +320,25 @@ class CamvidConverter(Converter):
                 "expected one of %s or a file path" % \
                 ', '.join(t.name for t in LabelmapType))
 
-        # There must always be a label with color (0, 0, 0) at index 0
-        bg_label = find(label_map.items(), lambda x: x[1] == (0, 0, 0))
-        if bg_label is not None:
-            bg_label = bg_label[0]
-        else:
-            bg_label = 'background'
-            if bg_label not in label_map:
-                has_colors = any(v is not None for v in label_map.values())
-                color = (0, 0, 0) if has_colors else None
-                label_map[bg_label] = color
-        label_map.move_to_end(bg_label, last=False)
-
         self._categories = make_camvid_categories(label_map)
         self._label_map = label_map
+        self._label_id_mapping = self._make_label_id_map()
+
+    def _make_label_id_map(self):
+        source_labels = {
+            id: label.name for id, label in
+            enumerate(self._extractor.categories().get(
+                AnnotationType.label, LabelCategories()).items)
+        }
+        target_labels = {
+            label.name: id for id, label in
+            enumerate(self._categories[AnnotationType.label].items)
+        }
+        id_mapping = {
+            src_id: target_labels.get(src_label, 0)
+            for src_id, src_label in source_labels.items()
+        }
+
+        def map_id(src_id):
+            return id_mapping.get(src_id, 0)
+        return map_id
