@@ -19,6 +19,10 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 def refs_command(args):
     project = load_project(args.project_dir)
 
-    print(project.vcs.refs + project.vcs.tags)
+    print('Branches:', ', '.join(project.vcs.refs))
+
+    tags = project.vcs.tags
+    if tags:
+        print('Tags:', ', '.join(tags))
 
     return 0
