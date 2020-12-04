@@ -536,8 +536,11 @@ def build_build_parser(parser_ctor=argparse.ArgumentParser):
 
     parser.add_argument('target', default='project', nargs='?',
         help="Project target to apply transform to (default: project)")
+    parser.add_argument('-o', '--output-dir', dest='dst_dir', default=None,
+        help="Directory to save output (default: current dir)")
     parser.add_argument('-f', '--force', action='store_true',
-        help="Rerun build for the target, even if it has no changes")
+        help="Rebuild the target, even if it has no changes. "
+            "Ignore uncommitted changes.")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to operate on (default: current dir)")
     parser.set_defaults(command=build_command)
@@ -548,11 +551,15 @@ def build_command(args):
     project = load_project(args.project_dir)
 
     status = project.vcs.dvc.status()
-    if not args.force and status:
+    if not force and [s
+        for s in status.values() if 'changed outs' in s
+        for co in d.values()
+        for s in co.values()
+    ]:
         raise CliException("Can't build project " \
             "when there are uncommitted changes: %s" % status)
 
-    project.build(args.target, force=args.force)
+    project.build(args.target, force=args.force, out_dir=args.dst_dir)
 
     return 0
 

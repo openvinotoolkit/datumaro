@@ -11,6 +11,7 @@ import shutil
 import urllib.parse
 import yaml
 from enum import Enum
+from functools import partial
 from glob import glob
 from typing import List
 
@@ -703,12 +704,7 @@ class ProjectBuildTargets(CrudProxy):
             return osp.relpath(p, self._project.config.project_dir)
 
         def _source_dvc_path(source):
-            return _rpath(osp.join(
-                self._project.config.project_dir,
-                self._project.config.env_dir,
-                self._project.config.dvc_aux_dir,
-                source + '.dvc'
-            ))
+            return _rpath(self._project.vcs.dvc_filepath(source))
 
         def _reset_sources(sources):
             # call 'dvc repro' to download original source data
@@ -722,6 +718,9 @@ class ProjectBuildTargets(CrudProxy):
             self._project.vcs.git.checkout(None, [_source_dvc_path(s)
                 for s in related_sources])
             self._project.sources.checkout(related_sources)
+
+        _is_modified = partial(self._project.vcs.dvc.check_stage_status,
+            status='modified')
 
 
         if not self._project.vcs.writeable:
@@ -759,15 +758,12 @@ class ProjectBuildTargets(CrudProxy):
         related_sources = self.pipeline_sources(pipeline)
 
         if inplace:
-            try:
-                stage_dvc_filename = make_file_name(raw_target)
-                status = self._project.vcs.dvc.status([stage_dvc_filename])
-                if not (not status or _is_deleted(status)) and not force:
+            stage = _source_dvc_path(raw_target)
+            status = self._project.vcs.dvc.status([stage])
+            if _is_modified(status, stage) and not force:
                     raise Exception("Can't build project when there are "
                         "unsaved changes in the output directory: '%s'" % \
                         out_dir)
-            except DvcWrapper.DvcError:
-                pass
         else:
             if osp.isdir(out_dir) and os.listdir(out_dir) and not force:
                 raise Exception("Can't build project when output directory" \
@@ -1148,6 +1144,15 @@ class DvcWrapper:
         out = self._exec(args).splitlines()[-1]
         return json.loads(out)
 
+    @staticmethod
+    def check_stage_status(data, stage, status):
+        assert status in {'deleted', 'modified'}
+        return status in [s
+            for d in data.get(stage, []) if 'changed outs' in d
+            for co in d.values()
+            for s in co.values()
+        ]
+
     def _exec(self, args, hide_output=True):
         log.debug("Calling DVC main with args: %s", args)
 
@@ -1297,6 +1302,14 @@ class ProjectVcs:
                 [self._project.config.build_dir]
         self.git.ignore(paths, mode='append')
 
+    def dvc_aux_dir(self):
+        return osp.join(self._project.config.project_dir,
+            self._project.config.env_dir,
+            self._project.config.dvc_aux_dir)
+
+    def dvc_filepath(self, target):
+        return osp.join(self.dvc_aux_dir(), target + '.dvc')
+
 class Project:
     @classmethod
     def import_from(cls, path, dataset_format=None, env=None, **format_options):
@@ -1407,10 +1420,10 @@ class Project:
         # build + tag + push?
         raise NotImplementedError()
 
-    def build(self, target=None, force=False):
+    def build(self, target=None, force=False, out_dir=None):
         if target is None:
             target = 'project'
-        return self.build_targets.build(target, force=force)
+        return self.build_targets.build(target, force=force, out_dir=out_dir)
 
 def merge_projects(a, b, strategy: MergeStrategy = None):
     raise NotImplementedError()
