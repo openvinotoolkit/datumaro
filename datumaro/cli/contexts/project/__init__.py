@@ -384,19 +384,13 @@ def apply_command(args):
         if not args.overwrite and osp.isdir(dst_dir) and os.listdir(dst_dir):
             raise CliException("Directory '%s' already exists "
                 "(pass --overwrite to overwrite)" % dst_dir)
-    else:
+    elif not args.build:
         dst_dir = generate_next_file_name('%s-apply' % \
             project.config.project_name)
     dst_dir = osp.abspath(dst_dir)
 
     pipeline = project.build_targets.read_pipeline(args.file)
-    graph, head = project.build_targets.apply_pipeline(pipeline)
-    head_node = graph.nodes[head]
-    if head_node['config']['type'] != BuildStageType.convert.name:
-        dataset = head_node['dataset']
-        dataset.save(dst_dir, save_images=args.build)
-    else:
-        raise NotImplementedError()
+    project.build_targets.run_pipeline(pipeline, out_dir=dst_dir)
 
     log.info("Results have been saved to '%s'" % dst_dir)
 
@@ -551,7 +545,7 @@ def build_command(args):
     project = load_project(args.project_dir)
 
     status = project.vcs.dvc.status()
-    if not force and [s
+    if not args.force and [s
         for s in status.values() if 'changed outs' in s
         for co in d.values()
         for s in co.values()

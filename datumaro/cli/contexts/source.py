@@ -226,7 +226,9 @@ def build_update_parser(parser_ctor=argparse.ArgumentParser):
 
     parser.add_argument('names', nargs='+',
         help="Names of sources to update")
-    parser.add_argument('--renew', action='store_true',
+    parser.add_argument('--rev',
+        help="A revision to update the source to")
+    parser.add_argument('--restart', action='store_true',
         help="Removes existing pipelines for these sources")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to operate on (default: current dir)")
@@ -241,12 +243,12 @@ def update_command(args):
         if source not in project.sources:
             raise KeyError("Unknown source '%s'" % source)
 
-    project.sources.pull(args.names)
+    project.sources.pull(args.names, rev=args.rev)
     for source in args.names:
-        if args.renew:
+        if args.restart:
             stages = project.build_targets[source].stages
             stages[:] = stages[:1]
-        project.build_targets.build(source)
+        project.build_targets.build(source, reset=False, force=True)
 
     project.save()
 

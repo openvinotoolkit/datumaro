@@ -190,7 +190,7 @@ class _RemotesProxy(CrudProxy):
     def _data(self):
         return self._project.config[self._field]
 
-    def pull(self, names=None):
+    def pull(self, names=None, rev=None):
         if not self._project.vcs.writeable:
             raise Exception("Can't pull in read-only repository")
 
@@ -204,6 +204,10 @@ class _RemotesProxy(CrudProxy):
         for name in names:
             if name and name not in self:
                 raise KeyError("Unknown source '%s'" % name)
+
+        if rev and len(names) != 1:
+            raise ValueError("A revision can only be specified for a "
+                "single source invocation")
 
         self._project.vcs.dvc.update_imports(
             [self.aux_path(name) for name in names])
@@ -702,7 +706,7 @@ class ProjectBuildTargets(CrudProxy):
                 sources.add(s)
         return list(sources)
 
-    def build(self, target, force=False, out_dir=None):
+    def build(self, target, out_dir=None, force=False, reset=True):
         def _rpath(p):
             return osp.relpath(p, self._project.config.project_dir)
 
@@ -773,11 +777,18 @@ class ProjectBuildTargets(CrudProxy):
                     "is not empty")
 
         try:
+            if reset:
             _reset_sources(related_sources)
 
+            self.run_pipeline(pipeline, out_dir=out_dir)
+
+        finally:
+            if reset:
+                _restore_sources(related_sources)
+
+    def run_pipeline(self, pipeline, out_dir):
             graph, head = self.apply_pipeline(pipeline)
             head_node = graph.nodes[head]
-            dataset = head_node['dataset']
 
             dst_format = DEFAULT_FORMAT
             options = {'save_images': True}
@@ -787,9 +798,6 @@ class ProjectBuildTargets(CrudProxy):
                 dst_format = head_node['config'].kind
                 options.update(head_node['config'].params)
             dataset.export(dst_format, save_dir=out_dir, **options)
-
-        finally:
-            _restore_sources(related_sources)
 
 
 class GitWrapper:
