@@ -1257,11 +1257,11 @@ class ProjectVcs:
 
     def checkout(self, rev=None, targets=None):
         # order matters
-        if rev:
-            self.git.checkout(rev)
+        dvc_paths = [self.dvc_filepath(t) for t in targets]
+        self.git.checkout(rev, dvc_paths)
 
         sources = [t for t in targets if t in self._project.sources]
-        if sources:
+        if sources or not targets:
             self._project.sources.checkout(sources)
 
     def add(self, paths):
