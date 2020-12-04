@@ -150,12 +150,14 @@ class Config:
 
     def __eq__(self, other):
         try:
-            for k, my_v in self.items(allow_internal=False):
+            keys = set(self.keys()) | set(other.keys())
+            for k in keys:
+                my_v = self[k]
                 other_v = other[k]
                 if my_v != other_v:
                     return False
             return True
-        except Exception:
+        except KeyError:
             return False
 
     def __repr__(self):
