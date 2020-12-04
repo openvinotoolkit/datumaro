@@ -908,6 +908,12 @@ class GitWrapper:
     def remove_remote(self, name):
         self.repo.delete_remote(name)
 
+    def is_ref(self, rev):
+        try:
+            self.repo.commit(rev)
+            return True
+        except ValueError:
+            return False
 
     IgnoreMode = Enum('IgnoreMode', ['rewrite', 'append', 'remove'])
 
@@ -1324,6 +1330,9 @@ class ProjectVcs:
 
     def dvc_filepath(self, target):
         return osp.join(self.dvc_aux_dir(), target + '.dvc')
+
+    def is_ref(self, ref):
+        return self.git.is_ref(ref)
 
 class Project:
     @classmethod

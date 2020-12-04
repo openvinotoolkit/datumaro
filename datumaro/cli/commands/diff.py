@@ -49,7 +49,15 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 
 def diff_command(args):
     first_project = load_project(args.project_dir)
-    second_project = load_project(args.other_project_dir)
+
+    try:
+        second_project = load_project(args.other_project_dir)
+    except FileNotFoundError:
+        if first_project.vcs.is_ref(args.other_project_dir):
+            raise NotImplementedError("It seems that you're trying to compare "
+                "different revisions of the project. "
+                "Comparisons between project revisions are not implemented yet.")
+        raise
 
     comparator = DistanceComparator(iou_threshold=args.iou_thresh)
 
