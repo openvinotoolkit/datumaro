@@ -210,9 +210,12 @@ class Config:
         return value
 
     @staticmethod
-    def parse(path):
-        with open(path, 'r') as f:
-            return Config(yaml.safe_load(f))
+    def parse(path, *args, **kwargs):
+        if isinstance(path, str):
+            with open(path, 'r') as f:
+                return Config(yaml.safe_load(f), *args, **kwargs)
+        else:
+            return Config(yaml.safe_load(path), *args, **kwargs)
 
     @staticmethod
     def yaml_representer(dumper, value):
@@ -220,8 +223,11 @@ class Config:
             value._items(allow_internal=False, allow_fallback=False))
 
     def dump(self, path):
-        with open(path, 'w+') as f:
-            yaml.dump(self, f)
+        if isinstance(path, str):
+            with open(path, 'w') as f:
+                yaml.safe_dump(self, f)
+        else:
+            yaml.dump(self, path)
 
 yaml.add_multi_representer(Config, Config.yaml_representer)
 
