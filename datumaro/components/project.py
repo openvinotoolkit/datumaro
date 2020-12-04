@@ -275,12 +275,8 @@ class _RemotesProxy(CrudProxy):
             raise ValueError("URL must contain path, url: '%s'" % url)
         return url_parts
 
-    def aux_dir(self):
-        return osp.join(self._project.config.project_dir,
-            self._project.config.env_dir, self._project.config.dvc_aux_dir)
-
     def aux_path(self, name):
-        return osp.join(self.aux_dir(), name + '.dvc')
+        return self._project.vcs.dvc_filepath(name)
 
 class ProjectModels(_RemotesProxy):
     def __init__(self, project):
@@ -312,6 +308,8 @@ class ProjectSources(_RemotesProxy):
 
     @error_rollback
     def add(self, name, value, rollback=None):
+        self.validate_name(name)
+
         if name in self:
             raise Exception("Source '%s' already exists" % name)
 
@@ -342,7 +340,6 @@ class ProjectSources(_RemotesProxy):
             os.makedirs(source_dir, exist_ok=True)
             rollback.add(lambda: shutil.rmtree(source_dir, ignore_errors=True))
 
-            os.makedirs(self.aux_dir(), exist_ok=True)
             aux_path = self.aux_path(name)
             rollback.add(lambda: os.remove(aux_path), ignore_errors=True)
 
@@ -403,8 +400,14 @@ class ProjectSources(_RemotesProxy):
     def source_dir(self, name):
         return osp.join(self._project.config.project_dir, name)
 
-    def aux_path(self, name):
-        return osp.join(self.aux_dir(), name + '.dvc')
+    def validate_name(self, name):
+        valid_name = make_file_name(name)
+        if valid_name != name:
+            raise ValueError("Source name contains "
+                "prohibited symbols: '%s'." % (set(name) - set(valid_name)) )
+        reserved_names = {'dataset', 'build', 'project'}
+        if name in reserved_names:
+            raise ValueError("Source name is reserved for internal use")
 
 
 BuildStageType = Enum('BuildStageType',
@@ -1030,6 +1033,7 @@ class DvcWrapper:
         if dvc_path:
             args.append('--file')
             args.append(dvc_path)
+            os.makedirs(osp.dirname(dvc_path), exist_ok=True)
         if rev:
             args.append('--rev')
             args.append(rev)
@@ -1045,6 +1049,7 @@ class DvcWrapper:
         if dvc_path:
             args.append('--file')
             args.append(dvc_path)
+            os.makedirs(osp.dirname(dvc_path), exist_ok=True)
         if not download:
             args.append('--no-exec')
         args.append(url)
@@ -1287,6 +1292,7 @@ class ProjectVcs:
         # order matters
         self.git.init()
         self.dvc.init()
+        os.makedirs(self.dvc_aux_dir(), exist_ok=True)
 
     def status(self):
         # check status of files and remotes
