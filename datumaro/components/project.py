@@ -44,7 +44,8 @@ class ProjectSourceDataset(Dataset):
             config.url)
 
         importer = env.make_importer(config.format)
-        detected_sources = importer(self._local_dir, **config.options)
+        with logging_disabled(log.INFO):
+            detected_sources = importer(self._local_dir, **config.options)
 
         extractors = []
         for src_conf in detected_sources:
@@ -310,8 +311,8 @@ class ProjectSources(_RemotesProxy):
         except KeyError:
             raise KeyError("Unknown source '%s'" % name)
 
-    @error_rollback
-    def add(self, name, value, rollback=None):
+    @error_rollback('on_error', implicit=True)
+    def add(self, name, value):
         self.validate_name(name)
 
         if name in self:
@@ -332,7 +333,7 @@ class ProjectSources(_RemotesProxy):
                 'type': 'url',
             })
             path = '' # all goes to the remote
-            rollback.add(lambda: self._project.vcs.remotes.remove(remote_name),
+            on_error.do(self._project.vcs.remotes.remove, remote_name,
                 ignore_errors=True)
         else:
             raise Exception("Can't update read-only project")
@@ -342,10 +343,10 @@ class ProjectSources(_RemotesProxy):
 
         if self._project.vcs.writeable:
             os.makedirs(source_dir, exist_ok=True)
-            rollback.add(lambda: shutil.rmtree(source_dir, ignore_errors=True))
+            on_error.do(shutil.rmtree, source_dir, ignore_errors=True)
 
             aux_path = self.aux_path(name)
-            rollback.add(lambda: os.remove(aux_path), ignore_errors=True)
+            on_error.do(os.remove, aux_path, ignore_errors=True)
 
             if remote_conf.type == 'url':
                 self._project.vcs.dvc.import_url(
@@ -778,7 +779,7 @@ class ProjectBuildTargets(CrudProxy):
 
         try:
             if reset:
-            _reset_sources(related_sources)
+                _reset_sources(related_sources)
 
             self.run_pipeline(pipeline, out_dir=out_dir)
 
@@ -787,17 +788,17 @@ class ProjectBuildTargets(CrudProxy):
                 _restore_sources(related_sources)
 
     def run_pipeline(self, pipeline, out_dir):
-            graph, head = self.apply_pipeline(pipeline)
-            head_node = graph.nodes[head]
+        graph, head = self.apply_pipeline(pipeline)
+        head_node = graph.nodes[head]
 
-            dst_format = DEFAULT_FORMAT
-            options = {'save_images': True}
-            if raw_target in self._project.sources:
-                dst_format = self._project.sources[raw_target].format
-            elif head_node['config']['type'] == BuildStageType.convert.name:
-                dst_format = head_node['config'].kind
-                options.update(head_node['config'].params)
-            dataset.export(dst_format, save_dir=out_dir, **options)
+        dst_format = DEFAULT_FORMAT
+        options = {'save_images': True}
+        if raw_target in self._project.sources:
+            dst_format = self._project.sources[raw_target].format
+        elif head_node['config']['type'] == BuildStageType.convert.name:
+            dst_format = head_node['config'].kind
+            options.update(head_node['config'].params)
+        dataset.export(dst_format, save_dir=out_dir, **options)
 
 
 class GitWrapper:
@@ -1370,6 +1371,7 @@ class Project:
         config.project_filename = osp.basename(config_path)
         return Project(config)
 
+    @error_rollback('on_error', implicit=True)
     def save(self, save_dir=None):
         config = self.config
 
@@ -1379,36 +1381,31 @@ class Project:
         else:
             project_dir = save_dir
 
-        env_dir = osp.join(project_dir, config.env_dir)
-        save_dir = osp.abspath(env_dir)
+        save_dir = osp.join(project_dir, config.env_dir)
 
-        project_dir_existed = osp.exists(project_dir)
-        env_dir_existed = osp.exists(env_dir)
-        try:
-            os.makedirs(save_dir, exist_ok=True)
+        if not osp.exists(project_dir):
+            on_error.do(shutil.rmtree, project_dir, ignore_errors=True)
+        if not osp.exists(save_dir):
+            on_error.do(shutil.rmtree, save_dir, ignore_errors=True)
 
-            config_path = osp.join(save_dir, config.project_filename)
-            config.dump(config_path)
+        os.makedirs(save_dir, exist_ok=True)
 
-            if not self.vcs.detached and not self.vcs.readonly and \
-                    not self.vcs.initialized:
-                self._vcs = ProjectVcs(self) # TODO: handle different save_dir
-                self.vcs.init()
-            if self.vcs.writeable:
-                self.vcs.ensure_gitignored()
-                self.vcs.git.add([
-                    osp.join(project_dir, config.env_dir),
-                    osp.join(project_dir, '.dvc', 'config'),
-                    osp.join(project_dir, '.dvc', '.gitignore'),
-                    osp.join(project_dir, '.gitignore'),
-                    osp.join(project_dir, '.dvcignore'),
-                ])
-        except BaseException:
-            if not env_dir_existed:
-                shutil.rmtree(save_dir, ignore_errors=True)
-            if not project_dir_existed:
-                shutil.rmtree(project_dir, ignore_errors=True)
-            raise
+        config_path = osp.join(save_dir, config.project_filename)
+        config.dump(config_path)
+
+        if not self.vcs.detached and not self.vcs.readonly and \
+                not self.vcs.initialized:
+            self._vcs = ProjectVcs(self) # TODO: handle different save_dir
+            self.vcs.init()
+        if self.vcs.writeable:
+            self.vcs.ensure_gitignored()
+            self.vcs.git.add([
+                osp.join(project_dir, config.env_dir),
+                osp.join(project_dir, '.dvc', 'config'),
+                osp.join(project_dir, '.dvc', '.gitignore'),
+                osp.join(project_dir, '.gitignore'),
+                osp.join(project_dir, '.dvcignore'),
+            ])
 
     def __init__(self, config=None):
         self._config = Config(config,

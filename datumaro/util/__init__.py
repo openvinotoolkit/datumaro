@@ -7,7 +7,8 @@ import attr
 import os
 import os.path as osp
 import re
-from contextlib import contextmanager
+from contextlib import contextmanager, ExitStack
+from functools import partial, wraps
 from itertools import islice
 
 
@@ -125,38 +126,52 @@ def generate_next_name(names, basename, sep='.', suffix='', default=None):
     return basename + idx + suffix
 
 def optional_arg_decorator(fn):
-    def wrapped_decorator(*args):
-        if len(args) == 1 and callable(args[0]):
-            return fn(args[0])
+    @wraps(fn)
+    def wrapped_decorator(*args, **kwargs):
+        if len(args) == 1 and callable(args[0]) and not kwargs:
+            return fn(args[0], **kwargs)
 
         else:
             def real_decorator(decoratee):
-                return fn(decoratee, *args)
+                return fn(decoratee, *args, **kwargs)
 
             return real_decorator
 
     return wrapped_decorator
 
-class RollbackManager:
+class Rollback:
     @attr.attrs
     class Handler:
         callback = attr.attrib()
         enabled = attr.attrib(default=True)
         ignore_errors = attr.attrib(default=False)
 
+        def __call__(self):
+            if self.enabled:
+                try:
+                    self.callback()
+                except: # pylint: disable=bare-except
+                    if not self.ignore_errors:
+                        raise
+
     def __init__(self):
         self._handlers = {}
+        self._stack = ExitStack()
         self.enabled = True
 
-    def add(self, callback, name=None, enabled=True, ignore_errors=False):
+    def add(self, callback, *args,
+            name=None, enabled=True, ignore_errors=False, **kwargs):
+        if args or kwargs:
+            callback = partial(callback, *args, **kwargs)
         name = name or hash(callback)
         assert name not in self._handlers
-        self._handlers[name] = self.Handler(callback,
+        handler = self.Handler(callback,
             enabled=enabled, ignore_errors=ignore_errors)
+        self._handlers[name] = handler
+        self._stack.callback(handler)
         return name
 
-    def remove(self, name):
-        self._handlers.pop(name)
+    do = add # readability alias
 
     def enable(self, name=None):
         if name:
@@ -171,44 +186,39 @@ class RollbackManager:
             self.enabled = False
 
     def clean(self):
-        if not self.enabled:
-            return
-        for handler in self._handlers.values():
-            if handler.enabled:
-                try:
-                    handler.callback()
-                except: # pylint: disable=bare-except
-                    if not handler.ignore_errors:
-                        raise
+        self.__exit__(None, None, None)
 
     def __enter__(self):
         return self
 
     # pylint: disable=redefined-builtin
     def __exit__(self, type=None, value=None, traceback=None):
-        self.clean()
+        if type is None:
+            return
+        if not self.enabled:
+            return
+        self._stack.__exit__(type, value, traceback)
     # pylint: enable=redefined-builtin
 
-@contextmanager
-def rollback():
-    manager = RollbackManager()
-
-    try:
-        yield manager
-    finally:
-        manager.clean()
-
 @optional_arg_decorator
-def error_rollback(func, arg_name='rollback'):
+def error_rollback(func, arg_name='on_error', implicit=False):
+    @wraps(func)
     def wrapped_func(*args, **kwargs):
-        manager = RollbackManager()
-        try:
-            kwargs[arg_name] = manager
-            func(*args, **kwargs)
-        except:
-            manager.clean()
-            raise
-    wrapped_func.__name__ = func.__name__
-    wrapped_func.__module__ = func.__module__
-    wrapped_func.__doc__ = func.__doc__
+        with Rollback() as manager:
+            if implicit:
+                fglobals = func.__globals__
+
+                has_arg = arg_name in fglobals
+                old_val = fglobals.get(arg_name)
+                fglobals[arg_name] = manager
+                try:
+                    func(*args, **kwargs)
+                finally:
+                    if has_arg:
+                        func.__globals__[arg_name] = old_val
+                    else:
+                        func.__globals__.pop(arg_name)
+            else:
+                kwargs[arg_name] = manager
+                func(*args, **kwargs)
     return wrapped_func

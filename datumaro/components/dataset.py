@@ -13,6 +13,7 @@ from datumaro.components.extractor import (Extractor, LabelCategories,
 from datumaro.components.dataset_filter import \
     XPathDatasetFilter, XPathAnnotationsFilter
 from datumaro.components.environment import Environment
+from datumaro.util import error_rollback
 
 
 DEFAULT_FORMAT = 'datumaro'
@@ -193,19 +194,16 @@ class Dataset(Extractor):
         from .operations import merge_categories
         return merge_categories(sources)
 
+    @error_rollback('on_error', implicit=True)
     def export(self, converter, save_dir, **kwargs):
         if isinstance(converter, str):
             converter = self.env.make_converter(converter)
 
         save_dir = osp.abspath(save_dir)
-        save_dir_existed = osp.exists(save_dir)
-        try:
-            os.makedirs(save_dir, exist_ok=True)
-            converter(self, save_dir=save_dir, **kwargs)
-        except BaseException:
-            if not save_dir_existed:
-                shutil.rmtree(save_dir)
-            raise
+        if not osp.exists(save_dir):
+            on_error.do(shutil.rmtree, save_dir, ignore_errors=True)
+        os.makedirs(save_dir, exist_ok=True)
+        converter(self, save_dir=save_dir, **kwargs)
 
     def transform(self, method, *args, **kwargs):
         if isinstance(method, str):
