@@ -225,7 +225,7 @@ class Config:
     def dump(self, path):
         if isinstance(path, str):
             with open(path, 'w') as f:
-                yaml.safe_dump(self, f)
+                yaml.dump(self, f)
         else:
             yaml.dump(self, path)
 
