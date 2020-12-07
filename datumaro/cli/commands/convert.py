@@ -88,14 +88,14 @@ def convert_command(args):
             log.error("Multiple formats match the dataset: %s. "
                 "Try to specify format with '-if/--input-format' parameter.",
                 ', '.join(matches))
-            return 2
+            return 1
 
         format_name = matches[0]
         args.input_format = format_name
         log.info("Source dataset format detected as '%s'", args.input_format)
 
     try:
-        importer = env.make_importer(args.input_format)
+        env.make_importer(args.input_format)
     except KeyError:
         raise CliException("Importer for format '%s' is not found" % \
             args.input_format)
@@ -112,15 +112,13 @@ def convert_command(args):
             (osp.basename(source), make_file_name(args.output_format)))
     dst_dir = osp.abspath(dst_dir)
 
-    project = importer(source)
+    project = Project.import_from(source, args.input_format)
     dataset = project.make_dataset()
 
     log.info("Exporting the dataset")
-    dataset.export_project(
-        save_dir=dst_dir,
-        converter=converter_proxy,
-        filter_expr=args.filter,
-        **filter_args)
+    if args.filter:
+        dataset = dataset.filter(expr=args.filter, **filter_args)
+    dataset.export(save_dir=dst_dir, converter=converter_proxy)
 
     log.info("Dataset exported to '%s' as '%s'" % \
         (dst_dir, args.output_format))
