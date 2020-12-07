@@ -974,7 +974,10 @@ class GitWrapper:
 
         paths = [_make_ignored_path(p) for p in paths]
 
-        with open(filepath, 'r+') as f:
+        openmode = 'r+'
+        if not osp.isfile(filepath):
+            openmode = 'w+' # r+ cannot create, w+ truncates
+        with open(filepath, openmode) as f:
             if mode in {IgnoreMode.append, IgnoreMode.remove}:
                 paths_to_write = set(
                     line.split('#', maxsplit=1)[0] \
@@ -1376,6 +1379,7 @@ class Project:
     def import_from(cls, path, dataset_format=None, env=None, **format_options):
         if env is None:
             env = Environment()
+
         if not dataset_format:
             matches = env.detect_dataset(path)
             if not matches:
@@ -1385,6 +1389,11 @@ class Project:
                     " data matches more than one format: %s" % \
                     ', '.join(matches))
             dataset_format = matches[0]
+        try:
+            env.make_importer(dataset_format)
+        except KeyError:
+            raise KeyError("Unknown dataset format '%s'" % dataset_format)
+
         project = Project(env=env)
         project.sources.add('source', {
             'url': path,
@@ -1414,28 +1423,28 @@ class Project:
     @error_rollback('on_error', implicit=True)
     def save(self, save_dir=None):
         config = self.config
+        if save_dir and config.project_dir and save_dir != config.project_dir:
+            raise NotImplementedError("Can't copy or resave project "
+                "to another directory.")
 
-        if save_dir is None:
-            assert config.project_dir
-            project_dir = config.project_dir
-        else:
-            project_dir = save_dir
-
+        config.project_dir = save_dir or config.project_dir
+        assert config.project_dir
+        project_dir = config.project_dir
         save_dir = osp.join(project_dir, config.env_dir)
 
         if not osp.exists(project_dir):
             on_error.do(shutil.rmtree, project_dir, ignore_errors=True)
         if not osp.exists(save_dir):
             on_error.do(shutil.rmtree, save_dir, ignore_errors=True)
-
         os.makedirs(save_dir, exist_ok=True)
 
-        config_path = osp.join(save_dir, config.project_filename)
-        config.dump(config_path)
+        config.dump(osp.join(save_dir, config.project_filename))
 
-        if not self.vcs.detached and not self.vcs.readonly and \
-                not self.vcs.initialized:
-            self._vcs = ProjectVcs(self) # TODO: handle different save_dir
+        if self.vcs.detached:
+            return
+
+        if not self.vcs.initialized and not self.vcs.readonly:
+            self._vcs = ProjectVcs(self)
             self.vcs.init()
         if self.vcs.writeable:
             self.vcs.ensure_gitignored()
