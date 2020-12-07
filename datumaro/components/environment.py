@@ -209,3 +209,20 @@ class Environment:
 
     def make_transform(self, name, *args, **kwargs):
         return partial(self.transforms.get(name), *args, **kwargs)
+
+    def detect_dataset(self, path):
+        matches = []
+
+        for format_name in self.importers.items:
+            log.debug("Checking '%s' format...", format_name)
+            importer = self.make_importer(format_name)
+            try:
+                match = importer.detect(path)
+                if match:
+                    log.debug("format matched")
+                    matches.append(format_name)
+            except NotImplementedError:
+                log.debug("Format '%s' does not support auto detection.",
+                    format_name)
+
+        return matches

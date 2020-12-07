@@ -62,7 +62,7 @@ def convert_command(args):
     env = Environment()
 
     try:
-        converter = env.converters.get(args.output_format)
+        converter = env.converters[args.output_format]
     except KeyError:
         raise CliException("Converter for format '%s' is not found" % \
             args.output_format)
@@ -78,18 +78,7 @@ def convert_command(args):
     filter_args = FilterModes.make_filter_args(args.filter_mode)
 
     if not args.input_format:
-        matches = []
-        for format_name in env.importers.items:
-            log.debug("Checking '%s' format...", format_name)
-            importer = env.make_importer(format_name)
-            try:
-                match = importer.detect(args.source)
-                if match:
-                    log.debug("format matched")
-                    matches.append((format_name, importer))
-            except NotImplementedError:
-                log.debug("Format '%s' does not support auto detection.",
-                    format_name)
+        matches = env.detect_dataset(args.source)
 
         if len(matches) == 0:
             log.error("Failed to detect dataset format. "
@@ -98,18 +87,18 @@ def convert_command(args):
         elif len(matches) != 1:
             log.error("Multiple formats match the dataset: %s. "
                 "Try to specify format with '-if/--input-format' parameter.",
-                ', '.join(m[0] for m in matches))
+                ', '.join(matches))
             return 2
 
-        format_name, importer = matches[0]
+        format_name = matches[0]
         args.input_format = format_name
         log.info("Source dataset format detected as '%s'", args.input_format)
-    else:
-        try:
-            importer = env.make_importer(args.input_format)
-        except KeyError:
-            raise CliException("Importer for format '%s' is not found" % \
-                args.input_format)
+
+    try:
+        importer = env.make_importer(args.input_format)
+    except KeyError:
+        raise CliException("Importer for format '%s' is not found" % \
+            args.input_format)
 
     source = osp.abspath(args.source)
 

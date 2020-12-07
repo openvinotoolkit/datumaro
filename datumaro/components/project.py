@@ -1349,9 +1349,21 @@ class Project:
         if env is None:
             env = Environment()
         if not dataset_format:
-            dataset_format = env.detect_dataset(path)
-        importer = env.make_importer(dataset_format)
-        return importer(path, **format_options)
+            matches = env.detect_dataset(path)
+            if not matches:
+                raise Exception("Failed to detect dataset format automatically")
+            if 1 < len(matches):
+                raise Exception("Failed to detect dataset format automatically:"
+                    " data matches more than one format: %s" % \
+                    ', '.join(matches))
+            dataset_format = matches[0]
+        project = Project(env=env)
+        project.sources.add('source', {
+            'url': path,
+            'format': dataset_format,
+            'options': format_options,
+        })
+        return project
 
     @classmethod
     def generate(cls, save_dir, config=None):
@@ -1407,10 +1419,10 @@ class Project:
                 osp.join(project_dir, '.dvcignore'),
             ])
 
-    def __init__(self, config=None):
+    def __init__(self, config=None, env=None):
         self._config = Config(config,
             fallback=PROJECT_DEFAULT_CONFIG, schema=PROJECT_SCHEMA)
-        self._env = Environment(self.config)
+        self._env = env or Environment(self.config)
         self._vcs = ProjectVcs(self)
         self._sources = ProjectSources(self)
         self._models = ProjectModels(self)
