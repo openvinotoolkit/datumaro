@@ -40,18 +40,24 @@ class ProjectSourceDataset(Dataset):
 
         config = project.sources[source]
         self._config = config
-        self._local_dir = osp.join(project.sources.source_dir(source),
-            config.url)
 
+        self._path = osp.join(project.sources.source_dir(source), config.url)
+        self._readonly = self._path and osp.exists(self._path)
+        if self._path and not osp.exists(self._path) and not config.remote:
+            # backward compatibility
+            self._path = config.url
+            self._readonly = True
+
+        # TODO: remove importers, put this logic to extractors
         importer = env.make_importer(config.format)
         with logging_disabled(log.INFO):
-            detected_sources = importer(self._local_dir, **config.options)
+            detected_sources = importer(self._path, **config.options)
 
         extractors = []
         for src_conf in detected_sources:
             src_conf = Source(src_conf)
             extractors.append(env.make_extractor(src_conf.format,
-                osp.join(self._local_dir, src_conf.url), **src_conf.options
+                osp.join(self._path, src_conf.url), **src_conf.options
             ))
 
         dataset = Dataset.from_extractors(*extractors)
@@ -60,8 +66,14 @@ class ProjectSourceDataset(Dataset):
 
     def save(self, save_dir=None, **kwargs):
         if save_dir is None:
-            save_dir = self._local_dir
+            if self.readonly:
+                raise Exception("Can't update a read-only dataset")
+            save_dir = self._path
         super().export(self.config.format, save_dir=save_dir, **kwargs)
+
+    @property
+    def readonly(self):
+        return self._readonly
 
     @Dataset.env.getter
     def env(self):
@@ -320,32 +332,35 @@ class ProjectSources(_RemotesProxy):
 
         url_parts = self._validate_url(value['url'])
 
+        if self._project.vcs.writeable:
         if url_parts.scheme == 'remote':
+                # add a source with existing remote
             remote_name = url_parts.netloc
             remote_conf = self._project.vcs.remotes[remote_name]
             path = osp.normpath(url_parts.path)
             if path.startswith('/'):
                 path = path[1:]
-        elif self._project.vcs.writeable:
+            else:
+                # add a source and a new remote
             remote_name = self._make_remote_name(name)
+                if remote_name not in self._project.vcs.remotes:
+                    on_error.do(self._project.vcs.remotes.remove, remote_name,
+                        ignore_errors=True)
             remote_conf = self._project.vcs.remotes.add(remote_name, {
                 'url': value['url'],
                 'type': 'url',
             })
             path = '' # all goes to the remote
-            on_error.do(self._project.vcs.remotes.remove, remote_name,
-                ignore_errors=True)
-        else:
-            raise Exception("Can't update read-only project")
 
         source_dir = osp.relpath(self.source_dir(name),
             self._project.config.project_dir)
 
-        if self._project.vcs.writeable:
+            if not osp.isdir(source_dir):
+                on_error.do(shutil.rmtree, source_dir, ignore_errors=True)
             os.makedirs(source_dir, exist_ok=True)
-            on_error.do(shutil.rmtree, source_dir, ignore_errors=True)
 
             aux_path = self.aux_path(name)
+            if not osp.isfile(aux_path):
             on_error.do(os.remove, aux_path, ignore_errors=True)
 
             if remote_conf.type == 'url':
@@ -358,7 +373,19 @@ class ProjectSources(_RemotesProxy):
             else:
                 raise Exception("Unknown remote type '%s'" % remote_conf.type)
 
-        value['url'] = osp.basename(path)
+            # DVC truncates everything except basename from the file name
+            # and puts it into 'out' directory we created
+            path = osp.basename(path)
+        else:
+            if not value['url'] or osp.exists(value['url']):
+                # a local or a generated source
+                # in a read-only or in-memory project
+                remote_name = ''
+                path = value['url']
+            else:
+                raise Exception("Can't update a read-only project")
+
+        value['url'] = path
         value['remote'] = remote_name
         value = super().add(name, value)
 
