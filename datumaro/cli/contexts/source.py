@@ -68,8 +68,8 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
-@error_rollback('cleanup')
-def add_command(args, cleanup=None):
+@error_rollback('on_error', implicit=True)
+def add_command(args):
     project = load_project(args.project_dir)
 
     name = args.name
@@ -93,8 +93,7 @@ def add_command(args, cleanup=None):
         'format': args.format,
         'options': extra_args,
     })
-    cleanup.add(lambda: project.sources.remove(name,
-            force=True, keep_data=False),
+    on_error.do(project.sources.remove, name, force=True, keep_data=False,
         ignore_errors=True)
 
     if not args.no_pull:

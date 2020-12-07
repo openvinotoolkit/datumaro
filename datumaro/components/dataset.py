@@ -211,6 +211,16 @@ class Dataset(Extractor):
 
         return super().transform(method, **kwargs)
 
+    def run_model(self, model, batch_size=1):
+        from datumaro.components.launcher import Launcher, ModelTransform
+        if isinstance(model, Launcher):
+            return self.transform(ModelTransform, launcher=model,
+                batch_size=batch_size)
+        elif isinstance(model, ModelTransform):
+            return self.transform(model, batch_size=batch_size)
+        else:
+            raise TypeError('Unexpected model argument type: %s' % type(model))
+
     @property
     def env(self):
         if not self._env:

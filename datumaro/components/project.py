@@ -83,13 +83,14 @@ class ProjectSourceDataset(Dataset):
     def config(self):
         return self._config
 
-    def apply_model(self, model, batch_size=1):
+    def run_model(self, model, batch_size=1):
         # NOTE: probably this function should be in the ViewModel layer
         if isinstance(model, str):
             launcher = self._project.make_executable_model(model)
-
-        return self.transform(ModelTransform, launcher=launcher,
-            batch_size=batch_size)
+            return self.transform(ModelTransform, launcher=launcher,
+                batch_size=batch_size)
+        else:
+            return super().run_model(model, batch_size=batch_size)
 
 MergeStrategy = Enum('MergeStrategy', ['ours', 'theirs', 'conflict'])
 
@@ -205,7 +206,7 @@ class _RemotesProxy(CrudProxy):
 
     def pull(self, names=None, rev=None):
         if not self._project.vcs.writeable:
-            raise Exception("Can't pull in read-only repository")
+            raise Exception("Can't pull in a read-only project")
 
         if not names:
             names = []
@@ -227,7 +228,7 @@ class _RemotesProxy(CrudProxy):
 
     def fetch(self, names=None):
         if not self._project.vcs.readable:
-            raise Exception("Can't fetch in read-only repository")
+            raise Exception("Can't fetch in a read-only project")
 
         if not names:
             names = []
@@ -245,7 +246,7 @@ class _RemotesProxy(CrudProxy):
 
     def checkout(self, names=None):
         if not self._project.vcs.writeable:
-            raise Exception("Can't checkout in read-only repository")
+            raise Exception("Can't checkout in a read-only project")
 
         if not names:
             names = []
@@ -263,7 +264,7 @@ class _RemotesProxy(CrudProxy):
 
     def push(self, names=None):
         if not self._project.vcs.writeable:
-            raise Exception("Can't push in read-only repository")
+            raise Exception("Can't push in a read-only project")
 
         if not names:
             names = []
@@ -333,27 +334,27 @@ class ProjectSources(_RemotesProxy):
         url_parts = self._validate_url(value['url'])
 
         if self._project.vcs.writeable:
-        if url_parts.scheme == 'remote':
+            if url_parts.scheme == 'remote':
                 # add a source with existing remote
-            remote_name = url_parts.netloc
-            remote_conf = self._project.vcs.remotes[remote_name]
-            path = osp.normpath(url_parts.path)
-            if path.startswith('/'):
-                path = path[1:]
+                remote_name = url_parts.netloc
+                remote_conf = self._project.vcs.remotes[remote_name]
+                path = osp.normpath(url_parts.path)
+                if path.startswith('/'):
+                    path = path[1:]
             else:
                 # add a source and a new remote
-            remote_name = self._make_remote_name(name)
+                remote_name = self._make_remote_name(name)
                 if remote_name not in self._project.vcs.remotes:
                     on_error.do(self._project.vcs.remotes.remove, remote_name,
                         ignore_errors=True)
-            remote_conf = self._project.vcs.remotes.add(remote_name, {
-                'url': value['url'],
-                'type': 'url',
-            })
-            path = '' # all goes to the remote
+                remote_conf = self._project.vcs.remotes.add(remote_name, {
+                    'url': value['url'],
+                    'type': 'url',
+                })
+                path = '' # all goes to the remote
 
-        source_dir = osp.relpath(self.source_dir(name),
-            self._project.config.project_dir)
+            source_dir = osp.relpath(self.source_dir(name),
+                self._project.config.project_dir)
 
             if not osp.isdir(source_dir):
                 on_error.do(shutil.rmtree, source_dir, ignore_errors=True)
@@ -361,7 +362,7 @@ class ProjectSources(_RemotesProxy):
 
             aux_path = self.aux_path(name)
             if not osp.isfile(aux_path):
-            on_error.do(os.remove, aux_path, ignore_errors=True)
+                on_error.do(os.remove, aux_path, ignore_errors=True)
 
             if remote_conf.type == 'url':
                 self._project.vcs.dvc.import_url(
@@ -433,12 +434,12 @@ class ProjectSources(_RemotesProxy):
         return osp.join(self._project.config.project_dir, name)
 
     def validate_name(self, name):
-        valid_name = make_file_name(name)
-        if valid_name != name:
+        valid_filename = make_file_name(name)
+        if valid_filename != name:
             raise ValueError("Source name contains "
                 "prohibited symbols: '%s'." % (set(name) - set(valid_name)) )
         reserved_names = {'dataset', 'build', 'project'}
-        if name in reserved_names:
+        if name.lower() in reserved_names:
             raise ValueError("Source name is reserved for internal use")
 
 
@@ -654,7 +655,7 @@ class ProjectBuildTargets(CrudProxy):
                 if type_ == BuildStageType.transform:
                     kind = current['config'].kind
                     try:
-                        transform = self._project.env.transforms.get(kind)
+                        transform = self._project.env.transforms[kind]
                     except KeyError:
                         raise CliException("Unknown transform '%s'" % kind)
 

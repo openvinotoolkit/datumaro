@@ -136,7 +136,7 @@ def run_command(args):
         dst_dir = generate_next_file_name('%s-inference' % \
             project.config.project_name)
 
-    project.make_dataset().apply_model(
+    project.make_dataset().run_model(
         save_dir=osp.abspath(dst_dir),
         model=args.model_name)
 
