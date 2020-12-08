@@ -79,3 +79,28 @@ class TestRollback(TestCase):
             pass
         finally:
             self.assertTrue(success)
+
+    def test_can_fowrard_args(self):
+        success1 = False
+        def cb1(a1, a2=None, ignore_errors=None):
+            nonlocal success1
+            if a1 == 5 and a2 == 2 and ignore_errors == None:
+                success1 = True
+
+        success2 = False
+        def cb2(a1, a2=None, ignore_errors=None):
+            nonlocal success2
+            if a1 == 5 and a2 == 2 and ignore_errors == 4:
+                success2 = True
+
+        try:
+            with Rollback() as on_error:
+                on_error.do(cb1, 5, a2=2, ignore_errors=True)
+                on_error.do(cb2, 5, a2=2, ignore_errors=True,
+                    fwd_kwargs={'ignore_errors': 4})
+                raise Exception('err')
+        except Exception:
+            pass
+        finally:
+            self.assertTrue(success1)
+            self.assertTrue(success2)

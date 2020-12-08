@@ -160,8 +160,11 @@ class Rollback:
         self.enabled = True
 
     def add(self, callback, *args,
-            name=None, enabled=True, ignore_errors=False, **kwargs):
-        if args or kwargs:
+            name=None, enabled=True, ignore_errors=False, fwd_kwargs=None,
+            **kwargs):
+        if args or kwargs or fwd_kwargs:
+            if fwd_kwargs:
+                kwargs.update(fwd_kwargs)
             callback = partial(callback, *args, **kwargs)
         name = name or hash(callback)
         assert name not in self._handlers
