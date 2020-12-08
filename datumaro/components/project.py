@@ -193,6 +193,8 @@ class ProjectRemotes(CrudProxy):
                 "available are: %s" % \
                 (url, url_parts.scheme, ', '.join(cls.SUPPORTED_PROTOCOLS))
             )
+        if not url_parts.hostname:
+            raise ValueError("URL must contain a hostname, url: '%s'" % url)
         return url_parts
 
 class _RemotesProxy(CrudProxy):
@@ -288,10 +290,7 @@ class _RemotesProxy(CrudProxy):
 
     @classmethod
     def _validate_url(cls, url):
-        url_parts = ProjectRemotes.validate_url(url)
-        if not url_parts.path:
-            raise ValueError("URL must contain path, url: '%s'" % url)
-        return url_parts
+        return ProjectRemotes.validate_url(url)
 
     def aux_path(self, name):
         return self._project.vcs.dvc_filepath(name)
@@ -331,10 +330,15 @@ class ProjectSources(_RemotesProxy):
         if name in self:
             raise Exception("Source '%s' already exists" % name)
 
-        url_parts = self._validate_url(value['url'])
-
         if self._project.vcs.writeable:
-            if url_parts.scheme == 'remote':
+            if not value['url']:
+                url_parts = self._validate_url(value['url'])
+
+            if not value['url']:
+                # a generated source
+                remote_name = ''
+                path = value['url']
+            elif url_parts.scheme == 'remote':
                 # add a source with existing remote
                 remote_name = url_parts.netloc
                 remote_conf = self._project.vcs.remotes[remote_name]
@@ -364,7 +368,9 @@ class ProjectSources(_RemotesProxy):
             if not osp.isfile(aux_path):
                 on_error.do(os.remove, aux_path, ignore_errors=True)
 
-            if remote_conf.type == 'url':
+            if not remote_name:
+                pass
+            elif remote_conf.type == 'url':
                 self._project.vcs.dvc.import_url(
                     urllib.parse.urlunsplit(('remote', remote_name, path, '', '')),
                     out=source_dir, dvc_path=aux_path, download=False)

@@ -110,7 +110,7 @@ class CommandTargetsTest(TestCase):
     def test_source_true_when_source_exists(self):
         source_name = 'qwerty'
         project = Project()
-        project.add_source(source_name)
+        project.sources.add(source_name, {'url': ''})
         target = SourceTarget(project=project)
 
         status = target.test(source_name)
@@ -120,7 +120,7 @@ class CommandTargetsTest(TestCase):
     def test_source_false_when_source_doesnt_exist(self):
         source_name = 'qwerty'
         project = Project()
-        project.add_source(source_name)
+        project.sources.add(source_name, {'url': ''})
         target = SourceTarget(project=project)
 
         status = target.test(source_name + '123')
