@@ -1293,27 +1293,47 @@ class ProjectVcs:
         return self.git.tags
 
     def push(self, remote=None):
+        if not self.writeable:
+            raise Exception("Can't push in a detached or read-only repository")
+
         self.dvc.push()
         self.git.push(remote=remote)
 
     def pull(self, remote=None):
+        if not self.writeable:
+            raise Exception("Can't pull in a detached or read-only repository")
+
         # order matters
         self.git.pull(remote=remote)
         self.dvc.pull()
 
     def check_updates(self, targets=None) -> List[str]:
+        if not self.writeable:
+            raise Exception("Can't check updates in a detached or "
+                "read-only repository")
+
         updated_refs = self.git.check_updates()
         updated_remotes = self.remotes.check_updates(targets)
         return updated_refs, updated_remotes
 
     def fetch(self, remote=None):
+        if not self.writeable:
+            raise Exception("Can't fetch in a detached or read-only repository")
+
         self.git.fetch(remote=remote)
         self.dvc.fetch()
 
     def tag(self, name):
+        if not self.writeable:
+            raise Exception("Can't tag in a detached or read-only repository")
+
         self.git.tag(name)
 
     def checkout(self, rev=None, targets=None):
+        if not self.writeable:
+            raise Exception("Can't checkout in a detached or "
+                "read-only repository")
+
         # order matters
         dvc_paths = [self.dvc_filepath(t) for t in targets]
         self.git.checkout(rev, dvc_paths)
@@ -1323,6 +1343,10 @@ class ProjectVcs:
             self._project.sources.checkout(sources)
 
     def add(self, paths):
+        if not self.writeable:
+            raise Exception("Can't track files in a detached or "
+                "read-only repository")
+
         if not paths:
             raise ValueError("Expected at least one file path to add")
         for p in paths:
@@ -1330,6 +1354,10 @@ class ProjectVcs:
         self.ensure_gitignored()
 
     def commit(self, paths, message):
+        if not self.writeable:
+            raise Exception("Can't commit in a detached or "
+                "read-only repository")
+
         # order matters
         if not paths:
             paths = glob(
@@ -1350,12 +1378,18 @@ class ProjectVcs:
         self.git.commit(message)
 
     def init(self):
+        if self.readonly or self.detached:
+            raise Exception("Can't init in a detached or read-only repository")
+
         # order matters
         self.git.init()
         self.dvc.init()
         os.makedirs(self.dvc_aux_dir(), exist_ok=True)
 
     def status(self):
+        if not self.readable:
+            raise Exception("Can't check status in a detached repository")
+
         # check status of files and remotes
         uncomitted = {}
         uncomitted.update(self.git.status())
@@ -1363,6 +1397,9 @@ class ProjectVcs:
         return uncomitted
 
     def ensure_gitignored(self, paths=None):
+        if not self.writeable:
+            raise Exception("Can't update a detached or read-only repository")
+
         if paths is None:
             paths = [self._project.sources.source_dir(source)
                     for source in self._project.sources] + \
@@ -1378,6 +1415,9 @@ class ProjectVcs:
         return osp.join(self.dvc_aux_dir(), target + '.dvc')
 
     def is_ref(self, ref):
+        if not self.readable:
+            raise Exception("Can't read in a detached repository")
+
         return self.git.is_ref(ref)
 
 class Project:
