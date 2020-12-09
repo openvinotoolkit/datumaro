@@ -107,7 +107,7 @@ PROJECT_SCHEMA = _SchemaBuilder() \
 
 PROJECT_DEFAULT_CONFIG = Config({
     'project_name': 'undefined',
-    'format_version': 1,
+    'format_version': 2,
 
     'sources_dir': 'sources',
     'dataset_dir': 'dataset',
