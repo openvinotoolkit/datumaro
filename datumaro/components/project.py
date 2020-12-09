@@ -49,7 +49,7 @@ class ProjectSourceDataset(Dataset):
             self._readonly = True
 
         # TODO: remove importers, put this logic to extractors
-        importer = env.make_importer(config.format)
+        importer = env.make_importer(config.format or DEFAULT_FORMAT)
         with logging_disabled(log.INFO):
             detected_sources = importer(self._path, **config.options)
 
