@@ -3,6 +3,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import os
 import os.path as osp
 import re
 import setuptools
@@ -27,6 +28,26 @@ def find_version(file_path=None):
     version = version_text[match.start(1) : match.end(1)]
     return version
 
+def get_requirements():
+    requirements = [
+        'attrs>=19.3.0',
+        'defusedxml',
+        'GitPython',
+        'lxml',
+        'matplotlib',
+        'numpy>=1.17.3',
+        'Pillow',
+        'pycocotools',
+        'PyYAML',
+        'scikit-image',
+        'tensorboardX',
+    ]
+    if os.getenv('HEADLESS') == '1':
+        requirements.append('opencv-python-headless')
+    else:
+        requirements.append('opencv-python')
+
+    return requirements
 
 with open('README.md', 'r') as fh:
     long_description = fh.read()
@@ -51,20 +72,7 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     python_requires='>=3.5',
-    install_requires=[
-        'attrs>=19.3.0',
-        'defusedxml',
-        'GitPython',
-        'lxml',
-        'matplotlib',
-        'numpy>=1.17.3',
-        'opencv-python',
-        'Pillow',
-        'pycocotools',
-        'PyYAML',
-        'scikit-image',
-        'tensorboardX',
-    ],
+    install_requires=get_requirements(),
     extras_require={
         'tf': ['tensorflow'],
         'tf-gpu': ['tensorflow-gpu'],
