@@ -3,6 +3,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+from distutils.util import strtobool
 import os
 import os.path as osp
 import re
@@ -42,7 +43,7 @@ def get_requirements():
         'scikit-image',
         'tensorboardX',
     ]
-    if os.getenv('HEADLESS') == '1':
+    if strtobool(os.getenv('DATUMARO_HEADLESS', '0').lower()):
         requirements.append('opencv-python-headless')
     else:
         requirements.append('opencv-python')
