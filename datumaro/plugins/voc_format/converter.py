@@ -103,7 +103,8 @@ class VocConverter(Converter):
         self._allow_attributes = allow_attributes
 
         if label_map is None:
-            label_map = LabelmapType.source
+            label_map = LabelmapType.source.name
+        assert isinstance(label_map, (str, dict)), label_map
         self._load_categories(label_map)
 
     def apply(self):
@@ -469,9 +470,9 @@ class VocConverter(Converter):
             label_map = parse_label_map(label_map_source)
 
         else:
-            raise Exception("Wrong labelmap specified, "
+            raise Exception("Wrong labelmap specified: '%s', "
                 "expected one of %s or a file path" % \
-                ', '.join(t.name for t in LabelmapType))
+                (label_map_source, ', '.join(t.name for t in LabelmapType)))
 
         # There must always be a label with color (0, 0, 0) at index 0
         bg_label = find(label_map.items(), lambda x: x[1][0] == (0, 0, 0))
