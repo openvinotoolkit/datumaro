@@ -170,6 +170,8 @@ class ProjectRemotes(CrudProxy):
         url_parts = self.validate_url(value['url'])
         if not url_parts.scheme:
             value['url'] = osp.abspath(value['url'])
+        if not value.get('type'):
+            value['type'] = 'url'
 
         if not isinstance(value, Remote):
             value = Remote(value)
@@ -177,6 +179,10 @@ class ProjectRemotes(CrudProxy):
 
         if value.type == 'url':
             self._vcs.dvc.add_remote(name, value)
+        elif value.type == 'git':
+            pass
+        else:
+            raise ValueError("Unknown remote type '%s'" % value.type)
         return value
 
     def remove(self, name, force=False):
