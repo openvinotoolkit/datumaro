@@ -8,8 +8,10 @@ import networkx as nx
 import os
 import os.path as osp
 import shutil
+import unittest.mock
 import urllib.parse
 import yaml
+from contextlib import ExitStack
 from enum import Enum
 from functools import partial
 from glob import glob
@@ -1216,11 +1218,23 @@ class DvcWrapper:
             for s in co.values()
         ]
 
-    def _exec(self, args, hide_output=True):
+    def _exec(self, args, hide_output=True, answer_on_input='y'):
+        args = ['--cd', self._project_dir] + args
+
         log.debug("Calling DVC main with args: %s", args)
 
-        with catch_logs('dvc') as logs:
+        contexts = ExitStack()
+
+        if answer_on_input is not None:
+            def _input(*args): return answer_on_input
+            contexts.enter_context(unittest.mock.patch(
+                'dvc.prompt.input', new=_input))
+
+        logs = contexts.enter_context(catch_logs('dvc'))
+
+        with contexts:
             retcode = self.module.main.main(args)
+
         logs = logs.getvalue()
         if retcode != 0:
             raise self.DvcError(logs)
