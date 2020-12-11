@@ -101,6 +101,9 @@ List of supported formats:
   - [Dataset example](../tests/assets/imagenet_dataset)
   - [Dataset example (txt for classification)](../tests/assets/imagenet_txt_dataset)
   - Detection format is the same as in PASCAL VOC
+- CamVid (`segmentation`)
+  - [Format specification](http://mi.eng.cam.ac.uk/research/projects/VideoRec/CamVid/)
+  - [Dataset example](../tests/assets/camvid_dataset)
 - CVAT
   - [Format specification](https://github.com/opencv/cvat/blob/develop/cvat/apps/documentation/xml_format.md)
   - [Dataset example](../tests/assets/cvat_dataset)

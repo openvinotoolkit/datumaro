@@ -1,0 +1,1 @@
+/train/0001TP_006690.png /trainannot/0001TP_006690.png
