@@ -201,8 +201,8 @@ class ProjectRemotes(CrudProxy):
                 "available are: %s" % \
                 (url, url_parts.scheme, ', '.join(cls.SUPPORTED_PROTOCOLS))
             )
-        if not url_parts.hostname:
-            raise ValueError("URL must contain a hostname, url: '%s'" % url)
+        if not (url_parts.hostname or url_parts.path):
+            raise ValueError("URL must not be empty, url: '%s'" % url)
         return url_parts
 
 class _RemotesProxy(CrudProxy):
@@ -339,7 +339,7 @@ class ProjectSources(_RemotesProxy):
             raise Exception("Source '%s' already exists" % name)
 
         if self._project.vcs.writeable:
-            if not value['url']:
+            if value['url']:
                 url_parts = self._validate_url(value['url'])
 
             if not value['url']:
@@ -832,7 +832,9 @@ class ProjectBuildTargets(CrudProxy):
     def run_pipeline(self, pipeline, out_dir):
         graph, head = self.apply_pipeline(pipeline)
         head_node = graph.nodes[head]
+        raw_target, _ = self._split_target_name(head)
 
+        dataset = head_node['dataset']
         dst_format = DEFAULT_FORMAT
         options = {'save_images': True}
         if raw_target in self._project.sources:
@@ -944,7 +946,7 @@ class GitWrapper:
         # R[everse] flag is needed for index to HEAD comparison
         # to avoid inversed output in gitpython, which adds this flag
         # git diff --cached HEAD [not not R]
-        diff = self.repo.index.diff('HEAD', R=True)
+        diff = self.repo.index.diff(R=True)
         return {
             osp.relpath(d.a_rawpath.decode(), self._project_dir): d.change_type
             for d in diff
@@ -1355,6 +1357,7 @@ class ProjectVcs:
                 "read-only repository")
 
         # order matters
+        targets = targets or []
         dvc_paths = [self.dvc_filepath(t) for t in targets]
         self.git.checkout(rev, dvc_paths)
 
