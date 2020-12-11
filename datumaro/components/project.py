@@ -255,6 +255,9 @@ class _RemotesProxy(CrudProxy):
             [self.aux_path(name) for name in names])
 
     def checkout(self, names=None):
+        # TODO: need to add DVC cache interaction and checking of the
+        # checked-out revision hash. In the case of mismatch, run rebuild
+
         if not self._project.vcs.writeable:
             raise Exception("Can't checkout in a read-only project")
 
