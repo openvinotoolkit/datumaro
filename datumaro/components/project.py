@@ -366,11 +366,9 @@ class ProjectSources(_RemotesProxy):
                     'url': value['url'],
                     'type': 'url',
                 })
-                path = '' # all goes to the remote
+                path = osp.basename(url_parts.path)
 
-            source_dir = osp.relpath(self.source_dir(name),
-                self._project.config.project_dir)
-
+            source_dir = self.source_dir(name)
             if not osp.isdir(source_dir):
                 on_error.do(shutil.rmtree, source_dir, ignore_errors=True)
             os.makedirs(source_dir, exist_ok=True)
@@ -382,9 +380,12 @@ class ProjectSources(_RemotesProxy):
             if not remote_name:
                 pass
             elif remote_conf.type == 'url':
+                os.makedirs(osp.dirname(osp.join(source_dir, path)),
+                    exist_ok=True)
                 self._project.vcs.dvc.import_url(
-                    urllib.parse.urlunsplit(('remote', remote_name, path, '', '')),
-                    out=source_dir, dvc_path=aux_path, download=False)
+                    'remote://' + remote_name + '/' + path,
+                    out=osp.join(source_dir, path), dvc_path=aux_path,
+                    download=False)
             elif remote_conf.type == 'git':
                 self._project.vcs.dvc.import_(remote_conf.url, path=path,
                     out=source_dir, dvc_path=aux_path)
