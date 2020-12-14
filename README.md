@@ -1,4 +1,4 @@
-# Dataset Management Framework (Datumaro)
+d# Dataset Management Framework (Datumaro)
 
 [![Build Status](https://travis-ci.org/openvinotoolkit/datumaro.svg?branch=develop)](https://travis-ci.org/openvinotoolkit/datumaro)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/759d2d873b59495aa3d3f8c51b786246)](https://app.codacy.com/gh/openvinotoolkit/datumaro?utm_source=github.com&utm_medium=referral&utm_content=openvinotoolkit/datumaro&utm_campaign=Badge_Grade_Dashboard)
@@ -111,6 +111,7 @@ CVAT annotations                             ---> Publication, statistics etc.
   - [PASCAL VOC](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/htmldoc/index.html) (`classification`, `detection`, `segmentation`, `action_classification`, `person_layout`)
   - [YOLO](https://github.com/AlexeyAB/darknet#how-to-train-pascal-voc-data) (`bboxes`)
   - [TF Detection API](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/using_your_own_dataset.md) (`bboxes`, `masks`)
+  - [WIDER Face](http://shuoyang1213.me/WIDERFACE/) (`bboxes`)
   - [MOT sequences](https://arxiv.org/pdf/1906.04567.pdf)
   - [MOTS PNG](https://www.vision.rwth-aachen.de/page/mots)
   - [ImageNet](http://image-net.org/)
