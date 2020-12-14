@@ -348,6 +348,7 @@ class ProjectSources(_RemotesProxy):
             if not value['url']:
                 # a generated source
                 remote_name = ''
+                remote_conf = None
                 path = value['url']
             elif url_parts.scheme == 'remote':
                 # add a source with existing remote
@@ -357,16 +358,13 @@ class ProjectSources(_RemotesProxy):
                 if path.startswith('/'):
                     path = path[1:]
             else:
-                # add a source and a new remote
-                remote_name = self._make_remote_name(name)
-                if remote_name not in self._project.vcs.remotes:
-                    on_error.do(self._project.vcs.remotes.remove, remote_name,
-                        ignore_errors=True)
-                remote_conf = self._project.vcs.remotes.add(remote_name, {
+                # add a source as url
+                remote_name = ''
+                remote_conf = Remote({
                     'url': value['url'],
                     'type': 'url',
                 })
-                path = osp.basename(url_parts.path)
+                path = ''
 
             source_dir = self.source_dir(name)
             if not osp.isdir(source_dir):
@@ -377,15 +375,11 @@ class ProjectSources(_RemotesProxy):
             if not osp.isfile(aux_path):
                 on_error.do(os.remove, aux_path, ignore_errors=True)
 
-            if not remote_name:
+            if remote_conf is None:
                 pass
             elif remote_conf.type == 'url':
-                os.makedirs(osp.dirname(osp.join(source_dir, path)),
-                    exist_ok=True)
-                self._project.vcs.dvc.import_url(
-                    'remote://' + remote_name + '/' + path,
-                    out=osp.join(source_dir, path), dvc_path=aux_path,
-                    download=False)
+                self._project.vcs.dvc.import_url(remote_conf.url,
+                    out=source_dir, dvc_path=aux_path, download=False)
             elif remote_conf.type == 'git':
                 self._project.vcs.dvc.import_(remote_conf.url, path=path,
                     out=source_dir, dvc_path=aux_path)
