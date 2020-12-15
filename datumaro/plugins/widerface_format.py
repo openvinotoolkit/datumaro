@@ -12,7 +12,7 @@ from datumaro.components.extractor import (AnnotationType, Bbox, DatasetItem,
     Importer, SourceExtractor)
 
 
-class WiderPath:
+class WiderFacePath:
     IMAGE_EXT = '.jpg'
     ANNOTATIONS_DIR = 'wider_face_split'
     IMAGES_DIR = 'images'
@@ -20,9 +20,10 @@ class WiderPath:
     BBOX_ATTRIBUTES = ['blur', 'expression', 'illumination',
         'occlusion', 'pose', 'invalid']
 
-class WiderExtractor(SourceExtractor):
+class WiderFaceExtractor(SourceExtractor):
     def __init__(self, path):
-        assert osp.isfile(path), path
+        if not osp.isfile(path):
+            raise Exception("Can't read annotation file '%s'" % path)
         self._path = path
         self._dataset_dir = osp.dirname(osp.dirname(path))
 
@@ -40,16 +41,16 @@ class WiderExtractor(SourceExtractor):
             lines = f.readlines()
 
         image_ids = [image_id for image_id, line in enumerate(lines)
-            if WiderPath.IMAGE_EXT in line]
+            if WiderFacePath.IMAGE_EXT in line]
 
         for image_id in image_ids:
             image = lines[image_id]
-            image_path = osp.join(self._dataset_dir, WiderPath.SUBSET_DIR
-                + self._subset, WiderPath.IMAGES_DIR, image[:-1])
-            item_id = image[:-(len(WiderPath.IMAGE_EXT) + 1)]
+            image_path = osp.join(self._dataset_dir, WiderFacePath.SUBSET_DIR
+                + self._subset, WiderFacePath.IMAGES_DIR, image[:-1])
+            item_id = image[:-(len(WiderFacePath.IMAGE_EXT) + 1)]
 
             bbox_count = lines[image_id + 1]
-            bbox_lines = lines[image_id + 2:image_id + 2 + int(bbox_count)]
+            bbox_lines = lines[image_id + 2 : image_id + int(bbox_count) + 2]
             annotations = []
             for bbox in bbox_lines:
                 bbox_list = bbox.split()
@@ -57,7 +58,7 @@ class WiderExtractor(SourceExtractor):
                     attributes = {}
                     if len(bbox_list) == 10:
                         i = 4
-                        for attr in WiderPath.BBOX_ATTRIBUTES:
+                        for attr in WiderFacePath.BBOX_ATTRIBUTES:
                             attributes[attr] = int(bbox_list[i])
                             i += 1
                     annotations.append(Bbox(
@@ -70,13 +71,13 @@ class WiderExtractor(SourceExtractor):
                 image=image_path, annotations=annotations)
         return items
 
-class WiderImporter(Importer):
+class WiderFaceImporter(Importer):
     @classmethod
     def find_sources(cls, path):
         return cls._find_sources_recursive(osp.join(path,
-            WiderPath.ANNOTATIONS_DIR), '.txt', 'wider')
+            WiderFacePath.ANNOTATIONS_DIR), '.txt', 'wider_face')
 
-class WiderConverter(Converter):
+class WiderFaceConverter(Converter):
     DEFAULT_IMAGE_EXT = '.jpg'
 
     def apply(self):
@@ -85,14 +86,14 @@ class WiderConverter(Converter):
         os.makedirs(save_dir, exist_ok=True)
 
         for subset_name, subset in self._extractor.subsets().items():
-            subset_dir = osp.join(save_dir, WiderPath.SUBSET_DIR + subset_name)
+            subset_dir = osp.join(save_dir, WiderFacePath.SUBSET_DIR + subset_name)
 
             wider_annotation = ''
             for item in subset:
-                wider_annotation += '%s\n' % (item.id + WiderPath.IMAGE_EXT)
-                if self._save_images:
+                wider_annotation += '%s\n' % (item.id + WiderFacePath.IMAGE_EXT)
+                if item.has_image and self._save_images:
                     self._save_image(item, osp.join(save_dir, subset_dir,
-                        WiderPath.IMAGES_DIR, item.id + WiderPath.IMAGE_EXT))
+                        WiderFacePath.IMAGES_DIR, item.id + WiderFacePath.IMAGE_EXT))
 
                 bboxes = [a for a in item.annotations
                     if a.type == AnnotationType.bbox]
@@ -102,13 +103,13 @@ class WiderConverter(Converter):
                     wider_bb = ' '.join('%d' % p for p in bbox.get_bbox())
                     wider_annotation += '%s ' % wider_bb
                     if bbox.attributes:
-                        for attr in WiderPath.BBOX_ATTRIBUTES:
+                        for attr in WiderFacePath.BBOX_ATTRIBUTES:
                             if bbox.attributes[attr]:
                                 wider_annotation += '%s ' % bbox.attributes[attr]
                             else:
                                 wider_annotation += '0 '
                     wider_annotation  += '\n'
-            annotation_path = osp.join(save_dir, WiderPath.ANNOTATIONS_DIR,
+            annotation_path = osp.join(save_dir, WiderFacePath.ANNOTATIONS_DIR,
                 'wider_face_' + subset_name + '_bbx_gt.txt')
             os.makedirs(osp.dirname(annotation_path), exist_ok=True)
             with open(annotation_path, 'w') as f:

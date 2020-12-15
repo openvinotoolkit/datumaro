@@ -4,11 +4,11 @@ from unittest import TestCase
 import numpy as np
 from datumaro.components.extractor import Bbox, DatasetItem
 from datumaro.components.project import Dataset, Project
-from datumaro.plugins.wider_format import WiderConverter, WiderImporter
+from datumaro.plugins.widerface_format import WiderFaceConverter, WiderFaceImporter
 from datumaro.util.test_utils import TestDir, compare_datasets
 
 
-class WiderFormatTest(TestCase):
+class WiderFaceFormatTest(TestCase):
     def test_can_save_and_load(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='1', subset='train', image=np.ones((8, 8, 3)),
@@ -50,8 +50,8 @@ class WiderFormatTest(TestCase):
         ])
 
         with TestDir() as test_dir:
-            WiderConverter.convert(source_dataset, test_dir, save_images=True)
-            parsed_dataset = WiderImporter()(test_dir).make_dataset()
+            WiderFaceConverter.convert(source_dataset, test_dir, save_images=True)
+            parsed_dataset = WiderFaceImporter()(test_dir).make_dataset()
 
             compare_datasets(self, source_dataset, parsed_dataset)
 
@@ -68,16 +68,16 @@ class WiderFormatTest(TestCase):
         ])
 
         with TestDir() as test_dir:
-            WiderConverter.convert(source_dataset, test_dir, save_images=True)
-            parsed_dataset = WiderImporter()(test_dir).make_dataset()
+            WiderFaceConverter.convert(source_dataset, test_dir, save_images=True)
+            parsed_dataset = WiderFaceImporter()(test_dir).make_dataset()
 
             compare_datasets(self, source_dataset, parsed_dataset)
 
-DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'wider_dataset')
+DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'widerface_dataset')
 
-class WiderImporterTest(TestCase):
+class WiderFaceImporterTest(TestCase):
     def test_can_detect(self):
-        self.assertTrue(WiderImporter.detect(DUMMY_DATASET_DIR))
+        self.assertTrue(WiderFaceImporter.detect(DUMMY_DATASET_DIR))
 
     def test_can_import(self):
         expected_dataset = Dataset.from_iterable([
@@ -116,7 +116,7 @@ class WiderImporterTest(TestCase):
             ),
         ])
 
-        dataset = Project.import_from(DUMMY_DATASET_DIR, 'wider') \
+        dataset = Project.import_from(DUMMY_DATASET_DIR, 'wider_face') \
             .make_dataset()
 
         compare_datasets(self, expected_dataset, dataset)
