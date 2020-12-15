@@ -356,7 +356,7 @@ class ProjectSources(_RemotesProxy):
         if name in self:
             raise Exception("Source '%s' already exists" % name)
 
-        url = value['url']
+        url = value.get('url', '')
 
         if self._project.vcs.writeable:
             if url:
@@ -412,7 +412,8 @@ class ProjectSources(_RemotesProxy):
                 remote_name = ''
                 path = url
             else:
-                raise Exception("Can't update a read-only project")
+                raise Exception("Can only add an existing local, or generated "
+                    "source to a detached project")
 
         value['url'] = path
         value['remote'] = remote_name
@@ -739,6 +740,9 @@ class ProjectBuildTargets(CrudProxy):
             return yaml.safe_load(f)
 
     def make_dataset(self, target):
+        if len(self._data) == 1 and self.MAIN_TARGET in self._data:
+            raise Exception("Can't create a dataset from an empty project.")
+
         target = self._normalize_target(target)
 
         pipeline = self.make_pipeline(target)
@@ -779,6 +783,8 @@ class ProjectBuildTargets(CrudProxy):
                 for s in related_sources])
 
         def _restore_sources(sources):
+            if not self._project.vcs.has_commits():
+                return
             self._project.vcs.git.checkout(None, [_source_dvc_path(s)
                 for s in related_sources])
             self._project.sources.checkout(related_sources)
@@ -822,12 +828,13 @@ class ProjectBuildTargets(CrudProxy):
         related_sources = self.pipeline_sources(pipeline)
 
         if inplace:
-            stage = _source_dvc_path(raw_target)
-            status = self._project.vcs.dvc.status([stage])
-            if _is_modified(status, stage) and not force:
-                raise Exception("Can't build project when there are "
-                    "unsaved changes in the output directory: '%s'" % \
-                    out_dir)
+            if target != self.MAIN_TARGET:
+                stage = _source_dvc_path(raw_target)
+                status = self._project.vcs.dvc.status([stage])
+                if _is_modified(status, stage) and not force:
+                    raise Exception("Can't build project when there are "
+                        "unsaved changes in the output directory: '%s'" % \
+                        out_dir)
         else:
             if osp.isdir(out_dir) and os.listdir(out_dir) and not force:
                 raise Exception("Can't build project when output directory" \
@@ -979,7 +986,7 @@ class GitWrapper:
         try:
             self.repo.commit(rev)
             return True
-        except ValueError:
+        except (ValueError, self.module.exc.BadName):
             return False
 
     IgnoreMode = Enum('IgnoreMode', ['rewrite', 'append', 'remove'])
@@ -1460,6 +1467,9 @@ class ProjectVcs:
             raise Exception("Can't read in a detached repository")
 
         return self.git.is_ref(ref)
+
+    def has_commits(self):
+        return self.git.is_ref('HEAD')
 
 class Project:
     @classmethod
