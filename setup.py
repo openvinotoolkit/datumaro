@@ -61,6 +61,7 @@ setuptools.setup(
         'Pillow',
         'pycocotools',
         'PyYAML',
+        'ruamel.yaml',
         'scikit-image',
         'tensorboardX',
     ],
