@@ -338,7 +338,7 @@ class ProjectSources(_RemotesProxy):
     @classmethod
     def _fix_dvc_file(cls, source_path, dvc_path, dst_name):
         with open(dvc_path, 'r+') as dvc_file:
-            yaml = YAML(typ='safe')
+            yaml = YAML(typ='rt')
             dvc_data = yaml.load(dvc_file)
             dvc_data['wdir'] = osp.join(
                 dvc_data['wdir'], osp.basename(source_path))
@@ -1256,16 +1256,17 @@ class DvcWrapper:
         ]
 
     def _exec(self, args, hide_output=True, answer_on_input='y'):
-        args = ['--cd', self._project_dir] + args
-
-        log.debug("Calling DVC main with args: %s", args)
-
         contexts = ExitStack()
+
+        args = ['--cd', self._project_dir] + args
+        contexts.callback(os.chdir, os.getcwd()) # restore cd after DVC
 
         if answer_on_input is not None:
             def _input(*args): return answer_on_input
             contexts.enter_context(unittest.mock.patch(
                 'dvc.prompt.input', new=_input))
+
+        log.debug("Calling DVC main with args: %s", args)
 
         logs = contexts.enter_context(catch_logs('dvc'))
 
