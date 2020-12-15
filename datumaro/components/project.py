@@ -39,7 +39,6 @@ class ProjectSourceDataset(Dataset):
 
         self._project = project
         self._env = project.env
-        env = project.env
 
         config = project.sources[source]
         self._config = config
@@ -51,19 +50,8 @@ class ProjectSourceDataset(Dataset):
             self._path = config.url
             self._readonly = True
 
-        # TODO: remove importers, put this logic to extractors
-        importer = env.make_importer(config.format or DEFAULT_FORMAT)
-        with logging_disabled(log.INFO):
-            detected_sources = importer(self._path, **config.options)
-
-        extractors = []
-        for src_conf in detected_sources:
-            src_conf = Source(src_conf)
-            extractors.append(env.make_extractor(src_conf.format,
-                osp.join(self._path, src_conf.url), **src_conf.options
-            ))
-
-        dataset = Dataset.from_extractors(*extractors)
+        dataset = super().import_from(self._path, env=project.env,
+            format=config.format, **config.options)
         self._subsets = dataset._subsets
         self._categories = dataset._categories
 
@@ -1488,9 +1476,8 @@ class Project:
                     " data matches more than one format: %s" % \
                     ', '.join(matches))
             dataset_format = matches[0]
-        try:
-            env.make_importer(dataset_format)
-        except KeyError:
+        if dataset_format not in env.importers and \
+           dataset_format not in env.extractors:
             raise KeyError("Unknown dataset format '%s'" % dataset_format)
 
         project = Project(env=env)

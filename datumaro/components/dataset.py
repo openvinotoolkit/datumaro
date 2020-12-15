@@ -4,6 +4,7 @@
 
 from collections import OrderedDict, defaultdict
 from typing import Iterable, Union, Dict, List
+import logging as log
 import os
 import os.path as osp
 import shutil
@@ -14,6 +15,7 @@ from datumaro.components.dataset_filter import \
     XPathDatasetFilter, XPathAnnotationsFilter
 from datumaro.components.environment import Environment
 from datumaro.util import error_rollback
+from datumaro.util.log_utils import logging_disabled
 
 
 DEFAULT_FORMAT = 'datumaro'
@@ -230,7 +232,37 @@ class Dataset(Extractor):
     def save(self, save_dir, **kwargs):
         self.export(DEFAULT_FORMAT, save_dir=save_dir, **kwargs)
 
+    @classmethod
+    def load(cls, path, **kwargs): #pylint: disable=redefined-builtin
+        return cls.import_from(path, format=DEFAULT_FORMAT, **kwargs)
+
     @staticmethod
-    def load(path, **kwargs):
-        extractor = Environment().make_extractor(DEFAULT_FORMAT, path, **kwargs)
-        return Dataset.from_extractors(extractor)
+    def import_from(path, format=None, env=None, **kwargs): #pylint: disable=redefined-builtin
+        from datumaro.components.config_model import Source
+
+        env = env or Environment()
+
+        # TODO: remove importers, put this logic into extractors
+        format = format or DEFAULT_FORMAT
+        if format in env.importers:
+            importer = env.make_importer(format)
+            with logging_disabled(log.INFO):
+                detected_sources = importer(path, **kwargs)
+        else:
+            if format not in env.extractors:
+                raise Exception("Unknown source format '%s'. To make it "
+                    "available, add the corresponding Extractor implementation "
+                    "to the environment" % \
+                    format)
+            detected_sources = [{
+                'url': path, 'format': format, 'options': kwargs
+            }]
+
+        extractors = []
+        for src_conf in detected_sources:
+            src_conf = Source(src_conf)
+            extractors.append(env.make_extractor(
+                src_conf.format, src_conf.url, **src_conf.options
+            ))
+
+        return Dataset.from_extractors(*extractors)
