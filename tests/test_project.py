@@ -5,7 +5,8 @@ import shutil
 
 from unittest import TestCase, skipIf, skip
 
-from datumaro.components.project import Project, Environment, Dataset
+from datumaro.components.project import Project, Environment
+from datumaro.components.dataset import Dataset, DEFAULT_FORMAT
 from datumaro.components.config import Config
 from datumaro.components.config_model import Source, Model
 from datumaro.components.launcher import Launcher, ModelTransform
@@ -15,24 +16,20 @@ from datumaro.components.extractor import (Extractor, DatasetItem,
 from datumaro.util.test_utils import TestDir, compare_datasets
 
 
-class ProjectTest(TestCase):
-    def test_project_generate(self):
+class BaseProjectTest(TestCase):
+    def test_can_generate_project(self):
         src_config = Config({
-            'project_name': 'test_project',
-            'format_version': 1,
+            'project_name': 'test_project'
         })
 
-        with TestDir() as test_dir:
-            project_path = test_dir
+        with TestDir() as project_path:
             Project.generate(project_path, src_config)
 
-            self.assertTrue(osp.isdir(project_path))
-
             result_config = Project.load(project_path).config
+
+            self.assertTrue(osp.isdir(project_path))
             self.assertEqual(
                 src_config.project_name, result_config.project_name)
-            self.assertEqual(
-                src_config.format_version, result_config.format_version)
 
     @staticmethod
     def test_default_ctor_is_ok():
@@ -42,92 +39,72 @@ class ProjectTest(TestCase):
     def test_empty_config_is_ok():
         Project(Config())
 
-    def test_add_source(self):
-        source_name = 'source'
-        origin = Source({
-            'url': 'path',
-            'format': 'ext'
-        })
-        project = Project()
-
-        project.add_source(source_name, origin)
-
-        added = project.get_source(source_name)
-        self.assertIsNotNone(added)
-        self.assertEqual(added, origin)
-
-    def test_added_source_can_be_saved(self):
-        source_name = 'source'
-        origin = Source({
-            'url': 'path',
-        })
-        project = Project()
-        project.add_source(source_name, origin)
-
-        saved = project.config
-
-        self.assertEqual(origin, saved.sources[source_name])
-
-    def test_added_source_can_be_dumped(self):
-        source_name = 'source'
-        origin = Source({
-            'url': 'path',
-        })
-        project = Project()
-        project.add_source(source_name, origin)
+    def test_can_add_existing_local_source(self):
+        # Reasons to exist:
+        # - Backward compatibility
+        # - In-memory and detached projects
 
         with TestDir() as test_dir:
+        source_name = 'source'
+        origin = Source({
+                'url': test_dir,
+                'format': 'fmt',
+                'options': {
+                    'a': 5, 'b': 'hello'
+                }
+        })
+        project = Project()
+
+            project.sources.add(source_name, origin)
+
+            added = project.sources[source_name]
+            self.assertEqual(added.url, origin.url)
+            self.assertEqual(added.format, origin.format)
+            self.assertEqual(added.options, origin.options)
+
+    def test_cant_add_nonexisting_local_source(self):
+        project = Project()
+
+        with self.assertRaisesRegex(Exception, r'detached project'):
+            project.sources.add('source', { 'url': '_p_a_t_h_' })
+
+    def test_can_add_generated_source(self):
+        source_name = 'source'
+        origin = Source({
+            'format': 'fmt',
+            'options': { 'c': 5, 'd': 'hello' }
+        })
+        project = Project()
+
+        project.sources.add(source_name, origin)
+
+        added = project.sources[source_name]
+        self.assertEqual(added.format, origin.format)
+        self.assertEqual(added.options, origin.options)
+
+    def test_can_dump_added_source(self):
+        with TestDir() as test_dir:
+            project = Project()
+            project.sources.add('s', { 'format': 'fmt' })
+
             project.save(test_dir)
 
             loaded = Project.load(test_dir)
-            loaded = loaded.get_source(source_name)
-            self.assertEqual(origin, loaded)
-
-    def test_can_import_with_custom_importer(self):
-        class TestImporter:
-            def __call__(self, path, subset=None):
-                return Project({
-                    'project_filename': path,
-                    'subsets': [ subset ]
-                })
-
-        path = 'path'
-        importer_name = 'test_importer'
-
-        env = Environment()
-        env.importers.register(importer_name, TestImporter)
-
-        project = Project.import_from(path, importer_name, env,
-            subset='train')
-
-        self.assertEqual(path, project.config.project_filename)
-        self.assertListEqual(['train'], project.config.subsets)
+            self.assertEqual('fmt', loaded.sources['s'].format)
 
     def test_can_dump_added_model(self):
         model_name = 'model'
 
         project = Project()
         saved = Model({ 'launcher': 'name' })
-        project.add_model(model_name, saved)
+        project.models.add(model_name, saved)
 
         with TestDir() as test_dir:
             project.save(test_dir)
 
             loaded = Project.load(test_dir)
-            loaded = loaded.get_model(model_name)
+            loaded = loaded.models[model_name]
             self.assertEqual(saved, loaded)
-
-    def test_can_have_project_source(self):
-        with TestDir() as test_dir:
-            Project.generate(test_dir)
-
-            project2 = Project()
-            project2.add_source('project1', {
-                'url': test_dir,
-            })
-            dataset = project2.make_dataset()
-
-            self.assertTrue('project1' in dataset.sources)
 
     def test_can_batch_launch_custom_model(self):
         dataset = Dataset.from_iterable([
@@ -669,9 +646,63 @@ class AttachedProjectTest(TestCase):
                 self.assertEqual('world', f.readline().strip())
 
 
-        dataset = project.make_dataset()
+    def test_can_build_project(self):
+        with TestDir() as test_dir:
+            source_url = osp.join(test_dir, 'test_repo')
+            dataset = Dataset.from_iterable([
+                DatasetItem(1, annotations=[Label(0)]),
+            ], categories=['a', 'b'])
+            dataset.save(source_url)
 
-        compare_datasets(self, CustomExtractor(), dataset)
+            project = Project.generate(save_dir=test_dir)
+            project.sources.add('s1', {
+                'url': source_url,
+                'format': DEFAULT_FORMAT,
+            })
+
+            project.build()
+
+            built_dataset = Dataset.load(
+                osp.join(test_dir, project.config.build_dir))
+            compare_datasets(self, dataset, built_dataset)
+
+    def test_can_build_source(self):
+        with TestDir() as test_dir:
+            source_url = osp.join(test_dir, 'test_repo')
+            dataset = Dataset.from_iterable([
+                DatasetItem(1, annotations=[Label(0)]),
+            ], categories=['a', 'b'])
+            dataset.save(source_url)
+
+            project = Project.generate(save_dir=test_dir)
+            project.sources.add('s1', {
+                'url': source_url,
+                'format': DEFAULT_FORMAT,
+            })
+
+            project.build('s1')
+
+            built_dataset = Dataset.load(project.sources.source_dir('s1'))
+            compare_datasets(self, dataset, built_dataset)
+
+    def test_can_build_stage(self):
+        with TestDir() as test_dir:
+            source_url = osp.join(test_dir, 'test_repo')
+            dataset = Dataset.from_iterable([
+                DatasetItem(1, annotations=[Label(0)]),
+            ], categories=['a', 'b'])
+            dataset.save(source_url)
+
+            project = Project.generate(save_dir=test_dir)
+            project.sources.add('s1', {
+                'url': source_url,
+                'format': DEFAULT_FORMAT,
+            })
+
+            project.build('s1.root', out_dir=osp.join(test_dir, 'test_build'))
+
+            built_dataset = Dataset.load(osp.join(test_dir, 'test_build'))
+            compare_datasets(self, dataset, built_dataset)
 
     def test_can_commit_repo(self):
         with TestDir() as test_dir:
@@ -698,7 +729,15 @@ class AttachedProjectTest(TestCase):
             project = Project.load(test_dir)
             self.assertFalse('s1' in project.sources)
 
-        compare_datasets(self, DstExtractor(), dataset)
+    def test_can_tag_repo(self):
+        with TestDir() as test_dir:
+            project = Project.generate(save_dir=test_dir)
+
+            project.vcs.commit(None, message="First commit")
+            project.vcs.tag('r1')
+
+            self.assertEqual(['r1'], project.vcs.tags)
+
 
 
 class DatasetItemTest(TestCase):
