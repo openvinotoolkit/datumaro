@@ -58,8 +58,6 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
         help="Source dataset format")
     parser.add_argument('--no-check', action='store_true',
         help="Skip source correctness checking")
-    parser.add_argument('--no-pull', action='store_true',
-        help="Do not pull the source")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to operate on (default: current dir)")
     parser.add_argument('extra_args', nargs=argparse.REMAINDER,
@@ -96,11 +94,7 @@ def add_command(args):
     on_error.do(project.sources.remove, name, force=True, keep_data=False,
         ignore_errors=True)
 
-    if not args.no_pull:
-        log.info("Pulling the source...")
-        project.sources.pull(name)
-
-    if not (args.no_check or args.no_pull):
+    if not args.no_check:
         log.info("Checking the source...")
         project.sources.make_dataset(name)
 

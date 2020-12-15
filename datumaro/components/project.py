@@ -16,6 +16,7 @@ from enum import Enum
 from functools import partial
 from glob import glob
 from typing import List
+from ruamel.yaml import YAML
 
 from datumaro.components.config import Config
 from datumaro.components.config_model import (PROJECT_DEFAULT_CONFIG,
@@ -334,6 +335,32 @@ class ProjectSources(_RemotesProxy):
         except KeyError:
             raise KeyError("Unknown source '%s'" % name)
 
+    @classmethod
+    def _fix_dvc_file(cls, source_path, dvc_path, dst_name):
+        with open(dvc_path, 'r+') as dvc_file:
+            yaml = YAML(typ='safe')
+            dvc_data = yaml.load(dvc_file)
+            dvc_data['wdir'] = osp.join(
+                dvc_data['wdir'], osp.basename(source_path))
+            dvc_data['outs'][0]['path'] = dst_name
+
+            dvc_file.seek(0)
+            yaml.dump(dvc_data, dvc_file)
+            dvc_file.truncate()
+
+    def _ensure_in_dir(self, source_path, dvc_path, dst_name):
+        if not osp.isfile(source_path):
+            return
+        tmp_dir = osp.join(self._project.config.project_dir,
+            self._project.config.env_dir, 'tmp')
+        os.makedirs(tmp_dir, exist_ok=True)
+        source_tmp = osp.join(tmp_dir, osp.basename(source_path))
+        os.replace(source_path, source_tmp)
+        os.makedirs(source_path)
+        os.replace(source_tmp, osp.join(source_path, dst_name))
+
+        self._fix_dvc_file(source_path, dvc_path, dst_name)
+
     @error_rollback('on_error', implicit=True)
     def add(self, name, value):
         self.validate_name(name)
@@ -341,60 +368,61 @@ class ProjectSources(_RemotesProxy):
         if name in self:
             raise Exception("Source '%s' already exists" % name)
 
-        if self._project.vcs.writeable:
-            if value['url']:
-                url_parts = self._validate_url(value['url'])
+        url = value['url']
 
-            if not value['url']:
+        if self._project.vcs.writeable:
+            if url:
+                url_parts = self._validate_url(url)
+
+            if not url:
                 # a generated source
                 remote_name = ''
-                remote_conf = None
-                path = value['url']
+                path = url
             elif url_parts.scheme == 'remote':
                 # add a source with existing remote
                 remote_name = url_parts.netloc
                 remote_conf = self._project.vcs.remotes[remote_name]
-                path = osp.normpath(url_parts.path)
-                if path.startswith('/'):
-                    path = path[1:]
+                path = url_parts.path
+                url = remote_conf.url + path
             else:
-                # add a source as url
-                remote_name = ''
-                remote_conf = Remote({
-                    'url': value['url'],
+                # add a source and a new remote
+                remote_name = self._make_remote_name(name)
+                if remote_name not in self._project.vcs.remotes:
+                    on_error.do(self._project.vcs.remotes.remove, remote_name,
+                        ignore_errors=True)
+                remote_conf = self._project.vcs.remotes.add(remote_name, {
+                    'url': url,
                     'type': 'url',
                 })
                 path = ''
 
             source_dir = self.source_dir(name)
-            if not osp.isdir(source_dir):
-                on_error.do(shutil.rmtree, source_dir, ignore_errors=True)
-            os.makedirs(source_dir, exist_ok=True)
 
             aux_path = self.aux_path(name)
             if not osp.isfile(aux_path):
                 on_error.do(os.remove, aux_path, ignore_errors=True)
 
-            if remote_conf is None:
+            if not remote_name:
                 pass
             elif remote_conf.type == 'url':
-                self._project.vcs.dvc.import_url(remote_conf.url,
-                    out=source_dir, dvc_path=aux_path, download=False)
+                self._project.vcs.dvc.import_url(
+                    'remote://%s%s' % (remote_name, path),
+                    out=source_dir, dvc_path=aux_path, download=True)
+                self._ensure_in_dir(source_dir, aux_path, osp.basename(url))
             elif remote_conf.type == 'git':
-                self._project.vcs.dvc.import_(remote_conf.url, path=path,
-                    out=source_dir, dvc_path=aux_path)
+                self._project.vcs.dvc.import_repo(remote_conf.url, path=path,
+                    out=source_dir, dvc_path=aux_path, download=True)
+                self._ensure_in_dir(source_dir, aux_path, osp.basename(url))
             else:
                 raise Exception("Unknown remote type '%s'" % remote_conf.type)
 
-            # DVC truncates everything except basename from the file name
-            # and puts it into 'out' directory we created
             path = osp.basename(path)
         else:
-            if not value['url'] or osp.exists(value['url']):
+            if not url or osp.exists(url):
                 # a local or a generated source
                 # in a read-only or in-memory project
                 remote_name = ''
-                path = value['url']
+                path = url
             else:
                 raise Exception("Can't update a read-only project")
 
@@ -1090,7 +1118,8 @@ class DvcWrapper:
             args.extend(targets)
         self._exec(args)
 
-    def import_(self, url, path, out=None, dvc_path=None, rev=None):
+    def import_repo(self, url, path, out=None, dvc_path=None, rev=None,
+            download=True):
         args = ['import']
         if dvc_path:
             args.append('--file')
@@ -1102,6 +1131,8 @@ class DvcWrapper:
         if out:
             args.append('-o')
             args.append(out)
+        if not download:
+            args.append('--no-exec')
         args.append(url)
         args.append(path)
         self._exec(args)
