@@ -8,10 +8,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- `CamVid` dataset format (<https://github.com/openvinotoolkit/datumaro/pull/57>)
+-
 
 ### Changed
 -
+
+### Deprecated
+-
+
+### Removed
+-
+
+### Fixed
+-
+
+### Security
+-
+
+## 12/10/2020 - Release v0.1.4
+### Added
+- `CamVid` dataset format (<https://github.com/openvinotoolkit/datumaro/pull/57>)
+- Ability to install `opencv-python-headless` dependency with `DATUMARO_HEADLESS=1`
+  enviroment variable instead of `opencv-python` (<https://github.com/openvinotoolkit/datumaro/pull/62>)
+
+### Changed
+- Allow empty supercategory in COCO (<https://github.com/openvinotoolkit/datumaro/pull/54>)
+- Allow Pascal VOC to search in subdirectories (<https://github.com/openvinotoolkit/datumaro/pull/50>)
 
 ### Deprecated
 -
