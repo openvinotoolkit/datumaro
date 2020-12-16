@@ -386,3 +386,35 @@ class TransformsTest(TestCase):
             mapping={}, default='delete')
 
         compare_datasets(self, target_dataset, actual)
+
+    def test_transform_labels(self):
+        src_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[
+                Label(1),
+                Bbox(1, 2, 3, 4, label=2),
+                Bbox(1, 3, 3, 3),
+                Mask(image=np.array([1]), label=3),
+                Polygon([1, 1, 2, 2, 3, 4], label=4),
+                PolyLine([1, 3, 4, 2, 5, 6], label=5)
+            ])
+        ], categories={
+            AnnotationType.label: LabelCategories.from_iterable(
+                'label%s' % i for i in range(6)),
+        })
+
+        dst_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[
+                Label(1),
+                Label(2),
+                Label(3),
+                Label(4),
+                Label(5)
+            ]),
+        ], categories={
+            AnnotationType.label: LabelCategories.from_iterable(
+                'label%s' % i for i in range(6)),
+        })
+
+        actual = transforms.TransformLabels(src_dataset)
+
+        compare_datasets(self, dst_dataset, actual)

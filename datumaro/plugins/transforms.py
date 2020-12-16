@@ -12,7 +12,7 @@ import re
 import pycocotools.mask as mask_utils
 
 from datumaro.components.extractor import (Transform, AnnotationType,
-    RleMask, Polygon, Bbox, DEFAULT_SUBSET_NAME,
+    RleMask, Polygon, Bbox, Label, DEFAULT_SUBSET_NAME,
     LabelCategories, MaskCategories, PointsCategories
 )
 from datumaro.components.cli_plugin import CliPlugin
@@ -541,4 +541,19 @@ class RemapLabels(Transform, CliPlugin):
                     annotations.append(ann.wrap(label=conv_label))
             else:
                 annotations.append(ann.wrap())
+        return item.wrap(annotations=annotations)
+
+class TransformLabels(Transform, CliPlugin):
+    """
+    Collects all labels from annotations (of all types) and
+    transforms them into a set of annotations of type Label
+    """
+
+    def transform_item(self, item):
+        labels = set(p.label for p in item.annotations
+            if p.label is not None)
+        annotations = []
+        for label in labels:
+            annotations.append(Label(label=label))
+
         return item.wrap(annotations=annotations)
