@@ -543,7 +543,7 @@ class RemapLabels(Transform, CliPlugin):
                 annotations.append(ann.wrap())
         return item.wrap(annotations=annotations)
 
-class TransformLabels(Transform, CliPlugin):
+class AnnsToLabels(Transform, CliPlugin):
     """
     Collects all labels from annotations (of all types) and
     transforms them into a set of annotations of type Label
@@ -551,7 +551,7 @@ class TransformLabels(Transform, CliPlugin):
 
     def transform_item(self, item):
         labels = set(p.label for p in item.annotations
-            if p.label is not None)
+            if getattr(p, 'label') != None)
         annotations = []
         for label in labels:
             annotations.append(Label(label=label))

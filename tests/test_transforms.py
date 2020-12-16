@@ -399,7 +399,8 @@ class TransformsTest(TestCase):
             ])
         ], categories={
             AnnotationType.label: LabelCategories.from_iterable(
-                'label%s' % i for i in range(6)),
+                ['label0', 'label1', 'label2',
+                'label3', 'label4', 'label5']),
         })
 
         dst_dataset = Dataset.from_iterable([
@@ -412,9 +413,10 @@ class TransformsTest(TestCase):
             ]),
         ], categories={
             AnnotationType.label: LabelCategories.from_iterable(
-                'label%s' % i for i in range(6)),
+                ['label0', 'label1', 'label2',
+                'label3', 'label4', 'label5']),
         })
 
-        actual = transforms.TransformLabels(src_dataset)
+        actual = transforms.AnnsToLabels(src_dataset)
 
         compare_datasets(self, dst_dataset, actual)
