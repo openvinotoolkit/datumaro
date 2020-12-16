@@ -5,13 +5,13 @@ import shutil
 
 from unittest import TestCase, skipIf, skip
 
-from datumaro.components.project import Project, Environment
+from datumaro.components.project import Project, Environment, BuildStageType
 from datumaro.components.dataset import Dataset, DEFAULT_FORMAT
 from datumaro.components.config import Config
 from datumaro.components.config_model import Source, Model
 from datumaro.components.launcher import Launcher, ModelTransform
 from datumaro.components.extractor import (Extractor, DatasetItem,
-    Label, LabelCategories, AnnotationType
+    Label, LabelCategories, AnnotationType, Transform
 )
 from datumaro.util.test_utils import TestDir, compare_datasets
 
@@ -645,7 +645,6 @@ class AttachedProjectTest(TestCase):
             with open(local_source_path) as f:
                 self.assertEqual('world', f.readline().strip())
 
-
     def test_can_build_project(self):
         with TestDir() as test_dir:
             source_url = osp.join(test_dir, 'test_repo')
@@ -685,11 +684,12 @@ class AttachedProjectTest(TestCase):
             built_dataset = Dataset.load(project.sources.source_dir('s1'))
             compare_datasets(self, dataset, built_dataset)
 
-    def test_can_build_stage(self):
+    def test_can_add_stage_directly(self):
         with TestDir() as test_dir:
             source_url = osp.join(test_dir, 'test_repo')
             dataset = Dataset.from_iterable([
                 DatasetItem(1, annotations=[Label(0)]),
+                DatasetItem(2, annotations=[Label(1)]),
             ], categories=['a', 'b'])
             dataset.save(source_url)
 
@@ -699,10 +699,115 @@ class AttachedProjectTest(TestCase):
                 'format': DEFAULT_FORMAT,
             })
 
-            project.build('s1.root', out_dir=osp.join(test_dir, 'test_build'))
+            project.build_targets.add_stage('s1', {
+                'type': BuildStageType.filter.name,
+                'params': {'expr': '/item/annotation[label="b"]'},
+            }, name='f1')
+            project.save()
+
+            self.assertTrue('s1.f1' in project.build_targets)
+
+    def test_can_add_filter_stage(self):
+        with TestDir() as test_dir:
+            source_url = osp.join(test_dir, 'test_repo')
+            dataset = Dataset.from_iterable([
+                DatasetItem(1, annotations=[Label(0)]),
+                DatasetItem(2, annotations=[Label(1)]),
+            ], categories=['a', 'b'])
+            dataset.save(source_url)
+
+            project = Project.generate(save_dir=test_dir)
+            project.sources.add('s1', {
+                'url': source_url,
+                'format': DEFAULT_FORMAT,
+            })
+
+            stage = project.build_targets.add_filter_stage('s1',
+                params={'expr': '/item/annotation[label="b"]'}
+            )
+            project.save()
+
+            self.assertTrue('s1.' + stage['name'] in project.build_targets)
+
+    def test_can_add_convert_stage(self):
+        with TestDir() as test_dir:
+            source_url = osp.join(test_dir, 'test_repo')
+            dataset = Dataset.from_iterable([
+                DatasetItem(1, annotations=[Label(0)]),
+                DatasetItem(2, annotations=[Label(1)]),
+            ], categories=['a', 'b'])
+            dataset.save(source_url)
+
+            project = Project.generate(save_dir=test_dir)
+            project.sources.add('s1', {
+                'url': source_url,
+                'format': DEFAULT_FORMAT,
+            })
+
+            stage = project.build_targets.add_convert_stage('s1',
+                DEFAULT_FORMAT)
+            project.save()
+
+            self.assertTrue('s1.' + stage['name'] in project.build_targets)
+
+    def test_can_add_transform_stage(self):
+        class TestTransform(Transform):
+            def __init__(self, extractor, p1=None, p2=None):
+                super().__init__(extractor)
+                self.p1 = p1
+                self.p2 = p2
+
+            def transform_item(self, item):
+                return item
+
+        with TestDir() as test_dir:
+            source_url = osp.join(test_dir, 'test_repo')
+            dataset = Dataset.from_iterable([
+                DatasetItem(1, annotations=[Label(0)]),
+                DatasetItem(2, annotations=[Label(1)]),
+            ], categories=['a', 'b'])
+            dataset.save(source_url)
+
+            project = Project.generate(save_dir=test_dir)
+            project.sources.add('s1', {
+                'url': source_url,
+                'format': DEFAULT_FORMAT,
+            })
+            project.env.transforms.register('tr', TestTransform)
+
+            stage = project.build_targets.add_transform_stage('s1',
+                'tr', params={'p1': 5, 'p2': ['1', 2, 3.5]}
+            )
+            project.save()
+
+            self.assertTrue('s1.' + stage['name'] in project.build_targets)
+
+    def test_can_build_stage(self):
+        with TestDir() as test_dir:
+            source_url = osp.join(test_dir, 'test_repo')
+            dataset = Dataset.from_iterable([
+                DatasetItem(1, annotations=[Label(0)]),
+                DatasetItem(2, annotations=[Label(1)]),
+            ], categories=['a', 'b'])
+            dataset.save(source_url)
+
+            project = Project.generate(save_dir=test_dir)
+            project.sources.add('s1', {
+                'url': source_url,
+                'format': DEFAULT_FORMAT,
+            })
+            project.build_targets.add_stage('s1', {
+                'type': BuildStageType.filter.name,
+                'params': {'expr': '/item/annotation[label="b"]'},
+            }, name='f1')
+
+            project.build('s1.f1', out_dir=osp.join(test_dir, 'test_build'))
 
             built_dataset = Dataset.load(osp.join(test_dir, 'test_build'))
-            compare_datasets(self, dataset, built_dataset)
+            expected_dataset = Dataset.from_iterable([
+                DatasetItem(2, annotations=[Label(1)]),
+            ], categories=['a', 'b'])
+            compare_datasets(self, expected_dataset, built_dataset)
 
     def test_can_commit_repo(self):
         with TestDir() as test_dir:

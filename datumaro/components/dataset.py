@@ -211,7 +211,7 @@ class Dataset(Extractor):
         if isinstance(method, str):
             method = self.env.make_transform(method)
 
-        return super().transform(method, **kwargs)
+        return super().transform(method, *args, **kwargs)
 
     def run_model(self, model, batch_size=1):
         from datumaro.components.launcher import Launcher, ModelTransform

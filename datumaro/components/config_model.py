@@ -73,7 +73,11 @@ class BuildTarget(Config):
         return self.stages[-1]
 
     def find_stage(self, stage):
-        return find(self.stages, lambda x: x.name == stage)
+        if stage == 'root':
+            return self.root
+        elif stage == 'head':
+            return self.head
+        return find(self.stages, lambda x: x.name == stage or x == stage)
 
     def get_stage(self, stage):
         res = self.find_stage(stage)

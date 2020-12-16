@@ -20,7 +20,7 @@ from ruamel.yaml import YAML
 
 from datumaro.components.config import Config
 from datumaro.components.config_model import (PROJECT_DEFAULT_CONFIG,
-    PROJECT_SCHEMA, BuildStage, Source, Remote)
+    PROJECT_SCHEMA, BuildStage, Remote)
 from datumaro.components.environment import Environment
 from datumaro.components.dataset import Dataset, DEFAULT_FORMAT
 from datumaro.components.launcher import ModelTransform
@@ -493,6 +493,13 @@ class ProjectBuildTargets(CrudProxy):
             }
         return data
 
+    def __contains__(self, key):
+        if '.' in key:
+            target, stage = self._split_target_name(key)
+            return target in self._data and \
+                self._data[target].find_stage(stage) is not None
+        return key in self._data
+
     def add_target(self, name):
         return self._data.set(name, {
             'stages': [
@@ -517,10 +524,16 @@ class ProjectBuildTargets(CrudProxy):
 
         name = value.get('name') or name
         if not name:
-            value['name'] = generate_next_name((s.name for s in target.stages),
+            name = generate_next_name((s.name for s in target.stages),
                 value['type'], sep='-')
+        else:
+            if target.find_stage(name):
+                raise Exception("Stage '%s' already exists" % name)
+        value['name'] = name
 
-        target.stages.insert(prev_stage + 1, BuildStage(value))
+        value = BuildStage(value)
+        assert BuildStageType[value.type]
+        target.stages.insert(prev_stage + 1, value)
         return value
 
     def remove_target(self, name):
@@ -535,6 +548,44 @@ class ProjectBuildTargets(CrudProxy):
         if idx is None:
             raise KeyError("Can't find stage '%s'" % name)
         target.stages.remove(idx)
+
+    def add_transform_stage(self, target, transform, params=None, name=None):
+        stage = None
+        if '.' in target:
+            target, stage = self._split_target_name(target)
+
+        if not transform in self._project.env.transforms:
+            raise KeyError("Unknown transform '%s'" % transform)
+
+        return self.add_stage(target, {
+            'type': BuildStageType.transform.name,
+            'kind': transform,
+            'params': params or {},
+        }, prev=stage, name=name)
+
+    def add_filter_stage(self, target, params=None, name=None):
+        stage = None
+        if '.' in target:
+            target, stage = self._split_target_name(target)
+
+        return self.add_stage(target, {
+            'type': BuildStageType.filter.name,
+            'params': params or {},
+        }, prev=stage, name=name)
+
+    def add_convert_stage(self, target, format, params=None, name=None): # pylint: disable=redefined-builtin
+        stage = None
+        if '.' in target:
+            target, stage = self._split_target_name(target)
+
+        if not self._project.env.is_format_known(format):
+            raise KeyError("Unknown format '%s'" % format)
+
+        return self.add_stage(target, {
+            'type': BuildStageType.convert.name,
+            'kind': format,
+            'params': params or {},
+        }, prev=stage, name=name)
 
     MAIN_TARGET = 'project'
     BASE_STAGE = 'root'
@@ -568,6 +619,12 @@ class ProjectBuildTargets(CrudProxy):
     def _split_target_name(cls, name):
         if '.' in name:
             target, stage = name.split('.', maxsplit=1)
+            if not target:
+                raise ValueError("Wrong target name '%s' - target name can't "
+                    "be empty" % name)
+            if not stage:
+                raise ValueError("Wrong target name '%s' - expected "
+                    "stage name after the separator" % name)
         else:
             target = name
             stage = cls.BASE_STAGE
@@ -798,15 +855,12 @@ class ProjectBuildTargets(CrudProxy):
 
         if '.' in target:
             raw_target, target_stage = self._split_target_name(target)
-            if not target_stage:
-                raise Exception("Wrong target name '%s' - expected "
-                    "stage name after the separator" % target)
         else:
             raw_target = target
             target_stage = None
 
         if raw_target not in self:
-            raise Exception("Unknown target '%s'" % raw_target)
+            raise KeyError("Unknown target '%s'" % raw_target)
 
         if target_stage and target_stage != self[raw_target].head.name:
             # build is not inplace, need to generate or ask output dir
@@ -1486,8 +1540,7 @@ class Project:
                     " data matches more than one format: %s" % \
                     ', '.join(matches))
             dataset_format = matches[0]
-        if dataset_format not in env.importers and \
-           dataset_format not in env.extractors:
+        elif not env.is_format_known(dataset_format):
             raise KeyError("Unknown dataset format '%s'" % dataset_format)
 
         project = Project(env=env)

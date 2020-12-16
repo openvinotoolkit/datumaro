@@ -157,7 +157,7 @@ class Config:
                 if my_v != other_v:
                     return False
             return True
-        except KeyError:
+        except (KeyError, AttributeError):
             return False
 
     def __repr__(self):

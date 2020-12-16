@@ -65,8 +65,8 @@ class Environment:
     PROJECT_EXTRACTOR_NAME = 'datumaro_project'
 
     def __init__(self, config=None):
-        from datumaro.components.project import \
-            PROJECT_DEFAULT_CONFIG, PROJECT_SCHEMA, load_project_as_dataset
+        from datumaro.components.project import (
+            PROJECT_DEFAULT_CONFIG, PROJECT_SCHEMA, load_project_as_dataset)
         config = Config(config,
             fallback=PROJECT_DEFAULT_CONFIG, schema=PROJECT_SCHEMA)
 
@@ -212,6 +212,9 @@ class Environment:
 
     def make_transform(self, name, *args, **kwargs):
         return partial(self.transforms.get(name), *args, **kwargs)
+
+    def is_format_known(self, name):
+        return name in self.importers or name in self.extractors
 
     def detect_dataset(self, path):
         matches = []
