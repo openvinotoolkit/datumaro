@@ -233,17 +233,18 @@ class Dataset(Extractor):
         self.export(DEFAULT_FORMAT, save_dir=save_dir, **kwargs)
 
     @classmethod
-    def load(cls, path, **kwargs): #pylint: disable=redefined-builtin
+    def load(cls, path, **kwargs):
         return cls.import_from(path, format=DEFAULT_FORMAT, **kwargs)
 
-    @staticmethod
-    def import_from(path, format=None, env=None, **kwargs): #pylint: disable=redefined-builtin
+    @classmethod
+    def import_from(cls, path, format=None, env=None, **kwargs): #pylint: disable=redefined-builtin
         from datumaro.components.config_model import Source
 
         env = env or Environment()
 
         # TODO: remove importers, put this logic into extractors
-        format = format or DEFAULT_FORMAT
+        if not format:
+            format = cls.detect(path, env)
         if format in env.importers:
             importer = env.make_importer(format)
             with logging_disabled(log.INFO):
@@ -260,9 +261,24 @@ class Dataset(Extractor):
 
         extractors = []
         for src_conf in detected_sources:
-            src_conf = Source(src_conf)
+            if not isinstance(src_conf, Source):
+                src_conf = Source(src_conf)
             extractors.append(env.make_extractor(
                 src_conf.format, src_conf.url, **src_conf.options
             ))
 
         return Dataset.from_extractors(*extractors)
+
+    @staticmethod
+    def detect(path, env=None):
+        env = env or Environment()
+
+        matches = env.detect_dataset(path)
+        if not matches:
+            raise Exception("Failed to detect dataset format automatically: "
+                "no matching formats found")
+        if 1 < len(matches):
+            raise Exception("Failed to detect dataset format automatically:"
+                " data matches more than one format: %s" % \
+                ', '.join(matches))
+        return matches[0]
