@@ -397,11 +397,7 @@ class TransformsTest(TestCase):
                 Polygon([1, 1, 2, 2, 3, 4], label=4),
                 PolyLine([1, 3, 4, 2, 5, 6], label=5)
             ])
-        ], categories={
-            AnnotationType.label: LabelCategories.from_iterable(
-                ['label0', 'label1', 'label2',
-                'label3', 'label4', 'label5']),
-        })
+        ], categories=['label%s' % i for i in range(6)])
 
         dst_dataset = Dataset.from_iterable([
             DatasetItem(id=1, annotations=[
@@ -411,11 +407,7 @@ class TransformsTest(TestCase):
                 Label(4),
                 Label(5)
             ]),
-        ], categories={
-            AnnotationType.label: LabelCategories.from_iterable(
-                ['label0', 'label1', 'label2',
-                'label3', 'label4', 'label5']),
-        })
+        ], categories=['label%s' % i for i in range(6)])
 
         actual = transforms.AnnsToLabels(src_dataset)
 
