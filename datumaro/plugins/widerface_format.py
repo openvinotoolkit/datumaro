@@ -59,7 +59,8 @@ class WiderFaceExtractor(SourceExtractor):
                     if len(bbox_list) == 10:
                         i = 4
                         for attr in WiderFacePath.BBOX_ATTRIBUTES:
-                            attributes[attr] = int(bbox_list[i])
+                            if bbox_list[i] != '-':
+                                attributes[attr] = int(bbox_list[i])
                             i += 1
                     annotations.append(Bbox(
                         int(bbox_list[0]), int(bbox_list[1]),
@@ -103,11 +104,16 @@ class WiderFaceConverter(Converter):
                     wider_bb = ' '.join('%d' % p for p in bbox.get_bbox())
                     wider_annotation += '%s ' % wider_bb
                     if bbox.attributes:
+                        wider_attr = ''
+                        attr_counter = 0
                         for attr in WiderFacePath.BBOX_ATTRIBUTES:
-                            if bbox.attributes[attr]:
-                                wider_annotation += '%s ' % bbox.attributes[attr]
+                            if attr in bbox.attributes:
+                                wider_attr += '%s ' % bbox.attributes[attr]
+                                attr_counter += 1
                             else:
-                                wider_annotation += '0 '
+                                wider_attr += '- '
+                        if attr_counter > 0:
+                            wider_annotation += wider_attr
                     wider_annotation  += '\n'
             annotation_path = osp.join(save_dir, WiderFacePath.ANNOTATIONS_DIR,
                 'wider_face_' + subset_name + '_bbx_gt.txt')

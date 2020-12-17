@@ -73,6 +73,37 @@ class WiderFaceFormatTest(TestCase):
 
             compare_datasets(self, source_dataset, parsed_dataset)
 
+    def test_can_save_dataset_with_non_widerface_attributes(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id='a/b/1', image=np.ones((8, 8, 3)),
+                annotations=[
+                    Bbox(0, 2, 4, 2),
+                    Bbox(0, 1, 2, 3, attributes = {
+                        'non-widerface attribute': 0,
+                        'blur': 1, 'invalid': 1}),
+                    Bbox(1, 1, 2, 2, attributes = {
+                        'non-widerface attribute': 0}),
+                ]
+            ),
+        ])
+
+        target_dataset = Dataset.from_iterable([
+            DatasetItem(id='a/b/1', image=np.ones((8, 8, 3)),
+                annotations=[
+                    Bbox(0, 2, 4, 2),
+                    Bbox(0, 1, 2, 3, attributes = {
+                        'blur': 1, 'invalid': 1}),
+                    Bbox(1, 1, 2, 2),
+                ]
+            ),
+        ])
+
+        with TestDir() as test_dir:
+            WiderFaceConverter.convert(source_dataset, test_dir, save_images=True)
+            parsed_dataset = WiderFaceImporter()(test_dir).make_dataset()
+
+            compare_datasets(self, target_dataset, parsed_dataset)
+
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'widerface_dataset')
 
 class WiderFaceImporterTest(TestCase):
