@@ -106,7 +106,7 @@ class YoloExtractor(SourceExtractor):
 
     @staticmethod
     def localize_path(path):
-        path = path.strip()
+        path = osp.normpath(path).strip()
         default_base = osp.join('data', '')
         if path.startswith(default_base): # default path
             path = path[len(default_base) : ]
