@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - `WiderFace` dataset format (<https://github.com/openvinotoolkit/datumaro/pull/65>)
+- Function to transform annotations to labels (<https://github.com/openvinotoolkit/datumaro/pull/66>)
 
 ### Changed
 -
