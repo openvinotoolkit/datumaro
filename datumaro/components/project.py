@@ -306,12 +306,15 @@ class ProjectModels(_RemotesProxy):
             raise KeyError("Unknown model '%s'" % name)
 
     def model_dir(self, name):
-        return osp.join(self.config.env_dir, self.config.models_dir, name)
+        return osp.join(
+            self._project.config.project_dir,
+            self._project.config.env_dir,
+            self._project.config.models_dir, name)
 
     def make_executable_model(self, name):
-        model = self.get_model(name)
-        return self.env.make_launcher(model.launcher,
-            **model.options, model_dir=self.local_model_dir(name))
+        model = self[name]
+        return self._project.env.make_launcher(model.launcher,
+            **model.options, model_dir=self.model_dir(name))
 
 class ProjectSources(_RemotesProxy):
     def __init__(self, project):
@@ -473,7 +476,7 @@ class ProjectSources(_RemotesProxy):
 
 
 BuildStageType = Enum('BuildStageType',
-    ['source', 'project', 'transform', 'filter', 'convert'])
+    ['source', 'project', 'transform', 'filter', 'convert', 'inference'])
 
 class ProjectBuildTargets(CrudProxy):
     def __init__(self, project):
@@ -561,6 +564,19 @@ class ProjectBuildTargets(CrudProxy):
             'type': BuildStageType.transform.name,
             'kind': transform,
             'params': params or {},
+        }, prev=stage, name=name)
+
+    def add_inference_stage(self, target, model, name=None):
+        stage = None
+        if '.' in target:
+            target, stage = self._split_target_name(target)
+
+        if not model in self._project.config.models:
+            raise KeyError("Unknown model '%s'" % model)
+
+        return self.add_stage(target, {
+            'type': BuildStageType.inference.name,
+            'kind': model,
         }, prev=stage, name=name)
 
     def add_filter_stage(self, target, params=None, name=None):
@@ -698,6 +714,13 @@ class ProjectBuildTargets(CrudProxy):
         return graph
 
     def apply_pipeline(self, pipeline):
+        def _join_parent_datasets():
+            if 1 < len(parent_datasets):
+                dataset = Dataset.from_extractors(*parent_datasets)
+            else:
+                dataset = parent_datasets[0]
+            return dataset
+
         if len(pipeline) == 0:
             raise Exception("Can't run empty pipeline")
 
@@ -737,48 +760,50 @@ class ProjectBuildTargets(CrudProxy):
 
             type_ = BuildStageType[current['config'].type]
             params = current['config'].params
-            if type_ in {BuildStageType.transform, BuildStageType.filter}:
-                if type_ == BuildStageType.transform:
-                    kind = current['config'].kind
-                    try:
-                        transform = self._project.env.transforms[kind]
-                    except KeyError:
-                        raise CliException("Unknown transform '%s'" % kind)
+            if type_ == BuildStageType.transform:
+                kind = current['config'].kind
+                try:
+                    transform = self._project.env.transforms[kind]
+                except KeyError:
+                    raise KeyError("Unknown transform '%s'" % kind)
 
-                    # fused, unless required multiple times
-                    dataset = transform(*parent_datasets, **params)
-                elif type_ == BuildStageType.filter:
-                    if 1 < len(parent_datasets):
-                        dataset = Dataset.from_extractors(*parent_datasets)
-                    else:
-                        dataset = parent_datasets[0]
-                    dataset = dataset.filter(**params)
+                dataset = _join_parent_datasets()
+                dataset = dataset.transform(transform, **params)
 
-                if 1 < graph.out_degree(current_name):
-                    # if multiple consumers, avoid reapplying the whole stack
-                    # for each one
-                    dataset = Dataset.from_extractors(*parent_datasets)
+            elif type_ == BuildStageType.filter:
+                dataset = _join_parent_datasets()
+                dataset = dataset.filter(**params)
+
+            elif type_ == BuildStageType.inference:
+                kind = current['config'].kind
+                model = self._project.models.make_executable_model(kind)
+
+                dataset = _join_parent_datasets()
+                dataset = dataset.run_model(model)
 
             elif type_ == BuildStageType.source:
+                assert len(parent_datasets) == 0, current_name
                 source, _ = self._split_target_name(current_name)
                 dataset = self._project.sources.make_dataset(source)
 
             elif type_ == BuildStageType.project:
-                if 1 < len(parent_datasets):
-                    dataset = Dataset.from_extractors(*parent_datasets)
-                else:
-                    dataset = parent_datasets[0]
+                dataset = _join_parent_datasets()
 
             elif type_ == BuildStageType.convert:
-                if 1 < len(parent_datasets):
-                    dataset = Dataset.from_extractors(*parent_datasets)
-                else:
-                    dataset = parent_datasets[0]
+                dataset = _join_parent_datasets()
 
             else:
                 raise NotImplementedError("Unknown stage type '%s'" % type_)
 
+            if 1 < graph.out_degree(current_name) and \
+                    not isinstance(dataset, Dataset):
+                # If we have multiple consumers,
+                # avoid reapplying the whole stack for each one.
+                # Otherwise, fuse operations in the graph
+                dataset = Dataset.from_extractors(dataset)
+
             if head == current_name and not isinstance(dataset, Dataset):
+                # ensure have Dataset in the head node
                 dataset = Dataset.from_extractors(dataset)
             current['dataset'] = dataset
 
@@ -798,7 +823,7 @@ class ProjectBuildTargets(CrudProxy):
 
     def make_dataset(self, target):
         if len(self._data) == 1 and self.MAIN_TARGET in self._data:
-            raise Exception("Can't create a dataset from an empty project.")
+            raise Exception("Can't create dataset from an empty project.")
 
         target = self._normalize_target(target)
 

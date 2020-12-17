@@ -45,15 +45,15 @@ class BaseProjectTest(TestCase):
         # - In-memory and detached projects
 
         with TestDir() as test_dir:
-        source_name = 'source'
-        origin = Source({
-                'url': test_dir,
-                'format': 'fmt',
-                'options': {
-                    'a': 5, 'b': 'hello'
-                }
-        })
-        project = Project()
+            source_name = 'source'
+            origin = Source({
+                    'url': test_dir,
+                    'format': 'fmt',
+                    'options': {
+                        'a': 5, 'b': 'hello'
+                    }
+            })
+            project = Project()
 
             project.sources.add(source_name, origin)
 
@@ -106,46 +106,14 @@ class BaseProjectTest(TestCase):
             loaded = loaded.models[model_name]
             self.assertEqual(saved, loaded)
 
-    def test_can_batch_launch_custom_model(self):
-        dataset = Dataset.from_iterable([
-            DatasetItem(id=i, subset='train', image=np.array([i]))
-            for i in range(5)
-        ], categories=['label'])
-
-        class TestLauncher(Launcher):
-            def launch(self, inputs):
-                for i, inp in enumerate(inputs):
-                    yield [ Label(0, attributes={'idx': i, 'data': inp.item()}) ]
-
-        model_name = 'model'
-        launcher_name = 'custom_launcher'
-
-        project = Project()
-        project.env.launchers.register(launcher_name, TestLauncher)
-        project.add_model(model_name, { 'launcher': launcher_name })
-        model = project.make_executable_model(model_name)
-
-        batch_size = 3
-        executor = ModelTransform(dataset, model, batch_size=batch_size)
-
-        for item in executor:
-            self.assertEqual(1, len(item.annotations))
-            self.assertEqual(int(item.id) % batch_size,
-                item.annotations[0].attributes['idx'])
-            self.assertEqual(int(item.id),
-                item.annotations[0].attributes['data'])
-
-    def test_can_do_transform_with_custom_model(self):
-        class TestExtractorSrc(Extractor):
+    def test_can_transform_source_with_model(self):
+        class TestExtractor(Extractor):
             def __iter__(self):
-                for i in range(2):
-                    yield DatasetItem(id=i, image=np.ones([2, 2, 3]) * i,
-                        annotations=[Label(i)])
+                yield DatasetItem(0, image=np.ones([2, 2, 3]) * 0)
+                yield DatasetItem(1, image=np.ones([2, 2, 3]) * 1)
 
             def categories(self):
-                label_cat = LabelCategories()
-                label_cat.add('0')
-                label_cat.add('1')
+                label_cat = LabelCategories().from_iterable(['0', '1'])
                 return { AnnotationType.label: label_cat }
 
         class TestLauncher(Launcher):
@@ -153,17 +121,10 @@ class BaseProjectTest(TestCase):
                 for inp in inputs:
                     yield [ Label(inp[0, 0, 0]) ]
 
-        class TestExtractorDst(Extractor):
-            def __init__(self, url):
-                super().__init__()
-                self.items = [osp.join(url, p) for p in sorted(os.listdir(url))]
-
-            def __iter__(self):
-                for path in self.items:
-                    with open(path, 'r') as f:
-                        index = osp.splitext(osp.basename(path))[0]
-                        label = int(f.readline().strip())
-                        yield DatasetItem(id=index, annotations=[Label(label)])
+        expected = Dataset.from_iterable([
+            DatasetItem(0, image=np.ones([2, 2, 3]) * 0, annotations=[Label(0)]),
+            DatasetItem(1, image=np.ones([2, 2, 3]) * 1, annotations=[Label(1)])
+        ], categories=['0', '1'])
 
         model_name = 'model'
         launcher_name = 'custom_launcher'
@@ -171,171 +132,31 @@ class BaseProjectTest(TestCase):
 
         project = Project()
         project.env.launchers.register(launcher_name, TestLauncher)
-        project.env.extractors.register(extractor_name, TestExtractorSrc)
-        project.add_model(model_name, { 'launcher': launcher_name })
-        project.add_source('source', { 'format': extractor_name })
+        project.env.extractors.register(extractor_name, TestExtractor)
+        project.models.add(model_name, { 'launcher': launcher_name })
+        project.sources.add('source', { 'format': extractor_name })
+        project.build_targets.add_inference_stage('source', model_name)
 
-        with TestDir() as test_dir:
-            project.make_dataset().apply_model(model=model_name,
-                save_dir=test_dir)
+        result = project.make_dataset()
 
-            result = Project.load(test_dir)
-            result.env.extractors.register(extractor_name, TestExtractorDst)
-            it = iter(result.make_dataset())
-            item1 = next(it)
-            item2 = next(it)
-            self.assertEqual(0, item1.annotations[0].label)
-            self.assertEqual(1, item2.annotations[0].label)
+        compare_datasets(self, expected, result)
 
-    def test_source_datasets_can_be_merged(self):
-        class TestExtractor(Extractor):
-            def __init__(self, url, n=0, s=0):
-                super().__init__(length=n)
-                self.n = n
-                self.s = s
-
-            def __iter__(self):
-                for i in range(self.n):
-                    yield DatasetItem(id=self.s + i, subset='train')
-
-        e_name1 = 'e1'
-        e_name2 = 'e2'
-        n1 = 2
-        n2 = 4
-
-        project = Project()
-        project.env.extractors.register(e_name1, lambda p: TestExtractor(p, n=n1))
-        project.env.extractors.register(e_name2, lambda p: TestExtractor(p, n=n2, s=n1))
-        project.add_source('source1', { 'format': e_name1 })
-        project.add_source('source2', { 'format': e_name2 })
-
-        dataset = project.make_dataset()
-
-        self.assertEqual(n1 + n2, len(dataset))
-
-    def test_cant_merge_different_categories(self):
-        class TestExtractor1(Extractor):
-            def __iter__(self):
-                return iter([])
-
-            def categories(self):
-                return { AnnotationType.label:
-                    LabelCategories.from_iterable(['a', 'b']) }
-
-        class TestExtractor2(Extractor):
-            def __iter__(self):
-                return iter([])
-
-            def categories(self):
-                return { AnnotationType.label:
-                    LabelCategories.from_iterable(['b', 'a']) }
-
-        e_name1 = 'e1'
-        e_name2 = 'e2'
-
-        project = Project()
-        project.env.extractors.register(e_name1, TestExtractor1)
-        project.env.extractors.register(e_name2, TestExtractor2)
-        project.add_source('source1', { 'format': e_name1 })
-        project.add_source('source2', { 'format': e_name2 })
-
-        with self.assertRaisesRegex(Exception, "different categories"):
-            project.make_dataset()
-
-    def test_project_filter_can_be_applied(self):
+    def test_can_filter_source(self):
         class TestExtractor(Extractor):
             def __iter__(self):
                 for i in range(10):
                     yield DatasetItem(id=i, subset='train')
 
-        e_type = 'type'
         project = Project()
-        project.env.extractors.register(e_type, TestExtractor)
-        project.add_source('source', { 'format': e_type })
+        project.env.extractors.register('f', TestExtractor)
+        project.sources.add('source', { 'format': 'f' })
+        project.build_targets.add_filter_stage('source', params={
+            'expr': '/item[id < 5]'
+        })
 
-        dataset = project.make_dataset().filter('/item[id < 5]')
-
-        self.assertEqual(5, len(dataset))
-
-    def test_can_save_and_load_own_dataset(self):
-        with TestDir() as test_dir:
-            src_project = Project()
-            src_dataset = src_project.make_dataset()
-            item = DatasetItem(id=1)
-            src_dataset.put(item)
-            src_dataset.save(test_dir)
-
-            loaded_project = Project.load(test_dir)
-            loaded_dataset = loaded_project.make_dataset()
-
-            self.assertEqual(list(src_dataset), list(loaded_dataset))
-
-    def test_project_own_dataset_can_be_modified(self):
-        project = Project()
         dataset = project.make_dataset()
 
-        item = DatasetItem(id=1)
-        dataset.put(item)
-
-        self.assertEqual(item, next(iter(dataset)))
-
-    def test_project_compound_child_can_be_modified_recursively(self):
-        with TestDir() as test_dir:
-            child1 = Project({
-                'project_dir': osp.join(test_dir, 'child1'),
-            })
-            child1.save()
-
-            child2 = Project({
-                'project_dir': osp.join(test_dir, 'child2'),
-            })
-            child2.save()
-
-            parent = Project()
-            parent.add_source('child1', {
-                'url': child1.config.project_dir
-            })
-            parent.add_source('child2', {
-                'url': child2.config.project_dir
-            })
-            dataset = parent.make_dataset()
-
-            item1 = DatasetItem(id='ch1', path=['child1'])
-            item2 = DatasetItem(id='ch2', path=['child2'])
-            dataset.put(item1)
-            dataset.put(item2)
-
-            self.assertEqual(2, len(dataset))
-            self.assertEqual(1, len(dataset.sources['child1']))
-            self.assertEqual(1, len(dataset.sources['child2']))
-
-    def test_project_can_merge_item_annotations(self):
-        class TestExtractor1(Extractor):
-            def __iter__(self):
-                yield DatasetItem(id=1, subset='train', annotations=[
-                    Label(2, id=3),
-                    Label(3, attributes={ 'x': 1 }),
-                ])
-
-        class TestExtractor2(Extractor):
-            def __iter__(self):
-                yield DatasetItem(id=1, subset='train', annotations=[
-                    Label(3, attributes={ 'x': 1 }),
-                    Label(4, id=4),
-                ])
-
-        project = Project()
-        project.env.extractors.register('t1', TestExtractor1)
-        project.env.extractors.register('t2', TestExtractor2)
-        project.add_source('source1', { 'format': 't1' })
-        project.add_source('source2', { 'format': 't2' })
-
-        merged = project.make_dataset()
-
-        self.assertEqual(1, len(merged))
-
-        item = next(iter(merged))
-        self.assertEqual(3, len(item.annotations))
+        self.assertEqual(5, len(dataset))
 
 
 no_vcs_installed = False
@@ -843,22 +664,79 @@ class AttachedProjectTest(TestCase):
 
             self.assertEqual(['r1'], project.vcs.tags)
 
+class BackwardCompatibilityTests_v0_1(TestCase):
+    def test_can_load_old_project(self):
+        project_dir = osp.join(osp.dirname(__file__),
+            'assets', 'compat', 'v0.1', 'project')
 
+        project = Project.load(project_dir)
+        project.make_dataset()
 
-class DatasetItemTest(TestCase):
-    def test_ctor_requires_id(self):
-        with self.assertRaises(Exception):
-            # pylint: disable=no-value-for-parameter
-            DatasetItem()
-            # pylint: enable=no-value-for-parameter
+    def test_can_save_and_load_own_dataset(self):
+        with TestDir() as test_dir:
+            src_project = Project()
+            src_dataset = src_project.make_dataset()
+            item = DatasetItem(id=1)
+            src_dataset.put(item)
+            src_dataset.save(test_dir)
 
-    @staticmethod
-    def test_ctors_with_image():
-        for args in [
-            { 'id': 0, 'image': None },
-            { 'id': 0, 'image': 'path.jpg' },
-            { 'id': 0, 'image': np.array([1, 2, 3]) },
-            { 'id': 0, 'image': lambda f: np.array([1, 2, 3]) },
-            { 'id': 0, 'image': Image(data=np.array([1, 2, 3])) },
-        ]:
-            DatasetItem(**args)
+            loaded_project = Project.load(test_dir)
+            loaded_dataset = loaded_project.make_dataset()
+
+            self.assertEqual(list(src_dataset), list(loaded_dataset))
+
+    @skip("Not actual")
+    def test_project_compound_child_can_be_modified_recursively(self):
+        with TestDir() as test_dir:
+            child1 = Project.generate(osp.join(test_dir, 'child1'))
+            child2 = Project.generate(osp.join(test_dir, 'child2'))
+
+            parent = Project()
+            parent.sources.add('child1', {
+                'url': child1.config.project_dir,
+                'format': 'datumaro_project'
+            })
+            parent.sources.add('child2', {
+                'url': child2.config.project_dir,
+                'format': 'datumaro_project'
+            })
+            dataset = parent.make_dataset()
+
+            item1 = DatasetItem(id='ch1', path=['child1'])
+            item2 = DatasetItem(id='ch2', path=['child2'])
+            dataset.put(item1)
+            dataset.put(item2)
+
+            self.assertEqual(2, len(dataset))
+            self.assertEqual(1, len(dataset.sources['child1']))
+            self.assertEqual(1, len(dataset.sources['child2']))
+
+class ModelsTest(TestCase):
+    def test_can_batch_launch_custom_model(self):
+        dataset = Dataset.from_iterable([
+            DatasetItem(id=i, subset='train', image=np.array([i]))
+            for i in range(5)
+        ], categories=['label'])
+
+        class TestLauncher(Launcher):
+            def launch(self, inputs):
+                for i, inp in enumerate(inputs):
+                    yield [ Label(0, attributes={'idx': i, 'data': inp.item()}) ]
+
+        model_name = 'model'
+        launcher_name = 'custom_launcher'
+
+        project = Project()
+        project.env.launchers.register(launcher_name, TestLauncher)
+        project.models.add(model_name, { 'launcher': launcher_name })
+        model = project.models.make_executable_model(model_name)
+
+        batch_size = 3
+        executor = ModelTransform(dataset, model, batch_size=batch_size)
+
+        for item in executor:
+            self.assertEqual(1, len(item.annotations))
+            self.assertEqual(int(item.id) % batch_size,
+                item.annotations[0].attributes['idx'])
+            self.assertEqual(int(item.id),
+                item.annotations[0].attributes['data'])
