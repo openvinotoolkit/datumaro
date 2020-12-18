@@ -166,12 +166,8 @@ class ProjectRemotes(CrudProxy):
             value = Remote(value)
         value = self._data.set(name, value)
 
-        if value.type == 'url':
-            self._vcs.dvc.add_remote(name, value)
-        elif value.type == 'git':
-            pass
-        else:
-            raise ValueError("Unknown remote type '%s'" % value.type)
+        assert value.type in {'url', 'git', 'dvc'}, value.type
+        self._vcs.dvc.add_remote(name, value)
         return value
 
     def remove(self, name, force=False):
@@ -184,7 +180,8 @@ class ProjectRemotes(CrudProxy):
     @classmethod
     def validate_url(cls, url):
         url_parts = urllib.parse.urlsplit(url)
-        if url_parts.scheme not in cls.SUPPORTED_PROTOCOLS:
+        if url_parts.scheme not in cls.SUPPORTED_PROTOCOLS and \
+                not osp.exists(url):
             raise NotImplementedError(
                 "Invalid remote '%s': scheme '%s' is not supported, the only"
                 "available are: %s" % \
@@ -994,11 +991,16 @@ class GitWrapper:
 
     def push(self, remote=None):
         args = [remote] if remote else []
-        self.repo.remote(*args).push()
+        remote = self.repo.remote(*args)
+        branch = self.repo.head.ref.name
+        if not self.repo.head.ref.tracking_branch():
+            self.repo.git.push('--set-upstream', remote, branch)
+        else:
+            remote.push(branch)
 
     def pull(self, remote=None):
         args = [remote] if remote else []
-        self.repo.remote(*args).pull()
+        return self.repo.remote(*args).pull()
 
     def check_updates(self, remote=None) -> List[str]:
         args = [remote] if remote else []
@@ -1067,6 +1069,9 @@ class GitWrapper:
             return True
         except (ValueError, self.module.exc.BadName):
             return False
+
+    def has_commits(self):
+        return self.is_ref('HEAD')
 
     IgnoreMode = Enum('IgnoreMode', ['rewrite', 'append', 'remove'])
 
@@ -1286,7 +1291,7 @@ class DvcWrapper:
         return out
 
     def set_default_remote(self, name):
-        assert name and 1 < len(name.split()), "Invalid remote name '%s'" % name
+        assert name and 1 == len(name.split()), "Invalid remote name '%s'" % name
         self._exec(['remote', 'default', name])
 
     def list_stages(self):
@@ -1548,7 +1553,7 @@ class ProjectVcs:
         return self.git.is_ref(ref)
 
     def has_commits(self):
-        return self.git.is_ref('HEAD')
+        return self.git.has_commits()
 
 class Project:
     @classmethod

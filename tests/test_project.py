@@ -5,7 +5,8 @@ import shutil
 
 from unittest import TestCase, skipIf, skip
 
-from datumaro.components.project import Project, Environment, BuildStageType
+from datumaro.components.project import (Project, BuildStageType,
+    GitWrapper, DvcWrapper)
 from datumaro.components.dataset import Dataset, DEFAULT_FORMAT
 from datumaro.components.config import Config
 from datumaro.components.config_model import Source, Model
@@ -654,6 +655,34 @@ class AttachedProjectTest(TestCase):
 
             project = Project.load(test_dir)
             self.assertFalse('s1' in project.sources)
+
+    def test_can_push_repo(self):
+        with TestDir() as test_dir:
+            git_repo_dir = osp.join(test_dir, 'git_repo')
+            os.makedirs(git_repo_dir, exist_ok=True)
+            GitWrapper.module.Repo.init(git_repo_dir, bare=True)
+
+            dvc_repo_dir = osp.join(test_dir, 'dvc_repo')
+            os.makedirs(dvc_repo_dir, exist_ok=True)
+            git = GitWrapper(dvc_repo_dir)
+            git.init()
+            dvc = DvcWrapper(dvc_repo_dir)
+            dvc.init()
+
+            project = Project.generate(save_dir=osp.join(test_dir, 'proj'))
+            project.vcs.repositories.add('origin', git_repo_dir)
+            project.vcs.remotes.add('data', {
+                'url': dvc_repo_dir,
+                'type': 'dvc',
+            })
+            project.vcs.remotes.set_default('data')
+            project.save()
+            project.vcs.commit(None, message="First commit")
+
+            project.vcs.push()
+
+            git = GitWrapper.module.Repo.init(git_repo_dir, bare=True)
+            self.assertEqual('First commit', next(git.iter_commits()).summary)
 
     def test_can_tag_repo(self):
         with TestDir() as test_dir:
