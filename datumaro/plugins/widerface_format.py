@@ -18,7 +18,7 @@ class WiderFacePath:
     IMAGES_DIR = 'images'
     SUBSET_DIR = 'WIDER_'
     BBOX_ATTRIBUTES = ['blur', 'expression', 'illumination',
-        'occlusion', 'pose', 'invalid']
+        'occluded', 'pose', 'invalid']
 
 class WiderFaceExtractor(SourceExtractor):
     def __init__(self, path):
