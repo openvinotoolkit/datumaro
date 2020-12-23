@@ -73,7 +73,7 @@ class VggFace2Extractor(SourceExtractor):
 class VggFace2Importer(Importer):
     @classmethod
     def find_sources(cls, path):
-        subset_paths = [p for p in glob(osp.join(path, 
+        subset_paths = [p for p in glob(osp.join(path,
             VggFace2Path.ANNOTATION_DIR, '**.csv'), recursive=True)
             if not re.fullmatch(r'loose_bb_\S+', osp.basename(p))]
         sources = []
