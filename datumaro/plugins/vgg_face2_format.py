@@ -22,12 +22,13 @@ class VggFace2Path:
 class VggFace2Extractor(SourceExtractor):
     def __init__(self, path):
         if not osp.isfile(path):
-            raise Exception("Can't read annotation file '%s'" % path)
+            raise Exception("Can't read .csv annotation file '%s'" % path)
         self._path = path
         self._dataset_dir = osp.dirname(osp.dirname(path))
 
         subset = osp.splitext(osp.basename(path))[0]
-        match = re.fullmatch(r'loose_landmark_\S+', subset)
+        match = subset.startswith(VggFace2Path.LANDMARKS_FILE, 0,
+            len(VggFace2Path.LANDMARKS_FILE))
         if match:
             subset = subset.split('_')[2]
         super().__init__(subset=subset)
@@ -49,7 +50,7 @@ class VggFace2Extractor(SourceExtractor):
             image_path = osp.join(self._dataset_dir, self._subset, item_id
                 + VggFace2Path.IMAGE_EXT)
             annotations = []
-            if len([p for p in row if row[p] == '']) == 0:
+            if len([p for p in row if row[p] == '']) == 0 and len(row) == 11:
                 annotations.append(Points([float(row[p]) for p in row if p != 'NAME_ID']))
             if item_id in items and len(annotations) > 0:
                 annotation = items[item_id].annotations
@@ -64,10 +65,11 @@ class VggFace2Extractor(SourceExtractor):
             with open(bboxes_path) as content:
                 bboxes_table = list(csv.DictReader(content))
             for row in bboxes_table:
-                item_id = row['NAME_ID']
-                annotations = items[item_id].annotations
-                annotations.append(Bbox(int(row['X']), int(row['Y']),
-                    int(row['W']), int(row['H'])))
+                if len([p for p in row if row[p] == '']) == 0 and len(row) == 5:
+                    item_id = row['NAME_ID']
+                    annotations = items[item_id].annotations
+                    annotations.append(Bbox(int(row['X']), int(row['Y']),
+                        int(row['W']), int(row['H'])))
         return items
 
 class VggFace2Importer(Importer):
