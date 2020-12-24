@@ -5,7 +5,6 @@
 import csv
 import os
 import os.path as osp
-import re
 from glob import glob
 
 from datumaro.components.converter import Converter
@@ -27,9 +26,7 @@ class VggFace2Extractor(SourceExtractor):
         self._dataset_dir = osp.dirname(osp.dirname(path))
 
         subset = osp.splitext(osp.basename(path))[0]
-        match = subset.startswith(VggFace2Path.LANDMARKS_FILE, 0,
-            len(VggFace2Path.LANDMARKS_FILE))
-        if match:
+        if subset.startswith(VggFace2Path.LANDMARKS_FILE):
             subset = subset.split('_')[2]
         super().__init__(subset=subset)
 
@@ -77,7 +74,7 @@ class VggFace2Importer(Importer):
     def find_sources(cls, path):
         subset_paths = [p for p in glob(osp.join(path,
             VggFace2Path.ANNOTATION_DIR, '**.csv'), recursive=True)
-            if not re.fullmatch(r'loose_bb_\S+', osp.basename(p))]
+            if not osp.basename(p).startswith(VggFace2Path.BBOXES_FILE)]
         sources = []
         for subset_path in subset_paths:
             sources += cls._find_sources_recursive(
