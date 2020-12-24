@@ -94,6 +94,9 @@ List of supported formats:
 - WIDER Face (`bboxes`)
   - [Format specification](http://shuoyang1213.me/WIDERFACE/)
   - [Dataset example](../tests/assets/wider_dataset)
+- VGGFace2 (`landmarks`, `bboxes`)
+  - [Format specification](https://github.com/ox-vgg/vgg_face2)
+  - [Dataset example](../tests/assets/vgg_face2_dataset)
 - MOT sequences
   - [Format specification](https://arxiv.org/pdf/1906.04567.pdf)
   - [Dataset example](../tests/assets/mot_dataset)
