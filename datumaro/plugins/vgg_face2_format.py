@@ -9,7 +9,7 @@ from glob import glob
 
 from datumaro.components.converter import Converter
 from datumaro.components.extractor import (AnnotationType, Bbox, DatasetItem,
-    Importer, Points, PointsCategories, SourceExtractor)
+    Importer, Points, LabelCategories, SourceExtractor)
 
 
 class VggFace2Path:
@@ -34,8 +34,7 @@ class VggFace2Extractor(SourceExtractor):
         self._items = list(self._load_items(path).values())
 
     def _load_categories(self):
-        self._categories[AnnotationType.points] =  PointsCategories.from_iterable([
-                (0, None, [[0, 1], [1, 2], [2, 3], [3, 4]])])
+        self._categories[AnnotationType.label] = LabelCategories()
 
     def _load_items(self, path):
         items = {}
@@ -44,12 +43,13 @@ class VggFace2Extractor(SourceExtractor):
 
         for row in landmarks_table:
             item_id = row['NAME_ID']
-            image_path = osp.join(self._dataset_dir, self._subset, item_id
-                + VggFace2Path.IMAGE_EXT)
+            image_path = osp.join(self._dataset_dir, self._subset,
+                item_id + VggFace2Path.IMAGE_EXT)
             annotations = []
             if len([p for p in row if row[p] == '']) == 0 and len(row) == 11:
-                annotations.append(Points([float(row[p]) for p in row if p != 'NAME_ID']))
-            if item_id in items and len(annotations) > 0:
+                annotations.append(Points(
+                    [float(row[p]) for p in row if p != 'NAME_ID']))
+            if item_id in items and 0 < len(annotations):
                 annotation = items[item_id].annotations
                 annotation.append(annotations[0])
             else:
@@ -102,10 +102,12 @@ class VggFace2Converter(Converter):
                 if landmarks:
                     for landmark in landmarks:
                         points = landmark.points
-                        landmarks_table.append({'NAME_ID': item.id, 'P1X': points[0],
-                            'P1Y': points[1], 'P2X': points[2], 'P2Y': points[3],
-                            'P3X': points[4], 'P3Y': points[5], 'P4X': points[6],
-                            'P4Y': points[7], 'P5X': points[8], 'P5Y': points[9]})
+                        landmarks_table.append({'NAME_ID': item.id,
+                            'P1X': points[0], 'P1Y': points[1],
+                            'P2X': points[2], 'P2Y': points[3],
+                            'P3X': points[4], 'P3Y': points[5],
+                            'P4X': points[6], 'P4Y': points[7],
+                            'P5X': points[8], 'P5Y': points[9]})
                 else:
                     landmarks_table.append({'NAME_ID': item.id})
 

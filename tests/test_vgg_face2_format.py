@@ -2,8 +2,7 @@ import os.path as osp
 from unittest import TestCase
 
 import numpy as np
-from datumaro.components.extractor import (AnnotationType, Bbox, DatasetItem,
-    Points, PointsCategories)
+from datumaro.components.extractor import Bbox, DatasetItem, Points
 from datumaro.components.project import Dataset, Project
 from datumaro.plugins.vgg_face2_format import (VggFace2Converter,
     VggFace2Importer)
@@ -42,11 +41,7 @@ class VggFace2FormatTest(TestCase):
                     Bbox(2, 2, 2, 2),
                 ]
             ),
-        ], categories={
-            AnnotationType.points: PointsCategories.from_iterable([
-                (0, None, [[0, 1], [1, 2], [2, 3], [3, 4]])
-            ]),
-        })
+        ], categories=[])
 
         with TestDir() as test_dir:
             VggFace2Converter.convert(source_dataset, test_dir, save_images=True)
@@ -63,11 +58,7 @@ class VggFace2FormatTest(TestCase):
                         3.56, 4.52, 3.51, 4.78, 3.34]),
                 ]
             ),
-        ], categories={
-            AnnotationType.points: PointsCategories.from_iterable([
-                (0, None, [[0, 1], [1, 2], [2, 3], [3, 4]])
-            ]),
-        })
+        ], categories=[])
 
         with TestDir() as test_dir:
             VggFace2Converter.convert(source_dataset, test_dir, save_images=True)
@@ -100,11 +91,7 @@ class VggFace2ImporterTest(TestCase):
                         3.634, 1.43, 3.34, 1.65, 3.32])
                 ]
             ),
-        ], categories={
-            AnnotationType.points: PointsCategories.from_iterable([
-                (0, None, [[0, 1], [1, 2], [2, 3], [3, 4]])
-            ]),
-        })
+        ], categories=[])
 
         dataset = Project.import_from(DUMMY_DATASET_DIR, 'vgg_face2') \
             .make_dataset()
