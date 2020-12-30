@@ -3,13 +3,8 @@ import numpy as np
 from unittest import TestCase
 
 from datumaro.components.project import Dataset
-from datumaro.components.extractor import (
-    DatasetItem,
-    Label,
-    LabelCategories,
-    AnnotationType,
-    Bbox,
-)
+from datumaro.components.extractor import (DatasetItem, Label, Bbox,
+    LabelCategories, AnnotationType)
 
 import datumaro.plugins.splitter as splitter
 from datumaro.components.operations import compute_ann_statistics
@@ -45,23 +40,18 @@ class SplitterTest(TestCase):
                     for _ in range(count):
                         idx += 1
                         iterable.append(
-                            DatasetItem(
-                                id=idx,
+                            DatasetItem(idx, subset=self._get_subset(idx),
                                 annotations=[
                                     Label(label_id, attributes=attributes)
                                 ],
-                                subset=self._get_subset(idx),
                             )
                         )
             else:
                 for _ in range(counts):
                     idx += 1
                     iterable.append(
-                        DatasetItem(
-                            id=idx,
-                            annotations=[Label(label_id)],
-                            subset=self._get_subset(idx),
-                        )
+                        DatasetItem(idx, subset=self._get_subset(idx),
+                            annotations=[Label(label_id)])
                     )
         categories = {AnnotationType.label: label_cat}
         dataset = Dataset.from_iterable(iterable, categories)
@@ -225,43 +215,37 @@ class SplitterTest(TestCase):
 
     def test_split_for_classification_gives_error(self):
         with self.subTest("no label"):
-            source = Dataset.from_iterable(
-                [
-                    DatasetItem(1, annotations=[]),
-                    DatasetItem(2, annotations=[]),
-                ],
-                categories=["a", "b", "c"],
-            )
-            with self.assertRaisesRegex(Exception, "exact one label"):
+            source = Dataset.from_iterable([
+                DatasetItem(1, annotations=[]),
+                DatasetItem(2, annotations=[]),
+            ], categories=["a", "b", "c"])
+
+            with self.assertRaisesRegex(Exception, "exactly one is expected"):
                 splits = [("train", 0.7), ("test", 0.3)]
                 actual = splitter.ClassificationSplit(source, splits)
                 len(actual.get_subset("train"))
 
         with self.subTest("multi label"):
-            source = Dataset.from_iterable(
-                [
-                    DatasetItem(1, annotations=[Label(0), Label(1)]),
-                    DatasetItem(2, annotations=[Label(0), Label(2)]),
-                ],
-                categories=["a", "b", "c"],
-            )
-            with self.assertRaisesRegex(Exception, "exact one label"):
+            source = Dataset.from_iterable([
+                DatasetItem(1, annotations=[Label(0), Label(1)]),
+                DatasetItem(2, annotations=[Label(0), Label(2)]),
+            ], categories=["a", "b", "c"])
+
+            with self.assertRaisesRegex(Exception, "exactly one is expected"):
                 splits = [("train", 0.7), ("test", 0.3)]
                 splitter.ClassificationSplit(source, splits)
                 len(actual.get_subset("train"))
 
-        source = Dataset.from_iterable(
-            [
-                DatasetItem(1, annotations=[Label(0)]),
-                DatasetItem(2, annotations=[Label(1)]),
-            ],
-            categories=["a", "b", "c"],
-        )
+        source = Dataset.from_iterable([
+            DatasetItem(1, annotations=[Label(0)]),
+            DatasetItem(2, annotations=[Label(1)]),
+        ], categories=["a", "b", "c"])
 
         with self.subTest("wrong ratio"):
             with self.assertRaisesRegex(Exception, "in the range"):
                 splits = [("train", -0.5), ("test", 1.5)]
                 splitter.ClassificationSplit(source, splits)
+
             with self.assertRaisesRegex(Exception, "Sum of ratios"):
                 splits = [("train", 0.5), ("test", 0.5), ("val", 0.5)]
                 splitter.ClassificationSplit(source, splits)
@@ -340,35 +324,27 @@ class SplitterTest(TestCase):
 
     def test_split_for_matching_reid_gives_error(self):
         with self.subTest("no label"):
-            source = Dataset.from_iterable(
-                [
-                    DatasetItem(1, annotations=[]),
-                    DatasetItem(2, annotations=[]),
-                ],
-                categories=["a", "b", "c"],
-            )
-            with self.assertRaisesRegex(Exception, "exact one label"):
+            source = Dataset.from_iterable([
+                DatasetItem(1, annotations=[]),
+                DatasetItem(2, annotations=[]),
+            ], categories=["a", "b", "c"])
+
+            with self.assertRaisesRegex(Exception, "exactly one is expected"):
                 splits = [("train", 0.5), ("val", 0.2), ("test", 0.3)]
                 test_splits = [("query", 0.4 / 0.7), ("gallery", 0.3 / 0.7)]
-                actual = splitter.MatchingReIDSplit(
-                    source, splits, test_splits
-                )
+                actual = splitter.MatchingReIDSplit(source, splits, test_splits)
                 len(actual.get_subset("train"))
 
         with self.subTest(msg="multi label"):
-            source = Dataset.from_iterable(
-                [
-                    DatasetItem(1, annotations=[Label(0), Label(1)]),
-                    DatasetItem(2, annotations=[Label(0), Label(2)]),
-                ],
-                categories=["a", "b", "c"],
-            )
-            with self.assertRaisesRegex(Exception, "exact one label"):
+            source = Dataset.from_iterable([
+                DatasetItem(1, annotations=[Label(0), Label(1)]),
+                DatasetItem(2, annotations=[Label(0), Label(2)]),
+            ], categories=["a", "b", "c"])
+
+            with self.assertRaisesRegex(Exception, "exactly one is expected"):
                 splits = [("train", 0.5), ("val", 0.2), ("test", 0.3)]
                 test_splits = [("query", 0.4 / 0.7), ("gallery", 0.3 / 0.7)]
-                actual = splitter.MatchingReIDSplit(
-                    source, splits, test_splits
-                )
+                actual = splitter.MatchingReIDSplit(source, splits, test_splits)
                 len(actual.get_subset("train"))
 
         counts = {i: (i % 3 + 1) * 7 for i in range(10)}
@@ -379,23 +355,22 @@ class SplitterTest(TestCase):
                 splits = [("train", -0.5), ("val", 0.2), ("test", 0.3)]
                 test_splits = [("query", 0.4 / 0.7), ("gallery", 0.3 / 0.7)]
                 splitter.MatchingReIDSplit(source, splits, test_splits)
+
             with self.assertRaisesRegex(Exception, "Sum of ratios"):
                 splits = [("train", 0.6), ("val", 0.2), ("test", 0.3)]
                 test_splits = [("query", 0.4 / 0.7), ("gallery", 0.3 / 0.7)]
                 splitter.MatchingReIDSplit(source, splits, test_splits)
+
             with self.assertRaisesRegex(Exception, "in the range"):
                 splits = [("train", 0.5), ("val", 0.2), ("test", 0.3)]
                 test_splits = [("query", -0.4 / 0.7), ("gallery", 0.3 / 0.7)]
-                actual = splitter.MatchingReIDSplit(
-                    source, splits, test_splits
-                )
+                actual = splitter.MatchingReIDSplit(source, splits, test_splits)
                 len(actual.get_subset_by_group("query"))
+
             with self.assertRaisesRegex(Exception, "Sum of ratios"):
                 splits = [("train", 0.5), ("val", 0.2), ("test", 0.3)]
                 test_splits = [("query", 0.5 / 0.7), ("gallery", 0.3 / 0.7)]
-                actual = splitter.MatchingReIDSplit(
-                    source, splits, test_splits
-                )
+                actual = splitter.MatchingReIDSplit(source, splits, test_splits)
                 len(actual.get_subset_by_group("query"))
 
         with self.subTest("wrong subset name"):
@@ -403,18 +378,18 @@ class SplitterTest(TestCase):
                 splits = [("_train", 0.5), ("val", 0.2), ("test", 0.3)]
                 test_splits = [("query", 0.4 / 0.7), ("gallery", 0.3 / 0.7)]
                 splitter.MatchingReIDSplit(source, splits, test_splits)
+
             with self.assertRaisesRegex(Exception, "Subset name"):
                 splits = [("train", 0.5), ("val", 0.2), ("test", 0.3)]
                 test_splits = [("_query", 0.4 / 0.7), ("gallery", 0.3 / 0.7)]
-                actual = splitter.MatchingReIDSplit(
-                    source, splits, test_splits
-                )
+                actual = splitter.MatchingReIDSplit(source, splits, test_splits)
                 len(actual.get_subset_by_group("query"))
 
         with self.subTest("wrong attribute name for person id"):
             splits = [("train", 0.5), ("val", 0.2), ("test", 0.3)]
             test_splits = [("query", 0.4 / 0.7), ("gallery", 0.3 / 0.7)]
             actual = splitter.MatchingReIDSplit(source, splits, test_splits)
+
             with self.assertRaisesRegex(Exception, "Unknown group"):
                 actual.get_subset_by_group("_gallery")
 
@@ -448,18 +423,10 @@ class SplitterTest(TestCase):
                     attributes["attr0"] = attr_val % 3
                     attributes["attr%d" % (label_id + 1)] = attr_val % 2
                 for ann_id in range(count):
-                    append_bbox(
-                        annotations,
-                        label_id=label_id,
-                        ann_id=ann_id,
-                        attributes=attributes,
-                    )
-            item = DatasetItem(
-                id=str(img_id),
-                annotations=annotations,
-                subset=self._get_subset(img_id),
-                attributes={"id": img_id},
-            )
+                    append_bbox(annotations, label_id=label_id, ann_id=ann_id,
+                        attributes=attributes)
+            item = DatasetItem(img_id, subset=self._get_subset(img_id),
+                annotations=annotations, attributes={"id": img_id})
             iterable.append(item)
 
         dataset = Dataset.from_iterable(iterable, categories)
@@ -469,9 +436,7 @@ class SplitterTest(TestCase):
     def _get_append_bbox(dataset_type):
         def append_bbox_coco(annotations, **kwargs):
             annotations.append(
-                Bbox(
-                    1, 1, 2, 2,
-                    label=kwargs["label_id"],
+                Bbox(1, 1, 2, 2, label=kwargs["label_id"],
                     id=kwargs["ann_id"],
                     attributes=kwargs["attributes"],
                     group=kwargs["ann_id"],
@@ -483,9 +448,7 @@ class SplitterTest(TestCase):
 
         def append_bbox_voc(annotations, **kwargs):
             annotations.append(
-                Bbox(
-                    1, 1, 2, 2,
-                    label=kwargs["label_id"],
+                Bbox(1, 1, 2, 2, label=kwargs["label_id"],
                     id=kwargs["ann_id"] + 1,
                     attributes=kwargs["attributes"],
                     group=kwargs["ann_id"],
@@ -495,9 +458,7 @@ class SplitterTest(TestCase):
                 Label(kwargs["label_id"], attributes=kwargs["attributes"])
             )
             annotations.append(
-                Bbox(
-                    1, 1, 2, 2,
-                    label=kwargs["label_id"] + 3,
+                Bbox(1, 1, 2, 2, label=kwargs["label_id"] + 3,
                     group=kwargs["ann_id"],
                 )
             )  # part
@@ -513,9 +474,7 @@ class SplitterTest(TestCase):
 
         def append_bbox_cvat(annotations, **kwargs):
             annotations.append(
-                Bbox(
-                    1, 1, 2, 2,
-                    label=kwargs["label_id"],
+                Bbox(1, 1, 2, 2, label=kwargs["label_id"],
                     id=kwargs["ann_id"],
                     attributes=kwargs["attributes"],
                     group=kwargs["ann_id"],
@@ -528,11 +487,9 @@ class SplitterTest(TestCase):
 
         def append_bbox_labelme(annotations, **kwargs):
             annotations.append(
-                Bbox(
-                    1, 1, 2, 2,
-                    label=kwargs["label_id"],
-                    attributes=kwargs["attributes"],
+                Bbox(1, 1, 2, 2, label=kwargs["label_id"],
                     id=kwargs["ann_id"],
+                    attributes=kwargs["attributes"],
                 )
             )
             annotations.append(
@@ -541,9 +498,7 @@ class SplitterTest(TestCase):
 
         def append_bbox_mot(annotations, **kwargs):
             annotations.append(
-                Bbox(
-                    1, 1, 2, 2,
-                    label=kwargs["label_id"],
+                Bbox(1, 1, 2, 2, label=kwargs["label_id"],
                     attributes=kwargs["attributes"],
                 )
             )
@@ -624,13 +579,11 @@ class SplitterTest(TestCase):
 
     def test_split_for_detection_gives_error(self):
         with self.subTest(msg="bbox annotation"):
-            source = Dataset.from_iterable(
-                [
-                    DatasetItem(1, annotations=[Label(0), Label(1)]),
-                    DatasetItem(2, annotations=[Label(0), Label(2)]),
-                ],
-                categories=["a", "b", "c"],
-            )
+            source = Dataset.from_iterable([
+                DatasetItem(1, annotations=[Label(0), Label(1)]),
+                DatasetItem(2, annotations=[Label(0), Label(2)]),
+            ], categories=["a", "b", "c"])
+
             with self.assertRaisesRegex(Exception, "more than one bbox"):
                 splits = [("train", 0.5), ("val", 0.2), ("test", 0.3)]
                 actual = splitter.DetectionSplit(source, splits)
@@ -646,6 +599,7 @@ class SplitterTest(TestCase):
             with self.assertRaisesRegex(Exception, "in the range"):
                 splits = [("train", -0.5), ("test", 1.5)]
                 splitter.DetectionSplit(source, splits)
+
             with self.assertRaisesRegex(Exception, "Sum of ratios"):
                 splits = [("train", 0.5), ("test", 0.5), ("val", 0.5)]
                 splitter.DetectionSplit(source, splits)

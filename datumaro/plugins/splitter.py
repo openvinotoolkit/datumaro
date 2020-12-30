@@ -5,11 +5,8 @@
 import logging as log
 import numpy as np
 
-from datumaro.components.extractor import (
-    Transform,
-    AnnotationType,
-    DEFAULT_SUBSET_NAME,
-)
+from datumaro.components.extractor import (Transform, AnnotationType,
+    DEFAULT_SUBSET_NAME)
 
 NEAR_ZERO = 1e-7
 
@@ -39,16 +36,13 @@ class _TaskSpecificSplit(Transform):
     @staticmethod
     def _get_uniq_annotations(dataset):
         annotations = []
-        for _, item in enumerate(dataset):
-            labels = []
-            for ann in item.annotations:
-                if ann.type == AnnotationType.label:
-                    labels.append(ann)
-            assert (
-                len(labels) == 1
-            ), "Expected exact one label for a DatasetItem"
-            ann = labels[0]
-            annotations.append(ann)
+        for item in dataset:
+            labels = [a for a in item.annotations
+                if a.type == AnnotationType.label]
+            if len(labels) != 1:
+                raise Exception("Item '%s' contains %s labels, "
+                    "but exactly one is expected" % (item.id, len(labels)))
+            annotations.append(labels[0])
         return annotations
 
     @staticmethod
@@ -58,16 +52,11 @@ class _TaskSpecificSplit(Transform):
         if valid is None:
             valid = ["train", "val", "test"]
         for subset, ratio in splits:
-            assert subset in valid, (
-                "Subset name \
-                must be one of %s, but got %s"
-                % (valid, subset)
-            )
-            assert ratio >= 0.0 and ratio <= 1.0, (
-                "Ratio is expected to be \
-                in the range [0, 1], but got %s for %s"
-                % (ratio, subset)
-            )
+            assert subset in valid, \
+                "Subset name must be one of %s, but got %s" % (valid, subset)
+            assert 0.0 <= ratio and ratio <= 1.0, \
+                "Ratio is expected to be in the range " \
+                "[0, 1], but got %s for %s" % (ratio, subset)
             snames.append(subset)
             ratios.append(float(ratio))
         ratios = np.array(ratios)
@@ -84,7 +73,7 @@ class _TaskSpecificSplit(Transform):
     def _get_required(ratio):
         min_value = np.max(ratio)
         for i in ratio:
-            if i < min_value and i > NEAR_ZERO:
+            if NEAR_ZERO < i and i < min_value:
                 min_value = i
         required = int(np.around(1.0) / min_value)
         return required
@@ -97,7 +86,7 @@ class _TaskSpecificSplit(Transform):
         # if there are splits with zero samples even if ratio is not 0,
         # borrow one from the split who has one or more.
         for ii, num_split in enumerate(n_splits):
-            if num_split == 0 and ratio[ii] > NEAR_ZERO:
+            if num_split == 0 and NEAR_ZERO < ratio[ii]:
                 midx = np.argmax(n_splits)
                 if n_splits[midx] > 0:
                     n_splits[ii] += 1
@@ -122,9 +111,8 @@ class _TaskSpecificSplit(Transform):
             by_attributes[attributes].append(idx)
         return by_attributes
 
-    def _split_by_attr(
-        self, datasets, snames, ratio, out_splits, dataset_key="label"
-    ):
+    def _split_by_attr(self, datasets, snames, ratio, out_splits,
+            dataset_key="label"):
         required = self._get_required(ratio)
         for key, items in datasets.items():
             np.random.shuffle(items)
@@ -133,13 +121,13 @@ class _TaskSpecificSplit(Transform):
                 gname = "%s: %s, attrs: %s" % (dataset_key, key, attributes)
                 splits = self._split_indice(indice, gname, ratio, required)
                 for subset, split in zip(snames, splits):
-                    if len(split) > 0:
+                    if 0 < len(split):
                         out_splits[subset].extend(split)
 
     def _split_indice(self, indice, group_name, ratio, required):
         filtered_size = len(indice)
-        if required > filtered_size:
-            log.warning("Not enough samples for group, '%s'" % group_name)
+        if filtered_size < required:
+            log.warning("Not enough samples for a group, '%s'" % group_name)
         sections = self._get_sections(filtered_size, ratio)
         splits = np.array_split(indice, sections)
         return splits
@@ -193,7 +181,7 @@ class ClassificationSplit(_TaskSpecificSplit):
         by_labels = dict()
         annotations = self._get_uniq_annotations(self._extractor)
         for idx, ann in enumerate(annotations):
-            label = ann.label if hasattr(ann, "label") else None
+            label = getattr(ann, 'label', None)
             if label not in by_labels:
                 by_labels[label] = []
             by_labels[label].append((idx, ann))
@@ -224,9 +212,7 @@ class MatchingReIDSplit(_TaskSpecificSplit):
 
     _group_map = dict()
 
-    def __init__(
-        self, dataset, splits, test_splits, pid_name="PID", seed=None
-    ):
+    def __init__(self, dataset, splits, test_splits, pid_name="PID", seed=None):
         """
         Parameters
         ----------
@@ -263,9 +249,8 @@ class MatchingReIDSplit(_TaskSpecificSplit):
         annotations = self._get_uniq_annotations(dataset)
         for idx, ann in enumerate(annotations):
             attributes = dict(ann.attributes.items())
-            assert pid_name in attributes, (
-                "'%s' is expected as attribute name" % pid_name
-            )
+            assert pid_name in attributes, \
+                "'%s' is expected as an attribute name" % pid_name
             person_id = attributes[pid_name]
             if person_id not in by_pid:
                 by_pid[person_id] = []
@@ -278,16 +263,15 @@ class MatchingReIDSplit(_TaskSpecificSplit):
 
         required = self._get_required(id_ratio)
         if len(by_pid) < required:
-            log.warning(
-                "There's not enough IDs, which is {}, \
-                so train/val/test ratio can't be guaranteed."
+            log.warning("There's not enough IDs, which is %s, "
+                "so train/val/test ratio can't be guaranteed."
                 % len(by_pid)
             )
 
         # 1. split dataset into trval and test
         #    IDs in test set should not exist in train/val set.
         test = id_ratio[id_snames.index("test")] if "test" in id_snames else 0
-        if test > NEAR_ZERO:  # has testset
+        if NEAR_ZERO < test:  # has testset
             split_ratio = np.array([test, 1.0 - test])
             person_ids = list(by_pid.keys())
             np.random.shuffle(person_ids)
@@ -310,7 +294,7 @@ class MatchingReIDSplit(_TaskSpecificSplit):
             by_splits[subset] = []
 
         # 2. split 'test' into 'gallery' and 'query'
-        if len(testset) > 0:
+        if 0 < len(testset):
             for person_id, items in testset.items():
                 indice = [idx for idx, _ in items]
                 by_splits["test"].extend(indice)
@@ -319,13 +303,8 @@ class MatchingReIDSplit(_TaskSpecificSplit):
             test_splits = self._test_splits
             test_snames, test_ratio = self._validate_splits(test_splits, valid)
             by_groups = {s: [] for s in test_snames}
-            self._split_by_attr(
-                testset,
-                test_snames,
-                test_ratio,
-                by_groups,
-                dataset_key=pid_name,
-            )
+            self._split_by_attr(testset, test_snames, test_ratio, by_groups,
+                dataset_key=pid_name)
 
             # tag using group
             for idx, item in enumerate(self._extractor):
@@ -348,20 +327,14 @@ class MatchingReIDSplit(_TaskSpecificSplit):
         total_ratio = np.sum(trval_ratio)
         if total_ratio < NEAR_ZERO:
             trval_splits = list(zip(["train", "val"], trval_ratio))
-            log.warning(
-                "Sum of ratios is expected to be positive,\
-                got %s, which is %s"
+            log.warning("Sum of ratios is expected to be positive, "
+                "got %s, which is %s"
                 % (trval_splits, total_ratio)
             )
         else:
             trval_ratio /= total_ratio  # normalize
-            self._split_by_attr(
-                trval,
-                trval_snames,
-                trval_ratio,
-                by_splits,
-                dataset_key=pid_name,
-            )
+            self._split_by_attr(trval, trval_snames, trval_ratio, by_splits,
+                dataset_key=pid_name)
 
         self._set_parts(by_splits)
 
@@ -386,7 +359,7 @@ class MatchingReIDSplit(_TaskSpecificSplit):
             keys = np.array(list(diffs.keys()))
             idx = (np.abs(keys - target_diff)).argmin()
             nearest = keys[idx]
-            if abs(target_diff - nearest) >= abs(target_diff):
+            if abs(target_diff) <= abs(target_diff - nearest):
                 break
             choice = np.random.choice(range(len(diffs[nearest])))
             pid_test, pid_trval = diffs[nearest][choice]
@@ -398,7 +371,7 @@ class MatchingReIDSplit(_TaskSpecificSplit):
                     if id1 == pid_test or id2 == pid_trval:
                         continue
                     new_list.append((id1, id2))
-                if len(new_list) > 0:
+                if 0 < len(new_list):
                     new_diffs[diff] = new_list
             diffs = new_diffs
             exchanges.append((pid_test, pid_trval))
@@ -409,12 +382,9 @@ class MatchingReIDSplit(_TaskSpecificSplit):
 
     def get_subset_by_group(self, group: str):
         available = list(self._group_map.keys())
-        assert (
-            group in self._group_map
-        ), "Unknown group '%s', available groups: %s" % (
-            group,
-            available,
-        )
+        assert group in self._group_map, \
+            "Unknown group '%s', available groups: %s" \
+            % (group, available)
         group_id = self._group_map[group]
         return self.select(lambda item: item.annotations[0].group == group_id)
 
@@ -450,15 +420,12 @@ class DetectionSplit(_TaskSpecificSplit):
     def _group_by_bbox_labels(dataset):
         by_labels = dict()
         for idx, item in enumerate(dataset):
-            bbox_anns = []
-            for ann in item.annotations:
-                if ann.type == AnnotationType.bbox:
-                    bbox_anns.append(ann)
-            assert (
-                len(bbox_anns) > 0
-            ), "Expected more than one bbox annotation."
+            bbox_anns = [a for a in item.annotations
+                if a.type == AnnotationType.bbox]
+            assert 0 < len(bbox_anns), \
+                "Expected more than one bbox annotation in the dataset"
             for ann in bbox_anns:
-                label = ann.label if hasattr(ann, "label") else None
+                label = getattr(ann, 'label', None)
                 if label not in by_labels:
                     by_labels[label] = [(idx, ann)]
                 else:
@@ -536,7 +503,7 @@ class DetectionSplit(_TaskSpecificSplit):
 
             pp = []
             for sname, nc in expected:
-                if len(by_splits[sname]) >= target_size[sname]:
+                if target_size[sname] <= len(by_splits[sname]):
                     # the split has enough images,
                     # stop adding more images to this split
                     pp.append(1e08)
