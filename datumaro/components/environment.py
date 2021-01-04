@@ -2,33 +2,17 @@
 #
 # SPDX-License-Identifier: MIT
 
+from functools import partial
 from glob import glob
 import git
-import importlib
 import inspect
 import logging as log
 import os
 import os.path as osp
-import sys
 
 from datumaro.components.config import Config
-from datumaro.components.config_model import (Model, Source,
-    PROJECT_DEFAULT_CONFIG, PROJECT_SCHEMA)
-
-
-def import_foreign_module(name, path, package=None):
-    module = None
-    default_path = sys.path.copy()
-    try:
-        sys.path = [ osp.abspath(path), ] + default_path
-        sys.modules.pop(name, None) # remove from cache
-        module = importlib.import_module(name, package=package)
-        sys.modules.pop(name) # remove from cache
-    except Exception:
-        raise
-    finally:
-        sys.path = default_path
-    return module
+from datumaro.components.config_model import Model, Source
+from datumaro.util.os_util import import_foreign_module
 
 
 class Registry:
@@ -53,7 +37,14 @@ class Registry:
         return self.items.pop(name, None)
 
     def get(self, key):
-        return self.items[key] # returns a class / ctor
+        """Returns a class or a factory function"""
+        return self.items[key]
+
+    def __getitem__(self, key):
+        return self.get(key)
+
+    def __contains__(self, key):
+        return key in self.items
 
 
 class ModelRegistry(Registry):
@@ -140,6 +131,8 @@ class Environment:
     PROJECT_EXTRACTOR_NAME = 'datumaro_project'
 
     def __init__(self, config=None):
+        from datumaro.components.project import (
+            PROJECT_DEFAULT_CONFIG, PROJECT_SCHEMA, load_project_as_dataset)
         config = Config(config,
             fallback=PROJECT_DEFAULT_CONFIG, schema=PROJECT_SCHEMA)
 
@@ -152,12 +145,10 @@ class Environment:
         builtin = self._load_builtin_plugins()
         custom = self._load_plugins2(osp.join(env_dir, config.plugins_dir))
         select = lambda seq, t: [e for e in seq if issubclass(e, t)]
-        from datumaro.components.extractor import Transform
-        from datumaro.components.extractor import SourceExtractor
-        from datumaro.components.extractor import Importer
         from datumaro.components.converter import Converter
+        from datumaro.components.extractor import (Importer, SourceExtractor,
+            Transform)
         from datumaro.components.launcher import Launcher
-        from datumaro.components.project import load_project_as_dataset
         self.extractors = PluginRegistry(
             builtin=select(builtin, SourceExtractor),
             local=select(custom, SourceExtractor)
@@ -267,12 +258,11 @@ class Environment:
 
     @classmethod
     def _load_plugins2(cls, plugins_dir):
-        from datumaro.components.extractor import Transform
-        from datumaro.components.extractor import SourceExtractor
-        from datumaro.components.extractor import Importer
         from datumaro.components.converter import Converter
+        from datumaro.components.extractor import (Extractor, Importer,
+            Transform)
         from datumaro.components.launcher import Launcher
-        types = [SourceExtractor, Converter, Importer, Launcher, Transform]
+        types = [Extractor, Converter, Importer, Launcher, Transform]
 
         return cls._load_plugins(plugins_dir, types)
 
@@ -286,7 +276,13 @@ class Environment:
         return self.launchers.get(name)(*args, **kwargs)
 
     def make_converter(self, name, *args, **kwargs):
-        return self.converters.get(name)(*args, **kwargs)
+        result = self.converters.get(name)
+        if inspect.isclass(result):
+            result = partial(result.convert, *args, **kwargs)
+        return result
+
+    def make_transform(self, name, *args, **kwargs):
+        return partial(self.transforms.get(name), *args, **kwargs)
 
     def register_model(self, name, model):
         self.models.register(name, model)
