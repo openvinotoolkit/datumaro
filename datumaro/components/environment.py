@@ -278,8 +278,8 @@ class Environment:
     def make_converter(self, name, *args, **kwargs):
         result = self.converters.get(name)
         if inspect.isclass(result):
-            result = partial(result.convert, *args, **kwargs)
-        return result
+            result = result.convert
+        return partial(result, *args, **kwargs)
 
     def make_transform(self, name, *args, **kwargs):
         return partial(self.transforms.get(name), *args, **kwargs)
@@ -289,3 +289,22 @@ class Environment:
 
     def unregister_model(self, name):
         self.models.unregister(name)
+
+    def is_format_known(self, name):
+        return name in self.importers or name in self.extractors
+
+    def detect_dataset(self, path):
+        matches = []
+
+        for format_name, importer in self.importers.items.items():
+            log.debug("Checking '%s' format...", format_name)
+            try:
+                match = importer.detect(path)
+                if match:
+                    log.debug("format matched")
+                    matches.append(format_name)
+            except NotImplementedError:
+                log.debug("Format '%s' does not support auto detection.",
+                    format_name)
+
+        return matches
