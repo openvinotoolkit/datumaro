@@ -303,16 +303,45 @@ class Project:
         return project
 
     @staticmethod
-    def import_from(path, dataset_format, env=None, **kwargs):
+    def import_from(path, dataset_format=None, env=None, **format_options):
         if env is None:
             env = Environment()
-        importer = env.make_importer(dataset_format)
-        return importer(path, **kwargs)
 
-    def __init__(self, config=None):
+        if not dataset_format:
+            matches = env.detect_dataset(path)
+            if not matches:
+                raise Exception("Failed to detect dataset format automatically")
+            if 1 < len(matches):
+                raise Exception("Failed to detect dataset format automatically:"
+                    " data matches more than one format: %s" % \
+                    ', '.join(matches))
+            dataset_format = matches[0]
+        elif not env.is_format_known(dataset_format):
+            raise KeyError("Unknown dataset format '%s'" % dataset_format)
+
+        if dataset_format in env.importers:
+            project = env.make_importer(dataset_format)(path, **format_options)
+        elif dataset_format in env.extractors:
+            project = Project(env=env)
+            project.add_source('source', {
+                'url': path,
+                'format': dataset_format,
+                'options': format_options,
+            })
+        else:
+            raise Exception("Unknown format '%s'. To make it "
+                "available, add the corresponding Extractor implementation "
+                "to the environment" % dataset_format)
+        return project
+
+    def __init__(self, config=None, env=None):
         self.config = Config(config,
             fallback=PROJECT_DEFAULT_CONFIG, schema=PROJECT_SCHEMA)
-        self.env = Environment(self.config)
+        if env is None:
+            env = Environment(self.config)
+        elif config is not None:
+            raise ValueError("env can only be provided when no config provided")
+        self.env = env
 
     def make_dataset(self):
         return ProjectDataset(self)
