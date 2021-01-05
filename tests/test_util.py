@@ -70,7 +70,7 @@ class TestRollback(TestCase):
 
         @error_rollback('on_error', implicit=True)
         def foo():
-            on_error.do(cb)
+            on_error.do(cb) # noqa
             raise Exception('err')
 
         try:

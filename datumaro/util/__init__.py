@@ -6,7 +6,7 @@
 import attr
 import os
 import os.path as osp
-from contextlib import contextmanager, ExitStack
+from contextlib import ExitStack
 from functools import partial, wraps
 from itertools import islice
 
