@@ -24,6 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Allow plugins inherited from `Extractor` (instead of only `SourceExtractor`) (<https://github.com/openvinotoolkit/datumaro/pull/70>)
+- Windows installation with `pip` for `pycocotools` ()
+- `YOLO` extractor path matching on Windows ()
 
 ### Security
 -
