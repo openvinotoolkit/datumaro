@@ -21,9 +21,9 @@ class ProjectDataset(Dataset):
         super().__init__()
 
         self._project = project
+        self._env = project.env
         config = self.config
         env = self.env
-        self._env = env
 
         sources = {}
         for s_name, source in config.sources.items():
