@@ -172,25 +172,14 @@ def import_command(args):
     log.info("Importing project from '%s'" % args.source)
 
     extra_args = {}
+    fmt = args.format
     if not args.format:
         if args.extra_args:
             raise CliException("Extra args can not be used without format")
 
         log.info("Trying to detect dataset format...")
 
-        matches = []
-        for format_name in env.importers.items:
-            log.debug("Checking '%s' format...", format_name)
-            importer = env.make_importer(format_name)
-            try:
-                match = importer.detect(args.source)
-                if match:
-                    log.debug("format matched")
-                    matches.append((format_name, importer))
-            except NotImplementedError:
-                log.debug("Format '%s' does not support auto detection.",
-                    format_name)
-
+        matches = env.detect_dataset(args.source)
         if len(matches) == 0:
             log.error("Failed to detect dataset format automatically. "
                 "Try to specify format with '-f/--format' parameter.")
@@ -198,24 +187,28 @@ def import_command(args):
         elif len(matches) != 1:
             log.error("Multiple formats match the dataset: %s. "
                 "Try to specify format with '-f/--format' parameter.",
-                ', '.join(m[0] for m in matches))
+                ', '.join(matches))
             return 2
 
-        format_name, importer = matches[0]
-        args.format = format_name
-    else:
-        try:
-            importer = env.make_importer(args.format)
-            if hasattr(importer, 'from_cmdline'):
-                extra_args = importer.from_cmdline(args.extra_args)
-        except KeyError:
-            raise CliException("Importer for format '%s' is not found" % \
-                args.format)
+        fmt = matches[0]
+    elif args.extra_args:
+        if fmt in env.importers:
+            arg_parser = env.importers[fmt]
+        elif fmt in env.extractors:
+            arg_parser = env.extractors[fmt]
+        else:
+            raise CliException("Unknown format '%s'. A format can be added"
+                "by providing an Extractor and Importer plugins" % fmt)
 
-    log.info("Importing project as '%s'" % args.format)
+        if hasattr(arg_parser, 'from_cmdline'):
+            extra_args = arg_parser.from_cmdline(args.extra_args)
+        else:
+            raise CliException("Format '%s' does not accept "
+                "extra parameters" % fmt)
 
-    source = osp.abspath(args.source)
-    project = importer(source, **extra_args)
+    log.info("Importing project as '%s'" % fmt)
+
+    project = Project.import_from(osp.abspath(args.source), fmt, **extra_args)
     project.config.project_name = project_name
     project.config.project_dir = project_dir
 

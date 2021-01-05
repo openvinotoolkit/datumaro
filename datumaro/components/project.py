@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2020 Intel Corporation
+# Copyright (C) 2019-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -8,12 +8,12 @@ import os
 import os.path as osp
 import shutil
 
-from datumaro.components.config import Config, DEFAULT_FORMAT
+from datumaro.components.config import Config
 from datumaro.components.config_model import (Model, Source,
     PROJECT_DEFAULT_CONFIG, PROJECT_SCHEMA)
 from datumaro.components.environment import Environment
 from datumaro.components.launcher import ModelTransform
-from datumaro.components.dataset import Dataset
+from datumaro.components.dataset import Dataset, DEFAULT_FORMAT
 
 
 class ProjectDataset(Dataset):
@@ -21,6 +21,7 @@ class ProjectDataset(Dataset):
         super().__init__()
 
         self._project = project
+        self._env = project.env
         config = self.config
         env = self.env
 
@@ -177,10 +178,6 @@ class ProjectDataset(Dataset):
             raise
 
     @property
-    def env(self):
-        return self._project.env
-
-    @property
     def config(self):
         return self._project.config
 
@@ -189,7 +186,9 @@ class ProjectDataset(Dataset):
         return self._sources
 
     def _save_branch_project(self, extractor, save_dir=None):
-        extractor = Dataset.from_extractors(extractor) # apply lazy transforms
+        if not isinstance(extractor, Dataset):
+            extractor = Dataset.from_extractors(
+                extractor) # apply lazy transforms to avoid repeating traversals
 
         # NOTE: probably this function should be in the ViewModel layer
         save_dir = osp.abspath(save_dir)
@@ -303,16 +302,45 @@ class Project:
         return project
 
     @staticmethod
-    def import_from(path, dataset_format, env=None, **kwargs):
+    def import_from(path, dataset_format=None, env=None, **format_options):
         if env is None:
             env = Environment()
-        importer = env.make_importer(dataset_format)
-        return importer(path, **kwargs)
 
-    def __init__(self, config=None):
+        if not dataset_format:
+            matches = env.detect_dataset(path)
+            if not matches:
+                raise Exception("Failed to detect dataset format automatically")
+            if 1 < len(matches):
+                raise Exception("Failed to detect dataset format automatically:"
+                    " data matches more than one format: %s" % \
+                    ', '.join(matches))
+            dataset_format = matches[0]
+        elif not env.is_format_known(dataset_format):
+            raise KeyError("Unknown dataset format '%s'" % dataset_format)
+
+        if dataset_format in env.importers:
+            project = env.make_importer(dataset_format)(path, **format_options)
+        elif dataset_format in env.extractors:
+            project = Project(env=env)
+            project.add_source('source', {
+                'url': path,
+                'format': dataset_format,
+                'options': format_options,
+            })
+        else:
+            raise Exception("Unknown format '%s'. To make it "
+                "available, add the corresponding Extractor implementation "
+                "to the environment" % dataset_format)
+        return project
+
+    def __init__(self, config=None, env=None):
         self.config = Config(config,
             fallback=PROJECT_DEFAULT_CONFIG, schema=PROJECT_SCHEMA)
-        self.env = Environment(self.config)
+        if env is None:
+            env = Environment(self.config)
+        elif config is not None:
+            raise ValueError("env can only be provided when no config provided")
+        self.env = env
 
     def make_dataset(self):
         return ProjectDataset(self)

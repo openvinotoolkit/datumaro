@@ -4,17 +4,18 @@ import os.path as osp
 
 from unittest import TestCase
 
-from datumaro.components.project import Project, Environment, Dataset
+from datumaro.components.project import Project, Environment
 from datumaro.components.config_model import Source, Model
 from datumaro.components.launcher import Launcher, ModelTransform
 from datumaro.components.extractor import (Extractor, DatasetItem,
     Label, Mask, Points, Polygon, PolyLine, Bbox, Caption,
-    LabelCategories, AnnotationType
+    LabelCategories, AnnotationType, Transform
 )
 from datumaro.util.image import Image
 from datumaro.components.config import Config, DefaultConfig, SchemaBuilder
 from datumaro.components.dataset_filter import \
     XPathDatasetFilter, XPathAnnotationsFilter, DatasetItemEncoder
+from datumaro.components.dataset import Dataset, DEFAULT_FORMAT
 from datumaro.util.test_utils import TestDir, compare_datasets
 
 
@@ -363,6 +364,25 @@ class ProjectTest(TestCase):
         item = next(iter(merged))
         self.assertEqual(3, len(item.annotations))
 
+    def test_can_detect_and_import(self):
+        env = Environment()
+        env.importers.items = {DEFAULT_FORMAT: env.importers[DEFAULT_FORMAT]}
+        env.extractors.items = {DEFAULT_FORMAT: env.extractors[DEFAULT_FORMAT]}
+
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[ Label(2) ]),
+        ], categories=['a', 'b', 'c'])
+
+        with TestDir() as test_dir:
+            source_dataset.save(test_dir)
+
+            project = Project.import_from(test_dir, env=env)
+            imported_dataset = project.make_dataset()
+
+            self.assertEqual(next(iter(project.config.sources.values())).format,
+                DEFAULT_FORMAT)
+            compare_datasets(self, source_dataset, imported_dataset)
+
 class DatasetFilterTest(TestCase):
     @staticmethod
     def test_item_representations():
@@ -558,6 +578,112 @@ class DatasetTest(TestCase):
 
         compare_datasets(self, DstExtractor(), dataset)
 
+    def test_can_create_from_iterable(self):
+        class TestExtractor(Extractor):
+            def __iter__(self):
+                return iter([
+                    DatasetItem(id=1, subset='train', annotations=[
+                        Bbox(1, 2, 3, 4, label=2),
+                        Label(4),
+                    ]),
+                    DatasetItem(id=1, subset='val', annotations=[
+                        Label(3),
+                    ]),
+                ])
+
+            def categories(self):
+                return { AnnotationType.label: LabelCategories.from_iterable(
+                    ['a', 'b', 'c', 'd', 'e'])
+                }
+
+        actual = Dataset.from_iterable([
+            DatasetItem(id=1, subset='train', annotations=[
+                Bbox(1, 2, 3, 4, label=2),
+                Label(4),
+            ]),
+            DatasetItem(id=1, subset='val', annotations=[
+                Label(3),
+            ]),
+        ], categories=['a', 'b', 'c', 'd', 'e'])
+
+        compare_datasets(self, TestExtractor(), actual)
+
+    def test_can_save_and_load(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[ Label(2) ]),
+        ], categories=['a', 'b', 'c'])
+
+        with TestDir() as test_dir:
+            source_dataset.save(test_dir)
+
+            loaded_dataset = Dataset.load(test_dir)
+
+            compare_datasets(self, source_dataset, loaded_dataset)
+
+    def test_can_detect(self):
+        env = Environment()
+        env.importers.items = {DEFAULT_FORMAT: env.importers[DEFAULT_FORMAT]}
+        env.extractors.items = {DEFAULT_FORMAT: env.extractors[DEFAULT_FORMAT]}
+
+        dataset = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[ Label(2) ]),
+        ], categories=['a', 'b', 'c'])
+
+        with TestDir() as test_dir:
+            dataset.save(test_dir)
+
+            detected_format = Dataset.detect(test_dir, env=env)
+
+            self.assertEqual(DEFAULT_FORMAT, detected_format)
+
+    def test_can_detect_and_import(self):
+        env = Environment()
+        env.importers.items = {DEFAULT_FORMAT: env.importers[DEFAULT_FORMAT]}
+        env.extractors.items = {DEFAULT_FORMAT: env.extractors[DEFAULT_FORMAT]}
+
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[ Label(2) ]),
+        ], categories=['a', 'b', 'c'])
+
+        with TestDir() as test_dir:
+            source_dataset.save(test_dir)
+
+            imported_dataset = Dataset.import_from(test_dir, env=env)
+
+            compare_datasets(self, source_dataset, imported_dataset)
+
+    def test_can_export_by_string_format_name(self):
+        env = Environment()
+        env.converters.items = {'qq': env.converters[DEFAULT_FORMAT]}
+
+        dataset = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[ Label(2) ]),
+        ], categories=['a', 'b', 'c'], env=env)
+
+        with TestDir() as test_dir:
+            dataset.export('qq', save_dir=test_dir)
+
+    def test_can_transform_by_string_name(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[ Label(2) ], attributes={'qq': 1}),
+        ], categories=['a', 'b', 'c'])
+
+        class TestTransform(Transform):
+            def transform_item(self, item):
+                return self.wrap_item(item, attributes={'qq': 1})
+
+        env = Environment()
+        env.transforms.items = {'qq': TestTransform}
+
+        dataset = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[ Label(2) ]),
+        ], categories=['a', 'b', 'c'], env=env)
+
+        actual = dataset.transform('qq')
+
+        self.assertTrue(isinstance(actual, Dataset))
+        self.assertEqual(env, actual.env)
+        compare_datasets(self, expected, actual)
 
 class DatasetItemTest(TestCase):
     def test_ctor_requires_id(self):
