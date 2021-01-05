@@ -9,7 +9,7 @@ import os
 import os.path as osp
 import re
 
-from datumaro.components.config import DEFAULT_FORMAT
+from datumaro.components.dataset import DEFAULT_FORMAT
 from datumaro.components.project import Environment
 
 from ...util import CliException, MultilineFormatter, add_subparser

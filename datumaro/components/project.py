@@ -8,12 +8,12 @@ import os
 import os.path as osp
 import shutil
 
-from datumaro.components.config import Config, DEFAULT_FORMAT
+from datumaro.components.config import Config
 from datumaro.components.config_model import (Model, Source,
     PROJECT_DEFAULT_CONFIG, PROJECT_SCHEMA)
 from datumaro.components.environment import Environment
 from datumaro.components.launcher import ModelTransform
-from datumaro.components.dataset import Dataset
+from datumaro.components.dataset import Dataset, DEFAULT_FORMAT
 
 
 class ProjectDataset(Dataset):
