@@ -70,7 +70,7 @@ class TestRollback(TestCase):
 
         @error_rollback('on_error', implicit=True)
         def foo():
-            on_error.do(cb) # noqa
+            on_error.do(cb) # noqa: F821
             raise Exception('err')
 
         try:
