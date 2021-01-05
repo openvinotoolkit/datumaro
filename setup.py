@@ -66,7 +66,7 @@ setuptools.setup(
     description="Dataset Management Framework (Datumaro)",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/opencv/cvat/datumaro",
+    url="https://github.com/opencv/openvinotoolkit/datumaro",
     packages=setuptools.find_packages(exclude=['tests*']),
     classifiers=[
         "Programming Language :: Python :: 3",
