@@ -278,8 +278,8 @@ class Environment:
     def make_converter(self, name, *args, **kwargs):
         result = self.converters.get(name)
         if inspect.isclass(result):
-            result = partial(result.convert, *args, **kwargs)
-        return result
+            result = result.convert
+        return partial(result, *args, **kwargs)
 
     def make_transform(self, name, *args, **kwargs):
         return partial(self.transforms.get(name), *args, **kwargs)
