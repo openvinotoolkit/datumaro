@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2020 Intel Corporation
+# Copyright (C) 2019-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -23,6 +23,7 @@ class ProjectDataset(Dataset):
         self._project = project
         config = self.config
         env = self.env
+        self._env = env
 
         sources = {}
         for s_name, source in config.sources.items():
@@ -177,10 +178,6 @@ class ProjectDataset(Dataset):
             raise
 
     @property
-    def env(self):
-        return self._project.env
-
-    @property
     def config(self):
         return self._project.config
 
@@ -189,7 +186,9 @@ class ProjectDataset(Dataset):
         return self._sources
 
     def _save_branch_project(self, extractor, save_dir=None):
-        extractor = Dataset.from_extractors(extractor) # apply lazy transforms
+        if not isinstance(extractor, Dataset):
+            extractor = Dataset.from_extractors(
+                extractor) # apply lazy transforms to avoid repeating traversals
 
         # NOTE: probably this function should be in the ViewModel layer
         save_dir = osp.abspath(save_dir)

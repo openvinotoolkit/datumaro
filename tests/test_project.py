@@ -664,9 +664,13 @@ class DatasetTest(TestCase):
             dataset.export('qq', save_dir=test_dir)
 
     def test_can_transform_by_string_name(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[ Label(2) ], attributes={'qq': 1}),
+        ], categories=['a', 'b', 'c'])
+
         class TestTransform(Transform):
             def transform_item(self, item):
-                return item
+                return self.wrap_item(item, attributes={'qq': 1})
 
         env = Environment()
         env.transforms.items = {'qq': TestTransform}
@@ -675,9 +679,11 @@ class DatasetTest(TestCase):
             DatasetItem(id=1, annotations=[ Label(2) ]),
         ], categories=['a', 'b', 'c'], env=env)
 
-        transform = dataset.transform('qq')
+        actual = dataset.transform('qq')
 
-        self.assertTrue(isinstance(transform, TestTransform))
+        self.assertTrue(isinstance(actual, Dataset))
+        self.assertEqual(env, actual.env)
+        compare_datasets(self, expected, actual)
 
 class DatasetItemTest(TestCase):
     def test_ctor_requires_id(self):

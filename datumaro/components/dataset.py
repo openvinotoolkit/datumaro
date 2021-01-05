@@ -1,4 +1,4 @@
-# Copyright (C) 2020 Intel Corporation
+# Copyright (C) 2020-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -213,7 +213,8 @@ class Dataset(Extractor):
         if isinstance(method, str):
             method = self.env.make_transform(method)
 
-        return super().transform(method, *args, **kwargs)
+        result = super().transform(method, *args, **kwargs)
+        return Dataset.from_extractors(result, env=self._env)
 
     def run_model(self, model, batch_size=1):
         from datumaro.components.launcher import Launcher, ModelTransform
