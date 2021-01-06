@@ -9,7 +9,7 @@ from datumaro.components.config_model import Source, Model
 from datumaro.components.launcher import Launcher, ModelTransform
 from datumaro.components.extractor import (Extractor, DatasetItem,
     Label, LabelCategories, AnnotationType)
-from datumaro.components.config import Config, DefaultConfig, SchemaBuilder
+from datumaro.components.config import Config
 from datumaro.components.dataset import Dataset, DEFAULT_FORMAT
 from datumaro.util.test_utils import TestDir, compare_datasets
 
@@ -405,32 +405,3 @@ class ProjectTest(TestCase):
         dataset = project.make_dataset()
 
         compare_datasets(self, CustomExtractor(), dataset)
-
-
-class ConfigTest(TestCase):
-    def test_can_produce_multilayer_config_from_dict(self):
-        schema_low = SchemaBuilder() \
-            .add('options', dict) \
-            .build()
-        schema_mid = SchemaBuilder() \
-            .add('desc', lambda: Config(schema=schema_low)) \
-            .build()
-        schema_top = SchemaBuilder() \
-            .add('container', lambda: DefaultConfig(
-                lambda v: Config(v, schema=schema_mid))) \
-            .build()
-
-        value = 1
-        source = Config({
-            'container': {
-                'elem': {
-                    'desc': {
-                        'options': {
-                            'k': value
-                        }
-                    }
-                }
-            }
-        }, schema=schema_top)
-
-        self.assertEqual(value, source.container['elem'].desc.options['k'])
