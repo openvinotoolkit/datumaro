@@ -57,7 +57,7 @@ def add_command(args):
         assert args.name not in project.config.models, args.name
 
     try:
-        launcher = project.env.launchers.get(args.launcher)
+        launcher = project.env.launchers[args.launcher]
     except KeyError:
         raise CliException("Launcher '%s' is not found" % args.launcher)
 
@@ -67,7 +67,7 @@ def add_command(args):
     if args.copy:
         log.info("Copying model data")
 
-        model_dir = project.local_model_dir(args.name)
+        model_dir = project.models.model_dir(args.name)
         os.makedirs(model_dir, exist_ok=False)
 
         try:
@@ -77,16 +77,16 @@ def add_command(args):
                 args.launcher)
 
     log.info("Checking the model")
-    project.add_model(args.name, {
+    project.models.add(args.name, {
         'launcher': args.launcher,
         'options': model_args,
     })
-    project.make_executable_model(args.name)
+    project.models.make_executable_model(args.name)
 
     project.save()
 
-    log.info("Model '%s' with launcher '%s' has been added to project '%s'" % \
-        (args.name, args.launcher, project.config.project_name))
+    log.info("Model '%s' with launcher '%s' has been added to project" % \
+        (args.name, args.launcher))
 
     return 0
 

@@ -1,13 +1,9 @@
-# Copyright (C) 2020 Intel Corporation
+# Copyright (C) 2020-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 from functools import partial
 from glob import glob
-import inspect
-import logging as log
-import os
-import os.path as osp
 
 from datumaro.components.config import Config
 from datumaro.util.os_util import import_foreign_module
@@ -76,7 +72,7 @@ class Environment:
         select = lambda seq, t: [e for e in seq if issubclass(e, t)]
         from datumaro.components.converter import Converter
         from datumaro.components.extractor import (Importer, SourceExtractor,
-                                                   Transform)
+            Transform)
         from datumaro.components.launcher import Launcher
         self.extractors = PluginRegistry(
             builtin=select(builtin, SourceExtractor),
@@ -205,10 +201,10 @@ class Environment:
         return self.launchers.get(name)(*args, **kwargs)
 
     def make_converter(self, name, *args, **kwargs):
-        r = self.converters.get(name)
-        if inspect.isclass(r):
-            r = partial(r.convert, *args, **kwargs)
-        return r
+        result = self.converters.get(name)
+        if inspect.isclass(result):
+            result = result.convert
+        return partial(result, *args, **kwargs)
 
     def make_transform(self, name, *args, **kwargs):
         return partial(self.transforms.get(name), *args, **kwargs)
@@ -219,9 +215,8 @@ class Environment:
     def detect_dataset(self, path):
         matches = []
 
-        for format_name in self.importers.items:
+        for format_name, importer in self.importers.items.items():
             log.debug("Checking '%s' format...", format_name)
-            importer = self.make_importer(format_name)
             try:
                 match = importer.detect(path)
                 if match:

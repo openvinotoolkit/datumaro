@@ -111,8 +111,12 @@ CVAT annotations                             ---> Publication, statistics etc.
   - [PASCAL VOC](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/htmldoc/index.html) (`classification`, `detection`, `segmentation`, `action_classification`, `person_layout`)
   - [YOLO](https://github.com/AlexeyAB/darknet#how-to-train-pascal-voc-data) (`bboxes`)
   - [TF Detection API](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/using_your_own_dataset.md) (`bboxes`, `masks`)
+  - [WIDER Face](http://shuoyang1213.me/WIDERFACE/) (`bboxes`)
+  - [VGGFace2](https://github.com/ox-vgg/vgg_face2) (`landmarks`, `bboxes`)
   - [MOT sequences](https://arxiv.org/pdf/1906.04567.pdf)
   - [MOTS PNG](https://www.vision.rwth-aachen.de/page/mots)
+  - [ImageNet](http://image-net.org/)
+  - [CamVid](http://mi.eng.cam.ac.uk/research/projects/VideoRec/CamVid/)
   - [CVAT](https://github.com/opencv/cvat/blob/develop/cvat/apps/documentation/xml_format.md)
   - [LabelMe](http://labelme.csail.mit.edu/Release3.0)
 - Dataset building

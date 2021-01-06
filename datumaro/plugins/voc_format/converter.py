@@ -13,7 +13,7 @@ from itertools import chain
 from lxml import etree as ET
 
 from datumaro.components.converter import Converter
-from datumaro.components.extractor import (DEFAULT_SUBSET_NAME, AnnotationType,
+from datumaro.components.extractor import (AnnotationType,
     CompiledMask, LabelCategories)
 from datumaro.util import find, str_to_bool
 from datumaro.util.image import save_image

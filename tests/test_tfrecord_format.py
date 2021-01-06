@@ -9,7 +9,7 @@ from datumaro.components.extractor import (DatasetItem,
     AnnotationType, Bbox, Mask, LabelCategories
 )
 from datumaro.components.project import Project
-from datumaro.util.image import Image
+from datumaro.util.image import Image, ByteImage, encode_image
 from datumaro.util.test_utils import (TestDir, compare_datasets,
     test_save_and_load)
 from datumaro.util.tf_util import check_import
@@ -134,6 +134,25 @@ class TfrecordConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(test_dataset,
                 TfDetectionApiConverter.convert, test_dir)
+
+    def test_can_save_dataset_with_unknown_image_formats(self):
+        test_dataset = Dataset.from_iterable([
+            DatasetItem(id=1,
+                image=ByteImage(data=encode_image(np.ones((5, 4, 3)), 'png'),
+                    path='1/q.e'),
+                attributes={'source_id': ''}
+            ),
+            DatasetItem(id=2,
+                image=ByteImage(data=encode_image(np.ones((6, 4, 3)), 'png'),
+                    ext='qwe'),
+                attributes={'source_id': ''}
+            )
+        ], categories={ AnnotationType.label: LabelCategories(), })
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(test_dataset,
+                partial(TfDetectionApiConverter.convert, save_images=True),
+                test_dir)
 
     def test_labelmap_parsing(self):
         text = """

@@ -7,7 +7,8 @@ import attr
 import os
 import os.path as osp
 import re
-from contextlib import contextmanager, ExitStack
+import unicodedata
+from contextlib import ExitStack
 from functools import partial, wraps
 from itertools import islice
 
@@ -103,7 +104,6 @@ def make_file_name(s):
     Normalizes string, converts to lowercase, removes non-alpha characters,
     and converts spaces to hyphens.
     """
-    import unicodedata, re
     s = unicodedata.normalize('NFKD', s).encode('ascii', 'ignore')
     s = s.decode()
     s = re.sub(r'[^\w\s-]', '', s).strip().lower()
@@ -160,8 +160,8 @@ class Rollback:
         self.enabled = True
 
     def add(self, callback, *args,
-            name=None, enabled=True, ignore_errors=False, fwd_kwargs=None,
-            **kwargs):
+            name=None, enabled=True, ignore_errors=False,
+            fwd_kwargs=None, **kwargs):
         if args or kwargs or fwd_kwargs:
             if fwd_kwargs:
                 kwargs.update(fwd_kwargs)

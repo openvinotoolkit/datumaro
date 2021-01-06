@@ -115,9 +115,15 @@ def import_command(args):
     env = Environment()
     log.info("Importing project from '%s'" % args.source)
 
+    extra_args = {}
+    fmt = args.format
     if not args.format:
-        matches = env.detect_dataset(args.source)
+        if args.extra_args:
+            raise CliException("Extra args can not be used without format")
 
+        log.info("Trying to detect dataset format...")
+
+        matches = env.detect_dataset(args.source)
         if len(matches) == 0:
             log.error("Failed to detect dataset format. "
                 "Try to specify format with '-f/--format' parameter.")
@@ -128,19 +134,23 @@ def import_command(args):
                 ', '.join(matches))
             return 1
 
-        args.format = matches[0]
-        log.info("Source dataset format detected as '%s'", args.format)
+        fmt = matches[0]
+    elif args.extra_args:
+        if fmt in env.importers:
+            arg_parser = env.importers[fmt]
+        elif fmt in env.extractors:
+            arg_parser = env.extractors[fmt]
+        else:
+            raise CliException("Unknown format '%s'. A format can be added"
+                "by providing an Extractor and Importer plugins" % fmt)
 
-    extra_args = {}
-    try:
-        importer = env.make_importer(args.format)
-        if hasattr(importer, 'from_cmdline'):
-            extra_args = importer.from_cmdline(args.extra_args)
-    except KeyError:
-        raise CliException("Importer for format '%s' is not found" % \
-            args.format)
+        if hasattr(arg_parser, 'from_cmdline'):
+            extra_args = arg_parser.from_cmdline(args.extra_args)
+        else:
+            raise CliException("Format '%s' does not accept "
+                "extra parameters" % fmt)
 
-    log.info("Importing project as '%s'" % args.format)
+    log.info("Importing project as '%s'" % fmt)
 
     if not osp.isdir(project_dir):
         on_error.do(shutil.rmtree, project_dir, ignore_errors=True)

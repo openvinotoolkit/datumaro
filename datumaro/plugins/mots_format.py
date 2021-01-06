@@ -113,6 +113,7 @@ class MotsPngConverter(Converter):
             subset_dir = osp.join(self._save_dir, subset_name)
             images_dir = osp.join(subset_dir, MotsPath.IMAGE_DIR)
             anno_dir = osp.join(subset_dir, MotsPath.MASKS_DIR)
+            os.makedirs(anno_dir, exist_ok=True)
 
             for item in subset:
                 log.debug("Converting item '%s'", item.id)

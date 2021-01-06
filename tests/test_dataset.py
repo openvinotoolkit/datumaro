@@ -2,14 +2,224 @@ import numpy as np
 
 from unittest import TestCase
 
-from datumaro.components.dataset import Dataset
+from datumaro.components.project import Environment
 from datumaro.components.extractor import (Extractor, DatasetItem,
     Label, Mask, Points, Polygon, PolyLine, Bbox, Caption,
+    LabelCategories, AnnotationType, Transform
 )
 from datumaro.util.image import Image
 from datumaro.components.dataset_filter import \
     XPathDatasetFilter, XPathAnnotationsFilter, DatasetItemEncoder
-from datumaro.util.test_utils import compare_datasets
+from datumaro.components.dataset import Dataset, DEFAULT_FORMAT
+from datumaro.util.test_utils import TestDir, compare_datasets
+
+
+class DatasetTest(TestCase):
+    def test_create_from_extractors(self):
+        class SrcExtractor1(Extractor):
+            def __iter__(self):
+                return iter([
+                    DatasetItem(id=1, subset='train', annotations=[
+                        Bbox(1, 2, 3, 4),
+                        Label(4),
+                    ]),
+                    DatasetItem(id=1, subset='val', annotations=[
+                        Label(4),
+                    ]),
+                ])
+
+        class SrcExtractor2(Extractor):
+            def __iter__(self):
+                return iter([
+                    DatasetItem(id=1, subset='val', annotations=[
+                        Label(5),
+                    ]),
+                ])
+
+        class DstExtractor(Extractor):
+            def __iter__(self):
+                return iter([
+                    DatasetItem(id=1, subset='train', annotations=[
+                        Bbox(1, 2, 3, 4),
+                        Label(4),
+                    ]),
+                    DatasetItem(id=1, subset='val', annotations=[
+                        Label(4),
+                        Label(5),
+                    ]),
+                ])
+
+        dataset = Dataset.from_extractors(SrcExtractor1(), SrcExtractor2())
+
+        compare_datasets(self, DstExtractor(), dataset)
+
+    def test_can_create_from_iterable(self):
+        class TestExtractor(Extractor):
+            def __iter__(self):
+                return iter([
+                    DatasetItem(id=1, subset='train', annotations=[
+                        Bbox(1, 2, 3, 4, label=2),
+                        Label(4),
+                    ]),
+                    DatasetItem(id=1, subset='val', annotations=[
+                        Label(3),
+                    ]),
+                ])
+
+            def categories(self):
+                return { AnnotationType.label: LabelCategories.from_iterable(
+                    ['a', 'b', 'c', 'd', 'e'])
+                }
+
+        actual = Dataset.from_iterable([
+            DatasetItem(id=1, subset='train', annotations=[
+                Bbox(1, 2, 3, 4, label=2),
+                Label(4),
+            ]),
+            DatasetItem(id=1, subset='val', annotations=[
+                Label(3),
+            ]),
+        ], categories=['a', 'b', 'c', 'd', 'e'])
+
+        compare_datasets(self, TestExtractor(), actual)
+
+    def test_can_save_and_load(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[ Label(2) ]),
+        ], categories=['a', 'b', 'c'])
+
+        with TestDir() as test_dir:
+            source_dataset.save(test_dir)
+
+            loaded_dataset = Dataset.load(test_dir)
+
+            compare_datasets(self, source_dataset, loaded_dataset)
+
+    def test_can_detect(self):
+        env = Environment()
+        env.importers.items = {DEFAULT_FORMAT: env.importers[DEFAULT_FORMAT]}
+        env.extractors.items = {DEFAULT_FORMAT: env.extractors[DEFAULT_FORMAT]}
+
+        dataset = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[ Label(2) ]),
+        ], categories=['a', 'b', 'c'])
+
+        with TestDir() as test_dir:
+            dataset.save(test_dir)
+
+            detected_format = Dataset.detect(test_dir, env=env)
+
+            self.assertEqual(DEFAULT_FORMAT, detected_format)
+
+    def test_can_detect_and_import(self):
+        env = Environment()
+        env.importers.items = {DEFAULT_FORMAT: env.importers[DEFAULT_FORMAT]}
+        env.extractors.items = {DEFAULT_FORMAT: env.extractors[DEFAULT_FORMAT]}
+
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[ Label(2) ]),
+        ], categories=['a', 'b', 'c'])
+
+        with TestDir() as test_dir:
+            source_dataset.save(test_dir)
+
+            imported_dataset = Dataset.import_from(test_dir, env=env)
+
+            compare_datasets(self, source_dataset, imported_dataset)
+
+    def test_can_export_by_string_format_name(self):
+        env = Environment()
+        env.converters.items = {'qq': env.converters[DEFAULT_FORMAT]}
+
+        dataset = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[ Label(2) ]),
+        ], categories=['a', 'b', 'c'], env=env)
+
+        with TestDir() as test_dir:
+            dataset.export('qq', save_dir=test_dir)
+
+    def test_can_transform_by_string_name(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[ Label(2) ], attributes={'qq': 1}),
+        ], categories=['a', 'b', 'c'])
+
+        class TestTransform(Transform):
+            def transform_item(self, item):
+                return self.wrap_item(item, attributes={'qq': 1})
+
+        env = Environment()
+        env.transforms.items = {'qq': TestTransform}
+
+        dataset = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[ Label(2) ]),
+        ], categories=['a', 'b', 'c'], env=env)
+
+        actual = dataset.transform('qq')
+
+        self.assertTrue(isinstance(actual, Dataset))
+        self.assertEqual(env, actual.env)
+        compare_datasets(self, expected, actual)
+
+    def test_can_join_annotations(self):
+        a = Dataset.from_iterable([
+            DatasetItem(id=1, subset='train', annotations=[
+                Label(1, id=3),
+                Label(2, attributes={ 'x': 1 }),
+            ])
+        ], categories=['a', 'b', 'c', 'd'])
+
+        b = Dataset.from_iterable([
+            DatasetItem(id=1, subset='train', annotations=[
+                Label(2, attributes={ 'x': 1 }),
+                Label(3, id=4),
+            ])
+        ], categories=['a', 'b', 'c', 'd'])
+
+        expected = Dataset.from_iterable([
+            DatasetItem(id=1, subset='train', annotations=[
+                Label(1, id=3),
+                Label(2, attributes={ 'x': 1 }),
+                Label(3, id=4),
+            ])
+        ], categories=['a', 'b', 'c', 'd'])
+
+        merged = Dataset.from_extractors(a, b)
+
+        compare_datasets(self, expected, merged)
+
+    def test_cant_join_different_categories(self):
+        s1 = Dataset.from_iterable([], categories=['a', 'b'])
+        s2 = Dataset.from_iterable([], categories=['b', 'a'])
+
+        with self.assertRaisesRegex(Exception, "different categories"):
+            Dataset.from_extractors(s1, s2)
+
+    def test_can_join_datasets(self):
+        s1 = Dataset.from_iterable([ DatasetItem(0), DatasetItem(1) ])
+        s2 = Dataset.from_iterable([ DatasetItem(1), DatasetItem(2) ])
+
+        dataset = Dataset.from_extractors(s1, s2)
+
+        self.assertEqual(3, len(dataset))
+
+
+class DatasetItemTest(TestCase):
+    def test_ctor_requires_id(self):
+        with self.assertRaises(Exception):
+            # pylint: disable=no-value-for-parameter
+            DatasetItem()
+            # pylint: enable=no-value-for-parameter
+
+    @staticmethod
+    def test_ctors_with_image():
+        for args in [
+            { 'id': 0, 'image': None },
+            { 'id': 0, 'image': 'path.jpg' },
+            { 'id': 0, 'image': np.array([1, 2, 3]) },
+            { 'id': 0, 'image': lambda f: np.array([1, 2, 3]) },
+            { 'id': 0, 'image': Image(data=np.array([1, 2, 3])) },
+        ]:
+            DatasetItem(**args)
 
 
 class DatasetFilterTest(TestCase):
@@ -102,99 +312,3 @@ class DatasetFilterTest(TestCase):
             '/item/annotation[label_id = 2]', remove_empty=True)
 
         compare_datasets(self, expected, filtered)
-
-
-class DatasetTest(TestCase):
-    def test_create_from_extractors(self):
-        class SrcExtractor1(Extractor):
-            def __iter__(self):
-                return iter([
-                    DatasetItem(id=1, subset='train', annotations=[
-                        Bbox(1, 2, 3, 4),
-                        Label(4),
-                    ]),
-                    DatasetItem(id=1, subset='val', annotations=[
-                        Label(4),
-                    ]),
-                ])
-
-        class SrcExtractor2(Extractor):
-            def __iter__(self):
-                return iter([
-                    DatasetItem(id=1, subset='val', annotations=[
-                        Label(5),
-                    ]),
-                ])
-
-        class DstExtractor(Extractor):
-            def __iter__(self):
-                return iter([
-                    DatasetItem(id=1, subset='train', annotations=[
-                        Bbox(1, 2, 3, 4),
-                        Label(4),
-                    ]),
-                    DatasetItem(id=1, subset='val', annotations=[
-                        Label(4),
-                        Label(5),
-                    ]),
-                ])
-
-        dataset = Dataset.from_extractors(SrcExtractor1(), SrcExtractor2())
-
-        compare_datasets(self, DstExtractor(), dataset)
-
-    def test_can_join_annotations(self):
-        class TestExtractor1(Extractor):
-            def __iter__(self):
-                yield DatasetItem(id=1, subset='train', annotations=[
-                    Label(2, id=3),
-                    Label(3, attributes={ 'x': 1 }),
-                ])
-
-        class TestExtractor2(Extractor):
-            def __iter__(self):
-                yield DatasetItem(id=1, subset='train', annotations=[
-                    Label(3, attributes={ 'x': 1 }),
-                    Label(4, id=4),
-                ])
-
-        merged = Dataset.from_extractors(TestExtractor1(), TestExtractor2())
-
-        self.assertEqual(1, len(merged))
-
-        item = next(iter(merged))
-        self.assertEqual(3, len(item.annotations))
-
-    def test_cant_join_different_categories(self):
-        s1 = Dataset.from_iterable([], categories=['a', 'b'])
-        s2 = Dataset.from_iterable([], categories=['b', 'a'])
-
-        with self.assertRaisesRegex(Exception, "different categories"):
-            Dataset.from_extractors(s1, s2)
-
-    def test_can_join_datasets(self):
-        s1 = Dataset.from_iterable([ DatasetItem(0), DatasetItem(1) ])
-        s2 = Dataset.from_iterable([ DatasetItem(1), DatasetItem(2) ])
-
-        dataset = Dataset.from_extractors(s1, s2)
-
-        self.assertEqual(3, len(dataset))
-
-
-class DatasetItemTest(TestCase):
-    def test_ctor_requires_id(self):
-        with self.assertRaises(Exception):
-            # pylint: disable=no-value-for-parameter
-            DatasetItem()
-            # pylint: enable=no-value-for-parameter
-
-    @staticmethod
-    def test_ctors_with_image():
-        for args in [
-            { 'id': 0, 'image': None },
-            { 'id': 0, 'image': 'path.jpg' },
-            { 'id': 0, 'image': np.array([1, 2, 3]) },
-            { 'id': 0, 'image': lambda f: np.array([1, 2, 3]) },
-            { 'id': 0, 'image': Image(data=np.array([1, 2, 3])) },
-        ]:
-            DatasetItem(**args)

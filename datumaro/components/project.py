@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2020 Intel Corporation
+# Copyright (C) 2019-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -28,10 +28,6 @@ from datumaro.util import (make_file_name, find, generate_next_name,
     error_rollback)
 from datumaro.util.log_utils import logging_disabled, catch_logs
 
-
-def load_project_as_dataset(url):
-    # symbol forward declaration
-    raise NotImplementedError()
 
 class ProjectSourceDataset(Dataset):
     def __init__(self, project, source):
@@ -1028,7 +1024,7 @@ class GitWrapper:
             args.extend(paths)
         self.repo.git.checkout(*args)
 
-    def add(self, paths, all=False):
+    def add(self, paths, all=False): # pylint: disable=redefined-builtin
         if not all:
             paths = [
                 p2 for p in paths
@@ -1571,7 +1567,9 @@ class Project:
                     ', '.join(matches))
             dataset_format = matches[0]
         elif not env.is_format_known(dataset_format):
-            raise KeyError("Unknown dataset format '%s'" % dataset_format)
+            raise Exception("Unknown format '%s'. To make it "
+                "available, add the corresponding Extractor implementation "
+                "to the environment" % dataset_format)
 
         project = Project(env=env)
         project.sources.add('source', {
@@ -1638,7 +1636,11 @@ class Project:
     def __init__(self, config=None, env=None):
         self._config = Config(config,
             fallback=PROJECT_DEFAULT_CONFIG, schema=PROJECT_SCHEMA)
-        self._env = env or Environment(self.config)
+        if env is None:
+            env = Environment(self._config)
+        elif config is not None:
+            raise ValueError("env can only be provided when no config provided")
+        self._env = env
         self._vcs = ProjectVcs(self)
         self._sources = ProjectSources(self)
         self._models = ProjectModels(self)
@@ -1689,8 +1691,5 @@ def compare_projects(a, b, **options):
     raise NotImplementedError()
 
 
-# pylint: disable=function-redefined
 def load_project_as_dataset(url):
-    # implement the function declared above
     return Project.load(url).make_dataset()
-# pylint: enable=function-redefined

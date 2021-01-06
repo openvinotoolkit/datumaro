@@ -8,6 +8,7 @@ import os
 import os.path as osp
 
 from datumaro.components.project import Environment
+from datumaro.components.dataset import Dataset
 
 from ..contexts.project import FilterModes
 from ..util import CliException, MultilineFormatter, make_file_name
@@ -72,14 +73,12 @@ def convert_command(args):
     else:
         extra_args = {}
 
-    def converter_proxy(extractor, save_dir):
-        return converter.convert(extractor, save_dir, **extra_args)
 
     filter_args = FilterModes.make_filter_args(args.filter_mode)
 
+    fmt = args.input_format
     if not args.input_format:
         matches = env.detect_dataset(args.source)
-
         if len(matches) == 0:
             log.error("Failed to detect dataset format. "
                 "Try to specify format with '-if/--input-format' parameter.")
@@ -88,17 +87,10 @@ def convert_command(args):
             log.error("Multiple formats match the dataset: %s. "
                 "Try to specify format with '-if/--input-format' parameter.",
                 ', '.join(matches))
-            return 1
+            return 2
 
-        format_name = matches[0]
-        args.input_format = format_name
+        fmt = matches[0]
         log.info("Source dataset format detected as '%s'", args.input_format)
-
-    try:
-        env.make_importer(args.input_format)
-    except KeyError:
-        raise CliException("Importer for format '%s' is not found" % \
-            args.input_format)
 
     source = osp.abspath(args.source)
 
@@ -112,13 +104,12 @@ def convert_command(args):
             (osp.basename(source), make_file_name(args.output_format)))
     dst_dir = osp.abspath(dst_dir)
 
-    project = Project.import_from(source, args.input_format)
-    dataset = project.make_dataset()
+    dataset = Dataset.import_from(source, fmt)
 
     log.info("Exporting the dataset")
     if args.filter:
-        dataset = dataset.filter(expr=args.filter, **filter_args)
-    dataset.export(save_dir=dst_dir, converter=converter_proxy)
+        dataset = dataset.filter(args.filter, **filter_args)
+    dataset.export(args.output_format, save_dir=dst_dir, **extra_args)
 
     log.info("Dataset exported to '%s' as '%s'" % \
         (dst_dir, args.output_format))

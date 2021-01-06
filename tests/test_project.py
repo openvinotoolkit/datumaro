@@ -83,6 +83,34 @@ class BaseProjectTest(TestCase):
         self.assertEqual(added.format, origin.format)
         self.assertEqual(added.options, origin.options)
 
+    def test_can_make_dataset(self):
+        class CustomExtractor(Extractor):
+            def __iter__(self):
+                return iter([
+                    DatasetItem(id=0, subset='train'),
+                    DatasetItem(id=1, subset='train'),
+                    DatasetItem(id=2, subset='train'),
+
+                    DatasetItem(id=3, subset='test'),
+                    DatasetItem(id=4, subset='test'),
+
+                    DatasetItem(id=1),
+                    DatasetItem(id=2),
+                    DatasetItem(id=3),
+                ])
+
+        extractor_name = 'ext1'
+        project = Project()
+        project.env.extractors.register(extractor_name, CustomExtractor)
+        project.sources.add('src1', {
+            'url': 'path',
+            'format': extractor_name,
+        })
+
+        dataset = project.make_dataset()
+
+        compare_datasets(self, CustomExtractor(), dataset)
+
     def test_can_dump_added_source(self):
         with TestDir() as test_dir:
             project = Project()
@@ -158,6 +186,25 @@ class BaseProjectTest(TestCase):
         dataset = project.make_dataset()
 
         self.assertEqual(5, len(dataset))
+
+    def test_can_detect_and_import(self):
+        env = Environment()
+        env.importers.items = {DEFAULT_FORMAT: env.importers[DEFAULT_FORMAT]}
+        env.extractors.items = {DEFAULT_FORMAT: env.extractors[DEFAULT_FORMAT]}
+
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[ Label(2) ]),
+        ], categories=['a', 'b', 'c'])
+
+        with TestDir() as test_dir:
+            source_dataset.save(test_dir)
+
+            project = Project.import_from(test_dir, env=env)
+            imported_dataset = project.make_dataset()
+
+            self.assertEqual(next(iter(project.sources.items()))[1].format,
+                DEFAULT_FORMAT)
+            compare_datasets(self, source_dataset, imported_dataset)
 
 
 no_vcs_installed = False
@@ -769,3 +816,31 @@ class ModelsTest(TestCase):
                 item.annotations[0].attributes['idx'])
             self.assertEqual(int(item.id),
                 item.annotations[0].attributes['data'])
+
+class ConfigTest(TestCase):
+    def test_can_produce_multilayer_config_from_dict(self):
+        schema_low = SchemaBuilder() \
+            .add('options', dict) \
+            .build()
+        schema_mid = SchemaBuilder() \
+            .add('desc', lambda: Config(schema=schema_low)) \
+            .build()
+        schema_top = SchemaBuilder() \
+            .add('container', lambda: DefaultConfig(
+                lambda v: Config(v, schema=schema_mid))) \
+            .build()
+
+        value = 1
+        source = Config({
+            'container': {
+                'elem': {
+                    'desc': {
+                        'options': {
+                            'k': value
+                        }
+                    }
+                }
+            }
+        }, schema=schema_top)
+
+        self.assertEqual(value, source.container['elem'].desc.options['k'])

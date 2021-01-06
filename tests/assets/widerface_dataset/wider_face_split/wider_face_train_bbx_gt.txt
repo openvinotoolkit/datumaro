@@ -1,0 +1,7 @@
+0--Parade/0_Parade_image_01.jpg
+1
+1 2 2 2 0 0 0 0 0 0 
+1--Handshaking/1_Handshaking_image_02.jpg
+2
+1 1 2 2 0 0 1 0 0 0 
+5 1 2 2 0 0 1 0 0 0 

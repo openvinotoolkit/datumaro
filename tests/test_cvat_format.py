@@ -152,7 +152,7 @@ class CvatConverterTest(TestCase):
         label_categories = LabelCategories()
         for i in range(10):
             label_categories.add(str(i))
-        label_categories.items[2].attributes.update(['a1', 'a2'])
+        label_categories.items[2].attributes.update(['a1', 'a2', 'empty'])
         label_categories.attributes.update(['occluded'])
 
         source_dataset = Dataset.from_iterable([
@@ -160,10 +160,10 @@ class CvatConverterTest(TestCase):
                 annotations=[
                     Polygon([0, 0, 4, 0, 4, 4],
                         label=1, group=4,
-                        attributes={ 'occluded': True }),
+                        attributes={ 'occluded': True}),
                     Points([1, 1, 3, 2, 2, 3],
                         label=2,
-                        attributes={ 'a1': 'x', 'a2': 42,
+                        attributes={ 'a1': 'x', 'a2': 42, 'empty': '',
                             'unknown': 'bar' }),
                     Label(1),
                     Label(2, attributes={ 'a1': 'y', 'a2': 44 }),
@@ -201,7 +201,7 @@ class CvatConverterTest(TestCase):
                         attributes={ 'occluded': True }),
                     Points([1, 1, 3, 2, 2, 3],
                         label=2,
-                        attributes={ 'occluded': False,
+                        attributes={ 'occluded': False, 'empty': '',
                             'a1': 'x', 'a2': 42 }),
                     Label(1),
                     Label(2, attributes={ 'a1': 'y', 'a2': 44 }),

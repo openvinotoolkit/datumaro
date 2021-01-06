@@ -199,7 +199,7 @@ class TfDetectionApiConverter(Converter):
     def _save_image(self, item, path=None):
         src_ext = item.image.ext.lower()
         dst_ext = osp.splitext(osp.basename(path))[1].lower()
-        fmt = DetectionApiPath.IMAGE_EXT_FORMAT.get(dst_ext)
+        fmt = DetectionApiPath.IMAGE_EXT_FORMAT.get(dst_ext, '')
         if not fmt:
             log.warning("Item '%s': can't find format string for the '%s' "
                 "image extension, the corresponding field will be empty." % \
