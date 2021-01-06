@@ -200,8 +200,8 @@ def import_command(args):
             raise CliException("Unknown format '%s'. A format can be added"
                 "by providing an Extractor and Importer plugins" % fmt)
 
-        if hasattr(arg_parser, 'from_cmdline'):
-            extra_args = arg_parser.from_cmdline(args.extra_args)
+        if hasattr(arg_parser, 'parse_cmdline'):
+            extra_args = arg_parser.parse_cmdline(args.extra_args)
         else:
             raise CliException("Format '%s' does not accept "
                 "extra parameters" % fmt)
@@ -330,14 +330,12 @@ def export_command(args):
     dst_dir = osp.abspath(dst_dir)
 
     try:
-        converter = project.env.converters.get(args.format)
+        converter = project.env.converters[args.format]
     except KeyError:
         raise CliException("Converter for format '%s' is not found" % \
             args.format)
 
-    extra_args = converter.from_cmdline(args.extra_args)
-    def converter_proxy(extractor, save_dir):
-        return converter.convert(extractor, save_dir, **extra_args)
+    extra_args = converter.parse_cmdline(args.extra_args)
 
     filter_args = FilterModes.make_filter_args(args.filter_mode)
 
@@ -345,11 +343,11 @@ def export_command(args):
     dataset = project.make_dataset()
 
     log.info("Exporting the project...")
-    dataset.export_project(
-        save_dir=dst_dir,
-        converter=converter_proxy,
-        filter_expr=args.filter,
-        **filter_args)
+
+    if args.filter:
+        dataset = dataset.filter(args.filter, **filter_args)
+    dataset.export(args.format, save_dir=dst_dir, **extra_args)
+
     log.info("Project exported to '%s' as '%s'" % \
         (dst_dir, args.format))
 
@@ -674,13 +672,13 @@ def transform_command(args):
     dst_dir = osp.abspath(dst_dir)
 
     try:
-        transform = project.env.transforms.get(args.transform)
+        transform = project.env.transforms[args.transform]
     except KeyError:
         raise CliException("Transform '%s' is not found" % args.transform)
 
     extra_args = {}
-    if hasattr(transform, 'from_cmdline'):
-        extra_args = transform.from_cmdline(args.extra_args)
+    if hasattr(transform, 'parse_cmdline'):
+        extra_args = transform.parse_cmdline(args.extra_args)
 
     log.info("Loading the project...")
     dataset = project.make_dataset()

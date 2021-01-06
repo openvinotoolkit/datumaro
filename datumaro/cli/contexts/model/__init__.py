@@ -59,12 +59,12 @@ def add_command(args):
         assert args.name not in project.config.models, args.name
 
     try:
-        launcher = project.env.launchers.get(args.launcher)
+        launcher = project.env.launchers[args.launcher]
     except KeyError:
         raise CliException("Launcher '%s' is not found" % args.launcher)
 
     cli_plugin = getattr(launcher, 'cli_plugin', launcher)
-    model_args = cli_plugin.from_cmdline(args.extra_args)
+    model_args = cli_plugin.parse_cmdline(args.extra_args)
 
     if args.copy:
         log.info("Copying model data")
