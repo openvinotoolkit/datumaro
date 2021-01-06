@@ -160,6 +160,48 @@ class DatasetTest(TestCase):
         self.assertEqual(env, actual.env)
         compare_datasets(self, expected, actual)
 
+    def test_can_join_annotations(self):
+        a = Dataset.from_iterable([
+            DatasetItem(id=1, subset='train', annotations=[
+                Label(1, id=3),
+                Label(2, attributes={ 'x': 1 }),
+            ])
+        ], categories=['a', 'b', 'c', 'd'])
+
+        b = Dataset.from_iterable([
+            DatasetItem(id=1, subset='train', annotations=[
+                Label(2, attributes={ 'x': 1 }),
+                Label(3, id=4),
+            ])
+        ], categories=['a', 'b', 'c', 'd'])
+
+        expected = Dataset.from_iterable([
+            DatasetItem(id=1, subset='train', annotations=[
+                Label(1, id=3),
+                Label(2, attributes={ 'x': 1 }),
+                Label(3, id=4),
+            ])
+        ], categories=['a', 'b', 'c', 'd'])
+
+        merged = Dataset.from_extractors(a, b)
+
+        compare_datasets(self, expected, merged)
+
+    def test_cant_join_different_categories(self):
+        s1 = Dataset.from_iterable([], categories=['a', 'b'])
+        s2 = Dataset.from_iterable([], categories=['b', 'a'])
+
+        with self.assertRaisesRegex(Exception, "different categories"):
+            Dataset.from_extractors(s1, s2)
+
+    def test_can_join_datasets(self):
+        s1 = Dataset.from_iterable([ DatasetItem(0), DatasetItem(1) ])
+        s2 = Dataset.from_iterable([ DatasetItem(1), DatasetItem(2) ])
+
+        dataset = Dataset.from_extractors(s1, s2)
+
+        self.assertEqual(3, len(dataset))
+
 
 class DatasetItemTest(TestCase):
     def test_ctor_requires_id(self):
@@ -250,31 +292,23 @@ class DatasetFilterTest(TestCase):
         self.assertListEqual(list(filtered), list(DstExtractor()))
 
     def test_annotations_filter_can_remove_empty_items(self):
-        class SrcExtractor(Extractor):
-            def __iter__(self):
-                return iter([
-                    DatasetItem(id=0),
-                    DatasetItem(id=1, annotations=[
-                        Label(0),
-                        Label(1),
-                    ]),
-                    DatasetItem(id=2, annotations=[
-                        Label(0),
-                        Label(2),
-                    ]),
-                ])
+        source = Dataset.from_iterable([
+            DatasetItem(id=0),
+            DatasetItem(id=1, annotations=[
+                Label(0),
+                Label(1),
+            ]),
+            DatasetItem(id=2, annotations=[
+                Label(0),
+                Label(2),
+            ]),
+        ], categories=['a', 'b', 'c'])
 
-        class DstExtractor(Extractor):
-            def __iter__(self):
-                return iter([
-                    DatasetItem(id=2, annotations=[
-                        Label(2),
-                    ]),
-                ])
+        expected = Dataset.from_iterable([
+            DatasetItem(id=2, annotations=[Label(2)]),
+        ], categories=['a', 'b', 'c'])
 
-        extractor = SrcExtractor()
-
-        filtered = XPathAnnotationsFilter(extractor,
+        filtered = XPathAnnotationsFilter(source,
             '/item/annotation[label_id = 2]', remove_empty=True)
 
-        self.assertListEqual(list(filtered), list(DstExtractor()))
+        compare_datasets(self, expected, filtered)
