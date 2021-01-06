@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from datumaro.components.config import Config, DefaultConfig, SchemaBuilder
+from datumaro.components.config import Config, DictConfig, SchemaBuilder
 
 
 class ConfigTest(TestCase):
@@ -12,7 +12,7 @@ class ConfigTest(TestCase):
             .add('desc', lambda: Config(schema=schema_low)) \
             .build()
         schema_top = SchemaBuilder() \
-            .add('container', lambda: DefaultConfig(
+            .add('container', lambda: DictConfig(
                 lambda v: Config(v, schema=schema_mid))) \
             .build()
 

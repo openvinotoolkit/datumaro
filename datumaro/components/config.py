@@ -150,13 +150,18 @@ class Config:
 
     def __eq__(self, other):
         try:
-            for k, my_v in self.items(allow_internal=False):
+            keys = set(self.keys()) | set(other.keys())
+            for k in keys:
+                my_v = self[k]
                 other_v = other[k]
                 if my_v != other_v:
                     return False
             return True
-        except Exception:
+        except (KeyError, AttributeError):
             return False
+
+    def __repr__(self):
+        return repr(dict(self))
 
     def update(self, other):
         for k, v in other.items():
@@ -205,9 +210,12 @@ class Config:
         return value
 
     @staticmethod
-    def parse(path):
-        with open(path, 'r') as f:
-            return Config(yaml.safe_load(f))
+    def parse(path, *args, **kwargs):
+        if isinstance(path, str):
+            with open(path, 'r') as f:
+                return Config(yaml.safe_load(f), *args, **kwargs)
+        else:
+            return Config(yaml.safe_load(path), *args, **kwargs)
 
     @staticmethod
     def yaml_representer(dumper, value):
@@ -215,13 +223,16 @@ class Config:
             value._items(allow_internal=False, allow_fallback=False))
 
     def dump(self, path):
-        with open(path, 'w+') as f:
-            yaml.dump(self, f)
+        if isinstance(path, str):
+            with open(path, 'w') as f:
+                yaml.dump(self, f)
+        else:
+            yaml.dump(self, path)
 
 yaml.add_multi_representer(Config, Config.yaml_representer)
 
 
-class DefaultConfig(Config):
+class DictConfig(Config):
     def __init__(self, default=None):
         super().__init__()
         self.__dict__['_default'] = default
