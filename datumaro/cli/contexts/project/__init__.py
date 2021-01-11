@@ -346,7 +346,7 @@ def export_command(args):
 
     if args.filter:
         dataset = dataset.filter(args.filter, **filter_args)
-    dataset.export(args.format, save_dir=dst_dir, **extra_args)
+    dataset.export(format=args.format, save_dir=dst_dir, **extra_args)
 
     log.info("Project exported to '%s' as '%s'" % \
         (dst_dir, args.format))

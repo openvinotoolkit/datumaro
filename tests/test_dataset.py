@@ -136,7 +136,7 @@ class DatasetTest(TestCase):
         ], categories=['a', 'b', 'c'], env=env)
 
         with TestDir() as test_dir:
-            dataset.export('qq', save_dir=test_dir)
+            dataset.export(format='qq', save_dir=test_dir)
 
     def test_can_transform_by_string_name(self):
         expected = Dataset.from_iterable([

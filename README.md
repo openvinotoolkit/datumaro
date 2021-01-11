@@ -99,6 +99,22 @@ CVAT annotations                             ---> Publication, statistics etc.
   # use "datum --loglevel debug" for extra conversion info
   ```
 
+- Create a custom COCO-like dataset:
+  ```python
+  import numpy as np
+  from datumaro.components.extractor import (DatasetItem,
+    Bbox, LabelCategories, AnnotationType)
+  from datumaro.components.dataset import Dataset
+
+  dataset = Dataset(categories={
+    AnnotationType.label: LabelCategories.from_iterable(['cat', 'dog'])
+  })
+  dataset.put(DatasetItem(id=0, image=np.ones((5, 5, 3)), annotations=[
+    Bbox(1, 2, 3, 4, label=0),
+  ]))
+  dataset.export('test_dataset', 'coco')
+  ```
+
 <!--lint enable list-item-bullet-indent-->
 <!--lint enable list-item-indent-->
 
