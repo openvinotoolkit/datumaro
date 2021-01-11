@@ -3,7 +3,7 @@ from unittest import TestCase
 
 import numpy as np
 from datumaro.components.extractor import Bbox, DatasetItem
-from datumaro.components.project import Dataset, Project
+from datumaro.components.dataset import Dataset
 from datumaro.plugins.widerface_format import WiderFaceConverter, WiderFaceImporter
 from datumaro.util.test_utils import TestDir, compare_datasets
 
@@ -147,7 +147,6 @@ class WiderFaceImporterTest(TestCase):
             ),
         ])
 
-        dataset = Project.import_from(DUMMY_DATASET_DIR, 'wider_face') \
-            .make_dataset()
+        dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'wider_face')
 
         compare_datasets(self, expected_dataset, dataset)
