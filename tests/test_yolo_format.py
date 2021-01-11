@@ -42,8 +42,7 @@ class YoloFormatTest(TestCase):
 
         with TestDir() as test_dir:
             YoloConverter.convert(source_dataset, test_dir, save_images=True)
-            parsed_dataset = Project.import_from(test_dir, 'yolo') \
-                .make_dataset()
+            parsed_dataset = Dataset.import_from(test_dir, 'yolo')
 
             compare_datasets(self, source_dataset, parsed_dataset)
 
@@ -65,8 +64,7 @@ class YoloFormatTest(TestCase):
 
             save_image(osp.join(test_dir, 'obj_train_data', '1.jpg'),
                 np.ones((10, 15, 3))) # put the image for dataset
-            parsed_dataset = Project.import_from(test_dir, 'yolo') \
-                .make_dataset()
+            parsed_dataset = Dataset.import_from(test_dir, 'yolo')
 
             compare_datasets(self, source_dataset, parsed_dataset)
 
@@ -86,8 +84,8 @@ class YoloFormatTest(TestCase):
         with TestDir() as test_dir:
             YoloConverter.convert(source_dataset, test_dir)
 
-            parsed_dataset = Project.import_from(test_dir, 'yolo',
-                image_info={'1': (10, 15)}).make_dataset()
+            parsed_dataset = Dataset.import_from(test_dir, 'yolo',
+                image_info={'1': (10, 15)})
 
             compare_datasets(self, source_dataset, parsed_dataset)
 
@@ -108,8 +106,7 @@ class YoloFormatTest(TestCase):
                 with TestDir() as test_dir:
                     YoloConverter.convert(source_dataset, test_dir,
                         save_images=save_images)
-                    parsed_dataset = Project.import_from(test_dir, 'yolo') \
-                        .make_dataset()
+                    parsed_dataset = Dataset.import_from(test_dir, 'yolo')
 
                     compare_datasets(self, source_dataset, parsed_dataset)
 

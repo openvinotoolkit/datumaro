@@ -3,7 +3,7 @@ import numpy as np
 import os.path as osp
 
 from unittest import TestCase
-from datumaro.components.project import Dataset, Project
+from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import (DatasetItem,
     AnnotationType, Points, Polygon, PolyLine, Bbox, Label,
     LabelCategories,
@@ -56,8 +56,7 @@ class CvatImporterTest(TestCase):
             ])
         })
 
-        parsed_dataset = Project.import_from(DUMMY_IMAGE_DATASET_DIR, 'cvat') \
-            .make_dataset()
+        parsed_dataset = Dataset.import_from(DUMMY_IMAGE_DATASET_DIR, 'cvat')
 
         compare_datasets(self, expected_dataset, parsed_dataset)
 
@@ -136,8 +135,7 @@ class CvatImporterTest(TestCase):
             ]),
         })
 
-        parsed_dataset = Project.import_from(DUMMY_VIDEO_DATASET_DIR, 'cvat') \
-            .make_dataset()
+        parsed_dataset = Dataset.import_from(DUMMY_VIDEO_DATASET_DIR, 'cvat')
 
         compare_datasets(self, expected_dataset, parsed_dataset)
 
