@@ -9,11 +9,15 @@ import os.path as osp
 import re
 import setuptools
 
+# Snyk scan integration
+here = None
 
-def find_version(file_path=None):
-    if not file_path:
-        file_path = osp.join(osp.dirname(osp.abspath(__file__)),
-            'datumaro', 'version.py')
+
+def find_version(project_dir=None):
+    if not project_dir:
+        project_dir = osp.dirname(osp.abspath(__file__))
+
+    file_path = osp.join(project_dir, 'datumaro', 'version.py')
 
     with open(file_path, 'r') as version_file:
         version_text = version_file.read()
@@ -60,7 +64,7 @@ setuptools.dist.Distribution().fetch_build_eggs([
 
 setuptools.setup(
     name="datumaro",
-    version=find_version(),
+    version=find_version(here),
     author="Intel",
     author_email="maxim.zhiltsov@intel.com",
     description="Dataset Management Framework (Datumaro)",
