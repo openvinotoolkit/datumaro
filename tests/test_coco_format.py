@@ -4,7 +4,7 @@ import os.path as osp
 
 from unittest import TestCase
 
-from datumaro.components.project import Project, Dataset
+from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import (DatasetItem,
     AnnotationType, Label, Mask, Points, Polygon, Bbox, Caption,
     LabelCategories, PointsCategories
@@ -42,8 +42,7 @@ class CocoImporterTest(TestCase):
             ),
         ], categories=['TEST',])
 
-        dataset = Project.import_from(DUMMY_DATASET_DIR, 'coco') \
-            .make_dataset()
+        dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'coco')
 
         compare_datasets(self, expected_dataset, dataset)
 

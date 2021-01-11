@@ -18,7 +18,7 @@ from datumaro.plugins.voc_format.converter import (
     VocSegmentationConverter,
 )
 from datumaro.plugins.voc_format.importer import VocImporter
-from datumaro.components.project import Project
+from datumaro.components.dataset import Dataset
 from datumaro.util.image import Image
 from datumaro.util.test_utils import (TestDir, compare_datasets,
     test_save_and_load)
@@ -122,7 +122,7 @@ class VocImportTest(TestCase):
                         image=np.ones((10, 20, 3))),
                 ])
 
-        dataset = Project.import_from(DUMMY_DATASET_DIR, 'voc').make_dataset()
+        dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'voc')
 
         compare_datasets(self, DstExtractor(), dataset)
 

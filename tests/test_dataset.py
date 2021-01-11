@@ -2,7 +2,7 @@ import numpy as np
 
 from unittest import TestCase
 
-from datumaro.components.project import Environment
+from datumaro.components.environment import Environment
 from datumaro.components.extractor import (Extractor, DatasetItem,
     Label, Mask, Points, Polygon, PolyLine, Bbox, Caption,
     LabelCategories, AnnotationType, Transform
@@ -156,8 +156,6 @@ class DatasetTest(TestCase):
 
         actual = dataset.transform('qq')
 
-        self.assertTrue(isinstance(actual, Dataset))
-        self.assertEqual(env, actual.env)
         compare_datasets(self, expected, actual)
 
 

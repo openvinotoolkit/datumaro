@@ -3,7 +3,7 @@ from unittest import TestCase
 
 import numpy as np
 from datumaro.components.extractor import Bbox, DatasetItem, Points
-from datumaro.components.project import Dataset, Project
+from datumaro.components.dataset import Dataset
 from datumaro.plugins.vgg_face2_format import (VggFace2Converter,
     VggFace2Importer)
 from datumaro.util.test_utils import TestDir, compare_datasets
@@ -93,7 +93,6 @@ class VggFace2ImporterTest(TestCase):
             ),
         ], categories=[])
 
-        dataset = Project.import_from(DUMMY_DATASET_DIR, 'vgg_face2') \
-            .make_dataset()
+        dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'vgg_face2')
 
         compare_datasets(self, expected_dataset, dataset)

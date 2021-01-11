@@ -5,7 +5,7 @@ import os.path as osp
 from unittest import TestCase
 
 from datumaro.components.extractor import DatasetItem, Mask
-from datumaro.components.project import Dataset, Project
+from datumaro.components.dataset import Dataset
 from datumaro.plugins.mots_format import MotsPngConverter, MotsImporter
 from datumaro.util.test_utils import (TestDir, compare_datasets,
     test_save_and_load)
@@ -90,5 +90,5 @@ class MotsImporterTest(TestCase):
             ]),
         ], categories=['a', 'b', 'c', 'd'])
 
-        parsed = Project.import_from(DUMMY_DATASET_DIR, 'mots').make_dataset()
+        parsed = Dataset.import_from(DUMMY_DATASET_DIR, 'mots')
         compare_datasets(self, expected=target, actual=parsed)
