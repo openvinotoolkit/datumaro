@@ -12,8 +12,7 @@ from datumaro.components.config import Config
 from datumaro.components.config_model import Source, Model
 from datumaro.components.launcher import Launcher, ModelTransform
 from datumaro.components.extractor import (Extractor, DatasetItem,
-    Label, LabelCategories, AnnotationType, Transform
-)
+    Label, LabelCategories, AnnotationType, Transform)
 from datumaro.util.test_utils import TestDir, compare_datasets
 
 

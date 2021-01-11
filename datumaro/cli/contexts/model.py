@@ -62,7 +62,7 @@ def add_command(args):
         raise CliException("Launcher '%s' is not found" % args.launcher)
 
     cli_plugin = getattr(launcher, 'cli_plugin', launcher)
-    model_args = cli_plugin.parse_cmdline_args(args.extra_args)
+    model_args = cli_plugin.parse_cmdline(args.extra_args)
 
     if args.copy:
         log.info("Copying model data")

@@ -67,12 +67,7 @@ def convert_command(args):
     except KeyError:
         raise CliException("Converter for format '%s' is not found" % \
             args.output_format)
-
-    if hasattr(converter, 'parse_cmdline_args'):
-        extra_args = converter.parse_cmdline_args(args.extra_args)
-    else:
-        extra_args = {}
-
+    extra_args = converter.parse_cmdline(args.extra_args)
 
     filter_args = FilterModes.make_filter_args(args.filter_mode)
 

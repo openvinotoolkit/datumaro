@@ -144,8 +144,8 @@ def import_command(args):
             raise CliException("Unknown format '%s'. A format can be added"
                 "by providing an Extractor and Importer plugins" % fmt)
 
-        if hasattr(arg_parser, 'from_cmdline'):
-            extra_args = arg_parser.from_cmdline(args.extra_args)
+        if hasattr(arg_parser, 'parse_cmdline'):
+            extra_args = arg_parser.parse_cmdline(args.extra_args)
         else:
             raise CliException("Format '%s' does not accept "
                 "extra parameters" % fmt)
@@ -301,14 +301,7 @@ def export_command(args):
     except KeyError:
         raise CliException("Converter for format '%s' is not found" % \
             args.format)
-
-    if hasattr(converter, 'parse_cmdline_args'):
-        extra_args = converter.parse_cmdline_args(args.extra_args)
-    else:
-        extra_args = {}
-
-    def converter_proxy(extractor, save_dir):
-        return converter.convert(extractor, save_dir, **extra_args)
+    extra_args = converter.parse_cmdline(args.extra_args)
 
     if args.filter:
         filter_args = FilterModes.make_filter_args(args.filter_mode)
@@ -318,11 +311,12 @@ def export_command(args):
     dataset = project.make_dataset(args.target)
 
     log.info("Exporting the project...")
-    if args.filter:
-        dataset = dataset.filter(**filter_args)
-    dataset.export(converter_proxy, save_dir=dst_dir)
 
-    log.info("Project exported to '%s'" % dst_dir)
+    if args.filter:
+        dataset = dataset.filter(args.filter, **filter_args)
+    dataset.export(args.format, save_dir=dst_dir, **extra_args)
+
+    log.info("Project exported to '%s' as '%s'" % (dst_dir, args.format))
 
     return 0
 
@@ -624,10 +618,9 @@ def transform_command(args):
     except KeyError:
         raise CliException("Transform '%s' is not found" % args.transform)
 
-    if hasattr(transform, 'parse_cmdline_args'):
-        extra_args = transform.parse_cmdline_args(args.extra_args)
-    else:
-        extra_args = {}
+    extra_args = {}
+    if hasattr(transform, 'parse_cmdline'):
+        extra_args = transform.parse_cmdline(args.extra_args)
 
     if args.target == project.build_targets.MAIN_TARGET:
         sources = [t for t in project.build_targets
