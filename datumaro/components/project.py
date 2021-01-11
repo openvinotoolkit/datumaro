@@ -43,7 +43,7 @@ class ProjectSourceDataset(Dataset):
         self._readonly = self._path and osp.exists(self._path)
         if self._path and not osp.exists(self._path) and not config.remote:
             # backward compatibility
-            self._path = config.url
+            self._path = osp.join(project.config.project_dir, config.url)
             self._readonly = True
 
         dataset = super().import_from(self._path, env=project.env,
@@ -56,7 +56,7 @@ class ProjectSourceDataset(Dataset):
             if self.readonly:
                 raise Exception("Can't update a read-only dataset")
             save_dir = self._path
-        super().export(self.config.format, save_dir=save_dir, **kwargs)
+        super().export(format=self.config.format, save_dir=save_dir, **kwargs)
 
     @property
     def readonly(self):
@@ -478,6 +478,7 @@ class ProjectBuildTargets(CrudProxy):
     @CrudProxy._data.getter
     def _data(self):
         data = self._project.config.build_targets
+
         if self.MAIN_TARGET not in data:
             data[self.MAIN_TARGET] = {
                 'stages': [
@@ -487,6 +488,18 @@ class ProjectBuildTargets(CrudProxy):
                     }),
                 ]
             }
+
+        for source in self._project.sources:
+            if source not in data:
+                data[source] = {
+                    'stages': [
+                        BuildStage({
+                            'name': self.BASE_STAGE,
+                            'type': BuildStageType.source.name,
+                        }),
+                    ]
+                }
+
         return data
 
     def __contains__(self, key):
@@ -935,7 +948,7 @@ class ProjectBuildTargets(CrudProxy):
         elif head_node['config']['type'] == BuildStageType.convert.name:
             dst_format = head_node['config'].kind
             options.update(head_node['config'].params)
-        dataset.export(dst_format, save_dir=out_dir, **options)
+        dataset.export(format=dst_format, save_dir=out_dir, **options)
 
 
 class GitWrapper:
@@ -1634,8 +1647,7 @@ class Project:
             ])
 
     def __init__(self, config=None, env=None):
-        self._config = Config(config,
-            fallback=PROJECT_DEFAULT_CONFIG, schema=PROJECT_SCHEMA)
+        self._config = self._read_config(config)
         if env is None:
             env = Environment(self._config)
         elif config is not None:
@@ -1683,6 +1695,40 @@ class Project:
         if target is None:
             target = 'project'
         return self.build_targets.build(target, force=force, out_dir=out_dir)
+
+    @classmethod
+    def _read_config_v1(cls, config):
+        config = Config(config)
+        config.remove('subsets')
+        config.remove('format_version')
+
+        config = cls._read_config_v2(config)
+        name = generate_next_name(list(config.sources), 'source',
+            sep='-', default='1')
+        config.sources[name] = {
+            'url': config.dataset_dir,
+            'format': DEFAULT_FORMAT,
+        }
+        return config
+
+    @classmethod
+    def _read_config_v2(cls, config):
+        return Config(config,
+            fallback=PROJECT_DEFAULT_CONFIG, schema=PROJECT_SCHEMA)
+
+    @classmethod
+    def _read_config(cls, config):
+        if config:
+            version = config.get('format_version')
+        else:
+            version = None
+        if version == 1:
+            return cls._read_config_v1(config)
+        elif version in {None, 2}:
+            return cls._read_config_v2(config)
+        else:
+            raise ValueError("Unknown project config file format version '%s'. "
+                "The only known are: 1, 2" % version)
 
 def merge_projects(a, b, strategy: MergeStrategy = None):
     raise NotImplementedError()

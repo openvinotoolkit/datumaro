@@ -741,24 +741,18 @@ class AttachedProjectTest(TestCase):
 
 class BackwardCompatibilityTests_v0_1(TestCase):
     def test_can_load_old_project(self):
+        expected_dataset = Dataset.from_iterable([
+            DatasetItem(0, subset='train', annotations=[Label(0)]),
+            DatasetItem(1, subset='test', annotations=[Label(1)]),
+        ], categories=['a', 'b'])
+
         project_dir = osp.join(osp.dirname(__file__),
             'assets', 'compat', 'v0.1', 'project')
 
         project = Project.load(project_dir)
-        project.make_dataset()
+        loaded_dataset = project.make_dataset()
 
-    def test_can_save_and_load_own_dataset(self):
-        with TestDir() as test_dir:
-            src_project = Project()
-            src_dataset = src_project.make_dataset()
-            item = DatasetItem(id=1)
-            src_dataset.put(item)
-            src_dataset.save(test_dir)
-
-            loaded_project = Project.load(test_dir)
-            loaded_dataset = loaded_project.make_dataset()
-
-            self.assertEqual(list(src_dataset), list(loaded_dataset))
+        compare_datasets(self, expected_dataset, loaded_dataset)
 
     @skip("Not actual")
     def test_project_compound_child_can_be_modified_recursively(self):
