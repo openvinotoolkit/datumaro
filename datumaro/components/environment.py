@@ -4,6 +4,10 @@
 
 from functools import partial
 from glob import glob
+import inspect
+import logging as log
+import os
+import os.path as osp
 
 from datumaro.components.config import Config
 from datumaro.util.os_util import import_foreign_module

@@ -81,10 +81,9 @@ def add_command(args):
         raise CliException("Extractor for format '%s' is not found" % \
             args.format)
 
-    if hasattr(importer, 'parse_cmdline_args'):
-        extra_args = importer.parse_cmdline_args(args.extra_args)
-    else:
-        extra_args = {}
+    extra_args = {}
+    if hasattr(importer, 'parse_cmdline'):
+        extra_args = importer.parse_cmdline(args.extra_args)
 
     project.sources.add(name, {
         'url': args.url,
