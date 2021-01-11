@@ -3,12 +3,11 @@ from unittest import TestCase
 import numpy as np
 import os.path as osp
 
-from datumaro.components.project import Project, Dataset
+from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import (DatasetItem, Label,
     LabelCategories, AnnotationType
 )
-from datumaro.plugins.imagenet_format import ImagenetConverter
-from datumaro.plugins.imagenet_format import ImagenetImporter
+from datumaro.plugins.imagenet_format import ImagenetConverter, ImagenetImporter
 from datumaro.util.test_utils import TestDir, compare_datasets
 
 class ImagenetFormatTest(TestCase):
@@ -103,7 +102,7 @@ class ImagenetImporterTest(TestCase):
                 'label_' + str(label) for label in range(2)),
         })
 
-        dataset = Project.import_from(DUMMY_DATASET_DIR, 'imagenet').make_dataset()
+        dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'imagenet')
 
         compare_datasets(self, expected_dataset, dataset, require_images=True)
 

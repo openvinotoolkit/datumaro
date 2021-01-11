@@ -6,11 +6,11 @@ from unittest import TestCase
 import datumaro.plugins.camvid_format as Camvid
 import numpy as np
 from datumaro.components.extractor import (AnnotationType, DatasetItem,
-                                           Extractor, LabelCategories, Mask)
-from datumaro.components.project import Dataset, Project
+    Extractor, LabelCategories, Mask)
+from datumaro.components.dataset import Dataset
 from datumaro.plugins.camvid_format import CamvidConverter, CamvidImporter
 from datumaro.util.test_utils import (TestDir, compare_datasets,
-                                      test_save_and_load)
+    test_save_and_load)
 
 
 class CamvidFormatTest(TestCase):
@@ -68,7 +68,7 @@ class CamvidImportTest(TestCase):
             ),
         ], categories=Camvid.make_camvid_categories())
 
-        parsed_dataset = Project.import_from(DUMMY_DATASET_DIR, 'camvid').make_dataset()
+        parsed_dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'camvid')
 
         compare_datasets(self, source_dataset, parsed_dataset)
 

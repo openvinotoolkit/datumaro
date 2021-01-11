@@ -6,7 +6,7 @@ from unittest import TestCase
 from datumaro.components.extractor import (DatasetItem,
     AnnotationType, Bbox, LabelCategories,
 )
-from datumaro.components.project import Project, Dataset
+from datumaro.components.dataset import Dataset
 from datumaro.plugins.yolo_format.extractor import YoloImporter
 from datumaro.plugins.yolo_format.converter import YoloConverter
 from datumaro.util.image import Image, save_image
@@ -133,7 +133,6 @@ class YoloImporterTest(TestCase):
                 'label_' + str(i) for i in range(10)),
         })
 
-        dataset = Project.import_from(DUMMY_DATASET_DIR, 'yolo') \
-            .make_dataset()
+        dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'yolo')
 
         compare_datasets(self, expected_dataset, dataset)
