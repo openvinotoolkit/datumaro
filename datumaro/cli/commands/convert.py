@@ -105,7 +105,7 @@ def convert_command(args):
     log.info("Exporting the dataset")
     if args.filter:
         dataset = dataset.filter(args.filter, **filter_args)
-    dataset.export(args.output_format, save_dir=dst_dir, **extra_args)
+    dataset.export(format=args.output_format, save_dir=dst_dir, **extra_args)
 
     log.info("Dataset exported to '%s' as '%s'" % \
         (dst_dir, args.output_format))
