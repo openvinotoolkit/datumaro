@@ -199,9 +199,11 @@ class Dataset(Extractor):
         return merge_categories(sources)
 
     @error_rollback('on_error', implicit=True)
-    def export(self, converter, save_dir, **kwargs):
-        if isinstance(converter, str):
-            converter = self.env.make_converter(converter)
+    def export(self, save_dir, format, **kwargs): #pylint: disable=redefined-builtin
+        if isinstance(format, str):
+            converter = self.env.make_converter(format)
+        else:
+            converter = format
 
         save_dir = osp.abspath(save_dir)
         if not osp.exists(save_dir):
@@ -233,7 +235,7 @@ class Dataset(Extractor):
         return self._env
 
     def save(self, save_dir, **kwargs):
-        self.export(DEFAULT_FORMAT, save_dir=save_dir, **kwargs)
+        self.export(save_dir, format=DEFAULT_FORMAT, **kwargs)
 
     @classmethod
     def load(cls, path, **kwargs):

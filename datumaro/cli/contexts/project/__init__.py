@@ -314,7 +314,7 @@ def export_command(args):
 
     if args.filter:
         dataset = dataset.filter(args.filter, **filter_args)
-    dataset.export(args.format, save_dir=dst_dir, **extra_args)
+    dataset.export(format=args.format, save_dir=dst_dir, **extra_args)
 
     log.info("Project exported to '%s' as '%s'" % (dst_dir, args.format))
 
@@ -652,7 +652,7 @@ def transform_command(args):
             for source in sources:
                 dataset = project.make_dataset(source)
                 dst_dir = project.sources.source_dir(source)
-                dataset.export(project.sources[source].format,
+                dataset.export(format=project.sources[source].format,
                     save_dir=dst_dir, save_images=True)
                 project.sources[source].url = ''
 
