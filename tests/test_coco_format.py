@@ -126,7 +126,7 @@ class CocoImporterTest(TestCase):
             })
 
         dataset = Dataset.import_from(
-            osp.join(DUMMY_DATASET_DIR, 'coco_points'), 'coco')
+            osp.join(DUMMY_DATASET_DIR, 'coco_person_keypoints'), 'coco')
 
         compare_datasets(self, expected_dataset, dataset)
 
