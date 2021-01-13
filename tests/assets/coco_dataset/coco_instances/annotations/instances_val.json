@@ -41,7 +41,10 @@
         "segmentation": [[0, 0, 1, 0, 1, 2, 0, 2]],
         "area": 2,
         "bbox": [0, 0, 1, 2],
-        "iscrowd": 0
+        "iscrowd": 0,
+        "attributes": {
+          "x": 1, "y": "hello"
+        }
       },
       {
         "id": 2,
