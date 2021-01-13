@@ -70,9 +70,11 @@ def make_parser():
         ('filter', commands.filter, "Filter project"),
         ('transform', commands.transform, "Transform project"),
         ('merge', commands.merge, "Merge projects"),
-        ('convert', commands.convert, "Convert dataset"),
+        ('convert', commands.convert, "Convert dataset into another format"),
         ('diff', commands.diff, "Compare projects with intersection"),
         ('ediff', commands.ediff, "Compare projects for equality"),
+        ('stats', commands.stats, "Compute project statistics"),
+        ('info', commands.info, "Print project info"),
         ('explain', commands.explain, "Run Explainable AI algorithm for model"),
     ]
 

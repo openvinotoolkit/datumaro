@@ -8,5 +8,6 @@ from . import (
     create, add, remove,
     explain,
     export, merge, convert, transform, filter,
-    diff, ediff,
+    diff, ediff, stats,
+    info
 )
