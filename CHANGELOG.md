@@ -17,9 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Dataset` class extended with new operations: `save`, `load`, `export`, `import_from`, `detect`, `run_model` (<https://github.com/openvinotoolkit/datumaro/pull/71>)
 - `Dataset` operations return `Dataset` instances, allowing to chain operations (<https://github.com/openvinotoolkit/datumaro/pull/71>)
 - Allowed importing `Extractor`-only defined formats (in `Project.import_from`, `dataset.import_from` and CLI/`project import`)
+- `datum ...` commands replaced with `datum ...` commands (<https://github.com/openvinotoolkit/datumaro/pull/84>)
 
 ### Deprecated
--
+- `datum ...` CLI context (<https://github.com/openvinotoolkit/datumaro/pull/84>)
 
 ### Removed
 -
