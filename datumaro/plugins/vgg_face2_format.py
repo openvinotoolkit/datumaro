@@ -143,9 +143,11 @@ class VggFace2Converter(Converter):
                 if item.has_image and self._save_images:
                     if 0 < len(labels_name):
                         for label in labels_name:
-                            self._save_image(item, osp.join(subset_dir, label, item.id + VggFace2Path.IMAGE_EXT))
+                            self._save_image(item, osp.join(subset_dir, label,
+                                item.id + VggFace2Path.IMAGE_EXT))
                     else:
-                        self._save_image(item, osp.join(save_dir, subset_dir, item.id + VggFace2Path.IMAGE_EXT))
+                        self._save_image(item, osp.join(save_dir, subset_dir,
+                            item.id + VggFace2Path.IMAGE_EXT))
 
                 landmarks = [a for a in item.annotations
                     if a.type == AnnotationType.points]
@@ -163,7 +165,8 @@ class VggFace2Converter(Converter):
                             'P4X': points[6], 'P4Y': points[7],
                             'P5X': points[8], 'P5Y': points[9]})
                     for i in range(1, len(labels_name) - 1):
-                        landmarks_table.append({'NAME_ID': labels_name[i] + '/' + item.id})
+                        landmarks_table.append(
+                            {'NAME_ID': labels_name[i] + '/' + item.id})
                 else:
                     landmarks_table.append({'NAME_ID': name_id})
 
@@ -171,7 +174,9 @@ class VggFace2Converter(Converter):
                     if a.type == AnnotationType.bbox]
                 for bbox in bboxes:
                     if bbox.label != None:
-                        name_id = self._extractor.categories()[AnnotationType.label][bbox.label].name + '/' + item.id
+                        name_id = \
+                            self._extractor.categories()[AnnotationType.label][bbox.label].name \
+                            + '/' + item.id
                     else:
                         name_id = item.id
                     bboxes_table.append({'NAME_ID': name_id, 'X': bbox.x,
