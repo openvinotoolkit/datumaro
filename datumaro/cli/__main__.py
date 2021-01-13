@@ -64,6 +64,7 @@ def make_parser():
     ]
     known_commands = [
         ('create', commands.create, "Create project"),
+        ('import', commands.import_, "Create project from existing dataset"),
         ('add', commands.add, "Add data source to project"),
         ('remove', commands.remove, "Remove data source from project"),
         ('export', commands.export, "Export project in some format"),
