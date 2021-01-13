@@ -1,4 +1,3 @@
-
 # Copyright (C) 2019-2020 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
@@ -87,7 +86,7 @@ def create_command(args):
 def build_import_parser(parser_ctor=argparse.ArgumentParser):
     builtins = sorted(Environment().importers.items)
 
-    parser = parser_ctor(help="Create project from existing dataset",
+    parser = parser_ctor(help="Create project from an existing dataset",
         description="""
             Creates a project from an existing dataset. The source can be:|n
             - a dataset in a supported format (check 'formats' section below)|n
@@ -181,14 +180,14 @@ def import_command(args):
 
         matches = env.detect_dataset(args.source)
         if len(matches) == 0:
-            log.error("Failed to detect dataset format automatically. "
+            log.error("Failed to detect dataset format. "
                 "Try to specify format with '-f/--format' parameter.")
             return 1
         elif len(matches) != 1:
             log.error("Multiple formats match the dataset: %s. "
                 "Try to specify format with '-f/--format' parameter.",
                 ', '.join(matches))
-            return 2
+            return 1
 
         fmt = matches[0]
     elif args.extra_args:
@@ -334,7 +333,6 @@ def export_command(args):
     except KeyError:
         raise CliException("Converter for format '%s' is not found" % \
             args.format)
-
     extra_args = converter.parse_cmdline(args.extra_args)
 
     filter_args = FilterModes.make_filter_args(args.filter_mode)
@@ -348,8 +346,7 @@ def export_command(args):
         dataset = dataset.filter(args.filter, **filter_args)
     dataset.export(format=args.format, save_dir=dst_dir, **extra_args)
 
-    log.info("Project exported to '%s' as '%s'" % \
-        (dst_dir, args.format))
+    log.info("Project exported to '%s' as '%s'" % (dst_dir, args.format))
 
     return 0
 

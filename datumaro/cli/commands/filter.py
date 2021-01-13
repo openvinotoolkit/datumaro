@@ -4,4 +4,4 @@
 
 # pylint: disable=unused-import
 
-from ..contexts.source import build_add_parser as build_parser
+from ..contexts.project import build_filter_parser as build_parser

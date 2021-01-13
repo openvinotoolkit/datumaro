@@ -1,4 +1,3 @@
-
 # Copyright (C) 2019-2020 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
@@ -64,7 +63,7 @@ def convert_command(args):
     env = Environment()
 
     try:
-        converter = env.converters.get(args.output_format)
+        converter = env.converters[args.output_format]
     except KeyError:
         raise CliException("Converter for format '%s' is not found" % \
             args.output_format)

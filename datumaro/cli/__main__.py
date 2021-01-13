@@ -58,18 +58,22 @@ def make_parser():
     _LogManager._define_loglevel_option(parser)
 
     known_contexts = [
-        ('project', contexts.project, "Actions on projects (datasets)"),
-        ('source', contexts.source, "Actions on data sources"),
-        ('model', contexts.model, "Actions on models"),
+        ('project', contexts.project, "Actions with project (deprecated)"),
+        ('source', contexts.source, "Actions with data sources"),
+        ('model', contexts.model, "Actions with models"),
     ]
     known_commands = [
         ('create', commands.create, "Create project"),
-        ('add', commands.add, "Add source to project"),
-        ('remove', commands.remove, "Remove source from project"),
-        ('export', commands.export, "Export project"),
-        ('explain', commands.explain, "Run Explainable AI algorithm for model"),
-        ('merge', commands.merge, "Merge datasets"),
+        ('add', commands.add, "Add data source to project"),
+        ('remove', commands.remove, "Remove data source from project"),
+        ('export', commands.export, "Export project in some format"),
+        ('filter', commands.filter, "Filter project"),
+        ('transform', commands.transform, "Transform project"),
+        ('merge', commands.merge, "Merge projects"),
         ('convert', commands.convert, "Convert dataset"),
+        ('diff', commands.diff, "Compare projects with intersection"),
+        ('ediff', commands.ediff, "Compare projects for equality"),
+        ('explain', commands.explain, "Run Explainable AI algorithm for model"),
     ]
 
     # Argparse doesn't support subparser groups:
