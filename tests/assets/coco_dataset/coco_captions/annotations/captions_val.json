@@ -1,0 +1,33 @@
+{
+    "licenses": [{
+        "name": "",
+        "id": 0,
+        "url": ""
+    }],
+    "info": {
+        "contributor": "",
+        "date_created": "",
+        "description": "",
+        "url": "",
+        "version": "",
+        "year": ""
+    },
+    "categories": [],
+    "images": [{
+        "id": 1,
+        "width": 0,
+        "height": 0,
+        "file_name": "3.jpg",
+        "license": 0,
+        "flickr_url": "",
+        "coco_url": "",
+        "date_captured": 0
+    }],
+    "annotations": [{
+        "id": 1,
+        "image_id": 1,
+        "category_id": 0,
+        "caption": "word",
+        "attributes": {}
+    }]
+}
