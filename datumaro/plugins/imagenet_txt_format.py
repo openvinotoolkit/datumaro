@@ -72,13 +72,9 @@ class ImagenetTxtExtractor(SourceExtractor):
 class ImagenetTxtImporter(Importer):
     @classmethod
     def find_sources(cls, path):
-        subset_paths = [p for p in glob(osp.join(path, '*.txt'))
-            if osp.basename(p) != ImagenetTxtPath.LABELS_FILE]
-        sources = []
-        for subset_path in subset_paths:
-            sources += cls._find_sources_recursive(
-                subset_path, '.txt', 'imagenet_txt')
-        return sources
+        return cls._find_sources_recursive(path, '.txt', 'imagenet_txt',
+            file_filter=lambda p: \
+                osp.basename(p) != ImagenetTxtPath.LABELS_FILE)
 
 
 class ImagenetTxtConverter(Converter):
