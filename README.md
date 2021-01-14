@@ -147,6 +147,14 @@ CVAT annotations                             ---> Publication, statistics etc.
     - polygons to instance masks and vise-versa
     - apply a custom colormap for mask annotations
     - rename or remove dataset labels
+  - Splitting a dataset into multiple subsets like `train`, `val`, and `test`:
+    - random split
+    - task-specific splits based on annotations,
+      which keep initial label and attribute distributions
+      - for classification task, based on labels
+      - for detection task, based on bboxes
+      - for re-identification task, based on labels,
+        avoiding having same IDs in training and test splits
 - Dataset quality checking
   - Simple checking for errors
   - Comparison with model infernece

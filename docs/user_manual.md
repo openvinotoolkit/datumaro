@@ -346,6 +346,13 @@ datum filter \
      -e '/item[image/width < image/height]'
 ```
 
+Example: extract a dataset with only images of subset `train`.
+``` bash
+datum project filter \
+     -p test_project \
+     -e '/item[subset="train"]'
+```
+
 Example: extract a dataset with only large annotations of class `cat` and any non-`persons`
 
 ``` bash
@@ -952,6 +959,20 @@ Example: split a dataset randomly to `train` and `test` subsets, ratio is 2:1
 
 ``` bash
 datum transform -t random_split -- --subset train:.67 --subset test:.33
+```
+
+Example: split a dataset in task-specific manner. Supported tasks are
+classification, detection, and re-identification.
+
+``` bash
+datum transform -t classification_split -- \
+    --subset train:.5 --subset val:.2 --subset test:.3
+
+datum transform -t detection_split -- \
+    --subset train:.5 --subset val:.2 --subset test:.3
+
+datum transform -t reidentification_split -- \
+    --subset train:.5 --subset val:.2 --subset test:.3 --query .5
 ```
 
 Example: convert polygons to masks, masks to boxes etc.:
