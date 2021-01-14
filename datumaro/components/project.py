@@ -28,22 +28,18 @@ class ProjectDataset(Dataset):
         sources = {}
         for s_name, source in config.sources.items():
             s_format = source.format or env.PROJECT_EXTRACTOR_NAME
-            options = {}
-            options.update(source.options)
 
             url = source.url
             if not source.url:
                 url = osp.join(config.project_dir, config.sources_dir, s_name)
-            sources[s_name] = env.make_extractor(s_format, url, **options)
+            sources[s_name] = Dataset.import_from(url,
+                format=s_format, env=env, **source.options)
         self._sources = sources
 
         own_source = None
         own_source_dir = osp.join(config.project_dir, config.dataset_dir)
         if config.project_dir and osp.isdir(own_source_dir):
-            log.disable(log.INFO)
-            own_source = env.make_importer(DEFAULT_FORMAT)(own_source_dir) \
-                .make_dataset()
-            log.disable(log.NOTSET)
+            own_source = Dataset.load(own_source_dir)
 
         # merge categories
         # TODO: implement properly with merging and annotations remapping
