@@ -148,14 +148,13 @@ CVAT annotations                             ---> Publication, statistics etc.
     - apply a custom colormap for mask annotations
     - rename or remove dataset labels
   - Splitting a dataset into multiple subsets like `train`, `val`, and `test`:
-    - random split with or without annotations
-    - task-specific split using annotations
-      while preserving distribution as much as possible
-      - class-wise random split for classification
-      - for detection task, split dataset so that objects of one `DatasetItem`
-        do not belong to different subsets.
-      - for re-identification, split dataset so that IDs in the test set
-        consists of people/objects not used for training
+    - random split
+    - task-specific splits based on annotations,
+      which keep initial label and attribute distributions
+      - for classification task, based on labels
+      - for detection task, based on bboxes
+      - for re-identification task, based on labels,
+        avoiding having same IDs in training and test splits
 - Dataset quality checking
   - Simple checking for errors
   - Comparison with model infernece

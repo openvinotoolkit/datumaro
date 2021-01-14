@@ -202,16 +202,16 @@ class SplitterTest(TestCase):
         self.assertEqual(9, attr_test["attr3"]["distribution"]["1"][0])
         self.assertEqual(15, attr_test["attr3"]["distribution"]["2"][0])
 
-        # random seed test
-        r1 = splitter.ClassificationSplit(source, splits, seed=1234)
-        r2 = splitter.ClassificationSplit(source, splits, seed=1234)
-        r3 = splitter.ClassificationSplit(source, splits, seed=4321)
-        self.assertEqual(
-            list(r1.get_subset("test")), list(r2.get_subset("test"))
-        )
-        self.assertNotEqual(
-            list(r1.get_subset("test")), list(r3.get_subset("test"))
-        )
+        with self.subTest("random seed test"):
+            r1 = splitter.ClassificationSplit(source, splits, seed=1234)
+            r2 = splitter.ClassificationSplit(source, splits, seed=1234)
+            r3 = splitter.ClassificationSplit(source, splits, seed=4321)
+            self.assertEqual(
+                list(r1.get_subset("test")), list(r2.get_subset("test"))
+            )
+            self.assertNotEqual(
+                list(r1.get_subset("test")), list(r3.get_subset("test"))
+            )
 
     def test_split_for_classification_gives_error(self):
         with self.subTest("no label"):

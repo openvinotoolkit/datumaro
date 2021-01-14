@@ -179,12 +179,13 @@ class _TaskSpecificSplit(Transform, CliPlugin):
 class ClassificationSplit(_TaskSpecificSplit):
     """
     Splits dataset into train/val/test set in class-wise manner. |n
-    In other words, the split ratio of each class is preserved
-    as much as possible.|n
+    Splits dataset images in the specified ratio, keeping the initial class
+    distribution.|n
     |n
     Notes:|n
-    - Single label is expected for each DatasetItem.|n
-    - If there are not enough images in some class or attributes group,
+    - Each image is expected to have only one Label|n
+    - If Labels also have attributes, also splits by attribute values.|n
+    - If there is not enough images in some class or attributes group,
       the split ratio can't be guaranteed.|n
     |n
     Example:|n
@@ -227,24 +228,33 @@ class ClassificationSplit(_TaskSpecificSplit):
 
 class ReidentificationSplit(_TaskSpecificSplit):
     """
-    Splits dataset for re-identification.|n
+    Splits a dataset for re-identification task.|n
+    Produces a split with a specified ratio of images, avoiding having same
+    labels in different subsets.|n
+    |n
     In this task, the test set should consist of images of unseen
-    people or object during the training phase. So first, splits the dataset
-    into 'train + val' and 'test' sets based on person or object ID.
-    Then, splits 'test' set into 'test-gallery' and 'test-query' sets
-    in class-wise manner. Finally, splits the 'train + val' set
-    into 'train' and 'val' sets in the same way.|n
-    Therefore, the final subsets would be
+    people or objects during the training phase. |n
+    This function splits a dataset in the following way:|n
+    1. Splits the dataset into 'train + val' and 'test' sets|n
+    |s|sbased on person or object ID.|n
+    2. Splits 'test' set into 'test-gallery' and 'test-query' sets|n
+    |s|sin class-wise manner.|n
+    3. Splits the 'train + val' set into 'train' and 'val' sets|n
+    |s|sin the same way.|n
+    The final subsets would be
     'train', 'val', 'test-gallery' and 'test-query'. |n
     |n
     Notes:|n
-    - Single label is expected for each DatasetItem.|n
-    - Each Label(...) is expected to have label or attribute
-      representing the person or object ID. |n
-    - The gallery ratio would be 1.0 - query. |n
+    - Each image is expected to have a single Label|n
+    - Object ID can be described by Label, or by attribute (--attr parameter)|n
+    - The splits of the test set are controlled by '--query' parameter. |n
+    |s|sGallery ratio would be 1.0 - query.|n
     |n
-    Example:|n
-    |s|s%(prog)s --subset train:.5 --subset val:.2 --subset test:.3 --query .5
+    Example: split a dataset in the specified ratio, split the test set|n
+    |s|s|s|sinto gallery and query in 1:1 ratio|n
+    |s|s%(prog)s --subset train:.5 --subset val:.2 --subset test:.3 --query .5|n
+    Example: use 'person_id' attribute for splitting|n
+    |s|s%(prog)s --attr person_id
     """
 
     _default_query_ratio = 0.5
@@ -253,14 +263,14 @@ class ReidentificationSplit(_TaskSpecificSplit):
     def build_cmdline_parser(cls, **kwargs):
         parser = super().build_cmdline_parser(**kwargs)
         parser.add_argument('--query', type=float,
-            help="Query ratio in the test set (default: %f)"
+            help="Query ratio in the test set (default: %.3f)"
             % cls._default_query_ratio)
         parser.add_argument('--attr', type=str, dest='attr_for_id',
-            help="Attribute name representing the ID (default: None)")
+            help="Attribute name representing the ID (default: use label)")
         return parser
 
     def __init__(self, dataset, splits, query=None,
-                 attr_for_id=None, seed=None):
+            attr_for_id=None, seed=None):
         """
         Parameters
         ----------
@@ -402,6 +412,7 @@ class ReidentificationSplit(_TaskSpecificSplit):
                     diffs[diff].append((id_test, id_trval))
         if len(diffs) == 0:  # nothing would be changed by exchange
             return
+
         exchanges = []
         while True:
             target_diff = expected_count - testset_total
@@ -425,6 +436,7 @@ class ReidentificationSplit(_TaskSpecificSplit):
                     new_diffs[diff] = new_list
             diffs = new_diffs
             exchanges.append((id_test, id_trval))
+
         # exchange
         for id_test, id_trval in exchanges:
             test[id_trval] = trval.pop(id_trval)
@@ -433,18 +445,25 @@ class ReidentificationSplit(_TaskSpecificSplit):
 
 class DetectionSplit(_TaskSpecificSplit):
     """
-    Splits dataset into train/val/test set for detection task.|n
-    For detection dataset, each image can have multiple bbox annotations.|n
-    Since a DataItem can't be included in multiple subsets at the same time, |n
-    the dataset can't be divided according to the bbox annotations.|n
-    Thus, we split dataset based on DatasetItem
-    while preserving label distribution as possible.|n
+    Splits a dataset into train/val/test subsets for detection task,
+    using object annotations as a basis for splitting.|n
+    Tries to produce an image split with the specified ratio, keeping the
+    initial distribution of class objects.|n
+    |n
+    In a detection dataset, each image can have multiple object annotations -
+    instance bounding boxes. Since an image shouldn't be included
+    in multiple subsets at the same time, and image annotations
+    shoudln't be split, in general, dataset annotations are unlikely to be split
+    exactly in the specified ratio. |n
+    This split tries to split dataset images as close as possible
+    to the specified ratio, keeping the initial class distribution.|n
     |n
     Notes:|n
-    - Each DatsetItem is expected to have one or more Bbox annotations.|n
-    - Label annotations are ignored. We only focus on the Bbox annotations.|n
+    - Each image is expected to have one or more Bbox annotations.|n
+    - Only Bbox annotations are considered.|n
     |n
-    Example:|n
+    Example: split dataset so that each object class annotations were split|n
+    |s|s|s|sin the specified ratio between subsets|n
     |s|s%(prog)s --subset train:.5 --subset val:.2 --subset test:.3
     """
     def __init__(self, dataset, splits, seed=None):
@@ -518,7 +537,6 @@ class DetectionSplit(_TaskSpecificSplit):
                 (sname, {k: v * ratio for k, v in n_combs.items()})
             )
 
-        ##
         # functions for keep the # of annotations not exceed the expected num
         def compute_penalty(counts, n_combs):
             p = 0
@@ -532,8 +550,6 @@ class DetectionSplit(_TaskSpecificSplit):
                 if n_combs[k] == 0:
                     n_combs[k] = -1
             return n_combs
-
-        ##
 
         # 3-2. assign each DatasetItem to a split, one by one
         for idx, _ in sorted(

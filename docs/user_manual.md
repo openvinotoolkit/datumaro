@@ -965,9 +965,14 @@ Example: split a dataset in task-specific manner. Supported tasks are
 classification, detection, and re-identification.
 
 ``` bash
-datum project transform -t classification_split -- --subset train:.5 --subset val:.2 --subset test:.3
-datum project transform -t detection_split -- --subset train:.5 --subset val:.2 --subset test:.3
-datum project transform -t reidentification_split -- --subset train:.5 --subset val:.2 --subset test:.3 --query .5
+datum transform -t classification_split -- \
+    --subset train:.5 --subset val:.2 --subset test:.3
+
+datum transform -t detection_split -- \
+    --subset train:.5 --subset val:.2 --subset test:.3
+
+datum transform -t reidentification_split -- \
+    --subset train:.5 --subset val:.2 --subset test:.3 --query .5
 ```
 
 Example: convert polygons to masks, masks to boxes etc.:
