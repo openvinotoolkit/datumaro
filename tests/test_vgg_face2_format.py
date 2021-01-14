@@ -47,7 +47,7 @@ class VggFace2FormatTest(TestCase):
 
         with TestDir() as test_dir:
             VggFace2Converter.convert(source_dataset, test_dir, save_images=True)
-            parsed_dataset = VggFace2Importer()(test_dir).make_dataset()
+            parsed_dataset = Dataset.import_from(test_dir, 'vgg_face2')
 
             compare_datasets(self, source_dataset, parsed_dataset)
 
@@ -64,7 +64,7 @@ class VggFace2FormatTest(TestCase):
 
         with TestDir() as test_dir:
             VggFace2Converter.convert(source_dataset, test_dir, save_images=True)
-            parsed_dataset = VggFace2Importer()(test_dir).make_dataset()
+            parsed_dataset = Dataset.import_from(test_dir, 'vgg_face2')
 
             compare_datasets(self, source_dataset, parsed_dataset)
 
@@ -81,7 +81,7 @@ class VggFace2FormatTest(TestCase):
 
         with TestDir() as test_dir:
             VggFace2Converter.convert(source_dataset, test_dir, save_images=False)
-            parsed_dataset = VggFace2Importer()(test_dir).make_dataset()
+            parsed_dataset = Dataset.import_from(test_dir, 'vgg_face2')
 
             compare_datasets(self, source_dataset, parsed_dataset)
 
