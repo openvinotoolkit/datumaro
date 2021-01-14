@@ -10,15 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - `WiderFace` dataset format (<https://github.com/openvinotoolkit/datumaro/pull/65>)
 - Function to transform annotations to labels (<https://github.com/openvinotoolkit/datumaro/pull/66>)
-- Task-specific Splitter (<https://github.com/openvinotoolkit/datumaro/pull/68>)
+- Task-specific Splitter (<https://github.com/openvinotoolkit/datumaro/pull/68>, <https://github.com/openvinotoolkit/datumaro/pull/81>)
 - `VGGFace2` dataset format (<https://github.com/openvinotoolkit/datumaro/pull/69>)
 
 ### Changed
 - `Dataset` class extended with new operations: `save`, `load`, `export`, `import_from`, `detect`, `run_model` (<https://github.com/openvinotoolkit/datumaro/pull/71>)
 - `Dataset` operations return `Dataset` instances, allowing to chain operations (<https://github.com/openvinotoolkit/datumaro/pull/71>)
 - Allowed importing `Extractor`-only defined formats (in `Project.import_from`, `dataset.import_from` and CLI/`project import`)
-- Add cli-support for task-specific splitters (<https://github.com/openvinotoolkit/datumaro/pull/81>)
-- `MatchigReIDSplit` is revised and changed to `ReidentificationSplit`. (<https://github.com/openvinotoolkit/datumaro/pull/81>)
 - `datum ...` commands replaced with `datum ...` commands (<https://github.com/openvinotoolkit/datumaro/pull/84>)
 
 ### Deprecated
