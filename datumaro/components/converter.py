@@ -62,6 +62,7 @@ class Converter(CliPlugin):
             return
 
         path = path or self._make_image_filename(item)
+        path = osp.abspath(path)
 
         src_ext = item.image.ext.lower()
         dst_ext = osp.splitext(osp.basename(path))[1].lower()
