@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 import importlib
+import os
 import os.path as osp
 import subprocess
 import sys
@@ -31,3 +32,12 @@ def import_foreign_module(name, path, package=None):
     finally:
         sys.path = default_path
     return module
+
+def walk(path, max_depth=None):
+    baselevel = path.count(osp.sep)
+    for dirpath, dirnames, filenames in os.walk(path, topdown=True):
+        curlevel = dirpath.count(osp.sep)
+        if baselevel + max_depth <= curlevel:
+            dirnames.clear() # topdown=True allows to modify the list
+
+        yield dirpath, dirnames, filenames
