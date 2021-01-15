@@ -1,6 +1,11 @@
+import os
+import os.path as osp
+
 from unittest import TestCase
 
 from datumaro.util import Rollback, error_rollback
+from datumaro.util.test_utils import TestDir
+from datumaro.util.os_util import walk
 
 
 class TestRollback(TestCase):
@@ -104,3 +109,15 @@ class TestRollback(TestCase):
         finally:
             self.assertTrue(success1)
             self.assertTrue(success2)
+
+class TestOsUtils(TestCase):
+    def test_can_walk_with_maxdepth(self):
+        with TestDir() as rootdir:
+            os.makedirs(osp.join(rootdir, '1', '2', '3', '4'))
+
+            visited = set(d for d, _, _ in walk(rootdir, max_depth=2))
+            self.assertEqual({
+                osp.join(rootdir),
+                osp.join(rootdir, '1'),
+                osp.join(rootdir, '1', '2'),
+            }, visited)
