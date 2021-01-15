@@ -62,9 +62,9 @@ class VggFace2Extractor(SourceExtractor):
 
         for row in landmarks_table:
             item_id = row['NAME_ID']
-            label_name = item_id.split('/')[0]
             label = None
             if '/' in item_id:
+                label_name = item_id.split('/')[0]
                 label = self._categories[AnnotationType.label].find(label_name)[0]
                 if label is not None:
                     item_id = item_id[len(label_name) + 1:]
@@ -87,9 +87,9 @@ class VggFace2Extractor(SourceExtractor):
                 bboxes_table = list(csv.DictReader(content))
             for row in bboxes_table:
                 item_id = row['NAME_ID']
-                label_name = item_id.split('/')[0]
                 label = None
                 if '/' in item_id:
+                    label_name = item_id.split('/')[0]
                     label = self._categories[AnnotationType.label].find(label_name)[0]
                     if label is not None:
                         item_id = item_id[len(label_name) + 1:]
