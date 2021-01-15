@@ -206,9 +206,9 @@ for information on extra format support.
 Usage:
 
 ``` bash
-datum project import --help
+datum import --help
 
-datum project import \
+datum import \
      -i <dataset_path> \
      -o <project_dir> \
      -f <format>
@@ -217,7 +217,7 @@ datum project import \
 Example: create a project from COCO-like dataset
 
 ``` bash
-datum project import \
+datum import \
      -i /home/coco_dir \
      -o /home/project_dir \
      -f coco
@@ -247,16 +247,16 @@ a few options to interact with it.
 Usage:
 
 ``` bash
-datum project create --help
+datum create --help
 
-datum project create \
+datum create \
   -o <project_dir>
 ```
 
 Example: create an empty project `my_dataset`
 
 ``` bash
-datum project create -o my_dataset/
+datum create -o my_dataset/
 ```
 
 ### Add and remove data
@@ -284,15 +284,15 @@ for information on extra format support.
 Usage:
 
 ``` bash
-datum source add --help
-datum source remove --help
+datum add --help
+datum remove --help
 
-datum source add \
+datum add \
      path <path> \
      -p <project dir> \
      -n <name>
 
-datum source remove \
+datum remove \
      -p <project dir> \
      -n <name>
 ```
@@ -301,14 +301,14 @@ Example: create a project from a bunch of different annotations and images,
 and generate TFrecord for TF Detection API for model training
 
 ``` bash
-datum project create
+datum create
 # 'default' is the name of the subset below
-datum source add path <path/to/coco/instances_default.json> -f coco_instances
-datum source add path <path/to/cvat/default.xml> -f cvat
-datum source add path <path/to/voc> -f voc_detection
-datum source add path <path/to/datumaro/default.json> -f datumaro
-datum source add path <path/to/images/dir> -f image_dir
-datum project export -f tf_detection_api
+datum add path <path/to/coco/instances_default.json> -f coco_instances
+datum add path <path/to/cvat/default.xml> -f cvat
+datum add path <path/to/voc> -f voc_detection
+datum add path <path/to/datumaro/default.json> -f datumaro
+datum add path <path/to/images/dir> -f image_dir
+datum export -f tf_detection_api
 ```
 
 ### Filter project
@@ -331,9 +331,9 @@ returns `annotation` elements (see examples).
 Usage:
 
 ``` bash
-datum project filter --help
+datum filter --help
 
-datum project filter \
+datum filter \
      -p <project dir> \
      -e '<xpath filter expression>'
 ```
@@ -341,15 +341,22 @@ datum project filter \
 Example: extract a dataset with only images which `width` < `height`
 
 ``` bash
-datum project filter \
+datum filter \
      -p test_project \
      -e '/item[image/width < image/height]'
+```
+
+Example: extract a dataset with only images of subset `train`.
+``` bash
+datum project filter \
+     -p test_project \
+     -e '/item[subset="train"]'
 ```
 
 Example: extract a dataset with only large annotations of class `cat` and any non-`persons`
 
 ``` bash
-datum project filter \
+datum filter \
      -p test_project \
      --mode annotations -e '/item/annotation[(label="cat" and area > 99.5) or label!="person"]'
 ```
@@ -357,7 +364,7 @@ datum project filter \
 Example: extract a dataset with only occluded annotations, remove empty images
 
 ``` bash
-datum project filter \
+datum filter \
      -p test_project \
      -m i+a -e '/item/annotation[occluded="True"]'
 ```
@@ -405,9 +412,9 @@ This command updates items in a project from another one
 Usage:
 
 ``` bash
-datum project merge --help
+datum merge --help
 
-datum project merge \
+datum merge \
      -p <project dir> \
      -o <output dir> \
      <other project dir>
@@ -417,7 +424,7 @@ Example: update annotations in the `first_project` with annotations
 from the `second_project` and save the result as `merged_project`
 
 ``` bash
-datum project merge \
+datum merge \
      -p first_project \
      -o merged_project \
      second_project
@@ -461,9 +468,9 @@ for information on extra format support.
 Usage:
 
 ``` bash
-datum project export --help
+datum export --help
 
-datum project export \
+datum export \
      -p <project dir> \
      -o <output dir> \
      -f <format> \
@@ -473,7 +480,7 @@ datum project export \
 Example: save project as VOC-like dataset, include images, convert images to `PNG`
 
 ``` bash
-datum project export \
+datum export \
      -p test_project \
      -o test_project-export \
      -f voc \
@@ -487,16 +494,16 @@ This command outputs project status information.
 Usage:
 
 ``` bash
-datum project info --help
+datum info --help
 
-datum project info \
+datum info \
      -p <project dir>
 ```
 
 Example:
 
 ``` bash
-datum project info -p /test_project
+datum info -p /test_project
 
 Project:
   name: test_project
@@ -531,9 +538,9 @@ This command computes various project statistics, such as:
 Usage:
 
 ``` bash
-datum project stats --help
+datum stats --help
 
-datum project stats \
+datum stats \
      -p <project dir>
 ```
 
@@ -542,7 +549,7 @@ Example:
 <details>
 
 ``` bash
-datum project stats -p /test_project
+datum stats -p test_project
 
 {
     "annotations": {
@@ -814,7 +821,7 @@ A model consists of a graph description and weights. There is also a script
 used to convert model outputs to internal data structures.
 
 ``` bash
-datum project create
+datum create
 datum model add \
      -n <model_name> openvino \
      -d <path_to_xml> -w <path_to_bin> -i <path_to_interpretation_script>
@@ -881,7 +888,7 @@ datum model run \
 Example: launch inference on a dataset
 
 ``` bash
-datum project import <...>
+datum import <...>
 datum model add mymodel <...>
 datum model run -m mymodel -o inference
 ```
@@ -893,18 +900,18 @@ specified directory. The current project is considered to be
 "ground truth".
 
 ``` bash
-datum project diff --help
+datum diff --help
 
-datum project diff <other_project_dir> -o <save_dir>
+datum diff <other_project_dir> -o <save_dir>
 ```
 
 Example: compare a dataset with model inference
 
 ``` bash
-datum project import <...>
+datum import <...>
 datum model add mymodel <...>
-datum project transform <...> -o inference
-datum project diff inference -o diff
+datum transform <...> -o inference
+datum diff inference -o diff
 ```
 
 ### Explain inference
@@ -925,7 +932,7 @@ datum explain \
 Example: run inference explanation on a single image with visualization
 
 ``` bash
-datum project create <...>
+datum create <...>
 datum model add mymodel <...>
 datum explain \
      -m mymodel \
@@ -939,9 +946,9 @@ datum explain \
 This command allows to modify images or annotations in a project all at once.
 
 ``` bash
-datum project transform --help
+datum transform --help
 
-datum project transform \
+datum transform \
      -p <project_dir> \
      -o <output_dir> \
      -t <transform_name> \
@@ -951,22 +958,36 @@ datum project transform \
 Example: split a dataset randomly to `train` and `test` subsets, ratio is 2:1
 
 ``` bash
-datum project transform -t random_split -- --subset train:.67 --subset test:.33
+datum transform -t random_split -- --subset train:.67 --subset test:.33
+```
+
+Example: split a dataset in task-specific manner. Supported tasks are
+classification, detection, and re-identification.
+
+``` bash
+datum transform -t classification_split -- \
+    --subset train:.5 --subset val:.2 --subset test:.3
+
+datum transform -t detection_split -- \
+    --subset train:.5 --subset val:.2 --subset test:.3
+
+datum transform -t reidentification_split -- \
+    --subset train:.5 --subset val:.2 --subset test:.3 --query .5
 ```
 
 Example: convert polygons to masks, masks to boxes etc.:
 
 ``` bash
-datum project transform -t boxes_to_masks
-datum project transform -t masks_to_polygons
-datum project transform -t polygons_to_masks
-datum project transform -t shapes_to_boxes
+datum transform -t boxes_to_masks
+datum transform -t masks_to_polygons
+datum transform -t polygons_to_masks
+datum transform -t shapes_to_boxes
 ```
 
 Example: remap dataset labels, `person` to `car` and `cat` to `dog`, keep `bus`, remove others
 
 ``` bash
-datum project transform -t remap_labels -- \
+datum transform -t remap_labels -- \
      -l person:car -l bus:bus -l cat:dog \
      --default delete
 ```
@@ -976,8 +997,8 @@ Example: rename dataset items by a regular expression
 - Remove `frame_` from item ids
 
 ``` bash
-datum project transform -t rename -- -e '|pattern|replacement|'
-datum project transform -t rename -- -e '|frame_(\d+)|\\1|'
+datum transform -t rename -- -e '|pattern|replacement|'
+datum transform -t rename -- -e '|frame_(\d+)|\\1|'
 ```
 
 ## Extending

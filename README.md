@@ -44,9 +44,9 @@ CVAT annotations                             ---> Publication, statistics etc.
 - Convert only non-`occluded` annotations from a [CVAT](https://github.com/opencv/cvat) project to TFrecord:
   ```bash
   # export Datumaro dataset in CVAT UI, extract somewhere, go to the project dir
-  datum project filter -e '/item/annotation[occluded="False"]' \
+  datum filter -e '/item/annotation[occluded="False"]' \
     --mode items+anno --output-dir not_occluded
-  datum project export --project not_occluded \
+  datum export --project not_occluded \
     --format tf_detection_api -- --save-images
   ```
 
@@ -54,13 +54,13 @@ CVAT annotations                             ---> Publication, statistics etc.
   ```bash
   # Download COCO dataset http://cocodataset.org/#download
   # Put images to coco/images/ and annotations to coco/annotations/
-  datum project import --format coco --input-path <path/to/coco>
-  datum project export --filter '/image[images_I_dont_like]' --format cvat \
+  datum import --format coco --input-path <path/to/coco>
+  datum export --filter '/image[images_I_dont_like]' --format cvat \
     --output-dir reannotation
   # import dataset and images to CVAT, re-annotate
   # export Datumaro project, extract to 'reannotation-upd'
-  datum project project merge reannotation-upd
-  datum project export --format coco
+  datum merge reannotation-upd
+  datum export --format coco
   ```
 
 - Annotate instance polygons in [CVAT](https://github.com/opencv/cvat), export as masks in COCO:
@@ -72,18 +72,18 @@ CVAT annotations                             ---> Publication, statistics etc.
 - Apply an OpenVINO detection model to some COCO-like dataset,
   then compare annotations with ground truth and visualize in TensorBoard:
   ```bash
-  datum project import --format coco --input-path <path/to/coco>
+  datum import --format coco --input-path <path/to/coco>
   # create model results interpretation script
   datum model add mymodel openvino \
     --weights model.bin --description model.xml \
     --interpretation-script parse_results.py
   datum model run --model mymodel --output-dir mymodel_inference/
-  datum project diff mymodel_inference/ --format tensorboard --output-dir diff
+  datum diff mymodel_inference/ --format tensorboard --output-dir diff
   ```
 
 - Change colors in PASCAL VOC-like `.png` masks:
   ```bash
-  datum project import --format voc --input-path <path/to/voc/dataset>
+  datum import --format voc --input-path <path/to/voc/dataset>
 
   # Create a color map file with desired colors:
   #
@@ -93,7 +93,7 @@ CVAT annotations                             ---> Publication, statistics etc.
   #
   # Save as mycolormap.txt
 
-  datum project export --format voc_segmentation -- --label-map mycolormap.txt
+  datum export --format voc_segmentation -- --label-map mycolormap.txt
   # add "--apply-colormap=0" to save grayscale (indexed) masks
   # check "--help" option for more info
   # use "datum --loglevel debug" for extra conversion info
@@ -147,6 +147,14 @@ CVAT annotations                             ---> Publication, statistics etc.
     - polygons to instance masks and vise-versa
     - apply a custom colormap for mask annotations
     - rename or remove dataset labels
+  - Splitting a dataset into multiple subsets like `train`, `val`, and `test`:
+    - random split
+    - task-specific splits based on annotations,
+      which keep initial label and attribute distributions
+      - for classification task, based on labels
+      - for detection task, based on bboxes
+      - for re-identification task, based on labels,
+        avoiding having same IDs in training and test splits
 - Dataset quality checking
   - Simple checking for errors
   - Comparison with model infernece
