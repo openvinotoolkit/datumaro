@@ -205,8 +205,8 @@ class TestOperations(TestCase):
             DatasetItem(2, image=np.array([1])),
             DatasetItem(3, image=np.array([1])),
 
-            # no image is always
-            DatasetItem(4, image=np.array([2])),
+            # no image is always a unique image
+            DatasetItem(4),
         ])
 
         groups = find_unique_images(dataset)
