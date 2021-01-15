@@ -5,7 +5,6 @@
 import csv
 import os
 import os.path as osp
-from glob import glob
 
 from datumaro.components.converter import Converter
 from datumaro.components.extractor import (AnnotationType, Bbox, DatasetItem,
@@ -107,14 +106,10 @@ class VggFace2Extractor(SourceExtractor):
 class VggFace2Importer(Importer):
     @classmethod
     def find_sources(cls, path):
-        subset_paths = [p for p in glob(osp.join(path,
-            VggFace2Path.ANNOTATION_DIR, '**.csv'), recursive=True)
-            if not osp.basename(p).startswith(VggFace2Path.BBOXES_FILE)]
-        sources = []
-        for subset_path in subset_paths:
-            sources += cls._find_sources_recursive(
-                subset_path, '.csv', 'vgg_face2')
-        return sources
+        return cls._find_sources_recursive(path, '.csv', 'vgg_face2',
+            dirname=VggFace2Path.ANNOTATION_DIR,
+            file_filter=lambda p: \
+                not osp.basename(p).startswith(VggFace2Path.BBOXES_FILE))
 
 class VggFace2Converter(Converter):
     DEFAULT_IMAGE_EXT = '.jpg'

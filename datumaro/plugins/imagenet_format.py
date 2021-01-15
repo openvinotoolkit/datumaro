@@ -16,7 +16,8 @@ from datumaro.components.converter import Converter
 
 class ImagenetPath:
     DEFAULT_IMAGE_EXT = '.jpg'
-    IMAGE_EXT_FORMAT = ['.jpg', '.jpeg', '.png', '.ppm', '.bmp', '.pgm', '.tif']
+    IMAGE_EXT_FORMATS = {'.jpg', '.jpeg', '.png', '.ppm', '.bmp',
+        '.pgm', '.tif', '.tiff'}
     IMAGES_DIR_NO_LABEL = 'no_label'
 
 
@@ -38,7 +39,9 @@ class ImagenetExtractor(SourceExtractor):
     def _load_items(self, path):
         items = {}
         for image_path in glob(osp.join(path, '*', '*')):
-            if osp.splitext(image_path)[1] not in ImagenetPath.IMAGE_EXT_FORMAT:
+            if not osp.isfile(image_path) or \
+                    osp.splitext(image_path)[-1] not in \
+                        ImagenetPath.IMAGE_EXT_FORMATS:
                 continue
             label = osp.basename(osp.dirname(image_path))
             image_name = osp.splitext(osp.basename(image_path))[0][len(label) + 1:]
