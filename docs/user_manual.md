@@ -797,7 +797,14 @@ datum stats -p test_project
         "img00054",
         "img00055",
     ],
-    "unannotated images count": 5
+    "unannotated images count": 5,
+    "unique images count": 97,
+    "repeating images count": 3,
+    "repeating images": [
+        [("img00057", "default"), ("img00058", "default")],
+        [("img00059", "default"), ("img00060", "default")],
+        [("img00061", "default"), ("img00062", "default")],
+    ],
 }
 ```
 
