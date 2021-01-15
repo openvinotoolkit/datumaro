@@ -9,7 +9,7 @@ import os.path as osp
 
 from datumaro.components.extractor import DatasetItem, SourceExtractor, Importer
 from datumaro.components.converter import Converter
-from datumaro.util.image import Image
+from datumaro.util.os_util import walk
 
 
 class ImageDirImporter(Importer):
@@ -20,23 +20,21 @@ class ImageDirImporter(Importer):
         return [{ 'url': path, 'format': 'image_dir' }]
 
 class ImageDirExtractor(SourceExtractor):
-    def __init__(self, url):
+    IMAGE_EXT_FORMATS = {'.jpg', '.jpeg', '.png', '.ppm', '.bmp',
+        '.pgm', '.tif', '.tiff'}
+
+    def __init__(self, url, max_depth=10):
         super().__init__()
 
         assert osp.isdir(url), url
 
-        for dirpath, _, filenames in os.walk(url):
+        for dirpath, _, filenames in walk(url, max_depth=max_depth):
             for name in filenames:
-                path = osp.join(dirpath, name)
-                image = Image(path=path)
-                try:
-                    # force loading
-                    image.data # pylint: disable=pointless-statement
-                except Exception:
+                if not osp.splitext(name)[-1] in self.IMAGE_EXT_FORMATS:
                     continue
-
+                path = osp.join(dirpath, name)
                 item_id = osp.relpath(osp.splitext(path)[0], url)
-                self._items.append(DatasetItem(id=item_id, image=image))
+                self._items.append(DatasetItem(id=item_id, image=path))
 
 class ImageDirConverter(Converter):
     DEFAULT_IMAGE_EXT = '.jpg'
