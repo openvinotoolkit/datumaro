@@ -35,12 +35,12 @@ class VggFace2FormatTest(TestCase):
                         2.5, 3.5, 2.11, 3.8, 2.13], label=3),
                 ]
             ),
-            DatasetItem(id='5', subset='train', image=np.ones((8, 8, 3)),
+            DatasetItem(id='a/5', subset='train', image=np.ones((8, 8, 3)),
                 annotations=[
                     Bbox(2, 2, 2, 2),
                 ]
             ),
-            DatasetItem(id='6', subset='train', image=np.ones((8, 8, 3)),
+            DatasetItem(id='label_0', subset='train', image=np.ones((8, 8, 3)),
             ),
         ], categories={
             AnnotationType.label: LabelCategories.from_iterable(

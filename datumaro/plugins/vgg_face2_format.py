@@ -63,15 +63,17 @@ class VggFace2Extractor(SourceExtractor):
         for row in landmarks_table:
             item_id = row['NAME_ID']
             label_name = item_id.split('/')[0]
-            if 0 < len(label_name) and label_name is not item_id:
-                item_id = item_id[len(label_name) + 1:]
+            label = None
+            if '/' in item_id:
+                label = self._categories[AnnotationType.label].find(label_name)[0]
+                if label is not None:
+                    item_id = item_id[len(label_name) + 1:]
             if item_id not in items:
                 image_path = osp.join(self._dataset_dir, self._subset,
-                    item_id + VggFace2Path.IMAGE_EXT)
+                    row['NAME_ID'] + VggFace2Path.IMAGE_EXT)
                 items[item_id] = DatasetItem(id=item_id, subset=self._subset,
                     image=image_path)
             annotations = items[item_id].annotations
-            label = self._categories[AnnotationType.label].find(label_name)[0]
             if len([p for p in row if row[p] == '']) == 0 and len(row) == 11:
                 annotations.append(Points(
                     [float(row[p]) for p in row if p != 'NAME_ID'], label=label))
@@ -86,16 +88,18 @@ class VggFace2Extractor(SourceExtractor):
             for row in bboxes_table:
                 item_id = row['NAME_ID']
                 label_name = item_id.split('/')[0]
-                if 0 < len(label_name) and label_name is not item_id:
-                    item_id = item_id[len(label_name) + 1:]
+                label = None
+                if '/' in item_id:
+                    label = self._categories[AnnotationType.label].find(label_name)[0]
+                    if label is not None:
+                        item_id = item_id[len(label_name) + 1:]
                 if item_id not in items:
                     image_path = osp.join(self._dataset_dir, self._subset,
-                        item_id + VggFace2Path.IMAGE_EXT)
+                        row['NAME_ID'] + VggFace2Path.IMAGE_EXT)
                     items[item_id] = DatasetItem(id=item_id, subset=self._subset,
                         image=image_path)
                 annotations = items[item_id].annotations
                 if len([p for p in row if row[p] == '']) == 0 and len(row) == 5:
-                    label = self._categories[AnnotationType.label].find(label_name)[0]
                     annotations.append(Bbox(float(row['X']), float(row['Y']),
                         float(row['W']), float(row['H']), label=label))
         return items
