@@ -206,7 +206,7 @@ class MotSeqImporter(Importer):
     @classmethod
     def find_sources(cls, path):
         return cls._find_sources_recursive(path, '.txt', 'mot_seq',
-            filename=osp.join('gt', osp.splitext(MotPath.GT_FILENAME)[0]))
+            dirname='gt', filename=osp.splitext(MotPath.GT_FILENAME)[0])
 
 class MotSeqGtConverter(Converter):
     DEFAULT_IMAGE_EXT = MotPath.IMAGE_EXT

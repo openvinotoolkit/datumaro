@@ -72,7 +72,7 @@ class VggFace2Importer(Importer):
     @classmethod
     def find_sources(cls, path):
         return cls._find_sources_recursive(path, '.csv', 'vgg_face2',
-            dirname=osp.join('**', VggFace2Path.ANNOTATION_DIR),
+            dirname=VggFace2Path.ANNOTATION_DIR,
             file_filter=lambda p: \
                 not osp.basename(p).startswith(VggFace2Path.BBOXES_FILE))
 

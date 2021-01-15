@@ -76,7 +76,7 @@ class WiderFaceImporter(Importer):
     @classmethod
     def find_sources(cls, path):
         return cls._find_sources_recursive(path, '.txt', 'wider_face',
-            dirname=osp.join('**', WiderFacePath.ANNOTATIONS_DIR))
+            dirname=WiderFacePath.ANNOTATIONS_DIR)
 
 class WiderFaceConverter(Converter):
     DEFAULT_IMAGE_EXT = '.jpg'
