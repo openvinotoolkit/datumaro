@@ -75,9 +75,10 @@ class VggFace2Extractor(SourceExtractor):
             annotations = items[item_id].annotations
             if len([p for p in row if row[p] == '']) == 0 and len(row) == 11:
                 annotations.append(Points(
-                    [float(row[p]) for p in row if p != 'NAME_ID'], label=label))
+                    [float(row[p]) for p in row if p != 'NAME_ID'], label=label,
+                    group=1))
             elif label is not None:
-                annotations.append(Label(label=label))
+                annotations.append(Label(label=label, group=1))
 
         bboxes_path = osp.join(self._dataset_dir, VggFace2Path.ANNOTATION_DIR,
             VggFace2Path.BBOXES_FILE + self._subset + '.csv')
@@ -100,7 +101,7 @@ class VggFace2Extractor(SourceExtractor):
                 annotations = items[item_id].annotations
                 if len([p for p in row if row[p] == '']) == 0 and len(row) == 5:
                     annotations.append(Bbox(float(row['X']), float(row['Y']),
-                        float(row['W']), float(row['H']), label=label))
+                        float(row['W']), float(row['H']), label=label, group=1))
         return items
 
 class VggFace2Importer(Importer):
@@ -125,8 +126,8 @@ class VggFace2Converter(Converter):
             if label.parent:
                 labels_file += ' %s' % label.parent
             labels_file += '\n'
-            with open(labels_path, 'w', encoding='utf-8') as f:
-                f.write(labels_file)
+        with open(labels_path, 'w', encoding='utf-8') as f:
+            f.write(labels_file)
 
         label_categories = self._extractor.categories()[AnnotationType.label]
 
@@ -145,7 +146,7 @@ class VggFace2Converter(Converter):
                                 + item.id + VggFace2Path.IMAGE_EXT))
                     else:
                         self._save_image(item, osp.join(subset_dir,
-                                item.id + VggFace2Path.IMAGE_EXT))
+                            item.id + VggFace2Path.IMAGE_EXT))
 
                 landmarks = [a for a in item.annotations
                     if a.type == AnnotationType.points]
@@ -167,8 +168,8 @@ class VggFace2Converter(Converter):
                     if a.type == AnnotationType.bbox]
                 for bbox in bboxes:
                     name_id = item.id
-                    if bbox.label is not None \
-                        and label_categories[bbox.label].name:
+                    if bbox.label is not None and \
+                            label_categories[bbox.label].name:
                         name_id = label_categories[bbox.label].name \
                             + '/' + item.id
                     bboxes_table.append({'NAME_ID': name_id, 'X': bbox.x,
@@ -178,8 +179,8 @@ class VggFace2Converter(Converter):
                     if a.type == AnnotationType.label]
                 for label in labels:
                     name_id = item.id
-                    if label.label is not None \
-                        and label_categories[label.label].name:
+                    if label.label is not None and \
+                            label_categories[label.label].name:
                         name_id = label_categories[label.label].name \
                             + '/' + item.id
                     landmarks_table.append({'NAME_ID': name_id})
