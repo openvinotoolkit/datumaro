@@ -11,8 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `WiderFace` dataset format (<https://github.com/openvinotoolkit/datumaro/pull/65>)
 - Function to transform annotations to labels (<https://github.com/openvinotoolkit/datumaro/pull/66>)
 - Task-specific Splitter (<https://github.com/openvinotoolkit/datumaro/pull/68>, <https://github.com/openvinotoolkit/datumaro/pull/81>)
-- `VGGFace2` dataset format (<https://github.com/openvinotoolkit/datumaro/pull/69>)
-- Unique image count statistic (<https://github.com/openvinotoolkit/datumaro/pull/87)
+- `VGGFace2` dataset format (<https://github.com/openvinotoolkit/datumaro/pull/69>, <https://github.com/openvinotoolkit/datumaro/pull/82>)
+- Unique image count statistic (<https://github.com/openvinotoolkit/datumaro/pull/87>)
 
 ### Changed
 - `Dataset` class extended with new operations: `save`, `load`, `export`, `import_from`, `detect`, `run_model` (<https://github.com/openvinotoolkit/datumaro/pull/71>)
