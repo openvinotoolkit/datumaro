@@ -9,7 +9,7 @@ import re
 
 from datumaro.components.converter import Converter
 from datumaro.components.extractor import (AnnotationType, Bbox, DatasetItem,
-    Importer, SourceExtractor)
+    Importer, Label, LabelCategories, SourceExtractor)
 
 
 class WiderFacePath:
@@ -17,6 +17,8 @@ class WiderFacePath:
     ANNOTATIONS_DIR = 'wider_face_split'
     IMAGES_DIR = 'images'
     SUBSET_DIR = 'WIDER_'
+    LABELS_FILE = 'labels.txt'
+    IMAGES_DIR_NO_LABEL = 'no_label'
     BBOX_ATTRIBUTES = ['blur', 'expression', 'illumination',
         'occluded', 'pose', 'invalid']
 
@@ -33,7 +35,30 @@ class WiderFaceExtractor(SourceExtractor):
             subset = subset.split('_')[2]
         super().__init__(subset=subset)
 
+        self._categories = self._load_categories()
         self._items = list(self._load_items(path).values())
+
+    def _load_categories(self):
+        self._categories[AnnotationType.label] = LabelCategories()
+        label_cat = LabelCategories()
+        path = osp.join(self._dataset_dir, WiderFacePath.LABELS_FILE)
+        if osp.isfile(path):
+            with open(path, encoding='utf-8') as labels_file:
+                labels = [s.strip() for s in labels_file]
+            for label in labels:
+                label_cat.add(label)
+        else:
+            subset_path = osp.join(self._dataset_dir,
+                WiderFacePath.SUBSET_DIR + self._subset,
+                WiderFacePath.IMAGES_DIR)
+            if osp.isdir(subset_path):
+                for images_dir in sorted(os.listdir(subset_path)):
+                    if osp.isdir(osp.join(subset_path, images_dir)) and \
+                            images_dir != WiderFacePath.IMAGES_DIR_NO_LABEL:
+                        if '--' in images_dir:
+                            images_dir = images_dir.split('--')[1]
+                        label_cat.add(images_dir)
+        return { AnnotationType.label: label_cat }
 
     def _load_items(self, path):
         items = {}
@@ -48,10 +73,19 @@ class WiderFaceExtractor(SourceExtractor):
             image_path = osp.join(self._dataset_dir, WiderFacePath.SUBSET_DIR
                 + self._subset, WiderFacePath.IMAGES_DIR, image[:-1])
             item_id = image[:-(len(WiderFacePath.IMAGE_EXT) + 1)]
+            annotations = []
+            if '/' in item_id:
+                label_name = item_id.split('/')[0]
+                if '--' in label_name:
+                    label_name = label_name.split('--')[1]
+                if label_name != WiderFacePath.IMAGES_DIR_NO_LABEL:
+                    label = \
+                        self._categories[AnnotationType.label].find(label_name)[0]
+                    annotations.append(Label(label=label))
+                item_id = item_id[len(item_id.split('/')[0]) + 1:]
 
             bbox_count = lines[image_id + 1]
             bbox_lines = lines[image_id + 2 : image_id + int(bbox_count) + 2]
-            annotations = []
             for bbox in bbox_lines:
                 bbox_list = bbox.split()
                 if len(bbox_list) >= 4:
@@ -63,8 +97,8 @@ class WiderFaceExtractor(SourceExtractor):
                                 attributes[attr] = int(bbox_list[i])
                             i += 1
                     annotations.append(Bbox(
-                        int(bbox_list[0]), int(bbox_list[1]),
-                        int(bbox_list[2]), int(bbox_list[3]),
+                        float(bbox_list[0]), float(bbox_list[1]),
+                        float(bbox_list[2]), float(bbox_list[3]),
                         attributes = attributes
                     ))
 
@@ -83,18 +117,37 @@ class WiderFaceConverter(Converter):
 
     def apply(self):
         save_dir = self._save_dir
-
         os.makedirs(save_dir, exist_ok=True)
+
+        label_categories = self._extractor.categories()[AnnotationType.label]
+
+        labels_path = osp.join(save_dir, WiderFacePath.LABELS_FILE)
+        with open(labels_path, 'w', encoding='utf-8') as f:
+            f.write('\n'.join(label.name for label in label_categories))
 
         for subset_name, subset in self._extractor.subsets().items():
             subset_dir = osp.join(save_dir, WiderFacePath.SUBSET_DIR + subset_name)
 
             wider_annotation = ''
             for item in subset:
-                wider_annotation += '%s\n' % (item.id + WiderFacePath.IMAGE_EXT)
-                if item.has_image and self._save_images:
-                    self._save_image(item, osp.join(save_dir, subset_dir,
-                        WiderFacePath.IMAGES_DIR, item.id + WiderFacePath.IMAGE_EXT))
+                labels = [a.label for a in item.annotations
+                    if a.type == AnnotationType.label]
+                if labels:
+                    wider_annotation += '%s\n' % (str(labels[0]) + '--' \
+                        + label_categories[labels[0]].name + '/' \
+                        + item.id + WiderFacePath.IMAGE_EXT)
+                    if item.has_image and self._save_images:
+                        self._save_image(item, osp.join(save_dir, subset_dir,
+                            WiderFacePath.IMAGES_DIR, str(labels[0]) + '--' \
+                            + label_categories[labels[0]].name + '/' + item.id \
+                            + WiderFacePath.IMAGE_EXT))
+                else:
+                    wider_annotation += '%s\n' % (WiderFacePath.IMAGES_DIR_NO_LABEL \
+                        + '/' + item.id + WiderFacePath.IMAGE_EXT)
+                    if item.has_image and self._save_images:
+                        self._save_image(item, osp.join(save_dir, subset_dir,
+                            WiderFacePath.IMAGES_DIR, WiderFacePath.IMAGES_DIR_NO_LABEL \
+                            + '/' + item.id + WiderFacePath.IMAGE_EXT))
 
                 bboxes = [a for a in item.annotations
                     if a.type == AnnotationType.bbox]
