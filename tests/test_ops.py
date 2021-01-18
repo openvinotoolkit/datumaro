@@ -3,12 +3,12 @@ from unittest import TestCase
 import numpy as np
 
 from datumaro.components.extractor import (Bbox, Caption, DatasetItem,
-    Extractor, Label, Mask, Points, Polygon, PolyLine, DEFAULT_SUBSET_NAME,
+    Label, Mask, Points, Polygon, PolyLine, DEFAULT_SUBSET_NAME,
     LabelCategories, PointsCategories, MaskCategories, AnnotationType)
 from datumaro.components.operations import (FailedAttrVotingError,
     IntersectMerge, NoMatchingAnnError, NoMatchingItemError, WrongGroupError,
-    compute_ann_statistics, mean_std)
-from datumaro.components.project import Dataset
+    compute_ann_statistics, mean_std, find_unique_images)
+from datumaro.components.dataset import Dataset
 from datumaro.util.test_utils import compare_datasets
 
 
@@ -60,13 +60,17 @@ class TestOperations(TestCase):
                 }),
             ]),
             DatasetItem(id=3),
+            DatasetItem(id='2.2', image=np.ones((2, 4, 3))),
         ], categories=['label_%s' % i for i in range(4)])
 
         expected = {
-            'images count': 3,
+            'images count': 4,
+            'unique images count': 3,
+            'repeated images count': 1,
+            'repeated images': [[('2', 'default'), ('2.2', 'default')]],
             'annotations count': 10,
-            'unannotated images count': 1,
-            'unannotated images': ['3'],
+            'unannotated images count': 2,
+            'unannotated images': ['3', '2.2'],
             'annotations by type': {
                 'label': { 'count': 2, },
                 'polygon': { 'count': 0, },
@@ -142,6 +146,9 @@ class TestOperations(TestCase):
 
         expected = {
             'images count': 2,
+            'unique images count': 2,
+            'repeated images count': 0,
+            'repeated images': [],
             'annotations count': 0,
             'unannotated images count': 2,
             'unannotated images': ['1', '3'],
@@ -181,6 +188,31 @@ class TestOperations(TestCase):
         actual = compute_ann_statistics(dataset)
 
         self.assertEqual(expected, actual)
+
+    def test_unique_image_count(self):
+        expected = {
+            frozenset([('1', 'a'), ('1', 'b')]),
+            frozenset([('2', DEFAULT_SUBSET_NAME), ('3', DEFAULT_SUBSET_NAME)]),
+            frozenset([('4', DEFAULT_SUBSET_NAME)]),
+        }
+
+        dataset = Dataset.from_iterable([
+            # no image data, but the same path
+            DatasetItem(1, subset='a', image='1.jpg'),
+            DatasetItem(1, subset='b', image='1.jpg'),
+
+            # same images
+            DatasetItem(2, image=np.array([1])),
+            DatasetItem(3, image=np.array([1])),
+
+            # no image is always a unique image
+            DatasetItem(4),
+        ])
+
+        groups = find_unique_images(dataset)
+
+        self.assertEqual(expected, set(frozenset(s) for s in groups.values()))
+
 
 class TestMultimerge(TestCase):
     def test_can_match_items(self):

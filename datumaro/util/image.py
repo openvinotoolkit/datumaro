@@ -205,6 +205,8 @@ class Image:
         assert path is None or isinstance(path, str)
         if path is None:
             path = ''
+        elif path:
+            path = osp.abspath(path)
         self._path = path
 
         assert data is not None or path or loader, "Image can not be empty"
