@@ -2,7 +2,8 @@ import os.path as osp
 from unittest import TestCase
 
 import numpy as np
-from datumaro.components.extractor import Bbox, DatasetItem
+from datumaro.components.extractor import (AnnotationType, Bbox, DatasetItem,
+    Label, LabelCategories)
 from datumaro.components.dataset import Dataset
 from datumaro.plugins.widerface_format import WiderFaceConverter, WiderFaceImporter
 from datumaro.util.test_utils import TestDir, compare_datasets
@@ -17,6 +18,7 @@ class WiderFaceFormatTest(TestCase):
                     Bbox(0, 1, 2, 3, attributes = {
                         'blur': 2, 'expression': 0, 'illumination': 0,
                         'occluded': 0, 'pose': 2, 'invalid': 0}),
+                    Label(0),
                 ]
             ),
             DatasetItem(id='2', subset='train', image=np.ones((10, 10, 3)),
@@ -30,6 +32,7 @@ class WiderFaceFormatTest(TestCase):
                     Bbox(2, 1, 2, 3, attributes = {
                         'blur': 2, 'expression': 0, 'illumination': 0,
                         'occluded': 0, 'pose': 0, 'invalid': 1}),
+                    Label(1),
                 ]
             ),
 
@@ -47,11 +50,14 @@ class WiderFaceFormatTest(TestCase):
             ),
 
             DatasetItem(id='4', subset='val', image=np.ones((8, 8, 3))),
-        ])
+        ], categories={
+            AnnotationType.label: LabelCategories.from_iterable(
+                'label_' + str(i) for i in range(3)),
+        })
 
         with TestDir() as test_dir:
             WiderFaceConverter.convert(source_dataset, test_dir, save_images=True)
-            parsed_dataset = WiderFaceImporter()(test_dir).make_dataset()
+            parsed_dataset = Dataset.import_from(test_dir, 'wider_face')
 
             compare_datasets(self, source_dataset, parsed_dataset)
 
@@ -65,11 +71,11 @@ class WiderFaceFormatTest(TestCase):
                         'occluded': 0, 'pose': 2, 'invalid': 0}),
                 ]
             ),
-        ])
+        ], categories=[])
 
         with TestDir() as test_dir:
             WiderFaceConverter.convert(source_dataset, test_dir, save_images=True)
-            parsed_dataset = WiderFaceImporter()(test_dir).make_dataset()
+            parsed_dataset = Dataset.import_from(test_dir, 'wider_face')
 
             compare_datasets(self, source_dataset, parsed_dataset)
 
@@ -85,7 +91,7 @@ class WiderFaceFormatTest(TestCase):
                         'non-widerface attribute': 0}),
                 ]
             ),
-        ])
+        ], categories=[])
 
         target_dataset = Dataset.from_iterable([
             DatasetItem(id='a/b/1', image=np.ones((8, 8, 3)),
@@ -96,11 +102,11 @@ class WiderFaceFormatTest(TestCase):
                     Bbox(1, 1, 2, 2),
                 ]
             ),
-        ])
+        ], categories=[])
 
         with TestDir() as test_dir:
             WiderFaceConverter.convert(source_dataset, test_dir, save_images=True)
-            parsed_dataset = WiderFaceImporter()(test_dir).make_dataset()
+            parsed_dataset = Dataset.import_from(test_dir, 'wider_face')
 
             compare_datasets(self, target_dataset, parsed_dataset)
 
@@ -112,15 +118,16 @@ class WiderFaceImporterTest(TestCase):
 
     def test_can_import(self):
         expected_dataset = Dataset.from_iterable([
-            DatasetItem(id='0--Parade/0_Parade_image_01', subset='train',
+            DatasetItem(id='0_Parade_image_01', subset='train',
                 image=np.ones((10, 15, 3)),
                 annotations=[
                     Bbox(1, 2, 2, 2, attributes = {
                         'blur': 0, 'expression': 0, 'illumination': 0,
                         'occluded': 0, 'pose': 0, 'invalid': 0}),
+                        Label(0),
                 ]
             ),
-            DatasetItem(id='1--Handshaking/1_Handshaking_image_02', subset='train',
+            DatasetItem(id='1_Handshaking_image_02', subset='train',
                 image=np.ones((10, 15, 3)),
                 annotations=[
                     Bbox(1, 1, 2, 2, attributes = {
@@ -129,9 +136,10 @@ class WiderFaceImporterTest(TestCase):
                     Bbox(5, 1, 2, 2, attributes = {
                         'blur': 0, 'expression': 0, 'illumination': 1,
                         'occluded': 0, 'pose': 0, 'invalid': 0}),
+                        Label(1),
                 ]
             ),
-            DatasetItem(id='0--Parade/0_Parade_image_03', subset='val',
+            DatasetItem(id='0_Parade_image_03', subset='val',
                 image=np.ones((10, 15, 3)),
                 annotations=[
                     Bbox(0, 0, 1, 1, attributes = {
@@ -143,9 +151,10 @@ class WiderFaceImporterTest(TestCase):
                     Bbox(5, 6, 1, 1, attributes = {
                         'blur': 2, 'expression': 0, 'illumination': 0,
                         'occluded': 0, 'pose': 2, 'invalid': 0}),
+                        Label(0),
                 ]
             ),
-        ])
+        ], categories= ['Parade', 'Handshaking'])
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'wider_face')
 
