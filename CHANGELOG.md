@@ -35,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `YOLO` extractor path matching on Windows (<https://github.com/openvinotoolkit/datumaro/pull/73>)
 - Fixed inplace file copying when saving images (<https://github.com/openvinotoolkit/datumaro/pull/76>)
 - Fixed `labelmap` parameter type checking in `VOC` converter (<https://github.com/openvinotoolkit/datumaro/pull/76>)
+- Fixed model copying on addition in CLI (<https://github.com/openvinotoolkit/datumaro/pull/94>)
 
 ### Security
 -
