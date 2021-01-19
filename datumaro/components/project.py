@@ -385,7 +385,8 @@ class Project:
     def make_executable_model(self, name):
         model = self.get_model(name)
         return self.env.make_launcher(model.launcher,
-            **model.options, model_dir=self.local_model_dir(name))
+            **model.options, model_dir=osp.join(
+                self.config.project_dir, self.local_model_dir(name)))
 
     def make_source_project(self, name):
         source = self.get_source(name)

@@ -66,7 +66,8 @@ def add_command(args):
     if args.copy:
         log.info("Copying model data")
 
-        model_dir = project.local_model_dir(args.name)
+        model_dir = osp.join(project.config.project_dir,
+            project.local_model_dir(args.name))
         os.makedirs(model_dir, exist_ok=False)
 
         try:
