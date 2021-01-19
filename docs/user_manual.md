@@ -20,7 +20,7 @@
   - [Obtaining project info](#get-project-info)
   - [Obtaining project statistics](#get-project-statistics)
   - [Register model](#register-model)
-  - [Run inference](#run-inference)
+  - [Run inference](#run-model)
   - [Run inference explanation](#explain-inference)
   - [Transform project](#transform-project)
 - [Extending](#extending)
@@ -182,11 +182,11 @@ Usage:
 datum convert --help
 
 datum convert \
-     -i <input path> \
-     -if <input format> \
-     -o <output path> \
-     -f <output format> \
-     -- [extra parameters for output format]
+    -i <input path> \
+    -if <input format> \
+    -o <output path> \
+    -f <output format> \
+    -- [extra parameters for output format]
 ```
 
 Example: convert a VOC-like dataset to a COCO-like one:
@@ -209,18 +209,18 @@ Usage:
 datum import --help
 
 datum import \
-     -i <dataset_path> \
-     -o <project_dir> \
-     -f <format>
+    -i <dataset_path> \
+    -o <project_dir> \
+    -f <format>
 ```
 
 Example: create a project from COCO-like dataset
 
 ``` bash
 datum import \
-     -i /home/coco_dir \
-     -o /home/project_dir \
-     -f coco
+    -i /home/coco_dir \
+    -o /home/project_dir \
+    -f coco
 ```
 
 An _MS COCO_-like dataset should have the following directory structure:
@@ -250,7 +250,7 @@ Usage:
 datum create --help
 
 datum create \
-  -o <project_dir>
+    -o <project_dir>
 ```
 
 Example: create an empty project `my_dataset`
@@ -288,13 +288,14 @@ datum add --help
 datum remove --help
 
 datum add \
-     path <path> \
-     -p <project dir> \
-     -n <name>
+    path <path> \
+    -p <project dir> \
+    -f <format> \
+    -n <name>
 
 datum remove \
-     -p <project dir> \
-     -n <name>
+    -p <project dir> \
+    -n <name>
 ```
 
 Example: create a project from a bunch of different annotations and images,
@@ -334,39 +335,39 @@ Usage:
 datum filter --help
 
 datum filter \
-     -p <project dir> \
-     -e '<xpath filter expression>'
+    -p <project dir> \
+    -e '<xpath filter expression>'
 ```
 
 Example: extract a dataset with only images which `width` < `height`
 
 ``` bash
 datum filter \
-     -p test_project \
-     -e '/item[image/width < image/height]'
+    -p test_project \
+    -e '/item[image/width < image/height]'
 ```
 
 Example: extract a dataset with only images of subset `train`.
 ``` bash
 datum project filter \
-     -p test_project \
-     -e '/item[subset="train"]'
+    -p test_project \
+    -e '/item[subset="train"]'
 ```
 
 Example: extract a dataset with only large annotations of class `cat` and any non-`persons`
 
 ``` bash
 datum filter \
-     -p test_project \
-     --mode annotations -e '/item/annotation[(label="cat" and area > 99.5) or label!="person"]'
+    -p test_project \
+    --mode annotations -e '/item/annotation[(label="cat" and area > 99.5) or label!="person"]'
 ```
 
 Example: extract a dataset with only occluded annotations, remove empty images
 
 ``` bash
 datum filter \
-     -p test_project \
-     -m i+a -e '/item/annotation[occluded="True"]'
+    -p test_project \
+    -m i+a -e '/item/annotation[occluded="True"]'
 ```
 
 Item representations are available with `--dry-run` parameter:
@@ -415,9 +416,9 @@ Usage:
 datum merge --help
 
 datum merge \
-     -p <project dir> \
-     -o <output dir> \
-     <other project dir>
+    -p <project dir> \
+    -o <output dir> \
+    <other project dir>
 ```
 
 Example: update annotations in the `first_project` with annotations
@@ -425,9 +426,9 @@ from the `second_project` and save the result as `merged_project`
 
 ``` bash
 datum merge \
-     -p first_project \
-     -o merged_project \
-     second_project
+    -p first_project \
+    -o merged_project \
+    second_project
 ```
 
 ### Merge projects
@@ -453,9 +454,9 @@ Example: merge 4 (partially-)intersecting projects,
 
 ``` bash
 datum merge project1/ project2/ project3/ project4/ \
-     --quorum 3 \
-     -iou 0.6 \
-     --groups 'person,hand?,head,foot?'
+    --quorum 3 \
+    -iou 0.6 \
+    --groups 'person,hand?,head,foot?'
 ```
 
 ### Export project
@@ -471,20 +472,20 @@ Usage:
 datum export --help
 
 datum export \
-     -p <project dir> \
-     -o <output dir> \
-     -f <format> \
-     -- [additional format parameters]
+    -p <project dir> \
+    -o <output dir> \
+    -f <format> \
+    -- [additional format parameters]
 ```
 
 Example: save project as VOC-like dataset, include images, convert images to `PNG`
 
 ``` bash
 datum export \
-     -p test_project \
-     -o test_project-export \
-     -f voc \
-     -- --save-images --image-ext='.png'
+    -p test_project \
+    -o test_project-export \
+    -f voc \
+    -- --save-images --image-ext='.png'
 ```
 
 ### Get project info
@@ -497,7 +498,7 @@ Usage:
 datum info --help
 
 datum info \
-     -p <project dir>
+    -p <project dir>
 ```
 
 Example:
@@ -541,7 +542,7 @@ Usage:
 datum stats --help
 
 datum stats \
-     -p <project dir>
+    -p <project dir>
 ```
 
 Example:
@@ -830,8 +831,8 @@ used to convert model outputs to internal data structures.
 ``` bash
 datum create
 datum model add \
-     -n <model_name> openvino \
-     -d <path_to_xml> -w <path_to_bin> -i <path_to_interpretation_script>
+    -n <model_name> -l open_vino -- \
+    -d <path_to_xml> -w <path_to_bin> -i <path_to_interpretation_script>
 ```
 
 Interpretation script for an OpenVINO detection model (`convert.py`):
@@ -843,38 +844,38 @@ max_det = 10
 conf_thresh = 0.1
 
 def process_outputs(inputs, outputs):
-     # inputs = model input, array or images, shape = (N, C, H, W)
-     # outputs = model output, shape = (N, 1, K, 7)
-     # results = conversion result, [ [ Annotation, ... ], ... ]
-     results = []
-     for input, output in zip(inputs, outputs):
-          input_height, input_width = input.shape[:2]
-          detections = output[0]
-          image_results = []
-          for i, det in enumerate(detections):
-               label = int(det[1])
-               conf = det[2]
-               if conf <= conf_thresh:
-                    continue
+    # inputs = model input, array or images, shape = (N, C, H, W)
+    # outputs = model output, shape = (N, 1, K, 7)
+    # results = conversion result, [ [ Annotation, ... ], ... ]
+    results = []
+    for input, output in zip(inputs, outputs):
+        input_height, input_width = input.shape[:2]
+        detections = output[0]
+        image_results = []
+        for i, det in enumerate(detections):
+            label = int(det[1])
+            conf = float(det[2])
+            if conf <= conf_thresh:
+                continue
 
-               x = max(int(det[3] * input_width), 0)
-               y = max(int(det[4] * input_height), 0)
-               w = min(int(det[5] * input_width - x), input_width)
-               h = min(int(det[6] * input_height - y), input_height)
-               image_results.append(Bbox(x, y, w, h,
-                    label=label, attributes={'score': conf} ))
+            x = max(int(det[3] * input_width), 0)
+            y = max(int(det[4] * input_height), 0)
+            w = min(int(det[5] * input_width - x), input_width)
+            h = min(int(det[6] * input_height - y), input_height)
+            image_results.append(Bbox(x, y, w, h,
+                label=label, attributes={'score': conf} ))
 
-               results.append(image_results[:max_det])
+            results.append(image_results[:max_det])
 
-     return results
+    return results
 
 def get_categories():
-     # Optionally, provide output categories - label map etc.
-     # Example:
-     label_categories = LabelCategories()
-     label_categories.add('person')
-     label_categories.add('car')
-     return { AnnotationType.label: label_categories }
+    # Optionally, provide output categories - label map etc.
+    # Example:
+    label_categories = LabelCategories()
+    label_categories.add('person')
+    label_categories.add('car')
+    return { AnnotationType.label: label_categories }
 ```
 
 ### Run model
@@ -887,9 +888,9 @@ Usage:
 datum model run --help
 
 datum model run \
-     -p <project dir> \
-     -m <model_name> \
-     -o <save_dir>
+    -p <project dir> \
+    -m <model_name> \
+    -o <save_dir>
 ```
 
 Example: launch inference on a dataset
@@ -929,11 +930,11 @@ Usage:
 datum explain --help
 
 datum explain \
-     -m <model_name> \
-     -o <save_dir> \
-     -t <target> \
-     <method> \
-     <method_params>
+    -m <model_name> \
+    -o <save_dir> \
+    -t <target> \
+    <method> \
+    <method_params>
 ```
 
 Example: run inference explanation on a single image with visualization
@@ -942,10 +943,10 @@ Example: run inference explanation on a single image with visualization
 datum create <...>
 datum model add mymodel <...>
 datum explain \
-     -m mymodel \
-     -t 'image.png' \
-     rise \
-     -s 1000 --progressive
+    -m mymodel \
+    -t 'image.png' \
+    rise \
+    -s 1000 --progressive
 ```
 
 ### Transform Project
@@ -956,10 +957,10 @@ This command allows to modify images or annotations in a project all at once.
 datum transform --help
 
 datum transform \
-     -p <project_dir> \
-     -o <output_dir> \
-     -t <transform_name> \
-     -- [extra transform options]
+    -p <project_dir> \
+    -o <output_dir> \
+    -t <transform_name> \
+    -- [extra transform options]
 ```
 
 Example: split a dataset randomly to `train` and `test` subsets, ratio is 2:1
@@ -995,8 +996,8 @@ Example: remap dataset labels, `person` to `car` and `cat` to `dog`, keep `bus`,
 
 ``` bash
 datum transform -t remap_labels -- \
-     -l person:car -l bus:bus -l cat:dog \
-     --default delete
+    -l person:car -l bus:bus -l cat:dog \
+    --default delete
 ```
 
 Example: rename dataset items by a regular expression
