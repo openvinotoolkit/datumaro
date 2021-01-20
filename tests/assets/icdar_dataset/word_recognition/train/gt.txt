@@ -1,0 +1,3 @@
+word_1.png, "RED"
+word_2.png, "FOOD"
+word_3.png, "LION"
