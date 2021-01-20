@@ -623,11 +623,11 @@ class Importer:
             sources = []
             for d in range(max_depth + 1):
                 sources.extend({'url': p, 'format': extractor_name} for p in
-                    iglob(osp.join(path, *('*' * d), dirname, filename + ext)))
+                    iglob(osp.join(path, *('*' * d), dirname, filename + ext))
+                    if (callable(file_filter) and file_filter(p)) \
+                    or (not callable(file_filter)))
                 if sources:
                     break
-        if callable(file_filter):
-            sources = [s for s in sources if file_filter(s['url'])]
         return sources
 
 class Transform(Extractor):
