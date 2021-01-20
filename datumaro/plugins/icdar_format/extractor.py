@@ -73,8 +73,6 @@ class _IcdarExtractor(SourceExtractor):
             with open(self._path, encoding='utf-8') as f:
                 for line in f:
                     line = line.strip()
-                    if not line or line and line[0] == '#':
-                        continue
                     objects = line.split(', ')
                     if len(objects) == 2:
                         image = objects[0]
@@ -111,8 +109,6 @@ class _IcdarExtractor(SourceExtractor):
                 with open(path, encoding='utf-8') as f:
                     for line in f:
                         line = line.strip()
-                        if not line or line and line[0] == '#':
-                            continue
                         objects = line.split()
                         if len(objects) == 1:
                             objects = line.split(',')
