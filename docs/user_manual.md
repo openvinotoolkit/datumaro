@@ -116,6 +116,9 @@ List of supported formats:
 - LabelMe
   - [Format specification](http://labelme.csail.mit.edu/Release3.0)
   - [Dataset example](../tests/assets/labelme_dataset)
+- ICDAR13/15 (`word_recognition`, `text_localization`)
+  - [Format specification](https://rrc.cvc.uab.es/?ch=2)
+  - [Dataset example](../tests/assets/icdar_dataset)
 
 List of supported annotation types:
 - Labels
