@@ -7,7 +7,7 @@ import os.path as osp
 
 from datumaro.components.converter import Converter
 from datumaro.components.extractor import AnnotationType
-from datumaro.plugins.icdar_format.format import IcdarPath, IcdarTask
+from .format import IcdarPath, IcdarTask
 
 
 class _WordRecognitionConverter():
@@ -22,7 +22,7 @@ class _WordRecognitionConverter():
         for ann in item.annotations:
             if ann.type != AnnotationType.caption:
                 continue
-            self.annotations += '%s' % ann.caption
+            self.annotations += '\"%s\"' % ann.caption
         self.annotations += '\n'
 
     def write(self, path):
@@ -59,7 +59,7 @@ class _TextLocalizationConverter():
             elif ann.type == AnnotationType.points:
                 annotation += ','.join(str(p) for p in ann.points)
                 if ann.label is not None:
-                    annotation += ',%s' % \
+                    annotation += ',\"%s\"' % \
                         categories[AnnotationType.label][ann.label].name
             annotation += '\n'
         self.annotations[item.id] = annotation

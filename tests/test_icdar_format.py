@@ -2,12 +2,11 @@ import os.path as osp
 from unittest import TestCase
 
 import numpy as np
-from datumaro.components.extractor import (AnnotationType, Bbox, DatasetItem, Caption,
-    Label, LabelCategories, Points)
-from datumaro.components.project import Dataset, Project
+from datumaro.components.extractor import (AnnotationType, Bbox, Caption,
+    DatasetItem, LabelCategories, Points)
+from datumaro.components.project import Dataset
 from datumaro.plugins.icdar_format.converter import (
-    IcdarConverter, IcdarTextLocalizationConverter,
-    IcdarWordRecognitionConverter)
+    IcdarTextLocalizationConverter, IcdarWordRecognitionConverter)
 from datumaro.plugins.icdar_format.extractor import IcdarImporter
 from datumaro.util.test_utils import (TestDir, compare_datasets,
     test_save_and_load)
@@ -125,5 +124,3 @@ class IcdarConverterTest(TestCase):
             self._test_save_and_load(expected_dataset,
                 IcdarTextLocalizationConverter.convert,
                 osp.join(test_dir, 'text_localization'))
-
-

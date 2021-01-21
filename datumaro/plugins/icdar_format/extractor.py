@@ -7,7 +7,7 @@ from glob import glob
 
 from datumaro.components.extractor import (AnnotationType, Bbox, Caption,
     DatasetItem, Importer, LabelCategories, Points, SourceExtractor)
-from datumaro.plugins.icdar_format.format import IcdarPath, IcdarTask
+from .format import IcdarPath, IcdarTask
 
 
 class _WordRecognitionExtractor():
@@ -34,7 +34,7 @@ class _WordRecognitionExtractor():
                         image=image_path)
                 annotations = items[item_id].annotations
                 for caption in captions:
-                    if caption[0] == '"' and caption[-1] == '"':
+                    if caption[0] == '\"' and caption[-1] == '\"':
                         caption = caption[1:-1]
                     annotations.append(Caption(caption))
         return items
@@ -61,7 +61,7 @@ class _TextLocalizationExtractor():
                             label = objects[4]
                         else:
                             continue
-                        if label[0] == '"' and label[-1] == '"':
+                        if label[0] == '\"' and label[-1] == '\"':
                             label = label[1:-1]
                         labels.append(label)
 
@@ -94,7 +94,7 @@ class _TextLocalizationExtractor():
                         label = None
                         if len(objects) == 9:
                             label_name = objects[8]
-                            if label_name[0] == '"' and label_name[-1] == '"':
+                            if label_name[0] == '\"' and label_name[-1] == '\"':
                                 label_name = label_name[1:-1]
                             label = \
                                 _categories[AnnotationType.label]._indices[label_name]
@@ -107,7 +107,7 @@ class _TextLocalizationExtractor():
                         label = None
                         if len(objects) == 5:
                             label_name = objects[4]
-                            if label_name[0] == '"' and label_name[-1] == '"':
+                            if label_name[0] == '\"' and label_name[-1] == '\"':
                                 label_name = label_name[1:-1]
                             label = \
                                 _categories[AnnotationType.label]._indices[label_name]
@@ -168,12 +168,10 @@ class IcdarImporter(Importer):
             if not osp.isdir(path) or osp.basename(path) != task_dir:
                 continue
             if task is IcdarTask.word_recognition:
-                sources += cls._find_sources_recursive(
-                    path, '.txt', extractor_type, file_filter=lambda p: \
-                    osp.basename(p) != IcdarPath.VOCABULARY_FILE)
+                ext = '.txt'
             elif task is IcdarTask.text_localization:
-                subset_paths = [p for p in glob(osp.join(path, '**'))
-                    if osp.basename(p) != IcdarPath.VOCABULARY_FILE]
-                for subset_path in subset_paths:
-                    sources += [{'url': subset_path, 'format': extractor_type}]
+                ext = ''
+            sources += cls._find_sources_recursive(
+                path, ext, extractor_type, file_filter=lambda p: \
+                osp.basename(p) != IcdarPath.VOCABULARY_FILE)
         return sources
