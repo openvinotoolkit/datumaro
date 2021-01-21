@@ -1,3 +1,2 @@
-word_1.png, "RED"
-word_2.png, "FOOD"
-word_3.png, "LION"
+word_1.png, "PROPER"
+word_2.png, "Canon"

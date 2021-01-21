@@ -14,27 +14,15 @@ class _WordRecognitionConverter():
     def __init__(self):
         self.annotations = ''
 
-    def save_categories(self, save_dir, label_categories):
-        vocabulary_file = osp.join(save_dir,
-            IcdarPath.TASK_DIR[IcdarTask.word_recognition],
-            IcdarPath.VOCABULARY_FILE)
-        os.makedirs(osp.dirname(vocabulary_file), exist_ok=True)
-        with open(vocabulary_file, 'w', encoding='utf-8') as f:
-            f.write('\n'.join(l.name
-                for l in label_categories)
-            )
+    def save_categories(self, save_dir, categories):
+        pass
 
-    def get_image_path(self, item, subset):
-        return osp.join(self._save_dir,
-            IcdarPath.TASK_DIR[IcdarTask.word_recognition], subset,
-            IcdarPath.IMAGES_DIR, item.id + IcdarPath.IMAGE_EXT)
-
-    def save_annotations(self, item, label_categories):
+    def save_annotations(self, item, categories):
         self.annotations += '%s, ' % (item.id + IcdarPath.IMAGE_EXT)
         for ann in item.annotations:
-            if ann.type != AnnotationType.label:
+            if ann.type != AnnotationType.caption:
                 continue
-            self.annotations += '%s' % label_categories[ann.label].name
+            self.annotations += '%s' % ann.caption
         self.annotations += '\n'
 
     def write(self, path):
@@ -50,33 +38,29 @@ class _TextLocalizationConverter():
     def __init__(self):
         self.annotations = {}
 
-    def save_categories(self, save_dir, label_categories):
+    def save_categories(self, save_dir, categories):
         vocabulary_file = osp.join(save_dir,
-            IcdarPath.TASK_DIR[IcdarTask.text_localization],
             IcdarPath.VOCABULARY_FILE)
         os.makedirs(osp.dirname(vocabulary_file), exist_ok=True)
         with open(vocabulary_file, 'w', encoding='utf-8') as f:
             f.write('\n'.join(l.name
-                for l in label_categories)
+                for l in categories[AnnotationType.label])
             )
 
-    def get_image_path(self, item, subset):
-        return osp.join(self._save_dir,
-            IcdarPath.TASK_DIR[IcdarTask.text_localization], subset,
-            IcdarPath.IMAGES_DIR, 'img_' + item.id + IcdarPath.IMAGE_EXT)
-
-    def save_annotations(self, item, label_categories):
+    def save_annotations(self, item, categories):
         annotation = ''
         for ann in item.annotations:
             if ann.type == AnnotationType.bbox:
                 annotation += '%s %s %s %s' % (ann.x, ann.y,
                     ann.x + ann.w, ann.y + ann.h)
                 if ann.label is not None:
-                    annotation += ' %s' % label_categories[ann.label].name
+                    annotation += ' %s' % \
+                        categories[AnnotationType.label][ann.label].name
             elif ann.type == AnnotationType.points:
                 annotation += ','.join(str(p) for p in ann.points)
                 if ann.label is not None:
-                    annotation += ',%s' % label_categories[ann.label].name
+                    annotation += ',%s' % \
+                        categories[AnnotationType.label][ann.label].name
             annotation += '\n'
         self.annotations[item.id] = annotation
 
@@ -129,20 +113,19 @@ class IcdarConverter(Converter):
             task_converters = self._make_task_converters()
             for task_conv in task_converters.values():
                 task_conv.save_categories(self._save_dir,
-                    self._extractor.categories()[AnnotationType.label])
+                    self._extractor.categories())
             for item in subset:
                 for task_conv in task_converters.values():
                     if item.has_image and self._save_images:
-                        self._save_image(item, task_conv.get_image_path(item,
-                            subset_name))
+                        self._save_image(item, osp.join(self._save_dir, subset_name,
+                            IcdarPath.IMAGES_DIR, item.id + IcdarPath.IMAGE_EXT))
                     task_conv.save_annotations(item,
-                        self._extractor.categories()[AnnotationType.label])
+                        self._extractor.categories())
 
-            for task, task_conv in task_converters.items():
+            for task_conv in task_converters.values():
                 if task_conv.is_empty() and not self._tasks:
                     continue
-                task_conv.write(osp.join(self._save_dir,
-                    IcdarPath.TASK_DIR[task], subset_name))
+                task_conv.write(osp.join(self._save_dir, subset_name))
 
 class IcdarWordRecognitionConverter(IcdarConverter):
     def __init__(self, *args, **kwargs):

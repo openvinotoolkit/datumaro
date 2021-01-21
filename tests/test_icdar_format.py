@@ -2,7 +2,7 @@ import os.path as osp
 from unittest import TestCase
 
 import numpy as np
-from datumaro.components.extractor import (AnnotationType, Bbox, DatasetItem,
+from datumaro.components.extractor import (AnnotationType, Bbox, DatasetItem, Caption,
     Label, LabelCategories, Points)
 from datumaro.components.project import Dataset, Project
 from datumaro.plugins.icdar_format.converter import (
@@ -16,28 +16,31 @@ DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'icdar_dataset')
 
 class IcdarImporterTest(TestCase):
     def test_can_detect(self):
-        self.assertTrue(IcdarImporter.detect(DUMMY_DATASET_DIR))
+        self.assertTrue(IcdarImporter.detect(
+            osp.join(DUMMY_DATASET_DIR, 'word_recognition')))
 
-    def test_can_import(self):
+    def test_can_import_captions(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='word_1', subset='train',
                 image=np.ones((10, 15, 3)),
                 annotations=[
-                    Label(2),
+                    Caption('PROPER'),
                 ]
             ),
             DatasetItem(id='word_2', subset='train',
                 image=np.ones((10, 15, 3)),
                 annotations=[
-                    Label(0),
+                    Caption("Canon"),
                 ]
             ),
-            DatasetItem(id='word_3', subset='train',
-                image=np.ones((10, 15, 3)),
-                annotations=[
-                    Label(1),
-                ]
-            ),
+        ])
+
+        dataset = Dataset.import_from(osp.join(DUMMY_DATASET_DIR, 'word_recognition'), 'icdar')
+
+        compare_datasets(self, expected_dataset, dataset)
+
+    def test_can_import_bboxes(self):
+        expected_dataset = Dataset.from_iterable([
             DatasetItem(id='img_1', subset='train',
                 image=np.ones((10, 15, 3)),
                 annotations=[
@@ -56,8 +59,7 @@ class IcdarImporterTest(TestCase):
                 ['FOOD', 'LION', 'RED']),
         })
 
-        dataset = Project.import_from(DUMMY_DATASET_DIR, 'icdar') \
-            .make_dataset()
+        dataset = Dataset.import_from(osp.join(DUMMY_DATASET_DIR, 'text_localization'), 'icdar')
 
         compare_datasets(self, expected_dataset, dataset)
 
@@ -68,24 +70,21 @@ class IcdarConverterTest(TestCase):
             importer='icdar',
             target_dataset=target_dataset, importer_args=importer_args)
 
-    def test_can_save_and_load_labels(self):
+    def test_can_save_and_load_captions(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train',
                 annotations=[
-                    Label(0),
+                    Caption('caption_0'),
                 ]),
             DatasetItem(id=2, subset='train',
                 annotations=[
-                    Label(1),
+                    Caption('caption_1'),
                 ]),
-        ], categories={
-            AnnotationType.label: LabelCategories.from_iterable(
-                ['label_0', 'label_1']),
-        })
+        ])
 
         with TestDir() as test_dir:
             self._test_save_and_load(expected_dataset,
-                IcdarWordRecognitionConverter.convert, test_dir)
+                IcdarWordRecognitionConverter.convert, osp.join(test_dir, 'word_recognition'))
 
     def test_can_save_and_load_bboxes(self):
         expected_dataset = Dataset.from_iterable([
@@ -111,7 +110,8 @@ class IcdarConverterTest(TestCase):
 
         with TestDir() as test_dir:
             self._test_save_and_load(expected_dataset,
-                IcdarTextLocalizationConverter.convert, test_dir)
+                IcdarTextLocalizationConverter.convert,
+                osp.join(test_dir, 'text_localization'))
 
     def test_can_save_and_load_with_no_subsets(self):
         expected_dataset = Dataset.from_iterable([
@@ -123,32 +123,7 @@ class IcdarConverterTest(TestCase):
 
         with TestDir() as test_dir:
             self._test_save_and_load(expected_dataset,
-                IcdarTextLocalizationConverter.convert, test_dir)
+                IcdarTextLocalizationConverter.convert,
+                osp.join(test_dir, 'text_localization'))
 
-    def test_can_save_and_load(self):
-        expected_dataset = Dataset.from_iterable([
-            DatasetItem(id=1, subset='train',
-                annotations=[
-                    Bbox(0, 1, 3, 5, label=0),
-                    Label(0),
-                ]),
-            DatasetItem(id=2, subset='train',
-                annotations=[
-                    Bbox(1, 3, 6, 10, label=1),
-                    Label(1),
-                ]),
-            DatasetItem(id=3, subset='train',
-                annotations=[
-                    Bbox(2, 4, 6, 10),
-                    Bbox(0, 2, 5, 9, label=0),
-                ]),
-            DatasetItem(id=4, subset='train'),
-        ], categories={
-            AnnotationType.label: LabelCategories.from_iterable(
-                ['label_0', 'label_1']),
-        })
-
-        with TestDir() as test_dir:
-            self._test_save_and_load(expected_dataset,
-                IcdarConverter.convert, test_dir)
 
