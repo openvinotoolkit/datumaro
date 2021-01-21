@@ -2,8 +2,7 @@ import os.path as osp
 from unittest import TestCase
 
 import numpy as np
-from datumaro.components.extractor import (AnnotationType, Bbox, Caption,
-    DatasetItem, LabelCategories, Points)
+from datumaro.components.extractor import Bbox, Caption, DatasetItem, Points
 from datumaro.components.project import Dataset
 from datumaro.plugins.icdar_format.converter import (
     IcdarTextLocalizationConverter, IcdarWordRecognitionConverter)
@@ -53,10 +52,7 @@ class IcdarImporterTest(TestCase):
                     Bbox(3, 3, 2, 3, label=1),
                 ]
             ),
-        ], categories={
-            AnnotationType.label: LabelCategories.from_iterable(
-                ['FOOD', 'LION', 'RED']),
-        })
+        ], categories=['FOOD', 'LION', 'RED'])
 
         dataset = Dataset.import_from(osp.join(DUMMY_DATASET_DIR, 'text_localization'), 'icdar')
 
@@ -102,10 +98,7 @@ class IcdarConverterTest(TestCase):
                     Points([2, 2, 8, 3, 7, 10, 2, 9], label=1),
                     Bbox(0, 2, 5, 9, label=0),
                 ]),
-        ], categories={
-            AnnotationType.label: LabelCategories.from_iterable(
-                ['label_0', 'label_1', 'label_2']),
-        })
+        ], categories=['label_0', 'label_1', 'label_2'])
 
         with TestDir() as test_dir:
             self._test_save_and_load(expected_dataset,
