@@ -2,10 +2,12 @@ import os.path as osp
 from unittest import TestCase
 
 import numpy as np
-from datumaro.components.extractor import Bbox, Caption, DatasetItem, Points
+from datumaro.components.extractor import (Bbox, Caption, DatasetItem, Mask,
+    Polygon)
 from datumaro.components.project import Dataset
 from datumaro.plugins.icdar_format.converter import (
-    IcdarTextLocalizationConverter, IcdarWordRecognitionConverter)
+    IcdarTextLocalizationConverter, IcdarTextSegmentationConverter,
+    IcdarWordRecognitionConverter)
 from datumaro.plugins.icdar_format.extractor import IcdarImporter
 from datumaro.util.test_utils import (TestDir, compare_datasets,
     test_save_and_load)
@@ -42,7 +44,7 @@ class IcdarImporterTest(TestCase):
             DatasetItem(id='img_1', subset='train',
                 image=np.ones((10, 15, 3)),
                 annotations=[
-                    Points([0, 0, 3, 1, 4, 6, 1, 7], label=0),
+                    Polygon([0, 0, 3, 1, 4, 6, 1, 7], label=0),
                 ]
             ),
             DatasetItem(id='img_2', subset='train',
@@ -55,6 +57,28 @@ class IcdarImporterTest(TestCase):
         ], categories=['FOOD', 'LION', 'RED'])
 
         dataset = Dataset.import_from(osp.join(DUMMY_DATASET_DIR, 'text_localization'), 'icdar')
+
+        compare_datasets(self, expected_dataset, dataset)
+
+    def test_can_import_masks(self):
+        expected_dataset = Dataset.from_iterable([
+            DatasetItem(id='1', subset='train',
+                image=np.ones((2, 5, 3)),
+                annotations=[
+                    Mask(image=np.array([[0, 1, 1, 0, 0], [0, 0, 0, 0, 0]]), label=1,
+                        group=0, attributes = { 'color': (108, 225, 132), 'char': 'F',
+                        'center': [0, 1] }),
+                    Mask(image=np.array([[0, 0, 0, 1, 0], [0, 0, 0, 1, 0]]), label=2,
+                        group=1, attributes = { 'color': (82, 174, 214), 'char': 'T',
+                        'center': [1, 3] }),
+                    Mask(image=np.array([[0, 0, 0, 0, 0], [0, 0, 0, 0, 1]]), label=3,
+                        group=1, attributes = { 'color': (241, 73, 144), 'char': 'h',
+                        'center': [1, 4] }),
+                ]
+            ),
+        ])
+
+        dataset = Dataset.import_from(osp.join(DUMMY_DATASET_DIR, 'text_segmentation'), 'icdar')
 
         compare_datasets(self, expected_dataset, dataset)
 
@@ -90,12 +114,12 @@ class IcdarConverterTest(TestCase):
                 ]),
             DatasetItem(id=2, subset='train',
                 annotations=[
-                    Points([0, 0, 3, 0, 4, 7, 1, 8], label=2),
-                    Points([1, 2, 5, 3, 6, 8, 0, 7]),
+                    Polygon([0, 0, 3, 0, 4, 7, 1, 8], label=2),
+                    Polygon([1, 2, 5, 3, 6, 8, 0, 7]),
                 ]),
             DatasetItem(id=3, subset='train',
                 annotations=[
-                    Points([2, 2, 8, 3, 7, 10, 2, 9], label=1),
+                    Polygon([2, 2, 8, 3, 7, 10, 2, 9], label=1),
                     Bbox(0, 2, 5, 9, label=0),
                 ]),
         ], categories=['label_0', 'label_1', 'label_2'])
@@ -104,6 +128,39 @@ class IcdarConverterTest(TestCase):
             self._test_save_and_load(expected_dataset,
                 IcdarTextLocalizationConverter.convert,
                 osp.join(test_dir, 'text_localization'))
+
+    def test_can_save_and_load_masks(self):
+        expected_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, subset='train',
+                annotations=[
+                    Mask(image=np.array([[0, 1, 1, 0, 0]]), label=1,
+                        group=0, attributes = { 'color': (108, 225, 132), 'char': 'F',
+                        'center': [0, 1] }),
+                    Mask(image=np.array([[0, 0, 0, 1, 1]]), label=2,
+                        group=0, attributes = { 'color': (82, 174, 214), 'char': 'j',
+                        'center': [0, 3] }),
+                ]),
+            DatasetItem(id=2, subset='train',
+                annotations=[
+                    Mask(image=np.array([[1, 0, 0, 0, 0, 0]]), label=1,
+                        group=0, attributes = { 'color': (108, 225, 132), 'char': 'L',
+                        'center': [0, 0] }),
+                    Mask(image=np.array([[0, 0, 0, 1, 1, 0]]), label=2,
+                        group=0, attributes = { 'color': (82, 174, 214), 'char': 'o',
+                        'center': [0, 3] }),
+                    Mask(image=np.array([[0, 1, 1, 0, 0, 0]]), label=3,
+                        group=1, attributes = { 'color': (241, 73, 144), 'char': 'P',
+                        'center': [0, 1] }),
+                    Mask(image=np.array([[0, 0, 0, 0, 0, 1]]), label=4,
+                        group=2, attributes = { 'color': (183, 6, 28), 'char': ' ',
+                        'center': [0, 5] }),
+                ]),
+        ])
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(expected_dataset,
+                IcdarTextSegmentationConverter.convert,
+                osp.join(test_dir, 'text_segmentation'))
 
     def test_can_save_and_load_with_no_subsets(self):
         expected_dataset = Dataset.from_iterable([

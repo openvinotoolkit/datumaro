@@ -5,8 +5,12 @@
 import os.path as osp
 from glob import glob
 
+import numpy as np
 from datumaro.components.extractor import (AnnotationType, Bbox, Caption,
-    DatasetItem, Importer, LabelCategories, Points, SourceExtractor)
+    DatasetItem, Importer, LabelCategories, Mask, MaskCategories, Polygon,
+    SourceExtractor)
+from datumaro.util.mask_tools import lazy_mask
+
 from .format import IcdarPath, IcdarTask
 
 
@@ -71,8 +75,7 @@ class _TextLocalizationExtractor():
 
     def load_items(self, _path, _subset, _categories):
         items = {}
-        paths = [p for p in glob(osp.join(_path, '*.txt'),
-            recursive=True)]
+        paths = [p for p in glob(osp.join(_path, '*.txt'))]
         for path in paths:
             item_id = osp.splitext(osp.basename(path))[0]
             if item_id.startswith('gt_'):
@@ -98,7 +101,7 @@ class _TextLocalizationExtractor():
                                 label_name = label_name[1:-1]
                             label = \
                                 _categories[AnnotationType.label]._indices[label_name]
-                        annotations.append(Points(points, label=label))
+                        annotations.append(Polygon(points, label=label))
                     elif 4 <= len(objects):
                         x = float(objects[0])
                         y = float(objects[1])
@@ -114,10 +117,76 @@ class _TextLocalizationExtractor():
                         annotations.append(Bbox(x, y, w, h, label=label))
         return items
 
+class _TextSegmentationExtractor():
+    def load_categories(self, _dataset_dir, _path):
+        return {}
+
+    def load_items(self, _path, _subset, _categories):
+        items = {}
+        paths = [p for p in glob(osp.join(_path, '*.txt'))]
+        for path in paths:
+            item_id = osp.splitext(osp.basename(path))[0]
+            if item_id.endswith('_GT'):
+                item_id = item_id[:-3]
+            image_path = osp.join(_path, IcdarPath.IMAGES_DIR,
+                item_id + IcdarPath.IMAGE_EXT)
+            if item_id not in items:
+                items[item_id] = DatasetItem(id=item_id, subset=_subset,
+                    image=image_path)
+            annotations = items[item_id].annotations
+            colors = [(255, 255, 255)]
+            chars = ['']
+            centers = [0]
+            groups = [0]
+            group = 0
+            with open(path, encoding='utf-8') as f:
+                for line in f:
+                    line = line.strip()
+                    if line == '':
+                        group += 1
+                        continue
+                    objects = line.split()
+                    if objects[0][0] == '#':
+                        objects[0] = objects[0][1:]
+                        objects[9] = '\" \"'
+                        objects.pop()
+
+                    if len(objects) == 10:
+                        centers.append([float(objects[3]), float(objects[4])])
+                        groups.append(group)
+                        colors.append((int(objects[0]), int(objects[1]), int(objects[2])))
+                        char = objects[9]
+                        if char[0] == '\"' and char[-1] == '\"':
+                            char = char[1:-1]
+                        chars.append(char)
+
+            mask_categories = MaskCategories({ i: colors[i] for i in range(len(colors)) })
+            mask_categories.inverse_colormap # pylint: disable=pointless-statement
+            gt_path = osp.join(_path, item_id + '_GT.bmp')
+            if osp.isfile(gt_path):
+                inverse_cls_colormap = mask_categories.inverse_colormap
+                mask = lazy_mask(gt_path, inverse_cls_colormap)
+                mask = mask()
+                classes = np.unique(mask)
+                for label_id in classes:
+                    if label_id != 0:
+                        image = self._lazy_extract_mask(mask, label_id)
+                        i = int(label_id)
+                        annotations.append(Mask(image=image, label=i, group=groups[i],
+                            attributes={ 'color': colors[i], 'char': chars[i],
+                            'center': centers[i] }))
+
+        return items
+
+    @staticmethod
+    def _lazy_extract_mask(mask, c):
+        return lambda: mask == c
+
 class _IcdarExtractor(SourceExtractor):
     _TASK_EXTRACTORS = {
         IcdarTask.word_recognition: _WordRecognitionExtractor,
         IcdarTask.text_localization: _TextLocalizationExtractor,
+        IcdarTask.text_segmentation: _TextSegmentationExtractor,
     }
 
     def __init__(self, path, task):
@@ -126,7 +195,8 @@ class _IcdarExtractor(SourceExtractor):
                 raise Exception("Can't read annotation file '%s'" % path)
             subset = osp.basename(osp.dirname(path))
             self._dataset_dir = osp.dirname(osp.dirname(path))
-        elif task is IcdarTask.text_localization:
+        elif task is IcdarTask.text_localization or \
+                task is IcdarTask.text_segmentation:
             if not osp.isdir(path):
                 raise Exception("Can't open folder with annotation files'%s'" % path)
             subset = osp.basename(path)
@@ -155,10 +225,16 @@ class IcdarTextLocalizationExtractor(_IcdarExtractor):
         kwargs['task'] = IcdarTask.text_localization
         super().__init__(path, **kwargs)
 
+class IcdarTextSegmentationExtractor(_IcdarExtractor):
+    def __init__(self, path, **kwargs):
+        kwargs['task'] = IcdarTask.text_segmentation
+        super().__init__(path, **kwargs)
+
 class IcdarImporter(Importer):
     _TASKS = [
         (IcdarTask.word_recognition, 'icdar_word_recognition', 'word_recognition'),
         (IcdarTask.text_localization, 'icdar_text_localization', 'text_localization'),
+        (IcdarTask.text_segmentation, 'icdar_text_segmentation', 'text_segmentation'),
     ]
 
     @classmethod
@@ -169,7 +245,8 @@ class IcdarImporter(Importer):
                 continue
             if task is IcdarTask.word_recognition:
                 ext = '.txt'
-            elif task is IcdarTask.text_localization:
+            elif task is IcdarTask.text_localization or \
+                    task is IcdarTask.text_segmentation:
                 ext = ''
             sources += cls._find_sources_recursive(
                 path, ext, extractor_type, file_filter=lambda p: \

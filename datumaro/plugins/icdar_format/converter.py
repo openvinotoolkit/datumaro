@@ -6,7 +6,10 @@ import os
 import os.path as osp
 
 from datumaro.components.converter import Converter
-from datumaro.components.extractor import AnnotationType
+from datumaro.components.extractor import AnnotationType, CompiledMask
+from datumaro.util.image import save_image
+from datumaro.util.mask_tools import find_mask_bbox, paint_mask
+
 from .format import IcdarPath, IcdarTask
 
 
@@ -56,7 +59,7 @@ class _TextLocalizationConverter():
                 if ann.label is not None:
                     annotation += ' %s' % \
                         categories[AnnotationType.label][ann.label].name
-            elif ann.type == AnnotationType.points:
+            elif ann.type == AnnotationType.polygon:
                 annotation += ','.join(str(p) for p in ann.points)
                 if ann.label is not None:
                     annotation += ',\"%s\"' % \
@@ -74,6 +77,65 @@ class _TextLocalizationConverter():
     def is_empty(self):
         return len(self.annotations) == 0
 
+class _TextSegmentationConverter():
+    def __init__(self):
+        self.annotations = {}
+        self.masks = {}
+
+    def save_categories(self, save_dir, categories):
+        pass
+
+    def save_annotations(self, item, categories):
+        annotation = ''
+        colormap = [(255, 255, 255)]
+        group = 0
+        for ann in item.annotations:
+            if ann.type == AnnotationType.mask:
+                char = ''
+                # compiled_mask = CompiledMask.from_instance_masks(ann)
+                if ann.group != group:
+                    annotation += '\n'
+                    group += 1
+                if ann.attributes:
+                    if 'char' in ann.attributes:
+                        char = ann.attributes['char']
+                    if char == ' ':
+                        annotation += '#'
+                    if 'color' in ann.attributes:
+                        colormap.append(ann.attributes['color'])
+                        annotation += ' '.join(str(p) for p in ann.attributes['color'])
+                    else:
+                        annotation += '- - -'
+                    if 'center' in ann.attributes:
+                        annotation += ' '
+                        annotation += ' '.join(str(p) for p in ann.attributes['center'])
+                    else:
+                        annotation += ' - -'
+                image = ann.image
+                bbox = find_mask_bbox(image)
+                annotation += ' %s %s %s %s' % (bbox[0], bbox[1], bbox[0] + bbox[2], bbox[1] + bbox[3])
+                annotation += ' \"%s\"' % char
+                annotation += '\n'
+
+        masks = [a for a in item.annotations
+            if a.type == AnnotationType.mask]
+        compiled_mask = CompiledMask.from_instance_masks(masks)
+        mask = paint_mask(compiled_mask.class_mask, { i: colormap[i] for i in range(len(colormap)) })
+        # save_image(, mask, create_dir=True)
+        self.annotations[item.id] = annotation
+        self.masks[item.id] = mask
+
+    def write(self, path):
+        os.makedirs(path, exist_ok=True)
+        for item in self.annotations:
+            file = osp.join(path, item + '_GT' + '.txt')
+            with open(file, 'w') as f:
+                f.write(self.annotations[item])
+            save_image(osp.join(path, item + '_GT' + '.bmp'), self.masks[item], create_dir=True)
+
+    def is_empty(self):
+        return len(self.annotations) == 0
+
 
 class IcdarConverter(Converter):
     DEFAULT_IMAGE_EXT = IcdarPath.IMAGE_EXT
@@ -81,6 +143,7 @@ class IcdarConverter(Converter):
     _TASK_CONVERTER = {
         IcdarTask.word_recognition: _WordRecognitionConverter,
         IcdarTask.text_localization: _TextLocalizationConverter,
+        IcdarTask.text_segmentation: _TextSegmentationConverter,
     }
 
     def __init__(self, extractor, save_dir, tasks=None, **kwargs):
@@ -135,4 +198,9 @@ class IcdarWordRecognitionConverter(IcdarConverter):
 class IcdarTextLocalizationConverter(IcdarConverter):
     def __init__(self, *args, **kwargs):
         kwargs['tasks'] = IcdarTask.text_localization
+        super().__init__(*args, **kwargs)
+
+class IcdarTextSegmentationConverter(IcdarConverter):
+    def __init__(self, *args, **kwargs):
+        kwargs['tasks'] = IcdarTask.text_segmentation
         super().__init__(*args, **kwargs)

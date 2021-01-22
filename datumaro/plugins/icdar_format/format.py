@@ -8,6 +8,7 @@ from enum import Enum
 IcdarTask = Enum('IcdarTask', [
     'word_recognition',
     'text_localization',
+    'text_segmentation',
 ])
 
 class IcdarPath:
@@ -18,4 +19,5 @@ class IcdarPath:
     TASK_DIR = {
         IcdarTask.word_recognition: 'word_recognition',
         IcdarTask.text_localization: 'text_localization',
+        IcdarTask.text_segmentation: 'text_segmentation',
     }
