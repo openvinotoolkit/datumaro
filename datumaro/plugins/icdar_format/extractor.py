@@ -240,15 +240,20 @@ class IcdarImporter(Importer):
     @classmethod
     def find_sources(cls, path):
         sources = []
-        for task, extractor_type, task_dir in cls._TASKS:
-            if not osp.isdir(path) or osp.basename(path) != task_dir:
-                continue
-            if task is IcdarTask.word_recognition:
-                ext = '.txt'
-            elif task is IcdarTask.text_localization or \
-                    task is IcdarTask.text_segmentation:
-                ext = ''
-            sources += cls._find_sources_recursive(
-                path, ext, extractor_type, file_filter=lambda p: \
-                osp.basename(p) != IcdarPath.VOCABULARY_FILE)
-        return sources
+        paths = [path]
+        if osp.basename(path) not in IcdarPath.TASK_DIR.values():
+            paths = [p for p in glob(osp.join(path, '**'))
+                if osp.basename(p) in IcdarPath.TASK_DIR.values()]
+        for path in paths:
+            for task, extractor_type, task_dir in cls._TASKS:
+                if not osp.isdir(path) or osp.basename(path) != task_dir:
+                    continue
+                if task is IcdarTask.word_recognition:
+                    ext = '.txt'
+                elif task is IcdarTask.text_localization or \
+                        task is IcdarTask.text_segmentation:
+                    ext = ''
+                sources += cls._find_sources_recursive(
+                    path, ext, extractor_type, file_filter=lambda p: \
+                    osp.basename(p) != IcdarPath.VOCABULARY_FILE)
+            return sources

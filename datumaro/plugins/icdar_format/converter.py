@@ -43,6 +43,7 @@ class _TextLocalizationConverter():
 
     def save_categories(self, save_dir, categories):
         vocabulary_file = osp.join(save_dir,
+            IcdarPath.TASK_DIR[IcdarTask.text_localization],
             IcdarPath.VOCABULARY_FILE)
         os.makedirs(osp.dirname(vocabulary_file), exist_ok=True)
         with open(vocabulary_file, 'w', encoding='utf-8') as f:
@@ -185,10 +186,11 @@ class IcdarConverter(Converter):
                     task_conv.save_annotations(item,
                         self._extractor.categories())
 
-            for task_conv in task_converters.values():
+            for task, task_conv in task_converters.items():
                 if task_conv.is_empty() and not self._tasks:
                     continue
-                task_conv.write(osp.join(self._save_dir, subset_name))
+                task_conv.write(osp.join(self._save_dir,
+                    IcdarPath.TASK_DIR[task], subset_name))
 
 class IcdarWordRecognitionConverter(IcdarConverter):
     def __init__(self, *args, **kwargs):

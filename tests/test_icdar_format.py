@@ -103,7 +103,7 @@ class IcdarConverterTest(TestCase):
 
         with TestDir() as test_dir:
             self._test_save_and_load(expected_dataset,
-                IcdarWordRecognitionConverter.convert, osp.join(test_dir, 'word_recognition'))
+                IcdarWordRecognitionConverter.convert, test_dir)
 
     def test_can_save_and_load_bboxes(self):
         expected_dataset = Dataset.from_iterable([
@@ -126,8 +126,7 @@ class IcdarConverterTest(TestCase):
 
         with TestDir() as test_dir:
             self._test_save_and_load(expected_dataset,
-                IcdarTextLocalizationConverter.convert,
-                osp.join(test_dir, 'text_localization'))
+                IcdarTextLocalizationConverter.convert, test_dir)
 
     def test_can_save_and_load_masks(self):
         expected_dataset = Dataset.from_iterable([
@@ -159,8 +158,7 @@ class IcdarConverterTest(TestCase):
 
         with TestDir() as test_dir:
             self._test_save_and_load(expected_dataset,
-                IcdarTextSegmentationConverter.convert,
-                osp.join(test_dir, 'text_segmentation'))
+                IcdarTextSegmentationConverter.convert, test_dir)
 
     def test_can_save_and_load_with_no_subsets(self):
         expected_dataset = Dataset.from_iterable([
@@ -172,5 +170,4 @@ class IcdarConverterTest(TestCase):
 
         with TestDir() as test_dir:
             self._test_save_and_load(expected_dataset,
-                IcdarTextLocalizationConverter.convert,
-                osp.join(test_dir, 'text_localization'))
+                IcdarTextLocalizationConverter.convert, test_dir)
