@@ -13,6 +13,7 @@ IcdarTask = Enum('IcdarTask', [
 
 class IcdarPath:
     IMAGE_EXT = '.png'
+    GT_EXT = '.bmp'
     IMAGES_DIR = 'images'
     VOCABULARY_FILE = 'vocabulary.txt'
 

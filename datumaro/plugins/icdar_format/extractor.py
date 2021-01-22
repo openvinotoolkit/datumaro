@@ -160,12 +160,13 @@ class _TextSegmentationExtractor():
                             char = char[1:-1]
                         chars.append(char)
 
-            mask_categories = MaskCategories({ i: colors[i] for i in range(len(colors)) })
+            mask_categories = MaskCategories({i: colors[i] for i in range(len(colors))})
             mask_categories.inverse_colormap # pylint: disable=pointless-statement
-            gt_path = osp.join(_path, item_id + '_GT.bmp')
+            gt_path = osp.join(_path, item_id + '_GT' + IcdarPath.GT_EXT)
             if osp.isfile(gt_path):
                 inverse_cls_colormap = mask_categories.inverse_colormap
                 mask = lazy_mask(gt_path, inverse_cls_colormap)
+                # loading mask through cache
                 mask = mask()
                 classes = np.unique(mask)
                 for label_id in classes:
@@ -198,7 +199,7 @@ class _IcdarExtractor(SourceExtractor):
         elif task is IcdarTask.text_localization or \
                 task is IcdarTask.text_segmentation:
             if not osp.isdir(path):
-                raise Exception("Can't open folder with annotation files'%s'" % path)
+                raise Exception( "Can't open folder with annotation files'%s'" % path)
             subset = osp.basename(path)
             self._dataset_dir = osp.dirname(path)
         self._path = path
@@ -206,7 +207,8 @@ class _IcdarExtractor(SourceExtractor):
         super().__init__(subset=subset)
 
         task_extractor = self._make_task_extractor(task)
-        self._categories = task_extractor.load_categories(self._dataset_dir, self._path)
+        self._categories = task_extractor.load_categories(self._dataset_dir,
+            self._path)
         self._items = list(task_extractor.load_items(self._path, self._subset,
             self._categories).values())
 
@@ -253,7 +255,7 @@ class IcdarImporter(Importer):
                 elif task is IcdarTask.text_localization or \
                         task is IcdarTask.text_segmentation:
                     ext = ''
-                sources += cls._find_sources_recursive(
-                    path, ext, extractor_type, file_filter=lambda p: \
+                sources += cls._find_sources_recursive(path, ext,
+                    extractor_type, file_filter=lambda p:
                     osp.basename(p) != IcdarPath.VOCABULARY_FILE)
             return sources

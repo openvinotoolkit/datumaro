@@ -93,7 +93,6 @@ class _TextSegmentationConverter():
         for ann in item.annotations:
             if ann.type == AnnotationType.mask:
                 char = ''
-                # compiled_mask = CompiledMask.from_instance_masks(ann)
                 if ann.group != group:
                     annotation += '\n'
                     group += 1
@@ -104,25 +103,28 @@ class _TextSegmentationConverter():
                         annotation += '#'
                     if 'color' in ann.attributes:
                         colormap.append(ann.attributes['color'])
-                        annotation += ' '.join(str(p) for p in ann.attributes['color'])
+                        annotation += ' '.join(str(p)
+                            for p in ann.attributes['color'])
                     else:
                         annotation += '- - -'
                     if 'center' in ann.attributes:
                         annotation += ' '
-                        annotation += ' '.join(str(p) for p in ann.attributes['center'])
+                        annotation += ' '.join(str(p)
+                            for p in ann.attributes['center'])
                     else:
                         annotation += ' - -'
                 image = ann.image
                 bbox = find_mask_bbox(image)
-                annotation += ' %s %s %s %s' % (bbox[0], bbox[1], bbox[0] + bbox[2], bbox[1] + bbox[3])
+                annotation += ' %s %s %s %s' % (bbox[0], bbox[1],
+                    bbox[0] + bbox[2], bbox[1] + bbox[3])
                 annotation += ' \"%s\"' % char
                 annotation += '\n'
 
         masks = [a for a in item.annotations
             if a.type == AnnotationType.mask]
         compiled_mask = CompiledMask.from_instance_masks(masks)
-        mask = paint_mask(compiled_mask.class_mask, { i: colormap[i] for i in range(len(colormap)) })
-        # save_image(, mask, create_dir=True)
+        mask = paint_mask(compiled_mask.class_mask, {
+            i: colormap[i] for i in range(len(colormap))})
         self.annotations[item.id] = annotation
         self.masks[item.id] = mask
 
@@ -132,7 +134,8 @@ class _TextSegmentationConverter():
             file = osp.join(path, item + '_GT' + '.txt')
             with open(file, 'w') as f:
                 f.write(self.annotations[item])
-            save_image(osp.join(path, item + '_GT' + '.bmp'), self.masks[item], create_dir=True)
+            save_image(osp.join(path, item + '_GT' + IcdarPath.GT_EXT),
+                self.masks[item], create_dir=True)
 
     def is_empty(self):
         return len(self.annotations) == 0
