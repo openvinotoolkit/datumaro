@@ -1,5 +1,4 @@
-
-# Copyright (C) 2019-2020 Intel Corporation
+# Copyright (C) 2019-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -10,8 +9,8 @@ import os.path as osp
 import shutil
 
 from datumaro.components.project import Environment
-from ...util import add_subparser, CliException, MultilineFormatter
-from ...util.project import load_project
+from ..util import add_subparser, CliException, MultilineFormatter
+from ..util.project import load_project
 
 
 def build_add_parser(parser_ctor=argparse.ArgumentParser):

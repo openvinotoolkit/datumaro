@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: MIT
 
 from datumaro.components.config import Config, \
-    DefaultConfig as _DefaultConfig, \
+    DictConfig as _DictConfig, \
     SchemaBuilder as _SchemaBuilder
 
 
@@ -34,9 +34,9 @@ PROJECT_SCHEMA = _SchemaBuilder() \
     .add('format_version', int) \
     \
     .add('subsets', list) \
-    .add('sources', lambda: _DefaultConfig(
+    .add('sources', lambda: _DictConfig(
         lambda v=None: Source(v))) \
-    .add('models', lambda: _DefaultConfig(
+    .add('models', lambda: _DictConfig(
         lambda v=None: Model(v))) \
     \
     .add('models_dir', str, internal=True) \

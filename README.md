@@ -44,9 +44,9 @@ CVAT annotations                             ---> Publication, statistics etc.
 - Convert only non-`occluded` annotations from a [CVAT](https://github.com/opencv/cvat) project to TFrecord:
   ```bash
   # export Datumaro dataset in CVAT UI, extract somewhere, go to the project dir
-  datum project filter -e '/item/annotation[occluded="False"]' \
+  datum filter -e '/item/annotation[occluded="False"]' \
     --mode items+anno --output-dir not_occluded
-  datum project export --project not_occluded \
+  datum export --project not_occluded \
     --format tf_detection_api -- --save-images
   ```
 
@@ -54,13 +54,13 @@ CVAT annotations                             ---> Publication, statistics etc.
   ```bash
   # Download COCO dataset http://cocodataset.org/#download
   # Put images to coco/images/ and annotations to coco/annotations/
-  datum project import --format coco --input-path <path/to/coco>
-  datum project export --filter '/image[images_I_dont_like]' --format cvat \
+  datum import --format coco --input-path <path/to/coco>
+  datum export --filter '/image[images_I_dont_like]' --format cvat \
     --output-dir reannotation
   # import dataset and images to CVAT, re-annotate
   # export Datumaro project, extract to 'reannotation-upd'
-  datum project project merge reannotation-upd
-  datum project export --format coco
+  datum merge reannotation-upd
+  datum export --format coco
   ```
 
 - Annotate instance polygons in [CVAT](https://github.com/opencv/cvat), export as masks in COCO:
@@ -72,18 +72,18 @@ CVAT annotations                             ---> Publication, statistics etc.
 - Apply an OpenVINO detection model to some COCO-like dataset,
   then compare annotations with ground truth and visualize in TensorBoard:
   ```bash
-  datum project import --format coco --input-path <path/to/coco>
+  datum import --format coco --input-path <path/to/coco>
   # create model results interpretation script
   datum model add mymodel openvino \
     --weights model.bin --description model.xml \
     --interpretation-script parse_results.py
   datum model run --model mymodel --output-dir mymodel_inference/
-  datum project diff mymodel_inference/ --format tensorboard --output-dir diff
+  datum diff mymodel_inference/ --format tensorboard --output-dir diff
   ```
 
 - Change colors in PASCAL VOC-like `.png` masks:
   ```bash
-  datum project import --format voc --input-path <path/to/voc/dataset>
+  datum import --format voc --input-path <path/to/voc/dataset>
 
   # Create a color map file with desired colors:
   #
@@ -93,10 +93,26 @@ CVAT annotations                             ---> Publication, statistics etc.
   #
   # Save as mycolormap.txt
 
-  datum project export --format voc_segmentation -- --label-map mycolormap.txt
+  datum export --format voc_segmentation -- --label-map mycolormap.txt
   # add "--apply-colormap=0" to save grayscale (indexed) masks
   # check "--help" option for more info
   # use "datum --loglevel debug" for extra conversion info
+  ```
+
+- Create a custom COCO-like dataset:
+  ```python
+  import numpy as np
+  from datumaro.components.extractor import (DatasetItem,
+    Bbox, LabelCategories, AnnotationType)
+  from datumaro.components.dataset import Dataset
+
+  dataset = Dataset(categories={
+    AnnotationType.label: LabelCategories.from_iterable(['cat', 'dog'])
+  })
+  dataset.put(DatasetItem(id=0, image=np.ones((5, 5, 3)), annotations=[
+    Bbox(1, 2, 3, 4, label=0),
+  ]))
+  dataset.export('test_dataset', 'coco')
   ```
 
 <!--lint enable list-item-bullet-indent-->
@@ -106,11 +122,13 @@ CVAT annotations                             ---> Publication, statistics etc.
 
 [(Back to top)](#table-of-contents)
 
-- Dataset reading, writing, conversion in any direction. Supported formats:
+- Dataset reading, writing, conversion in any direction. [Supported formats](docs/user_manual.md#supported-formats):
   - [COCO](http://cocodataset.org/#format-data) (`image_info`, `instances`, `person_keypoints`, `captions`, `labels`*)
   - [PASCAL VOC](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/htmldoc/index.html) (`classification`, `detection`, `segmentation`, `action_classification`, `person_layout`)
   - [YOLO](https://github.com/AlexeyAB/darknet#how-to-train-pascal-voc-data) (`bboxes`)
   - [TF Detection API](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/using_your_own_dataset.md) (`bboxes`, `masks`)
+  - [WIDER Face](http://shuoyang1213.me/WIDERFACE/) (`bboxes`)
+  - [VGGFace2](https://github.com/ox-vgg/vgg_face2) (`landmarks`, `bboxes`)
   - [MOT sequences](https://arxiv.org/pdf/1906.04567.pdf)
   - [MOTS PNG](https://www.vision.rwth-aachen.de/page/mots)
   - [ImageNet](http://image-net.org/)
@@ -129,6 +147,14 @@ CVAT annotations                             ---> Publication, statistics etc.
     - polygons to instance masks and vise-versa
     - apply a custom colormap for mask annotations
     - rename or remove dataset labels
+  - Splitting a dataset into multiple subsets like `train`, `val`, and `test`:
+    - random split
+    - task-specific splits based on annotations,
+      which keep initial label and attribute distributions
+      - for classification task, based on labels
+      - for detection task, based on bboxes
+      - for re-identification task, based on labels,
+        avoiding having same IDs in training and test splits
 - Dataset quality checking
   - Simple checking for errors
   - Comparison with model infernece
@@ -162,7 +188,7 @@ python -m virtualenv venv
 Install Datumaro package:
 
 ``` bash
-pip install 'git+https://github.com/openvinotoolkit/datumaro'
+pip install datumaro
 ```
 
 ## Usage
@@ -208,13 +234,14 @@ dataset = dataset.transform(project.env.transforms.get('remap_labels'),
   {'cat': 'dog', # rename cat to dog
     'truck': 'car', # rename truck to car
     'person': '', # remove this label
-  }, default='delete')
+  }, default='delete') # remove everything else
 
+# iterate over dataset elements
 for item in dataset:
   print(item.id, item.annotations)
 
 # export the resulting dataset in COCO format
-project.env.converters.get('coco').convert(dataset, save_dir='dst/dir')
+dataset.export('dst/dir', 'coco')
 ```
 
 > Check our [developer guide](docs/developer_guide.md) for additional information.

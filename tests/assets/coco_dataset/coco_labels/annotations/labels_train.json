@@ -1,0 +1,44 @@
+{
+    "licenses": [{
+        "name": "",
+        "id": 0,
+        "url": ""
+    }],
+    "info": {
+        "contributor": "",
+        "date_created": "",
+        "description": "",
+        "url": "",
+        "version": "",
+        "year": ""
+    },
+    "categories": [{
+        "id": 1,
+        "name": "a",
+        "supercategory": ""
+    }, {
+        "id": 2,
+        "name": "b",
+        "supercategory": ""
+    }],
+    "images": [{
+        "id": 1,
+        "width": 0,
+        "height": 0,
+        "file_name": "1.jpg",
+        "license": 0,
+        "flickr_url": "",
+        "coco_url": "",
+        "date_captured": 0
+    }],
+    "annotations": [{
+        "id": 1,
+        "image_id": 1,
+        "category_id": 2
+    }, {
+        "id": 2,
+        "image_id": 1,
+        "category_id": 1,
+        "attributes": {}
+    }]
+}

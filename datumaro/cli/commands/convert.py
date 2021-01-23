@@ -1,5 +1,4 @@
-
-# Copyright (C) 2019-2020 Intel Corporation
+# Copyright (C) 2019-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -9,6 +8,7 @@ import os
 import os.path as osp
 
 from datumaro.components.project import Environment
+from datumaro.components.dataset import Dataset
 
 from ..contexts.project import FilterModes
 from ..util import CliException, MultilineFormatter, make_file_name
@@ -63,30 +63,17 @@ def convert_command(args):
     env = Environment()
 
     try:
-        converter = env.converters.get(args.output_format)
+        converter = env.converters[args.output_format]
     except KeyError:
         raise CliException("Converter for format '%s' is not found" % \
             args.output_format)
-    extra_args = converter.from_cmdline(args.extra_args)
-    def converter_proxy(extractor, save_dir):
-        return converter.convert(extractor, save_dir, **extra_args)
+    extra_args = converter.parse_cmdline(args.extra_args)
 
     filter_args = FilterModes.make_filter_args(args.filter_mode)
 
+    fmt = args.input_format
     if not args.input_format:
-        matches = []
-        for format_name in env.importers.items:
-            log.debug("Checking '%s' format...", format_name)
-            importer = env.make_importer(format_name)
-            try:
-                match = importer.detect(args.source)
-                if match:
-                    log.debug("format matched")
-                    matches.append((format_name, importer))
-            except NotImplementedError:
-                log.debug("Format '%s' does not support auto detection.",
-                    format_name)
-
+        matches = env.detect_dataset(args.source)
         if len(matches) == 0:
             log.error("Failed to detect dataset format. "
                 "Try to specify format with '-if/--input-format' parameter.")
@@ -94,20 +81,11 @@ def convert_command(args):
         elif len(matches) != 1:
             log.error("Multiple formats match the dataset: %s. "
                 "Try to specify format with '-if/--input-format' parameter.",
-                ', '.join(m[0] for m in matches))
+                ', '.join(matches))
             return 2
 
-        format_name, importer = matches[0]
-        args.input_format = format_name
+        fmt = matches[0]
         log.info("Source dataset format detected as '%s'", args.input_format)
-    else:
-        try:
-            importer = env.make_importer(args.input_format)
-            if hasattr(importer, 'from_cmdline'):
-                extra_args = importer.from_cmdline()
-        except KeyError:
-            raise CliException("Importer for format '%s' is not found" % \
-                args.input_format)
 
     source = osp.abspath(args.source)
 
@@ -121,15 +99,12 @@ def convert_command(args):
             (osp.basename(source), make_file_name(args.output_format)))
     dst_dir = osp.abspath(dst_dir)
 
-    project = importer(source)
-    dataset = project.make_dataset()
+    dataset = Dataset.import_from(source, fmt)
 
     log.info("Exporting the dataset")
-    dataset.export_project(
-        save_dir=dst_dir,
-        converter=converter_proxy,
-        filter_expr=args.filter,
-        **filter_args)
+    if args.filter:
+        dataset = dataset.filter(args.filter, **filter_args)
+    dataset.export(format=args.output_format, save_dir=dst_dir, **extra_args)
 
     log.info("Dataset exported to '%s' as '%s'" % \
         (dst_dir, args.output_format))

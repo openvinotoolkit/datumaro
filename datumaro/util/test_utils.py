@@ -10,7 +10,7 @@ import shutil
 import tempfile
 
 from datumaro.components.extractor import AnnotationType
-from datumaro.components.project import Project
+from datumaro.components.dataset import Dataset
 from datumaro.util import find
 
 
@@ -132,8 +132,7 @@ def test_save_and_load(test, source_dataset, converter, test_dir, importer,
 
     if importer_args is None:
         importer_args = {}
-    parsed_dataset = Project.import_from(test_dir, importer, **importer_args) \
-        .make_dataset()
+    parsed_dataset = Dataset.import_from(test_dir, importer, **importer_args)
 
     if target_dataset is None:
         target_dataset = source_dataset

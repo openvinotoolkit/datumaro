@@ -1,5 +1,4 @@
-
-# Copyright (C) 2019-2020 Intel Corporation
+# Copyright (C) 2019-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -7,13 +6,11 @@ import argparse
 import logging as log
 import os
 import os.path as osp
-import re
 
-from datumaro.components.config import DEFAULT_FORMAT
 from datumaro.components.project import Environment
 
-from ...util import CliException, MultilineFormatter, add_subparser
-from ...util.project import load_project, \
+from ..util import CliException, MultilineFormatter, add_subparser
+from ..util.project import load_project, \
     generate_next_name, generate_next_file_name
 
 
@@ -59,17 +56,18 @@ def add_command(args):
         assert args.name not in project.config.models, args.name
 
     try:
-        launcher = project.env.launchers.get(args.launcher)
+        launcher = project.env.launchers[args.launcher]
     except KeyError:
         raise CliException("Launcher '%s' is not found" % args.launcher)
 
     cli_plugin = getattr(launcher, 'cli_plugin', launcher)
-    model_args = cli_plugin.from_cmdline(args.extra_args)
+    model_args = cli_plugin.parse_cmdline(args.extra_args)
 
     if args.copy:
         log.info("Copying model data")
 
-        model_dir = project.local_model_dir(args.name)
+        model_dir = osp.join(project.config.project_dir,
+            project.local_model_dir(args.name))
         os.makedirs(model_dir, exist_ok=False)
 
         try:

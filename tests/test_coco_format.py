@@ -4,7 +4,7 @@ import os.path as osp
 
 from unittest import TestCase
 
-from datumaro.components.project import Project, Dataset
+from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import (DatasetItem,
     AnnotationType, Label, Mask, Points, Polygon, Bbox, Caption,
     LabelCategories, PointsCategories
@@ -26,13 +26,14 @@ from datumaro.util.test_utils import (TestDir, compare_datasets,
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'coco_dataset')
 
 class CocoImporterTest(TestCase):
-    def test_can_import(self):
+    def test_can_import_instances(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='000000000001', image=np.ones((10, 5, 3)),
                 subset='val', attributes={'id': 1},
                 annotations=[
                     Polygon([0, 0, 1, 0, 1, 2, 0, 2], label=0,
-                        id=1, group=1, attributes={'is_crowd': False}),
+                        id=1, group=1, attributes={'is_crowd': False,
+                            'x': 1, 'y': 'hello'}),
                     Mask(np.array(
                         [[1, 0, 0, 1, 0]] * 5 +
                         [[1, 1, 1, 1, 0]] * 5
@@ -42,13 +43,107 @@ class CocoImporterTest(TestCase):
             ),
         ], categories=['TEST',])
 
-        dataset = Project.import_from(DUMMY_DATASET_DIR, 'coco') \
-            .make_dataset()
+        dataset = Dataset.import_from(
+            osp.join(DUMMY_DATASET_DIR, 'coco_instances'), 'coco')
+
+        compare_datasets(self, expected_dataset, dataset)
+
+    def test_can_import_captions(self):
+        expected_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, subset='train',
+                annotations=[
+                    Caption('hello', id=1, group=1),
+                    Caption('world', id=2, group=2),
+                ], attributes={'id': 1}),
+            DatasetItem(id=2, subset='train',
+                annotations=[
+                    Caption('test', id=3, group=3),
+                ], attributes={'id': 2}),
+
+            DatasetItem(id=3, subset='val',
+                annotations=[
+                    Caption('word', id=1, group=1),
+                ], attributes={'id': 1}),
+            ])
+
+        dataset = Dataset.import_from(
+            osp.join(DUMMY_DATASET_DIR, 'coco_captions'), 'coco')
+
+        compare_datasets(self, expected_dataset, dataset)
+
+    def test_can_import_labels(self):
+        expected_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, subset='train',
+                annotations=[
+                    Label(1, id=1, group=1),
+                    Label(0, id=2, group=2),
+                ], attributes={'id': 1}),
+        ], categories=['a', 'b'])
+
+        dataset = Dataset.import_from(
+            osp.join(DUMMY_DATASET_DIR, 'coco_labels'), 'coco')
+
+        compare_datasets(self, expected_dataset, dataset)
+
+    def test_can_import_points(self):
+        expected_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, subset='train',
+                image=Image(path='1.jpg', size=(5, 5)),
+                annotations=[
+                    Points([0, 0, 0, 2, 4, 1], [0, 1, 2],
+                        label=1, group=1, id=1,
+                        attributes={'is_crowd': False}),
+                    Polygon([0, 0, 4, 0, 4, 4],
+                        label=1, group=1, id=1,
+                        attributes={'is_crowd': False}),
+
+                    Points([1, 2, 3, 4, 2, 3],
+                        group=2, id=2,
+                        attributes={'is_crowd': False}),
+                    Bbox(1, 2, 2, 2,
+                        group=2, id=2,
+                        attributes={'is_crowd': False}),
+
+                    Points([1, 2, 0, 2, 4, 1],
+                        label=0, group=3, id=3,
+                        attributes={'is_crowd': False}),
+                    Bbox(0, 1, 4, 1,
+                        label=0, group=3, id=3,
+                        attributes={'is_crowd': False}),
+
+                    Points([0, 0, 1, 2, 3, 4], [0, 1, 2],
+                        group=5, id=5,
+                        attributes={'is_crowd': False}),
+                    Bbox(1, 2, 2, 2,
+                        group=5, id=5,
+                        attributes={'is_crowd': False}),
+                ], attributes={'id': 1}),
+            ], categories={
+                AnnotationType.label: LabelCategories.from_iterable(['a', 'b']),
+                AnnotationType.points: PointsCategories.from_iterable(
+                    (i, None, [[0, 1], [1, 2]]) for i in range(2)
+                ),
+            })
+
+        dataset = Dataset.import_from(
+            osp.join(DUMMY_DATASET_DIR, 'coco_person_keypoints'), 'coco')
+
+        compare_datasets(self, expected_dataset, dataset)
+
+    def test_can_import_image_info(self):
+        expected_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, image=Image(path='1.jpg', size=(10, 15)),
+                attributes={'id': 1}),
+        ])
+
+        dataset = Dataset.import_from(
+            osp.join(DUMMY_DATASET_DIR, 'coco_image_info'), 'coco')
 
         compare_datasets(self, expected_dataset, dataset)
 
     def test_can_detect(self):
-        self.assertTrue(CocoImporter.detect(DUMMY_DATASET_DIR))
+        self.assertTrue(CocoImporter.detect(
+            osp.join(DUMMY_DATASET_DIR, 'coco_instances')))
 
 class CocoConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,

@@ -3,11 +3,10 @@ import numpy as np
 import os.path as osp
 
 from unittest import TestCase
-from datumaro.components.project import Dataset
+from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import (DatasetItem,
     AnnotationType, Bbox, Mask, Polygon, LabelCategories
 )
-from datumaro.components.project import Project
 from datumaro.plugins.labelme_format import LabelMeImporter, LabelMeConverter
 from datumaro.util.test_utils import (TestDir, compare_datasets,
     test_save_and_load)
@@ -181,6 +180,5 @@ class LabelMeImporterTest(TestCase):
             ]),
         })
 
-        parsed = Project.import_from(DUMMY_DATASET_DIR, 'label_me') \
-            .make_dataset()
+        parsed = Dataset.import_from(DUMMY_DATASET_DIR, 'label_me')
         compare_datasets(self, expected=target_dataset, actual=parsed)

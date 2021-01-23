@@ -191,13 +191,8 @@ class CamvidExtractor(SourceExtractor):
 class CamvidImporter(Importer):
     @classmethod
     def find_sources(cls, path):
-        subset_paths = [p for p in glob(osp.join(path, '**.txt'), recursive=True)
-            if osp.basename(p) != CamvidPath.LABELMAP_FILE]
-        sources = []
-        for subset_path in subset_paths:
-            sources += cls._find_sources_recursive(
-                subset_path, '.txt', 'camvid')
-        return sources
+        return cls._find_sources_recursive(path, '.txt', 'camvid',
+            file_filter=lambda p: osp.basename(p) != CamvidPath.LABELMAP_FILE)
 
 
 LabelmapType = Enum('LabelmapType', ['camvid', 'source'])

@@ -1,6 +1,13 @@
-
-# Copyright (C) 2019-2020 Intel Corporation
+# Copyright (C) 2019-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
-from . import add, create, explain, export, remove, merge, convert
+# pylint: disable=redefined-builtin
+
+from . import (
+    create, add, remove, import_,
+    explain,
+    export, merge, convert, transform, filter,
+    diff, ediff, stats,
+    info
+)

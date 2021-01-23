@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: MIT
 
 from enum import Enum
-from glob import glob
+from glob import iglob
 from typing import List, Dict
 import numpy as np
 import os.path as osp
@@ -615,12 +615,19 @@ class Importer:
         return project
 
     @classmethod
-    def _find_sources_recursive(cls, path, ext, extractor_name, filename='*'):
+    def _find_sources_recursive(cls, path, ext, extractor_name,
+            filename='*', dirname='', file_filter=None, max_depth=3):
         if path.endswith(ext) and osp.isfile(path):
             sources = [{'url': path, 'format': extractor_name}]
         else:
-            sources = [{'url': p, 'format': extractor_name} for p in
-                glob(osp.join(path, '**', filename + ext), recursive=True)]
+            sources = []
+            for d in range(max_depth + 1):
+                sources.extend({'url': p, 'format': extractor_name} for p in
+                    iglob(osp.join(path, *('*' * d), dirname, filename + ext))
+                    if (callable(file_filter) and file_filter(p)) \
+                    or (not callable(file_filter)))
+                if sources:
+                    break
         return sources
 
 class Transform(Extractor):

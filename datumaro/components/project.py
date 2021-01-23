@@ -1,330 +1,45 @@
-# Copyright (C) 2019-2020 Intel Corporation
+# Copyright (C) 2019-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 from collections import defaultdict
-from glob import glob
-import git
-import importlib
-import inspect
 import logging as log
 import os
 import os.path as osp
 import shutil
-import sys
 
-from datumaro.components.config import Config, DEFAULT_FORMAT
+from datumaro.components.config import Config
 from datumaro.components.config_model import (Model, Source,
     PROJECT_DEFAULT_CONFIG, PROJECT_SCHEMA)
+from datumaro.components.environment import Environment
 from datumaro.components.launcher import ModelTransform
-from datumaro.components.dataset import Dataset
+from datumaro.components.dataset import Dataset, DEFAULT_FORMAT
 
-
-def import_foreign_module(name, path, package=None):
-    module = None
-    default_path = sys.path.copy()
-    try:
-        sys.path = [ osp.abspath(path), ] + default_path
-        sys.modules.pop(name, None) # remove from cache
-        module = importlib.import_module(name, package=package)
-        sys.modules.pop(name) # remove from cache
-    except Exception:
-        raise
-    finally:
-        sys.path = default_path
-    return module
-
-
-class Registry:
-    def __init__(self, config=None, item_type=None):
-        self.item_type = item_type
-
-        self.items = {}
-
-        if config is not None:
-            self.load(config)
-
-    def load(self, config):
-        pass
-
-    def register(self, name, value):
-        if self.item_type:
-            value = self.item_type(value)
-        self.items[name] = value
-        return value
-
-    def unregister(self, name):
-        return self.items.pop(name, None)
-
-    def get(self, key):
-        return self.items[key] # returns a class / ctor
-
-
-class ModelRegistry(Registry):
-    def __init__(self, config=None):
-        super().__init__(config, item_type=Model)
-
-    def load(self, config):
-        # TODO: list default dir, insert values
-        if 'models' in config:
-            for name, model in config.models.items():
-                self.register(name, model)
-
-
-class SourceRegistry(Registry):
-    def __init__(self, config=None):
-        super().__init__(config, item_type=Source)
-
-    def load(self, config):
-        # TODO: list default dir, insert values
-        if 'sources' in config:
-            for name, source in config.sources.items():
-                self.register(name, source)
-
-class PluginRegistry(Registry):
-    def __init__(self, config=None, builtin=None, local=None):
-        super().__init__(config)
-
-        from datumaro.components.cli_plugin import CliPlugin
-
-        if builtin is not None:
-            for v in builtin:
-                k = CliPlugin._get_name(v)
-                self.register(k, v)
-        if local is not None:
-            for v in local:
-                k = CliPlugin._get_name(v)
-                self.register(k, v)
-
-class GitWrapper:
-    def __init__(self, config=None):
-        self.repo = None
-
-        if config is not None and config.project_dir:
-            self.init(config.project_dir)
-
-    @staticmethod
-    def _git_dir(base_path):
-        return osp.join(base_path, '.git')
-
-    @classmethod
-    def spawn(cls, path):
-        spawn = not osp.isdir(cls._git_dir(path))
-        repo = git.Repo.init(path=path)
-        if spawn:
-            repo.config_writer().set_value("user", "name", "User") \
-                .set_value("user", "email", "user@nowhere.com") \
-                .release()
-            # gitpython does not support init, use git directly
-            repo.git.init()
-            repo.git.commit('-m', 'Initial commit', '--allow-empty')
-        return repo
-
-    def init(self, path):
-        self.repo = self.spawn(path)
-        return self.repo
-
-    def is_initialized(self):
-        return self.repo is not None
-
-    def create_submodule(self, name, dst_dir, **kwargs):
-        self.repo.create_submodule(name, dst_dir, **kwargs)
-
-    def has_submodule(self, name):
-        return name in [submodule.name for submodule in self.repo.submodules]
-
-    def remove_submodule(self, name, **kwargs):
-        return self.repo.submodule(name).remove(**kwargs)
-
-def load_project_as_dataset(url):
-    # symbol forward declaration
-    raise NotImplementedError()
-
-class Environment:
-    _builtin_plugins = None
-    PROJECT_EXTRACTOR_NAME = 'datumaro_project'
-
-    def __init__(self, config=None):
-        config = Config(config,
-            fallback=PROJECT_DEFAULT_CONFIG, schema=PROJECT_SCHEMA)
-
-        self.models = ModelRegistry(config)
-        self.sources = SourceRegistry(config)
-
-        self.git = GitWrapper(config)
-
-        env_dir = osp.join(config.project_dir, config.env_dir)
-        builtin = self._load_builtin_plugins()
-        custom = self._load_plugins2(osp.join(env_dir, config.plugins_dir))
-        select = lambda seq, t: [e for e in seq if issubclass(e, t)]
-        from datumaro.components.extractor import Transform
-        from datumaro.components.extractor import SourceExtractor
-        from datumaro.components.extractor import Importer
-        from datumaro.components.converter import Converter
-        from datumaro.components.launcher import Launcher
-        self.extractors = PluginRegistry(
-            builtin=select(builtin, SourceExtractor),
-            local=select(custom, SourceExtractor)
-        )
-        self.extractors.register(self.PROJECT_EXTRACTOR_NAME,
-            load_project_as_dataset)
-
-        self.importers = PluginRegistry(
-            builtin=select(builtin, Importer),
-            local=select(custom, Importer)
-        )
-        self.launchers = PluginRegistry(
-            builtin=select(builtin, Launcher),
-            local=select(custom, Launcher)
-        )
-        self.converters = PluginRegistry(
-            builtin=select(builtin, Converter),
-            local=select(custom, Converter)
-        )
-        self.transforms = PluginRegistry(
-            builtin=select(builtin, Transform),
-            local=select(custom, Transform)
-        )
-
-    @staticmethod
-    def _find_plugins(plugins_dir):
-        plugins = []
-        if not osp.exists(plugins_dir):
-            return plugins
-
-        for plugin_name in os.listdir(plugins_dir):
-            p = osp.join(plugins_dir, plugin_name)
-            if osp.isfile(p) and p.endswith('.py'):
-                plugins.append((plugins_dir, plugin_name, None))
-            elif osp.isdir(p):
-                plugins += [(plugins_dir,
-                        osp.splitext(plugin_name)[0] + '.' + osp.basename(p),
-                        osp.splitext(plugin_name)[0]
-                    )
-                    for p in glob(osp.join(p, '*.py'))]
-        return plugins
-
-    @classmethod
-    def _import_module(cls, module_dir, module_name, types, package=None):
-        module = import_foreign_module(osp.splitext(module_name)[0], module_dir,
-            package=package)
-
-        exports = []
-        if hasattr(module, 'exports'):
-            exports = module.exports
-        else:
-            for symbol in dir(module):
-                if symbol.startswith('_'):
-                    continue
-                exports.append(getattr(module, symbol))
-
-        exports = [s for s in exports
-            if inspect.isclass(s) and issubclass(s, types) and not s in types]
-
-        return exports
-
-    @classmethod
-    def _load_plugins(cls, plugins_dir, types):
-        types = tuple(types)
-
-        plugins = cls._find_plugins(plugins_dir)
-
-        all_exports = []
-        for module_dir, module_name, package in plugins:
-            try:
-                exports = cls._import_module(module_dir, module_name, types,
-                    package)
-            except Exception as e:
-                module_search_error = ImportError
-                try:
-                    module_search_error = ModuleNotFoundError # python 3.6+
-                except NameError:
-                    pass
-
-                message = ["Failed to import module '%s': %s", module_name, e]
-                if isinstance(e, module_search_error):
-                    log.debug(*message)
-                else:
-                    log.warning(*message)
-                continue
-
-            log.debug("Imported the following symbols from %s: %s" % \
-                (
-                    module_name,
-                    ', '.join(s.__name__ for s in exports)
-                )
-            )
-            all_exports.extend(exports)
-
-        return all_exports
-
-    @classmethod
-    def _load_builtin_plugins(cls):
-        if not cls._builtin_plugins:
-            plugins_dir = osp.join(
-                __file__[: __file__.rfind(osp.join('datumaro', 'components'))],
-                osp.join('datumaro', 'plugins')
-            )
-            assert osp.isdir(plugins_dir), plugins_dir
-            cls._builtin_plugins = cls._load_plugins2(plugins_dir)
-        return cls._builtin_plugins
-
-    @classmethod
-    def _load_plugins2(cls, plugins_dir):
-        from datumaro.components.extractor import Transform
-        from datumaro.components.extractor import SourceExtractor
-        from datumaro.components.extractor import Importer
-        from datumaro.components.converter import Converter
-        from datumaro.components.launcher import Launcher
-        types = [SourceExtractor, Converter, Importer, Launcher, Transform]
-
-        return cls._load_plugins(plugins_dir, types)
-
-    def make_extractor(self, name, *args, **kwargs):
-        return self.extractors.get(name)(*args, **kwargs)
-
-    def make_importer(self, name, *args, **kwargs):
-        return self.importers.get(name)(*args, **kwargs)
-
-    def make_launcher(self, name, *args, **kwargs):
-        return self.launchers.get(name)(*args, **kwargs)
-
-    def make_converter(self, name, *args, **kwargs):
-        return self.converters.get(name)(*args, **kwargs)
-
-    def register_model(self, name, model):
-        self.models.register(name, model)
-
-    def unregister_model(self, name):
-        self.models.unregister(name)
 
 class ProjectDataset(Dataset):
     def __init__(self, project):
         super().__init__()
 
         self._project = project
+        self._env = project.env
         config = self.config
         env = self.env
 
         sources = {}
         for s_name, source in config.sources.items():
             s_format = source.format or env.PROJECT_EXTRACTOR_NAME
-            options = {}
-            options.update(source.options)
 
             url = source.url
             if not source.url:
                 url = osp.join(config.project_dir, config.sources_dir, s_name)
-            sources[s_name] = env.make_extractor(s_format, url, **options)
+            sources[s_name] = Dataset.import_from(url,
+                format=s_format, env=env, **source.options)
         self._sources = sources
 
         own_source = None
         own_source_dir = osp.join(config.project_dir, config.dataset_dir)
         if config.project_dir and osp.isdir(own_source_dir):
-            log.disable(log.INFO)
-            own_source = env.make_importer(DEFAULT_FORMAT)(own_source_dir) \
-                .make_dataset()
-            log.disable(log.NOTSET)
+            own_source = Dataset.load(own_source_dir)
 
         # merge categories
         # TODO: implement properly with merging and annotations remapping
@@ -459,10 +174,6 @@ class ProjectDataset(Dataset):
             raise
 
     @property
-    def env(self):
-        return self._project.env
-
-    @property
     def config(self):
         return self._project.config
 
@@ -471,7 +182,9 @@ class ProjectDataset(Dataset):
         return self._sources
 
     def _save_branch_project(self, extractor, save_dir=None):
-        extractor = Dataset.from_extractors(extractor) # apply lazy transforms
+        if not isinstance(extractor, Dataset):
+            extractor = Dataset.from_extractors(
+                extractor) # apply lazy transforms to avoid repeating traversals
 
         # NOTE: probably this function should be in the ViewModel layer
         save_dir = osp.abspath(save_dir)
@@ -585,16 +298,45 @@ class Project:
         return project
 
     @staticmethod
-    def import_from(path, dataset_format, env=None, **kwargs):
+    def import_from(path, dataset_format=None, env=None, **format_options):
         if env is None:
             env = Environment()
-        importer = env.make_importer(dataset_format)
-        return importer(path, **kwargs)
 
-    def __init__(self, config=None):
+        if not dataset_format:
+            matches = env.detect_dataset(path)
+            if not matches:
+                raise Exception("Failed to detect dataset format automatically")
+            if 1 < len(matches):
+                raise Exception("Failed to detect dataset format automatically:"
+                    " data matches more than one format: %s" % \
+                    ', '.join(matches))
+            dataset_format = matches[0]
+        elif not env.is_format_known(dataset_format):
+            raise KeyError("Unknown dataset format '%s'" % dataset_format)
+
+        if dataset_format in env.importers:
+            project = env.make_importer(dataset_format)(path, **format_options)
+        elif dataset_format in env.extractors:
+            project = Project(env=env)
+            project.add_source('source', {
+                'url': path,
+                'format': dataset_format,
+                'options': format_options,
+            })
+        else:
+            raise Exception("Unknown format '%s'. To make it "
+                "available, add the corresponding Extractor implementation "
+                "to the environment" % dataset_format)
+        return project
+
+    def __init__(self, config=None, env=None):
         self.config = Config(config,
             fallback=PROJECT_DEFAULT_CONFIG, schema=PROJECT_SCHEMA)
-        self.env = Environment(self.config)
+        if env is None:
+            env = Environment(self.config)
+        elif config is not None:
+            raise ValueError("env can only be provided when no config provided")
+        self.env = env
 
     def make_dataset(self):
         return ProjectDataset(self)
@@ -643,7 +385,8 @@ class Project:
     def make_executable_model(self, name):
         model = self.get_model(name)
         return self.env.make_launcher(model.launcher,
-            **model.options, model_dir=self.local_model_dir(name))
+            **model.options, model_dir=osp.join(
+                self.config.project_dir, self.local_model_dir(name)))
 
     def make_source_project(self, name):
         source = self.get_source(name)
@@ -662,8 +405,5 @@ class Project:
     def local_source_dir(self, source_name):
         return osp.join(self.config.sources_dir, source_name)
 
-# pylint: disable=function-redefined
 def load_project_as_dataset(url):
-    # implement the function declared above
     return Project.load(url).make_dataset()
-# pylint: enable=function-redefined

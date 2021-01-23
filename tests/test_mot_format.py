@@ -3,11 +3,10 @@ import numpy as np
 import os.path as osp
 
 from unittest import TestCase
-from datumaro.components.project import Dataset
+from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import (DatasetItem,
     AnnotationType, Bbox, LabelCategories
 )
-from datumaro.components.project import Project
 from datumaro.plugins.mot_format import MotSeqGtConverter, MotSeqImporter
 from datumaro.util.test_utils import (TestDir, compare_datasets,
     test_save_and_load)
@@ -123,7 +122,6 @@ class MotImporterTest(TestCase):
                 'label_' + str(label) for label in range(10)),
         })
 
-        dataset = Project.import_from(DUMMY_DATASET_DIR, 'mot_seq') \
-            .make_dataset()
+        dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'mot_seq')
 
         compare_datasets(self, expected_dataset, dataset)

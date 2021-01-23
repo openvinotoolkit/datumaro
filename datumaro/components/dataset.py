@@ -1,15 +1,24 @@
-# Copyright (C) 2020 Intel Corporation
+# Copyright (C) 2020-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 from collections import OrderedDict, defaultdict
 from typing import Iterable, Union, Dict, List
+import logging as log
+import os
+import os.path as osp
+import shutil
 
 from datumaro.components.extractor import (Extractor, LabelCategories,
     AnnotationType, DatasetItem, DEFAULT_SUBSET_NAME)
 from datumaro.components.dataset_filter import \
     XPathDatasetFilter, XPathAnnotationsFilter
+from datumaro.components.environment import Environment
+from datumaro.util import error_rollback
+from datumaro.util.log_utils import logging_disabled
 
+
+DEFAULT_FORMAT = 'datumaro'
 
 class Dataset(Extractor):
     class Subset(Extractor):
@@ -28,7 +37,8 @@ class Dataset(Extractor):
 
     @classmethod
     def from_iterable(cls, iterable: Iterable[DatasetItem],
-            categories: Union[Dict, List[str]] = None):
+            categories: Union[Dict, List[str]] = None,
+            env: Environment = None):
         if isinstance(categories, list):
             categories = { AnnotationType.label:
                 LabelCategories.from_iterable(categories)
@@ -44,12 +54,12 @@ class Dataset(Extractor):
             def categories(self):
                 return categories
 
-        return cls.from_extractors(_extractor())
+        return cls.from_extractors(_extractor(), env=env)
 
     @classmethod
-    def from_extractors(cls, *sources):
+    def from_extractors(cls, *sources, env=None):
         categories = cls._merge_categories(s.categories() for s in sources)
-        dataset = Dataset(categories=categories)
+        dataset = Dataset(categories=categories, env=env)
 
         # merge items
         subsets = defaultdict(lambda: cls.Subset(dataset))
@@ -67,8 +77,11 @@ class Dataset(Extractor):
         dataset._subsets = dict(subsets)
         return dataset
 
-    def __init__(self, categories=None):
+    def __init__(self, categories=None, env=None):
         super().__init__()
+
+        assert env is None or isinstance(env, Environment), env
+        self._env = env
 
         self._subsets = {}
 
@@ -184,3 +197,96 @@ class Dataset(Extractor):
         # TODO: implement properly with merging and annotations remapping
         from .operations import merge_categories
         return merge_categories(sources)
+
+    @error_rollback('on_error', implicit=True)
+    def export(self, save_dir, format, **kwargs): #pylint: disable=redefined-builtin
+        if isinstance(format, str):
+            converter = self.env.make_converter(format)
+        else:
+            converter = format
+
+        save_dir = osp.abspath(save_dir)
+        if not osp.exists(save_dir):
+            on_error.do(shutil.rmtree, save_dir, ignore_errors=True)
+        os.makedirs(save_dir, exist_ok=True)
+        converter(self, save_dir=save_dir, **kwargs)
+
+    def transform(self, method, *args, **kwargs):
+        if isinstance(method, str):
+            method = self.env.make_transform(method)
+
+        result = super().transform(method, *args, **kwargs)
+        return Dataset.from_extractors(result, env=self._env)
+
+    def run_model(self, model, batch_size=1):
+        from datumaro.components.launcher import Launcher, ModelTransform
+        if isinstance(model, Launcher):
+            return self.transform(ModelTransform, launcher=model,
+                batch_size=batch_size)
+        elif isinstance(model, ModelTransform):
+            return self.transform(model, batch_size=batch_size)
+        else:
+            raise TypeError('Unexpected model argument type: %s' % type(model))
+
+    @property
+    def env(self):
+        if not self._env:
+            self._env = Environment()
+        return self._env
+
+    def save(self, save_dir, **kwargs):
+        self.export(save_dir, format=DEFAULT_FORMAT, **kwargs)
+
+    @classmethod
+    def load(cls, path, **kwargs):
+        return cls.import_from(path, format=DEFAULT_FORMAT, **kwargs)
+
+    @classmethod
+    def import_from(cls, path, format=None, env=None, **kwargs): #pylint: disable=redefined-builtin
+        from datumaro.components.config_model import Source
+
+        if env is None:
+            env = Environment()
+
+        if not format:
+            format = cls.detect(path, env)
+
+        # TODO: remove importers, put this logic into extractors
+        if format in env.importers:
+            importer = env.make_importer(format)
+            with logging_disabled(log.INFO):
+                project = importer(path, **kwargs)
+            detected_sources = list(project.config.sources.values())
+        elif format in env.extractors:
+            detected_sources = [{
+                'url': path, 'format': format, 'options': kwargs
+            }]
+        else:
+            raise Exception("Unknown source format '%s'. To make it "
+                "available, add the corresponding Extractor implementation "
+                "to the environment" % format)
+
+        extractors = []
+        for src_conf in detected_sources:
+            if not isinstance(src_conf, Source):
+                src_conf = Source(src_conf)
+            extractors.append(env.make_extractor(
+                src_conf.format, src_conf.url, **src_conf.options
+            ))
+
+        return cls.from_extractors(*extractors)
+
+    @staticmethod
+    def detect(path, env=None):
+        if env is None:
+            env = Environment()
+
+        matches = env.detect_dataset(path)
+        if not matches:
+            raise Exception("Failed to detect dataset format automatically: "
+                "no matching formats found")
+        if 1 < len(matches):
+            raise Exception("Failed to detect dataset format automatically:"
+                " data matches more than one format: %s" % \
+                ', '.join(matches))
+        return matches[0]

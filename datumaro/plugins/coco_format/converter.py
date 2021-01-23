@@ -16,7 +16,7 @@ import datumaro.util.annotation_util as anno_tools
 import datumaro.util.mask_tools as mask_tools
 from datumaro.components.converter import Converter
 from datumaro.components.extractor import (_COORDINATE_ROUNDING_DIGITS,
-    DEFAULT_SUBSET_NAME, AnnotationType, Points)
+    AnnotationType, Points)
 from datumaro.util import cast, find, str_to_bool
 
 from .format import CocoPath, CocoTask
@@ -144,7 +144,9 @@ class _CaptionsConverter(_TaskConverter):
                     log.warning("Item '%s', ann #%s: failed to convert "
                         "attribute 'score': %e" % (item.id, ann_idx, e))
             if self._context._allow_attributes:
-                elem['attributes'] = self._convert_attributes(ann)
+                attrs = self._convert_attributes(ann)
+                if attrs:
+                    elem['attributes'] = attrs
 
             self.annotations.append(elem)
 
@@ -317,7 +319,9 @@ class _InstancesConverter(_TaskConverter):
                 log.warning("Item '%s': failed to convert attribute "
                     "'score': %e" % (item.id, e))
         if self._context._allow_attributes:
-                elem['attributes'] = self._convert_attributes(ann)
+                attrs = self._convert_attributes(ann)
+                if attrs:
+                    elem['attributes'] = attrs
 
         return elem
 
@@ -434,7 +438,9 @@ class _LabelsConverter(_TaskConverter):
                     log.warning("Item '%s': failed to convert attribute "
                         "'score': %e" % (item.id, e))
             if self._context._allow_attributes:
-                elem['attributes'] = self._convert_attributes(ann)
+                attrs = self._convert_attributes(ann)
+                if attrs:
+                    elem['attributes'] = attrs
 
             self.annotations.append(elem)
 

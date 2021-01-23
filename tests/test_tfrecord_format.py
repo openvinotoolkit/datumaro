@@ -4,11 +4,10 @@ import os.path as osp
 
 from unittest import TestCase, skipIf
 
-from datumaro.components.project import Dataset
+from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import (DatasetItem,
     AnnotationType, Bbox, Mask, LabelCategories
 )
-from datumaro.components.project import Project
 from datumaro.util.image import Image, ByteImage, encode_image
 from datumaro.util.test_utils import (TestDir, compare_datasets,
     test_save_and_load)
@@ -218,7 +217,6 @@ class TfrecordImporterTest(TestCase):
                 'label_' + str(label) for label in range(10)),
         })
 
-        dataset = Project.import_from(DUMMY_DATASET_DIR, 'tf_detection_api') \
-            .make_dataset()
+        dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'tf_detection_api')
 
         compare_datasets(self, target_dataset, dataset)

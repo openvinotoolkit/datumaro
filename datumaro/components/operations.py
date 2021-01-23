@@ -1063,8 +1063,14 @@ def compute_ann_statistics(dataset):
     def get_label(ann):
         return labels.items[ann.label].name if ann.label is not None else None
 
+    unique_images = find_unique_images(dataset)
+    repeated_images = [sorted(g) for g in unique_images.values() if 1 < len(g)]
+
     stats = {
         'images count': len(dataset),
+        'unique images count': len(unique_images),
+        'repeated images count': len(repeated_images),
+        'repeated images': repeated_images, # [[id1, id2], [id3, id4, id5], ...]
         'annotations count': 0,
         'unannotated images count': 0,
         'unannotated images': [],
@@ -1277,24 +1283,8 @@ def match_items_by_id(a, b):
     return matches, a_unmatched, b_unmatched
 
 def match_items_by_image_hash(a, b):
-    def _hash(item):
-        if not item.image.has_data:
-            log.warning("Image (%s, %s) has no image "
-                "data, counted as unmatched", item.id, item.subset)
-            return None
-        return hashlib.md5(item.image.data.tobytes()).hexdigest()
-
-    def _build_hashmap(source):
-        d = {}
-        for item in source:
-            h = _hash(item)
-            if h is None:
-                h = str(id(item)) # anything unique
-            d.setdefault(h, []).append((item.id, item.subset))
-        return d
-
-    a_hash = _build_hashmap(a)
-    b_hash = _build_hashmap(b)
+    a_hash = find_unique_images(a)
+    b_hash = find_unique_images(b)
 
     a_items = set(a_hash)
     b_items = set(b_hash)
@@ -1308,6 +1298,28 @@ def match_items_by_image_hash(a, b):
     b_unmatched = set(i for h in b_unmatched for i in b_hash[h])
 
     return matches, a_unmatched, b_unmatched
+
+def find_unique_images(dataset, item_hash=None):
+    def _default_hash(item):
+        if not item.image or not item.image.has_data:
+            if item.image and item.image.path:
+                return hash(item.image.path)
+
+            log.warning("Item (%s, %s) has no image "
+                "info, counted as unique", item.id, item.subset)
+            return None
+        return hashlib.md5(item.image.data.tobytes()).hexdigest()
+
+    if item_hash is None:
+        item_hash = _default_hash
+
+    unique = {}
+    for item in dataset:
+        h = item_hash(item)
+        if h is None:
+            h = str(id(item)) # anything unique
+        unique.setdefault(h, set()).add((item.id, item.subset))
+    return unique
 
 @attrs
 class ExactComparator:
