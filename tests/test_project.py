@@ -7,6 +7,7 @@ from unittest import TestCase, skipIf, skip
 
 from datumaro.components.project import (Project, BuildStageType,
     GitWrapper, DvcWrapper)
+from datumaro.components.environment import Environment
 from datumaro.components.dataset import Dataset, DEFAULT_FORMAT
 from datumaro.components.config import Config
 from datumaro.components.config_model import Source, Model
@@ -102,7 +103,6 @@ class BaseProjectTest(TestCase):
         project = Project()
         project.env.extractors.register(extractor_name, CustomExtractor)
         project.sources.add('src1', {
-            'url': 'path',
             'format': extractor_name,
         })
 
