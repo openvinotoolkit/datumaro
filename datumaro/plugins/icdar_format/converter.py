@@ -7,6 +7,7 @@ import os.path as osp
 
 from datumaro.components.converter import Converter
 from datumaro.components.extractor import AnnotationType, CompiledMask
+from datumaro.util.annotation_util import find_instances
 from datumaro.util.image import save_image
 from datumaro.util.mask_tools import find_mask_bbox, paint_mask
 
@@ -17,10 +18,7 @@ class _WordRecognitionConverter():
     def __init__(self):
         self.annotations = ''
 
-    def save_categories(self, save_dir, categories):
-        pass
-
-    def save_annotations(self, item, categories):
+    def save_annotations(self, item):
         self.annotations += '%s, ' % (item.id + IcdarPath.IMAGE_EXT)
         for ann in item.annotations:
             if ann.type != AnnotationType.caption:
@@ -41,30 +39,17 @@ class _TextLocalizationConverter():
     def __init__(self):
         self.annotations = {}
 
-    def save_categories(self, save_dir, categories):
-        vocabulary_file = osp.join(save_dir,
-            IcdarPath.TASK_DIR[IcdarTask.text_localization],
-            IcdarPath.VOCABULARY_FILE)
-        os.makedirs(osp.dirname(vocabulary_file), exist_ok=True)
-        with open(vocabulary_file, 'w', encoding='utf-8') as f:
-            f.write('\n'.join(l.name
-                for l in categories[AnnotationType.label])
-            )
-
-    def save_annotations(self, item, categories):
+    def save_annotations(self, item):
         annotation = ''
         for ann in item.annotations:
             if ann.type == AnnotationType.bbox:
-                annotation += '%s %s %s %s' % (ann.x, ann.y,
-                    ann.x + ann.w, ann.y + ann.h)
-                if ann.label is not None:
-                    annotation += ' %s' % \
-                        categories[AnnotationType.label][ann.label].name
+                annotation += ' '.join(str(p) for p in ann.points)
+                if ann.attributes and 'text' in ann.attributes:
+                    annotation += ' \"%s\"' % ann.attributes['text']
             elif ann.type == AnnotationType.polygon:
                 annotation += ','.join(str(p) for p in ann.points)
-                if ann.label is not None:
-                    annotation += ',\"%s\"' % \
-                        categories[AnnotationType.label][ann.label].name
+                if ann.attributes and 'text' in ann.attributes:
+                    annotation += ',\"%s\"' % ann.attributes['text']
             annotation += '\n'
         self.annotations[item.id] = annotation
 
@@ -83,23 +68,27 @@ class _TextSegmentationConverter():
         self.annotations = {}
         self.masks = {}
 
-    def save_categories(self, save_dir, categories):
-        pass
-
-    def save_annotations(self, item, categories):
+    def save_annotations(self, item):
         annotation = ''
         colormap = [(255, 255, 255)]
-        group = 0
-        for ann in item.annotations:
-            if ann.type == AnnotationType.mask:
-                char = ''
-                if ann.group != group:
-                    annotation += '\n'
-                    group += 1
+        masks = [a for a in item.annotations
+            if a.type == AnnotationType.mask]
+        annotations = {}
+        for ann in find_instances(masks):
+            if ann[0].group in annotations:
+                annotations[ann[0].group].append(ann[0])
+            else:
+                annotations[ann[0].group] = [ann[0]]
+        for group_anno in annotations:
+            if group_anno:
+                annotation += '\n'
+            group_anno = sorted(annotations[group_anno], key=lambda a: a.id)
+            for ann in group_anno:
+                text = ''
                 if ann.attributes:
-                    if 'char' in ann.attributes:
-                        char = ann.attributes['char']
-                    if char == ' ':
+                    if 'text' in ann.attributes:
+                        text = ann.attributes['text']
+                    if text == ' ':
                         annotation += '#'
                     if 'color' in ann.attributes:
                         colormap.append(ann.attributes['color'])
@@ -113,15 +102,12 @@ class _TextSegmentationConverter():
                             for p in ann.attributes['center'])
                     else:
                         annotation += ' - -'
-                image = ann.image
-                bbox = find_mask_bbox(image)
+                bbox = find_mask_bbox(ann.image)
                 annotation += ' %s %s %s %s' % (bbox[0], bbox[1],
                     bbox[0] + bbox[2], bbox[1] + bbox[3])
-                annotation += ' \"%s\"' % char
+                annotation += ' \"%s\"' % text
                 annotation += '\n'
 
-        masks = [a for a in item.annotations
-            if a.type == AnnotationType.mask]
         compiled_mask = CompiledMask.from_instance_masks(masks)
         mask = paint_mask(compiled_mask.class_mask, {
             i: colormap[i] for i in range(len(colormap))})
@@ -178,16 +164,12 @@ class IcdarConverter(Converter):
     def apply(self):
         for subset_name, subset in self._extractor.subsets().items():
             task_converters = self._make_task_converters()
-            for task_conv in task_converters.values():
-                task_conv.save_categories(self._save_dir,
-                    self._extractor.categories())
             for item in subset:
                 for task_conv in task_converters.values():
                     if item.has_image and self._save_images:
                         self._save_image(item, osp.join(self._save_dir, subset_name,
                             IcdarPath.IMAGES_DIR, item.id + IcdarPath.IMAGE_EXT))
-                    task_conv.save_annotations(item,
-                        self._extractor.categories())
+                    task_conv.save_annotations(item)
 
             for task, task_conv in task_converters.items():
                 if task_conv.is_empty() and not self._tasks:

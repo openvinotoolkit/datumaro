@@ -44,17 +44,18 @@ class IcdarImporterTest(TestCase):
             DatasetItem(id='img_1', subset='train',
                 image=np.ones((10, 15, 3)),
                 annotations=[
-                    Polygon([0, 0, 3, 1, 4, 6, 1, 7], label=0),
+                    Polygon([0, 0, 3, 1, 4, 6, 1, 7],
+                        attributes={'text': 'FOOD'}),
                 ]
             ),
             DatasetItem(id='img_2', subset='train',
                 image=np.ones((10, 15, 3)),
                 annotations=[
-                    Bbox(0, 0, 2, 3, label=2),
-                    Bbox(3, 3, 2, 3, label=1),
+                    Bbox(0, 0, 2, 3, attributes={'text': 'RED'}),
+                    Bbox(3, 3, 2, 3, attributes={'text': 'LION'}),
                 ]
             ),
-        ], categories=['FOOD', 'LION', 'RED'])
+        ])
 
         dataset = Dataset.import_from(osp.join(DUMMY_DATASET_DIR, 'text_localization'), 'icdar')
 
@@ -65,14 +66,14 @@ class IcdarImporterTest(TestCase):
             DatasetItem(id='1', subset='train',
                 image=np.ones((2, 5, 3)),
                 annotations=[
-                    Mask(image=np.array([[0, 1, 1, 0, 0], [0, 0, 0, 0, 0]]), label=1,
-                        group=0, attributes = { 'color': (108, 225, 132), 'char': 'F',
+                    Mask(id=0, image=np.array([[0, 1, 1, 0, 0], [0, 0, 0, 0, 0]]), label=1,
+                        group=0, attributes = { 'color': (108, 225, 132), 'text': 'F',
                         'center': [0, 1] }),
-                    Mask(image=np.array([[0, 0, 0, 1, 0], [0, 0, 0, 1, 0]]), label=2,
-                        group=1, attributes = { 'color': (82, 174, 214), 'char': 'T',
+                    Mask(id=0, image=np.array([[0, 0, 0, 1, 0], [0, 0, 0, 1, 0]]), label=2,
+                        group=1, attributes = { 'color': (82, 174, 214), 'text': 'T',
                         'center': [1, 3] }),
-                    Mask(image=np.array([[0, 0, 0, 0, 0], [0, 0, 0, 0, 1]]), label=3,
-                        group=1, attributes = { 'color': (241, 73, 144), 'char': 'h',
+                    Mask(id=1, image=np.array([[0, 0, 0, 0, 0], [0, 0, 0, 0, 1]]), label=3,
+                        group=1, attributes = { 'color': (241, 73, 144), 'text': 'h',
                         'center': [1, 4] }),
                 ]
             ),
@@ -110,19 +111,21 @@ class IcdarConverterTest(TestCase):
             DatasetItem(id=1, subset='train',
                 annotations=[
                     Bbox(1, 3, 6, 10),
-                    Bbox(0, 1, 3, 5, label=0),
+                    Bbox(0, 1, 3, 5, attributes={'text': 'word_0'}),
                 ]),
             DatasetItem(id=2, subset='train',
                 annotations=[
-                    Polygon([0, 0, 3, 0, 4, 7, 1, 8], label=2),
+                    Polygon([0, 0, 3, 0, 4, 7, 1, 8],
+                        attributes={'text': 'word_1'}),
                     Polygon([1, 2, 5, 3, 6, 8, 0, 7]),
                 ]),
             DatasetItem(id=3, subset='train',
                 annotations=[
-                    Polygon([2, 2, 8, 3, 7, 10, 2, 9], label=1),
-                    Bbox(0, 2, 5, 9, label=0),
+                    Polygon([2, 2, 8, 3, 7, 10, 2, 9],
+                        attributes={'text': 'word_2'}),
+                    Bbox(0, 2, 5, 9, attributes={'text': 'word_3'}),
                 ]),
-        ], categories=['label_0', 'label_1', 'label_2'])
+        ])
 
         with TestDir() as test_dir:
             self._test_save_and_load(expected_dataset,
@@ -132,27 +135,27 @@ class IcdarConverterTest(TestCase):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train',
                 annotations=[
-                    Mask(image=np.array([[0, 1, 1, 0, 0]]), label=1,
-                        group=0, attributes = { 'color': (108, 225, 132), 'char': 'F',
-                        'center': [0, 1] }),
-                    Mask(image=np.array([[0, 0, 0, 1, 1]]), label=2,
-                        group=0, attributes = { 'color': (82, 174, 214), 'char': 'j',
+                    Mask(id=1, image=np.array([[0, 0, 0, 1, 1]]), label=2,
+                        group=0, attributes = { 'color': (82, 174, 214), 'text': 'j',
                         'center': [0, 3] }),
+                    Mask(id=0, image=np.array([[0, 1, 1, 0, 0]]), label=1,
+                        group=0, attributes = { 'color': (108, 225, 132), 'text': 'F',
+                        'center': [0, 1] }),
                 ]),
             DatasetItem(id=2, subset='train',
                 annotations=[
-                    Mask(image=np.array([[1, 0, 0, 0, 0, 0]]), label=1,
-                        group=0, attributes = { 'color': (108, 225, 132), 'char': 'L',
-                        'center': [0, 0] }),
-                    Mask(image=np.array([[0, 0, 0, 1, 1, 0]]), label=2,
-                        group=0, attributes = { 'color': (82, 174, 214), 'char': 'o',
-                        'center': [0, 3] }),
-                    Mask(image=np.array([[0, 1, 1, 0, 0, 0]]), label=3,
-                        group=1, attributes = { 'color': (241, 73, 144), 'char': 'P',
-                        'center': [0, 1] }),
-                    Mask(image=np.array([[0, 0, 0, 0, 0, 1]]), label=4,
-                        group=2, attributes = { 'color': (183, 6, 28), 'char': ' ',
+                    Mask(id=0, image=np.array([[0, 0, 0, 0, 0, 1]]), label=4,
+                        group=2, attributes = { 'color': (183, 6, 28), 'text': ' ',
                         'center': [0, 5] }),
+                    Mask(id=0, image=np.array([[1, 0, 0, 0, 0, 0]]), label=1,
+                        group=0, attributes = { 'color': (108, 225, 132), 'text': 'L',
+                        'center': [0, 0] }),
+                    Mask(id=1, image=np.array([[0, 0, 0, 1, 1, 0]]), label=2,
+                        group=0, attributes = { 'color': (82, 174, 214), 'text': 'o',
+                        'center': [0, 3] }),
+                    Mask(id=0, image=np.array([[0, 1, 1, 0, 0, 0]]), label=3,
+                        group=1, attributes = { 'color': (241, 73, 144), 'text': 'P',
+                        'center': [0, 1] }),
                 ]),
         ])
 
@@ -166,7 +169,7 @@ class IcdarConverterTest(TestCase):
                 annotations=[
                     Bbox(0, 1, 3, 5),
                 ]),
-        ], categories=[])
+        ])
 
         with TestDir() as test_dir:
             self._test_save_and_load(expected_dataset,
