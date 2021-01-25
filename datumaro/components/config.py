@@ -238,8 +238,14 @@ class DictConfig(Config):
         self.__dict__['_default'] = default
 
     def set(self, key, value):
-        if key not in self.keys(allow_fallback=False):
-            value = self._default(value)
-            return super().set(key, value)
-        else:
-            return super().set(key, value)
+        if self._default is not None:
+            schema_entry_instance = self._default(value)
+            if not isinstance(value, type(schema_entry_instance)):
+                if isinstance(value, dict) and \
+                        isinstance(schema_entry_instance, Config):
+                    schema_entry_instance.update(value)
+                    value = schema_entry_instance
+                else:
+                    raise Exception("Can not set key '%s' - schema mismatch" % (key))
+
+        return super().set(key, value)
