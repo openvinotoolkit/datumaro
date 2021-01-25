@@ -122,7 +122,7 @@ CVAT annotations                             ---> Publication, statistics etc.
 
 [(Back to top)](#table-of-contents)
 
-- Dataset reading, writing, conversion in any direction. Supported formats:
+- Dataset reading, writing, conversion in any direction. [Supported formats](docs/user_manual.md#supported-formats):
   - [COCO](http://cocodataset.org/#format-data) (`image_info`, `instances`, `person_keypoints`, `captions`, `labels`*)
   - [PASCAL VOC](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/htmldoc/index.html) (`classification`, `detection`, `segmentation`, `action_classification`, `person_layout`)
   - [YOLO](https://github.com/AlexeyAB/darknet#how-to-train-pascal-voc-data) (`bboxes`)
@@ -189,7 +189,7 @@ python -m virtualenv venv
 Install Datumaro package:
 
 ``` bash
-pip install 'git+https://github.com/openvinotoolkit/datumaro'
+pip install datumaro
 ```
 
 ## Usage
@@ -235,13 +235,14 @@ dataset = dataset.transform(project.env.transforms.get('remap_labels'),
   {'cat': 'dog', # rename cat to dog
     'truck': 'car', # rename truck to car
     'person': '', # remove this label
-  }, default='delete')
+  }, default='delete') # remove everything else
 
+# iterate over dataset elements
 for item in dataset:
   print(item.id, item.annotations)
 
 # export the resulting dataset in COCO format
-project.env.converters.get('coco').convert(dataset, save_dir='dst/dir')
+dataset.export('dst/dir', 'coco')
 ```
 
 > Check our [developer guide](docs/developer_guide.md) for additional information.

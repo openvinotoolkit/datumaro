@@ -45,11 +45,15 @@ python -m virtualenv venv
 
 Install:
 ``` bash
+# From PyPI:
+pip install datumaro
+
+# From the GitHub repository:
 pip install 'git+https://github.com/openvinotoolkit/datumaro'
 ```
 
 > You can change the installation branch with `...@<branch_name>`
-> Also note `--force-reinstall` parameter in this case.
+> Also use `--force-reinstall` parameter in this case.
 
 ## Interfaces
 
