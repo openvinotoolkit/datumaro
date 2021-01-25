@@ -15,7 +15,9 @@ from datumaro.components.converter import Converter
 
 
 class ImagenetPath:
-    IMAGES_EXT = '.jpg'
+    DEFAULT_IMAGE_EXT = '.jpg'
+    IMAGE_EXT_FORMATS = {'.jpg', '.jpeg', '.png', '.ppm', '.bmp',
+        '.pgm', '.tif', '.tiff'}
     IMAGES_DIR_NO_LABEL = 'no_label'
 
 
@@ -37,7 +39,9 @@ class ImagenetExtractor(SourceExtractor):
     def _load_items(self, path):
         items = {}
         for image_path in glob(osp.join(path, '*', '*')):
-            if osp.splitext(image_path)[1] != ImagenetPath.IMAGES_EXT:
+            if not osp.isfile(image_path) or \
+                    osp.splitext(image_path)[-1] not in \
+                        ImagenetPath.IMAGE_EXT_FORMATS:
                 continue
             label = osp.basename(osp.dirname(image_path))
             image_name = osp.splitext(osp.basename(image_path))[0][len(label) + 1:]
@@ -62,7 +66,7 @@ class ImagenetImporter(Importer):
 
 
 class ImagenetConverter(Converter):
-    DEFAULT_IMAGE_EXT = ImagenetPath.IMAGES_EXT
+    DEFAULT_IMAGE_EXT = ImagenetPath.DEFAULT_IMAGE_EXT
 
     def apply(self):
         if 1 < len(self._extractor.subsets()):
@@ -79,12 +83,10 @@ class ImagenetConverter(Converter):
             for label in labels[image_name]:
                 label_name = extractor.categories()[AnnotationType.label][label].name
                 self._save_image(item, osp.join(subset_dir, label_name,
-                    '%s_%s%s' % \
-                    (label_name, image_name, ImagenetPath.IMAGES_EXT)
-                ))
+                    '%s_%s' %  (label_name, self._make_image_filename(item))))
 
             if not labels[image_name]:
                 self._save_image(item, osp.join(subset_dir,
                     ImagenetPath.IMAGES_DIR_NO_LABEL,
-                    ImagenetPath.IMAGES_DIR_NO_LABEL + '_' +
-                    image_name + ImagenetPath.IMAGES_EXT))
+                    ImagenetPath.IMAGES_DIR_NO_LABEL + '_'
+                    + self._make_image_filename(item)))

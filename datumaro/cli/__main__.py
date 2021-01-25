@@ -1,5 +1,5 @@
 
-# Copyright (C) 2019-2020 Intel Corporation
+# Copyright (C) 2019-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -66,6 +66,7 @@ def make_parser():
     ]
     known_commands = [
         ('create', commands.create, "Create project"),
+        ('import', commands.import_, "Create project from existing dataset"),
         ('add', commands.add, "Add data source to project"),
         ('remove', commands.remove, "Remove data source from project"),
         ('track', commands.track, "Start tracking of a file"),
@@ -86,6 +87,8 @@ def make_parser():
         ('convert', commands.convert, "Convert dataset"),
         ('diff', commands.diff, "Compare projects with intersection"),
         ('ediff', commands.ediff, "Compare projects for equality"),
+        ('stats', commands.stats, "Compute project statistics"),
+        ('info', commands.info, "Print project info"),
         ('explain', commands.explain, "Run Explainable AI algorithm for model"),
     ]
 

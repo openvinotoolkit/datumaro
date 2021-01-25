@@ -70,14 +70,14 @@ setuptools.setup(
     description="Dataset Management Framework (Datumaro)",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/opencv/openvinotoolkit/datumaro",
+    url="https://github.com/openvinotoolkit/datumaro",
     packages=setuptools.find_packages(exclude=['tests*']),
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    python_requires='>=3.5',
+    python_requires='>=3.6',
     install_requires=get_requirements(),
     extras_require={
         'tf': ['tensorflow'],

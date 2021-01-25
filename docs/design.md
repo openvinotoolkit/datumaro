@@ -73,9 +73,11 @@ Datumaro is:
 
 ## RC 1 vision
 
-In the first version Datumaro should be a project manager for CVAT.
-It should only consume data from CVAT. The collected dataset
-can be downloaded by user to be operated on with Datumaro CLI.
+*CVAT integration*
+
+Datumaro needs to be integrated with [CVAT](https://github.com/openvinotoolkit/cvat),
+extending CVAT UI capabilities regarding task and project operations.
+It should be capable of downloading and processing data from CVAT.
 
 <!--lint disable fenced-code-flag-->
 ```
@@ -94,6 +96,7 @@ can be downloaded by user to be operated on with Datumaro CLI.
 
 - [x] Python API for user code
   - [x] Installation as a package
+  - [x] Installation with `pip` by name
 - [x] A command-line tool for dataset manipulations
 
 ### Features
@@ -106,7 +109,7 @@ can be downloaded by user to be operated on with Datumaro CLI.
   - [x] YOLO
   - [x] TF Detection API
   - [ ] Cityscapes
-  - [ ] ImageNet
+  - [x] ImageNet
 
 - Dataset visualization (`show`)
   - [ ] Ability to visualize a dataset
@@ -117,7 +120,7 @@ can be downloaded by user to be operated on with Datumaro CLI.
   - [x] Object counts (detection scenario)
   - [x] Image-Class distribution (classification scenario)
   - [x] Pixel-Class distribution (segmentation scenario)
-  - [ ] Image similarity clusters
+  - [x] Image similarity clusters
   - [ ] Custom statistics
 
 - Dataset building
@@ -164,7 +167,7 @@ can be downloaded by user to be operated on with Datumaro CLI.
 ### Optional features
 
 - Dataset publishing
-  - [ ] Versioning (for annotations, subsets, sources, etc.)
+  - [x] Versioning (for annotations, subsets, sources, etc.)
   - [ ] Blur sensitive areas on images
   - [ ] Tracking of legal information
   - [ ] Documentation generation
@@ -175,7 +178,7 @@ can be downloaded by user to be operated on with Datumaro CLI.
 
 - Dataset and model debugging
   - [ ] Training visualization
-  - [ ] Inference explanation (`explain`)
+  - [x] Inference explanation (`explain`)
     - [ ] White-box approach
 
 ### Properties

@@ -14,6 +14,8 @@ from datumaro.components.converter import Converter
 
 
 class ImagenetTxtPath:
+    DEFAULT_IMAGE_EXT = '.jpg'
+    IMAGE_EXT_FORMAT = ['.jpg', '.jpeg', '.png', '.ppm', '.bmp', '.pgm', '.tif']
     LABELS_FILE = 'synsets.txt'
     IMAGE_DIR = 'images'
 
@@ -56,26 +58,27 @@ class ImagenetTxtExtractor(SourceExtractor):
                         label < len(self._categories[AnnotationType.label]), \
                         "Image '%s': unknown label id '%s'" % (item_id, label)
                     anno.append(Label(label))
+                image_path = osp.join(self.image_dir, item_id +
+                    ImagenetTxtPath.DEFAULT_IMAGE_EXT)
+                for path in glob(osp.join(self.image_dir, item_id + '*')):
+                    if osp.splitext(path)[1] in ImagenetTxtPath.IMAGE_EXT_FORMAT:
+                        image_path = path
+                        break
                 items[item_id] = DatasetItem(id=item_id, subset=self._subset,
-                    image=osp.join(self.image_dir, item_id + '.jpg'),
-                    annotations=anno)
+                    image=image_path, annotations=anno)
         return items
 
 
 class ImagenetTxtImporter(Importer):
     @classmethod
     def find_sources(cls, path):
-        subset_paths = [p for p in glob(osp.join(path, '*.txt'))
-            if osp.basename(p) != ImagenetTxtPath.LABELS_FILE]
-        sources = []
-        for subset_path in subset_paths:
-            sources += cls._find_sources_recursive(
-                subset_path, '.txt', 'imagenet_txt')
-        return sources
+        return cls._find_sources_recursive(path, '.txt', 'imagenet_txt',
+            file_filter=lambda p: \
+                osp.basename(p) != ImagenetTxtPath.LABELS_FILE)
 
 
 class ImagenetTxtConverter(Converter):
-    DEFAULT_IMAGE_EXT = '.jpg'
+    DEFAULT_IMAGE_EXT = ImagenetTxtPath.DEFAULT_IMAGE_EXT
 
     def apply(self):
         subset_dir = self._save_dir

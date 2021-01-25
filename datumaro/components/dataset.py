@@ -248,9 +248,10 @@ class Dataset(Extractor):
         if env is None:
             env = Environment()
 
-        # TODO: remove importers, put this logic into extractors
         if not format:
             format = cls.detect(path, env)
+
+        # TODO: remove importers, put this logic into extractors
         if format in env.importers:
             importer = env.make_importer(format)
             with logging_disabled(log.INFO):

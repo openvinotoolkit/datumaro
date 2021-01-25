@@ -6,20 +6,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
-## [Unreleased]
+## 01/23/2021 - Release v0.1.5
 ### Added
-- Task-specific Splitter (<https://github.com/openvinotoolkit/datumaro/pull/68>)
-- `WiderFace` dataset format (<https://github.com/openvinotoolkit/datumaro/pull/65>)
+- `WiderFace` dataset format (<https://github.com/openvinotoolkit/datumaro/pull/65>, <https://github.com/openvinotoolkit/datumaro/pull/90>)
 - Function to transform annotations to labels (<https://github.com/openvinotoolkit/datumaro/pull/66>)
-- `VGGFace2` dataset format (<https://github.com/openvinotoolkit/datumaro/pull/69>)
+- Dataset splits for classification, detection and re-id tasks (<https://github.com/openvinotoolkit/datumaro/pull/68>, <https://github.com/openvinotoolkit/datumaro/pull/81>)
+- `VGGFace2` dataset format (<https://github.com/openvinotoolkit/datumaro/pull/69>, <https://github.com/openvinotoolkit/datumaro/pull/82>)
+- Unique image count statistic (<https://github.com/openvinotoolkit/datumaro/pull/87>)
+- Installation with pip by name `datumaro`
 
 ### Changed
 - `Dataset` class extended with new operations: `save`, `load`, `export`, `import_from`, `detect`, `run_model` (<https://github.com/openvinotoolkit/datumaro/pull/71>)
-- `Dataset` operations return `Dataset` instances, allowing to chain operations (<https://github.com/openvinotoolkit/datumaro/pull/71>)
-- Allowed importing `Extractor`-only defined formats (in `Project.import_from`, `dataset.import_from` and CLI/`project import`)
+- Allowed importing `Extractor`-only defined formats (in `Project.import_from`, `dataset.import_from` and CLI/`project import`) (<https://github.com/openvinotoolkit/datumaro/pull/71>)
+- `datum project ...` commands replaced with `datum ...` commands (<https://github.com/openvinotoolkit/datumaro/pull/84>)
+- Supported more image formats in `ImageNet` extractors (<https://github.com/openvinotoolkit/datumaro/pull/85>)
+- Allowed adding `Importer`-defined formats as project sources (`source add`) (<https://github.com/openvinotoolkit/datumaro/pull/86>)
+- Added max search depth in `ImageDir` format and importers (<https://github.com/openvinotoolkit/datumaro/pull/86>)
 
 ### Deprecated
--
+- `datum project ...` CLI context (<https://github.com/openvinotoolkit/datumaro/pull/84>)
 
 ### Removed
 -
@@ -30,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `YOLO` extractor path matching on Windows (<https://github.com/openvinotoolkit/datumaro/pull/73>)
 - Fixed inplace file copying when saving images (<https://github.com/openvinotoolkit/datumaro/pull/76>)
 - Fixed `labelmap` parameter type checking in `VOC` converter (<https://github.com/openvinotoolkit/datumaro/pull/76>)
+- Fixed model copying on addition in CLI (<https://github.com/openvinotoolkit/datumaro/pull/94>)
 
 ### Security
 -

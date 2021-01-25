@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2020 Intel Corporation
+# Copyright (C) 2019-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -8,6 +8,7 @@ from . import (
     create, add, remove,
     explain,
     export, merge, convert, apply, transform, filter, build, update,
-    diff, ediff,
+    diff, ediff, stats,
     commit, fetch, pull, push, track, checkout, refs, status,
+    info
 )

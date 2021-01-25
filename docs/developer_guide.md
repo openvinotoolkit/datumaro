@@ -38,28 +38,27 @@ Datumaro has a number of dataset and annotation features:
 - various annotation operations
 
 ```python
-from datumaro.components.project import Environment, Dataset
+from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import Bbox, Polygon, DatasetItem
 
-# Import and save a dataset
-env = Environment()
-dataset = env.make_importer('voc')('src/dir').make_dataset()
-env.converters.get('coco').convert(dataset, save_dir='dst/dir')
+# Import and export a dataset
+dataset = Dataset.import_from('src/dir', 'voc')
+dataset.export('dst/dir', 'coco')
 
 # Create a dataset, convert polygons to masks, save in PASCAL VOC format
 dataset = Dataset.from_iterable([
-    DatasetItem(id='image1', annotations=[
-        Bbox(x=1, y=2, w=3, h=4, label=1),
-        Polygon([1, 2, 3, 2, 4, 4], label=2, attributes={'occluded': True}),
-    ]),
+  DatasetItem(id='image1', annotations=[
+    Bbox(x=1, y=2, w=3, h=4, label=1),
+    Polygon([1, 2, 3, 2, 4, 4], label=2, attributes={'occluded': True}),
+  ]),
 ], categories=['cat', 'dog', 'person'])
-dataset = dataset.transform(env.transforms.get('polygons_to_masks'))
-env.converters.get('voc').convert(dataset, save_dir='dst/dir')
+dataset = dataset.transform('polygons_to_masks')
+dataset.export('dst/dir', 'voc')
 ```
 
 ### The Dataset class
 
-The `Dataset` class from the `datumaro.components.project` module represents
+The `Dataset` class from the `datumaro.components.dataset` module represents
 a dataset, consisting of multiple `DatasetItem`s. Annotations are
 represented by members of the `datumaro.components.extractor` module,
 such as `Label`, `Mask` or `Polygon`. A dataset can contain items from one or
@@ -80,16 +79,19 @@ The main operation for a dataset is iteration over its elements.
 An item corresponds to a single image, a video sequence, etc. There are also
 few other operations available, such as filtration (`dataset.select`) and
 transformations (`dataset.transform`). A dataset can be created from extractors
-or other datasets with `dataset.from_extractors` and directly from items with
-`dataset.from_iterable`. A dataset is an extractor itself. If it is created from
-multiple extractors, their categories must match, and their contents will be
-merged.
+or other datasets with `Dataset.from_extractors()` and directly from items with
+`Dataset.from_iterable()`. A dataset is an extractor itself. If it is created
+from multiple extractors, their categories must match, and their contents
+will be merged.
 
 A dataset item is an element of a dataset. Its `id` is a name of a
 corresponding image. There can be some image `attributes`,
 an `image` and `annotations`.
 
 ```python
+from datumaro.components.dataset import Dataset
+from datumaro.components.extractor import Bbox, Polygon, DatasetItem
+
 # create a dataset from other datasets
 dataset = Dataset.from_extractors(dataset1, dataset2)
 
@@ -105,7 +107,7 @@ dataset = Dataset.from_iterable([
 dataset = dataset.select(lambda item: len(item.annotations) != 0)
 
 # change dataset labels
-dataset = dataset.transform(project.env.transforms.get('remap_labels'),
+dataset = dataset.transform('remap_labels',
   {'cat': 'dog', # rename cat to dog
     'truck': 'car', # rename truck to car
     'person': '', # remove this label
@@ -116,8 +118,7 @@ for item in dataset:
   print(item.id, item.annotations)
 
 # iterate over subsets
-for subset_name in dataset.subsets():
-  subset = dataset.get_subset(subset_name) # a dataset, again
+for subset_name, subset in dataset.subsets().items():
   for item in subset:
     print(item.id, item.annotations)
 ```
@@ -129,6 +130,7 @@ persistence, of extending, and CLI operation for Datasets. A project can
 be converted to a Dataset with `project.make_dataset`. Project datasets
 can have multiple data sources, which are merged on dataset creation. They
 can have a hierarchy. Project configuration is available in `project.config`.
+A dataset can be saved in `datumaro_project` format.
 
 The `Environment` class is responsible for accessing built-in and
 project-specific plugins. For a project, there is an instance of
@@ -204,11 +206,12 @@ YoloConverter.convert(dataset, save_dir=dst_dir)
 
 ### Writing a plugin
 
-A plugin is a Python module with any name, which exports some symbols.
-To export a symbol, inherit it from one of special classes:
+A plugin is a Python module with any name, which exports some symbols. Symbols,
+starting with `_` are not exported by default. To export a symbol,
+inherit it from one of the special classes:
 
 ```python
-from datumaro.components.extractor import Importer, SourceExtractor, Transform
+from datumaro.components.extractor import Importer, Extractor, Transform
 from datumaro.components.launcher import Launcher
 from datumaro.components.converter import Converter
 ```
@@ -224,6 +227,19 @@ There is also an additional class to modify plugin appearance in command line:
 
 ```python
 from datumaro.components.cli_plugin import CliPlugin
+
+class MyPlugin(Converter, CliPlugin):
+  """
+    Optional documentation text, which will appear in command-line help
+  """
+
+  NAME = 'optional_custom_plugin_name'
+
+  def build_cmdline_parser(self, **kwargs):
+    parser = super().build_cmdline_parser(**kwargs)
+    # set up argparse.ArgumentParser instance
+    # the parsed args are supposed to be used as invocation options
+    return parser
 ```
 
 #### Plugin example
@@ -269,13 +285,14 @@ class MyTransform(Transform, CliPlugin):
 `my_plugin2.py` contents:
 
 ```python
-from datumaro.components.extractor import SourceExtractor
+from datumaro.components.extractor import Extractor
 
 class MyFormat: ...
-class MyFormatExtractor(SourceExtractor): ...
+class _MyFormatConverter(Converter): ...
+class MyFormatExtractor(Extractor): ...
 
 exports = [MyFormat] # explicit exports declaration
-# MyFormatExtractor won't be exported
+# MyFormatExtractor and _MyFormatConverter won't be exported
 ```
 
 ## Command-line
