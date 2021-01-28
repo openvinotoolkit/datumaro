@@ -122,13 +122,16 @@ class _IcdarExtractor(SourceExtractor):
             centers = [0]
             groups = [0]
             indexes = [0]
-            group = 0
+            group = 1
             index = 0
             with open(path, encoding='utf-8') as f:
                 for line in f:
                     line = line.strip()
                     if line == '':
-                        group += 1
+                        if index == 1:
+                            groups[len(groups) - 1] = 0
+                        else:
+                            group += 1
                         index = 0
                         continue
                     objects = line.split()
@@ -147,7 +150,8 @@ class _IcdarExtractor(SourceExtractor):
                         if char[0] == '\"' and char[-1] == '\"':
                             char = char[1:-1]
                         chars.append(char)
-
+            if index == 1:
+                groups[len(groups) - 1] = 0
             mask_categories = MaskCategories({i: colors[i] for i in range(len(colors))})
             mask_categories.inverse_colormap # pylint: disable=pointless-statement
             gt_path = osp.join(self._path, item_id + '_GT' + IcdarPath.GT_EXT)

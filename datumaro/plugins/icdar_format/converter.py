@@ -73,40 +73,40 @@ class _TextSegmentationConverter():
         colormap = [(255, 255, 255)]
         masks = [a for a in item.annotations
             if a.type == AnnotationType.mask]
-        annotations = {}
-        for ann in find_instances(masks):
-            if ann[0].group in annotations:
-                annotations[ann[0].group].append(ann[0])
-            else:
-                annotations[ann[0].group] = [ann[0]]
-        for group_anno in annotations:
-            if group_anno:
+        label_is_none = [p for p in masks
+            if p.label is None]
+        if label_is_none:
+            masks = sorted(masks, key=lambda a: a.group)
+        else:
+            masks = sorted(masks, key=lambda a: a.label)
+        group = masks[0].group
+        for ann in masks:
+            if ann.group != group or ann.group == 0:
                 annotation += '\n'
-            group_anno = sorted(annotations[group_anno], key=lambda a: a.id)
-            for ann in group_anno:
-                text = ''
-                if ann.attributes:
-                    if 'text' in ann.attributes:
-                        text = ann.attributes['text']
-                    if text == ' ':
-                        annotation += '#'
-                    if 'color' in ann.attributes:
-                        colormap.append(ann.attributes['color'])
-                        annotation += ' '.join(str(p)
-                            for p in ann.attributes['color'])
-                    else:
-                        annotation += '- - -'
-                    if 'center' in ann.attributes:
-                        annotation += ' '
-                        annotation += ' '.join(str(p)
-                            for p in ann.attributes['center'])
-                    else:
-                        annotation += ' - -'
-                bbox = find_mask_bbox(ann.image)
-                annotation += ' %s %s %s %s' % (bbox[0], bbox[1],
-                    bbox[0] + bbox[2], bbox[1] + bbox[3])
-                annotation += ' \"%s\"' % text
-                annotation += '\n'
+            text = ''
+            if ann.attributes:
+                if 'text' in ann.attributes:
+                    text = ann.attributes['text']
+                if text == ' ':
+                    annotation += '#'
+                if 'color' in ann.attributes:
+                    colormap.append(ann.attributes['color'])
+                    annotation += ' '.join(str(p)
+                        for p in ann.attributes['color'])
+                else:
+                    annotation += '- - -'
+                if 'center' in ann.attributes:
+                    annotation += ' '
+                    annotation += ' '.join(str(p)
+                        for p in ann.attributes['center'])
+                else:
+                    annotation += ' - -'
+            bbox = find_mask_bbox(ann.image)
+            annotation += ' %s %s %s %s' % (bbox[0], bbox[1],
+                bbox[0] + bbox[2], bbox[1] + bbox[3])
+            annotation += ' \"%s\"' % text
+            annotation += '\n'
+            group = ann.group
 
         compiled_mask = CompiledMask.from_instance_masks(masks)
         mask = paint_mask(compiled_mask.class_mask, {
