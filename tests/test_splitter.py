@@ -1,6 +1,4 @@
-import logging as log
 import numpy as np
-import random
 
 from unittest import TestCase
 
@@ -12,15 +10,17 @@ import datumaro.plugins.splitter as splitter
 from datumaro.components.operations import compute_ann_statistics
 
 class SplitterTest(TestCase):
+    @staticmethod
+    def _get_subset(idx):
+            subsets = ['', 'a', 'b', '', '', 'a', '', 'b', '', 'a' ]
+            return subsets[idx % len(subsets)]
+
     def _generate_dataset(self, config):
         # counts = {(0,0):20, (0,1):20, (0,2):30, (1,0):20, (1,1):10, (1,2):20}
         # attr1 = ['attr1', 'attr2']
         # attr2 = ['attr1', 'attr3']
         # config = { "label1": { "attrs": attr1, "counts": counts },
         #            "label2": { "attrs": attr2, "counts": counts }}
-        def _get_subset():
-            return np.random.choice(['', 'a', 'b'], p = [0.5, 0.3, 0.2])
-
         iterable = []
         label_cat = LabelCategories()
         idx = 0
@@ -39,17 +39,17 @@ class SplitterTest(TestCase):
                     for _ in range(count):
                         idx += 1
                         iterable.append(DatasetItem(
-                            id=str(idx),
+                            id=idx,
                             annotations=[ Label(label_id, attributes=attributes) ],
-                            subset=_get_subset()
+                            subset=self._get_subset(idx)
                         ))
             else:
                 for _ in range(counts):
                     idx += 1
                     iterable.append(DatasetItem(
-                        id=str(idx),
+                        id=idx,
                         annotations=[Label(label_id)],
-                        subset=_get_subset()
+                        subset=self._get_subset(idx)
                     ))
         categories = { AnnotationType.label: label_cat }
         dataset = Dataset.from_iterable(iterable, categories)
@@ -59,10 +59,11 @@ class SplitterTest(TestCase):
         config = { "label1": { "attrs": None, "counts": 10 },
                    "label2": { "attrs": None, "counts": 20 },
                    "label3": { "attrs": None, "counts": 30 }}
-        source_dataset = self._generate_dataset(config)
+        source = self._generate_dataset(config)
 
-        actual = splitter.SplitforClassification(source_dataset,
-            train=0.7, test=0.3)
+        splits = [('train',.7),('test',.3)]
+        actual = splitter.ClassificationSplit(source,splits)
+
         self.assertEqual(42, len(actual.get_subset('train')))
         self.assertEqual(18, len(actual.get_subset('test')))
 
@@ -83,10 +84,10 @@ class SplitterTest(TestCase):
     def test_split_for_classification_single_class_single_attr(self):
         counts = {0:10, 1:20, 2:30}
         config = { "label": { "attrs": ['attr'], "counts": counts }}
-        source_dataset = self._generate_dataset(config)
+        source = self._generate_dataset(config)
 
-        actual = splitter.SplitforClassification(source_dataset, \
-            train=0.7, test=0.3)
+        splits = [('train',.7),('test',.3)]
+        actual = splitter.ClassificationSplit(source,splits)
 
         self.assertEqual(42, len(actual.get_subset('train')))
         self.assertEqual(18, len(actual.get_subset('test')))
@@ -109,10 +110,10 @@ class SplitterTest(TestCase):
         counts = {(0,0):20, (0,1):20, (0,2):30, (1,0):20, (1,1):10, (1,2):20}
         attrs = ['attr1', 'attr2']
         config = { "label": { "attrs": attrs, "counts": counts }}
-        source_dataset = self._generate_dataset(config)
+        source = self._generate_dataset(config)
 
-        actual = splitter.SplitforClassification(source_dataset,
-            train=0.7, test=0.3)
+        splits = [('train',.7),('test',.3)]
+        actual = splitter.ClassificationSplit(source,splits)
 
         self.assertEqual(84, len(actual.get_subset('train')))
         self.assertEqual(36, len(actual.get_subset('test')))
@@ -141,10 +142,10 @@ class SplitterTest(TestCase):
         attr2 = ['attr1', 'attr3']
         config = { "label1": { "attrs": attr1, "counts": counts },
                    "label2": { "attrs": attr2, "counts": counts }}
-        source_dataset = self._generate_dataset(config)
+        source = self._generate_dataset(config)
 
-        actual = splitter.SplitforClassification(source_dataset,
-            train=0.7, test=0.3)
+        splits = [('train',.7),('test',.3)]
+        actual = splitter.ClassificationSplit(source,splits)
 
         self.assertEqual(168, len(actual.get_subset('train')))
         self.assertEqual(72, len(actual.get_subset('test')))
@@ -179,41 +180,51 @@ class SplitterTest(TestCase):
         self.assertEqual( 9, attr_test["attr3"]["distribution"]["1"][0])
         self.assertEqual(15, attr_test["attr3"]["distribution"]["2"][0])
 
-    def test_split_for_classification_gives_error_on_multi_label(self):
-        iterable = [
-            DatasetItem(
-                id='1',
-                annotations=[Label(0), Label(1)],
-                subset=""
-            ),
-            DatasetItem(
-                id='2',
-                annotations=[Label(0), Label(2)],
-                subset=""
-            )
-        ]
-        categories = {
-            AnnotationType.label: LabelCategories.from_iterable(
-                'label_' + str(label) for label in range(3)
-            )}
-        source_dataset = Dataset.from_iterable(iterable, categories)
-        with self.assertRaises(Exception):
-            actual = splitter.SplitforClassification(source_dataset,
-                train=0.7, test=0.3)
+    def test_split_for_classification_gives_error(self):
+        with self.subTest("no label"):
+            source = Dataset.from_iterable([
+                DatasetItem(1, annotations=[]),
+                DatasetItem(2, annotations=[])
+            ], categories=['a', 'b', 'c'])
+            with self.assertRaisesRegex(Exception, "exact one label"):
+                splits = [('train',.7),('test',.3)]
+                splitter.ClassificationSplit(source, splits)
 
-    def test_split_for_classification_gives_error_on_wrong_ratios(self):
-        source_dataset = Dataset.from_iterable([DatasetItem(id=1)])
-        with self.assertRaises(Exception):
-            splitter.SplitforClassification(source_dataset,
-                train=-0.5, test=1.5)
+        with self.subTest("multi label"):
+            source = Dataset.from_iterable([
+                DatasetItem(1, annotations=[Label(0), Label(1)]),
+                DatasetItem(2, annotations=[Label(0), Label(2)])
+            ], categories=['a', 'b', 'c'])
+            with self.assertRaisesRegex(Exception, "exact one label"):
+                splits = [('train',.7),('test',.3)]
+                splitter.ClassificationSplit(source, splits)
+
+        source = Dataset.from_iterable([
+            DatasetItem(1, annotations=[Label(0)]),
+            DatasetItem(2, annotations=[Label(1)])
+        ], categories=['a', 'b', 'c'])
+
+        with self.subTest("wrong ratio"):
+            with self.assertRaisesRegex(Exception, "in the range"):
+                splits = [('train',-0.5),('test',1.5)]
+                splitter.ClassificationSplit(source, splits)
+            with self.assertRaisesRegex(Exception, "Sum of ratios"):
+                splits = [('train',0.5), ('test',0.5), ('val', 0.5)]
+                splitter.ClassificationSplit(source, splits)
+
+        with self.subTest("wrong subset name"):
+            with self.assertRaisesRegex(Exception, "Subset name"):
+                splits = [('train_',0.5),('val',0.2), ('test', 0.3)]
+                splitter.ClassificationSplit(source, splits)
 
     def test_split_for_matching_reid(self):
         counts = { i:(i%3+1)*7 for i in range(10) }
         config = { "person": { "attrs": ['PID'], "counts": counts }}
-        source_dataset = self._generate_dataset(config)
+        source = self._generate_dataset(config)
 
-        actual = splitter.SplitforMatchingReID(source_dataset, \
-            train=0.5, val=0.2, test=0.3, query=0.4/0.7, gallery=0.3/0.7)
+        id_splits = [('train',0.5), ('val',0.2), ('test',0.3)]
+        test_splits = [('query',0.4/0.7),('gallery',0.3/0.7)]
+        actual = splitter.MatchingReIDSplit(source, id_splits, test_splits)
 
         stats = dict()
         for sname in ['train', 'val', 'test']:
@@ -261,37 +272,126 @@ class SplitterTest(TestCase):
             self.assertEqual(int(total * 0.3 / 0.7), dist_gallery[pid][0])
             self.assertEqual(int(total * 0.4 / 0.7), dist_query[pid][0])
 
-    def _generate_detection_dataset(self, style, with_attr=False, nimages=10):
-        def _get_subset():
-            return np.random.choice(['', 'a', 'b'], p = [0.5, 0.3, 0.2])
+    def test_split_for_matching_reid_gives_error(self):
+        with self.subTest("no label"):
+            source = Dataset.from_iterable([
+                DatasetItem(1, annotations=[]),
+                DatasetItem(2, annotations=[])
+            ], categories=['a', 'b', 'c'])
+            with self.assertRaisesRegex(Exception, "exact one label"):
+                id_splits = [('train',0.5), ('val',0.2), ('test',0.3)]
+                test_splits = [('query',0.4/0.7),('gallery',0.3/0.7)]
+                splitter.MatchingReIDSplit(source, id_splits, test_splits)
+
+        with self.subTest(msg="multi label"):
+            source = Dataset.from_iterable([
+                DatasetItem(1, annotations=[Label(0), Label(1)]),
+                DatasetItem(2, annotations=[Label(0), Label(2)])
+            ], categories=['a', 'b', 'c'])
+            with self.assertRaisesRegex(Exception, "exact one label"):
+                id_splits = [('train',0.5), ('val',0.2), ('test',0.3)]
+                test_splits = [('query',0.4/0.7),('gallery',0.3/0.7)]
+                splitter.MatchingReIDSplit(source, id_splits, test_splits)
+
+        counts = { i:(i%3+1)*7 for i in range(10) }
+        config = { "person": { "attrs": ['PID'], "counts": counts }}
+        source = self._generate_dataset(config)
+        with self.subTest("wrong ratio"):
+            with self.assertRaisesRegex(Exception, "in the range"):
+                id_splits = [('train',-0.5), ('val',0.2), ('test',0.3)]
+                test_splits = [('query',0.4/0.7),('gallery',0.3/0.7)]
+                splitter.MatchingReIDSplit(source, id_splits, test_splits)
+            with self.assertRaisesRegex(Exception, "in the range"):
+                id_splits = [('train',0.5), ('val',0.2), ('test',0.3)]
+                test_splits = [('query',-0.4/0.7),('gallery',0.3/0.7)]
+                splitter.MatchingReIDSplit(source, id_splits, test_splits)
+            with self.assertRaisesRegex(Exception, "Sum of ratios"):
+                id_splits = [('train',0.6), ('val',0.2), ('test',0.3)]
+                test_splits = [('query',0.4/0.7),('gallery',0.3/0.7)]
+                splitter.MatchingReIDSplit(source, id_splits, test_splits)
+            with self.assertRaisesRegex(Exception, "Sum of ratios"):
+                id_splits = [('train',0.5), ('val',0.2), ('test',0.3)]
+                test_splits = [('query',0.5/0.7),('gallery',0.3/0.7)]
+                splitter.MatchingReIDSplit(source, id_splits, test_splits)
+
+        with self.subTest("wrong subset name"):
+            with self.assertRaisesRegex(Exception, "Subset name"):
+                id_splits = [('_train',0.5), ('val',0.2), ('test',0.3)]
+                test_splits = [('query',0.4/0.7),('gallery',0.3/0.7)]
+                splitter.MatchingReIDSplit(source, id_splits, test_splits)
+            with self.assertRaisesRegex(Exception, "Subset name"):
+                id_splits = [('train',0.5), ('val',0.2), ('test',0.3)]
+                test_splits = [('_query',0.4/0.7),('gallery',0.3/0.7)]
+                splitter.MatchingReIDSplit(source, id_splits, test_splits)
+
+        with self.subTest("wrong attribute name for person id"):
+            id_splits = [('train',0.5), ('val',0.2), ('test',0.3)]
+            test_splits = [('query',0.4/0.7),('gallery',0.3/0.7)]
+            actual = splitter.MatchingReIDSplit(source, id_splits, test_splits)
+            with self.assertRaisesRegex(Exception, "Unknown group"):
+                actual.get_subset_by_group("_gallery")
+
+    def _generate_detection_dataset(self, **kwargs):
+        append_bbox = kwargs.get("append_bbox")
+        with_attr = kwargs.get("with_attr", False)
+        nimages = kwargs.get("nimages", 10)
 
         label_cat = LabelCategories()
         for i in range(6):
-            label = "label{}".format(i+1)
+            label = "label%d" % (i+1)
             if with_attr is True:
-                attributes = {"attr0", "attr{}".format(i+1)}
+                attributes = {"attr0", "attr%d" % (i+1)}
             else:
                 attributes = {}
             label_cat.add(label, attributes = attributes)
         categories = { AnnotationType.label: label_cat }
 
         iterable = []
+        attr_val = 0
+        totals = np.zeros(3)
+        objects = [(1,5,2), (3,4,1), (2,3,4), (1,1,1), (2,4,2)]
+        for img_id in range(nimages):
+            cnts = objects[img_id % len(objects)]
+            totals += cnts
+            annotations = []
+            for label_id, count in enumerate(cnts):
+                attributes = {}
+                if with_attr:
+                    attr_val += 1
+                    attributes["attr0"] = attr_val % 3
+                    attributes["attr%d" % (label_id+1)] = attr_val % 2
+                for ann_id in range(count):
+                    append_bbox(annotations, label_id=label_id, \
+                        ann_id=ann_id, attributes=attributes)
+            item = DatasetItem(
+                id=str(img_id),
+                annotations=annotations,
+                subset=self._get_subset(img_id),
+                attributes={"id":img_id}
+            )
+            iterable.append(item)
+
+        dataset = Dataset.from_iterable(iterable, categories)
+        return dataset, totals
+
+    @staticmethod
+    def _get_append_bbox(dataset_type):
         def append_bbox_coco(annotations, **kwargs):
             annotations.append(Bbox(1,1,2,2, label=kwargs['label_id'],
                                 id=kwargs['ann_id'],
                                 attributes=kwargs['attributes'],
-                                group=kwargs['label_id']))
+                                group=kwargs['ann_id']))
             annotations.append(Label(kwargs['label_id'],
                                 attributes=kwargs['attributes']))
         def append_bbox_voc(annotations, **kwargs):
             annotations.append(Bbox(1,1,2,2, label=kwargs['label_id'],
                                 id=kwargs['ann_id']+1,
                                 attributes=kwargs['attributes'],
-                                group=kwargs['label_id'])) # obj
+                                group=kwargs['ann_id'])) # obj
             annotations.append(Label(kwargs['label_id'],
                                 attributes=kwargs['attributes']))
             annotations.append(Bbox(1,1,2,2, label=kwargs['label_id']+3,
-                                group=kwargs['label_id'])) # part
+                                group=kwargs['ann_id'])) # part
             annotations.append(Label(kwargs['label_id']+3,
                                 attributes=kwargs['attributes']))
         def append_bbox_yolo(annotations, **kwargs):
@@ -302,7 +402,7 @@ class SplitterTest(TestCase):
             annotations.append(Bbox(1,1,2,2, label=kwargs['label_id'],
                                 id=kwargs['ann_id'],
                                 attributes=kwargs['attributes'],
-                                group=kwargs['label_id'],
+                                group=kwargs['ann_id'],
                                 z_order=kwargs['ann_id']))
             annotations.append(Label(kwargs['label_id'],
                                 attributes=kwargs['attributes']))
@@ -321,69 +421,66 @@ class SplitterTest(TestCase):
             annotations.append(Bbox(1,1,2,2, attributes=kwargs['attributes']))
             annotations.append(Label(0, attributes=kwargs['attributes']))
 
-        if style == "coco":
-            append_bbox = append_bbox_coco
-        elif style == "voc":
-            append_bbox = append_bbox_voc
-        elif style in ["yolo", "tf_detection"]:
-            append_bbox = append_bbox_yolo
-        elif style in ["datumaro", "cvat"]:
-            append_bbox = append_bbox_cvat
-        elif style == "labelme":
-            append_bbox = append_bbox_labelme
-        elif style == "mot":
-            append_bbox = append_bbox_mot
-        elif style == "widerface":
-            append_bbox = append_bbox_widerface
+        functions = {
+            "coco": append_bbox_coco,
+            "voc" : append_bbox_voc,
+            "yolo" : append_bbox_yolo,
+            "cvat" : append_bbox_cvat,
+            "labelme" : append_bbox_labelme,
+            "mot": append_bbox_mot,
+            "widerface": append_bbox_widerface
+        }
 
-        attr_val = 0
-        totals = np.zeros(3)
-        for img_id in range(nimages):
-            cnts = np.random.randint(0, 5, 3)
-            totals += cnts
-            annotations = []
-            for label_id, count in enumerate(cnts):
-                attributes = {}
-                if with_attr:
-                    attr_val += 1
-                    attributes["attr0"] = attr_val % 3
-                    attributes["attr{}".format(label_id+1)] = attr_val % 2
-                for ann_id in range(count):
-                    append_bbox(annotations, label_id=label_id, \
-                        ann_id=ann_id, attributes=attributes)
-            item = DatasetItem(
-                id=str(img_id),
-                annotations=annotations,
-                subset=_get_subset(),
-                attributes={"id":img_id}
-            )
-            iterable.append(item)
-
-        dataset = Dataset.from_iterable(iterable, categories)
-        return dataset, totals
+        func = functions.get(dataset_type, append_bbox_cvat)
+        return func
 
     def test_split_for_detection(self):
-        styles =  [
-            "coco", "voc", "yolo", "cvat", "labelme", "mot", "widerface"
-        ]
+        dtypes = ["coco", "voc", "yolo", "cvat", "labelme", "mot", "widerface"]
         params = []
-        for style in styles:
+        for dtype in dtypes:
             for with_attr in [False, True]:
-                params.append((style, with_attr, 10, 5, 3, 2))
-                params.append((style, with_attr, 10, 7, 0, 3))
+                params.append((dtype, with_attr, 10, 5, 3, 2))
+                params.append((dtype, with_attr, 10, 7, 0, 3))
 
-        for style, with_attr, nimages, train, val, test in params:
-            with self.subTest(style=style, with_attr=with_attr, nimage=nimages,
+        for dtype, with_attr, nimages, train, val, test in params:
+            source, _ = self._generate_detection_dataset(
+                        append_bbox = self._get_append_bbox(dtype),
+                        with_attr=with_attr, nimages=nimages)
+            total = np.sum([train, val, test])
+            splits = [('train', train/total),
+                        ('val',   val/total),
+                        ('test',  test/total)]
+            with self.subTest(dtype=dtype, with_attr=with_attr, nimage=nimages,
                               train=train, val=val, test=test):
-                source, _ = self._generate_detection_dataset(
-                            style, with_attr, nimages)
-                total = np.sum([train, val, test])
-                actual = splitter.SplitforDetection(source, \
-                    train=train/total, val=val/total, test=test/total)
-                subsets = dict()
-                for sname in ['train', 'val', 'test']:
-                    subset = actual.get_subset(sname)
-                    subsets[sname] = subset
-                self.assertEqual(train, len(subsets['train']))
-                self.assertEqual(val, len(subsets['val']))
-                self.assertEqual(test, len(subsets['test']))
+                actual = splitter.DetectionSplit(source, splits)
+
+                self.assertEqual(train, len(actual.get_subset('train')))
+                self.assertEqual(val, len(actual.get_subset('val')))
+                self.assertEqual(test, len(actual.get_subset('test')))
+
+    def test_split_for_detection_gives_error(self):
+        with self.subTest(msg="bbox annotation"):
+            source = Dataset.from_iterable([
+                DatasetItem(1, annotations=[Label(0), Label(1)]),
+                DatasetItem(2, annotations=[Label(0), Label(2)])
+            ], categories=['a', 'b', 'c'])
+            with self.assertRaisesRegex(Exception, "more than one bbox"):
+                splits = [('train',0.5), ('val',0.2), ('test',0.3)]
+                splitter.DetectionSplit(source, splits)
+
+        source, _ = self._generate_detection_dataset(
+                append_bbox = self._get_append_bbox("cvat"),
+                with_attr=True, nimages=5)
+
+        with self.subTest("wrong ratio"):
+            with self.assertRaisesRegex(Exception, "in the range"):
+                splits = [('train',-0.5),('test',1.5)]
+                splitter.DetectionSplit(source, splits)
+            with self.assertRaisesRegex(Exception, "Sum of ratios"):
+                splits = [('train',0.5), ('test',0.5), ('val', 0.5)]
+                splitter.DetectionSplit(source, splits)
+
+        with self.subTest("wrong subset name"):
+            with self.assertRaisesRegex(Exception, "Subset name"):
+                splits = [('train_',0.5),('val',0.2), ('test', 0.3)]
+                splitter.DetectionSplit(source, splits)

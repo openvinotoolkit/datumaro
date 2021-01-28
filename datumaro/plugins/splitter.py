@@ -8,42 +8,63 @@ import numpy as np
 from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import (Transform, AnnotationType, \
     DEFAULT_SUBSET_NAME)
-from datumaro.components.cli_plugin import CliPlugin
 
-class TaskSpecificSplitter(Transform):
-    _parts = []
-
-    def __init__(self, dataset:Dataset, seed):
+NEAR_ZERO = 1e-7
+class _TaskSpecificSplit(Transform):
+    def __init__(self, dataset, seed):
         super().__init__(dataset)
 
         np.random.seed(seed)
 
-    def _get_required(self, ratio):
+        self._subsets = {"train", "val", "test"} # output subset names
+        self._parts = []
+        self._length = 'parent'
+
+    def _set_parts(self, by_splits):
+        self._parts = []
+        for subset in self._subsets:
+            self._parts.append((set(by_splits[subset]), subset))
+
+    @staticmethod
+    def _validate_splits(splits, valid=None):
+        subsets = []
+        ratios = []
+        if valid is None:
+            valid = ["train", "val", "test"]
+        for subset, ratio in splits:
+            assert subset in valid, "Subset name \
+                must be one of %s, but got %s" % (valid, subset)
+            assert ratio >= 0.0 and ratio <= 1.0, "Ratio is expected to be \
+                in the range [0, 1], but got %s for %s" % (ratio, subset)
+            subsets.append(subset)
+            ratios.append(float(ratio))
+        ratios = np.array(ratios)
+
+        total_ratio = np.sum(ratios)
+        if not abs(total_ratio - 1.0) <= NEAR_ZERO:
+            raise Exception(
+                "Sum of ratios is expected to be 1, got %s, which is %s" %
+                (splits, total_ratio))
+        return subsets, ratios
+
+    @staticmethod
+    def _get_required(ratio):
         min_value = np.max(ratio)
         for i in ratio:
-            if i < min_value and i > 1e-7:
+            if i < min_value and i > NEAR_ZERO:
                 min_value = i
         required = int (np.around(1.0) / min_value)
         return required
 
-    def _normalize_ratio(ratio):
-        assert ratio is not None, "Ratio shouldn't be None"
-        assert 0 < len(ratio), "Expected at least one split"
-        assert all(0.0 < r and r < 1.0 for r in ratio), \
-            "Ratios are expected to be in the range (0; 1), but got %s" % ratio
-
-        ratio = np.array(ratio)
-        ratio /= np.sum(ratio)
-        return ratio
-
-    def _get_sections(self, dataset_size, ratio):
+    @staticmethod
+    def _get_sections(dataset_size, ratio):
         n_splits = [int(np.around(dataset_size * r)) for r in ratio[:-1]]
         n_splits.append(dataset_size - np.sum(n_splits))
 
         # if there are splits with zero samples even if ratio is not 0,
         # borrow one from the split who has one or more.
-        for ii in range(len(n_splits)):
-            if n_splits[ii] == 0 and ratio[ii] > 1e-7:
+        for ii, num_split in enumerate(n_splits):
+            if num_split == 0 and ratio[ii] > NEAR_ZERO:
                 midx = np.argmax(n_splits)
                 if n_splits[midx] > 0:
                     n_splits[ii] += 1
@@ -51,7 +72,8 @@ class TaskSpecificSplitter(Transform):
         sections = np.add.accumulate(n_splits[:-1])
         return sections
 
-    def _group_by_attributes(self, items):
+    @staticmethod
+    def _group_by_attr(items):
         '''
         Args:
             items: list of (idx, ann). ann is the annotation from Label object.
@@ -67,14 +89,25 @@ class TaskSpecificSplitter(Transform):
             by_attributes[attributes].append(idx)
         return by_attributes
 
+    def _split_by_attr(self, datasets, subsets, ratio, out_splits,
+                       dataset_key="label"):
+        required = self._get_required(ratio)
+        for key, items in datasets.items():
+            np.random.shuffle(items)
+            by_attributes = self._group_by_attr(items)
+            for attributes, indice in by_attributes.items():
+                gname = '%s: %s, attrs: %s' % (dataset_key, key, attributes)
+                splits = self._split_indice(indice, gname, ratio, required)
+                for subset, split in zip(subsets, splits):
+                    if len(split) > 0:
+                        out_splits[subset].extend(split)
+
     def _split_indice(self, indice, group_name, ratio, required):
         filtered_size = len(indice)
         if required > filtered_size:
-            log.warning("There's not enough samples for filtered group, \
-                '{}'}'".format(group_name))
+            log.warning("Not enough samples for group, '%s'" % group_name)
         sections = self._get_sections(filtered_size, ratio)
         splits = np.array_split(indice, sections)
-        assert len(ratio)==len(splits)
         return splits
 
     def _find_split(self, index):
@@ -87,7 +120,7 @@ class TaskSpecificSplitter(Transform):
         for i, item in enumerate(self._extractor):
             yield self.wrap_item(item, subset=self._find_split(i))
 
-class SplitforClassification(TaskSpecificSplitter, CliPlugin):
+class ClassificationSplit(_TaskSpecificSplit):
     """
     Splits dataset into train/val/test set in class-wise manner. |n
     |n
@@ -95,42 +128,27 @@ class SplitforClassification(TaskSpecificSplitter, CliPlugin):
     - Single label is expected for each DatasetItem.|n
     - If there are not enough images in some class or attributes group,
       the split ratio can't be guaranteed.|n
-    |n
-    Example:|n
-    |s|s%(prog)s --train .5 --val .2 --test .3
     """
-    @classmethod
-    def build_cmdline_parser(cls, **kwargs):
-        parser = super().build_cmdline_parser(**kwargs)
-        parser.add_argument('-t', '--train', type=float,
-            help="Ratio for train set")
-        parser.add_argument('-v', '--val', type=float,
-            help="Ratio for validation set")
-        parser.add_argument('-e', '--test',type=float,
-            help="Ratio for test set")
-        parser.add_argument('--seed', type=int, help="Random seed")
-        return parser
 
-    def __init__(self, dataset:Dataset,
-        train=0.0, val=0.0, test=0.0, seed=None):
+    def __init__(self, dataset:Dataset, splits, seed=None):
+        """
+        Parameters
+        ----------
+        dataset : Dataset
+        splits : list
+            A list of (subset(str), ratio(float))
+            Subset is expected to be one of ["train", "val", "test"].
+            The sum of ratios is expected to be 1.
+        seed : int, optional
+        """
         super().__init__(dataset, seed)
 
-        subsets = ['train', 'val', 'test']
-        sratio = np.array([train, val, test])
-        splits = list(zip(subsets, sratio))
-
-        assert all(0.0 <= r and r <= 1.0 for _, r in splits), \
-            "Ratios are expected to be in the range [0, 1], but got %s" % splits
-
-        total_ratio = np.sum(sratio)
-        if not abs(total_ratio - 1.0) <= 1e-7:
-            raise Exception(
-                "Sum of ratios is expected to be 1, got %s, which is %s" %
-                (splits, total_ratio))
+        subsets, sratio = self._validate_splits(splits)
 
         ## support only single label for a DatasetItem
         ## 1. group by label
         by_labels = dict()
+
         for idx, item in enumerate(self._extractor):
             labels = []
             for ann in item.annotations:
@@ -142,40 +160,23 @@ class SplitforClassification(TaskSpecificSplitter, CliPlugin):
             if not hasattr(ann, 'label') or ann.label is None:
                 label = None
             else:
-                label = str(ann.label)
+                label = ann.label
             if label not in by_labels:
                 by_labels[label] = []
             by_labels[label].append((idx, ann))
 
-        self._subsets = set(subsets) # output subset names
         by_splits = dict()
-        for subset in subsets:
+        for subset in self._subsets:
             by_splits[subset] = []
 
         ## 2. group by attributes
-        required = self._get_required(sratio)
-        for label, items in by_labels.items():
-            np.random.shuffle(items)
-            by_attributes = self._group_by_attributes(items)
-            for attributes, indice in by_attributes.items():
-                gname = 'label: {}, attributes: {}'.format(label, attributes)
-                splits = self._split_indice(indice, gname, sratio, required)
-                for subset, split in zip(subsets, splits):
-                    if len(split) > 0:
-                        by_splits[subset].extend(split)
+        self._split_by_attr(by_labels, subsets, sratio, by_splits)
+        self._set_parts(by_splits)
 
-        parts = []
-        for subset in self._subsets:
-            parts.append((set(by_splits[subset]), subset))
-        self._parts = parts
-
-        self._length = 'parent'
-
-
-class SplitforMatchingReID(TaskSpecificSplitter, CliPlugin):
+class MatchingReIDSplit(_TaskSpecificSplit):
     """
     Splits dataset for matching, especially re-id task.|n
-    First, splits dataset into 'train+val' and 'test' sets by "PID".|n
+    First, splits dataset into 'train+val' and 'test' sets by person id.|n
     Note that this splitting is not by DatasetItem. |n
     Then, tags 'test' into 'gallery'/'query' in class-wise random manner.|n
     Then, splits 'train+val' into 'train'/'val' sets in the same way.|n
@@ -184,52 +185,34 @@ class SplitforMatchingReID(TaskSpecificSplitter, CliPlugin):
     You can get the 'gallery' and 'query' subsets using 'get_subset_by_group'.|n
     Notes:|n
     - Single label is expected for each DatasetItem.|n
-    - Each label is expected to have "PID" attribute. |n
-    |n
-    Example:|n
-    |s|s%(prog)s --train .5 --val .2 --test .3 --gallery .5 --query .5
+    - Each label is expected to have attribute representing the person id. |n
     """
     _group_map = dict()
 
-    @classmethod
-    def build_cmdline_parser(cls, **kwargs):
-        parser = super().build_cmdline_parser(**kwargs)
-        parser.add_argument('-t', '--train', type=float,
-            help="Ratio for train set")
-        parser.add_argument('-v', '--val', type=float,
-            help="Ratio for validation set")
-        parser.add_argument('-e', '--test',type=float,
-            help="Ratio for test set")
-        parser.add_argument('-g', '--gallery', type=float,
-            help="Ratio for gallery in test set")
-        parser.add_argument('-q', '--query',type=float,
-            help="Ratio for query in test set")
-        parser.add_argument('--seed', type=int, help="Random seed")
-        return parser
-
-    def __init__(self, dataset:Dataset, train=0.0, val=0.0, test=0.0,\
-        gallery=0.0, query=0.0, attr_pid="PID", seed=None):
+    def __init__(self, dataset, splits, test_splits,
+                 attr_pid="PID", seed=None):
+        """
+        Parameters
+        ----------
+        dataset : Dataset
+        splits : list
+            A list of (subset(str), ratio(float))
+            Subset is expected to be one of ["train", "val", "test"].
+            The sum of ratios is expected to be 1.
+        test_splits : list
+            A list of (subset(str), ratio(float))
+            Subset is expected to be one of ["gallery", "query"].
+            The sum of ratios is expected to be 1.
+        attr_pid: str
+            attribute name representing the person id. (default: PID)
+        seed : int, optional
+        """
         super().__init__(dataset, seed)
 
-        id_subsets = ['train', 'val', 'test']
-        id_ratio = np.array([train, val, test])
-        id_splits = list(zip(id_subsets, id_ratio))
-        assert all(0.0 <= r and r <= 1.0 for _, r in id_splits), "Ratios \
-            are expected to be in the range [0, 1], but got %s" % id_splits
-        total_ratio = np.sum(id_ratio)
-        if not abs(total_ratio - 1.0) <= 1e-7:
-            raise Exception(
-                "Sum of ratios is expected to be 1, got %s, which is %s" %
-                (id_splits, total_ratio))
-
-        test_subsets = ['gallery', 'query']
-        test_ratio = np.array([gallery, query])
-        test_splits = list(zip(test_subsets, test_ratio))
-        assert all(0.0 <= r and r <= 1.0 for _, r in test_splits), \
-            "Ratios are expected to be in the range [0, 1], but got %s"\
-            % test_splits
+        id_subsets, id_ratio = self._validate_splits(splits)
 
         groups = set()
+
         ## group by PID(attr_pid)
         by_pid = dict()
         for idx, item in enumerate(self._extractor):
@@ -242,7 +225,7 @@ class SplitforMatchingReID(TaskSpecificSplitter, CliPlugin):
             ann = labels[0]
             attributes = dict(ann.attributes.items())
             assert attr_pid in attributes, \
-                "'{}' is expected as attribute name".format(attr_pid)
+                "'%s' is expected as attribute name" % attr_pid
             person_id = attributes[attr_pid]
             if person_id not in by_pid:
                 by_pid[person_id] = []
@@ -258,71 +241,30 @@ class SplitforMatchingReID(TaskSpecificSplitter, CliPlugin):
             log.warning("There's not enough IDs, which is {}, \
                 so train/val/test ratio can't be guaranteed." % len(by_pid))
 
-        self._subsets = set(id_subsets) # output subset names
-        by_splits = dict()
-        for subset in self._subsets:
-            by_splits[subset] = []
-
-        ## 1. split dataset into trainval and test
+        ## 1. split dataset into trval and test
         ##    IDs in test set should not exist in train/val set.
-        if test > 1e-7: # has testset
-            split_ratio = np.array([test, (train+val)])
-            split_ratio /= np.sum(split_ratio) # normalize
+        test = id_ratio[id_subsets.index("test")] if "test" in id_subsets else 0
+        if test > NEAR_ZERO: # has testset
+            split_ratio = np.array([test, 1.0-test])
             person_ids = list(by_pid.keys())
             np.random.shuffle(person_ids)
             sections = self._get_sections(len(person_ids), split_ratio)
             splits = np.array_split(person_ids, sections)
             testset = { pid: by_pid[pid] for pid in splits[0] }
-            trainval = { pid: by_pid[pid] for pid in splits[1] }
+            trval = { pid: by_pid[pid] for pid in splits[1] }
 
             ## follow the ratio of datasetitems as possible.
             ## naive heuristic: exchange the best item one by one.
             expected_count = int(len(self._extractor) * split_ratio[0])
             testset_total = int(np.sum([len(v) for v in testset.values()]))
-            if testset_total != expected_count:
-                diffs = dict()
-                for id_test, items_test in testset.items():
-                    count_test = len(items_test)
-                    for id_trval, items_trval in trainval.items():
-                        count_trval = len(items_trval)
-                        diff = count_trval - count_test
-                        if diff==0:
-                            continue # exchange has no effect
-                        if diff not in diffs:
-                            diffs[diff] = [(id_test, id_trval)]
-                        else:
-                            diffs[diff].append((id_test, id_trval))
-
-                exchanges = []
-                while True:
-                    target_diff = expected_count - testset_total
-                    # find nearest diff.
-                    keys = np.array(list(diffs.keys()))
-                    idx = (np.abs(keys - target_diff)).argmin()
-                    nearest = keys[idx]
-                    if abs(target_diff-nearest) >= abs(target_diff):
-                        break
-                    choice = np.random.choice(range(len(diffs[nearest])))
-                    pid_test, pid_trval = diffs[nearest][choice]
-                    testset_total += nearest
-                    new_diffs = dict()
-                    for diff, person_ids in diffs.items():
-                        new_list = []
-                        for id1, id2 in person_ids:
-                            if id1 == pid_test or id2 == pid_trval:
-                                continue
-                            new_list.append((id1,id2))
-                        if len(new_list)>0:
-                            new_diffs[diff] = new_list
-                    diffs = new_diffs
-                    exchanges.append((pid_test, pid_trval))
-                # exchange
-                for pid_test, pid_trval in exchanges:
-                    testset[pid_trval] = trainval.pop(pid_trval)
-                    trainval[pid_test] = testset.pop(pid_test)
+            self._rebalancing(testset, trval, expected_count, testset_total)
         else:
             testset = dict()
-            trainval = by_pid
+            trval = by_pid
+
+        by_splits = dict()
+        for subset in self._subsets:
+            by_splits[subset] = []
 
         ## 2. split 'test' into 'gallery' and 'query'
         if len(testset)>0:
@@ -330,71 +272,94 @@ class SplitforMatchingReID(TaskSpecificSplitter, CliPlugin):
                 indice = [idx for idx, _ in items]
                 by_splits['test'].extend(indice)
 
-            total_ratio = np.sum(test_ratio)
-            if not abs(total_ratio - 1.0) <= 1e-7:
-                raise Exception(
-                    "Sum of ratios is expected to be 1, got %s, which is %s" %
-                    (test_splits, total_ratio))
+            valid = ["gallery", "query"]
+            test_subsets, test_ratio = self._validate_splits(test_splits,valid)
+            by_groups = { s : [] for s in test_subsets }
+            self._split_by_attr(testset, test_subsets, test_ratio, by_groups,
+                                dataset_key=attr_pid)
 
-            required = self._get_required(test_ratio)
-            for person_id, items in testset.items():
-                np.random.shuffle(items)
-                by_attributes = self._group_by_attributes(items)
-                for attributes, indice in by_attributes.items():
-                    gname = 'person_id: {}, attributes: {}'.format(
-                        person_id, attributes)
-                    splits = self._split_indice(indice, gname,
-                        test_ratio, required)
+            # tag using group
+            for idx, item in enumerate(self._extractor):
+                for subset, split in by_groups.items():
+                    if idx in split:
+                        group_id = self._group_map[subset]
+                        item.annotations[0].group = group_id
+                        break
 
-                    # tag using group
-                    for idx, item in enumerate(self._extractor):
-                        for subset, split in zip(test_subsets, splits):
-                            if idx in split:
-                                group_id = self._group_map[subset]
-                                item.annotations[0].group = group_id
-                                break
-
-        ## 3. split 'trainval' into  'train' and 'val'
-        trainval_subsets = ["train", "val"]
-        trainval_ratio = np.array([train, val])
-        total_ratio = np.sum(trainval_ratio)
-        if total_ratio < 1e-7:
-            trainval_splits = list(zip(["train", "val"], trainval_ratio))
+        ## 3. split 'trval' into  'train' and 'val'
+        trval_subsets = ["train", "val"]
+        trval_ratio = []
+        for subset in trval_subsets:
+            if subset in id_subsets:
+                val = id_ratio[id_subsets.index(subset)]
+            else:
+                val = 0.0
+            trval_ratio.append(val)
+        trval_ratio = np.array(trval_ratio)
+        total_ratio = np.sum(trval_ratio)
+        if total_ratio < NEAR_ZERO:
+            trval_splits = list(zip(["train", "val"], trval_ratio))
             log.warning(
                 "Sum of ratios is expected to be positive,\
-                got %s, which is %s" % (trainval_splits, total_ratio))
+                got %s, which is %s" % (trval_splits, total_ratio))
         else:
-            trainval_ratio /= total_ratio # normalize
-            required = self._get_required(trainval_ratio)
-            for person_id, items in trainval.items():
-                np.random.shuffle(items)
-                by_attributes = self._group_by_attributes(items)
-                for attributes, indice in by_attributes.items():
-                    gname = 'person_id: {}, attributes: {}'.format(
-                        person_id, attributes)
-                    splits = self._split_indice(indice, gname,
-                        trainval_ratio, required)
-                    for subset, split in zip(trainval_subsets, splits):
-                        if len(split) > 0:
-                            by_splits[subset].extend(split)
+            trval_ratio /= total_ratio # normalize
+            self._split_by_attr(trval, trval_subsets, trval_ratio, by_splits,
+                                dataset_key=attr_pid)
 
-        parts = []
-        for subset in self._subsets:
-            parts.append((set(by_splits[subset]), subset))
-        self._parts = parts
+        self._set_parts(by_splits)
 
-        self._length = 'parent'
+    @staticmethod
+    def _rebalancing(test, trval, expected_count, testset_total):
+        diffs = dict()
+        for id_test, items_test in test.items():
+            count_test = len(items_test)
+            for id_trval, items_trval in trval.items():
+                count_trval = len(items_trval)
+                diff = count_trval - count_test
+                if diff==0:
+                    continue # exchange has no effect
+                if diff not in diffs:
+                    diffs[diff] = [(id_test, id_trval)]
+                else:
+                    diffs[diff].append((id_test, id_trval))
+        exchanges = []
+        while True:
+            target_diff = expected_count - testset_total
+            # find nearest diff.
+            keys = np.array(list(diffs.keys()))
+            idx = (np.abs(keys - target_diff)).argmin()
+            nearest = keys[idx]
+            if abs(target_diff-nearest) >= abs(target_diff):
+                break
+            choice = np.random.choice(range(len(diffs[nearest])))
+            pid_test, pid_trval = diffs[nearest][choice]
+            testset_total += nearest
+            new_diffs = dict()
+            for diff, person_ids in diffs.items():
+                new_list = []
+                for id1, id2 in person_ids:
+                    if id1 == pid_test or id2 == pid_trval:
+                        continue
+                    new_list.append((id1,id2))
+                if len(new_list)>0:
+                    new_diffs[diff] = new_list
+            diffs = new_diffs
+            exchanges.append((pid_test, pid_trval))
+        # exchange
+        for pid_test, pid_trval in exchanges:
+            test[pid_trval] = trval.pop(pid_trval)
+            trval[pid_test] = test.pop(pid_test)
 
     def get_subset_by_group(self, group:str):
+        available = list(self._group_map.keys())
         assert group in self._group_map, \
-            "Unknown group '{}', available groups: {}".format(
-                group, self._group_map.keys()
-            )
+            "Unknown group '%s', available groups: %s" % (group, available)
         group_id = self._group_map[group]
         subset = self.select(lambda item: item.annotations[0].group == group_id)
         return subset
 
-class SplitforDetection(TaskSpecificSplitter, CliPlugin):
+class DetectionSplit(_TaskSpecificSplit):
     """
     Splits dataset into train/val/test set for detection task.|n
     For detection dataset, each image can have multiple bbox annotations.|n
@@ -406,59 +371,44 @@ class SplitforDetection(TaskSpecificSplitter, CliPlugin):
     Notes:|n
     - Each DatsetItem is expected to have one or more Bbox annotations.|n
     - Label annotations are ignored. We only focus on the Bbox annotations.|n
-    |n
-    Example:|n
-    |s|s%(prog)s --train .5 --val .2 --test .3
     """
-    @classmethod
-    def build_cmdline_parser(cls, **kwargs):
-        parser = super().build_cmdline_parser(**kwargs)
-        parser.add_argument('-t', '--train', type=float,
-            help="Ratio for train set")
-        parser.add_argument('-v', '--val', type=float,
-            help="Ratio for validation set")
-        parser.add_argument('-e', '--test',type=float,
-            help="Ratio for test set")
-        parser.add_argument('--seed', type=int, help="Random seed")
-        return parser
 
-    def __init__(self, dataset:Dataset,
-        train=0.0, val=0.0, test=0.0, seed=None):
+    def __init__(self, dataset, splits, seed=None):
+        """
+        Parameters
+        ----------
+        dataset : Dataset
+        splits : list
+            A list of (subset(str), ratio(float))
+            Subset is expected to be one of ["train", "val", "test"].
+            The sum of ratios is expected to be 1.
+        seed : int, optional
+        """
         super().__init__(dataset, seed)
 
-        subsets = ['train', 'val', 'test']
-        sratio = np.array([train, val, test])
-        splits = list(zip(subsets, sratio))
-
-        assert all(0.0 <= r and r <= 1.0 for _, r in splits), \
-            "Ratios are expected to be in the range [0, 1], but got %s" % splits
-
-        total_ratio = np.sum(sratio)
-        if not abs(total_ratio - 1.0) <= 1e-7:
-            raise Exception(
-                "Sum of ratios is expected to be 1, got %s, which is %s" %
-                (splits, total_ratio))
+        subsets, sratio = self._validate_splits(splits)
 
         ## 1. group by bbox label
         by_labels = dict()
         for idx, item in enumerate(self._extractor):
+            bbox_anns = []
             for ann in item.annotations:
                 if ann.type == AnnotationType.bbox:
-                    if not hasattr(ann, 'label') or ann.label is None:
-                        label = None
-                    else:
-                        label = str(ann.label)
-                    if label not in by_labels:
-                        by_labels[label] = [(idx, ann)]
-                    else:
-                        by_labels[label].append((idx, ann))
+                    bbox_anns.append(ann)
+            assert len(bbox_anns) > 0, "Expected more than one bbox annotation."
+            for ann in bbox_anns:
+                label = ann.label if hasattr(ann, 'label') else None
+                if label not in by_labels:
+                    by_labels[label] = [(idx, ann)]
+                else:
+                    by_labels[label].append((idx, ann))
 
         ## 2. group by attributes
         by_combinations = dict()
         for label, items in by_labels.items():
-            by_attributes = self._group_by_attributes(items)
+            by_attributes = self._group_by_attr(items)
             for attributes, indice in by_attributes.items():
-                gname = 'label: {}, attributes: {}'.format(label, attributes)
+                gname = 'label: %s, attributes: %s' % (label, attributes)
                 by_combinations[gname] = indice
 
         ## total number of GT samples per label-attr combinations
@@ -472,7 +422,6 @@ class SplitforDetection(TaskSpecificSplitter, CliPlugin):
             scores_all[idx] = counts
             init_scores[idx] = np.sum( [v / NC[k] for k, v in counts.items()] )
 
-        self._subsets = set(subsets) # output subset names
         by_splits = dict()
         for sname in subsets:
             by_splits[sname] = []
@@ -511,10 +460,12 @@ class SplitforDetection(TaskSpecificSplitter, CliPlugin):
             pp = []
             for sname, nc in NC_all:
                 if len(by_splits[sname]) >= target_size[sname]:
-                    # the split has enough images, stop adding more images to this split
+                    # the split has enough images,
+                    # stop adding more images to this split
                     pp.append(1e+08)
                 else:
-                    # compute penalty based on number of GT samples added in the split
+                    # compute penalty based on the number of GT samples
+                    # added in the split
                     pp.append(compute_penalty(counts, nc))
 
             # we push an image to a split with the minimum penalty
@@ -524,9 +475,4 @@ class SplitforDetection(TaskSpecificSplitter, CliPlugin):
             by_splits[sname].append(idx)
             update_nc(counts, nc)
 
-        parts = []
-        for subset in self._subsets:
-            parts.append((set(by_splits[subset]), subset))
-        self._parts = parts
-
-        self._length = 'parent'
+        self._set_parts(by_splits)
