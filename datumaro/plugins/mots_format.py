@@ -138,8 +138,8 @@ class MotsPngConverter(Converter):
 
         instance_ids = [int(a.attributes['track_id']) for a in masks]
         masks = sorted(zip(masks, instance_ids), key=lambda e: e[0].z_order)
-        mask = merge_masks([
+        mask = merge_masks(
             m.image * (MotsPath.MAX_INSTANCES * (1 + m.label) + id)
-            for m, id in masks])
+            for m, id in masks)
         save_image(osp.join(anno_dir, item.id + '.png'), mask,
             create_dir=True, dtype=np.uint16)

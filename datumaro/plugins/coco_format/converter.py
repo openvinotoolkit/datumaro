@@ -226,14 +226,14 @@ class _InstancesConverter(_TaskConverter):
             if masks:
                 if mask is not None:
                     masks += [mask]
-                mask = mask_tools.merge_masks([m.image for m in masks])
+                mask = mask_tools.merge_masks(m.image for m in masks)
 
             if mask is not None:
                 mask = mask_tools.mask_to_rle(mask)
             polygons = []
         else:
             if masks:
-                mask = mask_tools.merge_masks([m.image for m in masks])
+                mask = mask_tools.merge_masks(m.image for m in masks)
                 polygons += mask_tools.mask_to_polygons(mask)
             mask = None
 

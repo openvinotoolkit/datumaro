@@ -167,10 +167,12 @@ class Mask(Annotation):
     def as_class_mask(self, label_id=None):
         if label_id is None:
             label_id = self.label
-        return self.image * label_id
+        from datumaro.util.mask_tools import make_index_mask
+        return make_index_mask(self.image, label_id)
 
     def as_instance_mask(self, instance_id):
-        return self.image * instance_id
+        from datumaro.util.mask_tools import make_index_mask
+        return make_index_mask(self.image, instance_id)
 
     def get_area(self):
         return np.count_nonzero(self.image)
@@ -238,11 +240,12 @@ class CompiledMask:
             zip(instance_masks, instance_ids, instance_labels),
             key=lambda m: m[0].z_order)
 
-        instance_mask = [m.as_instance_mask(id if id is not None else 1 + idx)
-            for idx, (m, id, _) in enumerate(instance_masks)]
+        # Pass a generator to avoid memory explosion on mask materialization
+        instance_mask = (m.as_instance_mask(id if id is not None else 1 + idx)
+            for idx, (m, id, _) in enumerate(instance_masks))
         instance_mask = merge_masks(instance_mask)
 
-        cls_mask = [m.as_class_mask(c) for m, _, c in instance_masks]
+        cls_mask = (m.as_class_mask(c) for m, _, c in instance_masks)
         cls_mask = merge_masks(cls_mask)
         return __class__(class_mask=cls_mask, instance_mask=instance_mask)
 

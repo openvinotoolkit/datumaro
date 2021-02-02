@@ -4,6 +4,7 @@
 
 from collections import Counter
 from enum import Enum
+from itertools import chain
 import logging as log
 import os.path as osp
 import random
@@ -143,9 +144,9 @@ class MergeInstanceSegments(Transform, CliPlugin):
             instance += polygons # keep unused polygons
 
         if masks:
-            masks = [m.image for m in masks]
+            masks = (m.image for m in masks)
             if mask is not None:
-                masks += [mask]
+                masks = chain(masks, [mask])
             mask = mask_tools.merge_masks(masks)
 
         if mask is None:

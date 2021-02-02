@@ -105,7 +105,7 @@ class TfDetectionApiConverter(Converter):
 
         mask = None
         if self._save_masks:
-            mask = merge_masks([m.image for m in masks])
+            mask = merge_masks(m.image for m in masks)
 
         return [leader, mask, bbox]
 

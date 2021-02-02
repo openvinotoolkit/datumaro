@@ -66,16 +66,19 @@ def unpaint_mask(painted_mask, inverse_colormap=None):
                    (painted_mask[:, :, 1] << 8) + \
                    (painted_mask[:, :, 2] << 16)
     uvals, unpainted_mask = np.unique(painted_mask, return_inverse=True)
-    palette = np.array([map_fn(v) for v in uvals], dtype=np.float32)
+    palette = np.array([map_fn(v) for v in uvals],
+        dtype=np.min_scalar_type(len(uvals)))
     unpainted_mask = palette[unpainted_mask].reshape(painted_mask.shape[:2])
 
     return unpainted_mask
 
 def paint_mask(mask, colormap=None):
-    # Applies colormap to index mask
+    """
+    Applies colormap to index mask
 
-    # mask: HW(C) [0; max_index] mask
-    # colormap: index -> (R, G, B)
+    mask: HW(C) [0; max_index] mask
+    colormap: index -> (R, G, B)
+    """
     check_is_mask(mask)
 
     if colormap is None:
@@ -84,22 +87,28 @@ def paint_mask(mask, colormap=None):
         map_fn = colormap
     else:
         map_fn = lambda c: colormap.get(c, (-1, -1, -1))
-    palette = np.array([map_fn(c)[::-1] for c in range(256)], dtype=np.float32)
+    palette = np.array([map_fn(c)[::-1] for c in range(256)], dtype=np.uint8)
 
     mask = mask.astype(np.uint8)
     painted_mask = palette[mask].reshape((*mask.shape[:2], 3))
     return painted_mask
 
 def remap_mask(mask, map_fn):
-    # Changes mask elements from one colormap to another
+    """
+    Changes mask elements from one colormap to another
 
     # mask: HW(C) [0; max_index] mask
+    """
     check_is_mask(mask)
 
     return np.array([map_fn(c) for c in range(256)], dtype=np.uint8)[mask]
 
-def make_index_mask(binary_mask, index):
-    return np.choose(binary_mask, np.array([0, index], dtype=np.uint8))
+def make_index_mask(binary_mask, index, dtype=None):
+    if binary_mask.dtype.kind not in {'b', 'i', 'u'}:
+        binary_mask = binary_mask.astype(bool)
+    return np.choose(binary_mask,
+        np.array([0, index], dtype=dtype or np.min_scalar_type(index))
+    )
 
 def make_binary_mask(mask):
     return np.nonzero(mask)
@@ -277,12 +286,17 @@ def find_mask_bbox(mask):
 def merge_masks(masks):
     """
         Merges masks into one, mask order is responsible for z order.
+        To avoid memory explosion on mask materialization, consider passing
+        a generator.
     """
-    if not masks:
+    it = iter(masks)
+
+    try:
+        merged_mask = next(it)
+    except StopIteration:
         return None
 
-    merged_mask = masks[0]
-    for m in masks[1:]:
+    for m in it:
         merged_mask = np.where(m != 0, m, merged_mask)
 
     return merged_mask
