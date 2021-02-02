@@ -152,8 +152,13 @@ class OpenvinoLauncher(Launcher):
     def infer(self, inputs):
         assert len(inputs.shape) == 4, \
             "Expected an input image in (N, H, W, C) format, got %s" % \
-            (inputs.shape)
-        assert inputs.shape[3] == 3, "Expected BGR input, got %s" % inputs.shape
+            (inputs.shape, )
+
+        if inputs.shape[3] == 1: # A batch of single-channel images
+            inputs = np.repeat(inputs, 3, axis=3)
+
+        assert inputs.shape[3] == 3, \
+            "Expected BGR input, got %s" % (inputs.shape, )
 
         n, c, h, w = self._input_layout
         if inputs.shape[1:3] != (h, w):
