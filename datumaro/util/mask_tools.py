@@ -104,14 +104,15 @@ def remap_mask(mask, map_fn):
     return np.array([map_fn(c) for c in range(256)], dtype=np.uint8)[mask]
 
 def make_index_mask(binary_mask, index, dtype=None):
-    if binary_mask.dtype.kind not in {'b', 'i', 'u'}:
+    if binary_mask.dtype.kind != 'b':
         binary_mask = binary_mask.astype(bool)
-    return np.choose(binary_mask,
-        np.array([0, index], dtype=dtype or np.min_scalar_type(index))
-    )
+    return binary_mask * np.array([index],
+        dtype=dtype or np.min_scalar_type(index))
 
 def make_binary_mask(mask):
-    return np.nonzero(mask)
+    if mask.dtype.kind == 'b':
+        return mask
+    return mask.astype(bool)
 
 
 def load_mask(path, inverse_colormap=None):
@@ -297,6 +298,6 @@ def merge_masks(masks):
         return None
 
     for m in it:
-        merged_mask = np.where(m != 0, m, merged_mask)
+        merged_mask = np.where(m, m, merged_mask)
 
     return merged_mask
