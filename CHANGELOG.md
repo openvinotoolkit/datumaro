@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 ### Fixed
-- High memory consumption when merging and exporting lots of masks, #53 (<https://github.com/openvinotoolkit/datumaro/pull/101>)
+- High memory consumption and low performance of mask import/export, #53 (<https://github.com/openvinotoolkit/datumaro/pull/101>)
 
 ### Security
 -
