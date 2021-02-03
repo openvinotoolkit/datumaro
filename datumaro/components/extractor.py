@@ -230,31 +230,28 @@ class CompiledMask:
             assert len(instance_ids) == len(instance_masks)
         else:
             instance_ids = [None] * len(instance_masks)
-        instance_ids = (id if id is not None else 1 + idx
-            for idx, id in enumerate(instance_ids))
 
         if instance_labels is not None:
             assert len(instance_labels) == len(instance_masks)
         else:
             instance_labels = [None] * len(instance_masks)
-        instance_labels = (c if c is not None else m.label
-            for m, c in zip(instance_masks, instance_labels))
 
-        instance_masks = sorted(
-            zip(instance_masks, instance_ids, instance_labels),
-            key=lambda m: m[0].z_order)
+        instance_masks = sorted(enumerate(instance_masks),
+            key=lambda m: m[1].z_order)
+        instance_masks = ((m.image,
+                instance_ids[i] if instance_ids[i] is not None else 1 + j,
+                instance_labels[i] if instance_labels[i] is not None else m.label
+            ) for j, (i, m) in enumerate(instance_masks))
 
         # 1. Avoid memory explosion on materialization of all masks
         # 2. Optimize materialization calls
         it = iter(instance_masks)
 
         m, instance_id, class_id = next(it)
-        m = m.image
         merged_instance_mask = make_index_mask(m, instance_id)
         merged_class_mask = make_index_mask(m, class_id)
 
         for m, instance_id, class_id in it:
-            m = m.image
             merged_instance_mask = np.where(m, instance_id, merged_instance_mask)
             merged_class_mask = np.where(m, class_id, merged_class_mask)
 
