@@ -205,7 +205,7 @@ class RleMask(Mask):
     @staticmethod
     def _lazy_decode(rle):
         from pycocotools import mask as mask_utils
-        return lambda: mask_utils.decode(rle).astype(np.bool)
+        return lambda: mask_utils.decode(rle)
 
     def get_area(self):
         from pycocotools import mask as mask_utils
@@ -224,30 +224,42 @@ class CompiledMask:
     @staticmethod
     def from_instance_masks(instance_masks,
             instance_ids=None, instance_labels=None):
-        from datumaro.util.mask_tools import merge_masks
+        from datumaro.util.mask_tools import make_index_mask
 
         if instance_ids is not None:
             assert len(instance_ids) == len(instance_masks)
         else:
             instance_ids = [None] * len(instance_masks)
+        instance_ids = (id if id is not None else 1 + idx
+            for idx, id in enumerate(instance_ids))
 
         if instance_labels is not None:
             assert len(instance_labels) == len(instance_masks)
         else:
             instance_labels = [None] * len(instance_masks)
+        instance_labels = (c if c is not None else m.label
+            for m, c in zip(instance_masks, instance_labels))
 
         instance_masks = sorted(
             zip(instance_masks, instance_ids, instance_labels),
             key=lambda m: m[0].z_order)
 
-        # Pass a generator to avoid memory explosion on mask materialization
-        instance_mask = (m.as_instance_mask(id if id is not None else 1 + idx)
-            for idx, (m, id, _) in enumerate(instance_masks))
-        instance_mask = merge_masks(instance_mask)
+        # 1. Avoid memory explosion on materialization of all masks
+        # 2. Optimize materialization calls
+        it = iter(instance_masks)
 
-        cls_mask = (m.as_class_mask(c) for m, _, c in instance_masks)
-        cls_mask = merge_masks(cls_mask)
-        return __class__(class_mask=cls_mask, instance_mask=instance_mask)
+        m, instance_id, class_id = next(it)
+        m = m.image
+        merged_instance_mask = make_index_mask(m, instance_id)
+        merged_class_mask = make_index_mask(m, class_id)
+
+        for m, instance_id, class_id in it:
+            m = m.image
+            merged_instance_mask = np.where(m, instance_id, merged_instance_mask)
+            merged_class_mask = np.where(m, class_id, merged_class_mask)
+
+        return __class__(class_mask=merged_class_mask,
+            instance_mask=merged_instance_mask)
 
     def __init__(self, class_mask=None, instance_mask=None):
         self._class_mask = class_mask

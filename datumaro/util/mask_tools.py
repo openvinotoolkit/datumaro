@@ -104,8 +104,6 @@ def remap_mask(mask, map_fn):
     return np.array([map_fn(c) for c in range(256)], dtype=np.uint8)[mask]
 
 def make_index_mask(binary_mask, index, dtype=None):
-    if binary_mask.dtype.kind != 'b':
-        binary_mask = binary_mask.astype(bool)
     return binary_mask * np.array([index],
         dtype=dtype or np.min_scalar_type(index))
 

@@ -130,6 +130,8 @@ class MergeInstanceSegments(Transform, CliPlugin):
         masks = [a for a in instance if a.type == AnnotationType.mask]
         if not polygons and not masks:
             return []
+        if not polygons and len(masks) == 1:
+            return masks
 
         leader = find_group_leader(polygons + masks)
         instance = []
