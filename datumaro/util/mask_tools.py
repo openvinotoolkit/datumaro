@@ -145,7 +145,7 @@ def mask_to_rle(binary_mask):
         'size': list(binary_mask.shape)
     }
 
-def mask_to_polygons(mask, tolerance=1.0, area_threshold=1):
+def mask_to_polygons(mask, area_threshold=1):
     """
     Convert an instance mask to polygons
 
@@ -159,25 +159,22 @@ def mask_to_polygons(mask, tolerance=1.0, area_threshold=1):
         A list of polygons like [[x1,y1, x2,y2 ...], [...]]
     """
     from pycocotools import mask as mask_utils
-    from skimage import measure
+    import cv2
 
     polygons = []
 
-    # pad mask with 0 around borders
-    padded_mask = np.pad(mask, pad_width=1, mode='constant', constant_values=0)
-    contours = measure.find_contours(padded_mask, 0.5)
-    # Fix coordinates after padding
-    contours = np.subtract(contours, 1)
+    contours, _ = cv2.findContours(mask.astype(np.uint8),
+        mode=cv2.RETR_TREE, method=cv2.CHAIN_APPROX_TC89_KCOS)
 
     for contour in contours:
-        if not np.array_equal(contour[0], contour[-1]):
-            contour = np.vstack((contour, contour[0])) # make polygon closed
-
-        contour = measure.approximate_polygon(contour, tolerance)
         if len(contour) <= 2:
             continue
 
-        contour = np.flip(contour, axis=1).flatten().clip(0) # [x0, y0, ...]
+        contour = contour.reshape((-1, 2))
+
+        if not np.array_equal(contour[0], contour[-1]):
+            contour = np.vstack((contour, contour[0])) # make polygon closed
+        contour = contour.flatten().clip(0) # [x0, y0, ...]
 
         # Check if the polygon is big enough
         rle = mask_utils.frPyObjects([contour], mask.shape[0], mask.shape[1])
