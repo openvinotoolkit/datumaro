@@ -284,15 +284,23 @@ def merge_masks(masks):
         Merges masks into one, mask order is responsible for z order.
         To avoid memory explosion on mask materialization, consider passing
         a generator.
+
+        Inputs: a sequence of index masks or (binary mask, index) pairs
+        Outputs: an index mask
     """
     it = iter(masks)
 
     try:
         merged_mask = next(it)
+        if isinstance(merged_mask, tuple) and len(merged_mask) == 2:
+            merged_mask = merged_mask[0] * merged_mask[1]
     except StopIteration:
         return None
 
     for m in it:
-        merged_mask = np.where(m, m, merged_mask)
+        if isinstance(m, tuple) and len(m) == 2:
+            merged_mask = np.where(m[0], m[1], merged_mask)
+        else:
+            merged_mask = np.where(m, m, merged_mask)
 
     return merged_mask
