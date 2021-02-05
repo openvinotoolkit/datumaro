@@ -45,8 +45,8 @@ class TransformsTest(TestCase):
 
         expected = Dataset.from_iterable([
             DatasetItem(id=1, image=np.zeros((5, 10, 3)), annotations=[
-                Polygon([3.0, 2.5, 1.0, 0.0, 3.5, 0.0, 3.0, 2.5]),
-                Polygon([5.0, 3.5, 4.5, 0.0, 8.0, 0.0, 5.0, 3.5]),
+                Polygon([1, 0, 3, 2, 3, 0, 1, 0]),
+                Polygon([5, 0, 5, 3, 8, 0, 5, 0]),
             ]),
         ])
 

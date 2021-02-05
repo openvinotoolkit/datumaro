@@ -8,7 +8,7 @@ import logging as log
 import os
 import os.path as osp
 from enum import Enum
-from itertools import groupby
+from itertools import chain, groupby
 
 import pycocotools.mask as mask_utils
 
@@ -224,16 +224,17 @@ class _InstancesConverter(_TaskConverter):
                 mask = mask_tools.rles_to_mask(polygons, img_width, img_height)
 
             if masks:
+                masks = (m.image for m in masks)
                 if mask is not None:
-                    masks += [mask]
-                mask = mask_tools.merge_masks([m.image for m in masks])
+                    masks += chain(masks, [mask])
+                mask = mask_tools.merge_masks(masks)
 
             if mask is not None:
                 mask = mask_tools.mask_to_rle(mask)
             polygons = []
         else:
             if masks:
-                mask = mask_tools.merge_masks([m.image for m in masks])
+                mask = mask_tools.merge_masks(m.image for m in masks)
                 polygons += mask_tools.mask_to_polygons(mask)
             mask = None
 
