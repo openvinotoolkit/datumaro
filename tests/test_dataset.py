@@ -1,4 +1,6 @@
 import numpy as np
+import os
+import os.path as osp
 
 from unittest import TestCase
 
@@ -199,6 +201,26 @@ class DatasetTest(TestCase):
         dataset = Dataset.from_extractors(s1, s2)
 
         self.assertEqual(3, len(dataset))
+
+    def test_inplace_save_writes_only_updated_data(self):
+        with TestDir() as path:
+            # generate initial dataset
+            dataset = Dataset.from_iterable([
+                DatasetItem(1, subset='a'),
+                DatasetItem(2, subset='b'),
+            ])
+            dataset.save(path)
+            ts1_a = os.stat(osp.join(path, 'annotations', 'a.json')).st_mtime_ns
+            ts1_b = os.stat(osp.join(path, 'annotations', 'b.json')).st_mtime_ns
+
+            dataset = Dataset.load(path)
+            dataset.put(DatasetItem(2, subset='a'))
+            dataset.save()
+            ts2_a = os.stat(osp.join(path, 'annotations', 'a.json')).st_mtime_ns
+            ts2_b = os.stat(osp.join(path, 'annotations', 'b.json')).st_mtime_ns
+
+            self.assertLess(ts1_a, ts2_a)
+            self.assertEqual(ts1_b, ts2_b)
 
 
 class DatasetItemTest(TestCase):
