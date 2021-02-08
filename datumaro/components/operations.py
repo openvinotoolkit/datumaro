@@ -275,12 +275,10 @@ class IntersectMerge(MergingStrategy):
         for (item_id, item_subset) in sorted(item_ids, key=lambda e: e[0]):
             items = {}
             for d in datasets:
-                try:
-                    item = d.get(item_id, subset=item_subset)
+                item = d.get(item_id, subset=item_subset)
+                if item:
                     items[id(d)] = item
                     item_map[id(item)] = (item, id(d))
-                except KeyError:
-                    pass
             matches[(item_id, item_subset)] = items
 
         return matches, item_map
@@ -538,13 +536,12 @@ class IntersectMerge(MergingStrategy):
             return
 
         def _has_item(s):
-            try:
-                item =self._dataset_map[s][0].get(*self._item_id)
-                if len(item.annotations) == 0:
-                    return False
-                return True
-            except KeyError:
+            item = self._dataset_map[s][0].get(*self._item_id)
+            if not item:
                 return False
+            if len(item.annotations) == 0:
+                return False
+            return True
 
         missing_sources = set(self._dataset_map) - \
             set(self.get_ann_source(id(a)) for a in cluster)

@@ -37,7 +37,7 @@ class ImagenetFormatTest(TestCase):
         with TestDir() as test_dir:
             ImagenetConverter.convert(source_dataset, test_dir, save_images=True)
 
-            parsed_dataset = ImagenetImporter()(test_dir).make_dataset()
+            parsed_dataset = Dataset.import_from(test_dir, 'imagenet')
 
             compare_datasets(self, source_dataset, parsed_dataset,
                 require_images=True)
@@ -78,7 +78,7 @@ class ImagenetFormatTest(TestCase):
         with TestDir() as test_dir:
             ImagenetConverter.convert(source_dataset, test_dir, save_images=True)
 
-            parsed_dataset = ImagenetImporter()(test_dir).make_dataset()
+            parsed_dataset = Dataset.import_from(test_dir, 'imagenet')
 
             compare_datasets(self, source_dataset, parsed_dataset,
                 require_images=True)

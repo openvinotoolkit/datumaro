@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-from typing import Iterable, Iterator, Optional, Set, Union, Dict, List
+from typing import Iterable, Iterator, Optional, Set, Tuple, Union, Dict, List
 import logging as log
 import os
 import os.path as osp
@@ -33,17 +33,17 @@ class DatasetItemStorage:
         for subset in self.data.values():
             for item in subset.values():
                 if item:
-                    return item
+                    yield item
 
     def __len__(self) -> int:
         return self._length
 
     def put(self, item) -> bool:
-        subset = self.data.setdefault(item.subset, DatasetItemStorage())
+        subset = self.data.setdefault(item.subset, {})
         is_new = subset.get(item.id) == None
         if is_new:
             self._length += 1
-        subset.data[item.id] = item
+        subset[item.id] = item
         return is_new
 
     def get(self, id, subset=None) -> Optional[DatasetItem]:
@@ -55,11 +55,13 @@ class DatasetItemStorage:
         is_removed = subset.get(id) != None
         if is_removed:
             self._length -= 1
-            subset.data[id] = None # mark removed
+            subset[id] = None # mark removed
         return is_removed
 
-    def contains(self, id, subset=None) -> bool:
-        return self.get(id, subset) is not None
+    def __contains__(self, x: Union[DatasetItem, Tuple[str, str]]) -> bool:
+        if isinstance(x, DatasetItem):
+            x = (x.id, x.subset)
+        return self.get(*x) is not None
 
     def is_removed(self, id, subset=None) -> bool:
         subset = subset or DEFAULT_SUBSET_NAME
@@ -73,34 +75,35 @@ class DatasetItemStorage:
 
 class DatasetItemStorageDatasetView(IDataset):
     class Subset(IDataset):
-        def __init__(self, parent, data=None):
+        def __init__(self, parent, name):
             super().__init__()
             self.parent = parent
+            self.name = name
 
-            if data is None:
-                data = DatasetItemStorage()
-            self.data = data
+        @property
+        def _data(self):
+            return self.parent._get_subset_data(self.name)
 
         def __iter__(self):
-            yield from self.data
+            yield from self._data.values()
 
         def __len__(self):
-            return len(self.data)
+            return len(self._data)
 
         def put(self, item):
-            return self.data.put(item)
+            return self._data.put(item)
 
         def get(self, id, subset=None):
-            return self.data.get(id, subset)
+            return self._data.get(id, subset)
 
         def remove(self, id, subset=None):
-            return self.data.remove(id, subset)
+            return self._data.remove(id, subset)
 
         def get_subset(self, name):
-            return __class__(self.parent, self.data.get_subset(name))
+            return __class__(self.parent, self._data.get_subset(name))
 
         def subsets(self):
-            return { k: self.get_subset(k) for k in self.data.subsets() }
+            return { k: self.get_subset(k) for k in self._data.subsets() }
 
         def categories(self):
             return self.parent.categories()
@@ -120,7 +123,10 @@ class DatasetItemStorageDatasetView(IDataset):
         return self._categories
 
     def get_subset(self, name):
-        return self.Subset(self, data=self._parent.get_subset(name))
+        return self.Subset(self, name)
+
+    def _get_subset_data(self, name):
+        return self._parent.get_subset(name)
 
     def subsets(self):
         return {k: self.get_subset(k) for k in self._parent.subsets()}
@@ -274,8 +280,9 @@ class DatasetStorage(IDataset):
             self._storage = merged
             if self._categories is None:
                 self._categories = self._source.categories()
-            self._length = len(self._storage)
             self._source = None
+
+        self._length = len(self._storage)
 
     def _iter_init_cache(self) -> Iterable[DatasetItem]:
         # If iterated in parallel, the result is undefined.
@@ -287,7 +294,7 @@ class DatasetStorage(IDataset):
         cache = DatasetItemStorage()
 
         for item in self._source:
-            if not cache.contains(item.id, item.subset):
+            if item in cache:
                 raise Exception(
                     "Item (%s, %s) repeats in the source dataset" % \
                     (item.id, item.subset)
@@ -300,6 +307,7 @@ class DatasetStorage(IDataset):
         self._storage = cache
         if self._categories is None:
             self._categories = self._source.categories()
+        self._length = len(cache)
         self._source = None
 
     def __iter__(self) -> Iterable[DatasetItem]:
@@ -447,6 +455,11 @@ class Dataset(IDataset):
     def get(self, id, subset=None):
         return self._data.get(id, subset)
 
+    def __contains__(self, x: Union[DatasetItem, Tuple[str, str]]) -> bool:
+        if isinstance(x, DatasetItem):
+            x = (x.id, x.subset)
+        return self.get(*x) is not None
+
     def put(self, item, id=None, subset=None):
         overrides = {}
         if id is not None:
@@ -518,7 +531,7 @@ class Dataset(IDataset):
         inplace = (save_dir == self._source_path and format == self._format)
 
         if isinstance(format, str):
-            converter = self.env.make_converter(format)
+            converter = self.env.converters[format]
         else:
             converter = format
 
@@ -529,11 +542,11 @@ class Dataset(IDataset):
         os.makedirs(save_dir, exist_ok=True)
 
         if not inplace:
-            converter(self, save_dir=save_dir, **kwargs)
+            converter.convert(self, save_dir=save_dir, **kwargs)
         else:
             converter.patch(self, self.patch, save_dir=save_dir, **kwargs)
 
-    def save(self, save_dir: str, **kwargs):
+    def save(self, save_dir: str = None, **kwargs):
         self.export(save_dir or self._source_path,
             format=self._format, **kwargs)
 
