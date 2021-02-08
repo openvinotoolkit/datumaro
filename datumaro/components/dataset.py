@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-from typing import Iterable, Iterator, Optional, Union, Dict, List
+from typing import Iterable, Iterator, Optional, Set, Union, Dict, List
 import logging as log
 import os
 import os.path as osp
@@ -21,12 +21,13 @@ DEFAULT_FORMAT = 'datumaro'
 
 IDataset = IExtractor
 
-class Dataset(IDataset):
+class DatasetItemStorage:
     pass # forward declaration for type annotations
 
 class DatasetItemStorage:
     def __init__(self):
         self.data = {} # { subset_name: { id: DatasetItem } }
+        self._length = 0 # needed because removed items are masked
 
     def __iter__(self) -> Iterator[DatasetItem]:
         for subset in self.data.values():
@@ -35,7 +36,7 @@ class DatasetItemStorage:
                     return item
 
     def __len__(self) -> int:
-        return sum(len(s) for s in self.data.values())
+        return self._length
 
     def put(self, item) -> bool:
         subset = self.data.setdefault(item.subset, DatasetItemStorage())
@@ -49,7 +50,7 @@ class DatasetItemStorage:
         subset = subset or DEFAULT_SUBSET_NAME
         return self.data.get(subset, {}).get(id)
 
-    def remove(self, id, subset=None):
+    def remove(self, id, subset=None) -> bool:
         subset = self.data.get(subset, {})
         is_removed = subset.get(id) != None
         if is_removed:
@@ -98,14 +99,14 @@ class DatasetItemStorageDatasetView(IDataset):
         def get_subset(self, name):
             return __class__(self.parent, self.data.get_subset(name))
 
-        @property
-        def _subsets(self):
-            return self.data.subsets()
+        def subsets(self):
+            return { k: self.get_subset(k) for k in self.data.subsets() }
 
         def categories(self):
             return self.parent.categories()
 
-    def __init__(self, parent, categories):
+
+    def __init__(self, parent: DatasetItemStorage, categories: Dict):
         self._parent = parent
         self._categories = categories
 
@@ -128,17 +129,88 @@ class DatasetItemStorageDatasetView(IDataset):
         return self._parent.get(id, subset=subset)
 
 
+class ExactMerge:
+    @classmethod
+    def merge(cls, *sources):
+        items = DatasetItemStorage()
+        for source in sources:
+            for item in source:
+                existing_item = items.get(item.id, item.subset)
+                if existing_item is not None:
+                    path = existing_item.path
+                    if item.path != path:
+                        path = None
+                    item = cls.merge_items(existing_item, item, path=path)
+
+                items.put(item)
+        return items
+
+    @staticmethod
+    def _lazy_image(item):
+        # NOTE: avoid https://docs.python.org/3/faq/programming.html#why-do-lambdas-defined-in-a-loop-with-different-values-all-return-the-same-result
+        return lambda: item.image
+
+    @classmethod
+    def merge_items(cls, existing_item, current_item, path=None):
+        return existing_item.wrap(path=path,
+            image=cls.merge_images(existing_item, current_item),
+            annotations=cls.merge_anno(
+                existing_item.annotations, current_item.annotations))
+
+    @staticmethod
+    def merge_images(existing_item, current_item):
+        image = None
+        if existing_item.has_image and current_item.has_image:
+            if existing_item.image.has_data:
+                image = existing_item.image
+            else:
+                image = current_item.image
+
+            if existing_item.image.path != current_item.image.path:
+                if not existing_item.image.path:
+                    image._path = current_item.image.path
+
+            if all([existing_item.image._size, current_item.image._size]):
+                assert existing_item.image._size == current_item.image._size, \
+                    "Image size info differs for item '%s': %s vs %s" % \
+                    (existing_item.id,
+                     existing_item.image._size, current_item.image._size)
+            elif existing_item.image._size:
+                image._size = existing_item.image._size
+            else:
+                image._size = current_item.image._size
+        elif existing_item.has_image:
+            image = existing_item.image
+        else:
+            image = current_item.image
+
+        return image
+
+    @staticmethod
+    def merge_anno(a, b):
+        from .operations import merge_annotations_equal
+        return merge_annotations_equal(a, b)
+
+    @staticmethod
+    def merge_categories(sources):
+        from .operations import merge_categories
+        return merge_categories(sources)
+
+
+class Dataset(IDataset):
+    pass # forward declaration for type annotations
+
 class DatasetSubset(IDataset): # non-owning view
-    def __init__(self, parent, name):
+    def __init__(self, parent: Dataset, name: str):
         super().__init__()
         self.parent = parent
         self.name = name
 
     def __iter__(self):
-        yield from self.parent._get_subset(self.name)
+        yield from self.parent._data.get_subset(self.name)
 
     def __len__(self):
-        return len(self.parent._get_subset(self.name))
+        return len(self.parent._data.get_subset(self.name))
 
     def put(self, item):
         return self.parent.put(item, subset=self.name)
@@ -155,14 +227,17 @@ class DatasetSubset(IDataset): # non-owning view
         assert not name
         return self
 
-    @property
-    def _subsets(self):
-        return None
+    def subsets(self):
+        return {}
 
     def categories(self):
         return self.parent.categories()
 
-class DatasetStorage:
+
+class DatasetStorage(IDataset):
+    pass # forward declaration for type annotations
+
+class DatasetStorage(IDataset):
     _UPDATED_ALL = 'all'
 
     def __init__(self, source: IDataset = None, categories=None):
@@ -203,8 +278,7 @@ class DatasetStorage:
             self._source = None
 
     def _iter_init_cache(self) -> Iterable[DatasetItem]:
-        # Reentrant, can be invoked multiple times in parallel,
-        # only the first successful invocation result will be recorded.
+        # If iterated in parallel, the result is undefined.
         # If storage is changed during iteration, the result is undefined.
         #
         # TODO: can potentially be optimized by sharing
@@ -279,9 +353,6 @@ class DatasetStorage:
             self._length -= is_removed
 
     def get_subset(self, name):
-        return DatasetSubset(self, name)
-
-    def _get_subset(self, name):
         return self._merged().get_subset(name)
 
     def subsets(self):
@@ -293,7 +364,7 @@ class DatasetStorage:
 
     def transform(self, method, **kwargs):
         self._source = method(self._merged(), **kwargs)
-        self._storage = DatasetStorage()
+        self._storage = DatasetItemStorage()
         self._updated_items = self._UPDATED_ALL
 
     def get_patch(self):
@@ -303,73 +374,6 @@ class DatasetStorage:
                 for item in self._storage)
         return self._storage
 
-
-class ExactMerge:
-    @classmethod
-    def merge(cls, *sources):
-        items = DatasetItemStorage()
-        for source in sources:
-            for item in source:
-                existing_item = items.get(item.id, item.subset)
-                if existing_item is not None:
-                    path = existing_item.path
-                    if item.path != path:
-                        path = None
-                    item = cls.merge_items(existing_item, item, path=path)
-
-                items.put(item)
-        return items
-
-    @staticmethod
-    def _lazy_image(item):
-        # NOTE: avoid https://docs.python.org/3/faq/programming.html#why-do-lambdas-defined-in-a-loop-with-different-values-all-return-the-same-result
-        return lambda: item.image
-
-    @classmethod
-    def merge_items(cls, existing_item, current_item, path=None):
-        return existing_item.wrap(path=path,
-            image=cls.merge_images(existing_item, current_item),
-            annotations=cls.merge_anno(
-                existing_item.annotations, current_item.annotations))
-
-    @staticmethod
-    def merge_images(existing_item, current_item):
-        image = None
-        if existing_item.has_image and current_item.has_image:
-            if existing_item.image.has_data:
-                image = existing_item.image
-            else:
-                image = current_item.image
-
-            if existing_item.image.path != current_item.image.path:
-                if not existing_item.image.path:
-                    image._path = current_item.image.path
-
-            if all([existing_item.image._size, current_item.image._size]):
-                assert existing_item.image._size == current_item.image._size, \
-                    "Image size info differs for item '%s': %s vs %s" % \
-                    (existing_item.id,
-                     existing_item.image._size, current_item.image._size)
-            elif existing_item.image._size:
-                image._size = existing_item.image._size
-            else:
-                image._size = current_item.image._size
-        elif existing_item.has_image:
-            image = existing_item.image
-        else:
-            image = current_item.image
-
-        return image
-
-    @staticmethod
-    def merge_anno(a, b):
-        from .operations import merge_annotations_equal
-        return merge_annotations_equal(a, b)
-
-    @staticmethod
-    def merge_categories(sources):
-        from .operations import merge_categories
-        return merge_categories(sources)
 
 class Dataset(IDataset):
     @classmethod
@@ -401,23 +405,29 @@ class Dataset(IDataset):
     def from_extractors(*sources: IDataset, env: Environment = None) -> Dataset:
         if len(sources) == 1:
             source = sources[0]
+            categories = None
         else:
             source = ExactMerge.merge(*sources)
+            categories = ExactMerge.merge_categories(
+                s.categories() for s in sources)
 
-        return Dataset(source=source, env=env)
+        return Dataset(source=source, categories=categories, env=env)
 
-    def __init__(self, source=None, categories=None, env=None):
+    def __init__(self, source: IDataset = None, categories: Dict = None,
+            env: Environment = None):
         super().__init__()
 
         assert env is None or isinstance(env, Environment), env
         self._env = env
 
-        self._data = DatasetStorage(source)
-        if categories is not None:
-            self.define_categories(categories)
+        self._data = DatasetStorage(source, categories=categories)
 
         self._format = DEFAULT_FORMAT
         self._source_path = None
+
+    def define_categories(self, categories: Dict):
+        assert not self._data._categories and self._data._source is None
+        self._data._categories = categories
 
     def __iter__(self):
         yield from self._data
@@ -426,10 +436,10 @@ class Dataset(IDataset):
         return len(self._data)
 
     def get_subset(self, name):
-        return self._data.get_subset(name)
+        return DatasetSubset(self, name)
 
     def subsets(self):
-        return self._data.subsets()
+        return { k: self.get_subset(k) for k in self._data.subsets() }
 
     def categories(self):
         return self._data.categories()
@@ -451,20 +461,34 @@ class Dataset(IDataset):
     def remove(self, id, subset=None):
         self._data.remove(id, subset)
 
-    def filter(self, expr, filter_annotations=False, remove_empty=False):
+    def filter(self, expr: str, filter_annotations: bool = False,
+            remove_empty: bool = False) -> Dataset:
         if filter_annotations:
             return self.transform(XPathAnnotationsFilter, expr, remove_empty)
         else:
             return self.transform(XPathDatasetFilter, expr)
 
-    def update(self, items):
+    def update(self, items: Iterable[DatasetItem]) -> Dataset:
         for item in items:
             self.put(item)
         return self
 
-    def define_categories(self, categories):
-        assert not self._data._categories and self._data._source is None
-        self._data._categories = categories
+    def transform(self, method: Union[str, Transform], **kwargs) -> Dataset:
+        if isinstance(method, str):
+            method = self.env.make_transform(method)
+
+        self._data.transform(method, **kwargs)
+        return self
+
+    def run_model(self, model, batch_size=1) -> Dataset:
+        from datumaro.components.launcher import Launcher, ModelTransform
+        if isinstance(model, Launcher):
+            return self.transform(ModelTransform, launcher=model,
+                batch_size=batch_size)
+        elif isinstance(model, ModelTransform):
+            return self.transform(model, batch_size=batch_size)
+        else:
+            raise TypeError('Unexpected model argument type: %s' % type(model))
 
     @property
     def data_path(self) -> Optional[str]:
@@ -475,9 +499,19 @@ class Dataset(IDataset):
         return self._format
 
     @property
-    def updated_items(self) -> List[DatasetItem]:
-        return
+    def updated_items(self) -> Set[DatasetItem]:
+        return set((item.id, item.subset) for item in self._data.get_patch())
 
+    @property
+    def patch(self) -> IDataset:
+        return DatasetItemStorageDatasetView(self._data.get_patch(),
+            self._data._categories)
+
+    @property
+    def env(self) -> Environment:
+        if not self._env:
+            self._env = Environment()
+        return self._env
 
     @error_rollback('on_error', implicit=True)
     def export(self, save_dir: str, format, **kwargs): #pylint: disable=redefined-builtin
@@ -497,30 +531,7 @@ class Dataset(IDataset):
         if not inplace:
             converter(self, save_dir=save_dir, **kwargs)
         else:
-            converter.patch(self, self._data.patch, save_dir=save_dir, **kwargs)
-
-    def transform(self, method: Union[str, ITransform], **kwargs):
-        if isinstance(method, str):
-            method = self.env.make_transform(method)
-
-        self._data.transform(method, **kwargs)
-        return self
-
-    def run_model(self, model, batch_size=1):
-        from datumaro.components.launcher import Launcher, ModelTransform
-        if isinstance(model, Launcher):
-            return self.transform(ModelTransform, launcher=model,
-                batch_size=batch_size)
-        elif isinstance(model, ModelTransform):
-            return self.transform(model, batch_size=batch_size)
-        else:
-            raise TypeError('Unexpected model argument type: %s' % type(model))
-
-    @property
-    def env(self) -> Environment:
-        if not self._env:
-            self._env = Environment()
-        return self._env
+            converter.patch(self, self.patch, save_dir=save_dir, **kwargs)
 
     def save(self, save_dir: str, **kwargs):
         self.export(save_dir or self._source_path,
@@ -531,7 +542,8 @@ class Dataset(IDataset):
         return cls.import_from(path, format=DEFAULT_FORMAT, **kwargs)
 
     @classmethod
-    def import_from(cls, path: str, format: str = None, env: Environment = None, \
+    def import_from(cls, path: str, format: str = None, \
+            env: Environment = None, \
             **kwargs) -> Dataset: #pylint: disable=redefined-builtin
         from datumaro.components.config_model import Source
 
@@ -564,7 +576,10 @@ class Dataset(IDataset):
                 src_conf.format, src_conf.url, **src_conf.options
             ))
 
-        return cls.from_extractors(*extractors)
+        dataset = cls.from_extractors(*extractors, env=env)
+        dataset._source_path = path
+        dataset._format = format
+        return dataset
 
     @staticmethod
     def detect(path: str, env: Environment = None) -> str:
