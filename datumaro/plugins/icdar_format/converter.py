@@ -6,10 +6,9 @@ import os
 import os.path as osp
 
 from datumaro.components.converter import Converter
-from datumaro.components.extractor import AnnotationType, CompiledMask
-from datumaro.util.annotation_util import find_instances
+from datumaro.components.extractor import AnnotationType
 from datumaro.util.image import save_image
-from datumaro.util.mask_tools import find_mask_bbox, paint_mask
+from datumaro.util.mask_tools import merge_masks, paint_mask
 
 from .format import IcdarPath, IcdarTask
 
@@ -69,18 +68,14 @@ class _TextSegmentationConverter():
         self.masks = {}
 
     def save_annotations(self, item):
+        masks = []
         annotation = ''
         colormap = [(255, 255, 255)]
-        masks = [a for a in item.annotations
+        anns = [a for a in item.annotations
             if a.type == AnnotationType.mask]
-        label_is_none = [p for p in masks
-            if p.label is None]
-        if label_is_none:
-            masks = sorted(masks, key=lambda a: a.group)
-        else:
-            masks = sorted(masks, key=lambda a: a.label)
-        group = masks[0].group
-        for ann in masks:
+        anns = sorted(anns, key=lambda a: a.id)
+        group = anns[0].group
+        for ann in anns:
             if ann.group != group or ann.group == 0:
                 annotation += '\n'
             text = ''
@@ -101,16 +96,17 @@ class _TextSegmentationConverter():
                         for p in ann.attributes['center'])
                 else:
                     annotation += ' - -'
-            bbox = find_mask_bbox(ann.image)
+            bbox = ann.get_bbox()
             annotation += ' %s %s %s %s' % (bbox[0], bbox[1],
                 bbox[0] + bbox[2], bbox[1] + bbox[3])
             annotation += ' \"%s\"' % text
             annotation += '\n'
             group = ann.group
+            masks.append(ann.as_class_mask(ann.id))
 
-        compiled_mask = CompiledMask.from_instance_masks(masks)
-        mask = paint_mask(compiled_mask.class_mask, {
-            i: colormap[i] for i in range(len(colormap))})
+        mask = merge_masks(masks)
+        mask = paint_mask(mask,
+             i: colormap[i] for i in range(len(colormap)) })
         self.annotations[item.id] = annotation
         self.masks[item.id] = mask
 
