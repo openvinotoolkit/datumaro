@@ -8,7 +8,7 @@ import os.path as osp
 from datumaro.components.converter import Converter
 from datumaro.components.extractor import AnnotationType
 from datumaro.util.image import save_image
-from datumaro.util.mask_tools import merge_masks, paint_mask
+from datumaro.util.mask_tools import paint_mask, merge_masks
 
 from .format import IcdarPath, IcdarTask
 
@@ -106,7 +106,7 @@ class _TextSegmentationConverter():
 
         mask = merge_masks(masks)
         mask = paint_mask(mask,
-             i: colormap[i] for i in range(len(colormap)) })
+            { i: colormap[i] for i in range(len(colormap)) })
         self.annotations[item.id] = annotation
         self.masks[item.id] = mask
 
