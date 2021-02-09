@@ -46,10 +46,15 @@ class DatasetItemStorage:
         return is_new
 
     def get(self, id, subset=None) -> Optional[DatasetItem]:
+        id = str(id)
         subset = subset or DEFAULT_SUBSET_NAME
+
         return self.data.get(subset, {}).get(id)
 
     def remove(self, id, subset=None) -> bool:
+        id = str(id)
+        subset = subset or DEFAULT_SUBSET_NAME
+
         subset = self.data.get(subset, {})
         is_removed = subset.get(id) != None
         if is_removed:
@@ -63,7 +68,9 @@ class DatasetItemStorage:
         return self.get(*x) is not None
 
     def is_removed(self, id, subset=None) -> bool:
+        id = str(id)
         subset = subset or DEFAULT_SUBSET_NAME
+
         return self.data.get(subset, {}).get(id, object()) is None
 
     def get_subset(self, name):
@@ -93,9 +100,13 @@ class DatasetItemStorageDatasetView(IDataset):
             return self._data.put(item)
 
         def get(self, id, subset=None):
+            assert subset or DEFAULT_SUBSET_NAME == \
+                   self.name or DEFAULT_SUBSET_NAME
             return self._data.get(id, subset)
 
         def remove(self, id, subset=None):
+            assert subset or DEFAULT_SUBSET_NAME == \
+                   self.name or DEFAULT_SUBSET_NAME
             return self._data.remove(id, subset)
 
         def get_subset(self, name):
@@ -138,16 +149,17 @@ class DatasetItemStorageDatasetView(IDataset):
 
 class ExactMerge:
     @classmethod
-    def merge(cls, *sources):
+    def merge(cls, *sources, override=False):
         items = DatasetItemStorage()
         for source in sources:
             for item in source:
-                existing_item = items.get(item.id, item.subset)
-                if existing_item is not None:
-                    path = existing_item.path
-                    if item.path != path:
-                        path = None
-                    item = cls.merge_items(existing_item, item, path=path)
+                if not override:
+                    existing_item = items.get(item.id, item.subset)
+                    if existing_item is not None:
+                        path = existing_item.path
+                        if item.path != path:
+                            path = None
+                        item = cls.merge_items(existing_item, item, path=path)
 
                 items.put(item)
         return items
@@ -223,20 +235,22 @@ class DatasetSubset(IDataset): # non-owning view
         return self.parent.put(item, subset=self.name)
 
     def get(self, id, subset=None):
-        assert subset is None
+        assert subset or DEFAULT_SUBSET_NAME == \
+               self.name or DEFAULT_SUBSET_NAME
         return self.parent.get(id, subset=self.name)
 
     def remove(self, id, subset=None):
-        assert subset is None
+        assert subset or DEFAULT_SUBSET_NAME == \
+               self.name or DEFAULT_SUBSET_NAME
         return self.parent.remove(id, subset=self.name)
 
     def get_subset(self, name):
         assert name or DEFAULT_SUBSET_NAME == \
-                self.name or DEFAULT_SUBSET_NAME
+               self.name or DEFAULT_SUBSET_NAME
         return self
 
     def subsets(self):
-        return {self.name or DEFAULT_SUBSET_NAME: self}
+        return { self.name or DEFAULT_SUBSET_NAME: self }
 
     def categories(self):
         return self.parent.categories()
@@ -249,8 +263,6 @@ class DatasetStorage(IDataset):
     pass # forward declaration for type annotations
 
 class DatasetStorage(IDataset):
-    _UPDATED_ALL = 'all'
-
     def __init__(self, source: IDataset = None, categories=None):
         if source is None and categories is None:
             categories = {}
@@ -263,7 +275,8 @@ class DatasetStorage(IDataset):
         #  - In this case updated_items describes the patch
         self._source = source
         self._storage = DatasetItemStorage() # patch or cache
-        self._updated_items = set() # set or UPDATED_ALL
+        self._updated_items = set()
+        self._transformed = False
 
         self._length = None
 
@@ -277,8 +290,9 @@ class DatasetStorage(IDataset):
     def init_cache(self):
         if self._is_unchanged_wrapper:
             for _ in self._iter_init_cache(): pass
-        elif self._source:
-            merged = ExactMerge.merge(self._source, self._storage)
+        elif self._source is not None:
+            merged = ExactMerge.merge(self._source, self._storage,
+                override=True)
             for item in merged:
                 if self._storage.is_removed(item.id, item.subset):
                     merged.remove(item.id, item.subset)
@@ -321,9 +335,9 @@ class DatasetStorage(IDataset):
             yield from self._merged()
 
     def _merged(self) -> IDataset:
-        if self._is_unchanged_wrapper:
+        if self._is_unchanged_wrapper :
             return self._source
-        elif self._source:
+        elif self._source is not None:
             self.init_cache()
         return DatasetItemStorageDatasetView(self._storage, self._categories)
 
@@ -340,14 +354,16 @@ class DatasetStorage(IDataset):
 
     def put(self, item):
         is_new = self._storage.put(item)
-        if is_new:
-            self._updated_items.add((item.id, item.subset))
-            if not self.is_cache_initialized():
-                self._length = None
+        self._updated_items.add((item.id, item.subset))
+        if is_new and not self.is_cache_initialized():
+            self._length = None
         if self._length is not None:
             self._length += is_new
 
     def get(self, id, subset) -> Optional[DatasetItem]:
+        id = str(id)
+        subset = subset or DEFAULT_SUBSET_NAME
+
         item = self._storage.get(id, subset)
         if item is None and not self.is_cache_initialized():
             if getattr(self._source, 'get') == Extractor.get:
@@ -360,11 +376,13 @@ class DatasetStorage(IDataset):
         return item
 
     def remove(self, id, subset=None):
+        id = str(id)
+        subset = subset or DEFAULT_SUBSET_NAME
+
         is_removed = self._storage.remove(id, subset)
-        if is_removed:
-            self._updated_items.add((id, subset))
-            if not self.is_cache_initialized():
-                self._length = None
+        self._updated_items.add((id, subset))
+        if is_removed and not self.is_cache_initialized():
+            self._length = None
         if self._length is not None:
             self._length -= is_removed
 
@@ -384,14 +402,20 @@ class DatasetStorage(IDataset):
         # TODO: can be optimized by analyzing methods
         self._categories = None
         self._length = None
-        self._updated_items = self._UPDATED_ALL
+        self._transformed = True
 
-    def get_patch(self):
-        if self._updated_items == self._UPDATED_ALL:
+    def get_updated_items(self):
+        if self._transformed:
             self.init_cache()
             self._updated_items = set((item.id, item.subset)
                 for item in self._storage)
-        return self._storage
+        return self._updated_items
+
+    def get_patch(self):
+        patch = DatasetItemStorage()
+        for id, subset in self.get_updated_items():
+            patch.put(self._storage.get(id, subset))
+        return patch
 
 
 class Dataset(IDataset):
@@ -502,9 +526,6 @@ class Dataset(IDataset):
             return self.transform(XPathDatasetFilter, expr)
 
     def update(self, items: Iterable[DatasetItem]) -> Dataset:
-        if self.is_eager:
-            self.init_cache()
-
         for item in items:
             self.put(item)
         return self
@@ -529,6 +550,13 @@ class Dataset(IDataset):
         else:
             raise TypeError('Unexpected model argument type: %s' % type(model))
 
+    def select(self, pred):
+        class _DatasetFilter(Transform):
+            def __iter__(self):
+                return filter(pred, iter(self._extractor))
+
+        return self.transform(_DatasetFilter)
+
     @property
     def data_path(self) -> Optional[str]:
         return self._source_path
@@ -538,8 +566,8 @@ class Dataset(IDataset):
         return self._format
 
     @property
-    def updated_items(self) -> Set[DatasetItem]:
-        return set((item.id, item.subset) for item in self._data.get_patch())
+    def updated_items(self) -> Set[Tuple[str, str]]:
+        return self._data.get_updated_items()
 
     @property
     def patch(self) -> IDataset:

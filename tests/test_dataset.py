@@ -1,18 +1,19 @@
 import numpy as np
 import os
 import os.path as osp
+import time
 
 from unittest import TestCase
 
 from datumaro.components.environment import Environment
-from datumaro.components.extractor import (Extractor, DatasetItem,
+from datumaro.components.extractor import (DEFAULT_SUBSET_NAME, Extractor, DatasetItem,
     Label, Mask, Points, Polygon, PolyLine, Bbox, Caption,
     LabelCategories, AnnotationType, Transform
 )
 from datumaro.util.image import Image
 from datumaro.components.dataset_filter import \
     XPathDatasetFilter, XPathAnnotationsFilter, DatasetItemEncoder
-from datumaro.components.dataset import Dataset, DEFAULT_FORMAT
+from datumaro.components.dataset import Dataset, DEFAULT_FORMAT, eager_mode
 from datumaro.util.test_utils import TestDir, compare_datasets
 
 
@@ -215,13 +216,138 @@ class DatasetTest(TestCase):
 
             dataset = Dataset.load(path)
             dataset.put(DatasetItem(2, subset='a'))
+            time.sleep(1)
             dataset.save()
+
             ts2_a = os.stat(osp.join(path, 'annotations', 'a.json')).st_mtime_ns
             ts2_b = os.stat(osp.join(path, 'annotations', 'b.json')).st_mtime_ns
-
             self.assertLess(ts1_a, ts2_a)
             self.assertEqual(ts1_b, ts2_b)
 
+    def test_can_track_updated_items(self):
+        dataset = Dataset.from_iterable([
+            DatasetItem(1),
+            DatasetItem(2),
+        ])
+
+        self.assertEqual(0, len(dataset.updated_items))
+
+        dataset.put(DatasetItem(3, subset='a'))
+
+        self.assertEqual({('3', 'a')}, dataset.updated_items)
+
+        dataset.remove(1)
+
+        self.assertEqual({('1', DEFAULT_SUBSET_NAME), ('3', 'a')},
+            dataset.updated_items)
+
+    def test_can_do_lazy_put_and_remove(self):
+        iter_called = False
+        class TestExtractor(Extractor):
+            def __iter__(self):
+                nonlocal iter_called
+                iter_called = True
+                return iter([
+                    DatasetItem(1),
+                    DatasetItem(2),
+                ])
+        dataset = Dataset.from_extractors(TestExtractor())
+
+        self.assertFalse(dataset.is_cache_initialized)
+
+        dataset.put(DatasetItem(3))
+        dataset.remove(DatasetItem(1))
+
+        self.assertFalse(dataset.is_cache_initialized)
+        self.assertFalse(iter_called)
+
+        dataset.init_cache()
+
+        self.assertTrue(dataset.is_cache_initialized)
+        self.assertTrue(iter_called)
+
+    def test_can_put(self):
+        dataset = Dataset()
+
+        dataset.put(DatasetItem(1))
+
+        self.assertTrue((1, '') in dataset)
+
+    def test_can_lazy_get_if_updated(self):
+        iter_called = False
+        class TestExtractor(Extractor):
+            def __iter__(self):
+                nonlocal iter_called
+                iter_called = True
+                return iter([
+                    DatasetItem(1),
+                    DatasetItem(2),
+                ])
+        dataset = Dataset.from_extractors(TestExtractor())
+
+        dataset.put(DatasetItem(2))
+
+        self.assertTrue((2, '') in dataset)
+        self.assertFalse(iter_called)
+
+    def test_can_switch_eager_and_lazy_with_cm_global(self):
+        iter_called = False
+        class TestExtractor(Extractor):
+            def __iter__(self):
+                nonlocal iter_called
+                iter_called = True
+                return iter([
+                    DatasetItem(1),
+                    DatasetItem(2),
+                ])
+
+        with eager_mode():
+            Dataset.from_extractors(TestExtractor())
+
+        self.assertTrue(iter_called)
+
+    def test_can_switch_eager_and_lazy_with_cm_local(self):
+        iter_called = False
+        class TestExtractor(Extractor):
+            def __iter__(self):
+                nonlocal iter_called
+                iter_called = True
+                return iter([
+                    DatasetItem(1),
+                    DatasetItem(2),
+                    DatasetItem(3),
+                    DatasetItem(4),
+                ])
+        dataset = Dataset.from_extractors(TestExtractor())
+
+        with eager_mode(dataset=dataset):
+            dataset.select(lambda item: int(item.id) < 3)
+            dataset.select(lambda item: int(item.id) < 2)
+
+        self.assertTrue(iter_called)
+
+    def test_can_do_lazy_select(self):
+        iter_called = False
+        class TestExtractor(Extractor):
+            def __iter__(self):
+                nonlocal iter_called
+                iter_called = True
+                return iter([
+                    DatasetItem(1),
+                    DatasetItem(2),
+                    DatasetItem(3),
+                    DatasetItem(4),
+                ])
+        dataset = Dataset.from_extractors(TestExtractor())
+
+        dataset.select(lambda item: int(item.id) < 3)
+        dataset.select(lambda item: int(item.id) < 2)
+
+        self.assertFalse(iter_called)
+
+        self.assertEqual(1, len(dataset))
+
+        self.assertTrue(iter_called)
 
 class DatasetItemTest(TestCase):
     def test_ctor_requires_id(self):
