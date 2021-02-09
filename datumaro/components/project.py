@@ -2,7 +2,8 @@
 #
 # SPDX-License-Identifier: MIT
 
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
+from datumaro.components.dataset_filter import XPathAnnotationsFilter, XPathDatasetFilter
 import logging as log
 import os
 import os.path as osp
@@ -13,10 +14,26 @@ from datumaro.components.config_model import (Model, Source,
     PROJECT_DEFAULT_CONFIG, PROJECT_SCHEMA)
 from datumaro.components.environment import Environment
 from datumaro.components.launcher import ModelTransform
-from datumaro.components.dataset import Dataset, DEFAULT_FORMAT
+from datumaro.components.extractor import Extractor
+from datumaro.components.dataset import (IDataset, Dataset, DEFAULT_FORMAT,
+    ExactMerge)
 
 
-class ProjectDataset(Dataset):
+class ProjectDataset(IDataset):
+    class Subset(Extractor):
+            def __init__(self, parent):
+                self.parent = parent
+                self.items = OrderedDict()
+
+            def __iter__(self):
+                yield from self.items.values()
+
+            def __len__(self):
+                return len(self.items)
+
+            def categories(self):
+                return self.parent.categories()
+
     def __init__(self, project):
         super().__init__()
 
@@ -43,7 +60,7 @@ class ProjectDataset(Dataset):
 
         # merge categories
         # TODO: implement properly with merging and annotations remapping
-        categories = self._merge_categories(s.categories()
+        categories = ExactMerge.merge_categories(s.categories()
             for s in self._sources.values())
         # ovewrite with own categories
         if own_source is not None and (not categories or len(own_source) != 0):
@@ -60,7 +77,7 @@ class ProjectDataset(Dataset):
                     path = existing_item.path
                     if item.path != path:
                         path = None # NOTE: move to our own dataset
-                    item = self._merge_items(existing_item, item, path=path)
+                    item = ExactMerge.merge_items(existing_item, item, path=path)
                 else:
                     s_config = config.sources[source_name]
                     if s_config and \
@@ -80,7 +97,7 @@ class ProjectDataset(Dataset):
                 existing_item = subsets[item.subset].items.get(item.id)
                 if existing_item is not None:
                     item = item.wrap(path=None,
-                        image=self._merge_images(existing_item, item))
+                        image=ExactMerge.merge_images(existing_item, item))
 
                 subsets[item.subset].items[item.id] = item
 
@@ -95,34 +112,48 @@ class ProjectDataset(Dataset):
     def iterate_own(self):
         return self.select(lambda item: not item.path)
 
-    def get(self, item_id, subset=None, path=None):
+    def __iter__(self):
+        for subset in self._subsets.values():
+            yield from subset
+
+    def get_subset(self, name):
+        return self._subsets[name]
+
+    def subsets(self):
+        return self._subsets
+
+    def categories(self):
+        return self._categories
+
+    def __len__(self):
+        return sum(len(s) for s in self._subsets.values())
+
+    def get(self, id, subset=None, path=None):
         if path:
             source = path[0]
             rest_path = path[1:]
             return self._sources[source].get(
-                item_id=item_id, subset=subset, path=rest_path)
-        return super().get(item_id, subset)
+                id=id, subset=subset, path=rest_path)
+        return self._subsets.get(subset, {}).get(id)
 
-    def put(self, item, item_id=None, subset=None, path=None):
+    def put(self, item, id=None, subset=None, path=None):
         if path is None:
             path = item.path
 
         if path:
             source = path[0]
-            rest_path = path[1:]
             # TODO: reverse remapping
-            self._sources[source].put(item,
-                item_id=item_id, subset=subset, path=rest_path)
+            self._sources[source].put(item, id=id, subset=subset)
 
-        if item_id is None:
-            item_id = item.id
+        if id is None:
+            id = item.id
         if subset is None:
             subset = item.subset
 
         item = item.wrap(path=path)
         if subset not in self._subsets:
             self._subsets[subset] = self.Subset(self)
-        self._subsets[subset].items[item_id] = item
+        self._subsets[subset].items[id] = item
         self._length = None
 
         return item
@@ -178,6 +209,10 @@ class ProjectDataset(Dataset):
         return self._project.config
 
     @property
+    def env(self):
+        return self._project.env
+
+    @property
     def sources(self):
         return self._sources
 
@@ -202,10 +237,35 @@ class ProjectDataset(Dataset):
         dst_project.config.project_name = osp.basename(save_dir)
 
         dst_dataset = dst_project.make_dataset()
-        dst_dataset.define_categories(extractor.categories())
+        dst_dataset._categories = extractor.categories()
         dst_dataset.update(extractor)
 
         dst_dataset.save(save_dir=save_dir, merge=True)
+
+    def transform(self, method, *args, **kwargs):
+        return method(self, *args, **kwargs)
+
+    def filter(self, expr: str, filter_annotations: bool = False,
+            remove_empty: bool = False) -> Dataset:
+        if filter_annotations:
+            return self.transform(XPathAnnotationsFilter, expr, remove_empty)
+        else:
+            return self.transform(XPathDatasetFilter, expr)
+
+    def update(self, other):
+        for item in other:
+            self.put(item)
+
+    def select(self, pred):
+        class _DatasetFilter(Extractor):
+            def __init__(self, _):
+                super().__init__()
+            def __iter__(_):
+                return filter(pred, iter(self))
+            def categories(_):
+                return self.categories()
+
+        return self.transform(_DatasetFilter)
 
     def transform_project(self, method, save_dir=None, **method_kwargs):
         # NOTE: probably this function should be in the ViewModel layer
