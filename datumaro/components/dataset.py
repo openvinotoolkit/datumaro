@@ -2,14 +2,16 @@
 #
 # SPDX-License-Identifier: MIT
 
+from contextlib import contextmanager
 from typing import Iterable, Iterator, Optional, Set, Tuple, Union, Dict, List
 import logging as log
 import os
 import os.path as osp
 import shutil
 
-from datumaro.components.extractor import (Categories, Extractor, IExtractor, LabelCategories,
-    AnnotationType, DatasetItem, DEFAULT_SUBSET_NAME, Transform)
+from datumaro.components.extractor import (Categories, Extractor, IExtractor,
+    LabelCategories, AnnotationType, DatasetItem,
+    DEFAULT_SUBSET_NAME, Transform)
 from datumaro.components.dataset_filter import \
     XPathDatasetFilter, XPathAnnotationsFilter
 from datumaro.components.environment import Environment
@@ -383,6 +385,8 @@ class DatasetStorage(IDataset):
 
 
 class Dataset(IDataset):
+    _global_eager = False
+
     @classmethod
     def from_iterable(cls, iterable: Iterable[DatasetItem],
             categories: Union[Dict, List[str]] = None,
@@ -427,7 +431,10 @@ class Dataset(IDataset):
         assert env is None or isinstance(env, Environment), env
         self._env = env
 
+        self.eager = None
         self._data = DatasetStorage(source, categories=categories)
+        if self.is_eager:
+            self.init_cache()
 
         self._format = DEFAULT_FORMAT
         self._source_path = None
@@ -484,6 +491,9 @@ class Dataset(IDataset):
             return self.transform(XPathDatasetFilter, expr)
 
     def update(self, items: Iterable[DatasetItem]) -> Dataset:
+        if self.is_eager:
+            self.init_cache()
+
         for item in items:
             self.put(item)
         return self
@@ -493,6 +503,9 @@ class Dataset(IDataset):
             method = self.env.make_transform(method)
 
         self._data.transform(method, **kwargs)
+        if self.is_eager:
+            self.init_cache()
+
         return self
 
     def run_model(self, model, batch_size=1) -> Dataset:
@@ -531,6 +544,10 @@ class Dataset(IDataset):
     @property
     def is_cache_initialized(self) -> bool:
         return self._data.is_cache_initialized()
+
+    @property
+    def is_eager(self):
+        return self._eager if self._eager is not None else self._global_eager
 
     @error_rollback('on_error', implicit=True)
     def export(self, save_dir: str, format, **kwargs): #pylint: disable=redefined-builtin
@@ -614,3 +631,22 @@ class Dataset(IDataset):
                 " data matches more than one format: %s" % \
                 ', '.join(matches))
         return matches[0]
+
+@contextmanager
+def eager_mode(new_mode=True, dataset: Dataset = None):
+    if dataset is not None:
+        old_mode = dataset.eager
+
+        try:
+            dataset.eager = new_mode
+            yield
+        finally:
+            dataset.eager = old_mode
+    else:
+        old_mode = Dataset._global_eager
+
+        try:
+            Dataset._global_eager = new_mode
+            yield
+        finally:
+            Dataset._global_eager = old_mode
