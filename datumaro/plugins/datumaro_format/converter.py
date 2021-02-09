@@ -243,6 +243,11 @@ class DatumaroConverter(Converter):
         super()._save_image(item,
             osp.join(self._images_dir, self._make_image_filename(item)))
 
+    @classmethod
+    def patch(cls, dataset, patch, save_dir, **kwargs):
+        for subset in patch.subsets():
+            cls.convert(dataset.get_subset(subset), save_dir=save_dir, **kwargs)
+
 class DatumaroProjectConverter(Converter):
     @classmethod
     def convert(cls, extractor, save_dir, **kwargs):

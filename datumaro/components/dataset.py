@@ -99,10 +99,12 @@ class DatasetItemStorageDatasetView(IDataset):
             return self._data.remove(id, subset)
 
         def get_subset(self, name):
-            return __class__(self.parent, self._data.get_subset(name))
+            assert name or DEFAULT_SUBSET_NAME == \
+                   self.name or DEFAULT_SUBSET_NAME
+            return self
 
         def subsets(self):
-            return { k: self.get_subset(k) for k in self._data.subsets() }
+            return { self.name or DEFAULT_SUBSET_NAME: self }
 
         def categories(self):
             return self.parent.categories()
@@ -229,14 +231,18 @@ class DatasetSubset(IDataset): # non-owning view
         return self.parent.remove(id, subset=self.name)
 
     def get_subset(self, name):
-        assert not name
+        assert name or DEFAULT_SUBSET_NAME == \
+                self.name or DEFAULT_SUBSET_NAME
         return self
 
     def subsets(self):
-        return {}
+        return {self.name or DEFAULT_SUBSET_NAME: self}
 
     def categories(self):
         return self.parent.categories()
+
+    def as_dataset(self) -> Dataset:
+        return Dataset.from_extractors(self, env=self.parent.env)
 
 
 class DatasetStorage(IDataset):
@@ -334,8 +340,10 @@ class DatasetStorage(IDataset):
 
     def put(self, item):
         is_new = self._storage.put(item)
-        if is_new and not self.is_cache_initialized():
-            self._length = None
+        if is_new:
+            self._updated_items.add((item.id, item.subset))
+            if not self.is_cache_initialized():
+                self._length = None
         if self._length is not None:
             self._length += is_new
 
@@ -353,8 +361,10 @@ class DatasetStorage(IDataset):
 
     def remove(self, id, subset=None):
         is_removed = self._storage.remove(id, subset)
-        if is_removed and not self.is_cache_initialized():
-            self._length = None
+        if is_removed:
+            self._updated_items.add((id, subset))
+            if not self.is_cache_initialized():
+                self._length = None
         if self._length is not None:
             self._length -= is_removed
 
@@ -421,8 +431,9 @@ class Dataset(IDataset):
             source = ExactMerge.merge(*sources)
             categories = ExactMerge.merge_categories(
                 s.categories() for s in sources)
+            source = DatasetItemStorageDatasetView(source, categories)
 
-        return Dataset(source=source, categories=categories, env=env)
+        return Dataset(source=source, env=env)
 
     def __init__(self, source: IDataset = None, categories: Dict = None,
             env: Environment = None):
