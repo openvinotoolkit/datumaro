@@ -547,7 +547,7 @@ class Dataset(IDataset):
 
     @property
     def is_eager(self):
-        return self._eager if self._eager is not None else self._global_eager
+        return self.eager if self.eager is not None else self._global_eager
 
     @error_rollback('on_error', implicit=True)
     def export(self, save_dir: str, format, **kwargs): #pylint: disable=redefined-builtin
