@@ -27,22 +27,19 @@ class DatasetItemStorage:
 class DatasetItemStorage:
     def __init__(self):
         self.data = {} # { subset_name: { id: DatasetItem } }
-        self._length = 0 # needed because removed items are masked
+        self._traversal_order = {} # maintain the order of elements
 
     def __iter__(self) -> Iterator[DatasetItem]:
-        for subset in self.data.values():
-            for item in subset.values():
-                if item:
-                    yield item
+        for item in self._traversal_order.values():
+            yield item
 
     def __len__(self) -> int:
-        return self._length
+        return len(self._traversal_order)
 
     def put(self, item) -> bool:
         subset = self.data.setdefault(item.subset, {})
         is_new = subset.get(item.id) == None
-        if is_new:
-            self._length += 1
+        self._traversal_order[(item.id, item.subset)] = item
         subset[item.id] = item
         return is_new
 
@@ -54,7 +51,7 @@ class DatasetItemStorage:
         subset = self.data.get(subset, {})
         is_removed = subset.get(id) != None
         if is_removed:
-            self._length -= 1
+            self._traversal_order.pop((id, subset))
             subset[id] = None # mark removed
         return is_removed
 
@@ -290,7 +287,6 @@ class DatasetStorage(IDataset):
         #
         # TODO: can potentially be optimized by sharing
         # the cache between parallel consumers and introducing some kind of lock
-
         cache = DatasetItemStorage()
 
         for item in self._source:
@@ -373,6 +369,9 @@ class DatasetStorage(IDataset):
     def transform(self, method, **kwargs):
         self._source = method(self._merged(), **kwargs)
         self._storage = DatasetItemStorage()
+        # TODO: can be optimized by analyzing methods
+        self._categories = None
+        self._length = None
         self._updated_items = self._UPDATED_ALL
 
     def get_patch(self):
@@ -436,6 +435,9 @@ class Dataset(IDataset):
     def define_categories(self, categories: Dict):
         assert not self._data._categories and self._data._source is None
         self._data._categories = categories
+
+    def init_cache(self):
+        self._data.init_cache()
 
     def __iter__(self):
         yield from self._data
@@ -525,6 +527,10 @@ class Dataset(IDataset):
         if not self._env:
             self._env = Environment()
         return self._env
+
+    @property
+    def is_cache_initialized(self) -> bool:
+        return self._data.is_cache_initialized()
 
     @error_rollback('on_error', implicit=True)
     def export(self, save_dir: str, format, **kwargs): #pylint: disable=redefined-builtin
