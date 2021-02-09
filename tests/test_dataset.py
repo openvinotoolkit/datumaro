@@ -349,6 +349,34 @@ class DatasetTest(TestCase):
 
         self.assertTrue(iter_called)
 
+    def test_can_chain_lazy_tranforms(self):
+        iter_called = False
+        class TestExtractor(Extractor):
+            def __iter__(self):
+                nonlocal iter_called
+                iter_called = True
+                return iter([
+                    DatasetItem(1),
+                    DatasetItem(2),
+                    DatasetItem(3),
+                    DatasetItem(4),
+                ])
+        dataset = Dataset.from_extractors(TestExtractor())
+
+        class TestTransform(Transform):
+            def transform_item(self, item):
+                return self.wrap_item(item, id=int(item.id) + 1)
+
+        dataset.transform(TestTransform)
+        dataset.transform(TestTransform)
+
+        self.assertFalse(iter_called)
+
+        self.assertEqual(4, len(dataset))
+        self.assertEqual(3, int(min(int(item.id) for item in dataset)))
+
+        self.assertTrue(iter_called)
+
 class DatasetItemTest(TestCase):
     def test_ctor_requires_id(self):
         with self.assertRaises(Exception):
