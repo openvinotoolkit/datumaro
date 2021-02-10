@@ -573,11 +573,11 @@ class Extractor(IExtractor):
     def categories(self):
         return {}
 
-    def get(self, id, subset):
+    def get(self, id, subset=None):
         subset = subset or DEFAULT_SUBSET_NAME
         for item in self:
             if item.id == id and item.subset == subset:
-                return subset
+                return item
         return None
 
 class SourceExtractor(Extractor):

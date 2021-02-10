@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: MIT
 
 from collections import defaultdict, OrderedDict
-from datumaro.components.dataset_filter import XPathAnnotationsFilter, XPathDatasetFilter
 import logging as log
 import os
 import os.path as osp
@@ -12,11 +11,14 @@ import shutil
 from datumaro.components.config import Config
 from datumaro.components.config_model import (Model, Source,
     PROJECT_DEFAULT_CONFIG, PROJECT_SCHEMA)
+from datumaro.components.dataset import (IDataset, Dataset, DEFAULT_FORMAT)
+from datumaro.components.dataset_filter import (XPathAnnotationsFilter,
+    XPathDatasetFilter)
 from datumaro.components.environment import Environment
-from datumaro.components.launcher import ModelTransform
+from datumaro.components.errors import DatumaroError
 from datumaro.components.extractor import Extractor
-from datumaro.components.dataset import (IDataset, Dataset, DEFAULT_FORMAT,
-    ExactMerge)
+from datumaro.components.launcher import ModelTransform
+from datumaro.components.operations import ExactMerge
 
 
 class ProjectDataset(IDataset):
@@ -227,7 +229,7 @@ class ProjectDataset(IDataset):
             dst_project = Project()
         else:
             if not self.config.project_dir:
-                raise Exception("Either a save directory or a project "
+                raise ValueError("Either a save directory or a project "
                     "directory should be specified")
             save_dir = self.config.project_dir
 
@@ -278,9 +280,9 @@ class ProjectDataset(IDataset):
     def apply_model(self, model, save_dir=None, batch_size=1):
         # NOTE: probably this function should be in the ViewModel layer
         if isinstance(model, str):
-            launcher = self._project.make_executable_model(model)
+            model = self._project.make_executable_model(model)
 
-        self.transform_project(ModelTransform, launcher=launcher,
+        self.transform_project(ModelTransform, launcher=model,
             save_dir=save_dir, batch_size=batch_size)
 
     def export_project(self, save_dir, converter,
@@ -365,9 +367,11 @@ class Project:
         if not dataset_format:
             matches = env.detect_dataset(path)
             if not matches:
-                raise Exception("Failed to detect dataset format automatically")
+                raise DatumaroError(
+                    "Failed to detect dataset format automatically")
             if 1 < len(matches):
-                raise Exception("Failed to detect dataset format automatically:"
+                raise DatumaroError(
+                    "Failed to detect dataset format automatically:"
                     " data matches more than one format: %s" % \
                     ', '.join(matches))
             dataset_format = matches[0]
@@ -384,7 +388,7 @@ class Project:
                 'options': format_options,
             })
         else:
-            raise Exception("Unknown format '%s'. To make it "
+            raise DatumaroError("Unknown format '%s'. To make it "
                 "available, add the corresponding Extractor implementation "
                 "to the environment" % dataset_format)
         return project

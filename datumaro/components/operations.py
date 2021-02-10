@@ -1,4 +1,3 @@
-
 # Copyright (C) 2020 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
@@ -15,13 +14,17 @@ from attr import attrib, attrs
 from unittest import TestCase
 
 from datumaro.components.cli_plugin import CliPlugin
+from datumaro.util import find, filter_dict
 from datumaro.components.extractor import (AnnotationType, Bbox, Label,
     LabelCategories, PointsCategories, MaskCategories)
-from datumaro.components.project import Dataset
-from datumaro.util import find, filter_dict
+from datumaro.components.errors import (DatumaroError, FailedAttrVotingError,
+    FailedLabelVotingError, MismatchingImageInfoError, NoMatchingAnnError,
+    NoMatchingItemError, AnnotationsTooCloseError, WrongGroupError)
+from datumaro.components.dataset import Dataset, DatasetItemStorage
 from datumaro.util.attrs_util import ensure_cls, default_if_none
 from datumaro.util.annotation_util import (segment_iou, bbox_iou,
     mean_bbox, OKS, find_instances, max_bbox, smooth_line)
+
 
 def get_ann_type(anns, t):
     return [a for a in anns if a.type == t]
@@ -52,7 +55,7 @@ def merge_categories(sources):
         for cat_type, source_cat in source.items():
             existing_cat = categories.setdefault(cat_type, source_cat)
             if existing_cat != source_cat:
-                raise NotImplementedError(
+                raise DatumaroError(
                     "Merging of datasets with different categories is "
                     "only allowed in 'merge' command.")
     return categories
@@ -70,75 +73,70 @@ class MergingStrategy(CliPlugin):
     def __call__(self, sources):
         raise NotImplementedError()
 
+class ExactMerge:
+    @classmethod
+    def merge(cls, *sources):
+        items = DatasetItemStorage()
+        for source in sources:
+            for item in source:
+                existing_item = items.get(item.id, item.subset)
+                if existing_item is not None:
+                    path = existing_item.path
+                    if item.path != path:
+                        path = None
+                    item = cls.merge_items(existing_item, item, path=path)
 
-@attrs
-class DatasetError:
-    item_id = attrib()
+                items.put(item)
+        return items
 
-@attrs
-class QualityError(DatasetError):
-    pass
+    @staticmethod
+    def _lazy_image(item):
+        # NOTE: avoid https://docs.python.org/3/faq/programming.html#why-do-lambdas-defined-in-a-loop-with-different-values-all-return-the-same-result
+        return lambda: item.image
 
-@attrs
-class TooCloseError(QualityError):
-    a = attrib()
-    b = attrib()
-    distance = attrib()
+    @classmethod
+    def merge_items(cls, existing_item, current_item, path=None):
+        return existing_item.wrap(path=path,
+            image=cls.merge_images(existing_item, current_item),
+            annotations=cls.merge_anno(
+                existing_item.annotations, current_item.annotations))
 
-    def __str__(self):
-        return "Item %s: annotations are too close: %s, %s, distance = %s" % \
-            (self.item_id, self.a, self.b, self.distance)
+    @staticmethod
+    def merge_images(existing_item, current_item):
+        image = None
+        if existing_item.has_image and current_item.has_image:
+            if existing_item.image.has_data:
+                image = existing_item.image
+            else:
+                image = current_item.image
 
-@attrs
-class WrongGroupError(QualityError):
-    found = attrib(converter=set)
-    expected = attrib(converter=set)
-    group = attrib(converter=list)
+            if existing_item.image.path != current_item.image.path:
+                if not existing_item.image.path:
+                    image._path = current_item.image.path
 
-    def __str__(self):
-        return "Item %s: annotation group has wrong labels: " \
-            "found %s, expected %s, group %s" % \
-            (self.item_id, self.found, self.expected, self.group)
+            if all([existing_item.image._size, current_item.image._size]):
+                if existing_item.image._size != current_item.image._size:
+                    raise MismatchingImageInfoError(
+                        (existing_item.id, existing_item.subset),
+                        existing_item.image._size, current_item.image._size)
+            elif existing_item.image._size:
+                image._size = existing_item.image._size
+            else:
+                image._size = current_item.image._size
+        elif existing_item.has_image:
+            image = existing_item.image
+        else:
+            image = current_item.image
 
-@attrs
-class MergeError(DatasetError):
-    sources = attrib(converter=set)
+        return image
 
-@attrs
-class NoMatchingAnnError(MergeError):
-    ann = attrib()
+    @staticmethod
+    def merge_anno(a, b):
+        return merge_annotations_equal(a, b)
 
-    def __str__(self):
-        return "Item %s: can't find matching annotation " \
-            "in sources %s, annotation is %s" % \
-            (self.item_id, self.sources, self.ann)
-
-@attrs
-class NoMatchingItemError(MergeError):
-    def __str__(self):
-        return "Item %s: can't find matching item in sources %s" % \
-            (self.item_id, self.sources)
-
-@attrs
-class FailedLabelVotingError(MergeError):
-    votes = attrib()
-    ann = attrib(default=None)
-
-    def __str__(self):
-        return "Item %s: label voting failed%s, votes %s, sources %s" % \
-            (self.item_id, 'for ann %s' % self.ann if self.ann else '',
-            self.votes, self.sources)
-
-@attrs
-class FailedAttrVotingError(MergeError):
-    attr = attrib()
-    votes = attrib()
-    ann = attrib()
-
-    def __str__(self):
-        return "Item %s: attribute voting failed " \
-            "for ann %s, votes %s, sources %s" % \
-            (self.item_id, self.ann, self.votes, self.sources)
+    @staticmethod
+    def merge_categories(sources):
+        return merge_categories(sources)
 
 @attrs
 class IntersectMerge(MergingStrategy):
@@ -555,7 +553,8 @@ class IntersectMerge(MergingStrategy):
             for b_ann in annotations[a_idx+1:]:
                 d = self._mergers[t].distance(a_ann, b_ann)
                 if self.conf.close_distance < d:
-                    self.add_item_error(TooCloseError, a_ann, b_ann, d)
+                    self.add_item_error(
+                        AnnotationsTooCloseError, a_ann, b_ann, d)
 
     def _check_groups(self, annotations):
         check_groups = []
@@ -1195,7 +1194,9 @@ class DistanceComparator:
         return matches, a_unmatched, b_unmatched
 
     def match_annotations(self, item_a, item_b):
-        return { t: self._match_ann_type(t, item_a, item_b) }
+        return { t: self._match_ann_type(t, item_a, item_b)
+            for t in AnnotationType
+        }
 
     def _match_ann_type(self, t, *args):
         # pylint: disable=no-value-for-parameter
