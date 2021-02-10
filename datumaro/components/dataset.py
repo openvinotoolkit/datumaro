@@ -3,18 +3,20 @@
 # SPDX-License-Identifier: MIT
 
 from contextlib import contextmanager
-from typing import Iterable, Iterator, Optional, Set, Tuple, Union, Dict, List
+from enum import Enum
+from typing import Iterable, Iterator, Optional, Tuple, Union, Dict, List
 import logging as log
 import os
 import os.path as osp
 import shutil
 
+from datumaro.components.dataset_filter import \
+    XPathDatasetFilter, XPathAnnotationsFilter
 from datumaro.components.extractor import (Categories, Extractor, IExtractor,
     LabelCategories, AnnotationType, DatasetItem,
     DEFAULT_SUBSET_NAME, Transform)
-from datumaro.components.dataset_filter import \
-    XPathDatasetFilter, XPathAnnotationsFilter
 from datumaro.components.environment import Environment
+from datumaro.components.errors import DatumaroError, RepeatedItemError
 from datumaro.util import error_rollback
 from datumaro.util.log_utils import logging_disabled
 
@@ -45,21 +47,24 @@ class DatasetItemStorage:
         subset[item.id] = item
         return is_new
 
-    def get(self, id, subset=None) -> Optional[DatasetItem]:
+    def _get(self, id, subset=None, dummy=None):
         id = str(id)
         subset = subset or DEFAULT_SUBSET_NAME
 
-        return self.data.get(subset, {}).get(id)
+        return self.data.get(subset, {}).get(id, dummy)
+
+    def get(self, id, subset=None) -> Optional[DatasetItem]:
+        return self._get(id, subset)
 
     def remove(self, id, subset=None) -> bool:
         id = str(id)
         subset = subset or DEFAULT_SUBSET_NAME
 
-        subset = self.data.get(subset, {})
-        is_removed = subset.get(id) != None
+        subset_data = self.data.get(subset, {})
+        is_removed = subset_data.get(id) is not None
         if is_removed:
             self._traversal_order.pop((id, subset))
-            subset[id] = None # mark removed
+            subset_data[id] = None # mark removed
         return is_removed
 
     def __contains__(self, x: Union[DatasetItem, Tuple[str, str]]) -> bool:
@@ -67,14 +72,15 @@ class DatasetItemStorage:
             x = (x.id, x.subset)
         return self.get(*x) is not None
 
-    def is_removed(self, id, subset=None) -> bool:
-        id = str(id)
-        subset = subset or DEFAULT_SUBSET_NAME
+    def contains(self, id, subset=None) -> bool:
+        dummy = object()
+        return self._get(id, subset, dummy=dummy) is not dummy
 
-        return self.data.get(subset, {}).get(id, object()) is None
+    def is_removed(self, id, subset=None) -> bool:
+        return self._get(id, subset, dummy=object()) is None
 
     def get_subset(self, name):
-        return self.data[name]
+        return self.data.get(name, {})
 
     def subsets(self):
         return self.data
@@ -147,74 +153,28 @@ class DatasetItemStorageDatasetView(IDataset):
         return self._parent.get(id, subset=subset)
 
 
-class ExactMerge:
-    @classmethod
-    def merge(cls, *sources, override=False):
-        items = DatasetItemStorage()
-        for source in sources:
-            for item in source:
-                if not override:
-                    existing_item = items.get(item.id, item.subset)
-                    if existing_item is not None:
-                        path = existing_item.path
-                        if item.path != path:
-                            path = None
-                        item = cls.merge_items(existing_item, item, path=path)
+ItemStatus = Enum('ItemStatus', ['added', 'modified', 'removed'])
 
-                items.put(item)
-        return items
+class DatasetPatch:
+    def __init__(self, data: DatasetItemStorage,
+            categories: Dict,
+            updated_items: Dict[Tuple[str, str], ItemStatus],
+            updated_subsets: Dict[str, ItemStatus] = None):
+        self.data = data
+        self.categories = categories
+        self.updated_items = updated_items
+        self._updated_subsets = updated_subsets
 
-    @staticmethod
-    def _lazy_image(item):
-        # NOTE: avoid https://docs.python.org/3/faq/programming.html#why-do-lambdas-defined-in-a-loop-with-different-values-all-return-the-same-result
-        return lambda: item.image
-
-    @classmethod
-    def merge_items(cls, existing_item, current_item, path=None):
-        return existing_item.wrap(path=path,
-            image=cls.merge_images(existing_item, current_item),
-            annotations=cls.merge_anno(
-                existing_item.annotations, current_item.annotations))
-
-    @staticmethod
-    def merge_images(existing_item, current_item):
-        image = None
-        if existing_item.has_image and current_item.has_image:
-            if existing_item.image.has_data:
-                image = existing_item.image
-            else:
-                image = current_item.image
-
-            if existing_item.image.path != current_item.image.path:
-                if not existing_item.image.path:
-                    image._path = current_item.image.path
-
-            if all([existing_item.image._size, current_item.image._size]):
-                assert existing_item.image._size == current_item.image._size, \
-                    "Image size info differs for item '%s': %s vs %s" % \
-                    (existing_item.id,
-                     existing_item.image._size, current_item.image._size)
-            elif existing_item.image._size:
-                image._size = existing_item.image._size
-            else:
-                image._size = current_item.image._size
-        elif existing_item.has_image:
-            image = existing_item.image
-        else:
-            image = current_item.image
-
-        return image
-
-    @staticmethod
-    def merge_anno(a, b):
-        from .operations import merge_annotations_equal
-        return merge_annotations_equal(a, b)
-
-    @staticmethod
-    def merge_categories(sources):
-        from .operations import merge_categories
-        return merge_categories(sources)
-
+    @property
+    def updated_subsets(self) -> Dict[str, ItemStatus]:
+        if self._updated_subsets is None:
+            subset_stats = set()
+            for _, subset in self.updated_items:
+                subset_stats.add(subset)
+            self._updated_subsets = {
+                subset: ItemStatus.modified for subset in subset_stats
+            }
+        return self._updated_subsets
 
 class Dataset(IDataset):
     pass # forward declaration for type annotations
@@ -266,6 +226,8 @@ class DatasetStorage(IDataset):
     def __init__(self, source: IDataset = None, categories=None):
         if source is None and categories is None:
             categories = {}
+        elif source is not None and categories is not None:
+            raise ValueError("Can't use both source and categories")
         self._categories = categories
 
         # possible combinations
@@ -275,7 +237,7 @@ class DatasetStorage(IDataset):
         #  - In this case updated_items describes the patch
         self._source = source
         self._storage = DatasetItemStorage() # patch or cache
-        self._updated_items = set()
+        self._updated_items = {} # (id, subset) -> ItemStatus
         self._transformed = False
 
         self._length = None
@@ -288,43 +250,53 @@ class DatasetStorage(IDataset):
         return self._source is not None and not self._updated_items
 
     def init_cache(self):
-        if self._is_unchanged_wrapper:
+        if not self.is_cache_initialized():
             for _ in self._iter_init_cache(): pass
-        elif self._source is not None:
-            merged = ExactMerge.merge(self._source, self._storage,
-                override=True)
-            for item in merged:
-                if self._storage.is_removed(item.id, item.subset):
-                    merged.remove(item.id, item.subset)
-            self._storage = merged
-            if self._categories is None:
-                self._categories = self._source.categories()
-            self._source = None
 
         self._length = len(self._storage)
 
     def _iter_init_cache(self) -> Iterable[DatasetItem]:
+        # Merges the source and patch, caches the result and
+        # provides an iterator for the resulting item sequence.
+        #
         # If iterated in parallel, the result is undefined.
         # If storage is changed during iteration, the result is undefined.
         #
         # TODO: can potentially be optimized by sharing
         # the cache between parallel consumers and introducing some kind of lock
+
+        patch = self._storage # must be empty after transforming
         cache = DatasetItemStorage()
 
-        for item in self._source:
+        i = -1
+        for i, item in enumerate(self._source):
             if item in cache:
-                raise Exception(
-                    "Item (%s, %s) repeats in the source dataset" % \
-                    (item.id, item.subset)
-                )
-            cache.put(item)
-            yield item
+                raise RepeatedItemError((item.id, item.subset))
+            if patch.contains(item.id, item.subset):
+                item = patch.get(item.id, item.subset)
+            if self._updated_items.get((item.id, item.subset)) == \
+                    ItemStatus.removed:
+                item = None
+            if item:
+                cache.put(item)
+                yield item
+        if i == -1:
+            cache = patch
+            for item in patch:
+                self._updated_items[(item.id, item.subset)] = ItemStatus.added
+                yield item
+        else:
+            for item in patch:
+                if item in cache: # already processed
+                    continue
+                self._updated_items[(item.id, item.subset)] = ItemStatus.added
+                cache.put(item)
+                yield item
 
-        if len(self._storage) != 0:
-            return
         self._storage = cache
-        if self._categories is None:
-            self._categories = self._source.categories()
+        source_cat = self._source.categories()
+        if source_cat is not None:
+            self._categories = source_cat
         self._length = len(cache)
         self._source = None
 
@@ -335,7 +307,7 @@ class DatasetStorage(IDataset):
             yield from self._merged()
 
     def _merged(self) -> IDataset:
-        if self._is_unchanged_wrapper :
+        if self._is_unchanged_wrapper:
             return self._source
         elif self._source is not None:
             self.init_cache()
@@ -354,7 +326,12 @@ class DatasetStorage(IDataset):
 
     def put(self, item):
         is_new = self._storage.put(item)
-        self._updated_items.add((item.id, item.subset))
+
+        if not self.is_cache_initialized() or not is_new:
+            self._updated_items[(item.id, item.subset)] = ItemStatus.modified
+        elif is_new:
+            self._updated_items[(item.id, item.subset)] = ItemStatus.added
+
         if is_new and not self.is_cache_initialized():
             self._length = None
         if self._length is not None:
@@ -366,13 +343,14 @@ class DatasetStorage(IDataset):
 
         item = self._storage.get(id, subset)
         if item is None and not self.is_cache_initialized():
-            if getattr(self._source, 'get') == Extractor.get:
+            if self._source.get.__func__ == Extractor.get:
                 # can be improved if IDataset is ABC
                 self.init_cache()
                 item = self._storage.get(id, subset)
             else:
                 item = self._source.get(id, subset)
-                self._storage.put(item)
+                if item:
+                    self._storage.put(item)
         return item
 
     def remove(self, id, subset=None):
@@ -380,7 +358,7 @@ class DatasetStorage(IDataset):
         subset = subset or DEFAULT_SUBSET_NAME
 
         is_removed = self._storage.remove(id, subset)
-        self._updated_items.add((id, subset))
+        self._updated_items[(id, subset)] = ItemStatus.removed
         if is_removed and not self.is_cache_initialized():
             self._length = None
         if self._length is not None:
@@ -403,19 +381,23 @@ class DatasetStorage(IDataset):
         self._categories = None
         self._length = None
         self._transformed = True
+        self._updated_items = {}
 
-    def get_updated_items(self):
-        if self._transformed:
-            self.init_cache()
-            self._updated_items = set((item.id, item.subset)
-                for item in self._storage)
-        return self._updated_items
+    def has_updated_items(self):
+        return self._transformed or self._updated_items
 
     def get_patch(self):
-        patch = DatasetItemStorage()
-        for id, subset in self.get_updated_items():
-            patch.put(self._storage.get(id, subset))
-        return patch
+        # Patch includes only added or modified items.
+        # To find removed items, one needs to consult updated_items list.
+        if self._transformed:
+            self.init_cache()
+            # Consider all items modified after transforming
+            self._updated_items = {
+                (item.id, item.subset): ItemStatus.modified
+                for item in self._storage
+            }
+        return DatasetPatch(self._storage, self._categories,
+            self._updated_items)
 
 
 class Dataset(IDataset):
@@ -450,8 +432,8 @@ class Dataset(IDataset):
     def from_extractors(*sources: IDataset, env: Environment = None) -> Dataset:
         if len(sources) == 1:
             source = sources[0]
-            categories = None
         else:
+            from datumaro.components.operations import ExactMerge
             source = ExactMerge.merge(*sources)
             categories = ExactMerge.merge_categories(
                 s.categories() for s in sources)
@@ -499,9 +481,11 @@ class Dataset(IDataset):
     def get(self, id, subset=None):
         return self._data.get(id, subset)
 
-    def __contains__(self, x: Union[DatasetItem, Tuple[str, str]]) -> bool:
+    def __contains__(self, x: Union[DatasetItem, str, Tuple[str, str]]) -> bool:
         if isinstance(x, DatasetItem):
             x = (x.id, x.subset)
+        elif not isinstance(x, (tuple, list)):
+            x = [x]
         return self.get(*x) is not None
 
     def put(self, item, id=None, subset=None):
@@ -566,13 +550,12 @@ class Dataset(IDataset):
         return self._format
 
     @property
-    def updated_items(self) -> Set[Tuple[str, str]]:
-        return self._data.get_updated_items()
+    def is_modified(self) -> bool:
+        return self._data.has_updated_items()
 
     @property
-    def patch(self) -> IDataset:
-        return DatasetItemStorageDatasetView(self._data.get_patch(),
-            self._data._categories)
+    def patch(self) -> DatasetPatch:
+        return self._data.get_patch()
 
     @property
     def env(self) -> Environment:
@@ -639,7 +622,7 @@ class Dataset(IDataset):
                 'url': path, 'format': format, 'options': kwargs
             }]
         else:
-            raise Exception("Unknown source format '%s'. To make it "
+            raise DatumaroError("Unknown source format '%s'. To make it "
                 "available, add the corresponding Extractor implementation "
                 "to the environment" % format)
 
@@ -663,10 +646,12 @@ class Dataset(IDataset):
 
         matches = env.detect_dataset(path)
         if not matches:
-            raise Exception("Failed to detect dataset format automatically: "
+            raise DatumaroError(
+                "Failed to detect dataset format automatically: "
                 "no matching formats found")
         if 1 < len(matches):
-            raise Exception("Failed to detect dataset format automatically:"
+            raise DatumaroError(
+                "Failed to detect dataset format automatically:"
                 " data matches more than one format: %s" % \
                 ', '.join(matches))
         return matches[0]
