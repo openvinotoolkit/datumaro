@@ -90,16 +90,24 @@ class WiderFaceExtractor(SourceExtractor):
                 bbox_list = bbox.split()
                 if len(bbox_list) >= 4:
                     attributes = {}
-                    if len(bbox_list) == 10:
+                    label = None
+                    if len(bbox_list) == 5 or len(bbox_list) == 11:
+                        if len(bbox_list) == 5:
+                            label_name = bbox_list[4]
+                        else:
+                            label_name = bbox_list[10]
+                        label = \
+                            self._categories[AnnotationType.label].find(label_name)[0]
+                    if len(bbox_list) >= 10:
                         i = 4
                         for attr in WiderFacePath.BBOX_ATTRIBUTES:
                             if bbox_list[i] != '-':
-                                attributes[attr] = int(bbox_list[i])
+                                attributes[attr] = bbox_list[i]
                             i += 1
                     annotations.append(Bbox(
                         float(bbox_list[0]), float(bbox_list[1]),
                         float(bbox_list[2]), float(bbox_list[3]),
-                        attributes = attributes
+                        attributes = attributes, label=label
                     ))
 
             items[item_id] = DatasetItem(id=item_id, subset=self._subset,
@@ -154,7 +162,7 @@ class WiderFaceConverter(Converter):
 
                 wider_annotation += '%s\n' % len(bboxes)
                 for bbox in bboxes:
-                    wider_bb = ' '.join('%d' % p for p in bbox.get_bbox())
+                    wider_bb = ' '.join('%s' % p for p in bbox.get_bbox())
                     wider_annotation += '%s ' % wider_bb
                     if bbox.attributes:
                         wider_attr = ''
@@ -167,6 +175,8 @@ class WiderFaceConverter(Converter):
                                 wider_attr += '- '
                         if attr_counter > 0:
                             wider_annotation += wider_attr
+                    if bbox.label != None:
+                        wider_annotation += '%s' % label_categories[bbox.label].name
                     wider_annotation  += '\n'
             annotation_path = osp.join(save_dir, WiderFacePath.ANNOTATIONS_DIR,
                 'wider_face_' + subset_name + '_bbx_gt.txt')
