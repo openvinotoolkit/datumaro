@@ -75,13 +75,24 @@ class VggFace2Extractor(SourceExtractor):
                     row['NAME_ID'] + VggFace2Path.IMAGE_EXT)
                 items[item_id] = DatasetItem(id=item_id, subset=self._subset,
                     image=image_path)
+            group = 0
             annotations = items[item_id].annotations
+            if annotations:
+                max_group = max(annotations, key=lambda x: x.group).group
+                for anno in annotations:
+                    if anno.label == label:
+                        if anno.group == 0:
+                            group = max_group + 1
+                            anno.group = group
+                        else:
+                            group = anno.group
+                        break
             if len([p for p in row if row[p] == '']) == 0 and len(row) == 11:
                 annotations.append(Points(
                     [float(row[p]) for p in row if p != 'NAME_ID'], label=label,
-                    group=1))
+                    group=group))
             elif label is not None:
-                annotations.append(Label(label=label, group=1))
+                annotations.append(Label(label=label, group=group))
 
         bboxes_path = osp.join(self._dataset_dir, VggFace2Path.ANNOTATION_DIR,
             VggFace2Path.BBOXES_FILE + self._subset + '.csv')
@@ -102,10 +113,21 @@ class VggFace2Extractor(SourceExtractor):
                         row['NAME_ID'] + VggFace2Path.IMAGE_EXT)
                     items[item_id] = DatasetItem(id=item_id, subset=self._subset,
                         image=image_path)
+                group = 0
                 annotations = items[item_id].annotations
+                if annotations:
+                    max_group = max(annotations, key=lambda x: x.group).group
+                    for anno in annotations:
+                        if anno.label == label:
+                            if anno.group == 0:
+                                group = max_group + 1
+                                anno.group = group
+                            else:
+                                group = anno.group
+                            break
                 if len([p for p in row if row[p] == '']) == 0 and len(row) == 5:
                     annotations.append(Bbox(float(row['X']), float(row['Y']),
-                        float(row['W']), float(row['H']), label=label, group=1))
+                        float(row['W']), float(row['H']), label=label, group=group))
         return items
 
 class VggFace2Importer(Importer):
@@ -164,12 +186,15 @@ class VggFace2Converter(Converter):
                         name_id = VggFace2Path.IMAGES_DIR_NO_LABEL \
                             + '/' + item.id
                     points = landmark.points
-                    landmarks_table.append({'NAME_ID': name_id,
-                        'P1X': points[0], 'P1Y': points[1],
-                        'P2X': points[2], 'P2Y': points[3],
-                        'P3X': points[4], 'P3Y': points[5],
-                        'P4X': points[6], 'P4Y': points[7],
-                        'P5X': points[8], 'P5Y': points[9]})
+                    if len(points) != 10:
+                        landmarks_table.append({'NAME_ID': name_id})
+                    else:
+                        landmarks_table.append({'NAME_ID': name_id,
+                            'P1X': points[0], 'P1Y': points[1],
+                            'P2X': points[2], 'P2Y': points[3],
+                            'P3X': points[4], 'P3Y': points[5],
+                            'P4X': points[6], 'P4Y': points[7],
+                            'P5X': points[8], 'P5Y': points[9]})
 
                 bboxes = [a for a in item.annotations
                     if a.type == AnnotationType.bbox]
