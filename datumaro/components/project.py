@@ -130,15 +130,15 @@ class ProjectDataset(IDataset):
     def __len__(self):
         return sum(len(s) for s in self._subsets.values())
 
-    def get(self, id, subset=None, path=None):
+    def get(self, id, subset=None, \
+            path=None): #pylint: disable=redefined-builtin
         if path:
             source = path[0]
-            rest_path = path[1:]
-            return self._sources[source].get(
-                id=id, subset=subset, path=rest_path)
+            return self._sources[source].get(id=id, subset=subset)
         return self._subsets.get(subset, {}).get(id)
 
-    def put(self, item, id=None, subset=None, path=None):
+    def put(self, item, id=None, subset=None, \
+            path=None): #pylint: disable=redefined-builtin
         if path is None:
             path = item.path
 
@@ -257,6 +257,7 @@ class ProjectDataset(IDataset):
     def update(self, other):
         for item in other:
             self.put(item)
+        return self
 
     def select(self, pred):
         class _DatasetFilter(Extractor):

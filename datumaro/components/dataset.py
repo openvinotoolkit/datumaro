@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: MIT
 
+#pylint: disable=redefined-builtin
+
 from contextlib import contextmanager
 from enum import Enum
 from typing import Iterable, Iterator, Optional, Tuple, Union, Dict, List
@@ -12,8 +14,8 @@ import shutil
 
 from datumaro.components.dataset_filter import \
     XPathDatasetFilter, XPathAnnotationsFilter
-from datumaro.components.extractor import (Categories, Extractor, IExtractor,
-    LabelCategories, AnnotationType, DatasetItem,
+from datumaro.components.extractor import (CategoriesInfo, Extractor,
+    IExtractor, LabelCategories, AnnotationType, DatasetItem,
     DEFAULT_SUBSET_NAME, Transform)
 from datumaro.components.environment import Environment
 from datumaro.components.errors import DatumaroError, RepeatedItemError
@@ -24,9 +26,6 @@ from datumaro.util.log_utils import logging_disabled
 DEFAULT_FORMAT = 'datumaro'
 
 IDataset = IExtractor
-
-class DatasetItemStorage:
-    pass # forward declaration for type annotations
 
 class DatasetItemStorage:
     def __init__(self):
@@ -127,7 +126,7 @@ class DatasetItemStorageDatasetView(IDataset):
             return self.parent.categories()
 
 
-    def __init__(self, parent: DatasetItemStorage, categories: Dict):
+    def __init__(self, parent: DatasetItemStorage, categories: CategoriesInfo):
         self._parent = parent
         self._categories = categories
 
@@ -157,7 +156,7 @@ ItemStatus = Enum('ItemStatus', ['added', 'modified', 'removed'])
 
 class DatasetPatch:
     def __init__(self, data: DatasetItemStorage,
-            categories: Dict,
+            categories: CategoriesInfo,
             updated_items: Dict[Tuple[str, str], ItemStatus],
             updated_subsets: Dict[str, ItemStatus] = None):
         self.data = data
@@ -176,11 +175,9 @@ class DatasetPatch:
             }
         return self._updated_subsets
 
-class Dataset(IDataset):
-    pass # forward declaration for type annotations
 
 class DatasetSubset(IDataset): # non-owning view
-    def __init__(self, parent: Dataset, name: str):
+    def __init__(self, parent: 'Dataset', name: str):
         super().__init__()
         self.parent = parent
         self.name = name
@@ -215,15 +212,13 @@ class DatasetSubset(IDataset): # non-owning view
     def categories(self):
         return self.parent.categories()
 
-    def as_dataset(self) -> Dataset:
+    def as_dataset(self) -> 'Dataset':
         return Dataset.from_extractors(self, env=self.parent.env)
 
 
 class DatasetStorage(IDataset):
-    pass # forward declaration for type annotations
-
-class DatasetStorage(IDataset):
-    def __init__(self, source: IDataset = None, categories=None):
+    def __init__(self, source: IDataset = None,
+            categories: CategoriesInfo = None):
         if source is None and categories is None:
             categories = {}
         elif source is not None and categories is not None:
@@ -318,7 +313,7 @@ class DatasetStorage(IDataset):
             self.init_cache()
         return self._length
 
-    def categories(self) -> Dict[AnnotationType, Categories]:
+    def categories(self) -> CategoriesInfo:
         if self._categories is not None:
             return self._categories
         else:
@@ -374,8 +369,8 @@ class DatasetStorage(IDataset):
         subsets.update(self._storage.subsets())
         return subsets
 
-    def transform(self, method, **kwargs):
-        self._source = method(self._merged(), **kwargs)
+    def transform(self, method, *args, **kwargs):
+        self._source = method(self._merged(), *args, **kwargs)
         self._storage = DatasetItemStorage()
         # TODO: can be optimized by analyzing methods
         self._categories = None
@@ -405,7 +400,7 @@ class Dataset(IDataset):
 
     @classmethod
     def from_iterable(cls, iterable: Iterable[DatasetItem],
-            categories: Union[Dict, List[str]] = None,
+            categories: Union[CategoriesInfo, List[str]] = None,
             env: Environment = None):
         if isinstance(categories, list):
             categories = { AnnotationType.label:
@@ -429,7 +424,8 @@ class Dataset(IDataset):
         return cls.from_extractors(_extractor(), env=env)
 
     @staticmethod
-    def from_extractors(*sources: IDataset, env: Environment = None) -> Dataset:
+    def from_extractors(*sources: IDataset,
+            env: Environment = None) -> 'Dataset':
         if len(sources) == 1:
             source = sources[0]
         else:
@@ -441,8 +437,8 @@ class Dataset(IDataset):
 
         return Dataset(source=source, env=env)
 
-    def __init__(self, source: IDataset = None, categories: Dict = None,
-            env: Environment = None):
+    def __init__(self, source: IDataset = None,
+            categories: CategoriesInfo = None, env: Environment = None):
         super().__init__()
 
         assert env is None or isinstance(env, Environment), env
@@ -503,28 +499,29 @@ class Dataset(IDataset):
         self._data.remove(id, subset)
 
     def filter(self, expr: str, filter_annotations: bool = False,
-            remove_empty: bool = False) -> Dataset:
+            remove_empty: bool = False) -> 'Dataset':
         if filter_annotations:
             return self.transform(XPathAnnotationsFilter, expr, remove_empty)
         else:
             return self.transform(XPathDatasetFilter, expr)
 
-    def update(self, items: Iterable[DatasetItem]) -> Dataset:
+    def update(self, items: Iterable[DatasetItem]) -> 'Dataset':
         for item in items:
             self.put(item)
         return self
 
-    def transform(self, method: Union[str, Transform], **kwargs) -> Dataset:
+    def transform(self, method: Union[str, Transform],
+            *args, **kwargs) -> 'Dataset':
         if isinstance(method, str):
             method = self.env.make_transform(method)
 
-        self._data.transform(method, **kwargs)
+        self._data.transform(method, *args, **kwargs)
         if self.is_eager:
             self.init_cache()
 
         return self
 
-    def run_model(self, model, batch_size=1) -> Dataset:
+    def run_model(self, model, batch_size=1) -> 'Dataset':
         from datumaro.components.launcher import Launcher, ModelTransform
         if isinstance(model, Launcher):
             return self.transform(ModelTransform, launcher=model,
@@ -568,7 +565,7 @@ class Dataset(IDataset):
         return self._data.is_cache_initialized()
 
     @property
-    def is_eager(self):
+    def is_eager(self) -> bool:
         return self.eager if self.eager is not None else self._global_eager
 
     @error_rollback('on_error', implicit=True)
@@ -596,13 +593,13 @@ class Dataset(IDataset):
             format=self._format, **kwargs)
 
     @classmethod
-    def load(cls, path: str, **kwargs) -> Dataset:
+    def load(cls, path: str, **kwargs) -> 'Dataset':
         return cls.import_from(path, format=DEFAULT_FORMAT, **kwargs)
 
     @classmethod
     def import_from(cls, path: str, format: str = None, \
             env: Environment = None, \
-            **kwargs) -> Dataset: #pylint: disable=redefined-builtin
+            **kwargs) -> 'Dataset': #pylint: disable=redefined-builtin
         from datumaro.components.config_model import Source
 
         if env is None:

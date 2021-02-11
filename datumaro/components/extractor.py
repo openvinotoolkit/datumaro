@@ -497,23 +497,23 @@ class DatasetItem:
     def wrap(item, **kwargs):
         return attr.evolve(item, **kwargs)
 
-class IExtractor:
-    pass # forward declaration
 
-class IExtractor:
+CategoriesInfo = Dict[AnnotationType, Categories]
+
+class IExtractor: #pylint: disable=redefined-builtin
     def __iter__(self) -> Iterable[DatasetItem]:
         raise NotImplementedError()
 
     def __len__(self) -> int:
         raise NotImplementedError()
 
-    def subsets(self) -> Dict[str, IExtractor]:
+    def subsets(self) -> Dict[str, 'IExtractor']:
         raise NotImplementedError()
 
-    def get_subset(self, name) -> IExtractor:
+    def get_subset(self, name) -> 'IExtractor':
         raise NotImplementedError()
 
-    def categories(self) -> Dict[AnnotationType, Categories]:
+    def categories(self) -> CategoriesInfo:
         raise NotImplementedError()
 
     def get(self, id, subset=None) -> Optional[DatasetItem]:
@@ -573,7 +573,7 @@ class Extractor(IExtractor):
     def categories(self):
         return {}
 
-    def get(self, id, subset=None):
+    def get(self, id, subset=None): #pylint: disable=redefined-builtin
         subset = subset or DEFAULT_SUBSET_NAME
         for item in self:
             if item.id == id and item.subset == subset:

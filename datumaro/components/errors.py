@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-from attr import attr, attrib, attrs
+from attr import attrib, attrs
 
 
 class DatumaroError(Exception):
