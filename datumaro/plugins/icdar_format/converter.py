@@ -13,7 +13,7 @@ from datumaro.util.mask_tools import paint_mask, merge_masks
 from .format import IcdarPath, IcdarTask
 
 
-class _WordRecognitionConverter():
+class _WordRecognitionConverter:
     def __init__(self):
         self.annotations = ''
 
@@ -34,7 +34,7 @@ class _WordRecognitionConverter():
     def is_empty(self):
         return len(self.annotations) == 0
 
-class _TextLocalizationConverter():
+class _TextLocalizationConverter:
     def __init__(self):
         self.annotations = {}
 
@@ -62,7 +62,7 @@ class _TextLocalizationConverter():
     def is_empty(self):
         return len(self.annotations) == 0
 
-class _TextSegmentationConverter():
+class _TextSegmentationConverter:
     def __init__(self):
         self.annotations = {}
         self.masks = {}
@@ -163,8 +163,9 @@ class IcdarConverter(Converter):
             for item in subset:
                 for task_conv in task_converters.values():
                     if item.has_image and self._save_images:
-                        self._save_image(item, osp.join(self._save_dir, subset_name,
-                            IcdarPath.IMAGES_DIR, item.id + IcdarPath.IMAGE_EXT))
+                        self._save_image(item, osp.join(
+                            self._save_dir, subset_name, IcdarPath.IMAGES_DIR,
+                            item.id + IcdarPath.IMAGE_EXT))
                     task_conv.save_annotations(item)
 
             for task, task_conv in task_converters.items():
