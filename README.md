@@ -135,6 +135,7 @@ CVAT annotations                             ---> Publication, statistics etc.
   - [CamVid](http://mi.eng.cam.ac.uk/research/projects/VideoRec/CamVid/)
   - [CVAT](https://github.com/opencv/cvat/blob/develop/cvat/apps/documentation/xml_format.md)
   - [LabelMe](http://labelme.csail.mit.edu/Release3.0)
+  - [ICDAR13/15](https://rrc.cvc.uab.es/?ch=2) (`word_recognition`, `text_localization`, `text_segmentation`)
 - Dataset building
   - Merging multiple datasets into one
   - Dataset filtering by a custom criteria:
