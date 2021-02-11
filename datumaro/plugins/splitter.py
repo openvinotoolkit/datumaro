@@ -495,7 +495,7 @@ class DetectionSplit(_TaskSpecificSplit):
             )
 
         by_splits = dict()
-        for sname in subsets:
+        for sname in self._subsets:
             by_splits[sname] = []
 
         total = len(self._extractor)
