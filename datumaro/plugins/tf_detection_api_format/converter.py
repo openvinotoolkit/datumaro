@@ -210,3 +210,8 @@ class TfDetectionApiConverter(Converter):
         else:
             buffer = encode_image(item.image.data, dst_ext)
         return buffer, fmt
+
+    @classmethod
+    def patch(cls, dataset, patch, save_dir, **kwargs):
+        for subset in patch.updated_subsets:
+            cls.convert(dataset.get_subset(subset), save_dir=save_dir, **kwargs)

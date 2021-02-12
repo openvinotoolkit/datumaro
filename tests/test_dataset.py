@@ -1,7 +1,6 @@
 import numpy as np
 import os
 import os.path as osp
-import time
 
 from unittest import TestCase
 
@@ -218,23 +217,21 @@ class DatasetTest(TestCase):
                 DatasetItem(3, subset='c'),
             ])
             dataset.save(path)
-            ts1_a = os.stat(osp.join(path, 'annotations', 'a.json')).st_mtime_ns
-            ts1_b = os.stat(osp.join(path, 'annotations', 'b.json')).st_mtime_ns
-            ts1_c = osp.isfile(osp.join(path, 'annotations', 'c.json'))
+            os.unlink(osp.join(
+                path, 'annotations', 'a.json')) # should be rewritten
+            os.unlink(osp.join(
+                path, 'annotations', 'b.json')) # should not be rewritten
+            os.unlink(osp.join(
+                path, 'annotations', 'c.json')) # should not be rewritten
 
-            dataset = Dataset.load(path)
             dataset.put(DatasetItem(2, subset='a'))
             dataset.remove(3, 'c')
-            time.sleep(1)
             dataset.save()
 
-            ts2_a = os.stat(osp.join(path, 'annotations', 'a.json')).st_mtime_ns
-            ts2_b = os.stat(osp.join(path, 'annotations', 'b.json')).st_mtime_ns
-            ts2_c = osp.isfile(osp.join(path, 'annotations', 'c.json'))
-            self.assertLess(ts1_a, ts2_a)
-            self.assertEqual(ts1_b, ts2_b)
-            self.assertTrue(ts1_c)
-            self.assertFalse(ts2_c)
+            self.assertTrue(osp.isfile(osp.join(path, 'annotations', 'a.json')))
+            self.assertFalse(osp.isfile(osp.join(path, 'annotations', 'b.json')))
+            self.assertFalse(osp.isfile(osp.join(path, 'annotations', 'c.json')))
+            self.assertTrue(dataset.is_bound)
 
     def test_can_track_modifications_on_addition(self):
         dataset = Dataset.from_iterable([

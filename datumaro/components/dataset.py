@@ -568,8 +568,16 @@ class Dataset(IDataset):
     def is_eager(self) -> bool:
         return self.eager if self.eager is not None else self._global_eager
 
+    @property
+    def is_bound(self) -> bool:
+        return self._source_path and self._format
+
+    def bind(self, path: str, format: str = None):
+        self._source_path = path
+        self._format = format or DEFAULT_FORMAT
+
     @error_rollback('on_error', implicit=True)
-    def export(self, save_dir: str, format, **kwargs): #pylint: disable=redefined-builtin
+    def export(self, save_dir: str, format, **kwargs):
         inplace = (save_dir == self._source_path and format == self._format)
 
         if isinstance(format, str):
@@ -585,6 +593,8 @@ class Dataset(IDataset):
 
         if not inplace:
             converter.convert(self, save_dir=save_dir, **kwargs)
+            if not self.is_bound:
+                self.bind(save_dir, format)
         else:
             converter.patch(self, self.patch, save_dir=save_dir, **kwargs)
 
@@ -597,9 +607,8 @@ class Dataset(IDataset):
         return cls.import_from(path, format=DEFAULT_FORMAT, **kwargs)
 
     @classmethod
-    def import_from(cls, path: str, format: str = None, \
-            env: Environment = None, \
-            **kwargs) -> 'Dataset': #pylint: disable=redefined-builtin
+    def import_from(cls, path: str, format: str = None, env: Environment = None,
+            **kwargs) -> 'Dataset':
         from datumaro.components.config_model import Source
 
         if env is None:

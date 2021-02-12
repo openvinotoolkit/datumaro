@@ -10,7 +10,8 @@ from collections import OrderedDict
 from xml.sax.saxutils import XMLGenerator
 
 from datumaro.components.converter import Converter
-from datumaro.components.extractor import DEFAULT_SUBSET_NAME, AnnotationType
+from datumaro.components.dataset import ItemStatus
+from datumaro.components.extractor import AnnotationType, DatasetItem
 from datumaro.util import cast, pairs
 
 from .format import CvatPath
@@ -330,3 +331,23 @@ class CvatConverter(Converter):
             with open(osp.join(self._save_dir, '%s.xml' % subset_name), 'w') as f:
                 writer = _SubsetWriter(f, subset_name, subset, self)
                 writer.write()
+
+    @classmethod
+    def patch(cls, dataset, patch, save_dir, **kwargs):
+        for subset in patch.updated_subsets:
+            cls.convert(dataset.get_subset(subset), save_dir=save_dir, **kwargs)
+
+        conv = cls(dataset, save_dir=save_dir, **kwargs)
+        images_dir = osp.join(save_dir, CvatPath.IMAGES_DIR)
+        for (item_id, subset), status in patch.updated_items.items():
+            if status != ItemStatus.removed:
+                item = patch.data.get(item_id, subset)
+            else:
+                item = DatasetItem(item_id, subset=subset)
+
+            if not (status == ItemStatus.removed or not item.has_image):
+                continue
+
+            image_path = osp.join(images_dir, conv._make_image_filename(item))
+            if osp.isfile(image_path):
+                os.unlink(image_path)
