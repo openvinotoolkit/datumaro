@@ -78,15 +78,9 @@ class VggFace2Extractor(SourceExtractor):
             group = 0
             annotations = items[item_id].annotations
             if annotations:
-                max_group = max(annotations, key=lambda x: x.group).group
                 for anno in annotations:
                     if anno.label == label:
-                        if anno.group == 0:
-                            group = max_group + 1
-                            anno.group = group
-                        else:
-                            group = anno.group
-                        break
+                        raise Exception("A face shouldn't have multiple sets of landmarks")
             if len([p for p in row if row[p] == '']) == 0 and len(row) == 11:
                 annotations.append(Points(
                     [float(row[p]) for p in row if p != 'NAME_ID'], label=label,
