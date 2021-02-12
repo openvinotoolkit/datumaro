@@ -217,8 +217,7 @@ reading, exporting and iteration capabilities, simplifying integration of custom
 formats and providing high performance operations:
 
 ``` python
-from datumaro.components.project import Project # project-related things
-import datumaro.components.extractor # annotations and high-level interfaces
+from datumaro.components.project import Project
 
 # load a Datumaro project
 project = Project.load('directory')
@@ -230,7 +229,7 @@ dataset = project.make_dataset()
 dataset = dataset.select(lambda item: len(item.annotations) != 0)
 
 # change dataset labels
-dataset = dataset.transform(project.env.transforms.get('remap_labels'),
+dataset.transform('remap_labels',
   {'cat': 'dog', # rename cat to dog
     'truck': 'car', # rename truck to car
     'person': '', # remove this label
