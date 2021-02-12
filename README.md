@@ -226,7 +226,7 @@ project = Project.load('directory')
 dataset = project.make_dataset()
 
 # keep only annotated images
-dataset = dataset.select(lambda item: len(item.annotations) != 0)
+dataset.select(lambda item: len(item.annotations) != 0)
 
 # change dataset labels
 dataset.transform('remap_labels',
