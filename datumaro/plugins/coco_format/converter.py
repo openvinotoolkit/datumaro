@@ -587,7 +587,7 @@ class CocoConverter(Converter):
 
     @classmethod
     def patch(cls, dataset, patch, save_dir, **kwargs):
-        for subset in patch.updated_subsets.items():
+        for subset in patch.updated_subsets:
             cls.convert(dataset.get_subset(subset), save_dir=save_dir, **kwargs)
 
         conv = cls(dataset, save_dir=save_dir, **kwargs)

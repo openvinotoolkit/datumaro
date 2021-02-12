@@ -230,7 +230,7 @@ class DatasetTest(TestCase):
 
             self.assertTrue(osp.isfile(osp.join(path, 'annotations', 'a.json')))
             self.assertFalse(osp.isfile(osp.join(path, 'annotations', 'b.json')))
-            self.assertFalse(osp.isfile(osp.join(path, 'annotations', 'c.json')))
+            self.assertTrue(osp.isfile(osp.join(path, 'annotations', 'c.json')))
             self.assertTrue(dataset.is_bound)
 
     def test_can_track_modifications_on_addition(self):

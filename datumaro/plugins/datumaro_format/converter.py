@@ -99,8 +99,7 @@ class _SubsetWriter:
             self.categories[ann_type.name] = converted_desc
 
     def write(self, save_dir):
-        path = osp.join(save_dir, '%s.json' % (self._name))
-        with open(path, 'w') as f:
+        with open(osp.join(save_dir, '%s.json' % self._name), 'w') as f:
             json.dump(self._data, f)
 
     def _convert_annotation(self, obj):

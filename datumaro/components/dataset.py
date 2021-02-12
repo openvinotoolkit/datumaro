@@ -60,23 +60,15 @@ class DatasetItemStorage:
         subset = subset or DEFAULT_SUBSET_NAME
 
         subset_data = self.data.get(subset, {})
-        is_removed = subset_data.get(id) is not None
+        is_removed = subset_data.pop(id, None) is not None
         if is_removed:
             self._traversal_order.pop((id, subset))
-            subset_data[id] = None # mark removed
         return is_removed
 
     def __contains__(self, x: Union[DatasetItem, Tuple[str, str]]) -> bool:
         if isinstance(x, DatasetItem):
             x = (x.id, x.subset)
         return self.get(*x) is not None
-
-    def contains(self, id, subset=None) -> bool:
-        dummy = object()
-        return self._get(id, subset, dummy=dummy) is not dummy
-
-    def is_removed(self, id, subset=None) -> bool:
-        return self._get(id, subset, dummy=object()) is None
 
     def get_subset(self, name):
         return self.data.get(name, {})
@@ -267,7 +259,7 @@ class DatasetStorage(IDataset):
         for i, item in enumerate(self._source):
             if item in cache:
                 raise RepeatedItemError((item.id, item.subset))
-            if patch.contains(item.id, item.subset):
+            if item in patch:
                 item = patch.get(item.id, item.subset)
             if self._updated_items.get((item.id, item.subset)) == \
                     ItemStatus.removed:
@@ -352,8 +344,10 @@ class DatasetStorage(IDataset):
         id = str(id)
         subset = subset or DEFAULT_SUBSET_NAME
 
-        is_removed = self._storage.remove(id, subset)
-        self._updated_items[(id, subset)] = ItemStatus.removed
+        self._storage.remove(id, subset)
+        is_removed = self._updated_items.get((id, subset)) != ItemStatus.removed
+        if is_removed:
+            self._updated_items[(id, subset)] = ItemStatus.removed
         if is_removed and not self.is_cache_initialized():
             self._length = None
         if self._length is not None:

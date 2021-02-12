@@ -123,6 +123,6 @@ class DatumaroConverterTest(TestCase):
 
             self.assertTrue(osp.isfile(osp.join(path, 'annotations', 'a.json')))
             self.assertFalse(osp.isfile(osp.join(path, 'annotations', 'b.json')))
-            self.assertFalse(osp.isfile(osp.join(path, 'annotations', 'c.json')))
+            self.assertTrue(osp.isfile(osp.join(path, 'annotations', 'c.json')))
             self.assertTrue(osp.isfile(osp.join(path, 'images', '2.jpg')))
             self.assertFalse(osp.isfile(osp.join(path, 'images', '3.jpg')))

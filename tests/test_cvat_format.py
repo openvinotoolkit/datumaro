@@ -297,9 +297,9 @@ class CvatConverterTest(TestCase):
                 DatasetItem(3, subset='c', image=np.ones((2, 2, 3))),
             ], categories=[])
             dataset.export(path, 'cvat', save_images=True)
-            os.unlink(osp.join(path, 'annotations', 'a.xml'))
-            os.unlink(osp.join(path, 'annotations', 'b.xml'))
-            os.unlink(osp.join(path, 'annotations', 'c.xml'))
+            os.unlink(osp.join(path, 'a.xml'))
+            os.unlink(osp.join(path, 'b.xml'))
+            os.unlink(osp.join(path, 'c.xml'))
             self.assertFalse(osp.isfile(osp.join(path, 'images', '2.jpg')))
             self.assertTrue(osp.isfile(osp.join(path, 'images', '3.jpg')))
 
@@ -307,8 +307,8 @@ class CvatConverterTest(TestCase):
             dataset.remove(3, 'c')
             dataset.save(save_images=True)
 
-            self.assertTrue(osp.isfile(osp.join(path, 'annotations', 'a.xml')))
-            self.assertFalse(osp.isfile(osp.join(path, 'annotations', 'b.xml')))
-            self.assertFalse(osp.isfile(osp.join(path, 'annotations', 'c.xml')))
+            self.assertTrue(osp.isfile(osp.join(path, 'a.xml')))
+            self.assertFalse(osp.isfile(osp.join(path, 'b.xml')))
+            self.assertTrue(osp.isfile(osp.join(path, 'c.xml')))
             self.assertTrue(osp.isfile(osp.join(path, 'images', '2.jpg')))
             self.assertFalse(osp.isfile(osp.join(path, 'images', '3.jpg')))
