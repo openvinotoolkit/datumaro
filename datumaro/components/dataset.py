@@ -324,7 +324,7 @@ class DatasetStorage(IDataset):
         if self._length is not None:
             self._length += is_new
 
-    def get(self, id, subset) -> Optional[DatasetItem]:
+    def get(self, id, subset=None) -> Optional[DatasetItem]:
         id = str(id)
         subset = subset or DEFAULT_SUBSET_NAME
 
