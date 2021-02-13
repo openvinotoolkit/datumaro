@@ -299,9 +299,9 @@ class MapSubsets(Transform, CliPlugin):
             mapping = dict(tuple(m) for m in mapping)
         self._mapping = mapping
 
-        if extractor._subsets:
+        if extractor.subsets():
             counts = Counter(mapping.get(s, s) or DEFAULT_SUBSET_NAME
-                for s in extractor._subsets)
+                for s in extractor.subsets())
             if all(c == 1 for c in counts.values()):
                 self._length = 'parent'
             self._subsets = set(counts)

@@ -31,6 +31,10 @@ class Converter(CliPlugin):
         converter = cls(extractor, save_dir, **options)
         return converter.apply()
 
+    @classmethod
+    def patch(cls, dataset, patch, save_dir, **options):
+        return cls.convert(dataset, save_dir, **options)
+
     def apply(self):
         raise NotImplementedError("Should be implemented in a subclass")
 

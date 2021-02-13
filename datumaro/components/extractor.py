@@ -5,7 +5,7 @@
 
 from enum import Enum
 from glob import iglob
-from typing import List, Dict
+from typing import Iterable, List, Dict, Optional
 import numpy as np
 import os.path as osp
 
@@ -526,23 +526,26 @@ class DatasetItem:
     def wrap(item, **kwargs):
         return attr.evolve(item, **kwargs)
 
-class IExtractor:
-    def __iter__(self):
+
+CategoriesInfo = Dict[AnnotationType, Categories]
+
+class IExtractor: #pylint: disable=redefined-builtin
+    def __iter__(self) -> Iterable[DatasetItem]:
         raise NotImplementedError()
 
-    def __len__(self):
+    def __len__(self) -> int:
         raise NotImplementedError()
 
-    def subsets(self):
+    def subsets(self) -> Dict[str, 'IExtractor']:
         raise NotImplementedError()
 
-    def get_subset(self, name):
+    def get_subset(self, name) -> 'IExtractor':
         raise NotImplementedError()
 
-    def categories(self):
+    def categories(self) -> CategoriesInfo:
         raise NotImplementedError()
 
-    def select(self, pred):
+    def get(self, id, subset=None) -> Optional[DatasetItem]:
         raise NotImplementedError()
 
 class Extractor(IExtractor):
@@ -598,6 +601,13 @@ class Extractor(IExtractor):
 
     def categories(self):
         return {}
+
+    def get(self, id, subset=None): #pylint: disable=redefined-builtin
+        subset = subset or DEFAULT_SUBSET_NAME
+        for item in self:
+            if item.id == id and item.subset == subset:
+                return item
+        return None
 
 class SourceExtractor(Extractor):
     def __init__(self, length=None, subset=None):
