@@ -158,6 +158,10 @@ class Mask(Annotation):
         default=None, kw_only=True)
     z_order = attrib(default=0, validator=default_if_none(int), kw_only=True)
 
+    def __attrs_post_init__(self):
+        if isinstance(self._image, np.ndarray):
+            self._image = self._image.astype(bool)
+
     @property
     def image(self):
         if callable(self._image):
@@ -238,7 +242,7 @@ class CompiledMask:
 
         instance_masks = sorted(enumerate(instance_masks),
             key=lambda m: m[1].z_order)
-        instance_masks = ((m.image,
+        instance_masks = ((m.image, 1 + j,
                 instance_ids[i] if instance_ids[i] is not None else 1 + j,
                 instance_labels[i] if instance_labels[i] is not None else m.label
             ) for j, (i, m) in enumerate(instance_masks))
@@ -247,13 +251,26 @@ class CompiledMask:
         # 2. Optimize materialization calls
         it = iter(instance_masks)
 
-        m, instance_id, class_id = next(it)
-        merged_instance_mask = make_index_mask(m, instance_id)
-        merged_class_mask = make_index_mask(m, class_id)
+        instance_map = [0]
+        class_map = [0]
 
-        for m, instance_id, class_id in it:
-            merged_instance_mask = np.where(m, instance_id, merged_instance_mask)
-            merged_class_mask = np.where(m, class_id, merged_class_mask)
+        m, idx, instance_id, class_id = next(it)
+        index_mask = make_index_mask(m, idx)
+        instance_map.append(instance_id)
+        class_map.append(class_id)
+
+        for m, idx, instance_id, class_id in it:
+            index_mask = np.where(m, idx, index_mask)
+            instance_map.append(instance_id)
+            class_map.append(class_id)
+
+        if np.array_equal(instance_map, range(idx + 1)):
+            merged_instance_mask = index_mask
+        else:
+            merged_instance_mask = np.array(instance_map,
+                dtype=np.min_scalar_type(instance_map))[index_mask]
+        merged_class_mask = np.array(class_map,
+            dtype=np.min_scalar_type(class_map))[index_mask]
 
         return __class__(class_mask=merged_class_mask,
             instance_mask=merged_instance_mask)
