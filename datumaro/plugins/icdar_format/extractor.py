@@ -2,10 +2,11 @@
 #
 # SPDX-License-Identifier: MIT
 
-import os.path as osp
 from glob import glob
+import os.path as osp
 
 import numpy as np
+
 from datumaro.components.extractor import (Bbox, Caption, DatasetItem,
     Importer, Mask, MaskCategories, Polygon, SourceExtractor)
 from datumaro.util.mask_tools import lazy_mask
@@ -17,26 +18,26 @@ class _IcdarExtractor(SourceExtractor):
     def __init__(self, path, task):
         self._path = path
         self._task = task
-        super().__init__()
 
         if task is IcdarTask.word_recognition:
             if not osp.isfile(path):
-                raise Exception("Can't read annotation file '%s'" % path)
-            self._subset = osp.basename(osp.dirname(path))
+                raise FileNotFoundError(
+                    "Can't read annotation file '%s'" % path)
+            super().__init__(subset=osp.basename(osp.dirname(path)))
             self._dataset_dir = osp.dirname(osp.dirname(path))
 
             self._items = list(self._load_recognition_items().values())
-        elif task is IcdarTask.text_localization or \
-                task is IcdarTask.text_segmentation:
+        elif task in {IcdarTask.text_localization, IcdarTask.text_segmentation}:
             if not osp.isdir(path):
-                raise Exception(
+                raise NotADirectoryError(
                     "Can't open folder with annotation files '%s'" % path)
-            self._subset = osp.basename(path)
+            super().__init__(subset=osp.basename(path))
             self._dataset_dir = osp.dirname(path)
             if task is IcdarTask.text_localization:
                 self._items = list(self._load_localization_items().values())
             else:
                 self._items = list(self._load_segmentation_items().values())
+
 
     def _load_recognition_items(self):
         items = {}
@@ -227,5 +228,5 @@ class IcdarImporter(Importer):
                     ext = ''
                 sources += cls._find_sources_recursive(path, ext,
                     extractor_type, file_filter=lambda p:
-                    osp.basename(p) != IcdarPath.VOCABULARY_FILE)
+                        osp.basename(p) != IcdarPath.VOCABULARY_FILE)
             return sources
