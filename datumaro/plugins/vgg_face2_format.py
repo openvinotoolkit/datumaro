@@ -105,7 +105,7 @@ class VggFace2Extractor(SourceExtractor):
                         image=image_path)
                 annotations = items[item_id].annotations
                 if 2 < len(annotations):
-                    raise Exception("A face shouldn't have multiple sets of bounding box")  
+                    raise Exception("A face shouldn't have multiple sets of bounding box")
                 if len([p for p in row if row[p] == '']) == 0 and len(row) == 5:
                     annotations.append(Bbox(float(row['X']), float(row['Y']),
                         float(row['W']), float(row['H']), label=label))
