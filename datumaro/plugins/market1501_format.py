@@ -73,7 +73,7 @@ class Market1501Converter(Converter):
             for item in subset:
                 if item.has_image and self._save_images:
                     if item.attributes and 'query' in item.attributes:
-                        if query in item.attributes:
+                        if item.attributes.get('query'):
                             dirname = Market1501Path.QUERY_DIR
                         else:
                             dirname = Market1501Path.BBOX_DIR + subset_name
