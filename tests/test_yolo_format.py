@@ -1,4 +1,5 @@
 import numpy as np
+import os
 import os.path as osp
 
 from unittest import TestCase
@@ -110,6 +111,31 @@ class YoloFormatTest(TestCase):
 
                     compare_datasets(self, source_dataset, parsed_dataset)
 
+    def test_inplace_save_writes_only_updated_data(self):
+        with TestDir() as path:
+            # generate initial dataset
+            dataset = Dataset.from_iterable([
+                DatasetItem(1, subset='train', image=np.ones((2, 4, 3))),
+                DatasetItem(2, subset='train',
+                    image=Image(path='2.jpg', size=(3, 2))),
+                DatasetItem(3, subset='valid', image=np.ones((2, 2, 3))),
+            ], categories=[])
+            dataset.export(path, 'yolo', save_images=True)
+            os.unlink(osp.join(path, 'obj_train_data', '1.txt'))
+            os.unlink(osp.join(path, 'obj_train_data', '2.txt'))
+            os.unlink(osp.join(path, 'obj_valid_data', '3.txt'))
+            self.assertFalse(osp.isfile(osp.join(path, 'obj_train_data', '2.jpg')))
+            self.assertTrue(osp.isfile(osp.join(path, 'obj_valid_data', '3.jpg')))
+
+            dataset.put(DatasetItem(2, subset='train', image=np.ones((3, 2, 3))))
+            dataset.remove(3, 'valid')
+            dataset.save(save_images=True)
+
+            self.assertTrue(osp.isfile(osp.join(path, 'obj_train_data', '1.txt')))
+            self.assertTrue(osp.isfile(osp.join(path, 'obj_train_data', '2.txt')))
+            self.assertFalse(osp.isfile(osp.join(path, 'obj_valid_data', '3.txt')))
+            self.assertTrue(osp.isfile(osp.join(path, 'obj_train_data', '2.jpg')))
+            self.assertFalse(osp.isfile(osp.join(path, 'obj_valid_data', '3.jpg')))
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'yolo_dataset')
 
