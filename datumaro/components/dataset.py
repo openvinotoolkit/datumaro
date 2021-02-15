@@ -388,6 +388,10 @@ class DatasetStorage(IDataset):
         return DatasetPatch(self._storage, self._categories,
             self._updated_items)
 
+    def flush_changes(self):
+        self._updated_items = {}
+        self._transformed = False
+
 
 class Dataset(IDataset):
     _global_eager = False
@@ -570,6 +574,9 @@ class Dataset(IDataset):
         self._source_path = path
         self._format = format or DEFAULT_FORMAT
 
+    def flush_changes(self):
+        self._data.flush_changes()
+
     @error_rollback('on_error', implicit=True)
     def export(self, save_dir: str, format, **kwargs):
         inplace = (save_dir == self._source_path and format == self._format)
@@ -589,6 +596,7 @@ class Dataset(IDataset):
             converter.convert(self, save_dir=save_dir, **kwargs)
             if not self.is_bound:
                 self.bind(save_dir, format)
+                self.flush_changes()
         else:
             converter.patch(self, self.patch, save_dir=save_dir, **kwargs)
 
