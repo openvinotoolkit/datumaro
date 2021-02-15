@@ -60,23 +60,15 @@ class DatasetItemStorage:
         subset = subset or DEFAULT_SUBSET_NAME
 
         subset_data = self.data.get(subset, {})
-        is_removed = subset_data.get(id) is not None
+        is_removed = subset_data.pop(id, None) is not None
         if is_removed:
             self._traversal_order.pop((id, subset))
-            subset_data[id] = None # mark removed
         return is_removed
 
     def __contains__(self, x: Union[DatasetItem, Tuple[str, str]]) -> bool:
         if isinstance(x, DatasetItem):
             x = (x.id, x.subset)
         return self.get(*x) is not None
-
-    def contains(self, id, subset=None) -> bool:
-        dummy = object()
-        return self._get(id, subset, dummy=dummy) is not dummy
-
-    def is_removed(self, id, subset=None) -> bool:
-        return self._get(id, subset, dummy=object()) is None
 
     def get_subset(self, name):
         return self.data.get(name, {})
@@ -267,7 +259,7 @@ class DatasetStorage(IDataset):
         for i, item in enumerate(self._source):
             if item in cache:
                 raise RepeatedItemError((item.id, item.subset))
-            if patch.contains(item.id, item.subset):
+            if item in patch:
                 item = patch.get(item.id, item.subset)
             if self._updated_items.get((item.id, item.subset)) == \
                     ItemStatus.removed:
@@ -352,8 +344,10 @@ class DatasetStorage(IDataset):
         id = str(id)
         subset = subset or DEFAULT_SUBSET_NAME
 
-        is_removed = self._storage.remove(id, subset)
-        self._updated_items[(id, subset)] = ItemStatus.removed
+        self._storage.remove(id, subset)
+        is_removed = self._updated_items.get((id, subset)) != ItemStatus.removed
+        if is_removed:
+            self._updated_items[(id, subset)] = ItemStatus.removed
         if is_removed and not self.is_cache_initialized():
             self._length = None
         if self._length is not None:
@@ -568,8 +562,16 @@ class Dataset(IDataset):
     def is_eager(self) -> bool:
         return self.eager if self.eager is not None else self._global_eager
 
+    @property
+    def is_bound(self) -> bool:
+        return self._source_path and self._format
+
+    def bind(self, path: str, format: str = None):
+        self._source_path = path
+        self._format = format or DEFAULT_FORMAT
+
     @error_rollback('on_error', implicit=True)
-    def export(self, save_dir: str, format, **kwargs): #pylint: disable=redefined-builtin
+    def export(self, save_dir: str, format, **kwargs):
         inplace = (save_dir == self._source_path and format == self._format)
 
         if isinstance(format, str):
@@ -585,6 +587,8 @@ class Dataset(IDataset):
 
         if not inplace:
             converter.convert(self, save_dir=save_dir, **kwargs)
+            if not self.is_bound:
+                self.bind(save_dir, format)
         else:
             converter.patch(self, self.patch, save_dir=save_dir, **kwargs)
 
@@ -597,9 +601,8 @@ class Dataset(IDataset):
         return cls.import_from(path, format=DEFAULT_FORMAT, **kwargs)
 
     @classmethod
-    def import_from(cls, path: str, format: str = None, \
-            env: Environment = None, \
-            **kwargs) -> 'Dataset': #pylint: disable=redefined-builtin
+    def import_from(cls, path: str, format: str = None, env: Environment = None,
+            **kwargs) -> 'Dataset':
         from datumaro.components.config_model import Source
 
         if env is None:

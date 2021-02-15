@@ -23,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - High memory consumption and low performance of mask import/export, #53 (<https://github.com/openvinotoolkit/datumaro/pull/101>)
-- Masks, covered by class 0 (background), should be exported holes inside (<https://github.com/openvinotoolkit/datumaro/pull/104>)
+- Masks, covered by class 0 (background), should be exported with holes inside (<https://github.com/openvinotoolkit/datumaro/pull/104>)
 
 ### Security
 -
