@@ -21,11 +21,12 @@ class Market1501Extractor(SourceExtractor):
     def __init__(self, path):
         if not osp.isdir(path):
             raise NotADirectoryError("Can't open folder with annotation files '%s'" % path)
-        super().__init__()
+        subset = ''
         for dirname in glob(osp.join(path, '*')):
             if osp.basename(dirname).startswith(Market1501Path.BBOX_DIR):
-                self._subset = osp.basename(dirname).replace(Market1501Path.BBOX_DIR, '')
+                subset = osp.basename(dirname).replace(Market1501Path.BBOX_DIR, '')
                 break
+        super().__init__(subset=subset)
         self._path = path
         self._items = list(self._load_items(path).values())
 
