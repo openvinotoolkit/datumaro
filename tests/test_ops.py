@@ -18,7 +18,7 @@ class TestOperations(TestCase):
         expected_std = [20, 50, 10]
 
         dataset = Dataset.from_iterable([
-            DatasetItem(id=1, image=np.random.normal(
+            DatasetItem(id=i, image=np.random.normal(
                 expected_mean, expected_std, size=(w, h, 3))
             )
             for i, (w, h) in enumerate([

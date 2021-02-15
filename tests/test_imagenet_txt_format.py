@@ -42,7 +42,7 @@ class ImagenetTxtFormatTest(TestCase):
             ImagenetTxtConverter.convert(source_dataset, test_dir,
                 save_images=True)
 
-            parsed_dataset = ImagenetTxtImporter()(test_dir).make_dataset()
+            parsed_dataset = Dataset.import_from(test_dir, 'imagenet_txt')
 
             compare_datasets(self, source_dataset, parsed_dataset,
                 require_images=True)
@@ -66,7 +66,7 @@ class ImagenetTxtFormatTest(TestCase):
             ImagenetTxtConverter.convert(source_dataset, test_dir,
                 save_images=True)
 
-            parsed_dataset = ImagenetTxtImporter()(test_dir).make_dataset()
+            parsed_dataset = Dataset.import_from(test_dir, 'imagenet_txt')
 
             compare_datasets(self, source_dataset, parsed_dataset,
                 require_images=True)
@@ -85,7 +85,7 @@ class ImagenetTxtFormatTest(TestCase):
             ImagenetTxtConverter.convert(source_dataset, test_dir,
                 save_images=True)
 
-            parsed_dataset = ImagenetTxtImporter()(test_dir).make_dataset()
+            parsed_dataset = Dataset.import_from(test_dir, 'imagenet_txt')
 
             compare_datasets(self, source_dataset, parsed_dataset,
                 require_images=True)
