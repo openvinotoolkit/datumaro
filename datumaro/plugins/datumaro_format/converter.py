@@ -41,6 +41,9 @@ class _SubsetWriter:
     def items(self):
         return self._data['items']
 
+    def empty(self):
+        return not self.items
+
     def write_item(self, item):
         annotations = []
         item_desc = {
@@ -95,8 +98,12 @@ class _SubsetWriter:
             self.categories[ann_type.name] = converted_desc
 
     def write(self, save_dir):
-        with open(osp.join(save_dir, '%s.json' % (self._name)), 'w') as f:
-            json.dump(self._data, f)
+        path = osp.join(save_dir, '%s.json' % (self._name))
+        if self.empty() and osp.isfile(path):
+            os.unlink(path)
+        else:
+            with open(path, 'w') as f:
+                json.dump(self._data, f)
 
     def _convert_annotation(self, obj):
         assert isinstance(obj, Annotation)
@@ -242,6 +249,11 @@ class DatumaroConverter(Converter):
     def _save_image(self, item, path=None):
         super()._save_image(item,
             osp.join(self._images_dir, self._make_image_filename(item)))
+
+    @classmethod
+    def patch(cls, dataset, patch, save_dir, **kwargs):
+        for subset in patch.updated_subsets:
+            cls.convert(dataset.get_subset(subset), save_dir=save_dir, **kwargs)
 
 class DatumaroProjectConverter(Converter):
     @classmethod

@@ -56,7 +56,7 @@ class CvatImporterTest(TestCase):
             ])
         })
 
-        parsed_dataset = CvatImporter()(DUMMY_IMAGE_DATASET_DIR).make_dataset()
+        parsed_dataset = Dataset.import_from(DUMMY_IMAGE_DATASET_DIR, 'cvat')
 
         compare_datasets(self, expected_dataset, parsed_dataset)
 
@@ -135,7 +135,7 @@ class CvatImporterTest(TestCase):
             ]),
         })
 
-        parsed_dataset = CvatImporter()(DUMMY_VIDEO_DATASET_DIR).make_dataset()
+        parsed_dataset = Dataset.import_from(DUMMY_VIDEO_DATASET_DIR, 'cvat')
 
         compare_datasets(self, expected_dataset, parsed_dataset)
 
