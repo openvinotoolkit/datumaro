@@ -15,12 +15,9 @@ class VggFace2FormatTest(TestCase):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='1', subset='train', image=np.ones((8, 8, 3)),
                 annotations=[
-                    Bbox(0, 2, 4, 2, label=0, group=1),
+                    Bbox(0, 2, 4, 2, label=0),
                     Points([3.2, 3.12, 4.11, 3.2, 2.11,
-                        2.5, 3.5, 2.11, 3.8, 2.13], label=0, group=1),
-                    Bbox(2, 2, 4, 2, label=1, group=2),
-                    Points([3.1, 3, 4, 3.4, 3.2,
-                        2.5, 3.5, 2.5, 2.8, 2.4], label=1, group=2),
+                        2.5, 3.5, 2.11, 3.8, 2.13], label=0),
                 ]
             ),
             DatasetItem(id='2', subset='train', image=np.ones((10, 10, 3)),
@@ -34,9 +31,9 @@ class VggFace2FormatTest(TestCase):
             ),
             DatasetItem(id='4', subset='train', image=np.ones((10, 10, 3)),
                 annotations=[
-                    Bbox(0, 2, 4, 2, label=3, group=1),
+                    Bbox(0, 2, 4, 2, label=3),
                     Points([3.2, 3.12, 4.11, 3.2, 2.11,
-                        2.5, 3.5, 2.11, 3.8, 2.13], label=3, group=1),
+                        2.5, 3.5, 2.11, 3.8, 2.13], label=3),
                 ]
             ),
             DatasetItem(id='a/5', subset='train', image=np.ones((8, 8, 3)),
@@ -61,9 +58,9 @@ class VggFace2FormatTest(TestCase):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='b/1', image=np.ones((8, 8, 3)),
                 annotations=[
-                    Bbox(0, 2, 4, 2, label=0, group=1),
+                    Bbox(0, 2, 4, 2, label=0),
                     Points([4.23, 4.32, 5.34, 4.45, 3.54,
-                        3.56, 4.52, 3.51, 4.78, 3.34], label=0, group=1),
+                        3.56, 4.52, 3.51, 4.78, 3.34], label=0),
                 ]
             ),
         ], categories=['a'])
@@ -78,9 +75,9 @@ class VggFace2FormatTest(TestCase):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='1', image=np.ones((8, 8, 3)),
                 annotations=[
-                    Bbox(0, 2, 4, 2, label=0, group=1),
+                    Bbox(0, 2, 4, 2, label=0),
                     Points([4.23, 4.32, 5.34, 4.45, 3.54,
-                        3.56, 4.52, 3.51, 4.78, 3.34], label=0, group=1),
+                        3.56, 4.52, 3.51, 4.78, 3.34], label=0),
                 ]
             ),
         ], categories=['label_0'])
@@ -95,9 +92,9 @@ class VggFace2FormatTest(TestCase):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='1', image=np.ones((8, 8, 3)),
                 annotations=[
-                    Bbox(0, 2, 4, 2, group=1),
+                    Bbox(0, 2, 4, 2),
                     Points([4.23, 4.32, 5.34, 4.45, 3.54,
-                        3.56, 4.52, 3.51, 4.78, 3.34], group=1),
+                        3.56, 4.52, 3.51, 4.78, 3.34]),
                 ]
             ),
             DatasetItem(id='2', image=np.ones((8, 8, 3)),
@@ -145,17 +142,17 @@ class VggFace2ImporterTest(TestCase):
             DatasetItem(id='0001_01', subset='train',
                 image=np.ones((10, 15, 3)),
                 annotations=[
-                    Bbox(2, 2, 1, 2, label=0, group=1),
+                    Bbox(2, 2, 1, 2, label=0),
                     Points([2.787, 2.898, 2.965, 2.79, 2.8,
-                        2.456, 2.81, 2.32, 2.89, 2.3], label=0, group=1),
+                        2.456, 2.81, 2.32, 2.89, 2.3], label=0),
                 ]
             ),
             DatasetItem(id='0002_01', subset='train',
                 image=np.ones((10, 15, 3)),
                 annotations=[
-                    Bbox(1, 3, 1, 1, label=1, group=1),
+                    Bbox(1, 3, 1, 1, label=1),
                     Points([1.2, 3.8, 1.8, 3.82, 1.51,
-                        3.634, 1.43, 3.34, 1.65, 3.32], label=1, group=1)
+                        3.634, 1.43, 3.34, 1.65, 3.32], label=1)
                 ]
             ),
         ], categories={

@@ -75,18 +75,14 @@ class VggFace2Extractor(SourceExtractor):
                     row['NAME_ID'] + VggFace2Path.IMAGE_EXT)
                 items[item_id] = DatasetItem(id=item_id, subset=self._subset,
                     image=image_path)
-            group = 0
             annotations = items[item_id].annotations
-            if annotations:
-                for anno in annotations:
-                    if anno.label == label:
-                        raise Exception("A face shouldn't have multiple sets of landmarks")
+            if 1 < len(annotations):
+                raise Exception("A face shouldn't have multiple sets of landmarks")
             if len([p for p in row if row[p] == '']) == 0 and len(row) == 11:
                 annotations.append(Points(
-                    [float(row[p]) for p in row if p != 'NAME_ID'], label=label,
-                    group=group))
+                    [float(row[p]) for p in row if p != 'NAME_ID'], label=label))
             elif label is not None:
-                annotations.append(Label(label=label, group=group))
+                annotations.append(Label(label=label))
 
         bboxes_path = osp.join(self._dataset_dir, VggFace2Path.ANNOTATION_DIR,
             VggFace2Path.BBOXES_FILE + self._subset + '.csv')
@@ -107,21 +103,12 @@ class VggFace2Extractor(SourceExtractor):
                         row['NAME_ID'] + VggFace2Path.IMAGE_EXT)
                     items[item_id] = DatasetItem(id=item_id, subset=self._subset,
                         image=image_path)
-                group = 0
                 annotations = items[item_id].annotations
-                if annotations:
-                    max_group = max(annotations, key=lambda x: x.group).group
-                    for anno in annotations:
-                        if anno.label == label:
-                            if anno.group == 0:
-                                group = max_group + 1
-                                anno.group = group
-                            else:
-                                group = anno.group
-                            break
+                if 2 < len(annotations):
+                    raise Exception("A face shouldn't have multiple sets of bounding box")  
                 if len([p for p in row if row[p] == '']) == 0 and len(row) == 5:
                     annotations.append(Bbox(float(row['X']), float(row['Y']),
-                        float(row['W']), float(row['H']), label=label, group=group))
+                        float(row['W']), float(row['H']), label=label))
         return items
 
 class VggFace2Importer(Importer):
@@ -171,15 +158,17 @@ class VggFace2Converter(Converter):
 
                 landmarks = [a for a in item.annotations
                     if a.type == AnnotationType.points]
-                for landmark in landmarks:
-                    if landmark.label is not None and \
-                            label_categories[landmark.label].name:
-                        name_id = label_categories[landmark.label].name \
+                if 1 < len(landmarks):
+                    raise Exception("A face shouldn't have multiple sets of landmarks")
+                if landmarks:
+                    if landmarks[0].label is not None and \
+                            label_categories[landmarks[0].label].name:
+                        name_id = label_categories[landmarks[0].label].name \
                             + '/' + item.id
                     else:
                         name_id = VggFace2Path.IMAGES_DIR_NO_LABEL \
                             + '/' + item.id
-                    points = landmark.points
+                    points = landmarks[0].points
                     if len(points) != 10:
                         landmarks_table.append({'NAME_ID': name_id})
                     else:
@@ -192,16 +181,18 @@ class VggFace2Converter(Converter):
 
                 bboxes = [a for a in item.annotations
                     if a.type == AnnotationType.bbox]
-                for bbox in bboxes:
-                    if bbox.label is not None and \
-                            label_categories[bbox.label].name:
-                        name_id = label_categories[bbox.label].name \
+                if 1 < len(bboxes):
+                    raise Exception("A face shouldn't have multiple sets of bounding boxes")
+                if bboxes:
+                    if bboxes[0].label is not None and \
+                            label_categories[bboxes[0].label].name:
+                        name_id = label_categories[bboxes[0].label].name \
                             + '/' + item.id
                     else:
                         name_id = VggFace2Path.IMAGES_DIR_NO_LABEL \
                             + '/' + item.id
-                    bboxes_table.append({'NAME_ID': name_id, 'X': bbox.x,
-                        'Y': bbox.y, 'W': bbox.w, 'H': bbox.h})
+                    bboxes_table.append({'NAME_ID': name_id, 'X': bboxes[0].x,
+                        'Y': bboxes[0].y, 'W': bboxes[0].w, 'H': bboxes[0].h})
 
                 labels = [a for a in item.annotations
                     if a.type == AnnotationType.label]
