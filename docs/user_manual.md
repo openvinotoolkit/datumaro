@@ -123,6 +123,9 @@ List of supported formats:
 - ICDAR13/15 (`word_recognition`, `text_localization`, `text_segmentation`)
   - [Format specification](https://rrc.cvc.uab.es/?ch=2)
   - [Dataset example](../tests/assets/icdar_dataset)
+- Market-1501 (`person re-identification`)
+  - [Format specification](https://www.aitribune.com/dataset/2018051063)
+  - [Dataset example](../tests/assets/market1501_dataset)
 
 List of supported annotation types:
 - Labels
