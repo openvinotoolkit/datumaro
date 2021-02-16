@@ -57,27 +57,36 @@ class VggFace2Extractor(SourceExtractor):
         return { AnnotationType.label: label_cat }
 
     def _load_items(self, path):
+        def _split_item_path(path):
+            label_name = path.split('/')[0]
+            label = None
+            if label_name != VggFace2Path.IMAGES_DIR_NO_LABEL:
+                label = \
+                    self._categories[AnnotationType.label].find(label_name)[0]
+            item_id = path[len(label_name) + 1:]
+            return item_id, label
+
         items = {}
+
         with open(path) as content:
             landmarks_table = list(csv.DictReader(content))
-
         for row in landmarks_table:
             item_id = row['NAME_ID']
             label = None
             if '/' in item_id:
-                label_name = item_id.split('/')[0]
-                if label_name != VggFace2Path.IMAGES_DIR_NO_LABEL:
-                    label = \
-                        self._categories[AnnotationType.label].find(label_name)[0]
-                item_id = item_id[len(label_name) + 1:]
+                item_id, label = _split_item_path(item_id)
+
             if item_id not in items:
                 image_path = osp.join(self._dataset_dir, self._subset,
                     row['NAME_ID'] + VggFace2Path.IMAGE_EXT)
                 items[item_id] = DatasetItem(id=item_id, subset=self._subset,
                     image=image_path)
+
             annotations = items[item_id].annotations
-            if 1 < len(annotations):
-                raise Exception("A face shouldn't have multiple sets of landmarks")
+            if [a for a in annotations if a.type == AnnotationType.points]:
+                raise Exception("Item %s: an image can have only one "
+                    "set of landmarks" % item_id)
+
             if len([p for p in row if row[p] == '']) == 0 and len(row) == 11:
                 annotations.append(Points(
                     [float(row[p]) for p in row if p != 'NAME_ID'], label=label))
@@ -93,19 +102,19 @@ class VggFace2Extractor(SourceExtractor):
                 item_id = row['NAME_ID']
                 label = None
                 if '/' in item_id:
-                    label_name = item_id.split('/')[0]
-                    if label_name != VggFace2Path.IMAGES_DIR_NO_LABEL:
-                        label = \
-                            self._categories[AnnotationType.label].find(label_name)[0]
-                    item_id = item_id[len(label_name) + 1:]
+                    item_id, label = _split_item_path(item_id)
+
                 if item_id not in items:
                     image_path = osp.join(self._dataset_dir, self._subset,
                         row['NAME_ID'] + VggFace2Path.IMAGE_EXT)
                     items[item_id] = DatasetItem(id=item_id, subset=self._subset,
                         image=image_path)
+
                 annotations = items[item_id].annotations
-                if 2 < len(annotations):
-                    raise Exception("A face shouldn't have multiple sets of bounding box")
+                if [a for a in annotations if a.type == AnnotationType.bbox]:
+                    raise Exception("Item %s: an image can have only one "
+                        "bbox" % item_id)
+
                 if len([p for p in row if row[p] == '']) == 0 and len(row) == 5:
                     annotations.append(Bbox(float(row['X']), float(row['Y']),
                         float(row['W']), float(row['H']), label=label))
@@ -159,7 +168,8 @@ class VggFace2Converter(Converter):
                 landmarks = [a for a in item.annotations
                     if a.type == AnnotationType.points]
                 if 1 < len(landmarks):
-                    raise Exception("A face shouldn't have multiple sets of landmarks")
+                    raise Exception("Item %s: an image can have only one "
+                        "set of landmarks" % (item.id, item.subset))
                 if landmarks:
                     if landmarks[0].label is not None and \
                             label_categories[landmarks[0].label].name:
@@ -182,7 +192,8 @@ class VggFace2Converter(Converter):
                 bboxes = [a for a in item.annotations
                     if a.type == AnnotationType.bbox]
                 if 1 < len(bboxes):
-                    raise Exception("A face shouldn't have multiple sets of bounding boxes")
+                    raise Exception("Item %s: an image can have only one "
+                        "bbox" % (item.id, item.subset))
                 if bboxes:
                     if bboxes[0].label is not None and \
                             label_categories[bboxes[0].label].name:
