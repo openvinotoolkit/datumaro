@@ -192,7 +192,7 @@ class VggFace2Converter(Converter):
                 bboxes = [a for a in item.annotations
                     if a.type == AnnotationType.bbox]
                 if 1 < len(bboxes):
-                    raise Exception("Item %s: an image can have only one "
+                    raise Exception("Item (%s, %s): an image can have only one "
                         "bbox" % (item.id, item.subset))
                 if bboxes:
                     if bboxes[0].label is not None and \
