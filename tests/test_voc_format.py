@@ -1,6 +1,7 @@
 from collections import OrderedDict
 from functools import partial
 import numpy as np
+import os
 import os.path as osp
 
 from unittest import TestCase
@@ -669,3 +670,43 @@ class VocConverterTest(TestCase):
             self._test_save_and_load(TestExtractor(),
                 partial(VocConverter.convert, label_map='voc'), test_dir,
                 target_dataset=DstExtractor())
+
+    def test_inplace_save_writes_only_updated_data(self):
+        with TestDir() as path:
+            # generate initial dataset
+            dataset = Dataset.from_iterable([
+                DatasetItem(1, subset='a',
+                    annotations=[Bbox(0, 0, 0, 0, label=1)]),
+                DatasetItem(2, subset='b',
+                    annotations=[Bbox(0, 0, 0, 0, label=2)]),
+                DatasetItem(3, subset='c', image=np.ones((2, 2, 3)),
+                    annotations=[
+                        Bbox(0, 0, 0, 0, label=3),
+                        Mask(np.ones((2, 2)), label=1)
+                    ]),
+            ], categories=['a', 'b', 'c', 'd'])
+            dataset.export(path, 'voc', save_images=True)
+            os.unlink(osp.join(path, 'Annotations', '1.xml'))
+            os.unlink(osp.join(path, 'Annotations', '2.xml'))
+            os.unlink(osp.join(path, 'Annotations', '3.xml'))
+            self.assertFalse(osp.isfile(osp.join(path, 'JPEGImages', '2.jpg')))
+            self.assertTrue(osp.isfile(osp.join(path, 'JPEGImages', '3.jpg')))
+            self.assertTrue(osp.isfile(
+                osp.join(path, 'SegmentationObject', '3.png')))
+            self.assertTrue(osp.isfile(
+                osp.join(path, 'SegmentationClass', '3.png')))
+
+            dataset.put(DatasetItem(2, subset='b', image=np.ones((3, 2, 3)),
+                annotations=[Bbox(0, 0, 0, 0, label=3)]))
+            dataset.remove(3, 'c')
+            dataset.save(save_images=True)
+
+            self.assertFalse(osp.isfile(osp.join(path, 'Annotations', '1.xml')))
+            self.assertTrue(osp.isfile(osp.join(path, 'Annotations', '2.xml')))
+            self.assertFalse(osp.isfile(osp.join(path, 'Annotations', '3.xml')))
+            self.assertTrue(osp.isfile(osp.join(path, 'JPEGImages', '2.jpg')))
+            self.assertFalse(osp.isfile(osp.join(path, 'JPEGImages', '3.jpg')))
+            self.assertFalse(osp.isfile(
+                osp.join(path, 'SegmentationObject', '3.png')))
+            self.assertFalse(osp.isfile(
+                osp.join(path, 'SegmentationClass', '3.png')))

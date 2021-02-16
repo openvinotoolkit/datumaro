@@ -167,6 +167,9 @@ class DatasetPatch:
             }
         return self._updated_subsets
 
+    def as_dataset(self) -> IDataset:
+        return DatasetItemStorageDatasetView(self.data, self.categories)
+
 
 class DatasetSubset(IDataset): # non-owning view
     def __init__(self, parent: 'Dataset', name: str):
