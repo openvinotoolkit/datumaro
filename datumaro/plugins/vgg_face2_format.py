@@ -168,7 +168,7 @@ class VggFace2Converter(Converter):
                 landmarks = [a for a in item.annotations
                     if a.type == AnnotationType.points]
                 if 1 < len(landmarks):
-                    raise Exception("Item %s: an image can have only one "
+                    raise Exception("Item (%s, %s): an image can have only one "
                         "set of landmarks" % (item.id, item.subset))
                 if landmarks:
                     if landmarks[0].label is not None and \
