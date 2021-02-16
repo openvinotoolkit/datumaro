@@ -612,7 +612,7 @@ class VocConverter(Converter):
 
     @classmethod
     def patch(cls, dataset, patch, save_dir, **kwargs):
-        conv = cls(patch.as_dataset(), save_dir=save_dir, **kwargs)
+        conv = cls(patch.as_dataset(dataset), save_dir=save_dir, **kwargs)
         conv._patch = patch
         conv.apply()
 
