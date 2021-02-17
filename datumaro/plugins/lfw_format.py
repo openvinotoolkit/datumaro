@@ -24,7 +24,6 @@ class LfwExtractor(SourceExtractor):
             raise NotADirectoryError("Can't read annotation file '%s'" % path)
         subset = osp.basename(osp.dirname(path))
         super().__init__(subset=subset)
-        self._path = path
         self._dataset_dir = osp.dirname(osp.dirname(path))
         self._items = list(self._load_items(path).values())
 
@@ -96,7 +95,7 @@ class LfwConverter(Converter):
             landmarks = []
             for item in subset:
                 if item.has_image and self._save_images:
-                        self._save_image(item, osp.join(self._save_dir, subset_name, 
+                        self._save_image(item, osp.join(self._save_dir, subset_name,
                             LfwPath.IMAGES_DIR, item.id + LfwPath.IMAGE_EXT))
                 person1, num1 = LfwPath.PATTERN.search(item.id).groups()
                 num1 = int(num1)
