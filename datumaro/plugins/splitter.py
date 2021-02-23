@@ -7,13 +7,27 @@ import numpy as np
 
 from datumaro.components.extractor import (Transform, AnnotationType,
     DEFAULT_SUBSET_NAME)
+from datumaro.components.cli_plugin import CliPlugin
 
 NEAR_ZERO = 1e-7
 
 
 class _TaskSpecificSplit(Transform):
+    _default_split = [('train', 0.5), ('val', 0.2), ('test', 0.3)]
+
+    @staticmethod
+    def _split_arg(s):
+        parts = s.split(':')
+        if len(parts) != 2:
+            import argparse
+            raise argparse.ArgumentTypeError()
+        return (parts[0], float(parts[1]))
+
     def __init__(self, dataset, splits, seed):
         super().__init__(dataset)
+
+        if splits is None:
+            splits = self._default_split
 
         snames, sratio = self._validate_splits(splits)
 
@@ -150,15 +164,30 @@ class _TaskSpecificSplit(Transform):
             yield self.wrap_item(item, subset=self._find_split(i))
 
 
-class ClassificationSplit(_TaskSpecificSplit):
+class ClassificationSplit(_TaskSpecificSplit, CliPlugin):
     """
     Splits dataset into train/val/test set in class-wise manner. |n
+    In other words, the split ratio of each class is preserved
+    as much as possible.|n
     |n
     Notes:|n
     - Single label is expected for each DatasetItem.|n
     - If there are not enough images in some class or attributes group,
       the split ratio can't be guaranteed.|n
+    |n
+    Example:|n
+    |s|s%(prog)s --subset train:.5 --subset val:.2 --subset test:.3
     """
+
+    @classmethod
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument('-s', '--subset', action='append',
+            type=cls._split_arg, dest='splits',
+            help="Subsets in the form: '<subset>:<ratio>' "
+                "(repeatable, default: %s)" % dict(cls._default_split))
+        parser.add_argument('--seed', type=int, help="Random seed")
+        return parser
 
     def __init__(self, dataset, splits, seed=None):
         """
@@ -389,11 +418,11 @@ class MatchingReIDSplit(_TaskSpecificSplit):
         return self.select(lambda item: item.annotations[0].group == group_id)
 
 
-class DetectionSplit(_TaskSpecificSplit):
+class DetectionSplit(_TaskSpecificSplit, CliPlugin):
     """
     Splits dataset into train/val/test set for detection task.|n
     For detection dataset, each image can have multiple bbox annotations.|n
-    Since one DataItem can't be included in multiple subsets at the same time,
+    Since a DataItem can't be included in multiple subsets at the same time, |n
     the dataset can't be divided according to the bbox annotations.|n
     Thus, we split dataset based on DatasetItem
     while preserving label distribution as possible.|n
@@ -401,7 +430,20 @@ class DetectionSplit(_TaskSpecificSplit):
     Notes:|n
     - Each DatsetItem is expected to have one or more Bbox annotations.|n
     - Label annotations are ignored. We only focus on the Bbox annotations.|n
+    |n
+    Example:|n
+    |s|s%(prog)s --subset train:.5 --subset val:.2 --subset test:.3
     """
+
+    @classmethod
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument('-s', '--subset', action='append',
+            type=cls._split_arg, dest='splits',
+            help="Subsets in the form: '<subset>:<ratio>' "
+                "(repeatable, default: %s)" % dict(cls._default_split))
+        parser.add_argument('--seed', type=int, help="Random seed")
+        return parser
 
     def __init__(self, dataset, splits, seed=None):
         """

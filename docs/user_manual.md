@@ -2,29 +2,36 @@
 
 ## Contents
 
-- [Installation](#installation)
-- [Interfaces](#interfaces)
-- [Supported dataset formats and annotations](#supported-formats)
-- [Command line workflow](#command-line-workflow)
-  - [Project structure](#project-structure)
-- [Command reference](#command-reference)
-  - [Convert datasets](#convert-datasets)
-  - [Create project](#create-project)
-  - [Add and remove data](#add-and-remove-data)
-  - [Import project](#import-project)
-  - [Filter project](#filter-project)
-  - [Update project (merge)](#update-project)
-  - [Merge projects](#merge-projects)
-  - [Export project](#export-project)
-  - [Compare projects](#compare-projects)
-  - [Obtaining project info](#get-project-info)
-  - [Obtaining project statistics](#get-project-statistics)
-  - [Register model](#register-model)
-  - [Run inference](#run-inference)
-  - [Run inference explanation](#explain-inference)
-  - [Transform project](#transform-project)
-- [Extending](#extending)
-- [Links](#links)
+- [User manual](#user-manual)
+  - [Contents](#contents)
+  - [Installation](#installation)
+    - [Dependencies](#dependencies)
+    - [Installation steps](#installation-steps)
+  - [Interfaces](#interfaces)
+  - [Supported Formats](#supported-formats)
+  - [Command line workflow](#command-line-workflow)
+    - [Project structure](#project-structure)
+  - [Command reference](#command-reference)
+    - [Convert datasets](#convert-datasets)
+    - [Import project](#import-project)
+    - [Create project](#create-project)
+    - [Add and remove data](#add-and-remove-data)
+    - [Filter project](#filter-project)
+    - [Update project](#update-project)
+    - [Merge projects](#merge-projects)
+    - [Export project](#export-project)
+    - [Get project info](#get-project-info)
+    - [Get project statistics](#get-project-statistics)
+    - [Register model](#register-model)
+    - [Run model](#run-model)
+    - [Compare projects](#compare-projects)
+    - [Explain inference](#explain-inference)
+    - [Transform Project](#transform-project)
+  - [Extending](#extending)
+    - [Dataset Formats](#dataset-formats)
+    - [Dataset Conversions ("Transforms")](#dataset-conversions-transforms)
+    - [Model launchers](#model-launchers)
+  - [Links](#links)
 
 ## Installation
 
@@ -344,6 +351,13 @@ Example: extract a dataset with only images which `width` < `height`
 datum filter \
      -p test_project \
      -e '/item[image/width < image/height]'
+```
+
+Example: extract a dataset with only images of subset `train`.
+``` bash
+datum project filter \
+     -p test_project \
+     -e '/item[subset="train"]'
 ```
 
 Example: extract a dataset with only large annotations of class `cat` and any non-`persons`
@@ -952,6 +966,14 @@ Example: split a dataset randomly to `train` and `test` subsets, ratio is 2:1
 
 ``` bash
 datum transform -t random_split -- --subset train:.67 --subset test:.33
+```
+
+Example: split a dataset in task-specific manner. Supported tasks are
+classification, detection, and matching(re-id).
+
+``` bash
+datum project transform -t classification_split -- --subset train:.5 --subset val:.2 --subset test:.3
+datum project transform -t detection_split -- --subset train:.5 --subset val:.2 --subset test:.3
 ```
 
 Example: convert polygons to masks, masks to boxes etc.:
