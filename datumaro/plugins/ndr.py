@@ -55,8 +55,6 @@ class NDR(Transform):
         super().__init__(extractor)
         if seed:
             np.random.seed(seed)
-        if len(extractor) < 1:
-            raise ValueError("Empty dataset")
         if not working_subset:
             working_subset = DEFAULT_SUBSET_NAME
         if working_subset not in extractor.subsets():
