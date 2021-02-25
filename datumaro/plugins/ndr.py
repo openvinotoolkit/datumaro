@@ -151,7 +151,9 @@ class NDR(Transform):
                 continue
 
             # Hash collision: compare dot-product based feature similarity
-            max_sim = np.max(np.dot(clr_dict[key], clr) ** 50)
+            # the value for maximizing the gap between duplicated and non-duplicated
+            large_exponent = 50
+            max_sim = np.max(np.dot(clr_dict[key], clr) ** large_exponent)
 
             # Keep if not a duplicated one
             if max_sim < sim_threshold:
