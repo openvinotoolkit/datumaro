@@ -12,8 +12,10 @@ class NDR(Transform):
     Near-duplicated image removal |n
     Removes near-duplicated images in subset |n
     """
-    def __init__(self, extractor, working_subset=None, duplicated_subset="duplicated", algorithm='gradient',
-            num_cut=None, over_sample='random', under_sample='uniform', seed=None, **kwargs):
+    def __init__(self, extractor,
+                 working_subset=None, duplicated_subset="duplicated", algorithm='gradient',
+                 num_cut=None, over_sample='random', under_sample='uniform',
+                 seed=None, **kwargs):
         """
         Near-duplicated image removal
 
@@ -69,7 +71,7 @@ class NDR(Transform):
             raise ValueError("Invalid over_sample")
         if under_sample not in ("uniform", "inverse"):
             raise ValueError("Invalid under_sample")
-        
+
         if seed:
             self.seed = seed
         else:
@@ -84,7 +86,7 @@ class NDR(Transform):
 
         self.algorithm_specific = kwargs
         self._initialized = False
-        
+
     def _remove(self):
         if self.seed:
             np.random.seed(self.seed)
@@ -99,13 +101,15 @@ class NDR(Transform):
 
         if self.num_cut and self.num_cut > len(all_imgs):
             raise ValueError("The number of images is smaller than the cut you want")
-        
+
         if self.algorithm == "gradient":
             all_key, fidx, kept_index, key_counter, removed_index_with_sim \
                 = self._gradient_based(all_imgs, **self.algorithm_specific)
         # else: #other algorithms will be added later
-           
-        kept_index = self._keep_cut(self.num_cut, all_key, fidx, kept_index, key_counter, removed_index_with_sim, self.over_sample, self.under_sample)
+
+        kept_index = self._keep_cut(self.num_cut, all_key, fidx,
+                                    kept_index, key_counter, removed_index_with_sim,
+                                    self.over_sample, self.under_sample)
         self.kept_item_id = set([having_image[ii].id for ii in kept_index])
 
     def _gradient_based(self, all_imgs, block_shape=(4, 4), hash_dim=32, sim_threshold=0.5):
@@ -144,7 +148,7 @@ class NDR(Transform):
 
             # Hash collision: compare dot-product based feature similarity
             max_sim = np.max(np.dot(clr_dict[key], clr) ** 50)
-            
+
             # Keep if not a duplicated one
             if max_sim < sim_threshold:
                 clr_dict[key].append(clr)
@@ -154,15 +158,19 @@ class NDR(Transform):
                 removed_index_with_similarity[ii] = max_sim
         return all_key, fidx, kept_index, key_counter, removed_index_with_similarity
 
-    def _keep_cut(self, num_cut, all_key, fidx, kept_index, key_counter, removed_index_with_similarity, over_sample, under_sample):
+    def _keep_cut(self, num_cut, all_key, fidx,
+                  kept_index, key_counter, removed_index_with_similarity,
+                  over_sample, under_sample):
         if num_cut and num_cut > len(kept_index):
             if over_sample == "random":
                 selected_index = np.random.choice(list(set(fidx) - set(kept_index)),
-                                                    size=num_cut - len(kept_index), replace=False)
+                                                  size=num_cut - len(kept_index), replace=False)
             elif over_sample == "similarity":
-                removed_index_with_similarity = [[key, value] for key, value in removed_index_with_similarity.items()]
+                removed_index_with_similarity = [[key, value] \
+                    for key, value in removed_index_with_similarity.items()]
                 removed_index_with_similarity.sort(key=lambda x: x[1])
-                selected_index = [index for index, _ in removed_index_with_similarity[:num_cut - len(kept_index)]]
+                selected_index = [index \
+                    for index, _ in removed_index_with_similarity[:num_cut - len(kept_index)]]
             kept_index.extend(selected_index)
         elif num_cut and num_cut < len(kept_index):
             if under_sample == "uniform":
@@ -184,7 +192,7 @@ class NDR(Transform):
             kept_index = np.random.choice(kept_index, size=num_cut, replace=False, p=prob)
 
         return kept_index
-    
+
     @staticmethod
     def _cgrad_feature(img, out_wh=(8, 8)):
         if img.dtype == 'uint8':
@@ -209,7 +217,7 @@ class NDR(Transform):
         res = np.concatenate([rx, ry], axis=-1)
         res = res / np.sqrt(np.sum(res**2))
         return res
-    
+
     @staticmethod
     def _project(feat, hash_dim=32):
         """
@@ -248,12 +256,14 @@ class NDR(Transform):
         # generate hash key strings
         # assign hex string from each consecutive 16 bits and concatenate
         _all_key = np.packbits(feat_binary, axis=-1)
-        _all_key = np.array(list(map(lambda row: ''.join(['{:02x}'.format(r) for r in row]), _all_key)))
+        _all_key = np.array(list(
+            map(lambda row: ''.join(['{:02x}'.format(r) for r in row]), _all_key)
+        ))
         if len(_all_key) == 1:
             return _all_key[0]
         else:
             return _all_key
-    
+
     def _check_subset(self, item):
         if item.subset:
             if item.subset == self.working_subset:
@@ -265,7 +275,7 @@ class NDR(Transform):
                 return item.subset
         else:
             return DEFAULT_SUBSET_NAME
-            
+
     def __iter__(self):
         if not self._initialized:
             self._remove()
