@@ -65,7 +65,7 @@ class Market1501FormatTest(TestCase):
     def test_can_save_dataset_with_no_save_images(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='0001_c2s3_000001_00',
-                image=np.ones((2, 5, 3)),
+                subset='test', image=np.ones((2, 5, 3)),
                 attributes = {
                     'camera_id': 1,
                     'person_id': 1,
@@ -73,7 +73,7 @@ class Market1501FormatTest(TestCase):
                 }
             ),
             DatasetItem(id='test1',
-                image=np.ones((2, 5, 3)),
+                subset='test', image=np.ones((2, 5, 3)),
                 attributes = {
                     'camera_id': 1,
                     'person_id': 2,

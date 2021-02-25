@@ -16,7 +16,7 @@ class Market1501Path:
     BBOX_DIR = 'bounding_box_'
     IMAGE_EXT = '.jpg'
     PATTERN = re.compile(r'([-\d]+)_c(\d)')
-    IMAGE_NAMES = 'images.txt'
+    IMAGE_NAMES = 'images_'
 
 class Market1501Extractor(SourceExtractor):
     def __init__(self, path):
@@ -26,6 +26,9 @@ class Market1501Extractor(SourceExtractor):
         for dirname in glob(osp.join(path, '*')):
             if osp.basename(dirname).startswith(Market1501Path.BBOX_DIR):
                 subset = osp.basename(dirname).replace(Market1501Path.BBOX_DIR, '')
+            if osp.basename(dirname).startswith(Market1501Path.IMAGE_NAMES):
+                subset = osp.basename(dirname).replace(Market1501Path.IMAGE_NAMES, '')
+                subset = osp.splitext(subset)[0]
                 break
         super().__init__(subset=subset)
         self._path = path
@@ -37,8 +40,9 @@ class Market1501Extractor(SourceExtractor):
         paths = glob(osp.join(path, Market1501Path.QUERY_DIR, '*'))
         paths += glob(osp.join(path, Market1501Path.BBOX_DIR + self._subset, '*'))
 
-        if len(paths) == 0 and osp.isfile(osp.join(path, Market1501Path.IMAGE_NAMES)):
-            with open(osp.join(path, Market1501Path.IMAGE_NAMES), encoding='utf-8') as f:
+        anno_file = osp.join(path, Market1501Path.IMAGE_NAMES + self._subset + '.txt')
+        if len(paths) == 0 and osp.isfile(anno_file):
+            with open(anno_file, encoding='utf-8') as f:
                 for line in f:
                     line = line.strip()
                     paths.append(line)
@@ -102,7 +106,8 @@ class Market1501Converter(Converter):
                     self._save_image(item, image_path)
                 else:
                     annotation += '%s\n' % image_path
-        if 0 < len(annotation):
-            annotation_file = osp.join(self._save_dir, Market1501Path.IMAGE_NAMES)
-            with open(annotation_file, 'w') as f:
-                f.write(annotation)
+            if 0 < len(annotation):
+                annotation_file = osp.join(self._save_dir,
+                    Market1501Path.IMAGE_NAMES + subset_name + '.txt')
+                with open(annotation_file, 'w') as f:
+                    f.write(annotation)
