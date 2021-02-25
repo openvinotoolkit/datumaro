@@ -53,8 +53,7 @@ class NDR(Transform):
         None, other subsets combined with the result
         """
         super().__init__(extractor)
-        if seed:
-            np.random.seed(seed)
+
         if not working_subset:
             working_subset = DEFAULT_SUBSET_NAME
         if working_subset not in extractor.subsets():
@@ -71,12 +70,26 @@ class NDR(Transform):
         if under_sample not in ("uniform", "inverse"):
             raise ValueError("Invalid under_sample")
         
+        if seed:
+            self.seed = seed
+        else:
+            self.seed = None
+        self.working_subset = working_subset
         self.duplicated_subset = duplicated_subset
-        self._remove(algorithm, working_subset, num_cut, over_sample, under_sample, **kwargs)
+        self.algorithm = algorithm
+
+        self.num_cut = num_cut
+        self.over_sample = over_sample
+        self.under_sample = under_sample
+
+        self.algorithm_specific = kwargs
+        self._initialized = False
         
-    def _remove(self, algorithm, subset, num_cut=None, over_sample='random', under_sample='uniform',
-        **kwargs):
-        working_subset = self._extractor.get_subset(subset)
+    def _remove(self):
+        if self.seed:
+            np.random.seed(self.seed)
+
+        working_subset = self._extractor.get_subset(self.working_subset)
         having_image = []
         all_imgs = []
         for item in working_subset:
@@ -84,15 +97,15 @@ class NDR(Transform):
                 having_image.append(item)
                 all_imgs.append(item.image.data)
 
-        if num_cut and num_cut > len(all_imgs):
+        if self.num_cut and self.num_cut > len(all_imgs):
             raise ValueError("The number of images is smaller than the cut you want")
         
-        if algorithm == "gradient":
+        if self.algorithm == "gradient":
             all_key, fidx, kept_index, key_counter, removed_index_with_sim \
-                = self._gradient_based(all_imgs, **kwargs)
+                = self._gradient_based(all_imgs, **self.algorithm_specific)
         # else: #other algorithms will be added later
            
-        kept_index = self._keep_cut(num_cut, all_key, fidx, kept_index, key_counter, removed_index_with_sim, over_sample, under_sample)
+        kept_index = self._keep_cut(self.num_cut, all_key, fidx, kept_index, key_counter, removed_index_with_sim, self.over_sample, self.under_sample)
         self.kept_item_id = set([having_image[ii].id for ii in kept_index])
 
     def _gradient_based(self, all_imgs, block_shape=(4, 4), hash_dim=32, sim_threshold=0.5):
@@ -254,5 +267,8 @@ class NDR(Transform):
             return DEFAULT_SUBSET_NAME
             
     def __iter__(self):
+        if not self._initialized:
+            self._remove()
+            self._initialized = True
         for item in self._extractor:
             yield self.wrap_item(item, subset=self._check_subset(item))

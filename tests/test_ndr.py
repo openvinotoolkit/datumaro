@@ -49,42 +49,37 @@ class NDRTest(TestCase):
         with self.assertRaisesRegex(ValueError, "Invalid working_subset name"):
             source = self._generate_classification_dataset(config, 3)
             subset = "no_such_subset"
-            ndr.NDR(source, working_subset=subset)
+            result = ndr.NDR(source, working_subset=subset)
+            len(result)
 
         with self.assertRaisesRegex(ValueError, "working_subset == duplicated_subset"):
             source = self._generate_classification_dataset(config, 3)
-            ndr.NDR(source, working_subset="train", duplicated_subset="train")
+            result = ndr.NDR(source, working_subset="train", duplicated_subset="train")
+            len(result)
 
         with self.assertRaisesRegex(ValueError, "Invalid algorithm name"):
             source = self._generate_classification_dataset(config, 3)
             algorithm = "no_such_algo"
-            ndr.NDR(source, working_subset="train", algorithm=algorithm)
-        
+            result = ndr.NDR(source, working_subset="train", algorithm=algorithm)
+            len(result)
+
         with self.assertRaisesRegex(ValueError, "The number of images is smaller than the cut you want"):
             source = self._generate_classification_dataset(config, 3)
-            ndr.NDR(source, working_subset='train', num_cut=10000)
+            result = ndr.NDR(source, working_subset='train', num_cut=10000)
+            len(result)
 
         with self.assertRaisesRegex(ValueError, "Invalid over_sample"):
             source = self._generate_classification_dataset(config, 10)
             sampling = "no_such_sampling"
-            ndr.NDR(source, working_subset='train', num_cut=100, seed=12145, over_sample=sampling)
-        
+            result = ndr.NDR(source, working_subset='train', num_cut=100, seed=12145, over_sample=sampling)
+            len(result)
+
         with self.assertRaisesRegex(ValueError, "Invalid under_sample"):
             source = self._generate_classification_dataset(config, 10)
             sampling = "no_such_sampling"
-            ndr.NDR(source, working_subset='train', num_cut=1, seed=12145, under_sample=sampling)
-    
-    def test_empty_source(self):
-        config = {
-            "label1": 0,
-            "label2": 0,
-            "label3": 0
-        }
-        np.random.seed(1234)
-        source = self._generate_classification_dataset(config, 10)
-        with self.assertRaisesRegex(ValueError, "Empty dataset"):
-            result = ndr.NDR(source, working_subset='default', seed=12145)
-        
+            result = ndr.NDR(source, working_subset='train', num_cut=1, seed=12145, under_sample=sampling)
+            len(result)
+
     def test_ndr_without_cut(self):
         config = {
             "label1": 100,
@@ -180,9 +175,13 @@ class NDRTest(TestCase):
         with self.assertRaisesRegex(ValueError, "Invalid block_shape"):
             result = ndr.NDR(source, working_subset='train', over_sample='random',
                         block_shape=(3, 6, 6), seed=12145)
+            len(result)
+
         with self.assertRaisesRegex(ValueError, "block_shape should be positive"):
             result = ndr.NDR(source, working_subset='train', over_sample='random',
                         block_shape=(-1, 0), seed=12145)
+            len(result)
+
         result = ndr.NDR(source, working_subset='train', over_sample='random',
                         block_shape=(8, 8), seed=12145)
         self.assertEqual(1, len(result.get_subset("train")))
@@ -197,9 +196,13 @@ class NDRTest(TestCase):
         with self.assertRaisesRegex(ValueError, "hash_dim should be smaller than feature shape"):
             result = ndr.NDR(source, working_subset='train', over_sample='random',
                         hash_dim=1024, block_shape=(8, 8), seed=12145)
+            len(result)
+
         with self.assertRaisesRegex(ValueError, "hash_dim should be positive"):
             result = ndr.NDR(source, working_subset='train', over_sample='random',
                         hash_dim=-5, block_shape=(8, 8), seed=12145)
+            len(result)
+
         result = ndr.NDR(source, working_subset='train', over_sample='random',
                         hash_dim=16, seed=12145)
         self.assertEqual(2, len(result.get_subset("train")))
@@ -214,6 +217,8 @@ class NDRTest(TestCase):
         with self.assertRaisesRegex(ValueError, "sim_threshold should be large than 0"):
             result = ndr.NDR(source, working_subset='train', over_sample='random',
                         sim_threshold=0, block_shape=(8, 8), seed=12145)
+            len(result)
+            
         result = ndr.NDR(source, working_subset='train', over_sample='random',
                         sim_threshold=0.7, seed=12145)
         self.assertEqual(2, len(result.get_subset("train")))
