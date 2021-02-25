@@ -40,7 +40,7 @@ class Sampler(Transform, CliPlugin):
             help="Subset name to select sample",
         )
         parser.add_argument(
-            "-sampled_name",
+            "-sample_name",
             "--sampled_name",
             type=str,
             default="sampled_set",
