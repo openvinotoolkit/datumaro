@@ -1,11 +1,15 @@
 # Copyright (C) 2020 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
+from enum import Enum
+
 import cv2
 import numpy as np
 from scipy.linalg import orth
 
 from datumaro.components.extractor import Transform, DEFAULT_SUBSET_NAME
+
+AlgoList = Enum("AlgoList", ["gradient"]) # other algorithms will be added
 
 class NDR(Transform):
     """
@@ -65,7 +69,7 @@ class NDR(Transform):
         # parameter validation before main runs
         if working_subset == duplicated_subset:
             raise ValueError("working_subset == duplicated_subset")
-        if algorithm not in ('gradient'):
+        if algorithm not in [algo_name.name for algo_name in AlgoList]:
             raise ValueError("Invalid algorithm name")
         if over_sample not in ("random", "similarity"):
             raise ValueError("Invalid over_sample")
@@ -102,7 +106,7 @@ class NDR(Transform):
         if self.num_cut and self.num_cut > len(all_imgs):
             raise ValueError("The number of images is smaller than the cut you want")
 
-        if self.algorithm == "gradient":
+        if self.algorithm == AlgoList.gradient.name:
             all_key, fidx, kept_index, key_counter, removed_index_with_sim \
                 = self._gradient_based(all_imgs, **self.algorithm_specific)
         # else: #other algorithms will be added later
