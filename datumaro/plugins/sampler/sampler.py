@@ -19,7 +19,7 @@ class Sampler(Transform, CliPlugin):
     - Requesting a sample larger than the number of all images will return all images.|n
     |n
     Example:|n
-    |s|s%(prog)s -algo entropy -s train -o sample -m topk -k 20 -f <save_file_path>
+    |s|s%(prog)s -algo entropy -subset_name train -sample_name sample -unsampled_name unsampled -m topk -k 20
     """
 
     @classmethod
