@@ -4,6 +4,7 @@
 
 import os.path as osp
 import re
+from distutils.util import strtobool
 from glob import glob
 
 from datumaro.components.converter import Converter
@@ -91,15 +92,17 @@ class Market1501Converter(Converter):
                 if Market1501Path.PATTERN.search(image_name) == None:
                     if 'person_id' in item.attributes and \
                             'camera_id' in item.attributes:
-                        image_pattern = '{}{}_c{}s1_000000_00{}'
+                        image_pattern = '{:04d}_c{}s1_000000_00{}'
                         pid = int(item.attributes.get('person_id'))
                         camid = int(item.attributes.get('camera_id')) + 1
-                        image_name = image_pattern.format('0' * (4 - len(str(pid))),
-                            pid, camid, item.id)
+                        image_name = image_pattern.format(pid, camid, item.id)
                 dirname = Market1501Path.BBOX_DIR + subset_name
-                if 'query' in item.attributes and \
-                        str(item.attributes.get('query')) == 'True':
-                    dirname = Market1501Path.QUERY_DIR
+                if 'query' in item.attributes:
+                    query = item.attributes.get('query')
+                    if isinstance(query, str):
+                        query = strtobool(query)
+                    if query:
+                        dirname = Market1501Path.QUERY_DIR
                 image_path = osp.join(self._save_dir, dirname,
                     image_name + Market1501Path.IMAGE_EXT)
                 if item.has_image and self._save_images:

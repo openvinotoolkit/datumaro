@@ -6,9 +6,9 @@ import os
 import os.path as osp
 
 from datumaro.components.converter import Converter
-from datumaro.components.extractor import AnnotationType
+from datumaro.components.extractor import AnnotationType, CompiledMask
 from datumaro.util.image import save_image
-from datumaro.util.mask_tools import paint_mask, merge_masks
+from datumaro.util.mask_tools import paint_mask
 
 from .format import IcdarPath, IcdarTask
 
@@ -17,7 +17,7 @@ class _WordRecognitionConverter:
     def __init__(self):
         self.annotations = ''
 
-    def save_annotations(self, item):
+    def save_annotations(self, item, path):
         self.annotations += '%s, ' % (item.id + IcdarPath.IMAGE_EXT)
         for ann in item.annotations:
             if ann.type != AnnotationType.caption:
@@ -38,7 +38,7 @@ class _TextLocalizationConverter:
     def __init__(self):
         self.annotations = {}
 
-    def save_annotations(self, item):
+    def save_annotations(self, item, path):
         annotation = ''
         for ann in item.annotations:
             if ann.type == AnnotationType.bbox:
@@ -65,10 +65,8 @@ class _TextLocalizationConverter:
 class _TextSegmentationConverter:
     def __init__(self):
         self.annotations = {}
-        self.masks = {}
 
-    def save_annotations(self, item):
-        masks, mask = [], []
+    def save_annotations(self, item, path):
         annotation = ''
         colormap = [(255, 255, 255)]
         anns = [a for a in item.annotations
@@ -109,13 +107,14 @@ class _TextSegmentationConverter:
                 annotation += ' \"%s\"' % text
                 annotation += '\n'
                 group = ann.group
-                masks.append(ann.as_class_mask(ann.attributes['index'] + 1))
 
-            mask = merge_masks(masks)
-            mask = paint_mask(mask,
+            mask = CompiledMask.from_instance_masks(anns,
+                instance_labels=[m.attributes['index'] + 1 for m in anns])
+            mask = paint_mask(mask.class_mask,
                 { i: colormap[i] for i in range(len(colormap)) })
+            save_image(osp.join(path, item.id + '_GT' + IcdarPath.GT_EXT),
+                mask, create_dir=True)
         self.annotations[item.id] = annotation
-        self.masks[item.id] = mask
 
     def write(self, path):
         os.makedirs(path, exist_ok=True)
@@ -123,9 +122,6 @@ class _TextSegmentationConverter:
             file = osp.join(path, item + '_GT' + '.txt')
             with open(file, 'w') as f:
                 f.write(self.annotations[item])
-            if len(self.masks[item]) != 0:
-                save_image(osp.join(path, item + '_GT' + IcdarPath.GT_EXT),
-                    self.masks[item], create_dir=True)
 
     def is_empty(self):
         return len(self.annotations) == 0
@@ -169,12 +165,13 @@ class IcdarConverter(Converter):
         for subset_name, subset in self._extractor.subsets().items():
             task_converters = self._make_task_converters()
             for item in subset:
-                for task_conv in task_converters.values():
+                for task, task_conv in task_converters.items():
                     if item.has_image and self._save_images:
                         self._save_image(item, osp.join(
                             self._save_dir, subset_name, IcdarPath.IMAGES_DIR,
                             item.id + IcdarPath.IMAGE_EXT))
-                    task_conv.save_annotations(item)
+                    task_conv.save_annotations(item, osp.join(self._save_dir,
+                        IcdarPath.TASK_DIR[task], subset_name))
 
             for task, task_conv in task_converters.items():
                 if task_conv.is_empty() and not self._tasks:
