@@ -68,45 +68,52 @@ class _TextSegmentationConverter:
         self.masks = {}
 
     def save_annotations(self, item):
-        masks = []
+        masks, mask = [], []
         annotation = ''
         colormap = [(255, 255, 255)]
         anns = [a for a in item.annotations
             if a.type == AnnotationType.mask]
-        anns = sorted(anns, key=lambda a: a.id)
-        group = anns[0].group
-        for ann in anns:
-            if ann.group != group or ann.group == 0:
+        if anns:
+            is_not_index = len([p for p in anns
+                if 'index' not in p.attributes])
+            if is_not_index:
+                raise Exception("Item %s: mask must have"
+                    "index attribute" % item.id)
+            anns = sorted(anns, key=lambda a: a.attributes['index'])
+            group = anns[0].group
+            for ann in anns:
+                if ann.group != group or \
+                        (ann.group == 0 and anns[0].group != 0):
+                    annotation += '\n'
+                text = ''
+                if ann.attributes:
+                    if 'text' in ann.attributes:
+                        text = ann.attributes['text']
+                    if text == ' ':
+                        annotation += '#'
+                    if 'color' in ann.attributes and \
+                            len(ann.attributes['color'].split()) == 3:
+                        color = ann.attributes['color'].split()
+                        colormap.append((int(color[0]), int(color[1]), int(color[2])))
+                        annotation += ' '.join(p for p in color)
+                    else:
+                        raise Exception("Item %s: mask must have "
+                            "a three-digit color attribute" % item.id)
+                    if 'center' in ann.attributes:
+                        annotation += ' %s' % ann.attributes['center']
+                    else:
+                        annotation += ' - -'
+                bbox = ann.get_bbox()
+                annotation += ' %s %s %s %s' % (bbox[0], bbox[1],
+                    bbox[0] + bbox[2], bbox[1] + bbox[3])
+                annotation += ' \"%s\"' % text
                 annotation += '\n'
-            text = ''
-            if ann.attributes:
-                if 'text' in ann.attributes:
-                    text = ann.attributes['text']
-                if text == ' ':
-                    annotation += '#'
-                if 'color' in ann.attributes:
-                    colormap.append(ann.attributes['color'])
-                    annotation += ' '.join(str(p)
-                        for p in ann.attributes['color'])
-                else:
-                    annotation += '- - -'
-                if 'center' in ann.attributes:
-                    annotation += ' '
-                    annotation += ' '.join(str(p)
-                        for p in ann.attributes['center'])
-                else:
-                    annotation += ' - -'
-            bbox = ann.get_bbox()
-            annotation += ' %s %s %s %s' % (bbox[0], bbox[1],
-                bbox[0] + bbox[2], bbox[1] + bbox[3])
-            annotation += ' \"%s\"' % text
-            annotation += '\n'
-            group = ann.group
-            masks.append(ann.as_class_mask(ann.id))
+                group = ann.group
+                masks.append(ann.as_class_mask(ann.attributes['index'] + 1))
 
-        mask = merge_masks(masks)
-        mask = paint_mask(mask,
-            { i: colormap[i] for i in range(len(colormap)) })
+            mask = merge_masks(masks)
+            mask = paint_mask(mask,
+                { i: colormap[i] for i in range(len(colormap)) })
         self.annotations[item.id] = annotation
         self.masks[item.id] = mask
 
@@ -116,8 +123,9 @@ class _TextSegmentationConverter:
             file = osp.join(path, item + '_GT' + '.txt')
             with open(file, 'w') as f:
                 f.write(self.annotations[item])
-            save_image(osp.join(path, item + '_GT' + IcdarPath.GT_EXT),
-                self.masks[item], create_dir=True)
+            if len(self.masks[item]) != 0:
+                save_image(osp.join(path, item + '_GT' + IcdarPath.GT_EXT),
+                    self.masks[item], create_dir=True)
 
     def is_empty(self):
         return len(self.annotations) == 0

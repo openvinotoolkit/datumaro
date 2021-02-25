@@ -151,7 +151,7 @@ class _IcdarExtractor(SourceExtractor):
                     if len(objects) != 10:
                         continue
 
-                    centers.append([float(objects[3]), float(objects[4])])
+                    centers.append(objects[3] + ' ' + objects[4])
                     groups.append(group)
                     colors.append(tuple(int(o) for o in objects[:3]))
                     char = objects[9]
@@ -177,10 +177,10 @@ class _IcdarExtractor(SourceExtractor):
                     if label_id == 0:
                         continue
                     i = int(label_id)
-                    annotations.append(Mask(id=i, group=groups[i],
+                    annotations.append(Mask(group=groups[i],
                         image=self._lazy_extract_mask(mask, label_id),
-                        attributes={ 'color': colors[i], 'text': chars[i],
-                            'center': centers[i] }
+                        attributes={ 'index': i - 1, 'color': ' '.join(str(p) for p in colors[i]),
+                            'text': chars[i], 'center': centers[i] }
                     ))
         return items
 
@@ -229,4 +229,4 @@ class IcdarImporter(Importer):
                 sources += cls._find_sources_recursive(path, ext,
                     extractor_type, file_filter=lambda p:
                         osp.basename(p) != IcdarPath.VOCABULARY_FILE)
-            return sources
+        return sources
