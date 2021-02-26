@@ -1056,7 +1056,7 @@ def compute_image_statistics(dataset):
     return stats
 
 def compute_ann_statistics(dataset):
-    labels = dataset.categories().get(AnnotationType.label)
+    labels = dataset.categories().get(AnnotationType.label, LabelCategories())
     def get_label(ann):
         return labels.items[ann.label].name if ann.label is not None else None
 
