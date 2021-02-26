@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-from collections import defaultdict, OrderedDict
+from collections import OrderedDict
 import logging as log
 import os
 import os.path as osp

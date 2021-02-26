@@ -1,12 +1,12 @@
-from datumaro.components.operations import DistanceComparator
-from functools import partial
+from unittest import TestCase
+
 import os
 import os.path as osp
 
 import numpy as np
 
-from unittest import TestCase
 from datumaro.cli.contexts.project.diff import DatasetDiffVisualizer
+from datumaro.components.operations import DistanceComparator
 from datumaro.components.project import Dataset
 from datumaro.components.extractor import (DatasetItem,
     AnnotationType, Label, Mask, Points, Polygon,

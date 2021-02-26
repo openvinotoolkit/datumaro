@@ -21,7 +21,6 @@ with warnings.catch_warnings():
     import tensorboardX as tb
     _formats.append('tensorboard')
 
-from datumaro.components.operations import match_classes
 from datumaro.components.dataset import IDataset
 from datumaro.components.extractor import AnnotationType, LabelCategories
 from datumaro.util.image import save_image
