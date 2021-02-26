@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-from collections import defaultdict, OrderedDict
+from collections import OrderedDict
 import logging as log
 import os
 import os.path as osp
@@ -16,15 +16,17 @@ from datumaro.components.dataset_filter import (XPathAnnotationsFilter,
     XPathDatasetFilter)
 from datumaro.components.environment import Environment
 from datumaro.components.errors import DatumaroError
-from datumaro.components.extractor import Extractor
+from datumaro.components.extractor import DEFAULT_SUBSET_NAME, Extractor
 from datumaro.components.launcher import ModelTransform
 from datumaro.components.operations import ExactMerge
 
 
 class ProjectDataset(IDataset):
     class Subset(Extractor):
-            def __init__(self, parent):
+            def __init__(self, parent, name):
+                super().__init__(subsets=[name])
                 self.parent = parent
+                self.name = name or DEFAULT_SUBSET_NAME
                 self.items = OrderedDict()
 
             def __iter__(self):
@@ -35,6 +37,11 @@ class ProjectDataset(IDataset):
 
             def categories(self):
                 return self.parent.categories()
+
+            def get(self, id, subset=None): #pylint: disable=redefined-builtin
+                subset = subset or self.name
+                assert subset == self.name, '%s != %s' % (subset, self.name)
+                return super().get(id, subset)
 
     def __init__(self, project):
         super().__init__()
@@ -70,11 +77,13 @@ class ProjectDataset(IDataset):
         self._categories = categories
 
         # merge items
-        subsets = defaultdict(lambda: self.Subset(self))
+        subsets = {}
         for source_name, source in self._sources.items():
             log.debug("Loading '%s' source contents..." % source_name)
             for item in source:
-                existing_item = subsets[item.subset].items.get(item.id)
+                existing_item = subsets.setdefault(
+                        item.subset, self.Subset(self, item.subset)). \
+                    items.get(item.id)
                 if existing_item is not None:
                     path = existing_item.path
                     if item.path != path:
@@ -96,18 +105,16 @@ class ProjectDataset(IDataset):
         if own_source is not None:
             log.debug("Loading own dataset...")
             for item in own_source:
-                existing_item = subsets[item.subset].items.get(item.id)
+                existing_item = subsets.setdefault(
+                        item.subset, self.Subset(self, item.subset)). \
+                    items.get(item.id)
                 if existing_item is not None:
                     item = item.wrap(path=None,
                         image=ExactMerge.merge_images(existing_item, item))
 
                 subsets[item.subset].items[item.id] = item
 
-        # TODO: implement subset remapping when needed
-        subsets_filter = config.subsets
-        if len(subsets_filter) != 0:
-            subsets = { k: v for k, v in subsets.items() if k in subsets_filter}
-        self._subsets = dict(subsets)
+        self._subsets = subsets
 
         self._length = None
 
@@ -154,7 +161,7 @@ class ProjectDataset(IDataset):
 
         item = item.wrap(path=path)
         if subset not in self._subsets:
-            self._subsets[subset] = self.Subset(self)
+            self._subsets[subset] = self.Subset(self, subset)
         self._subsets[subset].items[id] = item
         self._length = None
 
