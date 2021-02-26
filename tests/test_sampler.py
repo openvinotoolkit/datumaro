@@ -313,7 +313,7 @@ class SamplerTest(TestCase):
         with self.subTest("Not found"):
             with self.assertRaisesRegex(Exception, "Not Found subset"):
                 subset = "hello"
-                sampler.Sampler(
+                result = sampler.Sampler(
                     source,
                     algorithm="entropy",
                     subset_name=subset,
@@ -323,10 +323,12 @@ class SamplerTest(TestCase):
                     num_sample=20,
                     output_file=None,
                 )
+                result = iter(result)
+                next(result)
 
             with self.assertRaisesRegex(Exception, "Not Found algorithm"):
                 algorithm = "hello"
-                sampler.Sampler(
+                result = sampler.Sampler(
                     source,
                     algorithm=algorithm,
                     subset_name="train",
@@ -336,10 +338,12 @@ class SamplerTest(TestCase):
                     num_sample=20,
                     output_file=None,
                 )
+                result = iter(result)
+                next(result)
 
             with self.assertRaisesRegex(Exception, "Not Found method"):
                 sampling_method = "hello"
-                sampler.Sampler(
+                result = sampler.Sampler(
                     source,
                     algorithm="entropy",
                     subset_name="train",
@@ -349,11 +353,13 @@ class SamplerTest(TestCase):
                     num_sample=20,
                     output_file=None,
                 )
+                result = iter(result)
+                next(result)
 
         with self.subTest("Invalid Value"):
             with self.assertRaisesRegex(Exception, "Invalid number"):
                 k = 0
-                sampler.Sampler(
+                result = sampler.Sampler(
                     source,
                     algorithm="entropy",
                     subset_name="train",
@@ -363,10 +369,12 @@ class SamplerTest(TestCase):
                     num_sample=k,
                     output_file=None,
                 )
+                result = iter(result)
+                next(result)
 
             with self.assertRaisesRegex(Exception, "Invalid number"):
                 k = -1
-                sampler.Sampler(
+                result = sampler.Sampler(
                     source,
                     algorithm="entropy",
                     subset_name="train",
@@ -376,10 +384,12 @@ class SamplerTest(TestCase):
                     num_sample=k,
                     output_file=None,
                 )
+                result = iter(result)
+                next(result)
 
             with self.assertRaisesRegex(Exception, "Invalid value"):
                 k = "string"
-                sampler.Sampler(
+                result = sampler.Sampler(
                     source,
                     algorithm="entropy",
                     subset_name="train",
@@ -389,10 +399,12 @@ class SamplerTest(TestCase):
                     num_sample=k,
                     output_file=None,
                 )
+                result = iter(result)
+                next(result)
 
             with self.assertRaisesRegex(Exception, "Invalid extension"):
                 output_file = "string.xml"
-                sampler.Sampler(
+                result = sampler.Sampler(
                     source,
                     algorithm="entropy",
                     subset_name="train",
@@ -402,10 +414,12 @@ class SamplerTest(TestCase):
                     num_sample=20,
                     output_file=output_file,
                 )
+                result = iter(result)
+                next(result)
 
             with self.assertRaisesRegex(Exception, "Invalid extension"):
                 output_file = "string"
-                sampler.Sampler(
+                result = sampler.Sampler(
                     source,
                     algorithm="entropy",
                     subset_name="train",
@@ -415,6 +429,8 @@ class SamplerTest(TestCase):
                     num_sample=20,
                     output_file=output_file,
                 )
+                result = iter(result)
+                next(result)
 
             with self.assertRaisesRegex(
                 Exception, "Invalid Data, ImageID not found in data"
@@ -477,8 +493,8 @@ class SamplerTest(TestCase):
             }
 
             source = self._generate_classification_dataset(config)
-            with self.assertRaisesRegex(Exception, "Invalid Dataset"):
-                sampler.Sampler(
+            with self.assertRaisesRegex(Exception, "Not Found"):
+                result = sampler.Sampler(
                     source,
                     algorithm="entropy",
                     subset_name="train",
@@ -488,6 +504,8 @@ class SamplerTest(TestCase):
                     num_sample=20,
                     output_file=None,
                 )
+                result = iter(result)
+                next(result)
 
         with self.subTest("Dataset without Score (Probability)"):
             config = {
@@ -498,7 +516,7 @@ class SamplerTest(TestCase):
 
             source = self._generate_classification_dataset(config, empty_score=True)
             with self.assertRaisesRegex(Exception, "Invalid data"):
-                sampler.Sampler(
+                result = sampler.Sampler(
                     source,
                     algorithm="entropy",
                     subset_name="train",
@@ -508,6 +526,8 @@ class SamplerTest(TestCase):
                     num_sample=20,
                     output_file=None,
                 )
+                result = iter(result)
+                next(result)
 
         with self.subTest("Out of range, probability (Less than 0 or more than 1)"):
             config = {
@@ -520,7 +540,7 @@ class SamplerTest(TestCase):
                 config, empty_score=False, out_range=True
             )
             with self.assertRaisesRegex(Exception, "Invalid data"):
-                sampler.Sampler(
+                result = sampler.Sampler(
                     source,
                     algorithm="entropy",
                     subset_name="train",
@@ -530,6 +550,8 @@ class SamplerTest(TestCase):
                     num_sample=20,
                     output_file=None,
                 )
+                result = iter(result)
+                next(result)
 
         with self.subTest("No Score Attribute Data"):
             config = {
@@ -540,7 +562,7 @@ class SamplerTest(TestCase):
 
             source = self._generate_classification_dataset(config, no_attr=True)
             with self.assertRaisesRegex(Exception, "Invalid data"):
-                sampler.Sampler(
+                result = sampler.Sampler(
                     source,
                     algorithm="entropy",
                     subset_name="train",
@@ -550,6 +572,8 @@ class SamplerTest(TestCase):
                     num_sample=20,
                     output_file=None,
                 )
+                result = iter(result)
+                next(result)
 
         with self.subTest("No Image Data"):
             config = {
@@ -560,7 +584,7 @@ class SamplerTest(TestCase):
 
             source = self._generate_classification_dataset(config, no_img=True)
             with self.assertRaisesRegex(Exception, "Invalid data"):
-                sampler.Sampler(
+                result = sampler.Sampler(
                     source,
                     algorithm="entropy",
                     subset_name="train",
@@ -570,6 +594,8 @@ class SamplerTest(TestCase):
                     num_sample=20,
                     output_file=None,
                 )
+                result = iter(result)
+                next(result)
 
     def test_sampler_number_of_samples(self):
         config = {

@@ -2,6 +2,10 @@
 #
 # SPDX-License-Identifier: MIT
 
+from enum import Enum
+
+SamplingMethod = Enum("SamplingMethod", ["topk", "lowk", "randk", "mixk", "randtopk"])
+
 
 class InferenceResultAnalyzer:
     """
@@ -11,6 +15,7 @@ class InferenceResultAnalyzer:
     def __init__(self, dataset, inference):
         self.data = dataset
         self.inference = inference
+        self.sampling_method = SamplingMethod
 
     def get_sample(self, method: str, k: int):
         raise NotImplementedError()

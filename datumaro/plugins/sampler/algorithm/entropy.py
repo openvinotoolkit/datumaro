@@ -70,21 +70,26 @@ class SampleEntropy(InferenceResultAnalyzer):
             msg = f"Invalid value {k}. k must have an integer greater than zero."
             raise Exception(msg)
         elif k <= 0:
-            msg = f"Invalid number {k}. The number of samples, k, must have a positive number greater than zero."
+            msg = (
+                f"Invalid number {k}. k must have a positive number greater than zero."
+            )
             raise Exception(msg)
 
         # 2. Select a sample according to the method
         if k <= len(temp_rank):
-            if method == "topk":
+            if method == self.sampling_method.topk.name:
                 temp_rank = temp_rank[:k]
-            elif method == "lowk":
+            elif method == self.sampling_method.lowk.name:
                 temp_rank = temp_rank[-k:]
-            elif method == "randk":
+            elif method == self.sampling_method.randk.name:
                 return self.data.sample(n=k).reset_index(drop=True)
-            elif method in ["mixk", "randtopk"]:
+            elif method in [
+                self.sampling_method.mixk.name,
+                self.sampling_method.randtopk.name,
+            ]:
                 return self._get_sample_mixed(method=method, k=k, n=n)
             else:
-                msg = f"Not Found method '{method}', available methods: ['topk', 'lowk', 'randk', 'mixk', 'randtopk']"
+                msg = f"Not Found method '{method}'"
                 raise Exception(msg)
         else:
             msg = (
@@ -112,18 +117,18 @@ class SampleEntropy(InferenceResultAnalyzer):
 
         # Select a sample according to the method
         if k <= len(temp_rank):
-            if method == "mixk":
+            if method == self.sampling_method.mixk.name:
                 if k % 2 == 0:
                     temp_rank = pd.concat([temp_rank[: k // 2], temp_rank[-(k // 2) :]])
                 else:
                     temp_rank = pd.concat(
                         [temp_rank[: (k // 2) + 1], temp_rank[-(k // 2) :]]
                     )
-            elif method == "randtopk":
+            elif method == self.sampling_method.randtopk.name:
                 if n * k <= len(temp_rank):
                     temp_rank = temp_rank.sample(n=n * k).sort_values(by="rank")
                 else:
-                    msg = f"n * k exceeds the length of the inference.(n*k: {n*k} > len of inference: {len(temp_rank)}) Please specify n correctly."
+                    msg = f"n * k exceeds the length of the inference"
                     log.warning(msg=msg)
                 temp_rank = temp_rank[:k]
 
