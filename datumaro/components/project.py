@@ -277,6 +277,10 @@ class ProjectDataset(IDataset):
 
         return self.transform(_DatasetFilter)
 
+    def export(self, save_dir: str, format, **kwargs):
+        dataset = Dataset.from_extractors(self, env=self.env)
+        dataset.export(save_dir, format, **kwargs)
+
     def transform_project(self, method, save_dir=None, **method_kwargs):
         # NOTE: probably this function should be in the ViewModel layer
         if isinstance(method, str):
