@@ -6,9 +6,9 @@ import os
 import os.path as osp
 
 from datumaro.components.converter import Converter
-from datumaro.components.extractor import AnnotationType
+from datumaro.components.extractor import AnnotationType, CompiledMask
 from datumaro.util.image import save_image
-from datumaro.util.mask_tools import paint_mask, merge_masks
+from datumaro.util.mask_tools import paint_mask
 
 from .format import IcdarPath, IcdarTask
 
@@ -17,7 +17,7 @@ class _WordRecognitionConverter:
     def __init__(self):
         self.annotations = ''
 
-    def save_annotations(self, item):
+    def save_annotations(self, item, path):
         self.annotations += '%s, ' % (item.id + IcdarPath.IMAGE_EXT)
         for ann in item.annotations:
             if ann.type != AnnotationType.caption:
@@ -38,7 +38,7 @@ class _TextLocalizationConverter:
     def __init__(self):
         self.annotations = {}
 
-    def save_annotations(self, item):
+    def save_annotations(self, item, path):
         annotation = ''
         for ann in item.annotations:
             if ann.type == AnnotationType.bbox:
@@ -65,50 +65,55 @@ class _TextLocalizationConverter:
 class _TextSegmentationConverter:
     def __init__(self):
         self.annotations = {}
-        self.masks = {}
 
-    def save_annotations(self, item):
-        masks = []
+    def save_annotations(self, item, path):
         annotation = ''
         colormap = [(255, 255, 255)]
         anns = [a for a in item.annotations
             if a.type == AnnotationType.mask]
-        anns = sorted(anns, key=lambda a: a.id)
-        group = anns[0].group
-        for ann in anns:
-            if ann.group != group or ann.group == 0:
+        if anns:
+            is_not_index = len([p for p in anns if 'index' not in p.attributes])
+            if is_not_index:
+                raise Exception("Item %s: a mask must have"
+                    "'index' attribute" % item.id)
+            anns = sorted(anns, key=lambda a: a.attributes['index'])
+            group = anns[0].group
+            for ann in anns:
+                if ann.group != group or (not ann.group and anns[0].group != 0):
+                    annotation += '\n'
+                text = ''
+                if ann.attributes:
+                    if 'text' in ann.attributes:
+                        text = ann.attributes['text']
+                    if text == ' ':
+                        annotation += '#'
+                    if 'color' in ann.attributes and \
+                            len(ann.attributes['color'].split()) == 3:
+                        color = ann.attributes['color'].split()
+                        colormap.append(
+                            (int(color[0]), int(color[1]), int(color[2])))
+                        annotation += ' '.join(p for p in color)
+                    else:
+                        raise Exception("Item %s: a mask must have "
+                            "an RGB color attribute, e. g. '10 7 50'" % item.id)
+                    if 'center' in ann.attributes:
+                        annotation += ' %s' % ann.attributes['center']
+                    else:
+                        annotation += ' - -'
+                bbox = ann.get_bbox()
+                annotation += ' %s %s %s %s' % (bbox[0], bbox[1],
+                    bbox[0] + bbox[2], bbox[1] + bbox[3])
+                annotation += ' \"%s\"' % text
                 annotation += '\n'
-            text = ''
-            if ann.attributes:
-                if 'text' in ann.attributes:
-                    text = ann.attributes['text']
-                if text == ' ':
-                    annotation += '#'
-                if 'color' in ann.attributes:
-                    colormap.append(ann.attributes['color'])
-                    annotation += ' '.join(str(p)
-                        for p in ann.attributes['color'])
-                else:
-                    annotation += '- - -'
-                if 'center' in ann.attributes:
-                    annotation += ' '
-                    annotation += ' '.join(str(p)
-                        for p in ann.attributes['center'])
-                else:
-                    annotation += ' - -'
-            bbox = ann.get_bbox()
-            annotation += ' %s %s %s %s' % (bbox[0], bbox[1],
-                bbox[0] + bbox[2], bbox[1] + bbox[3])
-            annotation += ' \"%s\"' % text
-            annotation += '\n'
-            group = ann.group
-            masks.append(ann.as_class_mask(ann.id))
+                group = ann.group
 
-        mask = merge_masks(masks)
-        mask = paint_mask(mask,
-            { i: colormap[i] for i in range(len(colormap)) })
+            mask = CompiledMask.from_instance_masks(anns,
+                instance_labels=[m.attributes['index'] + 1 for m in anns])
+            mask = paint_mask(mask.class_mask,
+                { i: colormap[i] for i in range(len(colormap)) })
+            save_image(osp.join(path, item.id + '_GT' + IcdarPath.GT_EXT),
+                mask, create_dir=True)
         self.annotations[item.id] = annotation
-        self.masks[item.id] = mask
 
     def write(self, path):
         os.makedirs(path, exist_ok=True)
@@ -116,8 +121,6 @@ class _TextSegmentationConverter:
             file = osp.join(path, item + '_GT' + '.txt')
             with open(file, 'w') as f:
                 f.write(self.annotations[item])
-            save_image(osp.join(path, item + '_GT' + IcdarPath.GT_EXT),
-                self.masks[item], create_dir=True)
 
     def is_empty(self):
         return len(self.annotations) == 0
@@ -161,12 +164,13 @@ class IcdarConverter(Converter):
         for subset_name, subset in self._extractor.subsets().items():
             task_converters = self._make_task_converters()
             for item in subset:
-                for task_conv in task_converters.values():
+                for task, task_conv in task_converters.items():
                     if item.has_image and self._save_images:
                         self._save_image(item, osp.join(
                             self._save_dir, subset_name, IcdarPath.IMAGES_DIR,
                             item.id + IcdarPath.IMAGE_EXT))
-                    task_conv.save_annotations(item)
+                    task_conv.save_annotations(item, osp.join(self._save_dir,
+                        IcdarPath.TASK_DIR[task], subset_name))
 
             for task, task_conv in task_converters.items():
                 if task_conv.is_empty() and not self._tasks:
