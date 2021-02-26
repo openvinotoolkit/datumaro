@@ -231,7 +231,6 @@ class DatasetTest(TestCase):
             self.assertTrue(osp.isfile(osp.join(path, 'annotations', 'a.json')))
             self.assertFalse(osp.isfile(osp.join(path, 'annotations', 'b.json')))
             self.assertTrue(osp.isfile(osp.join(path, 'annotations', 'c.json')))
-            self.assertTrue(dataset.is_bound)
 
     def test_can_track_modifications_on_addition(self):
         dataset = Dataset.from_iterable([
@@ -541,6 +540,29 @@ class DatasetTest(TestCase):
 
         self.assertEqual(0, iter_called)
         self.assertEqual(2, get_called)
+
+    def test_binds_on_save(self):
+        dataset = Dataset.from_iterable([DatasetItem(1)])
+
+        self.assertFalse(dataset.is_bound)
+
+        with TestDir() as test_dir:
+            dataset.save(test_dir)
+
+            self.assertTrue(dataset.is_bound)
+            self.assertEqual(dataset.data_path, test_dir)
+            self.assertEqual(dataset.format, DEFAULT_FORMAT)
+
+    def test_flushes_changes_on_save(self):
+        dataset = Dataset.from_iterable([])
+        dataset.put(DatasetItem(1))
+
+        self.assertTrue(dataset.is_modified)
+
+        with TestDir() as test_dir:
+            dataset.save(test_dir)
+
+            self.assertFalse(dataset.is_modified)
 
 
 class DatasetItemTest(TestCase):
