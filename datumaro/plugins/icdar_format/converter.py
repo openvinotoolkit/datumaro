@@ -72,16 +72,14 @@ class _TextSegmentationConverter:
         anns = [a for a in item.annotations
             if a.type == AnnotationType.mask]
         if anns:
-            is_not_index = len([p for p in anns
-                if 'index' not in p.attributes])
+            is_not_index = len([p for p in anns if 'index' not in p.attributes])
             if is_not_index:
-                raise Exception("Item %s: mask must have"
-                    "index attribute" % item.id)
+                raise Exception("Item %s: a mask must have"
+                    "'index' attribute" % item.id)
             anns = sorted(anns, key=lambda a: a.attributes['index'])
             group = anns[0].group
             for ann in anns:
-                if ann.group != group or \
-                        (ann.group == 0 and anns[0].group != 0):
+                if ann.group != group or (not ann.group and anns[0].group != 0):
                     annotation += '\n'
                 text = ''
                 if ann.attributes:
@@ -92,11 +90,12 @@ class _TextSegmentationConverter:
                     if 'color' in ann.attributes and \
                             len(ann.attributes['color'].split()) == 3:
                         color = ann.attributes['color'].split()
-                        colormap.append((int(color[0]), int(color[1]), int(color[2])))
+                        colormap.append(
+                            (int(color[0]), int(color[1]), int(color[2])))
                         annotation += ' '.join(p for p in color)
                     else:
-                        raise Exception("Item %s: mask must have "
-                            "a three-digit color attribute" % item.id)
+                        raise Exception("Item %s: a mask must have "
+                            "an RGB color attribute, e. g. '10 7 50'" % item.id)
                     if 'center' in ann.attributes:
                         annotation += ' %s' % ann.attributes['center']
                     else:

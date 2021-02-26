@@ -22,7 +22,9 @@ class Market1501Path:
 class Market1501Extractor(SourceExtractor):
     def __init__(self, path):
         if not osp.isdir(path):
-            raise NotADirectoryError("Can't open folder with annotation files '%s'" % path)
+            raise NotADirectoryError(
+                "Can't open folder with annotation files '%s'" % path)
+
         subset = ''
         for dirname in glob(osp.join(path, '*')):
             if osp.basename(dirname).startswith(Market1501Path.BBOX_DIR):
@@ -32,6 +34,7 @@ class Market1501Extractor(SourceExtractor):
                 subset = osp.splitext(subset)[0]
                 break
         super().__init__(subset=subset)
+
         self._path = path
         self._items = list(self._load_items(path).values())
 
@@ -41,12 +44,12 @@ class Market1501Extractor(SourceExtractor):
         paths = glob(osp.join(path, Market1501Path.QUERY_DIR, '*'))
         paths += glob(osp.join(path, Market1501Path.BBOX_DIR + self._subset, '*'))
 
-        anno_file = osp.join(path, Market1501Path.IMAGE_NAMES + self._subset + '.txt')
+        anno_file = osp.join(path,
+            Market1501Path.IMAGE_NAMES + self._subset + '.txt')
         if len(paths) == 0 and osp.isfile(anno_file):
             with open(anno_file, encoding='utf-8') as f:
                 for line in f:
-                    line = line.strip()
-                    paths.append(line)
+                    paths.append(line.strip())
 
         for image_path in paths:
             if osp.splitext(image_path)[-1] != Market1501Path.IMAGE_EXT:
@@ -61,10 +64,11 @@ class Market1501Extractor(SourceExtractor):
                     item_id = item_id[19:]
             items[item_id] = DatasetItem(id=item_id, subset=self._subset,
                 image=image_path)
-            attributes = items[item_id].attributes
+
             if pid == -1:
                 continue
 
+            attributes = items[item_id].attributes
             camid -= 1
             attributes['person_id'] = pid
             attributes['camera_id'] = camid
@@ -96,6 +100,7 @@ class Market1501Converter(Converter):
                         pid = int(item.attributes.get('person_id'))
                         camid = int(item.attributes.get('camera_id')) + 1
                         image_name = image_pattern.format(pid, camid, item.id)
+
                 dirname = Market1501Path.BBOX_DIR + subset_name
                 if 'query' in item.attributes:
                     query = item.attributes.get('query')
@@ -109,6 +114,7 @@ class Market1501Converter(Converter):
                     self._save_image(item, image_path)
                 else:
                     annotation += '%s\n' % image_path
+
             if 0 < len(annotation):
                 annotation_file = osp.join(self._save_dir,
                     Market1501Path.IMAGE_NAMES + subset_name + '.txt')
