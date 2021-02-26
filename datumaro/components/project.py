@@ -281,6 +281,10 @@ class ProjectDataset(IDataset):
         dataset = Dataset.from_extractors(self, env=self.env)
         dataset.export(save_dir, format, **kwargs)
 
+    def define_categories(self, categories):
+        assert not self._categories
+        self._categories = categories
+
     def transform_project(self, method, save_dir=None, **method_kwargs):
         # NOTE: probably this function should be in the ViewModel layer
         if isinstance(method, str):
