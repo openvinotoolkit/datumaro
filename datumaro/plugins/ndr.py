@@ -16,10 +16,12 @@ class NDR(Transform):
     Near-duplicated image removal |n
     Removes near-duplicated images in subset |n
     """
+
     def __init__(self, extractor,
-                 working_subset=None, duplicated_subset="duplicated", algorithm='gradient',
-                 num_cut=None, over_sample='random', under_sample='uniform',
-                 seed=None, **kwargs):
+            working_subset=None, duplicated_subset="duplicated",
+            algorithm='gradient', num_cut=None,
+            over_sample='random', under_sample='uniform',
+            seed=None, **kwargs):
         """
         Near-duplicated image removal
 
@@ -107,16 +109,18 @@ class NDR(Transform):
             raise ValueError("The number of images is smaller than the cut you want")
 
         if self.algorithm == AlgoList.gradient.name:
-            all_key, fidx, kept_index, key_counter, removed_index_with_sim \
-                = self._gradient_based(all_imgs, **self.algorithm_specific)
-        # else: #other algorithms will be added later
+            all_key, fidx, kept_index, key_counter, removed_index_with_sim = \
+                self._gradient_based(all_imgs, **self.algorithm_specific)
+        else:
+            raise NotImplementedError()
 
         kept_index = self._keep_cut(self.num_cut, all_key, fidx,
-                                    kept_index, key_counter, removed_index_with_sim,
-                                    self.over_sample, self.under_sample)
-        self.kept_item_id = set([having_image[ii].id for ii in kept_index])
+            kept_index, key_counter, removed_index_with_sim,
+            self.over_sample, self.under_sample)
+        self.kept_item_id = set(having_image[ii].id for ii in kept_index)
 
-    def _gradient_based(self, all_imgs, block_shape=(4, 4), hash_dim=32, sim_threshold=0.5):
+    def _gradient_based(self, all_imgs, block_shape=(4, 4),
+            hash_dim=32, sim_threshold=0.5):
         if len(block_shape) != 2:
             raise ValueError("Invalid block_shape")
         if block_shape[0] <= 0 or block_shape[1] <= 0:
@@ -127,8 +131,10 @@ class NDR(Transform):
             raise ValueError("hash_dim should be smaller than feature shape")
         if hash_dim <= 0:
             raise ValueError("hash_dim should be positive")
+
         # Caculate gradient
-        all_clr = np.array([self._cgrad_feature(img, out_wh=block_shape) for img in all_imgs])
+        all_clr = np.array(
+            [self._cgrad_feature(img, out_wh=block_shape) for img in all_imgs])
 
         # Compute hash keys from all the features
         all_clr = np.reshape(all_clr, (len(all_imgs), -1))
@@ -151,7 +157,8 @@ class NDR(Transform):
                 continue
 
             # Hash collision: compare dot-product based feature similarity
-            # the value for maximizing the gap between duplicated and non-duplicated
+            # the value for maximizing the gap
+            # between duplicated and non-duplicated
             large_exponent = 50
             max_sim = np.max(np.dot(clr_dict[key], clr) ** large_exponent)
 
@@ -162,15 +169,17 @@ class NDR(Transform):
                 kept_index.append(ii)
             else:
                 removed_index_with_similarity[ii] = max_sim
-        return all_key, fidx, kept_index, key_counter, removed_index_with_similarity
+        return all_key, fidx, kept_index, key_counter, \
+            removed_index_with_similarity
 
     def _keep_cut(self, num_cut, all_key, fidx,
-                  kept_index, key_counter, removed_index_with_similarity,
-                  over_sample, under_sample):
+            kept_index, key_counter, removed_index_with_similarity,
+            over_sample, under_sample):
         if num_cut and num_cut > len(kept_index):
             if over_sample == "random":
-                selected_index = np.random.choice(list(set(fidx) - set(kept_index)),
-                                                  size=num_cut - len(kept_index), replace=False)
+                selected_index = np.random.choice(
+                    list(set(fidx) - set(kept_index)),
+                    size=num_cut - len(kept_index), replace=False)
             elif over_sample == "similarity":
                 removed_index_with_similarity = [[key, value] \
                     for key, value in removed_index_with_similarity.items()]
@@ -189,13 +198,16 @@ class NDR(Transform):
                 # Normalizing them by dividing with sum, we get [6/13, 3/13, 4/13]
                 # Then the key x will be sampled with probability 6/13
                 # and each point, x1 and x2, will share same prob. 3/13
-                key_with_reverse_occur = {key: 1 / key_counter[key] for key in key_counter}
+                key_with_reverse_occur = {
+                    key: 1 / key_counter[key] for key in key_counter}
                 reverse_occur_sum = sum(key_with_reverse_occur.values())
-                key_normalized_reverse_occur = {key: reverse_occur / reverse_occur_sum \
+                key_normalized_reverse_occur = {
+                    key: reverse_occur / reverse_occur_sum \
                     for key, reverse_occur in key_with_reverse_occur.items()}
                 prob = [key_normalized_reverse_occur[all_key[ii]] / key_counter[all_key[ii]] \
                     for ii in kept_index]
-            kept_index = np.random.choice(kept_index, size=num_cut, replace=False, p=prob)
+            kept_index = np.random.choice(kept_index, size=num_cut,
+                replace=False, p=prob)
 
         return kept_index
 
@@ -213,7 +225,8 @@ class NDR(Transform):
         r2 = np.sqrt(np.maximum(r2, 0))
 
         # mean and variance feature, zero padding for gradient computation
-        rr = np.pad(np.concatenate([r_img, r2], axis=-1), ((1, 1), (1, 1), (0, 0)))
+        rr = np.pad(np.concatenate([r_img, r2], axis=-1),
+            ((1, 1), (1, 1), (0, 0)))
 
         # compute gradients along x- and y-axes
         rx = rr[1:-1, :-2, :] - rr[1:-1, 2:, :]
