@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Market-1501` dataset format (<https://github.com/openvinotoolkit/datumaro/pull/108>)
 - `LFW` dataset format (<https://github.com/openvinotoolkit/datumaro/pull/110>)
 - Support of polygons' and masks' confusion matrices and mismathing classes in `diff` command (<https://github.com/openvinotoolkit/datumaro/pull/117>)
+- Add near duplicate image removal plugin (<https://github.com/openvinotoolkit/datumaro/pull/113>)
 
 ### Changed
 - OpenVINO model launcher is updated for OpenVINO r2021.1 (<https://github.com/openvinotoolkit/datumaro/pull/100>)
