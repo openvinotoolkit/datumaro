@@ -18,12 +18,16 @@ CVAT annotations                             ---> Publication, statistics etc.
 
 # Table of Contents
 
-- [Examples](#examples)
-- [Features](#features)
-- [Installation](#installation)
-- [Usage](#usage)
-- [User manual](docs/user_manual.md)
-- [Contributing](#contributing)
+- [Dataset Management Framework (Datumaro)](#dataset-management-framework-datumaro)
+- [Table of Contents](#table-of-contents)
+  - [Examples](#examples)
+  - [Features](#features)
+  - [Installation](#installation)
+    - [Dependencies](#dependencies)
+  - [Usage](#usage)
+    - [Standalone tool](#standalone-tool)
+    - [Python module](#python-module)
+  - [Contributing](#contributing)
 
 ## Examples
 
@@ -147,6 +151,15 @@ CVAT annotations                             ---> Publication, statistics etc.
     - polygons to instance masks and vise-versa
     - apply a custom colormap for mask annotations
     - rename or remove dataset labels
+  - Dataset splitting
+    - random split
+    - task-specific split using annotations
+      while preserving distribution as much as possible
+      - class-wise random split for classification
+      - for detection task, split dataset so that objects of one `DatasetItem`
+        do not belong to different subsets.
+      - for re-identification, split dataset so that IDs in the test set
+        consists of people/objects not used for training
 - Dataset quality checking
   - Simple checking for errors
   - Comparison with model infernece
