@@ -528,7 +528,7 @@ class DatasetTest(TestCase):
                     DatasetItem(4),
                 ])
 
-            def get(self, id, subset=None):
+            def get(self, id, subset=None): #pylint: disable=redefined-builtin
                 nonlocal get_called
                 get_called += 1
                 return DatasetItem(id, subset=subset)
