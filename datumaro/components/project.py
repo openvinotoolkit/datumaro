@@ -277,7 +277,8 @@ class ProjectDataset(IDataset):
 
         return self.transform(_DatasetFilter)
 
-    def export(self, save_dir: str, format, **kwargs):
+    def export(self, save_dir: str, format, \
+            **kwargs): #pylint: disable=redefined-builtin
         dataset = Dataset.from_extractors(self, env=self.env)
         dataset.export(save_dir, format, **kwargs)
 
