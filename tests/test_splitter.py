@@ -255,31 +255,110 @@ class SplitterTest(TestCase):
                 splits = [("train_", 0.5), ("val", 0.2), ("test", 0.3)]
                 splitter.ClassificationSplit(source, splits)
 
-    def test_split_for_matching_reid(self):
+    def test_split_for_reidentification_with_label(self):
+        counts = {}
+        config = dict()
+        for i in range(10):
+            label = "label%d" % i
+            count = (i % 3 + 1) * 7
+            counts[label] = count
+            config[label] = {"attrs": None, "counts": count}
+        source = self._generate_dataset(config)
+
+        splits = [("train", 0.5), ("val", 0.2), ("test", 0.3)]
+        query = 0.4 / 0.7
+        actual = splitter.ReidentificationSplit(source, splits, query)
+
+        stats = dict()
+        for sname in ["train", "val", "test-query", "test-gallery"]:
+            subset = actual.get_subset(sname)
+            stat = compute_ann_statistics(subset)["annotations"]["labels"]
+            stats[sname] = stat
+
+        self.assertEqual(65, stats["train"]["count"])
+        self.assertEqual(26, stats["val"]["count"])
+        self.assertEqual(18, stats["test-gallery"]["count"])
+        self.assertEqual(24, stats["test-query"]["count"])
+
+        def _get_values_present(stat):
+            values_present = []
+            for label, dist in stat["distribution"].items():
+                if dist[0] > 0:
+                    values_present.append(label)
+            return set(values_present)
+
+        train_ids = _get_values_present(stats["train"])
+        self.assertEqual(7, len(train_ids))
+        self.assertEqual(train_ids, _get_values_present(stats["val"]))
+
+        trainval = stats["train"]["count"] + stats["val"]["count"]
+        self.assertEqual(int(trainval * 0.5 / 0.7), stats["train"]["count"])
+        self.assertEqual(int(trainval * 0.2 / 0.7), stats["val"]["count"])
+
+        dist_train = stats["train"]["distribution"]
+        dist_val = stats["val"]["distribution"]
+        for pid in train_ids:
+            total = counts[pid]
+            self.assertEqual(int(total * 0.5 / 0.7), dist_train[pid][0])
+            self.assertEqual(int(total * 0.2 / 0.7), dist_val[pid][0])
+
+        test_ids = _get_values_present(stats["test-gallery"])
+        self.assertEqual(3, len(test_ids))
+        self.assertEqual(test_ids, _get_values_present(stats["test-query"]))
+
+        dist_gallery = stats["test-gallery"]["distribution"]
+        dist_query = stats["test-query"]["distribution"]
+        for pid in test_ids:
+            total = counts[pid]
+            self.assertEqual(int(total * 0.3 / 0.7), dist_gallery[pid][0])
+            self.assertEqual(int(total * 0.4 / 0.7), dist_query[pid][0])
+
+        # random seed test
+        splits = [("train", 0.5), ("test", 0.5)]
+        r1 = splitter.ReidentificationSplit(source, splits, query, seed=1234)
+        r2 = splitter.ReidentificationSplit(source, splits, query, seed=1234)
+        r3 = splitter.ReidentificationSplit(source, splits, query, seed=4321)
+        self.assertEqual(
+            list(r1.get_subset("train")), list(r2.get_subset("train"))
+        )
+        self.assertNotEqual(
+            list(r1.get_subset("train")), list(r3.get_subset("train"))
+        )
+
+        # same count for checking no error in rebalance
+        config = dict()
+        for i in range(100):
+            label = "label%03d" % i
+            config[label] = {"attrs": None, "counts": 7}
+        source = self._generate_dataset(config)
+        splits = [("train", 0.5), ("val", 0.2), ("test", 0.3)]
+        actual = splitter.ReidentificationSplit(source, splits, query)
+
+        self.assertEqual(350, len(actual.get_subset("train")))
+        self.assertEqual(140, len(actual.get_subset("val")))
+        self.assertEqual(90, len(actual.get_subset("test-gallery")))
+        self.assertEqual(120, len(actual.get_subset("test-query")))
+
+    def test_split_for_reidentification_with_attr(self):
         counts = {i: (i % 3 + 1) * 7 for i in range(10)}
         config = {"person": {"attrs": ["PID"], "counts": counts}}
         source = self._generate_dataset(config)
 
         splits = [("train", 0.5), ("val", 0.2), ("test", 0.3)]
-        test_splits = [("query", 0.4 / 0.7), ("gallery", 0.3 / 0.7)]
-        actual = splitter.MatchingReIDSplit(source, splits, test_splits)
+        query = 0.4 / 0.7
+        actual = splitter.ReidentificationSplit(source, splits, query, "PID")
 
         stats = dict()
-        for sname in ["train", "val", "test"]:
+        for sname in ["train", "val", "test-query", "test-gallery"]:
             subset = actual.get_subset(sname)
             stat_subset = compute_ann_statistics(subset)["annotations"]
             stat_attr = stat_subset["labels"]["attributes"]["PID"]
             stats[sname] = stat_attr
 
-        for sname in ["gallery", "query"]:
-            subset = actual.get_subset_by_group(sname)
-            stat_subset = compute_ann_statistics(subset)["annotations"]
-            stat_attr = stat_subset["labels"]["attributes"]["PID"]
-            stats[sname] = stat_attr
-
-        self.assertEqual(65, stats["train"]["count"])  # depends on heuristic
-        self.assertEqual(26, stats["val"]["count"])  # depends on heuristic
-        self.assertEqual(42, stats["test"]["count"])  # depends on heuristic
+        self.assertEqual(65, stats["train"]["count"])
+        self.assertEqual(26, stats["val"]["count"])
+        self.assertEqual(18, stats["test-gallery"]["count"])
+        self.assertEqual(24, stats["test-query"]["count"])
 
         train_ids = stats["train"]["values present"]
         self.assertEqual(7, len(train_ids))
@@ -296,33 +375,20 @@ class SplitterTest(TestCase):
             self.assertEqual(int(total * 0.5 / 0.7), dist_train[pid][0])
             self.assertEqual(int(total * 0.2 / 0.7), dist_val[pid][0])
 
-        test_ids = stats["test"]["values present"]
+        test_ids = stats["test-gallery"]["values present"]
         self.assertEqual(3, len(test_ids))
-        self.assertEqual(test_ids, stats["gallery"]["values present"])
-        self.assertEqual(test_ids, stats["query"]["values present"])
+        self.assertEqual(test_ids, stats["test-query"]["values present"])
 
-        dist_test = stats["test"]["distribution"]
-        dist_gallery = stats["gallery"]["distribution"]
-        dist_query = stats["query"]["distribution"]
+        dist_gallery = stats["test-gallery"]["distribution"]
+        dist_query = stats["test-query"]["distribution"]
         for pid in test_ids:
             total = counts[int(pid)]
-            self.assertEqual(total, dist_test[pid][0])
             self.assertEqual(int(total * 0.3 / 0.7), dist_gallery[pid][0])
             self.assertEqual(int(total * 0.4 / 0.7), dist_query[pid][0])
 
-        # random seed test
-        splits = [("train", 0.5), ("test", 0.5)]
-        r1 = splitter.MatchingReIDSplit(source, splits, test_splits, seed=1234)
-        r2 = splitter.MatchingReIDSplit(source, splits, test_splits, seed=1234)
-        r3 = splitter.MatchingReIDSplit(source, splits, test_splits, seed=4321)
-        self.assertEqual(
-            list(r1.get_subset("test")), list(r2.get_subset("test"))
-        )
-        self.assertNotEqual(
-            list(r1.get_subset("test")), list(r3.get_subset("test"))
-        )
+    def test_split_for_reidentification_gives_error(self):
+        query = 0.4 / 0.7  # valid query ratio
 
-    def test_split_for_matching_reid_gives_error(self):
         with self.subTest("no label"):
             source = Dataset.from_iterable([
                 DatasetItem(1, annotations=[]),
@@ -331,8 +397,7 @@ class SplitterTest(TestCase):
 
             with self.assertRaisesRegex(Exception, "exactly one is expected"):
                 splits = [("train", 0.5), ("val", 0.2), ("test", 0.3)]
-                test_splits = [("query", 0.4 / 0.7), ("gallery", 0.3 / 0.7)]
-                actual = splitter.MatchingReIDSplit(source, splits, test_splits)
+                actual = splitter.ReidentificationSplit(source, splits, query)
                 len(actual.get_subset("train"))
 
         with self.subTest(msg="multi label"):
@@ -343,8 +408,7 @@ class SplitterTest(TestCase):
 
             with self.assertRaisesRegex(Exception, "exactly one is expected"):
                 splits = [("train", 0.5), ("val", 0.2), ("test", 0.3)]
-                test_splits = [("query", 0.4 / 0.7), ("gallery", 0.3 / 0.7)]
-                actual = splitter.MatchingReIDSplit(source, splits, test_splits)
+                actual = splitter.ReidentificationSplit(source, splits, query)
                 len(actual.get_subset("train"))
 
         counts = {i: (i % 3 + 1) * 7 for i in range(10)}
@@ -353,45 +417,27 @@ class SplitterTest(TestCase):
         with self.subTest("wrong ratio"):
             with self.assertRaisesRegex(Exception, "in the range"):
                 splits = [("train", -0.5), ("val", 0.2), ("test", 0.3)]
-                test_splits = [("query", 0.4 / 0.7), ("gallery", 0.3 / 0.7)]
-                splitter.MatchingReIDSplit(source, splits, test_splits)
+                splitter.ReidentificationSplit(source, splits, query)
 
             with self.assertRaisesRegex(Exception, "Sum of ratios"):
                 splits = [("train", 0.6), ("val", 0.2), ("test", 0.3)]
-                test_splits = [("query", 0.4 / 0.7), ("gallery", 0.3 / 0.7)]
-                splitter.MatchingReIDSplit(source, splits, test_splits)
+                splitter.ReidentificationSplit(source, splits, query)
 
             with self.assertRaisesRegex(Exception, "in the range"):
                 splits = [("train", 0.5), ("val", 0.2), ("test", 0.3)]
-                test_splits = [("query", -0.4 / 0.7), ("gallery", 0.3 / 0.7)]
-                actual = splitter.MatchingReIDSplit(source, splits, test_splits)
-                len(actual.get_subset_by_group("query"))
-
-            with self.assertRaisesRegex(Exception, "Sum of ratios"):
-                splits = [("train", 0.5), ("val", 0.2), ("test", 0.3)]
-                test_splits = [("query", 0.5 / 0.7), ("gallery", 0.3 / 0.7)]
-                actual = splitter.MatchingReIDSplit(source, splits, test_splits)
-                len(actual.get_subset_by_group("query"))
+                actual = splitter.ReidentificationSplit(source, splits, -query)
 
         with self.subTest("wrong subset name"):
             with self.assertRaisesRegex(Exception, "Subset name"):
                 splits = [("_train", 0.5), ("val", 0.2), ("test", 0.3)]
-                test_splits = [("query", 0.4 / 0.7), ("gallery", 0.3 / 0.7)]
-                splitter.MatchingReIDSplit(source, splits, test_splits)
-
-            with self.assertRaisesRegex(Exception, "Subset name"):
-                splits = [("train", 0.5), ("val", 0.2), ("test", 0.3)]
-                test_splits = [("_query", 0.4 / 0.7), ("gallery", 0.3 / 0.7)]
-                actual = splitter.MatchingReIDSplit(source, splits, test_splits)
-                len(actual.get_subset_by_group("query"))
+                splitter.ReidentificationSplit(source, splits, query)
 
         with self.subTest("wrong attribute name for person id"):
             splits = [("train", 0.5), ("val", 0.2), ("test", 0.3)]
-            test_splits = [("query", 0.4 / 0.7), ("gallery", 0.3 / 0.7)]
-            actual = splitter.MatchingReIDSplit(source, splits, test_splits)
+            actual = splitter.ReidentificationSplit(source, splits, query)
 
-            with self.assertRaisesRegex(Exception, "Unknown group"):
-                actual.get_subset_by_group("_gallery")
+            with self.assertRaisesRegex(Exception, "Unknown subset"):
+                actual.get_subset("test")
 
     def _generate_detection_dataset(self, **kwargs):
         append_bbox = kwargs.get("append_bbox")

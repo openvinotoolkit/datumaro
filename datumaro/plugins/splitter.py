@@ -126,8 +126,10 @@ class _TaskSpecificSplit(Transform):
         return by_attributes
 
     def _split_by_attr(self, datasets, snames, ratio, out_splits,
-            dataset_key="label"):
+            dataset_key=None):
         required = self._get_required(ratio)
+        if dataset_key is None:
+            dataset_key = "label"
         for key, items in datasets.items():
             np.random.shuffle(items)
             by_attributes = self._group_by_attr(items)
@@ -224,24 +226,47 @@ class ClassificationSplit(_TaskSpecificSplit, CliPlugin):
         self._set_parts(by_splits)
 
 
-class MatchingReIDSplit(_TaskSpecificSplit):
+class ReidentificationSplit(_TaskSpecificSplit, CliPlugin):
     """
-    Splits dataset for matching, especially re-id task.|n
-    First, splits dataset into 'train+val' and 'test' sets by person id.|n
-    Note that this splitting is not by DatasetItem. |n
-    Then, tags 'test' into 'gallery'/'query' in class-wise random manner.|n
-    Then, splits 'train+val' into 'train'/'val' sets in the same way.|n
-    Therefore, the final subsets would be 'train', 'val', 'test'. |n
-    And 'gallery', 'query' are tagged using anntoation group.|n
-    You can get the 'gallery' and 'query' sets using 'get_subset_by_group'.|n
+    Splits dataset for re-identification.|n
+    In this task, the test set should consist of images of unseen
+    people or object during the training phase. So first, splits the dataset
+    into 'train + val' and 'test' sets based on person or object ID.
+    Then, splits 'test' set into 'test-gallery' and 'test-query' sets
+    in class-wise manner. Finally, splits the 'train + val' set
+    into 'train' and 'val' sets in the same way.|n
+    Therefore, the final subsets would be
+    'train', 'val', 'test-gallery' and 'test-query'. |n
+    |n
     Notes:|n
     - Single label is expected for each DatasetItem.|n
-    - Each label is expected to have attribute representing the person id. |n
+    - Each Label(...) is expected to have label or attribute
+      representing the person or object ID. |n
+    - The gallery ratio would be 1.0 - query. |n
+    |n
+    Example:|n
+    |s|s%(prog)s --subset train:.5 --subset val:.2 --subset test:.3 --query .5
     """
 
-    _group_map = dict()
+    _default_query_ratio = 0.5
 
-    def __init__(self, dataset, splits, test_splits, pid_name="PID", seed=None):
+    @classmethod
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument('-s', '--subset', action='append',
+            type=cls._split_arg, dest='splits',
+            help="Subsets in the form: '<subset>:<ratio>' "
+                "(repeatable, default: %s)" % dict(cls._default_split))
+        parser.add_argument('--query', type=float,
+            help="Query ratio in the test set (default: %f)"
+            % cls._default_query_ratio)
+        parser.add_argument('--attr', type=str, dest='attr_for_id',
+            help="Attribute name representing the ID (default: None)")
+        parser.add_argument('--seed', type=int, help="Random seed")
+        return parser
+
+    def __init__(self, dataset, splits, query=None,
+                 attr_for_id=None, seed=None):
         """
         Parameters
         ----------
@@ -250,51 +275,61 @@ class MatchingReIDSplit(_TaskSpecificSplit):
             A list of (subset(str), ratio(float))
             Subset is expected to be one of ["train", "val", "test"].
             The sum of ratios is expected to be 1.
-        test_splits : list
-            A list of (subset(str), ratio(float))
-            Subset is expected to be one of ["gallery", "query"].
-            The sum of ratios is expected to be 1.
-        pid_name: str
-            attribute name representing the person id. (default: PID)
+        query : float
+            The ratio of 'test-query' set.
+            The ratio of 'test-gallery' set would be 1.0 - query.
+        attr_for_id: str
+            attribute name representing the person/object id.
+            if this is not specified, label would be used.
         seed : int, optional
         """
         super().__init__(dataset, splits, seed)
 
+        if query is None:
+            query = self._default_query_ratio
+
+        assert 0.0 <= query and query <= 1.0, \
+            "Query ratio is expected to be in the range " \
+            "[0, 1], but got %f" % query
+        test_splits = [('test-query', query), ('test-gallery', 1.0 - query)]
+
+        # reset output subset names
+        self._subsets = {"train", "val", "test-gallery", "test-query"}
         self._test_splits = test_splits
-        self._pid_name = pid_name
+        self._attr_for_id = attr_for_id
 
     def _split_dataset(self):
         np.random.seed(self._seed)
 
         id_snames, id_ratio = self._snames, self._sratio
 
-        pid_name = self._pid_name
+        attr_for_id = self._attr_for_id
         dataset = self._extractor
 
-        groups = set()
-
-        # group by PID(pid_name)
-        by_pid = dict()
+        # group by ID(attr_for_id)
+        by_id = dict()
         annotations = self._get_uniq_annotations(dataset)
-        for idx, ann in enumerate(annotations):
-            attributes = dict(ann.attributes.items())
-            assert pid_name in attributes, \
-                "'%s' is expected as an attribute name" % pid_name
-            person_id = attributes[pid_name]
-            if person_id not in by_pid:
-                by_pid[person_id] = []
-            by_pid[person_id].append((idx, ann))
-            groups.add(ann.group)
-
-        max_group_id = max(groups)
-        self._group_map["gallery"] = max_group_id + 1
-        self._group_map["query"] = max_group_id + 2
+        if attr_for_id is None:  # use label
+            for idx, ann in enumerate(annotations):
+                ID = getattr(ann, 'label', None)
+                if ID not in by_id:
+                    by_id[ID] = []
+                by_id[ID].append((idx, ann))
+        else:  # use attr_for_id
+            for idx, ann in enumerate(annotations):
+                attributes = dict(ann.attributes.items())
+                assert attr_for_id in attributes, \
+                    "'%s' is expected as an attribute name" % attr_for_id
+                ID = attributes[attr_for_id]
+                if ID not in by_id:
+                    by_id[ID] = []
+                by_id[ID].append((idx, ann))
 
         required = self._get_required(id_ratio)
-        if len(by_pid) < required:
+        if len(by_id) < required:
             log.warning("There's not enough IDs, which is %s, "
                 "so train/val/test ratio can't be guaranteed."
-                % len(by_pid)
+                % len(by_id)
             )
 
         # 1. split dataset into trval and test
@@ -302,12 +337,12 @@ class MatchingReIDSplit(_TaskSpecificSplit):
         test = id_ratio[id_snames.index("test")] if "test" in id_snames else 0
         if NEAR_ZERO < test:  # has testset
             split_ratio = np.array([test, 1.0 - test])
-            person_ids = list(by_pid.keys())
-            np.random.shuffle(person_ids)
-            sections = self._get_sections(len(person_ids), split_ratio)
-            splits = np.array_split(person_ids, sections)
-            testset = {pid: by_pid[pid] for pid in splits[0]}
-            trval = {pid: by_pid[pid] for pid in splits[1]}
+            IDs = list(by_id.keys())
+            np.random.shuffle(IDs)
+            sections = self._get_sections(len(IDs), split_ratio)
+            splits = np.array_split(IDs, sections)
+            testset = {pid: by_id[pid] for pid in splits[0]}
+            trval = {pid: by_id[pid] for pid in splits[1]}
 
             # follow the ratio of datasetitems as possible.
             # naive heuristic: exchange the best item one by one.
@@ -316,32 +351,22 @@ class MatchingReIDSplit(_TaskSpecificSplit):
             self._rebalancing(testset, trval, expected_count, testset_total)
         else:
             testset = dict()
-            trval = by_pid
+            trval = by_id
 
         by_splits = dict()
         for subset in self._subsets:
             by_splits[subset] = []
 
-        # 2. split 'test' into 'gallery' and 'query'
+        # 2. split 'test' into 'test-gallery' and 'test-query'
         if 0 < len(testset):
-            for person_id, items in testset.items():
-                indice = [idx for idx, _ in items]
-                by_splits["test"].extend(indice)
+            test_snames = []
+            test_ratio = []
+            for sname, ratio in self._test_splits:
+                test_snames.append(sname)
+                test_ratio.append(float(ratio))
 
-            valid = ["gallery", "query"]
-            test_splits = self._test_splits
-            test_snames, test_ratio = self._validate_splits(test_splits, valid)
-            by_groups = {s: [] for s in test_snames}
-            self._split_by_attr(testset, test_snames, test_ratio, by_groups,
-                dataset_key=pid_name)
-
-            # tag using group
-            for idx, item in enumerate(self._extractor):
-                for subset, split in by_groups.items():
-                    if idx in split:
-                        group_id = self._group_map[subset]
-                        item.annotations[0].group = group_id
-                        break
+            self._split_by_attr(testset, test_snames, test_ratio, by_splits,
+                dataset_key=attr_for_id)
 
         # 3. split 'trval' into  'train' and 'val'
         trval_snames = ["train", "val"]
@@ -363,7 +388,7 @@ class MatchingReIDSplit(_TaskSpecificSplit):
         else:
             trval_ratio /= total_ratio  # normalize
             self._split_by_attr(trval, trval_snames, trval_ratio, by_splits,
-                dataset_key=pid_name)
+                dataset_key=attr_for_id)
 
         self._set_parts(by_splits)
 
@@ -381,6 +406,8 @@ class MatchingReIDSplit(_TaskSpecificSplit):
                     diffs[diff] = [(id_test, id_trval)]
                 else:
                     diffs[diff].append((id_test, id_trval))
+        if len(diffs) == 0:  # nothing would be changed by exchange
+            return
         exchanges = []
         while True:
             target_diff = expected_count - testset_total
@@ -391,31 +418,23 @@ class MatchingReIDSplit(_TaskSpecificSplit):
             if abs(target_diff) <= abs(target_diff - nearest):
                 break
             choice = np.random.choice(range(len(diffs[nearest])))
-            pid_test, pid_trval = diffs[nearest][choice]
+            id_test, id_trval = diffs[nearest][choice]
             testset_total += nearest
             new_diffs = dict()
-            for diff, person_ids in diffs.items():
+            for diff, IDs in diffs.items():
                 new_list = []
-                for id1, id2 in person_ids:
-                    if id1 == pid_test or id2 == pid_trval:
+                for id1, id2 in IDs:
+                    if id1 == id_test or id2 == id_trval:
                         continue
                     new_list.append((id1, id2))
                 if 0 < len(new_list):
                     new_diffs[diff] = new_list
             diffs = new_diffs
-            exchanges.append((pid_test, pid_trval))
+            exchanges.append((id_test, id_trval))
         # exchange
-        for pid_test, pid_trval in exchanges:
-            test[pid_trval] = trval.pop(pid_trval)
-            trval[pid_test] = test.pop(pid_test)
-
-    def get_subset_by_group(self, group: str):
-        available = list(self._group_map.keys())
-        assert group in self._group_map, \
-            "Unknown group '%s', available groups: %s" \
-            % (group, available)
-        group_id = self._group_map[group]
-        return self.select(lambda item: item.annotations[0].group == group_id)
+        for id_test, id_trval in exchanges:
+            test[id_trval] = trval.pop(id_trval)
+            trval[id_test] = test.pop(id_test)
 
 
 class DetectionSplit(_TaskSpecificSplit, CliPlugin):
