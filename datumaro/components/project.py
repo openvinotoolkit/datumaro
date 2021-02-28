@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-from collections import defaultdict
+from collections import OrderedDict
 import logging as log
 import os
 import os.path as osp
@@ -11,12 +11,38 @@ import shutil
 from datumaro.components.config import Config
 from datumaro.components.config_model import (Model, Source,
     PROJECT_DEFAULT_CONFIG, PROJECT_SCHEMA)
+from datumaro.components.dataset import (IDataset, Dataset, DEFAULT_FORMAT)
+from datumaro.components.dataset_filter import (XPathAnnotationsFilter,
+    XPathDatasetFilter)
 from datumaro.components.environment import Environment
+from datumaro.components.errors import DatumaroError
+from datumaro.components.extractor import DEFAULT_SUBSET_NAME, Extractor
 from datumaro.components.launcher import ModelTransform
-from datumaro.components.dataset import Dataset, DEFAULT_FORMAT
+from datumaro.components.operations import ExactMerge
 
 
-class ProjectDataset(Dataset):
+class ProjectDataset(IDataset):
+    class Subset(Extractor):
+            def __init__(self, parent, name):
+                super().__init__(subsets=[name])
+                self.parent = parent
+                self.name = name or DEFAULT_SUBSET_NAME
+                self.items = OrderedDict()
+
+            def __iter__(self):
+                yield from self.items.values()
+
+            def __len__(self):
+                return len(self.items)
+
+            def categories(self):
+                return self.parent.categories()
+
+            def get(self, id, subset=None): #pylint: disable=redefined-builtin
+                subset = subset or self.name
+                assert subset == self.name, '%s != %s' % (subset, self.name)
+                return super().get(id, subset)
+
     def __init__(self, project):
         super().__init__()
 
@@ -43,7 +69,7 @@ class ProjectDataset(Dataset):
 
         # merge categories
         # TODO: implement properly with merging and annotations remapping
-        categories = self._merge_categories(s.categories()
+        categories = ExactMerge.merge_categories(s.categories()
             for s in self._sources.values())
         # ovewrite with own categories
         if own_source is not None and (not categories or len(own_source) != 0):
@@ -51,16 +77,18 @@ class ProjectDataset(Dataset):
         self._categories = categories
 
         # merge items
-        subsets = defaultdict(lambda: self.Subset(self))
+        subsets = {}
         for source_name, source in self._sources.items():
             log.debug("Loading '%s' source contents..." % source_name)
             for item in source:
-                existing_item = subsets[item.subset].items.get(item.id)
+                existing_item = subsets.setdefault(
+                        item.subset, self.Subset(self, item.subset)). \
+                    items.get(item.id)
                 if existing_item is not None:
                     path = existing_item.path
                     if item.path != path:
                         path = None # NOTE: move to our own dataset
-                    item = self._merge_items(existing_item, item, path=path)
+                    item = ExactMerge.merge_items(existing_item, item, path=path)
                 else:
                     s_config = config.sources[source_name]
                     if s_config and \
@@ -77,52 +105,64 @@ class ProjectDataset(Dataset):
         if own_source is not None:
             log.debug("Loading own dataset...")
             for item in own_source:
-                existing_item = subsets[item.subset].items.get(item.id)
+                existing_item = subsets.setdefault(
+                        item.subset, self.Subset(self, item.subset)). \
+                    items.get(item.id)
                 if existing_item is not None:
                     item = item.wrap(path=None,
-                        image=self._merge_images(existing_item, item))
+                        image=ExactMerge.merge_images(existing_item, item))
 
                 subsets[item.subset].items[item.id] = item
 
-        # TODO: implement subset remapping when needed
-        subsets_filter = config.subsets
-        if len(subsets_filter) != 0:
-            subsets = { k: v for k, v in subsets.items() if k in subsets_filter}
-        self._subsets = dict(subsets)
+        self._subsets = subsets
 
         self._length = None
 
     def iterate_own(self):
         return self.select(lambda item: not item.path)
 
-    def get(self, item_id, subset=None, path=None):
+    def __iter__(self):
+        for subset in self._subsets.values():
+            yield from subset
+
+    def get_subset(self, name):
+        return self._subsets[name]
+
+    def subsets(self):
+        return self._subsets
+
+    def categories(self):
+        return self._categories
+
+    def __len__(self):
+        return sum(len(s) for s in self._subsets.values())
+
+    def get(self, id, subset=None, \
+            path=None): #pylint: disable=redefined-builtin
         if path:
             source = path[0]
-            rest_path = path[1:]
-            return self._sources[source].get(
-                item_id=item_id, subset=subset, path=rest_path)
-        return super().get(item_id, subset)
+            return self._sources[source].get(id=id, subset=subset)
+        return self._subsets.get(subset, {}).get(id)
 
-    def put(self, item, item_id=None, subset=None, path=None):
+    def put(self, item, id=None, subset=None, \
+            path=None): #pylint: disable=redefined-builtin
         if path is None:
             path = item.path
 
         if path:
             source = path[0]
-            rest_path = path[1:]
             # TODO: reverse remapping
-            self._sources[source].put(item,
-                item_id=item_id, subset=subset, path=rest_path)
+            self._sources[source].put(item, id=id, subset=subset)
 
-        if item_id is None:
-            item_id = item.id
+        if id is None:
+            id = item.id
         if subset is None:
             subset = item.subset
 
         item = item.wrap(path=path)
         if subset not in self._subsets:
-            self._subsets[subset] = self.Subset(self)
-        self._subsets[subset].items[item_id] = item
+            self._subsets[subset] = self.Subset(self, subset)
+        self._subsets[subset].items[id] = item
         self._length = None
 
         return item
@@ -178,6 +218,10 @@ class ProjectDataset(Dataset):
         return self._project.config
 
     @property
+    def env(self):
+        return self._project.env
+
+    @property
     def sources(self):
         return self._sources
 
@@ -192,7 +236,7 @@ class ProjectDataset(Dataset):
             dst_project = Project()
         else:
             if not self.config.project_dir:
-                raise Exception("Either a save directory or a project "
+                raise ValueError("Either a save directory or a project "
                     "directory should be specified")
             save_dir = self.config.project_dir
 
@@ -202,10 +246,45 @@ class ProjectDataset(Dataset):
         dst_project.config.project_name = osp.basename(save_dir)
 
         dst_dataset = dst_project.make_dataset()
-        dst_dataset.define_categories(extractor.categories())
+        dst_dataset._categories = extractor.categories()
         dst_dataset.update(extractor)
 
         dst_dataset.save(save_dir=save_dir, merge=True)
+
+    def transform(self, method, *args, **kwargs):
+        return method(self, *args, **kwargs)
+
+    def filter(self, expr: str, filter_annotations: bool = False,
+            remove_empty: bool = False) -> Dataset:
+        if filter_annotations:
+            return self.transform(XPathAnnotationsFilter, expr, remove_empty)
+        else:
+            return self.transform(XPathDatasetFilter, expr)
+
+    def update(self, other):
+        for item in other:
+            self.put(item)
+        return self
+
+    def select(self, pred):
+        class _DatasetFilter(Extractor):
+            def __init__(self, _):
+                super().__init__()
+            def __iter__(_):
+                return filter(pred, iter(self))
+            def categories(_):
+                return self.categories()
+
+        return self.transform(_DatasetFilter)
+
+    def export(self, save_dir: str, format, \
+            **kwargs): #pylint: disable=redefined-builtin
+        dataset = Dataset.from_extractors(self, env=self.env)
+        dataset.export(save_dir, format, **kwargs)
+
+    def define_categories(self, categories):
+        assert not self._categories
+        self._categories = categories
 
     def transform_project(self, method, save_dir=None, **method_kwargs):
         # NOTE: probably this function should be in the ViewModel layer
@@ -218,9 +297,9 @@ class ProjectDataset(Dataset):
     def apply_model(self, model, save_dir=None, batch_size=1):
         # NOTE: probably this function should be in the ViewModel layer
         if isinstance(model, str):
-            launcher = self._project.make_executable_model(model)
+            model = self._project.make_executable_model(model)
 
-        self.transform_project(ModelTransform, launcher=launcher,
+        self.transform_project(ModelTransform, launcher=model,
             save_dir=save_dir, batch_size=batch_size)
 
     def export_project(self, save_dir, converter,
@@ -305,9 +384,11 @@ class Project:
         if not dataset_format:
             matches = env.detect_dataset(path)
             if not matches:
-                raise Exception("Failed to detect dataset format automatically")
+                raise DatumaroError(
+                    "Failed to detect dataset format automatically")
             if 1 < len(matches):
-                raise Exception("Failed to detect dataset format automatically:"
+                raise DatumaroError(
+                    "Failed to detect dataset format automatically:"
                     " data matches more than one format: %s" % \
                     ', '.join(matches))
             dataset_format = matches[0]
@@ -324,7 +405,7 @@ class Project:
                 'options': format_options,
             })
         else:
-            raise Exception("Unknown format '%s'. To make it "
+            raise DatumaroError("Unknown format '%s'. To make it "
                 "available, add the corresponding Extractor implementation "
                 "to the environment" % dataset_format)
         return project

@@ -17,7 +17,11 @@ from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.launcher import Launcher
 
 
-class OpenVinoImporter(CliPlugin):
+class _OpenvinoImporter(CliPlugin):
+    @staticmethod
+    def _parse_output_layers(s):
+        return [s.strip() for s in s.split(',')]
+
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
         parser = super().build_cmdline_parser(**kwargs)
@@ -29,6 +33,8 @@ class OpenVinoImporter(CliPlugin):
             help="Path to the network output interprter script (.py)")
         parser.add_argument('--device', default='CPU',
             help="Target device (default: %(default)s)")
+        parser.add_argument('--output-layers', type=cls._parse_output_layers,
+            help="A comma-separated list of extra output layers")
         return parser
 
     @staticmethod
@@ -75,12 +81,13 @@ class InterpreterScript:
             "Function should be implemented in the interpreter script")
 
 
-class OpenVinoLauncher(Launcher):
-    cli_plugin = OpenVinoImporter
+class OpenvinoLauncher(Launcher):
+    cli_plugin = _OpenvinoImporter
 
     def __init__(self, description, weights, interpreter,
-            plugins_path=None, device=None, model_dir=None):
-        model_dir = model_dir or ''
+            device=None, model_dir=None, output_layers=None):
+        if not model_dir:
+            model_dir = ''
         if not osp.isfile(description):
             description = osp.join(model_dir, description)
         if not osp.isfile(description):
@@ -102,19 +109,17 @@ class OpenVinoLauncher(Launcher):
         self._interpreter = InterpreterScript(interpreter)
 
         self._device = device or 'CPU'
+        self._output_blobs = output_layers
 
         self._ie = IECore()
-        if hasattr(self._ie, 'read_network'):
-            self._network = self._ie.read_network(description, weights)
-        else: # backward compatibility
-            from openvino.inference_engine import IENetwork
-            self._network = IENetwork.from_ir(description, weights)
+        self._network = self._ie.read_network(description, weights)
         self._check_model_support(self._network, self._device)
         self._load_executable_net()
 
     def _check_model_support(self, net, device):
-        supported_layers = set(self._ie.query_network(net, device))
-        not_supported_layers = set(net.layers) - supported_layers
+        not_supported_layers = set(name
+            for name, dev in self._ie.query_network(net, device).items()
+            if not dev)
         if len(not_supported_layers) != 0:
             log.error("The following layers are not supported " \
                 "by the plugin for device '%s': %s." % \
@@ -125,20 +130,20 @@ class OpenVinoLauncher(Launcher):
     def _load_executable_net(self, batch_size=1):
         network = self._network
 
-        iter_inputs = iter(network.inputs)
-        self._input_blob_name = next(iter_inputs)
-        self._output_blob_name = next(iter(network.outputs))
+        if self._output_blobs:
+            network.add_outputs(self._output_blobs)
+
+        iter_inputs = iter(network.input_info)
+        self._input_blob = next(iter_inputs)
 
         # NOTE: handling for the inclusion of `image_info` in OpenVino2019
-        self._require_image_info = 'image_info' in network.inputs
-        if self._input_blob_name == 'image_info':
-            self._input_blob_name = next(iter_inputs)
+        self._require_image_info = 'image_info' in network.input_info
+        if self._input_blob == 'image_info':
+            self._input_blob = next(iter_inputs)
 
-        input_type = network.inputs[self._input_blob_name]
-        self._input_layout = input_type if isinstance(input_type, list) else input_type.shape
-
+        self._input_layout = network.input_info[self._input_blob].input_data.shape
         self._input_layout[0] = batch_size
-        network.reshape({self._input_blob_name: self._input_layout})
+        network.reshape({self._input_blob: self._input_layout})
         self._batch_size = batch_size
 
         self._net = self._ie.load_network(network=network, num_requests=1,
@@ -147,8 +152,13 @@ class OpenVinoLauncher(Launcher):
     def infer(self, inputs):
         assert len(inputs.shape) == 4, \
             "Expected an input image in (N, H, W, C) format, got %s" % \
-            (inputs.shape)
-        assert inputs.shape[3] == 3, "Expected BGR input, got %s" % inputs.shape
+            (inputs.shape, )
+
+        if inputs.shape[3] == 1: # A batch of single-channel images
+            inputs = np.repeat(inputs, 3, axis=3)
+
+        assert inputs.shape[3] == 3, \
+            "Expected BGR input, got %s" % (inputs.shape, )
 
         n, c, h, w = self._input_layout
         if inputs.shape[1:3] != (h, w):
@@ -157,7 +167,7 @@ class OpenVinoLauncher(Launcher):
                 cv2.resize(inp, (w, h), resized_input)
             inputs = resized_inputs
         inputs = inputs.transpose((0, 3, 1, 2)) # NHWC to NCHW
-        inputs = {self._input_blob_name: inputs}
+        inputs = {self._input_blob: inputs}
         if self._require_image_info:
             info = np.zeros([1, 3])
             info[0, 0] = h
@@ -167,7 +177,7 @@ class OpenVinoLauncher(Launcher):
 
         results = self._net.infer(inputs)
         if len(results) == 1:
-            return results[self._output_blob_name]
+            return next(iter(results))
         else:
             return results
 

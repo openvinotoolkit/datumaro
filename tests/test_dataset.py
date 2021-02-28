@@ -1,16 +1,19 @@
 import numpy as np
+import os
+import os.path as osp
 
 from unittest import TestCase
 
+from datumaro.components.dataset_filter import (
+    XPathDatasetFilter, XPathAnnotationsFilter, DatasetItemEncoder)
+from datumaro.components.dataset import (Dataset, DEFAULT_FORMAT, ItemStatus,
+    eager_mode)
 from datumaro.components.environment import Environment
-from datumaro.components.extractor import (Extractor, DatasetItem,
-    Label, Mask, Points, Polygon, PolyLine, Bbox, Caption,
-    LabelCategories, AnnotationType, Transform
-)
+from datumaro.components.errors import DatumaroError, RepeatedItemError
+from datumaro.components.extractor import (DEFAULT_SUBSET_NAME, Extractor,
+    DatasetItem, Label, Mask, Points, Polygon, PolyLine, Bbox, Caption,
+    LabelCategories, AnnotationType, Transform)
 from datumaro.util.image import Image
-from datumaro.components.dataset_filter import \
-    XPathDatasetFilter, XPathAnnotationsFilter, DatasetItemEncoder
-from datumaro.components.dataset import Dataset, DEFAULT_FORMAT
 from datumaro.util.test_utils import TestDir, compare_datasets
 
 
@@ -125,6 +128,8 @@ class DatasetTest(TestCase):
 
             imported_dataset = Dataset.import_from(test_dir, env=env)
 
+            self.assertEqual(imported_dataset.data_path, test_dir)
+            self.assertEqual(imported_dataset.format, DEFAULT_FORMAT)
             compare_datasets(self, source_dataset, imported_dataset)
 
     def test_can_export_by_string_format_name(self):
@@ -189,16 +194,375 @@ class DatasetTest(TestCase):
         s1 = Dataset.from_iterable([], categories=['a', 'b'])
         s2 = Dataset.from_iterable([], categories=['b', 'a'])
 
-        with self.assertRaisesRegex(Exception, "different categories"):
+        with self.assertRaisesRegex(DatumaroError, "different categories"):
             Dataset.from_extractors(s1, s2)
 
     def test_can_join_datasets(self):
         s1 = Dataset.from_iterable([ DatasetItem(0), DatasetItem(1) ])
         s2 = Dataset.from_iterable([ DatasetItem(1), DatasetItem(2) ])
+        expected = Dataset.from_iterable([
+            DatasetItem(0), DatasetItem(1), DatasetItem(2)
+        ])
 
-        dataset = Dataset.from_extractors(s1, s2)
+        actual = Dataset.from_extractors(s1, s2)
 
-        self.assertEqual(3, len(dataset))
+        compare_datasets(self, expected, actual)
+
+    def test_inplace_save_writes_only_updated_data(self):
+        with TestDir() as path:
+            # generate initial dataset
+            dataset = Dataset.from_iterable([
+                DatasetItem(1, subset='a'),
+                DatasetItem(2, subset='b'),
+                DatasetItem(3, subset='c'),
+            ])
+            dataset.save(path)
+            os.unlink(osp.join(
+                path, 'annotations', 'a.json')) # should be rewritten
+            os.unlink(osp.join(
+                path, 'annotations', 'b.json')) # should not be rewritten
+            os.unlink(osp.join(
+                path, 'annotations', 'c.json')) # should not be rewritten
+
+            dataset.put(DatasetItem(2, subset='a'))
+            dataset.remove(3, 'c')
+            dataset.save()
+
+            self.assertTrue(osp.isfile(osp.join(path, 'annotations', 'a.json')))
+            self.assertFalse(osp.isfile(osp.join(path, 'annotations', 'b.json')))
+            self.assertTrue(osp.isfile(osp.join(path, 'annotations', 'c.json')))
+
+    def test_can_track_modifications_on_addition(self):
+        dataset = Dataset.from_iterable([
+            DatasetItem(1),
+            DatasetItem(2),
+        ])
+
+        self.assertFalse(dataset.is_modified)
+
+        dataset.put(DatasetItem(3, subset='a'))
+
+        self.assertTrue(dataset.is_modified)
+
+    def test_can_track_modifications_on_removal(self):
+        dataset = Dataset.from_iterable([
+            DatasetItem(1),
+            DatasetItem(2),
+        ])
+
+        self.assertFalse(dataset.is_modified)
+
+        dataset.remove(1)
+
+        self.assertTrue(dataset.is_modified)
+
+    def test_can_create_patch(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(2),
+            DatasetItem(3, subset='a')
+        ])
+
+        dataset = Dataset.from_iterable([
+            DatasetItem(1),
+            DatasetItem(2),
+        ])
+        dataset.put(DatasetItem(2))
+        dataset.put(DatasetItem(3, subset='a'))
+        dataset.remove(1)
+
+        patch = dataset.patch
+
+        self.assertEqual({
+            ('1', DEFAULT_SUBSET_NAME): ItemStatus.removed,
+            ('2', DEFAULT_SUBSET_NAME): ItemStatus.modified,
+            ('3', 'a'): ItemStatus.modified,
+        }, patch.updated_items)
+
+        self.assertEqual({
+            'default': ItemStatus.modified,
+            'a': ItemStatus.modified,
+        }, patch.updated_subsets)
+
+        self.assertEqual(2, len(patch.data))
+        self.assertEqual(None, patch.data.get(1))
+        self.assertEqual(dataset.get(2), patch.data.get(2))
+        self.assertEqual(dataset.get(3, 'a'), patch.data.get(3, 'a'))
+
+        compare_datasets(self, expected, dataset)
+
+    def test_can_create_more_precise_patch_when_cached(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(2),
+            DatasetItem(3, subset='a')
+        ])
+
+        dataset = Dataset.from_iterable([
+            DatasetItem(1),
+            DatasetItem(2),
+        ])
+        dataset.init_cache()
+        dataset.put(DatasetItem(2))
+        dataset.put(DatasetItem(3, subset='a'))
+        dataset.remove(1)
+
+        patch = dataset.patch
+
+        self.assertEqual({
+            ('1', DEFAULT_SUBSET_NAME): ItemStatus.removed,
+            ('2', DEFAULT_SUBSET_NAME): ItemStatus.modified,
+            ('3', 'a'): ItemStatus.added,
+        }, patch.updated_items)
+
+        self.assertEqual({
+            'default': ItemStatus.modified,
+            'a': ItemStatus.modified,
+        }, patch.updated_subsets)
+
+        self.assertEqual(2, len(patch.data))
+        self.assertEqual(None, patch.data.get(1))
+        self.assertEqual(dataset.get(2), patch.data.get(2))
+        self.assertEqual(dataset.get(3, 'a'), patch.data.get(3, 'a'))
+
+        compare_datasets(self, expected, dataset)
+
+    def test_can_do_lazy_put_and_remove(self):
+        iter_called = False
+        class TestExtractor(Extractor):
+            def __iter__(self):
+                nonlocal iter_called
+                iter_called = True
+                return iter([
+                    DatasetItem(1),
+                    DatasetItem(2),
+                ])
+        dataset = Dataset.from_extractors(TestExtractor())
+
+        self.assertFalse(dataset.is_cache_initialized)
+
+        dataset.put(DatasetItem(3))
+        dataset.remove(DatasetItem(1))
+
+        self.assertFalse(dataset.is_cache_initialized)
+        self.assertFalse(iter_called)
+
+        dataset.init_cache()
+
+        self.assertTrue(dataset.is_cache_initialized)
+        self.assertTrue(iter_called)
+
+    def test_can_put(self):
+        dataset = Dataset()
+
+        dataset.put(DatasetItem(1))
+
+        self.assertTrue((1, '') in dataset)
+
+    def test_can_do_lazy_get_on_updated_item(self):
+        iter_called = False
+        class TestExtractor(Extractor):
+            def __iter__(self):
+                nonlocal iter_called
+                iter_called = True
+                return iter([
+                    DatasetItem(1),
+                    DatasetItem(2),
+                ])
+        dataset = Dataset.from_extractors(TestExtractor())
+
+        dataset.put(DatasetItem(2))
+
+        self.assertTrue((2, '') in dataset)
+        self.assertFalse(iter_called)
+
+    def test_can_switch_eager_and_lazy_with_cm_global(self):
+        iter_called = False
+        class TestExtractor(Extractor):
+            def __iter__(self):
+                nonlocal iter_called
+                iter_called = True
+                return iter([
+                    DatasetItem(1),
+                    DatasetItem(2),
+                ])
+
+        with eager_mode():
+            Dataset.from_extractors(TestExtractor())
+
+        self.assertTrue(iter_called)
+
+    def test_can_switch_eager_and_lazy_with_cm_local(self):
+        iter_called = False
+        class TestExtractor(Extractor):
+            def __iter__(self):
+                nonlocal iter_called
+                iter_called = True
+                return iter([
+                    DatasetItem(1),
+                    DatasetItem(2),
+                    DatasetItem(3),
+                    DatasetItem(4),
+                ])
+        dataset = Dataset.from_extractors(TestExtractor())
+
+        with eager_mode(dataset=dataset):
+            dataset.select(lambda item: int(item.id) < 3)
+            dataset.select(lambda item: int(item.id) < 2)
+
+        self.assertTrue(iter_called)
+
+    def test_can_do_lazy_select(self):
+        iter_called = False
+        class TestExtractor(Extractor):
+            def __iter__(self):
+                nonlocal iter_called
+                iter_called = True
+                return iter([
+                    DatasetItem(1),
+                    DatasetItem(2),
+                    DatasetItem(3),
+                    DatasetItem(4),
+                ])
+        dataset = Dataset.from_extractors(TestExtractor())
+
+        dataset.select(lambda item: int(item.id) < 3)
+        dataset.select(lambda item: int(item.id) < 2)
+
+        self.assertFalse(iter_called)
+
+        self.assertEqual(1, len(dataset))
+
+        self.assertTrue(iter_called)
+
+    def test_can_chain_lazy_tranforms(self):
+        iter_called = False
+        class TestExtractor(Extractor):
+            def __iter__(self):
+                nonlocal iter_called
+                iter_called = True
+                return iter([
+                    DatasetItem(1),
+                    DatasetItem(2),
+                    DatasetItem(3),
+                    DatasetItem(4),
+                ])
+        dataset = Dataset.from_extractors(TestExtractor())
+
+        class TestTransform(Transform):
+            def transform_item(self, item):
+                return self.wrap_item(item, id=int(item.id) + 1)
+
+        dataset.transform(TestTransform)
+        dataset.transform(TestTransform)
+
+        self.assertFalse(iter_called)
+
+        self.assertEqual(4, len(dataset))
+        self.assertEqual(3, int(min(int(item.id) for item in dataset)))
+
+        self.assertTrue(iter_called)
+
+    def test_raises_when_repeated_items_in_source(self):
+        dataset = Dataset.from_iterable([DatasetItem(0), DatasetItem(0)])
+
+        with self.assertRaises(RepeatedItemError):
+            dataset.init_cache()
+
+    def test_can_check_item_existence(self):
+        dataset = Dataset.from_iterable([
+            DatasetItem(0, subset='a'), DatasetItem(1)
+        ])
+
+        self.assertTrue(DatasetItem(0, subset='a') in dataset)
+        self.assertFalse(DatasetItem(0, subset='b') in dataset)
+        self.assertTrue((0, 'a') in dataset)
+        self.assertFalse((0, 'b') in dataset)
+        self.assertTrue(1 in dataset)
+        self.assertFalse(0 in dataset)
+
+    def test_can_put_with_id_override(self):
+        dataset = Dataset.from_iterable([])
+
+        dataset.put(DatasetItem(0, subset='a'), id=2, subset='b')
+
+        self.assertTrue((2, 'b') in dataset)
+
+    def test_can_compute_cache_with_empty_source(self):
+        dataset = Dataset.from_iterable([])
+        dataset.put(DatasetItem(2))
+
+        dataset.init_cache()
+
+        self.assertTrue(2 in dataset)
+
+    def test_cant_do_partial_caching_in_get_when_default(self):
+        iter_called = 0
+        class TestExtractor(Extractor):
+            def __iter__(self):
+                nonlocal iter_called
+                iter_called += 1
+                return iter([
+                    DatasetItem(1),
+                    DatasetItem(2),
+                    DatasetItem(3),
+                    DatasetItem(4),
+                ])
+
+        dataset = Dataset.from_extractors(TestExtractor())
+
+        dataset.get(3)
+        dataset.get(4)
+
+        self.assertEqual(1, iter_called)
+
+    def test_can_do_partial_caching_in_get_when_redefined(self):
+        iter_called = 0
+        get_called = 0
+        class TestExtractor(Extractor):
+            def __iter__(self):
+                nonlocal iter_called
+                iter_called += 1
+                return iter([
+                    DatasetItem(1),
+                    DatasetItem(2),
+                    DatasetItem(3),
+                    DatasetItem(4),
+                ])
+
+            def get(self, id, subset=None): #pylint: disable=redefined-builtin
+                nonlocal get_called
+                get_called += 1
+                return DatasetItem(id, subset=subset)
+
+        dataset = Dataset.from_extractors(TestExtractor())
+
+        dataset.get(3)
+        dataset.get(4)
+
+        self.assertEqual(0, iter_called)
+        self.assertEqual(2, get_called)
+
+    def test_binds_on_save(self):
+        dataset = Dataset.from_iterable([DatasetItem(1)])
+
+        self.assertFalse(dataset.is_bound)
+
+        with TestDir() as test_dir:
+            dataset.save(test_dir)
+
+            self.assertTrue(dataset.is_bound)
+            self.assertEqual(dataset.data_path, test_dir)
+            self.assertEqual(dataset.format, DEFAULT_FORMAT)
+
+    def test_flushes_changes_on_save(self):
+        dataset = Dataset.from_iterable([])
+        dataset.put(DatasetItem(1))
+
+        self.assertTrue(dataset.is_modified)
+
+        with TestDir() as test_dir:
+            dataset.save(test_dir)
+
+            self.assertFalse(dataset.is_modified)
 
 
 class DatasetItemTest(TestCase):

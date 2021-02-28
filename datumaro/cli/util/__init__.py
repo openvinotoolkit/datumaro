@@ -6,8 +6,10 @@
 import argparse
 import textwrap
 
+from datumaro.components.errors import DatumaroError
 
-class CliException(Exception): pass
+
+class CliException(DatumaroError): pass
 
 def add_subparser(subparsers, name, builder):
     return builder(lambda **kwargs: subparsers.add_parser(name, **kwargs))

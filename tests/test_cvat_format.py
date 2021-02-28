@@ -1,5 +1,6 @@
 from functools import partial
 import numpy as np
+import os
 import os.path as osp
 
 from unittest import TestCase
@@ -56,7 +57,7 @@ class CvatImporterTest(TestCase):
             ])
         })
 
-        parsed_dataset = CvatImporter()(DUMMY_IMAGE_DATASET_DIR).make_dataset()
+        parsed_dataset = Dataset.import_from(DUMMY_IMAGE_DATASET_DIR, 'cvat')
 
         compare_datasets(self, expected_dataset, parsed_dataset)
 
@@ -135,7 +136,7 @@ class CvatImporterTest(TestCase):
             ]),
         })
 
-        parsed_dataset = CvatImporter()(DUMMY_VIDEO_DATASET_DIR).make_dataset()
+        parsed_dataset = Dataset.import_from(DUMMY_VIDEO_DATASET_DIR, 'cvat')
 
         compare_datasets(self, expected_dataset, parsed_dataset)
 
@@ -286,3 +287,28 @@ class CvatConverterTest(TestCase):
             self._test_save_and_load(source_dataset,
                 partial(CvatConverter.convert, reindex=True), test_dir,
                 target_dataset=expected_dataset)
+
+    def test_inplace_save_writes_only_updated_data(self):
+        with TestDir() as path:
+            # generate initial dataset
+            dataset = Dataset.from_iterable([
+                DatasetItem(1, subset='a'),
+                DatasetItem(2, subset='b'),
+                DatasetItem(3, subset='c', image=np.ones((2, 2, 3))),
+            ], categories=[])
+            dataset.export(path, 'cvat', save_images=True)
+            os.unlink(osp.join(path, 'a.xml'))
+            os.unlink(osp.join(path, 'b.xml'))
+            os.unlink(osp.join(path, 'c.xml'))
+            self.assertFalse(osp.isfile(osp.join(path, 'images', '2.jpg')))
+            self.assertTrue(osp.isfile(osp.join(path, 'images', '3.jpg')))
+
+            dataset.put(DatasetItem(2, subset='a', image=np.ones((3, 2, 3))))
+            dataset.remove(3, 'c')
+            dataset.save(save_images=True)
+
+            self.assertTrue(osp.isfile(osp.join(path, 'a.xml')))
+            self.assertFalse(osp.isfile(osp.join(path, 'b.xml')))
+            self.assertTrue(osp.isfile(osp.join(path, 'c.xml')))
+            self.assertTrue(osp.isfile(osp.join(path, 'images', '2.jpg')))
+            self.assertFalse(osp.isfile(osp.join(path, 'images', '3.jpg')))

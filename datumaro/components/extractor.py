@@ -5,7 +5,7 @@
 
 from enum import Enum
 from glob import iglob
-from typing import List, Dict
+from typing import Iterable, List, Dict, Optional
 import numpy as np
 import os.path as osp
 
@@ -98,6 +98,7 @@ class LabelCategories(Categories):
         self._indices = indices
 
     def add(self, name: str, parent: str = None, attributes: dict = None):
+        assert name
         assert name not in self._indices, name
 
         index = len(self.items)
@@ -114,6 +115,9 @@ class LabelCategories(Categories):
     def __getitem__(self, idx):
         return self.items[idx]
 
+    def __contains__(self, idx):
+        return 0 <= idx and idx < len(self.items)
+
     def __len__(self):
         return len(self.items)
 
@@ -127,6 +131,11 @@ class Label(Annotation):
 
 @attrs(eq=False)
 class MaskCategories(Categories):
+    @classmethod
+    def make_default(cls, size=256):
+        from datumaro.util.mask_tools import generate_colormap
+        return cls(generate_colormap(size))
+
     colormap = attrib(factory=dict, validator=default_if_none(dict))
     _inverse_colormap = attrib(default=None,
         validator=attr.validators.optional(dict))
@@ -158,6 +167,10 @@ class Mask(Annotation):
         default=None, kw_only=True)
     z_order = attrib(default=0, validator=default_if_none(int), kw_only=True)
 
+    def __attrs_post_init__(self):
+        if isinstance(self._image, np.ndarray):
+            self._image = self._image.astype(bool)
+
     @property
     def image(self):
         if callable(self._image):
@@ -167,10 +180,12 @@ class Mask(Annotation):
     def as_class_mask(self, label_id=None):
         if label_id is None:
             label_id = self.label
-        return self.image * label_id
+        from datumaro.util.mask_tools import make_index_mask
+        return make_index_mask(self.image, label_id)
 
     def as_instance_mask(self, instance_id):
-        return self.image * instance_id
+        from datumaro.util.mask_tools import make_index_mask
+        return make_index_mask(self.image, instance_id)
 
     def get_area(self):
         return np.count_nonzero(self.image)
@@ -203,7 +218,7 @@ class RleMask(Mask):
     @staticmethod
     def _lazy_decode(rle):
         from pycocotools import mask as mask_utils
-        return lambda: mask_utils.decode(rle).astype(np.bool)
+        return lambda: mask_utils.decode(rle)
 
     def get_area(self):
         from pycocotools import mask as mask_utils
@@ -222,7 +237,7 @@ class CompiledMask:
     @staticmethod
     def from_instance_masks(instance_masks,
             instance_ids=None, instance_labels=None):
-        from datumaro.util.mask_tools import merge_masks
+        from datumaro.util.mask_tools import make_index_mask
 
         if instance_ids is not None:
             assert len(instance_ids) == len(instance_masks)
@@ -234,17 +249,40 @@ class CompiledMask:
         else:
             instance_labels = [None] * len(instance_masks)
 
-        instance_masks = sorted(
-            zip(instance_masks, instance_ids, instance_labels),
-            key=lambda m: m[0].z_order)
+        instance_masks = sorted(enumerate(instance_masks),
+            key=lambda m: m[1].z_order)
+        instance_masks = ((m.image, 1 + j,
+                instance_ids[i] if instance_ids[i] is not None else 1 + j,
+                instance_labels[i] if instance_labels[i] is not None else m.label
+            ) for j, (i, m) in enumerate(instance_masks))
 
-        instance_mask = [m.as_instance_mask(id if id is not None else 1 + idx)
-            for idx, (m, id, _) in enumerate(instance_masks)]
-        instance_mask = merge_masks(instance_mask)
+        # 1. Avoid memory explosion on materialization of all masks
+        # 2. Optimize materialization calls
+        it = iter(instance_masks)
 
-        cls_mask = [m.as_class_mask(c) for m, _, c in instance_masks]
-        cls_mask = merge_masks(cls_mask)
-        return __class__(class_mask=cls_mask, instance_mask=instance_mask)
+        instance_map = [0]
+        class_map = [0]
+
+        m, idx, instance_id, class_id = next(it)
+        index_mask = make_index_mask(m, idx)
+        instance_map.append(instance_id)
+        class_map.append(class_id)
+
+        for m, idx, instance_id, class_id in it:
+            index_mask = np.where(m, idx, index_mask)
+            instance_map.append(instance_id)
+            class_map.append(class_id)
+
+        if np.array_equal(instance_map, range(idx + 1)):
+            merged_instance_mask = index_mask
+        else:
+            merged_instance_mask = np.array(instance_map,
+                dtype=np.min_scalar_type(instance_map))[index_mask]
+        merged_class_mask = np.array(class_map,
+            dtype=np.min_scalar_type(class_map))[index_mask]
+
+        return __class__(class_mask=merged_class_mask,
+            instance_mask=merged_instance_mask)
 
     def __init__(self, class_mask=None, instance_mask=None):
         self._class_mask = class_mask
@@ -497,23 +535,26 @@ class DatasetItem:
     def wrap(item, **kwargs):
         return attr.evolve(item, **kwargs)
 
-class IExtractor:
-    def __iter__(self):
+
+CategoriesInfo = Dict[AnnotationType, Categories]
+
+class IExtractor: #pylint: disable=redefined-builtin
+    def __iter__(self) -> Iterable[DatasetItem]:
         raise NotImplementedError()
 
-    def __len__(self):
+    def __len__(self) -> int:
         raise NotImplementedError()
 
-    def subsets(self):
+    def subsets(self) -> Dict[str, 'IExtractor']:
         raise NotImplementedError()
 
-    def get_subset(self, name):
+    def get_subset(self, name) -> 'IExtractor':
         raise NotImplementedError()
 
-    def categories(self):
+    def categories(self) -> CategoriesInfo:
         raise NotImplementedError()
 
-    def select(self, pred):
+    def get(self, id, subset=None) -> Optional[DatasetItem]:
         raise NotImplementedError()
 
 class Extractor(IExtractor):
@@ -570,6 +611,13 @@ class Extractor(IExtractor):
     def categories(self):
         return {}
 
+    def get(self, id, subset=None): #pylint: disable=redefined-builtin
+        subset = subset or DEFAULT_SUBSET_NAME
+        for item in self:
+            if item.id == id and item.subset == subset:
+                return item
+        return None
+
 class SourceExtractor(Extractor):
     def __init__(self, length=None, subset=None):
         self._subset = subset or DEFAULT_SUBSET_NAME
@@ -586,6 +634,10 @@ class SourceExtractor(Extractor):
 
     def __len__(self):
         return len(self._items)
+
+    def get(self, id, subset=None): #pylint: disable=redefined-builtin
+        assert subset == self._subset, '%s != %s' % (subset, self._subset)
+        return super().get(id, subset or self._subset)
 
 class Importer:
     @classmethod

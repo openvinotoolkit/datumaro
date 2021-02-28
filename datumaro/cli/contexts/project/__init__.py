@@ -18,11 +18,12 @@ from datumaro.components.operations import (DistanceComparator,
 from datumaro.components.project import \
     PROJECT_DEFAULT_CONFIG as DEFAULT_CONFIG
 from datumaro.components.project import Environment, Project
+from datumaro.util import error_rollback
 
 from ...util import (CliException, MultilineFormatter, add_subparser,
     make_file_name)
 from ...util.project import generate_next_file_name, load_project
-from .diff import DiffVisualizer
+from .diff import DatasetDiffVisualizer
 
 
 def build_create_parser(parser_ctor=argparse.ArgumentParser):
@@ -506,8 +507,8 @@ def build_diff_parser(parser_ctor=argparse.ArgumentParser):
     parser.add_argument('-o', '--output-dir', dest='dst_dir', default=None,
         help="Directory to save comparison results (default: do not save)")
     parser.add_argument('-v', '--visualizer',
-        default=DiffVisualizer.DEFAULT_FORMAT,
-        choices=[f.name for f in DiffVisualizer.Format],
+        default=DatasetDiffVisualizer.DEFAULT_FORMAT.name,
+        choices=[f.name for f in DatasetDiffVisualizer.OutputFormat],
         help="Output format (default: %(default)s)")
     parser.add_argument('--iou-thresh', default=0.5, type=float,
         help="IoU match threshold for detections (default: %(default)s)")
@@ -521,6 +522,7 @@ def build_diff_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+@error_rollback('on_error', implicit=True)
 def diff_command(args):
     first_project = load_project(args.project_dir)
     second_project = load_project(args.other_project_dir)
@@ -540,17 +542,14 @@ def diff_command(args):
     dst_dir = osp.abspath(dst_dir)
     log.info("Saving diff to '%s'" % dst_dir)
 
-    dst_dir_existed = osp.exists(dst_dir)
-    try:
-        visualizer = DiffVisualizer(save_dir=dst_dir, comparator=comparator,
-            output_format=args.visualizer)
-        visualizer.save_dataset_diff(
+    if not osp.exists(dst_dir):
+        on_error.do(shutil.rmtree, dst_dir, ignore_errors=True)
+
+    with DatasetDiffVisualizer(save_dir=dst_dir, comparator=comparator,
+            output_format=args.visualizer) as visualizer:
+        visualizer.save(
             first_project.make_dataset(),
             second_project.make_dataset())
-    except BaseException:
-        if not dst_dir_existed and osp.isdir(dst_dir):
-            shutil.rmtree(dst_dir, ignore_errors=True)
-        raise
 
     return 0
 

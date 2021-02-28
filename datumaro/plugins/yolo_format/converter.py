@@ -9,7 +9,9 @@ import os.path as osp
 from collections import OrderedDict
 
 from datumaro.components.converter import Converter
-from datumaro.components.extractor import AnnotationType, DEFAULT_SUBSET_NAME
+from datumaro.components.dataset import ItemStatus
+from datumaro.components.extractor import (AnnotationType, DEFAULT_SUBSET_NAME,
+    DatasetItem)
 
 from .format import YoloPath
 
@@ -103,3 +105,25 @@ class YoloConverter(Converter):
 
             f.write('names = %s\n' % osp.join('data', 'obj.names'))
             f.write('backup = backup/\n')
+
+    @classmethod
+    def patch(cls, dataset, patch, save_dir, **kwargs):
+        for subset in patch.updated_subsets:
+            cls.convert(dataset.get_subset(subset), save_dir=save_dir, **kwargs)
+
+        conv = cls(dataset, save_dir=save_dir, **kwargs)
+        for (item_id, subset), status in patch.updated_items.items():
+            if status != ItemStatus.removed:
+                item = patch.data.get(item_id, subset)
+            else:
+                item = DatasetItem(item_id, subset=subset)
+
+            if not (status == ItemStatus.removed or not item.has_image):
+                continue
+
+            if subset == DEFAULT_SUBSET_NAME:
+                subset = YoloPath.DEFAULT_SUBSET_NAME
+            image_path = osp.join(save_dir, 'obj_%s_data' % subset,
+                conv._make_image_filename(item))
+            if osp.isfile(image_path):
+                os.unlink(image_path)

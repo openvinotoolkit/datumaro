@@ -52,7 +52,7 @@ dataset = Dataset.from_iterable([
     Polygon([1, 2, 3, 2, 4, 4], label=2, attributes={'occluded': True}),
   ]),
 ], categories=['cat', 'dog', 'person'])
-dataset = dataset.transform('polygons_to_masks')
+dataset.transform('polygons_to_masks')
 dataset.export('dst/dir', 'voc')
 ```
 
@@ -97,17 +97,17 @@ dataset = Dataset.from_extractors(dataset1, dataset2)
 
 # or directly from items
 dataset = Dataset.from_iterable([
-    DatasetItem(id='image1', annotations=[
-        Bbox(x=1, y=2, w=3, h=4, label=1),
-        Polygon([1, 2, 3, 2, 4, 4], label=2),
-    ]),
+  DatasetItem(id='image1', annotations=[
+    Bbox(x=1, y=2, w=3, h=4, label=1),
+    Polygon([1, 2, 3, 2, 4, 4], label=2),
+  ]),
 ], categories=['cat', 'dog', 'person'])
 
 # keep only annotated images
-dataset = dataset.select(lambda item: len(item.annotations) != 0)
+dataset.select(lambda item: len(item.annotations) != 0)
 
 # change dataset labels
-dataset = dataset.transform('remap_labels',
+dataset.transform('remap_labels',
   {'cat': 'dog', # rename cat to dog
     'truck': 'car', # rename truck to car
     'person': '', # remove this label
@@ -117,7 +117,7 @@ dataset = dataset.transform('remap_labels',
 for item in dataset:
   print(item.id, item.annotations)
 
-# iterate over subsets
+# iterate over subsets as Datasets
 for subset_name, subset in dataset.subsets().items():
   for item in subset:
     print(item.id, item.annotations)

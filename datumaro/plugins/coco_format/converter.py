@@ -8,15 +8,16 @@ import logging as log
 import os
 import os.path as osp
 from enum import Enum
-from itertools import groupby
+from itertools import chain, groupby
 
 import pycocotools.mask as mask_utils
 
 import datumaro.util.annotation_util as anno_tools
 import datumaro.util.mask_tools as mask_tools
 from datumaro.components.converter import Converter
-from datumaro.components.extractor import (_COORDINATE_ROUNDING_DIGITS,
-    AnnotationType, Points)
+from datumaro.components.extractor import (DatasetItem,
+    _COORDINATE_ROUNDING_DIGITS, AnnotationType, Points)
+from datumaro.components.dataset import ItemStatus
 from datumaro.util import cast, find, str_to_bool
 
 from .format import CocoPath, CocoTask
@@ -60,7 +61,12 @@ class _TaskConverter:
 
     def save_image_info(self, item, filename):
         if item.has_image:
-            h, w = item.image.size
+            size = item.image.size
+            if size is not None:
+                h, w = size
+            else:
+                h = 0
+                w = 0
         else:
             h = 0
             w = 0
@@ -224,16 +230,17 @@ class _InstancesConverter(_TaskConverter):
                 mask = mask_tools.rles_to_mask(polygons, img_width, img_height)
 
             if masks:
+                masks = (m.image for m in masks)
                 if mask is not None:
-                    masks += [mask]
-                mask = mask_tools.merge_masks([m.image for m in masks])
+                    masks += chain(masks, [mask])
+                mask = mask_tools.merge_masks(masks)
 
             if mask is not None:
                 mask = mask_tools.mask_to_rle(mask)
             polygons = []
         else:
             if masks:
-                mask = mask_tools.merge_masks([m.image for m in masks])
+                mask = mask_tools.merge_masks(m.image for m in masks)
                 polygons += mask_tools.mask_to_polygons(mask)
             mask = None
 
@@ -560,6 +567,7 @@ class CocoConverter(Converter):
             task_converters = self._make_task_converters()
             for task_conv in task_converters.values():
                 task_conv.save_categories(subset)
+
             for item in subset:
                 if self._save_images:
                     if item.has_image:
@@ -576,6 +584,26 @@ class CocoConverter(Converter):
                     continue
                 task_conv.write(osp.join(self._ann_dir,
                     '%s_%s.json' % (task.name, subset_name)))
+
+    @classmethod
+    def patch(cls, dataset, patch, save_dir, **kwargs):
+        for subset in patch.updated_subsets:
+            cls.convert(dataset.get_subset(subset), save_dir=save_dir, **kwargs)
+
+        conv = cls(dataset, save_dir=save_dir, **kwargs)
+        images_dir = osp.join(save_dir, CocoPath.IMAGES_DIR)
+        for (item_id, subset), status in patch.updated_items.items():
+            if status != ItemStatus.removed:
+                item = patch.data.get(item_id, subset)
+            else:
+                item = DatasetItem(item_id, subset=subset)
+
+            if not (status == ItemStatus.removed or not item.has_image):
+                continue
+
+            image_path = osp.join(images_dir, conv._make_image_filename(item))
+            if osp.isfile(image_path):
+                os.unlink(image_path)
 
 class CocoInstancesConverter(CocoConverter):
     def __init__(self, *args, **kwargs):

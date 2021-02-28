@@ -57,31 +57,41 @@ class VggFace2Extractor(SourceExtractor):
         return { AnnotationType.label: label_cat }
 
     def _load_items(self, path):
+        def _split_item_path(path):
+            label_name = path.split('/')[0]
+            label = None
+            if label_name != VggFace2Path.IMAGES_DIR_NO_LABEL:
+                label = \
+                    self._categories[AnnotationType.label].find(label_name)[0]
+            item_id = path[len(label_name) + 1:]
+            return item_id, label
+
         items = {}
+
         with open(path) as content:
             landmarks_table = list(csv.DictReader(content))
-
         for row in landmarks_table:
             item_id = row['NAME_ID']
             label = None
             if '/' in item_id:
-                label_name = item_id.split('/')[0]
-                if label_name != VggFace2Path.IMAGES_DIR_NO_LABEL:
-                    label = \
-                        self._categories[AnnotationType.label].find(label_name)[0]
-                item_id = item_id[len(label_name) + 1:]
+                item_id, label = _split_item_path(item_id)
+
             if item_id not in items:
                 image_path = osp.join(self._dataset_dir, self._subset,
                     row['NAME_ID'] + VggFace2Path.IMAGE_EXT)
                 items[item_id] = DatasetItem(id=item_id, subset=self._subset,
                     image=image_path)
+
             annotations = items[item_id].annotations
+            if [a for a in annotations if a.type == AnnotationType.points]:
+                raise Exception("Item %s: an image can have only one "
+                    "set of landmarks" % item_id)
+
             if len([p for p in row if row[p] == '']) == 0 and len(row) == 11:
                 annotations.append(Points(
-                    [float(row[p]) for p in row if p != 'NAME_ID'], label=label,
-                    group=1))
+                    [float(row[p]) for p in row if p != 'NAME_ID'], label=label))
             elif label is not None:
-                annotations.append(Label(label=label, group=1))
+                annotations.append(Label(label=label))
 
         bboxes_path = osp.join(self._dataset_dir, VggFace2Path.ANNOTATION_DIR,
             VggFace2Path.BBOXES_FILE + self._subset + '.csv')
@@ -92,20 +102,22 @@ class VggFace2Extractor(SourceExtractor):
                 item_id = row['NAME_ID']
                 label = None
                 if '/' in item_id:
-                    label_name = item_id.split('/')[0]
-                    if label_name != VggFace2Path.IMAGES_DIR_NO_LABEL:
-                        label = \
-                            self._categories[AnnotationType.label].find(label_name)[0]
-                    item_id = item_id[len(label_name) + 1:]
+                    item_id, label = _split_item_path(item_id)
+
                 if item_id not in items:
                     image_path = osp.join(self._dataset_dir, self._subset,
                         row['NAME_ID'] + VggFace2Path.IMAGE_EXT)
                     items[item_id] = DatasetItem(id=item_id, subset=self._subset,
                         image=image_path)
+
                 annotations = items[item_id].annotations
+                if [a for a in annotations if a.type == AnnotationType.bbox]:
+                    raise Exception("Item %s: an image can have only one "
+                        "bbox" % item_id)
+
                 if len([p for p in row if row[p] == '']) == 0 and len(row) == 5:
                     annotations.append(Bbox(float(row['X']), float(row['Y']),
-                        float(row['W']), float(row['H']), label=label, group=1))
+                        float(row['W']), float(row['H']), label=label))
         return items
 
 class VggFace2Importer(Importer):
@@ -155,34 +167,43 @@ class VggFace2Converter(Converter):
 
                 landmarks = [a for a in item.annotations
                     if a.type == AnnotationType.points]
-                for landmark in landmarks:
-                    if landmark.label is not None and \
-                            label_categories[landmark.label].name:
-                        name_id = label_categories[landmark.label].name \
+                if 1 < len(landmarks):
+                    raise Exception("Item (%s, %s): an image can have only one "
+                        "set of landmarks" % (item.id, item.subset))
+                if landmarks:
+                    if landmarks[0].label is not None and \
+                            label_categories[landmarks[0].label].name:
+                        name_id = label_categories[landmarks[0].label].name \
                             + '/' + item.id
                     else:
                         name_id = VggFace2Path.IMAGES_DIR_NO_LABEL \
                             + '/' + item.id
-                    points = landmark.points
-                    landmarks_table.append({'NAME_ID': name_id,
-                        'P1X': points[0], 'P1Y': points[1],
-                        'P2X': points[2], 'P2Y': points[3],
-                        'P3X': points[4], 'P3Y': points[5],
-                        'P4X': points[6], 'P4Y': points[7],
-                        'P5X': points[8], 'P5Y': points[9]})
+                    points = landmarks[0].points
+                    if len(points) != 10:
+                        landmarks_table.append({'NAME_ID': name_id})
+                    else:
+                        landmarks_table.append({'NAME_ID': name_id,
+                            'P1X': points[0], 'P1Y': points[1],
+                            'P2X': points[2], 'P2Y': points[3],
+                            'P3X': points[4], 'P3Y': points[5],
+                            'P4X': points[6], 'P4Y': points[7],
+                            'P5X': points[8], 'P5Y': points[9]})
 
                 bboxes = [a for a in item.annotations
                     if a.type == AnnotationType.bbox]
-                for bbox in bboxes:
-                    if bbox.label is not None and \
-                            label_categories[bbox.label].name:
-                        name_id = label_categories[bbox.label].name \
+                if 1 < len(bboxes):
+                    raise Exception("Item (%s, %s): an image can have only one "
+                        "bbox" % (item.id, item.subset))
+                if bboxes:
+                    if bboxes[0].label is not None and \
+                            label_categories[bboxes[0].label].name:
+                        name_id = label_categories[bboxes[0].label].name \
                             + '/' + item.id
                     else:
                         name_id = VggFace2Path.IMAGES_DIR_NO_LABEL \
                             + '/' + item.id
-                    bboxes_table.append({'NAME_ID': name_id, 'X': bbox.x,
-                        'Y': bbox.y, 'W': bbox.w, 'H': bbox.h})
+                    bboxes_table.append({'NAME_ID': name_id, 'X': bboxes[0].x,
+                        'Y': bboxes[0].y, 'W': bboxes[0].w, 'H': bboxes[0].h})
 
                 labels = [a for a in item.annotations
                     if a.type == AnnotationType.label]
