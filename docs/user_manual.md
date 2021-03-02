@@ -1023,6 +1023,26 @@ datum transform -t rename -- -e '|pattern|replacement|'
 datum transform -t rename -- -e '|frame_(\d+)|\\1|'
 ```
 
+Example: Sampling dataset items, subset `train` is divided into `sampled`(sampled_subset) and `unsampled`
+- `train` has 100 data, and 20 samples are selected. There are `sampled`(20 samples) and 80 `unsampled`(80 datas) subsets.
+- Remove `train` subset (if sample_name=`train` or unsample_name=`train`, still remain)
+- There are five methods of sampling the m option.
+    - `topk`: Return the k with high uncertainty data
+    - `lowk`: Return the k with low uncertainty data
+    - `randk`: Return the random k data
+    - `mixk`: Return half to topk method and the rest to lowk method
+    - `randtopk`: First, select 3 times the number of k randomly, and return the topk among them.
+
+``` bash
+datum transform -t sampler -- \
+    -a entropy \
+    -subset_name train \
+    -sample_name sampled \
+    -unsample_name unsampled \
+    -m topk \
+    -k 20
+```
+
 ## Extending
 
 There are few ways to extend and customize Datumaro behaviour, which is supported by plugins.
