@@ -89,15 +89,15 @@ class SamplerTest(TestCase):
 
     def test_sampler_get_sample_classification(self):
         config = {
-            "label1": 100,
-            "label2": 200,
-            "label3": 200,
+            "label1": 10,
+            "label2": 10,
+            "label3": 10,
         }
 
         source = self._generate_classification_dataset(config, ["train"])
         num_pre_train_subset = len(source.get_subset("train"))
 
-        num_sample = 20
+        num_sample = 5
 
         with self.subTest("Top-K method"):
             result = sampler.Sampler(
@@ -115,30 +115,8 @@ class SamplerTest(TestCase):
                 len(result.get_subset("unsampled")),
                 num_pre_train_subset - len(result.get_subset("sample")),
             )
-
-            topk_expected_result = [
-                10,
-                39,
-                48,
-                58,
-                73,
-                94,
-                157,
-                178,
-                185,
-                187,
-                205,
-                327,
-                358,
-                379,
-                418,
-                421,
-                448,
-                450,
-                451,
-                484,
-            ]
-            topk_result = list(map(float, result.result["ImageID"].to_list()))
+            topk_expected_result = [1, 4, 9, 10, 26]
+            topk_result = list(map(int, result.result["ImageID"].to_list()))
             self.assertEqual(sorted(topk_result), topk_expected_result)
 
         with self.subTest("Low-K method"):
@@ -157,30 +135,8 @@ class SamplerTest(TestCase):
                 len(result.get_subset("unsampled")),
                 num_pre_train_subset - len(result.get_subset("sample")),
             )
-
-            lowk_expected_result = [
-                33,
-                121,
-                124,
-                180,
-                194,
-                217,
-                250,
-                276,
-                289,
-                298,
-                313,
-                354,
-                375,
-                388,
-                395,
-                397,
-                428,
-                466,
-                477,
-                488,
-            ]
-            lowk_result = list(map(float, result.result["ImageID"].to_list()))
+            lowk_expected_result = [2, 6, 14, 21, 23]
+            lowk_result = list(map(int, result.result["ImageID"].to_list()))
             self.assertEqual(sorted(lowk_result), lowk_expected_result)
 
         with self.subTest("Rand-K method"):
@@ -216,30 +172,8 @@ class SamplerTest(TestCase):
                 len(result.get_subset("unsampled")),
                 num_pre_train_subset - len(result.get_subset("sample")),
             )
-
-            mixk_expected_result = [
-                33,
-                39,
-                48,
-                58,
-                121,
-                124,
-                187,
-                205,
-                276,
-                289,
-                298,
-                313,
-                327,
-                375,
-                379,
-                397,
-                448,
-                451,
-                466,
-                484,
-            ]
-            mixk_result = list(map(float, result.result["ImageID"].to_list()))
+            mixk_expected_result = [2, 4, 10, 23, 26]
+            mixk_result = list(map(int, result.result["ImageID"].to_list()))
             self.assertEqual(sorted(mixk_result), mixk_expected_result)
 
             result = sampler.Sampler(
@@ -249,38 +183,16 @@ class SamplerTest(TestCase):
                 sampled_name="sample",
                 unsampled_name="unsampled",
                 sampling_method="mixk",
-                num_sample=21,
+                num_sample=6,
                 output_file=None,
             )
-            self.assertEqual(21, len(result.get_subset("sample")))
+            self.assertEqual(6, len(result.get_subset("sample")))
             self.assertEqual(
                 len(result.get_subset("unsampled")),
                 num_pre_train_subset - len(result.get_subset("sample")),
             )
-            mixk_expected_result = [
-                10,
-                33,
-                39,
-                48,
-                58,
-                121,
-                124,
-                187,
-                205,
-                276,
-                289,
-                298,
-                313,
-                327,
-                375,
-                379,
-                397,
-                448,
-                451,
-                466,
-                484,
-            ]
-            mixk_result = list(map(float, result.result["ImageID"].to_list()))
+            mixk_expected_result = [2, 4, 6, 10, 23, 26]
+            mixk_result = list(map(int, result.result["ImageID"].to_list()))
             self.assertEqual(sorted(mixk_result), mixk_expected_result)
 
         with self.subTest("Randtop-K method"):
@@ -303,10 +215,11 @@ class SamplerTest(TestCase):
 
     def test_sampler_gives_error(self):
         config = {
-            "label1": 100,
-            "label2": 100,
-            "label3": 100,
+            "label1": 10,
+            "label2": 10,
+            "label3": 10,
         }
+        num_sample = 5
 
         source = self._generate_classification_dataset(config)
 
@@ -320,7 +233,7 @@ class SamplerTest(TestCase):
                     sampled_name="sample",
                     unsampled_name="unsampled",
                     sampling_method="topk",
-                    num_sample=20,
+                    num_sample=num_sample,
                     output_file=None,
                 )
                 result = iter(result)
@@ -335,7 +248,7 @@ class SamplerTest(TestCase):
                     sampled_name="sample",
                     unsampled_name="unsampled",
                     sampling_method="topk",
-                    num_sample=20,
+                    num_sample=num_sample,
                     output_file=None,
                 )
                 result = iter(result)
@@ -350,7 +263,7 @@ class SamplerTest(TestCase):
                     sampled_name="sample",
                     unsampled_name="unsampled",
                     sampling_method=sampling_method,
-                    num_sample=20,
+                    num_sample=num_sample,
                     output_file=None,
                 )
                 result = iter(result)
@@ -411,7 +324,7 @@ class SamplerTest(TestCase):
                     sampled_name="sample",
                     unsampled_name="unsampled",
                     sampling_method="topk",
-                    num_sample=20,
+                    num_sample=num_sample,
                     output_file=output_file,
                 )
                 result = iter(result)
@@ -426,7 +339,7 @@ class SamplerTest(TestCase):
                     sampled_name="sample",
                     unsampled_name="unsampled",
                     sampling_method="topk",
-                    num_sample=20,
+                    num_sample=num_sample,
                     output_file=output_file,
                 )
                 result = iter(result)
@@ -501,7 +414,7 @@ class SamplerTest(TestCase):
                     sampled_name="sample",
                     unsampled_name="unsampled",
                     sampling_method="topk",
-                    num_sample=20,
+                    num_sample=5,
                     output_file=None,
                 )
                 result = iter(result)
@@ -509,9 +422,9 @@ class SamplerTest(TestCase):
 
         with self.subTest("Dataset without Score (Probability)"):
             config = {
-                "label1": 100,
-                "label2": 100,
-                "label3": 100,
+                "label1": 10,
+                "label2": 10,
+                "label3": 10,
             }
 
             source = self._generate_classification_dataset(config, empty_score=True)
@@ -523,7 +436,7 @@ class SamplerTest(TestCase):
                     sampled_name="sample",
                     unsampled_name="unsampled",
                     sampling_method="topk",
-                    num_sample=20,
+                    num_sample=5,
                     output_file=None,
                 )
                 result = iter(result)
@@ -531,9 +444,9 @@ class SamplerTest(TestCase):
 
         with self.subTest("Out of range, probability (Less than 0 or more than 1)"):
             config = {
-                "label1": 100,
-                "label2": 100,
-                "label3": 100,
+                "label1": 10,
+                "label2": 10,
+                "label3": 10,
             }
 
             source = self._generate_classification_dataset(
@@ -547,7 +460,7 @@ class SamplerTest(TestCase):
                     sampled_name="sample",
                     unsampled_name="unsampled",
                     sampling_method="topk",
-                    num_sample=20,
+                    num_sample=5,
                     output_file=None,
                 )
                 result = iter(result)
@@ -555,9 +468,9 @@ class SamplerTest(TestCase):
 
         with self.subTest("No Score Attribute Data"):
             config = {
-                "label1": 100,
-                "label2": 100,
-                "label3": 100,
+                "label1": 10,
+                "label2": 10,
+                "label3": 10,
             }
 
             source = self._generate_classification_dataset(config, no_attr=True)
@@ -569,7 +482,7 @@ class SamplerTest(TestCase):
                     sampled_name="sample",
                     unsampled_name="unsampled",
                     sampling_method="topk",
-                    num_sample=20,
+                    num_sample=5,
                     output_file=None,
                 )
                 result = iter(result)
@@ -577,9 +490,9 @@ class SamplerTest(TestCase):
 
         with self.subTest("No Image Data"):
             config = {
-                "label1": 100,
-                "label2": 100,
-                "label3": 100,
+                "label1": 10,
+                "label2": 10,
+                "label3": 10,
             }
 
             source = self._generate_classification_dataset(config, no_img=True)
@@ -591,7 +504,7 @@ class SamplerTest(TestCase):
                     sampled_name="sample",
                     unsampled_name="unsampled",
                     sampling_method="topk",
-                    num_sample=20,
+                    num_sample=5,
                     output_file=None,
                 )
                 result = iter(result)
@@ -599,9 +512,9 @@ class SamplerTest(TestCase):
 
     def test_sampler_number_of_samples(self):
         config = {
-            "label1": 100,
-            "label2": 100,
-            "label3": 100,
+            "label1": 10,
+            "label2": 10,
+            "label3": 10,
         }
 
         source = self._generate_classification_dataset(config)
@@ -688,7 +601,7 @@ class SamplerTest(TestCase):
             self.assertEqual(num_pre_train_subset, len(result.get_subset("sample")))
 
         with self.subTest("k == num of data with top-k"):
-            num_sample = 100
+            num_sample = 10
             sampling_method = "topk"
 
             result = sampler.Sampler(
@@ -704,7 +617,7 @@ class SamplerTest(TestCase):
             self.assertEqual(num_pre_train_subset, len(result.get_subset("sample")))
 
         with self.subTest("k == num of data with low-k"):
-            num_sample = 100
+            num_sample = 10
             sampling_method = "lowk"
 
             result = sampler.Sampler(
@@ -720,7 +633,7 @@ class SamplerTest(TestCase):
             self.assertEqual(num_pre_train_subset, len(result.get_subset("sample")))
 
         with self.subTest("k == num of data with rand-k"):
-            num_sample = 100
+            num_sample = 10
             sampling_method = "randk"
 
             result = sampler.Sampler(
@@ -736,7 +649,7 @@ class SamplerTest(TestCase):
             self.assertEqual(num_pre_train_subset, len(result.get_subset("sample")))
 
         with self.subTest("k == num of data with mix-k"):
-            num_sample = 100
+            num_sample = 10
             sampling_method = "mixk"
 
             result = sampler.Sampler(
@@ -752,7 +665,7 @@ class SamplerTest(TestCase):
             self.assertEqual(num_pre_train_subset, len(result.get_subset("sample")))
 
         with self.subTest("k == num of data with randtop-k"):
-            num_sample = 100
+            num_sample = 10
             sampling_method = "randtopk"
 
             result = sampler.Sampler(
@@ -767,7 +680,7 @@ class SamplerTest(TestCase):
             )
             self.assertEqual(num_pre_train_subset, len(result.get_subset("sample")))
 
-            num_sample = 99
+            num_sample = 9
 
             result = sampler.Sampler(
                 source,
@@ -779,13 +692,13 @@ class SamplerTest(TestCase):
                 num_sample=num_sample,
                 output_file=None,
             )
-            self.assertEqual(len(result.get_subset("sample")), 99)
+            self.assertEqual(len(result.get_subset("sample")), 9)
 
     def test_sampler_accumulated_sampling(self):
         config = {
-            "label1": 100,
-            "label2": 100,
-            "label3": 100,
+            "label1": 10,
+            "label2": 10,
+            "label3": 10,
         }
 
         source = self._generate_classification_dataset(config)
@@ -795,7 +708,7 @@ class SamplerTest(TestCase):
         num_pre_test_subset = len(source.get_subset("test"))
 
         with self.subTest("Same Subset, Same number of datas 3times"):
-            num_sample = 20
+            num_sample = 3
             sample_subset_name = "sample"
 
             result = sampler.Sampler(
@@ -846,7 +759,7 @@ class SamplerTest(TestCase):
                 len(result.get_subset("train")), num_pre_train_subset - num_sample * 3
             )
 
-        with self.subTest("Same Subset, 10, 20, 30 sampling"):
+        with self.subTest("Same Subset, 2, 3, 4 sampling"):
             sample_subset_name = "sample"
 
             result = sampler.Sampler(
@@ -856,12 +769,12 @@ class SamplerTest(TestCase):
                 sampled_name=sample_subset_name,
                 unsampled_name="train",
                 sampling_method="topk",
-                num_sample=10,
+                num_sample=2,
                 output_file=None,
             )
 
-            self.assertEqual(len(result.get_subset("sample")), 10)
-            self.assertEqual(len(result.get_subset("train")), num_pre_train_subset - 10)
+            self.assertEqual(len(result.get_subset("sample")), 2)
+            self.assertEqual(len(result.get_subset("train")), num_pre_train_subset - 2)
 
             result = sampler.Sampler(
                 result,
@@ -870,12 +783,12 @@ class SamplerTest(TestCase):
                 sampled_name=sample_subset_name,
                 unsampled_name="train",
                 sampling_method="topk",
-                num_sample=20,
+                num_sample=3,
                 output_file=None,
             )
 
-            self.assertEqual(len(result.get_subset("sample")), 30)
-            self.assertEqual(len(result.get_subset("train")), num_pre_train_subset - 30)
+            self.assertEqual(len(result.get_subset("sample")), 5)
+            self.assertEqual(len(result.get_subset("train")), num_pre_train_subset - 5)
 
             result = sampler.Sampler(
                 result,
@@ -884,15 +797,15 @@ class SamplerTest(TestCase):
                 sampled_name=sample_subset_name,
                 unsampled_name="train",
                 sampling_method="topk",
-                num_sample=30,
+                num_sample=4,
                 output_file=None,
             )
 
-            self.assertEqual(len(result.get_subset("sample")), 60)
-            self.assertEqual(len(result.get_subset("train")), num_pre_train_subset - 60)
+            self.assertEqual(len(result.get_subset("sample")), 9)
+            self.assertEqual(len(result.get_subset("train")), num_pre_train_subset - 9)
 
         with self.subTest("Different Subset, Same number of datas 3times"):
-            num_sample = 20
+            num_sample = 3
             sample_subset_name = "sample"
 
             result = sampler.Sampler(
@@ -943,7 +856,7 @@ class SamplerTest(TestCase):
                 len(result.get_subset("test")), num_pre_test_subset - num_sample
             )
 
-        with self.subTest("Different Subset, 10, 20, 30 sampling"):
+        with self.subTest("Different Subset, 2, 3, 4 sampling"):
             sample_subset_name = "sample"
 
             result = sampler.Sampler(
@@ -953,12 +866,12 @@ class SamplerTest(TestCase):
                 sampled_name=sample_subset_name,
                 unsampled_name="train",
                 sampling_method="topk",
-                num_sample=10,
+                num_sample=2,
                 output_file=None,
             )
 
-            self.assertEqual(len(result.get_subset("sample")), 10)
-            self.assertEqual(len(result.get_subset("train")), num_pre_train_subset - 10)
+            self.assertEqual(len(result.get_subset("sample")), 2)
+            self.assertEqual(len(result.get_subset("train")), num_pre_train_subset - 2)
 
             result = sampler.Sampler(
                 result,
@@ -967,12 +880,12 @@ class SamplerTest(TestCase):
                 sampled_name=sample_subset_name,
                 unsampled_name="val",
                 sampling_method="topk",
-                num_sample=20,
+                num_sample=3,
                 output_file=None,
             )
 
-            self.assertEqual(len(result.get_subset("sample")), 30)
-            self.assertEqual(len(result.get_subset("val")), num_pre_val_subset - 20)
+            self.assertEqual(len(result.get_subset("sample")), 5)
+            self.assertEqual(len(result.get_subset("val")), num_pre_val_subset - 3)
 
             result = sampler.Sampler(
                 result,
@@ -981,18 +894,18 @@ class SamplerTest(TestCase):
                 sampled_name=sample_subset_name,
                 unsampled_name="test",
                 sampling_method="topk",
-                num_sample=30,
+                num_sample=4,
                 output_file=None,
             )
 
-            self.assertEqual(len(result.get_subset("sample")), 60)
-            self.assertEqual(len(result.get_subset("test")), num_pre_test_subset - 30)
+            self.assertEqual(len(result.get_subset("sample")), 9)
+            self.assertEqual(len(result.get_subset("test")), num_pre_test_subset - 4)
 
     def test_sampler_unaccumulated_sampling(self):
         config = {
-            "label1": 100,
-            "label2": 100,
-            "label3": 100,
+            "label1": 10,
+            "label2": 10,
+            "label3": 10,
         }
 
         source = self._generate_classification_dataset(config)
@@ -1002,7 +915,7 @@ class SamplerTest(TestCase):
         num_pre_test_subset = len(source.get_subset("test"))
 
         with self.subTest("Same Subset, Same number of datas 3times"):
-            num_sample = 20
+            num_sample = 3
 
             result = sampler.Sampler(
                 source,
@@ -1055,7 +968,7 @@ class SamplerTest(TestCase):
                 len(result.get_subset("train")), num_pre_train_subset - num_sample * 3
             )
 
-        with self.subTest("Same Subset, 10, 20, 30 sampling"):
+        with self.subTest("Same Subset, 2, 3, 4 sampling"):
             result = sampler.Sampler(
                 source,
                 algorithm="entropy",
@@ -1063,12 +976,12 @@ class SamplerTest(TestCase):
                 sampled_name="sample1",
                 unsampled_name="train",
                 sampling_method="topk",
-                num_sample=10,
+                num_sample=2,
                 output_file=None,
             )
 
-            self.assertEqual(len(result.get_subset("sample1")), 10)
-            self.assertEqual(len(result.get_subset("train")), num_pre_train_subset - 10)
+            self.assertEqual(len(result.get_subset("sample1")), 2)
+            self.assertEqual(len(result.get_subset("train")), num_pre_train_subset - 2)
 
             result = sampler.Sampler(
                 result,
@@ -1077,13 +990,13 @@ class SamplerTest(TestCase):
                 sampled_name="sample2",
                 unsampled_name="train",
                 sampling_method="topk",
-                num_sample=20,
+                num_sample=3,
                 output_file=None,
             )
 
-            self.assertEqual(len(result.get_subset("sample1")), 10)
-            self.assertEqual(len(result.get_subset("sample2")), 20)
-            self.assertEqual(len(result.get_subset("train")), num_pre_train_subset - 30)
+            self.assertEqual(len(result.get_subset("sample1")), 2)
+            self.assertEqual(len(result.get_subset("sample2")), 3)
+            self.assertEqual(len(result.get_subset("train")), num_pre_train_subset - 5)
 
             result = sampler.Sampler(
                 result,
@@ -1092,17 +1005,17 @@ class SamplerTest(TestCase):
                 sampled_name="sample3",
                 unsampled_name="train",
                 sampling_method="topk",
-                num_sample=30,
+                num_sample=4,
                 output_file=None,
             )
 
-            self.assertEqual(len(result.get_subset("sample1")), 10)
-            self.assertEqual(len(result.get_subset("sample2")), 20)
-            self.assertEqual(len(result.get_subset("sample3")), 30)
-            self.assertEqual(len(result.get_subset("train")), num_pre_train_subset - 60)
+            self.assertEqual(len(result.get_subset("sample1")), 2)
+            self.assertEqual(len(result.get_subset("sample2")), 3)
+            self.assertEqual(len(result.get_subset("sample3")), 4)
+            self.assertEqual(len(result.get_subset("train")), num_pre_train_subset - 9)
 
         with self.subTest("Different Subset, Same number of datas 3times"):
-            num_sample = 20
+            num_sample = 3
 
             result = sampler.Sampler(
                 source,
@@ -1155,7 +1068,7 @@ class SamplerTest(TestCase):
                 len(result.get_subset("test")), num_pre_test_subset - num_sample
             )
 
-        with self.subTest("Different Subset, 10, 20, 30 sampling"):
+        with self.subTest("Different Subset, 2, 3, 4 sampling"):
             result = sampler.Sampler(
                 source,
                 algorithm="entropy",
@@ -1163,12 +1076,12 @@ class SamplerTest(TestCase):
                 sampled_name="sample1",
                 unsampled_name="train",
                 sampling_method="topk",
-                num_sample=10,
+                num_sample=2,
                 output_file=None,
             )
 
-            self.assertEqual(len(result.get_subset("sample1")), 10)
-            self.assertEqual(len(result.get_subset("train")), num_pre_train_subset - 10)
+            self.assertEqual(len(result.get_subset("sample1")), 2)
+            self.assertEqual(len(result.get_subset("train")), num_pre_train_subset - 2)
 
             result = sampler.Sampler(
                 result,
@@ -1177,13 +1090,13 @@ class SamplerTest(TestCase):
                 sampled_name="sample2",
                 unsampled_name="val",
                 sampling_method="topk",
-                num_sample=20,
+                num_sample=3,
                 output_file=None,
             )
 
-            self.assertEqual(len(result.get_subset("sample1")), 10)
-            self.assertEqual(len(result.get_subset("sample2")), 20)
-            self.assertEqual(len(result.get_subset("val")), num_pre_val_subset - 20)
+            self.assertEqual(len(result.get_subset("sample1")), 2)
+            self.assertEqual(len(result.get_subset("sample2")), 3)
+            self.assertEqual(len(result.get_subset("val")), num_pre_val_subset - 3)
 
             result = sampler.Sampler(
                 result,
@@ -1192,14 +1105,14 @@ class SamplerTest(TestCase):
                 sampled_name="sample3",
                 unsampled_name="test",
                 sampling_method="topk",
-                num_sample=30,
+                num_sample=4,
                 output_file=None,
             )
 
-            self.assertEqual(len(result.get_subset("sample1")), 10)
-            self.assertEqual(len(result.get_subset("sample2")), 20)
-            self.assertEqual(len(result.get_subset("sample3")), 30)
-            self.assertEqual(len(result.get_subset("test")), num_pre_test_subset - 30)
+            self.assertEqual(len(result.get_subset("sample1")), 2)
+            self.assertEqual(len(result.get_subset("sample2")), 3)
+            self.assertEqual(len(result.get_subset("sample3")), 4)
+            self.assertEqual(len(result.get_subset("test")), num_pre_test_subset - 4)
 
     def test_sampler_parser(self):
         from argparse import ArgumentParser

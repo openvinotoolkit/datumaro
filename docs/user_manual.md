@@ -1035,11 +1035,12 @@ Example: Sampling dataset items, subset `train` is divided into `sampled`(sample
 
 ``` bash
 datum transform -t sampler -- \
+    -a entropy \
     -subset_name train \
     -sample_name sampled \
     -unsample_name unsampled \
     -m topk \
-    -k <num-samples>
+    -k 20
 ```
 
 ## Extending

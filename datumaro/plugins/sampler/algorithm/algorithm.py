@@ -5,6 +5,7 @@
 from enum import Enum
 
 SamplingMethod = Enum("SamplingMethod", ["topk", "lowk", "randk", "mixk", "randtopk"])
+Algorithm = Enum("Algorithm", ["entropy"])
 
 
 class InferenceResultAnalyzer:

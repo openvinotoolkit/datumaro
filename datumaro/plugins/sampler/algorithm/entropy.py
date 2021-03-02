@@ -30,11 +30,9 @@ class SampleEntropy(InferenceResultAnalyzer):
 
         # check the existence of "ImageID" in data & inference
         if "ImageID" not in data:
-            msg = "Invalid Data, ImageID not found in data"
-            raise Exception(msg)
+            raise Exception("Invalid Data, ImageID not found in data")
         if "ImageID" not in inference:
-            msg = "Invalid Data, ImageID not found in inference"
-            raise Exception(msg)
+            raise Exception("Invalid Data, ImageID not found in inference")
 
         # check the existence of "ClassProbability" in inference
         self.num_classes = 0
@@ -44,8 +42,9 @@ class SampleEntropy(InferenceResultAnalyzer):
                 self.num_classes += 1
 
         if not self.num_classes > 0:
-            msg = "Invalid data, Inference do not have ClassProbability values!"
-            raise Exception(msg)
+            raise Exception(
+                "Invalid data, Inference do not have ClassProbability values!"
+            )
 
         # rank: The inference DataFrame, sorted according to the score.
         self.rank = self._rank_images().sort_values(by="rank")
@@ -67,13 +66,13 @@ class SampleEntropy(InferenceResultAnalyzer):
 
         # 1. k value check
         if not isinstance(k, int):
-            msg = f"Invalid value {k}. k must have an integer greater than zero."
-            raise Exception(msg)
+            raise Exception(
+                f"Invalid value {k}. k must have an integer greater than zero."
+            )
         elif k <= 0:
-            msg = (
+            raise Exception(
                 f"Invalid number {k}. k must have a positive number greater than zero."
             )
-            raise Exception(msg)
 
         # 2. Select a sample according to the method
         if k <= len(temp_rank):
@@ -89,13 +88,11 @@ class SampleEntropy(InferenceResultAnalyzer):
             ]:
                 return self._get_sample_mixed(method=method, k=k, n=n)
             else:
-                msg = f"Not Found method '{method}'"
-                raise Exception(msg)
+                raise Exception(f"Not Found method '{method}'")
         else:
-            msg = (
+            log.warning(
                 "The number of samples is greater than the size of the selected subset."
             )
-            log.warning(msg=msg)
 
         columns = list(self.data.columns)
         merged_df = pd.merge(temp_rank, self.data, how="inner", on=["ImageID"])
@@ -128,8 +125,7 @@ class SampleEntropy(InferenceResultAnalyzer):
                 if n * k <= len(temp_rank):
                     temp_rank = temp_rank.sample(n=n * k).sort_values(by="rank")
                 else:
-                    msg = f"n * k exceeds the length of the inference"
-                    log.warning(msg=msg)
+                    log.warning(msg="n * k exceeds the length of the inference")
                 temp_rank = temp_rank[:k]
 
         columns = list(self.data.columns)
@@ -147,8 +143,7 @@ class SampleEntropy(InferenceResultAnalyzer):
         if self.inference is not None:
             inference = pd.DataFrame(self.inference)
         else:
-            msg = "Invalid Data, Failed to load inference result!"
-            raise Exception(msg)
+            raise Exception("Invalid Data, Failed to load inference result!")
 
         # 2. If the reference data frame does not contain an uncertify score, calculate it
         if "Uncertainty" not in inference:
@@ -157,8 +152,7 @@ class SampleEntropy(InferenceResultAnalyzer):
         # 3. Check that Uncertainty values are in place.
         na_df = inference.isna().sum()
         if "Uncertainty" in na_df and na_df["Uncertainty"] > 0:
-            msg = "Some inference results do not have Uncertainty values!"
-            raise Exception(msg)
+            raise Exception("Some inference results do not have Uncertainty values!")
 
         # 4. Ranked based on Uncertainty score
         res = inference[["ImageID", "Uncertainty"]].groupby("ImageID").mean()
@@ -185,8 +179,9 @@ class SampleEntropy(InferenceResultAnalyzer):
             for j in range(self.num_classes):
                 p = inference.loc[i][f"ClassProbability{j+1}"]
                 if p < 0 or p > 1:
-                    msg = "Invalid data, Math domain Error! p is between 0 and 1"
-                    raise Exception(msg)
+                    raise Exception(
+                        "Invalid data, Math domain Error! p is between 0 and 1"
+                    )
                 entropy -= p * math.log(p + 1e-14, math.e)
 
             uncertainty.append(entropy)

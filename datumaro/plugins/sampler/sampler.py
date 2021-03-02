@@ -4,7 +4,7 @@
 
 import pandas as pd
 from collections import defaultdict
-from .algorithm.algorithm import SamplingMethod
+from .algorithm.algorithm import SamplingMethod, Algorithm
 
 from datumaro.components.extractor import Transform, DEFAULT_SUBSET_NAME
 from datumaro.components.cli_plugin import CliPlugin
@@ -20,7 +20,12 @@ class Sampler(Transform, CliPlugin):
     - Requesting a sample larger than the number of all images will return all images.|n
     |n
     Example:|n
-    |s|s%(prog)s -algo entropy -subset_name train -sample_name sample -unsampled_name unsampled -m topk -k 20
+    |s|s%(prog)s \ |n
+    |s|s|s|s-a entropy \ |n
+    |s|s|s|s-subset_name train \ |n
+    |s|s|s|s-sample_name sample \ |n
+    |s|s|s|s-unsampled_name unsampled \ |n
+    |s|s|s|s-m topk -k 20
     """
 
     @classmethod
@@ -31,8 +36,8 @@ class Sampler(Transform, CliPlugin):
             "--algorithm",
             type=str,
             default="entropy",
-            choices=["entropy"],
-            help="Select Algorithm ['entropy']",
+            choices=[t.name for t in Algorithm],
+            help=f"Select algorithm, example: {[t.name for t in Algorithm]}",
         )
         parser.add_argument(
             "-subset_name",
@@ -113,10 +118,10 @@ class Sampler(Transform, CliPlugin):
         self.output_file = output_file
 
         # optional. Use the --output_file option to save the sample list as a csv file.
-        if output_file is not None:
-            if output_file.split(".")[-1] != ".csv":
-                msg = f"Invalid extension, The extension of the file must end with .csv"
-                raise Exception(msg)
+        if output_file is not None and output_file.split(".")[-1] != ".csv":
+            raise Exception(
+                "Invalid extension, The extension of the file must end with .csv"
+            )
 
     @staticmethod
     def _load_inference_from_subset(extractor, subset_name):
@@ -124,36 +129,32 @@ class Sampler(Transform, CliPlugin):
         if subset_name in extractor.subsets().keys():
             subset = extractor.get_subset(subset_name)
         else:
-            msg = f"Not Found subset '{subset_name}'"
-            raise Exception(msg)
+            raise Exception(f"Not Found subset '{subset_name}'")
 
         data_df = defaultdict(list)
         infer_df = defaultdict(list)
 
         # 2. Fill the data_df and infer_df to fit the sampler algorithm input format.
-        for data in subset:
-            data_df["ImageID"].append(data.id)
+        for item in subset:
+            data_df["ImageID"].append(item.id)
 
-            if not data.has_image or data.image.size is None:
-                msg = "Invalid data, the image file is not available"
-                raise Exception(msg)
+            if not item.has_image or item.image.size is None:
+                raise Exception(f"Invalid data, data.id: {item.id}")
 
-            width, height = data.image.size
+            width, height = item.image.size
             data_df["Width"].append(width)
             data_df["Height"].append(height)
-            data_df["ImagePath"].append(data.image.path)
+            data_df["ImagePath"].append(item.image.path)
 
-            if not data.annotations:
-                msg = f"Invalid data, data.annotations is empty"
-                raise Exception(msg)
+            if not item.annotations:
+                raise Exception("Invalid data, data.annotations is empty")
 
-            for annotation in data.annotations:
+            for annotation in item.annotations:
                 if "score" not in annotation.attributes:
-                    msg = f"Invalid data, probability score is None"
-                    raise Exception(msg)
+                    raise Exception("Invalid data, probability score is None")
                 probs = annotation.attributes["score"]
 
-                infer_df["ImageID"].append(data.id)
+                infer_df["ImageID"].append(item.id)
 
                 for prob_idx, prob in enumerate(probs):
                     infer_df[f"ClassProbability{prob_idx+1}"].append(prob)
@@ -166,24 +167,23 @@ class Sampler(Transform, CliPlugin):
     @staticmethod
     def _calculate_uncertainty(algorithm, data, inference):
         # Checking and creating algorithms
-        algorithms = ["entropy"]
-        if algorithm == "entropy":
+        algorithms = Algorithm
+        if algorithm == algorithms.entropy.name:
             from .algorithm.entropy import SampleEntropy
 
             # Data delivery, uncertainty score calculations also proceed.
             sampler = SampleEntropy(data, inference)
         else:
-            msg = (
+            raise Exception(
                 f"Not Found algorithm '{algorithm}', available algorithms: {algorithms}"
             )
-            raise Exception(msg)
         return sampler
 
     def _check_sample(self, image):
         # The function that determines the subset name of the data.
         if image.subset:
             if image.subset == self.subset_name:
-                # 1. Returns the sample subset if the id of that image belongs to the list of samples.
+                # 1. Returns the sample subset if the id belongs to samples.
                 if image.id in self.sample_id:
                     return self.sampled_name
                 else:
