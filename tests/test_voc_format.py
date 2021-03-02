@@ -425,10 +425,12 @@ class VocConverterTest(TestCase):
                     DatasetItem(id=3, subset='b', image=np.ones([2, 6, 3])),
                 ])
 
-        with TestDir() as test_dir:
-            self._test_save_and_load(TestExtractor(),
-                partial(VocConverter.convert, label_map='voc', save_images=True),
-                test_dir)
+        for task in [None] + list(VOC.VocTask):
+            with self.subTest(subformat=task), TestDir() as test_dir:
+                self._test_save_and_load(TestExtractor(),
+                    partial(VocConverter.convert, label_map='voc',
+                        save_images=True, tasks=task),
+                    test_dir)
 
     def test_dataset_with_voc_labelmap(self):
         class SrcExtractor(TestExtractorBase):
@@ -621,9 +623,11 @@ class VocConverterTest(TestCase):
                     DatasetItem(id=1, image=Image(path='1.jpg', size=(10, 15))),
                 ])
 
-        with TestDir() as test_dir:
-            self._test_save_and_load(TestExtractor(),
-                partial(VocConverter.convert, label_map='voc'), test_dir)
+        for task in [None] + list(VOC.VocTask):
+            with self.subTest(subformat=task), TestDir() as test_dir:
+                self._test_save_and_load(TestExtractor(),
+                    partial(VocConverter.convert, label_map='voc', tasks=task),
+                    test_dir)
 
     def test_relative_paths(self):
         class TestExtractor(TestExtractorBase):
@@ -634,11 +638,12 @@ class VocConverterTest(TestCase):
                     DatasetItem(id='subdir2/1', image=np.ones((5, 4, 3))),
                 ])
 
-        with TestDir() as test_dir:
-            self._test_save_and_load(TestExtractor(),
-                partial(VocConverter.convert,
-                    label_map='voc', save_images=True),
-                test_dir)
+        for task in [None] + list(VOC.VocTask):
+            with self.subTest(subformat=task), TestDir() as test_dir:
+                self._test_save_and_load(TestExtractor(),
+                    partial(VocConverter.convert,
+                        label_map='voc', save_images=True, tasks=task),
+                    test_dir)
 
     def test_can_save_attributes(self):
         class TestExtractor(TestExtractorBase):

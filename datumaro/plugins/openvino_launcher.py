@@ -177,7 +177,7 @@ class OpenvinoLauncher(Launcher):
 
         results = self._net.infer(inputs)
         if len(results) == 1:
-            return next(iter(results))
+            return next(iter(results.values()))
         else:
             return results
 
