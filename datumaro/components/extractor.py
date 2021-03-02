@@ -98,6 +98,7 @@ class LabelCategories(Categories):
         self._indices = indices
 
     def add(self, name: str, parent: str = None, attributes: dict = None):
+        assert name
         assert name not in self._indices, name
 
         index = len(self.items)
@@ -114,6 +115,9 @@ class LabelCategories(Categories):
     def __getitem__(self, idx):
         return self.items[idx]
 
+    def __contains__(self, idx):
+        return 0 <= idx and idx < len(self.items)
+
     def __len__(self):
         return len(self.items)
 
@@ -127,6 +131,11 @@ class Label(Annotation):
 
 @attrs(eq=False)
 class MaskCategories(Categories):
+    @classmethod
+    def make_default(cls, size=256):
+        from datumaro.util.mask_tools import generate_colormap
+        return cls(generate_colormap(size))
+
     colormap = attrib(factory=dict, validator=default_if_none(dict))
     _inverse_colormap = attrib(default=None,
         validator=attr.validators.optional(dict))
@@ -625,6 +634,10 @@ class SourceExtractor(Extractor):
 
     def __len__(self):
         return len(self._items)
+
+    def get(self, id, subset=None): #pylint: disable=redefined-builtin
+        assert subset == self._subset, '%s != %s' % (subset, self._subset)
+        return super().get(id, subset or self._subset)
 
 class Importer:
     @classmethod

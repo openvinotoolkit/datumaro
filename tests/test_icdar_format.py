@@ -69,20 +69,20 @@ class IcdarImporterTest(TestCase):
             DatasetItem(id='1', subset='train',
                 image=np.ones((2, 5, 3)),
                 annotations=[
-                    Mask(id=1, group=0,
+                    Mask(group=0,
                         image=np.array([[0, 1, 1, 0, 0], [0, 0, 0, 0, 0]]),
-                        attributes={ 'color': (108, 225, 132),
-                            'text': 'F', 'center': [0, 1]
+                        attributes={ 'index': 0, 'color': '108 225 132',
+                            'text': 'F', 'center': '0 1'
                         }),
-                    Mask(id=2, group=1,
+                    Mask(group=1,
                         image=np.array([[0, 0, 0, 1, 0], [0, 0, 0, 1, 0]]),
-                        attributes = { 'color': (82, 174, 214),
-                            'text': 'T', 'center': [1, 3]
+                        attributes={ 'index': 1, 'color': '82 174 214',
+                            'text': 'T', 'center': '1 3'
                         }),
-                    Mask(id=3, group=1,
+                    Mask(group=1,
                         image=np.array([[0, 0, 0, 0, 0], [0, 0, 0, 0, 1]]),
-                        attributes = { 'color': (241, 73, 144),
-                            'text': 'h', 'center': [1, 4]
+                        attributes={ 'index': 2, 'color': '241 73 144',
+                            'text': 'h', 'center': '1 4'
                         }),
                 ]
             ),
@@ -145,27 +145,27 @@ class IcdarConverterTest(TestCase):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train',
                 annotations=[
-                    Mask(id=2, image=np.array([[0, 0, 0, 1, 1]]), group=1,
-                        attributes={ 'color': (82, 174, 214), 'text': 'j',
-                            'center': [0, 3] }),
-                    Mask(id=1, image=np.array([[0, 1, 1, 0, 0]]), group=1,
-                        attributes={ 'color': (108, 225, 132), 'text': 'F',
-                            'center': [0, 1] }),
+                    Mask(image=np.array([[0, 0, 0, 1, 1]]), group=1,
+                        attributes={ 'index': 1, 'color': '82 174 214', 'text': 'j',
+                            'center': '0 3' }),
+                    Mask(image=np.array([[0, 1, 1, 0, 0]]), group=1,
+                        attributes={ 'index': 0, 'color': '108 225 132', 'text': 'F',
+                            'center': '0 1' }),
                 ]),
             DatasetItem(id=2, subset='train',
                 annotations=[
-                    Mask(id=4, image=np.array([[0, 0, 0, 0, 0, 1]]), group=0,
-                        attributes={ 'color': (183, 6, 28), 'text': ' ',
-                            'center': [0, 5] }),
-                    Mask(id=1, image=np.array([[1, 0, 0, 0, 0, 0]]), group=1,
-                        attributes={ 'color': (108, 225, 132), 'text': 'L',
-                            'center': [0, 0] }),
-                    Mask(id=2, image=np.array([[0, 0, 0, 1, 1, 0]]), group=1,
-                        attributes={ 'color': (82, 174, 214), 'text': 'o',
-                            'center': [0, 3] }),
-                    Mask(id=3, image=np.array([[0, 1, 1, 0, 0, 0]]), group=0,
-                        attributes={ 'color': (241, 73, 144), 'text': 'P',
-                            'center': [0, 1] }),
+                    Mask(image=np.array([[0, 0, 0, 0, 0, 1]]), group=0,
+                        attributes={ 'index': 3, 'color': '183 6 28', 'text': ' ',
+                            'center': '0 5' }),
+                    Mask(image=np.array([[1, 0, 0, 0, 0, 0]]), group=1,
+                        attributes={ 'index': 0, 'color': '108 225 132', 'text': 'L',
+                            'center': '0 0' }),
+                    Mask(image=np.array([[0, 0, 0, 1, 1, 0]]), group=1,
+                        attributes={ 'index': 1, 'color': '82 174 214', 'text': 'o',
+                            'center': '0 3' }),
+                    Mask(image=np.array([[0, 1, 1, 0, 0, 0]]), group=0,
+                        attributes={ 'index': 2, 'color': '241 73 144', 'text': 'P',
+                            'center': '0 1' }),
                 ]),
         ])
 

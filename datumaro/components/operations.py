@@ -15,7 +15,8 @@ from unittest import TestCase
 
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.util import find, filter_dict
-from datumaro.components.extractor import (AnnotationType, Bbox, Label,
+from datumaro.components.extractor import (AnnotationType, Bbox,
+    CategoriesInfo, Label,
     LabelCategories, PointsCategories, MaskCategories)
 from datumaro.components.errors import (DatumaroError, FailedAttrVotingError,
     FailedLabelVotingError, MismatchingImageInfoError, NoMatchingAnnError,
@@ -1055,7 +1056,7 @@ def compute_image_statistics(dataset):
     return stats
 
 def compute_ann_statistics(dataset):
-    labels = dataset.categories().get(AnnotationType.label)
+    labels = dataset.categories().get(AnnotationType.label, LabelCategories())
     def get_label(ann):
         return labels.items[ann.label].name if ann.label is not None else None
 
@@ -1169,29 +1170,6 @@ def compute_ann_statistics(dataset):
 @attrs
 class DistanceComparator:
     iou_threshold = attrib(converter=float, default=0.5)
-
-    @staticmethod
-    def match_datasets(a, b):
-        a_items = set((item.id, item.subset) for item in a)
-        b_items = set((item.id, item.subset) for item in b)
-
-        matches = a_items & b_items
-        a_unmatched = a_items - b_items
-        b_unmatched = b_items - a_items
-        return matches, a_unmatched, b_unmatched
-
-    @staticmethod
-    def match_classes(a, b):
-        a_label_cat = a.categories().get(AnnotationType.label, LabelCategories())
-        b_label_cat = b.categories().get(AnnotationType.label, LabelCategories())
-
-        a_labels = set(c.name for c in a_label_cat)
-        b_labels = set(c.name for c in b_label_cat)
-
-        matches = a_labels & b_labels
-        a_unmatched = a_labels - b_labels
-        b_unmatched = b_labels - a_labels
-        return matches, a_unmatched, b_unmatched
 
     def match_annotations(self, item_a, item_b):
         return { t: self._match_ann_type(t, item_a, item_b)
@@ -1318,6 +1296,18 @@ def find_unique_images(dataset, item_hash=None):
             h = str(id(item)) # anything unique
         unique.setdefault(h, set()).add((item.id, item.subset))
     return unique
+
+def match_classes(a: CategoriesInfo, b: CategoriesInfo):
+    a_label_cat = a.get(AnnotationType.label, LabelCategories())
+    b_label_cat = b.get(AnnotationType.label, LabelCategories())
+
+    a_labels = set(c.name for c in a_label_cat)
+    b_labels = set(c.name for c in b_label_cat)
+
+    matches = a_labels & b_labels
+    a_unmatched = a_labels - b_labels
+    b_unmatched = b_labels - a_labels
+    return matches, a_unmatched, b_unmatched
 
 @attrs
 class ExactComparator:

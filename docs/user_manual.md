@@ -24,6 +24,7 @@
   - [Run inference explanation](#explain-inference)
   - [Transform project](#transform-project)
 - [Extending](#extending)
+  - [Builtin plugins](#builtin-plugins)
 - [Links](#links)
 
 ## Installation
@@ -126,6 +127,9 @@ List of supported formats:
 - Market-1501 (`person re-identification`)
   - [Format specification](https://www.aitribune.com/dataset/2018051063)
   - [Dataset example](../tests/assets/market1501_dataset)
+- LFW (`person re-identification`, `landmarks`)
+  - [Format specification](http://vis-www.cs.umass.edu/lfw/)
+  - [Dataset example](../tests/assets/lfw_dataset)
 
 List of supported annotation types:
 - Labels
@@ -1045,6 +1049,43 @@ Check [our contribution guide](../CONTRIBUTING.md) for details on plugin impleme
 In general, a plugin is a Python code file. It must be put into a plugin directory:
 - `<project_dir>/.datumaro/plugins` for project-specific plugins
 - `<datumaro_dir>/plugins` for global plugins
+
+### Built-in plugins
+
+Datumaro provides several builtin plugins. Plugins can have dependencies,
+which need to be installed separately.
+
+#### TensorFlow
+
+The plugin provides support of TensorFlow Detection API format, which includes
+boxes and masks. It depends on TensorFlow, which can be installed with `pip`:
+
+```bash
+pip install tensorflow
+# or
+pip install tensorflow-gpu
+# or
+pip install datumaro[tf]
+# or
+pip install datumaro[tf-gpu]
+```
+
+#### Accuracy Checker
+
+This plugin allows to use [Accuracy Checker](https://github.com/openvinotoolkit/open_model_zoo/tree/master/tools/accuracy_checker)
+to launch deep learning models from various frameworks
+(Caffe, MxNet, PyTorch, OpenVINO, ...) through Accuracy Checker's API.
+The plugin depends on Accuracy Checker, which can be installed with `pip`:
+
+```bash
+pip install 'git+https://github.com/openvinotoolkit/open_model_zoo.git#subdirectory=tools/accuracy_checker'
+```
+
+#### OpenVINO™
+
+This plugin provides support for model inference with [OpenVINO™](https://01.org/openvinotoolkit).
+The plugin depends on the OpenVINO™ Tookit, which can be installed by
+following [these instructions](https://docs.openvinotoolkit.org/latest/index.html#packaging_and_deployment)
 
 ### Dataset Formats
 

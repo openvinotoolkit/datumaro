@@ -8,10 +8,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+-
+
+### Changed
+-
+
+### Deprecated
+-
+
+### Removed
+-
+
+### Fixed
+-
+
+### Security
+-
+
+## 02/26/2021 - Release v0.1.6
+### Added
 - `Icdar13/15` dataset format (<https://github.com/openvinotoolkit/datumaro/pull/96>)
 - Laziness, source caching, tracking of changes and partial updating for `Dataset` (<https://github.com/openvinotoolkit/datumaro/pull/102>)
 - `Market-1501` dataset format (<https://github.com/openvinotoolkit/datumaro/pull/108>)
-- Sampler Plugin that analyzes inference result from the given dataset and selects samples for annotation(<https://github.com/openvinotoolkit/datumaro/pull/115>)
+- `LFW` dataset format (<https://github.com/openvinotoolkit/datumaro/pull/110>)
+- Support of polygons' and masks' confusion matrices and mismathing classes in `diff` command (<https://github.com/openvinotoolkit/datumaro/pull/117>)
+- Add near duplicate image removal plugin (<https://github.com/openvinotoolkit/datumaro/pull/113>)
 
 ### Changed
 - OpenVINO model launcher is updated for OpenVINO r2021.1 (<https://github.com/openvinotoolkit/datumaro/pull/100>)
@@ -25,6 +46,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - High memory consumption and low performance of mask import/export, #53 (<https://github.com/openvinotoolkit/datumaro/pull/101>)
 - Masks, covered by class 0 (background), should be exported with holes inside (<https://github.com/openvinotoolkit/datumaro/pull/104>)
+- `diff` command invocation problem with missing class methods (<https://github.com/openvinotoolkit/datumaro/pull/117>)
 
 ### Security
 -
