@@ -162,11 +162,6 @@ class VocConverter(Converter):
             action_list = OrderedDict()
             layout_list = OrderedDict()
             segm_list = OrderedDict()
-            has_classes = False
-            has_dets = False
-            has_actions = False
-            has_layouts = False
-            has_masks = False
 
             for item in subset:
                 log.debug("Converting item '%s'", item.id)
@@ -308,9 +303,6 @@ class VocConverter(Converter):
                     clsdet_list[item.id] = True
                     layout_list[item.id] = objects_with_parts
                     action_list[item.id] = objects_with_actions
-                    has_dets = True
-                    has_layouts |= len(objects_with_parts) != 0
-                    has_actions |= len(objects_with_actions) != 0
 
                 for label_ann in labels:
                     label = self.get_label(label_ann.label)
@@ -319,7 +311,6 @@ class VocConverter(Converter):
                     class_list = class_lists.get(item.id, set())
                     class_list.add(label_ann.label)
                     class_lists[item.id] = class_list
-                    has_classes = True
 
                     clsdet_list[item.id] = True
 
@@ -337,7 +328,6 @@ class VocConverter(Converter):
                         colormap=VocInstColormap)
 
                     segm_list[item.id] = True
-                    has_masks = True
 
                 if len(item.annotations) == 0:
                     clsdet_list[item.id] = None
@@ -345,17 +335,16 @@ class VocConverter(Converter):
                     action_list[item.id] = None
                     segm_list[item.id] = None
 
-            if (has_classes or has_dets) and self._tasks & {
-                    VocTask.classification, VocTask.detection,
+            if self._tasks & {VocTask.classification, VocTask.detection,
                     VocTask.action_classification, VocTask.person_layout}:
                 self.save_clsdet_lists(subset_name, clsdet_list)
-                if has_classes and self._tasks & {VocTask.classification}:
+                if self._tasks & {VocTask.classification}:
                     self.save_class_lists(subset_name, class_lists)
-            if has_actions and self._tasks & {VocTask.action_classification}:
+            if self._tasks & {VocTask.action_classification}:
                 self.save_action_lists(subset_name, action_list)
-            if has_layouts and self._tasks & {VocTask.person_layout}:
+            if self._tasks & {VocTask.person_layout}:
                 self.save_layout_lists(subset_name, layout_list)
-            if has_masks and self._tasks & {VocTask.segmentation}:
+            if self._tasks & {VocTask.segmentation}:
                 self.save_segm_lists(subset_name, segm_list)
 
     @staticmethod
