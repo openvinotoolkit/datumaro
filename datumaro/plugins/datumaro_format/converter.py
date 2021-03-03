@@ -11,8 +11,9 @@ import os
 import os.path as osp
 
 from datumaro.components.converter import Converter
+from datumaro.components.dataset import ItemStatus
 from datumaro.components.extractor import (
-    DEFAULT_SUBSET_NAME, Annotation, _Shape,
+    DEFAULT_SUBSET_NAME, Annotation, DatasetItem, _Shape,
     Label, Mask, RleMask, Points, Polygon, PolyLine, Bbox, Caption,
     LabelCategories, MaskCategories, PointsCategories
 )
@@ -40,6 +41,9 @@ class _SubsetWriter:
     @property
     def items(self):
         return self._data['items']
+
+    def empty(self):
+        return not self.items
 
     def write_item(self, item):
         annotations = []
@@ -95,7 +99,7 @@ class _SubsetWriter:
             self.categories[ann_type.name] = converted_desc
 
     def write(self, save_dir):
-        with open(osp.join(save_dir, '%s.json' % (self._name)), 'w') as f:
+        with open(osp.join(save_dir, '%s.json' % self._name), 'w') as f:
             json.dump(self._data, f)
 
     def _convert_annotation(self, obj):
@@ -242,6 +246,26 @@ class DatumaroConverter(Converter):
     def _save_image(self, item, path=None):
         super()._save_image(item,
             osp.join(self._images_dir, self._make_image_filename(item)))
+
+    @classmethod
+    def patch(cls, dataset, patch, save_dir, **kwargs):
+        for subset in patch.updated_subsets:
+            cls.convert(dataset.get_subset(subset), save_dir=save_dir, **kwargs)
+
+        conv = cls(dataset, save_dir=save_dir, **kwargs)
+        images_dir = osp.join(save_dir, DatumaroPath.IMAGES_DIR)
+        for (item_id, subset), status in patch.updated_items.items():
+            if status != ItemStatus.removed:
+                item = patch.data.get(item_id, subset)
+            else:
+                item = DatasetItem(item_id, subset=subset)
+
+            if not (status == ItemStatus.removed or not item.has_image):
+                continue
+
+            image_path = osp.join(images_dir, conv._make_image_filename(item))
+            if osp.isfile(image_path):
+                os.unlink(image_path)
 
 class DatumaroProjectConverter(Converter):
     @classmethod

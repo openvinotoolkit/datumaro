@@ -6,8 +6,10 @@ import argparse
 import logging as log
 import os
 import os.path as osp
+import shutil
 
 from datumaro.components.project import Environment
+from datumaro.util import error_rollback
 
 from ..util import CliException, MultilineFormatter, add_subparser
 from ..util.project import load_project, \
@@ -43,6 +45,7 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+@error_rollback('on_error', implicit=True)
 def add_command(args):
     project = load_project(args.project_dir)
 
@@ -68,6 +71,7 @@ def add_command(args):
 
         model_dir = project.models.model_dir(args.name)
         os.makedirs(model_dir, exist_ok=False)
+        on_error.do(shutil.rmtree, model_dir, ignore_errors=True)
 
         try:
             cli_plugin.copy_model(model_dir, model_args)

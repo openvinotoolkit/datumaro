@@ -9,10 +9,11 @@ import os.path as osp
 import shutil
 
 from datumaro.components.operations import DistanceComparator
+from datumaro.util import error_rollback
 
-from ..util import MultilineFormatter
+from ..util import CliException, MultilineFormatter
 from ..util.project import generate_next_file_name, load_project
-from ..contexts.project.diff import DiffVisualizer
+from ..contexts.project.diff import DatasetDiffVisualizer
 
 
 def build_parser(parser_ctor=argparse.ArgumentParser):
@@ -32,8 +33,8 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     parser.add_argument('-o', '--output-dir', dest='dst_dir', default=None,
         help="Directory to save comparison results (default: do not save)")
     parser.add_argument('-v', '--visualizer',
-        default=DiffVisualizer.DEFAULT_FORMAT,
-        choices=[f.name for f in DiffVisualizer.Format],
+        default=DatasetDiffVisualizer.DEFAULT_FORMAT.name,
+        choices=[f.name for f in DatasetDiffVisualizer.Format],
         help="Output format (default: %(default)s)")
     parser.add_argument('--iou-thresh', default=0.5, type=float,
         help="IoU match threshold for detections (default: %(default)s)")
@@ -47,6 +48,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+@error_rollback('on_error', implicit=True)
 def diff_command(args):
     first_project = load_project(args.project_dir)
 
@@ -74,16 +76,13 @@ def diff_command(args):
     dst_dir = osp.abspath(dst_dir)
     log.info("Saving diff to '%s'" % dst_dir)
 
-    dst_dir_existed = osp.exists(dst_dir)
-    try:
-        visualizer = DiffVisualizer(save_dir=dst_dir, comparator=comparator,
-            output_format=args.visualizer)
-        visualizer.save_dataset_diff(
-            first_project.make_dataset(),
-            second_project.make_dataset())
-    except BaseException:
-        if not dst_dir_existed and osp.isdir(dst_dir):
-            shutil.rmtree(dst_dir, ignore_errors=True)
-        raise
+    if not osp.exists(dst_dir):
+        on_error.do(shutil.rmtree, dst_dir, ignore_errors=True)
+
+    visualizer = DatasetDiffVisualizer(save_dir=dst_dir,
+        comparator=comparator, output_format=args.visualizer)
+    visualizer.save_dataset_diff(
+        first_project.make_dataset(),
+        second_project.make_dataset())
 
     return 0

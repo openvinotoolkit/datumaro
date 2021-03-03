@@ -4,6 +4,7 @@
 
 from collections import Counter
 from enum import Enum
+from itertools import chain
 import logging as log
 import os.path as osp
 import random
@@ -129,6 +130,8 @@ class MergeInstanceSegments(Transform, CliPlugin):
         masks = [a for a in instance if a.type == AnnotationType.mask]
         if not polygons and not masks:
             return []
+        if not polygons and len(masks) == 1:
+            return masks
 
         leader = find_group_leader(polygons + masks)
         instance = []
@@ -143,9 +146,9 @@ class MergeInstanceSegments(Transform, CliPlugin):
             instance += polygons # keep unused polygons
 
         if masks:
-            masks = [m.image for m in masks]
+            masks = (m.image for m in masks)
             if mask is not None:
-                masks += [mask]
+                masks = chain(masks, [mask])
             mask = mask_tools.merge_masks(masks)
 
         if mask is None:
@@ -296,9 +299,9 @@ class MapSubsets(Transform, CliPlugin):
             mapping = dict(tuple(m) for m in mapping)
         self._mapping = mapping
 
-        if extractor._subsets:
+        if extractor.subsets():
             counts = Counter(mapping.get(s, s) or DEFAULT_SUBSET_NAME
-                for s in extractor._subsets)
+                for s in extractor.subsets())
             if all(c == 1 for c in counts.values()):
                 self._length = 'parent'
             self._subsets = set(counts)

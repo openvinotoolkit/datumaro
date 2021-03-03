@@ -1,5 +1,6 @@
 from functools import partial
 import numpy as np
+import os
 import os.path as osp
 
 from unittest import TestCase
@@ -390,11 +391,11 @@ class CocoConverterTest(TestCase):
             DatasetItem(id=1, image=np.zeros((5, 10, 3)),
                 annotations=[
                     Polygon(
-                        [3.0, 2.5, 1.0, 0.0, 3.5, 0.0, 3.0, 2.5],
+                        [1, 0, 3, 2, 3, 0, 1, 0],
                         label=3, id=4, group=4,
                         attributes={ 'is_crowd': False }),
                     Polygon(
-                        [5.0, 3.5, 4.5, 0.0, 8.0, 0.0, 5.0, 3.5],
+                        [5, 0, 5, 3, 8, 0, 5, 0],
                         label=3, id=4, group=4,
                         attributes={ 'is_crowd': False }),
                 ], attributes={'id': 1}
@@ -603,3 +604,31 @@ class CocoConverterTest(TestCase):
             self._test_save_and_load(source_dataset,
                 partial(CocoConverter.convert, reindex=True),
                 test_dir, target_dataset=target_dataset)
+
+    def test_inplace_save_writes_only_updated_data(self):
+        with TestDir() as path:
+            # generate initial dataset
+            dataset = Dataset.from_iterable([
+                DatasetItem(1, subset='a'),
+                DatasetItem(2, subset='b'),
+                DatasetItem(3, subset='c', image=np.ones((2, 2, 3))),
+            ])
+            dataset.export(path, 'coco', save_images=True)
+            os.unlink(osp.join(path, 'annotations', 'image_info_a.json'))
+            os.unlink(osp.join(path, 'annotations', 'image_info_b.json'))
+            os.unlink(osp.join(path, 'annotations', 'image_info_c.json'))
+            self.assertFalse(osp.isfile(osp.join(path, 'images', '2.jpg')))
+            self.assertTrue(osp.isfile(osp.join(path, 'images', '3.jpg')))
+
+            dataset.put(DatasetItem(2, subset='a', image=np.ones((3, 2, 3))))
+            dataset.remove(3, 'c')
+            dataset.save(save_images=True)
+
+            self.assertTrue(osp.isfile(osp.join(
+                path, 'annotations', 'image_info_a.json')))
+            self.assertFalse(osp.isfile(osp.join(
+                path, 'annotations', 'image_info_b.json')))
+            self.assertFalse(osp.isfile(osp.join(
+                path, 'annotations', 'image_info_c.json')))
+            self.assertTrue(osp.isfile(osp.join(path, 'images', '2.jpg')))
+            self.assertFalse(osp.isfile(osp.join(path, 'images', '3.jpg')))

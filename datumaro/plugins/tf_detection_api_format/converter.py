@@ -105,7 +105,7 @@ class TfDetectionApiConverter(Converter):
 
         mask = None
         if self._save_masks:
-            mask = merge_masks([m.image for m in masks])
+            mask = merge_masks(m.image for m in masks)
 
         return [leader, mask, bbox]
 
@@ -210,3 +210,8 @@ class TfDetectionApiConverter(Converter):
         else:
             buffer = encode_image(item.image.data, dst_ext)
         return buffer, fmt
+
+    @classmethod
+    def patch(cls, dataset, patch, save_dir, **kwargs):
+        for subset in patch.updated_subsets:
+            cls.convert(dataset.get_subset(subset), save_dir=save_dir, **kwargs)

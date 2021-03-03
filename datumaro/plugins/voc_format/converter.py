@@ -13,8 +13,9 @@ from itertools import chain
 from lxml import etree as ET
 
 from datumaro.components.converter import Converter
+from datumaro.components.dataset import ItemStatus
 from datumaro.components.extractor import (AnnotationType,
-    CompiledMask, LabelCategories)
+    CompiledMask, DatasetItem, LabelCategories)
 from datumaro.util import find, str_to_bool
 from datumaro.util.image import save_image
 from datumaro.util.mask_tools import paint_mask, remap_mask
@@ -51,6 +52,7 @@ LabelmapType = Enum('LabelmapType', ['voc', 'source'])
 
 class VocConverter(Converter):
     DEFAULT_IMAGE_EXT = VocPath.IMAGE_EXT
+    BUILTIN_ATTRS = {'difficult', 'pose', 'truncated', 'occluded' }
 
     @staticmethod
     def _split_tasks_string(s):
@@ -106,6 +108,8 @@ class VocConverter(Converter):
             label_map = LabelmapType.source.name
         assert isinstance(label_map, (str, dict)), label_map
         self._load_categories(label_map)
+
+        self._patch = None
 
     def apply(self):
         self.make_dirs()
@@ -181,9 +185,8 @@ class VocConverter(Converter):
                     elif a.type == AnnotationType.mask:
                         masks.append(a)
 
-                if self._tasks is None and bboxes or \
-                        self._tasks & {VocTask.detection, VocTask.person_layout,
-                            VocTask.action_classification}:
+                if self._tasks & {VocTask.detection, VocTask.person_layout,
+                        VocTask.action_classification}:
                     root_elem = ET.Element('annotation')
                     if '_' in item.id:
                         folder = item.id[ : item.id.find('_')]
@@ -276,8 +279,7 @@ class VocConverter(Converter):
                             obj_elem.append(actions_elem)
 
                         if self._allow_attributes:
-                            native_attrs = {'difficult', 'pose',
-                                'truncated', 'occluded' }
+                            native_attrs = set(self.BUILTIN_ATTRS)
                             native_attrs.update(label_actions)
 
                             attrs_elem = ET.Element('attributes')
@@ -345,87 +347,130 @@ class VocConverter(Converter):
             if self._tasks & {VocTask.segmentation}:
                 self.save_segm_lists(subset_name, segm_list)
 
-    def save_action_lists(self, subset_name, action_list):
-        if not action_list:
-            return
+    @staticmethod
+    def _get_filtered_lines(path, patch, subset, items=None):
+        lines = {}
+        with open(path) as f:
+            for line in f:
+                item, text, _ = line.split(maxsplit=1) + ['', '']
+                if not patch or patch.updated_items.get((item, subset)) != \
+                        ItemStatus.removed:
+                    lines.setdefault(item, []).append(text)
+        if items is not None:
+            items.update((k, True) for k in lines)
+        return lines
 
+    def save_action_lists(self, subset_name, action_list):
         os.makedirs(self._action_subsets_dir, exist_ok=True)
 
         ann_file = osp.join(self._action_subsets_dir, subset_name + '.txt')
+        items = {k: True for k in action_list}
+        if self._patch and osp.isfile(ann_file):
+            self._get_filtered_lines(ann_file, self._patch, subset_name, items)
         with open(ann_file, 'w') as f:
-            for item in action_list:
+            for item in items:
                 f.write('%s\n' % item)
 
-        if len(action_list) == 0:
+        if not items and not self._patch:
             return
 
-        all_actions = set(chain(*(self._get_actions(l)
-            for l in self._label_map)))
-        for action in all_actions:
-            ann_file = osp.join(self._action_subsets_dir,
-                '%s_%s.txt' % (action, subset_name))
+        def _write_item(f, item, objs, action):
+            if not objs:
+                return
+            for obj_id, obj_actions in objs.items():
+                presented = obj_actions[action]
+                f.write('%s %s % d\n' % \
+                    (item, 1 + obj_id, 1 if presented else -1))
+
+        all_actions = {
+            act: osp.join(self._action_subsets_dir,
+                '%s_%s.txt' % (act, subset_name))
+            for act in chain(*(self._get_actions(l) for l in self._label_map))
+        }
+        for action, ann_file in all_actions.items():
+            lines = {}
+            if self._patch and osp.isfile(ann_file):
+                lines = self._get_filtered_lines(ann_file, None, subset_name)
+
             with open(ann_file, 'w') as f:
-                for item, objs in action_list.items():
-                    if not objs:
-                        continue
-                    for obj_id, obj_actions in objs.items():
-                        presented = obj_actions[action]
-                        f.write('%s %s % d\n' % \
-                            (item, 1 + obj_id, 1 if presented else -1))
+                for item in items:
+                    if item in action_list:
+                        _write_item(f, item, action_list[item], action)
+                    elif item in lines:
+                        f.writelines(lines[item])
 
     def save_class_lists(self, subset_name, class_lists):
-        if not class_lists:
-            return
+        def _write_item(f, item, item_labels):
+            if not item_labels:
+                return
+            item_labels = [self.get_label(l) for l in item_labels]
+            presented = label in item_labels
+            f.write('%s % d\n' % (item, 1 if presented else -1))
 
         os.makedirs(self._cls_subsets_dir, exist_ok=True)
 
         for label in self._label_map:
             ann_file = osp.join(self._cls_subsets_dir,
                 '%s_%s.txt' % (label, subset_name))
+            items = {k: True for k in class_lists}
+            lines = {}
+            if self._patch and osp.isfile(ann_file):
+                lines = self._get_filtered_lines(ann_file, self._patch,
+                    subset_name, items)
+
             with open(ann_file, 'w') as f:
-                for item, item_labels in class_lists.items():
-                    if not item_labels:
-                        continue
-                    item_labels = [self.get_label(l) for l in item_labels]
-                    presented = label in item_labels
-                    f.write('%s % d\n' % (item, 1 if presented else -1))
+                for item in items:
+                    if item in class_lists:
+                        _write_item(f, item, class_lists[item])
+                    elif item in lines:
+                        f.writelines(lines[item])
 
     def save_clsdet_lists(self, subset_name, clsdet_list):
-        if not clsdet_list:
-            return
-
         os.makedirs(self._cls_subsets_dir, exist_ok=True)
 
         ann_file = osp.join(self._cls_subsets_dir, subset_name + '.txt')
+        items = {k: True for k in clsdet_list}
+        if self._patch and osp.isfile(ann_file):
+            self._get_filtered_lines(ann_file, self._patch, subset_name, items)
+
         with open(ann_file, 'w') as f:
-            for item in clsdet_list:
+            for item in items:
                 f.write('%s\n' % item)
 
     def save_segm_lists(self, subset_name, segm_list):
-        if not segm_list:
-            return
-
         os.makedirs(self._segm_subsets_dir, exist_ok=True)
 
         ann_file = osp.join(self._segm_subsets_dir, subset_name + '.txt')
+        items = {k: True for k in segm_list}
+        if self._patch and osp.isfile(ann_file):
+            self._get_filtered_lines(ann_file, self._patch, subset_name, items)
+
         with open(ann_file, 'w') as f:
-            for item in segm_list:
+            for item in items:
                 f.write('%s\n' % item)
 
     def save_layout_lists(self, subset_name, layout_list):
-        if not layout_list:
-            return
+        def _write_item(f, item, item_layouts):
+            if item_layouts:
+                for obj_id in item_layouts:
+                    f.write('%s % d\n' % (item, 1 + obj_id))
+            else:
+                f.write('%s\n' % item)
 
         os.makedirs(self._layout_subsets_dir, exist_ok=True)
 
         ann_file = osp.join(self._layout_subsets_dir, subset_name + '.txt')
+        items = {k: True for k in layout_list}
+        lines = {}
+        if self._patch and osp.isfile(ann_file):
+            self._get_filtered_lines(ann_file, self._patch, subset_name, items)
+
         with open(ann_file, 'w') as f:
-            for item, item_layouts in layout_list.items():
-                if item_layouts:
-                    for obj_id in item_layouts:
-                        f.write('%s % d\n' % (item, 1 + obj_id))
-                else:
-                    f.write('%s\n' % (item))
+            for item in items:
+                if item in layout_list:
+                    _write_item(f, item, layout_list[item])
+                elif item in lines:
+                    f.writelines(lines[item])
 
     def save_segm(self, path, mask, colormap=None):
         if self._apply_colormap:
@@ -553,6 +598,39 @@ class VocConverter(Converter):
 
     def _remap_mask(self, mask):
         return remap_mask(mask, self._label_id_mapping)
+
+    @classmethod
+    def patch(cls, dataset, patch, save_dir, **kwargs):
+        conv = cls(patch.as_dataset(dataset), save_dir=save_dir, **kwargs)
+        conv._patch = patch
+        conv.apply()
+
+        conv = cls(dataset, save_dir=save_dir, **kwargs)
+        images_dir = osp.join(save_dir, VocPath.IMAGES_DIR)
+        for (item_id, subset), status in patch.updated_items.items():
+            if status != ItemStatus.removed:
+                item = patch.data.get(item_id, subset)
+            else:
+                item = DatasetItem(item_id, subset=subset)
+
+            if not (status == ItemStatus.removed or not item.has_image):
+                continue
+
+            image_path = osp.join(images_dir, conv._make_image_filename(item))
+            if osp.isfile(image_path):
+                os.unlink(image_path)
+
+            if not [a for a in item.annotations
+                    if a.type is AnnotationType.mask]:
+                path = osp.join(save_dir, VocPath.SEGMENTATION_DIR,
+                    item.id + VocPath.SEGM_EXT)
+                if osp.isfile(path):
+                    os.unlink(path)
+
+                path = osp.join(save_dir, VocPath.INSTANCES_DIR,
+                    item.id + VocPath.SEGM_EXT)
+                if osp.isfile(path):
+                    os.unlink(path)
 
 class VocClassificationConverter(VocConverter):
     def __init__(self, *args, **kwargs):

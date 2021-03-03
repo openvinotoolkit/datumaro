@@ -31,6 +31,7 @@ matrix:
 install:
   - pip install -e ./
   - pip install tensorflow
+  - pip install pandas
 
 script:
   - python -m unittest discover -v

@@ -10,11 +10,10 @@ import os.path as osp
 import shutil
 from enum import Enum
 
-from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.dataset_filter import DatasetItemEncoder
 from datumaro.components.extractor import AnnotationType
-from datumaro.components.operations import (DistanceComparator,
-    ExactComparator, compute_ann_statistics, compute_image_statistics, mean_std)
+from datumaro.components.operations import (compute_ann_statistics,
+    compute_image_statistics)
 from datumaro.components.project import \
     PROJECT_DEFAULT_CONFIG as DEFAULT_CONFIG
 from datumaro.components.project import (Environment, Project, BuildStageType,
@@ -23,9 +22,7 @@ from datumaro.util import str_to_bool, error_rollback
 
 from ...util import (CliException, MultilineFormatter, add_subparser,
     make_file_name)
-from ...util.project import (generate_next_file_name, load_project,
-    generate_next_name)
-from .diff import DiffVisualizer
+from ...util.project import generate_next_file_name, load_project
 
 
 def build_import_parser(parser_ctor=argparse.ArgumentParser):
@@ -443,7 +440,7 @@ def filter_command(args):
         log.info("Filtering...")
 
         dataset = project.make_dataset(args.target)
-        dataset.save(save_dir)
+        dataset.save(dst_dir)
 
         log.info("Results have been saved to '%s'" % dst_dir)
 

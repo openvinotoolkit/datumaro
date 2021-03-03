@@ -135,6 +135,9 @@ CVAT annotations                             ---> Publication, statistics etc.
   - [CamVid](http://mi.eng.cam.ac.uk/research/projects/VideoRec/CamVid/)
   - [CVAT](https://github.com/opencv/cvat/blob/develop/cvat/apps/documentation/xml_format.md)
   - [LabelMe](http://labelme.csail.mit.edu/Release3.0)
+  - [ICDAR13/15](https://rrc.cvc.uab.es/?ch=2) (`word_recognition`, `text_localization`, `text_segmentation`)
+  - [Market-1501](https://www.aitribune.com/dataset/2018051063) (`person re-identification`)
+  - [LFW](http://vis-www.cs.umass.edu/lfw/) (`person re-identification`, `landmarks`)
 - Dataset building
   - Merging multiple datasets into one
   - Dataset filtering by a custom criteria:
@@ -155,6 +158,11 @@ CVAT annotations                             ---> Publication, statistics etc.
       - for detection task, based on bboxes
       - for re-identification task, based on labels,
         avoiding having same IDs in training and test splits
+  - Sampling a dataset
+    - analyzes inference result from the given dataset 
+      and selects the ‘best’ and the ‘least amount of’ samples for annotation.
+    - Select the sample that best suits model training.
+      - sampling with Entropy based algorithm
 - Dataset quality checking
   - Simple checking for errors
   - Comparison with model infernece
@@ -217,8 +225,7 @@ reading, exporting and iteration capabilities, simplifying integration of custom
 formats and providing high performance operations:
 
 ``` python
-from datumaro.components.project import Project # project-related things
-import datumaro.components.extractor # annotations and high-level interfaces
+from datumaro.components.project import Project
 
 # load a Datumaro project
 project = Project.load('directory')
@@ -227,10 +234,10 @@ project = Project.load('directory')
 dataset = project.make_dataset()
 
 # keep only annotated images
-dataset = dataset.select(lambda item: len(item.annotations) != 0)
+dataset.select(lambda item: len(item.annotations) != 0)
 
 # change dataset labels
-dataset = dataset.transform(project.env.transforms.get('remap_labels'),
+dataset.transform('remap_labels',
   {'cat': 'dog', # rename cat to dog
     'truck': 'car', # rename truck to car
     'person': '', # remove this label

@@ -1,4 +1,7 @@
 from functools import partial
+import os
+import os.path as osp
+
 import numpy as np
 
 from unittest import TestCase
@@ -98,3 +101,28 @@ class DatumaroConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(test_dataset,
                 partial(DatumaroConverter.convert, save_images=True), test_dir)
+
+    def test_inplace_save_writes_only_updated_data(self):
+        with TestDir() as path:
+            # generate initial dataset
+            dataset = Dataset.from_iterable([
+                DatasetItem(1, subset='a'),
+                DatasetItem(2, subset='b'),
+                DatasetItem(3, subset='c', image=np.ones((2, 2, 3))),
+            ])
+            dataset.export(path, 'datumaro', save_images=True)
+            os.unlink(osp.join(path, 'annotations', 'a.json'))
+            os.unlink(osp.join(path, 'annotations', 'b.json'))
+            os.unlink(osp.join(path, 'annotations', 'c.json'))
+            self.assertFalse(osp.isfile(osp.join(path, 'images', '2.jpg')))
+            self.assertTrue(osp.isfile(osp.join(path, 'images', '3.jpg')))
+
+            dataset.put(DatasetItem(2, subset='a', image=np.ones((3, 2, 3))))
+            dataset.remove(3, 'c')
+            dataset.save(save_images=True)
+
+            self.assertTrue(osp.isfile(osp.join(path, 'annotations', 'a.json')))
+            self.assertFalse(osp.isfile(osp.join(path, 'annotations', 'b.json')))
+            self.assertTrue(osp.isfile(osp.join(path, 'annotations', 'c.json')))
+            self.assertTrue(osp.isfile(osp.join(path, 'images', '2.jpg')))
+            self.assertFalse(osp.isfile(osp.join(path, 'images', '3.jpg')))

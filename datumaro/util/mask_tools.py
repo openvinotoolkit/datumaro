@@ -66,16 +66,19 @@ def unpaint_mask(painted_mask, inverse_colormap=None):
                    (painted_mask[:, :, 1] << 8) + \
                    (painted_mask[:, :, 2] << 16)
     uvals, unpainted_mask = np.unique(painted_mask, return_inverse=True)
-    palette = np.array([map_fn(v) for v in uvals], dtype=np.float32)
+    palette = np.array([map_fn(v) for v in uvals],
+        dtype=np.min_scalar_type(len(uvals)))
     unpainted_mask = palette[unpainted_mask].reshape(painted_mask.shape[:2])
 
     return unpainted_mask
 
 def paint_mask(mask, colormap=None):
-    # Applies colormap to index mask
+    """
+    Applies colormap to index mask
 
-    # mask: HW(C) [0; max_index] mask
-    # colormap: index -> (R, G, B)
+    mask: HW(C) [0; max_index] mask
+    colormap: index -> (R, G, B)
+    """
     check_is_mask(mask)
 
     if colormap is None:
@@ -84,25 +87,30 @@ def paint_mask(mask, colormap=None):
         map_fn = colormap
     else:
         map_fn = lambda c: colormap.get(c, (-1, -1, -1))
-    palette = np.array([map_fn(c)[::-1] for c in range(256)], dtype=np.float32)
+    palette = np.array([map_fn(c)[::-1] for c in range(256)], dtype=np.uint8)
 
     mask = mask.astype(np.uint8)
     painted_mask = palette[mask].reshape((*mask.shape[:2], 3))
     return painted_mask
 
 def remap_mask(mask, map_fn):
-    # Changes mask elements from one colormap to another
+    """
+    Changes mask elements from one colormap to another
 
     # mask: HW(C) [0; max_index] mask
+    """
     check_is_mask(mask)
 
     return np.array([map_fn(c) for c in range(256)], dtype=np.uint8)[mask]
 
-def make_index_mask(binary_mask, index):
-    return np.choose(binary_mask, np.array([0, index], dtype=np.uint8))
+def make_index_mask(binary_mask, index, dtype=None):
+    return binary_mask * np.array([index],
+        dtype=dtype or np.min_scalar_type(index))
 
 def make_binary_mask(mask):
-    return np.nonzero(mask)
+    if mask.dtype.kind == 'b':
+        return mask
+    return mask.astype(bool)
 
 
 def load_mask(path, inverse_colormap=None):
@@ -135,7 +143,7 @@ def mask_to_rle(binary_mask):
         'size': list(binary_mask.shape)
     }
 
-def mask_to_polygons(mask, tolerance=1.0, area_threshold=1):
+def mask_to_polygons(mask, area_threshold=1):
     """
     Convert an instance mask to polygons
 
@@ -149,25 +157,22 @@ def mask_to_polygons(mask, tolerance=1.0, area_threshold=1):
         A list of polygons like [[x1,y1, x2,y2 ...], [...]]
     """
     from pycocotools import mask as mask_utils
-    from skimage import measure
+    import cv2
 
     polygons = []
 
-    # pad mask with 0 around borders
-    padded_mask = np.pad(mask, pad_width=1, mode='constant', constant_values=0)
-    contours = measure.find_contours(padded_mask, 0.5)
-    # Fix coordinates after padding
-    contours = np.subtract(contours, 1)
+    contours, _ = cv2.findContours(mask.astype(np.uint8),
+        mode=cv2.RETR_TREE, method=cv2.CHAIN_APPROX_TC89_KCOS)
 
     for contour in contours:
-        if not np.array_equal(contour[0], contour[-1]):
-            contour = np.vstack((contour, contour[0])) # make polygon closed
-
-        contour = measure.approximate_polygon(contour, tolerance)
         if len(contour) <= 2:
             continue
 
-        contour = np.flip(contour, axis=1).flatten().clip(0) # [x0, y0, ...]
+        contour = contour.reshape((-1, 2))
+
+        if not np.array_equal(contour[0], contour[-1]):
+            contour = np.vstack((contour, contour[0])) # make polygon closed
+        contour = contour.flatten().clip(0) # [x0, y0, ...]
 
         # Check if the polygon is big enough
         rle = mask_utils.frPyObjects([contour], mask.shape[0], mask.shape[1])
@@ -277,12 +282,25 @@ def find_mask_bbox(mask):
 def merge_masks(masks):
     """
         Merges masks into one, mask order is responsible for z order.
+        To avoid memory explosion on mask materialization, consider passing
+        a generator.
+
+        Inputs: a sequence of index masks or (binary mask, index) pairs
+        Outputs: an index mask
     """
-    if not masks:
+    it = iter(masks)
+
+    try:
+        merged_mask = next(it)
+        if isinstance(merged_mask, tuple) and len(merged_mask) == 2:
+            merged_mask = merged_mask[0] * merged_mask[1]
+    except StopIteration:
         return None
 
-    merged_mask = masks[0]
-    for m in masks[1:]:
-        merged_mask = np.where(m != 0, m, merged_mask)
+    for m in it:
+        if isinstance(m, tuple) and len(m) == 2:
+            merged_mask = np.where(m[0], m[1], merged_mask)
+        else:
+            merged_mask = np.where(m, m, merged_mask)
 
     return merged_mask

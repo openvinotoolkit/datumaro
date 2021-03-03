@@ -22,6 +22,7 @@ from datumaro.components.config import Config
 from datumaro.components.config_model import (PROJECT_DEFAULT_CONFIG,
     PROJECT_SCHEMA, BuildStage, Remote)
 from datumaro.components.environment import Environment
+from datumaro.components.errors import DatumaroError
 from datumaro.components.dataset import Dataset, DEFAULT_FORMAT
 from datumaro.components.launcher import ModelTransform
 from datumaro.util import (make_file_name, find, generate_next_name,
@@ -1573,14 +1574,16 @@ class Project:
         if not dataset_format:
             matches = env.detect_dataset(path)
             if not matches:
-                raise Exception("Failed to detect dataset format automatically")
+                raise DatumaroError(
+                    "Failed to detect dataset format automatically")
             if 1 < len(matches):
-                raise Exception("Failed to detect dataset format automatically:"
+                raise DatumaroError(
+                    "Failed to detect dataset format automatically:"
                     " data matches more than one format: %s" % \
                     ', '.join(matches))
             dataset_format = matches[0]
         elif not env.is_format_known(dataset_format):
-            raise Exception("Unknown format '%s'. To make it "
+            raise DatumaroError("Unknown format '%s'. To make it "
                 "available, add the corresponding Extractor implementation "
                 "to the environment" % dataset_format)
 

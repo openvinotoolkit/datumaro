@@ -11,6 +11,7 @@ import unicodedata
 from contextlib import ExitStack
 from functools import partial, wraps
 from itertools import islice
+from distutils.util import strtobool as str_to_bool # pylint: disable=unused-import
 
 
 def find(iterable, pred=lambda x: True, default=None):
@@ -84,15 +85,6 @@ def take_by(iterable, count):
             break
 
         yield batch
-
-def str_to_bool(s):
-    t = s.lower()
-    if t in {'true', '1', 'ok', 'yes', 'y'}:
-        return True
-    elif t in {'false', '0', 'no', 'n'}:
-        return False
-    else:
-        raise ValueError("Can't convert value '%s' to bool" % s)
 
 def filter_dict(d, exclude_keys):
     return { k: v for k, v in d.items() if k not in exclude_keys }
