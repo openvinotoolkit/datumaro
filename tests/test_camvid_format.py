@@ -145,6 +145,22 @@ class CamvidConverterTest(TestCase):
             self._test_save_and_load(TestExtractor(),
                 partial(CamvidConverter.convert, label_map='camvid'), test_dir)
 
+    def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
+        class TestExtractor(TestExtractorBase):
+            def __iter__(self):
+                return iter([
+                    DatasetItem(id='кириллица в имени файла',
+                        image=np.ones((1, 5, 3)), annotations=[
+                            Mask(image=np.array([[1, 0, 0, 1, 0]]), label=0),
+                            Mask(image=np.array([[0, 1, 1, 0, 1]]), label=3),
+                        ]
+                    ),
+                ])
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(TestExtractor(),
+                partial(CamvidConverter.convert, label_map='camvid'), test_dir)
+
     def test_can_save_with_no_masks(self):
         class TestExtractor(TestExtractorBase):
             def __iter__(self):

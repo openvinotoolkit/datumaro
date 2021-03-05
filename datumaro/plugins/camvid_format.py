@@ -7,7 +7,6 @@ import os
 import os.path as osp
 from collections import OrderedDict
 from enum import Enum
-from glob import glob
 
 import numpy as np
 from datumaro.components.converter import Converter
@@ -157,6 +156,15 @@ class CamvidExtractor(SourceExtractor):
         with open(path, encoding='utf-8') as f:
             for line in f:
                 objects = line.split()
+                if 2 < len(objects):
+                    if len(objects) % 2:
+                        raise Exception("Line %s: image and gt file must have  "
+                            "the same name" % line)
+                    else:
+                        mid = int(len(objects) / 2)
+                        objects[0] = ' '.join(objects[i] for i in range(mid))
+                        objects[1] = ' '.join(objects[i] for i in range(mid, 2 * mid))
+                        objects = objects[:2]
                 image = objects[0]
                 item_id = ('/'.join(image.split('/')[2:]))[:-len(CamvidPath.IMAGE_EXT)]
                 image_path = osp.join(self._dataset_dir,
@@ -262,7 +270,7 @@ class CamvidConverter(Converter):
             return
 
         ann_file = osp.join(self._save_dir, subset_name + '.txt')
-        with open(ann_file, 'w') as f:
+        with open(ann_file, 'w' , encoding='utf-8') as f:
             for item in segm_list:
                 if segm_list[item]:
                     path_mask = '/%s/%s' % (subset_name + CamvidPath.SEGM_DIR,
