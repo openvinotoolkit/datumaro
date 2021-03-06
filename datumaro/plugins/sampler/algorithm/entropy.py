@@ -2,10 +2,11 @@
 #
 # SPDX-License-Identifier: MIT
 
-import pandas as pd
+import logging as log
 import math
 import re
-import logging as log
+
+import pandas as pd
 
 from .algorithm import InferenceResultAnalyzer
 
@@ -21,7 +22,8 @@ class SampleEntropy(InferenceResultAnalyzer):
         """
         Constructor function
         Args:
-            data: Receive the data format in pd.DataFrame format. ImageID is an essential element for data.
+            data: Receive the data format in pd.DataFrame format.
+                    ImageID is an essential element for data.
             inference:
                     Receive the inference format in the form of pd.DataFrame.
                     ImageID and ClassProbability are essential for inferences.
@@ -29,49 +31,46 @@ class SampleEntropy(InferenceResultAnalyzer):
         super().__init__(data, inference)
 
         # check the existence of "ImageID" in data & inference
-        if "ImageID" not in data:
+        if 'ImageID' not in data:
             raise Exception("Invalid Data, ImageID not found in data")
-        if "ImageID" not in inference:
+        if 'ImageID' not in inference:
             raise Exception("Invalid Data, ImageID not found in inference")
 
         # check the existence of "ClassProbability" in inference
         self.num_classes = 0
         for head in list(inference):
-            m = re.match("ClassProbability\d+", head)
-            if m is not None:
+            if re.match(r"ClassProbability\d+", head):
                 self.num_classes += 1
 
-        if not self.num_classes > 0:
+        if self.num_classes == 0:
             raise Exception(
-                "Invalid data, Inference do not have ClassProbability values!"
-            )
+                "Invalid data, Inference do not have ClassProbability values")
 
         # rank: The inference DataFrame, sorted according to the score.
-        self.rank = self._rank_images().sort_values(by="rank")
+        self.rank = self._rank_images().sort_values(by='rank')
 
     def get_sample(self, method: str, k: int, n: int = 3) -> pd.DataFrame:
         """
         A function that extracts sample data and returns it.
         Args:
             method:
-                - 'topk': It extracts the k sample data with the highest uncertainty.
-                - 'lowk':  It extracts the k sample data with the lowest uncertainty.
+                - 'topk': It extracts the k sample data with the
+                    highest uncertainty.
+                - 'lowk':  It extracts the k sample data with the
+                    lowest uncertainty.
                 - 'randomk': Extract and return random k sample data.
             k: number of sample data
-            n: Parameters to be used in the randtopk method, Variable to first extract data of multiple n of k.
+            n: Parameters to be used in the randtopk method, Variable to first
+                extract data of multiple n of k.
         Returns:
             Extracted sample data : pd.DataFrame
         """
         temp_rank = self.rank
 
         # 1. k value check
-        if not isinstance(k, int):
-            raise Exception(
+        if not isinstance(k, int) or k <= 0:
+            raise ValueError(
                 f"Invalid value {k}. k must have an integer greater than zero."
-            )
-        elif k <= 0:
-            raise Exception(
-                f"Invalid number {k}. k must have a positive number greater than zero."
             )
 
         # 2. Select a sample according to the method
@@ -82,20 +81,19 @@ class SampleEntropy(InferenceResultAnalyzer):
                 temp_rank = temp_rank[-k:]
             elif method == self.sampling_method.randk.name:
                 return self.data.sample(n=k).reset_index(drop=True)
-            elif method in [
-                self.sampling_method.mixk.name,
-                self.sampling_method.randtopk.name,
-            ]:
+            elif method in {self.sampling_method.mixk.name,
+                    self.sampling_method.randtopk.name}:
                 return self._get_sample_mixed(method=method, k=k, n=n)
             else:
-                raise Exception(f"Not Found method '{method}'")
+                raise ValueError(f"Unknown sampling method '{method}'")
         else:
             log.warning(
-                "The number of samples is greater than the size of the selected subset."
+                "The number of samples is greater than the size of the"
+                "selected subset."
             )
 
         columns = list(self.data.columns)
-        merged_df = pd.merge(temp_rank, self.data, how="inner", on=["ImageID"])
+        merged_df = pd.merge(temp_rank, self.data, how='inner', on=['ImageID'])
         return merged_df[columns].reset_index(drop=True)
 
     def _get_sample_mixed(self, method: str, k: int, n: int = 3) -> pd.DataFrame:
@@ -104,9 +102,11 @@ class SampleEntropy(InferenceResultAnalyzer):
         Args:
             method:
                 - 'mixk': Return top-k and low-k halves based on uncertainty.
-                - 'randomtopk': Randomly extract n*k and return k with high uncertainty.
+                - 'randomtopk': Randomly extract n*k and return k
+                    with high uncertainty.
             k: number of sample data
-            n: Number to extract n*k from total data according to n, and top-k from it
+            n: Number to extract n * k from total data according to n,
+                and top-k from it
         Returns:
             Extracted sample data : pd.DataFrame
         """
@@ -123,13 +123,13 @@ class SampleEntropy(InferenceResultAnalyzer):
                     )
             elif method == self.sampling_method.randtopk.name:
                 if n * k <= len(temp_rank):
-                    temp_rank = temp_rank.sample(n=n * k).sort_values(by="rank")
+                    temp_rank = temp_rank.sample(n=n * k).sort_values(by='rank')
                 else:
                     log.warning(msg="n * k exceeds the length of the inference")
                 temp_rank = temp_rank[:k]
 
         columns = list(self.data.columns)
-        merged_df = pd.merge(temp_rank, self.data, how="inner", on=["ImageID"])
+        merged_df = pd.merge(temp_rank, self.data, how='inner', on=['ImageID'])
         return merged_df[columns].reset_index(drop=True)
 
     def _rank_images(self) -> pd.DataFrame:
@@ -143,29 +143,29 @@ class SampleEntropy(InferenceResultAnalyzer):
         if self.inference is not None:
             inference = pd.DataFrame(self.inference)
         else:
-            raise Exception("Invalid Data, Failed to load inference result!")
+            raise Exception("Invalid Data, Failed to load inference result")
 
         # 2. If the reference data frame does not contain an uncertify score, calculate it
-        if "Uncertainty" not in inference:
-            inference = self._calculate_uncertainty_from_classprob(inference=inference)
+        if 'Uncertainty' not in inference:
+            inference = self._calculate_uncertainty_from_classprob(inference)
 
         # 3. Check that Uncertainty values are in place.
         na_df = inference.isna().sum()
-        if "Uncertainty" in na_df and na_df["Uncertainty"] > 0:
-            raise Exception("Some inference results do not have Uncertainty values!")
+        if 'Uncertainty' in na_df and na_df['Uncertainty'] > 0:
+            raise Exception("Some inference results do not have Uncertainty values")
 
         # 4. Ranked based on Uncertainty score
-        res = inference[["ImageID", "Uncertainty"]].groupby("ImageID").mean()
-        res["rank"] = res["Uncertainty"].rank(ascending=False, method="first")
+        res = inference[['ImageID', 'Uncertainty']].groupby('ImageID').mean()
+        res['rank'] = res['Uncertainty'].rank(ascending=False, method='first')
         res = res.reset_index()
 
         return res
 
     def _calculate_uncertainty_from_classprob(
-        self, inference: pd.DataFrame
-    ) -> pd.DataFrame:
+            self, inference: pd.DataFrame) -> pd.DataFrame:
         """
-        A function that calculates uncertainty based on entropy through ClassProbability values.
+        A function that calculates uncertainty based on entropy through
+        ClassProbability values.
         Args:
             inference: Inference data where uncertainty has not been calculated
         Returns:
@@ -177,7 +177,7 @@ class SampleEntropy(InferenceResultAnalyzer):
         for i in range(len(inference)):
             entropy = 0
             for j in range(self.num_classes):
-                p = inference.loc[i][f"ClassProbability{j+1}"]
+                p = inference.loc[i][f'ClassProbability{j+1}']
                 if p < 0 or p > 1:
                     raise Exception(
                         "Invalid data, Math domain Error! p is between 0 and 1"
@@ -186,6 +186,6 @@ class SampleEntropy(InferenceResultAnalyzer):
 
             uncertainty.append(entropy)
 
-        inference["Uncertainty"] = uncertainty
+        inference['Uncertainty'] = uncertainty
 
         return inference
