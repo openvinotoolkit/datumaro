@@ -40,7 +40,7 @@ class ImagenetExtractor(SourceExtractor):
         items = {}
         for image_path in glob(osp.join(path, '*', '*')):
             if not osp.isfile(image_path) or \
-                    osp.splitext(image_path)[-1] not in \
+                    osp.splitext(image_path)[-1].lower() not in \
                         ImagenetPath.IMAGE_EXT_FORMATS:
                 continue
             label = osp.basename(osp.dirname(image_path))
