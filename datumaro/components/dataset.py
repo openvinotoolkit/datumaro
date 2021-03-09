@@ -452,8 +452,9 @@ class Dataset(IDataset):
 
         self._format = DEFAULT_FORMAT
         self._source_path = None
+        self._options = {}
 
-    def define_categories(self, categories: Dict):
+    def define_categories(self, categories: CategoriesInfo):
         assert not self._data._categories and self._data._source is None
         self._data._categories = categories
 

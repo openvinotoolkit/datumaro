@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+from datumaro.components.extractor import CategoriesInfo, DatasetItem, Transform
 import json
 import logging as log
 import networkx as nx
@@ -15,23 +16,23 @@ from contextlib import ExitStack
 from enum import Enum
 from functools import partial
 from glob import glob
-from typing import List
+from typing import Iterable, List, Optional, Tuple, Union
 from ruamel.yaml import YAML
 
 from datumaro.components.config import Config
 from datumaro.components.config_model import (PROJECT_DEFAULT_CONFIG,
-    PROJECT_SCHEMA, BuildStage, Remote)
+    PROJECT_SCHEMA, BuildStage, Remote, Source)
 from datumaro.components.environment import Environment
 from datumaro.components.errors import DatumaroError
-from datumaro.components.dataset import Dataset, DEFAULT_FORMAT
+from datumaro.components.dataset import Dataset, DEFAULT_FORMAT, DatasetPatch, IDataset
 from datumaro.components.launcher import ModelTransform
 from datumaro.util import (make_file_name, find, generate_next_name,
     error_rollback)
 from datumaro.util.log_utils import logging_disabled, catch_logs
 
 
-class ProjectSourceDataset(Dataset):
-    def __init__(self, project, source):
+class ProjectSourceDataset(IDataset):
+    def __init__(self, project: 'Project', source: Source):
         super().__init__()
 
         self._project = project
@@ -41,21 +42,19 @@ class ProjectSourceDataset(Dataset):
         self._config = config
 
         self._path = osp.join(project.sources.source_dir(source), config.url)
-        self._readonly = self._path and osp.exists(self._path)
+        self._readonly = not self._path or not osp.exists(self._path)
         if self._path and not osp.exists(self._path) and not config.remote:
             # backward compatibility
             self._path = osp.join(project.config.project_dir, config.url)
             self._readonly = True
 
-        dataset = super().import_from(self._path, env=project.env,
+        self._dataset = Dataset.import_from(self._path, env=project.env,
             format=config.format, **config.options)
-        self._subsets = dataset._subsets
-        self._categories = dataset._categories
 
     def save(self, save_dir=None, **kwargs):
         if save_dir is None:
             if self.readonly:
-                raise Exception("Can't update a read-only dataset")
+                raise DatumaroError("Can't update a read-only dataset")
             save_dir = self._path
         super().export(format=self.config.format, save_dir=save_dir, **kwargs)
 
@@ -72,13 +71,95 @@ class ProjectSourceDataset(Dataset):
         return self._config
 
     def run_model(self, model, batch_size=1):
-        # NOTE: probably this function should be in the ViewModel layer
         if isinstance(model, str):
-            launcher = self._project.make_executable_model(model)
-            return self.transform(ModelTransform, launcher=launcher,
-                batch_size=batch_size)
-        else:
-            return super().run_model(model, batch_size=batch_size)
+            model = self._project.make_executable_model(model)
+        return self._dataset.run_model(model, batch_size=batch_size)
+
+    def define_categories(self, categories: CategoriesInfo):
+        self._dataset.define_categories(categories)
+
+    def init_cache(self):
+        self._dataset.init_cache()
+
+    def __iter__(self):
+        yield from self._dataset
+
+    def __len__(self):
+        return len(self._dataset)
+
+    def get_subset(self, name):
+        return self._dataset.get_subset(name)
+
+    def subsets(self):
+        return { k: self.get_subset(k) for k in self._dataset.subsets() }
+
+    def categories(self):
+        return self._dataset.categories()
+
+    def get(self, id, subset=None):
+        return self._dataset.get(id, subset)
+
+    def __contains__(self, x: Union[DatasetItem, str, Tuple[str, str]]) -> bool:
+        return x in self._dataset
+
+    def put(self, item, id=None, subset=None):
+        self._dataset.put(item, id, subset)
+
+    def remove(self, id, subset=None):
+        self._dataset.remove(id, subset)
+
+    def filter(self, expr: str, filter_annotations: bool = False,
+            remove_empty: bool = False) -> 'ProjectSourceDataset':
+        self._dataset.filter(expr=expr, filter_annotations=filter_annotations,
+            remove_empty=remove_empty)
+        return self
+
+    def update(self, items: Iterable[DatasetItem]) -> 'ProjectSourceDataset':
+        self._dataset.update(items)
+        return self
+
+    def transform(self, method: Union[str, Transform],
+            *args, **kwargs) -> 'ProjectSourceDataset':
+        self._dataset.transform(method=method, *args, **kwargs)
+        return self
+
+    def select(self, pred):
+        return self._dataset.select(pred)
+
+    @property
+    def data_path(self) -> Optional[str]:
+        return self._path
+
+    @property
+    def format(self) -> Optional[str]:
+        return self._dataset.format
+
+    @property
+    def is_modified(self) -> bool:
+        return self._dataset.has_updated_items()
+
+    @property
+    def patch(self) -> DatasetPatch:
+        return self._dataset.get_patch()
+
+    @property
+    def is_cache_initialized(self) -> bool:
+        return self._dataset.is_cache_initialized()
+
+    @property
+    def is_eager(self) -> bool:
+        return self._dataset.is_eager
+
+    @property
+    def is_bound(self) -> bool:
+        return True
+
+    def flush_changes(self):
+        self._dataset.flush_changes()
+
+    def export(self, save_dir: str, format, **kwargs):
+        self._dataset.export(save_dir=save_dir, format=format, **kwargs)
+
 
 MergeStrategy = Enum('MergeStrategy', ['ours', 'theirs', 'conflict'])
 
