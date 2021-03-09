@@ -18,16 +18,12 @@ CVAT annotations                             ---> Publication, statistics etc.
 
 # Table of Contents
 
-- [Dataset Management Framework (Datumaro)](#dataset-management-framework-datumaro)
-- [Table of Contents](#table-of-contents)
-  - [Examples](#examples)
-  - [Features](#features)
-  - [Installation](#installation)
-    - [Dependencies](#dependencies)
-  - [Usage](#usage)
-    - [Standalone tool](#standalone-tool)
-    - [Python module](#python-module)
-  - [Contributing](#contributing)
+- [Examples](#examples)
+- [Features](#features)
+- [Installation](#installation)
+- [Usage](#usage)
+- [User manual](docs/user_manual.md)
+- [Contributing](#contributing)
 
 ## Examples
 
