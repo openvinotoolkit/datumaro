@@ -69,13 +69,15 @@ class Sampler(Transform, CliPlugin):
         algorithm : str
             Specifying the algorithm to calculate the uncertainty
             for sample selection. default: 'entropy'
-        subset_name : str
+        input_subset : str
             The name of the subset to which you want to select a sample.
-        sample_name : str
+        sampled_subset : str
             Subset name of the selected sample, default: 'sample'
+        unsampled_subset : str
+            Subset name of the selected sample, default: 'unsampled'
         sampling_method : str
             Method of sampling, 'topk' or 'lowk' or 'randk'
-        num_sample : int
+        count : int
             Number of samples extracted
         output_file : str
             Path of sampler result, Use when user want to save results
@@ -123,10 +125,10 @@ class Sampler(Transform, CliPlugin):
                 raise Exception(f"Item {item.id} does not have annotations")
 
             for annotation in item.annotations:
-                if 'score' not in annotation.attributes:
+                if 'confidences' not in annotation.attributes:
                     raise Exception(f"Item {item.id} - an annotation "
-                        "does not have 'score' attribute")
-                probs = annotation.attributes['score']
+                        "does not have 'confidences' attribute")
+                probs = annotation.attributes['confidences']
 
                 infer_df['ImageID'].append(item.id)
 
