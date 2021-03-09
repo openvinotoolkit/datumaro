@@ -3,18 +3,20 @@
 #
 # SPDX-License-Identifier: MIT
 
+import logging as log
 import os
 import os.path as osp
 from collections import OrderedDict
 from enum import Enum
-from glob import glob
 
 import numpy as np
+
 from datumaro.components.converter import Converter
 from datumaro.components.extractor import (AnnotationType, CompiledMask,
     DatasetItem, Importer, LabelCategories, Mask,
     MaskCategories, SourceExtractor)
 from datumaro.util import find, str_to_bool
+from datumaro.util.annotation_util import make_label_id_mapping
 from datumaro.util.image import save_image
 from datumaro.util.mask_tools import lazy_mask, paint_mask, generate_colormap
 
@@ -57,7 +59,8 @@ CamvidLabelMap = OrderedDict([
 class CamvidPath:
     LABELMAP_FILE = 'label_colors.txt'
     SEGM_DIR = "annot"
-    IMAGE_EXT = '.png'
+    IMAGE_EXT = '.jpg'
+    MASK_EXT = '.png'
 
 
 def parse_label_map(path):
@@ -198,7 +201,7 @@ class CamvidImporter(Importer):
 LabelmapType = Enum('LabelmapType', ['camvid', 'source'])
 
 class CamvidConverter(Converter):
-    DEFAULT_IMAGE_EXT = '.png'
+    DEFAULT_IMAGE_EXT = CamvidPath.IMAGE_EXT
 
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
@@ -221,12 +224,15 @@ class CamvidConverter(Converter):
         self._load_categories(label_map)
 
     def apply(self):
-        subset_dir = self._save_dir
-        os.makedirs(subset_dir, exist_ok=True)
+        os.makedirs(self._save_dir, exist_ok=True)
 
         for subset_name, subset in self._extractor.subsets().items():
             segm_list = {}
             for item in subset:
+                image_path = self._make_image_filename(item, subdir=subset_name)
+                if self._save_images:
+                    self._save_image(item, osp.join(self._save_dir, image_path))
+
                 masks = [a for a in item.annotations
                     if a.type == AnnotationType.mask]
 
@@ -235,17 +241,13 @@ class CamvidConverter(Converter):
                         instance_labels=[self._label_id_mapping(m.label)
                             for m in masks])
 
-                    self.save_segm(osp.join(subset_dir,
-                            subset_name + CamvidPath.SEGM_DIR,
-                            item.id + CamvidPath.IMAGE_EXT),
+                    mask_path = osp.join(subset_name + CamvidPath.SEGM_DIR,
+                        item.id + CamvidPath.MASK_EXT)
+                    self.save_segm(osp.join(self._save_dir, mask_path),
                         compiled_mask.class_mask)
-                    segm_list[item.id] = True
+                    segm_list[item.id] = (image_path, mask_path)
                 else:
-                    segm_list[item.id] = False
-
-                if self._save_images:
-                    self._save_image(item, osp.join(subset_dir, subset_name,
-                        item.id + CamvidPath.IMAGE_EXT))
+                    segm_list[item.id] = (image_path, '')
 
             self.save_segm_lists(subset_name, segm_list)
         self.save_label_map()
@@ -263,14 +265,11 @@ class CamvidConverter(Converter):
 
         ann_file = osp.join(self._save_dir, subset_name + '.txt')
         with open(ann_file, 'w') as f:
-            for item in segm_list:
-                if segm_list[item]:
-                    path_mask = '/%s/%s' % (subset_name + CamvidPath.SEGM_DIR,
-                        item + CamvidPath.IMAGE_EXT)
-                else:
-                    path_mask = ''
-                f.write('/%s/%s %s\n' % (subset_name,
-                    item + CamvidPath.IMAGE_EXT, path_mask))
+            for (image_path, mask_path) in segm_list.values():
+                f.write('/%s %s\n' % (
+                    image_path.replace('\\', '/'),
+                    mask_path.replace('\\', '/'))
+                )
 
     def save_label_map(self):
         path = osp.join(self._save_dir, CamvidPath.LABELMAP_FILE)
@@ -320,20 +319,24 @@ class CamvidConverter(Converter):
         self._label_id_mapping = self._make_label_id_map()
 
     def _make_label_id_map(self):
-        source_labels = {
-            id: label.name for id, label in
-            enumerate(self._extractor.categories().get(
-                AnnotationType.label, LabelCategories()).items)
-        }
-        target_labels = {
-            label.name: id for id, label in
-            enumerate(self._categories[AnnotationType.label].items)
-        }
-        id_mapping = {
-            src_id: target_labels.get(src_label, 0)
-            for src_id, src_label in source_labels.items()
-        }
+        map_id, id_mapping, src_labels, dst_labels = make_label_id_mapping(
+            self._extractor.categories().get(AnnotationType.label),
+            self._categories[AnnotationType.label])
 
-        def map_id(src_id):
-            return id_mapping.get(src_id, 0)
+        void_labels = [src_label for src_id, src_label in src_labels.items()
+            if src_label not in dst_labels]
+        if void_labels:
+            log.warning("The following labels are remapped to background: %s" %
+                ', '.join(void_labels))
+        log.debug("Saving segmentations with the following label mapping: \n%s" %
+            '\n'.join(["#%s '%s' -> #%s '%s'" %
+                (
+                    src_id, src_label, id_mapping[src_id],
+                    self._categories[AnnotationType.label] \
+                        .items[id_mapping[src_id]].name
+                )
+                for src_id, src_label in src_labels.items()
+            ])
+        )
+
         return map_id
