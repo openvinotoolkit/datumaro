@@ -49,9 +49,14 @@ class ImagenetTxtExtractor(SourceExtractor):
         items = {}
         with open(path, encoding='utf-8') as f:
             for line in f:
-                item = line.split()
-                item_id = item[0]
-                label_ids = [int(id) for id in item[1:]]
+                item = line.split('\"')
+                if len(item) == 3:
+                    item_id = item[1]
+                    label_ids = [int(id) for id in item[2].split()]
+                else:
+                    item = line.split()
+                    item_id = item[0]
+                    label_ids = [int(id) for id in item[1:]]
                 anno = []
                 for label in label_ids:
                     assert 0 <= label and \
@@ -96,10 +101,13 @@ class ImagenetTxtConverter(Converter):
                     self._save_image(item,
                         osp.join(self._save_dir, ImagenetTxtPath.IMAGE_DIR,
                             self._make_image_filename(item)))
-
+            annotation = ''
+            for item_id, item_labels in labels.items():
+                if 1 < len(item_id.split()):
+                    item_id = '\"' + item_id + '\"'
+                annotation += '%s %s\n' % (item_id, ' '.join(item_labels))
             with open(annotation_file, 'w', encoding='utf-8') as f:
-                f.writelines(['%s %s\n' % (item_id, ' '.join(labels[item_id]))
-                    for item_id in labels])
+                f.write(annotation)
 
         labels_file = osp.join(subset_dir, ImagenetTxtPath.LABELS_FILE)
         with open(labels_file, 'w', encoding='utf-8') as f:

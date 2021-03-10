@@ -102,6 +102,15 @@ class DatumaroConverterTest(TestCase):
             self._test_save_and_load(test_dataset,
                 partial(DatumaroConverter.convert, save_images=True), test_dir)
 
+    def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
+        test_dataset = Dataset.from_iterable([
+            DatasetItem(id='кириллица с пробелом', image=np.ones((4, 2, 3))),
+        ])
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(test_dataset,
+                partial(DatumaroConverter.convert, save_images=True), test_dir)
+
     def test_inplace_save_writes_only_updated_data(self):
         with TestDir() as path:
             # generate initial dataset

@@ -149,7 +149,7 @@ class CamvidConverterTest(TestCase):
         class TestExtractor(TestExtractorBase):
             def __iter__(self):
                 return iter([
-                    DatasetItem(id='кириллица в имени файла',
+                    DatasetItem(id='кириллица с пробелом',
                         image=np.ones((1, 5, 3)), annotations=[
                             Mask(image=np.array([[1, 0, 0, 1, 0]]), label=0),
                             Mask(image=np.array([[0, 1, 1, 0, 1]]), label=3),

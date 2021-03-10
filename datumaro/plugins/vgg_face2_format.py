@@ -68,7 +68,7 @@ class VggFace2Extractor(SourceExtractor):
 
         items = {}
 
-        with open(path) as content:
+        with open(path, encoding='utf-8') as content:
             landmarks_table = list(csv.DictReader(content))
         for row in landmarks_table:
             item_id = row['NAME_ID']
@@ -96,7 +96,7 @@ class VggFace2Extractor(SourceExtractor):
         bboxes_path = osp.join(self._dataset_dir, VggFace2Path.ANNOTATION_DIR,
             VggFace2Path.BBOXES_FILE + self._subset + '.csv')
         if osp.isfile(bboxes_path):
-            with open(bboxes_path) as content:
+            with open(bboxes_path, encoding='utf-8') as content:
                 bboxes_table = list(csv.DictReader(content))
             for row in bboxes_table:
                 item_id = row['NAME_ID']
@@ -224,7 +224,7 @@ class VggFace2Converter(Converter):
             landmarks_path = osp.join(save_dir, VggFace2Path.ANNOTATION_DIR,
                 VggFace2Path.LANDMARKS_FILE + subset_name + '.csv')
             os.makedirs(osp.dirname(landmarks_path), exist_ok=True)
-            with open(landmarks_path, 'w', newline='') as file:
+            with open(landmarks_path, 'w', encoding='utf-8', newline='') as file:
                 columns = ['NAME_ID', 'P1X', 'P1Y', 'P2X', 'P2Y',
                     'P3X', 'P3Y', 'P4X', 'P4Y', 'P5X', 'P5Y']
                 writer = csv.DictWriter(file, fieldnames=columns)
@@ -235,7 +235,7 @@ class VggFace2Converter(Converter):
                 bboxes_path = osp.join(save_dir, VggFace2Path.ANNOTATION_DIR,
                     VggFace2Path.BBOXES_FILE + subset_name + '.csv')
                 os.makedirs(osp.dirname(bboxes_path), exist_ok=True)
-                with open(bboxes_path, 'w', newline='') as file:
+                with open(bboxes_path, 'w', encoding='utf-8', newline='') as file:
                     columns = ['NAME_ID', 'X', 'Y', 'W', 'H']
                     writer = csv.DictWriter(file, fieldnames=columns)
                     writer.writeheader()

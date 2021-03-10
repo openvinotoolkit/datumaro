@@ -296,7 +296,7 @@ class VocConverter(Converter):
                             VocTask.action_classification}:
                         ann_path = osp.join(self._ann_dir, item.id + '.xml')
                         os.makedirs(osp.dirname(ann_path), exist_ok=True)
-                        with open(ann_path, 'w') as f:
+                        with open(ann_path, 'w', encoding='utf-8') as f:
                             f.write(ET.tostring(root_elem,
                                 encoding='unicode', pretty_print=True))
 
@@ -350,7 +350,7 @@ class VocConverter(Converter):
     @staticmethod
     def _get_filtered_lines(path, patch, subset, items=None):
         lines = {}
-        with open(path) as f:
+        with open(path, encoding='utf-8') as f:
             for line in f:
                 item, text, _ = line.split(maxsplit=1) + ['', '']
                 if not patch or patch.updated_items.get((item, subset)) != \
@@ -367,7 +367,7 @@ class VocConverter(Converter):
         items = {k: True for k in action_list}
         if self._patch and osp.isfile(ann_file):
             self._get_filtered_lines(ann_file, self._patch, subset_name, items)
-        with open(ann_file, 'w') as f:
+        with open(ann_file, 'w', encoding='utf-8') as f:
             for item in items:
                 f.write('%s\n' % item)
 
@@ -392,7 +392,7 @@ class VocConverter(Converter):
             if self._patch and osp.isfile(ann_file):
                 lines = self._get_filtered_lines(ann_file, None, subset_name)
 
-            with open(ann_file, 'w') as f:
+            with open(ann_file, 'w', encoding='utf-8') as f:
                 for item in items:
                     if item in action_list:
                         _write_item(f, item, action_list[item], action)
@@ -418,7 +418,7 @@ class VocConverter(Converter):
                 lines = self._get_filtered_lines(ann_file, self._patch,
                     subset_name, items)
 
-            with open(ann_file, 'w') as f:
+            with open(ann_file, 'w', encoding='utf-8') as f:
                 for item in items:
                     if item in class_lists:
                         _write_item(f, item, class_lists[item])
@@ -433,7 +433,7 @@ class VocConverter(Converter):
         if self._patch and osp.isfile(ann_file):
             self._get_filtered_lines(ann_file, self._patch, subset_name, items)
 
-        with open(ann_file, 'w') as f:
+        with open(ann_file, 'w', encoding='utf-8') as f:
             for item in items:
                 f.write('%s\n' % item)
 
@@ -445,7 +445,7 @@ class VocConverter(Converter):
         if self._patch and osp.isfile(ann_file):
             self._get_filtered_lines(ann_file, self._patch, subset_name, items)
 
-        with open(ann_file, 'w') as f:
+        with open(ann_file, 'w', encoding='utf-8') as f:
             for item in items:
                 f.write('%s\n' % item)
 
@@ -465,7 +465,7 @@ class VocConverter(Converter):
         if self._patch and osp.isfile(ann_file):
             self._get_filtered_lines(ann_file, self._patch, subset_name, items)
 
-        with open(ann_file, 'w') as f:
+        with open(ann_file, 'w', encoding='utf-8') as f:
             for item in items:
                 if item in layout_list:
                     _write_item(f, item, layout_list[item])
