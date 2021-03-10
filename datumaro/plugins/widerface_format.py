@@ -122,7 +122,7 @@ class WiderFaceImporter(Importer):
             dirname=WiderFacePath.ANNOTATIONS_DIR)
 
 class WiderFaceConverter(Converter):
-    DEFAULT_IMAGE_EXT = '.jpg'
+    DEFAULT_IMAGE_EXT = WiderFacePath.IMAGE_EXT
 
     def apply(self):
         save_dir = self._save_dir
@@ -143,12 +143,12 @@ class WiderFaceConverter(Converter):
                 labels = [a.label for a in item.annotations
                     if a.type == AnnotationType.label]
                 if labels:
-                    image_path = '%s--%s/%s' % (
-                        labels[0], label_categories[labels[0]].name,
-                        item.id + WiderFacePath.IMAGE_EXT)
+                    image_path = self._make_image_filename(item,
+                        subdir='%s--%s' % (
+                            labels[0], label_categories[labels[0]].name))
                 else:
-                    image_path = '%s/%s' % (WiderFacePath.IMAGES_DIR_NO_LABEL,
-                        item.id + WiderFacePath.IMAGE_EXT)
+                    image_path = self._make_image_filename(item,
+                        subdir=WiderFacePath.IMAGES_DIR_NO_LABEL)
                 wider_annotation += image_path + '\n'
                 if item.has_image and self._save_images:
                     self._save_image(item, osp.join(save_dir, subset_dir,

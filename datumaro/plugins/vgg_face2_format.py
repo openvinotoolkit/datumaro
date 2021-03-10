@@ -129,7 +129,7 @@ class VggFace2Importer(Importer):
                 not osp.basename(p).startswith(VggFace2Path.BBOXES_FILE))
 
 class VggFace2Converter(Converter):
-    DEFAULT_IMAGE_EXT = '.jpg'
+    DEFAULT_IMAGE_EXT = VggFace2Path.IMAGE_EXT
 
     def apply(self):
         save_dir = self._save_dir
@@ -148,7 +148,6 @@ class VggFace2Converter(Converter):
         label_categories = self._extractor.categories()[AnnotationType.label]
 
         for subset_name, subset in self._extractor.subsets().items():
-            subset_dir = osp.join(save_dir, subset_name)
             bboxes_table = []
             landmarks_table = []
             for item in subset:
@@ -157,13 +156,11 @@ class VggFace2Converter(Converter):
                         if getattr(p, 'label') != None)
                     if labels:
                         for label in labels:
-                            self._save_image(item, osp.join(subset_dir,
-                                label_categories[label].name + '/' \
-                                + item.id + VggFace2Path.IMAGE_EXT))
+                            self._save_image(item, subdir=osp.join(subset_name,
+                                label_categories[label].name))
                     else:
-                        self._save_image(item, osp.join(subset_dir,
-                            VggFace2Path.IMAGES_DIR_NO_LABEL,
-                            item.id + VggFace2Path.IMAGE_EXT))
+                        self._save_image(item, subdir=osp.join(subset_name,
+                            VggFace2Path.IMAGES_DIR_NO_LABEL))
 
                 landmarks = [a for a in item.annotations
                     if a.type == AnnotationType.points]

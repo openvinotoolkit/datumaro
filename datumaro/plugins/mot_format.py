@@ -214,9 +214,8 @@ class MotSeqGtConverter(Converter):
     def apply(self):
         extractor = self._extractor
 
-        images_dir = osp.join(self._save_dir, MotPath.IMAGE_DIR)
-        os.makedirs(images_dir, exist_ok=True)
-        self._images_dir = images_dir
+        image_dir = osp.join(self._save_dir, MotPath.IMAGE_DIR)
+        os.makedirs(image_dir, exist_ok=True)
 
         anno_dir = osp.join(self._save_dir, 'gt')
         os.makedirs(anno_dir, exist_ok=True)
@@ -259,8 +258,8 @@ class MotSeqGtConverter(Converter):
 
                 if self._save_images:
                     if item.has_image and item.image.has_data:
-                        self._save_image(item, osp.join(self._images_dir,
-                            '%06d%s' % (frame_id, self._find_image_ext(item))))
+                        self._save_image(item, subdir=image_dir,
+                            name='%06d' % frame_id)
                     else:
                         log.debug("Item '%s' has no image", item.id)
 
