@@ -1,4 +1,3 @@
-#_*_ coding:utf-8 _*_
 # Copyright (C) 2020 Intel Corporation
 #
 # SPDX-License-Identifier: MIT

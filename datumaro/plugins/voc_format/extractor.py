@@ -58,8 +58,15 @@ class _VocExtractor(SourceExtractor):
 
     @staticmethod
     def _load_subset_list(subset_path):
+        subset_list = []
         with open(subset_path, encoding='utf-8') as f:
-            return [line.strip() for line in f]
+            for line in f:
+                objects = line.split('\"')
+                if 1 < len(objects):
+                    subset_list.append(objects[1])
+                else:
+                    subset_list.append(line.split()[0])
+            return subset_list
 
 class VocClassificationExtractor(_VocExtractor):
     def __iter__(self):
