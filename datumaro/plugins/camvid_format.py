@@ -61,7 +61,7 @@ class CamvidPath:
     SEGM_DIR = "annot"
     IMAGE_EXT = '.jpg'
     MASK_EXT = '.png'
-    PATTERN = re.compile(r'(.+[.]\S+) (.+)?')
+    PATTERN = re.compile(r'(.+[.]\S+) (.+[.]\S+)?')
 
 
 def parse_label_map(path):
