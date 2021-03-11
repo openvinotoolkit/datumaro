@@ -156,14 +156,17 @@ class CamvidExtractor(SourceExtractor):
         items = {}
         with open(path, encoding='utf-8') as f:
             for line in f:
-                objects = CamvidPath.PATTERN.search(line).groups()
-                objects = line.split()
+                search = CamvidPath.PATTERN.search(line)
+                if search:
+                    objects = CamvidPath.PATTERN.search(line).groups()
+                else:
+                    raise Exception("Line %s: invalid path format" % line)
                 image = objects[0]
                 item_id = ('/'.join(image.split('/')[2:]))[:-len(CamvidPath.IMAGE_EXT)]
                 image_path = osp.join(self._dataset_dir,
                     (image, image[1:])[image[0] == '/'])
                 item_annotations = []
-                if 1 < len(objects):
+                if objects[1] != None:
                     gt = objects[1]
                     gt_path = osp.join(self._dataset_dir,
                         (gt, gt[1:]) [gt[0] == '/'])
