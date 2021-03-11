@@ -7,6 +7,7 @@
 
 from enum import Enum
 from io import BytesIO
+from typing import Iterator, Iterable, Union
 import numpy as np
 import os
 import os.path as osp
@@ -21,6 +22,7 @@ except ImportError:
     _IMAGE_BACKEND = _IMAGE_BACKENDS.PIL
 
 from datumaro.util.image_cache import ImageCache as _ImageCache
+from datumaro.util.os_util import walk
 
 
 def load_image(path, dtype=np.float32):
@@ -152,6 +154,34 @@ def decode_image(image_bytes, dtype=np.float32):
     if len(image.shape) == 3:
         assert image.shape[2] in {3, 4}
     return image
+
+IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.ppm', '.bmp',
+    '.pgm', '.tif', '.tiff'}
+
+def find_images(dirpath: str, exts: Union[str, Iterable[str]] = None,
+        recursive: bool = False, max_depth: int = None) -> Iterator[str]:
+    if isinstance(exts, str):
+        exts = [exts.lower()]
+    elif exts is None:
+        exts = IMAGE_EXTENSIONS
+    else:
+        exts = list(e.lower() for e in exts)
+
+    def _check_image_ext(filename: str):
+        dotpos = filename.rfind('.')
+        if 0 < dotpos: # exclude '.ext' cases too
+            ext = filename[dotpos:].lower()
+            if ext in exts:
+                return True
+        return False
+
+    for d, _, filenames in walk(dirpath,
+            max_depth=max_depth if recursive else 0):
+        for filename in filenames:
+            if not _check_image_ext(filename):
+                continue
+
+            yield osp.join(d, filename)
 
 
 class lazy_image:
