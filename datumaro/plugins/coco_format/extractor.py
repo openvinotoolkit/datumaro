@@ -21,11 +21,15 @@ from .format import CocoTask, CocoPath
 
 
 class _CocoExtractor(SourceExtractor):
-    def __init__(self, path, task, merge_instance_polygons=False):
+    _NOTSET = object()
+
+    def __init__(self, path, task, merge_instance_polygons=False,
+            subset=_NOTSET):
         assert osp.isfile(path), path
 
-        subset = osp.splitext(osp.basename(path))[0].rsplit('_', maxsplit=1)
-        subset = subset[1] if len(subset) == 2 else None
+        if subset is self._NOTSET:
+            subset = osp.splitext(osp.basename(path))[0].rsplit('_', maxsplit=1)
+            subset = subset[1] if len(subset) == 2 else None
         super().__init__(subset=subset)
 
         rootpath = ''
