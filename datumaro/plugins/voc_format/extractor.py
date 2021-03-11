@@ -61,11 +61,10 @@ class _VocExtractor(SourceExtractor):
         subset_list = []
         with open(subset_path, encoding='utf-8') as f:
             for line in f:
-                objects = line.split('\"')
-                if 1 < len(objects):
-                    subset_list.append(objects[1])
-                else:
-                    subset_list.append(line.split()[0])
+                line = line.strip().split()
+                if 2 < len(line):
+                    line[0] = ' '.join(line[i] for i in range(len(line)))
+                subset_list.append(line[0])
             return subset_list
 
 class VocClassificationExtractor(_VocExtractor):

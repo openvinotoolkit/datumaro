@@ -5,9 +5,9 @@
 
 import os
 import os.path as osp
+import re
 from collections import OrderedDict
 from enum import Enum
-import re
 
 import numpy as np
 from datumaro.components.converter import Converter
@@ -16,8 +16,7 @@ from datumaro.components.extractor import (AnnotationType, CompiledMask,
     MaskCategories, SourceExtractor)
 from datumaro.util import find, str_to_bool
 from datumaro.util.image import save_image
-from datumaro.util.mask_tools import lazy_mask, paint_mask, generate_colormap
-
+from datumaro.util.mask_tools import generate_colormap, lazy_mask, paint_mask
 
 CamvidLabelMap = OrderedDict([
     ('Void', (0, 0, 0)),
