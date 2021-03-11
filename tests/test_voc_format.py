@@ -132,10 +132,10 @@ class VocImportTest(TestCase):
 
 class VocConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
-            target_dataset=None, importer_args=None):
+            target_dataset=None, importer_args=None, **kwargs):
         return test_save_and_load(self, source_dataset, converter, test_dir,
             importer='voc',
-            target_dataset=target_dataset, importer_args=importer_args)
+            target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
     def test_can_save_voc_cls(self):
         class TestExtractor(TestExtractorBase):
@@ -629,6 +629,23 @@ class VocConverterTest(TestCase):
                     partial(VocConverter.convert, label_map='voc', tasks=task),
                     test_dir)
 
+    def test_can_save_and_load_image_with_arbitrary_extension(self):
+        class TestExtractor(TestExtractorBase):
+            def __iter__(self):
+                return iter([
+                    DatasetItem(id='q/1', image=Image(path='q/1.JPEG',
+                        data=np.zeros((4, 3, 3)))),
+                    DatasetItem(id='a/b/c/2', image=Image(path='a/b/c/2.bmp',
+                        data=np.zeros((3, 4, 3)))),
+                ])
+
+        for task in [None] + list(VOC.VocTask):
+            with self.subTest(subformat=task), TestDir() as test_dir:
+                self._test_save_and_load(TestExtractor(),
+                    partial(VocConverter.convert, label_map='voc', tasks=task,
+                        save_images=True),
+                    test_dir, require_images=True)
+
     def test_relative_paths(self):
         class TestExtractor(TestExtractorBase):
             def __iter__(self):
@@ -643,7 +660,7 @@ class VocConverterTest(TestCase):
                 self._test_save_and_load(TestExtractor(),
                     partial(VocConverter.convert,
                         label_map='voc', save_images=True, tasks=task),
-                    test_dir)
+                    test_dir, require_images=True)
 
     def test_can_save_attributes(self):
         class TestExtractor(TestExtractorBase):
