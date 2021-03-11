@@ -7,6 +7,7 @@ import os
 import os.path as osp
 from collections import OrderedDict
 from enum import Enum
+import re
 
 import numpy as np
 from datumaro.components.converter import Converter
@@ -57,6 +58,7 @@ class CamvidPath:
     LABELMAP_FILE = 'label_colors.txt'
     SEGM_DIR = "annot"
     IMAGE_EXT = '.png'
+    PATTERN = re.compile(r'(.+[.]\S+) (.+)?')
 
 
 def parse_label_map(path):
@@ -155,16 +157,8 @@ class CamvidExtractor(SourceExtractor):
         items = {}
         with open(path, encoding='utf-8') as f:
             for line in f:
+                objects = CamvidPath.PATTERN.search(line).groups()
                 objects = line.split()
-                if 2 < len(objects):
-                    if len(objects) % 2:
-                        raise Exception("Line %s: image and gt file must have  "
-                            "the same name" % line)
-                    else:
-                        mid = int(len(objects) / 2)
-                        objects[0] = ' '.join(objects[i] for i in range(mid))
-                        objects[1] = ' '.join(objects[i] for i in range(mid, 2 * mid))
-                        objects = objects[:2]
                 image = objects[0]
                 item_id = ('/'.join(image.split('/')[2:]))[:-len(CamvidPath.IMAGE_EXT)]
                 image_path = osp.join(self._dataset_dir,
