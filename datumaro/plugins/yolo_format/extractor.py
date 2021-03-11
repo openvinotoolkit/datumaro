@@ -151,10 +151,10 @@ class YoloExtractor(SourceExtractor):
 
         annotations = []
         if lines:
-            size = image.size # use image info as late as possible
-            if size is None:
+            # use image info as late as possible
+            if image.size is None:
                 raise Exception("Can't find image info for '%s'" % image.path)
-            image_height, image_width = size
+            image_height, image_width = image.size
         for line in lines:
             label_id, xc, yc, w, h = line.split()
             label_id = int(label_id)

@@ -111,7 +111,7 @@ class MotsPngConverter(Converter):
     def apply(self):
         for subset_name, subset in self._extractor.subsets().items():
             subset_dir = osp.join(self._save_dir, subset_name)
-            images_dir = osp.join(subset_dir, MotsPath.IMAGE_DIR)
+            image_dir = osp.join(subset_dir, MotsPath.IMAGE_DIR)
             anno_dir = osp.join(subset_dir, MotsPath.MASKS_DIR)
             os.makedirs(anno_dir, exist_ok=True)
 
@@ -120,8 +120,7 @@ class MotsPngConverter(Converter):
 
                 if self._save_images:
                     if item.has_image and item.image.has_data:
-                        self._save_image(item,
-                            osp.join(images_dir, self._make_image_filename(item)))
+                        self._save_image(item, subdir=image_dir)
                     else:
                         log.debug("Item '%s' has no image", item.id)
 

@@ -44,7 +44,6 @@ class ImageDirConverter(Converter):
 
         for item in self._extractor:
             if item.has_image:
-                self._save_image(item,
-                    osp.join(self._save_dir, self._make_image_filename(item)))
+                self._save_image(item)
             else:
                 log.debug("Item '%s' has no image info", item.id)

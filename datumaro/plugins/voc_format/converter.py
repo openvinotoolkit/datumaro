@@ -17,6 +17,7 @@ from datumaro.components.dataset import ItemStatus
 from datumaro.components.extractor import (AnnotationType,
     CompiledMask, DatasetItem, LabelCategories)
 from datumaro.util import find, str_to_bool
+from datumaro.util.annotation_util import make_label_id_mapping
 from datumaro.util.image import save_image
 from datumaro.util.mask_tools import paint_mask, remap_mask
 
@@ -570,22 +571,12 @@ class VocConverter(Converter):
         return label_desc[2]
 
     def _make_label_id_map(self):
-        source_labels = {
-            id: label.name for id, label in
-            enumerate(self._extractor.categories().get(
-                AnnotationType.label, LabelCategories()).items)
-        }
-        target_labels = {
-            label.name: id for id, label in
-            enumerate(self._categories[AnnotationType.label].items)
-        }
-        id_mapping = {
-            src_id: target_labels.get(src_label, 0)
-            for src_id, src_label in source_labels.items()
-        }
+        map_id, id_mapping, src_labels, dst_labels = make_label_id_mapping(
+            self._extractor.categories().get(AnnotationType.label),
+            self._categories[AnnotationType.label])
 
-        void_labels = [src_label for src_id, src_label in source_labels.items()
-            if src_label not in target_labels]
+        void_labels = [src_label for src_id, src_label in src_labels.items()
+            if src_label not in dst_labels]
         if void_labels:
             log.warning("The following labels are remapped to background: %s" %
                 ', '.join(void_labels))
@@ -596,12 +587,10 @@ class VocConverter(Converter):
                     self._categories[AnnotationType.label] \
                         .items[id_mapping[src_id]].name
                 )
-                for src_id, src_label in source_labels.items()
+                for src_id, src_label in src_labels.items()
             ])
         )
 
-        def map_id(src_id):
-            return id_mapping.get(src_id, 0)
         return map_id
 
     def _remap_mask(self, mask):

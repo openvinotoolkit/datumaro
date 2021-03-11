@@ -6,7 +6,8 @@ from itertools import groupby
 
 import numpy as np
 
-from datumaro.components.extractor import _Shape, Mask, AnnotationType, RleMask
+from datumaro.components.extractor import (LabelCategories, _Shape, Mask,
+    AnnotationType, RleMask)
 from datumaro.util.mask_tools import mask_to_rle
 
 
@@ -210,3 +211,19 @@ def smooth_line(points, segments):
         new_points[new_segment] = prev_p * (1 - r) + next_p * r
 
     return new_points, step
+
+def make_label_id_mapping(
+        src_labels: LabelCategories, dst_labels: LabelCategories, fallback=0):
+    source_labels = { id: label.name
+        for id, label in enumerate(src_labels or LabelCategories().items)
+    }
+    target_labels = { label.name: id
+        for id, label in enumerate(dst_labels or LabelCategories().items)
+    }
+    id_mapping = { src_id: target_labels.get(src_label, fallback)
+        for src_id, src_label in source_labels.items()
+    }
+
+    def map_id(src_id):
+        return id_mapping.get(src_id, fallback)
+    return map_id, id_mapping, source_labels, target_labels
