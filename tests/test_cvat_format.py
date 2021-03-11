@@ -142,10 +142,10 @@ class CvatImporterTest(TestCase):
 
 class CvatConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
-            target_dataset=None, importer_args=None):
+            target_dataset=None, importer_args=None, **kwargs):
         return test_save_and_load(self, source_dataset, converter, test_dir,
             importer='cvat',
-            target_dataset=target_dataset, importer_args=importer_args)
+            target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
     def test_can_save_and_load(self):
         label_categories = LabelCategories()
@@ -235,14 +235,14 @@ class CvatConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
                 partial(CvatConverter.convert, save_images=True), test_dir,
-                target_dataset=target_dataset)
+                target_dataset=target_dataset, require_images=True)
 
     def test_relative_paths(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='1', image=np.ones((4, 2, 3))),
             DatasetItem(id='subdir1/1', image=np.ones((2, 6, 3))),
             DatasetItem(id='subdir2/1', image=np.ones((5, 4, 3))),
-        ], categories={ AnnotationType.label: LabelCategories() })
+        ])
 
         target_dataset = Dataset.from_iterable([
             DatasetItem(id='1', image=np.ones((4, 2, 3)),
@@ -251,22 +251,31 @@ class CvatConverterTest(TestCase):
                 attributes={'frame': 1}),
             DatasetItem(id='subdir2/1', image=np.ones((5, 4, 3)),
                 attributes={'frame': 2}),
-        ], categories={
-            AnnotationType.label: LabelCategories()
-        })
+        ], categories={ AnnotationType.label: LabelCategories() })
 
         with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
                 partial(CvatConverter.convert, save_images=True), test_dir,
-                target_dataset=target_dataset)
+                target_dataset=target_dataset, require_images=True)
+
+    def test_can_save_and_load_image_with_arbitrary_extension(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(id='q/1', image=Image(path='q/1.JPEG',
+                data=np.zeros((4, 3, 3))), attributes={'frame': 1}),
+            DatasetItem(id='a/b/c/2', image=Image(path='a/b/c/2.bmp',
+                data=np.zeros((3, 4, 3))), attributes={'frame': 2}),
+        ], categories={ AnnotationType.label: LabelCategories() })
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(expected,
+                partial(CvatConverter.convert, save_images=True),
+                test_dir, require_images=True)
 
     def test_preserve_frame_ids(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='some/name1', image=np.ones((4, 2, 3)),
                 attributes={'frame': 40}),
-        ], categories={
-            AnnotationType.label: LabelCategories()
-        })
+        ], categories={ AnnotationType.label: LabelCategories() })
 
         with TestDir() as test_dir:
             self._test_save_and_load(expected_dataset,
@@ -276,7 +285,7 @@ class CvatConverterTest(TestCase):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='some/name1', image=np.ones((4, 2, 3)),
                 attributes={'frame': 40}),
-        ], categories={ AnnotationType.label: LabelCategories() })
+        ])
 
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='some/name1', image=np.ones((4, 2, 3)),
@@ -295,7 +304,7 @@ class CvatConverterTest(TestCase):
                 DatasetItem(1, subset='a'),
                 DatasetItem(2, subset='b'),
                 DatasetItem(3, subset='c', image=np.ones((2, 2, 3))),
-            ], categories=[])
+            ])
             dataset.export(path, 'cvat', save_images=True)
             os.unlink(osp.join(path, 'a.xml'))
             os.unlink(osp.join(path, 'b.xml'))
