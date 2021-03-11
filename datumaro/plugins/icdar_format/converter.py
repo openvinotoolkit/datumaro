@@ -72,21 +72,19 @@ class _TextSegmentationConverter:
         anns = [a for a in item.annotations
             if a.type == AnnotationType.mask]
         if anns:
-            is_not_index = len([p for p in anns if 'index' not in p.attributes])
-            if is_not_index:
-                raise Exception("Item %s: a mask must have"
-                    "'index' attribute" % item.id)
-            anns = sorted(anns, key=lambda a: a.attributes['index'])
+            anns = sorted(anns, key=lambda a: int(a.attributes.get('index', 0)))
             group = anns[0].group
             for ann in anns:
                 if ann.group != group or (not ann.group and anns[0].group != 0):
                     annotation += '\n'
+
                 text = ''
                 if ann.attributes:
                     if 'text' in ann.attributes:
                         text = ann.attributes['text']
                     if text == ' ':
                         annotation += '#'
+
                     if 'color' in ann.attributes and \
                             len(ann.attributes['color'].split()) == 3:
                         color = ann.attributes['color'].split()
@@ -96,15 +94,18 @@ class _TextSegmentationConverter:
                     else:
                         raise Exception("Item %s: a mask must have "
                             "an RGB color attribute, e. g. '10 7 50'" % item.id)
+
                     if 'center' in ann.attributes:
                         annotation += ' %s' % ann.attributes['center']
                     else:
                         annotation += ' - -'
+
                 bbox = ann.get_bbox()
                 annotation += ' %s %s %s %s' % (bbox[0], bbox[1],
                     bbox[0] + bbox[2], bbox[1] + bbox[3])
                 annotation += ' \"%s\"' % text
                 annotation += '\n'
+
                 group = ann.group
 
             mask = CompiledMask.from_instance_masks(anns,

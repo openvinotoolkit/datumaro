@@ -1,14 +1,19 @@
 import os.path as osp
+from functools import partial
+
 from unittest import TestCase
 
 import numpy as np
+
 from datumaro.components.extractor import (Bbox, Caption, DatasetItem, Mask,
     Polygon)
 from datumaro.components.project import Dataset
 from datumaro.plugins.icdar_format.converter import (
-    IcdarTextLocalizationConverter, IcdarTextSegmentationConverter,
-    IcdarWordRecognitionConverter)
+    IcdarConverter, IcdarTextLocalizationConverter,
+    IcdarTextSegmentationConverter, IcdarWordRecognitionConverter)
 from datumaro.plugins.icdar_format.extractor import IcdarImporter
+from datumaro.plugins.icdar_format.format import IcdarTask
+from datumaro.util.image import Image
 from datumaro.util.test_utils import (TestDir, compare_datasets,
     test_save_and_load)
 
@@ -95,10 +100,10 @@ class IcdarImporterTest(TestCase):
 
 class IcdarConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
-            target_dataset=None, importer_args=None):
+            target_dataset=None, importer_args=None, **kwargs):
         return test_save_and_load(self, source_dataset, converter, test_dir,
             importer='icdar',
-            target_dataset=target_dataset, importer_args=importer_args)
+            target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
     def test_can_save_and_load_captions(self):
         expected_dataset = Dataset.from_iterable([
@@ -184,3 +189,18 @@ class IcdarConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(expected_dataset,
                 IcdarTextLocalizationConverter.convert, test_dir)
+
+    def test_can_save_and_load_image_with_arbitrary_extension(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(id='q/1', image=Image(path='q/1.JPEG',
+                data=np.zeros((4, 3, 3)))),
+            DatasetItem(id='a/b/c/2', image=Image(path='a/b/c/2.bmp',
+                data=np.zeros((3, 4, 3)))),
+        ])
+
+        for task in [None] + list(IcdarTask):
+            with self.subTest(subformat=task), TestDir() as test_dir:
+                self._test_save_and_load(expected,
+                    partial(IcdarConverter.convert, save_images=True,
+                        tasks=task),
+                    test_dir, require_images=True)
