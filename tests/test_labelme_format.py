@@ -8,16 +8,17 @@ from datumaro.components.extractor import (DatasetItem,
     AnnotationType, Bbox, Mask, Polygon, LabelCategories
 )
 from datumaro.plugins.labelme_format import LabelMeImporter, LabelMeConverter
+from datumaro.util.image import Image
 from datumaro.util.test_utils import (TestDir, compare_datasets,
     test_save_and_load)
 
 
 class LabelMeConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
-            target_dataset=None, importer_args=None):
+            target_dataset=None, importer_args=None, **kwargs):
         return test_save_and_load(self, source_dataset, converter, test_dir,
             importer='label_me',
-            target_dataset=target_dataset, importer_args=importer_args)
+            target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
     def test_can_save_and_load(self):
         source_dataset = Dataset.from_iterable([
@@ -85,7 +86,20 @@ class LabelMeConverterTest(TestCase):
             self._test_save_and_load(
                 source_dataset,
                 partial(LabelMeConverter.convert, save_images=True),
-                test_dir, target_dataset=target_dataset)
+                test_dir, target_dataset=target_dataset, require_images=True)
+
+    def test_can_save_and_load_image_with_arbitrary_extension(self):
+        dataset = Dataset.from_iterable([
+            DatasetItem(id='a/1', image=Image(path='a/1.JPEG',
+                data=np.zeros((4, 3, 3)))),
+            DatasetItem(id='b/c/d/2', image=Image(path='b/c/d/2.bmp',
+                data=np.zeros((3, 4, 3)))),
+        ], categories=[])
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(dataset,
+                partial(LabelMeConverter.convert, save_images=True),
+                test_dir, require_images=True)
 
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'labelme_dataset')
