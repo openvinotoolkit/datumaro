@@ -50,9 +50,13 @@ class ImagenetTxtExtractor(SourceExtractor):
         with open(path, encoding='utf-8') as f:
             for line in f:
                 item = line.split('\"')
-                if len(item) == 3:
-                    item_id = item[1]
-                    label_ids = [int(id) for id in item[2].split()]
+                if 1 < len(item):
+                    if len(item) == 3:
+                        item_id = item[1]
+                        label_ids = [int(id) for id in item[2].split()]
+                    else:
+                        raise Exception("Line %s: unexpected number "
+                            "of quotes in filename" % line)
                 else:
                     item = line.split()
                     item_id = item[0]
