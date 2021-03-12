@@ -9,6 +9,7 @@ from datumaro.components.extractor import (AnnotationType, DatasetItem,
     Extractor, LabelCategories, Mask)
 from datumaro.components.dataset import Dataset
 from datumaro.plugins.camvid_format import CamvidConverter, CamvidImporter
+from datumaro.util.image import Image
 from datumaro.util.test_utils import (TestDir, compare_datasets,
     test_save_and_load)
 
@@ -77,10 +78,10 @@ class CamvidImportTest(TestCase):
 
 class CamvidConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
-            target_dataset=None, importer_args=None):
+            target_dataset=None, importer_args=None, **kwargs):
         return test_save_and_load(self, source_dataset, converter, test_dir,
             importer='camvid',
-            target_dataset=target_dataset, importer_args=importer_args)
+            target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
     def test_can_save_camvid_segm(self):
         class TestExtractor(TestExtractorBase):
@@ -227,3 +228,18 @@ class CamvidConverterTest(TestCase):
             self._test_save_and_load(SrcExtractor(),
                 partial(CamvidConverter.convert, label_map='source'),
                 test_dir, target_dataset=DstExtractor())
+
+    def test_can_save_and_load_image_with_arbitrary_extension(self):
+        class SrcExtractor(TestExtractorBase):
+            def __iter__(self):
+                return iter([
+                    DatasetItem(id='q/1', image=Image(path='q/1.JPEG',
+                        data=np.zeros((4, 3, 3)))),
+                    DatasetItem(id='a/b/c/2', image=Image(path='a/b/c/2.bmp',
+                        data=np.zeros((3, 4, 3)))),
+                ])
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(SrcExtractor(),
+                partial(CamvidConverter.convert, save_images=True),
+                test_dir, require_images=True)
