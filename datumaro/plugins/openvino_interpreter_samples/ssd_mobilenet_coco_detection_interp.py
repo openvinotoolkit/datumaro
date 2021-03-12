@@ -93,7 +93,7 @@ def get_categories():
     label_categories = LabelCategories()
 
     with open(
-        "datumaro/plugins/openvino/interpreters/coco.class", "r"
+        "coco.class", "r"
     ) as file:
         for line in file.readlines():
             label = line.strip()

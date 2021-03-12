@@ -31,7 +31,7 @@ def get_categories():
     label_categories = LabelCategories()
 
     with open(
-        "datumaro/plugins/openvino/interpreters/imagenet.class", "r"
+        "imagenet.class", "r"
     ) as file:
         for line in file.readlines():
             label = line.strip()
