@@ -9,5 +9,5 @@ from . import (
     explain,
     export, merge, convert, transform, filter,
     diff, ediff, stats,
-    info
+    info, validate
 )
