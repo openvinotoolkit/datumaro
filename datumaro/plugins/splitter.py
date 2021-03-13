@@ -12,8 +12,18 @@ from datumaro.components.cli_plugin import CliPlugin
 NEAR_ZERO = 1e-7
 
 
-class _TaskSpecificSplit(Transform):
+class _TaskSpecificSplit(Transform, CliPlugin):
     _default_split = [('train', 0.5), ('val', 0.2), ('test', 0.3)]
+
+    @classmethod
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument('-s', '--subset', action='append',
+            type=cls._split_arg, dest='splits',
+            help="Subsets in the form: '<subset>:<ratio>' "
+                "(repeatable, default: %s)" % dict(cls._default_split))
+        parser.add_argument('--seed', type=int, help="Random seed")
+        return parser
 
     @staticmethod
     def _split_arg(s):
@@ -166,7 +176,7 @@ class _TaskSpecificSplit(Transform):
             yield self.wrap_item(item, subset=self._find_split(i))
 
 
-class ClassificationSplit(_TaskSpecificSplit, CliPlugin):
+class ClassificationSplit(_TaskSpecificSplit):
     """
     Splits dataset into train/val/test set in class-wise manner. |n
     In other words, the split ratio of each class is preserved
@@ -180,17 +190,6 @@ class ClassificationSplit(_TaskSpecificSplit, CliPlugin):
     Example:|n
     |s|s%(prog)s --subset train:.5 --subset val:.2 --subset test:.3
     """
-
-    @classmethod
-    def build_cmdline_parser(cls, **kwargs):
-        parser = super().build_cmdline_parser(**kwargs)
-        parser.add_argument('-s', '--subset', action='append',
-            type=cls._split_arg, dest='splits',
-            help="Subsets in the form: '<subset>:<ratio>' "
-                "(repeatable, default: %s)" % dict(cls._default_split))
-        parser.add_argument('--seed', type=int, help="Random seed")
-        return parser
-
     def __init__(self, dataset, splits, seed=None):
         """
         Parameters
@@ -226,7 +225,7 @@ class ClassificationSplit(_TaskSpecificSplit, CliPlugin):
         self._set_parts(by_splits)
 
 
-class ReidentificationSplit(_TaskSpecificSplit, CliPlugin):
+class ReidentificationSplit(_TaskSpecificSplit):
     """
     Splits dataset for re-identification.|n
     In this task, the test set should consist of images of unseen
@@ -253,16 +252,11 @@ class ReidentificationSplit(_TaskSpecificSplit, CliPlugin):
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
         parser = super().build_cmdline_parser(**kwargs)
-        parser.add_argument('-s', '--subset', action='append',
-            type=cls._split_arg, dest='splits',
-            help="Subsets in the form: '<subset>:<ratio>' "
-                "(repeatable, default: %s)" % dict(cls._default_split))
         parser.add_argument('--query', type=float,
             help="Query ratio in the test set (default: %f)"
             % cls._default_query_ratio)
         parser.add_argument('--attr', type=str, dest='attr_for_id',
             help="Attribute name representing the ID (default: None)")
-        parser.add_argument('--seed', type=int, help="Random seed")
         return parser
 
     def __init__(self, dataset, splits, query=None,
@@ -437,7 +431,7 @@ class ReidentificationSplit(_TaskSpecificSplit, CliPlugin):
             trval[id_test] = test.pop(id_test)
 
 
-class DetectionSplit(_TaskSpecificSplit, CliPlugin):
+class DetectionSplit(_TaskSpecificSplit):
     """
     Splits dataset into train/val/test set for detection task.|n
     For detection dataset, each image can have multiple bbox annotations.|n
@@ -453,17 +447,6 @@ class DetectionSplit(_TaskSpecificSplit, CliPlugin):
     Example:|n
     |s|s%(prog)s --subset train:.5 --subset val:.2 --subset test:.3
     """
-
-    @classmethod
-    def build_cmdline_parser(cls, **kwargs):
-        parser = super().build_cmdline_parser(**kwargs)
-        parser.add_argument('-s', '--subset', action='append',
-            type=cls._split_arg, dest='splits',
-            help="Subsets in the form: '<subset>:<ratio>' "
-                "(repeatable, default: %s)" % dict(cls._default_split))
-        parser.add_argument('--seed', type=int, help="Random seed")
-        return parser
-
     def __init__(self, dataset, splits, seed=None):
         """
         Parameters
