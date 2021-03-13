@@ -370,8 +370,6 @@ class VocConverter(Converter):
             self._get_filtered_lines(ann_file, self._patch, subset_name, items)
         with open(ann_file, 'w', encoding='utf-8') as f:
             for item in items:
-                # if 1 < len(item.split()):
-                #     item = '\"' + item + '\"'
                 f.write('%s\n' % item)
 
         if not items and not self._patch:
@@ -438,8 +436,6 @@ class VocConverter(Converter):
 
         with open(ann_file, 'w', encoding='utf-8') as f:
             for item in items:
-                # if 1 < len(item.split()):
-                #     item = '\"' + item + '\"'
                 f.write('%s\n' % item)
 
     def save_segm_lists(self, subset_name, segm_list):
@@ -452,14 +448,12 @@ class VocConverter(Converter):
 
         with open(ann_file, 'w', encoding='utf-8') as f:
             for item in items:
-                # if 1 < len(item.split()):
-                #     item = '\"' + item + '\"'
                 f.write('%s\n' % item)
 
     def save_layout_lists(self, subset_name, layout_list):
         def _write_item(f, item, item_layouts):
-            # if 1 < len(item.split()):
-            #     item = '\"' + item + '\"'
+            if 1 < len(item.split()):
+                item = '\"' + item + '\"'
             if item_layouts:
                 for obj_id in item_layouts:
                     f.write('%s % d\n' % (item, 1 + obj_id))

@@ -61,10 +61,20 @@ class _VocExtractor(SourceExtractor):
         subset_list = []
         with open(subset_path, encoding='utf-8') as f:
             for line in f:
-                line = line.strip().split()
-                if 2 < len(line):
-                    line[0] = ' '.join(line[i] for i in range(len(line)))
-                subset_list.append(line[0])
+                dirname = osp.basename(osp.dirname(subset_path))
+                if dirname == VocPath.TASK_DIR[VocTask.person_layout]:
+                    objects = line.split('\"')
+                    if 1 < len(objects):
+                        if len(objects) == 3:
+                            line = objects[1]
+                        else:
+                            raise Exception("Line %s: unexpected number "
+                                "of quotes in filename" % line)
+                    else:
+                        line = line.split()[0]
+                else:
+                    line = line.strip()
+                subset_list.append(line)
             return subset_list
 
 class VocClassificationExtractor(_VocExtractor):
@@ -88,9 +98,7 @@ class VocClassificationExtractor(_VocExtractor):
                 label = ann_filename[:ann_filename.rfind('_')]
                 label_id = self._get_label_id(label)
                 for line in f:
-                    objects = line.split()
-                    item = ' '.join(objects[i] for i in range(len(objects) - 1))
-                    present = objects[-1]
+                    item, present = line.rsplit(maxsplit=1)
                     if present == '1':
                         annotations[item].append(label_id)
 
