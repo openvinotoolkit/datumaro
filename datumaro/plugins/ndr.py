@@ -8,19 +8,52 @@ import numpy as np
 from scipy.linalg import orth
 
 from datumaro.components.extractor import Transform, DEFAULT_SUBSET_NAME
+from datumaro.components.cli_plugin import CliPlugin
 
-AlgoList = Enum("AlgoList", ["gradient"]) # other algorithms will be added
+Algorithm = Enum("Algorithm", ["gradient"]) # other algorithms will be added
 
-class NDR(Transform):
+OverSamplingMethod = Enum("OverSamplingMethod", ["random", "similarity"])
+
+UnderSamplingMethod = Enum("UnderSamplingMethod", ["uniform", "inverse"])
+
+class NDR(Transform, CliPlugin):
     """
     Near-duplicated image removal |n
     Removes near-duplicated images in subset |n
+    Example:  control number of outputs to 100 after NDR |n
+    |s|s%(prog)s \ |n
+    |s|s|s|s--working_subset train \ |n
+    |s|s|s|s--algorithm gradient \ |n
+    |s|s|s|s--num_cut 100 \ |n
+    |s|s|s|s--over_sample random \ |n
+    |s|s|s|s--under_sample uniform 
     """
 
-    def __init__(self, extractor,
-            working_subset=None, duplicated_subset="duplicated",
-            algorithm='gradient', num_cut=None,
-            over_sample='random', under_sample='uniform',
+    @classmethod
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument('-w', '--working_subset', default=None,
+            help="Name of the subset to operate (default: %(default)s)")
+        parser.add_argument('-d', '--duplicated_subset', default='duplicated',
+            help="Name of the subset for the removed data after NDR runs (default: %(default)s)")
+        parser.add_argument('-a', '--algorithm', default=Algorithm.gradient.name,
+            choices=[algo.name for algo in Algorithm],
+            help="Name of the algorithm to use (default: %(default)s)")
+        parser.add_argument('-k', '--num_cut', default=None, type=int,
+            help="Number of outputs you want")
+        parser.add_argument('-e', '--over_sample', default=OverSamplingMethod.random.name, 
+            choices=[method.name for method in OverSamplingMethod],
+            help="Specify the strategy when num_cut is bigger than length of the result (default: %(default)s)")
+        parser.add_argument('-u', '--under_sample', default=UnderSamplingMethod.uniform.name, 
+            choices=[method.name for method in UnderSamplingMethod],
+            help="Specify the strategy when num_cut is smaller than length of the result (default: %(default)s)")
+        parser.add_argument('-s', '--seed', type=int, help="Random seed")   
+        return parser
+
+    def __init__(self, extractor, 
+            working_subset, duplicated_subset='duplicated', 
+            algorithm='gradient', num_cut=None, 
+            over_sample='random', under_sample='uniform', 
             seed=None, **kwargs):
         """
         Near-duplicated image removal
@@ -71,7 +104,7 @@ class NDR(Transform):
         # parameter validation before main runs
         if working_subset == duplicated_subset:
             raise ValueError("working_subset == duplicated_subset")
-        if algorithm not in [algo_name.name for algo_name in AlgoList]:
+        if algorithm not in [algo.name for algo in Algorithm]:
             raise ValueError("Invalid algorithm name")
         if over_sample not in ("random", "similarity"):
             raise ValueError("Invalid over_sample")
@@ -96,24 +129,45 @@ class NDR(Transform):
     def _remove(self):
         if self.seed:
             np.random.seed(self.seed)
-
+        
         working_subset = self._extractor.get_subset(self.working_subset)
         having_image = []
         all_imgs = []
         for item in working_subset:
             if item.image.has_data:
                 having_image.append(item)
-                all_imgs.append(item.image.data)
-
+                img = item.image.data
+                # Not handle empty image, as utils/image.py if check empty
+                if len(img.shape) == 2:
+                    img = np.stack((img,)*3, axis=-1)
+                elif len(img.shape) == 3:
+                    if img.shape[2] == 1:
+                        img = np.stack((img[:,:,0],)*3, axis=-1)
+                    elif img.shape[2] == 4:
+                        img = img[...,:3]
+                    elif img.shape[2] == 3:
+                        pass
+                    else:
+                        raise ValueError("Invalid image shape : Unsupported channel")    
+                else:
+                    raise ValueError("Invalid image shape : Unsupported dimension")
+                
+                if self.algorithm == Algorithm.gradient.name:
+                    # Caculate gradient
+                    img = self._cgrad_feature(img)    
+                else :
+                    raise NotImplementedError()
+                all_imgs.append(img)
+        
         if self.num_cut and self.num_cut > len(all_imgs):
             raise ValueError("The number of images is smaller than the cut you want")
 
-        if self.algorithm == AlgoList.gradient.name:
+        if self.algorithm == Algorithm.gradient.name:
             all_key, fidx, kept_index, key_counter, removed_index_with_sim = \
                 self._gradient_based(all_imgs, **self.algorithm_specific)
         else:
             raise NotImplementedError()
-
+        
         kept_index = self._keep_cut(self.num_cut, all_key, fidx,
             kept_index, key_counter, removed_index_with_sim,
             self.over_sample, self.under_sample)
@@ -132,12 +186,8 @@ class NDR(Transform):
         if hash_dim <= 0:
             raise ValueError("hash_dim should be positive")
 
-        # Caculate gradient
-        all_clr = np.array(
-            [self._cgrad_feature(img, out_wh=block_shape) for img in all_imgs])
-
         # Compute hash keys from all the features
-        all_clr = np.reshape(all_clr, (len(all_imgs), -1))
+        all_clr = np.reshape(np.array(all_imgs), (len(all_imgs), -1)) 
         all_key = self._project(all_clr, hash_dim)
 
         # Remove duplication using hash
