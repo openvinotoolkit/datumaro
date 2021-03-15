@@ -235,11 +235,50 @@ class CamvidConverterTest(TestCase):
                 return iter([
                     DatasetItem(id='q/1', image=Image(path='q/1.JPEG',
                         data=np.zeros((4, 3, 3)))),
-                    DatasetItem(id='a/b/c/2', image=Image(path='a/b/c/2.bmp',
-                        data=np.zeros((3, 4, 3)))),
+                    DatasetItem(id='a/b/c/2', image=Image(
+                            path='a/b/c/2.bmp', data=np.ones((1, 5, 3))
+                        ),
+                        annotations=[
+                            Mask(np.array([[0, 0, 0, 1, 0]]),
+                                label=self._label('a')),
+                            Mask(np.array([[0, 1, 1, 0, 0]]),
+                                label=self._label('b')),
+                        ])
                 ])
+
+            def categories(self):
+                label_map = OrderedDict()
+                label_map['a'] = None
+                label_map['b'] = None
+                return Camvid.make_camvid_categories(label_map)
+
+        class DstExtractor(TestExtractorBase):
+            def __iter__(self):
+                return iter([
+                    DatasetItem(id='q/1', image=Image(path='q/1.JPEG',
+                        data=np.zeros((4, 3, 3)))),
+                    DatasetItem(id='a/b/c/2', image=Image(
+                            path='a/b/c/2.bmp', data=np.ones((1, 5, 3))
+                        ),
+                        annotations=[
+                            Mask(np.array([[1, 0, 0, 0, 1]]),
+                                label=self._label('background')),
+                            Mask(np.array([[0, 0, 0, 1, 0]]),
+                                label=self._label('a')),
+                            Mask(np.array([[0, 1, 1, 0, 0]]),
+                                label=self._label('b')),
+                        ])
+                ])
+
+            def categories(self):
+                label_map = OrderedDict()
+                label_map['background'] = None
+                label_map['a'] = None
+                label_map['b'] = None
+                return Camvid.make_camvid_categories(label_map)
 
         with TestDir() as test_dir:
             self._test_save_and_load(SrcExtractor(),
                 partial(CamvidConverter.convert, save_images=True),
-                test_dir, require_images=True)
+                test_dir, require_images=True,
+                target_dataset=DstExtractor())
