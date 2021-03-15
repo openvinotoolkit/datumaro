@@ -61,7 +61,7 @@ class CamvidPath:
     SEGM_DIR = "annot"
     IMAGE_EXT = '.jpg'
     MASK_EXT = '.png'
-    PATTERN = re.compile(r'(.+[.]\S+) (.+[.]\S+)?')
+    PATTERN = re.compile(r'(.+\.\S+)(?:\s+(.+\.\S+)?)?\s*')
 
 
 def parse_label_map(path):
@@ -160,9 +160,9 @@ class CamvidExtractor(SourceExtractor):
         items = {}
         with open(path, encoding='utf-8') as f:
             for line in f:
-                search = CamvidPath.PATTERN.search(line)
+                search = CamvidPath.PATTERN.search(line.strip())
                 if search:
-                    objects = CamvidPath.PATTERN.search(line).groups()
+                    objects = search.groups()
                 else:
                     raise Exception("Line %s: invalid path format" % line)
                 image = objects[0]

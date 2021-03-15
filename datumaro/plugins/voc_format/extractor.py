@@ -24,10 +24,11 @@ from .format import (
 _inverse_inst_colormap = invert_colormap(VocInstColormap)
 
 class _VocExtractor(SourceExtractor):
-    def __init__(self, path):
+    def __init__(self, path, task):
         assert osp.isfile(path), path
         self._path = path
         self._dataset_dir = osp.dirname(osp.dirname(osp.dirname(path)))
+        self._task = task
 
         super().__init__(subset=osp.splitext(osp.basename(path))[0])
 
@@ -56,13 +57,11 @@ class _VocExtractor(SourceExtractor):
             label_map = parse_label_map(label_map_path)
         return make_voc_categories(label_map)
 
-    @staticmethod
-    def _load_subset_list(subset_path):
+    def _load_subset_list(self, subset_path):
         subset_list = []
         with open(subset_path, encoding='utf-8') as f:
             for line in f:
-                dirname = osp.basename(osp.dirname(subset_path))
-                if dirname == VocPath.TASK_DIR[VocTask.person_layout]:
+                if self._task == VocTask.person_layout:
                     objects = line.split('\"')
                     if 1 < len(objects):
                         if len(objects) == 3:
@@ -78,6 +77,9 @@ class _VocExtractor(SourceExtractor):
             return subset_list
 
 class VocClassificationExtractor(_VocExtractor):
+    def __init__(self, path):
+        super().__init__(path, VocTask.classification)
+
     def __iter__(self):
         raw_anns = self._load_annotations()
         for item_id in self._items:
@@ -110,8 +112,7 @@ class VocClassificationExtractor(_VocExtractor):
 
 class _VocXmlExtractor(_VocExtractor):
     def __init__(self, path, task):
-        super().__init__(path)
-        self._task = task
+        super().__init__(path, task)
 
     def __iter__(self):
         anno_dir = osp.join(self._dataset_dir, VocPath.ANNOTATIONS_DIR)
@@ -246,6 +247,9 @@ class VocActionExtractor(_VocXmlExtractor):
         super().__init__(path, task=VocTask.action_classification)
 
 class VocSegmentationExtractor(_VocExtractor):
+    def __init__(self, path):
+        super().__init__(path, task=VocTask.segmentation)
+
     def __iter__(self):
         for item_id in self._items:
             log.debug("Reading item '%s'" % item_id)
