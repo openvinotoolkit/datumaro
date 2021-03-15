@@ -18,12 +18,10 @@ class ImagenetTxtPath:
     IMAGE_DIR = 'images'
 
 class ImagenetTxtExtractor(SourceExtractor):
-    _NOTSET = object()
-
-    def __init__(self, path, labels=None, image_dir=None, subset=_NOTSET):
+    def __init__(self, path, labels=None, image_dir=None, subset=None):
         assert osp.isfile(path), path
 
-        if subset is self._NOTSET:
+        if not subset:
             subset = osp.splitext(osp.basename(path))[0]
         super().__init__(subset=subset)
 

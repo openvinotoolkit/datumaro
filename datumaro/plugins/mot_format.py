@@ -59,8 +59,9 @@ class MotPath:
 
 
 class MotSeqExtractor(SourceExtractor):
-    def __init__(self, path, labels=None, occlusion_threshold=0, is_gt=None):
-        super().__init__()
+    def __init__(self, path, labels=None, occlusion_threshold=0, is_gt=None,
+            subset=None):
+        super().__init__(subset=subset)
 
         assert osp.isfile(path)
         seq_root = osp.dirname(osp.dirname(path))

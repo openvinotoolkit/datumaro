@@ -19,10 +19,14 @@ class LfwPath:
     PATTERN = re.compile(r'([\w]+)_([-\d]+)')
 
 class LfwExtractor(SourceExtractor):
-    def __init__(self, path):
+    def __init__(self, path, subset=None):
         if not osp.isfile(path):
-            raise NotADirectoryError("Can't read annotation file '%s'" % path)
-        super().__init__(subset=osp.basename(osp.dirname(path)))
+            raise FileNotFoundError("Can't read annotation file '%s'" % path)
+
+        if not subset:
+            subset = osp.basename(osp.dirname(path))
+        super().__init__(subset=subset)
+
         self._dataset_dir = osp.dirname(osp.dirname(path))
         self._items = list(self._load_items(path).values())
 

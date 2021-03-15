@@ -20,15 +20,16 @@ class VggFace2Path:
     IMAGES_DIR_NO_LABEL = 'no_label'
 
 class VggFace2Extractor(SourceExtractor):
-    def __init__(self, path):
+    def __init__(self, path, subset=None):
         if not osp.isfile(path):
             raise Exception("Can't read .csv annotation file '%s'" % path)
         self._path = path
         self._dataset_dir = osp.dirname(osp.dirname(path))
 
-        subset = osp.splitext(osp.basename(path))[0]
-        if subset.startswith(VggFace2Path.LANDMARKS_FILE):
-            subset = subset.split('_')[2]
+        if not subset:
+            subset = osp.splitext(osp.basename(path))[0]
+            if subset.startswith(VggFace2Path.LANDMARKS_FILE):
+                subset = subset.split('_')[2]
         super().__init__(subset=subset)
 
         self._categories = self._load_categories()

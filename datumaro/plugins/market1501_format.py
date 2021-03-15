@@ -20,19 +20,23 @@ class Market1501Path:
     IMAGE_NAMES = 'images_'
 
 class Market1501Extractor(SourceExtractor):
-    def __init__(self, path):
+    def __init__(self, path, subset=None):
         if not osp.isdir(path):
             raise NotADirectoryError(
                 "Can't open folder with annotation files '%s'" % path)
 
-        subset = ''
-        for dirname in glob(osp.join(path, '*')):
-            if osp.basename(dirname).startswith(Market1501Path.BBOX_DIR):
-                subset = osp.basename(dirname).replace(Market1501Path.BBOX_DIR, '')
-            if osp.basename(dirname).startswith(Market1501Path.IMAGE_NAMES):
-                subset = osp.basename(dirname).replace(Market1501Path.IMAGE_NAMES, '')
-                subset = osp.splitext(subset)[0]
-                break
+        if not subset:
+            subset = ''
+            for dirname in glob(osp.join(path, '*')):
+                if osp.basename(dirname).startswith(Market1501Path.BBOX_DIR):
+                    subset = osp.basename(dirname) \
+                        .replace(Market1501Path.BBOX_DIR, '')
+                    break
+                if osp.basename(dirname).startswith(Market1501Path.IMAGE_NAMES):
+                    subset = osp.basename(dirname) \
+                        .replace(Market1501Path.IMAGE_NAMES, '')
+                    subset = osp.splitext(subset)[0]
+                    break
         super().__init__(subset=subset)
 
         self._path = path
@@ -86,7 +90,7 @@ class Market1501Importer(Importer):
         return [{ 'url': path, 'format': 'market1501' }]
 
 class Market1501Converter(Converter):
-    DEFAULT_IMAGE_EXT = '.jpg'
+    DEFAULT_IMAGE_EXT = Market1501Path.IMAGE_EXT
 
     def apply(self):
         for subset_name, subset in self._extractor.subsets().items():
@@ -108,6 +112,7 @@ class Market1501Converter(Converter):
                         query = strtobool(query)
                     if query:
                         dirname = Market1501Path.QUERY_DIR
+
                 image_path = osp.join(self._save_dir, dirname,
                     image_name + Market1501Path.IMAGE_EXT)
                 if item.has_image and self._save_images:
