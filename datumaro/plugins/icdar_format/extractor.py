@@ -16,9 +16,7 @@ from .format import IcdarPath, IcdarTask
 
 
 class _IcdarExtractor(SourceExtractor):
-    _NOTSET = object()
-
-    def __init__(self, path, task, subset=_NOTSET):
+    def __init__(self, path, task, subset=None):
         self._path = path
         self._task = task
 
@@ -27,7 +25,7 @@ class _IcdarExtractor(SourceExtractor):
                 raise FileNotFoundError(
                     "Can't read annotation file '%s'" % path)
 
-            if subset is self._NOTSET:
+            if not subset:
                 subset = osp.basename(osp.dirname(path))
             super().__init__(subset=subset)
 
@@ -39,7 +37,7 @@ class _IcdarExtractor(SourceExtractor):
                 raise NotADirectoryError(
                     "Can't open folder with annotation files '%s'" % path)
 
-            if subset is self._NOTSET:
+            if not subset:
                 subset = osp.basename(path)
             super().__init__(subset=subset)
 

@@ -131,12 +131,8 @@ class Market1501Converter(Converter):
 
                 image_path = self._make_image_filename(item,
                     name=image_name, subdir=dirname)
-                if self._save_images:
-                    if item.has_image and item.image.has_data:
-                        self._save_image(item,
-                            osp.join(self._save_dir, image_path))
-                    else:
-                        log.debug("Item '%s' has no image", item.id)
+                if self._save_images and item.has_image:
+                    self._save_image(item, osp.join(self._save_dir, image_path))
 
                 annotation += '%s\n' % image_path
 
