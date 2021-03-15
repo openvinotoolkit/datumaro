@@ -10,7 +10,7 @@ import re
 from datumaro.components.extractor import (SourceExtractor, Extractor,
     DatasetItem, AnnotationType, Bbox, LabelCategories, Importer
 )
-from datumaro.util import split_path
+from datumaro.util.os_util import split_path
 from datumaro.util.image import Image
 
 from .format import YoloPath
@@ -106,20 +106,16 @@ class YoloExtractor(SourceExtractor):
 
     @staticmethod
     def localize_path(path):
-        path = osp.normpath(path).strip()
-        default_base = osp.join('data', '')
-        if path.startswith(default_base): # default path
-            path = path[len(default_base) : ]
-        return path
+        return osp.normpath(path).strip().lstrip('data' + osp.sep)
 
     @classmethod
     def name_from_path(cls, path):
         path = cls.localize_path(path)
         parts = split_path(path)
         if 1 < len(parts) and not osp.isabs(path):
-            # NOTE: when path is like [data/]<subset_obj>/<image_name>
+            # NOTE: when path is like [data/]<subset>_obj/<image_name>
             # drop everything but <image name>
-            # <image name> can be <a/b/c/filename.ext>, so no just basename()
+            # <image name> can be <a/b/c/filename.ext>, so not just basename()
             path = osp.join(*parts[1:])
         return osp.splitext(path)[0]
 

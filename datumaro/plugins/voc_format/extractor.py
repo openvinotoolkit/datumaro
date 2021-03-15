@@ -12,7 +12,7 @@ from defusedxml import ElementTree
 from datumaro.components.extractor import (SourceExtractor, DatasetItem,
     AnnotationType, Label, Mask, Bbox, CompiledMask
 )
-from datumaro.util import dir_items
+from datumaro.util.os_util import dir_items
 from datumaro.util.image import Image, find_images
 from datumaro.util.mask_tools import lazy_mask, invert_colormap
 
