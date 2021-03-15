@@ -21,19 +21,55 @@ Interpreter samples to parse OpenVINO inference outputs.
 - Public Pre-Trained Models(OMZ)
   - Classification
     - mobilenet-v2-pytorch (https://docs.openvinotoolkit.org/latest/omz_models_public_mobilenet_v2_pytorch_mobilenet_v2_pytorch.html)
+
   - Object Detection
     - ssd_mobilenet_v1_coco (https://docs.openvinotoolkit.org/latest/omz_models_public_ssd_mobilenet_v1_coco_ssd_mobilenet_v1_coco.html)
     - ssd_mobilenet_v2_coco (https://docs.openvinotoolkit.org/latest/omz_models_public_ssd_mobilenet_v2_coco_ssd_mobilenet_v2_coco.html)
 
 ## Model download
-- Prerequisites: OpenVINO (For installation, please see https://docs.openvinotoolkit.org/latest/openvino_docs_install_guides_installing_openvino_linux.html)
-- To download OpenVINO models, please see https://docs.openvinotoolkit.org/latest/omz_tools_downloader_README.html
+- Prerequisites
+    - OpenVINO (To install OpenVINO, please see https://docs.openvinotoolkit.org/latest/openvino_docs_install_guides_installing_openvino_linux.html)
+    - OpenVINO models (To download OpenVINO models, please go https://docs.openvinotoolkit.org/latest/omz_tools_downloader_README.html)
+    - VOCdevkit dataset (To download VOC2012 dataset, please go http://host.robots.ox.ac.uk/pascal/VOC/voc2012/#devkit)
 
   ```bash
-  # cd <openvino_directory>/deployment_tools/open_model_zoo/tools/downloader
+  # cd <openvino_dir>/deployment_tools/open_model_zoo/tools/downloader
   # ./downloader.py --name <model_name>
   #
   # Examples
   cd /opt/intel/openvino_2021/deployment_tools/open_model_zoo/tools/downloader
   ./downloader.py --name face-detection-0200
+  ```
+
+## Model inference
+- Prerequisites: 
+    - Put the models downloaded in <datumaro_root_dir>/datumaro/plugins/openvino/models
+    - Put the VOCdevkit dataset downloaded in <datumaro_root_dir>
+    
+- To run the inference with OpenVINO models and the interpreter samples, please follow the instructions below.
+
+  ```bash
+  # . <openvino_dir>/bin/setupvars.sh
+  # cd <datumaro_root_dir>/datumaro/plugins/openvino/
+  #	datum create -o <proj_dir>
+  #	datum model add -l <launcher> -p <proj_dir> --copy -- -d <path_to_xml> -w <path_to_bin> -i <path_to_interpreter_script>
+  #	datum add path -p <proj_dir> -f <format> <path_to_dataset>
+  #	datum model run -p <proj_dir> -m model-0
+  #
+  # Examples
+  # Detection> ssd_mobilenet_v2_coco
+  . /opt/intel/openvino_2021/bin/setupvars.sh
+  cd /home/cvalgo/workspace/datumaro/datumaro/plugins/openvino/
+  datum create -o proj_ssd_mobilenet_v2_coco_detection
+  datum model add -l openvino -p proj_ssd_mobilenet_v2_coco_detection --copy -- --output-layers=do_ExpandDims_conf/sigmoid -d model/ssd_mobilenet_v2_coco.xml -w model/ssd_mobilenet_v2_coco.bin -i samples/ssd_mobilenet_coco_detection_interp.py
+  datum add path -p proj_ssd_mobilenet_v2_coco_detection -f voc /home/cvalgo/workspace/datumaro/VOCdevkit
+  datum model run -p proj_ssd_mobilenet_v2_coco_detection -m model-0
+  
+  # Classification> mobilenet-v2-pytorch
+  . /opt/intel/openvino_2021/bin/setupvars.sh
+  cd /home/cvalgo/workspace/datumaro/datumaro/plugins/openvino/
+  datum create -o proj_mobilenet_v2_classification
+  datum model add -l openvino -p proj_mobilenet_v2_classification --copy -- -d model/mobilenet-v2-pytorch.xml -w model/mobilenet-v2-pytorch.bin -i samples/mobilenet_v2_pytorch_interp.py
+  datum add path -p proj_mobilenet_v2_classification -f voc /home/cvalgo/workspace/datumaro/VOCdevkit
+  datum model run -p proj_mobilenet_v2_classification -m model-0
   ```

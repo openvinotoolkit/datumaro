@@ -31,7 +31,7 @@ def get_categories():
     label_categories = LabelCategories()
 
     with open(
-        "imagenet.class", "r"
+        "samples/imagenet.class", "r"
     ) as file:
         for line in file.readlines():
             label = line.strip()

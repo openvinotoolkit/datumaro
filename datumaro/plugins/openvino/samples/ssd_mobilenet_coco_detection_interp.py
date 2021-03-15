@@ -93,7 +93,7 @@ def get_categories():
     label_categories = LabelCategories()
 
     with open(
-        "coco.class", "r"
+        "samples/coco.class", "r"
     ) as file:
         for line in file.readlines():
             label = line.strip()
