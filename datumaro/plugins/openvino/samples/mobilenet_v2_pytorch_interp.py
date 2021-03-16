@@ -18,7 +18,7 @@ def process_outputs(inputs, outputs):
         image_results = []
         output = softmax(output).tolist()
         label = output.index(max(output))
-        image_results.append(Label(label=label, attributes={"confidences": output}))
+        image_results.append(Label(label=label, attributes={"scores": output}))
 
         results.append(image_results[:])
 
@@ -30,9 +30,7 @@ def get_categories():
 
     label_categories = LabelCategories()
 
-    with open(
-        "samples/imagenet.class", "r"
-    ) as file:
+    with open("samples/imagenet.class", "r") as file:
         for line in file.readlines():
             label = line.strip()
             label_categories.add(label)

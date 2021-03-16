@@ -42,7 +42,7 @@ class SamplerTest(TestCase):
         return probs
 
     def _generate_classification_dataset(self, config, subset=None,
-            empty_confidences=False, out_range=False, no_attr=False, no_img=False):
+            empty_scores=False, out_range=False, no_attr=False, no_img=False):
         probs = self._get_probs(out_range)
         if subset is None:
             self.subset = ["train", "val", "test"]
@@ -56,11 +56,11 @@ class SamplerTest(TestCase):
             num_item = config[label]
             label_cat.add(label, attributes=None)
             for _ in range(num_item):
-                confidences = probs[idx]
+                scores = probs[idx]
                 idx += 1
-                if empty_confidences:
-                    confidences = []
-                attr = {"confidences": confidences}
+                if empty_scores:
+                    scores = []
+                attr = {"scores": scores}
                 if no_attr:
                     attr = {}
                 img = Image(path=f"test/dataset/{idx}.jpg", size=(90, 90))
@@ -341,7 +341,7 @@ class SamplerTest(TestCase):
                     data_df["ImagePath"].append(data.image.path)
 
                     for annotation in data.annotations:
-                        probs = annotation.attributes["confidences"]
+                        probs = annotation.attributes["scores"]
                         infer_df["ImageID"].append(data.id)
 
                         for prob_idx, prob in enumerate(probs):
@@ -368,7 +368,7 @@ class SamplerTest(TestCase):
                     data_df["ImagePath"].append(data.image.path)
 
                     for annotation in data.annotations:
-                        probs = annotation.attributes["confidences"]
+                        probs = annotation.attributes["scores"]
 
                         for prob_idx, prob in enumerate(probs):
                             infer_df[f"ClassProbability{prob_idx+1}"].append(prob)
@@ -401,14 +401,14 @@ class SamplerTest(TestCase):
                 result = iter(result)
                 next(result)
 
-        with self.subTest("Dataset without confidences (Probability)"):
+        with self.subTest("Dataset without Scores (Probability)"):
             config = {
                 "label1": 10,
                 "label2": 10,
                 "label3": 10,
             }
 
-            source = self._generate_classification_dataset(config, empty_confidences=True)
+            source = self._generate_classification_dataset(config, empty_scores=True)
             with self.assertRaisesRegex(Exception, "ClassProbability"):
                 result = Sampler(
                     source,
@@ -431,7 +431,7 @@ class SamplerTest(TestCase):
             }
 
             source = self._generate_classification_dataset(
-                config, empty_confidences=False, out_range=True
+                config, empty_scores=False, out_range=True
             )
             with self.assertRaisesRegex(Exception, "Invalid data"):
                 result = Sampler(
@@ -447,7 +447,7 @@ class SamplerTest(TestCase):
                 result = iter(result)
                 next(result)
 
-        with self.subTest("No confidences Attribute Data"):
+        with self.subTest("No Scores Attribute Data"):
             config = {
                 "label1": 10,
                 "label2": 10,
@@ -455,7 +455,7 @@ class SamplerTest(TestCase):
             }
 
             source = self._generate_classification_dataset(config, no_attr=True)
-            with self.assertRaisesRegex(Exception, "does not have 'confidences'"):
+            with self.assertRaisesRegex(Exception, "does not have 'scores'"):
                 result = Sampler(
                     source,
                     algorithm="entropy",

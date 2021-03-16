@@ -65,19 +65,7 @@ def process_outputs(inputs, outputs):
             w = min(int(det[5] * input_width - x), input_width)
             h = min(int(det[6] * input_height - y), input_height)
 
-            image_results.append(
-                Bbox(
-                    x,
-                    y,
-                    w,
-                    h,
-                    label=label,
-                    attributes={
-                        "confidence": conf,
-                        "confidences": list(map(float, det_confs)),
-                    },
-                )
-            )
+            image_results.append(Bbox(x, y, w, h, label=label, attributes={"score": conf, "scores": list(map(float, det_confs)),},))
 
             results.append(image_results)
 

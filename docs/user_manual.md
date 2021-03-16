@@ -850,6 +850,7 @@ datum model add \
 ```
 
 Interpretation script for an OpenVINO detection model (`convert.py`):
+You can find OpenVINO™ model interpreter samples in datumaro/plugins/openvino/samples. [Instruction](datumaro/plugins/openvino/README.md) 
 
 ``` python
 from datumaro.components.extractor import *
