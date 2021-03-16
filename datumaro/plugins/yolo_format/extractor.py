@@ -55,7 +55,7 @@ class YoloExtractor(SourceExtractor):
             with open(image_info) as f:
                 image_info = {}
                 for line in f:
-                    image_name, h, w = line.strip().split()
+                    image_name, h, w = line.strip().rsplit(maxsplit=2)
                     image_info[image_name] = (int(h), int(w))
         self._image_info = image_info
 
