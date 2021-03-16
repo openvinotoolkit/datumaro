@@ -387,6 +387,32 @@ class TransformsTest(TestCase):
 
         compare_datasets(self, target_dataset, actual)
 
+    def test_remap_labels_add_label_for_none(self):
+        src_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[
+                Bbox(1, 2, 3, 4),
+                Polygon([1, 1, 2, 2, 3, 4]),
+                PolyLine([1, 3, 4, 2, 5, 6])
+            ])
+        ], categories={})
+
+        dst_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[
+                Bbox(1, 2, 3, 4, label=0),
+                Polygon([1, 1, 2, 2, 3, 4], label=0),
+                PolyLine([1, 3, 4, 2, 5, 6], label=0)
+            ]),
+        ], categories={
+            AnnotationType.label: LabelCategories.from_iterable(
+                ['label0']),
+        })
+
+        actual = transforms.RemapLabels(src_dataset, mapping={
+            None: 'label0',
+        }, default='keep')
+
+        compare_datasets(self, dst_dataset, actual)
+
     def test_transform_labels(self):
         src_dataset = Dataset.from_iterable([
             DatasetItem(id=1, annotations=[

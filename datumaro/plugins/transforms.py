@@ -474,8 +474,22 @@ class RemapLabels(Transform, CliPlugin):
         self._categories = {}
 
         src_label_cat = self._extractor.categories().get(AnnotationType.label)
-        if src_label_cat is not None:
-            self._make_label_id_map(src_label_cat, mapping, default)
+        # if src_label_cat is not None:
+        self._make_label_id_map(src_label_cat, mapping, default)
+        # else:
+            # dst_label_cat = LabelCategories()
+            # id_mapping = {}
+            # for src_label, dst_label in mapping.items():
+            #     dst_index = dst_label_cat.find(dst_label)[0]
+            #     if dst_index is None:
+            #         dst_index = dst_label_cat.add(dst_label)
+            #     if src_label_cat:
+            #         src_index = src_label_cat.find(src_label)[0]
+            #     else:
+            #         src_index = None
+            #     id_mapping[src_index] = dst_index
+            # self._categories[AnnotationType.label] = dst_label_cat
+            # self._map_id = lambda src_id: id_mapping.get(src_id, None)
 
         src_mask_cat = self._extractor.categories().get(AnnotationType.mask)
         if src_mask_cat is not None:
@@ -500,19 +514,32 @@ class RemapLabels(Transform, CliPlugin):
             self._categories[AnnotationType.points] = dst_points_cat
 
     def _make_label_id_map(self, src_label_cat, label_mapping, default_action):
-        dst_label_cat = LabelCategories(attributes=src_label_cat.attributes)
+        dst_label_cat = LabelCategories()
         id_mapping = {}
-        for src_index, src_label in enumerate(src_label_cat.items):
-            dst_label = label_mapping.get(src_label.name)
-            if not dst_label and default_action == self.DefaultAction.keep:
-                dst_label = src_label.name # keep unspecified as is
-            if not dst_label:
-                continue
+        if src_label_cat:
+            dst_label_cat.attributes=src_label_cat.attributes
+            for src_index, src_label in enumerate(src_label_cat.items):
+                dst_label = label_mapping.get(src_label.name)
+                if not dst_label and default_action == self.DefaultAction.keep:
+                    dst_label = src_label.name # keep unspecified as is
+                if not dst_label:
+                    continue
 
+                dst_index = dst_label_cat.find(dst_label)[0]
+                if dst_index is None:
+                    dst_index = dst_label_cat.add(dst_label,
+                        src_label.parent, src_label.attributes)
+                id_mapping[src_index] = dst_index
+        src_label = None
+        dst_label = label_mapping.get(src_label)
+        if dst_label:
             dst_index = dst_label_cat.find(dst_label)[0]
             if dst_index is None:
-                dst_index = dst_label_cat.add(dst_label,
-                    src_label.parent, src_label.attributes)
+                dst_index = dst_label_cat.add(dst_label)
+            if src_label_cat:
+                src_index = src_label_cat.find(src_label)[0]
+            else:
+                src_index = None
             id_mapping[src_index] = dst_index
 
         if log.getLogger().isEnabledFor(log.DEBUG):
@@ -538,7 +565,7 @@ class RemapLabels(Transform, CliPlugin):
             if ann.type in { AnnotationType.label, AnnotationType.mask,
                 AnnotationType.points, AnnotationType.polygon,
                 AnnotationType.polyline, AnnotationType.bbox
-            } and ann.label is not None:
+            }:
                 conv_label = self._map_id(ann.label)
                 if conv_label is not None:
                     annotations.append(ann.wrap(label=conv_label))
