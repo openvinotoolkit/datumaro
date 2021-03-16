@@ -6,7 +6,6 @@
 import logging as log
 import os
 import os.path as osp
-import re
 from collections import OrderedDict
 from enum import Enum
 
@@ -61,7 +60,6 @@ class CamvidPath:
     SEGM_DIR = "annot"
     IMAGE_EXT = '.jpg'
     MASK_EXT = '.png'
-    PATTERN = re.compile(r'(.+?\.\S+)(?:\s+(.+\.\S+)?)?')
 
 
 def parse_label_map(path):
@@ -160,17 +158,23 @@ class CamvidExtractor(SourceExtractor):
         items = {}
         with open(path, encoding='utf-8') as f:
             for line in f:
-                search = CamvidPath.PATTERN.search(line.strip())
-                if search:
-                    objects = search.groups()
+                line = line.strip()
+                objects = line.split('\"')
+                if 1 < len(objects):
+                    if len(objects) == 5:
+                        objects[0] = objects[1]
+                        objects[1] = objects[3]
+                    else:
+                        raise Exception("Line %s: unexpected number "
+                            "of quotes in filename" % line)
                 else:
-                    raise Exception("Line %s: invalid path format" % line)
+                    objects = line.split()
                 image = objects[0]
                 item_id = ('/'.join(image.split('/')[2:]))[:-len(CamvidPath.IMAGE_EXT)]
                 image_path = osp.join(self._dataset_dir,
                     (image, image[1:])[image[0] == '/'])
                 item_annotations = []
-                if objects[1] != None:
+                if 1 < len(objects):
                     gt = objects[1]
                     gt_path = osp.join(self._dataset_dir,
                         (gt, gt[1:]) [gt[0] == '/'])
@@ -271,10 +275,12 @@ class CamvidConverter(Converter):
         ann_file = osp.join(self._save_dir, subset_name + '.txt')
         with open(ann_file, 'w', encoding='utf-8') as f:
             for (image_path, mask_path) in segm_list.values():
-                f.write('/%s %s\n' % (
-                    image_path.replace('\\', '/'),
-                    mask_path.replace('\\', '/'))
-                )
+                image_path = '/' + image_path.replace('\\', '/')
+                mask_path = mask_path.replace('\\', '/')
+                if 1 < len(image_path.split()) or 1 < len(mask_path.split()):
+                    image_path = '\"' + image_path + '\"'
+                    mask_path = '\"' + mask_path + '\"'
+                f.write('%s %s\n' % (image_path, mask_path))
 
     def save_label_map(self):
         path = osp.join(self._save_dir, CamvidPath.LABELMAP_FILE)
