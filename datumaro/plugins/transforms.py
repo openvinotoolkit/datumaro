@@ -474,22 +474,7 @@ class RemapLabels(Transform, CliPlugin):
         self._categories = {}
 
         src_label_cat = self._extractor.categories().get(AnnotationType.label)
-        # if src_label_cat is not None:
         self._make_label_id_map(src_label_cat, mapping, default)
-        # else:
-            # dst_label_cat = LabelCategories()
-            # id_mapping = {}
-            # for src_label, dst_label in mapping.items():
-            #     dst_index = dst_label_cat.find(dst_label)[0]
-            #     if dst_index is None:
-            #         dst_index = dst_label_cat.add(dst_label)
-            #     if src_label_cat:
-            #         src_index = src_label_cat.find(src_label)[0]
-            #     else:
-            #         src_index = None
-            #     id_mapping[src_index] = dst_index
-            # self._categories[AnnotationType.label] = dst_label_cat
-            # self._map_id = lambda src_id: id_mapping.get(src_id, None)
 
         src_mask_cat = self._extractor.categories().get(AnnotationType.mask)
         if src_mask_cat is not None:
