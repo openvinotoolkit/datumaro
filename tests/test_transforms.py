@@ -438,3 +438,49 @@ class TransformsTest(TestCase):
         actual = transforms.AnnsToLabels(src_dataset)
 
         compare_datasets(self, dst_dataset, actual)
+
+    def test_attr_to_label_attr(self):
+        src_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, attributes={
+                'camera_id': 0,
+                'person_id': 1,
+                'query': True,
+            })
+        ])
+
+        dst_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[
+                Label(0, attributes={
+                    'camera_id': 0,
+                    'person_id': 1,
+                    'query': True,
+                }),
+            ]),
+        ], categories=['label_0'])
+
+        actual = transforms.AttrToLabelAttr(src_dataset, 'label_0')
+
+        compare_datasets(self, dst_dataset, actual)
+
+    def test_label_attr_to_attr(self):
+        src_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[
+                Label(0, attributes={
+                    'camera_id': 0,
+                    'person_id': 1,
+                    'query': True,
+                }),
+            ]),
+        ], categories=['label_0'])
+
+        dst_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, attributes={
+                'camera_id': 0,
+                'person_id': 1,
+                'query': True,
+            })
+        ], categories=['label_0'])
+
+        actual = transforms.LabelAttrToAttr(src_dataset, 'label_0')
+
+        compare_datasets(self, dst_dataset, actual)
