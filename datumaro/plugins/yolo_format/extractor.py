@@ -106,7 +106,11 @@ class YoloExtractor(SourceExtractor):
 
     @staticmethod
     def localize_path(path):
-        return osp.normpath(path).strip().lstrip('data' + osp.sep)
+        path = osp.normpath(path).strip()
+        default_prefix = 'data' + osp.sep
+        if path.startswith(default_prefix):
+            path = path[len(default_prefix):]
+        return path
 
     @classmethod
     def name_from_path(cls, path):
