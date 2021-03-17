@@ -7,6 +7,7 @@ from unittest import TestCase
 from datumaro.components.extractor import DatasetItem, Mask
 from datumaro.components.dataset import Dataset
 from datumaro.plugins.mots_format import MotsPngConverter, MotsImporter
+from datumaro.util.image import Image
 from datumaro.util.test_utils import (TestDir, compare_datasets,
     test_save_and_load)
 
@@ -15,10 +16,10 @@ DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'mots_dataset')
 
 class MotsPngConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
-            target_dataset=None, importer_args=None):
+            target_dataset=None, importer_args=None, **kwargs):
         return test_save_and_load(self, source_dataset, converter, test_dir,
             importer='mots',
-            target_dataset=target_dataset, importer_args=importer_args)
+            target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
     def test_can_save_masks(self):
         source = Dataset.from_iterable([
@@ -65,6 +66,29 @@ class MotsPngConverterTest(TestCase):
             self._test_save_and_load(source,
                 partial(MotsPngConverter.convert, save_images=True),
                 test_dir, target_dataset=target)
+
+    def test_can_save_and_load_image_with_arbitrary_extension(self):
+        expected = Dataset.from_iterable([
+            DatasetItem('q/1', image=Image(
+                path='q/1.JPEG', data=np.zeros((4, 3, 3))),
+                annotations=[
+                    Mask(np.array([[0, 1, 0, 0, 0]]), label=0,
+                        attributes={'track_id': 1}),
+                ]
+            ),
+            DatasetItem('a/b/c/2', image=Image(
+                path='a/b/c/2.bmp', data=np.zeros((3, 4, 3))),
+                annotations=[
+                    Mask(np.array([[0, 1, 0, 0, 0]]), label=0,
+                        attributes={'track_id': 1}),
+                ]
+            ),
+        ], categories=['a'])
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(expected,
+                partial(MotsPngConverter.convert, save_images=True),
+                test_dir, require_images=True)
 
 class MotsImporterTest(TestCase):
     def test_can_detect(self):

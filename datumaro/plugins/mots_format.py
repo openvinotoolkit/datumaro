@@ -5,7 +5,7 @@
 # Implements MOTS format https://www.vision.rwth-aachen.de/page/mots
 
 from enum import Enum
-from glob import glob
+from glob import iglob
 import logging as log
 import numpy as np
 import os
@@ -67,8 +67,7 @@ class MotsPngExtractor(SourceExtractor):
         else:
             images = {}
 
-        for p in sorted(p for p in
-                glob(self._anno_dir + '/**/*.png', recursive=True)):
+        for p in sorted(iglob(self._anno_dir + '/**/*.png', recursive=True)):
             item_id = osp.splitext(osp.relpath(p, self._anno_dir))[0]
             items.append(DatasetItem(id=item_id, subset=self._subset,
                 image=images.get(item_id),
