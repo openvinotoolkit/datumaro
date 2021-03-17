@@ -123,10 +123,10 @@ class Sampler(Transform, CliPlugin):
                 raise Exception(f"Item {item.id} does not have annotations")
 
             for annotation in item.annotations:
-                if 'score' not in annotation.attributes:
+                if 'scores' not in annotation.attributes:
                     raise Exception(f"Item {item.id} - an annotation "
-                        "does not have 'score' attribute")
-                probs = annotation.attributes['score']
+                        "does not have 'scores' attribute")
+                probs = annotation.attributes['scores']
 
                 infer_df['ImageID'].append(item.id)
 
