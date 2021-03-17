@@ -17,7 +17,7 @@ from datumaro.components.extractor import (SourceExtractor, Importer,
     DatasetItem, AnnotationType, Bbox, LabelCategories
 )
 from datumaro.components.converter import Converter
-from datumaro.util import cast, str_to_bool
+from datumaro.util import cast
 from datumaro.util.image import Image, find_images
 
 

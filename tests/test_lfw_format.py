@@ -1,5 +1,4 @@
 import os.path as osp
-from functools import partial
 from unittest import TestCase
 
 import numpy as np
