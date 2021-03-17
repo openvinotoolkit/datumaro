@@ -237,6 +237,40 @@ class CvatConverterTest(TestCase):
                 partial(CvatConverter.convert, save_images=True), test_dir,
                 target_dataset=target_dataset)
 
+    def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
+        label_categories = LabelCategories()
+        for i in range(10):
+            label_categories.add(str(i))
+        label_categories.items[2].attributes.update(['a1', 'a2', 'empty'])
+        label_categories.attributes.update(['occluded'])
+
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id='кириллица с пробелом',
+                subset='s1', image=np.zeros((5, 10, 3)),
+                annotations=[
+                    Label(1),
+                ]
+            ),
+        ], categories={
+            AnnotationType.label: label_categories,
+        })
+
+        target_dataset = Dataset.from_iterable([
+            DatasetItem(id='кириллица с пробелом',
+                subset='s1', image=np.zeros((5, 10, 3)),
+                annotations=[
+                    Label(1),
+                ], attributes={'frame': 0}
+            ),
+        ], categories={
+            AnnotationType.label: label_categories,
+        })
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(source_dataset,
+                partial(CvatConverter.convert, save_images=True), test_dir,
+                target_dataset=target_dataset)
+
     def test_relative_paths(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='1', image=np.ones((4, 2, 3))),

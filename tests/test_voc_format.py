@@ -415,6 +415,20 @@ class VocConverterTest(TestCase):
             self._test_save_and_load(TestExtractor(),
                 partial(VocConverter.convert, label_map='voc'), test_dir)
 
+    def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
+        class TestExtractor(TestExtractorBase):
+            def __iter__(self):
+                return iter([
+                    DatasetItem(id='кириллица с пробелом', annotations=[
+                        Label(2),
+                        Label(3),
+                    ]),
+                ])
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(TestExtractor(),
+                partial(VocConverter.convert, label_map='voc'), test_dir)
+
     def test_can_save_dataset_with_images(self):
         class TestExtractor(TestExtractorBase):
             def __iter__(self):
