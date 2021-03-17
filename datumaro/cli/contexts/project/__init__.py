@@ -800,8 +800,13 @@ def build_validate_parser(parser_ctor=argparse.ArgumentParser):
         """,
         formatter_class=MultilineFormatter)
 
-    parser.add_argument('task_type',
-        help="Task type for validation (ie. classification, detection, etc.)")
+    TaskType = Enum('TaskType', ['classification', 'detection'])
+
+    parser.add_argument(
+        'task_type',
+        help="Task type for validation",
+        choices=[task_type.name for task_type in TaskType]
+    )
     parser.add_argument('-s', '--subset', dest='subset_name', default=None,
         help="Subset to validate (default: None)")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',

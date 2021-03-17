@@ -2,545 +2,517 @@
 #
 # SPDX-License-Identifier: MIT
 
+from collections import Counter
 from unittest import TestCase
+import numpy as np
 
-from assets.validator_test_data.datasets import (
-    dataset_main,
-    dataset_without_label_categories,
-    dataset_w_only_one_label
-)
-from assets.validator_test_data.stats import (
-    classification_stats_main, detection_stats_main,
-    stats_without_label_categories, stats_w_only_one_label
-)
-from assets.validator_test_data.validation_results import (
-    classification_summary, classification_val_reports,
-    detection_summary, detection_val_reports
-)
-from datumaro.components.validator import (
-    ClassificationValidator, DetectionValidator,
-    Severity, validate_annotations, _Validator
-)
+from datumaro.components.dataset import Dataset, DatasetItem
+from datumaro.components.errors import (MissingLabelCategories,
+    MissingLabelAnnotation, MultiLabelAnnotations, MissingAttribute,
+    UndefinedLabel, UndefinedAttribute, LabelDefinedButNotFound,
+    AttributeDefinedButNotFound, OnlyOneLabel, FewSamplesInLabel,
+    FewSamplesInAttribute, ImbalancedLabels, ImbalancedAttribute,
+    ImbalancedBboxDistInLabel, ImbalancedBboxDistInAttribute,
+    MissingBboxAnnotation, NegativeLength, InvalidValue, FarFromLabelMean,
+    FarFromAttrMean, OnlyOneAttributeValue)
+from datumaro.components.extractor import Bbox, Label
+from datumaro.components.validator import (ClassificationValidator, 
+    DetectionValidator, Severity, validate_annotations, _Validator)
+
+class TestValidatorTemplate(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.dataset = Dataset.from_iterable([
+            DatasetItem(id=1, image=np.ones((5, 5, 3)), annotations=[
+                Label(1, id=0, attributes={ 'a': 1, 'b': 7, }),
+                Bbox(1, 2, 3, 4, id=1, label=0, attributes={
+                    'a': 1, 'b': 2,
+                }),
+            ]),
+            DatasetItem(id=2, image=np.ones((2, 4, 3)), annotations=[
+                Label(2, id=0, attributes={ 'a': 2, 'b': 2, }),
+                Bbox(2, 3, 1, 4, id=1, label=0, attributes={
+                    'a': 1, 'b': 1,
+                }),
+            ]),
+            DatasetItem(id=3),
+            DatasetItem(id=4, image=np.ones((2, 4, 3)), annotations=[
+                Label(0, id=0, attributes={ 'b': 4, }),
+                Label(1, id=1, attributes={ 'a': 11, 'b': 7, }),
+                Bbox(1, 3, 2, 4, id=2, label=0, attributes={
+                    'a': 2, 'b': 1,
+                }),
+                Bbox(3, 1, 4, 2, id=3, label=0, attributes={
+                    'a': 2, 'b': 2,
+                }),
+            ]),
+            DatasetItem(id=5, image=np.ones((2, 4, 3)), annotations=[
+                Label(0, id=0, attributes={ 'a': 20, 'b': 10 }),
+                Bbox(1, 2, 3, 4, id=1, label=1, attributes={
+                    'a': 1, 'b': 1,
+                }),
+            ]),
+            DatasetItem(id=6, image=np.ones((2, 4, 3)), annotations=[
+                Label(1, id=0, attributes={ 'a': 11, 'b': 2, 'c': 3}),
+                Bbox(2, 3, 4, 1, id=1, label=1, attributes={
+                    'a': 2, 'b': 2,
+                }),
+            ]),
+            DatasetItem(id=7, image=np.ones((2, 4, 3)), annotations=[
+                Label(1, id=0, attributes={ 'a': 1, 'b': 2, 'c': 5 }),
+                Bbox(1, 2, 3, 4, id=1, label=2, attributes={
+                    'a': 1, 'b': 2,
+                }),
+            ]),
+            DatasetItem(id=8, image=np.ones((2, 4, 3)), annotations=[
+                Label(2, id=0, attributes={ 'a': 7, 'b': 9, 'c': 5 }),
+                Bbox(2, 1, 3, 4, id=1, label=2, attributes={
+                    'a': 2, 'b': 1,
+                }),
+            ]),
+        ], categories=[[f'label_{i}', None, { 'a', 'b' }] \
+            for i in range(2)])
 
 
-class TestBaseValidator(TestCase):
+class TestBaseValidator(TestValidatorTemplate):
     @classmethod
     def setUpClass(cls):
         cls.validator = _Validator()
 
-    def test_generate_validation_report_without_item_id(self):
-        validation_item = 'TEST'
-        description = 'unittest'
-        severity = Severity.error
-
-        actual = self.validator._generate_validation_report(
-            validation_item, description, severity)
-        expected = [{
-            'anomaly_type': validation_item,
-            'description': description,
-            'severity': severity.name,
-        }]
-
-        self.assertEqual(expected, actual)
-
-    def test_generate_validation_report_with_item_id(self):
-        validation_item = 'TEST'
-        description = 'unittest'
-        severity = Severity.error
-        item_id = 'test_id'
-
-        actual = self.validator._generate_validation_report(
-            validation_item, description, severity, item_id)
-        expected = [{
-            'anomaly_type': validation_item,
-            'description': description,
-            'severity': severity.name,
-            'item_id': item_id
-        }]
-
-        self.assertEqual(expected, actual)
-
     def test_generate_reports(self):
-        with self.assertRaisesRegex(
-            NotImplementedError, 'Should be implemented in a subclass.'):
+        with self.assertRaises(NotImplementedError):
             self.validator.generate_reports({})
 
+    def test_check_missing_label_categories(self):
+        stats = {
+            'label_distribution': {
+                'defined_labels': {}
+            }
+        }
+
+        actual_reports = self.validator._check_missing_label_categories(stats)
+
+        self.assertTrue(len(actual_reports) == 1)
+        self.assertIsInstance(actual_reports[0], MissingLabelCategories)
+
     def test_check_missing_attribute(self):
-        stats = classification_stats_main
-        label_name = 'label_0'
-        attr_name = 'x'
-        defined_attr_dist =\
-             stats['attribute_distribution']['defined_attributes']
-        attr_dets = defined_attr_dist[label_name][attr_name]
-        description = f"DatasetItem needs the attribute '{attr_name}' " \
-            f"for the label '{label_name}'."
+        label_name = 'unit'
+        attr_name = 'test'
+        attr_dets = {
+            'items_missing_attribute': [1]
+        }
 
-        actual = self.validator._check_missing_attribute(
+        actual_reports = self.validator._check_missing_attribute(
             label_name, attr_name, attr_dets)
-        expected = [{
-            'anomaly_type': 'MissingAttribute',
-            'description': description,
-            'severity': 'warning',
-            'item_id': '4'
-        }]
 
-        self.assertEqual(expected, actual)
+        self.assertTrue(len(actual_reports) == 1)
+        self.assertIsInstance(actual_reports[0], MissingAttribute)
 
     def test_check_undefined_label(self):
-        stats = classification_stats_main
-        label_name = 4
-        label_dist = stats['label_distribution']
-        label_stats = label_dist['undefined_labels'][label_name]
-        description = f"DatasetItem has the label '{label_name}' which " \
-            "is not defined in LabelCategories."
+        label_name = 'unittest'
+        label_stats = {
+            'items_with_undefined_label': [1]
+        }
 
-        actual = self.validator._check_undefined_label(
+        actual_reports = self.validator._check_undefined_label(
             label_name, label_stats)
-        expected = [{
-            'anomaly_type': 'UndefinedLabel',
-            'description': description,
-            'severity': 'error',
-            'item_id': '5'
-        }]
 
-        self.assertEqual(expected, actual)
+        self.assertTrue(len(actual_reports) == 1)
+        self.assertIsInstance(actual_reports[0], UndefinedLabel)
 
     def test_check_undefined_attribute(self):
-        stats = classification_stats_main
-        label_name = 'label_1'
-        attr_name = 'c'
-        attr_dist = stats['attribute_distribution']
-        undefined_attr_dist = attr_dist['undefined_attributes']
-        attr_dets = undefined_attr_dist[label_name][attr_name]
-        description = f"DatasetItem has the attribute '{attr_name}' for the " \
-            f"label '{label_name}' which is not defined in LabelCategories."
+        label_name = 'unit'
+        attr_name = 'test'
+        attr_dets = {
+            'items_with_undefined_attr':[1]
+        }
 
-        actual = self.validator._check_undefined_attribute(
+        actual_reports = self.validator._check_undefined_attribute(
             label_name, attr_name, attr_dets)
-        expected = [{
-            'anomaly_type': 'UndefinedAttribute',
-            'description': description,
-            'severity': 'error',
-            'item_id': '6'
-        }]
 
-        self.assertEqual(expected, actual)
+        self.assertTrue(len(actual_reports) == 1)
+        self.assertIsInstance(actual_reports[0], UndefinedAttribute)
 
     def test_check_label_defined_but_not_found(self):
-        stats = classification_stats_main
-        label_not_found = 'label_3'
-        description = f"The label '{label_not_found}' is defined in " \
-            "LabelCategories, but not found in the dataset."
+        stats = {
+            'label_distribution': {
+                'defined_labels': {
+                    'unittest': 0
+                }
+            }
+        }
 
-        actual = self.validator._check_label_defined_but_not_found(stats)
-        expected = [{
-            'anomaly_type': 'LabelDefinedButNotFound',
-            'description': description,
-            'severity': 'warning',
-        }]
+        actual_reports = self.validator._check_label_defined_but_not_found(
+            stats)
 
-        self.assertEqual(expected, actual)
+        self.assertTrue(len(actual_reports) == 1)
+        self.assertIsInstance(actual_reports[0], LabelDefinedButNotFound)
 
     def test_check_attribute_defined_but_not_found(self):
-        stats = classification_stats_main
-        label_name = 'label_0'
-        attr_dist = stats['attribute_distribution']
-        defined_attr_dist = attr_dist['defined_attributes']
-        attr_stats = defined_attr_dist[label_name]
-        description = f"The attribute 'x' for the label '{label_name}' is " \
-            "defined in LabelCategories, but not found in the dataset."
+        label_name = 'unit'
+        attr_stats = {
+            'test': {
+                'distribution': {}
+            }
+        }
 
-        actual = self.validator._check_attribute_defined_but_not_found(
+        actual_reports = self.validator._check_attribute_defined_but_not_found(
             label_name, attr_stats)
-        expected = [{
-            'anomaly_type': 'AttributeDefinedButNotFound',
-            'description': description,
-            'severity': 'warning',
-        }]
 
-        self.assertCountEqual(expected, actual)
+        self.assertTrue(len(actual_reports) == 1)
+        self.assertIsInstance(actual_reports[0], AttributeDefinedButNotFound)
 
     def test_check_only_one_label(self):
-        stats = stats_w_only_one_label
-        label_name = 'label_0'
-        description = f"The dataset has only one label '{label_name}'."
+        stats = {
+            'label_distribution': {
+                'defined_labels': {
+                    'unit': 1,
+                    'test': 0
+                }
+            }
+        }
 
-        actual = self.validator._check_only_one_label(stats)
-        expected = [{
-            'anomaly_type': 'OnlyOneLabel',
-            'description': description,
-            'severity': 'warning',
-        }]
-
-        self.assertEqual(expected, actual)
+        actual_reports = self.validator._check_only_one_label(stats)
+        
+        self.assertTrue(len(actual_reports) == 1)
+        self.assertIsInstance(actual_reports[0], OnlyOneLabel)
 
     def test_check_only_one_attribute_value(self):
-        stats = classification_stats_main
-        label_name = 'label_0'
-        attr_name = 'y'
-        attr_dist = stats['attribute_distribution']
-        defined_attr_dist = attr_dist['defined_attributes']
-        attr_dets = defined_attr_dist[label_name][attr_name]
-        description = "The dataset has the only attribute value " \
-            f"'4' for the attribute '{attr_name}' for the label " \
-            f"'{label_name}'."
+        label_name = 'unit'
+        attr_name = 'test'
+        attr_dets = {
+            'distribution': {
+                'mock': 1
+            }
+        }
 
-        actual = self.validator._check_only_one_attribute_value(
+        actual_reports = self.validator._check_only_one_attribute_value(
             label_name, attr_name, attr_dets)
-        expected = [{
-            'anomaly_type': 'OnlyOneAttributeValue',
-            'description': description,
-            'severity': 'warning',
-        }]
 
-        self.assertEqual(expected, actual)
+        self.assertTrue(len(actual_reports) == 1)
+        self.assertIsInstance(actual_reports[0], OnlyOneAttributeValue)
 
     def test_check_few_samples_in_label(self):
-        stats = classification_stats_main
-        label_name = 'label_0'
-        description = f"The number of samples in the label '{label_name}'" \
-            f" might be too low. Found '1' samples."
+        stats = {
+            'label_distribution': {
+                'defined_labels': {
+                    'unit': 1
+                }
+            }
+        }
 
-        actual = self.validator._check_few_samples_in_label(stats, 2)
-        expected = [{
-            'anomaly_type': 'FewSamplesInLabel',
-            'description': description,
-            'severity': 'warning',
-        }]
+        actual_reports = self.validator._check_few_samples_in_label(stats, 2)
 
-        self.assertEqual(expected, actual)
+        self.assertTrue(len(actual_reports) == 1)
+        self.assertIsInstance(actual_reports[0], FewSamplesInLabel)
 
     def test_check_few_samples_in_attribute(self):
-        stats = classification_stats_main
-        label_name = 'label_0'
-        attr_name = 'y'
-        attr_dist = stats['attribute_distribution']
-        defined_attr_dist = attr_dist['defined_attributes']
-        attr_dets = defined_attr_dist[label_name][attr_name]
-        description = "The number of samples for attribute = value " \
-            f"'{attr_name} = 4' for the label '{label_name}' " \
-            f"might be too low. Found '1' samples."
+        label_name = 'unit'
+        attr_name = 'test'
+        attr_dets = {
+            'distribution': {
+                'mock': 1
+            }
+        }
 
-        actual = self.validator._check_few_samples_in_attribute(
+        actual_reports = self.validator._check_few_samples_in_attribute(
             label_name, attr_name, attr_dets, 2)
-        expected = [{
-            'anomaly_type': 'FewSamplesInAttribute',
-            'description': description,
-            'severity': 'warning',
-        }]
-
-        self.assertEqual(expected, actual)
+        
+        self.assertTrue(len(actual_reports) == 1)
+        self.assertIsInstance(actual_reports[0], FewSamplesInAttribute)
 
     def test_check_imbalanced_labels(self):
-        stats = classification_stats_main
-        description = 'There is an imbalance in the label distribution.'
+        stats = {
+            'label_distribution': {
+                'defined_labels': {
+                    'unit': 5,
+                    'test': 1
+                }
+            }
+        }
 
-        actual = self.validator._check_imbalanced_labels(stats, 5)
-        expected = [{
-            'anomaly_type': 'ImbalancedLabels',
-            'description': description,
-            'severity': 'warning',
-        }]
+        actual_reports = self.validator._check_imbalanced_labels(stats, 2)
 
-        self.assertEqual(expected, actual)
+        self.assertTrue(len(actual_reports) == 1)
+        self.assertIsInstance(actual_reports[0], ImbalancedLabels)
 
     def test_check_imbalanced_attribute(self):
-        stats = classification_stats_main
-        label_name = 'label_2'
-        attr_name = 'x'
-        attr_dist = stats['attribute_distribution']
-        defined_attr_dist = attr_dist['defined_attributes']
-        attr_dets = defined_attr_dist[label_name][attr_name]
-        description = "There is an imbalance in the distribution of attribute" \
-            f" '{attr_name}' for the label '{label_name}'."
+        label_name = 'unit'
+        attr_name = 'test'
+        attr_dets = {
+            'distribution': {
+                'mock': 5,
+                'mock_1': 1
+            }
+        }
 
-        actual = self.validator._check_imbalanced_attribute(
+        actual_reports = self.validator._check_imbalanced_attribute(
             label_name, attr_name, attr_dets, 2)
-        expected = [{
-            'anomaly_type': 'ImbalancedAttribute',
-            'description': description,
-            'severity': 'warning',
-        }]
 
-        self.assertEqual(expected, actual)
+        self.assertTrue(len(actual_reports) == 1)
+        self.assertIsInstance(actual_reports[0], ImbalancedAttribute)
 
 
-class TestClassificationValidator(TestCase):
+class TestClassificationValidator(TestValidatorTemplate):
     @classmethod
     def setUpClass(cls):
         cls.validator = ClassificationValidator()
 
-    def test_compute_label_statistics(self):
-        actual = self.validator.compute_statistics(dataset_main)
-        expected = classification_stats_main
-
-        self.assertEqual(expected, actual)
-
-    def test_compute_label_statistics_missing_label_categories(self):
-        actual = self.validator.compute_statistics(
-            dataset_without_label_categories)
-        expected = stats_without_label_categories
-
-        self.assertEqual(expected, actual)
-
-    def test_compute_label_statistics_with_only_one_label(self):
-        actual = self.validator.compute_statistics(dataset_w_only_one_label)
-        expected = stats_w_only_one_label
-
-        self.assertEqual(expected, actual)
-
-    def test_check_missing_label_categories(self):
-        stats = stats_without_label_categories
-        description = "'LabelCategories(...)' should be defined" \
-            "to validate a dataset."
-
-        actual = self.validator._check_missing_label_categories(stats)
-        expected = [{
-            'anomaly_type': 'MissingLabelCategories',
-            'description': description,
-            'severity': 'error',
-        }]
-
-        self.assertEqual(expected, actual)
-
     def test_check_missing_label_annotation(self):
-        stats = classification_stats_main
-        description = 'DatasetItem needs a Label(...) annotation, ' \
-            'but not found.'
+        stats = {
+            'items_missing_label': [1]
+        }
 
-        actual = self.validator._check_missing_label_annotation(stats)
-        expected = [{
-            'anomaly_type': 'MissingLabelAnnotation',
-            'description': description,
-            'severity': 'warning',
-            'item_id': '3',
-        }]
+        actual_reports = self.validator._check_missing_label_annotation(stats)
 
-        self.assertEqual(expected, actual)
+        self.assertTrue(len(actual_reports) == 1)
+        self.assertIsInstance(actual_reports[0], MissingLabelAnnotation)
 
     def test_check_multi_label_annotations(self):
-        stats = classification_stats_main
-        description = 'DatasetItem needs a single Label(...) annotation ' \
-            'but multiple annotations are found.'
+        stats = {
+            'items_with_multiple_labels': [1]
+        }
 
-        actual = self.validator._check_multi_label_annotations(stats)
-        expected = [{
-            'anomaly_type': 'MultiLabelAnnotations',
-            'description': description,
-            'severity': 'error',
-            'item_id': '4',
-        }]
-
-        self.assertEqual(expected, actual)
-
-    def test_generate_reports(self):
-        stats = classification_stats_main
-
-        actual_reports = self.validator.generate_reports(stats)
-        expected_reports = classification_val_reports
-
-        self.assertCountEqual(expected_reports, actual_reports)
+        actual_reports = self.validator._check_multi_label_annotations(stats)
+        
+        self.assertTrue(len(actual_reports) == 1)
+        self.assertIsInstance(actual_reports[0], MultiLabelAnnotations)
 
 
-class TestDetectionValidator(TestCase):
+class TestDetectionValidator(TestValidatorTemplate):
     @classmethod
     def setUpClass(cls):
         cls.validator = DetectionValidator()
 
-    def test_compute_bbox_statistics(self):
-        actual = self.validator.compute_statistics(dataset_main)
-        expected = detection_stats_main
-
-        self.assertEqual(expected, actual)
-
     def test_check_imbalanced_bbox_dist_in_label(self):
-        stats = detection_stats_main
-        label_name = 'label_0'
-        bbox_dist_by_label = stats['bbox_distribution_in_label']
-        bbox_label_stats = bbox_dist_by_label[label_name]
-        description = "Values of bbox 'long' are not evenly distributed for " \
-            "'label_0' label."
+        label_name = 'unittest'
+        bbox_label_stats = {
+            'x': {
+                'histogram': {
+                    'counts': [1]
+                }
+            }
+        }
 
-        actual = self.validator._check_imbalanced_bbox_dist_in_label(
-            label_name, bbox_label_stats, 0.9, 0.1)
-        expected = [{
-            'anomaly_type': 'ImbalancedBboxDistInLabel',
-            'description': description,
-            'severity': 'warning',
-        }]
+        actual_reports = self.validator._check_imbalanced_bbox_dist_in_label(
+            label_name, bbox_label_stats, 0.9, 1)
 
-        self.assertEqual(expected, actual)
+        self.assertTrue(len(actual_reports) == 1)
+        self.assertIsInstance(actual_reports[0], ImbalancedBboxDistInLabel)
 
     def test_check_imbalanced_bbox_dist_in_attr(self):
-        stats = detection_stats_main
-        label_name = 'label_2'
-        attr_name = 'x'
-        bbox_dist_by_attr = stats['bbox_distribution_in_attribute']
-        bbox_attr_label = bbox_dist_by_attr[label_name]
-        bbox_attr_stats = bbox_attr_label[attr_name]
-        imbalanced_attr_value_props = [(1, 'height'), (1, 'long'), (3, 'y')]
-        descriptions = [
-            f"Values of bbox '{prop}' are not evenly " \
-            f"distributed for '{attr_name}' = '{attr_value}' for " \
-            f"the '{label_name}' label." \
-            for attr_value, prop in imbalanced_attr_value_props
-        ]
+        label_name = 'unit'
+        attr_name = 'test'
+        bbox_attr_stats = {
+            'mock': {
+                'x': {
+                    'histogram': {
+                        'counts': [1]
+                    }
+                }
+            }
+        }
 
-        actual = self.validator._check_imbalanced_bbox_dist_in_attr(
-            label_name, attr_name, bbox_attr_stats, 0.9, 0.1)
-        expected = [
-            {
-                'anomaly_type': 'ImbalancedBboxDistInAttribute',
-                'description': d,
-                'severity': 'warning',
-            } for d in descriptions
-        ]
+        actual_reports = self.validator._check_imbalanced_bbox_dist_in_attr(
+            label_name, attr_name, bbox_attr_stats, 0.9, 1)
 
-        self.assertEqual(expected, actual)
+        self.assertTrue(len(actual_reports) == 1)
+        self.assertIsInstance(actual_reports[0], ImbalancedBboxDistInAttribute)
 
     def test_check_missing_bbox_annotation(self):
-        stats = detection_stats_main
-        description = 'DatasetItem needs one or more Bbox(...) annotation, ' \
-            'but not found.'
+        stats = {
+            'items_missing_bbox': [1]
+        }
 
-        actual = self.validator._check_missing_bbox_annotation(stats)
-        expected = [{
-            'anomaly_type': 'MissingBboxAnnotation',
-            'description': description,
-            'severity': 'warning',
-            'item_id': '3'
-        }]
+        actual_reports = self.validator._check_missing_bbox_annotation(stats)
 
-        self.assertEqual(expected, actual)
+        self.assertTrue(len(actual_reports) == 1)
+        self.assertIsInstance(actual_reports[0], MissingBboxAnnotation)
 
     def test_check_negative_length(self):
-        stats = detection_stats_main
-        description = "Bbox annotation '2' in the DatasetItem should have a " \
-            "positive value of 'height' but got '0'."
+        stats = {
+            'items_with_negative_length': {
+                '1': {
+                    1: {
+                        'x': -1
+                    }
+                }
+            }
+        }
 
-        actual = self.validator._check_negative_length(stats)
-        expected = [{
-            'anomaly_type': 'NegativeLength',
-            'description': description,
-            'severity': 'error',
-            'item_id': '10'
-        }]
+        actual_reports = self.validator._check_negative_length(stats)
 
-        self.assertEqual(expected, actual)
+        self.assertTrue(len(actual_reports) == 1)
+        self.assertIsInstance(actual_reports[0], NegativeLength)
 
     def test_check_invalid_value(self):
-        stats = detection_stats_main
-        description = "Bbox annotation '2' in the DatasetItem has an inf or " \
-            "a NaN value of bbox 'ratio(w/h)'."
+        stats = {
+            'items_with_invalid_value': {
+                '1': {
+                    1: ['x']
+                }
+            }
+        }
 
-        actual = self.validator._check_invalid_value(stats)
-        expected = [{
-            'anomaly_type': 'InvalidValue',
-            'description': description,
-            'severity': 'error',
-            'item_id': '10'
-        }]
+        actual_reports = self.validator._check_invalid_value(stats)
 
-        self.assertEqual(expected, actual)
+        self.assertTrue(len(actual_reports) == 1)
+        self.assertIsInstance(actual_reports[0], InvalidValue)
+
 
     def test_check_far_from_label_mean(self):
-        stats = detection_stats_main
-        label_name = 'label_2'
-        bbox_dist_by_label = stats['bbox_distribution_in_label']
-        bbox_label_stats = bbox_dist_by_label[label_name]
-        far_from_label_mean = [
-            (1, 'ratio(w/h)', 1.52, 4.0, '9'),
-            (1, 'long', 3.57, 2, '15'),
-        ]
-        descriptions = [
-            (
-                f"Bbox annotation '{ann_id}' in " \
-                f"the DatasetItem has a value of Bbox '{prop}' that " \
-                "is too far from the label average. (mean of " \
-                f"'{label_name}' label: {mean}, got '{val}').",
-                item_id
-            ) for ann_id, prop, mean, val, item_id in far_from_label_mean
-        ]
+        label_name = 'unittest'
+        bbox_label_stats = {
+            'x': {
+                'items_far_from_mean': {
+                    '1': {
+                        1: 100
+                    }
+                },
+                'mean': 0,
+            }
+        }
 
-        actual = self.validator._check_far_from_label_mean(
+        actual_reports = self.validator._check_far_from_label_mean(
             label_name, bbox_label_stats)
-        expected = [
-            {
-                'anomaly_type': 'FarFromLabelMean',
-                'description': d,
-                'severity': 'warning',
-                'item_id': item_id
-            } for d, item_id in descriptions
-        ]
 
-        self.assertEqual(expected, actual)
+        self.assertTrue(len(actual_reports) == 1)
+        self.assertIsInstance(actual_reports[0], FarFromLabelMean)
 
     def test_check_far_from_attr_mean(self):
-        stats = detection_stats_main
-        label_name = 'label_1'
-        attr_name = 'x'
-        bbox_dist_by_attr = stats['bbox_distribution_in_attribute']
-        bbox_attr_label = bbox_dist_by_attr[label_name]
-        bbox_attr_stats = bbox_attr_label[attr_name]
-        description = "Bbox annotation '2' in the " \
-            "DatasetItem has a value of Bbox 'y' that " \
-            "is too far from the attribute average. (mean of " \
-            f"'{attr_name}' = '3' for the " \
-            f"'{label_name}' label: 16667.5, got '100000')."
-
-        actual = self.validator._check_far_from_attr_mean(
-            label_name, attr_name, bbox_attr_stats)
-        expected = [{
-            'anomaly_type': 'FarFromAttrMean',
-            'description': description,
-            'severity': 'warning',
-            'item_id': '14'
-        }]
-
-        self.assertEqual(expected, actual)
-
-    def test_generate_reports(self):
-        stats = detection_stats_main
-
-        actual_reports = self.validator.generate_reports(stats)
-        expected_reports = detection_val_reports
-
-        self.assertCountEqual(expected_reports, actual_reports)
-
-
-class TestValidateAnnotations(TestCase):
-    def test_validate_annotations_classification(self):
-        actual = validate_annotations(dataset_main, 'classification')
-        expected = {
-            'statistics': classification_stats_main,
-            'validation_reports': classification_val_reports,
-            'summary': classification_summary
+        label_name = 'unit'
+        attr_name = 'test'
+        bbox_attr_stats = {
+            'mock': {
+                'x': {
+                    'items_far_from_mean': {
+                        '1': {
+                            1: 100
+                        }
+                    },
+                    'mean': 0,
+                }
+            }
         }
 
-        self.assertCountEqual(expected, actual)
-        self.assertEqual(classification_stats_main, actual['statistics'])
-        self.assertCountEqual(
-            classification_val_reports, actual['validation_reports'])
-        self.assertEqual(classification_summary, actual['summary'])
+        actual_reports = self.validator._check_far_from_attr_mean(
+            label_name, attr_name, bbox_attr_stats)
+        
+        self.assertTrue(len(actual_reports) == 1)
+        self.assertIsInstance(actual_reports[0], FarFromAttrMean)
+
+
+class TestValidateAnnotations(TestValidatorTemplate):
+    def test_validate_annotations_classification(self):        
+        actual_results = validate_annotations(self.dataset, 'classification')
+
+        with self.subTest('Test of statistics', i = 0):
+            actual_stats = actual_results['statistics']
+            self.assertEqual(actual_stats['total_label_count'], 8)
+            self.assertEqual(actual_stats['items_missing_label'], ['3'])
+            self.assertEqual(actual_stats['items_with_multiple_labels'], ['4'])
+
+            label_dist = actual_stats['label_distribution']
+            defined_label_dist = label_dist['defined_labels']
+            self.assertEqual(len(defined_label_dist), 2)
+            self.assertEqual(sum(defined_label_dist.values()), 6)
+            
+            undefined_label_dist = label_dist['undefined_labels']
+            undefined_label_stats = undefined_label_dist[2]
+            self.assertEqual(len(undefined_label_dist), 1)
+            self.assertEqual(undefined_label_stats['count'], 2)
+            self.assertCountEqual(
+                undefined_label_stats['items_with_undefined_label'], ['2', '8'])
+
+            attr_stats = actual_stats['attribute_distribution']
+            defined_attr_dets = attr_stats['defined_attributes']['label_0']['a']
+            self.assertEqual(
+                defined_attr_dets['items_missing_attribute'], ['4'])
+            self.assertEqual(defined_attr_dets['distribution'], {'20': 1})
+
+            undefined_attr_dets = attr_stats['undefined_attributes'][2]['c']
+            self.assertEqual(
+                undefined_attr_dets['items_with_undefined_attr'], ['8'])
+            self.assertEqual(undefined_attr_dets['distribution'], {'5': 1})
+
+        with self.subTest('Test of validation reports', i = 1):
+            actual_reports = actual_results['validation_reports']
+            report_types = [r['anomaly_type'] for r in actual_reports]
+            report_count_by_type = Counter(report_types)
+
+            self.assertEqual(len(actual_reports), 16)
+            self.assertEqual(report_count_by_type['UndefinedAttribute'], 7)
+            self.assertEqual(report_count_by_type['FewSamplesInAttribute'], 3)
+            self.assertEqual(report_count_by_type['UndefinedLabel'], 2)
+            self.assertEqual(report_count_by_type['MissingLabelAnnotation'], 1)
+            self.assertEqual(report_count_by_type['MultiLabelAnnotations'], 1)
+            self.assertEqual(report_count_by_type['OnlyOneAttributeValue'], 1)
+            self.assertEqual(report_count_by_type['MissingAttribute'], 1)
+
+        with self.subTest('Test of summary', i = 2):
+            actual_summary = actual_results['summary']
+            expected_summary = {
+                'errors': 10,
+                'warnings': 6
+            }
+
+            self.assertEqual(actual_summary, expected_summary)
 
     def test_validate_annotations_detection(self):
-        actual = validate_annotations(dataset_main, 'detection')
-        expected = {
-            'statistics': detection_stats_main,
-            'validation_reports': detection_val_reports,
-            'summary': detection_summary
-        }
+        actual_results = validate_annotations(self.dataset, 'detection')
 
-        self.assertCountEqual(expected, actual)
-        self.assertEqual(detection_stats_main, actual['statistics'])
-        self.assertCountEqual(
-            detection_val_reports, actual['validation_reports'])
-        self.assertEqual(detection_summary, actual['summary'])
+        with self.subTest('Test of statistics', i = 0):
+            actual_stats = actual_results['statistics']
+            self.assertEqual(actual_stats['total_bbox_count'], 8)
+            self.assertEqual(actual_stats['items_missing_bbox'], ['3'])            
+            self.assertEqual(actual_stats['items_with_negative_length'], {})
+            self.assertEqual(actual_stats['items_with_invalid_value'], {})
+
+            bbox_dist_by_label = actual_stats['bbox_distribution_in_label']
+            label_prop_stats = bbox_dist_by_label['label_1']['x']
+            self.assertEqual(label_prop_stats['items_far_from_mean'], {})
+            self.assertEqual(label_prop_stats['mean'], 1.5)
+            self.assertEqual(label_prop_stats['stdev'], 0.5)
+            self.assertEqual(label_prop_stats['min'], 1.0)
+            self.assertEqual(label_prop_stats['max'], 2.0)
+            self.assertEqual(label_prop_stats['median'], 1.5)
+            
+            bbox_dist_by_attr = actual_stats['bbox_distribution_in_attribute']
+            attr_prop_stats = bbox_dist_by_attr['label_0']['a']['1']['x']
+            self.assertEqual(attr_prop_stats['items_far_from_mean'], {})
+            self.assertEqual(attr_prop_stats['mean'], 1.5)
+            self.assertEqual(attr_prop_stats['stdev'], 0.5)
+            self.assertEqual(attr_prop_stats['min'], 1.0)
+            self.assertEqual(attr_prop_stats['max'], 2.0)
+            self.assertEqual(attr_prop_stats['median'], 1.5)
+
+            bbox_dist_item = actual_stats['bbox_distribution_in_dataset_item']
+            self.assertEqual(sum(bbox_dist_item.values()), 8)
+
+        with self.subTest('Test of validation reports', i = 1):
+            actual_reports = actual_results['validation_reports']
+            report_types = [r['anomaly_type'] for r in actual_reports]
+            report_count_by_type = Counter(report_types)
+
+            self.assertEqual(len(actual_reports), 11)
+            self.assertEqual(report_count_by_type['FewSamplesInAttribute'], 4)
+            self.assertEqual(report_count_by_type['UndefinedAttribute'], 4)
+            self.assertEqual(report_count_by_type['UndefinedLabel'], 2)
+            self.assertEqual(report_count_by_type['MissingBboxAnnotation'], 1)
+
+        with self.subTest('Test of summary', i = 2):
+            actual_summary = actual_results['summary']
+            expected_summary = {
+                'errors': 6,
+                'warnings': 5
+            }
+
+            self.assertEqual(actual_summary, expected_summary)
 
     def test_validate_annotations_invalid_task_type(self):
-        with self.assertRaisesRegex(ValueError, 'Invalid task type.'):
-            validate_annotations(dataset_main, 'INVALID')
+        with self.assertRaises(ValueError):
+            validate_annotations(self.dataset, 'INVALID')
 
     def test_validate_annotations_invalid_dataset_type(self):
-        with self.assertRaisesRegex(ValueError, 'Invalid Dataset type.'):
+        with self.assertRaises(ValueError):
             validate_annotations({}, 'classification')
