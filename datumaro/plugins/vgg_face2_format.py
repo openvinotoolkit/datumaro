@@ -70,7 +70,7 @@ class VggFace2Extractor(SourceExtractor):
 
         items = {}
 
-        image_dir = osp.join(self._dataset_dir, )
+        image_dir = osp.join(self._dataset_dir, self._subset)
         if osp.isdir(image_dir):
             images = { osp.splitext(osp.relpath(p, image_dir))[0]: p
                 for p in find_images(image_dir, recursive=True) }
@@ -86,10 +86,8 @@ class VggFace2Extractor(SourceExtractor):
                 item_id, label = _split_item_path(item_id)
 
             if item_id not in items:
-                image_path = osp.join(self._dataset_dir, self._subset,
-                    row['NAME_ID'] + VggFace2Path.IMAGE_EXT)
                 items[item_id] = DatasetItem(id=item_id, subset=self._subset,
-                    image=image_path)
+                    image=images.get(row['NAME_ID']))
 
             annotations = items[item_id].annotations
             if [a for a in annotations if a.type == AnnotationType.points]:
@@ -114,10 +112,8 @@ class VggFace2Extractor(SourceExtractor):
                     item_id, label = _split_item_path(item_id)
 
                 if item_id not in items:
-                    image_path = osp.join(self._dataset_dir, self._subset,
-                        row['NAME_ID'] + VggFace2Path.IMAGE_EXT)
                     items[item_id] = DatasetItem(id=item_id, subset=self._subset,
-                        image=image_path)
+                        image=images.get(row['NAME_ID']))
 
                 annotations = items[item_id].annotations
                 if [a for a in annotations if a.type == AnnotationType.bbox]:
