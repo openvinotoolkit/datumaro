@@ -15,7 +15,7 @@ class DatasetError(DatumaroError):
 @attrs
 class RepeatedItemError(DatasetError):
     def __str__(self):
-        return "Item %s is repeated in the source sequence." % (self.item_id)
+        return "Item %s is repeated in the source sequence." % (self.item_id, )
 
 @attrs
 class MismatchingImageInfoError(DatasetError):
