@@ -9,6 +9,7 @@ import os.path as osp
 from datumaro.components.converter import Converter
 from datumaro.components.extractor import (AnnotationType, Bbox, DatasetItem,
     Importer, Label, LabelCategories, Points, SourceExtractor)
+from datumaro.util.image import find_images
 
 
 class VggFace2Path:
@@ -20,15 +21,16 @@ class VggFace2Path:
     IMAGES_DIR_NO_LABEL = 'no_label'
 
 class VggFace2Extractor(SourceExtractor):
-    def __init__(self, path):
+    def __init__(self, path, subset=None):
         if not osp.isfile(path):
             raise Exception("Can't read .csv annotation file '%s'" % path)
         self._path = path
         self._dataset_dir = osp.dirname(osp.dirname(path))
 
-        subset = osp.splitext(osp.basename(path))[0]
-        if subset.startswith(VggFace2Path.LANDMARKS_FILE):
-            subset = subset.split('_')[2]
+        if not subset:
+            subset = osp.splitext(osp.basename(path))[0]
+            if subset.startswith(VggFace2Path.LANDMARKS_FILE):
+                subset = subset.split('_')[2]
         super().__init__(subset=subset)
 
         self._categories = self._load_categories()
@@ -68,6 +70,13 @@ class VggFace2Extractor(SourceExtractor):
 
         items = {}
 
+        image_dir = osp.join(self._dataset_dir, self._subset)
+        if osp.isdir(image_dir):
+            images = { osp.splitext(osp.relpath(p, image_dir))[0]: p
+                for p in find_images(image_dir, recursive=True) }
+        else:
+            images = {}
+
         with open(path) as content:
             landmarks_table = list(csv.DictReader(content))
         for row in landmarks_table:
@@ -77,10 +86,8 @@ class VggFace2Extractor(SourceExtractor):
                 item_id, label = _split_item_path(item_id)
 
             if item_id not in items:
-                image_path = osp.join(self._dataset_dir, self._subset,
-                    row['NAME_ID'] + VggFace2Path.IMAGE_EXT)
                 items[item_id] = DatasetItem(id=item_id, subset=self._subset,
-                    image=image_path)
+                    image=images.get(row['NAME_ID']))
 
             annotations = items[item_id].annotations
             if [a for a in annotations if a.type == AnnotationType.points]:
@@ -105,10 +112,8 @@ class VggFace2Extractor(SourceExtractor):
                     item_id, label = _split_item_path(item_id)
 
                 if item_id not in items:
-                    image_path = osp.join(self._dataset_dir, self._subset,
-                        row['NAME_ID'] + VggFace2Path.IMAGE_EXT)
                     items[item_id] = DatasetItem(id=item_id, subset=self._subset,
-                        image=image_path)
+                        image=images.get(row['NAME_ID']))
 
                 annotations = items[item_id].annotations
                 if [a for a in annotations if a.type == AnnotationType.bbox]:
