@@ -9,6 +9,7 @@ import os.path as osp
 from datumaro.components.converter import Converter
 from datumaro.components.extractor import (AnnotationType, Bbox, DatasetItem,
     Importer, Label, LabelCategories, Points, SourceExtractor)
+from datumaro.util.image import find_images
 
 
 class VggFace2Path:
@@ -68,6 +69,13 @@ class VggFace2Extractor(SourceExtractor):
             return item_id, label
 
         items = {}
+
+        image_dir = osp.join(self._dataset_dir, )
+        if osp.isdir(image_dir):
+            images = { osp.splitext(osp.relpath(p, image_dir))[0]: p
+                for p in find_images(image_dir, recursive=True) }
+        else:
+            images = {}
 
         with open(path) as content:
             landmarks_table = list(csv.DictReader(content))
