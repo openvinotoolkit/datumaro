@@ -17,8 +17,8 @@ from datumaro.components.extractor import (SourceExtractor, Importer,
     DatasetItem, AnnotationType, Bbox, LabelCategories
 )
 from datumaro.components.converter import Converter
-from datumaro.util import cast
-from datumaro.util.image import Image
+from datumaro.util import cast, str_to_bool
+from datumaro.util.image import Image, find_images
 
 
 MotLabel = Enum('MotLabel', [
@@ -133,14 +133,10 @@ class MotSeqExtractor(SourceExtractor):
                     )
                 )
         elif osp.isdir(self._image_dir):
-            for p in os.listdir(self._image_dir):
-                if p.endswith(MotPath.IMAGE_EXT):
-                    frame_id = int(osp.splitext(p)[0])
-                    items[frame_id] = DatasetItem(
-                        id=frame_id,
-                        subset=self._subset,
-                        image=osp.join(self._image_dir, p),
-                    )
+            for p in find_images(self._image_dir):
+                frame_id = int(osp.splitext(osp.relpath(p, self._image_dir))[0])
+                items[frame_id] = DatasetItem(id=frame_id, subset=self._subset,
+                    image=p)
 
         with open(path, newline='', encoding='utf-8') as csv_file:
             # NOTE: Different MOT files have different count of fields
