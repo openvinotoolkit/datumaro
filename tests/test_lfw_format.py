@@ -101,6 +101,30 @@ class LfwFormatTest(TestCase):
 
             compare_datasets(self, source_dataset, parsed_dataset)
 
+    def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id='кириллица с пробелом',
+                image=np.ones((2, 5, 3)),
+                attributes = {
+                    'positive_pairs': [],
+                    'negative_pairs': ['name0/name0_0002']
+                },
+            ),
+            DatasetItem(id='name0/name0_0002',
+                image=np.ones((2, 5, 3)),
+                attributes = {
+                    'positive_pairs': [],
+                    'negative_pairs': []
+                },
+            ),
+        ])
+
+        with TestDir() as test_dir:
+            LfwConverter.convert(source_dataset, test_dir, save_images=True)
+            parsed_dataset = Dataset.import_from(test_dir, 'lfw')
+
+            compare_datasets(self, source_dataset, parsed_dataset)
+
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'lfw_dataset')
 
 class LfwImporterTest(TestCase):

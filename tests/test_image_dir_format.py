@@ -29,3 +29,12 @@ class ImageDirFormatTest(TestCase):
         with TestDir() as test_dir:
             test_save_and_load(self, dataset, ImageDirConverter.convert,
                 test_dir, importer='image_dir')
+
+    def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
+        dataset = Dataset.from_iterable([
+            DatasetItem(id='кириллица с пробелом', image=np.ones((4, 2, 3))),
+        ])
+
+        with TestDir() as test_dir:
+            test_save_and_load(self, dataset, ImageDirConverter.convert,
+                test_dir, importer='image_dir')

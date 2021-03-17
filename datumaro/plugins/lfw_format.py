@@ -31,10 +31,14 @@ class LfwExtractor(SourceExtractor):
         images_dir = osp.join(self._dataset_dir, self._subset, LfwPath.IMAGES_DIR)
         with open(path, encoding='utf-8') as f:
             for line in f:
-                pair = line.strip().split()
+                pair = line.strip().split('\t')
                 if len(pair) == 3:
-                    image1 = self.get_image_name(pair[0], pair[1])
-                    image2 = self.get_image_name(pair[0], pair[2])
+                    if pair[0] == '-':
+                        image1 = pair[1]
+                        image2 = pair[2]
+                    else:
+                        image1 = self.get_image_name(pair[0], pair[1])
+                        image2 = self.get_image_name(pair[0], pair[2])
                     if image1 not in items:
                         items[image1] = DatasetItem(id=image1, subset=self._subset,
                             image=osp.join(images_dir, image1 + LfwPath.IMAGE_EXT),
@@ -47,8 +51,14 @@ class LfwExtractor(SourceExtractor):
                     attributes = items[image1].attributes
                     attributes['positive_pairs'].append(image2)
                 elif len(pair) == 4:
-                    image1 = self.get_image_name(pair[0], pair[1])
-                    image2 = self.get_image_name(pair[2], pair[3])
+                    if pair[0] == '-':
+                        image1 = pair[1]
+                    else:
+                        image1 = self.get_image_name(pair[0], pair[1])
+                    if pair[2] == '-':
+                        image2 = pair[3]
+                    else:
+                        image2 = self.get_image_name(pair[2], pair[3])
                     if image1 not in items:
                         items[image1] = DatasetItem(id=image1, subset=self._subset,
                             image=osp.join(images_dir, image1 + LfwPath.IMAGE_EXT),
@@ -102,17 +112,31 @@ class LfwConverter(Converter):
                     self._save_image(item, osp.join(self._save_dir, subset_name,
                         LfwPath.IMAGES_DIR, item.id + LfwPath.IMAGE_EXT))
 
-                person1, num1 = LfwPath.PATTERN.search(item.id).groups()
-                num1 = int(num1)
+                search = LfwPath.PATTERN.search(item.id)
+                if search:
+                    person1, num1 = search.groups()
+                    num1 = int(num1)
+                else:
+                    person1 = '-'
+                    num1 = item.id
                 if 'positive_pairs' in item.attributes:
                     for pair in item.attributes['positive_pairs']:
-                        num2 = LfwPath.PATTERN.search(pair).groups()[1]
-                        num2 = int(num2)
+                        search = LfwPath.PATTERN.search(pair)
+                        if search:
+                            num2 = search.groups()[1]
+                            num2 = int(num2)
+                        else:
+                            num2 = pair
                         positive_pairs.append('%s\t%s\t%s' % (person1, num1, num2))
                 if 'negative_pairs' in item.attributes:
                     for pair in item.attributes['negative_pairs']:
-                        person2, num2 = LfwPath.PATTERN.search(pair).groups()
-                        num2 = int(num2)
+                        search = LfwPath.PATTERN.search(pair)
+                        if search:
+                            person2, num2 = search.groups()
+                            num2 = int(num2)
+                        else:
+                            person2 = '-'
+                            num2 = pair
                         negative_pairs.append('%s\t%s\t%s\t%s' % \
                             (person1, num1, person2, num2))
 

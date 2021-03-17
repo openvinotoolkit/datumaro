@@ -62,7 +62,7 @@ class WiderFaceExtractor(SourceExtractor):
     def _load_items(self, path):
         items = {}
 
-        with open(path, 'r') as f:
+        with open(path, 'r', encoding='utf-8') as f:
             lines = f.readlines()
 
         image_ids = [image_id for image_id, line in enumerate(lines)
@@ -178,5 +178,5 @@ class WiderFaceConverter(Converter):
             annotation_path = osp.join(save_dir, WiderFacePath.ANNOTATIONS_DIR,
                 'wider_face_' + subset_name + '_bbx_gt.txt')
             os.makedirs(osp.dirname(annotation_path), exist_ok=True)
-            with open(annotation_path, 'w') as f:
+            with open(annotation_path, 'w', encoding='utf-8') as f:
                 f.write(wider_annotation)
