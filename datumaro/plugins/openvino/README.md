@@ -59,10 +59,10 @@ You need to implement your own interpreter samples to support the other OpenVINO
 
   ```bash
   # source <openvino_dir>/bin/setupvars.sh
-  #	datum create -o <proj_dir>
-  #	datum model add -l <launcher> -p <proj_dir> --copy -- -d <path_to_xml> -w <path_to_bin> -i <path_to_interpreter_script>
-  #	datum add path -p <proj_dir> -f <format> <path_to_dataset>
-  #	datum model run -p <proj_dir> -m model-0
+  # datum create -o <proj_dir>
+  # datum model add -l <launcher> -p <proj_dir> --copy -- -d <path_to_xml> -w <path_to_bin> -i <path_to_interpreter_script>
+  # datum add path -p <proj_dir> -f <format> <path_to_dataset>
+  # datum model run -p <proj_dir> -m model-0
   #
   # Examples
   # Detection> ssd_mobilenet_v2_coco
