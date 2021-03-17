@@ -121,6 +121,27 @@ class TfrecordConverterTest(TestCase):
                 partial(TfDetectionApiConverter.convert, save_images=True),
                 test_dir)
 
+    def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
+        test_dataset = Dataset.from_iterable([
+            DatasetItem(id='кириллица с пробелом',
+                image=np.ones((16, 16, 3)),
+                annotations=[
+                    Bbox(2, 1, 4, 4, label=2),
+                    Bbox(4, 2, 8, 4, label=3),
+                ],
+                attributes={'source_id': ''}
+            ),
+        ], categories={
+            AnnotationType.label: LabelCategories.from_iterable(
+                'label_' + str(label) for label in range(10)),
+        })
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(
+                test_dataset,
+                partial(TfDetectionApiConverter.convert, save_images=True),
+                test_dir)
+
     def test_can_save_dataset_with_image_info(self):
         test_dataset = Dataset.from_iterable([
             DatasetItem(id='1/q.e',
