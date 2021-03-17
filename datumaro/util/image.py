@@ -155,8 +155,11 @@ def decode_image(image_bytes, dtype=np.float32):
         assert image.shape[2] in {3, 4}
     return image
 
-IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.ppm', '.bmp',
-    '.pgm', '.tif', '.tiff'}
+IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.jpe', '.jp2',
+    '.png', '.bmp', '.dib', '.tif', '.tiff', '.tga', '.webp', '.pfm',
+    '.sr', '.ras', '.exr', '.hdr', '.pic',
+    '.pbm', '.pgm', '.ppm', '.pxm', '.pnm',
+}
 
 def find_images(dirpath: str, exts: Union[str, Iterable[str]] = None,
         recursive: bool = False, max_depth: int = None) -> Iterator[str]:
