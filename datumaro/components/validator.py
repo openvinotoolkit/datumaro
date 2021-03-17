@@ -712,7 +712,7 @@ class DetectionValidator(_Validator):
                     if ratio > thr:
                         details = (label_name, attr_name, attr_value, prop)
                         validation_reports += self._generate_validation_report(
-                            ImbalancedBboxDistInAttribute, 
+                            ImbalancedBboxDistInAttribute,
                             Severity.warning,
                             *details
                         )

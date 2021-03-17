@@ -16,7 +16,7 @@ from datumaro.components.errors import (MissingLabelCategories,
     MissingBboxAnnotation, NegativeLength, InvalidValue, FarFromLabelMean,
     FarFromAttrMean, OnlyOneAttributeValue)
 from datumaro.components.extractor import Bbox, Label
-from datumaro.components.validator import (ClassificationValidator, 
+from datumaro.components.validator import (ClassificationValidator,
     DetectionValidator, Severity, validate_annotations, _Validator)
 
 class TestValidatorTemplate(TestCase):
@@ -173,7 +173,7 @@ class TestBaseValidator(TestValidatorTemplate):
         }
 
         actual_reports = self.validator._check_only_one_label(stats)
-        
+
         self.assertTrue(len(actual_reports) == 1)
         self.assertIsInstance(actual_reports[0], OnlyOneLabel)
 
@@ -217,7 +217,7 @@ class TestBaseValidator(TestValidatorTemplate):
 
         actual_reports = self.validator._check_few_samples_in_attribute(
             label_name, attr_name, attr_dets, 2)
-        
+
         self.assertTrue(len(actual_reports) == 1)
         self.assertIsInstance(actual_reports[0], FewSamplesInAttribute)
 
@@ -274,7 +274,7 @@ class TestClassificationValidator(TestValidatorTemplate):
         }
 
         actual_reports = self.validator._check_multi_label_annotations(stats)
-        
+
         self.assertTrue(len(actual_reports) == 1)
         self.assertIsInstance(actual_reports[0], MultiLabelAnnotations)
 
@@ -397,13 +397,13 @@ class TestDetectionValidator(TestValidatorTemplate):
 
         actual_reports = self.validator._check_far_from_attr_mean(
             label_name, attr_name, bbox_attr_stats)
-        
+
         self.assertTrue(len(actual_reports) == 1)
         self.assertIsInstance(actual_reports[0], FarFromAttrMean)
 
 
 class TestValidateAnnotations(TestValidatorTemplate):
-    def test_validate_annotations_classification(self):        
+    def test_validate_annotations_classification(self):
         actual_results = validate_annotations(self.dataset, 'classification')
 
         with self.subTest('Test of statistics', i = 0):
@@ -416,7 +416,7 @@ class TestValidateAnnotations(TestValidatorTemplate):
             defined_label_dist = label_dist['defined_labels']
             self.assertEqual(len(defined_label_dist), 2)
             self.assertEqual(sum(defined_label_dist.values()), 6)
-            
+
             undefined_label_dist = label_dist['undefined_labels']
             undefined_label_stats = undefined_label_dist[2]
             self.assertEqual(len(undefined_label_dist), 1)
@@ -464,7 +464,7 @@ class TestValidateAnnotations(TestValidatorTemplate):
         with self.subTest('Test of statistics', i = 0):
             actual_stats = actual_results['statistics']
             self.assertEqual(actual_stats['total_bbox_count'], 8)
-            self.assertEqual(actual_stats['items_missing_bbox'], ['3'])            
+            self.assertEqual(actual_stats['items_missing_bbox'], ['3'])
             self.assertEqual(actual_stats['items_with_negative_length'], {})
             self.assertEqual(actual_stats['items_with_invalid_value'], {})
 
@@ -476,7 +476,7 @@ class TestValidateAnnotations(TestValidatorTemplate):
             self.assertEqual(label_prop_stats['min'], 1.0)
             self.assertEqual(label_prop_stats['max'], 2.0)
             self.assertEqual(label_prop_stats['median'], 1.5)
-            
+
             bbox_dist_by_attr = actual_stats['bbox_distribution_in_attribute']
             attr_prop_stats = bbox_dist_by_attr['label_0']['a']['1']['x']
             self.assertEqual(attr_prop_stats['items_far_from_mean'], {})
