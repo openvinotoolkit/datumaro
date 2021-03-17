@@ -20,7 +20,7 @@ def process_outputs(inputs, outputs):
         label = output.index(max(output))
         image_results.append(Label(label=label, attributes={"scores": output}))
 
-        results.append(image_results[:])
+        results.append(image_results)
 
     return results
 
