@@ -5,6 +5,7 @@
 - [Installation](#installation)
 - [Interfaces](#interfaces)
 - [Supported dataset formats and annotations](#supported-formats)
+- [Supported data formats](#data-formats)
 - [Command line workflow](#command-line-workflow)
   - [Project structure](#project-structure)
 - [Command reference](#command-reference)
@@ -139,6 +140,32 @@ List of supported annotation types:
 - (Segmentation) Masks
 - (Key-)Points
 - Captions
+
+## Data formats
+
+Datumaro only works with 2d RGB(A) images.
+
+To create an unlabelled dataset from an arbitrary directory with images use
+`ImageDir` format:
+
+```
+datum create -o <project/dir>
+datum add path -p <project/dir> -f image_dir <directory/path/>
+```
+
+This will search for images in the directory recursively and add
+them as dataset entries with names like `<subdir1>/<subsubdir1>/<image_name1>`.
+The list of formats matches the list of supported image formats in OpenCV.
+```
+.jpg, .jpeg, .jpe, .jp2, .png, .bmp, .dib, .tif, .tiff, .tga, .webp, .pfm,
+.sr, .ras, .exr, .hdr, .pic, .pbm, .pgm, .ppm, .pxm, .pnm
+```
+
+After addition into a project, images can be split into subsets and renamed
+with transformations, filtered, joined with existing annotations etc.
+
+To use a video as an input, one should either [create an Extractor plugin](../docs/developer_guide.md#plugins),
+which splits a video into frames, or split the video manually and import images.
 
 ## Command line workflow
 
@@ -850,7 +877,7 @@ datum model add \
 ```
 
 Interpretation script for an OpenVINO detection model (`convert.py`):
-You can find OpenVINO™ model interpreter samples in datumaro/plugins/openvino/samples. [Instruction](datumaro/plugins/openvino/README.md) 
+You can find OpenVINO™ model interpreter samples in datumaro/plugins/openvino/samples. [Instruction](datumaro/plugins/openvino/README.md)
 
 ``` python
 from datumaro.components.extractor import *
