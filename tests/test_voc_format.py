@@ -425,9 +425,11 @@ class VocConverterTest(TestCase):
                     ]),
                 ])
 
-        with TestDir() as test_dir:
-            self._test_save_and_load(TestExtractor(),
-                partial(VocConverter.convert, label_map='voc'), test_dir)
+        for task in [None] + list(VOC.VocTask):
+            with self.subTest(subformat=task), TestDir() as test_dir:
+                self._test_save_and_load(TestExtractor(),
+                    partial(VocConverter.convert, label_map='voc', tasks=task),
+                    test_dir)
 
     def test_can_save_dataset_with_images(self):
         class TestExtractor(TestExtractorBase):
@@ -444,7 +446,7 @@ class VocConverterTest(TestCase):
                 self._test_save_and_load(TestExtractor(),
                     partial(VocConverter.convert, label_map='voc',
                         save_images=True, tasks=task),
-                    test_dir)
+                    test_dir, require_images=True)
 
     def test_dataset_with_voc_labelmap(self):
         class SrcExtractor(TestExtractorBase):

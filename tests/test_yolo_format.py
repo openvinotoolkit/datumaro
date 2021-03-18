@@ -106,7 +106,8 @@ class YoloFormatTest(TestCase):
             YoloConverter.convert(source_dataset, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'yolo')
 
-            compare_datasets(self, source_dataset, parsed_dataset)
+            compare_datasets(self, source_dataset, parsed_dataset,
+                require_images=True)
 
     def test_relative_paths(self):
         source_dataset = Dataset.from_iterable([
