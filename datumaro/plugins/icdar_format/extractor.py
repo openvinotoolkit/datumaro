@@ -50,6 +50,7 @@ class _IcdarExtractor(SourceExtractor):
 
     def _load_recognition_items(self):
         items = {}
+
         with open(self._path, encoding='utf-8') as f:
             for line in f:
                 line = line.strip()
@@ -73,6 +74,7 @@ class _IcdarExtractor(SourceExtractor):
                     if caption[0] == '\"' and caption[-1] == '\"':
                         caption = caption[1:-1]
                     annotations.append(Caption(caption))
+
         return items
 
     def _load_localization_items(self):
@@ -85,7 +87,7 @@ class _IcdarExtractor(SourceExtractor):
         else:
             images = {}
 
-        for path in glob(osp.join(self._path, '*.txt')):
+        for path in glob(osp.join(self._path, '**', '*.txt')):
             item_id = osp.splitext(osp.basename(path))[0]
             if item_id.startswith('gt_'):
                 item_id = item_id[3:]
@@ -140,7 +142,7 @@ class _IcdarExtractor(SourceExtractor):
         else:
             images = {}
 
-        for path in glob(osp.join(self._path, '*.txt')):
+        for path in glob(osp.join(self._path, '**', '*.txt')):
             item_id = osp.splitext(osp.basename(path))[0]
             if item_id.endswith('_GT'):
                 item_id = item_id[:-3]

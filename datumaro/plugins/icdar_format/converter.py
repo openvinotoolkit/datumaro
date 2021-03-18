@@ -17,8 +17,8 @@ class _WordRecognitionConverter:
     def __init__(self):
         self.annotations = ''
 
-    def save_annotations(self, item, path):
-        self.annotations += '%s, ' % (item.id + IcdarPath.IMAGE_EXT)
+    def save_annotations(self, item, path, image_path):
+        self.annotations += '%s, ' % image_path
         for ann in item.annotations:
             if ann.type != AnnotationType.caption:
                 continue
@@ -38,7 +38,7 @@ class _TextLocalizationConverter:
     def __init__(self):
         self.annotations = {}
 
-    def save_annotations(self, item, path):
+    def save_annotations(self, item, path, image_path):
         annotation = ''
         for ann in item.annotations:
             if ann.type == AnnotationType.bbox:
@@ -53,9 +53,10 @@ class _TextLocalizationConverter:
         self.annotations[item.id] = annotation
 
     def write(self, path):
-        os.makedirs(path, exist_ok=True)
         for item in self.annotations:
-            file = osp.join(path, 'gt_' + item + '.txt')
+            file = osp.join(path, osp.dirname(item),
+                'gt_' + osp.basename(item) + '.txt')
+            os.makedirs(osp.dirname(file), exist_ok=True)
             with open(file, 'w') as f:
                 f.write(self.annotations[item])
 
@@ -66,7 +67,7 @@ class _TextSegmentationConverter:
     def __init__(self):
         self.annotations = {}
 
-    def save_annotations(self, item, path):
+    def save_annotations(self, item, path, image_path):
         annotation = ''
         colormap = [(255, 255, 255)]
         anns = [a for a in item.annotations
@@ -117,9 +118,9 @@ class _TextSegmentationConverter:
         self.annotations[item.id] = annotation
 
     def write(self, path):
-        os.makedirs(path, exist_ok=True)
         for item in self.annotations:
             file = osp.join(path, item + '_GT' + '.txt')
+            os.makedirs(osp.dirname(file), exist_ok=True)
             with open(file, 'w') as f:
                 f.write(self.annotations[item])
 
@@ -163,15 +164,18 @@ class IcdarConverter(Converter):
 
     def apply(self):
         for subset_name, subset in self._extractor.subsets().items():
+
             task_converters = self._make_task_converters()
             for item in subset:
                 for task, task_conv in task_converters.items():
-                    if item.has_image and self._save_images:
-                        self._save_image(item, osp.join(
-                            self._save_dir, subset_name, IcdarPath.IMAGES_DIR,
-                            item.id + IcdarPath.IMAGE_EXT))
-                    task_conv.save_annotations(item, osp.join(self._save_dir,
-                        IcdarPath.TASK_DIR[task], subset_name))
+                    if self._save_images and item.has_image:
+                        self._save_image(item, subdir=osp.join(
+                            subset_name, IcdarPath.IMAGES_DIR))
+
+                    task_conv.save_annotations(item,
+                        osp.join(self._save_dir,
+                            IcdarPath.TASK_DIR[task], subset_name),
+                        image_path=self._make_image_filename(item))
 
             for task, task_conv in task_converters.items():
                 if task_conv.is_empty() and not self._tasks:
