@@ -142,7 +142,7 @@ class LabelMeConverterTest(TestCase):
             self._test_save_and_load(
                 source_dataset,
                 partial(LabelMeConverter.convert, save_images=True),
-                test_dir, target_dataset=target_dataset)
+                test_dir, target_dataset=target_dataset, require_images=True)
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'labelme_dataset')
 

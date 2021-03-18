@@ -171,7 +171,7 @@ class TfrecordConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(test_dataset,
                 partial(TfDetectionApiConverter.convert, save_images=True),
-                test_dir)
+                test_dir, require_images=True)
 
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         dataset = Dataset.from_iterable([

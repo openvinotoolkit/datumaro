@@ -94,10 +94,9 @@ class MotConverterTest(TestCase):
         })
 
         with TestDir() as test_dir:
-            self._test_save_and_load(
-                source_dataset,
+            self._test_save_and_load(source_dataset,
                 partial(MotSeqGtConverter.convert, save_images=True),
-                test_dir, target_dataset=target_dataset)
+                test_dir, target_dataset=target_dataset, require_images=True)
 
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         expected = Dataset.from_iterable([

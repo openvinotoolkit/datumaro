@@ -103,7 +103,7 @@ class LfwFormatTest(TestCase):
             compare_datasets(self, source_dataset, parsed_dataset)
 
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
-        source_dataset = Dataset.from_iterable([
+        dataset = Dataset.from_iterable([
             DatasetItem(id='кириллица с пробелом',
                 image=np.ones((2, 5, 3)),
                 attributes = {
@@ -121,10 +121,10 @@ class LfwFormatTest(TestCase):
         ])
 
         with TestDir() as test_dir:
-            LfwConverter.convert(source_dataset, test_dir, save_images=True)
+            LfwConverter.convert(dataset, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'lfw')
 
-            compare_datasets(self, source_dataset, parsed_dataset)
+            compare_datasets(self, dataset, parsed_dataset, require_images=True)
 
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         dataset = Dataset.from_iterable([

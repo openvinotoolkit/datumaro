@@ -78,7 +78,8 @@ class MotsPngConverterTest(TestCase):
 
         with TestDir() as test_dir:
             self._test_save_and_load(source,
-                partial(MotsPngConverter.convert, save_images=True), test_dir)
+                partial(MotsPngConverter.convert, save_images=True),
+                test_dir, require_images=True)
 
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         expected = Dataset.from_iterable([
@@ -102,6 +103,7 @@ class MotsPngConverterTest(TestCase):
             self._test_save_and_load(expected,
                 partial(MotsPngConverter.convert, save_images=True),
                 test_dir, require_images=True)
+
 class MotsImporterTest(TestCase):
     def test_can_detect(self):
         self.assertTrue(MotsImporter.detect(DUMMY_DATASET_DIR))
