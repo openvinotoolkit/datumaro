@@ -424,6 +424,16 @@ class CocoConverterTest(TestCase):
             self._test_save_and_load(expected_dataset,
                 CocoImageInfoConverter.convert, test_dir)
 
+    def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
+        expected_dataset = Dataset.from_iterable([
+            DatasetItem(id='кириллица с пробелом', subset='train',
+                attributes={'id': 1}),
+        ])
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(expected_dataset,
+                CocoImageInfoConverter.convert, test_dir)
+
     def test_can_save_and_load_labels(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train',

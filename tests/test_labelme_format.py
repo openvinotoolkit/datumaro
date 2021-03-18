@@ -101,6 +101,48 @@ class LabelMeConverterTest(TestCase):
                 partial(LabelMeConverter.convert, save_images=True),
                 test_dir, require_images=True)
 
+    def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id='кириллица с пробелом', subset='train',
+                image=np.ones((16, 16, 3)),
+                annotations=[
+                    Polygon([0, 4, 4, 4, 5, 6], label=3, attributes={
+                        'occluded': True,
+                        'a1': 'qwe',
+                        'a2': True,
+                        'a3': 123,
+                    }),
+                ]
+            ),
+        ], categories={
+            AnnotationType.label: LabelCategories.from_iterable(
+                'label_' + str(label) for label in range(10)),
+        })
+
+        target_dataset = Dataset.from_iterable([
+            DatasetItem(id='кириллица с пробелом', subset='train',
+                image=np.ones((16, 16, 3)),
+                annotations=[
+                    Polygon([0, 4, 4, 4, 5, 6], label=0, id=0,
+                        attributes={
+                            'occluded': True, 'username': '',
+                            'a1': 'qwe',
+                            'a2': True,
+                            'a3': 123,
+                        }
+                    ),
+                ]
+            ),
+        ], categories={
+            AnnotationType.label: LabelCategories.from_iterable([
+                'label_3']),
+        })
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(
+                source_dataset,
+                partial(LabelMeConverter.convert, save_images=True),
+                test_dir, target_dataset=target_dataset)
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'labelme_dataset')
 

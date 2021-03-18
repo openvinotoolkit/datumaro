@@ -58,9 +58,18 @@ class ImagenetTxtExtractor(SourceExtractor):
 
         with open(path, encoding='utf-8') as f:
             for line in f:
-                item = line.split()
-                item_id = item[0]
-                label_ids = [int(id) for id in item[1:]]
+                item = line.split('\"')
+                if 1 < len(item):
+                    if len(item) == 3:
+                        item_id = item[1]
+                        label_ids = [int(id) for id in item[2].split()]
+                    else:
+                        raise Exception("Line %s: unexpected number "
+                            "of quotes in filename" % line)
+                else:
+                    item = line.split()
+                    item_id = item[0]
+                    label_ids = [int(id) for id in item[1:]]
 
                 anno = []
                 for label in label_ids:
@@ -102,12 +111,15 @@ class ImagenetTxtConverter(Converter):
                 if self._save_images and item.has_image:
                     self._save_image(item, subdir=ImagenetTxtPath.IMAGE_DIR)
 
+            annotation = ''
+            for item_id, item_labels in labels.items():
+                if 1 < len(item_id.split()):
+                    item_id = '\"' + item_id + '\"'
+                annotation += '%s %s\n' % (
+                    item_id, ' '.join(str(l) for l in item_labels))
+
             with open(annotation_file, 'w', encoding='utf-8') as f:
-                f.writelines(['%s %s\n' % (
-                        item_id,
-                        ' '.join(str(l) for l in sorted(labels[item_id]))
-                    )
-                    for item_id in labels])
+                f.write(annotation)
 
         labels_file = osp.join(subset_dir, ImagenetTxtPath.LABELS_FILE)
         with open(labels_file, 'w', encoding='utf-8') as f:
