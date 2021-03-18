@@ -22,9 +22,9 @@ class LabelMePath:
     IMAGE_EXT = '.jpg'
 
 class LabelMeExtractor(SourceExtractor):
-    def __init__(self, path, subset_name=None):
+    def __init__(self, path, subset=None):
         assert osp.isdir(path), path
-        super().__init__(subset=subset_name)
+        super().__init__(subset=subset)
 
         items, categories = self._parse(path)
         self._categories = categories
@@ -243,7 +243,7 @@ class LabelMeImporter(Importer):
                 d = osp.join(path, d)
                 if osp.isdir(d) and has_annotations(d):
                     subset_paths.append({'url': d, 'format': cls.EXTRACTOR,
-                        'options': {'subset_name': subset}
+                        'options': {'subset': subset}
                     })
         return subset_paths
 
