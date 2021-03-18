@@ -17,7 +17,7 @@ from datumaro.components.errors import (MissingLabelCategories,
     FarFromAttrMean, OnlyOneAttributeValue)
 from datumaro.components.extractor import Bbox, Label
 from datumaro.components.validator import (ClassificationValidator,
-    DetectionValidator, Severity, validate_annotations, _Validator)
+    DetectionValidator, validate_annotations, _Validator)
 
 class TestValidatorTemplate(TestCase):
     @classmethod
@@ -363,7 +363,7 @@ class TestDetectionValidator(TestValidatorTemplate):
     def test_check_far_from_label_mean(self):
         label_name = 'unittest'
         bbox_label_stats = {
-            'x': {
+            'w': {
                 'items_far_from_mean': {
                     '1': {
                         1: 100
@@ -384,7 +384,7 @@ class TestDetectionValidator(TestValidatorTemplate):
         attr_name = 'test'
         bbox_attr_stats = {
             'mock': {
-                'x': {
+                'w': {
                     'items_far_from_mean': {
                         '1': {
                             1: 100
@@ -469,22 +469,22 @@ class TestValidateAnnotations(TestValidatorTemplate):
             self.assertEqual(actual_stats['items_with_invalid_value'], {})
 
             bbox_dist_by_label = actual_stats['bbox_distribution_in_label']
-            label_prop_stats = bbox_dist_by_label['label_1']['x']
+            label_prop_stats = bbox_dist_by_label['label_1']['width']
             self.assertEqual(label_prop_stats['items_far_from_mean'], {})
-            self.assertEqual(label_prop_stats['mean'], 1.5)
+            self.assertEqual(label_prop_stats['mean'], 3.5)
             self.assertEqual(label_prop_stats['stdev'], 0.5)
-            self.assertEqual(label_prop_stats['min'], 1.0)
-            self.assertEqual(label_prop_stats['max'], 2.0)
-            self.assertEqual(label_prop_stats['median'], 1.5)
+            self.assertEqual(label_prop_stats['min'], 3.0)
+            self.assertEqual(label_prop_stats['max'], 4.0)
+            self.assertEqual(label_prop_stats['median'], 3.5)
 
             bbox_dist_by_attr = actual_stats['bbox_distribution_in_attribute']
-            attr_prop_stats = bbox_dist_by_attr['label_0']['a']['1']['x']
+            attr_prop_stats = bbox_dist_by_attr['label_0']['a']['1']['width']
             self.assertEqual(attr_prop_stats['items_far_from_mean'], {})
-            self.assertEqual(attr_prop_stats['mean'], 1.5)
-            self.assertEqual(attr_prop_stats['stdev'], 0.5)
+            self.assertEqual(attr_prop_stats['mean'], 2.0)
+            self.assertEqual(attr_prop_stats['stdev'], 1.0)
             self.assertEqual(attr_prop_stats['min'], 1.0)
-            self.assertEqual(attr_prop_stats['max'], 2.0)
-            self.assertEqual(attr_prop_stats['median'], 1.5)
+            self.assertEqual(attr_prop_stats['max'], 3.0)
+            self.assertEqual(attr_prop_stats['median'], 2.0)
 
             bbox_dist_item = actual_stats['bbox_distribution_in_dataset_item']
             self.assertEqual(sum(bbox_dist_item.values()), 8)

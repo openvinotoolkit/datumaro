@@ -104,6 +104,8 @@ class _Validator:
         undefined_attr_dist = attr_dist['undefined_attributes']
 
         label_categories = dataset.categories().get(AnnotationType.label)
+        base_valid_attrs = label_categories.attributes
+
         if label_categories is None:
             label_categories = []
 
@@ -128,8 +130,6 @@ class _Validator:
             }
 
             bbox_template = {
-                'x': deepcopy(bbox_info_template),
-                'y': deepcopy(bbox_info_template),
                 'width': deepcopy(bbox_info_template),
                 'height': deepcopy(bbox_info_template),
                 'area(wxh)': deepcopy(bbox_info_template),
@@ -207,6 +207,8 @@ class _Validator:
                         neg_props[prop] = val
 
                 if not bbox_has_error:
+                    ann_bbox_info.pop('x')
+                    ann_bbox_info.pop('y')
                     _update_prop_distributions(ann_bbox_info, bbox_label_stats)
 
                 return ann_bbox_info, bbox_has_error
@@ -215,8 +217,8 @@ class _Validator:
                 for label_name, bbox_stats in bbox_dist_by_label.items():
                     prop_stats_list = list(bbox_stats.values())
                     bbox_attr_label = bbox_dist_by_attr.get(label_name, {})
-                    for attr, vals in bbox_attr_label.items():
-                        for val, val_stats in vals.items():
+                    for vals in bbox_attr_label.values():
+                        for val_stats in vals.values():
                             prop_stats_list += list(val_stats.values())
 
                     for prop_stats in prop_stats_list:
@@ -247,7 +249,8 @@ class _Validator:
                 return val > mean + (_k * stdev) or val < mean - (_k * stdev)
 
             def _update_props_far_from_mean(item, ann):
-                valid_attrs = label_categories[ann.label].attributes
+                valid_attrs = base_valid_attrs.union(
+                    label_categories[ann.label].attributes)
                 label_name = label_categories[ann.label].name
                 bbox_label_stats = bbox_dist_by_label[label_name]
 
@@ -259,6 +262,8 @@ class _Validator:
 
                 ann_bbox_info = _generate_ann_bbox_info(
                     _x, _y, _w, _h, area, ratio, _short, _long)
+                ann_bbox_info.pop('x')
+                ann_bbox_info.pop('y')
 
                 for prop, val in ann_bbox_info.items():
                     prop_stats = bbox_label_stats[prop]
@@ -329,7 +334,8 @@ class _Validator:
                         defined_attr_stats = defined_attr_dist.setdefault(
                             label_name, {})
 
-                        valid_attrs = label_categories[ann.label].attributes
+                        valid_attrs = base_valid_attrs.union(
+                            label_categories[ann.label].attributes)
                         ann_attrs = getattr(ann, 'attributes', {}).keys()
                         missing_attrs = valid_attrs.difference(ann_attrs)
 
