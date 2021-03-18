@@ -237,6 +237,27 @@ class CvatConverterTest(TestCase):
                 partial(CvatConverter.convert, save_images=True), test_dir,
                 target_dataset=target_dataset)
 
+    def test_relative_paths(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id='1', image=np.ones((4, 2, 3))),
+            DatasetItem(id='subdir1/1', image=np.ones((2, 6, 3))),
+            DatasetItem(id='subdir2/1', image=np.ones((5, 4, 3))),
+        ])
+
+        target_dataset = Dataset.from_iterable([
+            DatasetItem(id='1', image=np.ones((4, 2, 3)),
+                attributes={'frame': 0}),
+            DatasetItem(id='subdir1/1', image=np.ones((2, 6, 3)),
+                attributes={'frame': 1}),
+            DatasetItem(id='subdir2/1', image=np.ones((5, 4, 3)),
+                attributes={'frame': 2}),
+        ], categories=[])
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(source_dataset,
+                partial(CvatConverter.convert, save_images=True), test_dir,
+                target_dataset=target_dataset, require_images=True)
+
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         label_categories = LabelCategories()
         for i in range(10):
@@ -265,27 +286,6 @@ class CvatConverterTest(TestCase):
         ], categories={
             AnnotationType.label: label_categories,
         })
-
-        with TestDir() as test_dir:
-            self._test_save_and_load(source_dataset,
-                partial(CvatConverter.convert, save_images=True), test_dir,
-                target_dataset=target_dataset, require_images=True)
-
-    def test_relative_paths(self):
-        source_dataset = Dataset.from_iterable([
-            DatasetItem(id='1', image=np.ones((4, 2, 3))),
-            DatasetItem(id='subdir1/1', image=np.ones((2, 6, 3))),
-            DatasetItem(id='subdir2/1', image=np.ones((5, 4, 3))),
-        ])
-
-        target_dataset = Dataset.from_iterable([
-            DatasetItem(id='1', image=np.ones((4, 2, 3)),
-                attributes={'frame': 0}),
-            DatasetItem(id='subdir1/1', image=np.ones((2, 6, 3)),
-                attributes={'frame': 1}),
-            DatasetItem(id='subdir2/1', image=np.ones((5, 4, 3)),
-                attributes={'frame': 2}),
-        ], categories=[])
 
         with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
