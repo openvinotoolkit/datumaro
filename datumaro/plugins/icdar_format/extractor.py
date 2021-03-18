@@ -71,9 +71,9 @@ class _IcdarExtractor(SourceExtractor):
 
         for path in glob(osp.join(self._path, '**', '*.txt'), recursive=True):
             item_id = osp.splitext(osp.relpath(path, self._path))[0]
+            if osp.basename(item_id).startswith('gt_'):
+                item_id = osp.join(osp.dirname(item_id), osp.basename(item_id)[3:])
             item_id = item_id.replace('\\', '/')
-            if item_id.startswith('gt_'):
-                item_id = item_id[3:]
             image_path = osp.join(self._path, IcdarPath.IMAGES_DIR,
                 item_id + IcdarPath.IMAGE_EXT)
             if item_id not in items:
