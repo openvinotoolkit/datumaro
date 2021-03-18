@@ -9,6 +9,8 @@ import subprocess
 import sys
 
 
+DEFAULT_MAX_DEPTH = 10
+
 def check_instruction_set(instruction):
     return instruction == str.strip(
         # Let's ignore a warning from bandit about using shell=True.
@@ -34,6 +36,9 @@ def import_foreign_module(name, path, package=None):
     return module
 
 def walk(path, max_depth=None):
+    if max_depth is None:
+        max_depth = DEFAULT_MAX_DEPTH
+
     baselevel = path.count(osp.sep)
     for dirpath, dirnames, filenames in os.walk(path, topdown=True):
         curlevel = dirpath.count(osp.sep)
