@@ -69,8 +69,9 @@ class _IcdarExtractor(SourceExtractor):
     def _load_localization_items(self):
         items = {}
 
-        for path in glob(osp.join(self._path, '*.txt')):
-            item_id = osp.splitext(osp.basename(path))[0]
+        for path in glob(osp.join(self._path, '**', '*.txt'), recursive=True):
+            item_id = osp.splitext(osp.relpath(path, self._path))[0]
+            item_id = item_id.replace('\\', '/')
             if item_id.startswith('gt_'):
                 item_id = item_id[3:]
             image_path = osp.join(self._path, IcdarPath.IMAGES_DIR,
@@ -115,8 +116,9 @@ class _IcdarExtractor(SourceExtractor):
     def _load_segmentation_items(self):
         items = {}
 
-        for path in glob(osp.join(self._path, '*.txt')):
-            item_id = osp.splitext(osp.basename(path))[0]
+        for path in glob(osp.join(self._path, '**', '*.txt'), recursive=True):
+            item_id = osp.splitext(osp.relpath(path, self._path))[0]
+            item_id = item_id.replace('\\', '/')
             if item_id.endswith('_GT'):
                 item_id = item_id[:-3]
             image_path = osp.join(self._path, IcdarPath.IMAGES_DIR,

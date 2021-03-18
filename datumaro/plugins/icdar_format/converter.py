@@ -56,6 +56,7 @@ class _TextLocalizationConverter:
         os.makedirs(path, exist_ok=True)
         for item in self.annotations:
             file = osp.join(path, 'gt_' + item + '.txt')
+            os.makedirs(osp.dirname(file), exist_ok=True)
             with open(file, 'w') as f:
                 f.write(self.annotations[item])
 
@@ -119,6 +120,7 @@ class _TextSegmentationConverter:
         os.makedirs(path, exist_ok=True)
         for item in self.annotations:
             file = osp.join(path, item + '_GT' + '.txt')
+            os.makedirs(osp.dirname(file), exist_ok=True)
             with open(file, 'w') as f:
                 f.write(self.annotations[item])
 
@@ -167,7 +169,8 @@ class IcdarConverter(Converter):
                 for task, task_conv in task_converters.items():
                     if item.has_image and self._save_images:
                         self._save_image(item, osp.join(
-                            self._save_dir, subset_name, IcdarPath.IMAGES_DIR,
+                            self._save_dir, IcdarPath.TASK_DIR[task],
+                            subset_name, IcdarPath.IMAGES_DIR,
                             item.id + IcdarPath.IMAGE_EXT))
                     task_conv.save_annotations(item, osp.join(self._save_dir,
                         IcdarPath.TASK_DIR[task], subset_name))

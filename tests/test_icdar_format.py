@@ -1,4 +1,5 @@
 import os.path as osp
+from functools import partial
 from unittest import TestCase
 
 import numpy as np
@@ -102,35 +103,36 @@ class IcdarConverterTest(TestCase):
 
     def test_can_save_and_load_captions(self):
         expected_dataset = Dataset.from_iterable([
-            DatasetItem(id=1, subset='train',
-                annotations=[
+            DatasetItem(id='a/b/1', subset='train',
+                image=np.ones((10, 15, 3)), annotations=[
                     Caption('caption_0'),
                 ]),
             DatasetItem(id=2, subset='train',
-                annotations=[
+                image=np.ones((10, 15, 3)), annotations=[
                     Caption('caption_1'),
                 ]),
         ])
 
         with TestDir() as test_dir:
             self._test_save_and_load(expected_dataset,
-                IcdarWordRecognitionConverter.convert, test_dir)
+                partial(IcdarWordRecognitionConverter.convert, save_images=True),
+                test_dir)
 
     def test_can_save_and_load_bboxes(self):
         expected_dataset = Dataset.from_iterable([
-            DatasetItem(id=1, subset='train',
-                annotations=[
+            DatasetItem(id='a/b/1', subset='train',
+                image=np.ones((10, 15, 3)), annotations=[
                     Bbox(1, 3, 6, 10),
                     Bbox(0, 1, 3, 5, attributes={'text': 'word_0'}),
                 ]),
             DatasetItem(id=2, subset='train',
-                annotations=[
+                image=np.ones((10, 15, 3)), annotations=[
                     Polygon([0, 0, 3, 0, 4, 7, 1, 8],
                         attributes={'text': 'word_1'}),
                     Polygon([1, 2, 5, 3, 6, 8, 0, 7]),
                 ]),
             DatasetItem(id=3, subset='train',
-                annotations=[
+                image=np.ones((10, 15, 3)), annotations=[
                     Polygon([2, 2, 8, 3, 7, 10, 2, 9],
                         attributes={'text': 'word_2'}),
                     Bbox(0, 2, 5, 9, attributes={'text': 'word_3'}),
@@ -139,12 +141,13 @@ class IcdarConverterTest(TestCase):
 
         with TestDir() as test_dir:
             self._test_save_and_load(expected_dataset,
-                IcdarTextLocalizationConverter.convert, test_dir)
+                partial(IcdarTextLocalizationConverter.convert, save_images=True),
+                test_dir)
 
     def test_can_save_and_load_masks(self):
         expected_dataset = Dataset.from_iterable([
-            DatasetItem(id=1, subset='train',
-                annotations=[
+            DatasetItem(id='a/b/1', subset='train',
+                image=np.ones((10, 15, 3)), annotations=[
                     Mask(image=np.array([[0, 0, 0, 1, 1]]), group=1,
                         attributes={ 'index': 1, 'color': '82 174 214', 'text': 'j',
                             'center': '0 3' }),
@@ -153,7 +156,7 @@ class IcdarConverterTest(TestCase):
                             'center': '0 1' }),
                 ]),
             DatasetItem(id=2, subset='train',
-                annotations=[
+                image=np.ones((10, 15, 3)), annotations=[
                     Mask(image=np.array([[0, 0, 0, 0, 0, 1]]), group=0,
                         attributes={ 'index': 3, 'color': '183 6 28', 'text': ' ',
                             'center': '0 5' }),
@@ -171,7 +174,8 @@ class IcdarConverterTest(TestCase):
 
         with TestDir() as test_dir:
             self._test_save_and_load(expected_dataset,
-                IcdarTextSegmentationConverter.convert, test_dir)
+                partial(IcdarTextSegmentationConverter.convert, save_images=True),
+                test_dir)
 
     def test_can_save_and_load_with_no_subsets(self):
         expected_dataset = Dataset.from_iterable([
