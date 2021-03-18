@@ -52,14 +52,14 @@ class YoloExtractor(SourceExtractor):
         if isinstance(image_info, str):
             if not osp.isfile(image_info):
                 raise Exception("Can't read image meta file '%s'" % image_info)
-            with open(image_info) as f:
+            with open(image_info, encoding='utf-8') as f:
                 image_info = {}
                 for line in f:
                     image_name, h, w = line.strip().rsplit(maxsplit=2)
                     image_info[image_name] = (int(h), int(w))
         self._image_info = image_info
 
-        with open(config_path, 'r') as f:
+        with open(config_path, 'r', encoding='utf-8') as f:
             config_lines = f.readlines()
 
         subsets = OrderedDict()
@@ -89,7 +89,7 @@ class YoloExtractor(SourceExtractor):
                 raise Exception("Not found '%s' subset list file" % subset_name)
 
             subset = YoloExtractor.Subset(subset_name, self)
-            with open(list_path, 'r') as f:
+            with open(list_path, 'r', encoding='utf-8') as f:
                 subset.items = OrderedDict(
                     (self.name_from_path(p), self.localize_path(p))
                     for p in f
@@ -143,7 +143,7 @@ class YoloExtractor(SourceExtractor):
     @staticmethod
     def _parse_annotations(anno_path, image):
         lines = []
-        with open(anno_path, 'r') as f:
+        with open(anno_path, 'r', encoding='utf-8') as f:
             for line in f:
                 line = line.strip()
                 if line:
@@ -174,7 +174,7 @@ class YoloExtractor(SourceExtractor):
     def _load_categories(names_path):
         label_categories = LabelCategories()
 
-        with open(names_path, 'r') as f:
+        with open(names_path, 'r', encoding='utf-8') as f:
             for label in f:
                 label_categories.add(label.strip())
 

@@ -24,10 +24,11 @@ from .format import (
 _inverse_inst_colormap = invert_colormap(VocInstColormap)
 
 class _VocExtractor(SourceExtractor):
-    def __init__(self, path):
+    def __init__(self, path, task):
         assert osp.isfile(path), path
         self._path = path
         self._dataset_dir = osp.dirname(osp.dirname(osp.dirname(path)))
+        self._task = task
 
         super().__init__(subset=osp.splitext(osp.basename(path))[0])
 
@@ -56,12 +57,29 @@ class _VocExtractor(SourceExtractor):
             label_map = parse_label_map(label_map_path)
         return make_voc_categories(label_map)
 
-    @staticmethod
-    def _load_subset_list(subset_path):
-        with open(subset_path) as f:
-            return [line.split()[0] for line in f]
+    def _load_subset_list(self, subset_path):
+        subset_list = []
+        with open(subset_path, encoding='utf-8') as f:
+            for line in f:
+                if self._task == VocTask.person_layout:
+                    objects = line.split('\"')
+                    if 1 < len(objects):
+                        if len(objects) == 3:
+                            line = objects[1]
+                        else:
+                            raise Exception("Line %s: unexpected number "
+                                "of quotes in filename" % line)
+                    else:
+                        line = line.split()[0]
+                else:
+                    line = line.strip()
+                subset_list.append(line)
+            return subset_list
 
 class VocClassificationExtractor(_VocExtractor):
+    def __init__(self, path):
+        super().__init__(path, VocTask.classification)
+
     def __iter__(self):
         raw_anns = self._load_annotations()
 
@@ -84,11 +102,11 @@ class VocClassificationExtractor(_VocExtractor):
         anno_files = [s for s in dir_items(task_dir, '.txt')
             if s.endswith('_' + osp.basename(self._path))]
         for ann_filename in anno_files:
-            with open(osp.join(task_dir, ann_filename)) as f:
+            with open(osp.join(task_dir, ann_filename), encoding='utf-8') as f:
                 label = ann_filename[:ann_filename.rfind('_')]
                 label_id = self._get_label_id(label)
                 for line in f:
-                    item, present = line.split()
+                    item, present = line.rsplit(maxsplit=1)
                     if present == '1':
                         annotations[item].append(label_id)
 
@@ -100,8 +118,7 @@ class VocClassificationExtractor(_VocExtractor):
 
 class _VocXmlExtractor(_VocExtractor):
     def __init__(self, path, task):
-        super().__init__(path)
-        self._task = task
+        super().__init__(path, task)
 
     def __iter__(self):
         anno_dir = osp.join(self._dataset_dir, VocPath.ANNOTATIONS_DIR)
@@ -236,6 +253,9 @@ class VocActionExtractor(_VocXmlExtractor):
         super().__init__(path, task=VocTask.action_classification)
 
 class VocSegmentationExtractor(_VocExtractor):
+    def __init__(self, path):
+        super().__init__(path, task=VocTask.segmentation)
+
     def __iter__(self):
         image_dir = osp.join(self._dataset_dir, VocPath.IMAGES_DIR)
         if osp.isdir(image_dir):

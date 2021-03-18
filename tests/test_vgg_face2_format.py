@@ -72,6 +72,22 @@ class VggFace2FormatTest(TestCase):
 
             compare_datasets(self, source_dataset, parsed_dataset)
 
+    def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id='кириллица с пробелом', image=np.ones((8, 8, 3)),
+                annotations=[
+                    Points([4.23, 4.32, 5.34, 4.45, 3.54,
+                        3.56, 4.52, 3.51, 4.78, 3.34], label=0),
+                ]
+            ),
+        ], categories=['a'])
+
+        with TestDir() as test_dir:
+            VggFace2Converter.convert(source_dataset, test_dir, save_images=True)
+            parsed_dataset = Dataset.import_from(test_dir, 'vgg_face2')
+
+            compare_datasets(self, source_dataset, parsed_dataset)
+
     def test_can_save_dataset_with_no_save_images(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='1', image=np.ones((8, 8, 3)),

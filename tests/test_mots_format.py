@@ -66,6 +66,19 @@ class MotsPngConverterTest(TestCase):
                 partial(MotsPngConverter.convert, save_images=True),
                 test_dir, target_dataset=target)
 
+    def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
+        source = Dataset.from_iterable([
+            DatasetItem(id='кириллица с пробелом', subset='a',
+                image=np.ones((5, 1)), annotations=[
+                    Mask(np.array([[1, 0, 0, 0, 0]]), label=0,
+                        attributes={'track_id': 2}),
+            ]),
+        ], categories=['a'])
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(source,
+                partial(MotsPngConverter.convert, save_images=True), test_dir)
+
 class MotsImporterTest(TestCase):
     def test_can_detect(self):
         self.assertTrue(MotsImporter.detect(DUMMY_DATASET_DIR))

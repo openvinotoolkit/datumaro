@@ -76,6 +76,25 @@ class ImagenetTxtFormatTest(TestCase):
             compare_datasets(self, source_dataset, parsed_dataset,
                 require_images=True)
 
+    def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
+        dataset = Dataset.from_iterable([
+            DatasetItem(id="кириллица с пробелом",
+                image=np.ones((8, 8, 3)),
+                annotations=[Label(0), Label(1)]
+            ),
+        ], categories={
+            AnnotationType.label: LabelCategories.from_iterable(
+                'label_' + str(label) for label in range(2)),
+        })
+
+        with TestDir() as test_dir:
+            ImagenetTxtConverter.convert(dataset, test_dir, save_images=True)
+
+            parsed_dataset = Dataset.import_from(test_dir, 'imagenet_txt')
+
+            compare_datasets(self, dataset, parsed_dataset,
+                require_images=True)
+
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id='a/1', image=Image(path='a/1.JPEG',
@@ -91,7 +110,6 @@ class ImagenetTxtFormatTest(TestCase):
 
             compare_datasets(self, dataset, parsed_dataset,
                 require_images=True)
-
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'imagenet_txt_dataset')
 
