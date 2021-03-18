@@ -192,12 +192,15 @@ class IcdarConverterTest(TestCase):
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='кириллица с пробелом',
-                image=np.ones((8, 8, 3)), annotations=[
-                    Bbox(0, 1, 3, 5),
-                ]),
+                image=np.ones((8, 8, 3))),
         ])
 
-        with TestDir() as test_dir:
-            self._test_save_and_load(expected_dataset,
-                partial(IcdarTextLocalizationConverter.convert, save_images=True),
-                test_dir)
+        for task in [
+            IcdarWordRecognitionConverter,
+            IcdarTextLocalizationConverter,
+            IcdarTextSegmentationConverter,
+        ]:
+            with self.subTest(subformat=task), TestDir() as test_dir:
+                self._test_save_and_load(expected_dataset,
+                    partial(task.convert, save_images=True),
+                    test_dir)

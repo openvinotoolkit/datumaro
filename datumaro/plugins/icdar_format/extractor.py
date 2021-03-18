@@ -38,7 +38,6 @@ class _IcdarExtractor(SourceExtractor):
             else:
                 self._items = list(self._load_segmentation_items().values())
 
-
     def _load_recognition_items(self):
         items = {}
         with open(self._path, encoding='utf-8') as f:
