@@ -268,7 +268,7 @@ class Image:
         else:
             data = self._data
 
-        if self._size is None:
+        if self._size is None and data is not None:
             self._size = data.shape[:2]
         return data
 
