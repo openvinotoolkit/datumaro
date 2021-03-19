@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-from glob import glob
+from glob import iglob
 import os.path as osp
 
 import numpy as np
@@ -87,10 +87,12 @@ class _IcdarExtractor(SourceExtractor):
         else:
             images = {}
 
-        for path in glob(osp.join(self._path, '**', '*.txt')):
-            item_id = osp.splitext(osp.basename(path))[0]
-            if item_id.startswith('gt_'):
-                item_id = item_id[3:]
+        for path in iglob(osp.join(self._path, '**', '*.txt'), recursive=True):
+            item_id = osp.splitext(osp.relpath(path, self._path))[0]
+            if osp.basename(item_id).startswith('gt_'):
+                item_id = osp.join(osp.dirname(item_id), osp.basename(item_id)[3:])
+            item_id = item_id.replace('\\', '/')
+
             if item_id not in items:
                 items[item_id] = DatasetItem(item_id, subset=self._subset,
                     image=images.get(item_id))
@@ -142,10 +144,12 @@ class _IcdarExtractor(SourceExtractor):
         else:
             images = {}
 
-        for path in glob(osp.join(self._path, '**', '*.txt')):
-            item_id = osp.splitext(osp.basename(path))[0]
+        for path in iglob(osp.join(self._path, '**', '*.txt'), recursive=True):
+            item_id = osp.splitext(osp.relpath(path, self._path))[0]
+            item_id = item_id.replace('\\', '/')
             if item_id.endswith('_GT'):
                 item_id = item_id[:-3]
+
             if item_id not in items:
                 items[item_id] = DatasetItem(item_id, subset=self._subset,
                     image=images.get(item_id))
@@ -229,34 +233,18 @@ class IcdarTextSegmentationExtractor(_IcdarExtractor):
         kwargs['task'] = IcdarTask.text_segmentation
         super().__init__(path, **kwargs)
 
-class IcdarImporter(Importer):
-    _TASKS = [
-        (IcdarTask.word_recognition, 'icdar_word_recognition', 'word_recognition'),
-        (IcdarTask.text_localization, 'icdar_text_localization', 'text_localization'),
-        (IcdarTask.text_segmentation, 'icdar_text_segmentation', 'text_segmentation'),
-    ]
 
+class IcdarWordRecognitionImporter(Importer):
     @classmethod
     def find_sources(cls, path):
-        sources = []
+        return cls._find_sources_recursive(path, '.txt', 'icdar_word_recognition')
 
-        paths = [path]
-        if osp.basename(path) not in IcdarPath.TASK_DIR.values():
-            paths = [p for p in glob(osp.join(path, '**'))
-                if osp.basename(p) in IcdarPath.TASK_DIR.values()]
+class IcdarTextLocalizationImporter(Importer):
+    @classmethod
+    def find_sources(cls, path):
+        return cls._find_sources_recursive(path, '', 'icdar_text_localization')
 
-        for path in paths:
-            for task, extractor_type, task_dir in cls._TASKS:
-                if not osp.isdir(path) or osp.basename(path) != task_dir:
-                    continue
-
-                if task is IcdarTask.word_recognition:
-                    ext = '.txt'
-                elif task is IcdarTask.text_localization or \
-                        task is IcdarTask.text_segmentation:
-                    ext = ''
-
-                sources += cls._find_sources_recursive(path, ext,
-                    extractor_type, file_filter=lambda p:
-                        osp.basename(p) != IcdarPath.VOCABULARY_FILE)
-        return sources
+class IcdarTextSegmentationImporter(Importer):
+    @classmethod
+    def find_sources(cls, path):
+        return cls._find_sources_recursive(path, '', 'icdar_text_segmentation')
