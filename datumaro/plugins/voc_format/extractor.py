@@ -42,7 +42,7 @@ class _VocExtractor(SourceExtractor):
                 self._categories[AnnotationType.label].items
             ))
         ))
-        self._items = self._load_subset_list(path)
+        self._items = { item: None for item in self._load_subset_list(path) }
 
     def _get_label_id(self, label):
         label_id, _ = self._categories[AnnotationType.label].find(label)
