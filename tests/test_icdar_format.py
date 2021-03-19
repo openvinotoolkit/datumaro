@@ -9,7 +9,7 @@ from datumaro.components.project import Dataset
 from datumaro.plugins.icdar_format.converter import (
     IcdarTextLocalizationConverter, IcdarTextSegmentationConverter,
     IcdarWordRecognitionConverter)
-from datumaro.plugins.icdar_format.extractor import IcdarImporter
+from datumaro.plugins.icdar_format.extractor import IcdarWordRecognitionImporter
 from datumaro.util.test_utils import (TestDir, compare_datasets,
     test_save_and_load)
 
@@ -18,7 +18,7 @@ DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'icdar_dataset')
 
 class IcdarImporterTest(TestCase):
     def test_can_detect(self):
-        self.assertTrue(IcdarImporter.detect(
+        self.assertTrue(IcdarWordRecognitionImporter.detect(
             osp.join(DUMMY_DATASET_DIR, 'word_recognition')))
 
     def test_can_import_captions(self):
@@ -38,7 +38,8 @@ class IcdarImporterTest(TestCase):
         ])
 
         dataset = Dataset.import_from(
-            osp.join(DUMMY_DATASET_DIR, 'word_recognition'), 'icdar')
+            osp.join(DUMMY_DATASET_DIR, 'word_recognition'),
+            'icdar_word_recognition')
 
         compare_datasets(self, expected_dataset, dataset)
 
@@ -61,7 +62,8 @@ class IcdarImporterTest(TestCase):
         ])
 
         dataset = Dataset.import_from(
-            osp.join(DUMMY_DATASET_DIR, 'text_localization'), 'icdar')
+            osp.join(DUMMY_DATASET_DIR, 'text_localization'),
+            'icdar_text_localization')
 
         compare_datasets(self, expected_dataset, dataset)
 
@@ -90,16 +92,16 @@ class IcdarImporterTest(TestCase):
         ])
 
         dataset = Dataset.import_from(
-            osp.join(DUMMY_DATASET_DIR, 'text_segmentation'), 'icdar')
+            osp.join(DUMMY_DATASET_DIR, 'text_segmentation'),
+            'icdar_text_segmentation')
 
         compare_datasets(self, expected_dataset, dataset)
 
 class IcdarConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
-            target_dataset=None, importer_args=None):
+            importer, target_dataset=None, importer_args=None):
         return test_save_and_load(self, source_dataset, converter, test_dir,
-            importer='icdar',
-            target_dataset=target_dataset, importer_args=importer_args)
+            importer, target_dataset=target_dataset, importer_args=importer_args)
 
     def test_can_save_and_load_captions(self):
         expected_dataset = Dataset.from_iterable([
@@ -116,7 +118,7 @@ class IcdarConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(expected_dataset,
                 partial(IcdarWordRecognitionConverter.convert, save_images=True),
-                test_dir)
+                test_dir, 'icdar_word_recognition')
 
     def test_can_save_and_load_bboxes(self):
         expected_dataset = Dataset.from_iterable([
@@ -142,7 +144,7 @@ class IcdarConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(expected_dataset,
                 partial(IcdarTextLocalizationConverter.convert, save_images=True),
-                test_dir)
+                test_dir, 'icdar_text_localization')
 
     def test_can_save_and_load_masks(self):
         expected_dataset = Dataset.from_iterable([
@@ -175,7 +177,7 @@ class IcdarConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(expected_dataset,
                 partial(IcdarTextSegmentationConverter.convert, save_images=True),
-                test_dir)
+                test_dir, 'icdar_text_segmentation')
 
     def test_can_save_and_load_with_no_subsets(self):
         expected_dataset = Dataset.from_iterable([
@@ -187,7 +189,8 @@ class IcdarConverterTest(TestCase):
 
         with TestDir() as test_dir:
             self._test_save_and_load(expected_dataset,
-                IcdarTextLocalizationConverter.convert, test_dir)
+                IcdarTextLocalizationConverter.convert, test_dir,
+                'icdar_text_localization')
 
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         expected_dataset = Dataset.from_iterable([
@@ -195,12 +198,12 @@ class IcdarConverterTest(TestCase):
                 image=np.ones((8, 8, 3))),
         ])
 
-        for task in [
-            IcdarWordRecognitionConverter,
-            IcdarTextLocalizationConverter,
-            IcdarTextSegmentationConverter,
+        for importer, converter in [
+            ('icdar_word_recognition', IcdarWordRecognitionConverter),
+            ('icdar_text_localization', IcdarTextLocalizationConverter),
+            ('icdar_text_segmentation', IcdarTextSegmentationConverter),
         ]:
-            with self.subTest(subformat=task), TestDir() as test_dir:
+            with self.subTest(subformat=converter), TestDir() as test_dir:
                 self._test_save_and_load(expected_dataset,
-                    partial(task.convert, save_images=True),
-                    test_dir)
+                    partial(converter.convert, save_images=True),
+                    test_dir, importer)
