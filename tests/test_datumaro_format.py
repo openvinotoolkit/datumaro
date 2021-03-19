@@ -110,7 +110,7 @@ class DatumaroConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(test_dataset,
                 partial(DatumaroConverter.convert, save_images=True),
-                test_dir, require_images=True)
+                test_dir)
 
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         expected = Dataset.from_iterable([
