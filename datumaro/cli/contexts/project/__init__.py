@@ -18,6 +18,7 @@ from datumaro.components.operations import (DistanceComparator,
 from datumaro.components.project import \
     PROJECT_DEFAULT_CONFIG as DEFAULT_CONFIG
 from datumaro.components.project import Environment, Project
+from datumaro.components.validator import validate_annotations
 from datumaro.util import error_rollback
 
 from ...util import (CliException, MultilineFormatter, add_subparser,
@@ -791,6 +792,45 @@ def info_command(args):
 
     return 0
 
+def build_validate_parser(parser_ctor=argparse.ArgumentParser):
+    parser = parser_ctor(help="Validate project",
+        description="""
+            Validates project based on specified task type and stores
+            results like statistics, reports and summary in JSON file.
+        """,
+        formatter_class=MultilineFormatter)
+
+    TaskType = Enum('TaskType', ['classification', 'detection'])
+
+    parser.add_argument(
+        'task_type',
+        help="Task type for validation",
+        choices=[task_type.name for task_type in TaskType]
+    )
+    parser.add_argument('-s', '--subset', dest='subset_name', default=None,
+        help="Subset to validate (default: None)")
+    parser.add_argument('-p', '--project', dest='project_dir', default='.',
+        help="Directory of the project to validate (default: current dir)")
+    parser.set_defaults(command=validate_command)
+
+    return parser
+
+def validate_command(args):
+    project = load_project(args.project_dir)
+    task_type = args.task_type
+    subset_name = args.subset_name
+    dst_file_name = 'validation_results'
+
+    dataset = project.make_dataset()
+    if subset_name is not None:
+        dataset = dataset.get_subset(subset_name)
+        dst_file_name += f'-{subset_name}'
+    validation_results = validate_annotations(dataset, task_type)
+
+    dst_file = generate_next_file_name(dst_file_name, ext='.json')
+    log.info("Writing project validation results to '%s'" % dst_file)
+    with open(dst_file, 'w') as f:
+        json.dump(validation_results, f, indent=4, sort_keys=True)
 
 def build_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(
@@ -814,5 +854,6 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     add_subparser(subparsers, 'transform', build_transform_parser)
     add_subparser(subparsers, 'info', build_info_parser)
     add_subparser(subparsers, 'stats', build_stats_parser)
+    add_subparser(subparsers, 'validate', build_validate_parser)
 
     return parser
