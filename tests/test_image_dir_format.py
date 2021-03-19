@@ -4,7 +4,8 @@ from unittest import TestCase
 
 from datumaro.components.project import Dataset
 from datumaro.components.extractor import DatasetItem
-from datumaro.plugins.image_dir import ImageDirConverter
+from datumaro.plugins.image_dir_format import ImageDirConverter
+from datumaro.util.image import Image
 from datumaro.util.test_utils import TestDir, test_save_and_load
 
 
@@ -17,7 +18,7 @@ class ImageDirFormatTest(TestCase):
 
         with TestDir() as test_dir:
             test_save_and_load(self, dataset, ImageDirConverter.convert,
-                test_dir, importer='image_dir')
+                test_dir, importer='image_dir', require_images=True)
 
     def test_relative_paths(self):
         dataset = Dataset.from_iterable([
@@ -38,3 +39,15 @@ class ImageDirFormatTest(TestCase):
         with TestDir() as test_dir:
             test_save_and_load(self, dataset, ImageDirConverter.convert,
                 test_dir, importer='image_dir')
+
+    def test_can_save_and_load_image_with_arbitrary_extension(self):
+        dataset = Dataset.from_iterable([
+            DatasetItem(id='q/1', image=Image(path='q/1.JPEG',
+                data=np.zeros((4, 3, 3)))),
+            DatasetItem(id='a/b/c/2', image=Image(path='a/b/c/2.bmp',
+                data=np.zeros((3, 4, 3)))),
+        ])
+
+        with TestDir() as test_dir:
+            test_save_and_load(self, dataset, ImageDirConverter.convert,
+                test_dir, importer='image_dir', require_images=True)

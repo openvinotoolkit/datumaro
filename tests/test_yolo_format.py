@@ -106,7 +106,8 @@ class YoloFormatTest(TestCase):
             YoloConverter.convert(source_dataset, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'yolo')
 
-            compare_datasets(self, source_dataset, parsed_dataset)
+            compare_datasets(self, source_dataset, parsed_dataset,
+                require_images=True)
 
     def test_relative_paths(self):
         source_dataset = Dataset.from_iterable([
@@ -116,9 +117,7 @@ class YoloFormatTest(TestCase):
                 image=np.ones((2, 6, 3))),
             DatasetItem(id='subdir2/1', subset='train',
                 image=np.ones((5, 4, 3))),
-        ], categories={
-            AnnotationType.label: LabelCategories(),
-        })
+        ], categories=[])
 
         for save_images in {True, False}:
             with self.subTest(save_images=save_images):
@@ -128,6 +127,20 @@ class YoloFormatTest(TestCase):
                     parsed_dataset = Dataset.import_from(test_dir, 'yolo')
 
                     compare_datasets(self, source_dataset, parsed_dataset)
+
+    def test_can_save_and_load_image_with_arbitrary_extension(self):
+        dataset = Dataset.from_iterable([
+            DatasetItem('q/1', subset='train',
+                image=Image(path='q/1.JPEG', data=np.zeros((4, 3, 3)))),
+            DatasetItem('a/b/c/2', subset='valid',
+                image=Image(path='a/b/c/2.bmp', data=np.zeros((3, 4, 3)))),
+        ], categories=[])
+
+        with TestDir() as test_dir:
+            YoloConverter.convert(dataset, test_dir, save_images=True)
+            parsed_dataset = Dataset.import_from(test_dir, 'yolo')
+
+            compare_datasets(self, dataset, parsed_dataset, require_images=True)
 
     def test_inplace_save_writes_only_updated_data(self):
         with TestDir() as path:

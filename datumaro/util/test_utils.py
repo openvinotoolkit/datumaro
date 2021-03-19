@@ -108,7 +108,7 @@ def compare_datasets(test, expected, actual, ignored_attrs=None,
         item_b = find(actual, lambda x: x.id == item_a.id and \
             x.subset == item_a.subset)
         test.assertFalse(item_b is None, item_a.id)
-        test.assertEqual(item_a.attributes, item_b.attributes)
+        test.assertEqual(item_a.attributes, item_b.attributes, item_a.id)
         if (require_images and item_a.has_image and item_a.image.has_data) or \
                 item_a.has_image and item_a.image.has_data and \
                 item_b.has_image and item_b.image.has_data:
@@ -144,7 +144,7 @@ def compare_datasets_strict(test, expected, actual):
                 (idx, item_a, item_b))
 
 def test_save_and_load(test, source_dataset, converter, test_dir, importer,
-        target_dataset=None, importer_args=None, compare=None):
+        target_dataset=None, importer_args=None, compare=None, **kwargs):
     converter(source_dataset, test_dir)
 
     if importer_args is None:
@@ -156,4 +156,4 @@ def test_save_and_load(test, source_dataset, converter, test_dir, importer,
 
     if not compare:
         compare = compare_datasets
-    compare(test, expected=target_dataset, actual=parsed_dataset)
+    compare(test, expected=target_dataset, actual=parsed_dataset, **kwargs)

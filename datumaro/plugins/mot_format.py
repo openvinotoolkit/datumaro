@@ -18,7 +18,7 @@ from datumaro.components.extractor import (SourceExtractor, Importer,
 )
 from datumaro.components.converter import Converter
 from datumaro.util import cast
-from datumaro.util.image import Image
+from datumaro.util.image import Image, find_images
 
 
 MotLabel = Enum('MotLabel', [
@@ -59,8 +59,9 @@ class MotPath:
 
 
 class MotSeqExtractor(SourceExtractor):
-    def __init__(self, path, labels=None, occlusion_threshold=0, is_gt=None):
-        super().__init__()
+    def __init__(self, path, labels=None, occlusion_threshold=0, is_gt=None,
+            subset=None):
+        super().__init__(subset=subset)
 
         assert osp.isfile(path)
         seq_root = osp.dirname(osp.dirname(path))
@@ -132,14 +133,10 @@ class MotSeqExtractor(SourceExtractor):
                     )
                 )
         elif osp.isdir(self._image_dir):
-            for p in os.listdir(self._image_dir):
-                if p.endswith(MotPath.IMAGE_EXT):
-                    frame_id = int(osp.splitext(p)[0])
-                    items[frame_id] = DatasetItem(
-                        id=frame_id,
-                        subset=self._subset,
-                        image=osp.join(self._image_dir, p),
-                    )
+            for p in find_images(self._image_dir):
+                frame_id = int(osp.splitext(osp.relpath(p, self._image_dir))[0])
+                items[frame_id] = DatasetItem(id=frame_id, subset=self._subset,
+                    image=p)
 
         with open(path, newline='', encoding='utf-8') as csv_file:
             # NOTE: Different MOT files have different count of fields
