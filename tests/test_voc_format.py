@@ -401,28 +401,8 @@ class VocConverterTest(TestCase):
         class TestExtractor(TestExtractorBase):
             def __iter__(self):
                 return iter([
-                    DatasetItem(id=1, annotations=[
-                        Label(2),
-                        Label(3),
-                    ]),
-
-                    DatasetItem(id=2, annotations=[
-                        Label(3),
-                    ]),
-                ])
-
-        with TestDir() as test_dir:
-            self._test_save_and_load(TestExtractor(),
-                partial(VocConverter.convert, label_map='voc'), test_dir)
-
-    def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
-        class TestExtractor(TestExtractorBase):
-            def __iter__(self):
-                return iter([
-                    DatasetItem(id='кириллица с пробелом', annotations=[
-                        Label(2),
-                        Label(3),
-                    ]),
+                    DatasetItem(id=1),
+                    DatasetItem(id=2),
                 ])
 
         for task in [None] + list(VOC.VocTask):
@@ -430,6 +410,22 @@ class VocConverterTest(TestCase):
                 self._test_save_and_load(TestExtractor(),
                     partial(VocConverter.convert, label_map='voc', tasks=task),
                     test_dir)
+
+    def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
+        class TestExtractor(TestExtractorBase):
+            def __iter__(self):
+                return iter([
+                    DatasetItem(id='кириллица с пробелом 1'),
+                    DatasetItem(id='кириллица с пробелом 2',
+                        image=np.ones([4, 5, 3])),
+                ])
+
+        for task in [None] + list(VOC.VocTask):
+            with self.subTest(subformat=task), TestDir() as test_dir:
+                self._test_save_and_load(TestExtractor(),
+                    partial(VocConverter.convert, label_map='voc', tasks=task,
+                        save_images=True),
+                    test_dir, require_images=True)
 
     def test_can_save_dataset_with_images(self):
         class TestExtractor(TestExtractorBase):
