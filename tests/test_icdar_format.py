@@ -110,10 +110,10 @@ class IcdarImporterTest(TestCase):
         compare_datasets(self, expected_dataset, dataset)
 
 class IcdarConverterTest(TestCase):
-    def _test_save_and_load(self, source_dataset, converter, test_dir,
+    def _test_save_and_load(self, source_dataset, converter, test_dir, importer,
             target_dataset=None, importer_args=None, **kwargs):
         return test_save_and_load(self, source_dataset, converter, test_dir,
-            importer='icdar',
+            importer,
             target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
     def test_can_save_and_load_captions(self):

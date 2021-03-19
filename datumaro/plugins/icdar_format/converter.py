@@ -22,9 +22,8 @@ class IcdarWordRecognitionConverter(Converter):
             for item in subset:
                 image_filename = self._make_image_filename(item)
                 if self._save_images and item.has_image:
-                    self._save_image(item,
-                        subdir=osp.join(subset_name, IcdarPath.IMAGES_DIR),
-                        name=image_filename)
+                    self._save_image(item, osp.join(self._save_dir,
+                        subset_name, IcdarPath.IMAGES_DIR, image_filename))
 
                 annotation += '%s, ' % image_filename
                 for ann in item.annotations:
