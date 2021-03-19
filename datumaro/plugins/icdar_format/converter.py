@@ -25,10 +25,8 @@ class IcdarWordRecognitionConverter(Converter):
             annotation = ''
             for item in subset:
                 if item.has_image and self._save_images:
-                    self._save_image(item, osp.join(self._save_dir,
-                        IcdarPath.TASK_DIR[self._task],
-                        subset_name, IcdarPath.IMAGES_DIR,
-                        item.id + IcdarPath.IMAGE_EXT))
+                    self._save_image(item, osp.join(self._save_dir, subset_name,
+                        IcdarPath.IMAGES_DIR, item.id + IcdarPath.IMAGE_EXT))
 
                 annotation += '%s, ' % (item.id + IcdarPath.IMAGE_EXT)
                 for ann in item.annotations:
@@ -37,8 +35,7 @@ class IcdarWordRecognitionConverter(Converter):
                     annotation += '\"%s\"' % ann.caption
                 annotation += '\n'
             if len(annotation):
-                anno_file = osp.join(self._save_dir,
-                    IcdarPath.TASK_DIR[self._task], subset_name, 'gt.txt')
+                anno_file = osp.join(self._save_dir, subset_name, 'gt.txt')
                 os.makedirs(osp.dirname(anno_file), exist_ok=True)
                 with open(anno_file, 'w', encoding='utf-8') as f:
                     f.write(annotation)
@@ -54,10 +51,8 @@ class IcdarTextLocalizationConverter(Converter):
         for subset_name, subset in self._extractor.subsets().items():
             for item in subset:
                 if item.has_image and self._save_images:
-                    self._save_image(item, osp.join(self._save_dir,
-                        IcdarPath.TASK_DIR[self._task],
-                        subset_name, IcdarPath.IMAGES_DIR,
-                        item.id + IcdarPath.IMAGE_EXT))
+                    self._save_image(item, osp.join(self._save_dir, subset_name,
+                        IcdarPath.IMAGES_DIR, item.id + IcdarPath.IMAGE_EXT))
 
                 annotation = ''
                 for ann in item.annotations:
@@ -70,8 +65,8 @@ class IcdarTextLocalizationConverter(Converter):
                         if ann.attributes and 'text' in ann.attributes:
                             annotation += ',\"%s\"' % ann.attributes['text']
                     annotation += '\n'
-                anno_file = osp.join(self._save_dir, IcdarPath.TASK_DIR[self._task],
-                    subset_name, osp.dirname(item.id), 'gt_' + osp.basename(item.id) + '.txt')
+                anno_file = osp.join(self._save_dir, subset_name, osp.dirname(item.id),
+                    'gt_' + osp.basename(item.id) + '.txt')
                 os.makedirs(osp.dirname(anno_file), exist_ok=True)
                 with open(anno_file, 'w', encoding='utf-8') as f:
                     f.write(annotation)
@@ -86,10 +81,8 @@ class IcdarTextSegmentationConverter(Converter):
         for subset_name, subset in self._extractor.subsets().items():
             for item in subset:
                 if item.has_image and self._save_images:
-                    self._save_image(item, osp.join(self._save_dir,
-                        IcdarPath.TASK_DIR[self._task],
-                        subset_name, IcdarPath.IMAGES_DIR,
-                        item.id + IcdarPath.IMAGE_EXT))
+                    self._save_image(item, osp.join(self._save_dir, subset_name,
+                        IcdarPath.IMAGES_DIR, item.id + IcdarPath.IMAGE_EXT))
 
                 annotation = ''
                 colormap = [(255, 255, 255)]
@@ -135,12 +128,10 @@ class IcdarTextSegmentationConverter(Converter):
                         instance_labels=[m.attributes['index'] + 1 for m in anns])
                     mask = paint_mask(mask.class_mask,
                         { i: colormap[i] for i in range(len(colormap)) })
-                    save_image(osp.join(self._save_dir, IcdarPath.TASK_DIR[self._task],
-                        subset_name, item.id + '_GT' + IcdarPath.GT_EXT),
-                        mask, create_dir=True)
+                    save_image(osp.join(self._save_dir, subset_name,
+                        item.id + '_GT' + IcdarPath.GT_EXT), mask, create_dir=True)
 
-                anno_file = osp.join(self._save_dir, IcdarPath.TASK_DIR[self._task],
-                    subset_name, item.id + '_GT' + '.txt')
+                anno_file = osp.join(self._save_dir, subset_name, item.id + '_GT' + '.txt')
                 os.makedirs(osp.dirname(anno_file), exist_ok=True)
                 with open(anno_file, 'w', encoding='utf-8') as f:
                     f.write(annotation)

@@ -15,10 +15,3 @@ class IcdarPath:
     IMAGE_EXT = '.png'
     GT_EXT = '.bmp'
     IMAGES_DIR = 'images'
-    VOCABULARY_FILE = 'vocabulary.txt'
-
-    TASK_DIR = {
-        IcdarTask.word_recognition: 'word_recognition',
-        IcdarTask.text_localization: 'text_localization',
-        IcdarTask.text_segmentation: 'text_segmentation',
-    }
