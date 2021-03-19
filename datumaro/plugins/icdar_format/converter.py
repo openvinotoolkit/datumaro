@@ -10,15 +10,11 @@ from datumaro.components.extractor import AnnotationType, CompiledMask
 from datumaro.util.image import save_image
 from datumaro.util.mask_tools import paint_mask
 
-from .format import IcdarPath, IcdarTask
+from .format import IcdarPath
 
 
 class IcdarWordRecognitionConverter(Converter):
     DEFAULT_IMAGE_EXT = IcdarPath.IMAGE_EXT
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._task = IcdarTask.word_recognition
 
     def apply(self):
         for subset_name, subset in self._extractor.subsets().items():
@@ -42,10 +38,6 @@ class IcdarWordRecognitionConverter(Converter):
 
 class IcdarTextLocalizationConverter(Converter):
     DEFAULT_IMAGE_EXT = IcdarPath.IMAGE_EXT
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._task = IcdarTask.text_localization
 
     def apply(self):
         for subset_name, subset in self._extractor.subsets().items():
@@ -73,9 +65,6 @@ class IcdarTextLocalizationConverter(Converter):
 
 class IcdarTextSegmentationConverter(Converter):
     DEFAULT_IMAGE_EXT = IcdarPath.IMAGE_EXT
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._task = IcdarTask.text_segmentation
 
     def apply(self):
         for subset_name, subset in self._extractor.subsets().items():
@@ -131,7 +120,8 @@ class IcdarTextSegmentationConverter(Converter):
                     save_image(osp.join(self._save_dir, subset_name,
                         item.id + '_GT' + IcdarPath.GT_EXT), mask, create_dir=True)
 
-                anno_file = osp.join(self._save_dir, subset_name, item.id + '_GT' + '.txt')
+                anno_file = osp.join(self._save_dir, subset_name,
+                    item.id + '_GT' + '.txt')
                 os.makedirs(osp.dirname(anno_file), exist_ok=True)
                 with open(anno_file, 'w', encoding='utf-8') as f:
                     f.write(annotation)
