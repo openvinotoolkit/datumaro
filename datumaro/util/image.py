@@ -264,8 +264,13 @@ class Image:
     @property
     def data(self):
         if callable(self._data):
-            return self._data()
-        return self._data
+            data = self._data()
+        else:
+            data = self._data
+
+        if self._size is None:
+            self._size = data.shape[:2]
+        return data
 
     @property
     def has_data(self):
