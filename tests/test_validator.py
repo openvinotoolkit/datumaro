@@ -99,7 +99,7 @@ class TestBaseValidator(TestValidatorTemplate):
         label_name = 'unit'
         attr_name = 'test'
         attr_dets = {
-            'items_missing_attribute': [1]
+            'items_missing_attribute': [(1, 'unittest')]
         }
 
         actual_reports = self.validator._check_missing_attribute(
@@ -111,7 +111,7 @@ class TestBaseValidator(TestValidatorTemplate):
     def test_check_undefined_label(self):
         label_name = 'unittest'
         label_stats = {
-            'items_with_undefined_label': [1]
+            'items_with_undefined_label': [(1, 'unittest')]
         }
 
         actual_reports = self.validator._check_undefined_label(
@@ -124,7 +124,7 @@ class TestBaseValidator(TestValidatorTemplate):
         label_name = 'unit'
         attr_name = 'test'
         attr_dets = {
-            'items_with_undefined_attr':[1]
+            'items_with_undefined_attr':[(1, 'unittest')]
         }
 
         actual_reports = self.validator._check_undefined_attribute(
@@ -260,7 +260,7 @@ class TestClassificationValidator(TestValidatorTemplate):
 
     def test_check_missing_label_annotation(self):
         stats = {
-            'items_missing_label': [1]
+            'items_missing_label': [(1, 'unittest')]
         }
 
         actual_reports = self.validator._check_missing_label_annotation(stats)
@@ -270,7 +270,7 @@ class TestClassificationValidator(TestValidatorTemplate):
 
     def test_check_multi_label_annotations(self):
         stats = {
-            'items_with_multiple_labels': [1]
+            'items_with_multiple_labels': [(1, 'unittest')]
         }
 
         actual_reports = self.validator._check_multi_label_annotations(stats)
@@ -321,7 +321,7 @@ class TestDetectionValidator(TestValidatorTemplate):
 
     def test_check_missing_bbox_annotation(self):
         stats = {
-            'items_missing_bbox': [1]
+            'items_missing_bbox': [(1, 'unittest')]
         }
 
         actual_reports = self.validator._check_missing_bbox_annotation(stats)
@@ -332,7 +332,7 @@ class TestDetectionValidator(TestValidatorTemplate):
     def test_check_negative_length(self):
         stats = {
             'items_with_negative_length': {
-                '1': {
+                ('1', 'unittest'): {
                     1: {
                         'x': -1
                     }
@@ -348,7 +348,7 @@ class TestDetectionValidator(TestValidatorTemplate):
     def test_check_invalid_value(self):
         stats = {
             'items_with_invalid_value': {
-                '1': {
+                ('1', 'unittest'): {
                     1: ['x']
                 }
             }
@@ -365,7 +365,7 @@ class TestDetectionValidator(TestValidatorTemplate):
         bbox_label_stats = {
             'w': {
                 'items_far_from_mean': {
-                    '1': {
+                    ('1', 'unittest'): {
                         1: 100
                     }
                 },
@@ -386,7 +386,7 @@ class TestDetectionValidator(TestValidatorTemplate):
             'mock': {
                 'w': {
                     'items_far_from_mean': {
-                        '1': {
+                        ('1', 'unittest'): {
                             1: 100
                         }
                     },
@@ -409,8 +409,8 @@ class TestValidateAnnotations(TestValidatorTemplate):
         with self.subTest('Test of statistics', i = 0):
             actual_stats = actual_results['statistics']
             self.assertEqual(actual_stats['total_label_count'], 8)
-            self.assertEqual(actual_stats['items_missing_label'], ['3'])
-            self.assertEqual(actual_stats['items_with_multiple_labels'], ['4'])
+            self.assertEqual(len(actual_stats['items_missing_label']), 1)
+            self.assertEqual(len(actual_stats['items_with_multiple_labels']), 1)
 
             label_dist = actual_stats['label_distribution']
             defined_label_dist = label_dist['defined_labels']
@@ -421,18 +421,18 @@ class TestValidateAnnotations(TestValidatorTemplate):
             undefined_label_stats = undefined_label_dist[2]
             self.assertEqual(len(undefined_label_dist), 1)
             self.assertEqual(undefined_label_stats['count'], 2)
-            self.assertCountEqual(
-                undefined_label_stats['items_with_undefined_label'], ['2', '8'])
+            self.assertEqual(
+                len(undefined_label_stats['items_with_undefined_label']), 2)
 
             attr_stats = actual_stats['attribute_distribution']
             defined_attr_dets = attr_stats['defined_attributes']['label_0']['a']
             self.assertEqual(
-                defined_attr_dets['items_missing_attribute'], ['4'])
+                len(defined_attr_dets['items_missing_attribute']), 1)
             self.assertEqual(defined_attr_dets['distribution'], {'20': 1})
 
             undefined_attr_dets = attr_stats['undefined_attributes'][2]['c']
             self.assertEqual(
-                undefined_attr_dets['items_with_undefined_attr'], ['8'])
+                len(undefined_attr_dets['items_with_undefined_attr']), 1)
             self.assertEqual(undefined_attr_dets['distribution'], {'5': 1})
 
         with self.subTest('Test of validation reports', i = 1):
@@ -464,7 +464,7 @@ class TestValidateAnnotations(TestValidatorTemplate):
         with self.subTest('Test of statistics', i = 0):
             actual_stats = actual_results['statistics']
             self.assertEqual(actual_stats['total_bbox_count'], 8)
-            self.assertEqual(actual_stats['items_missing_bbox'], ['3'])
+            self.assertEqual(len(actual_stats['items_missing_bbox']), 1)
             self.assertEqual(actual_stats['items_with_negative_length'], {})
             self.assertEqual(actual_stats['items_with_invalid_value'], {})
 

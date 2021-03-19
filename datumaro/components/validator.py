@@ -193,7 +193,7 @@ class _Validator:
                     if val == float('inf') or np.isnan(val):
                         bbox_has_error = True
                         anns_w_invalid_val = items_w_invalid_val.setdefault(
-                            item.id, {})
+                            (item.id, item.subset), {})
                         invalid_props = anns_w_invalid_val.setdefault(
                             ann.id, [])
                         invalid_props.append(prop)
@@ -202,7 +202,8 @@ class _Validator:
                     val = ann_bbox_info[prop]
                     if val < 1:
                         bbox_has_error = True
-                        anns_w_neg_len = items_w_neg_len.setdefault(item.id, {})
+                        anns_w_neg_len = items_w_neg_len.setdefault(
+                            (item.id, item.subset), {})
                         neg_props = anns_w_neg_len.setdefault(ann.id, {})
                         neg_props[prop] = val
 
@@ -240,9 +241,10 @@ class _Validator:
                 if not is_bbox or not has_defined_label:
                     return False
 
-                bbox_has_neg_len = ann.id in items_w_neg_len.get(item.id, {})
+                bbox_has_neg_len = ann.id in items_w_neg_len.get(
+                    (item.id, item.subset), {})
                 bbox_has_invalid_val = ann.id in items_w_invalid_val.get(
-                    item.id, {})
+                    (item.id, item.subset), {})
                 return not (bbox_has_neg_len or bbox_has_invalid_val)
 
             def _far_from_mean(val, mean, stdev):
@@ -273,7 +275,7 @@ class _Validator:
 
                     if _far_from_mean(val, mean, stdev):
                         bboxs_far_from_mean = items_far_from_mean.setdefault(
-                            item.id, {})
+                            (item.id, item.subset), {})
                         bboxs_far_from_mean[ann.id] = val
 
                 for attr, value in ann.attributes.items():
@@ -291,7 +293,7 @@ class _Validator:
                             if _far_from_mean(val, mean, stdev):
                                 bboxs_far_from_mean = \
                                     items_far_from_mean.setdefault(
-                                        item.id, {})
+                                        (item.id, item.subset), {})
                                 bboxs_far_from_mean[ann.id] = val
 
         for category in label_categories:
@@ -303,16 +305,17 @@ class _Validator:
 
             if self.task_type == 'classification':
                 if ann_count == 0:
-                    stats['items_missing_label'].append(item.id)
+                    stats['items_missing_label'].append((item.id, item.subset))
                 elif ann_count > 1:
-                    stats['items_with_multiple_labels'].append(item.id)
+                    stats['items_with_multiple_labels'].append(
+                        (item.id, item.subset))
                 stats['total_label_count'] += ann_count
 
             elif self.task_type == 'detection':
                 if ann_count < 1:
-                    stats['items_missing_bbox'].append(item.id)
+                    stats['items_missing_bbox'].append((item.id, item.subset))
                 stats['total_bbox_count'] += ann_count
-                bbox_dist_in_item[item.id] = ann_count
+                bbox_dist_in_item[(item.id, item.subset)] = ann_count
 
             for ann in item.annotations:
                 if ann.type == self.ann_type:
@@ -322,7 +325,7 @@ class _Validator:
                         label_stats = undefined_label_dist.setdefault(
                             ann.label, deepcopy(undefined_label_template))
                         label_stats['items_with_undefined_label'].append(
-                            item.id)
+                            (item.id, item.subset))
 
                         label_stats['count'] += 1
                         valid_attrs = set()
@@ -352,7 +355,8 @@ class _Validator:
 
                     for attr in missing_attrs:
                         attr_dets = defined_attr_stats[attr]
-                        attr_dets['items_missing_attribute'].append(item.id)
+                        attr_dets['items_missing_attribute'].append(
+                            (item.id, item.subset))
 
                     for attr, value in ann.attributes.items():
                         if attr not in valid_attrs:
@@ -362,7 +366,7 @@ class _Validator:
                             attr_dets = undefined_attr_stats.setdefault(
                                 attr, deepcopy(undefined_attr_template))
                             attr_dets['items_with_undefined_attr'].append(
-                                item.id)
+                                (item.id, item.subset))
                         else:
                             attr_dets = defined_attr_stats[attr]
 
@@ -405,8 +409,8 @@ class _Validator:
         validation_reports = []
 
         items_missing_attr = attr_dets['items_missing_attribute']
-        for item_id in items_missing_attr:
-            details = (label_name, attr_name)
+        for item_id, item_subset in items_missing_attr:
+            details = (item_subset, label_name, attr_name)
             validation_reports += self._generate_validation_report(
                 MissingAttribute, Severity.warning, item_id, *details)
 
@@ -416,9 +420,10 @@ class _Validator:
         validation_reports = []
 
         items_with_undefined_label = label_stats['items_with_undefined_label']
-        for item_id in items_with_undefined_label:
+        for item_id, item_subset in items_with_undefined_label:
+            details = (item_subset, label_name)
             validation_reports += self._generate_validation_report(
-                UndefinedLabel, Severity.error, item_id, label_name)
+                UndefinedLabel, Severity.error, item_id, *details)
 
         return validation_reports
 
@@ -426,8 +431,8 @@ class _Validator:
         validation_reports = []
 
         items_with_undefined_attr = attr_dets['items_with_undefined_attr']
-        for item_id in items_with_undefined_attr:
-            details = (label_name, attr_name)
+        for item_id, item_subset in items_with_undefined_attr:
+            details = (item_subset, label_name, attr_name)
             validation_reports += self._generate_validation_report(
                 UndefinedAttribute, Severity.error, item_id, *details)
 
@@ -583,9 +588,9 @@ class ClassificationValidator(_Validator):
         validation_reports = []
 
         items_missing_label = stats['items_missing_label']
-        for item_id in items_missing_label:
+        for item_id, item_subset in items_missing_label:
             validation_reports += self._generate_validation_report(
-                MissingLabelAnnotation, Severity.warning, item_id)
+                MissingLabelAnnotation, Severity.warning, item_id, item_subset)
 
         return validation_reports
 
@@ -593,9 +598,9 @@ class ClassificationValidator(_Validator):
         validation_reports = []
 
         items_with_multiple_labels = stats['items_with_multiple_labels']
-        for item_id in items_with_multiple_labels:
+        for item_id, item_subset in items_with_multiple_labels:
             validation_reports += self._generate_validation_report(
-                MultiLabelAnnotations, Severity.error, item_id)
+                MultiLabelAnnotations, Severity.error, item_id, item_subset)
 
         return validation_reports
 
@@ -729,9 +734,9 @@ class DetectionValidator(_Validator):
         validation_reports = []
 
         items_missing_bbox = stats['items_missing_bbox']
-        for item_id in items_missing_bbox:
+        for item_id, item_subset in items_missing_bbox:
             validation_reports += self._generate_validation_report(
-                MissingBboxAnnotation, Severity.warning, item_id)
+                MissingBboxAnnotation, Severity.warning, item_id, item_subset)
 
         return validation_reports
 
@@ -739,11 +744,12 @@ class DetectionValidator(_Validator):
         validation_reports = []
 
         items_w_neg_len = stats['items_with_negative_length']
-        for item_id, anns_w_neg_len in items_w_neg_len.items():
+        for item_dets, anns_w_neg_len in items_w_neg_len.items():
+            item_id, item_subset = item_dets
             for ann_id, props in anns_w_neg_len.items():
                 for prop, val in props.items():
                     val = round(val, 2)
-                    details = (ann_id, prop, val)
+                    details = (item_subset, ann_id, prop, val)
                     validation_reports += self._generate_validation_report(
                         NegativeLength, Severity.error, item_id, *details)
 
@@ -753,10 +759,11 @@ class DetectionValidator(_Validator):
         validation_reports = []
 
         items_w_invalid_val = stats['items_with_invalid_value']
-        for item_id, anns_w_invalid_val in items_w_invalid_val.items():
+        for item_dets, anns_w_invalid_val in items_w_invalid_val.items():
+            item_id, item_subset = item_dets
             for ann_id, props in anns_w_invalid_val.items():
                 for prop in props:
-                    details = (ann_id, prop)
+                    details = (item_subset, ann_id, prop)
                     validation_reports += self._generate_validation_report(
                         InvalidValue, Severity.error, item_id, *details)
 
@@ -770,10 +777,11 @@ class DetectionValidator(_Validator):
             if prop_stats['mean'] is not None:
                 mean = round(prop_stats['mean'], 2)
 
-            for item_id, anns_far_from_mean in items_far_from_mean.items():
+            for item_dets, anns_far_from_mean in items_far_from_mean.items():
+                item_id, item_subset = item_dets
                 for ann_id, val in anns_far_from_mean.items():
                     val = round(val, 2)
-                    details = (label_name, ann_id, prop, mean, val)
+                    details = (item_subset, label_name, ann_id, prop, mean, val)
                     validation_reports += self._generate_validation_report(
                         FarFromLabelMean, Severity.warning, item_id, *details)
 
@@ -788,11 +796,12 @@ class DetectionValidator(_Validator):
                 if prop_stats['mean'] is not None:
                     mean = round(prop_stats['mean'], 2)
 
-                for item_id, anns_far_from_mean in items_far_from_mean.items():
+                for item_dets, anns_far_from_mean in items_far_from_mean.items():
+                    item_id, item_subset = item_dets
                     for ann_id, val in anns_far_from_mean.items():
                         val = round(val, 2)
-                        details = (label_name, ann_id, attr_name, attr_value,
-                            prop, mean, val)
+                        details = (item_subset, label_name, ann_id, attr_name,
+                            attr_value, prop, mean, val)
                         validation_reports += self._generate_validation_report(
                             FarFromAttrMean,
                             Severity.warning,

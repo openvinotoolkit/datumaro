@@ -105,10 +105,12 @@ class DatasetValidationError(DatumaroError):
 @attrs
 class DatasetItemValidationError(DatasetValidationError):
     item_id = attrib()
+    subset = attrib()
 
     def to_dict(self):
         dict_repr = super().to_dict()
         dict_repr['item_id'] = self.item_id
+        dict_repr['subset'] = self.subset
         return dict_repr
 
 @attrs
