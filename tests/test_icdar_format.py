@@ -99,9 +99,10 @@ class IcdarImporterTest(TestCase):
 
 class IcdarConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
-            importer, target_dataset=None, importer_args=None):
+            importer, target_dataset=None, importer_args=None, **kwargs):
         return test_save_and_load(self, source_dataset, converter, test_dir,
-            importer, target_dataset=target_dataset, importer_args=importer_args)
+            importer, target_dataset=target_dataset, importer_args=importer_args,
+            **kwargs)
 
     def test_can_save_and_load_captions(self):
         expected_dataset = Dataset.from_iterable([
@@ -206,4 +207,4 @@ class IcdarConverterTest(TestCase):
             with self.subTest(subformat=converter), TestDir() as test_dir:
                 self._test_save_and_load(expected_dataset,
                     partial(converter.convert, save_images=True),
-                    test_dir, importer)
+                    test_dir, importer, require_images=True)
