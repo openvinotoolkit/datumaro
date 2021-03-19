@@ -77,6 +77,7 @@ def make_parser():
         ('stats', commands.stats, "Compute project statistics"),
         ('info', commands.info, "Print project info"),
         ('explain', commands.explain, "Run Explainable AI algorithm for model"),
+        ('validate', commands.validate, "Validate project")
     ]
 
     # Argparse doesn't support subparser groups:
