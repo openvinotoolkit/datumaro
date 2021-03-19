@@ -12,8 +12,8 @@ from defusedxml import ElementTree
 from datumaro.components.extractor import (SourceExtractor, DatasetItem,
     AnnotationType, Label, Mask, Bbox, CompiledMask
 )
-from datumaro.util import dir_items
-from datumaro.util.image import Image
+from datumaro.util.os_util import dir_items
+from datumaro.util.image import Image, find_images
 from datumaro.util.mask_tools import lazy_mask, invert_colormap
 
 from .format import (
@@ -82,13 +82,19 @@ class VocClassificationExtractor(_VocExtractor):
 
     def __iter__(self):
         raw_anns = self._load_annotations()
+
+        image_dir = osp.join(self._dataset_dir, VocPath.IMAGES_DIR)
+        if osp.isdir(image_dir):
+            images = { osp.splitext(osp.relpath(p, image_dir))[0]: p
+                for p in find_images(image_dir, recursive=True) }
+        else:
+            images = {}
+
         for item_id in self._items:
             log.debug("Reading item '%s'" % item_id)
-            image = osp.join(self._dataset_dir, VocPath.IMAGES_DIR,
-                item_id + VocPath.IMAGE_EXT)
             anns = self._parse_annotations(raw_anns, item_id)
             yield DatasetItem(id=item_id, subset=self._subset,
-                image=image, annotations=anns)
+                image=images.get(item_id), annotations=anns)
 
     def _load_annotations(self):
         annotations = defaultdict(list)
@@ -251,13 +257,18 @@ class VocSegmentationExtractor(_VocExtractor):
         super().__init__(path, task=VocTask.segmentation)
 
     def __iter__(self):
+        image_dir = osp.join(self._dataset_dir, VocPath.IMAGES_DIR)
+        if osp.isdir(image_dir):
+            images = { osp.splitext(osp.relpath(p, image_dir))[0]: p
+                for p in find_images(image_dir, recursive=True) }
+        else:
+            images = {}
+
         for item_id in self._items:
             log.debug("Reading item '%s'" % item_id)
-            image = osp.join(self._dataset_dir, VocPath.IMAGES_DIR,
-                item_id + VocPath.IMAGE_EXT)
             anns = self._load_annotations(item_id)
             yield DatasetItem(id=item_id, subset=self._subset,
-                image=image, annotations=anns)
+                image=images.get(item_id), annotations=anns)
 
     @staticmethod
     def _lazy_extract_mask(mask, c):
