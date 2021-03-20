@@ -148,9 +148,32 @@ Datumaro only works with 2d RGB(A) images.
 To create an unlabelled dataset from an arbitrary directory with images use
 `ImageDir` format:
 
-```
+```bash
 datum create -o <project/dir>
 datum add path -p <project/dir> -f image_dir <directory/path/>
+```
+
+or if you work with Datumaro API:
+
+For using with a project:
+
+```python
+from datumaro.components.project import Project
+
+project = Project()
+project.add_source('source1', {
+  'format': 'image_dir',
+  'url': 'directory/path/'
+})
+dataset = project.make_dataset()
+```
+
+And for using as a dataset:
+
+```python
+from datumaro.components.dataset import Dataset
+
+dataset = Dataset.import_from('directory/path/', 'image_dir')
 ```
 
 This will search for images in the directory recursively and add
