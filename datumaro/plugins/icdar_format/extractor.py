@@ -2,20 +2,21 @@
 #
 # SPDX-License-Identifier: MIT
 
-from glob import glob
+from glob import iglob
 import os.path as osp
 
 import numpy as np
 
 from datumaro.components.extractor import (Bbox, Caption, DatasetItem,
     Importer, Mask, MaskCategories, Polygon, SourceExtractor)
+from datumaro.util.image import find_images
 from datumaro.util.mask_tools import lazy_mask
 
 from .format import IcdarPath, IcdarTask
 
 
 class _IcdarExtractor(SourceExtractor):
-    def __init__(self, path, task):
+    def __init__(self, path, task, subset=None):
         self._path = path
         self._task = task
 
@@ -23,7 +24,11 @@ class _IcdarExtractor(SourceExtractor):
             if not osp.isfile(path):
                 raise FileNotFoundError(
                     "Can't read annotation file '%s'" % path)
-            super().__init__(subset=osp.basename(osp.dirname(path)))
+
+            if not subset:
+                subset = osp.basename(osp.dirname(path))
+            super().__init__(subset=subset)
+
             self._dataset_dir = osp.dirname(osp.dirname(path))
 
             self._items = list(self._load_recognition_items().values())
@@ -31,8 +36,13 @@ class _IcdarExtractor(SourceExtractor):
             if not osp.isdir(path):
                 raise NotADirectoryError(
                     "Can't open folder with annotation files '%s'" % path)
-            super().__init__(subset=osp.basename(path))
+
+            if not subset:
+                subset = osp.basename(path)
+            super().__init__(subset=subset)
+
             self._dataset_dir = osp.dirname(path)
+
             if task is IcdarTask.text_localization:
                 self._items = list(self._load_localization_items().values())
             else:
@@ -40,6 +50,7 @@ class _IcdarExtractor(SourceExtractor):
 
     def _load_recognition_items(self):
         items = {}
+
         with open(self._path, encoding='utf-8') as f:
             for line in f:
                 line = line.strip()
@@ -51,7 +62,7 @@ class _IcdarExtractor(SourceExtractor):
                     image = objects[0][:-1]
                     captions = []
 
-                item_id = image[:-len(IcdarPath.IMAGE_EXT)]
+                item_id = osp.splitext(image)[0]
                 image_path = osp.join(osp.dirname(self._path),
                     IcdarPath.IMAGES_DIR, image)
                 if item_id not in items:
@@ -63,21 +74,28 @@ class _IcdarExtractor(SourceExtractor):
                     if caption[0] == '\"' and caption[-1] == '\"':
                         caption = caption[1:-1]
                     annotations.append(Caption(caption))
+
         return items
 
     def _load_localization_items(self):
         items = {}
 
-        for path in glob(osp.join(self._path, '**', '*.txt'), recursive=True):
+        image_dir = osp.join(self._path, IcdarPath.IMAGES_DIR)
+        if osp.isdir(image_dir):
+            images = { osp.splitext(osp.relpath(p, image_dir))[0]: p
+                for p in find_images(image_dir, recursive=True) }
+        else:
+            images = {}
+
+        for path in iglob(osp.join(self._path, '**', '*.txt'), recursive=True):
             item_id = osp.splitext(osp.relpath(path, self._path))[0]
             if osp.basename(item_id).startswith('gt_'):
                 item_id = osp.join(osp.dirname(item_id), osp.basename(item_id)[3:])
             item_id = item_id.replace('\\', '/')
-            image_path = osp.join(self._path, IcdarPath.IMAGES_DIR,
-                item_id + IcdarPath.IMAGE_EXT)
+
             if item_id not in items:
                 items[item_id] = DatasetItem(item_id, subset=self._subset,
-                    image=image_path)
+                    image=images.get(item_id))
             annotations = items[item_id].annotations
 
             with open(path, encoding='utf-8') as f:
@@ -89,12 +107,14 @@ class _IcdarExtractor(SourceExtractor):
 
                     if 8 <= len(objects):
                         points = [float(p) for p in objects[:8]]
+
                         attributes = {}
                         if len(objects) == 9:
                             text = objects[8]
                             if text[0] == '\"' and text[-1] == '\"':
                                 text = text[1:-1]
                             attributes['text'] = text
+
                         annotations.append(
                             Polygon(points, attributes=attributes))
                     elif 4 <= len(objects):
@@ -102,12 +122,14 @@ class _IcdarExtractor(SourceExtractor):
                         y = float(objects[1])
                         w = float(objects[2]) - x
                         h = float(objects[3]) - y
+
                         attributes = {}
                         if len(objects) == 5:
                             text = objects[4]
                             if text[0] == '\"' and text[-1] == '\"':
                                 text = text[1:-1]
                             attributes['text'] = text
+
                         annotations.append(
                             Bbox(x, y, w, h, attributes=attributes))
         return items
@@ -115,16 +137,22 @@ class _IcdarExtractor(SourceExtractor):
     def _load_segmentation_items(self):
         items = {}
 
-        for path in glob(osp.join(self._path, '**', '*.txt'), recursive=True):
+        image_dir = osp.join(self._path, IcdarPath.IMAGES_DIR)
+        if osp.isdir(image_dir):
+            images = { osp.splitext(osp.relpath(p, image_dir))[0]: p
+                for p in find_images(image_dir, recursive=True) }
+        else:
+            images = {}
+
+        for path in iglob(osp.join(self._path, '**', '*.txt'), recursive=True):
             item_id = osp.splitext(osp.relpath(path, self._path))[0]
             item_id = item_id.replace('\\', '/')
             if item_id.endswith('_GT'):
                 item_id = item_id[:-3]
-            image_path = osp.join(self._path, IcdarPath.IMAGES_DIR,
-                item_id + IcdarPath.IMAGE_EXT)
+
             if item_id not in items:
                 items[item_id] = DatasetItem(item_id, subset=self._subset,
-                    image=image_path)
+                    image=images.get(item_id))
             annotations = items[item_id].annotations
 
             colors = [(255, 255, 255)]
@@ -180,7 +208,8 @@ class _IcdarExtractor(SourceExtractor):
                     i = int(label_id)
                     annotations.append(Mask(group=groups[i],
                         image=self._lazy_extract_mask(mask, label_id),
-                        attributes={ 'index': i - 1, 'color': ' '.join(str(p) for p in colors[i]),
+                        attributes={ 'index': i - 1,
+                            'color': ' '.join(str(p) for p in colors[i]),
                             'text': chars[i], 'center': centers[i] }
                     ))
         return items

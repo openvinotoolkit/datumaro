@@ -135,11 +135,14 @@ def make_camvid_categories(label_map=None):
 
 
 class CamvidExtractor(SourceExtractor):
-    def __init__(self, path):
+    def __init__(self, path, subset=None):
         assert osp.isfile(path), path
         self._path = path
         self._dataset_dir = osp.dirname(path)
-        super().__init__(subset=osp.splitext(osp.basename(path))[0])
+
+        if not subset:
+            subset = osp.splitext(osp.basename(path))[0]
+        super().__init__(subset=subset)
 
         self._categories = self._load_categories(self._dataset_dir)
         self._items = list(self._load_items(path).values())
@@ -156,6 +159,11 @@ class CamvidExtractor(SourceExtractor):
 
     def _load_items(self, path):
         items = {}
+
+        labels = self._categories[AnnotationType.label]._indices
+        labels = { labels[label_name]: label_name
+            for label_name in labels }
+
         with open(path, encoding='utf-8') as f:
             for line in f:
                 line = line.strip()
@@ -170,29 +178,27 @@ class CamvidExtractor(SourceExtractor):
                 else:
                     objects = line.split()
                 image = objects[0]
-                item_id = ('/'.join(image.split('/')[2:]))[:-len(CamvidPath.IMAGE_EXT)]
-                image_path = osp.join(self._dataset_dir,
-                    (image, image[1:])[image[0] == '/'])
+                item_id = osp.splitext(osp.join(*image.split('/')[2:]))[0]
+                image_path = osp.join(self._dataset_dir, image.lstrip('/'))
+
                 item_annotations = []
                 if 1 < len(objects):
                     gt = objects[1]
-                    gt_path = osp.join(self._dataset_dir,
-                        (gt, gt[1:]) [gt[0] == '/'])
-                    inverse_cls_colormap = \
-                        self._categories[AnnotationType.mask].inverse_colormap
-                    mask = lazy_mask(gt_path, inverse_cls_colormap)
-                    # loading mask through cache
-                    mask = mask()
+                    gt_path = osp.join(self._dataset_dir, gt.lstrip('/'))
+                    mask = lazy_mask(gt_path,
+                        self._categories[AnnotationType.mask].inverse_colormap)
+                    mask = mask() # loading mask through cache
+
                     classes = np.unique(mask)
-                    labels = self._categories[AnnotationType.label]._indices
-                    labels = { labels[label_name]: label_name
-                        for label_name in labels }
                     for label_id in classes:
                         if labels[label_id] in self._labels:
                             image = self._lazy_extract_mask(mask, label_id)
-                            item_annotations.append(Mask(image=image, label=label_id))
+                            item_annotations.append(
+                                Mask(image=image, label=label_id))
+
                 items[item_id] = DatasetItem(id=item_id, subset=self._subset,
                     image=image_path, annotations=item_annotations)
+
         return items
 
     @staticmethod

@@ -3,13 +3,17 @@ from functools import partial
 from unittest import TestCase
 
 import numpy as np
+
 from datumaro.components.extractor import (Bbox, Caption, DatasetItem, Mask,
     Polygon)
 from datumaro.components.project import Dataset
 from datumaro.plugins.icdar_format.converter import (
     IcdarTextLocalizationConverter, IcdarTextSegmentationConverter,
     IcdarWordRecognitionConverter)
-from datumaro.plugins.icdar_format.extractor import IcdarWordRecognitionImporter
+from datumaro.plugins.icdar_format.extractor import (
+    IcdarWordRecognitionImporter, IcdarTextLocalizationImporter,
+    IcdarTextSegmentationImporter)
+from datumaro.util.image import Image
 from datumaro.util.test_utils import (TestDir, compare_datasets,
     test_save_and_load)
 
@@ -17,9 +21,17 @@ from datumaro.util.test_utils import (TestDir, compare_datasets,
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'icdar_dataset')
 
 class IcdarImporterTest(TestCase):
-    def test_can_detect(self):
+    def test_can_detect_word_recognition(self):
         self.assertTrue(IcdarWordRecognitionImporter.detect(
             osp.join(DUMMY_DATASET_DIR, 'word_recognition')))
+
+    def test_can_detect_text_localization(self):
+        self.assertTrue(IcdarTextLocalizationImporter.detect(
+            osp.join(DUMMY_DATASET_DIR, 'text_localization')))
+
+    def test_can_detect_text_segmentation(self):
+        self.assertTrue(IcdarTextSegmentationImporter.detect(
+            osp.join(DUMMY_DATASET_DIR, 'text_segmentation')))
 
     def test_can_import_captions(self):
         expected_dataset = Dataset.from_iterable([
@@ -98,11 +110,11 @@ class IcdarImporterTest(TestCase):
         compare_datasets(self, expected_dataset, dataset)
 
 class IcdarConverterTest(TestCase):
-    def _test_save_and_load(self, source_dataset, converter, test_dir,
-            importer, target_dataset=None, importer_args=None, **kwargs):
+    def _test_save_and_load(self, source_dataset, converter, test_dir, importer,
+            target_dataset=None, importer_args=None, **kwargs):
         return test_save_and_load(self, source_dataset, converter, test_dir,
-            importer, target_dataset=target_dataset, importer_args=importer_args,
-            **kwargs)
+            importer,
+            target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
     def test_can_save_and_load_captions(self):
         expected_dataset = Dataset.from_iterable([
@@ -206,5 +218,23 @@ class IcdarConverterTest(TestCase):
         ]:
             with self.subTest(subformat=converter), TestDir() as test_dir:
                 self._test_save_and_load(expected_dataset,
+                    partial(converter.convert, save_images=True),
+                    test_dir, importer, require_images=True)
+
+    def test_can_save_and_load_image_with_arbitrary_extension(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(id='q/1', image=Image(path='q/1.JPEG',
+                data=np.zeros((4, 3, 3)))),
+            DatasetItem(id='a/b/c/2', image=Image(path='a/b/c/2.bmp',
+                data=np.zeros((3, 4, 3)))),
+        ])
+
+        for importer, converter in [
+            ('icdar_word_recognition', IcdarWordRecognitionConverter),
+            ('icdar_text_localization', IcdarTextLocalizationConverter),
+            ('icdar_text_segmentation', IcdarTextSegmentationConverter),
+        ]:
+            with self.subTest(subformat=converter), TestDir() as test_dir:
+                self._test_save_and_load(expected,
                     partial(converter.convert, save_images=True),
                     test_dir, importer, require_images=True)

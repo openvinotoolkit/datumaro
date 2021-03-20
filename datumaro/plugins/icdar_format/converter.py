@@ -20,16 +20,18 @@ class IcdarWordRecognitionConverter(Converter):
         for subset_name, subset in self._extractor.subsets().items():
             annotation = ''
             for item in subset:
-                if item.has_image and self._save_images:
-                    self._save_image(item, osp.join(self._save_dir, subset_name,
-                        IcdarPath.IMAGES_DIR, item.id + IcdarPath.IMAGE_EXT))
+                image_filename = self._make_image_filename(item)
+                if self._save_images and item.has_image:
+                    self._save_image(item, osp.join(self._save_dir,
+                        subset_name, IcdarPath.IMAGES_DIR, image_filename))
 
-                annotation += '%s, ' % (item.id + IcdarPath.IMAGE_EXT)
+                annotation += '%s, ' % image_filename
                 for ann in item.annotations:
                     if ann.type != AnnotationType.caption:
                         continue
                     annotation += '\"%s\"' % ann.caption
                 annotation += '\n'
+
             if len(annotation):
                 anno_file = osp.join(self._save_dir, subset_name, 'gt.txt')
                 os.makedirs(osp.dirname(anno_file), exist_ok=True)
@@ -42,9 +44,9 @@ class IcdarTextLocalizationConverter(Converter):
     def apply(self):
         for subset_name, subset in self._extractor.subsets().items():
             for item in subset:
-                if item.has_image and self._save_images:
-                    self._save_image(item, osp.join(self._save_dir, subset_name,
-                        IcdarPath.IMAGES_DIR, item.id + IcdarPath.IMAGE_EXT))
+                if self._save_images and item.has_image:
+                    self._save_image(item,
+                        subdir=osp.join(subset_name, IcdarPath.IMAGES_DIR))
 
                 annotation = ''
                 for ann in item.annotations:
@@ -57,8 +59,9 @@ class IcdarTextLocalizationConverter(Converter):
                         if ann.attributes and 'text' in ann.attributes:
                             annotation += ',\"%s\"' % ann.attributes['text']
                     annotation += '\n'
-                anno_file = osp.join(self._save_dir, subset_name, osp.dirname(item.id),
-                    'gt_' + osp.basename(item.id) + '.txt')
+
+                anno_file = osp.join(self._save_dir, subset_name,
+                    osp.dirname(item.id), 'gt_' + osp.basename(item.id) + '.txt')
                 os.makedirs(osp.dirname(anno_file), exist_ok=True)
                 with open(anno_file, 'w', encoding='utf-8') as f:
                     f.write(annotation)
@@ -69,59 +72,57 @@ class IcdarTextSegmentationConverter(Converter):
     def apply(self):
         for subset_name, subset in self._extractor.subsets().items():
             for item in subset:
-                if item.has_image and self._save_images:
-                    self._save_image(item, osp.join(self._save_dir, subset_name,
-                        IcdarPath.IMAGES_DIR, item.id + IcdarPath.IMAGE_EXT))
+                self._save_item(subset_name, subset, item)
 
-                annotation = ''
-                colormap = [(255, 255, 255)]
-                anns = [a for a in item.annotations
-                    if a.type == AnnotationType.mask]
-                if anns:
-                    is_not_index = len([p for p in anns if 'index' not in p.attributes])
-                    if is_not_index:
-                        raise Exception("Item %s: a mask must have"
-                            "'index' attribute" % item.id)
-                    anns = sorted(anns, key=lambda a: a.attributes['index'])
-                    group = anns[0].group
-                    for ann in anns:
-                        if ann.group != group or (not ann.group and anns[0].group != 0):
-                            annotation += '\n'
-                        text = ''
-                        if ann.attributes:
-                            if 'text' in ann.attributes:
-                                text = ann.attributes['text']
-                            if text == ' ':
-                                annotation += '#'
-                            if 'color' in ann.attributes and \
-                                    len(ann.attributes['color'].split()) == 3:
-                                color = ann.attributes['color'].split()
-                                colormap.append(
-                                    (int(color[0]), int(color[1]), int(color[2])))
-                                annotation += ' '.join(p for p in color)
-                            else:
-                                raise Exception("Item %s: a mask must have "
-                                    "an RGB color attribute, e. g. '10 7 50'" % item.id)
-                            if 'center' in ann.attributes:
-                                annotation += ' %s' % ann.attributes['center']
-                            else:
-                                annotation += ' - -'
-                        bbox = ann.get_bbox()
-                        annotation += ' %s %s %s %s' % (bbox[0], bbox[1],
-                            bbox[0] + bbox[2], bbox[1] + bbox[3])
-                        annotation += ' \"%s\"' % text
-                        annotation += '\n'
-                        group = ann.group
+    def _save_item(self, subset_name, subset, item):
+        if self._save_images and item.has_image:
+            self._save_image(item,
+                subdir=osp.join(subset_name, IcdarPath.IMAGES_DIR))
 
-                    mask = CompiledMask.from_instance_masks(anns,
-                        instance_labels=[m.attributes['index'] + 1 for m in anns])
-                    mask = paint_mask(mask.class_mask,
-                        { i: colormap[i] for i in range(len(colormap)) })
-                    save_image(osp.join(self._save_dir, subset_name,
-                        item.id + '_GT' + IcdarPath.GT_EXT), mask, create_dir=True)
+        annotation = ''
+        colormap = [(255, 255, 255)]
+        anns = [a for a in item.annotations if a.type == AnnotationType.mask]
+        if anns:
+            anns = sorted(anns, key=lambda a: int(a.attributes.get('index', 0)))
+            group = anns[0].group
+            for ann in anns:
+                if ann.group != group or (not ann.group and anns[0].group != 0):
+                    annotation += '\n'
+                text = ''
+                if ann.attributes:
+                    if 'text' in ann.attributes:
+                        text = ann.attributes['text']
+                    if text == ' ':
+                        annotation += '#'
+                    if 'color' in ann.attributes and \
+                            len(ann.attributes['color'].split()) == 3:
+                        color = ann.attributes['color'].split()
+                        colormap.append(
+                            (int(color[0]), int(color[1]), int(color[2])))
+                        annotation += ' '.join(p for p in color)
+                    else:
+                        raise Exception("Item %s: a mask must have "
+                            "an RGB color attribute, e.g. '10 7 50'" % item.id)
+                    if 'center' in ann.attributes:
+                        annotation += ' %s' % ann.attributes['center']
+                    else:
+                        annotation += ' - -'
+                bbox = ann.get_bbox()
+                annotation += ' %s %s %s %s' % (bbox[0], bbox[1],
+                    bbox[0] + bbox[2], bbox[1] + bbox[3])
+                annotation += ' \"%s\"' % text
+                annotation += '\n'
+                group = ann.group
 
-                anno_file = osp.join(self._save_dir, subset_name,
-                    item.id + '_GT' + '.txt')
-                os.makedirs(osp.dirname(anno_file), exist_ok=True)
-                with open(anno_file, 'w', encoding='utf-8') as f:
-                    f.write(annotation)
+            mask = CompiledMask.from_instance_masks(anns,
+                instance_labels=[m.attributes['index'] + 1 for m in anns])
+            mask = paint_mask(mask.class_mask,
+                { i: colormap[i] for i in range(len(colormap)) })
+            save_image(osp.join(self._save_dir, subset_name,
+                item.id + '_GT' + IcdarPath.GT_EXT), mask, create_dir=True)
+
+        anno_file = osp.join(self._save_dir, subset_name,
+            item.id + '_GT' + '.txt')
+        os.makedirs(osp.dirname(anno_file), exist_ok=True)
+        with open(anno_file, 'w', encoding='utf-8') as f:
+            f.write(annotation)
