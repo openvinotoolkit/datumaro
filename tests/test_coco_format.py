@@ -148,10 +148,10 @@ class CocoImporterTest(TestCase):
 
 class CocoConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
-            target_dataset=None, importer_args=None):
+            target_dataset=None, importer_args=None, **kwargs):
         return test_save_and_load(self, source_dataset, converter, test_dir,
             importer='coco',
-            target_dataset=target_dataset, importer_args=importer_args)
+            target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
     def test_can_save_and_load_captions(self):
         expected_dataset = Dataset.from_iterable([
@@ -554,7 +554,21 @@ class CocoConverterTest(TestCase):
 
         with TestDir() as test_dir:
             self._test_save_and_load(expected_dataset,
-                partial(CocoImageInfoConverter.convert, save_images=True), test_dir)
+                partial(CocoImageInfoConverter.convert, save_images=True),
+                test_dir, require_images=True)
+
+    def test_can_save_and_load_image_with_arbitrary_extension(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(id='q/1', image=Image(path='q/1.JPEG',
+                data=np.zeros((4, 3, 3))), attributes={'id': 1}),
+            DatasetItem(id='a/b/c/2', image=Image(path='a/b/c/2.bmp',
+                data=np.zeros((3, 4, 3))), attributes={'id': 2}),
+        ])
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(expected,
+                partial(CocoConverter.convert, save_images=True),
+                test_dir, require_images=True)
 
     def test_preserve_coco_ids(self):
         expected_dataset = Dataset.from_iterable([
@@ -564,7 +578,8 @@ class CocoConverterTest(TestCase):
 
         with TestDir() as test_dir:
             self._test_save_and_load(expected_dataset,
-                partial(CocoImageInfoConverter.convert, save_images=True), test_dir)
+                partial(CocoImageInfoConverter.convert, save_images=True),
+                test_dir, require_images=True)
 
     def test_annotation_attributes(self):
         expected_dataset = Dataset.from_iterable([

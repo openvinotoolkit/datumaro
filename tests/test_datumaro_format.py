@@ -109,7 +109,21 @@ class DatumaroConverterTest(TestCase):
 
         with TestDir() as test_dir:
             self._test_save_and_load(test_dataset,
-                partial(DatumaroConverter.convert, save_images=True), test_dir)
+                partial(DatumaroConverter.convert, save_images=True),
+                test_dir)
+
+    def test_can_save_and_load_image_with_arbitrary_extension(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(id='q/1', image=Image(path='q/1.JPEG',
+                data=np.zeros((4, 3, 3))), attributes={'frame': 1}),
+            DatasetItem(id='a/b/c/2', image=Image(path='a/b/c/2.bmp',
+                data=np.zeros((3, 4, 3))), attributes={'frame': 2}),
+        ])
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(expected,
+                partial(DatumaroConverter.convert, save_images=True),
+                test_dir)
 
     def test_inplace_save_writes_only_updated_data(self):
         with TestDir() as path:

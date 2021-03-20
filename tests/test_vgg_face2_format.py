@@ -7,6 +7,7 @@ from datumaro.components.extractor import (AnnotationType, Bbox, DatasetItem,
     Label, LabelCategories, Points)
 from datumaro.plugins.vgg_face2_format import (VggFace2Converter,
     VggFace2Importer)
+from datumaro.util.image import Image
 from datumaro.util.test_utils import TestDir, compare_datasets
 
 
@@ -85,7 +86,8 @@ class VggFace2FormatTest(TestCase):
             VggFace2Converter.convert(source_dataset, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'vgg_face2')
 
-            compare_datasets(self, source_dataset, parsed_dataset)
+            compare_datasets(self, source_dataset, parsed_dataset,
+                require_images=True)
 
     def test_can_save_dataset_with_no_save_images(self):
         source_dataset = Dataset.from_iterable([
@@ -146,6 +148,26 @@ class VggFace2FormatTest(TestCase):
             parsed_dataset = Dataset.import_from(test_dir, 'vgg_face2')
 
             compare_datasets(self, target_dataset, parsed_dataset)
+
+    def test_can_save_and_load_image_with_arbitrary_extension(self):
+        dataset = Dataset.from_iterable([
+            DatasetItem('q/1', image=Image(path='q/1.JPEG',
+                data=np.zeros((4, 3, 3)))),
+            DatasetItem('a/b/c/2', image=Image(path='a/b/c/2.bmp',
+                    data=np.zeros((3, 4, 3))),
+                annotations=[
+                    Bbox(0, 2, 4, 2, label=0),
+                    Points([4.23, 4.32, 5.34, 4.45, 3.54,
+                        3.56, 4.52, 3.51, 4.78, 3.34], label=0),
+                ]
+            ),
+        ], categories=['a'])
+
+        with TestDir() as test_dir:
+            VggFace2Converter.convert(dataset, test_dir, save_images=True)
+            parsed_dataset = Dataset.import_from(test_dir, 'vgg_face2')
+
+            compare_datasets(self, dataset, parsed_dataset, require_images=True)
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'vgg_face2_dataset')
 

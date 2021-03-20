@@ -8,16 +8,17 @@ from datumaro.components.extractor import (DatasetItem,
     AnnotationType, Bbox, LabelCategories
 )
 from datumaro.plugins.mot_format import MotSeqGtConverter, MotSeqImporter
+from datumaro.util.image import Image
 from datumaro.util.test_utils import (TestDir, compare_datasets,
     test_save_and_load)
 
 
 class MotConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
-            target_dataset=None, importer_args=None):
+            target_dataset=None, importer_args=None, **kwargs):
         return test_save_and_load(self, source_dataset, converter, test_dir,
             importer='mot_seq',
-            target_dataset=target_dataset, importer_args=importer_args)
+            target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
     def test_can_save_bboxes(self):
         source_dataset = Dataset.from_iterable([
@@ -93,11 +94,31 @@ class MotConverterTest(TestCase):
         })
 
         with TestDir() as test_dir:
-            self._test_save_and_load(
-                source_dataset,
+            self._test_save_and_load(source_dataset,
                 partial(MotSeqGtConverter.convert, save_images=True),
-                test_dir, target_dataset=target_dataset)
+                test_dir, target_dataset=target_dataset, require_images=True)
 
+    def test_can_save_and_load_image_with_arbitrary_extension(self):
+        expected = Dataset.from_iterable([
+            DatasetItem('1', image=Image(
+                path='1.JPEG', data=np.zeros((4, 3, 3))),
+                annotations=[
+                    Bbox(0, 4, 4, 8, label=0, attributes={
+                        'occluded': True,
+                        'visibility': 0.0,
+                        'ignored': False,
+                    }),
+                ]
+            ),
+            DatasetItem('2', image=Image(
+                path='2.bmp', data=np.zeros((3, 4, 3))),
+            ),
+        ], categories=['a'])
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(expected,
+                partial(MotSeqGtConverter.convert, save_images=True),
+                test_dir, require_images=True)
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'mot_dataset')
 

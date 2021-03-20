@@ -11,7 +11,8 @@ from xml.sax.saxutils import XMLGenerator
 
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
-from datumaro.components.extractor import AnnotationType, DatasetItem
+from datumaro.components.extractor import (AnnotationType, DatasetItem,
+    LabelCategories)
 from datumaro.util import cast, pairs
 
 from .format import CvatPath
@@ -190,7 +191,8 @@ class _SubsetWriter:
         self._writer.close_image()
 
     def _write_meta(self):
-        label_cat = self._extractor.categories()[AnnotationType.label]
+        label_cat = self._extractor.categories().get(
+            AnnotationType.label, LabelCategories())
         meta = OrderedDict([
             ("task", OrderedDict([
                 ("id", ""),
@@ -222,6 +224,8 @@ class _SubsetWriter:
         self._writer.write_meta(meta)
 
     def _get_label(self, label_id):
+        if label_id is None:
+            return ""
         label_cat = self._extractor.categories()[AnnotationType.label]
         return label_cat.items[label_id]
 
