@@ -133,6 +133,19 @@ class Market1501FormatTest(TestCase):
             compare_datasets(self, expected, parsed_dataset,
                 require_images=True)
 
+    def test_can_save_dataset_with_no_attributes(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id='test1',
+                subset='test', image=np.ones((2, 5, 3)),
+            ),
+        ])
+
+        with TestDir() as test_dir:
+            Market1501Converter.convert(source_dataset, test_dir, save_images=False)
+            parsed_dataset = Dataset.import_from(test_dir, 'market1501')
+
+            compare_datasets(self, source_dataset, parsed_dataset)
+
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'market1501_dataset')
 
 class Market1501ImporterTest(TestCase):
