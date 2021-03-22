@@ -88,7 +88,8 @@ class Market1501Extractor(SourceExtractor):
                     image=image_path)
                 items[item_id] = item
 
-            if pid != Market1501Path.UNKNOWN_ID:
+            if pid != Market1501Path.UNKNOWN_ID or \
+                    camid != Market1501Path.UNKNOWN_ID:
                 attributes = item.attributes
                 attributes['query'] = subdir == Market1501Path.QUERY_DIR
                 attributes['person_id'] = pid
