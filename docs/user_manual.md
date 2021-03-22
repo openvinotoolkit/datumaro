@@ -1044,6 +1044,23 @@ datum transform -t sampler -- \
     -k 20
 ```
 
+Example : Control number of outputs to 100 after NDR
+- There are two methods in NDR e option
+    - `random`: sample from removed data randomly
+    - `similarity`: sample from removed data with ascending
+- There are two methods in NDR u option
+    - `uniform`: sample data with uniform distribution
+    - `inverse`: sample data with reciprocal of the number
+
+```bash
+datum transform -t ndr -- \
+    -w train \
+    -a gradient \
+    -k 100 \
+    -e random \
+    -u uniform
+```
+
 ## Extending
 
 There are few ways to extend and customize Datumaro behaviour, which is supported by plugins.
