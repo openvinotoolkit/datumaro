@@ -117,7 +117,7 @@ class NDRTest(TestCase):
         self.assertEqual(300, len(source.get_subset("val")))
         self.assertEqual(300, len(source.get_subset("test")))
 
-    def test_ndr_under_sample(self):
+    def test_ndr_can_use_undersample_uniform(self):
         config = {
             "label1": 100,
             "label2": 100,
@@ -139,6 +139,16 @@ class NDRTest(TestCase):
         self.assertEqual(300, len(source.get_subset("val")))
         self.assertEqual(300, len(source.get_subset("test")))
 
+    def test_ndr_can_use_undersample_inverse(self):
+        config = {
+            "label1": 100,
+            "label2": 100,
+            "label3": 100
+        }
+        # train : 300, val : 300, test : 300
+        np.random.seed(1234)
+        source = self._generate_dataset(config, 10)
+
         result = ndr.NDR(source, working_subset='train', num_cut=1,
             under_sample='inverse', seed=12145)
 
@@ -151,7 +161,7 @@ class NDRTest(TestCase):
         self.assertEqual(300, len(source.get_subset("val")))
         self.assertEqual(300, len(source.get_subset("test")))
 
-    def test_ndr_over_sample(self):
+    def test_ndr_can_use_oversample_random(self):
         config = {
             "label1": 100,
             "label2": 100,
@@ -173,6 +183,16 @@ class NDRTest(TestCase):
         self.assertEqual(300, len(source.get_subset("val")))
         self.assertEqual(300, len(source.get_subset("test")))
 
+    def test_ndr_can_use_oversample_similarity(self):
+        config = {
+            "label1": 100,
+            "label2": 100,
+            "label3": 100
+        }
+        # train : 300, val : 300, test : 300
+        np.random.seed(1234)
+        source = self._generate_dataset(config, 10)
+
         result = ndr.NDR(source, working_subset='train', num_cut=10,
             over_sample='similarity', seed=12145)
 
@@ -185,7 +205,37 @@ class NDRTest(TestCase):
         self.assertEqual(300, len(source.get_subset("val")))
         self.assertEqual(300, len(source.get_subset("test")))
 
-    def test_ndr_gradient_specific(self):
+    def test_ndr_gradient_fails_on_invalid_parameters(self):
+        source = self._generate_dataset({ 'label1': 5 }, 10)
+
+        with self.assertRaisesRegex(ValueError, "Invalid block_shape"):
+            result = ndr.NDR(source, working_subset='train', over_sample='random',
+                block_shape=(3, 6, 6), algorithm='gradient')
+            len(result)
+
+        with self.assertRaisesRegex(ValueError, "block_shape should be positive"):
+            result = ndr.NDR(source, working_subset='train', over_sample='random',
+                block_shape=(-1, 0), algorithm='gradient')
+            len(result)
+
+        with self.assertRaisesRegex(ValueError,
+                "sim_threshold should be large than 0"):
+            result = ndr.NDR(source, working_subset='train', over_sample='random',
+                sim_threshold=0, block_shape=(8, 8), algorithm='gradient')
+            len(result)
+
+        with self.assertRaisesRegex(ValueError,
+                "hash_dim should be smaller than feature shape"):
+            result = ndr.NDR(source, working_subset='train', over_sample='random',
+                hash_dim=1024, block_shape=(8, 8), algorithm='gradient')
+            len(result)
+
+        with self.assertRaisesRegex(ValueError, "hash_dim should be positive"):
+            result = ndr.NDR(source, working_subset='train', over_sample='random',
+                hash_dim=-5, block_shape=(8, 8), algorithm='gradient')
+            len(result)
+
+    def test_ndr_gradient_can_use_block(self):
         config = {
             "label1": 100,
             "label2": 100,
@@ -194,16 +244,6 @@ class NDRTest(TestCase):
         # train : 300, val : 300, test : 300
         np.random.seed(1234)
         source = self._generate_dataset(config, 10)
-        with self.assertRaisesRegex(ValueError, "Invalid block_shape"):
-            result = ndr.NDR(source, working_subset='train', over_sample='random',
-                block_shape=(3, 6, 6), seed=12145)
-            len(result)
-
-        with self.assertRaisesRegex(ValueError, "block_shape should be positive"):
-            result = ndr.NDR(source, working_subset='train', over_sample='random',
-                block_shape=(-1, 0), seed=12145)
-            len(result)
-
         result = ndr.NDR(source, working_subset='train', over_sample='random',
             block_shape=(8, 8), seed=12145)
 
@@ -216,16 +256,15 @@ class NDRTest(TestCase):
         self.assertEqual(300, len(source.get_subset("val")))
         self.assertEqual(300, len(source.get_subset("test")))
 
-        with self.assertRaisesRegex(ValueError,
-                "hash_dim should be smaller than feature shape"):
-            result = ndr.NDR(source, working_subset='train', over_sample='random',
-                hash_dim=1024, block_shape=(8, 8), seed=12145)
-            len(result)
-
-        with self.assertRaisesRegex(ValueError, "hash_dim should be positive"):
-            result = ndr.NDR(source, working_subset='train', over_sample='random',
-                hash_dim=-5, block_shape=(8, 8), seed=12145)
-            len(result)
+    def test_ndr_gradient_can_use_hash_dim(self):
+        config = {
+            "label1": 100,
+            "label2": 100,
+            "label3": 100
+        }
+        # train : 300, val : 300, test : 300
+        np.random.seed(1234)
+        source = self._generate_dataset(config, 10)
 
         result = ndr.NDR(source, working_subset='train', over_sample='random',
             hash_dim=16, seed=12145)
@@ -239,11 +278,15 @@ class NDRTest(TestCase):
         self.assertEqual(300, len(source.get_subset("val")))
         self.assertEqual(300, len(source.get_subset("test")))
 
-        with self.assertRaisesRegex(ValueError,
-                "sim_threshold should be large than 0"):
-            result = ndr.NDR(source, working_subset='train', over_sample='random',
-                sim_threshold=0, block_shape=(8, 8), seed=12145)
-            len(result)
+    def test_ndr_gradient_can_use_sim_thresh(self):
+        config = {
+            "label1": 100,
+            "label2": 100,
+            "label3": 100
+        }
+        # train : 300, val : 300, test : 300
+        np.random.seed(1234)
+        source = self._generate_dataset(config, 10)
 
         result = ndr.NDR(source, working_subset='train', over_sample='random',
             sim_threshold=0.7, seed=12145)
