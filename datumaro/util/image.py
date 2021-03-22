@@ -250,6 +250,9 @@ class Image:
                 data = lazy_image(path, loader=loader, cache=cache)
         self._data = data
 
+        if not self._size and isinstance(data, np.ndarray):
+            self._size = data.shape[:2]
+
     @property
     def path(self):
         return self._path
@@ -261,12 +264,21 @@ class Image:
     @property
     def data(self):
         if callable(self._data):
-            return self._data()
-        return self._data
+            data = self._data()
+        else:
+            data = self._data
+
+        if self._size is None and data is not None:
+            self._size = data.shape[:2]
+        return data
 
     @property
     def has_data(self):
         return self._data is not None
+
+    @property
+    def has_size(self):
+        return self._size is not None or isinstance(self._data, np.ndarray)
 
     @property
     def size(self):

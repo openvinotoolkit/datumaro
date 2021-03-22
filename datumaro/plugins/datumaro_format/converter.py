@@ -62,9 +62,10 @@ class _SubsetWriter:
                 self._context._save_image(item, path)
 
             item_desc['image'] = {
-                'size': item.image.size,
                 'path': path,
             }
+            if item.image.has_size: # avoid occasional loading
+                item_desc['image']['size'] = item.image.size
         self.items.append(item_desc)
 
         for ann in item.annotations:

@@ -564,6 +564,25 @@ class DatasetTest(TestCase):
 
             self.assertFalse(dataset.is_modified)
 
+    def test_does_not_load_images_on_saving(self):
+        # Issue https://github.com/openvinotoolkit/datumaro/issues/177
+        # Missing image metadata (size etc.) can lead to image loading on
+        # dataset save without image saving
+
+        called = False
+        def test_loader():
+            nonlocal called
+            called = True
+
+        dataset = Dataset.from_iterable([
+            DatasetItem(1, image=test_loader)
+        ])
+
+        with TestDir() as test_dir:
+            dataset.save(test_dir)
+
+        self.assertFalse(called)
+
 
 class DatasetItemTest(TestCase):
     def test_ctor_requires_id(self):
