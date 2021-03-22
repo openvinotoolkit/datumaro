@@ -7,7 +7,6 @@ from unittest import TestCase
 from datumaro.components.project import Dataset
 from datumaro.components.extractor import DatasetItem
 from datumaro.plugins.image_dir_format import ImageDirConverter
-from datumaro.util import image
 from datumaro.util.image import Image, save_image
 from datumaro.util.test_utils import TestDir, compare_datasets, test_save_and_load
 
