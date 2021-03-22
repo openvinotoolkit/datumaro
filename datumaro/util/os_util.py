@@ -46,3 +46,29 @@ def walk(path, max_depth=None):
             dirnames.clear() # topdown=True allows to modify the list
 
         yield dirpath, dirnames, filenames
+
+def dir_items(path, ext, truncate_ext=False):
+    items = []
+    for f in os.listdir(path):
+        ext_pos = f.rfind(ext)
+        if ext_pos != -1:
+            if truncate_ext:
+                f = f[:ext_pos]
+            items.append(f)
+    return items
+
+def split_path(path):
+    path = osp.normpath(path)
+    parts = []
+
+    while True:
+        path, part = osp.split(path)
+        if part:
+            parts.append(part)
+        else:
+            if path:
+                parts.append(path)
+            break
+    parts.reverse()
+
+    return parts
