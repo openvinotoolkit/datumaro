@@ -67,7 +67,7 @@ class NDRTest(TestCase):
                 duplicated_subset="train")
             len(result)
 
-        with self.assertRaisesRegex(ValueError, "Invalid algorithm name"):
+        with self.assertRaisesRegex(ValueError, "Unknown algorithm"):
             source = self._generate_dataset(config, 3)
             algorithm = "no_such_algo"
             result = ndr.NDR(source, working_subset="train", algorithm=algorithm)
@@ -79,26 +79,26 @@ class NDRTest(TestCase):
             result = ndr.NDR(source, working_subset='train', num_cut=10000)
             len(result)
 
-        with self.assertRaisesRegex(ValueError, "Invalid over_sample"):
+        with self.assertRaisesRegex(ValueError, "Unknown oversampling method"):
             source = self._generate_dataset(config, 10)
             sampling = "no_such_sampling"
             result = ndr.NDR(source, working_subset='train',
                 num_cut=100, seed=12145, over_sample=sampling)
             len(result)
 
-        with self.assertRaisesRegex(ValueError, "Invalid under_sample"):
+        with self.assertRaisesRegex(ValueError, "Unknown undersampling method"):
             source = self._generate_dataset(config, 10)
             sampling = "no_such_sampling"
             result = ndr.NDR(source, working_subset='train',
                 num_cut=1, seed=12145, under_sample=sampling)
             len(result)
-        
-        with self.assertRaisesRegex(ValueError, "Invalid image shape : Unsupported channel"):
+
+        with self.assertRaisesRegex(ValueError, "unexpected number of channels"):
             source = self._generate_dataset(config, 10, 'invalid_channel')
             result = ndr.NDR(source, working_subset='train')
             len(result)
-        
-        with self.assertRaisesRegex(ValueError, "Invalid image shape : Unsupported dimension"):
+
+        with self.assertRaisesRegex(ValueError, "unexpected number of dimensions"):
             source = self._generate_dataset(config, 10, 'invalid_dimension')
             result = ndr.NDR(source, working_subset='train')
             len(result)
