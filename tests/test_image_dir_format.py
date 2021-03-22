@@ -49,8 +49,6 @@ class ImageDirFormatTest(TestCase):
                 data=np.zeros((4, 3, 3)))),
             DatasetItem(id='a/b/c/2', image=Image(path='a/b/c/2.bmp',
                 data=np.zeros((3, 4, 3)))),
-            DatasetItem(id='3', image=Image(path='3.qq',
-                data=np.zeros((3, 4, 3)))),
         ])
 
         with TestDir() as test_dir:
