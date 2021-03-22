@@ -138,6 +138,14 @@ class Market1501FormatTest(TestCase):
             DatasetItem(id='test1',
                 subset='test', image=np.ones((2, 5, 3)),
             ),
+            DatasetItem(id='test2',
+                subset='test', image=np.ones((2, 5, 3)),
+                attributes={
+                    'camera_id': 1,
+                    'person_id': -1,
+                    'query': True
+                }
+            ),
         ])
 
         with TestDir() as test_dir:
