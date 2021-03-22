@@ -108,8 +108,8 @@ class NDRTest(TestCase):
 
         result = ndr.NDR(source, working_subset='train', seed=12145)
 
-        self.assertEqual(2, len(result.get_subset("train")))
-        self.assertEqual(298, len(result.get_subset("duplicated")))
+        self.assertEqual(1, len(result.get_subset("train")))
+        self.assertEqual(299, len(result.get_subset("duplicated")))
         self.assertEqual(300, len(result.get_subset("val")))
         self.assertEqual(300, len(result.get_subset("test")))
         # Check source
@@ -269,8 +269,8 @@ class NDRTest(TestCase):
         result = ndr.NDR(source, working_subset='train', over_sample='random',
             hash_dim=16, seed=12145)
 
-        self.assertEqual(2, len(result.get_subset("train")))
-        self.assertEqual(298, len(result.get_subset("duplicated")))
+        self.assertEqual(1, len(result.get_subset("train")))
+        self.assertEqual(299, len(result.get_subset("duplicated")))
         self.assertEqual(300, len(result.get_subset("val")))
         self.assertEqual(300, len(result.get_subset("test")))
         # Check source
@@ -291,8 +291,8 @@ class NDRTest(TestCase):
         result = ndr.NDR(source, working_subset='train', over_sample='random',
             sim_threshold=0.7, seed=12145)
 
-        self.assertEqual(2, len(result.get_subset("train")))
-        self.assertEqual(298, len(result.get_subset("duplicated")))
+        self.assertEqual(1, len(result.get_subset("train")))
+        self.assertEqual(299, len(result.get_subset("duplicated")))
         self.assertEqual(300, len(result.get_subset("val")))
         self.assertEqual(300, len(result.get_subset("test")))
         # Check source
