@@ -87,6 +87,7 @@ class Market1501Extractor(SourceExtractor):
                 item = DatasetItem(id=item_id, subset=self._subset,
                     image=image_path)
                 items[item_id] = item
+
             if pid != Market1501Path.UNKNOWN_ID:
                 attributes = item.attributes
                 attributes['query'] = subdir == Market1501Path.QUERY_DIR
