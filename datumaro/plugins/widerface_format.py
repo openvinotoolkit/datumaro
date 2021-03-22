@@ -23,15 +23,16 @@ class WiderFacePath:
         'occluded', 'pose', 'invalid']
 
 class WiderFaceExtractor(SourceExtractor):
-    def __init__(self, path):
+    def __init__(self, path, subset=None):
         if not osp.isfile(path):
             raise Exception("Can't read annotation file '%s'" % path)
         self._path = path
         self._dataset_dir = osp.dirname(osp.dirname(path))
 
-        subset = osp.splitext(osp.basename(path))[0]
-        if re.fullmatch(r'wider_face_\S+_bbx_gt', subset):
-            subset = subset.split('_')[2]
+        if not subset:
+            subset = osp.splitext(osp.basename(path))[0]
+            if re.fullmatch(r'wider_face_\S+_bbx_gt', subset):
+                subset = subset.split('_')[2]
         super().__init__(subset=subset)
 
         self._categories = self._load_categories()
@@ -62,18 +63,21 @@ class WiderFaceExtractor(SourceExtractor):
     def _load_items(self, path):
         items = {}
 
-        with open(path, 'r') as f:
+        with open(path, 'r', encoding='utf-8') as f:
             lines = f.readlines()
 
-        image_ids = [image_id for image_id, line in enumerate(lines)
-            if WiderFacePath.IMAGE_EXT in line]
+        line_ids = [line_idx for line_idx, line in enumerate(lines)
+            if ('/' in line or '\\' in line) and '.' in line] \
+            # a heuristic for paths
 
-        for image_id in image_ids:
-            image = lines[image_id]
+        for line_idx in line_ids:
+            image_path = lines[line_idx].strip()
+            item_id = osp.splitext(image_path)[0]
+
             image_path = osp.join(self._dataset_dir,
                 WiderFacePath.SUBSET_DIR + self._subset,
-                WiderFacePath.IMAGES_DIR, image[:-1])
-            item_id = image[:-(len(WiderFacePath.IMAGE_EXT) + 1)]
+                WiderFacePath.IMAGES_DIR, image_path)
+
             annotations = []
             if '/' in item_id:
                 label_name = item_id.split('/')[0]
@@ -85,8 +89,15 @@ class WiderFaceExtractor(SourceExtractor):
                     annotations.append(Label(label=label))
                 item_id = item_id[len(item_id.split('/')[0]) + 1:]
 
-            bbox_count = lines[image_id + 1]
-            bbox_lines = lines[image_id + 2 : image_id + int(bbox_count) + 2]
+            items[item_id] = DatasetItem(id=item_id, subset=self._subset,
+                image=image_path, annotations=annotations)
+
+            try:
+                bbox_count = int(lines[line_idx + 1]) # can be the next image
+            except ValueError:
+                continue
+
+            bbox_lines = lines[line_idx + 2 : line_idx + bbox_count + 2]
             for bbox in bbox_lines:
                 bbox_list = bbox.split()
                 if 4 <= len(bbox_list):
@@ -111,8 +122,6 @@ class WiderFaceExtractor(SourceExtractor):
                         attributes=attributes, label=label
                     ))
 
-            items[item_id] = DatasetItem(id=item_id, subset=self._subset,
-                image=image_path, annotations=annotations)
         return items
 
 class WiderFaceImporter(Importer):
@@ -122,7 +131,7 @@ class WiderFaceImporter(Importer):
             dirname=WiderFacePath.ANNOTATIONS_DIR)
 
 class WiderFaceConverter(Converter):
-    DEFAULT_IMAGE_EXT = '.jpg'
+    DEFAULT_IMAGE_EXT = WiderFacePath.IMAGE_EXT
 
     def apply(self):
         save_dir = self._save_dir
@@ -143,12 +152,12 @@ class WiderFaceConverter(Converter):
                 labels = [a.label for a in item.annotations
                     if a.type == AnnotationType.label]
                 if labels:
-                    image_path = '%s--%s/%s' % (
-                        labels[0], label_categories[labels[0]].name,
-                        item.id + WiderFacePath.IMAGE_EXT)
+                    image_path = self._make_image_filename(item,
+                        subdir='%s--%s' % (
+                            labels[0], label_categories[labels[0]].name))
                 else:
-                    image_path = '%s/%s' % (WiderFacePath.IMAGES_DIR_NO_LABEL,
-                        item.id + WiderFacePath.IMAGE_EXT)
+                    image_path = self._make_image_filename(item,
+                        subdir=WiderFacePath.IMAGES_DIR_NO_LABEL)
                 wider_annotation += image_path + '\n'
                 if item.has_image and self._save_images:
                     self._save_image(item, osp.join(save_dir, subset_dir,
@@ -178,5 +187,5 @@ class WiderFaceConverter(Converter):
             annotation_path = osp.join(save_dir, WiderFacePath.ANNOTATIONS_DIR,
                 'wider_face_' + subset_name + '_bbx_gt.txt')
             os.makedirs(osp.dirname(annotation_path), exist_ok=True)
-            with open(annotation_path, 'w') as f:
+            with open(annotation_path, 'w', encoding='utf-8') as f:
                 f.write(wider_annotation)

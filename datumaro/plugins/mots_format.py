@@ -5,7 +5,7 @@
 # Implements MOTS format https://www.vision.rwth-aachen.de/page/mots
 
 from enum import Enum
-from glob import glob
+from glob import iglob
 import logging as log
 import numpy as np
 import os
@@ -15,7 +15,7 @@ from datumaro.components.extractor import (SourceExtractor, Importer,
     DatasetItem, AnnotationType, Mask, LabelCategories
 )
 from datumaro.components.converter import Converter
-from datumaro.util.image import load_image, save_image
+from datumaro.util.image import find_images, load_image, save_image
 from datumaro.util.mask_tools import merge_masks
 
 
@@ -40,9 +40,9 @@ class MotsPngExtractor(SourceExtractor):
             return [{'url': path, 'format': 'mots_png'}]
         return []
 
-    def __init__(self, path, subset_name=None):
+    def __init__(self, path, subset=None):
         assert osp.isdir(path), path
-        super().__init__(subset=subset_name)
+        super().__init__(subset=subset)
         self._images_dir = osp.join(path, 'images')
         self._anno_dir = osp.join(path, MotsPath.MASKS_DIR)
         self._categories = self._parse_categories(
@@ -59,11 +59,18 @@ class MotsPngExtractor(SourceExtractor):
 
     def _parse_items(self):
         items = []
-        for p in sorted(p for p in
-                glob(self._anno_dir + '/**/*.png', recursive=True)):
+
+        image_dir = self._images_dir
+        if osp.isdir(image_dir):
+            images = { osp.splitext(osp.relpath(p, image_dir))[0]: p
+                for p in find_images(image_dir, recursive=True) }
+        else:
+            images = {}
+
+        for p in sorted(iglob(self._anno_dir + '/**/*.png', recursive=True)):
             item_id = osp.splitext(osp.relpath(p, self._anno_dir))[0]
             items.append(DatasetItem(id=item_id, subset=self._subset,
-                image=osp.join(self._images_dir, item_id + MotsPath.IMAGE_EXT),
+                image=images.get(item_id),
                 annotations=self._parse_annotations(p)))
         return items
 
@@ -100,7 +107,7 @@ class MotsImporter(Importer):
             for p in os.listdir(path):
                 detected = MotsPngExtractor.detect_dataset(osp.join(path, p))
                 for s in detected:
-                    s.setdefault('options', {})['subset_name'] = p
+                    s.setdefault('options', {})['subset'] = p
                 subsets.extend(detected)
         return subsets
 
@@ -111,7 +118,7 @@ class MotsPngConverter(Converter):
     def apply(self):
         for subset_name, subset in self._extractor.subsets().items():
             subset_dir = osp.join(self._save_dir, subset_name)
-            images_dir = osp.join(subset_dir, MotsPath.IMAGE_DIR)
+            image_dir = osp.join(subset_dir, MotsPath.IMAGE_DIR)
             anno_dir = osp.join(subset_dir, MotsPath.MASKS_DIR)
             os.makedirs(anno_dir, exist_ok=True)
 
@@ -120,8 +127,7 @@ class MotsPngConverter(Converter):
 
                 if self._save_images:
                     if item.has_image and item.image.has_data:
-                        self._save_image(item,
-                            osp.join(images_dir, self._make_image_filename(item)))
+                        self._save_image(item, subdir=image_dir)
                     else:
                         log.debug("Item '%s' has no image", item.id)
 

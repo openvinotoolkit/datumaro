@@ -7,6 +7,7 @@
 
 from enum import Enum
 from io import BytesIO
+from typing import Iterator, Iterable, Union
 import numpy as np
 import os
 import os.path as osp
@@ -21,6 +22,7 @@ except ImportError:
     _IMAGE_BACKEND = _IMAGE_BACKENDS.PIL
 
 from datumaro.util.image_cache import ImageCache as _ImageCache
+from datumaro.util.os_util import walk
 
 
 def load_image(path, dtype=np.float32):
@@ -153,6 +155,37 @@ def decode_image(image_bytes, dtype=np.float32):
         assert image.shape[2] in {3, 4}
     return image
 
+IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.jpe', '.jp2',
+    '.png', '.bmp', '.dib', '.tif', '.tiff', '.tga', '.webp', '.pfm',
+    '.sr', '.ras', '.exr', '.hdr', '.pic',
+    '.pbm', '.pgm', '.ppm', '.pxm', '.pnm',
+}
+
+def find_images(dirpath: str, exts: Union[str, Iterable[str]] = None,
+        recursive: bool = False, max_depth: int = None) -> Iterator[str]:
+    if isinstance(exts, str):
+        exts = [exts.lower()]
+    elif exts is None:
+        exts = IMAGE_EXTENSIONS
+    else:
+        exts = list(e.lower() for e in exts)
+
+    def _check_image_ext(filename: str):
+        dotpos = filename.rfind('.')
+        if 0 < dotpos: # exclude '.ext' cases too
+            ext = filename[dotpos:].lower()
+            if ext in exts:
+                return True
+        return False
+
+    for d, _, filenames in walk(dirpath,
+            max_depth=max_depth if recursive else 0):
+        for filename in filenames:
+            if not _check_image_ext(filename):
+                continue
+
+            yield osp.join(d, filename)
+
 
 class lazy_image:
     def __init__(self, path, loader=None, cache=None):
@@ -217,6 +250,9 @@ class Image:
                 data = lazy_image(path, loader=loader, cache=cache)
         self._data = data
 
+        if not self._size and isinstance(data, np.ndarray):
+            self._size = data.shape[:2]
+
     @property
     def path(self):
         return self._path
@@ -228,12 +264,21 @@ class Image:
     @property
     def data(self):
         if callable(self._data):
-            return self._data()
-        return self._data
+            data = self._data()
+        else:
+            data = self._data
+
+        if self._size is None and data is not None:
+            self._size = data.shape[:2]
+        return data
 
     @property
     def has_data(self):
         return self._data is not None
+
+    @property
+    def has_size(self):
+        return self._size is not None or isinstance(self._data, np.ndarray)
 
     @property
     def size(self):

@@ -6,7 +6,7 @@
 import os
 
 from datumaro.components.project import Project
-from datumaro.util import generate_next_name
+from datumaro.util.os_util import generate_next_name
 
 
 def load_project(project_dir):

@@ -4,10 +4,6 @@
 # SPDX-License-Identifier: MIT
 
 import attr
-import os
-import os.path as osp
-import re
-import unicodedata
 from contextlib import ExitStack
 from functools import partial, wraps
 from itertools import islice
@@ -16,32 +12,6 @@ from distutils.util import strtobool as str_to_bool # pylint: disable=unused-imp
 
 def find(iterable, pred=lambda x: True, default=None):
     return next((x for x in iterable if pred(x)), default)
-
-def dir_items(path, ext, truncate_ext=False):
-    items = []
-    for f in os.listdir(path):
-        ext_pos = f.rfind(ext)
-        if ext_pos != -1:
-            if truncate_ext:
-                f = f[:ext_pos]
-            items.append(f)
-    return items
-
-def split_path(path):
-    path = osp.normpath(path)
-    parts = []
-
-    while True:
-        path, part = osp.split(path)
-        if part:
-            parts.append(part)
-        else:
-            if path:
-                parts.append(path)
-            break
-    parts.reverse()
-
-    return parts
 
 def cast(value, type_conv, default=None):
     if value is None:
@@ -88,34 +58,6 @@ def take_by(iterable, count):
 
 def filter_dict(d, exclude_keys):
     return { k: v for k, v in d.items() if k not in exclude_keys }
-
-def make_file_name(s):
-    # adapted from
-    # https://docs.djangoproject.com/en/2.1/_modules/django/utils/text/#slugify
-    """
-    Normalizes string, converts to lowercase, removes non-alpha characters,
-    and converts spaces to hyphens.
-    """
-    s = unicodedata.normalize('NFKD', s).encode('ascii', 'ignore')
-    s = s.decode()
-    s = re.sub(r'[^\w\s-]', '', s).strip().lower()
-    s = re.sub(r'[-\s]+', '-', s)
-    return s
-
-def generate_next_name(names, basename, sep='.', suffix='', default=None):
-    pattern = re.compile(r'%s(?:%s(\d+))?%s' % \
-        tuple(map(re.escape, [basename, sep, suffix])))
-    matches = [match for match in (pattern.match(n) for n in names) if match]
-
-    max_idx = max([cast(match[1], int, 0) for match in matches], default=None)
-    if max_idx is None:
-        if default is not None:
-            idx = sep + str(default)
-        else:
-            idx = ''
-    else:
-        idx = sep + str(max_idx + 1)
-    return basename + idx + suffix
 
 def optional_arg_decorator(fn):
     @wraps(fn)

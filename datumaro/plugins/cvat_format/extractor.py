@@ -19,7 +19,7 @@ from .format import CvatPath
 class CvatExtractor(SourceExtractor):
     _SUPPORTED_SHAPES = ('box', 'polygon', 'polyline', 'points')
 
-    def __init__(self, path):
+    def __init__(self, path, subset=None):
         assert osp.isfile(path), path
         rootpath = osp.dirname(path)
         images_dir = ''
@@ -28,7 +28,9 @@ class CvatExtractor(SourceExtractor):
         self._images_dir = images_dir
         self._path = path
 
-        super().__init__(subset=osp.splitext(osp.basename(path))[0])
+        if not subset:
+            subset = osp.splitext(osp.basename(path))[0]
+        super().__init__(subset=subset)
 
         items, categories = self._parse(path)
         self._items = list(self._load_items(items).values())

@@ -10,5 +10,5 @@ from . import (
     export, merge, convert, apply, transform, filter, build, update,
     diff, ediff, stats,
     commit, fetch, pull, push, track, checkout, refs, status,
-    info
+    info, validate
 )

@@ -1,5 +1,5 @@
 from collections import defaultdict
-from unittest import TestCase
+from unittest import TestCase, skipIf
 
 from datumaro.components.project import Dataset
 from datumaro.components.extractor import (
@@ -11,17 +11,21 @@ from datumaro.components.extractor import (
 from datumaro.util.image import Image
 
 import csv
-import pandas as pd
 
-import datumaro.plugins.sampler.sampler as sampler
-from datumaro.plugins.sampler.algorithm.entropy import SampleEntropy as entropy
+try:
+    import pandas as pd
+    from datumaro.plugins.sampler.sampler import Sampler
+    from datumaro.plugins.sampler.algorithm.entropy import SampleEntropy as entropy
+    has_libs = True
+except ImportError:
+    has_libs = False
 
 
+@skipIf(not has_libs, "pandas library is not available")
 class SamplerTest(TestCase):
     @staticmethod
     def _get_probs(out_range=False):
         probs = []
-        # data length is 500
         inference_file = "tests/assets/sampler/inference.csv"
         with open(inference_file) as csv_file:
             csv_reader = csv.reader(csv_file)
@@ -37,16 +41,8 @@ class SamplerTest(TestCase):
                         probs.append(list(map(float, row[1:4])))
         return probs
 
-    def _generate_classification_dataset(
-        self,
-        config,
-        subset=None,
-        empty_score=False,
-        out_range=False,
-        no_attr=False,
-        no_img=False,
-    ):
-
+    def _generate_classification_dataset(self, config, subset=None,
+            empty_scores=False, out_range=False, no_attr=False, no_img=False):
         probs = self._get_probs(out_range)
         if subset is None:
             self.subset = ["train", "val", "test"]
@@ -60,11 +56,11 @@ class SamplerTest(TestCase):
             num_item = config[label]
             label_cat.add(label, attributes=None)
             for _ in range(num_item):
-                score = probs[idx]
+                scores = probs[idx]
                 idx += 1
-                if empty_score:
-                    score = []
-                attr = {"score": score}
+                if empty_scores:
+                    scores = []
+                attr = {"scores": scores}
                 if no_attr:
                     attr = {}
                 img = Image(path=f"test/dataset/{idx}.jpg", size=(90, 90))
@@ -100,14 +96,14 @@ class SamplerTest(TestCase):
         num_sample = 5
 
         with self.subTest("Top-K method"):
-            result = sampler.Sampler(
+            result = Sampler(
                 source,
                 algorithm="entropy",
-                subset_name="train",
-                sampled_name="sample",
-                unsampled_name="unsampled",
+                input_subset="train",
+                sampled_subset="sample",
+                unsampled_subset="unsampled",
                 sampling_method="topk",
-                num_sample=num_sample,
+                count=num_sample,
                 output_file=None,
             )
             self.assertEqual(num_sample, len(result.get_subset("sample")))
@@ -120,14 +116,14 @@ class SamplerTest(TestCase):
             self.assertEqual(sorted(topk_result), topk_expected_result)
 
         with self.subTest("Low-K method"):
-            result = sampler.Sampler(
+            result = Sampler(
                 source,
                 algorithm="entropy",
-                subset_name="train",
-                sampled_name="sample",
-                unsampled_name="unsampled",
+                input_subset="train",
+                sampled_subset="sample",
+                unsampled_subset="unsampled",
                 sampling_method="lowk",
-                num_sample=num_sample,
+                count=num_sample,
                 output_file=None,
             )
             self.assertEqual(num_sample, len(result.get_subset("sample")))
@@ -140,14 +136,14 @@ class SamplerTest(TestCase):
             self.assertEqual(sorted(lowk_result), lowk_expected_result)
 
         with self.subTest("Rand-K method"):
-            result = sampler.Sampler(
+            result = Sampler(
                 source,
                 algorithm="entropy",
-                subset_name="train",
-                sampled_name="sample",
-                unsampled_name="unsampled",
+                input_subset="train",
+                sampled_subset="sample",
+                unsampled_subset="unsampled",
                 sampling_method="randk",
-                num_sample=num_sample,
+                count=num_sample,
                 output_file=None,
             )
             self.assertEqual(num_sample, len(result.get_subset("sample")))
@@ -157,14 +153,14 @@ class SamplerTest(TestCase):
             )
 
         with self.subTest("Mix-K method"):
-            result = sampler.Sampler(
+            result = Sampler(
                 source,
                 algorithm="entropy",
-                subset_name="train",
-                sampled_name="sample",
-                unsampled_name="unsampled",
+                input_subset="train",
+                sampled_subset="sample",
+                unsampled_subset="unsampled",
                 sampling_method="mixk",
-                num_sample=num_sample,
+                count=num_sample,
                 output_file=None,
             )
             self.assertEqual(num_sample, len(result.get_subset("sample")))
@@ -176,14 +172,14 @@ class SamplerTest(TestCase):
             mixk_result = list(map(int, result.result["ImageID"].to_list()))
             self.assertEqual(sorted(mixk_result), mixk_expected_result)
 
-            result = sampler.Sampler(
+            result = Sampler(
                 source,
                 algorithm="entropy",
-                subset_name="train",
-                sampled_name="sample",
-                unsampled_name="unsampled",
+                input_subset="train",
+                sampled_subset="sample",
+                unsampled_subset="unsampled",
                 sampling_method="mixk",
-                num_sample=6,
+                count=6,
                 output_file=None,
             )
             self.assertEqual(6, len(result.get_subset("sample")))
@@ -196,14 +192,14 @@ class SamplerTest(TestCase):
             self.assertEqual(sorted(mixk_result), mixk_expected_result)
 
         with self.subTest("Randtop-K method"):
-            result = sampler.Sampler(
+            result = Sampler(
                 source,
                 algorithm="entropy",
-                subset_name="train",
-                sampled_name="sample",
-                unsampled_name="unsampled",
+                input_subset="train",
+                sampled_subset="sample",
+                unsampled_subset="unsampled",
                 sampling_method="randtopk",
-                num_sample=num_sample,
+                count=num_sample,
                 output_file=None,
             )
 
@@ -224,77 +220,77 @@ class SamplerTest(TestCase):
         source = self._generate_classification_dataset(config)
 
         with self.subTest("Not found"):
-            with self.assertRaisesRegex(Exception, "Not Found subset"):
+            with self.assertRaisesRegex(Exception, "Unknown subset"):
                 subset = "hello"
-                result = sampler.Sampler(
+                result = Sampler(
                     source,
                     algorithm="entropy",
-                    subset_name=subset,
-                    sampled_name="sample",
-                    unsampled_name="unsampled",
+                    input_subset=subset,
+                    sampled_subset="sample",
+                    unsampled_subset="unsampled",
                     sampling_method="topk",
-                    num_sample=num_sample,
+                    count=num_sample,
                     output_file=None,
                 )
                 result = iter(result)
                 next(result)
 
-            with self.assertRaisesRegex(Exception, "Not Found algorithm"):
+            with self.assertRaisesRegex(Exception, "Unknown algorithm"):
                 algorithm = "hello"
-                result = sampler.Sampler(
+                result = Sampler(
                     source,
                     algorithm=algorithm,
-                    subset_name="train",
-                    sampled_name="sample",
-                    unsampled_name="unsampled",
+                    input_subset="train",
+                    sampled_subset="sample",
+                    unsampled_subset="unsampled",
                     sampling_method="topk",
-                    num_sample=num_sample,
+                    count=num_sample,
                     output_file=None,
                 )
                 result = iter(result)
                 next(result)
 
-            with self.assertRaisesRegex(Exception, "Not Found method"):
+            with self.assertRaisesRegex(Exception, "Unknown sampling method"):
                 sampling_method = "hello"
-                result = sampler.Sampler(
+                result = Sampler(
                     source,
                     algorithm="entropy",
-                    subset_name="train",
-                    sampled_name="sample",
-                    unsampled_name="unsampled",
+                    input_subset="train",
+                    sampled_subset="sample",
+                    unsampled_subset="unsampled",
                     sampling_method=sampling_method,
-                    num_sample=num_sample,
+                    count=num_sample,
                     output_file=None,
                 )
                 result = iter(result)
                 next(result)
 
         with self.subTest("Invalid Value"):
-            with self.assertRaisesRegex(Exception, "Invalid number"):
+            with self.assertRaisesRegex(Exception, "Invalid value"):
                 k = 0
-                result = sampler.Sampler(
+                result = Sampler(
                     source,
                     algorithm="entropy",
-                    subset_name="train",
-                    sampled_name="sample",
-                    unsampled_name="unsampled",
+                    input_subset="train",
+                    sampled_subset="sample",
+                    unsampled_subset="unsampled",
                     sampling_method="topk",
-                    num_sample=k,
+                    count=k,
                     output_file=None,
                 )
                 result = iter(result)
                 next(result)
 
-            with self.assertRaisesRegex(Exception, "Invalid number"):
+            with self.assertRaisesRegex(Exception, "Invalid value"):
                 k = -1
-                result = sampler.Sampler(
+                result = Sampler(
                     source,
                     algorithm="entropy",
-                    subset_name="train",
-                    sampled_name="sample",
-                    unsampled_name="unsampled",
+                    input_subset="train",
+                    sampled_subset="sample",
+                    unsampled_subset="unsampled",
                     sampling_method="topk",
-                    num_sample=k,
+                    count=k,
                     output_file=None,
                 )
                 result = iter(result)
@@ -302,44 +298,29 @@ class SamplerTest(TestCase):
 
             with self.assertRaisesRegex(Exception, "Invalid value"):
                 k = "string"
-                result = sampler.Sampler(
+                result = Sampler(
                     source,
                     algorithm="entropy",
-                    subset_name="train",
-                    sampled_name="sample",
-                    unsampled_name="unsampled",
+                    input_subset="train",
+                    sampled_subset="sample",
+                    unsampled_subset="unsampled",
                     sampling_method="topk",
-                    num_sample=k,
+                    count=k,
                     output_file=None,
                 )
                 result = iter(result)
                 next(result)
 
-            with self.assertRaisesRegex(Exception, "Invalid extension"):
+            with self.assertRaisesRegex(Exception, "extension"):
                 output_file = "string.xml"
-                result = sampler.Sampler(
+                result = Sampler(
                     source,
                     algorithm="entropy",
-                    subset_name="train",
-                    sampled_name="sample",
-                    unsampled_name="unsampled",
+                    input_subset="train",
+                    sampled_subset="sample",
+                    unsampled_subset="unsampled",
                     sampling_method="topk",
-                    num_sample=num_sample,
-                    output_file=output_file,
-                )
-                result = iter(result)
-                next(result)
-
-            with self.assertRaisesRegex(Exception, "Invalid extension"):
-                output_file = "string"
-                result = sampler.Sampler(
-                    source,
-                    algorithm="entropy",
-                    subset_name="train",
-                    sampled_name="sample",
-                    unsampled_name="unsampled",
-                    sampling_method="topk",
-                    num_sample=num_sample,
+                    count=num_sample,
                     output_file=output_file,
                 )
                 result = iter(result)
@@ -360,7 +341,7 @@ class SamplerTest(TestCase):
                     data_df["ImagePath"].append(data.image.path)
 
                     for annotation in data.annotations:
-                        probs = annotation.attributes["score"]
+                        probs = annotation.attributes["scores"]
                         infer_df["ImageID"].append(data.id)
 
                         for prob_idx, prob in enumerate(probs):
@@ -387,7 +368,7 @@ class SamplerTest(TestCase):
                     data_df["ImagePath"].append(data.image.path)
 
                     for annotation in data.annotations:
-                        probs = annotation.attributes["score"]
+                        probs = annotation.attributes["scores"]
 
                         for prob_idx, prob in enumerate(probs):
                             infer_df[f"ClassProbability{prob_idx+1}"].append(prob)
@@ -406,37 +387,37 @@ class SamplerTest(TestCase):
             }
 
             source = self._generate_classification_dataset(config)
-            with self.assertRaisesRegex(Exception, "Not Found"):
-                result = sampler.Sampler(
+            with self.assertRaisesRegex(Exception, "Unknown subset"):
+                result = Sampler(
                     source,
                     algorithm="entropy",
-                    subset_name="train",
-                    sampled_name="sample",
-                    unsampled_name="unsampled",
+                    input_subset="train",
+                    sampled_subset="sample",
+                    unsampled_subset="unsampled",
                     sampling_method="topk",
-                    num_sample=5,
+                    count=5,
                     output_file=None,
                 )
                 result = iter(result)
                 next(result)
 
-        with self.subTest("Dataset without Score (Probability)"):
+        with self.subTest("Dataset without Scores (Probability)"):
             config = {
                 "label1": 10,
                 "label2": 10,
                 "label3": 10,
             }
 
-            source = self._generate_classification_dataset(config, empty_score=True)
-            with self.assertRaisesRegex(Exception, "Invalid data"):
-                result = sampler.Sampler(
+            source = self._generate_classification_dataset(config, empty_scores=True)
+            with self.assertRaisesRegex(Exception, "ClassProbability"):
+                result = Sampler(
                     source,
                     algorithm="entropy",
-                    subset_name="train",
-                    sampled_name="sample",
-                    unsampled_name="unsampled",
+                    input_subset="train",
+                    sampled_subset="sample",
+                    unsampled_subset="unsampled",
                     sampling_method="topk",
-                    num_sample=5,
+                    count=5,
                     output_file=None,
                 )
                 result = iter(result)
@@ -450,23 +431,23 @@ class SamplerTest(TestCase):
             }
 
             source = self._generate_classification_dataset(
-                config, empty_score=False, out_range=True
+                config, empty_scores=False, out_range=True
             )
             with self.assertRaisesRegex(Exception, "Invalid data"):
-                result = sampler.Sampler(
+                result = Sampler(
                     source,
                     algorithm="entropy",
-                    subset_name="train",
-                    sampled_name="sample",
-                    unsampled_name="unsampled",
+                    input_subset="train",
+                    sampled_subset="sample",
+                    unsampled_subset="unsampled",
                     sampling_method="topk",
-                    num_sample=5,
+                    count=5,
                     output_file=None,
                 )
                 result = iter(result)
                 next(result)
 
-        with self.subTest("No Score Attribute Data"):
+        with self.subTest("No Scores Attribute Data"):
             config = {
                 "label1": 10,
                 "label2": 10,
@@ -474,15 +455,15 @@ class SamplerTest(TestCase):
             }
 
             source = self._generate_classification_dataset(config, no_attr=True)
-            with self.assertRaisesRegex(Exception, "Invalid data"):
-                result = sampler.Sampler(
+            with self.assertRaisesRegex(Exception, "does not have 'scores'"):
+                result = Sampler(
                     source,
                     algorithm="entropy",
-                    subset_name="train",
-                    sampled_name="sample",
-                    unsampled_name="unsampled",
+                    input_subset="train",
+                    sampled_subset="sample",
+                    unsampled_subset="unsampled",
                     sampling_method="topk",
-                    num_sample=5,
+                    count=5,
                     output_file=None,
                 )
                 result = iter(result)
@@ -496,15 +477,15 @@ class SamplerTest(TestCase):
             }
 
             source = self._generate_classification_dataset(config, no_img=True)
-            with self.assertRaisesRegex(Exception, "Invalid data"):
-                result = sampler.Sampler(
+            with self.assertRaisesRegex(Exception, "does not have image info"):
+                result = Sampler(
                     source,
                     algorithm="entropy",
-                    subset_name="train",
-                    sampled_name="sample",
-                    unsampled_name="unsampled",
+                    input_subset="train",
+                    sampled_subset="sample",
+                    unsampled_subset="unsampled",
                     sampling_method="topk",
-                    num_sample=5,
+                    count=5,
                     output_file=None,
                 )
                 result = iter(result)
@@ -524,14 +505,14 @@ class SamplerTest(TestCase):
             num_sample = 500
             sampling_method = "topk"
 
-            result = sampler.Sampler(
+            result = Sampler(
                 source,
                 algorithm="entropy",
-                subset_name="train",
-                sampled_name="sample",
-                unsampled_name="unsampled",
+                input_subset="train",
+                sampled_subset="sample",
+                unsampled_subset="unsampled",
                 sampling_method=sampling_method,
-                num_sample=num_sample,
+                count=num_sample,
                 output_file=None,
             )
             self.assertEqual(num_pre_train_subset, len(result.get_subset("sample")))
@@ -540,14 +521,14 @@ class SamplerTest(TestCase):
             num_sample = 500
             sampling_method = "lowk"
 
-            result = sampler.Sampler(
+            result = Sampler(
                 source,
                 algorithm="entropy",
-                subset_name="train",
-                sampled_name="sample",
-                unsampled_name="unsampled",
+                input_subset="train",
+                sampled_subset="sample",
+                unsampled_subset="unsampled",
                 sampling_method=sampling_method,
-                num_sample=num_sample,
+                count=num_sample,
                 output_file=None,
             )
             self.assertEqual(num_pre_train_subset, len(result.get_subset("sample")))
@@ -556,14 +537,14 @@ class SamplerTest(TestCase):
             num_sample = 500
             sampling_method = "randk"
 
-            result = sampler.Sampler(
+            result = Sampler(
                 source,
                 algorithm="entropy",
-                subset_name="train",
-                sampled_name="sample",
-                unsampled_name="unsampled",
+                input_subset="train",
+                sampled_subset="sample",
+                unsampled_subset="unsampled",
                 sampling_method=sampling_method,
-                num_sample=num_sample,
+                count=num_sample,
                 output_file=None,
             )
             self.assertEqual(num_pre_train_subset, len(result.get_subset("sample")))
@@ -572,14 +553,14 @@ class SamplerTest(TestCase):
             num_sample = 500
             sampling_method = "mixk"
 
-            result = sampler.Sampler(
+            result = Sampler(
                 source,
                 algorithm="entropy",
-                subset_name="train",
-                sampled_name="sample",
-                unsampled_name="unsampled",
+                input_subset="train",
+                sampled_subset="sample",
+                unsampled_subset="unsampled",
                 sampling_method=sampling_method,
-                num_sample=num_sample,
+                count=num_sample,
                 output_file=None,
             )
             self.assertEqual(num_pre_train_subset, len(result.get_subset("sample")))
@@ -588,14 +569,14 @@ class SamplerTest(TestCase):
             num_sample = 500
             sampling_method = "randtopk"
 
-            result = sampler.Sampler(
+            result = Sampler(
                 source,
                 algorithm="entropy",
-                subset_name="train",
-                sampled_name="sample",
-                unsampled_name="unsampled",
+                input_subset="train",
+                sampled_subset="sample",
+                unsampled_subset="unsampled",
                 sampling_method=sampling_method,
-                num_sample=num_sample,
+                count=num_sample,
                 output_file=None,
             )
             self.assertEqual(num_pre_train_subset, len(result.get_subset("sample")))
@@ -604,14 +585,14 @@ class SamplerTest(TestCase):
             num_sample = 10
             sampling_method = "topk"
 
-            result = sampler.Sampler(
+            result = Sampler(
                 source,
                 algorithm="entropy",
-                subset_name="train",
-                sampled_name="sample",
-                unsampled_name="unsampled",
+                input_subset="train",
+                sampled_subset="sample",
+                unsampled_subset="unsampled",
                 sampling_method=sampling_method,
-                num_sample=num_sample,
+                count=num_sample,
                 output_file=None,
             )
             self.assertEqual(num_pre_train_subset, len(result.get_subset("sample")))
@@ -620,14 +601,14 @@ class SamplerTest(TestCase):
             num_sample = 10
             sampling_method = "lowk"
 
-            result = sampler.Sampler(
+            result = Sampler(
                 source,
                 algorithm="entropy",
-                subset_name="train",
-                sampled_name="sample",
-                unsampled_name="unsampled",
+                input_subset="train",
+                sampled_subset="sample",
+                unsampled_subset="unsampled",
                 sampling_method=sampling_method,
-                num_sample=num_sample,
+                count=num_sample,
                 output_file=None,
             )
             self.assertEqual(num_pre_train_subset, len(result.get_subset("sample")))
@@ -636,14 +617,14 @@ class SamplerTest(TestCase):
             num_sample = 10
             sampling_method = "randk"
 
-            result = sampler.Sampler(
+            result = Sampler(
                 source,
                 algorithm="entropy",
-                subset_name="train",
-                sampled_name="sample",
-                unsampled_name="unsampled",
+                input_subset="train",
+                sampled_subset="sample",
+                unsampled_subset="unsampled",
                 sampling_method=sampling_method,
-                num_sample=num_sample,
+                count=num_sample,
                 output_file=None,
             )
             self.assertEqual(num_pre_train_subset, len(result.get_subset("sample")))
@@ -652,14 +633,14 @@ class SamplerTest(TestCase):
             num_sample = 10
             sampling_method = "mixk"
 
-            result = sampler.Sampler(
+            result = Sampler(
                 source,
                 algorithm="entropy",
-                subset_name="train",
-                sampled_name="sample",
-                unsampled_name="unsampled",
+                input_subset="train",
+                sampled_subset="sample",
+                unsampled_subset="unsampled",
                 sampling_method=sampling_method,
-                num_sample=num_sample,
+                count=num_sample,
                 output_file=None,
             )
             self.assertEqual(num_pre_train_subset, len(result.get_subset("sample")))
@@ -668,28 +649,28 @@ class SamplerTest(TestCase):
             num_sample = 10
             sampling_method = "randtopk"
 
-            result = sampler.Sampler(
+            result = Sampler(
                 source,
                 algorithm="entropy",
-                subset_name="train",
-                sampled_name="sample",
-                unsampled_name="unsampled",
+                input_subset="train",
+                sampled_subset="sample",
+                unsampled_subset="unsampled",
                 sampling_method=sampling_method,
-                num_sample=num_sample,
+                count=num_sample,
                 output_file=None,
             )
             self.assertEqual(num_pre_train_subset, len(result.get_subset("sample")))
 
             num_sample = 9
 
-            result = sampler.Sampler(
+            result = Sampler(
                 source,
                 algorithm="entropy",
-                subset_name="train",
-                sampled_name="sample",
-                unsampled_name="unsampled",
+                input_subset="train",
+                sampled_subset="sample",
+                unsampled_subset="unsampled",
                 sampling_method=sampling_method,
-                num_sample=num_sample,
+                count=num_sample,
                 output_file=None,
             )
             self.assertEqual(len(result.get_subset("sample")), 9)
@@ -711,14 +692,14 @@ class SamplerTest(TestCase):
             num_sample = 3
             sample_subset_name = "sample"
 
-            result = sampler.Sampler(
+            result = Sampler(
                 source,
                 algorithm="entropy",
-                subset_name="train",
-                sampled_name=sample_subset_name,
-                unsampled_name="train",
+                input_subset="train",
+                sampled_subset=sample_subset_name,
+                unsampled_subset="train",
                 sampling_method="topk",
-                num_sample=num_sample,
+                count=num_sample,
                 output_file=None,
             )
 
@@ -727,14 +708,14 @@ class SamplerTest(TestCase):
                 len(result.get_subset("train")), num_pre_train_subset - num_sample
             )
 
-            result = sampler.Sampler(
+            result = Sampler(
                 result,
                 algorithm="entropy",
-                subset_name="train",
-                sampled_name=sample_subset_name,
-                unsampled_name="train",
+                input_subset="train",
+                sampled_subset=sample_subset_name,
+                unsampled_subset="train",
                 sampling_method="topk",
-                num_sample=num_sample,
+                count=num_sample,
                 output_file=None,
             )
 
@@ -743,14 +724,14 @@ class SamplerTest(TestCase):
                 len(result.get_subset("train")), num_pre_train_subset - num_sample * 2
             )
 
-            result = sampler.Sampler(
+            result = Sampler(
                 result,
                 algorithm="entropy",
-                subset_name="train",
-                sampled_name=sample_subset_name,
-                unsampled_name="train",
+                input_subset="train",
+                sampled_subset=sample_subset_name,
+                unsampled_subset="train",
                 sampling_method="topk",
-                num_sample=num_sample,
+                count=num_sample,
                 output_file=None,
             )
 
@@ -762,42 +743,42 @@ class SamplerTest(TestCase):
         with self.subTest("Same Subset, 2, 3, 4 sampling"):
             sample_subset_name = "sample"
 
-            result = sampler.Sampler(
+            result = Sampler(
                 source,
                 algorithm="entropy",
-                subset_name="train",
-                sampled_name=sample_subset_name,
-                unsampled_name="train",
+                input_subset="train",
+                sampled_subset=sample_subset_name,
+                unsampled_subset="train",
                 sampling_method="topk",
-                num_sample=2,
+                count=2,
                 output_file=None,
             )
 
             self.assertEqual(len(result.get_subset("sample")), 2)
             self.assertEqual(len(result.get_subset("train")), num_pre_train_subset - 2)
 
-            result = sampler.Sampler(
+            result = Sampler(
                 result,
                 algorithm="entropy",
-                subset_name="train",
-                sampled_name=sample_subset_name,
-                unsampled_name="train",
+                input_subset="train",
+                sampled_subset=sample_subset_name,
+                unsampled_subset="train",
                 sampling_method="topk",
-                num_sample=3,
+                count=3,
                 output_file=None,
             )
 
             self.assertEqual(len(result.get_subset("sample")), 5)
             self.assertEqual(len(result.get_subset("train")), num_pre_train_subset - 5)
 
-            result = sampler.Sampler(
+            result = Sampler(
                 result,
                 algorithm="entropy",
-                subset_name="train",
-                sampled_name=sample_subset_name,
-                unsampled_name="train",
+                input_subset="train",
+                sampled_subset=sample_subset_name,
+                unsampled_subset="train",
                 sampling_method="topk",
-                num_sample=4,
+                count=4,
                 output_file=None,
             )
 
@@ -808,14 +789,14 @@ class SamplerTest(TestCase):
             num_sample = 3
             sample_subset_name = "sample"
 
-            result = sampler.Sampler(
+            result = Sampler(
                 source,
                 algorithm="entropy",
-                subset_name="train",
-                sampled_name=sample_subset_name,
-                unsampled_name="train",
+                input_subset="train",
+                sampled_subset=sample_subset_name,
+                unsampled_subset="train",
                 sampling_method="topk",
-                num_sample=num_sample,
+                count=num_sample,
                 output_file=None,
             )
 
@@ -824,14 +805,14 @@ class SamplerTest(TestCase):
                 len(result.get_subset("train")), num_pre_train_subset - num_sample
             )
 
-            result = sampler.Sampler(
+            result = Sampler(
                 result,
                 algorithm="entropy",
-                subset_name="val",
-                sampled_name=sample_subset_name,
-                unsampled_name="val",
+                input_subset="val",
+                sampled_subset=sample_subset_name,
+                unsampled_subset="val",
                 sampling_method="topk",
-                num_sample=num_sample,
+                count=num_sample,
                 output_file=None,
             )
 
@@ -840,14 +821,14 @@ class SamplerTest(TestCase):
                 len(result.get_subset("val")), num_pre_val_subset - num_sample
             )
 
-            result = sampler.Sampler(
+            result = Sampler(
                 result,
                 algorithm="entropy",
-                subset_name="test",
-                sampled_name=sample_subset_name,
-                unsampled_name="test",
+                input_subset="test",
+                sampled_subset=sample_subset_name,
+                unsampled_subset="test",
                 sampling_method="topk",
-                num_sample=num_sample,
+                count=num_sample,
                 output_file=None,
             )
 
@@ -859,42 +840,42 @@ class SamplerTest(TestCase):
         with self.subTest("Different Subset, 2, 3, 4 sampling"):
             sample_subset_name = "sample"
 
-            result = sampler.Sampler(
+            result = Sampler(
                 source,
                 algorithm="entropy",
-                subset_name="train",
-                sampled_name=sample_subset_name,
-                unsampled_name="train",
+                input_subset="train",
+                sampled_subset=sample_subset_name,
+                unsampled_subset="train",
                 sampling_method="topk",
-                num_sample=2,
+                count=2,
                 output_file=None,
             )
 
             self.assertEqual(len(result.get_subset("sample")), 2)
             self.assertEqual(len(result.get_subset("train")), num_pre_train_subset - 2)
 
-            result = sampler.Sampler(
+            result = Sampler(
                 result,
                 algorithm="entropy",
-                subset_name="val",
-                sampled_name=sample_subset_name,
-                unsampled_name="val",
+                input_subset="val",
+                sampled_subset=sample_subset_name,
+                unsampled_subset="val",
                 sampling_method="topk",
-                num_sample=3,
+                count=3,
                 output_file=None,
             )
 
             self.assertEqual(len(result.get_subset("sample")), 5)
             self.assertEqual(len(result.get_subset("val")), num_pre_val_subset - 3)
 
-            result = sampler.Sampler(
+            result = Sampler(
                 result,
                 algorithm="entropy",
-                subset_name="test",
-                sampled_name=sample_subset_name,
-                unsampled_name="test",
+                input_subset="test",
+                sampled_subset=sample_subset_name,
+                unsampled_subset="test",
                 sampling_method="topk",
-                num_sample=4,
+                count=4,
                 output_file=None,
             )
 
@@ -917,14 +898,14 @@ class SamplerTest(TestCase):
         with self.subTest("Same Subset, Same number of datas 3times"):
             num_sample = 3
 
-            result = sampler.Sampler(
+            result = Sampler(
                 source,
                 algorithm="entropy",
-                subset_name="train",
-                sampled_name="sample1",
-                unsampled_name="train",
+                input_subset="train",
+                sampled_subset="sample1",
+                unsampled_subset="train",
                 sampling_method="topk",
-                num_sample=num_sample,
+                count=num_sample,
                 output_file=None,
             )
 
@@ -933,14 +914,14 @@ class SamplerTest(TestCase):
                 len(result.get_subset("train")), num_pre_train_subset - num_sample
             )
 
-            result = sampler.Sampler(
+            result = Sampler(
                 result,
                 algorithm="entropy",
-                subset_name="train",
-                sampled_name="sample2",
-                unsampled_name="train",
+                input_subset="train",
+                sampled_subset="sample2",
+                unsampled_subset="train",
                 sampling_method="topk",
-                num_sample=num_sample,
+                count=num_sample,
                 output_file=None,
             )
 
@@ -950,14 +931,14 @@ class SamplerTest(TestCase):
                 len(result.get_subset("train")), num_pre_train_subset - num_sample * 2
             )
 
-            result = sampler.Sampler(
+            result = Sampler(
                 result,
                 algorithm="entropy",
-                subset_name="train",
-                sampled_name="sample3",
-                unsampled_name="train",
+                input_subset="train",
+                sampled_subset="sample3",
+                unsampled_subset="train",
                 sampling_method="topk",
-                num_sample=num_sample,
+                count=num_sample,
                 output_file=None,
             )
 
@@ -969,28 +950,28 @@ class SamplerTest(TestCase):
             )
 
         with self.subTest("Same Subset, 2, 3, 4 sampling"):
-            result = sampler.Sampler(
+            result = Sampler(
                 source,
                 algorithm="entropy",
-                subset_name="train",
-                sampled_name="sample1",
-                unsampled_name="train",
+                input_subset="train",
+                sampled_subset="sample1",
+                unsampled_subset="train",
                 sampling_method="topk",
-                num_sample=2,
+                count=2,
                 output_file=None,
             )
 
             self.assertEqual(len(result.get_subset("sample1")), 2)
             self.assertEqual(len(result.get_subset("train")), num_pre_train_subset - 2)
 
-            result = sampler.Sampler(
+            result = Sampler(
                 result,
                 algorithm="entropy",
-                subset_name="train",
-                sampled_name="sample2",
-                unsampled_name="train",
+                input_subset="train",
+                sampled_subset="sample2",
+                unsampled_subset="train",
                 sampling_method="topk",
-                num_sample=3,
+                count=3,
                 output_file=None,
             )
 
@@ -998,14 +979,14 @@ class SamplerTest(TestCase):
             self.assertEqual(len(result.get_subset("sample2")), 3)
             self.assertEqual(len(result.get_subset("train")), num_pre_train_subset - 5)
 
-            result = sampler.Sampler(
+            result = Sampler(
                 result,
                 algorithm="entropy",
-                subset_name="train",
-                sampled_name="sample3",
-                unsampled_name="train",
+                input_subset="train",
+                sampled_subset="sample3",
+                unsampled_subset="train",
                 sampling_method="topk",
-                num_sample=4,
+                count=4,
                 output_file=None,
             )
 
@@ -1017,14 +998,14 @@ class SamplerTest(TestCase):
         with self.subTest("Different Subset, Same number of datas 3times"):
             num_sample = 3
 
-            result = sampler.Sampler(
+            result = Sampler(
                 source,
                 algorithm="entropy",
-                subset_name="train",
-                sampled_name="sample1",
-                unsampled_name="train",
+                input_subset="train",
+                sampled_subset="sample1",
+                unsampled_subset="train",
                 sampling_method="topk",
-                num_sample=num_sample,
+                count=num_sample,
                 output_file=None,
             )
 
@@ -1033,14 +1014,14 @@ class SamplerTest(TestCase):
                 len(result.get_subset("train")), num_pre_train_subset - num_sample
             )
 
-            result = sampler.Sampler(
+            result = Sampler(
                 result,
                 algorithm="entropy",
-                subset_name="val",
-                sampled_name="sample2",
-                unsampled_name="val",
+                input_subset="val",
+                sampled_subset="sample2",
+                unsampled_subset="val",
                 sampling_method="topk",
-                num_sample=num_sample,
+                count=num_sample,
                 output_file=None,
             )
 
@@ -1050,14 +1031,14 @@ class SamplerTest(TestCase):
                 len(result.get_subset("val")), num_pre_val_subset - num_sample
             )
 
-            result = sampler.Sampler(
+            result = Sampler(
                 result,
                 algorithm="entropy",
-                subset_name="test",
-                sampled_name="sample3",
-                unsampled_name="test",
+                input_subset="test",
+                sampled_subset="sample3",
+                unsampled_subset="test",
                 sampling_method="topk",
-                num_sample=num_sample,
+                count=num_sample,
                 output_file=None,
             )
 
@@ -1069,28 +1050,28 @@ class SamplerTest(TestCase):
             )
 
         with self.subTest("Different Subset, 2, 3, 4 sampling"):
-            result = sampler.Sampler(
+            result = Sampler(
                 source,
                 algorithm="entropy",
-                subset_name="train",
-                sampled_name="sample1",
-                unsampled_name="train",
+                input_subset="train",
+                sampled_subset="sample1",
+                unsampled_subset="train",
                 sampling_method="topk",
-                num_sample=2,
+                count=2,
                 output_file=None,
             )
 
             self.assertEqual(len(result.get_subset("sample1")), 2)
             self.assertEqual(len(result.get_subset("train")), num_pre_train_subset - 2)
 
-            result = sampler.Sampler(
+            result = Sampler(
                 result,
                 algorithm="entropy",
-                subset_name="val",
-                sampled_name="sample2",
-                unsampled_name="val",
+                input_subset="val",
+                sampled_subset="sample2",
+                unsampled_subset="val",
                 sampling_method="topk",
-                num_sample=3,
+                count=3,
                 output_file=None,
             )
 
@@ -1098,14 +1079,14 @@ class SamplerTest(TestCase):
             self.assertEqual(len(result.get_subset("sample2")), 3)
             self.assertEqual(len(result.get_subset("val")), num_pre_val_subset - 3)
 
-            result = sampler.Sampler(
+            result = Sampler(
                 result,
                 algorithm="entropy",
-                subset_name="test",
-                sampled_name="sample3",
-                unsampled_name="test",
+                input_subset="test",
+                sampled_subset="sample3",
+                unsampled_subset="test",
                 sampling_method="topk",
-                num_sample=4,
+                count=4,
                 output_file=None,
             )
 
@@ -1117,4 +1098,4 @@ class SamplerTest(TestCase):
     def test_sampler_parser(self):
         from argparse import ArgumentParser
 
-        assert isinstance(sampler.Sampler.build_cmdline_parser(), ArgumentParser)
+        assert isinstance(Sampler.build_cmdline_parser(), ArgumentParser)

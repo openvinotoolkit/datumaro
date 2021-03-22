@@ -57,15 +57,23 @@ class Converter(CliPlugin):
 
         return self._image_ext or src_ext or self._default_image_ext
 
-    def _make_image_filename(self, item):
-        return item.id + self._find_image_ext(item)
+    def _make_image_filename(self, item, *, name=None, subdir=None):
+        name = name or item.id
+        subdir = subdir or ''
+        return osp.join(subdir, name + self._find_image_ext(item))
 
-    def _save_image(self, item, path=None):
+    def _save_image(self, item, path=None, *,
+            name=None, subdir=None, basedir=None):
+        assert not ((subdir or name or basedir) and path), \
+            "Can't use both subdir or name or basedir and path arguments"
+
         if not item.image.has_data:
             log.warning("Item '%s' has no image", item.id)
             return
 
-        path = path or self._make_image_filename(item)
+        basedir = basedir or self._save_dir
+        path = path or osp.join(basedir,
+            self._make_image_filename(item, name=name, subdir=subdir))
         path = osp.abspath(path)
 
         src_ext = item.image.ext.lower()

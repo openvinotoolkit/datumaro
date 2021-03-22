@@ -90,6 +90,25 @@ class YoloFormatTest(TestCase):
 
             compare_datasets(self, source_dataset, parsed_dataset)
 
+    def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id='кириллица с пробелом', subset='train', image=np.ones((8, 8, 3)),
+                annotations=[
+                    Bbox(0, 2, 4, 2, label=2),
+                    Bbox(0, 1, 2, 3, label=4),
+                ]),
+        ], categories={
+            AnnotationType.label: LabelCategories.from_iterable(
+                'label_' + str(i) for i in range(10)),
+        })
+
+        with TestDir() as test_dir:
+            YoloConverter.convert(source_dataset, test_dir, save_images=True)
+            parsed_dataset = Dataset.import_from(test_dir, 'yolo')
+
+            compare_datasets(self, source_dataset, parsed_dataset,
+                require_images=True)
+
     def test_relative_paths(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='1', subset='train',
@@ -98,9 +117,7 @@ class YoloFormatTest(TestCase):
                 image=np.ones((2, 6, 3))),
             DatasetItem(id='subdir2/1', subset='train',
                 image=np.ones((5, 4, 3))),
-        ], categories={
-            AnnotationType.label: LabelCategories(),
-        })
+        ], categories=[])
 
         for save_images in {True, False}:
             with self.subTest(save_images=save_images):
@@ -110,6 +127,20 @@ class YoloFormatTest(TestCase):
                     parsed_dataset = Dataset.import_from(test_dir, 'yolo')
 
                     compare_datasets(self, source_dataset, parsed_dataset)
+
+    def test_can_save_and_load_image_with_arbitrary_extension(self):
+        dataset = Dataset.from_iterable([
+            DatasetItem('q/1', subset='train',
+                image=Image(path='q/1.JPEG', data=np.zeros((4, 3, 3)))),
+            DatasetItem('a/b/c/2', subset='valid',
+                image=Image(path='a/b/c/2.bmp', data=np.zeros((3, 4, 3)))),
+        ], categories=[])
+
+        with TestDir() as test_dir:
+            YoloConverter.convert(dataset, test_dir, save_images=True)
+            parsed_dataset = Dataset.import_from(test_dir, 'yolo')
+
+            compare_datasets(self, dataset, parsed_dataset, require_images=True)
 
     def test_inplace_save_writes_only_updated_data(self):
         with TestDir() as path:

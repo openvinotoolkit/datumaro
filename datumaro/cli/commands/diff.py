@@ -34,7 +34,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         help="Directory to save comparison results (default: do not save)")
     parser.add_argument('-v', '--visualizer',
         default=DatasetDiffVisualizer.DEFAULT_FORMAT.name,
-        choices=[f.name for f in DatasetDiffVisualizer.Format],
+        choices=[f.name for f in DatasetDiffVisualizer.OutputFormat],
         help="Output format (default: %(default)s)")
     parser.add_argument('--iou-thresh', default=0.5, type=float,
         help="IoU match threshold for detections (default: %(default)s)")

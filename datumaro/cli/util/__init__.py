@@ -7,7 +7,7 @@ import argparse
 import textwrap
 
 from datumaro.components.errors import DatumaroError
-from datumaro.util import make_file_name # pylint: disable=unused-import
+from datumaro.util.os_util import make_file_name # pylint: disable=unused-import
 
 
 class CliException(DatumaroError): pass

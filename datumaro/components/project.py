@@ -25,9 +25,8 @@ from datumaro.components.config_model import (PROJECT_DEFAULT_CONFIG,
 from datumaro.components.environment import Environment
 from datumaro.components.errors import DatumaroError
 from datumaro.components.dataset import Dataset, DEFAULT_FORMAT, DatasetPatch, IDataset
-from datumaro.components.launcher import ModelTransform
-from datumaro.util import (make_file_name, find, generate_next_name,
-    error_rollback)
+from datumaro.util import find, error_rollback
+from datumaro.util.os_util import make_file_name, generate_next_name
 from datumaro.util.log_utils import logging_disabled, catch_logs
 
 

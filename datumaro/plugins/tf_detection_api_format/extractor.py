@@ -22,7 +22,7 @@ def clamp(value, _min, _max):
     return max(min(_max, value), _min)
 
 class TfDetectionApiExtractor(SourceExtractor):
-    def __init__(self, path):
+    def __init__(self, path, subset=None):
         assert osp.isfile(path), path
         images_dir = ''
         root_dir = osp.dirname(osp.abspath(path))
@@ -32,7 +32,9 @@ class TfDetectionApiExtractor(SourceExtractor):
             if not osp.isdir(images_dir):
                 images_dir = ''
 
-        super().__init__(subset=osp.splitext(osp.basename(path))[0])
+        if not subset:
+            subset = osp.splitext(osp.basename(path))[0]
+        super().__init__(subset=subset)
 
         items, labels = self._parse_tfrecord_file(path, self._subset, images_dir)
         self._items = items

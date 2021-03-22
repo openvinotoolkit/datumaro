@@ -17,6 +17,7 @@ from datumaro.components.dataset import ItemStatus
 from datumaro.components.extractor import (AnnotationType,
     CompiledMask, DatasetItem, LabelCategories)
 from datumaro.util import find, str_to_bool
+from datumaro.util.annotation_util import make_label_id_mapping
 from datumaro.util.image import save_image
 from datumaro.util.mask_tools import paint_mask, remap_mask
 
@@ -296,7 +297,7 @@ class VocConverter(Converter):
                             VocTask.action_classification}:
                         ann_path = osp.join(self._ann_dir, item.id + '.xml')
                         os.makedirs(osp.dirname(ann_path), exist_ok=True)
-                        with open(ann_path, 'w') as f:
+                        with open(ann_path, 'w', encoding='utf-8') as f:
                             f.write(ET.tostring(root_elem,
                                 encoding='unicode', pretty_print=True))
 
@@ -350,7 +351,7 @@ class VocConverter(Converter):
     @staticmethod
     def _get_filtered_lines(path, patch, subset, items=None):
         lines = {}
-        with open(path) as f:
+        with open(path, encoding='utf-8') as f:
             for line in f:
                 item, text, _ = line.split(maxsplit=1) + ['', '']
                 if not patch or patch.updated_items.get((item, subset)) != \
@@ -367,7 +368,7 @@ class VocConverter(Converter):
         items = {k: True for k in action_list}
         if self._patch and osp.isfile(ann_file):
             self._get_filtered_lines(ann_file, self._patch, subset_name, items)
-        with open(ann_file, 'w') as f:
+        with open(ann_file, 'w', encoding='utf-8') as f:
             for item in items:
                 f.write('%s\n' % item)
 
@@ -392,7 +393,7 @@ class VocConverter(Converter):
             if self._patch and osp.isfile(ann_file):
                 lines = self._get_filtered_lines(ann_file, None, subset_name)
 
-            with open(ann_file, 'w') as f:
+            with open(ann_file, 'w', encoding='utf-8') as f:
                 for item in items:
                     if item in action_list:
                         _write_item(f, item, action_list[item], action)
@@ -418,7 +419,7 @@ class VocConverter(Converter):
                 lines = self._get_filtered_lines(ann_file, self._patch,
                     subset_name, items)
 
-            with open(ann_file, 'w') as f:
+            with open(ann_file, 'w', encoding='utf-8') as f:
                 for item in items:
                     if item in class_lists:
                         _write_item(f, item, class_lists[item])
@@ -433,7 +434,7 @@ class VocConverter(Converter):
         if self._patch and osp.isfile(ann_file):
             self._get_filtered_lines(ann_file, self._patch, subset_name, items)
 
-        with open(ann_file, 'w') as f:
+        with open(ann_file, 'w', encoding='utf-8') as f:
             for item in items:
                 f.write('%s\n' % item)
 
@@ -445,12 +446,14 @@ class VocConverter(Converter):
         if self._patch and osp.isfile(ann_file):
             self._get_filtered_lines(ann_file, self._patch, subset_name, items)
 
-        with open(ann_file, 'w') as f:
+        with open(ann_file, 'w', encoding='utf-8') as f:
             for item in items:
                 f.write('%s\n' % item)
 
     def save_layout_lists(self, subset_name, layout_list):
         def _write_item(f, item, item_layouts):
+            if 1 < len(item.split()):
+                item = '\"' + item + '\"'
             if item_layouts:
                 for obj_id in item_layouts:
                     f.write('%s % d\n' % (item, 1 + obj_id))
@@ -465,7 +468,7 @@ class VocConverter(Converter):
         if self._patch and osp.isfile(ann_file):
             self._get_filtered_lines(ann_file, self._patch, subset_name, items)
 
-        with open(ann_file, 'w') as f:
+        with open(ann_file, 'w', encoding='utf-8') as f:
             for item in items:
                 if item in layout_list:
                     _write_item(f, item, layout_list[item])
@@ -562,22 +565,12 @@ class VocConverter(Converter):
         return label_desc[2]
 
     def _make_label_id_map(self):
-        source_labels = {
-            id: label.name for id, label in
-            enumerate(self._extractor.categories().get(
-                AnnotationType.label, LabelCategories()).items)
-        }
-        target_labels = {
-            label.name: id for id, label in
-            enumerate(self._categories[AnnotationType.label].items)
-        }
-        id_mapping = {
-            src_id: target_labels.get(src_label, 0)
-            for src_id, src_label in source_labels.items()
-        }
+        map_id, id_mapping, src_labels, dst_labels = make_label_id_mapping(
+            self._extractor.categories().get(AnnotationType.label),
+            self._categories[AnnotationType.label])
 
-        void_labels = [src_label for src_id, src_label in source_labels.items()
-            if src_label not in target_labels]
+        void_labels = [src_label for src_id, src_label in src_labels.items()
+            if src_label not in dst_labels]
         if void_labels:
             log.warning("The following labels are remapped to background: %s" %
                 ', '.join(void_labels))
@@ -588,12 +581,10 @@ class VocConverter(Converter):
                     self._categories[AnnotationType.label] \
                         .items[id_mapping[src_id]].name
                 )
-                for src_id, src_label in source_labels.items()
+                for src_id, src_label in src_labels.items()
             ])
         )
 
-        def map_id(src_id):
-            return id_mapping.get(src_id, 0)
         return map_id
 
     def _remap_mask(self, mask):
