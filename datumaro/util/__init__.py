@@ -61,17 +61,23 @@ def take_by(iterable, count):
 def filter_dict(d, exclude_keys):
     return { k: v for k, v in d.items() if k not in exclude_keys }
 
-def parse_str_enum_value(value, enum_class, default=NOTSET):
+def parse_str_enum_value(value, enum_class, default=NOTSET,
+        unknown_member_error=None):
     if value is None and default is not NOTSET:
         value = default
     elif isinstance(value, str):
         try:
             value = enum_class[value]
         except KeyError:
-            raise ValueError("Unknown element of %s '%s'. "
-                "The only known are: %s" % \
-                (enum_class.__name__,
-                 value, ', '.join(e.name for e in enum_class)))
+            raise ValueError((unknown_member_error or
+                    "Unknown element of {cls} '{value}'. "
+                    "The only known are: {available}") \
+                .format(
+                    cls=enum_class.__name__,
+                    value=value,
+                    available=', '.join(e.name for e in enum_class)
+                )
+            )
     elif isinstance(value, enum_class):
         pass
     else:

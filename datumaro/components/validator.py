@@ -4,6 +4,7 @@
 
 from copy import deepcopy
 from enum import Enum
+from typing import Union
 
 import numpy as np
 
@@ -55,7 +56,7 @@ class _Validator:
 
         self.task_type = task_type
         self.ann_type = ann_type
-        self.far_from_mean_thr = float(far_from_mean_thr)
+        self.far_from_mean_thr = far_from_mean_thr
 
     def compute_statistics(self, dataset):
         """
@@ -559,24 +560,6 @@ class _Validator:
 class ClassificationValidator(_Validator):
     """
     A validator class for classification tasks.
-
-    ...
-
-    Attributes
-    ----------
-    task_type : TaskType
-        classification
-    ann_type : AnnotationType
-        AnnotationType.label
-    far_from_mean_thr : float
-        None
-
-    Methods
-    -------
-    compute_statistics(dataset):
-        Computes various statistics of the dataset for classification tasks.
-    generate_reports(stats):
-        Validates the dataset for classification tasks based on its statistics.
     """
 
     def __init__(self):
@@ -663,28 +646,13 @@ class ClassificationValidator(_Validator):
 class DetectionValidator(_Validator):
     """
     A validator class for detection tasks.
-
-    ...
-
-    Attributes
-    ----------
-    task_type : TaskType
-        detection
-    ann_type : AnnotationType
-        AnnotationType.bbox
-    far_from_mean_thr : float
-        2.0
-
-    Methods
-    -------
-    compute_statistics(dataset):
-        Computes various statistics of the dataset for detection tasks.
-    generate_reports(stats):
-        Validates the dataset for detection tasks based on its statistics.
     """
 
+    DEFAULT_FAR_FROM_MEAN = 2.0
+
     def __init__(self):
-        super().__init__(TaskType.detection, AnnotationType.bbox, 2.0)
+        super().__init__(TaskType.detection, AnnotationType.bbox,
+            far_from_mean_thr=self.DEFAULT_FAR_FROM_MEAN)
 
     def _check_imbalanced_bbox_dist_in_label(self, label_name, bbox_label_stats,
                                              thr, topk_ratio):
@@ -885,7 +853,7 @@ class DetectionValidator(_Validator):
         return reports
 
 
-def validate_annotations(dataset, task_type):
+def validate_annotations(dataset: IDataset, task_type: Union[str, TaskType]):
     """
     Returns the validation results of a dataset based on task type.
 
@@ -895,8 +863,7 @@ def validate_annotations(dataset, task_type):
             (classification, detection etc.)
 
     Raises:
-        ValueError: 'Invalid task type.'
-        ValueError: 'Invalid Dataset type.'
+        ValueError
 
     Returns:
         validation_results (dict):
@@ -913,7 +880,7 @@ def validate_annotations(dataset, task_type):
         validator = DetectionValidator()
 
     if not isinstance(dataset, IDataset):
-        raise ValueError('Invalid Dataset type.')
+        raise TypeError("Invalid dataset type '%s'" % type(dataset))
 
     # generate statistics
     stats = validator.compute_statistics(dataset)
