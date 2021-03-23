@@ -17,7 +17,7 @@ from datumaro.components.errors import (MissingLabelCategories,
     FarFromAttrMean, OnlyOneAttributeValue)
 from datumaro.components.extractor import Bbox, Label
 from datumaro.components.validator import (ClassificationValidator,
-    DetectionValidator, validate_annotations, _Validator)
+    DetectionValidator, TaskType, validate_annotations, _Validator)
 
 class TestValidatorTemplate(TestCase):
     @classmethod
@@ -77,7 +77,7 @@ class TestValidatorTemplate(TestCase):
 class TestBaseValidator(TestValidatorTemplate):
     @classmethod
     def setUpClass(cls):
-        cls.validator = _Validator()
+        cls.validator = _Validator(TaskType.classification)
 
     def test_generate_reports(self):
         with self.assertRaises(NotImplementedError):
@@ -514,5 +514,5 @@ class TestValidateAnnotations(TestValidatorTemplate):
             validate_annotations(self.dataset, 'INVALID')
 
     def test_validate_annotations_invalid_dataset_type(self):
-        with self.assertRaises(ValueError):
-            validate_annotations({}, 'classification')
+        with self.assertRaises(TypeError):
+            validate_annotations(object(), 'classification')

@@ -10,15 +10,14 @@ import os.path as osp
 import shutil
 from enum import Enum
 
-from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.dataset_filter import DatasetItemEncoder
 from datumaro.components.extractor import AnnotationType
 from datumaro.components.operations import (DistanceComparator,
-    ExactComparator, compute_ann_statistics, compute_image_statistics, mean_std)
+    ExactComparator, compute_ann_statistics, compute_image_statistics)
 from datumaro.components.project import \
     PROJECT_DEFAULT_CONFIG as DEFAULT_CONFIG
 from datumaro.components.project import Environment, Project
-from datumaro.components.validator import validate_annotations
+from datumaro.components.validator import validate_annotations, TaskType
 from datumaro.util import error_rollback
 
 from ...util import (CliException, MultilineFormatter, add_subparser,
@@ -800,13 +799,9 @@ def build_validate_parser(parser_ctor=argparse.ArgumentParser):
         """,
         formatter_class=MultilineFormatter)
 
-    TaskType = Enum('TaskType', ['classification', 'detection'])
-
-    parser.add_argument(
-        'task_type',
-        help="Task type for validation",
-        choices=[task_type.name for task_type in TaskType]
-    )
+    parser.add_argument('task_type',
+        choices=[task_type.name for task_type in TaskType],
+        help="Task type for validation")
     parser.add_argument('-s', '--subset', dest='subset_name', default=None,
         help="Subset to validate (default: None)")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
@@ -827,15 +822,15 @@ def validate_command(args):
         dst_file_name += f'-{subset_name}'
     validation_results = validate_annotations(dataset, task_type)
 
-    def convert_tuple_keys_to_str(d):
-        for key, val in list(d.items()):
+    def _convert_tuple_keys_to_str(d):
+        for key, val in d.items():
             if isinstance(key, tuple):
                 d[str(key)] = val
                 d.pop(key)
             if isinstance(val, dict):
-                convert_tuple_keys_to_str(val)
+                _convert_tuple_keys_to_str(val)
 
-    convert_tuple_keys_to_str(validation_results)
+    _convert_tuple_keys_to_str(validation_results)
 
     dst_file = generate_next_file_name(dst_file_name, ext='.json')
     log.info("Writing project validation results to '%s'" % dst_file)
