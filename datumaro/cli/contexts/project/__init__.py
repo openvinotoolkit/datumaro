@@ -827,6 +827,16 @@ def validate_command(args):
         dst_file_name += f'-{subset_name}'
     validation_results = validate_annotations(dataset, task_type)
 
+    def convert_tuple_keys_to_str(d):
+        for key, val in list(d.items()):
+            if isinstance(key, tuple):
+                d[str(key)] = val
+                d.pop(key)
+            if isinstance(val, dict):
+                convert_tuple_keys_to_str(val)
+
+    convert_tuple_keys_to_str(validation_results)
+
     dst_file = generate_next_file_name(dst_file_name, ext='.json')
     log.info("Writing project validation results to '%s'" % dst_file)
     with open(dst_file, 'w') as f:
