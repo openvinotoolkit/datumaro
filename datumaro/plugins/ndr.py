@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MIT
 
-from datumaro.util import parse_str_enum_value
 from enum import Enum
 import logging as log
 
@@ -12,6 +11,8 @@ from scipy.linalg import orth
 
 from datumaro.components.extractor import Transform, DEFAULT_SUBSET_NAME
 from datumaro.components.cli_plugin import CliPlugin
+from datumaro.util import parse_str_enum_value
+
 
 Algorithm = Enum("Algorithm", ["gradient"]) # other algorithms will be added
 
