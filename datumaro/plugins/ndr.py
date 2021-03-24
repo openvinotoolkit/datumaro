@@ -11,6 +11,8 @@ from scipy.linalg import orth
 
 from datumaro.components.extractor import Transform, DEFAULT_SUBSET_NAME
 from datumaro.components.cli_plugin import CliPlugin
+from datumaro.util import parse_str_enum_value
+
 
 Algorithm = Enum("Algorithm", ["gradient"]) # other algorithms will be added
 
@@ -115,36 +117,15 @@ class NDR(Transform, CliPlugin):
         if working_subset == duplicated_subset:
             raise ValueError("working_subset == duplicated_subset")
 
-        assert algorithm is None or isinstance(algorithm, (str, Algorithm))
-        if algorithm is None:
-            algorithm = Algorithm.gradient
-        elif isinstance(algorithm, str):
-            try:
-                algorithm = Algorithm[algorithm]
-            except KeyError:
-                raise ValueError("Unknown algorithm '%s'" % algorithm)
-
-        assert over_sample is None or \
-            isinstance(over_sample, (str, OverSamplingMethod))
-        if over_sample is None:
-            over_sample = OverSamplingMethod.random
-        elif isinstance(over_sample, str):
-            try:
-                over_sample = OverSamplingMethod[over_sample]
-            except KeyError:
-                raise ValueError("Unknown oversampling method '%s'" % \
-                    over_sample)
-
-        assert under_sample is None or \
-            isinstance(under_sample, (str, UnderSamplingMethod))
-        if under_sample is None:
-            under_sample = UnderSamplingMethod.uniform
-        elif isinstance(under_sample, str):
-            try:
-                under_sample = UnderSamplingMethod[under_sample]
-            except KeyError:
-                raise ValueError("Unknown undersampling method '%s'" % \
-                    under_sample)
+        algorithm = parse_str_enum_value(algorithm, Algorithm,
+            default=Algorithm.gradient,
+            unknown_member_error="Unknown algorithm '{value}'.")
+        over_sample = parse_str_enum_value(over_sample, OverSamplingMethod,
+            default=OverSamplingMethod.random,
+            unknown_member_error="Unknown oversampling method '{value}'.")
+        under_sample = parse_str_enum_value(under_sample, UnderSamplingMethod,
+            default=UnderSamplingMethod.uniform,
+            unknown_member_error="Unknown undersampling method '{value}'.")
 
         if seed:
             self.seed = seed
