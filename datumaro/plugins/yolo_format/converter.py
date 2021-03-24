@@ -39,7 +39,7 @@ class YoloConverter(Converter):
         label_categories = extractor.categories()[AnnotationType.label]
         label_ids = {label.name: idx
             for idx, label in enumerate(label_categories.items)}
-        with open(osp.join(save_dir, 'obj.names'), 'w') as f:
+        with open(osp.join(save_dir, 'obj.names'), 'w', encoding='utf-8') as f:
             f.writelines('%s\n' % l[0]
                 for l in sorted(label_ids.items(), key=lambda x: x[1]))
 
@@ -88,15 +88,15 @@ class YoloConverter(Converter):
 
                 annotation_path = osp.join(subset_dir, '%s.txt' % item.id)
                 os.makedirs(osp.dirname(annotation_path), exist_ok=True)
-                with open(annotation_path, 'w') as f:
+                with open(annotation_path, 'w', encoding='utf-8') as f:
                     f.write(yolo_annotation)
 
             subset_list_name = '%s.txt' % subset_name
             subset_lists[subset_name] = subset_list_name
-            with open(osp.join(save_dir, subset_list_name), 'w') as f:
+            with open(osp.join(save_dir, subset_list_name), 'w', encoding='utf-8') as f:
                 f.writelines('%s\n' % s for s in image_paths.values())
 
-        with open(osp.join(save_dir, 'obj.data'), 'w') as f:
+        with open(osp.join(save_dir, 'obj.data'), 'w', encoding='utf-8') as f:
             f.write('classes = %s\n' % len(label_ids))
 
             for subset_name, subset_list_name in subset_lists.items():

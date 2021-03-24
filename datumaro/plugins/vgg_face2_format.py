@@ -9,6 +9,7 @@ import os.path as osp
 from datumaro.components.converter import Converter
 from datumaro.components.extractor import (AnnotationType, Bbox, DatasetItem,
     Importer, Label, LabelCategories, Points, SourceExtractor)
+from datumaro.util.image import find_images
 
 
 class VggFace2Path:
@@ -20,15 +21,16 @@ class VggFace2Path:
     IMAGES_DIR_NO_LABEL = 'no_label'
 
 class VggFace2Extractor(SourceExtractor):
-    def __init__(self, path):
+    def __init__(self, path, subset=None):
         if not osp.isfile(path):
             raise Exception("Can't read .csv annotation file '%s'" % path)
         self._path = path
         self._dataset_dir = osp.dirname(osp.dirname(path))
 
-        subset = osp.splitext(osp.basename(path))[0]
-        if subset.startswith(VggFace2Path.LANDMARKS_FILE):
-            subset = subset.split('_')[2]
+        if not subset:
+            subset = osp.splitext(osp.basename(path))[0]
+            if subset.startswith(VggFace2Path.LANDMARKS_FILE):
+                subset = subset.split('_')[2]
         super().__init__(subset=subset)
 
         self._categories = self._load_categories()
@@ -68,7 +70,14 @@ class VggFace2Extractor(SourceExtractor):
 
         items = {}
 
-        with open(path) as content:
+        image_dir = osp.join(self._dataset_dir, self._subset)
+        if osp.isdir(image_dir):
+            images = { osp.splitext(osp.relpath(p, image_dir))[0]: p
+                for p in find_images(image_dir, recursive=True) }
+        else:
+            images = {}
+
+        with open(path, encoding='utf-8') as content:
             landmarks_table = list(csv.DictReader(content))
         for row in landmarks_table:
             item_id = row['NAME_ID']
@@ -77,10 +86,8 @@ class VggFace2Extractor(SourceExtractor):
                 item_id, label = _split_item_path(item_id)
 
             if item_id not in items:
-                image_path = osp.join(self._dataset_dir, self._subset,
-                    row['NAME_ID'] + VggFace2Path.IMAGE_EXT)
                 items[item_id] = DatasetItem(id=item_id, subset=self._subset,
-                    image=image_path)
+                    image=images.get(row['NAME_ID']))
 
             annotations = items[item_id].annotations
             if [a for a in annotations if a.type == AnnotationType.points]:
@@ -96,7 +103,7 @@ class VggFace2Extractor(SourceExtractor):
         bboxes_path = osp.join(self._dataset_dir, VggFace2Path.ANNOTATION_DIR,
             VggFace2Path.BBOXES_FILE + self._subset + '.csv')
         if osp.isfile(bboxes_path):
-            with open(bboxes_path) as content:
+            with open(bboxes_path, encoding='utf-8') as content:
                 bboxes_table = list(csv.DictReader(content))
             for row in bboxes_table:
                 item_id = row['NAME_ID']
@@ -105,10 +112,8 @@ class VggFace2Extractor(SourceExtractor):
                     item_id, label = _split_item_path(item_id)
 
                 if item_id not in items:
-                    image_path = osp.join(self._dataset_dir, self._subset,
-                        row['NAME_ID'] + VggFace2Path.IMAGE_EXT)
                     items[item_id] = DatasetItem(id=item_id, subset=self._subset,
-                        image=image_path)
+                        image=images.get(row['NAME_ID']))
 
                 annotations = items[item_id].annotations
                 if [a for a in annotations if a.type == AnnotationType.bbox]:
@@ -129,7 +134,7 @@ class VggFace2Importer(Importer):
                 not osp.basename(p).startswith(VggFace2Path.BBOXES_FILE))
 
 class VggFace2Converter(Converter):
-    DEFAULT_IMAGE_EXT = '.jpg'
+    DEFAULT_IMAGE_EXT = VggFace2Path.IMAGE_EXT
 
     def apply(self):
         save_dir = self._save_dir
@@ -148,7 +153,6 @@ class VggFace2Converter(Converter):
         label_categories = self._extractor.categories()[AnnotationType.label]
 
         for subset_name, subset in self._extractor.subsets().items():
-            subset_dir = osp.join(save_dir, subset_name)
             bboxes_table = []
             landmarks_table = []
             for item in subset:
@@ -157,13 +161,11 @@ class VggFace2Converter(Converter):
                         if getattr(p, 'label') != None)
                     if labels:
                         for label in labels:
-                            self._save_image(item, osp.join(subset_dir,
-                                label_categories[label].name + '/' \
-                                + item.id + VggFace2Path.IMAGE_EXT))
+                            self._save_image(item, subdir=osp.join(subset_name,
+                                label_categories[label].name))
                     else:
-                        self._save_image(item, osp.join(subset_dir,
-                            VggFace2Path.IMAGES_DIR_NO_LABEL,
-                            item.id + VggFace2Path.IMAGE_EXT))
+                        self._save_image(item, subdir=osp.join(subset_name,
+                            VggFace2Path.IMAGES_DIR_NO_LABEL))
 
                 landmarks = [a for a in item.annotations
                     if a.type == AnnotationType.points]
@@ -224,7 +226,7 @@ class VggFace2Converter(Converter):
             landmarks_path = osp.join(save_dir, VggFace2Path.ANNOTATION_DIR,
                 VggFace2Path.LANDMARKS_FILE + subset_name + '.csv')
             os.makedirs(osp.dirname(landmarks_path), exist_ok=True)
-            with open(landmarks_path, 'w', newline='') as file:
+            with open(landmarks_path, 'w', encoding='utf-8', newline='') as file:
                 columns = ['NAME_ID', 'P1X', 'P1Y', 'P2X', 'P2Y',
                     'P3X', 'P3Y', 'P4X', 'P4Y', 'P5X', 'P5Y']
                 writer = csv.DictWriter(file, fieldnames=columns)
@@ -235,7 +237,7 @@ class VggFace2Converter(Converter):
                 bboxes_path = osp.join(save_dir, VggFace2Path.ANNOTATION_DIR,
                     VggFace2Path.BBOXES_FILE + subset_name + '.csv')
                 os.makedirs(osp.dirname(bboxes_path), exist_ok=True)
-                with open(bboxes_path, 'w', newline='') as file:
+                with open(bboxes_path, 'w', encoding='utf-8', newline='') as file:
                     columns = ['NAME_ID', 'X', 'Y', 'W', 'H']
                     writer = csv.DictWriter(file, fieldnames=columns)
                     writer.writeheader()

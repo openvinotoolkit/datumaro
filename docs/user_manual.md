@@ -5,6 +5,7 @@
 - [Installation](#installation)
 - [Interfaces](#interfaces)
 - [Supported dataset formats and annotations](#supported-formats)
+- [Supported data formats](#data-formats)
 - [Command line workflow](#command-line-workflow)
   - [Project structure](#project-structure)
 - [Command reference](#command-reference)
@@ -139,6 +140,55 @@ List of supported annotation types:
 - (Segmentation) Masks
 - (Key-)Points
 - Captions
+
+## Data formats
+
+Datumaro only works with 2d RGB(A) images.
+
+To create an unlabelled dataset from an arbitrary directory with images use
+`ImageDir` format:
+
+```bash
+datum create -o <project/dir>
+datum add path -p <project/dir> -f image_dir <directory/path/>
+```
+
+or if you work with Datumaro API:
+
+For using with a project:
+
+```python
+from datumaro.components.project import Project
+
+project = Project()
+project.add_source('source1', {
+  'format': 'image_dir',
+  'url': 'directory/path/'
+})
+dataset = project.make_dataset()
+```
+
+And for using as a dataset:
+
+```python
+from datumaro.components.dataset import Dataset
+
+dataset = Dataset.import_from('directory/path/', 'image_dir')
+```
+
+This will search for images in the directory recursively and add
+them as dataset entries with names like `<subdir1>/<subsubdir1>/<image_name1>`.
+The list of formats matches the list of supported image formats in OpenCV.
+```
+.jpg, .jpeg, .jpe, .jp2, .png, .bmp, .dib, .tif, .tiff, .tga, .webp, .pfm,
+.sr, .ras, .exr, .hdr, .pic, .pbm, .pgm, .ppm, .pxm, .pnm
+```
+
+After addition into a project, images can be split into subsets and renamed
+with transformations, filtered, joined with existing annotations etc.
+
+To use a video as an input, one should either [create an Extractor plugin](../docs/developer_guide.md#plugins),
+which splits a video into frames, or split the video manually and import images.
 
 ## Command line workflow
 
@@ -850,6 +900,7 @@ datum model add \
 ```
 
 Interpretation script for an OpenVINO detection model (`convert.py`):
+You can find OpenVINO™ model interpreter samples in datumaro/plugins/openvino/samples. [Instruction](datumaro/plugins/openvino/README.md)
 
 ``` python
 from datumaro.components.extractor import *
@@ -1021,6 +1072,43 @@ Example: rename dataset items by a regular expression
 ``` bash
 datum transform -t rename -- -e '|pattern|replacement|'
 datum transform -t rename -- -e '|frame_(\d+)|\\1|'
+```
+
+Example: Sampling dataset items, subset `train` is divided into `sampled`(sampled_subset) and `unsampled`
+- `train` has 100 data, and 20 samples are selected. There are `sampled`(20 samples) and 80 `unsampled`(80 datas) subsets.
+- Remove `train` subset (if sample_name=`train` or unsample_name=`train`, still remain)
+- There are five methods of sampling the m option.
+    - `topk`: Return the k with high uncertainty data
+    - `lowk`: Return the k with low uncertainty data
+    - `randk`: Return the random k data
+    - `mixk`: Return half to topk method and the rest to lowk method
+    - `randtopk`: First, select 3 times the number of k randomly, and return the topk among them.
+
+``` bash
+datum transform -t sampler -- \
+    -a entropy \
+    -subset_name train \
+    -sample_name sampled \
+    -unsample_name unsampled \
+    -m topk \
+    -k 20
+```
+
+Example : Control number of outputs to 100 after NDR
+- There are two methods in NDR e option
+    - `random`: sample from removed data randomly
+    - `similarity`: sample from removed data with ascending
+- There are two methods in NDR u option
+    - `uniform`: sample data with uniform distribution
+    - `inverse`: sample data with reciprocal of the number
+
+```bash
+datum transform -t ndr -- \
+    -w train \
+    -a gradient \
+    -k 100 \
+    -e random \
+    -u uniform
 ```
 
 ## Extending

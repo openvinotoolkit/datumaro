@@ -4,41 +4,16 @@
 # SPDX-License-Identifier: MIT
 
 import attr
-import os
-import os.path as osp
 from contextlib import ExitStack
 from functools import partial, wraps
 from itertools import islice
+from distutils.util import strtobool as str_to_bool # pylint: disable=unused-import
 
+
+NOTSET = object()
 
 def find(iterable, pred=lambda x: True, default=None):
     return next((x for x in iterable if pred(x)), default)
-
-def dir_items(path, ext, truncate_ext=False):
-    items = []
-    for f in os.listdir(path):
-        ext_pos = f.rfind(ext)
-        if ext_pos != -1:
-            if truncate_ext:
-                f = f[:ext_pos]
-            items.append(f)
-    return items
-
-def split_path(path):
-    path = osp.normpath(path)
-    parts = []
-
-    while True:
-        path, part = osp.split(path)
-        if part:
-            parts.append(part)
-        else:
-            if path:
-                parts.append(path)
-            break
-    parts.reverse()
-
-    return parts
 
 def cast(value, type_conv, default=None):
     if value is None:
@@ -83,17 +58,32 @@ def take_by(iterable, count):
 
         yield batch
 
-def str_to_bool(s):
-    t = s.lower()
-    if t in {'true', '1', 'ok', 'yes', 'y'}:
-        return True
-    elif t in {'false', '0', 'no', 'n'}:
-        return False
-    else:
-        raise ValueError("Can't convert value '%s' to bool" % s)
-
 def filter_dict(d, exclude_keys):
     return { k: v for k, v in d.items() if k not in exclude_keys }
+
+def parse_str_enum_value(value, enum_class, default=NOTSET,
+        unknown_member_error=None):
+    if value is None and default is not NOTSET:
+        value = default
+    elif isinstance(value, str):
+        try:
+            value = enum_class[value]
+        except KeyError:
+            raise ValueError((unknown_member_error or
+                    "Unknown element of {cls} '{value}'. "
+                    "The only known are: {available}") \
+                .format(
+                    cls=enum_class.__name__,
+                    value=value,
+                    available=', '.join(e.name for e in enum_class)
+                )
+            )
+    elif isinstance(value, enum_class):
+        pass
+    else:
+        raise TypeError("Expected value type string or %s, but got %s" % \
+            (enum_class.__name__, type(value).__name__))
+    return value
 
 def optional_arg_decorator(fn):
     @wraps(fn)

@@ -6,6 +6,33 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## 24/03/2021 - Release v0.1.7
+### Added
+- OpenVINO plugin examples (<https://github.com/openvinotoolkit/datumaro/pull/159>)
+- Dataset validation for classification and detection datasets (<https://github.com/openvinotoolkit/datumaro/pull/160>)
+- Arbitrary image extensions in formats (import and export) (<https://github.com/openvinotoolkit/datumaro/issues/166>)
+- Ability to set a custom subset name for an imported dataset (<https://github.com/openvinotoolkit/datumaro/issues/166>)
+- CLI support for NDR(<https://github.com/openvinotoolkit/datumaro/pull/178>)
+
+### Changed
+- Common ICDAR format is split into 3 sub-formats (<https://github.com/openvinotoolkit/datumaro/pull/174>)
+
+### Deprecated
+-
+
+### Removed
+-
+
+### Fixed
+- The ability to work with file names containing Cyrillic and spaces (<https://github.com/openvinotoolkit/datumaro/pull/148>)
+- Image reading and saving in ICDAR formats (<https://github.com/openvinotoolkit/datumaro/pull/174>)
+- Unnecessary image loading on dataset saving (<https://github.com/openvinotoolkit/datumaro/pull/176>)
+- Allowed spaces in ICDAR captions (<https://github.com/openvinotoolkit/datumaro/pull/182>)
+- Saving of masks in VOC when masks are not requested (<https://github.com/openvinotoolkit/datumaro/pull/184>)
+
+### Security
+-
+
 ## 03/02/2021 - Release v0.1.6.1 (hotfix)
 ### Added
 -
@@ -34,6 +61,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `LFW` dataset format (<https://github.com/openvinotoolkit/datumaro/pull/110>)
 - Support of polygons' and masks' confusion matrices and mismathing classes in `diff` command (<https://github.com/openvinotoolkit/datumaro/pull/117>)
 - Add near duplicate image removal plugin (<https://github.com/openvinotoolkit/datumaro/pull/113>)
+- Sampler Plugin that analyzes inference result from the given dataset and selects samples for annotation(<https://github.com/openvinotoolkit/datumaro/pull/115>)
 
 ### Changed
 - OpenVINO model launcher is updated for OpenVINO r2021.1 (<https://github.com/openvinotoolkit/datumaro/pull/100>)

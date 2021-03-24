@@ -6,6 +6,7 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import DatasetItem
 from datumaro.plugins.market1501_format import (Market1501Converter,
     Market1501Importer)
+from datumaro.util.image import Image
 from datumaro.util.test_utils import TestDir, compare_datasets
 
 
@@ -62,6 +63,25 @@ class Market1501FormatTest(TestCase):
 
             compare_datasets(self, source_dataset, parsed_dataset)
 
+    def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id='кириллица с пробелом',
+                image=np.ones((2, 5, 3)),
+                attributes = {
+                    'camera_id': 1,
+                    'person_id': 1,
+                    'query': True
+                }
+            ),
+        ])
+
+        with TestDir() as test_dir:
+            Market1501Converter.convert(source_dataset, test_dir, save_images=True)
+            parsed_dataset = Dataset.import_from(test_dir, 'market1501')
+
+            compare_datasets(self, source_dataset, parsed_dataset,
+                require_images=True)
+
     def test_can_save_dataset_with_no_save_images(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='0001_c2s3_000001_00',
@@ -78,6 +98,52 @@ class Market1501FormatTest(TestCase):
                     'camera_id': 1,
                     'person_id': 2,
                     'query': False
+                }
+            ),
+        ])
+
+        with TestDir() as test_dir:
+            Market1501Converter.convert(source_dataset, test_dir, save_images=False)
+            parsed_dataset = Dataset.import_from(test_dir, 'market1501')
+
+            compare_datasets(self, source_dataset, parsed_dataset)
+
+    def test_can_save_and_load_image_with_arbitrary_extension(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(id='q/1', image=Image(
+                    path='q/1.JPEG', data=np.zeros((4, 3, 3))),
+                attributes={
+                    'camera_id': 1,
+                    'person_id': 1,
+                    'query': False
+                }),
+            DatasetItem(id='a/b/c/2', image=Image(
+                    path='a/b/c/2.bmp', data=np.zeros((3, 4, 3))),
+                attributes={
+                    'camera_id': 1,
+                    'person_id': 2,
+                    'query': True
+                }),
+        ])
+
+        with TestDir() as test_dir:
+            Market1501Converter.convert(expected, test_dir, save_images=True)
+            parsed_dataset = Dataset.import_from(test_dir, 'market1501')
+
+            compare_datasets(self, expected, parsed_dataset,
+                require_images=True)
+
+    def test_can_save_dataset_with_no_attributes(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id='test1',
+                subset='test', image=np.ones((2, 5, 3)),
+            ),
+            DatasetItem(id='test2',
+                subset='test', image=np.ones((2, 5, 3)),
+                attributes={
+                    'camera_id': 1,
+                    'person_id': -1,
+                    'query': True
                 }
             ),
         ])

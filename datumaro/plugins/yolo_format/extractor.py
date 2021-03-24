@@ -10,7 +10,7 @@ import re
 from datumaro.components.extractor import (SourceExtractor, Extractor,
     DatasetItem, AnnotationType, Bbox, LabelCategories, Importer
 )
-from datumaro.util import split_path
+from datumaro.util.os_util import split_path
 from datumaro.util.image import Image
 
 from .format import YoloPath
@@ -52,14 +52,14 @@ class YoloExtractor(SourceExtractor):
         if isinstance(image_info, str):
             if not osp.isfile(image_info):
                 raise Exception("Can't read image meta file '%s'" % image_info)
-            with open(image_info) as f:
+            with open(image_info, encoding='utf-8') as f:
                 image_info = {}
                 for line in f:
-                    image_name, h, w = line.strip().split()
+                    image_name, h, w = line.strip().rsplit(maxsplit=2)
                     image_info[image_name] = (int(h), int(w))
         self._image_info = image_info
 
-        with open(config_path, 'r') as f:
+        with open(config_path, 'r', encoding='utf-8') as f:
             config_lines = f.readlines()
 
         subsets = OrderedDict()
@@ -89,7 +89,7 @@ class YoloExtractor(SourceExtractor):
                 raise Exception("Not found '%s' subset list file" % subset_name)
 
             subset = YoloExtractor.Subset(subset_name, self)
-            with open(list_path, 'r') as f:
+            with open(list_path, 'r', encoding='utf-8') as f:
                 subset.items = OrderedDict(
                     (self.name_from_path(p), self.localize_path(p))
                     for p in f
@@ -107,7 +107,7 @@ class YoloExtractor(SourceExtractor):
     @staticmethod
     def localize_path(path):
         path = osp.normpath(path).strip()
-        default_base = osp.join('data', '')
+        default_base = 'data' + osp.sep
         if path.startswith(default_base): # default path
             path = path[len(default_base) : ]
         return path
@@ -117,9 +117,9 @@ class YoloExtractor(SourceExtractor):
         path = cls.localize_path(path)
         parts = split_path(path)
         if 1 < len(parts) and not osp.isabs(path):
-            # NOTE: when path is like [data/]<subset_obj>/<image_name>
+            # NOTE: when path is like [data/]<subset>_obj/<image_name>
             # drop everything but <image name>
-            # <image name> can be <a/b/c/filename.ext>, so no just basename()
+            # <image name> can be <a/b/c/filename.ext>, so not just basename()
             path = osp.join(*parts[1:])
         return osp.splitext(path)[0]
 
@@ -143,7 +143,7 @@ class YoloExtractor(SourceExtractor):
     @staticmethod
     def _parse_annotations(anno_path, image):
         lines = []
-        with open(anno_path, 'r') as f:
+        with open(anno_path, 'r', encoding='utf-8') as f:
             for line in f:
                 line = line.strip()
                 if line:
@@ -151,10 +151,10 @@ class YoloExtractor(SourceExtractor):
 
         annotations = []
         if lines:
-            size = image.size # use image info as late as possible
-            if size is None:
+            # use image info as late as possible
+            if image.size is None:
                 raise Exception("Can't find image info for '%s'" % image.path)
-            image_height, image_width = size
+            image_height, image_width = image.size
         for line in lines:
             label_id, xc, yc, w, h = line.split()
             label_id = int(label_id)
@@ -174,7 +174,7 @@ class YoloExtractor(SourceExtractor):
     def _load_categories(names_path):
         label_categories = LabelCategories()
 
-        with open(names_path, 'r') as f:
+        with open(names_path, 'r', encoding='utf-8') as f:
             for label in f:
                 label_categories.add(label.strip())
 

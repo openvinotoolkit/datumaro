@@ -6,8 +6,16 @@
 import inspect
 import os
 import os.path as osp
-import shutil
 import tempfile
+
+try:
+    # Use rmtree from GitPython to avoid the problem with removal of
+    # readonly files on Windows, which Git uses extensively
+    # It double checks if a file cannot be removed because of readonly flag
+    from git.util import rmtree, rmfile
+except ImportError:
+    from shutil import rmtree
+    from os import remove as rmfile
 
 from datumaro.components.extractor import AnnotationType
 from datumaro.components.dataset import Dataset
@@ -18,10 +26,9 @@ def current_function_name(depth=1):
     return inspect.getouterframes(inspect.currentframe())[depth].function
 
 class FileRemover:
-    def __init__(self, path, is_dir=False, ignore_errors=False):
+    def __init__(self, path, is_dir=False):
         self.path = path
         self.is_dir = is_dir
-        self.ignore_errors = ignore_errors
 
     def __enter__(self):
         return self.path
@@ -29,20 +36,30 @@ class FileRemover:
     # pylint: disable=redefined-builtin
     def __exit__(self, type=None, value=None, traceback=None):
         if self.is_dir:
-            shutil.rmtree(self.path, ignore_errors=self.ignore_errors)
+            rmtree(self.path)
         else:
-            os.remove(self.path)
+            rmfile(self.path)
     # pylint: enable=redefined-builtin
 
 class TestDir(FileRemover):
-    def __init__(self, path=None, ignore_errors=False):
+    """
+    Creates a temporary directory for a test. Uses the name of
+    the test function to name the directory.
+
+    Usage:
+
+    with TestDir() as test_dir:
+        ...
+    """
+
+    def __init__(self, path=None):
         if path is None:
             path = osp.abspath('temp_%s-' % current_function_name(2))
             path = tempfile.mkdtemp(dir=os.getcwd(), prefix=path)
         else:
-            os.makedirs(path, exist_ok=ignore_errors)
+            os.makedirs(path, exist_ok=False)
 
-        super().__init__(path, is_dir=True, ignore_errors=ignore_errors)
+        super().__init__(path, is_dir=True)
 
 def compare_categories(test, expected, actual):
     test.assertEqual(
@@ -91,7 +108,7 @@ def compare_datasets(test, expected, actual, ignored_attrs=None,
         item_b = find(actual, lambda x: x.id == item_a.id and \
             x.subset == item_a.subset)
         test.assertFalse(item_b is None, item_a.id)
-        test.assertEqual(item_a.attributes, item_b.attributes)
+        test.assertEqual(item_a.attributes, item_b.attributes, item_a.id)
         if (require_images and item_a.has_image and item_a.image.has_data) or \
                 item_a.has_image and item_a.image.has_data and \
                 item_b.has_image and item_b.image.has_data:
@@ -127,7 +144,7 @@ def compare_datasets_strict(test, expected, actual):
                 (idx, item_a, item_b))
 
 def test_save_and_load(test, source_dataset, converter, test_dir, importer,
-        target_dataset=None, importer_args=None, compare=None):
+        target_dataset=None, importer_args=None, compare=None, **kwargs):
     converter(source_dataset, test_dir)
 
     if importer_args is None:
@@ -139,4 +156,4 @@ def test_save_and_load(test, source_dataset, converter, test_dir, importer,
 
     if not compare:
         compare = compare_datasets
-    compare(test, expected=target_dataset, actual=parsed_dataset)
+    compare(test, expected=target_dataset, actual=parsed_dataset, **kwargs)

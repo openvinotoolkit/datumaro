@@ -37,10 +37,10 @@ except ImportError:
 @skipIf(import_failed, "Failed to import tensorflow")
 class TfrecordConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
-            target_dataset=None, importer_args=None):
+            target_dataset=None, importer_args=None, **kwargs):
         return test_save_and_load(self, source_dataset, converter, test_dir,
             importer='tf_detection_api',
-            target_dataset=target_dataset, importer_args=importer_args)
+            target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
     def test_can_save_bboxes(self):
         test_dataset = Dataset.from_iterable([
@@ -121,15 +121,34 @@ class TfrecordConverterTest(TestCase):
                 partial(TfDetectionApiConverter.convert, save_images=True),
                 test_dir)
 
+    def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
+        test_dataset = Dataset.from_iterable([
+            DatasetItem(id='кириллица с пробелом',
+                image=np.ones((16, 16, 3)),
+                annotations=[
+                    Bbox(2, 1, 4, 4, label=2),
+                    Bbox(4, 2, 8, 4, label=3),
+                ],
+                attributes={'source_id': ''}
+            ),
+        ], categories={
+            AnnotationType.label: LabelCategories.from_iterable(
+                'label_' + str(label) for label in range(10)),
+        })
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(
+                test_dataset,
+                partial(TfDetectionApiConverter.convert, save_images=True),
+                test_dir)
+
     def test_can_save_dataset_with_image_info(self):
         test_dataset = Dataset.from_iterable([
             DatasetItem(id='1/q.e',
                 image=Image(path='1/q.e', size=(10, 15)),
                 attributes={'source_id': ''}
             )
-        ], categories={
-            AnnotationType.label: LabelCategories(),
-        })
+        ], categories=[])
 
         with TestDir() as test_dir:
             self._test_save_and_load(test_dataset,
@@ -147,12 +166,27 @@ class TfrecordConverterTest(TestCase):
                     ext='qwe'),
                 attributes={'source_id': ''}
             )
-        ], categories={ AnnotationType.label: LabelCategories(), })
+        ], categories=[])
 
         with TestDir() as test_dir:
             self._test_save_and_load(test_dataset,
                 partial(TfDetectionApiConverter.convert, save_images=True),
-                test_dir)
+                test_dir, require_images=True)
+
+    def test_can_save_and_load_image_with_arbitrary_extension(self):
+        dataset = Dataset.from_iterable([
+            DatasetItem('q/1', subset='train',
+                image=Image(path='q/1.JPEG', data=np.zeros((4, 3, 3))),
+                attributes={'source_id': ''}),
+            DatasetItem('a/b/c/2', subset='valid',
+                image=Image(path='a/b/c/2.bmp', data=np.zeros((3, 4, 3))),
+                attributes={'source_id': ''}),
+        ], categories=[])
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(dataset,
+                partial(TfDetectionApiConverter.convert, save_images=True),
+                test_dir, require_images=True)
 
     def test_inplace_save_writes_only_updated_data(self):
         with TestDir() as path:

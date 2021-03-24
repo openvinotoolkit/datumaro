@@ -1,26 +1,68 @@
 # Copyright (C) 2020 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
+
 from enum import Enum
+import logging as log
 
 import cv2
 import numpy as np
 from scipy.linalg import orth
 
 from datumaro.components.extractor import Transform, DEFAULT_SUBSET_NAME
+from datumaro.components.cli_plugin import CliPlugin
+from datumaro.util import parse_str_enum_value
 
-AlgoList = Enum("AlgoList", ["gradient"]) # other algorithms will be added
 
-class NDR(Transform):
+Algorithm = Enum("Algorithm", ["gradient"]) # other algorithms will be added
+
+OverSamplingMethod = Enum("OverSamplingMethod", ["random", "similarity"])
+
+UnderSamplingMethod = Enum("UnderSamplingMethod", ["uniform", "inverse"])
+
+class NDR(Transform, CliPlugin):
     """
     Near-duplicated image removal |n
     Removes near-duplicated images in subset |n
+    Example:  control number of outputs to 100 after NDR |n
+    |s|s%(prog)s \ |n
+    |s|s|s|s--working_subset train \ |n
+    |s|s|s|s--algorithm gradient \ |n
+    |s|s|s|s--num_cut 100 \ |n
+    |s|s|s|s--over_sample random \ |n
+    |s|s|s|s--under_sample uniform
     """
 
+    @classmethod
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument('-w', '--working_subset', default=None,
+            help="Name of the subset to operate (default: %(default)s)")
+        parser.add_argument('-d', '--duplicated_subset', default='duplicated',
+            help="Name of the subset for the removed data "
+                "after NDR runs (default: %(default)s)")
+        parser.add_argument('-a', '--algorithm', default=Algorithm.gradient.name,
+            choices=[algo.name for algo in Algorithm],
+            help="Name of the algorithm to use (default: %(default)s)")
+        parser.add_argument('-k', '--num_cut', default=None, type=int,
+            help="Number of outputs you want")
+        parser.add_argument('-e', '--over_sample',
+            default=OverSamplingMethod.random.name,
+            choices=[method.name for method in OverSamplingMethod],
+            help="Specify the strategy when num_cut is bigger "
+                "than length of the result (default: %(default)s)")
+        parser.add_argument('-u', '--under_sample',
+            default=UnderSamplingMethod.uniform.name,
+            choices=[method.name for method in UnderSamplingMethod],
+            help="Specify the strategy when num_cut is smaller "
+                "than length of the result (default: %(default)s)")
+        parser.add_argument('-s', '--seed', type=int, help="Random seed")
+        return parser
+
     def __init__(self, extractor,
-            working_subset=None, duplicated_subset="duplicated",
-            algorithm='gradient', num_cut=None,
-            over_sample='random', under_sample='uniform',
+            working_subset, duplicated_subset='duplicated',
+            algorithm=None, num_cut=None,
+            over_sample=None, under_sample=None,
             seed=None, **kwargs):
         """
         Near-duplicated image removal
@@ -42,11 +84,14 @@ class NDR(Transform):
         over_sample: "random" or "similarity"
             specify the strategy when num_cut > length of the result after removal
             if random, sample from removed data randomly
-            if similarity, select from removed data with ascending order of similarity
+            if similarity, select from removed data with ascending
+            order of similarity
         under_sample: "uniform" or "inverse"
             specify the strategy when num_cut < length of the result after removal
             if uniform, sample data with uniform distribution
-            if inverse, sample data with reciprocal of the number of data which have same hash key
+            if inverse, sample data with reciprocal of the number
+            of data which have same hash key
+
         Algorithm Specific for gradient
             block_shape: tuple, (h, w)
                 for the robustness, this function will operate on blocks
@@ -71,12 +116,16 @@ class NDR(Transform):
         # parameter validation before main runs
         if working_subset == duplicated_subset:
             raise ValueError("working_subset == duplicated_subset")
-        if algorithm not in [algo_name.name for algo_name in AlgoList]:
-            raise ValueError("Invalid algorithm name")
-        if over_sample not in ("random", "similarity"):
-            raise ValueError("Invalid over_sample")
-        if under_sample not in ("uniform", "inverse"):
-            raise ValueError("Invalid under_sample")
+
+        algorithm = parse_str_enum_value(algorithm, Algorithm,
+            default=Algorithm.gradient,
+            unknown_member_error="Unknown algorithm '{value}'.")
+        over_sample = parse_str_enum_value(over_sample, OverSamplingMethod,
+            default=OverSamplingMethod.random,
+            unknown_member_error="Unknown oversampling method '{value}'.")
+        under_sample = parse_str_enum_value(under_sample, UnderSamplingMethod,
+            default=UnderSamplingMethod.uniform,
+            unknown_member_error="Unknown undersampling method '{value}'.")
 
         if seed:
             self.seed = seed
@@ -103,12 +152,39 @@ class NDR(Transform):
         for item in working_subset:
             if item.image.has_data:
                 having_image.append(item)
-                all_imgs.append(item.image.data)
+                img = item.image.data
+                # Not handle empty image, as utils/image.py if check empty
+                if len(img.shape) == 2:
+                    img = np.stack((img,)*3, axis=-1)
+                elif len(img.shape) == 3:
+                    if img.shape[2] == 1:
+                        img = np.stack((img[:,:,0],)*3, axis=-1)
+                    elif img.shape[2] == 4:
+                        img = img[...,:3]
+                    elif img.shape[2] == 3:
+                        pass
+                    else:
+                        raise ValueError("Item %s: invalid image shape: "
+                            "unexpected number of channels (%s)" % \
+                            (item.id, img.shape[2]))
+                else:
+                    raise ValueError("Item %s: invalid image shape: "
+                        "unexpected number of dimensions (%s)" % \
+                            (item.id, len(img.shape)))
+
+                if self.algorithm == Algorithm.gradient:
+                    # Caculate gradient
+                    img = self._cgrad_feature(img)
+                else :
+                    raise NotImplementedError()
+                all_imgs.append(img)
+            else:
+                log.debug("Skipping item %s: no image data available", item.id)
 
         if self.num_cut and self.num_cut > len(all_imgs):
             raise ValueError("The number of images is smaller than the cut you want")
 
-        if self.algorithm == AlgoList.gradient.name:
+        if self.algorithm == Algorithm.gradient:
             all_key, fidx, kept_index, key_counter, removed_index_with_sim = \
                 self._gradient_based(all_imgs, **self.algorithm_specific)
         else:
@@ -132,12 +208,8 @@ class NDR(Transform):
         if hash_dim <= 0:
             raise ValueError("hash_dim should be positive")
 
-        # Caculate gradient
-        all_clr = np.array(
-            [self._cgrad_feature(img, out_wh=block_shape) for img in all_imgs])
-
         # Compute hash keys from all the features
-        all_clr = np.reshape(all_clr, (len(all_imgs), -1))
+        all_clr = np.reshape(np.array(all_imgs), (len(all_imgs), -1))
         all_key = self._project(all_clr, hash_dim)
 
         # Remove duplication using hash
@@ -176,11 +248,11 @@ class NDR(Transform):
             kept_index, key_counter, removed_index_with_similarity,
             over_sample, under_sample):
         if num_cut and num_cut > len(kept_index):
-            if over_sample == "random":
+            if over_sample == OverSamplingMethod.random:
                 selected_index = np.random.choice(
                     list(set(fidx) - set(kept_index)),
                     size=num_cut - len(kept_index), replace=False)
-            elif over_sample == "similarity":
+            elif over_sample == OverSamplingMethod.similarity:
                 removed_index_with_similarity = [[key, value] \
                     for key, value in removed_index_with_similarity.items()]
                 removed_index_with_similarity.sort(key=lambda x: x[1])
@@ -188,13 +260,15 @@ class NDR(Transform):
                     for index, _ in removed_index_with_similarity[:num_cut - len(kept_index)]]
             kept_index.extend(selected_index)
         elif num_cut and num_cut < len(kept_index):
-            if under_sample == "uniform":
+            if under_sample == UnderSamplingMethod.uniform:
                 prob = None
-            elif under_sample == "inverse":
-                # if inverse - probability with inverse of the collision(number of same hash key)
+            elif under_sample == UnderSamplingMethod.inverse:
+                # if inverse - probability with inverse
+                # of the collision(number of same hash key)
                 # [x1, x2, y1, y2, y3, y4, z1, z2, z3]. x, y and z for hash key
                 # i.e. there are 4 elements which have hash key y.
-                # then the occurence will be [2, 4, 3] and reverse of them will be [1/2, 1/4, 1/3]
+                # then the occurence will be [2, 4, 3] and reverse of them
+                # will be [1/2, 1/4, 1/3]
                 # Normalizing them by dividing with sum, we get [6/13, 3/13, 4/13]
                 # Then the key x will be sampled with probability 6/13
                 # and each point, x1 and x2, will share same prob. 3/13
