@@ -34,7 +34,7 @@ class _Validator:
 
     Attributes
     ----------
-    task_type : str ot TaskType
+    task_type : str or TaskType
         task type (ie. classification, detection etc.)
     ann_type : str or AnnotationType
         annotation type to validate (default is AnnotationType.label)
@@ -50,7 +50,8 @@ class _Validator:
     """
 
     def __init__(self, task_type=None, ann_type=None, far_from_mean_thr=None):
-        task_type = parse_str_enum_value(task_type, TaskType)
+        task_type = parse_str_enum_value(task_type, TaskType,
+            default=TaskType.classification)
         ann_type = parse_str_enum_value(ann_type, AnnotationType,
             default=AnnotationType.label)
 
