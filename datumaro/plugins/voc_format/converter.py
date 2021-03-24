@@ -315,7 +315,7 @@ class VocConverter(Converter):
 
                     clsdet_list[item.id] = True
 
-                if masks:
+                if masks and VocTask.segmentation in self._tasks:
                     compiled_mask = CompiledMask.from_instance_masks(masks,
                         instance_labels=[self._label_id_mapping(m.label)
                             for m in masks])

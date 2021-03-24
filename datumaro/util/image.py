@@ -164,11 +164,11 @@ IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.jpe', '.jp2',
 def find_images(dirpath: str, exts: Union[str, Iterable[str]] = None,
         recursive: bool = False, max_depth: int = None) -> Iterator[str]:
     if isinstance(exts, str):
-        exts = [exts.lower()]
+        exts = ['.' + exts.lower().lstrip('.')]
     elif exts is None:
         exts = IMAGE_EXTENSIONS
     else:
-        exts = list(e.lower() for e in exts)
+        exts = list('.' + e.lower().lstrip('.') for e in exts)
 
     def _check_image_ext(filename: str):
         dotpos = filename.rfind('.')

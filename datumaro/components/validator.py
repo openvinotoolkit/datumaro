@@ -4,6 +4,8 @@
 
 from copy import deepcopy
 from enum import Enum
+from typing import Union
+
 import numpy as np
 
 from datumaro.components.dataset import IDataset
@@ -15,15 +17,13 @@ from datumaro.components.errors import (MissingLabelCategories,
     ImbalancedBboxDistInLabel, ImbalancedBboxDistInAttribute,
     MissingBboxAnnotation, NegativeLength, InvalidValue, FarFromLabelMean,
     FarFromAttrMean, OnlyOneAttributeValue)
-from datumaro.components.extractor import AnnotationType
+from datumaro.components.extractor import AnnotationType, LabelCategories
+from datumaro.util import parse_str_enum_value
 
 
-Severity = Enum('Severity',
-    [
-        'warning',
-        'error'
-    ]
-)
+Severity = Enum('Severity', ['warning', 'error'])
+
+TaskType = Enum('TaskType', ['classification', 'detection'])
 
 
 class _Validator:
@@ -34,9 +34,9 @@ class _Validator:
 
     Attributes
     ----------
-    task_type : str
-        task type (ie. 'classification', etc.) (default is 'classification')
-    ann_type : AnnotationType
+    task_type : str or TaskType
+        task type (ie. classification, detection etc.)
+    ann_type : str or AnnotationType
         annotation type to validate (default is AnnotationType.label)
     far_from_mean_thr : float
         constant used to define mean +/- k * stdev (default is None)
@@ -49,10 +49,12 @@ class _Validator:
         Abstract method that must be implemented in a subclass.
     """
 
-    def __init__(self,
-                task_type='classification',
-                ann_type=AnnotationType.label,
-                far_from_mean_thr=None):
+    def __init__(self, task_type=None, ann_type=None, far_from_mean_thr=None):
+        task_type = parse_str_enum_value(task_type, TaskType,
+            default=TaskType.classification)
+        ann_type = parse_str_enum_value(ann_type, AnnotationType,
+            default=AnnotationType.label)
+
         self.task_type = task_type
         self.ann_type = ann_type
         self.far_from_mean_thr = far_from_mean_thr
@@ -103,18 +105,16 @@ class _Validator:
         undefined_label_dist = label_dist['undefined_labels']
         undefined_attr_dist = attr_dist['undefined_attributes']
 
-        label_categories = dataset.categories().get(AnnotationType.label)
+        label_categories = dataset.categories().get(AnnotationType.label,
+            LabelCategories())
         base_valid_attrs = label_categories.attributes
 
-        if label_categories is None:
-            label_categories = []
-
-        if self.task_type == 'classification':
+        if self.task_type == TaskType.classification:
             stats['total_label_count'] = 0
             stats['items_missing_label'] = []
             stats['items_with_multiple_labels'] = []
 
-        elif self.task_type == 'detection':
+        elif self.task_type == TaskType.detection:
             bbox_info_template = {
                 'items_far_from_mean': {},
                 'mean': None,
@@ -303,7 +303,7 @@ class _Validator:
             ann_count = [ann.type == self.ann_type \
                 for ann in item.annotations].count(True)
 
-            if self.task_type == 'classification':
+            if self.task_type == TaskType.classification:
                 if ann_count == 0:
                     stats['items_missing_label'].append((item.id, item.subset))
                 elif ann_count > 1:
@@ -311,7 +311,7 @@ class _Validator:
                         (item.id, item.subset))
                 stats['total_label_count'] += ann_count
 
-            elif self.task_type == 'detection':
+            elif self.task_type == TaskType.detection:
                 if ann_count < 1:
                     stats['items_missing_bbox'].append((item.id, item.subset))
                 stats['total_bbox_count'] += ann_count
@@ -346,7 +346,7 @@ class _Validator:
                             defined_attr_stats.setdefault(
                                 attr, deepcopy(defined_attr_template))
 
-                        if self.task_type == 'detection':
+                        if self.task_type == TaskType.detection:
                             bbox_label_stats = bbox_dist_by_label.setdefault(
                                 label_name, deepcopy(bbox_template))
                             ann_bbox_info, bbox_has_error = \
@@ -370,7 +370,7 @@ class _Validator:
                         else:
                             attr_dets = defined_attr_stats[attr]
 
-                            if self.task_type == 'detection' and \
+                            if self.task_type == TaskType.detection and \
                                 ann.type == self.ann_type:
                                 bbox_attr_label = bbox_dist_by_attr.setdefault(
                                     label_name, {})
@@ -386,7 +386,7 @@ class _Validator:
                         attr_dets['distribution'].setdefault(str(value), 0)
                         attr_dets['distribution'][str(value)] += 1
 
-        if self.task_type == 'detection':
+        if self.task_type == TaskType.detection:
             _compute_prop_stats_from_dist()
 
             for item in dataset:
@@ -561,28 +561,10 @@ class _Validator:
 class ClassificationValidator(_Validator):
     """
     A validator class for classification tasks.
-
-    ...
-
-    Attributes
-    ----------
-    task_type : str
-        'classification'
-    ann_type : AnnotationType
-        AnnotationType.label
-    far_from_mean_thr : float
-        None
-
-    Methods
-    -------
-    compute_statistics(dataset):
-        Computes various statistics of the dataset for classification tasks.
-    generate_reports(stats):
-        Validates the dataset for classification tasks based on its statistics.
     """
 
     def __init__(self):
-        super().__init__('classification', AnnotationType.label)
+        super().__init__(TaskType.classification, AnnotationType.label)
 
     def _check_missing_label_annotation(self, stats):
         validation_reports = []
@@ -665,28 +647,13 @@ class ClassificationValidator(_Validator):
 class DetectionValidator(_Validator):
     """
     A validator class for detection tasks.
-
-    ...
-
-    Attributes
-    ----------
-    task_type : str
-        'detection'
-    ann_type : AnnotationType
-        AnnotationType.bbox
-    far_from_mean_thr : float
-        2.0
-
-    Methods
-    -------
-    compute_statistics(dataset):
-        Computes various statistics of the dataset for detection tasks.
-    generate_reports(stats):
-        Validates the dataset for detection tasks based on its statistics.
     """
 
+    DEFAULT_FAR_FROM_MEAN = 2.0
+
     def __init__(self):
-        super().__init__('detection', AnnotationType.bbox, 2.0)
+        super().__init__(TaskType.detection, AnnotationType.bbox,
+            far_from_mean_thr=self.DEFAULT_FAR_FROM_MEAN)
 
     def _check_imbalanced_bbox_dist_in_label(self, label_name, bbox_label_stats,
                                              thr, topk_ratio):
@@ -887,17 +854,17 @@ class DetectionValidator(_Validator):
         return reports
 
 
-def validate_annotations(dataset, task_type):
+def validate_annotations(dataset: IDataset, task_type: Union[str, TaskType]):
     """
     Returns the validation results of a dataset based on task type.
 
     Args:
         dataset (IDataset): Dataset to be validated
-        task_type (str): Type of task (ie. 'classification', 'detection', etc.)
+        task_type (str or TaskType): Type of the task
+            (classification, detection etc.)
 
     Raises:
-        ValueError: 'Invalid task type.'
-        ValueError: 'Invalid Dataset type.'
+        ValueError
 
     Returns:
         validation_results (dict):
@@ -907,15 +874,14 @@ def validate_annotations(dataset, task_type):
 
     validation_results = {}
 
-    if task_type == 'classification':
+    task_type = parse_str_enum_value(task_type, TaskType)
+    if task_type == TaskType.classification:
         validator = ClassificationValidator()
-    elif task_type == 'detection':
+    elif task_type == TaskType.detection:
         validator = DetectionValidator()
-    else:
-        raise ValueError('Invalid task type.')
 
     if not isinstance(dataset, IDataset):
-        raise ValueError('Invalid Dataset type.')
+        raise TypeError("Invalid dataset type '%s'" % type(dataset))
 
     # generate statistics
     stats = validator.compute_statistics(dataset)

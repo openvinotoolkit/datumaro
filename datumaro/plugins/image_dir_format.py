@@ -20,12 +20,13 @@ class ImageDirImporter(Importer):
         return [{ 'url': path, 'format': 'image_dir' }]
 
 class ImageDirExtractor(SourceExtractor):
-    def __init__(self, url, subset=None, max_depth=None):
+    def __init__(self, url, subset=None, max_depth=None, exts=None):
         super().__init__(subset=subset)
 
         assert osp.isdir(url), url
 
-        for path in find_images(url, recursive=True, max_depth=max_depth):
+        for path in find_images(url, exts=exts,
+                recursive=True, max_depth=max_depth):
             item_id = osp.relpath(osp.splitext(path)[0], url)
             self._items.append(DatasetItem(id=item_id, subset=self._subset,
                 image=path))

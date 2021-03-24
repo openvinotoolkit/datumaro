@@ -57,7 +57,16 @@ class _IcdarExtractor(SourceExtractor):
                 objects = line.split(', ')
                 if len(objects) == 2:
                     image = objects[0]
-                    captions = objects[1].split()
+                    objects = objects[1].split('\"')
+                    if 1 < len(objects):
+                        if len(objects) % 2:
+                            captions = [objects[2 * i + 1]
+                                for i in range(int(len(objects) / 2))]
+                        else:
+                            raise Exception("Line %s: unexpected number "
+                                "of quotes in filename" % line)
+                    else:
+                        captions = objects[0].split()
                 else:
                     image = objects[0][:-1]
                     captions = []
@@ -71,8 +80,6 @@ class _IcdarExtractor(SourceExtractor):
 
                 annotations = items[item_id].annotations
                 for caption in captions:
-                    if caption[0] == '\"' and caption[-1] == '\"':
-                        caption = caption[1:-1]
                     annotations.append(Caption(caption))
 
         return items
@@ -101,18 +108,27 @@ class _IcdarExtractor(SourceExtractor):
             with open(path, encoding='utf-8') as f:
                 for line in f:
                     line = line.strip()
-                    objects = line.split()
+                    objects = line.split('\"')
+                    if 1 < len(objects):
+                        if len(objects) == 3:
+                            text = objects[1]
+                        else:
+                            raise Exception("Line %s: unexpected number "
+                                "of quotes in filename" % line)
+                    else:
+                        text = ''
+                    objects = objects[0].split()
                     if len(objects) == 1:
-                        objects = line.split(',')
+                        objects = objects[0].split(',')
 
                     if 8 <= len(objects):
                         points = [float(p) for p in objects[:8]]
 
                         attributes = {}
-                        if len(objects) == 9:
+                        if 0 < len(text):
+                            attributes['text'] = text
+                        elif len(objects) == 9:
                             text = objects[8]
-                            if text[0] == '\"' and text[-1] == '\"':
-                                text = text[1:-1]
                             attributes['text'] = text
 
                         annotations.append(
@@ -124,10 +140,10 @@ class _IcdarExtractor(SourceExtractor):
                         h = float(objects[3]) - y
 
                         attributes = {}
-                        if len(objects) == 5:
+                        if 0 < len(text):
+                            attributes['text'] = text
+                        elif len(objects) == 5:
                             text = objects[4]
-                            if text[0] == '\"' and text[-1] == '\"':
-                                text = text[1:-1]
                             attributes['text'] = text
 
                         annotations.append(
@@ -178,7 +194,8 @@ class _IcdarExtractor(SourceExtractor):
                         objects[9] = '\" \"'
                         objects.pop()
                     if len(objects) != 10:
-                        continue
+                        raise Exception("Line %s contains the wrong number "
+                            "of arguments, e.g. '241 73 144 1 4 0 3 1 4 \"h\"" % line)
 
                     centers.append(objects[3] + ' ' + objects[4])
                     groups.append(group)
