@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
-## 22/03/2021 - Release v0.1.7
+## 24/03/2021 - Release v0.1.7
 ### Added
 - OpenVINO plugin examples (<https://github.com/openvinotoolkit/datumaro/pull/159>)
 - Dataset validation for classification and detection datasets (<https://github.com/openvinotoolkit/datumaro/pull/160>)
