@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Image reading and saving in ICDAR formats (<https://github.com/openvinotoolkit/datumaro/pull/174>)
 - Unnecessary image loading on dataset saving (<https://github.com/openvinotoolkit/datumaro/pull/176>)
 - Allowed spaces in ICDAR captions (<https://github.com/openvinotoolkit/datumaro/pull/182>)
+- Saving of masks in VOC when masks are not requested (<https://github.com/openvinotoolkit/datumaro/pull/184>)
 
 ### Security
 -
