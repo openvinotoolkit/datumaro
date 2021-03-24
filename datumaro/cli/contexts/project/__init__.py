@@ -823,7 +823,7 @@ def validate_command(args):
     validation_results = validate_annotations(dataset, task_type)
 
     def _convert_tuple_keys_to_str(d):
-        for key, val in d.items():
+        for key, val in list(d.items()):
             if isinstance(key, tuple):
                 d[str(key)] = val
                 d.pop(key)
