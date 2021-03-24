@@ -120,7 +120,7 @@ class IcdarConverterTest(TestCase):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='a/b/1', subset='train',
                 image=np.ones((10, 15, 3)), annotations=[
-                    Caption('caption_0'),
+                    Caption('caption 0'),
                 ]),
             DatasetItem(id=2, subset='train',
                 image=np.ones((10, 15, 3)), annotations=[
@@ -138,12 +138,12 @@ class IcdarConverterTest(TestCase):
             DatasetItem(id='a/b/1', subset='train',
                 image=np.ones((10, 15, 3)), annotations=[
                     Bbox(1, 3, 6, 10),
-                    Bbox(0, 1, 3, 5, attributes={'text': 'word_0'}),
+                    Bbox(0, 1, 3, 5, attributes={'text': 'word 0'}),
                 ]),
             DatasetItem(id=2, subset='train',
                 image=np.ones((10, 15, 3)), annotations=[
                     Polygon([0, 0, 3, 0, 4, 7, 1, 8],
-                        attributes={'text': 'word_1'}),
+                        attributes={'text': 'word 1'}),
                     Polygon([1, 2, 5, 3, 6, 8, 0, 7]),
                 ]),
             DatasetItem(id=3, subset='train',

@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dataset validation for classification and detection datasets (<https://github.com/openvinotoolkit/datumaro/pull/160>)
 - Arbitrary image extensions in formats (import and export) (<https://github.com/openvinotoolkit/datumaro/issues/166>)
 - Ability to set a custom subset name for an imported dataset (<https://github.com/openvinotoolkit/datumaro/issues/166>)
+- CLI support for NDR(<https://github.com/openvinotoolkit/datumaro/pull/178>)
 
 ### Changed
 - Common ICDAR format is split into 3 sub-formats (<https://github.com/openvinotoolkit/datumaro/pull/174>)
@@ -26,6 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The ability to work with file names containing Cyrillic and spaces (<https://github.com/openvinotoolkit/datumaro/pull/148>)
 - Image reading and saving in ICDAR formats (<https://github.com/openvinotoolkit/datumaro/pull/174>)
 - Unnecessary image loading on dataset saving (<https://github.com/openvinotoolkit/datumaro/pull/176>)
+- Allowed spaces in ICDAR captions (<https://github.com/openvinotoolkit/datumaro/pull/182>)
+- Saving of masks in VOC when masks are not requested (<https://github.com/openvinotoolkit/datumaro/pull/184>)
 
 ### Security
 -
