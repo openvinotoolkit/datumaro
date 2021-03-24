@@ -194,7 +194,8 @@ class _IcdarExtractor(SourceExtractor):
                         objects[9] = '\" \"'
                         objects.pop()
                     if len(objects) != 10:
-                        continue
+                        raise Exception("Line %s contains the wrong number "
+                            "of arguments, e.g. '241 73 144 1 4 0 3 1 4 \"h\"" % line)
 
                     centers.append(objects[3] + ' ' + objects[4])
                     groups.append(group)
