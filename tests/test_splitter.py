@@ -213,12 +213,11 @@ class SplitterTest(TestCase):
                 list(r1.get_subset("test")), list(r3.get_subset("test"))
             )
 
-    def test_split_for_classification_zero_ratio(self):              
+    def test_split_for_classification_zero_ratio(self):
         config = {
             "label1": {"attrs": None, "counts": 5},
         }
         source = self._generate_dataset(config)
-        
         splits = [("train", 0.1), ("val", 0.9), ("test", 0.0)]
         actual = splitter.ClassificationSplit(source, splits)
         self.assertEqual(0, len(actual.get_subset("test")))
