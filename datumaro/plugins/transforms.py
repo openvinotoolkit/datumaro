@@ -229,13 +229,26 @@ class MasksToPolygons(Transform, CliPlugin):
 
     @staticmethod
     def convert_mask(mask):
-        polygons = mask_tools.mask_to_polygons(mask.image)
+        anns = []
 
-        return [
-            Polygon(points=p, label=mask.label, z_order=mask.z_order,
-                id=mask.id, attributes=mask.attributes, group=mask.group)
-            for p in polygons
-        ]
+        polygons, hierarchy = mask_tools.mask_to_polygons(mask.image)
+
+        for p, h in zip(polygons, hierarchy):
+            parent_id = h[3]
+            level = 0
+            while parent_id != -1:
+                parent_id = hierarchy[parent_id][3]
+                level += 1
+
+            label = mask.label
+            if level % 2 == 1:
+                label = 0 # a hole
+
+            anns.append(Polygon(points=p,
+                label=label, z_order=mask.z_order,
+                id=mask.id, attributes=mask.attributes, group=mask.group))
+
+        return anns
 
 class ShapesToBoxes(Transform, CliPlugin):
     def transform_item(self, item):

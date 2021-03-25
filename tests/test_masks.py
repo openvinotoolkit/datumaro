@@ -20,9 +20,66 @@ class PolygonConversionsTest(TestCase):
             [5, 0, 8, 0, 5, 3],
         ]
 
-        computed = mask_tools.mask_to_polygons(mask)
+        computed, _ = mask_tools.mask_to_polygons(mask)
 
         self.assertEqual(len(expected), len(computed))
+
+    def test_mask_to_polygon_produces_valid_polygons(self):
+        mask = np.array([
+            [0, 1, 0, 1, 1, 0, 1, 1, 1, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 1, 0, 1, 0, 0, 1, 0, 0],
+            [0, 0, 0, 0, 0, 1, 0, 1, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        ])
+        expected = [] # no "line" polygons
+
+        computed, _ = mask_tools.mask_to_polygons(mask)
+
+        self.assertEqual(len(expected), len(computed))
+
+    def test_mask_to_polygon_can_return_hierarchy(self):
+        mask = np.array([
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1],
+            [1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1],
+            [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+            [1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1],
+            [1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1],
+            [1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1],
+            [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+            [1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1],
+            [1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        ])
+
+        expected_polygons = [
+            # outer
+            # inner left (no children because of small area)
+            # inner right (no children because of small area)
+        ]
+        expected_hierarchy = [
+
+        ]
+
+        computed_p, computed_h = mask_tools.mask_to_polygons(mask)
+
+        img = np.zeros_like(mask, dtype=np.uint8)
+        import cv2
+        for c in computed_p:
+            cv2.drawContours(img, c.reshape(1, -1, 2), -1, 1)
+        self.assertEqual(len(expected_polygons), len(computed_p))
+        self.assertEqual(len(expected_hierarchy), len(computed_h))
 
     def test_can_crop_covered_segments(self):
         image_size = [7, 7]

@@ -241,7 +241,7 @@ class _InstancesConverter(_TaskConverter):
         else:
             if masks:
                 mask = mask_tools.merge_masks(m.image for m in masks)
-                polygons += mask_tools.mask_to_polygons(mask)
+                polygons += mask_tools.mask_to_polygons(mask)[0]
             mask = None
 
         return [leader, polygons, mask, bbox]

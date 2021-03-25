@@ -154,32 +154,59 @@ def mask_to_polygons(mask, area_threshold=1):
         area_threshold: minimal area of generated polygons
 
     Returns:
-        A list of polygons like [[x1,y1, x2,y2 ...], [...]]
+        polygons: A list of polygons like [[x1,y1, x2,y2 ...], [...]]
+        hierarchy: A list of (prev, next, 1st child, parent) 0-based indices
     """
     from pycocotools import mask as mask_utils
     import cv2
 
     polygons = []
 
-    contours, _ = cv2.findContours(mask.astype(np.uint8),
+    contours, hierarchy = cv2.findContours(mask.astype(np.uint8),
         mode=cv2.RETR_TREE, method=cv2.CHAIN_APPROX_TC89_KCOS)
+    hierarchy = hierarchy[0]
 
-    for contour in contours:
+    hierarchy_index_map = { i: i for i in range(len(hierarchy)) }
+    hierarchy_index_map[-1] = -1
+
+    def _drop_index(idx):
+        hierarchy_index_map[idx] = -1
+        for i in hierarchy_index_map:
+            if idx < i:
+                hierarchy_index_map[i] -= 1
+
+    for idx, contour in enumerate(contours):
         if len(contour) <= 2:
+            _drop_index(idx)
             continue
 
-        contour = contour.reshape((-1, 2))
-
-        if not np.array_equal(contour[0], contour[-1]):
-            contour = np.vstack((contour, contour[0])) # make polygon closed
-        contour = contour.flatten().clip(0) # [x0, y0, ...]
+        contour = cv2.approxPolyDP(contour, 0.5, closed=True)
+        contour = contour.reshape((-1, 2)).flatten().clip(0) # [x0, y0, ...]
 
         # Check if the polygon is big enough
         rle = mask_utils.frPyObjects([contour], mask.shape[0], mask.shape[1])
         area = sum(mask_utils.area(rle))
-        if area_threshold <= area:
-            polygons.append(contour)
-    return polygons
+        if area < area_threshold:
+            _drop_index(idx)
+            continue
+
+        polygons.append(contour)
+
+    updated_hierarchy = []
+    for i, h in enumerate(hierarchy):
+        if hierarchy_index_map[i] == -1:
+            continue # exclude removed
+
+        parent_idx = h[3]
+        while parent_idx != -1 and hierarchy_index_map[parent_idx] != -1:
+            parent_idx = hierarchy[parent_idx][3]
+        if parent_idx != -1 and hierarchy_index_map[parent_idx] == -1:
+            hierarchy[i][3] = -1
+            continue # exclude removed subtree
+
+        updated_hierarchy.append(list(map(hierarchy_index_map.get, h)))
+
+    return polygons, updated_hierarchy
 
 def crop_covered_segments(segments, width, height,
         iou_threshold=0.0, ratio_tolerance=0.001, area_threshold=1,
@@ -257,7 +284,7 @@ def crop_covered_segments(segments, width, height,
             bottom_mask[bottom_mask != 1] = 0
 
         if not return_masks and not isinstance(segments[i][0], dict):
-            segments[i] = mask_to_polygons(bottom_mask,
+            segments[i], _ = mask_to_polygons(bottom_mask,
                 area_threshold=area_threshold)
         else:
             segments[i] = bottom_mask
