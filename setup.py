@@ -37,7 +37,6 @@ def get_requirements():
     requirements = [
         'attrs>=19.3.0',
         'defusedxml',
-        'GitPython',
         'lxml',
         'matplotlib',
         'numpy>=1.17.3',
@@ -45,6 +44,7 @@ def get_requirements():
         'pycocotools; platform_system != "Windows"',
         'pycocotools-windows; platform_system == "Windows"',
         'PyYAML',
+        'ruamel.yaml',
         'scikit-image',
         'tensorboardX',
     ]
@@ -82,6 +82,7 @@ setuptools.setup(
     extras_require={
         'tf': ['tensorflow'],
         'tf-gpu': ['tensorflow-gpu'],
+        'vcs': ['GitPython', 'dvc'],
     },
     entry_points={
         'console_scripts': [

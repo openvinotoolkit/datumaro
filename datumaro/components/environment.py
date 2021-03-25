@@ -4,14 +4,12 @@
 
 from functools import partial
 from glob import glob
-import git
 import inspect
 import logging as log
 import os
 import os.path as osp
 
 from datumaro.components.config import Config
-from datumaro.components.config_model import Model, Source
 from datumaro.util.os_util import import_foreign_module
 
 
@@ -46,29 +44,6 @@ class Registry:
     def __contains__(self, key):
         return key in self.items
 
-
-class ModelRegistry(Registry):
-    def __init__(self, config=None):
-        super().__init__(config, item_type=Model)
-
-    def load(self, config):
-        # TODO: list default dir, insert values
-        if 'models' in config:
-            for name, model in config.models.items():
-                self.register(name, model)
-
-
-class SourceRegistry(Registry):
-    def __init__(self, config=None):
-        super().__init__(config, item_type=Source)
-
-    def load(self, config):
-        # TODO: list default dir, insert values
-        if 'sources' in config:
-            for name, source in config.sources.items():
-                self.register(name, source)
-
-
 class PluginRegistry(Registry):
     def __init__(self, config=None, builtin=None, local=None):
         super().__init__(config)
@@ -85,47 +60,6 @@ class PluginRegistry(Registry):
                 self.register(k, v)
 
 
-class GitWrapper:
-    def __init__(self, config=None):
-        self.repo = None
-
-        if config is not None and config.project_dir:
-            self.init(config.project_dir)
-
-    @staticmethod
-    def _git_dir(base_path):
-        return osp.join(base_path, '.git')
-
-    @classmethod
-    def spawn(cls, path):
-        spawn = not osp.isdir(cls._git_dir(path))
-        repo = git.Repo.init(path=path)
-        if spawn:
-            repo.config_writer().set_value("user", "name", "User") \
-                .set_value("user", "email", "user@nowhere.com") \
-                .release()
-            # gitpython does not support init, use git directly
-            repo.git.init()
-            repo.git.commit('-m', 'Initial commit', '--allow-empty')
-        return repo
-
-    def init(self, path):
-        self.repo = self.spawn(path)
-        return self.repo
-
-    def is_initialized(self):
-        return self.repo is not None
-
-    def create_submodule(self, name, dst_dir, **kwargs):
-        self.repo.create_submodule(name, dst_dir, **kwargs)
-
-    def has_submodule(self, name):
-        return name in [submodule.name for submodule in self.repo.submodules]
-
-    def remove_submodule(self, name, **kwargs):
-        return self.repo.submodule(name).remove(**kwargs)
-
-
 class Environment:
     _builtin_plugins = None
     PROJECT_EXTRACTOR_NAME = 'datumaro_project'
@@ -135,11 +69,6 @@ class Environment:
             PROJECT_DEFAULT_CONFIG, PROJECT_SCHEMA, load_project_as_dataset)
         config = Config(config,
             fallback=PROJECT_DEFAULT_CONFIG, schema=PROJECT_SCHEMA)
-
-        self.models = ModelRegistry(config)
-        self.sources = SourceRegistry(config)
-
-        self.git = GitWrapper(config)
 
         env_dir = osp.join(config.project_dir, config.env_dir)
         builtin = self._load_builtin_plugins()
@@ -283,12 +212,6 @@ class Environment:
 
     def make_transform(self, name, *args, **kwargs):
         return partial(self.transforms.get(name), *args, **kwargs)
-
-    def register_model(self, name, model):
-        self.models.register(name, model)
-
-    def unregister_model(self, name):
-        self.models.unregister(name)
 
     def is_format_known(self, name):
         return name in self.importers or name in self.extractors

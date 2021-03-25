@@ -4,7 +4,7 @@ import os
 import os.path as osp
 
 from unittest import TestCase
-from datumaro.components.project import Dataset
+from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import (DatasetItem,
     AnnotationType, Points, Polygon, PolyLine, Bbox, Label,
     LabelCategories,

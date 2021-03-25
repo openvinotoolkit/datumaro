@@ -452,8 +452,9 @@ class Dataset(IDataset):
 
         self._format = DEFAULT_FORMAT
         self._source_path = None
+        self._options = {}
 
-    def define_categories(self, categories: Dict):
+    def define_categories(self, categories: CategoriesInfo):
         assert not self._data._categories and self._data._source is None
         self._data._categories = categories
 
@@ -626,8 +627,7 @@ class Dataset(IDataset):
         if format in env.importers:
             importer = env.make_importer(format)
             with logging_disabled(log.INFO):
-                project = importer(path, **kwargs)
-            detected_sources = list(project.config.sources.values())
+                detected_sources = importer(path, **kwargs)
         elif format in env.extractors:
             detected_sources = [{
                 'url': path, 'format': format, 'options': kwargs
