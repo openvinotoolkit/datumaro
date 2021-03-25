@@ -85,7 +85,6 @@ class _TaskSpecificSplit(Transform, CliPlugin):
             if ratio > NEAR_ZERO:
                 snames.append(subset)
                 ratios.append(float(ratio))
-                
         ratios = np.array(ratios)
 
         total_ratio = np.sum(ratios)
@@ -104,7 +103,6 @@ class _TaskSpecificSplit(Transform, CliPlugin):
             if NEAR_ZERO < i and i < min_value:
                 min_value = i
         required = int(np.around(1.0) / min_value)
-        
         return required
 
     @staticmethod
