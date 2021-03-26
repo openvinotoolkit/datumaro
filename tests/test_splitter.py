@@ -219,7 +219,7 @@ class SplitterTest(TestCase):
         }
         source = self._generate_dataset(config)
         splits = [("train", 0.1), ("val", 0.9), ("test", 0.0)]
-        
+
         actual = splitter.ClassificationSplit(source, splits)
         
         self.assertEqual(1, len(actual.get_subset("train")))
