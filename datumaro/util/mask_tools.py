@@ -299,6 +299,36 @@ def rles_to_mask(rles, width, height):
     mask = mask_utils.decode(rles)
     return mask
 
+def find_contour_bbox(points):
+    xs = [p for p in points[0::2]]
+    ys = [p for p in points[1::2]]
+    x0 = min(xs)
+    x1 = max(xs)
+    y0 = min(ys)
+    y1 = max(ys)
+    return [x0, y0, x1 - x0, y1 - y0]
+
+def polygon_to_mask(points, width=None, height=None, holes=None):
+    from pycocotools import mask as mask_utils
+
+    assert (width is None and height is None) or (width and height)
+
+    if not width:
+        x, y, w, h = find_contour_bbox(points)
+        width = x + w
+        height = y + h
+
+    rles = mask_utils.frPyObjects([points] + holes, height, width)
+    mask = mask_utils.decode(rles[0])
+
+    if holes:
+        hole = mask_utils.merge(rles[1:])
+        hole_mask = mask_utils.decode(hole)
+
+        mask = np.where(hole_mask, 0, mask)
+
+    return mask
+
 def find_mask_bbox(mask):
     cols = np.any(mask, axis=0)
     rows = np.any(mask, axis=1)

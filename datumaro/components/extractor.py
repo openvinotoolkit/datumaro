@@ -339,17 +339,12 @@ class _Shape(Annotation):
         raise NotImplementedError()
 
     def get_bbox(self):
+        from datumaro.util.mask_tools import find_contour_bbox
+
         points = self.points
         if not points:
             return None
-
-        xs = [p for p in points[0::2]]
-        ys = [p for p in points[1::2]]
-        x0 = min(xs)
-        x1 = max(xs)
-        y0 = min(ys)
-        y1 = max(ys)
-        return [x0, y0, x1 - x0, y1 - y0]
+        return find_contour_bbox(points)
 
 @attrs
 class PolyLine(_Shape):
@@ -397,11 +392,17 @@ class Polygon(_Shape):
 
         x, y, w, h = self.get_bbox()
         rles = mask_utils.frPyObjects([self.points] + self.holes, y + h, x + w)
-        areas = mask_utils.area(rles)
         if external:
+            areas = mask_utils.area(rles)
             return areas[0]
         else:
-            return areas[0] - sum(areas[1:])
+            hole = mask_utils.merge(rles[1:])
+            areas = mask_utils.area([rles[0], hole])
+            return areas[0] - areas[1]
+
+    def as_mask(self, w=None, h=None):
+        from datumaro.util.mask_tools import polygon_to_mask
+        return polygon_to_mask(self.points, holes=self.holes, width=w, height=h)
 
 @attrs
 class Bbox(_Shape):

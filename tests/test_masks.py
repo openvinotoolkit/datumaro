@@ -84,12 +84,21 @@ class PolygonConversionsTest(TestCase):
     def test_can_have_polygon_with_holes(self):
         polygon = Polygon([1, 1, 5, 1, 5, 5, 1, 5],
             holes=[[2, 2, 2, 4, 4, 2], [4, 2, 4, 4, 2, 4]])
+        expected_mask = [
+            [0, 0, 0, 0, 0],
+            [0, 1, 1, 1, 1],
+            [0, 1, 0, 0, 1],
+            [0, 1, 0, 0, 1],
+            [0, 1, 1, 1, 1],
+        ]
 
         area_with_holes = polygon.get_area()
         area_wo_holes = polygon.get_area(external=True)
+        mask = polygon.as_mask()
 
         self.assertAlmostEqual(area_wo_holes, 16)
-        self.assertAlmostEqual(area_with_holes, 16 - 2 - 2)
+        self.assertAlmostEqual(area_with_holes, 12)
+        self.assertTrue(np.array_equal(mask, expected_mask), mask)
 
     def test_can_check_a_hole_is_outside_polygon(self):
         with self.assertRaisesRegex(ValueError, "outside"):
