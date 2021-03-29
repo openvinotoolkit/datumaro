@@ -376,7 +376,7 @@ class _Validator:
                             attr_dets = defined_attr_stats[attr]
 
                             if self.task_type == TaskType.detection and \
-                               ann.type == self.ann_type:
+                                    ann.type == self.ann_type:
                                 bbox_attr_label = bbox_dist_by_attr.setdefault(
                                     label_name, {})
                                 bbox_attr_stats = bbox_attr_label.setdefault(
