@@ -91,6 +91,10 @@ class PolygonConversionsTest(TestCase):
         self.assertAlmostEqual(area_wo_holes, 16)
         self.assertAlmostEqual(area_with_holes, 16 - 2 - 2)
 
+    def test_can_check_a_hole_is_outside_polygon(self):
+        with self.assertRaisesRegex(ValueError, "outside"):
+            Polygon([2, 2, 5, 2, 5, 5, 2, 5], holes=[[1, 1, 2, 4, 4, 2]])
+
     def test_can_crop_covered_segments(self):
         image_size = [7, 7]
         initial = [

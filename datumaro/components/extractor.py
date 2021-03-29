@@ -12,6 +12,7 @@ import os.path as osp
 import attr
 from attr import attrs, attrib
 
+from datumaro.util import pairs
 from datumaro.util.image import Image
 from datumaro.util.attrs_util import not_empty, default_if_none
 
@@ -370,15 +371,26 @@ class Polygon(_Shape):
     def __attrs_post_init__(self):
         super().__attrs_post_init__()
 
-        def _check_points(points):
+        def _check_polygon_points(points):
             if not(len(points) % 2 == 0 and 3 <= len(points) // 2):
-                raise ValueError("Wrong count of polygon points: %s (%s)" % \
+                raise ValueError("Wrong count of polygon points: %s (%s)" %
                     (len(points), points))
 
-        _check_points(self.points)
+        def _check_hole_points(outer, hole):
+            import cv2
+
+            outer_a = np.array(outer).reshape(-1, 2)
+
+            for point in pairs(hole):
+                if cv2.pointPolygonTest(outer_a, point, measureDist=False) < 0:
+                    raise ValueError("A polygon %s has a hole, which lies "
+                        "outside of the polygon boundaries: %s " % (outer, hole))
+
+        _check_polygon_points(self.points)
 
         for h in self.holes:
-            _check_points(h)
+            _check_polygon_points(h)
+            _check_hole_points(self.points, h)
 
     def get_area(self, external=False):
         import pycocotools.mask as mask_utils
