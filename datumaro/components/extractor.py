@@ -363,19 +363,33 @@ class PolyLine(_Shape):
 @attrs
 class Polygon(_Shape):
     _type = AnnotationType.polygon
+    holes = attrib(factory=list, validator=default_if_none(lambda x:
+            np.around(x, _COORDINATE_ROUNDING_DIGITS).tolist()),
+        kw_only=True)
 
     def __attrs_post_init__(self):
         super().__attrs_post_init__()
-        # keep the message on a single line to produce informative output
-        assert len(self.points) % 2 == 0 and 3 <= len(self.points) // 2, "Wrong polygon points: %s" % self.points
 
-    def get_area(self):
+        def _check_points(points):
+            if not(len(points) % 2 == 0 and 3 <= len(points) // 2):
+                raise ValueError("Wrong count of polygon points: %s (%s)" % \
+                    (len(points), points))
+
+        _check_points(self.points)
+
+        for h in self.holes:
+            _check_points(h)
+
+    def get_area(self, external=False):
         import pycocotools.mask as mask_utils
 
         x, y, w, h = self.get_bbox()
-        rle = mask_utils.frPyObjects([self.points], y + h, x + w)
-        area = mask_utils.area(rle)[0]
-        return area
+        rles = mask_utils.frPyObjects([self.points] + self.holes, y + h, x + w)
+        areas = mask_utils.area(rles)
+        if external:
+            return areas[0]
+        else:
+            return areas[0] - sum(areas[1:])
 
 @attrs
 class Bbox(_Shape):

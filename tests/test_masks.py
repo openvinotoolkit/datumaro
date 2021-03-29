@@ -3,7 +3,7 @@ import numpy as np
 from unittest import TestCase
 
 import datumaro.util.mask_tools as mask_tools
-from datumaro.components.extractor import CompiledMask
+from datumaro.components.extractor import CompiledMask, Polygon
 
 
 class PolygonConversionsTest(TestCase):
@@ -80,6 +80,16 @@ class PolygonConversionsTest(TestCase):
             cv2.drawContours(img, c.reshape(1, -1, 2), -1, 1)
         self.assertEqual(len(expected_polygons), len(computed_p))
         self.assertEqual(len(expected_hierarchy), len(computed_h))
+
+    def test_can_have_polygon_with_holes(self):
+        polygon = Polygon([1, 1, 5, 1, 5, 5, 1, 5],
+            holes=[[2, 2, 2, 4, 4, 2], [4, 2, 4, 4, 2, 4]])
+
+        area_with_holes = polygon.get_area()
+        area_wo_holes = polygon.get_area(external=True)
+
+        self.assertAlmostEqual(area_wo_holes, 16)
+        self.assertAlmostEqual(area_with_holes, 16 - 2 - 2)
 
     def test_can_crop_covered_segments(self):
         image_size = [7, 7]
