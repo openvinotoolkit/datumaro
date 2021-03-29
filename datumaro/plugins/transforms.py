@@ -140,13 +140,13 @@ class MergeInstanceSegments(Transform, CliPlugin):
         mask = None
 
         if include_polygons and polygons:
-            polygons = [p.points for p in polygons]
-            mask = mask_tools.rles_to_mask(polygons, img_width, img_height)
+            masks = chain(masks or [],
+                p.as_mask(w=img_width, h=img_height) for p in polygons)
         else:
             instance += polygons # keep unused polygons
 
         if masks:
-            masks = (m.image for m in masks)
+            masks = chain(masks or [], m.image for m in masks)
             if mask is not None:
                 masks = chain(masks, [mask])
             mask = mask_tools.merge_masks(masks)

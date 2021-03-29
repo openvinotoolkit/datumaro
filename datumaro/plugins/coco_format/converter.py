@@ -212,7 +212,6 @@ class _InstancesConverter(_TaskConverter):
         leader = anno_tools.find_group_leader(anns)
         bbox = anno_tools.max_bbox(anns)
         mask = None
-        polygons = [p.points for p in polygons]
 
         if self._context._segmentation_mode == SegmentationMode.guess:
             use_masks = True == leader.attributes.get('is_crowd',
@@ -227,18 +226,20 @@ class _InstancesConverter(_TaskConverter):
 
         if use_masks:
             if polygons:
-                mask = mask_tools.rles_to_mask(polygons, img_width, img_height)
+                masks = chain(masks or [],
+                    p.as_mask(w=img_width, h=img_height) for p in polygons)
 
             if masks:
-                masks = (m.image for m in masks)
+                masks = chain(masks or [], m.image for m in masks)
                 if mask is not None:
-                    masks += chain(masks, [mask])
+                    masks = chain(masks, [mask])
                 mask = mask_tools.merge_masks(masks)
 
             if mask is not None:
                 mask = mask_tools.mask_to_rle(mask)
             polygons = []
         else:
+            polygons = [p.points for p in polygons]
             if masks:
                 mask = mask_tools.merge_masks(m.image for m in masks)
                 polygons += mask_tools.mask_to_polygons(mask)[0]
