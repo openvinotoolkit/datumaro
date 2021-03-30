@@ -302,22 +302,18 @@ class VocSegmentationExtractor(_VocExtractor):
                     for i in range(compiled_mask.instance_count)}
 
             for instance_id, label_id in instance_labels.items():
+                if len(label_cat) <= label_id:
+                    raise Exception(
+                        "Item %s: a mask has unexpected class number %s" %
+                        (item_id, label_id))
+
                 image = compiled_mask.lazy_extract(instance_id)
 
-                attributes = {}
-                if label_id is not None:
-                    actions = {a: False
-                        for a in label_cat.items[label_id].attributes
-                    }
-                    attributes.update(actions)
-
-                item_annotations.append(Mask(
-                    image=image, label=label_id,
-                    attributes=attributes, group=instance_id
-                ))
+                item_annotations.append(Mask(image=image, label=label_id,
+                    group=instance_id))
         elif class_mask is not None:
-            log.warn("item '%s': has only class segmentation, "
-                "instance masks will not be available" % item_id)
+            log.warning("Item %s: only class segmentations available" % item_id)
+
             class_mask = class_mask()
             classes = np.unique(class_mask)
             for label_id in classes:
