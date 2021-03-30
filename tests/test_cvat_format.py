@@ -240,18 +240,19 @@ class CvatConverterTest(TestCase):
     def test_can_allow_undeclared_attrs(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=0, annotations=[
-                Label(2, attributes={ 'x': 4, 'y': 2 }),
-                Bbox(1, 2, 3, 4, label=1, attributes={ 'x': 1, 'y': 1 }),
+                Label(0, attributes={ 'x': 4, 'y': 2 }),
+                Bbox(1, 2, 3, 4, label=0, attributes={ 'x': 1, 'y': 1 }),
             ]),
-        ], categories=[{'name': 'a', 'attributes': {'x'}}])
+        ], categories=[ ('a', '', {'x'}) ])
 
         target_label_cat = LabelCategories(attributes={'occluded'})
         target_label_cat.add('a', attributes={'x'})
         target_dataset = Dataset.from_iterable([
             DatasetItem(id=0, annotations=[
-                Label(2, attributes={ 'x': 4, 'y': 2 }),
-                Bbox(1, 2, 3, 4, label=1, attributes={ 'x': 1, 'y': 1 }),
-            ]),
+                Label(0, attributes={ 'x': 4, 'y': 2 }),
+                Bbox(1, 2, 3, 4, label=0,
+                    attributes={ 'x': 1, 'y': 1, 'occluded': False }),
+            ], attributes={'frame': 0}),
         ], categories={ AnnotationType.label: target_label_cat })
 
         with TestDir() as test_dir:
