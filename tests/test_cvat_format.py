@@ -1,8 +1,8 @@
 from functools import partial
-import numpy as np
 import os
 import os.path as osp
 
+import numpy as np
 from unittest import TestCase
 from datumaro.components.project import Dataset
 from datumaro.components.extractor import (DatasetItem,
@@ -148,18 +148,17 @@ class CvatConverterTest(TestCase):
             target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
     def test_can_save_and_load(self):
-        label_categories = LabelCategories()
+        src_label_cat = LabelCategories(attributes={'occluded', 'common'})
         for i in range(10):
-            label_categories.add(str(i))
-        label_categories.items[2].attributes.update(['a1', 'a2', 'empty'])
-        label_categories.attributes.update(['occluded'])
+            src_label_cat.add(str(i))
+        src_label_cat.items[2].attributes.update(['a1', 'a2', 'empty'])
 
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=0, subset='s1', image=np.zeros((5, 10, 3)),
                 annotations=[
                     Polygon([0, 0, 4, 0, 4, 4],
                         label=1, group=4,
-                        attributes={ 'occluded': True}),
+                        attributes={ 'occluded': True, 'common': 't' }),
                     Points([1, 1, 3, 2, 2, 3],
                         label=2,
                         attributes={ 'a1': 'x', 'a2': 42, 'empty': '',
@@ -188,16 +187,19 @@ class CvatConverterTest(TestCase):
 
             DatasetItem(id=3, subset='s3', image=Image(
                 path='3.jpg', size=(2, 4))),
-        ], categories={
-            AnnotationType.label: label_categories,
-        })
+        ], categories={ AnnotationType.label: src_label_cat })
 
+        target_label_cat = LabelCategories(
+            attributes={'occluded'}) # unable to represent a common attribute
+        for i in range(10):
+            target_label_cat.add(str(i), attributes={'common'})
+        target_label_cat.items[2].attributes.update(['a1', 'a2', 'empty', 'common'])
         target_dataset = Dataset.from_iterable([
             DatasetItem(id=0, subset='s1', image=np.zeros((5, 10, 3)),
                 annotations=[
                     Polygon([0, 0, 4, 0, 4, 4],
                         label=1, group=4,
-                        attributes={ 'occluded': True }),
+                        attributes={ 'occluded': True, 'common': 't' }),
                     Points([1, 1, 3, 2, 2, 3],
                         label=2,
                         attributes={ 'occluded': False, 'empty': '',
@@ -228,14 +230,34 @@ class CvatConverterTest(TestCase):
             DatasetItem(id=3, subset='s3', image=Image(
                     path='3.jpg', size=(2, 4)),
                 attributes={'frame': 0}),
-        ], categories={
-            AnnotationType.label: label_categories,
-        })
+        ], categories={ AnnotationType.label: target_label_cat })
 
         with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
                 partial(CvatConverter.convert, save_images=True), test_dir,
                 target_dataset=target_dataset)
+
+    def test_can_allow_undeclared_attrs(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id=0, annotations=[
+                Label(2, attributes={ 'x': 4, 'y': 2 }),
+                Bbox(1, 2, 3, 4, label=1, attributes={ 'x': 1, 'y': 1 }),
+            ]),
+        ], categories=[{'name': 'a', 'attributes': {'x'}}])
+
+        target_label_cat = LabelCategories(attributes={'occluded'})
+        target_label_cat.add('a', attributes={'x'})
+        target_dataset = Dataset.from_iterable([
+            DatasetItem(id=0, annotations=[
+                Label(2, attributes={ 'x': 4, 'y': 2 }),
+                Bbox(1, 2, 3, 4, label=1, attributes={ 'x': 1, 'y': 1 }),
+            ]),
+        ], categories={ AnnotationType.label: target_label_cat })
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(source_dataset,
+                partial(CvatConverter.convert, allow_undeclared_attrs=True),
+                test_dir, target_dataset=target_dataset)
 
     def test_relative_paths(self):
         source_dataset = Dataset.from_iterable([
@@ -259,11 +281,10 @@ class CvatConverterTest(TestCase):
                 target_dataset=target_dataset, require_images=True)
 
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
-        label_categories = LabelCategories()
+        label_categories = LabelCategories(attributes={'occluded'})
         for i in range(10):
             label_categories.add(str(i))
         label_categories.items[2].attributes.update(['a1', 'a2', 'empty'])
-        label_categories.attributes.update(['occluded'])
 
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='кириллица с пробелом',
