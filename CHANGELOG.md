@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 ### Changed
--
+- Added an option to allow undeclared annotation attributes in CVAT format export (<https://github.com/openvinotoolkit/datumaro/pull/192>)
 
 ### Deprecated
 -
@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 ### Fixed
--
+- Added support for label attributes in Datumaro format (<https://github.com/openvinotoolkit/datumaro/pull/192>)
 
 ### Security
 -
