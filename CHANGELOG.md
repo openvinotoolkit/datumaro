@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 ### Changed
--
+- COCO exports images in separate dirs by subsets (<https://github.com/openvinotoolkit/datumaro/pull/195>)
 
 ### Deprecated
 -
