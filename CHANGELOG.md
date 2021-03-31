@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Added an option to allow undeclared annotation attributes in CVAT format export (<https://github.com/openvinotoolkit/datumaro/pull/192>)
+- COCO exports images in separate dirs by subsets. Added an option to control this (<https://github.com/openvinotoolkit/datumaro/pull/195>)
 
 ### Deprecated
 -
