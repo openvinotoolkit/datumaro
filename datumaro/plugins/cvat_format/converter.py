@@ -7,6 +7,7 @@ import logging as log
 import os
 import os.path as osp
 from collections import OrderedDict
+from itertools import chain
 from xml.sax.saxutils import XMLGenerator
 
 from datumaro.components.converter import Converter
@@ -182,9 +183,9 @@ class _SubsetWriter:
         for ann in item.annotations:
             if ann.type in {AnnotationType.points, AnnotationType.polyline,
                     AnnotationType.polygon, AnnotationType.bbox}:
-                self._write_shape(ann)
+                self._write_shape(ann, item)
             elif ann.type == AnnotationType.label:
-                self._write_tag(ann)
+                self._write_tag(ann, item)
             else:
                 continue
 
@@ -215,7 +216,7 @@ class _SubsetWriter:
                                 ("input_type", "text"),
                                 ("default_value", ""),
                                 ("values", ""),
-                            ])) for attr in label.attributes
+                            ])) for attr in self._get_label_attrs(label)
                         ])
                     ])) for label in label_cat.items
                 ]),
@@ -226,15 +227,27 @@ class _SubsetWriter:
     def _get_label(self, label_id):
         if label_id is None:
             return ""
-        label_cat = self._extractor.categories()[AnnotationType.label]
+        label_cat = self._extractor.categories().get(
+            AnnotationType.label, LabelCategories())
         return label_cat.items[label_id]
 
-    def _write_shape(self, shape):
+    def _get_label_attrs(self, label):
+        label_cat = self._extractor.categories().get(
+            AnnotationType.label, LabelCategories())
+        if isinstance(label, int):
+            label = label_cat[label]
+        return set(chain(label.attributes, label_cat.attributes)) - \
+            self._context._builtin_attrs
+
+    def _write_shape(self, shape, item):
         if shape.label is None:
+            log.warning("Item %s: skipping a %s with no label",
+                item.id, shape.type.name)
             return
 
+        label_name = self._get_label(shape.label).name
         shape_data = OrderedDict([
-            ("label", self._get_label(shape.label).name),
+            ("label", label_name),
             ("occluded", str(int(shape.attributes.get('occluded', False)))),
         ])
 
@@ -271,13 +284,21 @@ class _SubsetWriter:
             raise NotImplementedError("unknown shape type")
 
         for attr_name, attr_value in shape.attributes.items():
+            if attr_name in self._context._builtin_attrs:
+                continue
             if isinstance(attr_value, bool):
                 attr_value = 'true' if attr_value else 'false'
-            if attr_name in self._get_label(shape.label).attributes:
+            if self._context._allow_undeclared_attrs or \
+                    attr_name in self._get_label_attrs(shape.label):
                 self._writer.add_attribute(OrderedDict([
                     ("name", str(attr_name)),
                     ("value", str(attr_value)),
                 ]))
+            else:
+                log.warning("Item %s: skipping undeclared "
+                    "attribute '%s' for label '%s' "
+                    "(allow with --allow-undeclared-attrs option)",
+                    item.id, attr_name, label_name)
 
         if shape.type == AnnotationType.bbox:
             self._writer.close_box()
@@ -290,25 +311,36 @@ class _SubsetWriter:
         else:
             raise NotImplementedError("unknown shape type")
 
-    def _write_tag(self, label):
+    def _write_tag(self, label, item):
         if label.label is None:
+            log.warning("Item %s: skipping a %s with no label",
+                item.id, label.type.name)
             return
 
+        label_name = self._get_label(label.label).name
         tag_data = OrderedDict([
-            ('label', self._get_label(label.label).name),
+            ('label', label_name),
         ])
         if label.group:
             tag_data['group_id'] = str(label.group)
         self._writer.open_tag(tag_data)
 
         for attr_name, attr_value in label.attributes.items():
+            if attr_name in self._context._builtin_attrs:
+                continue
             if isinstance(attr_value, bool):
                 attr_value = 'true' if attr_value else 'false'
-            if attr_name in self._get_label(label.label).attributes:
+            if self._context._allow_undeclared_attrs or \
+                    attr_name in self._get_label_attrs(label.label):
                 self._writer.add_attribute(OrderedDict([
                     ("name", str(attr_name)),
                     ("value", str(attr_value)),
                 ]))
+            else:
+                log.warning("Item %s: skipping undeclared "
+                    "attribute '%s' for label '%s' "
+                    "(allow with --allow-undeclared-attrs option)",
+                    item.id, attr_name, label_name)
 
         self._writer.close_tag()
 
@@ -320,12 +352,18 @@ class CvatConverter(Converter):
         parser = super().build_cmdline_parser(**kwargs)
         parser.add_argument('--reindex', action='store_true',
             help="Assign new indices to frames (default: %(default)s)")
+        parser.add_argument('--allow-undeclared-attrs', action='store_true',
+            help="Write annotation attributes even if they are not present in "
+                "the input dataset metainfo (default: %(default)s)")
         return parser
 
-    def __init__(self, extractor, save_dir, reindex=False, **kwargs):
+    def __init__(self, extractor, save_dir, reindex=False,
+            allow_undeclared_attrs=False, **kwargs):
         super().__init__(extractor, save_dir, **kwargs)
 
         self._reindex = reindex
+        self._builtin_attrs = CvatPath.BUILTIN_ATTRS
+        self._allow_undeclared_attrs = allow_undeclared_attrs
 
     def apply(self):
         self._images_dir = osp.join(self._save_dir, CvatPath.IMAGES_DIR)
