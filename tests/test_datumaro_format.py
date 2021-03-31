@@ -3,7 +3,6 @@ import os
 import os.path as osp
 
 import numpy as np
-
 from unittest import TestCase
 from datumaro.components.project import Dataset
 from datumaro.components.extractor import (DatasetItem,
@@ -29,9 +28,9 @@ class DatumaroConverterTest(TestCase):
 
     @property
     def test_dataset(self):
-        label_categories = LabelCategories()
+        label_categories = LabelCategories(attributes={'a', 'b', 'score'})
         for i in range(5):
-            label_categories.add('cat' + str(i))
+            label_categories.add('cat' + str(i), attributes={'x', 'y'})
 
         mask_categories = MaskCategories(
             generate_colormap(len(label_categories.items)))
@@ -52,9 +51,14 @@ class DatumaroConverterTest(TestCase):
                     Bbox(1, 2, 3, 4, label=4, id=4, z_order=1, attributes={
                         'score': 1.0,
                     }),
-                    Bbox(5, 6, 7, 8, id=5, group=5),
-                    Points([1, 2, 2, 0, 1, 1], label=0, id=5, z_order=4),
-                    Mask(label=3, id=5, z_order=2, image=np.ones((2, 3))),
+                    Bbox(5, 6, 7, 8, id=5, group=5, attributes={
+                        'a': 1.5,
+                        'b': 'text',
+                    }),
+                    Points([1, 2, 2, 0, 1, 1], label=0, id=5, z_order=4,
+                        attributes={ 'x': 1, 'y': '2', }),
+                    Mask(label=3, id=5, z_order=2, image=np.ones((2, 3)),
+                        attributes={ 'x': 1, 'y': '2', }),
                 ]),
             DatasetItem(id=21, subset='train',
                 annotations=[
