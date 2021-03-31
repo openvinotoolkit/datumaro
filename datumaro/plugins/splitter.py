@@ -4,6 +4,7 @@
 
 import logging as log
 import numpy as np
+from math import gcd
 
 from datumaro.components.extractor import (Transform, AnnotationType,
     DEFAULT_SUBSET_NAME)
@@ -98,11 +99,22 @@ class _TaskSpecificSplit(Transform, CliPlugin):
 
     @staticmethod
     def _get_required(ratio):
-        min_value = np.max(ratio)
-        for i in ratio:
-            if NEAR_ZERO < i and i < min_value:
-                min_value = i
-        required = int(np.around(1.0) / min_value)
+        if len(ratio) < 2:
+            return 1
+
+        for scale in [10, 100, 1000, 10000]:
+            farray = np.array(ratio) * scale
+            iarray = farray.astype(int)
+            if np.array_equal(iarray, farray):
+                break
+
+        # find gcd
+        common_divisor = iarray[0]
+        for val in iarray[1:-1]:
+            common_divisor = gcd(common_divisor, val)
+
+        required = np.sum(np.array(iarray / common_divisor).astype(int))
+
         return required
 
     @staticmethod
@@ -129,37 +141,73 @@ class _TaskSpecificSplit(Transform, CliPlugin):
         Returns:
             by_attributes: dict of { combination-of-attrs : list of index }
         """
+
+        # float--> numerical, others(int, string, bool) --> categorical
+        def _is_number(value):
+            if isinstance(value, str):
+                try:
+                    float(value)
+                    return True
+                except ValueError:
+                    return False
+            elif isinstance(value, float):
+                return True
+            return False
+
         # group by attributes
         by_attributes = dict()
         for idx, ann in items:
-            attributes = tuple(sorted(ann.attributes.items()))
+            # ignore numeric attributes
+            filtered = {}
+            for k, v in ann.attributes.items():
+                if _is_number(v):
+                    continue
+                filtered[k] = v
+            attributes = tuple(sorted(filtered.items()))
             if attributes not in by_attributes:
                 by_attributes[attributes] = []
             by_attributes[attributes].append(idx)
+
         return by_attributes
 
     def _split_by_attr(self, datasets, snames, ratio, out_splits,
             dataset_key=None):
         required = self._get_required(ratio)
+
         if dataset_key is None:
             dataset_key = "label"
-        for key, items in datasets.items():
+
+        def _split_indice(indice):
+            sections = self._get_sections(len(indice), ratio)
+            splits = np.array_split(indice, sections)
+            for subset, split in zip(snames, splits):
+                if 0 < len(split):
+                    out_splits[subset].extend(split)
+
+        rest = []
+        for _, items in datasets.items():
             np.random.shuffle(items)
             by_attributes = self._group_by_attr(items)
-            for attributes, indice in by_attributes.items():
-                gname = "%s: %s, attrs: %s" % (dataset_key, key, attributes)
-                splits = self._split_indice(indice, gname, ratio, required)
-                for subset, split in zip(snames, splits):
-                    if 0 < len(split):
-                        out_splits[subset].extend(split)
+            attr_names = list(by_attributes.keys())
+            np.random.shuffle(attr_names)  # add randomness
+            for attr in attr_names:
+                indice = by_attributes[attr]
+                quo = len(indice) // required
+                if quo > 0:
+                    filtered_size = quo * required
+                    _split_indice(indice[:filtered_size])
+                    rest.extend(indice[filtered_size:])
+                else:
+                    rest.extend(indice)
 
-    def _split_indice(self, indice, group_name, ratio, required):
-        filtered_size = len(indice)
-        if filtered_size < required:
-            log.warning("Not enough samples for a group, '%s'" % group_name)
-        sections = self._get_sections(filtered_size, ratio)
-        splits = np.array_split(indice, sections)
-        return splits
+                quo = len(rest) // required
+                if quo > 0:
+                    filtered_size = quo * required
+                    _split_indice(rest[:filtered_size])
+                    rest = rest[filtered_size:]
+
+        if len(rest) > 0:
+            _split_indice(rest)
 
     def _find_split(self, index):
         for subset_indices, subset in self._parts:
@@ -214,6 +262,7 @@ class ClassificationSplit(_TaskSpecificSplit):
         # 1. group by label
         by_labels = dict()
         annotations = self._get_uniq_annotations(self._extractor)
+
         for idx, ann in enumerate(annotations):
             label = getattr(ann, 'label', None)
             if label not in by_labels:

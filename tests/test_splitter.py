@@ -44,6 +44,7 @@ class SplitterTest(TestCase):
                                 annotations=[
                                     Label(label_id, attributes=attributes)
                                 ],
+                                image=np.ones((1, 1, 3))
                             )
                         )
             else:
@@ -51,7 +52,8 @@ class SplitterTest(TestCase):
                     idx += 1
                     iterable.append(
                         DatasetItem(idx, subset=self._get_subset(idx),
-                            annotations=[Label(label_id)])
+                            annotations=[Label(label_id)],
+                            image=np.ones((1, 1, 3)))
                     )
         categories = {AnnotationType.label: label_cat}
         dataset = Dataset.from_iterable(iterable, categories)
@@ -221,7 +223,7 @@ class SplitterTest(TestCase):
         splits = [("train", 0.1), ("val", 0.9), ("test", 0.0)]
 
         actual = splitter.ClassificationSplit(source, splits)
-        
+
         self.assertEqual(1, len(actual.get_subset("train")))
         self.assertEqual(4, len(actual.get_subset("val")))
         self.assertEqual(0, len(actual.get_subset("test")))
