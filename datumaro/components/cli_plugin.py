@@ -4,6 +4,7 @@
 # SPDX-License-Identifier: MIT
 
 import argparse
+import logging as log
 
 from datumaro.cli.util import MultilineFormatter
 from datumaro.util import to_snake_case
@@ -36,7 +37,12 @@ class CliPlugin:
             args = args[1:]
         parser = cls.build_cmdline_parser()
         args = parser.parse_args(args)
-        return vars(args)
+        args = vars(args)
+
+        log.debug("Parsed parameters: \n\t%s",
+            '\n\t'.join('%s: %s' % (k, v) for k, v in args.items()))
+
+        return args
 
 def remove_plugin_type(s):
     for t in {'transform', 'extractor', 'converter', 'launcher', 'importer'}:

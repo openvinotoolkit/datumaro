@@ -81,8 +81,10 @@ class _TaskSpecificSplit(Transform, CliPlugin):
             assert 0.0 <= ratio and ratio <= 1.0, \
                 "Ratio is expected to be in the range " \
                 "[0, 1], but got %s for %s" % (ratio, subset)
-            snames.append(subset)
-            ratios.append(float(ratio))
+            # ignore near_zero ratio because it may produce partition error.
+            if ratio > NEAR_ZERO:
+                snames.append(subset)
+                ratios.append(float(ratio))
         ratios = np.array(ratios)
 
         total_ratio = np.sum(ratios)
@@ -91,6 +93,7 @@ class _TaskSpecificSplit(Transform, CliPlugin):
                 "Sum of ratios is expected to be 1, got %s, which is %s"
                 % (splits, total_ratio)
             )
+
         return snames, ratios
 
     @staticmethod

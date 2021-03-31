@@ -630,6 +630,33 @@ class CocoConverterTest(TestCase):
                 partial(CocoConverter.convert, reindex=True),
                 test_dir, target_dataset=target_dataset)
 
+    def test_can_save_images_in_single_dir(self):
+        dataset = Dataset.from_iterable([
+            DatasetItem(id=1, subset='train', image=np.ones((2, 4, 3)),
+                attributes={'id': 1}),
+        ])
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(dataset,
+                partial(CocoImageInfoConverter.convert, save_images=True,
+                    merge_images=True),
+                test_dir, require_images=True)
+            self.assertTrue(osp.isfile(osp.join(test_dir, 'images', '1.jpg')))
+
+    def test_can_save_images_in_separate_dirs(self):
+        dataset = Dataset.from_iterable([
+            DatasetItem(id=1, subset='train', image=np.ones((2, 4, 3)),
+                attributes={'id': 1}),
+        ])
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(dataset,
+                partial(CocoImageInfoConverter.convert, save_images=True,
+                    merge_images=False),
+                test_dir, require_images=True)
+            self.assertTrue(osp.isfile(osp.join(
+                test_dir, 'images', 'train', '1.jpg')))
+
     def test_inplace_save_writes_only_updated_data(self):
         with TestDir() as path:
             # generate initial dataset
@@ -642,8 +669,8 @@ class CocoConverterTest(TestCase):
             os.unlink(osp.join(path, 'annotations', 'image_info_a.json'))
             os.unlink(osp.join(path, 'annotations', 'image_info_b.json'))
             os.unlink(osp.join(path, 'annotations', 'image_info_c.json'))
-            self.assertFalse(osp.isfile(osp.join(path, 'images', '2.jpg')))
-            self.assertTrue(osp.isfile(osp.join(path, 'images', '3.jpg')))
+            self.assertFalse(osp.isfile(osp.join(path, 'images', 'b', '2.jpg')))
+            self.assertTrue(osp.isfile(osp.join(path, 'images', 'c', '3.jpg')))
 
             dataset.put(DatasetItem(2, subset='a', image=np.ones((3, 2, 3))))
             dataset.remove(3, 'c')
@@ -655,5 +682,5 @@ class CocoConverterTest(TestCase):
                 path, 'annotations', 'image_info_b.json')))
             self.assertFalse(osp.isfile(osp.join(
                 path, 'annotations', 'image_info_c.json')))
-            self.assertTrue(osp.isfile(osp.join(path, 'images', '2.jpg')))
-            self.assertFalse(osp.isfile(osp.join(path, 'images', '3.jpg')))
+            self.assertTrue(osp.isfile(osp.join(path, 'images', 'a', '2.jpg')))
+            self.assertFalse(osp.isfile(osp.join(path, 'images', 'c', '3.jpg')))

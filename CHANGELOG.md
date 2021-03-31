@@ -6,6 +6,27 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## 31/03/2021 - Release v0.1.8
+### Added
+-
+
+### Changed
+- Added an option to allow undeclared annotation attributes in CVAT format export (<https://github.com/openvinotoolkit/datumaro/pull/192>)
+- COCO exports images in separate dirs by subsets. Added an option to control this (<https://github.com/openvinotoolkit/datumaro/pull/195>)
+
+### Deprecated
+-
+
+### Removed
+-
+
+### Fixed
+- Instance masks of `background` class no more introduce an instance (<https://github.com/openvinotoolkit/datumaro/pull/188>)
+- Added support for label attributes in Datumaro format (<https://github.com/openvinotoolkit/datumaro/pull/192>)
+
+### Security
+-
+
 ## 24/03/2021 - Release v0.1.7
 ### Added
 - OpenVINO plugin examples (<https://github.com/openvinotoolkit/datumaro/pull/159>)
