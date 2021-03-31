@@ -181,14 +181,19 @@ class _SubsetWriter:
         })
         return converted
 
+    def _convert_attribute_categories(self, attributes):
+        return sorted(attributes)
+
     def _convert_label_categories(self, obj):
         converted = {
             'labels': [],
+            'attributes': self._convert_attribute_categories(obj.attributes),
         }
         for label in obj.items:
             converted['labels'].append({
                 'name': cast(label.name, str),
                 'parent': cast(label.parent, str),
+                'attributes': self._convert_attribute_categories(label.attributes),
             })
         return converted
 
