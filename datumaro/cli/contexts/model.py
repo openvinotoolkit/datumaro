@@ -235,16 +235,19 @@ def update_command(args):
     return 0
 
 def build_run_parser(parser_ctor=argparse.ArgumentParser):
-    parser = parser_ctor()
+    parser = parser_ctor(help="Launches model inference",
+        description="Launches model inference on a project target.")
 
+    parser.add_argument('target', default='project',
+        help="Project target to launch inference on (default: project)")
     parser.add_argument('-o', '--output-dir', dest='dst_dir',
-        help="Directory to save output")
+        help="Directory to save output (default: auto-generated)")
     parser.add_argument('-m', '--model', dest='model_name', required=True,
         help="Model to apply to the project")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to operate on (default: current dir)")
     parser.add_argument('--overwrite', action='store_true',
-        help="Overwrite if exists")
+        help="Overwrite output dorectory if exists")
     parser.set_defaults(command=run_command)
 
     return parser
@@ -261,7 +264,7 @@ def run_command(args):
         dst_dir = generate_next_file_name('%s-inference' % \
             project.config.project_name)
 
-    project.make_dataset().run_model(
+    project.make_dataset(args.target).run_model(
         save_dir=osp.abspath(dst_dir),
         model=args.model_name)
 
@@ -300,6 +303,11 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     subparsers = parser.add_subparsers()
     add_subparser(subparsers, 'add', build_add_parser)
     add_subparser(subparsers, 'remove', build_remove_parser)
+    add_subparser(subparsers, 'fetch', build_fetch_parser)
+    add_subparser(subparsers, 'checkout', build_checkout_parser)
+    add_subparser(subparsers, 'pull', build_pull_parser)
+    add_subparser(subparsers, 'push', build_push_parser)
+    add_subparser(subparsers, 'update', build_push_parser)
     add_subparser(subparsers, 'run', build_run_parser)
     add_subparser(subparsers, 'info', build_info_parser)
 
