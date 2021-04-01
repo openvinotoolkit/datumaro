@@ -380,7 +380,10 @@ class LabelMeConverter(Converter):
                 ET.SubElement(parts_elem, 'hasparts').text = ''
                 ET.SubElement(parts_elem, 'ispartof').text = str(leader_id)
 
-        xml_path = osp.join(subset_dir, 'item_%09d.xml' % index)
+        image_name = osp.basename(image_filename)
+        xml_path = osp.join(subset_dir, osp.splitext(image_name)[0] + '.xml')
+        if osp.exists(xml_path):
+            xml_path = osp.join(subset_dir, image_name + '.xml')
         with open(xml_path, 'w', encoding='utf-8') as f:
             xml_data = ET.tostring(root_elem, encoding='unicode',
                 pretty_print=True)
