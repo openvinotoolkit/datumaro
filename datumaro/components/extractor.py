@@ -264,11 +264,15 @@ class CompiledMask:
         class_map = [0]
 
         m, idx, instance_id, class_id = next(it)
+        if not class_id:
+            idx = 0
         index_mask = make_index_mask(m, idx)
         instance_map.append(instance_id)
         class_map.append(class_id)
 
         for m, idx, instance_id, class_id in it:
+            if not class_id:
+                idx = 0
             index_mask = np.where(m, idx, index_mask)
             instance_map.append(instance_id)
             class_map.append(class_id)
