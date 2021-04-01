@@ -34,8 +34,10 @@ class Source(Config):
 
 
 MODEL_SCHEMA = _SchemaBuilder() \
+    .add('url', str) \
     .add('launcher', str) \
     .add('options', dict) \
+    .add('remote', str) \
     .build()
 
 class Model(Config):
