@@ -10,7 +10,6 @@ import os
 import os.path as osp
 import shutil
 
-from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.project import \
     PROJECT_DEFAULT_CONFIG as DEFAULT_CONFIG
 from datumaro.components.project import Project

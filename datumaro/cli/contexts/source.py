@@ -13,7 +13,7 @@ from ..util.project import generate_next_name, load_project
 
 
 def build_add_parser(parser_ctor=argparse.ArgumentParser):
-    builtins = sorted(Environment().extractors.items)
+    builtins = sorted(Environment().extractors)
 
     parser = parser_ctor(help="Add data source to project",
         description="""
@@ -51,9 +51,9 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
         """ % ', '.join(builtins),
         formatter_class=MultilineFormatter)
     parser.add_argument('url',
-        help="Path to the source dataset")
+        help="URL to the source dataset")
     parser.add_argument('-n', '--name',
-        help="Name of the new source")
+        help="Name of the new source (default: generate automatically)")
     parser.add_argument('-f', '--format', required=True,
         help="Source dataset format")
     parser.add_argument('--no-check', action='store_true',
@@ -71,9 +71,12 @@ def add_command(args):
     project = load_project(args.project_dir)
 
     name = args.name
-    if name is None:
-        name = generate_next_name(list(project.sources), 'source',
-            sep='-', default='1')
+    if name:
+        if name in project.sources:
+            raise CliException("Source '%s' already exists" % name)
+    else:
+        name = generate_next_name(list(project.sources),
+            'source', sep='-', default='1')
 
     try:
         importer = project.env.importers[args.format]
@@ -82,7 +85,7 @@ def add_command(args):
             args.format)
 
     extra_args = {}
-    if hasattr(importer, 'parse_cmdline'):
+    if args.extra_args and hasattr(importer, 'parse_cmdline'):
         extra_args = importer.parse_cmdline(args.extra_args)
 
     project.sources.add(name, {
@@ -99,13 +102,14 @@ def add_command(args):
 
     project.save()
 
-    log.info("Source '%s' has been added to the project" % name)
+    log.info("Source '%s' with format '%s' has been added to the project",
+        name, args.format)
 
     return 0
 
 def build_remove_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(help="Remove source from project",
-        description="Remove a source from a project.")
+        description="Remove a source from a project")
 
     parser.add_argument('names', nargs='+',
         help="Names of the sources to be removed")
@@ -135,10 +139,11 @@ def remove_command(args):
     return 0
 
 def build_fetch_parser(parser_ctor=argparse.ArgumentParser):
-    parser = parser_ctor()
+    parser = parser_ctor(help="Fetch updates for source into cache",
+        description="Fetch updates for a source into the project cache")
 
     parser.add_argument('names', nargs='*',
-        help="Names of sources")
+        help="Names of sources (default: all)")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to operate on (default: current dir)")
     parser.set_defaults(command=fetch_command)
@@ -153,10 +158,11 @@ def fetch_command(args):
     return 0
 
 def build_pull_parser(parser_ctor=argparse.ArgumentParser):
-    parser = parser_ctor()
+    parser = parser_ctor(help="Fetch remote updates into cache",
+        description="Fetch remote source updates into the project cache")
 
     parser.add_argument('names', nargs='*',
-        help="Names of sources")
+        help="Names of sources (default: all)")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to operate on (default: current dir)")
     parser.set_defaults(command=pull_command)
@@ -171,7 +177,8 @@ def pull_command(args):
     return 0
 
 def build_push_parser(parser_ctor=argparse.ArgumentParser):
-    parser = parser_ctor()
+    parser = parser_ctor(help="Push local changes to remote",
+        description="Push local source updates to a remote")
 
     parser.add_argument('names', nargs='+',
         help="Names of sources")
@@ -194,10 +201,11 @@ def push_command(args):
     return 0
 
 def build_checkout_parser(parser_ctor=argparse.ArgumentParser):
-    parser = parser_ctor()
+    parser = parser_ctor(help="Load source data from cache",
+        description="Load source data from the project cache")
 
     parser.add_argument('names', nargs='*',
-        help="Names of sources")
+        help="Names of sources (default: all)")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to operate on (default: current dir)")
     parser.set_defaults(command=checkout_command)
@@ -212,8 +220,15 @@ def checkout_command(args):
     return 0
 
 def build_update_parser(parser_ctor=argparse.ArgumentParser):
-    parser = parser_ctor(description="""
-        Pulls updates from remotes and updates build stages
+    parser = parser_ctor(help="Update source revision to remote one",
+        description="""
+        Update source revision to remote one.|n
+        |n
+        To remove existing pipelines for the updated sources
+        (start them from scratch), use the '--restart' parameter.|n
+        |n
+        A specific revision can be required by the '--rev' parameter.
+        Otherwise, the latest remote version will be used.
         """)
 
     parser.add_argument('names', nargs='+',

@@ -44,6 +44,9 @@ class Registry:
     def __contains__(self, key):
         return key in self.items
 
+    def __iter__(self):
+        return iter(self.items)
+
 class PluginRegistry(Registry):
     def __init__(self, config=None, builtin=None, local=None):
         super().__init__(config)
