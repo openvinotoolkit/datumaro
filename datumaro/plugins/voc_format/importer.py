@@ -29,45 +29,30 @@ def find_path(root_path, path, depth=4):
 
 class VocImporter(Importer):
     _TASKS = [
-        (VocTask.classification, 'voc_classification', 'Main'),
-        (VocTask.detection, 'voc_detection', 'Main'),
-        (VocTask.segmentation, 'voc_segmentation', 'Segmentation'),
-        (VocTask.person_layout, 'voc_layout', 'Layout'),
-        (VocTask.action_classification, 'voc_action', 'Action'),
+        ('voc_classification', 'Main'),
+        ('voc_detection', 'Main'),
+        ('voc_segmentation', 'Segmentation'),
+        ('voc_layout', 'Layout'),
+        ('voc_action', 'Action'),
     ]
-
-    def __call__(self, path, **extra_params):
-        subset_paths = self.find_sources(path)
-        if len(subset_paths) == 0:
-            raise Exception("Failed to find 'voc' dataset at '%s'" % path)
-
-        sources = []
-        for _, extractor_type, subset_path in subset_paths:
-            sources.append({
-                'url': subset_path,
-                'format': extractor_type,
-                'options': dict(extra_params),
-            })
-
-        return sources
 
     @classmethod
     def find_sources(cls, path):
         # find root path for the dataset
         root_path = path
-        for task, extractor_type, task_dir in cls._TASKS:
+        for extractor_type, task_dir in cls._TASKS:
             task_path = find_path(root_path, osp.join(VocPath.SUBSETS_DIR, task_dir))
             if task_path:
                 root_path = osp.dirname(osp.dirname(task_path))
                 break
 
-        subset_paths = []
-        for task, extractor_type, task_dir in cls._TASKS:
+        subsets = []
+        for extractor_type, task_dir in cls._TASKS:
             task_path = osp.join(root_path, VocPath.SUBSETS_DIR, task_dir)
-
             if not osp.isdir(task_path):
                 continue
-            task_subsets = [p for p in glob(osp.join(task_path, '*.txt'))
-                if '_' not in osp.basename(p)]
-            subset_paths += [(task, extractor_type, p) for p in task_subsets]
-        return subset_paths
+
+            subsets += cls._find_sources_recursive(
+                task_path, '.txt', extractor_type, max_depth=0,
+                file_filter=lambda p: '_' not in osp.basename(p))
+        return subsets

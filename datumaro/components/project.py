@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MIT
 
-from datumaro.components.extractor import CategoriesInfo, DatasetItem, Transform
 import json
 import logging as log
 import networkx as nx
@@ -16,7 +15,7 @@ from contextlib import ExitStack
 from enum import Enum
 from functools import partial
 from glob import glob
-from typing import Iterable, List, Optional, Tuple, Union
+from typing import Dict, Iterable, List, Optional, Tuple, Union
 from ruamel.yaml import YAML
 
 from datumaro.components.config import Config
@@ -24,7 +23,9 @@ from datumaro.components.config_model import (PROJECT_DEFAULT_CONFIG,
     PROJECT_SCHEMA, BuildStage, Remote, Source)
 from datumaro.components.environment import Environment
 from datumaro.components.errors import DatumaroError
-from datumaro.components.dataset import Dataset, DEFAULT_FORMAT, DatasetPatch, IDataset
+from datumaro.components.dataset import (Dataset, DEFAULT_FORMAT, DatasetPatch,
+    IDataset)
+from datumaro.components.extractor import CategoriesInfo, DatasetItem, Transform
 from datumaro.util import find, error_rollback
 from datumaro.util.os_util import make_file_name, generate_next_name
 from datumaro.util.log_utils import logging_disabled, catch_logs
@@ -40,7 +41,7 @@ class ProjectSourceDataset(IDataset):
         config = project.sources[source]
         self._config = config
 
-        self._path = osp.join(project.sources.source_dir(source), config.url)
+        self._path = osp.join(project.sources.data_dir(source), config.url)
         self._readonly = not self._path or not osp.exists(self._path)
         if self._path and not osp.exists(self._path) and not config.remote:
             # backward compatibility
@@ -259,7 +260,7 @@ class ProjectRemotes(CrudProxy):
         url_parts = urllib.parse.urlsplit(url)
         if url_parts.scheme not in cls.SUPPORTED_PROTOCOLS and \
                 not osp.exists(url):
-            raise NotImplementedError(
+            raise ValueError(
                 "Invalid remote '%s': scheme '%s' is not supported, the only"
                 "available are: %s" % \
                 (url, url_parts.scheme, ', '.join(cls.SUPPORTED_PROTOCOLS))
@@ -268,7 +269,7 @@ class ProjectRemotes(CrudProxy):
             raise ValueError("URL must not be empty, url: '%s'" % url)
         return url_parts
 
-class _RemotesProxy(CrudProxy):
+class _DataSourceBase(CrudProxy):
     def __init__(self, project, config_field):
         self._project = project
         self._field = config_field
@@ -297,11 +298,11 @@ class _RemotesProxy(CrudProxy):
                 "single source invocation")
 
         self._project.vcs.dvc.update_imports(
-            [self.aux_path(name) for name in names])
+            [self.dvcfile_path(name) for name in names])
 
     def fetch(self, names=None):
         if not self._project.vcs.readable:
-            raise Exception("Can't fetch in a read-only project")
+            raise Exception("Can't fetch in a detached project")
 
         if not names:
             names = []
@@ -315,7 +316,7 @@ class _RemotesProxy(CrudProxy):
                 raise KeyError("Unknown source '%s'" % name)
 
         self._project.vcs.dvc.fetch(
-            [self.aux_path(name) for name in names])
+            [self.dvcfile_path(name) for name in names])
 
     def checkout(self, names=None):
         # TODO: need to add DVC cache interaction and checking of the
@@ -336,7 +337,7 @@ class _RemotesProxy(CrudProxy):
                 raise KeyError("Unknown source '%s'" % name)
 
         self._project.vcs.dvc.checkout(
-            [self.aux_path(name) for name in names])
+            [self.dvcfile_path(name) for name in names])
 
     def push(self, names=None):
         if not self._project.vcs.writeable:
@@ -353,52 +354,27 @@ class _RemotesProxy(CrudProxy):
             if name and name not in self:
                 raise KeyError("Unknown source '%s'" % name)
 
-        self._project.vcs.dvc.push([self.aux_path(name) for name in names])
-
-    def add(self, name, value):
-        return self._data.set(name, value)
-
-    @classmethod
-    def _make_remote_name(cls, name):
-        raise NotImplementedError("Should be implemented in a subclass")
+        self._project.vcs.dvc.push([self.dvcfile_path(name) for name in names])
 
     @classmethod
     def _validate_url(cls, url):
         return ProjectRemotes.validate_url(url)
 
-    def aux_path(self, name):
+    @classmethod
+    def _make_remote_name(cls, name):
+        return name
+
+    def data_dir(self, name):
+        return osp.join(self._project.config.project_dir, name)
+
+    def validate_name(self, name):
+        valid_filename = make_file_name(name)
+        if valid_filename != name:
+            raise ValueError("Source name contains "
+                "prohibited symbols: %s" % (set(name) - set(valid_filename)) )
+
+    def dvcfile_path(self, name):
         return self._project.vcs.dvc_filepath(name)
-
-class ProjectModels(_RemotesProxy):
-    def __init__(self, project):
-        super().__init__(project, 'models')
-
-    def __getitem__(self, name):
-        try:
-            return super().__getitem__(name)
-        except KeyError:
-            raise KeyError("Unknown model '%s'" % name)
-
-    def model_dir(self, name):
-        return osp.join(
-            self._project.config.project_dir,
-            self._project.config.env_dir,
-            self._project.config.models_dir, name)
-
-    def make_executable_model(self, name):
-        model = self[name]
-        return self._project.env.make_launcher(model.launcher,
-            **model.options, model_dir=self.model_dir(name))
-
-class ProjectSources(_RemotesProxy):
-    def __init__(self, project):
-        super().__init__(project, 'sources')
-
-    def __getitem__(self, name):
-        try:
-            return super().__getitem__(name)
-        except KeyError:
-            raise KeyError("Unknown source '%s'" % name)
 
     @classmethod
     def _fix_dvc_file(cls, source_path, dvc_path, dst_name):
@@ -461,23 +437,23 @@ class ProjectSources(_RemotesProxy):
                 })
                 path = ''
 
-            source_dir = self.source_dir(name)
+            source_dir = self.data_dir(name)
 
-            aux_path = self.aux_path(name)
-            if not osp.isfile(aux_path):
-                on_error.do(os.remove, aux_path, ignore_errors=True)
+            dvcfile = self.dvcfile_path(name)
+            if not osp.isfile(dvcfile):
+                on_error.do(os.remove, dvcfile, ignore_errors=True)
 
             if not remote_name:
                 pass
             elif remote_conf.type == 'url':
                 self._project.vcs.dvc.import_url(
                     'remote://%s%s' % (remote_name, path),
-                    out=source_dir, dvc_path=aux_path, download=True)
-                self._ensure_in_dir(source_dir, aux_path, osp.basename(url))
+                    out=source_dir, dvc_path=dvcfile, download=True)
+                self._ensure_in_dir(source_dir, dvcfile, osp.basename(url))
             elif remote_conf.type == 'git':
                 self._project.vcs.dvc.import_repo(remote_conf.url, path=path,
-                    out=source_dir, dvc_path=aux_path, download=True)
-                self._ensure_in_dir(source_dir, aux_path, osp.basename(url))
+                    out=source_dir, dvc_path=dvcfile, download=True)
+                self._ensure_in_dir(source_dir, dvcfile, osp.basename(url))
             else:
                 raise Exception("Unknown remote type '%s'" % remote_conf.type)
 
@@ -494,9 +470,7 @@ class ProjectSources(_RemotesProxy):
 
         value['url'] = path
         value['remote'] = remote_name
-        value = super().add(name, value)
-
-        self._project.build_targets.add_target(name)
+        value = self._data.set(name, value)
 
         return value
 
@@ -506,47 +480,80 @@ class ProjectSources(_RemotesProxy):
         if name not in self._data and not force:
             raise KeyError("Unknown source '%s'" % name)
 
-        self._project.build_targets.remove_target(name)
         self._data.remove(name)
 
         if not self._project.vcs.writeable:
             return
 
         if force and not keep_data:
-            source_dir = self.source_dir(name)
+            source_dir = self.data_dir(name)
             if osp.isdir(source_dir):
                 shutil.rmtree(source_dir, ignore_errors=True)
 
-        aux_file = self.aux_path(name)
-        if osp.isfile(aux_file):
+        dvcfile = self.dvcfile_path(name)
+        if osp.isfile(dvcfile):
             try:
-                self._project.vcs.dvc.remove(aux_file, outs=not keep_data)
+                self._project.vcs.dvc.remove(dvcfile, outs=not keep_data)
             except Exception:
                 if force:
-                    os.remove(aux_file)
+                    os.remove(dvcfile)
                 else:
                     raise
 
         self._project.vcs.remotes.remove(name, force=force)
 
-    @classmethod
-    def _make_remote_name(cls, name):
-        return name
+class ProjectModels(_DataSourceBase):
+    def __init__(self, project):
+        super().__init__(project, 'models')
+
+    def __getitem__(self, name):
+        try:
+            return super().__getitem__(name)
+        except KeyError:
+            raise KeyError("Unknown model '%s'" % name)
+
+    def data_dir(self, name):
+        return osp.join(
+            self._project.config.project_dir,
+            self._project.config.env_dir,
+            self._project.config.models_dir, name)
+
+    def make_executable_model(self, name):
+        model = self[name]
+        return self._project.env.make_launcher(model.launcher,
+            **model.options, model_dir=self.data_dir(name))
+
+class ProjectSources(_DataSourceBase):
+    def __init__(self, project):
+        super().__init__(project, 'sources')
+
+    def __getitem__(self, name):
+        try:
+            return super().__getitem__(name)
+        except KeyError:
+            raise KeyError("Unknown source '%s'" % name)
 
     def make_dataset(self, name):
         return ProjectSourceDataset(self._project, name)
 
-    def source_dir(self, name):
-        return osp.join(self._project.config.project_dir, name)
-
     def validate_name(self, name):
-        valid_filename = make_file_name(name)
-        if valid_filename != name:
-            raise ValueError("Source name contains "
-                "prohibited symbols: '%s'." % (set(name) - set(valid_name)) )
+        super().validate_name(name)
+
         reserved_names = {'dataset', 'build', 'project'}
         if name.lower() in reserved_names:
             raise ValueError("Source name is reserved for internal use")
+
+    def add(self, name, value):
+        value = super().add(name, value)
+
+        self._project.build_targets.add_target(name)
+
+        return value
+
+    def remove(self, name, force=False, keep_data=True):
+        self._project.build_targets.remove_target(name)
+
+        super().remove(name, force=force, keep_data=keep_data)
 
 
 BuildStageType = Enum('BuildStageType',
@@ -676,7 +683,8 @@ class ProjectBuildTargets(CrudProxy):
             'params': params or {},
         }, prev=stage, name=name)
 
-    def add_convert_stage(self, target, format, params=None, name=None): # pylint: disable=redefined-builtin
+    def add_convert_stage(self, target, format, \
+            params=None, name=None): # pylint: disable=redefined-builtin
         stage = None
         if '.' in target:
             target, stage = self._split_target_name(target)
@@ -985,7 +993,7 @@ class ProjectBuildTargets(CrudProxy):
                 out_dir = osp.join(self._project.config.project_dir,
                     self._project.config.build_dir)
             elif target == raw_target:
-                out_dir = self._project.sources.source_dir(target)
+                out_dir = self._project.sources.data_dir(target)
 
         if not out_dir:
             raise Exception("Output directory is not specified.")
@@ -1450,7 +1458,7 @@ class DvcWrapper:
         return logs
 
 class ProjectVcs:
-    def __init__(self, project, readonly=False):
+    def __init__(self, project: 'Project', readonly: bool = False):
         self._project = project
         self.readonly = readonly
 
@@ -1513,7 +1521,7 @@ class ProjectVcs:
     def tags(self) -> List[str]:
         return self.git.tags
 
-    def push(self, remote=None):
+    def push(self, remote: Union[None, str] = None):
         if not self.writeable:
             raise Exception("Can't push in a detached or read-only repository")
 
@@ -1528,7 +1536,8 @@ class ProjectVcs:
         self.git.pull(remote=remote)
         self.dvc.pull()
 
-    def check_updates(self, targets=None) -> List[str]:
+    def check_updates(self,
+            targets: Union[None, str, List[str]] = None) -> List[str]:
         if not self.writeable:
             raise Exception("Can't check updates in a detached or "
                 "read-only repository")
@@ -1537,20 +1546,21 @@ class ProjectVcs:
         updated_remotes = self.remotes.check_updates(targets)
         return updated_refs, updated_remotes
 
-    def fetch(self, remote=None):
+    def fetch(self, remote: Union[None, str] = None):
         if not self.writeable:
             raise Exception("Can't fetch in a detached or read-only repository")
 
         self.git.fetch(remote=remote)
         self.dvc.fetch()
 
-    def tag(self, name):
+    def tag(self, name: str):
         if not self.writeable:
             raise Exception("Can't tag in a detached or read-only repository")
 
         self.git.tag(name)
 
-    def checkout(self, rev=None, targets=None):
+    def checkout(self, rev: Union[None, str] = None,
+            targets: Union[None, str, List[str]] = None):
         if not self.writeable:
             raise Exception("Can't checkout in a detached or "
                 "read-only repository")
@@ -1560,11 +1570,18 @@ class ProjectVcs:
         dvc_paths = [self.dvc_filepath(t) for t in targets]
         self.git.checkout(rev, dvc_paths)
 
-        sources = [t for t in targets if t in self._project.sources]
-        if sources or not targets:
-            self._project.sources.checkout(sources)
+        if not targets:
+            self._dvc.checkout()
+        else:
+            sources = [t for t in targets if t in self._project.sources]
+            if sources:
+                self._project.sources.checkout(sources)
 
-    def add(self, paths):
+            models = [t for t in targets if t in self._project.models]
+            if models:
+                self._project.models.checkout(models)
+
+    def add(self, paths: List[str]):
         if not self.writeable:
             raise Exception("Can't track files in a detached or "
                 "read-only repository")
@@ -1575,7 +1592,7 @@ class ProjectVcs:
             self.dvc.add(p, dvc_path=self.dvc_aux_path(osp.basename(p)))
         self.ensure_gitignored()
 
-    def commit(self, paths, message):
+    def commit(self, paths: Union[None, List[str]], message):
         if not self.writeable:
             raise Exception("Can't commit in a detached or "
                 "read-only repository")
@@ -1608,7 +1625,7 @@ class ProjectVcs:
         self.dvc.init()
         os.makedirs(self.dvc_aux_dir(), exist_ok=True)
 
-    def status(self):
+    def status(self) -> Dict:
         if not self.readable:
             raise Exception("Can't check status in a detached repository")
 
@@ -1618,36 +1635,37 @@ class ProjectVcs:
         uncomitted.update(self.dvc.status())
         return uncomitted
 
-    def ensure_gitignored(self, paths=None):
+    def ensure_gitignored(self, paths: Union[None, str, List[str]] = None):
         if not self.writeable:
             raise Exception("Can't update a detached or read-only repository")
 
         if paths is None:
-            paths = [self._project.sources.source_dir(source)
+            paths = [self._project.sources.data_dir(source)
                     for source in self._project.sources] + \
                 [self._project.config.build_dir]
         self.git.ignore(paths, mode='append')
 
-    def dvc_aux_dir(self):
+    def dvc_aux_dir(self) -> str:
         return osp.join(self._project.config.project_dir,
             self._project.config.env_dir,
             self._project.config.dvc_aux_dir)
 
-    def dvc_filepath(self, target):
+    def dvc_filepath(self, target: str) -> str:
         return osp.join(self.dvc_aux_dir(), target + '.dvc')
 
-    def is_ref(self, ref):
+    def is_ref(self, ref: str) -> bool:
         if not self.readable:
             raise Exception("Can't read in a detached repository")
 
         return self.git.is_ref(ref)
 
-    def has_commits(self):
+    def has_commits(self) -> bool:
         return self.git.has_commits()
 
 class Project:
     @classmethod
-    def import_from(cls, path, dataset_format=None, env=None, **format_options):
+    def import_from(cls, path: str, dataset_format: Optional[str] = None,
+            env: Optional[Environment] = None, **format_options) -> 'Project':
         if env is None:
             env = Environment()
 
@@ -1676,7 +1694,8 @@ class Project:
         return project
 
     @classmethod
-    def generate(cls, save_dir, config=None):
+    def generate(cls, save_dir: str,
+            config: Optional[Config] = None) -> 'Project':
         config = Config(config)
         config.project_dir = save_dir
         project = Project(config)
@@ -1684,7 +1703,7 @@ class Project:
         return project
 
     @classmethod
-    def load(cls, path):
+    def load(cls, path: str) -> 'Project':
         path = osp.abspath(path)
         config_path = osp.join(path, PROJECT_DEFAULT_CONFIG.env_dir,
             PROJECT_DEFAULT_CONFIG.project_filename)
@@ -1694,7 +1713,7 @@ class Project:
         return Project(config)
 
     @error_rollback('on_error', implicit=True)
-    def save(self, save_dir=None):
+    def save(self, save_dir: Union[None, str] = None):
         config = self.config
         if save_dir and config.project_dir and save_dir != config.project_dir:
             raise NotImplementedError("Can't copy or resave project "
@@ -1729,7 +1748,8 @@ class Project:
                 osp.join(project_dir, '.dvcignore'),
             ])
 
-    def __init__(self, config=None, env=None):
+    def __init__(self, config: Optional[Config] = None,
+            env: Optional[Environment] = None):
         self._config = self._read_config(config)
         if env is None:
             env = Environment(self._config)
@@ -1765,7 +1785,8 @@ class Project:
     def env(self) -> Environment:
         return self._env
 
-    def make_dataset(self, target=None) -> Dataset:
+    def make_dataset(self,
+            target: Union[None, str, List[str]] = None) -> Dataset:
         if target is None:
             target = 'project'
         return self.build_targets.make_dataset(target)
@@ -1774,7 +1795,8 @@ class Project:
         # build + tag + push?
         raise NotImplementedError()
 
-    def build(self, target=None, force=False, out_dir=None):
+    def build(self, target: Union[None, str, List[str]] = None,
+            force: bool = False, out_dir: Union[None, str] = None):
         if target is None:
             target = 'project'
         return self.build_targets.build(target, force=force, out_dir=out_dir)
