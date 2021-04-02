@@ -45,7 +45,7 @@ class LabelMeExtractor(SourceExtractor):
 
             item_id = osp.join(root.find('folder').text or '',
                 root.find('filename').text)
-            image_path = osp.join(path, item_id)
+            image_path = osp.join(path, osp.basename(item_id))
             image_size = None
             imagesize_elem = root.find('imagesize')
             if imagesize_elem is not None:
@@ -245,6 +245,14 @@ class LabelMeImporter(Importer):
                     subset_paths.append({'url': d, 'format': cls.EXTRACTOR,
                         'options': {'subset': subset}
                     })
+                for curr_path, dirs, files in os.walk(d):
+                    for directory in dirs:
+                        dpath =  osp.join(d, curr_path, directory)
+                        if has_annotations(dpath):
+                            subset_paths.append({'url': dpath,
+                                'format': cls.EXTRACTOR,
+                                'options': {'subset': subset}
+                                })
         return subset_paths
 
 
@@ -341,8 +349,10 @@ class LabelMeConverter(Converter):
             elif ann.type == AnnotationType.mask:
                 mask_filename = '%s_mask_%s.png' % \
                     (item.id.replace('/', '_'), obj_id)
-                save_image(osp.join(subset_dir, LabelMePath.MASKS_DIR,
-                        mask_filename),
+                mask_dir = osp.join(subset_dir, osp.dirname(image_filename),
+                    LabelMePath.MASKS_DIR)
+                os.makedirs(mask_dir, exist_ok=True)
+                save_image(osp.join(mask_dir, mask_filename),
                     self._paint_mask(ann.image))
 
                 segm_elem = ET.SubElement(obj_elem, 'segm')
@@ -380,10 +390,11 @@ class LabelMeConverter(Converter):
                 ET.SubElement(parts_elem, 'hasparts').text = ''
                 ET.SubElement(parts_elem, 'ispartof').text = str(leader_id)
 
-        image_name = osp.basename(image_filename)
-        xml_path = osp.join(subset_dir, osp.splitext(image_name)[0] + '.xml')
+        os.makedirs(osp.join(subset_dir, osp.dirname(image_filename)),
+            exist_ok=True)
+        xml_path = osp.join(subset_dir, osp.splitext(image_filename)[0] + '.xml')
         if osp.exists(xml_path):
-            xml_path = osp.join(subset_dir, image_name + '.xml')
+            xml_path = osp.join(subset_dir, image_filename + '.xml')
         with open(xml_path, 'w', encoding='utf-8') as f:
             xml_data = ET.tostring(root_elem, encoding='unicode',
                 pretty_print=True)
