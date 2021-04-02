@@ -1,5 +1,6 @@
 from functools import partial
 import numpy as np
+import os
 import os.path as osp
 
 from unittest import TestCase
@@ -143,6 +144,21 @@ class LabelMeConverterTest(TestCase):
                 source_dataset,
                 partial(LabelMeConverter.convert, save_images=True),
                 test_dir, target_dataset=target_dataset, require_images=True)
+
+    def test_can_save_dataset_to_correct_dir_with_correct_filename(self):
+        dataset = Dataset.from_iterable([
+            DatasetItem(id='dir/a', image=Image(path='dir/a.JPEG',
+                data=np.zeros((4, 3, 3)))),
+        ], categories=[])
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(
+                dataset,
+                partial(LabelMeConverter.convert, save_images=True),
+                test_dir, require_images=True)
+            xml_dirpath = osp.join(test_dir, 'default/dir')
+            self.assertEqual(os.listdir(osp.join(test_dir, 'default')), ['dir'])
+            self.assertEqual(os.listdir(xml_dirpath), ['a.xml', 'a.JPEG'])
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'labelme_dataset')
 
