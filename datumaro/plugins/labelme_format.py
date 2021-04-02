@@ -263,8 +263,6 @@ class LabelMeConverter(Converter):
         for subset_name, subset in self._extractor.subsets().items():
             subset_dir = osp.join(self._save_dir, subset_name)
             os.makedirs(subset_dir, exist_ok=True)
-            os.makedirs(osp.join(subset_dir, LabelMePath.MASKS_DIR),
-                exist_ok=True)
 
             for index, item in enumerate(subset):
                 self._save_item(item, subset_dir, index)
