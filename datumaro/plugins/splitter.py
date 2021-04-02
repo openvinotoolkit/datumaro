@@ -556,79 +556,105 @@ class DetectionSplit(_TaskSpecificSplit):
         by_labels = self._group_by_bbox_labels(self._extractor)
 
         # 2. group by attributes
-        by_combinations = dict()
-        for label, items in by_labels.items():
+        required = self._get_required(sratio)
+        by_combinations = list()
+        for _, items in by_labels.items():
             by_attributes = self._group_by_attr(items)
-            for attributes, indice in by_attributes.items():
-                gname = "label: %s, attributes: %s" % (label, attributes)
-                by_combinations[gname] = indice
+            # merge groups which have too small samples.
+            attr_names = list(by_attributes.keys())
+            np.random.shuffle(attr_names)  # add randomless
+            cluster = []
+            minumum = max(required, len(items) * 0.1)  # temp solution
+            for attr in attr_names:
+                indice = by_attributes[attr]
+                if len(indice) >= minumum:
+                    by_combinations.append(indice)
+                else:
+                    cluster.extend(indice)
+                    if len(cluster) >= minumum:
+                        by_combinations.append(cluster)
+                        cluster = []
+            if len(cluster) > 0:
+                by_combinations.append(cluster)
+                cluster = []
+
+        total = len(self._extractor)
 
         # total number of GT samples per label-attr combinations
-        n_combs = {k: len(v) for k, v in by_combinations.items()}
+        n_combs = [len(v) for v in by_combinations]
 
         # 3-1. initially count per-image GT samples
-        scores_all = {}
+        counts_all = {idx: dict() for idx in range(total)}
+        for idx_comb, indice in enumerate(by_combinations):
+            for idx in indice:
+                if idx_comb not in counts_all[idx]:
+                    counts_all[idx] = {idx_comb: 1}
+                else:
+                    counts_all[idx][idx_comb] += 1
+
         init_scores = {}
-        for idx, _ in enumerate(self._extractor):
-            counts = {k: v.count(idx) for k, v in by_combinations.items()}
-            scores_all[idx] = counts
-            init_scores[idx] = np.sum(
-                [v / n_combs[k] for k, v in counts.items()]
-            )
+        for idx, counts in counts_all.items():
+            norm_sum = 0.0
+            for idx_comb, count in counts.items():
+                norm_sum += count / n_combs[idx_comb]
+            init_scores[idx] = norm_sum
 
         by_splits = dict()
         for sname in self._subsets:
             by_splits[sname] = []
 
-        total = len(self._extractor)
         target_size = dict()
         expected = []  # expected numbers of per split GT samples
         for sname, ratio in zip(subsets, sratio):
             target_size[sname] = total * ratio
-            expected.append(
-                (sname, {k: v * ratio for k, v in n_combs.items()})
-            )
+            expected.append([sname, np.array(n_combs) * ratio])
 
         # functions for keep the # of annotations not exceed the expected num
         def compute_penalty(counts, n_combs):
             p = 0
-            for k, v in counts.items():
-                p += max(0, (v / n_combs[k]) - 1.0)
+            for idx_comb, v in counts.items():
+                p += max(0, (v / n_combs[idx_comb]) - 1.0)
             return p
 
         def update_nc(counts, n_combs):
-            for k, v in counts.items():
-                n_combs[k] = max(0, n_combs[k] - v)
-                if n_combs[k] == 0:
-                    n_combs[k] = -1
-            return n_combs
+            for idx_comb, v in counts.items():
+                n_combs[idx_comb] = max(0, n_combs[idx_comb] - v)
+                if n_combs[idx_comb] == 0:
+                    n_combs[idx_comb] = -1
+
+        by_scores = dict()
+        for idx, score in init_scores.items():
+            if score not in by_scores:
+                by_scores[score] = [idx]
+            else:
+                by_scores[score].append(idx)
 
         # 3-2. assign each DatasetItem to a split, one by one
-        for idx, _ in sorted(
-            init_scores.items(), key=lambda item: item[1], reverse=True
-        ):
-            counts = scores_all[idx]
+        for score in sorted(by_scores.keys(), reverse=True):
+            indice = by_scores[score]
+            np.random.shuffle(indice)  # add randomness for the same score
 
-            # shuffling split order to add randomness
-            # when two or more splits have the same penalty value
-            np.random.shuffle(expected)
+            for idx in indice:
+                counts = counts_all[idx]
+                # shuffling split order to add randomness
+                # when two or more splits have the same penalty value
+                np.random.shuffle(expected)
 
-            pp = []
-            for sname, nc in expected:
-                if target_size[sname] <= len(by_splits[sname]):
-                    # the split has enough images,
-                    # stop adding more images to this split
-                    pp.append(1e08)
-                else:
-                    # compute penalty based on the number of GT samples
-                    # added in the split
-                    pp.append(compute_penalty(counts, nc))
+                pp = []
+                for sname, nc in expected:
+                    if target_size[sname] <= len(by_splits[sname]):
+                        # the split has enough images,
+                        # stop adding more images to this split
+                        pp.append(1e08)
+                    else:
+                        # compute penalty based on the number of GT samples
+                        # added in the split
+                        pp.append(compute_penalty(counts, nc))
 
-            # we push an image to a split with the minimum penalty
-            midx = np.argmin(pp)
-
-            sname, nc = expected[midx]
-            by_splits[sname].append(idx)
-            update_nc(counts, nc)
+                # we push an image to a split with the minimum penalty
+                midx = np.argmin(pp)
+                sname, nc = expected[midx]
+                by_splits[sname].append(idx)
+                update_nc(counts, nc)
 
         self._set_parts(by_splits)
