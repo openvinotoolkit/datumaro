@@ -336,15 +336,18 @@ class TransformsTest(TestCase):
                 Bbox(1, 2, 3, 4, label=2),
                 Mask(image=np.array([1]), label=3),
 
-                # Should be kept
+                # Should be deleted
                 Polygon([1, 1, 2, 2, 3, 4], label=4),
-                PolyLine([1, 3, 4, 2, 5, 6])
+
+                # Should be kept
+                PolyLine([1, 3, 4, 2, 5, 6]),
+                Bbox(4, 3, 2, 1, label=5),
             ])
         ], categories={
             AnnotationType.label: LabelCategories.from_iterable(
-                'label%s' % i for i in range(5)),
+                'label%s' % i for i in range(6)),
             AnnotationType.mask: MaskCategories(
-                colormap=mask_tools.generate_colormap(5)),
+                colormap=mask_tools.generate_colormap(6)),
         })
 
         dst_dataset = Dataset.from_iterable([
@@ -353,37 +356,45 @@ class TransformsTest(TestCase):
                 Bbox(1, 2, 3, 4, label=0),
                 Mask(image=np.array([1]), label=1),
 
-                Polygon([1, 1, 2, 2, 3, 4], label=2),
-                PolyLine([1, 3, 4, 2, 5, 6], label=None)
+                PolyLine([1, 3, 4, 2, 5, 6], label=None),
+                Bbox(4, 3, 2, 1, label=2),
             ]),
         ], categories={
             AnnotationType.label: LabelCategories.from_iterable(
-                ['label0', 'label9', 'label4']),
+                ['label0', 'label9', 'label5']),
             AnnotationType.mask: MaskCategories(colormap={
-                k: v for k, v in mask_tools.generate_colormap(5).items()
-                if k in { 0, 1, 3, 4 }
+                k: v for k, v in mask_tools.generate_colormap(6).items()
+                if k in { 0, 1, 3, 5 }
             })
         })
 
         actual = transforms.RemapLabels(src_dataset, mapping={
-            'label1': 'label9',
-            'label2': 'label0',
-            'label3': 'label9',
+            'label1': 'label9', # rename & join with new label9 (from label3)
+            'label2': 'label0', # rename & join with existing label0
+            'label3': 'label9', # rename & join with new label9 (form label1)
+            'label4': '', # delete the label and associated annotations
+            # 'label5' - unchanged
         }, default='keep')
 
         compare_datasets(self, dst_dataset, actual)
 
     def test_remap_labels_delete_unspecified(self):
         source_dataset = Dataset.from_iterable([
-            DatasetItem(id=1, annotations=[ Label(0) ])
-        ], categories=['label0'])
+            DatasetItem(id=1, annotations=[
+                Label(0, id=0), # will be removed
+                Label(1, id=1),
+                Bbox(1, 2, 3, 4, label=None),
+            ])
+        ], categories=['label0', 'label1'])
 
         target_dataset = Dataset.from_iterable([
-            DatasetItem(id=1),
-        ], categories=[])
+            DatasetItem(id=1, annotations=[
+                Label(0, id=1),
+            ]),
+        ], categories=['label1'])
 
         actual = transforms.RemapLabels(source_dataset,
-            mapping={}, default='delete')
+            mapping={ 'label1': 'label1' }, default='delete')
 
         compare_datasets(self, target_dataset, actual)
 
