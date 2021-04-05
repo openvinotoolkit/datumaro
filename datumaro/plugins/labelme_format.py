@@ -10,7 +10,8 @@ import os
 import os.path as osp
 
 from datumaro.components.extractor import (SourceExtractor, Importer,
-    DatasetItem, AnnotationType, Mask, Bbox, Polygon, LabelCategories
+    DatasetItem, AnnotationType, Mask, Bbox, Polygon, LabelCategories,
+    DEFAULT_SUBSET_NAME
 )
 from datumaro.components.converter import Converter
 from datumaro.util.image import Image, save_image
@@ -26,9 +27,10 @@ class LabelMeExtractor(SourceExtractor):
         assert osp.isdir(path), path
         super().__init__(subset=subset)
 
-        items, categories = self._parse(path)
+        items, categories, subsets = self._parse(path)
         self._categories = categories
         self._items = items
+        self._subsets = subsets
 
     def _parse(self, path):
         categories = {
@@ -38,14 +40,37 @@ class LabelMeExtractor(SourceExtractor):
         }
 
         items = []
-        for p in os.listdir(path):
-            if not p.endswith('.xml'):
-                continue
-            root = ElementTree.parse(osp.join(path, p))
+        subsets = []
+        xmls = []
+        subdirs = []
+
+        for d in os.listdir(path):
+            if d.endswith('.xml'):
+                xmls.append({'url': osp.join(path, d),
+                            'subset': DEFAULT_SUBSET_NAME})
+            else:
+                subdirs.append(d)
+
+        for subdir in subdirs:
+            p = osp.join(path, subdir)
+            for curr_path, dirs, files in os.walk(p):
+                for f in files:
+                    if not f.endswith('.xml'):
+                        continue
+
+                    xmls.append({'url': osp.join(curr_path, f),
+                                'subset': subdir})
+
+        for xml in xmls:
+            subset = xml['subset']
+            subsets.append(subset)
+            xml_path = xml['url']
+
+            root = ElementTree.parse(xml_path)
 
             item_id = osp.join(root.find('folder').text or '',
                 root.find('filename').text)
-            image_path = osp.join(path, osp.basename(item_id))
+            image_path = osp.join(osp.dirname(xml_path), osp.basename(item_id))
             image_size = None
             imagesize_elem = root.find('imagesize')
             if imagesize_elem is not None:
@@ -54,11 +79,11 @@ class LabelMeExtractor(SourceExtractor):
                 image_size = (int(height_elem.text), int(width_elem.text))
             image = Image(path=image_path, size=image_size)
 
-            annotations = self._parse_annotations(root, path, categories)
+            annotations = self._parse_annotations(root, osp.dirname(xml_path), categories)
 
             items.append(DatasetItem(id=osp.splitext(item_id)[0],
-                subset=self._subset, image=image, annotations=annotations))
-        return items, categories
+                subset=subset, image=image, annotations=annotations))
+        return items, categories, subsets
 
     @classmethod
     def _parse_annotations(cls, xml_root, dataset_root, categories):
@@ -226,7 +251,7 @@ class LabelMeImporter(Importer):
 
     @classmethod
     def find_sources(cls, path):
-        subset_paths = []
+        xml_paths = []
         if not osp.isdir(path):
             return []
 
@@ -236,24 +261,13 @@ class LabelMeImporter(Importer):
             return len([p for p in os.listdir(d) if p.endswith('.xml')]) != 0
 
         if has_annotations(path):
-            subset_paths.append({'url': path, 'format': cls.EXTRACTOR})
+            xml_paths = [{'url': path,'format': cls.EXTRACTOR}]
         else:
-            for d in os.listdir(path):
-                subset = d
-                d = osp.join(path, d)
-                if osp.isdir(d) and has_annotations(d):
-                    subset_paths.append({'url': d, 'format': cls.EXTRACTOR,
-                        'options': {'subset': subset}
-                    })
-                for curr_path, dirs, files in os.walk(d):
-                    for directory in dirs:
-                        dpath =  osp.join(d, curr_path, directory)
-                        if has_annotations(dpath):
-                            subset_paths.append({'url': dpath,
-                                'format': cls.EXTRACTOR,
-                                'options': {'subset': subset}
-                                })
-        return subset_paths
+            for p, _, _ in os.walk(path):
+                if has_annotations(p):
+                    xml_paths = [{'url': path, 'format': cls.EXTRACTOR}]
+                    break
+        return xml_paths
 
 
 class LabelMeConverter(Converter):
