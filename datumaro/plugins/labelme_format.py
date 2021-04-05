@@ -311,7 +311,7 @@ class LabelMeConverter(Converter):
             ET.SubElement(obj_elem, 'deleted').text = '0'
             ET.SubElement(obj_elem, 'verified').text = '0'
             ET.SubElement(obj_elem, 'occluded').text = \
-                'yes' if ann.attributes.pop('occluded', '') == True else 'no'
+                'yes' if ann.attributes.setdefault('occluded', '') == True else 'no'
             ET.SubElement(obj_elem, 'date').text = ''
             ET.SubElement(obj_elem, 'id').text = str(obj_id)
 
@@ -334,7 +334,7 @@ class LabelMeConverter(Converter):
                     ET.SubElement(point_elem, 'y').text = '%.2f' % y
 
                 ET.SubElement(poly_elem, 'username').text = \
-                    str(ann.attributes.pop('username', ''))
+                    str(ann.attributes.setdefault('username', ''))
             elif ann.type == AnnotationType.polygon:
                 poly_elem = ET.SubElement(obj_elem, 'polygon')
                 for x, y in zip(ann.points[::2], ann.points[1::2]):
@@ -343,7 +343,7 @@ class LabelMeConverter(Converter):
                     ET.SubElement(point_elem, 'y').text = '%.2f' % y
 
                 ET.SubElement(poly_elem, 'username').text = \
-                    str(ann.attributes.pop('username', ''))
+                    str(ann.attributes.setdefault('username', ''))
             elif ann.type == AnnotationType.mask:
                 mask_filename = '%s_mask_%s.png' % \
                     (item.id.replace('/', '_'), obj_id)
@@ -366,12 +366,14 @@ class LabelMeConverter(Converter):
                     '%.2f' % (bbox[1] + bbox[3])
 
                 ET.SubElement(segm_elem, 'username').text = \
-                    str(ann.attributes.pop('username', ''))
+                    str(ann.attributes.setdefault('username', ''))
             else:
                 raise NotImplementedError("Unknown shape type '%s'" % ann.type)
 
             attrs = []
             for k, v in ann.attributes.items():
+                if k == 'username' or k == 'occluded':
+                    continue
                 attrs.append('%s=%s' % (k, v))
             ET.SubElement(obj_elem, 'attributes').text = ', '.join(attrs)
 
