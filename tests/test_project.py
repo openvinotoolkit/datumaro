@@ -3,17 +3,17 @@ import os
 import os.path as osp
 import shutil
 
-from unittest import TestCase, skipIf, skip, mock
-
-from datumaro.components.project import (Project, BuildStageType,
-    GitWrapper, DvcWrapper)
-from datumaro.components.environment import Environment
-from datumaro.components.dataset import Dataset, DEFAULT_FORMAT
+from unittest import TestCase, skipIf, skip
 from datumaro.components.config import Config
 from datumaro.components.config_model import Source, Model
-from datumaro.components.launcher import Launcher, ModelTransform
+from datumaro.components.dataset import Dataset, DEFAULT_FORMAT
 from datumaro.components.extractor import (Extractor, DatasetItem,
     Label, LabelCategories, AnnotationType, Transform)
+from datumaro.components.errors import VcsError
+from datumaro.components.environment import Environment
+from datumaro.components.launcher import Launcher, ModelTransform
+from datumaro.components.project import (Project, BuildStageType,
+    GitWrapper, DvcWrapper)
 from datumaro.util.test_utils import TestDir, compare_datasets
 
 
@@ -281,6 +281,8 @@ class AttachedProjectTest(TestCase):
             self.assertEqual(source.url, '')
             self.assertTrue(osp.isfile(osp.join(
                 project.sources.data_dir('s1'), 'x', 'y.txt')))
+            self.assertTrue(len(source.remote) != 0)
+            self.assertTrue(source.remote in project.vcs.remotes)
 
     def test_can_add_source_with_existing_remote(self):
         with TestDir() as test_dir:
@@ -321,6 +323,15 @@ class AttachedProjectTest(TestCase):
             added = project.sources[source_name]
             self.assertEqual(added.format, origin.format)
             self.assertEqual(added.options, origin.options)
+
+    def test_cant_add_source_with_wrong_name(self):
+        with TestDir() as test_dir:
+            project = Project.generate(save_dir=test_dir)
+
+            for name in ['dataset', 'project', 'build', '.any']:
+                with self.subTest(name=name), \
+                        self.assertRaisesRegex(ValueError, "Source name"):
+                    project.sources.add(name, { 'format': 'fmt' })
 
     def test_can_pull_dir_source(self):
         with TestDir() as test_dir:
@@ -560,11 +571,31 @@ class AttachedProjectTest(TestCase):
                 'url': source_url,
                 'format': DEFAULT_FORMAT,
             })
+            project.build_targets.add_filter_stage('s1', { 'expr': '/item' })
 
             project.build()
 
             built_dataset = Dataset.load(
                 osp.join(test_dir, project.config.build_dir))
+            compare_datasets(self, dataset, built_dataset)
+
+
+    def test_can_make_dataset_from_project(self):
+        with TestDir() as test_dir:
+            source_url = osp.join(test_dir, 'test_repo')
+            dataset = Dataset.from_iterable([
+                DatasetItem(1, annotations=[Label(0)]),
+            ], categories=['a', 'b'])
+            dataset.save(source_url)
+
+            project = Project.generate(save_dir=test_dir)
+            project.sources.add('s1', {
+                'url': source_url,
+                'format': DEFAULT_FORMAT,
+            })
+
+            built_dataset = project.make_dataset()
+
             compare_datasets(self, dataset, built_dataset)
 
     def test_can_build_source(self):
@@ -584,6 +615,25 @@ class AttachedProjectTest(TestCase):
             project.build('s1')
 
             built_dataset = Dataset.load(project.sources.data_dir('s1'))
+            compare_datasets(self, dataset, built_dataset)
+
+    def test_can_make_dataset_from_source(self):
+        with TestDir() as test_dir:
+            source_url = osp.join(test_dir, 'test_repo')
+            dataset = Dataset.from_iterable([
+                DatasetItem(1, annotations=[Label(0)]),
+            ], categories=['a', 'b'])
+            dataset.save(source_url)
+
+            project = Project.generate(save_dir=test_dir)
+            project.sources.add('s1', {
+                'url': source_url,
+                'format': DEFAULT_FORMAT,
+            })
+            project.build_targets.add_filter_stage('s1', { 'expr': '/item' })
+
+            built_dataset = project.make_dataset('s1')
+
             compare_datasets(self, dataset, built_dataset)
 
     def test_can_add_stage_directly(self):
@@ -706,6 +756,32 @@ class AttachedProjectTest(TestCase):
             project.build('s1.f1', out_dir=osp.join(test_dir, 'test_build'))
 
             built_dataset = Dataset.load(osp.join(test_dir, 'test_build'))
+            expected_dataset = Dataset.from_iterable([
+                DatasetItem(2, annotations=[Label(1)]),
+            ], categories=['a', 'b'])
+            compare_datasets(self, expected_dataset, built_dataset)
+
+    def test_can_make_dataset_from_stage(self):
+        with TestDir() as test_dir:
+            source_url = osp.join(test_dir, 'test_repo')
+            dataset = Dataset.from_iterable([
+                DatasetItem(1, annotations=[Label(0)]),
+                DatasetItem(2, annotations=[Label(1)]),
+            ], categories=['a', 'b'])
+            dataset.save(source_url)
+
+            project = Project.generate(save_dir=test_dir)
+            project.sources.add('s1', {
+                'url': source_url,
+                'format': DEFAULT_FORMAT,
+            })
+            project.build_targets.add_stage('s1', {
+                'type': BuildStageType.filter.name,
+                'params': {'expr': '/item/annotation[label="b"]'},
+            }, name='f1')
+
+            built_dataset = project.make_dataset('s1.f1')
+
             expected_dataset = Dataset.from_iterable([
                 DatasetItem(2, annotations=[Label(1)]),
             ], categories=['a', 'b'])
