@@ -26,7 +26,7 @@ from datumaro.components.errors import DatumaroError
 from datumaro.components.dataset import (Dataset, DEFAULT_FORMAT, DatasetPatch,
     IDataset)
 from datumaro.components.extractor import CategoriesInfo, DatasetItem, Transform
-from datumaro.util import find, error_rollback
+from datumaro.util import find, error_rollback, parse_str_enum_value
 from datumaro.util.os_util import make_file_name, generate_next_name
 from datumaro.util.log_utils import logging_disabled, catch_logs
 
@@ -373,6 +373,9 @@ class _DataSourceBase(CrudProxy):
             raise ValueError("Source name contains "
                 "prohibited symbols: %s" % (set(name) - set(valid_filename)) )
 
+        if name.startswith('.'):
+            raise ValueError("Source name can't start with '.'")
+
     def dvcfile_path(self, name):
         return self._project.vcs.dvc_filepath(name)
 
@@ -427,6 +430,10 @@ class _DataSourceBase(CrudProxy):
                 url = remote_conf.url + path
             else:
                 # add a source and a new remote
+                if not url_parts.scheme and not osp.exists(url):
+                    raise FileNotFoundError(
+                        "Can't find file or directory '%s'" % url)
+
                 remote_name = self._make_remote_name(name)
                 if remote_name not in self._project.vcs.remotes:
                     on_error.do(self._project.vcs.remotes.remove, remote_name,
@@ -1182,9 +1189,7 @@ class GitWrapper:
             return osp.relpath(path, repo_root)
 
         IgnoreMode = self.IgnoreMode
-        mode = mode or IgnoreMode.append
-        if not isinstance(mode, IgnoreMode):
-            mode = IgnoreMode[mode]
+        mode = parse_str_enum_value(mode, IgnoreMode, IgnoreMode.append)
 
         if not filepath:
             filepath = '.gitignore'
