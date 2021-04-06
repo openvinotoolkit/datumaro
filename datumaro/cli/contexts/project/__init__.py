@@ -299,6 +299,8 @@ def export_command(args):
     except KeyError:
         raise CliException("Converter for format '%s' is not found" % \
             args.format)
+    extra_args = {}
+    if args.extra_args:
     extra_args = converter.parse_cmdline(args.extra_args)
 
     if args.filter:
@@ -400,9 +402,11 @@ def filter_command(args):
             if not args.overwrite and osp.isdir(dst_dir) and os.listdir(dst_dir):
                 raise CliException("Directory '%s' already exists "
                     "(pass --overwrite to overwrite)" % dst_dir)
-        else:
+        elif args.target == project.build_targets.MAIN_TARGET:
             dst_dir = generate_next_file_name('%s-filter' % \
                 project.config.project_name)
+        else:
+            dst_dir = project.sources.data_dir(args.target)
         dst_dir = osp.abspath(dst_dir)
 
     filter_args = FilterModes.make_filter_args(args.mode)
@@ -421,34 +425,43 @@ def filter_command(args):
         raise CliException("Expected a filter expression ('-e' argument)")
 
     if args.target == project.build_targets.MAIN_TARGET:
-        targets = [t for t in project.build_targets
+        sources = [t for t in project.build_targets
             if t != project.build_targets.MAIN_TARGET]
     else:
-        targets = [args.target]
+        sources = [args.target]
 
-    for target in targets:
-        project.build_targets.add_stage(target, {
+    for source in sources:
+        project.build_targets.add_stage(source, {
             'type': BuildStageType.filter.name,
             'params': dict(filter_args),
         })
 
     status = project.vcs.dvc.status()
-    if status:
-        raise CliException("Can't transform project " \
+    if status: # TODO: narrow only to the affected sources
+        raise CliException("Can't modify project " \
             "when there are uncommitted changes: %s" % status)
 
     if args.apply:
         log.info("Filtering...")
 
-        dataset = project.make_dataset(args.target)
-        dataset.save(dst_dir)
+        if args.dst_dir:
+            project.build(args.target, out_dir=dst_dir)
 
         log.info("Results have been saved to '%s'" % dst_dir)
+        else:
+            for source in sources:
+                project.build(source)
+                project.sources[source].url = ''
+
+            if not args.stage:
+                for source in sources:
+                    project.build_targets.remove_stage(source,
+                        project.build_targets[source].head.name)
+
+            log.info("Finished")
 
     if args.stage:
         project.save()
-
-    log.info("Subproject has been extracted to '%s'" % dst_dir)
 
     return 0
 
@@ -607,7 +620,7 @@ def transform_command(args):
             dst_dir = generate_next_file_name('%s-%s' % \
                 (project.config.project_name, make_file_name(args.transform)))
         else:
-            dst_dir = project.sources.source_dir(args.target)
+            dst_dir = project.sources.data_dir(args.target)
 
     dst_dir = osp.abspath(dst_dir)
 
@@ -634,30 +647,26 @@ def transform_command(args):
         })
 
     status = project.vcs.dvc.status()
-    if status:
-        raise CliException("Can't transform project " \
+    if status: # TODO: narrow only to the affected sources
+        raise CliException("Can't modify project " \
             "when there are uncommitted changes: %s" % status)
 
     if args.apply:
         log.info("Transforming...")
 
         if args.dst_dir:
-            dataset = project.make_dataset(args.target)
-            dataset.save(dst_dir)
+            project.build(args.target, out_dir=dst_dir)
 
-            log.info("Transform results have been saved to '%s'" % dst_dir)
+            log.info("Results have been saved to '%s'" % dst_dir)
         else:
             for source in sources:
-                dataset = project.make_dataset(source)
-                dst_dir = project.sources.source_dir(source)
-                dataset.export(format=project.sources[source].format,
-                    save_dir=dst_dir, save_images=True)
+                project.build(source)
                 project.sources[source].url = ''
 
             if not args.stage:
                 for source in sources:
-                    project.build_targets[source].stages = \
-                        project.build_targets[source].stages[:-1]
+                    project.build_targets.remove_stage(source,
+                        project.build_targets[source].head.name)
 
             log.info("Finished")
 
