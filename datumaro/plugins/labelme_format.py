@@ -53,7 +53,7 @@ class LabelMeExtractor(SourceExtractor):
 
         for subdir in subdirs:
             p = osp.join(path, subdir)
-            for curr_path, dirs, files in os.walk(p):
+            for curr_path, _, files in os.walk(p):
                 for f in files:
                     if not f.endswith('.xml'):
                         continue
