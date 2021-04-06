@@ -133,7 +133,10 @@ def main(args=None):
         return 1
 
     try:
-        return args.command(args)
+        retcode = args.command(args)
+        if retcode is None:
+            retcode = 0
+        return retcode
     except CliException as e:
         log.error(e)
         return 1
