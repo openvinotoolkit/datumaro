@@ -301,7 +301,7 @@ def export_command(args):
             args.format)
     extra_args = {}
     if args.extra_args:
-    extra_args = converter.parse_cmdline(args.extra_args)
+        extra_args = converter.parse_cmdline(args.extra_args)
 
     if args.filter:
         filter_args = FilterModes.make_filter_args(args.filter_mode)
@@ -447,7 +447,7 @@ def filter_command(args):
         if args.dst_dir:
             project.build(args.target, out_dir=dst_dir)
 
-        log.info("Results have been saved to '%s'" % dst_dir)
+            log.info("Results have been saved to '%s'" % dst_dir)
         else:
             for source in sources:
                 project.build(source)
@@ -772,7 +772,7 @@ def info_command(args):
         print("  source '%s':" % source_name)
         print("    format:", source.format)
         print("    url:", source.url)
-        print("    location:", project.sources.source_dir(source_name))
+        print("    location:", project.sources.data_dir(source_name))
 
     def print_extractor_info(extractor, indent=''):
         print("%slength:" % indent, len(extractor))
