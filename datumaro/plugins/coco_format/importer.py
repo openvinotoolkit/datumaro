@@ -82,7 +82,7 @@ class CocoImporter(Importer):
             try:
                 ann_type = CocoTask[ann_type]
             except KeyError:
-                log.warn("Skipping '%s': unknown subset "
+                log.warning("Skipping '%s': unknown subset "
                     "type '%s', the only known are: %s" % \
                     (subset_path, ann_type,
                         ', '.join([e.name for e in CocoTask])))

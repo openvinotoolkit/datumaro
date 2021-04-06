@@ -1024,7 +1024,7 @@ def compute_image_statistics(dataset):
         for item in extractor:
             if not (item.has_image and item.image.has_data):
                 available = False
-                log.warn("Item %s has no image. Image stats won't be computed",
+                log.warning("Item %s has no image. Image stats won't be computed",
                     item.id)
                 break
 
