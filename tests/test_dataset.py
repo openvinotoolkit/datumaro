@@ -433,7 +433,7 @@ class DatasetTest(TestCase):
 
         self.assertTrue(iter_called)
 
-    def test_can_chain_lazy_tranforms(self):
+    def test_can_chain_lazy_transforms(self):
         iter_called = False
         class TestExtractor(Extractor):
             def __iter__(self):
@@ -582,6 +582,14 @@ class DatasetTest(TestCase):
             dataset.save(test_dir)
 
         self.assertFalse(called)
+
+    def test_can_transform_labels(self):
+        result = Dataset.from_iterable([], categories=['a', 'b'])
+
+        result.transform('remap_labels', {'a': 'c'})
+
+        compare_datasets(self, Dataset.from_iterable([], categories=['c', 'b']),
+            result)
 
 
 class DatasetItemTest(TestCase):
