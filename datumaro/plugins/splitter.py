@@ -34,20 +34,23 @@ class _TaskSpecificSplit(Transform, CliPlugin):
             raise argparse.ArgumentTypeError()
         return (parts[0], float(parts[1]))
 
-    def __init__(self, dataset, splits, seed):
+    def __init__(self, dataset, splits, seed, restrict=False):
         super().__init__(dataset)
 
         if splits is None:
             splits = self._default_split
 
-        snames, sratio = self._validate_splits(splits)
+        snames, sratio, subsets = self._validate_splits(splits, restrict)
 
         self._snames = snames
         self._sratio = sratio
 
         self._seed = seed
 
-        self._subsets = {"train", "val", "test"}  # output subset names
+        # remove subset name restriction
+        # regarding https://github.com/openvinotoolkit/datumaro/issues/194
+        # self._subsets = {"train", "val", "test"}  # output subset names
+        self._subsets = subsets
         self._parts = []
         self._length = "parent"
 
@@ -71,21 +74,29 @@ class _TaskSpecificSplit(Transform, CliPlugin):
         return annotations
 
     @staticmethod
-    def _validate_splits(splits, valid=None):
+    def _validate_splits(splits, restrict=False):
         snames = []
         ratios = []
-        if valid is None:
-            valid = ["train", "val", "test"]
+        subsets = set()
+        valid = ["train", "val", "test"]
+        # remove subset name restriction
+        # regarding https://github.com/openvinotoolkit/datumaro/issues/194
         for subset, ratio in splits:
-            assert subset in valid, \
-                "Subset name must be one of %s, but got %s" % (valid, subset)
+            if restrict:
+                assert subset in valid, \
+                    "Subset name must be one of %s, got %s" % (valid, subset)
             assert 0.0 <= ratio and ratio <= 1.0, \
                 "Ratio is expected to be in the range " \
                 "[0, 1], but got %s for %s" % (ratio, subset)
             # ignore near_zero ratio because it may produce partition error.
             if ratio > NEAR_ZERO:
+                # handling duplication
+                if subset in snames:
+                    raise Exception("Subset (%s) is duplicated" % subset)
                 snames.append(subset)
                 ratios.append(float(ratio))
+            subsets.add(subset)
+
         ratios = np.array(ratios)
 
         total_ratio = np.sum(ratios)
@@ -95,7 +106,7 @@ class _TaskSpecificSplit(Transform, CliPlugin):
                 % (splits, total_ratio)
             )
 
-        return snames, ratios
+        return snames, ratios, subsets
 
     @staticmethod
     def _get_required(ratio):
@@ -230,7 +241,7 @@ class _TaskSpecificSplit(Transform, CliPlugin):
 
 class ClassificationSplit(_TaskSpecificSplit):
     """
-    Splits dataset into train/val/test set in class-wise manner. |n
+    Splits dataset into subsets(train/val/test) in class-wise manner. |n
     Splits dataset images in the specified ratio, keeping the initial class
     distribution.|n
     |n
@@ -250,7 +261,6 @@ class ClassificationSplit(_TaskSpecificSplit):
         dataset : Dataset
         splits : list
             A list of (subset(str), ratio(float))
-            Subset is expected to be one of ["train", "val", "test"].
             The sum of ratios is expected to be 1.
         seed : int, optional
         """
@@ -340,7 +350,7 @@ class ReidentificationSplit(_TaskSpecificSplit):
             if this is not specified, label would be used.
         seed : int, optional
         """
-        super().__init__(dataset, splits, seed)
+        super().__init__(dataset, splits, seed, restrict=True)
 
         if query is None:
             query = self._default_query_ratio
@@ -350,7 +360,7 @@ class ReidentificationSplit(_TaskSpecificSplit):
             "[0, 1], but got %f" % query
         test_splits = [('test-query', query), ('test-gallery', 1.0 - query)]
 
-        # reset output subset names
+        # remove subset name restriction
         self._subsets = {"train", "val", "test-gallery", "test-query"}
         self._test_splits = test_splits
         self._attr_for_id = attr_for_id
@@ -497,7 +507,7 @@ class ReidentificationSplit(_TaskSpecificSplit):
 
 class DetectionSplit(_TaskSpecificSplit):
     """
-    Splits a dataset into train/val/test subsets for detection task,
+    Splits a dataset into subsets(train/val/test) for detection task,
     using object annotations as a basis for splitting.|n
     Tries to produce an image split with the specified ratio, keeping the
     initial distribution of class objects.|n
@@ -525,7 +535,6 @@ class DetectionSplit(_TaskSpecificSplit):
         dataset : Dataset
         splits : list
             A list of (subset(str), ratio(float))
-            Subset is expected to be one of ["train", "val", "test"].
             The sum of ratios is expected to be 1.
         seed : int, optional
         """

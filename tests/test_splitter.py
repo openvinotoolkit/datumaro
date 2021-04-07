@@ -273,9 +273,9 @@ class SplitterTest(TestCase):
                 splits = [("train", 0.5), ("test", 0.5), ("val", 0.5)]
                 splitter.ClassificationSplit(source, splits)
 
-        with self.subTest("wrong subset name"):
-            with self.assertRaisesRegex(Exception, "Subset name"):
-                splits = [("train_", 0.5), ("val", 0.2), ("test", 0.3)]
+        with self.subTest("duplicated subset name"):
+            with self.assertRaisesRegex(Exception, "duplicated"):
+                splits = [("train", 0.5), ("train", 0.2), ("test", 0.3)]
                 splitter.ClassificationSplit(source, splits)
 
     def test_split_for_reidentification(self):
@@ -436,6 +436,11 @@ class SplitterTest(TestCase):
             with self.assertRaisesRegex(Exception, "in the range"):
                 splits = [("train", 0.5), ("val", 0.2), ("test", 0.3)]
                 actual = splitter.ReidentificationSplit(source, splits, -query)
+
+        with self.subTest("duplicated subset name"):
+            with self.assertRaisesRegex(Exception, "duplicated"):
+                splits = [("train", 0.5), ("train", 0.2), ("test", 0.3)]
+                splitter.ReidentificationSplit(source, splits, query)
 
         with self.subTest("wrong subset name"):
             with self.assertRaisesRegex(Exception, "Subset name"):
@@ -660,7 +665,31 @@ class SplitterTest(TestCase):
                 splits = [("train", 0.5), ("test", 0.5), ("val", 0.5)]
                 splitter.DetectionSplit(source, splits)
 
-        with self.subTest("wrong subset name"):
-            with self.assertRaisesRegex(Exception, "Subset name"):
-                splits = [("train_", 0.5), ("val", 0.2), ("test", 0.3)]
+        with self.subTest("duplicated subset name"):
+            with self.assertRaisesRegex(Exception, "duplicated"):
+                splits = [("train", 0.5), ("train", 0.2), ("test", 0.3)]
                 splitter.DetectionSplit(source, splits)
+
+    def test_no_subsetname_restriction(self):
+        splits = [("_train", 0.5), ("valid", 0.2), ("test*", 0.3)]
+
+        with self.subTest("classification"):
+            config = {
+                "label1": {"attrs": None, "counts": 10}
+            }
+            source = self._generate_dataset(config)
+            actual = splitter.ClassificationSplit(source, splits)
+            self.assertEqual(5, len(actual.get_subset("_train")))
+            self.assertEqual(2, len(actual.get_subset("valid")))
+            self.assertEqual(3, len(actual.get_subset("test*")))
+
+        with self.subTest("detection"):
+            source, _ = self._generate_detection_dataset(
+                append_bbox=self._get_append_bbox("cvat"),
+                with_attr=True,
+                nimages=10,
+            )
+            actual = splitter.DetectionSplit(source, splits)
+            self.assertEqual(5, len(actual.get_subset("_train")))
+            self.assertEqual(2, len(actual.get_subset("valid")))
+            self.assertEqual(3, len(actual.get_subset("test*")))
