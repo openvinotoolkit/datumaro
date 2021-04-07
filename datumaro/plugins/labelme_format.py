@@ -61,7 +61,7 @@ class LabelMeExtractor(SourceExtractor):
                     xmls.append({'url': osp.join(curr_path, f),
                                 'subset': subdir})
 
-        self._parse_categories(path, categories)
+        xmls = sorted(xmls, key=lambda x: x['url'])
         for xml in xmls:
             subset = xml['subset']
             subsets.append(subset)
@@ -85,23 +85,6 @@ class LabelMeExtractor(SourceExtractor):
             items.append(DatasetItem(id=osp.splitext(item_id)[0],
                 subset=subset, image=image, annotations=annotations))
         return items, categories, subsets
-
-    def _parse_categories(self, path, categories):
-        label_cat = categories[AnnotationType.label]
-        def get_label_id(label):
-            if not label:
-                return None
-            idx, _ = label_cat.find(label)
-            if idx is None:
-                idx = label_cat.add(label)
-            return idx
-
-        label_cats_path = osp.join(path, "label_categories.txt")
-        if osp.exists(label_cats_path):
-            with open(label_cats_path, 'r', encoding='utf-8') as f:
-                labels = f.read().split()
-                for label in labels:
-                    get_label_id(label)
 
     @classmethod
     def _parse_annotations(cls, xml_root, dataset_root, categories):
@@ -292,29 +275,17 @@ class LabelMeConverter(Converter):
     DEFAULT_IMAGE_EXT = LabelMePath.IMAGE_EXT
 
     def apply(self):
-        labels = []
         for subset_name, subset in self._extractor.subsets().items():
             subset_dir = osp.join(self._save_dir, subset_name)
             os.makedirs(subset_dir, exist_ok=True)
+
             for index, item in enumerate(subset):
-                for ann in item.annotations:
-                    if not ann.label is None:
-                        labels.append(ann.label)
                 self._save_item(item, subset_dir, index)
-        if not len(labels) == 0:
-            self._save_label_categories(labels)
 
     def _get_label(self, label_id):
         if label_id is None:
             return ''
         return self._extractor.categories()[AnnotationType.label][label_id].name
-
-    def _save_label_categories(self, labels):
-        txt_path = osp.join(self._save_dir, "label_categories.txt")
-        labels = sorted(labels)
-        with open(txt_path, 'a', encoding='utf-8') as f:
-            for label_id in labels:
-                f.write(self._get_label(label_id) + ' ')
 
     def _save_item(self, item, subset_dir, index):
         from lxml import etree as ET
