@@ -5,9 +5,7 @@ import os.path as osp
 
 from unittest import TestCase
 from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import (DatasetItem,
-    AnnotationType, Bbox, Mask, Polygon, LabelCategories
-)
+from datumaro.components.extractor import (DatasetItem, Bbox, Mask, Polygon)
 from datumaro.plugins.labelme_format import LabelMeImporter, LabelMeConverter
 from datumaro.util.image import Image
 from datumaro.util.test_utils import (TestDir, compare_datasets,
@@ -32,6 +30,7 @@ class LabelMeConverterTest(TestCase):
                         'a1': 'qwe',
                         'a2': True,
                         'a3': 123,
+                        'a4': '42'
                     }),
                     Mask(np.array([[0, 1], [1, 0], [1, 1]]), group=2,
                         attributes={ 'username': 'test' }),
@@ -41,10 +40,7 @@ class LabelMeConverterTest(TestCase):
                     ),
                 ]
             ),
-        ], categories={
-            AnnotationType.label: LabelCategories.from_iterable(
-                'label_' + str(label) for label in range(10)),
-        })
+        ], categories=['label_' + str(label) for label in range(10)])
 
         target_dataset = Dataset.from_iterable([
             DatasetItem(id='dir1/1', subset='train',
@@ -61,6 +57,7 @@ class LabelMeConverterTest(TestCase):
                             'a1': 'qwe',
                             'a2': True,
                             'a3': 123,
+                            'a4': '42',
                         }
                     ),
                     Mask(np.array([[0, 1], [1, 0], [1, 1]]), group=2,
@@ -78,10 +75,7 @@ class LabelMeConverterTest(TestCase):
                     ),
                 ]
             ),
-        ], categories={
-            AnnotationType.label: LabelCategories.from_iterable([
-                'label_2', 'label_3']),
-        })
+        ], categories=['label_2', 'label_3'])
 
         with TestDir() as test_dir:
             self._test_save_and_load(
@@ -106,38 +100,20 @@ class LabelMeConverterTest(TestCase):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='кириллица с пробелом', subset='train',
                 image=np.ones((16, 16, 3)),
-                annotations=[
-                    Polygon([0, 4, 4, 4, 5, 6], label=3, attributes={
-                        'occluded': True,
-                        'a1': 'qwe',
-                        'a2': True,
-                        'a3': 123,
-                    }),
-                ]
+                annotations=[ Polygon([0, 4, 4, 4, 5, 6], label=3) ]
             ),
-        ], categories={
-            AnnotationType.label: LabelCategories.from_iterable(
-                'label_' + str(label) for label in range(10)),
-        })
+        ], categories=['label_' + str(label) for label in range(10)])
 
         target_dataset = Dataset.from_iterable([
             DatasetItem(id='кириллица с пробелом', subset='train',
                 image=np.ones((16, 16, 3)),
                 annotations=[
                     Polygon([0, 4, 4, 4, 5, 6], label=0, id=0,
-                        attributes={
-                            'occluded': True, 'username': '',
-                            'a1': 'qwe',
-                            'a2': True,
-                            'a3': 123,
-                        }
+                        attributes={ 'occluded': True, 'username': '' }
                     ),
                 ]
             ),
-        ], categories={
-            AnnotationType.label: LabelCategories.from_iterable([
-                'label_3']),
-        })
+        ], categories=['label_3'])
 
         with TestDir() as test_dir:
             self._test_save_and_load(
@@ -276,12 +252,9 @@ class LabelMeImporterTest(TestCase):
                     ),
                 ]
             ),
-        ], categories={
-            AnnotationType.label: LabelCategories.from_iterable([
-                'window', 'license plate', 'o1',
-                'q1', 'b1', 'm1', 'hg',
-            ]),
-        })
+        ], categories=[
+            'window', 'license plate', 'o1', 'q1', 'b1', 'm1', 'hg',
+        ])
 
         parsed = Dataset.import_from(DUMMY_DATASET_DIR, 'label_me')
         compare_datasets(self, expected=target_dataset, actual=parsed)

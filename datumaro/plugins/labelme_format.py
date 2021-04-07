@@ -4,16 +4,18 @@
 
 from collections import defaultdict
 from defusedxml import ElementTree
+from glob import iglob
 import logging as log
 import numpy as np
 import os
 import os.path as osp
 
-from datumaro.components.extractor import (SourceExtractor, Importer,
-    DatasetItem, AnnotationType, Mask, Bbox, Polygon, LabelCategories,
-    DEFAULT_SUBSET_NAME
-)
+from datumaro.components.errors import DatasetError
+from datumaro.components.extractor import (Extractor, Importer,
+    DatasetItem, AnnotationType, Mask, Bbox, Polygon, LabelCategories)
 from datumaro.components.converter import Converter
+from datumaro.util import cast
+from datumaro.util.os_util import split_path
 from datumaro.util.image import Image, save_image
 from datumaro.util.mask_tools import load_mask, find_mask_bbox
 
@@ -21,91 +23,58 @@ from datumaro.util.mask_tools import load_mask, find_mask_bbox
 class LabelMePath:
     MASKS_DIR = 'Masks'
     IMAGE_EXT = '.jpg'
+    LABELS_FILE = 'labels.txt'
 
-class LabelMeExtractor(SourceExtractor):
-    def __init__(self, path, subset=None):
+class LabelMeExtractor(Extractor):
+    def __init__(self, path):
         assert osp.isdir(path), path
-        super().__init__(subset=subset)
+        super().__init__()
 
-        items, categories, subsets = self._parse(path)
-        self._categories = categories
-        self._items = items
-        self._subsets = subsets
+        self._items, self._categories, self._subsets = self._parse(path)
 
-    def _parse(self, path):
-        categories = {
-            AnnotationType.label: LabelCategories(attributes={
-                'occluded', 'username'
-            })
-        }
-
+    def _parse(self, dataset_root):
         items = []
         subsets = []
-        xmls = []
-        subdirs = []
+        categories = { AnnotationType.label:
+            LabelCategories(attributes={ 'occluded', 'username' })
+        }
 
-        for d in os.listdir(path):
-            if d.endswith('.xml'):
-                xmls.append({'url': osp.join(path, d),
-                            'subset': DEFAULT_SUBSET_NAME})
-            else:
-                subdirs.append(d)
-
-        for subdir in subdirs:
-            p = osp.join(path, subdir)
-            for curr_path, _, files in os.walk(p):
-                for f in files:
-                    if not f.endswith('.xml'):
-                        continue
-
-                    xmls.append({'url': osp.join(curr_path, f),
-                                'subset': subdir})
-
-        self._parse_categories(path, categories)
-        for xml in xmls:
-            subset = xml['subset']
-            subsets.append(subset)
-            xml_path = xml['url']
+        for xml_path in iglob(osp.join(dataset_root, '**', '*.xml')):
+            item_path = osp.relpath(xml_path, dataset_root)
+            path_parts = split_path(item_path)
+            subset = ''
+            if 1 < len(path_parts):
+                subset = path_parts[0]
+                item_path = osp.join(path_parts[1:])
 
             root = ElementTree.parse(xml_path)
 
             item_id = osp.join(root.find('folder').text or '',
-                root.find('filename').text)
+                    root.find('filename').text) or \
+                item_path
             image_path = osp.join(osp.dirname(xml_path), osp.basename(item_id))
+            item_id = osp.splitext(item_id)[0]
+
             image_size = None
             imagesize_elem = root.find('imagesize')
             if imagesize_elem is not None:
                 width_elem = imagesize_elem.find('ncols')
                 height_elem = imagesize_elem.find('nrows')
                 image_size = (int(height_elem.text), int(width_elem.text))
+
             image = Image(path=image_path, size=image_size)
 
-            annotations = self._parse_annotations(root, osp.dirname(xml_path), categories)
+            annotations = self._parse_annotations(root,
+                osp.join(dataset_root, subset), categories)
 
-            items.append(DatasetItem(id=osp.splitext(item_id)[0],
-                subset=subset, image=image, annotations=annotations))
+            items.append(DatasetItem(id=item_id, subset=subset,
+                image=image, annotations=annotations))
+            subsets.append(subset)
         return items, categories, subsets
 
-    def _parse_categories(self, path, categories):
-        label_cat = categories[AnnotationType.label]
-        def get_label_id(label):
-            if not label:
-                return None
-            idx, _ = label_cat.find(label)
-            if idx is None:
-                idx = label_cat.add(label)
-            return idx
-
-        label_cats_path = osp.join(path, "label_categories.txt")
-        if osp.exists(label_cats_path):
-            with open(label_cats_path, 'r', encoding='utf-8') as f:
-                labels = f.read().split()
-                for label in labels:
-                    get_label_id(label)
-
-    @classmethod
-    def _parse_annotations(cls, xml_root, dataset_root, categories):
-        def parse_attributes(attr_str):
+    @staticmethod
+    def _parse_annotations(xml_root, subset_root, categories):
+        def _parse_attributes(attr_str):
             parsed = []
             if not attr_str:
                 return parsed
@@ -115,6 +84,8 @@ class LabelMeExtractor(SourceExtractor):
                     name, value = attr.split('=', maxsplit=1)
                     if value.lower() in {'true', 'false'}:
                         value = value.lower() == 'true'
+                    elif 2 < len(value) and value[0] == '"' and value[-1] == '"':
+                        value = value[1:-1]
                     else:
                         try:
                             value = float(value)
@@ -127,7 +98,7 @@ class LabelMeExtractor(SourceExtractor):
             return parsed
 
         label_cat = categories[AnnotationType.label]
-        def get_label_id(label):
+        def _get_label_id(label):
             if not label:
                 return None
             idx, _ = label_cat.find(label)
@@ -145,12 +116,12 @@ class LabelMeExtractor(SourceExtractor):
 
             ann_items = []
 
-            label = get_label_id(obj_elem.find('name').text)
+            label = _get_label_id(obj_elem.find('name').text)
 
             attributes = []
             attributes_elem = obj_elem.find('attributes')
             if attributes_elem is not None and attributes_elem.text:
-                attributes = parse_attributes(attributes_elem.text)
+                attributes = _parse_attributes(attributes_elem.text)
 
             occluded = False
             occluded_elem = obj_elem.find('occluded')
@@ -199,7 +170,7 @@ class LabelMeExtractor(SourceExtractor):
                     user = user_elem.text
                 attributes.append(('username', user))
 
-                mask_path = osp.join(dataset_root, LabelMePath.MASKS_DIR,
+                mask_path = osp.join(subset_root, LabelMePath.MASKS_DIR,
                     segm_elem.find('mask').text)
                 if not osp.isfile(mask_path):
                     raise Exception("Can't find mask at '%s'" % mask_path)
@@ -263,58 +234,57 @@ class LabelMeExtractor(SourceExtractor):
 
         return image_annotations
 
+    def categories(self):
+        return self._categories
+
+    def __iter__(self):
+        yield from self._items
+
+    def __len__(self):
+        return len(self._items)
+
 
 class LabelMeImporter(Importer):
     EXTRACTOR = 'label_me'
 
     @classmethod
     def find_sources(cls, path):
-        xml_paths = []
+        subsets = []
         if not osp.isdir(path):
             return []
 
-        path = osp.normpath(path)
-
-        def has_annotations(d):
-            return len([p for p in os.listdir(d) if p.endswith('.xml')]) != 0
-
-        if has_annotations(path):
-            xml_paths = [{'url': path,'format': cls.EXTRACTOR}]
-        else:
-            for p, _, _ in os.walk(path):
-                if has_annotations(p):
-                    xml_paths = [{'url': path, 'format': cls.EXTRACTOR}]
-                    break
-        return xml_paths
+        try:
+            next(iglob(osp.join(path, '**', '*.xml'), recursive=True))
+            subsets.append({'url': osp.normpath(path),'format': cls.EXTRACTOR})
+        except StopIteration:
+            pass
+        return subsets
 
 
 class LabelMeConverter(Converter):
     DEFAULT_IMAGE_EXT = LabelMePath.IMAGE_EXT
 
     def apply(self):
-        labels = []
         for subset_name, subset in self._extractor.subsets().items():
             subset_dir = osp.join(self._save_dir, subset_name)
             os.makedirs(subset_dir, exist_ok=True)
             for index, item in enumerate(subset):
-                for ann in item.annotations:
-                    if not ann.label is None:
-                        labels.append(ann.label)
                 self._save_item(item, subset_dir, index)
-        if not len(labels) == 0:
-            self._save_label_categories(labels)
+
+        self._save_labels()
 
     def _get_label(self, label_id):
         if label_id is None:
             return ''
         return self._extractor.categories()[AnnotationType.label][label_id].name
 
-    def _save_label_categories(self, labels):
-        txt_path = osp.join(self._save_dir, "label_categories.txt")
-        labels = sorted(labels)
-        with open(txt_path, 'a', encoding='utf-8') as f:
-            for label_id in labels:
-                f.write(self._get_label(label_id) + ' ')
+    def _save_labels(self):
+        labels = [l.name for l in self._extractor.categories().get(
+            AnnotationType.label, LabelCategories())]
+
+        labels_path = osp.join(self._save_dir, LabelMePath.LABELS_FILE)
+        with open(labels_path, 'w', encoding='utf-8') as f:
+            f.writelines(label + '\n' for label in labels)
 
     def _save_item(self, item, subset_dir, index):
         from lxml import etree as ET
@@ -355,7 +325,7 @@ class LabelMeConverter(Converter):
             ET.SubElement(obj_elem, 'deleted').text = '0'
             ET.SubElement(obj_elem, 'verified').text = '0'
             ET.SubElement(obj_elem, 'occluded').text = \
-                'yes' if ann.attributes.setdefault('occluded', '') == True else 'no'
+                'yes' if ann.attributes.get('occluded') == True else 'no'
             ET.SubElement(obj_elem, 'date').text = ''
             ET.SubElement(obj_elem, 'id').text = str(obj_id)
 
@@ -378,7 +348,7 @@ class LabelMeConverter(Converter):
                     ET.SubElement(point_elem, 'y').text = '%.2f' % y
 
                 ET.SubElement(poly_elem, 'username').text = \
-                    str(ann.attributes.setdefault('username', ''))
+                    str(ann.attributes.get('username', ''))
             elif ann.type == AnnotationType.polygon:
                 poly_elem = ET.SubElement(obj_elem, 'polygon')
                 for x, y in zip(ann.points[::2], ann.points[1::2]):
@@ -387,7 +357,7 @@ class LabelMeConverter(Converter):
                     ET.SubElement(point_elem, 'y').text = '%.2f' % y
 
                 ET.SubElement(poly_elem, 'username').text = \
-                    str(ann.attributes.setdefault('username', ''))
+                    str(ann.attributes.get('username', ''))
             elif ann.type == AnnotationType.mask:
                 mask_filename = '%s_mask_%s.png' % \
                     (item.id.replace('/', '_'), obj_id)
@@ -410,14 +380,16 @@ class LabelMeConverter(Converter):
                     '%.2f' % (bbox[1] + bbox[3])
 
                 ET.SubElement(segm_elem, 'username').text = \
-                    str(ann.attributes.setdefault('username', ''))
+                    str(ann.attributes.get('username', ''))
             else:
                 raise NotImplementedError("Unknown shape type '%s'" % ann.type)
 
             attrs = []
             for k, v in ann.attributes.items():
-                if k == 'username' or k == 'occluded':
+                if k in { 'username' , 'occluded' }:
                     continue
+                if isinstance(v, str) and cast(v, float) is not None:
+                    v = "{v}" # add escaping to string values
                 attrs.append('%s=%s' % (k, v))
             ET.SubElement(obj_elem, 'attributes').text = ', '.join(attrs)
 
