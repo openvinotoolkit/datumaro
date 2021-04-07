@@ -102,7 +102,7 @@ class _TaskSpecificSplit(Transform, CliPlugin):
         if len(ratio) < 2:
             return 1
 
-        for scale in [10, 100, 1000, 10000]:
+        for scale in [10, 100]:
             farray = np.array(ratio) * scale
             iarray = farray.astype(int)
             if np.array_equal(iarray, farray):
@@ -110,7 +110,7 @@ class _TaskSpecificSplit(Transform, CliPlugin):
 
         # find gcd
         common_divisor = iarray[0]
-        for val in iarray[1:-1]:
+        for val in iarray[1:]:
             common_divisor = gcd(common_divisor, val)
 
         required = np.sum(np.array(iarray / common_divisor).astype(int))
@@ -171,11 +171,7 @@ class _TaskSpecificSplit(Transform, CliPlugin):
         return by_attributes
 
     def _split_by_attr(self, datasets, snames, ratio, out_splits,
-            dataset_key=None):
-        required = self._get_required(ratio)
-
-        if dataset_key is None:
-            dataset_key = "label"
+                       merge_small_classes=True):
 
         def _split_indice(indice):
             sections = self._get_sections(len(indice), ratio)
@@ -184,6 +180,7 @@ class _TaskSpecificSplit(Transform, CliPlugin):
                 if 0 < len(split):
                     out_splits[subset].extend(split)
 
+        required = self._get_required(ratio)
         rest = []
         for _, items in datasets.items():
             np.random.shuffle(items)
@@ -205,6 +202,10 @@ class _TaskSpecificSplit(Transform, CliPlugin):
                     filtered_size = quo * required
                     _split_indice(rest[:filtered_size])
                     rest = rest[filtered_size:]
+
+            if not merge_small_classes and len(rest) > 0:
+                _split_indice(rest)
+                rest = []
 
         if len(rest) > 0:
             _split_indice(rest)
@@ -399,7 +400,6 @@ class ReidentificationSplit(_TaskSpecificSplit):
             splits = np.array_split(IDs, sections)
             testset = {pid: by_id[pid] for pid in splits[0]}
             trval = {pid: by_id[pid] for pid in splits[1]}
-
             # follow the ratio of datasetitems as possible.
             # naive heuristic: exchange the best item one by one.
             expected_count = int(len(self._extractor) * split_ratio[0])
@@ -422,7 +422,7 @@ class ReidentificationSplit(_TaskSpecificSplit):
                 test_ratio.append(float(ratio))
 
             self._split_by_attr(testset, test_snames, test_ratio, by_splits,
-                dataset_key=attr_for_id)
+                                merge_small_classes=False)
 
         # 3. split 'trval' into  'train' and 'val'
         trval_snames = ["train", "val"]
@@ -444,7 +444,7 @@ class ReidentificationSplit(_TaskSpecificSplit):
         else:
             trval_ratio /= total_ratio  # normalize
             self._split_by_attr(trval, trval_snames, trval_ratio, by_splits,
-                dataset_key=attr_for_id)
+                                merge_small_classes=False)
 
         self._set_parts(by_splits)
 

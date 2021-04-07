@@ -125,29 +125,37 @@ class SplitterTest(TestCase):
         config = {"label": {"attrs": attrs, "counts": counts}}
         source = self._generate_dataset(config)
 
-        splits = [("train", 0.7), ("test", 0.3)]
-        actual = splitter.ClassificationSplit(source, splits)
+        with self.subTest("zero remainder"):
+            splits = [("train", 0.7), ("test", 0.3)]
+            actual = splitter.ClassificationSplit(source, splits)
 
-        self.assertEqual(84, len(actual.get_subset("train")))
-        self.assertEqual(36, len(actual.get_subset("test")))
+            self.assertEqual(84, len(actual.get_subset("train")))
+            self.assertEqual(36, len(actual.get_subset("test")))
 
-        # check stats for train
-        stat_train = compute_ann_statistics(actual.get_subset("train"))
-        attr_train = stat_train["annotations"]["labels"]["attributes"]
-        self.assertEqual(49, attr_train["attr1"]["distribution"]["0"][0])
-        self.assertEqual(35, attr_train["attr1"]["distribution"]["1"][0])
-        self.assertEqual(28, attr_train["attr2"]["distribution"]["0"][0])
-        self.assertEqual(21, attr_train["attr2"]["distribution"]["1"][0])
-        self.assertEqual(35, attr_train["attr2"]["distribution"]["2"][0])
+            # check stats for train
+            stat_train = compute_ann_statistics(actual.get_subset("train"))
+            attr_train = stat_train["annotations"]["labels"]["attributes"]
+            self.assertEqual(49, attr_train["attr1"]["distribution"]["0"][0])
+            self.assertEqual(35, attr_train["attr1"]["distribution"]["1"][0])
+            self.assertEqual(28, attr_train["attr2"]["distribution"]["0"][0])
+            self.assertEqual(21, attr_train["attr2"]["distribution"]["1"][0])
+            self.assertEqual(35, attr_train["attr2"]["distribution"]["2"][0])
 
-        # check stats for test
-        stat_test = compute_ann_statistics(actual.get_subset("test"))
-        attr_test = stat_test["annotations"]["labels"]["attributes"]
-        self.assertEqual(21, attr_test["attr1"]["distribution"]["0"][0])
-        self.assertEqual(15, attr_test["attr1"]["distribution"]["1"][0])
-        self.assertEqual(12, attr_test["attr2"]["distribution"]["0"][0])
-        self.assertEqual(9, attr_test["attr2"]["distribution"]["1"][0])
-        self.assertEqual(15, attr_test["attr2"]["distribution"]["2"][0])
+            # check stats for test
+            stat_test = compute_ann_statistics(actual.get_subset("test"))
+            attr_test = stat_test["annotations"]["labels"]["attributes"]
+            self.assertEqual(21, attr_test["attr1"]["distribution"]["0"][0])
+            self.assertEqual(15, attr_test["attr1"]["distribution"]["1"][0])
+            self.assertEqual(12, attr_test["attr2"]["distribution"]["0"][0])
+            self.assertEqual(9, attr_test["attr2"]["distribution"]["1"][0])
+            self.assertEqual(15, attr_test["attr2"]["distribution"]["2"][0])
+
+        with self.subTest("non-zero remainder"):
+            splits = [("train", 0.95), ("test", 0.05)]
+            actual = splitter.ClassificationSplit(source, splits)
+
+            self.assertEqual(114, len(actual.get_subset("train")))
+            self.assertEqual(6, len(actual.get_subset("test")))
 
     def test_split_for_classification_multi_label_with_attr(self):
         counts = {
