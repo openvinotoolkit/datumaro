@@ -9,6 +9,7 @@ from math import gcd
 from datumaro.components.extractor import (Transform, AnnotationType,
     DEFAULT_SUBSET_NAME)
 from datumaro.components.cli_plugin import CliPlugin
+from datumaro.util import cast
 
 NEAR_ZERO = 1e-7
 
@@ -154,14 +155,15 @@ class _TaskSpecificSplit(Transform, CliPlugin):
         """
 
         # float--> numerical, others(int, string, bool) --> categorical
-        def _is_number(value):
+        def _is_float(value):
             if isinstance(value, str):
-                try:
-                    float(value)
-                    return True
-                except ValueError:
-                    return False
+                casted = cast(value, float)
+                if casted is not None:
+                    if cast(casted, str) == value:
+                        return True
+                return False
             elif isinstance(value, float):
+                cast(value, float)
                 return True
             return False
 
@@ -171,7 +173,7 @@ class _TaskSpecificSplit(Transform, CliPlugin):
             # ignore numeric attributes
             filtered = {}
             for k, v in ann.attributes.items():
-                if _is_number(v):
+                if _is_float(v):
                     continue
                 filtered[k] = v
             attributes = tuple(sorted(filtered.items()))
