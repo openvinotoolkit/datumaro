@@ -78,12 +78,12 @@ class Environment:
         custom = self._load_plugins2(osp.join(env_dir, config.plugins_dir))
         select = lambda seq, t: [e for e in seq if issubclass(e, t)]
         from datumaro.components.converter import Converter
-        from datumaro.components.extractor import (Importer, SourceExtractor,
+        from datumaro.components.extractor import (Importer, Extractor,
             Transform)
         from datumaro.components.launcher import Launcher
         self.extractors = PluginRegistry(
-            builtin=select(builtin, SourceExtractor),
-            local=select(custom, SourceExtractor)
+            builtin=select(builtin, Extractor),
+            local=select(custom, Extractor)
         )
         self.extractors.register(self.PROJECT_EXTRACTOR_NAME,
             load_project_as_dataset)

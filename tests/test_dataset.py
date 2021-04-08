@@ -86,6 +86,31 @@ class DatasetTest(TestCase):
 
         compare_datasets(self, TestExtractor(), actual)
 
+    def test_can_join_datasets_with_empty_categories(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(1, annotations=[
+                Label(0),
+                Bbox(1, 2, 3, 4),
+                Caption('hello world'),
+            ])
+        ], categories=['a'])
+
+        src1 = Dataset.from_iterable([
+            DatasetItem(1, annotations=[ Bbox(1, 2, 3, 4, label=None) ])
+        ], categories=[])
+
+        src2 = Dataset.from_iterable([
+            DatasetItem(1, annotations=[ Label(0) ])
+        ], categories=['a'])
+
+        src3 = Dataset.from_iterable([
+            DatasetItem(1, annotations=[ Caption('hello world') ])
+        ])
+
+        actual = Dataset.from_extractors(src1, src2, src3)
+
+        compare_datasets(self, expected, actual)
+
     def test_can_save_and_load(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, annotations=[ Label(2) ]),

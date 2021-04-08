@@ -30,21 +30,23 @@ from datumaro.util.log_utils import logging_disabled, catch_logs
 
 
 class ProjectSourceDataset(Dataset):
-    def __init__(self, project: 'Project', source: Source):
-        self._project = project
-
+    @classmethod
+    def from_source(cls, project: 'Project', source: Source):
         config = project.sources[source]
-        self._config = config
 
         path = osp.join(project.sources.data_dir(source), config.url)
-        self._readonly = not path or not osp.exists(path)
+        readonly = not path or not osp.exists(path)
         if path and not osp.exists(path) and not config.remote:
             # backward compatibility
             path = osp.join(project.config.project_dir, config.url)
-            self._readonly = True
+            readonly = True
 
-        super().import_from(path, env=project.env,
+        dataset = cls.import_from(path, env=project.env,
             format=config.format, **config.options)
+        dataset._project = project
+        dataset._config = config
+        dataset._readonly = readonly
+        return dataset
 
     def save(self, save_dir=None, **kwargs):
         if save_dir is None:
@@ -451,7 +453,7 @@ class ProjectSources(_DataSourceBase):
             raise KeyError("Unknown source '%s'" % name)
 
     def make_dataset(self, name):
-        return ProjectSourceDataset(self._project, name)
+        return ProjectSourceDataset.from_source(self._project, name)
 
     def validate_name(self, name):
         super().validate_name(name)
@@ -1146,22 +1148,27 @@ class DvcWrapper:
 
     def __init__(self, project_dir):
         self._project_dir = project_dir
-        self.repo = None
+        self._repo = None
 
         if osp.isdir(project_dir) and osp.isdir(self._dvc_dir()):
             with logging_disabled():
-                self.repo = self.module.repo.Repo(project_dir)
+                self._repo = self.module.repo.Repo(project_dir)
 
     @property
     def initialized(self):
-        return self.repo is not None
+        return self._repo is not None
+
+    @property
+    def repo(self):
+        self._repo = self.module.repo.Repo(self._project_dir)
+        return self._repo
 
     def init(self):
         if self.initialized:
             return
 
         with logging_disabled():
-            self.repo = self.module.repo.Repo.init(self._project_dir)
+            self._repo = self.module.repo.Repo.init(self._project_dir)
 
     def push(self, targets=None, remote=None):
         args = ['push']

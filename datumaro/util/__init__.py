@@ -5,9 +5,10 @@
 
 import attr
 from contextlib import ExitStack
+from distutils.util import strtobool as str_to_bool # pylint: disable=unused-import
 from functools import partial, wraps
 from itertools import islice
-from distutils.util import strtobool as str_to_bool # pylint: disable=unused-import
+from typing import Iterable, Tuple
 
 
 NOTSET = object()
@@ -84,6 +85,24 @@ def parse_str_enum_value(value, enum_class, default=NOTSET,
         raise TypeError("Expected value type string or %s, but got %s" % \
             (enum_class.__name__, type(value).__name__))
     return value
+
+def escape(s: str, escapes: Iterable[Tuple[str, str]]) -> str:
+    """
+    'escapes' is an iterable of (pattern, substitute) pairs
+    """
+
+    for pattern, sub in escapes:
+        s = s.replace(pattern, sub)
+    return s
+
+def unescape(s: str, escapes: Iterable[Tuple[str, str]]) -> str:
+    """
+    'escapes' is an iterable of (pattern, substitute) pairs
+    """
+
+    for pattern, sub in escapes:
+        s = s.replace(sub, pattern)
+    return s
 
 def optional_arg_decorator(fn):
     @wraps(fn)

@@ -6,6 +6,27 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [Unreleased]
+### Added
+- Support for escaping in attribiute values in LabelMe format (<https://github.com/openvinotoolkit/datumaro/issues/49>)
+
+### Changed
+- LabelMe format saves dataset items with their relative paths by subsets without changing names (<https://github.com/openvinotoolkit/datumaro/pull/200>)
+- Allowed arbitrary subset count and names in classification and detection splitters (<https://github.com/openvinotoolkit/datumaro/pull/207>)
+
+### Deprecated
+-
+
+### Removed
+-
+
+### Fixed
+- Added support for auto-merging (joining) of datasets with no labels and having labels (<https://github.com/openvinotoolkit/datumaro/pull/200>)
+- Allowed explicit label removal in `remap_labels` transform (<https://github.com/openvinotoolkit/datumaro/pull/203>)
+
+### Security
+-
+
 ## 31/03/2021 - Release v0.1.8
 ### Added
 -
