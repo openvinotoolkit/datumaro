@@ -29,8 +29,9 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
         """ % ', '.join(builtins),
         formatter_class=MultilineFormatter)
 
-    parser.add_argument('url', default=None,
-        help="URL to the model data")
+    parser.add_argument('_positionals', nargs=argparse.REMAINDER,
+        help=argparse.SUPPRESS) # workaround for -- eaten by positionals
+    parser.add_argument('url', nargs='?', help="URL to the model data")
     parser.add_argument('-n', '--name', default=None,
         help="Name of the model to be added (default: generate automatically)")
     parser.add_argument('-l', '--launcher', required=True,
@@ -47,6 +48,14 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
 
 @error_rollback('on_error', implicit=True)
 def add_command(args):
+    has_sep = '--' in args._positionals
+    if has_sep:
+        pos = args._positionals.index('--')
+    else:
+        pos = 1
+    args.url = (args._positionals[:pos] or [''])[0]
+    args.extra_args = args._positionals[pos + has_sep:]
+
     project = load_project(args.project_dir)
 
     name = args.name
@@ -238,7 +247,7 @@ def build_run_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(help="Launches model inference",
         description="Launches model inference on a project target.")
 
-    parser.add_argument('target', default='project',
+    parser.add_argument('target', nargs='?', default='project',
         help="Project target to launch inference on (default: project)")
     parser.add_argument('-o', '--output-dir', dest='dst_dir',
         help="Directory to save output (default: auto-generated)")
