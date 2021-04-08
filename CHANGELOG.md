@@ -8,10 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
--
+- Escaping with double quotes for attribiute values in LabelMe import (<https://github.com/openvinotoolkit/datumaro/issues/49>)
 
 ### Changed
--
+- LabelMe format saves dataset items with their relative paths by subsets without changing names (<https://github.com/openvinotoolkit/datumaro/pull/200>)
 
 ### Deprecated
 -
