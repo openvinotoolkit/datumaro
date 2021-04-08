@@ -44,6 +44,7 @@ class SplitterTest(TestCase):
                                 annotations=[
                                     Label(label_id, attributes=attributes)
                                 ],
+                                image=np.ones((1, 1, 3))
                             )
                         )
             else:
@@ -51,7 +52,8 @@ class SplitterTest(TestCase):
                     idx += 1
                     iterable.append(
                         DatasetItem(idx, subset=self._get_subset(idx),
-                            annotations=[Label(label_id)])
+                            annotations=[Label(label_id)],
+                            image=np.ones((1, 1, 3)))
                     )
         categories = {AnnotationType.label: label_cat}
         dataset = Dataset.from_iterable(iterable, categories)
@@ -123,29 +125,37 @@ class SplitterTest(TestCase):
         config = {"label": {"attrs": attrs, "counts": counts}}
         source = self._generate_dataset(config)
 
-        splits = [("train", 0.7), ("test", 0.3)]
-        actual = splitter.ClassificationSplit(source, splits)
+        with self.subTest("zero remainder"):
+            splits = [("train", 0.7), ("test", 0.3)]
+            actual = splitter.ClassificationSplit(source, splits)
 
-        self.assertEqual(84, len(actual.get_subset("train")))
-        self.assertEqual(36, len(actual.get_subset("test")))
+            self.assertEqual(84, len(actual.get_subset("train")))
+            self.assertEqual(36, len(actual.get_subset("test")))
 
-        # check stats for train
-        stat_train = compute_ann_statistics(actual.get_subset("train"))
-        attr_train = stat_train["annotations"]["labels"]["attributes"]
-        self.assertEqual(49, attr_train["attr1"]["distribution"]["0"][0])
-        self.assertEqual(35, attr_train["attr1"]["distribution"]["1"][0])
-        self.assertEqual(28, attr_train["attr2"]["distribution"]["0"][0])
-        self.assertEqual(21, attr_train["attr2"]["distribution"]["1"][0])
-        self.assertEqual(35, attr_train["attr2"]["distribution"]["2"][0])
+            # check stats for train
+            stat_train = compute_ann_statistics(actual.get_subset("train"))
+            attr_train = stat_train["annotations"]["labels"]["attributes"]
+            self.assertEqual(49, attr_train["attr1"]["distribution"]["0"][0])
+            self.assertEqual(35, attr_train["attr1"]["distribution"]["1"][0])
+            self.assertEqual(28, attr_train["attr2"]["distribution"]["0"][0])
+            self.assertEqual(21, attr_train["attr2"]["distribution"]["1"][0])
+            self.assertEqual(35, attr_train["attr2"]["distribution"]["2"][0])
 
-        # check stats for test
-        stat_test = compute_ann_statistics(actual.get_subset("test"))
-        attr_test = stat_test["annotations"]["labels"]["attributes"]
-        self.assertEqual(21, attr_test["attr1"]["distribution"]["0"][0])
-        self.assertEqual(15, attr_test["attr1"]["distribution"]["1"][0])
-        self.assertEqual(12, attr_test["attr2"]["distribution"]["0"][0])
-        self.assertEqual(9, attr_test["attr2"]["distribution"]["1"][0])
-        self.assertEqual(15, attr_test["attr2"]["distribution"]["2"][0])
+            # check stats for test
+            stat_test = compute_ann_statistics(actual.get_subset("test"))
+            attr_test = stat_test["annotations"]["labels"]["attributes"]
+            self.assertEqual(21, attr_test["attr1"]["distribution"]["0"][0])
+            self.assertEqual(15, attr_test["attr1"]["distribution"]["1"][0])
+            self.assertEqual(12, attr_test["attr2"]["distribution"]["0"][0])
+            self.assertEqual(9, attr_test["attr2"]["distribution"]["1"][0])
+            self.assertEqual(15, attr_test["attr2"]["distribution"]["2"][0])
+
+        with self.subTest("non-zero remainder"):
+            splits = [("train", 0.95), ("test", 0.05)]
+            actual = splitter.ClassificationSplit(source, splits)
+
+            self.assertEqual(114, len(actual.get_subset("train")))
+            self.assertEqual(6, len(actual.get_subset("test")))
 
     def test_split_for_classification_multi_label_with_attr(self):
         counts = {
@@ -221,7 +231,7 @@ class SplitterTest(TestCase):
         splits = [("train", 0.1), ("val", 0.9), ("test", 0.0)]
 
         actual = splitter.ClassificationSplit(source, splits)
-        
+
         self.assertEqual(1, len(actual.get_subset("train")))
         self.assertEqual(4, len(actual.get_subset("val")))
         self.assertEqual(0, len(actual.get_subset("test")))
@@ -263,9 +273,9 @@ class SplitterTest(TestCase):
                 splits = [("train", 0.5), ("test", 0.5), ("val", 0.5)]
                 splitter.ClassificationSplit(source, splits)
 
-        with self.subTest("wrong subset name"):
-            with self.assertRaisesRegex(Exception, "Subset name"):
-                splits = [("train_", 0.5), ("val", 0.2), ("test", 0.3)]
+        with self.subTest("duplicated subset name"):
+            with self.assertRaisesRegex(Exception, "duplicated"):
+                splits = [("train", 0.5), ("train", 0.2), ("test", 0.3)]
                 splitter.ClassificationSplit(source, splits)
 
     def test_split_for_reidentification(self):
@@ -426,6 +436,11 @@ class SplitterTest(TestCase):
             with self.assertRaisesRegex(Exception, "in the range"):
                 splits = [("train", 0.5), ("val", 0.2), ("test", 0.3)]
                 actual = splitter.ReidentificationSplit(source, splits, -query)
+
+        with self.subTest("duplicated subset name"):
+            with self.assertRaisesRegex(Exception, "duplicated"):
+                splits = [("train", 0.5), ("train", 0.2), ("test", 0.3)]
+                splitter.ReidentificationSplit(source, splits, query)
 
         with self.subTest("wrong subset name"):
             with self.assertRaisesRegex(Exception, "Subset name"):
@@ -650,7 +665,36 @@ class SplitterTest(TestCase):
                 splits = [("train", 0.5), ("test", 0.5), ("val", 0.5)]
                 splitter.DetectionSplit(source, splits)
 
-        with self.subTest("wrong subset name"):
-            with self.assertRaisesRegex(Exception, "Subset name"):
-                splits = [("train_", 0.5), ("val", 0.2), ("test", 0.3)]
+        with self.subTest("duplicated subset name"):
+            with self.assertRaisesRegex(Exception, "duplicated"):
+                splits = [("train", 0.5), ("train", 0.2), ("test", 0.3)]
                 splitter.DetectionSplit(source, splits)
+
+    def test_no_subset_name_and_count_restriction(self):
+        splits = [("_train", 0.5), ("valid", 0.1), ("valid2", 0.1),
+            ("test*", 0.2), ("test2", 0.1)]
+
+        with self.subTest("classification"):
+            config = {
+                "label1": {"attrs": None, "counts": 10}
+            }
+            source = self._generate_dataset(config)
+            actual = splitter.ClassificationSplit(source, splits)
+            self.assertEqual(5, len(actual.get_subset("_train")))
+            self.assertEqual(1, len(actual.get_subset("valid")))
+            self.assertEqual(1, len(actual.get_subset("valid2")))
+            self.assertEqual(2, len(actual.get_subset("test*")))
+            self.assertEqual(1, len(actual.get_subset("test2")))
+
+        with self.subTest("detection"):
+            source, _ = self._generate_detection_dataset(
+                append_bbox=self._get_append_bbox("cvat"),
+                with_attr=True,
+                nimages=10,
+            )
+            actual = splitter.DetectionSplit(source, splits)
+            self.assertEqual(5, len(actual.get_subset("_train")))
+            self.assertEqual(1, len(actual.get_subset("valid")))
+            self.assertEqual(1, len(actual.get_subset("valid2")))
+            self.assertEqual(2, len(actual.get_subset("test*")))
+            self.assertEqual(1, len(actual.get_subset("test2")))

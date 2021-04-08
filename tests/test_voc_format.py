@@ -21,6 +21,7 @@ from datumaro.plugins.voc_format.converter import (
 from datumaro.plugins.voc_format.importer import VocImporter
 from datumaro.components.dataset import Dataset
 from datumaro.util.image import Image
+from datumaro.util.mask_tools import load_mask
 from datumaro.util.test_utils import (TestDir, compare_datasets,
     test_save_and_load)
 
@@ -627,6 +628,25 @@ class VocConverterTest(TestCase):
             self._test_save_and_load(SrcExtractor(),
                 partial(VocConverter.convert, label_map=label_map),
                 test_dir, target_dataset=DstExtractor())
+
+    def test_background_masks_dont_introduce_instances_but_cover_others(self):
+        dataset = Dataset.from_iterable([
+            DatasetItem(1, image=np.zeros((4, 1, 1)), annotations=[
+                Mask([1, 1, 1, 1], label=1, attributes={'z_order': 1}),
+                Mask([0, 0, 1, 1], label=2, attributes={'z_order': 2}),
+                Mask([0, 0, 1, 1], label=0, attributes={'z_order': 3}),
+            ])
+        ], categories=['background', 'a', 'b'])
+
+        with TestDir() as test_dir:
+            VocConverter.convert(dataset, test_dir, apply_colormap=False)
+
+            cls_mask = load_mask(
+                osp.join(test_dir, 'SegmentationClass', '1.png'))
+            inst_mask = load_mask(
+                osp.join(test_dir, 'SegmentationObject', '1.png'))
+            self.assertTrue(np.array_equal([0, 1], np.unique(cls_mask)))
+            self.assertTrue(np.array_equal([0, 1], np.unique(inst_mask)))
 
     def test_can_save_dataset_with_image_info(self):
         class TestExtractor(TestExtractorBase):

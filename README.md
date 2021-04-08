@@ -38,7 +38,8 @@ CVAT annotations                             ---> Publication, statistics etc.
   # http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar
   datum convert --input-format voc --input-path <path/to/voc> \
                 --output-format coco \
-                --filter '/item[annotation/label="cat"]'
+                --filter '/item[annotation/label="cat"]' \
+                -- --reindex 1 # avoid annotation id conflicts
   ```
 
 - Convert only non-`occluded` annotations from a [CVAT](https://github.com/opencv/cvat) project to TFrecord:
@@ -159,7 +160,7 @@ CVAT annotations                             ---> Publication, statistics etc.
       - for re-identification task, based on labels,
         avoiding having same IDs in training and test splits
   - Sampling a dataset
-    - analyzes inference result from the given dataset 
+    - analyzes inference result from the given dataset
       and selects the ‘best’ and the ‘least amount of’ samples for annotation.
     - Select the sample that best suits model training.
       - sampling with Entropy based algorithm

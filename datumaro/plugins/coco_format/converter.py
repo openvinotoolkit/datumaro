@@ -478,9 +478,12 @@ class CocoConverter(Converter):
         parser.add_argument('--allow-attributes',
             type=str_to_bool, default=True,
             help="Allow export of attributes (default: %(default)s)")
-        parser.add_argument('--reindex', action='store_true',
-            help="Assign new indices to images and annotations "
-                "(default: %(default)s)")
+        parser.add_argument('--reindex', type=str_to_bool, default=False,
+            help="Assign new indices to images and annotations, "
+                "useful to avoid merge conflicts (default: %(default)s)")
+        parser.add_argument('--merge-images', type=str_to_bool, default=False,
+            help="Save all images into a single "
+                "directory (default: %(default)s)")
         parser.add_argument('--tasks', type=cls._split_tasks_string,
             help="COCO task filter, comma-separated list of {%s} "
                 "(default: all)" % ', '.join(t.name for t in CocoTask))
@@ -498,7 +501,8 @@ class CocoConverter(Converter):
 
     def __init__(self, extractor, save_dir,
             tasks=None, segmentation_mode=None, crop_covered=False,
-            allow_attributes=True, reindex=False, **kwargs):
+            allow_attributes=True, reindex=False, merge_images=False,
+            **kwargs):
         super().__init__(extractor, save_dir, **kwargs)
 
         assert tasks is None or isinstance(tasks, (CocoTask, list, str))
@@ -526,6 +530,7 @@ class CocoConverter(Converter):
         self._crop_covered = crop_covered
         self._allow_attributes = allow_attributes
         self._reindex = reindex
+        self._merge_images = merge_images
 
         self._image_ids = {}
 
@@ -556,10 +561,6 @@ class CocoConverter(Converter):
             self._image_ids[item.id] = image_id
         return image_id
 
-    def _save_image(self, item, path=None):
-        super()._save_image(item,
-            osp.join(self._images_dir, self._make_image_filename(item)))
-
     def apply(self):
         self._make_dirs()
 
@@ -571,7 +572,8 @@ class CocoConverter(Converter):
             for item in subset:
                 if self._save_images:
                     if item.has_image:
-                        self._save_image(item)
+                        self._save_image(item, subdir=osp.join(self._images_dir,
+                            '' if self._merge_images else subset_name))
                     else:
                         log.debug("Item '%s' has no image info", item.id)
                 for task_conv in task_converters.values():
@@ -604,6 +606,12 @@ class CocoConverter(Converter):
             image_path = osp.join(images_dir, conv._make_image_filename(item))
             if osp.isfile(image_path):
                 os.unlink(image_path)
+
+            image_path = osp.join(images_dir, subset,
+                conv._make_image_filename(item))
+            if osp.isfile(image_path):
+                os.unlink(image_path)
+
 
 class CocoInstancesConverter(CocoConverter):
     def __init__(self, *args, **kwargs):

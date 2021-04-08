@@ -67,7 +67,7 @@ You need to implement your own interpreter samples to support the other OpenVINO
   # Examples
   # Detection> ssd_mobilenet_v2_coco
   source /opt/intel/openvino/bin/setupvars.sh
-  cd datumaro/plugins/openvino
+  cd datumaro/plugins/openvino_plugin
   datum create -o proj_ssd_mobilenet_v2_coco_detection
   datum model add -l openvino -p proj_ssd_mobilenet_v2_coco_detection --copy -- \
       --output-layers=do_ExpandDims_conf/sigmoid \
@@ -79,7 +79,7 @@ You need to implement your own interpreter samples to support the other OpenVINO
   
   # Classification> mobilenet-v2-pytorch
   source /opt/intel/openvino/bin/setupvars.sh
-  cd datumaro/plugins/openvino
+  cd datumaro/plugins/openvino_plugin
   datum create -o proj_mobilenet_v2_classification
   datum model add -l openvino -p proj_mobilenet_v2_classification --copy -- \
       -d model/mobilenet-v2-pytorch.xml \
