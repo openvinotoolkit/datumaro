@@ -30,7 +30,7 @@ class LabelMeConverterTest(TestCase):
                         'a1': 'qwe',
                         'a2': True,
                         'a3': 123,
-                        'a4': '42'
+                        'a4': '42' # must be escaped and recognized as string
                     }),
                     Mask(np.array([[0, 1], [1, 0], [1, 1]]), group=2,
                         attributes={ 'username': 'test' }),
@@ -109,7 +109,7 @@ class LabelMeConverterTest(TestCase):
                 image=np.ones((16, 16, 3)),
                 annotations=[
                     Polygon([0, 4, 4, 4, 5, 6], label=0, id=0,
-                        attributes={ 'occluded': True, 'username': '' }
+                        attributes={ 'occluded': False, 'username': '' }
                     ),
                 ]
             ),

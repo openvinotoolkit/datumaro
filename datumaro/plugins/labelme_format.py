@@ -84,13 +84,16 @@ class LabelMeExtractor(Extractor):
                     name, value = attr.split('=', maxsplit=1)
                     if value.lower() in {'true', 'false'}:
                         value = value.lower() == 'true'
-                    elif 2 < len(value) and value[0] == '"' and value[-1] == '"':
+                    elif 1 < len(value) and value[0] == '"' and value[-1] == '"':
                         value = value[1:-1]
                     else:
-                        try:
-                            value = float(value)
-                        except ValueError:
-                            pass
+                        casted = cast(value, int)
+                        if casted is not None and str(casted) == value:
+                            value = casted
+                        else:
+                            casted = cast(value, float)
+                            if casted is not None and str(casted) == value:
+                                value = casted
                     parsed.append((name, value))
                 else:
                     parsed.append((attr, True))
@@ -373,8 +376,9 @@ class LabelMeConverter(Converter):
             for k, v in ann.attributes.items():
                 if k in { 'username' , 'occluded' }:
                     continue
-                if isinstance(v, str) and cast(v, float) is not None:
-                    v = "{v}" # add escaping to string values
+                if isinstance(v, str) and \
+                        cast(v, float) is not None and str(cast(v, float) == v):
+                    v = f'"{v}"' # add escaping for string values
                 attrs.append('%s=%s' % (k, v))
             ET.SubElement(obj_elem, 'attributes').text = ', '.join(attrs)
 
