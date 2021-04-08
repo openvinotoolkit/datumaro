@@ -614,8 +614,17 @@ class ProjectBuildTargets(CrudProxy):
             ]
         })
 
-    def add_stage(self, target, value, prev=None, name=None):
-        target = self._data[target]
+    def add_stage(self, target, value, prev=None,
+            name=None) -> Tuple[BuildStage, str]:
+        target_name = target
+        target_stage_name = None
+        if '.' in target:
+            target_name, target_stage_name = self._split_target_name(target)
+
+        if prev is None:
+            prev = target_stage_name
+
+        target = self._data[target_name]
 
         if prev:
             prev_stage = find(enumerate(target.stages),
@@ -638,7 +647,7 @@ class ProjectBuildTargets(CrudProxy):
         value = BuildStage(value)
         assert BuildStageType[value.type]
         target.stages.insert(prev_stage + 1, value)
-        return value
+        return value, self._make_target_name(target_name, name)
 
     def remove_target(self, name):
         assert name != self.MAIN_TARGET, "Can't remove the main target"
@@ -654,10 +663,6 @@ class ProjectBuildTargets(CrudProxy):
         target.stages.remove(idx)
 
     def add_transform_stage(self, target, transform, params=None, name=None):
-        stage = None
-        if '.' in target:
-            target, stage = self._split_target_name(target)
-
         if not transform in self._project.env.transforms:
             raise KeyError("Unknown transform '%s'" % transform)
 
@@ -665,37 +670,25 @@ class ProjectBuildTargets(CrudProxy):
             'type': BuildStageType.transform.name,
             'kind': transform,
             'params': params or {},
-        }, prev=stage, name=name)
+        }, name=name)
 
     def add_inference_stage(self, target, model, name=None):
-        stage = None
-        if '.' in target:
-            target, stage = self._split_target_name(target)
-
         if not model in self._project.config.models:
             raise KeyError("Unknown model '%s'" % model)
 
         return self.add_stage(target, {
             'type': BuildStageType.inference.name,
             'kind': model,
-        }, prev=stage, name=name)
+        }, name=name)
 
     def add_filter_stage(self, target, params=None, name=None):
-        stage = None
-        if '.' in target:
-            target, stage = self._split_target_name(target)
-
         return self.add_stage(target, {
             'type': BuildStageType.filter.name,
             'params': params or {},
-        }, prev=stage, name=name)
+        }, name=name)
 
     def add_convert_stage(self, target, format, \
             params=None, name=None): # pylint: disable=redefined-builtin
-        stage = None
-        if '.' in target:
-            target, stage = self._split_target_name(target)
-
         if not self._project.env.is_format_known(format):
             raise KeyError("Unknown format '%s'" % format)
 
@@ -703,7 +696,7 @@ class ProjectBuildTargets(CrudProxy):
             'type': BuildStageType.convert.name,
             'kind': format,
             'params': params or {},
-        }, prev=stage, name=name)
+        }, name=name)
 
     MAIN_TARGET = 'project'
     BASE_STAGE = 'root'
@@ -978,7 +971,7 @@ class ProjectBuildTargets(CrudProxy):
 
 
         if not self._project.vcs.writeable:
-            raise Exception("Can't build project without VCS support")
+            raise VcsError("Can't build project in read-only or detached mode")
 
         if '.' in target:
             raw_target, target_stage = self._split_target_name(target)

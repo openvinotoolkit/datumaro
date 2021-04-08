@@ -212,7 +212,7 @@ class BaseProjectTest(TestCase):
         project = Project()
         project.env.extractors.register('f', TestExtractor)
         project.sources.add('source', { 'format': 'f' })
-        project.build_targets.add_filter_stage('source', params={
+        project.build_targets.add_filter_stage('source', {
             'expr': '/item[id < 5]'
         })
 
@@ -674,12 +674,12 @@ class AttachedProjectTest(TestCase):
                 'format': DEFAULT_FORMAT,
             })
 
-            stage = project.build_targets.add_filter_stage('s1',
+            _, stage = project.build_targets.add_filter_stage('s1',
                 params={'expr': '/item/annotation[label="b"]'}
             )
             project.save()
 
-            self.assertTrue('s1.' + stage['name'] in project.build_targets)
+            self.assertTrue(stage in project.build_targets)
 
     def test_can_add_convert_stage(self):
         with TestDir() as test_dir:
@@ -696,11 +696,11 @@ class AttachedProjectTest(TestCase):
                 'format': DEFAULT_FORMAT,
             })
 
-            stage = project.build_targets.add_convert_stage('s1',
+            _, stage = project.build_targets.add_convert_stage('s1',
                 DEFAULT_FORMAT)
             project.save()
 
-            self.assertTrue('s1.' + stage['name'] in project.build_targets)
+            self.assertTrue(stage in project.build_targets)
 
     def test_can_add_transform_stage(self):
         class TestTransform(Transform):
@@ -727,12 +727,12 @@ class AttachedProjectTest(TestCase):
             })
             project.env.transforms.register('tr', TestTransform)
 
-            stage = project.build_targets.add_transform_stage('s1',
+            _, stage = project.build_targets.add_transform_stage('s1',
                 'tr', params={'p1': 5, 'p2': ['1', 2, 3.5]}
             )
             project.save()
 
-            self.assertTrue('s1.' + stage['name'] in project.build_targets)
+            self.assertTrue(stage in project.build_targets)
 
     def test_can_build_stage(self):
         with TestDir() as test_dir:

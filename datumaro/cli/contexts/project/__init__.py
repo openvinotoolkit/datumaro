@@ -251,7 +251,7 @@ def build_export_parser(parser_ctor=argparse.ArgumentParser):
     parser.add_argument('_positionals', nargs=argparse.REMAINDER,
         help=argparse.SUPPRESS) # workaround for -- eaten by positionals
     parser.add_argument('target', nargs='?', default='project',
-        help="Targets to do export for (default: '%(default)s')")
+        help="Target to do export for (default: '%(default)s')")
     parser.add_argument('-e', '--filter', default=None,
         help="Filter expression for dataset items")
     parser.add_argument('--filter-mode', default=FilterModes.i.name,
@@ -308,15 +308,24 @@ def export_command(args):
         filter_args['expr'] = args.filter
 
     log.info("Loading the project...")
-    dataset = project.make_dataset(args.target)
 
-    log.info("Exporting the project...")
-
+    target = args.target
     if args.filter:
-        dataset = dataset.filter(args.filter, **filter_args)
-    dataset.export(format=args.format, save_dir=dst_dir, **extra_args)
+        _, target = project.build_targets.add_filter_stage(
+            target, filter_args)
+    _, target = project.build_targets.add_convert_stage(
+        target, args.format, extra_args)
 
-    log.info("Project exported to '%s' as '%s'" % (dst_dir, args.format))
+    status = project.vcs.dvc.status()
+    if status: # TODO: narrow only to the affected sources
+        raise CliException("Can't modify project " \
+            "when there are uncommitted changes: %s" % status)
+
+    log.info("Exporting...")
+
+    project.build(target, out_dir=dst_dir)
+
+    log.info("Results have been saved to '%s'" % dst_dir)
 
     return 0
 
@@ -431,10 +440,7 @@ def filter_command(args):
         sources = [args.target]
 
     for source in sources:
-        project.build_targets.add_stage(source, {
-            'type': BuildStageType.filter.name,
-            'params': dict(filter_args),
-        })
+        project.build_targets.add_filter_stage(source, filter_args)
 
     status = project.vcs.dvc.status()
     if status: # TODO: narrow only to the affected sources
@@ -640,11 +646,8 @@ def transform_command(args):
         sources = [args.target]
 
     for source in sources:
-        project.build_targets.add_stage(source, {
-            'type': BuildStageType.transform.name,
-            'kind': args.transform,
-            'params': dict(extra_args),
-        })
+        project.build_targets.add_transform_stage(source,
+            args.transform, extra_args)
 
     status = project.vcs.dvc.status()
     if status: # TODO: narrow only to the affected sources
