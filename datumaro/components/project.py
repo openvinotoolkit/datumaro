@@ -22,7 +22,7 @@ from datumaro.components.config import Config
 from datumaro.components.config_model import (PROJECT_DEFAULT_CONFIG,
     PROJECT_SCHEMA, BuildStage, Remote, Source)
 from datumaro.components.environment import Environment
-from datumaro.components.errors import DatumaroError
+from datumaro.components.errors import DatumaroError, VcsError
 from datumaro.components.dataset import (Dataset, DEFAULT_FORMAT, DatasetPatch,
     IDataset)
 from datumaro.components.extractor import CategoriesInfo, DatasetItem, Transform

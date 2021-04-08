@@ -579,6 +579,27 @@ class AttachedProjectTest(TestCase):
                 osp.join(test_dir, project.config.build_dir))
             compare_datasets(self, dataset, built_dataset)
 
+    def test_cant_build_dirty_source(self):
+        with TestDir() as test_dir:
+            source_url = osp.join(test_dir, 'test_repo')
+            dataset = Dataset.from_iterable([
+                DatasetItem(1, annotations=[Label(0)]),
+            ], categories=['a', 'b'])
+            dataset.save(source_url)
+
+            project = Project.generate(save_dir=test_dir)
+            project.sources.add('s1', {
+                'url': source_url,
+                'format': DEFAULT_FORMAT,
+            })
+            project.save()
+            project.vcs.commit(None, "Added a source")
+
+            os.unlink(osp.join(project.sources.data_dir('s1'),
+                'annotations', 'default.json'))
+
+            with self.assertRaisesRegex(VcsError, "uncommitted changes"):
+                project.build()
 
     def test_can_make_dataset_from_project(self):
         with TestDir() as test_dir:

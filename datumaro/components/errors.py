@@ -8,6 +8,9 @@ from attr import attrib, attrs
 class DatumaroError(Exception):
     pass
 
+class VcsError(DatumaroError):
+    pass
+
 @attrs
 class DatasetError(DatumaroError):
     item_id = attrib()
