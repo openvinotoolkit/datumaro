@@ -132,7 +132,7 @@ class LabelMeConverterTest(TestCase):
                         [0, 1, 1, 0],
                         [0, 1, 1, 0],
                         [0, 0, 0, 0],
-                    ]), label=0, attributes={
+                    ]), label=1, attributes={
                         'occluded': False, 'username': 'user'
                     }
                 )
@@ -140,7 +140,7 @@ class LabelMeConverterTest(TestCase):
 
             DatasetItem(id='subdir3/1', subset='a', image=np.ones((5, 4, 3)),
                 annotations=[
-                    Bbox(1, 2, 3, 4, label=1, attributes={
+                    Bbox(1, 2, 3, 4, label=0, attributes={
                         'occluded': False, 'username': 'user'
                     })
                 ]),

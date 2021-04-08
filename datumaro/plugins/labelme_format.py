@@ -4,13 +4,12 @@
 
 from collections import defaultdict
 from defusedxml import ElementTree
-from glob import iglob
+from glob import glob, iglob
 import logging as log
 import numpy as np
 import os
 import os.path as osp
 
-from datumaro.components.errors import DatasetError
 from datumaro.components.extractor import (Extractor, Importer,
     DatasetItem, AnnotationType, Mask, Bbox, Polygon, LabelCategories)
 from datumaro.components.converter import Converter
@@ -23,7 +22,6 @@ from datumaro.util.mask_tools import load_mask, find_mask_bbox
 class LabelMePath:
     MASKS_DIR = 'Masks'
     IMAGE_EXT = '.jpg'
-    LABELS_FILE = 'labels.txt'
 
 class LabelMeExtractor(Extractor):
     def __init__(self, path):
@@ -31,21 +29,23 @@ class LabelMeExtractor(Extractor):
         super().__init__()
 
         self._items, self._categories, self._subsets = self._parse(path)
+        self._length = len(self._items)
 
     def _parse(self, dataset_root):
         items = []
-        subsets = []
+        subsets = set()
         categories = { AnnotationType.label:
             LabelCategories(attributes={ 'occluded', 'username' })
         }
 
-        for xml_path in iglob(osp.join(dataset_root, '**', '*.xml')):
+        for xml_path in sorted(
+                glob(osp.join(dataset_root, '**', '*.xml'), recursive=True)):
             item_path = osp.relpath(xml_path, dataset_root)
             path_parts = split_path(item_path)
             subset = ''
             if 1 < len(path_parts):
                 subset = path_parts[0]
-                item_path = osp.join(path_parts[1:])
+                item_path = osp.join(*path_parts[1:])
 
             root = ElementTree.parse(xml_path)
 
@@ -69,7 +69,7 @@ class LabelMeExtractor(Extractor):
 
             items.append(DatasetItem(id=item_id, subset=subset,
                 image=image, annotations=annotations))
-            subsets.append(subset)
+            subsets.add(subset)
         return items, categories, subsets
 
     @staticmethod
@@ -240,9 +240,6 @@ class LabelMeExtractor(Extractor):
     def __iter__(self):
         yield from self._items
 
-    def __len__(self):
-        return len(self._items)
-
 
 class LabelMeImporter(Importer):
     EXTRACTOR = 'label_me'
@@ -255,7 +252,7 @@ class LabelMeImporter(Importer):
 
         try:
             next(iglob(osp.join(path, '**', '*.xml'), recursive=True))
-            subsets.append({'url': osp.normpath(path),'format': cls.EXTRACTOR})
+            subsets.append({'url': osp.normpath(path), 'format': cls.EXTRACTOR})
         except StopIteration:
             pass
         return subsets
@@ -268,25 +265,16 @@ class LabelMeConverter(Converter):
         for subset_name, subset in self._extractor.subsets().items():
             subset_dir = osp.join(self._save_dir, subset_name)
             os.makedirs(subset_dir, exist_ok=True)
-            for index, item in enumerate(subset):
-                self._save_item(item, subset_dir, index)
 
-        self._save_labels()
+            for item in subset:
+                self._save_item(item, subset_dir)
 
     def _get_label(self, label_id):
         if label_id is None:
             return ''
         return self._extractor.categories()[AnnotationType.label][label_id].name
 
-    def _save_labels(self):
-        labels = [l.name for l in self._extractor.categories().get(
-            AnnotationType.label, LabelCategories())]
-
-        labels_path = osp.join(self._save_dir, LabelMePath.LABELS_FILE)
-        with open(labels_path, 'w', encoding='utf-8') as f:
-            f.writelines(label + '\n' for label in labels)
-
-    def _save_item(self, item, subset_dir, index):
+    def _save_item(self, item, subset_dir):
         from lxml import etree as ET
 
         log.debug("Converting item '%s'", item.id)
@@ -359,13 +347,10 @@ class LabelMeConverter(Converter):
                 ET.SubElement(poly_elem, 'username').text = \
                     str(ann.attributes.get('username', ''))
             elif ann.type == AnnotationType.mask:
-                mask_filename = '%s_mask_%s.png' % \
-                    (item.id.replace('/', '_'), obj_id)
-                mask_dir = osp.join(subset_dir, osp.dirname(image_filename),
-                    LabelMePath.MASKS_DIR)
-                os.makedirs(mask_dir, exist_ok=True)
-                save_image(osp.join(mask_dir, mask_filename),
-                    self._paint_mask(ann.image))
+                mask_filename = '%s_mask_%s.png' % (item.id, obj_id)
+                save_image(osp.join(subset_dir, LabelMePath.MASKS_DIR,
+                        mask_filename),
+                    self._paint_mask(ann.image), create_dir=True)
 
                 segm_elem = ET.SubElement(obj_elem, 'segm')
                 ET.SubElement(segm_elem, 'mask').text = mask_filename
