@@ -30,7 +30,8 @@ class LabelMeConverterTest(TestCase):
                         'a1': 'qwe',
                         'a2': True,
                         'a3': 123,
-                        'a4': '42' # must be escaped and recognized as string
+                        'a4': '42', # must be escaped and recognized as string
+                        'escaped': 'a,b. = \\= \\\\ " \\" \\, \\',
                     }),
                     Mask(np.array([[0, 1], [1, 0], [1, 1]]), group=2,
                         attributes={ 'username': 'test' }),
@@ -58,6 +59,7 @@ class LabelMeConverterTest(TestCase):
                             'a2': True,
                             'a3': 123,
                             'a4': '42',
+                            'escaped': 'a,b. = \\= \\\\ " \\" \\, \\',
                         }
                     ),
                     Mask(np.array([[0, 1], [1, 0], [1, 1]]), group=2,

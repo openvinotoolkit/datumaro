@@ -4,6 +4,7 @@
 
 from collections import defaultdict
 from defusedxml import ElementTree
+from functools import partial
 from glob import glob, iglob
 import logging as log
 import numpy as np
@@ -13,7 +14,7 @@ import os.path as osp
 from datumaro.components.extractor import (Extractor, Importer,
     DatasetItem, AnnotationType, Mask, Bbox, Polygon, LabelCategories)
 from datumaro.components.converter import Converter
-from datumaro.util import cast
+from datumaro.util import cast, escape, unescape
 from datumaro.util.os_util import split_path
 from datumaro.util.image import Image, save_image
 from datumaro.util.mask_tools import load_mask, find_mask_bbox
@@ -22,6 +23,19 @@ from datumaro.util.mask_tools import load_mask, find_mask_bbox
 class LabelMePath:
     MASKS_DIR = 'Masks'
     IMAGE_EXT = '.jpg'
+
+    ATTR_IMPORT_ESCAPES = [
+        ('\\=', r'%%{eq}%%'),
+        ('\\"', r'%%{doublequote}%%'),
+        ('\\,', r'%%{comma}%%'),
+        ('\\\\', r'%%{backslash}%%'), # keep last
+    ]
+    ATTR_EXPORT_ESCAPES = [
+        ('\\', '\\\\'), # keep first
+        ('=', '\\='),
+        ('"', '\\"'),
+        (',', '\\,'),
+    ]
 
 class LabelMeExtractor(Extractor):
     def __init__(self, path):
@@ -72,14 +86,25 @@ class LabelMeExtractor(Extractor):
             subsets.add(subset)
         return items, categories, subsets
 
-    @staticmethod
-    def _parse_annotations(xml_root, subset_root, categories):
+    def _escape(s):
+        return escape(s, LabelMePath.ATTR_IMPORT_ESCAPES)
+
+    def _unescape(s):
+        s = unescape(s, LabelMePath.ATTR_IMPORT_ESCAPES)
+        s = unescape(s, LabelMePath.ATTR_EXPORT_ESCAPES)
+        return s
+
+    @classmethod
+    def _parse_annotations(cls, xml_root, subset_root, categories):
         def _parse_attributes(attr_str):
             parsed = []
             if not attr_str:
                 return parsed
 
-            for attr in [a.strip() for a in attr_str.split(',') if a.strip()]:
+            for attr in [a.strip() for a in cls._escape(attr_str).split(',')]:
+                if not attr:
+                    continue
+
                 if '=' in attr:
                     name, value = attr.split('=', maxsplit=1)
                     if value.lower() in {'true', 'false'}:
@@ -87,16 +112,16 @@ class LabelMeExtractor(Extractor):
                     elif 1 < len(value) and value[0] == '"' and value[-1] == '"':
                         value = value[1:-1]
                     else:
-                        casted = cast(value, int)
-                        if casted is not None and str(casted) == value:
-                            value = casted
-                        else:
-                            casted = cast(value, float)
+                        for t in [int, float]:
+                            casted = cast(value, t)
                             if casted is not None and str(casted) == value:
                                 value = casted
-                    parsed.append((name, value))
+                                break
+                    if isinstance(value, str):
+                        value = cls._unescape(value)
+                    parsed.append((cls._unescape(name), value))
                 else:
-                    parsed.append((attr, True))
+                    parsed.append((cls._unescape(attr), True))
 
             return parsed
 
@@ -277,6 +302,8 @@ class LabelMeConverter(Converter):
             return ''
         return self._extractor.categories()[AnnotationType.label][label_id].name
 
+    _escape = partial(escape, escapes=LabelMePath.ATTR_EXPORT_ESCAPES)
+
     def _save_item(self, item, subset_dir):
         from lxml import etree as ET
 
@@ -376,10 +403,13 @@ class LabelMeConverter(Converter):
             for k, v in ann.attributes.items():
                 if k in { 'username' , 'occluded' }:
                     continue
-                if isinstance(v, str) and \
-                        cast(v, float) is not None and str(cast(v, float) == v):
-                    v = f'"{v}"' # add escaping for string values
-                attrs.append('%s=%s' % (k, v))
+                if isinstance(v, str):
+                    if cast(v, float) is not None and str(float(v)) == v or \
+                       cast(v, int) is not None and str(int(v)) == v:
+                        v = f'"{v}"' # add escaping for string values
+                    else:
+                        v = self._escape(v)
+                attrs.append('%s=%s' % (self._escape(k), v))
             ET.SubElement(obj_elem, 'attributes').text = ', '.join(attrs)
 
             obj_id += 1
