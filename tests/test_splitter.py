@@ -670,8 +670,9 @@ class SplitterTest(TestCase):
                 splits = [("train", 0.5), ("train", 0.2), ("test", 0.3)]
                 splitter.DetectionSplit(source, splits)
 
-    def test_no_subsetname_restriction(self):
-        splits = [("_train", 0.5), ("valid", 0.2), ("test*", 0.3)]
+    def test_no_subset_name_and_count_restriction(self):
+        splits = [("_train", 0.5), ("valid", 0.1), ("valid2", 0.1),
+            ("test*", 0.2), ("test2", 0.1)]
 
         with self.subTest("classification"):
             config = {
@@ -680,8 +681,10 @@ class SplitterTest(TestCase):
             source = self._generate_dataset(config)
             actual = splitter.ClassificationSplit(source, splits)
             self.assertEqual(5, len(actual.get_subset("_train")))
-            self.assertEqual(2, len(actual.get_subset("valid")))
-            self.assertEqual(3, len(actual.get_subset("test*")))
+            self.assertEqual(1, len(actual.get_subset("valid")))
+            self.assertEqual(1, len(actual.get_subset("valid2")))
+            self.assertEqual(2, len(actual.get_subset("test*")))
+            self.assertEqual(1, len(actual.get_subset("test2")))
 
         with self.subTest("detection"):
             source, _ = self._generate_detection_dataset(
@@ -691,5 +694,7 @@ class SplitterTest(TestCase):
             )
             actual = splitter.DetectionSplit(source, splits)
             self.assertEqual(5, len(actual.get_subset("_train")))
-            self.assertEqual(2, len(actual.get_subset("valid")))
-            self.assertEqual(3, len(actual.get_subset("test*")))
+            self.assertEqual(1, len(actual.get_subset("valid")))
+            self.assertEqual(1, len(actual.get_subset("valid2")))
+            self.assertEqual(2, len(actual.get_subset("test*")))
+            self.assertEqual(1, len(actual.get_subset("test2")))
