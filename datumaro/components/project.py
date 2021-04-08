@@ -136,15 +136,15 @@ class ProjectSourceDataset(IDataset):
 
     @property
     def is_modified(self) -> bool:
-        return self._dataset.has_updated_items()
+        return self._dataset.is_modified
 
     @property
     def patch(self) -> DatasetPatch:
-        return self._dataset.get_patch()
+        return self._dataset.patch
 
     @property
     def is_cache_initialized(self) -> bool:
-        return self._dataset.is_cache_initialized()
+        return self._dataset.is_cache_initialized
 
     @property
     def is_eager(self) -> bool:
@@ -811,7 +811,8 @@ class ProjectBuildTargets(CrudProxy):
     def apply_pipeline(self, pipeline):
         def _join_parent_datasets():
             if 1 < len(parent_datasets):
-                dataset = Dataset.from_extractors(*parent_datasets)
+                dataset = Dataset.from_extractors(*parent_datasets,
+                    env=self._project.env)
             else:
                 dataset = parent_datasets[0]
             return dataset
@@ -882,7 +883,8 @@ class ProjectBuildTargets(CrudProxy):
                 dataset = self._project.sources.make_dataset(source)
 
             elif type_ == BuildStageType.project:
-                dataset = _join_parent_datasets()
+                dataset = Dataset.from_extractors(*parent_datasets,
+                    env=self._project.env)
 
             elif type_ == BuildStageType.convert:
                 dataset = _join_parent_datasets()
@@ -890,16 +892,6 @@ class ProjectBuildTargets(CrudProxy):
             else:
                 raise NotImplementedError("Unknown stage type '%s'" % type_)
 
-            if 1 < graph.out_degree(current_name) and \
-                    not isinstance(dataset, Dataset):
-                # If we have multiple consumers,
-                # avoid reapplying the whole stack for each one.
-                # Otherwise, fuse operations in the graph
-                dataset = Dataset.from_extractors(dataset)
-
-            if head == current_name and not isinstance(dataset, Dataset):
-                # ensure have Dataset in the head node
-                dataset = Dataset.from_extractors(dataset)
             current['dataset'] = dataset
 
         return graph, head
@@ -918,7 +910,7 @@ class ProjectBuildTargets(CrudProxy):
 
     def make_dataset(self, target):
         if len(self._data) == 1 and self.MAIN_TARGET in self._data:
-            raise Exception("Can't create dataset from an empty project.")
+            raise DatumaroError("Can't create dataset from an empty project.")
 
         target = self._normalize_target(target)
 
@@ -952,19 +944,21 @@ class ProjectBuildTargets(CrudProxy):
             return _rpath(self._project.vcs.dvc_filepath(source))
 
         def _reset_sources(sources):
-            # call 'dvc repro' to download original source data
-            # 'dvc repro' requires data to be available,
-            # so call 'dvc checkout' or 'dvc pull' before
-            self._project.sources.checkout(related_sources)
-            self._project.vcs.dvc.repro([_source_dvc_path(s)
-                for s in related_sources])
+            for source in sources:
+                dvc_path = _source_dvc_path(source)
+                project_dir = self._project.config.project_dir
+                repo = self._project.vcs.dvc.repo
+                stage = repo.stage.load_file(osp.join(project_dir, dvc_path))[0]
+                with repo.lock:
+                    stage.frozen = False
+                    stage.run(force=True, no_commit=True)
 
         def _restore_sources(sources):
-            if not self._project.vcs.has_commits():
+            if not self._project.vcs.has_commits() or not sources:
                 return
-            self._project.vcs.git.checkout(None, [_source_dvc_path(s)
-                for s in related_sources])
-            self._project.sources.checkout(related_sources)
+            self._project.vcs.git.checkout(None,
+                [_source_dvc_path(s) for s in sources])
+            self._project.sources.checkout(sources)
 
         _is_modified = partial(self._project.vcs.dvc.check_stage_status,
             status='modified')
@@ -1001,17 +995,16 @@ class ProjectBuildTargets(CrudProxy):
         pipeline = self.make_pipeline(target)
         related_sources = self.pipeline_sources(pipeline)
 
-        if inplace:
-            if target != self.MAIN_TARGET:
-                stage = _source_dvc_path(raw_target)
-                status = self._project.vcs.dvc.status([stage])
-                if _is_modified(status, stage) and not force:
-                    raise Exception("Can't build project when there are "
-                        "unsaved changes in the output directory: '%s'" % \
-                        out_dir)
-        else:
-            if osp.isdir(out_dir) and os.listdir(out_dir) and not force:
-                raise Exception("Can't build project when output directory" \
+        if not force:
+            if inplace:
+                stages = [_source_dvc_path(s) for s in related_sources]
+                status = self._project.vcs.dvc.status(stages)
+                for stage, source in zip(stages, related_sources):
+                    if _is_modified(status, stage):
+                        raise VcsError("Can't build when there are "
+                            "uncommitted changes in the source '%s'" % source)
+            elif osp.isdir(out_dir) and os.listdir(out_dir):
+                raise Exception("Can't build when output directory"
                     "is not empty")
 
         try:
@@ -1019,6 +1012,9 @@ class ProjectBuildTargets(CrudProxy):
                 _reset_sources(related_sources)
 
             self.run_pipeline(pipeline, out_dir=out_dir)
+
+            if raw_target != self.MAIN_TARGET:
+                related_sources.remove(raw_target)
 
         finally:
             if reset:
@@ -1365,7 +1361,7 @@ class DvcWrapper:
         self._exec(args)
 
     def commit(self, paths):
-        args = ['commit', '--recursive']
+        args = ['commit', '--recursive', '--force']
         if paths:
             args.extend(paths)
         self._exec(args)
@@ -1406,10 +1402,12 @@ class DvcWrapper:
         args.extend(cmd)
         self._exec(args, hide_output=False)
 
-    def repro(self, targets=None, force=False):
+    def repro(self, targets=None, force=False, pull=False):
         args = ['repro']
         if force:
             args.append('--force')
+        if pull:
+            args.append('--pull')
         if targets:
             args.extend(targets)
         self._exec(args)

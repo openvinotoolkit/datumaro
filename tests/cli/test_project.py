@@ -1,3 +1,4 @@
+import numpy as np
 import os.path as osp
 import shutil
 
@@ -35,12 +36,11 @@ class ProjectIntegrationScenarios(TestCase):
             result_dir = osp.join(project_dir, 'result')
 
             Dataset.from_iterable([
-                DatasetItem(0, annotations=[
-                    Label(0),
+                DatasetItem(0, image=np.ones((1, 2, 3)), annotations=[
                     Bbox(1, 1, 1, 1, label=0),
                     Bbox(2, 2, 2, 2, label=1),
                 ])
-            ], categories=['a', 'b']).save(dataset_dir)
+            ], categories=['a', 'b']).save(dataset_dir, save_images=True)
 
             run(self, 'create', '-o', project_dir)
             run(self, 'commit', '-p', project_dir, '-m', 'Initial commit')
@@ -59,17 +59,22 @@ class ProjectIntegrationScenarios(TestCase):
             run(self, 'export', '-p', project_dir, '-f', 'coco', '-o', result_dir)
             parsed = Dataset.import_from(result_dir, 'coco')
             compare_datasets(self, Dataset.from_iterable([
-                DatasetItem(0, annotations=[
-                    Bbox(2, 2, 2, 2, label=1),
-                ]),
-            ], categories=['a', 'cat']), parsed)
+                DatasetItem(0, image=np.ones((1, 2, 3)),
+                    annotations=[
+                        Bbox(2, 2, 2, 2, label=1,
+                            group=1, id=1, attributes={'is_crowd': False}),
+                ], attributes={ 'id': 1 })
+            ], categories=['a', 'cat']), parsed, require_images=True)
 
             shutil.rmtree(result_dir, ignore_errors=True)
             run(self, 'checkout', '-p', project_dir, 'HEAD~1')
             run(self, 'export', '-p', project_dir, '-f', 'coco', '-o', result_dir)
             parsed = Dataset.import_from(result_dir, 'coco')
             compare_datasets(self, Dataset.from_iterable([
-                DatasetItem(0, annotations=[
-                    Bbox(2, 2, 2, 2, label=1),
-                ]),
-            ], categories=['a', 'cat']), parsed)
+                DatasetItem(0, image=np.ones((1, 2, 3)), annotations=[
+                    Bbox(1, 1, 1, 1, label=0,
+                        group=1, id=1, attributes={'is_crowd': False}),
+                    Bbox(2, 2, 2, 2, label=1,
+                        group=2, id=2, attributes={'is_crowd': False}),
+                ], attributes={ 'id': 1 })
+            ], categories=['a', 'cat']), parsed, require_images=True)
