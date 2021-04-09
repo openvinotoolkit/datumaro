@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Added support for auto-merging (joining) of datasets with no labels and having labels (<https://github.com/openvinotoolkit/datumaro/pull/200>)
 - Allowed explicit label removal in `remap_labels` transform (<https://github.com/openvinotoolkit/datumaro/pull/203>)
+- Image extension in CVAT format export (<https://github.com/openvinotoolkit/datumaro/pull/214>)
 
 ### Security
 -
