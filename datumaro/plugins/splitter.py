@@ -49,8 +49,7 @@ class _TaskSpecificSplit(Transform, CliPlugin):
         self._seed = seed
 
         # remove subset name restriction
-        # regarding https://github.com/openvinotoolkit/datumaro/issues/194
-        # self._subsets = {"train", "val", "test"}  # output subset names
+        # https://github.com/openvinotoolkit/datumaro/issues/194
         self._subsets = subsets
         self._parts = []
         self._length = "parent"
@@ -74,8 +73,6 @@ class _TaskSpecificSplit(Transform, CliPlugin):
                 annotations.append(labels[0])
             else:
                 unlabeled_or_multi.append(idx)
-                # raise Exception("Item '%s' contains %s labels, "
-                #     "but exactly one is expected" % (item.id, len(labels)))
 
         return annotations, unlabeled_or_multi
 
@@ -85,9 +82,9 @@ class _TaskSpecificSplit(Transform, CliPlugin):
         ratios = []
         subsets = set()
         valid = ["train", "val", "test"]
-        # remove subset name restriction
-        # regarding https://github.com/openvinotoolkit/datumaro/issues/194
         for subset, ratio in splits:
+            # remove subset name restriction
+            # https://github.com/openvinotoolkit/datumaro/issues/194
             if restrict:
                 assert subset in valid, \
                     "Subset name must be one of %s, got %s" % (valid, subset)
