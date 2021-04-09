@@ -65,14 +65,19 @@ class _TaskSpecificSplit(Transform, CliPlugin):
     @staticmethod
     def _get_uniq_annotations(dataset):
         annotations = []
-        for item in dataset:
+        unlabeled_or_multi = []
+
+        for idx, item in enumerate(dataset):
             labels = [a for a in item.annotations
                 if a.type == AnnotationType.label]
-            if len(labels) != 1:
-                raise Exception("Item '%s' contains %s labels, "
-                    "but exactly one is expected" % (item.id, len(labels)))
-            annotations.append(labels[0])
-        return annotations
+            if len(labels) == 1:
+                annotations.append(labels[0])
+            else:
+                unlabeled_or_multi.append(idx)
+                # raise Exception("Item '%s' contains %s labels, "
+                #     "but exactly one is expected" % (item.id, len(labels)))
+
+        return annotations, unlabeled_or_multi
 
     @staticmethod
     def _validate_splits(splits, restrict=False):
@@ -143,7 +148,7 @@ class _TaskSpecificSplit(Transform, CliPlugin):
                     n_splits[ii] += 1
                     n_splits[midx] -= 1
         sections = np.add.accumulate(n_splits[:-1])
-        return sections
+        return sections, n_splits
 
     @staticmethod
     def _group_by_attr(items):
@@ -187,7 +192,7 @@ class _TaskSpecificSplit(Transform, CliPlugin):
                        merge_small_classes=True):
 
         def _split_indice(indice):
-            sections = self._get_sections(len(indice), ratio)
+            sections, _ = self._get_sections(len(indice), ratio)
             splits = np.array_split(indice, sections)
             for subset, split in zip(snames, splits):
                 if 0 < len(split):
@@ -223,6 +228,26 @@ class _TaskSpecificSplit(Transform, CliPlugin):
         if len(rest) > 0:
             _split_indice(rest)
 
+    def _split_unlabeled(self, unlabeled, by_splits):
+        """
+        split unlabeled data into subsets (detection, classification)
+        Args:
+            unlabeled: list of index of unlabeled or multi-labeled data
+            by_splits: splits up to now
+        Returns:
+            by_splits: final splits
+        """
+        dataset_size = len(self._extractor)
+        _, n_splits = list(self._get_sections(dataset_size, self._sratio))
+        counts = [len(by_splits[sname]) for sname in self._snames]
+        expected = [max(0, v) for v in np.subtract(n_splits, counts)]
+        sections = np.add.accumulate(expected[:-1])
+        np.random.shuffle(unlabeled)
+        splits = np.array_split(unlabeled, sections)
+        for subset, split in zip(self._snames, splits):
+            if 0 < len(split):
+                by_splits[subset].extend(split)
+
     def _find_split(self, index):
         for subset_indices, subset in self._parts:
             if index in subset_indices:
@@ -248,7 +273,8 @@ class ClassificationSplit(_TaskSpecificSplit):
     distribution.|n
     |n
     Notes:|n
-    - Each image is expected to have only one Label|n
+    - Each image is expected to have only one Label. Unlabeled or
+      multi-labeled images will be split into subsets randomly. |n
     - If Labels also have attributes, also splits by attribute values.|n
     - If there is not enough images in some class or attributes group,
       the split ratio can't be guaranteed.|n
@@ -274,7 +300,7 @@ class ClassificationSplit(_TaskSpecificSplit):
         # support only single label for a DatasetItem
         # 1. group by label
         by_labels = dict()
-        annotations = self._get_uniq_annotations(self._extractor)
+        annotations, unlabeled = self._get_uniq_annotations(self._extractor)
 
         for idx, ann in enumerate(annotations):
             label = getattr(ann, 'label', None)
@@ -288,6 +314,12 @@ class ClassificationSplit(_TaskSpecificSplit):
 
         # 2. group by attributes
         self._split_by_attr(by_labels, self._snames, self._sratio, by_splits)
+
+        # 3. split unlabeled data
+        if len(unlabeled) > 0:
+            self._split_unlabeled(unlabeled, by_splits)
+
+        # 4. set parts
         self._set_parts(by_splits)
 
 
@@ -310,7 +342,8 @@ class ReidentificationSplit(_TaskSpecificSplit):
     'train', 'val', 'test-gallery' and 'test-query'. |n
     |n
     Notes:|n
-    - Each image is expected to have a single Label|n
+    - Each image is expected to have a single Label. Unlabeled or multi-labeled
+      images will be split into 'not-supported'.|n
     - Object ID can be described by Label, or by attribute (--attr parameter)|n
     - The splits of the test set are controlled by '--query' parameter. |n
     |s|sGallery ratio would be 1.0 - query.|n
@@ -377,7 +410,7 @@ class ReidentificationSplit(_TaskSpecificSplit):
 
         # group by ID(attr_for_id)
         by_id = dict()
-        annotations = self._get_uniq_annotations(dataset)
+        annotations, unlabeled = self._get_uniq_annotations(dataset)
         if attr_for_id is None:  # use label
             for idx, ann in enumerate(annotations):
                 ID = getattr(ann, 'label', None)
@@ -408,7 +441,7 @@ class ReidentificationSplit(_TaskSpecificSplit):
             split_ratio = np.array([test, 1.0 - test])
             IDs = list(by_id.keys())
             np.random.shuffle(IDs)
-            sections = self._get_sections(len(IDs), split_ratio)
+            sections, _ = self._get_sections(len(IDs), split_ratio)
             splits = np.array_split(IDs, sections)
             testset = {pid: by_id[pid] for pid in splits[0]}
             trval = {pid: by_id[pid] for pid in splits[1]}
@@ -458,6 +491,11 @@ class ReidentificationSplit(_TaskSpecificSplit):
             self._split_by_attr(trval, trval_snames, trval_ratio, by_splits,
                                 merge_small_classes=False)
 
+        # split unlabeled data into 'not-supported'.
+        if len(unlabeled) > 0:
+            self._subsets.add("not-supported")
+            by_splits["not-supported"] = unlabeled
+
         self._set_parts(by_splits)
 
     @staticmethod
@@ -506,6 +544,20 @@ class ReidentificationSplit(_TaskSpecificSplit):
             test[id_trval] = trval.pop(id_trval)
             trval[id_test] = test.pop(id_test)
 
+    def get_subset(self, name):
+        # lazy splitting
+        if self._initialized is False:
+            self._split_dataset()
+            self._initialized = True
+        return super().get_subset(name)
+
+    def subsets(self):
+        # lazy splitting
+        if self._initialized is False:
+            self._split_dataset()
+            self._initialized = True
+        return super().subsets()
+
 
 class DetectionSplit(_TaskSpecificSplit):
     """
@@ -545,18 +597,20 @@ class DetectionSplit(_TaskSpecificSplit):
     @staticmethod
     def _group_by_bbox_labels(dataset):
         by_labels = dict()
+        unlabeled = []
         for idx, item in enumerate(dataset):
             bbox_anns = [a for a in item.annotations
                 if a.type == AnnotationType.bbox]
-            assert 0 < len(bbox_anns), \
-                "Expected more than one bbox annotation in the dataset"
+            if len(bbox_anns) == 0:
+                unlabeled.append(idx)
+                continue
             for ann in bbox_anns:
                 label = getattr(ann, 'label', None)
                 if label not in by_labels:
                     by_labels[label] = [(idx, ann)]
                 else:
                     by_labels[label].append((idx, ann))
-        return by_labels
+        return by_labels, unlabeled
 
     def _split_dataset(self):
         np.random.seed(self._seed)
@@ -564,7 +618,7 @@ class DetectionSplit(_TaskSpecificSplit):
         subsets, sratio = self._snames, self._sratio
 
         # 1. group by bbox label
-        by_labels = self._group_by_bbox_labels(self._extractor)
+        by_labels, unlabeled = self._group_by_bbox_labels(self._extractor)
 
         # 2. group by attributes
         required = self._get_required(sratio)
@@ -595,7 +649,11 @@ class DetectionSplit(_TaskSpecificSplit):
         n_combs = [len(v) for v in by_combinations]
 
         # 3-1. initially count per-image GT samples
-        counts_all = {idx: dict() for idx in range(total)}
+        counts_all = {}
+        for idx in range(total):
+            if idx not in unlabeled:
+                counts_all[idx] = dict()
+
         for idx_comb, indice in enumerate(by_combinations):
             for idx in indice:
                 if idx_comb not in counts_all[idx]:
@@ -667,5 +725,9 @@ class DetectionSplit(_TaskSpecificSplit):
                 sname, nc = expected[midx]
                 by_splits[sname].append(idx)
                 update_nc(counts, nc)
+
+        # split unlabeled data
+        if len(unlabeled) > 0:
+            self._split_unlabeled(unlabeled, by_splits)
 
         self._set_parts(by_splits)
