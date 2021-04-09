@@ -12,6 +12,19 @@ class VcsError(DatumaroError):
     pass
 
 @attrs
+class SourceExistsError(VcsError):
+    name = attrib()
+
+    def __str__(self):
+        return "Source %s already exists" % (self.name, )
+
+class ReadonlyProjectError(VcsError):
+    pass
+
+class DetachedProjectError(VcsError):
+    pass
+
+@attrs
 class DatasetError(DatumaroError):
     item_id = attrib()
 

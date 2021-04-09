@@ -22,7 +22,8 @@ from datumaro.components.config import Config
 from datumaro.components.config_model import (PROJECT_DEFAULT_CONFIG,
     PROJECT_SCHEMA, BuildStage, Remote, Source)
 from datumaro.components.environment import Environment
-from datumaro.components.errors import DatumaroError, VcsError
+from datumaro.components.errors import (DatumaroError, DetachedProjectError,
+    ReadonlyProjectError, SourceExistsError, VcsError)
 from datumaro.components.dataset import Dataset, DEFAULT_FORMAT
 from datumaro.util import find, error_rollback, parse_str_enum_value
 from datumaro.util.os_util import make_file_name, generate_next_name
@@ -51,7 +52,7 @@ class ProjectSourceDataset(Dataset):
     def save(self, save_dir=None, **kwargs):
         if save_dir is None:
             if self.readonly:
-                raise DatumaroError("Can't update a read-only dataset")
+                raise ReadonlyProjectError("Can't update a read-only dataset")
         super().save(save_dir, **kwargs)
 
     @property
@@ -104,7 +105,7 @@ class ProjectRepositories(CrudProxy):
 
     def set_default(self, name):
         if name not in self:
-            raise Exception("Unknown repository name '%s'" % name)
+            raise KeyError("Unknown repository name '%s'" % name)
         self._vcs._project.config.default_repo = name
 
     def get_default(self):
@@ -163,7 +164,7 @@ class ProjectRemotes(CrudProxy):
     def remove(self, name, force=False):
         try:
             self._vcs.dvc.remove_remote(name)
-        except Exception:
+        except DvcWrapper.DvcError:
             if not force:
                 raise
 
@@ -192,7 +193,7 @@ class _DataSourceBase(CrudProxy):
 
     def pull(self, names=None, rev=None):
         if not self._project.vcs.writeable:
-            raise Exception("Can't pull in a read-only project")
+            raise ReadonlyProjectError("Can't pull in a read-only project")
 
         if not names:
             names = []
@@ -214,7 +215,7 @@ class _DataSourceBase(CrudProxy):
 
     def fetch(self, names=None):
         if not self._project.vcs.readable:
-            raise Exception("Can't fetch in a detached project")
+            raise DetachedProjectError("Can't fetch in a detached project")
 
         if not names:
             names = []
@@ -235,7 +236,7 @@ class _DataSourceBase(CrudProxy):
         # checked-out revision hash. In the case of mismatch, run rebuild
 
         if not self._project.vcs.writeable:
-            raise Exception("Can't checkout in a read-only project")
+            raise ReadonlyProjectError("Can't checkout in a read-only project")
 
         if not names:
             names = []
@@ -253,7 +254,7 @@ class _DataSourceBase(CrudProxy):
 
     def push(self, names=None):
         if not self._project.vcs.writeable:
-            raise Exception("Can't push in a read-only project")
+            raise ReadonlyProjectError("Can't push in a read-only project")
 
         if not names:
             names = []
@@ -322,7 +323,7 @@ class _DataSourceBase(CrudProxy):
         self.validate_name(name)
 
         if name in self:
-            raise Exception("Source '%s' already exists" % name)
+            raise SourceExistsError("Source '%s' already exists" % name)
 
         url = value.get('url', '')
 
@@ -374,7 +375,7 @@ class _DataSourceBase(CrudProxy):
                     out=source_dir, dvc_path=dvcfile, download=True)
                 self._ensure_in_dir(source_dir, dvcfile, osp.basename(url))
             else:
-                raise Exception("Unknown remote type '%s'" % remote_conf.type)
+                raise ValueError("Unknown remote type '%s'" % remote_conf.type)
 
             path = osp.basename(path)
         else:
@@ -384,7 +385,7 @@ class _DataSourceBase(CrudProxy):
                 remote_name = ''
                 path = url
             else:
-                raise Exception("Can only add an existing local, or generated "
+                raise VcsError("Can only add an existing local, or generated "
                     "source to a detached project")
 
         value['url'] = path
@@ -413,7 +414,7 @@ class _DataSourceBase(CrudProxy):
         if osp.isfile(dvcfile):
             try:
                 self._project.vcs.dvc.remove(dvcfile, outs=not keep_data)
-            except Exception:
+            except DvcWrapper.DvcError:
                 if force:
                     os.remove(dvcfile)
                 else:
@@ -553,7 +554,7 @@ class ProjectBuildTargets(CrudProxy):
                 value['type'], sep='-')
         else:
             if target.find_stage(name):
-                raise Exception("Stage '%s' already exists" % name)
+                raise VcsError("Stage '%s' already exists" % name)
         value['name'] = name
 
         value = BuildStage(value)
@@ -861,9 +862,15 @@ class ProjectBuildTargets(CrudProxy):
                 project_dir = self._project.config.project_dir
                 repo = self._project.vcs.dvc.repo
                 stage = repo.stage.load_file(osp.join(project_dir, dvc_path))[0]
-                with repo.lock:
-                    stage.frozen = False
-                    stage.run(force=True, no_commit=True)
+                try:
+                    logs = None
+                    with repo.lock, catch_logs('dvc') as logs:
+                        stage.frozen = False
+                        stage.run(force=True, no_commit=True)
+                except Exception:
+                    if logs:
+                        log.debug(logs.getvalue())
+                    raise
 
         def _restore_sources(sources):
             if not self._project.vcs.has_commits() or not sources:
@@ -1436,14 +1443,16 @@ class ProjectVcs:
 
     def push(self, remote: Union[None, str] = None):
         if not self.writeable:
-            raise Exception("Can't push in a detached or read-only repository")
+            raise ReadonlyProjectError(
+                "Can't push in a detached or read-only repository")
 
         self.dvc.push()
         self.git.push(remote=remote)
 
     def pull(self, remote=None):
         if not self.writeable:
-            raise Exception("Can't pull in a detached or read-only repository")
+            raise ReadonlyProjectError(
+                "Can't pull in a detached or read-only repository")
 
         # order matters
         self.git.pull(remote=remote)
@@ -1452,8 +1461,8 @@ class ProjectVcs:
     def check_updates(self,
             targets: Union[None, str, List[str]] = None) -> List[str]:
         if not self.writeable:
-            raise Exception("Can't check updates in a detached or "
-                "read-only repository")
+            raise ReadonlyProjectError(
+                "Can't check updates in a detached or read-only repository")
 
         updated_refs = self.git.check_updates()
         updated_remotes = self.remotes.check_updates(targets)
@@ -1461,22 +1470,24 @@ class ProjectVcs:
 
     def fetch(self, remote: Union[None, str] = None):
         if not self.writeable:
-            raise Exception("Can't fetch in a detached or read-only repository")
+            raise ReadonlyProjectError(
+                "Can't fetch in a detached or read-only repository")
 
         self.git.fetch(remote=remote)
         self.dvc.fetch()
 
     def tag(self, name: str):
         if not self.writeable:
-            raise Exception("Can't tag in a detached or read-only repository")
+            raise ReadonlyProjectError(
+                "Can't tag in a detached or read-only repository")
 
         self.git.tag(name)
 
     def checkout(self, rev: Union[None, str] = None,
             targets: Union[None, str, List[str]] = None):
         if not self.writeable:
-            raise Exception("Can't checkout in a detached or "
-                "read-only repository")
+            raise ReadonlyProjectError(
+                "Can't checkout in a detached or read-only repository")
 
         # order matters
         targets = targets or []
@@ -1496,8 +1507,8 @@ class ProjectVcs:
 
     def add(self, paths: List[str]):
         if not self.writeable:
-            raise Exception("Can't track files in a detached or "
-                "read-only repository")
+            raise ReadonlyProjectError(
+                "Can't track files in a detached or read-only repository")
 
         if not paths:
             raise ValueError("Expected at least one file path to add")
@@ -1507,8 +1518,8 @@ class ProjectVcs:
 
     def commit(self, paths: Union[None, List[str]], message):
         if not self.writeable:
-            raise Exception("Can't commit in a detached or "
-                "read-only repository")
+            raise ReadonlyProjectError(
+                "Can't commit in a detached or read-only repository")
 
         # order matters
         if not paths:
@@ -1531,7 +1542,8 @@ class ProjectVcs:
 
     def init(self):
         if self.readonly or self.detached:
-            raise Exception("Can't init in a detached or read-only repository")
+            raise ReadonlyProjectError(
+                "Can't init in a detached or read-only repository")
 
         # order matters
         self.git.init()
@@ -1540,7 +1552,8 @@ class ProjectVcs:
 
     def status(self) -> Dict:
         if not self.readable:
-            raise Exception("Can't check status in a detached repository")
+            raise DetachedProjectError(
+                "Can't check status in a detached repository")
 
         # check status of files and remotes
         uncomitted = {}
@@ -1550,7 +1563,8 @@ class ProjectVcs:
 
     def ensure_gitignored(self, paths: Union[None, str, List[str]] = None):
         if not self.writeable:
-            raise Exception("Can't update a detached or read-only repository")
+            raise ReadonlyProjectError(
+                "Can't update a detached or read-only repository")
 
         if paths is None:
             paths = [self._project.sources.data_dir(source)
@@ -1568,7 +1582,7 @@ class ProjectVcs:
 
     def is_ref(self, ref: str) -> bool:
         if not self.readable:
-            raise Exception("Can't read in a detached repository")
+            raise DetachedProjectError("Can't read in a detached repository")
 
         return self.git.is_ref(ref)
 
@@ -1594,7 +1608,7 @@ class Project:
                     ', '.join(matches))
             dataset_format = matches[0]
         elif not env.is_format_known(dataset_format):
-            raise DatumaroError("Unknown format '%s'. To make it "
+            raise KeyError("Unknown format '%s'. To make it "
                 "available, add the corresponding Extractor implementation "
                 "to the environment" % dataset_format)
 
