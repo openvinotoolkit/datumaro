@@ -236,29 +236,27 @@ class SplitterTest(TestCase):
         self.assertEqual(4, len(actual.get_subset("val")))
         self.assertEqual(0, len(actual.get_subset("test")))
 
-    def test_split_for_classification_gives_error(self):
+    def test_split_for_classification_unlabeled(self):
         with self.subTest("no label"):
-            source = Dataset.from_iterable([
-                DatasetItem(1, annotations=[]),
-                DatasetItem(2, annotations=[]),
-            ], categories=["a", "b", "c"])
+            iterable = [DatasetItem(i, annotations=[]) for i in range(10)]
+            source = Dataset.from_iterable(iterable, categories=["a", "b"])
+            splits = [("train", 0.7), ("test", 0.3)]
+            actual = splitter.ClassificationSplit(source, splits)
 
-            with self.assertRaisesRegex(Exception, "exactly one is expected"):
-                splits = [("train", 0.7), ("test", 0.3)]
-                actual = splitter.ClassificationSplit(source, splits)
-                len(actual.get_subset("train"))
+            self.assertEqual(7, len(actual.get_subset("train")))
+            self.assertEqual(3, len(actual.get_subset("test")))
 
         with self.subTest("multi label"):
-            source = Dataset.from_iterable([
-                DatasetItem(1, annotations=[Label(0), Label(1)]),
-                DatasetItem(2, annotations=[Label(0), Label(2)]),
-            ], categories=["a", "b", "c"])
+            anns = [Label(0), Label(1)]
+            iterable = [DatasetItem(i, annotations=anns) for i in range(10)]
+            source = Dataset.from_iterable(iterable, categories=["a", "b"])
+            splits = [("train", 0.7), ("test", 0.3)]
+            actual = splitter.ClassificationSplit(source, splits)
 
-            with self.assertRaisesRegex(Exception, "exactly one is expected"):
-                splits = [("train", 0.7), ("test", 0.3)]
-                splitter.ClassificationSplit(source, splits)
-                len(actual.get_subset("train"))
+            self.assertEqual(7, len(actual.get_subset("train")))
+            self.assertEqual(3, len(actual.get_subset("test")))
 
+    def test_split_for_classification_gives_error(self):
         source = Dataset.from_iterable([
             DatasetItem(1, annotations=[Label(0)]),
             DatasetItem(2, annotations=[Label(1)]),
@@ -396,30 +394,27 @@ class SplitterTest(TestCase):
         self.assertEqual(90, len(actual.get_subset("test-gallery")))
         self.assertEqual(120, len(actual.get_subset("test-query")))
 
-    def test_split_for_reidentification_gives_error(self):
-        query = 0.4 / 0.7  # valid query ratio
+    def test_split_for_reidentification_unlabeled(self):
+        query = 0.5
 
         with self.subTest("no label"):
-            source = Dataset.from_iterable([
-                DatasetItem(1, annotations=[]),
-                DatasetItem(2, annotations=[]),
-            ], categories=["a", "b", "c"])
+            iterable = [DatasetItem(i, annotations=[]) for i in range(10)]
+            source = Dataset.from_iterable(iterable, categories=["a", "b"])
+            splits = [("train", 0.6), ("test", 0.4)]
+            actual = splitter.ReidentificationSplit(source, splits, query)
+            self.assertEqual(10, len(actual.get_subset("not-supported")))
 
-            with self.assertRaisesRegex(Exception, "exactly one is expected"):
-                splits = [("train", 0.5), ("val", 0.2), ("test", 0.3)]
-                actual = splitter.ReidentificationSplit(source, splits, query)
-                len(actual.get_subset("train"))
+        with self.subTest("multi label"):
+            anns = [Label(0), Label(1)]
+            iterable = [DatasetItem(i, annotations=anns) for i in range(10)]
+            source = Dataset.from_iterable(iterable, categories=["a", "b"])
+            splits = [("train", 0.6), ("test", 0.4)]
+            actual = splitter.ReidentificationSplit(source, splits, query)
 
-        with self.subTest(msg="multi label"):
-            source = Dataset.from_iterable([
-                DatasetItem(1, annotations=[Label(0), Label(1)]),
-                DatasetItem(2, annotations=[Label(0), Label(2)]),
-            ], categories=["a", "b", "c"])
+            self.assertEqual(10, len(actual.get_subset("not-supported")))
 
-            with self.assertRaisesRegex(Exception, "exactly one is expected"):
-                splits = [("train", 0.5), ("val", 0.2), ("test", 0.3)]
-                actual = splitter.ReidentificationSplit(source, splits, query)
-                len(actual.get_subset("train"))
+    def test_split_for_reidentification_gives_error(self):
+        query = 0.4 / 0.7  # valid query ratio
 
         counts = {i: (i % 3 + 1) * 7 for i in range(10)}
         config = {"person": {"attrs": ["PID"], "counts": counts}}
@@ -638,18 +633,22 @@ class SplitterTest(TestCase):
             list(r1.get_subset("test")), list(r3.get_subset("test"))
         )
 
+    def test_split_for_detection_with_unlabeled(self):
+        source, _ = self._generate_detection_dataset(
+            append_bbox=self._get_append_bbox("cvat"),
+            with_attr=True,
+            nimages=10,
+        )
+        for i in range(10):
+            source.put(DatasetItem(i + 10, annotations={}))
+
+        splits = [("train", 0.5), ("val", 0.2), ("test", 0.3)]
+        actual = splitter.DetectionSplit(source, splits)
+        self.assertEqual(10, len(actual.get_subset("train")))
+        self.assertEqual(4, len(actual.get_subset("val")))
+        self.assertEqual(6, len(actual.get_subset("test")))
+
     def test_split_for_detection_gives_error(self):
-        with self.subTest(msg="bbox annotation"):
-            source = Dataset.from_iterable([
-                DatasetItem(1, annotations=[Label(0), Label(1)]),
-                DatasetItem(2, annotations=[Label(0), Label(2)]),
-            ], categories=["a", "b", "c"])
-
-            with self.assertRaisesRegex(Exception, "more than one bbox"):
-                splits = [("train", 0.5), ("val", 0.2), ("test", 0.3)]
-                actual = splitter.DetectionSplit(source, splits)
-                len(actual.get_subset("train"))
-
         source, _ = self._generate_detection_dataset(
             append_bbox=self._get_append_bbox("cvat"),
             with_attr=True,
