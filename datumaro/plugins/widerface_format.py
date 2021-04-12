@@ -21,6 +21,7 @@ class WiderFacePath:
     IMAGES_DIR_NO_LABEL = 'no_label'
     BBOX_ATTRIBUTES = ['blur', 'expression', 'illumination',
         'occluded', 'pose', 'invalid']
+    DEFAULT_LABEL = 'face'
 
 class WiderFaceExtractor(SourceExtractor):
     def __init__(self, path, subset=None):
@@ -40,12 +41,14 @@ class WiderFaceExtractor(SourceExtractor):
 
     def _load_categories(self):
         label_cat = LabelCategories()
-
+        label_cat.add(WiderFacePath.DEFAULT_LABEL)
         path = osp.join(self._dataset_dir, WiderFacePath.LABELS_FILE)
         if osp.isfile(path):
             with open(path, encoding='utf-8') as labels_file:
                 for line in labels_file:
-                    label_cat.add(line.strip())
+                    label_name = line.strip()
+                    if label_name != WiderFacePath.DEFAULT_LABEL:
+                        label_cat.add(label_name)
         else:
             subset_path = osp.join(self._dataset_dir,
                 WiderFacePath.SUBSET_DIR + self._subset,
@@ -56,12 +59,15 @@ class WiderFaceExtractor(SourceExtractor):
                             images_dir != WiderFacePath.IMAGES_DIR_NO_LABEL:
                         if '--' in images_dir:
                             images_dir = images_dir.split('--')[1]
-                        label_cat.add(images_dir)
-
+                        if images_dir != WiderFacePath.DEFAULT_LABEL:
+                            label_cat.add(images_dir)
+        if len(label_cat) == 1:
+            label_cat = LabelCategories()
         return { AnnotationType.label: label_cat }
 
     def _load_items(self, path):
         items = {}
+        label_categories = self._categories[AnnotationType.label]
 
         with open(path, 'r', encoding='utf-8') as f:
             lines = f.readlines()
@@ -73,6 +79,7 @@ class WiderFaceExtractor(SourceExtractor):
         for line_idx in line_ids:
             image_path = lines[line_idx].strip()
             item_id = osp.splitext(image_path)[0]
+            item_id = item_id.replace('\\', '/')
 
             image_path = osp.join(self._dataset_dir,
                 WiderFacePath.SUBSET_DIR + self._subset,
@@ -84,8 +91,7 @@ class WiderFaceExtractor(SourceExtractor):
                 if '--' in label_name:
                     label_name = label_name.split('--')[1]
                 if label_name != WiderFacePath.IMAGES_DIR_NO_LABEL:
-                    label = \
-                        self._categories[AnnotationType.label].find(label_name)[0]
+                    label = label_categories.find(label_name)[0]
                     annotations.append(Label(label=label))
                 item_id = item_id[len(item_id.split('/')[0]) + 1:]
 
@@ -101,21 +107,22 @@ class WiderFaceExtractor(SourceExtractor):
             for bbox in bbox_lines:
                 bbox_list = bbox.split()
                 if 4 <= len(bbox_list):
-                    attributes = {}
-                    label = None
+                    label = label_categories.find(WiderFacePath.DEFAULT_LABEL)[0]
                     if len(bbox_list) == 5 or len(bbox_list) == 11:
-                        if len(bbox_list) == 5:
-                            label_name = bbox_list[4]
-                        else:
-                            label_name = bbox_list[10]
-                        label = \
-                            self._categories[AnnotationType.label].find(label_name)[0]
+                        label_name = bbox_list[-1]
+                        label = label_categories.find(label_name)[0]
+                    if label == None and len(label_categories) == 0:
+                        label_categories.add(WiderFacePath.DEFAULT_LABEL)
+                        label = label_categories.find(WiderFacePath.DEFAULT_LABEL)[0]
+
+                    attributes = {}
                     if 10 <= len(bbox_list):
                         i = 4
                         for attr in WiderFacePath.BBOX_ATTRIBUTES:
                             if bbox_list[i] != '-':
                                 attributes[attr] = bbox_list[i]
                             i += 1
+
                     annotations.append(Bbox(
                         float(bbox_list[0]), float(bbox_list[1]),
                         float(bbox_list[2]), float(bbox_list[3]),
@@ -180,7 +187,8 @@ class WiderFaceConverter(Converter):
                                 wider_attr += '- '
                         if 0 < attr_counter:
                             wider_annotation += wider_attr
-                    if bbox.label is not None:
+                    if label_categories[bbox.label].name != WiderFacePath.DEFAULT_LABEL and \
+                            bbox.label is not None:
                         wider_annotation += '%s' % label_categories[bbox.label].name
                     wider_annotation  += '\n'
 
