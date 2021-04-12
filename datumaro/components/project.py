@@ -173,9 +173,13 @@ class ProjectRemotes(CrudProxy):
         url_parts = urllib.parse.urlsplit(url)
         if url_parts.scheme not in cls.SUPPORTED_PROTOCOLS and \
                 not osp.exists(url):
+            if url_parts.scheme == 'git':
+                raise ValueError("git sources should be added as remote links")
+            if url_parts.scheme == 'dvc':
+                raise ValueError("dvc sources should be added as remote links")
             raise ValueError(
                 "Invalid remote '%s': scheme '%s' is not supported, the only"
-                "available are: %s" % \
+                "available are: %s" %
                 (url, url_parts.scheme, ', '.join(cls.SUPPORTED_PROTOCOLS))
             )
         if not (url_parts.hostname or url_parts.path):
@@ -340,6 +344,8 @@ class _DataSourceBase(CrudProxy):
                 remote_name = url_parts.netloc
                 remote_conf = self._project.vcs.remotes[remote_name]
                 path = url_parts.path
+                if path == '/': # fix conflicts in remote interpretation
+                    path = ''
                 url = remote_conf.url + path
             else:
                 # add a source and a new remote
@@ -370,7 +376,7 @@ class _DataSourceBase(CrudProxy):
                     'remote://%s%s' % (remote_name, path),
                     out=source_dir, dvc_path=dvcfile, download=True)
                 self._ensure_in_dir(source_dir, dvcfile, osp.basename(url))
-            elif remote_conf.type == 'git':
+            elif remote_conf.type in {'git', 'dvc'}:
                 self._project.vcs.dvc.import_repo(remote_conf.url, path=path,
                     out=source_dir, dvc_path=dvcfile, download=True)
                 self._ensure_in_dir(source_dir, dvcfile, osp.basename(url))
@@ -969,11 +975,12 @@ class GitWrapper:
     def _git_dir(self):
         return osp.join(self._project_dir, '.git')
 
-    def __init__(self, project_dir):
+    def __init__(self, project_dir, repo=None):
         self._project_dir = project_dir
-        self.repo = None
+        self.repo = repo
 
-        if osp.isdir(project_dir) and osp.isdir(self._git_dir()):
+        if repo is None and \
+                osp.isdir(project_dir) and osp.isdir(self._git_dir()):
             self.repo = self.module.Repo(project_dir)
 
     @property
@@ -1183,7 +1190,10 @@ class DvcWrapper:
             args.append('--remote')
             args.append(remote)
         if targets:
-            args.extend(targets)
+            if isinstance(targets, str):
+                args.append(targets)
+            else:
+                args.extend(targets)
         self._exec(args)
 
     def pull(self, targets=None, remote=None):
@@ -1192,7 +1202,10 @@ class DvcWrapper:
             args.append('--remote')
             args.append(remote)
         if targets:
-            args.extend(targets)
+            if isinstance(targets, str):
+                args.append(targets)
+            else:
+                args.extend(targets)
         self._exec(args)
 
     def check_updates(self, targets=None, remote=None):
@@ -1201,7 +1214,10 @@ class DvcWrapper:
             args.append('--remote')
             args.append(remote)
         if targets:
-            args.extend(targets)
+            if isinstance(targets, str):
+                args.append(targets)
+            else:
+                args.extend(targets)
         self._exec(args)
 
     def fetch(self, targets=None, remote=None):
@@ -1210,7 +1226,10 @@ class DvcWrapper:
             args.append('--remote')
             args.append(remote)
         if targets:
-            args.extend(targets)
+            if isinstance(targets, str):
+                args.append(targets)
+            else:
+                args.extend(targets)
         self._exec(args)
 
     def import_repo(self, url, path, out=None, dvc_path=None, rev=None,
@@ -1251,13 +1270,19 @@ class DvcWrapper:
             args.append('--rev')
             args.append(rev)
         if targets:
-            args.extend(targets)
+            if isinstance(targets, str):
+                args.append(targets)
+            else:
+                args.extend(targets)
         self._exec(args)
 
     def checkout(self, targets=None):
         args = ['checkout']
         if targets:
-            args.extend(targets)
+            if isinstance(targets, str):
+                args.append(targets)
+            else:
+                args.extend(targets)
         self._exec(args)
 
     def add(self, paths, dvc_path=None):
@@ -1287,7 +1312,10 @@ class DvcWrapper:
     def commit(self, paths):
         args = ['commit', '--recursive', '--force']
         if paths:
-            args.extend(paths)
+            if isinstance(paths, str):
+                args.append(paths)
+            else:
+                args.extend(paths)
         self._exec(args)
 
     def add_remote(self, name, config):
@@ -1333,13 +1361,19 @@ class DvcWrapper:
         if pull:
             args.append('--pull')
         if targets:
-            args.extend(targets)
+            if isinstance(targets, str):
+                args.append(targets)
+            else:
+                args.extend(targets)
         self._exec(args)
 
     def status(self, targets=None):
         args = ['status', '--show-json']
         if targets:
-            args.extend(targets)
+            if isinstance(targets, str):
+                args.append(targets)
+            else:
+                args.extend(targets)
         out = self._exec(args).splitlines()[-1]
         return json.loads(out)
 

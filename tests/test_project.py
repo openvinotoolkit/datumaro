@@ -324,6 +324,69 @@ class AttachedProjectTest(TestCase):
             self.assertEqual(added.format, origin.format)
             self.assertEqual(added.options, origin.options)
 
+    def test_can_add_git_source(self):
+        with TestDir() as test_dir:
+            git_repo_dir = osp.join(test_dir, 'git_repo')
+            os.makedirs(git_repo_dir)
+            GitWrapper.module.Repo.init(git_repo_dir, bare=True)
+
+            git_client_dir = osp.join(test_dir, 'git_client')
+            os.makedirs(git_client_dir)
+            repo = GitWrapper.module.Repo.clone_from(git_repo_dir, git_client_dir)
+            source_dataset = Dataset.from_iterable([
+                DatasetItem(1, image=np.ones((2, 4, 3)), annotations=[Label(1)])
+            ], categories=['a'])
+            source_dataset.save(git_client_dir, save_images=True)
+            repo.git.add(all=True)
+            repo.index.commit("Initial commit")
+            repo.remote().push()
+
+            project = Project.generate(save_dir=osp.join(test_dir, 'proj'))
+            project.vcs.remotes.add('r1', {
+                'url': git_repo_dir,
+                'type': 'git',
+            })
+            project.sources.add('s1', {
+                'url': 'remote://r1',
+                'format': 'datumaro',
+            })
+            project.save()
+
+            compare_datasets(self, source_dataset,
+                Dataset.load(project.sources.data_dir('s1')))
+
+    def test_can_add_dvc_source(self):
+        with TestDir() as test_dir:
+            dvc_repo_dir = osp.join(test_dir, 'dvc_repo')
+            os.makedirs(dvc_repo_dir, exist_ok=True)
+            git = GitWrapper(dvc_repo_dir)
+            git.init()
+            git.commit("Initial commit")
+            dvc = DvcWrapper(dvc_repo_dir)
+            dvc.init()
+            source_dataset = Dataset.from_iterable([
+                DatasetItem(1, image=np.ones((2, 4, 3)), annotations=[Label(1)])
+            ], categories=['a'])
+            source_dataset.save(osp.join(dvc_repo_dir, 'ds'), save_images=True)
+            dvc.add(osp.join(dvc_repo_dir, 'ds'))
+            dvc.commit(osp.join(dvc_repo_dir, 'ds'))
+            git.add([], all=True)
+            git.commit("First")
+
+            project = Project.generate(save_dir=osp.join(test_dir, 'proj'))
+            project.vcs.remotes.add('r1', {
+                'url': dvc_repo_dir,
+                'type': 'dvc',
+            })
+            project.sources.add('s1', {
+                'url': 'remote://r1',
+                'format': 'datumaro',
+            })
+            project.save()
+
+            compare_datasets(self, source_dataset,
+                Dataset.load(project.sources.data_dir('s1')))
+
     def test_cant_add_source_with_wrong_name(self):
         with TestDir() as test_dir:
             project = Project.generate(save_dir=test_dir)

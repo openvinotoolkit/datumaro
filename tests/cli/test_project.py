@@ -14,7 +14,6 @@ def run(test, *args, expected_code=0):
     test.assertEqual(expected_code, main(args), str(args))
 
 class ProjectIntegrationScenarios(TestCase):
-
     def test_can_export_voc_as_coco(self):
         voc_dir = osp.join(__file__[:__file__.rfind(osp.join('tests', ''))],
             'tests', 'assets', 'voc_dataset')
