@@ -241,15 +241,14 @@ class VocConverter(Converter):
                             ET.SubElement(obj_elem, 'truncated').text = \
                                 '%d' % truncated
 
-                        if 'difficult' in attr:
-                            difficult = _convert_attr('difficult', attr, int, 0)
-                            ET.SubElement(obj_elem, 'difficult').text = \
-                                '%d' % difficult
-
                         if 'occluded' in attr:
                             occluded = _convert_attr('occluded', attr, int, 0)
                             ET.SubElement(obj_elem, 'occluded').text = \
                                 '%d' % occluded
+                        
+                        difficult = _convert_attr('difficult', attr, int, 0)
+                        ET.SubElement(obj_elem, 'difficult').text = \
+                            '%d' % difficult
 
                         bbox = obj.get_bbox()
                         if bbox is not None:
