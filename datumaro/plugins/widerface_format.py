@@ -92,7 +92,8 @@ class WiderFaceExtractor(SourceExtractor):
                     label_name = label_name.split('--')[1]
                 if label_name != WiderFacePath.IMAGES_DIR_NO_LABEL:
                     label = label_categories.find(label_name)[0]
-                    annotations.append(Label(label=label))
+                    if label != None:
+                        annotations.append(Label(label=label))
                 item_id = item_id[len(item_id.split('/')[0]) + 1:]
 
             items[item_id] = DatasetItem(id=item_id, subset=self._subset,
