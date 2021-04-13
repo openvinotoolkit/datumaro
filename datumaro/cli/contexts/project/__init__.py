@@ -159,7 +159,7 @@ def import_command(args):
 
     name = 'source'
     project.sources.add(name, {
-        'url': args.url,
+        'url': args.source,
         'format': args.format,
         'options': extra_args,
     })

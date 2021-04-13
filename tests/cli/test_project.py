@@ -14,16 +14,31 @@ def run(test, *args, expected_code=0):
     test.assertEqual(expected_code, main(args), str(args))
 
 class ProjectIntegrationScenarios(TestCase):
-    def test_can_export_voc_as_coco(self):
+    def test_can_convert_voc_as_coco(self):
         voc_dir = osp.join(__file__[:__file__.rfind(osp.join('tests', ''))],
             'tests', 'assets', 'voc_dataset')
 
         with TestDir() as test_dir:
-            run(self, 'create', '-o', test_dir)
-            run(self, 'add', '-f', 'voc', '-p', test_dir, voc_dir)
-
             result_dir = osp.join(test_dir, 'coco_export')
-            run(self, 'export', '-f', 'coco', '-p', test_dir, '-o', result_dir,
+
+            run(self, 'convert',
+                '-if', 'voc', '-i', voc_dir,
+                '-f', 'coco', '-o', result_dir,
+                '--', '--save-images')
+
+            self.assertTrue(osp.isdir(result_dir))
+
+    def test_can_export_coco_as_voc(self):
+        # TODO: use subformats once importers are removed
+        coco_dir = osp.join(__file__[:__file__.rfind(osp.join('tests', ''))],
+            'tests', 'assets', 'coco_dataset', 'coco_instances')
+
+        with TestDir() as test_dir:
+            run(self, 'create', '-o', test_dir)
+            run(self, 'add', '-f', 'coco', '-p', test_dir, coco_dir)
+
+            result_dir = osp.join(test_dir, 'voc_export')
+            run(self, 'export', '-f', 'voc', '-p', test_dir, '-o', result_dir,
                 '--', '--save-images')
 
             self.assertTrue(osp.isdir(result_dir))

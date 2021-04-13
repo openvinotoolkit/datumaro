@@ -78,15 +78,22 @@ def add_command(args):
         name = generate_next_name(list(project.sources),
             'source', sep='-', default='1')
 
-    try:
-        importer = project.env.importers[args.format]
-    except KeyError:
-        raise CliException("Extractor for format '%s' is not found" % \
-            args.format)
+    fmt = args.format
+    if fmt in project.env.importers:
+        arg_parser = project.env.importers[fmt]
+    elif fmt in project.env.extractors:
+        arg_parser = project.env.extractors[fmt]
+    else:
+        raise CliException("Unknown format '%s'. A format can be added"
+            "by providing an Extractor and Importer plugins" % fmt)
 
     extra_args = {}
-    if args.extra_args and hasattr(importer, 'parse_cmdline'):
-        extra_args = importer.parse_cmdline(args.extra_args)
+    if args.extra_args:
+        if hasattr(arg_parser, 'parse_cmdline'):
+            extra_args = arg_parser.parse_cmdline(args.extra_args)
+        else:
+            raise CliException("Format '%s' does not accept "
+                "extra parameters" % fmt)
 
     project.sources.add(name, {
         'url': args.url,
