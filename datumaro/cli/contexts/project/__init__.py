@@ -27,7 +27,7 @@ from ...util.project import generate_next_file_name, load_project
 
 
 def build_import_parser(parser_ctor=argparse.ArgumentParser):
-    builtins = sorted(Environment().importers.items)
+    builtins = sorted(Environment().extractors)
 
     parser = parser_ctor(help="Create project from an existing dataset",
         description="""

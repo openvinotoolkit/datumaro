@@ -561,7 +561,7 @@ class IExtractor: #pylint: disable=redefined-builtin
     def get(self, id, subset=None) -> Optional[DatasetItem]:
         raise NotImplementedError()
 
-class Extractor(IExtractor):
+class ExtractorBase(IExtractor):
     def __init__(self, length=None, subsets=None):
         self._length = length
         self._subsets = subsets
@@ -602,13 +602,9 @@ class Extractor(IExtractor):
         return method(self, *args, **kwargs)
 
     def select(self, pred):
-        class _DatasetFilter(Extractor):
-            def __init__(self, _):
-                super().__init__()
+        class _DatasetFilter(Transform):
             def __iter__(_):
                 return filter(pred, iter(self))
-            def categories(_):
-                return self.categories()
 
         return self.transform(_DatasetFilter)
 
@@ -621,6 +617,10 @@ class Extractor(IExtractor):
             if item.id == id and item.subset == subset:
                 return item
         return None
+
+class Extractor(ExtractorBase):
+    "A base class for user-defined and built-in extractors"
+    pass
 
 class SourceExtractor(Extractor):
     def __init__(self, length=None, subset=None):
@@ -682,7 +682,7 @@ class Importer:
                     break
         return sources
 
-class Transform(Extractor):
+class Transform(ExtractorBase):
     @staticmethod
     def wrap_item(item, **kwargs):
         return item.wrap(**kwargs)
@@ -707,7 +707,7 @@ class Transform(Extractor):
     def __len__(self):
         assert self._length in {None, 'parent'} or isinstance(self._length, int)
         if self._length is None and \
-                    self.__iter__.__func__ == Transform.__iter__ \
+                    self.__iter__.__func__ == __class__.__iter__ \
                 or self._length == 'parent':
             self._length = len(self._extractor)
         return super().__len__()
