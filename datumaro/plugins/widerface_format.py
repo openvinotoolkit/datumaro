@@ -41,15 +41,13 @@ class WiderFaceExtractor(SourceExtractor):
 
     def _load_categories(self):
         label_cat = LabelCategories()
-        label_cat.add(WiderFacePath.DEFAULT_LABEL)
         path = osp.join(self._dataset_dir, WiderFacePath.LABELS_FILE)
         if osp.isfile(path):
             with open(path, encoding='utf-8') as labels_file:
                 for line in labels_file:
-                    label_name = line.strip()
-                    if label_name != WiderFacePath.DEFAULT_LABEL:
-                        label_cat.add(label_name)
+                    label_cat.add(line.strip())
         else:
+            label_cat.add(WiderFacePath.DEFAULT_LABEL)
             subset_path = osp.join(self._dataset_dir,
                 WiderFacePath.SUBSET_DIR + self._subset,
                 WiderFacePath.IMAGES_DIR)
@@ -61,8 +59,8 @@ class WiderFaceExtractor(SourceExtractor):
                             images_dir = images_dir.split('--')[1]
                         if images_dir != WiderFacePath.DEFAULT_LABEL:
                             label_cat.add(images_dir)
-        if len(label_cat) == 1:
-            label_cat = LabelCategories()
+            if len(label_cat) == 1:
+                label_cat = LabelCategories()
         return { AnnotationType.label: label_cat }
 
     def _load_items(self, path):

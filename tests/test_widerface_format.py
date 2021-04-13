@@ -152,40 +152,40 @@ class WiderFaceImporterTest(TestCase):
             DatasetItem(id='0_Parade_image_01', subset='train',
                 image=np.ones((10, 15, 3)),
                 annotations=[
-                    Bbox(1, 2, 2, 2, label=0, attributes={
+                    Bbox(1, 2, 2, 2, attributes={
                         'blur': '0', 'expression': '0', 'illumination': '0',
                         'occluded': '0', 'pose': '0', 'invalid': '0'}),
-                    Label(1),
+                    Label(0),
                 ]
             ),
             DatasetItem(id='1_Handshaking_image_02', subset='train',
                 image=np.ones((10, 15, 3)),
                 annotations=[
-                    Bbox(1, 1, 2, 2, label=0, attributes={
+                    Bbox(1, 1, 2, 2, attributes={
                         'blur': '0', 'expression': '0', 'illumination': '1',
                         'occluded': '0', 'pose': '0', 'invalid': '0'}),
-                    Bbox(5, 1, 2, 2, label=0, attributes={
+                    Bbox(5, 1, 2, 2, attributes={
                         'blur': '0', 'expression': '0', 'illumination': '1',
                         'occluded': '0', 'pose': '0', 'invalid': '0'}),
-                    Label(2),
+                    Label(1),
                 ]
             ),
             DatasetItem(id='0_Parade_image_03', subset='val',
                 image=np.ones((10, 15, 3)),
                 annotations=[
-                    Bbox(0, 0, 1, 1, label=0, attributes={
+                    Bbox(0, 0, 1, 1, attributes={
                         'blur': '2', 'expression': '0', 'illumination': '0',
                         'occluded': '0', 'pose': '2', 'invalid': '0'}),
-                    Bbox(3, 2, 1, 2, label=0, attributes={
+                    Bbox(3, 2, 1, 2, attributes={
                         'blur': '0', 'expression': '0', 'illumination': '0',
                         'occluded': '1', 'pose': '0', 'invalid': '0'}),
-                    Bbox(5, 6, 1, 1, label=0, attributes={
+                    Bbox(5, 6, 1, 1, attributes={
                         'blur': '2', 'expression': '0', 'illumination': '0',
                         'occluded': '0', 'pose': '2', 'invalid': '0'}),
-                    Label(1),
+                    Label(0),
                 ]
             ),
-        ], categories= ['face', 'Parade', 'Handshaking'])
+        ], categories= ['Parade', 'Handshaking'])
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'wider_face')
 
