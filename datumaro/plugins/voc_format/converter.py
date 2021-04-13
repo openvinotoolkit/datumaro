@@ -236,17 +236,12 @@ class VocConverter(Converter):
                             ET.SubElement(obj_elem, 'pose').text = \
                                 str(attr['pose'])
 
-                        truncated = _convert_attr('truncated', attr, int, 0)
                         ET.SubElement(obj_elem, 'truncated').text = \
-                            '%d' % truncated
-
-                        occluded = _convert_attr('occluded', attr, int, 0)
+                            '%d' % _convert_attr('truncated', attr, int, 0)
                         ET.SubElement(obj_elem, 'occluded').text = \
-                            '%d' % occluded
-
-                        difficult = _convert_attr('difficult', attr, int, 0)
+                            '%d' % _convert_attr('occluded', attr, int, 0)
                         ET.SubElement(obj_elem, 'difficult').text = \
-                            '%d' % difficult
+                            '%d' % _convert_attr('difficult', attr, int, 0)
 
                         bbox = obj.get_bbox()
                         if bbox is not None:
