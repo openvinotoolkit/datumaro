@@ -79,11 +79,12 @@ class Environment:
         select = lambda seq, t: [e for e in seq if issubclass(e, t)]
         from datumaro.components.converter import Converter
         from datumaro.components.extractor import (Importer, Extractor,
-            Transform)
+            SourceExtractor, Transform)
         from datumaro.components.launcher import Launcher
         self.extractors = PluginRegistry(
-            builtin=select(builtin, Extractor),
-            local=select(custom, Extractor)
+            builtin=[e for e in select(builtin, Extractor)
+                if e != SourceExtractor],
+            local=[e for e in select(custom, Extractor) if e != SourceExtractor]
         )
         self.extractors.register(self.PROJECT_EXTRACTOR_NAME,
             load_project_as_dataset)

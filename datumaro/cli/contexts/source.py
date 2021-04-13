@@ -13,7 +13,8 @@ from ..util.project import generate_next_name, load_project
 
 
 def build_add_parser(parser_ctor=argparse.ArgumentParser):
-    builtins = sorted(Environment().extractors)
+    env = Environment()
+    builtins = sorted(set(env.extractors) | set(env.importers))
 
     parser = parser_ctor(help="Add data source to project",
         description="""

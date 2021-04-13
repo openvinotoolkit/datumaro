@@ -43,6 +43,17 @@ class ProjectIntegrationScenarios(TestCase):
 
             self.assertTrue(osp.isdir(result_dir))
 
+    def test_can_list_info(self):
+        # TODO: use subformats once importers are removed
+        coco_dir = osp.join(__file__[:__file__.rfind(osp.join('tests', ''))],
+            'tests', 'assets', 'coco_dataset', 'coco_instances')
+
+        with TestDir() as test_dir:
+            run(self, 'create', '-o', test_dir)
+            run(self, 'add', '-f', 'coco', '-p', test_dir, coco_dir)
+
+            run(self, 'info', '-p', test_dir)
+
     def test_can_use_vcs(self):
         with TestDir() as test_dir:
             dataset_dir = osp.join(test_dir, 'dataset')

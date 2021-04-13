@@ -34,20 +34,11 @@ class RepeatedItemError(DatasetError):
         return "Item %s is repeated in the source sequence." % (self.item_id, )
 
 @attrs
-class MismatchingImageInfoError(DatasetError):
-    a = attrib()
-    b = attrib()
-
-    def __str__(self):
-        return "Item %s: mismatching image size info: %s vs %s" % \
-            (self.item_id, self.a, self.b)
-
-@attrs
-class QualityError(DatasetError):
+class DatasetQualityError(DatasetError):
     pass
 
 @attrs
-class AnnotationsTooCloseError(QualityError):
+class AnnotationsTooCloseError(DatasetQualityError):
     a = attrib()
     b = attrib()
     distance = attrib()
@@ -57,7 +48,7 @@ class AnnotationsTooCloseError(QualityError):
             (self.item_id, self.a, self.b, self.distance)
 
 @attrs
-class WrongGroupError(QualityError):
+class WrongGroupError(DatasetQualityError):
     found = attrib(converter=set)
     expected = attrib(converter=set)
     group = attrib(converter=list)
@@ -68,11 +59,25 @@ class WrongGroupError(QualityError):
             (self.item_id, self.found, self.expected, self.group)
 
 @attrs
-class MergeError(DatasetError):
+class DatasetMergeError(DatasetError):
     sources = attrib(converter=set)
 
 @attrs
-class NoMatchingAnnError(MergeError):
+class MismatchingImageInfoError(DatasetMergeError):
+    a = attrib()
+    b = attrib()
+    sources = attrib(converter=set, default=set())
+
+    def __str__(self):
+        return "Item %s: mismatching image size info: %s vs %s" % \
+            (self.item_id, self.a, self.b)
+
+@attrs
+class ConflictingCategoriesError(DatasetMergeError):
+    sources = attrib(converter=set, default=set())
+
+@attrs
+class NoMatchingAnnError(DatasetMergeError):
     ann = attrib()
 
     def __str__(self):
@@ -81,13 +86,13 @@ class NoMatchingAnnError(MergeError):
             (self.item_id, self.sources, self.ann)
 
 @attrs
-class NoMatchingItemError(MergeError):
+class NoMatchingItemError(DatasetMergeError):
     def __str__(self):
         return "Item %s: can't find matching item in sources %s" % \
             (self.item_id, self.sources)
 
 @attrs
-class FailedLabelVotingError(MergeError):
+class FailedLabelVotingError(DatasetMergeError):
     votes = attrib()
     ann = attrib(default=None)
 
@@ -97,7 +102,7 @@ class FailedLabelVotingError(MergeError):
             self.votes, self.sources)
 
 @attrs
-class FailedAttrVotingError(MergeError):
+class FailedAttrVotingError(DatasetMergeError):
     attr = attrib()
     votes = attrib()
     ann = attrib()

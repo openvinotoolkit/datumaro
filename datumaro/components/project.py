@@ -22,7 +22,7 @@ from datumaro.components.config import Config
 from datumaro.components.config_model import (PROJECT_DEFAULT_CONFIG,
     PROJECT_SCHEMA, BuildStage, Remote, Source)
 from datumaro.components.environment import Environment
-from datumaro.components.errors import (DatumaroError, DetachedProjectError,
+from datumaro.components.errors import (DatasetMergeError, DatumaroError, DetachedProjectError,
     ReadonlyProjectError, SourceExistsError, VcsError)
 from datumaro.components.dataset import Dataset, DEFAULT_FORMAT
 from datumaro.util import find, error_rollback, parse_str_enum_value
@@ -32,7 +32,7 @@ from datumaro.util.log_utils import logging_disabled, catch_logs
 
 class ProjectSourceDataset(Dataset):
     @classmethod
-    def from_source(cls, project: 'Project', source: Source):
+    def from_source(cls, project: 'Project', source: str):
         config = project.sources[source]
 
         path = osp.join(project.sources.data_dir(source), config.url)
@@ -47,6 +47,7 @@ class ProjectSourceDataset(Dataset):
         dataset._project = project
         dataset._config = config
         dataset._readonly = readonly
+        dataset.name = source
         return dataset
 
     def save(self, save_dir=None, **kwargs):
@@ -728,10 +729,16 @@ class ProjectBuildTargets(CrudProxy):
         return graph
 
     def apply_pipeline(self, pipeline):
-        def _join_parent_datasets():
-            if 1 < len(parent_datasets):
-                dataset = Dataset.from_extractors(*parent_datasets,
-                    env=self._project.env)
+        def _join_parent_datasets(force=True):
+            if 1 < len(parent_datasets) or force:
+                try:
+                    dataset = Dataset.from_extractors(*parent_datasets,
+                        env=self._project.env)
+                except DatasetMergeError as e:
+                    e.sources = set(
+                        getattr(parent_datasets[s], 'name') or str(s)
+                        for s in e.sources)
+                    raise e
             else:
                 dataset = parent_datasets[0]
             return dataset
@@ -802,8 +809,7 @@ class ProjectBuildTargets(CrudProxy):
                 dataset = self._project.sources.make_dataset(source)
 
             elif type_ == BuildStageType.project:
-                dataset = Dataset.from_extractors(*parent_datasets,
-                    env=self._project.env)
+                dataset = _join_parent_datasets(force=True)
 
             elif type_ == BuildStageType.convert:
                 dataset = _join_parent_datasets()
@@ -1769,12 +1775,13 @@ class Project:
         config.remove('format_version')
 
         config = cls._read_config_v2(config)
-        name = generate_next_name(list(config.sources), 'source',
-            sep='-', default='1')
-        config.sources[name] = {
-            'url': config.dataset_dir,
-            'format': DEFAULT_FORMAT,
-        }
+        if osp.isdir(osp.join(config.project_dir, config.dataset_dir)):
+            name = generate_next_name(list(config.sources), 'source',
+                sep='-', default='1')
+            config.sources[name] = {
+                'url': config.dataset_dir,
+                'format': DEFAULT_FORMAT,
+            }
         return config
 
     @classmethod

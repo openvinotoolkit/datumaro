@@ -11,11 +11,11 @@ import shutil
 from enum import Enum
 
 from datumaro.components.dataset_filter import DatasetItemEncoder
+from datumaro.components.errors import DatasetMergeError
 from datumaro.components.extractor import AnnotationType
 from datumaro.components.operations import (compute_ann_statistics,
     compute_image_statistics)
-from datumaro.components.project import (Project, BuildStageType,
-    ProjectBuildTargets,
+from datumaro.components.project import (Project, ProjectBuildTargets,
     PROJECT_DEFAULT_CONFIG as DEFAULT_CONFIG)
 from datumaro.components.environment import Environment
 from datumaro.components.validator import validate_annotations, TaskType
@@ -27,7 +27,8 @@ from ...util.project import generate_next_file_name, load_project
 
 
 def build_import_parser(parser_ctor=argparse.ArgumentParser):
-    builtins = sorted(Environment().extractors)
+    env = Environment()
+    builtins = sorted(set(env.extractors) | set(env.importers))
 
     parser = parser_ctor(help="Create project from an existing dataset",
         description="""
@@ -751,23 +752,33 @@ def info_command(args):
     project = load_project(args.project_dir)
     config = project.config
     env = project.env
-    dataset = project.make_dataset()
+
+    try:
+        dataset = project.make_dataset()
+    except DatasetMergeError as e:
+        dataset = None
+        dataset_problem = "Can't merge project sources automatically: %s " \
+            "Conflicting sources are: %s" % (e, ', '.join(e.sources))
 
     print("Project:")
     print("  name:", config.project_name)
     print("  location:", config.project_dir)
     print("Plugins:")
-    print("  importers:", ', '.join(env.importers.items))
-    print("  extractors:", ', '.join(env.extractors.items))
-    print("  converters:", ', '.join(env.converters.items))
-    print("  launchers:", ', '.join(env.launchers.items))
+    print("  extractors:", ', '.join(
+        sorted(set(env.extractors) | set(env.importers))))
+    print("  converters:", ', '.join(env.converters))
+    print("  launchers:", ', '.join(env.launchers))
 
     print("Sources:")
     for source_name, source in config.sources.items():
         print("  source '%s':" % source_name)
         print("    format:", source.format)
         print("    url:", source.url)
+        if source.remote:
+            print("    remote:",
+                "%(url)s (%(type)s)" % project.vcs.remotes[source.remote])
         print("    location:", project.sources.data_dir(source_name))
+        print("    options:", source.options)
 
     def print_extractor_info(extractor, indent=''):
         print("%slength:" % indent, len(extractor))
@@ -789,15 +800,18 @@ def info_command(args):
                         len(cat.items) - count_threshold)
                 print("%s    labels:" % indent, labels)
 
-    print("Dataset:")
-    print_extractor_info(dataset, indent="  ")
+    if dataset is not None:
+        print("Dataset:")
+        print_extractor_info(dataset, indent="  ")
 
-    subsets = dataset.subsets()
-    print("  subsets:", ', '.join(subsets))
-    for subset_name in subsets:
-        subset = dataset.get_subset(subset_name)
-        print("    subset '%s':" % subset_name)
-        print_extractor_info(subset, indent="      ")
+        subsets = dataset.subsets()
+        print("  subsets:", ', '.join(subsets))
+        for subset_name in subsets:
+            subset = dataset.get_subset(subset_name)
+            print("    subset '%s':" % subset_name)
+            print_extractor_info(subset, indent="      ")
+    else:
+        print("Merged dataset info is not available: ", dataset_problem)
 
     print("Models:")
     for model_name, model in config.models.items():

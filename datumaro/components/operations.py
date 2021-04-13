@@ -18,8 +18,9 @@ from datumaro.util import find, filter_dict
 from datumaro.components.extractor import (AnnotationType, Bbox,
     CategoriesInfo, Label,
     LabelCategories, PointsCategories, MaskCategories)
-from datumaro.components.errors import (DatumaroError, FailedAttrVotingError,
-    FailedLabelVotingError, MismatchingImageInfoError, NoMatchingAnnError,
+from datumaro.components.errors import (DatasetMergeError, FailedAttrVotingError,
+    FailedLabelVotingError, ConflictingCategoriesError,
+    MismatchingImageInfoError, NoMatchingAnnError,
     NoMatchingItemError, AnnotationsTooCloseError, WrongGroupError)
 from datumaro.components.dataset import Dataset, DatasetItemStorage
 from datumaro.util.attrs_util import ensure_cls, default_if_none
@@ -52,16 +53,17 @@ def merge_annotations_equal(a, b):
 
 def merge_categories(sources):
     categories = {}
-    for source in sources:
+    for source_idx, source in enumerate(sources):
         for cat_type, source_cat in source.items():
             existing_cat = categories.setdefault(cat_type, source_cat)
             if existing_cat != source_cat and len(source_cat) != 0:
                 if len(existing_cat) == 0:
                     categories[cat_type] = source_cat
                 else:
-                    raise DatumaroError(
+                    raise ConflictingCategoriesError(
                         "Merging of datasets with different categories is "
-                        "only allowed in 'merge' command.")
+                        "only allowed in 'merge' command.",
+                        sources=list(range(source_idx)))
     return categories
 
 class MergingStrategy(CliPlugin):
@@ -81,22 +83,21 @@ class ExactMerge:
     @classmethod
     def merge(cls, *sources):
         items = DatasetItemStorage()
-        for source in sources:
+        for source_idx, source in enumerate(sources):
             for item in source:
                 existing_item = items.get(item.id, item.subset)
                 if existing_item is not None:
                     path = existing_item.path
                     if item.path != path:
                         path = None
-                    item = cls.merge_items(existing_item, item, path=path)
+                    try:
+                        item = cls.merge_items(existing_item, item, path=path)
+                    except DatasetMergeError as e:
+                        e.sources = set(range(source_idx))
+                        raise e
 
                 items.put(item)
         return items
-
-    @staticmethod
-    def _lazy_image(item):
-        # NOTE: avoid https://docs.python.org/3/faq/programming.html#why-do-lambdas-defined-in-a-loop-with-different-values-all-return-the-same-result
-        return lambda: item.image
 
     @classmethod
     def merge_items(cls, existing_item, current_item, path=None):
