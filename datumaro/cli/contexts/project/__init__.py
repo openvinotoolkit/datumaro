@@ -88,14 +88,6 @@ def build_import_parser(parser_ctor=argparse.ArgumentParser):
 
 @error_rollback('on_error', implicit=True)
 def import_command(args):
-    log.warning("""
-        The 'import' command is deprecated and will be removed in future
-        versions. It is recommended to use the following commands instead:
-
-            datum create
-            datum add
-    """)
-
     project_dir = osp.abspath(args.dst_dir)
 
     project_env_dir = osp.join(project_dir, DEFAULT_CONFIG.env_dir)
