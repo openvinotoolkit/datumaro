@@ -309,7 +309,7 @@ def export_command(args):
     _, target = project.build_targets.add_convert_stage(
         target, args.format, extra_args)
 
-    status = project.vcs.dvc.status()
+    status = project.vcs.status()
     if status: # TODO: narrow only to the affected sources
         raise CliException("Can't modify project " \
             "when there are uncommitted changes: %s" % status)
@@ -435,7 +435,7 @@ def filter_command(args):
     for source in sources:
         project.build_targets.add_filter_stage(source, filter_args)
 
-    status = project.vcs.dvc.status()
+    status = project.vcs.status()
     if status: # TODO: narrow only to the affected sources
         raise CliException("Can't modify project " \
             "when there are uncommitted changes: %s" % status)
@@ -642,7 +642,7 @@ def transform_command(args):
         project.build_targets.add_transform_stage(source,
             args.transform, extra_args)
 
-    status = project.vcs.dvc.status()
+    status = project.vcs.status()
     if status: # TODO: narrow only to the affected sources
         raise CliException("Can't modify project " \
             "when there are uncommitted changes: %s" % status)
@@ -693,9 +693,9 @@ def build_build_parser(parser_ctor=argparse.ArgumentParser):
 def build_command(args):
     project = load_project(args.project_dir)
 
-    status = project.vcs.dvc.status()
+    status = project.vcs.status()
     if not args.force and [s
-        for s in status.values() if 'changed outs' in s
+        for d in status.values() if 'changed outs' in s
         for co in d.values()
         for s in co.values()
     ]:

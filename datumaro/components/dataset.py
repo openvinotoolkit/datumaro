@@ -397,7 +397,7 @@ class DatasetStorage(IDataset):
 
 
 class Dataset(IDataset):
-    _global_eager = False
+    _g_eager = False
 
     @classmethod
     def from_iterable(cls, iterable: Iterable[DatasetItem],
@@ -568,7 +568,7 @@ class Dataset(IDataset):
 
     @property
     def is_eager(self) -> bool:
-        return self.eager if self.eager is not None else self._global_eager
+        return self.eager if self.eager is not None else self._g_eager
 
     @property
     def is_bound(self) -> bool:
@@ -678,10 +678,10 @@ def eager_mode(new_mode=True, dataset: Dataset = None):
         finally:
             dataset.eager = old_mode
     else:
-        old_mode = Dataset._global_eager
+        old_mode = Dataset._g_eager
 
         try:
-            Dataset._global_eager = new_mode
+            Dataset._g_eager = new_mode
             yield
         finally:
-            Dataset._global_eager = old_mode
+            Dataset._g_eager = old_mode

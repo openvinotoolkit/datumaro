@@ -2,13 +2,20 @@ import numpy as np
 import os.path as osp
 import shutil
 
-from unittest import TestCase
+from unittest import TestCase, skipIf
 
 from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import Bbox, DatasetItem, Label
+from datumaro.components.extractor import Bbox, DatasetItem
 from datumaro.cli.__main__ import main
 from datumaro.util.test_utils import TestDir, compare_datasets
 
+
+no_vcs_installed = False
+try:
+    import git # pylint: disable=unused-import
+    import dvc # pylint: disable=unused-import
+except ImportError:
+    no_vcs_installed = True
 
 def run(test, *args, expected_code=0):
     test.assertEqual(expected_code, main(args), str(args))
@@ -28,6 +35,7 @@ class ProjectIntegrationScenarios(TestCase):
 
             self.assertTrue(osp.isdir(result_dir))
 
+    @skipIf(no_vcs_installed, "No VCS modules (Git, DVC) installed")
     def test_can_export_coco_as_voc(self):
         # TODO: use subformats once importers are removed
         coco_dir = osp.join(__file__[:__file__.rfind(osp.join('tests', ''))],
@@ -43,6 +51,7 @@ class ProjectIntegrationScenarios(TestCase):
 
             self.assertTrue(osp.isdir(result_dir))
 
+    @skipIf(no_vcs_installed, "No VCS modules (Git, DVC) installed")
     def test_can_list_info(self):
         # TODO: use subformats once importers are removed
         coco_dir = osp.join(__file__[:__file__.rfind(osp.join('tests', ''))],
@@ -54,6 +63,7 @@ class ProjectIntegrationScenarios(TestCase):
 
             run(self, 'info', '-p', test_dir)
 
+    @skipIf(no_vcs_installed, "No VCS modules (Git, DVC) installed")
     def test_can_use_vcs(self):
         with TestDir() as test_dir:
             dataset_dir = osp.join(test_dir, 'dataset')

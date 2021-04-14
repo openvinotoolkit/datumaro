@@ -108,7 +108,6 @@ PROJECT_SCHEMA = _SchemaBuilder() \
     .add('project_filename', str, internal=True) \
     .add('project_dir', str, internal=True) \
     .add('env_dir', str, internal=True) \
-    .add('detached', bool, internal=True) \
     .build()
 
 PROJECT_DEFAULT_CONFIG = Config({
@@ -127,5 +126,4 @@ PROJECT_DEFAULT_CONFIG = Config({
     'project_filename': 'config.yaml',
     'project_dir': '',
     'env_dir': '.datumaro',
-    'detached': False,
 }, mutable=False, schema=PROJECT_SCHEMA)

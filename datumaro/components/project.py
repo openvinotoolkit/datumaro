@@ -20,12 +20,12 @@ from ruamel.yaml import YAML
 
 from datumaro.components.config import Config
 from datumaro.components.config_model import (PROJECT_DEFAULT_CONFIG,
-    PROJECT_SCHEMA, BuildStage, Remote, Source)
+    PROJECT_SCHEMA, BuildStage, Remote)
 from datumaro.components.environment import Environment
-from datumaro.components.errors import (DatasetMergeError, DatumaroError, DetachedProjectError,
-    ReadonlyProjectError, SourceExistsError, VcsError)
+from datumaro.components.errors import (DatasetMergeError, DatumaroError,
+    DetachedProjectError, ReadonlyProjectError, SourceExistsError, VcsError)
 from datumaro.components.dataset import Dataset, DEFAULT_FORMAT
-from datumaro.util import find, error_rollback, parse_str_enum_value
+from datumaro.util import find, error_rollback, parse_str_enum_value, str_to_bool
 from datumaro.util.os_util import make_file_name, generate_next_name
 from datumaro.util.log_utils import logging_disabled, catch_logs
 
@@ -392,7 +392,8 @@ class _DataSourceBase(CrudProxy):
                 remote_name = ''
                 path = url
             else:
-                raise VcsError("Can only add an existing local, or generated "
+                raise DetachedProjectError(
+                    "Can only add an existing local, or generated "
                     "source to a detached project")
 
         value['url'] = path
@@ -1418,11 +1419,15 @@ class DvcWrapper:
         return logs
 
 class ProjectVcs:
+    G_DETACHED = str_to_bool(os.getenv('DATUMARO_VCS_DETACHED', '0'))
+
     def __init__(self, project: 'Project', readonly: bool = False):
         self._project = project
         self.readonly = readonly
 
-        if not project.config.detached:
+        self._git = None
+        self._dvc = None
+        if not self.G_DETACHED:
             try:
                 GitWrapper.import_module()
                 DvcWrapper.import_module()
@@ -1430,8 +1435,9 @@ class ProjectVcs:
                 self._dvc = DvcWrapper(project.config.project_dir)
             except ImportError as e:
                 log.warning("Failed to init VCS for the project: %s", e)
-                self._git = None
-                self._dvc = None
+        else:
+            log.debug("Working in detached mode, "
+                "versioning commands won't be available")
 
         self._remotes = ProjectRemotes(self)
         self._repos = ProjectRepositories(self)
@@ -1439,18 +1445,41 @@ class ProjectVcs:
     @property
     def git(self) -> GitWrapper:
         if not self._git:
-            raise ImportError("Git is not available.")
+            message = "Git is not available. "
+            if not GitWrapper.module:
+                message += "Please, install the module with " \
+                    "'pip install gitpython'."
+            elif self.G_DETACHED:
+                message += "The project is in detached mode."
+                raise DetachedProjectError(message)
+            raise ImportError(message)
         return self._git
 
     @property
     def dvc(self) -> DvcWrapper:
         if not self._dvc:
-            raise ImportError("DVC is not available.")
+            message = "DVC is not available. "
+            if not DvcWrapper.module:
+                message += "Please, install the module with " \
+                    "'pip install dvc'."
+            elif self.G_DETACHED:
+                message += "The project is in detached mode."
+                raise DetachedProjectError(message)
+            raise ImportError(message)
         return self._dvc
 
     @property
+    def available(self):
+        return self._git and self._dvc
+
+    @property
     def detached(self):
-        return self._project.config.detached or not self._git or not self._dvc
+        return self.G_DETACHED
+
+    @property
+    def initialized(self):
+        return not self.detached and self.available and \
+            self.git.initialized and self.dvc.initialized
 
     @property
     def writeable(self):
@@ -1459,11 +1488,6 @@ class ProjectVcs:
     @property
     def readable(self):
         return not self.detached and self.initialized
-
-    @property
-    def initialized(self):
-        return not self.detached and \
-            self.git.initialized and self.dvc.initialized
 
     @property
     def remotes(self) -> ProjectRemotes:
@@ -1475,24 +1499,34 @@ class ProjectVcs:
 
     @property
     def refs(self) -> List[str]:
+        if self.detached:
+            return []
         return self.git.refs
 
     @property
     def tags(self) -> List[str]:
+        if self.detached:
+            return []
         return self.git.tags
 
     def push(self, remote: Union[None, str] = None):
+        if self.detached:
+            log.debug("The project is in detached mode, skipping push.")
+            return
+
         if not self.writeable:
-            raise ReadonlyProjectError(
-                "Can't push in a detached or read-only repository")
+            raise ReadonlyProjectError("Can't push in a read-only repository")
 
         self.dvc.push()
         self.git.push(remote=remote)
 
     def pull(self, remote=None):
+        if self.detached:
+            log.debug("The project is in detached mode, skipping pull.")
+            return
+
         if not self.writeable:
-            raise ReadonlyProjectError(
-                "Can't pull in a detached or read-only repository")
+            raise ReadonlyProjectError("Can't pull in a read-only repository")
 
         # order matters
         self.git.pull(remote=remote)
@@ -1500,34 +1534,49 @@ class ProjectVcs:
 
     def check_updates(self,
             targets: Union[None, str, List[str]] = None) -> List[str]:
+        if self.detached:
+            log.debug("The project is in detached mode, "
+                "skipping checking for updates.")
+            return
+
         if not self.writeable:
             raise ReadonlyProjectError(
-                "Can't check updates in a detached or read-only repository")
+                "Can't check for updates in a read-only repository")
 
         updated_refs = self.git.check_updates()
         updated_remotes = self.remotes.check_updates(targets)
         return updated_refs, updated_remotes
 
     def fetch(self, remote: Union[None, str] = None):
+        if self.detached:
+            log.debug("The project is in detached mode, skipping fetch.")
+            return
+
         if not self.writeable:
-            raise ReadonlyProjectError(
-                "Can't fetch in a detached or read-only repository")
+            raise ReadonlyProjectError("Can't fetch in a read-only repository")
 
         self.git.fetch(remote=remote)
         self.dvc.fetch()
 
     def tag(self, name: str):
+        if self.detached:
+            log.debug("The project is in detached mode, skipping tag.")
+            return
+
         if not self.writeable:
-            raise ReadonlyProjectError(
-                "Can't tag in a detached or read-only repository")
+            raise ReadonlyProjectError("Can't tag in a read-only repository")
 
         self.git.tag(name)
 
     def checkout(self, rev: Union[None, str] = None,
             targets: Union[None, str, List[str]] = None):
+        if self.detached:
+            log.debug("The project is in detached mode, skipping checkout.")
+            return
+
         if not self.writeable:
             raise ReadonlyProjectError(
-                "Can't checkout in a detached or read-only repository")
+                "Can't checkout in a read-only repository")
 
         # order matters
         targets = targets or []
@@ -1546,9 +1595,13 @@ class ProjectVcs:
                 self._project.models.checkout(models)
 
     def add(self, paths: List[str]):
+        if self.detached:
+            log.debug("The project is in detached mode, skipping adding files.")
+            return
+
         if not self.writeable:
             raise ReadonlyProjectError(
-                "Can't track files in a detached or read-only repository")
+                "Can't track files in a read-only repository")
 
         if not paths:
             raise ValueError("Expected at least one file path to add")
@@ -1557,9 +1610,12 @@ class ProjectVcs:
         self.ensure_gitignored()
 
     def commit(self, paths: Union[None, List[str]], message):
+        if self.detached:
+            log.debug("The project is in detached mode, skipping commit.")
+            return
+
         if not self.writeable:
-            raise ReadonlyProjectError(
-                "Can't commit in a detached or read-only repository")
+            raise ReadonlyProjectError("Can't commit in a read-only repository")
 
         # order matters
         if not paths:
@@ -1581,9 +1637,12 @@ class ProjectVcs:
         self.git.commit(message)
 
     def init(self):
-        if self.readonly or self.detached:
-            raise ReadonlyProjectError(
-                "Can't init in a detached or read-only repository")
+        if self.detached:
+            log.debug("The project is in detached mode, skipping init.")
+            return
+
+        if self.readonly:
+            raise ReadonlyProjectError("Can't init in a read-only repository")
 
         # order matters
         self.git.init()
@@ -1591,9 +1650,10 @@ class ProjectVcs:
         os.makedirs(self.dvc_aux_dir(), exist_ok=True)
 
     def status(self) -> Dict:
-        if not self.readable:
-            raise DetachedProjectError(
-                "Can't check status in a detached repository")
+        if self.detached:
+            log.debug("The project is in detached mode, "
+                "skipping checking status.")
+            return {}
 
         # check status of files and remotes
         uncomitted = {}
@@ -1602,9 +1662,11 @@ class ProjectVcs:
         return uncomitted
 
     def ensure_gitignored(self, paths: Union[None, str, List[str]] = None):
+        if self.detached:
+            return
+
         if not self.writeable:
-            raise ReadonlyProjectError(
-                "Can't update a detached or read-only repository")
+            raise ReadonlyProjectError("Can't update a read-only repository")
 
         if paths is None:
             paths = [self._project.sources.data_dir(source)
@@ -1621,12 +1683,15 @@ class ProjectVcs:
         return osp.join(self.dvc_aux_dir(), target + '.dvc')
 
     def is_ref(self, ref: str) -> bool:
-        if not self.readable:
-            raise DetachedProjectError("Can't read in a detached repository")
+        if self.detached:
+            return False
 
         return self.git.is_ref(ref)
 
     def has_commits(self) -> bool:
+        if self.detached:
+            return False
+
         return self.git.has_commits()
 
 class Project:

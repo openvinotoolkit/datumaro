@@ -56,6 +56,9 @@ def make_parser():
 
     parser.add_argument('--version', action='version', version=VERSION)
     _LogManager._define_loglevel_option(parser)
+    parser.add_argument('--detached', action='store_true',
+        help=argparse.SUPPRESS)
+        # help="Work in VCS-detached mode. VCS operations will be unavailable.")
 
     known_contexts = [
         ('project', contexts.project, "Actions with project (deprecated)"),
@@ -131,6 +134,10 @@ def main(args=None):
     if 'command' not in args:
         parser.print_help()
         return 1
+
+    if args.detached:
+        from datumaro.components.project import ProjectVcs
+        ProjectVcs.G_DETACHED = True
 
     try:
         retcode = args.command(args)
