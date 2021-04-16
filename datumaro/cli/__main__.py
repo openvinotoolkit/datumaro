@@ -61,7 +61,7 @@ def make_parser():
         # help="Work in VCS-detached mode. VCS operations will be unavailable.")
 
     known_contexts = [
-        ('project', contexts.project, "Actions with project (deprecated)"),
+        ('project', contexts.project, "Actions with project"),
         ('repo', contexts.repository, "Actions with repositories"),
         ('remote', contexts.remote, "Actions with remotes"),
         ('source', contexts.source, "Actions with data sources"),
