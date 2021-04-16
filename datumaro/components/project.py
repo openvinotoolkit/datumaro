@@ -216,63 +216,7 @@ class _DataSourceBase(CrudProxy):
                 "single source invocation")
 
         self._project.vcs.dvc.update_imports(
-            [self.dvcfile_path(name) for name in names])
-
-    def fetch(self, names=None):
-        if not self._project.vcs.readable:
-            raise DetachedProjectError("Can't fetch in a detached project")
-
-        if not names:
-            names = []
-        elif isinstance(names, str):
-            names = [names]
-        else:
-            names = list(names)
-
-        for name in names:
-            if name and name not in self:
-                raise KeyError("Unknown source '%s'" % name)
-
-        self._project.vcs.dvc.fetch(
-            [self.dvcfile_path(name) for name in names])
-
-    def checkout(self, names=None):
-        # TODO: need to add DVC cache interaction and checking of the
-        # checked-out revision hash. In the case of mismatch, run rebuild
-
-        if not self._project.vcs.writeable:
-            raise ReadonlyProjectError("Can't checkout in a read-only project")
-
-        if not names:
-            names = []
-        elif isinstance(names, str):
-            names = [names]
-        else:
-            names = list(names)
-
-        for name in names:
-            if name and name not in self:
-                raise KeyError("Unknown source '%s'" % name)
-
-        self._project.vcs.dvc.checkout(
-            [self.dvcfile_path(name) for name in names])
-
-    def push(self, names=None):
-        if not self._project.vcs.writeable:
-            raise ReadonlyProjectError("Can't push in a read-only project")
-
-        if not names:
-            names = []
-        elif isinstance(names, str):
-            names = [names]
-        else:
-            names = list(names)
-
-        for name in names:
-            if name and name not in self:
-                raise KeyError("Unknown source '%s'" % name)
-
-        self._project.vcs.dvc.push([self.dvcfile_path(name) for name in names])
+            [self.dvcfile_path(name) for name in names], rev=rev)
 
     @classmethod
     def _validate_url(cls, url):
@@ -888,9 +832,7 @@ class ProjectBuildTargets(CrudProxy):
         def _restore_sources(sources):
             if not self._project.vcs.has_commits() or not sources:
                 return
-            self._project.vcs.git.checkout(None,
-                [_source_dvc_path(s) for s in sources])
-            self._project.sources.checkout(sources)
+            self._project.vcs.checkout(rev=None, targets=sources)
 
         _is_modified = partial(self._project.vcs.dvc.check_stage_status,
             status='modified')
@@ -1509,7 +1451,15 @@ class ProjectVcs:
             return []
         return self.git.tags
 
-    def push(self, remote: Union[None, str] = None):
+    def push(self, targets: Optional[List[str]] = None,
+            remote: Optional[str] = None, repository: Optional[str] = None):
+        """
+        Pushes the local DVC cache to the remote storage.
+        Pushes local Git changes to the remote repository.
+
+        If not provided, uses the default remote storage and repository.
+        """
+
         if self.detached:
             log.debug("The project is in detached mode, skipping push.")
             return
@@ -1517,10 +1467,29 @@ class ProjectVcs:
         if not self.writeable:
             raise ReadonlyProjectError("Can't push in a read-only repository")
 
-        self.dvc.push()
-        self.git.push(remote=remote)
+        assert targets is None or isinstance(targets, (str, list)), targets
+        if targets is None:
+            targets = []
+        elif isinstance(targets, str):
+            targets = [targets]
+        targets = targets or []
+        for i, t in enumerate(targets):
+            if not osp.exists(t):
+                targets[i] = self.dvc_filepath(t)
 
-    def pull(self, remote=None):
+        # order matters
+        self.dvc.push(targets, remote=remote)
+        self.git.push(remote=repository)
+
+    def pull(self, targets: Union[None, str, List[str]] = None,
+            remote: Optional[str] = None, repository: Optional[str] = None):
+        """
+        Pulls the local DVC cache data from the remote storage.
+        Pulls local Git changes to the remote repository.
+
+        If not provided, uses the default remote storage and repository.
+        """
+
         if self.detached:
             log.debug("The project is in detached mode, skipping pull.")
             return
@@ -1528,9 +1497,19 @@ class ProjectVcs:
         if not self.writeable:
             raise ReadonlyProjectError("Can't pull in a read-only repository")
 
+        assert targets is None or isinstance(targets, (str, list)), targets
+        if targets is None:
+            targets = []
+        elif isinstance(targets, str):
+            targets = [targets]
+        targets = targets or []
+        for i, t in enumerate(targets):
+            if not osp.exists(t):
+                targets[i] = self.dvc_filepath(t)
+
         # order matters
-        self.git.pull(remote=remote)
-        self.dvc.pull()
+        self.git.pull(remote=repository)
+        self.dvc.pull(targets, remote=remote)
 
     def check_updates(self,
             targets: Union[None, str, List[str]] = None) -> List[str]:
@@ -1543,11 +1522,21 @@ class ProjectVcs:
             raise ReadonlyProjectError(
                 "Can't check for updates in a read-only repository")
 
+        assert targets is None or isinstance(targets, (str, list)), targets
+        if targets is None:
+            targets = []
+        elif isinstance(targets, str):
+            targets = [targets]
+        targets = targets or []
+        for i, t in enumerate(targets):
+            if not osp.exists(t):
+                targets[i] = self.dvc_filepath(t)
+
         updated_refs = self.git.check_updates()
         updated_remotes = self.remotes.check_updates(targets)
         return updated_refs, updated_remotes
 
-    def fetch(self, remote: Union[None, str] = None):
+    def fetch(self, targets: Union[None, str, List[str]] = None):
         if self.detached:
             log.debug("The project is in detached mode, skipping fetch.")
             return
@@ -1555,8 +1544,18 @@ class ProjectVcs:
         if not self.writeable:
             raise ReadonlyProjectError("Can't fetch in a read-only repository")
 
-        self.git.fetch(remote=remote)
-        self.dvc.fetch()
+        assert targets is None or isinstance(targets, (str, list)), targets
+        if targets is None:
+            targets = []
+        elif isinstance(targets, str):
+            targets = [targets]
+        targets = targets or []
+        for i, t in enumerate(targets):
+            if not osp.exists(t):
+                targets[i] = self.dvc_filepath(t)
+
+        self.git.fetch()
+        self.dvc.fetch(targets)
 
     def tag(self, name: str):
         if self.detached:
@@ -1568,7 +1567,7 @@ class ProjectVcs:
 
         self.git.tag(name)
 
-    def checkout(self, rev: Union[None, str] = None,
+    def checkout(self, rev: Optional[str] = None,
             targets: Union[None, str, List[str]] = None):
         if self.detached:
             log.debug("The project is in detached mode, skipping checkout.")
@@ -1578,21 +1577,19 @@ class ProjectVcs:
             raise ReadonlyProjectError(
                 "Can't checkout in a read-only repository")
 
-        # order matters
+        assert targets is None or isinstance(targets, (str, list)), targets
+        if targets is None:
+            targets = []
+        elif isinstance(targets, str):
+            targets = [targets]
         targets = targets or []
-        dvc_paths = [self.dvc_filepath(t) for t in targets]
-        self.git.checkout(rev, dvc_paths)
+        for i, t in enumerate(targets):
+            if not osp.exists(t):
+                targets[i] = self.dvc_filepath(t)
 
-        if not targets:
-            self._dvc.checkout()
-        else:
-            sources = [t for t in targets if t in self._project.sources]
-            if sources:
-                self._project.sources.checkout(sources)
-
-            models = [t for t in targets if t in self._project.models]
-            if models:
-                self._project.models.checkout(models)
+        # order matters
+        self.git.checkout(rev, targets)
+        self.dvc.checkout(targets)
 
     def add(self, paths: List[str]):
         if self.detached:

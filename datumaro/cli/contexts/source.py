@@ -146,91 +146,10 @@ def remove_command(args):
 
     return 0
 
-def build_fetch_parser(parser_ctor=argparse.ArgumentParser):
-    parser = parser_ctor(help="Fetch updates for source into cache",
-        description="Fetch updates for a source into the project cache")
-
-    parser.add_argument('names', nargs='*',
-        help="Names of sources (default: all)")
-    parser.add_argument('-p', '--project', dest='project_dir', default='.',
-        help="Directory of the project to operate on (default: current dir)")
-    parser.set_defaults(command=fetch_command)
-
-    return parser
-
-def fetch_command(args):
-    project = load_project(args.project_dir)
-
-    project.sources.fetch(args.names)
-
-    return 0
-
 def build_pull_parser(parser_ctor=argparse.ArgumentParser):
-    parser = parser_ctor(help="Fetch remote updates into cache",
-        description="Fetch remote source updates into the project cache")
-
-    parser.add_argument('names', nargs='*',
-        help="Names of sources (default: all)")
-    parser.add_argument('-p', '--project', dest='project_dir', default='.',
-        help="Directory of the project to operate on (default: current dir)")
-    parser.set_defaults(command=pull_command)
-
-    return parser
-
-def pull_command(args):
-    project = load_project(args.project_dir)
-
-    project.sources.pull(args.names)
-
-    return 0
-
-def build_push_parser(parser_ctor=argparse.ArgumentParser):
-    parser = parser_ctor(help="Push local changes to remote",
-        description="Push local source updates to a remote")
-
-    parser.add_argument('names', nargs='+',
-        help="Names of sources")
-    parser.add_argument('-p', '--project', dest='project_dir', default='.',
-        help="Directory of the project to operate on (default: current dir)")
-    parser.set_defaults(command=push_command)
-
-    return parser
-
-def push_command(args):
-    project = load_project(args.project_dir)
-
-    project.sources.push(args.names)
-
-    for source in args.names:
-        stages = project.build_targets[source].stages
-        stages[:] = stages[:1]
-    project.save()
-
-    return 0
-
-def build_checkout_parser(parser_ctor=argparse.ArgumentParser):
-    parser = parser_ctor(help="Load source data from cache",
-        description="Load source data from the project cache")
-
-    parser.add_argument('names', nargs='*',
-        help="Names of sources (default: all)")
-    parser.add_argument('-p', '--project', dest='project_dir', default='.',
-        help="Directory of the project to operate on (default: current dir)")
-    parser.set_defaults(command=checkout_command)
-
-    return parser
-
-def checkout_command(args):
-    project = load_project(args.project_dir)
-
-    project.sources.checkout(args.names)
-
-    return 0
-
-def build_update_parser(parser_ctor=argparse.ArgumentParser):
-    parser = parser_ctor(help="Update source revision to remote one",
+    parser = parser_ctor(help="Update source revision",
         description="""
-        Update source revision to remote one.|n
+        Update source revision.|n
         |n
         To remove existing pipelines for the updated sources
         (start them from scratch), use the '--restart' parameter.|n
@@ -247,11 +166,11 @@ def build_update_parser(parser_ctor=argparse.ArgumentParser):
         help="Removes existing pipelines for these sources")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to operate on (default: current dir)")
-    parser.set_defaults(command=update_command)
+    parser.set_defaults(command=pull_command)
 
     return parser
 
-def update_command(args):
+def pull_command(args):
     project = load_project(args.project_dir)
 
     for source in args.names:
@@ -312,11 +231,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     subparsers = parser.add_subparsers()
     add_subparser(subparsers, 'add', build_add_parser)
     add_subparser(subparsers, 'remove', build_remove_parser)
-    add_subparser(subparsers, 'fetch', build_fetch_parser)
-    add_subparser(subparsers, 'checkout', build_checkout_parser)
     add_subparser(subparsers, 'pull', build_pull_parser)
-    add_subparser(subparsers, 'push', build_push_parser)
-    add_subparser(subparsers, 'update', build_push_parser)
     add_subparser(subparsers, 'info', build_info_parser)
 
     return parser

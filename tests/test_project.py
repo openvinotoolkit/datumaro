@@ -335,7 +335,7 @@ class AttachedProjectTest(TestCase):
             repo = GitWrapper.module.Repo.clone_from(git_repo_dir, git_client_dir)
             source_dataset = Dataset.from_iterable([
                 DatasetItem(1, image=np.ones((2, 4, 3)), annotations=[Label(1)])
-            ], categories=['a'])
+            ], categories=['a', 'b'])
             source_dataset.save(git_client_dir, save_images=True)
             repo.git.add(all=True)
             repo.index.commit("Initial commit")

@@ -10,8 +10,8 @@ from ..util.project import load_project
 def build_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor()
 
-    parser.add_argument('-r', '--remote',
-        help="Name of the remote")
+    parser.add_argument('targets', nargs='*',
+        help="Names of sources, models, tracked files and dirs (default: all)")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to operate on (default: current dir)")
     parser.set_defaults(command=push_command)
@@ -21,6 +21,6 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 def push_command(args):
     project = load_project(args.project_dir)
 
-    project.vcs.push(remote=args.remote)
+    project.vcs.push(targets=args.targets)
 
     return 0
