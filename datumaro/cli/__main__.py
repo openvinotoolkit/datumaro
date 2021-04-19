@@ -62,24 +62,21 @@ def make_parser():
 
     known_contexts = [
         ('project', contexts.project, "Actions with project"),
-        ('repo', contexts.repository, "Actions with repositories"),
-        ('remote', contexts.remote, "Actions with remotes"),
+        ('repo', contexts.repository, "Actions with VCS repositories"),
+        ('remote', contexts.remote, "Actions with data remotes"),
         ('source', contexts.source, "Actions with data sources"),
         ('model', contexts.model, "Actions with models"),
     ]
     known_commands = [
-        # Project modification
-        ('create', commands.create, "Create project"),
+        ("Project modification:", None, ''),
+        ('create', commands.create, "Create empty project"),
         ('import', commands.import_, "Create project from existing dataset"),
         ('add', commands.add, "Add data source to project"),
         ('remove', commands.remove, "Remove data source from project"),
 
-        # Data source modification
-        ('track', commands.track, "Start tracking a file or directory"),
-        ('update', commands.update, "Update sources in the project"),
-
-        # Project versioning
-        ('check_updates', commands.check_updates, "Checks remote repository for updates")
+        ("", None, ''),
+        ("Project versioning:", None, ''),
+        ('check_updates', commands.check_updates, "Check remote repository for updates"),
         ('fetch', commands.fetch, "Fetch updates from remote repository"),
         ('pull', commands.pull, "Pull updates from remote repository"),
         ('push', commands.push, "Push updates to remote repository"),
@@ -87,15 +84,19 @@ def make_parser():
         ('commit', commands.commit, "Commit changes in tracked files"),
         ('status', commands.status, "Show status information"),
         ('refs', commands.refs, "List branches and revisions"),
+        ('tag', commands.tag, "Give name to revision"),
+        ('track', commands.track, "Start tracking a local file or directory"),
+        ('update', commands.update, "Change data source revision"),
 
-        # Dataset operations
+        ("", None, ''),
+        ("Dataset and project operations:", None, ''),
         ('export', commands.export, "Export project in some format"),
-        ('filter', commands.filter, "Filter project"),
-        ('transform', commands.transform, "Transform project"),
-        ('apply', commands.apply, "Apply few transforms"),
+        ('filter', commands.filter, "Filter project items"),
+        ('transform', commands.transform, "Modify project items"),
+        ('apply', commands.apply, "Apply a few transforms to project"),
         ('build', commands.build, "Build project"),
         ('merge', commands.merge, "Merge projects"),
-        ('convert', commands.convert, "Convert dataset"),
+        ('convert', commands.convert, "Convert dataset between formats"),
         ('diff', commands.diff, "Compare projects with intersection"),
         ('ediff', commands.ediff, "Compare projects for equality"),
         ('stats', commands.stats, "Compute project statistics"),
@@ -128,7 +129,8 @@ def make_parser():
     subcommands = parser.add_subparsers(title=subcommands_desc,
         description="", help=argparse.SUPPRESS)
     for command_name, command, _ in known_contexts + known_commands:
-        add_subparser(subcommands, command_name, command.build_parser)
+        if command is not None:
+            add_subparser(subcommands, command_name, command.build_parser)
 
     return parser
 
