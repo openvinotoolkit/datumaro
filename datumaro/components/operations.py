@@ -957,6 +957,11 @@ def mean_std(dataset):
     var = lambda i, s: s[i][1]
 
     for i, item in enumerate(dataset):
+        size = item.image.size
+        if size is None:
+            log.warning("Item %s: can't detect image size, "
+                "the image will be skipped from pixel statistics", item.id)
+            continue
         counts[i] = np.prod(item.image.size)
 
         image = item.image.data
