@@ -128,7 +128,7 @@ List of supported formats:
 - Market-1501 (`person re-identification`)
   - [Format specification](https://www.aitribune.com/dataset/2018051063)
   - [Dataset example](../tests/assets/market1501_dataset)
-- LFW (`person re-identification`, `landmarks`)
+- LFW (`classification`, `person re-identification`, `landmarks`)
   - [Format specification](http://vis-www.cs.umass.edu/lfw/)
   - [Dataset example](../tests/assets/lfw_dataset)
 
