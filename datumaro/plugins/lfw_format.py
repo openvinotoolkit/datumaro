@@ -197,7 +197,7 @@ class LfwConverter(Converter):
                     if label_name:
                         subdir=osp.join(subdir, label_name)
                     self._save_image(item, subdir=subdir)
-                
+
                 if label != None:
                     person1 = label_name
                     num1 = item.id
