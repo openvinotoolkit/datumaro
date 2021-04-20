@@ -5,6 +5,7 @@
 import logging as log
 import numpy as np
 from math import gcd
+from enum import Enum
 
 from datumaro.components.extractor import (Transform, AnnotationType,
     DEFAULT_SUBSET_NAME)
@@ -13,33 +14,171 @@ from datumaro.util import cast
 
 NEAR_ZERO = 1e-7
 
+SplitTask = Enum(
+    "split", ["classification", "detection", "segmentation", "reidentification"]
+)
 
-class _TaskSpecificSplit(Transform, CliPlugin):
-    _default_split = [('train', 0.5), ('val', 0.2), ('test', 0.3)]
+
+class Split(Transform, CliPlugin):
+    """
+    - classification split |n
+    Splits dataset into subsets(train/val/test) in class-wise manner. |n
+    Splits dataset images in the specified ratio, keeping the initial class
+    distribution.|n
+    |n
+    - detection & segmentation split |n
+    Each image can have multiple object annotations -
+    (bbox, mask, polygon). Since an image shouldn't be included
+    in multiple subsets at the same time, and image annotations
+    shoudln't be split, in general, dataset annotations are unlikely to be split
+    exactly in the specified ratio. |n
+    This split tries to split dataset images as close as possible
+    to the specified ratio, keeping the initial class distribution.|n
+    |n
+    - reidentification split |n
+    In this task, the test set should consist of images of unseen
+    people or objects during the training phase. |n
+    This function splits a dataset in the following way:|n
+    1. Splits the dataset into 'train + val' and 'test' sets|n
+    |s|sbased on person or object ID.|n
+    2. Splits 'test' set into 'test-gallery' and 'test-query' sets|n
+    |s|sin class-wise manner.|n
+    3. Splits the 'train + val' set into 'train' and 'val' sets|n
+    |s|sin the same way.|n
+    The final subsets would be
+    'train', 'val', 'test-gallery' and 'test-query'. |n
+    |n
+    Notes:|n
+    - Each image is expected to have only one Annotation. Unlabeled or
+    multi-labeled images will be split into subsets randomly(or 'not-supported' in reidentification). |n
+    - If Labels also have attributes, also splits by attribute values.|n
+    - If there is not enough images in some class or attributes group,
+    the split ratio can't be guaranteed.|n
+    - Object ID can be described by Label, or by attribute (--attr parameter) in reidentification task|n
+    - The splits of the test set are controlled by '--query' parameter in reidentification task. |n
+    |s|sGallery ratio would be 1.0 - query.|n
+    |n
+    Example:|n
+    |s|s%(prog)s -t classification --subset train:.5 --subset val:.2 --subset test:.3 |n
+    |s|s%(prog)s -t detection --subset train:.5 --subset val:.2 --subset test:.3 |n
+    |s|s%(prog)s -t segmentation --subset train:.5 --subset val:.2 --subset test:.3 |n
+    |s|s%(prog)s -t reidentification --subset train:.5 --subset val:.2 --subset test:.3 --query .5 |n
+    Example: use 'person_id' attribute for splitting|n
+    |s|s%(prog)s --attr person_id
+    """
+
+    _default_split = [("train", 0.5), ("val", 0.2), ("test", 0.3)]
+    _default_query_ratio = 0.5
 
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
         parser = super().build_cmdline_parser(**kwargs)
-        parser.add_argument('-s', '--subset', action='append',
-            type=cls._split_arg, dest='splits',
+        parser.add_argument(
+            "-t",
+            "--task",
+            default=SplitTask.classification.name,
+            choices=[t.name for t in SplitTask],
+            help="(one of {}; default: %(default)s)".format(
+                ", ".join(t.name for t in SplitTask)
+            ),
+        )
+        parser.add_argument(
+            "-s",
+            "--subset",
+            action="append",
+            type=cls._split_arg,
+            dest="splits",
             help="Subsets in the form: '<subset>:<ratio>' "
-                "(repeatable, default: %s)" % dict(cls._default_split))
-        parser.add_argument('--seed', type=int, help="Random seed")
+            "(repeatable, default: %s)" % dict(cls._default_split),
+        )
+        parser.add_argument(
+            "--query",
+            type=float,
+            default=None,
+            help="Query ratio in the test set (default: %.3f)"
+            % cls._default_query_ratio,
+        )
+        parser.add_argument(
+            "--attr",
+            type=str,
+            dest="attr_for_id",
+            default=None,
+            help="Attribute name representing the ID (default: use label)",
+        )
+        parser.add_argument("--seed", type=int, help="Random seed")
         return parser
 
     @staticmethod
     def _split_arg(s):
-        parts = s.split(':')
+        parts = s.split(":")
         if len(parts) != 2:
             import argparse
+
             raise argparse.ArgumentTypeError()
         return (parts[0], float(parts[1]))
 
-    def __init__(self, dataset, splits, seed, restrict=False):
+    def __init__(self, dataset, task, splits, query=None, attr_for_id=None, seed=None):
         super().__init__(dataset)
 
         if splits is None:
             splits = self._default_split
+
+        self.task = task
+        self.splitter = self._get_splitter(
+            task, dataset, splits, seed, query, attr_for_id
+        )
+        self._initialized = False
+        self._subsets = self.splitter._subsets
+
+    @staticmethod
+    def _get_splitter(task, dataset, splits, seed, query, attr_for_id):
+        if task == SplitTask.classification.name:
+            splitter = _ClassificationSplit(dataset=dataset, splits=splits, seed=seed)
+        elif task in {SplitTask.detection.name, SplitTask.segmentation.name}:
+            splitter = _InstanceSpecificSplit(
+                dataset=dataset, splits=splits, seed=seed, task=task
+            )
+        elif task == SplitTask.reidentification.name:
+            splitter = _ReidentificationSplit(
+                dataset=dataset,
+                splits=splits,
+                seed=seed,
+                query=query,
+                attr_for_id=attr_for_id,
+            )
+        else:
+            raise Exception(
+                f"Unknown task '{task}', available "
+                f"splitter format: {[a.name for a in SplitTask]}"
+            )
+        return splitter
+
+    def __iter__(self):
+        # lazy splitting
+        if self._initialized is False:
+            self.splitter._split_dataset()
+            self._initialized = True
+        for i, item in enumerate(self._extractor):
+            yield self.wrap_item(item, subset=self.splitter._find_split(i))
+
+    def get_subset(self, name):
+        # lazy splitting
+        if self._initialized is False:
+            self.splitter._split_dataset()
+            self._initialized = True
+        return super().get_subset(name)
+
+    def subsets(self):
+        # lazy splitting
+        if self._initialized is False:
+            self.splitter._split_dataset()
+            self._initialized = True
+        return super().subsets()
+
+
+class _TaskSpecificSplit:
+    def __init__(self, dataset, splits, seed, restrict=False):
+        self._extractor = dataset
 
         snames, sratio, subsets = self._validate_splits(splits, restrict)
 
@@ -67,8 +206,7 @@ class _TaskSpecificSplit(Transform, CliPlugin):
         unlabeled_or_multi = []
 
         for idx, item in enumerate(dataset):
-            labels = [a for a in item.annotations
-                if a.type == AnnotationType.label]
+            labels = [a for a in item.annotations if a.type == AnnotationType.label]
             if len(labels) == 1:
                 annotations.append(labels[0])
             else:
@@ -86,11 +224,16 @@ class _TaskSpecificSplit(Transform, CliPlugin):
             # remove subset name restriction
             # https://github.com/openvinotoolkit/datumaro/issues/194
             if restrict:
-                assert subset in valid, \
-                    "Subset name must be one of %s, got %s" % (valid, subset)
-            assert 0.0 <= ratio and ratio <= 1.0, \
-                "Ratio is expected to be in the range " \
-                "[0, 1], but got %s for %s" % (ratio, subset)
+                assert subset in valid, "Subset name must be one of %s, got %s" % (
+                    valid,
+                    subset,
+                )
+            assert (
+                0.0 <= ratio and ratio <= 1.0
+            ), "Ratio is expected to be in the range " "[0, 1], but got %s for %s" % (
+                ratio,
+                subset,
+            )
             # ignore near_zero ratio because it may produce partition error.
             if ratio > NEAR_ZERO:
                 # handling duplication
@@ -185,9 +328,9 @@ class _TaskSpecificSplit(Transform, CliPlugin):
 
         return by_attributes
 
-    def _split_by_attr(self, datasets, snames, ratio, out_splits,
-                       merge_small_classes=True):
-
+    def _split_by_attr(
+        self, datasets, snames, ratio, out_splits, merge_small_classes=True
+    ):
         def _split_indice(indice):
             sections, _ = self._get_sections(len(indice), ratio)
             splits = np.array_split(indice, sections)
@@ -254,16 +397,8 @@ class _TaskSpecificSplit(Transform, CliPlugin):
     def _split_dataset(self):
         raise NotImplementedError()
 
-    def __iter__(self):
-        # lazy splitting
-        if self._initialized is False:
-            self._split_dataset()
-            self._initialized = True
-        for i, item in enumerate(self._extractor):
-            yield self.wrap_item(item, subset=self._find_split(i))
 
-
-class ClassificationSplit(_TaskSpecificSplit):
+class _ClassificationSplit(_TaskSpecificSplit):
     """
     Splits dataset into subsets(train/val/test) in class-wise manner. |n
     Splits dataset images in the specified ratio, keeping the initial class
@@ -277,8 +412,9 @@ class ClassificationSplit(_TaskSpecificSplit):
       the split ratio can't be guaranteed.|n
     |n
     Example:|n
-    |s|s%(prog)s --subset train:.5 --subset val:.2 --subset test:.3
+    |s|s%(prog)s -t classification --subset train:.5 --subset val:.2 --subset test:.3
     """
+
     def __init__(self, dataset, splits, seed=None):
         """
         Parameters
@@ -300,7 +436,7 @@ class ClassificationSplit(_TaskSpecificSplit):
         annotations, unlabeled = self._get_uniq_annotations(self._extractor)
 
         for idx, ann in enumerate(annotations):
-            label = getattr(ann, 'label', None)
+            label = getattr(ann, "label", None)
             if label not in by_labels:
                 by_labels[label] = []
             by_labels[label].append((idx, ann))
@@ -320,7 +456,7 @@ class ClassificationSplit(_TaskSpecificSplit):
         self._set_parts(by_splits)
 
 
-class ReidentificationSplit(_TaskSpecificSplit):
+class _ReidentificationSplit(_TaskSpecificSplit):
     """
     Splits a dataset for re-identification task.|n
     Produces a split with a specified ratio of images, avoiding having same
@@ -347,25 +483,14 @@ class ReidentificationSplit(_TaskSpecificSplit):
     |n
     Example: split a dataset in the specified ratio, split the test set|n
     |s|s|s|sinto gallery and query in 1:1 ratio|n
-    |s|s%(prog)s --subset train:.5 --subset val:.2 --subset test:.3 --query .5|n
+    |s|s%(prog)s -t reidentification --subset train:.5 --subset val:.2 --subset test:.3 --query .5|n
     Example: use 'person_id' attribute for splitting|n
     |s|s%(prog)s --attr person_id
     """
 
     _default_query_ratio = 0.5
 
-    @classmethod
-    def build_cmdline_parser(cls, **kwargs):
-        parser = super().build_cmdline_parser(**kwargs)
-        parser.add_argument('--query', type=float,
-            help="Query ratio in the test set (default: %.3f)"
-            % cls._default_query_ratio)
-        parser.add_argument('--attr', type=str, dest='attr_for_id',
-            help="Attribute name representing the ID (default: use label)")
-        return parser
-
-    def __init__(self, dataset, splits, query=None,
-            attr_for_id=None, seed=None):
+    def __init__(self, dataset, splits, query=None, attr_for_id=None, seed=None):
         """
         Parameters
         ----------
@@ -387,10 +512,10 @@ class ReidentificationSplit(_TaskSpecificSplit):
         if query is None:
             query = self._default_query_ratio
 
-        assert 0.0 <= query and query <= 1.0, \
-            "Query ratio is expected to be in the range " \
-            "[0, 1], but got %f" % query
-        test_splits = [('test-query', query), ('test-gallery', 1.0 - query)]
+        assert 0.0 <= query and query <= 1.0, (
+            "Query ratio is expected to be in the range " "[0, 1], but got %f" % query
+        )
+        test_splits = [("test-query", query), ("test-gallery", 1.0 - query)]
 
         # remove subset name restriction
         self._subsets = {"train", "val", "test-gallery", "test-query"}
@@ -410,15 +535,16 @@ class ReidentificationSplit(_TaskSpecificSplit):
         annotations, unlabeled = self._get_uniq_annotations(dataset)
         if attr_for_id is None:  # use label
             for idx, ann in enumerate(annotations):
-                ID = getattr(ann, 'label', None)
+                ID = getattr(ann, "label", None)
                 if ID not in by_id:
                     by_id[ID] = []
                 by_id[ID].append((idx, ann))
         else:  # use attr_for_id
             for idx, ann in enumerate(annotations):
                 attributes = dict(ann.attributes.items())
-                assert attr_for_id in attributes, \
+                assert attr_for_id in attributes, (
                     "'%s' is expected as an attribute name" % attr_for_id
+                )
                 ID = attributes[attr_for_id]
                 if ID not in by_id:
                     by_id[ID] = []
@@ -426,9 +552,9 @@ class ReidentificationSplit(_TaskSpecificSplit):
 
         required = self._get_required(id_ratio)
         if len(by_id) < required:
-            log.warning("There's not enough IDs, which is %s, "
-                "so train/val/test ratio can't be guaranteed."
-                % len(by_id)
+            log.warning(
+                "There's not enough IDs, which is %s, "
+                "so train/val/test ratio can't be guaranteed." % len(by_id)
             )
 
         # 1. split dataset into trval and test
@@ -444,7 +570,9 @@ class ReidentificationSplit(_TaskSpecificSplit):
             trval = {pid: by_id[pid] for pid in splits[1]}
             # follow the ratio of datasetitems as possible.
             # naive heuristic: exchange the best item one by one.
-            expected_count = int(len(self._extractor) * split_ratio[0])
+            expected_count = int(
+                (len(self._extractor) - len(unlabeled)) * split_ratio[0]
+            )
             testset_total = int(np.sum([len(v) for v in testset.values()]))
             self._rebalancing(testset, trval, expected_count, testset_total)
         else:
@@ -463,8 +591,9 @@ class ReidentificationSplit(_TaskSpecificSplit):
                 test_snames.append(sname)
                 test_ratio.append(float(ratio))
 
-            self._split_by_attr(testset, test_snames, test_ratio, by_splits,
-                                merge_small_classes=False)
+            self._split_by_attr(
+                testset, test_snames, test_ratio, by_splits, merge_small_classes=False
+            )
 
         # 3. split 'trval' into  'train' and 'val'
         trval_snames = ["train", "val"]
@@ -479,14 +608,15 @@ class ReidentificationSplit(_TaskSpecificSplit):
         total_ratio = np.sum(trval_ratio)
         if total_ratio < NEAR_ZERO:
             trval_splits = list(zip(["train", "val"], trval_ratio))
-            log.warning("Sum of ratios is expected to be positive, "
-                "got %s, which is %s"
-                % (trval_splits, total_ratio)
+            log.warning(
+                "Sum of ratios is expected to be positive, "
+                "got %s, which is %s" % (trval_splits, total_ratio)
             )
         else:
             trval_ratio /= total_ratio  # normalize
-            self._split_by_attr(trval, trval_snames, trval_ratio, by_splits,
-                                merge_small_classes=False)
+            self._split_by_attr(
+                trval, trval_snames, trval_ratio, by_splits, merge_small_classes=False
+            )
 
         # split unlabeled data into 'not-supported'.
         if len(unlabeled) > 0:
@@ -541,30 +671,16 @@ class ReidentificationSplit(_TaskSpecificSplit):
             test[id_trval] = trval.pop(id_trval)
             trval[id_test] = test.pop(id_test)
 
-    def get_subset(self, name):
-        # lazy splitting
-        if self._initialized is False:
-            self._split_dataset()
-            self._initialized = True
-        return super().get_subset(name)
 
-    def subsets(self):
-        # lazy splitting
-        if self._initialized is False:
-            self._split_dataset()
-            self._initialized = True
-        return super().subsets()
-
-
-class DetectionSplit(_TaskSpecificSplit):
+class _InstanceSpecificSplit(_TaskSpecificSplit):
     """
-    Splits a dataset into subsets(train/val/test) for detection task,
+    Splits a dataset into subsets(train/val/test),
     using object annotations as a basis for splitting.|n
     Tries to produce an image split with the specified ratio, keeping the
     initial distribution of class objects.|n
     |n
-    In a detection dataset, each image can have multiple object annotations -
-    instance bounding boxes. Since an image shouldn't be included
+    each image can have multiple object annotations -
+    (instance bounding boxes, masks, polygons). Since an image shouldn't be included
     in multiple subsets at the same time, and image annotations
     shoudln't be split, in general, dataset annotations are unlikely to be split
     exactly in the specified ratio. |n
@@ -572,14 +688,17 @@ class DetectionSplit(_TaskSpecificSplit):
     to the specified ratio, keeping the initial class distribution.|n
     |n
     Notes:|n
-    - Each image is expected to have one or more Bbox annotations.|n
-    - Only Bbox annotations are considered.|n
+    - Each image is expected to have one or more annotations.|n
+    - Only bbox annotations are considered in detection task.|n
+    - Mask or Polygon annotations are considered in segmentation task.|n
     |n
     Example: split dataset so that each object class annotations were split|n
     |s|s|s|sin the specified ratio between subsets|n
-    |s|s%(prog)s --subset train:.5 --subset val:.2 --subset test:.3
+    |s|s%(prog)s -t detection --subset train:.5 --subset val:.2 --subset test:.3 |n
+    |s|s%(prog)s -t segmentation --subset train:.5 --subset val:.2 --subset test:.3
     """
-    def __init__(self, dataset, splits, seed=None):
+
+    def __init__(self, dataset, splits, task, seed=None):
         """
         Parameters
         ----------
@@ -591,18 +710,21 @@ class DetectionSplit(_TaskSpecificSplit):
         """
         super().__init__(dataset, splits, seed)
 
-    @staticmethod
-    def _group_by_bbox_labels(dataset):
+        if task == SplitTask.detection.name:
+            self.annotation_type = [AnnotationType.bbox]
+        elif task == SplitTask.segmentation.name:
+            self.annotation_type = [AnnotationType.mask, AnnotationType.polygon]
+
+    def _group_by_labels(self, dataset):
         by_labels = dict()
         unlabeled = []
         for idx, item in enumerate(dataset):
-            bbox_anns = [a for a in item.annotations
-                if a.type == AnnotationType.bbox]
+            bbox_anns = [a for a in item.annotations if a.type in self.annotation_type]
             if len(bbox_anns) == 0:
                 unlabeled.append(idx)
                 continue
             for ann in bbox_anns:
-                label = getattr(ann, 'label', None)
+                label = getattr(ann, "label", None)
                 if label not in by_labels:
                     by_labels[label] = [(idx, ann)]
                 else:
@@ -615,7 +737,7 @@ class DetectionSplit(_TaskSpecificSplit):
         subsets, sratio = self._snames, self._sratio
 
         # 1. group by bbox label
-        by_labels, unlabeled = self._group_by_bbox_labels(self._extractor)
+        by_labels, unlabeled = self._group_by_labels(self._extractor)
 
         # 2. group by attributes
         required = self._get_required(sratio)
@@ -672,7 +794,7 @@ class DetectionSplit(_TaskSpecificSplit):
         target_size = dict()
         expected = []  # expected numbers of per split GT samples
         for sname, ratio in zip(subsets, sratio):
-            target_size[sname] = total * ratio
+            target_size[sname] = (total - len(unlabeled)) * ratio
             expected.append([sname, np.array(n_combs) * ratio])
 
         # functions for keep the # of annotations not exceed the expected num
