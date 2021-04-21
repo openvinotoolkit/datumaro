@@ -1048,7 +1048,7 @@ datum transform -t split -- \
     -t segmentation --subset train:.5 --subset val:.2 --subset test:.3
 
 datum transform -t split -- \
-    -t reidentification --subset train:.5 --subset val:.2 --subset test:.3 \
+    -t reid --subset train:.5 --subset val:.2 --subset test:.3 \
     --query .5
 ```
 

@@ -15,7 +15,7 @@ from datumaro.util import cast
 NEAR_ZERO = 1e-7
 
 SplitTask = Enum(
-    "split", ["classification", "detection", "segmentation", "reidentification"]
+    "split", ["classification", "detection", "segmentation", "reid"]
 )
 
 
@@ -30,8 +30,8 @@ class Split(Transform, CliPlugin):
     Each image can have multiple object annotations -
     (bbox, mask, polygon). Since an image shouldn't be included
     in multiple subsets at the same time, and image annotations
-    shoudln't be split, in general, dataset annotations are unlikely to be split
-    exactly in the specified ratio. |n
+    shoudln't be split, in general, dataset annotations are unlikely
+    to be split exactly in the specified ratio. |n
     This split tries to split dataset images as close as possible
     to the specified ratio, keeping the initial class distribution.|n
     |n
@@ -50,19 +50,20 @@ class Split(Transform, CliPlugin):
     |n
     Notes:|n
     - Each image is expected to have only one Annotation. Unlabeled or
-    multi-labeled images will be split into subsets randomly(or 'not-supported' in reidentification). |n
+    multi-labeled images will be split into subsets randomly. |n
     - If Labels also have attributes, also splits by attribute values.|n
     - If there is not enough images in some class or attributes group,
     the split ratio can't be guaranteed.|n
-    - Object ID can be described by Label, or by attribute (--attr parameter) in reidentification task|n
-    - The splits of the test set are controlled by '--query' parameter in reidentification task. |n
+    In reidentification task, |n
+    - Object ID can be described by Label, or by attribute (--attr parameter)|n
+    - The splits of the test set are controlled by '--query' parameter |n
     |s|sGallery ratio would be 1.0 - query.|n
     |n
     Example:|n
     |s|s%(prog)s -t classification --subset train:.5 --subset val:.2 --subset test:.3 |n
     |s|s%(prog)s -t detection --subset train:.5 --subset val:.2 --subset test:.3 |n
     |s|s%(prog)s -t segmentation --subset train:.5 --subset val:.2 --subset test:.3 |n
-    |s|s%(prog)s -t reidentification --subset train:.5 --subset val:.2 --subset test:.3 --query .5 |n
+    |s|s%(prog)s -t reid --subset train:.5 --subset val:.2 --subset test:.3 --query .5 |n
     Example: use 'person_id' attribute for splitting|n
     |s|s%(prog)s --attr person_id
     """
@@ -138,7 +139,7 @@ class Split(Transform, CliPlugin):
             splitter = _InstanceSpecificSplit(
                 dataset=dataset, splits=splits, seed=seed, task=task
             )
-        elif task == SplitTask.reidentification.name:
+        elif task == SplitTask.reid.name:
             splitter = _ReidentificationSplit(
                 dataset=dataset,
                 splits=splits,

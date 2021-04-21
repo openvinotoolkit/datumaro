@@ -323,7 +323,7 @@ class SplitterTest(TestCase):
                 attr_for_id = None
             source = self._generate_dataset(config)
             splits = [("train", 0.5), ("val", 0.2), ("test", 0.3)]
-            task = splitter.SplitTask.reidentification.name
+            task = splitter.SplitTask.reid.name
             query = 0.4 / 0.7
             actual = splitter.Split(source, task, splits, query, attr_for_id)
 
@@ -384,7 +384,7 @@ class SplitterTest(TestCase):
             counts[label] = count
             config[label] = {"attrs": None, "counts": count}
         source = self._generate_dataset(config)
-        task = splitter.SplitTask.reidentification.name
+        task = splitter.SplitTask.reid.name
         splits = [("train", 0.5), ("test", 0.5)]
         query = 0.4 / 0.7
         r1 = splitter.Split(source, task, splits, query, seed=1234)
@@ -402,7 +402,7 @@ class SplitterTest(TestCase):
             label = "label%03d" % i
             config[label] = {"attrs": None, "counts": 7}
         source = self._generate_dataset(config)
-        task = splitter.SplitTask.reidentification.name
+        task = splitter.SplitTask.reid.name
         splits = [("train", 0.5), ("val", 0.2), ("test", 0.3)]
         query = 0.4 / 0.7
         actual = splitter.Split(source, task, splits, query)
@@ -414,7 +414,7 @@ class SplitterTest(TestCase):
 
     def test_split_for_reidentification_unlabeled(self):
         query = 0.5
-        task = splitter.SplitTask.reidentification.name
+        task = splitter.SplitTask.reid.name
 
         with self.subTest("no label"):
             iterable = [DatasetItem(i, annotations=[]) for i in range(10)]
@@ -434,7 +434,7 @@ class SplitterTest(TestCase):
 
     def test_split_for_reidentification_gives_error(self):
         query = 0.4 / 0.7  # valid query ratio
-        task = splitter.SplitTask.reidentification.name
+        task = splitter.SplitTask.reid.name
 
         counts = {i: (i % 3 + 1) * 7 for i in range(10)}
         config = {"person": {"attrs": ["PID"], "counts": counts}}
