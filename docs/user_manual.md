@@ -128,7 +128,7 @@ List of supported formats:
 - Market-1501 (`person re-identification`)
   - [Format specification](https://www.aitribune.com/dataset/2018051063)
   - [Dataset example](../tests/assets/market1501_dataset)
-- LFW (`person re-identification`, `landmarks`)
+- LFW (`classification`, `person re-identification`, `landmarks`)
   - [Format specification](http://vis-www.cs.umass.edu/lfw/)
   - [Dataset example](../tests/assets/lfw_dataset)
 
@@ -1035,17 +1035,21 @@ datum transform -t random_split -- --subset train:.67 --subset test:.33
 ```
 
 Example: split a dataset in task-specific manner. Supported tasks are
-classification, detection, and re-identification.
+classification, detection, re-identification and segmentation.
 
 ``` bash
-datum transform -t classification_split -- \
-    --subset train:.5 --subset val:.2 --subset test:.3
+datum transform -t split -- \
+    -t classification --subset train:.5 --subset val:.2 --subset test:.3
 
-datum transform -t detection_split -- \
-    --subset train:.5 --subset val:.2 --subset test:.3
+datum transform -t split -- \
+    -t detection --subset train:.5 --subset val:.2 --subset test:.3
 
-datum transform -t reidentification_split -- \
-    --subset train:.5 --subset val:.2 --subset test:.3 --query .5
+datum transform -t split -- \
+    -t segmentation --subset train:.5 --subset val:.2 --subset test:.3
+
+datum transform -t split -- \
+    -t reid --subset train:.5 --subset val:.2 --subset test:.3 \
+    --query .5
 ```
 
 Example: convert polygons to masks, masks to boxes etc.:
@@ -1076,7 +1080,7 @@ datum transform -t rename -- -e '|frame_(\d+)|\\1|'
 
 Example: Sampling dataset items, subset `train` is divided into `sampled`(sampled_subset) and `unsampled`
 - `train` has 100 data, and 20 samples are selected. There are `sampled`(20 samples) and 80 `unsampled`(80 datas) subsets.
-- Remove `train` subset (if sample_name=`train` or unsample_name=`train`, still remain)
+- Remove `train` subset (if sampled_subset=`train` or unsampled_name=`train`, still remain)
 - There are five methods of sampling the m option.
     - `topk`: Return the k with high uncertainty data
     - `lowk`: Return the k with low uncertainty data
@@ -1087,9 +1091,9 @@ Example: Sampling dataset items, subset `train` is divided into `sampled`(sample
 ``` bash
 datum transform -t sampler -- \
     -a entropy \
-    -subset_name train \
-    -sample_name sampled \
-    -unsample_name unsampled \
+    -i train \
+    -o sampled \
+    -u unsampled \
     -m topk \
     -k 20
 ```
