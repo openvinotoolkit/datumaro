@@ -2,8 +2,6 @@
 #
 # SPDX-License-Identifier: MIT
 
-import logging as log
-import os
 import os.path as osp
 import pickle
 
@@ -86,7 +84,6 @@ class CifarExtractor(SourceExtractor):
             item_id = osp.splitext(filename)[0]
             annotations = []
             if label != None:
-                label_name = label_categories[label].name
                 annotations.append(Label(label))
 
             image = images.get(item_id)

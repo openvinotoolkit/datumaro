@@ -5,8 +5,7 @@ import numpy as np
 from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import (AnnotationType, DatasetItem, Label,
     LabelCategories)
-from datumaro.plugins.cifar_format import (CifarConverter, CifarImporter,
-    CifarLabel)
+from datumaro.plugins.cifar_format import CifarConverter, CifarImporter
 from datumaro.util.image import Image
 from datumaro.util.test_utils import TestDir, compare_datasets
 
