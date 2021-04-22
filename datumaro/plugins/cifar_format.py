@@ -58,7 +58,6 @@ class CifarExtractor(SourceExtractor):
 
     def _load_items(self, path):
         items = {}
-        label_categories = self._categories[AnnotationType.label]
 
         image_dir = osp.join(osp.dirname(path), CifarPath.IMAGES_DIR)
         if osp.isdir(image_dir):
