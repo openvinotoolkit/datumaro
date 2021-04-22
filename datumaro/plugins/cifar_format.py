@@ -46,8 +46,8 @@ class CifarExtractor(SourceExtractor):
             # label_names: ['airplane', 'automobile', 'bird', 'cat', 'deer',
             #               'dog', 'frog', 'horse', 'ship', 'truck']
             # num_vis: 3072
-            with open(path, 'rb') as fo:
-                data = pickle.load(fo, encoding='latin1')
+            with open(path, 'rb') as labels_file:
+                data = pickle.load(labels_file)
             for label in data['label_names']:
                 label_cat.add(label)
         else:
@@ -70,8 +70,8 @@ class CifarExtractor(SourceExtractor):
         # 'data': ndarray
         # 'filenames': list
         # 'labels': list
-        with open(path, 'rb') as fo:
-            annotation_dict = pickle.load(fo, encoding='latin1')
+        with open(path, 'rb') as anno_file:
+            annotation_dict = pickle.load(anno_file)
 
         labels = annotation_dict.get('labels')
         filenames = annotation_dict.get('filenames')
@@ -120,8 +120,8 @@ class CifarConverter(Converter):
             label_names.append(label.name)
         labels_dict = { 'label_names': label_names }
         batches_meta_file = osp.join(self._save_dir, CifarPath.BATCHES_META)
-        with open(batches_meta_file, 'wb') as handle:
-            pickle.dump(labels_dict, handle)
+        with open(batches_meta_file, 'wb') as labels_file:
+            pickle.dump(labels_dict, labels_file)
 
         for subset_name, subset in self._extractor.subsets().items():
             filenames = []
@@ -161,7 +161,7 @@ class CifarConverter(Converter):
                 # 'image_sizes' isn't included in the standart format,
                 # needed for different image sizes
                 annotation_dict['image_sizes'] = [image_sizes.get(p, size)
-                                                    for p in range(len(data))]
+                    for p in range(len(data))]
 
             filename = '%s_batch' % subset_name
             batch_label = None
@@ -175,5 +175,5 @@ class CifarConverter(Converter):
                 annotation_dict['batch_label'] = batch_label
 
             annotation_file = osp.join(self._save_dir, filename)
-            with open(annotation_file, 'wb') as handle:
-                pickle.dump(annotation_dict, handle)
+            with open(annotation_file, 'wb') as labels_file:
+                pickle.dump(annotation_dict, labels_file)
