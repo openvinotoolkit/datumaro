@@ -75,14 +75,14 @@ class CifarExtractor(SourceExtractor):
         # 'labels': list
         with open(path, 'rb') as fo:
             annotation_dict = pickle.load(fo, encoding='latin1')
-        
-        labels = annotation_dict['labels']
-        filenames = annotation_dict['filenames']
-        images_data = annotation_dict['data']
-        images_data = images_data.reshape(images_data.shape[0], CifarPath.IMAGE_SIZE,
-            CifarPath.IMAGE_SIZE, 3).astype(np.uint8)
 
-        for filename, label, feature in zip(filenames, labels, images_data):
+        labels = annotation_dict.get('labels')
+        filenames = annotation_dict.get('filenames')
+        images_data = annotation_dict.get('data')
+        size = annotation_dict.get('image_sizes')
+
+        for i, (filename, label, image_data) in \
+                enumerate(zip(filenames, labels, images_data)):
             item_id = osp.splitext(filename)[0]
             annotations = []
             if label != None:
@@ -91,7 +91,13 @@ class CifarExtractor(SourceExtractor):
 
             image = images.get(item_id)
             if not image:
-                image = feature
+                image = image_data
+                if size and image.any():
+                    image = image.reshape(size[i][0],
+                        size[i][1], 3).astype(np.uint8)
+                elif image.any():
+                    image = image.reshape(CifarPath.IMAGE_SIZE,
+                        CifarPath.IMAGE_SIZE, 3).astype(np.uint8)
 
             items[item_id] = DatasetItem(id=item_id, subset=self._subset,
                 image=image, annotations=annotations)
@@ -120,18 +126,19 @@ class CifarConverter(Converter):
         batches_meta_file = osp.join(self._save_dir, CifarPath.BATCHES_META)
         with open(batches_meta_file, 'wb') as handle:
             pickle.dump(labels_dict, handle)
-        
+
         for subset_name, subset in self._extractor.subsets().items():
             filenames = []
             labels = []
             data = []
+            image_sizes = {}
             for item in subset:
                 filenames.append(item.id + self._find_image_ext(item))
 
                 if item.has_image and self._save_images:
                     self._save_image(item, osp.join(self._save_dir, CifarPath.IMAGES_DIR,
                         self._make_image_filename(item)))
-                
+
                 anns = [a.label for a in item.annotations
                     if a.type == AnnotationType.label]
                 label = None
@@ -140,12 +147,23 @@ class CifarConverter(Converter):
                 labels.append(label)
 
                 image = item.image.data
-                data.append(image.reshape(image.shape[0] * image.shape[1] * image.shape[2]))
-            
+                if not image.any():
+                    data.append(image)
+                else:
+                    data.append(image.reshape(image.shape[0] * image.shape[1] * \
+                        image.shape[2]).astype(np.uint8))
+                    if image.shape[0] != CifarPath.IMAGE_SIZE or \
+                            image.shape[1] != CifarPath.IMAGE_SIZE:
+                        image_sizes[len(data) - 1] = (image.shape[0], image.shape[1])
+
             annotation_dict = {}
             annotation_dict['filenames'] = filenames
             annotation_dict['labels'] = labels
-            annotation_dict['data'] = np.array(data, dtype=np.uint8)
+            annotation_dict['data'] = np.array(data)
+            if len(image_sizes):
+                size = (CifarPath.IMAGE_SIZE, CifarPath.IMAGE_SIZE)
+                annotation_dict['image_sizes'] = [image_sizes.get(p, size)
+                                                    for p in range(len(data))]
 
             filename = '%s_batch' % subset_name
             batch_label = None
@@ -157,7 +175,7 @@ class CifarConverter(Converter):
                 batch_label = 'testing batch 1 of 1'
             if batch_label:
                 annotation_dict['batch_label'] = batch_label
-                
+
             annotation_file = osp.join(self._save_dir, filename)
             with open(annotation_file, 'wb') as handle:
                 pickle.dump(annotation_dict, handle)

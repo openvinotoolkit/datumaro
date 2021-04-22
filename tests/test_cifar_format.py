@@ -58,6 +58,29 @@ class CifarFormatTest(TestCase):
             compare_datasets(self, source_dataset, parsed_dataset,
                 require_images=True)
 
+    def test_can_save_and_load_with_different_image_size(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id='image_1',
+                image=np.ones((10, 8, 3)),
+                annotations=[Label(0)]
+            ),
+            DatasetItem(id='image_2',
+                image=np.ones((32, 32, 3)),
+                annotations=[Label(1)]
+            ),
+        ], categories={
+            AnnotationType.label: LabelCategories.from_iterable(
+                'label' + str(label) for label in range(2)),
+        })
+
+        with TestDir() as test_dir:
+            CifarConverter.convert(source_dataset, test_dir, save_images=False)
+
+            parsed_dataset = Dataset.import_from(test_dir, 'cifar')
+
+            compare_datasets(self, source_dataset, parsed_dataset,
+                require_images=True)
+
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id="кириллица с пробелом",
