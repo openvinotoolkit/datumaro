@@ -162,6 +162,8 @@ class CifarConverter(Converter):
             annotation_dict['data'] = np.array(data)
             if len(image_sizes):
                 size = (CifarPath.IMAGE_SIZE, CifarPath.IMAGE_SIZE)
+                # 'image_sizes' isn't included in the standart format,
+                # needed for different image sizes
                 annotation_dict['image_sizes'] = [image_sizes.get(p, size)
                                                     for p in range(len(data))]
 
