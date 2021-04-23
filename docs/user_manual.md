@@ -113,7 +113,7 @@ List of supported formats:
   - [Dataset example](../tests/assets/imagenet_dataset)
   - [Dataset example (txt for classification)](../tests/assets/imagenet_txt_dataset)
   - Detection format is the same as in PASCAL VOC
-- CIFAR-10/100 (`classification`)
+- CIFAR-10/100 (`classification` (python version))
   - [Format specification](https://www.cs.toronto.edu/~kriz/cifar.html)
   - [Dataset example](../tests/assets/cifar_dataset)
 - CamVid (`segmentation`)

@@ -24,6 +24,9 @@ CifarLabel = ['airplane', 'automobile', 'bird', 'cat',
 
 class CifarExtractor(SourceExtractor):
     def __init__(self, path, subset=None):
+        if not osp.isfile(path):
+            raise Exception("Can't read annotation file '%s'" % path)
+
         if not subset:
             file_name = osp.splitext(osp.basename(path))[0]
             if file_name.startswith(CifarPath.TRAIN_ANNOTATION_FILE):
@@ -73,10 +76,15 @@ class CifarExtractor(SourceExtractor):
         with open(path, 'rb') as anno_file:
             annotation_dict = pickle.load(anno_file)
 
-        labels = annotation_dict.get('labels')
-        filenames = annotation_dict.get('filenames')
-        images_data = annotation_dict.get('data')
+        labels = annotation_dict.get('labels', [])
+        filenames = annotation_dict.get('filenames', [])
+        images_data = annotation_dict.get('data', [])
         size = annotation_dict.get('image_sizes')
+        if len(labels) != len(filenames) or \
+                len(filenames) != len(images_data) or \
+                len(labels) != len(images_data):
+            raise Exception("The sizes of the arrays 'data', " \
+                "'file names', 'labels' don't match.")
 
         for i, (filename, label, image_data) in \
                 enumerate(zip(filenames, labels, images_data)):
