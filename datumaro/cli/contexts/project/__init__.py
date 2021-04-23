@@ -8,6 +8,7 @@ import logging as log
 import os
 import os.path as osp
 import shutil
+import numpy as np
 from enum import Enum
 
 from datumaro.components.dataset_filter import DatasetItemEncoder
@@ -815,7 +816,7 @@ def validate_command(args):
     project = load_project(args.project_dir)
     task_type = args.task_type
     subset_name = args.subset_name
-    dst_file_name = 'validation_results'
+    dst_file_name = f'validation_results-{task_type}'
 
     dataset = project.make_dataset()
     if subset_name is not None:
@@ -823,15 +824,19 @@ def validate_command(args):
         dst_file_name += f'-{subset_name}'
     validation_results = validate_annotations(dataset, task_type)
 
-    def _convert_tuple_keys_to_str(d):
+    def _make_serializable(d):
         for key, val in list(d.items()):
+            # tuple key to str
             if isinstance(key, tuple):
                 d[str(key)] = val
                 d.pop(key)
-            if isinstance(val, dict):
-                _convert_tuple_keys_to_str(val)
 
-    _convert_tuple_keys_to_str(validation_results)
+            if isinstance(val, np.uint32):  # uint32 to str
+                d[key] = str(val)
+            elif isinstance(val, dict):
+                _make_serializable(val)
+
+    _make_serializable(validation_results)
 
     dst_file = generate_next_file_name(dst_file_name, ext='.json')
     log.info("Writing project validation results to '%s'" % dst_file)
