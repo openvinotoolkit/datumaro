@@ -152,7 +152,7 @@ class CifarConverter(Converter):
 
                 image = item.image
                 if image is None or image.data is None:
-                    data.append(image)
+                    data.append(None)
                 else:
                     image = image.data
                     data.append(image.reshape(image.shape[0] * image.shape[1] * \
