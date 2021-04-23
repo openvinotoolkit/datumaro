@@ -88,10 +88,10 @@ class CifarExtractor(SourceExtractor):
             image = images.get(item_id)
             if not image:
                 image = image_data
-                if size and image.any():
+                if size is not None and image is not None:
                     image = image.reshape(size[i][0],
                         size[i][1], 3).astype(np.uint8)
-                elif image.any():
+                elif image is not None:
                     image = image.reshape(CifarPath.IMAGE_SIZE,
                         CifarPath.IMAGE_SIZE, 3).astype(np.uint8)
 
@@ -142,10 +142,11 @@ class CifarConverter(Converter):
                     label = anns[0]
                 labels.append(label)
 
-                image = item.image.data
-                if not image.any():
+                image = item.image
+                if image is None or image.data is None:
                     data.append(image)
                 else:
+                    image = image.data
                     data.append(image.reshape(image.shape[0] * image.shape[1] * \
                         image.shape[2]).astype(np.uint8))
                     if image.shape[0] != CifarPath.IMAGE_SIZE or \

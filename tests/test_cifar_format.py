@@ -112,6 +112,20 @@ class CifarFormatTest(TestCase):
             compare_datasets(self, dataset, parsed_dataset,
                 require_images=True)
 
+    def test_can_save_and_load_empty_image(self):
+        dataset = Dataset.from_iterable([
+            DatasetItem(id='a', annotations=[Label(0)]),
+            DatasetItem(id='b'),
+        ], categories=['label_0'])
+
+        with TestDir() as test_dir:
+            CifarConverter.convert(dataset, test_dir, save_images=True)
+
+            parsed_dataset = Dataset.import_from(test_dir, 'cifar')
+
+            compare_datasets(self, dataset, parsed_dataset,
+                require_images=True)
+
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'cifar_dataset')
 
 class CifarImporterTest(TestCase):
