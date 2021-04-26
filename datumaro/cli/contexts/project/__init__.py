@@ -408,7 +408,7 @@ def filter_command(args):
             dst_dir = generate_next_file_name('%s-filter' % \
                 project.config.project_name)
         else:
-            dst_dir = project.sources.data_dir(args.target)
+            dst_dir = project.sources.work_dir(args.target)
         dst_dir = osp.abspath(dst_dir)
 
     filter_args = FilterModes.make_filter_args(args.mode)
@@ -619,7 +619,7 @@ def transform_command(args):
             dst_dir = generate_next_file_name('%s-%s' % \
                 (project.config.project_name, make_file_name(args.transform)))
         else:
-            dst_dir = project.sources.data_dir(args.target)
+            dst_dir = project.sources.work_dir(args.target)
 
     dst_dir = osp.abspath(dst_dir)
 
@@ -714,6 +714,8 @@ def build_stats_parser(parser_ctor=argparse.ArgumentParser):
         """,
         formatter_class=MultilineFormatter)
 
+    parser.add_argument('target', default='project', nargs='?',
+        help="Project target (default: project)")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to operate on (default: current dir)")
     parser.set_defaults(command=stats_command)
@@ -740,6 +742,8 @@ def build_info_parser(parser_ctor=argparse.ArgumentParser):
         """,
         formatter_class=MultilineFormatter)
 
+    parser.add_argument('target', default='project', nargs='?',
+        help="Project target (default: project)")
     parser.add_argument('--all', action='store_true',
         help="Print all information")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
@@ -777,7 +781,7 @@ def info_command(args):
         if source.remote:
             print("    remote:",
                 "%(url)s (%(type)s)" % project.vcs.remotes[source.remote])
-        print("    location:", project.sources.data_dir(source_name))
+        print("    location:", project.sources.work_dir(source_name))
         print("    options:", source.options)
 
     def print_extractor_info(extractor, indent=''):
@@ -823,14 +827,16 @@ def info_command(args):
 def build_validate_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(help="Validate project",
         description="""
-            Validates project based on specified task type and stores
-            results like statistics, reports and summary in JSON file.
+            Validates a project according to the task type and
+            reports summary in a JSON file.
         """,
         formatter_class=MultilineFormatter)
 
     parser.add_argument('task_type',
         choices=[task_type.name for task_type in TaskType],
         help="Task type for validation")
+    parser.add_argument('target', default='project', nargs='?',
+        help="Project build target to validate (default: project)")
     parser.add_argument('-s', '--subset', dest='subset_name', default=None,
         help="Subset to validate (default: None)")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
@@ -845,10 +851,10 @@ def validate_command(args):
     subset_name = args.subset_name
     dst_file_name = 'validation_results'
 
-    dataset = project.make_dataset()
+    dataset = project.make_dataset(args.target)
     if subset_name is not None:
         dataset = dataset.get_subset(subset_name)
-        dst_file_name += f'-{subset_name}'
+        dst_file_name += f'-{args.target}-{subset_name}'
     validation_results = validate_annotations(dataset, task_type)
 
     def _convert_tuple_keys_to_str(d):

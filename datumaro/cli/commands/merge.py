@@ -37,7 +37,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     def _group(s):
         return s.split(',')
 
-    parser.add_argument('project', nargs='+', action=at_least(2),
+    parser.add_argument('targets', nargs='*',
         help="Path to a project (repeatable)")
     parser.add_argument('-iou', '--iou-thresh', default=0.25, type=float,
         help="IoU match threshold for segments (default: %(default)s)")
@@ -57,6 +57,8 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         help="Output directory (default: current project's dir)")
     parser.add_argument('--overwrite', action='store_true',
         help="Overwrite existing files in the save directory")
+    parser.add_argument('-p', '--project', dest='project_dir', default='.',
+        help="Directory of the project to operate on (default: current dir)")
     parser.set_defaults(command=merge_command)
 
     return parser

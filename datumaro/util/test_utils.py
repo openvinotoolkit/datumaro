@@ -3,6 +3,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+from glob import glob
 import inspect
 import os
 import os.path as osp
@@ -157,3 +158,16 @@ def test_save_and_load(test, source_dataset, converter, test_dir, importer,
     if not compare:
         compare = compare_datasets
     compare(test, expected=target_dataset, actual=parsed_dataset, **kwargs)
+
+def compare_dirs(test, a, b):
+    for a_path in glob(osp.join(a, '**', '*'), recursive=True):
+        rel_path = osp.relpath(a_path, a)
+        b_path = osp.join(b, rel_path)
+        if osp.isdir(a_path):
+            test.assertTrue(osp.isdir(b_path), rel_path)
+            continue
+
+        test.assertTrue(osp.isfile(b_path), rel_path)
+        with open(a_path, 'rb') as a_file, \
+                open(b_path, 'rb') as b_file:
+            test.assertEqual(a_file.read(), b_file.read(), rel_path)

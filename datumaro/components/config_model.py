@@ -105,6 +105,9 @@ PROJECT_SCHEMA = _SchemaBuilder() \
     .add('dvc_aux_dir', str, internal=True) \
     .add('pipelines_dir', str, internal=True) \
     .add('build_dir', str, internal=True) \
+    .add('cache_dir', str, internal=True) \
+    .add('revisions_dir', str, internal=True) \
+    \
     .add('project_filename', str, internal=True) \
     .add('project_dir', str, internal=True) \
     .add('env_dir', str, internal=True) \
@@ -121,6 +124,8 @@ PROJECT_DEFAULT_CONFIG = Config({
     'dvc_aux_dir': 'dvc_aux',
     'pipelines_dir': 'dvc_pipelines',
     'build_dir': 'build',
+    'cache_dir': 'cache',
+    'revisions_dir': 'revisions',
 
     'default_repo': 'origin',
     'project_filename': 'config.yaml',

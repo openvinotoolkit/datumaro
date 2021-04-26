@@ -35,7 +35,7 @@ class ProjectSourceDataset(Dataset):
     def from_source(cls, project: 'Project', source: str):
         config = project.sources[source]
 
-        path = osp.join(project.sources.data_dir(source), config.url)
+        path = osp.join(project.sources.work_dir(source), config.url)
         readonly = not path or not osp.exists(path)
         if path and not osp.exists(path) and not config.remote:
             # backward compatibility
@@ -226,10 +226,19 @@ class _DataSourceBase(CrudProxy):
     def _make_remote_name(cls, name):
         return name
 
-    def data_dir(self, name):
+    def work_dir(self, name: str) -> str:
         return osp.join(self._project.config.project_dir, name)
 
-    def validate_name(self, name):
+    def cache_dir(self, name: str, rev: str) -> str:
+        return osp.join(
+            self._project.config.project_dir,
+            self._project.config.env_dir,
+            self._project.config.cache_dir,
+            name,
+            self._project.config.revisions_dir,
+            rev)
+
+    def validate_name(self, name: str):
         valid_filename = make_file_name(name)
         if valid_filename != name:
             raise ValueError("Source name contains "
@@ -308,7 +317,7 @@ class _DataSourceBase(CrudProxy):
                 })
                 path = ''
 
-            source_dir = self.data_dir(name)
+            source_dir = self.work_dir(name)
 
             dvcfile = self.dvcfile_path(name)
             if not osp.isfile(dvcfile):
@@ -358,7 +367,7 @@ class _DataSourceBase(CrudProxy):
             return
 
         if force and not keep_data:
-            source_dir = self.data_dir(name)
+            source_dir = self.work_dir(name)
             if osp.isdir(source_dir):
                 shutil.rmtree(source_dir, ignore_errors=True)
 
@@ -384,7 +393,7 @@ class ProjectModels(_DataSourceBase):
         except KeyError:
             raise KeyError("Unknown model '%s'" % name)
 
-    def data_dir(self, name):
+    def work_dir(self, name):
         return osp.join(
             self._project.config.project_dir,
             self._project.config.env_dir,
@@ -393,7 +402,7 @@ class ProjectModels(_DataSourceBase):
     def make_executable_model(self, name):
         model = self[name]
         return self._project.env.make_launcher(model.launcher,
-            **model.options, model_dir=self.data_dir(name))
+            **model.options, model_dir=self.work_dir(name))
 
 class ProjectSources(_DataSourceBase):
     def __init__(self, project):
@@ -405,7 +414,7 @@ class ProjectSources(_DataSourceBase):
         except KeyError:
             raise KeyError("Unknown source '%s'" % name)
 
-    def make_dataset(self, name):
+    def make_dataset(self, name, rev=None):
         return ProjectSourceDataset.from_source(self._project, name)
 
     def validate_name(self, name):
@@ -1666,7 +1675,7 @@ class ProjectVcs:
             raise ReadonlyProjectError("Can't update a read-only repository")
 
         if paths is None:
-            paths = [self._project.sources.data_dir(source)
+            paths = [self._project.sources.work_dir(source)
                     for source in self._project.sources] + \
                 [self._project.config.build_dir]
         self.git.ignore(paths, mode='append')
