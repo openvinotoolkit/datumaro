@@ -9,7 +9,6 @@ import numpy as np
 from datumaro.components.converter import Converter
 from datumaro.components.extractor import (AnnotationType, DatasetItem,
     Importer, Label, LabelCategories, SourceExtractor)
-from datumaro.util.image import find_images
 
 
 class CifarPath:
