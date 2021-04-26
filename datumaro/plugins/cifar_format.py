@@ -21,6 +21,7 @@ class CifarPath:
 CifarLabel = ['airplane', 'automobile', 'bird', 'cat',
     'deer', 'dog', 'frog', 'horse', 'ship', 'truck']
 
+# Support for Python version CIFAR-10/100
 
 class CifarExtractor(SourceExtractor):
     def __init__(self, path, subset=None):
@@ -62,13 +63,6 @@ class CifarExtractor(SourceExtractor):
     def _load_items(self, path):
         items = {}
 
-        image_dir = osp.join(osp.dirname(path), CifarPath.IMAGES_DIR)
-        if osp.isdir(image_dir):
-            images = { osp.splitext(osp.relpath(p, image_dir))[0]: p
-                for p in find_images(image_dir, recursive=True) }
-        else:
-            images = {}
-
         # 'batch_label': 'training batch 1 of 5'
         # 'data': ndarray
         # 'filenames': list
@@ -78,24 +72,26 @@ class CifarExtractor(SourceExtractor):
 
         labels = annotation_dict.get('labels', [])
         filenames = annotation_dict.get('filenames', [])
-        images_data = annotation_dict.get('data', [])
+        images_data = annotation_dict.get('data')
         size = annotation_dict.get('image_sizes')
-        if len(labels) != len(filenames) or \
-                len(filenames) != len(images_data) or \
-                len(labels) != len(images_data):
+        if len(labels) != len(filenames):
+            raise Exception("The sizes of the arrays 'filenames', " \
+                "'labels' don't match.")
+        if 0 < len(images_data) and \
+                len(images_data) != len(filenames):
             raise Exception("The sizes of the arrays 'data', " \
-                "'file names', 'labels' don't match.")
+                "'filenames', 'labels' don't match.")
 
-        for i, (filename, label, image_data) in \
-                enumerate(zip(filenames, labels, images_data)):
+        for i, (filename, label) in \
+                enumerate(zip(filenames, labels)):
             item_id = osp.splitext(filename)[0]
             annotations = []
             if label != None:
                 annotations.append(Label(label))
 
-            image = images.get(item_id)
-            if not image:
-                image = image_data
+            image = None
+            if 0 < len(images_data):
+                image = images_data[i]
                 if size is not None and image is not None:
                     image = image.reshape(size[i][0],
                         size[i][1], 3).astype(np.uint8)
@@ -139,10 +135,6 @@ class CifarConverter(Converter):
             for item in subset:
                 filenames.append(item.id + self._find_image_ext(item))
 
-                if item.has_image and self._save_images:
-                    self._save_image(item, osp.join(self._save_dir, CifarPath.IMAGES_DIR,
-                        self._make_image_filename(item)))
-
                 anns = [a.label for a in item.annotations
                     if a.type == AnnotationType.label]
                 label = None
@@ -150,16 +142,17 @@ class CifarConverter(Converter):
                     label = anns[0]
                 labels.append(label)
 
-                image = item.image
-                if image is None or image.data is None:
-                    data.append(None)
-                else:
-                    image = image.data
-                    data.append(image.reshape(image.shape[0] * image.shape[1] * \
-                        image.shape[2]).astype(np.uint8))
-                    if image.shape[0] != CifarPath.IMAGE_SIZE or \
-                            image.shape[1] != CifarPath.IMAGE_SIZE:
-                        image_sizes[len(data) - 1] = (image.shape[0], image.shape[1])
+                if item.has_image and self._save_images:
+                    image = item.image
+                    if image is None or image.data is None:
+                        data.append(None)
+                    else:
+                        image = image.data
+                        data.append(image.reshape(image.shape[0] * image.shape[1] * \
+                            image.shape[2]).astype(np.uint8))
+                        if image.shape[0] != CifarPath.IMAGE_SIZE or \
+                                image.shape[1] != CifarPath.IMAGE_SIZE:
+                            image_sizes[len(data) - 1] = (image.shape[0], image.shape[1])
 
             annotation_dict = {}
             annotation_dict['filenames'] = filenames

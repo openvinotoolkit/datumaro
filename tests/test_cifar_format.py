@@ -28,7 +28,6 @@ class CifarFormatTest(TestCase):
 
         with TestDir() as test_dir:
             CifarConverter.convert(source_dataset, test_dir, save_images=True)
-
             parsed_dataset = Dataset.import_from(test_dir, 'cifar')
 
             compare_datasets(self, source_dataset, parsed_dataset,
@@ -37,11 +36,9 @@ class CifarFormatTest(TestCase):
     def test_can_save_and_load_without_saving_images(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='a',
-                image=np.ones((32, 32, 3)),
                 annotations=[Label(0)]
             ),
             DatasetItem(id='b',
-                image=np.ones((32, 32, 3)),
                 annotations=[Label(1)]
             ),
         ], categories={
@@ -51,7 +48,6 @@ class CifarFormatTest(TestCase):
 
         with TestDir() as test_dir:
             CifarConverter.convert(source_dataset, test_dir, save_images=False)
-
             parsed_dataset = Dataset.import_from(test_dir, 'cifar')
 
             compare_datasets(self, source_dataset, parsed_dataset,
@@ -73,8 +69,7 @@ class CifarFormatTest(TestCase):
         })
 
         with TestDir() as test_dir:
-            CifarConverter.convert(source_dataset, test_dir, save_images=False)
-
+            CifarConverter.convert(source_dataset, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'cifar')
 
             compare_datasets(self, source_dataset, parsed_dataset,
@@ -90,7 +85,6 @@ class CifarFormatTest(TestCase):
 
         with TestDir() as test_dir:
             CifarConverter.convert(source_dataset, test_dir, save_images=True)
-
             parsed_dataset = Dataset.import_from(test_dir, 'cifar')
 
             compare_datasets(self, source_dataset, parsed_dataset,
@@ -106,7 +100,6 @@ class CifarFormatTest(TestCase):
 
         with TestDir() as test_dir:
             CifarConverter.convert(dataset, test_dir, save_images=True)
-
             parsed_dataset = Dataset.import_from(test_dir, 'cifar')
 
             compare_datasets(self, dataset, parsed_dataset,
@@ -115,12 +108,11 @@ class CifarFormatTest(TestCase):
     def test_can_save_and_load_empty_image(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id='a', annotations=[Label(0)]),
-            DatasetItem(id='b'),
+            DatasetItem(id='b')
         ], categories=['label_0'])
 
         with TestDir() as test_dir:
             CifarConverter.convert(dataset, test_dir, save_images=True)
-
             parsed_dataset = Dataset.import_from(test_dir, 'cifar')
 
             compare_datasets(self, dataset, parsed_dataset,
