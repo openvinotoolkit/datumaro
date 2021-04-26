@@ -26,7 +26,7 @@ CifarLabel = ['airplane', 'automobile', 'bird', 'cat',
 class CifarExtractor(SourceExtractor):
     def __init__(self, path, subset=None):
         if not osp.isfile(path):
-            raise Exception("Can't read annotation file '%s'" % path)
+            raise FileNotFoundError("Can't read annotation file '%s'" % path)
 
         if not subset:
             file_name = osp.splitext(osp.basename(path))[0]
@@ -74,16 +74,16 @@ class CifarExtractor(SourceExtractor):
         filenames = annotation_dict.get('filenames', [])
         images_data = annotation_dict.get('data')
         size = annotation_dict.get('image_sizes')
+
         if len(labels) != len(filenames):
             raise Exception("The sizes of the arrays 'filenames', " \
                 "'labels' don't match.")
-        if 0 < len(images_data) and \
-                len(images_data) != len(filenames):
+
+        if 0 < len(images_data) and len(images_data) != len(filenames):
             raise Exception("The sizes of the arrays 'data', " \
                 "'filenames', 'labels' don't match.")
 
-        for i, (filename, label) in \
-                enumerate(zip(filenames, labels)):
+        for i, (filename, label) in enumerate(zip(filenames, labels)):
             item_id = osp.splitext(filename)[0]
             annotations = []
             if label != None:
@@ -109,8 +109,8 @@ class CifarImporter(Importer):
     @classmethod
     def find_sources(cls, path):
         return cls._find_sources_recursive(path, '', 'cifar',
-            file_filter=lambda p: osp.basename(p) != CifarPath.BATCHES_META and \
-                osp.basename(p) != CifarPath.IMAGES_DIR)
+            file_filter=lambda p: osp.basename(p) not in
+                {CifarPath.BATCHES_META, CifarPath.IMAGES_DIR})
 
 
 class CifarConverter(Converter):
@@ -144,12 +144,11 @@ class CifarConverter(Converter):
 
                 if item.has_image and self._save_images:
                     image = item.image
-                    if image is None or image.data is None:
+                    if not image.has_data:
                         data.append(None)
                     else:
                         image = image.data
-                        data.append(image.reshape(image.shape[0] * image.shape[1] * \
-                            image.shape[2]).astype(np.uint8))
+                        data.append(image.reshape(-1).astype(np.uint8))
                         if image.shape[0] != CifarPath.IMAGE_SIZE or \
                                 image.shape[1] != CifarPath.IMAGE_SIZE:
                             image_sizes[len(data) - 1] = (image.shape[0], image.shape[1])
@@ -168,10 +167,10 @@ class CifarConverter(Converter):
             filename = '%s_batch' % subset_name
             batch_label = None
             if subset_name.startswith('train_') and \
-                    cast(subset_name.split('_')[1], int):
+                    cast(subset_name.split('_')[1], int) is not None:
                 num = subset_name.split('_')[1]
                 filename = CifarPath.TRAIN_ANNOTATION_FILE + num
-                batch_label = 'training batch %s of 5' % num,
+                batch_label = 'training batch %s of 5' % (num, )
             if subset_name == 'test':
                 batch_label = 'testing batch 1 of 1'
             if batch_label:
