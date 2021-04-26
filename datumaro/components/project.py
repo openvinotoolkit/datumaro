@@ -791,11 +791,54 @@ class ProjectBuildTargets(CrudProxy):
         if len(self._data) == 1 and self.MAIN_TARGET in self._data:
             raise DatumaroError("Can't create dataset from an empty project.")
 
+        verify_target_revpath(target)
+        rev, target = expand_target_revpath(target)
+
         target = self._normalize_target(target)
+
+        pipeline = get_target_pipeline(target, rev=rev)
+        pipeline = build_pipeline(pipeline)
+        dataset = pipeline.head.dataset
+
 
         pipeline = self.make_pipeline(target)
         graph, head = self.apply_pipeline(pipeline)
         return graph.nodes[head]['dataset']
+
+    def find_missing_sources(self, pipeline):
+        missing_sources = set()
+        checked_deps = set()
+        missing_deps = [pipeline.head.name]
+        while missing_deps:
+            t = missing_deps.pop()
+            if t in checked_deps:
+                continue
+
+            t_conf = pipeline[t].config
+
+            if not (t_conf.hash and self.has_cache_entry(t_conf.hash)):
+                parent_targets = pipeline.parents(t)
+                if not parent_targets:
+                    assert t_conf.type == 'source'
+                    if not is_generated(t_conf):
+                        missing_sources.add(t)
+                else:
+                    for p in parent_targets:
+                        if p not in checked_deps:
+                            missing_deps.append(p)
+                    continue
+
+            checked_deps.add(t)
+        return missing_sources
+
+    def build_pipeline(self, pipeline):
+        missing_sources = self.find_missing_sources(pipeline)
+        for t in missing_sources:
+            self.download_source(pipeline[t].config) # set hash in config if the source was not downloaded
+
+        self.apply_pipeline(pipeline) # make forward pass
+        self.save_cached_dataset(pipeline) # update hash in config!
+        return pipeline
 
     def _normalize_target(self, target):
         if '.' not in target:

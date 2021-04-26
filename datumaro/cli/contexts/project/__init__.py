@@ -725,7 +725,8 @@ def build_stats_parser(parser_ctor=argparse.ArgumentParser):
 def stats_command(args):
     project = load_project(args.project_dir)
 
-    dataset = project.make_dataset()
+    dataset = project.make_dataset(args.target)
+
     stats = {}
     stats.update(compute_image_statistics(dataset))
     stats.update(compute_ann_statistics(dataset))
