@@ -9,6 +9,7 @@ import numpy as np
 from datumaro.components.converter import Converter
 from datumaro.components.extractor import (AnnotationType, DatasetItem,
     Importer, Label, LabelCategories, SourceExtractor)
+from datumaro.util import cast
 
 
 class CifarPath:
@@ -32,7 +33,7 @@ class CifarExtractor(SourceExtractor):
             if file_name.startswith(CifarPath.TRAIN_ANNOTATION_FILE):
                 subset = 'train_%s' % file_name.split('_')[-1]
             else:
-                subset = file_name.split('_')[0]
+                subset = file_name.rsplit('_', maxsplit=1)[0]
 
         super().__init__(subset=subset)
 
@@ -166,10 +167,11 @@ class CifarConverter(Converter):
 
             filename = '%s_batch' % subset_name
             batch_label = None
-            if subset_name.startswith('train_'):
+            if subset_name.startswith('train_') and \
+                    cast(subset_name.split('_')[1], int):
                 num = subset_name.split('_')[1]
                 filename = CifarPath.TRAIN_ANNOTATION_FILE + num
-                batch_label = 'training batch %s of 5' % num
+                batch_label = 'training batch %s of 5' % num,
             if subset_name == 'test':
                 batch_label = 'testing batch 1 of 1'
             if batch_label:

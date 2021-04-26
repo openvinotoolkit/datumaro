@@ -35,10 +35,10 @@ class CifarFormatTest(TestCase):
 
     def test_can_save_and_load_without_saving_images(self):
         source_dataset = Dataset.from_iterable([
-            DatasetItem(id='a',
+            DatasetItem(id='a', subset='train_1',
                 annotations=[Label(0)]
             ),
-            DatasetItem(id='b',
+            DatasetItem(id='b', subset='train_first',
                 annotations=[Label(1)]
             ),
         ], categories={
