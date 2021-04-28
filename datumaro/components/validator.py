@@ -963,9 +963,13 @@ class SegmentationValidator(_Validator):
             mask_has_error = False
 
             _x, _y, _w, _h = ann.get_bbox()
-            if ann.type == AnnotationType.mask:  # temp.
+
+            # Detete the following block when #226 is resolved
+            # https://github.com/openvinotoolkit/datumaro/issues/226
+            if ann.type == AnnotationType.mask:
                 _w += 1
                 _h += 1
+
             area = ann.get_area()
 
             ann_mask_info = _generate_ann_mask_info(area, _w, _h)
@@ -1039,7 +1043,10 @@ class SegmentationValidator(_Validator):
             mask_label_stats = dist_by_label[label_name]
 
             _x, _y, _w, _h = ann.get_bbox()
-            if ann.type == AnnotationType.mask:  # temp.
+
+            # Detete the following block when #226 is resolved
+            # https://github.com/openvinotoolkit/datumaro/issues/226
+            if ann.type == AnnotationType.mask:
                 _w += 1
                 _h += 1
             area = ann.get_area()
