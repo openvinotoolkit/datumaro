@@ -85,7 +85,7 @@ class _TaskConverter:
     def save_categories(self, dataset):
         raise NotImplementedError()
 
-    def save_annotations(self, item):
+    def save_annotations(self, item, segmentation_path=None):
         raise NotImplementedError()
 
     def write(self, path):
@@ -125,14 +125,14 @@ class _ImageInfoConverter(_TaskConverter):
     def save_categories(self, dataset):
         pass
 
-    def save_annotations(self, item):
+    def save_annotations(self, item, segmentation_path=None):
         pass
 
 class _CaptionsConverter(_TaskConverter):
     def save_categories(self, dataset):
         pass
 
-    def save_annotations(self, item):
+    def save_annotations(self, item, segmentation_path=None):
         for ann_idx, ann in enumerate(item.annotations):
             if ann.type != AnnotationType.caption:
                 continue
@@ -257,7 +257,7 @@ class _InstancesConverter(_TaskConverter):
     def find_instances(cls, annotations):
         return anno_tools.find_instances(cls.find_instance_anns(annotations))
 
-    def save_annotations(self, item):
+    def save_annotations(self, item, segmentation_path=None):
         instances = self.find_instances(item.annotations)
         if not instances:
             return
@@ -357,7 +357,7 @@ class _KeypointsConverter(_InstancesConverter):
                     })
             self.categories.append(cat)
 
-    def save_annotations(self, item):
+    def save_annotations(self, item, segmentation_path=None):
         point_annotations = [a for a in item.annotations
             if a.type == AnnotationType.points]
         if not point_annotations:
@@ -371,7 +371,7 @@ class _KeypointsConverter(_InstancesConverter):
             self.annotations.append(elem)
 
         # Create annotations for complete instance + keypoints annotations
-        super().save_annotations(item)
+        super().save_annotations(item, segmentation_path)
 
     @classmethod
     def find_solitary_points(cls, annotations):
@@ -428,7 +428,7 @@ class _LabelsConverter(_TaskConverter):
                 'supercategory': cast(cat.parent, str, ''),
             })
 
-    def save_annotations(self, item):
+    def save_annotations(self, item, segmentation_path=None):
         for ann in item.annotations:
             if ann.type != AnnotationType.label:
                 continue
@@ -450,6 +450,70 @@ class _LabelsConverter(_TaskConverter):
                     elem['attributes'] = attrs
 
             self.annotations.append(elem)
+
+class _StuffConverter(_InstancesConverter):
+    pass
+
+class _PanopticConverter(_TaskConverter):
+    def save_categories(self, dataset):
+        label_categories = dataset.categories().get(AnnotationType.label)
+        if label_categories is None:
+            return
+
+        for idx, cat in enumerate(label_categories.items):
+            self.categories.append({
+                'id': 1 + idx,
+                'name': cast(cat.name, str, ''),
+                'supercategory': cast(cat.parent, str, ''),
+            })
+
+    def save_annotations(self, item, segmentation_path=None):
+        if not item.has_image:
+            return
+
+        import numpy as np
+        import PIL.Image as Image
+        image_id = str(item.id)
+        filename = image_id + CocoPath.PANOPTIC_EXT
+        pan_format = np.zeros(item.image.size, dtype=np.uint32)
+
+        def id2rgb(id_map):
+            id_map_copy = id_map.copy()
+            rgb_shape = tuple(list(id_map.shape) + [3])
+            rgb_map = np.zeros(rgb_shape, dtype=np.uint8)
+            for i in range(3):
+                rgb_map[..., i] = id_map_copy % 256
+                id_map_copy //= 256
+            return rgb_map
+
+        segments_info = list()
+        for ann in item.annotations:
+            if ann.type != AnnotationType.mask:
+                continue
+
+            segment_info = {}
+            segment_info['id'] = ann.id
+            segment_info['category_id'] = ann.label
+            segment_info['area'] = float(ann.get_area())
+            segment_info['bbox'] = list(ann.get_bbox())
+            segment_info['iscrowd'] = int(ann.attributes.get('is_crowd', 0))
+            segments_info.append(segment_info)
+            mask = mask_utils.decode(ann.rle) == 1
+            pan_format[mask] = ann.id
+
+        if segmentation_path:
+            os.makedirs(segmentation_path, exist_ok=True)
+            Image.fromarray(id2rgb(pan_format)).save(
+                os.path.join(segmentation_path, filename)
+            )
+
+        elem = {
+            'id': item.id,
+            'image_id': image_id,
+            'file_name': filename,
+            'segments_info': segments_info
+        }
+        self.annotations.append(elem)
 
 class CocoConverter(Converter):
     @staticmethod
@@ -497,6 +561,8 @@ class CocoConverter(Converter):
         CocoTask.person_keypoints: _KeypointsConverter,
         CocoTask.captions: _CaptionsConverter,
         CocoTask.labels: _LabelsConverter,
+        CocoTask.panoptic: _PanopticConverter,
+        CocoTask.stuff: _StuffConverter,
     }
 
     def __init__(self, extractor, save_dir,
@@ -576,10 +642,12 @@ class CocoConverter(Converter):
                             '' if self._merge_images else subset_name))
                     else:
                         log.debug("Item '%s' has no image info", item.id)
+                segmentation_path = osp.join(self._ann_dir,
+                    'panoptic' + ('' if self._merge_images else "_"+ subset_name))
                 for task_conv in task_converters.values():
                     task_conv.save_image_info(item,
                         self._make_image_filename(item))
-                    task_conv.save_annotations(item)
+                    task_conv.save_annotations(item, segmentation_path=segmentation_path)
 
             for task, task_conv in task_converters.items():
                 if task_conv.is_empty() and not self._tasks:
@@ -637,3 +705,14 @@ class CocoLabelsConverter(CocoConverter):
     def __init__(self, *args, **kwargs):
         kwargs['tasks'] = CocoTask.labels
         super().__init__(*args, **kwargs)
+
+class CocoPanopticConverter(CocoConverter):
+    def __init__(self, *args, **kwargs):
+        kwargs['tasks'] = CocoTask.panoptic
+        super().__init__(*args, **kwargs)
+
+class CocoStuffConverter(CocoConverter):
+    def __init__(self, *args, **kwargs):
+        kwargs['tasks'] = CocoTask.stuff
+        super().__init__(*args, **kwargs)
+        self._segmentation_mode = SegmentationMode.mask

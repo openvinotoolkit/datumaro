@@ -7,7 +7,7 @@ from unittest import TestCase
 
 from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import (DatasetItem,
-    AnnotationType, Label, Mask, Points, Polygon, Bbox, Caption,
+    AnnotationType, Label, Mask, RleMask, Points, Polygon, Bbox, Caption,
     LabelCategories, PointsCategories
 )
 from datumaro.plugins.coco_format.converter import (
@@ -17,6 +17,8 @@ from datumaro.plugins.coco_format.converter import (
     CocoInstancesConverter,
     CocoPersonKeypointsConverter,
     CocoLabelsConverter,
+    CocoPanopticConverter,
+    CocoStuffConverter,
 )
 from datumaro.plugins.coco_format.importer import CocoImporter
 from datumaro.util.image import Image
@@ -142,6 +144,49 @@ class CocoImporterTest(TestCase):
 
         compare_datasets(self, expected_dataset, dataset)
 
+    def test_can_import_panoptic(self):
+        import pycocotools.mask as mask_utils
+        rle = mask_utils.encode(np.asfortranarray(np.ones([10, 5], dtype=np.uint8)))
+        rle['counts'] = rle['counts'].decode('utf8')
+
+        expected_dataset = Dataset.from_iterable([
+            DatasetItem(id='1',
+                image=np.ones((10, 5, 3)),
+                subset='val',
+                attributes={'id': 1},
+                annotations=[
+                    RleMask(rle=rle, label=1, id=1, group=0,
+                        attributes={'iscrowd': False}),
+                ]
+            ),
+        ], categories={
+            AnnotationType.label: LabelCategories.from_iterable(['TEST']),
+        })
+
+        dataset = Dataset.import_from(
+            osp.join(DUMMY_DATASET_DIR, 'coco_panoptic'), 'coco')
+
+        compare_datasets(self, expected_dataset, dataset, require_images=True)
+
+    def test_can_import_stuff(self):
+        expected_dataset = Dataset.from_iterable([
+            DatasetItem(id='000000000001', image=np.ones((10, 5, 3)),
+                subset='val', attributes={'id': 1},
+                annotations=[
+                    Mask(np.array(
+                        [[1, 0, 0, 1, 0]] * 5 +
+                        [[1, 1, 1, 1, 0]] * 5
+                        ), label=0,
+                        id=2, group=2, attributes={'is_crowd': False}),
+                ]
+            ),
+        ], categories=['TEST',])
+
+        dataset = Dataset.import_from(
+            osp.join(DUMMY_DATASET_DIR, 'coco_stuff'), 'coco')
+
+        compare_datasets(self, expected_dataset, dataset)
+
     def test_can_detect(self):
         self.assertTrue(CocoImporter.detect(
             osp.join(DUMMY_DATASET_DIR, 'coco_instances')))
@@ -253,6 +298,118 @@ class CocoConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
                 CocoInstancesConverter.convert, test_dir,
+                target_dataset=target_dataset)
+
+    def test_can_save_and_load_panoptic(self):
+        import pycocotools.mask as mask_utils
+        rle_train = mask_utils.encode(np.asfortranarray(np.array([
+                            [0, 1, 0, 0],
+                            [0, 1, 0, 0],
+                            [0, 1, 1, 1],
+                            [0, 0, 0, 0]],
+                        ), dtype=np.uint8))
+        rle_train['counts'] = rle_train['counts'].decode('utf8')
+        rle_val = mask_utils.encode(np.asfortranarray(np.array([
+                            [0, 0, 0, 0, 0],
+                            [1, 1, 1, 0, 0],
+                            [1, 1, 0, 0, 0],
+                            [0, 0, 0, 0, 0],
+                            [0, 0, 0, 0, 0]],
+                        ), dtype=np.uint8))
+        rle_val['counts'] = rle_val['counts'].decode('utf8')
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, subset='train', image=np.ones((4, 4, 3)),
+                annotations=[
+                    RleMask(rle=rle_train,
+                        attributes={ 'is_crowd': False },
+                        label=4, group=3, id=3),
+                ], attributes={'id': 1}),
+
+            DatasetItem(id=2, subset='val', image=np.ones((5, 5, 3)),
+                annotations=[
+                    RleMask(rle=rle_val,
+                        attributes={ 'is_crowd': False },
+                        label=4, group=3, id=3),
+                ], attributes={'id': 2}),
+            ], categories=[str(i) for i in range(10)])
+
+        target_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, subset='train', image=np.ones((4, 4, 3)),
+                annotations=[
+                    RleMask(rle=rle_train,
+                        attributes={ 'is_crowd': False },
+                        label=4, group=3, id=3),
+                ], attributes={'id': 1}),
+
+            DatasetItem(id=2, subset='val', image=np.ones((5, 5, 3)),
+                annotations=[
+                    RleMask(rle=rle_val,
+                        attributes={ 'is_crowd': False },
+                        label=4, group=3, id=3),
+                ], attributes={'id': 2})
+            ], categories=[str(i) for i in range(10)])
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(source_dataset,
+                partial(CocoPanopticConverter.convert, save_images=True),
+                test_dir, target_dataset=target_dataset, require_images=True)
+
+    def test_can_save_and_load_stuff(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, subset='train', image=np.ones((4, 4, 3)),
+                annotations=[
+                    Mask(np.array([
+                            [0, 1, 0, 0],
+                            [0, 1, 0, 0],
+                            [0, 1, 1, 1],
+                            [0, 0, 0, 0]],
+                        ),
+                        attributes={ 'is_crowd': False },
+                        label=4, group=3, id=3),
+                ], attributes={'id': 2}),
+
+            DatasetItem(id=2, subset='val', image=np.ones((4, 4, 3)),
+                annotations=[
+                    Mask(np.array([
+                            [0, 0, 0, 0],
+                            [1, 1, 1, 0],
+                            [1, 1, 0, 0],
+                            [0, 0, 0, 0]],
+                        ),
+                        attributes={ 'is_crowd': False },
+                        label=4, group=3, id=3),
+                ], attributes={'id': 1}),
+            ], categories=[str(i) for i in range(10)])
+
+        target_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, subset='train', image=np.ones((4, 4, 3)),
+                annotations=[
+                    Mask(np.array([
+                            [0, 1, 0, 0],
+                            [0, 1, 0, 0],
+                            [0, 1, 1, 1],
+                            [0, 0, 0, 0]],
+                        ),
+                        attributes={ 'is_crowd': False },
+                        label=4, group=3, id=3),
+                ], attributes={'id': 2}),
+
+            DatasetItem(id=2, subset='val', image=np.ones((4, 4, 3)),
+                annotations=[
+                    Mask(np.array([
+                            [0, 0, 0, 0],
+                            [1, 1, 1, 0],
+                            [1, 1, 0, 0],
+                            [0, 0, 0, 0]],
+                        ),
+                        attributes={ 'is_crowd': False },
+                        label=4, group=3, id=3),
+                ], attributes={'id': 1})
+            ], categories=[str(i) for i in range(10)])
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(source_dataset,
+                CocoStuffConverter.convert, test_dir,
                 target_dataset=target_dataset)
 
     def test_can_merge_polygons_on_loading(self):
@@ -567,7 +724,7 @@ class CocoConverterTest(TestCase):
 
         with TestDir() as test_dir:
             self._test_save_and_load(expected,
-                partial(CocoConverter.convert, save_images=True),
+                partial(CocoImageInfoConverter.convert, save_images=True),
                 test_dir, require_images=True)
 
     def test_preserve_coco_ids(self):

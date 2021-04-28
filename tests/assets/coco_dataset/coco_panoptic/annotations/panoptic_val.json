@@ -1,0 +1,42 @@
+{
+    "licenses": [{
+        "name": "",
+        "id": 0,
+        "url": ""
+    }],
+    "info": {
+        "contributor": "",
+        "date_created": "",
+        "description": "",
+        "url": "",
+        "version": "",
+        "year": ""
+    },
+    "images": [{
+        "id": 1,
+        "width": 5,
+        "height": 10,
+        "file_name": "000000000001.jpg",
+        "license": 0,
+        "flickr_url": "",
+        "coco_url": "",
+        "date_captured": 0
+    }],
+    "annotations": [{
+        "segments_info": [{
+            "category_id": 1, 
+            "id": 255,
+            "iscrowd": 0,
+            "bbox": [0, 0, 5, 10],
+            "area": 50
+        }], 
+        "image_id": 1, 
+        "file_name": "000000000001.png"
+    }], 
+    "categories": [{
+        "supercategory": "",
+        "isthing": 1,
+        "id": 1,
+        "name": "TEST"
+    }]
+}
