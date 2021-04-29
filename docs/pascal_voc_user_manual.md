@@ -35,17 +35,17 @@ Pascal VOC dataset directory should have the following structure:
    │    ├── img2.jpg
    │    ├── ...
    ├── SegmentationClass/ # directory with semantic segmentation masks
-   │    ├── mask1.png
-   │    ├── mask2.png
+   │    ├── img1.png
+   │    ├── img2.png
    │    ├── ...
    ├── SegmentationObject/ # directory with instance segmentation masks
-   │    ├── instance_mask1.png
-   │    ├── instance_mask2.png
+   │    ├── img1.png
+   │    ├── img2.png
    │    ├── ...
    ├── ImageSets/
    │    ├── Main/ # directory with list of images for detection and classification task
-   │    │   ├── test.txt  # list of image in test subset names without extension
-   |    |   ├── train.txt # list of image in train subset names without extension
+   │    │   ├── test.txt  # list of image names in test subset  (without extension)
+   |    |   ├── train.txt # list of image names in train subset (without extension)
    |    |   ├── ...
    │    ├── Layout/ # directory with list of images for person layout task
    │    │   ├── test.txt
