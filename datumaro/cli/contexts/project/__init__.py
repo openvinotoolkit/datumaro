@@ -824,12 +824,9 @@ def validate_command(args):
         dst_file_name += f'-{subset_name}'
     validation_results = validate_annotations(dataset, task_type)
 
-    class NumpyEncoder(json.JSONEncoder):
-        def default(self, obj):
-            if isinstance(obj, np.generic):
-                return obj.item()
-            else:
-                return super(NumpyEncoder, self).default(obj)
+    def numpy_encoder(obj):
+        if isinstance(obj, np.generic):
+            return obj.item()
 
     def _make_serializable(d):
         for key, val in list(d.items()):
@@ -846,7 +843,7 @@ def validate_command(args):
     log.info("Writing project validation results to '%s'" % dst_file)
     with open(dst_file, 'w') as f:
         json.dump(validation_results, f, indent=4, sort_keys=True,
-                  cls=NumpyEncoder)
+                  default=numpy_encoder)
 
 def build_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(
