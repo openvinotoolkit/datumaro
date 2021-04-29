@@ -24,15 +24,15 @@
     }],
     "annotations": [{
         "segments_info": [{
-            "category_id": 1, 
+            "category_id": 1,
             "id": 255,
             "iscrowd": 0,
             "bbox": [0, 0, 5, 10],
             "area": 50
-        }], 
-        "image_id": 1, 
+        }],
+        "image_id": 1,
         "file_name": "000000000001.png"
-    }], 
+    }],
     "categories": [{
         "supercategory": "",
         "isthing": 1,
