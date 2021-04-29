@@ -10,12 +10,12 @@ import numpy as np
 
 from datumaro.components.dataset import IDataset
 from datumaro.components.errors import (MissingLabelCategories,
-    MissingLabelAnnotation, MultiLabelAnnotations, MissingAttribute,
+    MissingAnnotation, MultiLabelAnnotations, MissingAttribute,
     UndefinedLabel, UndefinedAttribute, LabelDefinedButNotFound,
     AttributeDefinedButNotFound, OnlyOneLabel, FewSamplesInLabel,
     FewSamplesInAttribute, ImbalancedLabels, ImbalancedAttribute,
-    ImbalancedBboxDistInLabel, ImbalancedBboxDistInAttribute,
-    MissingBboxAnnotation, NegativeLength, InvalidValue, FarFromLabelMean,
+    ImbalancedDistInLabel, ImbalancedDistInAttribute,
+    NegativeLength, InvalidValue, FarFromLabelMean,
     FarFromAttrMean, OnlyOneAttributeValue)
 from datumaro.components.extractor import AnnotationType, LabelCategories
 from datumaro.util import parse_str_enum_value
@@ -23,25 +23,38 @@ from datumaro.util import parse_str_enum_value
 
 Severity = Enum('Severity', ['warning', 'error'])
 
-TaskType = Enum('TaskType', ['classification', 'detection'])
+TaskType = Enum('TaskType', ['classification', 'detection', 'segmentation'])
 
 
 class _Validator:
     DEFAULT_FEW_SAMPLES = 1
     DEFAULT_IMBALANCE_RATIO = 50
+    DEFAULT_FAR_FROM_MEAN = 5.0
+    DEFAULT_DOMINANCE_RATIO = 0.8
+    DEFAULT_DOMINANCE_TOPK_BINS = 0.1
+
+    # statistics templates
+    numerical_stat_template = {
+        'items_far_from_mean': {},
+        'mean': None,
+        'stdev': None,
+        'min': None,
+        'max': None,
+        'median': None,
+        'histogram': {
+            'bins': [],
+            'counts': [],
+        },
+        'distribution': np.array([])
+    }
+
     """
     A base class for task-specific validators.
-
-    ...
 
     Attributes
     ----------
     task_type : str or TaskType
-        task type (ie. classification, detection etc.)
-    ann_type : str or AnnotationType
-        annotation type to validate (default is AnnotationType.label)
-    far_from_mean_thr : float
-        constant used to define mean +/- k * stdev (default is None)
+        task type (ie. classification, detection, segmentation)
 
     Methods
     -------
@@ -51,42 +64,35 @@ class _Validator:
         Abstract method that must be implemented in a subclass.
     """
 
-    def __init__(self, task_type=None, ann_type=None, far_from_mean_thr=None):
-        task_type = parse_str_enum_value(task_type, TaskType,
+    def __init__(self, task_type=None):
+        self.task_type = parse_str_enum_value(task_type, TaskType,
             default=TaskType.classification)
-        ann_type = parse_str_enum_value(ann_type, AnnotationType,
-            default=AnnotationType.label)
 
-        self.task_type = task_type
-        self.ann_type = ann_type
+        if self.task_type == TaskType.classification:
+            self.ann_types = {AnnotationType.label}
+            self.str_ann_type = "label"
+        elif self.task_type == TaskType.detection:
+            self.ann_types = {AnnotationType.bbox}
+            self.str_ann_type = "bounding box"
+        elif self.task_type == TaskType.segmentation:
+            self.ann_types = {AnnotationType.mask, AnnotationType.polygon}
+            self.str_ann_type = "mask or polygon"
 
-        self.far_from_mean_thr = far_from_mean_thr
+        self.far_from_mean_thr = self.DEFAULT_FAR_FROM_MEAN
         self.imbalance_ratio_thr = self.DEFAULT_IMBALANCE_RATIO
         self.few_samples_thr = self.DEFAULT_FEW_SAMPLES
+        self.dominance_thr = self.DEFAULT_DOMINANCE_RATIO
+        self.topk_bins_ratio = self.DEFAULT_DOMINANCE_TOPK_BINS
 
-    def compute_statistics(self, dataset):
-        """
-        Computes various statistics of the dataset based on task type.
-
-        Parameters
-        ----------
-        dataset : IDataset object
-
-        Returns
-        -------
-        stats (dict): A dict object containing statistics of the dataset.
-        """
-
+    def _compute_common_statistics(self, dataset):
         defined_attr_template = {
             'items_missing_attribute': [],
             'distribution': {}
         }
-
         undefined_attr_template = {
             'items_with_undefined_attr': [],
             'distribution': {}
         }
-
         undefined_label_template = {
             'count': 0,
             'items_with_undefined_label': [],
@@ -102,6 +108,8 @@ class _Validator:
                 'undefined_attributes': {}
             },
         }
+        stats['total_ann_count'] = 0
+        stats['items_missing_annotation'] = []
 
         label_dist = stats['label_distribution']
         attr_dist = stats['attribute_distribution']
@@ -114,292 +122,129 @@ class _Validator:
             LabelCategories())
         base_valid_attrs = label_categories.attributes
 
-        if self.task_type == TaskType.classification:
-            stats['total_label_count'] = 0
-            stats['items_missing_label'] = []
-            stats['items_with_multiple_labels'] = []
-
-        elif self.task_type == TaskType.detection:
-            bbox_info_template = {
-                'items_far_from_mean': {},
-                'mean': None,
-                'stdev': None,
-                'min': None,
-                'max': None,
-                'median': None,
-                'histogram': {
-                    'bins': [],
-                    'counts': [],
-                },
-                'distribution': np.array([])
-            }
-
-            bbox_template = {
-                'width': deepcopy(bbox_info_template),
-                'height': deepcopy(bbox_info_template),
-                'area(wxh)': deepcopy(bbox_info_template),
-                'ratio(w/h)': deepcopy(bbox_info_template),
-                'short': deepcopy(bbox_info_template),
-                'long': deepcopy(bbox_info_template)
-            }
-
-            stats['total_bbox_count'] = 0
-            stats['items_missing_bbox'] = []
-            stats['items_with_negative_length'] = {}
-            stats['items_with_invalid_value'] = {}
-            stats['bbox_distribution_in_label'] = {}
-            stats['bbox_distribution_in_attribute'] = {}
-            stats['bbox_distribution_in_dataset_item'] = {}
-
-            bbox_dist_by_label = stats['bbox_distribution_in_label']
-            bbox_dist_by_attr = stats['bbox_distribution_in_attribute']
-            bbox_dist_in_item = stats['bbox_distribution_in_dataset_item']
-            items_w_neg_len = stats['items_with_negative_length']
-            items_w_invalid_val = stats['items_with_invalid_value']
-            _k = self.far_from_mean_thr
-
-            def _update_prop_distributions(ann_bbox_info, target_stats):
-                for prop, val in ann_bbox_info.items():
-                    prop_stats = target_stats[prop]
-                    prop_dist = prop_stats['distribution']
-                    prop_stats['distribution'] = np.append(prop_dist, val)
-
-            def _generate_ann_bbox_info(_x, _y, _w, _h, area,
-                                        ratio, _short, _long):
-                return {
-                    'x': _x,
-                    'y': _y,
-                    'width': _w,
-                    'height': _h,
-                    'area(wxh)': area,
-                    'ratio(w/h)': ratio,
-                    'short': _short,
-                    'long': _long,
-                }
-
-            def _update_bbox_stats_by_label(item, ann, bbox_label_stats):
-                bbox_has_error = False
-
-                _x, _y, _w, _h = ann.get_bbox()
-                area = ann.get_area()
-
-                if _h != 0 and _h != float('inf'):
-                    ratio = _w / _h
-                else:
-                    ratio = float('nan')
-
-                _short = _w if _w < _h else _h
-                _long = _w if _w > _h else _h
-
-                ann_bbox_info = _generate_ann_bbox_info(
-                    _x, _y, _w, _h, area, ratio, _short, _long)
-
-                for prop, val in ann_bbox_info.items():
-                    if val == float('inf') or np.isnan(val):
-                        bbox_has_error = True
-                        anns_w_invalid_val = items_w_invalid_val.setdefault(
-                            (item.id, item.subset), {})
-                        invalid_props = anns_w_invalid_val.setdefault(
-                            ann.id, [])
-                        invalid_props.append(prop)
-
-                for prop in ['width', 'height']:
-                    val = ann_bbox_info[prop]
-                    if val < 1:
-                        bbox_has_error = True
-                        anns_w_neg_len = items_w_neg_len.setdefault(
-                            (item.id, item.subset), {})
-                        neg_props = anns_w_neg_len.setdefault(ann.id, {})
-                        neg_props[prop] = val
-
-                if not bbox_has_error:
-                    ann_bbox_info.pop('x')
-                    ann_bbox_info.pop('y')
-                    _update_prop_distributions(ann_bbox_info, bbox_label_stats)
-
-                return ann_bbox_info, bbox_has_error
-
-            def _compute_prop_stats_from_dist():
-                for label_name, bbox_stats in bbox_dist_by_label.items():
-                    prop_stats_list = list(bbox_stats.values())
-                    bbox_attr_label = bbox_dist_by_attr.get(label_name, {})
-                    for vals in bbox_attr_label.values():
-                        for val_stats in vals.values():
-                            prop_stats_list += list(val_stats.values())
-
-                    for prop_stats in prop_stats_list:
-                        prop_dist = prop_stats.pop('distribution', [])
-                        if len(prop_dist) > 0:
-                            prop_stats['mean'] = np.mean(prop_dist)
-                            prop_stats['stdev'] = np.std(prop_dist)
-                            prop_stats['min'] = np.min(prop_dist)
-                            prop_stats['max'] = np.max(prop_dist)
-                            prop_stats['median'] = np.median(prop_dist)
-
-                            counts, bins = np.histogram(prop_dist)
-                            prop_stats['histogram']['bins'] = bins.tolist()
-                            prop_stats['histogram']['counts'] = counts.tolist()
-
-            def _is_valid_bbox(item, ann):
-                is_bbox = ann.type == self.ann_type
-                has_defined_label = 0 <= ann.label < len(label_categories)
-                if not is_bbox or not has_defined_label:
-                    return False
-
-                bbox_has_neg_len = ann.id in items_w_neg_len.get(
-                    (item.id, item.subset), {})
-                bbox_has_invalid_val = ann.id in items_w_invalid_val.get(
-                    (item.id, item.subset), {})
-                return not (bbox_has_neg_len or bbox_has_invalid_val)
-
-            def _far_from_mean(val, mean, stdev):
-                return val > mean + (_k * stdev) or val < mean - (_k * stdev)
-
-            def _update_props_far_from_mean(item, ann):
-                valid_attrs = base_valid_attrs.union(
-                    label_categories[ann.label].attributes)
-                label_name = label_categories[ann.label].name
-                bbox_label_stats = bbox_dist_by_label[label_name]
-
-                _x, _y, _w, _h = ann.get_bbox()
-                area = ann.get_area()
-                ratio = _w / _h
-                _short = _w if _w < _h else _h
-                _long = _w if _w > _h else _h
-
-                ann_bbox_info = _generate_ann_bbox_info(
-                    _x, _y, _w, _h, area, ratio, _short, _long)
-                ann_bbox_info.pop('x')
-                ann_bbox_info.pop('y')
-
-                for prop, val in ann_bbox_info.items():
-                    prop_stats = bbox_label_stats[prop]
-                    items_far_from_mean = prop_stats['items_far_from_mean']
-                    mean = prop_stats['mean']
-                    stdev = prop_stats['stdev']
-
-                    if _far_from_mean(val, mean, stdev):
-                        bboxs_far_from_mean = items_far_from_mean.setdefault(
-                            (item.id, item.subset), {})
-                        bboxs_far_from_mean[ann.id] = val
-
-                for attr, value in ann.attributes.items():
-                    if attr in valid_attrs:
-                        bbox_attr_stats = bbox_dist_by_attr[label_name][attr]
-                        bbox_val_stats = bbox_attr_stats[str(value)]
-
-                        for prop, val in ann_bbox_info.items():
-                            prop_stats = bbox_val_stats[prop]
-                            items_far_from_mean = \
-                                prop_stats['items_far_from_mean']
-                            mean = prop_stats['mean']
-                            stdev = prop_stats['stdev']
-
-                            if _far_from_mean(val, mean, stdev):
-                                bboxs_far_from_mean = \
-                                    items_far_from_mean.setdefault(
-                                        (item.id, item.subset), {})
-                                bboxs_far_from_mean[ann.id] = val
-
         for category in label_categories:
             defined_label_dist[category.name] = 0
 
+        filtered_anns = []
         for item in dataset:
-            ann_count = [ann.type == self.ann_type
-                for ann in item.annotations].count(True)
-
-            if self.task_type == TaskType.classification:
-                if ann_count == 0:
-                    stats['items_missing_label'].append((item.id, item.subset))
-                elif ann_count > 1:
-                    stats['items_with_multiple_labels'].append(
-                        (item.id, item.subset))
-                stats['total_label_count'] += ann_count
-
-            elif self.task_type == TaskType.detection:
-                if ann_count < 1:
-                    stats['items_missing_bbox'].append((item.id, item.subset))
-                stats['total_bbox_count'] += ann_count
-                bbox_dist_in_item[(item.id, item.subset)] = ann_count
-
+            item_key = (item.id, item.subset)
+            annotations = []
             for ann in item.annotations:
-                if ann.type == self.ann_type:
-                    if not 0 <= ann.label < len(label_categories):
-                        label_name = ann.label
+                if ann.type in self.ann_types:
+                    annotations.append(ann)
+            ann_count = len(annotations)
+            filtered_anns.append((item_key, annotations))
 
-                        label_stats = undefined_label_dist.setdefault(
-                            ann.label, deepcopy(undefined_label_template))
-                        label_stats['items_with_undefined_label'].append(
-                            (item.id, item.subset))
+            if ann_count == 0:
+                stats['items_missing_annotation'].append(item_key)
+            stats['total_ann_count'] += ann_count
 
-                        label_stats['count'] += 1
-                        valid_attrs = set()
-                        missing_attrs = set()
+            for ann in annotations:
+                if not 0 <= ann.label < len(label_categories):
+                    label_name = ann.label
+
+                    label_stats = undefined_label_dist.setdefault(
+                        ann.label, deepcopy(undefined_label_template))
+                    label_stats['items_with_undefined_label'].append(
+                        item_key)
+
+                    label_stats['count'] += 1
+                    valid_attrs = set()
+                    missing_attrs = set()
+                else:
+                    label_name = label_categories[ann.label].name
+                    defined_label_dist[label_name] += 1
+
+                    defined_attr_stats = defined_attr_dist.setdefault(
+                        label_name, {})
+
+                    valid_attrs = base_valid_attrs.union(
+                        label_categories[ann.label].attributes)
+                    ann_attrs = getattr(ann, 'attributes', {}).keys()
+                    missing_attrs = valid_attrs.difference(ann_attrs)
+
+                    for attr in valid_attrs:
+                        defined_attr_stats.setdefault(
+                            attr, deepcopy(defined_attr_template))
+
+                for attr in missing_attrs:
+                    attr_dets = defined_attr_stats[attr]
+                    attr_dets['items_missing_attribute'].append(
+                        item_key)
+
+                for attr, value in ann.attributes.items():
+                    if attr not in valid_attrs:
+                        undefined_attr_stats = \
+                            undefined_attr_dist.setdefault(
+                                label_name, {})
+                        attr_dets = undefined_attr_stats.setdefault(
+                            attr, deepcopy(undefined_attr_template))
+                        attr_dets['items_with_undefined_attr'].append(
+                            item_key)
                     else:
-                        label_name = label_categories[ann.label].name
-                        defined_label_dist[label_name] += 1
-
-                        defined_attr_stats = defined_attr_dist.setdefault(
-                            label_name, {})
-
-                        valid_attrs = base_valid_attrs.union(
-                            label_categories[ann.label].attributes)
-                        ann_attrs = getattr(ann, 'attributes', {}).keys()
-                        missing_attrs = valid_attrs.difference(ann_attrs)
-
-                        for attr in valid_attrs:
-                            defined_attr_stats.setdefault(
-                                attr, deepcopy(defined_attr_template))
-
-                        if self.task_type == TaskType.detection:
-                            bbox_label_stats = bbox_dist_by_label.setdefault(
-                                label_name, deepcopy(bbox_template))
-                            ann_bbox_info, bbox_has_error = \
-                                _update_bbox_stats_by_label(
-                                    item, ann, bbox_label_stats)
-
-                    for attr in missing_attrs:
                         attr_dets = defined_attr_stats[attr]
-                        attr_dets['items_missing_attribute'].append(
-                            (item.id, item.subset))
 
-                    for attr, value in ann.attributes.items():
-                        if attr not in valid_attrs:
-                            undefined_attr_stats = \
-                                undefined_attr_dist.setdefault(
-                                    label_name, {})
-                            attr_dets = undefined_attr_stats.setdefault(
-                                attr, deepcopy(undefined_attr_template))
-                            attr_dets['items_with_undefined_attr'].append(
-                                (item.id, item.subset))
-                        else:
-                            attr_dets = defined_attr_stats[attr]
+                    attr_dets['distribution'].setdefault(str(value), 0)
+                    attr_dets['distribution'][str(value)] += 1
 
-                            if self.task_type == TaskType.detection and \
-                                    ann.type == self.ann_type:
-                                bbox_attr_label = bbox_dist_by_attr.setdefault(
-                                    label_name, {})
-                                bbox_attr_stats = bbox_attr_label.setdefault(
-                                    attr, {})
-                                bbox_val_stats = bbox_attr_stats.setdefault(
-                                    str(value), deepcopy(bbox_template))
+        return stats, filtered_anns
 
-                                if not bbox_has_error:
-                                    _update_prop_distributions(
-                                        ann_bbox_info, bbox_val_stats)
+    @staticmethod
+    def _update_prop_distributions(curr_prop_stats, target_stats):
+        for prop, val in curr_prop_stats.items():
+            prop_stats = target_stats[prop]
+            prop_dist = prop_stats['distribution']
+            prop_stats['distribution'] = np.append(prop_dist, val)
 
-                        attr_dets['distribution'].setdefault(str(value), 0)
-                        attr_dets['distribution'][str(value)] += 1
+    @staticmethod
+    def _compute_prop_stats_from_dist(dist_by_label, dist_by_attr):
+        for label_name, stats in dist_by_label.items():
+            prop_stats_list = list(stats.values())
+            attr_label = dist_by_attr.get(label_name, {})
+            for vals in attr_label.values():
+                for val_stats in vals.values():
+                    prop_stats_list += list(val_stats.values())
 
-        if self.task_type == TaskType.detection:
-            _compute_prop_stats_from_dist()
+            for prop_stats in prop_stats_list:
+                prop_dist = prop_stats.pop('distribution', [])
+                if len(prop_dist) > 0:
+                    prop_stats['mean'] = np.mean(prop_dist)
+                    prop_stats['stdev'] = np.std(prop_dist)
+                    prop_stats['min'] = np.min(prop_dist)
+                    prop_stats['max'] = np.max(prop_dist)
+                    prop_stats['median'] = np.median(prop_dist)
 
-            for item in dataset:
-                for ann in item.annotations:
-                    if _is_valid_bbox(item, ann):
-                        _update_props_far_from_mean(item, ann)
+                    counts, bins = np.histogram(prop_dist)
+                    prop_stats['histogram']['bins'] = bins.tolist()
+                    prop_stats['histogram']['counts'] = counts.tolist()
 
-        return stats
+    def _compute_far_from_mean(self, prop_stats, val, item_key, ann):
+        def _far_from_mean(val, mean, stdev):
+            thr = self.far_from_mean_thr
+            return val > mean + (thr * stdev) or val < mean - (thr * stdev)
+
+        mean = prop_stats['mean']
+        stdev = prop_stats['stdev']
+
+        if _far_from_mean(val, mean, stdev):
+            items_far_from_mean = prop_stats['items_far_from_mean']
+            far_from_mean = items_far_from_mean.setdefault(
+                item_key, {})
+            far_from_mean[ann.id] = val
+
+    def compute_statistics(self, dataset):
+        """
+        Computes statistics of the dataset based on task type.
+
+        Parameters
+        ----------
+        dataset : IDataset object
+
+        Returns
+        -------
+        stats (dict): A dict object containing statistics of the dataset.
+        """
+        return NotImplementedError
 
     def _check_missing_label_categories(self, stats):
         validation_reports = []
@@ -407,6 +252,17 @@ class _Validator:
         if len(stats['label_distribution']['defined_labels']) == 0:
             validation_reports += self._generate_validation_report(
                 MissingLabelCategories, Severity.error)
+
+        return validation_reports
+
+    def _check_missing_annotation(self, stats):
+        validation_reports = []
+
+        items_missing = stats['items_missing_annotation']
+        for item_id, item_subset in items_missing:
+            validation_reports += self._generate_validation_report(
+                MissingAnnotation, Severity.warning, item_id, item_subset,
+                self.str_ann_type)
 
         return validation_reports
 
@@ -561,6 +417,114 @@ class _Validator:
 
         return validation_reports
 
+    def _check_imbalanced_dist_in_label(self, label_name, label_stats):
+        validation_reports = []
+        thr = self.dominance_thr
+        topk_ratio = self.topk_bins_ratio
+
+        for prop, prop_stats in label_stats.items():
+            value_counts = prop_stats['histogram']['counts']
+            n_bucket = len(value_counts)
+            if n_bucket < 2:
+                continue
+            topk = max(1, int(np.around(n_bucket * topk_ratio)))
+
+            if topk > 0:
+                topk_values = np.sort(value_counts)[-topk:]
+                ratio = np.sum(topk_values) / np.sum(value_counts)
+                if ratio >= thr:
+                    details = (label_name, f"{self.str_ann_type} {prop}")
+                    validation_reports += self._generate_validation_report(
+                        ImbalancedDistInLabel, Severity.warning, *details)
+
+        return validation_reports
+
+    def _check_imbalanced_dist_in_attr(self, label_name, attr_name, attr_stats):
+        validation_reports = []
+        thr = self.dominance_thr
+        topk_ratio = self.topk_bins_ratio
+
+        for attr_value, value_stats in attr_stats.items():
+            for prop, prop_stats in value_stats.items():
+                value_counts = prop_stats['histogram']['counts']
+                n_bucket = len(value_counts)
+                if n_bucket < 2:
+                    continue
+                topk = max(1, int(np.around(n_bucket * topk_ratio)))
+
+                if topk > 0:
+                    topk_values = np.sort(value_counts)[-topk:]
+                    ratio = np.sum(topk_values) / np.sum(value_counts)
+                    if ratio >= thr:
+                        details = (label_name, attr_name, attr_value,
+                                   f"{self.str_ann_type} {prop}")
+                        validation_reports += self._generate_validation_report(
+                            ImbalancedDistInAttribute,
+                            Severity.warning,
+                            *details
+                        )
+
+        return validation_reports
+
+    def _check_invalid_value(self, stats):
+        validation_reports = []
+
+        items_w_invalid_val = stats['items_with_invalid_value']
+        for item_dets, anns_w_invalid_val in items_w_invalid_val.items():
+            item_id, item_subset = item_dets
+            for ann_id, props in anns_w_invalid_val.items():
+                for prop in props:
+                    details = (item_subset, ann_id,
+                               f"{self.str_ann_type} {prop}")
+                    validation_reports += self._generate_validation_report(
+                        InvalidValue, Severity.error, item_id, *details)
+
+        return validation_reports
+
+    def _check_far_from_label_mean(self, label_name, label_stats):
+        validation_reports = []
+
+        for prop, prop_stats in label_stats.items():
+            items_far_from_mean = prop_stats['items_far_from_mean']
+            if prop_stats['mean'] is not None:
+                mean = round(prop_stats['mean'], 2)
+
+            for item_dets, anns_far in items_far_from_mean.items():
+                item_id, item_subset = item_dets
+                for ann_id, val in anns_far.items():
+                    val = round(val, 2)
+                    details = (item_subset, label_name, ann_id,
+                               f"{self.str_ann_type} {prop}", mean, val)
+                    validation_reports += self._generate_validation_report(
+                        FarFromLabelMean, Severity.warning, item_id, *details)
+
+        return validation_reports
+
+    def _check_far_from_attr_mean(self, label_name, attr_name, attr_stats):
+        validation_reports = []
+
+        for attr_value, value_stats in attr_stats.items():
+            for prop, prop_stats in value_stats.items():
+                items_far_from_mean = prop_stats['items_far_from_mean']
+                if prop_stats['mean'] is not None:
+                    mean = round(prop_stats['mean'], 2)
+
+                for item_dets, anns_far in items_far_from_mean.items():
+                    item_id, item_subset = item_dets
+                    for ann_id, val in anns_far.items():
+                        val = round(val, 2)
+                        details = (item_subset, label_name, ann_id, attr_name,
+                                   attr_value, f"{self.str_ann_type} {prop}",
+                                   mean, val)
+                        validation_reports += self._generate_validation_report(
+                            FarFromAttrMean,
+                            Severity.warning,
+                            item_id,
+                            *details
+                        )
+
+        return validation_reports
+
     def generate_reports(self, stats):
         raise NotImplementedError('Should be implemented in a subclass.')
 
@@ -574,17 +538,7 @@ class ClassificationValidator(_Validator):
     """
 
     def __init__(self):
-        super().__init__(TaskType.classification, AnnotationType.label)
-
-    def _check_missing_label_annotation(self, stats):
-        validation_reports = []
-
-        items_missing_label = stats['items_missing_label']
-        for item_id, item_subset in items_missing_label:
-            validation_reports += self._generate_validation_report(
-                MissingLabelAnnotation, Severity.warning, item_id, item_subset)
-
-        return validation_reports
+        super().__init__(TaskType.classification)
 
     def _check_multi_label_annotations(self, stats):
         validation_reports = []
@@ -595,6 +549,30 @@ class ClassificationValidator(_Validator):
                 MultiLabelAnnotations, Severity.error, item_id, item_subset)
 
         return validation_reports
+
+    def compute_statistics(self, dataset):
+        """
+        Computes statistics of the dataset for the classification task.
+
+        Parameters
+        ----------
+        dataset : IDataset object
+
+        Returns
+        -------
+        stats (dict): A dict object containing statistics of the dataset.
+        """
+
+        stats, filtered_anns = self._compute_common_statistics(dataset)
+
+        stats['items_with_multiple_labels'] = []
+
+        for item_key, anns in filtered_anns:
+            ann_count = len(anns)
+            if ann_count > 1:
+                stats['items_with_multiple_labels'].append(item_key)
+
+        return stats
 
     def generate_reports(self, stats):
         """
@@ -613,7 +591,7 @@ class ClassificationValidator(_Validator):
         reports = []
 
         reports += self._check_missing_label_categories(stats)
-        reports += self._check_missing_label_annotation(stats)
+        reports += self._check_missing_annotation(stats)
         reports += self._check_multi_label_annotations(stats)
         reports += self._check_label_defined_but_not_found(stats)
         reports += self._check_only_one_label(stats)
@@ -658,76 +636,8 @@ class DetectionValidator(_Validator):
     """
     A validator class for detection tasks.
     """
-
-    DEFAULT_FAR_FROM_MEAN = 5.0
-    DEFAULT_BBOX_IMBALANCE = 0.8
-    DEFAULT_BBOX_TOPK_BINS = 0.1
-
     def __init__(self):
-        super().__init__(TaskType.detection, AnnotationType.bbox,
-            far_from_mean_thr=self.DEFAULT_FAR_FROM_MEAN)
-        self.bbox_imbalance_thr = self.DEFAULT_BBOX_IMBALANCE
-        self.bbox_topk_bins_ratio = self.DEFAULT_BBOX_TOPK_BINS
-
-    def _check_imbalanced_bbox_dist_in_label(self, label_name,
-                                             bbox_label_stats):
-        validation_reports = []
-        thr = self.bbox_imbalance_thr
-        topk_ratio = self.bbox_topk_bins_ratio
-
-        for prop, prop_stats in bbox_label_stats.items():
-            value_counts = prop_stats['histogram']['counts']
-            n_bucket = len(value_counts)
-            if n_bucket < 2:
-                continue
-            topk = max(1, int(np.around(n_bucket * topk_ratio)))
-
-            if topk > 0:
-                topk_values = np.sort(value_counts)[-topk:]
-                ratio = np.sum(topk_values) / np.sum(value_counts)
-                if ratio >= thr:
-                    details = (label_name, prop)
-                    validation_reports += self._generate_validation_report(
-                        ImbalancedBboxDistInLabel, Severity.warning, *details)
-
-        return validation_reports
-
-    def _check_imbalanced_bbox_dist_in_attr(self, label_name, attr_name,
-                                            bbox_attr_stats):
-        validation_reports = []
-        thr = self.bbox_imbalance_thr
-        topk_ratio = self.bbox_topk_bins_ratio
-
-        for attr_value, value_stats in bbox_attr_stats.items():
-            for prop, prop_stats in value_stats.items():
-                value_counts = prop_stats['histogram']['counts']
-                n_bucket = len(value_counts)
-                if n_bucket < 2:
-                    continue
-                topk = max(1, int(np.around(n_bucket * topk_ratio)))
-
-                if topk > 0:
-                    topk_values = np.sort(value_counts)[-topk:]
-                    ratio = np.sum(topk_values) / np.sum(value_counts)
-                    if ratio >= thr:
-                        details = (label_name, attr_name, attr_value, prop)
-                        validation_reports += self._generate_validation_report(
-                            ImbalancedBboxDistInAttribute,
-                            Severity.warning,
-                            *details
-                        )
-
-        return validation_reports
-
-    def _check_missing_bbox_annotation(self, stats):
-        validation_reports = []
-
-        items_missing_bbox = stats['items_missing_bbox']
-        for item_id, item_subset in items_missing_bbox:
-            validation_reports += self._generate_validation_report(
-                MissingBboxAnnotation, Severity.warning, item_id, item_subset)
-
-        return validation_reports
+        super().__init__(TaskType.detection)
 
     def _check_negative_length(self, stats):
         validation_reports = []
@@ -738,67 +648,193 @@ class DetectionValidator(_Validator):
             for ann_id, props in anns_w_neg_len.items():
                 for prop, val in props.items():
                     val = round(val, 2)
-                    details = (item_subset, ann_id, prop, val)
+                    details = (item_subset, ann_id,
+                               f"{self.str_ann_type} {prop}", val)
                     validation_reports += self._generate_validation_report(
                         NegativeLength, Severity.error, item_id, *details)
 
         return validation_reports
 
-    def _check_invalid_value(self, stats):
-        validation_reports = []
+    def compute_statistics(self, dataset):
+        """
+        Computes statistics of the dataset for the detection task.
 
+        Parameters
+        ----------
+        dataset : IDataset object
+
+        Returns
+        -------
+        stats (dict): A dict object containing statistics of the dataset.
+        """
+
+        stats, filtered_anns = self._compute_common_statistics(dataset)
+
+        # detection-specific
+        bbox_template = {
+            'width': deepcopy(self.numerical_stat_template),
+            'height': deepcopy(self.numerical_stat_template),
+            'area(wxh)': deepcopy(self.numerical_stat_template),
+            'ratio(w/h)': deepcopy(self.numerical_stat_template),
+            'short': deepcopy(self.numerical_stat_template),
+            'long': deepcopy(self.numerical_stat_template)
+        }
+
+        stats['items_with_negative_length'] = {}
+        stats['items_with_invalid_value'] = {}
+        stats['bbox_distribution_in_label'] = {}
+        stats['bbox_distribution_in_attribute'] = {}
+        stats['bbox_distribution_in_dataset_item'] = {}
+
+        dist_by_label = stats['bbox_distribution_in_label']
+        dist_by_attr = stats['bbox_distribution_in_attribute']
+        bbox_dist_in_item = stats['bbox_distribution_in_dataset_item']
+        items_w_neg_len = stats['items_with_negative_length']
         items_w_invalid_val = stats['items_with_invalid_value']
-        for item_dets, anns_w_invalid_val in items_w_invalid_val.items():
-            item_id, item_subset = item_dets
-            for ann_id, props in anns_w_invalid_val.items():
-                for prop in props:
-                    details = (item_subset, ann_id, prop)
-                    validation_reports += self._generate_validation_report(
-                        InvalidValue, Severity.error, item_id, *details)
 
-        return validation_reports
+        def _generate_ann_bbox_info(_x, _y, _w, _h, area,
+                                    ratio, _short, _long):
+            return {
+                'x': _x,
+                'y': _y,
+                'width': _w,
+                'height': _h,
+                'area(wxh)': area,
+                'ratio(w/h)': ratio,
+                'short': _short,
+                'long': _long,
+            }
 
-    def _check_far_from_label_mean(self, label_name, bbox_label_stats):
-        validation_reports = []
+        def _update_bbox_stats_by_label(item_key, ann, bbox_label_stats):
+            bbox_has_error = False
 
-        for prop, prop_stats in bbox_label_stats.items():
-            items_far_from_mean = prop_stats['items_far_from_mean']
-            if prop_stats['mean'] is not None:
-                mean = round(prop_stats['mean'], 2)
+            _x, _y, _w, _h = ann.get_bbox()
+            area = ann.get_area()
 
-            for item_dets, anns_far in items_far_from_mean.items():
-                item_id, item_subset = item_dets
-                for ann_id, val in anns_far.items():
-                    val = round(val, 2)
-                    details = (item_subset, label_name, ann_id, prop, mean, val)
-                    validation_reports += self._generate_validation_report(
-                        FarFromLabelMean, Severity.warning, item_id, *details)
+            if _h != 0 and _h != float('inf'):
+                ratio = _w / _h
+            else:
+                ratio = float('nan')
 
-        return validation_reports
+            _short = _w if _w < _h else _h
+            _long = _w if _w > _h else _h
 
-    def _check_far_from_attr_mean(self, label_name, attr_name, bbox_attr_stats):
-        validation_reports = []
+            ann_bbox_info = _generate_ann_bbox_info(
+                _x, _y, _w, _h, area, ratio, _short, _long)
 
-        for attr_value, value_stats in bbox_attr_stats.items():
-            for prop, prop_stats in value_stats.items():
-                items_far_from_mean = prop_stats['items_far_from_mean']
-                if prop_stats['mean'] is not None:
-                    mean = round(prop_stats['mean'], 2)
+            for prop, val in ann_bbox_info.items():
+                if val == float('inf') or np.isnan(val):
+                    bbox_has_error = True
+                    anns_w_invalid_val = items_w_invalid_val.setdefault(
+                        item_key, {})
+                    invalid_props = anns_w_invalid_val.setdefault(
+                        ann.id, [])
+                    invalid_props.append(prop)
 
-                for item_dets, anns_far in items_far_from_mean.items():
-                    item_id, item_subset = item_dets
-                    for ann_id, val in anns_far.items():
-                        val = round(val, 2)
-                        details = (item_subset, label_name, ann_id, attr_name,
-                            attr_value, prop, mean, val)
-                        validation_reports += self._generate_validation_report(
-                            FarFromAttrMean,
-                            Severity.warning,
-                            item_id,
-                            *details
-                        )
+            for prop in ['width', 'height']:
+                val = ann_bbox_info[prop]
+                if val < 1:
+                    bbox_has_error = True
+                    anns_w_neg_len = items_w_neg_len.setdefault(
+                        item_key, {})
+                    neg_props = anns_w_neg_len.setdefault(ann.id, {})
+                    neg_props[prop] = val
 
-        return validation_reports
+            if not bbox_has_error:
+                ann_bbox_info.pop('x')
+                ann_bbox_info.pop('y')
+                self._update_prop_distributions(ann_bbox_info, bbox_label_stats)
+
+            return ann_bbox_info, bbox_has_error
+
+        label_categories = dataset.categories().get(AnnotationType.label,
+            LabelCategories())
+        base_valid_attrs = label_categories.attributes
+
+        for item_key, annotations in filtered_anns:
+            ann_count = len(annotations)
+
+            bbox_dist_in_item[item_key] = ann_count
+
+            for ann in annotations:
+                if not 0 <= ann.label < len(label_categories):
+                    label_name = ann.label
+                    valid_attrs = set()
+                else:
+                    label_name = label_categories[ann.label].name
+                    valid_attrs = base_valid_attrs.union(
+                        label_categories[ann.label].attributes)
+
+                    bbox_label_stats = dist_by_label.setdefault(
+                        label_name, deepcopy(bbox_template))
+                    ann_bbox_info, bbox_has_error = \
+                        _update_bbox_stats_by_label(
+                            item_key, ann, bbox_label_stats)
+
+                for attr, value in ann.attributes.items():
+                    if attr in valid_attrs:
+                        bbox_attr_label = dist_by_attr.setdefault(
+                            label_name, {})
+                        bbox_attr_stats = bbox_attr_label.setdefault(
+                            attr, {})
+                        bbox_val_stats = bbox_attr_stats.setdefault(
+                            str(value), deepcopy(bbox_template))
+
+                        if not bbox_has_error:
+                            self._update_prop_distributions(
+                                ann_bbox_info, bbox_val_stats)
+
+        # Compute prop stats from distribution
+        self._compute_prop_stats_from_dist(dist_by_label, dist_by_attr)
+
+        def _is_valid_ann(item_key, ann):
+            has_defined_label = 0 <= ann.label < len(label_categories)
+            if not has_defined_label:
+                return False
+
+            bbox_has_neg_len = ann.id in items_w_neg_len.get(
+                item_key, {})
+            bbox_has_invalid_val = ann.id in items_w_invalid_val.get(
+                item_key, {})
+            return not (bbox_has_neg_len or bbox_has_invalid_val)
+
+        def _update_props_far_from_mean(item_key, ann):
+            valid_attrs = base_valid_attrs.union(
+                label_categories[ann.label].attributes)
+            label_name = label_categories[ann.label].name
+            bbox_label_stats = dist_by_label[label_name]
+
+            _x, _y, _w, _h = ann.get_bbox()
+            area = ann.get_area()
+            ratio = _w / _h
+            _short = _w if _w < _h else _h
+            _long = _w if _w > _h else _h
+
+            ann_bbox_info = _generate_ann_bbox_info(
+                _x, _y, _w, _h, area, ratio, _short, _long)
+            ann_bbox_info.pop('x')
+            ann_bbox_info.pop('y')
+
+            for prop, val in ann_bbox_info.items():
+                prop_stats = bbox_label_stats[prop]
+                self._compute_far_from_mean(prop_stats, val, item_key, ann)
+
+            for attr, value in ann.attributes.items():
+                if attr in valid_attrs:
+                    bbox_attr_stats = dist_by_attr[label_name][attr]
+                    bbox_val_stats = bbox_attr_stats[str(value)]
+
+                    for prop, val in ann_bbox_info.items():
+                        prop_stats = bbox_val_stats[prop]
+                        self._compute_far_from_mean(prop_stats, val,
+                                                    item_key, ann)
+
+        for item_key, annotations in filtered_anns:
+            for ann in annotations:
+                if _is_valid_ann(item_key, ann):
+                    _update_props_far_from_mean(item_key, ann)
+
+        return stats
 
     def generate_reports(self, stats):
         """
@@ -817,7 +853,7 @@ class DetectionValidator(_Validator):
         reports = []
 
         reports += self._check_missing_label_categories(stats)
-        reports += self._check_missing_bbox_annotation(stats)
+        reports += self._check_missing_annotation(stats)
         reports += self._check_label_defined_but_not_found(stats)
         reports += self._check_only_one_label(stats)
         reports += self._check_few_samples_in_label(stats)
@@ -831,8 +867,8 @@ class DetectionValidator(_Validator):
         undefined_label_dist = label_dist['undefined_labels']
         undefined_attr_dist = attr_dist['undefined_attributes']
 
-        bbox_dist_by_label = stats['bbox_distribution_in_label']
-        bbox_dist_by_attr = stats['bbox_distribution_in_attribute']
+        dist_by_label = stats['bbox_distribution_in_label']
+        dist_by_attr = stats['bbox_distribution_in_attribute']
 
         defined_labels = defined_attr_dist.keys()
         for label_name in defined_labels:
@@ -851,19 +887,256 @@ class DetectionValidator(_Validator):
                 reports += self._check_missing_attribute(
                     label_name, attr_name, attr_dets)
 
-            bbox_label_stats = bbox_dist_by_label[label_name]
-            bbox_attr_label = bbox_dist_by_attr.get(label_name, {})
+            bbox_label_stats = dist_by_label[label_name]
+            bbox_attr_label = dist_by_attr.get(label_name, {})
 
             reports += self._check_far_from_label_mean(
                 label_name, bbox_label_stats)
-            reports += self._check_imbalanced_bbox_dist_in_label(
+            reports += self._check_imbalanced_dist_in_label(
                 label_name, bbox_label_stats)
 
             for attr_name, bbox_attr_stats in bbox_attr_label.items():
                 reports += self._check_far_from_attr_mean(
                     label_name, attr_name, bbox_attr_stats)
-                reports += self._check_imbalanced_bbox_dist_in_attr(
+                reports += self._check_imbalanced_dist_in_attr(
                     label_name, attr_name, bbox_attr_stats)
+
+        for label_name, label_stats in undefined_label_dist.items():
+            reports += self._check_undefined_label(label_name, label_stats)
+
+        for label_name, attr_stats in undefined_attr_dist.items():
+            for attr_name, attr_dets in attr_stats.items():
+                reports += self._check_undefined_attribute(
+                    label_name, attr_name, attr_dets)
+
+        return reports
+
+
+class SegmentationValidator(_Validator):
+    """
+    A validator class for (instance) segmentation tasks.
+    """
+
+    def __init__(self):
+        super().__init__(TaskType.segmentation)
+
+    def compute_statistics(self, dataset):
+        """
+        Computes statistics of the dataset for the segmentation task.
+
+        Parameters
+        ----------
+        dataset : IDataset object
+
+        Returns
+        -------
+        stats (dict): A dict object containing statistics of the dataset.
+        """
+
+        stats, filtered_anns = self._compute_common_statistics(dataset)
+
+        # segmentation-specific
+        mask_template = {
+            'area': deepcopy(self.numerical_stat_template),
+            'width': deepcopy(self.numerical_stat_template),
+            'height': deepcopy(self.numerical_stat_template)
+        }
+
+        stats['items_with_invalid_value'] = {}
+        stats['mask_distribution_in_label'] = {}
+        stats['mask_distribution_in_attribute'] = {}
+        stats['mask_distribution_in_dataset_item'] = {}
+
+        dist_by_label = stats['mask_distribution_in_label']
+        dist_by_attr = stats['mask_distribution_in_attribute']
+        mask_dist_in_item = stats['mask_distribution_in_dataset_item']
+        items_w_invalid_val = stats['items_with_invalid_value']
+
+        def _generate_ann_mask_info(area, _w, _h):
+            return {
+                'area': area,
+                'width': _w,
+                'height': _h,
+            }
+
+        def _update_mask_stats_by_label(item_key, ann, mask_label_stats):
+            mask_has_error = False
+
+            _x, _y, _w, _h = ann.get_bbox()
+
+            # Detete the following block when #226 is resolved
+            # https://github.com/openvinotoolkit/datumaro/issues/226
+            if ann.type == AnnotationType.mask:
+                _w += 1
+                _h += 1
+
+            area = ann.get_area()
+
+            ann_mask_info = _generate_ann_mask_info(area, _w, _h)
+
+            for prop, val in ann_mask_info.items():
+                if val == float('inf') or np.isnan(val):
+                    mask_has_error = True
+                    anns_w_invalid_val = items_w_invalid_val.setdefault(
+                        item_key, {})
+                    invalid_props = anns_w_invalid_val.setdefault(
+                        ann.id, [])
+                    invalid_props.append(prop)
+
+            if not mask_has_error:
+                self._update_prop_distributions(ann_mask_info, mask_label_stats)
+
+            return ann_mask_info, mask_has_error
+
+        label_categories = dataset.categories().get(AnnotationType.label,
+            LabelCategories())
+        base_valid_attrs = label_categories.attributes
+
+        for item_key, annotations in filtered_anns:
+            ann_count = len(annotations)
+            mask_dist_in_item[item_key] = ann_count
+
+            for ann in annotations:
+                if not 0 <= ann.label < len(label_categories):
+                    label_name = ann.label
+                    valid_attrs = set()
+                else:
+                    label_name = label_categories[ann.label].name
+                    valid_attrs = base_valid_attrs.union(
+                        label_categories[ann.label].attributes)
+
+                    mask_label_stats = dist_by_label.setdefault(
+                        label_name, deepcopy(mask_template))
+                    ann_mask_info, mask_has_error = \
+                        _update_mask_stats_by_label(
+                            item_key, ann, mask_label_stats)
+
+                for attr, value in ann.attributes.items():
+                    if attr in valid_attrs:
+                        mask_attr_label = dist_by_attr.setdefault(
+                            label_name, {})
+                        mask_attr_stats = mask_attr_label.setdefault(
+                            attr, {})
+                        mask_val_stats = mask_attr_stats.setdefault(
+                            str(value), deepcopy(mask_template))
+
+                        if not mask_has_error:
+                            self._update_prop_distributions(
+                                ann_mask_info, mask_val_stats)
+
+        # compute prop stats from dist.
+        self._compute_prop_stats_from_dist(dist_by_label, dist_by_attr)
+
+        def _is_valid_ann(item_key, ann):
+            has_defined_label = 0 <= ann.label < len(label_categories)
+            if not has_defined_label:
+                return False
+
+            mask_has_invalid_val = ann.id in items_w_invalid_val.get(
+                item_key, {})
+            return not mask_has_invalid_val
+
+        def _update_props_far_from_mean(item_key, ann):
+            valid_attrs = base_valid_attrs.union(
+                label_categories[ann.label].attributes)
+            label_name = label_categories[ann.label].name
+            mask_label_stats = dist_by_label[label_name]
+
+            _x, _y, _w, _h = ann.get_bbox()
+
+            # Detete the following block when #226 is resolved
+            # https://github.com/openvinotoolkit/datumaro/issues/226
+            if ann.type == AnnotationType.mask:
+                _w += 1
+                _h += 1
+            area = ann.get_area()
+
+            ann_mask_info = _generate_ann_mask_info(area, _w, _h)
+
+            for prop, val in ann_mask_info.items():
+                prop_stats = mask_label_stats[prop]
+                self._compute_far_from_mean(prop_stats, val, item_key, ann)
+
+            for attr, value in ann.attributes.items():
+                if attr in valid_attrs:
+                    mask_attr_stats = dist_by_attr[label_name][attr]
+                    mask_val_stats = mask_attr_stats[str(value)]
+
+                    for prop, val in ann_mask_info.items():
+                        prop_stats = mask_val_stats[prop]
+                        self._compute_far_from_mean(prop_stats, val,
+                                                    item_key, ann)
+
+        for item_key, annotations in filtered_anns:
+            for ann in annotations:
+                if _is_valid_ann(item_key, ann):
+                    _update_props_far_from_mean(item_key, ann)
+
+        return stats
+
+    def generate_reports(self, stats):
+        """
+        Validates the dataset for segmentation tasks based on its statistics.
+
+        Parameters
+        ----------
+        dataset : IDataset object
+        stats : Dict object
+
+        Returns
+        -------
+        reports (list): List of validation reports (DatasetValidationError).
+        """
+
+        reports = []
+
+        reports += self._check_missing_label_categories(stats)
+        reports += self._check_missing_annotation(stats)
+        reports += self._check_label_defined_but_not_found(stats)
+        reports += self._check_only_one_label(stats)
+        reports += self._check_few_samples_in_label(stats)
+        reports += self._check_imbalanced_labels(stats)
+        reports += self._check_invalid_value(stats)
+
+        label_dist = stats['label_distribution']
+        attr_dist = stats['attribute_distribution']
+        defined_attr_dist = attr_dist['defined_attributes']
+        undefined_label_dist = label_dist['undefined_labels']
+        undefined_attr_dist = attr_dist['undefined_attributes']
+
+        dist_by_label = stats['mask_distribution_in_label']
+        dist_by_attr = stats['mask_distribution_in_attribute']
+
+        defined_labels = defined_attr_dist.keys()
+        for label_name in defined_labels:
+            attr_stats = defined_attr_dist[label_name]
+
+            reports += self._check_attribute_defined_but_not_found(
+                label_name, attr_stats)
+
+            for attr_name, attr_dets in attr_stats.items():
+                reports += self._check_few_samples_in_attribute(
+                    label_name, attr_name, attr_dets)
+                reports += self._check_imbalanced_attribute(
+                    label_name, attr_name, attr_dets)
+                reports += self._check_only_one_attribute_value(
+                    label_name, attr_name, attr_dets)
+                reports += self._check_missing_attribute(
+                    label_name, attr_name, attr_dets)
+
+            mask_label_stats = dist_by_label[label_name]
+            mask_attr_label = dist_by_attr.get(label_name, {})
+
+            reports += self._check_far_from_label_mean(
+                label_name, mask_label_stats)
+            reports += self._check_imbalanced_dist_in_label(
+                label_name, mask_label_stats)
+
+            for attr_name, mask_attr_stats in mask_attr_label.items():
+                reports += self._check_far_from_attr_mean(
+                    label_name, attr_name, mask_attr_stats)
+                reports += self._check_imbalanced_dist_in_attr(
+                    label_name, attr_name, mask_attr_stats)
 
         for label_name, label_stats in undefined_label_dist.items():
             reports += self._check_undefined_label(label_name, label_stats)
@@ -883,7 +1156,7 @@ def validate_annotations(dataset: IDataset, task_type: Union[str, TaskType]):
     Args:
         dataset (IDataset): Dataset to be validated
         task_type (str or TaskType): Type of the task
-            (classification, detection etc.)
+            (classification, detection, segmentation)
 
     Raises:
         ValueError
@@ -901,6 +1174,8 @@ def validate_annotations(dataset: IDataset, task_type: Union[str, TaskType]):
         validator = ClassificationValidator()
     elif task_type == TaskType.detection:
         validator = DetectionValidator()
+    elif task_type == TaskType.segmentation:
+        validator = SegmentationValidator()
 
     if not isinstance(dataset, IDataset):
         raise TypeError("Invalid dataset type '%s'" % type(dataset))
