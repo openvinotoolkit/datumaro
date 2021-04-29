@@ -151,7 +151,7 @@ class _CocoExtractor(SourceExtractor):
         import numpy as np
         items = OrderedDict()
 
-        def rgb2id(color):
+        def bgr2id(color):
             return color[:, :, 2] + 256 * color[:, :, 1] + 256 * 256 * color[:, :, 0]
 
         imgs_info = {}
@@ -167,7 +167,7 @@ class _CocoExtractor(SourceExtractor):
 
             panoptic_image_path = osp.join(panoptic_images, ann['file_name'])
             panoptic_format = np.array(load_image(panoptic_image_path, dtype=np.uint32))
-            pan = rgb2id(panoptic_format)
+            pan = bgr2id(panoptic_format)
             for segm_info in ann['segments_info']:
                 cat_id = segm_info['category_id']
                 segm_id = segm_info['id']

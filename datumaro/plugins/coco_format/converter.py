@@ -19,6 +19,7 @@ from datumaro.components.extractor import (DatasetItem,
     _COORDINATE_ROUNDING_DIGITS, AnnotationType, Points)
 from datumaro.components.dataset import ItemStatus
 from datumaro.util import cast, find, str_to_bool
+from datumaro.util.image import save_image
 
 from .format import CocoPath, CocoTask
 
@@ -472,19 +473,18 @@ class _PanopticConverter(_TaskConverter):
             return
 
         import numpy as np
-        import PIL.Image as Image
         image_id = str(item.id)
         filename = image_id + CocoPath.PANOPTIC_EXT
         pan_format = np.zeros(item.image.size, dtype=np.uint32)
 
-        def id2rgb(id_map):
+        def id2bgr(id_map):
             id_map_copy = id_map.copy()
-            rgb_shape = tuple(list(id_map.shape) + [3])
-            rgb_map = np.zeros(rgb_shape, dtype=np.uint8)
+            bgr_shape = tuple(list(id_map.shape) + [3])
+            bgr_map = np.zeros(bgr_shape, dtype=np.uint8)
             for i in range(3):
-                rgb_map[..., i] = id_map_copy % 256
+                bgr_map[..., 2-i] = id_map_copy % 256
                 id_map_copy //= 256
-            return rgb_map
+            return bgr_map
 
         segments_info = list()
         for ann in item.annotations:
@@ -495,17 +495,15 @@ class _PanopticConverter(_TaskConverter):
             segment_info['id'] = ann.id
             segment_info['category_id'] = ann.label
             segment_info['area'] = float(ann.get_area())
-            segment_info['bbox'] = list(ann.get_bbox())
-            segment_info['iscrowd'] = int(ann.attributes.get('is_crowd', 0))
+            segment_info['bbox'] = [float(p) for p in ann.get_bbox()]
+            segment_info['iscrowd'] = cast(ann.attributes.get("is_crowd"), int, 0)
             segments_info.append(segment_info)
-            mask = mask_utils.decode(ann.rle) == 1
-            pan_format[mask] = ann.id
+            pan_format += ann.as_instance_mask(ann.id)
 
         if segmentation_path:
-            os.makedirs(segmentation_path, exist_ok=True)
-            Image.fromarray(id2rgb(pan_format)).save(
-                os.path.join(segmentation_path, filename)
-            )
+            file_path = osp.join(segmentation_path, filename)
+            os.makedirs(osp.dirname(file_path), exist_ok=True)
+            save_image(file_path, id2bgr(pan_format))
 
         elem = {
             'id': item.id,
@@ -714,5 +712,5 @@ class CocoPanopticConverter(CocoConverter):
 class CocoStuffConverter(CocoConverter):
     def __init__(self, *args, **kwargs):
         kwargs['tasks'] = CocoTask.stuff
+        kwargs['segmentation_mode'] = SegmentationMode.mask
         super().__init__(*args, **kwargs)
-        self._segmentation_mode = SegmentationMode.mask

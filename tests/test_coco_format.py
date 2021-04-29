@@ -309,14 +309,22 @@ class CocoConverterTest(TestCase):
                             [0, 0, 0, 0]],
                         ), dtype=np.uint8))
         rle_train['counts'] = rle_train['counts'].decode('utf8')
-        rle_val = mask_utils.encode(np.asfortranarray(np.array([
+        rle_val1 = mask_utils.encode(np.asfortranarray(np.array([
                             [0, 0, 0, 0, 0],
                             [1, 1, 1, 0, 0],
                             [1, 1, 0, 0, 0],
                             [0, 0, 0, 0, 0],
                             [0, 0, 0, 0, 0]],
                         ), dtype=np.uint8))
-        rle_val['counts'] = rle_val['counts'].decode('utf8')
+        rle_val1['counts'] = rle_val1['counts'].decode('utf8')
+        rle_val2 = mask_utils.encode(np.asfortranarray(np.array([
+                            [0, 0, 0, 0, 1],
+                            [0, 0, 0, 0, 1],
+                            [0, 0, 0, 0, 1],
+                            [0, 0, 0, 0, 1],
+                            [0, 0, 0, 0, 1]],
+                        ), dtype=np.uint8))
+        rle_val2['counts'] = rle_val2['counts'].decode('utf8')
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train', image=np.ones((4, 4, 3)),
                 annotations=[
@@ -327,9 +335,12 @@ class CocoConverterTest(TestCase):
 
             DatasetItem(id=2, subset='val', image=np.ones((5, 5, 3)),
                 annotations=[
-                    RleMask(rle=rle_val,
+                    RleMask(rle=rle_val1,
                         attributes={ 'is_crowd': False },
                         label=4, group=3, id=3),
+                    RleMask(rle=rle_val2,
+                        attributes={ 'is_crowd': False },
+                        label=2, group=2, id=2),
                 ], attributes={'id': 2}),
             ], categories=[str(i) for i in range(10)])
 
@@ -343,9 +354,12 @@ class CocoConverterTest(TestCase):
 
             DatasetItem(id=2, subset='val', image=np.ones((5, 5, 3)),
                 annotations=[
-                    RleMask(rle=rle_val,
+                    RleMask(rle=rle_val1,
                         attributes={ 'is_crowd': False },
                         label=4, group=3, id=3),
+                    RleMask(rle=rle_val2,
+                        attributes={ 'is_crowd': False },
+                        label=2, group=2, id=2),
                 ], attributes={'id': 2})
             ], categories=[str(i) for i in range(10)])
 
