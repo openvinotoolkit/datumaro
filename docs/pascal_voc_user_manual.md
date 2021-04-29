@@ -109,7 +109,7 @@ Also you can use original voc format of label map, for example:
 datum export -f voc_layout -- --label-map voc
 ```
 
-## Import to Pascal VOC
+## Export to Pascal VOC
 There are few ways to convert dataset to Pascal VOC format:
 
 ``` bash
