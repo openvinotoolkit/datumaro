@@ -8,7 +8,8 @@
 - [Dataset statistics](#dataset-statistics)
 
 ## Load Pascal VOC dataset
-The Pascal VOC dataset is available for free download [here](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/index.html#devkit)
+The Pascal VOC dataset is available for free download
+[here](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/index.html#devkit)
 
 There are two ways to create datumaro project and add Pascal VOC dataset to it
 
@@ -19,7 +20,8 @@ datum create
 datum add path -f voc <path/to/dataset>
 ```
 
-It is possible to specify project name and project directory run `datum create --help` for more information.
+It is possible to specify project name and project directory run
+`datum create --help` for more information.
 Pascal VOC dataset directory should have the following structure:
 
 <!--lint disable fenced-code-flag-->
@@ -61,20 +63,30 @@ Pascal VOC dataset directory should have the following structure:
    |    |   ├── ...
 ```
 
-The ImageSets directory should contain at least one of the directories: Main, Layout, Action, Segmentation. These directories contain `.txt` files with a list of images in a subset, the subset name is the same as the `.txt` file name .
+The ImageSets directory should contain at least one of the directories:
+Main, Layout, Action, Segmentation. These directories contain `.txt` files
+with a list of images in a subset, the subset name is the same as the `.txt` file name .
 
 Also it is possible to add Pascal VOC dataset and specify task for it, for example:
 
 ``` bash
 datum add path -f voc_detection <path/to/dataset/ImageSets/Main/train.txt>
 ```
-In addition to `voc_detection`, Datumaro supports `voc_action` (for action classification task), `voc_classification`, `voc_segmentation`, `voc_layout` (for person layout task).
+In addition to `voc_detection`, Datumaro supports
+`voc_action` (for action classification task),
+`voc_classification`,
+`voc_segmentation`,
+`voc_layout` (for person layout task).
 
-To make sure that the selected dataset has been added to the project, you can run `datum info`
+To make sure that the selected dataset has been added to the project, you can run
+`datum info`
 
 ## Export to other formats
 
-Datumaro supports converting Pascal VOC dataset to [all dataset formats that datumaro supports](../docs/user_manual.md#supported-formats). But the converting will be successful only if the output format supports the type of dataset you want to convert.
+Datumaro supports converting Pascal VOC dataset to
+[all dataset formats that datumaro supports](../docs/user_manual.md#supported-formats).
+But the converting will be successful only if the output format supports the
+type of dataset you want to convert.
 
 There are few ways to convert Pascal VOC dataset to other dataset format:
 
@@ -85,7 +97,9 @@ datum export -f coco -o <path/to/output/dir>
 datum convert -if voc -i <path/to/voc> -f coco -o <path/to/output/dir>
 ```
 
-Also it is possible using filters for converting, check user manual for information about filtering:
+Also it is possible using filters for converting, check
+[user manual](../docs/user_manual.md#filter-project)
+for information about filtering:
 
 ``` bash
 datum convert -if voc -i <path/to/voc> \
@@ -94,7 +108,9 @@ datum convert -if voc -i <path/to/voc> \
     --filter '<xpath filter expression>'
 ```
 
-Some formats have extra arguments for converting, run `datum export -f FORMAT -- -h` for more information. For example voc_segmentation format has extra argument `--label_map` which get opportunity to load user color map for segmentation mask:
+Some formats have extra arguments for converting, run `datum export -f FORMAT -- -h`
+for more information. For example voc_segmentation format has extra argument
+`--label_map` which get opportunity to load user color map for segmentation mask:
 
 ``` bash
 datum export -f voc_segmentation -- --label-map mycolormap.txt
@@ -124,7 +140,8 @@ datum convert -if imagenet -i <path/to/imagenet/dataset> \
     -- --label_map voc --save-images
 ```
 
-Argument `--tasks` allow to specify tasks for export dataset, by default datumaro uses all tasks.
+Argument `--tasks` allow to specify tasks for export dataset,
+by default datumaro uses all tasks.
 Argument   `--label_map` allow to define user label map, for example
 
 ``` bash
@@ -235,7 +252,8 @@ Unmatched items in the first dataset: {('00973', 'train'), ...}
 
 ## Dataset statistics
 
-Datumaro can calculate dataset statistics, the command `datum stats`  creating `statistics.json` file which contain detailed information of the project dataset.
+Datumaro can calculate dataset statistics, the command `datum stats` creating
+`statistics.json` file which contain detailed information of the project dataset.
 
 - With `datum stats` you can check the success of the operations performed on the dataset.
 Example:
@@ -311,7 +329,8 @@ datum stats
 </details>
 
 
-- Also, `datum stats` includes information about how many items each class contains, example for Pascal VOC 2012:
+- Also, `datum stats` includes information about how many items each class contains,
+example for Pascal VOC 2012:
 
 <details>
 ```
