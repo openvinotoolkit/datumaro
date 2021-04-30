@@ -3,7 +3,7 @@
 ## Contents
 - [Load Pascal VOC dataset](#load-pascal-voc-dataset)
 - [Export to other formats](#export-to-other-formats)
-- [Import to Pascal VOC](#import-to-pascal-vOC)
+- [Export to Pascal VOC](#export-to-pascal-vOC)
 - [Datumaro functionality](#datumaro-functionality)
 - [Dataset statistics](#dataset-statistics)
 
