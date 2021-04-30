@@ -8,6 +8,7 @@ import logging as log
 import os
 import os.path as osp
 import shutil
+import numpy as np
 from enum import Enum
 
 from datumaro.components.dataset_filter import DatasetItemEncoder
@@ -345,7 +346,8 @@ def export_command(args):
 
     if args.filter:
         dataset = dataset.filter(args.filter, **filter_args)
-    dataset.export(format=args.format, save_dir=dst_dir, **extra_args)
+    converter = project.env.converters[args.format]
+    converter.convert(dataset, save_dir=dst_dir, **extra_args)
 
     log.info("Project exported to '%s' as '%s'" % (dst_dir, args.format))
 
@@ -814,7 +816,7 @@ def validate_command(args):
     project = load_project(args.project_dir)
     task_type = args.task_type
     subset_name = args.subset_name
-    dst_file_name = 'validation_results'
+    dst_file_name = f'validation_results-{task_type}'
 
     dataset = project.make_dataset()
     if subset_name is not None:
@@ -822,20 +824,26 @@ def validate_command(args):
         dst_file_name += f'-{subset_name}'
     validation_results = validate_annotations(dataset, task_type)
 
-    def _convert_tuple_keys_to_str(d):
+    def numpy_encoder(obj):
+        if isinstance(obj, np.generic):
+            return obj.item()
+
+    def _make_serializable(d):
         for key, val in list(d.items()):
+            # tuple key to str
             if isinstance(key, tuple):
                 d[str(key)] = val
                 d.pop(key)
             if isinstance(val, dict):
-                _convert_tuple_keys_to_str(val)
+                _make_serializable(val)
 
-    _convert_tuple_keys_to_str(validation_results)
+    _make_serializable(validation_results)
 
     dst_file = generate_next_file_name(dst_file_name, ext='.json')
     log.info("Writing project validation results to '%s'" % dst_file)
     with open(dst_file, 'w') as f:
-        json.dump(validation_results, f, indent=4, sort_keys=True)
+        json.dump(validation_results, f, indent=4, sort_keys=True,
+                  default=numpy_encoder)
 
 def build_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(

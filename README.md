@@ -38,7 +38,8 @@ CVAT annotations                             ---> Publication, statistics etc.
   # http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar
   datum convert --input-format voc --input-path <path/to/voc> \
                 --output-format coco \
-                --filter '/item[annotation/label="cat"]'
+                --filter '/item[annotation/label="cat"]' \
+                -- --reindex 1 # avoid annotation id conflicts
   ```
 
 - Convert only non-`occluded` annotations from a [CVAT](https://github.com/opencv/cvat) project to TFrecord:
@@ -132,12 +133,13 @@ CVAT annotations                             ---> Publication, statistics etc.
   - [MOT sequences](https://arxiv.org/pdf/1906.04567.pdf)
   - [MOTS PNG](https://www.vision.rwth-aachen.de/page/mots)
   - [ImageNet](http://image-net.org/)
+  - [CIFAR-10/100](https://www.cs.toronto.edu/~kriz/cifar.html) (`classification`)
   - [CamVid](http://mi.eng.cam.ac.uk/research/projects/VideoRec/CamVid/)
   - [CVAT](https://github.com/opencv/cvat/blob/develop/cvat/apps/documentation/xml_format.md)
   - [LabelMe](http://labelme.csail.mit.edu/Release3.0)
   - [ICDAR13/15](https://rrc.cvc.uab.es/?ch=2) (`word_recognition`, `text_localization`, `text_segmentation`)
   - [Market-1501](https://www.aitribune.com/dataset/2018051063) (`person re-identification`)
-  - [LFW](http://vis-www.cs.umass.edu/lfw/) (`person re-identification`, `landmarks`)
+  - [LFW](http://vis-www.cs.umass.edu/lfw/) (`classification`, `person re-identification`, `landmarks`)
 - Dataset building
   - Merging multiple datasets into one
   - Dataset filtering by a custom criteria:
@@ -159,7 +161,7 @@ CVAT annotations                             ---> Publication, statistics etc.
       - for re-identification task, based on labels,
         avoiding having same IDs in training and test splits
   - Sampling a dataset
-    - analyzes inference result from the given dataset 
+    - analyzes inference result from the given dataset
       and selects the ‘best’ and the ‘least amount of’ samples for annotation.
     - Select the sample that best suits model training.
       - sampling with Entropy based algorithm

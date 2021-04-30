@@ -6,6 +6,35 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [Unreleased]
+### Added
+- Support for escaping in attribiute values in LabelMe format (<https://github.com/openvinotoolkit/datumaro/issues/49>)
+- Support for Segmentation Splitting (<https://github.com/openvinotoolkit/datumaro/pull/223>)
+- Support for CIFAR-10/100 dataset format (<https://github.com/openvinotoolkit/datumaro/pull/225>)
+
+### Changed
+- LabelMe format saves dataset items with their relative paths by subsets without changing names (<https://github.com/openvinotoolkit/datumaro/pull/200>)
+- Allowed arbitrary subset count and names in classification and detection splitters (<https://github.com/openvinotoolkit/datumaro/pull/207>)
+- Annotation-less dataset elements are now participate in subset splitting (<https://github.com/openvinotoolkit/datumaro/pull/211>)
+- Classification task in LFW dataset format (<https://github.com/openvinotoolkit/datumaro/pull/222>)
+
+### Deprecated
+-
+
+### Removed
+-
+
+### Fixed
+- Added support for auto-merging (joining) of datasets with no labels and having labels (<https://github.com/openvinotoolkit/datumaro/pull/200>)
+- Allowed explicit label removal in `remap_labels` transform (<https://github.com/openvinotoolkit/datumaro/pull/203>)
+- Image extension in CVAT format export (<https://github.com/openvinotoolkit/datumaro/pull/214>)
+- Added a label "face" for bounding boxes in Wider Face (<https://github.com/openvinotoolkit/datumaro/pull/215>)
+- Allowed adding "difficult", "truncated", "occluded" attributes when converting to Pascal VOC if these attributes are not present (<https://github.com/openvinotoolkit/datumaro/pull/216>)
+- Empty lines in YOLO annotations are ignored (<https://github.com/openvinotoolkit/datumaro/pull/221>)
+
+### Security
+-
+
 ## 31/03/2021 - Release v0.1.8
 ### Added
 -

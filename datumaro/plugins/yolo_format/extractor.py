@@ -92,7 +92,7 @@ class YoloExtractor(SourceExtractor):
             with open(list_path, 'r', encoding='utf-8') as f:
                 subset.items = OrderedDict(
                     (self.name_from_path(p), self.localize_path(p))
-                    for p in f
+                    for p in f if p.strip()
                 )
             subsets[subset_name] = subset
 
@@ -176,7 +176,9 @@ class YoloExtractor(SourceExtractor):
 
         with open(names_path, 'r', encoding='utf-8') as f:
             for label in f:
-                label_categories.add(label.strip())
+                label = label.strip()
+                if label:
+                    label_categories.add(label)
 
         return label_categories
 

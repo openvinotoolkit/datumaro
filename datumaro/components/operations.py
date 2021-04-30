@@ -55,10 +55,13 @@ def merge_categories(sources):
     for source in sources:
         for cat_type, source_cat in source.items():
             existing_cat = categories.setdefault(cat_type, source_cat)
-            if existing_cat != source_cat:
-                raise DatumaroError(
-                    "Merging of datasets with different categories is "
-                    "only allowed in 'merge' command.")
+            if existing_cat != source_cat and len(source_cat) != 0:
+                if len(existing_cat) == 0:
+                    categories[cat_type] = source_cat
+                else:
+                    raise DatumaroError(
+                        "Merging of datasets with different categories is "
+                        "only allowed in 'merge' command.")
     return categories
 
 class MergingStrategy(CliPlugin):
@@ -954,6 +957,11 @@ def mean_std(dataset):
     var = lambda i, s: s[i][1]
 
     for i, item in enumerate(dataset):
+        size = item.image.size
+        if size is None:
+            log.warning("Item %s: can't detect image size, "
+                "the image will be skipped from pixel statistics", item.id)
+            continue
         counts[i] = np.prod(item.image.size)
 
         image = item.image.data
