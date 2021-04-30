@@ -152,7 +152,7 @@ def explain_command(args):
         for item in dataset:
             image = item.image.data
             if image is None:
-                log.warn(
+                log.warning(
                     "Dataset item %s does not have image data. Skipping." % \
                     (item.id))
                 continue

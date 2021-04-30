@@ -397,7 +397,7 @@ class DatasetStorage(IDataset):
 
 
 class Dataset(IDataset):
-    _global_eager = False
+    _g_eager = False
 
     @classmethod
     def from_iterable(cls, iterable: Iterable[DatasetItem],
@@ -452,8 +452,9 @@ class Dataset(IDataset):
 
         self._format = DEFAULT_FORMAT
         self._source_path = None
+        self._options = {}
 
-    def define_categories(self, categories: Dict):
+    def define_categories(self, categories: CategoriesInfo):
         assert not self._data._categories and self._data._source is None
         self._data._categories = categories
 
@@ -567,7 +568,7 @@ class Dataset(IDataset):
 
     @property
     def is_eager(self) -> bool:
-        return self.eager if self.eager is not None else self._global_eager
+        return self.eager if self.eager is not None else self._g_eager
 
     @property
     def is_bound(self) -> bool:
@@ -626,8 +627,7 @@ class Dataset(IDataset):
         if format in env.importers:
             importer = env.make_importer(format)
             with logging_disabled(log.INFO):
-                project = importer(path, **kwargs)
-            detected_sources = list(project.config.sources.values())
+                detected_sources = importer(path, **kwargs)
         elif format in env.extractors:
             detected_sources = [{
                 'url': path, 'format': format, 'options': kwargs
@@ -678,10 +678,10 @@ def eager_mode(new_mode=True, dataset: Dataset = None):
         finally:
             dataset.eager = old_mode
     else:
-        old_mode = Dataset._global_eager
+        old_mode = Dataset._g_eager
 
         try:
-            Dataset._global_eager = new_mode
+            Dataset._g_eager = new_mode
             yield
         finally:
-            Dataset._global_eager = old_mode
+            Dataset._g_eager = old_mode

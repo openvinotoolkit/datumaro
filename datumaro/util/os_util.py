@@ -2,11 +2,17 @@
 #
 # SPDX-License-Identifier: MIT
 
+from contextlib import contextmanager
+from io import StringIO
 import importlib
 import os
 import os.path as osp
+import re
 import subprocess
 import sys
+import unicodedata
+
+from . import cast
 
 
 DEFAULT_MAX_DEPTH = 10
@@ -47,6 +53,42 @@ def walk(path, max_depth=None):
 
         yield dirpath, dirnames, filenames
 
+@contextmanager
+def suppress_output(stdout=True, stderr=False):
+    with open(os.devnull, "w") as devnull:
+        if stdout:
+            old_stdout = sys.stdout
+            sys.stdout = devnull
+
+        if stderr:
+            old_stderr = sys.stderr
+            sys.stderr = devnull
+
+        try:
+            yield
+        finally:
+            if stdout:
+                sys.stdout = old_stdout
+            if stderr:
+                sys.stderr = old_stderr
+
+@contextmanager
+def catch_output():
+    stdout = StringIO()
+    stderr = StringIO()
+
+    old_stdout = sys.stdout
+    sys.stdout = stdout
+
+    old_stderr = sys.stderr
+    sys.stderr = stderr
+
+    try:
+        yield stdout, stderr
+    finally:
+        sys.stdout = old_stdout
+        sys.stderr = old_stderr
+
 def dir_items(path, ext, truncate_ext=False):
     items = []
     for f in os.listdir(path):
@@ -72,3 +114,31 @@ def split_path(path):
     parts.reverse()
 
     return parts
+
+def make_file_name(s):
+    # adapted from
+    # https://docs.djangoproject.com/en/2.1/_modules/django/utils/text/#slugify
+    """
+    Normalizes string, converts to lowercase, removes non-alpha characters,
+    and converts spaces to hyphens.
+    """
+    s = unicodedata.normalize('NFKD', s).encode('ascii', 'ignore')
+    s = s.decode()
+    s = re.sub(r'[^\w\s-]', '', s).strip().lower()
+    s = re.sub(r'[-\s]+', '-', s)
+    return s
+
+def generate_next_name(names, basename, sep='.', suffix='', default=None):
+    pattern = re.compile(r'%s(?:%s(\d+))?%s' % \
+        tuple(map(re.escape, [basename, sep, suffix])))
+    matches = [match for match in (pattern.match(n) for n in names) if match]
+
+    max_idx = max([cast(match[1], int, 0) for match in matches], default=None)
+    if max_idx is None:
+        if default is not None:
+            idx = sep + str(default)
+        else:
+            idx = ''
+    else:
+        idx = sep + str(max_idx + 1)
+    return basename + idx + suffix

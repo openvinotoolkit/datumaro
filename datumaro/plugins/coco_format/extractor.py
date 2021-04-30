@@ -16,6 +16,7 @@ from datumaro.components.extractor import (SourceExtractor,
     LabelCategories, PointsCategories
 )
 from datumaro.util.image import Image
+from datumaro.util.os_util import suppress_output
 
 from .format import CocoTask, CocoPath
 
@@ -55,7 +56,9 @@ class _CocoExtractor(SourceExtractor):
             dataset = json.load(f)
 
         coco_api.dataset = dataset
-        coco_api.createIndex()
+
+        with suppress_output():
+            coco_api.createIndex()
         return coco_api
 
     def _load_categories(self, loader):

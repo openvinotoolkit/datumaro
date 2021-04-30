@@ -49,7 +49,7 @@ class YoloConverter(Converter):
             if not subset_name or subset_name == DEFAULT_SUBSET_NAME:
                 subset_name = YoloPath.DEFAULT_SUBSET_NAME
             elif subset_name not in YoloPath.SUBSET_NAMES:
-                log.warn("Skipping subset export '%s'. "
+                log.warning("Skipping subset export '%s'. "
                     "If specified, the only valid names are %s" % \
                     (subset_name, ', '.join(
                         "'%s'" % s for s in YoloPath.SUBSET_NAMES)))

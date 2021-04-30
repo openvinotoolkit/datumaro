@@ -12,81 +12,24 @@ import numpy as np
 from enum import Enum
 
 from datumaro.components.dataset_filter import DatasetItemEncoder
+from datumaro.components.errors import DatasetMergeError
 from datumaro.components.extractor import AnnotationType
-from datumaro.components.operations import (DistanceComparator,
-    ExactComparator, compute_ann_statistics, compute_image_statistics)
-from datumaro.components.project import \
-    PROJECT_DEFAULT_CONFIG as DEFAULT_CONFIG
-from datumaro.components.project import Environment, Project
+from datumaro.components.operations import (compute_ann_statistics,
+    compute_image_statistics)
+from datumaro.components.project import (Project, ProjectBuildTargets,
+    PROJECT_DEFAULT_CONFIG as DEFAULT_CONFIG)
+from datumaro.components.environment import Environment
 from datumaro.components.validator import validate_annotations, TaskType
-from datumaro.util import error_rollback
+from datumaro.util import str_to_bool, error_rollback
 
 from ...util import (CliException, MultilineFormatter, add_subparser,
     make_file_name)
 from ...util.project import generate_next_file_name, load_project
-from .diff import DatasetDiffVisualizer
 
-
-def build_create_parser(parser_ctor=argparse.ArgumentParser):
-    parser = parser_ctor(help="Create empty project",
-        description="""
-            Create a new empty project.|n
-            |n
-            Examples:|n
-            - Create a project in the current directory:|n
-            |s|screate -n myproject|n
-            |n
-            - Create a project in other directory:|n
-            |s|screate -o path/I/like/
-        """,
-        formatter_class=MultilineFormatter)
-
-    parser.add_argument('-o', '--output-dir', default='.', dest='dst_dir',
-        help="Save directory for the new project (default: current dir")
-    parser.add_argument('-n', '--name', default=None,
-        help="Name of the new project (default: same as project dir)")
-    parser.add_argument('--overwrite', action='store_true',
-        help="Overwrite existing files in the save directory")
-    parser.set_defaults(command=create_command)
-
-    return parser
-
-def create_command(args):
-    project_dir = osp.abspath(args.dst_dir)
-
-    project_env_dir = osp.join(project_dir, DEFAULT_CONFIG.env_dir)
-    if osp.isdir(project_env_dir) and os.listdir(project_env_dir):
-        if not args.overwrite:
-            raise CliException("Directory '%s' already exists "
-                "(pass --overwrite to overwrite)" % project_env_dir)
-        else:
-            shutil.rmtree(project_env_dir, ignore_errors=True)
-
-    own_dataset_dir = osp.join(project_dir, DEFAULT_CONFIG.dataset_dir)
-    if osp.isdir(own_dataset_dir) and os.listdir(own_dataset_dir):
-        if not args.overwrite:
-            raise CliException("Directory '%s' already exists "
-                "(pass --overwrite to overwrite)" % own_dataset_dir)
-        else:
-            # NOTE: remove the dir to avoid using data from previous project
-            shutil.rmtree(own_dataset_dir)
-
-    project_name = args.name
-    if project_name is None:
-        project_name = osp.basename(project_dir)
-
-    log.info("Creating project at '%s'" % project_dir)
-
-    Project.generate(project_dir, {
-        'project_name': project_name,
-    })
-
-    log.info("Project has been created at '%s'" % project_dir)
-
-    return 0
 
 def build_import_parser(parser_ctor=argparse.ArgumentParser):
-    builtins = sorted(Environment().importers.items)
+    env = Environment()
+    builtins = sorted(set(env.extractors) | set(env.importers))
 
     parser = parser_ctor(help="Create project from an existing dataset",
         description="""
@@ -129,9 +72,9 @@ def build_import_parser(parser_ctor=argparse.ArgumentParser):
         help="Directory to save the new project to (default: current dir)")
     parser.add_argument('-n', '--name', default=None,
         help="Name of the new project (default: same as project dir)")
-    parser.add_argument('--copy', action='store_true',
-        help="Copy the dataset instead of saving source links")
-    parser.add_argument('--skip-check', action='store_true',
+    parser.add_argument('--no-pull', action='store_true',
+        help="Do not download or copy dataset")
+    parser.add_argument('--no-check', action='store_true',
         help="Skip source checking")
     parser.add_argument('--overwrite', action='store_true',
         help="Overwrite existing files in the save directory")
@@ -145,6 +88,7 @@ def build_import_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+@error_rollback('on_error', implicit=True)
 def import_command(args):
     project_dir = osp.abspath(args.dst_dir)
 
@@ -155,15 +99,6 @@ def import_command(args):
                 "(pass --overwrite to overwrite)" % project_env_dir)
         else:
             shutil.rmtree(project_env_dir, ignore_errors=True)
-
-    own_dataset_dir = osp.join(project_dir, DEFAULT_CONFIG.dataset_dir)
-    if osp.isdir(own_dataset_dir) and os.listdir(own_dataset_dir):
-        if not args.overwrite:
-            raise CliException("Directory '%s' already exists "
-                "(pass --overwrite to overwrite)" % own_dataset_dir)
-        else:
-            # NOTE: remove the dir to avoid using data from previous project
-            shutil.rmtree(own_dataset_dir)
 
     project_name = args.name
     if project_name is None:
@@ -209,23 +144,33 @@ def import_command(args):
 
     log.info("Importing project as '%s'" % fmt)
 
-    project = Project.import_from(osp.abspath(args.source), fmt, **extra_args)
-    project.config.project_name = project_name
-    project.config.project_dir = project_dir
+    if not osp.isdir(project_dir):
+        on_error.do(shutil.rmtree, project_dir, ignore_errors=True)
 
-    if not args.skip_check or args.copy:
-        log.info("Checking the dataset...")
-        dataset = project.make_dataset()
-    if args.copy:
-        log.info("Cloning data...")
-        dataset.save(merge=True, save_images=True)
-    else:
-        project.save()
+    project = Project.generate(save_dir=project_dir, config={
+        'project_name': project_name
+    })
+
+    name = 'source'
+    project.sources.add(name, {
+        'url': args.source,
+        'format': args.format,
+        'options': extra_args,
+    })
+
+    if not args.no_pull:
+        log.info("Pulling the source...")
+        project.sources.pull(name)
+
+    if not (args.no_check or args.no_pull):
+        log.info("Checking the source...")
+        project.sources.make_dataset(name)
+
+    project.save()
 
     log.info("Project has been created at '%s'" % project_dir)
 
     return 0
-
 
 class FilterModes(Enum):
     # primary
@@ -297,6 +242,10 @@ def build_export_parser(parser_ctor=argparse.ArgumentParser):
         """ % ', '.join(builtins),
         formatter_class=MultilineFormatter)
 
+    parser.add_argument('_positionals', nargs=argparse.REMAINDER,
+        help=argparse.SUPPRESS) # workaround for -- eaten by positionals
+    parser.add_argument('target', nargs='?', default='project',
+        help="Target to do export for (default: '%(default)s')")
     parser.add_argument('-e', '--filter', default=None,
         help="Filter expression for dataset items")
     parser.add_argument('--filter-mode', default=FilterModes.i.name,
@@ -318,6 +267,15 @@ def build_export_parser(parser_ctor=argparse.ArgumentParser):
     return parser
 
 def export_command(args):
+    has_sep = '--' in args._positionals
+    if has_sep:
+        pos = args._positionals.index('--')
+    else:
+        pos = 1
+    args.target = (args._positionals[:pos] or \
+        [ProjectBuildTargets.MAIN_TARGET])[0]
+    args.extra_args = args._positionals[pos + has_sep:]
+
     project = load_project(args.project_dir)
 
     dst_dir = args.dst_dir
@@ -335,21 +293,33 @@ def export_command(args):
     except KeyError:
         raise CliException("Converter for format '%s' is not found" % \
             args.format)
-    extra_args = converter.parse_cmdline(args.extra_args)
-
-    filter_args = FilterModes.make_filter_args(args.filter_mode)
-
-    log.info("Loading the project...")
-    dataset = project.make_dataset()
-
-    log.info("Exporting the project...")
+    extra_args = {}
+    if args.extra_args:
+        extra_args = converter.parse_cmdline(args.extra_args)
 
     if args.filter:
-        dataset = dataset.filter(args.filter, **filter_args)
-    converter = project.env.converters[args.format]
-    converter.convert(dataset, save_dir=dst_dir, **extra_args)
+        filter_args = FilterModes.make_filter_args(args.filter_mode)
+        filter_args['expr'] = args.filter
 
-    log.info("Project exported to '%s' as '%s'" % (dst_dir, args.format))
+    log.info("Loading the project...")
+
+    target = args.target
+    if args.filter:
+        _, target = project.build_targets.add_filter_stage(
+            target, filter_args)
+    _, target = project.build_targets.add_convert_stage(
+        target, args.format, extra_args)
+
+    status = project.vcs.status()
+    if status: # TODO: narrow only to the affected sources
+        raise CliException("Can't modify project " \
+            "when there are uncommitted changes: %s" % status)
+
+    log.info("Exporting...")
+
+    project.build(target, out_dir=dst_dir)
+
+    log.info("Results have been saved to '%s'" % dst_dir)
 
     return 0
 
@@ -391,6 +361,10 @@ def build_filter_parser(parser_ctor=argparse.ArgumentParser):
         """,
         formatter_class=MultilineFormatter)
 
+    parser.add_argument('_positionals', nargs=argparse.REMAINDER,
+        help=argparse.SUPPRESS) # workaround for -- eaten by positionals
+    parser.add_argument('target', default='project', nargs='?',
+        help="Project target to apply transform to (default: project)")
     parser.add_argument('-e', '--filter', default=None,
         help="XML XPath filter expression for dataset items")
     parser.add_argument('-m', '--mode', default=FilterModes.i.name,
@@ -399,6 +373,10 @@ def build_filter_parser(parser_ctor=argparse.ArgumentParser):
             (', '.join(FilterModes.list_options()) , '%(default)s'))
     parser.add_argument('--dry-run', action='store_true',
         help="Print XML representations to be filtered and exit")
+    parser.add_argument('--stage', type=str_to_bool, default=True,
+        help="Include this action as a project build step (default: %(default)s)")
+    parser.add_argument('--apply', type=str_to_bool, default=True,
+        help="Run this action immediately (default: %(default)s)")
     parser.add_argument('-o', '--output-dir', dest='dst_dir', default=None,
         help="Output directory (default: update current project)")
     parser.add_argument('--overwrite', action='store_true',
@@ -410,6 +388,15 @@ def build_filter_parser(parser_ctor=argparse.ArgumentParser):
     return parser
 
 def filter_command(args):
+    has_sep = '--' in args._positionals
+    if has_sep:
+        pos = args._positionals.index('--')
+    else:
+        pos = 1
+    args.target = (args._positionals[:pos] or \
+        [ProjectBuildTargets.MAIN_TARGET])[0]
+    args.extra_args = args._positionals[pos + has_sep:]
+
     project = load_project(args.project_dir)
 
     if not args.dry_run:
@@ -418,17 +405,19 @@ def filter_command(args):
             if not args.overwrite and osp.isdir(dst_dir) and os.listdir(dst_dir):
                 raise CliException("Directory '%s' already exists "
                     "(pass --overwrite to overwrite)" % dst_dir)
-        else:
+        elif args.target == project.build_targets.MAIN_TARGET:
             dst_dir = generate_next_file_name('%s-filter' % \
                 project.config.project_name)
+        else:
+            dst_dir = project.sources.data_dir(args.target)
         dst_dir = osp.abspath(dst_dir)
 
-    dataset = project.make_dataset()
-
     filter_args = FilterModes.make_filter_args(args.mode)
+    filter_args['expr'] = args.filter
 
     if args.dry_run:
-        dataset = dataset.filter(expr=args.filter, **filter_args)
+        dataset = project.make_dataset(args.target)
+        dataset = dataset.filter(**filter_args)
         for item in dataset:
             encoded_item = DatasetItemEncoder.encode(item, dataset.categories())
             xml_item = DatasetItemEncoder.to_string(encoded_item)
@@ -438,10 +427,41 @@ def filter_command(args):
     if not args.filter:
         raise CliException("Expected a filter expression ('-e' argument)")
 
-    dataset.filter_project(save_dir=dst_dir,
-        filter_expr=args.filter, **filter_args)
+    if args.target == project.build_targets.MAIN_TARGET:
+        sources = [t for t in project.build_targets
+            if t != project.build_targets.MAIN_TARGET]
+    else:
+        sources = [args.target]
 
-    log.info("Subproject has been extracted to '%s'" % dst_dir)
+    for source in sources:
+        project.build_targets.add_filter_stage(source, filter_args)
+
+    status = project.vcs.status()
+    if status: # TODO: narrow only to the affected sources
+        raise CliException("Can't modify project " \
+            "when there are uncommitted changes: %s" % status)
+
+    if args.apply:
+        log.info("Filtering...")
+
+        if args.dst_dir:
+            project.build(args.target, out_dir=dst_dir)
+
+            log.info("Results have been saved to '%s'" % dst_dir)
+        else:
+            for source in sources:
+                project.build(source)
+                project.sources[source].url = ''
+
+            if not args.stage:
+                for source in sources:
+                    project.build_targets.remove_stage(source,
+                        project.build_targets[source].head.name)
+
+            log.info("Finished")
+
+    if args.stage:
+        project.save()
 
     return 0
 
@@ -492,137 +512,45 @@ def merge_command(args):
 
     return 0
 
-def build_diff_parser(parser_ctor=argparse.ArgumentParser):
-    parser = parser_ctor(help="Compare projects",
+def build_apply_parser(parser_ctor=argparse.ArgumentParser):
+    parser = parser_ctor(help="Apply some operations to project",
         description="""
-        Compares two projects, match annotations by distance.|n
-        |n
-        Examples:|n
-        - Compare two projects, match boxes if IoU > 0.7,|n
-        |s|s|s|sprint results to Tensorboard:
-        |s|sdiff path/to/other/project -o diff/ -v tensorboard --iou-thresh 0.7
+            Applies several operations to a dataset
+            and produces a new dataset.
         """,
         formatter_class=MultilineFormatter)
 
-    parser.add_argument('other_project_dir',
-        help="Directory of the second project to be compared")
+    parser.add_argument('file',
+        help="Path to a file with a list of transforms and other actions")
     parser.add_argument('-o', '--output-dir', dest='dst_dir', default=None,
-        help="Directory to save comparison results (default: do not save)")
-    parser.add_argument('-v', '--visualizer',
-        default=DatasetDiffVisualizer.DEFAULT_FORMAT.name,
-        choices=[f.name for f in DatasetDiffVisualizer.OutputFormat],
-        help="Output format (default: %(default)s)")
-    parser.add_argument('--iou-thresh', default=0.5, type=float,
-        help="IoU match threshold for detections (default: %(default)s)")
-    parser.add_argument('--conf-thresh', default=0.5, type=float,
-        help="Confidence threshold for detections (default: %(default)s)")
+        help="Directory to save output (default: current dir)")
     parser.add_argument('--overwrite', action='store_true',
         help="Overwrite existing files in the save directory")
+    parser.add_argument('--build', action='store_true',
+        help="Consider this invocation a build step")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
-        help="Directory of the first project to be compared (default: current dir)")
-    parser.set_defaults(command=diff_command)
+        help="Directory of the project to operate on (default: current dir)")
+    parser.set_defaults(command=apply_command)
 
     return parser
 
-@error_rollback('on_error', implicit=True)
-def diff_command(args):
-    first_project = load_project(args.project_dir)
-    second_project = load_project(args.other_project_dir)
-
-    comparator = DistanceComparator(iou_threshold=args.iou_thresh)
+def apply_command(args):
+    project = load_project(args.project_dir)
 
     dst_dir = args.dst_dir
     if dst_dir:
         if not args.overwrite and osp.isdir(dst_dir) and os.listdir(dst_dir):
             raise CliException("Directory '%s' already exists "
                 "(pass --overwrite to overwrite)" % dst_dir)
-    else:
-        dst_dir = generate_next_file_name('%s-%s-diff' % (
-            first_project.config.project_name,
-            second_project.config.project_name)
-        )
+    elif not args.build:
+        dst_dir = generate_next_file_name('%s-apply' % \
+            project.config.project_name)
     dst_dir = osp.abspath(dst_dir)
-    log.info("Saving diff to '%s'" % dst_dir)
 
-    if not osp.exists(dst_dir):
-        on_error.do(shutil.rmtree, dst_dir, ignore_errors=True)
+    pipeline = project.build_targets.read_pipeline(args.file)
+    project.build_targets.run_pipeline(pipeline, out_dir=dst_dir)
 
-    with DatasetDiffVisualizer(save_dir=dst_dir, comparator=comparator,
-            output_format=args.visualizer) as visualizer:
-        visualizer.save(
-            first_project.make_dataset(),
-            second_project.make_dataset())
-
-    return 0
-
-_ediff_default_if = ['id', 'group'] # avoid https://bugs.python.org/issue16399
-
-def build_ediff_parser(parser_ctor=argparse.ArgumentParser):
-    parser = parser_ctor(help="Compare projects for equality",
-        description="""
-        Compares two projects for equality.|n
-        |n
-        Examples:|n
-        - Compare two projects, exclude annotation group |n
-        |s|s|sand the 'is_crowd' attribute from comparison:|n
-        |s|sediff other/project/ -if group -ia is_crowd
-        """,
-        formatter_class=MultilineFormatter)
-
-    parser.add_argument('other_project_dir',
-        help="Directory of the second project to be compared")
-    parser.add_argument('-iia', '--ignore-item-attr', action='append',
-        help="Ignore item attribute (repeatable)")
-    parser.add_argument('-ia', '--ignore-attr', action='append',
-        help="Ignore annotation attribute (repeatable)")
-    parser.add_argument('-if', '--ignore-field', action='append',
-        help="Ignore annotation field (repeatable, default: %s)" % \
-            _ediff_default_if)
-    parser.add_argument('--match-images', action='store_true',
-        help='Match dataset items by images instead of ids')
-    parser.add_argument('--all', action='store_true',
-        help="Include matches in the output")
-    parser.add_argument('-p', '--project', dest='project_dir', default='.',
-        help="Directory of the first project to be compared (default: current dir)")
-    parser.set_defaults(command=ediff_command)
-
-    return parser
-
-def ediff_command(args):
-    first_project = load_project(args.project_dir)
-    second_project = load_project(args.other_project_dir)
-
-    if args.ignore_field:
-        args.ignore_field = _ediff_default_if
-    comparator = ExactComparator(
-        match_images=args.match_images,
-        ignored_fields=args.ignore_field,
-        ignored_attrs=args.ignore_attr,
-        ignored_item_attrs=args.ignore_item_attr)
-    matches, mismatches, a_extra, b_extra, errors = \
-        comparator.compare_datasets(
-            first_project.make_dataset(), second_project.make_dataset())
-    output = {
-        "mismatches": mismatches,
-        "a_extra_items": sorted(a_extra),
-        "b_extra_items": sorted(b_extra),
-        "errors": errors,
-    }
-    if args.all:
-        output["matches"] = matches
-
-    output_file = generate_next_file_name('diff', ext='.json')
-    with open(output_file, 'w') as f:
-        json.dump(output, f, indent=4, sort_keys=True)
-
-    print("Found:")
-    print("The first project has %s unmatched items" % len(a_extra))
-    print("The second project has %s unmatched items" % len(b_extra))
-    print("%s item conflicts" % len(errors))
-    print("%s matching annotations" % len(matches))
-    print("%s mismatching annotations" % len(mismatches))
-
-    log.info("Output has been saved to '%s'" % output_file)
+    log.info("Results have been saved to '%s'" % dst_dir)
 
     return 0
 
@@ -642,6 +570,10 @@ def build_transform_parser(parser_ctor=argparse.ArgumentParser):
         """ % ', '.join(builtins),
         formatter_class=MultilineFormatter)
 
+    parser.add_argument('_positionals', nargs=argparse.REMAINDER,
+        help=argparse.SUPPRESS) # workaround for -- eaten by positionals
+    parser.add_argument('target', nargs='?',
+        help="Project target to apply transform to (default: all)")
     parser.add_argument('-t', '--transform', required=True,
         help="Transform to apply to the project")
     parser.add_argument('-o', '--output-dir', dest='dst_dir', default=None,
@@ -650,23 +582,46 @@ def build_transform_parser(parser_ctor=argparse.ArgumentParser):
         help="Overwrite existing files in the save directory")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to operate on (default: current dir)")
-    parser.add_argument('extra_args', nargs=argparse.REMAINDER, default=None,
+    parser.add_argument('--stage', type=str_to_bool, default=True,
+        help="Include this action as a project build step (default: %(default)s)")
+    parser.add_argument('--apply', type=str_to_bool, default=True,
+        help="Run this action immediately (default: %(default)s)")
+    parser.add_argument('extra_args', nargs=argparse.REMAINDER,
         help="Additional arguments for transformation (pass '-- -h' for help)")
     parser.set_defaults(command=transform_command)
 
     return parser
 
 def transform_command(args):
+    has_sep = '--' in args._positionals
+    if has_sep:
+        pos = args._positionals.index('--')
+    else:
+        pos = 1
+    args.target = (args._positionals[:pos] or \
+        [ProjectBuildTargets.MAIN_TARGET])[0]
+    args.extra_args = args._positionals[pos + has_sep:]
+
     project = load_project(args.project_dir)
 
     dst_dir = args.dst_dir
+
+    if args.stage and args.target not in project.sources and \
+            args.target != project.build_targets.MAIN_TARGET:
+        raise CliException("Adding a stage is only allowed for "
+            "source or project targets")
+
     if dst_dir:
         if not args.overwrite and osp.isdir(dst_dir) and os.listdir(dst_dir):
             raise CliException("Directory '%s' already exists "
                 "(pass --overwrite to overwrite)" % dst_dir)
     else:
-        dst_dir = generate_next_file_name('%s-%s' % \
-            (project.config.project_name, make_file_name(args.transform)))
+        if args.target == project.build_targets.MAIN_TARGET:
+            dst_dir = generate_next_file_name('%s-%s' % \
+                (project.config.project_name, make_file_name(args.transform)))
+        else:
+            dst_dir = project.sources.data_dir(args.target)
+
     dst_dir = osp.abspath(dst_dir)
 
     try:
@@ -678,17 +633,77 @@ def transform_command(args):
     if hasattr(transform, 'parse_cmdline'):
         extra_args = transform.parse_cmdline(args.extra_args)
 
-    log.info("Loading the project...")
-    dataset = project.make_dataset()
+    if args.target == project.build_targets.MAIN_TARGET:
+        sources = [t for t in project.build_targets
+            if t != project.build_targets.MAIN_TARGET]
+    else:
+        sources = [args.target]
 
-    log.info("Transforming the project...")
-    dataset.transform_project(
-        method=transform,
-        save_dir=dst_dir,
-        **extra_args
-    )
+    for source in sources:
+        project.build_targets.add_transform_stage(source,
+            args.transform, extra_args)
 
-    log.info("Transform results have been saved to '%s'" % dst_dir)
+    status = project.vcs.status()
+    if status: # TODO: narrow only to the affected sources
+        raise CliException("Can't modify project " \
+            "when there are uncommitted changes: %s" % status)
+
+    if args.apply:
+        log.info("Transforming...")
+
+        if args.dst_dir:
+            project.build(args.target, out_dir=dst_dir)
+
+            log.info("Results have been saved to '%s'" % dst_dir)
+        else:
+            for source in sources:
+                project.build(source)
+                project.sources[source].url = ''
+
+            if not args.stage:
+                for source in sources:
+                    project.build_targets.remove_stage(source,
+                        project.build_targets[source].head.name)
+
+            log.info("Finished")
+
+    project.save()
+
+    return 0
+
+def build_build_parser(parser_ctor=argparse.ArgumentParser):
+    parser = parser_ctor(help="Build project",
+        description="""
+            Pulls related sources and builds the target
+        """,
+        formatter_class=MultilineFormatter)
+
+    parser.add_argument('target', default='project', nargs='?',
+        help="Project target to apply transform to (default: project)")
+    parser.add_argument('-o', '--output-dir', dest='dst_dir', default=None,
+        help="Directory to save output (default: current dir)")
+    parser.add_argument('-f', '--force', action='store_true',
+        help="Rebuild the target, even if it has no changes. "
+            "Ignore uncommitted changes.")
+    parser.add_argument('-p', '--project', dest='project_dir', default='.',
+        help="Directory of the project to operate on (default: current dir)")
+    parser.set_defaults(command=build_command)
+
+    return parser
+
+def build_command(args):
+    project = load_project(args.project_dir)
+
+    status = project.vcs.status()
+    if not args.force and [s
+        for d in status.values() if 'changed outs' in s
+        for co in d.values()
+        for s in co.values()
+    ]:
+        raise CliException("Can't build project " \
+            "when there are uncommitted changes: %s" % status)
+
+    project.build(args.target, force=args.force, out_dir=args.dst_dir)
 
     return 0
 
@@ -738,23 +753,33 @@ def info_command(args):
     project = load_project(args.project_dir)
     config = project.config
     env = project.env
-    dataset = project.make_dataset()
+
+    try:
+        dataset = project.make_dataset()
+    except DatasetMergeError as e:
+        dataset = None
+        dataset_problem = "Can't merge project sources automatically: %s " \
+            "Conflicting sources are: %s" % (e, ', '.join(e.sources))
 
     print("Project:")
     print("  name:", config.project_name)
     print("  location:", config.project_dir)
     print("Plugins:")
-    print("  importers:", ', '.join(env.importers.items))
-    print("  extractors:", ', '.join(env.extractors.items))
-    print("  converters:", ', '.join(env.converters.items))
-    print("  launchers:", ', '.join(env.launchers.items))
+    print("  extractors:", ', '.join(
+        sorted(set(env.extractors) | set(env.importers))))
+    print("  converters:", ', '.join(env.converters))
+    print("  launchers:", ', '.join(env.launchers))
 
     print("Sources:")
     for source_name, source in config.sources.items():
         print("  source '%s':" % source_name)
         print("    format:", source.format)
         print("    url:", source.url)
-        print("    location:", project.local_source_dir(source_name))
+        if source.remote:
+            print("    remote:",
+                "%(url)s (%(type)s)" % project.vcs.remotes[source.remote])
+        print("    location:", project.sources.data_dir(source_name))
+        print("    options:", source.options)
 
     def print_extractor_info(extractor, indent=''):
         print("%slength:" % indent, len(extractor))
@@ -776,15 +801,18 @@ def info_command(args):
                         len(cat.items) - count_threshold)
                 print("%s    labels:" % indent, labels)
 
-    print("Dataset:")
-    print_extractor_info(dataset, indent="  ")
+    if dataset is not None:
+        print("Dataset:")
+        print_extractor_info(dataset, indent="  ")
 
-    subsets = dataset.subsets()
-    print("  subsets:", ', '.join(subsets))
-    for subset_name in subsets:
-        subset = dataset.get_subset(subset_name)
-        print("    subset '%s':" % subset_name)
-        print_extractor_info(subset, indent="      ")
+        subsets = dataset.subsets()
+        print("  subsets:", ', '.join(subsets))
+        for subset_name in subsets:
+            subset = dataset.get_subset(subset_name)
+            print("    subset '%s':" % subset_name)
+            print_extractor_info(subset, indent="      ")
+    else:
+        print("Merged dataset info is not available: ", dataset_problem)
 
     print("Models:")
     for model_name, model in config.models.items():
@@ -857,13 +885,10 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         formatter_class=MultilineFormatter)
 
     subparsers = parser.add_subparsers()
-    add_subparser(subparsers, 'create', build_create_parser)
     add_subparser(subparsers, 'import', build_import_parser)
     add_subparser(subparsers, 'export', build_export_parser)
     add_subparser(subparsers, 'filter', build_filter_parser)
     add_subparser(subparsers, 'merge', build_merge_parser)
-    add_subparser(subparsers, 'diff', build_diff_parser)
-    add_subparser(subparsers, 'ediff', build_ediff_parser)
     add_subparser(subparsers, 'transform', build_transform_parser)
     add_subparser(subparsers, 'info', build_info_parser)
     add_subparser(subparsers, 'stats', build_stats_parser)

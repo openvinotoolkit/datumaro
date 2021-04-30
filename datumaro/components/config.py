@@ -225,11 +225,15 @@ class Config:
     def dump(self, path):
         if isinstance(path, str):
             with open(path, 'w') as f:
-                yaml.dump(self, f)
+                yaml.safe_dump(self, f)
         else:
-            yaml.dump(self, path)
+            yaml.safe_dump(self, path)
 
-yaml.add_multi_representer(Config, Config.yaml_representer)
+yaml.add_multi_representer(Config, Config.yaml_representer,
+    Dumper=yaml.SafeDumper)
+yaml.add_multi_representer(tuple,
+    lambda dumper, value: dumper.represent_data(list(value)),
+    Dumper=yaml.SafeDumper)
 
 
 class DictConfig(Config):
@@ -238,8 +242,13 @@ class DictConfig(Config):
         self.__dict__['_default'] = default
 
     def set(self, key, value):
-        if key not in self.keys(allow_fallback=False):
-            value = self._default(value)
-            return super().set(key, value)
-        else:
-            return super().set(key, value)
+        if self._default is not None:
+            schema_entry_instance = self._default(value)
+            if not isinstance(value, type(schema_entry_instance)):
+                if isinstance(value, dict) and \
+                        isinstance(schema_entry_instance, Config):
+                    value = schema_entry_instance
+                else:
+                    raise Exception("Can not set key '%s' - schema mismatch" % (key))
+
+        return super().set(key, value)

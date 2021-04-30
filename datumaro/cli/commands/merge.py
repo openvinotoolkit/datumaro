@@ -10,7 +10,7 @@ from collections import OrderedDict
 
 from datumaro.components.project import Project
 from datumaro.components.operations import IntersectMerge
-from datumaro.components.errors import QualityError, MergeError
+from datumaro.components.errors import DatasetQualityError, DatasetMergeError
 
 from ..util import at_least, MultilineFormatter, CliException
 from ..util.project import generate_next_file_name, load_project
@@ -104,9 +104,9 @@ def save_merge_report(merger, path):
     all_errors = []
 
     for e in merger.errors:
-        if isinstance(e, QualityError):
+        if isinstance(e, DatasetQualityError):
             item_errors[str(e.item_id)] = item_errors.get(str(e.item_id), 0) + 1
-        elif isinstance(e, MergeError):
+        elif isinstance(e, DatasetMergeError):
             for s in e.sources:
                 source_errors[s] = source_errors.get(s, 0) + 1
             item_errors[str(e.item_id)] = item_errors.get(str(e.item_id), 0) + 1

@@ -35,12 +35,7 @@ def is_project(value, project=None):
 
 def is_source(value, project=None):
     if project is not None:
-        try:
-            project.get_source(value)
-            return True
-        except KeyError:
-            pass
-
+        return value in project.sources
     return False
 
 def is_external_source(value):

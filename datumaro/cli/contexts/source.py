@@ -1,30 +1,20 @@
-# Copyright (C) 2019-2021 Intel Corporation
+# Copyright (C) 2019-2020 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 import argparse
 import logging as log
-import os
-import os.path as osp
-import shutil
 
 from datumaro.components.project import Environment
-from ..util import add_subparser, CliException, MultilineFormatter
-from ..util.project import load_project
+from datumaro.util import error_rollback
+
+from ..util import CliException, MultilineFormatter, add_subparser
+from ..util.project import generate_next_name, load_project
 
 
 def build_add_parser(parser_ctor=argparse.ArgumentParser):
-    builtins = sorted(Environment().extractors.items)
-
-    base_parser = argparse.ArgumentParser(add_help=False)
-    base_parser.add_argument('-n', '--name', default=None,
-        help="Name of the new source")
-    base_parser.add_argument('-f', '--format', required=True,
-        help="Source dataset format")
-    base_parser.add_argument('--skip-check', action='store_true',
-        help="Skip source checking")
-    base_parser.add_argument('-p', '--project', dest='project_dir', default='.',
-        help="Directory of the project to operate on (default: current dir)")
+    env = Environment()
+    builtins = sorted(set(env.extractors) | set(env.importers))
 
     parser = parser_ctor(help="Add data source to project",
         description="""
@@ -32,10 +22,7 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
             - a dataset in a supported format (check 'formats' section below)|n
             - a Datumaro project|n
             |n
-            The source can be either a local directory or a remote
-            git repository. Each source type has its own parameters, which can
-            be checked by:|n
-            '%s'.|n
+            The source can be a local path or a remote link.|n
             |n
             Formats:|n
             Datasets come in a wide variety of formats. Each dataset
@@ -50,140 +37,90 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
             An Extractor produces a list of dataset items corresponding
             to the dataset. It is possible to add a custom Extractor.
             To do this, you need to put an Extractor
-            definition script to <project_dir>/.datumaro/extractors.|n
+            definition script to <project_dir>/.datumaro/plugins.|n
             |n
             List of builtin source formats: %s|n
             |n
             Examples:|n
             - Add a local directory with VOC-like dataset:|n
-            |s|sadd path path/to/voc -f voc_detection|n
+            |s|sadd path/to/voc -f voc|n
             - Add a local file with CVAT annotations, call it 'mysource'|n
             |s|s|s|sto the project somewhere else:|n
-            |s|sadd path path/to/cvat.xml -f cvat -n mysource -p somewhere/else/
-        """ % ('%(prog)s SOURCE_TYPE --help', ', '.join(builtins)),
-        formatter_class=MultilineFormatter,
-        add_help=False)
+            |s|sadd path/to/cvat.xml -f cvat -n mysource -p somewhere/|n
+            - Add a remote link to a COCO-like dataset:|n
+            |s|sadd git://example.net/repo/path/to/coco/dir -f coco
+        """ % ', '.join(builtins),
+        formatter_class=MultilineFormatter)
+    parser.add_argument('url',
+        help="URL to the source dataset")
+    parser.add_argument('-n', '--name',
+        help="Name of the new source (default: generate automatically)")
+    parser.add_argument('-f', '--format', required=True,
+        help="Source dataset format")
+    parser.add_argument('--no-check', action='store_true',
+        help="Skip source correctness checking")
+    parser.add_argument('-p', '--project', dest='project_dir', default='.',
+        help="Directory of the project to operate on (default: current dir)")
+    parser.add_argument('extra_args', nargs=argparse.REMAINDER,
+        help="Additional arguments for extractor (pass '-- -h' for help)")
     parser.set_defaults(command=add_command)
-
-    sp = parser.add_subparsers(dest='source_type', metavar='SOURCE_TYPE',
-        help="The type of the data source "
-            "(call '%s SOURCE_TYPE --help' for more info)" % parser.prog)
-
-    dir_parser = sp.add_parser('path', help="Add local path as source",
-        parents=[base_parser])
-    dir_parser.add_argument('url',
-        help="Path to the source")
-    dir_parser.add_argument('--copy', action='store_true',
-        help="Copy the dataset instead of saving source links")
-
-    repo_parser = sp.add_parser('git', help="Add git repository as source",
-        parents=[base_parser])
-    repo_parser.add_argument('url',
-        help="URL of the source git repository")
-    repo_parser.add_argument('-b', '--branch', default='master',
-        help="Branch of the source repository (default: %(default)s)")
-    repo_parser.add_argument('--checkout', action='store_true',
-        help="Do branch checkout")
-
-    # NOTE: add common parameters to the parent help output
-    # the other way could be to use parse_known_args()
-    display_parser = argparse.ArgumentParser(
-        parents=[base_parser, parser],
-        prog=parser.prog, usage="%(prog)s [-h] SOURCE_TYPE ...",
-        description=parser.description, formatter_class=MultilineFormatter)
-    class HelpAction(argparse._HelpAction):
-        def __call__(self, parser, namespace, values, option_string=None):
-            display_parser.print_help()
-            parser.exit()
-
-    parser.add_argument('-h', '--help', action=HelpAction,
-        help='show this help message and exit')
-
-    # TODO: needed distinction on how to add an extractor or a remote source
 
     return parser
 
+@error_rollback('on_error', implicit=True)
 def add_command(args):
     project = load_project(args.project_dir)
 
-    if args.source_type == 'git':
-        name = args.name
-        if name is None:
-            name = osp.splitext(osp.basename(args.url))[0]
-
-        if project.env.git.has_submodule(name):
-            raise CliException("Git submodule '%s' already exists" % name)
-
-        try:
-            project.get_source(name)
+    name = args.name
+    if name:
+        if name in project.sources:
             raise CliException("Source '%s' already exists" % name)
-        except KeyError:
-            pass
+    else:
+        name = generate_next_name(list(project.sources),
+            'source', sep='-', default='1')
 
-        rel_local_dir = project.local_source_dir(name)
-        local_dir = osp.join(project.config.project_dir, rel_local_dir)
-        url = args.url
-        project.env.git.create_submodule(name, local_dir,
-            url=url, branch=args.branch, no_checkout=not args.checkout)
-    elif args.source_type == 'path':
-        url = osp.abspath(args.url)
-        if not osp.exists(url):
-            raise CliException("Source path '%s' does not exist" % url)
+    fmt = args.format
+    if fmt in project.env.importers:
+        arg_parser = project.env.importers[fmt]
+    elif fmt in project.env.extractors:
+        arg_parser = project.env.extractors[fmt]
+    else:
+        raise CliException("Unknown format '%s'. A format can be added"
+            "by providing an Extractor and Importer plugins" % fmt)
 
-        name = args.name
-        if name is None:
-            name = osp.splitext(osp.basename(url))[0]
-
-        if project.env.git.has_submodule(name):
-            raise CliException("Git submodule '%s' already exists" % name)
-
-        try:
-            project.get_source(name)
-            raise CliException("Source '%s' already exists" % name)
-        except KeyError:
-            pass
-
-        rel_local_dir = project.local_source_dir(name)
-        local_dir = osp.join(project.config.project_dir, rel_local_dir)
-
-        if args.copy:
-            log.info("Copying from '%s' to '%s'" % (url, local_dir))
-            if osp.isdir(url):
-                # copytree requires destination dir not to exist
-                shutil.copytree(url, local_dir)
-                url = rel_local_dir
-            elif osp.isfile(url):
-                os.makedirs(local_dir)
-                shutil.copy2(url, local_dir)
-                url = osp.join(rel_local_dir, osp.basename(url))
-            else:
-                raise Exception("Expected file or directory")
+    extra_args = {}
+    if args.extra_args:
+        if hasattr(arg_parser, 'parse_cmdline'):
+            extra_args = arg_parser.parse_cmdline(args.extra_args)
         else:
-            os.makedirs(local_dir)
+            raise CliException("Format '%s' does not accept "
+                "extra parameters" % fmt)
 
-    project.add_source(name, { 'url': url, 'format': args.format })
+    project.sources.add(name, {
+        'url': args.url,
+        'format': args.format,
+        'options': extra_args,
+    })
+    on_error.do(project.sources.remove, name, force=True, keep_data=False,
+        ignore_errors=True)
 
-    if not args.skip_check:
+    if not args.no_check:
         log.info("Checking the source...")
-        try:
-            project.make_source_project(name).make_dataset()
-        except Exception:
-            shutil.rmtree(local_dir, ignore_errors=True)
-            raise
+        project.sources.make_dataset(name)
 
     project.save()
 
-    log.info("Source '%s' has been added to the project, location: '%s'" \
-        % (name, rel_local_dir))
+    log.info("Source '%s' with format '%s' has been added to the project",
+        name, args.format)
 
     return 0
 
 def build_remove_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(help="Remove source from project",
-        description="Remove a source from a project.")
+        description="Remove a source from a project")
 
-    parser.add_argument('-n', '--name', required=True,
-        help="Name of the source to be removed")
+    parser.add_argument('names', nargs='+',
+        help="Names of the sources to be removed")
     parser.add_argument('--force', action='store_true',
         help="Ignore possible errors during removal")
     parser.add_argument('--keep-data', action='store_true',
@@ -197,37 +134,64 @@ def build_remove_parser(parser_ctor=argparse.ArgumentParser):
 def remove_command(args):
     project = load_project(args.project_dir)
 
-    name = args.name
-    if not name:
+    if not args.names:
         raise CliException("Expected source name")
-    try:
-        project.get_source(name)
-    except KeyError:
-        if not args.force:
-            raise CliException("Source '%s' does not exist" % name)
 
-    if project.env.git.has_submodule(name):
-        if args.force:
-            log.warning("Forcefully removing the '%s' source..." % name)
-
-        project.env.git.remove_submodule(name, force=args.force)
-
-    source_dir = osp.join(project.config.project_dir,
-        project.local_source_dir(name))
-    project.remove_source(name)
+    for name in args.names:
+        project.sources.remove(name, force=args.force, keep_data=args.keep_data)
     project.save()
 
-    if not args.keep_data:
-        shutil.rmtree(source_dir, ignore_errors=True)
+    log.info("Sources '%s' have been removed from the project" % \
+        ', '.join(args.names))
 
-    log.info("Source '%s' has been removed from the project" % name)
+    return 0
+
+def build_pull_parser(parser_ctor=argparse.ArgumentParser):
+    parser = parser_ctor(help="Update source revision",
+        description="""
+        Update source revision.|n
+        |n
+        To remove existing pipelines for the updated sources
+        (start them from scratch), use the '--restart' parameter.|n
+        |n
+        A specific revision can be required by the '--rev' parameter.
+        Otherwise, the latest remote version will be used.
+        """)
+
+    parser.add_argument('names', nargs='+',
+        help="Names of sources to update")
+    parser.add_argument('--rev',
+        help="A revision to update the source to")
+    parser.add_argument('--restart', action='store_true',
+        help="Removes existing pipelines for these sources")
+    parser.add_argument('-p', '--project', dest='project_dir', default='.',
+        help="Directory of the project to operate on (default: current dir)")
+    parser.set_defaults(command=pull_command)
+
+    return parser
+
+def pull_command(args):
+    project = load_project(args.project_dir)
+
+    for source in args.names:
+        if source not in project.sources:
+            raise KeyError("Unknown source '%s'" % source)
+
+    project.sources.pull(args.names, rev=args.rev)
+    for source in args.names:
+        if args.restart:
+            stages = project.build_targets[source].stages
+            stages[:] = stages[:1]
+        project.build_targets.build(source, reset=False, force=True)
+
+    project.save()
 
     return 0
 
 def build_info_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor()
 
-    parser.add_argument('-n', '--name',
+    parser.add_argument('name', nargs='?',
         help="Source name")
     parser.add_argument('-v', '--verbose', action='store_true',
         help="Show details")
@@ -241,13 +205,13 @@ def info_command(args):
     project = load_project(args.project_dir)
 
     if args.name:
-        source = project.get_source(args.name)
+        source = project.sources[args.name]
         print(source)
     else:
-        for name, conf in project.config.sources.items():
+        for name, conf in project.sources.items():
             print(name)
             if args.verbose:
-                print(dict(conf))
+                print(conf)
 
 def build_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(description="""
@@ -267,6 +231,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     subparsers = parser.add_subparsers()
     add_subparser(subparsers, 'add', build_add_parser)
     add_subparser(subparsers, 'remove', build_remove_parser)
+    add_subparser(subparsers, 'pull', build_pull_parser)
     add_subparser(subparsers, 'info', build_info_parser)
 
     return parser
