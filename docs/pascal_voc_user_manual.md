@@ -73,6 +73,7 @@ In addition to `voc_detection`, Datumaro supports `voc_action` (for action class
 To make sure that the selected dataset has been added to the project, you can run `datum info`
 
 ## Export to other formats
+
 Datumaro supports converting Pascal VOC dataset to [all dataset formats that datumaro supports](../docs/user_manual.md#supported-formats). But the converting will be successful only if the output format supports the type of dataset you want to convert.
 
 There are few ways to convert Pascal VOC dataset to other dataset format:
@@ -110,6 +111,7 @@ datum export -f voc_layout -- --label-map voc
 ```
 
 ## Export to Pascal VOC
+
 There are few ways to convert dataset to Pascal VOC format:
 
 ``` bash
@@ -139,42 +141,103 @@ datum export -f voc_layout -- --label-map voc
 ```
 
 ## Datumaro functionality
-Datumaro supports filtering, transformation, merging and etc. for all formats and for the Pascal VOC format in particular. Follow [user manual](../docs/user_manual.md) to get more information about these operations.
-Some examples of using datumaro operations for Pascal VOC dataset format:
+
+Datumaro supports filtering, transformation, merging and etc. for all formats
+and for the Pascal VOC format in particular. Follow
+[user manual](../docs/user_manual.md)
+to get more information about these operations.
+
+There are few examples of using datumaro operations to solve
+particular problems:
+
+- We can convert Pascal VOC dataset to Market-1501 format. But Market-1501 dataset
+only has a `person` class, marked with a bounding box. And to perform the conversion
+we could filter the Pascal VOC dataset. With datumaro we can do it like this
 
 ``` bash
-# import and compare 2009 and 2012 Pascal VOC datasets
-datum import -f voc <path/to/voc2009> -o ./2009
-datum import -f voc <path/to/voc2012> -o ./2012
-cd 2009 && datum diff ../2012
-...
-Datasets have different lengths: 15674 vs 34314
-Unmatched items in the second dataset: {('2011_002719', 'trainval'), ... }
+# create datumaro project with Pascal VOC dataset
+datum import -o <path/to/voc/dataset> --name project
 
-# extract dataset with only car and bus class items from train subset
+# convert labeled shapes into bboxes
+datum transform -t shapes_into_boxes
+cd project-shapes_to_boxes
+
+# keep only person class items
 datum filter --mode items+annotations \
-    -e '/item/annotation[label="car" or label="bus" or label="train"]' \
-    -o <path/to/extract/dir>
+    -e '/item[label="person"]' \
+    -o <path/to/output/project>
 
-# extract dataset has only train and val subsets
-datum filter -e '/item[subset="train" or subset="val"]'
-
-# rename item like "2008_000008" to "voc2008_000008"
-datum transform -t rename -- -e '|(\d+_\d+)|voc\1|'
-
-# reduce number of items in train subset, run datum transform -t ndr -- -h for more information
-datum transform -t ndr -- -w train -k 200
-
-# remap labels car, bus, bicycle into road_obj,
-# label plane, bird into sky_obj
-# and delete others labels
-datum transform -t remap_labels \
-    -- -l car:road_obj -l bus:road_obj -l bicycle:road_obj \
-    -l plane:sky_obj -l bird:sky_obj --default delete
+# delete other labels from dataset
+datum trasnform -t remap_labels -- -l person:person --default delete \
+    -o <path/to/final/project>
 ```
 
+To make sure that the converting was succesful we can check the output project:
+
+```bash
+cd <path/to/final/project>
+datum info
+```
+
+- Pascal VOC 2007 use about 900MB disk space, you can store half as much if keep
+only store the test subset, and with datumaro split the test subset into test
+and training subsets:
+
+```bash
+# create datumaro project with Pascal VOC 2007 (only test subset) dataset
+datum import -o ./VOC2007 --name project
+
+# split the test subset into test and training subsets
+datum transform -t random_split
+
+# or you can specify ratio for subsets (by default test:.67 train:.33)
+datum transform -t random_split -- -s train:.5 -s test:.5
+```
+
+- If you don`t need a variety of classes in Pascal VOC dataset,
+with datumaro you can group the classes for your task:
+
+```bash
+# create datumaro project with Pascal VOC dataset
+datum import -o ./VOC2007 --name project
+
+# group the classes
+datum transform -t remap_labels -- -l car:vehicle -l aeroplane:vehicle \
+    -l bicycle:vehicle -l boat:vehicle -l bus:vehicle -l car:vehicle \
+    -l train:vehicle -l motorbike:vehicle -l bottle:indoor -l chair:indoor \
+    -l diningtable:indoor -l pottedplant:indoor -l sofa:indoor \
+    -l tvmonitor:indoor -l bird:animal -l cat:animal -l dog:animal \
+    -l horse:animal -l sheep:animal -l cow:animal -l person:person \
+    --default delete
+```
+
+- When choosing a dataset for research, it is often useful to find out how the
+datasets differ from each other, to see information about this difference, you
+can run `datum diff`. For example calculate difference between Pascal VOC 2007
+and Pascal VOC 2012:
+
+```bash
+# create project with Pascal 2007 dataset
+datum import -p ./project2007 -f voc <path/to/voc/2007>
+
+# create project with Pascal 2012 dataset
+datum import -p ./project2012 -f voc <path/to/voc/2012>
+
+# calculate difference
+datum diff -p ./proect2012 ./project2007
+
+Datasets have different lengths: 14974 vs 34314
+Unmatched items in the first dataset: {('00973', 'train'), ...}
+```
+
+- Datumaro also have many others operations run
+`datum --help` and `datum transform --help` for more information
+
 ## Dataset statistics
-Datumaro can calculate dataset statistics, the command `datum stats`  creating `statistics.json` file which contain detailed information of the project dataset. With `datum stats` you can check the success of the operations performed on the dataset, 
+
+Datumaro can calculate dataset statistics, the command `datum stats`  creating `statistics.json` file which contain detailed information of the project dataset.
+
+- With `datum stats` you can check the success of the operations performed on the dataset.
 Example:
 <details>
 
@@ -244,3 +307,117 @@ datum stats
 }
 ...
 ```
+
+</details>
+
+
+- Also, `datum stats` includes information about how many items each class contains, example for Pascal VOC 2012:
+
+<details>
+```
+# statistics.json:
+...
+"distribution": {
+    "aeroplane": [
+        530,
+        0.02179455547331195
+    ],
+    "background": [
+        0,
+        0.0
+    ],
+    "bicycle": [
+        643,
+        0.026441319187433178
+    ],
+    "bird": [
+        873,
+        0.035899333826794964
+    ],
+    "boat": [
+        581,
+        0.023891767415083476
+    ],
+    "bottle": [
+        889,
+        0.03655728267127231
+    ],
+    "bus": [
+        445,
+        0.018299202237026073
+    ],
+    "car": [
+        2320,
+        0.09540258244921457
+    ],
+    "cat": [
+        709,
+        0.029155358170902212
+    ],
+    "chair": [
+        1840,
+        0.07566411711489432
+    ],
+    "cow": [
+        482,
+        0.019820708939879923
+    ],
+    "diningtable": [
+        504,
+        0.02072538860103627
+    ],
+    "dog": [
+        966,
+        0.039723661485319514
+    ],
+    "foot": [
+        372,
+        0.015297310634098199
+    ],
+    "hand": [
+        699,
+        0.028744140143103874
+    ],
+    "head": [
+        441,
+        0.018134715025906734
+    ],
+    "horse": [
+        685,
+        0.0281684349041862
+    ],
+    "ignored": [
+        210,
+        0.008635578583765112
+    ],
+    "motorbike": [
+        610,
+        0.02508429969569866
+    ],
+    "person": [
+        7413,
+        0.30483592400690845
+    ],
+    "pottedplant": [
+        841,
+        0.03458343613784028
+    ],
+    "sheep": [
+        435,
+        0.01788798420922773
+    ],
+    "sofa": [
+        635,
+        0.026112344765194508
+    ],
+    "train": [
+        578,
+        0.023768402006743974
+    ],
+    "tvmonitor": [
+        617,
+        0.025372152315157496
+    ]
+...
+```
+</details>
