@@ -4,7 +4,9 @@
 # SPDX-License-Identifier: MIT
 
 from collections import OrderedDict
+import json
 import logging as log
+import numpy as np
 import os.path as osp
 
 from pycocotools.coco import COCO
@@ -47,8 +49,9 @@ class _CocoExtractor(SourceExtractor):
             panoptic_config = self._load_panoptic_config(path)
             panoptic_images = osp.splitext(path)[0]
 
-            self._load_panoptic_categories(panoptic_config, rootpath)
-            self._items = list(self._load_panoptic_items(panoptic_config, panoptic_images).values())
+            self._load_panoptic_categories(panoptic_config)
+            self._items = list(self._load_panoptic_items(panoptic_config,
+                panoptic_images).values())
         else:
             loader = self._make_subset_loader(path)
             self._load_categories(loader)
@@ -59,7 +62,6 @@ class _CocoExtractor(SourceExtractor):
         # COCO API has an 'unclosed file' warning
         coco_api = COCO()
         with open(path, 'r') as f:
-            import json
             dataset = json.load(f)
 
         coco_api.dataset = dataset
@@ -110,15 +112,15 @@ class _CocoExtractor(SourceExtractor):
     @staticmethod
     def _load_panoptic_config(path):
         with open(path, 'r') as f:
-            import json
             return json.load(f)
 
-    def _load_panoptic_categories(self, config, root_path):
+    def _load_panoptic_categories(self, config):
         label_categories = LabelCategories()
         label_map = {}
         for idx, cat in enumerate(config['categories']):
             label_map[cat['id']] = idx
-            label_categories.add(name=cat['name'], parent=cat.get('supercategory'))
+            label_categories.add(name=cat['name'],
+                parent=cat.get('supercategory'))
 
         self._categories[AnnotationType.label] = label_categories
         self._label_map = label_map
@@ -148,11 +150,12 @@ class _CocoExtractor(SourceExtractor):
         return items
 
     def _load_panoptic_items(self, config, panoptic_images):
-        import numpy as np
         items = OrderedDict()
 
         def bgr2id(color):
-            return color[:, :, 2] + 256 * color[:, :, 1] + 256 * 256 * color[:, :, 0]
+            return color[:, :, 2] \
+                + 256 * color[:, :, 1] \
+                + 256 * 256 * color[:, :, 0]
 
         imgs_info = {}
         for img in config['images']:
@@ -161,12 +164,13 @@ class _CocoExtractor(SourceExtractor):
         for ann in config['annotations']:
             img_id = int(ann['image_id'])
             image_path = osp.join(self._images_dir, imgs_info[img_id]['file_name'])
-            image_size = (imgs_info[img_id].get('height'), imgs_info[img_id].get('width'))
+            image_size = (imgs_info[img_id].get('height'),
+                imgs_info[img_id].get('width'))
             image = Image(path=image_path, size=image_size)
             anns = list()
 
             panoptic_image_path = osp.join(panoptic_images, ann['file_name'])
-            panoptic_format = np.array(load_image(panoptic_image_path, dtype=np.uint32))
+            panoptic_format = load_image(panoptic_image_path, dtype=np.uint32)
             pan = bgr2id(panoptic_format)
             for segm_info in ann['segments_info']:
                 cat_id = segm_info['category_id']
@@ -176,7 +180,8 @@ class _CocoExtractor(SourceExtractor):
                 rle['counts'] = rle['counts'].decode('utf8')
                 attributes = {}
                 attributes['is_crowd'] = bool(segm_info['iscrowd'])
-                anns.append(RleMask(rle=rle, label=cat_id, id=segm_id, group=segm_id, attributes=attributes))
+                anns.append(RleMask(rle=rle, label=cat_id, id=segm_id,
+                    group=segm_id, attributes=attributes))
 
             items[img_id] = DatasetItem(
                 id=img_id, subset=self._subset, image=image, annotations=anns,
@@ -206,7 +211,8 @@ class _CocoExtractor(SourceExtractor):
 
         group = ann_id # make sure all tasks' annotations are merged
 
-        if self._task in [CocoTask.instances, CocoTask.person_keypoints, CocoTask.stuff]:
+        if self._task in [CocoTask.instances, CocoTask.person_keypoints,
+            CocoTask.stuff]:
             x, y, w, h = ann['bbox']
             label_id = self._get_label_id(ann)
 

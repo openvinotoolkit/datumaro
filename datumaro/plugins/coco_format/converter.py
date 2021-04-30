@@ -5,6 +5,7 @@
 
 import json
 import logging as log
+import numpy as np
 import os
 import os.path as osp
 from enum import Enum
@@ -86,7 +87,7 @@ class _TaskConverter:
     def save_categories(self, dataset):
         raise NotImplementedError()
 
-    def save_annotations(self, item, segmentation_path=None):
+    def save_annotations(self, item):
         raise NotImplementedError()
 
     def write(self, path):
@@ -126,14 +127,14 @@ class _ImageInfoConverter(_TaskConverter):
     def save_categories(self, dataset):
         pass
 
-    def save_annotations(self, item, segmentation_path=None):
+    def save_annotations(self, item):
         pass
 
 class _CaptionsConverter(_TaskConverter):
     def save_categories(self, dataset):
         pass
 
-    def save_annotations(self, item, segmentation_path=None):
+    def save_annotations(self, item):
         for ann_idx, ann in enumerate(item.annotations):
             if ann.type != AnnotationType.caption:
                 continue
@@ -258,7 +259,7 @@ class _InstancesConverter(_TaskConverter):
     def find_instances(cls, annotations):
         return anno_tools.find_instances(cls.find_instance_anns(annotations))
 
-    def save_annotations(self, item, segmentation_path=None):
+    def save_annotations(self, item):
         instances = self.find_instances(item.annotations)
         if not instances:
             return
@@ -358,7 +359,7 @@ class _KeypointsConverter(_InstancesConverter):
                     })
             self.categories.append(cat)
 
-    def save_annotations(self, item, segmentation_path=None):
+    def save_annotations(self, item):
         point_annotations = [a for a in item.annotations
             if a.type == AnnotationType.points]
         if not point_annotations:
@@ -372,7 +373,7 @@ class _KeypointsConverter(_InstancesConverter):
             self.annotations.append(elem)
 
         # Create annotations for complete instance + keypoints annotations
-        super().save_annotations(item, segmentation_path)
+        super().save_annotations(item)
 
     @classmethod
     def find_solitary_points(cls, annotations):
@@ -429,7 +430,7 @@ class _LabelsConverter(_TaskConverter):
                 'supercategory': cast(cat.parent, str, ''),
             })
 
-    def save_annotations(self, item, segmentation_path=None):
+    def save_annotations(self, item):
         for ann in item.annotations:
             if ann.type != AnnotationType.label:
                 continue
@@ -468,11 +469,10 @@ class _PanopticConverter(_TaskConverter):
                 'supercategory': cast(cat.parent, str, ''),
             })
 
-    def save_annotations(self, item, segmentation_path=None):
+    def save_annotations(self, item):
         if not item.has_image:
             return
 
-        import numpy as np
         image_id = str(item.id)
         filename = image_id + CocoPath.PANOPTIC_EXT
         pan_format = np.zeros(item.image.size, dtype=np.uint32)
@@ -500,8 +500,8 @@ class _PanopticConverter(_TaskConverter):
             segments_info.append(segment_info)
             pan_format += ann.as_instance_mask(ann.id)
 
-        if segmentation_path:
-            file_path = osp.join(segmentation_path, filename)
+        if self._context._segmentation_dir:
+            file_path = osp.join(self._context._segmentation_dir, filename)
             os.makedirs(osp.dirname(file_path), exist_ok=True)
             save_image(file_path, id2bgr(pan_format))
 
@@ -605,6 +605,11 @@ class CocoConverter(Converter):
         self._ann_dir = osp.join(self._save_dir, CocoPath.ANNOTATIONS_DIR)
         os.makedirs(self._ann_dir, exist_ok=True)
 
+    def _make_segmentation_dir(self, subset_name):
+        self._segmentation_dir = osp.join(self._save_dir,
+            CocoPath.ANNOTATIONS_DIR, 'panoptic_'+ subset_name)
+        os.makedirs(self._segmentation_dir, exist_ok=True)
+
     def _make_task_converter(self, task):
         if task not in self._TASK_CONVERTER:
             raise NotImplementedError()
@@ -630,6 +635,7 @@ class CocoConverter(Converter):
 
         for subset_name, subset in self._extractor.subsets().items():
             task_converters = self._make_task_converters()
+            self._make_segmentation_dir(subset_name)
             for task_conv in task_converters.values():
                 task_conv.save_categories(subset)
 
@@ -640,12 +646,10 @@ class CocoConverter(Converter):
                             '' if self._merge_images else subset_name))
                     else:
                         log.debug("Item '%s' has no image info", item.id)
-                segmentation_path = osp.join(self._ann_dir,
-                    'panoptic' + ('' if self._merge_images else "_"+ subset_name))
                 for task_conv in task_converters.values():
                     task_conv.save_image_info(item,
                         self._make_image_filename(item))
-                    task_conv.save_annotations(item, segmentation_path=segmentation_path)
+                    task_conv.save_annotations(item)
 
             for task, task_conv in task_converters.items():
                 if task_conv.is_empty() and not self._tasks:
