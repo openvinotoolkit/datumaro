@@ -750,7 +750,7 @@ class _InstanceSpecificSplit(_TaskSpecificSplit):
         required = self._get_required(sratio)
 
         by_combinations = list()
-        for _, items in by_labels.items(): 
+        for _, items in by_labels.items():
             by_attributes = self._group_by_attr(items)
 
             # merge groups which have too small samples.
@@ -759,7 +759,7 @@ class _InstanceSpecificSplit(_TaskSpecificSplit):
             cluster = []
             min_cluster = max(required, len(items) * 0.01)  # temp solution
 
-            for attr in attr_combinations: 
+            for attr in attr_combinations:
                 indice = by_attributes[attr]
 
                 if len(indice) >= min_cluster:
@@ -775,7 +775,6 @@ class _InstanceSpecificSplit(_TaskSpecificSplit):
                 cluster = []
 
         total = len(self._extractor)
- 
         # total number of GT samples per label-attr combinations
         n_combs = [len(v) for v in by_combinations]
 
@@ -805,7 +804,7 @@ class _InstanceSpecificSplit(_TaskSpecificSplit):
             norm_sum = 0.0
             for idx_comb, dis in distributions.items():
                 norm_sum += dis / n_combs[idx_comb]
-            init_scores[idx_img] = norm_sum 
+            init_scores[idx_img] = norm_sum
 
         by_scores = dict()
         for idx_img, score in init_scores.items():
