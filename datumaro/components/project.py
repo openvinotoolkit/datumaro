@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+from io import IOBase
 import json
 import logging as log
 import networkx as nx
@@ -11,7 +12,7 @@ import shutil
 import unittest.mock
 import urllib.parse
 import yaml
-from contextlib import ExitStack
+from contextlib import ExitStack, contextmanager
 from enum import Enum
 from functools import partial
 from glob import glob
@@ -441,6 +442,9 @@ BuildStageType = Enum('BuildStageType',
     ['source', 'project', 'transform', 'filter', 'convert', 'inference'])
 
 class ProjectBuildTargets(CrudProxy):
+    MAIN_TARGET = 'project'
+    BASE_STAGE = 'root'
+
     def __init__(self, project):
         self._project = project
 
@@ -473,7 +477,7 @@ class ProjectBuildTargets(CrudProxy):
 
     def __contains__(self, key):
         if '.' in key:
-            target, stage = self._split_target_name(key)
+            target, stage = self.split_target_name(key)
             return target in self._data and \
                 self._data[target].find_stage(stage) is not None
         return key in self._data
@@ -493,7 +497,7 @@ class ProjectBuildTargets(CrudProxy):
         target_name = target
         target_stage_name = None
         if '.' in target:
-            target_name, target_stage_name = self._split_target_name(target)
+            target_name, target_stage_name = self.split_target_name(target)
 
         if prev is None:
             prev = target_stage_name
@@ -521,7 +525,7 @@ class ProjectBuildTargets(CrudProxy):
         value = BuildStage(value)
         assert BuildStageType[value.type]
         target.stages.insert(prev_stage + 1, value)
-        return value, self._make_target_name(target_name, name)
+        return value, self.make_target_name(target_name, name)
 
     def remove_target(self, name):
         assert name != self.MAIN_TARGET, "Can't remove the main target"
@@ -572,21 +576,54 @@ class ProjectBuildTargets(CrudProxy):
             'params': params or {},
         }, name=name)
 
-    MAIN_TARGET = 'project'
-    BASE_STAGE = 'root'
+    @staticmethod
+    def make_target_name(target, stage=None):
+        if stage:
+            return '%s.%s' % (target, stage)
+        return target
+
+    @classmethod
+    def split_target_name(cls, name):
+        if '.' in name:
+            target, stage = name.split('.', maxsplit=1)
+            if not target:
+                raise ValueError("Wrong build target name '%s': "
+                    "a name can't be empty" % name)
+            if not stage:
+                raise ValueError("Wrong build target name '%s': "
+                    "expected stage name after the separator" % name)
+        else:
+            target = name
+            stage = cls.BASE_STAGE
+        return target, stage
+
+    @classmethod
+    def strip_target_name(cls, name: str):
+        return cls.split_target_name(name)[0]
+
+    def make_dataset(self, target):
+        if len(self._data) == 1 and self.MAIN_TARGET in self._data:
+            raise DatumaroError("Can't create dataset from an empty project.")
+
+        target = self.strip_target_name(target)
+
+        pipeline = self.make_pipeline(target)
+        graph, head = self.apply_pipeline(pipeline)
+        return graph.nodes[head]['dataset']
+
     def _get_build_graph(self):
         graph = nx.DiGraph()
         for target_name, target in self.items():
             if target_name == self.MAIN_TARGET:
                 # main target combines all the others
-                prev_stages = [self._make_target_name(n, t.head.name)
+                prev_stages = [self.make_target_name(n, t.head.name)
                     for n, t in self.items() if n != self.MAIN_TARGET]
             else:
-                prev_stages = [self._make_target_name(t, self[t].head.name)
+                prev_stages = [self.make_target_name(t, self[t].head.name)
                     for t in target.parents]
 
             for stage in target.stages:
-                stage_name = self._make_target_name(target_name, stage['name'])
+                stage_name = self.make_target_name(target_name, stage['name'])
                 graph.add_node(stage_name, config=stage)
                 for prev_stage in prev_stages:
                     graph.add_edge(prev_stage, stage_name)
@@ -594,30 +631,9 @@ class ProjectBuildTargets(CrudProxy):
 
         return graph
 
-    @staticmethod
-    def _make_target_name(target, stage=None):
-        if stage:
-            return '%s.%s' % (target, stage)
-        return target
-
-    @classmethod
-    def _split_target_name(cls, name):
-        if '.' in name:
-            target, stage = name.split('.', maxsplit=1)
-            if not target:
-                raise ValueError("Wrong target name '%s' - target name can't "
-                    "be empty" % name)
-            if not stage:
-                raise ValueError("Wrong target name '%s' - expected "
-                    "stage name after the separator" % name)
-        else:
-            target = name
-            stage = cls.BASE_STAGE
-        return target, stage
-
     def _get_target_subgraph(self, target):
         if '.' not in target:
-            target = self._make_target_name(target, self[target].head.name)
+            target = self.make_target_name(target, self[target].head.name)
 
         full_graph = self._get_build_graph()
 
@@ -638,7 +654,7 @@ class ProjectBuildTargets(CrudProxy):
 
     def _get_target_config(self, name):
         """Returns a target or stage description"""
-        target, stage = self._split_target_name(name)
+        target, stage = self.split_target_name(name)
         target_config = self._data[target]
         stage_config = target_config.get_stage(stage)
         return stage_config
@@ -657,7 +673,7 @@ class ProjectBuildTargets(CrudProxy):
         return pipeline
 
     def generate_pipeline(self, target):
-        real_target = self._normalize_target(target)
+        real_target = self.strip_target_name(target)
 
         pipeline = self.make_pipeline(real_target)
         path = osp.join(self._project.config.project_dir,
@@ -759,7 +775,7 @@ class ProjectBuildTargets(CrudProxy):
 
             elif type_ == BuildStageType.source:
                 assert len(parent_datasets) == 0, current_name
-                source, _ = self._split_target_name(current_name)
+                source, _ = self.split_target_name(current_name)
                 dataset = self._project.sources.make_dataset(source)
 
             elif type_ == BuildStageType.project:
@@ -787,74 +803,12 @@ class ProjectBuildTargets(CrudProxy):
         with open(path) as f:
             return yaml.safe_load(f)
 
-    def make_dataset(self, target):
-        if len(self._data) == 1 and self.MAIN_TARGET in self._data:
-            raise DatumaroError("Can't create dataset from an empty project.")
-
-        verify_target_revpath(target)
-        rev, target = expand_target_revpath(target)
-
-        target = self._normalize_target(target)
-
-        pipeline = get_target_pipeline(target, rev=rev)
-        pipeline = build_pipeline(pipeline)
-        dataset = pipeline.head.dataset
-
-
-        pipeline = self.make_pipeline(target)
-        graph, head = self.apply_pipeline(pipeline)
-        return graph.nodes[head]['dataset']
-
-    def find_missing_sources(self, pipeline):
-        missing_sources = set()
-        checked_deps = set()
-        missing_deps = [pipeline.head.name]
-        while missing_deps:
-            t = missing_deps.pop()
-            if t in checked_deps:
-                continue
-
-            t_conf = pipeline[t].config
-
-            if not (t_conf.hash and self.has_cache_entry(t_conf.hash)):
-                parent_targets = pipeline.parents(t)
-                if not parent_targets:
-                    assert t_conf.type == 'source'
-                    if not is_generated(t_conf):
-                        missing_sources.add(t)
-                else:
-                    for p in parent_targets:
-                        if p not in checked_deps:
-                            missing_deps.append(p)
-                    continue
-
-            checked_deps.add(t)
-        return missing_sources
-
-    def build_pipeline(self, pipeline):
-        missing_sources = self.find_missing_sources(pipeline)
-        for t in missing_sources:
-            self.download_source(pipeline[t].config) # set hash in config if the source was not downloaded
-
-        self.apply_pipeline(pipeline) # make forward pass
-        self.save_cached_dataset(pipeline) # update hash in config!
-        return pipeline
-
-    def _normalize_target(self, target):
-        if '.' not in target:
-            real_target = self._make_target_name(target, self[target].head.name)
-        else:
-            t, s = self._split_target_name(target)
-            assert self[t].get_stage(s), target
-            real_target = target
-        return real_target
-
     @classmethod
     def pipeline_sources(cls, pipeline):
         sources = set()
         for item in pipeline:
             if item['config']['type'] == BuildStageType.source.name:
-                s, _ = cls._split_target_name(item['name'])
+                s, _ = cls.split_target_name(item['name'])
                 sources.add(s)
         return list(sources)
 
@@ -894,7 +848,7 @@ class ProjectBuildTargets(CrudProxy):
             raise VcsError("Can't build project in read-only or detached mode")
 
         if '.' in target:
-            raw_target, target_stage = self._split_target_name(target)
+            raw_target, target_stage = self.split_target_name(target)
         else:
             raw_target = target
             target_stage = None
@@ -949,7 +903,7 @@ class ProjectBuildTargets(CrudProxy):
     def run_pipeline(self, pipeline, out_dir):
         graph, head = self.apply_pipeline(pipeline)
         head_node = graph.nodes[head]
-        raw_target, _ = self._split_target_name(head)
+        raw_target, _ = self.split_target_name(head)
 
         dataset = head_node['dataset']
         dst_format = DEFAULT_FORMAT
@@ -1640,7 +1594,7 @@ class ProjectVcs:
                 targets[i] = self.dvc_filepath(t)
 
         # order matters
-        self.git.checkout(rev, targets)
+        self.git.checkout(rev, targets) # TODO: need to reload the project
         self.dvc.checkout(targets)
 
     def add(self, paths: List[str]):
@@ -1655,7 +1609,8 @@ class ProjectVcs:
         if not paths:
             raise ValueError("Expected at least one file path to add")
         for p in paths:
-            self.dvc.add(p, dvc_path=self.dvc_aux_path(osp.basename(p)))
+            self.dvc.add(p,
+                dvc_path=self.dvc_aux_path(osp.basename(p)))
         self.ensure_gitignored()
 
     def commit(self, paths: Union[None, List[str]], message):
@@ -1710,9 +1665,21 @@ class ProjectVcs:
         uncomitted.update(self.dvc.status())
         return uncomitted
 
+    def is_ref(self, ref: str) -> bool:
+        if self.detached:
+            raise DetachedProjectError("Can't be used in a detached project")
+
+        return self.git.is_ref(ref)
+
+    def has_commits(self) -> bool:
+        if self.detached:
+            raise DetachedProjectError("Can't be used in a detached project")
+
+        return self.git.has_commits()
+
     def ensure_gitignored(self, paths: Union[None, str, List[str]] = None):
         if self.detached:
-            return
+            raise DetachedProjectError("Can't be used in a detached project")
 
         if not self.writeable:
             raise ReadonlyProjectError("Can't update a read-only repository")
@@ -1724,24 +1691,21 @@ class ProjectVcs:
         self.git.ignore(paths, mode='append')
 
     def dvc_aux_dir(self) -> str:
-        return osp.join(self._project.config.project_dir,
+        return osp.join(
+            self._project.config.project_dir,
             self._project.config.env_dir,
             self._project.config.dvc_aux_dir)
 
     def dvc_filepath(self, target: str) -> str:
         return osp.join(self.dvc_aux_dir(), target + '.dvc')
 
-    def is_ref(self, ref: str) -> bool:
+    @contextmanager
+    def open(self, path: str, rev: Optional[str] = None) -> IOBase:
         if self.detached:
-            return False
+            raise DetachedProjectError("Can't be used in a detached project")
 
-        return self.git.is_ref(ref)
 
-    def has_commits(self) -> bool:
-        if self.detached:
-            return False
 
-        return self.git.has_commits()
 
 class Project:
     @classmethod

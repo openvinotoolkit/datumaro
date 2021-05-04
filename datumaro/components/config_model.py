@@ -49,6 +49,7 @@ BUILDSTAGE_SCHEMA = _SchemaBuilder() \
     .add('name', str) \
     .add('type', str) \
     .add('kind', str) \
+    .add('hash', str) \
     .add('params', dict) \
     .build()
 
