@@ -812,7 +812,6 @@ class _InstanceSpecificSplit(_TaskSpecificSplit):
                 by_scores[score] = [idx_img]
             else:
                 by_scores[score].append(idx_img)
-        
         # functions for keep the # of annotations not exceed the target_ins num
         def compute_penalty(counts, n_combs):
             p = 0
