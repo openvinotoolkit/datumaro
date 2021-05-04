@@ -457,6 +457,10 @@ class _StuffConverter(_InstancesConverter):
     pass
 
 class _PanopticConverter(_TaskConverter):
+    def write(self, path):
+        with open(path, 'w') as outfile:
+            json.dump(self._data, outfile)
+
     def save_categories(self, dataset):
         label_categories = dataset.categories().get(AnnotationType.label)
         if label_categories is None:
@@ -486,9 +490,14 @@ class _PanopticConverter(_TaskConverter):
 
         segments_info = list()
         masks = []
+        next_id = self._min_ann_id
         for ann in item.annotations:
             if ann.type != AnnotationType.mask:
                 continue
+
+            if not ann.id:
+                ann.id = next_id
+                next_id += 1
 
             segment_info = {}
             segment_info['id'] = ann.id
@@ -507,7 +516,6 @@ class _PanopticConverter(_TaskConverter):
                 id2bgr(pan_format), create_dir=True)
 
         elem = {
-            'id': item.id,
             'image_id': self._get_image_id(item),
             'file_name': ann_filename,
             'segments_info': segments_info
