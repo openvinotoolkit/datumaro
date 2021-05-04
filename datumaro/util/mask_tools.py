@@ -3,6 +3,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+from itertools import chain
 import numpy as np
 
 from datumaro.util.image import lazy_image, load_image
@@ -279,7 +280,7 @@ def find_mask_bbox(mask):
     y0, y1 = np.where(rows)[0][[0, -1]]
     return [x0, y0, x1 - x0, y1 - y0]
 
-def merge_masks(masks):
+def merge_masks(masks, start=None):
     """
         Merges masks into one, mask order is responsible for z order.
         To avoid memory explosion on mask materialization, consider passing
@@ -288,6 +289,9 @@ def merge_masks(masks):
         Inputs: a sequence of index masks or (binary mask, index) pairs
         Outputs: an index mask
     """
+    if start is not None:
+        masks = chain([start], masks)
+
     it = iter(masks)
 
     try:
