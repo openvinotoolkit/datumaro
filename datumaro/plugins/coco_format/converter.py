@@ -473,9 +473,7 @@ class _PanopticConverter(_TaskConverter):
         if not item.has_image:
             return
 
-        image_id = str(item.id)
-        filename = image_id + CocoPath.PANOPTIC_EXT
-        pan_format = np.zeros(item.image.size, dtype=np.uint32)
+        ann_filename = item.id + CocoPath.PANOPTIC_EXT
 
         def id2bgr(id_map):
             id_map_copy = id_map.copy()
@@ -487,28 +485,31 @@ class _PanopticConverter(_TaskConverter):
             return bgr_map
 
         segments_info = list()
+        masks = []
         for ann in item.annotations:
             if ann.type != AnnotationType.mask:
                 continue
 
             segment_info = {}
             segment_info['id'] = ann.id
-            segment_info['category_id'] = ann.label
+            segment_info['category_id'] = cast(ann.label, int, -1) + 1
             segment_info['area'] = float(ann.get_area())
             segment_info['bbox'] = [float(p) for p in ann.get_bbox()]
             segment_info['iscrowd'] = cast(ann.attributes.get("is_crowd"), int, 0)
             segments_info.append(segment_info)
-            pan_format += ann.as_instance_mask(ann.id)
+            masks.append(ann)
 
-        if self._context._segmentation_dir:
-            file_path = osp.join(self._context._segmentation_dir, filename)
-            os.makedirs(osp.dirname(file_path), exist_ok=True)
-            save_image(file_path, id2bgr(pan_format))
+        if masks:
+            pan_format = mask_tools.merge_masks(
+                ((m.image, m.id) for m in masks),
+                start=np.zeros(item.image.size, dtype=np.uint32))
+            save_image(osp.join(self._context._segmentation_dir, ann_filename),
+                id2bgr(pan_format), create_dir=True)
 
         elem = {
             'id': item.id,
-            'image_id': image_id,
-            'file_name': filename,
+            'image_id': self._get_image_id(item),
+            'file_name': ann_filename,
             'segments_info': segments_info
         }
         self.annotations.append(elem)
@@ -635,9 +636,10 @@ class CocoConverter(Converter):
 
         for subset_name, subset in self._extractor.subsets().items():
             task_converters = self._make_task_converters()
-            self._make_segmentation_dir(subset_name)
             for task_conv in task_converters.values():
                 task_conv.save_categories(subset)
+            if CocoTask.panoptic in task_converters:
+                self._make_segmentation_dir(subset_name)
 
             for item in subset:
                 if self._save_images:

@@ -72,8 +72,7 @@ class _CocoExtractor(SourceExtractor):
         self._categories = {}
 
         if self._task in [CocoTask.instances, CocoTask.labels,
-                CocoTask.person_keypoints, CocoTask.stuff
-                ]:
+                CocoTask.person_keypoints, CocoTask.stuff]:
             label_categories, label_map = self._load_label_categories(loader)
             self._categories[AnnotationType.label] = label_categories
             self._label_map = label_map
