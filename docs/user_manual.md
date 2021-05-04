@@ -20,6 +20,7 @@
   - [Compare projects](#compare-projects)
   - [Obtaining project info](#get-project-info)
   - [Obtaining project statistics](#get-project-statistics)
+  - [Validate project annotations](#validate-project-annotations)
   - [Register model](#register-model)
   - [Run inference](#run-model)
   - [Run inference explanation](#explain-inference)
@@ -877,6 +878,157 @@ datum stats -p test_project
 ```
 
 </details>
+
+
+### Validate project annotations
+
+This command inspects annotations based on the task type
+and stores the result in JSON file.
+
+Supported task types are `classification`, `detection`, and `segmentation`.
+
+The validation result contains
+- annotations statistics based on the task type
+- validation reports, such as
+    - items not having annotations
+    - items having undefined annotations
+    - imbalanced distribution in class/attributes
+    - too small or large values (items_far_from_mean)
+- summary
+
+Usage:
+
+``` bash
+datum validate --help
+
+datum validate -p <project dir> <task_type>
+```
+
+Validation Result:
+
+<details>
+
+``` bash
+{
+    'statistics': {
+        ## common statistics
+        'label_distribution': {
+            'defined_labels': <dict>,   # <label:str>: <count:int>
+            'undefined_labels': <dict>
+            #  <label:str>: {
+            #    'count': <int>,
+            #    'items_with_undefined_label': [(<item.id>, <item.subset>), ]
+            #  }
+        },
+        'attribute_distribution': {
+            'defined_attributes': <dict>,
+            #  <label:str>: {
+            #    <attribute:str>: {
+            #      'distribution': {<attr_value:str>: <count:int>, },
+            #      'items_missing_attribute': [(<item.id>, <item.subset>), ]
+            #    }
+            #  }
+            'undefined_attributes': <dict>
+            #  <label:str>: {
+            #    <attribute:str>: {
+            #      'distribution': {<attr_value:str>: <count:int>, },
+            #      'items_with_undefined_attr': [(<item.id>, <item.subset>), ]
+            #    }
+            #  }
+        },
+        'total_ann_count': <int>,
+        'items_missing_annotation': <list>, # [(<item.id>, <item.subset>), ]
+
+        ## statistics for classification task
+        'items_with_multiple_labels': <list>, # [(<item.id>, <item.subset>), ]
+
+        ## statistics for detection task
+        'items_with_invalid_value': <dict>,
+        #  '(<item.id>, <item.subset>)' : {
+        #    <ann.id> : [ <property:str>, ]
+        #  }
+        #  properties: 'x', 'y', 'width', 'height',
+        #              'area(wxh)', 'ratio(w/h)', 'short', 'long'
+        'items_with_negative_length': <dict>,
+        #  '(<item.id>, <item.subset>)' : {
+        #    <ann.id> : { <'width'|'height'>: <value>, }
+        #  }
+        'bbox_distribution_in_label': <dict>, # <label:str>: <bbox_template>
+        'bbox_distribution_in_attribute': <dict>,
+        #  <label:str>: {
+        #     <attribute:str>: { <attr_value>: <bbox_template>, }
+        #  }
+        'bbox_distribution_in_dataset_item': <dict>,
+        # '(<item.id>, <item.subset>)': <bbox count: int>
+
+        ## statistics for segmentation task
+        'items_with_invalid_value'] = <dict>,
+        #  '(<item.id>, <item.subset>)' : {
+        #    <ann.id> : [ <property:str>, ]
+        #  }
+        #  properties: 'area', 'width', 'height'
+        'mask_distribution_in_label'] = <dict>, # <label:str>: <mask_template>
+        'mask_distribution_in_attribute'] = <dict>,
+        #  <label:str>: {
+        #     <attribute:str>: { <attr_value>: <mask_template>, }
+        #  }
+        'mask_distribution_in_dataset_item'] = <dict>,
+        # '(<item.id>, <item.subset>)': <mask/polygon count: int>
+    },
+    'validation_reports': <list>, #[ <validation_error_format>, ]
+    # validation_error_format = {
+    #   'anomaly_type': <str>,  # see datumaro/components/errors.py
+    #   'description': <str>,   # see datumaro/components/errors.py
+    #   'severity': <str>, # 'warning' or 'error'    #
+    #   'item_id': <str>,  # when the validation target is a DatasetItem
+    #   'subset': <str>,   # when the validation target is a DatasetItem
+    # }
+    'summary': {
+        'errors': <count: int>,
+        'warnings': <count: int>
+    }
+}
+
+```
+
+`bbox_template` and `mask_template` are defined as,
+
+``` python
+bbox_template = {
+    'width': <numerical_stat_template>,
+    'height': <numerical_stat_template>,
+    'area(wxh)': <numerical_stat_template>,
+    'ratio(w/h)': <numerical_stat_template>,
+    'short': <numerical_stat_template>, # short = min(w, h)
+    'long': <numerical_stat_template>   # long = max(w, h)
+}
+mask_template = {
+    'area': <numerical_stat_template>,
+    'width': <numerical_stat_template>,
+    'height': <numerical_stat_template>
+}
+```
+
+`numerical_stat_template` is defined as,
+
+``` python
+numerical_stat_template = {
+    'items_far_from_mean': <dict>,
+    # {'(<item.id>, <item.subset>)': {<ann.id> : <value:float>, }, }
+    'mean': <float>,
+    'stdev': <float>,
+    'min': <float>,
+    'max': <float>,
+    'median': <float>,
+    'histogram': {
+        'bins': <list>,   # [<float>, ]
+        'counts': <list>, # [<int>, ]
+    }
+}
+```
+
+</details>
+
 
 ### Register model
 
