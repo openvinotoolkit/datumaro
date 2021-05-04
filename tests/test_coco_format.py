@@ -301,75 +301,49 @@ class CocoConverterTest(TestCase):
                 target_dataset=target_dataset)
 
     def test_can_save_and_load_panoptic(self):
-        import pycocotools.mask as mask_utils
-        rle_train = mask_utils.encode(np.asfortranarray(np.array([
+        dataset = Dataset.from_iterable([
+            DatasetItem(id=1, subset='train', image=np.ones((4, 4, 3)),
+                annotations=[
+                    Mask(image=np.array([
                             [0, 1, 0, 0],
                             [0, 1, 0, 0],
                             [0, 1, 1, 1],
-                            [0, 0, 0, 0]],
-                        ), dtype=np.uint8))
-        rle_train['counts'] = rle_train['counts'].decode('utf8')
-        rle_val1 = mask_utils.encode(np.asfortranarray(np.array([
+                            [0, 0, 0, 0]
+                        ]),
+                        attributes={ 'is_crowd': False },
+                        label=4, group=3, id=3),
+                ], attributes={'id': 1}),
+
+            DatasetItem(id=2, subset='val', image=np.ones((5, 5, 3)),
+                annotations=[
+                    Mask(image=np.array([
                             [0, 0, 0, 0, 0],
                             [1, 1, 1, 0, 0],
                             [1, 1, 0, 0, 0],
                             [0, 0, 0, 0, 0],
-                            [0, 0, 0, 0, 0]],
-                        ), dtype=np.uint8))
-        rle_val1['counts'] = rle_val1['counts'].decode('utf8')
-        rle_val2 = mask_utils.encode(np.asfortranarray(np.array([
-                            [0, 0, 0, 0, 1],
-                            [0, 0, 0, 0, 1],
-                            [0, 0, 0, 0, 1],
-                            [0, 0, 0, 0, 1],
-                            [0, 0, 0, 0, 1]],
-                        ), dtype=np.uint8))
-        rle_val2['counts'] = rle_val2['counts'].decode('utf8')
-        source_dataset = Dataset.from_iterable([
-            DatasetItem(id=1, subset='train', image=np.ones((4, 4, 3)),
-                annotations=[
-                    RleMask(rle=rle_train,
+                            [0, 0, 0, 0, 0]
+                        ]),
                         attributes={ 'is_crowd': False },
                         label=4, group=3, id=3),
-                ], attributes={'id': 1}),
-
-            DatasetItem(id=2, subset='val', image=np.ones((5, 5, 3)),
-                annotations=[
-                    RleMask(rle=rle_val1,
-                        attributes={ 'is_crowd': False },
-                        label=4, group=3, id=3),
-                    RleMask(rle=rle_val2,
+                    Mask(image=np.array([
+                            [0, 0, 0, 0, 1],
+                            [0, 0, 0, 0, 1],
+                            [0, 0, 0, 0, 1],
+                            [0, 0, 0, 0, 1],
+                            [0, 0, 0, 0, 1]
+                        ]),
                         attributes={ 'is_crowd': False },
                         label=2, group=2, id=2),
                 ], attributes={'id': 2}),
             ], categories=[str(i) for i in range(10)])
 
-        target_dataset = Dataset.from_iterable([
-            DatasetItem(id=1, subset='train', image=np.ones((4, 4, 3)),
-                annotations=[
-                    RleMask(rle=rle_train,
-                        attributes={ 'is_crowd': False },
-                        label=4, group=3, id=3),
-                ], attributes={'id': 1}),
-
-            DatasetItem(id=2, subset='val', image=np.ones((5, 5, 3)),
-                annotations=[
-                    RleMask(rle=rle_val1,
-                        attributes={ 'is_crowd': False },
-                        label=4, group=3, id=3),
-                    RleMask(rle=rle_val2,
-                        attributes={ 'is_crowd': False },
-                        label=2, group=2, id=2),
-                ], attributes={'id': 2})
-            ], categories=[str(i) for i in range(10)])
-
         with TestDir() as test_dir:
-            self._test_save_and_load(source_dataset,
+            self._test_save_and_load(dataset,
                 partial(CocoPanopticConverter.convert, save_images=True),
-                test_dir, target_dataset=target_dataset, require_images=True)
+                test_dir, require_images=True)
 
     def test_can_save_and_load_stuff(self):
-        source_dataset = Dataset.from_iterable([
+        dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train', image=np.ones((4, 4, 3)),
                 annotations=[
                     Mask(np.array([
@@ -395,36 +369,9 @@ class CocoConverterTest(TestCase):
                 ], attributes={'id': 1}),
             ], categories=[str(i) for i in range(10)])
 
-        target_dataset = Dataset.from_iterable([
-            DatasetItem(id=1, subset='train', image=np.ones((4, 4, 3)),
-                annotations=[
-                    Mask(np.array([
-                            [0, 1, 0, 0],
-                            [0, 1, 0, 0],
-                            [0, 1, 1, 1],
-                            [0, 0, 0, 0]],
-                        ),
-                        attributes={ 'is_crowd': False },
-                        label=4, group=3, id=3),
-                ], attributes={'id': 2}),
-
-            DatasetItem(id=2, subset='val', image=np.ones((4, 4, 3)),
-                annotations=[
-                    Mask(np.array([
-                            [0, 0, 0, 0],
-                            [1, 1, 1, 0],
-                            [1, 1, 0, 0],
-                            [0, 0, 0, 0]],
-                        ),
-                        attributes={ 'is_crowd': False },
-                        label=4, group=3, id=3),
-                ], attributes={'id': 1})
-            ], categories=[str(i) for i in range(10)])
-
         with TestDir() as test_dir:
-            self._test_save_and_load(source_dataset,
-                CocoStuffConverter.convert, test_dir,
-                target_dataset=target_dataset)
+            self._test_save_and_load(dataset,
+                CocoStuffConverter.convert, test_dir)
 
     def test_can_merge_polygons_on_loading(self):
         source_dataset = Dataset.from_iterable([

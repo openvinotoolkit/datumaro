@@ -12,12 +12,12 @@ import os.path as osp
 from pycocotools.coco import COCO
 import pycocotools.mask as mask_utils
 
-from datumaro.components.extractor import (SourceExtractor,
+from datumaro.components.extractor import (CompiledMask, Mask, SourceExtractor,
     DEFAULT_SUBSET_NAME, DatasetItem,
     AnnotationType, Label, RleMask, Points, Polygon, Bbox, Caption,
     LabelCategories, PointsCategories
 )
-from datumaro.util.image import Image, load_image
+from datumaro.util.image import Image, lazy_image, load_image
 
 from .format import CocoTask, CocoPath
 
@@ -151,11 +151,6 @@ class _CocoExtractor(SourceExtractor):
     def _load_panoptic_items(self, config, panoptic_images):
         items = OrderedDict()
 
-        def bgr2id(color):
-            return color[:, :, 2] \
-                + 256 * color[:, :, 1] \
-                + 256 * 256 * color[:, :, 0]
-
         imgs_info = {}
         for img in config['images']:
             imgs_info[img['id']] = img
@@ -165,27 +160,39 @@ class _CocoExtractor(SourceExtractor):
             image_path = osp.join(self._images_dir, imgs_info[img_id]['file_name'])
             image_size = (imgs_info[img_id].get('height'),
                 imgs_info[img_id].get('width'))
+            if all(image_size):
+                image_size = (int(image_size[0]), int(image_size[1]))
+            else:
+                image_size = None
             image = Image(path=image_path, size=image_size)
-            anns = list()
+            anns = []
 
-            panoptic_image_path = osp.join(panoptic_images, ann['file_name'])
-            panoptic_format = load_image(panoptic_image_path, dtype=np.uint32)
-            pan = bgr2id(panoptic_format)
+            mask_path = osp.join(panoptic_images, ann['file_name'])
+            mask = lazy_image(mask_path, loader=self._load_pan_mask)
+            mask = CompiledMask(instance_mask=mask)
             for segm_info in ann['segments_info']:
-                cat_id = segm_info['category_id']
+                cat_id = self._get_label_id(segm_info)
                 segm_id = segm_info['id']
-                mask = pan == segm_id
-                rle = mask_utils.encode(np.asfortranarray(mask.astype('uint8')))
-                rle['counts'] = rle['counts'].decode('utf8')
-                attributes = {}
-                attributes['is_crowd'] = bool(segm_info['iscrowd'])
-                anns.append(RleMask(rle=rle, label=cat_id, id=segm_id,
+                attributes = { 'is_crowd': bool(segm_info['iscrowd']) }
+                anns.append(Mask(image=mask.lazy_extract(segm_id),
+                    label=cat_id, id=segm_id,
                     group=segm_id, attributes=attributes))
 
             items[img_id] = DatasetItem(
                 id=img_id, subset=self._subset, image=image, annotations=anns,
                 attributes={'id': img_id})
         return items
+
+    @staticmethod
+    def _load_pan_mask(path):
+        def bgr2id(color):
+            return color[:, :, 2] \
+                + 256 * color[:, :, 1] \
+                + 256 * 256 * color[:, :, 0]
+
+        mask = load_image(path, dtype=np.uint32)
+        mask = bgr2id(mask)
+        return mask
 
     def _get_label_id(self, ann):
         cat_id = ann.get('category_id')
