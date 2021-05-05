@@ -4,10 +4,8 @@
 # SPDX-License-Identifier: MIT
 
 from collections import OrderedDict
-from datumaro.util.mask_tools import bgr2index
 import json
 import logging as log
-import numpy as np
 import os.path as osp
 
 from pycocotools.coco import COCO
@@ -19,6 +17,7 @@ from datumaro.components.extractor import (CompiledMask, Mask, SourceExtractor,
     LabelCategories, PointsCategories
 )
 from datumaro.util.image import Image, lazy_image, load_image
+from datumaro.util.mask_tools import bgr2index
 
 from .format import CocoTask, CocoPath
 
