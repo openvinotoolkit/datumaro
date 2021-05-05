@@ -155,7 +155,7 @@ class CocoImporterTest(TestCase):
                 subset='val',
                 attributes={'id': 1},
                 annotations=[
-                    RleMask(rle=rle, label=1, id=1, group=0,
+                    RleMask(rle=rle, label=0, id=255, group=255,
                         attributes={'iscrowd': False}),
                 ]
             ),
