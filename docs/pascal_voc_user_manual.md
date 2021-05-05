@@ -195,7 +195,7 @@ datum filter --mode items+annotations \
     -o <path/to/output/project>
 
 # delete other labels from dataset
-datum transform -t remap_labels -- -l person:person --default delete
+datum transform -t remap_labels -o ./final_project -- -l person:person --default delete
 ```
 
 To make sure that the converting was succesful we can check the output project:
@@ -228,7 +228,7 @@ thus assign the same name to different labels:
 # create Datumaro project with Pascal VOC dataset
 datum import -o ./VOC2007 --name project
 
-# group the classes
+# rename the labels
 datum transform -t remap_labels -- -l car:vehicle -l aeroplane:vehicle \
     -l bicycle:vehicle -l boat:vehicle -l bus:vehicle -l car:vehicle \
     -l train:vehicle -l motorbike:vehicle -l bottle:indoor -l chair:indoor \
@@ -241,24 +241,22 @@ datum transform -t remap_labels -- -l car:vehicle -l aeroplane:vehicle \
 - Example 4. When choosing a dataset for research, it is often useful to find out how the
 datasets differ from each other, to see information about this difference, you
 can run `datum diff`. For example calculate difference between Pascal VOC 2007
-and Pascal VOC 2012:
+and Pascal VOC 2012 trainval subsets:
 
 ```bash
-# create project with Pascal 2007 dataset
 datum import -p ./project2007 -f voc <path/to/voc/2007>
-
-# create project with Pascal 2012 dataset
 datum import -p ./project2012 -f voc <path/to/voc/2012>
+datum filer -p ./project2007 -e '/item[subset="trainval]' -o ../trainval_voc2007
+datum filer -p ./project2012 -e '/item[subset="trainval]' -o ../trainval_voc2012
+datum diff -p ../trainval_voc2012 ../trainval_voc2007
 
-# calculate difference
-datum diff -p ./proect2012 ./project2007
-
-Datasets have different lengths: 14974 vs 34314
-Unmatched items in the first dataset: {('00973', 'train'), ...}
+Datasets have different lengths: 17125 vs 5011
+Unmatched items in the first dataset: {('2012_002332', 'trainval'), ...}
+Unmatched items in the second dataset: {('001580', 'trainval'), ...}
 ```
-
-- Datumaro also have many others operations run
-`datum --help` and `datum transform --help` for more information
+This result mathces with the official description of datasets
+[Pascal VOC 2007](#http://host.robots.ox.ac.uk/pascal/VOC/voc2007/dbstats.html) and
+[Pascal VOC 2012](#http://host.robots.ox.ac.uk/pascal/VOC/voc2012/dbstats.html)
 
 ## Dataset statistics
 
