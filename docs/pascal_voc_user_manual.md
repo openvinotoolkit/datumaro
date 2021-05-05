@@ -13,7 +13,7 @@ The Pascal VOC dataset is available for free download
 There are two ways to create Datumaro project and add Pascal VOC dataset to it:
 
 ``` bash
-datum import --format voc --input-paath <path/to/dataset>
+datum import --format voc --input-path <path/to/dataset>
 # or
 datum create
 datum add path -f voc <path/to/dataset>
@@ -210,7 +210,7 @@ and training subsets:
 
 ```bash
 # create Datumaro project with Pascal VOC 2007 (only test subset) dataset
-datum import -o ./VOC2007 --name project
+datum import -f voc -i ./VOC2007
 
 # split the test subset into test and training subsets
 datum transform -t random_split
@@ -225,7 +225,7 @@ thus assign the same name to different labels:
 
 ```bash
 # create Datumaro project with Pascal VOC dataset
-datum import -o ./VOC2007 --name project
+datum import -f voc -i ./VOC2007
 
 # rename the labels
 datum transform -t remap_labels -- -l car:vehicle -l aeroplane:vehicle \
@@ -243,8 +243,8 @@ can run `datum diff`. For example calculate difference between Pascal VOC 2007
 and Pascal VOC 2012 trainval subsets:
 
 ```bash
-datum import -p ./project2007 -f voc <path/to/voc/2007>
-datum import -p ./project2012 -f voc <path/to/voc/2012>
+datum import -n ./project2007 -f voc -i <path/to/voc/2007>
+datum import -n ./project2012 -f voc -i <path/to/voc/2012>
 datum filer -p ./project2007 -e '/item[subset="trainval]' -o ../trainval_voc2007
 datum filer -p ./project2012 -e '/item[subset="trainval]' -o ../trainval_voc2012
 datum diff -p ../trainval_voc2012 ../trainval_voc2007
