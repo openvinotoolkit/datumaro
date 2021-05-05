@@ -113,6 +113,13 @@ def make_binary_mask(mask):
         return mask
     return mask.astype(bool)
 
+def bgr2index(img):
+    if img.dtype.kind not in {'b', 'i', 'u'}:
+        img = img.astype(np.uint8)
+    return (img[..., 0] << 16) + (img[..., 1] << 8) + img[..., 2]
+
+def index2bgr(id_map):
+    return np.dstack((id_map >> 16, id_map >> 8, id_map)).astype(np.uint8)
 
 def load_mask(path, inverse_colormap=None):
     mask = load_image(path, dtype=np.uint8)

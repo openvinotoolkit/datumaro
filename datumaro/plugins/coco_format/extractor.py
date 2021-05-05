@@ -4,6 +4,7 @@
 # SPDX-License-Identifier: MIT
 
 from collections import OrderedDict
+from datumaro.util.mask_tools import bgr2index
 import json
 import logging as log
 import numpy as np
@@ -186,13 +187,8 @@ class _CocoExtractor(SourceExtractor):
 
     @staticmethod
     def _load_pan_mask(path):
-        def bgr2id(color):
-            return color[:, :, 2] \
-                + 256 * color[:, :, 1] \
-                + 256 * 256 * color[:, :, 0]
-
-        mask = load_image(path, dtype=np.uint32)
-        mask = bgr2id(mask)
+        mask = load_image(path)
+        mask = bgr2index(mask)
         return mask
 
     def _get_label_id(self, ann):

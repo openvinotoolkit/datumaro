@@ -480,14 +480,6 @@ class _PanopticConverter(_TaskConverter):
 
         ann_filename = item.id + CocoPath.PANOPTIC_EXT
 
-        def id2bgr(id_map):
-            id_map = id_map.astype(int)
-            bgr_shape = tuple(list(id_map.shape) + [3])
-            bgr_map = np.zeros(bgr_shape, dtype=np.uint8)
-            for i in range(3):
-                bgr_map[..., 2-i] = id_map >> (8 * i)
-            return bgr_map
-
         segments_info = list()
         masks = []
         next_id = self._min_ann_id
@@ -513,7 +505,7 @@ class _PanopticConverter(_TaskConverter):
                 ((m.image, m.id) for m in masks),
                 start=np.zeros(item.image.size, dtype=np.uint32))
             save_image(osp.join(self._context._segmentation_dir, ann_filename),
-                id2bgr(pan_format), create_dir=True)
+                mask_tools.index2bgr(pan_format), create_dir=True)
 
         elem = {
             'image_id': self._get_image_id(item),
