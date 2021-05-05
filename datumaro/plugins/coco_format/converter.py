@@ -481,12 +481,11 @@ class _PanopticConverter(_TaskConverter):
         ann_filename = item.id + CocoPath.PANOPTIC_EXT
 
         def id2bgr(id_map):
-            id_map_copy = id_map.copy()
+            id_map = id_map.astype(int)
             bgr_shape = tuple(list(id_map.shape) + [3])
             bgr_map = np.zeros(bgr_shape, dtype=np.uint8)
             for i in range(3):
-                bgr_map[..., 2-i] = id_map_copy % 256
-                id_map_copy //= 256
+                bgr_map[..., 2-i] = id_map >> (8 * i)
             return bgr_map
 
         segments_info = list()
