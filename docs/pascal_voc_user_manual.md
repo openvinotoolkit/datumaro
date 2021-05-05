@@ -179,27 +179,23 @@ to get more information about these operations.
 There are few examples of using Datumaro operations to solve
 particular problems:
 
-- Example 1. Preparing Pascal VOC dataset for converting to other dataset format.
-We can convert Pascal VOC dataset to Market-1501 format. But Market-1501 dataset
-only has a `person` class, marked with a bounding box. And to perform the conversion
-we could filter the Pascal VOC dataset. With Datumaro we can do it like this
+- Example 1. Preparing Pascal VOC dataset for converting to Market-1501 dataset format.
 
 ``` bash
 # create Datumaro project with Pascal VOC dataset
-datum import -o <path/to/voc/dataset> --name project
+datum import -n myproject -f voc -i <path/to/voc/dataset>
 
 # convert labeled shapes into bboxes
-datum transform -t shapes_into_boxes
-cd project-shapes_to_boxes
+datum transform -t shapes_to_boxes
+cd myproject-shapes_to_boxes
 
 # keep only person class items
 datum filter --mode items+annotations \
-    -e '/item[label="person"]' \
+    -e '/item/annotation[label="person"]' \
     -o <path/to/output/project>
 
 # delete other labels from dataset
-datum trasnform -t remap_labels -- -l person:person --default delete \
-    -o <path/to/final/project>
+datum transform -t remap_labels -- -l person:person --default delete
 ```
 
 To make sure that the converting was succesful we can check the output project:
