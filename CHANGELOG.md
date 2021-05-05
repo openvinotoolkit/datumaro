@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for escaping in attribiute values in LabelMe format (<https://github.com/openvinotoolkit/datumaro/issues/49>)
 - Support for Segmentation Splitting (<https://github.com/openvinotoolkit/datumaro/pull/223>)
 - Support for CIFAR-10/100 dataset format (<https://github.com/openvinotoolkit/datumaro/pull/225>)
-- Support import COCO panoptic and stuff format (<https://github.com/openvinotoolkit/datumaro/pull/210>)
+- Support COCO panoptic and stuff format (<https://github.com/openvinotoolkit/datumaro/pull/210>)
 
 ### Changed
 - LabelMe format saves dataset items with their relative paths by subsets without changing names (<https://github.com/openvinotoolkit/datumaro/pull/200>)
