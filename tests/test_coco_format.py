@@ -7,7 +7,7 @@ from unittest import TestCase
 
 from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import (DatasetItem,
-    AnnotationType, Label, Mask, RleMask, Points, Polygon, Bbox, Caption,
+    AnnotationType, Label, Mask, Points, Polygon, Bbox, Caption,
     LabelCategories, PointsCategories
 )
 from datumaro.plugins.coco_format.converter import (
@@ -145,23 +145,19 @@ class CocoImporterTest(TestCase):
         compare_datasets(self, expected_dataset, dataset)
 
     def test_can_import_panoptic(self):
-        import pycocotools.mask as mask_utils
-        rle = mask_utils.encode(np.asfortranarray(np.ones([10, 5], dtype=np.uint8)))
-        rle['counts'] = rle['counts'].decode('utf8')
-
         expected_dataset = Dataset.from_iterable([
-            DatasetItem(id='1',
-                image=np.ones((10, 5, 3)),
+            DatasetItem(id='000000000001',
+                image=np.ones((1, 5, 3)),
                 subset='val',
-                attributes={'id': 1},
+                attributes={'id': 40},
                 annotations=[
-                    RleMask(rle=rle, label=1, id=1, group=0,
-                        attributes={'iscrowd': False}),
+                    Mask(image=np.array([[0, 0, 1, 1, 0]]), label=3,
+                        id=7, group=7, attributes={'is_crowd': False}),
+                    Mask(image=np.array([[0, 1, 0, 0, 1]]), label=1,
+                        id=20, group=20, attributes={'is_crowd': True}),
                 ]
             ),
-        ], categories={
-            AnnotationType.label: LabelCategories.from_iterable(['TEST']),
-        })
+        ], categories=['a', 'b', 'c', 'd'])
 
         dataset = Dataset.import_from(
             osp.join(DUMMY_DATASET_DIR, 'coco_panoptic'), 'coco')

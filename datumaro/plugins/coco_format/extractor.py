@@ -179,8 +179,9 @@ class _CocoExtractor(SourceExtractor):
                     group=segm_id, attributes=attributes))
 
             items[img_id] = DatasetItem(
-                id=img_id, subset=self._subset, image=image, annotations=anns,
-                attributes={'id': img_id})
+                id=osp.splitext(imgs_info[img_id]['file_name'])[0],
+                subset=self._subset, image=image,
+                annotations=anns, attributes={'id': img_id})
         return items
 
     @staticmethod

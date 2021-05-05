@@ -471,6 +471,7 @@ class _PanopticConverter(_TaskConverter):
                 'id': 1 + idx,
                 'name': cast(cat.name, str, ''),
                 'supercategory': cast(cat.parent, str, ''),
+                'isthing': 0, # TODO: can't represent this information yet
             })
 
     def save_annotations(self, item):
