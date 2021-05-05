@@ -84,7 +84,7 @@ import datumaro
 ## Supported Formats
 
 List of supported formats:
-- MS COCO (`image_info`, `instances`, `person_keypoints`, `captions`, `labels`*)
+- MS COCO (`image_info`, `instances`, `person_keypoints`, `captions`, `labels`, `panoptic`, `stuff`)
   - [Format specification](http://cocodataset.org/#format-data)
   - [Dataset example](../tests/assets/coco_dataset)
   - `labels` are our extension - like `instances` with only `category_id`
