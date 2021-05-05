@@ -186,15 +186,16 @@ datum import -n myproject -f voc -i <path/to/voc/dataset>
 
 # convert labeled shapes into bboxes
 datum transform -t shapes_to_boxes
-cd myproject-shapes_to_boxes
 
 # keep only person class items
-datum filter --mode items+annotations \
+datum filter -p myproject-shapes_to_boxes \
+    --mode items+annotations \
     -e '/item/annotation[label="person"]' \
-    -o <path/to/output/project>
+    -o tmp_project
 
 # delete other labels from dataset
-datum transform -t remap_labels -o ./final_project -- -l person:person --default delete
+datum transform -p tmp_project -o final_project \
+    -t remap_labels -- -l person:person --default delete
 ```
 
 To make sure that the converting was succesful we can check the output project:
@@ -253,6 +254,6 @@ Datasets have different lengths: 17125 vs 5011
 Unmatched items in the first dataset: {('2012_002332', 'trainval'), ...}
 Unmatched items in the second dataset: {('001580', 'trainval'), ...}
 ```
-This result mathces with the official description of datasets
+This result matches with the official description of datasets
 [Pascal VOC 2007](#http://host.robots.ox.ac.uk/pascal/VOC/voc2007/dbstats.html) and
 [Pascal VOC 2012](#http://host.robots.ox.ac.uk/pascal/VOC/voc2012/dbstats.html)
