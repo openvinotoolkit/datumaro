@@ -255,7 +255,7 @@ This result matches with the official description of datasets
 ## Using from code
 
 There are few examples of working with Pascal VOC dataset from code.
-Some examples of using the Pascal VOC dataset from code are also available in the
+Some examples are also available in the
 [tests](../tests/test_voc_format.py).
 
 ### Example 1
