@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MIT
 
-import csv
 import os.path as osp
 
 import numpy as np
@@ -48,7 +47,7 @@ class MnistCsvExtractor(SourceExtractor):
         items = {}
         with open(path, 'r', encoding='utf-8') as f:
             annotation_table = f.readlines()
-        
+
         metafile = osp.join(self._dataset_dir, 'meta_%s.csv' % self._subset)
         meta = []
         if osp.isfile(metafile):
@@ -123,11 +122,9 @@ class MnistCsvConverter(Converter):
                 
                 if item.id != str(len(data) - 1):
                     item_ids[len(data) - 1] = item.id
-                
+
             anno_file = osp.join(self._save_dir, 'mnist_%s.csv' % subset_name)
-            with open(anno_file, 'w', encoding='utf-8') as f:
-                for anno in data:
-                    f.write(','.join([str(pix) for pix in anno]) + "\n")
+            self.save_in_csv(anno_file, data)
 
             # it is't in the original format,
             # this is for storng other names and sizes of images
@@ -152,12 +149,18 @@ class MnistCsvConverter(Converter):
                         meta.append(image_sizes.get(i, size))
 
                 metafile = osp.join(self._save_dir, 'meta_%s.csv' % subset_name)
-                with open(metafile, 'w', encoding='utf-8') as f:
-                    for anno in meta:
-                        f.write(','.join([str(p) for p in anno]) + "\n")
+                self.save_in_csv(metafile, meta)
         
         labels_file = osp.join(self._save_dir, 'labels_%s.txt' % subset_name)
-        with open(labels_file, 'w', encoding='utf-8') as f:
+        self.save_labels(labels_file)
+
+    def save_in_csv(self, path, data):
+        with open(path, 'w', encoding='utf-8') as f:
+            for row in data:
+                f.write(','.join([str(p) for p in row]) + "\n")
+
+    def save_labels(self, path):
+        with open(path, 'w', encoding='utf-8') as f:
             f.writelines(l.name + '\n'
                 for l in self._extractor.categories().get(
                     AnnotationType.label, LabelCategories())

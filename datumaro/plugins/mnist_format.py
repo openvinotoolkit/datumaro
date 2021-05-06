@@ -110,8 +110,6 @@ class MnistConverter(Converter):
     DEFAULT_IMAGE_EXT = '.png'
 
     def apply(self):
-        label_categories = self._extractor.categories()[AnnotationType.label]
-
         for subset_name, subset in self._extractor.subsets().items():
             labels = []
             images = np.array([])
@@ -160,7 +158,7 @@ class MnistConverter(Converter):
                     f.write(np.array([0x0803, len(images), MnistPath.IMAGE_SIZE,
                         MnistPath.IMAGE_SIZE], dtype='>i4').tobytes())
                     f.write(np.array(images, dtype='uint8').tobytes())
-            
+
             # it is't in the original format,
             # this is for storng other names and sizes of images
             if len(item_ids) or len(image_sizes):
@@ -188,7 +186,10 @@ class MnistConverter(Converter):
                     f.write(np.array(meta, dtype='<U32').tobytes())
 
         labels_file = osp.join(self._save_dir, 'labels-%s.txt' % subset_name)
-        with open(labels_file, 'w', encoding='utf-8') as f:
+        self.save_labels(labels_file)
+
+    def save_labels(self, path):
+        with open(path, 'w', encoding='utf-8') as f:
             f.writelines(l.name + '\n'
                 for l in self._extractor.categories().get(
                     AnnotationType.label, LabelCategories())

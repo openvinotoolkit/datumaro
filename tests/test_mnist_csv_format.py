@@ -11,7 +11,7 @@ from datumaro.util.image import Image
 from datumaro.util.test_utils import TestDir, compare_datasets
 
 
-class MnistFormatTest(TestCase):
+class MnistCsvFormatTest(TestCase):
     def test_can_save_and_load(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=0, subset='test',
