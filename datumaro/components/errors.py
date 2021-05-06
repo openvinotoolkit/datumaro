@@ -119,10 +119,13 @@ class MissingLabelCategories(DatasetValidationError):
         return "Metadata (ex. LabelCategories) should be defined" \
             " to validate a dataset."
 
+
 @attrs
-class MissingLabelAnnotation(DatasetItemValidationError):
+class MissingAnnotation(DatasetItemValidationError):
+    ann_type = attrib()
     def __str__(self):
-        return "Item needs a label, but not found."
+        return f"Item needs '{self.ann_type}' annotation(s), " \
+            "but not found."
 
 @attrs
 class MultiLabelAnnotations(DatasetItemValidationError):
@@ -228,31 +231,25 @@ class ImbalancedAttribute(DatasetValidationError):
             f" '{self. attr_name}' for the label '{self.label_name}'."
 
 @attrs
-class ImbalancedBboxDistInLabel(DatasetValidationError):
+class ImbalancedDistInLabel(DatasetValidationError):
     label_name = attrib()
     prop = attrib()
 
     def __str__(self):
-        return f"Values of bbox '{self.prop}' are not evenly " \
+        return f"Values of '{self.prop}' are not evenly " \
                 f"distributed for '{self.label_name}' label."
 
 @attrs
-class ImbalancedBboxDistInAttribute(DatasetValidationError):
+class ImbalancedDistInAttribute(DatasetValidationError):
     label_name = attrib()
     attr_name = attrib()
     attr_value = attrib()
     prop = attrib()
 
     def __str__(self):
-        return f"Values of bbox '{self.prop}' are not evenly " \
+        return f"Values of '{self.prop}' are not evenly " \
             f"distributed for '{self.attr_name}' = '{self.attr_value}' for " \
             f"the '{self.label_name}' label."
-
-@attrs
-class MissingBboxAnnotation(DatasetItemValidationError):
-    def __str__(self):
-        return 'Item needs one or more bounding box annotations, ' \
-            'but not found.'
 
 @attrs
 class NegativeLength(DatasetItemValidationError):
@@ -261,7 +258,7 @@ class NegativeLength(DatasetItemValidationError):
     val = attrib()
 
     def __str__(self):
-        return f"Bounding box annotation '{self.ann_id}' in " \
+        return f"Annotation '{self.ann_id}' in " \
             "the item should have a positive value of " \
             f"'{self.prop}' but got '{self.val}'."
 
@@ -271,9 +268,9 @@ class InvalidValue(DatasetItemValidationError):
     prop = attrib()
 
     def __str__(self):
-        return f"Bounding box annotation '{self.ann_id}' in " \
+        return f"Annotation '{self.ann_id}' in " \
             'the item has an inf or a NaN value of ' \
-            f"bounding box '{self.prop}'."
+            f"'{self.prop}'."
 
 @attrs
 class FarFromLabelMean(DatasetItemValidationError):
@@ -284,8 +281,8 @@ class FarFromLabelMean(DatasetItemValidationError):
     val = attrib()
 
     def __str__(self):
-        return f"Bounding box annotation '{self.ann_id}' in " \
-            f"the item has a value of bounding box '{self.prop}' that " \
+        return f"Annotation '{self.ann_id}' in " \
+            f"the item has a value of '{self.prop}' that " \
             "is too far from the label average. (mean of " \
             f"'{self.label_name}' label: {self.mean}, got '{self.val}')."
 
@@ -300,8 +297,8 @@ class FarFromAttrMean(DatasetItemValidationError):
     val = attrib()
 
     def __str__(self):
-        return f"Bounding box annotation '{self.ann_id}' in the " \
-            f"item has a value of bounding box '{self.prop}' that " \
+        return f"Annotation '{self.ann_id}' in the " \
+            f"item has a value of '{self.prop}' that " \
             "is too far from the attribute average. (mean of " \
             f"'{self.attr_name}' = '{self.attr_value}' for the " \
             f"'{self.label_name}' label: {self.mean}, got '{self.val}')."
