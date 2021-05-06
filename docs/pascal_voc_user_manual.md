@@ -1,12 +1,34 @@
 # Pascal VOC user manual
 
 ## Contents
+- [Format specification](#format-specification)
 - [Load Pascal VOC dataset](#load-pascal-voc-dataset)
 - [Export to other formats](#export-to-other-formats)
 - [Export to Pascal VOC](#export-to-pascal-VOC)
 - [Datumaro functionality](#datumaro-functionality)
+- [Using from code](#using-from-code)
+
+## Format specification
+
+- Pascal VOC format specification available
+[here](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/devkit_doc.pdf).
+
+- Original Pascal VOC dataset format support the followoing types of annotaions:
+    - `Labels` (for classification tasks);
+    - `Bounding boxes` (for detection, action detection and person layout tasks);
+    - `Masks` (for segmentations tasks).
+
+- Supported attributes:
+    - `occluded`: indicates that a significant portion of the object within the
+    bounding box is occluded by another object;
+    - `truncated`: indicates that the bounding box specified for the object does
+    not correspond to the full extent of the object;
+    - `difficult`: indicates that the object is considered difficult to recognize;
+    - action attributes (`jumping`, `reading`, `phoning` and
+    [more](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/actionexamples/index.html)).
 
 ## Load Pascal VOC dataset
+
 The Pascal VOC dataset is available for free download
 [here](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/index.html#devkit)
 
@@ -178,7 +200,7 @@ to get more information about these operations.
 There are few examples of using Datumaro operations to solve
 particular problems:
 
-- Example 1. Preparing Pascal VOC dataset for converting to Market-1501 dataset format.
+### Example 1. Preparing Pascal VOC dataset for converting to Market-1501 dataset format.
 Market-1501 dataset only has a person class, marked with a bounding box.
 And to perform the conversion we could filter the Pascal VOC dataset.
 With Datumaro we can do it like this
@@ -188,7 +210,7 @@ With Datumaro we can do it like this
 datum import -o myproject -f voc -i <path/to/voc/dataset>
 
 # convert labeled shapes into bboxes
-datum transform -t shapes_to_boxes
+datum transform -p myproject -t shapes_to_boxes
 
 # keep only person class items
 datum filter -p myproject-shapes_to_boxes \
@@ -208,46 +230,8 @@ cd <path/to/final/project>
 datum info
 ```
 
-- Example 2. By default Pascal VOC 2012 dataset includes only one train and one validation subsets.
-With Datumaro you can use cross-validation approach for the task:
-
-```bash
-# create Datumaro project with Pascal VOC 2012
-datum import -f voc -i ./VOC2012
-
-# spliting dataset into 3 parts
-datum transform -o iter1 -t random_split -- -s train1:.33 -s train2:.33 -s val:.34
-
-# train and validate the model ...
-# reorganize subsets for 2nd iteration
-datum transform -p iter1 -o iter2 -t map_subsets -- -s train2:val -s val:train2
-
-# train and validate the model ...
-# reorganize subsets for 3rd iteration
-datum transform -p iter2 -o iter3 -t map_subsets -- -s train1:val -s val:train1
-
-# train and validate the model ...
-```
-
-- Example 3. If you don`t need a variety of classes in Pascal VOC dataset,
-with Datumaro you can rename the classes for your task and
-thus assign the same name to different labels:
-
-```bash
-# create Datumaro project with Pascal VOC dataset
-datum import -f voc -i ./VOC2007
-
-# rename the labels
-datum transform -t remap_labels -- -l car:vehicle -l aeroplane:vehicle \
-    -l bicycle:vehicle -l boat:vehicle -l bus:vehicle -l car:vehicle \
-    -l train:vehicle -l motorbike:vehicle -l bottle:indoor -l chair:indoor \
-    -l diningtable:indoor -l pottedplant:indoor -l sofa:indoor \
-    -l tvmonitor:indoor -l bird:animal -l cat:animal -l dog:animal \
-    -l horse:animal -l sheep:animal -l cow:animal -l person:person \
-    --default delete
-```
-
-- Example 4. When multiple datasets are used for research, it can be useful to find out how the
+### Example 2. Get difference between datasets
+When multiple datasets are used for research, it can be useful to find out how the
 datasets differ from each other, to see information about this difference, you
 can run `datum diff`. For example calculate difference between Pascal VOC 2007
 and Pascal VOC 2012 trainval subsets:
@@ -255,14 +239,70 @@ and Pascal VOC 2012 trainval subsets:
 ```bash
 datum import -o ./project2007 -f voc -i <path/to/voc/2007>
 datum import -o ./project2012 -f voc -i <path/to/voc/2012>
-datum filer -p ./project2007 -e '/item[subset="trainval"]' -o ../trainval_voc2007
-datum filer -p ./project2012 -e '/item[subset="trainval"]' -o ../trainval_voc2012
+datum filter -p ./project2007 -e '/item[subset="trainval"]' -o ../trainval_voc2007
+datum filter -p ./project2012 -e '/item[subset="trainval"]' -o ../trainval_voc2012
 datum diff -p ../trainval_voc2012 ../trainval_voc2007
 
 Datasets have different lengths: 17125 vs 5011
 Unmatched items in the first dataset: {('2012_002332', 'trainval'), ...}
 Unmatched items in the second dataset: {('001580', 'trainval'), ...}
 ```
+
 This result matches with the official description of datasets
-[Pascal VOC 2007](#http://host.robots.ox.ac.uk/pascal/VOC/voc2007/dbstats.html) and
-[Pascal VOC 2012](#http://host.robots.ox.ac.uk/pascal/VOC/voc2012/dbstats.html)
+[Pascal VOC 2007](http://host.robots.ox.ac.uk/pascal/VOC/voc2007/dbstats.html) and
+[Pascal VOC 2012](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/dbstats.html)
+
+## Using from code
+
+There are few examples of working with Pascal VOC dataset from code.
+Some examples of using the Pascal VOC dataset from code are also available in the
+[tests](../tests/test_voc_format.py).
+
+### Example 1
+Load Pascal VOC dataset, and export train subset with items
+which has `jumping` attribute:
+
+```python
+from datumaro.components.dataset import Dataset
+
+dataset = Dataset.import_from('./VOC2012', 'voc')
+
+train_dataset = dataset.get_subset('train').as_dataset()
+
+def only_jumping(item):
+    for ann in item.annotations:
+        if ann.attributes.get('jumping'):
+            return True
+    return False
+
+train_dataset.select(only_jumping)
+
+train_dataset.export('./jumping_label_me', 'label_me', save_images=True)
+```
+
+### Example 2
+Get information about items in Pascal VOC 2012 dataset for segmentation task:
+
+```python
+from datumaro.components.dataset import Dataset
+from datumaro.components.extractor import AnnotationType
+
+dataset = Dataset.import_from('./VOC2012', 'voc')
+
+def has_mask(item):
+    for ann in item.annotations:
+        if ann.type in {AnnotationType.polygon, AnnotationType.mask}:
+            return True
+    return False
+
+dataset.select(has_mask)
+
+print("Pascal VOC 2012 has %s images for segmentation task:" % len(dataset))
+for subset_name, subset in dataset.subsets().items():
+    for item in subset:
+        print(item.id, subset_name, end=";")
+```
+
+After executing this code, we can see that there are 5826 images
+in Pascal VOC 2012 has for segmentation task and this result is the same as the
+[official documentation](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/dbstats.html)
