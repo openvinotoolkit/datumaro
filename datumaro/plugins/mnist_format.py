@@ -99,7 +99,6 @@ class MnistExtractor(SourceExtractor):
                 image=image, annotations=annotations)
         return items
 
-
 class MnistImporter(Importer):
     @classmethod
     def find_sources(cls, path):

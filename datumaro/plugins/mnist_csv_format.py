@@ -63,10 +63,10 @@ class MnistCsvExtractor(SourceExtractor):
                 label = None
             if label != None:
                 item_anno.append(Label(label))
-            
+
             if 0 < len(meta):
                 meta[i] = meta[i].strip().split(',')
-            
+
             # support for single-channel image only
             image = None
             if 1 < len(data):
@@ -119,7 +119,7 @@ class MnistCsvConverter(Converter):
                         data.append(image)
                 else:
                     data.append([label])
-                
+
                 if item.id != str(len(data) - 1):
                     item_ids[len(data) - 1] = item.id
 
@@ -150,7 +150,7 @@ class MnistCsvConverter(Converter):
 
                 metafile = osp.join(self._save_dir, 'meta_%s.csv' % subset_name)
                 self.save_in_csv(metafile, meta)
-        
+
         labels_file = osp.join(self._save_dir, 'labels_%s.txt' % subset_name)
         self.save_labels(labels_file)
 
