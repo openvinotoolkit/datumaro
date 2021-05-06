@@ -12,6 +12,7 @@ import os.path as osp
 import attr
 from attr import attrs, attrib
 
+from datumaro.util import pairs
 from datumaro.util.image import Image
 from datumaro.util.attrs_util import not_empty, default_if_none
 
@@ -338,17 +339,12 @@ class _Shape(Annotation):
         raise NotImplementedError()
 
     def get_bbox(self):
+        from datumaro.util.mask_tools import find_contour_bbox
+
         points = self.points
         if not points:
             return None
-
-        xs = [p for p in points[0::2]]
-        ys = [p for p in points[1::2]]
-        x0 = min(xs)
-        x1 = max(xs)
-        y0 = min(ys)
-        y1 = max(ys)
-        return [x0, y0, x1 - x0, y1 - y0]
+        return find_contour_bbox(points)
 
 @attrs
 class PolyLine(_Shape):
@@ -363,19 +359,50 @@ class PolyLine(_Shape):
 @attrs
 class Polygon(_Shape):
     _type = AnnotationType.polygon
+    holes = attrib(factory=list, validator=default_if_none(lambda x:
+            np.around(x, _COORDINATE_ROUNDING_DIGITS).tolist()),
+        kw_only=True)
 
     def __attrs_post_init__(self):
         super().__attrs_post_init__()
-        # keep the message on a single line to produce informative output
-        assert len(self.points) % 2 == 0 and 3 <= len(self.points) // 2, "Wrong polygon points: %s" % self.points
 
-    def get_area(self):
+        def _check_polygon_points(points):
+            if not(len(points) % 2 == 0 and 3 <= len(points) // 2):
+                raise ValueError("Wrong count of polygon points: %s (%s)" %
+                    (len(points), points))
+
+        def _check_hole_points(outer, hole):
+            import cv2
+
+            outer_a = np.array(outer).reshape(-1, 2)
+
+            for point in pairs(hole):
+                if cv2.pointPolygonTest(outer_a, point, measureDist=False) < 0:
+                    raise ValueError("A polygon %s has a hole, which lies "
+                        "outside of the polygon boundaries: %s " % (outer, hole))
+
+        _check_polygon_points(self.points)
+
+        for h in self.holes:
+            _check_polygon_points(h)
+            _check_hole_points(self.points, h)
+
+    def get_area(self, external=False):
         import pycocotools.mask as mask_utils
 
         x, y, w, h = self.get_bbox()
-        rle = mask_utils.frPyObjects([self.points], y + h, x + w)
-        area = mask_utils.area(rle)[0]
-        return area
+        rles = mask_utils.frPyObjects([self.points] + self.holes, y + h, x + w)
+        if external:
+            areas = mask_utils.area(rles)
+            return areas[0]
+        else:
+            hole = mask_utils.merge(rles[1:])
+            areas = mask_utils.area([rles[0], hole])
+            return areas[0] - areas[1]
+
+    def as_mask(self, w=None, h=None):
+        from datumaro.util.mask_tools import polygon_to_mask
+        return polygon_to_mask(self.points, holes=self.holes, width=w, height=h)
 
 @attrs
 class Bbox(_Shape):

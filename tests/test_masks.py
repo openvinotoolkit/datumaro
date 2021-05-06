@@ -3,7 +3,7 @@ import numpy as np
 from unittest import TestCase
 
 import datumaro.util.mask_tools as mask_tools
-from datumaro.components.extractor import CompiledMask
+from datumaro.components.extractor import CompiledMask, Polygon
 
 
 class PolygonConversionsTest(TestCase):
@@ -20,9 +20,89 @@ class PolygonConversionsTest(TestCase):
             [5, 0, 8, 0, 5, 3],
         ]
 
-        computed = mask_tools.mask_to_polygons(mask)
+        computed, _ = mask_tools.mask_to_polygons(mask)
 
         self.assertEqual(len(expected), len(computed))
+
+    def test_mask_to_polygon_produces_valid_polygons(self):
+        mask = np.array([
+            [0, 1, 0, 1, 1, 0, 1, 1, 1, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 1, 0, 1, 0, 0, 1, 0, 0],
+            [0, 0, 0, 0, 0, 1, 0, 1, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        ])
+        expected = [] # no "line" polygons
+
+        computed, _ = mask_tools.mask_to_polygons(mask)
+
+        self.assertEqual(len(expected), len(computed))
+
+    def test_mask_to_polygon_can_return_hierarchy(self):
+        mask = np.array([
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1],
+            [1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1],
+            [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+            [1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1],
+            [1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1],
+            [1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1],
+            [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+            [1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1],
+            [1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        ])
+
+        expected_polygons = [
+            # outer
+            # inner left (no children because of small area)
+            # inner right (no children because of small area)
+        ]
+        expected_hierarchy = [
+
+        ]
+
+        computed_p, computed_h = mask_tools.mask_to_polygons(mask)
+
+        img = np.zeros_like(mask, dtype=np.uint8)
+        import cv2
+        for c in computed_p:
+            cv2.drawContours(img, c.reshape(1, -1, 2), -1, 1)
+        self.assertEqual(len(expected_polygons), len(computed_p))
+        self.assertEqual(len(expected_hierarchy), len(computed_h))
+
+    def test_can_have_polygon_with_holes(self):
+        polygon = Polygon([1, 1, 5, 1, 5, 5, 1, 5],
+            holes=[[2, 2, 2, 4, 4, 2], [4, 2, 4, 4, 2, 4]])
+        expected_mask = [
+            [0, 0, 0, 0, 0],
+            [0, 1, 1, 1, 1],
+            [0, 1, 0, 0, 1],
+            [0, 1, 0, 0, 1],
+            [0, 1, 1, 1, 1],
+        ]
+
+        area_with_holes = polygon.get_area()
+        area_wo_holes = polygon.get_area(external=True)
+        mask = polygon.as_mask()
+
+        self.assertAlmostEqual(area_wo_holes, 16)
+        self.assertAlmostEqual(area_with_holes, 12)
+        self.assertTrue(np.array_equal(mask, expected_mask), mask)
+
+    def test_can_check_a_hole_is_outside_polygon(self):
+        with self.assertRaisesRegex(ValueError, "outside"):
+            Polygon([2, 2, 5, 2, 5, 5, 2, 5], holes=[[1, 1, 2, 4, 4, 2]])
 
     def test_can_crop_covered_segments(self):
         image_size = [7, 7]
