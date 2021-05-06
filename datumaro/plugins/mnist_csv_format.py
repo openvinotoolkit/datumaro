@@ -53,7 +53,7 @@ class MnistCsvExtractor(SourceExtractor):
         if osp.isfile(metafile):
             with open(metafile, 'r', encoding='utf-8') as f:
                 meta = f.readlines()
-        
+
         for i, data in enumerate(annotation_table):
             data = data.split(',')
             item_anno = []

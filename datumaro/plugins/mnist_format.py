@@ -143,9 +143,7 @@ class MnistConverter(Converter):
             else:
                 labels_file = osp.join(self._save_dir,
                     subset_name + MnistPath.LABELS_FILE)
-            with gzip.open(labels_file, 'wb') as f:
-                f.write(np.array([0x0801, len(labels)], dtype='>i4').tobytes())
-                f.write(np.array(labels, dtype='uint8').tobytes())
+            self.save_annotations(labels_file, labels)
 
             if 0 < len(images):
                 if subset_name == 'test':
@@ -154,10 +152,7 @@ class MnistConverter(Converter):
                 else:
                     images_file = osp.join(self._save_dir,
                         subset_name + MnistPath.IMAGES_FILE)
-                with gzip.open(images_file, 'wb') as f:
-                    f.write(np.array([0x0803, len(images), MnistPath.IMAGE_SIZE,
-                        MnistPath.IMAGE_SIZE], dtype='>i4').tobytes())
-                    f.write(np.array(images, dtype='uint8').tobytes())
+                self.save_images(images_file, images)
 
             # it is't in the original format,
             # this is for storng other names and sizes of images
@@ -187,6 +182,17 @@ class MnistConverter(Converter):
 
         labels_file = osp.join(self._save_dir, 'labels-%s.txt' % subset_name)
         self.save_labels(labels_file)
+
+    def save_annotations(self, path, data):
+        with gzip.open(path, 'wb') as f:
+            f.write(np.array([0x0801, len(data)], dtype='>i4').tobytes())
+            f.write(np.array(data, dtype='uint8').tobytes())
+
+    def save_images(self, path, data):
+        with gzip.open(path, 'wb') as f:
+            f.write(np.array([0x0803, len(data), MnistPath.IMAGE_SIZE,
+                MnistPath.IMAGE_SIZE], dtype='>i4').tobytes())
+            f.write(np.array(data, dtype='uint8').tobytes())
 
     def save_labels(self, path):
         with open(path, 'w', encoding='utf-8') as f:
