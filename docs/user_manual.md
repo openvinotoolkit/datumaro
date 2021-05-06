@@ -885,10 +885,10 @@ datum stats -p test_project
 This command inspects annotations based on the task type
 and stores the result in JSON file.
 
-Supported task types are `classification`, `detection`, and `segmentation`.
+The task types supported are `classification`, `detection`, and `segmentation`.
 
 The validation result contains
-- annotations statistics based on the task type
+- annotation statistics based on the task type
 - validation reports, such as
     - items not having annotations
     - items having undefined annotations
