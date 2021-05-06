@@ -182,7 +182,7 @@ particular problems:
 
 ``` bash
 # create Datumaro project with Pascal VOC dataset
-datum import -n myproject -f voc -i <path/to/voc/dataset>
+datum import -o myproject -f voc -i <path/to/voc/dataset>
 
 # convert labeled shapes into bboxes
 datum transform -t shapes_to_boxes
@@ -244,8 +244,8 @@ can run `datum diff`. For example calculate difference between Pascal VOC 2007
 and Pascal VOC 2012 trainval subsets:
 
 ```bash
-datum import -n ./project2007 -f voc -i <path/to/voc/2007>
-datum import -n ./project2012 -f voc -i <path/to/voc/2012>
+datum import -o ./project2007 -f voc -i <path/to/voc/2007>
+datum import -o ./project2012 -f voc -i <path/to/voc/2012>
 datum filer -p ./project2007 -e '/item[subset="trainval]' -o ../trainval_voc2007
 datum filer -p ./project2012 -e '/item[subset="trainval]' -o ../trainval_voc2012
 datum diff -p ../trainval_voc2012 ../trainval_voc2007
