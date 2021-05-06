@@ -1,9 +1,9 @@
-# Working with Pascal VOC dataset from CLI
+# Pascal VOC user manual
 
 ## Contents
 - [Load Pascal VOC dataset](#load-pascal-voc-dataset)
 - [Export to other formats](#export-to-other-formats)
-- [Export to Pascal VOC](#export-to-pascal-vOC)
+- [Export to Pascal VOC](#export-to-pascal-VOC)
 - [Datumaro functionality](#datumaro-functionality)
 
 ## Load Pascal VOC dataset
@@ -179,6 +179,9 @@ There are few examples of using Datumaro operations to solve
 particular problems:
 
 - Example 1. Preparing Pascal VOC dataset for converting to Market-1501 dataset format.
+Market-1501 dataset only has a person class, marked with a bounding box.
+And to perform the conversion we could filter the Pascal VOC dataset.
+With Datumaro we can do it like this
 
 ``` bash
 # create Datumaro project with Pascal VOC dataset
@@ -206,7 +209,7 @@ datum info
 ```
 
 - Example 2. By default Pascal VOC 2012 dataset includes only one train and one validation subsets.
-With datumaro you can use cross-validation approach for the task:
+With Datumaro you can use cross-validation approach for the task:
 
 ```bash
 # create Datumaro project with Pascal VOC 2012
@@ -252,8 +255,8 @@ and Pascal VOC 2012 trainval subsets:
 ```bash
 datum import -o ./project2007 -f voc -i <path/to/voc/2007>
 datum import -o ./project2012 -f voc -i <path/to/voc/2012>
-datum filer -p ./project2007 -e '/item[subset="trainval]' -o ../trainval_voc2007
-datum filer -p ./project2012 -e '/item[subset="trainval]' -o ../trainval_voc2012
+datum filer -p ./project2007 -e '/item[subset="trainval"]' -o ../trainval_voc2007
+datum filer -p ./project2012 -e '/item[subset="trainval"]' -o ../trainval_voc2012
 datum diff -p ../trainval_voc2012 ../trainval_voc2007
 
 Datasets have different lengths: 17125 vs 5011
