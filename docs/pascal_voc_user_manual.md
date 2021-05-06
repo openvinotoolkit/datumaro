@@ -205,19 +205,25 @@ cd <path/to/final/project>
 datum info
 ```
 
-- Example 2. Pascal VOC 2007 use about 900MB disk space, you can store half as much if keep
-only store the test subset, and with Datumaro split the test subset into test
-and training subsets:
+- Example 2. By default Pascal VOC 2012 dataset includes only one train and one validation subsets.
+With datumaro you can use cross-validation approach for the task:
 
 ```bash
-# create Datumaro project with Pascal VOC 2007 (only test subset) dataset
-datum import -f voc -i ./VOC2007
+# create Datumaro project with Pascal VOC 2012
+datum import -f voc -i ./VOC2012
 
-# split the test subset into test and training subsets
-datum transform -t random_split
+# spliting dataset into 3 parts
+datum transform -o iter1 -t random_split -- -s train1:.33 -s train2:.33 -s val:.34
 
-# or you can specify ratio for subsets (by default test:.67 train:.33)
-datum transform -t random_split -- -s train:.5 -s test:.5
+# train and validate the model ...
+# reorganize subsets for 2nd iteration
+datum transform -p iter1 -o iter2 -t map_subsets -- -s train2:val -s val:train2
+
+# train and validate the model ...
+# reorganize subsets for 3rd iteration
+datum transform -p iter2 -o iter3 -t map_subsets -- -s train1:val -s val:train1
+
+# train and validate the model ...
 ```
 
 - Example 3. If you don`t need a variety of classes in Pascal VOC dataset,
@@ -238,7 +244,7 @@ datum transform -t remap_labels -- -l car:vehicle -l aeroplane:vehicle \
     --default delete
 ```
 
-- Example 4. When choosing a dataset for research, it is often useful to find out how the
+- Example 4. When multiple datasets are used for research, it can be useful to find out how the
 datasets differ from each other, to see information about this difference, you
 can run `datum diff`. For example calculate difference between Pascal VOC 2007
 and Pascal VOC 2012 trainval subsets:
