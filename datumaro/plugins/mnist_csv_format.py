@@ -1,4 +1,4 @@
-# Copyright (C) 2020 Intel Corporation
+# Copyright (C) 2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -68,6 +68,7 @@ class MnistCsvExtractor(SourceExtractor):
             if 0 < len(meta):
                 meta[i] = meta[i].strip().split(',')
             
+            # support for single-channel image only
             image = None
             if 1 < len(data):
                 if 0 < len(meta) and 1 < len(meta[i]):
@@ -112,7 +113,8 @@ class MnistCsvConverter(Converter):
                     else:
                         if image.data.shape[0] != MnistCsvPath.IMAGE_SIZE or \
                                 image.data.shape[1] != MnistCsvPath.IMAGE_SIZE:
-                            image_sizes[len(data)] = [image.data.shape[0], image.data.shape[1]]
+                            image_sizes[len(data)] = [image.data.shape[0],
+                                image.data.shape[1]]
                         image = image.data.reshape(-1).astype(np.uint8).tolist()
                         image.insert(0, label)
                         data.append(image)
@@ -126,20 +128,25 @@ class MnistCsvConverter(Converter):
             with open(anno_file, 'w', encoding='utf-8') as f:
                 for anno in data:
                     f.write(','.join([str(pix) for pix in anno]) + "\n")
-                
+
+            # it is't in the original format,
+            # this is for storng other names and sizes of images
             if len(item_ids) or len(image_sizes):
                 meta = []
                 if len(item_ids) and len(image_sizes):
+                    # other names and sizes of images
                     size = [MnistCsvPath.IMAGE_SIZE, MnistCsvPath.IMAGE_SIZE]
                     for i in range(len(data)):
                         w, h = image_sizes.get(i, size)
                         meta.append([item_ids.get(i, i), w, h])
 
                 elif len(item_ids):
+                    # other names of images
                     for i in range(len(data)):
                         meta.append([item_ids.get(i, i)])
 
                 elif len(image_sizes):
+                    # other sizes of images
                     size = [MnistCsvPath.IMAGE_SIZE, MnistCsvPath.IMAGE_SIZE]
                     for i in range(len(data)):
                         meta.append(image_sizes.get(i, size))

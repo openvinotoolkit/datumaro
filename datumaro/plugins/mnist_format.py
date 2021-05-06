@@ -1,4 +1,4 @@
-# Copyright (C) 2020 Intel Corporation
+# Copyright (C) 2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -65,6 +65,7 @@ class MnistExtractor(SourceExtractor):
                 meta = np.frombuffer(f.read(), dtype='<U32')
             meta = meta.reshape(len(labels), int(len(meta) / len(labels)))
 
+        # support for single-channel image only
         images = None
         images_file = osp.join(self._dataset_dir,
             osp.basename(path).replace('labels-idx1', 'images-idx3'))
@@ -72,7 +73,8 @@ class MnistExtractor(SourceExtractor):
             with gzip.open(images_file, 'rb') as imgpath:
                 images = np.frombuffer(imgpath.read(), dtype=np.uint8, offset=16)
                 if len(meta) == 0 or len(meta[0]) < 2:
-                    images = images.reshape(len(labels), MnistPath.IMAGE_SIZE, MnistPath.IMAGE_SIZE)
+                    images = images.reshape(len(labels), MnistPath.IMAGE_SIZE,
+                        MnistPath.IMAGE_SIZE)
 
         pix_num = 0
         for i, annotation in enumerate(labels):
@@ -84,7 +86,8 @@ class MnistExtractor(SourceExtractor):
             image = None
             if images is not None:
                 if 0 < len(meta) and 1 < len(meta[i]):
-                    image = images[pix_num : pix_num + int(meta[i][-2]) * int(meta[i][-1])].reshape(int(meta[i][-2]), int(meta[i][-1]))
+                    image = images[pix_num : pix_num + int(meta[i][-2]) \
+                        * int(meta[i][-1])].reshape(int(meta[i][-2]), int(meta[i][-1]))
                     pix_num += int(meta[i][-2]) * int(meta[i][-1])
                 else:
                     image = images[i].reshape(MnistPath.IMAGE_SIZE, MnistPath.IMAGE_SIZE)
@@ -158,19 +161,24 @@ class MnistConverter(Converter):
                         MnistPath.IMAGE_SIZE], dtype='>i4').tobytes())
                     f.write(np.array(images, dtype='uint8').tobytes())
             
+            # it is't in the original format,
+            # this is for storng other names and sizes of images
             if len(item_ids) or len(image_sizes):
                 meta = []
                 if len(item_ids) and len(image_sizes):
+                    # other names and sizes of images
                     size = [MnistPath.IMAGE_SIZE, MnistPath.IMAGE_SIZE]
                     for i in range(len(labels)):
                         w, h = image_sizes.get(i, size)
                         meta.append([item_ids.get(i, i), w, h])
 
                 elif len(item_ids):
+                    # other names of images
                     for i in range(len(labels)):
                         meta.append([item_ids.get(i, i)])
 
                 elif len(image_sizes):
+                    # other sizes of images
                     size = [MnistPath.IMAGE_SIZE, MnistPath.IMAGE_SIZE]
                     for i in range(len(labels)):
                         meta.append(image_sizes.get(i, size))
