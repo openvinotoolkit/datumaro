@@ -31,8 +31,7 @@ class MnistCsvExtractor(SourceExtractor):
     def _load_categories(self):
         label_cat = LabelCategories()
 
-        labels_file = osp.join(self._dataset_dir,
-            'labels_%s.txt' % self._subset)
+        labels_file = osp.join(self._dataset_dir, 'labels.txt')
         if osp.isfile(labels_file):
             with open(labels_file, encoding='utf-8') as f:
                 for line in f:
@@ -154,16 +153,16 @@ class MnistCsvConverter(Converter):
                 metafile = osp.join(self._save_dir, 'meta_%s.csv' % subset_name)
                 self.save_in_csv(metafile, meta)
 
-        labels_file = osp.join(self._save_dir, 'labels_%s.txt' % subset_name)
-        self.save_labels(labels_file)
+        self.save_labels()
 
     def save_in_csv(self, path, data):
         with open(path, 'w', encoding='utf-8') as f:
             for row in data:
                 f.write(','.join([str(p) for p in row]) + "\n")
 
-    def save_labels(self, path):
-        with open(path, 'w', encoding='utf-8') as f:
+    def save_labels(self):
+        labels_file = osp.join(self._save_dir, 'labels.txt')
+        with open(labels_file, 'w', encoding='utf-8') as f:
             f.writelines(l.name + '\n'
                 for l in self._extractor.categories().get(
                     AnnotationType.label, LabelCategories())

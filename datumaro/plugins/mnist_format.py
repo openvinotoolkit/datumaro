@@ -41,8 +41,7 @@ class MnistExtractor(SourceExtractor):
     def _load_categories(self):
         label_cat = LabelCategories()
 
-        labels_file = osp.join(self._dataset_dir,
-            'labels-%s.txt' % self._subset)
+        labels_file = osp.join(self._dataset_dir, 'labels.txt')
         if osp.isfile(labels_file):
             with open(labels_file, encoding='utf-8') as f:
                 for line in f:
@@ -182,8 +181,7 @@ class MnistConverter(Converter):
                 with gzip.open(metafile, 'wb') as f:
                     f.write(np.array(meta, dtype='<U32').tobytes())
 
-        labels_file = osp.join(self._save_dir, 'labels-%s.txt' % subset_name)
-        self.save_labels(labels_file)
+        self.save_labels()
 
     def save_annotations(self, path, data):
         with gzip.open(path, 'wb') as f:
@@ -200,8 +198,9 @@ class MnistConverter(Converter):
                 MnistPath.IMAGE_SIZE], dtype='>i4').tobytes())
             f.write(np.array(data, dtype='uint8').tobytes())
 
-    def save_labels(self, path):
-        with open(path, 'w', encoding='utf-8') as f:
+    def save_labels(self):
+        labels_file = osp.join(self._save_dir, 'labels.txt')
+        with open(labels_file, 'w', encoding='utf-8') as f:
             f.writelines(l.name + '\n'
                 for l in self._extractor.categories().get(
                     AnnotationType.label, LabelCategories())
