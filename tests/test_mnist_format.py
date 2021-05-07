@@ -58,12 +58,10 @@ class MnistFormatTest(TestCase):
 
     def test_can_save_and_load_with_different_image_size(self):
         source_dataset = Dataset.from_iterable([
-            DatasetItem(id=0,
-                image=np.ones((3, 4)),
+            DatasetItem(id=0, image=np.ones((3, 4)),
                 annotations=[Label(0)]
             ),
-            DatasetItem(id=1,
-                image=np.ones((2, 2)),
+            DatasetItem(id=1, image=np.ones((2, 2)),
                 annotations=[Label(1)]
             ),
         ], categories={
@@ -81,7 +79,7 @@ class MnistFormatTest(TestCase):
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id="кириллица с пробелом",
-                image=np.ones((32, 32)),
+                image=np.ones((28, 28)),
                 annotations=[Label(0)]
             ),
         ], categories={
@@ -99,9 +97,9 @@ class MnistFormatTest(TestCase):
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id='q/1', image=Image(path='q/1.JPEG',
-                data=np.zeros((32, 32)))),
+                data=np.zeros((28, 28)))),
             DatasetItem(id='a/b/c/2', image=Image(path='a/b/c/2.bmp',
-                data=np.zeros((32, 32)))),
+                data=np.zeros((28, 28)))),
         ], categories={
             AnnotationType.label: LabelCategories.from_iterable(
                 str(label) for label in range(10)),
@@ -132,8 +130,10 @@ class MnistFormatTest(TestCase):
 
     def test_can_save_and_load_with_other_labels(self):
         dataset = Dataset.from_iterable([
-            DatasetItem(id=0, annotations=[Label(0)]),
-            DatasetItem(id=1, annotations=[Label(1)])
+            DatasetItem(id=0, image=np.ones((28, 28)),
+                annotations=[Label(0)]),
+            DatasetItem(id=1, image=np.ones((28, 28)),
+                annotations=[Label(1)])
         ], categories={
             AnnotationType.label: LabelCategories.from_iterable(
                 'label_%s' % label for label in range(2)),
