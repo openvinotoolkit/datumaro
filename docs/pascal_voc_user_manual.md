@@ -5,8 +5,7 @@
 - [Load Pascal VOC dataset](#load-pascal-voc-dataset)
 - [Export to other formats](#export-to-other-formats)
 - [Export to Pascal VOC](#export-to-pascal-VOC)
-- [Datumaro functionality](#datumaro-functionality)
-- [Using from code](#using-from-code)
+- [Particular use cases](#particular-use-cases)
 
 ## Format specification
 
@@ -190,7 +189,7 @@ Or you can use original Pascal VOC label map:
 datum export -f voc_layout -- --label-map voc
 ```
 
-## Datumaro functionality
+## Particular use cases
 
 Datumaro supports filtering, transformation, merging etc. for all formats
 and for the Pascal VOC format in particular. Follow
@@ -198,7 +197,7 @@ and for the Pascal VOC format in particular. Follow
 to get more information about these operations.
 
 There are few examples of using Datumaro operations to solve
-particular problems:
+particular problems with Pascal VOC dataset:
 
 ### Example 1. How to prepare an original dataset for training.
 In this example, preparing the original dataset to train the semantic segmentation model includes:
@@ -206,7 +205,7 @@ loading,
 checking duplicate images,
 setting the number of images,
 replacing masks of instances with one mask,
-partitioning into subsets,
+splitting into subsets,
 export the result to Pascal VOC format.
 
 ```bash
@@ -220,35 +219,37 @@ datum transform -p semantic_seg -o final_project -t random_split -- -s train:.8 
 datum export -p final_project -o dataset -f voc -- --label-map voc --save-images
 ```
 
-### Example 2. Get difference between datasets
-When multiple datasets are used for research, it can be useful to find out how the
-datasets differ from each other, to see information about this difference, you
-can run `datum diff`. For example calculate difference between Pascal VOC 2007
-and Pascal VOC 2012 trainval subsets:
+### Example 2. How to create custom dataset
 
-```bash
-datum import -o ./project2007 -f voc -i <path/to/voc/2007>
-datum import -o ./project2012 -f voc -i <path/to/voc/2012>
-datum filter -p ./project2007 -e '/item[subset="trainval"]' -o ../trainval_voc2007
-datum filter -p ./project2012 -e '/item[subset="trainval"]' -o ../trainval_voc2012
-datum diff -p ../trainval_voc2012 ../trainval_voc2007
+```python
+from datumaro.components.dataset import Dataset
+from datumaro.util.image import Image
+from datumaro.components.extractor import Bbox, Polygon, Label, DatasetItem
 
-Datasets have different lengths: 17125 vs 5011
-Unmatched items in the first dataset: {('2012_002332', 'trainval'), ...}
-Unmatched items in the second dataset: {('001580', 'trainval'), ...}
+dataset = Dataset.from_iterable([
+    DatasetItem(id='image1', image=Image(path='image1.jpg', size=(10, 20)),
+       annotations=[Label(3),
+           Bbox(1.0, 1.0, 10.0, 8.0, label=0, attributes={'difficult': True, 'running': True}),
+           Polygon([1, 2, 3, 2, 4, 4], label=2, attributes={'occluded': True}),
+           Polygon([6, 7, 8, 8, 9, 7, 9, 6], label=2),
+        ]
+    ),
+], categories=['person', 'sky', 'water', 'lion'])
+
+dataset.transform('polygons_to_masks')
+dataset.export('./mydataset', 'voc', label_map='my_labelmap.txt')
+
+"""
+my_labelmap.txt:
+# label:color_rgb:parts:actions
+person:0,0,255:hand,foot:jumping,running
+sky:128,0,0::
+water:0,128,0::
+lion:255,128,0::
+"""
 ```
 
-This result matches with the official description of datasets
-[Pascal VOC 2007](http://host.robots.ox.ac.uk/pascal/VOC/voc2007/dbstats.html) and
-[Pascal VOC 2012](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/dbstats.html)
-
-## Using from code
-
-There are few examples of working with Pascal VOC dataset from code.
-Some examples are also available in the
-[tests](../tests/test_voc_format.py).
-
-### Example 1
+### Example 3. Load, filter and convert from code
 Load Pascal VOC dataset, and export train subset with items
 which has `jumping` attribute:
 
@@ -270,8 +271,7 @@ train_dataset.select(only_jumping)
 train_dataset.export('./jumping_label_me', 'label_me', save_images=True)
 ```
 
-### Example 2
-Get information about items in Pascal VOC 2012 dataset for segmentation task:
+### Example 4. Get information about items in Pascal VOC 2012 dataset for segmentation task:
 
 ```python
 from datumaro.components.dataset import Dataset
