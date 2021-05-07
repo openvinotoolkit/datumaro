@@ -79,7 +79,7 @@ class SplitterTest(TestCase):
         task = splitter.SplitTask.classification.name
 
         splits = [("train", 0.7), ("test", 0.3)]
-        actual = splitter.Split(source, task, splits)
+        actual = splitter.Split(source, task, splits, seed=100)
 
         self.assertEqual(42, len(actual.get_subset("train")))
         self.assertEqual(18, len(actual.get_subset("test")))
@@ -105,7 +105,7 @@ class SplitterTest(TestCase):
         task = splitter.SplitTask.classification.name
 
         splits = [("train", 0.7), ("test", 0.3)]
-        actual = splitter.Split(source, task, splits)
+        actual = splitter.Split(source, task, splits, seed=100)
 
         self.assertEqual(42, len(actual.get_subset("train")))
         self.assertEqual(18, len(actual.get_subset("test")))
@@ -140,7 +140,7 @@ class SplitterTest(TestCase):
 
         with self.subTest("zero remainder"):
             splits = [("train", 0.7), ("test", 0.3)]
-            actual = splitter.Split(source, task, splits)
+            actual = splitter.Split(source, task, splits, seed=100)
 
             self.assertEqual(84, len(actual.get_subset("train")))
             self.assertEqual(36, len(actual.get_subset("test")))
@@ -165,7 +165,7 @@ class SplitterTest(TestCase):
 
         with self.subTest("non-zero remainder"):
             splits = [("train", 0.95), ("test", 0.05)]
-            actual = splitter.Split(source, task, splits)
+            actual = splitter.Split(source, task, splits, seed=100)
 
             self.assertEqual(114, len(actual.get_subset("train")))
             self.assertEqual(6, len(actual.get_subset("test")))
@@ -189,7 +189,7 @@ class SplitterTest(TestCase):
         task = splitter.SplitTask.classification.name
 
         splits = [("train", 0.7), ("test", 0.3)]
-        actual = splitter.Split(source, task, splits)
+        actual = splitter.Split(source, task, splits, seed=100)
 
         train = actual.get_subset("train")
         test = actual.get_subset("test")
@@ -243,7 +243,7 @@ class SplitterTest(TestCase):
         splits = [("train", 0.1), ("val", 0.9), ("test", 0.0)]
         task = splitter.SplitTask.classification.name
 
-        actual = splitter.Split(source, task, splits)
+        actual = splitter.Split(source, task, splits, seed=100)
 
         self.assertEqual(1, len(actual.get_subset("train")))
         self.assertEqual(4, len(actual.get_subset("val")))
@@ -255,7 +255,7 @@ class SplitterTest(TestCase):
             source = Dataset.from_iterable(iterable, categories=["a", "b"])
             splits = [("train", 0.7), ("test", 0.3)]
             task = splitter.SplitTask.classification.name
-            actual = splitter.Split(source, task, splits)
+            actual = splitter.Split(source, task, splits, seed=100)
 
             self.assertEqual(7, len(actual.get_subset("train")))
             self.assertEqual(3, len(actual.get_subset("test")))
@@ -266,7 +266,7 @@ class SplitterTest(TestCase):
             source = Dataset.from_iterable(iterable, categories=["a", "b"])
             splits = [("train", 0.7), ("test", 0.3)]
             task = splitter.SplitTask.classification.name
-            actual = splitter.Split(source, task, splits)
+            actual = splitter.Split(source, task, splits, seed=100)
 
             self.assertEqual(7, len(actual.get_subset("train")))
             self.assertEqual(3, len(actual.get_subset("test")))
@@ -405,7 +405,7 @@ class SplitterTest(TestCase):
         task = splitter.SplitTask.reid.name
         splits = [("train", 0.5), ("val", 0.2), ("test", 0.3)]
         query = 0.4 / 0.7
-        actual = splitter.Split(source, task, splits, query)
+        actual = splitter.Split(source, task, splits, query, seed=100)
 
         self.assertEqual(350, len(actual.get_subset("train")))
         self.assertEqual(140, len(actual.get_subset("val")))
@@ -420,7 +420,7 @@ class SplitterTest(TestCase):
             iterable = [DatasetItem(i, annotations=[]) for i in range(10)]
             source = Dataset.from_iterable(iterable, categories=["a", "b"])
             splits = [("train", 0.6), ("test", 0.4)]
-            actual = splitter.Split(source, task, splits, query)
+            actual = splitter.Split(source, task, splits, query, seed=100)
             self.assertEqual(10, len(actual.get_subset("not-supported")))
 
         with self.subTest("multi label"):
@@ -428,7 +428,7 @@ class SplitterTest(TestCase):
             iterable = [DatasetItem(i, annotations=anns) for i in range(10)]
             source = Dataset.from_iterable(iterable, categories=["a", "b"])
             splits = [("train", 0.6), ("test", 0.4)]
-            actual = splitter.Split(source, task, splits, query)
+            actual = splitter.Split(source, task, splits, query, seed=100)
 
             self.assertEqual(10, len(actual.get_subset("not-supported")))
 
@@ -827,7 +827,7 @@ class SplitterTest(TestCase):
                 test=test,
                 task=task,
             ):
-                actual = splitter.Split(source, task, splits)
+                actual = splitter.Split(source, task, splits, seed=100)
 
                 self.assertEqual(train, len(actual.get_subset("train")))
                 self.assertEqual(val, len(actual.get_subset("val")))
@@ -858,7 +858,7 @@ class SplitterTest(TestCase):
 
         splits = [("train", 0.5), ("val", 0.2), ("test", 0.3)]
         task = splitter.SplitTask.detection.name
-        actual = splitter.Split(source, task, splits)
+        actual = splitter.Split(source, task, splits, seed=100)
         self.assertEqual(10, len(actual.get_subset("train")))
         self.assertEqual(4, len(actual.get_subset("val")))
         self.assertEqual(6, len(actual.get_subset("test")))
@@ -898,7 +898,7 @@ class SplitterTest(TestCase):
             config = {"label1": {"attrs": None, "counts": 10}}
             task = splitter.SplitTask.classification.name
             source = self._generate_dataset(config)
-            actual = splitter.Split(source, task, splits)
+            actual = splitter.Split(source, task, splits, seed=100)
             self.assertEqual(5, len(actual.get_subset("_train")))
             self.assertEqual(1, len(actual.get_subset("valid")))
             self.assertEqual(1, len(actual.get_subset("valid2")))
@@ -912,10 +912,10 @@ class SplitterTest(TestCase):
                 nimages=10,
             )
             task = splitter.SplitTask.detection.name
-            actual = splitter.Split(source, task, splits)
-            self.assertEqual(5, len(actual.get_subset("_train")))
+            actual = splitter.Split(source, task, splits, seed=21)
+            self.assertEqual(4, len(actual.get_subset("_train")))
             self.assertEqual(1, len(actual.get_subset("valid")))
-            self.assertEqual(1, len(actual.get_subset("valid2")))
+            self.assertEqual(2, len(actual.get_subset("valid2")))
             self.assertEqual(2, len(actual.get_subset("test*")))
             self.assertEqual(1, len(actual.get_subset("test2")))
 
@@ -926,7 +926,7 @@ class SplitterTest(TestCase):
                 nimages=10,
             )
             task = splitter.SplitTask.detection.name
-            actual = splitter.Split(source, task, splits)
+            actual = splitter.Split(source, task, splits, seed=100)
             self.assertEqual(5, len(actual.get_subset("_train")))
             self.assertEqual(1, len(actual.get_subset("valid")))
             self.assertEqual(1, len(actual.get_subset("valid2")))
@@ -938,7 +938,7 @@ class SplitterTest(TestCase):
                 with_attr=True,
                 nimages=10,
             )
-            actual = splitter.Split(source, task, splits)
+            actual = splitter.Split(source, task, splits, seed=100)
             self.assertEqual(5, len(actual.get_subset("_train")))
             self.assertEqual(1, len(actual.get_subset("valid")))
             self.assertEqual(1, len(actual.get_subset("valid2")))
@@ -977,7 +977,7 @@ class SplitterTest(TestCase):
                     test=test,
                     task=task,
                 ):
-                    actual = splitter.Split(source, task, splits)
+                    actual = splitter.Split(source, task, splits, seed=100)
 
                     self.assertEqual(train, len(actual.get_subset("train")))
                     self.assertEqual(val, len(actual.get_subset("val")))
@@ -1008,6 +1008,7 @@ class SplitterTest(TestCase):
                     params.append((dtype, with_attr, 10, 5, 3, 2))
                     params.append((dtype, with_attr, 10, 7, 0, 3))
 
+            expected = []
             for dtype, with_attr, nimages, train, val, test in params:
                 source, _ = self._generate_detection_segmentation_dataset(
                     annotation_type=self._get_append_polygon(dtype),
@@ -1029,7 +1030,9 @@ class SplitterTest(TestCase):
                     test=test,
                     task=task,
                 ):
-                    actual = splitter.Split(source, task, splits)
+                    actual = splitter.Split(source, task, splits, seed=21)
+
+                    expected.append([dtype, with_attr, len(actual.get_subset("train")), len(actual.get_subset("val")), len(actual.get_subset("test"))])
 
                     self.assertEqual(train, len(actual.get_subset("train")))
                     self.assertEqual(val, len(actual.get_subset("val")))
@@ -1064,7 +1067,7 @@ class SplitterTest(TestCase):
 
             splits = [("train", 0.5), ("val", 0.2), ("test", 0.3)]
             task = splitter.SplitTask.segmentation.name
-            actual = splitter.Split(source, task, splits)
+            actual = splitter.Split(source, task, splits, seed=100)
             self.assertEqual(10, len(actual.get_subset("train")))
             self.assertEqual(4, len(actual.get_subset("val")))
             self.assertEqual(6, len(actual.get_subset("test")))
@@ -1080,7 +1083,7 @@ class SplitterTest(TestCase):
 
             splits = [("train", 0.5), ("val", 0.2), ("test", 0.3)]
             task = splitter.SplitTask.segmentation.name
-            actual = splitter.Split(source, task, splits)
+            actual = splitter.Split(source, task, splits, seed=100)
             self.assertEqual(10, len(actual.get_subset("train")))
             self.assertEqual(4, len(actual.get_subset("val")))
             self.assertEqual(6, len(actual.get_subset("test")))

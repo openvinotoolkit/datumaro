@@ -1037,8 +1037,8 @@ Example: split a dataset randomly to `train` and `test` subsets, ratio is 2:1
 datum transform -t random_split -- --subset train:.67 --subset test:.33
 ```
 
-Example: split a dataset in task-specific manner. Supported tasks are
-classification, detection, re-identification and segmentation.
+Example: split a dataset in task-specific manner. The tasks supported are
+classification, detection, segmentation and re-identification.
 
 ``` bash
 datum transform -t split -- \
@@ -1081,9 +1081,7 @@ datum transform -t rename -- -e '|pattern|replacement|'
 datum transform -t rename -- -e '|frame_(\d+)|\\1|'
 ```
 
-Example: Sampling dataset items, subset `train` is divided into `sampled`(sampled_subset) and `unsampled`
-- `train` has 100 data, and 20 samples are selected. There are `sampled`(20 samples) and 80 `unsampled`(80 datas) subsets.
-- Remove `train` subset (if sampled_subset=`train` or unsampled_name=`train`, still remain)
+Example: sampling dataset items as many as the number of target samples with sampling method entered by the user, divide into `sampled` and `unsampled` subsets
 - There are five methods of sampling the m option.
     - `topk`: Return the k with high uncertainty data
     - `lowk`: Return the k with low uncertainty data
@@ -1101,7 +1099,7 @@ datum transform -t sampler -- \
     -k 20
 ```
 
-Example : Control number of outputs to 100 after NDR
+Example : control number of outputs to 100 after NDR
 - There are two methods in NDR e option
     - `random`: sample from removed data randomly
     - `similarity`: sample from removed data with ascending
