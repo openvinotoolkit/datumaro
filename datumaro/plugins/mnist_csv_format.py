@@ -35,8 +35,11 @@ class MnistCsvExtractor(SourceExtractor):
             'labels_%s.txt' % self._subset)
         if osp.isfile(labels_file):
             with open(labels_file, encoding='utf-8') as f:
-                for label in f:
-                    label_cat.add(label.strip())
+                for line in f:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    label_cat.add(line)
         else:
             for i in range(10):
                 label_cat.add(str(i))

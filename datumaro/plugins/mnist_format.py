@@ -45,8 +45,11 @@ class MnistExtractor(SourceExtractor):
             'labels-%s.txt' % self._subset)
         if osp.isfile(labels_file):
             with open(labels_file, encoding='utf-8') as f:
-                for label in f:
-                    label_cat.add(label.strip())
+                for line in f:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    label_cat.add(line)
         else:
             for i in range(10):
                 label_cat.add(str(i))
@@ -86,9 +89,9 @@ class MnistExtractor(SourceExtractor):
             image = None
             if images is not None:
                 if 0 < len(meta) and 1 < len(meta[i]):
-                    image = images[pix_num : pix_num + int(meta[i][-2]) \
-                        * int(meta[i][-1])].reshape(int(meta[i][-2]), int(meta[i][-1]))
-                    pix_num += int(meta[i][-2]) * int(meta[i][-1])
+                    h, w = int(meta[i][-2]), int(meta[i][-1])
+                    image = images[pix_num : pix_num + h * w].reshape(h, w)
+                    pix_num += h * w
                 else:
                     image = images[i].reshape(MnistPath.IMAGE_SIZE, MnistPath.IMAGE_SIZE)
 
@@ -184,11 +187,15 @@ class MnistConverter(Converter):
 
     def save_annotations(self, path, data):
         with gzip.open(path, 'wb') as f:
+            # magic number = 0x0801 (2049, hexadecimal representation)
+            # this is used to verify the file with MNIST mark data
             f.write(np.array([0x0801, len(data)], dtype='>i4').tobytes())
             f.write(np.array(data, dtype='uint8').tobytes())
 
     def save_images(self, path, data):
         with gzip.open(path, 'wb') as f:
+            # magic number = 0x0803 (2051, hexadecimal representation),
+            # this is used to verify the file with MNIST image data
             f.write(np.array([0x0803, len(data), MnistPath.IMAGE_SIZE,
                 MnistPath.IMAGE_SIZE], dtype='>i4').tobytes())
             f.write(np.array(data, dtype='uint8').tobytes())
