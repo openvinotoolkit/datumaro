@@ -200,34 +200,24 @@ to get more information about these operations.
 There are few examples of using Datumaro operations to solve
 particular problems:
 
-### Example 1. Preparing Pascal VOC dataset for converting to Market-1501 dataset format.
-Market-1501 dataset only has a person class, marked with a bounding box.
-And to perform the conversion we could filter the Pascal VOC dataset.
-With Datumaro we can do it like this
-
-``` bash
-# create Datumaro project with Pascal VOC dataset
-datum import -o myproject -f voc -i <path/to/voc/dataset>
-
-# convert labeled shapes into bboxes
-datum transform -p myproject -t shapes_to_boxes
-
-# keep only person class items
-datum filter -p myproject-shapes_to_boxes \
-    --mode items+annotations \
-    -e '/item/annotation[label="person"]' \
-    -o tmp_project
-
-# delete other labels from dataset
-datum transform -p tmp_project -o final_project \
-    -t remap_labels -- -l person:person --default delete
-```
-
-To make sure that the converting was succesful we can check the output project:
+### Example 1. How to prepare an original dataset for training.
+In this example, preparing the original dataset to train the semantic segmentation model includes:
+loading,
+checking duplicate images,
+setting the number of images,
+replacing masks of instances with one mask,
+partitioning into subsets,
+export the result to Pascal VOC format.
 
 ```bash
-cd <path/to/final/project>
-datum info
+datum create -o project
+datum add path -p project -f voc_segmentation ./VOC2012/ImageSets/Segmentation/trainval.txt
+datum stats -p project # check statisctics.json -> repeated images
+datum transform -p project -o ndr_project -t ndr -- -w trainval -k 2500
+datum filter -p ndr_project -o trainval2500 -e '/item[subset="trainval"]'
+datum transform -p trainval2500 -o semantic_seg -t merge_instance_segments
+datum transform -p semantic_seg -o final_project -t random_split -- -s train:.8 -s val:.2
+datum export -p final_project -o dataset -f voc -- --label-map voc --save-images
 ```
 
 ### Example 2. Get difference between datasets
