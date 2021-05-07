@@ -3,6 +3,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+from itertools import chain
 import numpy as np
 
 from datumaro.util.image import lazy_image, load_image
@@ -112,6 +113,13 @@ def make_binary_mask(mask):
         return mask
     return mask.astype(bool)
 
+def bgr2index(img):
+    if img.dtype.kind not in {'b', 'i', 'u'}:
+        img = img.astype(np.uint8)
+    return (img[..., 0] << 16) + (img[..., 1] << 8) + img[..., 2]
+
+def index2bgr(id_map):
+    return np.dstack((id_map >> 16, id_map >> 8, id_map)).astype(np.uint8)
 
 def load_mask(path, inverse_colormap=None):
     mask = load_image(path, dtype=np.uint8)
@@ -279,7 +287,7 @@ def find_mask_bbox(mask):
     y0, y1 = np.where(rows)[0][[0, -1]]
     return [x0, y0, x1 - x0, y1 - y0]
 
-def merge_masks(masks):
+def merge_masks(masks, start=None):
     """
         Merges masks into one, mask order is responsible for z order.
         To avoid memory explosion on mask materialization, consider passing
@@ -288,6 +296,9 @@ def merge_masks(masks):
         Inputs: a sequence of index masks or (binary mask, index) pairs
         Outputs: an index mask
     """
+    if start is not None:
+        masks = chain([start], masks)
+
     it = iter(masks)
 
     try:
