@@ -904,7 +904,33 @@ datum validate --help
 datum validate -p <project dir> <task_type>
 ```
 
-Validation Result:
+Here is the list of validation items(a.k.a. anomaly types).
+
+| Anomaly Type | Description | Task Type |
+| ------------ | ----------- | --------- |
+| MissingLabelCategories | Metadata (ex. LabelCategories) should be defined | common |
+| MissingAnnotation | No annotation found for an Item | common |
+| MissingAttribute  | An attribute key is missing for an Item | common |
+| MultiLabelAnnotations | Item needs a single label | classification |
+| UndefinedLabel     | A label not defined in the metadata is found for an item | common |
+| UndefinedAttribute | An attribute not defined in the metadata is found for an item | common |
+| LabelDefinedButNotFound     | A label is defined, but not found actually | common |
+| AttributeDefinedButNotFound | An attribute is defined, but not found actually | common |
+| OnlyOneLabel          | The dataset consists of only label | common |
+| OnlyOneAttributeValue | The dataset consists of only attribute value | common |
+| FewSamplesInLabel     | The number of samples in a label might be too low | common |
+| FewSamplesInAttribute | The number of samples in an attribute might be too low | common |
+| ImbalancedLabels    | There is an imbalance in the label distribution | common |
+| ImbalancedAttribute | There is an imbalance in the attribute distribution | common |
+| ImbalancedDistInLabel     | Values (ex. bbox width) are not evenly distributed for a label | detection, segmentation |
+| ImbalancedDistInAttribute | Values (ex. bbox width) are not evenly distributed for an attribute | detection, segmentation |
+| NegativeLength | The width or height of bounding box is negative | detection |
+| InvalidValue | There's invalid (ex. inf, nan) value for bounding box info. | detection |
+| FarFromLabelMean | An annotation has an too small or large value than average for a label | detection, segmentation |
+| FarFromAttrMean  | An annotation has an too small or large value than average for an attribute | detection, segmentation |
+
+
+Validation Result Format:
 
 <details>
 
@@ -957,21 +983,21 @@ Validation Result:
         # '<item_key>': <bbox count:int>
 
         ## statistics for segmentation task
-        'items_with_invalid_value'] = <dict>,
+        'items_with_invalid_value': <dict>,
         # '<item_key>': {<ann_id:int>: [ <property:str>, ], }
         # - properties: 'area', 'width', 'height'
-        'mask_distribution_in_label'] = <dict>, # <label:str>: <mask_template>
-        'mask_distribution_in_attribute'] = <dict>,
+        'mask_distribution_in_label': <dict>, # <label:str>: <mask_template>
+        'mask_distribution_in_attribute': <dict>,
         # <label:str>: {
         #     <attribute:str>: { <attr_value>: <mask_template>, }
         # }
-        'mask_distribution_in_dataset_item'] = <dict>,
+        'mask_distribution_in_dataset_item': <dict>,
         # '<item_key>': <mask/polygon count: int>
     },
-    'validation_reports': <list>, #[ <validation_error_format>, ]
+    'validation_reports': <list>, # [ <validation_error_format>, ]
     # validation_error_format = {
-    #     'anomaly_type': <str>,  # see datumaro/components/errors.py
-    #     'description': <str>,   # see datumaro/components/errors.py
+    #     'anomaly_type': <str>,
+    #     'description': <str>,
     #     'severity': <str>, # 'warning' or 'error'
     #     'item_id': <str>,  # optional, when it is related to a DatasetItem
     #     'subset': <str>,   # optional, when it is related to a DatasetItem
@@ -1026,7 +1052,6 @@ numerical_stat_template = {
 ```
 
 </details>
-
 
 ### Register model
 
