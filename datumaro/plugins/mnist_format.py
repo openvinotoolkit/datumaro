@@ -140,7 +140,7 @@ class MnistConverter(Converter):
 
             if subset_name == 'test':
                 labels_file = osp.join(self._save_dir,
-                    MnistPath().TEST_LABELS_FILE)
+                    MnistPath.TEST_LABELS_FILE)
             else:
                 labels_file = osp.join(self._save_dir,
                     subset_name + MnistPath.LABELS_FILE)
