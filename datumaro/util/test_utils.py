@@ -9,18 +9,10 @@ import os
 import os.path as osp
 import tempfile
 
-try:
-    # Use rmtree from GitPython to avoid the problem with removal of
-    # readonly files on Windows, which Git uses extensively
-    # It double checks if a file cannot be removed because of readonly flag
-    from git.util import rmtree, rmfile
-except ImportError:
-    from shutil import rmtree
-    from os import remove as rmfile
-
 from datumaro.components.extractor import AnnotationType
 from datumaro.components.dataset import Dataset
 from datumaro.util import find
+from datumaro.util.os_util import rmfile, rmtree
 
 
 def current_function_name(depth=1):
