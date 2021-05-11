@@ -1,4 +1,3 @@
-
 # MNIST user manual
 
 ## Contents
@@ -7,6 +6,7 @@
 - [Load MNIST dataset](#load-MNIST-dataset)
 - [Export to other formats](#export-to-other-formats)
 - [Export to MNIST](#export-to-MNIST)
+- [Particular use cases](#particular-use-cases)
 
 ## Format specification
 
@@ -40,19 +40,23 @@ The MNIST in CSV dataset is available for free download:
 - [mnist_test.csv](https://pjreddie.com/media/files/mnist_test.csv)
 
 There are two ways to create Datumaro project and add MNIST dataset to it:
+
 ``` bash
 datum import --format mnist --input-path <path/to/dataset>
 # or
 datum create
 datum add path -f mnist <path/to/dataset>
 ```
+
 There are two ways to create Datumaro project and add MNIST in CSV dataset to it:
+
 ``` bash
 datum import --format mnist_csv --input-path <path/to/dataset>
 # or
 datum create
 datum add path -f mnist_csv <path/to/dataset>
 ```
+
 It is possible to specify project name and project directory run
 `datum create --help` for more information.
 
@@ -77,9 +81,8 @@ MNIST in CSV dataset directory should have the following structure:
 	└── mnist_train.csv
 ```
 If the dataset needs non-digit labels, you need to add the labels.txt
-to the dataset folder.  For example, labels.txt for Fashion MNIST labels 
-contains the following:
-
+to the dataset folder.
+For example, labels.txt for Fashion MNIST labels contains the following:
 <!--lint disable fenced-code-flag-->
 ```
 T-shirt/top
@@ -99,8 +102,7 @@ MNIST format only supports single channel 28 x 28 images.
 ##  Export to other formats
 
 Datumaro can convert MNIST dataset into any other format [Datumaro supports](../docs/user_manual.md#supported-formats).
-To get the expected result, the dataset needs to be converted to formats 
-that support the classification task (e.g. CIFAR-10/100, ImageNet, PascalVOC, etc.)
+To get the expected result, the dataset needs to be converted to formats that support the classification task (e.g. CIFAR-10/100, ImageNet, PascalVOC, etc.)
 There are few ways to convert MNIST dataset to other dataset format:
 ``` bash
 datum project import -f mnist -i <path/to/mnist>
@@ -121,3 +123,47 @@ datum convert -if imagenet -i <path/to/imagenet/dataset> \
 -f mnist -o <path/to/export/dir>
 ```
 These commands also work for MNIST in CSV if you use `mnist_csv` instead of `mnist`.
+
+##  Particular use cases
+
+Datumaro supports filtering, transformation, merging etc. for all formats
+and for the MNIST format in particular. Follow [user manual](../docs/user_manual.md)
+to get more information about these operations.
+
+There are few examples of using Datumaro operations to solve
+particular problems with MNIST dataset:
+
+###  Example 1. How to create custom MNIST-like dataset
+
+```python
+from datumaro.components.dataset import Dataset
+from datumaro.util.image import Image
+from datumaro.components.extractor import Label, DatasetItem
+
+dataset = Dataset.from_iterable([
+	DatasetItem(id=0, image=np.ones((28, 28)),
+		annotations=[Label(2)]
+	),
+	DatasetItem(id=1, image=np.ones((28, 28)),
+		annotations=[Label(7)]
+	)
+], categories={
+	AnnotationType.label: LabelCategories.from_iterable(
+	str(label) for label in  range(10)),
+})
+
+dataset.export('./mydataset', format='mnist')
+```
+
+###  Example 2. How to filter and convert MNIST dataset to ImageNet
+
+Convert MNIST dataset to ImageNet format, keep only images with `3` class presented:
+
+``` bash
+# Download MNIST dataset:
+# https://ossci-datasets.s3.amazonaws.com/mnist/train-images-idx3-ubyte.gz
+# https://ossci-datasets.s3.amazonaws.com/mnist/train-labels-idx1-ubyte.gz
+datum convert --input-format mnist --input-path <path/to/mnist> \
+              --output-format imagenet \
+              --filter '/item[annotation/label="3"]'
+```
