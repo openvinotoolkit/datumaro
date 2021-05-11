@@ -13,23 +13,11 @@ from datumaro.components.errors import VcsError
 from datumaro.components.environment import Environment
 from datumaro.components.launcher import Launcher, ModelTransform
 from datumaro.components.project import (Project, BuildStageType,
-    GitWrapper, DvcWrapper)
+    GitWrapper, DvcWrapper, Tree)
 from datumaro.util.test_utils import TestDir, compare_datasets, compare_dirs
 
 
-class BaseProjectTest(TestCase):
-    def test_can_generate_project(self):
-        src_config = Config({ 'project_name': 'test_project' })
-
-        with TestDir() as project_path:
-            Project.generate(project_path, src_config)
-
-            result_config = Project.load(project_path).config
-
-            self.assertTrue(osp.isdir(project_path))
-            self.assertEqual(
-                src_config.project_name, result_config.project_name)
-
+class TreeTest(TestCase):
     @staticmethod
     def test_default_ctor_is_ok():
         Project()
@@ -38,13 +26,10 @@ class BaseProjectTest(TestCase):
     def test_empty_config_is_ok():
         Project(Config())
 
-    def test_inmemory_project_is_not_initialized(self):
-        project = Project()
+    def test_inmemory_tree_is_detached(self):
+        tree = Tree()
 
-        self.assertFalse(project.vcs.detached)
-        self.assertFalse(project.vcs.readable)
-        self.assertFalse(project.vcs.writeable)
-        self.assertFalse(project.vcs.initialized)
+        self.assertTrue(tree.detached)
 
     def test_can_add_existing_local_source(self):
         # Reasons to exist:
@@ -248,17 +233,14 @@ except ImportError:
     no_vcs_installed = True
 
 @skipIf(no_vcs_installed, "No VCS modules (Git, DVC) installed")
-class AttachedProjectTest(TestCase):
-    def test_can_create(self):
+class ProjectTest(TestCase):
+    def test_can_init_and_load(self):
         with TestDir() as test_dir:
-            Project.generate(save_dir=test_dir)
+            Project.init(save_dir=test_dir)
 
-            Project.load(test_dir)
+            Project(test_dir)
 
-            self.assertTrue(osp.isdir(osp.join(test_dir, '.git')))
-            self.assertTrue(osp.isdir(osp.join(test_dir, '.dvc')))
-
-    def test_can_add_source_by_url(self):
+    def test_can_add_local_source_by_url(self):
         with TestDir() as test_dir:
             source_base_url = osp.join(test_dir, 'test_repo')
             source_file_path = osp.join(source_base_url, 'x', 'y.txt')
@@ -266,43 +248,16 @@ class AttachedProjectTest(TestCase):
             with open(source_file_path, 'w') as f:
                 f.write('hello')
 
-            project = Project.generate(save_dir=test_dir)
-            project.sources.add('s1', {
+            project = Project.init(test_dir)
+            project.working_tree.sources.add('s1', {
                 'url': source_base_url,
                 'format': 'fmt',
             })
-            project.save()
 
-            source = project.sources['s1']
-            self.assertEqual(source.url, '')
-            self.assertTrue(osp.isfile(osp.join(
-                project.sources.work_dir('s1'), 'x', 'y.txt')))
-            self.assertTrue(len(source.remote) != 0)
-            self.assertTrue(source.remote in project.vcs.remotes)
-
-    def test_can_add_source_with_existing_remote(self):
-        with TestDir() as test_dir:
-            source_base_url = osp.join(test_dir, 'test_repo')
-            source_file_path = osp.join(source_base_url, 'x', 'y.txt')
-            os.makedirs(osp.dirname(source_file_path), exist_ok=True)
-            with open(source_file_path, 'w') as f:
-                f.write('hello')
-
-            project = Project.generate(save_dir=test_dir)
-            project.vcs.remotes.add('r1', { 'url': source_base_url })
-            project.sources.add('s1', {
-                'url': 'remote://r1/x/y.txt',
-                'format': 'fmt'
-            })
-            project.save()
-
-            source = project.sources['s1']
-            remote = project.vcs.remotes[source.remote]
-            self.assertEqual(source.url, 'y.txt')
-            self.assertEqual(source.remote, 'r1')
-            self.assertEqual(remote.url, source_base_url)
-            self.assertTrue(osp.isfile(osp.join(
-                project.sources.work_dir('s1'), 'y.txt')))
+            source = project.working_tree.sources['s1']
+            self.assertEqual('fmt', source.format)
+            compare_dirs(self, source_base_url,
+                project.working_tree.sources.data_dir('s1'))
 
     def test_can_add_generated_source(self):
         with TestDir() as test_dir:
@@ -311,287 +266,83 @@ class AttachedProjectTest(TestCase):
                 'format': 'fmt',
                 'options': { 'c': 5, 'd': 'hello' }
             })
-            project = Project.generate(save_dir=test_dir)
+            project = Project.init(test_dir)
 
-            project.sources.add(source_name, origin)
-            project.save()
+            project.working_tree.sources.add(source_name, origin)
 
-            added = project.sources[source_name]
+            added = project.working_tree.sources[source_name]
             self.assertEqual(added.format, origin.format)
             self.assertEqual(added.options, origin.options)
 
-    def test_can_add_git_source(self):
-        with TestDir() as test_dir:
-            git_repo_dir = osp.join(test_dir, 'git_repo')
-            os.makedirs(git_repo_dir)
-            GitWrapper.module.Repo.init(git_repo_dir, bare=True)
-
-            git_client_dir = osp.join(test_dir, 'git_client')
-            os.makedirs(git_client_dir)
-            repo = GitWrapper.module.Repo.clone_from(git_repo_dir, git_client_dir)
-            source_dataset = Dataset.from_iterable([
-                DatasetItem(1, image=np.ones((2, 4, 3)), annotations=[Label(1)])
-            ], categories=['a', 'b'])
-            source_dataset.save(git_client_dir, save_images=True)
-            repo.git.add(all=True)
-            repo.index.commit("Initial commit")
-            repo.remote().push()
-
-            project = Project.generate(save_dir=osp.join(test_dir, 'proj'))
-            project.vcs.remotes.add('r1', {
-                'url': git_repo_dir,
-                'type': 'git',
-            })
-            project.sources.add('s1', {
-                'url': 'remote://r1',
-                'format': 'datumaro',
-            })
-            project.save()
-
-            compare_datasets(self, source_dataset,
-                Dataset.load(project.sources.work_dir('s1')))
-
-    def test_can_add_dvc_source(self):
-        with TestDir() as test_dir:
-            dvc_repo_dir = osp.join(test_dir, 'dvc_repo')
-            os.makedirs(dvc_repo_dir, exist_ok=True)
-            git = GitWrapper(dvc_repo_dir)
-            git.init()
-            git.commit("Initial commit")
-            dvc = DvcWrapper(dvc_repo_dir)
-            dvc.init()
-            source_dataset = Dataset.from_iterable([
-                DatasetItem(1, image=np.ones((2, 4, 3)), annotations=[Label(1)])
-            ], categories=['a'])
-            source_dataset.save(osp.join(dvc_repo_dir, 'ds'), save_images=True)
-            dvc.add(osp.join(dvc_repo_dir, 'ds'))
-            dvc.commit(osp.join(dvc_repo_dir, 'ds'))
-            git.add([], all=True)
-            git.commit("First")
-
-            project = Project.generate(save_dir=osp.join(test_dir, 'proj'))
-            project.vcs.remotes.add('r1', {
-                'url': dvc_repo_dir,
-                'type': 'dvc',
-            })
-            project.sources.add('s1', {
-                'url': 'remote://r1',
-                'format': 'datumaro',
-            })
-            project.save()
-
-            compare_datasets(self, source_dataset,
-                Dataset.load(project.sources.work_dir('s1')))
-
     def test_cant_add_source_with_wrong_name(self):
         with TestDir() as test_dir:
-            project = Project.generate(save_dir=test_dir)
+            project = Project.init(test_dir)
 
-            for name in ['dataset', 'project', 'build', '.any']:
+            for name in {'dataset', 'project', 'build', '.any'}:
                 with self.subTest(name=name), \
                         self.assertRaisesRegex(ValueError, "Source name"):
-                    project.sources.add(name, { 'format': 'fmt' })
-
-    def test_can_pull_dir_source(self):
-        with TestDir() as test_dir:
-            source_url = osp.join(test_dir, 'test_repo', 'x')
-            source_path = osp.join(source_url, 'y.txt')
-            os.makedirs(osp.dirname(source_path), exist_ok=True)
-            with open(source_path, 'w') as f:
-                f.write('hello')
-
-            project = Project.generate(save_dir=test_dir)
-            project.sources.add('s1', { 'url': source_url })
-            shutil.rmtree(project.sources.work_dir('s1'))
-
-            project.sources.pull('s1')
-
-            self.assertTrue(osp.isfile(osp.join(
-                project.sources.work_dir('s1'), 'y.txt')))
-
-    def test_can_pull_file_source(self):
-        with TestDir() as test_dir:
-            source_url = osp.join(test_dir, 'test_repo', 'x', 'y.txt')
-            os.makedirs(osp.dirname(source_url), exist_ok=True)
-            with open(source_url, 'w') as f:
-                f.write('hello')
-
-            project = Project.generate(save_dir=test_dir)
-            project.sources.add('s1', { 'url': source_url })
-            shutil.rmtree(project.sources.work_dir('s1'))
-
-            project.sources.pull('s1')
-
-            self.assertTrue(osp.isfile(osp.join(
-                project.sources.work_dir('s1'), 'y.txt')))
-
-    def test_can_pull_source_with_existing_remote_rel_dir(self):
-        with TestDir() as test_dir:
-            source_base_url = osp.join(test_dir, 'test_repo')
-            source_file_path = osp.join(source_base_url, 'x', 'y.txt')
-            os.makedirs(osp.dirname(source_file_path), exist_ok=True)
-            with open(source_file_path, 'w') as f:
-                f.write('hello')
-            source_file_path2 = osp.join(source_base_url, 'x', 'z.txt')
-            with open(source_file_path2, 'w') as f:
-                f.write('hello')
-
-            project = Project.generate(save_dir=test_dir)
-            project.vcs.remotes.add('r1', { 'url': source_base_url })
-            project.sources.add('s1', {
-                'url': 'remote://r1/x/',
-                'format': 'fmt'
-            })
-            shutil.rmtree(project.sources.work_dir('s1'))
-
-            project.sources.pull('s1')
-
-            self.assertTrue(osp.isfile(osp.join(
-                project.sources.work_dir('s1'), 'y.txt')))
-            self.assertTrue(osp.isfile(osp.join(
-                project.sources.work_dir('s1'), 'z.txt')))
-
-    def test_can_pull_source_with_existing_remote_rel_file(self):
-        with TestDir() as test_dir:
-            source_base_url = osp.join(test_dir, 'test_repo')
-            source_file_path = osp.join(source_base_url, 'x', 'y.txt')
-            os.makedirs(osp.dirname(source_file_path), exist_ok=True)
-            with open(source_file_path, 'w') as f:
-                f.write('hello')
-            # another file in the remote directory, should not be copied
-            source_file_path2 = osp.join(source_base_url, 'x', 'z.txt')
-            with open(source_file_path2, 'w') as f:
-                f.write('hello')
-
-            project = Project.generate(save_dir=test_dir)
-            project.vcs.remotes.add('r1', { 'url': source_base_url })
-            project.sources.add('s1', {
-                'url': 'remote://r1/x/y.txt',
-                'format': 'fmt'
-            })
-            shutil.rmtree(project.sources.work_dir('s1'))
-
-            project.sources.pull('s1')
-
-            self.assertTrue(osp.isfile(osp.join(
-                project.sources.work_dir('s1'), 'y.txt')))
-            self.assertFalse(osp.isfile(osp.join(
-                project.sources.work_dir('s1'), 'z.txt')))
-
-    def test_can_pull_source_with_existing_remote_root_file(self):
-        with TestDir() as test_dir:
-            source_base_url = osp.join(test_dir, 'test_repo')
-            source_file_path = osp.join(source_base_url, 'y.txt')
-            os.makedirs(osp.dirname(source_file_path), exist_ok=True)
-            with open(source_file_path, 'w') as f:
-                f.write('hello')
-
-            project = Project.generate(save_dir=test_dir)
-            project.vcs.remotes.add('r1', { 'url': source_file_path })
-            project.sources.add('s1', {
-                'url': 'remote://r1',
-                'format': 'fmt'
-            })
-            shutil.rmtree(project.sources.work_dir('s1'))
-
-            project.sources.pull('s1')
-
-            self.assertTrue(osp.isfile(osp.join(
-                project.sources.work_dir('s1'), 'y.txt')))
-
-    def test_can_pull_source_with_existing_remote_root_dir(self):
-        with TestDir() as test_dir:
-            source_base_url = osp.join(test_dir, 'test_repo')
-            source_file_path = osp.join(source_base_url, 'y.txt')
-            os.makedirs(osp.dirname(source_file_path), exist_ok=True)
-            with open(source_file_path, 'w') as f:
-                f.write('hello')
-            source_file_path2 = osp.join(source_base_url, 'z.txt')
-            with open(source_file_path2, 'w') as f:
-                f.write('hello')
-
-            project = Project.generate(save_dir=test_dir)
-            project.vcs.remotes.add('r1', { 'url': source_base_url })
-            project.sources.add('s1', {
-                'url': 'remote://r1',
-                'format': 'fmt'
-        })
-            shutil.rmtree(project.sources.work_dir('s1'))
-
-            project.sources.pull('s1')
-
-            self.assertTrue(osp.isfile(osp.join(
-                project.sources.work_dir('s1'), 'y.txt')))
-            self.assertTrue(osp.isfile(osp.join(
-                project.sources.work_dir('s1'), 'z.txt')))
+                    project.working_tree.sources.add(name, { 'format': 'fmt' })
 
     def test_can_remove_source_and_keep_data(self):
         with TestDir() as test_dir:
-            source_url = osp.join(test_dir, 'test_repo', 'x', 'y.txt')
+            source_url = osp.join(test_dir, 'test_source.txt')
             os.makedirs(osp.dirname(source_url), exist_ok=True)
             with open(source_url, 'w') as f:
                 f.write('hello')
 
-            project = Project.generate(save_dir=test_dir)
-            project.sources.add('s1', { 'url': source_url })
+            project = Project.init(test_dir)
+            project.working_tree.sources.add('s1', { 'url': source_url })
 
-            project.sources.remove('s1', keep_data=True)
+            project.working_tree.sources.remove('s1', keep_data=True)
 
-            self.assertFalse('s1' in project.sources)
-            self.assertTrue(osp.isfile(osp.join(
-                project.sources.work_dir('s1'), osp.basename(source_url))))
+            self.assertFalse('s1' in project.working_tree.sources)
+            compare_dirs(self, source_url,
+                project.working_tree.sources.data_dir('s1'))
 
     def test_can_remove_source_and_wipe_data(self):
         with TestDir() as test_dir:
-            source_url = osp.join(test_dir, 'test_repo', 'x', 'y.txt')
+            source_url = osp.join(test_dir, 'test_source.txt')
             os.makedirs(osp.dirname(source_url), exist_ok=True)
             with open(source_url, 'w') as f:
                 f.write('hello')
 
-            project = Project.generate(save_dir=test_dir)
-            project.sources.add('s1', { 'url': source_url })
+            project = Project.init(test_dir)
+            project.working_tree.sources.add('s1', { 'url': source_url })
 
-            project.sources.remove('s1', keep_data=False)
+            project.working_tree.sources.remove('s1', keep_data=False)
 
-            self.assertFalse('s1' in project.sources)
+            self.assertFalse('s1' in project.working_tree.sources)
             self.assertFalse(osp.isfile(osp.join(
-                project.sources.work_dir('s1'), osp.basename(source_url))))
+                project.working_tree.sources.data_dir('s1'),
+                osp.basename(source_url))))
 
-    def test_can_checkout_source_rev_cached(self):
+    def test_can_checkout(self):
         with TestDir() as test_dir:
-            source_url = osp.join(test_dir, 'test_repo', 'x', 'y.txt')
+            source_url = osp.join(test_dir, 'test_source.txt')
             os.makedirs(osp.dirname(source_url), exist_ok=True)
             with open(source_url, 'w') as f:
                 f.write('hello')
 
-            project = Project.generate(save_dir=test_dir)
-            project.sources.add('s1', { 'url': source_url })
-            local_source_path = osp.join(
-                project.sources.work_dir('s1'), osp.basename(source_url))
-            project.save()
-            project.vcs.commit(None, message="First commit")
+            project = Project.init(test_dir)
+            project.working_tree.sources.add('s1', { 'url': source_url })
+            project.add('s1')
+            project.commit("First commit")
 
+            local_source_path = osp.join(
+                project.working_tree.sources.data_dir('s1'),
+                osp.basename(source_url))
             with open(local_source_path, 'w') as f:
                 f.write('world')
-            project.vcs.commit(None, message="Second commit")
+            project.add('s1')
+            project.commit("Second commit")
 
-            project.vcs.checkout('HEAD~1', ['s1'])
+            project.checkout('HEAD~1')
 
-            self.assertTrue(osp.isfile(local_source_path))
-            with open(local_source_path) as f:
-                self.assertEqual('hello', f.readline().strip())
+            compare_dirs(self, source_url,
+                project.working_tree.sources.data_dir('s1'))
 
     @skip('Source data status checks are not implemented yet')
     def test_can_checkout_source_rev_noncached(self):
-        # Can't detect automatically if there is no cached source version
-        # in DVC cache, or if checkout produced a mismatching version of data.
-        # For example:
-        # a source was transformed without application
-        # - its stages changed, but files did not
-        # - it was committed, no changes in source data,
-        #     so no updates in the DVC cache
-        # checkout produces an outdated version of the source.
-        # Resolution - source rebuilding + saving source hash in stage info.
         raise NotImplementedError()
 
     def test_can_read_working_copy_of_source(self):
@@ -605,17 +356,17 @@ class AttachedProjectTest(TestCase):
             ], categories=['a', 'b'])
             source_dataset.save(source_url, save_images=True)
 
-            project = Project.generate(save_dir=osp.join(test_dir, 'proj'))
-            project.sources.add('s1', {
+            project = Project.init(osp.join(test_dir, 'proj'))
+            project.working_tree.sources.add('s1', {
                 'url': source_url,
                 'format': DEFAULT_FORMAT,
             })
-            project.save()
 
-            read_dataset = project.sources.make_dataset('s1')
+            read_dataset = project.working_tree.sources.make_dataset('s1')
 
             compare_datasets(self, source_dataset, read_dataset)
-            compare_dirs(self, source_url, project.sources.work_dir('s1'))
+            compare_dirs(self, source_url,
+                project.working_tree.sources.data_dir('s1'))
 
     def test_can_read_current_revision_of_source(self):
         with TestDir() as test_dir:
@@ -628,85 +379,22 @@ class AttachedProjectTest(TestCase):
             ], categories=['a', 'b'])
             source_dataset.save(source_url, save_images=True)
 
-            project = Project.generate(save_dir=osp.join(test_dir, 'proj'))
-            project.sources.add('s1', {
+            project = Project.init(osp.join(test_dir, 'proj'))
+            project.working_tree.sources.add('s1', {
                 'url': source_url,
                 'format': DEFAULT_FORMAT,
             })
-            project.save()
+            project.add('s1')
+            project.commit("A commit")
 
-            shutil.rmtree(project.sources.work_dir('s1'))
+            shutil.rmtree(project.working_tree.sources.data_dir('s1'))
 
-            read_dataset = project.sources.make_dataset('s1', rev='HEAD')
+            read_dataset = project.head.sources.make_dataset('s1')
 
             compare_datasets(self, source_dataset, read_dataset)
-            self.assertFalse(osp.isdir(project.sources.work_dir('s1')))
-
-    def test_can_update_source(self):
-        with TestDir() as test_dir:
-            source_url = osp.join(test_dir, 'test_repo', 'x', 'y.txt')
-            os.makedirs(osp.dirname(source_url), exist_ok=True)
-            with open(source_url, 'w') as f:
-                f.write('hello')
-
-            project = Project.generate(save_dir=test_dir)
-            project.sources.add('s1', { 'url': source_url })
-            project.save()
-            project.vcs.commit(None, message="First commit")
-
-            with open(source_url, 'w') as f:
-                f.write('world')
-
-            project.sources.pull('s1')
-
-            local_source_path = osp.join(
-                project.sources.work_dir('s1'), osp.basename(source_url))
-            self.assertTrue(osp.isfile(local_source_path))
-            with open(local_source_path) as f:
-                self.assertEqual('world', f.readline().strip())
-
-    def test_can_build_project(self):
-        with TestDir() as test_dir:
-            source_url = osp.join(test_dir, 'test_repo')
-            dataset = Dataset.from_iterable([
-                DatasetItem(1, annotations=[Label(0)]),
-            ], categories=['a', 'b'])
-            dataset.save(source_url)
-
-            project = Project.generate(save_dir=test_dir)
-            project.sources.add('s1', {
-                'url': source_url,
-                'format': DEFAULT_FORMAT,
-            })
-            project.build_targets.add_filter_stage('s1', { 'expr': '/item' })
-
-            project.build()
-
-            built_dataset = Dataset.load(
-                osp.join(test_dir, project.config.build_dir))
-            compare_datasets(self, dataset, built_dataset)
-
-    def test_cant_build_dirty_source(self):
-        with TestDir() as test_dir:
-            source_url = osp.join(test_dir, 'test_repo')
-            dataset = Dataset.from_iterable([
-                DatasetItem(1, annotations=[Label(0)]),
-            ], categories=['a', 'b'])
-            dataset.save(source_url)
-
-            project = Project.generate(save_dir=test_dir)
-            project.sources.add('s1', {
-                'url': source_url,
-                'format': DEFAULT_FORMAT,
-            })
-            project.save()
-            project.vcs.commit(None, "Added a source")
-
-            os.unlink(osp.join(project.sources.work_dir('s1'),
-                'annotations', 'default.json'))
-
-            with self.assertRaisesRegex(VcsError, "uncommitted changes"):
-                project.build()
+            self.assertFalse(osp.isdir(
+                project.working_tree.sources.data_dir('s1')))
+            compare_dirs(self, source_url, project.head.sources.data_dir('s1'))
 
     def test_can_make_dataset_from_project(self):
         with TestDir() as test_dir:
@@ -716,33 +404,14 @@ class AttachedProjectTest(TestCase):
             ], categories=['a', 'b'])
             dataset.save(source_url)
 
-            project = Project.generate(save_dir=test_dir)
-            project.sources.add('s1', {
+            project = Project.init(test_dir)
+            project.working_tree.sources.add('s1', {
                 'url': source_url,
                 'format': DEFAULT_FORMAT,
             })
 
-            built_dataset = project.make_dataset()
+            built_dataset = project.working_tree.make_dataset()
 
-            compare_datasets(self, dataset, built_dataset)
-
-    def test_can_build_source(self):
-        with TestDir() as test_dir:
-            source_url = osp.join(test_dir, 'test_repo')
-            dataset = Dataset.from_iterable([
-                DatasetItem(1, annotations=[Label(0)]),
-            ], categories=['a', 'b'])
-            dataset.save(source_url)
-
-            project = Project.generate(save_dir=test_dir)
-            project.sources.add('s1', {
-                'url': source_url,
-                'format': DEFAULT_FORMAT,
-            })
-
-            project.build('s1')
-
-            built_dataset = Dataset.load(project.sources.work_dir('s1'))
             compare_datasets(self, dataset, built_dataset)
 
     def test_can_make_dataset_from_source(self):
@@ -753,14 +422,16 @@ class AttachedProjectTest(TestCase):
             ], categories=['a', 'b'])
             dataset.save(source_url)
 
-            project = Project.generate(save_dir=test_dir)
-            project.sources.add('s1', {
+            project = Project.init(test_dir)
+            project.working_tree.sources.add('s1', {
                 'url': source_url,
                 'format': DEFAULT_FORMAT,
             })
-            project.build_targets.add_filter_stage('s1', { 'expr': '/item' })
+            project.working_tree.build_targets.add_filter_stage('s1', {
+                'expr': '/item'
+            })
 
-            built_dataset = project.make_dataset('s1')
+            built_dataset = project.working_tree.make_dataset('s1')
 
             compare_datasets(self, dataset, built_dataset)
 
@@ -773,19 +444,18 @@ class AttachedProjectTest(TestCase):
             ], categories=['a', 'b'])
             dataset.save(source_url)
 
-            project = Project.generate(save_dir=test_dir)
-            project.sources.add('s1', {
+            project = Project.init(test_dir)
+            project.working_tree.sources.add('s1', {
                 'url': source_url,
                 'format': DEFAULT_FORMAT,
             })
 
-            project.build_targets.add_stage('s1', {
+            project.working_tree.build_targets.add_stage('s1', {
                 'type': BuildStageType.filter.name,
                 'params': {'expr': '/item/annotation[label="b"]'},
             }, name='f1')
-            project.save()
 
-            self.assertTrue('s1.f1' in project.build_targets)
+            self.assertTrue('s1.f1' in project.working_tree.build_targets)
 
     def test_can_add_filter_stage(self):
         with TestDir() as test_dir:
@@ -796,18 +466,17 @@ class AttachedProjectTest(TestCase):
             ], categories=['a', 'b'])
             dataset.save(source_url)
 
-            project = Project.generate(save_dir=test_dir)
-            project.sources.add('s1', {
+            project = Project.init(test_dir)
+            project.working_tree.sources.add('s1', {
                 'url': source_url,
                 'format': DEFAULT_FORMAT,
             })
 
-            _, stage = project.build_targets.add_filter_stage('s1',
-                params={'expr': '/item/annotation[label="b"]'}
+            _, stage = project.working_tree.build_targets.add_filter_stage('s1',
+                {'expr': '/item/annotation[label="b"]'}
             )
-            project.save()
 
-            self.assertTrue(stage in project.build_targets)
+            self.assertTrue(stage in project.working_tree.build_targets)
 
     def test_can_add_convert_stage(self):
         with TestDir() as test_dir:
