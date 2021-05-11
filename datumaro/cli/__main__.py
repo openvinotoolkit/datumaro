@@ -129,10 +129,6 @@ def main(args=None):
         parser.print_help()
         return 1
 
-    if args.detached:
-        from datumaro.components.project import ProjectVcs
-        ProjectVcs.G_DETACHED = True
-
     try:
         retcode = args.command(args)
         if retcode is None:
