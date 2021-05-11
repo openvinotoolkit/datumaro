@@ -119,7 +119,7 @@ saved in `ImageNet` format, but no as `COCO keypoints`.
 There are few ways to convert Pascal VOC dataset to other dataset format:
 
 ``` bash
-datum project import -f voc -i <path/to/voc>
+datum import -f voc -i <path/to/voc>
 datum export -f coco -o <path/to/output/dir>
 # or
 datum convert -if voc -i <path/to/voc> -f coco -o <path/to/output/dir>
@@ -214,8 +214,7 @@ datum add path -p project -f voc_segmentation ./VOC2012/ImageSets/Segmentation/t
 datum stats -p project # check statisctics.json -> repeated images
 datum transform -p project -o ndr_project -t ndr -- -w trainval -k 2500
 datum filter -p ndr_project -o trainval2500 -e '/item[subset="trainval"]'
-datum transform -p trainval2500 -o semantic_seg -t merge_instance_segments
-datum transform -p semantic_seg -o final_project -t random_split -- -s train:.8 -s val:.2
+datum transform -p trainval2500 -o final_project -t random_split -- -s train:.8 -s val:.2
 datum export -p final_project -o dataset -f voc -- --label-map voc --save-images
 ```
 
@@ -237,7 +236,7 @@ dataset = Dataset.from_iterable([
 ], categories=['person', 'sky', 'water', 'lion'])
 
 dataset.transform('polygons_to_masks')
-dataset.export('./mydataset', 'voc', label_map='my_labelmap.txt')
+dataset.export('./mydataset', format='voc', label_map='my_labelmap.txt')
 
 """
 my_labelmap.txt:
@@ -256,7 +255,7 @@ which has `jumping` attribute:
 ```python
 from datumaro.components.dataset import Dataset
 
-dataset = Dataset.import_from('./VOC2012', 'voc')
+dataset = Dataset.import_from('./VOC2012', format='voc')
 
 train_dataset = dataset.get_subset('train').as_dataset()
 
@@ -268,7 +267,7 @@ def only_jumping(item):
 
 train_dataset.select(only_jumping)
 
-train_dataset.export('./jumping_label_me', 'label_me', save_images=True)
+train_dataset.export('./jumping_label_me', format='label_me', save_images=True)
 ```
 
 ### Example 4. Get information about items in Pascal VOC 2012 dataset for segmentation task:
@@ -277,11 +276,11 @@ train_dataset.export('./jumping_label_me', 'label_me', save_images=True)
 from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import AnnotationType
 
-dataset = Dataset.import_from('./VOC2012', 'voc')
+dataset = Dataset.import_from('./VOC2012', format='voc')
 
 def has_mask(item):
     for ann in item.annotations:
-        if ann.type in {AnnotationType.polygon, AnnotationType.mask}:
+        if ann.type == AnnotationType.mask:
             return True
     return False
 
