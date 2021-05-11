@@ -56,8 +56,6 @@ def make_parser():
 
     parser.add_argument('--version', action='version', version=VERSION)
     _LogManager._define_loglevel_option(parser)
-    parser.add_argument('--detached', action='store_true',
-        help=argparse.SUPPRESS)
 
     known_contexts = [
         ('project', contexts.project, "Actions with project"),
