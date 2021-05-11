@@ -14,9 +14,7 @@ MNIST format specification available [here](http://yann.lecun.com/exdb/mnist/).
 Fashion MNIST format specification available [here](https://github.com/zalandoresearch/fashion-mnist).
 MNIST in CSV  format specification available [here](https://pjreddie.com/projects/mnist-in-csv/).
 
-MNIST dataset format supports the following type of annotations:
-
-- `Labels` (for classification tasks)
+MNIST dataset format supports `Labels` annotations.
 
 ##  Load MNIST dataset
 
@@ -102,19 +100,23 @@ MNIST format only supports single channel 28 x 28 images.
 ##  Export to other formats
 
 Datumaro can convert MNIST dataset into any other format [Datumaro supports](../docs/user_manual.md#supported-formats).
-To get the expected result, the dataset needs to be converted to formats that support the classification task (e.g. CIFAR-10/100, ImageNet, PascalVOC, etc.)
+To get the expected result, the dataset needs to be converted to formats
+that support the classification task (e.g. CIFAR-10/100, ImageNet, PascalVOC, etc.)
 There are few ways to convert MNIST dataset to other dataset format:
+
 ``` bash
 datum project import -f mnist -i <path/to/mnist>
 datum export -f imagenet -o <path/to/output/dir>
 # or
 datum convert -if mnist -i <path/to/mnist> -f imagenet -o <path/to/output/dir>
 ```
+
 These commands also work for MNIST in CSV if you use `mnist_csv` instead of `mnist`.
 
 ##  Export to MNIST
 
 There are few ways to convert dataset to MNIST format:
+
 ``` bash
 # export dataset into MNIST format from existing project
 datum export -p <path/to/project> -f mnist -o <path/to/export/dir>
@@ -122,6 +124,7 @@ datum export -p <path/to/project> -f mnist -o <path/to/export/dir>
 datum convert -if imagenet -i <path/to/imagenet/dataset> \
 -f mnist -o <path/to/export/dir>
 ```
+
 These commands also work for MNIST in CSV if you use `mnist_csv` instead of `mnist`.
 
 ##  Particular use cases
@@ -137,7 +140,6 @@ particular problems with MNIST dataset:
 
 ```python
 from datumaro.components.dataset import Dataset
-from datumaro.util.image import Image
 from datumaro.components.extractor import Label, DatasetItem
 
 dataset = Dataset.from_iterable([
@@ -152,7 +154,7 @@ dataset = Dataset.from_iterable([
 	str(label) for label in  range(10)),
 })
 
-dataset.export('./mydataset', format='mnist')
+dataset.export('./dataset', format='mnist')
 ```
 
 ###  Example 2. How to filter and convert MNIST dataset to ImageNet
