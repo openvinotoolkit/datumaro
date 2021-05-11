@@ -126,9 +126,12 @@ datum convert -if imagenet -i <path/to/imagenet/dataset> \
     -f mnist -o <path/to/export/dir> -- --save-images
 ```
 
-The `save-images` export option means that the image data will be saved.
-There are also `default_image_ext` and `image_ext`. These parameters are needed
-to replace the standard `image_ext` for the format.
+Extra options for export to MNIST format:
+
+- `--save-images` allow to export dataset with saving images
+(by default `False`);
+- `--image-ext <IMAGE_EXT>` allow to specify image extension
+for exporting dataset (by default `.png`).
 
 These commands also work for MNIST in CSV if you use `mnist_csv` instead of `mnist`.
 
