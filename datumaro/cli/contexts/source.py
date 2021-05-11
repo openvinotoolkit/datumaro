@@ -146,48 +146,6 @@ def remove_command(args):
 
     return 0
 
-def build_pull_parser(parser_ctor=argparse.ArgumentParser):
-    parser = parser_ctor(help="Update source revision",
-        description="""
-        Update source revision.|n
-        |n
-        To remove existing pipelines for the updated sources
-        (start them from scratch), use the '--restart' parameter.|n
-        |n
-        A specific revision can be required by the '--rev' parameter.
-        Otherwise, the latest remote version will be used.
-        """)
-
-    parser.add_argument('names', nargs='+',
-        help="Names of sources to update")
-    parser.add_argument('--rev',
-        help="A revision to update the source to")
-    parser.add_argument('--restart', action='store_true',
-        help="Removes existing pipelines for these sources")
-    parser.add_argument('-p', '--project', dest='project_dir', default='.',
-        help="Directory of the project to operate on (default: current dir)")
-    parser.set_defaults(command=pull_command)
-
-    return parser
-
-def pull_command(args):
-    project = load_project(args.project_dir)
-
-    for source in args.names:
-        if source not in project.sources:
-            raise KeyError("Unknown source '%s'" % source)
-
-    project.sources.pull(args.names, rev=args.rev)
-    for source in args.names:
-        if args.restart:
-            stages = project.build_targets[source].stages
-            stages[:] = stages[:1]
-        project.build_targets.build(source, reset=False, force=True)
-
-    project.save()
-
-    return 0
-
 def build_info_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor()
 
@@ -231,7 +189,6 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     subparsers = parser.add_subparsers()
     add_subparser(subparsers, 'add', build_add_parser)
     add_subparser(subparsers, 'remove', build_remove_parser)
-    add_subparser(subparsers, 'pull', build_pull_parser)
     add_subparser(subparsers, 'info', build_info_parser)
 
     return parser

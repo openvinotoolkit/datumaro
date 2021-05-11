@@ -135,33 +135,6 @@ def remove_command(args):
 
     return 0
 
-def build_pull_parser(parser_ctor=argparse.ArgumentParser):
-    parser = parser_ctor(help="Update model revision",
-        description="""
-        Update model revision.|n
-        |n
-        A specific revision can be required by the '--rev' parameter.
-        Otherwise, the latest remote version will be used.
-        """)
-
-    parser.add_argument('names', nargs='+',
-        help="Names of models to update")
-    parser.add_argument('--rev',
-        help="A revision to update the model to")
-    parser.add_argument('-p', '--project', dest='project_dir', default='.',
-        help="Directory of the project to operate on (default: current dir)")
-    parser.set_defaults(command=pull_command)
-
-    return parser
-
-def pull_command(args):
-    project = load_project(args.project_dir)
-
-    project.models.pull(args.names, rev=args.rev)
-    project.save()
-
-    return 0
-
 def build_run_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(help="Launches model inference",
         description="Launches model inference on a project target.")
@@ -231,7 +204,6 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     subparsers = parser.add_subparsers()
     add_subparser(subparsers, 'add', build_add_parser)
     add_subparser(subparsers, 'remove', build_remove_parser)
-    add_subparser(subparsers, 'pull', build_pull_parser)
     add_subparser(subparsers, 'run', build_run_parser)
     add_subparser(subparsers, 'info', build_info_parser)
 

@@ -7,8 +7,8 @@
 from . import (
     create, add, remove, import_,
     explain,
-    export, merge, convert, apply, transform, filter, build, update,
+    export, merge, convert, transform, filter,
     diff, ediff, stats,
-    commit, fetch, pull, push, track, checkout, refs, status, check_updates, tag,
+    commit, checkout,
     info, validate
 )

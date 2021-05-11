@@ -10,7 +10,7 @@ from datumaro.util.os_util import generate_next_name
 
 
 def load_project(project_dir):
-    return Project.load(project_dir)
+    return Project(project_dir)
 
 def generate_next_file_name(basename, basedir='.', sep='.', ext=''):
     """

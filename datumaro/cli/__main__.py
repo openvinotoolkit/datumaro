@@ -58,12 +58,9 @@ def make_parser():
     _LogManager._define_loglevel_option(parser)
     parser.add_argument('--detached', action='store_true',
         help=argparse.SUPPRESS)
-        # help="Work in VCS-detached mode. VCS operations will be unavailable.")
 
     known_contexts = [
         ('project', contexts.project, "Actions with project"),
-        ('repo', contexts.repository, "Actions with VCS repositories"),
-        ('remote', contexts.remote, "Actions with data remotes"),
         ('source', contexts.source, "Actions with data sources"),
         ('model', contexts.model, "Actions with models"),
     ]
@@ -76,25 +73,14 @@ def make_parser():
 
         ("", None, ''),
         ("Project versioning:", None, ''),
-        ('check_updates', commands.check_updates, "Check remote repository for updates"),
-        ('fetch', commands.fetch, "Fetch updates from remote repository"),
-        ('pull', commands.pull, "Pull updates from remote repository"),
-        ('push', commands.push, "Push updates to remote repository"),
         ('checkout', commands.checkout, "Switch to another branch or revision"),
         ('commit', commands.commit, "Commit changes in tracked files"),
-        ('status', commands.status, "Show status information"),
-        ('refs', commands.refs, "List branches and revisions"),
-        ('tag', commands.tag, "Give name to revision"),
-        ('track', commands.track, "Start tracking a local file or directory"),
-        ('update', commands.update, "Change data source revision"),
 
         ("", None, ''),
         ("Dataset and project operations:", None, ''),
         ('export', commands.export, "Export project in some format"),
         ('filter', commands.filter, "Filter project items"),
         ('transform', commands.transform, "Modify project items"),
-        ('apply', commands.apply, "Apply a few transforms to project"),
-        ('build', commands.build, "Build project"),
         ('merge', commands.merge, "Merge projects"),
         ('convert', commands.convert, "Convert dataset between formats"),
         ('diff', commands.diff, "Compare projects with intersection"),

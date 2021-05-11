@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: MIT
 
 import argparse
-from datumaro.components.config_model import Source
 import json
 import logging as log
 import os
@@ -12,15 +11,15 @@ import shutil
 from enum import Enum
 
 from datumaro.components.dataset_filter import DatasetItemEncoder
+from datumaro.components.environment import Environment
 from datumaro.components.errors import DatasetMergeError
 from datumaro.components.extractor import AnnotationType
 from datumaro.components.operations import (compute_ann_statistics,
     compute_image_statistics)
-from datumaro.components.project import (DvcWrapper, GitWrapper, Project, ProjectBuildTargets,
-    PROJECT_DEFAULT_CONFIG as DEFAULT_CONFIG)
-from datumaro.components.environment import Environment
-from datumaro.components.validator import validate_annotations, TaskType
-from datumaro.util import str_to_bool, error_rollback
+from datumaro.components.project import (Project, ProjectBuildTargets,
+    parse_target_revpath, PROJECT_DEFAULT_CONFIG as DEFAULT_CONFIG)
+from datumaro.components.validator import TaskType, validate_annotations
+from datumaro.util import error_rollback, str_to_bool
 
 from ...util import (CliException, MultilineFormatter, add_subparser,
     make_file_name)
@@ -512,48 +511,6 @@ def merge_command(args):
 
     return 0
 
-def build_apply_parser(parser_ctor=argparse.ArgumentParser):
-    parser = parser_ctor(help="Apply some operations to project",
-        description="""
-            Applies several operations to a dataset
-            and produces a new dataset.
-        """,
-        formatter_class=MultilineFormatter)
-
-    parser.add_argument('file',
-        help="Path to a file with a list of transforms and other actions")
-    parser.add_argument('-o', '--output-dir', dest='dst_dir', default=None,
-        help="Directory to save output (default: current dir)")
-    parser.add_argument('--overwrite', action='store_true',
-        help="Overwrite existing files in the save directory")
-    parser.add_argument('--build', action='store_true',
-        help="Consider this invocation a build step")
-    parser.add_argument('-p', '--project', dest='project_dir', default='.',
-        help="Directory of the project to operate on (default: current dir)")
-    parser.set_defaults(command=apply_command)
-
-    return parser
-
-def apply_command(args):
-    project = load_project(args.project_dir)
-
-    dst_dir = args.dst_dir
-    if dst_dir:
-        if not args.overwrite and osp.isdir(dst_dir) and os.listdir(dst_dir):
-            raise CliException("Directory '%s' already exists "
-                "(pass --overwrite to overwrite)" % dst_dir)
-    elif not args.build:
-        dst_dir = generate_next_file_name('%s-apply' % \
-            project.config.project_name)
-    dst_dir = osp.abspath(dst_dir)
-
-    pipeline = project.build_targets.read_pipeline(args.file)
-    project.build_targets.run_pipeline(pipeline, out_dir=dst_dir)
-
-    log.info("Results have been saved to '%s'" % dst_dir)
-
-    return 0
-
 def build_transform_parser(parser_ctor=argparse.ArgumentParser):
     builtins = sorted(Environment().transforms.items)
 
@@ -671,42 +628,6 @@ def transform_command(args):
 
     return 0
 
-def build_build_parser(parser_ctor=argparse.ArgumentParser):
-    parser = parser_ctor(help="Build project",
-        description="""
-            Pulls related sources and builds the target
-        """,
-        formatter_class=MultilineFormatter)
-
-    parser.add_argument('target', default='project', nargs='?',
-        help="Project target to apply transform to (default: project)")
-    parser.add_argument('-o', '--output-dir', dest='dst_dir', default=None,
-        help="Directory to save output (default: current dir)")
-    parser.add_argument('-f', '--force', action='store_true',
-        help="Rebuild the target, even if it has no changes. "
-            "Ignore uncommitted changes.")
-    parser.add_argument('-p', '--project', dest='project_dir', default='.',
-        help="Directory of the project to operate on (default: current dir)")
-    parser.set_defaults(command=build_command)
-
-    return parser
-
-def build_command(args):
-    project = load_project(args.project_dir)
-
-    status = project.vcs.status()
-    if not args.force and [s
-        for d in status.values() if 'changed outs' in s
-        for co in d.values()
-        for s in co.values()
-    ]:
-        raise CliException("Can't build project " \
-            "when there are uncommitted changes: %s" % status)
-
-    project.build(args.target, force=args.force, out_dir=args.dst_dir)
-
-    return 0
-
 def build_stats_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(help="Get project statistics",
         description="""
@@ -724,183 +645,9 @@ def build_stats_parser(parser_ctor=argparse.ArgumentParser):
     return parser
 
 def stats_command(args):
-    def parse_target_revpath(revpath: str):
-        sep_pos = revpath.find(':')
-        if -1 < sep_pos:
-            rev = revpath[:sep_pos]
-            target = revpath[sep_pos:]
-        else:
-            rev = ''
-            target = revpath
-
-        return rev, target
-
-    def make_obj_path(project, hash_value: str):
-        assert len(hash_value) == 40
-        return osp.join(project.config.project_dir, '.datumaro', 'objs',
-            hash_value[:2], hash_value[2:])
-
-    def make_dvc_cache_path(project, hash_value):
-        assert len(hash_value) == 40
-        return osp.join(project.config.project_dir, '.dvc', 'cache',
-            hash_value[:2], hash_value[2:])
-
-    def can_retrieve_from_cache(project, hash_value):
-        path = make_dvc_cache_path(project, hash_value)
-        if not osp.isfile(path):
-            return False
-
-        if hash_value.endswith('.dir'):
-            import json
-            objects = json.load(path)
-            for entry in objects:
-                if not osp.isfile(make_dvc_cache_path(entry['md5'])):
-                    return False
-
-        return True
-        # return project.vcs.dvc.check_hash(hash_value)
-
-    def has_cache_entry(project, hash_value):
-        return osp.isdir(make_obj_path(project, hash_value)) or \
-            can_retrieve_from_cache(project, hash_value)
-
-    def is_generated(source: Source):
-        return not source.url
-
-    def find_missing_sources(project, pipeline):
-        missing_sources = set()
-        checked_deps = set()
-        missing_deps = [pipeline.head.name]
-        while missing_deps:
-            t = missing_deps.pop()
-            if t in checked_deps:
-                continue
-
-            t_conf = pipeline[t].config
-
-            if not (t_conf.hash and has_cache_entry(project, t_conf.hash)):
-                parent_targets = pipeline.parents(t)
-                if not parent_targets:
-                    assert t_conf.type == 'source'
-                    if not is_generated(t_conf):
-                        missing_sources.add(t)
-                else:
-                    for p in parent_targets:
-                        if p not in checked_deps:
-                            missing_deps.append(p)
-                    continue
-
-            checked_deps.add(t)
-        return missing_sources
-
-    def download_source(project, source):
-        raise NotImplementedError()
-        # dvc = DvcWrapper(project.config.project_dir)
-
-        # temp_dir = make_temp_dir(
-        #     osp.join(project.config.project_dir, '.datumaro', 'temp'))
-        # dvc_config = load_dvc_config(project, source)
-        # dvc_config_path = osp.join(temp_dir, 'config.dvc')
-        # write_dvc_config(dvc_config, )
-        # dvc.download_source(dvc_config, temp_dir)
-
-        # source.hash = dvc.compute_source_hash(temp_dir)
-        # obj_dir = make_obj_path(project, source.hash)
-        # shutil.move(temp_dir, obj_dir) # moves _into_ obj_dir
-
-    # class Tree: # what was Project
-    #     # can be:
-    #     # - detached
-    #     # - attached to the work dir
-    #     # - attached to the index dir
-    #     # - attached to a revision
-
-    #     def __init__(self, config, env=None):
-    #         pass
-
-    #     # models
-    #     # sources
-    #     # remotes
-    #     # targets
-    #     # plugins
-    #     # config
-
-    #     # dataset
-
-    # class Repo:
-    #     @staticmethod
-    #     def init(path, config=None):
-    #         pass
-
-    #     def __init__(self, path=None):
-    #         self.path = path
-
-    #     def get_rev(self, rev: str) -> Tree:
-    #         pass
-
-    #     # config
-    #     # <vcs>
-    #     # cache
-    #     # working_copy
-    #     # index
-    #     # revisions
-
-    #     # ...
-
-    def run_pipeline(project, pipeline):
-        missing_sources = find_missing_sources(project, pipeline)
-        for t in missing_sources:
-            download_source(project, pipeline[t].config) # set hash in config if the source was not downloaded
-
-        return project.build_targets.apply_pipeline(pipeline) # make forward pass
-
-    def write_tree(tree, base_path):
-        os.makedirs(base_path, exist_ok=True)
-
-        for obj in tree.traverse(visit_once=True):
-            path = osp.join(base_path, obj.path)
-            os.makedirs(osp.dirname(path), exist_ok=True)
-            if obj.type == 'blob':
-                with open(path, 'wb') as f:
-                    obj.stream_data(f)
-            elif obj.type == 'tree':
-                pass
-            else:
-                raise ValueError("Unexpected object type in a git tree: %s" % \
-                    obj.type)
-
-    def get_project_at_rev(project_dir, rev):
-        project = load_project(project_dir)
-
-        tree = project.vcs.git.repo.tree(rev)
-        obj_dir = make_obj_path(project, tree.hexsha)
-        if not osp.isdir(obj_dir):
-            write_tree(tree, obj_dir)
-
-        return project.vcs.get_rev(rev)
-
-    def get_target_pipeline(project, target):
-        return project.build_targets.make_pipeline(target)
-
-    def get_resulting_dataset(pipeline):
-        graph, head = run_pipeline(project, pipeline)
-        return graph.nodes[head]['dataset']
-
-    def get_dataset(project, target):
-        pipeline = get_target_pipeline(project, target)
-
-        dataset = get_resulting_dataset(project, pipeline)
-
-        # need to save and load, because it can modify dataset,
-        # unless we work with the internal format
-        # save_in_cache(project, pipeline) # update and check hash in config!
-        # dataset = load_dataset(project, pipeline)
-
-        return dataset
-
     rev, target = parse_target_revpath(args.target)
-    project = get_project_at_rev(args.project_dir, rev)
-    dataset = get_dataset(project, target)
+    project = load_project(args.project_dir)
+    dataset = project.get_rev(rev).make_dataset(target)
 
     stats = {}
     stats.update(compute_image_statistics(dataset))
