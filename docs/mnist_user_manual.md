@@ -119,11 +119,16 @@ There are few ways to convert dataset to MNIST format:
 
 ``` bash
 # export dataset into MNIST format from existing project
-datum export -p <path/to/project> -f mnist -o <path/to/export/dir>
+datum export -p <path/to/project> -f mnist -o <path/to/export/dir> \
+	-- --save-images
 # converting to MNIST format from other format
 datum convert -if imagenet -i <path/to/imagenet/dataset> \
--f mnist -o <path/to/export/dir>
+    -f mnist -o <path/to/export/dir> -- --save-images
 ```
+
+The `save-images` export option means that the image data will be saved.
+There are also `default_image_ext` and `image_ext`. These parameters are needed
+to replace the standard `image_ext` for the format.
 
 These commands also work for MNIST in CSV if you use `mnist_csv` instead of `mnist`.
 
