@@ -8,21 +8,72 @@ from attr import attrib, attrs
 class DatumaroError(Exception):
     pass
 
+@attrs
 class VcsError(DatumaroError):
     pass
 
 @attrs
-class SourceExistsError(VcsError):
+class ReadonlyProjectError(VcsError):
+    pass
+
+@attrs
+class DetachedProjectError(VcsError):
+    pass
+
+@attrs
+class UnknownRefError(VcsError):
+    pass
+
+@attrs
+class MissingObjectError(VcsError):
+    pass
+
+
+
+@attrs
+class PipelineError(DatumaroError):
+        pass
+
+@attrs
+class InvalidPipelineError(PipelineError):
+    pass
+
+@attrs
+class EmptyPipelineError(InvalidPipelineError):
+    pass
+
+@attrs
+class MultiplePipelineHeadsError(InvalidPipelineError):
+    pass
+
+@attrs
+class MissingPipelineHeadError(InvalidPipelineError):
+    pass
+
+@attrs
+class UnknownStageError(InvalidPipelineError):
+    pass
+
+
+@attrs
+class ProjectNotFoundError(DatumaroError):
+    pass
+
+@attrs
+class ProjectAlreadyExists(DatumaroError):
+    pass
+
+@attrs
+class UnknownSourceError(DatumaroError):
+    pass
+
+@attrs
+class SourceExistsError(DatumaroError):
     name = attrib()
 
     def __str__(self):
         return "Source %s already exists" % (self.name, )
 
-class ReadonlyProjectError(VcsError):
-    pass
-
-class DetachedProjectError(VcsError):
-    pass
 
 @attrs
 class DatasetError(DatumaroError):

@@ -2,50 +2,70 @@
 #
 # SPDX-License-Identifier: MIT
 
-from io import IOBase
 import json
 import logging as log
-import networkx as nx
 import os
 import os.path as osp
 import shutil
 import unittest.mock
 import urllib.parse
-import yaml
 from contextlib import ExitStack, contextmanager
 from enum import Enum
-from functools import partial
 from glob import glob
+from io import IOBase
 from typing import Dict, List, Optional, Tuple, Union
+
 from ruamel.yaml import YAML
+import networkx as nx
 
 from datumaro.components.config import Config
-from datumaro.components.config_model import (PROJECT_DEFAULT_CONFIG,
-    PROJECT_SCHEMA, BuildStage, Remote)
+from datumaro.components.config_model import (BuildStage, PipelineConfig, ProjectLayout,
+    Remote, Source, TreeConfig, TreeLayout)
+from datumaro.components.dataset import DEFAULT_FORMAT, Dataset, IDataset
 from datumaro.components.environment import Environment
 from datumaro.components.errors import (DatasetMergeError, DatumaroError,
-    DetachedProjectError, ReadonlyProjectError, SourceExistsError, VcsError)
-from datumaro.components.dataset import Dataset, DEFAULT_FORMAT
-from datumaro.util import find, error_rollback, parse_str_enum_value, str_to_bool
-from datumaro.util.os_util import make_file_name, generate_next_name
-from datumaro.util.log_utils import logging_disabled, catch_logs
+    DetachedProjectError, EmptyPipelineError, MissingObjectError,
+                                        MissingPipelineHeadError,
+                                        MultiplePipelineHeadsError,
+                                        ProjectAlreadyExists,
+                                        ProjectNotFoundError,
+                                        ReadonlyProjectError,
+                                        SourceExistsError, UnknownRefError,
+                                        UnknownSourceError, UnknownStageError,
+                                        VcsError)
+from datumaro.util import (error_rollback, find, parse_str_enum_value,
+                           str_to_bool)
+from datumaro.util.log_utils import catch_logs, logging_disabled
+from datumaro.util.os_util import generate_next_name, make_file_name, rmtree
 
 
 class ProjectSourceDataset(Dataset):
     @classmethod
-    def from_source(cls, project: 'Project', source: str):
-        config = project.sources[source]
+    def from_cache(cls, tree: 'Tree', source: str, path: str):
+        config = tree.sources[source]
 
-        path = osp.join(project.sources.work_dir(source), config.url)
+        dataset = cls.import_from(path, env=tree.env,
+            format=config.format, **config.options)
+        dataset._tree = tree
+        dataset._config = config
+        dataset._readonly = True
+        dataset.name = source
+        return dataset
+
+    @classmethod
+    def from_source(cls, tree: 'Tree', source: str):
+        config = tree.sources[source]
+
+        path = osp.join(tree.sources.data_dir(source), config.url)
         readonly = not path or not osp.exists(path)
         if path and not osp.exists(path) and not config.remote:
             # backward compatibility
-            path = osp.join(project.config.project_dir, config.url)
+            path = osp.join(tree.config.project_dir, config.url)
             readonly = True
 
-        dataset = cls.import_from(path, env=project.env,
+        dataset = cls.import_from(path, env=tree.env,
             format=config.format, **config.options)
-        dataset._project = project
+        dataset._tree = tree
         dataset._config = config
         dataset._readonly = readonly
         dataset.name = source
@@ -59,12 +79,11 @@ class ProjectSourceDataset(Dataset):
 
     @property
     def readonly(self):
-        return not self._readonly and self.is_bound and \
-            self._project.vcs.writeable
+        return not self._readonly and self.is_bound
 
     @property
     def _env(self):
-        return self._project.env
+        return self._tree.env
 
     @property
     def config(self):
@@ -72,7 +91,7 @@ class ProjectSourceDataset(Dataset):
 
     def run_model(self, model, batch_size=1):
         if isinstance(model, str):
-            model = self._project.models.make_executable_model(model)
+            model = self._tree.models.make_executable_model(model)
         return super().run_model(model, batch_size=batch_size)
 
 
@@ -227,17 +246,8 @@ class _DataSourceBase(CrudProxy):
     def _make_remote_name(cls, name):
         return name
 
-    def work_dir(self, name: str) -> str:
+    def data_dir(self, name: str) -> str:
         return osp.join(self._project.config.project_dir, name)
-
-    def cache_dir(self, name: str, rev: str) -> str:
-        return osp.join(
-            self._project.config.project_dir,
-            self._project.config.env_dir,
-            self._project.config.cache_dir,
-            name,
-            self._project.config.revisions_dir,
-            rev)
 
     def validate_name(self, name: str):
         valid_filename = make_file_name(name)
@@ -318,7 +328,7 @@ class _DataSourceBase(CrudProxy):
                 })
                 path = ''
 
-            source_dir = self.work_dir(name)
+            source_dir = self.data_dir(name)
 
             dvcfile = self.dvcfile_path(name)
             if not osp.isfile(dvcfile):
@@ -368,7 +378,7 @@ class _DataSourceBase(CrudProxy):
             return
 
         if force and not keep_data:
-            source_dir = self.work_dir(name)
+            source_dir = self.data_dir(name)
             if osp.isdir(source_dir):
                 shutil.rmtree(source_dir, ignore_errors=True)
 
@@ -440,6 +450,260 @@ class ProjectSources(_DataSourceBase):
 
 BuildStageType = Enum('BuildStageType',
     ['source', 'project', 'transform', 'filter', 'convert', 'inference'])
+
+class Pipeline:
+    @staticmethod
+    def _create_graph(config: PipelineConfig):
+        graph = nx.DiGraph()
+        for entry in config:
+            target_name = entry['name']
+            parents = entry['parents']
+            target = BuildStage(entry['config'])
+
+            graph.add_node(target_name, config=target)
+            for prev_stage in parents:
+                graph.add_edge(prev_stage, target_name)
+
+        return graph
+
+    def __init__(self, config: PipelineConfig = None):
+        self._head = None
+
+        if config is not None:
+            self._graph = self._create_craph(config)
+            if not self.head:
+                raise MissingPipelineHeadError()
+        else:
+            self._graph = nx.DiGraph()
+
+    def __getattr__(self, key):
+        notfound = object()
+        obj = getattr(self._graph, key, notfound)
+        if obj is notfound:
+            raise AttributeError(key)
+        return obj
+
+    @staticmethod
+    def _find_head_node(graph) -> str:
+        head = None
+        for node in graph.nodes:
+            if graph.out_degree(node) == 0:
+                if head is not None:
+                    raise MultiplePipelineHeadsError(
+                        "A pipeline can have only one " \
+                        "main target, but it has at least 2: %s, %s" % \
+                        (head, node))
+                head = node
+        return head
+
+    @property
+    def head(self):
+        if self._head is None:
+            self._head = self._find_head_node(self._graph)
+        return self._graph[self._head]
+
+    @staticmethod
+    def _serialize(graph) -> PipelineConfig:
+        serialized = PipelineConfig()
+        for node_name, node in graph.nodes.items():
+            serialized.nodes.append({
+                'name': node_name,
+                'parents': list(graph.predecessors(node_name)),
+                'config': dict(node['config']),
+            })
+        return serialized
+
+    @staticmethod
+    def _get_subgraph(graph, target):
+        target_parents = set()
+        visited = set()
+        to_visit = {target}
+        while to_visit:
+            current = to_visit.pop()
+            visited.add(current)
+            for pred in graph.predecessors(current):
+                target_parents.add(pred)
+                if pred not in visited:
+                    to_visit.add(pred)
+
+        target_parents.add(target)
+
+        return graph.subgraph(target_parents)
+
+    def get_slice(self, target) -> 'Pipeline':
+        pipeline = Pipeline()
+        pipeline._graph = self._get_subgraph(self._graph, target)
+        return pipeline
+
+class ProjectBuilder:
+    def __init__(self, project: 'Project', tree: 'Tree'):
+        self._project = project
+        self._tree = tree
+
+    def make_dataset(self, pipeline) -> IDataset:
+        dataset = self._get_resulting_dataset(pipeline)
+
+        # need to save and load, because it can modify dataset,
+        # unless we work with the internal format
+        # save_in_cache(project, pipeline) # update and check hash in config!
+        # dataset = load_dataset(project, pipeline)
+
+        return dataset
+
+    def _run_pipeline(self, pipeline):
+        missing_sources = self.find_missing_sources(pipeline)
+        for t in missing_sources:
+            self._project.download_source(pipeline.nodes[t]['config'])
+
+        return self._init_pipeline(pipeline)
+
+    def _get_resulting_dataset(self, pipeline):
+        graph, head = self._run_pipeline(pipeline)
+        return graph[head]['dataset']
+
+    def _init_pipeline(self, pipeline):
+        def _load_cached_dataset(stage_config, stage_name):
+            path = self._project._make_cache_path(stage_config.hash)
+            source = ProjectBuildTargets.strip_target_name(stage_name)
+            return ProjectSourceDataset.from_cache(self._tree, source, path)
+
+        def _join_parent_datasets(force=True):
+            parents = { p: graph.nodes[p] for p in initialized_parents }
+
+            if 1 < len(parents) or force:
+                try:
+                    dataset = Dataset.from_extractors(
+                        *(p['dataset'] for p in parents.values()),
+                        env=self._project.env)
+                except DatasetMergeError as e:
+                    e.sources = set(parents)
+                    raise e
+            else:
+                dataset = parents[0]
+
+            # clear fully utilized datasets to release memory
+            for p_name, p in parents.items():
+                p['_use_count'] = p.get('_use_count', 0) + 1
+
+                if p_name != head and \
+                        p['_use_count'] == len(graph.successors(p_name)):
+                    p.pop('dataset')
+
+            return dataset
+
+        if len(pipeline) == 0:
+            raise EmptyPipelineError()
+
+        graph = pipeline._graph
+
+        head = pipeline.head
+        if not head:
+            raise MissingPipelineHeadError()
+        head = head['config'].name
+
+        # traverse the graph and initialize nodes from sources to the head
+        to_visit = [head]
+        while to_visit:
+            current_name = to_visit.pop()
+            current = graph.nodes[current_name]
+
+            assert current.get('dataset') is None
+
+            obj_hash = current['config'].hash
+            if obj_hash and self._project.is_obj_cached(obj_hash):
+                current['dataset'] = _load_cached_dataset(current['config'],
+                    current_name)
+                continue
+
+            uninitialized_parents = []
+            initialized_parents = []
+            parent_targets = graph.predecessors(current_name)
+            if not parent_targets:
+                assert current['config'].type == 'source', current['config'].type
+                if not current['config'].is_generated:
+                    # source is missing in the cache and cannot be retrieved
+                    # it is assumed that all the sources were downloaded earlier
+                    raise MissingObjectError(obj_hash)
+            else:
+                for p_name in parent_targets:
+                    parent = graph.nodes[p_name]
+                    if parent.get('dataset') is None:
+                        uninitialized_parents.append(p_name)
+                    else:
+                        initialized_parents.append(p_name)
+
+                if uninitialized_parents:
+                    to_visit.append(current_name)
+                    to_visit.extend(uninitialized_parents)
+                    continue
+
+            type_ = BuildStageType[current['config'].type]
+            params = current['config'].params
+            if type_ == BuildStageType.transform:
+                kind = current['config'].kind
+                try:
+                    transform = self._tree.env.transforms[kind]
+                except KeyError:
+                    raise UnknownStageError("Unknown transform '%s'" % kind)
+
+                dataset = _join_parent_datasets()
+                dataset = dataset.transform(transform, **params)
+
+            elif type_ == BuildStageType.filter:
+                dataset = _join_parent_datasets()
+                dataset = dataset.filter(**params)
+
+            elif type_ == BuildStageType.inference:
+                kind = current['config'].kind
+                model = self._tree.models.make_executable_model(kind)
+
+                dataset = _join_parent_datasets()
+                dataset = dataset.run_model(model)
+
+            elif type_ == BuildStageType.source:
+                assert len(initialized_parents) == 0, current_name
+                source = ProjectBuildTargets.strip_target_name(current_name)
+                dataset = self._tree.sources.make_dataset(source)
+
+            elif type_ == BuildStageType.project:
+                dataset = _join_parent_datasets(force=True)
+
+            elif type_ == BuildStageType.convert:
+                dataset = _join_parent_datasets()
+
+            else:
+                raise UnknownStageError("Unknown stage type '%s'" % type_)
+
+            current['dataset'] = dataset
+
+        return graph, head
+
+    def find_missing_sources(self, pipeline: Pipeline):
+        missing_sources = set()
+        checked_deps = set()
+        missing_deps = [pipeline.head['config'].name]
+        while missing_deps:
+            t = missing_deps.pop()
+            if t in checked_deps:
+                continue
+
+            t_conf = pipeline.nodes[t]['config']
+
+            obj_hash = t_conf.hash
+            if not (obj_hash and self._project.is_obj_cached(obj_hash)):
+                parent_targets = pipeline.parents(t)
+                if not parent_targets:
+                    assert t_conf.type == 'source', t_conf.type
+                    if not t_conf.is_generated:
+                        missing_sources.add(t)
+                else:
+                    for p in parent_targets:
+                        if p not in checked_deps:
+                            missing_deps.append(p)
+                    continue
+
+            checked_deps.add(t)
+        return missing_sources
 
 class ProjectBuildTargets(CrudProxy):
     MAIN_TARGET = 'project'
@@ -601,18 +865,9 @@ class ProjectBuildTargets(CrudProxy):
     def strip_target_name(cls, name: str):
         return cls.split_target_name(name)[0]
 
-    def make_dataset(self, target):
-        if len(self._data) == 1 and self.MAIN_TARGET in self._data:
-            raise DatumaroError("Can't create dataset from an empty project.")
-
-        target = self.strip_target_name(target)
-
-        pipeline = self.make_pipeline(target)
-        graph, head = self.apply_pipeline(pipeline)
-        return graph.nodes[head]['dataset']
-
-    def _get_build_graph(self):
-        graph = nx.DiGraph()
+    def _make_full_pipeline(self) -> Pipeline:
+        pipeline = Pipeline()
+        graph = pipeline._graph
         for target_name, target in self.items():
             if target_name == self.MAIN_TARGET:
                 # main target combines all the others
@@ -629,291 +884,18 @@ class ProjectBuildTargets(CrudProxy):
                     graph.add_edge(prev_stage, stage_name)
                 prev_stages = [stage_name]
 
-        return graph
+        return pipeline
 
-    def _get_target_subgraph(self, target):
+    def make_pipeline(self, target) -> Pipeline:
+        # a subgraph with all the target dependencies
         if '.' not in target:
             target = self.make_target_name(target, self[target].head.name)
 
-        full_graph = self._get_build_graph()
+        return self._make_full_pipeline().get_slice(target)
 
-        target_parents = set()
-        visited = set()
-        to_visit = {target}
-        while to_visit:
-            current = to_visit.pop()
-            visited.add(current)
-            for pred in full_graph.predecessors(current):
-                target_parents.add(pred)
-                if pred not in visited:
-                    to_visit.add(pred)
-
-        target_parents.add(target)
-
-        return full_graph.subgraph(target_parents)
-
-    def _get_target_config(self, name):
-        """Returns a target or stage description"""
-        target, stage = self.split_target_name(name)
-        target_config = self._data[target]
-        stage_config = target_config.get_stage(stage)
-        return stage_config
-
-    def make_pipeline(self, target):
-        # a subgraph with all the target dependencies
-        target_subgraph = self._get_target_subgraph(target)
-        pipeline = []
-        for node_name, node in target_subgraph.nodes.items():
-            entry = {
-                'name': node_name,
-                'parents': list(target_subgraph.predecessors(node_name)),
-                'config': dict(node['config']),
-            }
-            pipeline.append(entry)
-        return pipeline
-
-    def generate_pipeline(self, target):
-        real_target = self.strip_target_name(target)
-
-        pipeline = self.make_pipeline(real_target)
-        path = osp.join(self._project.config.project_dir,
-            self._project.config.env_dir, self._project.config.pipelines_dir)
-        os.makedirs(path, exist_ok=True)
-        path = osp.join(path, make_file_name(target) + '.yml')
-        self.write_pipeline(pipeline, path)
-
-        return path
-
-    @classmethod
-    def _read_pipeline_graph(cls, pipeline):
-        graph = nx.DiGraph()
-        for entry in pipeline:
-            target_name = entry['name']
-            parents = entry['parents']
-            target = BuildStage(entry['config'])
-
-            graph.add_node(target_name, config=target)
-            for prev_stage in parents:
-                graph.add_edge(prev_stage, target_name)
-
-        return graph
-
-    def apply_pipeline(self, pipeline):
-        def _join_parent_datasets(force=True):
-            if 1 < len(parent_datasets) or force:
-                try:
-                    dataset = Dataset.from_extractors(*parent_datasets,
-                        env=self._project.env)
-                except DatasetMergeError as e:
-                    e.sources = set(
-                        getattr(parent_datasets[s], 'name') or str(s)
-                        for s in e.sources)
-                    raise e
-            else:
-                dataset = parent_datasets[0]
-            return dataset
-
-        if len(pipeline) == 0:
-            raise Exception("Can't run empty pipeline")
-
-        graph = self._read_pipeline_graph(pipeline)
-
-        head = None
-        for node in graph.nodes:
-            if graph.out_degree(node) == 0:
-                assert head is None, "A pipeline can have only one " \
-                    "main target, but it has at least 2: %s, %s" % \
-                    (head, node)
-                head = node
-        assert head is not None, "A pipeline must have a finishing node"
-
-        # Use DFS to traverse the graph and initialize nodes from roots to tops
-        to_visit = [head]
-        while to_visit:
-            current_name = to_visit.pop()
-            current = graph.nodes[current_name]
-
-            assert current.get('dataset') is None
-
-            parents_uninitialized = []
-            parent_datasets = []
-            for p_name in graph.predecessors(current_name):
-                parent = graph.nodes[p_name]
-                dataset = parent.get('dataset')
-                if dataset is None:
-                    parents_uninitialized.append(p_name)
-                else:
-                    parent_datasets.append(dataset)
-
-            if parents_uninitialized:
-                to_visit.append(current_name)
-                to_visit.extend(parents_uninitialized)
-                continue
-
-            type_ = BuildStageType[current['config'].type]
-            params = current['config'].params
-            if type_ == BuildStageType.transform:
-                kind = current['config'].kind
-                try:
-                    transform = self._project.env.transforms[kind]
-                except KeyError:
-                    raise KeyError("Unknown transform '%s'" % kind)
-
-                dataset = _join_parent_datasets()
-                dataset = dataset.transform(transform, **params)
-
-            elif type_ == BuildStageType.filter:
-                dataset = _join_parent_datasets()
-                dataset = dataset.filter(**params)
-
-            elif type_ == BuildStageType.inference:
-                kind = current['config'].kind
-                model = self._project.models.make_executable_model(kind)
-
-                dataset = _join_parent_datasets()
-                dataset = dataset.run_model(model)
-
-            elif type_ == BuildStageType.source:
-                assert len(parent_datasets) == 0, current_name
-                source, _ = self.split_target_name(current_name)
-                dataset = self._project.sources.make_dataset(source)
-
-            elif type_ == BuildStageType.project:
-                dataset = _join_parent_datasets(force=True)
-
-            elif type_ == BuildStageType.convert:
-                dataset = _join_parent_datasets()
-
-            else:
-                raise NotImplementedError("Unknown stage type '%s'" % type_)
-
-            current['dataset'] = dataset
-
-        return graph, head
-
-    @staticmethod
-    def write_pipeline(pipeline, path):
-        # force encoding and newline to produce same files on different OSes
-        # this should be used by DVC later, which checks file hashes
-        with open(path, 'w', encoding='utf-8', newline='') as f:
-            yaml.safe_dump(pipeline, f)
-
-    @staticmethod
-    def read_pipeline(path):
-        with open(path) as f:
-            return yaml.safe_load(f)
-
-    @classmethod
-    def pipeline_sources(cls, pipeline):
-        sources = set()
-        for item in pipeline:
-            if item['config']['type'] == BuildStageType.source.name:
-                s, _ = cls.split_target_name(item['name'])
-                sources.add(s)
-        return list(sources)
-
-    def build(self, target, out_dir=None, force=False, reset=True):
-        def _rpath(p):
-            return osp.relpath(p, self._project.config.project_dir)
-
-        def _source_dvc_path(source):
-            return _rpath(self._project.vcs.dvc_filepath(source))
-
-        def _reset_sources(sources):
-            for source in sources:
-                dvc_path = _source_dvc_path(source)
-                project_dir = self._project.config.project_dir
-                repo = self._project.vcs.dvc.repo
-                stage = repo.stage.load_file(osp.join(project_dir, dvc_path))[0]
-                try:
-                    logs = None
-                    with repo.lock, catch_logs('dvc') as logs:
-                        stage.frozen = False
-                        stage.run(force=True, no_commit=True)
-                except Exception:
-                    if logs:
-                        log.debug(logs.getvalue())
-                    raise
-
-        def _restore_sources(sources):
-            if not self._project.vcs.has_commits() or not sources:
-                return
-            self._project.vcs.checkout(rev=None, targets=sources)
-
-        _is_modified = partial(self._project.vcs.dvc.check_stage_status,
-            status='modified')
-
-
-        if not self._project.vcs.writeable:
-            raise VcsError("Can't build project in read-only or detached mode")
-
-        if '.' in target:
-            raw_target, target_stage = self.split_target_name(target)
-        else:
-            raw_target = target
-            target_stage = None
-
-        if raw_target not in self:
-            raise KeyError("Unknown target '%s'" % raw_target)
-
-        if target_stage and target_stage != self[raw_target].head.name:
-            # build is not inplace, need to generate or ask output dir
-            inplace = False
-        else:
-            inplace = not out_dir
-
-        if inplace:
-            if target == self.MAIN_TARGET:
-                out_dir = osp.join(self._project.config.project_dir,
-                    self._project.config.build_dir)
-            elif target == raw_target:
-                out_dir = self._project.sources.data_dir(target)
-
-        if not out_dir:
-            raise Exception("Output directory is not specified.")
-
+    def make_dataset(self, target=None) -> IDataset:
         pipeline = self.make_pipeline(target)
-        related_sources = self.pipeline_sources(pipeline)
-
-        if not force:
-            if inplace:
-                stages = [_source_dvc_path(s) for s in related_sources]
-                status = self._project.vcs.dvc.status(stages)
-                for stage, source in zip(stages, related_sources):
-                    if _is_modified(status, stage):
-                        raise VcsError("Can't build when there are "
-                            "uncommitted changes in the source '%s'" % source)
-            elif osp.isdir(out_dir) and os.listdir(out_dir):
-                raise Exception("Can't build when output directory"
-                    "is not empty")
-
-        try:
-            if reset:
-                _reset_sources(related_sources)
-
-            self.run_pipeline(pipeline, out_dir=out_dir)
-
-            if raw_target != self.MAIN_TARGET:
-                related_sources.remove(raw_target)
-
-        finally:
-            if reset:
-                _restore_sources(related_sources)
-
-    def run_pipeline(self, pipeline, out_dir):
-        graph, head = self.apply_pipeline(pipeline)
-        head_node = graph.nodes[head]
-        raw_target, _ = self.split_target_name(head)
-
-        dataset = head_node['dataset']
-        dst_format = DEFAULT_FORMAT
-        options = {'save_images': True}
-        if raw_target in self._project.sources:
-            dst_format = self._project.sources[raw_target].format
-        elif head_node['config']['type'] == BuildStageType.convert.name:
-            dst_format = head_node['config'].kind
-            options.update(head_node['config'].params)
-        dataset.export(format=dst_format, save_dir=out_dir, **options)
+        return ProjectBuilder(self._project, self).make_dataset(pipeline)
 
 
 class GitWrapper:
@@ -1003,21 +985,23 @@ class GitWrapper:
             args.extend(paths)
         self.repo.git.checkout(*args)
 
-    def add(self, paths, all=False): # pylint: disable=redefined-builtin
-        if not all:
-            paths = [
-                p2 for p in paths
-                for p2 in glob(osp.join(p, '**', '*'), recursive=True)
-                if osp.isdir(p)
-            ] + [
-                p for p in paths if osp.isfile(p)
-            ]
-            self.repo.index.add(paths)
-        else:
-            self.repo.git.add(all=True)
+    def add(self, paths, base=None): # pylint: disable=redefined-builtin
+        """
+        Adds paths to index.
+        Paths can be truncated relatively to base.
+        """
 
-    def commit(self, message):
-        self.repo.index.commit(message)
+        kwargs = {}
+        if base:
+            kwargs['path_rewriter'] = lambda p: osp.relpath(p, base)
+        self.repo.index.add(paths, **kwargs)
+
+    def commit(self, message) -> str:
+        """
+        Creates a new revision from index.
+        Returns: new revision hash.
+        """
+        return self.repo.index.commit(message).hexsha
 
     def status(self):
         # R[everse] flag is needed for index to HEAD comparison
@@ -1048,60 +1032,54 @@ class GitWrapper:
     def has_commits(self):
         return self.is_ref('HEAD')
 
-    IgnoreMode = Enum('IgnoreMode', ['rewrite', 'append', 'remove'])
-
-    def ignore(self, paths, filepath=None, mode=None):
-        repo_root = self._project_dir
-
-        def _make_ignored_path(path):
-            path = osp.join(repo_root, osp.normpath(path))
-            assert path.startswith(repo_root), path
-            return osp.relpath(path, repo_root)
-
-        IgnoreMode = self.IgnoreMode
-        mode = parse_str_enum_value(mode, IgnoreMode, IgnoreMode.append)
-
-        if not filepath:
-            filepath = '.gitignore'
-        filepath = osp.abspath(osp.join(repo_root, filepath))
-        assert filepath.startswith(repo_root), filepath
-
-        paths = [_make_ignored_path(p) for p in paths]
-
-        openmode = 'r+'
-        if not osp.isfile(filepath):
-            openmode = 'w+' # r+ cannot create, w+ truncates
-        with open(filepath, openmode) as f:
-            if mode in {IgnoreMode.append, IgnoreMode.remove}:
-                paths_to_write = set(
-                    line.split('#', maxsplit=1)[0] \
-                        .split('/', maxsplit=1)[-1].strip()
-                    for line in f
-                )
-                f.seek(0)
-            else:
-                paths_to_write = set()
-
-            if mode in {IgnoreMode.append, IgnoreMode.rewrite}:
-                paths_to_write.update(paths)
-            elif mode == IgnoreMode.remove:
-                for p in paths:
-                    paths_to_write.discard(p)
-
-            paths_to_write = sorted(p for p in paths_to_write if p)
-            f.write('# The file is autogenerated by Datumaro\n')
-            f.writelines('\n'.join(paths_to_write))
-            f.truncate()
-
     def show(self, path, rev=None):
         return self.repo.git.show('%s:%s' % (rev or '', path))
+
+    def get_tree(self, ref):
+        return self.repo.tree(ref)
+
+    def write_tree(self, tree, base_path):
+        os.makedirs(base_path, exist_ok=True)
+
+        for obj in tree.traverse(visit_once=True):
+            path = osp.join(base_path, obj.path)
+            os.makedirs(osp.dirname(path), exist_ok=True)
+            if obj.type == 'blob':
+                with open(path, 'wb') as f:
+                    obj.stream_data(f)
+            elif obj.type == 'tree':
+                pass
+            else:
+                raise ValueError("Unexpected object type in a "
+                    "git tree: %s (%s)" % (obj.type, obj.hexsha))
+
+    @property
+    def head(self) -> str:
+        return self.repo.head.hexsha
+
+    def rev_parse(self, ref: str) -> Tuple[str, str]:
+        obj = self.repo.rev_parse(ref)
+        return obj.type, obj.hexsha
+
+    IgnoreMode = IgnoreMode
+
+    def ignore(self, paths: List[str], mode: Optional[IgnoreMode] = None,
+            gitignore: Optional[str] = None):
+        if not gitignore:
+            gitignore = '.gitignore'
+        repo_root = self._project_dir
+        gitignore = osp.abspath(osp.join(repo_root, gitignore))
+        assert gitignore.startswith(repo_root), gitignore
+
+        _update_ignore_file(paths, repo_root=repo_root,
+            mode=mode, filepath=gitignore)
 
 class DvcWrapper:
     @staticmethod
     def import_module():
         import dvc
-        import dvc.repo
         import dvc.main
+        import dvc.repo
         return dvc
 
     try:
@@ -1366,222 +1344,378 @@ class DvcWrapper:
             print(logs)
         return logs
 
-class ProjectVcs:
-    G_DETACHED = str_to_bool(os.getenv('DATUMARO_VCS_DETACHED', '0'))
+    def is_cached(self, obj_hash):
+        path = self.make_cache_path(obj_hash)
+        if not osp.isfile(path):
+            return False
 
-    def __init__(self, project: 'Project', readonly: bool = False):
-        self._project = project
-        self.readonly = readonly
+        if obj_hash.endswith('.dir'):
+            objects = json.load(path)
+            for entry in objects:
+                if not osp.isfile(self.make_cache_path(entry['md5'])):
+                    return False
 
-        self._git = None
-        self._dvc = None
-        if not self.G_DETACHED:
-            try:
-                GitWrapper.import_module()
-                DvcWrapper.import_module()
-                self._git = GitWrapper(project.config.project_dir)
-                self._dvc = DvcWrapper(project.config.project_dir)
-            except ImportError as e:
-                log.warning("Failed to init VCS for the project: %s", e)
+        return True
+
+    def make_cache_path(self, obj_hash, root=None):
+        assert len(obj_hash) == 40
+        if not root:
+            root = osp.join(self._project_dir, '.dvc', 'cache')
+        return osp.join(root, obj_hash[:2], obj_hash[2:])
+
+    IgnoreMode = IgnoreMode
+
+    def ignore(self, paths: List[str], mode: Optional[IgnoreMode] = None,
+            dvcignore: Optional[str] = None):
+        if not dvcignore:
+            dvcignore = '.gitignore'
+        repo_root = self._project_dir
+        dvcignore = osp.abspath(osp.join(repo_root, dvcignore))
+        assert dvcignore.startswith(repo_root), dvcignore
+
+        _update_ignore_file(paths, repo_root=repo_root,
+            mode=mode, filepath=dvcignore)
+
+class Tree:
+    # can be:
+    # - detached
+    # - attached to the work dir
+    # - attached to the index dir
+    # - attached to a revision
+
+    @classmethod
+    def _read_config_v1(cls, config):
+        config = Config(config)
+        config.remove('subsets')
+        config.remove('format_version')
+
+        config = cls._read_config_v2(config)
+        if osp.isdir(osp.join(config.project_dir, config.dataset_dir)):
+            name = generate_next_name(list(config.sources), 'source',
+                sep='-', default='1')
+            config.sources[name] = {
+                'url': config.dataset_dir,
+                'format': DEFAULT_FORMAT,
+            }
+        return config
+
+    @classmethod
+    def _read_config_v2(cls, config):
+        return TreeConfig(config)
+
+    @classmethod
+    def _read_config(cls, config):
+        if config:
+            version = config.get('format_version')
         else:
-            log.debug("Working in detached mode, "
-                "versioning commands won't be available")
+            version = None
+        if version == 1:
+            return cls._read_config_v1(config)
+        elif version in {None, 2}:
+            return cls._read_config_v2(config)
+        else:
+            raise ValueError("Unknown project config file format version '%s'. "
+                "The only known are: 1, 2" % version)
 
+    def __init__(self, config: Optional[TreeConfig] = None,
+            env: Optional[Environment] = None,
+            parent: 'Project' = None, rev: Optional[str] = None):
+        self._config = self._read_config(config)
+        if env is None:
+            env = Environment(self._config)
+        elif config is not None:
+            raise ValueError("env can only be provided when no config provided")
+        self._env = env or Environment(self)
+        self._parent = parent
+        self._rev = rev
+
+        self._sources = ProjectSources(self)
+        self._models = ProjectModels(self)
         self._remotes = ProjectRemotes(self)
-        self._repos = ProjectRepositories(self)
+        self._targets = ProjectBuildTargets(self)
+
+    @error_rollback('on_error', implicit=True)
+    def dump(self, save_dir: Union[None, str] = None):
+        config = self.config
+
+        config.project_dir = save_dir or config.project_dir
+        assert config.project_dir
+        project_dir = config.project_dir
+        save_dir = osp.join(project_dir, config.env_dir)
+
+        if not osp.exists(project_dir):
+            on_error.do(shutil.rmtree, project_dir, ignore_errors=True)
+        if not osp.exists(save_dir):
+            on_error.do(shutil.rmtree, save_dir, ignore_errors=True)
+        os.makedirs(save_dir, exist_ok=True)
+
+        config.dump(osp.join(save_dir, config.project_filename))
 
     @property
-    def git(self) -> GitWrapper:
-        if not self._git:
-            message = "Git is not available. "
-            if not GitWrapper.module:
-                message += "Please, install the module with " \
-                    "'pip install gitpython'."
-            elif self.G_DETACHED:
-                message += "The project is in detached mode."
-                raise DetachedProjectError(message)
-            raise ImportError(message)
-        return self._git
+    def sources(self) -> ProjectSources:
+        return self._sources
 
     @property
-    def dvc(self) -> DvcWrapper:
-        if not self._dvc:
-            message = "DVC is not available. "
-            if not DvcWrapper.module:
-                message += "Please, install the module with " \
-                    "'pip install dvc'."
-            elif self.G_DETACHED:
-                message += "The project is in detached mode."
-                raise DetachedProjectError(message)
-            raise ImportError(message)
-        return self._dvc
+    def models(self) -> ProjectModels:
+        return self._models
 
     @property
-    def available(self):
-        return self._git and self._dvc
+    def build_targets(self) -> ProjectBuildTargets:
+        return self._targets
 
     @property
-    def detached(self):
-        return self.G_DETACHED
+    def config(self) -> Config:
+        return self._config
 
     @property
-    def initialized(self):
-        return not self.detached and self.available and \
-            self.git.initialized and self.dvc.initialized
+    def env(self) -> Environment:
+        return self._env
 
     @property
-    def writeable(self):
-        return not self.detached and not self.readonly and self.initialized
+    def rev(self) -> str:
+        return self._rev
 
     @property
-    def readable(self):
-        return not self.detached and self.initialized
+    def detached(self) -> bool:
+        return self._parent is None
+
+    def make_dataset(self, target: Optional[str] = None) -> IDataset:
+        if target is None:
+            target = 'project'
+        return self.build_targets.make_dataset(target)
+
+class Project:
+    @staticmethod
+    def find_project_dir(path):
+        if path.endswith(ProjectLayout.aux_dir) and osp.isdir(path):
+            return path
+
+        temp_path = osp.join(path, ProjectLayout.aux_dir)
+        if osp.isdir(temp_path):
+            return temp_path
+
+        return None
+
+    def __init__(self, path: Optional[str] = None):
+        if not path:
+            path = osp.curdir
+        found_path = self.find_project_dir(path)
+        if not found_path:
+            raise ProjectNotFoundError("Can't find project at '%s'" % path)
+
+        self._aux_dir = found_path
+        self._root_dir = osp.dirname(found_path)
+
+        # DVC requires Git to be initialized
+        GitWrapper.import_module()
+        DvcWrapper.import_module()
+        self._git = GitWrapper(self._root_dir)
+        self._dvc = DvcWrapper(self._root_dir)
+
+    @classmethod
+    def init(cls, path):
+        existing_project = cls.find_project_dir(path)
+        if existing_project:
+            raise ProjectAlreadyExists("Can't create project in '%s': " \
+                "a project already exists" % path)
+
+        if not path.endswith(ProjectLayout.aux_dir):
+            path = osp.join(path, ProjectLayout.aux_dir)
+        os.makedirs(path, exists_ok=True)
+
+        os.makedirs(osp.join(path, ProjectLayout.cache_dir))
+        os.makedirs(osp.join(path, ProjectLayout.dvc_temp_dir))
+
+        project = Project(path)
+        project._git.init()
+        project._dvc.init()
+
+        # TODO: find which paths need to be ignored
+        # project._git.ensure_ignored()
+        # project._dvc.ensure_ignored()
+
+        return project
 
     @property
-    def remotes(self) -> ProjectRemotes:
-        return self._remotes
+    def working_tree(self) -> Tree:
+        return self.get_rev(None)
 
     @property
-    def repositories(self) -> ProjectRepositories:
-        return self._repos
+    def index(self) -> Tree:
+        return self.get_rev('index')
 
     @property
-    def refs(self) -> List[str]:
-        if self.detached:
-            return []
-        return self.git.refs
+    def head(self) -> Tree:
+        return self.get_rev('HEAD')
 
-    @property
-    def tags(self) -> List[str]:
-        if self.detached:
-            return []
-        return self.git.tags
-
-    def push(self, targets: Optional[List[str]] = None,
-            remote: Optional[str] = None, repository: Optional[str] = None):
+    def get_rev(self, rev: str) -> Tree:
         """
-        Pushes the local DVC cache to the remote storage.
-        Pushes local Git changes to the remote repository.
-
-        If not provided, uses the default remote storage and repository.
+        Ref convetions:
+        - None or "" - working dir
+        - "index" - index
+        - "<40 symbols>" - revision hash
         """
 
-        if self.detached:
-            log.debug("The project is in detached mode, skipping push.")
-            return
+        obj_type, obj_hash = self._parse_ref(rev)
+        assert obj_type == 'tree', obj_type
 
-        if not self.writeable:
-            raise ReadonlyProjectError("Can't push in a read-only repository")
+        if not obj_hash:
+            tree_config = TreeConfig.parse(
+                osp.join(self._aux_dir, TreeLayout.conf_file))
+            # TODO: adjust paths in config
+            tree = Tree(tree_config, parent=self, rev=obj_hash)
+        elif obj_hash is 'index':
+            tree_config = TreeConfig.parse(osp.join(self._aux_dir,
+                ProjectLayout.index_tree_dir, TreeLayout.conf_file))
+            # TODO: adjust paths in config
+            tree = Tree(tree_config, parent=self, rev=obj_hash)
+        elif not self.is_rev_cached(obj_hash):
+            self._materialize_rev(obj_hash)
 
-        assert targets is None or isinstance(targets, (str, list)), targets
-        if targets is None:
-            targets = []
-        elif isinstance(targets, str):
-            targets = [targets]
-        targets = targets or []
-        for i, t in enumerate(targets):
-            if not osp.exists(t):
-                targets[i] = self.dvc_filepath(t)
+            rev_dir = self._make_cache_path(obj_hash)
+            tree_config = TreeConfig.parse(osp.join(rev_dir,
+                TreeLayout.conf_file))
+            # TODO: adjust paths in config
+            tree = Tree(tree_config, parent=self, rev=obj_hash)
+        return tree
 
-        # order matters
-        self.dvc.push(targets, remote=remote)
-        self.git.push(remote=repository)
+    def is_rev_cached(self, rev: str) -> bool:
+        obj_hash = self._parse_ref(rev)
+        return self._is_cached(obj_hash)
 
-    def pull(self, targets: Union[None, str, List[str]] = None,
-            remote: Optional[str] = None, repository: Optional[str] = None):
+    def is_obj_cached(self, obj_hash: str) -> bool:
+        return self._is_cached(obj_hash) or \
+            self._can_retrieve_from_vcs_cache(obj_hash)
+
+    def _parse_ref(self, ref: str) -> Tuple[str, str]:
+        try:
+            obj = self.git.rev_parse(ref)
+            assert obj.type == 'commit', obj
+
+            obj_type = 'tree'
+        except Exception as e:
+            if isinstance(e, AssertionError):
+                raise
+
+        try:
+            assert self._dvc.is_cached(ref), ref
+            obj_hash = ref
+            obj_type = 'blob'
+        except Exception:
+            raise UnknownRefError("Can't parse ref '%s'" % ref)
+
+        return obj_type, obj_hash
+
+    def _materialize_rev(self, rev):
+        tree = self._git.get_tree(rev)
+        obj_dir = self._make_cache_path(tree.hexsha)
+        self._git.write_tree(tree, obj_dir)
+
+    def _is_cached(self, obj_hash):
+        return osp.isdir(self._make_cache_path(obj_hash))
+
+    def _make_cache_path(self, obj_hash, root=None):
+        assert len(obj_hash) == 40
+        if not root:
+            root = osp.join(self._aux_dir, ProjectLayout.aux_dir,
+                ProjectLayout.cache_dir)
+        return osp.join(root, obj_hash[:2], obj_hash[2:])
+
+    def _can_retrieve_from_vcs_cache(self, rev_hash):
+        return self._dvc.is_cached(rev_hash)
+
+    def download_source(self, source):
+        raise NotImplementedError()
+        # dvc = self.dvc
+
+        # temp_dir = make_temp_dir(
+        #     osp.join(self.config.project_dir, ProjectLayout.AUX_DIR, 'temp'))
+        # dvc_config = load_dvc_config(self, source)
+        # dvc_config_path = osp.join(temp_dir, 'config.dvc')
+        # write_dvc_config(dvc_config, )
+        # dvc.download_source(dvc_config, temp_dir)
+
+        # source.hash = dvc.compute_source_hash(temp_dir)
+        # obj_dir = _make_obj_path(self, source.hash)
+        # shutil.move(temp_dir, obj_dir) # moves _into_ obj_dir
+
+    # cache
+    # repo (remote)
+
+    def add(self, sources: List[str]):
         """
-        Pulls the local DVC cache data from the remote storage.
-        Pulls local Git changes to the remote repository.
-
-        If not provided, uses the default remote storage and repository.
+        Copies changes from working copy to index.
         """
 
-        if self.detached:
-            log.debug("The project is in detached mode, skipping pull.")
-            return
+        if not sources:
+            raise ValueError("Expected at least one source path to add")
 
-        if not self.writeable:
-            raise ReadonlyProjectError("Can't pull in a read-only repository")
+        index_cache_dir = osp.join(self._aux_dir,
+            ProjectLayout.index_cache_dir)
 
-        assert targets is None or isinstance(targets, (str, list)), targets
-        if targets is None:
-            targets = []
-        elif isinstance(targets, str):
-            targets = [targets]
-        targets = targets or []
-        for i, t in enumerate(targets):
-            if not osp.exists(t):
-                targets[i] = self.dvc_filepath(t)
+        for s in sources:
+            if not s in self.working_tree.sources:
+                raise UnknownSourceError(s)
 
-        # order matters
-        self.git.pull(remote=repository)
-        self.dvc.pull(targets, remote=remote)
+            source_dir = osp.join(self._root_dir, s)
 
-    def check_updates(self,
-            targets: Union[None, str, List[str]] = None) -> List[str]:
-        if self.detached:
-            log.debug("The project is in detached mode, "
-                "skipping checking for updates.")
-            return
+            dir_hash, dir_objs = self._dvc.compute_hash(source_dir)
+            index_obj_dir = self._make_cache_path(dir_hash,
+                root=index_cache_dir)
+            if self._is_cached(dir_hash):
+                os.link(index_obj_dir, self._make_cache_path(dir_hash))
+            else:
+                with open(osp.join(index_obj_dir, 'meta'), 'w') as f:
+                    json.dump(dir_objs, f, sort_keys=True)
+                shutil.copy(source_dir, osp.join(index_obj_dir, 'data'))
 
-        if not self.writeable:
-            raise ReadonlyProjectError(
-                "Can't check for updates in a read-only repository")
+            source_config = self.working_tree.config.sources[s]
+            source_config.hash = dir_hash
+            self.index.config.sources[s] = source_config
 
-        assert targets is None or isinstance(targets, (str, list)), targets
-        if targets is None:
-            targets = []
-        elif isinstance(targets, str):
-            targets = [targets]
-        targets = targets or []
-        for i, t in enumerate(targets):
-            if not osp.exists(t):
-                targets[i] = self.dvc_filepath(t)
+        self.index.dump(osp.join(self._aux_dir,
+            ProjectLayout.index_tree_dir, TreeLayout.conf_file))
 
-        updated_refs = self.git.check_updates()
-        updated_remotes = self.remotes.check_updates(targets)
-        return updated_refs, updated_remotes
+    def commit(self, message: str):
+        """
+        Copies tree and objects from index to cache.
+        Creates a new commit. Moves the HEAD pointer to the new commit.
+        """
 
-    def fetch(self, targets: Union[None, str, List[str]] = None):
-        if self.detached:
-            log.debug("The project is in detached mode, skipping fetch.")
-            return
+        index_cache_dir = osp.join(self._aux_dir,
+            ProjectLayout.index_cache_dir)
 
-        if not self.writeable:
-            raise ReadonlyProjectError("Can't fetch in a read-only repository")
+        for s_name, s_conf in self.index.config.sources.items():
+            index_obj_path = self._make_cache_path(s_conf.hash,
+                root=index_cache_dir)
 
-        assert targets is None or isinstance(targets, (str, list)), targets
-        if targets is None:
-            targets = []
-        elif isinstance(targets, str):
-            targets = [targets]
-        targets = targets or []
-        for i, t in enumerate(targets):
-            if not osp.exists(t):
-                targets[i] = self.dvc_filepath(t)
+            if not osp.exists(index_obj_path):
+                raise NotADirectoryError(index_obj_path)
 
-        self.git.fetch()
-        self.dvc.fetch(targets)
+            if osp.islink(index_obj_path):
+                if not osp.lexists(index_obj_path):
+                    raise NotADirectoryError(index_obj_path)
+                continue
 
-    def tag(self, name: str):
-        if self.detached:
-            log.debug("The project is in detached mode, skipping tag.")
-            return
+            cache_obj_path = self._make_cache_path(s_conf.hash)
+            shutil.move(index_obj_path, cache_obj_path)
 
-        if not self.writeable:
-            raise ReadonlyProjectError("Can't tag in a read-only repository")
+        index_tree_dir = osp.join(self._aux_dir, ProjectLayout.index_tree_dir)
+        self._git.add(index_tree_dir, base=index_tree_dir)
+        head = self._git.commit(message)
+        shutil.move(index_tree_dir, self._make_cache_path(head))
 
-        self.git.tag(name)
+        rmtree(osp.join(self._aux_dir, ProjectLayout.index_dir),
+            ignore_errors=True)
 
     def checkout(self, rev: Optional[str] = None,
             targets: Union[None, str, List[str]] = None):
-        if self.detached:
-            log.debug("The project is in detached mode, skipping checkout.")
-            return
+        """
+        Copies tree and objects from cache to working tree.
 
-        if not self.writeable:
-            raise ReadonlyProjectError(
-                "Can't checkout in a read-only repository")
+        Sets HEAD to the specified revision, unless targets specified.
+        When targets specified, only copies objects from cache to working tree.
+        """
 
         assert targets is None or isinstance(targets, (str, list)), targets
         if targets is None:
@@ -1597,120 +1731,20 @@ class ProjectVcs:
         self.git.checkout(rev, targets) # TODO: need to reload the project
         self.dvc.checkout(targets)
 
-    def add(self, paths: List[str]):
-        if self.detached:
-            log.debug("The project is in detached mode, skipping adding files.")
-            return
-
-        if not self.writeable:
-            raise ReadonlyProjectError(
-                "Can't track files in a read-only repository")
-
-        if not paths:
-            raise ValueError("Expected at least one file path to add")
-        for p in paths:
-            self.dvc.add(p,
-                dvc_path=self.dvc_aux_path(osp.basename(p)))
-        self.ensure_gitignored()
-
-    def commit(self, paths: Union[None, List[str]], message):
-        if self.detached:
-            log.debug("The project is in detached mode, skipping commit.")
-            return
-
-        if not self.writeable:
-            raise ReadonlyProjectError("Can't commit in a read-only repository")
-
-        # order matters
-        if not paths:
-            paths = glob(
-                osp.join(self._project.config.project_dir, '**', '*.dvc'),
-                recursive=True)
-        self.dvc.commit(paths)
-        self.ensure_gitignored()
-
-        project_dir = self._project.config.project_dir
-        env_dir = self._project.config.env_dir
-        self.git.add([
-            osp.join(project_dir, env_dir),
-            osp.join(project_dir, '.dvc', 'config'),
-            osp.join(project_dir, '.dvc', '.gitignore'),
-            osp.join(project_dir, '.gitignore'),
-            osp.join(project_dir, '.dvcignore'),
-        ] + list(self.git.status()))
-        self.git.commit(message)
-
-    def init(self):
-        if self.detached:
-            log.debug("The project is in detached mode, skipping init.")
-            return
-
-        if self.readonly:
-            raise ReadonlyProjectError("Can't init in a read-only repository")
-
-        # order matters
-        self.git.init()
-        self.dvc.init()
-        os.makedirs(self.dvc_aux_dir(), exist_ok=True)
-
-    def status(self) -> Dict:
-        if self.detached:
-            log.debug("The project is in detached mode, "
-                "skipping checking status.")
-            return {}
-
-        # check status of files and remotes
-        uncomitted = {}
-        uncomitted.update(self.git.status())
-        uncomitted.update(self.dvc.status())
-        return uncomitted
-
     def is_ref(self, ref: str) -> bool:
-        if self.detached:
-            raise DetachedProjectError("Can't be used in a detached project")
-
-        return self.git.is_ref(ref)
+        return self._git.is_ref(ref)
 
     def has_commits(self) -> bool:
-        if self.detached:
-            raise DetachedProjectError("Can't be used in a detached project")
+        return self._git.has_commits()
 
-        return self.git.has_commits()
-
-    def ensure_gitignored(self, paths: Union[None, str, List[str]] = None):
-        if self.detached:
-            raise DetachedProjectError("Can't be used in a detached project")
-
-        if not self.writeable:
-            raise ReadonlyProjectError("Can't update a read-only repository")
-
-        if paths is None:
-            paths = [self._project.sources.work_dir(source)
-                    for source in self._project.sources] + \
-                [self._project.config.build_dir]
-        self.git.ignore(paths, mode='append')
-
-    def dvc_aux_dir(self) -> str:
-        return osp.join(
-            self._project.config.project_dir,
-            self._project.config.env_dir,
-            self._project.config.dvc_aux_dir)
-
-    def dvc_filepath(self, target: str) -> str:
-        return osp.join(self.dvc_aux_dir(), target + '.dvc')
-
-    @contextmanager
-    def open(self, path: str, rev: Optional[str] = None) -> IOBase:
-        if self.detached:
-            raise DetachedProjectError("Can't be used in a detached project")
-
-
-
-
-class Project:
     @classmethod
-    def import_from(cls, path: str, dataset_format: Optional[str] = None,
+    def from_dataset(cls, path: str, dataset_format: Optional[str] = None,
             env: Optional[Environment] = None, **format_options) -> 'Project':
+        """
+        A convenience function to create a project from a given dataset.
+        """
+        raise NotImplementedError()
+
         if env is None:
             env = Environment()
 
@@ -1738,148 +1772,117 @@ class Project:
         })
         return project
 
-    @classmethod
-    def generate(cls, save_dir: str,
-            config: Optional[Config] = None) -> 'Project':
-        config = Config(config)
-        config.project_dir = save_dir
-        project = Project(config)
-        project.save(save_dir)
-        return project
+    # def push(self, targets: Optional[List[str]] = None,
+    #         remote: Optional[str] = None, repository: Optional[str] = None):
+    #     """
+    #     Pushes the local DVC cache to the remote storage.
+    #     Pushes local Git changes to the remote repository.
 
-    @classmethod
-    def load(cls, path: str) -> 'Project':
-        path = osp.abspath(path)
-        config_path = osp.join(path, PROJECT_DEFAULT_CONFIG.env_dir,
-            PROJECT_DEFAULT_CONFIG.project_filename)
-        config = Config.parse(config_path)
-        config.project_dir = path
-        config.project_filename = osp.basename(config_path)
-        return Project(config)
+    #     If not provided, uses the default remote storage and repository.
+    #     """
 
-    @error_rollback('on_error', implicit=True)
-    def save(self, save_dir: Union[None, str] = None):
-        config = self.config
-        if save_dir and config.project_dir and save_dir != config.project_dir:
-            raise NotImplementedError("Can't copy or resave project "
-                "to another directory.")
+    #     if self.detached:
+    #         log.debug("The project is in detached mode, skipping push.")
+    #         return
 
-        config.project_dir = save_dir or config.project_dir
-        assert config.project_dir
-        project_dir = config.project_dir
-        save_dir = osp.join(project_dir, config.env_dir)
+    #     if not self.writeable:
+    #         raise ReadonlyProjectError("Can't push in a read-only repository")
 
-        if not osp.exists(project_dir):
-            on_error.do(shutil.rmtree, project_dir, ignore_errors=True)
-        if not osp.exists(save_dir):
-            on_error.do(shutil.rmtree, save_dir, ignore_errors=True)
-        os.makedirs(save_dir, exist_ok=True)
+    #     assert targets is None or isinstance(targets, (str, list)), targets
+    #     if targets is None:
+    #         targets = []
+    #     elif isinstance(targets, str):
+    #         targets = [targets]
+    #     targets = targets or []
+    #     for i, t in enumerate(targets):
+    #         if not osp.exists(t):
+    #             targets[i] = self.dvc_filepath(t)
 
-        config.dump(osp.join(save_dir, config.project_filename))
+    #     # order matters
+    #     self.dvc.push(targets, remote=remote)
+    #     self.git.push(remote=repository)
 
-        if self.vcs.detached:
-            return
+    # def pull(self, targets: Union[None, str, List[str]] = None,
+    #         remote: Optional[str] = None, repository: Optional[str] = None):
+    #     """
+    #     Pulls the local DVC cache data from the remote storage.
+    #     Pulls local Git changes to the remote repository.
 
-        if not self.vcs.initialized and not self.vcs.readonly:
-            self._vcs = ProjectVcs(self)
-            self.vcs.init()
-        if self.vcs.writeable:
-            self.vcs.ensure_gitignored()
-            self.vcs.git.add([
-                osp.join(project_dir, config.env_dir),
-                osp.join(project_dir, '.dvc', 'config'),
-                osp.join(project_dir, '.dvc', '.gitignore'),
-                osp.join(project_dir, '.gitignore'),
-                osp.join(project_dir, '.dvcignore'),
-            ])
+    #     If not provided, uses the default remote storage and repository.
+    #     """
 
-    def __init__(self, config: Optional[Config] = None,
-            env: Optional[Environment] = None):
-        self._config = self._read_config(config)
-        if env is None:
-            env = Environment(self._config)
-        elif config is not None:
-            raise ValueError("env can only be provided when no config provided")
-        self._env = env
-        self._vcs = ProjectVcs(self)
-        self._sources = ProjectSources(self)
-        self._models = ProjectModels(self)
-        self._build_targets = ProjectBuildTargets(self)
+    #     if self.detached:
+    #         log.debug("The project is in detached mode, skipping pull.")
+    #         return
 
-    @property
-    def sources(self) -> ProjectSources:
-        return self._sources
+    #     if not self.writeable:
+    #         raise ReadonlyProjectError("Can't pull in a read-only repository")
 
-    @property
-    def models(self) -> ProjectModels:
-        return self._models
+    #     assert targets is None or isinstance(targets, (str, list)), targets
+    #     if targets is None:
+    #         targets = []
+    #     elif isinstance(targets, str):
+    #         targets = [targets]
+    #     targets = targets or []
+    #     for i, t in enumerate(targets):
+    #         if not osp.exists(t):
+    #             targets[i] = self.dvc_filepath(t)
 
-    @property
-    def build_targets(self) -> ProjectBuildTargets:
-        return self._build_targets
+    #     # order matters
+    #     self.git.pull(remote=repository)
+    #     self.dvc.pull(targets, remote=remote)
 
-    @property
-    def vcs(self) -> ProjectVcs:
-        return self._vcs
+    # def check_updates(self,
+    #         targets: Union[None, str, List[str]] = None) -> List[str]:
+    #     if self.detached:
+    #         log.debug("The project is in detached mode, "
+    #             "skipping checking for updates.")
+    #         return
 
-    @property
-    def config(self) -> Config:
-        return self._config
+    #     if not self.writeable:
+    #         raise ReadonlyProjectError(
+    #             "Can't check for updates in a read-only repository")
 
-    @property
-    def env(self) -> Environment:
-        return self._env
+    #     assert targets is None or isinstance(targets, (str, list)), targets
+    #     if targets is None:
+    #         targets = []
+    #     elif isinstance(targets, str):
+    #         targets = [targets]
+    #     targets = targets or []
+    #     for i, t in enumerate(targets):
+    #         if not osp.exists(t):
+    #             targets[i] = self.dvc_filepath(t)
 
-    def make_dataset(self,
-            target: Union[None, str, List[str]] = None) -> Dataset:
-        if target is None:
-            target = 'project'
-        return self.build_targets.make_dataset(target)
+    #     updated_refs = self.git.check_updates()
+    #     updated_remotes = self.remotes.check_updates(targets)
+    #     return updated_refs, updated_remotes
 
-    def publish(self):
-        # build + tag + push?
-        raise NotImplementedError()
+    # def fetch(self, targets: Union[None, str, List[str]] = None):
+    #     if self.detached:
+    #         log.debug("The project is in detached mode, skipping fetch.")
+    #         return
 
-    def build(self, target: Union[None, str, List[str]] = None,
-            force: bool = False, out_dir: Union[None, str] = None):
-        if target is None:
-            target = 'project'
-        return self.build_targets.build(target, force=force, out_dir=out_dir)
+    #     if not self.writeable:
+    #         raise ReadonlyProjectError("Can't fetch in a read-only repository")
 
-    @classmethod
-    def _read_config_v1(cls, config):
-        config = Config(config)
-        config.remove('subsets')
-        config.remove('format_version')
+    #     assert targets is None or isinstance(targets, (str, list)), targets
+    #     if targets is None:
+    #         targets = []
+    #     elif isinstance(targets, str):
+    #         targets = [targets]
+    #     targets = targets or []
+    #     for i, t in enumerate(targets):
+    #         if not osp.exists(t):
+    #             targets[i] = self.dvc_filepath(t)
 
-        config = cls._read_config_v2(config)
-        if osp.isdir(osp.join(config.project_dir, config.dataset_dir)):
-            name = generate_next_name(list(config.sources), 'source',
-                sep='-', default='1')
-            config.sources[name] = {
-                'url': config.dataset_dir,
-                'format': DEFAULT_FORMAT,
-            }
-        return config
+    #     self.git.fetch()
+    #     self.dvc.fetch(targets)
 
-    @classmethod
-    def _read_config_v2(cls, config):
-        return Config(config,
-            fallback=PROJECT_DEFAULT_CONFIG, schema=PROJECT_SCHEMA)
+    # def tag(self, name: str):
+    #     self.git.tag(name)
 
-    @classmethod
-    def _read_config(cls, config):
-        if config:
-            version = config.get('format_version')
-        else:
-            version = None
-        if version == 1:
-            return cls._read_config_v1(config)
-        elif version in {None, 2}:
-            return cls._read_config_v2(config)
-        else:
-            raise ValueError("Unknown project config file format version '%s'. "
-                "The only known are: 1, 2" % version)
+
+
 
 def merge_projects(a, b, strategy: MergeStrategy = None):
     raise NotImplementedError()
@@ -1889,4 +1892,52 @@ def compare_projects(a, b, **options):
 
 
 def load_project_as_dataset(url):
-    return Project.load(url).make_dataset()
+    return Project(url).work_dir.make_dataset()
+
+def parse_target_revpath(revpath: str):
+    sep_pos = revpath.find(':')
+    if -1 < sep_pos:
+        rev = revpath[:sep_pos]
+        target = revpath[sep_pos:]
+    else:
+        rev = ''
+        target = revpath
+
+    return rev, target
+
+IgnoreMode = Enum('IgnoreMode', ['rewrite', 'append', 'remove'])
+
+def _update_ignore_file(paths: List[str], repo_root: str, filepath: str,
+        mode: Optional[IgnoreMode] = None):
+    def _make_ignored_path(path):
+        path = osp.join(repo_root, osp.normpath(path))
+        assert path.startswith(repo_root), path
+        return osp.relpath(path, repo_root)
+
+    mode = parse_str_enum_value(mode, IgnoreMode, IgnoreMode.append)
+    paths = [_make_ignored_path(p) for p in paths]
+
+    openmode = 'r+'
+    if not osp.isfile(filepath):
+        openmode = 'w+' # r+ cannot create, w+ truncates
+    with open(filepath, openmode) as f:
+        if mode in {IgnoreMode.append, IgnoreMode.remove}:
+            paths_to_write = set(
+                line.split('#', maxsplit=1)[0] \
+                    .split('/', maxsplit=1)[-1].strip()
+                for line in f
+            )
+            f.seek(0)
+        else:
+            paths_to_write = set()
+
+        if mode in {IgnoreMode.append, IgnoreMode.rewrite}:
+            paths_to_write.update(paths)
+        elif mode == IgnoreMode.remove:
+            for p in paths:
+                paths_to_write.discard(p)
+
+        paths_to_write = sorted(p for p in paths_to_write if p)
+        f.write('# The file is autogenerated by Datumaro\n')
+        f.writelines('\n'.join(paths_to_write))
+        f.truncate()

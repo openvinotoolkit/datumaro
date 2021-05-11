@@ -3,6 +3,8 @@
 #
 # SPDX-License-Identifier: MIT
 
+import os.path as osp
+
 from datumaro.components.config import Config, \
     DictConfig as _DictConfig, \
     SchemaBuilder as _SchemaBuilder
@@ -31,6 +33,10 @@ SOURCE_SCHEMA = _SchemaBuilder() \
 class Source(Config):
     def __init__(self, config=None):
         super().__init__(config, schema=SOURCE_SCHEMA)
+
+    @property
+    def is_generated(self) -> bool:
+        return not self.url
 
 
 MODEL_SCHEMA = _SchemaBuilder() \
@@ -89,7 +95,7 @@ class BuildTarget(Config):
         return res
 
 
-PROJECT_SCHEMA = _SchemaBuilder() \
+TREE_SCHEMA = _SchemaBuilder() \
     .add('project_name', str) \
     .add('format_version', int) \
     \
@@ -114,7 +120,7 @@ PROJECT_SCHEMA = _SchemaBuilder() \
     .add('env_dir', str, internal=True) \
     .build()
 
-PROJECT_DEFAULT_CONFIG = Config({
+TREE_DEFAULT_CONFIG = Config({
     'project_name': 'undefined',
     'format_version': 2,
 
@@ -132,4 +138,25 @@ PROJECT_DEFAULT_CONFIG = Config({
     'project_filename': 'config.yaml',
     'project_dir': '',
     'env_dir': '.datumaro',
-}, mutable=False, schema=PROJECT_SCHEMA)
+}, mutable=False, schema=TREE_SCHEMA)
+
+class TreeConfig(Config):
+    def __init__(self, config, mutable=True):
+        super().__init__(config=config, mutable=mutable,
+            fallback=TREE_DEFAULT_CONFIG, schema=TREE_SCHEMA)
+
+class PipelineConfig(Config):
+    pass
+
+class ProjectLayout:
+    aux_dir = '.datumaro'
+    cache_dir = 'cache'
+    index_dir = 'index'
+    work_dir = 'work_dir'
+    head_file = 'head'
+    index_tree_dir = osp.join(index_dir, 'tree')
+    index_cache_dir = osp.join(index_dir, 'cache')
+    dvc_temp_dir = 'dvc_temp'
+
+class TreeLayout:
+    conf_file = 'config.yml'
