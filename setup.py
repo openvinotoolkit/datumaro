@@ -36,7 +36,9 @@ def find_version(project_dir=None):
 def get_requirements():
     requirements = [
         'attrs>=19.3.0',
+        'GitPython',
         'defusedxml',
+        'dvc',
         'lxml',
         'matplotlib',
         'numpy>=1.17.3',
@@ -82,7 +84,6 @@ setuptools.setup(
     extras_require={
         'tf': ['tensorflow'],
         'tf-gpu': ['tensorflow-gpu'],
-        'vcs': ['GitPython', 'dvc'],
     },
     entry_points={
         'console_scripts': [
