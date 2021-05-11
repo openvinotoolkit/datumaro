@@ -12,7 +12,7 @@
 - Pascal VOC format specification available
 [here](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/devkit_doc.pdf).
 
-- Original Pascal VOC dataset format support the followoing types of annotaions:
+- Original Pascal VOC dataset format support the followoing types of annotations:
     - `Labels` (for classification tasks);
     - `Bounding boxes` (for detection, action detection and person layout tasks);
     - `Masks` (for segmentations tasks).
@@ -86,9 +86,36 @@ Pascal VOC dataset directory should have the following structure:
 The `ImageSets` directory should contain at least one of the directories:
 `Main`, `Layout`, `Action`, `Segmentation`.
 These directories contain `.txt` files
-with a list of images in a subset, the subset name is the same as the `.txt` file name .
+with a list of images in a subset, the subset name is the same as the `.txt` file name.
 
-It is also possible to import specific tasks
+In `label_map.txt` you can define custom color map and non-pascal labels, for example:
+
+```
+# label_map [label : color_rgb : parts : actions]
+helicopter:::
+elephant:0:124:134:head,ear,foot:
+```
+It is also possible to import grayscale (1-channel) PNG masks.
+For grayscale masks provide a list of labels with the number of lines
+equal to the maximum color index on images. The lines must be in the
+right order so that line index is equal to the color index. Lines can
+have arbitrary, but different, colors. If there are gaps in the used
+color indices in the annotations, they must be filled with arbitrary
+dummy labels. Example:
+
+```
+car:0,128,0:: # color index 0
+aeroplane:10,10,128:: # color index 1
+_dummy2:2,2,2:: # filler for color index 2
+_dummy3:3,3,3:: # filler for color index 3
+boat:108,0,100:: # color index 3
+...
+_dummy198:198,198,198:: # filler for color index 198
+_dummy199:199,199,199:: # filler for color index 199
+the_last_label:12,28,0:: # color index 200
+```
+
+You can import dataset for specific tasks
 of Pascal VOC dataset instead of the whole dataset,
 for example:
 
@@ -123,44 +150,18 @@ datum import -f voc -i <path/to/voc>
 datum export -f coco -o <path/to/output/dir>
 # or
 datum convert -if voc -i <path/to/voc> -f coco -o <path/to/output/dir>
-```
 
-Also it is possible using filters for converting, check
-[user manual](../docs/user_manual.md#filter-project)
-for information about filtering:
-
-``` bash
-datum convert -if voc -i <path/to/voc> \
-    -f yolo -o <path/to/output/dir> \
-    --filter-mode FILTER_MODE \
-    --filter '<xpath filter expression>'
 ```
 
 Some formats provide extra options for conversion.
-To get information about them, run
-`datum export -f <FORMAT> -- -h`
 These options are passed after double dash (`--`) in the command line.
-For example, the `voc_segmentation` format has an extra argument
-`--label_map`, which provides an option to load a custom color map for
-segmentation masks:
+To get information about them, run
 
-``` bash
-datum export -f voc_segmentation -- --label-map mycolormap.txt
-
-# mycolormap.txt [label : color_rgb : parts : actions]:
-# cat:0,0,255::
-# person:255,0,0:head:
-```
-
-Also you can use original voc format of label map, for example:
-
-``` bash
-datum export -f voc_layout -- --label-map voc
-```
+`datum export -f <FORMAT> -- -h`
 
 ## Export to Pascal VOC
 
-There are few ways to convert dataset to Pascal VOC format:
+There are few ways to convert an existing dataset to Pascal VOC format:
 
 ``` bash
 # export dataset into Pascal VOC format (classification) from existing project
@@ -172,21 +173,38 @@ datum convert -if imagenet -i <path/to/imagenet/dataset> \
     -- --label_map voc --save-images
 ```
 
-Argument `--tasks` allow to specify tasks for export dataset,
-by default Datumaro uses all tasks.
-Argument   `--label_map` allow to define user label map, for example
+Extra options for export to Pascal VOC format:
+
+- `--save-images` allow to export dataset with saving images
+(be default `False`);
+
+- `--image-ext IMAGE_EXT` allow to specify image extension
+for exporting dataset (by default `.jpg`);
+
+- `--apply-colormap APPLY_COLORMAP` allow to use colormap for class
+and instance masks (by default `True`);
+
+- `--allow-attributes ALLOW_ATTRIBUTES` allow export of attributes
+(by default `ALLOW_ATTRIBUTES = True`);
+
+- `--tasks TASKS` allow to specify tasks for export dataset,
+by default Datumaro uses all tasks. Example:
+
+```bash
+datum import -o project -f voc -i ./VOC2012
+datum export -p project -f voc -- --tasks detection,classification
+```
+
+- `--label_map` allow to define a custom colormap. Example
 
 ``` bash
 # mycolormap.txt [label : color_rgb : parts : actions]:
 # cat:0,0,255::
 # person:255,0,0:head:
 datum export -f voc_segmentation -- --label-map mycolormap.txt
-```
 
-Or you can use original Pascal VOC label map:
-
-``` bash
-datum export -f voc_layout -- --label-map voc
+# or you can use original voc colomap:
+datum export -f voc_segmentation -- --label-map mycolormap.txt
 ```
 
 ## Particular use cases
@@ -204,7 +222,6 @@ In this example, preparing the original dataset to train the semantic segmentati
 loading,
 checking duplicate images,
 setting the number of images,
-replacing masks of instances with one mask,
 splitting into subsets,
 export the result to Pascal VOC format.
 
