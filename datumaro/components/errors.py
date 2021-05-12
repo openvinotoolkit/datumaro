@@ -8,62 +8,45 @@ from attr import attrib, attrs
 class DatumaroError(Exception):
     pass
 
-@attrs
 class VcsError(DatumaroError):
     pass
 
-@attrs
 class ReadonlyProjectError(VcsError):
     pass
 
-@attrs
-class DetachedProjectError(VcsError):
-    pass
-
-@attrs
 class UnknownRefError(VcsError):
     pass
 
-@attrs
 class MissingObjectError(VcsError):
     pass
 
 
 
-@attrs
 class PipelineError(DatumaroError):
         pass
 
-@attrs
 class InvalidPipelineError(PipelineError):
     pass
 
-@attrs
 class EmptyPipelineError(InvalidPipelineError):
     pass
 
-@attrs
 class MultiplePipelineHeadsError(InvalidPipelineError):
     pass
 
-@attrs
 class MissingPipelineHeadError(InvalidPipelineError):
     pass
 
-@attrs
 class UnknownStageError(InvalidPipelineError):
     pass
 
 
-@attrs
 class ProjectNotFoundError(DatumaroError):
     pass
 
-@attrs
 class ProjectAlreadyExists(DatumaroError):
     pass
 
-@attrs
 class UnknownSourceError(DatumaroError):
     pass
 

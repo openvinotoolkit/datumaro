@@ -304,9 +304,9 @@ def export_command(args):
 
     target = args.target
     if args.filter:
-        _, target = project.build_targets.add_filter_stage(
+        target = project.build_targets.add_filter_stage(
             target, filter_args)
-    _, target = project.build_targets.add_convert_stage(
+    target = project.build_targets.add_convert_stage(
         target, args.format, extra_args)
 
     status = project.vcs.status()

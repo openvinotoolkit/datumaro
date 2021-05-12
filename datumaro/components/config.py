@@ -209,13 +209,13 @@ class Config:
         self._config[key] = value
         return value
 
-    @staticmethod
-    def parse(path, *args, **kwargs):
+    @classmethod
+    def parse(cls, path, *args, **kwargs):
         if isinstance(path, str):
             with open(path, 'r') as f:
-                return Config(yaml.safe_load(f), *args, **kwargs)
+                return cls(yaml.safe_load(f), *args, **kwargs)
         else:
-            return Config(yaml.safe_load(path), *args, **kwargs)
+            return cls(yaml.safe_load(path), *args, **kwargs)
 
     @staticmethod
     def yaml_representer(dumper, value):

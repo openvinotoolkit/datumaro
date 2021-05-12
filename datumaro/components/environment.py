@@ -9,25 +9,15 @@ import logging as log
 import os
 import os.path as osp
 
-from datumaro.components.config import Config
+from datumaro.components.config_model import TreeConfig
 from datumaro.util.os_util import import_foreign_module
 
 
 class Registry:
-    def __init__(self, config=None, item_type=None):
-        self.item_type = item_type
-
+    def __init__(self):
         self.items = {}
 
-        if config is not None:
-            self.load(config)
-
-    def load(self, config):
-        pass
-
     def register(self, name, value):
-        if self.item_type:
-            value = self.item_type(value)
         self.items[name] = value
         return value
 
@@ -48,8 +38,8 @@ class Registry:
         return iter(self.items)
 
 class PluginRegistry(Registry):
-    def __init__(self, config=None, builtin=None, local=None):
-        super().__init__(config)
+    def __init__(self, builtin=None, local=None):
+        super().__init__()
 
         from datumaro.components.cli_plugin import CliPlugin
 
@@ -67,16 +57,18 @@ class Environment:
     _builtin_plugins = None
     PROJECT_EXTRACTOR_NAME = 'datumaro_project'
 
-    def __init__(self, config=None):
-        from datumaro.components.project import (
-            PROJECT_DEFAULT_CONFIG, PROJECT_SCHEMA, load_project_as_dataset)
-        config = Config(config,
-            fallback=PROJECT_DEFAULT_CONFIG, schema=PROJECT_SCHEMA)
+    def __init__(self, config: TreeConfig = None):
+        if not isinstance(config, TreeConfig):
+            config = TreeConfig(config)
 
-        env_dir = osp.join(config.project_dir, config.env_dir)
+        if config.base_dir and osp.isdir(config.base_dir):
+            custom = self._load_plugins(
+                osp.join(config.base_dir, config.plugins_dir))
+        else:
+            custom = []
         builtin = self._load_builtin_plugins()
-        custom = self._load_plugins2(osp.join(env_dir, config.plugins_dir))
         select = lambda seq, t: [e for e in seq if issubclass(e, t)]
+        from datumaro.components.project import load_project_as_dataset
         from datumaro.components.converter import Converter
         from datumaro.components.extractor import (Importer, Extractor,
             SourceExtractor, Transform)
@@ -84,7 +76,8 @@ class Environment:
         self.extractors = PluginRegistry(
             builtin=[e for e in select(builtin, Extractor)
                 if e != SourceExtractor],
-            local=[e for e in select(custom, Extractor) if e != SourceExtractor]
+            local=[e for e in select(custom, Extractor)
+                if e != SourceExtractor]
         )
         self.extractors.register(self.PROJECT_EXTRACTOR_NAME,
             load_project_as_dataset)
@@ -144,7 +137,14 @@ class Environment:
         return exports
 
     @classmethod
-    def _load_plugins(cls, plugins_dir, types):
+    def _load_plugins(cls, plugins_dir, types=None):
+        if not types:
+            from datumaro.components.converter import Converter
+            from datumaro.components.extractor import (Extractor, Importer,
+                Transform)
+            from datumaro.components.launcher import Launcher
+            types = [Extractor, Converter, Importer, Launcher, Transform]
+
         types = tuple(types)
 
         plugins = cls._find_plugins(plugins_dir)
@@ -186,18 +186,8 @@ class Environment:
                 osp.join('datumaro', 'plugins')
             )
             assert osp.isdir(plugins_dir), plugins_dir
-            cls._builtin_plugins = cls._load_plugins2(plugins_dir)
+            cls._builtin_plugins = cls._load_plugins(plugins_dir)
         return cls._builtin_plugins
-
-    @classmethod
-    def _load_plugins2(cls, plugins_dir):
-        from datumaro.components.converter import Converter
-        from datumaro.components.extractor import (Extractor, Importer,
-            Transform)
-        from datumaro.components.launcher import Launcher
-        types = [Extractor, Converter, Importer, Launcher, Transform]
-
-        return cls._load_plugins(plugins_dir, types)
 
     def make_extractor(self, name, *args, **kwargs):
         return self.extractors.get(name)(*args, **kwargs)

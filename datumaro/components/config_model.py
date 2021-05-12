@@ -27,7 +27,7 @@ SOURCE_SCHEMA = _SchemaBuilder() \
     .add('url', str) \
     .add('format', str) \
     .add('options', dict) \
-    .add('remote', str) \
+    .add('hash', str) \
     .build()
 
 class Source(Config):
@@ -43,7 +43,7 @@ MODEL_SCHEMA = _SchemaBuilder() \
     .add('url', str) \
     .add('launcher', str) \
     .add('options', dict) \
-    .add('remote', str) \
+    .add('hash', str) \
     .build()
 
 class Model(Config):
@@ -115,14 +115,15 @@ TREE_SCHEMA = _SchemaBuilder() \
     .add('cache_dir', str, internal=True) \
     .add('revisions_dir', str, internal=True) \
     \
-    .add('project_filename', str, internal=True) \
-    .add('project_dir', str, internal=True) \
+    .add('config_path', str, internal=True) \
     .add('env_dir', str, internal=True) \
     .build()
 
 TREE_DEFAULT_CONFIG = Config({
     'project_name': 'undefined',
     'format_version': 2,
+
+    'default_repo': 'origin',
 
     'sources_dir': 'sources',
     'dataset_dir': 'dataset',
@@ -134,14 +135,12 @@ TREE_DEFAULT_CONFIG = Config({
     'cache_dir': 'cache',
     'revisions_dir': 'revisions',
 
-    'default_repo': 'origin',
-    'project_filename': 'config.yaml',
-    'project_dir': '',
+    'config_path': 'config.yaml',
     'env_dir': '.datumaro',
 }, mutable=False, schema=TREE_SCHEMA)
 
 class TreeConfig(Config):
-    def __init__(self, config, mutable=True):
+    def __init__(self, config=None, mutable=True):
         super().__init__(config=config, mutable=mutable,
             fallback=TREE_DEFAULT_CONFIG, schema=TREE_SCHEMA)
 
