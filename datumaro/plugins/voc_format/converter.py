@@ -201,7 +201,7 @@ class VocConverter(Converter):
                     ET.SubElement(source_elem, 'annotation').text = 'Unknown'
                     ET.SubElement(source_elem, 'image').text = 'Unknown'
 
-                    if item.has_image and item.image.has_data:
+                    if item.has_image and item.image.has_size:
                         h, w = item.image.size
                         size_elem = ET.SubElement(root_elem, 'size')
                         ET.SubElement(size_elem, 'width').text = str(w)
