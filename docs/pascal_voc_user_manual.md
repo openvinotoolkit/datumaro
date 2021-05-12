@@ -176,16 +176,16 @@ datum convert -if imagenet -i <path/to/imagenet/dataset> \
 Extra options for export to Pascal VOC format:
 
 - `--save-images` allow to export dataset with saving images
-(be default `False`);
+(by default `False`);
 
 - `--image-ext IMAGE_EXT` allow to specify image extension
-for exporting dataset (by default `.jpg`);
+for exporting dataset (by default use original or `.jpg` if none);
 
 - `--apply-colormap APPLY_COLORMAP` allow to use colormap for class
 and instance masks (by default `True`);
 
 - `--allow-attributes ALLOW_ATTRIBUTES` allow export of attributes
-(by default `ALLOW_ATTRIBUTES = True`);
+(by default `True`);
 
 - `--tasks TASKS` allow to specify tasks for export dataset,
 by default Datumaro uses all tasks. Example:
@@ -204,7 +204,7 @@ datum export -p project -f voc -- --tasks detection,classification
 datum export -f voc_segmentation -- --label-map mycolormap.txt
 
 # or you can use original voc colomap:
-datum export -f voc_segmentation -- --label-map mycolormap.txt
+datum export -f voc_segmentation -- --label-map voc
 ```
 
 ## Particular use cases
