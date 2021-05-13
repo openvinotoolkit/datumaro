@@ -63,20 +63,20 @@ MNIST dataset directory should have the following structure:
 <!--lint disable fenced-code-flag-->
 ```
 └─ Dataset/
-	├── labels.txt # list of non-digit labels (optional)
-	├── t10k-images-idx3-ubyte.gz  
-	├── t10k-labels-idx1-ubyte.gz  
-	├── train-images-idx3-ubyte.gz  
-	└── train-labels-idx1-ubyte.gz
+    ├── labels.txt # list of non-digit labels (optional)
+    ├── t10k-images-idx3-ubyte.gz  
+    ├── t10k-labels-idx1-ubyte.gz  
+    ├── train-images-idx3-ubyte.gz  
+    └── train-labels-idx1-ubyte.gz
 ```
 MNIST in CSV dataset directory should have the following structure:
 
 <!--lint disable fenced-code-flag-->
 ```
 └─ Dataset/
-	├── labels.txt # list of non-digit labels (optional)
-	├── mnist_test.csv  
-	└── mnist_train.csv
+    ├── labels.txt # list of non-digit labels (optional)
+    ├── mnist_test.csv  
+    └── mnist_train.csv
 ```
 If the dataset needs non-digit labels, you need to add the labels.txt
 to the dataset folder.
@@ -120,7 +120,7 @@ There are few ways to convert dataset to MNIST format:
 ``` bash
 # export dataset into MNIST format from existing project
 datum export -p <path/to/project> -f mnist -o <path/to/export/dir> \
-	-- --save-images
+    -- --save-images
 # converting to MNIST format from other format
 datum convert -if imagenet -i <path/to/imagenet/dataset> \
     -f mnist -o <path/to/export/dir> -- --save-images
