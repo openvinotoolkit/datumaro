@@ -117,13 +117,12 @@ class ProjectTest(TestCase):
             with open(source_file_path, 'w') as f:
                 f.write('hello')
 
-            project = Project.init(test_dir)
+            project = Project.init(osp.join(test_dir, 'proj'))
             project.import_source('s1', url=source_base_url, format='fmt')
 
             source = project.working_tree.sources['s1']
             self.assertEqual('fmt', source.format)
-            compare_dirs(self, source_base_url,
-                project.working_tree.sources.data_dir('s1'))
+            compare_dirs(self, source_base_url, project.source_data_dir('s1'))
 
     def test_can_import_generated_source(self):
         with TestDir() as test_dir:
@@ -135,7 +134,7 @@ class ProjectTest(TestCase):
             })
             project = Project.init(test_dir)
 
-            project.import_source(source_name,
+            project.import_source(source_name, url='',
                 format=origin.format, options=origin.options)
 
             added = project.working_tree.sources[source_name]
@@ -158,14 +157,13 @@ class ProjectTest(TestCase):
             with open(source_url, 'w') as f:
                 f.write('hello')
 
-            project = Project.init(test_dir)
+            project = Project.init(osp.join(test_dir, 'proj'))
             project.import_source('s1', { 'url': source_url })
 
             project.remove_source('s1', keep_data=True)
 
             self.assertFalse('s1' in project.working_tree.sources)
-            compare_dirs(self, source_url,
-                project.working_tree.sources.data_dir('s1'))
+            compare_dirs(self, source_url, project.source_data_dir('s1'))
 
     def test_can_remove_source_and_wipe_data(self):
         with TestDir() as test_dir:
@@ -174,14 +172,13 @@ class ProjectTest(TestCase):
             with open(source_url, 'w') as f:
                 f.write('hello')
 
-            project = Project.init(test_dir)
+            project = Project.init(osp.join(test_dir, 'proj'))
             project.import_source('s1', url=source_url)
 
             project.remove_source('s1', keep_data=False)
 
             self.assertFalse('s1' in project.working_tree.sources)
-            self.assertFalse(osp.exists(
-                project.working_tree.sources.data_dir('s1')))
+            self.assertFalse(osp.exists(project.source_data_dir('s1')))
 
     def test_can_checkout(self):
         with TestDir() as test_dir:
@@ -197,7 +194,7 @@ class ProjectTest(TestCase):
             project.commit("First commit")
 
             source_path = osp.join(
-                project.working_tree.sources.data_dir('s1'),
+                project.source_data_dir('s1'),
                 osp.basename(source_url))
             with open(source_path, 'w') as f:
                 f.write('world')
@@ -206,8 +203,7 @@ class ProjectTest(TestCase):
 
             project.checkout('HEAD~1')
 
-            compare_dirs(self, source_url,
-                project.working_tree.sources.data_dir('s1'))
+            compare_dirs(self, source_url, project.source_data_dir('s1'))
 
     @skip('Source data status checks are not implemented yet')
     def test_can_checkout_source_rev_noncached(self):
@@ -230,8 +226,7 @@ class ProjectTest(TestCase):
             read_dataset = project.working_tree.sources.make_dataset('s1')
 
             compare_datasets(self, source_dataset, read_dataset)
-            compare_dirs(self, source_url,
-                project.working_tree.sources.data_dir('s1'))
+            compare_dirs(self, source_url, project.source_data_dir('s1'))
 
     def test_can_read_current_revision_of_source(self):
         with TestDir() as test_dir:
@@ -250,13 +245,12 @@ class ProjectTest(TestCase):
             project.add('s1')
             project.commit("A commit")
 
-            shutil.rmtree(project.working_tree.sources.data_dir('s1'))
+            shutil.rmtree(project.source_data_dir('s1'))
 
             read_dataset = project.head.sources.make_dataset('s1')
 
             compare_datasets(self, source_dataset, read_dataset)
-            self.assertFalse(osp.isdir(
-                project.working_tree.sources.data_dir('s1')))
+            self.assertFalse(osp.isdir(project.source_data_dir('s1')))
             compare_dirs(self, source_url, project.head.sources.data_dir('s1'))
 
     def test_can_make_dataset_from_project(self):

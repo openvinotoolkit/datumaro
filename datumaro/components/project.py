@@ -13,6 +13,7 @@ from enum import Enum
 from typing import Dict, List, Optional, Tuple, Union
 
 import networkx as nx
+import ruamel.yaml as yaml
 
 from datumaro.components.config import Config
 from datumaro.components.config_model import (BuildStage, PipelineConfig, ProjectLayout,
@@ -152,28 +153,6 @@ class CrudProxy:
     def __contains__(self, name):
         return name in self._data
 
-class ProjectRepositories(CrudProxy):
-    def __init__(self, project_vcs):
-        self._vcs = project_vcs
-
-    def set_default(self, name):
-        if name not in self:
-            raise KeyError("Unknown repository name '%s'" % name)
-        self._vcs._project.config.default_repo = name
-
-    def get_default(self):
-        return self._vcs._project.config.default_repo
-
-    @CrudProxy._data.getter
-    def _data(self):
-        return self._vcs.git.list_remotes()
-
-    def add(self, name, url):
-        self._vcs.git.add_remote(name, url)
-
-    def remove(self, name):
-        self._vcs.git.remove_remote(name)
-
 class _DataSourceBase(CrudProxy):
     def __init__(self, project, config_field):
         self._project = project
@@ -182,16 +161,6 @@ class _DataSourceBase(CrudProxy):
     @CrudProxy._data.getter
     def _data(self):
         return self._project.config[self._field]
-
-    @classmethod
-    def _make_remote_name(cls, name):
-        return name
-
-    def data_dir(self, name: str) -> str:
-        return osp.join(self._project.config.project_dir, name)
-
-    def dvcfile_path(self, name):
-        return self._project.vcs.dvc_filepath(name)
 
     def add(self, name, value):
         if name in self:
@@ -233,7 +202,7 @@ class ProjectSources(_DataSourceBase):
         except KeyError:
             raise KeyError("Unknown source '%s'" % name)
 
-    def make_dataset(self, name, rev=None):
+    def make_dataset(self, name):
         return ProjectSourceDataset.from_source(self._project, name)
 
 
@@ -1290,6 +1259,10 @@ class Project:
         self._dvc = DvcWrapper(self._root_dir)
         self._init_vcs()
 
+        self._working_tree = None
+        self._index_tree = None
+        self._head_tree = None
+
     def _init_vcs(self):
         # DVC requires Git to be initialized
         if not self._git.initialized:
@@ -1322,15 +1295,21 @@ class Project:
 
     @property
     def working_tree(self) -> Tree:
-        return self.get_rev(None)
+        if self._working_tree is None:
+            self._working_tree = self.get_rev(None)
+        return self._working_tree
 
     @property
     def index(self) -> Tree:
-        return self.get_rev('index')
+        if self._index_tree is None:
+            self._index_tree = self.get_rev('index')
+        return self._index_tree
 
     @property
     def head(self) -> Tree:
-        return self.get_rev('HEAD')
+        if self._head_tree is None:
+            self._head_tree = self.get_rev('HEAD')
+        return self._head_tree
 
     def get_rev(self, rev: str) -> Tree:
         """
@@ -1349,6 +1328,7 @@ class Project:
                 tree_config = TreeConfig.parse(config_path)
             else:
                 tree_config = TreeConfig()
+                os.makedirs(osp.dirname(config_path), exist_ok=True)
                 tree_config.dump(config_path)
             tree_config.config_path = config_path
             # TODO: adjust paths in config
@@ -1416,6 +1396,13 @@ class Project:
     def _can_retrieve_from_vcs_cache(self, rev_hash):
         return self._dvc.is_cached(rev_hash)
 
+    def source_data_dir(self, name: str) -> str:
+        return osp.join(self._root_dir, name)
+
+    def _source_dvcfile_path(self, name):
+        return osp.join(self._aux_dir, self.working_tree.config.dvc_aux_dir,
+            name + '.dvc')
+
     def download_source(self, source: Source):
         raise NotImplementedError()
         # dvc = self.dvc
@@ -1449,12 +1436,19 @@ class Project:
 
     @error_rollback('on_error', implicit=True)
     def _download_source(self, name, url, dst_dir):
-        dvcfile = self.working_tree.sources.dvcfile_path(name)
+        dvcfile = self._source_dvcfile_path(name)
         assert not osp.isfile(dvcfile), dvcfile
         on_error.do(os.remove, dvcfile, ignore_errors=True)
 
-        shutil.copy(url, dst_dir)
-        obj_hash = self._dvc.add(dst_dir, dvc_path=dvcfile)
+        if osp.isdir(url):
+            shutil.copytree(url, dst_dir)
+        else:
+            shutil.copy(url, dst_dir)
+        self._dvc.add(dst_dir, dvc_path=dvcfile)
+
+        with open(dvcfile) as f:
+            contents = yaml.YAML(typ='safe').load(f)
+            obj_hash = contents['outs'][0]['md5']
 
         return {
             'url': osp.basename(url),
@@ -1467,7 +1461,7 @@ class Project:
         if name in self.working_tree.sources:
             raise SourceExistsError("Source '%s' already exists" % name)
 
-        data_dir = self.working_tree.sources.data_dir(name)
+        data_dir = self.source_data_dir(name)
         if osp.exists(data_dir):
             if os.listdir(data_dir):
                 raise FileExistsError("Source directory '%s' already exists" % \
@@ -1477,7 +1471,7 @@ class Project:
         config = Source({
             'url': url,
             'format': format,
-            'options': options,
+            'options': options or {},
         })
 
         if not url:
@@ -1506,18 +1500,16 @@ class Project:
         self.working_tree.sources.remove(name)
 
         if force and not keep_data:
-            data_dir = self.working_tree.sources.data_dir(name)
+            data_dir = self.source_data_dir(name)
             if osp.isdir(data_dir):
                 rmtree(data_dir, ignore_errors=True)
 
-        dvcfile = self.working_tree.sources.dvcfile_path(name)
+        dvcfile = self._source_dvcfile_path(name)
         if osp.isfile(dvcfile):
             try:
-                self._dvc.remove(dvcfile, outs=not keep_data)
-            except DvcWrapper.DvcError:
-                if force:
-                    os.remove(dvcfile)
-                else:
+                os.remove(dvcfile)
+            except Exception:
+                if not force:
                     raise
 
         self.working_tree.build_targets.remove_target(name)
@@ -1655,87 +1647,6 @@ class Project:
             'options': format_options,
         })
         return project
-
-    # def push(self, targets: Optional[List[str]] = None,
-    #         remote: Optional[str] = None, repository: Optional[str] = None):
-    #     """
-    #     Pushes the local DVC cache to the remote storage.
-    #     Pushes local Git changes to the remote repository.
-
-    #     If not provided, uses the default remote storage and repository.
-    #     """
-
-    #     assert targets is None or isinstance(targets, (str, list)), targets
-    #     if targets is None:
-    #         targets = []
-    #     elif isinstance(targets, str):
-    #         targets = [targets]
-    #     targets = targets or []
-    #     for i, t in enumerate(targets):
-    #         if not osp.exists(t):
-    #             targets[i] = self.dvc_filepath(t)
-
-    #     # order matters
-    #     self.dvc.push(targets, remote=remote)
-    #     self.git.push(remote=repository)
-
-    # def pull(self, targets: Union[None, str, List[str]] = None,
-    #         remote: Optional[str] = None, repository: Optional[str] = None):
-    #     """
-    #     Pulls the local DVC cache data from the remote storage.
-    #     Pulls local Git changes to the remote repository.
-
-    #     If not provided, uses the default remote storage and repository.
-    #     """
-
-    #     assert targets is None or isinstance(targets, (str, list)), targets
-    #     if targets is None:
-    #         targets = []
-    #     elif isinstance(targets, str):
-    #         targets = [targets]
-    #     targets = targets or []
-    #     for i, t in enumerate(targets):
-    #         if not osp.exists(t):
-    #             targets[i] = self.dvc_filepath(t)
-
-    #     # order matters
-    #     self.git.pull(remote=repository)
-    #     self.dvc.pull(targets, remote=remote)
-
-    # def check_updates(self,
-    #         targets: Union[None, str, List[str]] = None) -> List[str]:
-    #     assert targets is None or isinstance(targets, (str, list)), targets
-    #     if targets is None:
-    #         targets = []
-    #     elif isinstance(targets, str):
-    #         targets = [targets]
-    #     targets = targets or []
-    #     for i, t in enumerate(targets):
-    #         if not osp.exists(t):
-    #             targets[i] = self.dvc_filepath(t)
-
-    #     updated_refs = self.git.check_updates()
-    #     updated_remotes = self.remotes.check_updates(targets)
-    #     return updated_refs, updated_remotes
-
-    # def fetch(self, targets: Union[None, str, List[str]] = None):
-    #     assert targets is None or isinstance(targets, (str, list)), targets
-    #     if targets is None:
-    #         targets = []
-    #     elif isinstance(targets, str):
-    #         targets = [targets]
-    #     targets = targets or []
-    #     for i, t in enumerate(targets):
-    #         if not osp.exists(t):
-    #             targets[i] = self.dvc_filepath(t)
-
-    #     self.git.fetch()
-    #     self.dvc.fetch(targets)
-
-    # def tag(self, name: str):
-    #     self.git.tag(name)
-
-
 
 
 def merge_projects(a, b, strategy: MergeStrategy = None):

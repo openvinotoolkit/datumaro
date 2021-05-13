@@ -194,7 +194,7 @@ def error_rollback(func, arg_name='on_error', implicit=False):
                 old_val = fglobals.get(arg_name)
                 fglobals[arg_name] = manager
                 try:
-                    func(*args, **kwargs)
+                    ret_val = func(*args, **kwargs)
                 finally:
                     if has_arg:
                         func.__globals__[arg_name] = old_val
@@ -202,5 +202,6 @@ def error_rollback(func, arg_name='on_error', implicit=False):
                         func.__globals__.pop(arg_name)
             else:
                 kwargs[arg_name] = manager
-                func(*args, **kwargs)
+                ret_val = func(*args, **kwargs)
+            return ret_val
     return wrapped_func
