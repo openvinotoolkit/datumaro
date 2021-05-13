@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 import gzip
+import os
 import os.path as osp
 
 import numpy as np
@@ -111,6 +112,7 @@ class MnistConverter(Converter):
     DEFAULT_IMAGE_EXT = '.png'
 
     def apply(self):
+        os.makedirs(self._save_dir, exist_ok=True)
         for subset_name, subset in self._extractor.subsets().items():
             labels = []
             images = np.array([])

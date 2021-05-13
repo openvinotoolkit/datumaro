@@ -2,12 +2,14 @@
 #
 # SPDX-License-Identifier: MIT
 
+import os
 import os.path as osp
 
 import numpy as np
 from datumaro.components.converter import Converter
 from datumaro.components.extractor import (AnnotationType, DatasetItem,
     Importer, Label, LabelCategories, SourceExtractor)
+
 
 class MnistCsvPath:
     IMAGE_SIZE = 28
@@ -96,6 +98,7 @@ class MnistCsvConverter(Converter):
     DEFAULT_IMAGE_EXT = '.png'
 
     def apply(self):
+        os.makedirs(self._save_dir, exist_ok=True)
         for subset_name, subset in self._extractor.subsets().items():
             data = []
             item_ids = {}
