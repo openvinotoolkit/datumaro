@@ -1422,10 +1422,13 @@ class Project:
         return osp.isdir(self._make_cache_path(obj_hash))
 
     def _make_cache_path(self, obj_hash, root=None):
-        assert len(obj_hash) == 40
+        assert len(obj_hash) in {32, 40} or \
+            len(obj_hash) == 36 and obj_hash.endswith('.dir'), obj_hash
+        if len(obj_hash) == 36:
+            obj_hash = obj_hash[:32]
+
         if not root:
-            root = osp.join(self._aux_dir, ProjectLayout.aux_dir,
-                ProjectLayout.cache_dir)
+            root = osp.join(self._aux_dir, ProjectLayout.cache_dir)
         return osp.join(root, obj_hash[:2], obj_hash[2:])
 
     def _can_retrieve_from_vcs_cache(self, rev_hash):
@@ -1477,10 +1480,13 @@ class Project:
         if osp.isdir(url):
             shutil.copytree(url, dst_dir)
         else:
+            os.makedirs(dst_dir, exist_ok=True)
             shutil.copy(url, dst_dir)
         self._dvc.add(dst_dir, dvc_path=dvcfile)
 
         obj_hash = self._dvc.get_hash_from_dvcfile(dvcfile)
+        if obj_hash.endswith('.dir'):
+            obj_hash = obj_hash[:-4]
 
         return {
             'url': osp.basename(url),
@@ -1531,10 +1537,10 @@ class Project:
 
         self.working_tree.sources.remove(name)
 
-        if force and not keep_data:
+        if not keep_data:
             data_dir = self.source_data_dir(name)
             if osp.isdir(data_dir):
-                rmtree(data_dir, ignore_errors=True)
+                rmtree(data_dir)
 
         dvcfile = self._source_dvcfile_path(name)
         if osp.isfile(dvcfile):
@@ -1546,13 +1552,17 @@ class Project:
 
         self.working_tree.build_targets.remove_target(name)
 
-    def add(self, sources: List[str]):
+    def add(self, sources: Union[str, List[str]]):
         """
         Copies changes from working copy to index.
         """
 
         if not sources:
             raise ValueError("Expected at least one source path to add")
+
+        assert isinstance(sources, (str, list)), sources
+        if isinstance(sources, str):
+            sources = [sources]
 
         index_cache_dir = osp.join(self._aux_dir,
             ProjectLayout.index_cache_dir)
@@ -1570,14 +1580,13 @@ class Project:
             index_obj_dir = self._make_cache_path(dir_hash,
                 root=index_cache_dir)
             if self._is_cached(dir_hash):
-                os.link(index_obj_dir, self._make_cache_path(dir_hash))
+                os.link(self._make_cache_path(dir_hash), index_obj_dir)
             else:
-                shutil.copy(source_dir, osp.join(index_obj_dir, 'data'))
+                shutil.copytree(source_dir, osp.join(index_obj_dir, 'data'))
 
             self.index.config.sources[s] = source_config
 
-        self.index.dump(osp.join(self._aux_dir,
-            ProjectLayout.index_tree_dir, TreeLayout.conf_file))
+        self.index.save()
 
     def commit(self, message: str):
         """
@@ -1611,6 +1620,9 @@ class Project:
         shutil.move(index_tree_dir, self._make_cache_path(head))
 
         rmtree(osp.join(self._aux_dir, ProjectLayout.index_dir))
+
+        self._head_tree = None
+        self._index_tree = None
 
         return head
 

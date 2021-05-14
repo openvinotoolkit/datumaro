@@ -17,7 +17,7 @@ from datumaro.components.extractor import AnnotationType
 from datumaro.components.operations import (compute_ann_statistics,
     compute_image_statistics)
 from datumaro.components.project import (Project, ProjectBuildTargets,
-    parse_target_revpath, PROJECT_DEFAULT_CONFIG as DEFAULT_CONFIG)
+    parse_target_revpath)
 from datumaro.components.validator import TaskType, validate_annotations
 from datumaro.util import error_rollback, str_to_bool
 

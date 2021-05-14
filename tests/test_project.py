@@ -148,7 +148,7 @@ class ProjectTest(TestCase):
             for name in {'dataset', 'project', 'build', '.any'}:
                 with self.subTest(name=name), \
                         self.assertRaisesRegex(ValueError, "Source name"):
-                    project.import_source(name, format='fmt')
+                    project.import_source(name, url='', format='fmt')
 
     def test_can_remove_source_and_keep_data(self):
         with TestDir() as test_dir:
