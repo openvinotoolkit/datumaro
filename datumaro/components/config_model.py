@@ -81,6 +81,10 @@ class BuildTarget(Config):
     def head(self):
         return self.stages[-1]
 
+    @property
+    def is_clean(self) -> bool:
+        return len(self.stages) == 1
+
     def find_stage(self, stage):
         if stage == 'root':
             return self.root
@@ -155,7 +159,10 @@ class ProjectLayout:
     head_file = 'head'
     index_tree_dir = osp.join(index_dir, 'tree')
     index_cache_dir = osp.join(index_dir, 'cache')
-    dvc_temp_dir = 'dvc_temp'
+    tmp_dir = 'tmp'
 
 class TreeLayout:
     conf_file = 'config.yml'
+    plugins_dir = 'plugins'
+    models_dir = 'models'
+    sources_dir = 'sources'
