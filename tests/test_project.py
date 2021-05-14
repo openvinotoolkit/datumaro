@@ -158,7 +158,7 @@ class ProjectTest(TestCase):
                 f.write('hello')
 
             project = Project.init(osp.join(test_dir, 'proj'))
-            project.import_source('s1', { 'url': source_url })
+            project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
 
             project.remove_source('s1', keep_data=True)
 
@@ -173,7 +173,7 @@ class ProjectTest(TestCase):
                 f.write('hello')
 
             project = Project.init(osp.join(test_dir, 'proj'))
-            project.import_source('s1', url=source_url)
+            project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
 
             project.remove_source('s1', keep_data=False)
 
@@ -188,7 +188,7 @@ class ProjectTest(TestCase):
                 f.write('hello')
 
             project = Project.init(osp.join(test_dir, 'proj'))
-            project.import_source('s1', source_url)
+            project.import_source('s1', source_url, format=DEFAULT_FORMAT)
             project.working_tree.save()
             project.add('s1')
             project.commit("First commit")

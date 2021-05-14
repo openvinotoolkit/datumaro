@@ -755,10 +755,31 @@ class GitWrapper:
         Paths can be truncated relatively to base.
         """
 
-        kwargs = {}
+        path_rewriter = None
         if base:
-            kwargs['path_rewriter'] = lambda p: osp.relpath(p, base)
-        self.repo.index.add(paths, **kwargs)
+            path_rewriter = lambda p: osp.relpath(p, base)
+
+        if isinstance(paths, str):
+            paths = [paths]
+
+        # A workaround for path_rewriter incompatibility
+        # with directory paths expansion
+        paths_to_add = []
+        for path in paths:
+            if not osp.isdir(path):
+                paths_to_add.append(path)
+                continue
+
+            for d, _, filenames in os.walk(path):
+                for fn in filenames:
+                    p = osp.join(d, fn)
+
+                    if path_rewriter:
+                        p = path_rewriter(p)
+
+                    paths_to_add.append(p)
+
+        self.repo.index.add(paths)
 
     def commit(self, message) -> str:
         """
@@ -1140,6 +1161,13 @@ class DvcWrapper:
         _update_ignore_file(paths, repo_root=repo_root,
             mode=mode, filepath=dvcignore)
 
+    @staticmethod
+    def get_hash_from_dvcfile(path) -> str:
+        with open(path) as f:
+            contents = yaml.YAML(typ='safe').load(f)
+            return contents['outs'][0]['md5']
+
+
 class Tree:
     # can be:
     # - attached to the work dir
@@ -1334,8 +1362,15 @@ class Project:
             # TODO: adjust paths in config
             tree = Tree(config=tree_config, parent=self, rev=obj_hash)
         elif obj_hash is 'index':
-            tree_config = TreeConfig.parse(osp.join(self._aux_dir,
-                ProjectLayout.index_tree_dir, TreeLayout.conf_file))
+            config_path = osp.join(self._aux_dir,
+                ProjectLayout.index_tree_dir, TreeLayout.conf_file)
+            if osp.isfile(config_path):
+                tree_config = TreeConfig.parse(config_path)
+            else:
+                tree_config = TreeConfig()
+                os.makedirs(osp.dirname(config_path), exist_ok=True)
+                tree_config.dump(config_path)
+            tree_config.config_path = config_path
             # TODO: adjust paths in config
             tree = Tree(config=tree_config, parent=self, rev=obj_hash)
         elif not self.is_rev_cached(obj_hash):
@@ -1418,8 +1453,7 @@ class Project:
         # obj_dir = _make_obj_path(self, source.hash)
         # shutil.move(temp_dir, obj_dir) # moves _into_ obj_dir
 
-    # cache
-    # repo (remote)
+    # cache control
 
     def validate_source_name(self, name: str):
         valid_filename = make_file_name(name)
@@ -1446,9 +1480,7 @@ class Project:
             shutil.copy(url, dst_dir)
         self._dvc.add(dst_dir, dvc_path=dvcfile)
 
-        with open(dvcfile) as f:
-            contents = yaml.YAML(typ='safe').load(f)
-            obj_hash = contents['outs'][0]['md5']
+        obj_hash = self._dvc.get_hash_from_dvcfile(dvcfile)
 
         return {
             'url': osp.basename(url),
@@ -1529,20 +1561,19 @@ class Project:
             if not s in self.working_tree.sources:
                 raise UnknownSourceError(s)
 
-            source_dir = osp.join(self._root_dir, s)
+            source_config = Source(self.working_tree.config.sources[s])
 
-            dir_hash, dir_objs = self._dvc.compute_hash(source_dir)
+            source_dir = self.source_data_dir(s)
+
+            # TODO: compute source dir hash and verify
+            dir_hash = source_config.hash
             index_obj_dir = self._make_cache_path(dir_hash,
                 root=index_cache_dir)
             if self._is_cached(dir_hash):
                 os.link(index_obj_dir, self._make_cache_path(dir_hash))
             else:
-                with open(osp.join(index_obj_dir, 'meta'), 'w') as f:
-                    json.dump(dir_objs, f, sort_keys=True)
                 shutil.copy(source_dir, osp.join(index_obj_dir, 'data'))
 
-            source_config = self.working_tree.config.sources[s]
-            source_config.hash = dir_hash
             self.index.config.sources[s] = source_config
 
         self.index.dump(osp.join(self._aux_dir,
@@ -1579,8 +1610,7 @@ class Project:
         head = self._git.commit(message)
         shutil.move(index_tree_dir, self._make_cache_path(head))
 
-        rmtree(osp.join(self._aux_dir, ProjectLayout.index_dir),
-            ignore_errors=True)
+        rmtree(osp.join(self._aux_dir, ProjectLayout.index_dir))
 
         return head
 
