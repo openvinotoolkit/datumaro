@@ -13,6 +13,7 @@ from datumaro.components.extractor import (AnnotationType, DatasetItem,
 
 class MnistCsvPath:
     IMAGE_SIZE = 28
+    NONE_LABEL = -1
 
 class MnistCsvExtractor(SourceExtractor):
     def __init__(self, path, subset=None):
@@ -61,11 +62,8 @@ class MnistCsvExtractor(SourceExtractor):
         for i, data in enumerate(annotation_table):
             data = data.split(',')
             item_anno = []
-            try:
-                label = int(data[0])
-            except ValueError:
-                label = None
-            if label != None:
+            label = int(data[0])
+            if label != MnistCsvPath.NONE_LABEL:
                 item_anno.append(Label(label))
 
             if 0 < len(meta):
@@ -106,7 +104,7 @@ class MnistCsvConverter(Converter):
             for item in subset:
                 anns = [a.label for a in item.annotations
                     if a.type == AnnotationType.label]
-                label = None
+                label = MnistCsvPath.NONE_LABEL
                 if anns:
                     label = anns[0]
 
