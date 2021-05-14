@@ -76,7 +76,7 @@ class TestExtractorBase(Extractor):
         return VOC.make_voc_categories()
 
 
-DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'voc_dataset')
+DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'voc_dataset', 'voc_dataset1')
 
 class VocImportTest(TestCase):
     def test_can_import(self):
