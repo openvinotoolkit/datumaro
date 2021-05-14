@@ -131,11 +131,16 @@ class _SubsetWriter:
             rle = mask_utils.encode(
                 np.require(obj.image, dtype=np.uint8, requirements='F'))
 
+        if isinstance(rle['counts'], str):
+           counts = rle['counts']
+        else:
+           counts = rle['counts'].decode('ascii')
+
         converted.update({
             'label_id': cast(obj.label, int),
             'rle': {
                 # serialize as compressed COCO mask
-                'counts': rle['counts'].decode('ascii'),
+                'counts': counts,
                 'size': list(int(c) for c in rle['size']),
             },
             'z_order': obj.z_order,

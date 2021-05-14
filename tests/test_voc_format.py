@@ -764,3 +764,29 @@ class VocConverterTest(TestCase):
                 osp.join(path, 'SegmentationObject', '3.png')))
             self.assertFalse(osp.isfile(
                 osp.join(path, 'SegmentationClass', '3.png')))
+
+    def test_can_save_dataset_with_no_data_images(self):
+        class TestExtractor(TestExtractorBase):
+            def __iter__(self):
+                return iter([
+                    DatasetItem(id='frame1', subset='test',
+                        image=Image(path='frame1.jpg'),
+                        annotations=[
+                            Bbox(1.0, 2.0, 3.0, 4.0,
+                                attributes={
+                                    'difficult': False,
+                                    'truncated': False,
+                                    'occluded': False
+                                },
+                                id=1, label=0, group=1
+                            )
+                        ]
+                    )
+                ])
+
+            def categories(self):
+                return VOC.make_voc_categories()
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(TestExtractor(),
+                partial(VocConverter.convert, label_map='voc'), test_dir)

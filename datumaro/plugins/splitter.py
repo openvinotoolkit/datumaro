@@ -4,6 +4,7 @@
 
 import logging as log
 import numpy as np
+import copy
 from math import gcd
 from enum import Enum
 
@@ -295,7 +296,7 @@ class _TaskSpecificSplit:
     def _group_by_attr(items):
         """
         Args:
-            items: list of (idx, ann). ann is the annotation from Label object.
+            items: list of (idx_img, ann). ann is the annotation from Label object.
         Returns:
             by_attributes: dict of { combination-of-attrs : list of index }
         """
@@ -315,17 +316,17 @@ class _TaskSpecificSplit:
 
         # group by attributes
         by_attributes = dict()
-        for idx, ann in items:
+        for idx_img, ann in items:
             # ignore numeric attributes
             filtered = {}
-            for k, v in ann.attributes.items():
-                if _is_float(v):
+            for attr, value in ann.attributes.items():
+                if _is_float(value):
                     continue
-                filtered[k] = v
+                filtered[attr] = value
             attributes = tuple(sorted(filtered.items()))
             if attributes not in by_attributes:
                 by_attributes[attributes] = []
-            by_attributes[attributes].append(idx)
+            by_attributes[attributes].append(idx_img)
 
         return by_attributes
 
@@ -344,9 +345,9 @@ class _TaskSpecificSplit:
         for _, items in datasets.items():
             np.random.shuffle(items)
             by_attributes = self._group_by_attr(items)
-            attr_names = list(by_attributes.keys())
-            np.random.shuffle(attr_names)  # add randomness
-            for attr in attr_names:
+            attr_combinations = list(by_attributes.keys())
+            np.random.shuffle(attr_combinations)  # add randomness
+            for attr in attr_combinations:
                 indice = by_attributes[attr]
                 quo = len(indice) // required
                 if quo > 0:
@@ -719,17 +720,19 @@ class _InstanceSpecificSplit(_TaskSpecificSplit):
     def _group_by_labels(self, dataset):
         by_labels = dict()
         unlabeled = []
+
         for idx, item in enumerate(dataset):
-            bbox_anns = [a for a in item.annotations if a.type in self.annotation_type]
-            if len(bbox_anns) == 0:
+            instance_anns = [a for a in item.annotations if a.type in self.annotation_type]
+            if len(instance_anns) == 0:
                 unlabeled.append(idx)
                 continue
-            for ann in bbox_anns:
-                label = getattr(ann, "label", None)
+            for instance_ann in instance_anns:
+                label = getattr(instance_ann, "label", None)
                 if label not in by_labels:
-                    by_labels[label] = [(idx, ann)]
+                    by_labels[label] = [(idx, instance_ann)]
                 else:
-                    by_labels[label].append((idx, ann))
+                    by_labels[label].append((idx, instance_ann))
+
         return by_labels, unlabeled
 
     def _split_dataset(self):
@@ -746,79 +749,80 @@ class _InstanceSpecificSplit(_TaskSpecificSplit):
         for _, items in by_labels.items():
             by_attributes = self._group_by_attr(items)
             # merge groups which have too small samples.
-            attr_names = list(by_attributes.keys())
-            np.random.shuffle(attr_names)  # add randomless
+            attr_combinations = list(by_attributes.keys())
+            np.random.shuffle(attr_combinations)  # add randomless
             cluster = []
-            minumum = max(required, len(items) * 0.1)  # temp solution
-            for attr in attr_names:
+            min_cluster = max(required, len(items) * 0.01)  # temp solution
+            for attr in attr_combinations:
                 indice = by_attributes[attr]
-                if len(indice) >= minumum:
+                if len(indice) >= min_cluster:
                     by_combinations.append(indice)
                 else:
                     cluster.extend(indice)
-                    if len(cluster) >= minumum:
+                    if len(cluster) >= min_cluster:
                         by_combinations.append(cluster)
                         cluster = []
+
             if len(cluster) > 0:
                 by_combinations.append(cluster)
                 cluster = []
 
         total = len(self._extractor)
-
         # total number of GT samples per label-attr combinations
         n_combs = [len(v) for v in by_combinations]
 
         # 3-1. initially count per-image GT samples
         counts_all = {}
-        for idx in range(total):
-            if idx not in unlabeled:
-                counts_all[idx] = dict()
+        for idx_img in range(total):
+            if idx_img not in unlabeled:
+                counts_all[idx_img] = dict()
 
         for idx_comb, indice in enumerate(by_combinations):
-            for idx in indice:
-                if idx_comb not in counts_all[idx]:
-                    counts_all[idx] = {idx_comb: 1}
+            for idx_img in indice:
+                if idx_comb not in counts_all[idx_img]:
+                    counts_all[idx_img][idx_comb] = 1
                 else:
-                    counts_all[idx][idx_comb] += 1
-
-        init_scores = {}
-        for idx, counts in counts_all.items():
-            norm_sum = 0.0
-            for idx_comb, count in counts.items():
-                norm_sum += count / n_combs[idx_comb]
-            init_scores[idx] = norm_sum
+                    counts_all[idx_img][idx_comb] += 1
 
         by_splits = dict()
         for sname in self._subsets:
             by_splits[sname] = []
 
-        target_size = dict()
-        expected = []  # expected numbers of per split GT samples
+        target_ins = []  # target instance numbers to be split
         for sname, ratio in zip(subsets, sratio):
-            target_size[sname] = (total - len(unlabeled)) * ratio
-            expected.append([sname, np.array(n_combs) * ratio])
+            target_ins.append([sname, np.array(n_combs) * ratio])
 
-        # functions for keep the # of annotations not exceed the expected num
+        init_scores = {}
+        for idx_img, distributions in counts_all.items():
+            norm_sum = 0.0
+            for idx_comb, dis in distributions.items():
+                norm_sum += dis / n_combs[idx_comb]
+            init_scores[idx_img] = norm_sum
+
+        by_scores = dict()
+        for idx_img, score in init_scores.items():
+            if score not in by_scores:
+                by_scores[score] = [idx_img]
+            else:
+                by_scores[score].append(idx_img)
+
+        # functions for keep the # of annotations not exceed the target_ins num
         def compute_penalty(counts, n_combs):
             p = 0
             for idx_comb, v in counts.items():
-                p += max(0, (v / n_combs[idx_comb]) - 1.0)
+                if n_combs[idx_comb] <= 0:
+                    p += 1
+                else:
+                    p += max(0, (v / n_combs[idx_comb]) - 1.0)
+
             return p
 
         def update_nc(counts, n_combs):
             for idx_comb, v in counts.items():
-                n_combs[idx_comb] = max(0, n_combs[idx_comb] - v)
-                if n_combs[idx_comb] == 0:
-                    n_combs[idx_comb] = -1
-
-        by_scores = dict()
-        for idx, score in init_scores.items():
-            if score not in by_scores:
-                by_scores[score] = [idx]
-            else:
-                by_scores[score].append(idx)
+                n_combs[idx_comb] = n_combs[idx_comb] - v
 
         # 3-2. assign each DatasetItem to a split, one by one
+        actual_ins = copy.deepcopy(target_ins)
         for score in sorted(by_scores.keys(), reverse=True):
             indice = by_scores[score]
             np.random.shuffle(indice)  # add randomness for the same score
@@ -827,12 +831,12 @@ class _InstanceSpecificSplit(_TaskSpecificSplit):
                 counts = counts_all[idx]
                 # shuffling split order to add randomness
                 # when two or more splits have the same penalty value
-                np.random.shuffle(expected)
+                np.random.shuffle(actual_ins)
 
                 pp = []
-                for sname, nc in expected:
-                    if target_size[sname] <= len(by_splits[sname]):
-                        # the split has enough images,
+                for sname, nc in actual_ins:
+                    if np.sum(nc) <= 0:
+                        # the split has enough instances,
                         # stop adding more images to this split
                         pp.append(1e08)
                     else:
@@ -842,7 +846,7 @@ class _InstanceSpecificSplit(_TaskSpecificSplit):
 
                 # we push an image to a split with the minimum penalty
                 midx = np.argmin(pp)
-                sname, nc = expected[midx]
+                sname, nc = actual_ins[midx]
                 by_splits[sname].append(idx)
                 update_nc(counts, nc)
 

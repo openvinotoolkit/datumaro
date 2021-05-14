@@ -17,6 +17,8 @@ from datumaro.plugins.coco_format.converter import (
     CocoInstancesConverter,
     CocoPersonKeypointsConverter,
     CocoLabelsConverter,
+    CocoPanopticConverter,
+    CocoStuffConverter,
 )
 from datumaro.plugins.coco_format.importer import CocoImporter
 from datumaro.util.image import Image
@@ -142,6 +144,45 @@ class CocoImporterTest(TestCase):
 
         compare_datasets(self, expected_dataset, dataset)
 
+    def test_can_import_panoptic(self):
+        expected_dataset = Dataset.from_iterable([
+            DatasetItem(id='000000000001',
+                image=np.ones((1, 5, 3)),
+                subset='val',
+                attributes={'id': 40},
+                annotations=[
+                    Mask(image=np.array([[0, 0, 1, 1, 0]]), label=3,
+                        id=7, group=7, attributes={'is_crowd': False}),
+                    Mask(image=np.array([[0, 1, 0, 0, 1]]), label=1,
+                        id=20, group=20, attributes={'is_crowd': True}),
+                ]
+            ),
+        ], categories=['a', 'b', 'c', 'd'])
+
+        dataset = Dataset.import_from(
+            osp.join(DUMMY_DATASET_DIR, 'coco_panoptic'), 'coco')
+
+        compare_datasets(self, expected_dataset, dataset, require_images=True)
+
+    def test_can_import_stuff(self):
+        expected_dataset = Dataset.from_iterable([
+            DatasetItem(id='000000000001', image=np.ones((10, 5, 3)),
+                subset='val', attributes={'id': 1},
+                annotations=[
+                    Mask(np.array(
+                        [[1, 0, 0, 1, 0]] * 5 +
+                        [[1, 1, 1, 1, 0]] * 5
+                        ), label=0,
+                        id=2, group=2, attributes={'is_crowd': False}),
+                ]
+            ),
+        ], categories=['TEST',])
+
+        dataset = Dataset.import_from(
+            osp.join(DUMMY_DATASET_DIR, 'coco_stuff'), 'coco')
+
+        compare_datasets(self, expected_dataset, dataset)
+
     def test_can_detect(self):
         self.assertTrue(CocoImporter.detect(
             osp.join(DUMMY_DATASET_DIR, 'coco_instances')))
@@ -254,6 +295,79 @@ class CocoConverterTest(TestCase):
             self._test_save_and_load(source_dataset,
                 CocoInstancesConverter.convert, test_dir,
                 target_dataset=target_dataset)
+
+    def test_can_save_and_load_panoptic(self):
+        dataset = Dataset.from_iterable([
+            DatasetItem(id=1, subset='train', image=np.ones((4, 4, 3)),
+                annotations=[
+                    Mask(image=np.array([
+                            [0, 1, 0, 0],
+                            [0, 1, 0, 0],
+                            [0, 1, 1, 1],
+                            [0, 0, 0, 0]
+                        ]),
+                        attributes={ 'is_crowd': False },
+                        label=4, group=3, id=3),
+                ], attributes={'id': 1}),
+
+            DatasetItem(id=2, subset='val', image=np.ones((5, 5, 3)),
+                annotations=[
+                    Mask(image=np.array([
+                            [0, 0, 0, 0, 0],
+                            [1, 1, 1, 0, 0],
+                            [1, 1, 0, 0, 0],
+                            [0, 0, 0, 0, 0],
+                            [0, 0, 0, 0, 0]
+                        ]),
+                        attributes={ 'is_crowd': False },
+                        label=4, group=3, id=3),
+                    Mask(image=np.array([
+                            [0, 0, 0, 0, 1],
+                            [0, 0, 0, 0, 1],
+                            [0, 0, 0, 0, 1],
+                            [0, 0, 0, 0, 1],
+                            [0, 0, 0, 0, 1]
+                        ]),
+                        attributes={ 'is_crowd': False },
+                        label=2, group=2, id=2),
+                ], attributes={'id': 2}),
+            ], categories=[str(i) for i in range(10)])
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(dataset,
+                partial(CocoPanopticConverter.convert, save_images=True),
+                test_dir, require_images=True)
+
+    def test_can_save_and_load_stuff(self):
+        dataset = Dataset.from_iterable([
+            DatasetItem(id=1, subset='train', image=np.ones((4, 4, 3)),
+                annotations=[
+                    Mask(np.array([
+                            [0, 1, 0, 0],
+                            [0, 1, 0, 0],
+                            [0, 1, 1, 1],
+                            [0, 0, 0, 0]],
+                        ),
+                        attributes={ 'is_crowd': False },
+                        label=4, group=3, id=3),
+                ], attributes={'id': 2}),
+
+            DatasetItem(id=2, subset='val', image=np.ones((4, 4, 3)),
+                annotations=[
+                    Mask(np.array([
+                            [0, 0, 0, 0],
+                            [1, 1, 1, 0],
+                            [1, 1, 0, 0],
+                            [0, 0, 0, 0]],
+                        ),
+                        attributes={ 'is_crowd': False },
+                        label=4, group=3, id=3),
+                ], attributes={'id': 1}),
+            ], categories=[str(i) for i in range(10)])
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(dataset,
+                CocoStuffConverter.convert, test_dir)
 
     def test_can_merge_polygons_on_loading(self):
         source_dataset = Dataset.from_iterable([
@@ -567,7 +681,7 @@ class CocoConverterTest(TestCase):
 
         with TestDir() as test_dir:
             self._test_save_and_load(expected,
-                partial(CocoConverter.convert, save_images=True),
+                partial(CocoImageInfoConverter.convert, save_images=True),
                 test_dir, require_images=True)
 
     def test_preserve_coco_ids(self):
