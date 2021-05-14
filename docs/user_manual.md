@@ -92,6 +92,7 @@ List of supported formats:
 - PASCAL VOC (`classification`, `detection`, `segmentation` (class, instances), `action_classification`, `person_layout`)
   - [Format specification](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/htmldoc/index.html)
   - [Dataset example](../tests/assets/voc_dataset)
+  - [Format documentation](./pascal_voc_user_manual.md)
 - YOLO (`bboxes`)
   - [Format specification](https://github.com/AlexeyAB/darknet#how-to-train-pascal-voc-data)
   - [Dataset example](../tests/assets/yolo_dataset)
