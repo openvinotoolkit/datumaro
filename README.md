@@ -171,6 +171,7 @@ CVAT annotations                             ---> Publication, statistics etc.
   - Simple checking for errors
   - Comparison with model infernece
   - Merging and comparison of multiple datasets
+  - Annotation validation based on the task type(classification, etc)
 - Dataset comparison
 - Dataset statistics (image mean and std, annotation statistics)
 - Model integration

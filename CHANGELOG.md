@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for Segmentation Splitting (<https://github.com/openvinotoolkit/datumaro/pull/223>)
 - Support for CIFAR-10/100 dataset format (<https://github.com/openvinotoolkit/datumaro/pull/225>)
 - Support COCO panoptic and stuff format (<https://github.com/openvinotoolkit/datumaro/pull/210>)
+- Documentation file and integration tests for Pascal VOC format (<https://github.com/openvinotoolkit/datumaro/pull/228>)
 - Support for MNIST and MNIST in CSV dataset formats (<https://github.com/openvinotoolkit/datumaro/pull/234>)
 
 ### Changed
@@ -33,6 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a label "face" for bounding boxes in Wider Face (<https://github.com/openvinotoolkit/datumaro/pull/215>)
 - Allowed adding "difficult", "truncated", "occluded" attributes when converting to Pascal VOC if these attributes are not present (<https://github.com/openvinotoolkit/datumaro/pull/216>)
 - Empty lines in YOLO annotations are ignored (<https://github.com/openvinotoolkit/datumaro/pull/221>)
+- Export in VOC format when no image info is available (<https://github.com/openvinotoolkit/datumaro/pull/239>)
 
 ### Security
 -
