@@ -189,7 +189,6 @@ class ProjectTest(TestCase):
 
             project = Project.init(osp.join(test_dir, 'proj'))
             project.import_source('s1', source_url, format=DEFAULT_FORMAT)
-            project.add('s1')
             project.commit("First commit")
 
             source_path = osp.join(
@@ -197,7 +196,6 @@ class ProjectTest(TestCase):
                 osp.basename(source_url))
             with open(source_path, 'w') as f:
                 f.write('world')
-            project.add('s1')
             project.commit("Second commit")
 
             project.checkout('HEAD~1')
@@ -240,7 +238,6 @@ class ProjectTest(TestCase):
 
             project = Project.init(osp.join(test_dir, 'proj'))
             project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
-            project.add('s1')
             project.commit("A commit")
 
             shutil.rmtree(project.source_data_dir('s1'))

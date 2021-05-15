@@ -1362,8 +1362,7 @@ class Project:
         self._dvc = DvcWrapper(self._root_dir)
         self._init_vcs()
 
-        self._work_tree = None
-        self._index_tree = None
+        self._working_tree = None
         self._head_tree = None
 
     def _init_vcs(self):
@@ -1398,15 +1397,9 @@ class Project:
 
     @property
     def working_tree(self) -> Tree:
-        if self._work_tree is None:
-            self._work_tree = self.get_rev(None)
-        return self._work_tree
-
-    @property
-    def index(self) -> Tree:
-        if self._index_tree is None:
-            self._index_tree = self.get_rev('index')
-        return self._index_tree
+        if self._working_tree is None:
+            self._working_tree = self.get_rev(None)
+        return self._working_tree
 
     @property
     def head(self) -> Tree:
@@ -1418,7 +1411,6 @@ class Project:
         """
         Ref convetions:
         - None or "" - working dir
-        - "index" - index
         - "<40 symbols>" - revision hash
         """
 
@@ -1427,20 +1419,8 @@ class Project:
 
         if not obj_hash:
             config_path = osp.join(self._aux_dir,
-                ProjectLayout.work_dir, TreeLayout.conf_file)
+                ProjectLayout.tree_dir, TreeLayout.conf_file)
             # TODO: backward compatibility
-            if osp.isfile(config_path):
-                tree_config = TreeConfig.parse(config_path)
-            else:
-                tree_config = TreeConfig()
-                os.makedirs(osp.dirname(config_path), exist_ok=True)
-                tree_config.dump(config_path)
-            tree_config.config_path = config_path
-            # TODO: adjust paths in config
-            tree = Tree(config=tree_config, parent=self, rev=obj_hash)
-        elif obj_hash is 'index':
-            config_path = osp.join(self._aux_dir,
-                ProjectLayout.index_tree_dir, TreeLayout.conf_file)
             if osp.isfile(config_path):
                 tree_config = TreeConfig.parse(config_path)
             else:
@@ -1469,7 +1449,7 @@ class Project:
             self._can_retrieve_from_vcs_cache(obj_hash)
 
     def _parse_ref(self, ref: str) -> Tuple[str, str]:
-        if not ref or ref == 'index':
+        if not ref:
             return 'tree', ref
 
         try:
@@ -1520,7 +1500,7 @@ class Project:
 
     def _source_dvcfile_path(self, name, root=None):
         if not root:
-            root = osp.join(self._aux_dir, ProjectLayout.work_dir)
+            root = osp.join(self._aux_dir, ProjectLayout.tree_dir)
         return osp.join(root, self.working_tree.config.sources_dir,
             name + '.dvc')
 
@@ -1656,90 +1636,9 @@ class Project:
 
         self.working_tree.build_targets.remove_target(name)
 
-    def add(self, sources: Union[None, str, List[str]]):
-        """
-        Copies changes from working copy to index.
-        """
-
-        # TODO: add check for existence of changes
-
-        assert sources is None or isinstance(sources, (str, list)), sources
-        if isinstance(sources, str):
-            sources = [sources]
-
-        index_cache_dir = osp.join(self._aux_dir, ProjectLayout.index_cache_dir)
-        index_tree_dir = osp.join(self._aux_dir, ProjectLayout.index_tree_dir)
-
-        self.index.config.build_targets = \
-            dict(self.working_tree.config.build_targets)
-
-        if sources:
-            for s in self.working_tree.sources:
-                if s not in sources:
-                    self.index.config.sources.remove(s)
-                    self.index.config.build_targets.remove(s)
-
-        for s in sources or self.working_tree.sources:
-            if not s in self.working_tree.sources:
-                raise UnknownSourceError(s)
-
-            source_dir = self.source_data_dir(s)
-
-            with self._make_tmp_dir(suffix=s) as tmp_dir:
-                tmp_dvcfile = osp.join(tmp_dir, s + '.dvc')
-
-                # Avoid polluting cache here and defer it till commit
-                self._dvc.add(source_dir, dvc_path=tmp_dvcfile, no_commit=True)
-                obj_hash = self._dvc.get_hash_from_dvcfile(tmp_dvcfile)
-                obj_hash = obj_hash[:-len(self._dvc.DIR_HASH_SUFFIX)]
-
-                index_dvcfile = self._source_dvcfile_path(s,
-                    root=index_tree_dir)
-                os.makedirs(osp.dirname(index_dvcfile), exist_ok=True)
-                os.replace(tmp_dvcfile, index_dvcfile)
-
-            # Adjust hash both in the working tree and the index
-            source_target = self.working_tree.build_targets[s]
-            source_target.head.hash = obj_hash
-
-            index_obj_dir = self._obj_cache_path(obj_hash,
-                root=index_cache_dir)
-            if self._is_cached(obj_hash):
-                os.link(self._obj_cache_path(obj_hash), index_obj_dir)
-            elif self._can_retrieve_from_vcs_cache(obj_hash):
-                pass
-            else:
-                shutil.copytree(source_dir, osp.join(index_obj_dir, 'data'))
-                shutil.copy(index_dvcfile, osp.join(index_obj_dir, 'obj.dvc'))
-
-            self.index.config.sources[s] = self.working_tree.config.sources[s]
-            self.index.config.build_targets[s] = source_target
-
-        wd_plugins_dir = osp.join(self._aux_dir, TreeLayout.plugins_dir)
-        index_plugins_dir = osp.join(self._aux_dir,
-            ProjectLayout.index_tree_dir, TreeLayout.plugins_dir)
-        if osp.isdir(index_plugins_dir):
-            rmtree(index_plugins_dir)
-        if osp.isdir(wd_plugins_dir):
-            shutil.copytree(wd_plugins_dir, index_plugins_dir)
-
-        wd_models_dir = osp.join(self._aux_dir, TreeLayout.models_dir)
-        index_models_dir = osp.join(self._aux_dir, ProjectLayout.index_tree_dir,
-            TreeLayout.models_dir)
-        if osp.isdir(index_models_dir):
-            rmtree(index_models_dir)
-        if osp.isdir(wd_models_dir):
-            shutil.copytree(wd_models_dir, index_models_dir)
-        self.index.config.models = self.working_tree.config.models
-
-        self.index.save()
-        self._index_tree = None
-
-        self.working_tree.save()
-
     def commit(self, message: str) -> str:
         """
-        Copies tree and objects from index to cache.
+        Copies tree and objects from the working dir to the cache.
         Creates a new commit. Moves the HEAD pointer to the new commit.
 
         Returns: the new commit hash
@@ -1747,36 +1646,32 @@ class Project:
 
         # TODO: add check for empty commit
 
-        index_cache_dir = osp.join(self._aux_dir,
-            ProjectLayout.index_cache_dir)
+        for s in self.working_tree.sources:
+            source_dir = self.source_data_dir(s)
 
-        for s in self.index.sources:
-            target = self.index.build_targets[s]
-            index_obj_path = self._obj_cache_path(target.head.hash,
-                root=index_cache_dir)
+            with self._make_tmp_dir(suffix=s) as tmp_dir:
+                tmp_dvcfile = osp.join(tmp_dir, s + '.dvc')
 
-            if not osp.exists(index_obj_path):
-                raise NotADirectoryError(index_obj_path)
+                self._dvc.add(source_dir, dvc_path=tmp_dvcfile)
 
-            if osp.islink(index_obj_path):
-                if not osp.lexists(index_obj_path):
-                    raise NotADirectoryError(index_obj_path)
-                continue
+                dvcfile = self._source_dvcfile_path(s)
+                os.makedirs(osp.dirname(dvcfile), exist_ok=True)
+                os.replace(tmp_dvcfile, dvcfile)
 
-            cache_obj_path = self._obj_cache_path(target.head.hash)
-            shutil.move(index_obj_path, cache_obj_path)
+            obj_hash = self._dvc.get_hash_from_dvcfile(dvcfile)
+            obj_hash = obj_hash[:-len(self._dvc.DIR_HASH_SUFFIX)]
+            self.working_tree.build_targets[s].head.hash = obj_hash
 
-        # TODO: copy all the other things - plugins, models
-
-        index_tree_dir = osp.join(self._aux_dir, ProjectLayout.index_tree_dir)
-        self._git.add(index_tree_dir, base=index_tree_dir)
+        tree_dir = osp.join(self._aux_dir, ProjectLayout.tree_dir)
+        self.working_tree.save()
+        self._git.add(tree_dir, base=tree_dir)
         head = self._git.commit(message)
-        shutil.move(index_tree_dir, self._obj_cache_path(head))
 
-        rmtree(osp.join(self._aux_dir, ProjectLayout.index_dir))
+        os.makedirs(osp.join(self._aux_dir, ProjectLayout.cache_dir),
+            exist_ok=True)
+        shutil.move(tree_dir, self._obj_cache_path(head))
 
         self._head_tree = None
-        self._index_tree = None
 
         return head
 
@@ -1812,12 +1707,12 @@ class Project:
             # Check working tree for unsaved changes,
             # set HEAD to the revision
             # write revision tree to working tree
-            work_tree_dir = osp.join(self._aux_dir, ProjectLayout.work_dir)
-            self._git.checkout(rev, dst_dir=work_tree_dir)
-            self._copy_dvc_dir(osp.join(work_tree_dir, '.dvc'),
+            tree_dir = osp.join(self._aux_dir, ProjectLayout.tree_dir)
+            self._git.checkout(rev, dst_dir=tree_dir)
+            self._copy_dvc_dir(osp.join(tree_dir, '.dvc'),
                                osp.join(self._root_dir, '.dvc'))
 
-            self._work_tree = None
+            self._working_tree = None
 
             # Restore sources from the commit.
             # Work with the working tree instead of cache, to
@@ -1845,8 +1740,7 @@ class Project:
 
                 self._dvc.checkout(dvcfiles)
 
-        self._work_tree = None
-        self._index_tree = None
+        self._working_tree = None
 
     def is_ref(self, ref: str) -> bool:
         return self._git.is_ref(ref)

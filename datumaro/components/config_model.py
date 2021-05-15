@@ -155,10 +155,8 @@ class ProjectLayout:
     aux_dir = '.datumaro'
     cache_dir = 'cache'
     index_dir = 'index'
-    work_dir = 'work_dir'
+    tree_dir = 'tree'
     head_file = 'head'
-    index_tree_dir = osp.join(index_dir, 'tree')
-    index_cache_dir = osp.join(index_dir, 'cache')
     tmp_dir = 'tmp'
 
 class TreeLayout:
