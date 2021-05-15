@@ -20,7 +20,9 @@ class UnknownRefError(VcsError):
 class MissingObjectError(VcsError):
     pass
 
-
+@attrs
+class UnsavedChangesError(VcsError):
+    paths = attrib()
 
 class PipelineError(DatumaroError):
         pass

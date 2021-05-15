@@ -189,7 +189,6 @@ class ProjectTest(TestCase):
 
             project = Project.init(osp.join(test_dir, 'proj'))
             project.import_source('s1', source_url, format=DEFAULT_FORMAT)
-            project.working_tree.save()
             project.add('s1')
             project.commit("First commit")
 
@@ -241,7 +240,6 @@ class ProjectTest(TestCase):
 
             project = Project.init(osp.join(test_dir, 'proj'))
             project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
-            project.working_tree.save()
             project.add('s1')
             project.commit("A commit")
 

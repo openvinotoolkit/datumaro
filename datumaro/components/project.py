@@ -17,8 +17,8 @@ import networkx as nx
 import ruamel.yaml as yaml
 
 from datumaro.components.config import Config
-from datumaro.components.config_model import (BuildStage, PipelineConfig, ProjectLayout,
-    Source, TreeConfig, TreeLayout)
+from datumaro.components.config_model import (BuildStage, PipelineConfig,
+    ProjectLayout, Source, TreeConfig, TreeLayout)
 from datumaro.components.dataset import DEFAULT_FORMAT, Dataset, IDataset
 from datumaro.components.environment import Environment
 from datumaro.components.errors import (DatasetMergeError, DatumaroError,
@@ -30,7 +30,7 @@ from datumaro.components.errors import (DatasetMergeError, DatumaroError,
                                         ReadonlyProjectError,
                                         SourceExistsError, UnknownRefError,
                                         UnknownSourceError, UnknownStageError,
-                                        VcsError)
+                                        VcsError, UnsavedChangesError)
 from datumaro.util import error_rollback, find, parse_str_enum_value
 from datumaro.util.log_utils import catch_logs, logging_disabled
 from datumaro.util.os_util import generate_next_name, make_file_name, rmtree
@@ -742,19 +742,52 @@ class GitWrapper:
         self.repo.create_tag(name)
 
     def checkout(self, ref=None, paths=None, dst_dir=None):
-
-            raise VcsError("Repository has unsaved changes "
-                "which would be overwritten by checkout")
-
         commit = self.repo.commit(ref)
+
+        tree = commit.tree
 
         if not dst_dir:
             dst_dir = self._project_dir
 
+        repo_dir = osp.abspath(self._project_dir)
+        dst_dir = osp.abspath(dst_dir)
+        if dst_dir.startswith(repo_dir):
+            cmp_base = osp.relpath(dst_dir, repo_dir)
+            conflicts = []
+            for obj in tree.traverse():
+                if obj.type != 'blob':
+                    continue
+
+                file_path = osp.join(dst_dir, obj.path)
+                file_rel_path = osp.normpath(osp.join(cmp_base, obj.path))
+
+                # The statuses are:
+                # - "A" for added paths
+                # - "D" for deleted paths
+                # - "R" for renamed paths
+                # - "M" for paths with modified data
+                # - "T" for changed in the type paths
+                #
+                # Only modified files produce conflicts in checkout
+                if not osp.isfile(file_path):
+                    continue
+                status = self.repo.git.diff('--name-status',
+                    self.repo.index.entries[(obj.path, 0)].hexsha, file_path)
+                if status:
+                    status = status[0]
+                assert status in {'', 'M'}, status
+
+                if status == 'M':
+                    conflicts.append(file_rel_path)
+
+            if conflicts:
+                raise UnsavedChangesError(conflicts)
+
+
         if not paths:
             self.repo.head.reference = commit
 
-        self.write_tree(commit.tree, dst_dir, include_files=paths)
+        self.write_tree(tree, dst_dir, include_files=paths)
 
     def add(self, paths, base=None): # pylint: disable=redefined-builtin
         """
@@ -1329,7 +1362,7 @@ class Project:
         self._dvc = DvcWrapper(self._root_dir)
         self._init_vcs()
 
-        self._working_tree = None
+        self._work_tree = None
         self._index_tree = None
         self._head_tree = None
 
@@ -1365,9 +1398,9 @@ class Project:
 
     @property
     def working_tree(self) -> Tree:
-        if self._working_tree is None:
-            self._working_tree = self.get_rev(None)
-        return self._working_tree
+        if self._work_tree is None:
+            self._work_tree = self.get_rev(None)
+        return self._work_tree
 
     @property
     def index(self) -> Tree:
@@ -1474,8 +1507,13 @@ class Project:
             root = osp.join(self._aux_dir, ProjectLayout.cache_dir)
         return osp.join(root, obj_hash[:2], obj_hash[2:])
 
-    def _can_retrieve_from_vcs_cache(self, rev_hash):
-        return self._dvc.is_cached(rev_hash)
+    def _can_retrieve_from_vcs_cache(self, obj_hash):
+        if not self._dvc.is_dir_hash(obj_hash):
+            dir_check = self._dvc.is_cached(
+                obj_hash + self._dvc.DIR_HASH_SUFFIX)
+        else:
+            dir_check = False
+        return dir_check or self._dvc.is_cached(obj_hash)
 
     def source_data_dir(self, name: str) -> str:
         return osp.join(self._root_dir, name)
@@ -1489,6 +1527,8 @@ class Project:
     def _make_tmp_dir(self, suffix=None):
         project_tmp_dir = osp.join(self._aux_dir, ProjectLayout.tmp_dir)
         os.makedirs(project_tmp_dir, exist_ok=True)
+        if suffix:
+            suffix = '_' + suffix
         return tempfile.TemporaryDirectory(suffix=suffix, dir=project_tmp_dir)
 
     def download_source(self, source: Source):
@@ -1579,16 +1619,16 @@ class Project:
                 shutil.move(tmp_data_dir, data_dir)
 
                 dvcfile = self._source_dvcfile_path(name)
-                if osp.isfile(dvcfile):
-                    os.remove(dvcfile)
                 os.makedirs(osp.dirname(dvcfile), exist_ok=True)
-                shutil.move(tmp_dvcfile, dvcfile)
+                os.replace(tmp_dvcfile, dvcfile)
 
             config.update(config_update)
 
         value = self.working_tree.sources.add(name, config)
         target = self.working_tree.build_targets.add_target(name)
         target.root.hash = value.hash
+
+        self.working_tree.save()
 
         return value
 
@@ -1616,24 +1656,30 @@ class Project:
 
         self.working_tree.build_targets.remove_target(name)
 
-    def add(self, sources: Union[str, List[str]]):
+    def add(self, sources: Union[None, str, List[str]]):
         """
         Copies changes from working copy to index.
         """
 
         # TODO: add check for existence of changes
 
-        if not sources:
-            raise ValueError("Expected at least one source path to add")
-
-        assert isinstance(sources, (str, list)), sources
+        assert sources is None or isinstance(sources, (str, list)), sources
         if isinstance(sources, str):
             sources = [sources]
 
-        index_cache_dir = osp.join(self._aux_dir,
-            ProjectLayout.index_cache_dir)
+        index_cache_dir = osp.join(self._aux_dir, ProjectLayout.index_cache_dir)
+        index_tree_dir = osp.join(self._aux_dir, ProjectLayout.index_tree_dir)
 
-        for s in sources:
+        self.index.config.build_targets = \
+            dict(self.working_tree.config.build_targets)
+
+        if sources:
+            for s in self.working_tree.sources:
+                if s not in sources:
+                    self.index.config.sources.remove(s)
+                    self.index.config.build_targets.remove(s)
+
+        for s in sources or self.working_tree.sources:
             if not s in self.working_tree.sources:
                 raise UnknownSourceError(s)
 
@@ -1648,12 +1694,11 @@ class Project:
                 obj_hash = obj_hash[:-len(self._dvc.DIR_HASH_SUFFIX)]
 
                 index_dvcfile = self._source_dvcfile_path(s,
-                    root=osp.join(index_cache_dir, TreeLayout.sources_dir))
-                if osp.isfile(index_dvcfile):
-                    os.remove(index_dvcfile)
+                    root=index_tree_dir)
                 os.makedirs(osp.dirname(index_dvcfile), exist_ok=True)
-                shutil.move(tmp_dvcfile, index_dvcfile)
+                os.replace(tmp_dvcfile, index_dvcfile)
 
+            # Adjust hash both in the working tree and the index
             source_target = self.working_tree.build_targets[s]
             source_target.head.hash = obj_hash
 
@@ -1661,6 +1706,8 @@ class Project:
                 root=index_cache_dir)
             if self._is_cached(obj_hash):
                 os.link(self._obj_cache_path(obj_hash), index_obj_dir)
+            elif self._can_retrieve_from_vcs_cache(obj_hash):
+                pass
             else:
                 shutil.copytree(source_dir, osp.join(index_obj_dir, 'data'))
                 shutil.copy(index_dvcfile, osp.join(index_obj_dir, 'obj.dvc'))
@@ -1687,6 +1734,8 @@ class Project:
 
         self.index.save()
         self._index_tree = None
+
+        self.working_tree.save()
 
     def commit(self, message: str) -> str:
         """
@@ -1731,6 +1780,11 @@ class Project:
 
         return head
 
+    @staticmethod
+    def _copy_dvc_dir(src_dir, dst_dir):
+        for name in ['config', '.gitignore']:
+            os.replace(osp.join(src_dir, name), osp.join(dst_dir, name))
+
     def checkout(self, rev: Optional[str] = None,
             targets: Union[None, str, List[str]] = None):
         """
@@ -1758,9 +1812,12 @@ class Project:
             # Check working tree for unsaved changes,
             # set HEAD to the revision
             # write revision tree to working tree
-            self._git.checkout(rev,
-                dst_dir=osp.join(self._aux_dir, ProjectLayout.work_dir))
-            self._working_tree = None
+            work_tree_dir = osp.join(self._aux_dir, ProjectLayout.work_dir)
+            self._git.checkout(rev, dst_dir=work_tree_dir)
+            self._copy_dvc_dir(osp.join(work_tree_dir, '.dvc'),
+                               osp.join(self._root_dir, '.dvc'))
+
+            self._work_tree = None
 
             # Restore sources from the commit.
             # Work with the working tree instead of cache, to
@@ -1788,7 +1845,7 @@ class Project:
 
                 self._dvc.checkout(dvcfiles)
 
-        self._working_tree = None
+        self._work_tree = None
         self._index_tree = None
 
     def is_ref(self, ref: str) -> bool:
