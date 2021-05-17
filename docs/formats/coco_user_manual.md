@@ -212,5 +212,5 @@ dataset = Dataset.from_iterable([
 dataset.export('./dataset', format='coco_panoptic')
 ```
 
-Some examples of working with Pascal VOC dataset from code you can found in
-[tests](../../tests/test_voc_format.py)
+More examples of working with COCO dataset from code can be found in
+[tests](../../tests/test_coco_format.py)
