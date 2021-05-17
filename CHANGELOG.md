@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Support for escaping in attribiute values in LabelMe format (<https://github.com/openvinotoolkit/datumaro/issues/49>)
 - Support for Segmentation Splitting (<https://github.com/openvinotoolkit/datumaro/pull/223>)
-- Support for CIFAR-10/100 dataset format (<https://github.com/openvinotoolkit/datumaro/pull/225>)
+- Support for CIFAR-10/100 dataset format (<https://github.com/openvinotoolkit/datumaro/pull/225>, <https://github.com/openvinotoolkit/datumaro/pull/243>)
 - Support COCO panoptic and stuff format (<https://github.com/openvinotoolkit/datumaro/pull/210>)
 - Documentation file and integration tests for Pascal VOC format (<https://github.com/openvinotoolkit/datumaro/pull/228>)
 - Support for MNIST and MNIST in CSV dataset formats (<https://github.com/openvinotoolkit/datumaro/pull/234>)
