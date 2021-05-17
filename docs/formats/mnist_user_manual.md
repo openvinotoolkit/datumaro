@@ -99,7 +99,7 @@ MNIST format only supports single channel 28 x 28 images.
 
 ##  Export to other formats
 
-Datumaro can convert MNIST dataset into any other format [Datumaro supports](../docs/user_manual.md#supported-formats).
+Datumaro can convert MNIST dataset into any other format [Datumaro supports](../user_manual.md#supported-formats).
 To get the expected result, the dataset needs to be converted to formats
 that support the classification task (e.g. CIFAR-10/100, ImageNet, PascalVOC, etc.)
 There are few ways to convert MNIST dataset to other dataset format:
@@ -138,7 +138,7 @@ These commands also work for MNIST in CSV if you use `mnist_csv` instead of `mni
 ##  Particular use cases
 
 Datumaro supports filtering, transformation, merging etc. for all formats
-and for the MNIST format in particular. Follow [user manual](../docs/user_manual.md)
+and for the MNIST format in particular. Follow [user manual](../user_manual.md)
 to get more information about these operations.
 
 There are few examples of using Datumaro operations to solve
@@ -174,3 +174,6 @@ datum convert --input-format mnist --input-path <path/to/mnist> \
               --output-format imagenet \
               --filter '/item[annotation/label="3"]'
 ```
+
+More examples of working with MNIST dataset from code can be found in
+[tests_mnist](../../tests/test_mnist_format.py) and [tests_mnist_csv](../../tests/test_mnist_csv_format.py)
