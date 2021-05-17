@@ -14,19 +14,27 @@ from datumaro.plugins.datumaro_format.extractor import DatumaroImporter
 from datumaro.plugins.datumaro_format.converter import DatumaroConverter
 from datumaro.util.mask_tools import generate_colormap
 from datumaro.util.image import Image
-from datumaro.util.test_utils import (TestDir, compare_datasets_strict,
-    test_save_and_load)
+from datumaro.util.test_utils import (TempTestDir, compare_datasets_strict,
+                                      util_test_save_and_load)
+
+import pytest
+from tests.constants.requirements import Requirements
+from tests.constants.datumaro_components import DatumaroComponent
 
 
+@pytest.mark.components(DatumaroComponent.Datumaro)
+@pytest.mark.api_other
 class DatumaroConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None):
-        return test_save_and_load(self, source_dataset, converter, test_dir,
-            importer='datumaro',
-            target_dataset=target_dataset, importer_args=importer_args,
-            compare=compare_datasets_strict)
+        return util_test_save_and_load(self, source_dataset, converter, test_dir,
+                                       importer='datumaro',
+                                       target_dataset=target_dataset, importer_args=importer_args,
+                                       compare=compare_datasets_strict)
 
     @property
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_dataset(self):
         label_categories = LabelCategories(attributes={'a', 'b', 'score'})
         for i in range(5):
@@ -84,17 +92,23 @@ class DatumaroConverterTest(TestCase):
             AnnotationType.points: points_categories,
         })
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_save_and_load(self):
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             self._test_save_and_load(self.test_dataset,
                 partial(DatumaroConverter.convert, save_images=True), test_dir)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_detect(self):
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             DatumaroConverter.convert(self.test_dataset, save_dir=test_dir)
 
             self.assertTrue(DatumaroImporter.detect(test_dir))
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_relative_paths(self):
         test_dataset = Dataset.from_iterable([
             DatasetItem(id='1', image=np.ones((4, 2, 3))),
@@ -102,20 +116,24 @@ class DatumaroConverterTest(TestCase):
             DatasetItem(id='subdir2/1', image=np.ones((5, 4, 3))),
         ])
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             self._test_save_and_load(test_dataset,
                 partial(DatumaroConverter.convert, save_images=True), test_dir)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         test_dataset = Dataset.from_iterable([
             DatasetItem(id='кириллица с пробелом', image=np.ones((4, 2, 3))),
         ])
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             self._test_save_and_load(test_dataset,
                 partial(DatumaroConverter.convert, save_images=True),
                 test_dir)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         expected = Dataset.from_iterable([
             DatasetItem(id='q/1', image=Image(path='q/1.JPEG',
@@ -124,13 +142,15 @@ class DatumaroConverterTest(TestCase):
                 data=np.zeros((3, 4, 3))), attributes={'frame': 2}),
         ])
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             self._test_save_and_load(expected,
                 partial(DatumaroConverter.convert, save_images=True),
                 test_dir)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_inplace_save_writes_only_updated_data(self):
-        with TestDir() as path:
+        with TempTestDir() as path:
             # generate initial dataset
             dataset = Dataset.from_iterable([
                 DatasetItem(1, subset='a'),

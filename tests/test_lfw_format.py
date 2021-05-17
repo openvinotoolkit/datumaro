@@ -6,10 +6,18 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import DatasetItem, Label, Points
 from datumaro.plugins.lfw_format import LfwConverter, LfwImporter
 from datumaro.util.image import Image
-from datumaro.util.test_utils import TestDir, compare_datasets
+from datumaro.util.test_utils import TempTestDir, compare_datasets
+
+import pytest
+from tests.constants.requirements import Requirements
+from tests.constants.datumaro_components import DatumaroComponent
 
 
+@pytest.mark.components(DatumaroComponent.Datumaro)
+@pytest.mark.api_other
 class LfwFormatTest(TestCase):
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_save_and_load(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='name0_0001', subset='test',
@@ -40,12 +48,14 @@ class LfwFormatTest(TestCase):
             ),
         ], categories=['name0', 'name1'])
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             LfwConverter.convert(source_dataset, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'lfw')
 
             compare_datasets(self, source_dataset, parsed_dataset)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_save_and_load_with_landmarks(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='name0_0001',
@@ -66,12 +76,14 @@ class LfwFormatTest(TestCase):
             ),
         ], categories=['name0'])
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             LfwConverter.convert(source_dataset, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'lfw')
 
             compare_datasets(self, source_dataset, parsed_dataset)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_save_and_load_with_no_subsets(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='name0_0001',
@@ -86,7 +98,7 @@ class LfwFormatTest(TestCase):
             ),
         ], categories=['name0'])
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             LfwConverter.convert(source_dataset, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'lfw')
 
@@ -114,12 +126,14 @@ class LfwFormatTest(TestCase):
             ),
         ], categories=['name0', 'name1'])
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             LfwConverter.convert(source_dataset, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'lfw')
 
             compare_datasets(self, source_dataset, parsed_dataset)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id='кириллица с пробелом',
@@ -133,12 +147,14 @@ class LfwFormatTest(TestCase):
             ),
         ], categories=['name0'])
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             LfwConverter.convert(dataset, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'lfw')
 
             compare_datasets(self, dataset, parsed_dataset, require_images=True)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id='a/1', image=Image(
@@ -149,7 +165,7 @@ class LfwFormatTest(TestCase):
             ),
         ], categories=[])
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             LfwConverter.convert(dataset, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'lfw')
 
@@ -157,10 +173,16 @@ class LfwFormatTest(TestCase):
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'lfw_dataset')
 
+@pytest.mark.components(DatumaroComponent.Datumaro)
+@pytest.mark.api_other
 class LfwImporterTest(TestCase):
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_detect(self):
         self.assertTrue(LfwImporter.detect(DUMMY_DATASET_DIR))
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_import(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='name0_0001', subset='test',

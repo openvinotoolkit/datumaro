@@ -7,10 +7,17 @@ from datumaro.components.extractor import (AnnotationType, Bbox, DatasetItem,
 from datumaro.components.dataset import Dataset
 from datumaro.plugins.widerface_format import WiderFaceConverter, WiderFaceImporter
 from datumaro.util.image import Image
-from datumaro.util.test_utils import TestDir, compare_datasets
+from datumaro.util.test_utils import TempTestDir, compare_datasets
 
+import pytest
+from tests.constants.requirements import Requirements
+from tests.constants.datumaro_components import DatumaroComponent
 
+@pytest.mark.components(DatumaroComponent.Datumaro)
+@pytest.mark.api_other
 class WiderFaceFormatTest(TestCase):
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_save_and_load(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='1', subset='train', image=np.ones((8, 8, 3)),
@@ -54,12 +61,14 @@ class WiderFaceFormatTest(TestCase):
             DatasetItem(id='4', subset='val', image=np.ones((8, 8, 3))),
         ], categories=['face', 'label_0', 'label_1'])
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             WiderFaceConverter.convert(source_dataset, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'wider_face')
 
             compare_datasets(self, source_dataset, parsed_dataset)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_save_dataset_with_no_subsets(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='a/b/1', image=np.ones((8, 8, 3)),
@@ -72,12 +81,14 @@ class WiderFaceFormatTest(TestCase):
             ),
         ], categories=['face', 'label_0', 'label_1'])
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             WiderFaceConverter.convert(source_dataset, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'wider_face')
 
             compare_datasets(self, source_dataset, parsed_dataset)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='кириллица с пробелом', image=np.ones((8, 8, 3)),
@@ -89,13 +100,15 @@ class WiderFaceFormatTest(TestCase):
             ),
         ], categories=['face'])
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             WiderFaceConverter.convert(source_dataset, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'wider_face')
 
             compare_datasets(self, source_dataset, parsed_dataset,
                 require_images=True)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_save_dataset_with_non_widerface_attributes(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='a/b/1', image=np.ones((8, 8, 3)),
@@ -121,12 +134,14 @@ class WiderFaceFormatTest(TestCase):
             ),
         ], categories=['face'])
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             WiderFaceConverter.convert(source_dataset, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'wider_face')
 
             compare_datasets(self, target_dataset, parsed_dataset)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         dataset = Dataset.from_iterable([
             DatasetItem('q/1', image=Image(path='q/1.JPEG',
@@ -135,7 +150,7 @@ class WiderFaceFormatTest(TestCase):
                 data=np.zeros((3, 4, 3)))),
         ], categories=[])
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             WiderFaceConverter.convert(dataset, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'wider_face')
 
@@ -143,10 +158,16 @@ class WiderFaceFormatTest(TestCase):
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'widerface_dataset')
 
+@pytest.mark.components(DatumaroComponent.Datumaro)
+@pytest.mark.api_other
 class WiderFaceImporterTest(TestCase):
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_detect(self):
         self.assertTrue(WiderFaceImporter.detect(DUMMY_DATASET_DIR))
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_import(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='0_Parade_image_01', subset='train',
