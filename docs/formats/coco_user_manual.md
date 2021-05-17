@@ -147,13 +147,13 @@ Extra options for export to COCO format:
 - `--save-images` allow to export dataset with saving images
 (by default `False`);
 - `--image-ext IMAGE_EXT` allow to specify image extension
-for exporting dataset (by default `.png`);
+for exporting dataset (by default - keep original or use `.jpg`, if none);
 - `--segmentation-mode MODE` allow to specify save mode for instance segmentation:
     - 'guess': guess the mode for each instance (using 'is_crowd' attribute as hint)
     - 'polygons': save polygons( merge and convert masks, prefer polygons)
     - 'mask': save masks (merge and convert polygons, prefer masks)
 (by default `guess`);
-- `--crop-covered` allow torop covered segments so that background objects
+-  `--crop-covered` allow to crop covered segments so that background objects
 segmentation was more accurate (by default `False`);
 - `--allow-attributes ALLOW_ATTRIBUTES` allow export of attributes
 (by default `True`);
@@ -175,3 +175,42 @@ Datumaro supports filtering, transformation, merging etc. for all formats
 and for the COCO format in particular. Follow
 [user manual](../user_manual.md)
 to get more information about these operations.
+
+There are few examples of using Datumaro operations to solve
+particular problems with COCO dataset:
+
+### Example 1. How to load an original panoptic COCO dataset ans convert to Pascal VOC
+
+```bash
+datum create -o project
+datum add path -p project -f coco_panoptic ./COCO/annotations/panoptic_val2017.json
+datum stats -p project
+datum export -p final_project -o dataset -f voc  --overwrite  -- --save-images
+```
+
+### Example 2. How to create custom COCO-like dataset
+
+```python
+import numpy as np
+from datumaro.components.dataset import Dataset
+from datumaro.components.extractor import Mask, DatasetItem
+
+dataset = Dataset.from_iterable([
+    DatasetItem(id='000000000001',
+                image=np.ones((1, 5, 3)),
+                subset='val',
+                attributes={'id': 40},
+                annotations=[
+                    Mask(image=np.array([[0, 0, 1, 1, 0]]), label=3,
+                        id=7, group=7, attributes={'is_crowd': False}),
+                    Mask(image=np.array([[0, 1, 0, 0, 1]]), label=1,
+                        id=20, group=20, attributes={'is_crowd': True}),
+                ]
+            ),
+    ], categories=['a', 'b', 'c', 'd'])
+
+dataset.export('./dataset', format='coco_panoptic')
+```
+
+Some examples of working with Pascal VOC dataset from code you can found in
+[tests](../../tests/test_voc_format.py)

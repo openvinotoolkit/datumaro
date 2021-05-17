@@ -314,4 +314,4 @@ in Pascal VOC 2012 has for segmentation task and this result is the same as the
 [official documentation](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/dbstats.html)
 
 Some examples of working with Pascal VOC dataset from code you can found in
-[tests](../tests/test_voc_format.py)
+[tests](../../tests/test_voc_format.py)
