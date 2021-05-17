@@ -1544,7 +1544,7 @@ class Project:
         if name.lower() in reserved_names:
             raise ValueError("Source name is reserved for internal use")
 
-    def _download_source(self, name, url, dst_dir):
+    def _download_source(self, name, url, dst_dir, no_cache=False):
         dvcfile = osp.join(dst_dir, name + '.dvc')
         data_dir = osp.join(dst_dir, 'data')
 
@@ -1553,7 +1553,7 @@ class Project:
         else:
             os.makedirs(data_dir, exist_ok=True)
             shutil.copy(url, data_dir)
-        self._dvc.add(data_dir, dvc_path=dvcfile)
+        self._dvc.add(data_dir, dvc_path=dvcfile, no_commit=no_cache)
 
         obj_hash = self._dvc.get_hash_from_dvcfile(dvcfile)
         if obj_hash.endswith(self._dvc.DIR_HASH_SUFFIX):
@@ -1565,7 +1565,18 @@ class Project:
         }, dvcfile, data_dir
 
     def import_source(self, name: str, url: Optional[str],
-            format: str, options: Optional[Dict] = None) -> Source:
+            format: str, options: Optional[Dict] = None,
+            no_cache: bool = False) -> Source:
+        """
+        Adds a new source to the working directory of the project.
+
+        Options:
+        no_cache (bool) - download the source, but don't put data into cache.
+            Can be used to reduce storage size.
+
+        Returns: the new source config
+        """
+
         self.validate_source_name(name)
 
         if name in self.working_tree.sources:
@@ -1595,7 +1606,7 @@ class Project:
 
             with self._make_tmp_dir(suffix=name) as tmp_dir:
                 config_update, tmp_dvcfile, tmp_data_dir = \
-                    self._download_source(name, url, tmp_dir)
+                    self._download_source(name, url, tmp_dir, no_cache=no_cache)
                 shutil.move(tmp_data_dir, data_dir)
 
                 dvcfile = self._source_dvcfile_path(name)
@@ -1604,13 +1615,13 @@ class Project:
 
             config.update(config_update)
 
-        value = self.working_tree.sources.add(name, config)
+        config = self.working_tree.sources.add(name, config)
         target = self.working_tree.build_targets.add_target(name)
-        target.root.hash = value.hash
+        target.root.hash = config.hash
 
         self.working_tree.save()
 
-        return value
+        return config
 
     def remove_source(self, name: str, force: bool = False,
             keep_data: bool = True):
@@ -1636,10 +1647,14 @@ class Project:
 
         self.working_tree.build_targets.remove_target(name)
 
-    def commit(self, message: str) -> str:
+    def commit(self, message: str, no_cache: bool = False) -> str:
         """
         Copies tree and objects from the working dir to the cache.
         Creates a new commit. Moves the HEAD pointer to the new commit.
+
+        Options:
+        no_cache (bool) - don't put added dataset data into cache,
+            store only metainfo. Can be used to reduce storage size.
 
         Returns: the new commit hash
         """
@@ -1652,7 +1667,8 @@ class Project:
             with self._make_tmp_dir(suffix=s) as tmp_dir:
                 tmp_dvcfile = osp.join(tmp_dir, s + '.dvc')
 
-                self._dvc.add(source_dir, dvc_path=tmp_dvcfile)
+                self._dvc.add(source_dir, dvc_path=tmp_dvcfile,
+                    no_commit=no_cache)
 
                 dvcfile = self._source_dvcfile_path(s)
                 os.makedirs(osp.dirname(dvcfile), exist_ok=True)
