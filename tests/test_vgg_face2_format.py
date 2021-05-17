@@ -8,10 +8,18 @@ from datumaro.components.extractor import (AnnotationType, Bbox, DatasetItem,
 from datumaro.plugins.vgg_face2_format import (VggFace2Converter,
     VggFace2Importer)
 from datumaro.util.image import Image
-from datumaro.util.test_utils import TestDir, compare_datasets
+from datumaro.util.test_utils import TempTestDir, compare_datasets
+
+import pytest
+from tests.constants.requirements import Requirements
+from tests.constants.datumaro_components import DatumaroComponent
 
 
+@pytest.mark.components(DatumaroComponent.Datumaro)
+@pytest.mark.api_other
 class VggFace2FormatTest(TestCase):
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_save_and_load(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='1', subset='train', image=np.ones((8, 8, 3)),
@@ -49,12 +57,14 @@ class VggFace2FormatTest(TestCase):
                 [('label_%s' % i, 'class_%s' % i) for i in range(5)]),
         })
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             VggFace2Converter.convert(source_dataset, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'vgg_face2')
 
             compare_datasets(self, source_dataset, parsed_dataset)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_save_dataset_with_no_subsets(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='b/1', image=np.ones((8, 8, 3)),
@@ -66,12 +76,14 @@ class VggFace2FormatTest(TestCase):
             ),
         ], categories=['a'])
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             VggFace2Converter.convert(source_dataset, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'vgg_face2')
 
             compare_datasets(self, source_dataset, parsed_dataset)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='кириллица с пробелом', image=np.ones((8, 8, 3)),
@@ -82,13 +94,15 @@ class VggFace2FormatTest(TestCase):
             ),
         ], categories=['a'])
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             VggFace2Converter.convert(source_dataset, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'vgg_face2')
 
             compare_datasets(self, source_dataset, parsed_dataset,
                 require_images=True)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_save_dataset_with_no_save_images(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='1', image=np.ones((8, 8, 3)),
@@ -100,12 +114,14 @@ class VggFace2FormatTest(TestCase):
             ),
         ], categories=['label_0'])
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             VggFace2Converter.convert(source_dataset, test_dir, save_images=False)
             parsed_dataset = Dataset.import_from(test_dir, 'vgg_face2')
 
             compare_datasets(self, source_dataset, parsed_dataset)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_save_dataset_with_no_labels(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='1', image=np.ones((8, 8, 3)),
@@ -122,12 +138,14 @@ class VggFace2FormatTest(TestCase):
             ),
         ], categories=[])
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             VggFace2Converter.convert(source_dataset, test_dir, save_images=False)
             parsed_dataset = Dataset.import_from(test_dir, 'vgg_face2')
 
             compare_datasets(self, source_dataset, parsed_dataset)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_save_dataset_with_wrong_number_of_points(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='1', image=np.ones((8, 8, 3)),
@@ -143,12 +161,14 @@ class VggFace2FormatTest(TestCase):
             ),
         ], categories=[])
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             VggFace2Converter.convert(source_dataset, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'vgg_face2')
 
             compare_datasets(self, target_dataset, parsed_dataset)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         dataset = Dataset.from_iterable([
             DatasetItem('q/1', image=Image(path='q/1.JPEG',
@@ -163,7 +183,7 @@ class VggFace2FormatTest(TestCase):
             ),
         ], categories=['a'])
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             VggFace2Converter.convert(dataset, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'vgg_face2')
 
@@ -171,10 +191,16 @@ class VggFace2FormatTest(TestCase):
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'vgg_face2_dataset')
 
+@pytest.mark.components(DatumaroComponent.Datumaro)
+@pytest.mark.api_other
 class VggFace2ImporterTest(TestCase):
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_detect(self):
         self.assertTrue(VggFace2Importer.detect(DUMMY_DATASET_DIR))
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_import(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='0001_01', subset='train',

@@ -22,13 +22,21 @@ from datumaro.plugins.coco_format.converter import (
 )
 from datumaro.plugins.coco_format.importer import CocoImporter
 from datumaro.util.image import Image
-from datumaro.util.test_utils import (TestDir, compare_datasets,
-    test_save_and_load)
+from datumaro.util.test_utils import (TempTestDir, compare_datasets,
+                                      util_test_save_and_load)
 
+import pytest
+from tests.constants.requirements import Requirements
+from tests.constants.datumaro_components import DatumaroComponent
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'coco_dataset')
 
+
+@pytest.mark.components(DatumaroComponent.Datumaro)
+@pytest.mark.api_other
 class CocoImporterTest(TestCase):
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_import_instances(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='000000000001', image=np.ones((10, 5, 3)),
@@ -51,6 +59,8 @@ class CocoImporterTest(TestCase):
 
         compare_datasets(self, expected_dataset, dataset)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_import_captions(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train',
@@ -74,6 +84,8 @@ class CocoImporterTest(TestCase):
 
         compare_datasets(self, expected_dataset, dataset)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_import_labels(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train',
@@ -88,6 +100,8 @@ class CocoImporterTest(TestCase):
 
         compare_datasets(self, expected_dataset, dataset)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_import_points(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train',
@@ -133,6 +147,8 @@ class CocoImporterTest(TestCase):
 
         compare_datasets(self, expected_dataset, dataset)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_import_image_info(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id=1, image=Image(path='1.jpg', size=(10, 15)),
@@ -144,6 +160,9 @@ class CocoImporterTest(TestCase):
 
         compare_datasets(self, expected_dataset, dataset)
 
+
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_import_panoptic(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='000000000001',
@@ -183,17 +202,23 @@ class CocoImporterTest(TestCase):
 
         compare_datasets(self, expected_dataset, dataset)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_detect(self):
         self.assertTrue(CocoImporter.detect(
             osp.join(DUMMY_DATASET_DIR, 'coco_instances')))
 
+@pytest.mark.components(DatumaroComponent.Datumaro)
+@pytest.mark.api_other
 class CocoConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None, **kwargs):
-        return test_save_and_load(self, source_dataset, converter, test_dir,
-            importer='coco',
-            target_dataset=target_dataset, importer_args=importer_args, **kwargs)
+        return util_test_save_and_load(self, source_dataset, converter, test_dir,
+                                       importer='coco',
+                                       target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_save_and_load_captions(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train',
@@ -212,10 +237,12 @@ class CocoConverterTest(TestCase):
                 ], attributes={'id': 1}),
             ])
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             self._test_save_and_load(expected_dataset,
                 CocoCaptionsConverter.convert, test_dir)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_save_and_load_instances(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train', image=np.ones((4, 4, 3)),
@@ -291,11 +318,13 @@ class CocoConverterTest(TestCase):
                 ], attributes={'id': 1})
             ], categories=[str(i) for i in range(10)])
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             self._test_save_and_load(source_dataset,
                 CocoInstancesConverter.convert, test_dir,
                 target_dataset=target_dataset)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_save_and_load_panoptic(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train', image=np.ones((4, 4, 3)),
@@ -333,11 +362,13 @@ class CocoConverterTest(TestCase):
                 ], attributes={'id': 2}),
             ], categories=[str(i) for i in range(10)])
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             self._test_save_and_load(dataset,
                 partial(CocoPanopticConverter.convert, save_images=True),
                 test_dir, require_images=True)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_save_and_load_stuff(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train', image=np.ones((4, 4, 3)),
@@ -365,10 +396,12 @@ class CocoConverterTest(TestCase):
                 ], attributes={'id': 1}),
             ], categories=[str(i) for i in range(10)])
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             self._test_save_and_load(dataset,
                 CocoStuffConverter.convert, test_dir)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_merge_polygons_on_loading(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, image=np.zeros((6, 10, 3)),
@@ -400,12 +433,14 @@ class CocoConverterTest(TestCase):
             ),
         ], categories=[str(i) for i in range(10)])
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             self._test_save_and_load(source_dataset,
                 CocoInstancesConverter.convert, test_dir,
                 importer_args={'merge_instance_polygons': True},
                 target_dataset=target_dataset)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_crop_covered_segments(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, image=np.zeros((5, 5, 3)),
@@ -444,11 +479,13 @@ class CocoConverterTest(TestCase):
             ),
         ], categories=[str(i) for i in range(10)])
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             self._test_save_and_load(source_dataset,
                  partial(CocoInstancesConverter.convert, crop_covered=True),
                  test_dir, target_dataset=target_dataset)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_convert_polygons_to_mask(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, image=np.zeros((6, 10, 3)),
@@ -480,11 +517,13 @@ class CocoConverterTest(TestCase):
             ),
         ], categories=[str(i) for i in range(10)])
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             self._test_save_and_load(source_dataset,
                 partial(CocoInstancesConverter.convert, segmentation_mode='mask'),
                 test_dir, target_dataset=target_dataset)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_convert_masks_to_polygons(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, image=np.zeros((5, 10, 3)),
@@ -516,12 +555,14 @@ class CocoConverterTest(TestCase):
             ),
         ], categories=[str(i) for i in range(10)])
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             self._test_save_and_load(source_dataset,
                 partial(CocoInstancesConverter.convert, segmentation_mode='polygons'),
                 test_dir,
                 target_dataset=target_dataset)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_save_and_load_images(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train', attributes={'id': 1}),
@@ -534,20 +575,24 @@ class CocoConverterTest(TestCase):
             DatasetItem(id=5, subset='test', attributes={'id': 1}),
         ])
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             self._test_save_and_load(expected_dataset,
                 CocoImageInfoConverter.convert, test_dir)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='кириллица с пробелом', subset='train',
                 attributes={'id': 1}),
         ])
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             self._test_save_and_load(expected_dataset,
                 CocoImageInfoConverter.convert, test_dir)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_save_and_load_labels(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train',
@@ -557,10 +602,12 @@ class CocoConverterTest(TestCase):
                 ], attributes={'id': 1}),
         ], categories=[str(i) for i in range(10)])
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             self._test_save_and_load(expected_dataset,
                 CocoLabelsConverter.convert, test_dir)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_save_and_load_keypoints(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train', image=np.zeros((5, 5, 3)),
@@ -631,31 +678,37 @@ class CocoConverterTest(TestCase):
                 ),
             })
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             self._test_save_and_load(source_dataset,
                 CocoPersonKeypointsConverter.convert, test_dir,
                 target_dataset=target_dataset)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_save_dataset_with_no_subsets(self):
         test_dataset = Dataset.from_iterable([
             DatasetItem(id=1, attributes={'id': 1}),
             DatasetItem(id=2, attributes={'id': 2}),
         ])
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             self._test_save_and_load(test_dataset,
                 CocoConverter.convert, test_dir)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_save_dataset_with_image_info(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id=1, image=Image(path='1.jpg', size=(10, 15)),
                 attributes={'id': 1}),
         ])
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             self._test_save_and_load(expected_dataset,
                 CocoImageInfoConverter.convert, test_dir)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_relative_paths(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='1', image=np.ones((4, 2, 3)),
@@ -666,11 +719,13 @@ class CocoConverterTest(TestCase):
                 attributes={'id': 3}),
         ])
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             self._test_save_and_load(expected_dataset,
                 partial(CocoImageInfoConverter.convert, save_images=True),
                 test_dir, require_images=True)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         expected = Dataset.from_iterable([
             DatasetItem(id='q/1', image=Image(path='q/1.JPEG',
@@ -679,22 +734,27 @@ class CocoConverterTest(TestCase):
                 data=np.zeros((3, 4, 3))), attributes={'id': 2}),
         ])
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             self._test_save_and_load(expected,
                 partial(CocoImageInfoConverter.convert, save_images=True),
                 test_dir, require_images=True)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_preserve_coco_ids(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='some/name1', image=np.ones((4, 2, 3)),
                 attributes={'id': 40}),
         ])
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             self._test_save_and_load(expected_dataset,
                 partial(CocoImageInfoConverter.convert, save_images=True),
                 test_dir, require_images=True)
 
+    
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_annotation_attributes(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id=1, image=np.ones((4, 2, 3)), annotations=[
@@ -703,10 +763,12 @@ class CocoConverterTest(TestCase):
             ], attributes={'id': 1})
         ], categories=[str(i) for i in range(10)])
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             self._test_save_and_load(expected_dataset,
                 CocoConverter.convert, test_dir)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_auto_annotation_ids(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=2, image=np.ones((4, 2, 3)), annotations=[
@@ -721,10 +783,12 @@ class CocoConverterTest(TestCase):
             ], attributes={'id': 1})
         ], categories=[str(i) for i in range(10)])
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             self._test_save_and_load(source_dataset,
                 CocoConverter.convert, test_dir, target_dataset=target_dataset)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_reindex(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=2, image=np.ones((4, 2, 3)), annotations=[
@@ -739,31 +803,35 @@ class CocoConverterTest(TestCase):
             ], attributes={'id': 1})
         ], categories=[str(i) for i in range(10)])
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             self._test_save_and_load(source_dataset,
                 partial(CocoConverter.convert, reindex=True),
                 test_dir, target_dataset=target_dataset)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_save_images_in_single_dir(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train', image=np.ones((2, 4, 3)),
                 attributes={'id': 1}),
         ])
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             self._test_save_and_load(dataset,
                 partial(CocoImageInfoConverter.convert, save_images=True,
                     merge_images=True),
                 test_dir, require_images=True)
             self.assertTrue(osp.isfile(osp.join(test_dir, 'images', '1.jpg')))
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_save_images_in_separate_dirs(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train', image=np.ones((2, 4, 3)),
                 attributes={'id': 1}),
         ])
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             self._test_save_and_load(dataset,
                 partial(CocoImageInfoConverter.convert, save_images=True,
                     merge_images=False),
@@ -771,8 +839,10 @@ class CocoConverterTest(TestCase):
             self.assertTrue(osp.isfile(osp.join(
                 test_dir, 'images', 'train', '1.jpg')))
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_inplace_save_writes_only_updated_data(self):
-        with TestDir() as path:
+        with TempTestDir() as path:
             # generate initial dataset
             dataset = Dataset.from_iterable([
                 DatasetItem(1, subset='a'),

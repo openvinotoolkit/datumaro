@@ -11,17 +11,25 @@ from datumaro.components.extractor import (Extractor, DatasetItem,
     Label, LabelCategories, AnnotationType)
 from datumaro.components.config import Config
 from datumaro.components.dataset import Dataset, DEFAULT_FORMAT
-from datumaro.util.test_utils import TestDir, compare_datasets
+from datumaro.util.test_utils import TempTestDir, compare_datasets
+
+import pytest
+from tests.constants.requirements import Requirements
+from tests.constants.datumaro_components import DatumaroComponent
 
 
+@pytest.mark.components(DatumaroComponent.Datumaro)
+@pytest.mark.api_other
 class ProjectTest(TestCase):
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_project_generate(self):
         src_config = Config({
             'project_name': 'test_project',
             'format_version': 1,
         })
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             project_path = test_dir
             Project.generate(project_path, src_config)
 
@@ -34,13 +42,19 @@ class ProjectTest(TestCase):
                 src_config.format_version, result_config.format_version)
 
     @staticmethod
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_default_ctor_is_ok():
         Project()
 
     @staticmethod
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_empty_config_is_ok():
         Project(Config())
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_add_source(self):
         source_name = 'source'
         origin = Source({
@@ -55,6 +69,8 @@ class ProjectTest(TestCase):
         self.assertIsNotNone(added)
         self.assertEqual(added, origin)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_added_source_can_be_saved(self):
         source_name = 'source'
         origin = Source({
@@ -67,6 +83,8 @@ class ProjectTest(TestCase):
 
         self.assertEqual(origin, saved.sources[source_name])
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_added_source_can_be_dumped(self):
         source_name = 'source'
         origin = Source({
@@ -75,13 +93,15 @@ class ProjectTest(TestCase):
         project = Project()
         project.add_source(source_name, origin)
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             project.save(test_dir)
 
             loaded = Project.load(test_dir)
             loaded = loaded.get_source(source_name)
             self.assertEqual(origin, loaded)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_import_with_custom_importer(self):
         class TestImporter:
             def __call__(self, path, subset=None):
@@ -102,6 +122,8 @@ class ProjectTest(TestCase):
         self.assertEqual(path, project.config.project_filename)
         self.assertListEqual(['train'], project.config.subsets)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_dump_added_model(self):
         model_name = 'model'
 
@@ -109,15 +131,17 @@ class ProjectTest(TestCase):
         saved = Model({ 'launcher': 'name' })
         project.add_model(model_name, saved)
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             project.save(test_dir)
 
             loaded = Project.load(test_dir)
             loaded = loaded.get_model(model_name)
             self.assertEqual(saved, loaded)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_have_project_source(self):
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             Project.generate(test_dir)
 
             project2 = Project()
@@ -128,6 +152,8 @@ class ProjectTest(TestCase):
 
             self.assertTrue('project1' in dataset.sources)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_batch_launch_custom_model(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id=i, subset='train', image=np.array([i]))
@@ -157,6 +183,8 @@ class ProjectTest(TestCase):
             self.assertEqual(int(item.id),
                 item.annotations[0].attributes['data'])
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_do_transform_with_custom_model(self):
         class TestExtractorSrc(Extractor):
             def __iter__(self):
@@ -197,7 +225,7 @@ class ProjectTest(TestCase):
         project.add_model(model_name, { 'launcher': launcher_name })
         project.add_source('source', { 'format': extractor_name })
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             project.make_dataset().apply_model(model=model_name,
                 save_dir=test_dir)
 
@@ -209,6 +237,8 @@ class ProjectTest(TestCase):
             self.assertEqual(0, item1.annotations[0].label)
             self.assertEqual(1, item2.annotations[0].label)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_source_datasets_can_be_merged(self):
         class TestExtractor(Extractor):
             def __init__(self, url, n=0, s=0):
@@ -235,6 +265,8 @@ class ProjectTest(TestCase):
 
         self.assertEqual(n1 + n2, len(dataset))
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_cant_merge_different_categories(self):
         class TestExtractor1(Extractor):
             def __iter__(self):
@@ -264,6 +296,8 @@ class ProjectTest(TestCase):
         with self.assertRaisesRegex(Exception, "different categories"):
             project.make_dataset()
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_project_filter_can_be_applied(self):
         class TestExtractor(Extractor):
             def __iter__(self):
@@ -279,8 +313,10 @@ class ProjectTest(TestCase):
 
         self.assertEqual(5, len(dataset))
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_save_and_load_own_dataset(self):
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             src_project = Project()
             src_dataset = src_project.make_dataset()
             item = DatasetItem(id=1)
@@ -292,6 +328,8 @@ class ProjectTest(TestCase):
 
             self.assertEqual(list(src_dataset), list(loaded_dataset))
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_project_own_dataset_can_be_modified(self):
         project = Project()
         dataset = project.make_dataset()
@@ -301,8 +339,10 @@ class ProjectTest(TestCase):
 
         self.assertEqual(item, next(iter(dataset)))
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_project_compound_child_can_be_modified_recursively(self):
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             child1 = Project({
                 'project_dir': osp.join(test_dir, 'child1'),
             })
@@ -331,6 +371,8 @@ class ProjectTest(TestCase):
             self.assertEqual(1, len(dataset.sources['child1']))
             self.assertEqual(1, len(dataset.sources['child2']))
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_project_can_merge_item_annotations(self):
         class TestExtractor1(Extractor):
             def __iter__(self):
@@ -359,6 +401,8 @@ class ProjectTest(TestCase):
         item = next(iter(merged))
         self.assertEqual(3, len(item.annotations))
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_detect_and_import(self):
         env = Environment()
         env.importers.items = {DEFAULT_FORMAT: env.importers[DEFAULT_FORMAT]}
@@ -368,7 +412,7 @@ class ProjectTest(TestCase):
             DatasetItem(id=1, annotations=[ Label(2) ]),
         ], categories=['a', 'b', 'c'])
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             source_dataset.save(test_dir)
 
             project = Project.import_from(test_dir, env=env)
@@ -378,6 +422,8 @@ class ProjectTest(TestCase):
                 DEFAULT_FORMAT)
             compare_datasets(self, source_dataset, imported_dataset)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_custom_extractor_can_be_created(self):
         class CustomExtractor(Extractor):
             def __iter__(self):

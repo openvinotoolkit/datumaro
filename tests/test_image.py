@@ -5,9 +5,14 @@ import os.path as osp
 from unittest import TestCase
 
 import datumaro.util.image as image_module
-from datumaro.util.test_utils import TestDir
+from datumaro.util.test_utils import TempTestDir
 
+import pytest
+from tests.constants.requirements import Requirements
+from tests.constants.datumaro_components import DatumaroComponent
 
+@pytest.mark.components(DatumaroComponent.Datumaro)
+@pytest.mark.api_other
 class ImageOperationsTest(TestCase):
     def setUp(self):
         self.default_backend = image_module._IMAGE_BACKEND
@@ -15,10 +20,12 @@ class ImageOperationsTest(TestCase):
     def tearDown(self):
         image_module._IMAGE_BACKEND = self.default_backend
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_save_and_load_backends(self):
         backends = image_module._IMAGE_BACKENDS
         for save_backend, load_backend, c in product(backends, backends, [1, 3]):
-            with TestDir() as test_dir:
+            with TempTestDir() as test_dir:
                 if c == 1:
                     src_image = np.random.randint(0, 255 + 1, (2, 4))
                 else:
@@ -34,6 +41,8 @@ class ImageOperationsTest(TestCase):
                 self.assertTrue(np.array_equal(src_image, dst_image),
                     'save: %s, load: %s' % (save_backend, load_backend))
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_encode_and_decode_backends(self):
         backends = image_module._IMAGE_BACKENDS
         for save_backend, load_backend, c in product(backends, backends, [1, 3]):
@@ -52,13 +61,17 @@ class ImageOperationsTest(TestCase):
             self.assertTrue(np.array_equal(src_image, dst_image),
                 'save: %s, load: %s' % (save_backend, load_backend))
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_save_image_to_inexistent_dir_raises_error(self):
         with self.assertRaises(FileNotFoundError):
             image_module.save_image('some/path.jpg', np.ones((5, 4, 3)),
                 create_dir=False)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_save_image_can_create_dir(self):
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             path = osp.join(test_dir, 'some', 'path.jpg')
             image_module.save_image(path, np.ones((5, 4, 3)), create_dir=True)
             self.assertTrue(osp.isfile(path))

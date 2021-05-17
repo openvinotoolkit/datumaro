@@ -8,6 +8,13 @@ from datumaro.components.extractor import (DatasetItem, Label,
 
 import datumaro.plugins.ndr as ndr
 
+import pytest
+from tests.constants.requirements import Requirements
+from tests.constants.datumaro_components import DatumaroComponent
+
+
+@pytest.mark.components(DatumaroComponent.Datumaro)
+@pytest.mark.api_other
 class NDRTest(TestCase):
     def _generate_dataset(self, config, num_duplicate, dataset='classification'):
         subsets = ["train", "val", "test"]
@@ -39,6 +46,8 @@ class NDRTest(TestCase):
         dataset = Dataset.from_iterable(iterable, categories)
         return dataset
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_ndr_with_error(self):
         config = {
             "label1": 100,
@@ -96,6 +105,8 @@ class NDRTest(TestCase):
             result = ndr.NDR(source, working_subset='train')
             len(result)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_ndr_without_cut(self):
         config = {
             "label1": 100,
@@ -117,6 +128,8 @@ class NDRTest(TestCase):
         self.assertEqual(300, len(source.get_subset("val")))
         self.assertEqual(300, len(source.get_subset("test")))
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_ndr_can_use_undersample_uniform(self):
         config = {
             "label1": 100,
@@ -139,6 +152,8 @@ class NDRTest(TestCase):
         self.assertEqual(300, len(source.get_subset("val")))
         self.assertEqual(300, len(source.get_subset("test")))
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_ndr_can_use_undersample_inverse(self):
         config = {
             "label1": 100,
@@ -161,6 +176,8 @@ class NDRTest(TestCase):
         self.assertEqual(300, len(source.get_subset("val")))
         self.assertEqual(300, len(source.get_subset("test")))
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_ndr_can_use_oversample_random(self):
         config = {
             "label1": 100,
@@ -183,6 +200,8 @@ class NDRTest(TestCase):
         self.assertEqual(300, len(source.get_subset("val")))
         self.assertEqual(300, len(source.get_subset("test")))
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_ndr_can_use_oversample_similarity(self):
         config = {
             "label1": 100,
@@ -205,6 +224,8 @@ class NDRTest(TestCase):
         self.assertEqual(300, len(source.get_subset("val")))
         self.assertEqual(300, len(source.get_subset("test")))
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_ndr_gradient_fails_on_invalid_parameters(self):
         source = self._generate_dataset({ 'label1': 5 }, 10)
 
@@ -235,6 +256,8 @@ class NDRTest(TestCase):
                 hash_dim=-5, block_shape=(8, 8), algorithm='gradient')
             len(result)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_ndr_gradient_can_use_block(self):
         config = {
             "label1": 100,
@@ -256,6 +279,8 @@ class NDRTest(TestCase):
         self.assertEqual(300, len(source.get_subset("val")))
         self.assertEqual(300, len(source.get_subset("test")))
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_ndr_gradient_can_use_hash_dim(self):
         config = {
             "label1": 100,
@@ -278,6 +303,8 @@ class NDRTest(TestCase):
         self.assertEqual(300, len(source.get_subset("val")))
         self.assertEqual(300, len(source.get_subset("test")))
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_ndr_gradient_can_use_sim_thresh(self):
         config = {
             "label1": 100,
@@ -300,6 +327,8 @@ class NDRTest(TestCase):
         self.assertEqual(300, len(source.get_subset("val")))
         self.assertEqual(300, len(source.get_subset("test")))
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_ndr_seed(self):
         config = {
             "label1": 100,
