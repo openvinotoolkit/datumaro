@@ -11,10 +11,18 @@ from datumaro.components.dataset import Dataset
 from datumaro.plugins.yolo_format.extractor import YoloImporter
 from datumaro.plugins.yolo_format.converter import YoloConverter
 from datumaro.util.image import Image, save_image
-from datumaro.util.test_utils import TestDir, compare_datasets
+from datumaro.util.test_utils import TempTestDir, compare_datasets
+
+import pytest
+from tests.constants.requirements import Requirements
+from tests.constants.datumaro_components import DatumaroComponent
 
 
+@pytest.mark.components(DatumaroComponent.Datumaro)
+@pytest.mark.api_other
 class YoloFormatTest(TestCase):
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_save_and_load(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train', image=np.ones((8, 8, 3)),
@@ -41,12 +49,14 @@ class YoloFormatTest(TestCase):
                 'label_' + str(i) for i in range(10)),
         })
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             YoloConverter.convert(source_dataset, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'yolo')
 
             compare_datasets(self, source_dataset, parsed_dataset)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_save_dataset_with_image_info(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train',
@@ -60,7 +70,7 @@ class YoloFormatTest(TestCase):
                 'label_' + str(i) for i in range(10)),
         })
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             YoloConverter.convert(source_dataset, test_dir)
 
             save_image(osp.join(test_dir, 'obj_train_data', '1.jpg'),
@@ -69,6 +79,8 @@ class YoloFormatTest(TestCase):
 
             compare_datasets(self, source_dataset, parsed_dataset)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_load_dataset_with_exact_image_info(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train',
@@ -82,7 +94,7 @@ class YoloFormatTest(TestCase):
                 'label_' + str(i) for i in range(10)),
         })
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             YoloConverter.convert(source_dataset, test_dir)
 
             parsed_dataset = Dataset.import_from(test_dir, 'yolo',
@@ -90,6 +102,8 @@ class YoloFormatTest(TestCase):
 
             compare_datasets(self, source_dataset, parsed_dataset)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='кириллица с пробелом', subset='train', image=np.ones((8, 8, 3)),
@@ -102,13 +116,15 @@ class YoloFormatTest(TestCase):
                 'label_' + str(i) for i in range(10)),
         })
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             YoloConverter.convert(source_dataset, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'yolo')
 
             compare_datasets(self, source_dataset, parsed_dataset,
                 require_images=True)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_relative_paths(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='1', subset='train',
@@ -121,13 +137,15 @@ class YoloFormatTest(TestCase):
 
         for save_images in {True, False}:
             with self.subTest(save_images=save_images):
-                with TestDir() as test_dir:
+                with TempTestDir() as test_dir:
                     YoloConverter.convert(source_dataset, test_dir,
                         save_images=save_images)
                     parsed_dataset = Dataset.import_from(test_dir, 'yolo')
 
                     compare_datasets(self, source_dataset, parsed_dataset)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         dataset = Dataset.from_iterable([
             DatasetItem('q/1', subset='train',
@@ -136,14 +154,16 @@ class YoloFormatTest(TestCase):
                 image=Image(path='a/b/c/2.bmp', data=np.zeros((3, 4, 3)))),
         ], categories=[])
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             YoloConverter.convert(dataset, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'yolo')
 
             compare_datasets(self, dataset, parsed_dataset, require_images=True)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_inplace_save_writes_only_updated_data(self):
-        with TestDir() as path:
+        with TempTestDir() as path:
             # generate initial dataset
             dataset = Dataset.from_iterable([
                 DatasetItem(1, subset='train', image=np.ones((2, 4, 3))),
@@ -170,10 +190,16 @@ class YoloFormatTest(TestCase):
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'yolo_dataset')
 
+@pytest.mark.components(DatumaroComponent.Datumaro)
+@pytest.mark.api_other
 class YoloImporterTest(TestCase):
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_detect(self):
         self.assertTrue(YoloImporter.detect(DUMMY_DATASET_DIR))
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_import(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train',

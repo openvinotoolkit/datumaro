@@ -8,20 +8,30 @@ from datumaro.components.project import Dataset
 from datumaro.components.extractor import DatasetItem
 from datumaro.plugins.image_dir_format import ImageDirConverter
 from datumaro.util.image import Image, save_image
-from datumaro.util.test_utils import TestDir, compare_datasets, test_save_and_load
+from datumaro.util.test_utils import TempTestDir, compare_datasets, util_test_save_and_load
+
+import pytest
+from tests.constants.requirements import Requirements
+from tests.constants.datumaro_components import DatumaroComponent
 
 
+@pytest.mark.components(DatumaroComponent.Datumaro)
+@pytest.mark.api_other
 class ImageDirFormatTest(TestCase):
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_load(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id=1, image=np.ones((10, 6, 3))),
             DatasetItem(id=2, image=np.ones((5, 4, 3))),
         ])
 
-        with TestDir() as test_dir:
-            test_save_and_load(self, dataset, ImageDirConverter.convert,
-                test_dir, importer='image_dir', require_images=True)
+        with TempTestDir() as test_dir:
+            util_test_save_and_load(self, dataset, ImageDirConverter.convert,
+                                    test_dir, importer='image_dir', require_images=True)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_relative_paths(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id='1', image=np.ones((4, 2, 3))),
@@ -29,19 +39,23 @@ class ImageDirFormatTest(TestCase):
             DatasetItem(id='subdir2/1', image=np.ones((5, 4, 3))),
         ])
 
-        with TestDir() as test_dir:
-            test_save_and_load(self, dataset, ImageDirConverter.convert,
-                test_dir, importer='image_dir')
+        with TempTestDir() as test_dir:
+            util_test_save_and_load(self, dataset, ImageDirConverter.convert,
+                                    test_dir, importer='image_dir')
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id='кириллица с пробелом', image=np.ones((4, 2, 3))),
         ])
 
-        with TestDir() as test_dir:
-            test_save_and_load(self, dataset, ImageDirConverter.convert,
-                test_dir, importer='image_dir')
+        with TempTestDir() as test_dir:
+            util_test_save_and_load(self, dataset, ImageDirConverter.convert,
+                                    test_dir, importer='image_dir')
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id='q/1', image=Image(path='q/1.JPEG',
@@ -50,17 +64,19 @@ class ImageDirFormatTest(TestCase):
                 data=np.zeros((3, 4, 3)))),
         ])
 
-        with TestDir() as test_dir:
-            test_save_and_load(self, dataset, ImageDirConverter.convert,
-                test_dir, importer='image_dir', require_images=True)
+        with TempTestDir() as test_dir:
+            util_test_save_and_load(self, dataset, ImageDirConverter.convert,
+                                    test_dir, importer='image_dir', require_images=True)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_save_and_load_image_with_custom_extension(self):
         expected = Dataset.from_iterable([
             DatasetItem(id='a/3', image=Image(path='a/3.qq',
                 data=np.zeros((3, 4, 3)))),
         ])
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             image_path = osp.join(test_dir, 'a', '3.jpg')
             save_image(image_path, expected.get('a/3').image.data,
                 create_dir=True)

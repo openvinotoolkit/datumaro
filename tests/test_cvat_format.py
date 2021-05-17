@@ -12,9 +12,12 @@ from datumaro.components.extractor import (DatasetItem,
 from datumaro.plugins.cvat_format.extractor import CvatImporter
 from datumaro.plugins.cvat_format.converter import CvatConverter
 from datumaro.util.image import Image
-from datumaro.util.test_utils import (TestDir, compare_datasets,
-    test_save_and_load)
+from datumaro.util.test_utils import (TempTestDir, compare_datasets,
+                                      util_test_save_and_load)
 
+import pytest
+from tests.constants.requirements import Requirements
+from tests.constants.datumaro_components import DatumaroComponent
 
 DUMMY_IMAGE_DATASET_DIR = osp.join(osp.dirname(__file__),
     'assets', 'cvat_dataset', 'for_images')
@@ -22,13 +25,21 @@ DUMMY_IMAGE_DATASET_DIR = osp.join(osp.dirname(__file__),
 DUMMY_VIDEO_DATASET_DIR = osp.join(osp.dirname(__file__),
     'assets', 'cvat_dataset', 'for_video')
 
+@pytest.mark.components(DatumaroComponent.Datumaro)
+@pytest.mark.api_other
 class CvatImporterTest(TestCase):
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_detect_image(self):
         self.assertTrue(CvatImporter.detect(DUMMY_IMAGE_DATASET_DIR))
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_detect_video(self):
         self.assertTrue(CvatImporter.detect(DUMMY_VIDEO_DATASET_DIR))
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_load_image(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='img0', subset='train',
@@ -61,6 +72,8 @@ class CvatImporterTest(TestCase):
 
         compare_datasets(self, expected_dataset, parsed_dataset)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_load_video(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='frame_000010', subset='annotations',
@@ -140,13 +153,17 @@ class CvatImporterTest(TestCase):
 
         compare_datasets(self, expected_dataset, parsed_dataset)
 
+@pytest.mark.components(DatumaroComponent.Datumaro)
+@pytest.mark.api_other
 class CvatConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None, **kwargs):
-        return test_save_and_load(self, source_dataset, converter, test_dir,
-            importer='cvat',
-            target_dataset=target_dataset, importer_args=importer_args, **kwargs)
+        return util_test_save_and_load(self, source_dataset, converter, test_dir,
+                                       importer='cvat',
+                                       target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_save_and_load(self):
         src_label_cat = LabelCategories(attributes={'occluded', 'common'})
         for i in range(10):
@@ -232,11 +249,13 @@ class CvatConverterTest(TestCase):
                 attributes={'frame': 0}),
         ], categories={ AnnotationType.label: target_label_cat })
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             self._test_save_and_load(source_dataset,
                 partial(CvatConverter.convert, save_images=True), test_dir,
                 target_dataset=target_dataset)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_allow_undeclared_attrs(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=0, annotations=[
@@ -255,11 +274,13 @@ class CvatConverterTest(TestCase):
             ], attributes={'frame': 0}),
         ], categories={ AnnotationType.label: target_label_cat })
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             self._test_save_and_load(source_dataset,
                 partial(CvatConverter.convert, allow_undeclared_attrs=True),
                 test_dir, target_dataset=target_dataset)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_relative_paths(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='1', image=np.ones((4, 2, 3))),
@@ -276,11 +297,13 @@ class CvatConverterTest(TestCase):
                 attributes={'frame': 2}),
         ], categories=[])
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             self._test_save_and_load(source_dataset,
                 partial(CvatConverter.convert, save_images=True), test_dir,
                 target_dataset=target_dataset, require_images=True)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         label_categories = LabelCategories(attributes={'occluded'})
         for i in range(10):
@@ -309,11 +332,13 @@ class CvatConverterTest(TestCase):
             AnnotationType.label: label_categories,
         })
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             self._test_save_and_load(source_dataset,
                 partial(CvatConverter.convert, save_images=True), test_dir,
                 target_dataset=target_dataset, require_images=True)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         expected = Dataset.from_iterable([
             DatasetItem('q/1', image=Image(path='q/1.JPEG',
@@ -322,7 +347,7 @@ class CvatConverterTest(TestCase):
                 data=np.zeros((3, 4, 3))), attributes={'frame': 2}),
         ], categories=[])
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             self._test_save_and_load(expected,
                 partial(CvatConverter.convert, save_images=True),
                 test_dir, require_images=True)
@@ -331,16 +356,20 @@ class CvatConverterTest(TestCase):
             self.assertTrue(osp.isfile(
                 osp.join(test_dir, 'images', 'a', 'b', 'c', '2.bmp')))
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_preserve_frame_ids(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='some/name1', image=np.ones((4, 2, 3)),
                 attributes={'frame': 40}),
         ], categories=[])
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             self._test_save_and_load(expected_dataset,
                 CvatConverter.convert, test_dir)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_reindex(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='some/name1', image=np.ones((4, 2, 3)),
@@ -352,13 +381,15 @@ class CvatConverterTest(TestCase):
                 attributes={'frame': 0}),
         ], categories=[])
 
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             self._test_save_and_load(source_dataset,
                 partial(CvatConverter.convert, reindex=True), test_dir,
                 target_dataset=expected_dataset)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_inplace_save_writes_only_updated_data(self):
-        with TestDir() as path:
+        with TempTestDir() as path:
             # generate initial dataset
             dataset = Dataset.from_iterable([
                 DatasetItem(1, subset='a'),

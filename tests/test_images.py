@@ -3,15 +3,23 @@ import os.path as osp
 
 from unittest import TestCase
 
-from datumaro.util.test_utils import TestDir
+from datumaro.util.test_utils import TempTestDir
 from datumaro.util.image import (lazy_image, load_image, save_image, \
     Image, ByteImage, encode_image)
 from datumaro.util.image_cache import ImageCache
 
+import pytest
+from tests.constants.requirements import Requirements
+from tests.constants.datumaro_components import DatumaroComponent
 
+
+@pytest.mark.components(DatumaroComponent.Datumaro)
+@pytest.mark.api_other
 class LazyImageTest(TestCase):
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_cache_works(self):
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             image = np.ones((100, 100, 3), dtype=np.uint8)
             image_path = osp.join(test_dir, 'image.jpg')
             save_image(image_path, image)
@@ -22,7 +30,11 @@ class LazyImageTest(TestCase):
             non_caching_loader = lazy_image(image_path, cache=False)
             self.assertFalse(non_caching_loader() is non_caching_loader())
 
+@pytest.mark.components(DatumaroComponent.Datumaro)
+@pytest.mark.api_other
 class ImageCacheTest(TestCase):
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_cache_fifo_displacement(self):
         capacity = 2
         cache = ImageCache(capacity)
@@ -39,6 +51,8 @@ class ImageCacheTest(TestCase):
         matches = sum([a is b for a, b in zip(first_request, second_request)])
         self.assertEqual(matches, len(first_request) - 1)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_global_cache_is_accessible(self):
         loader = lazy_image(None, loader=lambda p: object())
 
@@ -46,7 +60,11 @@ class ImageCacheTest(TestCase):
         self.assertTrue(loader() is loader())
         self.assertEqual(ImageCache.get_instance().size(), 1)
 
+@pytest.mark.components(DatumaroComponent.Datumaro)
+@pytest.mark.api_other
 class ImageTest(TestCase):
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_lazy_image_shape(self):
         data = np.ones((5, 6, 3))
 
@@ -56,8 +74,10 @@ class ImageTest(TestCase):
         self.assertEqual((2, 4), image_lazy.size)
         self.assertEqual((5, 6), image_eager.size)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_ctors(self):
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             path = osp.join(test_dir, 'path.png')
             image = np.ones([2, 4, 3])
             save_image(path, image)
@@ -81,7 +101,11 @@ class ImageTest(TestCase):
                     self.assertEqual(img.size, tuple(image.shape[:2]))
                     # pylint: enable=pointless-statement
 
+@pytest.mark.components(DatumaroComponent.Datumaro)
+@pytest.mark.api_other
 class BytesImageTest(TestCase):
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_lazy_image_shape(self):
         data = encode_image(np.ones((5, 6, 3)), 'png')
 
@@ -91,8 +115,10 @@ class BytesImageTest(TestCase):
         self.assertEqual((2, 4), image_lazy.size)
         self.assertEqual((5, 6), image_eager.size)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
     def test_ctors(self):
-        with TestDir() as test_dir:
+        with TempTestDir() as test_dir:
             path = osp.join(test_dir, 'path.png')
             image = np.ones([2, 4, 3])
             image_bytes = encode_image(image, 'png')
