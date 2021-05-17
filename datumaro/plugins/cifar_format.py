@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import os
 import os.path as osp
 import pickle
 
@@ -117,8 +118,9 @@ class CifarConverter(Converter):
     DEFAULT_IMAGE_EXT = '.png'
 
     def apply(self):
-        label_categories = self._extractor.categories()[AnnotationType.label]
+        os.makedirs(self._save_dir, exist_ok=True)
 
+        label_categories = self._extractor.categories()[AnnotationType.label]
         label_names = []
         for label in label_categories:
             label_names.append(label.name)
