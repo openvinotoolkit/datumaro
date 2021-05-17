@@ -41,14 +41,14 @@ class FileRemover:
             rmfile(self.path)
     # pylint: enable=redefined-builtin
 
-class TestDir(FileRemover):
+class TempTestDir(FileRemover):
     """
     Creates a temporary directory for a test. Uses the name of
     the test function to name the directory.
 
     Usage:
 
-    with TestDir() as test_dir:
+    with TempTestDir() as test_dir:
         ...
     """
 
@@ -143,8 +143,8 @@ def compare_datasets_strict(test, expected, actual):
                 '%s:\n%s\nvs.\n%s\n' % \
                 (idx, item_a, item_b))
 
-def test_save_and_load(test, source_dataset, converter, test_dir, importer,
-        target_dataset=None, importer_args=None, compare=None, **kwargs):
+def util_test_save_and_load(test, source_dataset, converter, test_dir, importer,
+                            target_dataset=None, importer_args=None, compare=None, **kwargs):
     converter(source_dataset, test_dir)
 
     if importer_args is None:
