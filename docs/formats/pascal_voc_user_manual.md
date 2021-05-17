@@ -136,7 +136,7 @@ To make sure that the selected dataset has been added to the project, you can ru
 ## Export to other formats
 
 Datumaro can convert Pascal VOC dataset into any other format
-[Datumaro supports](../docs/user_manual.md#supported-formats).
+[Datumaro supports](../user_manual.md#supported-formats).
 
 Such conversion will only be successful if the output
 format can represent the type of dataset you want to convert,
@@ -211,7 +211,7 @@ datum export -f voc_segmentation -- --label-map voc
 
 Datumaro supports filtering, transformation, merging etc. for all formats
 and for the Pascal VOC format in particular. Follow
-[user manual](../docs/user_manual.md)
+[user manual](../user_manual.md)
 to get more information about these operations.
 
 There are few examples of using Datumaro operations to solve
