@@ -175,5 +175,5 @@ datum convert --input-format mnist --input-path <path/to/mnist> \
               --filter '/item[annotation/label="3"]'
 ```
 
-Some examples of working with Pascal VOC dataset from code you can found in
+More examples of working with MNIST dataset from code can be found in
 [tests_mnist](../../tests/test_mnist_format.py) and [tests_mnist_csv](../../tests/test_mnist_csv_format.py)
