@@ -2,12 +2,13 @@
 # Copyright (C) 2019-2020 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
-
+import datetime
 from enum import Enum
 from glob import iglob
 from typing import Iterable, List, Dict, Optional
 import numpy as np
 import os.path as osp
+from io import BytesIO
 
 import attr
 from attr import attrs, attrib
@@ -25,6 +26,9 @@ AnnotationType = Enum('AnnotationType',
         'polyline',
         'bbox',
         'caption',
+        'cuboid',
+        'owner',
+        'tag'
     ])
 
 _COORDINATE_ROUNDING_DIGITS = 2
@@ -127,7 +131,10 @@ class LabelCategories(Categories):
 @attrs
 class Label(Annotation):
     _type = AnnotationType.label
-    label = attrib(converter=int)
+    label = attrib(converter=int, default=0)
+    name = attrib(type=str, default=None)
+    color = attrib(default=None, type=str)
+
 
 @attrs(eq=False)
 class MaskCategories(Categories):
@@ -360,6 +367,38 @@ class PolyLine(_Shape):
     def get_area(self):
         return 0
 
+
+@attrs
+class Cuboid(Annotation):
+    _type = AnnotationType.cuboid
+    points = attrib(type=list, default=[])
+    label = attrib(converter=attr.converters.optional(int),
+                   default=None, kw_only=True)
+    z_order = attrib(default=0, validator=default_if_none(int), kw_only=True)
+
+    def as_cuboid(self):
+        return self.points[:]
+
+    def get_area(self):
+        return 0
+
+
+@attrs
+class Tag(Annotation):
+    _type = AnnotationType.tag
+    label_id = attrib(type=int, default=None)
+    name = name = attrib(default=None, kw_only=True)
+
+
+@attrs
+class Owner(Annotation):
+    _type = AnnotationType.owner
+
+    name = attrib(default=None, kw_only=True)
+    updatedAt= attrib(type=datetime, default=datetime.datetime.now())
+    createdAt = attrib(type=datetime, default=datetime.datetime.now())
+
+
 @attrs
 class Polygon(_Shape):
     _type = AnnotationType.polygon
@@ -519,8 +558,36 @@ class DatasetItem:
     annotations = attrib(factory=list, validator=default_if_none(list))
     subset = attrib(converter=lambda v: v or DEFAULT_SUBSET_NAME, default=None)
     path = attrib(factory=list, validator=default_if_none(list))
-
     image = attrib(type=Image, default=None)
+    pcd = attrib(type=bytes, default=None)
+    related_images = attrib(type=list, default=[])
+
+    @related_images.validator
+    def _image_validator(self, attribute, related_images):
+        self.related_images = []
+        image={}
+        for related_image in related_images:
+            if callable(related_image) or isinstance(related_image["path"], np.ndarray):
+                image["name"] = related_image["name"]
+                image["image"] = Image(data=related_image)
+            elif isinstance(related_image["path"], str):
+
+                image["name"] = related_image["name"]
+                image["image"] = Image(path=related_image["path"])
+            assert image is None or isinstance(image["image"], Image)
+
+            self.related_images.append(image)
+
+    @pcd.validator
+    def _pcd_validator(self, attribute, pcd):
+        if pcd:
+            if callable(pcd) or isinstance(pcd, bytes):
+                pcd = pcd
+            elif isinstance(pcd, str):
+                pcd = pcd
+            assert pcd is None or isinstance(pcd, bytes) or isinstance(pcd, str)
+            self.pcd = pcd
+
     @image.validator
     def _image_validator(self, attribute, image):
         if callable(image) or isinstance(image, np.ndarray):
@@ -535,6 +602,10 @@ class DatasetItem:
     @property
     def has_image(self):
         return self.image is not None
+
+    @property
+    def has_pcd(self):
+        return self.pcd is not None
 
     def wrap(item, **kwargs):
         return attr.evolve(item, **kwargs)
@@ -659,6 +730,10 @@ class Importer:
         sources = self.find_sources(osp.normpath(path))
         if len(sources) == 0:
             raise Exception("Failed to find dataset at '%s'" % path)
+
+        for i, source in enumerate(sources):
+            if osp.split(source["url"])[-1] == "meta.json" and source["format"] == 'point_cloud':
+                del sources[i]
 
         for desc in sources:
             params = dict(extra_params)

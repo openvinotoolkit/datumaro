@@ -57,10 +57,29 @@ class Converter(CliPlugin):
 
         return self._image_ext or src_ext or self._default_image_ext
 
+    def _find_pcd_ext(self, item):
+        src_ext = None
+        if item.has_pcd:
+            src_ext = ".pcd"
+
+        return self._image_ext or src_ext or self._default_image_ext
+
+    def _find_related_image_ext(self, item):
+        src_ext = None
+        if item:
+            src_ext = item.ext
+
+        return self._image_ext or src_ext or self._default_image_ext
+
     def _make_image_filename(self, item, *, name=None, subdir=None):
         name = name or item.id
         subdir = subdir or ''
         return osp.join(subdir, name + self._find_image_ext(item))
+
+    def _make_pcd_filename(self, item, *, name=None, subdir=None):
+        name = name or item.id
+        subdir = subdir or ''
+        return osp.join(subdir, name)
 
     def _save_image(self, item, path=None, *,
             name=None, subdir=None, basedir=None):
@@ -73,7 +92,7 @@ class Converter(CliPlugin):
 
         basedir = basedir or self._save_dir
         path = path or osp.join(basedir,
-            self._make_image_filename(item, name=name, subdir=subdir))
+            self._make_image_filename(item, name=name, subdir=None))
         path = osp.abspath(path)
 
         src_ext = item.image.ext.lower()
@@ -88,3 +107,22 @@ class Converter(CliPlugin):
                 f.write(item.image.get_bytes())
         else:
             save_image(path, item.image.data)
+
+    def _save_pcd(self, item=None, path=None, pcd_dir=None, name=None):
+
+        if not item.pcd:
+            log.warning("Item '%s' has no pcd", item.id)
+            return
+
+        path = path or osp.join(pcd_dir,
+                                self._make_pcd_filename(item, name=name, subdir=None))
+
+        path = osp.abspath(path)
+        os.makedirs(osp.dirname(path), exist_ok=True)
+
+        if osp.isfile(item.pcd):
+            if item.pcd != path:
+                shutil.copyfile(item.pcd, path)
+        elif isinstance(item.pcd, bytes):
+            with open(path, 'wb') as f:
+                f.write(item.pcd)
