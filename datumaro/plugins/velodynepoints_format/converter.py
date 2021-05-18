@@ -218,15 +218,15 @@ class _SubsetWriter:
                         "rx": item.points[6],
                         "ry": item.points[7],
                         "rz": item.points[8],
-                        "state": 2,  # pose state
-                        "occlusion": -1,  # occusion state
-                        "occlusion_kf": False,  # is this an occlusion keyframe
-                        "truncation": -1,  # truncation state
-                        "amt_occlusion": -1,  # Mechanical Turk occlusion label
-                        "amt_border_l": -1,  # Mechanical Turk left boundary label (relative)
-                        "amt_border_r": -1,  # Mechanical Turk right boundary label (relative)
-                        "amt_occlusion_kf": -1,  # Mechanical Turk occlusion keyframe
-                        "amt_border_kf": -1,  # Mechanical Turk border keyframe
+                        "state": 2,
+                        "occlusion": -1,
+                        "occlusion_kf": 1 if item.attributes.get("occluded", False) else 0,
+                        "truncation": -1,
+                        "amt_occlusion": -1,
+                        "amt_border_l": -1,
+                        "amt_border_r": -1,
+                        "amt_occlusion_kf": -1,
+                        "amt_border_kf": -1,
                     }
                     tracklet["poses"].append(pose)
                     tracklet["finished"] = 1
@@ -320,7 +320,7 @@ class VelodynePointsConverter(Converter):
             cls.convert(dataset.get_subset(subset), save_dir=save_dir, **kwargs)
 
         conv = cls(dataset, save_dir=save_dir, **kwargs)
-        images_dir = osp.join(save_dir, cls._images_dir)
+        images_dir = osp.abspath(osp.join(save_dir, "velodyne_points/data"))
         for (item_id, subset), status in patch.updated_items.items():
             if status != ItemStatus.removed:
                 item = patch.data.get(item_id, subset)

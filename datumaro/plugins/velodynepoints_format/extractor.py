@@ -66,7 +66,7 @@ class VelodynePointsExtractor(SourceExtractor):
             elif elem.tag == "first_frame":
                 shape['frame'] = int(elem.text)
             elif elem.tag == "occlusion_kf":
-                shape["occluded"] = 1 if elem.text else 0
+                shape["occluded"] = 1 if int(elem.text) else 0
             elif elem.tag == "finished":
                 for i in range(7):
                     shape['points'].append(float(0.0))
@@ -124,7 +124,6 @@ class VelodynePointsExtractor(SourceExtractor):
                                            subset=self._subset, related_images=[],
                                            annotations=item_desc.get('annotations'),
                                            attributes={'frame': int(frame_id)})
-
         return parsed
 
 

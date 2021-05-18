@@ -71,7 +71,7 @@ class Converter(CliPlugin):
 
         return self._image_ext or src_ext or self._default_image_ext
 
-    def _make_image_filename(self, item, *, name=None, subdir=subdir):
+    def _make_image_filename(self, item, *, name=None, subdir=None):
         name = name or item.id
         subdir = subdir or ''
         return osp.join(subdir, name + self._find_image_ext(item))
@@ -92,7 +92,7 @@ class Converter(CliPlugin):
 
         basedir = basedir or self._save_dir
         path = path or osp.join(basedir,
-            self._make_image_filename(item, name=name, subdir=None))
+            self._make_image_filename(item, name=name, subdir=subdir))
         path = osp.abspath(path)
 
         src_ext = item.image.ext.lower()
