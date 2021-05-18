@@ -3,17 +3,14 @@ import os
 import os.path as osp
 import shutil
 
-from unittest import TestCase, skipIf, skip
-from datumaro.components.config import Config
+from unittest import TestCase, skip
 from datumaro.components.config_model import Source, Model
 from datumaro.components.dataset import Dataset, DEFAULT_FORMAT
 from datumaro.components.extractor import (Bbox, Extractor, DatasetItem,
     Label, LabelCategories, AnnotationType, Transform)
-from datumaro.components.errors import VcsError
 from datumaro.components.environment import Environment
 from datumaro.components.launcher import Launcher, ModelTransform
-from datumaro.components.project import (Project, BuildStageType,
-    GitWrapper, DvcWrapper, Tree)
+from datumaro.components.project import Project
 from datumaro.util.test_utils import TestDir, compare_datasets, compare_dirs
 
 
@@ -202,9 +199,29 @@ class ProjectTest(TestCase):
 
             compare_dirs(self, source_url, project.source_data_dir('s1'))
 
-    @skip('Source data status checks are not implemented yet')
     def test_can_checkout_source_rev_noncached(self):
-        raise NotImplementedError()
+        with TestDir() as test_dir:
+            source_url = osp.join(test_dir, 'source')
+            source_dataset = Dataset.from_iterable([
+                DatasetItem(0, image=np.ones((2, 3, 3)),
+                    annotations=[ Bbox(1, 2, 3, 4, label=0) ]),
+                DatasetItem(1, subset='s', image=np.ones((1, 2, 3)),
+                    annotations=[ Bbox(1, 2, 3, 4, label=1) ]),
+            ], categories=['a', 'b'])
+            source_dataset.save(source_url, save_images=True)
+
+            project = Project.init(osp.join(test_dir, 'proj'))
+            project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
+            project.commit("A commit")
+
+            project.remove_cache_obj(
+                project.working_tree.build_targets['s1'].head.hash)
+            shutil.rmtree(project.source_data_dir('s1'))
+
+            read_dataset = project.working_tree.make_dataset('s1')
+
+            compare_datasets(self, source_dataset, read_dataset)
+            compare_dirs(self, source_url, project.source_data_dir('s1'))
 
     def test_can_read_working_copy_of_source(self):
         with TestDir() as test_dir:
@@ -220,7 +237,7 @@ class ProjectTest(TestCase):
             project = Project.init(osp.join(test_dir, 'proj'))
             project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
 
-            read_dataset = project.working_tree.sources.make_dataset('s1')
+            read_dataset = project.working_tree.make_dataset('s1')
 
             compare_datasets(self, source_dataset, read_dataset)
             compare_dirs(self, source_url, project.source_data_dir('s1'))
@@ -242,11 +259,11 @@ class ProjectTest(TestCase):
 
             shutil.rmtree(project.source_data_dir('s1'))
 
-            read_dataset = project.head.sources.make_dataset('s1')
+            read_dataset = project.head.make_dataset('s1')
 
             compare_datasets(self, source_dataset, read_dataset)
             self.assertFalse(osp.isdir(project.source_data_dir('s1')))
-            compare_dirs(self, source_url, project.head.sources.data_dir('s1'))
+            compare_dirs(self, source_url, project.head.source_data_dir('s1'))
 
     def test_can_make_dataset_from_project(self):
         with TestDir() as test_dir:
@@ -256,7 +273,7 @@ class ProjectTest(TestCase):
             ], categories=['a', 'b'])
             source_dataset.save(source_url)
 
-            project = Project.init(test_dir)
+            project = Project.init(osp.join(test_dir, 'proj'))
             project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
 
             read_dataset = project.working_tree.make_dataset()
@@ -271,9 +288,8 @@ class ProjectTest(TestCase):
             ], categories=['a', 'b'])
             dataset.save(source_url)
 
-            project = Project.init(test_dir)
+            project = Project.init(osp.join(test_dir, 'proj'))
             project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
-            project.working_tree.build_targets.add_filter_stage('s1', '/item')
 
             built_dataset = project.working_tree.make_dataset('s1')
 
@@ -288,7 +304,7 @@ class ProjectTest(TestCase):
             ], categories=['a', 'b'])
             dataset.save(source_url)
 
-            project = Project.init(test_dir)
+            project = Project.init(osp.join(test_dir, 'proj'))
             project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
 
             stage = project.working_tree.build_targets.add_filter_stage('s1',
@@ -306,7 +322,7 @@ class ProjectTest(TestCase):
             ], categories=['a', 'b'])
             dataset.save(source_url)
 
-            project = Project.init(test_dir)
+            project = Project.init(osp.join(test_dir, 'proj'))
             project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
 
             stage = project.working_tree.build_targets.add_convert_stage('s1',
@@ -332,7 +348,7 @@ class ProjectTest(TestCase):
             ], categories=['a', 'b'])
             dataset.save(source_url)
 
-            project = Project.init(test_dir)
+            project = Project.init(osp.join(test_dir, 'proj'))
             project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
             project.working_tree.env.transforms.register('tr', TestTransform)
 
@@ -351,7 +367,7 @@ class ProjectTest(TestCase):
             ], categories=['a', 'b'])
             dataset.save(source_url)
 
-            project = Project.init(test_dir)
+            project = Project.init(osp.join(test_dir, 'proj'))
             project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
             stage = project.working_tree.build_targets.add_filter_stage('s1',
                 '/item/annotation[label="b"]')

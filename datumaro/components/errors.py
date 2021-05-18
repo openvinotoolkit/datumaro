@@ -11,13 +11,16 @@ class DatumaroError(Exception):
 class VcsError(DatumaroError):
     pass
 
-class ReadonlyProjectError(VcsError):
+class ReadonlyDatasetError(VcsError):
     pass
 
 class UnknownRefError(VcsError):
     pass
 
 class MissingObjectError(VcsError):
+    pass
+
+class MismatchingObjectError(VcsError):
     pass
 
 @attrs

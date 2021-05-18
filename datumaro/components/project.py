@@ -22,43 +22,20 @@ from datumaro.components.config_model import (BuildStage, PipelineConfig,
 from datumaro.components.dataset import DEFAULT_FORMAT, Dataset, IDataset
 from datumaro.components.environment import Environment
 from datumaro.components.errors import (DatasetMergeError, DatumaroError,
-    EmptyPipelineError, MissingObjectError,
-                                        MissingPipelineHeadError,
-                                        MultiplePipelineHeadsError,
-                                        ProjectAlreadyExists,
-                                        ProjectNotFoundError,
-                                        ReadonlyProjectError,
-                                        SourceExistsError, UnknownRefError,
-                                        UnknownSourceError, UnknownStageError,
-                                        VcsError, UnsavedChangesError)
-from datumaro.util import error_rollback, find, parse_str_enum_value
+    EmptyPipelineError, MismatchingObjectError, MissingObjectError,
+    MissingPipelineHeadError, MultiplePipelineHeadsError, ProjectAlreadyExists,
+    ProjectNotFoundError, ReadonlyDatasetError, SourceExistsError,
+    UnknownRefError, UnknownStageError, VcsError, UnsavedChangesError)
+from datumaro.util import find, parse_str_enum_value
 from datumaro.util.log_utils import catch_logs, logging_disabled
 from datumaro.util.os_util import generate_next_name, make_file_name, rmtree
 
 
 class ProjectSourceDataset(Dataset):
     @classmethod
-    def from_cache(cls, tree: 'Tree', source: str, path: str):
+    def load(cls, path: str, tree: 'Tree',
+            source: str, readonly: bool = False) -> 'ProjectSourceDataset':
         config = tree.sources[source]
-
-        dataset = cls.import_from(path, env=tree.env,
-            format=config.format, **config.options)
-        dataset._tree = tree
-        dataset._config = config
-        dataset._readonly = True
-        dataset.name = source
-        return dataset
-
-    @classmethod
-    def from_source(cls, tree: 'Tree', source: str):
-        config = tree.sources[source]
-
-        path = osp.join(tree.sources.data_dir(source), config.url)
-        readonly = not path or not osp.exists(path)
-        if path and not osp.exists(path) and not config.remote:
-            # backward compatibility
-            path = osp.join(tree.config.project_dir, config.url)
-            readonly = True
 
         dataset = cls.import_from(path, env=tree.env,
             format=config.format, **config.options)
@@ -71,7 +48,7 @@ class ProjectSourceDataset(Dataset):
     def save(self, save_dir=None, **kwargs):
         if save_dir is None:
             if self.readonly:
-                raise ReadonlyProjectError("Can't update a read-only dataset")
+                raise ReadonlyDatasetError("Can't update a read-only dataset")
         super().save(save_dir, **kwargs)
 
     @property
@@ -203,9 +180,6 @@ class ProjectSources(_DataSourceBase):
         except KeyError:
             raise KeyError("Unknown source '%s'" % name)
 
-    def make_dataset(self, name):
-        return ProjectSourceDataset.from_source(self._project, name)
-
 
 BuildStageType = Enum('BuildStageType',
     ['source', 'project', 'transform', 'filter', 'convert', 'inference'])
@@ -243,7 +217,7 @@ class Pipeline:
         return obj
 
     @staticmethod
-    def _find_head_node(graph) -> str:
+    def _find_head_node(graph) -> Optional[str]:
         head = None
         for node in graph.nodes:
             if graph.out_degree(node) == 0:
@@ -259,7 +233,11 @@ class Pipeline:
     def head(self):
         if self._head is None:
             self._head = self._find_head_node(self._graph)
-        return self._graph[self._head]
+        return self._head
+
+    @property
+    def head_node(self):
+        return self._graph.nodes[self.head]
 
     @staticmethod
     def _serialize(graph) -> PipelineConfig:
@@ -310,22 +288,44 @@ class ProjectBuilder:
         return dataset
 
     def _run_pipeline(self, pipeline):
-        missing_sources = self.find_missing_sources(pipeline)
-        for t in missing_sources:
-            self._project.download_source(pipeline.nodes[t]['config'])
+        missing_sources, wd_hashes = self._find_missing_sources(pipeline)
+        for s in missing_sources:
+            target, stage = ProjectBuildTargets.split_target_name(s)
+            assert not stage or stage == ProjectBuildTargets.BASE_STAGE, s
+            source = self._tree.sources[target]
 
-        return self._init_pipeline(pipeline)
+            assert source.hash, target
+            with self._project._make_tmp_dir() as tmp_dir:
+                conf, _, _ = \
+                    self._project._download_source(target, source.url, tmp_dir)
+
+                if source.hash != conf['hash']:
+                    raise MismatchingObjectError(
+                        "Downloaded source '%s' data is different " \
+                        "from what is saved in the build pipeline: "
+                        "'%s' vs '%s'" % (s, conf['hash'], source.hash))
+
+        return self._init_pipeline(pipeline, working_dir_hashes=wd_hashes)
 
     def _get_resulting_dataset(self, pipeline):
         graph, head = self._run_pipeline(pipeline)
-        return graph[head]['dataset']
+        return graph.nodes[head]['dataset']
 
-    def _init_pipeline(self, pipeline):
-        def _load_cached_dataset(stage_config, stage_name):
-            path = self._project._obj_cache_path(stage_config.hash)
-            source = ProjectBuildTargets.strip_target_name(stage_name)
-            return ProjectSourceDataset.from_cache(self._tree, source, path)
+    def _stage_data_dir(self, stage: str) -> str:
+        target, stage = ProjectBuildTargets.split_target_name(stage)
+        stage_hash = self._tree.build_targets[target].get_stage(stage).hash
 
+        if self._tree.is_working_tree and \
+                target in self._tree.sources and \
+                stage == self._tree.build_targets[target].head.name:
+            return self._project.source_data_dir(target)
+
+        if stage_hash and self._project.is_obj_cached(stage_hash):
+            return self._project.cache_path(stage_hash)
+
+        return None
+
+    def _init_pipeline(self, pipeline, working_dir_hashes=None):
         def _join_parent_datasets(force=True):
             parents = { p: graph.nodes[p] for p in initialized_parents }
 
@@ -333,7 +333,7 @@ class ProjectBuilder:
                 try:
                     dataset = Dataset.from_extractors(
                         *(p['dataset'] for p in parents.values()),
-                        env=self._project.env)
+                        env=self._tree.env)
                 except DatasetMergeError as e:
                     e.sources = set(parents)
                     raise e
@@ -344,21 +344,77 @@ class ProjectBuilder:
             for p_name, p in parents.items():
                 p['_use_count'] = p.get('_use_count', 0) + 1
 
-                if p_name != head and \
-                        p['_use_count'] == len(graph.successors(p_name)):
+                if p_name != head and p['_use_count'] == graph.in_degree(p_name):
                     p.pop('dataset')
 
             return dataset
 
-        if len(pipeline) == 0:
-            raise EmptyPipelineError()
+        if working_dir_hashes is None:
+            working_dir_hashes = {}
+        def _try_load_from_cache(current_name, current) -> Dataset:
+            # Check if we can restore this stage from the cache or
+            # from the working directory.
+            #
+            # If we have a hash, we have executed this stage already
+            # and can have a cache entry or,
+            # if this is the last stage of a target in the working tree,
+            # we can use data from the working directory.
+            obj_hash = current['config'].hash
+
+            data_dir = None
+            cached = False
+
+            target = ProjectBuildTargets.strip_target_name(current_name)
+            if self._tree.is_working_tree and target in self._tree.sources:
+                data_dir = self._project.source_data_dir(target)
+
+                wd_hash = working_dir_hashes.get(target)
+                if not wd_hash:
+                    if not osp.isdir(data_dir):
+                        log.debug("Build: skipping checking working dir '%s', "
+                            "because it does not exist", data_dir)
+                        return None
+
+                    wd_hash = self._project._refresh_source_hash(data_dir)
+                    working_dir_hashes[target] = wd_hash
+
+                if obj_hash != wd_hash:
+                    log.debug("Build: skipping loading stage '%s' from "
+                        "working dir '%s', because hashes does not match",
+                        current_name, data_dir)
+                    return None
+
+            if not data_dir:
+                if self._project._is_cached(obj_hash):
+                    data_dir = self._project.cache_path(obj_hash)
+                    cached = True
+                elif self._project._can_retrieve_from_vcs_cache(obj_hash):
+                    data_dir = self._project._materialize_obj(obj_hash)
+                    cached = True
+
+                if not data_dir or not osp.isdir(data_dir):
+                    log.debug("Build: skipping loading stage '%s' from "
+                        "cache obj '%s', because it is not available",
+                        current_name, obj_hash)
+                    return None
+
+            if data_dir:
+                assert osp.isdir(data_dir), data_dir
+                log.debug("Build: loading stage '%s' from '%s'",
+                    current_name, data_dir)
+                return ProjectSourceDataset.load(
+                    data_dir, self._tree, target, readonly=cached)
+
+            return None
+
 
         graph = pipeline._graph
+        if len(graph) == 0:
+            raise EmptyPipelineError()
 
         head = pipeline.head
         if not head:
             raise MissingPipelineHeadError()
-        head = head['config'].name
 
         # traverse the graph and initialize nodes from sources to the head
         to_visit = [head]
@@ -369,22 +425,24 @@ class ProjectBuilder:
             assert current.get('dataset') is None
 
             obj_hash = current['config'].hash
-            if obj_hash and self._project.is_obj_cached(obj_hash):
-                current['dataset'] = _load_cached_dataset(current['config'],
-                    current_name)
-                continue
+            if obj_hash:
+                dataset = _try_load_from_cache(current_name, current)
+                if dataset is not None:
+                    current['dataset'] = dataset
+                    continue
 
             uninitialized_parents = []
             initialized_parents = []
-            parent_targets = graph.predecessors(current_name)
-            if not parent_targets:
+            if graph.in_degree(current_name) == 0:
                 assert current['config'].type == 'source', current['config'].type
                 if not current['config'].is_generated:
                     # source is missing in the cache and cannot be retrieved
                     # it is assumed that all the sources were downloaded earlier
-                    raise MissingObjectError(obj_hash)
+                    raise MissingObjectError("Failed to load target '%s': "
+                        "obj '%s' was not found in cache" % \
+                        (current_name, obj_hash))
             else:
-                for p_name in parent_targets:
+                for p_name in graph.predecessors(current_name):
                     parent = graph.nodes[p_name]
                     if parent.get('dataset') is None:
                         uninitialized_parents.append(p_name)
@@ -421,8 +479,22 @@ class ProjectBuilder:
 
             elif type_ == BuildStageType.source:
                 assert len(initialized_parents) == 0, current_name
-                source = ProjectBuildTargets.strip_target_name(current_name)
-                dataset = self._tree.sources.make_dataset(source)
+
+                # The only valid situation we get here is that it is a
+                # generated source:
+                # - No cache entry
+                # - No local dir data
+                if not current['config'].is_generated:
+                    raise MissingObjectError("Can't initialize stage '%s': "
+                        "source data is not available" % current_name)
+
+                source_name = ProjectBuildTargets.strip_target_name(current_name)
+                if self._tree.is_working_tree:
+                    source_dir = self._project.source_data_dir(source_name)
+                else:
+                    source_dir = None
+                dataset = ProjectSourceDataset.load(source_dir, self._tree,
+                    source_name, readonly=not source_dir)
 
             elif type_ == BuildStageType.project:
                 dataset = _join_parent_datasets(force=True)
@@ -437,43 +509,65 @@ class ProjectBuilder:
 
         return graph, head
 
-    def find_missing_sources(self, pipeline: Pipeline):
+    def _find_missing_sources(self, pipeline: Pipeline):
+        work_dir_hashes = {}
+        def _can_retrieve(target, conf):
+            obj_hash = conf.hash
+
+            target = ProjectBuildTargets.strip_target_name(target)
+            if self._tree.is_working_tree and target in self._tree.sources:
+                data_dir = self._project.source_data_dir(target)
+
+                wd_hash = work_dir_hashes.get(target)
+                if not wd_hash:
+                    if not osp.isdir(data_dir):
+                        return False
+
+                    wd_hash = self._project._refresh_source_hash(data_dir)
+                    work_dir_hashes[target] = wd_hash
+
+                if obj_hash != wd_hash:
+                    return False
+
+            if obj_hash and self._project.is_obj_cached(obj_hash):
+                return True
+
+            return False
+
         missing_sources = set()
         checked_deps = set()
-        missing_deps = [pipeline.head['config'].name]
+        missing_deps = [pipeline.head]
         while missing_deps:
             t = missing_deps.pop()
             if t in checked_deps:
                 continue
 
-            t_conf = pipeline.nodes[t]['config']
+            t_conf = pipeline._graph.nodes[t]['config']
 
-            obj_hash = t_conf.hash
-            if not (obj_hash and self._project.is_obj_cached(obj_hash)):
-                parent_targets = pipeline.parents(t)
-                if not parent_targets:
+            if not _can_retrieve(t, t_conf):
+                if pipeline._graph.in_degree(t) == 0:
                     assert t_conf.type == 'source', t_conf.type
                     if not t_conf.is_generated:
                         missing_sources.add(t)
                 else:
-                    for p in parent_targets:
+                    for p in pipeline._graph.predecessors(t):
                         if p not in checked_deps:
                             missing_deps.append(p)
                     continue
 
             checked_deps.add(t)
-        return missing_sources
+        return missing_sources, work_dir_hashes
 
 class ProjectBuildTargets(CrudProxy):
     MAIN_TARGET = 'project'
     BASE_STAGE = 'root'
 
-    def __init__(self, project):
-        self._project = project
+    def __init__(self, tree: 'Tree'):
+        self._tree = tree
 
     @CrudProxy._data.getter
     def _data(self):
-        data = self._project.config.build_targets
+        data = self._tree.config.build_targets
 
         if self.MAIN_TARGET not in data:
             data[self.MAIN_TARGET] = {
@@ -485,7 +579,7 @@ class ProjectBuildTargets(CrudProxy):
                 ]
             }
 
-        for source in self._project.sources:
+        for source in self._tree.sources:
             if source not in data:
                 data[source] = {
                     'stages': [
@@ -565,7 +659,7 @@ class ProjectBuildTargets(CrudProxy):
 
     def add_transform_stage(self, target: str, transform: str,
             params: Optional[Dict] = None, name: Optional[str] = None):
-        if not transform in self._project.env.transforms:
+        if not transform in self._tree.env.transforms:
             raise KeyError("Unknown transform '%s'" % transform)
 
         return self.add_stage(target, {
@@ -576,7 +670,7 @@ class ProjectBuildTargets(CrudProxy):
 
     def add_inference_stage(self, target: str, model: str,
             params: Optional[Dict] = None, name: Optional[str] = None):
-        if not model in self._project.config.models:
+        if not model in self._tree.config.models:
             raise KeyError("Unknown model '%s'" % model)
 
         return self.add_stage(target, {
@@ -596,7 +690,7 @@ class ProjectBuildTargets(CrudProxy):
 
     def add_convert_stage(self, target: str, format: str, \
             params: Optional[Dict] = None, name: Optional[str] = None): # pylint: disable=redefined-builtin
-        if not self._project.env.is_format_known(format):
+        if not self._tree.env.is_format_known(format):
             raise KeyError("Unknown format '%s'" % format)
 
         return self.add_stage(target, {
@@ -657,11 +751,6 @@ class ProjectBuildTargets(CrudProxy):
             target = self.make_target_name(target, self[target].head.name)
 
         return self._make_full_pipeline().get_slice(target)
-
-    def make_dataset(self, target=None) -> IDataset:
-        pipeline = self.make_pipeline(target)
-        return ProjectBuilder(self._project, self).make_dataset(pipeline)
-
 
 class GitWrapper:
     @staticmethod
@@ -886,6 +975,11 @@ class GitWrapper:
         return self.repo.head.hexsha
 
     def rev_parse(self, ref: str) -> Tuple[str, str]:
+        """
+        Expands named refs and tags.
+
+        Returns: object type, object hash
+        """
         obj = self.repo.rev_parse(ref)
         return obj.type, obj.hexsha
 
@@ -1181,19 +1275,20 @@ class DvcWrapper:
         return logs
 
     def is_cached(self, obj_hash):
-        path = self.make_cache_path(obj_hash)
+        path = self.obj_path(obj_hash)
         if not osp.isfile(path):
             return False
 
         if obj_hash.endswith(self.DIR_HASH_SUFFIX):
-            objects = json.load(path)
+            with open(path) as f:
+                objects = json.load(f)
             for entry in objects:
-                if not osp.isfile(self.make_cache_path(entry['md5'])):
+                if not osp.isfile(self.obj_path(entry['md5'])):
                     return False
 
         return True
 
-    def make_cache_path(self, obj_hash, root=None):
+    def obj_path(self, obj_hash, root=None):
         assert self.is_hash(obj_hash), obj_hash
         if not root:
             root = osp.join(self._project_dir, '.dvc', 'cache')
@@ -1239,6 +1334,48 @@ class DvcWrapper:
     def is_hash(cls, s: str) -> bool:
         return cls.is_file_hash(s) or cls.is_dir_hash(s)
 
+    def write_obj(self, obj_hash, dst_dir, allow_links=True):
+        def _copy_obj(src, dst, link=False):
+            os.makedirs(osp.dirname(dst), exist_ok=True)
+            if link:
+                os.link(src, dst)
+            else:
+                shutil.copy(src, dst, follow_symlinks=True)
+
+        src = self.obj_path(obj_hash)
+        if osp.isfile(src):
+            _copy_obj(src, dst_dir, link=allow_links)
+            return
+
+        src += self.DIR_HASH_SUFFIX
+        if not osp.isfile(src):
+            raise UnknownRefError(obj_hash)
+
+        with open(src) as f:
+            src_meta = json.load(f)
+        for entry in src_meta:
+            _copy_obj(self.obj_path(entry['md5']),
+                osp.join(dst_dir, entry['relpath']), link=allow_links)
+
+    def remove_cache_obj(self, obj_hash: str):
+        src = self.obj_path(obj_hash)
+        if osp.isfile(src):
+            os.remove(src)
+            return
+
+        src += self.DIR_HASH_SUFFIX
+        if not osp.isfile(src):
+            raise UnknownRefError(obj_hash)
+
+        with open(src) as f:
+            src_meta = json.load(f)
+        for entry in src_meta:
+            entry_path = self.obj_path(entry['md5'])
+            if osp.isfile(entry_path):
+                os.remove(entry_path)
+
+        os.remove(src)
+
 class Tree:
     # can be:
     # - attached to the work dir
@@ -1251,6 +1388,7 @@ class Tree:
         config.remove('subsets')
         config.remove('format_version')
 
+        raise NotImplementedError()
         config = cls._read_config_v2(config)
         if osp.isdir(osp.join(config.project_dir, config.dataset_dir)):
             name = generate_next_name(list(config.sources), 'source',
@@ -1259,6 +1397,12 @@ class Tree:
                 'url': config.dataset_dir,
                 'format': DEFAULT_FORMAT,
             }
+
+        for s, s_conf in config.sources:
+            if path and not osp.exists(path) and not config.remote:
+                # backward compatibility
+                path = osp.join(tree.config.project_dir, config.url)
+
         return config
 
     @classmethod
@@ -1279,11 +1423,12 @@ class Tree:
             raise ValueError("Unknown project config file format version '%s'. "
                 "The only known are: 1, 2" % version)
 
-    def __init__(self, parent: 'Project',
+    def __init__(self, project: 'Project',
             config: Optional[TreeConfig] = None,
             env: Optional[Environment] = None,
             rev: Optional[str] = None):
-        assert isinstance(parent, Project)
+        assert isinstance(project, Project)
+        assert not rev or project.is_ref(rev), rev
 
         self._config = self._read_config(config)
         if env is None:
@@ -1291,7 +1436,7 @@ class Tree:
         elif config is not None:
             raise ValueError("env can only be provided when no config provided")
         self._env = env or Environment(self)
-        self._parent = parent
+        self._project = project
         self._rev = rev
 
         self._sources = ProjectSources(self)
@@ -1332,7 +1477,21 @@ class Tree:
     def make_dataset(self, target: Optional[str] = None) -> IDataset:
         if target is None:
             target = 'project'
-        return self.build_targets.make_dataset(target)
+
+        pipeline = self.build_targets.make_pipeline(target)
+        return ProjectBuilder(self._project, self).make_dataset(pipeline)
+
+    @property
+    def is_working_tree(self) -> bool:
+        return not self._rev
+
+    def source_data_dir(self, source) -> str:
+        if self.is_working_tree:
+            return self._project.source_data_dir(source)
+
+        obj_hash = self.build_targets[source].head.hash
+        return self._project.cache_path(obj_hash)
+
 
 class Project:
     @staticmethod
@@ -1415,7 +1574,7 @@ class Project:
         """
 
         obj_type, obj_hash = self._parse_ref(rev)
-        assert obj_type == 'tree', obj_type
+        assert obj_type == self._RefKind.tree, obj_type
 
         if not obj_hash:
             config_path = osp.join(self._aux_dir,
@@ -1429,56 +1588,61 @@ class Project:
                 tree_config.dump(config_path)
             tree_config.config_path = config_path
             # TODO: adjust paths in config
-            tree = Tree(config=tree_config, parent=self, rev=obj_hash)
-        elif not self.is_rev_cached(obj_hash):
-            self._materialize_rev(obj_hash)
+            tree = Tree(config=tree_config, project=self, rev=obj_hash)
+        else:
+            if not self.is_rev_cached(obj_hash):
+                self._materialize_rev(obj_hash)
 
-            rev_dir = self._obj_cache_path(obj_hash)
+            rev_dir = self.cache_path(obj_hash)
             tree_config = TreeConfig.parse(osp.join(rev_dir,
                 TreeLayout.conf_file))
             # TODO: adjust paths in config
-            tree = Tree(config=tree_config, parent=self, rev=obj_hash)
+            tree = Tree(config=tree_config, project=self, rev=obj_hash)
         return tree
 
     def is_rev_cached(self, rev: str) -> bool:
-        obj_hash = self._parse_ref(rev)
+        obj_type, obj_hash = self._parse_ref(rev)
+        assert obj_type == self._RefKind.tree, obj_type
         return self._is_cached(obj_hash)
 
     def is_obj_cached(self, obj_hash: str) -> bool:
         return self._is_cached(obj_hash) or \
             self._can_retrieve_from_vcs_cache(obj_hash)
 
-    def _parse_ref(self, ref: str) -> Tuple[str, str]:
-        if not ref:
-            return 'tree', ref
+    _RefKind = Enum('RefKind', ['tree', 'blob'])
+    def _parse_ref(self, ref: str) -> Tuple[_RefKind, str]:
+        if not ref: # working tree marker
+            return self._RefKind.tree, ref
 
         try:
-            obj = self.git.rev_parse(ref)
-            assert obj.type == 'commit', obj
+            obj_type, obj_hash = self._git.rev_parse(ref)
+            assert obj_type == 'commit', obj_hash
 
-            obj_type = 'tree'
+            return self._RefKind.tree, obj_hash
         except Exception as e:
             if isinstance(e, AssertionError):
                 raise
 
         try:
-            assert self._dvc.is_cached(ref), ref
-            obj_hash = ref
-            obj_type = 'blob'
+            assert self._dvc.is_hash(ref), ref
+            return self._RefKind.blob, ref
         except Exception:
             raise UnknownRefError("Can't parse ref '%s'" % ref)
 
-        return obj_type, obj_hash
-
     def _materialize_rev(self, rev):
         tree = self._git.get_tree(rev)
-        obj_dir = self._obj_cache_path(tree.hexsha)
+
+        obj_dir = self.cache_path(tree.hexsha)
+        if osp.isdir(obj_dir):
+            return obj_dir
+
         self._git.write_tree(tree, obj_dir)
+        return obj_dir
 
     def _is_cached(self, obj_hash):
-        return osp.isdir(self._obj_cache_path(obj_hash))
+        return osp.isdir(self.cache_path(obj_hash))
 
-    def _obj_cache_path(self, obj_hash, root=None):
+    def cache_path(self, obj_hash, root=None):
         assert self._git.is_hash(obj_hash) or self._dvc.is_hash(obj_hash), obj_hash
         if self._dvc.is_dir_hash(obj_hash):
             obj_hash = obj_hash[:self._dvc.FILE_HASH_LEN]
@@ -1529,7 +1693,18 @@ class Project:
         # obj_dir = _make_obj_path(self, source.hash)
         # shutil.move(temp_dir, obj_dir) # moves _into_ obj_dir
 
-    # cache control
+    def remove_cache_obj(self, ref: str):
+        obj_type, obj_hash = self._parse_ref(ref)
+
+        if self._is_cached(obj_hash):
+            rmtree(self.cache_path(obj_hash))
+
+        if obj_type == self._RefKind.tree:
+            pass
+        elif obj_type == self._RefKind.blob:
+            self._dvc.remove_cache_obj(obj_hash)
+        else:
+            raise ValueError("Unexpected object type '%s'" % obj_type)
 
     def validate_source_name(self, name: str):
         valid_filename = make_file_name(name)
@@ -1545,6 +1720,8 @@ class Project:
             raise ValueError("Source name is reserved for internal use")
 
     def _download_source(self, name, url, dst_dir, no_cache=False):
+        assert url
+
         dvcfile = osp.join(dst_dir, name + '.dvc')
         data_dir = osp.join(dst_dir, 'data')
 
@@ -1560,9 +1737,38 @@ class Project:
             obj_hash = obj_hash[:-len(self._dvc.DIR_HASH_SUFFIX)]
 
         return {
-            'url': osp.basename(url),
+            'url': url,
             'hash': obj_hash,
         }, dvcfile, data_dir
+
+    def _refresh_source_hash(self, source: str) -> str:
+        source_dir = self.source_data_dir(source)
+
+        if not osp.isdir(source_dir):
+            return None
+
+        with self._make_tmp_dir() as tmp_dir:
+            tmp_dvcfile = osp.join(tmp_dir, 'obj.dvc')
+            self._dvc.add(source_dir, dvc_path=tmp_dvcfile, no_commit=True)
+
+            obj_hash = self._dvc.get_hash_from_dvcfile(tmp_dvcfile)
+            obj_hash = obj_hash[:-len(self._dvc.DIR_HASH_SUFFIX)]
+
+            dvcfile = self._source_dvcfile_path(source)
+            os.replace(tmp_dvcfile, dvcfile)
+
+        return obj_hash
+
+    def _materialize_obj(self, obj_hash: str):
+        if not self._can_retrieve_from_vcs_cache(obj_hash):
+            raise MissingObjectError(obj_hash)
+
+        dst_dir = self.cache_path(obj_hash)
+        if osp.isdir(dst_dir):
+            return dst_dir
+
+        self._dvc.write_obj(obj_hash, dst_dir, allow_links=True)
+        return dst_dir
 
     def import_source(self, name: str, url: Optional[str],
             format: str, options: Optional[Dict] = None,
@@ -1670,13 +1876,19 @@ class Project:
                 self._dvc.add(source_dir, dvc_path=tmp_dvcfile,
                     no_commit=no_cache)
 
+                obj_hash = self._dvc.get_hash_from_dvcfile(tmp_dvcfile)
+                obj_hash = obj_hash[:-len(self._dvc.DIR_HASH_SUFFIX)]
+                if obj_hash != self.working_tree.build_targets[s].head.hash:
+                    # TODO: compute a patch and a new stage
+                    log.warning("Commit: The source '%s' has been changed "
+                        "without Datumaro means. It will be saved, but it will "
+                        "only be available for reproduction from the cache.",
+                        s)
+                    self.working_tree.build_targets[s].head.hash = obj_hash
+
                 dvcfile = self._source_dvcfile_path(s)
                 os.makedirs(osp.dirname(dvcfile), exist_ok=True)
                 os.replace(tmp_dvcfile, dvcfile)
-
-            obj_hash = self._dvc.get_hash_from_dvcfile(dvcfile)
-            obj_hash = obj_hash[:-len(self._dvc.DIR_HASH_SUFFIX)]
-            self.working_tree.build_targets[s].head.hash = obj_hash
 
         tree_dir = osp.join(self._aux_dir, ProjectLayout.tree_dir)
         self.working_tree.save()
@@ -1685,7 +1897,7 @@ class Project:
 
         os.makedirs(osp.join(self._aux_dir, ProjectLayout.cache_dir),
             exist_ok=True)
-        shutil.move(tree_dir, self._obj_cache_path(head))
+        shutil.move(tree_dir, self.cache_path(head))
 
         self._head_tree = None
 
