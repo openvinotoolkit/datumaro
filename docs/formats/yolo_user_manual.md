@@ -15,10 +15,10 @@ Specification for this format available
 And also you can find some official examples on working with YOLO dataset
 [here](https://pjreddie.com/darknet/yolo/);
 
-- The YOLO dataset format support the followoing types of annotations:
+- The YOLO dataset format support the following types of annotations:
     - `Bounding boxes`
 
-- YOLO format doesn`t support attributes for annotations;
+- YOLO format doesn't support attributes for annotations;
 
 - The format only supports subsets named `train` or `valid`.
 
@@ -48,20 +48,26 @@ YOLO dataset directory should have the following structure:
    ├── train.txt  # list of image paths in train subset
    ├── valid.txt  # list of image paths in valid subset
    │
-   ├── obj_train_data/  # directory with annotations for train subset
+   ├── obj_train_data/  # directory with annotations and images for train subset
    │    ├── image1.txt  # list of labeled bounding boxes for image1
+   │    ├── image1.jpg
    │    ├── image2.txt
+   │    ├── image2.jpg
    │    ├── ...
    │
-   ├── obj_valid_data/  # directory with annotations for valid subset
+   ├── obj_valid_data/  # directory with annotations and images for valid subset
    │    ├── image101.txt
+   │    ├── image101.jpg
    │    ├── image102.txt
+   │    ├── image102.jpg
    │    ├── ...
 ```
 > YOLO dataset cannot contain a subset with a name other than `train` or `valid`.
-If importing dataset contain such subsets, Datumaro will skip them and they will do not load
-into a project. Also, if you are exporting an existing dataset from a project to yolo format,
-all subsets, which are different from `train` or `valid` will be skipped.
+If imported dataset contains such subsets, they will be ignored.
+If you are exporting a project into yolo format,
+all subsets different from `train` and `valid` will be skipped.
+If there is no subset separation in a project, the data
+will be saved in `train` subset.
 
 - `obj.data` should have the following content, it is not necessary to have both
 subsets, but necessary to have one of them:
@@ -87,7 +93,7 @@ label3  # label2 has index 2
 ...
 ```
 - Files in directories `obj_train_data/` and `obj_valid_data/`
-should contain information about a labeled bounding boxes
+should contain information about labeled bounding boxes
 for images:
 ```
 # image1.txt:
@@ -117,8 +123,8 @@ datum convert -if yolo -i <path/to/yolo/dataset> \
 
 ## Export to YOLO format
 
-Datumaro can convert existing dataset to YOLO format,
-if existing dataset support object detection task.
+Datumaro can convert an existing dataset to YOLO format,
+if the dataset supports object detection task.
 
 Example:
 
@@ -130,9 +136,9 @@ datum export -p project -f yolo -o <path/to/output/yolo/dataset> -- --save-image
 Extra options for export to YOLO format:
 
 - `--save-images` allow to export dataset with saving images
-(by default `False`);
+(default: `False`);
 - `--image-ext <IMAGE_EXT>` allow to specify image extension
-for exporting dataset (by default use original or `.jpg` if none).
+for exporting dataset (default: use original or `.jpg`, if none).
 
 ## Particular use cases
 
@@ -181,15 +187,24 @@ dataset = Dataset.from_iterable([
 dataset.export('../yolo_dataset', format='yolo', save_images=True)
 ```
 
-### How to get information about detected objects for each images?
+### How to get information about objects on each images?
+
+If you only want information about label names for each
+images, then you can get it from code:
 ```python
 from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import AnnotationType
 
 dataset = Dataset.import_from('./yolo_dataset', format='yolo')
-cats = dataset.categories()[AnnotationType['label']]
+cats = dataset.categories()[AnnotationType.label]
 
 for item in dataset:
     for ann in item.annotations:
         print(item.id, cats[ann.label].name)
+```
+
+And If you want complete information about each items you can run:
+```bash
+datum import -o project -f yolo -i ./yolo_dataset
+datum filter -p project --dry-run -e '/item'
 ```
