@@ -62,6 +62,7 @@ class Schema:
 
         if self._fallback is not None:
             return self._fallback.get(key, default)
+        return found
 
 class SchemaBuilder:
     def __init__(self):
@@ -102,7 +103,7 @@ class Config:
         if not allow_internal and self._schema is not None:
             for key, item in self._schema.items():
                 if item.internal:
-                    all_config.pop(key)
+                    all_config.pop(key, None)
         return all_config
 
     def items(self, allow_fallback=True, allow_internal=True):
@@ -143,7 +144,11 @@ class Config:
         return self.set(key, value)
 
     def __getattr__(self, key):
-        return self.get(key)
+        default = object()
+        found = self.get(key, default=default)
+        if found is default:
+            raise AttributeError(key)
+        return found
 
     def __setattr__(self, key, value):
         return self.set(key, value)

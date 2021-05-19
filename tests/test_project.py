@@ -205,7 +205,7 @@ class ProjectTest(TestCase):
             source_dataset = Dataset.from_iterable([
                 DatasetItem(0, image=np.ones((2, 3, 3)),
                     annotations=[ Bbox(1, 2, 3, 4, label=0) ]),
-                DatasetItem(1, subset='s', image=np.ones((1, 2, 3)),
+                DatasetItem(1, subset='s', image=np.zeros((10, 20, 3)),
                     annotations=[ Bbox(1, 2, 3, 4, label=1) ]),
             ], categories=['a', 'b'])
             source_dataset.save(source_url, save_images=True)
@@ -221,7 +221,8 @@ class ProjectTest(TestCase):
             read_dataset = project.working_tree.make_dataset('s1')
 
             compare_datasets(self, source_dataset, read_dataset)
-            compare_dirs(self, source_url, project.source_data_dir('s1'))
+            compare_dirs(self, source_url, project.cache_path(
+                project.working_tree.build_targets['s1'].root.hash))
 
     def test_can_read_working_copy_of_source(self):
         with TestDir() as test_dir:

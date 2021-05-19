@@ -119,6 +119,7 @@ TREE_SCHEMA = _SchemaBuilder() \
     .add('cache_dir', str, internal=True) \
     .add('revisions_dir', str, internal=True) \
     \
+    .add('base_dir', str, internal=True) \
     .add('config_path', str, internal=True) \
     .add('env_dir', str, internal=True) \
     .build()

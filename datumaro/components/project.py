@@ -370,19 +370,19 @@ class ProjectBuilder:
 
                 wd_hash = working_dir_hashes.get(target)
                 if not wd_hash:
-                    if not osp.isdir(data_dir):
+                    if osp.isdir(data_dir):
+                        wd_hash = self._project._refresh_source_hash(data_dir)
+                        working_dir_hashes[target] = wd_hash
+                    else:
                         log.debug("Build: skipping checking working dir '%s', "
                             "because it does not exist", data_dir)
-                        return None
-
-                    wd_hash = self._project._refresh_source_hash(data_dir)
-                    working_dir_hashes[target] = wd_hash
+                        data_dir = None
 
                 if obj_hash != wd_hash:
                     log.debug("Build: skipping loading stage '%s' from "
                         "working dir '%s', because hashes does not match",
                         current_name, data_dir)
-                    return None
+                    data_dir = None
 
             if not data_dir:
                 if self._project._is_cached(obj_hash):
@@ -435,7 +435,9 @@ class ProjectBuilder:
             initialized_parents = []
             if graph.in_degree(current_name) == 0:
                 assert current['config'].type == 'source', current['config'].type
-                if not current['config'].is_generated:
+                source = self._tree.sources[
+                    self._tree.build_targets.strip_target_name(current_name)]
+                if not source.is_generated:
                     # source is missing in the cache and cannot be retrieved
                     # it is assumed that all the sources were downloaded earlier
                     raise MissingObjectError("Failed to load target '%s': "
@@ -484,11 +486,12 @@ class ProjectBuilder:
                 # generated source:
                 # - No cache entry
                 # - No local dir data
-                if not current['config'].is_generated:
+                source_name = ProjectBuildTargets.strip_target_name(current_name)
+                source = self._tree.sources[source_name]
+                if not source.is_generated:
                     raise MissingObjectError("Can't initialize stage '%s': "
                         "source data is not available" % current_name)
 
-                source_name = ProjectBuildTargets.strip_target_name(current_name)
                 if self._tree.is_working_tree:
                     source_dir = self._project.source_data_dir(source_name)
                 else:
@@ -547,7 +550,9 @@ class ProjectBuilder:
             if not _can_retrieve(t, t_conf):
                 if pipeline._graph.in_degree(t) == 0:
                     assert t_conf.type == 'source', t_conf.type
-                    if not t_conf.is_generated:
+                    source = self._tree.sources[
+                        self._tree.build_targets.strip_target_name(t)]
+                    if not source.is_generated:
                         missing_sources.add(t)
                 else:
                     for p in pipeline._graph.predecessors(t):
@@ -1587,6 +1592,7 @@ class Project:
                 os.makedirs(osp.dirname(config_path), exist_ok=True)
                 tree_config.dump(config_path)
             tree_config.config_path = config_path
+            tree_config.base_dir = osp.dirname(config_path)
             # TODO: adjust paths in config
             tree = Tree(config=tree_config, project=self, rev=obj_hash)
         else:
@@ -1596,6 +1602,7 @@ class Project:
             rev_dir = self.cache_path(obj_hash)
             tree_config = TreeConfig.parse(osp.join(rev_dir,
                 TreeLayout.conf_file))
+            tree_config.base_dir = rev_dir
             # TODO: adjust paths in config
             tree = Tree(config=tree_config, project=self, rev=obj_hash)
         return tree
