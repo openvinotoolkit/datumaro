@@ -17,10 +17,10 @@ from tests.constants.datumaro_components import DatumaroComponent
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
-@pytest.mark.api_other
 class TestOperations(TestCase):
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_mean_std(self):
         expected_mean = [100, 50, 150]
         expected_std = [20, 50, 10]
@@ -43,6 +43,7 @@ class TestOperations(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_stats(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id=1, image=np.ones((5, 5, 3)), annotations=[
@@ -150,6 +151,7 @@ class TestOperations(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_stats_with_empty_dataset(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id=1),
@@ -203,6 +205,7 @@ class TestOperations(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_unique_image_count(self):
         expected = {
             frozenset([('1', 'a'), ('1', 'b')]),
@@ -229,10 +232,10 @@ class TestOperations(TestCase):
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
-@pytest.mark.api_other
 class TestMultimerge(TestCase):
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_match_items(self):
         # items 1 and 3 are unique, item 2 is common and should be merged
 
@@ -291,6 +294,7 @@ class TestMultimerge(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_match_shapes(self):
         source0 = Dataset.from_iterable([
             DatasetItem(1, annotations=[
@@ -396,6 +400,7 @@ class TestMultimerge(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_attributes(self):
         source0 = Dataset.from_iterable([
             DatasetItem(1, annotations=[
@@ -444,6 +449,7 @@ class TestMultimerge(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_group_checks(self):
         dataset = Dataset.from_iterable([
             DatasetItem(1, annotations=[
@@ -472,6 +478,7 @@ class TestMultimerge(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_merge_classes(self):
         source0 = Dataset.from_iterable([
             DatasetItem(1, annotations=[
@@ -507,6 +514,7 @@ class TestMultimerge(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_merge_categories(self):
         source0 = Dataset.from_iterable([
             DatasetItem(1, annotations=[ Label(0), ]),

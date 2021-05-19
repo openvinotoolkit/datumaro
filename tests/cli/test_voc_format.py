@@ -22,7 +22,6 @@ def run(test, *args, expected_code=0):
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
-@pytest.mark.api_other
 class VocIntegrationScenarios(TestCase):
     def _test_can_save_and_load(self, project_path, source_path, source_dataset,
             dataset_format, result_path=None, label_map=None):
@@ -39,6 +38,7 @@ class VocIntegrationScenarios(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_preparing_dataset_for_train_model(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='c', subset='train',
@@ -91,6 +91,7 @@ class VocIntegrationScenarios(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_convert_to_voc_format(self):
         label_map = OrderedDict(('label_' + str(i), [None, [], []]) for i in range(10))
         label_map['background'] = [None, [], []]
@@ -135,6 +136,7 @@ class VocIntegrationScenarios(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_and_load_voc_dataset(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='2007_000001', subset='train',
@@ -179,6 +181,7 @@ class VocIntegrationScenarios(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_and_load_voc_layout_dataset(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='2007_000001', subset='train',
@@ -213,6 +216,7 @@ class VocIntegrationScenarios(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_and_load_voc_detect_dataset(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='2007_000001', subset='train',
@@ -253,6 +257,7 @@ class VocIntegrationScenarios(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_and_load_voc_segmentation_dataset(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='2007_000001', subset='train',
@@ -273,6 +278,7 @@ class VocIntegrationScenarios(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_and_load_voc_action_dataset(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='2007_000001', subset='train',

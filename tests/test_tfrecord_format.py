@@ -32,10 +32,10 @@ except ImportError:
 
     @skipIf(not module_found, "Tensorflow package is not found")
     @pytest.mark.components(DatumaroComponent.Datumaro)
-    @pytest.mark.api_other
     class TfImportTest(TestCase):
         @pytest.mark.priority_medium
         @pytest.mark.reqids(Requirements.REQ_1)
+        @pytest.mark.component
         def test_raises_when_crashes_on_import(self):
             # Should fire if import can't be done for any reason except
             # module unavailability and import crash
@@ -44,7 +44,6 @@ except ImportError:
 
 @skipIf(import_failed, "Failed to import tensorflow")
 @pytest.mark.components(DatumaroComponent.Datumaro)
-@pytest.mark.api_other
 class TfrecordConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None, **kwargs):
@@ -54,6 +53,7 @@ class TfrecordConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_bboxes(self):
         test_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train',
@@ -77,6 +77,7 @@ class TfrecordConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_masks(self):
         test_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train', image=np.ones((4, 5, 3)),
@@ -103,6 +104,7 @@ class TfrecordConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_dataset_with_no_subsets(self):
         test_dataset = Dataset.from_iterable([
             DatasetItem(id=1,
@@ -139,6 +141,7 @@ class TfrecordConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         test_dataset = Dataset.from_iterable([
             DatasetItem(id='кириллица с пробелом',
@@ -162,6 +165,7 @@ class TfrecordConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_dataset_with_image_info(self):
         test_dataset = Dataset.from_iterable([
             DatasetItem(id='1/q.e',
@@ -176,6 +180,7 @@ class TfrecordConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_dataset_with_unknown_image_formats(self):
         test_dataset = Dataset.from_iterable([
             DatasetItem(id=1,
@@ -197,6 +202,7 @@ class TfrecordConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         dataset = Dataset.from_iterable([
             DatasetItem('q/1', subset='train',
@@ -214,6 +220,7 @@ class TfrecordConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_inplace_save_writes_only_updated_data(self):
         with TempTestDir() as path:
             # generate initial dataset
@@ -237,6 +244,7 @@ class TfrecordConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_labelmap_parsing(self):
         text = """
             {
@@ -269,15 +277,16 @@ DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__),
 
 @skipIf(import_failed, "Failed to import tensorflow")
 @pytest.mark.components(DatumaroComponent.Datumaro)
-@pytest.mark.api_other
 class TfrecordImporterTest(TestCase):
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_detect(self):
         self.assertTrue(TfDetectionApiImporter.detect(DUMMY_DATASET_DIR))
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_import(self):
         target_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train',

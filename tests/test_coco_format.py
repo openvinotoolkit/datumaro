@@ -33,10 +33,10 @@ DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'coco_dataset')
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
-@pytest.mark.api_other
 class CocoImporterTest(TestCase):
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_import_instances(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='000000000001', image=np.ones((10, 5, 3)),
@@ -61,6 +61,7 @@ class CocoImporterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_import_captions(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train',
@@ -86,6 +87,7 @@ class CocoImporterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_import_labels(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train',
@@ -102,6 +104,7 @@ class CocoImporterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_import_points(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train',
@@ -149,6 +152,7 @@ class CocoImporterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_import_image_info(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id=1, image=Image(path='1.jpg', size=(10, 15)),
@@ -163,6 +167,7 @@ class CocoImporterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_import_panoptic(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='000000000001',
@@ -183,6 +188,9 @@ class CocoImporterTest(TestCase):
 
         compare_datasets(self, expected_dataset, dataset, require_images=True)
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_import_stuff(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='000000000001', image=np.ones((10, 5, 3)),
@@ -204,12 +212,12 @@ class CocoImporterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_detect(self):
         self.assertTrue(CocoImporter.detect(
             osp.join(DUMMY_DATASET_DIR, 'coco_instances')))
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
-@pytest.mark.api_other
 class CocoConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None, **kwargs):
@@ -219,6 +227,7 @@ class CocoConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_and_load_captions(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train',
@@ -243,6 +252,7 @@ class CocoConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_and_load_instances(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train', image=np.ones((4, 4, 3)),
@@ -325,6 +335,7 @@ class CocoConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_and_load_panoptic(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train', image=np.ones((4, 4, 3)),
@@ -369,6 +380,7 @@ class CocoConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_and_load_stuff(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train', image=np.ones((4, 4, 3)),
@@ -402,6 +414,7 @@ class CocoConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_merge_polygons_on_loading(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, image=np.zeros((6, 10, 3)),
@@ -441,6 +454,7 @@ class CocoConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_crop_covered_segments(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, image=np.zeros((5, 5, 3)),
@@ -486,6 +500,7 @@ class CocoConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_convert_polygons_to_mask(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, image=np.zeros((6, 10, 3)),
@@ -524,6 +539,7 @@ class CocoConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_convert_masks_to_polygons(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, image=np.zeros((5, 10, 3)),
@@ -563,6 +579,7 @@ class CocoConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_and_load_images(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train', attributes={'id': 1}),
@@ -581,6 +598,7 @@ class CocoConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='кириллица с пробелом', subset='train',
@@ -593,6 +611,7 @@ class CocoConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_and_load_labels(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train',
@@ -608,6 +627,7 @@ class CocoConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_and_load_keypoints(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train', image=np.zeros((5, 5, 3)),
@@ -685,6 +705,7 @@ class CocoConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_dataset_with_no_subsets(self):
         test_dataset = Dataset.from_iterable([
             DatasetItem(id=1, attributes={'id': 1}),
@@ -697,6 +718,7 @@ class CocoConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_dataset_with_image_info(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id=1, image=Image(path='1.jpg', size=(10, 15)),
@@ -709,6 +731,7 @@ class CocoConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_relative_paths(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='1', image=np.ones((4, 2, 3)),
@@ -726,6 +749,7 @@ class CocoConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         expected = Dataset.from_iterable([
             DatasetItem(id='q/1', image=Image(path='q/1.JPEG',
@@ -741,6 +765,7 @@ class CocoConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_preserve_coco_ids(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='some/name1', image=np.ones((4, 2, 3)),
@@ -755,6 +780,7 @@ class CocoConverterTest(TestCase):
     
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_annotation_attributes(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id=1, image=np.ones((4, 2, 3)), annotations=[
@@ -769,6 +795,7 @@ class CocoConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_auto_annotation_ids(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=2, image=np.ones((4, 2, 3)), annotations=[
@@ -789,6 +816,7 @@ class CocoConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_reindex(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=2, image=np.ones((4, 2, 3)), annotations=[
@@ -810,6 +838,7 @@ class CocoConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_images_in_single_dir(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train', image=np.ones((2, 4, 3)),
@@ -825,6 +854,7 @@ class CocoConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_images_in_separate_dirs(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train', image=np.ones((2, 4, 3)),
@@ -841,6 +871,7 @@ class CocoConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_inplace_save_writes_only_updated_data(self):
         with TempTestDir() as path:
             # generate initial dataset

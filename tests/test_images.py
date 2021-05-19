@@ -14,10 +14,10 @@ from tests.constants.datumaro_components import DatumaroComponent
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
-@pytest.mark.api_other
 class LazyImageTest(TestCase):
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_cache_works(self):
         with TempTestDir() as test_dir:
             image = np.ones((100, 100, 3), dtype=np.uint8)
@@ -31,10 +31,10 @@ class LazyImageTest(TestCase):
             self.assertFalse(non_caching_loader() is non_caching_loader())
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
-@pytest.mark.api_other
 class ImageCacheTest(TestCase):
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_cache_fifo_displacement(self):
         capacity = 2
         cache = ImageCache(capacity)
@@ -53,6 +53,7 @@ class ImageCacheTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_global_cache_is_accessible(self):
         loader = lazy_image(None, loader=lambda p: object())
 
@@ -61,10 +62,10 @@ class ImageCacheTest(TestCase):
         self.assertEqual(ImageCache.get_instance().size(), 1)
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
-@pytest.mark.api_other
 class ImageTest(TestCase):
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_lazy_image_shape(self):
         data = np.ones((5, 6, 3))
 
@@ -76,6 +77,7 @@ class ImageTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_ctors(self):
         with TempTestDir() as test_dir:
             path = osp.join(test_dir, 'path.png')
@@ -102,10 +104,10 @@ class ImageTest(TestCase):
                     # pylint: enable=pointless-statement
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
-@pytest.mark.api_other
 class BytesImageTest(TestCase):
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_lazy_image_shape(self):
         data = encode_image(np.ones((5, 6, 3)), 'png')
 
@@ -117,6 +119,7 @@ class BytesImageTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_ctors(self):
         with TempTestDir() as test_dir:
             path = osp.join(test_dir, 'path.png')

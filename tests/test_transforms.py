@@ -17,10 +17,10 @@ from tests.constants.datumaro_components import DatumaroComponent
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
-@pytest.mark.api_other
 class TransformsTest(TestCase):
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_reindex(self):
         source = Dataset.from_iterable([
             DatasetItem(id=10),
@@ -39,6 +39,7 @@ class TransformsTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_mask_to_polygons(self):
         source = Dataset.from_iterable([
             DatasetItem(id=1, image=np.zeros((5, 10, 3)), annotations=[
@@ -65,6 +66,7 @@ class TransformsTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_mask_to_polygons_small_polygons_message(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, image=np.zeros((5, 10, 3)), annotations=[
@@ -88,6 +90,7 @@ class TransformsTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_polygons_to_masks(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, image=np.zeros((5, 10, 3)), annotations=[
@@ -122,6 +125,7 @@ class TransformsTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_crop_covered_segments(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, image=np.zeros((5, 5, 3)), annotations=[
@@ -155,6 +159,7 @@ class TransformsTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_merge_instance_segments(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, image=np.zeros((5, 5, 3)),
@@ -204,6 +209,7 @@ class TransformsTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_map_subsets(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='a'),
@@ -223,6 +229,7 @@ class TransformsTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_shapes_to_boxes(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, image=np.zeros((5, 5, 3)),
@@ -257,6 +264,7 @@ class TransformsTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_id_from_image(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, image='path.jpg'),
@@ -272,6 +280,7 @@ class TransformsTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_boxes_to_masks(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, image=np.zeros((5, 5, 3)),
@@ -319,6 +328,7 @@ class TransformsTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_random_split(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset="a"),
@@ -340,6 +350,7 @@ class TransformsTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_random_split_gives_error_on_wrong_ratios(self):
         source_dataset = Dataset.from_iterable([DatasetItem(id=1)])
 
@@ -360,6 +371,7 @@ class TransformsTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_remap_labels(self):
         src_dataset = Dataset.from_iterable([
             DatasetItem(id=1, annotations=[
@@ -412,6 +424,7 @@ class TransformsTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_remap_labels_delete_unspecified(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, annotations=[
@@ -434,6 +447,7 @@ class TransformsTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_transform_labels(self):
         src_dataset = Dataset.from_iterable([
             DatasetItem(id=1, annotations=[

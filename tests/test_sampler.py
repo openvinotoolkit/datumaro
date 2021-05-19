@@ -27,7 +27,6 @@ from tests.constants.datumaro_components import DatumaroComponent
 
 @skipIf(not has_libs, "pandas library is not available")
 @pytest.mark.components(DatumaroComponent.Datumaro)
-@pytest.mark.api_other
 class SamplerTest(TestCase):
     @staticmethod
     def _get_probs(out_range=False):
@@ -91,6 +90,7 @@ class SamplerTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_sampler_get_sample_classification(self):
         config = {
             "label1": 10,
@@ -219,6 +219,7 @@ class SamplerTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_sampler_gives_error(self):
         config = {
             "label1": 10,
@@ -390,6 +391,7 @@ class SamplerTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_sampler_get_invalid_data(self):
         with self.subTest("empty dataset"):
             config = {
@@ -505,6 +507,7 @@ class SamplerTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_sampler_number_of_samples(self):
         config = {
             "label1": 10,
@@ -691,6 +694,7 @@ class SamplerTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_sampler_accumulated_sampling(self):
         config = {
             "label1": 10,
@@ -900,6 +904,7 @@ class SamplerTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_sampler_unaccumulated_sampling(self):
         config = {
             "label1": 10,
@@ -1115,6 +1120,7 @@ class SamplerTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_sampler_parser(self):
         from argparse import ArgumentParser
 

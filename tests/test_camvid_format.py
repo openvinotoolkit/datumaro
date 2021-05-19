@@ -19,10 +19,10 @@ from tests.constants.datumaro_components import DatumaroComponent
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
-@pytest.mark.api_other
 class CamvidFormatTest(TestCase):
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_write_and_parse_labelmap(self):
         src_label_map = Camvid.CamvidLabelMap
 
@@ -43,10 +43,10 @@ class TTestExtractorBase(Extractor):
         return Camvid.make_camvid_categories()
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
-@pytest.mark.api_other
 class CamvidImportTest(TestCase):
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_import(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='0001TP_008550', subset='test',
@@ -87,14 +87,15 @@ class CamvidImportTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_detect_camvid(self):
         self.assertTrue(CamvidImporter.detect(DUMMY_DATASET_DIR))
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
-@pytest.mark.api_other
 class CamvidConverterTest(TestCase):
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None, **kwargs):
         return util_test_save_and_load(self, source_dataset, converter, test_dir,
@@ -103,6 +104,7 @@ class CamvidConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_camvid_segm(self):
         class TTestExtractor(TTestExtractorBase):
             def __iter__(self):
@@ -122,6 +124,7 @@ class CamvidConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_camvid_segm_unpainted(self):
         class TTestExtractor(TTestExtractorBase):
             def __iter__(self):
@@ -151,6 +154,7 @@ class CamvidConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_dataset_with_no_subsets(self):
         class TTestExtractor(TTestExtractorBase):
             def __iter__(self):
@@ -172,6 +176,7 @@ class CamvidConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         class TTestExtractor(TTestExtractorBase):
             def __iter__(self):
@@ -190,6 +195,7 @@ class CamvidConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_with_no_masks(self):
         class TTestExtractor(TTestExtractorBase):
             def __iter__(self):
@@ -206,6 +212,7 @@ class CamvidConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_dataset_with_source_labelmap_undefined(self):
         class SrcExtractor(TTestExtractorBase):
             def __iter__(self):
@@ -243,6 +250,7 @@ class CamvidConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_dataset_with_source_labelmap_defined(self):
         class SrcExtractor(TTestExtractorBase):
             def __iter__(self):
@@ -279,6 +287,7 @@ class CamvidConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         class SrcExtractor(TTestExtractorBase):
             def __iter__(self):
