@@ -14,10 +14,10 @@ from tests.constants.requirements import Requirements
 from tests.constants.datumaro_components import DatumaroComponent
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
-@pytest.mark.api_other
 class MnistFormatTest(TestCase):
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_and_load(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=0, subset='test',
@@ -46,6 +46,7 @@ class MnistFormatTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_and_load_without_saving_images(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=0, subset='train',
@@ -68,6 +69,7 @@ class MnistFormatTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_and_load_with_different_image_size(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=0, image=np.ones((3, 4)),
@@ -90,6 +92,7 @@ class MnistFormatTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id="кириллица с пробелом",
@@ -110,6 +113,7 @@ class MnistFormatTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id='q/1', image=Image(path='q/1.JPEG',
@@ -130,6 +134,7 @@ class MnistFormatTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_and_load_empty_image(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id=0, annotations=[Label(0)]),
@@ -148,6 +153,7 @@ class MnistFormatTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_and_load_with_other_labels(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id=0, image=np.ones((28, 28)),
@@ -169,10 +175,10 @@ class MnistFormatTest(TestCase):
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'mnist_dataset')
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
-@pytest.mark.api_other
 class MnistImporterTest(TestCase):
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_import(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id=0, subset='test',
@@ -206,5 +212,6 @@ class MnistImporterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_detect(self):
         self.assertTrue(MnistImporter.detect(DUMMY_DATASET_DIR))

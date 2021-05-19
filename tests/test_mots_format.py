@@ -19,7 +19,6 @@ DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'mots_dataset')
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
-@pytest.mark.api_other
 class MotsPngConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None, **kwargs):
@@ -29,6 +28,7 @@ class MotsPngConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_masks(self):
         source = Dataset.from_iterable([
             DatasetItem(id=1, subset='a', image=np.ones((5, 1)), annotations=[
@@ -77,6 +77,7 @@ class MotsPngConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         source = Dataset.from_iterable([
             DatasetItem(id='кириллица с пробелом', subset='a',
@@ -93,6 +94,7 @@ class MotsPngConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         expected = Dataset.from_iterable([
             DatasetItem('q/1', image=Image(
@@ -117,15 +119,16 @@ class MotsPngConverterTest(TestCase):
                 test_dir, require_images=True)
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
-@pytest.mark.api_other
 class MotsImporterTest(TestCase):
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_detect(self):
         self.assertTrue(MotsImporter.detect(DUMMY_DATASET_DIR))
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_import(self):
         target = Dataset.from_iterable([
             DatasetItem(id=1, subset='train', image=np.ones((5, 1)), annotations=[

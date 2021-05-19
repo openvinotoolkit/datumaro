@@ -26,20 +26,22 @@ DUMMY_VIDEO_DATASET_DIR = osp.join(osp.dirname(__file__),
     'assets', 'cvat_dataset', 'for_video')
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
-@pytest.mark.api_other
 class CvatImporterTest(TestCase):
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_detect_image(self):
         self.assertTrue(CvatImporter.detect(DUMMY_IMAGE_DATASET_DIR))
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_detect_video(self):
         self.assertTrue(CvatImporter.detect(DUMMY_VIDEO_DATASET_DIR))
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_load_image(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='img0', subset='train',
@@ -74,6 +76,7 @@ class CvatImporterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_load_video(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='frame_000010', subset='annotations',
@@ -154,7 +157,6 @@ class CvatImporterTest(TestCase):
         compare_datasets(self, expected_dataset, parsed_dataset)
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
-@pytest.mark.api_other
 class CvatConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None, **kwargs):
@@ -164,6 +166,7 @@ class CvatConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_and_load(self):
         src_label_cat = LabelCategories(attributes={'occluded', 'common'})
         for i in range(10):
@@ -256,6 +259,7 @@ class CvatConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_allow_undeclared_attrs(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=0, annotations=[
@@ -281,6 +285,7 @@ class CvatConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_relative_paths(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='1', image=np.ones((4, 2, 3))),
@@ -304,6 +309,7 @@ class CvatConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         label_categories = LabelCategories(attributes={'occluded'})
         for i in range(10):
@@ -339,6 +345,7 @@ class CvatConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         expected = Dataset.from_iterable([
             DatasetItem('q/1', image=Image(path='q/1.JPEG',
@@ -358,6 +365,7 @@ class CvatConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_preserve_frame_ids(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='some/name1', image=np.ones((4, 2, 3)),
@@ -370,6 +378,7 @@ class CvatConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_reindex(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='some/name1', image=np.ones((4, 2, 3)),
@@ -388,6 +397,7 @@ class CvatConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_inplace_save_writes_only_updated_data(self):
         with TempTestDir() as path:
             # generate initial dataset

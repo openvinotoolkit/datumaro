@@ -14,10 +14,10 @@ from tests.constants.requirements import Requirements
 from tests.constants.datumaro_components import DatumaroComponent
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
-@pytest.mark.api_other
 class Market1501FormatTest(TestCase):
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_and_load(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='0001_c2s3_000001_00',
@@ -54,6 +54,7 @@ class Market1501FormatTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_dataset_with_no_subsets(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='0001_c2s3_000001_00',
@@ -74,6 +75,7 @@ class Market1501FormatTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='кириллица с пробелом',
@@ -95,6 +97,7 @@ class Market1501FormatTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_dataset_with_no_save_images(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='0001_c2s3_000001_00',
@@ -123,6 +126,7 @@ class Market1501FormatTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         expected = Dataset.from_iterable([
             DatasetItem(id='q/1', image=Image(
@@ -150,6 +154,7 @@ class Market1501FormatTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_dataset_with_no_attributes(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='test1',
@@ -174,15 +179,16 @@ class Market1501FormatTest(TestCase):
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'market1501_dataset')
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
-@pytest.mark.api_other
 class Market1501ImporterTest(TestCase):
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_detect(self):
         self.assertTrue(Market1501Importer.detect(DUMMY_DATASET_DIR))
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_import(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='0001_c2s3_000111_00',
