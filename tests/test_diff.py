@@ -13,10 +13,10 @@ from tests.constants.datumaro_components import DatumaroComponent
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
-@pytest.mark.api_other
 class DistanceComparatorTest(TestCase):
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_no_bbox_diff_with_same_item(self):
         detections = 3
         anns = [
@@ -41,6 +41,7 @@ class DistanceComparatorTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_find_bbox_with_wrong_label(self):
         detections = 3
         class_count = 2
@@ -69,6 +70,7 @@ class DistanceComparatorTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_find_missing_boxes(self):
         detections = 3
         class_count = 2
@@ -94,6 +96,7 @@ class DistanceComparatorTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_no_label_diff_with_same_item(self):
         detections = 3
         anns = [ Label(i) for i in range(detections) ]
@@ -108,6 +111,7 @@ class DistanceComparatorTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_find_wrong_label(self):
         item1 = DatasetItem(id=1, annotations=[
             Label(0),
@@ -129,6 +133,7 @@ class DistanceComparatorTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_match_points(self):
         item1 = DatasetItem(id=1, annotations=[
             Points([1, 2, 2, 0, 1, 1], label=0),
@@ -150,10 +155,10 @@ class DistanceComparatorTest(TestCase):
         self.assertEqual(0, len(mismatches))
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
-@pytest.mark.api_other
 class ExactComparatorTest(TestCase):
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_class_comparison(self):
         a = Dataset.from_iterable([], categories=['a', 'b', 'c'])
         b = Dataset.from_iterable([], categories=['b', 'c'])
@@ -165,6 +170,7 @@ class ExactComparatorTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_item_comparison(self):
         a = Dataset.from_iterable([
             DatasetItem(id=1, subset='train'),
@@ -185,6 +191,7 @@ class ExactComparatorTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_annotation_comparison(self):
         a = Dataset.from_iterable([
             DatasetItem(id=1, annotations=[
@@ -223,6 +230,7 @@ class ExactComparatorTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_image_comparison(self):
         a = Dataset.from_iterable([
             DatasetItem(id=11, image=np.ones((5, 4, 3)), annotations=[

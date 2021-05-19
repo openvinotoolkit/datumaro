@@ -16,10 +16,10 @@ from tests.constants.datumaro_components import DatumaroComponent
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
-@pytest.mark.api_other
 class ImageDirFormatTest(TestCase):
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_load(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id=1, image=np.ones((10, 6, 3))),
@@ -32,6 +32,7 @@ class ImageDirFormatTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_relative_paths(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id='1', image=np.ones((4, 2, 3))),
@@ -45,6 +46,7 @@ class ImageDirFormatTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id='кириллица с пробелом', image=np.ones((4, 2, 3))),
@@ -56,6 +58,7 @@ class ImageDirFormatTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id='q/1', image=Image(path='q/1.JPEG',
@@ -70,6 +73,7 @@ class ImageDirFormatTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_and_load_image_with_custom_extension(self):
         expected = Dataset.from_iterable([
             DatasetItem(id='a/3', image=Image(path='a/3.qq',

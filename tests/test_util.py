@@ -13,10 +13,10 @@ from tests.constants.datumaro_components import DatumaroComponent
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
-@pytest.mark.api_other
 class TestRollback(TestCase):
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_does_not_call_on_no_error(self):
         success = True
         def cb():
@@ -30,6 +30,7 @@ class TestRollback(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_calls_on_error(self):
         success = False
         def cb():
@@ -47,6 +48,7 @@ class TestRollback(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_decorator_calls_on_error(self):
         success = False
         def cb():
@@ -67,6 +69,7 @@ class TestRollback(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_decorator_does_not_call_on_no_error(self):
         success = True
         def cb():
@@ -83,6 +86,7 @@ class TestRollback(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_decorator_supports_implicit_arg(self):
         success = False
         def cb():
@@ -103,6 +107,7 @@ class TestRollback(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_fowrard_args(self):
         success1 = False
         def cb1(a1, a2=None, ignore_errors=None):
@@ -129,10 +134,10 @@ class TestRollback(TestCase):
             self.assertTrue(success2)
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
-@pytest.mark.api_other
 class TestOsUtils(TestCase):
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_walk_with_maxdepth(self):
         with TempTestDir() as rootdir:
             os.makedirs(osp.join(rootdir, '1', '2', '3', '4'))

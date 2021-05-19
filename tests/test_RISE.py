@@ -13,10 +13,10 @@ from tests.constants.datumaro_components import DatumaroComponent
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
-@pytest.mark.api_other
 class RiseTest(TestCase):
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_rise_can_be_applied_to_classification_model(self):
         class TestLauncher(Launcher):
             def __init__(self, class_count, roi, **kwargs):
@@ -67,6 +67,7 @@ class RiseTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_rise_can_be_applied_to_detection_model(self):
         ROI = namedtuple('ROI',
             ['threshold', 'x', 'y', 'w', 'h', 'label'])

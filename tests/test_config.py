@@ -8,10 +8,10 @@ from tests.constants.datumaro_components import DatumaroComponent
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
-@pytest.mark.api_other
 class ConfigTest(TestCase):
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_produce_multilayer_config_from_dict(self):
         schema_low = SchemaBuilder() \
             .add('options', dict) \

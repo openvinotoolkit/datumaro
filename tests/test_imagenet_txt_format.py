@@ -18,10 +18,10 @@ from tests.constants.datumaro_components import DatumaroComponent
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
-@pytest.mark.api_other
 class ImagenetTxtFormatTest(TestCase):
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_and_load(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='1', subset='train',
@@ -46,6 +46,7 @@ class ImagenetTxtFormatTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_and_load_with_multiple_labels(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='1', subset='train',
@@ -69,6 +70,7 @@ class ImagenetTxtFormatTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_dataset_with_no_subsets(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='a/b/c', image=np.zeros((8, 4, 3)),
@@ -90,6 +92,7 @@ class ImagenetTxtFormatTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id="кириллица с пробелом",
@@ -111,6 +114,7 @@ class ImagenetTxtFormatTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id='a/1', image=Image(path='a/1.JPEG',
@@ -130,10 +134,10 @@ class ImagenetTxtFormatTest(TestCase):
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'imagenet_txt_dataset')
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
-@pytest.mark.api_other
 class ImagenetTxtImporterTest(TestCase):
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_import(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='1', subset='train', image=np.zeros((8, 6, 3)),
@@ -159,5 +163,6 @@ class ImagenetTxtImporterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_detect_imagenet(self):
         self.assertTrue(ImagenetTxtImporter.detect(DUMMY_DATASET_DIR))

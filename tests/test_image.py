@@ -12,7 +12,6 @@ from tests.constants.requirements import Requirements
 from tests.constants.datumaro_components import DatumaroComponent
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
-@pytest.mark.api_other
 class ImageOperationsTest(TestCase):
     def setUp(self):
         self.default_backend = image_module._IMAGE_BACKEND
@@ -22,6 +21,7 @@ class ImageOperationsTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_save_and_load_backends(self):
         backends = image_module._IMAGE_BACKENDS
         for save_backend, load_backend, c in product(backends, backends, [1, 3]):
@@ -43,6 +43,7 @@ class ImageOperationsTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_encode_and_decode_backends(self):
         backends = image_module._IMAGE_BACKENDS
         for save_backend, load_backend, c in product(backends, backends, [1, 3]):
@@ -63,6 +64,7 @@ class ImageOperationsTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_save_image_to_inexistent_dir_raises_error(self):
         with self.assertRaises(FileNotFoundError):
             image_module.save_image('some/path.jpg', np.ones((5, 4, 3)),
@@ -70,6 +72,7 @@ class ImageOperationsTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_save_image_can_create_dir(self):
         with TempTestDir() as test_dir:
             path = osp.join(test_dir, 'some', 'path.jpg')

@@ -31,10 +31,10 @@ from tests.constants.datumaro_components import DatumaroComponent
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
-@pytest.mark.api_other
 class VocFormatTest(TestCase):
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_colormap_generator(self):
         reference = np.array([
             [  0,   0,   0],
@@ -65,6 +65,7 @@ class VocFormatTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_write_and_parse_labelmap(self):
         src_label_map = VOC.make_voc_label_map()
         src_label_map['qq'] = [None, ['part1', 'part2'], ['act1', 'act2']]
@@ -79,7 +80,6 @@ class VocFormatTest(TestCase):
             self.assertEqual(src_label_map, dst_label_map)
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
-@pytest.mark.api_other
 class TTestExtractorBase(Extractor):
     def _label(self, voc_label):
         return self.categories()[AnnotationType.label].find(voc_label)[0]
@@ -91,10 +91,10 @@ class TTestExtractorBase(Extractor):
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'voc_dataset')
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
-@pytest.mark.api_other
 class VocImportTest(TestCase):
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_import(self):
         class DstExtractor(TTestExtractorBase):
             def __iter__(self):
@@ -146,11 +146,11 @@ class VocImportTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_detect_voc(self):
         self.assertTrue(VocImporter.detect(DUMMY_DATASET_DIR))
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
-@pytest.mark.api_other
 class VocConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None, **kwargs):
@@ -160,6 +160,7 @@ class VocConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_voc_cls(self):
         class TTestExtractor(TTestExtractorBase):
             def __iter__(self):
@@ -182,6 +183,7 @@ class VocConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_voc_det(self):
         class TTestExtractor(TTestExtractorBase):
             def __iter__(self):
@@ -240,6 +242,7 @@ class VocConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_voc_segm(self):
         class TTestExtractor(TTestExtractorBase):
             def __iter__(self):
@@ -276,6 +279,7 @@ class VocConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_voc_segm_unpainted(self):
         class TTestExtractor(TTestExtractorBase):
             def __iter__(self):
@@ -313,6 +317,7 @@ class VocConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_voc_segm_with_many_instances(self):
         def bit(x, y, shape):
             mask = np.zeros(shape)
@@ -350,6 +355,7 @@ class VocConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_voc_layout(self):
         class TTestExtractor(TTestExtractorBase):
             def __iter__(self):
@@ -376,6 +382,7 @@ class VocConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_voc_action(self):
         class TTestExtractor(TTestExtractorBase):
             def __iter__(self):
@@ -434,6 +441,7 @@ class VocConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_dataset_with_no_subsets(self):
         class TTestExtractor(TTestExtractorBase):
             def __iter__(self):
@@ -450,6 +458,7 @@ class VocConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         class TTestExtractor(TTestExtractorBase):
             def __iter__(self):
@@ -468,6 +477,7 @@ class VocConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_dataset_with_images(self):
         class TTestExtractor(TTestExtractorBase):
             def __iter__(self):
@@ -487,6 +497,7 @@ class VocConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_dataset_with_voc_labelmap(self):
         class SrcExtractor(TTestExtractorBase):
             def __iter__(self):
@@ -526,6 +537,7 @@ class VocConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_dataset_with_source_labelmap_undefined(self):
         class SrcExtractor(TTestExtractorBase):
             def __iter__(self):
@@ -575,6 +587,7 @@ class VocConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_dataset_with_source_labelmap_defined(self):
         class SrcExtractor(TTestExtractorBase):
             def __iter__(self):
@@ -623,6 +636,7 @@ class VocConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_dataset_with_fixed_labelmap(self):
         class SrcExtractor(TTestExtractorBase):
             def __iter__(self):
@@ -679,6 +693,7 @@ class VocConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_background_masks_dont_introduce_instances_but_cover_others(self):
         dataset = Dataset.from_iterable([
             DatasetItem(1, image=np.zeros((4, 1, 1)), annotations=[
@@ -700,6 +715,7 @@ class VocConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_dataset_with_image_info(self):
         class TTestExtractor(TTestExtractorBase):
             def __iter__(self):
@@ -715,6 +731,7 @@ class VocConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         class TTestExtractor(TTestExtractorBase):
             def __iter__(self):
@@ -734,6 +751,7 @@ class VocConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_relative_paths(self):
         class TTestExtractor(TTestExtractorBase):
             def __iter__(self):
@@ -752,6 +770,7 @@ class VocConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_attributes(self):
         class TTestExtractor(TTestExtractorBase):
             def __iter__(self):
@@ -785,6 +804,7 @@ class VocConverterTest(TestCase):
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_inplace_save_writes_only_updated_data(self):
         with TempTestDir() as path:
             # generate initial dataset
@@ -825,6 +845,9 @@ class VocConverterTest(TestCase):
             self.assertFalse(osp.isfile(
                 osp.join(path, 'SegmentationClass', '3.png')))
 
+    @pytest.mark.priority_medium
+    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.component
     def test_can_save_dataset_with_no_data_images(self):
         class TestExtractor(TTestExtractorBase):
             def __iter__(self):
