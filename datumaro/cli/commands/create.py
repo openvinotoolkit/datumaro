@@ -8,11 +8,9 @@ import argparse
 import logging as log
 import os
 import os.path as osp
-import shutil
 
-from datumaro.components.project import \
-    PROJECT_DEFAULT_CONFIG as DEFAULT_CONFIG
 from datumaro.components.project import Project
+from datumaro.util.os_util import rmtree
 
 from ..util import CliException, MultilineFormatter
 
@@ -33,8 +31,6 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 
     parser.add_argument('-o', '--output-dir', default='.', dest='dst_dir',
         help="Save directory for the new project (default: current dir")
-    parser.add_argument('-n', '--name', default=None,
-        help="Name of the new project (default: same as project dir)")
     parser.add_argument('--overwrite', action='store_true',
         help="Overwrite existing files in the save directory")
     parser.set_defaults(command=create_command)
@@ -44,23 +40,17 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 def create_command(args):
     project_dir = osp.abspath(args.dst_dir)
 
-    project_env_dir = osp.join(project_dir, DEFAULT_CONFIG.env_dir)
-    if osp.isdir(project_env_dir) and os.listdir(project_env_dir):
+    existing_project_dir = Project.find_project_dir(project_dir)
+    if existing_project_dir and os.listdir(existing_project_dir):
         if args.overwrite:
-            shutil.rmtree(project_env_dir, ignore_errors=True)
+            rmtree(existing_project_dir)
         else:
             raise CliException("Directory '%s' already exists "
-                "(pass --overwrite to overwrite)" % project_env_dir)
-
-    project_name = args.name
-    if project_name is None:
-        project_name = osp.basename(project_dir)
+                "(pass --overwrite to overwrite)" % existing_project_dir)
 
     log.info("Creating project at '%s'" % project_dir)
 
-    Project.generate(project_dir, {
-        'project_name': project_name,
-    })
+    Project.init(project_dir)
 
     log.info("Project has been created at '%s'" % project_dir)
 

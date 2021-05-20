@@ -1500,7 +1500,7 @@ class Tree:
 
 class Project:
     @staticmethod
-    def find_project_dir(path):
+    def find_project_dir(path: str) -> Optional[str]:
         if path.endswith(ProjectLayout.aux_dir) and osp.isdir(path):
             return path
 
