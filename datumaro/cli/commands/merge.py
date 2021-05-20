@@ -5,6 +5,7 @@
 import argparse
 import json
 import logging as log
+import os
 import os.path as osp
 from collections import OrderedDict
 
@@ -12,7 +13,7 @@ from datumaro.components.project import Project
 from datumaro.components.operations import IntersectMerge
 from datumaro.components.errors import DatasetQualityError, DatasetMergeError
 
-from ..util import at_least, MultilineFormatter, CliException
+from ..util import MultilineFormatter, CliException, at_least
 from ..util.project import generate_next_file_name, load_project
 
 
@@ -37,7 +38,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     def _group(s):
         return s.split(',')
 
-    parser.add_argument('targets', nargs='*',
+    parser.add_argument('targets', nargs='*', action=at_least(2),
         help="Path to a project (repeatable)")
     parser.add_argument('-iou', '--iou-thresh', default=0.25, type=float,
         help="IoU match threshold for segments (default: %(default)s)")
@@ -54,17 +55,15 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
             "annotation groups to check. '?' postfix can be added to a label to"
             "make it optional in the group (repeatable)")
     parser.add_argument('-o', '--output-dir', dest='dst_dir', default=None,
-        help="Output directory (default: current project's dir)")
+        help="Output directory (default: generate a new one)")
     parser.add_argument('--overwrite', action='store_true',
         help="Overwrite existing files in the save directory")
-    parser.add_argument('-p', '--project', dest='project_dir', default='.',
-        help="Directory of the project to operate on (default: current dir)")
     parser.set_defaults(command=merge_command)
 
     return parser
 
 def merge_command(args):
-    source_projects = [load_project(p) for p in args.project]
+    source_projects = [load_project(p) for p in args.targets]
 
     dst_dir = args.dst_dir
     if dst_dir:
@@ -73,6 +72,7 @@ def merge_command(args):
                 "(pass --overwrite to overwrite)" % dst_dir)
     else:
         dst_dir = generate_next_file_name('merged')
+    dst_dir = osp.abspath(dst_dir)
 
     source_datasets = []
     for p in source_projects:
@@ -84,17 +84,11 @@ def merge_command(args):
         output_conf_thresh=args.output_conf_thresh, quorum=args.quorum
     ))
     merged_dataset = merger(source_datasets)
-
-    merged_project = Project()
-    output_dataset = merged_project.make_dataset()
-    output_dataset.define_categories(merged_dataset.categories())
-    merged_dataset = output_dataset.update(merged_dataset)
     merged_dataset.save(save_dir=dst_dir)
 
     report_path = osp.join(dst_dir, 'merge_report.json')
     save_merge_report(merger, report_path)
 
-    dst_dir = osp.abspath(dst_dir)
     log.info("Merge results have been saved to '%s'" % dst_dir)
     log.info("Report has been saved to '%s'" % report_path)
 
