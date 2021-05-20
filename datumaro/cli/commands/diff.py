@@ -6,10 +6,10 @@ import argparse
 import logging as log
 import os
 import os.path as osp
-import shutil
 
 from datumaro.components.operations import DistanceComparator
 from datumaro.util import error_rollback
+from datumaro.util.os_util import rmtree
 
 from ..util import CliException, MultilineFormatter
 from ..util.project import generate_next_file_name, load_project
@@ -24,15 +24,15 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         Examples:|n
         - Compare two projects, match boxes if IoU > 0.7,|n
         |s|s|s|sprint results to Tensorboard:
-        |s|sdiff path/to/other/project -o diff/ -v tensorboard --iou-thresh 0.7
+        |s|sdiff path/to/other/project -o diff/ -f tensorboard --iou-thresh 0.7
         """,
         formatter_class=MultilineFormatter)
 
     parser.add_argument('other_project_dir',
-        help="Directory of the second project to be compared")
+        help="The second project or revision to be compared")
     parser.add_argument('-o', '--output-dir', dest='dst_dir', default=None,
         help="Directory to save comparison results (default: do not save)")
-    parser.add_argument('-v', '--visualizer',
+    parser.add_argument('-f', '--format',
         default=DatasetDiffVisualizer.DEFAULT_FORMAT.name,
         choices=[f.name for f in DatasetDiffVisualizer.OutputFormat],
         help="Output format (default: %(default)s)")
@@ -51,15 +51,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 @error_rollback('on_error', implicit=True)
 def diff_command(args):
     first_project = load_project(args.project_dir)
-
-    try:
-        second_project = load_project(args.other_project_dir)
-    except FileNotFoundError:
-        if first_project.vcs.is_ref(args.other_project_dir):
-            raise NotImplementedError("It seems that you're trying to compare "
-                "different revisions of the project. "
-                "Comparisons between project revisions are not implemented yet.")
-        raise
+    second_project = load_project(args.other_project_dir)
 
     comparator = DistanceComparator(iou_threshold=args.iou_thresh)
 
@@ -69,20 +61,17 @@ def diff_command(args):
             raise CliException("Directory '%s' already exists "
                 "(pass --overwrite to overwrite)" % dst_dir)
     else:
-        dst_dir = generate_next_file_name('%s-%s-diff' % (
-            first_project.config.project_name,
-            second_project.config.project_name)
-        )
+        dst_dir = generate_next_file_name('diff')
     dst_dir = osp.abspath(dst_dir)
     log.info("Saving diff to '%s'" % dst_dir)
 
     if not osp.exists(dst_dir):
-        on_error.do(shutil.rmtree, dst_dir, ignore_errors=True)
+        on_error.do(rmtree, dst_dir, ignore_errors=True)
 
-    visualizer = DatasetDiffVisualizer(save_dir=dst_dir,
-        comparator=comparator, output_format=args.visualizer)
-    visualizer.save_dataset_diff(
-        first_project.make_dataset(),
-        second_project.make_dataset())
+    with DatasetDiffVisualizer(save_dir=dst_dir, comparator=comparator,
+            output_format=args.format) as visualizer:
+        visualizer.save(
+            first_project.working_tree.make_dataset(),
+            second_project.working_tree.make_dataset())
 
     return 0

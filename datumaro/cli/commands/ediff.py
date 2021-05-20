@@ -47,15 +47,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 
 def ediff_command(args):
     first_project = load_project(args.project_dir)
-
-    try:
-        second_project = load_project(args.other_project_dir)
-    except FileNotFoundError:
-        if first_project.vcs.is_ref(args.other_project_dir):
-            raise NotImplementedError("It seems that you're trying to compare "
-                "different revisions of the project. "
-                "Comparisons between project revisions are not implemented yet.")
-        raise
+    second_project = load_project(args.other_project_dir)
 
     if args.ignore_field:
         args.ignore_field = _ediff_default_if
@@ -66,7 +58,8 @@ def ediff_command(args):
         ignored_item_attrs=args.ignore_item_attr)
     matches, mismatches, a_extra, b_extra, errors = \
         comparator.compare_datasets(
-            first_project.make_dataset(), second_project.make_dataset())
+            first_project.working_tree.make_dataset(),
+            second_project.working_tree.make_dataset())
     output = {
         "mismatches": mismatches,
         "a_extra_items": sorted(a_extra),
