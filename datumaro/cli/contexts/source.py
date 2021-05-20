@@ -96,19 +96,16 @@ def add_command(args):
             raise CliException("Format '%s' does not accept "
                 "extra parameters" % fmt)
 
-    project.sources.add(name, {
-        'url': args.url,
-        'format': args.format,
-        'options': extra_args,
-    })
-    on_error.do(project.sources.remove, name, force=True, keep_data=False,
+    project.import_source(name, url=args.url, format=args.format,
+        options=extra_args)
+    on_error.do(project.remove_source, name, force=True, keep_data=False,
         ignore_errors=True)
 
     if not args.no_check:
         log.info("Checking the source...")
-        project.sources.make_dataset(name)
+        project.working_tree.make_dataset(name)
 
-    project.save()
+    project.working_tree.save()
 
     log.info("Source '%s' with format '%s' has been added to the project",
         name, args.format)
