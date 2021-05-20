@@ -13,23 +13,14 @@ from datumaro.util.image import load_image
 TargetKinds = Enum('TargetKinds',
     ['project', 'source', 'external_dataset', 'inference', 'image'])
 
-def is_project_name(value, project):
-    return value == project.config.project_name
-
 def is_project_path(value):
     if value:
-        try:
-            Project.load(value)
-            return True
-        except Exception:
-            pass
+        return Project.find_project_dir(value) != None
     return False
 
-def is_project(value, project=None):
+def is_project(value):
     if is_project_path(value):
         return True
-    elif project is not None:
-        return is_project_name(value, project)
 
     return False
 

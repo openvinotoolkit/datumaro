@@ -7,7 +7,6 @@ import logging as log
 import os
 import os.path as osp
 
-from datumaro.components.project import Project
 from datumaro.util.command_targets import (TargetKinds, target_selector,
     ProjectTarget, SourceTarget, ImageTarget, is_project_path)
 from datumaro.util.image import load_image, save_image
@@ -22,8 +21,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     parser.add_argument('-m', '--model', required=True,
         help="Model to use for inference")
     parser.add_argument('-t', '--target', default=None,
-        help="Inference target - image, source, project "
-             "(default: current dir)")
+        help="Inference target - image, source (default: current project)")
     parser.add_argument('-o', '--output-dir', dest='save_dir', default=None,
         help="Directory to save output (default: display only)")
 
@@ -70,7 +68,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 def explain_command(args):
     project_path = args.project_dir
     if is_project_path(project_path):
-        project = Project.load(project_path)
+        project = load_project(project_path)
     else:
         project = None
     args.target = target_selector(
@@ -142,12 +140,11 @@ def explain_command(args):
          args.target[0] == TargetKinds.project:
         if args.target[0] == TargetKinds.source:
             source_name = args.target[1]
-            dataset = project.make_source_project(source_name).make_dataset()
+            dataset = project.working_tree.make_dataset(source_name)
             log.info("Running inference explanation for '%s'" % source_name)
         else:
-            project_name = project.config.project_name
-            dataset = project.make_dataset()
-            log.info("Running inference explanation for '%s'" % project_name)
+            dataset = project.working_tree.make_dataset()
+            log.info("Running inference explanation for project")
 
         for item in dataset:
             image = item.image.data
