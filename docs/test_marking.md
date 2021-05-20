@@ -15,8 +15,7 @@
   - [Test documentation](#TestDoc)
     - [Docstring](#Docstring)
     - [Steps in test body](#Step)
-    
-      
+          
 <a id="Test case description"></a>
 ## Test case description
 <a id="Test marking"></a>
@@ -176,4 +175,3 @@ Steps description in test body are placed as a code comment lines e.g.
                 test_dir, target_dataset=target_dataset)
 
 ```
-
