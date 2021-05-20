@@ -97,6 +97,7 @@ List of supported formats:
 - YOLO (`bboxes`)
   - [Format specification](https://github.com/AlexeyAB/darknet#how-to-train-pascal-voc-data)
   - [Dataset example](../tests/assets/yolo_dataset)
+  - [Format documentation](./formats/yolo_user_manual.md)
 - TF Detection API (`bboxes`, `masks`)
   - Format specifications: [bboxes](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/using_your_own_dataset.md), [masks](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/instance_segmentation.md)
   - [Dataset example](../tests/assets/tf_detection_api_dataset)
