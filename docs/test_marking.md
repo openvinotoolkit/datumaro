@@ -47,7 +47,7 @@ Test types: gui_smoke, gui_regression, manual, gui_other, gui_long, api, compone
 ```
 
 <a id="Priority"></a>
-####Priority 
+#### Priority 
 Test priorities: low, medium, high, e.g.,
 ```python
      @pytest.mark.priority_low
@@ -55,28 +55,28 @@ Test priorities: low, medium, high, e.g.,
      @pytest.mark.priority_high
 ```
 <a id="Component"></a>
-####Component
+#### Component
 
 Component marking used for indication of different system components e.g.
 ```python
     @pytest.mark.components(DatumaroComponent.Datumaro)
 ```
 <a id="Skip"></a>
-####Skip 
+#### Skip 
 
 For marking tests, which should be skipped for example for not yet tests, e.g.,
 ```python
    @pytest.mark.skip(reason=SkipMessages.NOT_IMPLEMENTED)
 ```
 <a id="Bug"></a>
-####Bug(s):
+#### Bug(s):
 
 In case of test failure, bug should be entered into github issues, and test can be marked e.g.
 ```python
     @pytest.mark.bugs("DATUM-219 - Return format is not uniform")
 ```
 <a id="Parameters"></a>
-####Parameters: 
+#### Parameters: 
 
 Parameters are used for running the same test with different parameters e.g. 
 ```python
@@ -91,7 +91,7 @@ Parameters are used for running the same test with different parameters e.g.
 (be aware that test parametrization is supported in pytest, and is not supported in unittests) 
 
 <a id="Fixtures"></a>
-####Fixtures 
+#### Fixtures 
 
 If needed pytest fixtures can be used - for more details see pytest documentation <br>
 https://docs.pytest.org/en/6.2.x/contents.html <br>
@@ -101,7 +101,7 @@ https://docs.pytest.org/en/6.2.x/contents.html <br>
 ### Test naming convention
 
 <a id="TestName"></a>
-####Test name:
+#### Test name:
 
 Test method should be prefixed with "test_" prefix e.g.   
 ```python
@@ -114,7 +114,7 @@ It's important not to start other methods with the "test_" prefix.
 ### Test documentation
 
 <a id="Docstring"></a>
-####Docstring 
+#### Docstring 
 
 Tests are documented with Docstring. Every test method documentation string should contain: Description, Expected results 
 and Steps. These fields are required but, not limited e.g.
@@ -137,7 +137,7 @@ and Steps. These fields are required but, not limited e.g.
 
 ```
 <a id="Steps"></a>
-####Steps in test body: 
+#### Steps in test body: 
 
 Steps description in test body are placed as a code comment lines e.g.
 ```python
