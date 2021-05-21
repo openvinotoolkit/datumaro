@@ -65,7 +65,10 @@ def save_image(path, image, create_dir=False, dtype=np.uint8, **kwargs):
     if not kwargs:
         kwargs = {}
 
-    if _IMAGE_BACKEND == _IMAGE_BACKENDS.cv2:
+    backend = _IMAGE_BACKEND
+    if dtype == np.int32:
+        backend = _IMAGE_BACKENDS.PIL
+    if backend == _IMAGE_BACKENDS.cv2:
         import cv2
 
         params = []
@@ -78,7 +81,7 @@ def save_image(path, image, create_dir=False, dtype=np.uint8, **kwargs):
 
         image = image.astype(dtype)
         cv2.imwrite(path, image, params=params)
-    elif _IMAGE_BACKEND == _IMAGE_BACKENDS.PIL:
+    elif backend == _IMAGE_BACKENDS.PIL:
         from PIL import Image
 
         params = {}

@@ -108,7 +108,7 @@ It should be capable of downloading and processing data from CVAT.
   - [x] PASCAL VOC
   - [x] YOLO
   - [x] TF Detection API
-  - [ ] Cityscapes
+  - [x] Cityscapes
   - [x] ImageNet
 
 - Dataset visualization (`show`)
