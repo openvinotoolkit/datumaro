@@ -1,7 +1,7 @@
 # Source code elements related to pytest
 ## Contents
-- [Test case description](#Test case description)
-  - [Test marking](#Test marking)
+- [Test case description](#Test_case_description)
+  - [Test marking](#Test_marking)
     - [Requirements](#Requirements)
     - [Type](#Type)
     - [Priority](#Priority)
@@ -16,9 +16,9 @@
     - [Docstring](#Docstring)
     - [Steps in test body](#Step)
           
-<a id="Test case description"></a>
+<a id="Test_case_description"></a>
 ## Test case description
-<a id="Test marking"></a>
+<a id="Test_marking"></a>
 ### Test marking
 <a id="Requirements"></a>
 #### Requirements 
@@ -31,19 +31,25 @@ Requirements constants need to be added to datumaro/tests/constants/requirements
 # [DATUMARO] Add SNYK scan integration
 DATUM_244 = "DATUM-244 Add Snyk integration"
 ```  
-For requirements I would like to recommend using notation @pytest.mark.requids(Requirements.DATUM_123) where DATUM will be a keyword for datumaro indication and number is a datumaro issue number.
+Recommended notation for requirements 
+
+```python
+@pytest.mark.requids(Requirements.DATUM_123)
+``` 
+where DATUM is a keyword for datumaro indication, and number is a datumaro github issue number.
 
 <a id="Type"></a>
 #### Type
 Test types: gui_smoke, gui_regression, manual, gui_other, gui_long, api, component, unit e.g.
-```
+```python
     @pytest.mark.component
     @pytest.mark.unit
 ```
+
 <a id="Priority"></a>
 ####Priority 
 Test priorities: low, medium, high, e.g.,
-```
+```python
      @pytest.mark.priority_low
      @pytest.mark.priority_medium
      @pytest.mark.priority_high
@@ -52,28 +58,28 @@ Test priorities: low, medium, high, e.g.,
 ####Component
 
 Component marking used for indication of different system components e.g.
-```
+```python
     @pytest.mark.components(DatumaroComponent.Datumaro)
 ```
 <a id="Skip"></a>
 ####Skip 
 
 For marking tests, which should be skipped for example for not yet tests, e.g.,
-```
+```python
    @pytest.mark.skip(reason=SkipMessages.NOT_IMPLEMENTED)
 ```
 <a id="Bug"></a>
 ####Bug(s):
 
 In case of test failure, bug should be entered into github issues, and test can be marked e.g.
-```
+```python
     @pytest.mark.bugs("DATUM-219 - Return format is not uniform")
 ```
 <a id="Parameters"></a>
 ####Parameters: 
 
 Parameters are used for running the same test with different parameters e.g. 
-```    
+```python
 @pytest.mark.parametrize("numpy_array, batch_size", [  
         (np.zeros([2]), 0),  
         (np.zeros([2]), 1),
@@ -98,7 +104,7 @@ https://docs.pytest.org/en/6.2.x/contents.html <br>
 ####Test name:
 
 Test method should be prefixed with "test_" prefix e.g.   
-```
+```python
     test_*()
 ```
 "test_" prefix is an indication for pytest to treat method as a test for execution. 
