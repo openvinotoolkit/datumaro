@@ -21,7 +21,7 @@ from datumaro.components.config_model import (BuildStage, PipelineConfig,
     ProjectLayout, Source, TreeConfig, TreeLayout)
 from datumaro.components.dataset import DEFAULT_FORMAT, Dataset, IDataset
 from datumaro.components.environment import Environment
-from datumaro.components.errors import (DatasetMergeError, DatumaroError,
+from datumaro.components.errors import (DatasetMergeError,
     EmptyPipelineError, MismatchingObjectError, MissingObjectError,
     MissingPipelineHeadError, MultiplePipelineHeadsError, ProjectAlreadyExists,
     ProjectNotFoundError, ReadonlyDatasetError, SourceExistsError,
@@ -1405,49 +1405,7 @@ class DvcWrapper:
 class Tree:
     # can be:
     # - attached to the work dir
-    # - attached to the index dir
     # - attached to a revision
-
-    @classmethod
-    def _read_config_v1(cls, config):
-        config = Config(config)
-        config.remove('subsets')
-        config.remove('format_version')
-
-        raise NotImplementedError()
-        config = cls._read_config_v2(config)
-        if osp.isdir(osp.join(config.project_dir, config.dataset_dir)):
-            name = generate_next_name(list(config.sources), 'source',
-                sep='-', default='1')
-            config.sources[name] = {
-                'url': config.dataset_dir,
-                'format': DEFAULT_FORMAT,
-            }
-
-        for s, s_conf in config.sources:
-            if path and not osp.exists(path) and not config.remote:
-                # backward compatibility
-                path = osp.join(tree.config.project_dir, config.url)
-
-        return config
-
-    @classmethod
-    def _read_config_v2(cls, config):
-        return TreeConfig(config)
-
-    @classmethod
-    def _read_config(cls, config):
-        if config:
-            version = config.get('format_version')
-        else:
-            version = None
-        if version == 1:
-            return cls._read_config_v1(config)
-        elif version in {None, 2}:
-            return cls._read_config_v2(config)
-        else:
-            raise ValueError("Unknown project config file format version '%s'. "
-                "The only known are: 1, 2" % version)
 
     def __init__(self, project: 'Project',
             config: Optional[TreeConfig] = None,
@@ -1456,7 +1414,13 @@ class Tree:
         assert isinstance(project, Project)
         assert not rev or project.is_ref(rev), rev
 
-        self._config = self._read_config(config)
+        if not isinstance(config, TreeConfig):
+            config = TreeConfig(config)
+        if config.format_version != 2:
+            raise ValueError("Unexpected tree config version '%s', expected 2" %
+                config.format_version)
+        self._config = config
+
         if env is None:
             env = Environment(self._config)
         elif config is not None:
@@ -1531,6 +1495,47 @@ class Project:
 
         return None
 
+    def _migrate_from_v1_to_v2(self):
+        old_config_path = osp.join(self._aux_dir, 'config.yaml')
+        old_config = Config.parse(old_config_path)
+        if not old_config.format_version == 1:
+            return
+        log.debug("Migrating project from v1 to v2...")
+
+        wd_tree_dir = osp.join(self._aux_dir, ProjectLayout.tree_dir)
+        os.makedirs(wd_tree_dir, exist_ok=True)
+
+        plugins_dir = osp.join(self._aux_dir, 'plugins')
+        if osp.isdir(plugins_dir):
+            shutil.move(plugins_dir, osp.join(wd_tree_dir, 'plugins'))
+
+        models_dir = osp.join(self._aux_dir, 'models')
+        if osp.isdir(models_dir):
+            shutil.move(models_dir, osp.join(wd_tree_dir, 'models'))
+
+        new_config = TreeConfig()
+
+        if 'models' in old_config:
+            new_config.models.update(old_config.models)
+
+        if 'sources' in old_config:
+            new_config.sources.update(old_config.sources)
+
+        old_dataset_dir = osp.join(self._root_dir, 'dataset')
+        if osp.isdir(old_dataset_dir):
+            name = generate_next_name(list(new_config.sources), 'source',
+                sep='-', default='1')
+            new_config.sources[name] = {
+                'url': '',
+                'format': DEFAULT_FORMAT,
+            }
+            os.rename(old_dataset_dir, self.source_data_dir(name))
+
+        new_config.dump(osp.join(wd_tree_dir, TreeLayout.conf_file))
+        os.remove(old_config_path)
+
+        log.debug("Finished")
+
     def __init__(self, path: Optional[str] = None):
         if not path:
             path = osp.curdir
@@ -1548,6 +1553,11 @@ class Project:
 
         self._working_tree = None
         self._head_tree = None
+
+        config_path = osp.join(self._aux_dir, 'config.yaml')
+        if osp.isfile(config_path):
+            self._migrate_from_v1_to_v2()
+            self._init_vcs()
 
     def _init_vcs(self):
         # DVC requires Git to be initialized
@@ -1695,8 +1705,7 @@ class Project:
     def _source_dvcfile_path(self, name, root=None):
         if not root:
             root = osp.join(self._aux_dir, ProjectLayout.tree_dir)
-        return osp.join(root, self.working_tree.config.sources_dir,
-            name + '.dvc')
+        return osp.join(root, TreeLayout.sources_dir, name + '.dvc')
 
     def _make_tmp_dir(self, suffix=None):
         project_tmp_dir = osp.join(self._aux_dir, ProjectLayout.tmp_dir)
@@ -1785,6 +1794,7 @@ class Project:
             obj_hash = obj_hash[:-len(self._dvc.DIR_HASH_SUFFIX)]
 
             dvcfile = self._source_dvcfile_path(source)
+            os.makedirs(osp.dirname(dvcfile), exist_ok=True)
             os.replace(tmp_dvcfile, dvcfile)
 
         return obj_hash
@@ -1869,8 +1879,8 @@ class Project:
 
         self.working_tree.sources.remove(name)
 
+        data_dir = self.source_data_dir(name)
         if not keep_data:
-            data_dir = self.source_data_dir(name)
             if osp.isdir(data_dir):
                 rmtree(data_dir)
 
@@ -2006,41 +2016,6 @@ class Project:
 
     def has_commits(self) -> bool:
         return self._git.has_commits()
-
-    @classmethod
-    def from_dataset(cls, path: str, dataset_format: Optional[str] = None,
-            env: Optional[Environment] = None, **format_options) -> 'Project':
-        """
-        A convenience function to create a project from a given dataset.
-        """
-        raise NotImplementedError()
-
-        if env is None:
-            env = Environment()
-
-        if not dataset_format:
-            matches = env.detect_dataset(path)
-            if not matches:
-                raise DatumaroError(
-                    "Failed to detect dataset format automatically")
-            if 1 < len(matches):
-                raise DatumaroError(
-                    "Failed to detect dataset format automatically:"
-                    " data matches more than one format: %s" % \
-                    ', '.join(matches))
-            dataset_format = matches[0]
-        elif not env.is_format_known(dataset_format):
-            raise KeyError("Unknown format '%s'. To make it "
-                "available, add the corresponding Extractor implementation "
-                "to the environment" % dataset_format)
-
-        project = Project(env=env)
-        project.sources.add('source', {
-            'url': path,
-            'format': dataset_format,
-            'options': format_options,
-        })
-        return project
 
     def status(self) -> Dict:
         return {}

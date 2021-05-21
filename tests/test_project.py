@@ -21,6 +21,7 @@ class ProjectTest(TestCase):
 
             Project(test_dir)
 
+    @skip("Not implemented")
     def test_can_import_local_model(self):
         with TestDir() as test_dir:
             source_name = 'source'
@@ -38,6 +39,7 @@ class ProjectTest(TestCase):
             self.assertEqual(added.launcher, origin.launcher)
             self.assertEqual(added.options, origin.options)
 
+    @skip("Not implemented")
     def test_can_import_generated_model(self):
         model_name = 'model'
         origin = Model({
@@ -53,6 +55,7 @@ class ProjectTest(TestCase):
         self.assertEqual(added.launcher, origin.launcher)
         self.assertEqual(added.options, origin.options)
 
+    @skip("Not implemented")
     def test_can_transform_source_with_model(self):
         class TestExtractor(Extractor):
             def __iter__(self):
@@ -86,25 +89,6 @@ class ProjectTest(TestCase):
         result = project.make_dataset()
 
         compare_datasets(self, expected, result)
-
-    def test_can_detect_and_import(self):
-        env = Environment()
-        env.importers.items = {DEFAULT_FORMAT: env.importers[DEFAULT_FORMAT]}
-        env.extractors.items = {DEFAULT_FORMAT: env.extractors[DEFAULT_FORMAT]}
-
-        source_dataset = Dataset.from_iterable([
-            DatasetItem(id=1, annotations=[ Label(2) ]),
-        ], categories=['a', 'b', 'c'])
-
-        with TestDir() as test_dir:
-            source_dataset.save(test_dir)
-
-            project = Project.import_from(test_dir, env=env)
-            imported_dataset = project.make_dataset()
-
-            self.assertEqual(next(iter(project.sources.items()))[1].format,
-                DEFAULT_FORMAT)
-            compare_datasets(self, source_dataset, imported_dataset)
 
     def test_can_import_local_source(self):
         with TestDir() as test_dir:
@@ -411,15 +395,18 @@ class BackwardCompatibilityTests_v0_1(TestCase):
             DatasetItem(1, subset='test', annotations=[Label(1)]),
         ], categories=['a', 'b'])
 
-        project_dir = osp.join(osp.dirname(__file__),
-            'assets', 'compat', 'v0.1', 'project')
+        with TestDir() as test_dir:
+            shutil.copytree(osp.join(osp.dirname(__file__),
+                    'assets', 'compat', 'v0.1', 'project'),
+                osp.join(test_dir, 'proj'))
 
-        project = Project(project_dir)
-        loaded_dataset = project.working_tree.make_dataset()
+            project = Project(osp.join(test_dir, 'proj'))
+            loaded_dataset = project.working_tree.make_dataset()
 
-        compare_datasets(self, expected_dataset, loaded_dataset)
+            compare_datasets(self, expected_dataset, loaded_dataset)
 
 
+@skip("Not implemented")
 class ModelsTest(TestCase):
     def test_can_batch_launch_custom_model(self):
         dataset = Dataset.from_iterable([

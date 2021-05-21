@@ -100,48 +100,20 @@ class BuildTarget(Config):
 
 
 TREE_SCHEMA = _SchemaBuilder() \
-    .add('project_name', str) \
     .add('format_version', int) \
     \
-    .add('default_repo', str) \
-    .add('remotes', lambda: _DictConfig(lambda v=None: Remote(v))) \
     .add('sources', lambda: _DictConfig(lambda v=None: Source(v))) \
     .add('models', lambda: _DictConfig(lambda v=None: Model(v))) \
     .add('build_targets', lambda: _DictConfig(lambda v=None: BuildTarget(v))) \
     \
-    .add('models_dir', str, internal=True) \
-    .add('plugins_dir', str, internal=True) \
-    .add('sources_dir', str, internal=True) \
-    .add('dataset_dir', str, internal=True) \
-    .add('dvc_aux_dir', str, internal=True) \
-    .add('pipelines_dir', str, internal=True) \
-    .add('build_dir', str, internal=True) \
-    .add('cache_dir', str, internal=True) \
-    .add('revisions_dir', str, internal=True) \
-    \
     .add('base_dir', str, internal=True) \
     .add('config_path', str, internal=True) \
-    .add('env_dir', str, internal=True) \
     .build()
 
 TREE_DEFAULT_CONFIG = Config({
-    'project_name': 'undefined',
     'format_version': 2,
 
-    'default_repo': 'origin',
-
-    'sources_dir': 'sources',
-    'dataset_dir': 'dataset',
-    'models_dir': 'models',
-    'plugins_dir': 'plugins',
-    'dvc_aux_dir': 'dvc_aux',
-    'pipelines_dir': 'dvc_pipelines',
-    'build_dir': 'build',
-    'cache_dir': 'cache',
-    'revisions_dir': 'revisions',
-
-    'config_path': 'config.yaml',
-    'env_dir': '.datumaro',
+    'config_path': '',
 }, mutable=False, schema=TREE_SCHEMA)
 
 class TreeConfig(Config):

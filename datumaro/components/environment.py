@@ -9,7 +9,7 @@ import logging as log
 import os
 import os.path as osp
 
-from datumaro.components.config_model import TreeConfig
+from datumaro.components.config_model import TreeConfig, TreeLayout
 from datumaro.util.os_util import import_foreign_module
 
 
@@ -63,7 +63,7 @@ class Environment:
 
         if config.base_dir and osp.isdir(config.base_dir):
             custom = self._load_plugins(
-                osp.join(config.base_dir, config.plugins_dir))
+                osp.join(config.base_dir, TreeLayout.plugins_dir))
         else:
             custom = []
         builtin = self._load_builtin_plugins()
