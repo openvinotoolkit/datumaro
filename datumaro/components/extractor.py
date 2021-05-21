@@ -2,7 +2,6 @@
 # Copyright (C) 2019-2020 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
-import datetime
 from enum import Enum
 from glob import iglob
 import numpy as np
