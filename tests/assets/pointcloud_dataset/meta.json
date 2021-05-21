@@ -1,0 +1,30 @@
+{
+    "classes": [
+        {
+            "id": 1,
+            "title": "car",
+            "color": "#2080c0",
+            "shape": "cuboid_3d",
+            "geometry_config": {},
+            "hotkey": ""
+        },
+        {
+            "id": 2,
+            "title": "abc",
+            "color": "#ddff33",
+            "shape": "cuboid_3d",
+            "geometry_config": {},
+            "hotkey": ""
+        },
+        {
+            "id": 3,
+            "title": "bus",
+            "color": "#f59331",
+            "shape": "cuboid_3d",
+            "geometry_config": {},
+            "hotkey": ""
+        }
+    ],
+    "tags": [],
+    "projectType": "point_clouds"
+}

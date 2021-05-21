@@ -1,0 +1,108 @@
+{
+    "description": "",
+    "key": "a47b58bb-2f5f-407b-8f45-b4be21bd1095",
+    "tags": [],
+    "objects": [
+        {
+            "key": "93fad77e-6c80-4768-b0f1-e940dbd01541",
+            "classTitle": "car",
+            "tags": [],
+            "labelerLogin": "django",
+            "createdAt": "2021-05-21 16:32:51.759765+00:00",
+            "updatedAt": "2021-05-21 16:43:14.606218+00:00"
+        },
+        {
+            "key": "88375c78-8c75-452d-9d6e-af38623f37c0",
+            "classTitle": "abc",
+            "tags": [],
+            "labelerLogin": "django",
+            "createdAt": "2021-05-21 16:32:51.759765+00:00",
+            "updatedAt": "2021-05-21 16:43:14.606218+00:00"
+        },
+        {
+            "key": "9579ee10-8e77-4247-b282-d03621f7e719",
+            "classTitle": "bus",
+            "tags": [],
+            "labelerLogin": "django",
+            "createdAt": "2021-05-21 16:32:51.759765+00:00",
+            "updatedAt": "2021-05-21 16:43:14.606218+00:00"
+        }
+    ],
+    "figures": [
+        {
+            "key": "280ebabe-a9ff-47b1-8960-89caf2eaf60a",
+            "objectKey": "88375c78-8c75-452d-9d6e-af38623f37c0",
+            "geometryType": "cuboid_3d",
+            "geometry": {
+                "position": {
+                    "x": -3.7155589374048885,
+                    "y": -2.309583528166476,
+                    "z": 0.33459769024870756
+                },
+                "rotation": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "dimensions": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            },
+            "labelerLogin": "django",
+            "createdAt": "2021-05-21 16:32:51.759765+00:00",
+            "updatedAt": "2021-05-21 16:43:14.606218+00:00"
+        },
+        {
+            "key": "22a393fb-fb4f-46e2-a578-b627ce9cbbc3",
+            "objectKey": "93fad77e-6c80-4768-b0f1-e940dbd01541",
+            "geometryType": "cuboid_3d",
+            "geometry": {
+                "position": {
+                    "x": -3.291477553950566,
+                    "y": -2.0760998857987207,
+                    "z": 1.9644343401956337
+                },
+                "rotation": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "dimensions": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            },
+            "labelerLogin": "django",
+            "createdAt": "2021-05-21 16:32:51.759765+00:00",
+            "updatedAt": "2021-05-21 16:43:14.606218+00:00"
+        },
+        {
+            "key": "e69c23a5-b83e-41bf-a661-df64a011df3f",
+            "objectKey": "9579ee10-8e77-4247-b282-d03621f7e719",
+            "geometryType": "cuboid_3d",
+            "geometry": {
+                "position": {
+                    "x": 5.383212586996567,
+                    "y": 2.5124612681874794,
+                    "z": 0.7985849806372741
+                },
+                "rotation": {
+                    "x": 0.0,
+                    "y": 0.07853981633974425,
+                    "z": 0.0
+                },
+                "dimensions": {
+                    "x": 11.61612000999389,
+                    "y": 12.3311316383584,
+                    "z": 5.560264387286407
+                }
+            },
+            "labelerLogin": "django",
+            "createdAt": "2021-05-21 16:32:51.759765+00:00",
+            "updatedAt": "2021-05-21 16:43:14.606218+00:00"
+        }
+    ]
+}
