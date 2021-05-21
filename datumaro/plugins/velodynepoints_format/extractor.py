@@ -1,3 +1,7 @@
+# Copyright (C) 2020-2021 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+
 import os.path as osp
 from collections import OrderedDict
 
@@ -5,6 +9,7 @@ from datumaro.components.extractor import (SourceExtractor, DatasetItem,
                                            AnnotationType, Cuboid,
                                            LabelCategories, Importer
                                            )
+
 from .format import VelodynePointsPath
 
 
@@ -68,7 +73,7 @@ class VelodynePointsExtractor(SourceExtractor):
             elif elem.tag == "occlusion_kf":
                 shape["occluded"] = 1 if int(elem.text) else 0
             elif elem.tag == "finished":
-                for i in range(7):
+                for _ in range(7):
                     shape['points'].append(float(0.0))
                 shape["type"] = "cuboid"
                 label["attributes"] = {}

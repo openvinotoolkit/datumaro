@@ -3,19 +3,17 @@
 #
 # SPDX-License-Identifier: MIT
 import datetime
+import os.path as osp
 from enum import Enum
 from glob import iglob
 from typing import Iterable, List, Dict, Optional
-import numpy as np
-import os.path as osp
-from io import BytesIO
 
 import attr
+import numpy as np
 from attr import attrs, attrib
 
-from datumaro.util.image import Image
 from datumaro.util.attrs_util import not_empty, default_if_none
-
+from datumaro.util.image import Image
 
 AnnotationType = Enum('AnnotationType',
     [
@@ -376,26 +374,13 @@ class Cuboid(Annotation):
                    default=None, kw_only=True)
     z_order = attrib(default=0, validator=default_if_none(int), kw_only=True)
 
-    def as_cuboid(self):
-        return self.points[:]
-
-    def get_area(self):
-        return 0
-
-
-@attrs
-class Tag(Annotation):
-    _type = AnnotationType.tag
-    label_id = attrib(type=int, default=None)
-    name = name = attrib(default=None, kw_only=True)
-
 
 @attrs
 class Owner(Annotation):
     _type = AnnotationType.owner
 
     name = attrib(default=None, kw_only=True)
-    updatedAt= attrib(type=datetime, default=datetime.datetime.now())
+    updatedAt = attrib(type=datetime, default=datetime.datetime.now())
     createdAt = attrib(type=datetime, default=datetime.datetime.now())
 
 
@@ -563,9 +548,9 @@ class DatasetItem:
     related_images = attrib(type=list, default=[])
 
     @related_images.validator
-    def _image_validator(self, attribute, related_images):
+    def _related_image_validator(self, attribute, related_images):
         self.related_images = []
-        image={}
+        image = {}
         for related_image in related_images:
             if callable(related_image) or isinstance(related_image["path"], np.ndarray):
                 image["name"] = related_image["name"]
@@ -730,10 +715,6 @@ class Importer:
         sources = self.find_sources(osp.normpath(path))
         if len(sources) == 0:
             raise Exception("Failed to find dataset at '%s'" % path)
-
-        for i, source in enumerate(sources):
-            if osp.split(source["url"])[-1] == "meta.json" and source["format"] == 'point_cloud':
-                del sources[i]
 
         for desc in sources:
             params = dict(extra_params)

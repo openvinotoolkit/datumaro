@@ -1,27 +1,23 @@
-import logging as log
+
+# Copyright (C) 2020-2021 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+
 import os
 import os.path as osp
+import logging as log
 from collections import OrderedDict
 from itertools import chain
 from xml.sax.saxutils import XMLGenerator
-import shutil
 
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.extractor import (AnnotationType, DatasetItem,
     LabelCategories)
-from datumaro.util import cast, pairs
-
-# pose states
+from datumaro.util import cast
 from datumaro.util.image import ByteImage, save_image
 
-POSES_STATES = {"UNSET": 0, "INTERP" : 1,  "LABELED" : 2}
-
-#occlusion state
-OCCLUSION_STATE = { "OCCLUSION_UNSET": -1, "VISIBLE": 0, "PARTLY": 1, "FULLY": 2}
-
-#truncation states
-TRUNCATION_STATE = {"TRUNCATION_UNSET" : -1, "IN_IMAGE" : 0, "TRUNCATED": 1, "OUT_IMAGE" :2, "BEHIND_IMAGE" :     99}
+from .format import VelodynePointsPath
 
 
 class XmlAnnotationWriter:
@@ -29,7 +25,6 @@ class XmlAnnotationWriter:
     def __init__(self, file, tracklets):
         self.version = "1.1"
         self._file = file
-        # self._annotation = tracklets
         self.xmlgen = XMLGenerator(self._file, 'utf-8')
         self._level = 0
         self._tracklets = tracklets
@@ -193,7 +188,7 @@ class _SubsetWriter:
 
         for i, data in enumerate(subset):
 
-            for index, item in enumerate(data.annotations):
+            for item in data.annotations:
                 if item.type == AnnotationType.cuboid:
                     if item.label is None:
                         log.warning("Item %s: skipping a %s with no label",
@@ -232,6 +227,21 @@ class _SubsetWriter:
                     tracklet["finished"] = 1
                     self._tracklets.append(tracklet)
 
+                    label_name = self._get_label(item.label).name
+                    for attr_name, attr_value in item.attributes.items():
+                        if attr_name in self._context._builtin_attrs:
+                            continue
+                        if isinstance(attr_value, bool):
+                            attr_value = 'true' if attr_value else 'false'
+                        if self._context._allow_undeclared_attrs or \
+                                attr_name in self._get_label_attrs(item.label):
+                            continue
+                        else:
+                            log.warning("Item %s: skipping undeclared "
+                                        "attribute '%s' for label '%s' "
+                                        "(allow with --allow-undeclared-attrs option)",
+                                        item.id, attr_name, label_name)
+
         tracklets = XmlAnnotationWriter(self._file, self._tracklets)
         tracklets.generate_tracklets()
 
@@ -241,6 +251,14 @@ class _SubsetWriter:
         label_cat = self._extractor.categories().get(
             AnnotationType.label, LabelCategories())
         return label_cat.items[label_id]
+
+    def _get_label_attrs(self, label):
+        label_cat = self._extractor.categories().get(
+            AnnotationType.label, LabelCategories())
+        if isinstance(label, int):
+            label = label_cat[label]
+        return set(chain(label.attributes, label_cat.attributes)) - \
+            self._context._builtin_attrs
 
     def _write_item(self, item, index):
         if not self._context._reindex:
@@ -255,8 +273,8 @@ class _SubsetWriter:
 
         if item.has_pcd:
             if self._context._save_images:
-                dir = osp.join(self._context._save_dir, "velodyne_points")
-                self._context._image_dir = osp.join(dir, "data")
+                velodyne_dir = osp.join(self._context._save_dir, "velodyne_points")
+                self._context._image_dir = osp.join(velodyne_dir, "data")
 
                 self._context._save_pcd(item,
                                         osp.join(self._context._image_dir, filename))
@@ -304,7 +322,7 @@ class VelodynePointsConverter(Converter):
         super().__init__(extractor, save_dir, **kwargs)
 
         self._reindex = reindex
-        self._builtin_attrs = []
+        self._builtin_attrs = VelodynePointsPath.BUILTIN_ATTRS
         self._allow_undeclared_attrs = allow_undeclared_attrs
 
     def apply(self):

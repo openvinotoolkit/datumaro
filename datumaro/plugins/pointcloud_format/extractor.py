@@ -1,3 +1,7 @@
+# Copyright (C) 2020-2021 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+
 import json
 import os
 
@@ -43,34 +47,30 @@ class PointCloudExtractor(SourceExtractor):
         path = osp.abspath(path)
         items = OrderedDict()
         categories = {}
+        mapping = {}
 
         if osp.split(path)[-1] == "key_id_map.json":
             with open(path, "r") as f:
-                data = f.read()
-            cls.mapping = json.loads(data)
+                mapping = json.loads(f.read())
 
         meta_path = osp.abspath(osp.join(osp.dirname(path), "meta.json"))
 
         if osp.isfile(meta_path):
-
             with open(meta_path, "r") as f:
-                meta = f.read()
+                meta = json.loads(f.read())
 
-            cls.meta = json.loads(meta)
-
-        label_cat = LabelCategories()
         common_attrs = ["occluded"]
-
-        if cls.meta:
-            for label in cls.meta["classes"]:
-                label_cat.add(label['title'], attributes=common_attrs)
+        label_cat = LabelCategories(attributes=common_attrs)
+        if meta:
+            for label in meta["classes"]:
+                label_cat.add(label['title'])
 
         categories[AnnotationType.label] = label_cat
 
         data_dir = osp.join(osp.dirname(path), PointCloudPath.DEFAULT_DIR, PointCloudPath.ANNNOTATION_DIR)
 
         labels = {}
-        for root, _, files in os.walk(data_dir):
+        for _, _, files in os.walk(data_dir):
             for file in files:
                 with open(osp.join(data_dir, file), "r") as f:
                     figure_data = f.read()
@@ -81,31 +81,30 @@ class PointCloudExtractor(SourceExtractor):
 
                 group = 0
                 z_order = 0
-                attributes ={}
+                attributes = {}
 
                 for figure in figure_data["figures"]:
                     anno_points = []
                     geometry_type = ["position", "rotation", "dimensions"]
                     for geo in geometry_type:
-                        [anno_points.append(float(i)) for i in figure["geometry"][geo].values()]
+                        anno_points.extend(float(i) for i in figure["geometry"][geo].values())
 
-                    for i in range(7):
+                    for _ in range(7):
                         anno_points.append(0.0)
 
-                    id = cls.mapping["figures"][figure['key']]
+                    map_id = mapping["figures"][figure['key']]
                     label = labels[figure["objectKey"]]
 
                     label = categories[AnnotationType.label].find(label)[0]
 
                     shape = Cuboid(anno_points, label=label, z_order=z_order,
-                              id=id, attributes=attributes, group=group)
+                                   id=map_id, attributes=attributes, group=group)
 
-                    frame = cls.mapping["videos"][figure_data['key']]
+                    frame = mapping["videos"][figure_data['key']]
                     frame_desc = items.get(frame, {'annotations': []})
 
                     frame_desc['annotations'].append(shape)
                     items[frame] = frame_desc
-
 
         return items, categories
 
@@ -118,9 +117,9 @@ class PointCloudExtractor(SourceExtractor):
                 image = Image(path=image, size=tuple(map(int, image_size)))
 
             parsed[frame_id] = DatasetItem(id=osp.splitext(name)[0],
-                subset=self._subset, image=image,
-                annotations=item_desc.get('annotations'),
-                attributes={'frame': int(frame_id)})
+                                           subset=self._subset, image=image,
+                                           annotations=item_desc.get('annotations'),
+                                           attributes={'frame': int(frame_id)})
 
         return parsed
 
@@ -128,4 +127,9 @@ class PointCloudExtractor(SourceExtractor):
 class PointCloudImporter(Importer):
     @classmethod
     def find_sources(cls, path):
-        return cls._find_sources_recursive(path, '.json', 'point_cloud')
+        sources = cls._find_sources_recursive(path, '.json', 'point_cloud')
+        for i, source in enumerate(sources):
+            if osp.split(source["url"])[-1] == "meta.json" and source["format"] == 'point_cloud':
+                del sources[i]
+
+        return sources
