@@ -78,10 +78,11 @@ class ProjectIntegrationScenarios(TestCase):
             run(self, 'commit', '-p', project_dir, '-m', 'Add transform')
 
             run(self, 'filter', '-p', project_dir,
-                '-e', '/item/annotation[label="cat"]', '-m', 'i+a', 'source-1')
+                '-e', '/item/annotation[label="cat"]', '-m', 'i+a')
             run(self, 'commit', '-p', project_dir, '-m', 'Add filter')
 
-            run(self, 'export', '-p', project_dir, '-f', 'coco', '-o', result_dir)
+            run(self, 'export', '-p', project_dir, '-f', 'coco',
+                '-o', result_dir, 'source-1', '--', '--save-images')
             parsed = Dataset.import_from(result_dir, 'coco')
             compare_datasets(self, Dataset.from_iterable([
                 DatasetItem(0, image=np.ones((1, 2, 3)),
@@ -93,7 +94,8 @@ class ProjectIntegrationScenarios(TestCase):
 
             shutil.rmtree(result_dir, ignore_errors=True)
             run(self, 'checkout', '-p', project_dir, 'HEAD~1')
-            run(self, 'export', '-p', project_dir, '-f', 'coco', '-o', result_dir)
+            run(self, 'export', '-p', project_dir, '-f', 'coco',
+                '-o', result_dir, '--', '--save-images')
             parsed = Dataset.import_from(result_dir, 'coco')
             compare_datasets(self, Dataset.from_iterable([
                 DatasetItem(0, image=np.ones((1, 2, 3)), annotations=[

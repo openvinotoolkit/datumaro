@@ -1,4 +1,4 @@
-# Copyright (C) 2020 Intel Corporation
+# Copyright (C) 2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -21,6 +21,6 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 def checkout_command(args):
     project = load_project(args.project_dir)
 
-    project.vcs.checkout(rev=args.rev)
+    project.checkout(rev=args.rev)
 
     return 0

@@ -73,17 +73,17 @@ def add_command(args):
 
     name = args.name
     if name:
-        if name in project.sources:
+        if name in project.working_tree.sources:
             raise CliException("Source '%s' already exists" % name)
     else:
-        name = generate_next_name(list(project.sources),
+        name = generate_next_name(list(project.working_tree.sources),
             'source', sep='-', default='1')
 
     fmt = args.format
-    if fmt in project.env.importers:
-        arg_parser = project.env.importers[fmt]
-    elif fmt in project.env.extractors:
-        arg_parser = project.env.extractors[fmt]
+    if fmt in project.working_tree.env.importers:
+        arg_parser = project.working_tree.env.importers[fmt]
+    elif fmt in project.working_tree.env.extractors:
+        arg_parser = project.working_tree.env.extractors[fmt]
     else:
         raise CliException("Unknown format '%s'. A format can be added"
             "by providing an Extractor and Importer plugins" % fmt)
@@ -135,8 +135,8 @@ def remove_command(args):
         raise CliException("Expected source name")
 
     for name in args.names:
-        project.sources.remove(name, force=args.force, keep_data=args.keep_data)
-    project.save()
+        project.remove_source(name, force=args.force, keep_data=args.keep_data)
+    project.working_tree.save()
 
     log.info("Sources '%s' have been removed from the project" % \
         ', '.join(args.names))
@@ -160,10 +160,10 @@ def info_command(args):
     project = load_project(args.project_dir)
 
     if args.name:
-        source = project.sources[args.name]
+        source = project.working_tree.sources[args.name]
         print(source)
     else:
-        for name, conf in project.sources.items():
+        for name, conf in project.working_tree.sources.items():
             print(name)
             if args.verbose:
                 print(conf)

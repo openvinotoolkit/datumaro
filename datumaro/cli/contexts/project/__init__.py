@@ -142,7 +142,7 @@ def export_command(args):
     dst_dir = osp.abspath(dst_dir)
 
     try:
-        converter = project.env.converters[args.format]
+        converter = project.working_tree.env.converters[args.format]
     except KeyError:
         raise CliException("Converter for format '%s' is not found" % \
             args.format)
@@ -152,16 +152,14 @@ def export_command(args):
 
     if args.filter:
         filter_args = FilterModes.make_filter_args(args.filter_mode)
-        filter_args['expr'] = args.filter
+        filter_expr = args.filter
 
     log.info("Loading the project...")
 
     target = args.target
     if args.filter:
         target = project.working_tree.build_targets.add_filter_stage(
-            target, filter_args)
-    target = project.working_tree.build_targets.add_convert_stage(
-        target, args.format, extra_args)
+            target, expr=filter_expr, params=filter_args)
 
     status = project.status()
     if status: # TODO: narrow only to the affected sources
@@ -170,7 +168,8 @@ def export_command(args):
 
     log.info("Exporting...")
 
-    project.working_tree.build_targets.build(target, out_dir=dst_dir)
+    dataset = project.working_tree.make_dataset(target)
+    dataset.export(save_dir=dst_dir, format=converter, **extra_args)
 
     log.info("Results have been saved to '%s'" % dst_dir)
 
@@ -214,6 +213,8 @@ def build_filter_parser(parser_ctor=argparse.ArgumentParser):
         """,
         formatter_class=MultilineFormatter)
 
+    parser.add_argument('target', nargs='?', default='project',
+        help="Project target to apply transform to (default: all)")
     parser.add_argument('-e', '--filter', default=None,
         help="XML XPath filter expression for dataset items")
     parser.add_argument('-m', '--mode', default=FilterModes.i.name,
@@ -239,22 +240,23 @@ def build_filter_parser(parser_ctor=argparse.ArgumentParser):
 def filter_command(args):
     project = load_project(args.project_dir)
 
-    if not args.dry_run:
-        dst_dir = args.dst_dir
-        if dst_dir:
-            if not args.overwrite and osp.isdir(dst_dir) and os.listdir(dst_dir):
-                raise CliException("Directory '%s' already exists "
-                    "(pass --overwrite to overwrite)" % dst_dir)
-        else:
-            dst_dir = generate_next_file_name('filter')
+    if args.stage and args.target not in project.working_tree.build_targets:
+        raise CliException("Adding a stage is only allowed for "
+            "source and 'project' targets, not '%s'" % args.target)
+
+    dst_dir = args.dst_dir
+    if dst_dir:
+        if not args.overwrite and osp.isdir(dst_dir) and os.listdir(dst_dir):
+            raise CliException("Directory '%s' already exists "
+                "(pass --overwrite to overwrite)" % dst_dir)
         dst_dir = osp.abspath(dst_dir)
 
     filter_args = FilterModes.make_filter_args(args.mode)
-    filter_args['expr'] = args.filter
+    filter_expr = args.filter
 
     if args.dry_run:
         dataset = project.working_tree.make_dataset()
-        dataset = dataset.filter(**filter_args)
+        dataset = dataset.filter(expr=filter_expr, **filter_args)
         for item in dataset:
             encoded_item = DatasetItemEncoder.encode(item, dataset.categories())
             xml_item = DatasetItemEncoder.to_string(encoded_item)
@@ -264,11 +266,14 @@ def filter_command(args):
     if not args.filter:
         raise CliException("Expected a filter expression ('-e' argument)")
 
-    sources = [t for t in project.working_tree.build_targets
-        if t != project.working_tree.build_targets.MAIN_TARGET]
+    if args.target == ProjectBuildTargets.MAIN_TARGET:
+        targets = list(project.working_tree.sources)
+    else:
+        targets = [args.target]
 
-    for source in sources:
-        project.working_tree.build_targets.add_filter_stage(source, filter_args)
+    for target in targets:
+        project.working_tree.build_targets.add_filter_stage(target,
+            expr=filter_expr, params=filter_args)
 
     status = project.status()
     if status: # TODO: narrow only to the affected sources
@@ -278,12 +283,21 @@ def filter_command(args):
     if args.apply:
         log.info("Filtering...")
 
-        dataset = project.working_tree.make_dataset()
-        dataset.save(dst_dir)
+        if args.dst_dir:
+            dataset = project.working_tree.make_dataset(args.target)
+            dataset.save(dst_dir, save_images=True)
 
-        log.info("Results have been saved to '%s'" % dst_dir)
+            log.info("Results have been saved to '%s'" % dst_dir)
+        else:
+            for target in targets:
+                dataset = project.working_tree.make_dataset(target)
+                dataset.save(save_images=True)
+
+            log.info("Finished")
 
     if args.stage:
+        for target in targets:
+            project._refresh_source_hash(target)
         project.working_tree.save()
 
     return 0
@@ -304,6 +318,10 @@ def build_transform_parser(parser_ctor=argparse.ArgumentParser):
         """ % ', '.join(builtins),
         formatter_class=MultilineFormatter)
 
+    parser.add_argument('_positionals', nargs=argparse.REMAINDER,
+        help=argparse.SUPPRESS) # workaround for -- eaten by positionals
+    parser.add_argument('target', nargs='?', default='project',
+        help="Project target to apply transform to (default: all)")
     parser.add_argument('-t', '--transform', required=True,
         help="Transform to apply to the project")
     parser.add_argument('-o', '--output-dir', dest='dst_dir', default=None,
@@ -323,21 +341,30 @@ def build_transform_parser(parser_ctor=argparse.ArgumentParser):
     return parser
 
 def transform_command(args):
+    has_sep = '--' in args._positionals
+    if has_sep:
+        pos = args._positionals.index('--')
+    else:
+        pos = 1
+    args.target = (args._positionals[:pos] or \
+        [ProjectBuildTargets.MAIN_TARGET])[0]
+    args.extra_args = args._positionals[pos + has_sep:]
+
     project = load_project(args.project_dir)
 
-    dst_dir = args.dst_dir
+    if args.stage and args.target not in project.working_tree.build_targets:
+        raise CliException("Adding a stage is only allowed for "
+            "source and 'project' targets, not '%s'" % args.target)
 
+    dst_dir = args.dst_dir
     if dst_dir:
         if not args.overwrite and osp.isdir(dst_dir) and os.listdir(dst_dir):
             raise CliException("Directory '%s' already exists "
                 "(pass --overwrite to overwrite)" % dst_dir)
-    else:
-        dst_dir = generate_next_file_name('transform')
-
-    dst_dir = osp.abspath(dst_dir)
+        dst_dir = osp.abspath(dst_dir)
 
     try:
-        transform = project.env.transforms[args.transform]
+        transform = project.working_tree.env.transforms[args.transform]
     except KeyError:
         raise CliException("Transform '%s' is not found" % args.transform)
 
@@ -345,12 +372,14 @@ def transform_command(args):
     if hasattr(transform, 'parse_cmdline'):
         extra_args = transform.parse_cmdline(args.extra_args)
 
-    sources = [t for t in project.working_tree.build_targets
-        if t != project.working_tree.build_targets.MAIN_TARGET]
+    if args.target == ProjectBuildTargets.MAIN_TARGET:
+        targets = list(project.working_tree.sources)
+    else:
+        targets = [args.target]
 
-    for source in sources:
-        project.working_tree.build_targets.add_transform_stage(source,
-            args.transform, extra_args)
+    for target in targets:
+        project.working_tree.build_targets.add_transform_stage(target,
+            args.transform, params=extra_args)
 
     status = project.status()
     if status: # TODO: narrow only to the affected sources
@@ -361,12 +390,20 @@ def transform_command(args):
         log.info("Transforming...")
 
         if args.dst_dir:
-            dataset = project.working_tree.make_dataset()
-            dataset.save(dst_dir)
+            dataset = project.working_tree.make_dataset(args.target)
+            dataset.save(dst_dir, save_images=True)
 
             log.info("Results have been saved to '%s'" % dst_dir)
+        else:
+            for target in targets:
+                dataset = project.working_tree.make_dataset(target)
+                dataset.save(save_images=True)
+
+            log.info("Finished")
 
     if args.stage:
+        for target in targets:
+            project._refresh_source_hash(target)
         project.working_tree.save()
 
     return 0

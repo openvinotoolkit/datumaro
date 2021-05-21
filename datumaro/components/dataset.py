@@ -605,8 +605,11 @@ class Dataset(IDataset):
             converter.patch(self, self.patch, save_dir=save_dir, **kwargs)
 
     def save(self, save_dir: str = None, **kwargs):
+        options = dict(self._options)
+        options.update(kwargs)
+
         self.export(save_dir or self._source_path,
-            format=self._format, **kwargs)
+            format=self._format, **options)
 
     @classmethod
     def load(cls, path: str, **kwargs) -> 'Dataset':

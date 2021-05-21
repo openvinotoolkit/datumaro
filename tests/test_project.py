@@ -295,6 +295,8 @@ class ProjectTest(TestCase):
             built_dataset = project.working_tree.make_dataset('s1')
 
             compare_datasets(self, dataset, built_dataset)
+            self.assertEqual(DEFAULT_FORMAT, built_dataset.format)
+            self.assertEqual(project.source_data_dir('s1'), built_dataset.data_path)
 
     def test_can_add_filter_stage(self):
         with TestDir() as test_dir:
@@ -313,6 +315,10 @@ class ProjectTest(TestCase):
             )
 
             self.assertTrue(stage in project.working_tree.build_targets)
+            resulting_dataset = project.working_tree.make_dataset('s1')
+            compare_datasets(self, Dataset.from_iterable([
+                DatasetItem(2, annotations=[Label(1)]),
+            ], categories=['a', 'b']), resulting_dataset)
 
     def test_can_add_convert_stage(self):
         with TestDir() as test_dir:
@@ -339,7 +345,8 @@ class ProjectTest(TestCase):
                 self.p2 = p2
 
             def transform_item(self, item):
-                return item
+                return self.wrap_item(item,
+                    attributes={'p1': self.p1, 'p2': self.p2})
 
         with TestDir() as test_dir:
             source_url = osp.join(test_dir, 'test_repo')
@@ -358,6 +365,13 @@ class ProjectTest(TestCase):
             )
 
             self.assertTrue(stage in project.working_tree.build_targets)
+            resulting_dataset = project.working_tree.make_dataset('s1')
+            compare_datasets(self, Dataset.from_iterable([
+                DatasetItem(1, annotations=[Label(0)],
+                    attributes={'p1': 5, 'p2': ['1', 2, 3.5]}),
+                DatasetItem(2, annotations=[Label(1)],
+                    attributes={'p1': 5, 'p2': ['1', 2, 3.5]}),
+            ], categories=['a', 'b']), resulting_dataset)
 
     def test_can_make_dataset_from_stage(self):
         with TestDir() as test_dir:
