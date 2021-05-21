@@ -47,7 +47,7 @@ class ProjectSourceDataset(Dataset):
 
     def save(self, save_dir=None, **kwargs):
         if save_dir is None and self.readonly:
-                raise ReadonlyDatasetError("Can't update a read-only dataset")
+            raise ReadonlyDatasetError("Can't update a read-only dataset")
         super().save(save_dir, **kwargs)
 
     @property
@@ -105,7 +105,7 @@ def _update_ignore_file(paths: List[str], repo_root: str, filepath: str,
                 if line_path in paths:
                     paths.pop(line_path)
                 new_lines.append(line)
-        elif mode == IgnoreMode.remove:
+            elif mode == IgnoreMode.remove:
                 if line_path in paths:
                     paths.pop(line_path)
 
@@ -1015,6 +1015,12 @@ class GitWrapper:
     @classmethod
     def is_hash(cls, s: str) -> bool:
         return len(s) == cls.HASH_LEN
+
+    def log(self, depth=10) -> List[str]:
+        commits = []
+        for commit in zip(self.repo.iter_commits(rev='HEAD'), range(depth)):
+            commits.append(commit)
+        return commits
 
 class DvcWrapper:
     @staticmethod
@@ -2039,8 +2045,8 @@ class Project:
     def status(self) -> Dict:
         return {}
 
-def compare_projects(a, b, **options):
-    raise NotImplementedError()
+    def revs(self, max_count=10) -> List[str]:
+        return [(c.hexsha, c.message) for c, _ in self._git.log(max_count)]
 
 
 def load_project_as_dataset(url):

@@ -9,6 +9,6 @@ from . import (
     explain,
     export, merge, convert, transform, filter,
     diff, ediff, stats,
-    commit, checkout,
+    commit, checkout, history,
     info, validate
 )

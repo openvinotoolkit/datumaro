@@ -72,6 +72,7 @@ def make_parser():
         ("Project versioning:", None, ''),
         ('checkout', commands.checkout, "Switch to another branch or revision"),
         ('commit', commands.commit, "Commit changes in tracked files"),
+        ('history', commands.history, "List history"),
 
         ("", None, ''),
         ("Dataset and project operations:", None, ''),
