@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Documentation file and integration tests for Pascal VOC format (<https://github.com/openvinotoolkit/datumaro/pull/228>)
 - Support for MNIST and MNIST in CSV dataset formats (<https://github.com/openvinotoolkit/datumaro/pull/234>)
 - Documentation file for COCO format (<https://github.com/openvinotoolkit/datumaro/pull/241>)
-
+- Support for Point Cloud and Velodyne Point dataset formats (<https://github.com/openvinotoolkit/datumaro/pull/245>)
 ### Changed
 - LabelMe format saves dataset items with their relative paths by subsets without changing names (<https://github.com/openvinotoolkit/datumaro/pull/200>)
 - Allowed arbitrary subset count and names in classification and detection splitters (<https://github.com/openvinotoolkit/datumaro/pull/207>)
