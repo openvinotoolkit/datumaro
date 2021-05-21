@@ -1,4 +1,5 @@
-# Copyright (C) 2020-2021 Intel Corporation
+
+# Copyright (C) 2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -35,9 +36,7 @@ class VelodynePointsExtractor(SourceExtractor):
 
     @classmethod
     def _parse(cls, path):
-
         import xml.etree.ElementTree as ET
-
         tree = ET.parse(path)
         root = tree.getroot()
         shapes = {}
@@ -46,27 +45,13 @@ class VelodynePointsExtractor(SourceExtractor):
         label = {}
         items = OrderedDict()
         categories = {}
+        point_tags = ["h", "w", "l", "tx", "ty", "tz", "rx", "ry", "rz"]
+
         for elem in root.iter():
             if elem.tag == "objectType":
                 shape["label"] = elem.text
                 label["name"] = elem.text
-            elif elem.tag == "h":
-                shape['points'].append(float(elem.text))
-            elif elem.tag == "w":
-                shape['points'].append(float(elem.text))
-            elif elem.tag == "l":
-                shape['points'].append(float(elem.text))
-            elif elem.tag == "tx":
-                shape['points'].append(float(elem.text))
-            elif elem.tag == "ty":
-                shape['points'].append(float(elem.text))
-            elif elem.tag == "tz":
-                shape['points'].append(float(elem.text))
-            elif elem.tag == "rx":
-                shape['points'].append(float(elem.text))
-            elif elem.tag == "ry":
-                shape['points'].append(float(elem.text))
-            elif elem.tag == "rz":
+            elif elem.tag in point_tags:
                 shape['points'].append(float(elem.text))
             elif elem.tag == "first_frame":
                 shape['frame'] = int(elem.text)

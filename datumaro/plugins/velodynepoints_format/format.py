@@ -1,6 +1,8 @@
-# Copyright (C) 2020-2021 Intel Corporation
+
+# Copyright (C) 2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
+
 class VelodynePointsPath:
     IMAGES_DIR = "velodyne_points\data"
     RELATED_DIR = "image_"

@@ -1,5 +1,5 @@
 
-# Copyright (C) 2020-2021 Intel Corporation
+# Copyright (C) 2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -175,14 +175,6 @@ class _SubsetWriter:
         self._context = context
         self._tracklets = []
         self.create_tracklets(self._extractor)
-
-    def _get_label_attrs(self, label):
-        label_cat = self._extractor.categories().get(
-            AnnotationType.label, LabelCategories())
-        if isinstance(label, int):
-            label = label_cat[label]
-        return set(chain(label.attributes, label_cat.attributes)) - \
-            self._context._builtin_attrs
 
     def create_tracklets(self, subset):
 

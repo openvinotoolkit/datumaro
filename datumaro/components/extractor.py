@@ -3,17 +3,17 @@
 #
 # SPDX-License-Identifier: MIT
 import datetime
-import os.path as osp
 from enum import Enum
 from glob import iglob
+import numpy as np
+import os.path as osp
 from typing import Iterable, List, Dict, Optional
 
 import attr
-import numpy as np
 from attr import attrs, attrib
 
-from datumaro.util.attrs_util import not_empty, default_if_none
 from datumaro.util.image import Image
+from datumaro.util.attrs_util import not_empty, default_if_none
 
 AnnotationType = Enum('AnnotationType',
     [
@@ -25,8 +25,6 @@ AnnotationType = Enum('AnnotationType',
         'bbox',
         'caption',
         'cuboid',
-        'owner',
-        'tag'
     ])
 
 _COORDINATE_ROUNDING_DIGITS = 2
@@ -130,8 +128,6 @@ class LabelCategories(Categories):
 class Label(Annotation):
     _type = AnnotationType.label
     label = attrib(converter=int, default=0)
-    name = attrib(type=str, default=None)
-    color = attrib(default=None, type=str)
 
 
 @attrs(eq=False)
@@ -371,17 +367,8 @@ class Cuboid(Annotation):
     _type = AnnotationType.cuboid
     points = attrib(type=list, default=[])
     label = attrib(converter=attr.converters.optional(int),
-                   default=None, kw_only=True)
+        default=None, kw_only=True)
     z_order = attrib(default=0, validator=default_if_none(int), kw_only=True)
-
-
-@attrs
-class Owner(Annotation):
-    _type = AnnotationType.owner
-
-    name = attrib(default=None, kw_only=True)
-    updatedAt = attrib(type=datetime, default=datetime.datetime.now())
-    createdAt = attrib(type=datetime, default=datetime.datetime.now())
 
 
 @attrs
