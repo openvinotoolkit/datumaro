@@ -21,7 +21,7 @@ from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
 @pytest.mark.components(DatumaroComponent.Datumaro)
 class CamvidFormatTest(TestCase):
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_write_and_parse_labelmap(self):
         src_label_map = Camvid.CamvidLabelMap
@@ -45,7 +45,7 @@ class ExtractorBase(Extractor):
 @pytest.mark.components(DatumaroComponent.Datumaro)
 class CamvidImportTest(TestCase):
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_import(self):
         source_dataset = Dataset.from_iterable([
@@ -86,7 +86,7 @@ class CamvidImportTest(TestCase):
         compare_datasets(self, source_dataset, parsed_dataset)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_detect_camvid(self):
         self.assertTrue(CamvidImporter.detect(DUMMY_DATASET_DIR))
@@ -94,7 +94,7 @@ class CamvidImportTest(TestCase):
 @pytest.mark.components(DatumaroComponent.Datumaro)
 class CamvidConverterTest(TestCase):
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None, **kwargs):
@@ -103,7 +103,7 @@ class CamvidConverterTest(TestCase):
                                        target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_camvid_segm(self):
         class SrcExtractor(ExtractorBase):
@@ -123,7 +123,7 @@ class CamvidConverterTest(TestCase):
                                      test_dir)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_camvid_segm_unpainted(self):
         class SrcExtractor(ExtractorBase):
@@ -153,7 +153,7 @@ class CamvidConverterTest(TestCase):
                                      test_dir, target_dataset=DstExtractor())
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_dataset_with_no_subsets(self):
         class SrcExtractor(ExtractorBase):
@@ -175,7 +175,7 @@ class CamvidConverterTest(TestCase):
                                      partial(CamvidConverter.convert, label_map='camvid'), test_dir)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         class SrcExtractor(ExtractorBase):
@@ -194,7 +194,7 @@ class CamvidConverterTest(TestCase):
                                      partial(CamvidConverter.convert, label_map='camvid'), test_dir)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_with_no_masks(self):
         class SrcExtractor(ExtractorBase):
@@ -211,7 +211,7 @@ class CamvidConverterTest(TestCase):
                                      test_dir)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_dataset_with_source_labelmap_undefined(self):
         class SrcExtractor(ExtractorBase):
@@ -249,7 +249,7 @@ class CamvidConverterTest(TestCase):
                 test_dir, target_dataset=DstExtractor())
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_dataset_with_source_labelmap_defined(self):
         class SrcExtractor(ExtractorBase):
@@ -286,7 +286,7 @@ class CamvidConverterTest(TestCase):
                 test_dir, target_dataset=DstExtractor())
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         class SrcExtractor(ExtractorBase):

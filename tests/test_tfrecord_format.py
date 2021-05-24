@@ -34,7 +34,7 @@ except ImportError:
     @pytest.mark.components(DatumaroComponent.Datumaro)
     class TfImportTest(TestCase):
         @pytest.mark.priority_medium
-        @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+        @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
         @pytest.mark.component
         def test_raises_when_crashes_on_import(self):
             # Should fire if import can't be done for any reason except
@@ -52,7 +52,7 @@ class TfrecordConverterTest(TestCase):
                                        target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_bboxes(self):
         test_dataset = Dataset.from_iterable([
@@ -76,7 +76,7 @@ class TfrecordConverterTest(TestCase):
                 test_dir)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_masks(self):
         test_dataset = Dataset.from_iterable([
@@ -103,7 +103,7 @@ class TfrecordConverterTest(TestCase):
                 test_dir)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_dataset_with_no_subsets(self):
         test_dataset = Dataset.from_iterable([
@@ -140,7 +140,7 @@ class TfrecordConverterTest(TestCase):
                 test_dir)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         test_dataset = Dataset.from_iterable([
@@ -164,7 +164,7 @@ class TfrecordConverterTest(TestCase):
                 test_dir)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_dataset_with_image_info(self):
         test_dataset = Dataset.from_iterable([
@@ -179,7 +179,7 @@ class TfrecordConverterTest(TestCase):
                 TfDetectionApiConverter.convert, test_dir)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_dataset_with_unknown_image_formats(self):
         test_dataset = Dataset.from_iterable([
@@ -201,7 +201,7 @@ class TfrecordConverterTest(TestCase):
                 test_dir, require_images=True)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         dataset = Dataset.from_iterable([
@@ -219,7 +219,7 @@ class TfrecordConverterTest(TestCase):
                 test_dir, require_images=True)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_inplace_save_writes_only_updated_data(self):
         with TempTestDir() as path:
@@ -243,7 +243,7 @@ class TfrecordConverterTest(TestCase):
             self.assertTrue(osp.isfile(osp.join(path, 'c.tfrecord')))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_labelmap_parsing(self):
         text = """
@@ -279,13 +279,13 @@ DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__),
 @pytest.mark.components(DatumaroComponent.Datumaro)
 class TfrecordImporterTest(TestCase):
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_detect(self):
         self.assertTrue(TfDetectionApiImporter.detect(DUMMY_DATASET_DIR))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_import(self):
         target_dataset = Dataset.from_iterable([

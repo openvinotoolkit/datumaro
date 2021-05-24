@@ -26,7 +26,7 @@ class MotConverterTest(TestCase):
                                        target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_bboxes(self):
         source_dataset = Dataset.from_iterable([
@@ -107,7 +107,7 @@ class MotConverterTest(TestCase):
                 test_dir, target_dataset=target_dataset, require_images=True)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         expected = Dataset.from_iterable([
@@ -136,13 +136,13 @@ DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'mot_dataset')
 @pytest.mark.components(DatumaroComponent.Datumaro)
 class MotImporterTest(TestCase):
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_detect(self):
         self.assertTrue(MotSeqImporter.detect(DUMMY_DATASET_DIR))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_import(self):
         expected_dataset = Dataset.from_iterable([

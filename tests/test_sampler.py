@@ -89,7 +89,7 @@ class SamplerTest(TestCase):
         return dataset
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_sampler_get_sample_classification(self):
         config = {
@@ -218,7 +218,7 @@ class SamplerTest(TestCase):
             )
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_sampler_gives_error(self):
         config = {
@@ -390,7 +390,7 @@ class SamplerTest(TestCase):
                 entropy(data_df, infer_df)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_sampler_get_invalid_data(self):
         with self.subTest("empty dataset"):
@@ -506,7 +506,7 @@ class SamplerTest(TestCase):
                 next(result)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_sampler_number_of_samples(self):
         config = {
@@ -693,7 +693,7 @@ class SamplerTest(TestCase):
             self.assertEqual(len(result.get_subset("sample")), 9)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_sampler_accumulated_sampling(self):
         config = {
@@ -903,7 +903,7 @@ class SamplerTest(TestCase):
             self.assertEqual(len(result.get_subset("test")), num_pre_test_subset - 4)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_sampler_unaccumulated_sampling(self):
         config = {
@@ -1119,7 +1119,7 @@ class SamplerTest(TestCase):
             self.assertEqual(len(result.get_subset("test")), num_pre_test_subset - 4)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_sampler_parser(self):
         from argparse import ArgumentParser

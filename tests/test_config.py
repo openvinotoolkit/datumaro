@@ -10,7 +10,7 @@ from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
 @pytest.mark.components(DatumaroComponent.Datumaro)
 class ConfigTest(TestCase):
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_produce_multilayer_config_from_dict(self):
         schema_low = SchemaBuilder() \

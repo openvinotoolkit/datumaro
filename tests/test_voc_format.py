@@ -33,7 +33,7 @@ from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
 @pytest.mark.components(DatumaroComponent.Datumaro)
 class VocFormatTest(TestCase):
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_colormap_generator(self):
         reference = np.array([
@@ -64,7 +64,7 @@ class VocFormatTest(TestCase):
         self.assertTrue(np.array_equal(reference, list(VOC.VocColormap.values())))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_write_and_parse_labelmap(self):
         src_label_map = VOC.make_voc_label_map()
@@ -92,7 +92,7 @@ DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'voc_dataset')
 @pytest.mark.components(DatumaroComponent.Datumaro)
 class VocImportTest(TestCase):
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_import(self):
         class DstExtractor(ExtractorBase):
@@ -144,7 +144,7 @@ class VocImportTest(TestCase):
         compare_datasets(self, DstExtractor(), dataset)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_detect_voc(self):
         self.assertTrue(VocImporter.detect(DUMMY_DATASET_DIR))
@@ -158,7 +158,7 @@ class VocConverterTest(TestCase):
                                        target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_voc_cls(self):
         class SrcExtractor(ExtractorBase):
@@ -181,7 +181,7 @@ class VocConverterTest(TestCase):
                                      test_dir)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_voc_det(self):
         class SrcExtractor(ExtractorBase):
@@ -240,7 +240,7 @@ class VocConverterTest(TestCase):
                                      test_dir, target_dataset=DstExtractor())
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_voc_segm(self):
         class SrcExtractor(ExtractorBase):
@@ -277,7 +277,7 @@ class VocConverterTest(TestCase):
                                      test_dir, target_dataset=DstExtractor())
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_voc_segm_unpainted(self):
         class SrcExtractor(ExtractorBase):
@@ -315,7 +315,7 @@ class VocConverterTest(TestCase):
                                      test_dir, target_dataset=DstExtractor())
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_voc_segm_with_many_instances(self):
         def bit(x, y, shape):
@@ -353,7 +353,7 @@ class VocConverterTest(TestCase):
                                      test_dir, target_dataset=DstExtractor())
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_voc_layout(self):
         class SrcExtractor(ExtractorBase):
@@ -380,7 +380,7 @@ class VocConverterTest(TestCase):
                                      partial(VocLayoutConverter.convert, label_map='voc'), test_dir)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_voc_action(self):
         class SrcExtractor(ExtractorBase):
@@ -439,7 +439,7 @@ class VocConverterTest(TestCase):
                                      target_dataset=DstExtractor())
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_dataset_with_no_subsets(self):
         class SrcExtractor(ExtractorBase):
@@ -456,7 +456,7 @@ class VocConverterTest(TestCase):
                                          test_dir)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         class SrcExtractor(ExtractorBase):
@@ -475,7 +475,7 @@ class VocConverterTest(TestCase):
                                          test_dir, require_images=True)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_dataset_with_images(self):
         class SrcExtractor(ExtractorBase):
@@ -495,7 +495,7 @@ class VocConverterTest(TestCase):
                                          test_dir, require_images=True)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_dataset_with_voc_labelmap(self):
         class SrcExtractor(ExtractorBase):
@@ -535,7 +535,7 @@ class VocConverterTest(TestCase):
                 test_dir, target_dataset=DstExtractor())
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_dataset_with_source_labelmap_undefined(self):
         class SrcExtractor(ExtractorBase):
@@ -585,7 +585,7 @@ class VocConverterTest(TestCase):
                 test_dir, target_dataset=DstExtractor())
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_dataset_with_source_labelmap_defined(self):
         class SrcExtractor(ExtractorBase):
@@ -634,7 +634,7 @@ class VocConverterTest(TestCase):
                 test_dir, target_dataset=DstExtractor())
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_dataset_with_fixed_labelmap(self):
         class SrcExtractor(ExtractorBase):
@@ -691,7 +691,7 @@ class VocConverterTest(TestCase):
                 test_dir, target_dataset=DstExtractor())
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_background_masks_dont_introduce_instances_but_cover_others(self):
         dataset = Dataset.from_iterable([
@@ -713,7 +713,7 @@ class VocConverterTest(TestCase):
             self.assertTrue(np.array_equal([0, 1], np.unique(inst_mask)))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_dataset_with_image_info(self):
         class SrcExtractor(ExtractorBase):
@@ -729,7 +729,7 @@ class VocConverterTest(TestCase):
                                          test_dir)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         class SrcExtractor(ExtractorBase):
@@ -749,7 +749,7 @@ class VocConverterTest(TestCase):
                                          test_dir, require_images=True)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_relative_paths(self):
         class SrcExtractor(ExtractorBase):
@@ -768,7 +768,7 @@ class VocConverterTest(TestCase):
                                          test_dir, require_images=True)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_attributes(self):
         class SrcExtractor(ExtractorBase):
@@ -802,7 +802,7 @@ class VocConverterTest(TestCase):
                                      target_dataset=DstExtractor())
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_inplace_save_writes_only_updated_data(self):
         with TempTestDir() as path:
@@ -845,7 +845,7 @@ class VocConverterTest(TestCase):
                 osp.join(path, 'SegmentationClass', '3.png')))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_dataset_with_no_data_images(self):
         class TestExtractor(ExtractorBase):

@@ -24,7 +24,7 @@ from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
 @pytest.mark.components(DatumaroComponent.Datumaro)
 class DatasetTest(TestCase):
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_create_from_extractors(self):
         class SrcExtractor1(Extractor):
@@ -65,7 +65,7 @@ class DatasetTest(TestCase):
         compare_datasets(self, DstExtractor(), dataset)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_create_from_iterable(self):
         class TestExtractor(Extractor):
@@ -98,7 +98,7 @@ class DatasetTest(TestCase):
         compare_datasets(self, TestExtractor(), actual)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_join_datasets_with_empty_categories(self):
         expected = Dataset.from_iterable([
@@ -126,7 +126,7 @@ class DatasetTest(TestCase):
         compare_datasets(self, expected, actual)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_and_load(self):
         source_dataset = Dataset.from_iterable([
@@ -141,7 +141,7 @@ class DatasetTest(TestCase):
             compare_datasets(self, source_dataset, loaded_dataset)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_detect(self):
         env = Environment()
@@ -160,7 +160,7 @@ class DatasetTest(TestCase):
             self.assertEqual(DEFAULT_FORMAT, detected_format)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_detect_and_import(self):
         env = Environment()
@@ -181,7 +181,7 @@ class DatasetTest(TestCase):
             compare_datasets(self, source_dataset, imported_dataset)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_export_by_string_format_name(self):
         env = Environment()
@@ -195,7 +195,7 @@ class DatasetTest(TestCase):
             dataset.export(format='qq', save_dir=test_dir)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_transform_by_string_name(self):
         expected = Dataset.from_iterable([
@@ -218,7 +218,7 @@ class DatasetTest(TestCase):
         compare_datasets(self, expected, actual)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_join_annotations(self):
         a = Dataset.from_iterable([
@@ -248,7 +248,7 @@ class DatasetTest(TestCase):
         compare_datasets(self, expected, merged)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_cant_join_different_categories(self):
         s1 = Dataset.from_iterable([], categories=['a', 'b'])
@@ -258,7 +258,7 @@ class DatasetTest(TestCase):
             Dataset.from_extractors(s1, s2)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_join_datasets(self):
         s1 = Dataset.from_iterable([ DatasetItem(0), DatasetItem(1) ])
@@ -272,7 +272,7 @@ class DatasetTest(TestCase):
         compare_datasets(self, expected, actual)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_inplace_save_writes_only_updated_data(self):
         with TempTestDir() as path:
@@ -299,7 +299,7 @@ class DatasetTest(TestCase):
             self.assertTrue(osp.isfile(osp.join(path, 'annotations', 'c.json')))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_track_modifications_on_addition(self):
         dataset = Dataset.from_iterable([
@@ -314,7 +314,7 @@ class DatasetTest(TestCase):
         self.assertTrue(dataset.is_modified)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_track_modifications_on_removal(self):
         dataset = Dataset.from_iterable([
@@ -329,7 +329,7 @@ class DatasetTest(TestCase):
         self.assertTrue(dataset.is_modified)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_create_patch(self):
         expected = Dataset.from_iterable([
@@ -366,7 +366,7 @@ class DatasetTest(TestCase):
         compare_datasets(self, expected, dataset)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_create_more_precise_patch_when_cached(self):
         expected = Dataset.from_iterable([
@@ -404,7 +404,7 @@ class DatasetTest(TestCase):
         compare_datasets(self, expected, dataset)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_do_lazy_put_and_remove(self):
         iter_called = False
@@ -432,7 +432,7 @@ class DatasetTest(TestCase):
         self.assertTrue(iter_called)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_put(self):
         dataset = Dataset()
@@ -442,7 +442,7 @@ class DatasetTest(TestCase):
         self.assertTrue((1, '') in dataset)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_do_lazy_get_on_updated_item(self):
         iter_called = False
@@ -462,7 +462,7 @@ class DatasetTest(TestCase):
         self.assertFalse(iter_called)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_switch_eager_and_lazy_with_cm_global(self):
         iter_called = False
@@ -481,7 +481,7 @@ class DatasetTest(TestCase):
         self.assertTrue(iter_called)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_switch_eager_and_lazy_with_cm_local(self):
         iter_called = False
@@ -504,7 +504,7 @@ class DatasetTest(TestCase):
         self.assertTrue(iter_called)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_do_lazy_select(self):
         iter_called = False
@@ -530,7 +530,7 @@ class DatasetTest(TestCase):
         self.assertTrue(iter_called)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_chain_lazy_tranforms(self):
         iter_called = False
@@ -561,7 +561,7 @@ class DatasetTest(TestCase):
         self.assertTrue(iter_called)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_raises_when_repeated_items_in_source(self):
         dataset = Dataset.from_iterable([DatasetItem(0), DatasetItem(0)])
@@ -570,7 +570,7 @@ class DatasetTest(TestCase):
             dataset.init_cache()
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_check_item_existence(self):
         dataset = Dataset.from_iterable([
@@ -585,7 +585,7 @@ class DatasetTest(TestCase):
         self.assertFalse(0 in dataset)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_put_with_id_override(self):
         dataset = Dataset.from_iterable([])
@@ -595,7 +595,7 @@ class DatasetTest(TestCase):
         self.assertTrue((2, 'b') in dataset)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_compute_cache_with_empty_source(self):
         dataset = Dataset.from_iterable([])
@@ -606,7 +606,7 @@ class DatasetTest(TestCase):
         self.assertTrue(2 in dataset)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_cant_do_partial_caching_in_get_when_default(self):
         iter_called = 0
@@ -629,7 +629,7 @@ class DatasetTest(TestCase):
         self.assertEqual(1, iter_called)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_do_partial_caching_in_get_when_redefined(self):
         iter_called = 0
@@ -659,7 +659,7 @@ class DatasetTest(TestCase):
         self.assertEqual(2, get_called)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_binds_on_save(self):
         dataset = Dataset.from_iterable([DatasetItem(1)])
@@ -674,7 +674,7 @@ class DatasetTest(TestCase):
             self.assertEqual(dataset.format, DEFAULT_FORMAT)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_flushes_changes_on_save(self):
         dataset = Dataset.from_iterable([])
@@ -688,7 +688,7 @@ class DatasetTest(TestCase):
             self.assertFalse(dataset.is_modified)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_does_not_load_images_on_saving(self):
         # Issue https://github.com/openvinotoolkit/datumaro/issues/177
@@ -713,7 +713,7 @@ class DatasetTest(TestCase):
 @pytest.mark.components(DatumaroComponent.Datumaro)
 class DatasetItemTest(TestCase):
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_ctor_requires_id(self):
         with self.assertRaises(Exception):
@@ -723,7 +723,7 @@ class DatasetItemTest(TestCase):
 
     @staticmethod
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_ctors_with_image():
         for args in [
@@ -740,7 +740,7 @@ class DatasetItemTest(TestCase):
 class DatasetFilterTest(TestCase):
     @staticmethod
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_item_representations():
         item = DatasetItem(id=1, subset='subset', path=['a', 'b'],
@@ -764,7 +764,7 @@ class DatasetFilterTest(TestCase):
         DatasetItemEncoder.to_string(encoded)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_item_filter_can_be_applied(self):
         class TestExtractor(Extractor):
@@ -779,7 +779,7 @@ class DatasetFilterTest(TestCase):
         self.assertEqual(2, len(filtered))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_annotations_filter_can_be_applied(self):
         class SrcExtractor(Extractor):
@@ -816,7 +816,7 @@ class DatasetFilterTest(TestCase):
         self.assertListEqual(list(filtered), list(DstExtractor()))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_annotations_filter_can_remove_empty_items(self):
         source = Dataset.from_iterable([

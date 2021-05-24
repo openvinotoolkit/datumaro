@@ -15,7 +15,7 @@ from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
 @pytest.mark.components(DatumaroComponent.Datumaro)
 class RiseTest(TestCase):
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_rise_can_be_applied_to_classification_model(self):
         class TestLauncher(Launcher):
@@ -66,7 +66,7 @@ class RiseTest(TestCase):
         self.assertLess(hrest_den, roi_den)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_rise_can_be_applied_to_detection_model(self):
         ROI = namedtuple('ROI',

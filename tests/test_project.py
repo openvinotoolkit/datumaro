@@ -21,7 +21,7 @@ from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
 @pytest.mark.components(DatumaroComponent.Datumaro)
 class ProjectTest(TestCase):
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_project_generate(self):
         src_config = Config({
@@ -43,20 +43,20 @@ class ProjectTest(TestCase):
 
     @staticmethod
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_default_ctor_is_ok():
         Project()
 
     @staticmethod
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_empty_config_is_ok():
         Project(Config())
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_add_source(self):
         source_name = 'source'
@@ -73,7 +73,7 @@ class ProjectTest(TestCase):
         self.assertEqual(added, origin)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_added_source_can_be_saved(self):
         source_name = 'source'
@@ -88,7 +88,7 @@ class ProjectTest(TestCase):
         self.assertEqual(origin, saved.sources[source_name])
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_added_source_can_be_dumped(self):
         source_name = 'source'
@@ -106,7 +106,7 @@ class ProjectTest(TestCase):
             self.assertEqual(origin, loaded)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_import_with_custom_importer(self):
         class TestImporter:
@@ -129,7 +129,7 @@ class ProjectTest(TestCase):
         self.assertListEqual(['train'], project.config.subsets)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_dump_added_model(self):
         model_name = 'model'
@@ -146,7 +146,7 @@ class ProjectTest(TestCase):
             self.assertEqual(saved, loaded)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_have_project_source(self):
         with TempTestDir() as test_dir:
@@ -161,7 +161,7 @@ class ProjectTest(TestCase):
             self.assertTrue('project1' in dataset.sources)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_batch_launch_custom_model(self):
         dataset = Dataset.from_iterable([
@@ -193,7 +193,7 @@ class ProjectTest(TestCase):
                 item.annotations[0].attributes['data'])
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_do_transform_with_custom_model(self):
         class TestExtractorSrc(Extractor):
@@ -248,7 +248,7 @@ class ProjectTest(TestCase):
             self.assertEqual(1, item2.annotations[0].label)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_source_datasets_can_be_merged(self):
         class TestExtractor(Extractor):
@@ -277,7 +277,7 @@ class ProjectTest(TestCase):
         self.assertEqual(n1 + n2, len(dataset))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_cant_merge_different_categories(self):
         class TestExtractor1(Extractor):
@@ -309,7 +309,7 @@ class ProjectTest(TestCase):
             project.make_dataset()
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_project_filter_can_be_applied(self):
         class TestExtractor(Extractor):
@@ -327,7 +327,7 @@ class ProjectTest(TestCase):
         self.assertEqual(5, len(dataset))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_and_load_own_dataset(self):
         with TempTestDir() as test_dir:
@@ -343,7 +343,7 @@ class ProjectTest(TestCase):
             self.assertEqual(list(src_dataset), list(loaded_dataset))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_project_own_dataset_can_be_modified(self):
         project = Project()
@@ -355,7 +355,7 @@ class ProjectTest(TestCase):
         self.assertEqual(item, next(iter(dataset)))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_project_compound_child_can_be_modified_recursively(self):
         with TempTestDir() as test_dir:
@@ -388,7 +388,7 @@ class ProjectTest(TestCase):
             self.assertEqual(1, len(dataset.sources['child2']))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_project_can_merge_item_annotations(self):
         class TestExtractor1(Extractor):
@@ -419,7 +419,7 @@ class ProjectTest(TestCase):
         self.assertEqual(3, len(item.annotations))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_detect_and_import(self):
         env = Environment()
@@ -441,7 +441,7 @@ class ProjectTest(TestCase):
             compare_datasets(self, source_dataset, imported_dataset)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_custom_extractor_can_be_created(self):
         class CustomExtractor(Extractor):

@@ -15,7 +15,7 @@ from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
 @pytest.mark.components(DatumaroComponent.Datumaro)
 class TestRollback(TestCase):
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_does_not_call_on_no_error(self):
         success = True
@@ -29,7 +29,7 @@ class TestRollback(TestCase):
         self.assertTrue(success)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_calls_on_error(self):
         success = False
@@ -47,7 +47,7 @@ class TestRollback(TestCase):
             self.assertTrue(success)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_decorator_calls_on_error(self):
         success = False
@@ -68,7 +68,7 @@ class TestRollback(TestCase):
             self.assertTrue(success)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_decorator_does_not_call_on_no_error(self):
         success = True
@@ -85,7 +85,7 @@ class TestRollback(TestCase):
         self.assertTrue(success)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_decorator_supports_implicit_arg(self):
         success = False
@@ -106,7 +106,7 @@ class TestRollback(TestCase):
             self.assertTrue(success)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_fowrard_args(self):
         success1 = False
@@ -136,7 +136,7 @@ class TestRollback(TestCase):
 @pytest.mark.components(DatumaroComponent.Datumaro)
 class TestOsUtils(TestCase):
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_walk_with_maxdepth(self):
         with TempTestDir() as rootdir:
