@@ -79,7 +79,6 @@ class VocFormatTest(TestCase):
 
             self.assertEqual(src_label_map, dst_label_map)
 
-@pytest.mark.components(DatumaroComponent.Datumaro)
 class ExtractorBase(Extractor):
     def _label(self, voc_label):
         return self.categories()[AnnotationType.label].find(voc_label)[0]
