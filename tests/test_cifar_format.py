@@ -17,7 +17,7 @@ from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
 @pytest.mark.components(DatumaroComponent.Datumaro)
 class CifarFormatTest(TestCase):
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_and_load(self):
         source_dataset = Dataset.from_iterable([
@@ -43,7 +43,7 @@ class CifarFormatTest(TestCase):
 
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_and_load_without_saving_images(self):
         source_dataset = Dataset.from_iterable([
@@ -66,7 +66,7 @@ class CifarFormatTest(TestCase):
                 require_images=True)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_and_load_with_different_image_size(self):
         source_dataset = Dataset.from_iterable([
@@ -91,7 +91,7 @@ class CifarFormatTest(TestCase):
                 require_images=True)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         source_dataset = Dataset.from_iterable([
@@ -109,7 +109,7 @@ class CifarFormatTest(TestCase):
                 require_images=True)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         dataset = Dataset.from_iterable([
@@ -127,7 +127,7 @@ class CifarFormatTest(TestCase):
                 require_images=True)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_and_load_empty_image(self):
         dataset = Dataset.from_iterable([
@@ -147,7 +147,7 @@ DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'cifar_dataset')
 @pytest.mark.components(DatumaroComponent.Datumaro)
 class CifarImporterTest(TestCase):
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_import(self):
         expected_dataset = Dataset.from_iterable([
@@ -174,7 +174,7 @@ class CifarImporterTest(TestCase):
         compare_datasets(self, expected_dataset, dataset)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_detect(self):
         self.assertTrue(CifarImporter.detect(DUMMY_DATASET_DIR))

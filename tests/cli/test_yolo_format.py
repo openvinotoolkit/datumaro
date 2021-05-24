@@ -20,7 +20,7 @@ def run(test, *args, expected_code=0):
 @pytest.mark.components(DatumaroComponent.Datumaro)
 class YoloIntegrationScenarios(TestCase):
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_and_load_yolo_dataset(self):
         target_dataset = Dataset.from_iterable([
@@ -47,7 +47,7 @@ class YoloIntegrationScenarios(TestCase):
             compare_datasets(self, target_dataset, parsed_dataset)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_export_mot_as_yolo(self):
         target_dataset = Dataset.from_iterable([
@@ -73,7 +73,7 @@ class YoloIntegrationScenarios(TestCase):
             compare_datasets(self, target_dataset, parsed_dataset)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_convert_voc_to_yolo(self):
         target_dataset = Dataset.from_iterable([
@@ -99,7 +99,7 @@ class YoloIntegrationScenarios(TestCase):
             compare_datasets(self, target_dataset, parsed_dataset)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_ignore_non_supported_subsets(self):
         source_dataset = Dataset.from_iterable([
@@ -141,7 +141,7 @@ class YoloIntegrationScenarios(TestCase):
             compare_datasets(self, target_dataset, parsed_dataset)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_delete_labels_from_yolo_dataset(self):
         target_dataset = Dataset.from_iterable([

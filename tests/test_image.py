@@ -20,7 +20,7 @@ class ImageOperationsTest(TestCase):
         image_module._IMAGE_BACKEND = self.default_backend
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_save_and_load_backends(self):
         backends = image_module._IMAGE_BACKENDS
@@ -42,7 +42,7 @@ class ImageOperationsTest(TestCase):
                     'save: %s, load: %s' % (save_backend, load_backend))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_encode_and_decode_backends(self):
         backends = image_module._IMAGE_BACKENDS
@@ -63,7 +63,7 @@ class ImageOperationsTest(TestCase):
                 'save: %s, load: %s' % (save_backend, load_backend))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_save_image_to_inexistent_dir_raises_error(self):
         with self.assertRaises(FileNotFoundError):
@@ -71,7 +71,7 @@ class ImageOperationsTest(TestCase):
                 create_dir=False)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_save_image_can_create_dir(self):
         with TempTestDir() as test_dir:

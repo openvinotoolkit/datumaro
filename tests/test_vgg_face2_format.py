@@ -18,7 +18,7 @@ from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
 @pytest.mark.components(DatumaroComponent.Datumaro)
 class VggFace2FormatTest(TestCase):
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_and_load(self):
         source_dataset = Dataset.from_iterable([
@@ -64,7 +64,7 @@ class VggFace2FormatTest(TestCase):
             compare_datasets(self, source_dataset, parsed_dataset)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_dataset_with_no_subsets(self):
         source_dataset = Dataset.from_iterable([
@@ -84,7 +84,7 @@ class VggFace2FormatTest(TestCase):
             compare_datasets(self, source_dataset, parsed_dataset)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         source_dataset = Dataset.from_iterable([
@@ -104,7 +104,7 @@ class VggFace2FormatTest(TestCase):
                 require_images=True)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_dataset_with_no_save_images(self):
         source_dataset = Dataset.from_iterable([
@@ -124,7 +124,7 @@ class VggFace2FormatTest(TestCase):
             compare_datasets(self, source_dataset, parsed_dataset)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_dataset_with_no_labels(self):
         source_dataset = Dataset.from_iterable([
@@ -149,7 +149,7 @@ class VggFace2FormatTest(TestCase):
             compare_datasets(self, source_dataset, parsed_dataset)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_dataset_with_wrong_number_of_points(self):
         source_dataset = Dataset.from_iterable([
@@ -173,7 +173,7 @@ class VggFace2FormatTest(TestCase):
             compare_datasets(self, target_dataset, parsed_dataset)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         dataset = Dataset.from_iterable([
@@ -200,13 +200,13 @@ DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'vgg_face2_dataset
 @pytest.mark.components(DatumaroComponent.Datumaro)
 class VggFace2ImporterTest(TestCase):
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_detect(self):
         self.assertTrue(VggFace2Importer.detect(DUMMY_DATASET_DIR))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_import(self):
         expected_dataset = Dataset.from_iterable([
