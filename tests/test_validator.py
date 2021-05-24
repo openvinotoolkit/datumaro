@@ -25,7 +25,6 @@ from tests.pytest_marking_constants.requirements import Requirements
 from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
 
 
-@pytest.mark.components(DatumaroComponent.Datumaro)
 class TestValidatorTemplate(TestCase):
     @classmethod
     def setUpClass(cls):
