@@ -17,8 +17,8 @@ import datumaro.plugins.splitter as splitter
 from datumaro.components.operations import compute_ann_statistics
 
 import pytest
-from tests.constants.requirements import Requirements
-from tests.constants.datumaro_components import DatumaroComponent
+from tests.pytest_marking_constants.requirements import Requirements
+from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
@@ -75,7 +75,7 @@ class SplitterTest(TestCase):
         return dataset
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_split_for_classification_multi_class_no_attr(self):
         config = {
@@ -107,7 +107,7 @@ class SplitterTest(TestCase):
         self.assertEqual(9, dist_test["label3"][0])
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_split_for_classification_single_class_single_attr(self):
         counts = {0: 10, 1: 20, 2: 30}
@@ -136,7 +136,7 @@ class SplitterTest(TestCase):
         self.assertEqual(9, attr_test["attr"]["distribution"]["2"][0])
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_split_for_classification_single_class_multi_attr(self):
         counts = {
@@ -185,7 +185,7 @@ class SplitterTest(TestCase):
             self.assertEqual(6, len(actual.get_subset("test")))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_split_for_classification_multi_label_with_attr(self):
         counts = {
@@ -253,7 +253,7 @@ class SplitterTest(TestCase):
             )
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_split_for_classification_zero_ratio(self):
         config = {
@@ -270,7 +270,7 @@ class SplitterTest(TestCase):
         self.assertEqual(0, len(actual.get_subset("test")))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_split_for_classification_unlabeled(self):
         with self.subTest("no label"):
@@ -295,7 +295,7 @@ class SplitterTest(TestCase):
             self.assertEqual(3, len(actual.get_subset("test")))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_split_for_classification_gives_error(self):
         source = Dataset.from_iterable(
@@ -322,7 +322,7 @@ class SplitterTest(TestCase):
                 splitter.Split(source, task, splits)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_split_for_reidentification(self):
         """
@@ -402,7 +402,7 @@ class SplitterTest(TestCase):
                 self.assertEqual(int(total * 0.4 / 0.7), dist_query[pid][0])
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_split_for_reidentification_randomseed(self):
         """
@@ -426,7 +426,7 @@ class SplitterTest(TestCase):
         self.assertNotEqual(list(r1.get_subset("train")), list(r3.get_subset("train")))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_split_for_reidentification_rebalance(self):
         """
@@ -448,7 +448,7 @@ class SplitterTest(TestCase):
         self.assertEqual(120, len(actual.get_subset("test-query")))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_split_for_reidentification_unlabeled(self):
         query = 0.5
@@ -471,7 +471,7 @@ class SplitterTest(TestCase):
             self.assertEqual(10, len(actual.get_subset("not-supported")))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_split_for_reidentification_gives_error(self):
         query = 0.4 / 0.7  # valid query ratio
@@ -839,7 +839,7 @@ class SplitterTest(TestCase):
         return func
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_split_for_detection(self):
         dtypes = ["coco", "voc", "yolo", "cvat", "labelme", "mot", "widerface"]
@@ -892,7 +892,7 @@ class SplitterTest(TestCase):
         self.assertNotEqual(list(r1.get_subset("test")), list(r3.get_subset("test")))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_split_for_detection_with_unlabeled(self):
         source, _ = self._generate_detection_segmentation_dataset(
@@ -911,7 +911,7 @@ class SplitterTest(TestCase):
         self.assertEqual(6, len(actual.get_subset("test")))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_split_for_detection_gives_error(self):
         source, _ = self._generate_detection_segmentation_dataset(
@@ -936,7 +936,7 @@ class SplitterTest(TestCase):
                 splitter.Split(source, task, splits)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_no_subset_name_and_count_restriction(self):
         splits = [
@@ -999,7 +999,7 @@ class SplitterTest(TestCase):
             self.assertEqual(1, len(actual.get_subset("test2")))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_split_for_segmentation(self):
 
@@ -1111,7 +1111,7 @@ class SplitterTest(TestCase):
             )
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_split_for_segmentation_with_unlabeled(self):
 
@@ -1148,7 +1148,7 @@ class SplitterTest(TestCase):
             self.assertEqual(6, len(actual.get_subset("test")))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_split_for_segmentation_gives_error(self):
 

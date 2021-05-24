@@ -13,14 +13,14 @@ from datumaro.util.image import Image
 from datumaro.util.test_utils import TempTestDir, compare_datasets
 
 import pytest
-from tests.constants.requirements import Requirements
-from tests.constants.datumaro_components import DatumaroComponent
+from tests.pytest_marking_constants.requirements import Requirements
+from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
 class ImagenetTxtFormatTest(TestCase):
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_and_load(self):
         source_dataset = Dataset.from_iterable([
@@ -45,7 +45,7 @@ class ImagenetTxtFormatTest(TestCase):
                 require_images=True)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_and_load_with_multiple_labels(self):
         source_dataset = Dataset.from_iterable([
@@ -69,7 +69,7 @@ class ImagenetTxtFormatTest(TestCase):
                 require_images=True)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_dataset_with_no_subsets(self):
         source_dataset = Dataset.from_iterable([
@@ -91,7 +91,7 @@ class ImagenetTxtFormatTest(TestCase):
                 require_images=True)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         dataset = Dataset.from_iterable([
@@ -113,7 +113,7 @@ class ImagenetTxtFormatTest(TestCase):
                 require_images=True)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         dataset = Dataset.from_iterable([
@@ -136,7 +136,7 @@ DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'imagenet_txt_data
 @pytest.mark.components(DatumaroComponent.Datumaro)
 class ImagenetTxtImporterTest(TestCase):
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_import(self):
         expected_dataset = Dataset.from_iterable([
@@ -162,7 +162,7 @@ class ImagenetTxtImporterTest(TestCase):
         compare_datasets(self, expected_dataset, dataset, require_images=True)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_detect_imagenet(self):
         self.assertTrue(ImagenetTxtImporter.detect(DUMMY_DATASET_DIR))

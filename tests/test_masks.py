@@ -6,14 +6,14 @@ import datumaro.util.mask_tools as mask_tools
 from datumaro.components.extractor import CompiledMask
 
 import pytest
-from tests.constants.requirements import Requirements
-from tests.constants.datumaro_components import DatumaroComponent
+from tests.pytest_marking_constants.requirements import Requirements
+from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
 class PolygonConversionsTest(TestCase):
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_mask_can_be_converted_to_polygon(self):
         mask = np.array([
@@ -33,7 +33,7 @@ class PolygonConversionsTest(TestCase):
         self.assertEqual(len(expected), len(computed))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_crop_covered_segments(self):
         image_size = [7, 7]
@@ -92,7 +92,7 @@ class PolygonConversionsTest(TestCase):
             '%s\n%s\n' % (source_mask, resulting_mask))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_mask_to_rle_multi(self):
         cases = [
@@ -134,7 +134,7 @@ class PolygonConversionsTest(TestCase):
 @pytest.mark.components(DatumaroComponent.Datumaro)
 class ColormapOperationsTest(TestCase):
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_paint_mask(self):
         mask = np.zeros((1, 3), dtype=np.uint8)
@@ -155,7 +155,7 @@ class ColormapOperationsTest(TestCase):
             '%s\nvs.\n%s' % (expected, actual))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_unpaint_mask(self):
         colormap = mask_tools.generate_colormap(3)
@@ -177,7 +177,7 @@ class ColormapOperationsTest(TestCase):
             '%s\nvs.\n%s' % (expected, actual))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_remap_mask(self):
         class_count = 10
@@ -197,7 +197,7 @@ class ColormapOperationsTest(TestCase):
             '%s\nvs.\n%s' % (expected, actual))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_merge_masks(self):
         masks = [
@@ -214,7 +214,7 @@ class ColormapOperationsTest(TestCase):
             '%s\nvs.\n%s' % (expected, actual))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_decode_compiled_mask(self):
         class_idx = 1000

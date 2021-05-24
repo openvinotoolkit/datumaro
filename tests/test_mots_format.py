@@ -9,11 +9,11 @@ from datumaro.components.dataset import Dataset
 from datumaro.plugins.mots_format import MotsPngConverter, MotsImporter
 from datumaro.util.image import Image
 from datumaro.util.test_utils import (TempTestDir, compare_datasets,
-                                      util_test_save_and_load)
+                                      check_save_and_load)
 
 import pytest
-from tests.constants.requirements import Requirements
-from tests.constants.datumaro_components import DatumaroComponent
+from tests.pytest_marking_constants.requirements import Requirements
+from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'mots_dataset')
 
@@ -22,12 +22,12 @@ DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'mots_dataset')
 class MotsPngConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None, **kwargs):
-        return util_test_save_and_load(self, source_dataset, converter, test_dir,
+        return check_save_and_load(self, source_dataset, converter, test_dir,
                                        importer='mots',
                                        target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_masks(self):
         source = Dataset.from_iterable([
@@ -76,7 +76,7 @@ class MotsPngConverterTest(TestCase):
                 test_dir, target_dataset=target)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         source = Dataset.from_iterable([
@@ -93,7 +93,7 @@ class MotsPngConverterTest(TestCase):
                 test_dir, require_images=True)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         expected = Dataset.from_iterable([
@@ -121,13 +121,13 @@ class MotsPngConverterTest(TestCase):
 @pytest.mark.components(DatumaroComponent.Datumaro)
 class MotsImporterTest(TestCase):
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_detect(self):
         self.assertTrue(MotsImporter.detect(DUMMY_DATASET_DIR))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_import(self):
         target = Dataset.from_iterable([

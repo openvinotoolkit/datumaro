@@ -17,14 +17,14 @@ from datumaro.util.image import Image
 from datumaro.util.test_utils import TempTestDir
 
 import pytest
-from tests.constants.requirements import Requirements
-from tests.constants.datumaro_components import DatumaroComponent
+from tests.pytest_marking_constants.requirements import Requirements
+from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
 class DiffTest(TestCase):
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_compare_projects(self): # just a smoke test
         label_categories1 = LabelCategories.from_iterable(['x', 'a', 'b', 'y'])
