@@ -9,14 +9,14 @@ from datumaro.util.image import (lazy_image, load_image, save_image, \
 from datumaro.util.image_cache import ImageCache
 
 import pytest
-from tests.constants.requirements import Requirements
-from tests.constants.datumaro_components import DatumaroComponent
+from tests.pytest_marking_constants.requirements import Requirements
+from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
 class LazyImageTest(TestCase):
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_cache_works(self):
         with TempTestDir() as test_dir:
@@ -33,7 +33,7 @@ class LazyImageTest(TestCase):
 @pytest.mark.components(DatumaroComponent.Datumaro)
 class ImageCacheTest(TestCase):
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_cache_fifo_displacement(self):
         capacity = 2
@@ -52,7 +52,7 @@ class ImageCacheTest(TestCase):
         self.assertEqual(matches, len(first_request) - 1)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_global_cache_is_accessible(self):
         loader = lazy_image(None, loader=lambda p: object())
@@ -64,7 +64,7 @@ class ImageCacheTest(TestCase):
 @pytest.mark.components(DatumaroComponent.Datumaro)
 class ImageTest(TestCase):
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_lazy_image_shape(self):
         data = np.ones((5, 6, 3))
@@ -76,7 +76,7 @@ class ImageTest(TestCase):
         self.assertEqual((5, 6), image_eager.size)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_ctors(self):
         with TempTestDir() as test_dir:
@@ -106,7 +106,7 @@ class ImageTest(TestCase):
 @pytest.mark.components(DatumaroComponent.Datumaro)
 class BytesImageTest(TestCase):
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_lazy_image_shape(self):
         data = encode_image(np.ones((5, 6, 3)), 'png')
@@ -118,7 +118,7 @@ class BytesImageTest(TestCase):
         self.assertEqual((5, 6), image_eager.size)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_ctors(self):
         with TempTestDir() as test_dir:

@@ -21,8 +21,8 @@ from datumaro.components.validator import (ClassificationValidator,
     SegmentationValidator)
 
 import pytest
-from tests.constants.requirements import Requirements
-from tests.constants.datumaro_components import DatumaroComponent
+from tests.pytest_marking_constants.requirements import Requirements
+from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
@@ -124,14 +124,14 @@ class TestBaseValidator(TestValidatorTemplate):
             dominance_ratio_thr=0.8, topk_bins=0.1)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_generate_reports(self):
         with self.assertRaises(NotImplementedError):
             self.validator.generate_reports({})
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_check_missing_label_categories(self):
         stats = {
@@ -146,7 +146,7 @@ class TestBaseValidator(TestValidatorTemplate):
         self.assertIsInstance(actual_reports[0], MissingLabelCategories)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_check_missing_attribute(self):
         label_name = 'unit'
@@ -162,7 +162,7 @@ class TestBaseValidator(TestValidatorTemplate):
         self.assertIsInstance(actual_reports[0], MissingAttribute)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_check_undefined_label(self):
         label_name = 'unittest'
@@ -177,7 +177,7 @@ class TestBaseValidator(TestValidatorTemplate):
         self.assertIsInstance(actual_reports[0], UndefinedLabel)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_check_undefined_attribute(self):
         label_name = 'unit'
@@ -193,7 +193,7 @@ class TestBaseValidator(TestValidatorTemplate):
         self.assertIsInstance(actual_reports[0], UndefinedAttribute)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_check_label_defined_but_not_found(self):
         stats = {
@@ -211,7 +211,7 @@ class TestBaseValidator(TestValidatorTemplate):
         self.assertIsInstance(actual_reports[0], LabelDefinedButNotFound)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_check_attribute_defined_but_not_found(self):
         label_name = 'unit'
@@ -228,7 +228,7 @@ class TestBaseValidator(TestValidatorTemplate):
         self.assertIsInstance(actual_reports[0], AttributeDefinedButNotFound)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_check_only_one_label(self):
         stats = {
@@ -246,7 +246,7 @@ class TestBaseValidator(TestValidatorTemplate):
         self.assertIsInstance(actual_reports[0], OnlyOneLabel)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_check_only_one_attribute_value(self):
         label_name = 'unit'
@@ -264,7 +264,7 @@ class TestBaseValidator(TestValidatorTemplate):
         self.assertIsInstance(actual_reports[0], OnlyOneAttributeValue)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_check_few_samples_in_label(self):
         with self.subTest('Few Samples'):
@@ -295,7 +295,7 @@ class TestBaseValidator(TestValidatorTemplate):
             self.assertTrue(len(actual_reports) == 0)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_check_few_samples_in_attribute(self):
         label_name = 'unit'
@@ -327,7 +327,7 @@ class TestBaseValidator(TestValidatorTemplate):
             self.assertTrue(len(actual_reports) == 0)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_check_imbalanced_labels(self):
         with self.subTest('Imbalance'):
@@ -360,7 +360,7 @@ class TestBaseValidator(TestValidatorTemplate):
             self.assertTrue(len(actual_reports) == 0)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_check_imbalanced_attribute(self):
         label_name = 'unit'
@@ -403,7 +403,7 @@ class TestClassificationValidator(TestValidatorTemplate):
             dominance_ratio_thr=0.8, topk_bins=0.1)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_check_missing_label_annotation(self):
         stats = {
@@ -416,7 +416,7 @@ class TestClassificationValidator(TestValidatorTemplate):
         self.assertIsInstance(actual_reports[0], MissingAnnotation)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_check_multi_label_annotations(self):
         stats = {
@@ -438,7 +438,7 @@ class TestDetectionValidator(TestValidatorTemplate):
             dominance_ratio_thr=0.8, topk_bins=0.1)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_check_imbalanced_dist_in_label(self):
         label_name = 'unittest'
@@ -473,7 +473,7 @@ class TestDetectionValidator(TestValidatorTemplate):
             self.assertTrue(len(reports) == 0)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_check_imbalanced_dist_in_attr(self):
         label_name = 'unit'
@@ -515,7 +515,7 @@ class TestDetectionValidator(TestValidatorTemplate):
             self.assertTrue(len(reports) == 0)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_check_missing_bbox_annotation(self):
         stats = {
@@ -528,7 +528,7 @@ class TestDetectionValidator(TestValidatorTemplate):
         self.assertIsInstance(actual_reports[0], MissingAnnotation)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_check_negative_length(self):
         stats = {
@@ -547,7 +547,7 @@ class TestDetectionValidator(TestValidatorTemplate):
         self.assertIsInstance(actual_reports[0], NegativeLength)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_check_invalid_value(self):
         stats = {
@@ -564,7 +564,7 @@ class TestDetectionValidator(TestValidatorTemplate):
         self.assertIsInstance(actual_reports[0], InvalidValue)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_check_far_from_label_mean(self):
         label_name = 'unittest'
@@ -586,7 +586,7 @@ class TestDetectionValidator(TestValidatorTemplate):
         self.assertIsInstance(actual_reports[0], FarFromLabelMean)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_check_far_from_attr_mean(self):
         label_name = 'unit'
@@ -620,7 +620,7 @@ class TestSegmentationValidator(TestValidatorTemplate):
             dominance_ratio_thr=0.8, topk_bins=0.1)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_check_imbalanced_dist_in_label(self):
         label_name = 'unittest'
@@ -655,7 +655,7 @@ class TestSegmentationValidator(TestValidatorTemplate):
             self.assertTrue(len(reports) == 0)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_check_imbalanced_dist_in_attr(self):
         label_name = 'unit'
@@ -697,7 +697,7 @@ class TestSegmentationValidator(TestValidatorTemplate):
             self.assertTrue(len(reports) == 0)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_check_missing_mask_annotation(self):
         stats = {
@@ -710,7 +710,7 @@ class TestSegmentationValidator(TestValidatorTemplate):
         self.assertIsInstance(actual_reports[0], MissingAnnotation)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_check_invalid_value(self):
         stats = {
@@ -727,7 +727,7 @@ class TestSegmentationValidator(TestValidatorTemplate):
         self.assertIsInstance(actual_reports[0], InvalidValue)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_check_far_from_label_mean(self):
         label_name = 'unittest'
@@ -749,7 +749,7 @@ class TestSegmentationValidator(TestValidatorTemplate):
         self.assertIsInstance(actual_reports[0], FarFromLabelMean)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_check_far_from_attr_mean(self):
         label_name = 'unit'
@@ -787,7 +787,7 @@ class TestValidateAnnotations(TestValidatorTemplate):
         }
 =======
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
 >>>>>>> updated tests marking
     def test_validate_annotations_classification(self):
@@ -847,7 +847,7 @@ class TestValidateAnnotations(TestValidatorTemplate):
             self.assertEqual(actual_summary, expected_summary)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_validate_annotations_detection(self):
         actual_results = validate_annotations(self.dataset, 'detection',
@@ -905,7 +905,7 @@ class TestValidateAnnotations(TestValidatorTemplate):
 
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_validate_annotations_segmentation(self):
         actual_results = validate_annotations(self.dataset, 'segmentation',
@@ -963,14 +963,14 @@ class TestValidateAnnotations(TestValidatorTemplate):
             self.assertEqual(actual_summary, expected_summary)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_validate_annotations_invalid_task_type(self):
         with self.assertRaises(ValueError):
             validate_annotations(self.dataset, 'INVALID', **self.extra_args)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_validate_annotations_invalid_dataset_type(self):
         with self.assertRaises(TypeError):

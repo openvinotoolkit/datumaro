@@ -10,14 +10,14 @@ from datumaro.util.image import save_image
 from datumaro.util.test_utils import TempTestDir
 
 import pytest
-from tests.constants.requirements import Requirements
-from tests.constants.datumaro_components import DatumaroComponent
+from tests.pytest_marking_constants.requirements import Requirements
+from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
 class CommandTargetsTest(TestCase):
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_image_false_when_no_file(self):
         target = ImageTarget()
@@ -27,7 +27,7 @@ class CommandTargetsTest(TestCase):
         self.assertFalse(status)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_image_false_when_false(self):
         with TempTestDir() as test_dir:
@@ -42,7 +42,7 @@ class CommandTargetsTest(TestCase):
             self.assertFalse(status)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_image_true_when_true(self):
         with TempTestDir() as test_dir:
@@ -56,7 +56,7 @@ class CommandTargetsTest(TestCase):
             self.assertTrue(status)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_project_false_when_no_file(self):
         target = ProjectTarget()
@@ -66,7 +66,7 @@ class CommandTargetsTest(TestCase):
         self.assertFalse(status)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_project_false_when_no_name(self):
         target = ProjectTarget(project=Project())
@@ -76,7 +76,7 @@ class CommandTargetsTest(TestCase):
         self.assertFalse(status)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_project_true_when_project_file(self):
         with TempTestDir() as test_dir:
@@ -90,7 +90,7 @@ class CommandTargetsTest(TestCase):
             self.assertTrue(status)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_project_true_when_project_name(self):
         project_name = 'qwerty'
@@ -104,7 +104,7 @@ class CommandTargetsTest(TestCase):
         self.assertTrue(status)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_project_false_when_not_project_name(self):
         project_name = 'qwerty'
@@ -118,7 +118,7 @@ class CommandTargetsTest(TestCase):
         self.assertFalse(status)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_project_false_when_not_project_file(self):
         with TempTestDir() as test_dir:
@@ -133,7 +133,7 @@ class CommandTargetsTest(TestCase):
             self.assertFalse(status)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_source_false_when_no_project(self):
         target = SourceTarget()
@@ -143,7 +143,7 @@ class CommandTargetsTest(TestCase):
         self.assertFalse(status)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_source_true_when_source_exists(self):
         source_name = 'qwerty'
@@ -156,7 +156,7 @@ class CommandTargetsTest(TestCase):
         self.assertTrue(status)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_source_false_when_source_doesnt_exist(self):
         source_name = 'qwerty'

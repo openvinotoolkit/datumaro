@@ -15,25 +15,25 @@ from datumaro.plugins.datumaro_format.converter import DatumaroConverter
 from datumaro.util.mask_tools import generate_colormap
 from datumaro.util.image import Image
 from datumaro.util.test_utils import (TempTestDir, compare_datasets_strict,
-                                      util_test_save_and_load)
+                                      check_save_and_load)
 
 import pytest
-from tests.constants.requirements import Requirements
-from tests.constants.datumaro_components import DatumaroComponent
+from tests.pytest_marking_constants.requirements import Requirements
+from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
 class DatumaroConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None):
-        return util_test_save_and_load(self, source_dataset, converter, test_dir,
+        return check_save_and_load(self, source_dataset, converter, test_dir,
                                        importer='datumaro',
                                        target_dataset=target_dataset, importer_args=importer_args,
                                        compare=compare_datasets_strict)
 
     @property
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_dataset(self):
         label_categories = LabelCategories(attributes={'a', 'b', 'score'})
@@ -93,7 +93,7 @@ class DatumaroConverterTest(TestCase):
         })
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_and_load(self):
         with TempTestDir() as test_dir:
@@ -101,7 +101,7 @@ class DatumaroConverterTest(TestCase):
                 partial(DatumaroConverter.convert, save_images=True), test_dir)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_detect(self):
         with TempTestDir() as test_dir:
@@ -110,7 +110,7 @@ class DatumaroConverterTest(TestCase):
             self.assertTrue(DatumaroImporter.detect(test_dir))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_relative_paths(self):
         test_dataset = Dataset.from_iterable([
@@ -124,7 +124,7 @@ class DatumaroConverterTest(TestCase):
                 partial(DatumaroConverter.convert, save_images=True), test_dir)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         test_dataset = Dataset.from_iterable([
@@ -137,7 +137,7 @@ class DatumaroConverterTest(TestCase):
                 test_dir)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         expected = Dataset.from_iterable([
@@ -153,7 +153,7 @@ class DatumaroConverterTest(TestCase):
                 test_dir)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_inplace_save_writes_only_updated_data(self):
         with TempTestDir() as path:

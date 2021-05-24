@@ -12,14 +12,14 @@ import datumaro.plugins.transforms as transforms
 from datumaro.util.test_utils import compare_datasets
 
 import pytest
-from tests.constants.requirements import Requirements
-from tests.constants.datumaro_components import DatumaroComponent
+from tests.pytest_marking_constants.requirements import Requirements
+from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
 class TransformsTest(TestCase):
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_reindex(self):
         source = Dataset.from_iterable([
@@ -38,7 +38,7 @@ class TransformsTest(TestCase):
         compare_datasets(self, expected, actual)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_mask_to_polygons(self):
         source = Dataset.from_iterable([
@@ -65,7 +65,7 @@ class TransformsTest(TestCase):
         compare_datasets(self, expected, actual)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_mask_to_polygons_small_polygons_message(self):
         source_dataset = Dataset.from_iterable([
@@ -89,7 +89,7 @@ class TransformsTest(TestCase):
             self.assertRegex('\n'.join(logs.output), 'too small polygons')
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_polygons_to_masks(self):
         source_dataset = Dataset.from_iterable([
@@ -124,7 +124,7 @@ class TransformsTest(TestCase):
         compare_datasets(self, target_dataset, actual)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_crop_covered_segments(self):
         source_dataset = Dataset.from_iterable([
@@ -158,7 +158,7 @@ class TransformsTest(TestCase):
         compare_datasets(self, target_dataset, actual)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_merge_instance_segments(self):
         source_dataset = Dataset.from_iterable([
@@ -208,7 +208,7 @@ class TransformsTest(TestCase):
         compare_datasets(self, target_dataset, actual)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_map_subsets(self):
         source_dataset = Dataset.from_iterable([
@@ -228,7 +228,7 @@ class TransformsTest(TestCase):
         compare_datasets(self, target_dataset, actual)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_shapes_to_boxes(self):
         source_dataset = Dataset.from_iterable([
@@ -263,7 +263,7 @@ class TransformsTest(TestCase):
         compare_datasets(self, target_dataset, actual)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_id_from_image(self):
         source_dataset = Dataset.from_iterable([
@@ -279,7 +279,7 @@ class TransformsTest(TestCase):
         compare_datasets(self, target_dataset, actual)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_boxes_to_masks(self):
         source_dataset = Dataset.from_iterable([
@@ -327,7 +327,7 @@ class TransformsTest(TestCase):
         compare_datasets(self, target_dataset, actual)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_random_split(self):
         source_dataset = Dataset.from_iterable([
@@ -349,7 +349,7 @@ class TransformsTest(TestCase):
         self.assertEqual(3, len(actual.get_subset('test')))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_random_split_gives_error_on_wrong_ratios(self):
         source_dataset = Dataset.from_iterable([DatasetItem(id=1)])
@@ -370,7 +370,7 @@ class TransformsTest(TestCase):
             ])
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_remap_labels(self):
         src_dataset = Dataset.from_iterable([
@@ -423,7 +423,7 @@ class TransformsTest(TestCase):
         compare_datasets(self, dst_dataset, actual)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_remap_labels_delete_unspecified(self):
         source_dataset = Dataset.from_iterable([
@@ -446,7 +446,7 @@ class TransformsTest(TestCase):
         compare_datasets(self, target_dataset, actual)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_transform_labels(self):
         src_dataset = Dataset.from_iterable([

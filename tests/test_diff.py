@@ -8,14 +8,14 @@ from datumaro.components.operations import DistanceComparator, ExactComparator
 from unittest import TestCase
 
 import pytest
-from tests.constants.requirements import Requirements
-from tests.constants.datumaro_components import DatumaroComponent
+from tests.pytest_marking_constants.requirements import Requirements
+from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
 class DistanceComparatorTest(TestCase):
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_no_bbox_diff_with_same_item(self):
         detections = 3
@@ -40,7 +40,7 @@ class DistanceComparatorTest(TestCase):
             self.assertEqual(a_bbox.label, b_bbox.label)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_find_bbox_with_wrong_label(self):
         detections = 3
@@ -69,7 +69,7 @@ class DistanceComparatorTest(TestCase):
             self.assertEqual((a_bbox.label + 1) % class_count, b_bbox.label)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_find_missing_boxes(self):
         detections = 3
@@ -95,7 +95,7 @@ class DistanceComparatorTest(TestCase):
         self.assertEqual(0, len(matches))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_no_label_diff_with_same_item(self):
         detections = 3
@@ -110,7 +110,7 @@ class DistanceComparatorTest(TestCase):
         self.assertEqual(len(item.annotations), len(matches))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_find_wrong_label(self):
         item1 = DatasetItem(id=1, annotations=[
@@ -132,7 +132,7 @@ class DistanceComparatorTest(TestCase):
         self.assertEqual(1, len(matches))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_match_points(self):
         item1 = DatasetItem(id=1, annotations=[
@@ -157,7 +157,7 @@ class DistanceComparatorTest(TestCase):
 @pytest.mark.components(DatumaroComponent.Datumaro)
 class ExactComparatorTest(TestCase):
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_class_comparison(self):
         a = Dataset.from_iterable([], categories=['a', 'b', 'c'])
@@ -169,7 +169,7 @@ class ExactComparatorTest(TestCase):
         self.assertEqual(1, len(errors), errors)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_item_comparison(self):
         a = Dataset.from_iterable([
@@ -190,7 +190,7 @@ class ExactComparatorTest(TestCase):
         self.assertEqual(1, len(errors), errors)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_annotation_comparison(self):
         a = Dataset.from_iterable([
@@ -229,7 +229,7 @@ class ExactComparatorTest(TestCase):
         self.assertEqual(0, len(errors), errors)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_image_comparison(self):
         a = Dataset.from_iterable([

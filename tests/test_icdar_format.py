@@ -15,39 +15,39 @@ from datumaro.plugins.icdar_format.extractor import (
     IcdarTextSegmentationImporter)
 from datumaro.util.image import Image
 from datumaro.util.test_utils import (TempTestDir, compare_datasets,
-                                      util_test_save_and_load)
+                                      check_save_and_load)
 
 import pytest
-from tests.constants.requirements import Requirements
-from tests.constants.datumaro_components import DatumaroComponent
+from tests.pytest_marking_constants.requirements import Requirements
+from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'icdar_dataset')
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
 class IcdarImporterTest(TestCase):
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_detect_word_recognition(self):
         self.assertTrue(IcdarWordRecognitionImporter.detect(
             osp.join(DUMMY_DATASET_DIR, 'word_recognition')))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_detect_text_localization(self):
         self.assertTrue(IcdarTextLocalizationImporter.detect(
             osp.join(DUMMY_DATASET_DIR, 'text_localization')))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_detect_text_segmentation(self):
         self.assertTrue(IcdarTextSegmentationImporter.detect(
             osp.join(DUMMY_DATASET_DIR, 'text_segmentation')))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_import_captions(self):
         expected_dataset = Dataset.from_iterable([
@@ -72,7 +72,7 @@ class IcdarImporterTest(TestCase):
         compare_datasets(self, expected_dataset, dataset)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_import_bboxes(self):
         expected_dataset = Dataset.from_iterable([
@@ -99,7 +99,7 @@ class IcdarImporterTest(TestCase):
         compare_datasets(self, expected_dataset, dataset)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_import_masks(self):
         expected_dataset = Dataset.from_iterable([
@@ -135,12 +135,12 @@ class IcdarImporterTest(TestCase):
 class IcdarConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir, importer,
             target_dataset=None, importer_args=None, **kwargs):
-        return util_test_save_and_load(self, source_dataset, converter, test_dir,
+        return check_save_and_load(self, source_dataset, converter, test_dir,
                                        importer,
                                        target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_and_load_captions(self):
         expected_dataset = Dataset.from_iterable([
@@ -160,7 +160,7 @@ class IcdarConverterTest(TestCase):
                 test_dir, 'icdar_word_recognition')
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_and_load_bboxes(self):
         expected_dataset = Dataset.from_iterable([
@@ -189,7 +189,7 @@ class IcdarConverterTest(TestCase):
                 test_dir, 'icdar_text_localization')
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_and_load_masks(self):
         expected_dataset = Dataset.from_iterable([
@@ -225,7 +225,7 @@ class IcdarConverterTest(TestCase):
                 test_dir, 'icdar_text_segmentation')
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_and_load_with_no_subsets(self):
         expected_dataset = Dataset.from_iterable([
@@ -241,7 +241,7 @@ class IcdarConverterTest(TestCase):
                 'icdar_text_localization')
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         expected_dataset = Dataset.from_iterable([
@@ -260,7 +260,7 @@ class IcdarConverterTest(TestCase):
                     test_dir, importer, require_images=True)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         expected = Dataset.from_iterable([
