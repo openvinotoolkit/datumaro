@@ -143,8 +143,8 @@ def compare_datasets_strict(test, expected, actual):
                 '%s:\n%s\nvs.\n%s\n' % \
                 (idx, item_a, item_b))
 
-def util_test_save_and_load(test, source_dataset, converter, test_dir, importer,
-                            target_dataset=None, importer_args=None, compare=None, **kwargs):
+def check_save_and_load(test, source_dataset, converter, test_dir, importer,
+        target_dataset=None, importer_args=None, compare=None, **kwargs):
     converter(source_dataset, test_dir)
 
     if importer_args is None:

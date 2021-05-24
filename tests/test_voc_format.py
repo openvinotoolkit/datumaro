@@ -23,17 +23,17 @@ from datumaro.components.dataset import Dataset
 from datumaro.util.image import Image
 from datumaro.util.mask_tools import load_mask
 from datumaro.util.test_utils import (TempTestDir, compare_datasets,
-                                      util_test_save_and_load)
+                                      check_save_and_load)
 
 import pytest
-from tests.constants.requirements import Requirements
-from tests.constants.datumaro_components import DatumaroComponent
+from tests.pytest_marking_constants.requirements import Requirements
+from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
 class VocFormatTest(TestCase):
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_colormap_generator(self):
         reference = np.array([
@@ -64,7 +64,7 @@ class VocFormatTest(TestCase):
         self.assertTrue(np.array_equal(reference, list(VOC.VocColormap.values())))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_write_and_parse_labelmap(self):
         src_label_map = VOC.make_voc_label_map()
@@ -80,7 +80,7 @@ class VocFormatTest(TestCase):
             self.assertEqual(src_label_map, dst_label_map)
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
-class TTestExtractorBase(Extractor):
+class ExtractorBase(Extractor):
     def _label(self, voc_label):
         return self.categories()[AnnotationType.label].find(voc_label)[0]
 
@@ -93,10 +93,10 @@ DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'voc_dataset')
 @pytest.mark.components(DatumaroComponent.Datumaro)
 class VocImportTest(TestCase):
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_import(self):
-        class DstExtractor(TTestExtractorBase):
+        class DstExtractor(ExtractorBase):
             def __iter__(self):
                 return iter([
                     DatasetItem(id='2007_000001', subset='train',
@@ -145,7 +145,7 @@ class VocImportTest(TestCase):
         compare_datasets(self, DstExtractor(), dataset)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_detect_voc(self):
         self.assertTrue(VocImporter.detect(DUMMY_DATASET_DIR))
@@ -154,15 +154,15 @@ class VocImportTest(TestCase):
 class VocConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None, **kwargs):
-        return util_test_save_and_load(self, source_dataset, converter, test_dir,
+        return check_save_and_load(self, source_dataset, converter, test_dir,
                                        importer='voc',
                                        target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_voc_cls(self):
-        class TTestExtractor(TTestExtractorBase):
+        class SrcExtractor(ExtractorBase):
             def __iter__(self):
                 return iter([
                     DatasetItem(id='a/0', subset='a', annotations=[
@@ -177,15 +177,15 @@ class VocConverterTest(TestCase):
                 ])
 
         with TempTestDir() as test_dir:
-            self._test_save_and_load(TTestExtractor(),
+            self._test_save_and_load(SrcExtractor(),
                                      partial(VocClassificationConverter.convert, label_map='voc'),
                                      test_dir)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_voc_det(self):
-        class TTestExtractor(TTestExtractorBase):
+        class SrcExtractor(ExtractorBase):
             def __iter__(self):
                 return iter([
                     DatasetItem(id='a/1', subset='a', annotations=[
@@ -204,7 +204,7 @@ class VocConverterTest(TestCase):
                     ]),
                 ])
 
-        class DstExtractor(TTestExtractorBase):
+        class DstExtractor(ExtractorBase):
             def __iter__(self):
                 return iter([
                     DatasetItem(id='a/1', subset='a', annotations=[
@@ -236,15 +236,15 @@ class VocConverterTest(TestCase):
                 ])
 
         with TempTestDir() as test_dir:
-            self._test_save_and_load(TTestExtractor(),
+            self._test_save_and_load(SrcExtractor(),
                                      partial(VocDetectionConverter.convert, label_map='voc'),
                                      test_dir, target_dataset=DstExtractor())
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_voc_segm(self):
-        class TTestExtractor(TTestExtractorBase):
+        class SrcExtractor(ExtractorBase):
             def __iter__(self):
                 return iter([
                     DatasetItem(id='a/b/1', subset='a', annotations=[
@@ -259,7 +259,7 @@ class VocConverterTest(TestCase):
                     ]),
                 ])
 
-        class DstExtractor(TTestExtractorBase):
+        class DstExtractor(ExtractorBase):
             def __iter__(self):
                 return iter([
                     DatasetItem(id='a/b/1', subset='a', annotations=[
@@ -273,15 +273,15 @@ class VocConverterTest(TestCase):
                 ])
 
         with TempTestDir() as test_dir:
-            self._test_save_and_load(TTestExtractor(),
+            self._test_save_and_load(SrcExtractor(),
                                      partial(VocSegmentationConverter.convert, label_map='voc'),
                                      test_dir, target_dataset=DstExtractor())
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_voc_segm_unpainted(self):
-        class TTestExtractor(TTestExtractorBase):
+        class SrcExtractor(ExtractorBase):
             def __iter__(self):
                 return iter([
                     DatasetItem(id=1, subset='a', annotations=[
@@ -296,7 +296,7 @@ class VocConverterTest(TestCase):
                     ]),
                 ])
 
-        class DstExtractor(TTestExtractorBase):
+        class DstExtractor(ExtractorBase):
             def __iter__(self):
                 return iter([
                     DatasetItem(id=1, subset='a', annotations=[
@@ -310,13 +310,13 @@ class VocConverterTest(TestCase):
                 ])
 
         with TempTestDir() as test_dir:
-            self._test_save_and_load(TTestExtractor(),
+            self._test_save_and_load(SrcExtractor(),
                                      partial(VocSegmentationConverter.convert,
                     label_map='voc', apply_colormap=False),
                                      test_dir, target_dataset=DstExtractor())
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_voc_segm_with_many_instances(self):
         def bit(x, y, shape):
@@ -324,7 +324,7 @@ class VocConverterTest(TestCase):
             mask[y, x] = 1
             return mask
 
-        class TTestExtractor(TTestExtractorBase):
+        class SrcExtractor(ExtractorBase):
             def __iter__(self):
                 return iter([
                     DatasetItem(id=1, subset='a', annotations=[
@@ -336,7 +336,7 @@ class VocConverterTest(TestCase):
                     ]),
                 ])
 
-        class DstExtractor(TTestExtractorBase):
+        class DstExtractor(ExtractorBase):
             def __iter__(self):
                 return iter([
                     DatasetItem(id=1, subset='a', annotations=[
@@ -349,15 +349,15 @@ class VocConverterTest(TestCase):
                 ])
 
         with TempTestDir() as test_dir:
-            self._test_save_and_load(TTestExtractor(),
+            self._test_save_and_load(SrcExtractor(),
                                      partial(VocSegmentationConverter.convert, label_map='voc'),
                                      test_dir, target_dataset=DstExtractor())
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_voc_layout(self):
-        class TTestExtractor(TTestExtractorBase):
+        class SrcExtractor(ExtractorBase):
             def __iter__(self):
                 return iter([
                     DatasetItem(id='a/b/1', subset='a', annotations=[
@@ -377,14 +377,14 @@ class VocConverterTest(TestCase):
                 ])
 
         with TempTestDir() as test_dir:
-            self._test_save_and_load(TTestExtractor(),
+            self._test_save_and_load(SrcExtractor(),
                                      partial(VocLayoutConverter.convert, label_map='voc'), test_dir)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_voc_action(self):
-        class TTestExtractor(TTestExtractorBase):
+        class SrcExtractor(ExtractorBase):
             def __iter__(self):
                 return iter([
                     DatasetItem(id='a/b/1', subset='a', annotations=[
@@ -405,7 +405,7 @@ class VocConverterTest(TestCase):
                     ]),
                 ])
 
-        class DstExtractor(TTestExtractorBase):
+        class DstExtractor(ExtractorBase):
             def __iter__(self):
                 return iter([
                     DatasetItem(id='a/b/1', subset='a', annotations=[
@@ -434,16 +434,16 @@ class VocConverterTest(TestCase):
                 ])
 
         with TempTestDir() as test_dir:
-            self._test_save_and_load(TTestExtractor(),
+            self._test_save_and_load(SrcExtractor(),
                                      partial(VocActionConverter.convert,
                     label_map='voc', allow_attributes=False), test_dir,
                                      target_dataset=DstExtractor())
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_dataset_with_no_subsets(self):
-        class TTestExtractor(TTestExtractorBase):
+        class SrcExtractor(ExtractorBase):
             def __iter__(self):
                 return iter([
                     DatasetItem(id=1),
@@ -452,15 +452,15 @@ class VocConverterTest(TestCase):
 
         for task in [None] + list(VOC.VocTask):
             with self.subTest(subformat=task), TempTestDir() as test_dir:
-                self._test_save_and_load(TTestExtractor(),
+                self._test_save_and_load(SrcExtractor(),
                                          partial(VocConverter.convert, label_map='voc', tasks=task),
                                          test_dir)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
-        class TTestExtractor(TTestExtractorBase):
+        class SrcExtractor(ExtractorBase):
             def __iter__(self):
                 return iter([
                     DatasetItem(id='кириллица с пробелом 1'),
@@ -470,16 +470,16 @@ class VocConverterTest(TestCase):
 
         for task in [None] + list(VOC.VocTask):
             with self.subTest(subformat=task), TempTestDir() as test_dir:
-                self._test_save_and_load(TTestExtractor(),
+                self._test_save_and_load(SrcExtractor(),
                                          partial(VocConverter.convert, label_map='voc', tasks=task,
                         save_images=True),
                                          test_dir, require_images=True)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_dataset_with_images(self):
-        class TTestExtractor(TTestExtractorBase):
+        class SrcExtractor(ExtractorBase):
             def __iter__(self):
                 return iter([
                     DatasetItem(id=1, subset='a', image=np.ones([4, 5, 3])),
@@ -490,16 +490,16 @@ class VocConverterTest(TestCase):
 
         for task in [None] + list(VOC.VocTask):
             with self.subTest(subformat=task), TempTestDir() as test_dir:
-                self._test_save_and_load(TTestExtractor(),
+                self._test_save_and_load(SrcExtractor(),
                                          partial(VocConverter.convert, label_map='voc',
                         save_images=True, tasks=task),
                                          test_dir, require_images=True)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_dataset_with_voc_labelmap(self):
-        class SrcExtractor(TTestExtractorBase):
+        class SrcExtractor(ExtractorBase):
             def __iter__(self):
                 yield DatasetItem(id=1, annotations=[
                     Bbox(2, 3, 4, 5, label=self._label('cat'), id=1),
@@ -514,7 +514,7 @@ class VocConverterTest(TestCase):
                     AnnotationType.label: label_cat,
                 }
 
-        class DstExtractor(TTestExtractorBase):
+        class DstExtractor(ExtractorBase):
             def __iter__(self):
                 yield DatasetItem(id=1, annotations=[
                     # drop non voc label
@@ -536,10 +536,10 @@ class VocConverterTest(TestCase):
                 test_dir, target_dataset=DstExtractor())
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_dataset_with_source_labelmap_undefined(self):
-        class SrcExtractor(TTestExtractorBase):
+        class SrcExtractor(ExtractorBase):
             def __iter__(self):
                 yield DatasetItem(id=1, annotations=[
                     Bbox(2, 3, 4, 5, label=0, id=1),
@@ -554,7 +554,7 @@ class VocConverterTest(TestCase):
                     AnnotationType.label: label_cat,
                 }
 
-        class DstExtractor(TTestExtractorBase):
+        class DstExtractor(ExtractorBase):
             def __iter__(self):
                 yield DatasetItem(id=1, annotations=[
                     Bbox(2, 3, 4, 5, label=self._label('Label_1'),
@@ -586,10 +586,10 @@ class VocConverterTest(TestCase):
                 test_dir, target_dataset=DstExtractor())
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_dataset_with_source_labelmap_defined(self):
-        class SrcExtractor(TTestExtractorBase):
+        class SrcExtractor(ExtractorBase):
             def __iter__(self):
                 yield DatasetItem(id=1, annotations=[
                     Bbox(2, 3, 4, 5, label=0, id=1),
@@ -603,7 +603,7 @@ class VocConverterTest(TestCase):
                 label_map['label_2'] = [(3, 2, 1), [], []]
                 return VOC.make_voc_categories(label_map)
 
-        class DstExtractor(TTestExtractorBase):
+        class DstExtractor(ExtractorBase):
             def __iter__(self):
                 yield DatasetItem(id=1, annotations=[
                     Bbox(2, 3, 4, 5, label=self._label('label_1'),
@@ -635,10 +635,10 @@ class VocConverterTest(TestCase):
                 test_dir, target_dataset=DstExtractor())
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_dataset_with_fixed_labelmap(self):
-        class SrcExtractor(TTestExtractorBase):
+        class SrcExtractor(ExtractorBase):
             def __iter__(self):
                 yield DatasetItem(id=1, annotations=[
                     Bbox(2, 3, 4, 5, label=self._label('foreign_label'), id=1),
@@ -667,7 +667,7 @@ class VocConverterTest(TestCase):
             ('label', [None, ['label_part1', 'label_part2'], ['act1', 'act2']])
         ])
 
-        class DstExtractor(TTestExtractorBase):
+        class DstExtractor(ExtractorBase):
             def __iter__(self):
                 yield DatasetItem(id=1, annotations=[
                     Bbox(1, 2, 3, 4, label=self._label('label'), id=1, group=1,
@@ -692,7 +692,7 @@ class VocConverterTest(TestCase):
                 test_dir, target_dataset=DstExtractor())
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_background_masks_dont_introduce_instances_but_cover_others(self):
         dataset = Dataset.from_iterable([
@@ -714,10 +714,10 @@ class VocConverterTest(TestCase):
             self.assertTrue(np.array_equal([0, 1], np.unique(inst_mask)))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_dataset_with_image_info(self):
-        class TTestExtractor(TTestExtractorBase):
+        class SrcExtractor(ExtractorBase):
             def __iter__(self):
                 return iter([
                     DatasetItem(id=1, image=Image(path='1.jpg', size=(10, 15))),
@@ -725,15 +725,15 @@ class VocConverterTest(TestCase):
 
         for task in [None] + list(VOC.VocTask):
             with self.subTest(subformat=task), TempTestDir() as test_dir:
-                self._test_save_and_load(TTestExtractor(),
+                self._test_save_and_load(SrcExtractor(),
                                          partial(VocConverter.convert, label_map='voc', tasks=task),
                                          test_dir)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_and_load_image_with_arbitrary_extension(self):
-        class TTestExtractor(TTestExtractorBase):
+        class SrcExtractor(ExtractorBase):
             def __iter__(self):
                 return iter([
                     DatasetItem(id='q/1', image=Image(path='q/1.JPEG',
@@ -744,16 +744,16 @@ class VocConverterTest(TestCase):
 
         for task in [None] + list(VOC.VocTask):
             with self.subTest(subformat=task), TempTestDir() as test_dir:
-                self._test_save_and_load(TTestExtractor(),
+                self._test_save_and_load(SrcExtractor(),
                                          partial(VocConverter.convert, label_map='voc', tasks=task,
                         save_images=True),
                                          test_dir, require_images=True)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_relative_paths(self):
-        class TTestExtractor(TTestExtractorBase):
+        class SrcExtractor(ExtractorBase):
             def __iter__(self):
                 return iter([
                     DatasetItem(id='1', image=np.ones((4, 2, 3))),
@@ -763,16 +763,16 @@ class VocConverterTest(TestCase):
 
         for task in [None] + list(VOC.VocTask):
             with self.subTest(subformat=task), TempTestDir() as test_dir:
-                self._test_save_and_load(TTestExtractor(),
+                self._test_save_and_load(SrcExtractor(),
                                          partial(VocConverter.convert,
                         label_map='voc', save_images=True, tasks=task),
                                          test_dir, require_images=True)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_attributes(self):
-        class TTestExtractor(TTestExtractorBase):
+        class SrcExtractor(ExtractorBase):
             def __iter__(self):
                 return iter([
                     DatasetItem(id='a', annotations=[
@@ -782,7 +782,7 @@ class VocConverterTest(TestCase):
                     ]),
                 ])
 
-        class DstExtractor(TTestExtractorBase):
+        class DstExtractor(ExtractorBase):
             def __iter__(self):
                 return iter([
                     DatasetItem(id='a', annotations=[
@@ -798,12 +798,12 @@ class VocConverterTest(TestCase):
                 ])
 
         with TempTestDir() as test_dir:
-            self._test_save_and_load(TTestExtractor(),
+            self._test_save_and_load(SrcExtractor(),
                                      partial(VocConverter.convert, label_map='voc'), test_dir,
                                      target_dataset=DstExtractor())
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_inplace_save_writes_only_updated_data(self):
         with TempTestDir() as path:
@@ -846,10 +846,10 @@ class VocConverterTest(TestCase):
                 osp.join(path, 'SegmentationClass', '3.png')))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_dataset_with_no_data_images(self):
-        class TestExtractor(TTestExtractorBase):
+        class TestExtractor(ExtractorBase):
             def __iter__(self):
                 return iter([
                     DatasetItem(id='frame1', subset='test',

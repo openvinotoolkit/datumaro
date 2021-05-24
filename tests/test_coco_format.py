@@ -23,11 +23,11 @@ from datumaro.plugins.coco_format.converter import (
 from datumaro.plugins.coco_format.importer import CocoImporter
 from datumaro.util.image import Image
 from datumaro.util.test_utils import (TempTestDir, compare_datasets,
-                                      util_test_save_and_load)
+                                      check_save_and_load)
 
 import pytest
-from tests.constants.requirements import Requirements
-from tests.constants.datumaro_components import DatumaroComponent
+from tests.pytest_marking_constants.requirements import Requirements
+from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'coco_dataset')
 
@@ -35,7 +35,7 @@ DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'coco_dataset')
 @pytest.mark.components(DatumaroComponent.Datumaro)
 class CocoImporterTest(TestCase):
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_import_instances(self):
         expected_dataset = Dataset.from_iterable([
@@ -60,7 +60,7 @@ class CocoImporterTest(TestCase):
         compare_datasets(self, expected_dataset, dataset)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_import_captions(self):
         expected_dataset = Dataset.from_iterable([
@@ -86,7 +86,7 @@ class CocoImporterTest(TestCase):
         compare_datasets(self, expected_dataset, dataset)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_import_labels(self):
         expected_dataset = Dataset.from_iterable([
@@ -103,7 +103,7 @@ class CocoImporterTest(TestCase):
         compare_datasets(self, expected_dataset, dataset)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_import_points(self):
         expected_dataset = Dataset.from_iterable([
@@ -151,7 +151,7 @@ class CocoImporterTest(TestCase):
         compare_datasets(self, expected_dataset, dataset)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_import_image_info(self):
         expected_dataset = Dataset.from_iterable([
@@ -166,7 +166,7 @@ class CocoImporterTest(TestCase):
 
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_import_panoptic(self):
         expected_dataset = Dataset.from_iterable([
@@ -189,7 +189,7 @@ class CocoImporterTest(TestCase):
         compare_datasets(self, expected_dataset, dataset, require_images=True)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_import_stuff(self):
         expected_dataset = Dataset.from_iterable([
@@ -211,7 +211,7 @@ class CocoImporterTest(TestCase):
         compare_datasets(self, expected_dataset, dataset)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_detect(self):
         self.assertTrue(CocoImporter.detect(
@@ -221,12 +221,12 @@ class CocoImporterTest(TestCase):
 class CocoConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None, **kwargs):
-        return util_test_save_and_load(self, source_dataset, converter, test_dir,
+        return check_save_and_load(self, source_dataset, converter, test_dir,
                                        importer='coco',
                                        target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_and_load_captions(self):
         expected_dataset = Dataset.from_iterable([
@@ -251,7 +251,7 @@ class CocoConverterTest(TestCase):
                 CocoCaptionsConverter.convert, test_dir)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_and_load_instances(self):
         source_dataset = Dataset.from_iterable([
@@ -334,7 +334,7 @@ class CocoConverterTest(TestCase):
                 target_dataset=target_dataset)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_and_load_panoptic(self):
         dataset = Dataset.from_iterable([
@@ -379,7 +379,7 @@ class CocoConverterTest(TestCase):
                 test_dir, require_images=True)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_and_load_stuff(self):
         dataset = Dataset.from_iterable([
@@ -413,7 +413,7 @@ class CocoConverterTest(TestCase):
                 CocoStuffConverter.convert, test_dir)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_merge_polygons_on_loading(self):
         source_dataset = Dataset.from_iterable([
@@ -453,7 +453,7 @@ class CocoConverterTest(TestCase):
                 target_dataset=target_dataset)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_crop_covered_segments(self):
         source_dataset = Dataset.from_iterable([
@@ -499,25 +499,25 @@ class CocoConverterTest(TestCase):
                  test_dir, target_dataset=target_dataset)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_convert_polygons_to_mask(self):
         """
         <b>Description:</b>
-        Ensure that the dataset polygon segmentation mode can be properly converted into dataset mask segmentation mode.
+        Ensure that the dataset polygon annotation can be properly converted into dataset segmentation mask.
 
         <b>Expected results:</b>
-        Dataset segmentation mask converted from dataset segmentation polygon is equal to expected mask.
+        Dataset segmentation mask converted from dataset polygon annotation is equal to expected mask.
 
         <b>Steps:</b>
-        1. Prepare dataset with polygon segmentation mode (source dataset)
+        1. Prepare dataset with polygon annotation (source dataset)
         2. Prepare dataset with expected mask segmentation mode (target dataset)
-        3. Convert source dataset to target, with segmentation mode changed from polygon to mask and verify that result
+        3. Convert source dataset to target, with conversion of annotation from polygon to mask. Verify that result
         segmentation mask is equal to expected mask.
 
         """
 
-        # 1.Prepare dataset with polygon segmentation mode (source dataset)")
+        # 1. Prepare dataset with polygon annotation (source dataset)
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, image=np.zeros((6, 10, 3)),
                 annotations=[
@@ -549,15 +549,15 @@ class CocoConverterTest(TestCase):
             ),
         ], categories=[str(i) for i in range(10)])
 
-        # 3. Convert source dataset to target, with segmentation mode changed from polygon to mask and verify that
-        #    result segmentation mask is equal to expected mask.
+        # 3. Convert source dataset to target, with conversion of annotation from polygon to mask. Verify that result
+        # segmentation mask is equal to expected mask.
         with TempTestDir() as test_dir:
             self._test_save_and_load(source_dataset,
                 partial(CocoInstancesConverter.convert, segmentation_mode='mask'),
                 test_dir, target_dataset=target_dataset)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_convert_masks_to_polygons(self):
         source_dataset = Dataset.from_iterable([
@@ -597,7 +597,7 @@ class CocoConverterTest(TestCase):
                 target_dataset=target_dataset)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_and_load_images(self):
         expected_dataset = Dataset.from_iterable([
@@ -616,7 +616,7 @@ class CocoConverterTest(TestCase):
                 CocoImageInfoConverter.convert, test_dir)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         expected_dataset = Dataset.from_iterable([
@@ -629,7 +629,7 @@ class CocoConverterTest(TestCase):
                 CocoImageInfoConverter.convert, test_dir)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_and_load_labels(self):
         expected_dataset = Dataset.from_iterable([
@@ -645,7 +645,7 @@ class CocoConverterTest(TestCase):
                 CocoLabelsConverter.convert, test_dir)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_and_load_keypoints(self):
         source_dataset = Dataset.from_iterable([
@@ -723,7 +723,7 @@ class CocoConverterTest(TestCase):
                 target_dataset=target_dataset)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_dataset_with_no_subsets(self):
         test_dataset = Dataset.from_iterable([
@@ -736,7 +736,7 @@ class CocoConverterTest(TestCase):
                 CocoConverter.convert, test_dir)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_dataset_with_image_info(self):
         expected_dataset = Dataset.from_iterable([
@@ -749,7 +749,7 @@ class CocoConverterTest(TestCase):
                 CocoImageInfoConverter.convert, test_dir)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_relative_paths(self):
         expected_dataset = Dataset.from_iterable([
@@ -767,7 +767,7 @@ class CocoConverterTest(TestCase):
                 test_dir, require_images=True)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         expected = Dataset.from_iterable([
@@ -783,7 +783,7 @@ class CocoConverterTest(TestCase):
                 test_dir, require_images=True)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_preserve_coco_ids(self):
         expected_dataset = Dataset.from_iterable([
@@ -796,9 +796,8 @@ class CocoConverterTest(TestCase):
                 partial(CocoImageInfoConverter.convert, save_images=True),
                 test_dir, require_images=True)
 
-    
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_annotation_attributes(self):
         expected_dataset = Dataset.from_iterable([
@@ -813,7 +812,7 @@ class CocoConverterTest(TestCase):
                 CocoConverter.convert, test_dir)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_auto_annotation_ids(self):
         source_dataset = Dataset.from_iterable([
@@ -834,7 +833,7 @@ class CocoConverterTest(TestCase):
                 CocoConverter.convert, test_dir, target_dataset=target_dataset)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_reindex(self):
         source_dataset = Dataset.from_iterable([
@@ -856,7 +855,7 @@ class CocoConverterTest(TestCase):
                 test_dir, target_dataset=target_dataset)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_images_in_single_dir(self):
         dataset = Dataset.from_iterable([
@@ -872,7 +871,7 @@ class CocoConverterTest(TestCase):
             self.assertTrue(osp.isfile(osp.join(test_dir, 'images', '1.jpg')))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_images_in_separate_dirs(self):
         dataset = Dataset.from_iterable([
@@ -889,7 +888,7 @@ class CocoConverterTest(TestCase):
                 test_dir, 'images', 'train', '1.jpg')))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_inplace_save_writes_only_updated_data(self):
         with TempTestDir() as path:

@@ -11,8 +11,8 @@ from datumaro.cli.__main__ import main
 from datumaro.util.test_utils import TempTestDir, compare_datasets
 
 import pytest
-from tests.constants.requirements import Requirements
-from tests.constants.datumaro_components import DatumaroComponent
+from tests.pytest_marking_constants.requirements import Requirements
+from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
 
 DUMMY_DATASETS_DIR = osp.join(__file__[:__file__.rfind(osp.join('tests', ''))],
             'tests', 'assets', 'voc_dataset')
@@ -37,7 +37,7 @@ class VocIntegrationScenarios(TestCase):
         compare_datasets(self, source_dataset, target_dataset)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_preparing_dataset_for_train_model(self):
         source_dataset = Dataset.from_iterable([
@@ -90,7 +90,7 @@ class VocIntegrationScenarios(TestCase):
             compare_datasets(self, source_dataset, parsed_dataset)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_convert_to_voc_format(self):
         label_map = OrderedDict(('label_' + str(i), [None, [], []]) for i in range(10))
@@ -135,7 +135,7 @@ class VocIntegrationScenarios(TestCase):
             compare_datasets(self, source_dataset, parsed_dataset)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_and_load_voc_dataset(self):
         source_dataset = Dataset.from_iterable([
@@ -180,7 +180,7 @@ class VocIntegrationScenarios(TestCase):
                 'voc', label_map='voc')
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_and_load_voc_layout_dataset(self):
         source_dataset = Dataset.from_iterable([
@@ -215,7 +215,7 @@ class VocIntegrationScenarios(TestCase):
                 'voc_layout', result_path=result_voc_path, label_map='voc')
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_and_load_voc_detect_dataset(self):
         source_dataset = Dataset.from_iterable([
@@ -256,7 +256,7 @@ class VocIntegrationScenarios(TestCase):
                 'voc_detection', result_path=result_voc_path, label_map='voc')
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_and_load_voc_segmentation_dataset(self):
         source_dataset = Dataset.from_iterable([
@@ -277,7 +277,7 @@ class VocIntegrationScenarios(TestCase):
                 'voc_segmentation', result_path=result_voc_path, label_map='voc')
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_and_load_voc_action_dataset(self):
         source_dataset = Dataset.from_iterable([

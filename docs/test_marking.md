@@ -88,7 +88,6 @@ Parameters are used for running the same test with different parameters e.g.
         (np.zeros([5]), 2),
     ])
 ```
-(be aware that test parametrization is supported in pytest, and is not supported in unittests) 
 
 <a id="Fixtures"></a>
 #### Fixtures 
@@ -122,15 +121,15 @@ and Steps. These fields are required but, not limited e.g.
         def test_can_convert_polygons_to_mask(self):
         """
         <b>Description:</b>
-        Ensure that the dataset polygon segmentation mode can be properly converted into dataset mask segmentation mode.
+        Ensure that the dataset polygon annotation can be properly converted into dataset segmentation mask.
 
         <b>Expected results:</b>
-        Dataset segmentation mask converted from dataset segmentation polygon is equal to expected mask.
+        Dataset segmentation mask converted from dataset polygon annotation is equal to expected mask.
 
         <b>Steps:</b>
-        1. Prepare dataset with polygon segmentation mode (source dataset)
+        1. Prepare dataset with polygon annotation (source dataset)
         2. Prepare dataset with expected mask segmentation mode (target dataset)
-        3. Convert source dataset to target, with segmentation mode changed from polygon to mask and verify that result
+        3. Convert source dataset to target, with conversion of annotation from polygon to mask. Verify that result
         segmentation mask is equal to expected mask.
 
         """
@@ -141,7 +140,7 @@ and Steps. These fields are required but, not limited e.g.
 
 Steps description in test body are placed as a code comment lines e.g.
 ```python
-      # 1.Prepare dataset with polygon segmentation mode (source dataset)")
+      # 1. Prepare dataset with polygon annotation (source dataset)
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, image=np.zeros((6, 10, 3)),
                 annotations=[
@@ -173,8 +172,8 @@ Steps description in test body are placed as a code comment lines e.g.
             ),
         ], categories=[str(i) for i in range(10)])
 
-        # 3. Convert source dataset to target, with segmentation mode changed from polygon to mask and verify that
-        #    result segmentation mask is equal to expected mask.
+        # 3. Convert source dataset to target, with conversion of annotation from polygon to mask. Verify that result
+        # segmentation mask is equal to expected mask.
         with TempTestDir() as test_dir:
             self._test_save_and_load(source_dataset,
                 partial(CocoInstancesConverter.convert, segmentation_mode='mask'),

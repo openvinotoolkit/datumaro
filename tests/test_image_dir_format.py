@@ -8,17 +8,17 @@ from datumaro.components.project import Dataset
 from datumaro.components.extractor import DatasetItem
 from datumaro.plugins.image_dir_format import ImageDirConverter
 from datumaro.util.image import Image, save_image
-from datumaro.util.test_utils import TempTestDir, compare_datasets, util_test_save_and_load
+from datumaro.util.test_utils import TempTestDir, compare_datasets, check_save_and_load
 
 import pytest
-from tests.constants.requirements import Requirements
-from tests.constants.datumaro_components import DatumaroComponent
+from tests.pytest_marking_constants.requirements import Requirements
+from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
 class ImageDirFormatTest(TestCase):
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_load(self):
         dataset = Dataset.from_iterable([
@@ -27,11 +27,11 @@ class ImageDirFormatTest(TestCase):
         ])
 
         with TempTestDir() as test_dir:
-            util_test_save_and_load(self, dataset, ImageDirConverter.convert,
+            check_save_and_load(self, dataset, ImageDirConverter.convert,
                                     test_dir, importer='image_dir', require_images=True)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_relative_paths(self):
         dataset = Dataset.from_iterable([
@@ -41,11 +41,11 @@ class ImageDirFormatTest(TestCase):
         ])
 
         with TempTestDir() as test_dir:
-            util_test_save_and_load(self, dataset, ImageDirConverter.convert,
+            check_save_and_load(self, dataset, ImageDirConverter.convert,
                                     test_dir, importer='image_dir')
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         dataset = Dataset.from_iterable([
@@ -53,11 +53,11 @@ class ImageDirFormatTest(TestCase):
         ])
 
         with TempTestDir() as test_dir:
-            util_test_save_and_load(self, dataset, ImageDirConverter.convert,
+            check_save_and_load(self, dataset, ImageDirConverter.convert,
                                     test_dir, importer='image_dir')
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         dataset = Dataset.from_iterable([
@@ -68,11 +68,11 @@ class ImageDirFormatTest(TestCase):
         ])
 
         with TempTestDir() as test_dir:
-            util_test_save_and_load(self, dataset, ImageDirConverter.convert,
+            check_save_and_load(self, dataset, ImageDirConverter.convert,
                                     test_dir, importer='image_dir', require_images=True)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.REQ_1)
+    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
     @pytest.mark.component
     def test_can_save_and_load_image_with_custom_extension(self):
         expected = Dataset.from_iterable([
