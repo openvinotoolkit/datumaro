@@ -19,7 +19,7 @@ from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
 @pytest.mark.components(DatumaroComponent.Datumaro)
 class TestOperations(TestCase):
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_mean_std(self):
         expected_mean = [100, 50, 150]
@@ -42,7 +42,7 @@ class TestOperations(TestCase):
             self.assertAlmostEqual(estd, astd, places=0)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_stats(self):
         dataset = Dataset.from_iterable([
@@ -150,7 +150,7 @@ class TestOperations(TestCase):
         self.assertEqual(expected, actual)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_stats_with_empty_dataset(self):
         dataset = Dataset.from_iterable([
@@ -204,7 +204,7 @@ class TestOperations(TestCase):
         self.assertEqual(expected, actual)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_unique_image_count(self):
         expected = {
@@ -234,7 +234,7 @@ class TestOperations(TestCase):
 @pytest.mark.components(DatumaroComponent.Datumaro)
 class TestMultimerge(TestCase):
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_match_items(self):
         # items 1 and 3 are unique, item 2 is common and should be merged
@@ -293,7 +293,7 @@ class TestMultimerge(TestCase):
         )
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_match_shapes(self):
         source0 = Dataset.from_iterable([
@@ -399,7 +399,7 @@ class TestMultimerge(TestCase):
         )
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_attributes(self):
         source0 = Dataset.from_iterable([
@@ -448,7 +448,7 @@ class TestMultimerge(TestCase):
         )
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_group_checks(self):
         dataset = Dataset.from_iterable([
@@ -477,7 +477,7 @@ class TestMultimerge(TestCase):
         )
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_merge_classes(self):
         source0 = Dataset.from_iterable([
@@ -513,7 +513,7 @@ class TestMultimerge(TestCase):
         compare_datasets(self, expected, merged, ignored_attrs={'score'})
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_merge_categories(self):
         source0 = Dataset.from_iterable([

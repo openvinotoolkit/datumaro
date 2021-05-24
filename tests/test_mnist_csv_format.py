@@ -18,7 +18,7 @@ from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
 @pytest.mark.components(DatumaroComponent.Datumaro)
 class MnistCsvFormatTest(TestCase):
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_and_load(self):
         source_dataset = Dataset.from_iterable([
@@ -46,7 +46,7 @@ class MnistCsvFormatTest(TestCase):
                 require_images=True)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_and_load_without_saving_images(self):
         source_dataset = Dataset.from_iterable([
@@ -69,7 +69,7 @@ class MnistCsvFormatTest(TestCase):
                 require_images=True)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_and_load_with_different_image_size(self):
         source_dataset = Dataset.from_iterable([
@@ -92,7 +92,7 @@ class MnistCsvFormatTest(TestCase):
                 require_images=True)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         source_dataset = Dataset.from_iterable([
@@ -113,7 +113,7 @@ class MnistCsvFormatTest(TestCase):
                 require_images=True)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         dataset = Dataset.from_iterable([
@@ -134,7 +134,7 @@ class MnistCsvFormatTest(TestCase):
                 require_images=True)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_and_load_empty_image(self):
         dataset = Dataset.from_iterable([
@@ -153,7 +153,7 @@ class MnistCsvFormatTest(TestCase):
                 require_images=True)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_and_load_with_other_labels(self):
         dataset = Dataset.from_iterable([
@@ -178,7 +178,7 @@ DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'mnist_csv_dataset
 @pytest.mark.components(DatumaroComponent.Datumaro)
 class MnistCsvImporterTest(TestCase):
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_import(self):
         expected_dataset = Dataset.from_iterable([
@@ -212,7 +212,7 @@ class MnistCsvImporterTest(TestCase):
         compare_datasets(self, expected_dataset, dataset)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_detect(self):
         self.assertTrue(MnistCsvImporter.detect(DUMMY_DATASET_DIR))

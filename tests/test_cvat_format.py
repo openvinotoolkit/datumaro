@@ -28,19 +28,19 @@ DUMMY_VIDEO_DATASET_DIR = osp.join(osp.dirname(__file__),
 @pytest.mark.components(DatumaroComponent.Datumaro)
 class CvatImporterTest(TestCase):
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_detect_image(self):
         self.assertTrue(CvatImporter.detect(DUMMY_IMAGE_DATASET_DIR))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_detect_video(self):
         self.assertTrue(CvatImporter.detect(DUMMY_VIDEO_DATASET_DIR))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_load_image(self):
         expected_dataset = Dataset.from_iterable([
@@ -75,7 +75,7 @@ class CvatImporterTest(TestCase):
         compare_datasets(self, expected_dataset, parsed_dataset)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_load_video(self):
         expected_dataset = Dataset.from_iterable([
@@ -165,7 +165,7 @@ class CvatConverterTest(TestCase):
                                        target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_and_load(self):
         src_label_cat = LabelCategories(attributes={'occluded', 'common'})
@@ -258,7 +258,7 @@ class CvatConverterTest(TestCase):
                 target_dataset=target_dataset)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_allow_undeclared_attrs(self):
         source_dataset = Dataset.from_iterable([
@@ -284,7 +284,7 @@ class CvatConverterTest(TestCase):
                 test_dir, target_dataset=target_dataset)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_relative_paths(self):
         source_dataset = Dataset.from_iterable([
@@ -308,7 +308,7 @@ class CvatConverterTest(TestCase):
                 target_dataset=target_dataset, require_images=True)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         label_categories = LabelCategories(attributes={'occluded'})
@@ -344,7 +344,7 @@ class CvatConverterTest(TestCase):
                 target_dataset=target_dataset, require_images=True)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         expected = Dataset.from_iterable([
@@ -364,7 +364,7 @@ class CvatConverterTest(TestCase):
                 osp.join(test_dir, 'images', 'a', 'b', 'c', '2.bmp')))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_preserve_frame_ids(self):
         expected_dataset = Dataset.from_iterable([
@@ -377,7 +377,7 @@ class CvatConverterTest(TestCase):
                 CvatConverter.convert, test_dir)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_reindex(self):
         source_dataset = Dataset.from_iterable([
@@ -396,7 +396,7 @@ class CvatConverterTest(TestCase):
                 target_dataset=expected_dataset)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_inplace_save_writes_only_updated_data(self):
         with TempTestDir() as path:

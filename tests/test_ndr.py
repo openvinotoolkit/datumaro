@@ -46,7 +46,7 @@ class NDRTest(TestCase):
         return dataset
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_ndr_with_error(self):
         config = {
@@ -106,7 +106,7 @@ class NDRTest(TestCase):
             len(result)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_ndr_without_cut(self):
         config = {
@@ -130,7 +130,7 @@ class NDRTest(TestCase):
         self.assertEqual(300, len(source.get_subset("test")))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_ndr_can_use_undersample_uniform(self):
         config = {
@@ -155,7 +155,7 @@ class NDRTest(TestCase):
         self.assertEqual(300, len(source.get_subset("test")))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_ndr_can_use_undersample_inverse(self):
         config = {
@@ -180,7 +180,7 @@ class NDRTest(TestCase):
         self.assertEqual(300, len(source.get_subset("test")))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_ndr_can_use_oversample_random(self):
         config = {
@@ -205,7 +205,7 @@ class NDRTest(TestCase):
         self.assertEqual(300, len(source.get_subset("test")))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_ndr_can_use_oversample_similarity(self):
         config = {
@@ -230,7 +230,7 @@ class NDRTest(TestCase):
         self.assertEqual(300, len(source.get_subset("test")))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_ndr_gradient_fails_on_invalid_parameters(self):
         source = self._generate_dataset({ 'label1': 5 }, 10)
@@ -263,7 +263,7 @@ class NDRTest(TestCase):
             len(result)
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_ndr_gradient_can_use_block(self):
         config = {
@@ -287,7 +287,7 @@ class NDRTest(TestCase):
         self.assertEqual(300, len(source.get_subset("test")))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_ndr_gradient_can_use_hash_dim(self):
         config = {
@@ -312,7 +312,7 @@ class NDRTest(TestCase):
         self.assertEqual(300, len(source.get_subset("test")))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_ndr_gradient_can_use_sim_thresh(self):
         config = {
@@ -337,7 +337,7 @@ class NDRTest(TestCase):
         self.assertEqual(300, len(source.get_subset("test")))
 
     @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_DUMMY_REQ)
+    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_ndr_seed(self):
         config = {
