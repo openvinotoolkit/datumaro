@@ -113,7 +113,9 @@ class TestValidatorTemplate(TestCase):
 class TestBaseValidator(TestValidatorTemplate):
     @classmethod
     def setUpClass(cls):
-        cls.validator = _Validator(TaskType.classification)
+        cls.validator = _Validator(task_type=TaskType.classification, few_samples_thr=1, 
+                                imbalance_ratio_thr=50, far_from_mean_thr=5.0, 
+                                dominance_ratio_thr=0.8, topk_bins=0.1)
 
     def test_generate_reports(self):
         with self.assertRaises(NotImplementedError):
@@ -233,7 +235,7 @@ class TestBaseValidator(TestValidatorTemplate):
             stats = {
                 'label_distribution': {
                     'defined_labels': {
-                        'unit': self.validator.DEFAULT_FEW_SAMPLES
+                        'unit': self.validator.few_samples_thr
                     }
                 }
             }
@@ -247,7 +249,7 @@ class TestBaseValidator(TestValidatorTemplate):
             stats = {
                 'label_distribution': {
                     'defined_labels': {
-                        'unit': self.validator.DEFAULT_FEW_SAMPLES + 1
+                        'unit': self.validator.few_samples_thr + 1
                     }
                 }
             }
@@ -263,7 +265,7 @@ class TestBaseValidator(TestValidatorTemplate):
         with self.subTest('Few Samples'):
             attr_dets = {
                 'distribution': {
-                    'mock': self.validator.DEFAULT_FEW_SAMPLES
+                    'mock': self.validator.few_samples_thr
                 }
             }
 
@@ -276,7 +278,7 @@ class TestBaseValidator(TestValidatorTemplate):
         with self.subTest('No Few Samples Warning'):
             attr_dets = {
                 'distribution': {
-                    'mock': self.validator.DEFAULT_FEW_SAMPLES + 1
+                    'mock': self.validator.few_samples_thr + 1
                 }
             }
 
@@ -290,7 +292,7 @@ class TestBaseValidator(TestValidatorTemplate):
             stats = {
                 'label_distribution': {
                     'defined_labels': {
-                        'unit': self.validator.DEFAULT_IMBALANCE_RATIO,
+                        'unit': self.validator.imbalance_ratio_thr,
                         'test': 1
                     }
                 }
@@ -305,7 +307,7 @@ class TestBaseValidator(TestValidatorTemplate):
             stats = {
                 'label_distribution': {
                     'defined_labels': {
-                        'unit': self.validator.DEFAULT_IMBALANCE_RATIO - 1,
+                        'unit': self.validator.imbalance_ratio_thr - 1,
                         'test': 1
                     }
                 }
@@ -322,7 +324,7 @@ class TestBaseValidator(TestValidatorTemplate):
         with self.subTest('Imbalance'):
             attr_dets = {
                 'distribution': {
-                    'mock': self.validator.DEFAULT_IMBALANCE_RATIO,
+                    'mock': self.validator.imbalance_ratio_thr,
                     'mock_1': 1
                 }
             }
@@ -336,7 +338,7 @@ class TestBaseValidator(TestValidatorTemplate):
         with self.subTest('No Imbalance Warning'):
             attr_dets = {
                 'distribution': {
-                    'mock': self.validator.DEFAULT_IMBALANCE_RATIO - 1,
+                    'mock': self.validator.imbalance_ratio_thr - 1,
                     'mock_1': 1
                 }
             }
@@ -350,7 +352,9 @@ class TestBaseValidator(TestValidatorTemplate):
 class TestClassificationValidator(TestValidatorTemplate):
     @classmethod
     def setUpClass(cls):
-        cls.validator = ClassificationValidator()
+        cls.validator = ClassificationValidator(few_samples_thr=1, imbalance_ratio_thr=50,
+                                    far_from_mean_thr=5.0, dominance_ratio_thr=0.8, 
+                                    topk_bins=0.1)
 
     def test_check_missing_label_annotation(self):
         stats = {
@@ -376,11 +380,13 @@ class TestClassificationValidator(TestValidatorTemplate):
 class TestDetectionValidator(TestValidatorTemplate):
     @classmethod
     def setUpClass(cls):
-        cls.validator = DetectionValidator()
+        cls.validator = DetectionValidator(few_samples_thr=1, imbalance_ratio_thr=50,
+                                    far_from_mean_thr=5.0, dominance_ratio_thr=0.8, 
+                                    topk_bins=0.1)
 
     def test_check_imbalanced_dist_in_label(self):
         label_name = 'unittest'
-        most = int(self.validator.DEFAULT_DOMINANCE_RATIO * 100)
+        most = int(self.validator.dominance_thr * 100)
         rest = 100 - most
 
         with self.subTest('Imbalanced'):
@@ -413,7 +419,7 @@ class TestDetectionValidator(TestValidatorTemplate):
     def test_check_imbalanced_dist_in_attr(self):
         label_name = 'unit'
         attr_name = 'test'
-        most = int(self.validator.DEFAULT_DOMINANCE_RATIO * 100)
+        most = int(self.validator.dominance_thr * 100)
         rest = 100 - most
 
         with self.subTest('Imbalanced'):
@@ -534,11 +540,13 @@ class TestDetectionValidator(TestValidatorTemplate):
 class TestSegmentationValidator(TestValidatorTemplate):
     @classmethod
     def setUpClass(cls):
-        cls.validator = SegmentationValidator()
+        cls.validator = SegmentationValidator(few_samples_thr=1, imbalance_ratio_thr=50,
+                                    far_from_mean_thr=5.0, dominance_ratio_thr=0.8,
+                                    topk_bins=0.1)
 
     def test_check_imbalanced_dist_in_label(self):
         label_name = 'unittest'
-        most = int(self.validator.DEFAULT_DOMINANCE_RATIO * 100)
+        most = int(self.validator.dominance_thr * 100)
         rest = 100 - most
 
         with self.subTest('Imbalanced'):
@@ -571,7 +579,7 @@ class TestSegmentationValidator(TestValidatorTemplate):
     def test_check_imbalanced_dist_in_attr(self):
         label_name = 'unit'
         attr_name = 'test'
-        most = int(self.validator.DEFAULT_DOMINANCE_RATIO * 100)
+        most = int(self.validator.dominance_thr * 100)
         rest = 100 - most
 
         with self.subTest('Imbalanced'):
@@ -674,8 +682,15 @@ class TestSegmentationValidator(TestValidatorTemplate):
 
 
 class TestValidateAnnotations(TestValidatorTemplate):
+    extra_args = {
+            'few_samples_thr': 1,
+            'imbalance_ratio_thr': 50,
+            'far_from_mean_thr': 5.0,
+            'dominance_ratio_thr': 0.8,
+            'topk_bins': 0.1,
+        }
     def test_validate_annotations_classification(self):
-        actual_results = validate_annotations(self.dataset, 'classification')
+        actual_results = validate_annotations(self.dataset, 'classification', **self.extra_args)
 
         with self.subTest('Test of statistics', i=0):
             actual_stats = actual_results['statistics']
@@ -730,7 +745,7 @@ class TestValidateAnnotations(TestValidatorTemplate):
             self.assertEqual(actual_summary, expected_summary)
 
     def test_validate_annotations_detection(self):
-        actual_results = validate_annotations(self.dataset, 'detection')
+        actual_results = validate_annotations(self.dataset, 'detection', **self.extra_args)
 
         with self.subTest('Test of statistics', i=0):
             actual_stats = actual_results['statistics']
@@ -783,7 +798,7 @@ class TestValidateAnnotations(TestValidatorTemplate):
             self.assertEqual(actual_summary, expected_summary)
 
     def test_validate_annotations_segmentation(self):
-        actual_results = validate_annotations(self.dataset, 'segmentation')
+        actual_results = validate_annotations(self.dataset, 'segmentation', **self.extra_args)
 
         with self.subTest('Test of statistics', i=0):
             actual_stats = actual_results['statistics']
@@ -838,8 +853,8 @@ class TestValidateAnnotations(TestValidatorTemplate):
 
     def test_validate_annotations_invalid_task_type(self):
         with self.assertRaises(ValueError):
-            validate_annotations(self.dataset, 'INVALID')
+            validate_annotations(self.dataset, 'INVALID', **self.extra_args)
 
     def test_validate_annotations_invalid_dataset_type(self):
         with self.assertRaises(TypeError):
-            validate_annotations(object(), 'classification')
+            validate_annotations(object(), 'classification', **self.extra_args)

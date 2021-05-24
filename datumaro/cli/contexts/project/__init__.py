@@ -677,7 +677,7 @@ def transform_command(args):
     extra_args = {}
     if hasattr(transform, 'parse_cmdline'):
         extra_args = transform.parse_cmdline(args.extra_args)
-
+    
     log.info("Loading the project...")
     dataset = project.make_dataset()
 
@@ -808,6 +808,8 @@ def build_validate_parser(parser_ctor=argparse.ArgumentParser):
         help="Subset to validate (default: None)")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to validate (default: current dir)")
+    parser.add_argument('extra_args', nargs=argparse.REMAINDER, default=None,
+        help="Optional arguments for validator (pass '-- -h' for help)")
     parser.set_defaults(command=validate_command)
 
     return parser
@@ -822,7 +824,11 @@ def validate_command(args):
     if subset_name is not None:
         dataset = dataset.get_subset(subset_name)
         dst_file_name += f'-{subset_name}'
-    validation_results = validate_annotations(dataset, task_type)
+    
+    extra_args = {}
+    from datumaro.components.validator import _Validator
+    extra_args = _Validator.parse_cmdline(args.extra_args)
+    validation_results = validate_annotations(dataset, task_type, **extra_args)
 
     def numpy_encoder(obj):
         if isinstance(obj, np.generic):
