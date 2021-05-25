@@ -8,11 +8,11 @@ import datumaro.plugins.voc_format.format as VOC
 from datumaro.components.dataset import Dataset, DatasetItem
 from datumaro.components.extractor import Bbox, Mask, Image, Label
 from datumaro.cli.__main__ import main
-from datumaro.util.test_utils import TempTestDir, compare_datasets
+from datumaro.util.test_utils import TestDir, compare_datasets
 
 import pytest
-from tests.pytest_marking_constants.requirements import Requirements
-from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
+from tests.requirements import Requirements
+from tests.requirements import DatumaroComponent
 
 DUMMY_DATASETS_DIR = osp.join(__file__[:__file__.rfind(osp.join('tests', ''))],
             'tests', 'assets', 'voc_dataset')
@@ -69,7 +69,7 @@ class VocIntegrationScenarios(TestCase):
 
         dataset_path = osp.join(DUMMY_DATASETS_DIR, 'voc_dataset2')
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             run(self, 'create', '-o', test_dir)
             run(self, 'add', 'path', '-p', test_dir, '-f', 'voc', dataset_path)
 
@@ -120,7 +120,7 @@ class VocIntegrationScenarios(TestCase):
             )
         ], categories=VOC.make_voc_categories(label_map))
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             yolo_dir = osp.join(__file__[:__file__.rfind(osp.join('tests', ''))],
                 'tests', 'assets', 'yolo_dataset')
 
@@ -175,7 +175,7 @@ class VocIntegrationScenarios(TestCase):
         ], categories=VOC.make_voc_categories())
 
         voc_dir = osp.join(DUMMY_DATASETS_DIR, 'voc_dataset1')
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             self._test_can_save_and_load(test_dir, voc_dir, source_dataset,
                 'voc', label_map='voc')
 
@@ -209,7 +209,7 @@ class VocIntegrationScenarios(TestCase):
         voc_layout_path = osp.join(DUMMY_DATASETS_DIR, 'voc_dataset1',
             'ImageSets', 'Layout', 'train.txt')
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             result_voc_path = osp.join('ImageSets', 'Layout', 'train.txt')
             self._test_can_save_and_load(test_dir, voc_layout_path, source_dataset,
                 'voc_layout', result_path=result_voc_path, label_map='voc')
@@ -250,7 +250,7 @@ class VocIntegrationScenarios(TestCase):
         voc_detection_path = osp.join(DUMMY_DATASETS_DIR, 'voc_dataset1',
             'ImageSets', 'Main', 'train.txt')
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             result_voc_path = osp.join('ImageSets', 'Main', 'train.txt')
             self._test_can_save_and_load(test_dir, voc_detection_path, source_dataset,
                 'voc_detection', result_path=result_voc_path, label_map='voc')
@@ -271,7 +271,7 @@ class VocIntegrationScenarios(TestCase):
         voc_segm_path = osp.join(DUMMY_DATASETS_DIR, 'voc_dataset1',
             'ImageSets', 'Segmentation', 'train.txt')
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             result_voc_path = osp.join('ImageSets', 'Segmentation', 'train.txt')
             self._test_can_save_and_load(test_dir, voc_segm_path, source_dataset,
                 'voc_segmentation', result_path=result_voc_path, label_map='voc')
@@ -303,7 +303,7 @@ class VocIntegrationScenarios(TestCase):
         voc_act_path = osp.join(DUMMY_DATASETS_DIR, 'voc_dataset1',
             'ImageSets', 'Action', 'train.txt')
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             result_voc_path = osp.join('ImageSets', 'Action', 'train.txt')
             self._test_can_save_and_load(test_dir, voc_act_path, source_dataset,
                 'voc_action', result_path=result_voc_path, label_map='voc')

@@ -3,8 +3,8 @@ from unittest import TestCase
 from datumaro.components.config import Config, DictConfig, SchemaBuilder
 
 import pytest
-from tests.pytest_marking_constants.requirements import Requirements
-from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
+from tests.requirements import Requirements
+from tests.requirements import DatumaroComponent
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)

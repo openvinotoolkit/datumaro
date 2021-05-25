@@ -7,11 +7,11 @@ from datumaro.components.extractor import DatasetItem
 from datumaro.plugins.market1501_format import (Market1501Converter,
     Market1501Importer)
 from datumaro.util.image import Image
-from datumaro.util.test_utils import TempTestDir, compare_datasets
+from datumaro.util.test_utils import TestDir, compare_datasets
 
 import pytest
-from tests.pytest_marking_constants.requirements import Requirements
-from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
+from tests.requirements import Requirements
+from tests.requirements import DatumaroComponent
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
 class Market1501FormatTest(TestCase):
@@ -46,7 +46,7 @@ class Market1501FormatTest(TestCase):
             ),
         ])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             Market1501Converter.convert(source_dataset, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'market1501')
 
@@ -67,7 +67,7 @@ class Market1501FormatTest(TestCase):
             ),
         ])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             Market1501Converter.convert(source_dataset, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'market1501')
 
@@ -88,7 +88,7 @@ class Market1501FormatTest(TestCase):
             ),
         ])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             Market1501Converter.convert(source_dataset, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'market1501')
 
@@ -118,7 +118,7 @@ class Market1501FormatTest(TestCase):
             ),
         ])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             Market1501Converter.convert(source_dataset, test_dir, save_images=False)
             parsed_dataset = Dataset.import_from(test_dir, 'market1501')
 
@@ -145,7 +145,7 @@ class Market1501FormatTest(TestCase):
                 }),
         ])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             Market1501Converter.convert(expected, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'market1501')
 
@@ -170,7 +170,7 @@ class Market1501FormatTest(TestCase):
             ),
         ])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             Market1501Converter.convert(source_dataset, test_dir, save_images=False)
             parsed_dataset = Dataset.import_from(test_dir, 'market1501')
 

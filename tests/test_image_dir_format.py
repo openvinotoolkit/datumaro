@@ -8,11 +8,11 @@ from datumaro.components.project import Dataset
 from datumaro.components.extractor import DatasetItem
 from datumaro.plugins.image_dir_format import ImageDirConverter
 from datumaro.util.image import Image, save_image
-from datumaro.util.test_utils import TempTestDir, compare_datasets, check_save_and_load
+from datumaro.util.test_utils import TestDir, compare_datasets, check_save_and_load
 
 import pytest
-from tests.pytest_marking_constants.requirements import Requirements
-from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
+from tests.requirements import Requirements
+from tests.requirements import DatumaroComponent
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
@@ -26,9 +26,9 @@ class ImageDirFormatTest(TestCase):
             DatasetItem(id=2, image=np.ones((5, 4, 3))),
         ])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             check_save_and_load(self, dataset, ImageDirConverter.convert,
-                                    test_dir, importer='image_dir', require_images=True)
+                test_dir, importer='image_dir', require_images=True)
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
@@ -40,9 +40,9 @@ class ImageDirFormatTest(TestCase):
             DatasetItem(id='subdir2/1', image=np.ones((5, 4, 3))),
         ])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             check_save_and_load(self, dataset, ImageDirConverter.convert,
-                                    test_dir, importer='image_dir')
+                test_dir, importer='image_dir')
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
@@ -52,9 +52,9 @@ class ImageDirFormatTest(TestCase):
             DatasetItem(id='кириллица с пробелом', image=np.ones((4, 2, 3))),
         ])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             check_save_and_load(self, dataset, ImageDirConverter.convert,
-                                    test_dir, importer='image_dir')
+                test_dir, importer='image_dir')
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
@@ -67,9 +67,9 @@ class ImageDirFormatTest(TestCase):
                 data=np.zeros((3, 4, 3)))),
         ])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             check_save_and_load(self, dataset, ImageDirConverter.convert,
-                                    test_dir, importer='image_dir', require_images=True)
+                test_dir, importer='image_dir', require_images=True)
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
@@ -80,7 +80,7 @@ class ImageDirFormatTest(TestCase):
                 data=np.zeros((3, 4, 3)))),
         ])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             image_path = osp.join(test_dir, 'a', '3.jpg')
             save_image(image_path, expected.get('a/3').image.data,
                 create_dir=True)

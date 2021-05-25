@@ -10,11 +10,11 @@ from datumaro.components.extractor import (DatasetItem, Label,
 from datumaro.plugins.imagenet_txt_format import \
     ImagenetTxtConverter, ImagenetTxtImporter
 from datumaro.util.image import Image
-from datumaro.util.test_utils import TempTestDir, compare_datasets
+from datumaro.util.test_utils import TestDir, compare_datasets
 
 import pytest
-from tests.pytest_marking_constants.requirements import Requirements
-from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
+from tests.requirements import Requirements
+from tests.requirements import DatumaroComponent
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
@@ -35,7 +35,7 @@ class ImagenetTxtFormatTest(TestCase):
                 'label_' + str(label) for label in range(4)),
         })
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             ImagenetTxtConverter.convert(source_dataset, test_dir,
                 save_images=True)
 
@@ -59,7 +59,7 @@ class ImagenetTxtFormatTest(TestCase):
                 'label_' + str(label) for label in range(10)),
         })
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             ImagenetTxtConverter.convert(source_dataset, test_dir,
                 save_images=True)
 
@@ -81,7 +81,7 @@ class ImagenetTxtFormatTest(TestCase):
                 'label_' + str(label) for label in range(10)),
         })
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             ImagenetTxtConverter.convert(source_dataset, test_dir,
                 save_images=True)
 
@@ -104,7 +104,7 @@ class ImagenetTxtFormatTest(TestCase):
                 'label_' + str(label) for label in range(2)),
         })
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             ImagenetTxtConverter.convert(dataset, test_dir, save_images=True)
 
             parsed_dataset = Dataset.import_from(test_dir, 'imagenet_txt')
@@ -123,7 +123,7 @@ class ImagenetTxtFormatTest(TestCase):
                 data=np.zeros((3, 4, 3)))),
         ], categories=[])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             ImagenetTxtConverter.convert(dataset, test_dir, save_images=True)
 
             parsed_dataset = Dataset.import_from(test_dir, 'imagenet_txt')

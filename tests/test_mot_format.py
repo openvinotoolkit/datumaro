@@ -9,12 +9,12 @@ from datumaro.components.extractor import (DatasetItem,
 )
 from datumaro.plugins.mot_format import MotSeqGtConverter, MotSeqImporter
 from datumaro.util.image import Image
-from datumaro.util.test_utils import (TempTestDir, compare_datasets,
-                                      check_save_and_load)
+from datumaro.util.test_utils import (TestDir, compare_datasets,
+    check_save_and_load)
 
 import pytest
-from tests.pytest_marking_constants.requirements import Requirements
-from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
+from tests.requirements import Requirements
+from tests.requirements import DatumaroComponent
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
@@ -22,8 +22,8 @@ class MotConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None, **kwargs):
         return check_save_and_load(self, source_dataset, converter, test_dir,
-                                       importer='mot_seq',
-                                       target_dataset=target_dataset, importer_args=importer_args, **kwargs)
+            importer='mot_seq',
+            target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
@@ -101,7 +101,7 @@ class MotConverterTest(TestCase):
                 'label_' + str(label) for label in range(10)),
         })
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
                 partial(MotSeqGtConverter.convert, save_images=True),
                 test_dir, target_dataset=target_dataset, require_images=True)
@@ -126,7 +126,7 @@ class MotConverterTest(TestCase):
             ),
         ], categories=['a'])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             self._test_save_and_load(expected,
                 partial(MotSeqGtConverter.convert, save_images=True),
                 test_dir, require_images=True)

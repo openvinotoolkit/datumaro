@@ -4,12 +4,12 @@ import os.path as osp
 from unittest import TestCase
 
 from datumaro.util import Rollback, error_rollback
-from datumaro.util.test_utils import TempTestDir
+from datumaro.util.test_utils import TestDir
 from datumaro.util.os_util import walk
 
 import pytest
-from tests.pytest_marking_constants.requirements import Requirements
-from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
+from tests.requirements import Requirements
+from tests.requirements import DatumaroComponent
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
@@ -139,7 +139,7 @@ class TestOsUtils(TestCase):
     @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_walk_with_maxdepth(self):
-        with TempTestDir() as rootdir:
+        with TestDir() as rootdir:
             os.makedirs(osp.join(rootdir, '1', '2', '3', '4'))
 
             visited = set(d for d, _, _ in walk(rootdir, max_depth=2))

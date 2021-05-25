@@ -11,3 +11,5 @@ PyYAML>=5.3.1
 scikit-image>=0.15.0
 tensorboardX>=1.8
 pandas>=1.1.5
+pytest>=5.3.5
+pytest-xdist>=1.31.0
