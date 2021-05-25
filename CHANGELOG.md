@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- Support for escaping in attribiute values in LabelMe format (<https://github.com/openvinotoolkit/datumaro/issues/49>)
+- Support for escaping in attribute values in LabelMe format (<https://github.com/openvinotoolkit/datumaro/issues/49>)
 - Support for Segmentation Splitting (<https://github.com/openvinotoolkit/datumaro/pull/223>)
 - Support for CIFAR-10/100 dataset format (<https://github.com/openvinotoolkit/datumaro/pull/225>, <https://github.com/openvinotoolkit/datumaro/pull/243>)
 - Support for COCO panoptic and stuff format (<https://github.com/openvinotoolkit/datumaro/pull/210>)
@@ -175,7 +175,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - `CamVid` dataset format (<https://github.com/openvinotoolkit/datumaro/pull/57>)
 - Ability to install `opencv-python-headless` dependency with `DATUMARO_HEADLESS=1`
-  enviroment variable instead of `opencv-python` (<https://github.com/openvinotoolkit/datumaro/pull/62>)
+  environment variable instead of `opencv-python` (<https://github.com/openvinotoolkit/datumaro/pull/62>)
 
 ### Changed
 - Allow empty supercategory in COCO (<https://github.com/openvinotoolkit/datumaro/pull/54>)

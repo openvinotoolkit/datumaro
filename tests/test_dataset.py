@@ -458,7 +458,7 @@ class DatasetTest(TestCase):
 
         self.assertTrue(iter_called)
 
-    def test_can_chain_lazy_tranforms(self):
+    def test_can_chain_lazy_transforms(self):
         iter_called = False
         class TestExtractor(Extractor):
             def __iter__(self):

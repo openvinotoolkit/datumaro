@@ -1,4 +1,4 @@
-# Copyright (C) 2020 Intel Corporation
+# Copyright (C) 2020-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -31,7 +31,7 @@ class Split(Transform, CliPlugin):
     Each image can have multiple object annotations -
     (bbox, mask, polygon). Since an image shouldn't be included
     in multiple subsets at the same time, and image annotations
-    shoudln't be split, in general, dataset annotations are unlikely
+    shouldn't be split, in general, dataset annotations are unlikely
     to be split exactly in the specified ratio. |n
     This split tries to split dataset images as close as possible
     to the specified ratio, keeping the initial class distribution.|n
@@ -684,7 +684,7 @@ class _InstanceSpecificSplit(_TaskSpecificSplit):
     each image can have multiple object annotations -
     (instance bounding boxes, masks, polygons). Since an image shouldn't be included
     in multiple subsets at the same time, and image annotations
-    shoudln't be split, in general, dataset annotations are unlikely to be split
+    shouldn't be split, in general, dataset annotations are unlikely to be split
     exactly in the specified ratio. |n
     This split tries to split dataset images as close as possible
     to the specified ratio, keeping the initial class distribution.|n

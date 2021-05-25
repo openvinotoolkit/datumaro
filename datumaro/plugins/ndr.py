@@ -1,4 +1,4 @@
-# Copyright (C) 2020 Intel Corporation
+# Copyright (C) 2020-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -173,7 +173,7 @@ class NDR(Transform, CliPlugin):
                             (item.id, len(img.shape)))
 
                 if self.algorithm == Algorithm.gradient:
-                    # Caculate gradient
+                    # Calculate gradient
                     img = self._cgrad_feature(img)
                 else :
                     raise NotImplementedError()
@@ -267,7 +267,7 @@ class NDR(Transform, CliPlugin):
                 # of the collision(number of same hash key)
                 # [x1, x2, y1, y2, y3, y4, z1, z2, z3]. x, y and z for hash key
                 # i.e. there are 4 elements which have hash key y.
-                # then the occurence will be [2, 4, 3] and reverse of them
+                # then the occurrence will be [2, 4, 3] and reverse of them
                 # will be [1/2, 1/4, 1/3]
                 # Normalizing them by dividing with sum, we get [6/13, 3/13, 4/13]
                 # Then the key x will be sampled with probability 6/13

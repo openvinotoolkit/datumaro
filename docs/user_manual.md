@@ -1348,7 +1348,7 @@ pip install 'git+https://github.com/openvinotoolkit/open_model_zoo.git#subdirect
 #### OpenVINO™
 
 This plugin provides support for model inference with [OpenVINO™](https://01.org/openvinotoolkit).
-The plugin depends on the OpenVINO™ Tookit, which can be installed by
+The plugin depends on the OpenVINO™ Toolkit, which can be installed by
 following [these instructions](https://docs.openvinotoolkit.org/latest/index.html#packaging_and_deployment)
 
 ### Dataset Formats

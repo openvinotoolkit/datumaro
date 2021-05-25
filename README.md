@@ -152,7 +152,7 @@ CVAT annotations                             ---> Publication, statistics etc.
     - keep only vertically-oriented images
     - remove small area bounding boxes from annotations
   - Annotation conversions, for instance:
-    - polygons to instance masks and vise-versa
+    - polygons to instance masks and vice-versa
     - apply a custom colormap for mask annotations
     - rename or remove dataset labels
   - Splitting a dataset into multiple subsets like `train`, `val`, and `test`:
@@ -170,7 +170,7 @@ CVAT annotations                             ---> Publication, statistics etc.
       - sampling with Entropy based algorithm
 - Dataset quality checking
   - Simple checking for errors
-  - Comparison with model infernece
+  - Comparison with model inference
   - Merging and comparison of multiple datasets
   - Annotation validation based on the task type(classification, etc)
 - Dataset comparison

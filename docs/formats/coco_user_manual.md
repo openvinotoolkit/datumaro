@@ -181,7 +181,7 @@ to get more information about these operations.
 There are few examples of using Datumaro operations to solve
 particular problems with COCO dataset:
 
-### Example 1. How to load an original panoptic COCO dataset ans convert to Pascal VOC
+### Example 1. How to load an original panoptic COCO dataset and convert to Pascal VOC
 
 ```bash
 datum create -o project

@@ -68,13 +68,13 @@ class VocIntegrationScenarios(TestCase):
             run(self, 'filter', '-p', test_dir, '-m', 'i+a',
                 '-e', "/item/annotation[occluded='False']", '-o', result_path)
 
-            splitted_path = osp.join(test_dir, 'splitted')
-            run(self, 'transform', '-p', result_path, '-o', splitted_path,
+            split_path = osp.join(test_dir, 'split')
+            run(self, 'transform', '-p', result_path, '-o', split_path,
                 '-t', 'random_split', '--', '-s', 'test:.5',
                 '-s', 'train:.5', '--seed', '1')
 
             export_path = osp.join(test_dir, 'dataset')
-            run(self, 'export', '-p', splitted_path, '-f', 'voc',
+            run(self, 'export', '-p', split_path, '-f', 'voc',
                 '-o', export_path, '--', '--label-map', 'voc')
 
             parsed_dataset = Dataset.import_from(export_path, format='voc')
