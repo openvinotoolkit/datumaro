@@ -442,6 +442,8 @@ class IntersectMerge(MergingStrategy):
                 return _make(PointsMerger, **kwargs)
             elif t is AnnotationType.caption:
                 return _make(CaptionsMerger, **kwargs)
+            elif t is AnnotationType.cuboid:
+                return _make(PointsMerger, **kwargs)
             else:
                 raise NotImplementedError("Type %s is not supported" % t)
 
@@ -883,6 +885,10 @@ class LineMerger(_ShapeMerger, LineMatcher):
 
 @attrs
 class CaptionsMerger(AnnotationMerger, CaptionsMatcher):
+    pass
+
+@attrs
+class CuboidMerger(_ShapeMerger, PointsMatcher):
     pass
 
 def match_segments(a_segms, b_segms, distance=segment_iou, dist_thresh=1.0,

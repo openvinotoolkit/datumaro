@@ -22,6 +22,8 @@ from datumaro.components.dataset import Dataset
 from datumaro.util import find
 
 
+DIMENSIONS = {"DIM_2D": "2d", "DIM_3D": "3d"}
+
 def current_function_name(depth=1):
     return inspect.getouterframes(inspect.currentframe())[depth].function
 
@@ -143,6 +145,39 @@ def compare_datasets_strict(test, expected, actual):
                 '%s:\n%s\nvs.\n%s\n' % \
                 (idx, item_a, item_b))
 
+def compare_datasets_3d(test, expected, actual, ignored_attrs=None,
+        require_images=False):
+
+    compare_categories(test, expected.categories(), actual.categories())
+
+    if actual.subsets():
+        test.assertEqual(sorted(expected.subsets()), sorted(actual.subsets()))
+
+    test.assertEqual(len(expected), len(actual))
+    for item_a in expected:
+        item_b = find(actual, lambda x: x.id == item_a.id)
+        test.assertFalse(item_b is None, item_a.id)
+
+        if ignored_attrs:
+            test.assertEqual({k:v for k,v in item_a.attributes.items() if k not in ignored_attrs}, item_b.attributes, item_a.id)
+        else:
+            test.assertEqual(item_a.attributes, item_b.attributes, item_a.id)
+        if require_images or (item_a.has_pcd and item_b.has_pcd):
+            test.assertEqual(item_a.has_pcd, item_b.has_pcd, item_a.id)
+        test.assertEqual(len(item_a.annotations), len(item_b.annotations))
+        for ann_a in item_a.annotations:
+            # We might find few corresponding items, so check them all
+            ann_b_matches = [x for x in item_b.annotations
+                if x.type == ann_a.type]
+            test.assertFalse(len(ann_b_matches) == 0, 'ann id: %s' % ann_a.id)
+
+            ann_b = find(ann_b_matches, lambda x:
+                _compare_annotations(x, ann_a, ignored_attrs=ignored_attrs))
+            if ann_b is None:
+                test.fail('ann %s, candidates %s' % (ann_a, ann_b_matches))
+            item_b.annotations.remove(ann_b) # avoid repeats
+
+
 def test_save_and_load(test, source_dataset, converter, test_dir, importer,
         target_dataset=None, importer_args=None, compare=None, **kwargs):
     converter(source_dataset, test_dir)
@@ -154,6 +189,9 @@ def test_save_and_load(test, source_dataset, converter, test_dir, importer,
     if target_dataset is None:
         target_dataset = source_dataset
 
-    if not compare:
+    if not compare and DIMENSIONS["DIM_3D"] == kwargs.get("dimension", None):
+        compare = compare_datasets_3d
+        del kwargs["dimension"]
+    elif not compare:
         compare = compare_datasets
     compare(test, expected=target_dataset, actual=parsed_dataset, **kwargs)

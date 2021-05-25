@@ -180,6 +180,7 @@ class _SubsetWriter:
 
         for i, data in enumerate(subset):
 
+            index = self._write_item(data, i)
             for item in data.annotations:
                 if item.type == AnnotationType.cuboid:
                     if item.label is None:
@@ -188,14 +189,12 @@ class _SubsetWriter:
 
                     label_name = self._get_label(item.label).name
 
-                    self._write_item(data, i)
-
                     tracklet = {
                         "objectType": label_name,
                         "h": item.points[0],
                         "w": item.points[1],
                         "l": item.points[2],
-                        "first_frame": data.attributes.get('frame',""),
+                        "first_frame": index if index is not None else data.attributes.get('frame', 0),
                         "poses": []
                     }
                     pose = {
@@ -272,9 +271,11 @@ class _SubsetWriter:
                                         osp.join(self._context._image_dir, filename))
 
                 if item.related_images:
-                    related_dir = osp.join(self._context._save_dir, f"image_0{index}")
 
                     for i, related_image in enumerate(item.related_images):
+
+                        image_path = related_image["save_path"]
+                        related_dir = osp.join(self._context._save_dir, image_path)
                         path = osp.join(related_dir, "data")
                         os.makedirs(path, exist_ok=True)
 
@@ -295,6 +296,8 @@ class _SubsetWriter:
         else:
             log.debug("Item '%s' has no image info", item.id)
 
+        if index is not None:
+            return index
 
 class VelodynePointsConverter(Converter):
     DEFAULT_IMAGE_EXT = ".pcd"
@@ -318,10 +321,12 @@ class VelodynePointsConverter(Converter):
         self._allow_undeclared_attrs = allow_undeclared_attrs
 
     def apply(self):
-
         for subset_name, subset in self._extractor.subsets().items():
 
-            with open(osp.join(self._save_dir, 'tracklets.xml'), 'w') as f:
+            if subset_name != "tracklets":
+                subset_name = "tracklets"
+
+            with open(osp.join(self._save_dir, f'{subset_name}.xml'), 'w') as f:
                 _SubsetWriter(f, subset_name, subset, self)
 
     @classmethod
@@ -330,16 +335,26 @@ class VelodynePointsConverter(Converter):
             cls.convert(dataset.get_subset(subset), save_dir=save_dir, **kwargs)
 
         conv = cls(dataset, save_dir=save_dir, **kwargs)
-        images_dir = osp.abspath(osp.join(save_dir, "velodyne_points/data"))
+        pcd_dir = osp.abspath(osp.join(save_dir, "velodyne_points/data"))
+
         for (item_id, subset), status in patch.updated_items.items():
             if status != ItemStatus.removed:
                 item = patch.data.get(item_id, subset)
             else:
                 item = DatasetItem(item_id, subset=subset)
 
-            if not (status == ItemStatus.removed or not item.has_image):
+            if not (status == ItemStatus.removed or not item.has_pcd):
                 continue
 
-            image_path = osp.join(images_dir, conv._make_image_filename(item))
-            if osp.isfile(image_path):
-                os.unlink(image_path)
+            pcd_path = osp.join(pcd_dir, conv._make_pcd_filename(item))
+            if osp.isfile(pcd_path):
+                os.unlink(pcd_path)
+
+            if kwargs:
+                for path in kwargs.get('related_paths'):
+                    image_dir = osp.abspath(osp.join(save_dir,path))
+                for image in kwargs["image_names"]:
+                    image_path = osp.join(image_dir, image)
+                    if osp.isfile(image_path):
+                        os.unlink(image_path)
+

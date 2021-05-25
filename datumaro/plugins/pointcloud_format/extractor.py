@@ -49,15 +49,15 @@ class PointCloudExtractor(SourceExtractor):
         categories = {}
         mapping = {}
 
-        if osp.split(path)[-1] == "key_id_map.json":
+        if osp.basename(path) == "key_id_map.json":
             with open(path, "r") as f:
-                mapping = json.loads(f.read())
+                mapping = json.load(f)
 
         meta_path = osp.abspath(osp.join(osp.dirname(path), "meta.json"))
 
         if osp.isfile(meta_path):
             with open(meta_path, "r") as f:
-                meta = json.loads(f.read())
+                meta = json.load(f)
 
         common_attrs = ["occluded"]
         label_cat = LabelCategories(attributes=common_attrs)
@@ -73,7 +73,7 @@ class PointCloudExtractor(SourceExtractor):
         for _, _, files in os.walk(data_dir):
             for file in files:
                 with open(osp.join(data_dir, file), "r") as f:
-                    figure_data = json.loads(f.read())
+                    figure_data = json.load(f)
 
                 for label in figure_data["objects"]:
                     labels.update({label["key"]: label["classTitle"]})
@@ -127,8 +127,6 @@ class PointCloudImporter(Importer):
     @classmethod
     def find_sources(cls, path):
         sources = cls._find_sources_recursive(path, '.json', 'point_cloud')
-        for i, source in enumerate(sources):
-            if osp.split(source["url"])[-1] == "meta.json" and source["format"] == 'point_cloud':
-                del sources[i]
+        sources = [source for source in sources if osp.basename(source["url"]) != "meta.json"]
 
         return sources

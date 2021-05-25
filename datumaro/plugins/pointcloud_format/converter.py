@@ -64,8 +64,6 @@ class PointCloudParser:
 
         self._frame_data = {}
 
-        # self.generate_user()
-        # self.generate_objects()
         self.generate_frames()
 
     def set_objects_key(self, object_id):
@@ -101,7 +99,7 @@ class PointCloudParser:
 
         classes_info = []
 
-        for data in self._annotation:
+        for i, data in enumerate(self._annotation):
             if not self._user:
                 self._user["name"] = data.attributes.get("name", "")
                 self._user["createdAt"] = str(data.attributes.get("createdAt", datetime.now()))
@@ -133,9 +131,13 @@ class PointCloudParser:
 
             frame_data = []
             if data.pcd:
-                self._write_item(data, data.id)
-                if not self.get_video_key(int(data.attributes['frame'])):
-                    self.set_videos_key(int(data.attributes["frame"]))
+                index = self._write_item(data, i)
+                if index is not None:
+                    if not self.get_video_key(index):
+                        self.set_videos_key(index)
+                else:
+                    if not self.get_video_key(int(data.attributes['frame'])):
+                        self.set_videos_key(int(data.attributes["frame"]))
 
             for item in data.annotations:
                 if item.type == AnnotationType.cuboid:
@@ -184,7 +186,10 @@ class PointCloudParser:
                                         item.id, attr_name, label_name)
 
             if frame_data:
-                self._frame_data[int(data.attributes["frame"])] = frame_data
+                if index is not None:
+                    self._frame_data[int(index)] = frame_data
+                else:
+                    self._frame_data[int(data.attributes["frame"])] = frame_data
 
         data = list({v['id']: v for v in classes_info}.values())
         self._meta_data["classes"] = data
@@ -254,6 +259,9 @@ class PointCloudParser:
                         json.dump(self._image_json, f, indent=4)
         else:
             log.debug("Item '%s' has no image info", item.id)
+
+        return index
+
 
     def write_key_id_data(self, f):
         json.dump(self._key_id_data, f, indent=4)
@@ -325,16 +333,24 @@ class PointCloudConverter(Converter):
             cls.convert(dataset.get_subset(subset), save_dir=save_dir, **kwargs)
 
         conv = cls(dataset, save_dir=save_dir, **kwargs)
-        images_dir = osp.abspath(osp.join(save_dir, PointCloudPath.POINT_CLOUD_DIR))
+        pcd_dir = osp.abspath(osp.join(save_dir, PointCloudPath.POINT_CLOUD_DIR))
         for (item_id, subset), status in patch.updated_items.items():
             if status != ItemStatus.removed:
                 item = patch.data.get(item_id, subset)
             else:
                 item = DatasetItem(item_id, subset=subset)
 
-            if not (status == ItemStatus.removed or not item.has_image):
+            if not (status == ItemStatus.removed or not item.has_pcd):
                 continue
 
-            image_path = osp.join(images_dir, conv._make_image_filename(item))
-            if osp.isfile(image_path):
-                os.unlink(image_path)
+            pcd_path = osp.join(pcd_dir, conv._make_pcd_filename(item))
+            if osp.isfile(pcd_path):
+                os.unlink(pcd_path)
+
+            if kwargs:
+                for path in kwargs.get('related_paths'):
+                    image_dir = osp.abspath(osp.join(save_dir,path))
+                for image in kwargs["image_names"]:
+                    image_path = osp.join(image_dir, image)
+                    if osp.isfile(image_path):
+                        os.unlink(image_path)

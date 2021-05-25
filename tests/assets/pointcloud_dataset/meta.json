@@ -1,28 +1,18 @@
 {
     "classes": [
         {
-            "id": 1,
+            "id": 35,
             "title": "car",
-            "color": "#2080c0",
+            "color": "#fa3253",
             "shape": "cuboid_3d",
-            "geometry_config": {},
-            "hotkey": ""
+            "geometry_config": {}
         },
         {
-            "id": 2,
-            "title": "abc",
-            "color": "#ddff33",
-            "shape": "cuboid_3d",
-            "geometry_config": {},
-            "hotkey": ""
-        },
-        {
-            "id": 3,
+            "id": 36,
             "title": "bus",
-            "color": "#f59331",
+            "color": "#fafa37",
             "shape": "cuboid_3d",
-            "geometry_config": {},
-            "hotkey": ""
+            "geometry_config": {}
         }
     ],
     "tags": [],

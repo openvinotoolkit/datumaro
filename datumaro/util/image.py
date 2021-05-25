@@ -277,7 +277,7 @@ class Image:
 
     @property
     def has_data(self) -> bool:
-        return self._data is not None
+        return self._data
 
     @property
     def has_size(self) -> bool:

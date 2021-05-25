@@ -1,0 +1,50 @@
+{
+    "description": "",
+    "key": "e78200a6-2a02-4717-838e-33bed1eef292",
+    "tags": [],
+    "objects": [
+        {
+            "key": "95001e75-b37d-4d8e-95aa-066b639ccb3b",
+            "classTitle": "car",
+            "tags": [],
+            "labelerLogin": "django",
+            "createdAt": "2021-05-23 13:03:36.293651+00:00",
+            "updatedAt": "2021-05-23 13:06:38.474723+00:00"
+        },
+        {
+            "key": "76aadd13-e606-4bcc-891f-38385e22e17b",
+            "classTitle": "bus",
+            "tags": [],
+            "labelerLogin": "django",
+            "createdAt": "2021-05-23 13:03:36.293651+00:00",
+            "updatedAt": "2021-05-23 13:06:38.474723+00:00"
+        }
+    ],
+    "figures": [
+        {
+            "key": "b81ac456-b8fe-4365-8c76-f07831f8c8ed",
+            "objectKey": "95001e75-b37d-4d8e-95aa-066b639ccb3b",
+            "geometryType": "cuboid_3d",
+            "geometry": {
+                "position": {
+                    "x": 320.59797486700717,
+                    "y": 979.4819186479393,
+                    "z": 1.0372542782967524
+                },
+                "rotation": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "dimensions": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            },
+            "labelerLogin": "django",
+            "createdAt": "2021-05-23 13:03:36.293651+00:00",
+            "updatedAt": "2021-05-23 13:06:38.474723+00:00"
+        }
+    ]
+}

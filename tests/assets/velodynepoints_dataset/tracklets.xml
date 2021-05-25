@@ -2,14 +2,14 @@
 <!DOCTYPE boost_serialization>
 <boost_serialization signature="serialization::archive" version="9">
 <tracklets class_id="0" tracking_level="0" version="0">
-  <count>5</count>
+  <count>4</count>
   <item_version>1</item_version>
   <item class_id="1" tracking_level="0" version="1">
     <objectType>car</objectType>
-    <h>-0.14296467084731912</h>
-    <w>0.10376174017600714</w>
-    <l>0.7335517371370321</l>
-    <first_frame>1</first_frame>
+    <h>-3.6271575019618414</h>
+    <w>7.954996769991751</w>
+    <l>-1.0343550199580118</l>
+    <first_frame>0</first_frame>
     <poses class_id="2" tracking_level="0" version="0">
       <count>1</count>
       <item_version>2</item_version>
@@ -34,10 +34,10 @@
     <finished>1</finished>
   </item>
   <item>
-    <objectType>car</objectType>
-    <h>6.504215140621792</h>
-    <w>17.226852639829342</w>
-    <l>11.84923959242402</l>
+    <objectType>bus</objectType>
+    <h>23.0169506240644</h>
+    <w>8.343682404650442</w>
+    <l>-0.7699940133040206</l>
     <first_frame>0</first_frame>
     <poses>
       <count>1</count>
@@ -46,9 +46,9 @@
         <tx>0.0</tx>
         <ty>0.0</ty>
         <tz>0.0</tz>
-        <rx>6.7197778441571065</rx>
-        <ry>5.256880733944956</ry>
-        <rz>31.866887054259397</rz>
+        <rx>1.0</rx>
+        <ry>1.0</ry>
+        <rz>1.0</rz>
         <state>2</state>
         <occlusion>-1</occlusion>
         <occlusion_kf>0</occlusion_kf>
@@ -63,11 +63,11 @@
     <finished>1</finished>
   </item>
   <item>
-    <objectType>car</objectType>
-    <h>-3.291477553950566</h>
-    <w>-2.0760998857987207</w>
-    <l>1.9644343401956337</l>
-    <first_frame>0</first_frame>
+    <objectType>bus</objectType>
+    <h>0.39720775117329943</h>
+    <w>7.286424562074529</w>
+    <l>-0.8997166481217596</l>
+    <first_frame>1</first_frame>
     <poses>
       <count>1</count>
       <item_version>4</item_version>
@@ -92,49 +92,20 @@
     <finished>1</finished>
   </item>
   <item>
-    <objectType>bus</objectType>
-    <h>-17.44558370719861</h>
-    <w>-9.278503921361786</w>
-    <l>8.965960906154379</l>
-    <first_frame>0</first_frame>
+    <objectType>car</objectType>
+    <h>13.54034048060633</h>
+    <w>-9.410120134481405</w>
+    <l>0.24972983624747647</l>
+    <first_frame>2</first_frame>
     <poses>
       <count>1</count>
       <item_version>5</item_version>
       <item>
         <tx>0.0</tx>
-        <ty>0.07853981633974425</ty>
-        <tz>0.0</tz>
-        <rx>13.742139944918282</rx>
-        <ry>12.414169561849029</ry>
-        <rz>12.68880847355102</rz>
-        <state>2</state>
-        <occlusion>-1</occlusion>
-        <occlusion_kf>0</occlusion_kf>
-        <truncation>-1</truncation>
-        <amt_occlusion>-1</amt_occlusion>
-        <amt_border_l>-1</amt_border_l>
-        <amt_border_r>-1</amt_border_r>
-        <amt_occlusion_kf>-1</amt_occlusion_kf>
-        <amt_border_kf>-1</amt_border_kf>
-      </item>
-    </poses>
-    <finished>1</finished>
-  </item>
-  <item>
-    <objectType>abc</objectType>
-    <h>-5.859633988579652</h>
-    <w>0.22231170736482975</w>
-    <l>0.33459769024870756</l>
-    <first_frame>0</first_frame>
-    <poses>
-      <count>1</count>
-      <item_version>6</item_version>
-      <item>
-        <tx>0.0</tx>
         <ty>0.0</ty>
         <tz>0.0</tz>
-        <rx>2.0243477782789068</rx>
-        <ry>2.7274216917263074</ry>
+        <rx>1.0</rx>
+        <ry>1.0</ry>
         <rz>1.0</rz>
         <state>2</state>
         <occlusion>-1</occlusion>

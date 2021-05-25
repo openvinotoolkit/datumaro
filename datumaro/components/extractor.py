@@ -364,7 +364,7 @@ class PolyLine(_Shape):
 @attrs
 class Cuboid(Annotation):
     _type = AnnotationType.cuboid
-    points = attrib(type=list, default=[])
+    points = attrib(factory=list, validator=default_if_none(list))
     label = attrib(converter=attr.converters.optional(int),
         default=None, kw_only=True)
     z_order = attrib(default=0, validator=default_if_none(int), kw_only=True)
@@ -531,7 +531,7 @@ class DatasetItem:
     path = attrib(factory=list, validator=default_if_none(list))
     image = attrib(type=Image, default=None)
     pcd = attrib(type=bytes, default=None)
-    related_images = attrib(type=list, default=[])
+    related_images = attrib(factory=list, validator=default_if_none(list))
 
     @related_images.validator
     def _related_image_validator(self, attribute, related_images):
@@ -540,10 +540,12 @@ class DatasetItem:
         for related_image in related_images:
             if callable(related_image) or isinstance(related_image["path"], np.ndarray):
                 image["name"] = related_image["name"]
+                image["save_path"] = related_image["save_path"]
                 image["image"] = Image(data=related_image)
             elif isinstance(related_image["path"], str):
 
                 image["name"] = related_image["name"]
+                image["save_path"] = related_image["save_path"]
                 image["image"] = Image(path=related_image["path"])
             assert image is None or isinstance(image["image"], Image)
 
