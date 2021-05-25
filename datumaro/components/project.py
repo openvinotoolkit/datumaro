@@ -26,7 +26,7 @@ from datumaro.components.errors import (DatasetMergeError,
     MissingPipelineHeadError, MultiplePipelineHeadsError, ProjectAlreadyExists,
     ProjectNotFoundError, ReadonlyDatasetError, SourceExistsError,
     UnknownRefError, UnknownStageError, VcsError, UnsavedChangesError)
-from datumaro.util import find, parse_str_enum_value
+from datumaro.util import error_rollback, find, parse_str_enum_value
 from datumaro.util.log_utils import catch_logs, logging_disabled
 from datumaro.util.os_util import generate_next_name, make_file_name, rmtree
 
@@ -1583,21 +1583,36 @@ class Project:
                 osp.join(self._aux_dir, ProjectLayout.cache_dir),
                 osp.join(self._aux_dir, ProjectLayout.tree_dir),
             ])
+            self._git.repo.index.remove(osp.join(self._root_dir, '.dvc/plots'),
+                r=True, cached=True)
 
     @classmethod
+    @error_rollback('on_error', implicit=True)
     def init(cls, path):
         existing_project = cls.find_project_dir(path)
         if existing_project:
             raise ProjectAlreadyExists("Can't create project in '%s': " \
                 "a project already exists" % path)
 
-        if not path.endswith(ProjectLayout.aux_dir):
+        path = osp.abspath(path)
+        if not (path + os.sep).endswith(ProjectLayout.aux_dir + os.sep):
             path = osp.join(path, ProjectLayout.aux_dir)
+
+        project_dir = osp.dirname(path)
+        if not osp.isdir(project_dir):
+            on_error.do(rmtree, project_dir, ignore_errors=True)
+
         os.makedirs(path, exist_ok=True)
 
+        on_error.do(rmtree, osp.join(project_dir, ProjectLayout.cache_dir),
+            ignore_errors=True)
+        on_error.do(rmtree, osp.join(project_dir, ProjectLayout.tmp_dir),
+            ignore_errors=True)
         os.makedirs(osp.join(path, ProjectLayout.cache_dir))
         os.makedirs(osp.join(path, ProjectLayout.tmp_dir))
 
+        on_error.do(rmtree, osp.join(project_dir, '.git'), ignore_errors=True)
+        on_error.do(rmtree, osp.join(project_dir, '.dvc'), ignore_errors=True)
         project = Project(path)
         project._init_vcs()
 
