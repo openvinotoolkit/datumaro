@@ -8,16 +8,18 @@ import numpy as np
 from datumaro.components.extractor import (AnnotationType, DatasetItem,
     Extractor, LabelCategories, Mask)
 from datumaro.components.dataset import Dataset
-from datumaro.plugins.cityscapes_format import CityscapesImporter, CityscapesConverter
+from datumaro.plugins.cityscapes_format import (CityscapesImporter,
+    CityscapesConverter)
 from datumaro.util.image import Image
 from datumaro.util.test_utils import (TestDir, compare_datasets,
     test_save_and_load)
 
-DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'cityscapes_dataset')
+DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets',
+    'cityscapes_dataset')
 
 class CityscapesFormatTest(TestCase):
     def test_can_write_and_parse_labelmap(self):
-        src_label_map = Cityscapes.make_cityscapes_label_map()
+        src_label_map = Cityscapes.CityscapesLabelMap
 
         with TestDir() as test_dir:
             file_path = osp.join(test_dir, 'label_colors.txt')
@@ -30,7 +32,8 @@ class CityscapesFormatTest(TestCase):
 class CityscapesImportTest(TestCase):
     def test_can_import(self):
         source_dataset = Dataset.from_iterable([
-            DatasetItem(id='defaultcity_000001_000031', subset='test',
+            DatasetItem(id='defaultcity/defaultcity_000001_000031',
+                subset='test',
                 image=np.ones((1, 5, 3)),
                 annotations=[
                     Mask(image=np.array([[1, 1, 0, 0, 0]]), id=3, label=3,
@@ -41,7 +44,8 @@ class CityscapesImportTest(TestCase):
                         attributes={'is_crowd': False}),
                 ]
             ),
-            DatasetItem(id='defaultcity_000001_000032', subset='test',
+            DatasetItem(id='defaultcity/defaultcity_000001_000032',
+                subset='test',
                 image=np.ones((1, 5, 3)),
                 annotations=[
                     Mask(image=np.array([[1, 1, 0, 0, 0]]), id=1, label=31,
@@ -52,7 +56,8 @@ class CityscapesImportTest(TestCase):
                         attributes={'is_crowd': True}),
                 ]
             ),
-            DatasetItem(id='defaultcity_000002_000045', subset='train',
+            DatasetItem(id='defaultcity/defaultcity_000002_000045',
+                subset='train',
                 image=np.ones((1, 5, 3)),
                 annotations=[
                     Mask(image=np.array([[1, 1, 0, 1, 1]]), id=3, label=3,
@@ -61,7 +66,8 @@ class CityscapesImportTest(TestCase):
                         attributes={'is_crowd': False}),
                 ]
             ),
-            DatasetItem(id='defaultcity_000001_000019', subset = 'val',
+            DatasetItem(id='defaultcity/defaultcity_000001_000019',
+                subset = 'val',
                 image=np.ones((1, 5, 3)),
                 annotations=[
                     Mask(image=np.array([[1, 0, 0, 1, 1]]), id=3, label=3,
@@ -214,22 +220,10 @@ class CityscapesConverterTest(TestCase):
                     ]),
                 ])
 
-        class DstExtractor(TestExtractorBase):
-            def __iter__(self):
-                return iter([
-                    DatasetItem(id='a_b_1', subset='test',
-                        image=np.ones((1, 5, 3)), annotations=[
-                        Mask(image=np.array([[1, 0, 0, 1, 1]]), label=3, id=3,
-                            attributes={'is_crowd': True}),
-                        Mask(image=np.array([[0, 1, 1, 0, 0]]), label=24, id=1,
-                            attributes={'is_crowd': False}),
-                    ]),
-                ])
-
         with TestDir() as test_dir:
             self._test_save_and_load(TestExtractor(),
                 partial(CityscapesConverter.convert, label_map='cityscapes',
-                save_images=True), test_dir, target_dataset=DstExtractor())
+                save_images=True), test_dir)
 
     def test_can_save_with_no_masks(self):
         class TestExtractor(TestExtractorBase):
@@ -328,7 +322,7 @@ class CityscapesConverterTest(TestCase):
                 save_images=True), test_dir, target_dataset=DstExtractor())
 
     def test_can_save_and_load_image_with_arbitrary_extension(self):
-        class SrcExtractor(TestExtractorBase):
+        class TestExtractor(TestExtractorBase):
             def __iter__(self):
                 return iter([
                     DatasetItem(id='q/1', image=Image(path='q/1.JPEG',
@@ -350,30 +344,7 @@ class CityscapesConverterTest(TestCase):
                 label_map['b'] = None
                 return Cityscapes.make_cityscapes_categories(label_map)
 
-        class DstExtractor(TestExtractorBase):
-            def __iter__(self):
-                return iter([
-                    DatasetItem(id='q_1', image=Image(path='q_1.JPEG',
-                        data=np.zeros((4, 3, 3)))),
-
-                    DatasetItem(id='a_b_c_2', image=Image(
-                             path='a_b_c_2.bmp', data=np.ones((1, 5, 3))
-                         ), annotations=[
-                        Mask(image=np.array([[1, 0, 0, 1, 0]]), label=0, id=0,
-                            attributes={'is_crowd': True}),
-                        Mask(image=np.array([[0, 1, 1, 0, 1]]), label=1, id=1,
-                            attributes={'is_crowd': True}),
-                    ]),
-                ])
-
-            def categories(self):
-                label_map = OrderedDict()
-                label_map['a'] = None
-                label_map['b'] = None
-                return Cityscapes.make_cityscapes_categories(label_map)
-
         with TestDir() as test_dir:
-            self._test_save_and_load(SrcExtractor(),
+            self._test_save_and_load(TestExtractor(),
                 partial(CityscapesConverter.convert, save_images=True),
-                test_dir, require_images=True,
-                target_dataset=DstExtractor())
+                test_dir, require_images=True)

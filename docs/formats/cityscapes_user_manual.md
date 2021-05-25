@@ -40,7 +40,7 @@ Cityscapes dataset directory should have the following structure:
     │   ├── leftImg8bit
     │   │   ├── <split: train,val, ...>
     │   │   |   ├── {city1}
-    │   │   │   |   ├── {city1}_{seq:0>6}_{frame:0>6}_leftImg8bit.png
+    │   │   │   |   ├── {city1}_{seq:[0...6]}_{frame:[0...6]}_leftImg8bit.png
     │   │   │   │   └── ...
     │   │   |   ├── {city2}
     │   │   │   └── ...
@@ -48,16 +48,16 @@ Cityscapes dataset directory should have the following structure:
     ├── gtFine/
     │   ├── <split: train,val, ...>
     │   │   ├── {city1}
-    │   │   |   ├── {city1}_{seq:0>6}_{frame:0>6}_gtFine_color.png
-    │   │   |   ├── {city1}_{seq:0>6}_{frame:0>6}_gtFine_instanceIds.png
-    │   │   |   ├── {city1}_{seq:0>6}_{frame:0>6}_gtFine_labelIds.png
+    │   │   |   ├── {city1}_{seq:[0...6]}_{frame:[0...6]}_gtFine_color.png
+    │   │   |   ├── {city1}_{seq:[0...6]}_{frame:[0...6]}_gtFine_instanceIds.png
+    │   │   |   ├── {city1}_{seq:[0...6]}_{frame:[0...6]}_gtFine_labelIds.png
     │   │   │   └── ...
     │   │   ├── {city2}
     │   │   └── ...
     │   └── ...
 ```
 
-Annorated files description:
+Annotated files description:
 1. *leftImg8bit.png - left images in 8-bit LDR format
 1. *color.png - class labels are encoded by its color
 1. *instanceIds.png - class and instance labels are encoded by an instance ID.

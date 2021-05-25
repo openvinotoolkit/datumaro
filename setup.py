@@ -47,7 +47,6 @@ def get_requirements():
         'PyYAML',
         'scikit-image',
         'tensorboardX',
-        'cityscapesscripts',
     ]
     if strtobool(os.getenv('DATUMARO_HEADLESS', '0').lower()):
         requirements.append('opencv-python-headless')

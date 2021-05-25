@@ -65,6 +65,9 @@ def save_image(path, image, create_dir=False, dtype=np.uint8, **kwargs):
     if not kwargs:
         kwargs = {}
 
+    # NOTE: OpenCV documentation says "If the image format is not supported,
+    # the image will be converted to 8-bit unsigned and saved that way".
+    # Conversion from np.int32 to np.uint8 is not working properly
     backend = _IMAGE_BACKEND
     if dtype == np.int32:
         backend = _IMAGE_BACKENDS.PIL
