@@ -7,11 +7,11 @@ from datumaro.components.extractor import (AnnotationType, Bbox, DatasetItem,
 from datumaro.components.dataset import Dataset
 from datumaro.plugins.widerface_format import WiderFaceConverter, WiderFaceImporter
 from datumaro.util.image import Image
-from datumaro.util.test_utils import TempTestDir, compare_datasets
+from datumaro.util.test_utils import TestDir, compare_datasets
 
 import pytest
-from tests.pytest_marking_constants.requirements import Requirements
-from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
+from tests.requirements import Requirements
+from tests.requirements import DatumaroComponent
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
 class WiderFaceFormatTest(TestCase):
@@ -61,7 +61,7 @@ class WiderFaceFormatTest(TestCase):
             DatasetItem(id='4', subset='val', image=np.ones((8, 8, 3))),
         ], categories=['face', 'label_0', 'label_1'])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             WiderFaceConverter.convert(source_dataset, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'wider_face')
 
@@ -82,7 +82,7 @@ class WiderFaceFormatTest(TestCase):
             ),
         ], categories=['face', 'label_0', 'label_1'])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             WiderFaceConverter.convert(source_dataset, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'wider_face')
 
@@ -102,7 +102,7 @@ class WiderFaceFormatTest(TestCase):
             ),
         ], categories=['face'])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             WiderFaceConverter.convert(source_dataset, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'wider_face')
 
@@ -137,7 +137,7 @@ class WiderFaceFormatTest(TestCase):
             ),
         ], categories=['face'])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             WiderFaceConverter.convert(source_dataset, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'wider_face')
 
@@ -154,7 +154,7 @@ class WiderFaceFormatTest(TestCase):
                 data=np.zeros((3, 4, 3)))),
         ], categories=[])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             WiderFaceConverter.convert(dataset, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'wider_face')
 

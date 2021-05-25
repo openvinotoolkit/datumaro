@@ -14,11 +14,11 @@ from datumaro.components.extractor import (DatasetItem,
     LabelCategories, MaskCategories, PointsCategories
 )
 from datumaro.util.image import Image
-from datumaro.util.test_utils import TempTestDir
+from datumaro.util.test_utils import TestDir
 
 import pytest
-from tests.pytest_marking_constants.requirements import Requirements
-from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
+from tests.requirements import Requirements
+from tests.requirements import DatumaroComponent
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
@@ -122,7 +122,7 @@ class DiffTest(TestCase):
             AnnotationType.points: point_categories2,
         })
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             with DatasetDiffVisualizer(save_dir=test_dir,
                         comparator=DistanceComparator(iou_threshold=0.8),
                     ) as visualizer:

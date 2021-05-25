@@ -12,12 +12,12 @@ from datumaro.components.extractor import (DatasetItem,
 from datumaro.plugins.cvat_format.extractor import CvatImporter
 from datumaro.plugins.cvat_format.converter import CvatConverter
 from datumaro.util.image import Image
-from datumaro.util.test_utils import (TempTestDir, compare_datasets,
-                                      check_save_and_load)
+from datumaro.util.test_utils import (TestDir, compare_datasets,
+    check_save_and_load)
 
 import pytest
-from tests.pytest_marking_constants.requirements import Requirements
-from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
+from tests.requirements import Requirements
+from tests.requirements import DatumaroComponent
 
 DUMMY_IMAGE_DATASET_DIR = osp.join(osp.dirname(__file__),
     'assets', 'cvat_dataset', 'for_images')
@@ -161,8 +161,8 @@ class CvatConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None, **kwargs):
         return check_save_and_load(self, source_dataset, converter, test_dir,
-                                       importer='cvat',
-                                       target_dataset=target_dataset, importer_args=importer_args, **kwargs)
+            importer='cvat',
+            target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
@@ -252,7 +252,7 @@ class CvatConverterTest(TestCase):
                 attributes={'frame': 0}),
         ], categories={ AnnotationType.label: target_label_cat })
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
                 partial(CvatConverter.convert, save_images=True), test_dir,
                 target_dataset=target_dataset)
@@ -278,7 +278,7 @@ class CvatConverterTest(TestCase):
             ], attributes={'frame': 0}),
         ], categories={ AnnotationType.label: target_label_cat })
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
                 partial(CvatConverter.convert, allow_undeclared_attrs=True),
                 test_dir, target_dataset=target_dataset)
@@ -302,7 +302,7 @@ class CvatConverterTest(TestCase):
                 attributes={'frame': 2}),
         ], categories=[])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
                 partial(CvatConverter.convert, save_images=True), test_dir,
                 target_dataset=target_dataset, require_images=True)
@@ -338,7 +338,7 @@ class CvatConverterTest(TestCase):
             AnnotationType.label: label_categories,
         })
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
                 partial(CvatConverter.convert, save_images=True), test_dir,
                 target_dataset=target_dataset, require_images=True)
@@ -354,7 +354,7 @@ class CvatConverterTest(TestCase):
                 data=np.zeros((3, 4, 3))), attributes={'frame': 2}),
         ], categories=[])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             self._test_save_and_load(expected,
                 partial(CvatConverter.convert, save_images=True),
                 test_dir, require_images=True)
@@ -372,7 +372,7 @@ class CvatConverterTest(TestCase):
                 attributes={'frame': 40}),
         ], categories=[])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             self._test_save_and_load(expected_dataset,
                 CvatConverter.convert, test_dir)
 
@@ -390,7 +390,7 @@ class CvatConverterTest(TestCase):
                 attributes={'frame': 0}),
         ], categories=[])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
                 partial(CvatConverter.convert, reindex=True), test_dir,
                 target_dataset=expected_dataset)
@@ -399,7 +399,7 @@ class CvatConverterTest(TestCase):
     @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_inplace_save_writes_only_updated_data(self):
-        with TempTestDir() as path:
+        with TestDir() as path:
             # generate initial dataset
             dataset = Dataset.from_iterable([
                 DatasetItem(1, subset='a'),

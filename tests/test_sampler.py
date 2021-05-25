@@ -21,8 +21,8 @@ except ImportError:
     has_libs = False
 
 import pytest
-from tests.pytest_marking_constants.requirements import Requirements
-from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
+from tests.requirements import Requirements
+from tests.requirements import DatumaroComponent
 
 
 @skipIf(not has_libs, "pandas library is not available")

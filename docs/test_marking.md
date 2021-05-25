@@ -174,7 +174,7 @@ Steps description in test body are placed as a code comment lines e.g.
 
         # 3. Convert source dataset to target, with conversion of annotation from polygon to mask. Verify that result
         # segmentation mask is equal to expected mask.
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
                 partial(CocoInstancesConverter.convert, segmentation_mode='mask'),
                 test_dir, target_dataset=target_dataset)

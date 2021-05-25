@@ -14,11 +14,11 @@ from datumaro.components.extractor import (DEFAULT_SUBSET_NAME, Extractor,
     DatasetItem, Label, Mask, Points, Polygon, PolyLine, Bbox, Caption,
     LabelCategories, AnnotationType, Transform)
 from datumaro.util.image import Image
-from datumaro.util.test_utils import TempTestDir, compare_datasets
+from datumaro.util.test_utils import TestDir, compare_datasets
 
 import pytest
-from tests.pytest_marking_constants.requirements import Requirements
-from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
+from tests.requirements import Requirements
+from tests.requirements import DatumaroComponent
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
@@ -133,7 +133,7 @@ class DatasetTest(TestCase):
             DatasetItem(id=1, annotations=[ Label(2) ]),
         ], categories=['a', 'b', 'c'])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             source_dataset.save(test_dir)
 
             loaded_dataset = Dataset.load(test_dir)
@@ -152,7 +152,7 @@ class DatasetTest(TestCase):
             DatasetItem(id=1, annotations=[ Label(2) ]),
         ], categories=['a', 'b', 'c'])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             dataset.save(test_dir)
 
             detected_format = Dataset.detect(test_dir, env=env)
@@ -171,7 +171,7 @@ class DatasetTest(TestCase):
             DatasetItem(id=1, annotations=[ Label(2) ]),
         ], categories=['a', 'b', 'c'])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             source_dataset.save(test_dir)
 
             imported_dataset = Dataset.import_from(test_dir, env=env)
@@ -191,7 +191,7 @@ class DatasetTest(TestCase):
             DatasetItem(id=1, annotations=[ Label(2) ]),
         ], categories=['a', 'b', 'c'], env=env)
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             dataset.export(format='qq', save_dir=test_dir)
 
     @pytest.mark.priority_medium
@@ -275,7 +275,7 @@ class DatasetTest(TestCase):
     @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_inplace_save_writes_only_updated_data(self):
-        with TempTestDir() as path:
+        with TestDir() as path:
             # generate initial dataset
             dataset = Dataset.from_iterable([
                 DatasetItem(1, subset='a'),
@@ -666,7 +666,7 @@ class DatasetTest(TestCase):
 
         self.assertFalse(dataset.is_bound)
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             dataset.save(test_dir)
 
             self.assertTrue(dataset.is_bound)
@@ -682,7 +682,7 @@ class DatasetTest(TestCase):
 
         self.assertTrue(dataset.is_modified)
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             dataset.save(test_dir)
 
             self.assertFalse(dataset.is_modified)
@@ -704,7 +704,7 @@ class DatasetTest(TestCase):
             DatasetItem(1, image=test_loader)
         ])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             dataset.save(test_dir)
 
         self.assertFalse(called)
@@ -782,7 +782,7 @@ class DatasetFilterTest(TestCase):
     @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_annotations_filter_can_be_applied(self):
-        class SrcExtractor(Extractor):
+        class TestExtractor(Extractor):
             def __iter__(self):
                 return iter([
                     DatasetItem(id=0),
@@ -808,7 +808,7 @@ class DatasetFilterTest(TestCase):
                     ]),
                 ])
 
-        extractor = SrcExtractor()
+        extractor = TestExtractor()
 
         filtered = XPathAnnotationsFilter(extractor,
             '/item/annotation[label_id = 0]')

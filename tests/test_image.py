@@ -5,11 +5,11 @@ import os.path as osp
 from unittest import TestCase
 
 import datumaro.util.image as image_module
-from datumaro.util.test_utils import TempTestDir
+from datumaro.util.test_utils import TestDir
 
 import pytest
-from tests.pytest_marking_constants.requirements import Requirements
-from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
+from tests.requirements import Requirements
+from tests.requirements import DatumaroComponent
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
 class ImageOperationsTest(TestCase):
@@ -25,7 +25,7 @@ class ImageOperationsTest(TestCase):
     def test_save_and_load_backends(self):
         backends = image_module._IMAGE_BACKENDS
         for save_backend, load_backend, c in product(backends, backends, [1, 3]):
-            with TempTestDir() as test_dir:
+            with TestDir() as test_dir:
                 if c == 1:
                     src_image = np.random.randint(0, 255 + 1, (2, 4))
                 else:
@@ -74,7 +74,7 @@ class ImageOperationsTest(TestCase):
     @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_save_image_can_create_dir(self):
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             path = osp.join(test_dir, 'some', 'path.jpg')
             image_module.save_image(path, np.ones((5, 4, 3)), create_dir=True)
             self.assertTrue(osp.isfile(path))

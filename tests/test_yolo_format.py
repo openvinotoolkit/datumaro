@@ -11,11 +11,11 @@ from datumaro.components.dataset import Dataset
 from datumaro.plugins.yolo_format.extractor import YoloImporter
 from datumaro.plugins.yolo_format.converter import YoloConverter
 from datumaro.util.image import Image, save_image
-from datumaro.util.test_utils import TempTestDir, compare_datasets
+from datumaro.util.test_utils import TestDir, compare_datasets
 
 import pytest
-from tests.pytest_marking_constants.requirements import Requirements
-from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
+from tests.requirements import Requirements
+from tests.requirements import DatumaroComponent
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
@@ -49,7 +49,7 @@ class YoloFormatTest(TestCase):
                 'label_' + str(i) for i in range(10)),
         })
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             YoloConverter.convert(source_dataset, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'yolo')
 
@@ -71,7 +71,7 @@ class YoloFormatTest(TestCase):
                 'label_' + str(i) for i in range(10)),
         })
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             YoloConverter.convert(source_dataset, test_dir)
 
             save_image(osp.join(test_dir, 'obj_train_data', '1.jpg'),
@@ -96,7 +96,7 @@ class YoloFormatTest(TestCase):
                 'label_' + str(i) for i in range(10)),
         })
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             YoloConverter.convert(source_dataset, test_dir)
 
             parsed_dataset = Dataset.import_from(test_dir, 'yolo',
@@ -119,7 +119,7 @@ class YoloFormatTest(TestCase):
                 'label_' + str(i) for i in range(10)),
         })
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             YoloConverter.convert(source_dataset, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'yolo')
 
@@ -141,7 +141,7 @@ class YoloFormatTest(TestCase):
 
         for save_images in {True, False}:
             with self.subTest(save_images=save_images):
-                with TempTestDir() as test_dir:
+                with TestDir() as test_dir:
                     YoloConverter.convert(source_dataset, test_dir,
                         save_images=save_images)
                     parsed_dataset = Dataset.import_from(test_dir, 'yolo')
@@ -159,7 +159,7 @@ class YoloFormatTest(TestCase):
                 image=Image(path='a/b/c/2.bmp', data=np.zeros((3, 4, 3)))),
         ], categories=[])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             YoloConverter.convert(dataset, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'yolo')
 
@@ -169,7 +169,7 @@ class YoloFormatTest(TestCase):
     @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_inplace_save_writes_only_updated_data(self):
-        with TempTestDir() as path:
+        with TestDir() as path:
             # generate initial dataset
             dataset = Dataset.from_iterable([
                 DatasetItem(1, subset='train', image=np.ones((2, 4, 3))),

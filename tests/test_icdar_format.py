@@ -14,12 +14,12 @@ from datumaro.plugins.icdar_format.extractor import (
     IcdarWordRecognitionImporter, IcdarTextLocalizationImporter,
     IcdarTextSegmentationImporter)
 from datumaro.util.image import Image
-from datumaro.util.test_utils import (TempTestDir, compare_datasets,
-                                      check_save_and_load)
+from datumaro.util.test_utils import (TestDir, compare_datasets,
+    check_save_and_load)
 
 import pytest
-from tests.pytest_marking_constants.requirements import Requirements
-from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
+from tests.requirements import Requirements
+from tests.requirements import DatumaroComponent
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'icdar_dataset')
 
@@ -136,8 +136,8 @@ class IcdarConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir, importer,
             target_dataset=None, importer_args=None, **kwargs):
         return check_save_and_load(self, source_dataset, converter, test_dir,
-                                       importer,
-                                       target_dataset=target_dataset, importer_args=importer_args, **kwargs)
+            importer,
+            target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
@@ -154,7 +154,7 @@ class IcdarConverterTest(TestCase):
                 ]),
         ])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             self._test_save_and_load(expected_dataset,
                 partial(IcdarWordRecognitionConverter.convert, save_images=True),
                 test_dir, 'icdar_word_recognition')
@@ -183,7 +183,7 @@ class IcdarConverterTest(TestCase):
                 ]),
         ])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             self._test_save_and_load(expected_dataset,
                 partial(IcdarTextLocalizationConverter.convert, save_images=True),
                 test_dir, 'icdar_text_localization')
@@ -219,7 +219,7 @@ class IcdarConverterTest(TestCase):
                 ]),
         ])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             self._test_save_and_load(expected_dataset,
                 partial(IcdarTextSegmentationConverter.convert, save_images=True),
                 test_dir, 'icdar_text_segmentation')
@@ -235,7 +235,7 @@ class IcdarConverterTest(TestCase):
                 ]),
         ])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             self._test_save_and_load(expected_dataset,
                 IcdarTextLocalizationConverter.convert, test_dir,
                 'icdar_text_localization')
@@ -254,7 +254,7 @@ class IcdarConverterTest(TestCase):
             ('icdar_text_localization', IcdarTextLocalizationConverter),
             ('icdar_text_segmentation', IcdarTextSegmentationConverter),
         ]:
-            with self.subTest(subformat=converter), TempTestDir() as test_dir:
+            with self.subTest(subformat=converter), TestDir() as test_dir:
                 self._test_save_and_load(expected_dataset,
                     partial(converter.convert, save_images=True),
                     test_dir, importer, require_images=True)
@@ -275,7 +275,7 @@ class IcdarConverterTest(TestCase):
             ('icdar_text_localization', IcdarTextLocalizationConverter),
             ('icdar_text_segmentation', IcdarTextSegmentationConverter),
         ]:
-            with self.subTest(subformat=converter), TempTestDir() as test_dir:
+            with self.subTest(subformat=converter), TestDir() as test_dir:
                 self._test_save_and_load(expected,
                     partial(converter.convert, save_images=True),
                     test_dir, importer, require_images=True)

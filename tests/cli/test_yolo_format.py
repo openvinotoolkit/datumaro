@@ -7,12 +7,12 @@ from datumaro.cli.__main__ import main
 from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import (DatasetItem,
     AnnotationType, Bbox)
-from datumaro.util.test_utils import TempTestDir, compare_datasets
+from datumaro.util.test_utils import TestDir, compare_datasets
 import datumaro.plugins.voc_format.format as VOC
 
 import pytest
-from tests.pytest_marking_constants.requirements import Requirements
-from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
+from tests.requirements import Requirements
+from tests.requirements import DatumaroComponent
 
 def run(test, *args, expected_code=0):
     test.assertEqual(expected_code, main(args), str(args))
@@ -33,7 +33,7 @@ class YoloIntegrationScenarios(TestCase):
             )
         ], categories=['label_' + str(i) for i in range(10)])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             yolo_dir = osp.join(__file__[:__file__.rfind(osp.join('tests', ''))],
                 'tests', 'assets', 'yolo_dataset')
 
@@ -58,7 +58,7 @@ class YoloIntegrationScenarios(TestCase):
             )
         ], categories=['label_' + str(i) for i in range(10)])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             mot_dir = osp.join(__file__[:__file__.rfind(osp.join('tests', ''))],
                 'tests', 'assets', 'mot_dataset')
 
@@ -87,7 +87,7 @@ class YoloIntegrationScenarios(TestCase):
         ], categories=[label.name for label in
             VOC.make_voc_categories()[AnnotationType.label]])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             voc_dir = osp.join(__file__[:__file__.rfind(osp.join('tests', ''))],
                 'tests', 'assets', 'voc_dataset', 'voc_dataset1')
             yolo_dir = osp.join(test_dir, 'yolo_dir')
@@ -126,7 +126,7 @@ class YoloIntegrationScenarios(TestCase):
             )
         ], categories=[str(i) for i in range(4)])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             dataset_dir = osp.join(test_dir, 'dataset_dir')
             source_dataset.save(dataset_dir, save_images=True)
 
@@ -153,7 +153,7 @@ class YoloIntegrationScenarios(TestCase):
             )
         ], categories=['label_2'])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             yolo_dir = osp.join(__file__[:__file__.rfind(osp.join('tests', ''))],
                 'tests', 'assets', 'yolo_dataset')
 

@@ -8,11 +8,11 @@ from datumaro.components.extractor import (AnnotationType, DatasetItem, Label,
 from datumaro.plugins.mnist_csv_format import (MnistCsvConverter,
     MnistCsvImporter)
 from datumaro.util.image import Image
-from datumaro.util.test_utils import TempTestDir, compare_datasets
+from datumaro.util.test_utils import TestDir, compare_datasets
 
 import pytest
-from tests.pytest_marking_constants.requirements import Requirements
-from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
+from tests.requirements import Requirements
+from tests.requirements import DatumaroComponent
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
@@ -38,7 +38,7 @@ class MnistCsvFormatTest(TestCase):
                 str(label) for label in range(10)),
         })
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             MnistCsvConverter.convert(source_dataset, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'mnist_csv')
 
@@ -61,7 +61,7 @@ class MnistCsvFormatTest(TestCase):
                 str(label) for label in range(10)),
         })
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             MnistCsvConverter.convert(source_dataset, test_dir, save_images=False)
             parsed_dataset = Dataset.import_from(test_dir, 'mnist_csv')
 
@@ -84,7 +84,7 @@ class MnistCsvFormatTest(TestCase):
                 str(label) for label in range(10)),
         })
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             MnistCsvConverter.convert(source_dataset, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'mnist_csv')
 
@@ -105,7 +105,7 @@ class MnistCsvFormatTest(TestCase):
                 str(label) for label in range(10)),
         })
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             MnistCsvConverter.convert(source_dataset, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'mnist_csv')
 
@@ -126,7 +126,7 @@ class MnistCsvFormatTest(TestCase):
                 str(label) for label in range(10)),
         })
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             MnistCsvConverter.convert(dataset, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'mnist_csv')
 
@@ -145,7 +145,7 @@ class MnistCsvFormatTest(TestCase):
                 str(label) for label in range(10)),
         })
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             MnistCsvConverter.convert(dataset, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'mnist_csv')
 
@@ -166,7 +166,7 @@ class MnistCsvFormatTest(TestCase):
                 'label_%s' % label for label in range(2)),
         })
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             MnistCsvConverter.convert(dataset, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'mnist_csv')
 

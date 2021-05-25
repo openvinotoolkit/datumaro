@@ -22,12 +22,12 @@ from datumaro.plugins.coco_format.converter import (
 )
 from datumaro.plugins.coco_format.importer import CocoImporter
 from datumaro.util.image import Image
-from datumaro.util.test_utils import (TempTestDir, compare_datasets,
+from datumaro.util.test_utils import (TestDir, compare_datasets,
                                       check_save_and_load)
 
 import pytest
-from tests.pytest_marking_constants.requirements import Requirements
-from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
+from tests.requirements import Requirements
+from tests.requirements import DatumaroComponent
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'coco_dataset')
 
@@ -246,7 +246,7 @@ class CocoConverterTest(TestCase):
                 ], attributes={'id': 1}),
             ])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             self._test_save_and_load(expected_dataset,
                 CocoCaptionsConverter.convert, test_dir)
 
@@ -328,7 +328,7 @@ class CocoConverterTest(TestCase):
                 ], attributes={'id': 1})
             ], categories=[str(i) for i in range(10)])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
                 CocoInstancesConverter.convert, test_dir,
                 target_dataset=target_dataset)
@@ -373,7 +373,7 @@ class CocoConverterTest(TestCase):
                 ], attributes={'id': 2}),
             ], categories=[str(i) for i in range(10)])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             self._test_save_and_load(dataset,
                 partial(CocoPanopticConverter.convert, save_images=True),
                 test_dir, require_images=True)
@@ -408,7 +408,7 @@ class CocoConverterTest(TestCase):
                 ], attributes={'id': 1}),
             ], categories=[str(i) for i in range(10)])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             self._test_save_and_load(dataset,
                 CocoStuffConverter.convert, test_dir)
 
@@ -446,7 +446,7 @@ class CocoConverterTest(TestCase):
             ),
         ], categories=[str(i) for i in range(10)])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
                 CocoInstancesConverter.convert, test_dir,
                 importer_args={'merge_instance_polygons': True},
@@ -493,7 +493,7 @@ class CocoConverterTest(TestCase):
             ),
         ], categories=[str(i) for i in range(10)])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
                  partial(CocoInstancesConverter.convert, crop_covered=True),
                  test_dir, target_dataset=target_dataset)
@@ -551,7 +551,7 @@ class CocoConverterTest(TestCase):
 
         # 3. Convert source dataset to target, with conversion of annotation from polygon to mask. Verify that result
         # segmentation mask is equal to expected mask.
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
                 partial(CocoInstancesConverter.convert, segmentation_mode='mask'),
                 test_dir, target_dataset=target_dataset)
@@ -590,7 +590,7 @@ class CocoConverterTest(TestCase):
             ),
         ], categories=[str(i) for i in range(10)])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
                 partial(CocoInstancesConverter.convert, segmentation_mode='polygons'),
                 test_dir,
@@ -611,7 +611,7 @@ class CocoConverterTest(TestCase):
             DatasetItem(id=5, subset='test', attributes={'id': 1}),
         ])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             self._test_save_and_load(expected_dataset,
                 CocoImageInfoConverter.convert, test_dir)
 
@@ -624,7 +624,7 @@ class CocoConverterTest(TestCase):
                 attributes={'id': 1}),
         ])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             self._test_save_and_load(expected_dataset,
                 CocoImageInfoConverter.convert, test_dir)
 
@@ -640,7 +640,7 @@ class CocoConverterTest(TestCase):
                 ], attributes={'id': 1}),
         ], categories=[str(i) for i in range(10)])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             self._test_save_and_load(expected_dataset,
                 CocoLabelsConverter.convert, test_dir)
 
@@ -717,7 +717,7 @@ class CocoConverterTest(TestCase):
                 ),
             })
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
                 CocoPersonKeypointsConverter.convert, test_dir,
                 target_dataset=target_dataset)
@@ -731,7 +731,7 @@ class CocoConverterTest(TestCase):
             DatasetItem(id=2, attributes={'id': 2}),
         ])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             self._test_save_and_load(test_dataset,
                 CocoConverter.convert, test_dir)
 
@@ -744,7 +744,7 @@ class CocoConverterTest(TestCase):
                 attributes={'id': 1}),
         ])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             self._test_save_and_load(expected_dataset,
                 CocoImageInfoConverter.convert, test_dir)
 
@@ -761,7 +761,7 @@ class CocoConverterTest(TestCase):
                 attributes={'id': 3}),
         ])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             self._test_save_and_load(expected_dataset,
                 partial(CocoImageInfoConverter.convert, save_images=True),
                 test_dir, require_images=True)
@@ -777,7 +777,7 @@ class CocoConverterTest(TestCase):
                 data=np.zeros((3, 4, 3))), attributes={'id': 2}),
         ])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             self._test_save_and_load(expected,
                 partial(CocoImageInfoConverter.convert, save_images=True),
                 test_dir, require_images=True)
@@ -791,7 +791,7 @@ class CocoConverterTest(TestCase):
                 attributes={'id': 40}),
         ])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             self._test_save_and_load(expected_dataset,
                 partial(CocoImageInfoConverter.convert, save_images=True),
                 test_dir, require_images=True)
@@ -807,7 +807,7 @@ class CocoConverterTest(TestCase):
             ], attributes={'id': 1})
         ], categories=[str(i) for i in range(10)])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             self._test_save_and_load(expected_dataset,
                 CocoConverter.convert, test_dir)
 
@@ -828,7 +828,7 @@ class CocoConverterTest(TestCase):
             ], attributes={'id': 1})
         ], categories=[str(i) for i in range(10)])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
                 CocoConverter.convert, test_dir, target_dataset=target_dataset)
 
@@ -849,7 +849,7 @@ class CocoConverterTest(TestCase):
             ], attributes={'id': 1})
         ], categories=[str(i) for i in range(10)])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
                 partial(CocoConverter.convert, reindex=True),
                 test_dir, target_dataset=target_dataset)
@@ -863,7 +863,7 @@ class CocoConverterTest(TestCase):
                 attributes={'id': 1}),
         ])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             self._test_save_and_load(dataset,
                 partial(CocoImageInfoConverter.convert, save_images=True,
                     merge_images=True),
@@ -879,7 +879,7 @@ class CocoConverterTest(TestCase):
                 attributes={'id': 1}),
         ])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             self._test_save_and_load(dataset,
                 partial(CocoImageInfoConverter.convert, save_images=True,
                     merge_images=False),
@@ -891,7 +891,7 @@ class CocoConverterTest(TestCase):
     @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_inplace_save_writes_only_updated_data(self):
-        with TempTestDir() as path:
+        with TestDir() as path:
             # generate initial dataset
             dataset = Dataset.from_iterable([
                 DatasetItem(1, subset='a'),
