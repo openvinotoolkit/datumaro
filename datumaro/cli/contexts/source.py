@@ -18,35 +18,30 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
 
     parser = parser_ctor(help="Add data source to project",
         description="""
-            Adds a data source to a project. The source can be:|n
-            - a dataset in a supported format (check 'formats' section below)|n
-            - a Datumaro project|n
+            Adds a data source to a project. A data source is a dataset
+            in a supported format (check 'formats' section below).|n
             |n
-            The source can be a local path or a remote link.|n
+            Currently, only local paths to sources are supported.|n
+            Once added, a source is copied into project.|n
             |n
             Formats:|n
             Datasets come in a wide variety of formats. Each dataset
             format defines its own data structure and rules on how to
-            interpret the data. For example, the following data structure
-            is used in COCO format:|n
-            /dataset/|n
-            - /images/<id>.jpg|n
-            - /annotations/|n
+            interpret the data. Check the user manual for the list of
+            supported formats, examples and documentation.
             |n
-            In Datumaro dataset formats are supported by Extractor-s.
-            An Extractor produces a list of dataset items corresponding
-            to the dataset. It is possible to add a custom Extractor.
-            To do this, you need to put an Extractor
-            definition script to <project_dir>/.datumaro/plugins.|n
+            The list of supported formats can be extended by project plugins.
+            Check plugin section of developer guide for information about
+            plugin implementation.|n
             |n
-            List of builtin source formats: %s|n
+            Builtin formats: %s|n
             |n
             Examples:|n
-            - Add a local directory with VOC-like dataset:|n
+            - Add a local directory with a VOC-like dataset:|n
             |s|sadd -f voc path/to/voc|n
             - Add a local file with CVAT annotations, call it 'mysource'|n
-            |s|s|s|sto the project somewhere else:|n
-            |s|sadd -f cvat -n mysource -p somewhere/ path/to/cvat.xml
+            |s|s|s|sto the project in a specific place:|n
+            |s|sadd -f cvat -n mysource -p project/path/ path/to/cvat.xml
         """ % ', '.join(builtins),
         formatter_class=MultilineFormatter)
     parser.add_argument('url',
