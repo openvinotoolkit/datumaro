@@ -558,7 +558,7 @@ class DatasetItem:
                 pcd = pcd
             elif isinstance(pcd, str):
                 pcd = pcd
-            assert pcd is None or isinstance(pcd, bytes) or isinstance(pcd, str)
+            assert pcd is None or isinstance(pcd, (bytes, str)) or callable(pcd), type(pcd)
             self.pcd = pcd
 
     @image.validator

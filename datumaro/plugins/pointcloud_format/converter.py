@@ -317,21 +317,20 @@ class PointCloudConverter(Converter):
         self._annotation_dir = osp.join(self._default_dir, PointCloudPath.ANNNOTATION_DIR)
         os.makedirs(self._annotation_dir, exist_ok=True)
 
-        for _, subset in self._extractor.subsets().items():
-            point_cloud = PointCloudParser(subset, self)
+        point_cloud = PointCloudParser(self._extractor, self)
+        for file_name in PointCloudPath.WRITE_FILES:
 
-            for file_name in PointCloudPath.WRITE_FILES:
+            with open(osp.join(self._save_dir, file_name), "w") as f:
+                if file_name == "key_id_map.json":
+                    point_cloud.write_key_id_data(f)
+                elif file_name == "meta.json":
+                    point_cloud.write_meta_data(f)
 
-                with open(osp.join(self._save_dir, file_name), "w") as f:
-                    if file_name == "key_id_map.json":
-                        point_cloud.write_key_id_data(f)
-                    elif file_name == "meta.json":
-                        point_cloud.write_meta_data(f)
+        frame_files = point_cloud.get_frames()
+        for key, file_name in frame_files.items():
+            with open(osp.join(self._annotation_dir, f"{file_name}.json"), "w") as f:
+                point_cloud.write_frame_data(f, key)
 
-            frame_files = point_cloud.get_frames()
-            for key, file_name in frame_files.items():
-                with open(osp.join(self._annotation_dir, f"{file_name}.json"), "w") as f:
-                    point_cloud.write_frame_data(f, key)
 
     @classmethod
     def patch(cls, dataset, patch, save_dir, **kwargs):

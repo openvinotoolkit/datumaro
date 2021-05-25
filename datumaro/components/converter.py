@@ -57,20 +57,6 @@ class Converter(CliPlugin):
 
         return self._image_ext or src_ext or self._default_image_ext
 
-    def _find_pcd_ext(self, item):
-        src_ext = None
-        if item.has_pcd:
-            src_ext = ".pcd"
-
-        return self._image_ext or src_ext or self._default_image_ext
-
-    def _find_related_image_ext(self, item):
-        src_ext = None
-        if item:
-            src_ext = item.ext
-
-        return self._image_ext or src_ext or self._default_image_ext
-
     def _make_image_filename(self, item, *, name=None, subdir=None):
         name = name or item.id
         subdir = subdir or ''
