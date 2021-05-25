@@ -169,13 +169,13 @@ class CityscapesExtractor(SourceExtractor):
                     if segm_id < 1000:
                         semanticId = segm_id
                         isCrowd = True
-                        id = segm_id
+                        ann_id = segm_id
                     else:
                         semanticId = segm_id // 1000
                         isCrowd = False
-                        id = segm_id % 1000
+                        ann_id = segm_id % 1000
                     anns.append(Mask(image=self._lazy_extract_mask(instances_mask, segm_id),
-                        label=semanticId, id=id,
+                        label=semanticId, id=ann_id,
                         attributes = { 'is_crowd': isCrowd }))
             items[sample_id] = DatasetItem(id=sample_id, subset=self._subset,
                 image=image_path, annotations=anns)
