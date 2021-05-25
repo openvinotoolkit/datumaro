@@ -45,6 +45,9 @@ class MissingPipelineHeadError(InvalidPipelineError):
 class UnknownStageError(InvalidPipelineError):
     pass
 
+class WrongSourceNodeError(InvalidPipelineError):
+    pass
+
 
 class ProjectNotFoundError(DatumaroError):
     pass

@@ -25,7 +25,8 @@ from datumaro.components.errors import (DatasetMergeError,
     EmptyPipelineError, MismatchingObjectError, MissingObjectError,
     MissingPipelineHeadError, MultiplePipelineHeadsError, ProjectAlreadyExists,
     ProjectNotFoundError, ReadonlyDatasetError, SourceExistsError,
-    UnknownRefError, UnknownStageError, VcsError, UnsavedChangesError)
+    UnknownRefError, UnknownStageError, VcsError, UnsavedChangesError,
+    WrongSourceNodeError)
 from datumaro.util import error_rollback, find, parse_str_enum_value
 from datumaro.util.log_utils import catch_logs, logging_disabled
 from datumaro.util.os_util import generate_next_name, make_file_name, rmtree
@@ -443,15 +444,22 @@ class ProjectBuilder:
             uninitialized_parents = []
             initialized_parents = []
             if graph.in_degree(current_name) == 0:
-                assert current['config'].type == 'source', current['config'].type
+                if current['config'].type == 'source':
                 source = self._tree.sources[
                     self._tree.build_targets.strip_target_name(current_name)]
                 if not source.is_generated:
-                    # source is missing in the cache and cannot be retrieved
-                    # it is assumed that all the sources were downloaded earlier
+                        # Source is missing in the cache and cannot
+                        # be retrieved. It is assumed that all the
+                        # sources were downloaded earlier
                     raise MissingObjectError("Failed to load target '%s': "
                         "obj '%s' was not found in cache" % \
                         (current_name, obj_hash))
+                elif current['config'].type == 'project':
+                    pass # pipeline is empty
+                else:
+                    raise WrongSourceNodeError(
+                        "Unexpected leaf node '%s' of type '%s'" %
+                        (current_name, current['config'].type))
             else:
                 for p_name in graph.predecessors(current_name):
                     parent = graph.nodes[p_name]
@@ -558,11 +566,17 @@ class ProjectBuilder:
 
             if not _can_retrieve(t, t_conf):
                 if pipeline._graph.in_degree(t) == 0:
-                    assert t_conf.type == 'source', t_conf.type
+                    if t_conf.type == 'project':
+                        pass # pipeline is empty
+                    elif t_conf.type == 'source':
                     source = self._tree.sources[
                         self._tree.build_targets.strip_target_name(t)]
                     if not source.is_generated:
                         missing_sources.add(t)
+                else:
+                        raise WrongSourceNodeError(
+                            "Unexpected leaf node '%s' of type '%s'" %
+                            (t, t_conf.type))
                 else:
                     for p in pipeline._graph.predecessors(t):
                         if p not in checked_deps:
@@ -1476,7 +1490,7 @@ class Tree:
         return self._rev
 
     def make_dataset(self, target: Optional[str] = None) -> IDataset:
-        if target is None:
+        if not target:
             target = 'project'
 
         pipeline = self.build_targets.make_pipeline(target)
@@ -2057,7 +2071,7 @@ def parse_target_revpath(revpath: str):
     sep_pos = revpath.find(':')
     if -1 < sep_pos:
         rev = revpath[:sep_pos]
-        target = revpath[sep_pos:]
+        target = revpath[sep_pos + 1:]
     else:
         rev = ''
         target = revpath
