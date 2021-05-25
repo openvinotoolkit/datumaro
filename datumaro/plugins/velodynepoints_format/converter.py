@@ -168,9 +168,8 @@ class XmlAnnotationWriter:
 
 
 class _SubsetWriter:
-    def __init__(self, file, name, extractor, context):
+    def __init__(self, file, extractor, context):
         self._file = file
-        self._name = name
         self._extractor = extractor
         self._context = context
         self._tracklets = []
@@ -321,13 +320,8 @@ class VelodynePointsConverter(Converter):
         self._allow_undeclared_attrs = allow_undeclared_attrs
 
     def apply(self):
-        for subset_name, subset in self._extractor.subsets().items():
-
-            if subset_name != "tracklets":
-                subset_name = "tracklets"
-
-            with open(osp.join(self._save_dir, f'{subset_name}.xml'), 'w') as f:
-                _SubsetWriter(f, subset_name, subset, self)
+        with open(osp.join(self._save_dir, 'tracklets.xml'), 'w') as f:
+            _SubsetWriter(f, self._extractor, self)
 
     @classmethod
     def patch(cls, dataset, patch, save_dir, **kwargs):
