@@ -41,16 +41,18 @@ class FileRemover:
             rmfile(self.path)
     # pylint: enable=redefined-builtin
 
-class TempTestDir(FileRemover):
+class TestDir(FileRemover):
     """
     Creates a temporary directory for a test. Uses the name of
     the test function to name the directory.
 
     Usage:
 
-    with TempTestDir() as test_dir:
+    with TestDir() as test_dir:
         ...
     """
+
+    __test__ = False
 
     def __init__(self, path=None):
         if path is None:

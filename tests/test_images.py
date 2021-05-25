@@ -3,14 +3,14 @@ import os.path as osp
 
 from unittest import TestCase
 
-from datumaro.util.test_utils import TempTestDir
+from datumaro.util.test_utils import TestDir
 from datumaro.util.image import (lazy_image, load_image, save_image, \
     Image, ByteImage, encode_image)
 from datumaro.util.image_cache import ImageCache
 
 import pytest
-from tests.pytest_marking_constants.requirements import Requirements
-from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
+from tests.requirements import Requirements
+from tests.requirements import DatumaroComponent
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
@@ -19,7 +19,7 @@ class LazyImageTest(TestCase):
     @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_cache_works(self):
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             image = np.ones((100, 100, 3), dtype=np.uint8)
             image_path = osp.join(test_dir, 'image.jpg')
             save_image(image_path, image)
@@ -79,7 +79,7 @@ class ImageTest(TestCase):
     @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_ctors(self):
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             path = osp.join(test_dir, 'path.png')
             image = np.ones([2, 4, 3])
             save_image(path, image)
@@ -121,7 +121,7 @@ class BytesImageTest(TestCase):
     @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_ctors(self):
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             path = osp.join(test_dir, 'path.png')
             image = np.ones([2, 4, 3])
             image_bytes = encode_image(image, 'png')

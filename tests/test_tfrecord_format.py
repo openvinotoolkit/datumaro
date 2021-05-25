@@ -10,13 +10,13 @@ from datumaro.components.extractor import (DatasetItem,
     AnnotationType, Bbox, Mask, LabelCategories
 )
 from datumaro.util.image import Image, ByteImage, encode_image
-from datumaro.util.test_utils import (TempTestDir, compare_datasets,
-                                      check_save_and_load)
+from datumaro.util.test_utils import (TestDir, compare_datasets,
+    check_save_and_load)
 from datumaro.util.tf_util import check_import
 
 import pytest
-from tests.pytest_marking_constants.requirements import Requirements
-from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
+from tests.requirements import Requirements
+from tests.requirements import DatumaroComponent
 
 try:
     from datumaro.plugins.tf_detection_api_format.extractor import \
@@ -48,8 +48,8 @@ class TfrecordConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None, **kwargs):
         return check_save_and_load(self, source_dataset, converter, test_dir,
-                                       importer='tf_detection_api',
-                                       target_dataset=target_dataset, importer_args=importer_args, **kwargs)
+            importer='tf_detection_api',
+            target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
@@ -69,7 +69,7 @@ class TfrecordConverterTest(TestCase):
                 'label_' + str(label) for label in range(10)),
         })
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             self._test_save_and_load(
                 test_dataset,
                 partial(TfDetectionApiConverter.convert, save_images=True),
@@ -96,7 +96,7 @@ class TfrecordConverterTest(TestCase):
                 'label_' + str(label) for label in range(10)),
         })
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             self._test_save_and_load(
                 test_dataset,
                 partial(TfDetectionApiConverter.convert, save_masks=True),
@@ -133,7 +133,7 @@ class TfrecordConverterTest(TestCase):
                 'label_' + str(label) for label in range(10)),
         })
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             self._test_save_and_load(
                 test_dataset,
                 partial(TfDetectionApiConverter.convert, save_images=True),
@@ -157,7 +157,7 @@ class TfrecordConverterTest(TestCase):
                 'label_' + str(label) for label in range(10)),
         })
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             self._test_save_and_load(
                 test_dataset,
                 partial(TfDetectionApiConverter.convert, save_images=True),
@@ -174,7 +174,7 @@ class TfrecordConverterTest(TestCase):
             )
         ], categories=[])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             self._test_save_and_load(test_dataset,
                 TfDetectionApiConverter.convert, test_dir)
 
@@ -195,7 +195,7 @@ class TfrecordConverterTest(TestCase):
             )
         ], categories=[])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             self._test_save_and_load(test_dataset,
                 partial(TfDetectionApiConverter.convert, save_images=True),
                 test_dir, require_images=True)
@@ -213,7 +213,7 @@ class TfrecordConverterTest(TestCase):
                 attributes={'source_id': ''}),
         ], categories=[])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             self._test_save_and_load(dataset,
                 partial(TfDetectionApiConverter.convert, save_images=True),
                 test_dir, require_images=True)
@@ -222,7 +222,7 @@ class TfrecordConverterTest(TestCase):
     @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_inplace_save_writes_only_updated_data(self):
-        with TempTestDir() as path:
+        with TestDir() as path:
             # generate initial dataset
             dataset = Dataset.from_iterable([
                 DatasetItem(1, subset='a', image=np.ones((2, 3, 3))),

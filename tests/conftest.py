@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MIT
 
-
 def pytest_configure(config):
     # register an additional markers
     config.addinivalue_line("markers", "unit: mark a specific test with the unit test type")

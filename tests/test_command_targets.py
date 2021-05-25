@@ -7,11 +7,11 @@ from datumaro.components.project import Project
 from datumaro.util.command_targets import ProjectTarget, \
     ImageTarget, SourceTarget
 from datumaro.util.image import save_image
-from datumaro.util.test_utils import TempTestDir
+from datumaro.util.test_utils import TestDir
 
 import pytest
-from tests.pytest_marking_constants.requirements import Requirements
-from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
+from tests.requirements import Requirements
+from tests.requirements import DatumaroComponent
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
@@ -30,7 +30,7 @@ class CommandTargetsTest(TestCase):
     @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_image_false_when_false(self):
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             path = osp.join(test_dir, 'test.jpg')
             with open(path, 'w+') as f:
                 f.write('qwerty123')
@@ -45,7 +45,7 @@ class CommandTargetsTest(TestCase):
     @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_image_true_when_true(self):
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             path = osp.join(test_dir, 'test.jpg')
             save_image(path, np.ones([10, 7, 3]))
 
@@ -79,7 +79,7 @@ class CommandTargetsTest(TestCase):
     @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_project_true_when_project_file(self):
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             path = osp.join(test_dir, 'test.jpg')
             Project().save(path)
 
@@ -121,7 +121,7 @@ class CommandTargetsTest(TestCase):
     @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_project_false_when_not_project_file(self):
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             path = osp.join(test_dir, 'test.jpg')
             with open(path, 'w+') as f:
                 f.write('wqererw')

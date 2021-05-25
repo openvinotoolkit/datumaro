@@ -8,8 +8,8 @@ from datumaro.components.operations import DistanceComparator, ExactComparator
 from unittest import TestCase
 
 import pytest
-from tests.pytest_marking_constants.requirements import Requirements
-from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
+from tests.requirements import Requirements
+from tests.requirements import DatumaroComponent
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)

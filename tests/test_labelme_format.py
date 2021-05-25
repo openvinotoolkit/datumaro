@@ -8,12 +8,12 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import (DatasetItem, Bbox, Mask, Polygon)
 from datumaro.plugins.labelme_format import LabelMeImporter, LabelMeConverter
 from datumaro.util.image import Image
-from datumaro.util.test_utils import (TempTestDir, compare_datasets,
-                                      check_save_and_load)
+from datumaro.util.test_utils import (TestDir, compare_datasets,
+    check_save_and_load)
 
 import pytest
-from tests.pytest_marking_constants.requirements import Requirements
-from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
+from tests.requirements import Requirements
+from tests.requirements import DatumaroComponent
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
@@ -21,8 +21,8 @@ class LabelMeConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None, **kwargs):
         return check_save_and_load(self, source_dataset, converter, test_dir,
-                                       importer='label_me',
-                                       target_dataset=target_dataset, importer_args=importer_args, **kwargs)
+            importer='label_me',
+            target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
     @pytest.mark.priority_medium
     @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
@@ -87,7 +87,7 @@ class LabelMeConverterTest(TestCase):
             ),
         ], categories=['label_2', 'label_3'])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             self._test_save_and_load(
                 source_dataset,
                 partial(LabelMeConverter.convert, save_images=True),
@@ -104,7 +104,7 @@ class LabelMeConverterTest(TestCase):
                 data=np.zeros((3, 4, 3)))),
         ], categories=[])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             self._test_save_and_load(dataset,
                 partial(LabelMeConverter.convert, save_images=True),
                 test_dir, require_images=True)
@@ -131,7 +131,7 @@ class LabelMeConverterTest(TestCase):
             ),
         ], categories=['label_3'])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             self._test_save_and_load(
                 source_dataset,
                 partial(LabelMeConverter.convert, save_images=True),
@@ -166,7 +166,7 @@ class LabelMeConverterTest(TestCase):
             DatasetItem(id='subdir3/1', subset='b', image=np.ones((4, 4, 3))),
         ], categories=['label1', 'label2'])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
                 partial(LabelMeConverter.convert, save_images=True),
                 test_dir, require_images=True)
@@ -180,7 +180,7 @@ class LabelMeConverterTest(TestCase):
                 data=np.zeros((4, 3, 3)))),
         ], categories=[])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             self._test_save_and_load(dataset,
                 partial(LabelMeConverter.convert, save_images=True),
                 test_dir, require_images=True)

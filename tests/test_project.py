@@ -11,11 +11,11 @@ from datumaro.components.extractor import (Extractor, DatasetItem,
     Label, LabelCategories, AnnotationType)
 from datumaro.components.config import Config
 from datumaro.components.dataset import Dataset, DEFAULT_FORMAT
-from datumaro.util.test_utils import TempTestDir, compare_datasets
+from datumaro.util.test_utils import TestDir, compare_datasets
 
 import pytest
-from tests.pytest_marking_constants.requirements import Requirements
-from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
+from tests.requirements import Requirements
+from tests.requirements import DatumaroComponent
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
@@ -29,7 +29,7 @@ class ProjectTest(TestCase):
             'format_version': 1,
         })
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             project_path = test_dir
             Project.generate(project_path, src_config)
 
@@ -98,7 +98,7 @@ class ProjectTest(TestCase):
         project = Project()
         project.add_source(source_name, origin)
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             project.save(test_dir)
 
             loaded = Project.load(test_dir)
@@ -138,7 +138,7 @@ class ProjectTest(TestCase):
         saved = Model({ 'launcher': 'name' })
         project.add_model(model_name, saved)
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             project.save(test_dir)
 
             loaded = Project.load(test_dir)
@@ -149,7 +149,7 @@ class ProjectTest(TestCase):
     @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_have_project_source(self):
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             Project.generate(test_dir)
 
             project2 = Project()
@@ -235,7 +235,7 @@ class ProjectTest(TestCase):
         project.add_model(model_name, { 'launcher': launcher_name })
         project.add_source('source', { 'format': extractor_name })
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             project.make_dataset().apply_model(model=model_name,
                 save_dir=test_dir)
 
@@ -330,7 +330,7 @@ class ProjectTest(TestCase):
     @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_and_load_own_dataset(self):
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             src_project = Project()
             src_dataset = src_project.make_dataset()
             item = DatasetItem(id=1)
@@ -358,7 +358,7 @@ class ProjectTest(TestCase):
     @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_project_compound_child_can_be_modified_recursively(self):
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             child1 = Project({
                 'project_dir': osp.join(test_dir, 'child1'),
             })
@@ -430,7 +430,7 @@ class ProjectTest(TestCase):
             DatasetItem(id=1, annotations=[ Label(2) ]),
         ], categories=['a', 'b', 'c'])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             source_dataset.save(test_dir)
 
             project = Project.import_from(test_dir, env=env)

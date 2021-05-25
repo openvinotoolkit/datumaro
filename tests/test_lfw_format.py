@@ -6,11 +6,11 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import DatasetItem, Label, Points
 from datumaro.plugins.lfw_format import LfwConverter, LfwImporter
 from datumaro.util.image import Image
-from datumaro.util.test_utils import TempTestDir, compare_datasets
+from datumaro.util.test_utils import TestDir, compare_datasets
 
 import pytest
-from tests.pytest_marking_constants.requirements import Requirements
-from tests.pytest_marking_constants.datumaro_components import DatumaroComponent
+from tests.requirements import Requirements
+from tests.requirements import DatumaroComponent
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
@@ -48,7 +48,7 @@ class LfwFormatTest(TestCase):
             ),
         ], categories=['name0', 'name1'])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             LfwConverter.convert(source_dataset, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'lfw')
 
@@ -77,7 +77,7 @@ class LfwFormatTest(TestCase):
             ),
         ], categories=['name0'])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             LfwConverter.convert(source_dataset, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'lfw')
 
@@ -100,7 +100,7 @@ class LfwFormatTest(TestCase):
             ),
         ], categories=['name0'])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             LfwConverter.convert(source_dataset, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'lfw')
 
@@ -131,7 +131,7 @@ class LfwFormatTest(TestCase):
             ),
         ], categories=['name0', 'name1'])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             LfwConverter.convert(source_dataset, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'lfw')
 
@@ -153,7 +153,7 @@ class LfwFormatTest(TestCase):
             ),
         ], categories=['name0'])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             LfwConverter.convert(dataset, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'lfw')
 
@@ -172,7 +172,7 @@ class LfwFormatTest(TestCase):
             ),
         ], categories=[])
 
-        with TempTestDir() as test_dir:
+        with TestDir() as test_dir:
             LfwConverter.convert(dataset, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'lfw')
 
