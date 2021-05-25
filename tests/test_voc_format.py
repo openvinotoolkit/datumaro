@@ -89,11 +89,11 @@ class ExtractorBase(Extractor):
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'voc_dataset')
 
-@pytest.mark.components(DatumaroComponent.Datumaro)
+# @pytest.mark.components(DatumaroComponent.Datumaro)
 class VocImportTest(TestCase):
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    # @pytest.mark.priority_medium
+    # @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
+    # @pytest.mark.component
     def test_can_import(self):
         class DstExtractor(ExtractorBase):
             def __iter__(self):
