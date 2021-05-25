@@ -19,6 +19,10 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 def history_command(args):
     project = load_project(args.project_dir)
 
-    print(''.join('%s %s' % line for line in project.revs()))
+    revisions = project.revs()
+    if revisions:
+        print(''.join('%s %s' % line for line in revisions))
+    else:
+        print("(Project history is empty)")
 
     return 0

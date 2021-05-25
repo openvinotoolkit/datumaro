@@ -1016,8 +1016,19 @@ class GitWrapper:
     def is_hash(cls, s: str) -> bool:
         return len(s) == cls.HASH_LEN
 
+    def is_empty(self) -> bool:
+        try:
+            self.repo.head.commit
+            return False
+        except ValueError:
+            return True
+
     def log(self, depth=10) -> List[str]:
         commits = []
+
+        if self.is_empty():
+            return commits
+
         for commit in zip(self.repo.iter_commits(rev='HEAD'), range(depth)):
             commits.append(commit)
         return commits
