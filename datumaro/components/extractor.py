@@ -676,8 +676,9 @@ class Importer:
             filename='*', dirname='', file_filter=None, max_depth=3):
 
         if (path.endswith(ext) and osp.isfile(path)) or \
-            (not ext and osp.isdir(path) and dirname and \
-            os.sep + osp.normpath(dirname) + os.sep in osp.abspath(path) + os.sep):
+                (not ext and osp.isdir(path) and dirname and \
+                os.sep + osp.normpath(dirname) + os.sep in \
+                    osp.abspath(path) + os.sep):
             sources = [{'url': path, 'format': extractor_name}]
         else:
             sources = []

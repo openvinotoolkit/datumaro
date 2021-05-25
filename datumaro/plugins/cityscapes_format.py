@@ -21,6 +21,7 @@ from datumaro.util.annotation_util import make_label_id_mapping
 from datumaro.util.image import save_image, load_image
 from datumaro.util.mask_tools import generate_colormap, paint_mask
 
+
 CityscapesLabelMap = OrderedDict([
     ('unlabeled', (0, 0, 0)),
     ('egovehicle', (0, 0, 0)),
@@ -157,11 +158,14 @@ class CityscapesExtractor(SourceExtractor):
         annotations_path = osp.normpath(osp.join(self._path, '../../../',
             CityscapesPath.GT_FINE_DIR, self._subset))
 
-        for image_path in iglob(osp.join(self._path, '**', '*'+CityscapesPath.ORIGINAL_IMAGE), recursive=True):
-            sample_id = osp.relpath(image_path, self._path).replace(CityscapesPath.ORIGINAL_IMAGE, '')
+        for image_path in iglob(
+                osp.join(self._path, '**', '*' + CityscapesPath.ORIGINAL_IMAGE),
+                recursive=True):
+            sample_id = osp.relpath(image_path, self._path) \
+                .replace(CityscapesPath.ORIGINAL_IMAGE, '')
             anns = []
             instances_path = osp.join(annotations_path, sample_id + '_' +
-                CityscapesPath.GT_FINE_DIR+CityscapesPath.INSTANCES_IMAGE)
+                CityscapesPath.GT_FINE_DIR + CityscapesPath.INSTANCES_IMAGE)
             if osp.isfile(instances_path):
                 instances_mask = load_image(instances_path, dtype=np.int32)
                 segm_ids = np.unique(instances_mask)
@@ -174,7 +178,8 @@ class CityscapesExtractor(SourceExtractor):
                         semanticId = segm_id // 1000
                         isCrowd = False
                         ann_id = segm_id % 1000
-                    anns.append(Mask(image=self._lazy_extract_mask(instances_mask, segm_id),
+                    anns.append(Mask(
+                        image=self._lazy_extract_mask(instances_mask, segm_id),
                         label=semanticId, id=ann_id,
                         attributes = { 'is_crowd': isCrowd }))
             items[sample_id] = DatasetItem(id=sample_id, subset=self._subset,
@@ -238,7 +243,7 @@ class CityscapesConverter(Converter):
             for item in subset:
                 image_path = osp.join(CityscapesPath.IMGS_FINE_DIR,
                     CityscapesPath.ORIGINAL_IMAGE_DIR, subset_name,
-                    item.id+CityscapesPath.ORIGINAL_IMAGE)
+                    item.id + CityscapesPath.ORIGINAL_IMAGE)
                 if self._save_images:
                     self._save_image(item, osp.join(self._save_dir, image_path))
 
@@ -247,31 +252,33 @@ class CityscapesConverter(Converter):
 
                 masks = [a for a in item.annotations
                     if a.type == AnnotationType.mask]
-                if masks:
-                    common_image_name = item.id+'_'+CityscapesPath.GT_FINE_DIR
+                if not masks:
+                    continue
 
-                    compiled_class_mask = CompiledMask.from_instance_masks(masks,
-                        instance_labels=[self._label_id_mapping(m.label)
-                            for m in masks])
-                    color_mask_path = osp.join(common_folder_path,
-                        common_image_name+CityscapesPath.COLOR_IMAGE)
-                    self.save_mask(osp.join(self._save_dir, color_mask_path),
-                        compiled_class_mask.class_mask)
+                common_image_name = item.id + '_' + CityscapesPath.GT_FINE_DIR
 
-                    labelids_mask_path = osp.join(common_folder_path,
-                        common_image_name+CityscapesPath.LABELIDS_IMAGE)
-                    self.save_mask(osp.join(self._save_dir, labelids_mask_path),
-                        compiled_class_mask.class_mask, apply_colormap=False,
-                        dtype=np.int32)
+                compiled_class_mask = CompiledMask.from_instance_masks(masks,
+                    instance_labels=[self._label_id_mapping(m.label)
+                        for m in masks])
+                color_mask_path = osp.join(common_folder_path,
+                    common_image_name + CityscapesPath.COLOR_IMAGE)
+                self.save_mask(osp.join(self._save_dir, color_mask_path),
+                    compiled_class_mask.class_mask)
 
-                    compiled_instance_mask = CompiledMask.from_instance_masks(masks,
-                        instance_labels=[m.id if m.attributes.get('is_crowd', True)
-                        else m.label*1000+m.id for m in masks])
-                    inst_path = osp.join(common_folder_path,
-                        common_image_name+CityscapesPath.INSTANCES_IMAGE)
-                    self.save_mask(osp.join(self._save_dir, inst_path),
-                        compiled_instance_mask.class_mask, apply_colormap=False,
-                        dtype=np.int32)
+                labelids_mask_path = osp.join(common_folder_path,
+                    common_image_name + CityscapesPath.LABELIDS_IMAGE)
+                self.save_mask(osp.join(self._save_dir, labelids_mask_path),
+                    compiled_class_mask.class_mask, apply_colormap=False,
+                    dtype=np.int32)
+
+                compiled_instance_mask = CompiledMask.from_instance_masks(masks,
+                    instance_labels=[m.id if m.attributes.get('is_crowd', True)
+                    else m.label * 1000 + m.id for m in masks])
+                inst_path = osp.join(common_folder_path,
+                    common_image_name + CityscapesPath.INSTANCES_IMAGE)
+                self.save_mask(osp.join(self._save_dir, inst_path),
+                    compiled_instance_mask.class_mask, apply_colormap=False,
+                    dtype=np.int32)
         self.save_label_map()
 
     def save_label_map(self):
