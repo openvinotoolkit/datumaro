@@ -445,15 +445,15 @@ class ProjectBuilder:
             initialized_parents = []
             if graph.in_degree(current_name) == 0:
                 if current['config'].type == 'source':
-                source = self._tree.sources[
-                    self._tree.build_targets.strip_target_name(current_name)]
-                if not source.is_generated:
+                    source = self._tree.sources[
+                        self._tree.build_targets.strip_target_name(current_name)]
+                    if not source.is_generated:
                         # Source is missing in the cache and cannot
                         # be retrieved. It is assumed that all the
                         # sources were downloaded earlier
-                    raise MissingObjectError("Failed to load target '%s': "
-                        "obj '%s' was not found in cache" % \
-                        (current_name, obj_hash))
+                        raise MissingObjectError("Failed to load target '%s': "
+                            "obj '%s' was not found in cache" % \
+                            (current_name, obj_hash))
                 elif current['config'].type == 'project':
                     pass # pipeline is empty
                 else:
@@ -569,11 +569,11 @@ class ProjectBuilder:
                     if t_conf.type == 'project':
                         pass # pipeline is empty
                     elif t_conf.type == 'source':
-                    source = self._tree.sources[
-                        self._tree.build_targets.strip_target_name(t)]
-                    if not source.is_generated:
-                        missing_sources.add(t)
-                else:
+                        source = self._tree.sources[
+                            self._tree.build_targets.strip_target_name(t)]
+                        if not source.is_generated:
+                            missing_sources.add(t)
+                    else:
                         raise WrongSourceNodeError(
                             "Unexpected leaf node '%s' of type '%s'" %
                             (t, t_conf.type))
@@ -903,7 +903,7 @@ class GitWrapper:
             if conflicts:
                 raise UnsavedChangesError(conflicts)
 
-            self.repo.head.reference = commit
+        self.repo.head.reference = commit
         self.repo.head.reset(working_tree=False)
 
         if clean:
@@ -1596,8 +1596,9 @@ class Project:
         if not self._git.initialized:
             self._git.init()
             self._git.ignore([
-                osp.join(self._aux_dir, ProjectLayout.cache_dir),
-            ])
+                ProjectLayout.cache_dir,
+            ], gitignore=osp.join(self._aux_dir, '.gitignore'))
+            self._git.ignore([])
         if not self._dvc.initialized:
             self._dvc.init()
             self._dvc.ignore([
@@ -1636,6 +1637,7 @@ class Project:
         on_error.do(rmtree, osp.join(project_dir, '.dvc'), ignore_errors=True)
         project = Project(path)
         project._init_vcs()
+        project.commit('Initial commit')
 
         return project
 
@@ -1983,6 +1985,13 @@ class Project:
         tree_dir = osp.join(self._aux_dir, ProjectLayout.tree_dir)
         self.working_tree.save()
         self._git.add(tree_dir, base=tree_dir)
+        self._git.add([
+            osp.join(self._root_dir, '.dvc', '.gitignore'),
+            osp.join(self._root_dir, '.dvc', 'config'),
+            osp.join(self._root_dir, '.dvcignore'),
+            osp.join(self._root_dir, '.gitignore'),
+            osp.join(self._aux_dir, '.gitignore'),
+        ], base=self._root_dir)
         head = self._git.commit(message)
 
         shutil.copytree(tree_dir, self.cache_path(head))
