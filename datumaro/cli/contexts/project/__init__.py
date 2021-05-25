@@ -137,8 +137,8 @@ def export_command(args):
             raise CliException("Directory '%s' already exists "
                 "(pass --overwrite to overwrite)" % dst_dir)
     else:
-        dst_dir = generate_next_file_name('%s-%s' % \
-            (project.config.project_name, make_file_name(args.format)))
+        dst_dir = generate_next_file_name('export-%s' % \
+            make_file_name(args.format))
     dst_dir = osp.abspath(dst_dir)
 
     try:
