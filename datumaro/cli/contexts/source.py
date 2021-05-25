@@ -43,12 +43,10 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
             |n
             Examples:|n
             - Add a local directory with VOC-like dataset:|n
-            |s|sadd path/to/voc -f voc|n
+            |s|sadd -f voc path/to/voc|n
             - Add a local file with CVAT annotations, call it 'mysource'|n
             |s|s|s|sto the project somewhere else:|n
-            |s|sadd path/to/cvat.xml -f cvat -n mysource -p somewhere/|n
-            - Add a remote link to a COCO-like dataset:|n
-            |s|sadd git://example.net/repo/path/to/coco/dir -f coco
+            |s|sadd -f cvat -n mysource -p somewhere/ path/to/cvat.xml
         """ % ', '.join(builtins),
         formatter_class=MultilineFormatter)
     parser.add_argument('url',
