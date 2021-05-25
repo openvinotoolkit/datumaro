@@ -858,7 +858,7 @@ class GitWrapper:
     def tag(self, name):
         self.repo.create_tag(name)
 
-    def checkout(self, ref=None, paths=None, dst_dir=None):
+    def checkout(self, ref=None, dst_dir=None, clean=False, force=False):
         commit = self.repo.commit(ref)
 
         tree = commit.tree
@@ -868,7 +868,9 @@ class GitWrapper:
 
         repo_dir = osp.abspath(self._project_dir)
         dst_dir = osp.abspath(dst_dir)
-        if dst_dir.startswith(repo_dir):
+        assert dst_dir.startswith(repo_dir)
+
+        if not force:
             cmp_base = osp.relpath(dst_dir, repo_dir)
             conflicts = []
             for obj in tree.traverse():
@@ -886,10 +888,11 @@ class GitWrapper:
                 # - "T" for changed in the type paths
                 #
                 # Only modified files produce conflicts in checkout
-                if not osp.isfile(file_path):
+                index_entry = self.repo.index.entries.get((obj.path, 0), None)
+                if not osp.isfile(file_path) or not index_entry:
                     continue
                 status = self.repo.git.diff('--name-status',
-                    self.repo.index.entries[(obj.path, 0)].hexsha, file_path)
+                    index_entry.hexsha, file_path)
                 if status:
                     status = status[0]
                 assert status in {'', 'M'}, status
@@ -900,11 +903,13 @@ class GitWrapper:
             if conflicts:
                 raise UnsavedChangesError(conflicts)
 
-
-        if not paths:
             self.repo.head.reference = commit
+        self.repo.head.reset(working_tree=False)
 
-        self.write_tree(tree, dst_dir, include_files=paths)
+        if clean:
+            rmtree(dst_dir)
+
+        self.write_tree(tree, dst_dir)
 
     def add(self, paths, base=None): # pylint: disable=redefined-builtin
         """
@@ -1511,6 +1516,8 @@ class Tree:
 class Project:
     @staticmethod
     def find_project_dir(path: str) -> Optional[str]:
+        path = osp.abspath(path)
+
         if path.endswith(ProjectLayout.aux_dir) and osp.isdir(path):
             return path
 
@@ -1990,7 +1997,7 @@ class Project:
             os.replace(osp.join(src_dir, name), osp.join(dst_dir, name))
 
     def checkout(self, rev: Optional[str] = None,
-            targets: Union[None, str, List[str]] = None):
+            targets: Union[None, str, List[str]] = None, force: bool = False):
         """
         Copies tree and objects from cache to working tree.
 
@@ -2017,7 +2024,7 @@ class Project:
             # set HEAD to the revision
             # write revision tree to working tree
             tree_dir = osp.join(self._aux_dir, ProjectLayout.tree_dir)
-            self._git.checkout(rev, dst_dir=tree_dir)
+            self._git.checkout(rev, dst_dir=tree_dir, clean=True, force=force)
             self._copy_dvc_dir(osp.join(tree_dir, '.dvc'),
                                osp.join(self._root_dir, '.dvc'))
 
@@ -2048,6 +2055,11 @@ class Project:
                     dvcfiles.append(tmp_dvcfile)
 
                 self._dvc.checkout(dvcfiles)
+
+            os.replace(osp.join(tree_dir, '.gitignore'),
+                       osp.join(self._root_dir, '.gitignore'))
+            os.replace(osp.join(tree_dir, '.dvcignore'),
+                       osp.join(self._root_dir, '.dvcignore'))
 
         self._working_tree = None
 

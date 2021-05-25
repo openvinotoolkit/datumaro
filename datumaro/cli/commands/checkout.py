@@ -12,6 +12,8 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 
     parser.add_argument('rev', nargs='?',
         help="Commit or tag (default: current)")
+    parser.add_argument('-f', '--force', action='store_true',
+        help="Ignore unsaved changes (default: %(default)s)")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to operate on (default: current dir)")
     parser.set_defaults(command=checkout_command)
@@ -21,6 +23,6 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 def checkout_command(args):
     project = load_project(args.project_dir)
 
-    project.checkout(rev=args.rev)
+    project.checkout(rev=args.rev, force=args.force)
 
     return 0
