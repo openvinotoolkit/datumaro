@@ -673,9 +673,21 @@ class Importer:
     @classmethod
     def _find_sources_recursive(cls, path, ext, extractor_name,
             filename='*', dirname='', file_filter=None, max_depth=3):
-        if (path.endswith(ext) and osp.isfile(path)) or \
-            (not ext and osp.isdir(path) and dirname and \
-                osp.normpath(dirname) in osp.abspath(path)):
+
+        def check_for_sources(path, ext, dirname):
+            if path.endswith(ext) and osp.isfile(path):
+                return True
+            if not ext and osp.isdir(path) and dirname:
+                dirname = osp.normpath(dirname)
+                path = osp.abspath(path)
+                if dirname in path:
+                    subpath = path.split(dirname)[0]
+                    if osp.isdir(subpath) and \
+                        osp.isdir(osp.join(subpath, dirname)):
+                        return True
+            return False
+
+        if check_for_sources(path, ext, dirname):
             sources = [{'url': path, 'format': extractor_name}]
         else:
             sources = []
