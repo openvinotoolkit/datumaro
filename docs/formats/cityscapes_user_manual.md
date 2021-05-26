@@ -133,7 +133,7 @@ to get more information about these operations.
 There are few examples of using Datumaro operations to solve
 particular problems with Cityscapes dataset:
 
-### Example 1. How to load an original Cityscapes dataset ans convert to Pascal VOC
+### Example 1. How to load an original Cityscapes dataset and convert to Pascal VOC
 
 ```bash
 datum create -o project

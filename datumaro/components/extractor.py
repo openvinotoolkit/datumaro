@@ -1,5 +1,5 @@
 
-# Copyright (C) 2019-2020 Intel Corporation
+# Copyright (C) 2019-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -69,7 +69,7 @@ class LabelCategories(Categories):
             iterable ([type]): This iterable object can be:
             1)simple str - will generate one Category with str as name
             2)list of str - will interpreted as list of Category names
-            3)list of positional argumetns - will generate Categories
+            3)list of positional arguments - will generate Categories
             with this arguments
 
 
@@ -448,7 +448,7 @@ class PointsCategories(Categories):
 
         Args:
             iterable ([type]): This iterable object can be:
-            1) list of positional argumetns - will generate Categories
+            1) list of positional arguments - will generate Categories
                 with these arguments
 
         Returns:
