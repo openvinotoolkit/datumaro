@@ -900,7 +900,8 @@ datum model add \
 ```
 
 Interpretation script for an OpenVINO detection model (`convert.py`):
-You can find OpenVINO™ model interpreter samples in datumaro/plugins/openvino/samples. [Instruction](datumaro/plugins/openvino/README.md)
+You can find OpenVINO model interpreter samples in
+`datumaro/plugins/openvino/samples` ([instruction](datumaro/plugins/openvino/README.md)).
 
 ``` python
 from datumaro.components.extractor import *
@@ -989,6 +990,21 @@ datum diff inference -o diff
 
 ### Explain inference
 
+Runs an explainable AI algorithm for a model.
+
+This tool is supposed to help an AI developer to debug a model and a dataset.
+Basically, it executes inference and tries to find problems in the trained
+model - determine decision boundaries and belief intervals for the classifier.
+
+Currently, the only available algorithm is RISE
+(https://arxiv.org/pdf/1806.07421.pdf), which runs inference and then re-runs
+a model multiple times on each image to produce a heatmap of activations for
+each output of the first inference. As a result, we obtain few heatmaps, which
+shows, how image pixels affected the inference result. This algorithm doesn't
+require any special information about the model, but it requires the model to
+return all the outputs and confidences. The algorighm only supports
+classification and detection models.
+
 Usage:
 
 ``` bash
@@ -997,7 +1013,7 @@ datum explain --help
 datum explain \
     -m <model_name> \
     -o <save_dir> \
-    -t <target> \
+    <target> \
     <method> \
     <method_params>
 ```
@@ -1007,12 +1023,43 @@ Example: run inference explanation on a single image with visualization
 ``` bash
 datum create <...>
 datum model add mymodel <...>
-datum explain \
-    -m mymodel \
-    -t 'image.png' \
-    rise \
-    -s 1000 --progressive
+datum explain image.png -m mymodel \
+    rise --max-samples 1000 --progressive
 ```
+
+> Note: this algorithm requires the model to return
+> *all* (or a _reasonable_ amount) the outputs and confidences unfiltered,
+> i.e. all the `Label` annotations for classification models and
+> all the `Bbox`es for detection models.
+
+For OpenVINO models the output processing script would look like this:
+
+``` python
+from datumaro.components.extractor import *
+from datumaro.util.annotation_util import softmax
+
+def process_outputs(inputs, outputs):
+    # inputs = model input, array or images, shape = (N, C, H, W)
+    # outputs = model output, logits, shape = (N, n_classes)
+    # results = conversion result, [ [ Annotation, ... ], ... ]
+    results = []
+    for input, output in zip(inputs, outputs):
+        input_height, input_width = input.shape[:2]
+        confs = softmax(output[0])
+        for label, conf in enumerate(confs):
+            results.append(Label(int(label)), attributes={'score': float(conf)})
+
+    return results
+
+def get_categories():
+    # Optionally, provide output categories - label map etc.
+    # Example:
+    label_categories = LabelCategories()
+    label_categories.add('person')
+    label_categories.add('car')
+    return { AnnotationType.label: label_categories }
+```
+
 
 ### Transform Project
 

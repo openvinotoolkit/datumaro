@@ -13,26 +13,14 @@ from datumaro.util.image import load_image
 TargetKinds = Enum('TargetKinds',
     ['project', 'source', 'external_dataset', 'inference', 'image'])
 
-def is_project_path(value):
+def is_project(value):
     if value:
         return Project.find_project_dir(value) != None
-    return False
-
-def is_project(value):
-    if is_project_path(value):
-        return True
-
     return False
 
 def is_source(value, project=None):
     if project is not None:
         return value in project.sources
-    return False
-
-def is_external_source(value):
-    return False
-
-def is_inference_path(value):
     return False
 
 def is_image_path(value):
@@ -61,11 +49,8 @@ class Target:
     def __iter__(self):
         return iter(self._get_fields())
 
-def ProjectTarget(kind=TargetKinds.project, test=None,
-        is_default=False, name='project name or path',
-        project=None):
-    if test is None:
-        test = lambda v: is_project(v, project=project)
+def ProjectTarget(kind=TargetKinds.project, test=is_project,
+        is_default=False, name='project name or path'):
     return Target(kind, test, is_default, name)
 
 def SourceTarget(kind=TargetKinds.source, test=None,
@@ -75,17 +60,8 @@ def SourceTarget(kind=TargetKinds.source, test=None,
         test = lambda v: is_source(v, project=project)
     return Target(kind, test, is_default, name)
 
-def ExternalDatasetTarget(kind=TargetKinds.external_dataset,
-        test=is_external_source,
-        is_default=False, name='external dataset path'):
-    return Target(kind, test, is_default, name)
-
-def InferenceTarget(kind=TargetKinds.inference, test=is_inference_path,
-        is_default=False, name='inference path'):
-    return Target(kind, test, is_default, name)
-
 def ImageTarget(kind=TargetKinds.image, test=is_image_path,
-            is_default=False, name='image path'):
+        is_default=False, name='image path'):
     return Target(kind, test, is_default, name)
 
 

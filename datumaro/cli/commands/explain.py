@@ -7,8 +7,8 @@ import logging as log
 import os
 import os.path as osp
 
-from datumaro.util.command_targets import (TargetKinds, target_selector,
-    ProjectTarget, SourceTarget, ImageTarget, is_project_path)
+from datumaro.components.project import parse_target_revpath
+from datumaro.util.command_targets import is_image_path
 from datumaro.util.image import load_image, save_image
 from ..util import MultilineFormatter
 from ..util.project import load_project
@@ -16,12 +16,34 @@ from ..util.project import load_project
 
 def build_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(help="Run Explainable AI algorithm",
-        description="Runs an explainable AI algorithm for a model.")
+        description="""
+        Runs an explainable AI algorithm for a model.|n
+        |n
+        This tool is supposed to help an AI developer to debug
+        a model and a dataset. Basically, it executes inference and
+        tries to find problems in the trained model - determine decision
+        boundaries and belief intervals for the classifier.|n
+        |n
+        Currently, the only available algorithm is
+        RISE (https://arxiv.org/pdf/1806.07421.pdf), which runs
+        inference and then re-runs a model multiple times
+        on each image to produce a heatmap of activations for
+        each output of the first inference. As a result, we obtain
+        few heatmaps, which shows, how image pixels affected
+        the inference result. This algorithm doesn't require any special
+        information about the model, but it requires the model to
+        return all the outputs and confidences. Check the User Manual
+        for usage examples.|n
+        |n
+        Examples:|n
+        - Run RISE on an image, display results:|n
+        |s|s%(prog)s path/to/image.jpg -m mymodel rise --max-samples 50
+        """, formatter_class=MultilineFormatter)
 
+    parser.add_argument('target', nargs='?', default=None,
+        help="Inference target - image, source (default: project)")
     parser.add_argument('-m', '--model', required=True,
         help="Model to use for inference")
-    parser.add_argument('-t', '--target', default=None,
-        help="Inference target - image, source (default: current project)")
     parser.add_argument('-o', '--output-dir', dest='save_dir', default=None,
         help="Directory to save output (default: display only)")
 
@@ -66,27 +88,12 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     return parser
 
 def explain_command(args):
-    project_path = args.project_dir
-    if is_project_path(project_path):
-        project = load_project(project_path)
-    else:
-        project = None
-    args.target = target_selector(
-        ProjectTarget(is_default=True, project=project),
-        SourceTarget(project=project),
-        ImageTarget()
-    )(args.target)
-    if args.target[0] == TargetKinds.project:
-        if is_project_path(args.target[1]):
-            args.project_dir = osp.dirname(osp.abspath(args.target[1]))
-
-
     import cv2
     from matplotlib import cm
 
     project = load_project(args.project_dir)
 
-    model = project.make_executable_model(args.model)
+    model = project.working_tree.models.make_executable_model(args.model)
 
     if str(args.algorithm).lower() != 'rise':
         raise NotImplementedError()
@@ -102,8 +109,8 @@ def explain_command(args):
         det_conf_thresh=args.det_conf_thresh,
         batch_size=args.batch_size)
 
-    if args.target[0] == TargetKinds.image:
-        image_path = args.target[1]
+    if args.target and is_image_path(args.target):
+        image_path = args.target
         image = load_image(image_path)
 
         log.info("Running inference explanation for '%s'" % image_path)
@@ -136,15 +143,11 @@ def explain_command(args):
                 disp = (image + cm.jet(heatmap)[:, :, 2::-1]) / 2
                 cv2.imshow(file_name + '-heatmap-%s' % j, disp)
             cv2.waitKey(0)
-    elif args.target[0] == TargetKinds.source or \
-         args.target[0] == TargetKinds.project:
-        if args.target[0] == TargetKinds.source:
-            source_name = args.target[1]
-            dataset = project.working_tree.make_dataset(source_name)
-            log.info("Running inference explanation for '%s'" % source_name)
-        else:
-            dataset = project.working_tree.make_dataset()
-            log.info("Running inference explanation for project")
+
+    else:
+        rev, target = parse_target_revpath(args.target or 'project')
+        dataset = project.get_rev(rev).make_dataset(target)
+        log.info("Running inference explanation for '%s'" % target)
 
         for item in dataset:
             image = item.image.data
@@ -173,7 +176,5 @@ def explain_command(args):
                     disp = (image + cm.jet(heatmap)[:, :, 2::-1]) / 2
                     cv2.imshow(item.id + '-heatmap-%s' % j, disp)
                 cv2.waitKey(0)
-    else:
-        raise NotImplementedError()
 
     return 0
