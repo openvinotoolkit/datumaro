@@ -38,6 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Allowed adding "difficult", "truncated", "occluded" attributes when converting to Pascal VOC if these attributes are not present (<https://github.com/openvinotoolkit/datumaro/pull/216>)
 - Empty lines in YOLO annotations are ignored (<https://github.com/openvinotoolkit/datumaro/pull/221>)
 - Export in VOC format when no image info is available (<https://github.com/openvinotoolkit/datumaro/pull/239>)
+- Fixed saving attribute in WiderFace extractor (<https://github.com/openvinotoolkit/datumaro/pull/251>)
 
 ### Security
 -
