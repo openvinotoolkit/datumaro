@@ -43,7 +43,9 @@ class WiderFaceFormatTest(TestCase):
                         'blur': '2', 'expression': '1', 'illumination': '0',
                         'occluded': '0', 'pose': '1', 'invalid': '0'}),
                     Bbox(0, 2, 3, 2, label=0, attributes={
-                        'occluded': 'False'}),
+                        'occluded': False}),
+                    Bbox(0, 3, 4, 2, label=0, attributes={
+                        'occluded': True}),
                     Bbox(0, 2, 4, 2, label=0),
                     Bbox(0, 7, 3, 2, label=0, attributes={
                         'blur': '2', 'expression': '1', 'illumination': '0',
