@@ -17,7 +17,14 @@ matrix:
       before_install:
         - pip install pytest-cov
       script:
-        - pytest -n 6 --cov --cov-report xml:coverage.xml
+        - pytest -n0 -v
+        - pytest -n2 -v
+        - pytest -n3 -v
+        - pytest -n4 -v
+        - pytest -n5 -v
+        - pytest -n6 -v
+        - pytest -n auto -v
+        - pytest -n auto -v --cov --cov-report xml:coverage.xml
         - datum -h
       after_success:
         - bash <(curl -Ls https://coverage.codacy.com/get.sh) report -r coverage.xml
