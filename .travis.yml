@@ -15,12 +15,11 @@ matrix:
     - dist: bionic
       python: '3.6'
       before_install:
-        - pip install coverage
+        - pip install pytest-cov
       script:
-        - coverage run -m unittest discover -v
-        - coverage run -a datum.py -h
+        - pytest -n 6 --cov --cov-report xml:coverage.xml
+        - datum -h
       after_success:
-        - coverage xml
         - bash <(curl -Ls https://coverage.codacy.com/get.sh) report -r coverage.xml
 
     - dist: bionic
@@ -34,5 +33,5 @@ install:
   - pip install pandas
 
 script:
-  - python -m unittest discover -v
+  - pytest -n 6
   - datum -h
