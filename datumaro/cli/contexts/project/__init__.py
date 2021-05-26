@@ -677,7 +677,7 @@ def transform_command(args):
     extra_args = {}
     if hasattr(transform, 'parse_cmdline'):
         extra_args = transform.parse_cmdline(args.extra_args)
-    
+
     log.info("Loading the project...")
     dataset = project.make_dataset()
 

@@ -113,8 +113,8 @@ class TestValidatorTemplate(TestCase):
 class TestBaseValidator(TestValidatorTemplate):
     @classmethod
     def setUpClass(cls):
-        cls.validator = _Validator(task_type=TaskType.classification, few_samples_thr=1, 
-                                imbalance_ratio_thr=50, far_from_mean_thr=5.0, 
+        cls.validator = _Validator(task_type=TaskType.classification, few_samples_thr=1,
+                                imbalance_ratio_thr=50, far_from_mean_thr=5.0,
                                 dominance_ratio_thr=0.8, topk_bins=0.1)
 
     def test_generate_reports(self):
@@ -352,8 +352,10 @@ class TestBaseValidator(TestValidatorTemplate):
 class TestClassificationValidator(TestValidatorTemplate):
     @classmethod
     def setUpClass(cls):
-        cls.validator = ClassificationValidator(few_samples_thr=1, imbalance_ratio_thr=50,
-                                    far_from_mean_thr=5.0, dominance_ratio_thr=0.8, 
+        cls.validator = ClassificationValidator(few_samples_thr=1, 
+                                    imbalance_ratio_thr=50,
+                                    far_from_mean_thr=5.0,
+                                    dominance_ratio_thr=0.8,
                                     topk_bins=0.1)
 
     def test_check_missing_label_annotation(self):
@@ -380,8 +382,10 @@ class TestClassificationValidator(TestValidatorTemplate):
 class TestDetectionValidator(TestValidatorTemplate):
     @classmethod
     def setUpClass(cls):
-        cls.validator = DetectionValidator(few_samples_thr=1, imbalance_ratio_thr=50,
-                                    far_from_mean_thr=5.0, dominance_ratio_thr=0.8, 
+        cls.validator = DetectionValidator(few_samples_thr=1,
+                                    imbalance_ratio_thr=50,
+                                    far_from_mean_thr=5.0,
+                                    dominance_ratio_thr=0.8,
                                     topk_bins=0.1)
 
     def test_check_imbalanced_dist_in_label(self):
@@ -540,8 +544,10 @@ class TestDetectionValidator(TestValidatorTemplate):
 class TestSegmentationValidator(TestValidatorTemplate):
     @classmethod
     def setUpClass(cls):
-        cls.validator = SegmentationValidator(few_samples_thr=1, imbalance_ratio_thr=50,
-                                    far_from_mean_thr=5.0, dominance_ratio_thr=0.8,
+        cls.validator = SegmentationValidator(few_samples_thr=1,
+                                    imbalance_ratio_thr=50,
+                                    far_from_mean_thr=5.0,
+                                    dominance_ratio_thr=0.8,
                                     topk_bins=0.1)
 
     def test_check_imbalanced_dist_in_label(self):
@@ -690,7 +696,8 @@ class TestValidateAnnotations(TestValidatorTemplate):
             'topk_bins': 0.1,
         }
     def test_validate_annotations_classification(self):
-        actual_results = validate_annotations(self.dataset, 'classification', **self.extra_args)
+        actual_results = validate_annotations(self.dataset, 'classification',
+                                        **self.extra_args)
 
         with self.subTest('Test of statistics', i=0):
             actual_stats = actual_results['statistics']
@@ -745,7 +752,8 @@ class TestValidateAnnotations(TestValidatorTemplate):
             self.assertEqual(actual_summary, expected_summary)
 
     def test_validate_annotations_detection(self):
-        actual_results = validate_annotations(self.dataset, 'detection', **self.extra_args)
+        actual_results = validate_annotations(self.dataset, 'detection',
+                                        **self.extra_args)
 
         with self.subTest('Test of statistics', i=0):
             actual_stats = actual_results['statistics']
@@ -798,7 +806,8 @@ class TestValidateAnnotations(TestValidatorTemplate):
             self.assertEqual(actual_summary, expected_summary)
 
     def test_validate_annotations_segmentation(self):
-        actual_results = validate_annotations(self.dataset, 'segmentation', **self.extra_args)
+        actual_results = validate_annotations(self.dataset, 'segmentation',
+                                        **self.extra_args)
 
         with self.subTest('Test of statistics', i=0):
             actual_stats = actual_results['statistics']

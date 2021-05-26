@@ -63,23 +63,25 @@ class _Validator(CliPlugin):
     def build_cmdline_parser(cls, **kwargs):
         parser = super().build_cmdline_parser(**kwargs)
         parser.add_argument('-fs', '--few_samples_thr', default=1, type=int,
-            help="Threshold for giving a warning for minimum number of samples per class")
+            help="Threshold for giving a warning for minimum number of"
+                 "samples per class")
         parser.add_argument('-ir', '--imbalance_ratio_thr', default=50, type=int,
-            help="Threshold for giving data imbalance warning; IR(imbalance ratio) = majority/minority")
+            help="Threshold for giving data imbalance warning;"
+                 "IR(imbalance ratio) = majority/minority")
         parser.add_argument('-m', '--far_from_mean_thr', default=5.0, type=float,
-            help="Threshold for giving a warning that data is far from mean;" 
+            help="Threshold for giving a warning that data is far from mean;"
                  "A constant used to define mean +/- k * standard deviation;")
         parser.add_argument('-dr', '--dominance_ratio_thr', default=0.8, type=float,
-            help="Threshold for giving a warning for bounding box imbalance;" 
+            help="Threshold for giving a warning for bounding box imbalance;"
                  "Dominace_ratio = ratio of Top-k bin to total in histogram;")
         parser.add_argument('-k', '--topk_bins', default=0.1, type=float,
-            help="Ratio of bins with the highest number of data to total bins in the histogram;" 
-                 "[0, 1]; 0.1 = 10%;")
+            help="Ratio of bins with the highest number of data"
+                 "to total bins in the histogram; [0, 1]; 0.1 = 10%;")
         return parser
 
-    def __init__(self, task_type, few_samples_thr=None, 
-            imbalance_ratio_thr=None, far_from_mean_thr=None, 
-            dominance_ratio_thr=None, topk_bins=None, ):
+    def __init__(self, task_type, few_samples_thr=None,
+            imbalance_ratio_thr=None, far_from_mean_thr=None,
+            dominance_ratio_thr=None, topk_bins=None):
         """
         Validator
 
@@ -573,12 +575,13 @@ class ClassificationValidator(_Validator):
     A validator class for classification tasks.
     """
 
-    def __init__(self, few_samples_thr, imbalance_ratio_thr, 
-                far_from_mean_thr, dominance_ratio_thr, topk_bins):
-        super().__init__(task_type=TaskType.classification, few_samples_thr=few_samples_thr,
-                        imbalance_ratio_thr=imbalance_ratio_thr, 
-                        far_from_mean_thr=far_from_mean_thr,
-                        dominance_ratio_thr=dominance_ratio_thr, topk_bins=topk_bins)
+    def __init__(self, few_samples_thr, imbalance_ratio_thr,
+            far_from_mean_thr, dominance_ratio_thr, topk_bins):
+        super().__init__(task_type=TaskType.classification,
+            few_samples_thr=few_samples_thr,
+            imbalance_ratio_thr=imbalance_ratio_thr,
+            far_from_mean_thr=far_from_mean_thr,
+            dominance_ratio_thr=dominance_ratio_thr, topk_bins=topk_bins)
 
     def _check_multi_label_annotations(self, stats):
         validation_reports = []
@@ -676,12 +679,13 @@ class DetectionValidator(_Validator):
     """
     A validator class for detection tasks.
     """
-    def __init__(self, few_samples_thr, imbalance_ratio_thr, 
-                far_from_mean_thr, dominance_ratio_thr, topk_bins):
-        super().__init__(task_type=TaskType.detection, few_samples_thr=few_samples_thr,
-                        imbalance_ratio_thr=imbalance_ratio_thr, 
-                        far_from_mean_thr=far_from_mean_thr,
-                        dominance_ratio_thr=dominance_ratio_thr, topk_bins=topk_bins)
+    def __init__(self, few_samples_thr, imbalance_ratio_thr,
+            far_from_mean_thr, dominance_ratio_thr, topk_bins):
+        super().__init__(task_type=TaskType.detection,
+            few_samples_thr=few_samples_thr,
+            imbalance_ratio_thr=imbalance_ratio_thr,
+            far_from_mean_thr=far_from_mean_thr,
+            dominance_ratio_thr=dominance_ratio_thr, topk_bins=topk_bins)
 
     def _check_negative_length(self, stats):
         validation_reports = []
@@ -961,12 +965,13 @@ class SegmentationValidator(_Validator):
     A validator class for (instance) segmentation tasks.
     """
 
-    def __init__(self, few_samples_thr, imbalance_ratio_thr, 
-                far_from_mean_thr, dominance_ratio_thr, topk_bins):
-        super().__init__(task_type=TaskType.segmentation, few_samples_thr=few_samples_thr,
-                        imbalance_ratio_thr=imbalance_ratio_thr, 
-                        far_from_mean_thr=far_from_mean_thr,
-                        dominance_ratio_thr=dominance_ratio_thr, topk_bins=topk_bins)
+    def __init__(self, few_samples_thr, imbalance_ratio_thr,
+            far_from_mean_thr, dominance_ratio_thr, topk_bins):
+        super().__init__(task_type=TaskType.segmentation,
+            few_samples_thr=few_samples_thr,
+            imbalance_ratio_thr=imbalance_ratio_thr,
+            far_from_mean_thr=far_from_mean_thr,
+            dominance_ratio_thr=dominance_ratio_thr, topk_bins=topk_bins)
 
     def compute_statistics(self, dataset):
         """
@@ -1225,20 +1230,23 @@ def validate_annotations(dataset: IDataset, task_type: Union[str, TaskType], **e
 
     task_type = parse_str_enum_value(task_type, TaskType)
     if task_type == TaskType.classification:
-        validator = ClassificationValidator(few_samples_thr=few_samples_thr, 
+        validator = ClassificationValidator(few_samples_thr=few_samples_thr,
                                     imbalance_ratio_thr=imbalance_ratio_thr,
-                                    far_from_mean_thr=far_from_mean_thr, 
-                                    dominance_ratio_thr=dominance_ratio_thr, topk_bins=topk_bins)
+                                    far_from_mean_thr=far_from_mean_thr,
+                                    dominance_ratio_thr=dominance_ratio_thr,
+                                    topk_bins=topk_bins)
     elif task_type == TaskType.detection:
-        validator = DetectionValidator(few_samples_thr=few_samples_thr, 
+        validator = DetectionValidator(few_samples_thr=few_samples_thr,
                                     imbalance_ratio_thr=imbalance_ratio_thr,
-                                    far_from_mean_thr=far_from_mean_thr, 
-                                    dominance_ratio_thr=dominance_ratio_thr, topk_bins=topk_bins)
+                                    far_from_mean_thr=far_from_mean_thr,
+                                    dominance_ratio_thr=dominance_ratio_thr,
+                                    topk_bins=topk_bins)
     elif task_type == TaskType.segmentation:
-        validator = SegmentationValidator(few_samples_thr=few_samples_thr, 
+        validator = SegmentationValidator(few_samples_thr=few_samples_thr,
                                     imbalance_ratio_thr=imbalance_ratio_thr,
-                                    far_from_mean_thr=far_from_mean_thr, 
-                                    dominance_ratio_thr=dominance_ratio_thr, topk_bins=topk_bins)
+                                    far_from_mean_thr=far_from_mean_thr,
+                                    dominance_ratio_thr=dominance_ratio_thr,
+                                    topk_bins=topk_bins)
 
     if not isinstance(dataset, IDataset):
         raise TypeError("Invalid dataset type '%s'" % type(dataset))
