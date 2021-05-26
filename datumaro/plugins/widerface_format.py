@@ -6,11 +6,11 @@
 import os
 import os.path as osp
 import re
-from distutils.util import strtobool
 
 from datumaro.components.converter import Converter
 from datumaro.components.extractor import (AnnotationType, Bbox, DatasetItem,
     Importer, Label, LabelCategories, SourceExtractor)
+from datumaro.util import str_to_bool
 
 
 class WiderFacePath:
@@ -121,7 +121,7 @@ class WiderFaceExtractor(SourceExtractor):
                         for attr in WiderFacePath.BBOX_ATTRIBUTES:
                             if bbox_list[i] != '-':
                                 if bbox_list[i] in ['True', 'False']:
-                                    attributes[attr] = strtobool(bbox_list[i])
+                                    attributes[attr] = str_to_bool(bbox_list[i])
                                 else:
                                     attributes[attr] = bbox_list[i]
                             i += 1
