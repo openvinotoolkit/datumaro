@@ -15,6 +15,7 @@ matrix:
     - dist: bionic
       python: '3.6'
       before_install:
+        - pip install pytest-xdist
         - pip install pytest-cov
       script:
         - pytest -v --cov --cov-report xml:coverage.xml
@@ -31,6 +32,7 @@ install:
   - pip install -e ./
   - pip install tensorflow
   - pip install pandas
+  - pip install pytest-xdist
 
 script:
   - pytest -v
