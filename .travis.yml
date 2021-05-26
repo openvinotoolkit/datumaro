@@ -15,17 +15,9 @@ matrix:
     - dist: bionic
       python: '3.6'
       before_install:
-        - pip install pytest-xdist
         - pip install pytest-cov
       script:
-        - pytest -n0 -v
-        - pytest -n2 -v
-        - pytest -n3 -v
-        - pytest -n4 -v
-        - pytest -n5 -v
-        - pytest -n6 -v
-        - pytest -n auto -v
-        - pytest -n auto -v --cov --cov-report xml:coverage.xml
+        - pytest -v --cov --cov-report xml:coverage.xml
         - datum -h
       after_success:
         - bash <(curl -Ls https://coverage.codacy.com/get.sh) report -r coverage.xml
@@ -39,8 +31,7 @@ install:
   - pip install -e ./
   - pip install tensorflow
   - pip install pandas
-  - pip install pytest-xdist
 
 script:
-  - pytest -n 6
+  - pytest -v
   - datum -h
