@@ -213,7 +213,7 @@ class CamvidConverterTest(TestCase):
     @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_dataset_with_source_labelmap_undefined(self):
-        class TestExtractor(TestExtractorBase):
+        class SrcExtractor(TestExtractorBase):
             def __iter__(self):
                 yield DatasetItem(id=1, image=np.ones((1, 5, 3)), annotations=[
                     Mask(image=np.array([[1, 1, 0, 1, 0]]), label=0),
@@ -243,7 +243,7 @@ class CamvidConverterTest(TestCase):
                 return Camvid.make_camvid_categories(label_map)
 
         with TestDir() as test_dir:
-            self._test_save_and_load(TestExtractor(),
+            self._test_save_and_load(SrcExtractor(),
                 partial(CamvidConverter.convert, label_map='source'),
                 test_dir, target_dataset=DstExtractor())
 
@@ -251,7 +251,7 @@ class CamvidConverterTest(TestCase):
     @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_dataset_with_source_labelmap_defined(self):
-        class TestExtractor(TestExtractorBase):
+        class SrcExtractor(TestExtractorBase):
             def __iter__(self):
                 yield DatasetItem(id=1, image=np.ones((1, 5, 3)), annotations=[
                     Mask(image=np.array([[1, 1, 0, 1, 0]]), label=1),
@@ -280,7 +280,7 @@ class CamvidConverterTest(TestCase):
                 return Camvid.make_camvid_categories(label_map)
 
         with TestDir() as test_dir:
-            self._test_save_and_load(TestExtractor(),
+            self._test_save_and_load(SrcExtractor(),
                 partial(CamvidConverter.convert, label_map='source'),
                 test_dir, target_dataset=DstExtractor())
 
@@ -288,7 +288,7 @@ class CamvidConverterTest(TestCase):
     @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.component
     def test_can_save_and_load_image_with_arbitrary_extension(self):
-        class TestExtractor(TestExtractorBase):
+        class SrcExtractor(TestExtractorBase):
             def __iter__(self):
                 return iter([
                     DatasetItem(id='q/1', image=Image(path='q/1.JPEG',
@@ -336,7 +336,7 @@ class CamvidConverterTest(TestCase):
                 return Camvid.make_camvid_categories(label_map)
 
         with TestDir() as test_dir:
-            self._test_save_and_load(TestExtractor(),
+            self._test_save_and_load(SrcExtractor(),
                 partial(CamvidConverter.convert, save_images=True),
                 test_dir, require_images=True,
                 target_dataset=DstExtractor())
