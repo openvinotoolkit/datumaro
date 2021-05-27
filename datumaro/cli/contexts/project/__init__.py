@@ -824,7 +824,7 @@ def validate_command(args):
     if subset_name is not None:
         dataset = dataset.get_subset(subset_name)
         dst_file_name += f'-{subset_name}'
-    
+
     extra_args = {}
     from datumaro.components.validator import _Validator
     extra_args = _Validator.parse_cmdline(args.extra_args)

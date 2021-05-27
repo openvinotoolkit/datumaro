@@ -352,7 +352,7 @@ class TestBaseValidator(TestValidatorTemplate):
 class TestClassificationValidator(TestValidatorTemplate):
     @classmethod
     def setUpClass(cls):
-        cls.validator = ClassificationValidator(few_samples_thr=1, 
+        cls.validator = ClassificationValidator(few_samples_thr=1,
                                     imbalance_ratio_thr=50,
                                     far_from_mean_thr=5.0,
                                     dominance_ratio_thr=0.8,
