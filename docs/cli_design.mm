@@ -9,7 +9,7 @@
 <node CREATED="1562592677270" ID="ID_1205701076" MODIFIED="1574330175510" TEXT="Generates a project from other project or dataset in a specific format"/>
 </node>
 <node CREATED="1562592764462" ID="ID_724395644" MODIFIED="1579775533832" TEXT="export">
-<node CREATED="1562592918908" ID="ID_44929477" MODIFIED="1574330221398" TEXT="Saves dataset in a specfic format"/>
+<node CREATED="1562592918908" ID="ID_44929477" MODIFIED="1574330221398" TEXT="Saves dataset in a specific format"/>
 </node>
 <node CREATED="1562593914751" ID="ID_378739335" MODIFIED="1579775533832" TEXT="extract">
 <node CREATED="1562593918968" ID="ID_424607257" MODIFIED="1569929409897" TEXT="Extracts subproject by filter"/>

@@ -1,10 +1,11 @@
 
-# Copyright (C) 2019-2020 Intel Corporation
+# Copyright (C) 2019-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 from enum import Enum
 from glob import iglob
 import numpy as np
+import os
 import os.path as osp
 from typing import Iterable, List, Dict, Optional
 
@@ -67,7 +68,7 @@ class LabelCategories(Categories):
             iterable ([type]): This iterable object can be:
             1)simple str - will generate one Category with str as name
             2)list of str - will interpreted as list of Category names
-            3)list of positional argumetns - will generate Categories
+            3)list of positional arguments - will generate Categories
             with this arguments
 
 
@@ -236,7 +237,7 @@ class RleMask(Mask):
 class CompiledMask:
     @staticmethod
     def from_instance_masks(instance_masks,
-            instance_ids=None, instance_labels=None):
+            instance_ids=None, instance_labels=None, dtype=None):
         from datumaro.util.mask_tools import make_index_mask
 
         if instance_ids is not None:
@@ -266,7 +267,7 @@ class CompiledMask:
         m, idx, instance_id, class_id = next(it)
         if not class_id:
             idx = 0
-        index_mask = make_index_mask(m, idx)
+        index_mask = make_index_mask(m, idx, dtype=dtype)
         instance_map.append(instance_id)
         class_map.append(class_id)
 
@@ -282,8 +283,8 @@ class CompiledMask:
         else:
             merged_instance_mask = np.array(instance_map,
                 dtype=np.min_scalar_type(instance_map))[index_mask]
-        merged_class_mask = np.array(class_map,
-            dtype=np.min_scalar_type(class_map))[index_mask]
+        dtype_mask = dtype if dtype else np.min_scalar_type(class_map)
+        merged_class_mask = np.array(class_map, dtype=dtype_mask)[index_mask]
 
         return __class__(class_mask=merged_class_mask,
             instance_mask=merged_instance_mask)
@@ -457,7 +458,7 @@ class PointsCategories(Categories):
 
         Args:
             iterable ([type]): This iterable object can be:
-            1) list of positional argumetns - will generate Categories
+            1) list of positional arguments - will generate Categories
                 with these arguments
 
         Returns:
@@ -713,7 +714,11 @@ class Importer:
     @classmethod
     def _find_sources_recursive(cls, path, ext, extractor_name,
             filename='*', dirname='', file_filter=None, max_depth=3):
-        if path.endswith(ext) and osp.isfile(path):
+
+        if (path.endswith(ext) and osp.isfile(path)) or \
+                (not ext and osp.isdir(path) and dirname and \
+                os.sep + osp.normpath(dirname) + os.sep in \
+                    osp.abspath(path) + os.sep):
             sources = [{'url': path, 'format': extractor_name}]
         else:
             sources = []

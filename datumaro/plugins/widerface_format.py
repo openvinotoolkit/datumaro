@@ -10,6 +10,7 @@ import re
 from datumaro.components.converter import Converter
 from datumaro.components.extractor import (AnnotationType, Bbox, DatasetItem,
     Importer, Label, LabelCategories, SourceExtractor)
+from datumaro.util import str_to_bool
 
 
 class WiderFacePath:
@@ -119,7 +120,10 @@ class WiderFaceExtractor(SourceExtractor):
                         i = 4
                         for attr in WiderFacePath.BBOX_ATTRIBUTES:
                             if bbox_list[i] != '-':
-                                attributes[attr] = bbox_list[i]
+                                if bbox_list[i] in ['True', 'False']:
+                                    attributes[attr] = str_to_bool(bbox_list[i])
+                                else:
+                                    attributes[attr] = bbox_list[i]
                             i += 1
 
                     annotations.append(Bbox(

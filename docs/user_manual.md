@@ -131,6 +131,10 @@ List of supported formats:
 - CamVid (`segmentation`)
   - [Format specification](http://mi.eng.cam.ac.uk/research/projects/VideoRec/CamVid/)
   - [Dataset example](../tests/assets/camvid_dataset)
+- Cityscapes (`segmentation`)
+  - [Format specification](https://www.cityscapes-dataset.com/dataset-overview/)
+  - [Dataset example](../tests/assets/cityscapes_dataset)
+  - [Format documentation](./formats/cityscapes_user_manual.md)
 - CVAT
   - [Format specification](https://github.com/opencv/cvat/blob/develop/cvat/apps/documentation/xml_format.md)
   - [Dataset example](../tests/assets/cvat_dataset)
@@ -1344,7 +1348,7 @@ pip install 'git+https://github.com/openvinotoolkit/open_model_zoo.git#subdirect
 #### OpenVINO™
 
 This plugin provides support for model inference with [OpenVINO™](https://01.org/openvinotoolkit).
-The plugin depends on the OpenVINO™ Tookit, which can be installed by
+The plugin depends on the OpenVINO™ Toolkit, which can be installed by
 following [these instructions](https://docs.openvinotoolkit.org/latest/index.html#packaging_and_deployment)
 
 ### Dataset Formats

@@ -1,10 +1,10 @@
 
-# Copyright (C) 2020 Intel Corporation
+# Copyright (C) 2020-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 from datumaro.util.tf_util import import_tf
-import_tf() # prevent TF loading and potential interpeter crash
+import_tf() # prevent TF loading and potential interpreter crash
 
 import accuracy_checker.representation as ac
 

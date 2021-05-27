@@ -72,7 +72,7 @@ class colors for masks, class attributes.
 This information is stored in `dataset.categories`, which is a mapping from
 `AnnotationType` to a corresponding `...Categories` class. Each annotation type
 can have its `Categories`. Typically, there will be a `LabelCategories` object.
-Annotations and other categories adress dataset labels
+Annotations and other categories address dataset labels
 by their indices in this object.
 
 The main operation for a dataset is iteration over its elements.

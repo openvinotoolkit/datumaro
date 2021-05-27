@@ -8,15 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- Support for escaping in attribiute values in LabelMe format (<https://github.com/openvinotoolkit/datumaro/issues/49>)
+- Support for escaping in attribute values in LabelMe format (<https://github.com/openvinotoolkit/datumaro/issues/49>)
 - Support for Segmentation Splitting (<https://github.com/openvinotoolkit/datumaro/pull/223>)
 - Support for CIFAR-10/100 dataset format (<https://github.com/openvinotoolkit/datumaro/pull/225>, <https://github.com/openvinotoolkit/datumaro/pull/243>)
-- Support COCO panoptic and stuff format (<https://github.com/openvinotoolkit/datumaro/pull/210>)
+- Support for COCO panoptic and stuff format (<https://github.com/openvinotoolkit/datumaro/pull/210>)
 - Documentation file and integration tests for Pascal VOC format (<https://github.com/openvinotoolkit/datumaro/pull/228>)
 - Support for MNIST and MNIST in CSV dataset formats (<https://github.com/openvinotoolkit/datumaro/pull/234>)
 - Documentation file for COCO format (<https://github.com/openvinotoolkit/datumaro/pull/241>)
 - Support for Point Cloud and Velodyne Point dataset formats (<https://github.com/openvinotoolkit/datumaro/pull/245>)
 - Documentation file and integration tests for YOLO format (<https://github.com/openvinotoolkit/datumaro/pull/246>)
+- Support for Cityscapes dataset format (<https://github.com/openvinotoolkit/datumaro/pull/249>)
 
 ### Changed
 - LabelMe format saves dataset items with their relative paths by subsets without changing names (<https://github.com/openvinotoolkit/datumaro/pull/200>)
@@ -38,6 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Allowed adding "difficult", "truncated", "occluded" attributes when converting to Pascal VOC if these attributes are not present (<https://github.com/openvinotoolkit/datumaro/pull/216>)
 - Empty lines in YOLO annotations are ignored (<https://github.com/openvinotoolkit/datumaro/pull/221>)
 - Export in VOC format when no image info is available (<https://github.com/openvinotoolkit/datumaro/pull/239>)
+- Fixed saving attribute in WiderFace extractor (<https://github.com/openvinotoolkit/datumaro/pull/251>)
 
 ### Security
 -
@@ -175,7 +177,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - `CamVid` dataset format (<https://github.com/openvinotoolkit/datumaro/pull/57>)
 - Ability to install `opencv-python-headless` dependency with `DATUMARO_HEADLESS=1`
-  enviroment variable instead of `opencv-python` (<https://github.com/openvinotoolkit/datumaro/pull/62>)
+  environment variable instead of `opencv-python` (<https://github.com/openvinotoolkit/datumaro/pull/62>)
 
 ### Changed
 - Allow empty supercategory in COCO (<https://github.com/openvinotoolkit/datumaro/pull/54>)
