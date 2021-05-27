@@ -18,6 +18,7 @@ from datumaro.components.errors import (MissingLabelCategories,
     NegativeLength, InvalidValue, FarFromLabelMean,
     FarFromAttrMean, OnlyOneAttributeValue)
 from datumaro.components.extractor import AnnotationType, LabelCategories
+from datumaro.components.cli_plugin import CliPlugin
 from datumaro.util import parse_str_enum_value
 
 
@@ -26,13 +27,7 @@ Severity = Enum('Severity', ['warning', 'error'])
 TaskType = Enum('TaskType', ['classification', 'detection', 'segmentation'])
 
 
-class _Validator:
-    DEFAULT_FEW_SAMPLES = 1
-    DEFAULT_IMBALANCE_RATIO = 50
-    DEFAULT_FAR_FROM_MEAN = 5.0
-    DEFAULT_DOMINANCE_RATIO = 0.8
-    DEFAULT_DOMINANCE_TOPK_BINS = 0.1
-
+class _Validator(CliPlugin):
     # statistics templates
     numerical_stat_template = {
         'items_far_from_mean': {},
@@ -64,7 +59,50 @@ class _Validator:
         Abstract method that must be implemented in a subclass.
     """
 
-    def __init__(self, task_type=None):
+    @classmethod
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument('-fs', '--few_samples_thr', default=1, type=int,
+            help="Threshold for giving a warning for minimum number of"
+                 "samples per class")
+        parser.add_argument('-ir', '--imbalance_ratio_thr', default=50, type=int,
+            help="Threshold for giving data imbalance warning;"
+                 "IR(imbalance ratio) = majority/minority")
+        parser.add_argument('-m', '--far_from_mean_thr', default=5.0, type=float,
+            help="Threshold for giving a warning that data is far from mean;"
+                 "A constant used to define mean +/- k * standard deviation;")
+        parser.add_argument('-dr', '--dominance_ratio_thr', default=0.8, type=float,
+            help="Threshold for giving a warning for bounding box imbalance;"
+                 "Dominace_ratio = ratio of Top-k bin to total in histogram;")
+        parser.add_argument('-k', '--topk_bins', default=0.1, type=float,
+            help="Ratio of bins with the highest number of data"
+                 "to total bins in the histogram; [0, 1]; 0.1 = 10%;")
+        return parser
+
+    def __init__(self, task_type, few_samples_thr=None,
+            imbalance_ratio_thr=None, far_from_mean_thr=None,
+            dominance_ratio_thr=None, topk_bins=None):
+        """
+        Validator
+
+        Parameters
+        ---------------
+        few_samples_thr: int
+            minimum number of samples per class
+            warn user when samples per class is less than threshold
+        imbalance_ratio_thr: int
+            ratio of majority attribute to minority attribute
+            warn user when annotations are unevenly distributed
+        far_from_mean_thr: float
+            constant used to define mean +/- m * stddev
+            warn user when there are too big or small values
+        dominance_ratio_thr: float
+            ratio of Top-k bin to total
+            warn user when dominance ratio is over threshold
+        topk_bins: float
+            ratio of selected bins with most item number to total bins
+            warn user when values are not evenly distributed
+        """
         self.task_type = parse_str_enum_value(task_type, TaskType,
             default=TaskType.classification)
 
@@ -78,11 +116,11 @@ class _Validator:
             self.ann_types = {AnnotationType.mask, AnnotationType.polygon}
             self.str_ann_type = "mask or polygon"
 
-        self.far_from_mean_thr = self.DEFAULT_FAR_FROM_MEAN
-        self.imbalance_ratio_thr = self.DEFAULT_IMBALANCE_RATIO
-        self.few_samples_thr = self.DEFAULT_FEW_SAMPLES
-        self.dominance_thr = self.DEFAULT_DOMINANCE_RATIO
-        self.topk_bins_ratio = self.DEFAULT_DOMINANCE_TOPK_BINS
+        self.few_samples_thr = few_samples_thr
+        self.imbalance_ratio_thr = imbalance_ratio_thr
+        self.far_from_mean_thr = far_from_mean_thr
+        self.dominance_thr = dominance_ratio_thr
+        self.topk_bins_ratio = topk_bins
 
     def _compute_common_statistics(self, dataset):
         defined_attr_template = {
@@ -537,8 +575,13 @@ class ClassificationValidator(_Validator):
     A validator class for classification tasks.
     """
 
-    def __init__(self):
-        super().__init__(TaskType.classification)
+    def __init__(self, few_samples_thr, imbalance_ratio_thr,
+            far_from_mean_thr, dominance_ratio_thr, topk_bins):
+        super().__init__(task_type=TaskType.classification,
+            few_samples_thr=few_samples_thr,
+            imbalance_ratio_thr=imbalance_ratio_thr,
+            far_from_mean_thr=far_from_mean_thr,
+            dominance_ratio_thr=dominance_ratio_thr, topk_bins=topk_bins)
 
     def _check_multi_label_annotations(self, stats):
         validation_reports = []
@@ -636,8 +679,13 @@ class DetectionValidator(_Validator):
     """
     A validator class for detection tasks.
     """
-    def __init__(self):
-        super().__init__(TaskType.detection)
+    def __init__(self, few_samples_thr, imbalance_ratio_thr,
+            far_from_mean_thr, dominance_ratio_thr, topk_bins):
+        super().__init__(task_type=TaskType.detection,
+            few_samples_thr=few_samples_thr,
+            imbalance_ratio_thr=imbalance_ratio_thr,
+            far_from_mean_thr=far_from_mean_thr,
+            dominance_ratio_thr=dominance_ratio_thr, topk_bins=topk_bins)
 
     def _check_negative_length(self, stats):
         validation_reports = []
@@ -917,8 +965,13 @@ class SegmentationValidator(_Validator):
     A validator class for (instance) segmentation tasks.
     """
 
-    def __init__(self):
-        super().__init__(TaskType.segmentation)
+    def __init__(self, few_samples_thr, imbalance_ratio_thr,
+            far_from_mean_thr, dominance_ratio_thr, topk_bins):
+        super().__init__(task_type=TaskType.segmentation,
+            few_samples_thr=few_samples_thr,
+            imbalance_ratio_thr=imbalance_ratio_thr,
+            far_from_mean_thr=far_from_mean_thr,
+            dominance_ratio_thr=dominance_ratio_thr, topk_bins=topk_bins)
 
     def compute_statistics(self, dataset):
         """
@@ -1149,7 +1202,7 @@ class SegmentationValidator(_Validator):
         return reports
 
 
-def validate_annotations(dataset: IDataset, task_type: Union[str, TaskType]):
+def validate_annotations(dataset: IDataset, task_type: Union[str, TaskType], **extra_args):
     """
     Returns the validation results of a dataset based on task type.
 
@@ -1167,15 +1220,33 @@ def validate_annotations(dataset: IDataset, task_type: Union[str, TaskType]):
 
     """
 
+    few_samples_thr = extra_args['few_samples_thr']
+    imbalance_ratio_thr = extra_args['imbalance_ratio_thr']
+    far_from_mean_thr = extra_args['far_from_mean_thr']
+    dominance_ratio_thr = extra_args['dominance_ratio_thr']
+    topk_bins = extra_args['topk_bins']
+
     validation_results = {}
 
     task_type = parse_str_enum_value(task_type, TaskType)
     if task_type == TaskType.classification:
-        validator = ClassificationValidator()
+        validator = ClassificationValidator(few_samples_thr=few_samples_thr,
+            imbalance_ratio_thr=imbalance_ratio_thr,
+            far_from_mean_thr=far_from_mean_thr,
+            dominance_ratio_thr=dominance_ratio_thr,
+            topk_bins=topk_bins)
     elif task_type == TaskType.detection:
-        validator = DetectionValidator()
+        validator = DetectionValidator(few_samples_thr=few_samples_thr,
+            imbalance_ratio_thr=imbalance_ratio_thr,
+            far_from_mean_thr=far_from_mean_thr,
+            dominance_ratio_thr=dominance_ratio_thr,
+            topk_bins=topk_bins)
     elif task_type == TaskType.segmentation:
-        validator = SegmentationValidator()
+        validator = SegmentationValidator(few_samples_thr=few_samples_thr,
+            imbalance_ratio_thr=imbalance_ratio_thr,
+            far_from_mean_thr=far_from_mean_thr,
+            dominance_ratio_thr=dominance_ratio_thr,
+            topk_bins=topk_bins)
 
     if not isinstance(dataset, IDataset):
         raise TypeError("Invalid dataset type '%s'" % type(dataset))
