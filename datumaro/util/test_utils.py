@@ -52,8 +52,6 @@ class TestDir(FileRemover):
         ...
     """
 
-    __test__ = False
-
     def __init__(self, path=None):
         if path is None:
             path = osp.abspath('temp_%s-' % current_function_name(2))

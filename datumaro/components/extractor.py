@@ -563,8 +563,6 @@ class IExtractor: #pylint: disable=redefined-builtin
         raise NotImplementedError()
 
 class Extractor(IExtractor):
-    __test__ = False
-
     def __init__(self, length=None, subsets=None):
         self._length = length
         self._subsets = subsets
