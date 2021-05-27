@@ -1,4 +1,4 @@
-# Copyright (C) 2020 Intel Corporation
+# Copyright (C) 2020-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -161,7 +161,7 @@ class CifarConverter(Converter):
             annotation_dict['data'] = np.array(data)
             if len(image_sizes):
                 size = (CifarPath.IMAGE_SIZE, CifarPath.IMAGE_SIZE)
-                # 'image_sizes' isn't included in the standart format,
+                # 'image_sizes' isn't included in the standard format,
                 # needed for different image sizes
                 annotation_dict['image_sizes'] = [image_sizes.get(p, size)
                     for p in range(len(data))]
