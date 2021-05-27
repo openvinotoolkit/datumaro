@@ -8,8 +8,7 @@ from datumaro.components.launcher import Launcher
 from datumaro.components.algorithms.rise import RISE
 
 import pytest
-from tests.requirements import Requirements
-from tests.requirements import DatumaroComponent
+from tests.requirements import Requirements, DatumaroComponent
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)

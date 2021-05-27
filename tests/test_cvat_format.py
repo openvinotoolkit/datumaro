@@ -13,11 +13,10 @@ from datumaro.plugins.cvat_format.extractor import CvatImporter
 from datumaro.plugins.cvat_format.converter import CvatConverter
 from datumaro.util.image import Image
 from datumaro.util.test_utils import (TestDir, compare_datasets,
-    check_save_and_load)
+    test_save_and_load)
 
 import pytest
-from tests.requirements import Requirements
-from tests.requirements import DatumaroComponent
+from tests.requirements import Requirements, DatumaroComponent
 
 DUMMY_IMAGE_DATASET_DIR = osp.join(osp.dirname(__file__),
     'assets', 'cvat_dataset', 'for_images')
@@ -160,7 +159,7 @@ class CvatImporterTest(TestCase):
 class CvatConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None, **kwargs):
-        return check_save_and_load(self, source_dataset, converter, test_dir,
+        return test_save_and_load(self, source_dataset, converter, test_dir,
             importer='cvat',
             target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 

@@ -21,8 +21,7 @@ from datumaro.components.validator import (ClassificationValidator,
     SegmentationValidator)
 
 import pytest
-from tests.requirements import Requirements
-from tests.requirements import DatumaroComponent
+from tests.requirements import Requirements, DatumaroComponent
 
 
 class TestValidatorTemplate(TestCase):

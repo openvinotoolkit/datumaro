@@ -17,8 +17,7 @@ import datumaro.plugins.splitter as splitter
 from datumaro.components.operations import compute_ann_statistics
 
 import pytest
-from tests.requirements import Requirements
-from tests.requirements import DatumaroComponent
+from tests.requirements import Requirements, DatumaroComponent
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
