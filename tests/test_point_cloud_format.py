@@ -321,3 +321,91 @@ class PointCloudConverterTest(TestCase):
             self.assertTrue(
                 osp.isfile(osp.abspath(osp.join(path, r'ds0/related_images/kitti_0000000001_pcd', '0000000000.png'))))
             self.assertFalse(osp.isfile(osp.abspath(osp.join(path, r'ds0/related_images/frame_pcd', '0000000002.png'))))
+
+
+    def test_can_save_and_load_without_related_images(self):
+        src_label_cat = LabelCategories(attributes={'occluded'})
+        src_label_cat.add('car')
+        src_label_cat.add('bus')
+
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id='frame_000000',
+                        annotations=[Cuboid(id=206,
+                                            attributes={"occuluded": 0, "label_id": 0},
+                                            group=0,
+                                            points=[320.86325216401275, 979.1818473457872, 1.0426186731279325, 0.0, 0.0,
+                                                    0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                            label=0,
+                                            z_order=0),
+                                     Cuboid(id=207,
+                                            attributes={"occuluded": 0, "label_id": 1},
+                                            group=0,
+                                            points=[318.1927645999064, 974.65586694395, 1.297017197169112, 0.0, 0.0,
+                                                    0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                            label=1,
+                                            z_order=0)],
+                        subset='key_id_map', path=[],
+                        image=None,
+                        pcd=self.pcd1,
+                        related_images=[], attributes={'frame': 0, "name": "Anil", "createdAt": "", "updatedAt": "",
+                                                       "labels": [{"label_id": 0, "name": "car", "color": "#fa3253"},
+                                                                  {"label_id": 1, "name": "bus",
+                                                                   "color": "#83e070"}]}),
+            DatasetItem(id='frame_000001',
+                        annotations=[Cuboid(id=208,
+                                            attributes={"occuluded": 0, "label_id": 1},
+                                            group=0,
+                                            points=[23.0462513639241, 8.753051951758222, -0.7804656836492239, 0.0, 0.0,
+                                                    0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                            label=1,
+                                            z_order=0)],
+                        subset='key_id_map', path=[],
+                        image=None,
+                        pcd=self.pcd2,
+                        related_images=[],
+                        attributes={'frame': 1})
+        ], categories={AnnotationType.label: src_label_cat})
+
+        target_label_cat = LabelCategories(attributes={'occluded'})
+        target_label_cat.add("car")
+        target_label_cat.add("bus")
+
+        target_dataset = Dataset.from_iterable([
+            DatasetItem(id='frame_000000',
+                        annotations=[Cuboid(id=206,
+                                            attributes={"occuluded": 0, "label_id": 0},
+                                            group=0,
+                                            points=[320.86325216401275, 979.1818473457872, 1.0426186731279325, 0.0, 0.0,
+                                                    0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                            label=0,
+                                            z_order=0),
+                                     Cuboid(id=207,
+                                            attributes={"occuluded": 0, "label_id": 1},
+                                            group=0,
+                                            points=[318.1927645999064, 974.65586694395, 1.297017197169112, 0.0, 0.0,
+                                                    0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                            label=1,
+                                            z_order=0)],
+                        subset='key_id_map', path=[],
+                        image=None,
+                        pcd=self.pcd1,
+                        related_images=[], attributes={'frame': 0}),
+            DatasetItem(id='frame_000001',
+                        annotations=[Cuboid(id=208,
+                                            attributes={"occuluded": 0, "label_id": 1},
+                                            group=0,
+                                            points=[23.0462513639241, 8.753051951758222, -0.7804656836492239, 0.0, 0.0,
+                                                    0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                            label=1,
+                                            z_order=0)],
+                        subset='key_id_map', path=[],
+                        image=None,
+                        pcd=self.pcd2,
+                        related_images=[],
+                        attributes={'frame': 1})
+        ], categories={AnnotationType.label: target_label_cat})
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(source_dataset,
+                                     partial(PointCloudConverter.convert, save_images=True), test_dir,
+                                     target_dataset=target_dataset, ignored_attrs=["label_id", "occuluded"])

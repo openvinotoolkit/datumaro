@@ -320,6 +320,7 @@ class VelodynePointsConverter(Converter):
         self._allow_undeclared_attrs = allow_undeclared_attrs
 
     def apply(self):
+        os.makedirs(self._save_dir, exist_ok=True)
         with open(osp.join(self._save_dir, 'tracklets.xml'), 'w') as f:
             _SubsetWriter(f, self._extractor, self)
 

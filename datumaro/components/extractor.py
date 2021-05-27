@@ -554,11 +554,7 @@ class DatasetItem:
     @pcd.validator
     def _pcd_validator(self, attribute, pcd):
         if pcd:
-            if callable(pcd) or isinstance(pcd, bytes):
-                pcd = pcd
-            elif isinstance(pcd, str):
-                pcd = pcd
-            assert pcd is None or isinstance(pcd, (bytes, str)) or callable(pcd), type(pcd)
+            assert isinstance(pcd, (bytes, str)) or callable(pcd), type(pcd)
             self.pcd = pcd
 
     @image.validator

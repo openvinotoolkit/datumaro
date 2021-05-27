@@ -243,3 +243,49 @@ class VelodynePointsConverterTest(TestCase):
             self.assertFalse(osp.isfile(osp.abspath(osp.join(path, 'IMAGE_00/data', '0000000002.png'))))
             self.assertTrue(osp.isfile(osp.abspath(osp.join(path, 'IMAGE_00/data', '0000000001.png'))))
 
+    def test_can_save_and_load_without_related_iamges(self):
+        src_label_cat = LabelCategories(attributes={'occluded'})
+        src_label_cat.add('car')
+
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id='frame_000000',
+                        annotations=[Cuboid(id=0,
+                                            attributes={'occluded': 0},
+                                            group=0,
+                                            points=[13.54034048060633, -9.410120134481405, 0.24972983624747647, 0.0,
+                                                    0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                            label=0, z_order=0)],
+                        subset='tracklets',
+                        path=[],
+                        image=None,
+                        pcd=self.pcd1,
+                        related_images=[],
+                        attributes={'frame': 0}
+                        ),
+        ], categories={ AnnotationType.label: src_label_cat })
+
+        target_label_cat = LabelCategories(attributes={'occluded'})
+        target_label_cat.add("car")
+
+        target_dataset = Dataset.from_iterable([
+            DatasetItem(id='frame_000000',
+                        annotations=[Cuboid(id=0,
+                                            attributes={'occluded': 0},
+                                            group=0,
+                                            points=[13.54034048060633, -9.410120134481405, 0.24972983624747647, 0.0,
+                                                    0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                            label=0, z_order=0)],
+                        subset='tracklets',
+                        path=[],
+                        image=None,
+                        pcd=self.pcd1,
+                        related_images=[],
+                        attributes={'frame': 0}
+                        ),
+        ], categories={AnnotationType.label: target_label_cat})
+
+        with TestDir() as test_dir:
+
+            self._test_save_and_load(source_dataset,
+                partial(VelodynePointsConverter.convert, save_images=True), test_dir,
+                target_dataset=target_dataset, **self.dimension)
