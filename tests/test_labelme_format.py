@@ -9,18 +9,17 @@ from datumaro.components.extractor import (DatasetItem, Bbox, Mask, Polygon)
 from datumaro.plugins.labelme_format import LabelMeImporter, LabelMeConverter
 from datumaro.util.image import Image
 from datumaro.util.test_utils import (TestDir, compare_datasets,
-    check_save_and_load)
+    test_save_and_load)
 
 import pytest
-from tests.requirements import Requirements
-from tests.requirements import DatumaroComponent
+from tests.requirements import Requirements, DatumaroComponent
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
 class LabelMeConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None, **kwargs):
-        return check_save_and_load(self, source_dataset, converter, test_dir,
+        return test_save_and_load(self, source_dataset, converter, test_dir,
             importer='label_me',
             target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 

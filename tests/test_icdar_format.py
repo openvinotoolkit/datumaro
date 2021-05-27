@@ -15,11 +15,10 @@ from datumaro.plugins.icdar_format.extractor import (
     IcdarTextSegmentationImporter)
 from datumaro.util.image import Image
 from datumaro.util.test_utils import (TestDir, compare_datasets,
-    check_save_and_load)
+    test_save_and_load)
 
 import pytest
-from tests.requirements import Requirements
-from tests.requirements import DatumaroComponent
+from tests.requirements import Requirements, DatumaroComponent
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'icdar_dataset')
 
@@ -135,7 +134,7 @@ class IcdarImporterTest(TestCase):
 class IcdarConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir, importer,
             target_dataset=None, importer_args=None, **kwargs):
-        return check_save_and_load(self, source_dataset, converter, test_dir,
+        return test_save_and_load(self, source_dataset, converter, test_dir,
             importer,
             target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 

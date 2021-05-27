@@ -11,8 +11,7 @@ from datumaro.cli.__main__ import main
 from datumaro.util.test_utils import TestDir, compare_datasets
 
 import pytest
-from tests.requirements import Requirements
-from tests.requirements import DatumaroComponent
+from tests.requirements import Requirements, DatumaroComponent
 
 DUMMY_DATASETS_DIR = osp.join(__file__[:__file__.rfind(osp.join('tests', ''))],
             'tests', 'assets', 'voc_dataset')
