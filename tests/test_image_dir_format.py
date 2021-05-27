@@ -8,11 +8,10 @@ from datumaro.components.project import Dataset
 from datumaro.components.extractor import DatasetItem
 from datumaro.plugins.image_dir_format import ImageDirConverter
 from datumaro.util.image import Image, save_image
-from datumaro.util.test_utils import TestDir, compare_datasets, check_save_and_load
+from datumaro.util.test_utils import TestDir, compare_datasets, test_save_and_load
 
 import pytest
-from tests.requirements import Requirements
-from tests.requirements import DatumaroComponent
+from tests.requirements import Requirements, DatumaroComponent
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
@@ -27,7 +26,7 @@ class ImageDirFormatTest(TestCase):
         ])
 
         with TestDir() as test_dir:
-            check_save_and_load(self, dataset, ImageDirConverter.convert,
+            test_save_and_load(self, dataset, ImageDirConverter.convert,
                 test_dir, importer='image_dir', require_images=True)
 
     @pytest.mark.priority_medium
@@ -41,7 +40,7 @@ class ImageDirFormatTest(TestCase):
         ])
 
         with TestDir() as test_dir:
-            check_save_and_load(self, dataset, ImageDirConverter.convert,
+            test_save_and_load(self, dataset, ImageDirConverter.convert,
                 test_dir, importer='image_dir')
 
     @pytest.mark.priority_medium
@@ -53,7 +52,7 @@ class ImageDirFormatTest(TestCase):
         ])
 
         with TestDir() as test_dir:
-            check_save_and_load(self, dataset, ImageDirConverter.convert,
+            test_save_and_load(self, dataset, ImageDirConverter.convert,
                 test_dir, importer='image_dir')
 
     @pytest.mark.priority_medium
@@ -68,7 +67,7 @@ class ImageDirFormatTest(TestCase):
         ])
 
         with TestDir() as test_dir:
-            check_save_and_load(self, dataset, ImageDirConverter.convert,
+            test_save_and_load(self, dataset, ImageDirConverter.convert,
                 test_dir, importer='image_dir', require_images=True)
 
     @pytest.mark.priority_medium

@@ -11,8 +11,7 @@ from datumaro.util.test_utils import TestDir, compare_datasets
 import datumaro.plugins.voc_format.format as VOC
 
 import pytest
-from tests.requirements import Requirements
-from tests.requirements import DatumaroComponent
+from tests.requirements import Requirements, DatumaroComponent
 
 def run(test, *args, expected_code=0):
     test.assertEqual(expected_code, main(args), str(args))

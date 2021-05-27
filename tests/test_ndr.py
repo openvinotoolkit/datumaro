@@ -9,8 +9,7 @@ from datumaro.components.extractor import (DatasetItem, Label,
 import datumaro.plugins.ndr as ndr
 
 import pytest
-from tests.requirements import Requirements
-from tests.requirements import DatumaroComponent
+from tests.requirements import Requirements, DatumaroComponent
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)

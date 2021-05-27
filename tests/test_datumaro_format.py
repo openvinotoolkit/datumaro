@@ -15,18 +15,17 @@ from datumaro.plugins.datumaro_format.converter import DatumaroConverter
 from datumaro.util.mask_tools import generate_colormap
 from datumaro.util.image import Image
 from datumaro.util.test_utils import (TestDir, compare_datasets_strict,
-    check_save_and_load)
+    test_save_and_load)
 
 import pytest
-from tests.requirements import Requirements
-from tests.requirements import DatumaroComponent
+from tests.requirements import Requirements, DatumaroComponent
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
 class DatumaroConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None):
-        return check_save_and_load(self, source_dataset, converter, test_dir,
+        return test_save_and_load(self, source_dataset, converter, test_dir,
             importer='datumaro',
             target_dataset=target_dataset, importer_args=importer_args,
             compare=compare_datasets_strict)

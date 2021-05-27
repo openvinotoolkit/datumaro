@@ -11,8 +11,7 @@ from datumaro.util.image import Image
 from datumaro.util.test_utils import TestDir, compare_datasets
 
 import pytest
-from tests.requirements import Requirements
-from tests.requirements import DatumaroComponent
+from tests.requirements import Requirements, DatumaroComponent
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)

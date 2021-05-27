@@ -6,8 +6,7 @@ import datumaro.util.mask_tools as mask_tools
 from datumaro.components.extractor import CompiledMask
 
 import pytest
-from tests.requirements import Requirements
-from tests.requirements import DatumaroComponent
+from tests.requirements import Requirements, DatumaroComponent
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)

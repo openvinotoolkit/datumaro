@@ -12,7 +12,7 @@ from datumaro.plugins.cityscapes_format import (CityscapesImporter,
     CityscapesConverter)
 from datumaro.util.image import Image
 from datumaro.util.test_utils import (TestDir, compare_datasets,
-    check_save_and_load)
+    test_save_and_load)
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets',
     'cityscapes_dataset')
@@ -96,7 +96,7 @@ class TestExtractorBase(Extractor):
 class CityscapesConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None, **kwargs):
-        return check_save_and_load(self, source_dataset, converter, test_dir,
+        return test_save_and_load(self, source_dataset, converter, test_dir,
             importer='cityscapes',
             target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 

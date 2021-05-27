@@ -8,8 +8,7 @@ from datumaro.util.test_utils import TestDir
 from datumaro.util.os_util import walk
 
 import pytest
-from tests.requirements import Requirements
-from tests.requirements import DatumaroComponent
+from tests.requirements import Requirements, DatumaroComponent
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)

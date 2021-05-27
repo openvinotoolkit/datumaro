@@ -9,8 +9,7 @@ from datumaro.util.image import (lazy_image, load_image, save_image, \
 from datumaro.util.image_cache import ImageCache
 
 import pytest
-from tests.requirements import Requirements
-from tests.requirements import DatumaroComponent
+from tests.requirements import Requirements, DatumaroComponent
 
 
 @pytest.mark.components(DatumaroComponent.Datumaro)
