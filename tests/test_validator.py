@@ -31,11 +31,11 @@ class TestValidatorTemplate(TestCase):
                     'a': 1, 'b': 2,
                 }),
                 Mask(id=2, label=0, attributes={'a': 1, 'b': 2},
-                     image=np.array([[0, 0, 0, 0, 0],
-                                     [0, 0, 1, 1, 1],
-                                     [0, 0, 1, 1, 1],
-                                     [0, 0, 1, 1, 1],
-                                     [0, 0, 1, 1, 1],
+                    image=np.array([[0, 0, 0, 0, 0],
+                                    [0, 0, 1, 1, 1],
+                                    [0, 0, 1, 1, 1],
+                                    [0, 0, 1, 1, 1],
+                                    [0, 0, 1, 1, 1],
                 ])),
             ]),
             DatasetItem(id=2, image=np.ones((2, 4, 3)), annotations=[
@@ -79,10 +79,10 @@ class TestValidatorTemplate(TestCase):
                     'a': 2, 'b': 2,
                 }),
                 Mask(id=2, label=1, attributes={'a': 2, 'b': 2},
-                     image=np.array([[1, 0, 0],
-                                     [1, 0, 0],
-                                     [1, 0, 0],
-                                     [1, 0, 0],
+                    image=np.array([[1, 0, 0],
+                                    [1, 0, 0],
+                                    [1, 0, 0],
+                                    [1, 0, 0],
                 ])),
             ]),
             DatasetItem(id=7, image=np.ones((2, 4, 3)), annotations=[
@@ -91,7 +91,7 @@ class TestValidatorTemplate(TestCase):
                     'a': 1, 'b': 2,
                 }),
                 Polygon([1, 2, 1, 5, 5, 5, 5, 2], label=2, id=2,
-                        attributes={'a': 1, 'b': 2,
+                    attributes={'a': 1, 'b': 2,
                 }),
             ]),
             DatasetItem(id=8, image=np.ones((2, 4, 3)), annotations=[
@@ -100,10 +100,10 @@ class TestValidatorTemplate(TestCase):
                     'a': 2, 'b': 1,
                 }),
                 Mask(id=2, label=2, attributes={'a': 2, 'b': 1},
-                     image=np.array([[1, 1, 1],
-                                     [1, 1, 1],
-                                     [1, 1, 1],
-                                     [1, 1, 1],
+                    image=np.array([[1, 1, 1],
+                                    [1, 1, 1],
+                                    [1, 1, 1],
+                                    [1, 1, 1],
                 ])),
             ]),
         ], categories=[[f'label_{i}', None, {'a', 'b', }]
@@ -113,9 +113,9 @@ class TestValidatorTemplate(TestCase):
 class TestBaseValidator(TestValidatorTemplate):
     @classmethod
     def setUpClass(cls):
-        cls.validator = _Validator(task_type=TaskType.classification, few_samples_thr=1,
-                                imbalance_ratio_thr=50, far_from_mean_thr=5.0,
-                                dominance_ratio_thr=0.8, topk_bins=0.1)
+        cls.validator = _Validator(task_type=TaskType.classification,
+            few_samples_thr=1, imbalance_ratio_thr=50, far_from_mean_thr=5.0,
+            dominance_ratio_thr=0.8, topk_bins=0.1)
 
     def test_generate_reports(self):
         with self.assertRaises(NotImplementedError):
@@ -353,10 +353,8 @@ class TestClassificationValidator(TestValidatorTemplate):
     @classmethod
     def setUpClass(cls):
         cls.validator = ClassificationValidator(few_samples_thr=1,
-                                    imbalance_ratio_thr=50,
-                                    far_from_mean_thr=5.0,
-                                    dominance_ratio_thr=0.8,
-                                    topk_bins=0.1)
+            imbalance_ratio_thr=50, far_from_mean_thr=5.0,
+            dominance_ratio_thr=0.8, topk_bins=0.1)
 
     def test_check_missing_label_annotation(self):
         stats = {
@@ -383,10 +381,8 @@ class TestDetectionValidator(TestValidatorTemplate):
     @classmethod
     def setUpClass(cls):
         cls.validator = DetectionValidator(few_samples_thr=1,
-                                    imbalance_ratio_thr=50,
-                                    far_from_mean_thr=5.0,
-                                    dominance_ratio_thr=0.8,
-                                    topk_bins=0.1)
+            imbalance_ratio_thr=50, far_from_mean_thr=5.0,
+            dominance_ratio_thr=0.8, topk_bins=0.1)
 
     def test_check_imbalanced_dist_in_label(self):
         label_name = 'unittest'
@@ -545,10 +541,8 @@ class TestSegmentationValidator(TestValidatorTemplate):
     @classmethod
     def setUpClass(cls):
         cls.validator = SegmentationValidator(few_samples_thr=1,
-                                    imbalance_ratio_thr=50,
-                                    far_from_mean_thr=5.0,
-                                    dominance_ratio_thr=0.8,
-                                    topk_bins=0.1)
+            imbalance_ratio_thr=50, far_from_mean_thr=5.0,
+            dominance_ratio_thr=0.8, topk_bins=0.1)
 
     def test_check_imbalanced_dist_in_label(self):
         label_name = 'unittest'
@@ -697,7 +691,7 @@ class TestValidateAnnotations(TestValidatorTemplate):
         }
     def test_validate_annotations_classification(self):
         actual_results = validate_annotations(self.dataset, 'classification',
-                                        **self.extra_args)
+            **self.extra_args)
 
         with self.subTest('Test of statistics', i=0):
             actual_stats = actual_results['statistics']
@@ -753,7 +747,7 @@ class TestValidateAnnotations(TestValidatorTemplate):
 
     def test_validate_annotations_detection(self):
         actual_results = validate_annotations(self.dataset, 'detection',
-                                        **self.extra_args)
+            **self.extra_args)
 
         with self.subTest('Test of statistics', i=0):
             actual_stats = actual_results['statistics']
@@ -807,7 +801,7 @@ class TestValidateAnnotations(TestValidatorTemplate):
 
     def test_validate_annotations_segmentation(self):
         actual_results = validate_annotations(self.dataset, 'segmentation',
-                                        **self.extra_args)
+            **self.extra_args)
 
         with self.subTest('Test of statistics', i=0):
             actual_stats = actual_results['statistics']

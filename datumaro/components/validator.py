@@ -1231,22 +1231,22 @@ def validate_annotations(dataset: IDataset, task_type: Union[str, TaskType], **e
     task_type = parse_str_enum_value(task_type, TaskType)
     if task_type == TaskType.classification:
         validator = ClassificationValidator(few_samples_thr=few_samples_thr,
-                                    imbalance_ratio_thr=imbalance_ratio_thr,
-                                    far_from_mean_thr=far_from_mean_thr,
-                                    dominance_ratio_thr=dominance_ratio_thr,
-                                    topk_bins=topk_bins)
+            imbalance_ratio_thr=imbalance_ratio_thr,
+            far_from_mean_thr=far_from_mean_thr,
+            dominance_ratio_thr=dominance_ratio_thr,
+            topk_bins=topk_bins)
     elif task_type == TaskType.detection:
         validator = DetectionValidator(few_samples_thr=few_samples_thr,
-                                    imbalance_ratio_thr=imbalance_ratio_thr,
-                                    far_from_mean_thr=far_from_mean_thr,
-                                    dominance_ratio_thr=dominance_ratio_thr,
-                                    topk_bins=topk_bins)
+            imbalance_ratio_thr=imbalance_ratio_thr,
+            far_from_mean_thr=far_from_mean_thr,
+            dominance_ratio_thr=dominance_ratio_thr,
+            topk_bins=topk_bins)
     elif task_type == TaskType.segmentation:
         validator = SegmentationValidator(few_samples_thr=few_samples_thr,
-                                    imbalance_ratio_thr=imbalance_ratio_thr,
-                                    far_from_mean_thr=far_from_mean_thr,
-                                    dominance_ratio_thr=dominance_ratio_thr,
-                                    topk_bins=topk_bins)
+            imbalance_ratio_thr=imbalance_ratio_thr,
+            far_from_mean_thr=far_from_mean_thr,
+            dominance_ratio_thr=dominance_ratio_thr,
+            topk_bins=topk_bins)
 
     if not isinstance(dataset, IDataset):
         raise TypeError("Invalid dataset type '%s'" % type(dataset))
