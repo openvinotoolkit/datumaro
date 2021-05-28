@@ -41,7 +41,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         |n
         Examples:|n
         - Run RISE on an image, display results:|n
-        |s|s%(prog)s path/to/image.jpg -m mymodel rise --max-samples 50
+        |s|s%(prog)s -t path/to/image.jpg -m mymodel rise --max-samples 50
         """, formatter_class=MultilineFormatter)
 
     parser.add_argument('-m', '--model', required=True,
