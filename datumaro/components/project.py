@@ -29,7 +29,8 @@ from datumaro.components.errors import (DatasetMergeError,
     WrongSourceNodeError)
 from datumaro.util import error_rollback, find, parse_str_enum_value
 from datumaro.util.log_utils import catch_logs, logging_disabled
-from datumaro.util.os_util import generate_next_name, make_file_name, rmtree
+from datumaro.util.os_util import (copytree, generate_next_name, make_file_name,
+    rmtree)
 
 
 class ProjectSourceDataset(Dataset):
@@ -1814,7 +1815,7 @@ class Project:
         data_dir = osp.join(dst_dir, 'data')
 
         if osp.isdir(url):
-            shutil.copytree(url, data_dir)
+            copytree(url, data_dir)
         else:
             os.makedirs(data_dir, exist_ok=True)
             shutil.copy(url, data_dir)
@@ -1994,7 +1995,7 @@ class Project:
         ], base=self._root_dir)
         head = self._git.commit(message)
 
-        shutil.copytree(tree_dir, self.cache_path(head))
+        copytree(tree_dir, self.cache_path(head))
 
         self._head_tree = None
 

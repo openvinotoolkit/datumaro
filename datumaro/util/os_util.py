@@ -8,6 +8,7 @@ import importlib
 import os
 import os.path as osp
 import re
+import shutil
 import subprocess
 import sys
 import unicodedata
@@ -61,6 +62,22 @@ def walk(path, max_depth=None):
             dirnames.clear() # topdown=True allows to modify the list
 
         yield dirpath, dirnames, filenames
+
+def copytree(src, dst):
+    # Shutil works very slow pre 3.8
+    # https://docs.python.org/3/library/shutil.html#platform-dependent-efficient-copy-operations
+    # https://bugs.python.org/issue33671
+
+    if sys.version_info[1] >= 8:
+        shutil.copytree(src, dst)
+        return
+
+    if sys.platform == 'windows':
+        subprocess.check_call(["xcopy", src, dst, "/s", "/e"])
+    elif sys.platform == 'linux':
+        subprocess.check_call(["cp", "-r", "--reflink=auto", src, dst])
+    else:
+        shutil.copytree(src, dst)
 
 @contextmanager
 def suppress_output(stdout=True, stderr=False):
