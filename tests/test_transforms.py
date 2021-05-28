@@ -10,16 +10,11 @@ from datumaro.components.extractor import (Extractor, DatasetItem,
 import datumaro.util.mask_tools as mask_tools
 import datumaro.plugins.transforms as transforms
 from datumaro.util.test_utils import compare_datasets
-
-import pytest
-from tests.requirements import Requirements, DatumaroComponent
+from tests.requirements import Requirements, mark_requirement
 
 
-@pytest.mark.components(DatumaroComponent.Datumaro)
 class TransformsTest(TestCase):
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_reindex(self):
         source = Dataset.from_iterable([
             DatasetItem(id=10),
@@ -36,9 +31,7 @@ class TransformsTest(TestCase):
         actual = transforms.Reindex(source, start=5)
         compare_datasets(self, expected, actual)
 
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_mask_to_polygons(self):
         source = Dataset.from_iterable([
             DatasetItem(id=1, image=np.zeros((5, 10, 3)), annotations=[
@@ -63,9 +56,7 @@ class TransformsTest(TestCase):
         actual = transforms.MasksToPolygons(source)
         compare_datasets(self, expected, actual)
 
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_mask_to_polygons_small_polygons_message(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, image=np.zeros((5, 10, 3)), annotations=[
@@ -87,9 +78,7 @@ class TransformsTest(TestCase):
             compare_datasets(self, target_dataset, actual)
             self.assertRegex('\n'.join(logs.output), 'too small polygons')
 
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_polygons_to_masks(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, image=np.zeros((5, 10, 3)), annotations=[
@@ -122,9 +111,7 @@ class TransformsTest(TestCase):
         actual = transforms.PolygonsToMasks(source_dataset)
         compare_datasets(self, target_dataset, actual)
 
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_crop_covered_segments(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, image=np.zeros((5, 5, 3)), annotations=[
@@ -156,9 +143,7 @@ class TransformsTest(TestCase):
         actual = transforms.CropCoveredSegments(source_dataset)
         compare_datasets(self, target_dataset, actual)
 
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_merge_instance_segments(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, image=np.zeros((5, 5, 3)),
@@ -206,9 +191,7 @@ class TransformsTest(TestCase):
             include_polygons=True)
         compare_datasets(self, target_dataset, actual)
 
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_map_subsets(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='a'),
@@ -226,9 +209,7 @@ class TransformsTest(TestCase):
             { 'a': '', 'b': 'a' })
         compare_datasets(self, target_dataset, actual)
 
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_shapes_to_boxes(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, image=np.zeros((5, 5, 3)),
@@ -261,9 +242,7 @@ class TransformsTest(TestCase):
         actual = transforms.ShapesToBoxes(source_dataset)
         compare_datasets(self, target_dataset, actual)
 
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_id_from_image(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, image='path.jpg'),
@@ -277,9 +256,7 @@ class TransformsTest(TestCase):
         actual = transforms.IdFromImageName(source_dataset)
         compare_datasets(self, target_dataset, actual)
 
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_boxes_to_masks(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, image=np.zeros((5, 5, 3)),
@@ -325,9 +302,7 @@ class TransformsTest(TestCase):
         actual = transforms.BoxesToMasks(source_dataset)
         compare_datasets(self, target_dataset, actual)
 
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_random_split(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset="a"),
@@ -347,9 +322,7 @@ class TransformsTest(TestCase):
         self.assertEqual(4, len(actual.get_subset('train')))
         self.assertEqual(3, len(actual.get_subset('test')))
 
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_random_split_gives_error_on_wrong_ratios(self):
         source_dataset = Dataset.from_iterable([DatasetItem(id=1)])
 
@@ -368,9 +341,7 @@ class TransformsTest(TestCase):
                 ('test', 1.5),
             ])
 
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_remap_labels(self):
         src_dataset = Dataset.from_iterable([
             DatasetItem(id=1, annotations=[
@@ -421,9 +392,7 @@ class TransformsTest(TestCase):
 
         compare_datasets(self, dst_dataset, actual)
 
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_remap_labels_delete_unspecified(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, annotations=[
@@ -444,9 +413,7 @@ class TransformsTest(TestCase):
 
         compare_datasets(self, target_dataset, actual)
 
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_transform_labels(self):
         src_dataset = Dataset.from_iterable([
             DatasetItem(id=1, annotations=[

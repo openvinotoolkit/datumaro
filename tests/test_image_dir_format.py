@@ -9,16 +9,11 @@ from datumaro.components.extractor import DatasetItem
 from datumaro.plugins.image_dir_format import ImageDirConverter
 from datumaro.util.image import Image, save_image
 from datumaro.util.test_utils import TestDir, compare_datasets, test_save_and_load
-
-import pytest
-from tests.requirements import Requirements, DatumaroComponent
+from tests.requirements import Requirements, mark_requirement
 
 
-@pytest.mark.components(DatumaroComponent.Datumaro)
 class ImageDirFormatTest(TestCase):
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_load(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id=1, image=np.ones((10, 6, 3))),
@@ -29,9 +24,7 @@ class ImageDirFormatTest(TestCase):
             test_save_and_load(self, dataset, ImageDirConverter.convert,
                 test_dir, importer='image_dir', require_images=True)
 
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_relative_paths(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id='1', image=np.ones((4, 2, 3))),
@@ -43,9 +36,7 @@ class ImageDirFormatTest(TestCase):
             test_save_and_load(self, dataset, ImageDirConverter.convert,
                 test_dir, importer='image_dir')
 
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id='кириллица с пробелом', image=np.ones((4, 2, 3))),
@@ -55,9 +46,7 @@ class ImageDirFormatTest(TestCase):
             test_save_and_load(self, dataset, ImageDirConverter.convert,
                 test_dir, importer='image_dir')
 
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id='q/1', image=Image(path='q/1.JPEG',
@@ -70,9 +59,7 @@ class ImageDirFormatTest(TestCase):
             test_save_and_load(self, dataset, ImageDirConverter.convert,
                 test_dir, importer='image_dir', require_images=True)
 
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_image_with_custom_extension(self):
         expected = Dataset.from_iterable([
             DatasetItem(id='a/3', image=Image(path='a/3.qq',

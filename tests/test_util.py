@@ -6,16 +6,11 @@ from unittest import TestCase
 from datumaro.util import Rollback, error_rollback
 from datumaro.util.test_utils import TestDir
 from datumaro.util.os_util import walk
-
-import pytest
-from tests.requirements import Requirements, DatumaroComponent
+from tests.requirements import Requirements, mark_requirement
 
 
-@pytest.mark.components(DatumaroComponent.Datumaro)
 class TestRollback(TestCase):
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_does_not_call_on_no_error(self):
         success = True
         def cb():
@@ -27,9 +22,7 @@ class TestRollback(TestCase):
 
         self.assertTrue(success)
 
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_calls_on_error(self):
         success = False
         def cb():
@@ -45,9 +38,7 @@ class TestRollback(TestCase):
         finally:
             self.assertTrue(success)
 
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_decorator_calls_on_error(self):
         success = False
         def cb():
@@ -66,9 +57,7 @@ class TestRollback(TestCase):
         finally:
             self.assertTrue(success)
 
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_decorator_does_not_call_on_no_error(self):
         success = True
         def cb():
@@ -83,9 +72,7 @@ class TestRollback(TestCase):
 
         self.assertTrue(success)
 
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_decorator_supports_implicit_arg(self):
         success = False
         def cb():
@@ -104,9 +91,7 @@ class TestRollback(TestCase):
         finally:
             self.assertTrue(success)
 
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_fowrard_args(self):
         success1 = False
         def cb1(a1, a2=None, ignore_errors=None):
@@ -132,11 +117,8 @@ class TestRollback(TestCase):
             self.assertTrue(success1)
             self.assertTrue(success2)
 
-@pytest.mark.components(DatumaroComponent.Datumaro)
 class TestOsUtils(TestCase):
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_walk_with_maxdepth(self):
         with TestDir() as rootdir:
             os.makedirs(osp.join(rootdir, '1', '2', '3', '4'))

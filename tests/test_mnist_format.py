@@ -8,15 +8,11 @@ from datumaro.components.extractor import (AnnotationType, DatasetItem, Label,
 from datumaro.plugins.mnist_format import MnistConverter, MnistImporter
 from datumaro.util.image import Image
 from datumaro.util.test_utils import TestDir, compare_datasets
+from tests.requirements import Requirements, mark_requirement
 
-import pytest
-from tests.requirements import Requirements, DatumaroComponent
 
-@pytest.mark.components(DatumaroComponent.Datumaro)
 class MnistFormatTest(TestCase):
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=0, subset='test',
@@ -42,10 +38,7 @@ class MnistFormatTest(TestCase):
             compare_datasets(self, source_dataset, parsed_dataset,
                 require_images=True)
 
-
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_without_saving_images(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=0, subset='train',
@@ -66,9 +59,7 @@ class MnistFormatTest(TestCase):
             compare_datasets(self, source_dataset, parsed_dataset,
                 require_images=True)
 
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_with_different_image_size(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=0, image=np.ones((3, 4)),
@@ -89,9 +80,7 @@ class MnistFormatTest(TestCase):
             compare_datasets(self, source_dataset, parsed_dataset,
                 require_images=True)
 
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id="кириллица с пробелом",
@@ -110,9 +99,7 @@ class MnistFormatTest(TestCase):
             compare_datasets(self, source_dataset, parsed_dataset,
                 require_images=True)
 
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id='q/1', image=Image(path='q/1.JPEG',
@@ -131,9 +118,7 @@ class MnistFormatTest(TestCase):
             compare_datasets(self, dataset, parsed_dataset,
                 require_images=True)
 
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_empty_image(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id=0, annotations=[Label(0)]),
@@ -150,9 +135,7 @@ class MnistFormatTest(TestCase):
             compare_datasets(self, dataset, parsed_dataset,
                 require_images=True)
 
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_with_other_labels(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id=0, image=np.ones((28, 28)),
@@ -173,11 +156,8 @@ class MnistFormatTest(TestCase):
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'mnist_dataset')
 
-@pytest.mark.components(DatumaroComponent.Datumaro)
 class MnistImporterTest(TestCase):
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id=0, subset='test',
@@ -209,8 +189,6 @@ class MnistImporterTest(TestCase):
 
         compare_datasets(self, expected_dataset, dataset)
 
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect(self):
         self.assertTrue(MnistImporter.detect(DUMMY_DATASET_DIR))

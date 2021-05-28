@@ -11,12 +11,9 @@ from datumaro.plugins.mot_format import MotSeqGtConverter, MotSeqImporter
 from datumaro.util.image import Image
 from datumaro.util.test_utils import (TestDir, compare_datasets,
     test_save_and_load)
-
-import pytest
-from tests.requirements import Requirements, DatumaroComponent
+from tests.requirements import Requirements, mark_requirement
 
 
-@pytest.mark.components(DatumaroComponent.Datumaro)
 class MotConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None, **kwargs):
@@ -24,9 +21,7 @@ class MotConverterTest(TestCase):
             importer='mot_seq',
             target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_bboxes(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train',
@@ -105,9 +100,7 @@ class MotConverterTest(TestCase):
                 partial(MotSeqGtConverter.convert, save_images=True),
                 test_dir, target_dataset=target_dataset, require_images=True)
 
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         expected = Dataset.from_iterable([
             DatasetItem('1', image=Image(
@@ -132,17 +125,12 @@ class MotConverterTest(TestCase):
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'mot_dataset')
 
-@pytest.mark.components(DatumaroComponent.Datumaro)
 class MotImporterTest(TestCase):
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect(self):
         self.assertTrue(MotSeqImporter.detect(DUMMY_DATASET_DIR))
 
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id=1,

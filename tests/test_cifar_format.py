@@ -8,16 +8,11 @@ from datumaro.components.extractor import (AnnotationType, DatasetItem, Label,
 from datumaro.plugins.cifar_format import CifarConverter, CifarImporter
 from datumaro.util.image import Image
 from datumaro.util.test_utils import TestDir, compare_datasets
-
-import pytest
-from tests.requirements import Requirements, DatumaroComponent
+from tests.requirements import Requirements, mark_requirement
 
 
-@pytest.mark.components(DatumaroComponent.Datumaro)
 class CifarFormatTest(TestCase):
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='image_2', subset='test',
@@ -40,10 +35,7 @@ class CifarFormatTest(TestCase):
             compare_datasets(self, source_dataset, parsed_dataset,
                 require_images=True)
 
-
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_without_saving_images(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='a', subset='train_1',
@@ -64,9 +56,7 @@ class CifarFormatTest(TestCase):
             compare_datasets(self, source_dataset, parsed_dataset,
                 require_images=True)
 
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_with_different_image_size(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='image_1',
@@ -89,9 +79,7 @@ class CifarFormatTest(TestCase):
             compare_datasets(self, source_dataset, parsed_dataset,
                 require_images=True)
 
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id="кириллица с пробелом",
@@ -107,9 +95,7 @@ class CifarFormatTest(TestCase):
             compare_datasets(self, source_dataset, parsed_dataset,
                 require_images=True)
 
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id='q/1', image=Image(path='q/1.JPEG',
@@ -125,9 +111,7 @@ class CifarFormatTest(TestCase):
             compare_datasets(self, dataset, parsed_dataset,
                 require_images=True)
 
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_empty_image(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id='a', annotations=[Label(0)]),
@@ -143,11 +127,8 @@ class CifarFormatTest(TestCase):
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'cifar_dataset')
 
-@pytest.mark.components(DatumaroComponent.Datumaro)
 class CifarImporterTest(TestCase):
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='image_1', subset='train_1',
@@ -172,8 +153,6 @@ class CifarImporterTest(TestCase):
 
         compare_datasets(self, expected_dataset, dataset)
 
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect(self):
         self.assertTrue(CifarImporter.detect(DUMMY_DATASET_DIR))

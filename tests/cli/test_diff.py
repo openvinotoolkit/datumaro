@@ -15,16 +15,11 @@ from datumaro.components.extractor import (DatasetItem,
 )
 from datumaro.util.image import Image
 from datumaro.util.test_utils import TestDir
-
-import pytest
-from tests.requirements import Requirements, DatumaroComponent
+from tests.requirements import Requirements, mark_requirement
 
 
-@pytest.mark.components(DatumaroComponent.Datumaro)
 class DiffTest(TestCase):
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_compare_projects(self): # just a smoke test
         label_categories1 = LabelCategories.from_iterable(['x', 'a', 'b', 'y'])
         mask_categories1 = MaskCategories.make_default(len(label_categories1))
