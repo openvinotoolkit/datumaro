@@ -1,16 +1,11 @@
 from unittest import TestCase
 
 from datumaro.components.config import Config, DictConfig, SchemaBuilder
-
-import pytest
-from tests.requirements import Requirements, DatumaroComponent
+from tests.requirements import Requirements, mark_requirement
 
 
-@pytest.mark.components(DatumaroComponent.Datumaro)
 class ConfigTest(TestCase):
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_produce_multilayer_config_from_dict(self):
         schema_low = SchemaBuilder() \
             .add('options', dict) \

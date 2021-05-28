@@ -13,9 +13,7 @@ from datumaro.util.image import Image, ByteImage, encode_image
 from datumaro.util.test_utils import (TestDir, compare_datasets,
     test_save_and_load)
 from datumaro.util.tf_util import check_import
-
-import pytest
-from tests.requirements import Requirements, DatumaroComponent
+from tests.requirements import Requirements, mark_requirement
 
 try:
     from datumaro.plugins.tf_detection_api_format.extractor import \
@@ -30,11 +28,8 @@ except ImportError:
     module_found = importlib.util.find_spec('tensorflow') is not None
 
     @skipIf(not module_found, "Tensorflow package is not found")
-    @pytest.mark.components(DatumaroComponent.Datumaro)
     class TfImportTest(TestCase):
-        @pytest.mark.priority_medium
-        @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-        @pytest.mark.component
+        @mark_requirement(Requirements.DATUM_GENERAL_REQ)
         def test_raises_when_crashes_on_import(self):
             # Should fire if import can't be done for any reason except
             # module unavailability and import crash
@@ -42,7 +37,6 @@ except ImportError:
                 check_import()
 
 @skipIf(import_failed, "Failed to import tensorflow")
-@pytest.mark.components(DatumaroComponent.Datumaro)
 class TfrecordConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None, **kwargs):
@@ -50,9 +44,7 @@ class TfrecordConverterTest(TestCase):
             importer='tf_detection_api',
             target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_bboxes(self):
         test_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train',
@@ -74,9 +66,7 @@ class TfrecordConverterTest(TestCase):
                 partial(TfDetectionApiConverter.convert, save_images=True),
                 test_dir)
 
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_masks(self):
         test_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train', image=np.ones((4, 5, 3)),
@@ -101,9 +91,7 @@ class TfrecordConverterTest(TestCase):
                 partial(TfDetectionApiConverter.convert, save_masks=True),
                 test_dir)
 
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_no_subsets(self):
         test_dataset = Dataset.from_iterable([
             DatasetItem(id=1,
@@ -138,9 +126,7 @@ class TfrecordConverterTest(TestCase):
                 partial(TfDetectionApiConverter.convert, save_images=True),
                 test_dir)
 
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         test_dataset = Dataset.from_iterable([
             DatasetItem(id='кириллица с пробелом',
@@ -162,9 +148,7 @@ class TfrecordConverterTest(TestCase):
                 partial(TfDetectionApiConverter.convert, save_images=True),
                 test_dir)
 
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_image_info(self):
         test_dataset = Dataset.from_iterable([
             DatasetItem(id='1/q.e',
@@ -177,9 +161,7 @@ class TfrecordConverterTest(TestCase):
             self._test_save_and_load(test_dataset,
                 TfDetectionApiConverter.convert, test_dir)
 
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_unknown_image_formats(self):
         test_dataset = Dataset.from_iterable([
             DatasetItem(id=1,
@@ -199,9 +181,7 @@ class TfrecordConverterTest(TestCase):
                 partial(TfDetectionApiConverter.convert, save_images=True),
                 test_dir, require_images=True)
 
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         dataset = Dataset.from_iterable([
             DatasetItem('q/1', subset='train',
@@ -217,9 +197,7 @@ class TfrecordConverterTest(TestCase):
                 partial(TfDetectionApiConverter.convert, save_images=True),
                 test_dir, require_images=True)
 
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_inplace_save_writes_only_updated_data(self):
         with TestDir() as path:
             # generate initial dataset
@@ -241,9 +219,7 @@ class TfrecordConverterTest(TestCase):
             self.assertFalse(osp.isfile(osp.join(path, 'b.tfrecord')))
             self.assertTrue(osp.isfile(osp.join(path, 'c.tfrecord')))
 
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_labelmap_parsing(self):
         text = """
             {
@@ -275,17 +251,12 @@ DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__),
     'assets', 'tf_detection_api_dataset')
 
 @skipIf(import_failed, "Failed to import tensorflow")
-@pytest.mark.components(DatumaroComponent.Datumaro)
 class TfrecordImporterTest(TestCase):
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect(self):
         self.assertTrue(TfDetectionApiImporter.detect(DUMMY_DATASET_DIR))
 
-    @pytest.mark.priority_medium
-    @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.component
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import(self):
         target_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train',
