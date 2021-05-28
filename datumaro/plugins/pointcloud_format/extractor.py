@@ -11,7 +11,7 @@ import os.path as osp
 
 
 from datumaro.components.extractor import (SourceExtractor, DatasetItem,
-    AnnotationType,Cuboid,
+    AnnotationType,Cuboid3D,
     LabelCategories, Importer
 )
 
@@ -96,7 +96,7 @@ class PointCloudExtractor(SourceExtractor):
 
                     label = categories[AnnotationType.label].find(label)[0]
 
-                    shape = Cuboid(anno_points, label=label, z_order=z_order,
+                    shape = Cuboid3D(anno_points, label=label, z_order=z_order,
                                    id=map_id, attributes=attributes, group=group)
 
                     frame = mapping["videos"][figure_data['key']]

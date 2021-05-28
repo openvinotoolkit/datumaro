@@ -7,7 +7,7 @@ import os.path as osp
 from collections import OrderedDict
 
 from datumaro.components.extractor import (SourceExtractor, DatasetItem,
-                                           AnnotationType, Cuboid,
+                                           AnnotationType, Cuboid3D,
                                            LabelCategories, Importer
                                            )
 
@@ -15,7 +15,7 @@ from .format import VelodynePointsPath
 
 
 class VelodynePointsExtractor(SourceExtractor):
-    _SUPPORTED_SHAPES = ('cuboid')
+    _SUPPORTED_SHAPES = ('cuboid_3d')
 
     def __init__(self, path, subset=None):
         assert osp.isfile(path), path
@@ -101,7 +101,7 @@ class VelodynePointsExtractor(SourceExtractor):
         points = ann.get('points', [])
 
         if ann_type == "cuboid":
-            return Cuboid(points, label=label_id, z_order=z_order,
+            return Cuboid3D(points, label=label_id, z_order=z_order,
                           id=ann_id, attributes=attributes, group=group)
         else:
             raise NotImplementedError("Unknown annotation type '%s'" % ann_type)

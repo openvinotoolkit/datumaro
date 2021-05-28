@@ -5,7 +5,7 @@ import os.path as osp
 from unittest import TestCase
 from datumaro.components.project import Dataset
 from datumaro.components.extractor import (DatasetItem,
-    AnnotationType, Cuboid,
+    AnnotationType, Cuboid3D,
     LabelCategories,
 )
 from datumaro.plugins.velodynepoints_format.extractor import VelodynePointsImporter
@@ -30,16 +30,16 @@ class VelodynePointsImporterTest(TestCase):
         image3 = osp.abspath(osp.join(DUMMY_PCD_DATASET_DIR, r"IMAGE_00/data/0000000003.png"))
 
         expected_dataset = Dataset.from_iterable([
-            DatasetItem(id='frame_000000', annotations=[Cuboid(id=0, attributes={'occluded': 0}, group=0, points=[-3.6271575019618414, 7.954996769991751, -1.0343550199580118, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], label=0, z_order=0),
-                                                        Cuboid(id=0, attributes={'occluded': 0}, group=0, points=[23.0169506240644, 8.343682404650442, -0.7699940133040206, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], label=1, z_order=0)],
+            DatasetItem(id='frame_000000', annotations=[Cuboid3D(id=0, attributes={'occluded': 0}, group=0, points=[-3.6271575019618414, 7.954996769991751, -1.0343550199580118, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], label=0, z_order=0),
+                                                        Cuboid3D(id=0, attributes={'occluded': 0}, group=0, points=[23.0169506240644, 8.343682404650442, -0.7699940133040206, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], label=1, z_order=0)],
                         subset='tracklets', path=[], image=None, pcd=pcd1, related_images=[{"name": "0000000000.png", "save_path": "IMAGE_00",
                                          "path": image1},
            ], attributes={'frame': 0}),
-            DatasetItem(id='frame_000001', annotations=[Cuboid(id=0, attributes={'occluded': 0}, group=0, points=[0.39720775117329943, 7.286424562074529, -0.8997166481217596, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], label=1, z_order=0)],
+            DatasetItem(id='frame_000001', annotations=[Cuboid3D(id=0, attributes={'occluded': 0}, group=0, points=[0.39720775117329943, 7.286424562074529, -0.8997166481217596, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], label=1, z_order=0)],
                         subset='tracklets', path=[], image=None, pcd=pcd2, related_images=[{"name": "0000000001.png", "save_path": "IMAGE_00",
                                          "path": image2},
            ], attributes={'frame': 1}),
-            DatasetItem(id='frame_000002', annotations=[Cuboid(id=0, attributes={'occluded': 0}, group=0,
+            DatasetItem(id='frame_000002', annotations=[Cuboid3D(id=0, attributes={'occluded': 0}, group=0,
                                                                points=[13.54034048060633, -9.410120134481405,
                                                                        0.24972983624747647, 0.0, 0.0, 0.0, 1.0, 1.0,
                                                                        1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], label=0,
@@ -83,7 +83,7 @@ class VelodynePointsConverterTest(TestCase):
 
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='frame_000000',
-                        annotations=[Cuboid(id=0,
+                        annotations=[Cuboid3D(id=0,
                                             attributes={'occluded': 0},
                                             group=0,
                                             points=[13.54034048060633, -9.410120134481405, 0.24972983624747647, 0.0,
@@ -105,7 +105,7 @@ class VelodynePointsConverterTest(TestCase):
 
         target_dataset = Dataset.from_iterable([
             DatasetItem(id='frame_000000',
-                        annotations=[Cuboid(id=0,
+                        annotations=[Cuboid3D(id=0,
                                             attributes={'occluded': 0},
                                             group=0,
                                             points=[13.54034048060633, -9.410120134481405, 0.24972983624747647, 0.0,
@@ -131,7 +131,7 @@ class VelodynePointsConverterTest(TestCase):
     def test_preserve_frame_ids(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='frame_000040',
-                        annotations=[Cuboid(id=0,
+                        annotations=[Cuboid3D(id=0,
                                             attributes={'occluded': 0},
                                             group=0,
                                             points=[13.54034048060633, -9.410120134481405, 0.24972983624747647, 0.0,
@@ -157,7 +157,7 @@ class VelodynePointsConverterTest(TestCase):
     def test_reindex(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='frame_000000',
-                        annotations=[Cuboid(id=0,
+                        annotations=[Cuboid3D(id=0,
                                             attributes={'occluded': 0},
                                             group=0,
                                             points=[13.54034048060633, -9.410120134481405, 0.24972983624747647, 0.0,
@@ -178,7 +178,7 @@ class VelodynePointsConverterTest(TestCase):
 
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='frame_000000',
-                        annotations=[Cuboid(id=0,
+                        annotations=[Cuboid3D(id=0,
                                             attributes={'occluded': 0},
                                             group=0,
                                             points=[13.54034048060633, -9.410120134481405, 0.24972983624747647, 0.0,
@@ -249,7 +249,7 @@ class VelodynePointsConverterTest(TestCase):
 
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='frame_000000',
-                        annotations=[Cuboid(id=0,
+                        annotations=[Cuboid3D(id=0,
                                             attributes={'occluded': 0},
                                             group=0,
                                             points=[13.54034048060633, -9.410120134481405, 0.24972983624747647, 0.0,
@@ -269,7 +269,7 @@ class VelodynePointsConverterTest(TestCase):
 
         target_dataset = Dataset.from_iterable([
             DatasetItem(id='frame_000000',
-                        annotations=[Cuboid(id=0,
+                        annotations=[Cuboid3D(id=0,
                                             attributes={'occluded': 0},
                                             group=0,
                                             points=[13.54034048060633, -9.410120134481405, 0.24972983624747647, 0.0,

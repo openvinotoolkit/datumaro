@@ -363,7 +363,7 @@ class PolyLine(_Shape):
 
 
 @attrs
-class Cuboid(Annotation):
+class Cuboid3D(Annotation):
     _type = AnnotationType.cuboid
     points = attrib(factory=list, validator=default_if_none(list))
     label = attrib(converter=attr.converters.optional(int),
