@@ -1,4 +1,4 @@
-# Copyright (C) 2020 Intel Corporation
+# Copyright (C) 2020-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -154,7 +154,7 @@ class IntersectMerge(MergingStrategy):
         quorum = attrib(converter=int, default=0)
         ignored_attributes = attrib(converter=set, factory=set)
 
-        def _groups_conveter(value):
+        def _groups_converter(value):
             result = []
             for group in value:
                 rg = set()
@@ -164,7 +164,7 @@ class IntersectMerge(MergingStrategy):
                     rg.add((name, optional))
                 result.append(rg)
             return result
-        groups = attrib(converter=_groups_conveter, factory=list)
+        groups = attrib(converter=_groups_converter, factory=list)
         close_distance = attrib(converter=float, default=0.75)
     conf = attrib(converter=ensure_cls(Conf), factory=Conf)
 
@@ -958,6 +958,11 @@ def mean_std(dataset):
     var = lambda i, s: s[i][1]
 
     for i, item in enumerate(dataset):
+        size = item.image.size
+        if size is None:
+            log.warning("Item %s: can't detect image size, "
+                "the image will be skipped from pixel statistics", item.id)
+            continue
         counts[i] = np.prod(item.image.size)
 
         image = item.image.data

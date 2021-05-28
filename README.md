@@ -124,7 +124,7 @@ CVAT annotations                             ---> Publication, statistics etc.
 [(Back to top)](#table-of-contents)
 
 - Dataset reading, writing, conversion in any direction. [Supported formats](docs/user_manual.md#supported-formats):
-  - [COCO](http://cocodataset.org/#format-data) (`image_info`, `instances`, `person_keypoints`, `captions`, `labels`*)
+  - [COCO](http://cocodataset.org/#format-data) (`image_info`, `instances`, `person_keypoints`, `captions`, `labels`, `panoptic`, `stuff`)
   - [PASCAL VOC](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/htmldoc/index.html) (`classification`, `detection`, `segmentation`, `action_classification`, `person_layout`)
   - [YOLO](https://github.com/AlexeyAB/darknet#how-to-train-pascal-voc-data) (`bboxes`)
   - [TF Detection API](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/using_your_own_dataset.md) (`bboxes`, `masks`)
@@ -133,12 +133,16 @@ CVAT annotations                             ---> Publication, statistics etc.
   - [MOT sequences](https://arxiv.org/pdf/1906.04567.pdf)
   - [MOTS PNG](https://www.vision.rwth-aachen.de/page/mots)
   - [ImageNet](http://image-net.org/)
+  - [CIFAR-10/100](https://www.cs.toronto.edu/~kriz/cifar.html) (`classification`)
+  - [MNIST](http://yann.lecun.com/exdb/mnist/) (`classification`)
+  - [MNIST in CSV](https://pjreddie.com/projects/mnist-in-csv/) (`classification`)
   - [CamVid](http://mi.eng.cam.ac.uk/research/projects/VideoRec/CamVid/)
+  - [Cityscapes](https://www.cityscapes-dataset.com/)
   - [CVAT](https://github.com/opencv/cvat/blob/develop/cvat/apps/documentation/xml_format.md)
   - [LabelMe](http://labelme.csail.mit.edu/Release3.0)
   - [ICDAR13/15](https://rrc.cvc.uab.es/?ch=2) (`word_recognition`, `text_localization`, `text_segmentation`)
   - [Market-1501](https://www.aitribune.com/dataset/2018051063) (`person re-identification`)
-  - [LFW](http://vis-www.cs.umass.edu/lfw/) (`person re-identification`, `landmarks`)
+  - [LFW](http://vis-www.cs.umass.edu/lfw/) (`classification`, `person re-identification`, `landmarks`)
 - Dataset building
   - Merging multiple datasets into one
   - Dataset filtering by a custom criteria:
@@ -148,7 +152,7 @@ CVAT annotations                             ---> Publication, statistics etc.
     - keep only vertically-oriented images
     - remove small area bounding boxes from annotations
   - Annotation conversions, for instance:
-    - polygons to instance masks and vise-versa
+    - polygons to instance masks and vice-versa
     - apply a custom colormap for mask annotations
     - rename or remove dataset labels
   - Splitting a dataset into multiple subsets like `train`, `val`, and `test`:
@@ -166,8 +170,9 @@ CVAT annotations                             ---> Publication, statistics etc.
       - sampling with Entropy based algorithm
 - Dataset quality checking
   - Simple checking for errors
-  - Comparison with model infernece
+  - Comparison with model inference
   - Merging and comparison of multiple datasets
+  - Annotation validation based on the task type(classification, etc)
 - Dataset comparison
 - Dataset statistics (image mean and std, annotation statistics)
 - Model integration

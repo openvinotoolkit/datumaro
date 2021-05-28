@@ -326,6 +326,10 @@ class CvatConverterTest(TestCase):
             self._test_save_and_load(expected,
                 partial(CvatConverter.convert, save_images=True),
                 test_dir, require_images=True)
+            self.assertTrue(osp.isfile(
+                osp.join(test_dir, 'images', 'q', '1.JPEG')))
+            self.assertTrue(osp.isfile(
+                osp.join(test_dir, 'images', 'a', 'b', 'c', '2.bmp')))
 
     def test_preserve_frame_ids(self):
         expected_dataset = Dataset.from_iterable([

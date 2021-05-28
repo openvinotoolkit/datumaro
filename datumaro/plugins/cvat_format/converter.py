@@ -164,7 +164,7 @@ class _SubsetWriter:
         if not self._context._reindex:
             index = cast(item.attributes.get('frame'), int, index)
         image_info = OrderedDict([ ("id", str(index)), ])
-        filename = item.id + CvatPath.IMAGE_EXT
+        filename = self._context._make_image_filename(item)
         image_info["name"] = filename
         if item.has_image:
             size = item.image.size

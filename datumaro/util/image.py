@@ -7,19 +7,21 @@
 
 from enum import Enum
 from io import BytesIO
-from typing import Iterator, Iterable, Union
+from typing import Any, Callable, Iterator, Iterable, Optional, Tuple, Union
 import numpy as np
 import os
 import os.path as osp
 
 _IMAGE_BACKENDS = Enum('_IMAGE_BACKENDS', ['cv2', 'PIL'])
 _IMAGE_BACKEND = None
+_image_loading_errors = (FileNotFoundError, )
 try:
     import cv2
     _IMAGE_BACKEND = _IMAGE_BACKENDS.cv2
 except ImportError:
     import PIL
     _IMAGE_BACKEND = _IMAGE_BACKENDS.PIL
+    _image_loading_errors = (*_image_loading_errors, PIL.UnidentifiedImageError)
 
 from datumaro.util.image_cache import ImageCache as _ImageCache
 from datumaro.util.os_util import walk
@@ -33,6 +35,8 @@ def load_image(path, dtype=np.float32):
     if _IMAGE_BACKEND == _IMAGE_BACKENDS.cv2:
         import cv2
         image = cv2.imread(path, cv2.IMREAD_UNCHANGED)
+        if image is None:
+            raise FileNotFoundError("Can't open image: %s" % path)
         image = image.astype(dtype)
     elif _IMAGE_BACKEND == _IMAGE_BACKENDS.PIL:
         from PIL import Image
@@ -43,8 +47,6 @@ def load_image(path, dtype=np.float32):
     else:
         raise NotImplementedError()
 
-    if image is None:
-        raise ValueError("Can't open image '%s'" % path)
     assert len(image.shape) in {2, 3}
     if len(image.shape) == 3:
         assert image.shape[2] in {3, 4}
@@ -63,7 +65,13 @@ def save_image(path, image, create_dir=False, dtype=np.uint8, **kwargs):
     if not kwargs:
         kwargs = {}
 
-    if _IMAGE_BACKEND == _IMAGE_BACKENDS.cv2:
+    # NOTE: OpenCV documentation says "If the image format is not supported,
+    # the image will be converted to 8-bit unsigned and saved that way".
+    # Conversion from np.int32 to np.uint8 is not working properly
+    backend = _IMAGE_BACKEND
+    if dtype == np.int32:
+        backend = _IMAGE_BACKENDS.PIL
+    if backend == _IMAGE_BACKENDS.cv2:
         import cv2
 
         params = []
@@ -76,7 +84,7 @@ def save_image(path, image, create_dir=False, dtype=np.uint8, **kwargs):
 
         image = image.astype(dtype)
         cv2.imwrite(path, image, params=params)
-    elif _IMAGE_BACKEND == _IMAGE_BACKENDS.PIL:
+    elif backend == _IMAGE_BACKENDS.PIL:
         from PIL import Image
 
         params = {}
@@ -227,15 +235,16 @@ class lazy_image:
         return hash((id(self), self.path, self.loader))
 
 class Image:
-    def __init__(self, data=None, path=None, loader=None, cache=None,
-            size=None):
-        assert size is None or len(size) == 2
+    def __init__(self, data: Union[None, Callable, np.ndarray] = None,
+            path: Optional[str] = None, loader: Optional[Callable] = None,
+            size: Optional[Tuple[int, int]] = None, cache: Any = None):
+        assert size is None or len(size) == 2, size
         if size is not None:
             assert len(size) == 2 and 0 < size[0] and 0 < size[1], size
             size = tuple(size)
         self._size = size # (H, W)
 
-        assert path is None or isinstance(path, str)
+        assert path is None or isinstance(path, str), path
         if path is None:
             path = ''
         elif path:
@@ -254,15 +263,15 @@ class Image:
             self._size = data.shape[:2]
 
     @property
-    def path(self):
+    def path(self) -> str:
         return self._path
 
     @property
-    def ext(self):
+    def ext(self) -> str:
         return osp.splitext(osp.basename(self.path))[1]
 
     @property
-    def data(self):
+    def data(self) -> np.ndarray:
         if callable(self._data):
             data = self._data()
         else:
@@ -273,17 +282,20 @@ class Image:
         return data
 
     @property
-    def has_data(self):
+    def has_data(self) -> bool:
         return self._data is not None
 
     @property
-    def has_size(self):
+    def has_size(self) -> bool:
         return self._size is not None or isinstance(self._data, np.ndarray)
 
     @property
-    def size(self):
+    def size(self) -> Optional[Tuple[int, int]]:
         if self._size is None:
-            data = self.data
+            try:
+                data = self.data
+            except _image_loading_errors:
+                return None
             if data is not None:
                 self._size = data.shape[:2]
         return self._size

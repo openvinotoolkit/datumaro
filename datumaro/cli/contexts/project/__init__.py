@@ -9,6 +9,8 @@ import os
 import os.path as osp
 from enum import Enum
 
+import numpy as np
+
 from datumaro.components.dataset_filter import DatasetItemEncoder
 from datumaro.components.environment import Environment
 from datumaro.components.errors import DatasetMergeError
@@ -541,6 +543,8 @@ def build_validate_parser(parser_ctor=argparse.ArgumentParser):
         help="Subset to validate (default: None)")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to validate (default: current dir)")
+    parser.add_argument('extra_args', nargs=argparse.REMAINDER, default=None,
+        help="Optional arguments for validator (pass '-- -h' for help)")
     parser.set_defaults(command=validate_command)
 
     return parser
@@ -550,28 +554,38 @@ def validate_command(args):
     project = load_project(args.project_dir)
     task_type = args.task_type
     subset_name = args.subset_name
-    dst_file_name = 'validation_results'
+    dst_file_name = f'validation_results-{task_type}'
+
+    from datumaro.components.validator import _Validator
+    extra_args = _Validator.parse_cmdline(args.extra_args)
 
     dataset = project.get_rev(rev).make_dataset(target)
     if subset_name is not None:
         dataset = dataset.get_subset(subset_name)
         dst_file_name += f'-{target}-{subset_name}'
-    validation_results = validate_annotations(dataset, task_type)
 
-    def _convert_tuple_keys_to_str(d):
+    validation_results = validate_annotations(dataset, task_type, **extra_args)
+
+    def numpy_encoder(obj):
+        if isinstance(obj, np.generic):
+            return obj.item()
+
+    def _make_serializable(d):
         for key, val in list(d.items()):
+            # tuple key to str
             if isinstance(key, tuple):
                 d[str(key)] = val
                 d.pop(key)
             if isinstance(val, dict):
-                _convert_tuple_keys_to_str(val)
+                _make_serializable(val)
 
-    _convert_tuple_keys_to_str(validation_results)
+    _make_serializable(validation_results)
 
     dst_file = generate_next_file_name(dst_file_name, ext='.json')
     log.info("Writing project validation results to '%s'" % dst_file)
     with open(dst_file, 'w') as f:
-        json.dump(validation_results, f, indent=4, sort_keys=True)
+        json.dump(validation_results, f, indent=4, sort_keys=True,
+                  default=numpy_encoder)
 
 def build_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(
