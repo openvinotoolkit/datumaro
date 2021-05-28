@@ -386,7 +386,7 @@ class ProjectTest(TestCase):
 
             self.assertTrue(project.is_ref(commit_hash))
             self.assertEqual(len(project.revs()), 2)
-            self.assertEqual(project.revs()[-1], [(commit_hash, "First commit")])
+            self.assertEqual(project.revs()[0], (commit_hash, "First commit"))
 
 
 class BackwardCompatibilityTests_v0_1(TestCase):

@@ -20,7 +20,7 @@ class VocIntegrationScenarios(TestCase):
     def _test_can_save_and_load(self, project_path, source_path, source_dataset,
             dataset_format, result_path=None, label_map=None):
         run(self, 'create', '-o', project_path)
-        run(self, 'add', 'path', '-p', project_path, '-f', dataset_format, source_path)
+        run(self, 'add', '-p', project_path, '-f', dataset_format, source_path)
 
         result_dir = osp.join(project_path, 'voc_dataset')
         run(self, 'export', '-f', dataset_format, '-p', project_path,
@@ -31,7 +31,7 @@ class VocIntegrationScenarios(TestCase):
         compare_datasets(self, source_dataset, target_dataset)
 
     def test_preparing_dataset_for_train_model(self):
-        source_dataset = Dataset.from_iterable([
+        target_dataset = Dataset.from_iterable([
             DatasetItem(id='c', subset='train',
                 annotations=[
                     Bbox(3.0, 1.0, 8.0, 5.0,
@@ -62,23 +62,21 @@ class VocIntegrationScenarios(TestCase):
 
         with TestDir() as test_dir:
             run(self, 'create', '-o', test_dir)
-            run(self, 'add', 'path', '-p', test_dir, '-f', 'voc', dataset_path)
+            run(self, 'add', '-p', test_dir, '-f', 'voc', dataset_path)
 
-            result_path = osp.join(test_dir, 'result')
             run(self, 'filter', '-p', test_dir, '-m', 'i+a',
-                '-e', "/item/annotation[occluded='False']", '-o', result_path)
+                '-e', "/item/annotation[occluded='False']")
 
-            split_path = osp.join(test_dir, 'split')
-            run(self, 'transform', '-p', result_path, '-o', split_path,
+            run(self, 'transform', '-p', test_dir,
                 '-t', 'random_split', '--', '-s', 'test:.5',
                 '-s', 'train:.5', '--seed', '1')
 
             export_path = osp.join(test_dir, 'dataset')
-            run(self, 'export', '-p', split_path, '-f', 'voc',
+            run(self, 'export', '-p', test_dir, '-f', 'voc',
                 '-o', export_path, '--', '--label-map', 'voc')
 
             parsed_dataset = Dataset.import_from(export_path, format='voc')
-            compare_datasets(self, source_dataset, parsed_dataset)
+            compare_datasets(self, target_dataset, parsed_dataset)
 
     def test_convert_to_voc_format(self):
         label_map = OrderedDict(('label_' + str(i), [None, [], []]) for i in range(10))
@@ -113,7 +111,7 @@ class VocIntegrationScenarios(TestCase):
                 'tests', 'assets', 'yolo_dataset')
 
             run(self, 'create', '-o', test_dir)
-            run(self, 'add', 'path', '-p', test_dir, '-f', 'yolo', yolo_dir)
+            run(self, 'add', '-p', test_dir, '-f', 'yolo', yolo_dir)
 
             voc_export = osp.join(test_dir, 'voc_export')
             run(self, 'export', '-p', test_dir, '-f', 'voc',

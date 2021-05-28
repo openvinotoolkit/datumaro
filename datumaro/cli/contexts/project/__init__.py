@@ -298,8 +298,9 @@ def filter_command(args):
             log.info("Finished")
 
     if args.stage:
-        for target in targets:
-            project._refresh_source_hash(target)
+        for target_name in targets:
+            target = project.working_tree.build_targets[target_name]
+            target.head.hash = project._refresh_source_hash(target_name)
         project.working_tree.save()
 
     return 0
@@ -404,8 +405,9 @@ def transform_command(args):
             log.info("Finished")
 
     if args.stage:
-        for target in targets:
-            project._refresh_source_hash(target)
+        for target_name in targets:
+            target = project.working_tree.build_targets[target_name]
+            target.head.hash = project._refresh_source_hash(target_name)
         project.working_tree.save()
 
     return 0

@@ -72,6 +72,10 @@ def copytree(src, dst):
         shutil.copytree(src, dst)
         return
 
+    basedir = osp.dirname(dst)
+    if basedir:
+        os.makedirs(basedir, exist_ok=True)
+
     if sys.platform == 'windows':
         subprocess.check_call(["xcopy", src, dst, "/s", "/e"])
     elif sys.platform == 'linux':

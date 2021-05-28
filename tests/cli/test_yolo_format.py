@@ -29,7 +29,8 @@ class YoloIntegrationScenarios(TestCase):
             yolo_dir = osp.join(__file__[:__file__.rfind(osp.join('tests', ''))],
                 'tests', 'assets', 'yolo_dataset')
 
-            run(self, 'import', '-o', test_dir, '-f', 'yolo', '-i', yolo_dir)
+            run(self, 'create', '-o', test_dir)
+            run(self, 'add', '-p', test_dir, '-f', 'yolo', yolo_dir)
 
             export_dir = osp.join(test_dir, 'export_dir')
             run(self, 'export', '-p', test_dir, '-o', export_dir,
@@ -52,7 +53,7 @@ class YoloIntegrationScenarios(TestCase):
                 'tests', 'assets', 'mot_dataset')
 
             run(self, 'create', '-o', test_dir)
-            run(self, 'add',  'path', '-p', test_dir, '-f', 'mot_seq', mot_dir)
+            run(self, 'add', '-p', test_dir, '-f', 'mot_seq', mot_dir)
 
             yolo_dir = osp.join(test_dir, 'yolo_dir')
             run(self, 'export', '-p', test_dir, '-o', yolo_dir,
@@ -114,7 +115,7 @@ class YoloIntegrationScenarios(TestCase):
             source_dataset.save(dataset_dir, save_images=True)
 
             run(self, 'create', '-o', test_dir)
-            run(self, 'add', 'path', '-p', test_dir, '-f', 'datumaro', dataset_dir)
+            run(self, 'add', '-p', test_dir, '-f', 'datumaro', dataset_dir)
 
             yolo_dir = osp.join(test_dir, 'yolo_dir')
             run(self, 'export', '-p', test_dir, '-o', yolo_dir,
@@ -138,19 +139,17 @@ class YoloIntegrationScenarios(TestCase):
                 'tests', 'assets', 'yolo_dataset')
 
             run(self, 'create', '-o', test_dir)
-            run(self, 'add', 'path', '-p', test_dir, '-f', 'yolo', yolo_dir)
+            run(self, 'add', '-p', test_dir, '-f', 'yolo', yolo_dir)
 
-            filtered_path = osp.join(test_dir, 'filtered')
-            run(self, 'filter', '-p', test_dir, '-o', filtered_path,
+            run(self, 'filter', '-p', test_dir,
                 '-m', 'i+a', '-e', "/item/annotation[label='label_2']")
 
-            result_path = osp.join(test_dir, 'result')
-            run(self, 'transform', '-p', filtered_path, '-o', result_path,
+            run(self, 'transform', '-p', test_dir,
                 '-t', 'remap_labels', '--', '-l', 'label_2:label_2',
                 '--default', 'delete')
 
             export_dir = osp.join(test_dir, 'export')
-            run(self, 'export', '-p', result_path, '-o', export_dir,
+            run(self, 'export', '-p', test_dir, '-o', export_dir,
                '-f', 'yolo', '--', '--save-image')
 
             parsed_dataset = Dataset.import_from(export_dir, format='yolo')
