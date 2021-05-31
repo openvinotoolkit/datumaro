@@ -5,7 +5,7 @@ on:
       - 'develop'
       - 'develop-tmp'
 jobs:
-  build_and_tests_on_python:
+  coverage_tests_on_python:
     strategy:
       fail-fast: false
       matrix:
