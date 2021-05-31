@@ -2000,17 +2000,6 @@ class Project:
         assert targets is None or isinstance(targets, (str, list)), targets
         if targets:
             raise NotImplementedError()
-
-            if isinstance(targets, str):
-                targets = [targets]
-
-            for i, t in enumerate(targets):
-                if not osp.exists(t):
-                    targets[i] = self.dvc_filepath(t)
-
-            # order matters
-            self._git.checkout(rev, targets)
-            self._dvc.checkout(targets)
         else:
             # Check working tree for unsaved changes,
             # set HEAD to the revision
