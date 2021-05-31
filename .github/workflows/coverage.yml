@@ -1,5 +1,9 @@
-name: CI_pull_request
-on: pull_request
+name: Coverage
+on:
+  push:
+    branches:
+      - 'develop'
+      - 'develop-tmp'
 jobs:
   build_and_tests_on_python:
     strategy:
@@ -17,7 +21,13 @@ jobs:
         run: |
           pip install coverage tensorflow
           pip install -e ./
-      - name: Unit testing
+      - name: Code instrumentation
         run: |
-          python -m unittest discover -v
-          datum -h
+          coverage run -m unittest discover -v
+          coverage run -a datum.py -h
+          coverage xml
+      - name: Run codacy-coverage-reporter
+        uses: codacy/codacy-coverage-reporter-action@v1
+        with:
+          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+          coverage-reports: coverage.xml
