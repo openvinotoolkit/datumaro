@@ -1764,24 +1764,6 @@ class Project:
             suffix = '_' + suffix
         return tempfile.TemporaryDirectory(suffix=suffix, dir=project_tmp_dir)
 
-    def download_source(self, source: Source):
-        """
-        Downloads already existing source from its remote storage.
-        """
-        raise NotImplementedError()
-        # dvc = self.dvc
-
-        # temp_dir = make_temp_dir(
-        #     osp.join(self.config.project_dir, ProjectLayout.AUX_DIR, 'temp'))
-        # dvc_config = load_dvc_config(self, source)
-        # dvc_config_path = osp.join(temp_dir, 'config.dvc')
-        # write_dvc_config(dvc_config, )
-        # dvc.download_source(dvc_config, temp_dir)
-
-        # source.hash = dvc.compute_source_hash(temp_dir)
-        # obj_dir = _make_obj_path(self, source.hash)
-        # shutil.move(temp_dir, obj_dir) # moves _into_ obj_dir
-
     def remove_cache_obj(self, ref: str):
         obj_type, obj_hash = self._parse_ref(ref)
 
