@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - 'develop'
-      - 'develop-tmp'
 jobs:
   coverage_tests_on_python:
     strategy:
