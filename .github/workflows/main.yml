@@ -30,6 +30,7 @@ jobs:
           datum -h
       - name: Code instrumentation
         env:
+          COVERALLS_SERVICE_NAME: github
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           coverage run -m unittest discover -v
