@@ -26,8 +26,6 @@ jobs:
           coverage run -m unittest discover -v
           coverage run -a datum.py -h
           coverage xml
-      - name: Run codacy-coverage-reporter
-        uses: codacy/codacy-coverage-reporter-action@v1
-        with:
-          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-          coverage-reports: coverage.xml
+      - name: Sending coverage results
+        run: |
+          bash <(curl -Ls https://coverage.codacy.com/get.sh) report -r coverage.xml -t ${{ secrets.CODACY_PROJECT_TOKEN }}
