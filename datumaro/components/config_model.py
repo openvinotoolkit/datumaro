@@ -82,7 +82,7 @@ class BuildTarget(Config):
         return self.stages[-1]
 
     @property
-    def is_clean(self) -> bool:
+    def has_stages(self) -> bool:
         return len(self.stages) == 1
 
     def find_stage(self, stage):

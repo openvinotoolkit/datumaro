@@ -10,21 +10,25 @@ from ..util.project import load_project
 def build_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(description="Prints project history.")
 
-    parser.add_argument('-n', '--count', default=10, type=int,
-        help="Count of last commits to print (default: %(default)s)")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to operate on (default: current dir)")
-    parser.set_defaults(command=log_command)
+    parser.set_defaults(command=status_command)
 
     return parser
 
-def log_command(args):
+def status_command(args):
     project = load_project(args.project_dir)
 
-    revisions = project.history(args.count)
-    if revisions:
-        print('\n'.join('%s %s' % line for line in revisions))
+    statuses = project.status()
+
+    if project.branch:
+        print("On branch '%s', commit %s" % (project.branch, project.head_rev))
     else:
-        print("(Project history is empty)")
+        print("HEAD is detached at commit %s" % project.head_rev)
+
+    if statuses:
+        print('\n'.join('%s\t%s' % (s.name, p) for p, s in statuses.items()))
+    else:
+        print("Working directory clean")
 
     return 0

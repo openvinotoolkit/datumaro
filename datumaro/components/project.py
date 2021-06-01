@@ -11,7 +11,7 @@ import tempfile
 import unittest.mock
 from contextlib import ExitStack
 from enum import Enum
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, Iterable, List, NewType, Optional, Tuple, Union
 
 import networkx as nx
 import ruamel.yaml as yaml
@@ -21,7 +21,7 @@ from datumaro.components.config_model import (BuildStage, PipelineConfig,
     ProjectLayout, Source, TreeConfig, TreeLayout)
 from datumaro.components.dataset import DEFAULT_FORMAT, Dataset, IDataset
 from datumaro.components.environment import Environment
-from datumaro.components.errors import (DatasetMergeError,
+from datumaro.components.errors import (DatasetMergeError, EmptyCommitError,
     EmptyPipelineError, MismatchingObjectError, MissingObjectError,
     MissingPipelineHeadError, MultiplePipelineHeadsError, ProjectAlreadyExists,
     ProjectNotFoundError, ReadonlyDatasetError, SourceExistsError,
@@ -859,9 +859,15 @@ class GitWrapper:
     def tag(self, name):
         self.repo.create_tag(name)
 
-    def checkout(self, ref=None, dst_dir=None, clean=False, force=False):
-        commit = self.repo.commit(ref)
+    def checkout(self, ref: str = None, dst_dir=None, clean=False, force=False):
+        # If user wants to navigate to a head, we need to supply its object
+        # insted of just a string. Otherwise, we'll get a detached head.
+        try:
+            ref_obj = self.repo.heads[ref]
+        except IndexError:
+            ref_obj = ref
 
+        commit = self.repo.commit(ref)
         tree = commit.tree
 
         if not dst_dir:
@@ -872,39 +878,16 @@ class GitWrapper:
         assert dst_dir.startswith(repo_dir)
 
         if not force:
-            cmp_base = osp.relpath(dst_dir, repo_dir)
-            conflicts = []
-            for obj in tree.traverse():
-                if obj.type != 'blob':
-                    continue
+            statuses = self.status(tree, base_dir=dst_dir)
 
-                file_path = osp.join(dst_dir, obj.path)
-                file_rel_path = osp.normpath(osp.join(cmp_base, obj.path))
-
-                # The statuses are:
-                # - "A" for added paths
-                # - "D" for deleted paths
-                # - "R" for renamed paths
-                # - "M" for paths with modified data
-                # - "T" for changed in the type paths
-                #
-                # Only modified files produce conflicts in checkout
-                index_entry = self.repo.index.entries.get((obj.path, 0), None)
-                if not osp.isfile(file_path) or not index_entry:
-                    continue
-                status = self.repo.git.diff('--name-status',
-                    index_entry.hexsha, file_path)
-                if status:
-                    status = status[0]
-                assert status in {'', 'M'}, status
-
-                if status == 'M':
-                    conflicts.append(file_rel_path)
-
+            # Only modified files produce conflicts in checkout
+            dst_rpath = osp.relpath(dst_dir, repo_dir)
+            conflicts = [osp.join(dst_rpath, p)
+                for p, s in statuses.items() if s == 'M']
             if conflicts:
                 raise UnsavedChangesError(conflicts)
 
-        self.repo.head.reference = commit
+        self.repo.head.ref = ref_obj
         self.repo.head.reset(working_tree=False)
 
         if clean:
@@ -950,15 +933,70 @@ class GitWrapper:
         """
         return self.repo.index.commit(message).hexsha
 
-    def status(self):
-        # R[everse] flag is needed for index to HEAD comparison
-        # to avoid inversed output in gitpython, which adds this flag
-        # git diff --cached HEAD [not not R]
-        diff = self.repo.index.diff(R=True)
-        return {
-            osp.relpath(d.a_rawpath.decode(), self._project_dir): d.change_type
-            for d in diff
-        }
+    GitTree = NewType('GitTree', object)
+    GitStatus = NewType('GitStatus', str)
+
+    def status(self, paths: Union[str, GitTree, Iterable[str]] = None,
+            base_dir: str = None) -> Dict[str, GitStatus]:
+        """
+        Compares working directory and index.
+
+        Parameters:
+        - paths - an iterable of paths to compare, a git.Tree, or None.
+            When None, uses all the paths from HEAD.
+        - base_dir - a base path for paths. Paths will be prepended by this.
+            When None or '', uses repo root. Can be useful, if index contains
+            displaced paths, which needs to be mapped on real paths.
+
+        The statuses are:
+        - "A" for added paths
+        - "D" for deleted paths
+        - "R" for renamed paths
+        - "M" for paths with modified data
+        - "T" for changed in the type paths
+
+        Returns: { abspath(base_dir + path): status }
+        """
+
+        if paths is None or isinstance(paths, self.module.objects.tree.Tree):
+            if paths is None:
+                tree = self.repo.head.commit.tree
+            else:
+                tree = paths
+            paths = (obj.path for obj in tree.traverse() if obj.type == 'blob')
+        elif isinstance(paths, str):
+            paths = [paths]
+
+        if not base_dir:
+            base_dir = self._project_dir
+
+        repo_dir = osp.abspath(self._project_dir)
+        base_dir = osp.abspath(base_dir)
+        assert base_dir.startswith(repo_dir)
+
+        statuses = {}
+        for obj_path in paths:
+            file_path = osp.join(base_dir, obj_path)
+
+            index_entry = self.repo.index.entries.get((obj_path, 0), None)
+            file_exists = osp.isfile(file_path)
+            if not file_exists and index_entry:
+                status = 'D'
+            elif file_exists and not index_entry:
+                status = 'A'
+            elif file_exists and index_entry:
+                status = self.repo.git.diff('--name-status',
+                    index_entry.hexsha, file_path)
+                if status:
+                    status = status[0]
+                assert status in {'', 'M', 'T'}, status
+            else:
+                status = '' # ignore missing paths
+
+            if status:
+                statuses[obj_path] = status
+
+        return statuses
 
     def list_remotes(self):
         return { r.name: r.url for r in self.repo.remotes }
@@ -1006,7 +1044,13 @@ class GitWrapper:
 
     @property
     def head(self) -> str:
-        return self.repo.head.hexsha
+        return self.repo.head.commit.hexsha
+
+    @property
+    def branch(self) -> str:
+        if self.repo.head.is_detached:
+            return None
+        return self.repo.active_branch
 
     def rev_parse(self, ref: str) -> Tuple[str, str]:
         """
@@ -1036,17 +1080,10 @@ class GitWrapper:
     def is_hash(cls, s: str) -> bool:
         return len(s) == cls.HASH_LEN
 
-    def is_empty(self) -> bool:
-        try:
-            self.repo.head.commit
-            return False
-        except ValueError:
-            return True
-
     def log(self, depth=10) -> List[str]:
         commits = []
 
-        if self.is_empty():
+        if not self.has_commits():
             return commits
 
         for commit in zip(self.repo.iter_commits(rev='HEAD'), range(depth)):
@@ -1515,6 +1552,8 @@ class Tree:
 
 
 class Project:
+    Revision = NewType('Revision', str)
+
     @staticmethod
     def find_project_dir(path: str) -> Optional[str]:
         path = osp.abspath(path)
@@ -1654,7 +1693,15 @@ class Project:
             self._head_tree = self.get_rev('HEAD')
         return self._head_tree
 
-    def get_rev(self, rev: str) -> Tree:
+    @property
+    def head_rev(self) -> Revision:
+        return self._git.head
+
+    @property
+    def branch(self) -> str:
+        return self._git.branch
+
+    def get_rev(self, rev: Revision) -> Tree:
         """
         Ref convetions:
         - None or "" - working dir
@@ -1690,7 +1737,7 @@ class Project:
             tree = Tree(config=tree_config, project=self, rev=obj_hash)
         return tree
 
-    def is_rev_cached(self, rev: str) -> bool:
+    def is_rev_cached(self, rev: Revision) -> bool:
         obj_type, obj_hash = self._parse_ref(rev)
         assert obj_type == self._RefKind.tree, obj_type
         return self._is_cached(obj_hash)
@@ -1719,7 +1766,7 @@ class Project:
         except Exception:
             raise UnknownRefError("Can't parse ref '%s'" % ref)
 
-    def _materialize_rev(self, rev):
+    def _materialize_rev(self, rev: Revision):
         tree = self._git.get_tree(rev)
 
         obj_dir = self.cache_path(tree.hexsha)
@@ -1928,19 +1975,22 @@ class Project:
 
         self._git.ignore([data_dir], mode='remove')
 
-    def commit(self, message: str, no_cache: bool = False) -> str:
+    def commit(self, message: str, no_cache: bool = False) -> Revision:
         """
         Copies tree and objects from the working dir to the cache.
         Creates a new commit. Moves the HEAD pointer to the new commit.
 
         Options:
-        no_cache (bool) - don't put added dataset data into cache,
+        - no_cache (bool) - don't put added dataset data into cache,
             store only metainfo. Can be used to reduce storage size.
 
         Returns: the new commit hash
         """
 
-        # TODO: add check for empty commit
+        statuses = self._git.status(TreeLayout.conf_file,
+            base_dir=osp.join(self._aux_dir, ProjectLayout.tree_dir))
+        if not statuses:
+            raise EmptyCommitError()
 
         for s in self.working_tree.sources:
             source_dir = self.source_data_dir(s)
@@ -2050,10 +2100,48 @@ class Project:
     def has_commits(self) -> bool:
         return self._git.has_commits()
 
-    def status(self) -> Dict:
-        return {}
+    Status = Enum('Status', ['added', 'modified', 'removed', 'missing'])
 
-    def revs(self, max_count=10) -> List[str]:
+    def status(self) -> Dict:
+        head = self.head
+        wd = self.working_tree
+
+        changed_targets = {}
+
+        for t_name in wd.build_targets:
+            wd_target = wd.build_targets[t_name]
+
+            if osp.isdir(self.source_data_dir(t_name)):
+                wd_hash = self._refresh_source_hash(t_name)
+                wd_target.head.hash = wd_hash
+                if not wd_target.has_stages:
+                    wd_target = wd_hash
+
+        for t_name in set(head.build_targets) | set(wd.build_targets):
+            if t_name == ProjectBuildTargets.MAIN_TARGET:
+                continue
+
+            head_target = head.build_targets.get(t_name)
+            wd_target = wd.build_targets.get(t_name)
+
+            status = None
+
+            if head_target is None:
+                status = self.Status.added
+            elif wd_target is None:
+                status = self.Status.removed
+            else:
+                if head_target != wd_target:
+                    status = self.Status.modified
+                elif not osp.isdir(self.source_data_dir(t_name)):
+                    status = self.Status.missing
+
+            if status:
+                changed_targets[t_name] = status
+
+        return changed_targets
+
+    def history(self, max_count=10) -> List[str]:
         return [(c.hexsha, c.message) for c, _ in self._git.log(max_count)]
 
 

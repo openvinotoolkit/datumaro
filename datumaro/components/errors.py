@@ -27,6 +27,9 @@ class MismatchingObjectError(VcsError):
 class UnsavedChangesError(VcsError):
     paths = attrib()
 
+class EmptyCommitError(VcsError):
+    pass
+
 class PipelineError(DatumaroError):
         pass
 
