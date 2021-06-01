@@ -10,7 +10,7 @@ from datumaro.components.extractor import (DatasetItem, Label,
 from datumaro.plugins.imagenet_format import ImagenetConverter, ImagenetImporter
 from datumaro.util.image import Image
 from datumaro.util.test_utils import TestDir, compare_datasets
-from tests.requirements import Requirements, mark_requirement
+from .requirements import Requirements, mark_requirement
 
 
 class ImagenetFormatTest(TestCase):

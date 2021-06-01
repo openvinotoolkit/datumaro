@@ -15,7 +15,7 @@ from datumaro.components.extractor import (DEFAULT_SUBSET_NAME, Extractor,
     LabelCategories, AnnotationType, Transform)
 from datumaro.util.image import Image
 from datumaro.util.test_utils import TestDir, compare_datasets
-from tests.requirements import Requirements, mark_requirement
+from .requirements import Requirements, mark_requirement
 
 
 class DatasetTest(TestCase):

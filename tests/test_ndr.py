@@ -7,7 +7,7 @@ from datumaro.components.extractor import (DatasetItem, Label,
     LabelCategories, AnnotationType)
 
 import datumaro.plugins.ndr as ndr
-from tests.requirements import Requirements, mark_requirement
+from .requirements import Requirements, mark_requirement
 
 
 class NDRTest(TestCase):

@@ -10,7 +10,7 @@ from datumaro.components.operations import (FailedAttrVotingError,
     compute_ann_statistics, mean_std, find_unique_images)
 from datumaro.components.dataset import Dataset
 from datumaro.util.test_utils import compare_datasets
-from tests.requirements import Requirements, mark_requirement
+from .requirements import Requirements, mark_requirement
 
 
 class TestOperations(TestCase):

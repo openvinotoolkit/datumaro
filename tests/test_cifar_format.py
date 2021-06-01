@@ -8,7 +8,7 @@ from datumaro.components.extractor import (AnnotationType, DatasetItem, Label,
 from datumaro.plugins.cifar_format import CifarConverter, CifarImporter
 from datumaro.util.image import Image
 from datumaro.util.test_utils import TestDir, compare_datasets
-from tests.requirements import Requirements, mark_requirement
+from .requirements import Requirements, mark_requirement
 
 
 class CifarFormatTest(TestCase):

@@ -12,7 +12,7 @@ from datumaro.plugins.yolo_format.extractor import YoloImporter
 from datumaro.plugins.yolo_format.converter import YoloConverter
 from datumaro.util.image import Image, save_image
 from datumaro.util.test_utils import TestDir, compare_datasets
-from tests.requirements import Requirements, mark_requirement
+from .requirements import Requirements, mark_requirement
 
 
 class YoloFormatTest(TestCase):

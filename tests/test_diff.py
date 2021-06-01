@@ -6,7 +6,7 @@ from datumaro.components.project import Dataset
 from datumaro.components.operations import DistanceComparator, ExactComparator
 
 from unittest import TestCase
-from tests.requirements import Requirements, mark_requirement
+from .requirements import Requirements, mark_requirement
 
 
 class DistanceComparatorTest(TestCase):

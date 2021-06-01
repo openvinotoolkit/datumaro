@@ -15,7 +15,7 @@ from datumaro.components.extractor import (
 
 import datumaro.plugins.splitter as splitter
 from datumaro.components.operations import compute_ann_statistics
-from tests.requirements import Requirements, mark_requirement
+from .requirements import Requirements, mark_requirement
 
 
 class SplitterTest(TestCase):

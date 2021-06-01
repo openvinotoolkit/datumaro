@@ -15,7 +15,7 @@ from datumaro.components.extractor import (DatasetItem,
 )
 from datumaro.util.image import Image
 from datumaro.util.test_utils import TestDir
-from tests.requirements import Requirements, mark_requirement
+from ..requirements import Requirements, mark_requirement
 
 
 class DiffTest(TestCase):

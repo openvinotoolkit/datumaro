@@ -19,7 +19,7 @@ try:
     has_libs = True
 except ImportError:
     has_libs = False
-from tests.requirements import Requirements, mark_requirement
+from .requirements import Requirements, mark_requirement
 
 
 @skipIf(not has_libs, "pandas library is not available")

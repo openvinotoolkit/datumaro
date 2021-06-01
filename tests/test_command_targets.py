@@ -8,7 +8,7 @@ from datumaro.util.command_targets import ProjectTarget, \
     ImageTarget, SourceTarget
 from datumaro.util.image import save_image
 from datumaro.util.test_utils import TestDir
-from tests.requirements import Requirements, mark_requirement
+from .requirements import Requirements, mark_requirement
 
 
 class CommandTargetsTest(TestCase):

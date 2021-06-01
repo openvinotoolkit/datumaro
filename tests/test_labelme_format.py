@@ -10,7 +10,7 @@ from datumaro.plugins.labelme_format import LabelMeImporter, LabelMeConverter
 from datumaro.util.image import Image
 from datumaro.util.test_utils import (TestDir, compare_datasets,
     test_save_and_load)
-from tests.requirements import Requirements, mark_requirement
+from .requirements import Requirements, mark_requirement
 
 
 class LabelMeConverterTest(TestCase):

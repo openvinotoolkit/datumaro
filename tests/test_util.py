@@ -6,7 +6,7 @@ from unittest import TestCase
 from datumaro.util import Rollback, error_rollback
 from datumaro.util.test_utils import TestDir
 from datumaro.util.os_util import walk
-from tests.requirements import Requirements, mark_requirement
+from .requirements import Requirements, mark_requirement
 
 
 class TestRollback(TestCase):

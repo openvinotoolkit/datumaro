@@ -6,7 +6,7 @@ from unittest import TestCase
 from datumaro.components.extractor import Label, Bbox
 from datumaro.components.launcher import Launcher
 from datumaro.components.algorithms.rise import RISE
-from tests.requirements import Requirements, mark_requirement
+from .requirements import Requirements, mark_requirement
 
 
 class RiseTest(TestCase):

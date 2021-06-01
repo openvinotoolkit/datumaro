@@ -10,7 +10,7 @@ from datumaro.plugins.mots_format import MotsPngConverter, MotsImporter
 from datumaro.util.image import Image
 from datumaro.util.test_utils import (TestDir, compare_datasets,
     test_save_and_load)
-from tests.requirements import Requirements, mark_requirement
+from .requirements import Requirements, mark_requirement
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'mots_dataset')
 

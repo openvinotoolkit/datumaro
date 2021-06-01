@@ -12,7 +12,7 @@ from datumaro.plugins.camvid_format import CamvidConverter, CamvidImporter
 from datumaro.util.image import Image
 from datumaro.util.test_utils import (TestDir, compare_datasets,
     test_save_and_load)
-from tests.requirements import Requirements, mark_requirement
+from .requirements import Requirements, mark_requirement
 
 
 class CamvidFormatTest(TestCase):

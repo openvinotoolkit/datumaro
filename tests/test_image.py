@@ -6,7 +6,7 @@ from unittest import TestCase
 
 import datumaro.util.image as image_module
 from datumaro.util.test_utils import TestDir
-from tests.requirements import Requirements, mark_requirement
+from .requirements import Requirements, mark_requirement
 
 
 class ImageOperationsTest(TestCase):

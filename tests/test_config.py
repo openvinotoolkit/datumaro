@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from datumaro.components.config import Config, DictConfig, SchemaBuilder
-from tests.requirements import Requirements, mark_requirement
+from .requirements import Requirements, mark_requirement
 
 
 class ConfigTest(TestCase):

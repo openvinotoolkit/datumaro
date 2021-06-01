@@ -14,7 +14,7 @@ from datumaro.plugins.cvat_format.converter import CvatConverter
 from datumaro.util.image import Image
 from datumaro.util.test_utils import (TestDir, compare_datasets,
     test_save_and_load)
-from tests.requirements import Requirements, mark_requirement
+from .requirements import Requirements, mark_requirement
 
 DUMMY_IMAGE_DATASET_DIR = osp.join(osp.dirname(__file__),
     'assets', 'cvat_dataset', 'for_images')

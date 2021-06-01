@@ -4,7 +4,7 @@ from unittest import TestCase
 
 import datumaro.util.mask_tools as mask_tools
 from datumaro.components.extractor import CompiledMask
-from tests.requirements import Requirements, mark_requirement
+from .requirements import Requirements, mark_requirement
 
 
 class PolygonConversionsTest(TestCase):

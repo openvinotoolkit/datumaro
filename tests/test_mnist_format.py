@@ -8,7 +8,7 @@ from datumaro.components.extractor import (AnnotationType, DatasetItem, Label,
 from datumaro.plugins.mnist_format import MnistConverter, MnistImporter
 from datumaro.util.image import Image
 from datumaro.util.test_utils import TestDir, compare_datasets
-from tests.requirements import Requirements, mark_requirement
+from .requirements import Requirements, mark_requirement
 
 
 class MnistFormatTest(TestCase):

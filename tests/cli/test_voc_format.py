@@ -9,7 +9,7 @@ from datumaro.components.dataset import Dataset, DatasetItem
 from datumaro.components.extractor import Bbox, Mask, Image, Label
 from datumaro.cli.__main__ import main
 from datumaro.util.test_utils import TestDir, compare_datasets
-from tests.requirements import Requirements, mark_requirement
+from ..requirements import Requirements, mark_requirement
 
 DUMMY_DATASETS_DIR = osp.join(__file__[:__file__.rfind(osp.join('tests', ''))],
             'tests', 'assets', 'voc_dataset')

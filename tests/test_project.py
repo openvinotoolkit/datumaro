@@ -12,7 +12,7 @@ from datumaro.components.extractor import (Extractor, DatasetItem,
 from datumaro.components.config import Config
 from datumaro.components.dataset import Dataset, DEFAULT_FORMAT
 from datumaro.util.test_utils import TestDir, compare_datasets
-from tests.requirements import Requirements, mark_requirement
+from .requirements import Requirements, mark_requirement
 
 
 class ProjectTest(TestCase):

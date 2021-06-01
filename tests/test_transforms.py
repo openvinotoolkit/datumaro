@@ -10,7 +10,7 @@ from datumaro.components.extractor import (Extractor, DatasetItem,
 import datumaro.util.mask_tools as mask_tools
 import datumaro.plugins.transforms as transforms
 from datumaro.util.test_utils import compare_datasets
-from tests.requirements import Requirements, mark_requirement
+from .requirements import Requirements, mark_requirement
 
 
 class TransformsTest(TestCase):

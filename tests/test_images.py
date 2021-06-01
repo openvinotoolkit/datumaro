@@ -7,7 +7,7 @@ from datumaro.util.test_utils import TestDir
 from datumaro.util.image import (lazy_image, load_image, save_image, \
     Image, ByteImage, encode_image)
 from datumaro.util.image_cache import ImageCache
-from tests.requirements import Requirements, mark_requirement
+from .requirements import Requirements, mark_requirement
 
 
 class LazyImageTest(TestCase):

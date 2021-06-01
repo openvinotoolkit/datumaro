@@ -19,7 +19,7 @@ from datumaro.components.extractor import Bbox, Label, Mask, Polygon
 from datumaro.components.validator import (ClassificationValidator,
     DetectionValidator, TaskType, validate_annotations, _Validator,
     SegmentationValidator)
-from tests.requirements import Requirements, mark_requirement
+from .requirements import Requirements, mark_requirement
 
 
 class TestValidatorTemplate(TestCase):

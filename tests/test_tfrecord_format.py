@@ -13,7 +13,7 @@ from datumaro.util.image import Image, ByteImage, encode_image
 from datumaro.util.test_utils import (TestDir, compare_datasets,
     test_save_and_load)
 from datumaro.util.tf_util import check_import
-from tests.requirements import Requirements, mark_requirement
+from .requirements import Requirements, mark_requirement
 
 try:
     from datumaro.plugins.tf_detection_api_format.extractor import \

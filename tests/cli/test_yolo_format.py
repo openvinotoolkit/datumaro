@@ -9,7 +9,7 @@ from datumaro.components.extractor import (DatasetItem,
     AnnotationType, Bbox)
 from datumaro.util.test_utils import TestDir, compare_datasets
 import datumaro.plugins.voc_format.format as VOC
-from tests.requirements import Requirements, mark_requirement
+from ..requirements import Requirements, mark_requirement
 
 def run(test, *args, expected_code=0):
     test.assertEqual(expected_code, main(args), str(args))

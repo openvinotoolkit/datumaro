@@ -24,7 +24,7 @@ from datumaro.util.image import Image
 from datumaro.util.mask_tools import load_mask
 from datumaro.util.test_utils import (TestDir, compare_datasets,
     test_save_and_load)
-from tests.requirements import Requirements, mark_requirement
+from .requirements import Requirements, mark_requirement
 
 
 class VocFormatTest(TestCase):
