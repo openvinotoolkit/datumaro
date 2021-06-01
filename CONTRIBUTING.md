@@ -176,11 +176,11 @@ import pytest
 
 #### Requirements <a id="Requirements"></a>
 
-Requirements need to be added to [`tests/requirements.py`](tests/requirements.py):
+Requirements and other links need to be added to [`tests/requirements.py`](tests/requirements.py):
 
 ```python
-DATUM_BUG_219 = "Return format is not uniform"
 DATUM_244 = "Add Snyk integration"
+DATUM_BUG_219 = "Return format is not uniform"
 ```
 
 ```python
@@ -191,13 +191,15 @@ DATUM_244 = "Add Snyk integration"
 @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
 ```
 
+
 ##### Available annotations for tests and requirements
 
 Markings are defined in [`tests/conftest.py`](tests/conftest.py).
 
-**A list of requirements**
+**A list of requirements and bugs**
 ```python
 @pytest.mark.requids(Requirements.DATUM_123)
+@pytest.mark.bugs(Requirements.DATUM_BUG_456)
 ```
 
 **A priority**
