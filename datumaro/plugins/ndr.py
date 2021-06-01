@@ -22,14 +22,16 @@ UnderSamplingMethod = Enum("UnderSamplingMethod", ["uniform", "inverse"])
 
 class NDR(Transform, CliPlugin):
     """
-    Near-duplicated image removal |n
-    Removes near-duplicated images in subset |n
-    Example:  control number of outputs to 100 after NDR |n
-    |s|s%(prog)s \ |n
-    |s|s|s|s--working_subset train \ |n
-    |s|s|s|s--algorithm gradient \ |n
-    |s|s|s|s--num_cut 100 \ |n
-    |s|s|s|s--over_sample random \ |n
+    Near-duplicated image removal.|n
+    |n
+    Removes near-duplicated images in subset|n
+    |n
+    Example: apply NDR, return no more than 100 images|n
+    |s|s%(prog)s|n
+    |s|s|s|s--working_subset train|n
+    |s|s|s|s--algorithm gradient|n
+    |s|s|s|s--num_cut 100|n
+    |s|s|s|s--over_sample random|n
     |s|s|s|s--under_sample uniform
     """
 

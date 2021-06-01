@@ -158,7 +158,7 @@ class CifarConverter(Converter):
             annotation_dict = {}
             annotation_dict['filenames'] = filenames
             annotation_dict['labels'] = labels
-            annotation_dict['data'] = np.array(data)
+            annotation_dict['data'] = np.array(data, dtype=object)
             if len(image_sizes):
                 size = (CifarPath.IMAGE_SIZE, CifarPath.IMAGE_SIZE)
                 # 'image_sizes' isn't included in the standard format,
