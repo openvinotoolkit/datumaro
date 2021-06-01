@@ -18,13 +18,12 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Installing dependencies
         run: |
-          pip install coverage tensorflow
+          pip install tensorflow pytest pytest-cov
           pip install -e ./
       - name: Code instrumentation
         run: |
-          coverage run -m unittest discover -v
-          coverage run -a datum.py -h
-          coverage xml
+          pytest -v --cov --cov-report xml:coverage.xml
+          datum.py -h
       - name: Sending coverage results
         run: |
           bash <(curl -Ls https://coverage.codacy.com/get.sh) report -r coverage.xml -t ${{ secrets.CODACY_PROJECT_TOKEN }}
