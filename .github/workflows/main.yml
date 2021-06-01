@@ -21,9 +21,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Installing dependencies
         run: |
-          pip install tensorflow
+          pip install tensorflow pytest
           pip install -e ./
       - name: Unit testing
         run: |
-          python -m unittest discover -v
+          pytest -v
           datum -h
