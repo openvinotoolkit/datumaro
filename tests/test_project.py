@@ -10,7 +10,7 @@ from datumaro.components.extractor import (Bbox, Extractor, DatasetItem,
     Label, LabelCategories, AnnotationType, Transform)
 from datumaro.components.environment import Environment
 from datumaro.components.launcher import Launcher, ModelTransform
-from datumaro.components.project import Project
+from datumaro.components.project import DiffStatus, Project
 from datumaro.util.test_utils import TestDir, compare_datasets, compare_dirs
 
 
@@ -388,6 +388,27 @@ class ProjectTest(TestCase):
             self.assertEqual(len(project.history()), 2)
             self.assertEqual(project.history()[0], (commit_hash, "First commit"))
 
+    def test_can_compare_revisions(self):
+        with TestDir() as test_dir:
+            source_url = osp.join(test_dir, 'test_repo')
+            dataset = Dataset.from_iterable([
+                DatasetItem(1, annotations=[Label(0)]),
+                DatasetItem(2, annotations=[Label(1)]),
+            ], categories=['a', 'b'])
+            dataset.save(source_url)
+
+            project = Project.init(osp.join(test_dir, 'proj'))
+            project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
+            project.import_source('s2', url=source_url, format=DEFAULT_FORMAT)
+            rev1 = project.commit("Commit 1")
+
+            project.remove_source('s2')
+            project.import_source('s3', url=source_url, format=DEFAULT_FORMAT)
+            rev2 = project.commit("Commit 2")
+
+            diff = project.diff(rev1, rev2)
+            self.assertEqual(diff,
+                { 's2': DiffStatus.removed, 's3': DiffStatus.added })
 
 class BackwardCompatibilityTests_v0_1(TestCase):
     def test_can_load_old_project(self):

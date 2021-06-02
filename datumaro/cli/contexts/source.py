@@ -4,6 +4,7 @@
 
 import argparse
 import logging as log
+import os
 
 from datumaro.components.project import Environment
 from datumaro.util import error_rollback
@@ -69,7 +70,8 @@ def add_command(args):
         if name in project.working_tree.sources:
             raise CliException("Source '%s' already exists" % name)
     else:
-        name = generate_next_name(list(project.working_tree.sources),
+        name = generate_next_name(
+            list(project.working_tree.sources) + os.listdir(),
             'source', sep='-', default='1')
 
     fmt = args.format

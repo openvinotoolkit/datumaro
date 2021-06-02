@@ -1551,6 +1551,8 @@ class Tree:
         return self._project.cache_path(obj_hash)
 
 
+DiffStatus = Enum('DiffStatus', ['added', 'modified', 'removed', 'missing'])
+
 class Project:
     Revision = NewType('Revision', str)
 
@@ -1677,7 +1679,7 @@ class Project:
         on_error.do(rmtree, osp.join(project_dir, '.dvc'), ignore_errors=True)
         project = Project(path)
         project._init_vcs()
-        project.commit('Initial commit')
+        project.commit('Initial commit', allow_empty=True)
 
         return project
 
@@ -1975,7 +1977,8 @@ class Project:
 
         self._git.ignore([data_dir], mode='remove')
 
-    def commit(self, message: str, no_cache: bool = False) -> Revision:
+    def commit(self, message: str, no_cache: bool = False,
+            allow_empty: bool = False) -> Revision:
         """
         Copies tree and objects from the working dir to the cache.
         Creates a new commit. Moves the HEAD pointer to the new commit.
@@ -1983,14 +1986,16 @@ class Project:
         Options:
         - no_cache (bool) - don't put added dataset data into cache,
             store only metainfo. Can be used to reduce storage size.
+        - allow_empty (bool) - allow commits with no changes.
 
         Returns: the new commit hash
         """
 
-        statuses = self._git.status(TreeLayout.conf_file,
-            base_dir=osp.join(self._aux_dir, ProjectLayout.tree_dir))
-        if not statuses:
-            raise EmptyCommitError()
+        if not allow_empty:
+            statuses = self._git.status(TreeLayout.conf_file,
+                base_dir=osp.join(self._aux_dir, ProjectLayout.tree_dir))
+            if not statuses:
+                raise EmptyCommitError()
 
         for s in self.working_tree.sources:
             source_dir = self.source_data_dir(s)
@@ -2100,8 +2105,6 @@ class Project:
     def has_commits(self) -> bool:
         return self._git.has_commits()
 
-    Status = Enum('Status', ['added', 'modified', 'removed', 'missing'])
-
     def status(self) -> Dict:
         head = self.head
         wd = self.working_tree
@@ -2127,14 +2130,14 @@ class Project:
             status = None
 
             if head_target is None:
-                status = self.Status.added
+                status = DiffStatus.added
             elif wd_target is None:
-                status = self.Status.removed
+                status = DiffStatus.removed
             else:
                 if head_target != wd_target:
-                    status = self.Status.modified
+                    status = DiffStatus.modified
                 elif not osp.isdir(self.source_data_dir(t_name)):
-                    status = self.Status.missing
+                    status = DiffStatus.missing
 
             if status:
                 changed_targets[t_name] = status
@@ -2144,9 +2147,54 @@ class Project:
     def history(self, max_count=10) -> List[str]:
         return [(c.hexsha, c.message) for c, _ in self._git.log(max_count)]
 
+    def diff(self, rev_a: Union[Tree, Revision],
+            rev_b: Union[Tree, Revision]) -> Dict[str, DiffStatus]:
+        """
+        Compares 2 revision trees.
+
+        Returns: { target_name: status } for changed targets
+        """
+
+        if rev_a == rev_b:
+            return {}
+
+        if isinstance(rev_a, str):
+            tree_a = self.get_rev(rev_a)
+        else:
+            tree_a = rev_a
+
+        if isinstance(rev_b, str):
+            tree_b = self.get_rev(rev_b)
+        else:
+            tree_b = rev_b
+
+
+        changed_targets = {}
+
+        for t_name in set(tree_a.build_targets) | set(tree_b.build_targets):
+            if t_name == ProjectBuildTargets.MAIN_TARGET:
+                continue
+
+            head_target = tree_a.build_targets.get(t_name)
+            wd_target = tree_b.build_targets.get(t_name)
+
+            status = None
+
+            if head_target is None:
+                status = DiffStatus.added
+            elif wd_target is None:
+                status = DiffStatus.removed
+            else:
+                if head_target != wd_target:
+                    status = DiffStatus.modified
+
+            if status:
+                changed_targets[t_name] = status
+
+        return changed_targets
 
 def load_project_as_dataset(url):
-    return Project(url).work_dir.make_dataset()
+    return Project(url).working_tree.make_dataset()
 
 def parse_target_revpath(revpath: str):
     sep_pos = revpath.find(':')
