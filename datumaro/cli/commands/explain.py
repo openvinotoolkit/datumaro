@@ -48,7 +48,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         help="Model to use for inference")
     parser.add_argument('-t', '--target', default=None,
         help="Inference target - image, source, project "
-             "(default: current dir)")
+             "(default: current project)")
     parser.add_argument('-o', '--output-dir', dest='save_dir', default=None,
         help="Directory to save output (default: display only)")
 
