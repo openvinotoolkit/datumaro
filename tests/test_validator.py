@@ -17,9 +17,8 @@ from datumaro.components.errors import (MissingLabelCategories,
     FarFromAttrMean, OnlyOneAttributeValue)
 from datumaro.components.extractor import Bbox, Label, Mask, Polygon
 from datumaro.components.validator import (ClassificationValidator,
-    DetectionValidator, TaskType, validate_annotations, _Validator,
-    SegmentationValidator)
-
+    DetectionValidator, TaskType, Validator, SegmentationValidator)
+from datumaro.plugins.dataset_validator import DatasetValidator
 
 class TestValidatorTemplate(TestCase):
     @classmethod
@@ -113,7 +112,7 @@ class TestValidatorTemplate(TestCase):
 class TestBaseValidator(TestValidatorTemplate):
     @classmethod
     def setUpClass(cls):
-        cls.validator = _Validator(task_type=TaskType.classification,
+        cls.validator = Validator(task_type=TaskType.classification,
             few_samples_thr=1, imbalance_ratio_thr=50, far_from_mean_thr=5.0,
             dominance_ratio_thr=0.8, topk_bins=0.1)
 
@@ -690,7 +689,7 @@ class TestValidateAnnotations(TestValidatorTemplate):
             'topk_bins': 0.1,
         }
     def test_validate_annotations_classification(self):
-        actual_results = validate_annotations(self.dataset, 'classification',
+        actual_results = DatasetValidator.validate_annotations(self.dataset, 'classification',
             **self.extra_args)
 
         with self.subTest('Test of statistics', i=0):
@@ -746,7 +745,7 @@ class TestValidateAnnotations(TestValidatorTemplate):
             self.assertEqual(actual_summary, expected_summary)
 
     def test_validate_annotations_detection(self):
-        actual_results = validate_annotations(self.dataset, 'detection',
+        actual_results = DatasetValidator.validate_annotations(self.dataset, 'detection',
             **self.extra_args)
 
         with self.subTest('Test of statistics', i=0):
@@ -800,7 +799,7 @@ class TestValidateAnnotations(TestValidatorTemplate):
             self.assertEqual(actual_summary, expected_summary)
 
     def test_validate_annotations_segmentation(self):
-        actual_results = validate_annotations(self.dataset, 'segmentation',
+        actual_results = DatasetValidator.validate_annotations(self.dataset, 'segmentation',
             **self.extra_args)
 
         with self.subTest('Test of statistics', i=0):
@@ -856,8 +855,8 @@ class TestValidateAnnotations(TestValidatorTemplate):
 
     def test_validate_annotations_invalid_task_type(self):
         with self.assertRaises(ValueError):
-            validate_annotations(self.dataset, 'INVALID', **self.extra_args)
+            DatasetValidator.validate_annotations(self.dataset, 'INVALID', **self.extra_args)
 
     def test_validate_annotations_invalid_dataset_type(self):
         with self.assertRaises(TypeError):
-            validate_annotations(object(), 'classification', **self.extra_args)
+            DatasetValidator.validate_annotations(object(), 'classification', **self.extra_args)
