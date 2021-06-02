@@ -10,6 +10,7 @@ from datumaro.plugins.labelme_format import LabelMeImporter, LabelMeConverter
 from datumaro.util.image import Image
 from datumaro.util.test_utils import (TestDir, compare_datasets,
     test_save_and_load)
+from .requirements import Requirements, mark_requirement
 
 
 class LabelMeConverterTest(TestCase):
@@ -19,6 +20,7 @@ class LabelMeConverterTest(TestCase):
             importer='label_me',
             target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='dir1/1', subset='train',
@@ -85,6 +87,7 @@ class LabelMeConverterTest(TestCase):
                 partial(LabelMeConverter.convert, save_images=True),
                 test_dir, target_dataset=target_dataset, require_images=True)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id='a/1', image=Image(path='a/1.JPEG',
@@ -98,6 +101,7 @@ class LabelMeConverterTest(TestCase):
                 partial(LabelMeConverter.convert, save_images=True),
                 test_dir, require_images=True)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='кириллица с пробелом', subset='train',
@@ -123,6 +127,7 @@ class LabelMeConverterTest(TestCase):
                 partial(LabelMeConverter.convert, save_images=True),
                 test_dir, target_dataset=target_dataset, require_images=True)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_relative_paths(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='1', image=np.ones((4, 2, 3))),
@@ -154,6 +159,7 @@ class LabelMeConverterTest(TestCase):
                 partial(LabelMeConverter.convert, save_images=True),
                 test_dir, require_images=True)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_to_correct_dir_with_correct_filename(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id='dir/a', image=Image(path='dir/a.JPEG',
@@ -172,9 +178,11 @@ class LabelMeConverterTest(TestCase):
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'labelme_dataset')
 
 class LabelMeImporterTest(TestCase):
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect(self):
         self.assertTrue(LabelMeImporter.detect(DUMMY_DATASET_DIR))
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import(self):
         img1 = np.ones((77, 102, 3)) * 255
         img1[6:32, 7:41] = 0

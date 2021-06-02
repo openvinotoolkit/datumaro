@@ -24,11 +24,13 @@ from datumaro.plugins.coco_format.importer import CocoImporter
 from datumaro.util.image import Image
 from datumaro.util.test_utils import (TestDir, compare_datasets,
     test_save_and_load)
-
+from .requirements import Requirements, mark_requirement
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'coco_dataset')
 
+
 class CocoImporterTest(TestCase):
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_instances(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='000000000001', image=np.ones((10, 5, 3)),
@@ -51,6 +53,7 @@ class CocoImporterTest(TestCase):
 
         compare_datasets(self, expected_dataset, dataset)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_captions(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train',
@@ -74,6 +77,7 @@ class CocoImporterTest(TestCase):
 
         compare_datasets(self, expected_dataset, dataset)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_labels(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train',
@@ -88,6 +92,7 @@ class CocoImporterTest(TestCase):
 
         compare_datasets(self, expected_dataset, dataset)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_points(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train',
@@ -133,6 +138,7 @@ class CocoImporterTest(TestCase):
 
         compare_datasets(self, expected_dataset, dataset)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_image_info(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id=1, image=Image(path='1.jpg', size=(10, 15)),
@@ -144,6 +150,7 @@ class CocoImporterTest(TestCase):
 
         compare_datasets(self, expected_dataset, dataset)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_panoptic(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='000000000001',
@@ -164,6 +171,7 @@ class CocoImporterTest(TestCase):
 
         compare_datasets(self, expected_dataset, dataset, require_images=True)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_stuff(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='000000000001', image=np.ones((10, 5, 3)),
@@ -183,6 +191,7 @@ class CocoImporterTest(TestCase):
 
         compare_datasets(self, expected_dataset, dataset)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect(self):
         self.assertTrue(CocoImporter.detect(
             osp.join(DUMMY_DATASET_DIR, 'coco_instances')))
@@ -194,6 +203,7 @@ class CocoConverterTest(TestCase):
             importer='coco',
             target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_captions(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train',
@@ -216,6 +226,7 @@ class CocoConverterTest(TestCase):
             self._test_save_and_load(expected_dataset,
                 CocoCaptionsConverter.convert, test_dir)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_instances(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train', image=np.ones((4, 4, 3)),
@@ -296,6 +307,7 @@ class CocoConverterTest(TestCase):
                 CocoInstancesConverter.convert, test_dir,
                 target_dataset=target_dataset)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_panoptic(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train', image=np.ones((4, 4, 3)),
@@ -338,6 +350,7 @@ class CocoConverterTest(TestCase):
                 partial(CocoPanopticConverter.convert, save_images=True),
                 test_dir, require_images=True)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_stuff(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train', image=np.ones((4, 4, 3)),
@@ -369,6 +382,7 @@ class CocoConverterTest(TestCase):
             self._test_save_and_load(dataset,
                 CocoStuffConverter.convert, test_dir)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_merge_polygons_on_loading(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, image=np.zeros((6, 10, 3)),
@@ -406,6 +420,7 @@ class CocoConverterTest(TestCase):
                 importer_args={'merge_instance_polygons': True},
                 target_dataset=target_dataset)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_crop_covered_segments(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, image=np.zeros((5, 5, 3)),
@@ -449,7 +464,24 @@ class CocoConverterTest(TestCase):
                  partial(CocoInstancesConverter.convert, crop_covered=True),
                  test_dir, target_dataset=target_dataset)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_convert_polygons_to_mask(self):
+        """
+        <b>Description:</b>
+        Ensure that the dataset polygon annotation can be properly converted into dataset segmentation mask.
+
+        <b>Expected results:</b>
+        Dataset segmentation mask converted from dataset polygon annotation is equal to expected mask.
+
+        <b>Steps:</b>
+        1. Prepare dataset with polygon annotation (source dataset)
+        2. Prepare dataset with expected mask segmentation mode (target dataset)
+        3. Convert source dataset to target, with conversion of annotation from polygon to mask. Verify that result
+        segmentation mask is equal to expected mask.
+
+        """
+
+        # 1. Prepare dataset with polygon annotation (source dataset)
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, image=np.zeros((6, 10, 3)),
                 annotations=[
@@ -461,6 +493,7 @@ class CocoConverterTest(TestCase):
             ),
         ], categories=[str(i) for i in range(10)])
 
+        # 2. Prepare dataset with expected mask segmentation mode (target dataset)
         target_dataset = Dataset.from_iterable([
             DatasetItem(id=1, image=np.zeros((6, 10, 3)),
                 annotations=[
@@ -480,11 +513,14 @@ class CocoConverterTest(TestCase):
             ),
         ], categories=[str(i) for i in range(10)])
 
+        # 3. Convert source dataset to target, with conversion of annotation from polygon to mask. Verify that result
+        # segmentation mask is equal to expected mask.
         with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
                 partial(CocoInstancesConverter.convert, segmentation_mode='mask'),
                 test_dir, target_dataset=target_dataset)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_convert_masks_to_polygons(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, image=np.zeros((5, 10, 3)),
@@ -522,6 +558,7 @@ class CocoConverterTest(TestCase):
                 test_dir,
                 target_dataset=target_dataset)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_images(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train', attributes={'id': 1}),
@@ -538,6 +575,7 @@ class CocoConverterTest(TestCase):
             self._test_save_and_load(expected_dataset,
                 CocoImageInfoConverter.convert, test_dir)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='кириллица с пробелом', subset='train',
@@ -548,6 +586,7 @@ class CocoConverterTest(TestCase):
             self._test_save_and_load(expected_dataset,
                 CocoImageInfoConverter.convert, test_dir)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_labels(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train',
@@ -561,6 +600,7 @@ class CocoConverterTest(TestCase):
             self._test_save_and_load(expected_dataset,
                 CocoLabelsConverter.convert, test_dir)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_keypoints(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train', image=np.zeros((5, 5, 3)),
@@ -636,6 +676,7 @@ class CocoConverterTest(TestCase):
                 CocoPersonKeypointsConverter.convert, test_dir,
                 target_dataset=target_dataset)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_no_subsets(self):
         test_dataset = Dataset.from_iterable([
             DatasetItem(id=1, attributes={'id': 1}),
@@ -646,6 +687,7 @@ class CocoConverterTest(TestCase):
             self._test_save_and_load(test_dataset,
                 CocoConverter.convert, test_dir)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_image_info(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id=1, image=Image(path='1.jpg', size=(10, 15)),
@@ -656,6 +698,7 @@ class CocoConverterTest(TestCase):
             self._test_save_and_load(expected_dataset,
                 CocoImageInfoConverter.convert, test_dir)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_relative_paths(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='1', image=np.ones((4, 2, 3)),
@@ -671,6 +714,7 @@ class CocoConverterTest(TestCase):
                 partial(CocoImageInfoConverter.convert, save_images=True),
                 test_dir, require_images=True)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         expected = Dataset.from_iterable([
             DatasetItem(id='q/1', image=Image(path='q/1.JPEG',
@@ -684,6 +728,7 @@ class CocoConverterTest(TestCase):
                 partial(CocoImageInfoConverter.convert, save_images=True),
                 test_dir, require_images=True)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_preserve_coco_ids(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='some/name1', image=np.ones((4, 2, 3)),
@@ -695,6 +740,7 @@ class CocoConverterTest(TestCase):
                 partial(CocoImageInfoConverter.convert, save_images=True),
                 test_dir, require_images=True)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_annotation_attributes(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id=1, image=np.ones((4, 2, 3)), annotations=[
@@ -707,6 +753,7 @@ class CocoConverterTest(TestCase):
             self._test_save_and_load(expected_dataset,
                 CocoConverter.convert, test_dir)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_auto_annotation_ids(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=2, image=np.ones((4, 2, 3)), annotations=[
@@ -725,6 +772,7 @@ class CocoConverterTest(TestCase):
             self._test_save_and_load(source_dataset,
                 CocoConverter.convert, test_dir, target_dataset=target_dataset)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_reindex(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=2, image=np.ones((4, 2, 3)), annotations=[
@@ -744,6 +792,7 @@ class CocoConverterTest(TestCase):
                 partial(CocoConverter.convert, reindex=True),
                 test_dir, target_dataset=target_dataset)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_images_in_single_dir(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train', image=np.ones((2, 4, 3)),
@@ -757,6 +806,7 @@ class CocoConverterTest(TestCase):
                 test_dir, require_images=True)
             self.assertTrue(osp.isfile(osp.join(test_dir, 'images', '1.jpg')))
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_images_in_separate_dirs(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train', image=np.ones((2, 4, 3)),
@@ -771,6 +821,7 @@ class CocoConverterTest(TestCase):
             self.assertTrue(osp.isfile(osp.join(
                 test_dir, 'images', 'train', '1.jpg')))
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_inplace_save_writes_only_updated_data(self):
         with TestDir() as path:
             # generate initial dataset

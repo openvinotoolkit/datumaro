@@ -55,3 +55,6 @@ cover/
 
 # Sphinx documentation
 docs/_build/
+
+#Pycharm config files
+.idea/

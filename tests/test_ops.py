@@ -10,9 +10,11 @@ from datumaro.components.operations import (FailedAttrVotingError,
     compute_ann_statistics, mean_std, find_unique_images)
 from datumaro.components.dataset import Dataset
 from datumaro.util.test_utils import compare_datasets
+from .requirements import Requirements, mark_requirement
 
 
 class TestOperations(TestCase):
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_mean_std(self):
         expected_mean = [100, 50, 150]
         expected_std = [20, 50, 10]
@@ -33,6 +35,7 @@ class TestOperations(TestCase):
         for estd, astd in zip(expected_std, actual_std):
             self.assertAlmostEqual(estd, astd, places=0)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_stats(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id=1, image=np.ones((5, 5, 3)), annotations=[
@@ -138,6 +141,7 @@ class TestOperations(TestCase):
 
         self.assertEqual(expected, actual)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_stats_with_empty_dataset(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id=1),
@@ -189,6 +193,7 @@ class TestOperations(TestCase):
 
         self.assertEqual(expected, actual)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_unique_image_count(self):
         expected = {
             frozenset([('1', 'a'), ('1', 'b')]),
@@ -215,6 +220,7 @@ class TestOperations(TestCase):
 
 
 class TestMultimerge(TestCase):
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_match_items(self):
         # items 1 and 3 are unique, item 2 is common and should be merged
 
@@ -271,6 +277,7 @@ class TestMultimerge(TestCase):
                 key=lambda e: e.item_id)
         )
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_match_shapes(self):
         source0 = Dataset.from_iterable([
             DatasetItem(1, annotations=[
@@ -374,6 +381,7 @@ class TestMultimerge(TestCase):
                 key=lambda e: len(e.sources))
         )
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_attributes(self):
         source0 = Dataset.from_iterable([
             DatasetItem(1, annotations=[
@@ -420,6 +428,7 @@ class TestMultimerge(TestCase):
             if isinstance(e, FailedAttrVotingError)])
         )
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_group_checks(self):
         dataset = Dataset.from_iterable([
             DatasetItem(1, annotations=[
@@ -446,6 +455,7 @@ class TestMultimerge(TestCase):
             if isinstance(e, WrongGroupError)]), merger.errors
         )
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_merge_classes(self):
         source0 = Dataset.from_iterable([
             DatasetItem(1, annotations=[
@@ -479,6 +489,7 @@ class TestMultimerge(TestCase):
 
         compare_datasets(self, expected, merged, ignored_attrs={'score'})
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_merge_categories(self):
         source0 = Dataset.from_iterable([
             DatasetItem(1, annotations=[ Label(0), ]),
