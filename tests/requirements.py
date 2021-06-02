@@ -8,6 +8,7 @@ import pytest
 def mark_requirement(requirement):
     def wrapper(test_func):
         @pytest.mark.components(DatumaroComponent.Datumaro)
+        @pytest.mark.component
         @pytest.mark.priority_medium
         @pytest.mark.reqids(requirement)
         def test_wrapper(*args, **kwargs):
