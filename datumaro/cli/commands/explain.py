@@ -17,13 +17,38 @@ from ..util.project import load_project
 
 def build_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(help="Run Explainable AI algorithm",
-        description="Runs an explainable AI algorithm for a model.")
+        description="""
+        Runs an explainable AI algorithm for a model.|n
+        |n
+        This tool is supposed to help an AI developer to debug
+        a model and a dataset. Basically, it executes inference and
+        tries to find problems in the trained model - determine decision
+        boundaries and belief intervals for the classifier.|n
+        |n
+        Currently, the only available algorithm is
+        RISE (https://arxiv.org/pdf/1806.07421.pdf), which runs
+        inference and then re-runs a model multiple times
+        on each image to produce a heatmap of activations for
+        each output of the first inference. As a result, we obtain
+        few heatmaps, which shows, how image pixels affected
+        the inference result. This algorithm doesn't require any special
+        information about the model, but it requires the model to
+        return all the outputs and confidences. Check the User Manual
+        for usage examples.|n
+        Supported scenarios:|n
+        - RISE for classification|n
+        - RISE for Object Detection|n
+        |n
+        Examples:|n
+        - Run RISE on an image, display results:|n
+        |s|s%(prog)s -t path/to/image.jpg -m mymodel rise --max-samples 50
+        """, formatter_class=MultilineFormatter)
 
     parser.add_argument('-m', '--model', required=True,
         help="Model to use for inference")
     parser.add_argument('-t', '--target', default=None,
         help="Inference target - image, source, project "
-             "(default: current dir)")
+             "(default: current project)")
     parser.add_argument('-o', '--output-dir', dest='save_dir', default=None,
         help="Directory to save output (default: display only)")
 
