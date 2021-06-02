@@ -23,7 +23,7 @@ jobs:
       - name: Code instrumentation
         run: |
           pytest -v --cov --cov-report xml:coverage.xml
-          ./datum.py -h
+          datum -h
       - name: Sending coverage results
         if: matrix.python-version == '3.6'
         run: |
