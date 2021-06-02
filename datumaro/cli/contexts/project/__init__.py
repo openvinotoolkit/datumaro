@@ -18,7 +18,7 @@ from datumaro.components.operations import (DistanceComparator,
 from datumaro.components.project import \
     PROJECT_DEFAULT_CONFIG as DEFAULT_CONFIG
 from datumaro.components.project import Environment, Project
-from datumaro.components.validator import TaskType, Validator
+from datumaro.components.validator import TaskType
 from datumaro.util import error_rollback
 
 from ...util import (CliException, MultilineFormatter, add_subparser,
@@ -825,13 +825,14 @@ def validate_command(args):
         dataset = dataset.get_subset(subset_name)
         dst_file_name += f'-{subset_name}'
 
-    dataset_validator = project.env.validator['dataset']
+    dataset_validator = project.env.validators['dataset']
 
     extra_args = {}
     if hasattr(dataset_validator, 'parse_cmdline'):
         extra_args = dataset_validator.parse_cmdline(args.extra_args)
 
-    validation_results = dataset_validator.validate_annotations(dataset, task_type, **extra_args)
+    validation_results = dataset_validator.validate_annotations(
+        dataset, task_type, **extra_args)
 
     def numpy_encoder(obj):
         if isinstance(obj, np.generic):

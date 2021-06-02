@@ -4,11 +4,9 @@
 
 from copy import deepcopy
 from enum import Enum
-from typing import Union
 
 import numpy as np
 
-from datumaro.components.dataset import IDataset
 from datumaro.components.errors import (MissingLabelCategories,
     MissingAnnotation, MultiLabelAnnotations, MissingAttribute,
     UndefinedLabel, UndefinedAttribute, LabelDefinedButNotFound,
