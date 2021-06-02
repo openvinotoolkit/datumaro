@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Documentation file and integration tests for YOLO format (<https://github.com/openvinotoolkit/datumaro/pull/246>)
 - Support for Cityscapes dataset format (<https://github.com/openvinotoolkit/datumaro/pull/249>)
 - Support for Validator configurable threshold(<https://github.com/openvinotoolkit/datumaro/pull/250>)
+- Support for Validator cli plugin(<https://github.com/openvinotoolkit/datumaro/pull/271>)
 
 ### Changed
 - LabelMe format saves dataset items with their relative paths by subsets without changing names (<https://github.com/openvinotoolkit/datumaro/pull/200>)
