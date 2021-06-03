@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
-## [Unreleased]
+## 03/06/2021 - Release v0.1.9
 ### Added
 - Support for escaping in attribute values in LabelMe format (<https://github.com/openvinotoolkit/datumaro/issues/49>)
 - Support for Segmentation Splitting (<https://github.com/openvinotoolkit/datumaro/pull/223>)
@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Documentation file for COCO format (<https://github.com/openvinotoolkit/datumaro/pull/241>)
 - Documentation file and integration tests for YOLO format (<https://github.com/openvinotoolkit/datumaro/pull/246>)
 - Support for Cityscapes dataset format (<https://github.com/openvinotoolkit/datumaro/pull/249>)
-- Support for Validator configurable threshold(<https://github.com/openvinotoolkit/datumaro/pull/250>)
+- Support for Validator configurable threshold (<https://github.com/openvinotoolkit/datumaro/pull/250>)
 
 ### Changed
 - LabelMe format saves dataset items with their relative paths by subsets without changing names (<https://github.com/openvinotoolkit/datumaro/pull/200>)
