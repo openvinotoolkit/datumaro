@@ -825,7 +825,7 @@ def validate_command(args):
         dataset = dataset.get_subset(subset_name)
         dst_file_name += f'-{subset_name}'
 
-    dataset_validator = project.env.validator['dataset']
+    dataset_validator = project.env.validators['dataset']
 
     extra_args = {}
     if hasattr(dataset_validator, 'parse_cmdline'):
