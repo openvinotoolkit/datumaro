@@ -151,12 +151,13 @@ def test_save_and_load(test, source_dataset, converter, test_dir, importer,
         compare = compare_datasets
     compare(test, expected=target_dataset, actual=parsed_dataset, **kwargs)
 
-def compare_dirs(test, a, b):
-    for a_path in glob(osp.join(a, '**', '*'), recursive=True):
-        rel_path = osp.relpath(a_path, a)
-        b_path = osp.join(b, rel_path)
+def compare_dirs(test, expected, actual, skip_empty_dirs=True):
+    for a_path in glob(osp.join(expected, '**', '*'), recursive=True):
+        rel_path = osp.relpath(a_path, expected)
+        b_path = osp.join(actual, rel_path)
         if osp.isdir(a_path):
-            test.assertTrue(osp.isdir(b_path), rel_path)
+            if not (skip_empty_dirs and not os.listdir(a_path)):
+                test.assertTrue(osp.isdir(b_path), rel_path)
             continue
 
         test.assertTrue(osp.isfile(b_path), rel_path)
