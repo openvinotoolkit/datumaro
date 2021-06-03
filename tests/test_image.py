@@ -6,6 +6,7 @@ from unittest import TestCase
 
 import datumaro.util.image as image_module
 from datumaro.util.test_utils import TestDir
+from .requirements import Requirements, mark_requirement
 
 
 class ImageOperationsTest(TestCase):
@@ -15,6 +16,7 @@ class ImageOperationsTest(TestCase):
     def tearDown(self):
         image_module._IMAGE_BACKEND = self.default_backend
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_save_and_load_backends(self):
         backends = image_module._IMAGE_BACKENDS
         for save_backend, load_backend, c in product(backends, backends, [1, 3]):
@@ -34,6 +36,7 @@ class ImageOperationsTest(TestCase):
                 self.assertTrue(np.array_equal(src_image, dst_image),
                     'save: %s, load: %s' % (save_backend, load_backend))
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_encode_and_decode_backends(self):
         backends = image_module._IMAGE_BACKENDS
         for save_backend, load_backend, c in product(backends, backends, [1, 3]):
@@ -52,11 +55,13 @@ class ImageOperationsTest(TestCase):
             self.assertTrue(np.array_equal(src_image, dst_image),
                 'save: %s, load: %s' % (save_backend, load_backend))
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_save_image_to_inexistent_dir_raises_error(self):
         with self.assertRaises(FileNotFoundError):
             image_module.save_image('some/path.jpg', np.ones((5, 4, 3)),
                 create_dir=False)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_save_image_can_create_dir(self):
         with TestDir() as test_dir:
             path = osp.join(test_dir, 'some', 'path.jpg')

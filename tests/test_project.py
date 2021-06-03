@@ -12,9 +12,11 @@ from datumaro.components.extractor import (Extractor, DatasetItem,
 from datumaro.components.config import Config
 from datumaro.components.dataset import Dataset, DEFAULT_FORMAT
 from datumaro.util.test_utils import TestDir, compare_datasets
+from .requirements import Requirements, mark_requirement
 
 
 class ProjectTest(TestCase):
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_project_generate(self):
         src_config = Config({
             'project_name': 'test_project',
@@ -34,13 +36,16 @@ class ProjectTest(TestCase):
                 src_config.format_version, result_config.format_version)
 
     @staticmethod
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_default_ctor_is_ok():
         Project()
 
     @staticmethod
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_empty_config_is_ok():
         Project(Config())
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_add_source(self):
         source_name = 'source'
         origin = Source({
@@ -55,6 +60,7 @@ class ProjectTest(TestCase):
         self.assertIsNotNone(added)
         self.assertEqual(added, origin)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_added_source_can_be_saved(self):
         source_name = 'source'
         origin = Source({
@@ -67,6 +73,7 @@ class ProjectTest(TestCase):
 
         self.assertEqual(origin, saved.sources[source_name])
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_added_source_can_be_dumped(self):
         source_name = 'source'
         origin = Source({
@@ -82,6 +89,7 @@ class ProjectTest(TestCase):
             loaded = loaded.get_source(source_name)
             self.assertEqual(origin, loaded)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_with_custom_importer(self):
         class TestImporter:
             def __call__(self, path, subset=None):
@@ -102,6 +110,7 @@ class ProjectTest(TestCase):
         self.assertEqual(path, project.config.project_filename)
         self.assertListEqual(['train'], project.config.subsets)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_dump_added_model(self):
         model_name = 'model'
 
@@ -116,6 +125,7 @@ class ProjectTest(TestCase):
             loaded = loaded.get_model(model_name)
             self.assertEqual(saved, loaded)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_have_project_source(self):
         with TestDir() as test_dir:
             Project.generate(test_dir)
@@ -128,6 +138,7 @@ class ProjectTest(TestCase):
 
             self.assertTrue('project1' in dataset.sources)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_batch_launch_custom_model(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id=i, subset='train', image=np.array([i]))
@@ -157,6 +168,7 @@ class ProjectTest(TestCase):
             self.assertEqual(int(item.id),
                 item.annotations[0].attributes['data'])
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_do_transform_with_custom_model(self):
         class TestExtractorSrc(Extractor):
             def __iter__(self):
@@ -209,6 +221,7 @@ class ProjectTest(TestCase):
             self.assertEqual(0, item1.annotations[0].label)
             self.assertEqual(1, item2.annotations[0].label)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_source_datasets_can_be_merged(self):
         class TestExtractor(Extractor):
             def __init__(self, url, n=0, s=0):
@@ -235,6 +248,7 @@ class ProjectTest(TestCase):
 
         self.assertEqual(n1 + n2, len(dataset))
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_cant_merge_different_categories(self):
         class TestExtractor1(Extractor):
             def __iter__(self):
@@ -264,6 +278,7 @@ class ProjectTest(TestCase):
         with self.assertRaisesRegex(Exception, "different categories"):
             project.make_dataset()
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_project_filter_can_be_applied(self):
         class TestExtractor(Extractor):
             def __iter__(self):
@@ -279,6 +294,7 @@ class ProjectTest(TestCase):
 
         self.assertEqual(5, len(dataset))
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_own_dataset(self):
         with TestDir() as test_dir:
             src_project = Project()
@@ -292,6 +308,7 @@ class ProjectTest(TestCase):
 
             self.assertEqual(list(src_dataset), list(loaded_dataset))
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_project_own_dataset_can_be_modified(self):
         project = Project()
         dataset = project.make_dataset()
@@ -301,6 +318,7 @@ class ProjectTest(TestCase):
 
         self.assertEqual(item, next(iter(dataset)))
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_project_compound_child_can_be_modified_recursively(self):
         with TestDir() as test_dir:
             child1 = Project({
@@ -331,6 +349,7 @@ class ProjectTest(TestCase):
             self.assertEqual(1, len(dataset.sources['child1']))
             self.assertEqual(1, len(dataset.sources['child2']))
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_project_can_merge_item_annotations(self):
         class TestExtractor1(Extractor):
             def __iter__(self):
@@ -359,6 +378,7 @@ class ProjectTest(TestCase):
         item = next(iter(merged))
         self.assertEqual(3, len(item.annotations))
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_and_import(self):
         env = Environment()
         env.importers.items = {DEFAULT_FORMAT: env.importers[DEFAULT_FORMAT]}
@@ -378,6 +398,7 @@ class ProjectTest(TestCase):
                 DEFAULT_FORMAT)
             compare_datasets(self, source_dataset, imported_dataset)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_custom_extractor_can_be_created(self):
         class CustomExtractor(Extractor):
             def __iter__(self):
