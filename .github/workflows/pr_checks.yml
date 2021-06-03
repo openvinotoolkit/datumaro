@@ -1,0 +1,29 @@
+name: CI
+on:
+  push:
+    branches:
+      - 'master'
+  pull_request:
+    branches:
+      - '*'
+jobs:
+  build_and_tests_on_python:
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.6', '3.7', '3.8', '3.9']
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Installing python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Installing dependencies
+        run: |
+          pip install tensorflow pytest
+          pip install -e ./
+      - name: Unit testing
+        run: |
+          pytest -v
+          datum -h

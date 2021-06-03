@@ -7,9 +7,11 @@ from datumaro.components.extractor import DatasetItem, Label, Points
 from datumaro.plugins.lfw_format import LfwConverter, LfwImporter
 from datumaro.util.image import Image
 from datumaro.util.test_utils import TestDir, compare_datasets
+from .requirements import Requirements, mark_requirement
 
 
 class LfwFormatTest(TestCase):
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='name0_0001', subset='test',
@@ -46,6 +48,7 @@ class LfwFormatTest(TestCase):
 
             compare_datasets(self, source_dataset, parsed_dataset)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_with_landmarks(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='name0_0001',
@@ -72,6 +75,7 @@ class LfwFormatTest(TestCase):
 
             compare_datasets(self, source_dataset, parsed_dataset)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_with_no_subsets(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='name0_0001',
@@ -92,6 +96,7 @@ class LfwFormatTest(TestCase):
 
             compare_datasets(self, source_dataset, parsed_dataset)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_with_no_format_names(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='a/1',
@@ -120,6 +125,7 @@ class LfwFormatTest(TestCase):
 
             compare_datasets(self, source_dataset, parsed_dataset)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id='кириллица с пробелом',
@@ -139,6 +145,7 @@ class LfwFormatTest(TestCase):
 
             compare_datasets(self, dataset, parsed_dataset, require_images=True)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id='a/1', image=Image(
@@ -158,9 +165,11 @@ class LfwFormatTest(TestCase):
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'lfw_dataset')
 
 class LfwImporterTest(TestCase):
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect(self):
         self.assertTrue(LfwImporter.detect(DUMMY_DATASET_DIR))
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='name0_0001', subset='test',
