@@ -1,6 +1,8 @@
 import numpy as np
 import os.path as osp
+import pytest
 
+from .requirements import Requirements
 from datumaro.components.extractor import DatasetItem
 from datumaro.components.project import Dataset
 from datumaro.plugins.image_zip_format import DEFAULT_ARCHIVE_NAME, ImageZipConverter
@@ -11,6 +13,7 @@ from zipfile import ZIP_DEFLATED
 
 
 class ImageZipFormatTest(TestCase):
+    @pytest.mark.reqids(Requirements.DATUM_267)
     def _test_can_save_and_load(self, source_dataset, test_dir,
             **kwargs):
         archive_path = osp.join(test_dir, kwargs.get('name', DEFAULT_ARCHIVE_NAME))
@@ -19,6 +22,7 @@ class ImageZipFormatTest(TestCase):
 
         compare_datasets(self, source_dataset, parsed_dataset)
 
+    @pytest.mark.reqids(Requirements.DATUM_267)
     def test_can_save_and_load(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='1', image=np.ones((10, 6, 3))),
@@ -28,6 +32,7 @@ class ImageZipFormatTest(TestCase):
         with TestDir() as test_dir:
             self._test_can_save_and_load(source_dataset, test_dir)
 
+    @pytest.mark.reqids(Requirements.DATUM_267)
     def test_can_save_and_load_with_custom_archive_name(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='img_1', image=np.ones((10, 10, 3))),
@@ -37,6 +42,7 @@ class ImageZipFormatTest(TestCase):
             self._test_can_save_and_load(source_dataset, test_dir,
                 name='my_archive.zip')
 
+    @pytest.mark.reqids(Requirements.DATUM_267)
     def test_relative_paths(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='1', image=np.ones((10, 10, 3))),
@@ -47,6 +53,7 @@ class ImageZipFormatTest(TestCase):
         with TestDir() as test_dir:
             self._test_can_save_and_load(source_dataset, test_dir)
 
+    @pytest.mark.reqids(Requirements.DATUM_267)
     def test_can_save_and_load_custom_compresion_method(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='1', image=np.ones((5, 5, 3))),
@@ -57,6 +64,7 @@ class ImageZipFormatTest(TestCase):
             self._test_can_save_and_load(source_dataset, test_dir,
                 compression=ZIP_DEFLATED)
 
+    @pytest.mark.reqids(Requirements.DATUM_267)
     def test_can_save_and_load_with_arbitrary_extensions(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='subset/1',
