@@ -16,6 +16,17 @@ def mark_requirement(requirement):
         return test_wrapper
     return wrapper
 
+def mark_bug(bugs):
+    def wrapper(test_func):
+        @pytest.mark.components(DatumaroComponent.Datumaro)
+        @pytest.mark.component
+        @pytest.mark.priority_medium
+        @pytest.mark.bugs(bugs)
+        def test_wrapper(*args, **kwargs):
+            return test_func(*args, **kwargs)
+        return test_wrapper
+    return wrapper
+
 
 class DatumaroComponent:
     Datumaro = "datumaro"
