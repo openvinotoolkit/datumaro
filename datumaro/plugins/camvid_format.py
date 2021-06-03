@@ -218,6 +218,16 @@ LabelmapType = Enum('LabelmapType', ['camvid', 'source'])
 class CamvidConverter(Converter):
     DEFAULT_IMAGE_EXT = CamvidPath.IMAGE_EXT
 
+    @staticmethod
+    def _get_labelmap(s):
+        if osp.isfile(s):
+            return s
+        try:
+            return LabelmapType[s].name
+        except KeyError:
+            import argparse
+            raise argparse.ArgumentTypeError()
+
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
         parser = super().build_cmdline_parser(**kwargs)
