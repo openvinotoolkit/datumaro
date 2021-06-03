@@ -27,6 +27,9 @@ class MismatchingObjectError(VcsError):
 class UnsavedChangesError(VcsError):
     paths = attrib()
 
+class ForeignChangesError(VcsError):
+    pass
+
 class EmptyCommitError(VcsError):
     pass
 

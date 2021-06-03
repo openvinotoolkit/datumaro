@@ -6,9 +6,9 @@ import shutil
 from unittest import TestCase, skip
 from datumaro.components.config_model import Source, Model
 from datumaro.components.dataset import Dataset, DEFAULT_FORMAT
+from datumaro.components.errors import EmptyCommitError, ForeignChangesError
 from datumaro.components.extractor import (Bbox, Extractor, DatasetItem,
     Label, LabelCategories, AnnotationType, Transform)
-from datumaro.components.environment import Environment
 from datumaro.components.launcher import Launcher, ModelTransform
 from datumaro.components.project import DiffStatus, Project
 from datumaro.util.test_utils import TestDir, compare_datasets, compare_dirs
@@ -104,6 +104,8 @@ class ProjectTest(TestCase):
             source = project.working_tree.sources['s1']
             self.assertEqual('fmt', source.format)
             compare_dirs(self, source_base_url, project.source_data_dir('s1'))
+            with open(osp.join(test_dir, 'proj', '.gitignore')) as f:
+                self.assertTrue('s1' in [line.strip() for line in f])
 
     def test_can_import_generated_source(self):
         with TestDir() as test_dir:
@@ -121,6 +123,8 @@ class ProjectTest(TestCase):
             added = project.working_tree.sources[source_name]
             self.assertEqual(added.format, origin.format)
             self.assertEqual(added.options, origin.options)
+            with open(osp.join(test_dir, '.gitignore')) as f:
+                self.assertTrue(source_name in [line.strip() for line in f])
 
     def test_cant_import_source_with_wrong_name(self):
         with TestDir() as test_dir:
@@ -145,6 +149,8 @@ class ProjectTest(TestCase):
 
             self.assertFalse('s1' in project.working_tree.sources)
             compare_dirs(self, source_url, project.source_data_dir('s1'))
+            with open(osp.join(test_dir, 'proj', '.gitignore')) as f:
+                self.assertFalse('s1' in [line.strip() for line in f])
 
     def test_can_remove_source_and_wipe_data(self):
         with TestDir() as test_dir:
@@ -160,30 +166,10 @@ class ProjectTest(TestCase):
 
             self.assertFalse('s1' in project.working_tree.sources)
             self.assertFalse(osp.exists(project.source_data_dir('s1')))
+            with open(osp.join(test_dir, 'proj', '.gitignore')) as f:
+                self.assertFalse('s1' in [line.strip() for line in f])
 
-    def test_can_checkout(self):
-        with TestDir() as test_dir:
-            source_url = osp.join(test_dir, 'test_source.txt')
-            os.makedirs(osp.dirname(source_url), exist_ok=True)
-            with open(source_url, 'w') as f:
-                f.write('hello')
-
-            project = Project.init(osp.join(test_dir, 'proj'))
-            project.import_source('s1', source_url, format=DEFAULT_FORMAT)
-            project.commit("First commit")
-
-            source_path = osp.join(
-                project.source_data_dir('s1'),
-                osp.basename(source_url))
-            with open(source_path, 'w') as f:
-                f.write('world')
-            project.commit("Second commit")
-
-            project.checkout('HEAD~1')
-
-            compare_dirs(self, source_url, project.source_data_dir('s1'))
-
-    def test_can_checkout_source_rev_noncached(self):
+    def test_can_redownload_source_rev_noncached(self):
         with TestDir() as test_dir:
             source_url = osp.join(test_dir, 'source')
             source_dataset = Dataset.from_iterable([
@@ -378,15 +364,136 @@ class ProjectTest(TestCase):
             ], categories=['a', 'b'])
             compare_datasets(self, expected_dataset, built_dataset)
 
-    def test_can_commit_repo(self):
+    def test_can_commit(self):
         with TestDir() as test_dir:
             project = Project.init(test_dir)
 
-            commit_hash = project.commit("First commit")
+            commit_hash = project.commit("First commit", allow_empty=True)
 
             self.assertTrue(project.is_ref(commit_hash))
             self.assertEqual(len(project.history()), 2)
             self.assertEqual(project.history()[0], (commit_hash, "First commit"))
+
+    def test_cant_commit_empty(self):
+        with TestDir() as test_dir:
+            project = Project.init(test_dir)
+
+            with self.assertRaises(EmptyCommitError):
+                project.commit("First commit")
+
+    def test_can_commit_patch(self):
+        with TestDir() as test_dir:
+            source_url = osp.join(test_dir, 'test_source.txt')
+            os.makedirs(osp.dirname(source_url), exist_ok=True)
+            with open(source_url, 'w') as f:
+                f.write('hello')
+
+            project = Project.init(osp.join(test_dir, 'proj'))
+            project.import_source('s1', source_url, format=DEFAULT_FORMAT)
+            project.commit("First commit")
+
+            source_path = osp.join(
+                project.source_data_dir('s1'),
+                osp.basename(source_url))
+            with open(source_path, 'w') as f:
+                f.write('world')
+
+            commit_hash = project.commit("Second commit", allow_foreign=True)
+
+            self.assertTrue(project.is_ref(commit_hash))
+            self.assertNotEqual(
+                project.get_rev('HEAD~1').build_targets['s1'].head.hash,
+                project.working_tree.build_targets['s1'].head.hash)
+            self.assertTrue(project.is_obj_cached(
+                project.working_tree.build_targets['s1'].head.hash))
+
+    def test_cant_commit_foreign_changes(self):
+        with TestDir() as test_dir:
+            source_url = osp.join(test_dir, 'test_source.txt')
+            os.makedirs(osp.dirname(source_url), exist_ok=True)
+            with open(source_url, 'w') as f:
+                f.write('hello')
+
+            project = Project.init(osp.join(test_dir, 'proj'))
+            project.import_source('s1', source_url, format=DEFAULT_FORMAT)
+            project.commit("First commit")
+
+            source_path = osp.join(
+                project.source_data_dir('s1'),
+                osp.basename(source_url))
+            with open(source_path, 'w') as f:
+                f.write('world')
+
+            with self.assertRaises(ForeignChangesError):
+                project.commit("Second commit")
+
+    def test_can_checkout_revision(self):
+        with TestDir() as test_dir:
+            source_url = osp.join(test_dir, 'test_source.txt')
+            os.makedirs(osp.dirname(source_url), exist_ok=True)
+            with open(source_url, 'w') as f:
+                f.write('hello')
+
+            project = Project.init(osp.join(test_dir, 'proj'))
+            project.import_source('s1', source_url, format=DEFAULT_FORMAT)
+            project.commit("First commit")
+
+            source_path = osp.join(
+                project.source_data_dir('s1'),
+                osp.basename(source_url))
+            with open(source_path, 'w') as f:
+                f.write('world')
+            project.commit("Second commit", allow_foreign=True)
+
+            project.checkout('HEAD~1')
+
+            compare_dirs(self, source_url, project.source_data_dir('s1'))
+            with open(osp.join(test_dir, 'proj', '.gitignore')) as f:
+                self.assertTrue('s1' in [line.strip() for line in f])
+
+    def test_can_checkout_sources(self):
+        with TestDir() as test_dir:
+            source_url = osp.join(test_dir, 'test_repo')
+            dataset = Dataset.from_iterable([
+                DatasetItem(1, annotations=[Label(0)]),
+                DatasetItem(2, annotations=[Label(1)]),
+            ], categories=['a', 'b'])
+            dataset.save(source_url)
+
+            project = Project.init(osp.join(test_dir, 'proj'))
+            project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
+            project.import_source('s2', url=source_url, format=DEFAULT_FORMAT)
+            project.commit("Commit 1")
+            project.remove_source('s1', keep_data=False) # remove s1 from tree
+            shutil.rmtree(project.source_data_dir('s2')) # modify s2 "manually"
+
+            project.checkout(sources=['s1', 's2'])
+
+            compare_dirs(self, source_url, project.source_data_dir('s1'))
+            compare_dirs(self, source_url, project.source_data_dir('s2'))
+            with open(osp.join(test_dir, 'proj', '.gitignore')) as f:
+                lines = [line.strip() for line in f]
+                self.assertTrue('s1' in lines)
+                self.assertTrue('s2' in lines)
+
+    def test_can_checkout_sources_from_revision(self):
+        with TestDir() as test_dir:
+            source_url = osp.join(test_dir, 'test_repo')
+            dataset = Dataset.from_iterable([
+                DatasetItem(1, annotations=[Label(0)]),
+                DatasetItem(2, annotations=[Label(1)]),
+            ], categories=['a', 'b'])
+            dataset.save(source_url)
+
+            project = Project.init(osp.join(test_dir, 'proj'))
+            project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
+            project.commit("Commit 1")
+            project.remove_source('s1', keep_data=False)
+            project.commit("Commit 2")
+
+            project.checkout(rev='HEAD~1', sources=['s1'])
+
+            compare_dirs(self, source_url, project.source_data_dir('s1'))
 
     def test_can_compare_revisions(self):
         with TestDir() as test_dir:

@@ -4,15 +4,25 @@
 
 import argparse
 
+from ..util import MultilineFormatter
 from ..util.project import load_project
 
 
 def build_parser(parser_ctor=argparse.ArgumentParser):
-    parser = parser_ctor()
+    parser = parser_ctor(help="Create a revision",
+        description="""
+        Creates a new revision from the current state of the working directory.|n
+        |n
+        Examples:|n
+        - Create a revision:|n
+        |s|s%(prog)s -m "Added data"
+        """, formatter_class=MultilineFormatter)
 
     parser.add_argument('-m', '--message', required=True, help="Commit message")
     parser.add_argument('--allow-empty', action='store_true',
         help="Allow commits with no changes (default: %(default)s)")
+    parser.add_argument('--allow-foreign', action='store_true',
+        help="Allow commits with non-Datumaro changes (default: %(default)s)")
     parser.add_argument('--no-cache', action='store_true',
         help="Don't put committed datasets into cache, "
             "save only metainfo (default: %(default)s)")
@@ -27,7 +37,8 @@ def commit_command(args):
 
     old_tree = project.head
 
-    new_commit = project.commit(args.message)
+    new_commit = project.commit(args.message, allow_empty=args.allow_empty,
+        allow_foreign=args.allow_foreign, no_cache=args.no_cache)
 
     new_tree = project.working_tree
     diff = project.diff(old_tree, new_tree)
