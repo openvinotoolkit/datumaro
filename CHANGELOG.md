@@ -18,12 +18,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for Point Cloud and Velodyne Point dataset formats (<https://github.com/openvinotoolkit/datumaro/pull/245>)
 - Documentation file and integration tests for YOLO format (<https://github.com/openvinotoolkit/datumaro/pull/246>)
 - Support for Cityscapes dataset format (<https://github.com/openvinotoolkit/datumaro/pull/249>)
+- Support for Validator configurable threshold(<https://github.com/openvinotoolkit/datumaro/pull/250>)
 
 ### Changed
 - LabelMe format saves dataset items with their relative paths by subsets without changing names (<https://github.com/openvinotoolkit/datumaro/pull/200>)
 - Allowed arbitrary subset count and names in classification and detection splitters (<https://github.com/openvinotoolkit/datumaro/pull/207>)
 - Annotation-less dataset elements are now participate in subset splitting (<https://github.com/openvinotoolkit/datumaro/pull/211>)
 - Classification task in LFW dataset format (<https://github.com/openvinotoolkit/datumaro/pull/222>)
+- Testing is now performed with pytest instead of unittest (<https://github.com/openvinotoolkit/datumaro/pull/248>)
 
 ### Deprecated
 -
