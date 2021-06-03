@@ -2,10 +2,9 @@
 #
 # SPDX-License-Identifier: MIT
 
-from enum import Enum
 from typing import Union
 
-from datumaro.components.validator import (TaskType, Validator, 
+from datumaro.components.validator import (TaskType, Validator,
     ClassificationValidator, DetectionValidator, SegmentationValidator)
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.dataset import IDataset
