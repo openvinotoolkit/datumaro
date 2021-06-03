@@ -178,6 +178,8 @@ CVAT annotations                             ---> Publication, statistics etc.
 - Model integration
   - Inference (OpenVINO, Caffe, PyTorch, TensorFlow, MxNet, etc.)
   - Explainable AI ([RISE algorithm](https://arxiv.org/abs/1806.07421))
+    - RISE for classification
+    - RISE for object detection
 
 > Check [the design document](docs/design.md) for a full list of features.
 > Check [the user manual](docs/user_manual.md) for usage instructions.

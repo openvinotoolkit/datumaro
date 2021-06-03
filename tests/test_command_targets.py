@@ -8,9 +8,11 @@ from datumaro.util.command_targets import ProjectTarget, \
     ImageTarget, SourceTarget
 from datumaro.util.image import save_image
 from datumaro.util.test_utils import TestDir
+from .requirements import Requirements, mark_requirement
 
 
 class CommandTargetsTest(TestCase):
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_image_false_when_no_file(self):
         target = ImageTarget()
 
@@ -18,6 +20,7 @@ class CommandTargetsTest(TestCase):
 
         self.assertFalse(status)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_image_false_when_false(self):
         with TestDir() as test_dir:
             path = osp.join(test_dir, 'test.jpg')
@@ -30,6 +33,7 @@ class CommandTargetsTest(TestCase):
 
             self.assertFalse(status)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_image_true_when_true(self):
         with TestDir() as test_dir:
             path = osp.join(test_dir, 'test.jpg')
@@ -41,6 +45,7 @@ class CommandTargetsTest(TestCase):
 
             self.assertTrue(status)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_project_false_when_no_file(self):
         target = ProjectTarget()
 
@@ -48,6 +53,7 @@ class CommandTargetsTest(TestCase):
 
         self.assertFalse(status)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_project_false_when_no_name(self):
         target = ProjectTarget(project=Project())
 
@@ -55,6 +61,7 @@ class CommandTargetsTest(TestCase):
 
         self.assertFalse(status)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_project_true_when_project_file(self):
         with TestDir() as test_dir:
             path = osp.join(test_dir, 'test.jpg')
@@ -66,6 +73,7 @@ class CommandTargetsTest(TestCase):
 
             self.assertTrue(status)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_project_true_when_project_name(self):
         project_name = 'qwerty'
         project = Project({
@@ -77,6 +85,7 @@ class CommandTargetsTest(TestCase):
 
         self.assertTrue(status)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_project_false_when_not_project_name(self):
         project_name = 'qwerty'
         project = Project({
@@ -88,6 +97,7 @@ class CommandTargetsTest(TestCase):
 
         self.assertFalse(status)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_project_false_when_not_project_file(self):
         with TestDir() as test_dir:
             path = osp.join(test_dir, 'test.jpg')
@@ -100,6 +110,7 @@ class CommandTargetsTest(TestCase):
 
             self.assertFalse(status)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_source_false_when_no_project(self):
         target = SourceTarget()
 
@@ -107,6 +118,7 @@ class CommandTargetsTest(TestCase):
 
         self.assertFalse(status)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_source_true_when_source_exists(self):
         source_name = 'qwerty'
         project = Project()
@@ -117,6 +129,7 @@ class CommandTargetsTest(TestCase):
 
         self.assertTrue(status)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_source_false_when_source_doesnt_exist(self):
         source_name = 'qwerty'
         project = Project()

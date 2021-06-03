@@ -173,7 +173,7 @@ class Environment:
             builtin=select(builtin, Transform),
             local=select(custom, Transform)
         )
-        self.validator = PluginRegistry(
+        self.validators = PluginRegistry(
             builtin=select(builtin, Validator),
             local=select(custom, Validator)
         )
