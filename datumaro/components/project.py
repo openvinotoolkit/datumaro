@@ -1781,14 +1781,13 @@ class Project:
     def _is_cached(self, obj_hash):
         return osp.isdir(self.cache_path(obj_hash))
 
-    def cache_path(self, obj_hash, root=None):
+    def cache_path(self, obj_hash: str) -> str:
         assert self._git.is_hash(obj_hash) or self._dvc.is_hash(obj_hash), obj_hash
         if self._dvc.is_dir_hash(obj_hash):
             obj_hash = obj_hash[:self._dvc.FILE_HASH_LEN]
 
-        if not root:
-            root = osp.join(self._aux_dir, ProjectLayout.cache_dir)
-        return osp.join(root, obj_hash[:2], obj_hash[2:])
+        return osp.join(self._aux_dir, ProjectLayout.cache_dir,
+            obj_hash[:2], obj_hash[2:])
 
     def _can_retrieve_from_vcs_cache(self, obj_hash):
         if not self._dvc.is_dir_hash(obj_hash):
@@ -1801,7 +1800,11 @@ class Project:
     def source_data_dir(self, name: str) -> str:
         return osp.join(self._root_dir, name)
 
-    def _source_dvcfile_path(self, name, root=None):
+    def _source_dvcfile_path(self, name: str, root: str = None) -> str:
+        """
+        root - Path to the tree root directory. If not set,
+            the working tree is used.
+        """
         if not root:
             root = osp.join(self._aux_dir, ProjectLayout.tree_dir)
         return osp.join(root, TreeLayout.sources_dir, name + '.dvc')
@@ -2044,17 +2047,54 @@ class Project:
             os.replace(osp.join(src_dir, name), osp.join(dst_dir, name))
 
     def checkout(self, rev: Optional[str] = None,
-            targets: Union[None, str, List[str]] = None, force: bool = False):
+            sources: Union[None, str, List[str]] = None, force: bool = False):
         """
         Copies tree and objects from cache to working tree.
 
         Sets HEAD to the specified revision, unless targets specified.
-        When targets specified, only copies objects from cache to working tree.
+        When sources specified, only copies objects from cache to working tree.
         """
 
-        assert targets is None or isinstance(targets, (str, list)), targets
-        if targets:
-            raise NotImplementedError()
+        assert sources is None or isinstance(sources, (str, list)), sources
+        if sources:
+            sources = set(sources)
+
+            rev_tree = self.get_rev(rev or 'HEAD')
+
+            # Check targets
+            for s in sources:
+                if not s in rev_tree.sources:
+                    raise UnknownSourceError(s)
+
+            rev_dir = rev_tree.config.base_dir
+            with self._make_tmp_dir(suffix='co_%s' % rev) as tmp_dir:
+                dvcfiles = []
+
+                for s in sources:
+                    dvcfile = self._source_dvcfile_path(s, root=rev_dir)
+
+                    tmp_dvcfile = osp.join(tmp_dir, s + '.dvc')
+                    with open(dvcfile) as f:
+                        conf = self._dvc.yaml_parser.load(f)
+
+                    conf['wdir'] = self._root_dir
+
+                    with open(tmp_dvcfile, 'w') as f:
+                        self._dvc.yaml_parser.dump(conf, f)
+
+                    dvcfiles.append(tmp_dvcfile)
+
+                self._dvc.checkout(dvcfiles)
+
+            self._git.ignore(sources)
+
+            for s in sources:
+                self.working_tree.config.sources[s] = \
+                    rev_tree.config.sources[s]
+                self.working_tree.config.build_targets[s] = \
+                    rev_tree.config.build_targets[s]
+
+            self.working_tree.save()
         else:
             # Check working tree for unsaved changes,
             # set HEAD to the revision
@@ -2074,17 +2114,15 @@ class Project:
             with self._make_tmp_dir(suffix='co_%s' % rev) as tmp_dir:
                 dvcfiles = []
 
-                for t in rev_tree.build_targets:
-                    if t == rev_tree.build_targets.MAIN_TARGET:
-                        continue
+                for s in rev_tree.sources:
+                    dvcfile = self._source_dvcfile_path(s)
 
-                    dvcfile = self._source_dvcfile_path(t)
-
-                    # Fix dvcfile wdir to avoid writing to an unexpected places
-                    tmp_dvcfile = osp.join(tmp_dir, t + '.dvc')
+                    tmp_dvcfile = osp.join(tmp_dir, s + '.dvc')
                     with open(dvcfile) as f:
                         conf = self._dvc.yaml_parser.load(f)
+
                     conf['wdir'] = self._root_dir
+
                     with open(tmp_dvcfile, 'w') as f:
                         self._dvc.yaml_parser.dump(conf, f)
 
