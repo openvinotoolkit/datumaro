@@ -79,6 +79,7 @@ class TestOperations(TestCase):
                 'mask': { 'count': 1, },
                 'points': { 'count': 1, },
                 'caption': { 'count': 2, },
+                'cuboid': {'count': 0},
             },
             'annotations': {
                 'labels': {
@@ -160,6 +161,7 @@ class TestOperations(TestCase):
                 'mask': { 'count': 0, },
                 'points': { 'count': 0, },
                 'caption': { 'count': 0, },
+                'cuboid': {'count': 0},
             },
             'annotations': {
                 'labels': {
@@ -173,7 +175,7 @@ class TestOperations(TestCase):
                     'attributes': {}
                 },
                 'segments': {
-                    'avg. area': 0,
+                    'avg. area': 0.0,
                     'area distribution': [],
                     'pixel distribution': {
                         'label_0': [0, 0.0],
