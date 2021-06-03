@@ -20,6 +20,7 @@
   - [Compare projects](#compare-projects)
   - [Obtaining project info](#get-project-info)
   - [Obtaining project statistics](#get-project-statistics)
+  - [Validate project annotations](#validate-project-annotations)
   - [Register model](#register-model)
   - [Run inference](#run-model)
   - [Run inference explanation](#explain-inference)
@@ -84,16 +85,19 @@ import datumaro
 ## Supported Formats
 
 List of supported formats:
-- MS COCO (`image_info`, `instances`, `person_keypoints`, `captions`, `labels`*)
+- MS COCO (`image_info`, `instances`, `person_keypoints`, `captions`, `labels`, `panoptic`, `stuff`)
   - [Format specification](http://cocodataset.org/#format-data)
   - [Dataset example](../tests/assets/coco_dataset)
   - `labels` are our extension - like `instances` with only `category_id`
+  - [Format documentation](./formats/coco_user_manual.md)
 - PASCAL VOC (`classification`, `detection`, `segmentation` (class, instances), `action_classification`, `person_layout`)
   - [Format specification](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/htmldoc/index.html)
   - [Dataset example](../tests/assets/voc_dataset)
+  - [Format documentation](./formats/pascal_voc_user_manual.md)
 - YOLO (`bboxes`)
   - [Format specification](https://github.com/AlexeyAB/darknet#how-to-train-pascal-voc-data)
   - [Dataset example](../tests/assets/yolo_dataset)
+  - [Format documentation](./formats/yolo_user_manual.md)
 - TF Detection API (`bboxes`, `masks`)
   - Format specifications: [bboxes](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/using_your_own_dataset.md), [masks](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/instance_segmentation.md)
   - [Dataset example](../tests/assets/tf_detection_api_dataset)
@@ -113,9 +117,24 @@ List of supported formats:
   - [Dataset example](../tests/assets/imagenet_dataset)
   - [Dataset example (txt for classification)](../tests/assets/imagenet_txt_dataset)
   - Detection format is the same as in PASCAL VOC
+- CIFAR-10/100 (`classification` (python version))
+  - [Format specification](https://www.cs.toronto.edu/~kriz/cifar.html)
+  - [Dataset example](../tests/assets/cifar_dataset)
+- MNIST (`classification`)
+  - [Format specification](http://yann.lecun.com/exdb/mnist/)
+  - [Dataset example](../tests/assets/mnist_dataset)
+  - [Format documentation](./formats/mnist_user_manual.md)
+- MNIST in CSV (`classification`)
+  - [Format specification](https://pjreddie.com/projects/mnist-in-csv/)
+  - [Dataset example](../tests/assets/mnist_csv_dataset)
+  - [Format documentation](./formats/mnist_user_manual.md)
 - CamVid (`segmentation`)
   - [Format specification](http://mi.eng.cam.ac.uk/research/projects/VideoRec/CamVid/)
   - [Dataset example](../tests/assets/camvid_dataset)
+- Cityscapes (`segmentation`)
+  - [Format specification](https://www.cityscapes-dataset.com/dataset-overview/)
+  - [Dataset example](../tests/assets/cityscapes_dataset)
+  - [Format documentation](./formats/cityscapes_user_manual.md)
 - CVAT
   - [Format specification](https://github.com/opencv/cvat/blob/develop/cvat/apps/documentation/xml_format.md)
   - [Dataset example](../tests/assets/cvat_dataset)
@@ -128,7 +147,7 @@ List of supported formats:
 - Market-1501 (`person re-identification`)
   - [Format specification](https://www.aitribune.com/dataset/2018051063)
   - [Dataset example](../tests/assets/market1501_dataset)
-- LFW (`person re-identification`, `landmarks`)
+- LFW (`classification`, `person re-identification`, `landmarks`)
   - [Format specification](http://vis-www.cs.umass.edu/lfw/)
   - [Dataset example](../tests/assets/lfw_dataset)
 
@@ -875,6 +894,180 @@ datum stats -p test_project
 
 </details>
 
+
+### Validate project annotations
+
+This command inspects annotations with respect to the task type
+and stores the result in JSON file.
+
+The task types supported are `classification`, `detection`, and `segmentation`.
+
+The validation result contains
+- annotation statistics based on the task type
+- validation reports, such as
+    - items not having annotations
+    - items having undefined annotations
+    - imbalanced distribution in class/attributes
+    - too small or large values
+- summary
+
+Usage:
+
+``` bash
+datum validate --help
+
+datum validate -p <project dir> <task_type>
+```
+
+Here is the list of validation items(a.k.a. anomaly types).
+
+| Anomaly Type | Description | Task Type |
+| ------------ | ----------- | --------- |
+| MissingLabelCategories | Metadata (ex. LabelCategories) should be defined | common |
+| MissingAnnotation | No annotation found for an Item | common |
+| MissingAttribute  | An attribute key is missing for an Item | common |
+| MultiLabelAnnotations | Item needs a single label | classification |
+| UndefinedLabel     | A label not defined in the metadata is found for an item | common |
+| UndefinedAttribute | An attribute not defined in the metadata is found for an item | common |
+| LabelDefinedButNotFound     | A label is defined, but not found actually | common |
+| AttributeDefinedButNotFound | An attribute is defined, but not found actually | common |
+| OnlyOneLabel          | The dataset consists of only label | common |
+| OnlyOneAttributeValue | The dataset consists of only attribute value | common |
+| FewSamplesInLabel     | The number of samples in a label might be too low | common |
+| FewSamplesInAttribute | The number of samples in an attribute might be too low | common |
+| ImbalancedLabels    | There is an imbalance in the label distribution | common |
+| ImbalancedAttribute | There is an imbalance in the attribute distribution | common |
+| ImbalancedDistInLabel     | Values (ex. bbox width) are not evenly distributed for a label | detection, segmentation |
+| ImbalancedDistInAttribute | Values (ex. bbox width) are not evenly distributed for an attribute | detection, segmentation |
+| NegativeLength | The width or height of bounding box is negative | detection |
+| InvalidValue | There's invalid (ex. inf, nan) value for bounding box info. | detection |
+| FarFromLabelMean | An annotation has an too small or large value than average for a label | detection, segmentation |
+| FarFromAttrMean  | An annotation has an too small or large value than average for an attribute | detection, segmentation |
+
+
+Validation Result Format:
+
+<details>
+
+``` bash
+{
+    'statistics': {
+        ## common statistics
+        'label_distribution': {
+            'defined_labels': <dict>,   # <label:str>: <count:int>
+            'undefined_labels': <dict>
+            # <label:str>: {
+            #     'count': <int>,
+            #     'items_with_undefined_label': [<item_key>, ]
+            # }
+        },
+        'attribute_distribution': {
+            'defined_attributes': <dict>,
+            # <label:str>: {
+            #     <attribute:str>: {
+            #         'distribution': {<attr_value:str>: <count:int>, },
+            #         'items_missing_attribute': [<item_key>, ]
+            #     }
+            # }
+            'undefined_attributes': <dict>
+            # <label:str>: {
+            #     <attribute:str>: {
+            #         'distribution': {<attr_value:str>: <count:int>, },
+            #         'items_with_undefined_attr': [<item_key>, ]
+            #     }
+            # }
+        },
+        'total_ann_count': <int>,
+        'items_missing_annotation': <list>, # [<item_key>, ]
+
+        ## statistics for classification task
+        'items_with_multiple_labels': <list>, # [<item_key>, ]
+
+        ## statistics for detection task
+        'items_with_invalid_value': <dict>,
+        # '<item_key>': {<ann_id:int>: [ <property:str>, ], }
+        # - properties: 'x', 'y', 'width', 'height',
+        #               'area(wxh)', 'ratio(w/h)', 'short', 'long'
+        # - 'short' is min(w,h) and 'long' is max(w,h).
+        'items_with_negative_length': <dict>,
+        # '<item_key>': { <ann_id:int>: { <'width'|'height'>: <value>, }, }
+        'bbox_distribution_in_label': <dict>, # <label:str>: <bbox_template>
+        'bbox_distribution_in_attribute': <dict>,
+        # <label:str>: {<attribute:str>: { <attr_value>: <bbox_template>, }, }
+        'bbox_distribution_in_dataset_item': <dict>,
+        # '<item_key>': <bbox count:int>
+
+        ## statistics for segmentation task
+        'items_with_invalid_value': <dict>,
+        # '<item_key>': {<ann_id:int>: [ <property:str>, ], }
+        # - properties: 'area', 'width', 'height'
+        'mask_distribution_in_label': <dict>, # <label:str>: <mask_template>
+        'mask_distribution_in_attribute': <dict>,
+        # <label:str>: {
+        #     <attribute:str>: { <attr_value>: <mask_template>, }
+        # }
+        'mask_distribution_in_dataset_item': <dict>,
+        # '<item_key>': <mask/polygon count: int>
+    },
+    'validation_reports': <list>, # [ <validation_error_format>, ]
+    # validation_error_format = {
+    #     'anomaly_type': <str>,
+    #     'description': <str>,
+    #     'severity': <str>, # 'warning' or 'error'
+    #     'item_id': <str>,  # optional, when it is related to a DatasetItem
+    #     'subset': <str>,   # optional, when it is related to a DatasetItem
+    # }
+    'summary': {
+        'errors': <count: int>,
+        'warnings': <count: int>
+    }
+}
+
+```
+
+`item_key` is defined as,
+``` python
+item_key = (<DatasetItem.id:str>, <DatasetItem.subset:str>)
+```
+
+`bbox_template` and `mask_template` are defined as,
+
+``` python
+bbox_template = {
+    'width': <numerical_stat_template>,
+    'height': <numerical_stat_template>,
+    'area(wxh)': <numerical_stat_template>,
+    'ratio(w/h)': <numerical_stat_template>,
+    'short': <numerical_stat_template>, # short = min(w, h)
+    'long': <numerical_stat_template>   # long = max(w, h)
+}
+mask_template = {
+    'area': <numerical_stat_template>,
+    'width': <numerical_stat_template>,
+    'height': <numerical_stat_template>
+}
+```
+
+`numerical_stat_template` is defined as,
+
+``` python
+numerical_stat_template = {
+    'items_far_from_mean': <dict>,
+    # {'<item_key>': {<ann_id:int>: <value:float>, }, }
+    'mean': <float>,
+    'stdev': <float>,
+    'min': <float>,
+    'max': <float>,
+    'median': <float>,
+    'histogram': {
+        'bins': <list>,   # [<float>, ]
+        'counts': <list>, # [<int>, ]
+    }
+}
+```
+
+</details>
+
 ### Register model
 
 Supported models:
@@ -900,7 +1093,8 @@ datum model add \
 ```
 
 Interpretation script for an OpenVINO detection model (`convert.py`):
-You can find OpenVINO™ model interpreter samples in datumaro/plugins/openvino/samples. [Instruction](datumaro/plugins/openvino/README.md)
+You can find OpenVINO model interpreter samples in
+`datumaro/plugins/openvino/samples` ([instruction](datumaro/plugins/openvino/README.md)).
 
 ``` python
 from datumaro.components.extractor import *
@@ -989,6 +1183,25 @@ datum diff inference -o diff
 
 ### Explain inference
 
+Runs an explainable AI algorithm for a model.
+
+This tool is supposed to help an AI developer to debug a model and a dataset.
+Basically, it executes inference and tries to find problems in the trained
+model - determine decision boundaries and belief intervals for the classifier.
+
+Currently, the only available algorithm is RISE ([article](https://arxiv.org/pdf/1806.07421.pdf)),
+which runs inference and then re-runs a model multiple times on each
+image to produce a heatmap of activations for each output of the
+first inference. As a result, we obtain few heatmaps, which
+shows, how image pixels affected the inference result. This algorithm doesn't
+require any special information about the model, but it requires the model to
+return all the outputs and confidences. The algorighm only supports
+classification and detection models.
+
+The following use cases available:
+- RISE for classification
+- RISE for object detection
+
 Usage:
 
 ``` bash
@@ -1007,11 +1220,70 @@ Example: run inference explanation on a single image with visualization
 ``` bash
 datum create <...>
 datum model add mymodel <...>
-datum explain \
-    -m mymodel \
-    -t 'image.png' \
-    rise \
-    -s 1000 --progressive
+datum explain -t image.png -m mymodel \
+    rise --max-samples 1000 --progressive
+```
+
+> Note: this algorithm requires the model to return
+> *all* (or a _reasonable_ amount) the outputs and confidences unfiltered,
+> i.e. all the `Label` annotations for classification models and
+> all the `Bbox`es for detection models.
+> You can find examples of the expected model outputs in [`tests/test_RISE.py`](../tests/test_RISE.py)
+
+For OpenVINO models the output processing script would look like this:
+
+Classification scenario:
+
+``` python
+from datumaro.components.extractor import *
+from datumaro.util.annotation_util import softmax
+
+def process_outputs(inputs, outputs):
+    # inputs = model input, array or images, shape = (N, C, H, W)
+    # outputs = model output, logits, shape = (N, n_classes)
+    # results = conversion result, [ [ Annotation, ... ], ... ]
+    results = []
+    for input, output in zip(inputs, outputs):
+        input_height, input_width = input.shape[:2]
+        confs = softmax(output[0])
+        for label, conf in enumerate(confs):
+            results.append(Label(int(label)), attributes={'score': float(conf)})
+
+    return results
+```
+
+
+Object Detection scenario:
+
+``` python
+from datumaro.components.extractor import *
+
+# return a significant number of output boxes to make multiple runs
+# statistically correct and meaningful
+max_det = 1000
+
+def process_outputs(inputs, outputs):
+    # inputs = model input, array or images, shape = (N, C, H, W)
+    # outputs = model output, shape = (N, 1, K, 7)
+    # results = conversion result, [ [ Annotation, ... ], ... ]
+    results = []
+    for input, output in zip(inputs, outputs):
+        input_height, input_width = input.shape[:2]
+        detections = output[0]
+        image_results = []
+        for i, det in enumerate(detections):
+            label = int(det[1])
+            conf = float(det[2])
+            x = max(int(det[3] * input_width), 0)
+            y = max(int(det[4] * input_height), 0)
+            w = min(int(det[5] * input_width - x), input_width)
+            h = min(int(det[6] * input_height - y), input_height)
+            image_results.append(Bbox(x, y, w, h,
+                label=label, attributes={'score': conf} ))
+
+            results.append(image_results[:max_det])
+
+    return results
 ```
 
 ### Transform Project
@@ -1034,18 +1306,22 @@ Example: split a dataset randomly to `train` and `test` subsets, ratio is 2:1
 datum transform -t random_split -- --subset train:.67 --subset test:.33
 ```
 
-Example: split a dataset in task-specific manner. Supported tasks are
-classification, detection, and re-identification.
+Example: split a dataset in task-specific manner. The tasks supported are
+classification, detection, segmentation and re-identification.
 
 ``` bash
-datum transform -t classification_split -- \
-    --subset train:.5 --subset val:.2 --subset test:.3
+datum transform -t split -- \
+    -t classification --subset train:.5 --subset val:.2 --subset test:.3
 
-datum transform -t detection_split -- \
-    --subset train:.5 --subset val:.2 --subset test:.3
+datum transform -t split -- \
+    -t detection --subset train:.5 --subset val:.2 --subset test:.3
 
-datum transform -t reidentification_split -- \
-    --subset train:.5 --subset val:.2 --subset test:.3 --query .5
+datum transform -t split -- \
+    -t segmentation --subset train:.5 --subset val:.2 --subset test:.3
+
+datum transform -t split -- \
+    -t reid --subset train:.5 --subset val:.2 --subset test:.3 \
+    --query .5
 ```
 
 Example: convert polygons to masks, masks to boxes etc.:
@@ -1074,9 +1350,7 @@ datum transform -t rename -- -e '|pattern|replacement|'
 datum transform -t rename -- -e '|frame_(\d+)|\\1|'
 ```
 
-Example: Sampling dataset items, subset `train` is divided into `sampled`(sampled_subset) and `unsampled`
-- `train` has 100 data, and 20 samples are selected. There are `sampled`(20 samples) and 80 `unsampled`(80 datas) subsets.
-- Remove `train` subset (if sample_name=`train` or unsample_name=`train`, still remain)
+Example: sampling dataset items as many as the number of target samples with sampling method entered by the user, divide into `sampled` and `unsampled` subsets
 - There are five methods of sampling the m option.
     - `topk`: Return the k with high uncertainty data
     - `lowk`: Return the k with low uncertainty data
@@ -1087,14 +1361,14 @@ Example: Sampling dataset items, subset `train` is divided into `sampled`(sample
 ``` bash
 datum transform -t sampler -- \
     -a entropy \
-    -subset_name train \
-    -sample_name sampled \
-    -unsample_name unsampled \
+    -i train \
+    -o sampled \
+    -u unsampled \
     -m topk \
     -k 20
 ```
 
-Example : Control number of outputs to 100 after NDR
+Example : control number of outputs to 100 after NDR
 - There are two methods in NDR e option
     - `random`: sample from removed data randomly
     - `similarity`: sample from removed data with ascending
@@ -1153,7 +1427,7 @@ pip install 'git+https://github.com/openvinotoolkit/open_model_zoo.git#subdirect
 #### OpenVINO™
 
 This plugin provides support for model inference with [OpenVINO™](https://01.org/openvinotoolkit).
-The plugin depends on the OpenVINO™ Tookit, which can be installed by
+The plugin depends on the OpenVINO™ Toolkit, which can be installed by
 following [these instructions](https://docs.openvinotoolkit.org/latest/index.html#packaging_and_deployment)
 
 ### Dataset Formats

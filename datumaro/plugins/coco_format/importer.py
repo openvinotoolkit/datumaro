@@ -21,6 +21,8 @@ class CocoImporter(Importer):
         CocoTask.captions: 'coco_captions',
         CocoTask.labels: 'coco_labels',
         CocoTask.image_info: 'coco_image_info',
+        CocoTask.panoptic: 'coco_panoptic',
+        CocoTask.stuff: 'coco_stuff',
     }
 
     @classmethod
@@ -39,7 +41,8 @@ class CocoImporter(Importer):
 
         # TODO: should be removed when proper label merging is implemented
         conflicting_types = {CocoTask.instances,
-            CocoTask.person_keypoints, CocoTask.labels}
+            CocoTask.person_keypoints, CocoTask.labels,
+            CocoTask.panoptic, CocoTask.stuff}
         ann_types = set(t for s in subsets.values() for t in s) \
             & conflicting_types
         if 1 <= len(ann_types):
@@ -85,10 +88,10 @@ class CocoImporter(Importer):
             try:
                 ann_type = CocoTask[ann_type]
             except KeyError:
-                log.warn("Skipping '%s': unknown subset "
+                log.warning("Skipping '%s': unknown subset "
                     "type '%s', the only known are: %s" % \
                     (subset_path, ann_type,
-                        ', '.join([e.name for e in CocoTask])))
+                        ', '.join(e.name for e in CocoTask)))
                 continue
             subset_name = name_parts[1]
             subsets[subset_name][ann_type] = subset_path

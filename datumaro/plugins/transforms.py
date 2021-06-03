@@ -18,6 +18,7 @@ from datumaro.components.extractor import (Transform, AnnotationType,
 )
 from datumaro.components.cli_plugin import CliPlugin
 import datumaro.util.mask_tools as mask_tools
+from datumaro.util import parse_str_enum_value, NOTSET
 from datumaro.util.annotation_util import find_group_leader, find_instances
 
 
@@ -433,7 +434,22 @@ class Rename(Transform, CliPlugin):
 class RemapLabels(Transform, CliPlugin):
     """
     Changes labels in the dataset.|n
+    |n
+    A label can be:|n
+    - renamed (and joined with existing) -|n
+    |s|swhen specified '--label <old_name>:<new_name>'|n
+    - deleted - when specified '--label <name>:' or default action is 'delete'|n
+    |s|sand the label is not mentioned in the list. When a label|n
+    |s|sis deleted, all the associated annotations are removed|n
+    - kept unchanged - when specified '--label <name>:<name>'|n
+    |s|sor default action is 'keep' and the label is not mentioned in the list|n
+    Annotations with no label are managed by the default action policy.|n
+    |n
     Examples:|n
+    - Remove the 'person' label (and corresponding annotations):|n
+    |s|sremap_labels -l person: --default keep|n
+    - Rename 'person' to 'pedestrian' and 'human' to 'pedestrian', join:|n
+    |s|sremap_labels -l person:pedestrian -l human:pedestrian --default keep|n
     - Rename 'person' to 'car' and 'cat' to 'dog', keep 'bus', remove others:|n
     |s|sremap_labels -l person:car -l bus:bus -l cat:dog --default delete
     """
@@ -463,9 +479,9 @@ class RemapLabels(Transform, CliPlugin):
     def __init__(self, extractor, mapping, default=None):
         super().__init__(extractor)
 
-        assert isinstance(default, (str, self.DefaultAction))
-        if isinstance(default, str):
-            default = self.DefaultAction[default]
+        default = parse_str_enum_value(default, self.DefaultAction,
+            self.DefaultAction.keep)
+        self._default_action = default
 
         assert isinstance(mapping, (dict, list))
         if isinstance(mapping, list):
@@ -503,10 +519,10 @@ class RemapLabels(Transform, CliPlugin):
         dst_label_cat = LabelCategories(attributes=src_label_cat.attributes)
         id_mapping = {}
         for src_index, src_label in enumerate(src_label_cat.items):
-            dst_label = label_mapping.get(src_label.name)
-            if not dst_label and default_action == self.DefaultAction.keep:
+            dst_label = label_mapping.get(src_label.name, NOTSET)
+            if dst_label is NOTSET and default_action == self.DefaultAction.keep:
                 dst_label = src_label.name # keep unspecified as is
-            if not dst_label:
+            elif not dst_label or dst_label is NOTSET:
                 continue
 
             dst_index = dst_label_cat.find(dst_label)[0]
@@ -518,7 +534,7 @@ class RemapLabels(Transform, CliPlugin):
         if log.getLogger().isEnabledFor(log.DEBUG):
             log.debug("Label mapping:")
             for src_id, src_label in enumerate(src_label_cat.items):
-                if id_mapping.get(src_id):
+                if id_mapping.get(src_id) is not None:
                     log.debug("#%s '%s' -> #%s '%s'",
                         src_id, src_label.name, id_mapping[src_id],
                         dst_label_cat.items[id_mapping[src_id]].name
@@ -535,14 +551,11 @@ class RemapLabels(Transform, CliPlugin):
     def transform_item(self, item):
         annotations = []
         for ann in item.annotations:
-            if ann.type in { AnnotationType.label, AnnotationType.mask,
-                AnnotationType.points, AnnotationType.polygon,
-                AnnotationType.polyline, AnnotationType.bbox
-            } and ann.label is not None:
+            if getattr(ann, 'label') is not None:
                 conv_label = self._map_id(ann.label)
                 if conv_label is not None:
                     annotations.append(ann.wrap(label=conv_label))
-            else:
+            elif self._default_action is self.DefaultAction.keep:
                 annotations.append(ann.wrap())
         return item.wrap(annotations=annotations)
 

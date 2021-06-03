@@ -42,8 +42,17 @@ def get_requirements():
         'matplotlib',
         'numpy>=1.17.3',
         'Pillow',
-        'pycocotools; platform_system != "Windows"',
+
+        # Avoid 2.0.2 Linux binary distribution because of
+        # a conflict in numpy versions with TensorFlow:
+        # - TF is compiled with numpy 1.19 ABI
+        # - pycocotools is compiled with numpy 1.20 ABI
+        # Using a previous version allows to force package rebuilding.
+        #
+        # https://github.com/openvinotoolkit/datumaro/issues/253
+        'pycocotools!=2.0.2; platform_system != "Windows"',
         'pycocotools-windows; platform_system == "Windows"',
+
         'PyYAML',
         'scikit-image',
         'tensorboardX',

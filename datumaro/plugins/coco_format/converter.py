@@ -5,6 +5,7 @@
 
 import json
 import logging as log
+import numpy as np
 import os
 import os.path as osp
 from enum import Enum
@@ -19,6 +20,7 @@ from datumaro.components.extractor import (DatasetItem,
     _COORDINATE_ROUNDING_DIGITS, AnnotationType, Points)
 from datumaro.components.dataset import ItemStatus
 from datumaro.util import cast, find, str_to_bool
+from datumaro.util.image import save_image
 
 from .format import CocoPath, CocoTask
 
@@ -263,7 +265,7 @@ class _InstancesConverter(_TaskConverter):
             return
 
         if not item.has_image:
-            log.warn("Item '%s': skipping writing instances "
+            log.warning("Item '%s': skipping writing instances "
                 "since no image info available" % item.id)
             return
         h, w = item.image.size
@@ -451,6 +453,67 @@ class _LabelsConverter(_TaskConverter):
 
             self.annotations.append(elem)
 
+class _StuffConverter(_InstancesConverter):
+    pass
+
+class _PanopticConverter(_TaskConverter):
+    def write(self, path):
+        with open(path, 'w') as outfile:
+            json.dump(self._data, outfile)
+
+    def save_categories(self, dataset):
+        label_categories = dataset.categories().get(AnnotationType.label)
+        if label_categories is None:
+            return
+
+        for idx, cat in enumerate(label_categories.items):
+            self.categories.append({
+                'id': 1 + idx,
+                'name': cast(cat.name, str, ''),
+                'supercategory': cast(cat.parent, str, ''),
+                'isthing': 0, # TODO: can't represent this information yet
+            })
+
+    def save_annotations(self, item):
+        if not item.has_image:
+            return
+
+        ann_filename = item.id + CocoPath.PANOPTIC_EXT
+
+        segments_info = list()
+        masks = []
+        next_id = self._min_ann_id
+        for ann in item.annotations:
+            if ann.type != AnnotationType.mask:
+                continue
+
+            if not ann.id:
+                ann.id = next_id
+                next_id += 1
+
+            segment_info = {}
+            segment_info['id'] = ann.id
+            segment_info['category_id'] = cast(ann.label, int, -1) + 1
+            segment_info['area'] = float(ann.get_area())
+            segment_info['bbox'] = [float(p) for p in ann.get_bbox()]
+            segment_info['iscrowd'] = cast(ann.attributes.get("is_crowd"), int, 0)
+            segments_info.append(segment_info)
+            masks.append(ann)
+
+        if masks:
+            pan_format = mask_tools.merge_masks(
+                ((m.image, m.id) for m in masks),
+                start=np.zeros(item.image.size, dtype=np.uint32))
+            save_image(osp.join(self._context._segmentation_dir, ann_filename),
+                mask_tools.index2bgr(pan_format), create_dir=True)
+
+        elem = {
+            'image_id': self._get_image_id(item),
+            'file_name': ann_filename,
+            'segments_info': segments_info
+        }
+        self.annotations.append(elem)
+
 class CocoConverter(Converter):
     @staticmethod
     def _split_tasks_string(s):
@@ -497,6 +560,8 @@ class CocoConverter(Converter):
         CocoTask.person_keypoints: _KeypointsConverter,
         CocoTask.captions: _CaptionsConverter,
         CocoTask.labels: _LabelsConverter,
+        CocoTask.panoptic: _PanopticConverter,
+        CocoTask.stuff: _StuffConverter,
     }
 
     def __init__(self, extractor, save_dir,
@@ -541,6 +606,11 @@ class CocoConverter(Converter):
         self._ann_dir = osp.join(self._save_dir, CocoPath.ANNOTATIONS_DIR)
         os.makedirs(self._ann_dir, exist_ok=True)
 
+    def _make_segmentation_dir(self, subset_name):
+        self._segmentation_dir = osp.join(self._save_dir,
+            CocoPath.ANNOTATIONS_DIR, 'panoptic_'+ subset_name)
+        os.makedirs(self._segmentation_dir, exist_ok=True)
+
     def _make_task_converter(self, task):
         if task not in self._TASK_CONVERTER:
             raise NotImplementedError()
@@ -568,6 +638,8 @@ class CocoConverter(Converter):
             task_converters = self._make_task_converters()
             for task_conv in task_converters.values():
                 task_conv.save_categories(subset)
+            if CocoTask.panoptic in task_converters:
+                self._make_segmentation_dir(subset_name)
 
             for item in subset:
                 if self._save_images:
@@ -636,4 +708,15 @@ class CocoCaptionsConverter(CocoConverter):
 class CocoLabelsConverter(CocoConverter):
     def __init__(self, *args, **kwargs):
         kwargs['tasks'] = CocoTask.labels
+        super().__init__(*args, **kwargs)
+
+class CocoPanopticConverter(CocoConverter):
+    def __init__(self, *args, **kwargs):
+        kwargs['tasks'] = CocoTask.panoptic
+        super().__init__(*args, **kwargs)
+
+class CocoStuffConverter(CocoConverter):
+    def __init__(self, *args, **kwargs):
+        kwargs['tasks'] = CocoTask.stuff
+        kwargs['segmentation_mode'] = SegmentationMode.mask
         super().__init__(*args, **kwargs)

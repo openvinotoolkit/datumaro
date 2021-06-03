@@ -1,4 +1,4 @@
-# Copyright (C) 2020 Intel Corporation
+# Copyright (C) 2020-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -55,10 +55,13 @@ def merge_categories(sources):
     for source in sources:
         for cat_type, source_cat in source.items():
             existing_cat = categories.setdefault(cat_type, source_cat)
-            if existing_cat != source_cat:
-                raise DatumaroError(
-                    "Merging of datasets with different categories is "
-                    "only allowed in 'merge' command.")
+            if existing_cat != source_cat and len(source_cat) != 0:
+                if len(existing_cat) == 0:
+                    categories[cat_type] = source_cat
+                else:
+                    raise DatumaroError(
+                        "Merging of datasets with different categories is "
+                        "only allowed in 'merge' command.")
     return categories
 
 class MergingStrategy(CliPlugin):
@@ -150,7 +153,7 @@ class IntersectMerge(MergingStrategy):
         quorum = attrib(converter=int, default=0)
         ignored_attributes = attrib(converter=set, factory=set)
 
-        def _groups_conveter(value):
+        def _groups_converter(value):
             result = []
             for group in value:
                 rg = set()
@@ -160,7 +163,7 @@ class IntersectMerge(MergingStrategy):
                     rg.add((name, optional))
                 result.append(rg)
             return result
-        groups = attrib(converter=_groups_conveter, factory=list)
+        groups = attrib(converter=_groups_converter, factory=list)
         close_distance = attrib(converter=float, default=0.75)
     conf = attrib(converter=ensure_cls(Conf), factory=Conf)
 
@@ -954,6 +957,11 @@ def mean_std(dataset):
     var = lambda i, s: s[i][1]
 
     for i, item in enumerate(dataset):
+        size = item.image.size
+        if size is None:
+            log.warning("Item %s: can't detect image size, "
+                "the image will be skipped from pixel statistics", item.id)
+            continue
         counts[i] = np.prod(item.image.size)
 
         image = item.image.data
@@ -1024,8 +1032,8 @@ def compute_image_statistics(dataset):
         for item in extractor:
             if not (item.has_image and item.image.has_data):
                 available = False
-                log.warn("Item %s has no image. Image stats won't be computed",
-                    item.id)
+                log.warning("Item %s has no image, it will be excluded from "
+                    "image stats", item.id)
                 break
 
         stats = {
