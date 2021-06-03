@@ -4,7 +4,7 @@ import os.path as osp
 
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.components.converter import Converter
-from zipfile import ZipFile, ZIP_STORED, ZIP_DEFLATED, ZIP_BZIP2, ZIP_LZMA
+from zipfile import ZIP_BZIP2, ZIP_DEFLATED, ZIP_LZMA, ZIP_STORED, ZipFile
 from datumaro.util.image import ByteImage, encode_image, IMAGE_EXTENSIONS
 
 DEFAULT_ARCHIVE_NAME = 'default.zip'
