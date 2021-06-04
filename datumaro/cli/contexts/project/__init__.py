@@ -163,11 +163,6 @@ def export_command(args):
         target = project.working_tree.build_targets.add_filter_stage(
             target, expr=filter_expr, params=filter_args)
 
-    status = project.status()
-    if status: # TODO: narrow only to the affected sources
-        raise CliException("Can't modify project " \
-            "when there are uncommitted changes: %s" % status)
-
     log.info("Exporting...")
 
     dataset = project.working_tree.make_dataset(target)
@@ -277,11 +272,6 @@ def filter_command(args):
         project.working_tree.build_targets.add_filter_stage(target,
             expr=filter_expr, params=filter_args)
 
-    status = project.status()
-    if status: # TODO: narrow only to the affected sources
-        raise CliException("Can't modify project " \
-            "when there are uncommitted changes: %s" % status)
-
     if args.apply:
         log.info("Filtering...")
 
@@ -383,11 +373,6 @@ def transform_command(args):
     for target in targets:
         project.working_tree.build_targets.add_transform_stage(target,
             args.transform, params=extra_args)
-
-    status = project.status()
-    if status: # TODO: narrow only to the affected sources
-        raise CliException("Can't modify project " \
-            "when there are uncommitted changes: %s" % status)
 
     if args.apply:
         log.info("Transforming...")
@@ -522,7 +507,7 @@ def info_command(args):
         print("Merged dataset info is not available: ", dataset_problem)
 
     print("Models:")
-    for model_name, model in config.models.items():
+    for model_name, model in project.models.items():
         print("  model '%s':" % model_name)
         print("    type:", model.launcher)
 

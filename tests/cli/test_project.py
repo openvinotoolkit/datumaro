@@ -68,8 +68,6 @@ class ProjectIntegrationScenarios(TestCase):
             ], categories=['a', 'b']).save(dataset_dir, save_images=True)
 
             run(self, 'create', '-o', project_dir)
-            run(self, 'commit', '-p', project_dir, '-m', 'Initial commit')
-
             run(self, 'add', '-p', project_dir, '-f', 'datumaro', dataset_dir)
             run(self, 'commit', '-p', project_dir, '-m', 'Add data')
 

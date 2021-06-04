@@ -50,7 +50,7 @@ def checkout_command(args):
         pos = args._positionals.index('--')
     else:
         pos = 1
-    args.rev = args._positionals[:pos]
+    args.rev = (args._positionals[:pos] or [None])[0]
     args.sources = args._positionals[pos + has_sep:]
     if has_sep and not args.sources:
         raise argparse.ArgumentError('sources', message="When '--' is used, "

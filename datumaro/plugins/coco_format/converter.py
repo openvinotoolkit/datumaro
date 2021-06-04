@@ -264,7 +264,7 @@ class _InstancesConverter(_TaskConverter):
         if not instances:
             return
 
-        if not item.has_image:
+        if not item.has_image or not item.image.has_size:
             log.warning("Item '%s': skipping writing instances "
                 "since no image info available" % item.id)
             return
