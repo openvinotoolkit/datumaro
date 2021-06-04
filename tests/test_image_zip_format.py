@@ -1,16 +1,16 @@
 import numpy as np
 import os.path as osp
-import pytest
+from zipfile import ZIP_DEFLATED
 
 from .requirements import Requirements
+from unittest import TestCase
+import pytest
+
 from datumaro.components.extractor import DatasetItem
 from datumaro.components.project import Dataset
 from datumaro.plugins.image_zip_format import DEFAULT_ARCHIVE_NAME, ImageZipConverter
 from datumaro.util.image import Image, save_image
 from datumaro.util.test_utils import TestDir, compare_datasets
-from unittest import TestCase
-from zipfile import ZIP_DEFLATED
-
 
 class ImageZipFormatTest(TestCase):
     @pytest.mark.reqids(Requirements.DATUM_267)
