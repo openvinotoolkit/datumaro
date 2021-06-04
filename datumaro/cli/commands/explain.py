@@ -8,8 +8,7 @@ import os
 import os.path as osp
 
 from datumaro.components.project import parse_target_revpath
-from datumaro.util.command_targets import is_image_path
-from datumaro.util.image import load_image, save_image
+from datumaro.util.image import load_image, save_image, is_image
 from ..util import MultilineFormatter
 from ..util.project import load_project
 
@@ -109,7 +108,7 @@ def explain_command(args):
         det_conf_thresh=args.det_conf_thresh,
         batch_size=args.batch_size)
 
-    if args.target and is_image_path(args.target):
+    if args.target and is_image(args.target):
         image_path = args.target
         image = load_image(image_path)
 

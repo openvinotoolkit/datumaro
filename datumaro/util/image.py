@@ -172,7 +172,7 @@ IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.jpe', '.jp2',
 def find_images(dirpath: str, exts: Union[str, Iterable[str]] = None,
         recursive: bool = False, max_depth: int = None) -> Iterator[str]:
     if isinstance(exts, str):
-        exts = ['.' + exts.lower().lstrip('.')]
+        exts = {'.' + exts.lower().lstrip('.')}
     elif exts is None:
         exts = IMAGE_EXTENSIONS
     else:
@@ -194,6 +194,10 @@ def find_images(dirpath: str, exts: Union[str, Iterable[str]] = None,
 
             yield osp.join(d, filename)
 
+def is_image(path: str):
+    trunk, ext = osp.splitext(osp.basename(path))
+    return path and trunk and ext.lower() in IMAGE_EXTENSIONS and \
+        osp.isfile(path)
 
 class lazy_image:
     def __init__(self, path, loader=None, cache=None):
