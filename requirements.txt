@@ -6,9 +6,10 @@ lxml>=4.4.1
 matplotlib>=3.3.1
 opencv-python-headless>=4.1.0.25
 Pillow>=6.1.0
-pycocotools>=2.0.0
+pycocotools>=2.0.0 --no-binary=pycocotools # https://github.com/openvinotoolkit/datumaro/issues/253
 PyYAML>=5.3.1
 ruamel.yaml>=0.16.5
 scikit-image>=0.15.0
 tensorboardX>=1.8
 pandas>=1.1.5
+pytest>=5.3.5

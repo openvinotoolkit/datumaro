@@ -5,6 +5,7 @@
 
 import argparse
 import logging as log
+import os.path as osp
 import sys
 
 from . import contexts, commands
@@ -50,9 +51,11 @@ def _make_subcommands_help(commands, help_line_start=0):
     return desc
 
 def make_parser():
-    parser = argparse.ArgumentParser(prog="datumaro",
+    parser = argparse.ArgumentParser(
         description="Dataset Framework",
         formatter_class=argparse.RawDescriptionHelpFormatter)
+    if parser.prog == osp.basename(__file__): # python -m datumaro ...
+        parser.prog = 'datumaro'
 
     parser.add_argument('--version', action='version', version=VERSION)
     _LogManager._define_loglevel_option(parser)

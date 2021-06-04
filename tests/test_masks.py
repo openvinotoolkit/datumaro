@@ -4,9 +4,11 @@ from unittest import TestCase
 
 import datumaro.util.mask_tools as mask_tools
 from datumaro.components.extractor import CompiledMask
+from .requirements import Requirements, mark_requirement
 
 
 class PolygonConversionsTest(TestCase):
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_mask_can_be_converted_to_polygon(self):
         mask = np.array([
             [0, 1, 1, 1, 0, 1, 1, 1, 1, 0],
@@ -24,6 +26,7 @@ class PolygonConversionsTest(TestCase):
 
         self.assertEqual(len(expected), len(computed))
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_crop_covered_segments(self):
         image_size = [7, 7]
         initial = [
@@ -80,6 +83,7 @@ class PolygonConversionsTest(TestCase):
         self.assertTrue(np.array_equal(source_mask, resulting_mask),
             '%s\n%s\n' % (source_mask, resulting_mask))
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_mask_to_rle_multi(self):
         cases = [
             np.array([
@@ -118,6 +122,7 @@ class PolygonConversionsTest(TestCase):
             self._test_mask_to_rle(case)
 
 class ColormapOperationsTest(TestCase):
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_paint_mask(self):
         mask = np.zeros((1, 3), dtype=np.uint8)
         mask[:, 0] = 0
@@ -136,6 +141,7 @@ class ColormapOperationsTest(TestCase):
         self.assertTrue(np.array_equal(expected, actual),
             '%s\nvs.\n%s' % (expected, actual))
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_unpaint_mask(self):
         colormap = mask_tools.generate_colormap(3)
         inverse_colormap = mask_tools.invert_colormap(colormap)
@@ -155,6 +161,7 @@ class ColormapOperationsTest(TestCase):
         self.assertTrue(np.array_equal(expected, actual),
             '%s\nvs.\n%s' % (expected, actual))
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_remap_mask(self):
         class_count = 10
         remap_fn = lambda c: class_count - c
@@ -172,6 +179,7 @@ class ColormapOperationsTest(TestCase):
         self.assertTrue(np.array_equal(expected, actual),
             '%s\nvs.\n%s' % (expected, actual))
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_merge_masks(self):
         masks = [
             np.array([0, 2, 4, 0, 0, 1]),
@@ -186,6 +194,7 @@ class ColormapOperationsTest(TestCase):
         self.assertTrue(np.array_equal(expected, actual),
             '%s\nvs.\n%s' % (expected, actual))
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_decode_compiled_mask(self):
         class_idx = 1000
         instance_idx = 10000

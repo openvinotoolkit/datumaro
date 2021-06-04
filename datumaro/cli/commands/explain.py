@@ -33,6 +33,9 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         information about the model, but it requires the model to
         return all the outputs and confidences. Check the User Manual
         for usage examples.|n
+        Supported scenarios:|n
+        - RISE for classification|n
+        - RISE for Object Detection|n
         |n
         Examples:|n
         - Run RISE on an image, display results:|n

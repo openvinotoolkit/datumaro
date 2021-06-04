@@ -1581,7 +1581,7 @@ class Project:
 
 
         old_config_tmp = tempfile.mkstemp(dir=self._aux_dir,
-            prefix=osp.basename(old_config_path))
+            prefix=osp.basename(old_config_path))[1]
 
         os.rename(old_config_path, old_config_tmp)
 

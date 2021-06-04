@@ -8,9 +8,11 @@ from datumaro.plugins.market1501_format import (Market1501Converter,
     Market1501Importer)
 from datumaro.util.image import Image
 from datumaro.util.test_utils import TestDir, compare_datasets
+from .requirements import Requirements, mark_requirement
 
 
 class Market1501FormatTest(TestCase):
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='0001_c2s3_000001_00',
@@ -45,6 +47,7 @@ class Market1501FormatTest(TestCase):
 
             compare_datasets(self, source_dataset, parsed_dataset)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_no_subsets(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='0001_c2s3_000001_00',
@@ -63,6 +66,7 @@ class Market1501FormatTest(TestCase):
 
             compare_datasets(self, source_dataset, parsed_dataset)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='кириллица с пробелом',
@@ -82,6 +86,7 @@ class Market1501FormatTest(TestCase):
             compare_datasets(self, source_dataset, parsed_dataset,
                 require_images=True)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_no_save_images(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='0001_c2s3_000001_00',
@@ -108,6 +113,7 @@ class Market1501FormatTest(TestCase):
 
             compare_datasets(self, source_dataset, parsed_dataset)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         expected = Dataset.from_iterable([
             DatasetItem(id='q/1', image=Image(
@@ -133,6 +139,7 @@ class Market1501FormatTest(TestCase):
             compare_datasets(self, expected, parsed_dataset,
                 require_images=True)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_no_attributes(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='test1',
@@ -157,9 +164,11 @@ class Market1501FormatTest(TestCase):
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'market1501_dataset')
 
 class Market1501ImporterTest(TestCase):
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect(self):
         self.assertTrue(Market1501Importer.detect(DUMMY_DATASET_DIR))
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='0001_c2s3_000111_00',

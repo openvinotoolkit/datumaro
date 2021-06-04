@@ -9,12 +9,14 @@ from datumaro.components.dataset import Dataset, DatasetItem
 from datumaro.components.extractor import Bbox, Mask, Image, Label
 from datumaro.cli.__main__ import main
 from datumaro.util.test_utils import TestDir, compare_datasets
+from ..requirements import Requirements, mark_requirement
 
 DUMMY_DATASETS_DIR = osp.join(__file__[:__file__.rfind(osp.join('tests', ''))],
             'tests', 'assets', 'voc_dataset')
 
 def run(test, *args, expected_code=0):
     test.assertEqual(expected_code, main(args), str(args))
+
 
 class VocIntegrationScenarios(TestCase):
     def _test_can_save_and_load(self, project_path, source_path, source_dataset,
@@ -30,6 +32,7 @@ class VocIntegrationScenarios(TestCase):
         target_dataset = Dataset.import_from(result_path, dataset_format)
         compare_datasets(self, source_dataset, target_dataset)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_preparing_dataset_for_train_model(self):
         target_dataset = Dataset.from_iterable([
             DatasetItem(id='c', subset='train',
@@ -78,6 +81,7 @@ class VocIntegrationScenarios(TestCase):
             parsed_dataset = Dataset.import_from(export_path, format='voc')
             compare_datasets(self, target_dataset, parsed_dataset)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_convert_to_voc_format(self):
         label_map = OrderedDict(('label_' + str(i), [None, [], []]) for i in range(10))
         label_map['background'] = [None, [], []]
@@ -120,6 +124,7 @@ class VocIntegrationScenarios(TestCase):
             parsed_dataset = Dataset.import_from(voc_export, format='voc')
             compare_datasets(self, source_dataset, parsed_dataset)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_voc_dataset(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='2007_000001', subset='train',
@@ -162,6 +167,7 @@ class VocIntegrationScenarios(TestCase):
             self._test_can_save_and_load(test_dir, voc_dir, source_dataset,
                 'voc', label_map='voc')
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_voc_layout_dataset(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='2007_000001', subset='train',
@@ -194,6 +200,7 @@ class VocIntegrationScenarios(TestCase):
             self._test_can_save_and_load(test_dir, voc_layout_path, source_dataset,
                 'voc_layout', result_path=result_voc_path, label_map='voc')
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_voc_detect_dataset(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='2007_000001', subset='train',
@@ -232,6 +239,7 @@ class VocIntegrationScenarios(TestCase):
             self._test_can_save_and_load(test_dir, voc_detection_path, source_dataset,
                 'voc_detection', result_path=result_voc_path, label_map='voc')
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_voc_segmentation_dataset(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='2007_000001', subset='train',
@@ -250,6 +258,7 @@ class VocIntegrationScenarios(TestCase):
             self._test_can_save_and_load(test_dir, voc_segm_path, source_dataset,
                 'voc_segmentation', result_path=result_voc_path, label_map='voc')
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_voc_action_dataset(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='2007_000001', subset='train',

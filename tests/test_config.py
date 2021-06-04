@@ -5,8 +5,11 @@ from unittest import TestCase
 from datumaro.components.config import Config, DictConfig, SchemaBuilder
 from datumaro.util.test_utils import TestDir
 
+from .requirements import Requirements, mark_requirement
+
 
 class ConfigTest(TestCase):
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_produce_multilayer_config_from_dict(self):
         schema_low = SchemaBuilder() \
             .add('options', dict) \

@@ -11,6 +11,7 @@ from datumaro.plugins.mot_format import MotSeqGtConverter, MotSeqImporter
 from datumaro.util.image import Image
 from datumaro.util.test_utils import (TestDir, compare_datasets,
     test_save_and_load)
+from .requirements import Requirements, mark_requirement
 
 
 class MotConverterTest(TestCase):
@@ -20,6 +21,7 @@ class MotConverterTest(TestCase):
             importer='mot_seq',
             target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_bboxes(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train',
@@ -98,6 +100,7 @@ class MotConverterTest(TestCase):
                 partial(MotSeqGtConverter.convert, save_images=True),
                 test_dir, target_dataset=target_dataset, require_images=True)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         expected = Dataset.from_iterable([
             DatasetItem('1', image=Image(
@@ -123,9 +126,11 @@ class MotConverterTest(TestCase):
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'mot_dataset')
 
 class MotImporterTest(TestCase):
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect(self):
         self.assertTrue(MotSeqImporter.detect(DUMMY_DATASET_DIR))
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id=1,

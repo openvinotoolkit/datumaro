@@ -88,7 +88,7 @@ class CocoImporter(Importer):
                 log.warning("Skipping '%s': unknown subset "
                     "type '%s', the only known are: %s" % \
                     (subset_path, ann_type,
-                        ', '.join([e.name for e in CocoTask])))
+                        ', '.join(e.name for e in CocoTask)))
                 continue
             subset_name = name_parts[1]
             subsets[subset_name][ann_type] = subset_path

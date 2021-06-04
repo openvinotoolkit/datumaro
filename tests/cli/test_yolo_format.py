@@ -9,11 +9,13 @@ from datumaro.components.extractor import (DatasetItem,
     AnnotationType, Bbox)
 from datumaro.util.test_utils import TestDir, compare_datasets
 import datumaro.plugins.voc_format.format as VOC
+from ..requirements import Requirements, mark_requirement
 
 def run(test, *args, expected_code=0):
     test.assertEqual(expected_code, main(args), str(args))
 
 class YoloIntegrationScenarios(TestCase):
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_yolo_dataset(self):
         target_dataset = Dataset.from_iterable([
             DatasetItem(id='1', subset='train',
@@ -39,6 +41,7 @@ class YoloIntegrationScenarios(TestCase):
             parsed_dataset = Dataset.import_from(export_dir, format='yolo')
             compare_datasets(self, target_dataset, parsed_dataset)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_export_mot_as_yolo(self):
         target_dataset = Dataset.from_iterable([
             DatasetItem(id='1', subset='train',
@@ -62,6 +65,7 @@ class YoloIntegrationScenarios(TestCase):
             parsed_dataset = Dataset.import_from(yolo_dir, format='yolo')
             compare_datasets(self, target_dataset, parsed_dataset)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_convert_voc_to_yolo(self):
         target_dataset = Dataset.from_iterable([
             DatasetItem(id='2007_000001', subset='train',
@@ -85,6 +89,7 @@ class YoloIntegrationScenarios(TestCase):
             parsed_dataset = Dataset.import_from(yolo_dir, format='yolo')
             compare_datasets(self, target_dataset, parsed_dataset)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_ignore_non_supported_subsets(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='img1', subset='test',
@@ -124,6 +129,7 @@ class YoloIntegrationScenarios(TestCase):
             parsed_dataset = Dataset.import_from(yolo_dir, format='yolo')
             compare_datasets(self, target_dataset, parsed_dataset)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_delete_labels_from_yolo_dataset(self):
         target_dataset = Dataset.from_iterable([
             DatasetItem(id='1', subset='train',

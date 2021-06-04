@@ -3,24 +3,28 @@ import os
 import os.path as osp
 import shutil
 
-from unittest import TestCase, skip
+from unittest import TestCase
 from datumaro.components.config_model import Source, Model
 from datumaro.components.dataset import Dataset, DEFAULT_FORMAT
 from datumaro.components.errors import EmptyCommitError, ForeignChangesError
-from datumaro.components.extractor import (Bbox, Extractor, DatasetItem,
-    Label, LabelCategories, AnnotationType, Transform)
+from datumaro.components.extractor import (Bbox, DatasetItem,
+    Label, Transform)
 from datumaro.components.launcher import Launcher
 from datumaro.components.project import DiffStatus, Project
 from datumaro.util.test_utils import TestDir, compare_datasets, compare_dirs
 
+from .requirements import mark_requirement, Requirements
+
 
 class ProjectTest(TestCase):
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_init_and_load(self):
         with TestDir() as test_dir:
             Project.init(test_dir)
 
             Project(test_dir)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_add_local_model(self):
         with TestDir() as test_dir:
             class TestLauncher(Launcher):
@@ -42,6 +46,7 @@ class ProjectTest(TestCase):
             self.assertEqual(added.launcher, config.launcher)
             self.assertEqual(added.options, config.options)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_run_inference(self):
         class TestLauncher(Launcher):
             def launch(self, inputs):
@@ -76,6 +81,7 @@ class ProjectTest(TestCase):
 
             compare_datasets(self, expected, inference)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_local_source(self):
         with TestDir() as test_dir:
             source_base_url = osp.join(test_dir, 'test_repo')
@@ -93,6 +99,7 @@ class ProjectTest(TestCase):
             with open(osp.join(test_dir, 'proj', '.gitignore')) as f:
                 self.assertTrue('s1' in [line.strip() for line in f])
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_generated_source(self):
         with TestDir() as test_dir:
             source_name = 'source'
@@ -112,6 +119,7 @@ class ProjectTest(TestCase):
             with open(osp.join(test_dir, '.gitignore')) as f:
                 self.assertTrue(source_name in [line.strip() for line in f])
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_cant_import_source_with_wrong_name(self):
         with TestDir() as test_dir:
             project = Project.init(test_dir)
@@ -121,6 +129,7 @@ class ProjectTest(TestCase):
                         self.assertRaisesRegex(ValueError, "Source name"):
                     project.import_source(name, url='', format='fmt')
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_remove_source_and_keep_data(self):
         with TestDir() as test_dir:
             source_url = osp.join(test_dir, 'test_source.txt')
@@ -138,6 +147,7 @@ class ProjectTest(TestCase):
             with open(osp.join(test_dir, 'proj', '.gitignore')) as f:
                 self.assertFalse('s1' in [line.strip() for line in f])
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_remove_source_and_wipe_data(self):
         with TestDir() as test_dir:
             source_url = osp.join(test_dir, 'test_source.txt')
@@ -155,6 +165,7 @@ class ProjectTest(TestCase):
             with open(osp.join(test_dir, 'proj', '.gitignore')) as f:
                 self.assertFalse('s1' in [line.strip() for line in f])
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_redownload_source_rev_noncached(self):
         with TestDir() as test_dir:
             source_url = osp.join(test_dir, 'source')
@@ -180,6 +191,7 @@ class ProjectTest(TestCase):
             compare_dirs(self, source_url, project.cache_path(
                 project.working_tree.build_targets['s1'].root.hash))
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_read_working_copy_of_source(self):
         with TestDir() as test_dir:
             source_url = osp.join(test_dir, 'source')
@@ -199,6 +211,7 @@ class ProjectTest(TestCase):
             compare_datasets(self, source_dataset, read_dataset)
             compare_dirs(self, source_url, project.source_data_dir('s1'))
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_read_current_revision_of_source(self):
         with TestDir() as test_dir:
             source_url = osp.join(test_dir, 'source')
@@ -222,6 +235,7 @@ class ProjectTest(TestCase):
             self.assertFalse(osp.isdir(project.source_data_dir('s1')))
             compare_dirs(self, source_url, project.head.source_data_dir('s1'))
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_make_dataset_from_project(self):
         with TestDir() as test_dir:
             source_url = osp.join(test_dir, 'test_repo')
@@ -237,6 +251,7 @@ class ProjectTest(TestCase):
 
             compare_datasets(self, source_dataset, read_dataset)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_make_dataset_from_source(self):
         with TestDir() as test_dir:
             source_url = osp.join(test_dir, 'test_repo')
@@ -254,6 +269,7 @@ class ProjectTest(TestCase):
             self.assertEqual(DEFAULT_FORMAT, built_dataset.format)
             self.assertEqual(project.source_data_dir('s1'), built_dataset.data_path)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_add_filter_stage(self):
         with TestDir() as test_dir:
             source_url = osp.join(test_dir, 'test_repo')
@@ -276,6 +292,7 @@ class ProjectTest(TestCase):
                 DatasetItem(2, annotations=[Label(1)]),
             ], categories=['a', 'b']), resulting_dataset)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_add_convert_stage(self):
         with TestDir() as test_dir:
             source_url = osp.join(test_dir, 'test_repo')
@@ -293,6 +310,7 @@ class ProjectTest(TestCase):
 
             self.assertTrue(stage in project.working_tree.build_targets)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_add_transform_stage(self):
         class TestTransform(Transform):
             def __init__(self, extractor, p1=None, p2=None):
@@ -329,6 +347,7 @@ class ProjectTest(TestCase):
                     attributes={'p1': 5, 'p2': ['1', 2, 3.5]}),
             ], categories=['a', 'b']), resulting_dataset)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_make_dataset_from_stage(self):
         with TestDir() as test_dir:
             source_url = osp.join(test_dir, 'test_repo')
@@ -350,6 +369,7 @@ class ProjectTest(TestCase):
             ], categories=['a', 'b'])
             compare_datasets(self, expected_dataset, built_dataset)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_commit(self):
         with TestDir() as test_dir:
             project = Project.init(test_dir)
@@ -360,6 +380,7 @@ class ProjectTest(TestCase):
             self.assertEqual(len(project.history()), 2)
             self.assertEqual(project.history()[0], (commit_hash, "First commit"))
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_cant_commit_empty(self):
         with TestDir() as test_dir:
             project = Project.init(test_dir)
@@ -367,6 +388,7 @@ class ProjectTest(TestCase):
             with self.assertRaises(EmptyCommitError):
                 project.commit("First commit")
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_commit_patch(self):
         with TestDir() as test_dir:
             source_url = osp.join(test_dir, 'test_source.txt')
@@ -393,6 +415,7 @@ class ProjectTest(TestCase):
             self.assertTrue(project.is_obj_cached(
                 project.working_tree.build_targets['s1'].head.hash))
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_cant_commit_foreign_changes(self):
         with TestDir() as test_dir:
             source_url = osp.join(test_dir, 'test_source.txt')
@@ -413,6 +436,7 @@ class ProjectTest(TestCase):
             with self.assertRaises(ForeignChangesError):
                 project.commit("Second commit")
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_checkout_revision(self):
         with TestDir() as test_dir:
             source_url = osp.join(test_dir, 'test_source.txt')
@@ -437,6 +461,7 @@ class ProjectTest(TestCase):
             with open(osp.join(test_dir, 'proj', '.gitignore')) as f:
                 self.assertTrue('s1' in [line.strip() for line in f])
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_checkout_sources(self):
         with TestDir() as test_dir:
             source_url = osp.join(test_dir, 'test_repo')
@@ -462,6 +487,7 @@ class ProjectTest(TestCase):
                 self.assertTrue('s1' in lines)
                 self.assertTrue('s2' in lines)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_checkout_sources_from_revision(self):
         with TestDir() as test_dir:
             source_url = osp.join(test_dir, 'test_repo')
@@ -481,6 +507,7 @@ class ProjectTest(TestCase):
 
             compare_dirs(self, source_url, project.source_data_dir('s1'))
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_compare_revisions(self):
         with TestDir() as test_dir:
             source_url = osp.join(test_dir, 'test_repo')
@@ -505,6 +532,7 @@ class ProjectTest(TestCase):
 
 
 class BackwardCompatibilityTests_v0_1(TestCase):
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_load_old_project(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(0, subset='train', annotations=[Label(0)]),
