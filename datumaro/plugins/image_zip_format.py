@@ -5,7 +5,6 @@
 import logging as log
 import os
 import os.path as osp
-from glob import glob
 from zipfile import ZIP_BZIP2, ZIP_DEFLATED, ZIP_LZMA, ZIP_STORED, ZipFile
 
 from datumaro.components.converter import Converter
