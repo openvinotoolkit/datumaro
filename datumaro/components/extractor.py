@@ -365,7 +365,8 @@ class PolyLine(_Shape):
 @attrs
 class Cuboid3D(Annotation):
     _type = AnnotationType.cuboid
-    points = attrib(factory=list, validator=default_if_none(list))
+    points = attrib(converter=lambda x:
+        [round(p, _COORDINATE_ROUNDING_DIGITS) for p in x])
     label = attrib(converter=attr.converters.optional(int),
         default=None, kw_only=True)
     z_order = attrib(default=0, validator=default_if_none(int), kw_only=True)

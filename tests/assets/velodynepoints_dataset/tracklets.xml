@@ -6,9 +6,9 @@
   <item_version>1</item_version>
   <item class_id="1" tracking_level="0" version="1">
     <objectType>car</objectType>
-    <h>-3.6271575019618414</h>
-    <w>7.954996769991751</w>
-    <l>-1.0343550199580118</l>
+    <h>-3.62</h>
+    <w>7.95</w>
+    <l>-1.03</l>
     <first_frame>0</first_frame>
     <poses class_id="2" tracking_level="0" version="0">
       <count>1</count>
@@ -35,9 +35,9 @@
   </item>
   <item>
     <objectType>bus</objectType>
-    <h>23.0169506240644</h>
-    <w>8.343682404650442</w>
-    <l>-0.7699940133040206</l>
+    <h>23.01</h>
+    <w>8.34</w>
+    <l>-0.76</l>
     <first_frame>0</first_frame>
     <poses>
       <count>1</count>
@@ -64,9 +64,9 @@
   </item>
   <item>
     <objectType>bus</objectType>
-    <h>0.39720775117329943</h>
-    <w>7.286424562074529</w>
-    <l>-0.8997166481217596</l>
+    <h>0.39</h>
+    <w>7.28</w>
+    <l>-0.89</l>
     <first_frame>1</first_frame>
     <poses>
       <count>1</count>
@@ -93,9 +93,9 @@
   </item>
   <item>
     <objectType>car</objectType>
-    <h>13.54034048060633</h>
-    <w>-9.410120134481405</w>
-    <l>0.24972983624747647</l>
+    <h>13.54</h>
+    <w>-9.41</w>
+    <l>0.24</l>
     <first_frame>2</first_frame>
     <poses>
       <count>1</count>

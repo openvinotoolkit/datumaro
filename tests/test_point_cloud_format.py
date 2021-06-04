@@ -37,7 +37,7 @@ class PointCloudImporterTest(TestCase):
                         annotations=[Cuboid3D(id=215,
                                               attributes={"label_id": 0},
                                               group=0,
-                                              points=[320.59797486700717, 979.4819186479393, 1.0372542782967524, 0.0,
+                                              points=[320.59, 979.48, 1.03, 0.0,
                                                       0.0,
                                                       0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], label=0,
                                               z_order=0)],
@@ -51,7 +51,7 @@ class PointCloudImporterTest(TestCase):
                         annotations=[Cuboid3D(id=216,
                                               attributes={"label_id": 1},
                                               group=0,
-                                              points=[0.5991626393919809, 14.417203848804073, -0.6135403332894329, 0.0,
+                                              points=[0.59, 14.41, -0.61, 0.0,
                                                       0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
                                               label=1, z_order=0)],
                         path=[],
@@ -104,7 +104,7 @@ class PointCloudConverterTest(TestCase):
                             Cuboid3D(id=206,
                                      attributes={"occluded": 0, "label_id": 0},
                                      group=0,
-                                     points=[320.86325216401275, 979.1818473457872, 1.0426186731279325, 0.0,
+                                     points=[320.86, 979.18, 1.04, 0.0,
                                              0.0,
                                              0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
                                      label=0,
@@ -112,7 +112,7 @@ class PointCloudConverterTest(TestCase):
                             Cuboid3D(id=207,
                                      attributes={"occluded": 0, "label_id": 1},
                                      group=0,
-                                     points=[318.1927645999064, 974.65586694395, 1.297017197169112, 0.0, 0.0,
+                                     points=[318.19, 974.65, 1.29, 0.0, 0.0,
                                              0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
                                      label=1,
                                      z_order=0)],
@@ -128,7 +128,7 @@ class PointCloudConverterTest(TestCase):
                                               attributes={
                                                   "occluded": 0, "label_id": 1},
                                               group=0,
-                                              points=[23.0462513639241, 8.753051951758222, -0.7804656836492239, 0.0, 0.0,
+                                              points=[23.04, 8.75, -0.78, 0.0, 0.0,
                                                       0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
                                               label=1,
                                               z_order=0)],
@@ -150,7 +150,7 @@ class PointCloudConverterTest(TestCase):
                                               attributes={
                                                   "occluded": 0, "label_id": 0},
                                               group=0,
-                                              points=[320.86325216401275, 979.1818473457872, 1.0426186731279325, 0.0, 0.0,
+                                              points=[320.86, 979.18, 1.04, 0.0, 0.0,
                                                       0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
                                               label=0,
                                               z_order=0),
@@ -158,7 +158,7 @@ class PointCloudConverterTest(TestCase):
                                               attributes={
                                                   "occluded": 0, "label_id": 1},
                                               group=0,
-                                              points=[318.1927645999064, 974.65586694395, 1.297017197169112, 0.0, 0.0,
+                                              points=[318.19, 974.65, 1.29, 0.0, 0.0,
                                                       0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
                                               label=1,
                                               z_order=0)],
@@ -171,7 +171,7 @@ class PointCloudConverterTest(TestCase):
                                               attributes={
                                                   "occluded": 0, "label_id": 1},
                                               group=0,
-                                              points=[23.0462513639241, 8.753051951758222, -0.7804656836492239, 0.0, 0.0,
+                                              points=[23.04, 8.75, -0.78, 0.0, 0.0,
                                                       0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
                                               label=1,
                                               z_order=0)],
@@ -196,7 +196,7 @@ class PointCloudConverterTest(TestCase):
                                               attributes={
                                                   "occluded": 0, "label_id": 0},
                                               group=0,
-                                              points=[320.86325216401275, 979.1818473457872, 1.0426186731279325, 0.0, 0.0,
+                                              points=[320.86, 979.18, 1.04, 0.0, 0.0,
                                                       0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
                                               label=0,
                                               z_order=0),
@@ -204,7 +204,7 @@ class PointCloudConverterTest(TestCase):
                                               attributes={
                                                   "occluded": 0, "label_id": 1},
                                               group=0,
-                                              points=[318.1927645999064, 974.65586694395, 1.297017197169112, 0.0, 0.0,
+                                              points=[318.19, 974.65, 1.29, 0.0, 0.0,
                                                       0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
                                               label=1,
                                               z_order=0)],
@@ -234,7 +234,7 @@ class PointCloudConverterTest(TestCase):
                                               attributes={
                                                   "occluded": 0, "label_id": 0},
                                               group=0,
-                                              points=[320.86325216401275, 979.1818473457872, 1.0426186731279325, 0.0, 0.0,
+                                              points=[320.86, 979.18, 1.04, 0.0, 0.0,
                                                       0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
                                               label=0,
                                               z_order=0),
@@ -260,7 +260,7 @@ class PointCloudConverterTest(TestCase):
                                               attributes={
                                                   "occluded": 0, "label_id": 0},
                                               group=0,
-                                              points=[320.86325216401275, 979.1818473457872, 1.0426186731279325, 0.0, 0.0,
+                                              points=[320.86, 979.18, 1.04, 0.0, 0.0,
                                                       0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
                                               label=0,
                                               z_order=0),
@@ -292,8 +292,8 @@ class PointCloudConverterTest(TestCase):
                                                               attributes={
                                                                   "label_id": 0},
                                                               group=0,
-                                                              points=[320.59797486700717, 979.4819186479393,
-                                                                      1.0372542782967524, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0,
+                                                              points=[320.59, 979.48,
+                                                                      1.03, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0,
                                                                       0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], label=0,
                                                               z_order=0)],
                                         subset='key_id_map', path=[],
@@ -319,8 +319,8 @@ class PointCloudConverterTest(TestCase):
                                     annotations=[Cuboid3D(id=216,
                                                           attributes={
                                                               "label_id": 1},
-                                                          group=0, points=[0.5991626393919809, 14.417203848804073,
-                                                                           -0.6135403332894329, 0.0, 0.0, 0.0, 1.0, 1.0,
+                                                          group=0, points=[0.59, 14.41,
+                                                                           -0.61, 0.0, 0.0, 0.0, 1.0, 1.0,
                                                                            1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
                                                           label=1, z_order=0)],
                                     subset='key_id_map', path=[],
@@ -362,7 +362,7 @@ class PointCloudConverterTest(TestCase):
                                               attributes={
                                                   "occluded": 0, "label_id": 0},
                                               group=0,
-                                              points=[320.86325216401275, 979.1818473457872, 1.0426186731279325, 0.0, 0.0,
+                                              points=[320.86, 979.18, 1.04, 0.0, 0.0,
                                                       0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
                                               label=0,
                                               z_order=0),
@@ -370,7 +370,7 @@ class PointCloudConverterTest(TestCase):
                                               attributes={
                                                   "occluded": 0, "label_id": 1},
                                               group=0,
-                                              points=[318.1927645999064, 974.65586694395, 1.297017197169112, 0.0, 0.0,
+                                              points=[318.19, 974.65, 1.29, 0.0, 0.0,
                                                       0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
                                               label=1,
                                               z_order=0)],
@@ -386,7 +386,7 @@ class PointCloudConverterTest(TestCase):
                                               attributes={
                                                   "occluded": 0, "label_id": 1},
                                               group=0,
-                                              points=[23.0462513639241, 8.753051951758222, -0.7804656836492239, 0.0, 0.0,
+                                              points=[23.04, 8.75, -0.78, 0.0, 0.0,
                                                       0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
                                               label=1,
                                               z_order=0)],
@@ -407,7 +407,7 @@ class PointCloudConverterTest(TestCase):
                                               attributes={
                                                   "occluded": 0, "label_id": 0},
                                               group=0,
-                                              points=[320.86325216401275, 979.1818473457872, 1.0426186731279325, 0.0, 0.0,
+                                              points=[320.86, 979.18, 1.04, 0.0, 0.0,
                                                       0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
                                               label=0,
                                               z_order=0),
@@ -415,7 +415,7 @@ class PointCloudConverterTest(TestCase):
                                               attributes={
                                                   "occluded": 0, "label_id": 1},
                                               group=0,
-                                              points=[318.1927645999064, 974.65586694395, 1.297017197169112, 0.0, 0.0,
+                                              points=[318.19, 974.65, 1.29, 0.0, 0.0,
                                                       0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
                                               label=1,
                                               z_order=0)],
@@ -428,7 +428,7 @@ class PointCloudConverterTest(TestCase):
                                               attributes={
                                                   "occluded": 0, "label_id": 1},
                                               group=0,
-                                              points=[23.0462513639241, 8.753051951758222, -0.7804656836492239, 0.0, 0.0,
+                                              points=[23.04, 8.75, -0.78, 0.0, 0.0,
                                                       0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
                                               label=1,
                                               z_order=0)],
