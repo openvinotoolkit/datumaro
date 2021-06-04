@@ -40,10 +40,8 @@ class Source(Config):
 
 
 MODEL_SCHEMA = _SchemaBuilder() \
-    .add('url', str) \
     .add('launcher', str) \
     .add('options', dict) \
-    .add('hash', str) \
     .build()
 
 class Model(Config):
@@ -103,7 +101,6 @@ TREE_SCHEMA = _SchemaBuilder() \
     .add('format_version', int) \
     \
     .add('sources', lambda: _DictConfig(lambda v=None: Source(v))) \
-    .add('models', lambda: _DictConfig(lambda v=None: Model(v))) \
     .add('build_targets', lambda: _DictConfig(lambda v=None: BuildTarget(v))) \
     \
     .add('base_dir', str, internal=True) \
@@ -121,6 +118,24 @@ class TreeConfig(Config):
         super().__init__(config=config, mutable=mutable,
             fallback=TREE_DEFAULT_CONFIG, schema=TREE_SCHEMA)
 
+
+PROJECT_SCHEMA = _SchemaBuilder() \
+    .add('format_version', int) \
+    \
+    .add('models', lambda: _DictConfig(lambda v=None: Model(v))) \
+    \
+    .build()
+
+PROJECT_DEFAULT_CONFIG = Config({
+    'format_version': 2,
+}, mutable=False, schema=PROJECT_SCHEMA)
+
+class ProjectConfig(Config):
+    def __init__(self, config=None, mutable=True):
+        super().__init__(config=config, mutable=mutable,
+            fallback=PROJECT_DEFAULT_CONFIG, schema=PROJECT_SCHEMA)
+
+
 class PipelineConfig(Config):
     pass
 
@@ -131,9 +146,11 @@ class ProjectLayout:
     tree_dir = 'tree'
     head_file = 'head'
     tmp_dir = 'tmp'
+    models_dir = 'models'
+    plugins_dir = 'plugins'
+    conf_file = 'config.yml'
+
 
 class TreeLayout:
     conf_file = 'config.yml'
-    plugins_dir = 'plugins'
-    models_dir = 'models'
     sources_dir = 'sources'

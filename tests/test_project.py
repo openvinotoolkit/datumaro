@@ -9,7 +9,7 @@ from datumaro.components.dataset import Dataset, DEFAULT_FORMAT
 from datumaro.components.errors import EmptyCommitError, ForeignChangesError
 from datumaro.components.extractor import (Bbox, Extractor, DatasetItem,
     Label, LabelCategories, AnnotationType, Transform)
-from datumaro.components.launcher import Launcher, ModelTransform
+from datumaro.components.launcher import Launcher
 from datumaro.components.project import DiffStatus, Project
 from datumaro.util.test_utils import TestDir, compare_datasets, compare_dirs
 
@@ -21,51 +21,28 @@ class ProjectTest(TestCase):
 
             Project(test_dir)
 
-    @skip("Not implemented")
-    def test_can_import_local_model(self):
+    def test_can_add_local_model(self):
         with TestDir() as test_dir:
+            class TestLauncher(Launcher):
+                pass
+
             source_name = 'source'
-            origin = Model({
-                'url': test_dir,
+            config = Model({
                 'launcher': 'test',
                 'options': { 'a': 5, 'b': 'hello' }
             })
-            project = Project()
 
-            project.models.add(source_name, origin)
+            project = Project.init(test_dir)
+            project.env.launchers.register('test', TestLauncher)
+
+            project.add_model(source_name,
+                launcher=config.launcher, options=config.options)
 
             added = project.models[source_name]
-            self.assertEqual(added.url, origin.url)
-            self.assertEqual(added.launcher, origin.launcher)
-            self.assertEqual(added.options, origin.options)
+            self.assertEqual(added.launcher, config.launcher)
+            self.assertEqual(added.options, config.options)
 
-    @skip("Not implemented")
-    def test_can_import_generated_model(self):
-        model_name = 'model'
-        origin = Model({
-            # no url
-            'launcher': 'test',
-            'options': { 'c': 5, 'd': 'hello' }
-        })
-        project = Project()
-
-        project.models.add(model_name, origin)
-
-        added = project.models[model_name]
-        self.assertEqual(added.launcher, origin.launcher)
-        self.assertEqual(added.options, origin.options)
-
-    @skip("Not implemented")
-    def test_can_transform_source_with_model(self):
-        class TestExtractor(Extractor):
-            def __iter__(self):
-                yield DatasetItem(0, image=np.ones([2, 2, 3]) * 0)
-                yield DatasetItem(1, image=np.ones([2, 2, 3]) * 1)
-
-            def categories(self):
-                label_cat = LabelCategories().from_iterable(['0', '1'])
-                return { AnnotationType.label: label_cat }
-
+    def test_can_run_inference(self):
         class TestLauncher(Launcher):
             def launch(self, inputs):
                 for inp in inputs:
@@ -74,21 +51,30 @@ class ProjectTest(TestCase):
         expected = Dataset.from_iterable([
             DatasetItem(0, image=np.zeros([2, 2, 3]), annotations=[Label(0)]),
             DatasetItem(1, image=np.ones([2, 2, 3]), annotations=[Label(1)])
-        ], categories=['0', '1'])
+        ], categories=['a', 'b'])
 
         launcher_name = 'custom_launcher'
-        extractor_name = 'custom_extractor'
+        model_name = 'model'
 
-        project = Project()
-        project.env.launchers.register(launcher_name, TestLauncher)
-        project.env.extractors.register(extractor_name, TestExtractor)
-        project.models.add('model', { 'launcher': launcher_name })
-        project.sources.add('source', { 'format': extractor_name })
-        project.build_targets.add_inference_stage('source', 'model')
+        with TestDir() as test_dir:
+            source_url = osp.join(test_dir, 'source')
+            source_dataset = Dataset.from_iterable([
+                DatasetItem(0, image=np.ones([2, 2, 3]) * 0),
+                DatasetItem(1, image=np.ones([2, 2, 3]) * 1),
+            ], categories=['a', 'b'])
+            source_dataset.save(source_url, save_images=True)
 
-        result = project.make_dataset()
+            project = Project.init(osp.join(test_dir, 'proj'))
+            project.env.launchers.register(launcher_name, TestLauncher)
+            project.add_model(model_name, launcher=launcher_name)
+            project.import_source('source', source_url, format=DEFAULT_FORMAT)
 
-        compare_datasets(self, expected, result)
+            dataset = project.working_tree.make_dataset()
+            model = project.make_model(model_name)
+
+            inference = dataset.run_model(model)
+
+            compare_datasets(self, expected, inference)
 
     def test_can_import_local_source(self):
         with TestDir() as test_dir:
@@ -517,6 +503,7 @@ class ProjectTest(TestCase):
             self.assertEqual(diff,
                 { 's2': DiffStatus.removed, 's3': DiffStatus.added })
 
+
 class BackwardCompatibilityTests_v0_1(TestCase):
     def test_can_load_old_project(self):
         expected_dataset = Dataset.from_iterable([
@@ -533,35 +520,3 @@ class BackwardCompatibilityTests_v0_1(TestCase):
             loaded_dataset = project.working_tree.make_dataset()
 
             compare_datasets(self, expected_dataset, loaded_dataset)
-
-
-@skip("Not implemented")
-class ModelsTest(TestCase):
-    def test_can_batch_launch_custom_model(self):
-        dataset = Dataset.from_iterable([
-            DatasetItem(id=i, subset='train', image=np.array([i]))
-            for i in range(5)
-        ], categories=['label'])
-
-        class TestLauncher(Launcher):
-            def launch(self, inputs):
-                for i, inp in enumerate(inputs):
-                    yield [ Label(0, attributes={'idx': i, 'data': inp.item()}) ]
-
-        model_name = 'model'
-        launcher_name = 'custom_launcher'
-
-        project = Project()
-        project.env.launchers.register(launcher_name, TestLauncher)
-        project.models.add(model_name, { 'launcher': launcher_name })
-        model = project.models.make_executable_model(model_name)
-
-        batch_size = 3
-        executor = ModelTransform(dataset, model, batch_size=batch_size)
-
-        for item in executor:
-            self.assertEqual(1, len(item.annotations))
-            self.assertEqual(int(item.id) % batch_size,
-                item.annotations[0].attributes['idx'])
-            self.assertEqual(int(item.id),
-                item.annotations[0].attributes['data'])

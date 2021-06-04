@@ -8,8 +8,8 @@ import inspect
 import logging as log
 import os
 import os.path as osp
+from typing import Iterable
 
-from datumaro.components.config_model import TreeConfig, TreeLayout
 from datumaro.util.os_util import import_foreign_module
 
 
@@ -38,66 +38,40 @@ class Registry:
         return iter(self.items)
 
 class PluginRegistry(Registry):
-    def __init__(self, builtin=None, local=None):
+    def __init__(self, filter=None):
         super().__init__()
+        self.filter = filter
 
+    def batch_register(self, values: Iterable):
         from datumaro.components.cli_plugin import CliPlugin
 
-        if builtin is not None:
-            for v in builtin:
-                k = CliPlugin._get_name(v)
-                self.register(k, v)
-        if local is not None:
-            for v in local:
-                k = CliPlugin._get_name(v)
-                self.register(k, v)
+        for v in values:
+            if self.filter and not self.filter(v):
+                continue
+            name = CliPlugin._get_name(v)
 
+            self.register(name, v)
 
 class Environment:
     _builtin_plugins = None
-    PROJECT_EXTRACTOR_NAME = 'datumaro_project'
 
-    def __init__(self, config: TreeConfig = None):
-        if not isinstance(config, TreeConfig):
-            config = TreeConfig(config)
+    def __init__(self):
+        def _filter(accept, skip=None):
+            accept = (accept, ) if inspect.isclass(accept) else tuple(accept)
+            skip = {skip} if inspect.isclass(skip) else set(skip or [])
+            skip = tuple(skip | set(accept))
+            return lambda t: issubclass(t, accept) and t not in skip
 
-        if config.base_dir and osp.isdir(config.base_dir):
-            custom = self._load_plugins(
-                osp.join(config.base_dir, TreeLayout.plugins_dir))
-        else:
-            custom = []
-        builtin = self._load_builtin_plugins()
-        select = lambda seq, t: [e for e in seq if issubclass(e, t)]
-        from datumaro.components.project import load_project_as_dataset
         from datumaro.components.converter import Converter
         from datumaro.components.extractor import (Importer, Extractor,
             SourceExtractor, Transform)
         from datumaro.components.launcher import Launcher
-        self.extractors = PluginRegistry(
-            builtin=[e for e in select(builtin, Extractor)
-                if e != SourceExtractor],
-            local=[e for e in select(custom, Extractor)
-                if e != SourceExtractor]
-        )
-        self.extractors.register(self.PROJECT_EXTRACTOR_NAME,
-            load_project_as_dataset)
-
-        self.importers = PluginRegistry(
-            builtin=select(builtin, Importer),
-            local=select(custom, Importer)
-        )
-        self.launchers = PluginRegistry(
-            builtin=select(builtin, Launcher),
-            local=select(custom, Launcher)
-        )
-        self.converters = PluginRegistry(
-            builtin=select(builtin, Converter),
-            local=select(custom, Converter)
-        )
-        self.transforms = PluginRegistry(
-            builtin=select(builtin, Transform),
-            local=select(custom, Transform)
-        )
+        self.extractors = PluginRegistry(_filter(Extractor, SourceExtractor))
+        self.importers = PluginRegistry(_filter(Importer))
+        self.launchers = PluginRegistry(_filter(Launcher))
+        self.converters = PluginRegistry(_filter(Converter))
+        self.transforms = PluginRegistry(_filter(Transform))
+        self._register_plugins(self._load_builtin_plugins())
 
     @staticmethod
     def _find_plugins(plugins_dir):
@@ -180,7 +154,7 @@ class Environment:
 
     @classmethod
     def _load_builtin_plugins(cls):
-        if not cls._builtin_plugins:
+        if cls._builtin_plugins is None:
             plugins_dir = osp.join(
                 __file__[: __file__.rfind(osp.join('datumaro', 'components'))],
                 osp.join('datumaro', 'plugins')
@@ -188,6 +162,17 @@ class Environment:
             assert osp.isdir(plugins_dir), plugins_dir
             cls._builtin_plugins = cls._load_plugins(plugins_dir)
         return cls._builtin_plugins
+
+    def load_plugins(self, plugins_dir):
+        plugins = self._load_plugins(plugins_dir)
+        self._register_plugins(plugins)
+
+    def _register_plugins(self, plugins):
+        self.extractors.batch_register(plugins)
+        self.importers.batch_register(plugins)
+        self.launchers.batch_register(plugins)
+        self.converters.batch_register(plugins)
+        self.transforms.batch_register(plugins)
 
     def make_extractor(self, name, *args, **kwargs):
         return self.extractors.get(name)(*args, **kwargs)

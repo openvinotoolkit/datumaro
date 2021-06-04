@@ -6,10 +6,10 @@ import argparse
 import logging as log
 import os
 import os.path as osp
-import shutil
 
-from datumaro.components.project import Environment
+from datumaro.components.project import Environment, parse_target_revpath
 from datumaro.util import error_rollback
+from datumaro.util.os_util import rmtree
 
 from ..util import CliException, MultilineFormatter, add_subparser
 from ..util.project import load_project, \
@@ -29,15 +29,14 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
         """ % ', '.join(builtins),
         formatter_class=MultilineFormatter)
 
-    parser.add_argument('_positionals', nargs=argparse.REMAINDER,
-        help=argparse.SUPPRESS) # workaround for -- eaten by positionals
-    parser.add_argument('url', nargs='?', help="URL to the model data")
     parser.add_argument('-n', '--name', default=None,
         help="Name of the model to be added (default: generate automatically)")
     parser.add_argument('-l', '--launcher', required=True,
         help="Model launcher")
+    parser.add_argument('--copy', action='store_true',
+        help="Copy model data into project (default: %(default)s)")
     parser.add_argument('--no-check', action='store_true',
-        help="Skip model availability checking")
+        help="Don't check model loading (default: %(default)s)")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to operate on (default: current dir)")
     parser.add_argument('extra_args', nargs=argparse.REMAINDER, default=None,
@@ -48,19 +47,11 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
 
 @error_rollback('on_error', implicit=True)
 def add_command(args):
-    has_sep = '--' in args._positionals
-    if has_sep:
-        pos = args._positionals.index('--')
-    else:
-        pos = 1
-    args.url = (args._positionals[:pos] or [''])[0]
-    args.extra_args = args._positionals[pos + has_sep:]
-
     project = load_project(args.project_dir)
 
     name = args.name
     if name:
-        if name in project.config.models:
+        if name in project.models:
             raise CliException("Model '%s' already exists" % name)
     else:
         name = generate_next_name(list(project.models),
@@ -76,37 +67,26 @@ def add_command(args):
     if args.extra_args:
         model_args = cli_plugin.parse_cmdline(args.extra_args)
 
-    if args.url and args.copy:
-        raise CliException("Can't specify both 'url' and 'copy' args, "
-            "'copy' is only applicable for local paths.")
-    elif args.copy:
+    if args.copy:
         log.info("Copying model data")
 
-        model_dir = project.models.model_dir(name)
+        model_dir = project.model_data_dir(name)
         os.makedirs(model_dir, exist_ok=False)
-        on_error.do(shutil.rmtree, model_dir, ignore_errors=True)
+        on_error.do(rmtree, model_dir, ignore_errors=True)
 
         try:
             cli_plugin.copy_model(model_dir, model_args)
         except (AttributeError, NotImplementedError):
-            log.error("Can't copy: copying is not available for '%s' models. "
-                "The model will be used as a local-only.",
+            raise NotImplementedError(
+                "Can't copy: copying is not available for '%s' models. " %
                 args.launcher)
-            model_dir = ''
-    else:
-        model_dir = args.url
 
-    project.models.add(name, {
-        'url': model_dir,
-        'launcher': args.launcher,
-        'options': model_args,
-    })
-    on_error.do(project.models.remove, name, force=True, keep_data=False,
-        ignore_errors=True)
+    project.add_model(name, launcher=args.launcher, options=model_args)
+    on_error.do(project.remove_model, name, ignore_errors=True)
 
     if not args.no_check:
         log.info("Checking the model...")
-        project.models.make_executable_model(name)
+        project.make_model(name)
 
     project.save()
 
@@ -154,6 +134,7 @@ def build_run_parser(parser_ctor=argparse.ArgumentParser):
     return parser
 
 def run_command(args):
+    rev, target = parse_target_revpath(args.target)
     project = load_project(args.project_dir)
 
     dst_dir = args.dst_dir
@@ -162,12 +143,14 @@ def run_command(args):
             raise CliException("Directory '%s' already exists "
                 "(pass --overwrite overwrite)" % dst_dir)
     else:
-        dst_dir = generate_next_file_name('%s-inference' % \
-            project.config.project_name)
+        dst_dir = generate_next_file_name('%s-inference' % args.model_name)
+    dst_dir = osp.abspath(dst_dir)
 
-    project.make_dataset(args.target).run_model(
-        save_dir=osp.abspath(dst_dir),
-        model=args.model_name)
+    model = project.make_model(args.model_name)
+
+    dataset = project.get_rev(rev).make_dataset(target)
+    inference = dataset.run_model(model)
+    inference.save(dst_dir)
 
     log.info("Inference results have been saved to '%s'" % dst_dir)
 
@@ -190,10 +173,9 @@ def info_command(args):
     project = load_project(args.project_dir)
 
     if args.name:
-        model = project.get_model(args.name)
-        print(model)
+        print(project.models[args.name])
     else:
-        for name, conf in project.config.models.items():
+        for name, conf in project.models.items():
             print(name)
             if args.verbose:
                 print(dict(conf))

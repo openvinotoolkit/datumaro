@@ -13,6 +13,7 @@ from datumaro.components.errors import DatumaroError, RepeatedItemError
 from datumaro.components.extractor import (DEFAULT_SUBSET_NAME, Extractor,
     DatasetItem, Label, Mask, Points, Polygon, PolyLine, Bbox, Caption,
     LabelCategories, AnnotationType, Transform)
+from datumaro.components.launcher import Launcher, ModelTransform
 from datumaro.util.image import Image
 from datumaro.util.test_utils import TestDir, compare_datasets
 
@@ -616,6 +617,38 @@ class DatasetTest(TestCase):
         compare_datasets(self, Dataset.from_iterable([], categories=['c', 'b']),
             result)
 
+    def test_can_run_model(self):
+        dataset = Dataset.from_iterable([
+            DatasetItem(i, image=np.array([i]))
+            for i in range(5)
+        ], categories=['label'])
+
+        batch_size = 3
+
+        expected = Dataset.from_iterable([
+            DatasetItem(i, image=np.array([i]), annotations=[
+                Label(0, attributes={ 'idx': i % batch_size, 'data': i })
+            ])
+            for i in range(5)
+        ], categories=['label'])
+
+        calls = 0
+
+        class TestLauncher(Launcher):
+            def launch(self, inputs):
+                nonlocal calls
+                calls += 1
+
+                for i, inp in enumerate(inputs):
+                    yield [ Label(0, attributes={'idx': i, 'data': inp.item()}) ]
+
+        model = TestLauncher()
+
+        actual = dataset.run_model(model, batch_size=batch_size)
+
+        compare_datasets(self, expected, actual, require_images=True)
+        self.assertEqual(2, calls)
+
 
 class DatasetItemTest(TestCase):
     def test_ctor_requires_id(self):
@@ -726,3 +759,4 @@ class DatasetFilterTest(TestCase):
             '/item/annotation[label_id = 2]', remove_empty=True)
 
         compare_datasets(self, expected, filtered)
+

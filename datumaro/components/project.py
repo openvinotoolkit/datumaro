@@ -17,16 +17,17 @@ import networkx as nx
 import ruamel.yaml as yaml
 
 from datumaro.components.config import Config
-from datumaro.components.config_model import (BuildStage, PipelineConfig,
-    ProjectLayout, Source, TreeConfig, TreeLayout)
+from datumaro.components.config_model import (BuildStage, Model, PipelineConfig,
+    ProjectConfig, ProjectLayout, Source, TreeConfig, TreeLayout)
 from datumaro.components.dataset import DEFAULT_FORMAT, Dataset, IDataset
 from datumaro.components.environment import Environment
 from datumaro.components.errors import (DatasetMergeError, EmptyCommitError,
-    EmptyPipelineError, ForeignChangesError, MismatchingObjectError, MissingObjectError,
-    MissingPipelineHeadError, MultiplePipelineHeadsError, ProjectAlreadyExists,
-    ProjectNotFoundError, ReadonlyDatasetError, SourceExistsError,
-    UnknownRefError, UnknownSourceError, UnknownStageError, VcsError, UnsavedChangesError,
-    WrongSourceNodeError)
+    EmptyPipelineError, ForeignChangesError, MismatchingObjectError,
+    MissingObjectError, MissingPipelineHeadError, MultiplePipelineHeadsError,
+    ProjectAlreadyExists, ProjectNotFoundError, ReadonlyDatasetError,
+    SourceExistsError, UnknownRefError, UnknownSourceError, UnknownStageError,
+    VcsError, UnsavedChangesError, WrongSourceNodeError)
+from datumaro.components.launcher import Launcher
 from datumaro.util import error_rollback, find, parse_str_enum_value
 from datumaro.util.log_utils import catch_logs, logging_disabled
 from datumaro.util.os_util import (copytree, generate_next_name, make_file_name,
@@ -63,11 +64,6 @@ class ProjectSourceDataset(Dataset):
     @property
     def config(self):
         return self._config
-
-    def run_model(self, model, batch_size=1):
-        if isinstance(model, str):
-            model = self._tree.models.make_executable_model(model)
-        return super().run_model(model, batch_size=batch_size)
 
 
 IgnoreMode = Enum('IgnoreMode', ['rewrite', 'append', 'remove'])
@@ -165,27 +161,6 @@ class _DataSourceBase(CrudProxy):
 
     def remove(self, name):
         self._data.remove(name)
-
-class ProjectModels(_DataSourceBase):
-    def __init__(self, project):
-        super().__init__(project, 'models')
-
-    def __getitem__(self, name):
-        try:
-            return super().__getitem__(name)
-        except KeyError:
-            raise KeyError("Unknown model '%s'" % name)
-
-    def work_dir(self, name):
-        return osp.join(
-            self._project.config.project_dir,
-            self._project.config.env_dir,
-            self._project.config.models_dir, name)
-
-    def make_executable_model(self, name):
-        model = self[name]
-        return self._project.env.make_launcher(model.launcher,
-            **model.options, model_dir=self.work_dir(name))
 
 class ProjectSources(_DataSourceBase):
     def __init__(self, project):
@@ -705,7 +680,7 @@ class ProjectBuildTargets(CrudProxy):
 
     def add_inference_stage(self, target: str, model: str,
             params: Optional[Dict] = None, name: Optional[str] = None):
-        if not model in self._tree.config.models:
+        if not model in self._tree._project.models:
             raise KeyError("Unknown model '%s'" % model)
 
         return self.add_stage(target, {
@@ -1483,7 +1458,6 @@ class Tree:
 
     def __init__(self, project: 'Project',
             config: Optional[TreeConfig] = None,
-            env: Optional[Environment] = None,
             rev: Optional[str] = None):
         assert isinstance(project, Project)
         assert not rev or project.is_ref(rev), rev
@@ -1495,16 +1469,10 @@ class Tree:
                 config.format_version)
         self._config = config
 
-        if env is None:
-            env = Environment(self._config)
-        elif config is not None:
-            raise ValueError("env can only be provided when no config provided")
-        self._env = env or Environment(self)
         self._project = project
         self._rev = rev
 
         self._sources = ProjectSources(self)
-        self._models = ProjectModels(self)
         self._targets = ProjectBuildTargets(self)
 
     def save(self):
@@ -1519,10 +1487,6 @@ class Tree:
         return self._sources
 
     @property
-    def models(self) -> ProjectModels:
-        return self._models
-
-    @property
     def build_targets(self) -> ProjectBuildTargets:
         return self._targets
 
@@ -1532,13 +1496,13 @@ class Tree:
 
     @property
     def env(self) -> Environment:
-        return self._env
+        return self._project.env
 
     @property
     def rev(self) -> str:
         return self._rev
 
-    def make_dataset(self, target: Optional[str] = None) -> IDataset:
+    def make_dataset(self, target: Optional[str] = None) -> Dataset:
         if not target:
             target = 'project'
 
@@ -1577,11 +1541,12 @@ class Project:
 
         return None
 
-    def _migrate_from_v1_to_v2(self):
+    def _migrate_from_v1_to_v2(self) -> bool:
         old_config_path = osp.join(self._aux_dir, 'config.yaml')
         old_config = Config.parse(old_config_path)
         if not old_config.format_version == 1:
-            return
+            return False
+
         log.debug("Migrating project from v1 to v2...")
 
         wd_tree_dir = osp.join(self._aux_dir, ProjectLayout.tree_dir)
@@ -1595,28 +1560,39 @@ class Project:
         if osp.isdir(models_dir):
             shutil.move(models_dir, osp.join(wd_tree_dir, 'models'))
 
-        new_config = TreeConfig()
+        new_tree_config = TreeConfig()
+        new_local_config = ProjectConfig()
 
         if 'models' in old_config:
-            new_config.models.update(old_config.models)
+            new_local_config.models.update(old_config.models)
 
         if 'sources' in old_config:
-            new_config.sources.update(old_config.sources)
+            new_tree_config.sources.update(old_config.sources)
 
         old_dataset_dir = osp.join(self._root_dir, 'dataset')
         if osp.isdir(old_dataset_dir):
-            name = generate_next_name(list(new_config.sources), 'source',
+            name = generate_next_name(list(new_tree_config.sources), 'source',
                 sep='-', default='1')
-            new_config.sources[name] = {
+            new_tree_config.sources[name] = {
                 'url': '',
                 'format': DEFAULT_FORMAT,
             }
             os.rename(old_dataset_dir, self.source_data_dir(name))
 
-        new_config.dump(osp.join(wd_tree_dir, TreeLayout.conf_file))
-        os.remove(old_config_path)
+
+        old_config_tmp = tempfile.mkstemp(dir=self._aux_dir,
+            prefix=osp.basename(old_config_path))
+
+        os.rename(old_config_path, old_config_tmp)
+
+        new_tree_config.dump(osp.join(wd_tree_dir, TreeLayout.conf_file))
+        new_local_config.dump(osp.join(self._aux_dir, ProjectLayout.conf_file))
+
+        os.remove(old_config_tmp)
 
         log.debug("Finished")
+
+        return True
 
     def __init__(self, path: Optional[str] = None):
         if not path:
@@ -1636,10 +1612,22 @@ class Project:
         self._working_tree = None
         self._head_tree = None
 
-        config_path = osp.join(self._aux_dir, 'config.yaml')
-        if osp.isfile(config_path):
-            self._migrate_from_v1_to_v2()
-            self._init_vcs()
+        old_config_path = osp.join(self._aux_dir, 'config.yaml')
+        if osp.isfile(old_config_path):
+            if self._migrate_from_v1_to_v2():
+                self._init_vcs()
+
+        local_config = osp.join(self._aux_dir, ProjectLayout.conf_file)
+        if osp.isfile(local_config):
+            self._config = ProjectConfig.parse(local_config)
+        else:
+            self._config = ProjectConfig()
+
+        self._env = Environment()
+
+        plugins_dir = osp.join(self._aux_dir, ProjectLayout.plugins_dir)
+        if osp.isdir(plugins_dir):
+            self._env.load_plugins(plugins_dir)
 
     def _init_vcs(self):
         # DVC requires Git to be initialized
@@ -1655,8 +1643,8 @@ class Project:
                 osp.join(self._aux_dir, ProjectLayout.cache_dir),
                 osp.join(self._aux_dir, ProjectLayout.tree_dir),
             ])
-            self._git.repo.index.remove(osp.join(self._root_dir, '.dvc/plots'),
-                r=True, cached=True)
+            self._git.repo.index.remove(
+                osp.join(self._root_dir, '.dvc', 'plots'), r=True)
 
     @classmethod
     @error_rollback('on_error', implicit=True)
@@ -1691,6 +1679,9 @@ class Project:
 
         return project
 
+    def save(self):
+        self._config.dump(osp.join(self._aux_dir, ProjectLayout.conf_file))
+
     @property
     def working_tree(self) -> Tree:
         if self._working_tree is None:
@@ -1710,6 +1701,18 @@ class Project:
     @property
     def branch(self) -> str:
         return self._git.branch
+
+    @property
+    def config(self) -> Config:
+        return self._config
+
+    @property
+    def env(self) -> Environment:
+        return self._env
+
+    @property
+    def models(self) -> Dict[str, Model]:
+        return dict(self._config.models)
 
     def get_rev(self, rev: Revision) -> Tree:
         """
@@ -2255,8 +2258,37 @@ class Project:
 
         return changed_targets
 
-def load_project_as_dataset(url):
-    return Project(url).working_tree.make_dataset()
+    def model_data_dir(self, name: str) -> str:
+        return osp.join(self._aux_dir, ProjectLayout.models_dir, name)
+
+    def make_model(self, name: str) -> Launcher:
+        model = self._config.models[name]
+        model_dir = self.model_data_dir(name)
+        if not osp.isdir(model_dir):
+            model_dir = None
+        return self._env.make_launcher(model.launcher,
+            **model.options, model_dir=model_dir)
+
+    def add_model(self, name: str, launcher: str, options = None) -> Model:
+        if not launcher in self.env.launchers:
+            raise KeyError("Unknown launcher '%s'" % launcher)
+
+        if name in self.models:
+            raise KeyError("Model '%s' laready exists" % name)
+
+        return self._config.models.set(name, {
+            'launcher': launcher,
+            'options': options or {}
+        })
+
+    def remove_model(self, name: str):
+        if name in self.models:
+            raise KeyError("Unknown model '%s'" % name)
+
+        data_dir = self.model_data_dir(name)
+        if osp.isdir(data_dir):
+            rmtree(data_dir)
+
 
 def parse_target_revpath(revpath: str):
     sep_pos = revpath.find(':')
