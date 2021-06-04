@@ -5,11 +5,14 @@
 import logging as log
 import os
 import os.path as osp
+from glob import glob
 from zipfile import ZIP_BZIP2, ZIP_DEFLATED, ZIP_LZMA, ZIP_STORED, ZipFile
 
-from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.components.converter import Converter
-from datumaro.util.image import ByteImage, encode_image, IMAGE_EXTENSIONS
+from datumaro.components.extractor import (DatasetItem, Importer,
+                                           SourceExtractor)
+from datumaro.util.image import IMAGE_EXTENSIONS, ByteImage, encode_image
+
 
 class ImageZipPath:
     DEFAULT_ARCHIVE_NAME = 'default.zip'
@@ -41,9 +44,7 @@ class ImageZipExtractor(SourceExtractor):
 class ImageZipImporter(Importer):
     @classmethod
     def find_sources(cls, path):
-        if not path.endswith('.zip'):
-            return []
-        return [{ 'url': path, 'format': 'image_zip' }]
+        return cls._find_sources_recursive(path, '.zip', 'image_zip')
 
 class ImageZipConverter(Converter):
     DEFAULT_IMAGE_EXT = '.jpg'
