@@ -8,7 +8,7 @@ import pytest
 
 from datumaro.components.extractor import DatasetItem
 from datumaro.components.project import Dataset
-from datumaro.plugins.image_zip_format import DEFAULT_ARCHIVE_NAME, ImageZipConverter
+from datumaro.plugins.image_zip_format import ImageZipPath, ImageZipConverter
 from datumaro.util.image import Image, save_image
 from datumaro.util.test_utils import TestDir, compare_datasets
 
@@ -16,7 +16,8 @@ class ImageZipFormatTest(TestCase):
     @pytest.mark.reqids(Requirements.DATUM_267)
     def _test_can_save_and_load(self, source_dataset, test_dir,
             **kwargs):
-        archive_path = osp.join(test_dir, kwargs.get('name', DEFAULT_ARCHIVE_NAME))
+        archive_path = osp.join(test_dir, kwargs.get('name',
+            ImageZipPath.DEFAULT_ARCHIVE_NAME))
         ImageZipConverter.convert(source_dataset, test_dir, **kwargs)
         parsed_dataset = Dataset.import_from(archive_path, 'image_zip')
 

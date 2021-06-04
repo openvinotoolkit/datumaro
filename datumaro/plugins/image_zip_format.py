@@ -11,15 +11,16 @@ from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.components.converter import Converter
 from datumaro.util.image import ByteImage, encode_image, IMAGE_EXTENSIONS
 
-DEFAULT_ARCHIVE_NAME = 'default.zip'
-DEFAULT_COMPRESSION = ZIP_STORED
+class ImageZipPath:
+    DEFAULT_ARCHIVE_NAME = 'default.zip'
+    DEFAULT_COMPRESSION = ZIP_STORED
 
-COMPRESSION = {
-    'ZIP_STORED': ZIP_STORED,
-    'ZIP_DEFLATED': ZIP_DEFLATED,
-    'ZIP_BZIP2': ZIP_BZIP2,
-    'ZIP_LZMA': ZIP_LZMA
-}
+    COMPRESSION = {
+       'ZIP_STORED': ZIP_STORED,
+       'ZIP_DEFLATED': ZIP_DEFLATED,
+       'ZIP_BZIP2': ZIP_BZIP2,
+       'ZIP_LZMA': ZIP_LZMA
+    }
 
 class ImageZipExtractor(SourceExtractor):
     def __init__(self, url, subset=None):
@@ -50,7 +51,7 @@ class ImageZipConverter(Converter):
     @staticmethod
     def _get_compression_method(s):
         try:
-            return COMPRESSION[s]
+            return ImageZipPath.COMPRESSION[s.upper()]
         except KeyError:
             import argparse
             raise argparse.ArgumentTypeError()
@@ -59,22 +60,28 @@ class ImageZipConverter(Converter):
     def build_cmdline_parser(cls, **kwargs):
         parser = super().build_cmdline_parser(**kwargs)
 
-        parser.add_argument('--name', type=str, default=DEFAULT_ARCHIVE_NAME,
+        parser.add_argument('--name', type=str,
+            default=ImageZipPath.DEFAULT_ARCHIVE_NAME,
             help="Name of output zipfile "
                 "(default: %(default)s)"
         )
 
         parser.add_argument('--compression', type=cls._get_compression_method,
-            default=DEFAULT_COMPRESSION, help="Archive compression method. "
-                 "Available methods: %s." % \
-                 ', '.join(list(COMPRESSION.keys()))
+            default=ImageZipPath.DEFAULT_COMPRESSION,
+            help="Archive compression method.\nAvailable methods: %s." % \
+                 ', '.join(list(ImageZipPath.COMPRESSION.keys()))
         )
 
         return parser
 
-    def __init__(self, extractor, save_dir, name=DEFAULT_ARCHIVE_NAME,
-            compression=DEFAULT_COMPRESSION, **kwargs):
+    def __init__(self, extractor, save_dir, name=None,
+            compression=None, **kwargs):
         super().__init__(extractor, save_dir, **kwargs)
+
+        if name is None:
+            name = ImageZipPath.DEFAULT_ARCHIVE_NAME
+        if compression is None:
+            compression = ImageZipPath.DEFAULT_COMPRESSION
 
         self._archive_name = name
         self._compression = compression
