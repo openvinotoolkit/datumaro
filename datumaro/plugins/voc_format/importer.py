@@ -3,75 +3,89 @@
 #
 # SPDX-License-Identifier: MIT
 
-from glob import glob
 import os.path as osp
 
 from datumaro.components.extractor import Importer
 
 from .format import VocTask, VocPath
 
-def find_path(root_path, path, depth=4):
-    level, is_found = 0, False
-    full_path = None
-    while level < depth and not is_found:
-        full_path = osp.join(root_path, path)
-        paths = glob(full_path)
-        if paths:
-            full_path = paths[0] # ignore all after the first one
-            is_found = osp.isdir(full_path)
-        else:
-            full_path = None
-
-        level += 1
-        root_path = osp.join(root_path, '*')
-
-    return full_path
 
 class VocImporter(Importer):
-    _TASKS = [
-        (VocTask.classification, 'voc_classification', 'Main'),
-        (VocTask.detection, 'voc_detection', 'Main'),
-        (VocTask.segmentation, 'voc_segmentation', 'Segmentation'),
-        (VocTask.person_layout, 'voc_layout', 'Layout'),
-        (VocTask.action_classification, 'voc_action', 'Action'),
-    ]
+    _TASKS = {
+        VocTask.classification: ('voc_classification', 'Main'),
+        VocTask.detection: ('voc_detection', 'Main'),
+        VocTask.segmentation: ('voc_segmentation', 'Segmentation'),
+        VocTask.person_layout: ('voc_layout', 'Layout'),
+        VocTask.action_classification: ('voc_action', 'Action'),
+    }
 
     def __call__(self, path, **extra_params):
         from datumaro.components.project import Project # cyclic import
         project = Project()
 
-        subset_paths = self.find_sources(path)
-        if len(subset_paths) == 0:
+        subsets = self.find_sources(path)
+        if len(subsets) == 0:
             raise Exception("Failed to find 'voc' dataset at '%s'" % path)
 
-        for task, extractor_type, subset_path in subset_paths:
+        for config in subsets:
+            subset_path = config['url']
+            extractor_type = config['format']
+
+            task = extractor_type.split('_')[1]
+
+            opts = dict(config.get('options') or {})
+            opts.update(extra_params)
+
             project.add_source('%s-%s' %
-                (task.name, osp.splitext(osp.basename(subset_path))[0]),
+                (task, osp.splitext(osp.basename(subset_path))[0]),
             {
                 'url': subset_path,
                 'format': extractor_type,
-                'options': dict(extra_params),
+                'options': opts,
             })
 
         return project
 
     @classmethod
     def find_sources(cls, path):
-        # find root path for the dataset
-        root_path = path
-        for task, extractor_type, task_dir in cls._TASKS:
-            task_path = find_path(root_path, osp.join(VocPath.SUBSETS_DIR, task_dir))
-            if task_path:
-                root_path = osp.dirname(osp.dirname(task_path))
-                break
+        subsets = []
 
-        subset_paths = []
-        for task, extractor_type, task_dir in cls._TASKS:
-            task_path = osp.join(root_path, VocPath.SUBSETS_DIR, task_dir)
+        # find root path for the dataset and use it for all tasks
+        root_path = None
+        for extractor_type, task_dir in cls._TASKS.values():
+            task_subsets = cls._find_sources_recursive(root_path or path,
+                'txt', extractor_type,
+                dirname=osp.join(VocPath.SUBSETS_DIR, task_dir),
+                file_filter=lambda p: '_' not in osp.basename(p),
+                max_depth=0 if root_path else 3)
 
-            if not osp.isdir(task_path):
+            if not task_subsets:
                 continue
-            task_subsets = [p for p in glob(osp.join(task_path, '*.txt'))
-                if '_' not in osp.basename(p)]
-            subset_paths += [(task, extractor_type, p) for p in task_subsets]
-        return subset_paths
+
+            subsets.extend(task_subsets)
+
+            if not root_path:
+                root_path = osp.dirname(osp.dirname(
+                    osp.dirname(task_subsets[0]['url'])))
+
+        return subsets
+
+class VocClassificationImporter(VocImporter):
+    _TASK = VocTask.classification
+    _TASKS = { _TASK: VocImporter._TASKS[_TASK] }
+
+class VocDetectionImporter(VocImporter):
+    _TASK = VocTask.detection
+    _TASKS = { _TASK: VocImporter._TASKS[_TASK] }
+
+class VocSegmentationImporter(VocImporter):
+    _TASK = VocTask.segmentation
+    _TASKS = { _TASK: VocImporter._TASKS[_TASK] }
+
+class VocLayoutImporter(VocImporter):
+    _TASK = VocTask.person_layout
+    _TASKS = { _TASK: VocImporter._TASKS[_TASK] }
+
+class VocActionImporter(VocImporter):
+    _TASK = VocTask.action_classification
+    _TASKS = { _TASK: VocImporter._TASKS[_TASK] }

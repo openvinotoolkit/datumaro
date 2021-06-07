@@ -18,7 +18,9 @@ from datumaro.plugins.voc_format.converter import (
     VocActionConverter,
     VocSegmentationConverter,
 )
-from datumaro.plugins.voc_format.importer import VocImporter
+from datumaro.plugins.voc_format.importer import (VocActionImporter,
+    VocClassificationImporter, VocDetectionImporter, VocImporter,
+    VocLayoutImporter, VocSegmentationImporter)
 from datumaro.components.dataset import Dataset
 from datumaro.util.image import Image
 from datumaro.util.mask_tools import load_mask
@@ -134,7 +136,44 @@ class VocImportTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_voc(self):
-        self.assertTrue(VocImporter.detect(DUMMY_DATASET_DIR))
+        matrix = [
+            # Whole dataset
+            (DUMMY_DATASET_DIR, VocImporter),
+
+            # Subformats
+            (DUMMY_DATASET_DIR, VocClassificationImporter),
+            (DUMMY_DATASET_DIR, VocDetectionImporter),
+            (DUMMY_DATASET_DIR, VocSegmentationImporter),
+            (DUMMY_DATASET_DIR, VocLayoutImporter),
+            (DUMMY_DATASET_DIR, VocActionImporter),
+
+            # Subsets of subformats
+            (osp.join(DUMMY_DATASET_DIR, 'ImageSets', 'Main', 'train.txt'),
+                VocClassificationImporter),
+            (osp.join(DUMMY_DATASET_DIR, 'ImageSets', 'Main', 'test.txt'),
+                VocClassificationImporter),
+            (osp.join(DUMMY_DATASET_DIR, 'ImageSets', 'Main', 'train.txt'),
+                VocDetectionImporter),
+            (osp.join(DUMMY_DATASET_DIR, 'ImageSets', 'Main', 'test.txt'),
+                VocDetectionImporter),
+            (osp.join(DUMMY_DATASET_DIR, 'ImageSets', 'Segmentation', 'train.txt'),
+                VocSegmentationImporter),
+            (osp.join(DUMMY_DATASET_DIR, 'ImageSets', 'Segmentation', 'test.txt'),
+                VocSegmentationImporter),
+            (osp.join(DUMMY_DATASET_DIR, 'ImageSets', 'Layout', 'train.txt'),
+                VocLayoutImporter),
+            (osp.join(DUMMY_DATASET_DIR, 'ImageSets', 'Layout', 'test.txt'),
+                VocLayoutImporter),
+            (osp.join(DUMMY_DATASET_DIR, 'ImageSets', 'Action', 'train.txt'),
+                VocActionImporter),
+            (osp.join(DUMMY_DATASET_DIR, 'ImageSets', 'Action', 'test.txt'),
+                VocActionImporter),
+        ]
+
+        for path, subtask in matrix:
+            with self.subTest(path=path, task=subtask):
+                self.assertTrue(subtask.detect(path))
+
 
 class VocConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
