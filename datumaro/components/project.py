@@ -1327,7 +1327,7 @@ class DvcWrapper:
     def _exec(self, args, hide_output=True, answer_on_input='y'):
         contexts = ExitStack()
 
-        args = ['--cd', self._project_dir] + args
+        args = ['--cd', self._project_dir, '-q'] + args
         contexts.callback(os.chdir, os.getcwd()) # restore cd after DVC
 
         if answer_on_input is not None:
