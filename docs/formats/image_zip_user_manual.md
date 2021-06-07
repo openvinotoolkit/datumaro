@@ -37,7 +37,7 @@ follow the [user manual](../user_manual.md#data-formats) to see the supported ex
 
 ## Export to other formats
 
-Datumaro can load an images dataset from zip archive and convert it to
+Datumaro can load dataset images from a zip archive and convert it to
 [another supported dataset format](../user_manual.md#supported-formats),
 for example:
 
