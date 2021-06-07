@@ -12,7 +12,7 @@ from datumaro.plugins.image_zip_format import ImageZipPath, ImageZipConverter
 from datumaro.util.image import Image, save_image
 from datumaro.util.test_utils import TestDir, compare_datasets
 
-class ImageZipFormatTest(TestCase):
+class ImageZipConverterTest(TestCase):
     @pytest.mark.reqids(Requirements.DATUM_267)
     def _test_can_save_and_load(self, source_dataset, test_dir,
             **kwargs):
@@ -82,3 +82,27 @@ class ImageZipFormatTest(TestCase):
                 create_dir=True)
 
             self._test_can_save_and_load(source_dataset, test_dir)
+
+DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'image_zip_dataset')
+
+class ImageZipImporterTest(TestCase):
+    @pytest.mark.reqids(Requirements.DATUM_267)
+    def test_can_import(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id='1', image=np.ones((10, 10, 3)))
+        ])
+
+        zip_path = osp.join(DUMMY_DATASET_DIR, '1.zip')
+        parsed_dataset = Dataset.import_from(zip_path, format='image_zip')
+        compare_datasets(self, source_dataset, parsed_dataset)
+
+
+    @pytest.mark.reqids(Requirements.DATUM_267)
+    def test_can_import_from_directory(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id='1', image=np.ones((10, 10, 3))),
+            DatasetItem(id='2', image=np.ones((5, 10, 3)))
+        ])
+
+        parsed_dataset = Dataset.import_from(DUMMY_DATASET_DIR, format='image_zip')
+        compare_datasets(self, source_dataset, parsed_dataset)
