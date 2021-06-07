@@ -87,5 +87,5 @@ class ImageZipIntegrationScenarios(TestCase):
 
             self.assertTrue(osp.isfile(export_path))
             with ZipFile(export_path, 'r') as zf:
-                images = [f.filename for f in zf.filelist]
-                self.assertTrue(images == ['1.png', '2.png'])
+                images = {f.filename for f in zf.filelist}
+                self.assertTrue(images == {'1.png', '2.png'})
