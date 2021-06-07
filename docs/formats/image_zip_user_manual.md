@@ -28,8 +28,25 @@ datum import -o project -f image_zip -i ./images.zip
 all zip files in the directory:
 
 ```bash
-# the './foo' directory should contain zip archives with images
 datum import -o project -f image_zip -i ./foo
+```
+
+The directory with zip archives should have the following structure:
+
+```
+├── foo/
+|   ├── archive1.zip/
+|   |   ├── image_1.jpg
+|   |   ├── image_2.png
+|   |   ├── subdir/
+|   |   |   ├── image_3.jpg
+|   |   |   ├── ...
+|   |   ├── ...
+|   ├── archive2.zip/
+|   |   ├── image_101.jpg
+|   |   ├── image_102.jpg
+|   |   ├── ...
+|   ...
 ```
 
 Images in a archives should have supported extension,
