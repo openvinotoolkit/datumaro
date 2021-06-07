@@ -473,7 +473,7 @@ class ProjectBuilder:
 
             elif type_ == BuildStageType.inference:
                 kind = current['config'].kind
-                model = self._tree.models.make_executable_model(kind)
+                model = self._project.make_model(kind)
 
                 dataset = _join_parent_datasets()
                 dataset = dataset.run_model(model)
