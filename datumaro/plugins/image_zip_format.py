@@ -35,7 +35,6 @@ class ImageZipExtractor(SourceExtractor):
                 item_id, extension = osp.splitext(path.filename)
                 if extension.lower() not in IMAGE_EXTENSIONS:
                     continue
-                print(item_id)
                 image = decode_image(zf.read(path.filename))
                 self._items.append(DatasetItem(
                     id=item_id, image=image, subset=self._subset
