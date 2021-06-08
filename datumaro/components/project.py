@@ -25,8 +25,8 @@ from datumaro.components.errors import (DatasetMergeError, EmptyCommitError,
     EmptyPipelineError, ForeignChangesError, MismatchingObjectError,
     MissingObjectError, MissingPipelineHeadError, MultiplePipelineHeadsError,
     ProjectAlreadyExists, ProjectNotFoundError, ReadonlyDatasetError,
-    SourceExistsError, UnknownRefError, UnknownSourceError, UnknownStageError,
-    VcsError, UnsavedChangesError, WrongSourceNodeError)
+    SourceExistsError, SourceOutsideError, UnknownRefError, UnknownSourceError,
+    UnknownStageError, VcsError, UnsavedChangesError, WrongSourceNodeError)
 from datumaro.components.launcher import Launcher
 from datumaro.util import error_rollback, find, parse_str_enum_value
 from datumaro.util.log_utils import catch_logs, logging_disabled
@@ -39,6 +39,9 @@ class ProjectSourceDataset(Dataset):
     def load(cls, path: str, tree: 'Tree',
             source: str, readonly: bool = False) -> 'ProjectSourceDataset':
         config = tree.sources[source]
+
+        if config.path:
+            path = osp.join(path, config.path)
 
         dataset = cls.import_from(path, env=tree.env,
             format=config.format, **config.options)
@@ -1907,13 +1910,24 @@ class Project:
 
     def import_source(self, name: str, url: Optional[str],
             format: str, options: Optional[Dict] = None,
-            no_cache: bool = False) -> Source:
+            no_cache: bool = False, path: Optional[str] = None) -> Source:
         """
-        Adds a new source to the working directory of the project.
+        Adds a new source (dataset) to the working directory of the project.
 
-        Options:
-        no_cache (bool) - download the source, but don't put data into cache.
+        When 'path' is specified, will copy all the data from URL, but read
+        only the specified file. Required to support subtasks and subsets
+        in datasets.
+
+        Parameters:
+        - name (str) - Name of the new source
+        - url (str) - URL of the new source. Currently, a local path to
+            the file or directory.
+        - format - Dataset format
+        - options - (dict) - options for format Extractor
+        - no_cache (bool) - Download the source, but don't put data into cache.
             Can be used to reduce storage size.
+        - path (str) - Used to specify a relative path to the dataset
+            inside of the directory pointed by URL. Defaults to URL.
 
         Returns: the new source config
         """
@@ -1930,8 +1944,29 @@ class Project:
                     data_dir)
             os.rmdir(data_dir)
 
+        if url:
+            url = osp.abspath(url)
+            if not osp.exists(url):
+                raise FileNotFoundError(url)
+
+            if path:
+                path = osp.normpath(osp.join(url, path))
+
+                if not osp.exists(path):
+                    raise FileNotFoundError(path)
+
+                if not path.startswith(url + os.sep):
+                    raise SourceOutsideError(
+                        "Source data path is outside of the directory, "
+                        "specified by source URL: '%s', '%s'" % (path, url))
+
+                path = osp.relpath(path, url)
+        else:
+            path = None
+
         config = Source({
-            'url': url,
+            'url': url or '',
+            'path': path or '',
             'format': format,
             'options': options or {},
         })
@@ -1940,10 +1975,6 @@ class Project:
             self._git.ignore(name)
         else:
             # add a source
-            url = osp.abspath(url)
-            if not osp.exists(url):
-                raise FileNotFoundError(url)
-
             with self._make_tmp_dir(suffix=name) as tmp_dir:
                 config_update, tmp_dvcfile, tmp_data_dir = \
                     self._download_source(name, url, tmp_dir, no_cache=no_cache)

@@ -3,8 +3,6 @@
 #
 # SPDX-License-Identifier: MIT
 
-import os.path as osp
-
 from datumaro.components.config import Config, \
     DictConfig as _DictConfig, \
     SchemaBuilder as _SchemaBuilder
@@ -12,19 +10,9 @@ from datumaro.components.config import Config, \
 from datumaro.util import find
 
 
-REMOTE_SCHEMA = _SchemaBuilder() \
-    .add('url', str) \
-    .add('type', str) \
-    .add('options', dict) \
-    .build()
-
-class Remote(Config):
-    def __init__(self, config=None):
-        super().__init__(config, schema=REMOTE_SCHEMA)
-
-
 SOURCE_SCHEMA = _SchemaBuilder() \
     .add('url', str) \
+    .add('path', str) \
     .add('format', str) \
     .add('options', dict) \
     .add('hash', str) \

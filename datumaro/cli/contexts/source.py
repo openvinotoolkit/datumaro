@@ -40,6 +40,8 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
             Examples:|n
             - Add a local directory with a VOC-like dataset:|n
             |s|sadd -f voc path/to/voc|n
+            - Add a directory with a COCO dataset, use only a specific file:|n
+            |s|sadd -f coco_instances path/to/voc -r anns/train.json|n
             - Add a local file with CVAT annotations, call it 'mysource'|n
             |s|s|s|sto the project in a specific place:|n
             |s|sadd -f cvat -n mysource -p project/path/ path/to/cvat.xml
@@ -51,6 +53,9 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
         help="Name of the new source (default: generate automatically)")
     parser.add_argument('-f', '--format', required=True,
         help="Source dataset format")
+    parser.add_argument('-r', '--path',
+        help="A path relative to URL to the source data. Useful to specify "
+            "a path to subset, subtask, or a specific file in URL.")
     parser.add_argument('--no-check', action='store_true',
         help="Skip source correctness checking")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',

@@ -6,7 +6,8 @@ import shutil
 from unittest import TestCase
 from datumaro.components.config_model import Source, Model
 from datumaro.components.dataset import Dataset, DEFAULT_FORMAT
-from datumaro.components.errors import EmptyCommitError, ForeignChangesError
+from datumaro.components.errors import (EmptyCommitError, ForeignChangesError,
+    SourceOutsideError)
 from datumaro.components.extractor import (Bbox, DatasetItem,
     Label, Transform)
 from datumaro.components.launcher import Launcher
@@ -98,6 +99,54 @@ class ProjectTest(TestCase):
             compare_dirs(self, source_base_url, project.source_data_dir('s1'))
             with open(osp.join(test_dir, 'proj', '.gitignore')) as f:
                 self.assertTrue('s1' in [line.strip() for line in f])
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_import_local_source_with_relpath(self):
+        # This form must copy all the data in URL, but read only
+        # specified files. Required to support subtasks, subsets.
+
+        with TestDir() as test_dir:
+            source_url = osp.join(test_dir, 'source')
+            source_dataset = Dataset.from_iterable([
+                DatasetItem(0, subset='a', image=np.ones((2, 3, 3)),
+                    annotations=[ Bbox(1, 2, 3, 4, label=0) ]),
+                DatasetItem(1, subset='b', image=np.zeros((10, 20, 3)),
+                    annotations=[ Bbox(1, 2, 3, 4, label=1) ]),
+            ], categories=['a', 'b'])
+            source_dataset.save(source_url, save_images=True)
+
+            expected_dataset = Dataset.from_iterable([
+                DatasetItem(1, subset='b', image=np.zeros((10, 20, 3)),
+                    annotations=[ Bbox(1, 2, 3, 4, label=1) ]),
+            ], categories=['a', 'b'])
+
+            project = Project.init(osp.join(test_dir, 'proj'))
+            project.import_source('s1', url=source_url, format=DEFAULT_FORMAT,
+                path=osp.join('annotations', 'b.json'))
+
+
+            source = project.working_tree.sources['s1']
+            self.assertEqual(DEFAULT_FORMAT, source.format)
+
+            compare_dirs(self, source_url, project.source_data_dir('s1'))
+            read_dataset = project.working_tree.make_dataset('s1')
+            compare_datasets(self, expected_dataset, read_dataset,
+                require_images=True)
+
+            with open(osp.join(test_dir, 'proj', '.gitignore')) as f:
+                self.assertTrue('s1' in [line.strip() for line in f])
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_cant_import_local_source_with_relpath_outside(self):
+        with TestDir() as test_dir:
+            source_url = osp.join(test_dir, 'source')
+            os.makedirs(source_url)
+
+            project = Project.init(osp.join(test_dir, 'proj'))
+
+            with self.assertRaises(SourceOutsideError):
+                project.import_source('s1', url=source_url,
+                    format=DEFAULT_FORMAT, path='..')
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_generated_source(self):
