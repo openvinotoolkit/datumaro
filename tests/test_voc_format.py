@@ -81,7 +81,8 @@ class TestExtractorBase(Extractor):
         return VOC.make_voc_categories()
 
 
-DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'voc_dataset', 'voc_dataset1')
+DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'voc_dataset',
+    'voc_dataset1')
 
 class VocImportTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -90,7 +91,7 @@ class VocImportTest(TestCase):
             def __iter__(self):
                 return iter([
                     DatasetItem(id='2007_000001', subset='train',
-                        image=Image(path='2007_000001.jpg', size=(10, 20)),
+                        image=np.ones((10, 20, 3)),
                         annotations=[
                             Label(self._label(l.name))
                             for l in VOC.VocLabel if l.value % 2 == 1
@@ -104,6 +105,12 @@ class VocImportTest(TestCase):
                                 },
                                 id=1, group=1,
                             ),
+                            # Only main boxes denote instances (have ids)
+                            Mask(image=np.ones([10, 20]),
+                                label=self._label(VOC.VocLabel(2).name),
+                                group=1,
+                            ),
+
                             Bbox(4, 5, 2, 2, label=self._label('person'),
                                 attributes={
                                     'truncated': False,
@@ -116,16 +123,14 @@ class VocImportTest(TestCase):
                                 },
                                 id=2, group=2,
                             ),
-                            Bbox(5.5, 6, 2, 2, label=self._label(
-                                    VOC.VocBodyPart(1).name),
+                            # Only main boxes denote instances (have ids)
+                            Bbox(5.5, 6, 2, 2,
+                                label=self._label(VOC.VocBodyPart(1).name),
                                 group=2
-                            ),
-                            Mask(image=np.ones([5, 10]),
-                                label=self._label(VOC.VocLabel(2).name),
-                                group=1,
                             ),
                         ]
                     ),
+
                     DatasetItem(id='2007_000002', subset='test',
                         image=np.ones((10, 20, 3))),
                 ])
@@ -133,6 +138,202 @@ class VocImportTest(TestCase):
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'voc')
 
         compare_datasets(self, DstExtractor(), dataset)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_save_and_load_voc_classification_dataset(self):
+        class DstExtractor(TestExtractorBase):
+            def __iter__(self):
+                return iter([
+                    DatasetItem(id='2007_000001', subset='train',
+                        image=np.ones((10, 20, 3)),
+                        annotations=[
+                            Label(self._label(l.name))
+                            for l in VOC.VocLabel if l.value % 2 == 1
+                    ]),
+
+                    DatasetItem(id='2007_000002', subset='test',
+                        image=np.ones((10, 20, 3))),
+                ])
+        expected_dataset = DstExtractor()
+
+        rpath = osp.join('ImageSets', 'Main', 'train.txt')
+        matrix = [
+            ('voc_classification', '', ''),
+            ('voc_classification', 'train', rpath),
+        ]
+        for format, subset, path in matrix:
+            with self.subTest(format=format, subset=subset, path=path):
+                if subset:
+                    expected = expected_dataset.get_subset(subset)
+                else:
+                    expected = expected_dataset
+
+                actual = Dataset.import_from(osp.join(DUMMY_DATASET_DIR, path),
+                    format)
+
+                compare_datasets(self, expected, actual, require_images=True)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_save_and_load_voc_layout_dataset(self):
+        expected_dataset = Dataset.from_iterable([
+            DatasetItem(id='2007_000001', subset='train',
+                image=np.ones((10, 20, 3)),
+                annotations=[
+                    Bbox(4.0, 5.0, 2.0, 2.0, label=15, id=2, group=2,
+                        attributes={
+                            'difficult': False,
+                            'truncated': False,
+                            'occluded': False,
+                            **{
+                                a.name : a.value % 2 == 1
+                                for a in VOC.VocAction
+                            }
+                        }
+                    ),
+                    Bbox(5.5, 6.0, 2.0, 2.0, label=22, group=2),
+                ]),
+
+            DatasetItem(id='2007_000002', subset='test',
+                image=np.ones((10, 20, 3))),
+        ], categories=VOC.make_voc_categories())
+
+        rpath = osp.join('ImageSets', 'Layout', 'train.txt')
+        matrix = [
+            ('voc_layout', '', ''),
+            ('voc_layout', 'train', rpath),
+            ('voc', 'train', rpath),
+        ]
+        for format, subset, path in matrix:
+            with self.subTest(format=format, subset=subset, path=path):
+                if subset:
+                    expected = expected_dataset.get_subset(subset)
+                else:
+                    expected = expected_dataset
+
+                actual = Dataset.import_from(osp.join(DUMMY_DATASET_DIR, path),
+                    format)
+
+                compare_datasets(self, expected, actual, require_images=True)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_save_and_load_voc_detection_dataset(self):
+        expected_dataset = Dataset.from_iterable([
+            DatasetItem(id='2007_000001', subset='train',
+                image=np.ones((10, 20, 3)),
+                annotations=[
+                    Bbox(1.0, 2.0, 2.0, 2.0, label=8, id=1, group=1,
+                        attributes={
+                            'difficult': False,
+                            'truncated': True,
+                            'occluded': False,
+                            'pose': 'Unspecified'
+                        }
+                    ),
+                    Bbox(4.0, 5.0, 2.0, 2.0, label=15, id=2, group=2,
+                        attributes={
+                            'difficult': False,
+                            'truncated': False,
+                            'occluded': False,
+                            **{
+                                a.name : a.value % 2 == 1
+                                for a in VOC.VocAction
+                            }
+                        }
+                    ),
+                ]),
+
+            DatasetItem(id='2007_000002', subset='test',
+                image=np.ones((10, 20, 3))),
+        ], categories=VOC.make_voc_categories())
+
+        rpath = osp.join('ImageSets', 'Main', 'train.txt')
+        matrix = [
+            ('voc_detection', '', ''),
+            ('voc_detection', 'train', rpath),
+        ]
+        for format, subset, path in matrix:
+            with self.subTest(format=format, subset=subset, path=path):
+                if subset:
+                    expected = expected_dataset.get_subset(subset)
+                else:
+                    expected = expected_dataset
+
+                actual = Dataset.import_from(osp.join(DUMMY_DATASET_DIR, path),
+                    format)
+
+                compare_datasets(self, expected, actual, require_images=True)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_save_and_load_voc_segmentation_dataset(self):
+        expected_dataset = Dataset.from_iterable([
+            DatasetItem(id='2007_000001', subset='train',
+                image=np.ones((10, 20, 3)),
+                annotations=[
+                    Mask(image=np.ones([10, 20]), label=2, group=1)
+                ]),
+
+            DatasetItem(id='2007_000002', subset='test',
+                image=np.ones((10, 20, 3))),
+        ], categories=VOC.make_voc_categories())
+
+        rpath = osp.join('ImageSets', 'Segmentation', 'train.txt')
+        matrix = [
+            ('voc_segmentation', '', ''),
+            ('voc_segmentation', 'train', rpath),
+            ('voc', 'train', rpath),
+        ]
+        for format, subset, path in matrix:
+            with self.subTest(format=format, subset=subset, path=path):
+                if subset:
+                    expected = expected_dataset.get_subset(subset)
+                else:
+                    expected = expected_dataset
+
+                actual = Dataset.import_from(osp.join(DUMMY_DATASET_DIR, path),
+                    format)
+
+                compare_datasets(self, expected, actual, require_images=True)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_save_and_load_voc_action_dataset(self):
+        expected_dataset = Dataset.from_iterable([
+            DatasetItem(id='2007_000001', subset='train',
+                image=np.ones((10, 20, 3)),
+                annotations=[
+                    Bbox(4.0, 5.0, 2.0, 2.0, label=15, id=2, group=2,
+                        attributes={
+                            'difficult': False,
+                            'truncated': False,
+                            'occluded': False,
+                            **{
+                                a.name : a.value % 2 == 1
+                                for a in VOC.VocAction
+                            }
+                        }
+                    )
+                ]),
+
+            DatasetItem(id='2007_000002', subset='test',
+                image=np.ones((10, 20, 3))),
+        ], categories=VOC.make_voc_categories())
+
+        rpath = osp.join('ImageSets', 'Action', 'train.txt')
+        matrix = [
+            ('voc_action', '', ''),
+            ('voc_action', 'train', rpath),
+            ('voc', 'train', rpath),
+        ]
+        for format, subset, path in matrix:
+            with self.subTest(format=format, subset=subset, path=path):
+                if subset:
+                    expected = expected_dataset.get_subset(subset)
+                else:
+                    expected = expected_dataset
+
+                actual = Dataset.import_from(osp.join(DUMMY_DATASET_DIR, path),
+                    format)
+
+                compare_datasets(self, expected, actual, require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_voc(self):
