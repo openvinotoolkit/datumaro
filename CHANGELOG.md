@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 ### Fixed
--
+- Image processing and file upload in CIFAR (<https://github.com/openvinotoolkit/datumaro/pull/284>)
 
 ### Security
 -
