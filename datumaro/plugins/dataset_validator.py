@@ -7,7 +7,6 @@ import json
 import logging as log
 import numpy as np
 from enum import Enum
-from typing import Union
 
 from datumaro.components.validator import (TaskType, Validator,
     ClassificationValidator, DetectionValidator, SegmentationValidator)
