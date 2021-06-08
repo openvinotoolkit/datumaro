@@ -150,23 +150,13 @@ class VocImportTest(TestCase):
             # Subsets of subformats
             (osp.join(DUMMY_DATASET_DIR, 'ImageSets', 'Main', 'train.txt'),
                 VocClassificationImporter),
-            (osp.join(DUMMY_DATASET_DIR, 'ImageSets', 'Main', 'test.txt'),
-                VocClassificationImporter),
             (osp.join(DUMMY_DATASET_DIR, 'ImageSets', 'Main', 'train.txt'),
-                VocDetectionImporter),
-            (osp.join(DUMMY_DATASET_DIR, 'ImageSets', 'Main', 'test.txt'),
                 VocDetectionImporter),
             (osp.join(DUMMY_DATASET_DIR, 'ImageSets', 'Segmentation', 'train.txt'),
                 VocSegmentationImporter),
-            (osp.join(DUMMY_DATASET_DIR, 'ImageSets', 'Segmentation', 'test.txt'),
-                VocSegmentationImporter),
             (osp.join(DUMMY_DATASET_DIR, 'ImageSets', 'Layout', 'train.txt'),
                 VocLayoutImporter),
-            (osp.join(DUMMY_DATASET_DIR, 'ImageSets', 'Layout', 'test.txt'),
-                VocLayoutImporter),
             (osp.join(DUMMY_DATASET_DIR, 'ImageSets', 'Action', 'train.txt'),
-                VocActionImporter),
-            (osp.join(DUMMY_DATASET_DIR, 'ImageSets', 'Action', 'test.txt'),
                 VocActionImporter),
         ]
 
