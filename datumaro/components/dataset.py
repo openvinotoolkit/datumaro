@@ -359,10 +359,7 @@ class DatasetStorage(IDataset):
             self._length -= is_removed
 
     def get_subset(self, name):
-        if (name or DEFAULT_SUBSET_NAME) == DEFAULT_SUBSET_NAME:
-            return self._merged()
-        else:
-            return self._merged().get_subset(name)
+        return self._merged().get_subset(name)
 
     def subsets(self):
         subsets = {}
