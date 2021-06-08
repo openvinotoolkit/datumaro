@@ -66,7 +66,11 @@ class CocoImporterTest(TestCase):
                 'annotations', 'instances_val.json')),
         ]
         for format, (subset, path) in product(formats, paths):
-            expected = expected_dataset.get_subset(subset)
+            if subset:
+                expected = expected_dataset.get_subset(subset)
+            else:
+                expected = expected_dataset
+
             with self.subTest(path=path, format=format, subset=subset):
                 dataset = Dataset.import_from(path, format)
                 compare_datasets(self, expected, dataset, require_images=True)
@@ -97,7 +101,11 @@ class CocoImporterTest(TestCase):
                 'annotations', 'captions_val.json')),
         ]
         for format, (subset, path) in product(formats, paths):
-            expected = expected_dataset.get_subset(subset)
+            if subset:
+                expected = expected_dataset.get_subset(subset)
+            else:
+                expected = expected_dataset
+
             with self.subTest(path=path, format=format, subset=subset):
                 dataset = Dataset.import_from(path, format)
                 compare_datasets(self, expected, dataset, require_images=True)
@@ -128,7 +136,11 @@ class CocoImporterTest(TestCase):
                 'annotations', 'labels_val.json')),
         ]
         for format, (subset, path) in product(formats, paths):
-            expected = expected_dataset.get_subset(subset)
+            if subset:
+                expected = expected_dataset.get_subset(subset)
+            else:
+                expected = expected_dataset
+
             with self.subTest(path=path, format=format, subset=subset):
                 dataset = Dataset.import_from(path, format)
                 compare_datasets(self, expected, dataset, require_images=True)
@@ -176,7 +188,11 @@ class CocoImporterTest(TestCase):
                 'annotations', 'person_keypoints_val.json')),
         ]
         for format, (subset, path) in product(formats, paths):
-            expected = expected_dataset.get_subset(subset)
+            if subset:
+                expected = expected_dataset.get_subset(subset)
+            else:
+                expected = expected_dataset
+
             with self.subTest(path=path, format=format, subset=subset):
                 dataset = Dataset.import_from(path, format)
                 compare_datasets(self, expected, dataset, require_images=True)
@@ -199,7 +215,11 @@ class CocoImporterTest(TestCase):
                 'annotations', 'image_info_val.json')),
         ]
         for format, (subset, path) in product(formats, paths):
-            expected = expected_dataset.get_subset(subset)
+            if subset:
+                expected = expected_dataset.get_subset(subset)
+            else:
+                expected = expected_dataset
+
             with self.subTest(path=path, format=format, subset=subset):
                 dataset = Dataset.import_from(path, format)
                 compare_datasets(self, expected, dataset, require_images=True)
@@ -235,7 +255,11 @@ class CocoImporterTest(TestCase):
                 'annotations', 'panoptic_val.json')),
         ]
         for format, (subset, path) in product(formats, paths):
-            expected = expected_dataset.get_subset(subset)
+            if subset:
+                expected = expected_dataset.get_subset(subset)
+            else:
+                expected = expected_dataset
+
             with self.subTest(path=path, format=format, subset=subset):
                 dataset = Dataset.import_from(path, format)
                 compare_datasets(self, expected, dataset, require_images=True)
@@ -269,7 +293,11 @@ class CocoImporterTest(TestCase):
                 'annotations', 'stuff_val.json')),
         ]
         for format, (subset, path) in product(formats, paths):
-            expected = expected_dataset.get_subset(subset)
+            if subset:
+                expected = expected_dataset.get_subset(subset)
+            else:
+                expected = expected_dataset
+
             with self.subTest(path=path, format=format, subset=subset):
                 dataset = Dataset.import_from(path, format)
                 compare_datasets(self, expected, dataset, require_images=True)
