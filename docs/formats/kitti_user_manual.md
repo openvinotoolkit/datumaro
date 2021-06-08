@@ -10,17 +10,18 @@
 
 ## Format specification
 
-Original KITTI dataset format support the following types of annotations:
+- Original KITTI dataset format support the following types of annotations:
     - `Bounding boxes` (for [object detection](http://www.cvlibs.net/datasets/kitti/eval_object.php?obj_benchmark));
     - `Masks` (for [segmentation](http://www.cvlibs.net/datasets/kitti/eval_semseg.php?benchmark=semantics2015) task).
 
-Supported attributes:
+- Supported attributes:
     - `truncated`: indicates that the bounding box specified for the object does
     not correspond to the full extent of the object;
     - `occluded`: indicates that a significant portion of the object within the
     bounding box is occluded by another object.
 
 KITTI segmentations format specification available in `README.md` [here](https://s3.eu-central-1.amazonaws.com/avg-kitti/devkit_semantics.zip).
+
 KITTI object detection format specification available in `README.md` [here](https://s3.eu-central-1.amazonaws.com/avg-kitti/devkit_object.zip).
 
 ##  Load KITTI dataset
@@ -81,7 +82,7 @@ of KITTI dataset instead of the whole dataset,
 for example:
 
 ``` bash
-datum add path -f kitti_detection <path/to/dataset/ImageSets/Main/train.txt>
+datum add path -f kitti_detection <path/to/dataset>
 ```
 
 Datumaro supports the following KITTI tasks:
