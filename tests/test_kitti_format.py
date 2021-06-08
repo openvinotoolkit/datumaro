@@ -14,10 +14,13 @@ from datumaro.plugins.kitti_format.format import (KittiTask, KittiLabelMap,
     make_kitti_categories, make_kitti_detection_categories,
     parse_label_map, write_label_map,
 )
-from datumaro.plugins.kitti_format.importer import KittiImporter
+from datumaro.plugins.kitti_format.importer import (KittiImporter,
+    KittiDetectionImporter, KittiSegmentationImporter)
 from datumaro.util.image import Image
 from datumaro.util.test_utils import (TestDir, compare_datasets,
     test_save_and_load)
+
+from .requirements import Requirements, mark_requirement
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets',
     'kitti_dataset')
@@ -96,8 +99,30 @@ class KittiImportTest(TestCase):
 
         compare_datasets(self, source_dataset, parsed_dataset)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_kitti(self):
-        self.assertTrue(KittiImporter.detect(DUMMY_DATASET_DIR))
+        matrix = [
+            # Whole dataset
+            (DUMMY_DATASET_DIR, KittiImporter),
+
+            # Subformats
+            (DUMMY_DATASET_DIR, KittiSegmentationImporter),
+            (DUMMY_DATASET_DIR, KittiDetectionImporter),
+
+            # Subsets of subformats
+            (osp.join(DUMMY_DATASET_DIR, 'kitti_detection'),
+                KittiDetectionImporter),
+            (osp.join(DUMMY_DATASET_DIR, 'kitti_detection', 'training'),
+                KittiDetectionImporter),
+            (osp.join(DUMMY_DATASET_DIR, 'kitti_segmentation'),
+                KittiSegmentationImporter),
+            (osp.join(DUMMY_DATASET_DIR, 'kitti_segmentation', 'training'),
+                KittiSegmentationImporter),
+        ]
+
+        for path, subtask in matrix:
+            with self.subTest(path=path, task=subtask):
+                self.assertTrue(subtask.detect(path))
 
 
 class TestExtractorBase(Extractor):
@@ -277,6 +302,7 @@ class KittiConverterTest(TestCase):
                 partial(KittiConverter.convert, label_map='kitti',
                 save_images=True), test_dir)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         class TestExtractor(TestExtractorBase):
             def __iter__(self):
@@ -409,6 +435,7 @@ class KittiConverterTest(TestCase):
                 partial(KittiConverter.convert, label_map='source',
                 save_images=True), test_dir, target_dataset=DstExtractor())
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         class TestExtractor(TestExtractorBase):
             def __iter__(self):

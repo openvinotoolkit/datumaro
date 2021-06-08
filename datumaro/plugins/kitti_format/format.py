@@ -74,6 +74,7 @@ class KittiPath:
     SEMANTIC_RGB_DIR = 'semantic_rgb'
     SEMANTIC_DIR = 'semantic'
     IMAGE_EXT = '.png'
+    MASK_EXT = '.png'
 
     LABELMAP_FILE = 'label_colors.txt'
 

@@ -75,3 +75,11 @@ class KittiImporter(Importer):
                 subsets.setdefault(subset_name, {})[task] = path
 
         return subsets
+
+class KittiDetectionImporter(KittiImporter):
+    _TASK = KittiTask.detection
+    _TASKS = { _TASK: KittiImporter._TASKS[_TASK] }
+
+class KittiSegmentationImporter(KittiImporter):
+    _TASK = KittiTask.segmentation
+    _TASKS = { _TASK: KittiImporter._TASKS[_TASK] }

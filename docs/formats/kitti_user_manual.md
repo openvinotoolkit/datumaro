@@ -51,13 +51,13 @@ KITTI segmentation dataset directory should have the following structure:
 └─ Dataset/
     ├── testing/
     │   └── image_2/
-    │       ├── <name_1>.png
-    │       ├── <name_2>.png
+    │       ├── <name_1>.<img_ext>
+    │       ├── <name_2>.<img_ext>
     │       └── ...
     ├── training/
     │   ├── image_2/ # left color camera images
-    │   │   ├── <name_1>.png
-    │   │   ├── <name_2>.png
+    │   │   ├── <name_1>.<img_ext>
+    │   │   ├── <name_2>.<img_ext>
     │   │   └── ...
     │   ├── label_2/ # left color camera label files
     │   │   ├── <name_1>.txt
@@ -174,7 +174,7 @@ particular problems with KITTI dataset:
 datum create -o project
 datum add path -p project -f kitti ./KITTI/
 datum stats -p project
-datum export -p final_project -o dataset -f cityscapes --overwrite -- --save-images
+datum export -p final_project -o dataset -f cityscapes -- --save-images
 ```
 
 ### Example 2. How to create custom KITTI-like dataset

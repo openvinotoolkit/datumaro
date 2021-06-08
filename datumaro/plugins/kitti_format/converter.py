@@ -31,7 +31,7 @@ class KittiConverter(Converter):
 
     @staticmethod
     def _split_tasks_string(s):
-        return [KittiTask[i.strip()] for i in s.split(',')]
+        return [KittiTask[i.strip().lower()] for i in s.split(',')]
 
     @staticmethod
     def _get_labelmap(s):
@@ -92,7 +92,7 @@ class KittiConverter(Converter):
                 os.makedirs(osp.join(self._save_dir, subset_name,
                     KittiPath.INSTANCES_DIR), exist_ok=True)
             for item in subset:
-                image_name = item.id+KittiPath.IMAGE_EXT
+                image_name = self._make_image_filename(item)
                 image_path = osp.join(subset_name, KittiPath.IMAGES_DIR,
                     image_name)
                 if self._save_images:
@@ -105,12 +105,12 @@ class KittiConverter(Converter):
                         instance_labels=[self._label_id_mapping(m.label)
                             for m in masks])
                     color_mask_path = osp.join(subset_name,
-                        KittiPath.SEMANTIC_RGB_DIR, image_name)
+                        KittiPath.SEMANTIC_RGB_DIR, item.id + KittiPath.MASK_EXT)
                     self.save_mask(osp.join(self._save_dir, color_mask_path),
                         compiled_class_mask.class_mask)
 
                     labelids_mask_path = osp.join(subset_name,
-                        KittiPath.SEMANTIC_DIR, image_name)
+                        KittiPath.SEMANTIC_DIR, item.id + KittiPath.MASK_EXT)
                     self.save_mask(osp.join(self._save_dir, labelids_mask_path),
                         compiled_class_mask.class_mask, apply_colormap=False,
                         dtype=np.int32)
@@ -118,7 +118,7 @@ class KittiConverter(Converter):
                     compiled_instance_mask = CompiledMask.from_instance_masks(masks,
                         instance_labels=[(m.label << 8) + m.id for m in masks])
                     inst_path = osp.join(subset_name,
-                        KittiPath.INSTANCES_DIR, image_name)
+                        KittiPath.INSTANCES_DIR, item.id + KittiPath.MASK_EXT)
                     self.save_mask(osp.join(self._save_dir, inst_path),
                         compiled_instance_mask.class_mask, apply_colormap=False,
                         dtype=np.int32)

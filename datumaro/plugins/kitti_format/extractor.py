@@ -10,7 +10,7 @@ from glob import iglob
 from datumaro.components.extractor import (SourceExtractor,
     AnnotationType, DatasetItem, Mask, Bbox
 )
-from datumaro.util.image import load_image
+from datumaro.util.image import load_image, find_images
 
 from .format import (
     KittiTask, KittiPath, KittiLabelMap, parse_label_map,
@@ -50,17 +50,15 @@ class _KittiExtractor(SourceExtractor):
     def _load_items(self):
         items = {}
 
-        for image_path in iglob(
-                osp.join(self._path, KittiPath.IMAGES_DIR, '**',
-                '*%s' % KittiPath.IMAGE_EXT),
-                recursive=True):
+        for image_path in find_images(osp.join(self._path, KittiPath.IMAGES_DIR),
+                                      recursive=True):
             image_name = osp.relpath(image_path, osp.join(self._path,
                 KittiPath.IMAGES_DIR))
-            sample_id = image_name.replace(KittiPath.IMAGE_EXT, '')
+            sample_id = osp.splitext(image_name)[0]
             anns = []
 
             instances_path = osp.join(self._path, KittiPath.INSTANCES_DIR,
-                image_name)
+                sample_id + KittiPath.MASK_EXT)
             if self._task == KittiTask.segmentation and \
                 osp.isfile(instances_path):
                 instances_mask = load_image(instances_path, dtype=np.int32)
@@ -68,7 +66,7 @@ class _KittiExtractor(SourceExtractor):
                 for segm_id in segm_ids:
                     semantic_id = segm_id >> 8
                     ann_id = segm_id % 256
-                    isCrowd = bool(ann_id == 0)
+                    isCrowd = (ann_id == 0)
                     anns.append(Mask(
                         image=self._lazy_extract_mask(instances_mask, segm_id),
                         label=semantic_id, id=ann_id,
