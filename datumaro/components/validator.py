@@ -16,7 +16,6 @@ from datumaro.components.errors import (MissingLabelCategories,
     NegativeLength, InvalidValue, FarFromLabelMean,
     FarFromAttrMean, OnlyOneAttributeValue)
 from datumaro.components.extractor import AnnotationType, LabelCategories
-from datumaro.components.cli_plugin import CliPlugin
 from datumaro.util import parse_str_enum_value
 
 
@@ -25,7 +24,7 @@ Severity = Enum('Severity', ['warning', 'error'])
 TaskType = Enum('TaskType', ['classification', 'detection', 'segmentation'])
 
 
-class Validator(CliPlugin):
+class Validator():
     # statistics templates
     numerical_stat_template = {
         'items_far_from_mean': {},
