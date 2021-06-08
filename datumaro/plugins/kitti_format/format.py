@@ -81,10 +81,6 @@ class KittiPath:
     DEFAULT_TRUNCATED = 0.0 # 0% truncated
     DEFAULT_OCCLUDED = 0    # fully visible
 
-    TASK_DIR = {
-        KittiTask.detection: LABELS_DIR,
-        KittiTask.segmentation: INSTANCES_DIR,
-    }
 
 def make_kitti_categories(label_map=None):
     if label_map is None:

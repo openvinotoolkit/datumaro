@@ -10,9 +10,9 @@ from datumaro.components.dataset import Dataset
 from datumaro.plugins.kitti_format.converter import (
     KittiConverter,
 )
-from datumaro.plugins.kitti_format.format import (KittiTask, KittiLabelMap,
+from datumaro.plugins.kitti_format.format import (KittiPath, KittiTask,
     make_kitti_categories, make_kitti_detection_categories,
-    parse_label_map, write_label_map,
+    KittiLabelMap, parse_label_map, write_label_map,
 )
 from datumaro.plugins.kitti_format.importer import (KittiImporter,
     KittiDetectionImporter, KittiSegmentationImporter)
@@ -463,3 +463,8 @@ class KittiConverterTest(TestCase):
             self._test_save_and_load(TestExtractor(),
                 partial(KittiConverter.convert, save_images=True),
                 test_dir, require_images=True)
+
+            self.assertTrue(osp.isfile(osp.join(test_dir, 'default',
+                KittiPath.IMAGES_DIR, 'a/b/c/2.bmp')))
+            self.assertTrue(osp.isfile(osp.join(test_dir, 'default',
+                KittiPath.IMAGES_DIR, 'q/1.JPEG')))

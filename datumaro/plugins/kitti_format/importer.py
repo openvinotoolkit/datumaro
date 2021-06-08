@@ -14,8 +14,8 @@ from .format import KittiTask, KittiPath
 
 class KittiImporter(Importer):
     _TASKS = {
-        KittiTask.segmentation: 'kitti_segmentation',
-        KittiTask.detection: 'kitti_detection',
+        KittiTask.segmentation: ('kitti_segmentation', KittiPath.INSTANCES_DIR),
+        KittiTask.detection: ('kitti_detection', KittiPath.LABELS_DIR),
     }
 
     @classmethod
@@ -56,23 +56,22 @@ class KittiImporter(Importer):
                 source_name = osp.splitext(osp.basename(ann_file))[0]
                 project.add_source(source_name, {
                     'url': ann_file,
-                    'format': self._TASKS[ann_type],
+                    'format': ann_type,
                     'options': dict(extra_params),
                 })
 
         return project
 
-    @staticmethod
-    def find_sources(path):
+    @classmethod
+    def find_sources(cls, path):
         subsets = {}
 
-        for task in KittiPath.TASK_DIR:
-            subset_paths = glob(osp.join(path, '**', KittiPath.TASK_DIR[task]),
-                recursive=True)
+        for extractor_type, task_dir in cls._TASKS.values():
+            subset_paths = glob(osp.join(path, '**', task_dir), recursive=True)
             for subset_path in subset_paths:
                 path = osp.normpath(osp.join(subset_path, ".."))
                 subset_name = osp.splitext(osp.basename(path))[0]
-                subsets.setdefault(subset_name, {})[task] = path
+                subsets.setdefault(subset_name, {})[extractor_type] = path
 
         return subsets
 

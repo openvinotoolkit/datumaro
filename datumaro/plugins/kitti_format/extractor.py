@@ -64,7 +64,7 @@ class _KittiExtractor(SourceExtractor):
                 segm_ids = np.unique(instances_mask)
                 for segm_id in segm_ids:
                     semantic_id = segm_id >> 8
-                    ann_id = segm_id % 256
+                    ann_id = int(segm_id % 256)
                     isCrowd = (ann_id == 0)
                     anns.append(Mask(
                         image=self._lazy_extract_mask(instances_mask, segm_id),
