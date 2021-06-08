@@ -1,75 +1,75 @@
 {
-  "licenses": [{
-      "name": "",
-      "id": 0,
-      "url": ""
-    }],
-  "info": {
-    "contributor": "",
-    "date_created": "",
-    "description": "",
-    "url": "",
-    "version": "",
-    "year": ""
-  },
-  "categories": [
-    {
-      "id": 1,
-      "name": "a",
-      "supercategory": "",
-      "isthing": 1
+    "licenses":[
+      {
+        "name":"",
+        "id":0,
+        "url":""
+      }
+    ],
+    "info":{
+      "contributor":"",
+      "date_created":"",
+      "description":"",
+      "url":"",
+      "version":"",
+      "year":""
     },
-    {
-      "id": 2,
-      "name": "b",
-      "supercategory": "",
-      "isthing": 1
-    },
-    {
-      "id": 3,
-      "name": "c",
-      "supercategory": "",
-      "isthing": 1
-    },
-    {
-      "id": 4,
-      "name": "d",
-      "supercategory": "",
-      "isthing": 1
-    }
-  ],
-  "images": [
-    {
-      "id": 40,
-      "width": 5,
-      "height": 1,
-      "file_name": "000000000001.jpg",
-      "license": 0,
-      "flickr_url": "",
-      "coco_url": "",
-      "date_captured": 0
-    }
-  ],
-  "annotations": [
-    {
-      "image_id": 40,
-      "file_name": "000000000001.png",
-      "segments_info": [
-        {
-          "id": 7,
-          "category_id": 4,
-          "area": 2.0,
-          "bbox": [2.0, 0.0, 1.0, 0.0],
-          "iscrowd": 0
-        },
-        {
-          "id": 20,
-          "category_id": 2,
-          "area": 2.0,
-          "bbox": [1.0, 0.0, 3.0, 0.0],
-          "iscrowd": 1
-        }
-      ]
-    }
-  ]
-}
+    "categories":[
+      {
+        "id":1,
+        "name":"a",
+        "supercategory":"",
+        "isthing":0
+      },
+      {
+        "id":2,
+        "name":"b",
+        "supercategory":"",
+        "isthing":0
+      }
+    ],
+    "images":[
+      {
+        "id":40,
+        "width":5,
+        "height":10,
+        "file_name":"b.jpg",
+        "license":0,
+        "flickr_url":"",
+        "coco_url":"",
+        "date_captured":0
+      }
+    ],
+    "annotations":[
+      {
+        "image_id":40,
+        "file_name":"b.png",
+        "segments_info":[
+          {
+            "id":7,
+            "category_id":1,
+            "area":20.0,
+            "bbox":[
+              0.0,
+              0.0,
+              1.0,
+              9.0
+            ],
+            "iscrowd":0
+          },
+          {
+            "id":20,
+            "category_id":2,
+            "area":20.0,
+            "bbox":[
+              2.0,
+              0.0,
+              1.0,
+              9.0
+            ],
+            "iscrowd":1
+          }
+        ]
+      }
+    ]
+  }

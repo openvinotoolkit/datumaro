@@ -18,17 +18,38 @@
       {
         "id":1,
         "name":"a",
-        "supercategory":""
+        "supercategory":"",
+        "keypoints":[
+
+        ],
+        "skeleton":[
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            2
+          ]
+        ]
       },
       {
         "id":2,
         "name":"b",
-        "supercategory":""
-      },
-      {
-        "id":3,
-        "name":"c",
-        "supercategory":""
+        "supercategory":"",
+        "keypoints":[
+
+        ],
+        "skeleton":[
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            2
+          ]
+        ]
       }
     ],
     "images":[
@@ -71,7 +92,19 @@
         "attributes":{
           "x":1,
           "y":"hello"
-        }
+        },
+        "keypoints":[
+          1,
+          2,
+          2,
+          3,
+          4,
+          2,
+          2,
+          3,
+          2
+        ],
+        "num_keypoints":3
       },
       {
         "id":2,
@@ -95,7 +128,19 @@
           1.0,
           9.0
         ],
-        "iscrowd":1
+        "iscrowd":1,
+        "keypoints":[
+          2,
+          4,
+          2,
+          4,
+          4,
+          2,
+          4,
+          2,
+          2
+        ],
+        "num_keypoints":3
       }
     ]
   }

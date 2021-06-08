@@ -18,20 +18,22 @@
       {
         "id":1,
         "name":"a",
-        "supercategory":""
+        "supercategory":"",
+        "isthing":0
       },
       {
         "id":2,
         "name":"b",
-        "supercategory":""
+        "supercategory":"",
+        "isthing":0
       }
     ],
     "images":[
       {
-        "id":40,
-        "width":5,
-        "height":10,
-        "file_name":"b.jpg",
+        "id":5,
+        "width":10,
+        "height":5,
+        "file_name":"a.jpg",
         "license":0,
         "flickr_url":"",
         "coco_url":"",
@@ -40,28 +42,22 @@
     ],
     "annotations":[
       {
-        "id":2,
-        "image_id":40,
-        "category_id":2,
-        "segmentation":{
-          "counts":[
-            0,
-            20,
-            30
-          ],
-          "size":[
-            10,
-            5
-          ]
-        },
-        "area":20.0,
-        "bbox":[
-          0.0,
-          0.0,
-          1.0,
-          9.0
-        ],
-        "iscrowd":1
+        "image_id":5,
+        "file_name":"a.png",
+        "segments_info":[
+          {
+            "id":7,
+            "category_id":1,
+            "area":20.0,
+            "bbox":[
+              2.0,
+              0.0,
+              4.0,
+              4.0
+            ],
+            "iscrowd":0
+          }
+        ]
       }
     ]
   }

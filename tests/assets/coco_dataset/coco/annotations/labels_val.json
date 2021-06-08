@@ -40,28 +40,14 @@
     ],
     "annotations":[
       {
+        "id":1,
+        "image_id":40,
+        "category_id":1
+      },
+      {
         "id":2,
         "image_id":40,
-        "category_id":2,
-        "segmentation":{
-          "counts":[
-            0,
-            20,
-            30
-          ],
-          "size":[
-            10,
-            5
-          ]
-        },
-        "area":20.0,
-        "bbox":[
-          0.0,
-          0.0,
-          1.0,
-          9.0
-        ],
-        "iscrowd":1
+        "category_id":2
       }
     ]
   }

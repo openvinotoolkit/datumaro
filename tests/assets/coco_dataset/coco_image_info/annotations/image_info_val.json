@@ -30,17 +30,6 @@
       }
     ],
     "annotations":[
-      {
-        "id":1,
-        "image_id":40,
-        "category_id":0,
-        "caption":"world"
-      },
-      {
-        "id":2,
-        "image_id":40,
-        "category_id":0,
-        "caption":"text"
-      }
+
     ]
   }

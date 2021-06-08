@@ -28,10 +28,10 @@
     ],
     "images":[
       {
-        "id":40,
-        "width":5,
-        "height":10,
-        "file_name":"b.jpg",
+        "id":5,
+        "width":10,
+        "height":5,
+        "file_name":"a.jpg",
         "license":0,
         "flickr_url":"",
         "coco_url":"",
@@ -40,26 +40,28 @@
     ],
     "annotations":[
       {
-        "id":2,
-        "image_id":40,
-        "category_id":2,
+        "id":7,
+        "image_id":5,
+        "category_id":1,
         "segmentation":{
           "counts":[
-            0,
-            20,
-            30
+            10,
+            10,
+            5,
+            10,
+            15
           ],
           "size":[
-            10,
-            5
+            5,
+            10
           ]
         },
         "area":20.0,
         "bbox":[
+          2.0,
           0.0,
-          0.0,
-          1.0,
-          9.0
+          4.0,
+          4.0
         ],
         "iscrowd":1
       }

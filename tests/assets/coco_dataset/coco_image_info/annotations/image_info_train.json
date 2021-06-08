@@ -19,10 +19,10 @@
     ],
     "images":[
       {
-        "id":40,
-        "width":5,
-        "height":10,
-        "file_name":"b.jpg",
+        "id":5,
+        "width":10,
+        "height":5,
+        "file_name":"a.jpg",
         "license":0,
         "flickr_url":"",
         "coco_url":"",
@@ -30,17 +30,6 @@
       }
     ],
     "annotations":[
-      {
-        "id":1,
-        "image_id":40,
-        "category_id":0,
-        "caption":"world"
-      },
-      {
-        "id":2,
-        "image_id":40,
-        "category_id":0,
-        "caption":"text"
-      }
+
     ]
   }
