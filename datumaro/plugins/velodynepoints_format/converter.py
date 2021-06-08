@@ -330,7 +330,7 @@ class VelodynePointsConverter(Converter):
             cls.convert(dataset.get_subset(subset), save_dir=save_dir, **kwargs)
 
         conv = cls(dataset, save_dir=save_dir, **kwargs)
-        pcd_dir = osp.abspath(osp.join(save_dir, "velodyne_points/data"))
+        pcd_dir = osp.abspath(osp.join(save_dir, VelodynePointsPath.IMAGES_DIR))
 
         for (item_id, subset), status in patch.updated_items.items():
             if status != ItemStatus.removed:

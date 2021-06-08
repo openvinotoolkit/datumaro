@@ -443,7 +443,7 @@ class IntersectMerge(MergingStrategy):
             elif t is AnnotationType.caption:
                 return _make(CaptionsMerger, **kwargs)
             elif t is AnnotationType.cuboid:
-                return _make(PointsMerger, **kwargs)
+                return _make(CuboidMerger, **kwargs)
             else:
                 raise NotImplementedError("Type %s is not supported" % t)
 
