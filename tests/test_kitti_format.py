@@ -10,7 +10,7 @@ from datumaro.components.dataset import Dataset
 from datumaro.plugins.kitti_format.converter import (
     KittiConverter,
 )
-from datumaro.plugins.kitti_format.format import (KittiTask, KittiPath, KittiLabelMap,
+from datumaro.plugins.kitti_format.format import (KittiTask, KittiLabelMap,
     make_kitti_categories, make_kitti_detection_categories,
     parse_label_map, write_label_map,
 )
