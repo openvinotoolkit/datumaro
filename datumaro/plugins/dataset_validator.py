@@ -65,7 +65,7 @@ def validate_command(args):
 
     dataset_validator = project.env.validators['dataset'](task_type, args)
 
-    validation_results = dataset_validator.validate_annotations(dataset, task_type)
+    validation_results = dataset_validator.validate_annotations(dataset)
 
     def numpy_encoder(obj):
         if isinstance(obj, np.generic):
@@ -91,13 +91,14 @@ def validate_command(args):
 class DatasetValidator(Validator, CliPlugin):
 
     def __init__(self, task_type, args):
+        self.task_type = parse_str_enum_value(task_type, TaskType)
         self.few_samples_thr = args.few_samples_thr
         self.imbalance_ratio_thr = args.imbalance_ratio_thr
         self.far_from_mean_thr = args.far_from_mean_thr
         self.dominance_ratio_thr = args.dominance_ratio_thr
         self.topk_bins = args.topk_bins
 
-    def validate_annotations(self, dataset: IDataset, task_type: Union[str, TaskType]):
+    def validate_annotations(self, dataset: IDataset):
         """
         Returns the validation results of a dataset based on task type.
         Args:
@@ -113,20 +114,19 @@ class DatasetValidator(Validator, CliPlugin):
 
         validation_results = {}
 
-        task_type = parse_str_enum_value(task_type, TaskType)
-        if task_type == TaskType.classification:
+        if self.task_type == TaskType.classification:
             validator = ClassificationValidator(few_samples_thr=self.few_samples_thr,
                 imbalance_ratio_thr=self.imbalance_ratio_thr,
                 far_from_mean_thr=self.far_from_mean_thr,
                 dominance_ratio_thr=self.dominance_ratio_thr,
                 topk_bins=self.topk_bins)
-        elif task_type == TaskType.detection:
+        elif self.task_type == TaskType.detection:
             validator = DetectionValidator(few_samples_thr=self.few_samples_thr,
                 imbalance_ratio_thr=self.imbalance_ratio_thr,
                 far_from_mean_thr=self.far_from_mean_thr,
                 dominance_ratio_thr=self.dominance_ratio_thr,
                 topk_bins=self.topk_bins)
-        elif task_type == TaskType.segmentation:
+        elif self.task_type == TaskType.segmentation:
             validator = SegmentationValidator(few_samples_thr=self.few_samples_thr,
                 imbalance_ratio_thr=self.imbalance_ratio_thr,
                 far_from_mean_thr=self.far_from_mean_thr,
