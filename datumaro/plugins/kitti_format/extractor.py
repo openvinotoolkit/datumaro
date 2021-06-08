@@ -5,7 +5,6 @@
 
 import numpy as np
 import os.path as osp
-from glob import iglob
 
 from datumaro.components.extractor import (SourceExtractor,
     AnnotationType, DatasetItem, Mask, Bbox
