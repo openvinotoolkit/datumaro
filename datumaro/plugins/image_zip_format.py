@@ -2,27 +2,27 @@
 #
 # SPDX-License-Identifier: MIT
 
+from enum import Enum
 import logging as log
 import os
 import os.path as osp
 from zipfile import ZIP_BZIP2, ZIP_DEFLATED, ZIP_LZMA, ZIP_STORED, ZipFile
 
 from datumaro.components.converter import Converter
-from datumaro.components.extractor import (DatasetItem, Importer,
-                                           SourceExtractor)
-from datumaro.util.image import (IMAGE_EXTENSIONS, ByteImage,
-                                 encode_image)
+from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
+
+from datumaro.util import parse_str_enum_value
+from datumaro.util.image import IMAGE_EXTENSIONS, ByteImage, encode_image
+
+class Compression(Enum):
+    ZIP_STORED = ZIP_STORED
+    ZIP_DEFLATED = ZIP_DEFLATED
+    ZIP_BZIP2 = ZIP_BZIP2
+    ZIP_LZMA = ZIP_LZMA
 
 class ImageZipPath:
     DEFAULT_ARCHIVE_NAME = 'default.zip'
-    DEFAULT_COMPRESSION = ZIP_STORED
-
-    COMPRESSION = {
-       'ZIP_STORED': ZIP_STORED,
-       'ZIP_DEFLATED': ZIP_DEFLATED,
-       'ZIP_BZIP2': ZIP_BZIP2,
-       'ZIP_LZMA': ZIP_LZMA
-    }
+    DEFAULT_COMPRESSION = Compression.ZIP_STORED
 
 class ImageZipExtractor(SourceExtractor):
     def __init__(self, url, subset=None):
@@ -51,7 +51,7 @@ class ImageZipConverter(Converter):
     @staticmethod
     def _get_compression_method(s):
         try:
-            return ImageZipPath.COMPRESSION[s.upper()]
+            return Compression[s.upper()]
         except KeyError:
             import argparse
             raise argparse.ArgumentTypeError()
@@ -62,14 +62,14 @@ class ImageZipConverter(Converter):
 
         parser.add_argument('--name', type=str,
             default=ImageZipPath.DEFAULT_ARCHIVE_NAME,
-            help="Name of output zipfile "
-                "(default: %(default)s)"
+            help="Name of output zipfile (default: %(default)s)"
         )
 
         parser.add_argument('--compression', type=cls._get_compression_method,
-            default=ImageZipPath.DEFAULT_COMPRESSION,
-            help="Archive compression method.\nAvailable methods: %s." % \
-                 ', '.join(list(ImageZipPath.COMPRESSION.keys()))
+            default=ImageZipPath.DEFAULT_COMPRESSION.name,
+            help="Archive compression method.\nAvailable methods: {} "
+                "(default: %(default)s)" \
+                .format(', '.join(e.name for e in Compression))
         )
 
         return parser
@@ -80,11 +80,12 @@ class ImageZipConverter(Converter):
 
         if name is None:
             name = ImageZipPath.DEFAULT_ARCHIVE_NAME
-        if compression is None:
-            compression = ImageZipPath.DEFAULT_COMPRESSION
+
+        compression = parse_str_enum_value(compression, Compression,
+            default=ImageZipPath.DEFAULT_COMPRESSION)
 
         self._archive_name = name
-        self._compression = compression
+        self._compression = compression.value
 
     def apply(self):
         os.makedirs(self._save_dir, exist_ok=True)

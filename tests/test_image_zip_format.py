@@ -1,9 +1,7 @@
-import numpy as np
 import os.path as osp
-from zipfile import ZIP_DEFLATED
-
-from .requirements import Requirements
 from unittest import TestCase
+
+import numpy as np
 import pytest
 
 from datumaro.components.extractor import DatasetItem
@@ -11,6 +9,9 @@ from datumaro.components.project import Dataset
 from datumaro.plugins.image_zip_format import ImageZipPath, ImageZipConverter
 from datumaro.util.image import Image, save_image
 from datumaro.util.test_utils import TestDir, compare_datasets
+
+from .requirements import Requirements
+
 
 class ImageZipConverterTest(TestCase):
     @pytest.mark.reqids(Requirements.DATUM_267)
@@ -63,7 +64,7 @@ class ImageZipConverterTest(TestCase):
 
         with TestDir() as test_dir:
             self._test_can_save_and_load(source_dataset, test_dir,
-                compression=ZIP_DEFLATED)
+                compression='ZIP_DEFLATED')
 
     @pytest.mark.reqids(Requirements.DATUM_267)
     def test_can_save_and_load_with_arbitrary_extensions(self):

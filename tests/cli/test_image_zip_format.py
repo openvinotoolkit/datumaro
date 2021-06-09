@@ -1,15 +1,17 @@
-import numpy as np
 import os
 import os.path as osp
+from unittest import TestCase
 from zipfile import ZipFile
 
-from ..requirements import Requirements
-from unittest import TestCase
+import numpy as np
 import pytest
 
 from datumaro.cli.__main__ import main
 from datumaro.components.dataset import Dataset, DatasetItem
 from datumaro.util.test_utils import TestDir, compare_datasets
+
+from ..requirements import Requirements
+
 
 def run(test, *args, expected_code=0):
     test.assertEqual(expected_code, main(args), str(args))
