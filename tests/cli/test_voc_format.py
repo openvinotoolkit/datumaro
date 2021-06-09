@@ -2,8 +2,8 @@ import os.path as osp
 import numpy as np
 from collections import OrderedDict
 
-import pytest
 from unittest import TestCase
+import pytest
 
 import datumaro.plugins.voc_format.format as VOC
 from datumaro.components.dataset import Dataset, DatasetItem
@@ -240,8 +240,6 @@ class VocIntegrationScenarios(TestCase):
 
             target_dataset = Dataset.import_from(cvat_dir, format='imagenet')
             compare_datasets(self, source_dataset, target_dataset)
-
-
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_voc_dataset(self):
