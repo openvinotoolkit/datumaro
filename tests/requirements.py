@@ -19,6 +19,7 @@ class Requirements:
     # GitHub issues (not bugs)
     # https://github.com/openvinotoolkit/datumaro/issues
     DATUM_244 = "Add Snyk integration"
+    DATUM_267 = "Add Image zip format"
 
     # GitHub issues (bugs)
     # https://github.com/openvinotoolkit/datumaro/issues
