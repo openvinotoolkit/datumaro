@@ -5,6 +5,7 @@
 from collections import Counter
 from unittest import TestCase
 import numpy as np
+from argparse import Namespace
 
 from datumaro.components.dataset import Dataset, DatasetItem
 from datumaro.components.errors import (MissingLabelCategories,
@@ -16,9 +17,9 @@ from datumaro.components.errors import (MissingLabelCategories,
     NegativeLength, InvalidValue, FarFromLabelMean,
     FarFromAttrMean, OnlyOneAttributeValue)
 from datumaro.components.extractor import Bbox, Label, Mask, Polygon
-from datumaro.components.validator import (ClassificationValidator,
-    DetectionValidator, TaskType, Validator, SegmentationValidator)
-from datumaro.plugins.dataset_validator import DatasetValidator
+from datumaro.components.validator import (TaskType, Validator)
+from datumaro.plugins.dataset_validator import (ClassificationValidator,
+    DetectionValidator, SegmentationValidator, DatasetValidator)
 from .requirements import Requirements, mark_requirement
 
 class TestValidatorTemplate(TestCase):
@@ -711,16 +712,12 @@ class TestSegmentationValidator(TestValidatorTemplate):
 
 class TestValidateAnnotations(TestValidatorTemplate):
 
-    extra_args = {
-            'few_samples_thr': 1,
-            'imbalance_ratio_thr': 50,
-            'far_from_mean_thr': 5.0,
-            'dominance_ratio_thr': 0.8,
-            'topk_bins': 0.1,
-        }
+    args = Namespace(few_samples_thr=1, imbalance_ratio_thr=50,
+        far_from_mean_thr=5.0, dominance_ratio_thr=0.8, topk_bins=0.1)
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_validate_annotations_classification(self):
-        actual_results = DatasetValidator.validate_annotations(self.dataset)
+        dataset_validator = DatasetValidator(TaskType.classification, self.args)
+        actual_results = dataset_validator.validate_annotations(self.dataset)
 
         with self.subTest('Test of statistics', i=0):
             actual_stats = actual_results['statistics']
@@ -776,7 +773,8 @@ class TestValidateAnnotations(TestValidatorTemplate):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_validate_annotations_detection(self):
-        actual_results = DatasetValidator.validate_annotations(self.dataset)
+        dataset_validator = DatasetValidator(TaskType.detection, self.args)
+        actual_results = dataset_validator.validate_annotations(self.dataset)
 
         with self.subTest('Test of statistics', i=0):
             actual_stats = actual_results['statistics']
@@ -830,7 +828,8 @@ class TestValidateAnnotations(TestValidatorTemplate):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_validate_annotations_segmentation(self):
-        actual_results = DatasetValidator.validate_annotations(self.dataset)
+        dataset_validator = DatasetValidator(TaskType.segmentation, self.args)
+        actual_results = dataset_validator.validate_annotations(self.dataset)
 
         with self.subTest('Test of statistics', i=0):
             actual_stats = actual_results['statistics']
@@ -886,9 +885,11 @@ class TestValidateAnnotations(TestValidatorTemplate):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_validate_annotations_invalid_task_type(self):
         with self.assertRaises(ValueError):
-            DatasetValidator.validate_annotations(self.dataset, 'INVALID', **self.extra_args)
+            dataset_validator = DatasetValidator('INVALID', self.args)
+            dataset_validator.validate_annotations(self.dataset)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_validate_annotations_invalid_dataset_type(self):
         with self.assertRaises(TypeError):
-            DatasetValidator.validate_annotations(object(), 'classification', **self.extra_args)
+            dataset_validator = DatasetValidator(TaskType.classification, self.args)
+            dataset_validator.validate_annotations(object())
