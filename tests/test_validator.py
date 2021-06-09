@@ -720,8 +720,7 @@ class TestValidateAnnotations(TestValidatorTemplate):
         }
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_validate_annotations_classification(self):
-        actual_results = DatasetValidator.validate_annotations(self.dataset, 'classification',
-            **self.extra_args)
+        actual_results = DatasetValidator.validate_annotations(self.dataset)
 
         with self.subTest('Test of statistics', i=0):
             actual_stats = actual_results['statistics']
@@ -777,8 +776,7 @@ class TestValidateAnnotations(TestValidatorTemplate):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_validate_annotations_detection(self):
-        actual_results = DatasetValidator.validate_annotations(self.dataset, 'detection',
-            **self.extra_args)
+        actual_results = DatasetValidator.validate_annotations(self.dataset)
 
         with self.subTest('Test of statistics', i=0):
             actual_stats = actual_results['statistics']
@@ -832,8 +830,7 @@ class TestValidateAnnotations(TestValidatorTemplate):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_validate_annotations_segmentation(self):
-        actual_results = DatasetValidator.validate_annotations(self.dataset, 'segmentation',
-            **self.extra_args)
+        actual_results = DatasetValidator.validate_annotations(self.dataset)
 
         with self.subTest('Test of statistics', i=0):
             actual_stats = actual_results['statistics']
