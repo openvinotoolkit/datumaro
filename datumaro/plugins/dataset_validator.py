@@ -7,7 +7,6 @@ import json
 import logging as log
 import numpy as np
 from copy import deepcopy
-from enum import Enum
 
 from datumaro.components.validator import (Severity, TaskType, Validator)
 from datumaro.components.cli_plugin import CliPlugin
