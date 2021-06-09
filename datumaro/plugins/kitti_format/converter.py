@@ -14,7 +14,7 @@ import numpy as np
 from datumaro.components.converter import Converter
 from datumaro.components.extractor import (AnnotationType,
     CompiledMask, LabelCategories)
-from datumaro.util import str_to_bool
+from datumaro.util import find, parse_str_enum_value, str_to_bool, cast
 from datumaro.util.annotation_util import make_label_id_mapping
 from datumaro.util.image import save_image
 from datumaro.util.mask_tools import paint_mask
@@ -38,7 +38,7 @@ class KittiConverter(Converter):
         if osp.isfile(s):
             return s
         try:
-            return LabelmapType[s].name
+            return LabelmapType[s.lower()].name
         except KeyError:
             import argparse
             raise argparse.ArgumentTypeError()
@@ -55,9 +55,6 @@ class KittiConverter(Converter):
         parser.add_argument('--tasks', type=cls._split_tasks_string,
             help="KITTI task filter, comma-separated list of {%s} "
                 "(default: all)" % ', '.join(t.name for t in KittiTask))
-        parser.add_argument('--allow-attributes',
-            type=str_to_bool, default=True,
-            help="Allow export of attributes (default: %(default)s)")
         return parser
 
     def __init__(self, extractor, save_dir,
@@ -71,11 +68,10 @@ class KittiConverter(Converter):
         elif isinstance(tasks, KittiTask):
             tasks = {tasks}
         else:
-            tasks = set(t if t in KittiTask else KittiTask[t] for t in tasks)
+            tasks = set(parse_str_enum_value(t, KittiTask) for t in tasks)
         self._tasks = tasks
 
         self._apply_colormap = apply_colormap
-        self._allow_attributes = allow_attributes
 
         if label_map is None:
             label_map = LabelmapType.source.name
@@ -91,12 +87,11 @@ class KittiConverter(Converter):
             if KittiTask.segmentation in self._tasks:
                 os.makedirs(osp.join(self._save_dir, subset_name,
                     KittiPath.INSTANCES_DIR), exist_ok=True)
+
             for item in subset:
-                image_name = self._make_image_filename(item)
-                image_path = osp.join(subset_name, KittiPath.IMAGES_DIR,
-                    image_name)
                 if self._save_images:
-                    self._save_image(item, osp.join(self._save_dir, image_path))
+                    self._save_image(item,
+                        subdir=osp.join(subset_name, KittiPath.IMAGES_DIR))
 
                 masks = [a for a in item.annotations
                     if a.type == AnnotationType.mask]
@@ -115,6 +110,7 @@ class KittiConverter(Converter):
                         compiled_class_mask.class_mask, apply_colormap=False,
                         dtype=np.int32)
 
+                    # TODO: optimize second merging
                     compiled_instance_mask = CompiledMask.from_instance_masks(masks,
                         instance_labels=[(m.label << 8) + m.id for m in masks])
                     inst_path = osp.join(subset_name,
@@ -133,21 +129,15 @@ class KittiConverter(Converter):
                         for bbox in bboxes:
                             label_line = [-1] * 15
                             label_line[0] = self.get_label(bbox.label)
-                            truncated = KittiPath.DEFAULT_TRUNCATED
-                            occluded = KittiPath.DEFAULT_OCCLUDED
-                            if 'truncated' in bbox.attributes and \
-                                self._allow_attributes:
-                                truncated = float(bbox.attributes['truncated'])
-                            if 'occluded' in bbox.attributes and \
-                                self._allow_attributes:
-                                occluded = int(bbox.attributes['occluded'])
-                            label_line[1] = truncated
-                            label_line[2] = occluded
+                            label_line[1] = cast(bbox.attributes.get('truncated'),
+                                float, KittiPath.DEFAULT_TRUNCATED)
+                            label_line[2] = cast(bbox.attributes.get('occluded'),
+                                int, KittiPath.DEFAULT_OCCLUDED)
                             x, y, h, w = bbox.get_bbox()
-                            label_line[4:8] = x, y, x+h, y+w
-                            label_line = ' '.join([str(elem)
-                               for elem in label_line])
-                            f.writelines('%s\n' % label_line)
+                            label_line[4:8] = x, y, x + h, y + w
+
+                            label_line = ' '.join(str(v) for v in label_line)
+                            f.write('%s\n' % label_line)
 
         if KittiTask.segmentation in self._tasks:
             self.save_label_map()
@@ -227,7 +217,7 @@ class KittiConverter(Converter):
         return map_id
 
     def save_mask(self, path, mask, colormap=None, apply_colormap=True,
-        dtype=np.uint8):
+            dtype=np.uint8):
         if self._apply_colormap and apply_colormap:
             if colormap is None:
                 colormap = self._categories[AnnotationType.mask].colormap

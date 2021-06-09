@@ -12,6 +12,7 @@ from datumaro.components.extractor import (AnnotationType,
 
 from datumaro.util.mask_tools import generate_colormap
 
+
 KittiTask = Enum('KittiTask', [
     'segmentation',
     'detection'
@@ -113,9 +114,6 @@ def make_kitti_detection_categories():
     return categories
 
 def parse_label_map(path):
-    if not path:
-        return None
-
     label_map = OrderedDict()
     with open(path, 'r') as f:
         for line in f:

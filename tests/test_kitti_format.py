@@ -4,6 +4,7 @@ from functools import partial
 from unittest import TestCase
 
 import numpy as np
+
 from datumaro.components.extractor import (AnnotationType, Bbox, DatasetItem,
     Extractor, LabelCategories, Mask)
 from datumaro.components.dataset import Dataset
@@ -25,7 +26,9 @@ from .requirements import Requirements, mark_requirement
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets',
     'kitti_dataset')
 
+
 class KittiFormatTest(TestCase):
+    @mark_requirement(Requirements.DATUM_280)
     def test_can_write_and_parse_labelmap(self):
         src_label_map = KittiLabelMap
 
@@ -38,6 +41,7 @@ class KittiFormatTest(TestCase):
             self.assertEqual(src_label_map, dst_label_map)
 
 class KittiImportTest(TestCase):
+    @mark_requirement(Requirements.DATUM_280)
     def test_can_import_segmentation(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='000030_10',
@@ -71,6 +75,7 @@ class KittiImportTest(TestCase):
 
         compare_datasets(self, source_dataset, parsed_dataset)
 
+    @mark_requirement(Requirements.DATUM_280)
     def test_can_import_detection(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='000030_10',
@@ -139,6 +144,7 @@ class KittiConverterTest(TestCase):
             importer='kitti',
             target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
+    @mark_requirement(Requirements.DATUM_280)
     def test_can_save_kitti_segm(self):
         class TestExtractor(TestExtractorBase):
             def __iter__(self):
@@ -165,6 +171,7 @@ class KittiConverterTest(TestCase):
                 partial(KittiConverter.convert, label_map='kitti',
                 save_images=True), test_dir)
 
+    @mark_requirement(Requirements.DATUM_280)
     def test_can_save_kitti_detection(self):
         class TestExtractor(TestExtractorBase):
             def __iter__(self):
@@ -191,54 +198,7 @@ class KittiConverterTest(TestCase):
                 partial(KittiConverter.convert,
                 save_images=True, tasks=KittiTask.detection), test_dir)
 
-    def test_can_save_kitti_detection_no_attributes(self):
-        class TestExtractor(TestExtractorBase):
-            def __iter__(self):
-                return iter([
-                    DatasetItem(id='1/2', subset='test',
-                        image=np.ones((10, 10, 3)), annotations=[
-                        Bbox(0, 1, 2, 2, label=2, id=0,
-                            attributes={'truncated': False, 'occluded': False}),
-                    ]),
-                    DatasetItem(id='1/3', subset='test',
-                        image=np.ones((10, 10, 3)), annotations=[
-                        Bbox(0, 0, 2, 2, label=1, id=0,
-                            attributes={'truncated': True, 'occluded': False}),
-                        Bbox(6, 2, 3, 4, label=1, id=1,
-                            attributes={'truncated': False, 'occluded': True}),
-                    ]),
-                ])
-
-            def categories(self):
-                return make_kitti_detection_categories()
-
-        class DstExtractor(TestExtractorBase):
-            def __iter__(self):
-                return iter([
-                    DatasetItem(id='1/2', subset='test',
-                        image=np.ones((10, 10, 3)), annotations=[
-                        Bbox(0, 1, 2, 2, label=2, id=0,
-                            attributes={'truncated': False, 'occluded': False}),
-                    ]),
-                    DatasetItem(id='1/3', subset='test',
-                        image=np.ones((10, 10, 3)), annotations=[
-                        Bbox(0, 0, 2, 2, label=1, id=0,
-                            attributes={'truncated': False, 'occluded': False}),
-                        Bbox(6, 2, 3, 4, label=1, id=1,
-                            attributes={'truncated': False, 'occluded': False}),
-                    ]),
-                ])
-
-            def categories(self):
-                return make_kitti_detection_categories()
-
-        with TestDir() as test_dir:
-            self._test_save_and_load(TestExtractor(),
-                partial(KittiConverter.convert,
-                save_images=True, allow_attributes=False,
-                tasks=KittiTask.detection), test_dir,
-                target_dataset=DstExtractor())
-
+    @mark_requirement(Requirements.DATUM_280)
     def test_can_save_kitti_segm_unpainted(self):
         class TestExtractor(TestExtractorBase):
             def __iter__(self):
@@ -259,6 +219,7 @@ class KittiConverterTest(TestCase):
                 partial(KittiConverter.convert, label_map='kitti',
                 save_images=True, apply_colormap=False), test_dir)
 
+    @mark_requirement(Requirements.DATUM_280)
     def test_can_save_kitti_dataset_with_no_subsets(self):
         class TestExtractor(TestExtractorBase):
             def __iter__(self):
@@ -285,6 +246,7 @@ class KittiConverterTest(TestCase):
                 partial(KittiConverter.convert, label_map='kitti',
                 save_images=True), test_dir)
 
+    @mark_requirement(Requirements.DATUM_280)
     def test_can_save_kitti_dataset_without_frame_and_sequence(self):
         class TestExtractor(TestExtractorBase):
             def __iter__(self):
@@ -321,6 +283,7 @@ class KittiConverterTest(TestCase):
                 partial(KittiConverter.convert, label_map='kitti',
                 save_images=True), test_dir)
 
+    @mark_requirement(Requirements.DATUM_280)
     def test_can_save_kitti_dataset_with_complex_id(self):
         class TestExtractor(TestExtractorBase):
             def __iter__(self):
@@ -339,6 +302,7 @@ class KittiConverterTest(TestCase):
                 partial(KittiConverter.convert, label_map='kitti',
                 save_images=True), test_dir)
 
+    @mark_requirement(Requirements.DATUM_280)
     def test_can_save_with_no_masks(self):
         class TestExtractor(TestExtractorBase):
             def __iter__(self):
@@ -353,6 +317,7 @@ class KittiConverterTest(TestCase):
                 partial(KittiConverter.convert, label_map='kitti',
                 save_images=True), test_dir)
 
+    @mark_requirement(Requirements.DATUM_280)
     def test_dataset_with_source_labelmap_undefined(self):
         class SrcExtractor(TestExtractorBase):
             def __iter__(self):
@@ -395,6 +360,7 @@ class KittiConverterTest(TestCase):
                 partial(KittiConverter.convert, label_map='source',
                 save_images=True), test_dir, target_dataset=DstExtractor())
 
+    @mark_requirement(Requirements.DATUM_280)
     def test_dataset_with_source_labelmap_defined(self):
         class SrcExtractor(TestExtractorBase):
             def __iter__(self):

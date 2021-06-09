@@ -1,14 +1,13 @@
-
 # Copyright (C) 2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
-import numpy as np
 import os.path as osp
 
+import numpy as np
+
 from datumaro.components.extractor import (SourceExtractor,
-    AnnotationType, DatasetItem, Mask, Bbox
-)
+    AnnotationType, DatasetItem, Mask, Bbox)
 from datumaro.util.image import load_image, find_images
 
 from .format import (
@@ -27,7 +26,7 @@ class _KittiExtractor(SourceExtractor):
         self._subset = subset
         super().__init__(subset=subset)
 
-        self._categories = self._load_categories(osp.join(self._path, '../'))
+        self._categories = self._load_categories(osp.dirname(self._path))
         self._items = list(self._load_items().values())
 
     def _load_categories(self, path):
@@ -49,17 +48,16 @@ class _KittiExtractor(SourceExtractor):
     def _load_items(self):
         items = {}
 
-        for image_path in find_images(osp.join(self._path, KittiPath.IMAGES_DIR),
-                                      recursive=True):
-            image_name = osp.relpath(image_path, osp.join(self._path,
-                KittiPath.IMAGES_DIR))
+        image_dir = osp.join(self._path, KittiPath.IMAGES_DIR)
+        for image_path in find_images(image_dir, recursive=True):
+            image_name = osp.relpath(image_path, image_dir)
             sample_id = osp.splitext(image_name)[0]
             anns = []
 
             instances_path = osp.join(self._path, KittiPath.INSTANCES_DIR,
                 sample_id + KittiPath.MASK_EXT)
             if self._task == KittiTask.segmentation and \
-                osp.isfile(instances_path):
+                    osp.isfile(instances_path):
                 instances_mask = load_image(instances_path, dtype=np.int32)
                 segm_ids = np.unique(instances_mask)
                 for segm_id in segm_ids:
@@ -69,23 +67,31 @@ class _KittiExtractor(SourceExtractor):
                     anns.append(Mask(
                         image=self._lazy_extract_mask(instances_mask, segm_id),
                         label=semantic_id, id=ann_id,
-                        attributes = { 'is_crowd': isCrowd }))
+                        attributes={ 'is_crowd': isCrowd }))
 
             labels_path = osp.join(self._path, KittiPath.LABELS_DIR,
                 sample_id+'.txt')
             if self._task == KittiTask.detection and osp.isfile(labels_path):
                 with open(labels_path, 'r', encoding='utf-8') as f:
                     lines = f.readlines()
+
                 for line_idx, line in enumerate(lines):
-                    attributes = {}
                     line = line.split()
                     assert len(line) == 15
+
                     x1, y1 = float(line[4]), float(line[5])
                     x2, y2 = float(line[6]), float(line[7])
+
+                    attributes = {}
                     attributes['truncated'] = float(line[1]) != 0
                     attributes['occluded']  = int(line[2]) != 0
+
                     label_id = self.categories()[
                         AnnotationType.label].find(line[0])[0]
+                    if label_id is None:
+                        raise Exception("Item %s: unknown label '%s'" % \
+                            (sample_id, line[0]))
+
                     anns.append(
                         Bbox(x=x1, y=y1, w=x2-x1, h=y2-y1, id=line_idx,
                             attributes=attributes, label=label_id,

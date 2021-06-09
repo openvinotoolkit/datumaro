@@ -39,6 +39,7 @@ class Requirements:
     # GitHub issues (not bugs)
     # https://github.com/openvinotoolkit/datumaro/issues
     DATUM_244 = "Add Snyk integration"
+    DATUM_280 = "Support KITTI dataset formats"
 
     # GitHub issues (bugs)
     # https://github.com/openvinotoolkit/datumaro/issues
