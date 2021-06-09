@@ -97,22 +97,22 @@ class DatasetItemStorageDatasetView(IDataset):
             return self._data.put(item)
 
         def get(self, id, subset=None):
-            assert subset or DEFAULT_SUBSET_NAME == \
-                   self.name or DEFAULT_SUBSET_NAME
+            assert (subset or DEFAULT_SUBSET_NAME) == \
+                   (self.name or DEFAULT_SUBSET_NAME)
             return self._data.get(id, subset)
 
         def remove(self, id, subset=None):
-            assert subset or DEFAULT_SUBSET_NAME == \
-                   self.name or DEFAULT_SUBSET_NAME
+            assert (subset or DEFAULT_SUBSET_NAME) == \
+                   (self.name or DEFAULT_SUBSET_NAME)
             return self._data.remove(id, subset)
 
         def get_subset(self, name):
-            assert name or DEFAULT_SUBSET_NAME == \
-                   self.name or DEFAULT_SUBSET_NAME
+            assert (name or DEFAULT_SUBSET_NAME) == \
+                   (self.name or DEFAULT_SUBSET_NAME)
             return self
 
         def subsets(self):
-            return { self.name or DEFAULT_SUBSET_NAME: self }
+            return { self.name or DEFAULT_SUBSET_NAME : self }
 
         def categories(self):
             return self.parent.categories()
@@ -187,22 +187,24 @@ class DatasetSubset(IDataset): # non-owning view
         return self.parent.put(item, subset=self.name)
 
     def get(self, id, subset=None):
-        assert subset or DEFAULT_SUBSET_NAME == \
-               self.name or DEFAULT_SUBSET_NAME
+        assert (subset or DEFAULT_SUBSET_NAME) == \
+               (self.name or DEFAULT_SUBSET_NAME)
         return self.parent.get(id, subset=self.name)
 
     def remove(self, id, subset=None):
-        assert subset or DEFAULT_SUBSET_NAME == \
-               self.name or DEFAULT_SUBSET_NAME
+        assert (subset or DEFAULT_SUBSET_NAME) == \
+               (self.name or DEFAULT_SUBSET_NAME)
         return self.parent.remove(id, subset=self.name)
 
     def get_subset(self, name):
-        assert name or DEFAULT_SUBSET_NAME == \
-               self.name or DEFAULT_SUBSET_NAME
+        assert (name or DEFAULT_SUBSET_NAME) == \
+               (self.name or DEFAULT_SUBSET_NAME)
         return self
 
     def subsets(self):
-        return { self.name or DEFAULT_SUBSET_NAME: self }
+        if (self.name or DEFAULT_SUBSET_NAME) == DEFAULT_SUBSET_NAME:
+            return self.parent.subsets()
+        return { self.name: self }
 
     def categories(self):
         return self.parent.categories()
