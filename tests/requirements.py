@@ -39,6 +39,7 @@ class Requirements:
     # GitHub issues (not bugs)
     # https://github.com/openvinotoolkit/datumaro/issues
     DATUM_244 = "Add Snyk integration"
+    DATUM_283 = "Create cli tests for testing convert command for VOC format"
 
     # GitHub issues (bugs)
     # https://github.com/openvinotoolkit/datumaro/issues
