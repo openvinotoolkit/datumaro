@@ -34,6 +34,22 @@ class VocIntegrationScenarios(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_preparing_dataset_for_train_model(self):
+        """
+        <b>Description:</b>
+        Testing a particular example of working with VOC dataset.
+
+        <b>Expected results:</b>
+        A VOC dataset that matches the expected result.
+
+        <b>Steps:</b>
+        1. Get path to the source dataset from assets.
+        2. Create a datumaro project and add source dataset to it.
+        3. Leave only non-occluded annotations with `filter` command.
+        4. Split the dataset into subsets with `transform` command.
+        5. Export the project to a VOC dataset with `export` command.
+        6. Verify that the resulting dataset is equal to the expected result.
+        """
+
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='c', subset='train',
                 annotations=[
@@ -85,6 +101,21 @@ class VocIntegrationScenarios(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_export_to_format(self):
+        """
+        <b>Description:</b>
+        Ensure that the dataset can be exported from datumaro project
+        to VOC format with command `datum export`.
+
+        <b>Expected results:</b>
+        A VOC dataset that matches the source dataset.
+
+        <b>Steps:</b>
+        1. Get path to the source dataset from assets.
+        2. Create a datumaro project and add source dataset to it.
+        3. Export the dataset to VOC format, using the `export` command.
+        4. Verify that the resulting dataset is equal to the source dataset.
+        """
+
         label_map = OrderedDict(('label_' + str(i), [None, [], []]) for i in range(10))
         label_map['background'] = [None, [], []]
         label_map.move_to_end('background', last=False)
