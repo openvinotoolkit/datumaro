@@ -64,8 +64,8 @@ class ImageZipIntegrationScenarios(TestCase):
 
             self.assertTrue(osp.isfile(export_path))
             with ZipFile(export_path, 'r') as zf:
-                images = [f.filename for f in zf.filelist]
-                self.assertTrue(images == ['000000000001.jpg'])
+                images = {f.filename for f in zf.filelist}
+                self.assertTrue(images == {'a.jpg', 'b.jpg'})
 
     @pytest.mark.reqids(Requirements.DATUM_267)
     def test_can_change_extension_for_images_in_zip(self):
