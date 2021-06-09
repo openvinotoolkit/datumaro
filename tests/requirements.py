@@ -2,31 +2,11 @@
 #
 # SPDX-License-Identifier: MIT
 
+import typing
+
+from attr import attrs
+
 import pytest
-
-
-def mark_requirement(requirement):
-    def wrapper(test_func):
-        @pytest.mark.components(DatumaroComponent.Datumaro)
-        @pytest.mark.component
-        @pytest.mark.priority_medium
-        @pytest.mark.reqids(requirement)
-        def test_wrapper(*args, **kwargs):
-            return test_func(*args, **kwargs)
-        return test_wrapper
-    return wrapper
-
-def mark_bug(bugs):
-    def wrapper(test_func):
-        @pytest.mark.components(DatumaroComponent.Datumaro)
-        @pytest.mark.component
-        @pytest.mark.priority_medium
-        @pytest.mark.bugs(bugs)
-        def test_wrapper(*args, **kwargs):
-            return test_func(*args, **kwargs)
-        return test_wrapper
-    return wrapper
-
 
 class DatumaroComponent:
     Datumaro = "datumaro"
@@ -48,3 +28,33 @@ class Requirements:
 
 class SkipMessages:
     NOT_IMPLEMENTED = "NOT IMPLEMENTED"
+
+
+@attrs(auto_attribs=True)
+class _CombinedDecorator:
+    decorators: typing.List[typing.Callable]
+
+    def __call__(self, function):
+        for d in reversed(self.decorators):
+            function = d(function)
+
+        return function
+
+
+_SHARED_DECORATORS = [
+    pytest.mark.components(DatumaroComponent.Datumaro),
+    pytest.mark.component,
+    pytest.mark.priority_medium,
+]
+
+def mark_requirement(requirement):
+    return _CombinedDecorator([
+        *_SHARED_DECORATORS,
+        pytest.mark.reqids(requirement),
+    ])
+
+def mark_bug(bugs):
+    return _CombinedDecorator([
+        *_SHARED_DECORATORS,
+        pytest.mark.bugs(bugs),
+    ])

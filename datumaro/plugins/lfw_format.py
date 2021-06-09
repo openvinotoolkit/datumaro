@@ -164,7 +164,8 @@ class LfwExtractor(SourceExtractor):
 class LfwImporter(Importer):
     @classmethod
     def find_sources(cls, path):
-        return cls._find_sources_recursive(path, LfwPath.PAIRS_FILE, 'lfw')
+        base, ext = osp.splitext(LfwPath.PAIRS_FILE)
+        return cls._find_sources_recursive(path, ext, 'lfw', filename=base)
 
 class LfwConverter(Converter):
     DEFAULT_IMAGE_EXT = LfwPath.IMAGE_EXT
