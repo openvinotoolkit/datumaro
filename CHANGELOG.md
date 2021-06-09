@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
--
+- Subformat importers for VOC and COCO (<https://github.com/openvinotoolkit/datumaro/pull/281>)
 
 ### Changed
 -
