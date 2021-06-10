@@ -18,15 +18,7 @@ class KittiImporter(Importer):
         KittiTask.detection: ('kitti_detection', KittiPath.LABELS_DIR),
     }
 
-    @classmethod
-    def detect(cls, path):
-        with logging_disabled(log.WARN):
-            return len(cls.find_sources(path)) != 0
-
     def __call__(self, path, **extra_params):
-        from datumaro.components.project import Project # cyclic import
-        project = Project()
-
         subsets = self.find_sources(path)
 
         if len(subsets) == 0:
@@ -44,6 +36,7 @@ class KittiImporter(Importer):
                 "Only one type will be used: %s" \
                 % (", ".join(t.name for t in ann_types), selected_ann_type.name))
 
+        sources = []
         for ann_files in subsets.values():
             for ann_type, ann_file in ann_files.items():
                 if ann_type in conflicting_types:
@@ -53,14 +46,13 @@ class KittiImporter(Importer):
                         continue
                 log.info("Found a dataset at '%s'" % ann_file)
 
-                source_name = osp.splitext(osp.basename(ann_file))[0]
-                project.add_source(source_name, {
+                sources.append({
                     'url': ann_file,
                     'format': ann_type,
                     'options': dict(extra_params),
                 })
 
-        return project
+        return sources
 
     @classmethod
     def find_sources(cls, path):
