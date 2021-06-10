@@ -5,7 +5,7 @@
 #pylint: disable=redefined-builtin
 
 from contextlib import contextmanager
-from enum import Enum
+from enum import Enum, auto
 from typing import Iterable, Iterator, Optional, Tuple, Union, Dict, List
 import logging as log
 import os
@@ -144,7 +144,10 @@ class DatasetItemStorageDatasetView(IDataset):
         return self._parent.get(id, subset=subset)
 
 
-ItemStatus = Enum('ItemStatus', ['added', 'modified', 'removed'])
+class ItemStatus(Enum):
+    added = auto()
+    modified = auto()
+    removed = auto()
 
 class DatasetPatch:
     def __init__(self, data: DatasetItemStorage,

@@ -7,7 +7,7 @@ import logging as log
 import os
 import os.path as osp
 from collections import OrderedDict
-from enum import Enum
+from enum import Enum, auto
 
 import numpy as np
 
@@ -24,7 +24,9 @@ from .format import (KittiTask, KittiPath, KittiLabelMap,
     parse_label_map, write_label_map,
 )
 
-LabelmapType = Enum('LabelmapType', ['kitti', 'source'])
+class LabelmapType(Enum):
+    kitti = auto()
+    source = auto()
 
 class KittiConverter(Converter):
     DEFAULT_IMAGE_EXT = KittiPath.IMAGE_EXT

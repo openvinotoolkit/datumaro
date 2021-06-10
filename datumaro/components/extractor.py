@@ -3,7 +3,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-from enum import Enum
+from enum import Enum, auto
 from glob import iglob
 from typing import Callable, Iterable, List, Dict, Optional
 import numpy as np
@@ -17,16 +17,14 @@ from datumaro.util.image import Image
 from datumaro.util.attrs_util import not_empty, default_if_none
 
 
-AnnotationType = Enum('AnnotationType',
-    [
-        'label',
-        'mask',
-        'points',
-        'polygon',
-        'polyline',
-        'bbox',
-        'caption',
-    ])
+class AnnotationType(Enum):
+    label = auto()
+    mask = auto()
+    points = auto()
+    polygon = auto()
+    polyline = auto()
+    bbox = auto()
+    caption = auto()
 
 _COORDINATE_ROUNDING_DIGITS = 2
 
@@ -468,11 +466,11 @@ class PointsCategories(Categories):
 
 @attrs
 class Points(_Shape):
-    Visibility = Enum('Visibility', [
-        ('absent', 0),
-        ('hidden', 1),
-        ('visible', 2),
-    ])
+    class Visibility(Enum):
+        absent = 0
+        hidden = 1
+        visible = 2
+
     _type = AnnotationType.points
 
     visibility = attrib(type=list, default=None)
