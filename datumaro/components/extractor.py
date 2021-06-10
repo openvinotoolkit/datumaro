@@ -594,7 +594,9 @@ class ExtractorBase(IExtractor):
         if self._subsets is None:
             self._init_cache()
         if name in self._subsets:
-            return self.select(lambda item: item.subset == name)
+            subset = self.select(lambda item: item.subset == name)
+            subset._subsets = [name]
+            return subset
         else:
             raise Exception("Unknown subset '%s', available subsets: %s" % \
                 (name, set(self._subsets)))
