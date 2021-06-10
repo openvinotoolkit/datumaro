@@ -7,8 +7,7 @@ from unittest import TestCase
 
 import datumaro.plugins.voc_format.format as VOC
 from datumaro.components.dataset import Dataset, DatasetItem
-from datumaro.components.extractor import (AnnotationType, Bbox, Image, Label,
-                                           LabelCategories, Mask)
+from datumaro.components.extractor import (Bbox, Image, Label, Mask)
 from datumaro.cli.__main__ import main
 from datumaro.util.test_utils import TestDir, compare_datasets
 from ..requirements import Requirements, mark_requirement
