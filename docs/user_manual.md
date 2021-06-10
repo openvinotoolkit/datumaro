@@ -135,6 +135,10 @@ List of supported formats:
   - [Format specification](https://www.cityscapes-dataset.com/dataset-overview/)
   - [Dataset example](../tests/assets/cityscapes_dataset)
   - [Format documentation](./formats/cityscapes_user_manual.md)
+- KITTI (`segmentation`, `detection`)
+  - [Format specification](http://www.cvlibs.net/datasets/kitti/index.php)
+  - [Dataset example](../tests/assets/kitti_dataset)
+  - [Format documentation](./formats/kitti_user_manual.md)
 - CVAT
   - [Format specification](https://github.com/opencv/cvat/blob/develop/cvat/apps/documentation/xml_format.md)
   - [Dataset example](../tests/assets/cvat_dataset)

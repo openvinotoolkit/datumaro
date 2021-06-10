@@ -12,7 +12,7 @@
 - Pascal VOC format specification available
 [here](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/devkit_doc.pdf).
 
-- Original Pascal VOC dataset format support the followoing types of annotations:
+- Original Pascal VOC dataset format support the following types of annotations:
     - `Labels` (for classification tasks);
     - `Bounding boxes` (for detection, action detection and person layout tasks);
     - `Masks` (for segmentations tasks).

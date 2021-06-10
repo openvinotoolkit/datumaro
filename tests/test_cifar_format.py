@@ -146,12 +146,17 @@ class CifarImporterTest(TestCase):
             DatasetItem(id='image_4', subset='test',
                 image=np.ones((32, 32, 3)),
                 annotations=[Label(2)]
+            ),
+            DatasetItem(id='image_5', subset='test',
+                image=np.array([[[1., 2., 3.], [4., 5., 6.]],
+                                [[1., 2., 3.], [4., 5., 6.]]]),
+                annotations=[Label(3)]
             )
         ], categories=['airplane', 'automobile', 'bird', 'cat'])
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'cifar')
 
-        compare_datasets(self, expected_dataset, dataset)
+        compare_datasets(self, expected_dataset, dataset, require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect(self):
