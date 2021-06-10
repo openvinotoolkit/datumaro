@@ -148,6 +148,7 @@ class CifarImporterTest(TestCase):
                 annotations=[Label(2)]
             ),
             DatasetItem(id='image_5', subset='test',
+                # in the images file: 1, 4, 1, 4, 2, 5, 2, 5, 3, 6, 3, 6
                 image=np.array([[[1., 2., 3.], [4., 5., 6.]],
                                 [[1., 2., 3.], [4., 5., 6.]]]),
                 annotations=[Label(3)]
