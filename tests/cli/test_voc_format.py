@@ -7,7 +7,7 @@ from unittest import TestCase
 
 import datumaro.plugins.voc_format.format as VOC
 from datumaro.components.dataset import Dataset, DatasetItem
-from datumaro.components.extractor import (Bbox, Image, Label, Mask)
+from datumaro.components.extractor import Bbox, Label, Mask
 from datumaro.cli.__main__ import main
 from datumaro.util.test_utils import TestDir, compare_datasets
 from ..requirements import Requirements, mark_requirement
@@ -213,7 +213,7 @@ class VocIntegrationScenarios(TestCase):
 
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='2007_000001', subset='default',
-                image=Image(path='2007_000001.jpg', size=(10, 20)),
+                image=np.ones((10, 20, 3)),
                 annotations=[Label(i) for i in range(11)]
             ),
             DatasetItem(id='2007_000002', subset='default',
