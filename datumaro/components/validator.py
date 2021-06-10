@@ -7,13 +7,14 @@ from enum import Enum
 
 import numpy as np
 
-from datumaro.components.errors import (MissingAnnotation,
-    MultiLabelAnnotations, MissingAttribute, UndefinedLabel,
-    UndefinedAttribute, LabelDefinedButNotFound, AttributeDefinedButNotFound,
-    OnlyOneLabel, FewSamplesInLabel, FewSamplesInAttribute,
-    ImbalancedLabels, ImbalancedAttribute, ImbalancedDistInLabel,
-    ImbalancedDistInAttribute, NegativeLength, InvalidValue,
-    FarFromLabelMean, FarFromAttrMean, OnlyOneAttributeValue)
+from datumaro.components.errors import (MissingLabelCategories,
+    MissingAnnotation, MultiLabelAnnotations, MissingAttribute,
+    UndefinedLabel, UndefinedAttribute, LabelDefinedButNotFound,
+    AttributeDefinedButNotFound, OnlyOneLabel, FewSamplesInLabel,
+    FewSamplesInAttribute, ImbalancedLabels, ImbalancedAttribute,
+    ImbalancedDistInLabel, ImbalancedDistInAttribute,
+    NegativeLength, InvalidValue, FarFromLabelMean,
+    FarFromAttrMean, OnlyOneAttributeValue)
 from datumaro.components.extractor import AnnotationType, LabelCategories
 from datumaro.util import parse_str_enum_value
 
