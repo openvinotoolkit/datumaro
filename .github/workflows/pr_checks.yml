@@ -21,8 +21,8 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Installing dependencies
         run: |
-          pip install tensorflow pytest
-          pip install -e ./
+          pip install -U setuptools wheel
+          pip install -e './[tf]' pytest
       - name: Unit testing
         run: |
           pytest -v
