@@ -2,8 +2,8 @@ import os.path as osp
 from collections import OrderedDict
 
 import numpy as np
-from unittest import TestCase
 import pytest
+from unittest import TestCase
 
 import datumaro.plugins.voc_format.format as VOC
 from datumaro.components.dataset import Dataset, DatasetItem
@@ -220,18 +220,16 @@ class VocIntegrationScenarios(TestCase):
             DatasetItem(id='2007_000002', subset='default',
                image=np.ones((10, 20, 3))
             )
-        ], categories={AnnotationType.label: LabelCategories.from_iterable(
-                sorted([l.name for l in VOC.VocLabel if l.value % 2 == 1])),
-        })
+        ], categories=sorted([l.name for l in VOC.VocLabel if l.value % 2 == 1]))
 
         voc_dir = osp.join(DUMMY_DATASETS_DIR, 'voc_dataset1')
         with TestDir() as test_dir:
             imagenet_dir = osp.join(test_dir, 'imagenet')
             run(self, 'convert', '-if', 'voc', '-i', voc_dir,
-                '-f', 'imagenet', '-o', imagenet_dir)
+                '-f', 'imagenet', '-o', imagenet_dir, '--', '--save-image')
 
             target_dataset = Dataset.import_from(imagenet_dir, format='imagenet')
-            compare_datasets(self, expected_dataset, target_dataset)
+            compare_datasets(self, expected_dataset, target_dataset, require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_voc_dataset(self):
