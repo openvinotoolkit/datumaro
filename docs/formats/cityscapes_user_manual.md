@@ -139,7 +139,7 @@ particular problems with Cityscapes dataset:
 datum create -o project
 datum add path -p project -f cityscapes ./Cityscapes/
 datum stats -p project
-datum export -p final_project -o dataset -f voc --overwrite  -- --save-images
+datum export -p final_project -o dataset -f voc -- --save-images
 ```
 
 ### Example 2. How to create custom Cityscapes-like dataset

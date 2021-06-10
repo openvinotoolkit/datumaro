@@ -1,9 +1,10 @@
 from functools import partial
-import numpy as np
+from itertools import product
 import os
 import os.path as osp
-
 from unittest import TestCase
+
+import numpy as np
 
 from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import (DatasetItem,
@@ -20,7 +21,10 @@ from datumaro.plugins.coco_format.converter import (
     CocoPanopticConverter,
     CocoStuffConverter,
 )
-from datumaro.plugins.coco_format.importer import CocoImporter
+from datumaro.plugins.coco_format.importer import (CocoCaptionsImporter,
+    CocoImageInfoImporter, CocoImporter, CocoInstancesImporter,
+    CocoLabelsImporter, CocoPanopticImporter, CocoPersonKeypointsImporter,
+    CocoStuffImporter)
 from datumaro.util.image import Image
 from datumaro.util.test_utils import (TestDir, compare_datasets,
     test_save_and_load)
@@ -33,168 +37,307 @@ class CocoImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_instances(self):
         expected_dataset = Dataset.from_iterable([
-            DatasetItem(id='000000000001', image=np.ones((10, 5, 3)),
-                subset='val', attributes={'id': 1},
+            DatasetItem(id='a', subset='train', image=np.ones((5, 10, 3)),
+                attributes={'id': 5},
+                annotations=[
+                    Bbox(2, 2, 3, 1, label=1,
+                        group=1, id=1, attributes={'is_crowd': False})
+                ]
+            ),
+
+            DatasetItem(id='b', subset='val', image=np.ones((10, 5, 3)),
+                attributes={'id': 40},
                 annotations=[
                     Polygon([0, 0, 1, 0, 1, 2, 0, 2], label=0,
                         id=1, group=1, attributes={'is_crowd': False,
                             'x': 1, 'y': 'hello'}),
-                    Mask(np.array(
-                        [[1, 0, 0, 1, 0]] * 5 +
-                        [[1, 1, 1, 1, 0]] * 5
-                        ), label=0,
+                    Mask(np.array( [[1, 1, 0, 0, 0]] * 10 ), label=1,
                         id=2, group=2, attributes={'is_crowd': True}),
                 ]
             ),
-        ], categories=['TEST',])
+        ], categories=['a', 'b', 'c'])
 
-        dataset = Dataset.import_from(
-            osp.join(DUMMY_DATASET_DIR, 'coco_instances'), 'coco')
+        formats = ['coco', 'coco_instances']
+        paths = [
+            ('', osp.join(DUMMY_DATASET_DIR, 'coco_instances')),
+            ('train', osp.join(DUMMY_DATASET_DIR, 'coco_instances',
+                'annotations', 'instances_train.json')),
+            ('val', osp.join(DUMMY_DATASET_DIR, 'coco_instances',
+                'annotations', 'instances_val.json')),
+        ]
+        for format, (subset, path) in product(formats, paths):
+            if subset:
+                expected = expected_dataset.get_subset(subset)
+            else:
+                expected = expected_dataset
 
-        compare_datasets(self, expected_dataset, dataset)
+            with self.subTest(path=path, format=format, subset=subset):
+                dataset = Dataset.import_from(path, format)
+                compare_datasets(self, expected, dataset, require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_captions(self):
         expected_dataset = Dataset.from_iterable([
-            DatasetItem(id=1, subset='train',
+            DatasetItem(id='a', subset='train', image=np.ones((5, 10, 3)),
+                attributes={'id': 5},
                 annotations=[
                     Caption('hello', id=1, group=1),
-                    Caption('world', id=2, group=2),
-                ], attributes={'id': 1}),
-            DatasetItem(id=2, subset='train',
+                ]),
+
+            DatasetItem(id='b', subset='val', image=np.ones((10, 5, 3)),
+                attributes={'id': 40},
                 annotations=[
-                    Caption('test', id=3, group=3),
-                ], attributes={'id': 2}),
+                    Caption('world', id=1, group=1),
+                    Caption('text', id=2, group=2),
+                ]),
+        ])
 
-            DatasetItem(id=3, subset='val',
-                annotations=[
-                    Caption('word', id=1, group=1),
-                ], attributes={'id': 1}),
-            ])
+        formats = ['coco', 'coco_captions']
+        paths = [
+            ('', osp.join(DUMMY_DATASET_DIR, 'coco_captions')),
+            ('train', osp.join(DUMMY_DATASET_DIR, 'coco_captions',
+                'annotations', 'captions_train.json')),
+            ('val', osp.join(DUMMY_DATASET_DIR, 'coco_captions',
+                'annotations', 'captions_val.json')),
+        ]
+        for format, (subset, path) in product(formats, paths):
+            if subset:
+                expected = expected_dataset.get_subset(subset)
+            else:
+                expected = expected_dataset
 
-        dataset = Dataset.import_from(
-            osp.join(DUMMY_DATASET_DIR, 'coco_captions'), 'coco')
-
-        compare_datasets(self, expected_dataset, dataset)
+            with self.subTest(path=path, format=format, subset=subset):
+                dataset = Dataset.import_from(path, format)
+                compare_datasets(self, expected, dataset, require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_labels(self):
         expected_dataset = Dataset.from_iterable([
-            DatasetItem(id=1, subset='train',
+            DatasetItem(id='a', subset='train', image=np.ones((5, 10, 3)),
+                attributes={'id': 5},
                 annotations=[
                     Label(1, id=1, group=1),
-                    Label(0, id=2, group=2),
-                ], attributes={'id': 1}),
+                ]),
+
+            DatasetItem(id='b', subset='val', image=np.ones((10, 5, 3)),
+                attributes={'id': 40},
+                annotations=[
+                    Label(0, id=1, group=1),
+                    Label(1, id=2, group=2),
+                ]),
         ], categories=['a', 'b'])
 
-        dataset = Dataset.import_from(
-            osp.join(DUMMY_DATASET_DIR, 'coco_labels'), 'coco')
+        formats = ['coco', 'coco_labels']
+        paths = [
+            ('', osp.join(DUMMY_DATASET_DIR, 'coco_labels')),
+            ('train', osp.join(DUMMY_DATASET_DIR, 'coco_labels',
+                'annotations', 'labels_train.json')),
+            ('val', osp.join(DUMMY_DATASET_DIR, 'coco_labels',
+                'annotations', 'labels_val.json')),
+        ]
+        for format, (subset, path) in product(formats, paths):
+            if subset:
+                expected = expected_dataset.get_subset(subset)
+            else:
+                expected = expected_dataset
 
-        compare_datasets(self, expected_dataset, dataset)
+            with self.subTest(path=path, format=format, subset=subset):
+                dataset = Dataset.import_from(path, format)
+                compare_datasets(self, expected, dataset, require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_import_points(self):
+    def test_can_import_keypoints(self):
         expected_dataset = Dataset.from_iterable([
-            DatasetItem(id=1, subset='train',
-                image=Image(path='1.jpg', size=(5, 5)),
+            DatasetItem(id='a', subset='train', image=np.ones((5, 10, 3)),
+                attributes={'id': 5},
                 annotations=[
-                    Points([0, 0, 0, 2, 4, 1], [0, 1, 2],
-                        label=1, group=1, id=1,
-                        attributes={'is_crowd': False}),
-                    Polygon([0, 0, 4, 0, 4, 4],
-                        label=1, group=1, id=1,
-                        attributes={'is_crowd': False}),
+                    Points([0, 0, 0, 2, 4, 1], [0, 1, 2], label=1,
+                        id=1, group=1, attributes={'is_crowd': False}),
+                    Bbox(2, 2, 3, 1, label=1,
+                        id=1, group=1, attributes={'is_crowd': False}),
+                ]),
 
-                    Points([1, 2, 3, 4, 2, 3],
-                        group=2, id=2,
-                        attributes={'is_crowd': False}),
-                    Bbox(1, 2, 2, 2,
-                        group=2, id=2,
-                        attributes={'is_crowd': False}),
+            DatasetItem(id='b', subset='val', image=np.ones((10, 5, 3)),
+                attributes={'id': 40},
+                annotations=[
+                    Points([1, 2, 3, 4, 2, 3], label=0,
+                        id=1, group=1, attributes={'is_crowd': False,
+                            'x': 1, 'y': 'hello'}),
+                    Polygon([0, 0, 1, 0, 1, 2, 0, 2], label=0,
+                        id=1, group=1, attributes={'is_crowd': False,
+                            'x': 1, 'y': 'hello'}),
 
-                    Points([1, 2, 0, 2, 4, 1],
-                        label=0, group=3, id=3,
-                        attributes={'is_crowd': False}),
-                    Bbox(0, 1, 4, 1,
-                        label=0, group=3, id=3,
-                        attributes={'is_crowd': False}),
+                    Points([2, 4, 4, 4, 4, 2], label=1,
+                        id=2, group=2, attributes={'is_crowd': True}),
+                    Mask(np.array( [[1, 1, 0, 0, 0]] * 10 ), label=1,
+                        id=2, group=2, attributes={'is_crowd': True}),
+                ]),
+        ], categories={
+            AnnotationType.label: LabelCategories.from_iterable(['a', 'b']),
+            AnnotationType.points: PointsCategories.from_iterable(
+                (i, None, [[0, 1], [1, 2]]) for i in range(2)
+            ),
+        })
 
-                    Points([0, 0, 1, 2, 3, 4], [0, 1, 2],
-                        group=5, id=5,
-                        attributes={'is_crowd': False}),
-                    Bbox(1, 2, 2, 2,
-                        group=5, id=5,
-                        attributes={'is_crowd': False}),
-                ], attributes={'id': 1}),
-            ], categories={
-                AnnotationType.label: LabelCategories.from_iterable(['a', 'b']),
-                AnnotationType.points: PointsCategories.from_iterable(
-                    (i, None, [[0, 1], [1, 2]]) for i in range(2)
-                ),
-            })
+        formats = ['coco', 'coco_person_keypoints']
+        paths = [
+            ('', osp.join(DUMMY_DATASET_DIR, 'coco_person_keypoints')),
+            ('train', osp.join(DUMMY_DATASET_DIR, 'coco_person_keypoints',
+                'annotations', 'person_keypoints_train.json')),
+            ('val', osp.join(DUMMY_DATASET_DIR, 'coco_person_keypoints',
+                'annotations', 'person_keypoints_val.json')),
+        ]
+        for format, (subset, path) in product(formats, paths):
+            if subset:
+                expected = expected_dataset.get_subset(subset)
+            else:
+                expected = expected_dataset
 
-        dataset = Dataset.import_from(
-            osp.join(DUMMY_DATASET_DIR, 'coco_person_keypoints'), 'coco')
-
-        compare_datasets(self, expected_dataset, dataset)
+            with self.subTest(path=path, format=format, subset=subset):
+                dataset = Dataset.import_from(path, format)
+                compare_datasets(self, expected, dataset, require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_image_info(self):
         expected_dataset = Dataset.from_iterable([
-            DatasetItem(id=1, image=Image(path='1.jpg', size=(10, 15)),
-                attributes={'id': 1}),
+            DatasetItem(id='a', subset='train', image=np.ones((5, 10, 3)),
+                attributes={'id': 5}),
+            DatasetItem(id='b', subset='val', image=np.ones((10, 5, 3)),
+                attributes={'id': 40})
         ])
 
-        dataset = Dataset.import_from(
-            osp.join(DUMMY_DATASET_DIR, 'coco_image_info'), 'coco')
+        formats = ['coco', 'coco_image_info']
+        paths = [
+            ('', osp.join(DUMMY_DATASET_DIR, 'coco_image_info')),
+            ('train', osp.join(DUMMY_DATASET_DIR, 'coco_image_info',
+                'annotations', 'image_info_train.json')),
+            ('val', osp.join(DUMMY_DATASET_DIR, 'coco_image_info',
+                'annotations', 'image_info_val.json')),
+        ]
+        for format, (subset, path) in product(formats, paths):
+            if subset:
+                expected = expected_dataset.get_subset(subset)
+            else:
+                expected = expected_dataset
 
-        compare_datasets(self, expected_dataset, dataset)
+            with self.subTest(path=path, format=format, subset=subset):
+                dataset = Dataset.import_from(path, format)
+                compare_datasets(self, expected, dataset, require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_panoptic(self):
         expected_dataset = Dataset.from_iterable([
-            DatasetItem(id='000000000001',
-                image=np.ones((1, 5, 3)),
-                subset='val',
+            DatasetItem(id='a', subset='train', image=np.ones((5, 10, 3)),
+                attributes={'id': 5},
+                annotations=[
+                    Mask(np.array(
+                        [[0, 0, 1, 1, 0, 1, 1, 0, 0, 0]] * 5
+                        ), label=0,
+                        id=7, group=7, attributes={'is_crowd': False}),
+                ]),
+
+            DatasetItem(id='b', subset='val', image=np.ones((10, 5, 3)),
                 attributes={'id': 40},
                 annotations=[
-                    Mask(image=np.array([[0, 0, 1, 1, 0]]), label=3,
+                    Mask(np.array( [[1, 1, 0, 0, 0]] * 10 ), label=0,
                         id=7, group=7, attributes={'is_crowd': False}),
-                    Mask(image=np.array([[0, 1, 0, 0, 1]]), label=1,
+                    Mask(np.array( [[0, 0, 1, 1, 0]] * 10 ), label=1,
                         id=20, group=20, attributes={'is_crowd': True}),
-                ]
-            ),
-        ], categories=['a', 'b', 'c', 'd'])
+                ]),
+        ], categories=['a', 'b'])
 
-        dataset = Dataset.import_from(
-            osp.join(DUMMY_DATASET_DIR, 'coco_panoptic'), 'coco')
+        formats = ['coco', 'coco_panoptic']
+        paths = [
+            ('', osp.join(DUMMY_DATASET_DIR, 'coco_panoptic')),
+            ('train', osp.join(DUMMY_DATASET_DIR, 'coco_panoptic',
+                'annotations', 'panoptic_train.json')),
+            ('val', osp.join(DUMMY_DATASET_DIR, 'coco_panoptic',
+                'annotations', 'panoptic_val.json')),
+        ]
+        for format, (subset, path) in product(formats, paths):
+            if subset:
+                expected = expected_dataset.get_subset(subset)
+            else:
+                expected = expected_dataset
 
-        compare_datasets(self, expected_dataset, dataset, require_images=True)
+            with self.subTest(path=path, format=format, subset=subset):
+                dataset = Dataset.import_from(path, format)
+                compare_datasets(self, expected, dataset, require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_stuff(self):
         expected_dataset = Dataset.from_iterable([
-            DatasetItem(id='000000000001', image=np.ones((10, 5, 3)),
-                subset='val', attributes={'id': 1},
+            DatasetItem(id='a', subset='train', image=np.ones((5, 10, 3)),
+                attributes={'id': 5},
                 annotations=[
                     Mask(np.array(
-                        [[1, 0, 0, 1, 0]] * 5 +
-                        [[1, 1, 1, 1, 0]] * 5
+                        [[0, 0, 1, 1, 0, 1, 1, 0, 0, 0]] * 5
                         ), label=0,
+                        id=7, group=7, attributes={'is_crowd': False}),
+                ]),
+
+            DatasetItem(id='b', subset='val', image=np.ones((10, 5, 3)),
+                attributes={'id': 40},
+                annotations=[
+                    Mask(np.array( [[1, 1, 0, 0, 0]] * 10 ), label=1,
                         id=2, group=2, attributes={'is_crowd': False}),
-                ]
-            ),
-        ], categories=['TEST',])
+                ]),
+        ], categories=['a', 'b'])
 
-        dataset = Dataset.import_from(
-            osp.join(DUMMY_DATASET_DIR, 'coco_stuff'), 'coco')
+        formats = ['coco', 'coco_stuff']
+        paths = [
+            ('', osp.join(DUMMY_DATASET_DIR, 'coco_stuff')),
+            ('train', osp.join(DUMMY_DATASET_DIR, 'coco_stuff',
+                'annotations', 'stuff_train.json')),
+            ('val', osp.join(DUMMY_DATASET_DIR, 'coco_stuff',
+                'annotations', 'stuff_val.json')),
+        ]
+        for format, (subset, path) in product(formats, paths):
+            if subset:
+                expected = expected_dataset.get_subset(subset)
+            else:
+                expected = expected_dataset
 
-        compare_datasets(self, expected_dataset, dataset)
+            with self.subTest(path=path, format=format, subset=subset):
+                dataset = Dataset.import_from(path, format)
+                compare_datasets(self, expected, dataset, require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect(self):
-        self.assertTrue(CocoImporter.detect(
-            osp.join(DUMMY_DATASET_DIR, 'coco_instances')))
+        dataset_dir = osp.join(DUMMY_DATASET_DIR, 'coco')
+        matrix = [
+            # Whole dataset
+            (dataset_dir, CocoImporter),
+
+            # Subformats
+            (dataset_dir, CocoLabelsImporter),
+            (dataset_dir, CocoInstancesImporter),
+            (dataset_dir, CocoPanopticImporter),
+            (dataset_dir, CocoStuffImporter),
+            (dataset_dir, CocoCaptionsImporter),
+            (dataset_dir, CocoImageInfoImporter),
+            (dataset_dir, CocoPersonKeypointsImporter),
+
+            # Subsets of subformats
+            (osp.join(dataset_dir, 'annotations', 'labels_train.json'),
+                CocoLabelsImporter),
+            (osp.join(dataset_dir, 'annotations', 'instances_train.json'),
+                CocoInstancesImporter),
+            (osp.join(dataset_dir, 'annotations', 'panoptic_train.json'),
+                CocoPanopticImporter),
+            (osp.join(dataset_dir, 'annotations', 'stuff_train.json'),
+                CocoStuffImporter),
+            (osp.join(dataset_dir, 'annotations', 'captions_train.json'),
+                CocoCaptionsImporter),
+            (osp.join(dataset_dir, 'annotations', 'image_info_train.json'),
+                CocoImageInfoImporter),
+            (osp.join(dataset_dir, 'annotations', 'person_keypoints_train.json'),
+                CocoPersonKeypointsImporter),
+        ]
+
+        for path, subtask in matrix:
+            with self.subTest(path=path, task=subtask):
+                self.assertTrue(subtask.detect(path))
 
 class CocoConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,

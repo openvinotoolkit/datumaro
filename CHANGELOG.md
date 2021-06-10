@@ -8,7 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
--
+- Support for import/export zip archives with images (<https://github.com/openvinotoolkit/datumaro/pull/273>)
+- Subformat importers for VOC and COCO (<https://github.com/openvinotoolkit/datumaro/pull/281>)
+- Support for KITTI dataset segmentation and detection format (<https://github.com/openvinotoolkit/datumaro/pull/282>)
 
 ### Changed
 -
