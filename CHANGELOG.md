@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 ### Fixed
-- Changed image saving in R...RG...GB...B to RGB and added latin1 encoding for loading pickle files (<https://github.com/openvinotoolkit/datumaro/pull/284>)
+- Incorrect image layout on saving and a problem with ecoding on loading (<https://github.com/openvinotoolkit/datumaro/pull/284>)
 
 ### Security
 -
