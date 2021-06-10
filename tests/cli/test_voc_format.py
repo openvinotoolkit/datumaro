@@ -157,12 +157,12 @@ class VocIntegrationScenarios(TestCase):
         command `datum convert`.
 
         <b>Expected results:</b>
-        A VOC dataset that matches the source dataset.
+        A VOC dataset that matches the expected dataset.
 
         <b>Steps:</b>
         1. Get path to the source dataset from assets.
         2. Convert source dataset to VOC format, using the `convert` command.
-        3. Verify that resulting dataset is equal to the source dataset.
+        3. Verify that resulting dataset is equal to the expected dataset.
         """
 
         label_map = OrderedDict(('label_' + str(i), [None, [], []]) for i in range(10))
@@ -204,12 +204,12 @@ class VocIntegrationScenarios(TestCase):
         command `datum convert`.
 
         <b>Expected results:</b>
-        A LabelMe dataset that matches the source dataset.
+        A ImageNet dataset that matches the expected dataset.
 
         <b>Steps:</b>
         1. Get path to the source dataset from assets.
         2. Convert source dataset to LabelMe format, using the `convert` command.
-        3. Verify that resulting dataset is equal to the source dataset.
+        3. Verify that resulting dataset is equal to the expected dataset.
         """
 
         expected_dataset = Dataset.from_iterable([
@@ -226,11 +226,11 @@ class VocIntegrationScenarios(TestCase):
 
         voc_dir = osp.join(DUMMY_DATASETS_DIR, 'voc_dataset1')
         with TestDir() as test_dir:
-            cvat_dir = osp.join(test_dir, 'cvat')
+            imagenet_dir = osp.join(test_dir, 'imagenet')
             run(self, 'convert', '-if', 'voc', '-i', voc_dir,
-                '-f', 'imagenet', '-o', cvat_dir)
+                '-f', 'imagenet', '-o', imagenet_dir)
 
-            target_dataset = Dataset.import_from(cvat_dir, format='imagenet')
+            target_dataset = Dataset.import_from(imagenet_dir, format='imagenet')
             compare_datasets(self, expected_dataset, target_dataset)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
