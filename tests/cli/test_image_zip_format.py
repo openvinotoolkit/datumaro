@@ -4,13 +4,12 @@ from unittest import TestCase
 from zipfile import ZipFile
 
 import numpy as np
-import pytest
 
 from datumaro.cli.__main__ import main
 from datumaro.components.dataset import Dataset, DatasetItem
 from datumaro.util.test_utils import TestDir, compare_datasets
 
-from ..requirements import Requirements
+from ..requirements import Requirements, mark_requirement
 
 
 def run(test, *args, expected_code=0):
@@ -24,7 +23,7 @@ def make_zip_archive(src_path, dst_path):
                 archive.write(path, osp.relpath(path, src_path))
 
 class ImageZipIntegrationScenarios(TestCase):
-    @pytest.mark.reqids(Requirements.DATUM_267)
+    @mark_requirement(Requirements.DATUM_267)
     def test_can_save_and_load(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='1', image=np.ones((5, 5, 3))),
@@ -37,25 +36,25 @@ class ImageZipIntegrationScenarios(TestCase):
             make_zip_archive(test_dir, zip_path)
 
             run(self, 'create', '-o', test_dir)
-            run(self, 'add', 'path', '-p', test_dir, '-f', 'image_zip', zip_path)
+            run(self, 'add', '-p', test_dir, '-f', 'image_zip', zip_path)
 
-            export_path = osp.join(test_dir, 'export.zip')
+            result_dir = osp.join(test_dir, 'result')
+            export_path = osp.join(result_dir, 'export.zip')
             run(self, 'export', '-p', test_dir, '-f', 'image_zip',
-                '-o', test_dir, '--overwrite', '--',
-                '--name', osp.basename(export_path)
+                '-o', result_dir, '--', '--name', osp.basename(export_path)
             )
 
             parsed_dataset = Dataset.import_from(export_path, format='image_zip')
             compare_datasets(self, source_dataset, parsed_dataset)
 
-    @pytest.mark.reqids(Requirements.DATUM_267)
+    @mark_requirement(Requirements.DATUM_267)
     def test_can_export_zip_images_from_coco_dataset(self):
         with TestDir() as test_dir:
             coco_dir = osp.join(__file__[:__file__.rfind(osp.join('tests', ''))],
                 'tests', 'assets', 'coco_dataset')
 
             run(self, 'create', '-o', test_dir)
-            run(self, 'add', 'path', '-p', test_dir, '-f', 'coco', coco_dir)
+            run(self, 'add', '-p', test_dir, '-f', 'coco', coco_dir)
 
             export_path = osp.join(test_dir, 'export.zip')
             run(self, 'export', '-p', test_dir, '-f', 'image_zip',
@@ -67,7 +66,7 @@ class ImageZipIntegrationScenarios(TestCase):
                 images = {f.filename for f in zf.filelist}
                 self.assertTrue(images == {'a.jpg', 'b.jpg'})
 
-    @pytest.mark.reqids(Requirements.DATUM_267)
+    @mark_requirement(Requirements.DATUM_267)
     def test_can_change_extension_for_images_in_zip(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='1', image=np.ones((5, 5, 3))),
@@ -80,7 +79,7 @@ class ImageZipIntegrationScenarios(TestCase):
             make_zip_archive(test_dir, zip_path)
 
             run(self, 'create', '-o', test_dir)
-            run(self, 'add', 'path', '-p', test_dir, '-f', 'image_zip', zip_path)
+            run(self, 'add', '-p', test_dir, '-f', 'image_zip', zip_path)
 
             export_path = osp.join(test_dir, 'export.zip')
             run(self, 'export', '-p', test_dir, '-f', 'image_zip',

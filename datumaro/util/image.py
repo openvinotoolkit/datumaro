@@ -295,6 +295,8 @@ class Image:
 
     @property
     def size(self) -> Optional[Tuple[int, int]]:
+        "Returns (H, W)"
+
         if self._size is None:
             try:
                 data = self.data

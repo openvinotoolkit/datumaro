@@ -16,7 +16,7 @@ def run(test, *args, expected_code=0):
 class ProjectIntegrationScenarios(TestCase):
     def test_can_convert_voc_as_coco(self):
         voc_dir = osp.join(__file__[:__file__.rfind(osp.join('tests', ''))],
-            'tests', 'assets', 'voc_dataset')
+            'tests', 'assets', 'voc_dataset', 'voc_dataset1')
 
         with TestDir() as test_dir:
             result_dir = osp.join(test_dir, 'coco_export')
@@ -24,7 +24,7 @@ class ProjectIntegrationScenarios(TestCase):
             run(self, 'convert',
                 '-if', 'voc', '-i', voc_dir,
                 '-f', 'coco', '-o', result_dir,
-                '--', '--save-images')
+                '--', '--save-images', '--reindex', '1')
 
             self.assertTrue(osp.isdir(result_dir))
 
