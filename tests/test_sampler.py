@@ -19,6 +19,7 @@ try:
     has_libs = True
 except ImportError:
     has_libs = False
+from .requirements import Requirements, mark_requirement
 
 
 @skipIf(not has_libs, "pandas library is not available")
@@ -83,6 +84,7 @@ class SamplerTest(TestCase):
         dataset = Dataset.from_iterable(iterable, categories)
         return dataset
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_sampler_get_sample_classification(self):
         config = {
             "label1": 10,
@@ -209,6 +211,7 @@ class SamplerTest(TestCase):
                 num_pre_train_subset - len(result.get_subset("sample")),
             )
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_sampler_gives_error(self):
         config = {
             "label1": 10,
@@ -378,6 +381,7 @@ class SamplerTest(TestCase):
 
                 entropy(data_df, infer_df)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_sampler_get_invalid_data(self):
         with self.subTest("empty dataset"):
             config = {
@@ -491,6 +495,7 @@ class SamplerTest(TestCase):
                 result = iter(result)
                 next(result)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_sampler_number_of_samples(self):
         config = {
             "label1": 10,
@@ -675,6 +680,7 @@ class SamplerTest(TestCase):
             )
             self.assertEqual(len(result.get_subset("sample")), 9)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_sampler_accumulated_sampling(self):
         config = {
             "label1": 10,
@@ -882,6 +888,7 @@ class SamplerTest(TestCase):
             self.assertEqual(len(result.get_subset("sample")), 9)
             self.assertEqual(len(result.get_subset("test")), num_pre_test_subset - 4)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_sampler_unaccumulated_sampling(self):
         config = {
             "label1": 10,
@@ -1095,6 +1102,7 @@ class SamplerTest(TestCase):
             self.assertEqual(len(result.get_subset("sample3")), 4)
             self.assertEqual(len(result.get_subset("test")), num_pre_test_subset - 4)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_sampler_parser(self):
         from argparse import ArgumentParser
 

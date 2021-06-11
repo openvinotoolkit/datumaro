@@ -1,6 +1,6 @@
 # Dataset Management Framework (Datumaro)
 
-[![Build Status](https://travis-ci.org/openvinotoolkit/datumaro.svg?branch=develop)](https://travis-ci.org/openvinotoolkit/datumaro)
+[![Build status](https://github.com/openvinotoolkit/datumaro/actions/workflows/health_check.yml/badge.svg)](https://github.com/openvinotoolkit/datumaro/actions/workflows/health_check.yml)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/759d2d873b59495aa3d3f8c51b786246)](https://app.codacy.com/gh/openvinotoolkit/datumaro?utm_source=github.com&utm_medium=referral&utm_content=openvinotoolkit/datumaro&utm_campaign=Badge_Grade_Dashboard)
 [![Codacy Badge](https://app.codacy.com/project/badge/Coverage/9511b691ff134e739ea6fc524f7cc760)](https://www.codacy.com/gh/openvinotoolkit/datumaro?utm_source=github.com&utm_medium=referral&utm_content=openvinotoolkit/datumaro&utm_campaign=Badge_Coverage)
 
@@ -138,6 +138,7 @@ CVAT annotations                             ---> Publication, statistics etc.
   - [MNIST in CSV](https://pjreddie.com/projects/mnist-in-csv/) (`classification`)
   - [CamVid](http://mi.eng.cam.ac.uk/research/projects/VideoRec/CamVid/)
   - [Cityscapes](https://www.cityscapes-dataset.com/)
+  - [Kitti](http://www.cvlibs.net/datasets/kitti/index.php) (`segmentation`, `detection`)
   - [CVAT](https://github.com/opencv/cvat/blob/develop/cvat/apps/documentation/xml_format.md)
   - [LabelMe](http://labelme.csail.mit.edu/Release3.0)
   - [ICDAR13/15](https://rrc.cvc.uab.es/?ch=2) (`word_recognition`, `text_localization`, `text_segmentation`)
@@ -178,6 +179,8 @@ CVAT annotations                             ---> Publication, statistics etc.
 - Model integration
   - Inference (OpenVINO, Caffe, PyTorch, TensorFlow, MxNet, etc.)
   - Explainable AI ([RISE algorithm](https://arxiv.org/abs/1806.07421))
+    - RISE for classification
+    - RISE for object detection
 
 > Check [the design document](docs/design.md) for a full list of features.
 > Check [the user manual](docs/user_manual.md) for usage instructions.

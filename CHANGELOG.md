@@ -8,6 +8,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- Support for import/export zip archives with images (<https://github.com/openvinotoolkit/datumaro/pull/273>)
+- Subformat importers for VOC and COCO (<https://github.com/openvinotoolkit/datumaro/pull/281>)
+- Support for KITTI dataset segmentation and detection format (<https://github.com/openvinotoolkit/datumaro/pull/282>)
+
+### Changed
+-
+
+### Deprecated
+-
+
+### Removed
+-
+
+### Fixed
+- Incorrect image layout on saving and a problem with ecoding on loading (<https://github.com/openvinotoolkit/datumaro/pull/284>)
+
+### Security
+-
+
+## 03/06/2021 - Release v0.1.9
+### Added
 - Support for escaping in attribute values in LabelMe format (<https://github.com/openvinotoolkit/datumaro/issues/49>)
 - Support for Segmentation Splitting (<https://github.com/openvinotoolkit/datumaro/pull/223>)
 - Support for CIFAR-10/100 dataset format (<https://github.com/openvinotoolkit/datumaro/pull/225>, <https://github.com/openvinotoolkit/datumaro/pull/243>)
@@ -17,13 +38,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Documentation file for COCO format (<https://github.com/openvinotoolkit/datumaro/pull/241>)
 - Documentation file and integration tests for YOLO format (<https://github.com/openvinotoolkit/datumaro/pull/246>)
 - Support for Cityscapes dataset format (<https://github.com/openvinotoolkit/datumaro/pull/249>)
-- Support for Validator configurable threshold(<https://github.com/openvinotoolkit/datumaro/pull/250>)
+- Support for Validator configurable threshold (<https://github.com/openvinotoolkit/datumaro/pull/250>)
 
 ### Changed
 - LabelMe format saves dataset items with their relative paths by subsets without changing names (<https://github.com/openvinotoolkit/datumaro/pull/200>)
 - Allowed arbitrary subset count and names in classification and detection splitters (<https://github.com/openvinotoolkit/datumaro/pull/207>)
 - Annotation-less dataset elements are now participate in subset splitting (<https://github.com/openvinotoolkit/datumaro/pull/211>)
 - Classification task in LFW dataset format (<https://github.com/openvinotoolkit/datumaro/pull/222>)
+- Testing is now performed with pytest instead of unittest (<https://github.com/openvinotoolkit/datumaro/pull/248>)
 
 ### Deprecated
 -

@@ -3,8 +3,8 @@
   <folder>VOC2007</folder>
   <filename>2007_000001.jpg</filename>
   <size>
-    <width>10</width>
-    <height>20</height>
+    <width>20</width>
+    <height>10</height>
     <depth>3</depth>
   </size>
   <segmented>1</segmented>
