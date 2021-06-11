@@ -149,6 +149,7 @@ class Environment:
         from datumaro.components.extractor import (Importer, Extractor,
             Transform)
         from datumaro.components.launcher import Launcher
+        from datumaro.components.validator import Validator
         self.extractors = PluginRegistry(
             builtin=select(builtin, Extractor),
             local=select(custom, Extractor)
@@ -171,6 +172,10 @@ class Environment:
         self.transforms = PluginRegistry(
             builtin=select(builtin, Transform),
             local=select(custom, Transform)
+        )
+        self.validators = PluginRegistry(
+            builtin=select(builtin, Validator),
+            local=select(custom, Validator)
         )
 
     @staticmethod
@@ -262,7 +267,8 @@ class Environment:
         from datumaro.components.extractor import (Extractor, Importer,
             Transform)
         from datumaro.components.launcher import Launcher
-        types = [Extractor, Converter, Importer, Launcher, Transform]
+        from datumaro.components.validator import Validator
+        types = [Extractor, Converter, Importer, Launcher, Transform, Validator]
 
         return cls._load_plugins(plugins_dir, types)
 
