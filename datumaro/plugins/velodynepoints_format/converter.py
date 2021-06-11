@@ -17,7 +17,8 @@ from datumaro.components.extractor import (AnnotationType, DatasetItem,
 from datumaro.util import cast
 from datumaro.util.image import ByteImage, save_image
 
-from .format import VelodynePointsPath
+from .format import VelodynePointsPath, VelodynePointsState
+
 
 
 class XmlAnnotationWriter:
@@ -203,10 +204,10 @@ class _SubsetWriter:
                         "rx": item.points[6],
                         "ry": item.points[7],
                         "rz": item.points[8],
-                        "state": 2,
-                        "occlusion": -1,
+                        "state": VelodynePointsState.POSE_STATES.get(item.attributes.get("state"), VelodynePointsState.POSE_STATES["LABELED"]),
+                        "occlusion": VelodynePointsState.OCCLUSION_STATES.get(item.attributes.get("occlusion"), VelodynePointsState.OCCLUSION_STATES["OCCLUSION_UNSET"]),
                         "occlusion_kf": 1 if item.attributes.get("occluded", False) else 0,
-                        "truncation": -1,
+                        "truncation": VelodynePointsState.TRUNCATION_STATE.get(item.attributes.get("truncation"), VelodynePointsState.TRUNCATION_STATE["TRUNCATION_UNSET"]),
                         "amt_occlusion": -1,
                         "amt_border_l": -1,
                         "amt_border_r": -1,

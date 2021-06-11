@@ -12,16 +12,18 @@ from datumaro.plugins.velodynepoints_format.extractor import VelodynePointsImpor
 from datumaro.plugins.velodynepoints_format.converter import VelodynePointsConverter
 from datumaro.util.test_utils import (TestDir, compare_datasets,
                                       test_save_and_load)
-
+from tests.requirements import mark_requirement, Requirements
 
 DUMMY_PCD_DATASET_DIR = osp.join(osp.dirname(
     __file__), 'assets', 'velodynepoints_dataset')
 
 
 class VelodynePointsImporterTest(TestCase):
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_image(self):
         self.assertTrue(VelodynePointsImporter.detect(DUMMY_PCD_DATASET_DIR))
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_load_pcd(self):
         pcd1 = osp.abspath(osp.join(DUMMY_PCD_DATASET_DIR,
                            r"velodyne_points/data/0000000000.pcd"))
@@ -86,12 +88,14 @@ class VelodynePointsConverterTest(TestCase):
 
     dimension = {"dimension": "3d"}
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def _test_save_and_load(self, source_dataset, converter, test_dir,
                             target_dataset=None, importer_args=None, **kwargs):
         return test_save_and_load(self, source_dataset, converter, test_dir,
                                   importer='velodyne_points',
                                   target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load(self):
         src_label_cat = LabelCategories(attributes={'occluded'})
         src_label_cat.add('car')
@@ -144,6 +148,7 @@ class VelodynePointsConverterTest(TestCase):
                                              save_images=True), test_dir,
                                      target_dataset=target_dataset, **self.dimension)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_preserve_frame_ids(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='frame_000040',
@@ -170,6 +175,7 @@ class VelodynePointsConverterTest(TestCase):
             self._test_save_and_load(expected_dataset,
                                      VelodynePointsConverter.convert, test_dir, **self.dimension)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_reindex(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='frame_000000',
@@ -219,6 +225,7 @@ class VelodynePointsConverterTest(TestCase):
                                              reindex=True), test_dir,
                                      target_dataset=expected_dataset, **self.dimension)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_inplace_save_writes_only_updated_data(self):
 
         with TestDir() as path:
@@ -269,6 +276,7 @@ class VelodynePointsConverterTest(TestCase):
             self.assertTrue(osp.isfile(osp.abspath(
                 osp.join(path, 'IMAGE_00/data', '0000000001.png'))))
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_without_related_iamges(self):
         src_label_cat = LabelCategories(attributes={'occluded'})
         src_label_cat.add('car')

@@ -11,15 +11,18 @@ from datumaro.plugins.pointcloud_format.converter import PointCloudConverter
 from datumaro.plugins.pointcloud_format.extractor import PointCloudImporter
 from datumaro.util.test_utils import (TestDir, compare_datasets_3d,
                                       test_save_and_load)
+from .requirements import Requirements, mark_requirement
 
 DUMMY_PCD_DATASET_DIR = osp.join(osp.dirname(
     __file__), 'assets', 'pointcloud_dataset')
 
 
 class PointCloudImporterTest(TestCase):
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_image(self):
         self.assertTrue(PointCloudImporter.detect(DUMMY_PCD_DATASET_DIR))
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_load_pcd(self):
         pcd1 = osp.abspath(osp.join(DUMMY_PCD_DATASET_DIR,
                            r"ds0/pointcloud/frame.pcd"))
@@ -87,12 +90,14 @@ class PointCloudConverterTest(TestCase):
 
     dimension = {"dimension": "3d"}
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def _test_save_and_load(self, source_dataset, converter, test_dir,
                             target_dataset=None, importer_args=None, **kwargs):
         return test_save_and_load(self, source_dataset, converter, test_dir,
                                   importer='point_cloud',
                                   target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load(self):
         src_label_cat = LabelCategories(attributes={'occluded'})
         src_label_cat.add('car')
@@ -189,6 +194,7 @@ class PointCloudConverterTest(TestCase):
                                              save_images=True), test_dir,
                                      target_dataset=target_dataset, ignored_attrs=["label_id", "occluded"])
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_preserve_frame_ids(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='frame_000020',
@@ -226,6 +232,7 @@ class PointCloudConverterTest(TestCase):
                                                     "labels"],
                                      **self.dimension)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_reindex(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id="frame.pcd",
@@ -282,6 +289,7 @@ class PointCloudConverterTest(TestCase):
                                                     "labels"],
                                      **self.dimension)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_inplace_save_writes_only_updated_data(self):
         with TestDir() as path:
             # generate initial dataset
@@ -351,6 +359,7 @@ class PointCloudConverterTest(TestCase):
             self.assertFalse(osp.isfile(osp.abspath(
                 osp.join(path, r'ds0/related_images/frame_pcd', '0000000002.png'))))
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_without_related_images(self):
         src_label_cat = LabelCategories(attributes={'occluded'})
         src_label_cat.add('car')
