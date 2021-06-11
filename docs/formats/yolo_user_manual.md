@@ -97,11 +97,12 @@ should contain information about labeled bounding boxes
 for images:
 ```
 # image1.txt:
-# <label_index> <x> <y> <width> <height>
+# <label_index> <x_center> <y_center> <width> <height>
 0 0.250000 0.400000 0.300000 0.400000
 3 0.600000 0.400000 0.400000 0.266667
 ```
-Here `x`, `y`, `width`, and `height` are relative to the image's width and height.
+Here `x_center`, `y_center`, `width`, and `height` are relative to the image's width and height.
+The `x_center` and `y_center` are center of rectangle (are not top-left corner).
 
 ## Export to other formats
 
