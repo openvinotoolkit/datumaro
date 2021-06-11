@@ -2,7 +2,6 @@ import os.path as osp
 from collections import OrderedDict
 
 import numpy as np
-import pytest
 from unittest import TestCase
 
 import datumaro.plugins.voc_format.format as VOC
@@ -148,7 +147,7 @@ class VocIntegrationScenarios(TestCase):
             compare_datasets(self, expected_dataset, parsed_dataset,
                 require_images=True)
 
-    @pytest.mark.reqids(Requirements.DATUM_283)
+    @mark_requirement(Requirements.DATUM_283)
     def test_convert_to_voc_format(self):
         """
         <b>Description:</b>
@@ -195,7 +194,7 @@ class VocIntegrationScenarios(TestCase):
             target_dataset = Dataset.import_from(voc_dir, format='voc')
             compare_datasets(self, expected_dataset, target_dataset)
 
-    @pytest.mark.reqids(Requirements.DATUM_283)
+    @mark_requirement(Requirements.DATUM_283)
     def test_convert_from_voc_format(self):
         """
         <b>Description:</b>
