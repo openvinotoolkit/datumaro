@@ -6,7 +6,7 @@ from unittest import TestCase
 
 import datumaro.plugins.voc_format.format as VOC
 from datumaro.components.dataset import Dataset, DatasetItem
-from datumaro.components.extractor import Bbox, Mask, Image, Label
+from datumaro.components.extractor import Bbox, Label, Mask
 from datumaro.cli.__main__ import main
 from datumaro.util.test_utils import TestDir, compare_datasets
 from ..requirements import Requirements, mark_requirement
@@ -16,7 +16,6 @@ DUMMY_DATASETS_DIR = osp.join(__file__[:__file__.rfind(osp.join('tests', ''))],
 
 def run(test, *args, expected_code=0):
     test.assertEqual(expected_code, main(args), str(args))
-
 
 class VocIntegrationScenarios(TestCase):
     def _test_can_save_and_load(self, project_path, source_path, expected_dataset,
@@ -39,7 +38,23 @@ class VocIntegrationScenarios(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_preparing_dataset_for_train_model(self):
-        source_dataset = Dataset.from_iterable([
+        """
+        <b>Description:</b>
+        Testing a particular example of working with VOC dataset.
+
+        <b>Expected results:</b>
+        A VOC dataset that matches the expected result.
+
+        <b>Steps:</b>
+        1. Get path to the source dataset from assets.
+        2. Create a datumaro project and add source dataset to it.
+        3. Leave only non-occluded annotations with `filter` command.
+        4. Split the dataset into subsets with `transform` command.
+        5. Export the project to a VOC dataset with `export` command.
+        6. Verify that the resulting dataset is equal to the expected result.
+        """
+
+        expected_dataset = Dataset.from_iterable([
             DatasetItem(id='c', subset='train',
                 annotations=[
                     Bbox(3.0, 1.0, 8.0, 5.0,
@@ -86,15 +101,15 @@ class VocIntegrationScenarios(TestCase):
                 '-o', export_path, '--', '--label-map', 'voc')
 
             parsed_dataset = Dataset.import_from(export_path, format='voc')
-            compare_datasets(self, source_dataset, parsed_dataset)
+            compare_datasets(self, expected_dataset, parsed_dataset)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_convert_to_voc_format(self):
+    def test_export_to_voc_format(self):
         label_map = OrderedDict(('label_%s' % i, [None, [], []]) for i in range(10))
         label_map['background'] = [None, [], []]
         label_map.move_to_end('background', last=False)
 
-        source_dataset = Dataset.from_iterable([
+        expected_dataset = Dataset.from_iterable([
             DatasetItem(id='1', subset='train', image=np.ones((10, 15, 3)),
                 annotations=[
                     Bbox(0.0, 2.0, 4.0, 2.0,
@@ -129,7 +144,92 @@ class VocIntegrationScenarios(TestCase):
                 '-o', voc_export, '--', '--save-images')
 
             parsed_dataset = Dataset.import_from(voc_export, format='voc')
-            compare_datasets(self, source_dataset, parsed_dataset,
+            compare_datasets(self, expected_dataset, parsed_dataset,
+                require_images=True)
+
+    @mark_requirement(Requirements.DATUM_283)
+    def test_convert_to_voc_format(self):
+        """
+        <b>Description:</b>
+        Ensure that the dataset can be converted to VOC format with
+        command `datum convert`.
+
+        <b>Expected results:</b>
+        A VOC dataset that matches the expected dataset.
+
+        <b>Steps:</b>
+        1. Get path to the source dataset from assets.
+        2. Convert source dataset to VOC format, using the `convert` command.
+        3. Verify that resulting dataset is equal to the expected dataset.
+        """
+
+        label_map = OrderedDict(('label_' + str(i), [None, [], []]) for i in range(10))
+        label_map['background'] = [None, [], []]
+        label_map.move_to_end('background', last=False)
+
+        expected_dataset = Dataset.from_iterable([
+            DatasetItem(id='1', subset='default',
+                image=np.ones((16, 16, 3)),
+                annotations=[
+                    Bbox(0.0, 4.0, 4.0, 8.0,
+                        attributes={
+                            'difficult': False,
+                            'truncated': False,
+                            'occluded': False,
+                            'visibility': '1.0',
+                            'ignored': 'False'
+                        },
+                        id=1, label=3, group=1
+                    )
+                ]
+            )
+        ], categories=VOC.make_voc_categories(label_map))
+
+        mot_dir = osp.join(__file__[:__file__.rfind(osp.join('tests', ''))],
+            'tests', 'assets', 'mot_dataset')
+        with TestDir() as test_dir:
+            voc_dir = osp.join(test_dir, 'voc')
+            run(self, 'convert', '-if', 'mot_seq', '-i', mot_dir,
+                '-f', 'voc', '-o', voc_dir, '--', '--save-images')
+
+            target_dataset = Dataset.import_from(voc_dir, format='voc')
+            compare_datasets(self, expected_dataset, target_dataset,
+                require_images=True)
+
+    @mark_requirement(Requirements.DATUM_283)
+    def test_convert_from_voc_format(self):
+        """
+        <b>Description:</b>
+        Ensure that the dataset can be converted from VOC format with
+        command `datum convert`.
+
+        <b>Expected results:</b>
+        A ImageNet dataset that matches the expected dataset.
+
+        <b>Steps:</b>
+        1. Get path to the source dataset from assets.
+        2. Convert source dataset to LabelMe format, using the `convert` command.
+        3. Verify that resulting dataset is equal to the expected dataset.
+        """
+
+        expected_dataset = Dataset.from_iterable([
+            DatasetItem(id='2007_000001', subset='default',
+                image=np.ones((10, 20, 3)),
+                annotations=[Label(i) for i in range(11)]
+            ),
+            DatasetItem(id='2007_000002', subset='default',
+               image=np.ones((10, 20, 3))
+            )
+        ], categories=sorted([l.name for l in VOC.VocLabel if l.value % 2 == 1]))
+
+        voc_dir = osp.join(DUMMY_DATASETS_DIR, 'voc_dataset1')
+        with TestDir() as test_dir:
+            imagenet_dir = osp.join(test_dir, 'imagenet')
+            run(self, 'convert', '-if', 'voc', '-i', voc_dir,
+                '-f', 'imagenet', '-o', imagenet_dir, '--', '--save-image')
+
+            target_dataset = Dataset.import_from(imagenet_dir, format='imagenet')
+            compare_datasets(self, expected_dataset, target_dataset,
                 require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
