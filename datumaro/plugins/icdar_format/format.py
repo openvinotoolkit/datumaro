@@ -1,15 +1,14 @@
-# Copyright (C) 2020 Intel Corporation
+# Copyright (C) 2020-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
-from enum import Enum
+from enum import Enum, auto
 
 
-IcdarTask = Enum('IcdarTask', [
-    'word_recognition',
-    'text_localization',
-    'text_segmentation',
-])
+class IcdarTask(Enum):
+    word_recognition = auto()
+    text_localization = auto()
+    text_segmentation = auto()
 
 class IcdarPath:
     IMAGE_EXT = '.png'

@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 from copy import deepcopy
-from enum import Enum
+from enum import Enum, auto
 from typing import Union
 
 import numpy as np
@@ -22,9 +22,14 @@ from datumaro.components.cli_plugin import CliPlugin
 from datumaro.util import parse_str_enum_value
 
 
-Severity = Enum('Severity', ['warning', 'error'])
+class Severity(Enum):
+    warning = auto()
+    error = auto()
 
-TaskType = Enum('TaskType', ['classification', 'detection', 'segmentation'])
+class TaskType(Enum):
+    classification = auto()
+    detection = auto()
+    segmentation = auto()
 
 
 class _Validator(CliPlugin):
