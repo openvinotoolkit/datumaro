@@ -4,4 +4,4 @@
 
 # pylint: disable=unused-import
 
-from ..contexts.project import build_validate_parser as build_parser
+from ...plugins.dataset_validator import build_parser
