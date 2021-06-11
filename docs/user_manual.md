@@ -916,8 +916,21 @@ Usage:
 ``` bash
 datum validate --help
 
-datum validate -p <project dir> <task_type>
+datum validate -p <project dir> -t <task_type>
 ```
+Example : give warning when imbalance ratio of data with classification task over 40
+- There are five configurable threshold for validation
+    - few_samples_thr : threshold for giving a warning for minimum number of samples per class
+    - imbalance_ratio_thr : threshold for giving imbalance data warning
+    - far_from_mean_thr : threshold for giving a warning that data is far from mean
+    - dominance_ratio_thr : threshold for giving a warning bounding box imbalance
+    - topk_bins : ratio of bins with the highest number of data to total bins in the histogram
+
+``` bash
+datum validate -p <project dir> -t classfication -ir 40
+```
+
+
 
 Here is the list of validation items(a.k.a. anomaly types).
 
