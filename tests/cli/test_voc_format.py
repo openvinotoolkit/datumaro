@@ -169,6 +169,7 @@ class VocIntegrationScenarios(TestCase):
 
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='1', subset='default',
+                image=np.ones((16, 16, 3)),
                 annotations=[
                     Bbox(0.0, 4.0, 4.0, 8.0,
                         attributes={
@@ -189,10 +190,11 @@ class VocIntegrationScenarios(TestCase):
         with TestDir() as test_dir:
             voc_dir = osp.join(test_dir, 'voc')
             run(self, 'convert', '-if', 'mot_seq', '-i', mot_dir,
-                '-f', 'voc', '-o', voc_dir)
+                '-f', 'voc', '-o', voc_dir, '--', '--save-images')
 
             target_dataset = Dataset.import_from(voc_dir, format='voc')
-            compare_datasets(self, expected_dataset, target_dataset)
+            compare_datasets(self, expected_dataset, target_dataset,
+                require_images=True)
 
     @mark_requirement(Requirements.DATUM_283)
     def test_convert_from_voc_format(self):
@@ -227,7 +229,8 @@ class VocIntegrationScenarios(TestCase):
                 '-f', 'imagenet', '-o', imagenet_dir, '--', '--save-image')
 
             target_dataset = Dataset.import_from(imagenet_dir, format='imagenet')
-            compare_datasets(self, expected_dataset, target_dataset, require_images=True)
+            compare_datasets(self, expected_dataset, target_dataset,
+                require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_voc_dataset(self):
