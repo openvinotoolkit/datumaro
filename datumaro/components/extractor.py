@@ -717,6 +717,7 @@ class Importer:
                     break
         return sources
 
+
 class Transform(Extractor):
     @staticmethod
     def wrap_item(item, **kwargs):
@@ -748,4 +749,11 @@ class Transform(Extractor):
         return super().__len__()
 
     def transform_item(self, item: DatasetItem) -> DatasetItem:
+        """
+        Supposed to return a modified copy of the input item.
+
+        Avoid changing and returning the input item, because it can lead to
+        unexpected problems. wrap_item() can be used to simplify copying.
+        """
+
         raise NotImplementedError()

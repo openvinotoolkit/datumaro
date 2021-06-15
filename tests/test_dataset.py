@@ -1,7 +1,7 @@
-import numpy as np
 import os
 import os.path as osp
 
+import numpy as np
 from unittest import TestCase
 
 from datumaro.components.dataset_filter import (
@@ -15,6 +15,7 @@ from datumaro.components.extractor import (DEFAULT_SUBSET_NAME, Extractor,
     LabelCategories, AnnotationType, Transform)
 from datumaro.util.image import Image
 from datumaro.util.test_utils import TestDir, compare_datasets
+
 from .requirements import Requirements, mark_requirement
 
 
@@ -641,6 +642,7 @@ class DatasetTest(TestCase):
 
         self.assertFalse(called)
 
+    @mark_requirement(Requirements.DATUM_BUG_259)
     def test_can_filter_items(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id=0, subset='train'),
@@ -651,6 +653,7 @@ class DatasetTest(TestCase):
 
         self.assertEqual(1, len(dataset))
 
+    @mark_requirement(Requirements.DATUM_BUG_259)
     def test_can_filter_annotations(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id=0, subset='train', annotations=[Label(0), Label(1)]),
@@ -663,6 +666,7 @@ class DatasetTest(TestCase):
 
         self.assertEqual(2, len(dataset))
 
+    @mark_requirement(Requirements.DATUM_BUG_259)
     def test_can_filter_items_in_merged_dataset(self):
         dataset = Dataset.from_extractors(
             Dataset.from_iterable([ DatasetItem(id=0, subset='train') ]),
@@ -673,6 +677,7 @@ class DatasetTest(TestCase):
 
         self.assertEqual(1, len(dataset))
 
+    @mark_requirement(Requirements.DATUM_BUG_259)
     def test_can_filter_annotations_in_merged_dataset(self):
         dataset = Dataset.from_extractors(
             Dataset.from_iterable([
