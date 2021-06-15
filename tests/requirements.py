@@ -26,6 +26,7 @@ class Requirements:
     # GitHub issues (bugs)
     # https://github.com/openvinotoolkit/datumaro/issues
     DATUM_BUG_219 = "Return format is not uniform"
+    DATUM_BUG_259 = "Dataset.filter fails on merged datasets"
 
 
 class SkipMessages:
