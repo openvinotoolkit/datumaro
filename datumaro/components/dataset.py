@@ -6,16 +6,17 @@
 
 from contextlib import contextmanager
 from enum import Enum, auto
-from typing import Iterable, Iterator, Optional, Tuple, Union, Dict, List
+from typing import Callable, Iterable, Iterator, Optional, Tuple, Union, Dict, List
 import logging as log
+import inspect
 import os
 import os.path as osp
 import shutil
 
 from datumaro.components.dataset_filter import \
     XPathDatasetFilter, XPathAnnotationsFilter
-from datumaro.components.extractor import (CategoriesInfo, Extractor,
-    IExtractor, LabelCategories, AnnotationType, DatasetItem,
+from datumaro.components.extractor import (CallableItemTransform, CategoriesInfo, Extractor,
+    IExtractor, ItemTransform, LabelCategories, AnnotationType, DatasetItem,
     DEFAULT_SUBSET_NAME, Transform)
 from datumaro.components.environment import Environment
 from datumaro.components.errors import DatumaroError, RepeatedItemError
@@ -225,15 +226,21 @@ class DatasetStorage(IDataset):
             raise ValueError("Can't use both source and categories")
         self._categories = categories
 
-        # possible combinations
-        # 1. source + storage (patch)
+        # Possible combinations:
+        # 1. source + storage
+        #      - Storage contains a patch to the Source data.
         # 2. no source + storage
-        #      cache or just a dataset from scratch, or cached transform
-        #  - In this case updated_items describes the patch
+        #      - a dataset created from scratch
+        #      - a dataset from a source or transform, which was cached
+        #    - In this case updated_items describes the patch
         self._source = source
         self._storage = DatasetItemStorage() # patch or cache
         self._updated_items = {} # (id, subset) -> ItemStatus
-        self._transformed = False
+
+        self._flush_changes = False
+
+        # Stores the original source, which hasn't been cached yet
+        self._transformed = None
 
         self._length = None
 
@@ -248,8 +255,6 @@ class DatasetStorage(IDataset):
         if not self.is_cache_initialized():
             for _ in self._iter_init_cache(): pass
 
-        self._length = len(self._storage)
-
     def _iter_init_cache(self) -> Iterable[DatasetItem]:
         # Merges the source and patch, caches the result and
         # provides an iterator for the resulting item sequence.
@@ -261,20 +266,36 @@ class DatasetStorage(IDataset):
         # the cache between parallel consumers and introducing some kind of lock
 
         patch = self._storage # must be empty after transforming
+        source = self._source # either a source or a transform
         cache = DatasetItemStorage()
 
+        if self._transformed is not None:
+            if isinstance(self._transformed, DatasetItemStorageDatasetView):
+                assert isinstance(self._transformed._parent, DatasetItemStorage)
+                old_ids = self._transformed._parent
+            else:
+                # TODO: optimize this by introducing Extractor.items() / ids()
+                old_ids = set((item.id, item.subset) for item in self._transformed)
+
         i = -1
-        for i, item in enumerate(self._source):
+        for i, item in enumerate(source):
             if item in cache:
                 raise RepeatedItemError((item.id, item.subset))
-            if item in patch:
-                item = patch.get(item.id, item.subset)
             if self._updated_items.get((item.id, item.subset)) == \
                     ItemStatus.removed:
-                item = None
-            if item:
-                cache.put(item)
-                yield item
+                continue
+            if item in patch:
+                item = patch.get(item.id, item.subset)
+            if not item:
+                continue
+
+            if self._transformed is not None:
+                # consider all items modified in transform
+                self._updated_items[(item.id, item.subset)] = \
+                    ItemStatus.modified
+            cache.put(item)
+            yield item
+
         if i == -1:
             cache = patch
             for item in patch:
@@ -288,12 +309,32 @@ class DatasetStorage(IDataset):
                 cache.put(item)
                 yield item
 
+        # Find changes made by transform
+        if self._transformed is not None:
+            for id in old_ids:
+                if isinstance(id, DatasetItem):
+                    id = (id.id, id.subset)
+                if id not in self._updated_items:
+                    self._updated_items[id] = ItemStatus.removed
+
+            for item in cache:
+                id = (item.id, item.subset)
+                if id not in old_ids:
+                    self._updated_items[id] = ItemStatus.added
+
         self._storage = cache
-        source_cat = self._source.categories()
+        self._length = len(cache)
+
+        source_cat = source.categories()
         if source_cat is not None:
             self._categories = source_cat
-        self._length = len(cache)
+
         self._source = None
+        self._transformed = None
+
+        if self._flush_changes:
+            self._flush_changes = False
+            self._updated_items = {}
 
     def __iter__(self) -> Iterable[DatasetItem]:
         if self._is_unchanged_wrapper:
@@ -371,34 +412,34 @@ class DatasetStorage(IDataset):
         subsets.update(self._storage.subsets())
         return subsets
 
-    def transform(self, method, *args, **kwargs):
-        self._source = method(self._merged(), *args, **kwargs)
+    def transform(self, method: Transform, *args, **kwargs):
+        dataset = self._merged()
+
+        self._source = method(dataset, *args, **kwargs)
         self._storage = DatasetItemStorage()
         # TODO: can be optimized by analyzing methods
         self._categories = None
         self._length = None
-        self._transformed = True
         self._updated_items = {}
 
+        # Keep the original dataset to find removed items
+        if self._transformed is None:
+            self._transformed = dataset
+
     def has_updated_items(self):
-        return self._transformed or self._updated_items
+        return self._transformed is not None or self._updated_items
 
     def get_patch(self):
         # Patch includes only added or modified items.
         # To find removed items, one needs to consult updated_items list.
-        if self._transformed:
+        if self._transformed is not None:
             self.init_cache()
-            # Consider all items modified after transforming
-            self._updated_items = {
-                (item.id, item.subset): ItemStatus.modified
-                for item in self._storage
-            }
         return DatasetPatch(self._storage, self._categories,
             self._updated_items)
 
     def flush_changes(self):
         self._updated_items = {}
-        self._transformed = False
+        self._flush_changes = True
 
 
 class Dataset(IDataset):
@@ -516,10 +557,22 @@ class Dataset(IDataset):
             self.put(item)
         return self
 
-    def transform(self, method: Union[str, Transform],
+    def transform(self, method: Union[str, ItemTransform,
+                Callable[[DatasetItem], DatasetItem]],
             *args, **kwargs) -> 'Dataset':
+        """
+        Applies some function to dataset items.
+        """
         if isinstance(method, str):
-            method = self.env.make_transform(method)
+            method = self.env.transforms[method]
+
+        if inspect.isclass(method) and issubclass(method, Transform):
+            pass
+        elif callable(method):
+            method = CallableItemTransform.from_callable(method)
+        else:
+            raise TypeError("Unexpected 'method' argument type: %s" % \
+                type(method))
 
         self._data.transform(method, *args, **kwargs)
         if self.is_eager:

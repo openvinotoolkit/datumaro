@@ -1,5 +1,6 @@
 import os
 import os.path as osp
+from attr import attributes
 
 import numpy as np
 from unittest import TestCase
@@ -11,7 +12,7 @@ from datumaro.components.dataset import (Dataset, DEFAULT_FORMAT, ItemStatus,
 from datumaro.components.environment import Environment
 from datumaro.components.errors import DatumaroError, RepeatedItemError
 from datumaro.components.extractor import (DEFAULT_SUBSET_NAME, Extractor,
-    DatasetItem, Label, Mask, Points, Polygon, PolyLine, Bbox, Caption,
+    DatasetItem, ItemTransform, Label, Mask, Points, Polygon, PolyLine, Bbox, Caption,
     LabelCategories, AnnotationType, Transform)
 from datumaro.util.image import Image
 from datumaro.util.test_utils import TestDir, compare_datasets
@@ -180,21 +181,35 @@ class DatasetTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_transform_by_string_name(self):
         expected = Dataset.from_iterable([
-            DatasetItem(id=1, annotations=[ Label(2) ], attributes={'qq': 1}),
-        ], categories=['a', 'b', 'c'])
+            DatasetItem(id=1, attributes={'qq': 1}),
+        ])
 
         class TestTransform(Transform):
             def transform_item(self, item):
                 return self.wrap_item(item, attributes={'qq': 1})
 
         env = Environment()
-        env.transforms.items = {'qq': TestTransform}
+        env.transforms.register('qq', TestTransform)
 
-        dataset = Dataset.from_iterable([
-            DatasetItem(id=1, annotations=[ Label(2) ]),
-        ], categories=['a', 'b', 'c'], env=env)
+        dataset = Dataset.from_iterable([ DatasetItem(id=1) ], env=env)
 
         actual = dataset.transform('qq')
+
+        compare_datasets(self, expected, actual)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_transform(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(id=1, attributes={'qq': 1}),
+        ])
+
+        class TestTransform(ItemTransform):
+            def transform_item(self, item):
+                return self.wrap_item(item, attributes={'qq': 1})
+
+        dataset = Dataset.from_iterable([ DatasetItem(id=1) ])
+
+        actual = dataset.transform(TestTransform)
 
         compare_datasets(self, expected, actual)
 
@@ -332,6 +347,179 @@ class DatasetTest(TestCase):
 
         compare_datasets(self, expected, dataset)
 
+    @mark_requirement(Requirements.DATUM_BUG_257)
+    def test_can_create_patch_when_transforms_mixed(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(2),
+            DatasetItem(3, subset='a')
+        ])
+
+        dataset = Dataset.from_iterable([
+            DatasetItem(1),
+            DatasetItem(2),
+        ])
+
+        class Remove1(Transform):
+            def __iter__(self):
+                for item in self._extractor:
+                    if item.id != '1':
+                        yield item
+
+        class Add3(Transform):
+            def __iter__(self):
+                for item in self._extractor:
+                    if item.id == '2':
+                        yield item
+                yield DatasetItem(3, subset='a')
+
+        dataset.transform(Remove1)
+        dataset.transform(Add3)
+
+        patch = dataset.patch
+
+        self.assertEqual({
+            ('1', DEFAULT_SUBSET_NAME): ItemStatus.removed,
+            ('2', DEFAULT_SUBSET_NAME): ItemStatus.modified,
+            ('3', 'a'): ItemStatus.added,
+        }, patch.updated_items)
+
+        self.assertEqual({
+            'default': ItemStatus.modified,
+            'a': ItemStatus.modified,
+        }, patch.updated_subsets)
+
+        self.assertEqual(2, len(patch.data))
+        self.assertEqual(None, patch.data.get(1))
+        self.assertEqual(dataset.get(2), patch.data.get(2))
+        self.assertEqual(dataset.get(3, 'a'), patch.data.get(3, 'a'))
+
+        compare_datasets(self, expected, dataset)
+
+    @mark_requirement(Requirements.DATUM_BUG_257)
+    def test_can_create_patch_when_transforms_chained(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(2),
+            DatasetItem(3, subset='a')
+        ])
+
+        class TestExtractor(Extractor):
+            iter_called = 0
+            def __iter__(self):
+                yield from [
+                    DatasetItem(1),
+                    DatasetItem(2),
+                ]
+
+                __class__.iter_called += 1
+
+        class Remove1(Transform):
+            iter_called = 0
+            def __iter__(self):
+                for item in self._extractor:
+                    if item.id != '1':
+                        yield item
+
+                __class__.iter_called += 1
+
+        class Add3(Transform):
+            iter_called = 0
+            def __iter__(self):
+                yield from self._extractor
+                yield DatasetItem(3, subset='a')
+
+                __class__.iter_called += 1
+
+        dataset = Dataset.from_extractors(TestExtractor())
+        dataset.transform(Remove1)
+        dataset.transform(Add3)
+
+        patch = dataset.patch
+
+        self.assertEqual({
+            ('1', DEFAULT_SUBSET_NAME): ItemStatus.removed,
+            ('2', DEFAULT_SUBSET_NAME): ItemStatus.modified,
+            ('3', 'a'): ItemStatus.added,
+        }, patch.updated_items)
+
+        self.assertEqual({
+            'default': ItemStatus.modified,
+            'a': ItemStatus.modified,
+        }, patch.updated_subsets)
+
+        self.assertEqual(2, len(patch.data))
+        self.assertEqual(None, patch.data.get(1))
+        self.assertEqual(dataset.get(2), patch.data.get(2))
+        self.assertEqual(dataset.get(3, 'a'), patch.data.get(3, 'a'))
+
+        self.assertEqual(TestExtractor.iter_called, 2) # 1 for items, 1 for list
+        self.assertEqual(Remove1.iter_called, 1)
+        self.assertEqual(Add3.iter_called, 1)
+
+        compare_datasets(self, expected, dataset)
+
+    @mark_requirement(Requirements.DATUM_BUG_257)
+    def test_can_create_patch_when_transforms_chained_and_source_cached(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(2),
+            DatasetItem(3, subset='a')
+        ])
+
+        class TestExtractor(Extractor):
+            iter_called = 0
+            def __iter__(self):
+                yield from [
+                    DatasetItem(1),
+                    DatasetItem(2),
+                ]
+
+                __class__.iter_called += 1
+
+        class Remove1(Transform):
+            iter_called = 0
+            def __iter__(self):
+                for item in self._extractor:
+                    if item.id != '1':
+                        yield item
+
+                __class__.iter_called += 1
+
+        class Add3(Transform):
+            iter_called = 0
+            def __iter__(self):
+                yield from self._extractor
+                yield DatasetItem(3, subset='a')
+
+                __class__.iter_called += 1
+
+        dataset = Dataset.from_extractors(TestExtractor())
+        dataset.init_cache()
+        dataset.transform(Remove1)
+        dataset.transform(Add3)
+
+        patch = dataset.patch
+
+        self.assertEqual({
+            ('1', DEFAULT_SUBSET_NAME): ItemStatus.removed,
+            ('2', DEFAULT_SUBSET_NAME): ItemStatus.modified,
+            ('3', 'a'): ItemStatus.added,
+        }, patch.updated_items)
+
+        self.assertEqual({
+            'default': ItemStatus.modified,
+            'a': ItemStatus.modified,
+        }, patch.updated_subsets)
+
+        self.assertEqual(2, len(patch.data))
+        self.assertEqual(None, patch.data.get(1))
+        self.assertEqual(dataset.get(2), patch.data.get(2))
+        self.assertEqual(dataset.get(3, 'a'), patch.data.get(3, 'a'))
+
+        self.assertEqual(TestExtractor.iter_called, 1) # 1 for items and list
+        self.assertEqual(Remove1.iter_called, 1)
+        self.assertEqual(Add3.iter_called, 1)
+
+        compare_datasets(self, expected, dataset)
+
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_create_more_precise_patch_when_cached(self):
         expected = Dataset.from_iterable([
@@ -444,12 +632,12 @@ class DatasetTest(TestCase):
             def __iter__(self):
                 nonlocal iter_called
                 iter_called = True
-                return iter([
+                yield from [
                     DatasetItem(1),
                     DatasetItem(2),
                     DatasetItem(3),
                     DatasetItem(4),
-                ])
+                ]
         dataset = Dataset.from_extractors(TestExtractor())
 
         with eager_mode(dataset=dataset):
@@ -460,56 +648,56 @@ class DatasetTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_do_lazy_select(self):
-        iter_called = False
+        iter_called = 0
         class TestExtractor(Extractor):
             def __iter__(self):
                 nonlocal iter_called
-                iter_called = True
-                return iter([
+                iter_called += 1
+                yield from [
                     DatasetItem(1),
                     DatasetItem(2),
                     DatasetItem(3),
                     DatasetItem(4),
-                ])
+                ]
         dataset = Dataset.from_extractors(TestExtractor())
 
         dataset.select(lambda item: int(item.id) < 3)
         dataset.select(lambda item: int(item.id) < 2)
 
-        self.assertFalse(iter_called)
+        self.assertEqual(iter_called, 0)
 
         self.assertEqual(1, len(dataset))
 
-        self.assertTrue(iter_called)
+        self.assertEqual(iter_called, 1)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_chain_lazy_transforms(self):
-        iter_called = False
+        iter_called = 0
         class TestExtractor(Extractor):
             def __iter__(self):
                 nonlocal iter_called
-                iter_called = True
-                return iter([
+                iter_called += 1
+                yield from [
                     DatasetItem(1),
                     DatasetItem(2),
                     DatasetItem(3),
                     DatasetItem(4),
-                ])
+                ]
         dataset = Dataset.from_extractors(TestExtractor())
 
         class TestTransform(Transform):
-            def transform_item(self, item):
+            def _transform_item(self, item):
                 return self.wrap_item(item, id=int(item.id) + 1)
 
         dataset.transform(TestTransform)
         dataset.transform(TestTransform)
 
-        self.assertFalse(iter_called)
+        self.assertEqual(iter_called, 0)
 
         self.assertEqual(4, len(dataset))
         self.assertEqual(3, int(min(int(item.id) for item in dataset)))
 
-        self.assertTrue(iter_called)
+        self.assertEqual(iter_called, 1)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_raises_when_repeated_items_in_source(self):

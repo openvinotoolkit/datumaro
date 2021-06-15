@@ -4,14 +4,15 @@
 # SPDX-License-Identifier: MIT
 
 from enum import Enum, auto
+from functools import partial
 from glob import iglob
-from typing import Callable, Iterable, List, Dict, Optional
-import numpy as np
+from typing import Callable, Iterable, List, Dict, Optional, Tuple, Union
 import os
 import os.path as osp
 
 import attr
 from attr import attrs, attrib
+import numpy as np
 
 from datumaro.util.image import Image
 from datumaro.util.attrs_util import not_empty, default_if_none
@@ -726,10 +727,6 @@ class Transform(Extractor):
 
         self._extractor = extractor
 
-    def __iter__(self):
-        for item in self._extractor:
-            yield self.transform_item(item)
-
     def categories(self):
         return self._extractor.categories()
 
@@ -746,12 +743,76 @@ class Transform(Extractor):
             self._length = len(self._extractor)
         return super().__len__()
 
-    def transform_item(self, item: DatasetItem) -> DatasetItem:
+    def __iter__(self):
+        for item in self._extractor:
+            item = self._transform_item(item)
+            if item is not None:
+                yield item
+
+    def _transform_item(self, item: DatasetItem) -> DatasetItem:
         """
         Supposed to return a modified copy of the input item.
 
         Avoid changing and returning the input item, because it can lead to
-        unexpected problems. wrap_item() can be used to simplify copying.
+        unexpected problems. Use wrap_item() or item.wrap() to simplify copying.
         """
 
         raise NotImplementedError()
+
+    def iterate(self) \
+            -> Iterable[Tuple[Optional[DatasetItem], Optional[DatasetItem]]]:
+        """
+        Returns: an iterable of (source item, produced item) pairs. Any part
+            can be None.
+        """
+
+        if self.__iter__.__func__ != Transform.__iter__:
+            raise NotImplementedError()
+
+        for old_item in self._extractor:
+            new_item = self._transform_item(old_item)
+            yield (old_item, new_item)
+
+class ItemTransform(Transform):
+    """
+    A base class for dataset transforms that only change dataset items
+    (or their annotations). These transforms must not change dataset size,
+    item names, item subsets and other metainfo about the dataset.
+
+    Use CallableItemTransform to create transforms from regular functions.
+    """
+
+    def __init__(self, extractor):
+        super().__init__(extractor, length='parent')
+
+    def __iter__(self):
+        for item in self._extractor:
+            old_id = (item.id, item.subset)
+
+            new_item = self.transform_item(item)
+            new_id = (new_item.id, new_item.subset)
+
+            assert old_id == new_id, "ItemTransform must not change item " \
+                "metainfo. Old item id: %s, new: %s" % (old_id, new_id)
+
+            yield new_item
+
+    transform_item = Transform._transform_item
+
+class CallableItemTransform(ItemTransform):
+    @staticmethod
+    def from_callable(f: Callable[[DatasetItem], DatasetItem]):
+        class klass(__class__):
+            def __init__(self, extractor):
+                super().__init__(extractor, f)
+
+        klass.__name__ = __class__.__name__
+
+        return klass
+
+    def __init__(self, extractor, f: Callable[[DatasetItem], DatasetItem]):
+        super().__init__(extractor)
+        self.f = f
+
+    def transform_item(self, item: DatasetItem) -> DatasetItem:
+        return self.f(item)
