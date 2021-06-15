@@ -234,9 +234,7 @@ class XPathDatasetFilter(Transform):
             if hasattr(self._extractor, 'select'):
                 yield from self._extractor.select(self._f)
             else:
-                for item in self._extractor:
-                    if self._f(item):
-                        yield item
+                yield from filter(self._f, self._extractor)
         else:
             yield from self._extractor
 
