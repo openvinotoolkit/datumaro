@@ -9,7 +9,6 @@ from typing import Callable, Iterable, List, Dict, Optional
 import numpy as np
 import os
 import os.path as osp
-from typing import Iterable, List, Dict, Optional
 
 import attr
 from attr import attrs, attrib

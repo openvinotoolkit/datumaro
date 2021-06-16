@@ -9,12 +9,10 @@ import os
 from collections import OrderedDict
 import os.path as osp
 
-
 from datumaro.components.extractor import (SourceExtractor, DatasetItem,
     AnnotationType,Cuboid3D,
     LabelCategories, Importer
 )
-
 from datumaro.util.image import Image
 
 from .format import PointCloudPath
