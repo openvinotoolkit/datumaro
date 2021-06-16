@@ -364,6 +364,7 @@ class PointCloudConverterTest(TestCase):
         src_label_cat = LabelCategories(attributes={'occluded'})
         src_label_cat.add('car')
         src_label_cat.add('bus')
+        src_label_cat.items[0].attributes.update(['a1', 'a2', 'empty'])
 
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='frame_000000',
@@ -409,6 +410,7 @@ class PointCloudConverterTest(TestCase):
         target_label_cat = LabelCategories(attributes={'occluded'})
         target_label_cat.add("car")
         target_label_cat.add("bus")
+        target_label_cat.items[0].attributes.update(['a1', 'a2', 'empty'])
 
         target_dataset = Dataset.from_iterable([
             DatasetItem(id='frame_000000',

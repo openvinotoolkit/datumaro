@@ -42,7 +42,7 @@ class VelodynePointsExtractor(SourceExtractor):
         shapes = {}
         shape = {"points": []}
         labels = OrderedDict()
-        label = {}
+        label = {"attributes": []}
         items = OrderedDict()
         categories = {}
         point_tags = ["h", "w", "l", "tx", "ty", "tz", "rx", "ry", "rz"]
@@ -57,11 +57,13 @@ class VelodynePointsExtractor(SourceExtractor):
                 shape['frame'] = int(elem.text)
             elif elem.tag == "occlusion_kf":
                 shape["occluded"] = 1 if int(elem.text) else 0
+            elif elem.tag == "name":
+                label["attributes"].append(elem.text)
             elif elem.tag == "finished":
                 for _ in range(7):
                     shape['points'].append(float(0.0))
                 shape["type"] = "cuboid"
-                label["attributes"] = {}
+
                 labels[label['name']] = label["attributes"]
 
                 shapes.update({len(shapes): shape})

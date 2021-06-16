@@ -59,14 +59,6 @@ class PointCloudExtractor(SourceExtractor):
             with open(meta_path, "r") as f:
                 meta = json.load(f)
 
-        common_attrs = ["occluded"]
-        label_cat = LabelCategories(attributes=common_attrs)
-        if meta:
-            for label in meta["classes"]:
-                label_cat.add(label['title'])
-
-        categories[AnnotationType.label] = label_cat
-
         data_dir = osp.join(osp.dirname(path), PointCloudPath.DEFAULT_DIR, PointCloudPath.ANNNOTATION_DIR)
 
         labels = {}
@@ -74,6 +66,19 @@ class PointCloudExtractor(SourceExtractor):
             for file in files:
                 with open(osp.join(data_dir, file), "r") as f:
                     figure_data = json.load(f)
+
+                common_attrs = ["occluded"]
+                label_cat = LabelCategories(attributes=common_attrs)
+                if meta:
+                    for label in meta["classes"]:
+                        attrs = []
+                        for tag in figure_data["tags"]:
+                            if tag["value"] == label['title']:
+                                attrs.append(tag["name"])
+
+                        label_cat.add(label['title'], attributes=attrs)
+
+                categories[AnnotationType.label] = label_cat
 
                 for label in figure_data["objects"]:
                     labels.update({label["key"]: label["classTitle"]})

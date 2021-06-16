@@ -277,9 +277,10 @@ class VelodynePointsConverterTest(TestCase):
                 osp.join(path, 'IMAGE_00/data', '0000000001.png'))))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_save_and_load_without_related_iamges(self):
+    def test_can_save_and_load_without_related_images(self):
         src_label_cat = LabelCategories(attributes={'occluded'})
         src_label_cat.add('car')
+        src_label_cat.items[0].attributes.update(['a1', 'a2', 'empty'])
 
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='frame_000000',
@@ -300,6 +301,7 @@ class VelodynePointsConverterTest(TestCase):
 
         target_label_cat = LabelCategories(attributes={'occluded'})
         target_label_cat.add("car")
+        target_label_cat.items[0].attributes.update(['a1', 'a2', 'empty'])
 
         target_dataset = Dataset.from_iterable([
             DatasetItem(id='frame_000000',

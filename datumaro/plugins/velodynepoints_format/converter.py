@@ -143,6 +143,42 @@ class XmlAnnotationWriter:
             self._end_item()
         self._close_pose()
 
+    def _open_attributes(self):
+        self._indent(newline=True)
+        self.xmlgen.startElement("attributes", {})
+        self._level += 1
+        self._indent()
+
+    def _close_attributes(self):
+        self._level -= 1
+        self._indent()
+        self.xmlgen.endElement("attributes")
+
+    def _open_attribute(self):
+        self.xmlgen.startElement("attribute", {})
+        self._level += 1
+        self._indent()
+
+    def _close_attribute(self):
+        self._level -= 1
+        self._indent()
+        self.xmlgen.endElement("attribute")
+
+    def _add_attribute(self, attributes):
+        self._open_attributes()
+        for k, attribute in enumerate(attributes):
+            self._open_attribute()
+            for index, key in enumerate(attribute.keys()):
+                self.xmlgen.startElement(key, {})
+                self.xmlgen.characters(attribute[key])
+                self.xmlgen.endElement(key)
+                if index < len(attribute.keys()) - 1:
+                    self._indent(newline=True)
+            self._close_attribute()
+            if k < len(attribute.keys()) - 1:
+                self._indent(newline=True)
+        self._close_attributes()
+
     def generate_tracklets(self):
         self._write_headers()
         self._write_doctype()
@@ -155,8 +191,10 @@ class XmlAnnotationWriter:
             for tracklet in self._tracklets:
                 self._start_item()
                 for element, value in tracklet.items():
-                    if isinstance(value, list):
+                    if element == "poses":
                         self._add_pose(value)
+                    elif element == "attributes":
+                        self._add_attribute(value)
                     else:
                         self._indent(newline=True)
                         self.xmlgen.startElement(element, {})
@@ -179,7 +217,6 @@ class _SubsetWriter:
     def create_tracklets(self, subset):
 
         for i, data in enumerate(subset):
-
             index = self._write_item(data, i)
             for item in data.annotations:
                 if item.type == AnnotationType.cuboid:
@@ -195,8 +232,23 @@ class _SubsetWriter:
                         "w": item.points[1],
                         "l": item.points[2],
                         "first_frame": index if index is not None else data.attributes.get('frame', 0),
+                        "attributes": [],
                         "poses": []
                     }
+
+                    for attrs in self._get_label_attrs(item.label):
+                        if attrs == "occluded":
+                            continue
+                        attribute = {
+                            "name": attrs,
+                            "mutable": "True",
+                            "input_type": "text",
+                            "default_value": "",
+                            "values": ""
+                        }
+
+                        tracklet["attributes"].append(attribute)
+
                     pose = {
                         "tx": item.points[3],
                         "ty": item.points[4],
