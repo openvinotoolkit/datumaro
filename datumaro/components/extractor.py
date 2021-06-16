@@ -718,6 +718,11 @@ class Importer:
 
 
 class Transform(Extractor):
+    """
+    A base class for dataset transformations that change dataset items
+    or their annotations.
+    """
+
     @staticmethod
     def wrap_item(item, **kwargs):
         return item.wrap(**kwargs)
@@ -743,15 +748,10 @@ class Transform(Extractor):
             self._length = len(self._extractor)
         return super().__len__()
 
-    def __iter__(self):
-        for item in self._extractor:
-            item = self._transform_item(item)
-            if item is not None:
-                yield item
-
-    def _transform_item(self, item: DatasetItem) -> DatasetItem:
+class ItemTransform(Transform):
+    def transform_item(self, item: DatasetItem) -> Optional[DatasetItem]:
         """
-        Supposed to return a modified copy of the input item.
+        Returns a modified copy of the input item.
 
         Avoid changing and returning the input item, because it can lead to
         unexpected problems. Use wrap_item() or item.wrap() to simplify copying.
@@ -759,60 +759,8 @@ class Transform(Extractor):
 
         raise NotImplementedError()
 
-    def iterate(self) \
-            -> Iterable[Tuple[Optional[DatasetItem], Optional[DatasetItem]]]:
-        """
-        Returns: an iterable of (source item, produced item) pairs. Any part
-            can be None.
-        """
-
-        if self.__iter__.__func__ != Transform.__iter__:
-            raise NotImplementedError()
-
-        for old_item in self._extractor:
-            new_item = self._transform_item(old_item)
-            yield (old_item, new_item)
-
-class ItemTransform(Transform):
-    """
-    A base class for dataset transforms that only change dataset items
-    (or their annotations). These transforms must not change dataset size,
-    item names, item subsets and other metainfo about the dataset.
-
-    Use CallableItemTransform to create transforms from regular functions.
-    """
-
-    def __init__(self, extractor):
-        super().__init__(extractor, length='parent')
-
     def __iter__(self):
         for item in self._extractor:
-            old_id = (item.id, item.subset)
-
-            new_item = self.transform_item(item)
-            new_id = (new_item.id, new_item.subset)
-
-            assert old_id == new_id, "ItemTransform must not change item " \
-                "metainfo. Old item id: %s, new: %s" % (old_id, new_id)
-
-            yield new_item
-
-    transform_item = Transform._transform_item
-
-class CallableItemTransform(ItemTransform):
-    @staticmethod
-    def from_callable(f: Callable[[DatasetItem], DatasetItem]):
-        class klass(__class__):
-            def __init__(self, extractor):
-                super().__init__(extractor, f)
-
-        klass.__name__ = __class__.__name__
-
-        return klass
-
-    def __init__(self, extractor, f: Callable[[DatasetItem], DatasetItem]):
-        super().__init__(extractor)
-        self.f = f
-
-    def transform_item(self, item: DatasetItem) -> DatasetItem:
-        return self.f(item)
+            item = self.transform_item(item)
+            if item is not None:
+                yield item
