@@ -6,7 +6,7 @@ import logging as log
 import numpy as np
 import copy
 from math import gcd
-from enum import Enum
+from enum import Enum, auto
 
 from datumaro.components.extractor import (Transform, AnnotationType,
     DEFAULT_SUBSET_NAME)
@@ -15,9 +15,11 @@ from datumaro.util import cast
 
 NEAR_ZERO = 1e-7
 
-SplitTask = Enum(
-    "split", ["classification", "detection", "segmentation", "reid"]
-)
+class SplitTask(Enum):
+    classification = auto()
+    detection = auto()
+    segmentation = auto()
+    reid = auto()
 
 
 class Split(Transform, CliPlugin):

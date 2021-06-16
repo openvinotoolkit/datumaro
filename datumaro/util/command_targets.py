@@ -1,17 +1,21 @@
 
-# Copyright (C) 2019-2020 Intel Corporation
+# Copyright (C) 2019-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 import argparse
-from enum import Enum
+from enum import Enum, auto
 
 from datumaro.components.project import Project
 from datumaro.util.image import load_image
 
 
-TargetKinds = Enum('TargetKinds',
-    ['project', 'source', 'external_dataset', 'inference', 'image'])
+class TargetKinds(Enum):
+    project = auto()
+    source = auto()
+    external_dataset = auto()
+    inference = auto()
+    image = auto()
 
 def is_project_name(value, project):
     return value == project.config.project_name

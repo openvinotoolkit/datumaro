@@ -2,8 +2,10 @@
 # Copyright (C) 2019-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
-from enum import Enum
+
+from enum import Enum, auto
 from glob import iglob
+from typing import Callable, Iterable, List, Dict, Optional
 import numpy as np
 import os
 import os.path as osp
@@ -15,17 +17,16 @@ from attr import attrs, attrib
 from datumaro.util.image import Image
 from datumaro.util.attrs_util import not_empty, default_if_none
 
-AnnotationType = Enum('AnnotationType',
-    [
-        'label',
-        'mask',
-        'points',
-        'polygon',
-        'polyline',
-        'bbox',
-        'caption',
-        'cuboid',
-    ])
+
+class AnnotationType(Enum):
+    label = auto()
+    mask = auto()
+    points = auto()
+    polygon = auto()
+    polyline = auto()
+    bbox = auto()
+    caption = auto()
+    cuboid = auto()
 
 _COORDINATE_ROUNDING_DIGITS = 2
 
@@ -479,11 +480,11 @@ class PointsCategories(Categories):
 
 @attrs
 class Points(_Shape):
-    Visibility = Enum('Visibility', [
-        ('absent', 0),
-        ('hidden', 1),
-        ('visible', 2),
-    ])
+    class Visibility(Enum):
+        absent = 0
+        hidden = 1
+        visible = 2
+
     _type = AnnotationType.points
 
     visibility = attrib(type=list, default=None)
@@ -712,13 +713,39 @@ class Importer:
         return project
 
     @classmethod
-    def _find_sources_recursive(cls, path, ext, extractor_name,
-            filename='*', dirname='', file_filter=None, max_depth=3):
+    def _find_sources_recursive(cls, path: str, ext: Optional[str],
+            extractor_name: str, filename: str = '*', dirname: str = '',
+            file_filter: Optional[Callable[[str], bool]] = None,
+            max_depth: int = 3):
+        """
+        Finds sources in the specified location, using the matching pattern
+        to filter file names and directories.
+        Supposed to be used, and to be the only call in subclasses.
 
-        if (path.endswith(ext) and osp.isfile(path)) or \
-                (not ext and osp.isdir(path) and dirname and \
-                os.sep + osp.normpath(dirname) + os.sep in \
-                    osp.abspath(path) + os.sep):
+        Paramters:
+        - path - a directory or file path, where sources need to be found.
+        - ext - file extension to match. To match directories,
+            set this parameter to None or ''. Comparison is case-independent,
+            a starting dot is not required.
+        - extractor_name - the name of the associated Extractor type
+        - filename - a glob pattern for file names
+        - dirname - a glob pattern for filename prefixes
+        - file_filter - a callable (abspath: str) -> bool, to filter paths found
+        - max_depth - the maximum depth for recursive search.
+
+        Returns: a list of source configurations
+            (i.e. Extractor type names and c-tor parameters)
+        """
+
+        if ext:
+            if not ext.startswith('.'):
+                ext = '.' + ext
+            ext = ext.lower()
+
+        if (ext and path.lower().endswith(ext) and osp.isfile(path)) or \
+                (not ext and dirname and osp.isdir(path) and \
+                os.sep + osp.normpath(dirname.lower()) + os.sep in \
+                    osp.abspath(path.lower()) + os.sep):
             sources = [{'url': path, 'format': extractor_name}]
         else:
             sources = []
@@ -730,6 +757,7 @@ class Importer:
                 if sources:
                     break
         return sources
+
 
 class Transform(Extractor):
     @staticmethod
@@ -762,4 +790,11 @@ class Transform(Extractor):
         return super().__len__()
 
     def transform_item(self, item: DatasetItem) -> DatasetItem:
+        """
+        Supposed to return a modified copy of the input item.
+
+        Avoid changing and returning the input item, because it can lead to
+        unexpected problems. wrap_item() can be used to simplify copying.
+        """
+
         raise NotImplementedError()

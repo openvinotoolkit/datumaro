@@ -1,9 +1,9 @@
-# Copyright (C) 2020 Intel Corporation
+# Copyright (C) 2020-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 from collections import Counter
-from enum import Enum
+from enum import Enum, auto
 from itertools import chain
 import logging as log
 import os.path as osp
@@ -454,7 +454,9 @@ class RemapLabels(Transform, CliPlugin):
     |s|sremap_labels -l person:car -l bus:bus -l cat:dog --default delete
     """
 
-    DefaultAction = Enum('DefaultAction', ['keep', 'delete'])
+    class DefaultAction(Enum):
+        keep = auto()
+        delete = auto()
 
     @staticmethod
     def _split_arg(s):

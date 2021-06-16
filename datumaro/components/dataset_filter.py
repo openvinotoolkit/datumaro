@@ -213,17 +213,30 @@ class DatasetItemEncoder:
     def to_string(encoded_item):
         return ET.tostring(encoded_item, encoding='unicode', pretty_print=True)
 
-def XPathDatasetFilter(extractor, xpath=None):
-    if xpath is None:
-        return extractor
-    try:
-        xpath = ET.XPath(xpath)
-    except Exception:
-        log.error("Failed to create XPath from expression '%s'", xpath)
-        raise
-    f = lambda item: bool(xpath(
-        DatasetItemEncoder.encode(item, extractor.categories())))
-    return extractor.select(f)
+class XPathDatasetFilter(Transform):
+    def __init__(self, extractor, xpath=None):
+        super().__init__(extractor)
+
+        if xpath is not None:
+            try:
+                xpath = ET.XPath(xpath)
+            except Exception:
+                log.error("Failed to create XPath from expression '%s'", xpath)
+                raise
+
+            self._f = lambda item: bool(xpath(
+                DatasetItemEncoder.encode(item, extractor.categories())))
+        else:
+            self._f = None
+
+    def __iter__(self):
+        if self._f:
+            if hasattr(self._extractor, 'select'):
+                yield from self._extractor.select(self._f)
+            else:
+                yield from filter(self._f, self._extractor)
+        else:
+            yield from self._extractor
 
 class XPathAnnotationsFilter(Transform):
     def __init__(self, extractor, xpath=None, remove_empty=False):

@@ -1,18 +1,20 @@
 
-# Copyright (C) 2019-2020 Intel Corporation
+# Copyright (C) 2019-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 # pylint: disable=unused-import
 
-from enum import Enum
+from enum import Enum, auto
 from io import BytesIO
 from typing import Any, Callable, Iterator, Iterable, Optional, Tuple, Union
 import numpy as np
 import os
 import os.path as osp
 
-_IMAGE_BACKENDS = Enum('_IMAGE_BACKENDS', ['cv2', 'PIL'])
+class _IMAGE_BACKENDS(Enum):
+    cv2 = auto()
+    PIL = auto()
 _IMAGE_BACKEND = None
 _image_loading_errors = (FileNotFoundError, )
 try:
