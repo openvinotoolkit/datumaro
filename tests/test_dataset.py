@@ -381,6 +381,46 @@ class DatasetTest(TestCase):
 
         compare_datasets(self, expected, dataset)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_create_patch_when_cached(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(2),
+            DatasetItem(3, subset='a')
+        ])
+
+        dataset = Dataset.from_iterable([
+            DatasetItem(1),
+            DatasetItem(2),
+        ])
+        dataset.init_cache()
+        dataset.put(DatasetItem(2))
+        dataset.put(DatasetItem(3, subset='a'))
+        dataset.remove(1)
+
+        patch = dataset.patch
+
+        self.assertEqual({
+            ('1', DEFAULT_SUBSET_NAME): ItemStatus.removed,
+
+            # Item was not changed from the original one.
+            # TODO: add item comparison and remove this line
+            ('2', DEFAULT_SUBSET_NAME): ItemStatus.modified,
+
+            ('3', 'a'): ItemStatus.added,
+        }, patch.updated_items)
+
+        self.assertEqual({
+            'default': ItemStatus.modified,
+            'a': ItemStatus.modified,
+        }, patch.updated_subsets)
+
+        self.assertEqual(2, len(patch.data))
+        self.assertEqual(None, patch.data.get(1))
+        self.assertEqual(dataset.get(2), patch.data.get(2))
+        self.assertEqual(dataset.get(3, 'a'), patch.data.get(3, 'a'))
+
+        compare_datasets(self, expected, dataset)
+
     @mark_requirement(Requirements.DATUM_BUG_257)
     def test_can_create_patch_when_transforms_mixed(self):
         expected = Dataset.from_iterable([
@@ -676,42 +716,6 @@ class DatasetTest(TestCase):
         self.assertEqual(TestExtractor.iter_called, 1) # 1 for items and list
         self.assertEqual(Remove1.iter_called, 1)
         self.assertEqual(Add3.iter_called, 1)
-
-        compare_datasets(self, expected, dataset)
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_create_more_precise_patch_when_cached(self):
-        expected = Dataset.from_iterable([
-            DatasetItem(2),
-            DatasetItem(3, subset='a')
-        ])
-
-        dataset = Dataset.from_iterable([
-            DatasetItem(1),
-            DatasetItem(2),
-        ])
-        dataset.init_cache()
-        dataset.put(DatasetItem(2))
-        dataset.put(DatasetItem(3, subset='a'))
-        dataset.remove(1)
-
-        patch = dataset.patch
-
-        self.assertEqual({
-            ('1', DEFAULT_SUBSET_NAME): ItemStatus.removed,
-            ('2', DEFAULT_SUBSET_NAME): ItemStatus.modified, # TODO: remove this
-            ('3', 'a'): ItemStatus.added,
-        }, patch.updated_items)
-
-        self.assertEqual({
-            'default': ItemStatus.modified,
-            'a': ItemStatus.modified,
-        }, patch.updated_subsets)
-
-        self.assertEqual(2, len(patch.data))
-        self.assertEqual(None, patch.data.get(1))
-        self.assertEqual(dataset.get(2), patch.data.get(2))
-        self.assertEqual(dataset.get(3, 'a'), patch.data.get(3, 'a'))
 
         compare_datasets(self, expected, dataset)
 
