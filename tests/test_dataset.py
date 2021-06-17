@@ -178,6 +178,41 @@ class DatasetTest(TestCase):
             dataset.export(format='qq', save_dir=test_dir)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_compute_length_when_created_from_scratch(self):
+        dataset = Dataset()
+
+        dataset.put(DatasetItem(1))
+        dataset.put(DatasetItem(2))
+        dataset.put(DatasetItem(3))
+        dataset.remove(1)
+
+        self.assertEqual(2, len(dataset))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_compute_length_when_created_from_extractor(self):
+        class TestExtractor(Extractor):
+            def __iter__(self):
+                yield from [
+                    DatasetItem(1),
+                    DatasetItem(2),
+                    DatasetItem(3),
+                ]
+
+        dataset = Dataset.from_extractors(TestExtractor())
+
+        self.assertEqual(3, len(dataset))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_compute_length_when_created_from_sequence(self):
+        dataset = Dataset.from_iterable([
+            DatasetItem(1),
+            DatasetItem(2),
+            DatasetItem(3),
+        ])
+
+        self.assertEqual(3, len(dataset))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_transform_by_string_name(self):
         expected = Dataset.from_iterable([
             DatasetItem(id=1, attributes={'qq': 1}),
