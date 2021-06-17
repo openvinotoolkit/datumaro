@@ -4,9 +4,8 @@
 # SPDX-License-Identifier: MIT
 
 from enum import Enum, auto
-from functools import partial
 from glob import iglob
-from typing import Callable, Iterable, List, Dict, Optional, Tuple, Union
+from typing import Callable, Iterable, List, Dict, Optional
 import os
 import os.path as osp
 
