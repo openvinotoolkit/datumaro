@@ -321,7 +321,7 @@ class DatasetStorage(IDataset):
                 if current_status != ItemStatus.added:
                     self._updated_items[item_id] = ItemStatus.modified
             elif new_status == ItemStatus.added:
-                if current_status == ItemStatus.removed:
+                if current_status != ItemStatus.added:
                     self._updated_items[item_id] = ItemStatus.modified
             else:
                 assert False, "Unknown status %s" % new_status
@@ -364,35 +364,20 @@ class DatasetStorage(IDataset):
                 # Find changes made by transforms, if not overridden by patch
                 if transform.is_local:
                     if not item:
-                        if self._updated_items.get(old_id) == ItemStatus.added:
-                            self._updated_items.pop(old_id)
-                        else:
-                            self._updated_items[old_id] = ItemStatus.removed
+                        _update_status(old_id, ItemStatus.removed)
                     elif old_id != item_id:
-                        if self._updated_items.get(old_id) == ItemStatus.added:
-                            self._updated_items.pop(old_id)
-                        else:
-                            self._updated_items[old_id] = ItemStatus.removed
-
-                        if self._updated_items.get(item_id) == ItemStatus.removed:
-                            self._updated_items[item_id] = ItemStatus.modified
-                        else:
-                            self._updated_items[item_id] = ItemStatus.added
+                        _update_status(old_id, ItemStatus.removed)
+                        _update_status(item_id, ItemStatus.added)
                     else:
                         # Consider all items modified without comparison,
                         # because such comparison would be very expensive
-                        if self._updated_items.get(old_id) != ItemStatus.added:
-                            self._updated_items[old_id] = ItemStatus.modified
+                        _update_status(old_id, ItemStatus.modified)
                 else:
                     if item:
                         if item_id not in old_ids:
-                            if self._updated_items.get(item_id) == ItemStatus.removed:
-                                self._updated_items[item_id] = ItemStatus.modified
-                            else:
-                                self._updated_items[item_id] = ItemStatus.added
+                            _update_status(item_id, ItemStatus.added)
                         else:
-                            if self._updated_items.get(item_id) != ItemStatus.added:
-                                self._updated_items[item_id] = ItemStatus.modified
+                            _update_status(item_id, ItemStatus.modified)
 
             if not item:
                 continue
@@ -403,21 +388,13 @@ class DatasetStorage(IDataset):
         if i == -1:
             cache = patch
             for item in patch:
-                item_id = (item.id, item.subset)
-                if self._updated_items.get(item_id) == ItemStatus.removed:
-                    self._updated_items[item_id] = ItemStatus.modified
-                else:
-                    self._updated_items[item_id] = ItemStatus.added
+                _update_status((item.id, item.subset), ItemStatus.added)
                 yield item
         else:
             for item in patch:
                 if item in cache: # already processed
                     continue
-                item_id = (item.id, item.subset)
-                if self._updated_items.get(item_id) == ItemStatus.removed:
-                    self._updated_items[item_id] = ItemStatus.modified
-                else:
-                    self._updated_items[item_id] = ItemStatus.added
+                _update_status((item.id, item.subset), ItemStatus.added)
                 cache.put(item)
                 yield item
 
@@ -468,10 +445,10 @@ class DatasetStorage(IDataset):
     def put(self, item):
         is_new = self._storage.put(item)
 
-        if not self.is_cache_initialized() or not is_new:
-            self._updated_items[(item.id, item.subset)] = ItemStatus.modified
-        elif is_new:
+        if not self.is_cache_initialized() or is_new:
             self._updated_items[(item.id, item.subset)] = ItemStatus.added
+        else:
+            self._updated_items[(item.id, item.subset)] = ItemStatus.modified
 
         if is_new and not self.is_cache_initialized():
             self._length = None

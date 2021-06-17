@@ -330,8 +330,8 @@ class DatasetTest(TestCase):
 
         self.assertEqual({
             ('1', DEFAULT_SUBSET_NAME): ItemStatus.removed,
-            ('2', DEFAULT_SUBSET_NAME): ItemStatus.modified,
-            ('3', 'a'): ItemStatus.modified,
+            ('2', DEFAULT_SUBSET_NAME): ItemStatus.added,
+            ('3', 'a'): ItemStatus.added,
         }, patch.updated_items)
 
         self.assertEqual({
