@@ -442,6 +442,8 @@ class DatasetStorage(IDataset):
     def categories(self) -> CategoriesInfo:
         if self.is_cache_initialized():
             return self._categories
+        elif self._categories is not None:
+            return self._categories
         elif any(is_member_redefined('categories', Transform, t[0])
                 for t in self._transforms):
             self.init_cache()
@@ -511,8 +513,8 @@ class DatasetStorage(IDataset):
             self._source = source
         self._transforms.append((method, args, kwargs))
 
-        # TODO: can be optimized by analyzing source methods
-        self._categories = None
+        if is_member_redefined('categories', Transform, method):
+            self._categories = None
         self._length = None
 
     def has_updated_items(self):
