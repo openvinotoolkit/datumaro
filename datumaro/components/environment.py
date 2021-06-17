@@ -64,13 +64,13 @@ class Environment:
 
         from datumaro.components.converter import Converter
         from datumaro.components.extractor import (Importer, Extractor,
-            SourceExtractor, Transform)
+            SourceExtractor, Transform, ItemTransform)
         from datumaro.components.launcher import Launcher
         self.extractors = PluginRegistry(_filter(Extractor, SourceExtractor))
         self.importers = PluginRegistry(_filter(Importer))
         self.launchers = PluginRegistry(_filter(Launcher))
         self.converters = PluginRegistry(_filter(Converter))
-        self.transforms = PluginRegistry(_filter(Transform))
+        self.transforms = PluginRegistry(_filter(Transform, ItemTransform))
         self._register_plugins(self._load_builtin_plugins())
 
     @staticmethod
