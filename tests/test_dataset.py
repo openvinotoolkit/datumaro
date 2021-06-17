@@ -1004,6 +1004,20 @@ class DatasetTest(TestCase):
 
         self.assertEqual(1, len(dataset))
 
+    @mark_requirement(Requirements.DATUM_BUG_257)
+    def test_filter_registers_changes(self):
+        dataset = Dataset.from_iterable([
+            DatasetItem(id=0, subset='train'),
+            DatasetItem(id=1, subset='test'),
+        ])
+
+        dataset.filter('/item[id > 0]')
+
+        self.assertEqual({
+            ('0', 'train'): ItemStatus.removed,
+            ('1', 'test'): ItemStatus.modified, # TODO: remove this line
+        }, dataset.patch.updated_items)
+
     @mark_requirement(Requirements.DATUM_BUG_259)
     def test_can_filter_annotations(self):
         dataset = Dataset.from_iterable([
