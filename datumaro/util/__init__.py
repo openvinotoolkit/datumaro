@@ -104,6 +104,10 @@ def unescape(s: str, escapes: Iterable[Tuple[str, str]]) -> str:
         s = s.replace(sub, pattern)
     return s
 
+def is_member_redefined(member_name, base_class, target_class) -> bool:
+    return getattr(target_class, member_name) != \
+           getattr(base_class, member_name)
+
 def optional_arg_decorator(fn):
     @wraps(fn)
     def wrapped_decorator(*args, **kwargs):

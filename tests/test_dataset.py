@@ -13,6 +13,7 @@ from datumaro.components.errors import DatumaroError, RepeatedItemError
 from datumaro.components.extractor import (DEFAULT_SUBSET_NAME, Extractor,
     DatasetItem, ItemTransform, Label, Mask, Points, Polygon, PolyLine, Bbox, Caption,
     LabelCategories, AnnotationType, Transform)
+from datumaro.components.launcher import Launcher
 from datumaro.util.image import Image
 from datumaro.util.test_utils import TestDir, compare_datasets
 
@@ -992,6 +993,48 @@ class DatasetTest(TestCase):
             dataset.save(test_dir)
 
         self.assertFalse(called)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_transform_labels(self):
+        expected = Dataset.from_iterable([], categories=['c', 'b'])
+        dataset = Dataset.from_iterable([], categories=['a', 'b'])
+
+        actual = dataset.transform('remap_labels', {'a': 'c'})
+
+        compare_datasets(self, expected, actual)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_run_model(self):
+        dataset = Dataset.from_iterable([
+            DatasetItem(i, image=np.array([i]))
+            for i in range(5)
+        ], categories=['label'])
+
+        batch_size = 3
+
+        expected = Dataset.from_iterable([
+            DatasetItem(i, image=np.array([i]), annotations=[
+                Label(0, attributes={ 'idx': i % batch_size, 'data': i })
+            ])
+            for i in range(5)
+        ], categories=['label'])
+
+        calls = 0
+
+        class TestLauncher(Launcher):
+            def launch(self, inputs):
+                nonlocal calls
+                calls += 1
+
+                for i, inp in enumerate(inputs):
+                    yield [ Label(0, attributes={'idx': i, 'data': inp.item()}) ]
+
+        model = TestLauncher()
+
+        actual = dataset.run_model(model, batch_size=batch_size)
+
+        compare_datasets(self, expected, actual, require_images=True)
+        self.assertEqual(2, calls)
 
     @mark_requirement(Requirements.DATUM_BUG_259)
     def test_can_filter_items(self):

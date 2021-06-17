@@ -549,6 +549,9 @@ class IExtractor: #pylint: disable=redefined-builtin
     def __len__(self) -> int:
         raise NotImplementedError()
 
+    def __bool__(self): # avoid __len__ use for truth checking
+        return True
+
     def subsets(self) -> Dict[str, 'IExtractor']:
         raise NotImplementedError()
 

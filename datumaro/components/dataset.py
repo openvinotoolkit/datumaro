@@ -20,7 +20,7 @@ from datumaro.components.extractor import (CategoriesInfo, Extractor,
     DEFAULT_SUBSET_NAME, Transform)
 from datumaro.components.environment import Environment
 from datumaro.components.errors import DatumaroError, RepeatedItemError
-from datumaro.util import error_rollback
+from datumaro.util import error_rollback, is_member_redefined
 from datumaro.util.log_utils import logging_disabled
 
 
@@ -253,7 +253,7 @@ class DatasetStorage(IDataset):
         self._length = 0 if source is None else None
 
     def is_cache_initialized(self) -> bool:
-        return self._source is None
+        return self._source is None and not self._transforms
 
     @property
     def _is_unchanged_wrapper(self) -> bool:
@@ -304,8 +304,8 @@ class DatasetStorage(IDataset):
             def __iter__(self):
                 yield from self.transforms[-1]
 
-            def __bool__(self): # avoid __len__ use for truth check
-                return True
+            def categories(self):
+                return self.transforms[-1].categories()
 
         def _update_status(item_id, new_status: ItemStatus):
             current_status = self._updated_items.get(item_id)
@@ -407,7 +407,10 @@ class DatasetStorage(IDataset):
         self._storage = cache
         self._length = len(cache)
 
-        source_cat = source.categories()
+        if transform:
+            source_cat = transform.categories()
+        else:
+            source_cat = source.categories()
         if source_cat is not None:
             self._categories = source_cat
 
@@ -437,7 +440,11 @@ class DatasetStorage(IDataset):
         return self._length
 
     def categories(self) -> CategoriesInfo:
-        if self._categories is not None:
+        if self.is_cache_initialized():
+            return self._categories
+        elif any(is_member_redefined('categories', Transform, t[0])
+                for t in self._transforms):
+            self.init_cache()
             return self._categories
         else:
             return self._source.categories()
