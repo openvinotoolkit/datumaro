@@ -175,8 +175,6 @@ class XmlAnnotationWriter:
                 if index < len(attribute.keys()) - 1:
                     self._indent(newline=True)
             self._close_attribute()
-            if k < len(attribute.keys()) - 1:
-                self._indent(newline=True)
         self._close_attributes()
 
     def generate_tracklets(self):
