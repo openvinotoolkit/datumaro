@@ -1,9 +1,9 @@
-# Copyright (C) 2020 Intel Corporation
+# Copyright (C) 2020-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 from collections import Counter
-from enum import Enum
+from enum import Enum, auto
 from itertools import chain
 import logging as log
 import os.path as osp
@@ -12,8 +12,8 @@ import re
 
 import pycocotools.mask as mask_utils
 
-from datumaro.components.extractor import (Transform, AnnotationType,
-    RleMask, Polygon, Bbox, Label, DEFAULT_SUBSET_NAME,
+from datumaro.components.extractor import (ItemTransform, Transform,
+    AnnotationType, RleMask, Polygon, Bbox, Label, DEFAULT_SUBSET_NAME,
     LabelCategories, MaskCategories, PointsCategories
 )
 from datumaro.components.cli_plugin import CliPlugin
@@ -22,7 +22,7 @@ from datumaro.util import parse_str_enum_value, NOTSET
 from datumaro.util.annotation_util import find_group_leader, find_instances
 
 
-class CropCoveredSegments(Transform, CliPlugin):
+class CropCoveredSegments(ItemTransform, CliPlugin):
     def transform_item(self, item):
         annotations = []
         segments = []
@@ -85,7 +85,7 @@ class CropCoveredSegments(Transform, CliPlugin):
         max_gid = max(anns, default=0, key=lambda x: x.group)
         return max_gid + 1
 
-class MergeInstanceSegments(Transform, CliPlugin):
+class MergeInstanceSegments(ItemTransform, CliPlugin):
     """
     Replaces instance masks and, optionally, polygons with a single mask.
     """
@@ -169,7 +169,7 @@ class MergeInstanceSegments(Transform, CliPlugin):
         return find_instances(a for a in annotations
             if a.type in {AnnotationType.polygon, AnnotationType.mask})
 
-class PolygonsToMasks(Transform, CliPlugin):
+class PolygonsToMasks(ItemTransform, CliPlugin):
     def transform_item(self, item):
         annotations = []
         for ann in item.annotations:
@@ -190,7 +190,7 @@ class PolygonsToMasks(Transform, CliPlugin):
         return RleMask(rle=rle, label=polygon.label, z_order=polygon.z_order,
             id=polygon.id, attributes=polygon.attributes, group=polygon.group)
 
-class BoxesToMasks(Transform, CliPlugin):
+class BoxesToMasks(ItemTransform, CliPlugin):
     def transform_item(self, item):
         annotations = []
         for ann in item.annotations:
@@ -211,7 +211,7 @@ class BoxesToMasks(Transform, CliPlugin):
         return RleMask(rle=rle, label=bbox.label, z_order=bbox.z_order,
             id=bbox.id, attributes=bbox.attributes, group=bbox.group)
 
-class MasksToPolygons(Transform, CliPlugin):
+class MasksToPolygons(ItemTransform, CliPlugin):
     def transform_item(self, item):
         annotations = []
         for ann in item.annotations:
@@ -238,7 +238,7 @@ class MasksToPolygons(Transform, CliPlugin):
             for p in polygons
         ]
 
-class ShapesToBoxes(Transform, CliPlugin):
+class ShapesToBoxes(ItemTransform, CliPlugin):
     def transform_item(self, item):
         annotations = []
         for ann in item.annotations:
@@ -274,7 +274,7 @@ class Reindex(Transform, CliPlugin):
         for i, item in enumerate(self._extractor):
             yield self.wrap_item(item, id=i + self._start)
 
-class MapSubsets(Transform, CliPlugin):
+class MapSubsets(ItemTransform, CliPlugin):
     @staticmethod
     def _mapping_arg(s):
         parts = s.split(':')
@@ -387,7 +387,7 @@ class RandomSplit(Transform, CliPlugin):
         for i, item in enumerate(self._extractor):
             yield self.wrap_item(item, subset=self._find_split(i))
 
-class IdFromImageName(Transform, CliPlugin):
+class IdFromImageName(ItemTransform, CliPlugin):
     def transform_item(self, item):
         if item.has_image and item.image.path:
             name = osp.splitext(osp.basename(item.image.path))[0]
@@ -397,7 +397,7 @@ class IdFromImageName(Transform, CliPlugin):
                 "item has no image info" % item.id)
             return item
 
-class Rename(Transform, CliPlugin):
+class Rename(ItemTransform, CliPlugin):
     """
     Renames items in the dataset. Supports regular expressions.
     The first character in the expression is a delimiter for
@@ -431,7 +431,7 @@ class Rename(Transform, CliPlugin):
         return self.wrap_item(item, id=self._re.sub(self._sub, item.id) \
             .format(item=item))
 
-class RemapLabels(Transform, CliPlugin):
+class RemapLabels(ItemTransform, CliPlugin):
     """
     Changes labels in the dataset.|n
     |n
@@ -454,7 +454,9 @@ class RemapLabels(Transform, CliPlugin):
     |s|sremap_labels -l person:car -l bus:bus -l cat:dog --default delete
     """
 
-    DefaultAction = Enum('DefaultAction', ['keep', 'delete'])
+    class DefaultAction(Enum):
+        keep = auto()
+        delete = auto()
 
     @staticmethod
     def _split_arg(s):
@@ -559,7 +561,7 @@ class RemapLabels(Transform, CliPlugin):
                 annotations.append(ann.wrap())
         return item.wrap(annotations=annotations)
 
-class AnnsToLabels(Transform, CliPlugin):
+class AnnsToLabels(ItemTransform, CliPlugin):
     """
     Collects all labels from annotations (of all types) and
     transforms them into a set of annotations of type Label

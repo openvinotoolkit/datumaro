@@ -1,10 +1,10 @@
 
-# Copyright (C) 2019-2020 Intel Corporation
+# Copyright (C) 2019-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 from collections import OrderedDict
-from enum import Enum
+from enum import Enum, auto
 from itertools import chain
 import numpy as np
 
@@ -13,66 +13,61 @@ from datumaro.components.extractor import (AnnotationType,
 )
 
 
-VocTask = Enum('VocTask', [
-    'classification',
-    'detection',
-    'segmentation',
-    'action_classification',
-    'person_layout',
-])
+class VocTask(Enum):
+    classification = auto()
+    detection = auto()
+    segmentation = auto()
+    action_classification = auto()
+    person_layout = auto()
 
-VocLabel = Enum('VocLabel', [
-    ('background', 0),
-    ('aeroplane', 1),
-    ('bicycle', 2),
-    ('bird', 3),
-    ('boat', 4),
-    ('bottle', 5),
-    ('bus', 6),
-    ('car', 7),
-    ('cat', 8),
-    ('chair', 9),
-    ('cow', 10),
-    ('diningtable', 11),
-    ('dog', 12),
-    ('horse', 13),
-    ('motorbike', 14),
-    ('person', 15),
-    ('pottedplant', 16),
-    ('sheep', 17),
-    ('sofa', 18),
-    ('train', 19),
-    ('tvmonitor', 20),
-    ('ignored', 255),
-])
+class VocLabel(Enum):
+    background = 0
+    aeroplane = 1
+    bicycle = 2
+    bird = 3
+    boat = 4
+    bottle = 5
+    bus = 6
+    car = 7
+    cat = 8
+    chair = 9
+    cow = 10
+    diningtable = 11
+    dog = 12
+    horse = 13
+    motorbike = 14
+    person = 15
+    pottedplant = 16
+    sheep = 17
+    sofa = 18
+    train = 19
+    tvmonitor = 20
+    ignored = 255
 
-VocPose = Enum('VocPose', [
-    'Unspecified',
-    'Left',
-    'Right',
-    'Frontal',
-    'Rear',
-])
+class VocPose(Enum):
+    Unspecified = auto()
+    Left = auto()
+    Right = auto()
+    Frontal = auto()
+    Rear = auto()
 
-VocBodyPart = Enum('VocBodyPart', [
-    'head',
-    'hand',
-    'foot',
-])
+class VocBodyPart(Enum):
+    head = auto()
+    hand = auto()
+    foot = auto()
 
-VocAction = Enum('VocAction', [
-    'other',
-    'jumping',
-    'phoning',
-    'playinginstrument',
-    'reading',
-    'ridingbike',
-    'ridinghorse',
-    'running',
-    'takingphoto',
-    'usingcomputer',
-    'walking',
-])
+class VocAction(Enum):
+    other = auto()
+    jumping = auto()
+    phoning = auto()
+    playinginstrument = auto()
+    reading = auto()
+    ridingbike = auto()
+    ridinghorse = auto()
+    running = auto()
+    takingphoto = auto()
+    usingcomputer = auto()
+    walking = auto()
 
 def generate_colormap(length=256):
     def get_bit(number, index):

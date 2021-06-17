@@ -5,7 +5,7 @@
 
 from collections import Counter
 from itertools import zip_longest
-from enum import Enum
+from enum import Enum, auto
 import logging as log
 import os
 import os.path as osp
@@ -13,20 +13,19 @@ import os.path as osp
 import cv2
 import numpy as np
 
-_formats = ['simple']
-
 import warnings
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     import tensorboardX as tb
-    _formats.append('tensorboard')
 
 from datumaro.components.dataset import IDataset
 from datumaro.components.extractor import AnnotationType, LabelCategories
 from datumaro.util.image import save_image
 
 
-OutputFormat = Enum('Formats', _formats)
+class OutputFormat(Enum):
+    simple = auto()
+    tensorboard = auto()
 
 class DatasetDiffVisualizer:
     OutputFormat = OutputFormat

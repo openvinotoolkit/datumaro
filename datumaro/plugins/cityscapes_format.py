@@ -1,5 +1,5 @@
 
-# Copyright (C) 2020 Intel Corporation
+# Copyright (C) 2020-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -7,7 +7,7 @@ import logging as log
 import os
 import os.path as osp
 from collections import OrderedDict
-from enum import Enum
+from enum import Enum, auto
 from glob import iglob
 
 import numpy as np
@@ -200,7 +200,9 @@ class CityscapesImporter(Importer):
             max_depth=1)
 
 
-LabelmapType = Enum('LabelmapType', ['cityscapes', 'source'])
+class LabelmapType(Enum):
+    cityscapes = auto()
+    source = auto()
 
 class CityscapesConverter(Converter):
     DEFAULT_IMAGE_EXT = '.png'

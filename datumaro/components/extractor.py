@@ -3,30 +3,29 @@
 #
 # SPDX-License-Identifier: MIT
 
-from enum import Enum
+from enum import Enum, auto
+from functools import partial
 from glob import iglob
-from typing import Callable, Iterable, List, Dict, Optional
-import numpy as np
+from typing import Callable, Iterable, List, Dict, Optional, Tuple, Union
 import os
 import os.path as osp
 
 import attr
 from attr import attrs, attrib
+import numpy as np
 
 from datumaro.util.image import Image
 from datumaro.util.attrs_util import not_empty, default_if_none
 
 
-AnnotationType = Enum('AnnotationType',
-    [
-        'label',
-        'mask',
-        'points',
-        'polygon',
-        'polyline',
-        'bbox',
-        'caption',
-    ])
+class AnnotationType(Enum):
+    label = auto()
+    mask = auto()
+    points = auto()
+    polygon = auto()
+    polyline = auto()
+    bbox = auto()
+    caption = auto()
 
 _COORDINATE_ROUNDING_DIGITS = 2
 
@@ -468,11 +467,11 @@ class PointsCategories(Categories):
 
 @attrs
 class Points(_Shape):
-    Visibility = Enum('Visibility', [
-        ('absent', 0),
-        ('hidden', 1),
-        ('visible', 2),
-    ])
+    class Visibility(Enum):
+        absent = 0
+        hidden = 1
+        visible = 2
+
     _type = AnnotationType.points
 
     visibility = attrib(type=list, default=None)
@@ -716,6 +715,11 @@ class Importer:
         return sources
 
 class Transform(ExtractorBase):
+    """
+    A base class for dataset transformations that change dataset items
+    or their annotations.
+    """
+
     @staticmethod
     def wrap_item(item, **kwargs):
         return item.wrap(**kwargs)
@@ -724,10 +728,6 @@ class Transform(ExtractorBase):
         super().__init__()
 
         self._extractor = extractor
-
-    def __iter__(self):
-        for item in self._extractor:
-            yield self.transform_item(item)
 
     def categories(self):
         return self._extractor.categories()
@@ -745,5 +745,19 @@ class Transform(ExtractorBase):
             self._length = len(self._extractor)
         return super().__len__()
 
-    def transform_item(self, item: DatasetItem) -> DatasetItem:
+class ItemTransform(Transform):
+    def transform_item(self, item: DatasetItem) -> Optional[DatasetItem]:
+        """
+        Returns a modified copy of the input item.
+
+        Avoid changing and returning the input item, because it can lead to
+        unexpected problems. Use wrap_item() or item.wrap() to simplify copying.
+        """
+
         raise NotImplementedError()
+
+    def __iter__(self):
+        for item in self._extractor:
+            item = self.transform_item(item)
+            if item is not None:
+                yield item
