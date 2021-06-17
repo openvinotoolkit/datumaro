@@ -407,7 +407,10 @@ class DatasetStorage(IDataset):
         self._storage = cache
         self._length = len(cache)
 
-        source_cat = source.categories()
+        if transform and transform.is_local:
+            source_cat = transform.transforms[-1].categories()
+        else:
+            source_cat = source.categories()
         if source_cat is not None:
             self._categories = source_cat
 
@@ -438,6 +441,10 @@ class DatasetStorage(IDataset):
 
     def categories(self) -> CategoriesInfo:
         if self._categories is not None:
+            return self._categories
+        elif any(t[0].categories != Transform.categories
+                for t in self._transforms):
+            self.init_cache()
             return self._categories
         else:
             return self._source.categories()

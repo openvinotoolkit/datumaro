@@ -996,12 +996,12 @@ class DatasetTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_transform_labels(self):
-        result = Dataset.from_iterable([], categories=['a', 'b'])
+        expected = Dataset.from_iterable([], categories=['c', 'b'])
+        dataset = Dataset.from_iterable([], categories=['a', 'b'])
 
-        result.transform('remap_labels', {'a': 'c'})
+        actual = dataset.transform('remap_labels', {'a': 'c'})
 
-        compare_datasets(self, Dataset.from_iterable([], categories=['c', 'b']),
-            result)
+        compare_datasets(self, expected, actual)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_run_model(self):
