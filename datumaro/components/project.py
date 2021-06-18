@@ -1910,7 +1910,8 @@ class Project:
 
     def import_source(self, name: str, url: Optional[str],
             format: str, options: Optional[Dict] = None,
-            no_cache: bool = False, path: Optional[str] = None) -> Source:
+            no_cache: bool = False, path: Optional[str] = None) -> Source: \
+                #pylint: disable=redefined-builtin
         """
         Adds a new source (dataset) to the working directory of the project.
 

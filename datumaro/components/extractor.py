@@ -606,11 +606,13 @@ class ExtractorBase(IExtractor):
         return method(self, *args, **kwargs)
 
     def select(self, pred):
-        class _DatasetFilter(Transform):
+        class _DatasetFilter(ExtractorBase):
             def __iter__(_):
                 return filter(pred, iter(self))
+            def categories(_):
+                return self.categories()
 
-        return self.transform(_DatasetFilter)
+        return _DatasetFilter()
 
     def categories(self):
         return {}
@@ -624,7 +626,6 @@ class ExtractorBase(IExtractor):
 
 class Extractor(ExtractorBase):
     "A base class for user-defined and built-in extractors"
-    pass
 
 class SourceExtractor(Extractor):
     def __init__(self, length=None, subset=None):

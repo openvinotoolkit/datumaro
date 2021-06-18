@@ -38,7 +38,7 @@ class Registry:
         return iter(self.items)
 
 class PluginRegistry(Registry):
-    def __init__(self, filter=None):
+    def __init__(self, filter=None): #pylint: disable=redefined-builtin
         super().__init__()
         self.filter = filter
 
