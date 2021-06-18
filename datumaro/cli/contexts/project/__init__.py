@@ -18,7 +18,7 @@ from datumaro.components.operations import (DistanceComparator,
 from datumaro.components.project import \
     PROJECT_DEFAULT_CONFIG as DEFAULT_CONFIG
 from datumaro.components.project import Environment, Project
-from datumaro.components.validator import validate_annotations, TaskType
+from datumaro.components.validator import Validator, TaskType
 from datumaro.util import error_rollback
 
 from ...util import (CliException, MultilineFormatter, add_subparser,
@@ -801,8 +801,7 @@ def build_validate_parser(parser_ctor=argparse.ArgumentParser):
         """,
         formatter_class=MultilineFormatter)
 
-    parser.add_argument('task_type',
-        choices=[task_type.name for task_type in TaskType],
+    parser.add_argument('-t', '--task_type', choices=[task_type.name for task_type in TaskType],
         help="Task type for validation")
     parser.add_argument('-s', '--subset', dest='subset_name', default=None,
         help="Subset to validate (default: None)")
@@ -816,19 +815,20 @@ def build_validate_parser(parser_ctor=argparse.ArgumentParser):
 
 def validate_command(args):
     project = load_project(args.project_dir)
-    task_type = args.task_type
-    subset_name = args.subset_name
-    dst_file_name = f'validation_results-{task_type}'
+    dst_file_name = f'validation_results-{args.task_type}'
 
     dataset = project.make_dataset()
-    if subset_name is not None:
-        dataset = dataset.get_subset(subset_name)
-        dst_file_name += f'-{subset_name}'
+    if args.subset_name is not None:
+        dataset = dataset.get_subset(args.subset_name)
+        dst_file_name += f'-{args.subset_name}'
+
+    validator = project.env.validators['dataset'](args.task_type)
 
     extra_args = {}
-    from datumaro.components.validator import _Validator
-    extra_args = _Validator.parse_cmdline(args.extra_args)
-    validation_results = validate_annotations(dataset, task_type, **extra_args)
+    if hasattr(validator, 'parse_cmdline'):
+        extra_args = validator.parse_cmdline(args.extra_args)
+    validator.set_extra_args(extra_args)
+    validation_results = validator.validate_annotations(dataset)
 
     def numpy_encoder(obj):
         if isinstance(obj, np.generic):
