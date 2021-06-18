@@ -115,8 +115,8 @@ class ImagenetTxtConverter(Converter):
             for item_id, item_labels in labels.items():
                 if 1 < len(item_id.split()):
                     item_id = '\"' + item_id + '\"'
-                annotation += '%s %s\n' % (
-                    item_id, ' '.join(str(l) for l in item_labels))
+                annotation += '%s %s\n' % (item_id + self._find_image_ext(item),
+                    ' '.join(str(l) for l in item_labels))
 
             with open(annotation_file, 'w', encoding='utf-8') as f:
                 f.write(annotation)
