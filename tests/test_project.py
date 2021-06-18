@@ -8,8 +8,8 @@ from datumaro.components.config_model import Source, Model
 from datumaro.components.dataset import Dataset, DEFAULT_FORMAT
 from datumaro.components.errors import (EmptyCommitError, ForeignChangesError,
     SourceOutsideError)
-from datumaro.components.extractor import (Bbox, DatasetItem,
-    Label, Transform)
+from datumaro.components.extractor import (Bbox, DatasetItem, ItemTransform,
+    Label)
 from datumaro.components.launcher import Launcher
 from datumaro.components.project import DiffStatus, Project
 from datumaro.util.test_utils import TestDir, compare_datasets, compare_dirs
@@ -361,7 +361,7 @@ class ProjectTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_add_transform_stage(self):
-        class TestTransform(Transform):
+        class TestTransform(ItemTransform):
             def __init__(self, extractor, p1=None, p2=None):
                 super().__init__(extractor)
                 self.p1 = p1
