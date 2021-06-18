@@ -6,9 +6,11 @@ from unittest import TestCase
 from datumaro.components.extractor import Label, Bbox
 from datumaro.components.launcher import Launcher
 from datumaro.components.algorithms.rise import RISE
+from .requirements import Requirements, mark_requirement
 
 
 class RiseTest(TestCase):
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_rise_can_be_applied_to_classification_model(self):
         class TestLauncher(Launcher):
             def __init__(self, class_count, roi, **kwargs):
@@ -57,6 +59,7 @@ class RiseTest(TestCase):
         hrest_den = (h_sum - roi_sum) / (h_area - roi_area)
         self.assertLess(hrest_den, roi_den)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_rise_can_be_applied_to_detection_model(self):
         ROI = namedtuple('ROI',
             ['threshold', 'x', 'y', 'w', 'h', 'label'])

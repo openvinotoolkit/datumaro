@@ -3,19 +3,19 @@
 #
 # SPDX-License-Identifier: MIT
 
-from collections import defaultdict
 from glob import glob
 import logging as log
 import os.path as osp
 
 from datumaro.components.extractor import Importer
+from datumaro.util import parse_str_enum_value
 from datumaro.util.log_utils import logging_disabled
 
 from .format import CocoTask
 
 
 class CocoImporter(Importer):
-    _COCO_EXTRACTORS = {
+    _TASKS = {
         CocoTask.instances: 'coco_instances',
         CocoTask.person_keypoints: 'coco_person_keypoints',
         CocoTask.captions: 'coco_captions',
@@ -65,34 +65,60 @@ class CocoImporter(Importer):
                 source_name = osp.splitext(osp.basename(ann_file))[0]
                 project.add_source(source_name, {
                     'url': ann_file,
-                    'format': self._COCO_EXTRACTORS[ann_type],
+                    'format': self._TASKS[ann_type],
                     'options': dict(extra_params),
                 })
 
         return project
 
-    @staticmethod
-    def find_sources(path):
+    @classmethod
+    def find_sources(cls, path):
         if path.endswith('.json') and osp.isfile(path):
             subset_paths = [path]
         else:
             subset_paths = glob(osp.join(path, '**', '*_*.json'),
                 recursive=True)
 
-        subsets = defaultdict(dict)
+        subsets = {}
         for subset_path in subset_paths:
             name_parts = osp.splitext(osp.basename(subset_path))[0] \
                 .rsplit('_', maxsplit=1)
 
-            ann_type = name_parts[0]
-            try:
-                ann_type = CocoTask[ann_type]
-            except KeyError:
-                log.warn("Skipping '%s': unknown subset "
-                    "type '%s', the only known are: %s" % \
-                    (subset_path, ann_type,
-                        ', '.join([e.name for e in CocoTask])))
+            ann_type = parse_str_enum_value(name_parts[0], CocoTask,
+                default=None)
+            if ann_type not in cls._TASKS:
                 continue
+
             subset_name = name_parts[1]
-            subsets[subset_name][ann_type] = subset_path
-        return dict(subsets)
+            subsets.setdefault(subset_name, {})[ann_type] = subset_path
+
+        return subsets
+
+
+class CocoImageInfoImporter(CocoImporter):
+    _TASK = CocoTask.image_info
+    _TASKS = { _TASK: CocoImporter._TASKS[_TASK] }
+
+class CocoCaptionsImporter(CocoImporter):
+    _TASK = CocoTask.captions
+    _TASKS = { _TASK: CocoImporter._TASKS[_TASK] }
+
+class CocoInstancesImporter(CocoImporter):
+    _TASK = CocoTask.instances
+    _TASKS = { _TASK: CocoImporter._TASKS[_TASK] }
+
+class CocoPersonKeypointsImporter(CocoImporter):
+    _TASK = CocoTask.person_keypoints
+    _TASKS = { _TASK: CocoImporter._TASKS[_TASK] }
+
+class CocoLabelsImporter(CocoImporter):
+    _TASK = CocoTask.labels
+    _TASKS = { _TASK: CocoImporter._TASKS[_TASK] }
+
+class CocoPanopticImporter(CocoImporter):
+    _TASK = CocoTask.panoptic
+    _TASKS = { _TASK: CocoImporter._TASKS[_TASK] }
+
+class CocoStuffImporter(CocoImporter):
+    _TASK = CocoTask.stuff
+    _TASKS = { _TASK: CocoImporter._TASKS[_TASK] }

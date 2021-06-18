@@ -1,5 +1,5 @@
 
-# Copyright (C) 2020 Intel Corporation
+# Copyright (C) 2020-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -7,7 +7,7 @@ import logging as log
 import os
 import os.path as osp
 from collections import OrderedDict, defaultdict
-from enum import Enum
+from enum import Enum, auto
 from itertools import chain
 
 from lxml import etree as ET
@@ -49,7 +49,9 @@ def _write_xml_bbox(bbox, parent_elem):
     return bbox_elem
 
 
-LabelmapType = Enum('LabelmapType', ['voc', 'source'])
+class LabelmapType(Enum):
+    voc = auto()
+    source = auto()
 
 class VocConverter(Converter):
     DEFAULT_IMAGE_EXT = VocPath.IMAGE_EXT
@@ -201,7 +203,7 @@ class VocConverter(Converter):
                     ET.SubElement(source_elem, 'annotation').text = 'Unknown'
                     ET.SubElement(source_elem, 'image').text = 'Unknown'
 
-                    if item.has_image:
+                    if item.has_image and item.image.has_size:
                         h, w = item.image.size
                         size_elem = ET.SubElement(root_elem, 'size')
                         ET.SubElement(size_elem, 'width').text = str(w)

@@ -2,13 +2,18 @@
 #
 # SPDX-License-Identifier: MIT
 
-from enum import Enum
+from enum import Enum, auto
 
 
-SamplingMethod = Enum("SamplingMethod",
-    ["topk", "lowk", "randk", "mixk", "randtopk"])
+class SamplingMethod(Enum):
+    topk = auto()
+    lowk = auto()
+    randk = auto()
+    mixk = auto()
+    randtopk = auto()
 
-Algorithm = Enum("Algorithm", ["entropy"])
+class Algorithm(Enum):
+    entropy = auto()
 
 class InferenceResultAnalyzer:
     """

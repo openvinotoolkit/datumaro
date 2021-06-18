@@ -1,5 +1,5 @@
 
-# Copyright (C) 2020 Intel Corporation
+# Copyright (C) 2020-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -7,7 +7,7 @@ import logging as log
 import os
 import os.path as osp
 from collections import OrderedDict
-from enum import Enum
+from enum import Enum, auto
 
 import numpy as np
 
@@ -213,10 +213,22 @@ class CamvidImporter(Importer):
             file_filter=lambda p: osp.basename(p) != CamvidPath.LABELMAP_FILE)
 
 
-LabelmapType = Enum('LabelmapType', ['camvid', 'source'])
+class LabelmapType(Enum):
+    camvid = auto()
+    source = auto()
 
 class CamvidConverter(Converter):
     DEFAULT_IMAGE_EXT = CamvidPath.IMAGE_EXT
+
+    @staticmethod
+    def _get_labelmap(s):
+        if osp.isfile(s):
+            return s
+        try:
+            return LabelmapType[s].name
+        except KeyError:
+            import argparse
+            raise argparse.ArgumentTypeError()
 
     @classmethod
     def build_cmdline_parser(cls, **kwargs):

@@ -1,7 +1,7 @@
-import numpy as np
 import os
 import os.path as osp
 
+import numpy as np
 from unittest import TestCase
 
 from datumaro.components.dataset_filter import (
@@ -16,8 +16,11 @@ from datumaro.components.extractor import (DEFAULT_SUBSET_NAME, Extractor,
 from datumaro.util.image import Image
 from datumaro.util.test_utils import TestDir, compare_datasets
 
+from .requirements import Requirements, mark_requirement
+
 
 class DatasetTest(TestCase):
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_create_from_extractors(self):
         class SrcExtractor1(Extractor):
             def __iter__(self):
@@ -56,6 +59,7 @@ class DatasetTest(TestCase):
 
         compare_datasets(self, DstExtractor(), dataset)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_create_from_iterable(self):
         class TestExtractor(Extractor):
             def __iter__(self):
@@ -86,6 +90,7 @@ class DatasetTest(TestCase):
 
         compare_datasets(self, TestExtractor(), actual)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_join_datasets_with_empty_categories(self):
         expected = Dataset.from_iterable([
             DatasetItem(1, annotations=[
@@ -111,6 +116,7 @@ class DatasetTest(TestCase):
 
         compare_datasets(self, expected, actual)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, annotations=[ Label(2) ]),
@@ -123,6 +129,7 @@ class DatasetTest(TestCase):
 
             compare_datasets(self, source_dataset, loaded_dataset)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect(self):
         env = Environment()
         env.importers.items = {DEFAULT_FORMAT: env.importers[DEFAULT_FORMAT]}
@@ -139,6 +146,7 @@ class DatasetTest(TestCase):
 
             self.assertEqual(DEFAULT_FORMAT, detected_format)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_and_import(self):
         env = Environment()
         env.importers.items = {DEFAULT_FORMAT: env.importers[DEFAULT_FORMAT]}
@@ -157,6 +165,7 @@ class DatasetTest(TestCase):
             self.assertEqual(imported_dataset.format, DEFAULT_FORMAT)
             compare_datasets(self, source_dataset, imported_dataset)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_export_by_string_format_name(self):
         env = Environment()
         env.converters.items = {'qq': env.converters[DEFAULT_FORMAT]}
@@ -168,6 +177,7 @@ class DatasetTest(TestCase):
         with TestDir() as test_dir:
             dataset.export(format='qq', save_dir=test_dir)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_transform_by_string_name(self):
         expected = Dataset.from_iterable([
             DatasetItem(id=1, annotations=[ Label(2) ], attributes={'qq': 1}),
@@ -188,6 +198,7 @@ class DatasetTest(TestCase):
 
         compare_datasets(self, expected, actual)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_join_annotations(self):
         a = Dataset.from_iterable([
             DatasetItem(id=1, subset='train', annotations=[
@@ -215,6 +226,7 @@ class DatasetTest(TestCase):
 
         compare_datasets(self, expected, merged)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_cant_join_different_categories(self):
         s1 = Dataset.from_iterable([], categories=['a', 'b'])
         s2 = Dataset.from_iterable([], categories=['b', 'a'])
@@ -222,6 +234,7 @@ class DatasetTest(TestCase):
         with self.assertRaisesRegex(DatumaroError, "different categories"):
             Dataset.from_extractors(s1, s2)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_join_datasets(self):
         s1 = Dataset.from_iterable([ DatasetItem(0), DatasetItem(1) ])
         s2 = Dataset.from_iterable([ DatasetItem(1), DatasetItem(2) ])
@@ -233,6 +246,7 @@ class DatasetTest(TestCase):
 
         compare_datasets(self, expected, actual)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_inplace_save_writes_only_updated_data(self):
         with TestDir() as path:
             # generate initial dataset
@@ -257,6 +271,7 @@ class DatasetTest(TestCase):
             self.assertFalse(osp.isfile(osp.join(path, 'annotations', 'b.json')))
             self.assertTrue(osp.isfile(osp.join(path, 'annotations', 'c.json')))
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_track_modifications_on_addition(self):
         dataset = Dataset.from_iterable([
             DatasetItem(1),
@@ -269,6 +284,7 @@ class DatasetTest(TestCase):
 
         self.assertTrue(dataset.is_modified)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_track_modifications_on_removal(self):
         dataset = Dataset.from_iterable([
             DatasetItem(1),
@@ -281,6 +297,7 @@ class DatasetTest(TestCase):
 
         self.assertTrue(dataset.is_modified)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_create_patch(self):
         expected = Dataset.from_iterable([
             DatasetItem(2),
@@ -315,6 +332,7 @@ class DatasetTest(TestCase):
 
         compare_datasets(self, expected, dataset)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_create_more_precise_patch_when_cached(self):
         expected = Dataset.from_iterable([
             DatasetItem(2),
@@ -350,6 +368,7 @@ class DatasetTest(TestCase):
 
         compare_datasets(self, expected, dataset)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_do_lazy_put_and_remove(self):
         iter_called = False
         class TestExtractor(Extractor):
@@ -375,6 +394,7 @@ class DatasetTest(TestCase):
         self.assertTrue(dataset.is_cache_initialized)
         self.assertTrue(iter_called)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_put(self):
         dataset = Dataset()
 
@@ -382,6 +402,7 @@ class DatasetTest(TestCase):
 
         self.assertTrue((1, '') in dataset)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_do_lazy_get_on_updated_item(self):
         iter_called = False
         class TestExtractor(Extractor):
@@ -399,6 +420,7 @@ class DatasetTest(TestCase):
         self.assertTrue((2, '') in dataset)
         self.assertFalse(iter_called)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_switch_eager_and_lazy_with_cm_global(self):
         iter_called = False
         class TestExtractor(Extractor):
@@ -415,6 +437,7 @@ class DatasetTest(TestCase):
 
         self.assertTrue(iter_called)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_switch_eager_and_lazy_with_cm_local(self):
         iter_called = False
         class TestExtractor(Extractor):
@@ -435,6 +458,7 @@ class DatasetTest(TestCase):
 
         self.assertTrue(iter_called)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_do_lazy_select(self):
         iter_called = False
         class TestExtractor(Extractor):
@@ -458,7 +482,8 @@ class DatasetTest(TestCase):
 
         self.assertTrue(iter_called)
 
-    def test_can_chain_lazy_tranforms(self):
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_chain_lazy_transforms(self):
         iter_called = False
         class TestExtractor(Extractor):
             def __iter__(self):
@@ -486,12 +511,14 @@ class DatasetTest(TestCase):
 
         self.assertTrue(iter_called)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_raises_when_repeated_items_in_source(self):
         dataset = Dataset.from_iterable([DatasetItem(0), DatasetItem(0)])
 
         with self.assertRaises(RepeatedItemError):
             dataset.init_cache()
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_check_item_existence(self):
         dataset = Dataset.from_iterable([
             DatasetItem(0, subset='a'), DatasetItem(1)
@@ -504,6 +531,7 @@ class DatasetTest(TestCase):
         self.assertTrue(1 in dataset)
         self.assertFalse(0 in dataset)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_put_with_id_override(self):
         dataset = Dataset.from_iterable([])
 
@@ -511,6 +539,7 @@ class DatasetTest(TestCase):
 
         self.assertTrue((2, 'b') in dataset)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_compute_cache_with_empty_source(self):
         dataset = Dataset.from_iterable([])
         dataset.put(DatasetItem(2))
@@ -519,6 +548,7 @@ class DatasetTest(TestCase):
 
         self.assertTrue(2 in dataset)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_cant_do_partial_caching_in_get_when_default(self):
         iter_called = 0
         class TestExtractor(Extractor):
@@ -539,6 +569,7 @@ class DatasetTest(TestCase):
 
         self.assertEqual(1, iter_called)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_do_partial_caching_in_get_when_redefined(self):
         iter_called = 0
         get_called = 0
@@ -566,6 +597,7 @@ class DatasetTest(TestCase):
         self.assertEqual(0, iter_called)
         self.assertEqual(2, get_called)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_binds_on_save(self):
         dataset = Dataset.from_iterable([DatasetItem(1)])
 
@@ -578,6 +610,7 @@ class DatasetTest(TestCase):
             self.assertEqual(dataset.data_path, test_dir)
             self.assertEqual(dataset.format, DEFAULT_FORMAT)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_flushes_changes_on_save(self):
         dataset = Dataset.from_iterable([])
         dataset.put(DatasetItem(1))
@@ -589,6 +622,7 @@ class DatasetTest(TestCase):
 
             self.assertFalse(dataset.is_modified)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_does_not_load_images_on_saving(self):
         # Issue https://github.com/openvinotoolkit/datumaro/issues/177
         # Missing image metadata (size etc.) can lead to image loading on
@@ -608,8 +642,63 @@ class DatasetTest(TestCase):
 
         self.assertFalse(called)
 
+    @mark_requirement(Requirements.DATUM_BUG_259)
+    def test_can_filter_items(self):
+        dataset = Dataset.from_iterable([
+            DatasetItem(id=0, subset='train'),
+            DatasetItem(id=1, subset='test'),
+        ])
+
+        dataset.filter('/item[id > 0]')
+
+        self.assertEqual(1, len(dataset))
+
+    @mark_requirement(Requirements.DATUM_BUG_259)
+    def test_can_filter_annotations(self):
+        dataset = Dataset.from_iterable([
+            DatasetItem(id=0, subset='train', annotations=[Label(0), Label(1)]),
+            DatasetItem(id=1, subset='val', annotations=[Label(2)]),
+            DatasetItem(id=2, subset='test', annotations=[Label(0), Label(2)]),
+        ], categories=['a', 'b', 'c'])
+
+        dataset.filter('/item/annotation[label = "c"]',
+            filter_annotations=True, remove_empty=True)
+
+        self.assertEqual(2, len(dataset))
+
+    @mark_requirement(Requirements.DATUM_BUG_259)
+    def test_can_filter_items_in_merged_dataset(self):
+        dataset = Dataset.from_extractors(
+            Dataset.from_iterable([ DatasetItem(id=0, subset='train') ]),
+            Dataset.from_iterable([ DatasetItem(id=1, subset='test') ]),
+        )
+
+        dataset.filter('/item[id > 0]')
+
+        self.assertEqual(1, len(dataset))
+
+    @mark_requirement(Requirements.DATUM_BUG_259)
+    def test_can_filter_annotations_in_merged_dataset(self):
+        dataset = Dataset.from_extractors(
+            Dataset.from_iterable([
+                DatasetItem(id=0, subset='train', annotations=[Label(0)]),
+            ], categories=['a', 'b', 'c']),
+            Dataset.from_iterable([
+                DatasetItem(id=1, subset='val', annotations=[Label(1)]),
+            ], categories=['a', 'b', 'c']),
+            Dataset.from_iterable([
+                DatasetItem(id=2, subset='test', annotations=[Label(2)]),
+            ], categories=['a', 'b', 'c']),
+        )
+
+        dataset.filter('/item/annotation[label = "c"]',
+            filter_annotations=True, remove_empty=True)
+
+        self.assertEqual(1, len(dataset))
+
 
 class DatasetItemTest(TestCase):
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_ctor_requires_id(self):
         with self.assertRaises(Exception):
             # pylint: disable=no-value-for-parameter
@@ -617,6 +706,7 @@ class DatasetItemTest(TestCase):
             # pylint: enable=no-value-for-parameter
 
     @staticmethod
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_ctors_with_image():
         for args in [
             { 'id': 0, 'image': None },
@@ -630,6 +720,7 @@ class DatasetItemTest(TestCase):
 
 class DatasetFilterTest(TestCase):
     @staticmethod
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_item_representations():
         item = DatasetItem(id=1, subset='subset', path=['a', 'b'],
             image=np.ones((5, 4, 3)),
@@ -651,6 +742,7 @@ class DatasetFilterTest(TestCase):
         encoded = DatasetItemEncoder.encode(item)
         DatasetItemEncoder.to_string(encoded)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_item_filter_can_be_applied(self):
         class TestExtractor(Extractor):
             def __iter__(self):
@@ -663,6 +755,7 @@ class DatasetFilterTest(TestCase):
 
         self.assertEqual(2, len(filtered))
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_annotations_filter_can_be_applied(self):
         class SrcExtractor(Extractor):
             def __iter__(self):
@@ -697,6 +790,7 @@ class DatasetFilterTest(TestCase):
 
         self.assertListEqual(list(filtered), list(DstExtractor()))
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_annotations_filter_can_remove_empty_items(self):
         source = Dataset.from_iterable([
             DatasetItem(id=0),

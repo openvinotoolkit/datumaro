@@ -8,9 +8,11 @@ from datumaro.components.extractor import (AnnotationType, DatasetItem, Label,
 from datumaro.plugins.cifar_format import CifarConverter, CifarImporter
 from datumaro.util.image import Image
 from datumaro.util.test_utils import TestDir, compare_datasets
+from .requirements import Requirements, mark_requirement
 
 
 class CifarFormatTest(TestCase):
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='image_2', subset='test',
@@ -33,6 +35,7 @@ class CifarFormatTest(TestCase):
             compare_datasets(self, source_dataset, parsed_dataset,
                 require_images=True)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_without_saving_images(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='a', subset='train_1',
@@ -53,6 +56,7 @@ class CifarFormatTest(TestCase):
             compare_datasets(self, source_dataset, parsed_dataset,
                 require_images=True)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_with_different_image_size(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='image_1',
@@ -75,6 +79,7 @@ class CifarFormatTest(TestCase):
             compare_datasets(self, source_dataset, parsed_dataset,
                 require_images=True)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id="кириллица с пробелом",
@@ -90,6 +95,7 @@ class CifarFormatTest(TestCase):
             compare_datasets(self, source_dataset, parsed_dataset,
                 require_images=True)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id='q/1', image=Image(path='q/1.JPEG',
@@ -105,6 +111,7 @@ class CifarFormatTest(TestCase):
             compare_datasets(self, dataset, parsed_dataset,
                 require_images=True)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_empty_image(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id='a', annotations=[Label(0)]),
@@ -121,6 +128,7 @@ class CifarFormatTest(TestCase):
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'cifar_dataset')
 
 class CifarImporterTest(TestCase):
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='image_1', subset='train_1',
@@ -138,12 +146,18 @@ class CifarImporterTest(TestCase):
             DatasetItem(id='image_4', subset='test',
                 image=np.ones((32, 32, 3)),
                 annotations=[Label(2)]
+            ),
+            DatasetItem(id='image_5', subset='test',
+                image=np.array([[[1., 2., 3.], [4., 5., 6.]],
+                                [[1., 2., 3.], [4., 5., 6.]]]),
+                annotations=[Label(3)]
             )
         ], categories=['airplane', 'automobile', 'bird', 'cat'])
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'cifar')
 
-        compare_datasets(self, expected_dataset, dataset)
+        compare_datasets(self, expected_dataset, dataset, require_images=True)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect(self):
         self.assertTrue(CifarImporter.detect(DUMMY_DATASET_DIR))

@@ -1,5 +1,5 @@
 
-# Copyright (C) 2020 Intel Corporation
+# Copyright (C) 2020-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -8,7 +8,7 @@ import logging as log
 import numpy as np
 import os
 import os.path as osp
-from enum import Enum
+from enum import Enum, auto
 from itertools import chain, groupby
 
 import pycocotools.mask as mask_utils
@@ -24,7 +24,10 @@ from datumaro.util.image import save_image
 
 from .format import CocoPath, CocoTask
 
-SegmentationMode = Enum('SegmentationMode', ['guess', 'polygons', 'mask'])
+class SegmentationMode(Enum):
+    guess = auto()
+    polygons = auto()
+    mask = auto()
 
 class _TaskConverter:
     def __init__(self, context):
@@ -265,7 +268,7 @@ class _InstancesConverter(_TaskConverter):
             return
 
         if not item.has_image:
-            log.warn("Item '%s': skipping writing instances "
+            log.warning("Item '%s': skipping writing instances "
                 "since no image info available" % item.id)
             return
         h, w = item.image.size

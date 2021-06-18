@@ -1,7 +1,8 @@
-# Copyright (C) 2020 Intel Corporation
+# Copyright (C) 2020-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
+import os
 import os.path as osp
 import pickle
 
@@ -68,7 +69,7 @@ class CifarExtractor(SourceExtractor):
         # 'filenames': list
         # 'labels': list
         with open(path, 'rb') as anno_file:
-            annotation_dict = pickle.load(anno_file)
+            annotation_dict = pickle.load(anno_file, encoding='latin1')
 
         labels = annotation_dict.get('labels', [])
         filenames = annotation_dict.get('filenames', [])
@@ -93,11 +94,13 @@ class CifarExtractor(SourceExtractor):
             if 0 < len(images_data):
                 image = images_data[i]
                 if size is not None and image is not None:
-                    image = image.reshape(size[i][0],
-                        size[i][1], 3).astype(np.uint8)
+                    image = image.reshape(3, size[i][0],
+                        size[i][1]).astype(np.uint8)
+                    image = np.transpose(image, (1, 2, 0))
                 elif image is not None:
-                    image = image.reshape(CifarPath.IMAGE_SIZE,
-                        CifarPath.IMAGE_SIZE, 3).astype(np.uint8)
+                    image = image.reshape(3, CifarPath.IMAGE_SIZE,
+                        CifarPath.IMAGE_SIZE).astype(np.uint8)
+                    image = np.transpose(image, (1, 2, 0))
 
             items[item_id] = DatasetItem(id=item_id, subset=self._subset,
                 image=image, annotations=annotations)
@@ -117,8 +120,9 @@ class CifarConverter(Converter):
     DEFAULT_IMAGE_EXT = '.png'
 
     def apply(self):
-        label_categories = self._extractor.categories()[AnnotationType.label]
+        os.makedirs(self._save_dir, exist_ok=True)
 
+        label_categories = self._extractor.categories()[AnnotationType.label]
         label_names = []
         for label in label_categories:
             label_names.append(label.name)
@@ -148,7 +152,8 @@ class CifarConverter(Converter):
                         data.append(None)
                     else:
                         image = image.data
-                        data.append(image.reshape(-1).astype(np.uint8))
+                        data.append(np.transpose(image,
+                            (2, 0, 1)).reshape(-1).astype(np.uint8))
                         if image.shape[0] != CifarPath.IMAGE_SIZE or \
                                 image.shape[1] != CifarPath.IMAGE_SIZE:
                             image_sizes[len(data) - 1] = (image.shape[0], image.shape[1])
@@ -156,10 +161,10 @@ class CifarConverter(Converter):
             annotation_dict = {}
             annotation_dict['filenames'] = filenames
             annotation_dict['labels'] = labels
-            annotation_dict['data'] = np.array(data)
+            annotation_dict['data'] = np.array(data, dtype=object)
             if len(image_sizes):
                 size = (CifarPath.IMAGE_SIZE, CifarPath.IMAGE_SIZE)
-                # 'image_sizes' isn't included in the standart format,
+                # 'image_sizes' isn't included in the standard format,
                 # needed for different image sizes
                 annotation_dict['image_sizes'] = [image_sizes.get(p, size)
                     for p in range(len(data))]

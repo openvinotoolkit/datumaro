@@ -1,4 +1,4 @@
-# Copyright (C) 2020 Intel Corporation
+# Copyright (C) 2020-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -26,12 +26,11 @@ class MotsPath:
     LABELS_FILE = 'labels.txt'
     MAX_INSTANCES = 1000
 
-MotsLabels = Enum('MotsLabels', [
-    ('background', 0),
-    ('car', 1),
-    ('pedestrian', 2),
-    ('ignored', 10),
-])
+class MotsLabels(Enum):
+    background = 0
+    car = 1
+    pedestrian = 2
+    ignored = 10
 
 class MotsPngExtractor(SourceExtractor):
     @staticmethod

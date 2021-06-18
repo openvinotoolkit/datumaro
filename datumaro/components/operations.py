@@ -1,4 +1,4 @@
-# Copyright (C) 2020 Intel Corporation
+# Copyright (C) 2020-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -153,7 +153,7 @@ class IntersectMerge(MergingStrategy):
         quorum = attrib(converter=int, default=0)
         ignored_attributes = attrib(converter=set, factory=set)
 
-        def _groups_conveter(value):
+        def _groups_converter(value):
             result = []
             for group in value:
                 rg = set()
@@ -163,7 +163,7 @@ class IntersectMerge(MergingStrategy):
                     rg.add((name, optional))
                 result.append(rg)
             return result
-        groups = attrib(converter=_groups_conveter, factory=list)
+        groups = attrib(converter=_groups_converter, factory=list)
         close_distance = attrib(converter=float, default=0.75)
     conf = attrib(converter=ensure_cls(Conf), factory=Conf)
 
@@ -1032,8 +1032,8 @@ def compute_image_statistics(dataset):
         for item in extractor:
             if not (item.has_image and item.image.has_data):
                 available = False
-                log.warn("Item %s has no image. Image stats won't be computed",
-                    item.id)
+                log.warning("Item %s has no image, it will be excluded from "
+                    "image stats", item.id)
                 break
 
         stats = {

@@ -1,18 +1,20 @@
 
-# Copyright (C) 2019-2020 Intel Corporation
+# Copyright (C) 2019-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 # pylint: disable=unused-import
 
-from enum import Enum
+from enum import Enum, auto
 from io import BytesIO
 from typing import Any, Callable, Iterator, Iterable, Optional, Tuple, Union
 import numpy as np
 import os
 import os.path as osp
 
-_IMAGE_BACKENDS = Enum('_IMAGE_BACKENDS', ['cv2', 'PIL'])
+class _IMAGE_BACKENDS(Enum):
+    cv2 = auto()
+    PIL = auto()
 _IMAGE_BACKEND = None
 _image_loading_errors = (FileNotFoundError, )
 try:
@@ -65,7 +67,13 @@ def save_image(path, image, create_dir=False, dtype=np.uint8, **kwargs):
     if not kwargs:
         kwargs = {}
 
-    if _IMAGE_BACKEND == _IMAGE_BACKENDS.cv2:
+    # NOTE: OpenCV documentation says "If the image format is not supported,
+    # the image will be converted to 8-bit unsigned and saved that way".
+    # Conversion from np.int32 to np.uint8 is not working properly
+    backend = _IMAGE_BACKEND
+    if dtype == np.int32:
+        backend = _IMAGE_BACKENDS.PIL
+    if backend == _IMAGE_BACKENDS.cv2:
         import cv2
 
         params = []
@@ -78,7 +86,7 @@ def save_image(path, image, create_dir=False, dtype=np.uint8, **kwargs):
 
         image = image.astype(dtype)
         cv2.imwrite(path, image, params=params)
-    elif _IMAGE_BACKEND == _IMAGE_BACKENDS.PIL:
+    elif backend == _IMAGE_BACKENDS.PIL:
         from PIL import Image
 
         params = {}

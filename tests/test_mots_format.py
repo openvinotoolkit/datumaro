@@ -10,6 +10,7 @@ from datumaro.plugins.mots_format import MotsPngConverter, MotsImporter
 from datumaro.util.image import Image
 from datumaro.util.test_utils import (TestDir, compare_datasets,
     test_save_and_load)
+from .requirements import Requirements, mark_requirement
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'mots_dataset')
 
@@ -21,6 +22,7 @@ class MotsPngConverterTest(TestCase):
             importer='mots',
             target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_masks(self):
         source = Dataset.from_iterable([
             DatasetItem(id=1, subset='a', image=np.ones((5, 1)), annotations=[
@@ -67,6 +69,7 @@ class MotsPngConverterTest(TestCase):
                 partial(MotsPngConverter.convert, save_images=True),
                 test_dir, target_dataset=target)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         source = Dataset.from_iterable([
             DatasetItem(id='кириллица с пробелом', subset='a',
@@ -81,6 +84,7 @@ class MotsPngConverterTest(TestCase):
                 partial(MotsPngConverter.convert, save_images=True),
                 test_dir, require_images=True)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         expected = Dataset.from_iterable([
             DatasetItem('q/1', image=Image(
@@ -105,9 +109,11 @@ class MotsPngConverterTest(TestCase):
                 test_dir, require_images=True)
 
 class MotsImporterTest(TestCase):
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect(self):
         self.assertTrue(MotsImporter.detect(DUMMY_DATASET_DIR))
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import(self):
         target = Dataset.from_iterable([
             DatasetItem(id=1, subset='train', image=np.ones((5, 1)), annotations=[
