@@ -62,13 +62,13 @@ class ImagenetTxtExtractor(SourceExtractor):
                 if 1 < len(item):
                     if len(item) == 3:
                         item_id = item[1]
-                        label_ids = [int(id) for id in item[2].split()]
+                        label_ids = [int(id) for id in item[2].split()[1:]]
                     else:
                         raise Exception("Line %s: unexpected number "
                             "of quotes in filename" % line)
                 else:
                     item = line.split()
-                    item_id = item[0]
+                    item_id = osp.splitext(item[0])[0]
                     label_ids = [int(id) for id in item[1:]]
 
                 anno = []
