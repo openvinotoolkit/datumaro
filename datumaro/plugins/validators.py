@@ -13,13 +13,11 @@ from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.dataset import IDataset
 from datumaro.components.errors import MultiLabelAnnotations, NegativeLength
 from datumaro.components.extractor import AnnotationType, LabelCategories
-from datumaro.util import parse_str_enum_value
 
-from datumaro.cli.util import MultilineFormatter
-from datumaro.cli.util.project import generate_next_file_name, load_project
-
-class DatasetValidator(Validator, CliPlugin):
-
+class Classification(Validator, CliPlugin):
+    """
+    A specific validator class for classification task.
+    """
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
         parser = super().build_cmdline_parser(**kwargs)
@@ -39,77 +37,6 @@ class DatasetValidator(Validator, CliPlugin):
             help="Ratio of bins with the highest number of data"
                  "to total bins in the histogram; [0, 1]; 0.1 = 10%;")
         return parser
-
-    def __init__(self, task_type):
-        self.task_type = parse_str_enum_value(task_type, TaskType)
-
-    def set_extra_args(self, extra_args):
-        self.few_samples_thr = extra_args.get('few_samples_thr')
-        self.imbalance_ratio_thr = extra_args.get('imbalance_ratio_thr')
-        self.far_from_mean_thr = extra_args.get('far_from_mean_thr')
-        self.dominance_ratio_thr = extra_args.get('dominance_ratio_thr')
-        self.topk_bins = extra_args.get('topk_bins')
-
-    def validate_annotations(self, dataset: IDataset):
-        """
-        Returns the validation results of a dataset based on task type.
-        Args:
-            dataset (IDataset): Dataset to be validated
-            task_type (str or TaskType): Type of the task
-                (classification, detection, segmentation)
-        Raises:
-            ValueError
-        Returns:
-            validation_results (dict):
-                Dict with validation statistics, reports and summary.
-        """
-
-        validation_results = {}
-
-        if self.task_type == TaskType.classification:
-            validator = ClassificationValidator(few_samples_thr=self.few_samples_thr,
-                imbalance_ratio_thr=self.imbalance_ratio_thr,
-                far_from_mean_thr=self.far_from_mean_thr,
-                dominance_ratio_thr=self.dominance_ratio_thr,
-                topk_bins=self.topk_bins)
-        elif self.task_type == TaskType.detection:
-            validator = DetectionValidator(few_samples_thr=self.few_samples_thr,
-                imbalance_ratio_thr=self.imbalance_ratio_thr,
-                far_from_mean_thr=self.far_from_mean_thr,
-                dominance_ratio_thr=self.dominance_ratio_thr,
-                topk_bins=self.topk_bins)
-        elif self.task_type == TaskType.segmentation:
-            validator = SegmentationValidator(few_samples_thr=self.few_samples_thr,
-                imbalance_ratio_thr=self.imbalance_ratio_thr,
-                far_from_mean_thr=self.far_from_mean_thr,
-                dominance_ratio_thr=self.dominance_ratio_thr,
-                topk_bins=self.topk_bins)
-
-        if not isinstance(dataset, IDataset):
-            raise TypeError("Invalid dataset type '%s'" % type(dataset))
-
-        # generate statistics
-        stats = validator.compute_statistics(dataset)
-        validation_results['statistics'] = stats
-
-        # generate validation reports and summary
-        reports = validator.generate_reports(stats)
-        reports = list(map(lambda r: r.to_dict(), reports))
-
-        summary = {
-            'errors': sum(map(lambda r: r['severity'] == 'error', reports)),
-            'warnings': sum(map(lambda r: r['severity'] == 'warning', reports))
-        }
-
-        validation_results['validation_reports'] = reports
-        validation_results['summary'] = summary
-
-        return validation_results
-
-class ClassificationValidator(Validator):
-    """
-    A validator class for classification tasks.
-    """
 
     def __init__(self, few_samples_thr, imbalance_ratio_thr,
             far_from_mean_thr, dominance_ratio_thr, topk_bins):
@@ -168,6 +95,7 @@ class ClassificationValidator(Validator):
         """
 
         reports = []
+
         reports += self._check_missing_label_categories(stats)
         reports += self._check_missing_annotation(stats)
         reports += self._check_multi_label_annotations(stats)
@@ -209,10 +137,30 @@ class ClassificationValidator(Validator):
 
         return reports
 
-class DetectionValidator(Validator):
+class Detection(Validator, CliPlugin):
     """
-    A validator class for detection tasks.
+    A specific validator class for detection task.
     """
+    @classmethod
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument('-fs', '--few_samples_thr', default=1, type=int,
+            help="Threshold for giving a warning for minimum number of"
+                 "samples per class")
+        parser.add_argument('-ir', '--imbalance_ratio_thr', default=50, type=int,
+            help="Threshold for giving data imbalance warning;"
+                 "IR(imbalance ratio) = majority/minority")
+        parser.add_argument('-m', '--far_from_mean_thr', default=5.0, type=float,
+            help="Threshold for giving a warning that data is far from mean;"
+                 "A constant used to define mean +/- k * standard deviation;")
+        parser.add_argument('-dr', '--dominance_ratio_thr', default=0.8, type=float,
+            help="Threshold for giving a warning for bounding box imbalance;"
+                "Dominace_ratio = ratio of Top-k bin to total in histogram;")
+        parser.add_argument('-k', '--topk_bins', default=0.1, type=float,
+            help="Ratio of bins with the highest number of data"
+                 "to total bins in the histogram; [0, 1]; 0.1 = 10%;")
+        return parser
+
     def __init__(self, few_samples_thr, imbalance_ratio_thr,
             far_from_mean_thr, dominance_ratio_thr, topk_bins):
         super().__init__(task_type=TaskType.detection,
@@ -433,6 +381,7 @@ class DetectionValidator(Validator):
         """
 
         reports = []
+
         reports += self._check_missing_label_categories(stats)
         reports += self._check_missing_annotation(stats)
         reports += self._check_label_defined_but_not_found(stats)
@@ -492,10 +441,29 @@ class DetectionValidator(Validator):
 
         return reports
 
-class SegmentationValidator(Validator):
+class Segmentation(Validator, CliPlugin):
     """
-    A validator class for (instance) segmentation tasks.
+    A specific validator class for (instance) segmentation task.
     """
+    @classmethod
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument('-fs', '--few_samples_thr', default=1, type=int,
+            help="Threshold for giving a warning for minimum number of"
+                 "samples per class")
+        parser.add_argument('-ir', '--imbalance_ratio_thr', default=50, type=int,
+            help="Threshold for giving data imbalance warning;"
+                 "IR(imbalance ratio) = majority/minority")
+        parser.add_argument('-m', '--far_from_mean_thr', default=5.0, type=float,
+            help="Threshold for giving a warning that data is far from mean;"
+                 "A constant used to define mean +/- k * standard deviation;")
+        parser.add_argument('-dr', '--dominance_ratio_thr', default=0.8, type=float,
+            help="Threshold for giving a warning for bounding box imbalance;"
+                "Dominace_ratio = ratio of Top-k bin to total in histogram;")
+        parser.add_argument('-k', '--topk_bins', default=0.1, type=float,
+            help="Ratio of bins with the highest number of data"
+                 "to total bins in the histogram; [0, 1]; 0.1 = 10%;")
+        return parser
 
     def __init__(self, few_samples_thr, imbalance_ratio_thr,
             far_from_mean_thr, dominance_ratio_thr, topk_bins):
@@ -674,6 +642,7 @@ class SegmentationValidator(Validator):
         """
 
         reports = []
+
         reports += self._check_missing_label_categories(stats)
         reports += self._check_missing_annotation(stats)
         reports += self._check_label_defined_but_not_found(stats)

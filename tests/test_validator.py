@@ -18,8 +18,7 @@ from datumaro.components.errors import (MissingLabelCategories,
     FarFromAttrMean, OnlyOneAttributeValue)
 from datumaro.components.extractor import Bbox, Label, Mask, Polygon
 from datumaro.components.validator import (TaskType, Validator)
-from datumaro.plugins.dataset_validator import (ClassificationValidator,
-    DetectionValidator, SegmentationValidator, DatasetValidator)
+from datumaro.plugins.validators import (Classification, Detection, Segmentation)
 from .requirements import Requirements, mark_requirement
 
 class TestValidatorTemplate(TestCase):
@@ -363,10 +362,10 @@ class TestBaseValidator(TestValidatorTemplate):
             self.assertTrue(len(actual_reports) == 0)
 
 
-class TestClassificationValidator(TestValidatorTemplate):
+class TestClassification(TestValidatorTemplate):
     @classmethod
     def setUpClass(cls):
-        cls.validator = ClassificationValidator(few_samples_thr=1,
+        cls.validator = Classification(few_samples_thr=1,
             imbalance_ratio_thr=50, far_from_mean_thr=5.0,
             dominance_ratio_thr=0.8, topk_bins=0.1)
 
@@ -393,10 +392,10 @@ class TestClassificationValidator(TestValidatorTemplate):
         self.assertIsInstance(actual_reports[0], MultiLabelAnnotations)
 
 
-class TestDetectionValidator(TestValidatorTemplate):
+class TestDetection(TestValidatorTemplate):
     @classmethod
     def setUpClass(cls):
-        cls.validator = DetectionValidator(few_samples_thr=1,
+        cls.validator = Detection(few_samples_thr=1,
             imbalance_ratio_thr=50, far_from_mean_thr=5.0,
             dominance_ratio_thr=0.8, topk_bins=0.1)
 
@@ -560,10 +559,10 @@ class TestDetectionValidator(TestValidatorTemplate):
         self.assertIsInstance(actual_reports[0], FarFromAttrMean)
 
 
-class TestSegmentationValidator(TestValidatorTemplate):
+class TestSegmentation(TestValidatorTemplate):
     @classmethod
     def setUpClass(cls):
-        cls.validator = SegmentationValidator(few_samples_thr=1,
+        cls.validator = Segmentation(few_samples_thr=1,
             imbalance_ratio_thr=50, far_from_mean_thr=5.0,
             dominance_ratio_thr=0.8, topk_bins=0.1)
 
@@ -720,10 +719,9 @@ class TestValidateAnnotations(TestValidatorTemplate):
             'topk_bins': 0.1,
         }
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_validate_annotations_classification(self):
-        dataset_validator = DatasetValidator(TaskType.classification)
-        dataset_validator.set_extra_args(self.extra_args)
-        actual_results = dataset_validator.validate_annotations(self.dataset)
+    def test_validate_classification(self):
+        validator = Classification(**self.extra_args)
+        actual_results = validator.validate(self.dataset)
 
         with self.subTest('Test of statistics', i=0):
             actual_stats = actual_results['statistics']
@@ -778,10 +776,9 @@ class TestValidateAnnotations(TestValidatorTemplate):
             self.assertEqual(actual_summary, expected_summary)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_validate_annotations_detection(self):
-        dataset_validator = DatasetValidator(TaskType.detection)
-        dataset_validator.set_extra_args(self.extra_args)
-        actual_results = dataset_validator.validate_annotations(self.dataset)
+    def test_validate_detection(self):
+        validator = Detection(**self.extra_args)
+        actual_results = validator.validate(self.dataset)
 
         with self.subTest('Test of statistics', i=0):
             actual_stats = actual_results['statistics']
@@ -834,10 +831,9 @@ class TestValidateAnnotations(TestValidatorTemplate):
             self.assertEqual(actual_summary, expected_summary)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_validate_annotations_segmentation(self):
-        dataset_validator = DatasetValidator(TaskType.segmentation)
-        dataset_validator.set_extra_args(self.extra_args)
-        actual_results = dataset_validator.validate_annotations(self.dataset)
+    def test_validate_segmentation(self):
+        validator = Segmentation(**self.extra_args)
+        actual_results = validator.validate(self.dataset)
 
         with self.subTest('Test of statistics', i=0):
             actual_stats = actual_results['statistics']
@@ -891,15 +887,7 @@ class TestValidateAnnotations(TestValidatorTemplate):
             self.assertEqual(actual_summary, expected_summary)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_validate_annotations_invalid_task_type(self):
-        with self.assertRaises(ValueError):
-            dataset_validator = DatasetValidator('INVALID')
-            dataset_validator.set_extra_args(self.extra_args)
-            dataset_validator.validate_annotations(self.dataset)
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_validate_annotations_invalid_dataset_type(self):
+    def test_validate_invalid_dataset_type(self):
         with self.assertRaises(TypeError):
-            dataset_validator = DatasetValidator(TaskType.classification)
-            dataset_validator.set_extra_args(self.extra_args)
-            dataset_validator.validate_annotations(object())
+            validator = Classification(**self.extra_args)
+            validator.validate(object())

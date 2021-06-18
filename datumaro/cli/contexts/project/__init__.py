@@ -815,20 +815,17 @@ def build_validate_parser(parser_ctor=argparse.ArgumentParser):
 
 def validate_command(args):
     project = load_project(args.project_dir)
-    dst_file_name = f'validation_results-{args.task_type}'
+    dst_file_name = f'report-{args.task_type}'
 
     dataset = project.make_dataset()
     if args.subset_name is not None:
         dataset = dataset.get_subset(args.subset_name)
         dst_file_name += f'-{args.subset_name}'
 
-    validator = project.env.validators['dataset'](args.task_type)
-
-    extra_args = {}
-    if hasattr(validator, 'parse_cmdline'):
-        extra_args = validator.parse_cmdline(args.extra_args)
-    validator.set_extra_args(extra_args)
-    validation_results = validator.validate_annotations(dataset)
+    validator_type = project.env.validators[args.task_type]
+    extra_args = validator_type.parse_cmdline(args.extra_args)
+    validator = validator_type(**extra_args)
+    report = validator.validate(dataset)
 
     def numpy_encoder(obj):
         if isinstance(obj, np.generic):
@@ -843,12 +840,12 @@ def validate_command(args):
             if isinstance(val, dict):
                 _make_serializable(val)
 
-    _make_serializable(validation_results)
+    _make_serializable(report)
 
     dst_file = generate_next_file_name(dst_file_name, ext='.json')
     log.info("Writing project validation results to '%s'" % dst_file)
     with open(dst_file, 'w') as f:
-        json.dump(validation_results, f, indent=4, sort_keys=True,
+        json.dump(report, f, indent=4, sort_keys=True,
                   default=numpy_encoder)
 
 def build_parser(parser_ctor=argparse.ArgumentParser):

@@ -1,12 +1,10 @@
 # Copyright (C) 2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
-
-from copy import deepcopy
-from enum import Enum
-
 import numpy as np
-
+from copy import deepcopy
+from enum import Enum, auto
+from datumaro.components.dataset import IDataset
 from datumaro.components.errors import (MissingLabelCategories,
     MissingAnnotation, MultiLabelAnnotations, MissingAttribute,
     UndefinedLabel, UndefinedAttribute, LabelDefinedButNotFound,
@@ -18,13 +16,21 @@ from datumaro.components.errors import (MissingLabelCategories,
 from datumaro.components.extractor import AnnotationType, LabelCategories
 from datumaro.util import parse_str_enum_value
 
-
 Severity = Enum('Severity', ['warning', 'error'])
 
-TaskType = Enum('TaskType', ['classification', 'detection', 'segmentation'])
+class TaskType(Enum):
+    classification = auto()
+    detection = auto()
+    segmentation = auto()
 
+class IValidator:
+    """
+    Basic interface for Validator
+    """
+    def validate(self, dataset: IDataset):
+        raise NotImplementedError()
 
-class Validator():
+class Validator(IValidator):
     # statistics templates
     numerical_stat_template = {
         'items_far_from_mean': {},
@@ -98,6 +104,42 @@ class Validator():
         self.far_from_mean_thr = far_from_mean_thr
         self.dominance_thr = dominance_ratio_thr
         self.topk_bins_ratio = topk_bins
+
+    def validate(self, dataset: IDataset):
+        """
+        Returns the validation results of a dataset based on task type.
+        Args:
+            dataset (IDataset): Dataset to be validated
+            task_type (str or TaskType): Type of the task
+                (classification, detection, segmentation)
+        Raises:
+            ValueError
+        Returns:
+            validation_results (dict):
+                Dict with validation statistics, reports and summary.
+        """
+
+        validation_results = {}
+        if not isinstance(dataset, IDataset):
+            raise TypeError("Invalid dataset type '%s'" % type(dataset))
+
+        # generate statistics
+        stats = self.compute_statistics(dataset)
+        validation_results['statistics'] = stats
+
+        # generate validation reports and summary
+        reports = self.generate_reports(stats)
+        reports = list(map(lambda r: r.to_dict(), reports))
+
+        summary = {
+            'errors': sum(map(lambda r: r['severity'] == 'error', reports)),
+            'warnings': sum(map(lambda r: r['severity'] == 'warning', reports))
+        }
+
+        validation_results['validation_reports'] = reports
+        validation_results['summary'] = summary
+
+        return validation_results
 
     def _compute_common_statistics(self, dataset):
         defined_attr_template = {
