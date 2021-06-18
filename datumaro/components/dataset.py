@@ -4,6 +4,7 @@
 
 #pylint: disable=redefined-builtin
 
+from copy import copy
 from contextlib import contextmanager
 from enum import Enum, auto
 from typing import Any, Iterable, Iterator, Optional, Tuple, Union, Dict, List
@@ -61,9 +62,13 @@ class DatasetItemStorage:
 
         return self.data.get(subset, {}).get(id, dummy)
 
-    def remove(self, id, subset=None) -> bool:
-        id = str(id)
-        subset = subset or DEFAULT_SUBSET_NAME
+    def remove(self, id: Union[str, DatasetItem],
+            subset: Optional[str] = None) -> bool:
+        if isinstance(id, DatasetItem):
+            id, subset = id.id, id.subset
+        else:
+            id = str(id)
+            subset = subset or DEFAULT_SUBSET_NAME
 
         subset_data = self.data.setdefault(subset, {})
         is_removed = subset_data.get(id) is not None
@@ -83,6 +88,12 @@ class DatasetItemStorage:
 
     def subsets(self):
         return self.data
+
+    def __copy__(self):
+        copied = DatasetItemStorage()
+        copied._traversal_order = copy(self._traversal_order)
+        copied.data = copy(self.data)
+        return copied
 
 class DatasetItemStorageDatasetView(IDataset):
     class Subset(IDataset):
@@ -172,12 +183,9 @@ class DatasetPatch:
     @property
     def updated_subsets(self) -> Dict[str, ItemStatus]:
         if self._updated_subsets is None:
-            subset_stats = set()
+            self._updated_subsets = {}
             for _, subset in self.updated_items:
-                subset_stats.add(subset)
-            self._updated_subsets = {
-                subset: ItemStatus.modified for subset in subset_stats
-            }
+                self._updated_subsets.setdefault(subset, ItemStatus.modified)
         return self._updated_subsets
 
     def as_dataset(self, parent: IDataset) -> IDataset:
@@ -527,7 +535,15 @@ class DatasetStorage(IDataset):
         # To find removed items, one needs to consult updated_items list.
         if self._transforms:
             self.init_cache()
-        return DatasetPatch(self._storage, self._categories,
+
+        # The current patch (storage) can miss some removals done
+        # so we add them manually
+        patch = copy(self._storage)
+        for (item_id, subset), status in self._updated_items.items():
+            if status is ItemStatus.removed:
+                patch.remove(item_id, subset)
+
+        return DatasetPatch(patch, self._categories,
             self._updated_items)
 
     def flush_changes(self):
