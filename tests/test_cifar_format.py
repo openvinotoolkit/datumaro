@@ -143,7 +143,7 @@ class CifarFormatTest(TestCase):
                     'coarse_label': 0
                 })]
             )
-        ], categories=[['label_0', 'superclass_0'], ['label_1', 'superclass_0']])
+        ], categories=[['class_0', 'superclass_0'], ['class_1', 'superclass_0']])
 
         with TestDir() as test_dir:
             CifarConverter.convert(source_dataset, test_dir, save_images=True)
@@ -165,7 +165,7 @@ class CifarFormatTest(TestCase):
                     'coarse_label': 0
                 })]
             ),
-        ], categories=[['label_0', 'superclass_0'], ['label_1', 'superclass_0']])
+        ], categories=[['class_0', 'superclass_0'], ['class_1', 'superclass_0']])
 
         with TestDir() as test_dir:
             CifarConverter.convert(source_dataset, test_dir, save_images=False)
