@@ -166,7 +166,7 @@ class XmlAnnotationWriter:
 
     def _add_attribute(self, attributes):
         self._open_attributes()
-        for k, attribute in enumerate(attributes):
+        for attribute in attributes:
             self._open_attribute()
             for index, key in enumerate(attribute.keys()):
                 self.xmlgen.startElement(key, {})
