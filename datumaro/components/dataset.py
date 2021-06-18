@@ -360,7 +360,7 @@ class DatasetStorage(IDataset):
             if item in patch:
                 # Apply changes from the patch
                 item = patch.get(*item_id)
-            elif transform:
+            elif transform and not self._flush_changes:
                 # Find changes made by transforms, if not overridden by patch
                 if transform.is_local:
                     if not item:
@@ -388,17 +388,19 @@ class DatasetStorage(IDataset):
         if i == -1:
             cache = patch
             for item in patch:
-                _update_status((item.id, item.subset), ItemStatus.added)
+                if not self._flush_changes:
+                    _update_status((item.id, item.subset), ItemStatus.added)
                 yield item
         else:
             for item in patch:
                 if item in cache: # already processed
                     continue
-                _update_status((item.id, item.subset), ItemStatus.added)
+                if not self._flush_changes:
+                    _update_status((item.id, item.subset), ItemStatus.added)
                 cache.put(item)
                 yield item
 
-        if transform and not transform.is_local:
+        if not self._flush_changes and transform and not transform.is_local:
             # Mark removed items that were not produced by transforms
             for old_id in old_ids:
                 if old_id not in self._updated_items:
@@ -530,7 +532,8 @@ class DatasetStorage(IDataset):
 
     def flush_changes(self):
         self._updated_items = {}
-        self._flush_changes = True
+        if not (self.is_cache_initialized() or self._is_unchanged_wrapper):
+            self._flush_changes = True
 
 
 class Dataset(IDataset):
