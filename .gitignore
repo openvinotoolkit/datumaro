@@ -58,3 +58,4 @@ docs/_build/
 
 #Pycharm config files
 .idea/
+user_config.py
