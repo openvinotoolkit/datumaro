@@ -106,7 +106,8 @@ def compare_datasets(test, expected, actual, ignored_attrs=None,
                 item_a.has_image and item_a.image.has_data and \
                 item_b.has_image and item_b.image.has_data:
             test.assertEqual(item_a.image, item_b.image, item_a.id)
-        test.assertEqual(len(item_a.annotations), len(item_b.annotations))
+        test.assertEqual(len(item_a.annotations), len(item_b.annotations),
+            item_a.id)
         for ann_a in item_a.annotations:
             # We might find few corresponding items, so check them all
             ann_b_matches = [x for x in item_b.annotations
