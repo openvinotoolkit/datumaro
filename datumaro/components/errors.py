@@ -17,6 +17,10 @@ class RepeatedItemError(DatasetError):
     def __str__(self):
         return "Item %s is repeated in the source sequence." % (self.item_id, )
 
+class CategoriesRedefinedError(DatasetError):
+    def __str__(self):
+        return "Categories can only be set once for a dataset"
+
 @attrs
 class MismatchingImageInfoError(DatasetError):
     a = attrib()

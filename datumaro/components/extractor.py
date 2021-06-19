@@ -6,12 +6,12 @@
 from enum import Enum, auto
 from glob import iglob
 from typing import Callable, Iterable, List, Dict, Optional
-import numpy as np
 import os
 import os.path as osp
 
-import attr
 from attr import attrs, attrib
+import attr
+import numpy as np
 
 from datumaro.util.image import Image
 from datumaro.util.attrs_util import not_empty, default_if_none

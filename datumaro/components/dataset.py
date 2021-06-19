@@ -18,7 +18,8 @@ from datumaro.components.extractor import (CategoriesInfo, Extractor,
     IExtractor, LabelCategories, AnnotationType, DatasetItem,
     DEFAULT_SUBSET_NAME, Transform)
 from datumaro.components.environment import Environment
-from datumaro.components.errors import DatumaroError, RepeatedItemError
+from datumaro.components.errors import (CategoriesRedefinedError,
+    DatumaroError, RepeatedItemError)
 from datumaro.util import error_rollback
 from datumaro.util.log_utils import logging_disabled
 
@@ -78,7 +79,7 @@ class DatasetItemStorage:
 
 class DatasetItemStorageDatasetView(IDataset):
     class Subset(IDataset):
-        def __init__(self, parent, name):
+        def __init__(self, parent: 'DatasetItemStorageDatasetView', name: str):
             super().__init__()
             self.parent = parent
             self.name = name
@@ -319,6 +320,11 @@ class DatasetStorage(IDataset):
         else:
             return self._source.categories()
 
+    def define_categories(self, categories: CategoriesInfo):
+        if self._categories or self._source is not None:
+            raise CategoriesRedefinedError()
+        self._categories = categories
+
     def put(self, item):
         is_new = self._storage.put(item)
 
@@ -459,8 +465,7 @@ class Dataset(IDataset):
         self._source_path = None
 
     def define_categories(self, categories: Dict):
-        assert not self._data._categories and self._data._source is None
-        self._data._categories = categories
+        self._data.define_categories(categories)
 
     def init_cache(self):
         self._data.init_cache()

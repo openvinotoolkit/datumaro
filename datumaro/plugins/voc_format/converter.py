@@ -26,7 +26,7 @@ from .format import (VocTask, VocPath, VocInstColormap,
 )
 
 
-def _convert_attr(name, attributes, type_conv, default=None, warn=True):
+def _convert_attr(name, attributes, type_conv, default=None):
     d = object()
     value = attributes.get(name, d)
     if value is d:
