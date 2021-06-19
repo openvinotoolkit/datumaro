@@ -720,7 +720,7 @@ class TestValidateAnnotations(TestValidatorTemplate):
             'topk_bins': 0.1,
         }
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_validate_classification(self):
+    def test_validate_annotations_classification(self):
         validator = ClassificationValidator(**self.extra_args)
         actual_results = validator.validate(self.dataset)
 
@@ -777,7 +777,7 @@ class TestValidateAnnotations(TestValidatorTemplate):
             self.assertEqual(actual_summary, expected_summary)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_validate_detection(self):
+    def test_validate_annotations_detection(self):
         validator = DetectionValidator(**self.extra_args)
         actual_results = validator.validate(self.dataset)
 
@@ -832,7 +832,7 @@ class TestValidateAnnotations(TestValidatorTemplate):
             self.assertEqual(actual_summary, expected_summary)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_validate_segmentation(self):
+    def test_validate_annotations_segmentation(self):
         validator = SegmentationValidator(**self.extra_args)
         actual_results = validator.validate(self.dataset)
 
