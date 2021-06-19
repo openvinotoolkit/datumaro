@@ -18,7 +18,7 @@ from datumaro.components.operations import (DistanceComparator,
 from datumaro.components.project import \
     PROJECT_DEFAULT_CONFIG as DEFAULT_CONFIG
 from datumaro.components.project import Environment, Project
-from datumaro.components.validator import validate_annotations, TaskType
+from datumaro.components.validator import Validator, TaskType
 from datumaro.util import error_rollback
 
 from ...util import (CliException, MultilineFormatter, add_subparser,
@@ -801,8 +801,7 @@ def build_validate_parser(parser_ctor=argparse.ArgumentParser):
         """,
         formatter_class=MultilineFormatter)
 
-    parser.add_argument('task_type',
-        choices=[task_type.name for task_type in TaskType],
+    parser.add_argument('-t', '--task_type', choices=[task_type.name for task_type in TaskType],
         help="Task type for validation")
     parser.add_argument('-s', '--subset', dest='subset_name', default=None,
         help="Subset to validate (default: None)")
@@ -816,19 +815,24 @@ def build_validate_parser(parser_ctor=argparse.ArgumentParser):
 
 def validate_command(args):
     project = load_project(args.project_dir)
-    task_type = args.task_type
-    subset_name = args.subset_name
-    dst_file_name = f'validation_results-{task_type}'
+    dst_file_name = f'report-{args.task_type}'
 
     dataset = project.make_dataset()
-    if subset_name is not None:
-        dataset = dataset.get_subset(subset_name)
-        dst_file_name += f'-{subset_name}'
+    if args.subset_name is not None:
+        dataset = dataset.get_subset(args.subset_name)
+        dst_file_name += f'-{args.subset_name}'
+
+    try:
+        validator_type = project.env.validators[args.task_type]
+    except KeyError:
+        raise CliException("Validator type '%s' is not found" % args.task_type)
 
     extra_args = {}
-    from datumaro.components.validator import _Validator
-    extra_args = _Validator.parse_cmdline(args.extra_args)
-    validation_results = validate_annotations(dataset, task_type, **extra_args)
+    if hasattr(validator_type, 'parse_cmdline'):
+        extra_args = validator_type.parse_cmdline(args.extra_args)
+
+    validator = validator_type(**extra_args)
+    report = validator.validate(dataset)
 
     def numpy_encoder(obj):
         if isinstance(obj, np.generic):
@@ -843,12 +847,12 @@ def validate_command(args):
             if isinstance(val, dict):
                 _make_serializable(val)
 
-    _make_serializable(validation_results)
+    _make_serializable(report)
 
     dst_file = generate_next_file_name(dst_file_name, ext='.json')
     log.info("Writing project validation results to '%s'" % dst_file)
     with open(dst_file, 'w') as f:
-        json.dump(validation_results, f, indent=4, sort_keys=True,
+        json.dump(report, f, indent=4, sort_keys=True,
                   default=numpy_encoder)
 
 def build_parser(parser_ctor=argparse.ArgumentParser):
