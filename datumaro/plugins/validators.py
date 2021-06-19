@@ -3,16 +3,11 @@
 # SPDX-License-Identifier: MIT
 
 from copy import deepcopy
-from typing import Dict, List
-
-import json
-import logging as log
 
 import numpy as np
 
 from datumaro.components.validator import (Severity, TaskType, Validator)
 from datumaro.components.cli_plugin import CliPlugin
-from datumaro.components.dataset import IDataset
 from datumaro.components.errors import (MissingLabelCategories,
     MissingAnnotation, MultiLabelAnnotations, MissingAttribute,
     UndefinedLabel, UndefinedAttribute, LabelDefinedButNotFound,
@@ -25,7 +20,7 @@ from datumaro.components.extractor import AnnotationType, LabelCategories
 from datumaro.util import parse_str_enum_value
 
 
-class _TaskValidator(Validator):
+class _TaskValidator(Validator, CliPlugin):
     # statistics templates
     numerical_stat_template = {
         'items_far_from_mean': {},
@@ -48,16 +43,27 @@ class _TaskValidator(Validator):
     ----------
     task_type : str or TaskType
         task type (ie. classification, detection, segmentation)
-
-    Methods
-    -------
-    validate(dataset):
-        Validate annotations based on task type.
-    compute_statistics(dataset):
-        Computes various statistics of the dataset based on task type.
-    generate_reports(stats):
-        Abstract method that must be implemented in a subclass.
     """
+
+    @classmethod
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument('-fs', '--few_samples_thr', default=1, type=int,
+            help="Threshold for giving a warning for minimum number of"
+                 "samples per class")
+        parser.add_argument('-ir', '--imbalance_ratio_thr', default=50, type=int,
+            help="Threshold for giving data imbalance warning;"
+                 "IR(imbalance ratio) = majority/minority")
+        parser.add_argument('-m', '--far_from_mean_thr', default=5.0, type=float,
+            help="Threshold for giving a warning that data is far from mean;"
+                 "A constant used to define mean +/- k * standard deviation;")
+        parser.add_argument('-dr', '--dominance_ratio_thr', default=0.8, type=float,
+            help="Threshold for giving a warning for bounding box imbalance;"
+                "Dominace_ratio = ratio of Top-k bin to total in histogram;")
+        parser.add_argument('-k', '--topk_bins', default=0.1, type=float,
+            help="Ratio of bins with the highest number of data"
+                 "to total bins in the histogram; [0, 1]; 0.1 = 10%;")
+        return parser
 
     def __init__(self, task_type, few_samples_thr=None,
             imbalance_ratio_thr=None, far_from_mean_thr=None,
@@ -101,41 +107,6 @@ class _TaskValidator(Validator):
         self.far_from_mean_thr = far_from_mean_thr
         self.dominance_thr = dominance_ratio_thr
         self.topk_bins_ratio = topk_bins
-
-    def validate(self, dataset: IDataset):
-        """
-        Returns the validation results of a dataset based on task type.
-        Args:
-            dataset (IDataset): Dataset to be validated
-            task_type (str or TaskType): Type of the task
-                (classification, detection, segmentation)
-        Raises:
-            ValueError
-        Returns:
-            validation_results (dict):
-                Dict with validation statistics, reports and summary.
-        """
-        validation_results = {}
-        if not isinstance(dataset, IDataset):
-            raise TypeError("Invalid dataset type '%s'" % type(dataset))
-
-        # generate statistics
-        stats = self.compute_statistics(dataset)
-        validation_results['statistics'] = stats
-
-        # generate validation reports and summary
-        reports = self.generate_reports(stats)
-        reports = list(map(lambda r: r.to_dict(), reports))
-
-        summary = {
-            'errors': sum(map(lambda r: r['severity'] == 'error', reports)),
-            'warnings': sum(map(lambda r: r['severity'] == 'warning', reports))
-        }
-
-        validation_results['validation_reports'] = reports
-        validation_results['summary'] = summary
-
-        return validation_results
 
     def _compute_common_statistics(self, dataset):
         defined_attr_template = {
@@ -284,20 +255,6 @@ class _TaskValidator(Validator):
             far_from_mean = items_far_from_mean.setdefault(
                 item_key, {})
             far_from_mean[ann.id] = val
-
-    def compute_statistics(self, dataset: IDataset):
-        """
-        Computes statistics of the dataset based on task type.
-
-        Parameters
-        ----------
-        dataset : IDataset object
-
-        Returns
-        -------
-        stats (dict): A dict object containing statistics of the dataset.
-        """
-        return NotImplementedError
 
     def _check_missing_label_categories(self, stats):
         validation_reports = []
@@ -578,36 +535,14 @@ class _TaskValidator(Validator):
 
         return validation_reports
 
-    def generate_reports(self, stats: Dict) -> List[Dict]:
-        raise NotImplementedError('Should be implemented in a subclass.')
-
     def _generate_validation_report(self, error, *args, **kwargs):
         return [error(*args, **kwargs)]
 
 
-class ClassificationValidator(_TaskValidator, CliPlugin):
+class ClassificationValidator(_TaskValidator):
     """
     A specific validator class for classification task.
     """
-    @classmethod
-    def build_cmdline_parser(cls, **kwargs):
-        parser = super().build_cmdline_parser(**kwargs)
-        parser.add_argument('-fs', '--few_samples_thr', default=1, type=int,
-            help="Threshold for giving a warning for minimum number of"
-                 "samples per class")
-        parser.add_argument('-ir', '--imbalance_ratio_thr', default=50, type=int,
-            help="Threshold for giving data imbalance warning;"
-                 "IR(imbalance ratio) = majority/minority")
-        parser.add_argument('-m', '--far_from_mean_thr', default=5.0, type=float,
-            help="Threshold for giving a warning that data is far from mean;"
-                 "A constant used to define mean +/- k * standard deviation;")
-        parser.add_argument('-dr', '--dominance_ratio_thr', default=0.8, type=float,
-            help="Threshold for giving a warning for bounding box imbalance;"
-                "Dominace_ratio = ratio of Top-k bin to total in histogram;")
-        parser.add_argument('-k', '--topk_bins', default=0.1, type=float,
-            help="Ratio of bins with the highest number of data"
-                 "to total bins in the histogram; [0, 1]; 0.1 = 10%;")
-        return parser
 
     def __init__(self, few_samples_thr, imbalance_ratio_thr,
             far_from_mean_thr, dominance_ratio_thr, topk_bins):
@@ -709,29 +644,10 @@ class ClassificationValidator(_TaskValidator, CliPlugin):
         return reports
 
 
-class DetectionValidator(_TaskValidator, CliPlugin):
+class DetectionValidator(_TaskValidator):
     """
     A specific validator class for detection task.
     """
-    @classmethod
-    def build_cmdline_parser(cls, **kwargs):
-        parser = super().build_cmdline_parser(**kwargs)
-        parser.add_argument('-fs', '--few_samples_thr', default=1, type=int,
-            help="Threshold for giving a warning for minimum number of"
-                 "samples per class")
-        parser.add_argument('-ir', '--imbalance_ratio_thr', default=50, type=int,
-            help="Threshold for giving data imbalance warning;"
-                 "IR(imbalance ratio) = majority/minority")
-        parser.add_argument('-m', '--far_from_mean_thr', default=5.0, type=float,
-            help="Threshold for giving a warning that data is far from mean;"
-                 "A constant used to define mean +/- k * standard deviation;")
-        parser.add_argument('-dr', '--dominance_ratio_thr', default=0.8, type=float,
-            help="Threshold for giving a warning for bounding box imbalance;"
-                "Dominace_ratio = ratio of Top-k bin to total in histogram;")
-        parser.add_argument('-k', '--topk_bins', default=0.1, type=float,
-            help="Ratio of bins with the highest number of data"
-                 "to total bins in the histogram; [0, 1]; 0.1 = 10%;")
-        return parser
 
     def __init__(self, few_samples_thr, imbalance_ratio_thr,
             far_from_mean_thr, dominance_ratio_thr, topk_bins):
@@ -1014,29 +930,10 @@ class DetectionValidator(_TaskValidator, CliPlugin):
         return reports
 
 
-class SegmentationValidator(_TaskValidator, CliPlugin):
+class SegmentationValidator(_TaskValidator):
     """
     A specific validator class for (instance) segmentation task.
     """
-    @classmethod
-    def build_cmdline_parser(cls, **kwargs):
-        parser = super().build_cmdline_parser(**kwargs)
-        parser.add_argument('-fs', '--few_samples_thr', default=1, type=int,
-            help="Threshold for giving a warning for minimum number of"
-                 "samples per class")
-        parser.add_argument('-ir', '--imbalance_ratio_thr', default=50, type=int,
-            help="Threshold for giving data imbalance warning;"
-                 "IR(imbalance ratio) = majority/minority")
-        parser.add_argument('-m', '--far_from_mean_thr', default=5.0, type=float,
-            help="Threshold for giving a warning that data is far from mean;"
-                 "A constant used to define mean +/- k * standard deviation;")
-        parser.add_argument('-dr', '--dominance_ratio_thr', default=0.8, type=float,
-            help="Threshold for giving a warning for bounding box imbalance;"
-                "Dominace_ratio = ratio of Top-k bin to total in histogram;")
-        parser.add_argument('-k', '--topk_bins', default=0.1, type=float,
-            help="Ratio of bins with the highest number of data"
-                 "to total bins in the histogram; [0, 1]; 0.1 = 10%;")
-        return parser
 
     def __init__(self, few_samples_thr, imbalance_ratio_thr,
             far_from_mean_thr, dominance_ratio_thr, topk_bins):

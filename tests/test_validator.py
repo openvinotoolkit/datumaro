@@ -18,7 +18,8 @@ from datumaro.components.errors import (MissingLabelCategories,
     FarFromAttrMean, OnlyOneAttributeValue)
 from datumaro.components.extractor import Bbox, Label, Mask, Polygon
 from datumaro.components.validator import TaskType
-from datumaro.plugins.validators import (_TaskValidator, ClassificationValidator, DetectionValidator, SegmentationValidator)
+from datumaro.plugins.validators import (_TaskValidator,
+    ClassificationValidator, DetectionValidator, SegmentationValidator)
 from .requirements import Requirements, mark_requirement
 
 

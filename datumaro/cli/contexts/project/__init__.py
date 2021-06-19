@@ -18,7 +18,7 @@ from datumaro.components.operations import (DistanceComparator,
 from datumaro.components.project import \
     PROJECT_DEFAULT_CONFIG as DEFAULT_CONFIG
 from datumaro.components.project import Environment, Project
-from datumaro.components.validator import Validator, TaskType
+from datumaro.components.validator import TaskType
 from datumaro.util import error_rollback
 
 from ...util import (CliException, MultilineFormatter, add_subparser,
@@ -794,6 +794,14 @@ def info_command(args):
     return 0
 
 def build_validate_parser(parser_ctor=argparse.ArgumentParser):
+    def _parse_task_type(s):
+        try:
+            return TaskType[s.lower()].name
+        except:
+            raise argparse.ArgumentTypeError("Unknown task type %s. Expected "
+                "one of: %s" % (s, ', '.join(t.name for t in TaskType)))
+
+
     parser = parser_ctor(help="Validate project",
         description="""
             Validates project based on specified task type and stores
@@ -801,10 +809,11 @@ def build_validate_parser(parser_ctor=argparse.ArgumentParser):
         """,
         formatter_class=MultilineFormatter)
 
-    parser.add_argument('-t', '--task_type', choices=[task_type.name for task_type in TaskType],
-        help="Task type for validation")
+    parser.add_argument('-t', '--task_type', type=_parse_task_type,
+        help="Task type for validation, one of %s" % \
+            ', '.join(t.name for t in TaskType))
     parser.add_argument('-s', '--subset', dest='subset_name', default=None,
-        help="Subset to validate (default: None)")
+        help="Subset to validate (default: whole dataset)")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to validate (default: current dir)")
     parser.add_argument('extra_args', nargs=argparse.REMAINDER, default=None,
