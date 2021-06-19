@@ -18,7 +18,7 @@ from datumaro.components.operations import (DistanceComparator,
 from datumaro.components.project import \
     PROJECT_DEFAULT_CONFIG as DEFAULT_CONFIG
 from datumaro.components.project import Environment, Project
-from datumaro.components.validator import Validator, TaskType
+from datumaro.components.validator import TaskType
 from datumaro.util import error_rollback
 
 from ...util import (CliException, MultilineFormatter, add_subparser,
@@ -801,7 +801,8 @@ def build_validate_parser(parser_ctor=argparse.ArgumentParser):
         """,
         formatter_class=MultilineFormatter)
 
-    parser.add_argument('-t', '--task_type', choices=[task_type.name for task_type in TaskType],
+    parser.add_argument('-t', '--task_type',
+        choices=[task_type.name for task_type in TaskType],
         help="Task type for validation")
     parser.add_argument('-s', '--subset', dest='subset_name', default=None,
         help="Subset to validate (default: None)")
