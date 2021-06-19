@@ -822,8 +822,15 @@ def validate_command(args):
         dataset = dataset.get_subset(args.subset_name)
         dst_file_name += f'-{args.subset_name}'
 
-    validator_type = project.env.validators[args.task_type]
-    extra_args = validator_type.parse_cmdline(args.extra_args)
+    try:
+        validator_type = project.env.validators[args.task_type]
+    except KeyError:
+        raise CliException("Validator type '%s' is not found" % args.task_type)
+
+    extra_args = {}
+    if hasattr(validator_type, 'parse_cmdline'):
+        extra_args = validator_type.parse_cmdline(args.extra_args)
+
     validator = validator_type(**extra_args)
     report = validator.validate(dataset)
 
