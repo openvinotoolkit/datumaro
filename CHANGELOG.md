@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Subformat importers for VOC and COCO (<https://github.com/openvinotoolkit/datumaro/pull/281>)
 - Support for KITTI dataset segmentation and detection format (<https://github.com/openvinotoolkit/datumaro/pull/282>)
 - Updated YOLO format user manual (<https://github.com/openvinotoolkit/datumaro/pull/295>)
+- A base class for dataset validation plugins (<https://github.com/openvinotoolkit/datumaro/pull/299>)
 
 ### Changed
 -
