@@ -109,11 +109,10 @@ class GitWrapper:
 
 class Environment:
     _builtin_plugins = None
-    PROJECT_EXTRACTOR_NAME = 'datumaro_project'
 
     def __init__(self, config=None):
         from datumaro.components.project import (
-            PROJECT_DEFAULT_CONFIG, PROJECT_SCHEMA, load_project_as_dataset)
+            PROJECT_DEFAULT_CONFIG, PROJECT_SCHEMA)
         config = Config(config,
             fallback=PROJECT_DEFAULT_CONFIG, schema=PROJECT_SCHEMA)
 
@@ -132,14 +131,38 @@ class Environment:
         from datumaro.components.extractor import (Importer, Extractor,
             SourceExtractor, Transform)
         from datumaro.components.launcher import Launcher
-        self.extractors = PluginRegistry(_filter(Extractor, SourceExtractor))
-        self.importers = PluginRegistry(_filter(Importer))
-        self.launchers = PluginRegistry(_filter(Launcher))
-        self.converters = PluginRegistry(_filter(Converter))
-        self.transforms = PluginRegistry(_filter(Transform))
-        self._register_plugins(self._load_builtin_plugins())
-        self.extractors.register(self.PROJECT_EXTRACTOR_NAME,
-            load_project_as_dataset)
+        self._extractors = PluginRegistry(_filter(Extractor, SourceExtractor))
+        self._importers = PluginRegistry(_filter(Importer))
+        self._launchers = PluginRegistry(_filter(Launcher))
+        self._converters = PluginRegistry(_filter(Converter))
+        self._transforms = PluginRegistry(_filter(Transform))
+        self._builtins_initialized = False
+
+    def _get_plugin_registry(self, name):
+        if not self._builtins_initialized:
+            self._builtins_initialized = True
+            self._register_builtin_plugins()
+        return getattr(self, name)
+
+    @property
+    def extractors(self) -> PluginRegistry:
+        return self._get_plugin_registry('_extractors')
+
+    @property
+    def importers(self) -> PluginRegistry:
+        return self._get_plugin_registry('_importers')
+
+    @property
+    def launchers(self) -> PluginRegistry:
+        return self._get_plugin_registry('_launchers')
+
+    @property
+    def converters(self) -> PluginRegistry:
+        return self._get_plugin_registry('_converters')
+
+    @property
+    def transforms(self) -> PluginRegistry:
+        return self._get_plugin_registry('_transforms')
 
     @staticmethod
     def _find_plugins(plugins_dir):
@@ -234,6 +257,9 @@ class Environment:
     def load_plugins(self, plugins_dir):
         plugins = self._load_plugins(plugins_dir)
         self._register_plugins(plugins)
+
+    def _register_builtin_plugins(self):
+        self._register_plugins(self._load_builtin_plugins())
 
     def _register_plugins(self, plugins):
         self.extractors.batch_register(plugins)
