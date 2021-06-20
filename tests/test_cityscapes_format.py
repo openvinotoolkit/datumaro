@@ -13,11 +13,13 @@ from datumaro.plugins.cityscapes_format import (CityscapesImporter,
 from datumaro.util.image import Image
 from datumaro.util.test_utils import (TestDir, compare_datasets,
     test_save_and_load)
+from .requirements import Requirements, mark_requirement
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets',
     'cityscapes_dataset')
 
 class CityscapesFormatTest(TestCase):
+    @mark_requirement(Requirements.DATUM_267)
     def test_can_write_and_parse_labelmap(self):
         src_label_map = Cityscapes.CityscapesLabelMap
 
@@ -30,6 +32,7 @@ class CityscapesFormatTest(TestCase):
             self.assertEqual(src_label_map, dst_label_map)
 
 class CityscapesImportTest(TestCase):
+    @mark_requirement(Requirements.DATUM_267)
     def test_can_import(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='defaultcity/defaultcity_000001_000031',
@@ -82,6 +85,7 @@ class CityscapesImportTest(TestCase):
 
         compare_datasets(self, source_dataset, parsed_dataset)
 
+    @mark_requirement(Requirements.DATUM_267)
     def test_can_detect_cityscapes(self):
         self.assertTrue(CityscapesImporter.detect(DUMMY_DATASET_DIR))
 
@@ -100,6 +104,7 @@ class CityscapesConverterTest(TestCase):
             importer='cityscapes',
             target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
+    @mark_requirement(Requirements.DATUM_267)
     def test_can_save_cityscapes_segm(self):
         class TestExtractor(TestExtractorBase):
             def __iter__(self):
@@ -126,6 +131,7 @@ class CityscapesConverterTest(TestCase):
                 partial(CityscapesConverter.convert, label_map='cityscapes',
                 save_images=True), test_dir)
 
+    @mark_requirement(Requirements.DATUM_267)
     def test_can_save_cityscapes_segm_unpainted(self):
         class TestExtractor(TestExtractorBase):
             def __iter__(self):
@@ -146,6 +152,7 @@ class CityscapesConverterTest(TestCase):
                 partial(CityscapesConverter.convert, label_map='cityscapes',
                 save_images=True, apply_colormap=False), test_dir)
 
+    @mark_requirement(Requirements.DATUM_267)
     def test_can_save_cityscapes_dataset_with_no_subsets(self):
         class TestExtractor(TestExtractorBase):
             def __iter__(self):
@@ -172,6 +179,7 @@ class CityscapesConverterTest(TestCase):
                 partial(CityscapesConverter.convert, label_map='cityscapes',
                 save_images=True), test_dir)
 
+    @mark_requirement(Requirements.DATUM_267)
     def test_can_save_cityscapes_dataset_without_frame_and_sequence(self):
         class TestExtractor(TestExtractorBase):
             def __iter__(self):
@@ -189,6 +197,7 @@ class CityscapesConverterTest(TestCase):
                 partial(CityscapesConverter.convert, label_map='cityscapes',
                 save_images=True), test_dir)
 
+    @mark_requirement(Requirements.DATUM_267)
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         class TestExtractor(TestExtractorBase):
             def __iter__(self):
@@ -207,6 +216,7 @@ class CityscapesConverterTest(TestCase):
                 partial(CityscapesConverter.convert, label_map='cityscapes',
                 save_images=True), test_dir)
 
+    @mark_requirement(Requirements.DATUM_267)
     def test_can_save_cityscapes_dataset_with_strange_id(self):
         class TestExtractor(TestExtractorBase):
             def __iter__(self):
@@ -225,6 +235,7 @@ class CityscapesConverterTest(TestCase):
                 partial(CityscapesConverter.convert, label_map='cityscapes',
                 save_images=True), test_dir)
 
+    @mark_requirement(Requirements.DATUM_267)
     def test_can_save_with_no_masks(self):
         class TestExtractor(TestExtractorBase):
             def __iter__(self):
@@ -239,6 +250,7 @@ class CityscapesConverterTest(TestCase):
                 partial(CityscapesConverter.convert, label_map='cityscapes',
                 save_images=True), test_dir)
 
+    @mark_requirement(Requirements.DATUM_267)
     def test_dataset_with_source_labelmap_undefined(self):
         class SrcExtractor(TestExtractorBase):
             def __iter__(self):
@@ -281,6 +293,7 @@ class CityscapesConverterTest(TestCase):
                 partial(CityscapesConverter.convert, label_map='source',
                 save_images=True), test_dir, target_dataset=DstExtractor())
 
+    @mark_requirement(Requirements.DATUM_267)
     def test_dataset_with_source_labelmap_defined(self):
         class SrcExtractor(TestExtractorBase):
             def __iter__(self):
@@ -321,6 +334,7 @@ class CityscapesConverterTest(TestCase):
                 partial(CityscapesConverter.convert, label_map='source',
                 save_images=True), test_dir, target_dataset=DstExtractor())
 
+    @mark_requirement(Requirements.DATUM_267)
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         class TestExtractor(TestExtractorBase):
             def __iter__(self):

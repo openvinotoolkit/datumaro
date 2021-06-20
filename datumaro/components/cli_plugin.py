@@ -55,6 +55,6 @@ class CliPlugin:
         return args
 
 def remove_plugin_type(s):
-    for t in {'transform', 'extractor', 'converter', 'launcher', 'importer'}:
+    for t in {'transform', 'extractor', 'converter', 'launcher', 'importer', 'validator'}:
         s = s.replace('_' + t, '')
     return s
