@@ -1,10 +1,10 @@
 from collections import OrderedDict
 from functools import partial
-import numpy as np
+from unittest import TestCase
 import os
 import os.path as osp
 
-from unittest import TestCase
+import numpy as np
 
 from datumaro.components.extractor import (Extractor, DatasetItem,
     AnnotationType, Label, Bbox, Mask, LabelCategories,

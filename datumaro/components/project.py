@@ -38,7 +38,7 @@ class ProjectDataset(IDataset):
             def categories(self):
                 return self.parent.categories()
 
-            def get(self, id, subset=None): #pylint: disable=redefined-builtin
+            def get(self, id, subset=None):
                 subset = subset or self.name
                 assert subset == self.name, '%s != %s' % (subset, self.name)
                 return super().get(id, subset)
@@ -137,15 +137,13 @@ class ProjectDataset(IDataset):
     def __len__(self):
         return sum(len(s) for s in self._subsets.values())
 
-    def get(self, id, subset=None, \
-            path=None): #pylint: disable=redefined-builtin
+    def get(self, id, subset=None, path=None):
         if path:
             source = path[0]
             return self._sources[source].get(id=id, subset=subset)
         return self._subsets.get(subset, {}).get(id)
 
-    def put(self, item, id=None, subset=None, \
-            path=None): #pylint: disable=redefined-builtin
+    def put(self, item, id=None, subset=None, path=None):
         if path is None:
             path = item.path
 
@@ -277,8 +275,7 @@ class ProjectDataset(IDataset):
 
         return self.transform(_DatasetFilter)
 
-    def export(self, save_dir: str, format, \
-            **kwargs): #pylint: disable=redefined-builtin
+    def export(self, save_dir: str, format, **kwargs):
         dataset = Dataset.from_extractors(self, env=self.env)
         dataset.export(save_dir, format, **kwargs)
 

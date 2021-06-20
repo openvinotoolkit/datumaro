@@ -6,12 +6,12 @@
 from enum import Enum, auto
 from glob import iglob
 from typing import Callable, Iterable, List, Dict, Optional
-import numpy as np
 import os
 import os.path as osp
 
-import attr
 from attr import attrs, attrib
+import attr
+import numpy as np
 
 from datumaro.util.image import Image
 from datumaro.util.attrs_util import not_empty, default_if_none
@@ -541,7 +541,7 @@ class DatasetItem:
 
 CategoriesInfo = Dict[AnnotationType, Categories]
 
-class IExtractor: #pylint: disable=redefined-builtin
+class IExtractor:
     def __iter__(self) -> Iterable[DatasetItem]:
         raise NotImplementedError()
 
@@ -614,7 +614,7 @@ class Extractor(IExtractor):
     def categories(self):
         return {}
 
-    def get(self, id, subset=None): #pylint: disable=redefined-builtin
+    def get(self, id, subset=None):
         subset = subset or DEFAULT_SUBSET_NAME
         for item in self:
             if item.id == id and item.subset == subset:
@@ -638,7 +638,7 @@ class SourceExtractor(Extractor):
     def __len__(self):
         return len(self._items)
 
-    def get(self, id, subset=None): #pylint: disable=redefined-builtin
+    def get(self, id, subset=None):
         assert subset == self._subset, '%s != %s' % (subset, self._subset)
         return super().get(id, subset or self._subset)
 
