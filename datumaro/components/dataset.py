@@ -2,8 +2,6 @@
 #
 # SPDX-License-Identifier: MIT
 
-#pylint: disable=redefined-builtin
-
 from contextlib import contextmanager
 from enum import Enum, auto
 from typing import Iterable, Iterator, Optional, Tuple, Union, Dict, List
