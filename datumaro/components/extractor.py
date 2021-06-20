@@ -548,6 +548,9 @@ class IExtractor:
     def __len__(self) -> int:
         raise NotImplementedError()
 
+    def __bool__(self): # avoid __len__ use for truth checking
+        return True
+
     def subsets(self) -> Dict[str, 'IExtractor']:
         raise NotImplementedError()
 
@@ -717,6 +720,11 @@ class Importer:
 
 
 class Transform(Extractor):
+    """
+    A base class for dataset transformations that change dataset items
+    or their annotations.
+    """
+
     @staticmethod
     def wrap_item(item, **kwargs):
         return item.wrap(**kwargs)
@@ -725,10 +733,6 @@ class Transform(Extractor):
         super().__init__()
 
         self._extractor = extractor
-
-    def __iter__(self):
-        for item in self._extractor:
-            yield self.transform_item(item)
 
     def categories(self):
         return self._extractor.categories()
@@ -746,12 +750,19 @@ class Transform(Extractor):
             self._length = len(self._extractor)
         return super().__len__()
 
-    def transform_item(self, item: DatasetItem) -> DatasetItem:
+class ItemTransform(Transform):
+    def transform_item(self, item: DatasetItem) -> Optional[DatasetItem]:
         """
-        Supposed to return a modified copy of the input item.
+        Returns a modified copy of the input item.
 
         Avoid changing and returning the input item, because it can lead to
-        unexpected problems. wrap_item() can be used to simplify copying.
+        unexpected problems. Use wrap_item() or item.wrap() to simplify copying.
         """
 
         raise NotImplementedError()
+
+    def __iter__(self):
+        for item in self._extractor:
+            item = self.transform_item(item)
+            if item is not None:
+                yield item
