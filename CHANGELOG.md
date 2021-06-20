@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A base class for dataset validation plugins (<https://github.com/openvinotoolkit/datumaro/pull/299>)
 
 ### Changed
--
+- Tensorflow AVX check is made optional in API and is disabled by default (<https://github.com/openvinotoolkit/datumaro/pull/305>)
 
 ### Deprecated
 -
