@@ -415,6 +415,8 @@ class Project:
             fallback=PROJECT_DEFAULT_CONFIG, schema=PROJECT_SCHEMA)
         if env is None:
             env = Environment(self.config)
+            env.models.batch_register(self.config.models)
+            env.sources.batch_register(self.config.sources)
         elif config is not None:
             raise ValueError("env can only be provided when no config provided")
         self.env = env

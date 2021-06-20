@@ -9,6 +9,7 @@ import inspect
 import logging as log
 import os
 import os.path as osp
+from typing import Dict, Iterable
 
 from datumaro.components.config import Config
 from datumaro.components.config_model import Model, Source
@@ -16,20 +17,10 @@ from datumaro.util.os_util import import_foreign_module
 
 
 class Registry:
-    def __init__(self, config=None, item_type=None):
-        self.item_type = item_type
-
+    def __init__(self):
         self.items = {}
 
-        if config is not None:
-            self.load(config)
-
-    def load(self, config):
-        pass
-
     def register(self, name, value):
-        if self.item_type:
-            value = self.item_type(value)
         self.items[name] = value
         return value
 
@@ -46,44 +37,34 @@ class Registry:
     def __contains__(self, key):
         return key in self.items
 
+    def __iter__(self):
+        return iter(self.items)
 
 class ModelRegistry(Registry):
-    def __init__(self, config=None):
-        super().__init__(config, item_type=Model)
-
-    def load(self, config):
-        # TODO: list default dir, insert values
-        if 'models' in config:
-            for name, model in config.models.items():
-                self.register(name, model)
+    def batch_register(self, items: Dict[str, Model]):
+        for name, model in items.items():
+            self.register(name, model)
 
 
 class SourceRegistry(Registry):
-    def __init__(self, config=None):
-        super().__init__(config, item_type=Source)
-
-    def load(self, config):
-        # TODO: list default dir, insert values
-        if 'sources' in config:
-            for name, source in config.sources.items():
-                self.register(name, source)
-
+    def batch_register(self, items: Dict[str, Source]):
+        for name, source in items.items():
+            self.register(name, source)
 
 class PluginRegistry(Registry):
-    def __init__(self, config=None, builtin=None, local=None):
-        super().__init__(config)
+    def __init__(self, filter=None): #pylint: disable=redefined-builtin
+        super().__init__()
+        self.filter = filter
 
+    def batch_register(self, values: Iterable):
         from datumaro.components.cli_plugin import CliPlugin
 
-        if builtin is not None:
-            for v in builtin:
-                k = CliPlugin._get_name(v)
-                self.register(k, v)
-        if local is not None:
-            for v in local:
-                k = CliPlugin._get_name(v)
-                self.register(k, v)
+        for v in values:
+            if self.filter and not self.filter(v):
+                continue
+            name = CliPlugin._get_name(v)
 
+            self.register(name, v)
 
 class GitWrapper:
     def __init__(self, config=None):
@@ -136,47 +117,29 @@ class Environment:
         config = Config(config,
             fallback=PROJECT_DEFAULT_CONFIG, schema=PROJECT_SCHEMA)
 
-        self.models = ModelRegistry(config)
-        self.sources = SourceRegistry(config)
+        self.models = ModelRegistry()
+        self.sources = SourceRegistry()
 
         self.git = GitWrapper(config)
 
-        env_dir = osp.join(config.project_dir, config.env_dir)
-        builtin = self._load_builtin_plugins()
-        custom = self._load_plugins2(osp.join(env_dir, config.plugins_dir))
-        select = lambda seq, t: [e for e in seq if issubclass(e, t)]
+        def _filter(accept, skip=None):
+            accept = (accept, ) if inspect.isclass(accept) else tuple(accept)
+            skip = {skip} if inspect.isclass(skip) else set(skip or [])
+            skip = tuple(skip | set(accept))
+            return lambda t: issubclass(t, accept) and t not in skip
+
         from datumaro.components.converter import Converter
         from datumaro.components.extractor import (Importer, Extractor,
-            Transform)
+            SourceExtractor, Transform)
         from datumaro.components.launcher import Launcher
-        from datumaro.components.validator import Validator
-        self.extractors = PluginRegistry(
-            builtin=select(builtin, Extractor),
-            local=select(custom, Extractor)
-        )
+        self.extractors = PluginRegistry(_filter(Extractor, SourceExtractor))
+        self.importers = PluginRegistry(_filter(Importer))
+        self.launchers = PluginRegistry(_filter(Launcher))
+        self.converters = PluginRegistry(_filter(Converter))
+        self.transforms = PluginRegistry(_filter(Transform))
+        self._register_plugins(self._load_builtin_plugins())
         self.extractors.register(self.PROJECT_EXTRACTOR_NAME,
             load_project_as_dataset)
-
-        self.importers = PluginRegistry(
-            builtin=select(builtin, Importer),
-            local=select(custom, Importer)
-        )
-        self.launchers = PluginRegistry(
-            builtin=select(builtin, Launcher),
-            local=select(custom, Launcher)
-        )
-        self.converters = PluginRegistry(
-            builtin=select(builtin, Converter),
-            local=select(custom, Converter)
-        )
-        self.transforms = PluginRegistry(
-            builtin=select(builtin, Transform),
-            local=select(custom, Transform)
-        )
-        self.validators = PluginRegistry(
-            builtin=select(builtin, Validator),
-            local=select(custom, Validator)
-        )
 
     @staticmethod
     def _find_plugins(plugins_dir):
@@ -216,7 +179,14 @@ class Environment:
         return exports
 
     @classmethod
-    def _load_plugins(cls, plugins_dir, types):
+    def _load_plugins(cls, plugins_dir, types=None):
+        if not types:
+            from datumaro.components.converter import Converter
+            from datumaro.components.extractor import (Extractor, Importer,
+                Transform)
+            from datumaro.components.launcher import Launcher
+            types = [Extractor, Converter, Importer, Launcher, Transform]
+
         types = tuple(types)
 
         plugins = cls._find_plugins(plugins_dir)
@@ -252,25 +222,25 @@ class Environment:
 
     @classmethod
     def _load_builtin_plugins(cls):
-        if not cls._builtin_plugins:
+        if cls._builtin_plugins is None:
             plugins_dir = osp.join(
                 __file__[: __file__.rfind(osp.join('datumaro', 'components'))],
                 osp.join('datumaro', 'plugins')
             )
             assert osp.isdir(plugins_dir), plugins_dir
-            cls._builtin_plugins = cls._load_plugins2(plugins_dir)
+            cls._builtin_plugins = cls._load_plugins(plugins_dir)
         return cls._builtin_plugins
 
-    @classmethod
-    def _load_plugins2(cls, plugins_dir):
-        from datumaro.components.converter import Converter
-        from datumaro.components.extractor import (Extractor, Importer,
-            Transform)
-        from datumaro.components.launcher import Launcher
-        from datumaro.components.validator import Validator
-        types = [Extractor, Converter, Importer, Launcher, Transform, Validator]
+    def load_plugins(self, plugins_dir):
+        plugins = self._load_plugins(plugins_dir)
+        self._register_plugins(plugins)
 
-        return cls._load_plugins(plugins_dir, types)
+    def _register_plugins(self, plugins):
+        self.extractors.batch_register(plugins)
+        self.importers.batch_register(plugins)
+        self.launchers.batch_register(plugins)
+        self.converters.batch_register(plugins)
+        self.transforms.batch_register(plugins)
 
     def make_extractor(self, name, *args, **kwargs):
         return self.extractors.get(name)(*args, **kwargs)
