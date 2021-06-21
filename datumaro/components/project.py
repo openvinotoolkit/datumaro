@@ -26,7 +26,8 @@ from datumaro.components.errors import (DatasetMergeError, EmptyCommitError,
     MissingObjectError, MissingPipelineHeadError, MultiplePipelineHeadsError,
     ProjectAlreadyExists, ProjectNotFoundError, ReadonlyDatasetError,
     SourceExistsError, SourceOutsideError, UnknownRefError, UnknownSourceError,
-    UnknownStageError, VcsError, UnsavedChangesError, WrongSourceNodeError)
+    UnknownStageError, VcsError, UnsavedChangesError, WrongSourceNodeError,
+    UnknownTargetError)
 from datumaro.components.launcher import Launcher
 from datumaro.util import error_rollback, find, parse_str_enum_value
 from datumaro.util.log_utils import catch_logs, logging_disabled
@@ -759,6 +760,9 @@ class ProjectBuildTargets(CrudProxy):
         return pipeline
 
     def make_pipeline(self, target) -> Pipeline:
+        if not target in self:
+            raise UnknownTargetError(target)
+
         # a subgraph with all the target dependencies
         if '.' not in target:
             target = self.make_target_name(target, self[target].head.name)
@@ -2186,6 +2190,8 @@ class Project:
         self._working_tree = None
 
     def is_ref(self, ref: str) -> bool:
+        if not ref:
+            return True # working tree
         return self._git.is_ref(ref)
 
     def has_commits(self) -> bool:

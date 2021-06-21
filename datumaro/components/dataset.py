@@ -19,7 +19,8 @@ from datumaro.components.extractor import (CategoriesInfo, Extractor,
     DEFAULT_SUBSET_NAME, Transform)
 from datumaro.components.environment import Environment
 from datumaro.components.errors import (CategoriesRedefinedError,
-    DatumaroError, RepeatedItemError)
+    DatumaroError, MultipleFormatsMatchError, NoFormatsMatchError,
+    RepeatedItemError)
 from datumaro.util import error_rollback, is_member_redefined
 from datumaro.util.log_utils import logging_disabled
 
@@ -831,14 +832,11 @@ class Dataset(IDataset):
 
         matches = env.detect_dataset(path)
         if not matches:
-            raise DatumaroError(
+            raise NoFormatsMatchError(
                 "Failed to detect dataset format automatically: "
                 "no matching formats found")
         if 1 < len(matches):
-            raise DatumaroError(
-                "Failed to detect dataset format automatically:"
-                " data matches more than one format: %s" % \
-                ', '.join(matches))
+            raise MultipleFormatsMatchError(matches)
         return matches[0]
 
 @contextmanager

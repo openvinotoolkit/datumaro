@@ -68,6 +68,25 @@ class UnknownSourceError(DatumaroError):
     pass
 
 @attrs
+class UnknownTargetError(DatumaroError):
+    name = attrib()
+
+    def __str__(self):
+        return "Unknown target '%s'" % self.name
+
+@attrs
+class MultipleFormatsMatchError(DatumaroError):
+    formats = attrib()
+
+    def __str__(self):
+        return "Failed to detect dataset format automatically:" \
+            " data matches more than one format: %s" % \
+            ', '.join(self.formats)
+
+class NoFormatsMatchError(DatumaroError):
+    pass
+
+@attrs
 class SourceExistsError(DatumaroError):
     name = attrib()
 
