@@ -2,8 +2,6 @@
 #
 # SPDX-License-Identifier: MIT
 
-#pylint: disable=redefined-builtin
-
 from copy import copy
 from contextlib import contextmanager
 from enum import Enum, auto
@@ -20,7 +18,8 @@ from datumaro.components.extractor import (CategoriesInfo, Extractor,
     IExtractor, ItemTransform, LabelCategories, AnnotationType, DatasetItem,
     DEFAULT_SUBSET_NAME, Transform)
 from datumaro.components.environment import Environment
-from datumaro.components.errors import DatumaroError, RepeatedItemError
+from datumaro.components.errors import (CategoriesRedefinedError,
+    DatumaroError, RepeatedItemError)
 from datumaro.util import error_rollback, is_member_redefined
 from datumaro.util.log_utils import logging_disabled
 
@@ -97,7 +96,7 @@ class DatasetItemStorage:
 
 class DatasetItemStorageDatasetView(IDataset):
     class Subset(IDataset):
-        def __init__(self, parent, name):
+        def __init__(self, parent: 'DatasetItemStorageDatasetView', name: str):
             super().__init__()
             self.parent = parent
             self.name = name
@@ -458,12 +457,13 @@ class DatasetStorage(IDataset):
                 for t in self._transforms):
             self.init_cache()
             return self._categories
-        elif any(t[0].categories != Transform.categories
-                for t in self._transforms):
-            self.init_cache()
-            return self._categories
         else:
             return self._source.categories()
+
+    def define_categories(self, categories: CategoriesInfo):
+        if self._categories or self._source is not None:
+            raise CategoriesRedefinedError()
+        self._categories = categories
 
     def put(self, item):
         is_new = self._storage.put(item)
@@ -614,9 +614,8 @@ class Dataset(IDataset):
         self._source_path = None
         self._options = {}
 
-    def define_categories(self, categories: CategoriesInfo):
-        assert not self._data._categories and self._data._source is None
-        self._data._categories = categories
+    def define_categories(self, categories: Dict):
+        self._data.define_categories(categories)
 
     def init_cache(self):
         self._data.init_cache()

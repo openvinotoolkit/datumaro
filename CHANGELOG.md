@@ -13,9 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for KITTI dataset segmentation and detection format (<https://github.com/openvinotoolkit/datumaro/pull/282>)
 - Updated YOLO format user manual (<https://github.com/openvinotoolkit/datumaro/pull/295>)
 - `ItemTransform` class, which describes item-wise dataset `Transform`s (<https://github.com/openvinotoolkit/datumaro/pull/297>)
+- `keep-empty` export parameter in VOC format (<https://github.com/openvinotoolkit/datumaro/pull/297>)
+- A base class for dataset validation plugins (<https://github.com/openvinotoolkit/datumaro/pull/299>)
 
 ### Changed
--
+- Tensorflow AVX check is made optional in API and is disabled by default (<https://github.com/openvinotoolkit/datumaro/pull/305>)
 
 ### Deprecated
 -
@@ -27,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Incorrect image layout on saving and a problem with ecoding on loading (<https://github.com/openvinotoolkit/datumaro/pull/284>)
 - An error when xpath fiter is applied to the dataset or its subset (<https://github.com/openvinotoolkit/datumaro/issues/259>)
 - Tracking of `Dataset` changes done by transforms (<https://github.com/openvinotoolkit/datumaro/pull/297>)
+- Improved CLI startup time in several cases (<https://github.com/openvinotoolkit/datumaro/pull/306>)
 
 ### Security
 -

@@ -79,6 +79,10 @@ class SourceExistsError(DatumaroError):
 class DatasetError(DatumaroError):
     item_id = attrib()
 
+class CategoriesRedefinedError(DatasetError):
+    def __str__(self):
+        return "Categories can only be set once for a dataset"
+
 @attrs
 class RepeatedItemError(DatasetError):
     def __str__(self):

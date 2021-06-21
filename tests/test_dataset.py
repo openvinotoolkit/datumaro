@@ -720,6 +720,256 @@ class DatasetTest(TestCase):
 
         compare_datasets(self, expected, dataset)
 
+    @mark_requirement(Requirements.DATUM_BUG_257)
+    def test_can_create_patch_when_transforms_chained(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(2),
+            DatasetItem(3, subset='a')
+        ])
+
+        class TestExtractor(Extractor):
+            iter_called = 0
+            def __iter__(self):
+                yield from [
+                    DatasetItem(1),
+                    DatasetItem(2),
+                ]
+
+                __class__.iter_called += 1
+
+        class Remove1(Transform):
+            iter_called = 0
+            def __iter__(self):
+                for item in self._extractor:
+                    if item.id != '1':
+                        yield item
+
+                __class__.iter_called += 1
+
+        class Add3(Transform):
+            iter_called = 0
+            def __iter__(self):
+                yield from self._extractor
+                yield DatasetItem(3, subset='a')
+
+                __class__.iter_called += 1
+
+        dataset = Dataset.from_extractors(TestExtractor())
+        dataset.transform(Remove1)
+        dataset.transform(Add3)
+
+        patch = dataset.patch
+
+        self.assertEqual({
+            ('1', DEFAULT_SUBSET_NAME): ItemStatus.removed,
+            ('2', DEFAULT_SUBSET_NAME): ItemStatus.modified,
+            ('3', 'a'): ItemStatus.added,
+        }, patch.updated_items)
+
+        self.assertEqual({
+            'default': ItemStatus.modified,
+            'a': ItemStatus.modified,
+        }, patch.updated_subsets)
+
+        self.assertEqual(2, len(patch.data))
+        self.assertEqual(None, patch.data.get(1))
+        self.assertEqual(dataset.get(2), patch.data.get(2))
+        self.assertEqual(dataset.get(3, 'a'), patch.data.get(3, 'a'))
+
+        self.assertEqual(TestExtractor.iter_called, 2) # 1 for items, 1 for list
+        self.assertEqual(Remove1.iter_called, 1)
+        self.assertEqual(Add3.iter_called, 1)
+
+        compare_datasets(self, expected, dataset)
+
+    @mark_requirement(Requirements.DATUM_BUG_257)
+    def test_can_create_patch_when_transforms_intermixed_with_direct_ops(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(3, subset='a'),
+            DatasetItem(4),
+            DatasetItem(5),
+        ])
+
+        class TestExtractor(Extractor):
+            iter_called = 0
+            def __iter__(self):
+                yield from [
+                    DatasetItem(1),
+                    DatasetItem(2),
+                ]
+
+                __class__.iter_called += 1
+
+        class Remove1(Transform):
+            iter_called = 0
+            def __iter__(self):
+                for item in self._extractor:
+                    if item.id != '1':
+                        yield item
+
+                __class__.iter_called += 1
+
+        class Add3(Transform):
+            iter_called = 0
+            def __iter__(self):
+                yield from self._extractor
+                yield DatasetItem(3, subset='a')
+
+                __class__.iter_called += 1
+
+        dataset = Dataset.from_extractors(TestExtractor())
+        dataset.init_cache()
+        dataset.put(DatasetItem(4))
+        dataset.transform(Remove1)
+        dataset.put(DatasetItem(5))
+        dataset.remove(2)
+        dataset.transform(Add3)
+
+        patch = dataset.patch
+
+        self.assertEqual({
+            ('1', DEFAULT_SUBSET_NAME): ItemStatus.removed,
+            ('2', DEFAULT_SUBSET_NAME): ItemStatus.removed,
+            ('3', 'a'): ItemStatus.added,
+            ('4', DEFAULT_SUBSET_NAME): ItemStatus.added,
+            ('5', DEFAULT_SUBSET_NAME): ItemStatus.added,
+        }, patch.updated_items)
+
+        self.assertEqual({
+            'default': ItemStatus.modified,
+            'a': ItemStatus.modified,
+        }, patch.updated_subsets)
+
+        self.assertEqual(3, len(patch.data))
+
+        self.assertEqual(None, patch.data.get(1))
+        self.assertEqual(None, patch.data.get(2))
+        self.assertEqual(dataset.get(3, 'a'), patch.data.get(3, 'a'))
+        self.assertEqual(dataset.get(4), patch.data.get(4))
+        self.assertEqual(dataset.get(5), patch.data.get(5))
+
+        self.assertEqual(TestExtractor.iter_called, 1)
+        self.assertEqual(Remove1.iter_called, 1)
+        self.assertEqual(Add3.iter_called, 1)
+
+        compare_datasets(self, expected, dataset)
+
+    @mark_requirement(Requirements.DATUM_BUG_257)
+    def test_can_create_patch_when_local_transforms_stacked(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(4),
+            DatasetItem(5),
+        ])
+
+        class TestExtractor(Extractor):
+            iter_called = 0
+            def __iter__(self):
+                yield from [
+                    DatasetItem(1),
+                    DatasetItem(2),
+                ]
+
+                __class__.iter_called += 1
+
+        class ShiftIds(ItemTransform):
+            def transform_item(self, item):
+                return item.wrap(id=int(item.id) + 1)
+
+        dataset = Dataset.from_extractors(TestExtractor())
+        dataset.remove(2)
+        dataset.transform(ShiftIds)
+        dataset.transform(ShiftIds)
+        dataset.transform(ShiftIds)
+        dataset.put(DatasetItem(5))
+
+        patch = dataset.patch
+
+        self.assertEqual({
+            ('1', DEFAULT_SUBSET_NAME): ItemStatus.removed,
+            ('2', DEFAULT_SUBSET_NAME): ItemStatus.removed,
+            ('4', DEFAULT_SUBSET_NAME): ItemStatus.added,
+            ('5', DEFAULT_SUBSET_NAME): ItemStatus.added,
+        }, patch.updated_items)
+
+        self.assertEqual({
+            'default': ItemStatus.modified,
+        }, patch.updated_subsets)
+
+        self.assertEqual(2, len(patch.data))
+
+        self.assertEqual(None, patch.data.get(1))
+        self.assertEqual(None, patch.data.get(2))
+        self.assertEqual(None, patch.data.get(3))
+        self.assertEqual(dataset.get(4), patch.data.get(4))
+        self.assertEqual(dataset.get(5), patch.data.get(5))
+
+        self.assertEqual(TestExtractor.iter_called, 1)
+
+        compare_datasets(self, expected, dataset)
+
+    @mark_requirement(Requirements.DATUM_BUG_257)
+    def test_can_create_patch_when_transforms_chained_and_source_cached(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(2),
+            DatasetItem(3, subset='a')
+        ])
+
+        class TestExtractor(Extractor):
+            iter_called = 0
+            def __iter__(self):
+                yield from [
+                    DatasetItem(1),
+                    DatasetItem(2),
+                ]
+
+                __class__.iter_called += 1
+
+        class Remove1(Transform):
+            iter_called = 0
+            def __iter__(self):
+                for item in self._extractor:
+                    if item.id != '1':
+                        yield item
+
+                __class__.iter_called += 1
+
+        class Add3(Transform):
+            iter_called = 0
+            def __iter__(self):
+                yield from self._extractor
+                yield DatasetItem(3, subset='a')
+
+                __class__.iter_called += 1
+
+        dataset = Dataset.from_extractors(TestExtractor())
+        dataset.init_cache()
+        dataset.transform(Remove1)
+        dataset.transform(Add3)
+
+        patch = dataset.patch
+
+        self.assertEqual({
+            ('1', DEFAULT_SUBSET_NAME): ItemStatus.removed,
+            ('2', DEFAULT_SUBSET_NAME): ItemStatus.modified, # TODO: remove this
+            ('3', 'a'): ItemStatus.added,
+        }, patch.updated_items)
+
+        self.assertEqual({
+            'default': ItemStatus.modified,
+            'a': ItemStatus.modified,
+        }, patch.updated_subsets)
+
+        self.assertEqual(2, len(patch.data))
+        self.assertEqual(None, patch.data.get(1))
+        self.assertEqual(dataset.get(2), patch.data.get(2))
+        self.assertEqual(dataset.get(3, 'a'), patch.data.get(3, 'a'))
+
+        self.assertEqual(TestExtractor.iter_called, 1) # 1 for items and list
+        self.assertEqual(Remove1.iter_called, 1)
+        self.assertEqual(Add3.iter_called, 1)
+
+        compare_datasets(self, expected, dataset)
+
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_do_lazy_put_and_remove(self):
         iter_called = False

@@ -19,7 +19,7 @@ from datumaro.components.operations import (compute_ann_statistics,
     compute_image_statistics)
 from datumaro.components.project import (ProjectBuildTargets,
     parse_target_revpath)
-from datumaro.components.validator import TaskType, validate_annotations
+from datumaro.components.validator import TaskType
 from datumaro.util import str_to_bool
 
 from ...util import (CliException, MultilineFormatter, add_subparser,
@@ -514,6 +514,14 @@ def info_command(args):
     return 0
 
 def build_validate_parser(parser_ctor=argparse.ArgumentParser):
+    def _parse_task_type(s):
+        try:
+            return TaskType[s.lower()].name
+        except:
+            raise argparse.ArgumentTypeError("Unknown task type %s. Expected "
+                "one of: %s" % (s, ', '.join(t.name for t in TaskType)))
+
+
     parser = parser_ctor(help="Validate project",
         description="""
             Validates a project according to the task type and
@@ -521,13 +529,13 @@ def build_validate_parser(parser_ctor=argparse.ArgumentParser):
         """,
         formatter_class=MultilineFormatter)
 
-    parser.add_argument('task_type',
-        choices=[task_type.name for task_type in TaskType],
-        help="Task type for validation")
     parser.add_argument('target', default='project', nargs='?',
         help="Project build target to validate (default: project)")
+    parser.add_argument('-t', '--task_type', type=_parse_task_type,
+        help="Task type for validation, one of %s" % \
+            ', '.join(t.name for t in TaskType))
     parser.add_argument('-s', '--subset', dest='subset_name', default=None,
-        help="Subset to validate (default: None)")
+        help="Subset to validate (default: whole dataset)")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to validate (default: current dir)")
     parser.add_argument('extra_args', nargs=argparse.REMAINDER, default=None,
@@ -539,19 +547,24 @@ def build_validate_parser(parser_ctor=argparse.ArgumentParser):
 def validate_command(args):
     rev, target = parse_target_revpath(args.target)
     project = load_project(args.project_dir)
-    task_type = args.task_type
-    subset_name = args.subset_name
-    dst_file_name = f'validation_results-{task_type}'
-
-    from datumaro.components.validator import _Validator
-    extra_args = _Validator.parse_cmdline(args.extra_args)
+    dst_file_name = f'report-{target}-{args.task_type}'
 
     dataset = project.get_rev(rev).make_dataset(target)
-    if subset_name is not None:
-        dataset = dataset.get_subset(subset_name)
-        dst_file_name += f'-{target}-{subset_name}'
+    if args.subset_name is not None:
+        dataset = dataset.get_subset(args.subset_name)
+        dst_file_name += f'-{args.subset_name}'
 
-    validation_results = validate_annotations(dataset, task_type, **extra_args)
+    try:
+        validator_type = project.env.validators[args.task_type]
+    except KeyError:
+        raise CliException("Validator type '%s' is not found" % args.task_type)
+
+    extra_args = {}
+    if hasattr(validator_type, 'parse_cmdline'):
+        extra_args = validator_type.parse_cmdline(args.extra_args)
+
+    validator = validator_type(**extra_args)
+    report = validator.validate(dataset)
 
     def numpy_encoder(obj):
         if isinstance(obj, np.generic):
@@ -566,12 +579,12 @@ def validate_command(args):
             if isinstance(val, dict):
                 _make_serializable(val)
 
-    _make_serializable(validation_results)
+    _make_serializable(report)
 
     dst_file = generate_next_file_name(dst_file_name, ext='.json')
     log.info("Writing project validation results to '%s'" % dst_file)
     with open(dst_file, 'w') as f:
-        json.dump(validation_results, f, indent=4, sort_keys=True,
+        json.dump(report, f, indent=4, sort_keys=True,
                   default=numpy_encoder)
 
 def build_parser(parser_ctor=argparse.ArgumentParser):
