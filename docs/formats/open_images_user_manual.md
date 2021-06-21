@@ -32,9 +32,12 @@ which can be downloaded from the following URLs:
 
 Datumaro expects at least one of the files above to be present.
 
-In addition, the following metadata files must be present as well:
+In addition, the following metadata file must be present as well:
 
 - [class descriptions](https://storage.googleapis.com/openimages/v6/oidv6-class-descriptions.csv)
+
+You can optionally download the following additional metadata file:
+
 - [class hierarchy](https://storage.googleapis.com/openimages/2018_04/bbox_labels_600_hierarchy.json)
 
 Annotations can be downloaded from the following URLs:

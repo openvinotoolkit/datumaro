@@ -100,8 +100,11 @@ class OpenImagesExtractor(Extractor):
         hierarchy_path = osp.join(
             self._dataset_dir, OpenImagesPath.ANNOTATIONS_DIR, 'bbox_labels_600_hierarchy.json')
 
-        with open(hierarchy_path, 'rb') as hierarchy_file:
-            root_node = json.load(hierarchy_file)
+        try:
+            with open(hierarchy_path, 'rb') as hierarchy_file:
+                root_node = json.load(hierarchy_file)
+        except FileNotFoundError:
+            return
 
         def set_parents_from_node(node, category):
             for child_node in node.get('Subcategory', []):

@@ -60,7 +60,10 @@ class OpenImagesImporterTest(TestCase):
                 DatasetItem(id='cc', subset='test', image=np.ones((10, 5, 3))),
             ],
             categories={
-                AnnotationType.label: LabelCategories(),
+                AnnotationType.label: LabelCategories.from_iterable([
+                    '/m/0',
+                    '/m/1',
+                ]),
             },
         )
 
