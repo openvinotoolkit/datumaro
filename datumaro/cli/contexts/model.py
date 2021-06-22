@@ -7,13 +7,14 @@ import logging as log
 import os
 import os.path as osp
 
-from datumaro.components.project import Environment, parse_target_revpath
+from datumaro.components.project import Environment
 from datumaro.util import error_rollback
 from datumaro.util.os_util import rmtree
 
-from ..util import CliException, MultilineFormatter, add_subparser
-from ..util.project import load_project, \
-    generate_next_name, generate_next_file_name
+from ..util import MultilineFormatter, add_subparser
+from ..util.errors import CliException
+from ..util.project import (load_project, parse_full_revpath,
+    generate_next_name, generate_next_file_name)
 
 
 def build_add_parser(parser_ctor=argparse.ArgumentParser):
@@ -134,9 +135,6 @@ def build_run_parser(parser_ctor=argparse.ArgumentParser):
     return parser
 
 def run_command(args):
-    rev, target = parse_target_revpath(args.target)
-    project = load_project(args.project_dir)
-
     dst_dir = args.dst_dir
     if dst_dir:
         if not args.overwrite and osp.isdir(dst_dir) and os.listdir(dst_dir):
@@ -146,9 +144,9 @@ def run_command(args):
         dst_dir = generate_next_file_name('%s-inference' % args.model_name)
     dst_dir = osp.abspath(dst_dir)
 
+    project = load_project(args.project_dir)
+    dataset = parse_full_revpath(args.target, project)
     model = project.make_model(args.model_name)
-
-    dataset = project.get_rev(rev).make_dataset(target)
     inference = dataset.run_model(model)
     inference.save(dst_dir)
 

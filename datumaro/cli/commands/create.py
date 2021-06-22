@@ -12,7 +12,8 @@ import os.path as osp
 from datumaro.components.project import Project
 from datumaro.util.os_util import rmtree
 
-from ..util import CliException, MultilineFormatter
+from ..util import MultilineFormatter
+from ..util.errors import CliException
 
 
 def build_parser(parser_ctor=argparse.ArgumentParser):
@@ -22,10 +23,10 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
             |n
             Examples:|n
             - Create a project in the current directory:|n
-            |s|screate -n myproject|n
+            |s|s%(prog)s -n myproject|n
             |n
             - Create a project in other directory:|n
-            |s|screate -o path/I/like/
+            |s|s%(prog)s -o path/I/like/
         """,
         formatter_class=MultilineFormatter)
 

@@ -9,7 +9,8 @@ import os
 from datumaro.components.project import Environment
 from datumaro.util import error_rollback
 
-from ..util import CliException, MultilineFormatter, add_subparser
+from ..util import MultilineFormatter, add_subparser
+from ..util.errors import CliException
 from ..util.project import generate_next_name, load_project
 
 

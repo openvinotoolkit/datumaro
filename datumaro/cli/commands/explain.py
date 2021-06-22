@@ -7,10 +7,9 @@ import logging as log
 import os
 import os.path as osp
 
-from datumaro.components.project import parse_target_revpath
 from datumaro.util.image import load_image, save_image, is_image
 from ..util import MultilineFormatter
-from ..util.project import load_project
+from ..util.project import load_project, parse_full_revpath
 
 
 def build_parser(parser_ctor=argparse.ArgumentParser):
@@ -37,13 +36,34 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         - RISE for classification|n
         - RISE for Object Detection|n
         |n
+        This command has the following syntax:|n
+        |s|s%(prog)s <image path or revpath>|n
+        |n
+        <image path> - a path to the file.|n
+        <revpath> - either a dataset path or a revision path. The full
+        syntax is:|n
+        - Dataset paths:|n
+        |s|s- <dataset path>[ :<format> ]|n
+        - Revision paths:|n
+        |s|s- <project path> [ @<rev> ] [ :<target> ]|n
+        |s|s- <rev> [ :<target> ]|n
+        |s|s- <target>|n
+        Parts can be enclosed in quotes.|n
+        |n
+        The current project (-p/--project) is used as a context for plugins
+        and models. It is used when there is a dataset path in target.
+        When not specified, the current project's working tree is used.|n
+        |n
         Examples:|n
         - Run RISE on an image, display results:|n
-        |s|s%(prog)s path/to/image.jpg -m mymodel rise --max-samples 50
+        |s|s%(prog)s path/to/image.jpg -m mymodel rise --max-samples 50|n
+        |n
+        - Run RISE on a source revision:|n
+        |s|s%(prog)s HEAD~1:source-1 -m model rise
         """, formatter_class=MultilineFormatter)
 
     parser.add_argument('target', nargs='?', default=None,
-        help="Inference target - image, source (default: project)")
+        help="Inference target - image, revpath (default: project)")
     parser.add_argument('-m', '--model', required=True,
         help="Model to use for inference")
     parser.add_argument('-o', '--output-dir', dest='save_dir', default=None,
@@ -147,16 +167,14 @@ def explain_command(args):
             cv2.waitKey(0)
 
     else:
-        rev, target = parse_target_revpath(args.target or 'project')
-        dataset = project.get_rev(rev).make_dataset(target)
-        log.info("Running inference explanation for '%s'" % target)
+        dataset = parse_full_revpath(args.target or 'project', project)
+        log.info("Running inference explanation for '%s'" % args.target)
 
         for item in dataset:
             image = item.image.data
             if image is None:
-                log.warning(
-                    "Dataset item %s does not have image data. Skipping." % \
-                    (item.id))
+                log.warning("Item %s does not have image data. Skipping.",
+                    item.id)
                 continue
 
             heatmap_iter = rise.apply(image)

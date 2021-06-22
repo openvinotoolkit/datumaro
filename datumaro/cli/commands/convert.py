@@ -11,7 +11,8 @@ from datumaro.components.project import Environment
 from datumaro.components.dataset import Dataset
 
 from ..contexts.project import FilterModes
-from ..util import CliException, MultilineFormatter, make_file_name
+from ..util import MultilineFormatter, make_file_name
+from ..util.errors import CliException
 from ..util.project import generate_next_file_name
 
 
@@ -24,17 +25,17 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
             Converts a dataset from one format to another.
             You can add your own formats using a project.|n
             |n
-            Supported input formats: %s|n
+            Supported input formats: {}|n
             |n
-            Supported output formats: %s|n
+            Supported output formats: {}|n
             |n
             Examples:|n
             - Export a dataset as a PASCAL VOC dataset, include images:|n
-            |s|sconvert -i src/path -f voc -- --save-images|n
+            |s|s%(prog)s -i src/path -f voc -- --save-images|n
             |n
             - Export a dataset as a COCO dataset to a specific directory:|n
-            |s|sconvert -i src/path -f coco -o path/I/like/
-        """ % (', '.join(builtin_importers), ', '.join(builtin_converters)),
+            |s|s%(prog)s -i src/path -f coco -o path/I/like/
+        """.format(', '.join(builtin_importers), ', '.join(builtin_converters)),
         formatter_class=MultilineFormatter)
 
     parser.add_argument('-i', '--input-path', default='.', dest='source',

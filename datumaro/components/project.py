@@ -2333,15 +2333,3 @@ class Project:
         data_dir = self.model_data_dir(name)
         if osp.isdir(data_dir):
             rmtree(data_dir)
-
-
-def parse_target_revpath(revpath: str):
-    sep_pos = revpath.find(':')
-    if -1 < sep_pos:
-        rev = revpath[:sep_pos]
-        target = revpath[sep_pos + 1:]
-    else:
-        rev = ''
-        target = revpath
-
-    return rev, target

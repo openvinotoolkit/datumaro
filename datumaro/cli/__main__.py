@@ -9,7 +9,8 @@ import os.path as osp
 import sys
 
 from . import contexts, commands
-from .util import CliException, add_subparser
+from .util import add_subparser
+from .util.errors import CliException
 from ..version import VERSION
 
 

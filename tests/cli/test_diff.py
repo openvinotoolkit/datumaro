@@ -4,13 +4,9 @@ import os.path as osp
 
 import numpy as np
 
-from datumaro.cli.commands.diff import WrongRevspecError, parse_revspec
 from datumaro.cli.contexts.project.diff import DatasetDiffVisualizer
-from datumaro.components.errors import (MultipleFormatsMatchError,
-    ProjectNotFoundError, UnknownTargetError)
-from datumaro.components.dataset import DEFAULT_FORMAT, IDataset
 from datumaro.components.operations import DistanceComparator
-from datumaro.components.project import Dataset, Project
+from datumaro.components.project import Dataset
 from datumaro.components.extractor import (DatasetItem,
     AnnotationType, Label, Mask, Points, Polygon,
     PolyLine, Bbox, Caption,
@@ -128,74 +124,6 @@ class DiffTest(TestCase):
             self.assertNotEqual(0, os.listdir(osp.join(test_dir)))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_parse_revspec(self):
-        with TestDir() as test_dir:
-            dataset_url = osp.join(test_dir, 'source')
-            dataset = Dataset.from_iterable([DatasetItem(1)])
-            dataset.save(dataset_url)
-
-            proj_dir = osp.join(test_dir, 'proj')
-            proj = Project.init(proj_dir)
-            proj.import_source('source-1', dataset_url, format=DEFAULT_FORMAT)
-            ref = proj.commit("second commit", allow_empty=True)
-
-
-            with self.subTest("project"):
-                self.assertTrue(isinstance(parse_revspec(proj_dir, None),
-                    IDataset))
-
-            with self.subTest("project ref"):
-                self.assertTrue(isinstance(
-                    parse_revspec(proj_dir + "@" + ref, None),
-                    IDataset))
-
-            with self.subTest("project ref source"):
-                self.assertTrue(isinstance(
-                    parse_revspec(proj_dir + "@" + ref + ":source-1", None),
-                    IDataset))
-
-            with self.subTest("ref"):
-                self.assertTrue(isinstance(
-                    parse_revspec(ref, proj),
-                    IDataset))
-
-            with self.subTest("ref source"):
-                self.assertTrue(isinstance(
-                    parse_revspec(ref + ":source-1", proj),
-                    IDataset))
-
-            with self.subTest("source"):
-                self.assertTrue(isinstance(
-                    parse_revspec("source-1", proj),
-                    IDataset))
-
-            with self.subTest("dataset (in context)"):
-                with self.assertRaises(WrongRevspecError) as cm:
-                    parse_revspec(dataset_url, proj)
-                self.assertEqual(
-                    {UnknownTargetError, MultipleFormatsMatchError},
-                    set(type(e) for e in cm.exception.problems)
-                )
-
-            with self.subTest("dataset format (in context)"):
-                self.assertTrue(isinstance(
-                    parse_revspec(dataset_url + ":datumaro", proj),
-                    IDataset))
-
-            with self.subTest("dataset (no context)"):
-                with self.assertRaises(WrongRevspecError) as cm:
-                    parse_revspec(dataset_url, None)
-                self.assertEqual(
-                    {ProjectNotFoundError, MultipleFormatsMatchError},
-                    set(type(e) for e in cm.exception.problems)
-                )
-
-            with self.subTest("dataset format (no context)"):
-                self.assertTrue(isinstance(
-                    parse_revspec(dataset_url + ":datumaro", None),
-                    IDataset))
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_run_distance_diff(self):
         dataset1 = Dataset.from_iterable([
             DatasetItem(id=100, subset='train', image=np.ones((10, 6, 3)),
@@ -223,8 +151,8 @@ class DiffTest(TestCase):
             run(self, 'diff', dataset1_url + ':coco', dataset2_url + ':voc',
                 '-m', 'distance', '-o', result_dir)
 
-            self.assertEqual(['bbox_confusion.png', 'train'],
-                os.listdir(result_dir))
+            self.assertEqual({'bbox_confusion.png', 'train'},
+                set(os.listdir(result_dir)))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_run_equality_diff(self):
@@ -254,4 +182,4 @@ class DiffTest(TestCase):
             run(self, 'diff', dataset1_url + ':coco', dataset2_url + ':voc',
                 '-m', 'equality', '-o', result_dir)
 
-            self.assertEqual(['diff.json'], os.listdir(result_dir))
+            self.assertEqual({'diff.json'}, set(os.listdir(result_dir)))
