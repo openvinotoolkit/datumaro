@@ -332,6 +332,9 @@ class IntersectMerge(MergingStrategy):
     def _merge_point_categories(self, sources, label_cat):
         dst_point_cat = PointsCategories()
 
+        if all(AnnotationType.points not in cats for cats in sources):
+            return None
+
         for src_id, src_categories in enumerate(sources):
             src_label_cat = src_categories.get(AnnotationType.label)
             src_point_cat = src_categories.get(AnnotationType.points)
@@ -361,6 +364,9 @@ class IntersectMerge(MergingStrategy):
 
     def _merge_mask_categories(self, sources, label_cat):
         dst_mask_cat = MaskCategories()
+
+        if all(AnnotationType.mask not in cats for cats in sources):
+            return None
 
         for src_id, src_categories in enumerate(sources):
             src_label_cat = src_categories.get(AnnotationType.label)
