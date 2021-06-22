@@ -6,6 +6,7 @@ import json
 import logging as log
 import os
 import os.path as osp
+import re
 import shutil
 import tempfile
 import unittest.mock
@@ -1848,10 +1849,16 @@ class Project:
             raise ValueError("Unexpected object type '%s'" % obj_type)
 
     def validate_source_name(self, name: str):
+        disallowed_symbols = r"[^\\\ \.\~\-\_\w\d]"
+        found_wrong_symbols = re.findall(disallowed_symbols, name)
+        if found_wrong_symbols:
+            raise ValueError("Source name contains invalid symbols: %s" %
+                found_wrong_symbols)
+
         valid_filename = make_file_name(name)
         if valid_filename != name:
             raise ValueError("Source name contains "
-                "prohibited symbols: %s" % (set(name) - set(valid_filename)) )
+                "invalid symbols: %s" % (set(name) - set(valid_filename)) )
 
         if name.startswith('.'):
             raise ValueError("Source name can't start with '.'")
