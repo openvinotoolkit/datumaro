@@ -31,7 +31,7 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
             Examples:|n
             - Add an OpenVINO model into a project:|n
             |s|s%(prog)s -l openvino -- -d model.xml -w model.bin -i parse_outs.py
-        """ % ', '.join(builtins),
+        """.format(', '.join(builtins)),
         formatter_class=MultilineFormatter)
 
     parser.add_argument('-n', '--name', default=None,
