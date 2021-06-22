@@ -6,8 +6,8 @@ import numpy as np
 
 from datumaro.cli.commands.diff import WrongRevspecError, parse_revspec
 from datumaro.cli.contexts.project.diff import DatasetDiffVisualizer
-from datumaro.components.errors import MultipleFormatsMatchError, \
-    UnknownTargetError
+from datumaro.components.errors import (MultipleFormatsMatchError,
+    ProjectNotFoundError, UnknownTargetError)
 from datumaro.components.dataset import DEFAULT_FORMAT, IDataset
 from datumaro.components.operations import DistanceComparator
 from datumaro.components.project import Dataset, Project
@@ -17,7 +17,7 @@ from datumaro.components.extractor import (DatasetItem,
     LabelCategories, MaskCategories, PointsCategories
 )
 from datumaro.util.image import Image
-from datumaro.util.test_utils import TestDir
+from datumaro.util.test_utils import TestDir, run_datum as run
 from ..requirements import Requirements, mark_requirement
 
 
@@ -127,6 +127,7 @@ class DiffTest(TestCase):
 
             self.assertNotEqual(0, os.listdir(osp.join(test_dir)))
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_parse_revspec(self):
         with TestDir() as test_dir:
             dataset_url = osp.join(test_dir, 'source')
@@ -185,7 +186,7 @@ class DiffTest(TestCase):
                 with self.assertRaises(WrongRevspecError) as cm:
                     parse_revspec(dataset_url, None)
                 self.assertEqual(
-                    {FileNotFoundError, MultipleFormatsMatchError},
+                    {ProjectNotFoundError, MultipleFormatsMatchError},
                     set(type(e) for e in cm.exception.problems)
                 )
 
@@ -193,3 +194,64 @@ class DiffTest(TestCase):
                 self.assertTrue(isinstance(
                     parse_revspec(dataset_url + ":datumaro", None),
                     IDataset))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_run_distance_diff(self):
+        dataset1 = Dataset.from_iterable([
+            DatasetItem(id=100, subset='train', image=np.ones((10, 6, 3)),
+                annotations=[
+                    Bbox(1, 2, 3, 4, label=0),
+                ]),
+        ], categories=['a', 'b'])
+
+        dataset2 = Dataset.from_iterable([
+            DatasetItem(id=100, subset='train', image=np.ones((10, 6, 3)),
+                annotations=[
+                    Bbox(1, 2, 3, 4, label=1),
+                    Bbox(5, 6, 7, 8, label=2),
+                ]),
+        ], categories=['a', 'b', 'c'])
+
+        with TestDir() as test_dir:
+            dataset1_url = osp.join(test_dir, 'dataset1')
+            dataset2_url = osp.join(test_dir, 'dataset2')
+
+            dataset1.export(dataset1_url, 'coco', save_images=True)
+            dataset2.export(dataset2_url, 'voc', save_images=True)
+
+            result_dir = osp.join(test_dir, 'cmp_result')
+            run(self, 'diff', dataset1_url + ':coco', dataset2_url + ':voc',
+                '-m', 'distance', '-o', result_dir)
+
+            self.assertEqual(['bbox_confusion.png', 'train'],
+                os.listdir(result_dir))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_run_equality_diff(self):
+        dataset1 = Dataset.from_iterable([
+            DatasetItem(id=100, subset='train', image=np.ones((10, 6, 3)),
+                annotations=[
+                    Bbox(1, 2, 3, 4, label=0),
+                ]),
+        ], categories=['a', 'b'])
+
+        dataset2 = Dataset.from_iterable([
+            DatasetItem(id=100, subset='train', image=np.ones((10, 6, 3)),
+                annotations=[
+                    Bbox(1, 2, 3, 4, label=1),
+                    Bbox(5, 6, 7, 8, label=2),
+                ]),
+        ], categories=['a', 'b', 'c'])
+
+        with TestDir() as test_dir:
+            dataset1_url = osp.join(test_dir, 'dataset1')
+            dataset2_url = osp.join(test_dir, 'dataset2')
+
+            dataset1.export(dataset1_url, 'coco', save_images=True)
+            dataset2.export(dataset2_url, 'voc', save_images=True)
+
+            result_dir = osp.join(test_dir, 'cmp_result')
+            run(self, 'diff', dataset1_url + ':coco', dataset2_url + ':voc',
+                '-m', 'equality', '-o', result_dir)
+
+            self.assertEqual(['diff.json'], os.listdir(result_dir))

@@ -6,6 +6,7 @@ from collections import OrderedDict
 from copy import deepcopy
 import hashlib
 import logging as log
+from typing import Callable
 
 import attr
 import cv2
@@ -22,7 +23,7 @@ from datumaro.components.errors import (DatasetMergeError, FailedAttrVotingError
     FailedLabelVotingError, ConflictingCategoriesError,
     MismatchingImageInfoError, NoMatchingAnnError,
     NoMatchingItemError, AnnotationsTooCloseError, WrongGroupError)
-from datumaro.components.dataset import Dataset, DatasetItemStorage
+from datumaro.components.dataset import Dataset, DatasetItemStorage, IDataset
 from datumaro.util.attrs_util import ensure_cls, default_if_none
 from datumaro.util.annotation_util import (segment_iou, bbox_iou,
     mean_bbox, OKS, find_instances, max_bbox, smooth_line)
@@ -1257,7 +1258,7 @@ class DistanceComparator:
         return match_segments(a_lines, b_lines,
             dist_thresh=self.iou_threshold, distance=matcher.distance)
 
-def match_items_by_id(a, b):
+def match_items_by_id(a: IDataset, b: IDataset):
     a_items = set((item.id, item.subset) for item in a)
     b_items = set((item.id, item.subset) for item in b)
 
@@ -1267,7 +1268,7 @@ def match_items_by_id(a, b):
     b_unmatched = b_items - a_items
     return matches, a_unmatched, b_unmatched
 
-def match_items_by_image_hash(a, b):
+def match_items_by_image_hash(a: IDataset, b: IDataset):
     a_hash = find_unique_images(a)
     b_hash = find_unique_images(b)
 
@@ -1284,7 +1285,7 @@ def match_items_by_image_hash(a, b):
 
     return matches, a_unmatched, b_unmatched
 
-def find_unique_images(dataset, item_hash=None):
+def find_unique_images(dataset: IDataset, item_hash: Callable = None):
     def _default_hash(item):
         if not item.image or not item.image.has_data:
             if item.image and item.image.path:

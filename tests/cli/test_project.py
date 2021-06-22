@@ -1,17 +1,13 @@
-import numpy as np
+from unittest import TestCase
 import os.path as osp
 import shutil
 
-from unittest import TestCase
+import numpy as np
 
 from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import Bbox, DatasetItem
-from datumaro.cli.__main__ import main
-from datumaro.util.test_utils import TestDir, compare_datasets
+from datumaro.util.test_utils import TestDir, compare_datasets, run_datum as run
 
-
-def run(test, *args, expected_code=0):
-    test.assertEqual(expected_code, main(args), str(args))
 
 class ProjectIntegrationScenarios(TestCase):
     def test_can_convert_voc_as_coco(self):

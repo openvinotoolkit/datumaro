@@ -8,7 +8,7 @@ from . import (
     create, add, remove,
     explain,
     export, merge, convert, transform, filter,
-    diff, ediff, stats,
+    diff, stats,
     commit, checkout, log, status,
     info, validate
 )
