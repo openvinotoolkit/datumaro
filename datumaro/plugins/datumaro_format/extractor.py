@@ -151,4 +151,5 @@ class DatumaroExtractor(SourceExtractor):
 class DatumaroImporter(Importer):
     @classmethod
     def find_sources(cls, path):
-        return cls._find_sources_recursive(path, '.json', 'datumaro')
+        return cls._find_sources_recursive(path, '.json', 'datumaro',
+            dirname='annotations')
