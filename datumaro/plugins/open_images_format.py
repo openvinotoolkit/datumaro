@@ -17,9 +17,8 @@ from datumaro.components.errors import DatasetError, RepeatedItemError, Undefine
 from datumaro.components.extractor import (
     AnnotationType, DatasetItem, Importer, Label, LabelCategories, Extractor,
 )
-
-# image IDs in Open Images are always hexadecimal numbers
-_RE_IMAGE_ID = re.compile(r'[0-9a-fA-F]+')
+from datumaro.components.validator import Severity
+from datumaro.util.image import find_images
 
 # A regex to check whether a subset name can be used as a "normal" path
 # component.
@@ -119,14 +118,19 @@ class OpenImagesExtractor(Extractor):
         set_parents_from_node(root_node, root_category)
 
     def _load_items(self):
+        image_paths_by_id = {
+            osp.splitext(osp.basename(path))[0]: path
+            for path in find_images(
+                osp.join(self._dataset_dir, 'images'),
+                recursive=True, max_depth=1)
+        }
+
         items_by_id = {}
 
         def load_from(annotation_name):
             with self._open_csv_annotation(annotation_name) as image_reader:
                 for image_description in image_reader:
                     image_id = image_description['ImageID']
-                    assert _RE_IMAGE_ID.fullmatch(image_id)
-
                     if image_id in items_by_id:
                         raise RepeatedItemError(item_id=image_id)
 
@@ -137,7 +141,7 @@ class OpenImagesExtractor(Extractor):
 
                     items_by_id[image_id] = DatasetItem(
                         id=image_id,
-                        image=osp.join(self._dataset_dir, f'images/{subset}/{image_id}.jpg'),
+                        image=image_paths_by_id.get(image_id),
                         subset=subset,
                     )
 
