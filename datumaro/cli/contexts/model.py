@@ -26,7 +26,11 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
             a launcher to be executed. Each launcher has its own options, which
             are passed after '--' separator, pass '-- -h' for more info.
             |n
-            List of builtin launchers: %s
+            List of builtin launchers: {}|n
+            |n
+            Examples:|n
+            - Add an OpenVINO model into a project:|n
+            |s|s%(prog)s -l openvino -- -d model.xml -w model.bin -i parse_outs.py
         """ % ', '.join(builtins),
         formatter_class=MultilineFormatter)
 

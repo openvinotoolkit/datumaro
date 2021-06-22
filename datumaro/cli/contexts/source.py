@@ -36,17 +36,17 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
             Check plugin section of developer guide for information about
             plugin implementation.|n
             |n
-            Builtin formats: %s|n
+            Builtin formats: {}|n
             |n
             Examples:|n
             - Add a local directory with a VOC-like dataset:|n
-            |s|sadd -f voc path/to/voc|n
+            |s|s%(prog)s -f voc path/to/voc|n
             - Add a directory with a COCO dataset, use only a specific file:|n
-            |s|sadd -f coco_instances path/to/voc -r anns/train.json|n
+            |s|s%(prog)s -f coco_instances path/to/voc -r anns/train.json|n
             - Add a local file with CVAT annotations, call it 'mysource'|n
             |s|s|s|sto the project in a specific place:|n
-            |s|sadd -f cvat -n mysource -p project/path/ path/to/cvat.xml
-        """ % ', '.join(builtins),
+            |s|s%(prog)s -f cvat -n mysource -p project/path/ path/to/cvat.xml
+        """.format(', '.join(builtins)),
         formatter_class=MultilineFormatter)
     parser.add_argument('url',
         help="URL to the source dataset")
