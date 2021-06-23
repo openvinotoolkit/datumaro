@@ -100,7 +100,7 @@ class _TaskConverter:
                 ann['id'] = next_id
                 next_id += 1
 
-        with open(path, 'w') as outfile:
+        with open(path, 'w', encoding='utf-8') as outfile:
             json.dump(self._data, outfile, ensure_ascii=False)
 
     @property
