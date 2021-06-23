@@ -718,7 +718,7 @@ class CocoConverterTest(TestCase):
             self._test_save_and_load(expected_dataset,
                 CocoImageInfoConverter.convert, test_dir)
 
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @mark_requirement(Requirements.DATUM_231)
     def test_can_save_dataset_with_cjk_categories(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train', image=np.ones((4, 4, 3)),

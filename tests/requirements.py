@@ -18,6 +18,7 @@ class Requirements:
 
     # GitHub issues (not bugs)
     # https://github.com/openvinotoolkit/datumaro/issues
+    DATUM_231 = "Readable formats for CJK"
     DATUM_244 = "Add Snyk integration"
     DATUM_267 = "Add Image zip format"
     DATUM_280 = "Support KITTI dataset formats"
