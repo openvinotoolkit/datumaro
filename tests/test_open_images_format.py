@@ -16,13 +16,12 @@ from tests.requirements import Requirements, mark_requirement
 
 ASSETS_DIR = osp.join(osp.dirname(__file__), 'assets')
 
-DUMMY_DATASET_DIR = osp.join(ASSETS_DIR, 'open_images_dataset')
-DUMMY_DATASET_DIR_WITH_SPLIT_IMAGE_CSV = \
-    osp.join(ASSETS_DIR, 'open_images_dataset_with_split_image_csv')
+DUMMY_DATASET_DIR_V6 = osp.join(ASSETS_DIR, 'open_images_dataset_v6')
+DUMMY_DATASET_DIR_V5 = osp.join(ASSETS_DIR, 'open_images_dataset_v5')
 
 class OpenImagesImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_import(self):
+    def test_can_import_v6(self):
         expected_dataset = Dataset.from_iterable(
             [
                 DatasetItem(id='a', subset='train', image=np.zeros((8, 6, 3)),
@@ -51,12 +50,12 @@ class OpenImagesImporterTest(TestCase):
             },
         )
 
-        dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'open_images')
+        dataset = Dataset.import_from(DUMMY_DATASET_DIR_V6, 'open_images')
 
         compare_datasets_strict(self, expected_dataset, dataset)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_import_with_split_image_csv(self):
+    def test_can_import_v5(self):
         expected_dataset = Dataset.from_iterable(
             [
                 DatasetItem(id='aa', subset='train', image=np.zeros((8, 6, 3))),
@@ -70,11 +69,11 @@ class OpenImagesImporterTest(TestCase):
             },
         )
 
-        dataset = Dataset.import_from(DUMMY_DATASET_DIR_WITH_SPLIT_IMAGE_CSV, 'open_images')
+        dataset = Dataset.import_from(DUMMY_DATASET_DIR_V5, 'open_images')
 
         compare_datasets_strict(self, expected_dataset, dataset)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect(self):
-        self.assertTrue(OpenImagesImporter.detect(DUMMY_DATASET_DIR))
-        self.assertTrue(OpenImagesImporter.detect(DUMMY_DATASET_DIR_WITH_SPLIT_IMAGE_CSV))
+        self.assertTrue(OpenImagesImporter.detect(DUMMY_DATASET_DIR_V6))
+        self.assertTrue(OpenImagesImporter.detect(DUMMY_DATASET_DIR_V5))

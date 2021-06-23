@@ -85,9 +85,28 @@ class OpenImagesExtractor(Extractor):
     def _load_categories(self):
         label_categories = LabelCategories()
 
-        with self._open_csv_annotation('oidv6-class-descriptions.csv') as class_description_reader:
+        # In OID v6, the class description file is prefixed with `oidv6-`, whereas
+        # in the previous versions, it isn't. We try to find it regardless.
+        # We use a wildcard so that if, say, OID v7 is released in the future with
+        # a similar layout as v6, it's automatically supported.
+        # If the file doesn't exist with either name, we'll fail trying to open
+        # `class-descriptions.csv`.
+
+        V5_CLASS_DESCRIPTIONS = 'class-descriptions.csv'
+
+        annotation_name = [
+            *self._glob_annotations('oidv*-class-descriptions.csv'),
+            V5_CLASS_DESCRIPTIONS,
+        ][0]
+
+        with self._open_csv_annotation(annotation_name) as class_description_reader:
+            # Prior to OID v6, this file didn't contain a header row.
+            if annotation_name == V5_CLASS_DESCRIPTIONS:
+                class_description_reader.fieldnames = ('LabelName', 'DisplayName')
+
             for class_description in class_description_reader:
-                label_categories.add(class_description['LabelName'])
+                label_name = class_description['LabelName']
+                label_categories.add(label_name)
 
         self._categories[AnnotationType.label] = label_categories
 

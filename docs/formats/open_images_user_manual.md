@@ -12,6 +12,7 @@
 
 A description of the Open Images Dataset (OID) format is available
 on [its website](https://storage.googleapis.com/openimages/web/download.html).
+Datumaro supports versions 4, 5 and 6.
 
 Datumaro currently supports only the human-verified image-level label annotations from this dataset.
 
