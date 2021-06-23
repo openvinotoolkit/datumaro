@@ -101,7 +101,7 @@ class _TaskConverter:
                 next_id += 1
 
         with open(path, 'w', encoding='utf-8') as outfile:
-            json.dump(self._data, outfile)
+            json.dump(self._data, outfile, ensure_ascii=False)
 
     @property
     def annotations(self):
@@ -462,7 +462,7 @@ class _StuffConverter(_InstancesConverter):
 class _PanopticConverter(_TaskConverter):
     def write(self, path):
         with open(path, 'w', encoding='utf-8') as outfile:
-            json.dump(self._data, outfile)
+            json.dump(self._data, outfile, ensure_ascii=False)
 
     def save_categories(self, dataset):
         label_categories = dataset.categories().get(AnnotationType.label)
