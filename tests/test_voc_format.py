@@ -1,13 +1,13 @@
 from collections import OrderedDict
 from functools import partial
-import numpy as np
+from unittest import TestCase
 import os
 import os.path as osp
 
-from unittest import TestCase
+import numpy as np
 
 from datumaro.components.extractor import (Extractor, DatasetItem,
-    AnnotationType, Label, Bbox, Mask, LabelCategories,
+    AnnotationType, Label, Bbox, Mask, LabelCategories, MaskCategories,
 )
 import datumaro.plugins.voc_format.format as VOC
 from datumaro.plugins.voc_format.converter import (
@@ -980,45 +980,126 @@ class VocConverterTest(TestCase):
                 target_dataset=DstExtractor())
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_inplace_save_writes_only_updated_data(self):
+    def test_inplace_save_writes_only_updated_data_with_direct_changes(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(1, subset='a', image=np.ones((1, 2, 3)),
+                annotations=[
+                    # Bbox(0, 0, 0, 0, label=1) # won't find removed anns
+                ]),
+
+            DatasetItem(2, subset='b', image=np.ones((3, 2, 3)),
+                annotations=[
+                    Bbox(0, 0, 0, 0, label=4, id=1, group=1, attributes={
+                        'truncated': False,
+                        'difficult': False,
+                        'occluded': False,
+                    })
+                ]),
+        ], categories={
+            AnnotationType.label: LabelCategories.from_iterable(
+                ['background', 'a', 'b', 'c', 'd']),
+            AnnotationType.mask: MaskCategories(
+                colormap=VOC.generate_colormap(5)),
+        })
+
+        dataset = Dataset.from_iterable([
+            DatasetItem(1, subset='a', image=np.ones((1, 2, 3)),
+                annotations=[Bbox(0, 0, 0, 0, label=1)]),
+            DatasetItem(2, subset='b',
+                annotations=[Bbox(0, 0, 0, 0, label=2)]),
+            DatasetItem(3, subset='c', image=np.ones((2, 2, 3)),
+                annotations=[
+                    Bbox(0, 0, 0, 0, label=3),
+                    Mask(np.ones((2, 2)), label=1)
+                ]),
+        ], categories=['a', 'b', 'c', 'd'])
+
         with TestDir() as path:
-            # generate initial dataset
-            dataset = Dataset.from_iterable([
-                DatasetItem(1, subset='a',
-                    annotations=[Bbox(0, 0, 0, 0, label=1)]),
-                DatasetItem(2, subset='b',
-                    annotations=[Bbox(0, 0, 0, 0, label=2)]),
-                DatasetItem(3, subset='c', image=np.ones((2, 2, 3)),
-                    annotations=[
-                        Bbox(0, 0, 0, 0, label=3),
-                        Mask(np.ones((2, 2)), label=1)
-                    ]),
-            ], categories=['a', 'b', 'c', 'd'])
             dataset.export(path, 'voc', save_images=True)
             os.unlink(osp.join(path, 'Annotations', '1.xml'))
             os.unlink(osp.join(path, 'Annotations', '2.xml'))
             os.unlink(osp.join(path, 'Annotations', '3.xml'))
-            self.assertFalse(osp.isfile(osp.join(path, 'JPEGImages', '2.jpg')))
-            self.assertTrue(osp.isfile(osp.join(path, 'JPEGImages', '3.jpg')))
-            self.assertTrue(osp.isfile(
-                osp.join(path, 'SegmentationObject', '3.png')))
-            self.assertTrue(osp.isfile(
-                osp.join(path, 'SegmentationClass', '3.png')))
 
             dataset.put(DatasetItem(2, subset='b', image=np.ones((3, 2, 3)),
                 annotations=[Bbox(0, 0, 0, 0, label=3)]))
             dataset.remove(3, 'c')
             dataset.save(save_images=True)
 
-            self.assertFalse(osp.isfile(osp.join(path, 'Annotations', '1.xml')))
-            self.assertTrue(osp.isfile(osp.join(path, 'Annotations', '2.xml')))
-            self.assertFalse(osp.isfile(osp.join(path, 'Annotations', '3.xml')))
-            self.assertTrue(osp.isfile(osp.join(path, 'JPEGImages', '2.jpg')))
-            self.assertFalse(osp.isfile(osp.join(path, 'JPEGImages', '3.jpg')))
-            self.assertFalse(osp.isfile(
-                osp.join(path, 'SegmentationObject', '3.png')))
-            self.assertFalse(osp.isfile(
-                osp.join(path, 'SegmentationClass', '3.png')))
+            self.assertEqual({'2.xml'}, # '1.xml' won't be touched
+                set(os.listdir(osp.join(path, 'Annotations'))))
+            self.assertEqual({'1.jpg', '2.jpg'},
+                set(os.listdir(osp.join(path, 'JPEGImages'))))
+            self.assertEqual({'a.txt', 'b.txt'},
+                set(os.listdir(osp.join(path, 'ImageSets', 'Main'))))
+            compare_datasets(self, expected, Dataset.import_from(path, 'voc'),
+                require_images=True)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_inplace_save_writes_only_updated_data_with_transforms(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(3, subset='test', image=np.ones((2, 3, 3)),
+                annotations=[
+                    Bbox(0, 1, 0, 0, label=4, id=1, group=1, attributes={
+                        'truncated': False,
+                        'difficult': False,
+                        'occluded': False,
+                    })
+                ]),
+            DatasetItem(4, subset='train', image=np.ones((2, 4, 3)),
+                annotations=[
+                    Bbox(1, 0, 0, 0, label=4, id=1, group=1, attributes={
+                        'truncated': False,
+                        'difficult': False,
+                        'occluded': False,
+                    }),
+                    Mask(np.ones((2, 2)), label=2, group=1),
+                ]),
+        ], categories={
+            AnnotationType.label: LabelCategories.from_iterable(
+                ['background', 'a', 'b', 'c', 'd']),
+            AnnotationType.mask: MaskCategories(
+                colormap=VOC.generate_colormap(5)),
+        })
+
+        dataset = Dataset.from_iterable([
+            DatasetItem(1, subset='a', image=np.ones((2, 1, 3)),
+                annotations=[ Bbox(0, 0, 0, 1, label=1) ]),
+            DatasetItem(2, subset='b', image=np.ones((2, 2, 3)),
+                annotations=[
+                    Bbox(0, 0, 1, 0, label=2),
+                    Mask(np.ones((2, 2)), label=1),
+                ]),
+            DatasetItem(3, subset='b', image=np.ones((2, 3, 3)),
+                annotations=[ Bbox(0, 1, 0, 0, label=3) ]),
+            DatasetItem(4, subset='c', image=np.ones((2, 4, 3)),
+                annotations=[
+                    Bbox(1, 0, 0, 0, label=3),
+                    Mask(np.ones((2, 2)), label=1)
+                ]),
+        ], categories=['a', 'b', 'c', 'd'])
+
+        with TestDir() as path:
+            dataset.export(path, 'voc', save_images=True)
+
+            dataset.filter('/item[id >= 3]')
+            dataset.transform('random_split', (('train', 0.5), ('test', 0.5)),
+                seed=42)
+            dataset.save(save_images=True)
+
+            self.assertEqual({'3.xml', '4.xml'},
+                set(os.listdir(osp.join(path, 'Annotations'))))
+            self.assertEqual({'3.jpg', '4.jpg'},
+                set(os.listdir(osp.join(path, 'JPEGImages'))))
+            self.assertEqual({'4.png'},
+                set(os.listdir(osp.join(path, 'SegmentationClass'))))
+            self.assertEqual({'4.png'},
+                set(os.listdir(osp.join(path, 'SegmentationObject'))))
+            self.assertEqual({'train.txt', 'test.txt'},
+                set(os.listdir(osp.join(path, 'ImageSets', 'Main'))))
+            self.assertEqual({'train.txt'},
+                set(os.listdir(osp.join(path, 'ImageSets', 'Segmentation'))))
+            compare_datasets(self, expected, Dataset.import_from(path, 'voc'),
+                require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_no_data_images(self):

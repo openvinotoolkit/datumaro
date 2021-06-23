@@ -4,6 +4,8 @@
 # SPDX-License-Identifier: MIT
 
 
+enable_tf_check = False
+
 def check_import():
     # Workaround for checking import availability:
     # Official TF builds include AVX instructions. Once we try to import,
@@ -32,7 +34,7 @@ def check_import():
 
         raise ImportError(message)
 
-def import_tf(check=True):
+def import_tf(check=None):
     import sys
 
     not_found = object()
@@ -45,6 +47,9 @@ def import_tf(check=True):
     # Reduce output noise, https://stackoverflow.com/questions/38073432/how-to-suppress-verbose-tensorflow-logging
     import os
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+
+    if check is None:
+        check = enable_tf_check
 
     if check:
         try:

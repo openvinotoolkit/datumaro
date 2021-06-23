@@ -6,12 +6,12 @@
 from enum import Enum, auto
 from glob import iglob
 from typing import Callable, Iterable, List, Dict, Optional
-import numpy as np
 import os
 import os.path as osp
 
-import attr
 from attr import attrs, attrib
+import attr
+import numpy as np
 
 from datumaro.util.image import Image
 from datumaro.util.attrs_util import not_empty, default_if_none
@@ -541,12 +541,15 @@ class DatasetItem:
 
 CategoriesInfo = Dict[AnnotationType, Categories]
 
-class IExtractor: #pylint: disable=redefined-builtin
+class IExtractor:
     def __iter__(self) -> Iterable[DatasetItem]:
         raise NotImplementedError()
 
     def __len__(self) -> int:
         raise NotImplementedError()
+
+    def __bool__(self): # avoid __len__ use for truth checking
+        return True
 
     def subsets(self) -> Dict[str, 'IExtractor']:
         raise NotImplementedError()
@@ -614,7 +617,7 @@ class Extractor(IExtractor):
     def categories(self):
         return {}
 
-    def get(self, id, subset=None): #pylint: disable=redefined-builtin
+    def get(self, id, subset=None):
         subset = subset or DEFAULT_SUBSET_NAME
         for item in self:
             if item.id == id and item.subset == subset:
@@ -638,7 +641,7 @@ class SourceExtractor(Extractor):
     def __len__(self):
         return len(self._items)
 
-    def get(self, id, subset=None): #pylint: disable=redefined-builtin
+    def get(self, id, subset=None):
         assert subset == self._subset, '%s != %s' % (subset, self._subset)
         return super().get(id, subset or self._subset)
 
@@ -717,6 +720,11 @@ class Importer:
 
 
 class Transform(Extractor):
+    """
+    A base class for dataset transformations that change dataset items
+    or their annotations.
+    """
+
     @staticmethod
     def wrap_item(item, **kwargs):
         return item.wrap(**kwargs)
@@ -725,10 +733,6 @@ class Transform(Extractor):
         super().__init__()
 
         self._extractor = extractor
-
-    def __iter__(self):
-        for item in self._extractor:
-            yield self.transform_item(item)
 
     def categories(self):
         return self._extractor.categories()
@@ -746,12 +750,19 @@ class Transform(Extractor):
             self._length = len(self._extractor)
         return super().__len__()
 
-    def transform_item(self, item: DatasetItem) -> DatasetItem:
+class ItemTransform(Transform):
+    def transform_item(self, item: DatasetItem) -> Optional[DatasetItem]:
         """
-        Supposed to return a modified copy of the input item.
+        Returns a modified copy of the input item.
 
         Avoid changing and returning the input item, because it can lead to
-        unexpected problems. wrap_item() can be used to simplify copying.
+        unexpected problems. Use wrap_item() or item.wrap() to simplify copying.
         """
 
         raise NotImplementedError()
+
+    def __iter__(self):
+        for item in self._extractor:
+            item = self.transform_item(item)
+            if item is not None:
+                yield item

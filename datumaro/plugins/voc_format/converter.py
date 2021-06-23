@@ -26,7 +26,7 @@ from .format import (VocTask, VocPath, VocInstColormap,
 )
 
 
-def _convert_attr(name, attributes, type_conv, default=None, warn=True):
+def _convert_attr(name, attributes, type_conv, default=None):
     d = object()
     value = attributes.get(name, d)
     if value is d:
@@ -84,6 +84,10 @@ class VocConverter(Converter):
         parser.add_argument('--allow-attributes',
             type=str_to_bool, default=True,
             help="Allow export of attributes (default: %(default)s)")
+        parser.add_argument('--keep-empty',
+            type=str_to_bool, default=False,
+            help="Write subset lists even if they are empty "
+                "(default: %(default)s)")
         parser.add_argument('--tasks', type=cls._split_tasks_string,
             help="VOC task filter, comma-separated list of {%s} "
                 "(default: all)" % ', '.join(t.name for t in VocTask))
@@ -92,7 +96,7 @@ class VocConverter(Converter):
 
     def __init__(self, extractor, save_dir,
             tasks=None, apply_colormap=True, label_map=None,
-            allow_attributes=True, **kwargs):
+            allow_attributes=True, keep_empty=False, **kwargs):
         super().__init__(extractor, save_dir, **kwargs)
 
         assert tasks is None or isinstance(tasks, (VocTask, list, set))
@@ -106,6 +110,7 @@ class VocConverter(Converter):
 
         self._apply_colormap = apply_colormap
         self._allow_attributes = allow_attributes
+        self._keep_empty = keep_empty
 
         if label_map is None:
             label_map = LabelmapType.source.name
@@ -296,8 +301,12 @@ class VocConverter(Converter):
                                 encoding='unicode', pretty_print=True))
 
                     clsdet_list[item.id] = True
-                    layout_list[item.id] = objects_with_parts
-                    action_list[item.id] = objects_with_actions
+
+                    if objects_with_parts:
+                        layout_list[item.id] = objects_with_parts
+
+                    if objects_with_actions:
+                        action_list[item.id] = objects_with_actions
 
                 for label_ann in labels:
                     label = self.get_label(label_ann.label)
@@ -362,11 +371,15 @@ class VocConverter(Converter):
         items = {k: True for k in action_list}
         if self._patch and osp.isfile(ann_file):
             self._get_filtered_lines(ann_file, self._patch, subset_name, items)
-        with open(ann_file, 'w', encoding='utf-8') as f:
-            for item in items:
-                f.write('%s\n' % item)
 
-        if not items and not self._patch:
+        if items or self._keep_empty:
+            with open(ann_file, 'w', encoding='utf-8') as f:
+                for item in items:
+                    f.write('%s\n' % item)
+        elif osp.isfile(ann_file):
+            os.remove(ann_file)
+
+        if not items and not self._patch and not self._keep_empty:
             return
 
         def _write_item(f, item, objs, action):
@@ -383,6 +396,11 @@ class VocConverter(Converter):
             for act in chain(*(self._get_actions(l) for l in self._label_map))
         }
         for action, ann_file in all_actions.items():
+            if not items and not self._keep_empty:
+                if osp.isfile(ann_file):
+                    os.remove(ann_file)
+                continue
+
             lines = {}
             if self._patch and osp.isfile(ann_file):
                 lines = self._get_filtered_lines(ann_file, None, subset_name)
@@ -413,6 +431,11 @@ class VocConverter(Converter):
                 lines = self._get_filtered_lines(ann_file, self._patch,
                     subset_name, items)
 
+            if not items and not self._keep_empty:
+                if osp.isfile(ann_file):
+                    os.remove(ann_file)
+                continue
+
             with open(ann_file, 'w', encoding='utf-8') as f:
                 for item in items:
                     if item in class_lists:
@@ -428,9 +451,12 @@ class VocConverter(Converter):
         if self._patch and osp.isfile(ann_file):
             self._get_filtered_lines(ann_file, self._patch, subset_name, items)
 
-        with open(ann_file, 'w', encoding='utf-8') as f:
-            for item in items:
-                f.write('%s\n' % item)
+        if items or self._keep_empty:
+            with open(ann_file, 'w', encoding='utf-8') as f:
+                for item in items:
+                    f.write('%s\n' % item)
+        elif osp.isfile(ann_file):
+            os.remove(ann_file)
 
     def save_segm_lists(self, subset_name, segm_list):
         os.makedirs(self._segm_subsets_dir, exist_ok=True)
@@ -440,9 +466,12 @@ class VocConverter(Converter):
         if self._patch and osp.isfile(ann_file):
             self._get_filtered_lines(ann_file, self._patch, subset_name, items)
 
-        with open(ann_file, 'w', encoding='utf-8') as f:
-            for item in items:
-                f.write('%s\n' % item)
+        if items or self._keep_empty:
+            with open(ann_file, 'w', encoding='utf-8') as f:
+                for item in items:
+                    f.write('%s\n' % item)
+        elif osp.isfile(ann_file):
+            os.remove(ann_file)
 
     def save_layout_lists(self, subset_name, layout_list):
         def _write_item(f, item, item_layouts):
@@ -461,6 +490,11 @@ class VocConverter(Converter):
         lines = {}
         if self._patch and osp.isfile(ann_file):
             self._get_filtered_lines(ann_file, self._patch, subset_name, items)
+
+        if not items and not self._keep_empty:
+            if osp.isfile(ann_file):
+                os.remove(ann_file)
+            return
 
         with open(ann_file, 'w', encoding='utf-8') as f:
             for item in items:
@@ -590,8 +624,13 @@ class VocConverter(Converter):
         conv._patch = patch
         conv.apply()
 
-        conv = cls(dataset, save_dir=save_dir, **kwargs)
-        images_dir = osp.join(save_dir, VocPath.IMAGES_DIR)
+        # Find images that needs to be removed
+        # images from different subsets are stored in the common directory
+        # Avoid situations like:
+        # (a, test): added
+        # (a, train): removed
+        # where the second line removes images from the first.
+        ids_to_remove = {}
         for (item_id, subset), status in patch.updated_items.items():
             if status != ItemStatus.removed:
                 item = patch.data.get(item_id, subset)
@@ -599,9 +638,22 @@ class VocConverter(Converter):
                 item = DatasetItem(item_id, subset=subset)
 
             if not (status == ItemStatus.removed or not item.has_image):
+                ids_to_remove[item_id] = (item, False)
+            else:
+                ids_to_remove.setdefault(item_id, (item, True))
+
+        for item, to_remove in ids_to_remove.values():
+            if not to_remove:
                 continue
 
-            image_path = osp.join(images_dir, conv._make_image_filename(item))
+            if conv._tasks & {VocTask.detection,
+                    VocTask.action_classification, VocTask.person_layout}:
+                ann_path = osp.join(conv._ann_dir, item.id + '.xml')
+                if osp.isfile(ann_path):
+                    os.remove(ann_path)
+
+            image_path = osp.join(conv._images_dir,
+                conv._make_image_filename(item))
             if osp.isfile(image_path):
                 os.unlink(image_path)
 
