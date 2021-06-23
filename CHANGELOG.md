@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `ItemTransform` class, which describes item-wise dataset `Transform`s (<https://github.com/openvinotoolkit/datumaro/pull/297>)
 - `keep-empty` export parameter in VOC format (<https://github.com/openvinotoolkit/datumaro/pull/297>)
 - A base class for dataset validation plugins (<https://github.com/openvinotoolkit/datumaro/pull/299>)
+- Extensions for images in Imagenet_txt annotation file (<https://github.com/openvinotoolkit/datumaro/pull/302>)
 
 ### Changed
 - Tensorflow AVX check is made optional in API and is disabled by default (<https://github.com/openvinotoolkit/datumaro/pull/305>)
