@@ -212,7 +212,7 @@ class Config:
     @staticmethod
     def parse(path, *args, **kwargs):
         if isinstance(path, str):
-            with open(path, 'r') as f:
+            with open(path, 'r', encoding='utf-8') as f:
                 return Config(yaml.safe_load(f), *args, **kwargs)
         else:
             return Config(yaml.safe_load(path), *args, **kwargs)
@@ -224,7 +224,7 @@ class Config:
 
     def dump(self, path):
         if isinstance(path, str):
-            with open(path, 'w') as f:
+            with open(path, 'w', encoding='utf-8') as f:
                 yaml.dump(self, f)
         else:
             yaml.dump(self, path)

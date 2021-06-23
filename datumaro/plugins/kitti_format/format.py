@@ -114,7 +114,7 @@ def make_kitti_detection_categories():
 
 def parse_label_map(path):
     label_map = OrderedDict()
-    with open(path, 'r') as f:
+    with open(path, 'r', encoding='utf-8') as f:
         for line in f:
             # skip empty and commented lines
             line = line.strip()
@@ -138,7 +138,7 @@ def parse_label_map(path):
     return label_map
 
 def write_label_map(path, label_map):
-    with open(path, 'w') as f:
+    with open(path, 'w', encoding='utf-8') as f:
         for label_name, label_desc in label_map.items():
             if label_desc:
                 color_rgb = ' '.join(str(c) for c in label_desc)

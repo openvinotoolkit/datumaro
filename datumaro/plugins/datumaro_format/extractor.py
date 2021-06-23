@@ -28,7 +28,7 @@ class DatumaroExtractor(SourceExtractor):
 
         super().__init__(subset=osp.splitext(osp.basename(path))[0])
 
-        with open(path, 'r') as f:
+        with open(path, 'r', encoding='utf-8') as f:
             parsed_anns = json.load(f)
         self._categories = self._load_categories(parsed_anns)
         self._items = self._load_items(parsed_anns)

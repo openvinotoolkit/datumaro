@@ -93,7 +93,8 @@ class YoloConverter(Converter):
 
             subset_list_name = '%s.txt' % subset_name
             subset_lists[subset_name] = subset_list_name
-            with open(osp.join(save_dir, subset_list_name), 'w', encoding='utf-8') as f:
+            with open(osp.join(save_dir, subset_list_name),
+                    'w', encoding='utf-8') as f:
                 f.writelines('%s\n' % s for s in image_paths.values())
 
         with open(osp.join(save_dir, 'obj.data'), 'w', encoding='utf-8') as f:
