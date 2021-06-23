@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Tensorflow AVX check is made optional in API and is disabled by default (<https://github.com/openvinotoolkit/datumaro/pull/305>)
+- Extensions for images in ImageNet_txt are now mandatory (<https://github.com/openvinotoolkit/datumaro/pull/302>)
 
 ### Deprecated
 -
