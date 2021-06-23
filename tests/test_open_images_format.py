@@ -26,11 +26,14 @@ class OpenImagesImporterTest(TestCase):
         expected_dataset = Dataset.from_iterable(
             [
                 DatasetItem(id='a', subset='train', image=np.zeros((8, 6, 3)),
-                    annotations=[Label(0)]),
+                    annotations=[Label(label=0, attributes={'score': 1})]),
                 DatasetItem(id='b', subset='train', image=np.zeros((2, 8, 3)),
-                    annotations=[]),
+                    annotations=[Label(label=0, attributes={'score': 0})]),
                 DatasetItem(id='c', subset='test', image=np.ones((10, 5, 3)),
-                    annotations=[Label(1), Label(3)]),
+                    annotations=[
+                        Label(label=1, attributes={'score': 1}),
+                        Label(label=3, attributes={'score': 1}),
+                    ]),
                 DatasetItem(id='d', subset='validation', image=np.ones((1, 5, 3)),
                     annotations=[]),
             ],

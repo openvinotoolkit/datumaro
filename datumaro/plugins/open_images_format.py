@@ -174,14 +174,14 @@ class OpenImagesExtractor(Extractor):
 
                     confidence = float(label_description['Confidence'])
 
-                    if 0.5 < confidence:
-                        label_name = label_description['LabelName']
-                        label_index, _ = label_categories.find(label_name)
-                        if label_index is None:
-                            raise UndefinedLabel(
-                                item_id=item.id, subset=item.subset,
-                                label_name=label_name, severity=Severity.error)
-                        item.annotations.append(Label(label_index))
+                    label_name = label_description['LabelName']
+                    label_index, _ = label_categories.find(label_name)
+                    if label_index is None:
+                        raise UndefinedLabel(
+                            item_id=item.id, subset=item.subset,
+                            label_name=label_name, severity=Severity.error)
+                    item.annotations.append(Label(
+                        label=label_index, attributes={'score': confidence}))
 
 
 class OpenImagesImporter(Importer):
