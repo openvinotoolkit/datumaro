@@ -428,7 +428,7 @@ def stats_command(args):
 
     dst_file = generate_next_file_name('statistics', ext='.json')
     log.info("Writing project statistics to '%s'" % dst_file)
-    with open(dst_file, 'w') as f:
+    with open(dst_file, 'w', encoding='utf-8') as f:
         json.dump(stats, f, indent=4, sort_keys=True)
 
 def build_info_parser(parser_ctor=argparse.ArgumentParser):
@@ -594,7 +594,7 @@ def validate_command(args):
 
     dst_file = generate_next_file_name(dst_file_name, ext='.json')
     log.info("Writing project validation results to '%s'" % dst_file)
-    with open(dst_file, 'w') as f:
+    with open(dst_file, 'w', encoding='utf-8') as f:
         json.dump(report, f, indent=4, sort_keys=True,
                   default=numpy_encoder)
 

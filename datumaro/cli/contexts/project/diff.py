@@ -1,4 +1,3 @@
-
 # Copyright (C) 2019-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
@@ -217,8 +216,9 @@ class DatasetDiffVisualizer:
 
     def get_label_diff_file(self):
         if self._label_diff_writer is None:
-            self._label_diff_writer = \
-                open(osp.join(self._save_dir, 'label_diff.txt'), 'w')
+            self._label_diff_writer = open(
+                osp.join(self._save_dir, 'label_diff.txt'),
+                'w', encoding='utf-8')
         return self._label_diff_writer
 
     def save_item_label_diff(self, item_a, item_b, diff):
