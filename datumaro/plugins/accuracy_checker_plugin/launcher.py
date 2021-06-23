@@ -26,7 +26,7 @@ class AcLauncher(Launcher, CliPlugin):
 
     def __init__(self, config, model_dir=None):
         model_dir = model_dir or ''
-        with open(osp.join(model_dir, config), 'r') as f:
+        with open(osp.join(model_dir, config), 'r', encoding='utf-8') as f:
             config = yaml.safe_load(f)
         self._launcher = _GenericAcLauncher.from_config(config)
 

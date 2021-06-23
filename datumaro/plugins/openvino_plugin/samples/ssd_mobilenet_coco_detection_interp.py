@@ -68,10 +68,10 @@ def process_outputs(inputs, outputs):
             w = min(int(det[5] * input_width - x), input_width)
             h = min(int(det[6] * input_height - y), input_height)
 
-            image_results.append(Bbox(x, y, w, h, label=label, 
+            image_results.append(Bbox(x, y, w, h, label=label,
                 attributes={ 'score': conf, 'scores': list(map(float, det_confs)) }
             ))
-            
+
             results.append(image_results)
 
     return results
@@ -82,7 +82,7 @@ def get_categories():
 
     label_categories = LabelCategories()
 
-    with open("samples/coco.class", "r") as file:
+    with open("samples/coco.class", "r", encoding='utf-8') as file:
         for line in file.readlines():
             label = line.strip()
             label_categories.add(label)

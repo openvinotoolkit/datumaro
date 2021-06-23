@@ -119,5 +119,5 @@ def save_merge_report(merger, path):
         ('All errors', all_errors),
     ])
 
-    with open(path, 'w') as f:
+    with open(path, 'w', encoding='utf-8') as f:
         json.dump(errors, f, indent=4)

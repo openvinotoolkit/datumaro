@@ -100,7 +100,7 @@ class _TaskConverter:
                 ann['id'] = next_id
                 next_id += 1
 
-        with open(path, 'w') as outfile:
+        with open(path, 'w', encoding='utf-8') as outfile:
             json.dump(self._data, outfile)
 
     @property
@@ -461,7 +461,7 @@ class _StuffConverter(_InstancesConverter):
 
 class _PanopticConverter(_TaskConverter):
     def write(self, path):
-        with open(path, 'w') as outfile:
+        with open(path, 'w', encoding='utf-8') as outfile:
             json.dump(self._data, outfile)
 
     def save_categories(self, dataset):
