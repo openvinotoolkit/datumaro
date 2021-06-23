@@ -51,7 +51,7 @@ class ImagenetTxtExtractor(SourceExtractor):
 
         image_dir = self.image_dir
         if osp.isdir(image_dir):
-            images = { osp.splitext(osp.relpath(p, image_dir))[0]: p
+            images = { osp.relpath(p, image_dir): p
                 for p in find_images(image_dir, recursive=True) }
         else:
             images = {}
@@ -62,13 +62,16 @@ class ImagenetTxtExtractor(SourceExtractor):
                 if 1 < len(item):
                     if len(item) == 3:
                         item_id = item[1]
-                        label_ids = [int(id) for id in item[2].split()[1:]]
+                        item = item[2].split()
+                        image = item_id + item[0]
+                        label_ids = [int(id) for id in item[1:]]
                     else:
                         raise Exception("Line %s: unexpected number "
                             "of quotes in filename" % line)
                 else:
                     item = line.split()
                     item_id = osp.splitext(item[0])[0]
+                    image = item[0]
                     label_ids = [int(id) for id in item[1:]]
 
                 anno = []
@@ -79,7 +82,7 @@ class ImagenetTxtExtractor(SourceExtractor):
                     anno.append(Label(label))
 
                 items[item_id] = DatasetItem(id=item_id, subset=self._subset,
-                    image=images.get(item_id), annotations=anno)
+                    image=images.get(image), annotations=anno)
 
         return items
 
@@ -105,7 +108,11 @@ class ImagenetTxtConverter(Converter):
 
             labels = {}
             for item in subset:
-                labels[item.id] = set(p.label for p in item.annotations
+                item_id = item.id
+                if 1 < len(item_id.split()):
+                    item_id = '\"' + item_id + '\"'
+                item_id += self._find_image_ext(item)
+                labels[item_id] = set(p.label for p in item.annotations
                     if p.type == AnnotationType.label)
 
                 if self._save_images and item.has_image:
@@ -113,9 +120,7 @@ class ImagenetTxtConverter(Converter):
 
             annotation = ''
             for item_id, item_labels in labels.items():
-                if 1 < len(item_id.split()):
-                    item_id = '\"' + item_id + '\"'
-                annotation += '%s %s\n' % (item_id + self._find_image_ext(item),
+                annotation += '%s %s\n' % (item_id,
                     ' '.join(str(l) for l in item_labels))
 
             with open(annotation_file, 'w', encoding='utf-8') as f:
