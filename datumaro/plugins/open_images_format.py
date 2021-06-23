@@ -74,7 +74,7 @@ class OpenImagesExtractor(Extractor):
     def _open_csv_annotation(self, file_name):
         absolute_path = osp.join(self._dataset_dir, OpenImagesPath.ANNOTATIONS_DIR, file_name)
 
-        with open(absolute_path, 'r', newline='') as f:
+        with open(absolute_path, 'r', encoding='utf-8', newline='') as f:
             yield csv.DictReader(f)
 
     def _glob_annotations(self, pattern):
