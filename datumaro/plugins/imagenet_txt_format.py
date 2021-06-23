@@ -10,7 +10,6 @@ from datumaro.components.extractor import (DatasetItem, Label,
     LabelCategories, AnnotationType, SourceExtractor, Importer
 )
 from datumaro.components.converter import Converter
-from datumaro.util.image import find_images
 
 
 class ImagenetTxtPath:
@@ -49,13 +48,6 @@ class ImagenetTxtExtractor(SourceExtractor):
     def _load_items(self, path):
         items = {}
 
-        image_dir = self.image_dir
-        if osp.isdir(image_dir):
-            images = { osp.relpath(p, image_dir): p
-                for p in find_images(image_dir, recursive=True) }
-        else:
-            images = {}
-
         with open(path, encoding='utf-8') as f:
             for line in f:
                 item = line.split('\"')
@@ -82,7 +74,7 @@ class ImagenetTxtExtractor(SourceExtractor):
                     anno.append(Label(label))
 
                 items[item_id] = DatasetItem(id=item_id, subset=self._subset,
-                    image=images.get(image), annotations=anno)
+                    image=osp.join(self.image_dir, image), annotations=anno)
 
         return items
 
