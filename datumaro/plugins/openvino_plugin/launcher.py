@@ -195,4 +195,3 @@ class OpenvinoLauncher(Launcher):
 
     def process_outputs(self, inputs, outputs):
         return self._interpreter.process_outputs(inputs, outputs)
-
