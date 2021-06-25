@@ -46,7 +46,6 @@ class Converter(CliPlugin):
 
         self._save_images = save_images
         self._image_ext = image_ext
-
         self._extractor = extractor
         self._save_dir = save_dir
 
