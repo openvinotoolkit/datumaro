@@ -70,9 +70,11 @@ class PointCloudExtractor(SourceExtractor):
                 if meta:
                     for label in meta["classes"]:
                         attrs = []
-                        for tag in figure_data["tags"]:
-                            if tag["value"] == label['title']:
-                                attrs.append(tag["name"])
+                        for obj in figure_data["objects"]:
+                            if obj["classTitle"] == label['title'] and obj["tags"]:
+
+                                for tag in obj["tags"]:
+                                    attrs.append(tag["name"])
 
                         label_cat.add(label['title'], attributes=attrs)
 
@@ -83,9 +85,9 @@ class PointCloudExtractor(SourceExtractor):
 
                 group = 0
                 z_order = 0
-                attributes = {}
 
                 for figure in figure_data["figures"]:
+                    attributes = {}
                     anno_points = []
                     geometry_type = ["position", "rotation", "dimensions"]
                     for geo in geometry_type:
@@ -95,7 +97,17 @@ class PointCloudExtractor(SourceExtractor):
                         anno_points.append(0.0)
 
                     map_id = mapping["figures"][figure['key']]
-                    label = labels[figure["objectKey"]]
+                    label = labels[figure.get("objectKey")]
+
+                    for obj in figure_data["objects"]:
+                        if obj["key"] == figure.get("objectKey"):
+                            for tag in obj["tags"]:
+                                if obj["key"] == figure.get("objectKey"):
+                                    if tag["value"] == "true":
+                                        tag["value"] = True
+                                    elif tag["value"] == "false":
+                                        tag["value"] = False
+                                    attributes.update({tag["name"]: tag["value"]})
 
                     label = categories[AnnotationType.label].find(label)[0]
 
@@ -107,7 +119,6 @@ class PointCloudExtractor(SourceExtractor):
 
                     frame_desc['annotations'].append(shape)
                     items[frame] = frame_desc
-
         return items, categories
 
     def _load_items(self, parsed):

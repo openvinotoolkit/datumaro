@@ -192,7 +192,7 @@ class PointCloudConverterTest(TestCase):
             self._test_save_and_load(source_dataset,
                                      partial(PointCloudConverter.convert,
                                              save_images=True), test_dir,
-                                     target_dataset=target_dataset, ignored_attrs=["label_id", "occluded"])
+                                     target_dataset=target_dataset, ignored_attrs=["label_id", "occluded"], **self.dimension)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_preserve_frame_ids(self):
@@ -365,20 +365,20 @@ class PointCloudConverterTest(TestCase):
         src_label_cat.add('car')
         src_label_cat.add('bus')
         src_label_cat.items[0].attributes.update(['a1'])
-        src_label_cat.items[1].attributes.update(['a4', 'a3', 'empty'])
+        src_label_cat.items[1].attributes.update(['a4', 'a3', 'a5'])
 
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='frame_000000',
                         annotations=[Cuboid3D(id=206,
-                                              attributes={
-                                                  "occluded": 0, "label_id": 0},
+                                              attributes={'a1': 'hello', 'a1__values': 'type\nhello\nmello',
+                                                          "occluded": 0, "label_id": 0},
                                               group=0,
                                               points=[320.86, 979.18, 1.04, 0.0, 0.0,
                                                       0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
                                               label=0,
                                               z_order=0),
                                      Cuboid3D(id=207,
-                                              attributes={
+                                              attributes={"a4": "rare", "a3": False, 'a5':5.6,
                                                   "occluded": 0, "label_id": 1},
                                               group=0,
                                               points=[318.19, 974.65, 1.29, 0.0, 0.0,
@@ -394,12 +394,12 @@ class PointCloudConverterTest(TestCase):
                                                                    "color": "#83e070"}]}),
             DatasetItem(id='frame_000001',
                         annotations=[Cuboid3D(id=208,
-                                              attributes={
+                                              attributes={'a1': 'hello', 'a1__values': 'type\nhello\nmello',
                                                   "occluded": 0, "label_id": 1},
                                               group=0,
                                               points=[23.04, 8.75, -0.78, 0.0, 0.0,
                                                       0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                                              label=1,
+                                              label=0,
                                               z_order=0)],
                         subset='key_id_map', path=[],
                         image=None,
@@ -412,12 +412,12 @@ class PointCloudConverterTest(TestCase):
         target_label_cat.add("car")
         target_label_cat.add("bus")
         target_label_cat.items[0].attributes.update(['a1'])
-        target_label_cat.items[1].attributes.update(['a4', 'a3', 'empty'])
+        target_label_cat.items[1].attributes.update(['a4', 'a3', 'a5'])
 
         target_dataset = Dataset.from_iterable([
             DatasetItem(id='frame_000000',
                         annotations=[Cuboid3D(id=206,
-                                              attributes={
+                                              attributes={'a1': 'hello', 'a1__values': 'type\nhello\nmello',
                                                   "occluded": 0, "label_id": 0},
                                               group=0,
                                               points=[320.86, 979.18, 1.04, 0.0, 0.0,
@@ -425,7 +425,7 @@ class PointCloudConverterTest(TestCase):
                                               label=0,
                                               z_order=0),
                                      Cuboid3D(id=207,
-                                              attributes={
+                                              attributes={"a4": "rare", "a3": False, "a5": 5.6,
                                                   "occluded": 0, "label_id": 1},
                                               group=0,
                                               points=[318.19, 974.65, 1.29, 0.0, 0.0,
@@ -438,12 +438,12 @@ class PointCloudConverterTest(TestCase):
                         related_images=[], attributes={'frame': 0}),
             DatasetItem(id='frame_000001',
                         annotations=[Cuboid3D(id=208,
-                                              attributes={
+                                              attributes={'a1': 'hello', 'a1__values': 'type\nhello\nmello',
                                                   "occluded": 0, "label_id": 1},
                                               group=0,
                                               points=[23.04, 8.75, -0.78, 0.0, 0.0,
                                                       0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                                              label=1,
+                                              label=0,
                                               z_order=0)],
                         subset='key_id_map', path=[],
                         image=None,
@@ -456,4 +456,4 @@ class PointCloudConverterTest(TestCase):
             self._test_save_and_load(source_dataset,
                                      partial(PointCloudConverter.convert,
                                              save_images=True), test_dir,
-                                     target_dataset=target_dataset, ignored_attrs=["label_id", "occluded"])
+                                     target_dataset=target_dataset, ignored_attrs=["a1__values", "label_id", "occluded"], **self.dimension)

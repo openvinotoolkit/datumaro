@@ -170,7 +170,7 @@ class XmlAnnotationWriter:
             self._open_attribute()
             for index, key in enumerate(attribute.keys()):
                 self.xmlgen.startElement(key, {})
-                self.xmlgen.characters(attribute[key])
+                self.xmlgen.characters(str(attribute[key]))
                 self.xmlgen.endElement(key)
                 if index < len(attribute.keys()) - 1:
                     self._indent(newline=True)
@@ -237,13 +237,16 @@ class _SubsetWriter:
                     for attrs in self._get_label_attrs(item.label):
                         if attrs == "occluded":
                             continue
-                        attribute = {
-                            "name": attrs,
-                            "mutable": "True",
-                            "input_type": "text",
-                            "default_value": "",
-                            "values": ""
-                        }
+
+                        for key, value in item.attributes.items():
+                            if key == attrs:
+                                attribute = {
+                                    "name": attrs,
+                                    "mutable": "True",
+                                    "input_type": "text",
+                                    "default_value": "",
+                                    "values": value
+                                }
 
                         tracklet["attributes"].append(attribute)
 

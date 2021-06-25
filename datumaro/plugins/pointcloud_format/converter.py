@@ -37,9 +37,14 @@ class PointCloudParser:
         self._user = {}
         self._label_objects = []
         self._frames = {}
-        self._tags = []
-        self._labels = []
+        self._meta_tags = {}
+        self._tags = {}
+        self.frame_tags = []
+        self._labels = {}
         self._attribute_length = 0
+        self.temp_labels = []
+        self.default_values = {}
+        self._attr_list3 = []
 
         key_id_data = {
             "tags": {},
@@ -48,6 +53,16 @@ class PointCloudParser:
             "videos": {}
         }
         self._key_id_data = key_id_data
+
+        self._meta_tag = {
+                    "name": "",
+                    "value_type": "",
+                    "color": "",
+                    "id": "",
+                    "hotkey": "",
+                    "applicable_type": "all",
+                    "classes": []
+                }
 
         meta_data = {
             "classes": [],
@@ -116,49 +131,119 @@ class PointCloudParser:
                 self._user["updatedAt"] = str(data.attributes.get("updatedAt", datetime.now()))
                 break
 
+    def check_values(self, key):
+        if key.endswith("__values"):
+            return key.split('__values')[0]
+
     def set_attribute_data(self):
+        flag = True
+        for data in self._annotation:
+            for _ in data.annotations:
+                flag = False
+                break
+            break
+
+        attr_list = []
         labels = self._annotation.categories().get(AnnotationType.label, LabelCategories())
         for label in labels._indices.values():
+            label_name = self._get_label(label).name
 
-            self._labels.append(label)
+            self._meta_tags.update({label_name: {}})
             for attrs in self._get_label(label).attributes:
-                self._attribute_length += 1
+                if attrs not in attr_list:
+                    tag_id = self._attribute_length
+                    self.set_tags_key(tag_id)
 
-                tag_id = self._attribute_length
-                self.set_tags_key(tag_id)
+                    tag = {
+                        "name": attrs,
+                        "value_type": "none",
+                        "color": "#000000",
+                        "values": [],
+                        "id": tag_id,
+                        "hotkey": "",
+                        "applicable_type": "all",
+                        "classes": []
+                    }
 
-                if attrs == "occluded":
-                    continue
+                    if flag:
+                        del tag["values"]
+                    self._attribute_length += 1
+                    self._meta_tags[label_name].update({attrs: tag})
+                    attr_list.append(attrs)
 
-                tag = {
-                    "name": attrs,
-                    "value_type": "text",
-                    "color": "",
-                    "id": tag_id,
-                    "hotkey": "",
-                    "applicable_type": "imagesOnly",
-                    "classes": []
-                }
+        attr_list = []
+        attr_list2 = []
 
-                self._meta_data["tags"].append(tag)
+        for data in self._annotation:
+            for item in data.annotations:
+                label_name = self._get_label(item.label).name
 
-                tag = {
-                    "name": attrs,
-                    "value": self._get_label(label).name,
-                    "labelerLogin": self._user["name"],
-                    "createdAt": self._user["createdAt"],
-                    "updatedAt": self._user["updatedAt"],
-                    "key": self.get_tag_key(tag_id)
-                }
+                attributes = {}
+                for k, v in item.attributes.items():
 
-                self._tags.append(tag)
+                    if k not in ["label_id", "occluded"] and k not in attr_list:
+                        attr_list.append(k)
+                        if k.endswith("__values"):
+                            k = self.check_values(k)
+                            v = v.split("\n")
+
+                        attributes[k] = v
+
+                for key, value in attributes.items():
+                    if key not in ["label_id", "occluded"]:
+                        if key not in attr_list2:
+                            attr_list2.append(key)
+
+                            if value is None:
+                                if isinstance(self._meta_tags[label_name][key].get('values'), list):
+                                    del self._meta_tags[label_name][key]['values']
+                            else:
+                                if isinstance(value, bool):
+                                    value = "true" if value else "false"
+                                if isinstance(value, list):
+                                    self._meta_tags[label_name][key]['value_type'] = 'oneof_string'
+                                    self._meta_tags[label_name][key]['values'] = value
+                                elif isinstance(value, str):
+                                    self._meta_tags[label_name][key]['value_type'] = 'any_string'
+                                    if isinstance(self._meta_tags[label_name][key].get('values'), list):
+                                        del self._meta_tags[label_name][key]['values']
+                                elif isinstance(value, (float, int,)):
+                                    self._meta_tags[label_name][key]['value_type'] = 'any_number'
+                                    if isinstance(self._meta_tags[label_name][key].get('values'), list):
+                                        del self._meta_tags[label_name][key]['values']
+
+                for key, value in item.attributes.items():
+                    if key.endswith("__values") or key in ["label_id", "occluded"] or key in self._attr_list3:
+                        continue
+
+                    if not self._tags.get(label_name):
+                        self._tags[label_name] = []
+
+                    if isinstance(value, bool):
+                        value = "true" if value else "false"
+
+                    tag_id = len(self._attr_list3)
+                    tag = {
+                        "name": key,
+                        "value": value,
+                        "labelerLogin": self._user["name"],
+                        "updatedAt": self._user["updatedAt"],
+                        "createdAt": self._user["createdAt"],
+                        "key": self.get_tag_key(tag_id)
+                    }
+                    self._attr_list3.append(key)
+                    self.frame_tags.append(tag)
+                    self._tags[label_name].append(tag)
+
+        for value in self._meta_tags.values():
+            for tag_data in value.values():
+                self._meta_data['tags'].append(tag_data)
 
     def set_label_data(self):
         classes_info = []
         for data in self._annotation:
             if not self._label_objects:
                 for label in data.attributes.get("labels", []):
-
                     classes = {
                         "id": int(label["label_id"]),
                         "title": label["name"],
@@ -177,9 +262,12 @@ class PointCloudParser:
                         "createdAt": str(self._user["createdAt"]),
                         "updatedAt": str(self._user["updatedAt"])
                     }
-                    for tag in self._tags:
-                        if tag["value"] == label["name"]:
-                            label_object["tags"].append(tag)
+
+                    if label["name"]:
+                        if self._tags.get(label["name"]):
+                            for tag in self._tags.get(label["name"]):
+                                label_object["tags"].append(tag)
+
                     classes_info.append(classes)
                     self._label_objects.append(label_object)
 
@@ -187,9 +275,7 @@ class PointCloudParser:
         self._meta_data["classes"] = data
 
     def generate_frames(self):
-
         for i, data in enumerate(self._annotation):
-
             frame_data = []
             if data.pcd:
                 index = self._write_item(data, i)
@@ -206,7 +292,7 @@ class PointCloudParser:
                     self.set_figures_key(item.id)
                     figures = {
                         "key": self.get_figure_key(item.id),
-                        "objectKey": self.get_object_key(int(item.attributes["label_id"])),
+                        "objectKey": self.get_object_key(int(item.label)),
                         'geometryType': "cuboid_3d",
                         "geometry": {
                             "position": {
@@ -320,7 +406,6 @@ class PointCloudParser:
 
         return index
 
-
     def write_key_id_data(self, f):
         json.dump(self._key_id_data, f, indent=4)
 
@@ -331,7 +416,7 @@ class PointCloudParser:
         frame = {
             "description": "",
             "key": self.get_video_key(int(key)),
-            "tags": self._tags,
+            "tags": self.frame_tags,
             "objects": self._label_objects,
             "figures": {}
         }

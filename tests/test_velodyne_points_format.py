@@ -68,7 +68,7 @@ class VelodynePointsImporterTest(TestCase):
         parsed_dataset = Dataset.import_from(
             DUMMY_PCD_DATASET_DIR, 'velodyne_points')
 
-        compare_datasets(self, expected_dataset, parsed_dataset)
+        compare_datasets(self, expected_dataset, parsed_dataset, ignored_attrs=["occluded"])
 
 
 class VelodynePointsConverterTest(TestCase):
@@ -146,7 +146,7 @@ class VelodynePointsConverterTest(TestCase):
             self._test_save_and_load(source_dataset,
                                      partial(VelodynePointsConverter.convert,
                                              save_images=True), test_dir,
-                                     target_dataset=target_dataset, **self.dimension)
+                                     target_dataset=target_dataset, ignored_attrs=["occluded"], **self.dimension)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_preserve_frame_ids(self):
@@ -173,7 +173,7 @@ class VelodynePointsConverterTest(TestCase):
 
         with TestDir() as test_dir:
             self._test_save_and_load(expected_dataset,
-                                     VelodynePointsConverter.convert, test_dir, **self.dimension)
+                                     VelodynePointsConverter.convert, test_dir, ignored_attrs=["occluded"], **self.dimension)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_reindex(self):
@@ -223,7 +223,7 @@ class VelodynePointsConverterTest(TestCase):
             self._test_save_and_load(source_dataset,
                                      partial(VelodynePointsConverter.convert,
                                              reindex=True), test_dir,
-                                     target_dataset=expected_dataset, **self.dimension)
+                                     target_dataset=expected_dataset, ignored_attrs=["occluded"], **self.dimension)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_inplace_save_writes_only_updated_data(self):
@@ -280,12 +280,12 @@ class VelodynePointsConverterTest(TestCase):
     def test_can_save_and_load_without_related_images(self):
         src_label_cat = LabelCategories(attributes={'occluded'})
         src_label_cat.add('car')
-        src_label_cat.items[0].attributes.update(['a1', 'a2', 'empty'])
+        src_label_cat.items[0].attributes.update(['a1', 'a2'])
 
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='frame_000000',
                         annotations=[Cuboid3D(id=0,
-                                              attributes={'occluded': 0},
+                                              attributes={"a1": "true", "a2": 0, 'occluded': 0},
                                               group=0,
                                               points=[13.54, -9.41, 0.24, 0.0,
                                                       0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
@@ -301,12 +301,12 @@ class VelodynePointsConverterTest(TestCase):
 
         target_label_cat = LabelCategories(attributes={'occluded'})
         target_label_cat.add("car")
-        target_label_cat.items[0].attributes.update(['a1', 'a2', 'empty'])
+        target_label_cat.items[0].attributes.update(['a1', 'a2'])
 
         target_dataset = Dataset.from_iterable([
             DatasetItem(id='frame_000000',
                         annotations=[Cuboid3D(id=0,
-                                              attributes={'occluded': 0},
+                                              attributes={"a1": "true", "a2": 0, 'occluded': 0},
                                               group=0,
                                               points=[13.54, -9.41, 0.24, 0.0,
                                                       0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
@@ -325,4 +325,4 @@ class VelodynePointsConverterTest(TestCase):
             self._test_save_and_load(source_dataset,
                                      partial(VelodynePointsConverter.convert,
                                              save_images=True), test_dir,
-                                     target_dataset=target_dataset, **self.dimension)
+                                     target_dataset=target_dataset, ignored_attrs=["occluded"], **self.dimension)

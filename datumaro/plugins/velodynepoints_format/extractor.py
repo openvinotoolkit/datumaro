@@ -46,6 +46,9 @@ class VelodynePointsExtractor(SourceExtractor):
         items = OrderedDict()
         categories = {}
         point_tags = ["h", "w", "l", "tx", "ty", "tz", "rx", "ry", "rz"]
+        annotation_attributes = {}
+        attrs_name = ""
+        attribs = {}
 
         for elem in root.iter():
             if elem.tag == "objectType":
@@ -59,13 +62,27 @@ class VelodynePointsExtractor(SourceExtractor):
                 shape["occluded"] = 1 if int(elem.text) else 0
             elif elem.tag == "name":
                 label["attributes"].append(elem.text)
+                attrs_name = elem.text
+            elif elem.tag == "values":
+                value = elem.text
+                try:
+                    value = float(elem.text)
+                    value = int(value)
+                except ValueError:
+                    pass
+                if value == "True":
+                    value = True
+                elif value == "False":
+                    value = False
+
+                annotation_attributes.update({attrs_name: value})
             elif elem.tag == "finished":
                 for _ in range(7):
                     shape['points'].append(float(0.0))
                 shape["type"] = "cuboid"
-
+                attribs[label['name']] = annotation_attributes
                 labels[label['name']] = label["attributes"]
-
+                annotation_attributes = {}
                 shapes.update({len(shapes): shape})
                 shape = {"points": []}
 
@@ -80,13 +97,13 @@ class VelodynePointsExtractor(SourceExtractor):
         for shape in shapes.values():
             frame_desc = items.get(shape['frame'], {'annotations': []})
             frame_desc['annotations'].append(
-                cls._parse_shape_ann(shape, categories))
+                cls._parse_shape_ann(shape, categories, attribs))
             items[shape['frame']] = frame_desc
 
         return items, categories
 
     @classmethod
-    def _parse_shape_ann(cls, ann, categories):
+    def _parse_shape_ann(cls, ann, categories, attrs):
         ann_id = ann.get('id', 0)
         ann_type = ann['type']
 
@@ -98,7 +115,8 @@ class VelodynePointsExtractor(SourceExtractor):
 
         label = ann.get('label')
         label_id = categories[AnnotationType.label].find(label)[0]
-
+        label_name = categories[AnnotationType.label].find(label)[1]
+        attributes = attrs[label_name.name]
         z_order = ann.get('z_order', 0)
         points = ann.get('points', [])
 
