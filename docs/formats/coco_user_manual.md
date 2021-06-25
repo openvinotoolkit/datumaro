@@ -103,7 +103,7 @@ datum import --format coco_stuff --input-path <path/to/stuff.json>
 Datumaro supports the following COCO tasks:
 - [Image Captioning](https://cocodataset.org/#captions-2015) (`coco_caption`)
 - [Object Detection](https://cocodataset.org/#detection-2020) (`coco_instances`)
-- Image classification (our extension) (`coco_labels`) - a format like Object Detection, which uses 
+- Image classification (our extension) (`coco_labels`) - a format like Object Detection, which uses
   only `category_id` and `score` annotation fields
 - [Panoptic Segmentation](https://cocodataset.org/#panoptic-2020) (`coco_panoptic`)
 - [Keypoint Detection](https://cocodataset.org/#keypoints-2020) (`coco_person_keypoints`)

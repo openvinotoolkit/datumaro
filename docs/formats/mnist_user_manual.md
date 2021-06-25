@@ -64,9 +64,9 @@ MNIST dataset directory should have the following structure:
 ```
 └─ Dataset/
     ├── labels.txt # list of non-digit labels (optional)
-    ├── t10k-images-idx3-ubyte.gz  
-    ├── t10k-labels-idx1-ubyte.gz  
-    ├── train-images-idx3-ubyte.gz  
+    ├── t10k-images-idx3-ubyte.gz
+    ├── t10k-labels-idx1-ubyte.gz
+    ├── train-images-idx3-ubyte.gz
     └── train-labels-idx1-ubyte.gz
 ```
 MNIST in CSV dataset directory should have the following structure:
@@ -75,7 +75,7 @@ MNIST in CSV dataset directory should have the following structure:
 ```
 └─ Dataset/
     ├── labels.txt # list of non-digit labels (optional)
-    ├── mnist_test.csv  
+    ├── mnist_test.csv
     └── mnist_train.csv
 ```
 If the dataset needs non-digit labels, you need to add the labels.txt
