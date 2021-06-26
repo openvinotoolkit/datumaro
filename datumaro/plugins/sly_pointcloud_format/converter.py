@@ -1,33 +1,30 @@
-
 # Copyright (C) 2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
+from collections import OrderedDict
+from datetime import datetime
+from itertools import chain
 import os
 import json
 import uuid
 import random
 import string
-from collections import OrderedDict
 import os.path as osp
 import logging as log
-from datetime import datetime
-from itertools import chain
 
-from datumaro.util.image import save_image, ByteImage
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
-from datumaro.components.extractor import (AnnotationType, DatasetItem, LabelCategories)
+from datumaro.components.extractor import (AnnotationType, DatasetItem,
+    LabelCategories)
 from datumaro.util import cast
+from datumaro.util.image import save_image, ByteImage
 
 from .format import PointCloudPath
 
 
 class PointCloudParser:
-    _SUPPORTED_SHAPES = 'cuboid'
-
     def __init__(self, subset, context):
-
         self._annotation = subset
         self._object_keys = {}
         self._figure_keys = {}
@@ -201,7 +198,7 @@ class PointCloudParser:
                         self.set_videos_key(int(data.attributes["frame"]))
 
             for item in data.annotations:
-                if item.type == AnnotationType.cuboid:
+                if item.type == AnnotationType.cuboid_3d:
 
                     self.set_figures_key(item.id)
                     figures = {
@@ -342,8 +339,8 @@ class PointCloudParser:
         json.dump(frame, f, indent=4)
 
 
-class PointCloudConverter(Converter):
-    DEFAULT_IMAGE_EXT = PointCloudPath.IMAGE_EXT
+class SuperviselyPointcloudConverter(Converter):
+    DEFAULT_IMAGE_EXT = PointCloudPath.DEFAULT_IMAGE_EXT
 
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
@@ -360,18 +357,18 @@ class PointCloudConverter(Converter):
         super().__init__(extractor, save_dir, **kwargs)
 
         self._reindex = reindex
-        self._builtin_attrs = PointCloudPath.BUILTIN_ATTRS
         self._allow_undeclared_attrs = allow_undeclared_attrs
 
     def apply(self):
-        self._default_dir = osp.join(self._save_dir, PointCloudPath.DEFAULT_DIR)
+        self._default_dir = osp.join(self._save_dir, PointCloudPath.BASE_DIR)
         os.makedirs(self._default_dir, exist_ok=True)
-        self._annotation_dir = osp.join(self._default_dir, PointCloudPath.ANNNOTATION_DIR)
+
+        self._annotation_dir = osp.join(self._default_dir,
+            PointCloudPath.ANNNOTATION_DIR)
         os.makedirs(self._annotation_dir, exist_ok=True)
 
         point_cloud = PointCloudParser(self._extractor, self)
         for file_name in PointCloudPath.WRITE_FILES:
-
             with open(osp.join(self._save_dir, file_name), "w") as f:
                 if file_name == "key_id_map.json":
                     point_cloud.write_key_id_data(f)
@@ -382,7 +379,6 @@ class PointCloudConverter(Converter):
         for key, file_name in frame_files.items():
             with open(osp.join(self._annotation_dir, f"{file_name}.json"), "w") as f:
                 point_cloud.write_frame_data(f, key)
-
 
     @classmethod
     def patch(cls, dataset, patch, save_dir, **kwargs):

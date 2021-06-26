@@ -13,7 +13,7 @@ from datumaro.util.image import find_images
 from .format import PointCloudPath
 
 
-class PointCloudExtractor(SourceExtractor):
+class SuperviselyPointcloudExtractor(SourceExtractor):
     _SUPPORTED_SHAPES = 'cuboid'
 
     def __init__(self, path, subset=None):
@@ -40,7 +40,8 @@ class PointCloudExtractor(SourceExtractor):
                 encoding='utf-8') as f:
             meta = json.load(f)
 
-        label_cat = LabelCategories(attributes={'object'})
+        label_cat = LabelCategories(
+            attributes=set(PointCloudPath.BUILTIN_ATTRS))
         for label in meta.get('classes', []):
             label_cat.add(label['title'])
 
@@ -171,7 +172,7 @@ class PointCloudExtractor(SourceExtractor):
         return parsed
 
 
-class PointCloudImporter(Importer):
+class SuperviselyPointcloudImporter(Importer):
     @classmethod
     def find_sources(cls, path):
         return cls._find_sources_recursive(path, '.json', 'point_cloud',
