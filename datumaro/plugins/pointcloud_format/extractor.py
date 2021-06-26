@@ -31,10 +31,9 @@ class PointCloudExtractor(SourceExtractor):
 
         if not subset:
             subset = osp.splitext(osp.basename(path))[0]
-        super().__init__(subset=subset)
         items, categories = self._parse(path)
-        self._items = list(self._load_items(items).values())
-        self._categories = categories
+        super().__init__(subset=subset, categories=categories)
+        self.set_items(list(self._load_items(items).values()))
 
     @classmethod
     def _parse(cls, path):

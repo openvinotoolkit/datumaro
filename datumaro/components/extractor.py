@@ -664,15 +664,18 @@ class Extractor(IExtractor):
         return None
 
 class SourceExtractor(Extractor):
-    def __init__(self, length=None, subset=None):
+    def __init__(self, length=None, subset=None, categories=None, items=None):
         self._subset = subset or DEFAULT_SUBSET_NAME
         super().__init__(length=length, subsets=[self._subset])
 
-        self._categories = {}
-        self._items = []
+        self._categories = categories or {}
+        self._items = items or []
 
     def categories(self):
         return self._categories
+
+    def set_items(self, items):
+        self._items = items
 
     def __iter__(self):
         yield from self._items
