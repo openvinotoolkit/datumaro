@@ -3,6 +3,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+from enum import Enum, auto
 import inspect
 import os
 import os.path as osp
@@ -19,10 +20,12 @@ except ImportError:
 
 from datumaro.components.extractor import AnnotationType
 from datumaro.components.dataset import Dataset
-from datumaro.util import find
+from datumaro.util import filter_dict, find
 
 
-DIMENSIONS = {"DIM_2D": "2d", "DIM_3D": "3d"}
+class Dimensions(Enum):
+    dim_2d = auto()
+    dim_3d = auto()
 
 def current_function_name(depth=1):
     return inspect.getouterframes(inspect.currentframe())[depth].function
@@ -92,8 +95,8 @@ def _compare_annotations(expected, actual, ignored_attrs=None):
     a_attr = expected.attributes
     b_attr = actual.attributes
 
-    expected.attributes = {k:v for k,v in a_attr.items() if k not in ignored_attrs}
-    actual.attributes = {k:v for k,v in b_attr.items() if k not in ignored_attrs}
+    expected.attributes = filter_dict(a_attr, exclude_keys=ignored_attrs)
+    actual.attributes = filter_dict(b_attr, exclude_keys=ignored_attrs)
     r = expected == actual
 
     expected.attributes = a_attr
@@ -110,7 +113,14 @@ def compare_datasets(test, expected, actual, ignored_attrs=None,
         item_b = find(actual, lambda x: x.id == item_a.id and \
             x.subset == item_a.subset)
         test.assertFalse(item_b is None, item_a.id)
-        test.assertEqual(item_a.attributes, item_b.attributes, item_a.id)
+
+        if ignored_attrs:
+            test.assertEqual(item_a.attributes,
+                filter_dict(item_b.attributes, exclude_keys=ignored_attrs),
+                item_a.id)
+        else:
+            test.assertEqual(item_a.attributes, item_b.attributes, item_a.id)
+
         if (require_images and item_a.has_image and item_a.image.has_data) or \
                 item_a.has_image and item_a.image.has_data and \
                 item_b.has_image and item_b.image.has_data:
@@ -146,8 +156,7 @@ def compare_datasets_strict(test, expected, actual):
                 (idx, item_a, item_b))
 
 def compare_datasets_3d(test, expected, actual, ignored_attrs=None,
-        require_images=False):
-
+        require_pcd=False):
     compare_categories(test, expected.categories(), actual.categories())
 
     if actual.subsets():
@@ -159,11 +168,15 @@ def compare_datasets_3d(test, expected, actual, ignored_attrs=None,
         test.assertFalse(item_b is None, item_a.id)
 
         if ignored_attrs:
-            test.assertEqual({k:v for k,v in item_a.attributes.items() if k not in ignored_attrs}, item_b.attributes, item_a.id)
+            test.assertEqual(item_a.attributes,
+                filter_dict(item_b.attributes, exclude_keys=ignored_attrs),
+                item_a.id)
         else:
             test.assertEqual(item_a.attributes, item_b.attributes, item_a.id)
-        if require_images or (item_a.has_pcd and item_b.has_pcd):
-            test.assertEqual(item_a.has_pcd, item_b.has_pcd, item_a.id)
+
+        if (require_pcd and item_a.has_pcd) or \
+                (item_a.has_pcd and item_b.has_pcd):
+            test.assertEqual(item_a.pcd, item_b.pcd, item_a.id)
         test.assertEqual(len(item_a.annotations), len(item_b.annotations))
         for ann_a in item_a.annotations:
             # We might find few corresponding items, so check them all
@@ -189,7 +202,7 @@ def test_save_and_load(test, source_dataset, converter, test_dir, importer,
     if target_dataset is None:
         target_dataset = source_dataset
 
-    if not compare and DIMENSIONS["DIM_3D"] == kwargs.get("dimension", None):
+    if not compare and kwargs.get("dimension") is Dimensions.dim_3d:
         compare = compare_datasets_3d
         del kwargs["dimension"]
     elif not compare:

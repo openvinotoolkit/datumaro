@@ -1,0 +1,134 @@
+{
+    "description": "",
+    "key": "e78200a6-2a02-4717-838e-33bed1eef292",
+    "tags": [
+        {
+            "name": "tag2",
+            "value": 65,
+            "labelerLogin": "user",
+            "updatedAt": "2021-06-25T14:26:45.979Z",
+            "createdAt": "2021-06-25T14:26:45.979Z",
+            "key": "de972ed110904e88b27df03cc6182a30"
+        },
+        {
+            "name": "tag1",
+            "value": "25dsd",
+            "labelerLogin": "user",
+            "updatedAt": "2021-06-25T14:26:37.211Z",
+            "createdAt": "2021-06-25T14:26:37.211Z",
+            "key": "b366fada5028420196917aa09df68021"
+        }
+    ],
+    "objects": [
+        {
+            "key": "95001e75-b37d-4d8e-95aa-066b639ccb3b",
+            "classTitle": "car",
+            "tags": [],
+            "labelerLogin": "user",
+            "createdAt": "2021-05-23 13:03:36.293651+00:00",
+            "updatedAt": "2021-05-23 13:06:38.474723+00:00"
+        },
+        {
+            "key": "76aadd13-e606-4bcc-891f-38385e22e17b",
+            "classTitle": "bus",
+            "tags": [],
+            "labelerLogin": "user",
+            "createdAt": "2021-05-23 13:03:36.293651+00:00",
+            "updatedAt": "2021-05-23 13:06:38.474723+00:00"
+        },
+        {
+            "key": "a5079ec44c004723ba8c8ffe4981eacd",
+            "classTitle": "car",
+            "tags": [
+                {
+                    "name": "tag3",
+                    "value": "4s",
+                    "labelerLogin": "user",
+                    "updatedAt": "2021-06-25T14:27:18.071Z",
+                    "createdAt": "2021-06-25T14:27:18.071Z",
+                    "key": "4358d8c22a14468e9e767117cdc9989a"
+                },
+                {
+                    "name": "tag1",
+                    "value": "fd",
+                    "labelerLogin": "user",
+                    "updatedAt": "2021-06-25T14:27:13.132Z",
+                    "createdAt": "2021-06-25T14:27:13.132Z",
+                    "key": "68c707fb9cfb45809ed31499d18a9d1a"
+                }
+            ],
+            "labelerLogin": "user",
+            "updatedAt": "2021-06-25T14:24:53.418Z",
+            "createdAt": "2021-06-25T14:24:53.418Z"
+        },
+        {
+            "key": "372929e9a944488aa955fd6e742a4d34",
+            "classTitle": "car",
+            "tags": [
+                {
+                    "name": "tag1",
+                    "value": "v12",
+                    "labelerLogin": "user",
+                    "updatedAt": "2021-06-26T06:39:27.228Z",
+                    "createdAt": "2021-06-26T06:39:27.228Z",
+                    "key": "690565f74f9643f290cf28a9a2c80460"
+                }
+            ],
+            "labelerLogin": "user",
+            "updatedAt": "2021-06-26T06:37:24.190Z",
+            "createdAt": "2021-06-26T06:37:24.190Z"
+        }
+    ],
+    "figures": [
+        {
+            "key": "3b761530437f44e5ba2e822e1223c5f4",
+            "objectKey": "a5079ec44c004723ba8c8ffe4981eacd",
+            "geometryType": "cuboid_3d",
+            "geometry": {
+                "position": {
+                    "x": 0.47322101780194115,
+                    "y": 0.23004135338593013,
+                    "z": 0.7857368231792693
+                },
+                "rotation": {
+                    "x": 0,
+                    "y": 0,
+                    "z": 0
+                },
+                "dimensions": {
+                    "x": 0.01,
+                    "y": 0.01,
+                    "z": 0.01
+                }
+            },
+            "labelerLogin": "user",
+            "updatedAt": "2021-06-25T14:24:53.622Z",
+            "createdAt": "2021-06-25T14:24:53.622Z"
+        },
+        {
+            "key": "4fbceef3e486495c95dd02c9891ba87b",
+            "objectKey": "372929e9a944488aa955fd6e742a4d34",
+            "geometryType": "cuboid_3d",
+            "geometry": {
+                "position": {
+                    "x": 0.36073632206016004,
+                    "y": 0.6367435566638207,
+                    "z": 0.9294467506049543
+                },
+                "rotation": {
+                    "x": 0,
+                    "y": 0,
+                    "z": 0
+                },
+                "dimensions": {
+                    "x": 0.01,
+                    "y": 0.01,
+                    "z": 0.01
+                }
+            },
+            "labelerLogin": "user",
+            "updatedAt": "2021-06-26T06:37:24.395Z",
+            "createdAt": "2021-06-26T06:37:24.395Z"
+        }
+    ]
+}

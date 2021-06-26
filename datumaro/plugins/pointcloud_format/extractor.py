@@ -1,127 +1,172 @@
-
 # Copyright (C) 2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
+from glob import iglob
 import json
-import os
-
-from collections import OrderedDict
 import os.path as osp
 
 from datumaro.components.extractor import (SourceExtractor, DatasetItem,
-    AnnotationType,Cuboid3D,
-    LabelCategories, Importer
-)
-from datumaro.util.image import Image
+    AnnotationType, Cuboid3d, LabelCategories, Importer)
+from datumaro.util.image import find_images
 
 from .format import PointCloudPath
 
 
 class PointCloudExtractor(SourceExtractor):
-    _SUPPORTED_SHAPES = "cuboid"
+    _SUPPORTED_SHAPES = 'cuboid'
 
     def __init__(self, path, subset=None):
-        assert osp.isfile(path), path
-        rootpath = osp.dirname(path)
-        images_dir = ''
-        if osp.isdir(osp.join(rootpath, PointCloudPath.ANNNOTATION_DIR)):
-            images_dir = osp.join(rootpath, PointCloudPath.ANNNOTATION_DIR)
-        self._images_dir = images_dir
-        self._path = path
+        if not osp.isfile(path):
+            raise FileNotFoundError("Expected a path to 'meta.json', "
+                "got '%s'" % path)
 
-        if not subset:
-            subset = osp.splitext(osp.basename(path))[0]
+        rootdir = osp.abspath(osp.dirname(path))
+        self._rootdir = rootdir
 
         super().__init__(subset=subset)
 
-        items, categories = self._parse(path)
+        items, categories = self._parse(rootdir)
         self._items = list(self._load_items(items).values())
         self._categories = categories
 
     @classmethod
-    def _parse(cls, path):
-        meta = {}
-        path = osp.abspath(path)
-        items = OrderedDict()
-        categories = {}
-        mapping = {}
+    def _parse(cls, rootpath):
+        with open(osp.join(rootpath, PointCloudPath.KEY_ID_FILE),
+                encoding='utf-8') as f:
+            mapping = json.load(f)
 
-        if osp.basename(path) == "key_id_map.json":
-            with open(path, "r") as f:
-                mapping = json.load(f)
+        with open(osp.join(rootpath, PointCloudPath.META_FILE),
+                encoding='utf-8') as f:
+            meta = json.load(f)
 
-        meta_path = osp.abspath(osp.join(osp.dirname(path), "meta.json"))
+        label_cat = LabelCategories(attributes={'object'})
+        for label in meta.get('classes', []):
+            label_cat.add(label['title'])
 
-        if osp.isfile(meta_path):
-            with open(meta_path, "r") as f:
-                meta = json.load(f)
+        tags = {}
+        for tag in meta.get('tags', []):
+            # See reference at:
+            # https://github.com/supervisely/supervisely/blob/047e52ebe407cfee61464c1bd0beb9c906892253/supervisely_lib/annotation/tag_meta.py#L139
+            tags[tag['name']] = tag
 
-        data_dir = osp.join(osp.dirname(path), PointCloudPath.DEFAULT_DIR, PointCloudPath.ANNNOTATION_DIR)
+            applicable_to = tag.get('applicable_type', 'all')
+            if applicable_to == 'imagesOnly':
+                continue # an image attribute
+            elif applicable_to not in {'all', 'objectsOnly'}:
+                raise Exception("Unexpected tag 'applicable_type' value '%s'" % \
+                    applicable_to)
 
-        labels = {}
-        for _, _, files in os.walk(data_dir):
-            for file in files:
-                with open(osp.join(data_dir, file), "r") as f:
-                    figure_data = json.load(f)
+            applicable_classes = tag.get('classes', [])
+            if not applicable_classes:
+                label_cat.attributes.add(tag['name'])
+            else:
+                for label_name in applicable_classes:
+                    _, label = label_cat.find(label_name)
+                    if label is None:
+                        raise Exception("Unknown class for tag '%s'" % \
+                            label_name)
 
-                common_attrs = ["occluded"]
-                label_cat = LabelCategories(attributes=common_attrs)
-                if meta:
-                    for label in meta["classes"]:
-                        attrs = []
-                        for tag in figure_data["tags"]:
-                            if tag["value"] == label['title']:
-                                attrs.append(tag["name"])
+                    label.attributes.add(tag['name'])
 
-                        label_cat.add(label['title'], attributes=attrs)
+        categories = {AnnotationType.label: label_cat}
 
-                categories[AnnotationType.label] = label_cat
+        def _get_label_attrs(label_id):
+            attrs = set(label_cat.attributes)
+            attrs.update(label_cat[label_id].attributes)
+            return attrs
 
-                for label in figure_data["objects"]:
-                    labels.update({label["key"]: label["classTitle"]})
+        def _parse_tag(tag):
+            if tag['value'] == 'true':
+                value = True
+            elif tag['value'] == 'false':
+                value = False
+            else:
+                value = tag['value']
+            return value
 
-                group = 0
-                z_order = 0
+        ann_dir = osp.join(rootpath,
+            PointCloudPath.BASE_DIR, PointCloudPath.ANNNOTATION_DIR)
+        items = {}
+        for ann_file in iglob(osp.join(ann_dir, '**', '*.json'), recursive=True):
+            with open(ann_file, encoding='utf-8') as f:
+                ann_data = json.load(f)
+
+            objects = {}
+            for obj in ann_data['objects']:
+                obj['id'] = mapping['objects'][obj['key']]
+                objects[obj['key']] = obj
+
+            frame_attributes = {'description': ann_data.get('description', '')}
+            for tag in ann_data['tags']:
+                frame_attributes[tag['name']] = _parse_tag(tag)
+
+            for figure in ann_data['figures']:
+                geometry = {
+                    dst_field: [float(figure['geometry'][src_field][axis])
+                        for axis in ['x', 'y', 'z']
+                    ]
+                    for src_field, dst_field in {
+                        'position': 'position',
+                        'rotation': 'rotation',
+                        'dimensions': 'scale'
+                    }.items()
+                }
+
+                ann_id = mapping['figures'][figure['key']]
+
+                obj = objects[figure['objectKey']]
+                label = categories[AnnotationType.label].find(
+                    obj['classTitle'])[0]
+
                 attributes = {}
+                attributes['object'] = obj['id']
+                for tag in obj.get('tags', []):
+                    attributes[tag['name']] = _parse_tag(tag)
+                for attr in _get_label_attrs(label):
+                    if attr in attributes:
+                        continue
+                    if tags[attr]['value_type'] == 'any_string':
+                        value = ''
+                    elif tags[attr]['value_type'] == 'oneof_string':
+                        value = (tags[attr]['values'] or [''])[0]
+                    elif tags[attr]['value_type'] == 'any_number':
+                        value = 0
+                    attributes[attr] = value
 
-                for figure in figure_data["figures"]:
-                    anno_points = []
-                    geometry_type = ["position", "rotation", "dimensions"]
-                    for geo in geometry_type:
-                        anno_points.extend(float(i) for i in figure["geometry"][geo].values())
+                shape = Cuboid3d(**geometry, label=label,
+                    id=ann_id, attributes=attributes)
 
-                    for _ in range(7):
-                        anno_points.append(0.0)
-
-                    map_id = mapping["figures"][figure['key']]
-                    label = labels[figure["objectKey"]]
-
-                    label = categories[AnnotationType.label].find(label)[0]
-
-                    shape = Cuboid3D(anno_points, label=label, z_order=z_order,
-                                   id=map_id, attributes=attributes, group=group)
-
-                    frame = mapping["videos"][figure_data['key']]
-                    frame_desc = items.get(frame, {'annotations': []})
-
-                    frame_desc['annotations'].append(shape)
-                    items[frame] = frame_desc
+                frame = mapping['videos'][ann_data['key']]
+                frame_desc = items.setdefault(frame, {
+                    'name': osp.splitext(osp.relpath(ann_file, ann_dir))[0],
+                    'annotations': [],
+                    'attributes': frame_attributes,
+                })
+                frame_desc['annotations'].append(shape)
 
         return items, categories
 
     def _load_items(self, parsed):
-        for frame_id, item_desc in parsed.items():
-            name = item_desc.get('name', 'frame_%06d.png' % int(frame_id))
-            image = osp.join(self._images_dir, name)
-            image_size = (item_desc.get('height'), item_desc.get('width'))
-            if all(image_size):
-                image = Image(path=image, size=tuple(map(int, image_size)))
+        for frame_id, frame_desc in parsed.items():
+            pcd_name = frame_desc['name']
+            name = osp.splitext(pcd_name)[0]
+            pcd_path = osp.join(self._rootdir, PointCloudPath.BASE_DIR,
+                PointCloudPath.POINT_CLOUD_DIR, pcd_name)
+            assert pcd_path.endswith('.pcd'), pcd_path
 
-            parsed[frame_id] = DatasetItem(id=osp.splitext(name)[0],
-                                           subset=self._subset, image=image,
-                                           annotations=item_desc.get('annotations'),
-                                           attributes={'frame': int(frame_id)})
+            related_images_dir = osp.join(self._rootdir,
+                PointCloudPath.BASE_DIR,
+                PointCloudPath.RELATED_IMAGES_DIR, osp.dirname(pcd_name),
+                name + '_pcd')
+            related_images = None
+            if osp.isdir(related_images_dir):
+                related_images = find_images(related_images_dir)
+
+            parsed[frame_id] = DatasetItem(id=name, subset=self._subset,
+                pcd=pcd_path, related_images=related_images,
+                annotations=frame_desc.get('annotations'),
+                attributes={'frame': int(frame_id), **frame_desc['attributes']})
 
         return parsed
 
@@ -129,7 +174,5 @@ class PointCloudExtractor(SourceExtractor):
 class PointCloudImporter(Importer):
     @classmethod
     def find_sources(cls, path):
-        sources = cls._find_sources_recursive(path, '.json', 'point_cloud')
-        sources = [source for source in sources if osp.basename(source["url"]) != "meta.json"]
-
-        return sources
+        return cls._find_sources_recursive(path, '.json', 'point_cloud',
+            filename='meta')
