@@ -25,7 +25,7 @@ class AnnotationType(Enum):
     polyline = auto()
     bbox = auto()
     caption = auto()
-    cuboid = auto()
+    cuboid_3d = auto()
 
 _COORDINATE_ROUNDING_DIGITS = 2
 
@@ -363,14 +363,63 @@ class PolyLine(_Shape):
 
 
 @attrs
-class Cuboid3D(Annotation):
-    _type = AnnotationType.cuboid
-    points = attrib(converter=lambda x:
-        [round(p, _COORDINATE_ROUNDING_DIGITS) for p in x])
+class Cuboid3d(Annotation):
+    _type = AnnotationType.cuboid_3d
+    _points = attrib(type=list, default=None)
     label = attrib(converter=attr.converters.optional(int),
         default=None, kw_only=True)
-    z_order = attrib(default=0, validator=default_if_none(int), kw_only=True)
 
+    @_points.validator
+    def _points_validator(self, attribute, points):
+        if points is None:
+            points = [0, 0, 0,  0, 0, 0,  1, 1, 1]
+        else:
+            assert len(points) == 3 + 3 + 3, points
+            points = [round(p, _COORDINATE_ROUNDING_DIGITS) for p in points]
+        self._points = points
+
+    # will be overridden by attrs, then will be overridden again by us
+    # attrs' method will be renamed to __attrs_init__
+    def __init__(self, position, rotation=None, scale=None, **kwargs):
+        assert len(position) == 3, position
+        if not rotation:
+            rotation = [0] * 3
+        if not scale:
+            scale = [1] * 3
+        kwargs.pop('points', None)
+        self.__attrs_init__(points=[*position, *rotation, *scale], **kwargs)
+    __actual_init__ = __init__ # save pointer
+
+    @property
+    def position(self):
+        return self._points[0:2]
+
+    @position.setter
+    def _set_poistion(self, value):
+        self.position[:] = \
+            [round(p, _COORDINATE_ROUNDING_DIGITS) for p in value]
+
+    @property
+    def rotation(self):
+        return self._points[3:5]
+
+    @rotation.setter
+    def _set_rotation(self, value):
+        self.rotation[:] = \
+            [round(p, _COORDINATE_ROUNDING_DIGITS) for p in value]
+
+    @property
+    def scale(self):
+        return self._points[6:8]
+
+    @scale.setter
+    def _set_scale(self, value):
+        self.scale[:] = \
+            [round(p, _COORDINATE_ROUNDING_DIGITS) for p in value]
+
+assert not hasattr(Cuboid3d, '__attrs_init__') # hopefully, it will be supported
+setattr(Cuboid3d, '__attrs_init__', Cuboid3d.__init__)
+setattr(Cuboid3d, '__init__', Cuboid3d.__actual_init__)
 
 @attrs
 class Polygon(_Shape):
@@ -535,20 +584,22 @@ class DatasetItem:
     pcd = attrib(type=bytes, default=None)
     related_images = attrib(factory=list, validator=default_if_none(list))
 
+    def __attrs_post_init__(self):
+        assert not (self.has_image and self.has_pcd), \
+            "Can't set both image and point cloud"
+
     @related_images.validator
     def _related_image_validator(self, attribute, related_images):
         self.related_images = []
-        image = {}
-        for related_image in related_images:
-            if callable(related_image["path"]) or isinstance(related_image["path"], np.ndarray):
-                image["name"] = related_image["name"]
-                image["save_path"] = related_image["save_path"]
-                image["image"] = Image(data=related_image)
-            elif isinstance(related_image["path"], str):
-                image["name"] = related_image["name"]
-                image["save_path"] = related_image["save_path"]
-                image["image"] = Image(path=related_image["path"])
-            assert image is None or isinstance(image["image"], Image)
+
+        if not related_images:
+            return
+        for image in related_images:
+            if callable(image) or isinstance(image, np.ndarray):
+                image = Image(data=image)
+            elif isinstance(image, str):
+                image = Image(path=image)
+            assert isinstance(image, Image), type(image)
 
             self.related_images.append(image)
 
