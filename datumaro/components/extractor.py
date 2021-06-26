@@ -536,7 +536,7 @@ class DatasetItem:
     related_images = attrib(factory=list, validator=default_if_none(list))
 
     @related_images.validator
-    def _related_image_validator(self, attribute, related_images):
+    def _related_image_validator(self, _, related_images):
         self.related_images = []
         image = {}
         for related_image in related_images:
@@ -553,7 +553,7 @@ class DatasetItem:
             self.related_images.append(image)
 
     @pcd.validator
-    def _pcd_validator(self, attribute, pcd):
+    def _pcd_validator(self, _, pcd):
         if pcd:
             assert isinstance(pcd, (bytes, str)) or callable(pcd), type(pcd)
             self.pcd = pcd

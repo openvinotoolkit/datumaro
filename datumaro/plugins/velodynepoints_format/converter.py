@@ -20,7 +20,6 @@ from datumaro.util.image import ByteImage, save_image
 from .format import VelodynePointsPath, VelodynePointsState
 
 
-
 class XmlAnnotationWriter:
 
     def __init__(self, file, tracklets):
@@ -35,10 +34,8 @@ class XmlAnnotationWriter:
         self._pose_state = True
         self._item_state = True
         self._item = 1
-        self._header = """<?xml version="{}" encoding="{}" standalone="{}" ?>""".format("1.0", 'UTF-8', 'yes')
+        self._header = """<?xml version="{}" encoding="{}" standalone="{}" ?>""".format(self.version, 'UTF-8', 'yes')
         self._doctype = """<!DOCTYPE {}>""".format('boost_serialization')
-        self._serialization = """<boost_serialization signature="{}" version="{}">""".format("serialization::archive",
-                                                                                             "9")
 
     def _indent(self, newline=True):
         if newline:
@@ -353,7 +350,6 @@ class _SubsetWriter:
             return index
 
 class VelodynePointsConverter(Converter):
-    DEFAULT_IMAGE_EXT = ".pcd"
 
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
@@ -367,8 +363,8 @@ class VelodynePointsConverter(Converter):
 
     def __init__(self, extractor, save_dir, reindex=False,
             allow_undeclared_attrs=False, **kwargs):
+        VelodynePointsConverter.DEFAULT_IMAGE_EXT = ".pcd"
         super().__init__(extractor, save_dir, **kwargs)
-
         self._reindex = reindex
         self._builtin_attrs = VelodynePointsPath.BUILTIN_ATTRS
         self._allow_undeclared_attrs = allow_undeclared_attrs

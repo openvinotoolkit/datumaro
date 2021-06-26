@@ -39,14 +39,13 @@ class Converter(CliPlugin):
         raise NotImplementedError("Should be implemented in a subclass")
 
     def __init__(self, extractor, save_dir, save_images=False,
-            image_ext=None, default_image_ext=None, related_paths=None, image_names=None):
+            image_ext=None, default_image_ext=None, **_):
         default_image_ext = default_image_ext or self.DEFAULT_IMAGE_EXT
         assert default_image_ext
         self._default_image_ext = default_image_ext
 
         self._save_images = save_images
         self._image_ext = image_ext
-
         self._extractor = extractor
         self._save_dir = save_dir
 

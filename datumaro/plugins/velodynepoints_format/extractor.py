@@ -24,12 +24,9 @@ class VelodynePointsExtractor(SourceExtractor):
         if osp.isdir(osp.join(rootpath, VelodynePointsPath.IMAGES_DIR)):
             images_dir = osp.join(rootpath, VelodynePointsPath.IMAGES_DIR)
         self._images_dir = images_dir
-        self._path = path
-
         if not subset:
             subset = osp.splitext(osp.basename(path))[0]
         super().__init__(subset=subset)
-
         items, categories = self._parse(path)
         self._items = list(self._load_items(items).values())
         self._categories = categories

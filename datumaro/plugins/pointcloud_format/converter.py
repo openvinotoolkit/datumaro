@@ -40,10 +40,7 @@ class PointCloudParser:
         self._meta_tags = {}
         self._tags = {}
         self.frame_tags = []
-        self._labels = {}
         self._attribute_length = 0
-        self.temp_labels = []
-        self.default_values = {}
         self._attr_list3 = []
 
         key_id_data = {
@@ -53,16 +50,6 @@ class PointCloudParser:
             "videos": {}
         }
         self._key_id_data = key_id_data
-
-        self._meta_tag = {
-                    "name": "",
-                    "value_type": "",
-                    "color": "",
-                    "id": "",
-                    "hotkey": "",
-                    "applicable_type": "all",
-                    "classes": []
-                }
 
         meta_data = {
             "classes": [],
