@@ -19,11 +19,6 @@ class VelodynePointsExtractor(SourceExtractor):
 
     def __init__(self, path, subset=None):
         assert osp.isfile(path), path
-        rootpath = osp.dirname(path)
-        images_dir = ''
-        if osp.isdir(osp.join(rootpath, VelodynePointsPath.IMAGES_DIR)):
-            images_dir = osp.join(rootpath, VelodynePointsPath.IMAGES_DIR)
-        self._images_dir = images_dir
         if not subset:
             subset = osp.splitext(osp.basename(path))[0]
         super().__init__(subset=subset)
