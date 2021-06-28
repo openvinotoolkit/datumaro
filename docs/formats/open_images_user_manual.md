@@ -111,7 +111,27 @@ To get information about them, run
 
 ## Export to Open Images
 
-Converting datasets to the Open Images format is currently not supported.
+There are few ways to convert an existing dataset to the Open Images format:
+
+``` bash
+# export dataset into Open Images format from existing project
+datum export -p <path/to/project> -f open_images -o <path/to/export/dir> \
+  -- --save_images
+
+# convert a dataset in another format to the Open Images format
+datum convert -if imagenet -i <path/to/imagenet/dataset> \
+    -f open_images -o <path/to/export/dir> \
+    -- --save-images
+```
+
+Extra options for export to the Open Images format:
+
+- `--save-images` - save image files when exporting the dataset
+  (by default, `False`)
+
+- `--image-ext IMAGE_EXT` - save image files with the speficied extension
+  when exporting the dataset (by default, uses the original extension
+  or `.jpg` if there isn't one)
 
 ## Particular use cases
 
@@ -120,16 +140,46 @@ and for the Open Images format in particular. Follow
 [user manual](../user_manual.md)
 to get more information about these operations.
 
-Here is an example of using Datumaro operations to solve
-a particular problem with the Open Images dataset:
+Here are a few examples of using Datumaro operations to solve
+particular problems with the Open Images dataset:
 
-### Example. How to load the Open Images dataset and convert to the format used by CVAT
+### Example 1. How to load the Open Images dataset and convert to the format used by CVAT
 
 ```bash
 datum create -o project
 datum add path -p project -f open_images ./open-images-dataset/
 datum stats -p project
 datum export -p project -o dataset -f cvat --overwrite -- --save-images
+```
+
+### Example 2. How to create a custom OID-like dataset
+
+```python
+import numpy as np
+from datumaro.components.dataset import Dataset
+from datumaro.components.extractor import (
+    AnnotationType, Label, LabelCategories, DatasetItem,
+)
+
+dataset = Dataset.from_iterable(
+    [
+        DatasetItem(
+            id='0000000000000001',
+            image=np.ones((1, 5, 3)),
+            subset='validation',
+            annotations=[
+                Label(0, attributes={'score': 1}),
+                Label(1, attributes={'score': 0}),
+            ],
+        ),
+    ],
+    categories={
+        AnnotationType.label: LabelCategories.from_iterable([
+            '/m/0', '/m/1',
+        ]),
+    },
+)
+dataset.export('./dataset', format='open_images')
 ```
 
 More examples of working with OID from code can be found in
