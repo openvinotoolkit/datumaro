@@ -21,6 +21,7 @@ from datumaro.components.extractor import (
 )
 from datumaro.components.validator import Severity
 from datumaro.util.image import find_images
+from datumaro.util.os_util import split_path
 
 # A regex to check whether a subset name can be used as a "normal" path
 # component.
@@ -139,11 +140,16 @@ class OpenImagesExtractor(Extractor):
         set_parents_from_node(root_node, root_category)
 
     def _load_items(self):
+        images_dir = osp.join(self._dataset_dir, 'images')
+
         image_paths_by_id = {
-            osp.splitext(osp.basename(path))[0]: path
-            for path in find_images(
-                osp.join(self._dataset_dir, 'images'),
-                recursive=True, max_depth=1)
+            # the first component of `path_parts` is the subset name
+            '/'.join(path_parts[1:]): path
+            for path in find_images(images_dir, recursive=True)
+            for path_parts in [split_path(
+                osp.splitext(osp.relpath(path, images_dir))[0],
+            )]
+            if len(path_parts) > 1
         }
 
         items_by_id = {}
