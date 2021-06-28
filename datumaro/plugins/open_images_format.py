@@ -43,6 +43,8 @@ class UnsupportedSubsetNameError(DatasetError):
 
 class OpenImagesPath:
     ANNOTATIONS_DIR = 'annotations'
+    IMAGES_DIR = 'images'
+
     FULL_IMAGE_DESCRIPTION_NAME = 'image_ids_and_rotation.csv'
     SUBSET_IMAGE_DESCRIPTION_PATTERNS = (
         '*-images-with-rotation.csv',
@@ -140,7 +142,7 @@ class OpenImagesExtractor(Extractor):
         set_parents_from_node(root_node, root_category)
 
     def _load_items(self):
-        images_dir = osp.join(self._dataset_dir, 'images')
+        images_dir = osp.join(self._dataset_dir, OpenImagesPath.IMAGES_DIR)
 
         image_paths_by_id = {
             # the first component of `path_parts` is the subset name
@@ -346,7 +348,8 @@ class OpenImagesConverter(Converter):
                     })
 
                     if self._save_images and item.has_image:
-                        self._save_image(item, subdir=osp.join('images', subset_name))
+                        self._save_image(item, subdir=osp.join(
+                            OpenImagesPath.IMAGES_DIR, subset_name))
 
                     for annotation in item.annotations:
                         if isinstance(annotation, Label):
