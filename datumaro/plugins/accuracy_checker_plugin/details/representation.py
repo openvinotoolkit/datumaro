@@ -56,7 +56,3 @@ def import_prediction(pred):
     #     -
     else:
         raise NotImplementedError("Can't convert %s" % type(pred))
-
-
-
-

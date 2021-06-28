@@ -1,5 +1,5 @@
 
-# Copyright (C) 2019-2020 Intel Corporation
+# Copyright (C) 2019-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -195,4 +195,3 @@ class OpenvinoLauncher(Launcher):
 
     def process_outputs(self, inputs, outputs):
         return self._interpreter.process_outputs(inputs, outputs)
-

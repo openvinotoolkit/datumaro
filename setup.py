@@ -1,5 +1,5 @@
 
-# Copyright (C) 2019-2020 Intel Corporation
+# Copyright (C) 2019-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -34,31 +34,9 @@ def find_version(project_dir=None):
     return version
 
 def get_requirements():
-    requirements = [
-        'attrs>=19.3.0',
-        'GitPython',
-        'defusedxml',
-        'dvc',
-        'lxml',
-        'matplotlib',
-        'numpy>=1.17.3',
-        'Pillow',
+    with open('requirements-core.txt') as fh:
+        requirements = [fh.read()]
 
-        # Avoid 2.0.2 Linux binary distribution because of
-        # a conflict in numpy versions with TensorFlow:
-        # - TF is compiled with numpy 1.19 ABI
-        # - pycocotools is compiled with numpy 1.20 ABI
-        # Using a previous version allows to force package rebuilding.
-        #
-        # https://github.com/openvinotoolkit/datumaro/issues/253
-        'pycocotools!=2.0.2; platform_system != "Windows"',
-        'pycocotools-windows; platform_system == "Windows"',
-
-        'PyYAML',
-        'ruamel.yaml',
-        'scikit-image',
-        'tensorboardX',
-    ]
     if strtobool(os.getenv('DATUMARO_HEADLESS', '0').lower()):
         requirements.append('opencv-python-headless')
     else:
