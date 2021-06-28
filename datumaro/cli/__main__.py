@@ -84,7 +84,7 @@ def make_parser():
         ('export', commands.export, "Export project in some format"),
         ('filter', commands.filter, "Filter project items"),
         ('transform', commands.transform, "Modify project items"),
-        ('merge', commands.merge, "Merge projects"),
+        ('merge', commands.merge, "Merge datasets"),
         ('convert', commands.convert, "Convert dataset between formats"),
         ('diff', commands.diff, "Compare datasets"),
         ('stats', commands.stats, "Compute project statistics"),
