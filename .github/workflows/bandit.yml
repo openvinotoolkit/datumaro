@@ -21,7 +21,6 @@ jobs:
           done
 
           if [[ ! -z ${changed_files_bandit} ]]; then
-            pip install --user -U pip wheel setuptools
             pip install --user $(egrep "bandit.*" ./requirements.txt)
             mkdir -p bandit_report
 

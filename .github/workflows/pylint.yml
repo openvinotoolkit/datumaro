@@ -21,7 +21,6 @@ jobs:
           done
 
           if [[ ! -z ${changed_files_pylint} ]]; then
-            pip install --user -U pip wheel setuptools
             pip install --user $(egrep "pylint.*" ./requirements.txt)
             mkdir -p pylint_report
 
