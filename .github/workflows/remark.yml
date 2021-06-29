@@ -19,7 +19,7 @@ jobs:
           get_report=`cat ./remark_report/remark_report.json  | jq -r '.[] | select(.messages | length > 0)'`
           if [[ ! -z ${get_report} ]]; then
             pip install json2html
-            python ./json_to_html.py ./remark_report/remark_report.json
+            python ./ci/json_to_html.py ./remark_report/remark_report.json
             exit 1
           fi
 
