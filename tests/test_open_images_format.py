@@ -50,16 +50,11 @@ class OpenImagesFormatTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_with_no_subsets(self):
-        source_dataset = Dataset.from_iterable(
-            [
-                DatasetItem(id='a',
-                    annotations=[Label(0, attributes={'score': 0.7})]
-                ),
-            ],
-            categories={
-                AnnotationType.label: LabelCategories.from_iterable(['/m/0']),
-            },
-        )
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id='a',
+                annotations=[Label(0, attributes={'score': 0.7})]
+            ),
+        ], categories=['/m/0'])
 
         with TestDir() as test_dir:
             OpenImagesConverter.convert(source_dataset, test_dir,

@@ -352,7 +352,7 @@ class OpenImagesConverter(Converter):
                             OpenImagesPath.IMAGES_DIR, subset_name))
 
                     for annotation in item.annotations:
-                        if isinstance(annotation, Label):
+                        if annotation.type is AnnotationType.label:
                             label_description_writer.writerow({
                                 'ImageID': item.id,
                                 'LabelName': label_categories[annotation.label].name,

@@ -173,11 +173,7 @@ dataset = Dataset.from_iterable(
             ],
         ),
     ],
-    categories={
-        AnnotationType.label: LabelCategories.from_iterable([
-            '/m/0', '/m/1',
-        ]),
-    },
+    categories=['/m/0', '/m/1'],
 )
 dataset.export('./dataset', format='open_images')
 ```
