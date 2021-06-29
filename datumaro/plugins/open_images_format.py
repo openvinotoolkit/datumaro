@@ -151,7 +151,7 @@ class OpenImagesExtractor(Extractor):
             for path_parts in [split_path(
                 osp.splitext(osp.relpath(path, images_dir))[0],
             )]
-            if len(path_parts) > 1
+            if 1 < len(path_parts)
         }
 
         items_by_id = {}
@@ -297,8 +297,8 @@ class OpenImagesConverter(Converter):
         hierarchy_path = osp.join(
             self._save_dir, OpenImagesPath.ANNOTATIONS_DIR, OpenImagesPath.HIERARCHY_FILE_NAME)
 
-        with open(hierarchy_path, 'w', encoding='UTF-8') as hierarchy_file:
-            json.dump(root_node, hierarchy_file, indent=4)
+        with open(hierarchy_path, 'w', encoding='utf-8') as hierarchy_file:
+            json.dump(root_node, hierarchy_file, indent=4, ensure_ascii=False)
             hierarchy_file.write('\n')
 
     def _save_subsets(self):

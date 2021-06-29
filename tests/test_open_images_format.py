@@ -8,11 +8,12 @@ from unittest.case import TestCase
 
 import numpy as np
 
+from datumaro.components.dataset import Dataset
+from datumaro.components.extractor import AnnotationType, DatasetItem, Label, LabelCategories
 from datumaro.plugins.open_images_format import OpenImagesConverter, OpenImagesImporter
 from datumaro.util.image import Image
 from datumaro.util.test_utils import TestDir, compare_datasets_strict
-from datumaro.components.extractor import AnnotationType, DatasetItem, Label, LabelCategories
-from datumaro.components.dataset import Dataset
+
 from tests.requirements import Requirements, mark_requirement
 
 class OpenImagesFormatTest(TestCase):
