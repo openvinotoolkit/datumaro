@@ -21,6 +21,7 @@ class Requirements:
     DATUM_231 = "Readable formats for CJK"
     DATUM_244 = "Add Snyk integration"
     DATUM_267 = "Add Image zip format"
+    DATUM_274 = "Support the Open Images dataset"
     DATUM_280 = "Support KITTI dataset formats"
     DATUM_283 = "Create cli tests for testing convert command for VOC format"
 

@@ -17,7 +17,7 @@ from datumaro.util.test_utils import TestDir, compare_datasets_strict
 from tests.requirements import Requirements, mark_requirement
 
 class OpenImagesFormatTest(TestCase):
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @mark_requirement(Requirements.DATUM_274)
     def test_can_save_and_load(self):
         source_dataset = Dataset.from_iterable(
             [
@@ -48,7 +48,7 @@ class OpenImagesFormatTest(TestCase):
 
             compare_datasets_strict(self, source_dataset, parsed_dataset)
 
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @mark_requirement(Requirements.DATUM_274)
     def test_can_save_and_load_with_no_subsets(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='a',
@@ -64,7 +64,7 @@ class OpenImagesFormatTest(TestCase):
 
             compare_datasets_strict(self, source_dataset, parsed_dataset)
 
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @mark_requirement(Requirements.DATUM_274)
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id='a/1', image=Image(path='a/1.JPEG',
@@ -86,7 +86,7 @@ DUMMY_DATASET_DIR_V6 = osp.join(ASSETS_DIR, 'open_images_dataset_v6')
 DUMMY_DATASET_DIR_V5 = osp.join(ASSETS_DIR, 'open_images_dataset_v5')
 
 class OpenImagesImporterTest(TestCase):
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @mark_requirement(Requirements.DATUM_274)
     def test_can_import_v6(self):
         expected_dataset = Dataset.from_iterable(
             [
@@ -120,7 +120,7 @@ class OpenImagesImporterTest(TestCase):
 
         compare_datasets_strict(self, expected_dataset, dataset)
 
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @mark_requirement(Requirements.DATUM_274)
     def test_can_import_v5(self):
         expected_dataset = Dataset.from_iterable(
             [
@@ -139,7 +139,7 @@ class OpenImagesImporterTest(TestCase):
 
         compare_datasets_strict(self, expected_dataset, dataset)
 
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @mark_requirement(Requirements.DATUM_274)
     def test_can_detect(self):
         self.assertTrue(OpenImagesImporter.detect(DUMMY_DATASET_DIR_V6))
         self.assertTrue(OpenImagesImporter.detect(DUMMY_DATASET_DIR_V5))
