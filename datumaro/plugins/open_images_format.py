@@ -302,8 +302,8 @@ class OpenImagesConverter(Converter):
             hierarchy_file.write('\n')
 
     def _save_subsets(self):
-        # TODO: what if there are no categories?
-        label_categories = self._extractor.categories()[AnnotationType.label]
+        label_categories = self._extractor.categories().get(
+            AnnotationType.label, LabelCategories())
 
         for subset_name, subset in self._extractor.subsets().items():
             if _RE_INVALID_SUBSET.fullmatch(subset_name):
