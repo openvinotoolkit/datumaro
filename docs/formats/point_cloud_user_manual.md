@@ -7,7 +7,7 @@
 
 ## Format specification
 
-Point Cloud data format specification available [here](https://drive.google.com/file/d/1BtZyffWtWNR-mk_PHNPMnGgSlAkkQpBl/view).
+Point Cloud data format specification available [here](https://docs.supervise.ly/data-organization/00_ann_format_navi). An example is [here](https://drive.google.com/file/d/1BtZyffWtWNR-mk_PHNPMnGgSlAkkQpBl/view).
 
 ##  Load Point Cloud dataset
 
