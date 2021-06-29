@@ -14,6 +14,7 @@ from .format import PointCloudPath
 
 
 class SuperviselyPointcloudExtractor(SourceExtractor):
+    NAME = 'sly_pointcloud'
     _SUPPORTED_SHAPES = 'cuboid'
 
     def __init__(self, path, subset=None):
@@ -173,7 +174,9 @@ class SuperviselyPointcloudExtractor(SourceExtractor):
 
 
 class SuperviselyPointcloudImporter(Importer):
+    NAME = 'sly_pointcloud'
+
     @classmethod
     def find_sources(cls, path):
-        return cls._find_sources_recursive(path, '.json', 'point_cloud',
+        return cls._find_sources_recursive(path, '.json', 'sly_pointcloud',
             filename='meta')

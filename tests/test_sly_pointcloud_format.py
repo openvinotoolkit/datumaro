@@ -15,16 +15,16 @@ from datumaro.util.test_utils import (Dimensions, TestDir, compare_datasets_3d,
 from .requirements import Requirements, mark_requirement
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(
-    __file__), 'assets', 'pointcloud_dataset')
+    __file__), 'assets', 'sly_pointcloud_dataset')
 
 
-class PointCloudImporterTest(TestCase):
+class SuperviselyPointcloudImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_detect_image(self):
+    def test_can_detect(self):
         self.assertTrue(SuperviselyPointcloudImporter.detect(DUMMY_DATASET_DIR))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_load_pcd(self):
+    def test_can_load(self):
         pcd1 = osp.join(DUMMY_DATASET_DIR, 'ds0', 'pointcloud', 'frame1.pcd')
         pcd2 = osp.join(DUMMY_DATASET_DIR, 'ds0', 'pointcloud', 'frame2.pcd')
 
@@ -66,7 +66,7 @@ class PointCloudImporterTest(TestCase):
             ),
         ], categories={AnnotationType.label: label_cat})
 
-        parsed_dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'point_cloud')
+        parsed_dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'sly_pointcloud')
 
         compare_datasets_3d(self, expected_dataset, parsed_dataset,
             require_pcd=True)
@@ -86,7 +86,7 @@ class PointCloudConverterTest(TestCase):
             target_dataset=None, importer_args=None, **kwargs):
         kwargs.setdefault('dimension', Dimensions.dim_3d)
         return test_save_and_load(self, source_dataset, converter, test_dir,
-            importer='point_cloud', target_dataset=target_dataset,
+            importer='sly_pointcloud', target_dataset=target_dataset,
             importer_args=importer_args, **kwargs)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)

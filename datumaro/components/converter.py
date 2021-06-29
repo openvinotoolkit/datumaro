@@ -94,19 +94,22 @@ class Converter(CliPlugin):
         else:
             save_image(path, item.image.data)
 
-    def _save_pcd(self, item=None, path=None, pcd_dir=None, name=None):
+    def _save_pcd(self, item=None, path=None, *,
+            name=None, subdir=None, basedir=None):
+        assert not ((subdir or name or basedir) and path), \
+            "Can't use both subdir or name or basedir and path arguments"
 
         if not item.pcd:
             log.warning("Item '%s' has no pcd", item.id)
             return
 
-        path = path or osp.join(pcd_dir,
-                                self._make_pcd_filename(item, name=name, subdir=None))
-
+        basedir = basedir or self._save_dir
+        path = path or osp.join(basedir,
+            self._make_pcd_filename(item, name=name, subdir=subdir))
         path = osp.abspath(path)
-        os.makedirs(osp.dirname(path), exist_ok=True)
 
-        if osp.isfile(item.pcd):
+        os.makedirs(osp.dirname(path), exist_ok=True)
+        if item.pcd and osp.isfile(item.pcd):
             if item.pcd != path:
                 shutil.copyfile(item.pcd, path)
         elif isinstance(item.pcd, bytes):
