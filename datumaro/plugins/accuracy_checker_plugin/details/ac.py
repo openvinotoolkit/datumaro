@@ -3,7 +3,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-from datumaro.util.tf_util import import_tf # pylint: disable=wrong-import-order
+from datumaro.util.tf_util import import_tf
 import_tf() # prevent TF loading and potential interpreter crash
 
 from itertools import groupby
