@@ -121,36 +121,36 @@ class PointCloudConverterTest(TestCase):
             ),
         ], categories={ AnnotationType.label: src_label_cat })
 
-        target_label_cat = LabelCategories(attributes={'occluded', 'object'})
-        target_label_cat.add('car', attributes=['x'])
-        target_label_cat.add('bus')
-
-        target_dataset = Dataset.from_iterable([
-            DatasetItem(id='frame_1',
-                annotations=[
-                    Cuboid3d(id=206, label=0,
-                        position=[320.86, 979.18, 1.04],
-                        attributes={'occluded': False, 'object': 1, 'x': 1}),
-
-                    Cuboid3d(id=207, label=1,
-                        position=[318.19, 974.65, 1.29],
-                        attributes={'occluded': True, 'object': 2}),
-                ],
-                pcd=self.pcd1,
-                attributes={'frame': 0, 'description': 'zzz'}),
-
-            DatasetItem(id='frm2',
-                annotations=[
-                    Cuboid3d(id=208, label=1,
-                        position=[23.04, 8.75, -0.78],
-                        attributes={'occluded': False }),
-                ],
-                pcd=self.pcd2,
-                related_images=[self.image1],
-                attributes={'frame': 1, 'description': ''})
-        ], categories={ AnnotationType.label: target_label_cat })
-
         with TestDir() as test_dir:
+            target_label_cat = LabelCategories(attributes={'occluded'})
+            target_label_cat.add('car', attributes=['x'])
+            target_label_cat.add('bus')
+
+            target_dataset = Dataset.from_iterable([
+                DatasetItem(id='frame_1',
+                    annotations=[
+                        Cuboid3d(id=206, label=0,
+                            position=[320.86, 979.18, 1.04],
+                            attributes={'occluded': False, 'object': 1, 'x': 1}),
+
+                        Cuboid3d(id=207, label=1,
+                            position=[318.19, 974.65, 1.29],
+                            attributes={'occluded': True, 'object': 2}),
+                    ],
+                    pcd=osp.join(test_dir, 'ds0', 'pointcloud', 'frame_1.pcd'),
+                    attributes={'frame': 0, 'description': 'zzz'}),
+
+                DatasetItem(id='frm2',
+                    annotations=[
+                        Cuboid3d(id=208, label=1,
+                            position=[23.04, 8.75, -0.78],
+                            attributes={'occluded': False, 'object': 2}),
+                    ],
+                    pcd=osp.join(test_dir, 'ds0', 'pointcloud', 'frm2.pcd'),
+                    related_images=[self.image1],
+                    attributes={'frame': 1, 'description': ''})
+            ], categories={ AnnotationType.label: target_label_cat })
+
             self._test_save_and_load(source_dataset,
                 partial(SuperviselyPointcloudConverter.convert, save_images=True),
                 test_dir, target_dataset=target_dataset, require_pcd=True)
@@ -159,7 +159,7 @@ class PointCloudConverterTest(TestCase):
     def test_preserve_frame_ids(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id='abc', attributes={'frame': 20}),
-        ])
+        ], categories=[])
 
         with TestDir() as test_dir:
             self._test_save_and_load(dataset,
@@ -173,8 +173,8 @@ class PointCloudConverterTest(TestCase):
         ])
 
         expected_dataset = Dataset.from_iterable([
-            DatasetItem(id='frame_000000', attributes={'frame': 0})
-        ])
+            DatasetItem(id='somename', attributes={'frame': 1})
+        ], categories=[])
 
         with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
@@ -191,7 +191,7 @@ class PointCloudConverterTest(TestCase):
             DatasetItem(id='frame_000000',
                 annotations=[
                     Cuboid3d(id=206, label=0, position=[320.86, 979.18, 1.04],
-                        attributes={'occluded': False,
+                        attributes={'object': 1, 'occluded': False,
                             'a': 5, 'undeclared': 'y'}),
                 ],
                 attributes={'frame': 0}),
@@ -222,7 +222,7 @@ class PointCloudConverterTest(TestCase):
             DatasetItem(id='frame_000000',
                 annotations=[
                     Cuboid3d(id=206, label=0, position=[320.86, 979.18, 1.04],
-                        attributes={'occluded': False, 'a': 5}),
+                        attributes={'object': 206, 'occluded': False, 'a': 5}),
                 ],
                 attributes={'frame': 0}),
         ], categories={AnnotationType.label: src_label_cat})
@@ -242,39 +242,45 @@ class PointCloudConverterTest(TestCase):
         ])
 
         with TestDir() as test_dir:
+            pcd_path = osp.join(test_dir, 'ds0', 'pointcloud',
+                'a', 'b', 'c235.pcd')
+            target_dataset = Dataset.from_iterable([
+                DatasetItem(id='a/b/c235',
+                    pcd=pcd_path, related_images=[self.image1],
+                    attributes={'frame': 20}),
+            ], categories=[])
+
             self._test_save_and_load(source_dataset,
                 partial(SuperviselyPointcloudConverter.convert, save_images=True),
-                test_dir, ignored_attrs={'description'}, require_pcd=True)
+                test_dir, target_dataset=target_dataset,
+                ignored_attrs={'description'}, require_pcd=True)
 
             self.assertTrue(osp.isfile(
-                osp.join(test_dir, 'ann', 'a', 'b', 'c235.pcd.json')))
-            self.assertTrue(osp.isfile(
-                osp.join(test_dir, 'pointcloud', 'a', 'b', 'c235.pcd')))
+                osp.join(test_dir, 'ds0', 'ann', 'a', 'b', 'c235.pcd.json')))
+            self.assertTrue(osp.isfile(pcd_path))
             self.assertTrue({'img2.png', 'img2.png.json'},
-                set(os.listdir(
-                    osp.join(test_dir, 'related_images', 'a', 'b', 'c235_pcd')))
-            )
+                set(os.listdir(osp.join(test_dir, 'ds0', 'related_images',
+                    'a', 'b', 'c235_pcd'))))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_inplace_save_writes_only_updated_data(self):
         with TestDir() as path:
             dataset = Dataset.from_iterable([
-                DatasetItem(DatasetItem(id='frame1',
+                DatasetItem(id='frame1',
                     annotations=[
                         Cuboid3d(id=215,
                             position=[320.59, 979.48, 1.03], label=0)
                     ],
-                    pcd=self.pcd1, related_images=[self.image2],
+                    pcd=self.pcd1, related_images=[self.image1],
                     attributes={'frame': 0})
-                )
             ], categories=['car', 'bus'])
-            dataset.export(path, 'point_cloud', save_images=True)
+            dataset.export(path, 'sly_pointcloud', save_images=True)
 
             dataset.put(DatasetItem(id='frame2',
                 annotations=[
                     Cuboid3d(id=216, position=[0.59, 14.41, -0.61], label=1)
                 ],
-                pcd=self.pcd2, related_images=[self.image1],
+                pcd=self.pcd2, related_images=[self.image2],
                 attributes={'frame': 1})
             )
 

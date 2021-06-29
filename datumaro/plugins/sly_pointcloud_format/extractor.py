@@ -103,6 +103,13 @@ class SuperviselyPointcloudExtractor(SourceExtractor):
             for tag in ann_data['tags']:
                 frame_attributes[tag['name']] = _parse_tag(tag)
 
+            frame = mapping['videos'][ann_data['key']]
+            frame_desc = items.setdefault(frame, {
+                'name': osp.splitext(osp.relpath(ann_file, ann_dir))[0],
+                'annotations': [],
+                'attributes': frame_attributes,
+            })
+
             for figure in ann_data['figures']:
                 geometry = {
                     dst_field: [float(figure['geometry'][src_field][axis])
@@ -134,17 +141,13 @@ class SuperviselyPointcloudExtractor(SourceExtractor):
                         value = (tags[attr]['values'] or [''])[0]
                     elif tags[attr]['value_type'] == 'any_number':
                         value = 0
+                    else:
+                        value = None
                     attributes[attr] = value
 
                 shape = Cuboid3d(**geometry, label=label,
                     id=ann_id, attributes=attributes)
 
-                frame = mapping['videos'][ann_data['key']]
-                frame_desc = items.setdefault(frame, {
-                    'name': osp.splitext(osp.relpath(ann_file, ann_dir))[0],
-                    'annotations': [],
-                    'attributes': frame_attributes,
-                })
                 frame_desc['annotations'].append(shape)
 
         return items, categories

@@ -9,7 +9,6 @@ import os.path as osp
 import shutil
 
 from datumaro.components.cli_plugin import CliPlugin
-from datumaro.util.image import save_image, ByteImage
 
 
 class Converter(CliPlugin):
@@ -39,7 +38,7 @@ class Converter(CliPlugin):
         raise NotImplementedError("Should be implemented in a subclass")
 
     def __init__(self, extractor, save_dir, save_images=False,
-            image_ext=None, default_image_ext=None, related_paths=None, image_names=None):
+            image_ext=None, default_image_ext=None):
         default_image_ext = default_image_ext or self.DEFAULT_IMAGE_EXT
         assert default_image_ext
         self._default_image_ext = default_image_ext
@@ -65,14 +64,14 @@ class Converter(CliPlugin):
     def _make_pcd_filename(self, item, *, name=None, subdir=None):
         name = name or item.id
         subdir = subdir or ''
-        return osp.join(subdir, name)
+        return osp.join(subdir, name + '.pcd')
 
     def _save_image(self, item, path=None, *,
             name=None, subdir=None, basedir=None):
         assert not ((subdir or name or basedir) and path), \
             "Can't use both subdir or name or basedir and path arguments"
 
-        if not item.image.has_data:
+        if not item.has_image or not item.image.has_data:
             log.warning("Item '%s' has no image", item.id)
             return
 
@@ -81,18 +80,7 @@ class Converter(CliPlugin):
             self._make_image_filename(item, name=name, subdir=subdir))
         path = osp.abspath(path)
 
-        src_ext = item.image.ext.lower()
-        dst_ext = osp.splitext(osp.basename(path))[1].lower()
-
-        os.makedirs(osp.dirname(path), exist_ok=True)
-        if src_ext == dst_ext and osp.isfile(item.image.path):
-            if item.image.path != path:
-                shutil.copyfile(item.image.path, path)
-        elif src_ext == dst_ext and isinstance(item.image, ByteImage):
-            with open(path, 'wb') as f:
-                f.write(item.image.get_bytes())
-        else:
-            save_image(path, item.image.data)
+        item.image.save(path)
 
     def _save_pcd(self, item=None, path=None, *,
             name=None, subdir=None, basedir=None):

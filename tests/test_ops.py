@@ -82,7 +82,7 @@ class TestOperations(TestCase):
                 'mask': { 'count': 1, },
                 'points': { 'count': 1, },
                 'caption': { 'count': 2, },
-                'cuboid': {'count': 0},
+                'cuboid_3d': {'count': 0},
             },
             'annotations': {
                 'labels': {
@@ -165,7 +165,7 @@ class TestOperations(TestCase):
                 'mask': { 'count': 0, },
                 'points': { 'count': 0, },
                 'caption': { 'count': 0, },
-                'cuboid': {'count': 0},
+                'cuboid_3d': {'count': 0},
             },
             'annotations': {
                 'labels': {

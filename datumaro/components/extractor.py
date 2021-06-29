@@ -392,7 +392,7 @@ class Cuboid3d(Annotation):
 
     @property
     def position(self):
-        return self._points[0:2]
+        return self._points[0:3]
 
     @position.setter
     def _set_poistion(self, value):
@@ -401,7 +401,7 @@ class Cuboid3d(Annotation):
 
     @property
     def rotation(self):
-        return self._points[3:5]
+        return self._points[3:6]
 
     @rotation.setter
     def _set_rotation(self, value):
@@ -410,7 +410,7 @@ class Cuboid3d(Annotation):
 
     @property
     def scale(self):
-        return self._points[6:8]
+        return self._points[6:9]
 
     @scale.setter
     def _set_scale(self, value):

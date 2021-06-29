@@ -2,344 +2,375 @@
 #
 # SPDX-License-Identifier: MIT
 
-from collections import OrderedDict
+# The format is described here:
+# https://docs.supervise.ly/data-organization/00_ann_format_navi
+
 from datetime import datetime
-from itertools import chain
-import os
 import json
-import uuid
-import random
-import string
-import os.path as osp
 import logging as log
+import os
+import os.path as osp
+import shutil
+import uuid
 
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.extractor import (AnnotationType, DatasetItem,
-    LabelCategories)
+    IExtractor, LabelCategories)
 from datumaro.util import cast
-from datumaro.util.image import save_image, ByteImage
 
 from .format import PointCloudPath
 
 
-class PointCloudParser:
-    def __init__(self, subset, context):
-        self._annotation = subset
-        self._object_keys = {}
-        self._figure_keys = {}
-        self._video_keys = {}
-        self._tag_keys = {}
+class _SuperviselyPointcloudDumper:
+    SPECIAL_ATTRS = {'description', 'object',
+        'labelerLogin', 'createdAt', 'updatedAt', 'frame'}
+
+    def __init__(self, extractor: IExtractor,
+            context: 'SuperviselyPointcloudConverter'):
+        self._extractor = extractor
         self._context = context
-        self._user = {}
-        self._label_objects = []
-        self._frames = {}
-        self._tags = []
-        self._labels = []
-        self._attribute_length = 0
 
-        key_id_data = {
-            "tags": {},
-            "objects": {},
-            "figures": {},
-            "videos": {}
+        timestamp = str(datetime.now())
+        self._default_user_info = {
+            'labelerLogin': '',
+            'createdAt': timestamp,
+            'updatedAt': timestamp,
         }
-        self._key_id_data = key_id_data
 
-        meta_data = {
-            "classes": [],
-            "tags": [],
-            "projectType": "point_clouds"
+        self._key_id_data = {
+            'tags': {},
+            'objects': {},
+            'figures': {},
+            'videos': {}
         }
-        self._meta_data = meta_data
 
-        self._image_json = {
-            "name": "",
-            "meta": {
-                "sensorsData": {
-                    "extrinsicMatrix": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    "intrinsicMatrix": [0, 0, 0, 0, 0, 0, 0, 0, 0]
+        self._meta_data = {
+            'classes': [],
+            'tags': [],
+            'projectType': 'point_clouds'
+        }
+
+        # Meta info contents
+        self._tag_meta = {} # name -> descriptor
+
+        # Registries of item annotations
+        self._objects = {} # id -> key
+
+        self._label_cat = extractor.categories().get(
+            AnnotationType.label, LabelCategories())
+
+    def _write_related_images(self, item):
+        img_dir = self._related_images_dir
+
+        for img in item.related_images:
+            name = osp.splitext(osp.basename(img.path))[0]
+            img_path = osp.join(img_dir, item.id + '_pcd',
+                name + self._find_image_ext(img))
+            if img.has_data:
+                img.save(img_path)
+
+            img_data = {
+                'name': osp.basename(img_path),
+                'meta': {
+                    'sensorsData': {
+                        'extrinsicMatrix': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        'intrinsicMatrix': [0, 0, 0, 0, 0, 0, 0, 0, 0]
+                    }
                 }
             }
+
+            with open(osp.join(img_dir, img_path + '.json'),
+                    'w', encoding='utf-8') as f:
+                json.dump(img_data, f, ensure_ascii=False, indent=4)
+
+    def _write_pcd(self, item):
+        self._context._save_pcd(item, basedir=self._point_cloud_dir)
+
+    def _write_meta(self):
+        for tag in self._tag_meta.values():
+            if tag['value_type'] is None:
+                tag['value_type'] = 'any_string'
+            tag['classes'] = list(tag['classes'])
+        self._meta_data['tags'] = list(self._tag_meta.values())
+
+        with open(osp.join(self._save_dir, PointCloudPath.META_FILE),
+                'w', encoding='utf-8') as f:
+            json.dump(self._meta_data, f, ensure_ascii=False, indent=4)
+
+    def _write_key_id(self):
+        objects = self._objects
+        key_id_data = self._key_id_data
+
+        key_id_data['objects'] = { v: k for k, v in objects.items() }
+
+        with open(osp.join(self._save_dir, PointCloudPath.KEY_ID_FILE),
+                'w', encoding='utf-8') as f:
+            json.dump(key_id_data, f, ensure_ascii=False, indent=4)
+
+    def _write_item_annotations(self, item):
+        key_id_data = self._key_id_data
+
+        item_id = cast(item.attributes.get('frame'), int)
+        if item_id is None or self._context._reindex:
+            item_id = len(key_id_data['videos']) + 1
+
+        item_key = str(uuid.uuid4())
+        key_id_data['videos'][item_key] = item_id
+
+        item_user_info = {k: item.attributes.get(k, default_v)
+            for k, default_v in self._default_user_info.items()}
+
+        item_ann_data = {
+            'description': item.attributes.get('description', ''),
+            'key': item_key,
+            'tags': [],
+            'objects': [],
+            'figures': [],
         }
+        self._export_item_attributes(item, item_ann_data, item_user_info)
+        self._export_item_annotations(item, item_ann_data, item_user_info)
 
-        self._frame_data = {}
-        self.set_user_data()
-        self.set_attribute_data()
-        self.set_label_data()
-        self.generate_frames()
+        ann_path = osp.join(self._ann_dir, item.id + '.pcd.json')
+        os.makedirs(osp.dirname(ann_path), exist_ok=True)
+        with open(ann_path,'w', encoding='utf-8') as f:
+            json.dump(item_ann_data, f, ensure_ascii=False, indent=4)
 
-    def set_objects_key(self, object_id):
-        if object_id in self._object_keys.keys():
-            return
-        self._object_keys[object_id] = str(uuid.uuid4())
-        self._key_id_data["objects"].update({self._object_keys[object_id]: object_id})
+    def _export_item_attributes(self, item, item_ann_data, item_user_info):
+        for attr_name, attr_value in item.attributes.items():
+            if attr_name in self.SPECIAL_ATTRS:
+                continue
 
-    def set_figures_key(self, figure_id):
-        if figure_id in self._figure_keys.keys():
-            return
-        self._figure_keys[figure_id] = str(uuid.uuid4())
-        self._key_id_data["figures"].update({self._figure_keys[figure_id]: figure_id})
+            attr_value = self._encode_attr_value(attr_value)
 
-    def set_videos_key(self, video_id):
-        if video_id in self._video_keys.keys():
-            return
-        self._video_keys[video_id] = str(uuid.uuid4())
-        self._key_id_data["videos"].update({self._video_keys[video_id]: video_id})
+            tag = self._register_tag(attr_name, value=attr_value,
+                applicable_type='imagesOnly')
 
-    def set_tags_key(self, tag_id):
-        if tag_id in self._tag_keys.keys():
-            return
-        self._tag_keys[tag_id] = str(uuid.uuid4())
-        self._key_id_data["tags"].update({self._tag_keys[tag_id]: tag_id})
+            if tag['applicable_type'] != 'imagesOnly':
+                tag['applicable_type'] = 'all'
 
-    def get_object_key(self, object_id):
-        return self._object_keys.get(object_id, None)
+            value_type = self._define_attr_type(attr_value)
+            if tag['value_type'] is None:
+                tag['value_type'] = value_type
+            elif tag['value_type'] != value_type:
+                raise Exception("Item %s: mismatching "
+                    "value types for tag %s: %s vs %s" % \
+                    (item.id, attr_name, tag['value_type'], value_type))
 
-    def get_figure_key(self, figure_id):
-        return self._figure_keys.get(figure_id, None)
+            tag_key = str(uuid.uuid4())
+            item_ann_data['tags'].append({
+                'key': tag_key,
+                'name': attr_name,
+                'value': attr_value,
+                **item_user_info,
+            })
 
-    def get_video_key(self, video_id):
-        return self._video_keys.get(video_id, None)
+            # only item attributes are listed in the key_id file
+            # meta tag ids have no relation to key_id tag ids!
+            tag_id = len(self._key_id_data['tags']) + 1
+            self._key_id_data['tags'][tag_key] = tag_id
 
-    def get_tag_key(self, tag_id):
-        return self._tag_keys.get(tag_id, None)
+    def _export_item_annotations(self, item, item_ann_data, item_user_info):
+        objects = self._objects
+        tags = self._tag_meta
+        label_cat = self._label_cat
+        key_id_data = self._key_id_data
 
-    def set_user_data(self):
-        for data in self._annotation:
-            if not self._user:
-                self._user["name"] = data.attributes.get("name", "")
-                self._user["createdAt"] = str(data.attributes.get("createdAt", datetime.now()))
-                self._user["updatedAt"] = str(data.attributes.get("updatedAt", datetime.now()))
-                break
+        image_objects = set()
+        for ann in item.annotations:
+            if not ann.type == AnnotationType.cuboid_3d:
+                continue
 
-    def set_attribute_data(self):
-        labels = self._annotation.categories().get(AnnotationType.label, LabelCategories())
-        for label in labels._indices.values():
+            obj_id = cast(ann.attributes.get('object', ann.id), int)
+            if obj_id is None:
+                # should not be affected by reindex
+                # because it is used to match figures,
+                # including different frames
+                obj_id = len(self._objects) + 1
 
-            self._labels.append(label)
-            for attrs in self._get_label(label).attributes:
-                self._attribute_length += 1
+            object_key = objects.setdefault(obj_id, str(uuid.uuid4()))
+            object_label = label_cat[ann.label].name
+            if obj_id not in image_objects:
+                ann_user_info = {k: ann.attributes.get(k, default_v)
+                    for k, default_v in item_user_info.items()}
 
-                tag_id = self._attribute_length
-                self.set_tags_key(tag_id)
-
-                if attrs == "occluded":
-                    continue
-
-                tag = {
-                    "name": attrs,
-                    "value_type": "text",
-                    "color": "",
-                    "id": tag_id,
-                    "hotkey": "",
-                    "applicable_type": "imagesOnly",
-                    "classes": []
+                obj_ann_data = {
+                    'key': object_key,
+                    'classTitle': object_label,
+                    'tags': [],
+                    'objects': [],
+                    'figures': [],
+                    **ann_user_info,
                 }
 
-                self._meta_data["tags"].append(tag)
+                for attr_name, attr_value in ann.attributes.items():
+                    if attr_name in self.SPECIAL_ATTRS:
+                        continue
 
-                tag = {
-                    "name": attrs,
-                    "value": self._get_label(label).name,
-                    "labelerLogin": self._user["name"],
-                    "createdAt": self._user["createdAt"],
-                    "updatedAt": self._user["updatedAt"],
-                    "key": self.get_tag_key(tag_id)
-                }
+                    attr_value = self._encode_attr_value(attr_value)
 
-                self._tags.append(tag)
-
-    def set_label_data(self):
-        classes_info = []
-        for data in self._annotation:
-            if not self._label_objects:
-                for label in data.attributes.get("labels", []):
-
-                    classes = {
-                        "id": int(label["label_id"]),
-                        "title": label["name"],
-                        "color": label["color"],
-                        "shape": "cuboid_3d",
-                        "geometry_config": {},
-                        "hotkey": ""
-                    }
-                    self.set_objects_key(int(label["label_id"]))
-
-                    label_object = {
-                        "key": self.get_object_key(int(label["label_id"])),
-                        "classTitle": label["name"],
-                        "tags": [],
-                        "labelerLogin": self._user["name"],
-                        "createdAt": str(self._user["createdAt"]),
-                        "updatedAt": str(self._user["updatedAt"])
-                    }
-                    for tag in self._tags:
-                        if tag["value"] == label["name"]:
-                            label_object["tags"].append(tag)
-                    classes_info.append(classes)
-                    self._label_objects.append(label_object)
-
-        data = list({v['id']: v for v in classes_info}.values())
-        self._meta_data["classes"] = data
-
-    def generate_frames(self):
-
-        for i, data in enumerate(self._annotation):
-
-            frame_data = []
-            if data.pcd:
-                index = self._write_item(data, i)
-                if index is not None:
-                    if not self.get_video_key(index):
-                        self.set_videos_key(index)
-                else:
-                    if not self.get_video_key(int(data.attributes['frame'])):
-                        self.set_videos_key(int(data.attributes["frame"]))
-
-            for item in data.annotations:
-                if item.type == AnnotationType.cuboid_3d:
-
-                    self.set_figures_key(item.id)
-                    figures = {
-                        "key": self.get_figure_key(item.id),
-                        "objectKey": self.get_object_key(int(item.attributes["label_id"])),
-                        'geometryType': "cuboid_3d",
-                        "geometry": {
-                            "position": {
-                                "x": item.points[0],
-                                "y": item.points[1],
-                                "z": item.points[2]
-                            },
-                            "rotation": {
-                                "x": item.points[3],
-                                "y": item.points[4],
-                                "z": item.points[5]
-                            },
-                            "dimensions": {
-                                "x": item.points[6],
-                                "y": item.points[7],
-                                "z": item.points[8]
-                            }
-                        },
-                        "labelerLogin": self._user["name"],
-                        "createdAt": self._user["createdAt"],
-                        "updatedAt": self._user["updatedAt"]
-                    }
-                    frame_data.append(figures)
-
-                    label_name = self._get_label(item.label).name
-                    for attr_name, attr_value in item.attributes.items():
-                        if attr_name in self._context._builtin_attrs:
-                            continue
-                        if isinstance(attr_value, bool):
-                            attr_value = 'true' if attr_value else 'false'
-                        if self._context._allow_undeclared_attrs or \
-                                attr_name in self._get_label_attrs(item.label):
-                            continue
+                    tag = tags.get(attr_name)
+                    if tag is None:
+                        if self._context._allow_undeclared_attrs:
+                            tag = self._register_tag(attr_name,
+                                applicable_type='objectsOnly')
+                            tags[attr_name] = tag
                         else:
                             log.warning("Item %s: skipping undeclared "
-                                        "attribute '%s' for label '%s' "
-                                        "(allow with --allow-undeclared-attrs option)",
-                                        item.id, attr_name, label_name)
+                                "attribute '%s' for label '%s' "
+                                "(allow with --allow-undeclared-attrs option)",
+                                item.id, attr_name, object_label)
+                            continue
 
-            if frame_data:
-                if index is not None:
-                    self._frame_data[int(index)] = frame_data
-                else:
-                    self._frame_data[int(data.attributes["frame"])] = frame_data
+                    if tag['applicable_type'] == 'imagesOnly':
+                        tag['applicable_type'] = 'all'
+                    elif tag['applicable_type'] == 'objectsOnly' and \
+                            tag['classes']:
+                        tag['classes'].add(object_label)
 
-    def get_frames(self):
-        return self._frames
+                    value_type = self._define_attr_type(attr_value)
+                    if tag['value_type'] is None:
+                        tag['value_type'] = value_type
+                    elif tag['value_type'] != value_type:
+                        raise Exception("Item %s: mismatching "
+                            "value types for tag %s: %s vs %s" % \
+                            (item.id, attr_name, tag['value_type'], value_type))
 
-    def _get_label(self, label_id):
-        if label_id is None:
-            return ""
-        label_cat = self._annotation.categories().get(
-            AnnotationType.label, LabelCategories())
-        return label_cat.items[label_id]
+                    tag_key = str(uuid.uuid4())
+                    obj_ann_data['tags'].append({
+                        'key': tag_key,
+                        'name': attr_name,
+                        'value': attr_value,
+                        **ann_user_info,
+                    })
 
-    def _get_label_attrs(self, label):
-        label_cat = self._annotation.categories().get(
-            AnnotationType.label, LabelCategories())
-        if isinstance(label, int):
-            label = label_cat[label]
-        return set(chain(label.attributes, label_cat.attributes)) - \
-               self._context._builtin_attrs
+                item_ann_data['objects'].append(obj_ann_data)
 
-    def _write_item(self, item, index):
-        if not self._context._reindex:
-            index = cast(item.attributes.get('frame'), int, index)
-        image_info = OrderedDict([("id", str(index)), ])
-        if isinstance(item.pcd, str) and osp.isfile(item.pcd):
-            path = item.pcd.replace(os.sep, '/')
-            filename= path.rsplit("/", maxsplit=1)[-1]
+                image_objects.add(obj_id)
+
+            figure_key = str(uuid.uuid4())
+            item_ann_data['figures'].append({
+                'key': figure_key,
+                'objectKey': object_key,
+                'geometryType': 'cuboid_3d',
+                'geometry': {
+                    'position': {
+                        'x': float(ann.position[0]),
+                        'y': float(ann.position[1]),
+                        'z': float(ann.position[2]),
+                    },
+                    'rotation': {
+                        'x': float(ann.rotation[0]),
+                        'y': float(ann.rotation[1]),
+                        'z': float(ann.rotation[2]),
+                    },
+                    'dimensions': {
+                        'x': float(ann.scale[0]),
+                        'y': float(ann.scale[1]),
+                        'z': float(ann.scale[2]),
+                    }
+                },
+                **ann_user_info,
+            })
+            figure_id = ann.id
+            if self._context._reindex or figure_id is None:
+                figure_id = len(key_id_data['figures']) + 1
+            key_id_data['figures'][figure_key] = figure_id
+
+    @staticmethod
+    def _encode_attr_value(v):
+        if v is True or v is False: # use is to check the type too
+            v = str(v).lower()
+        return v
+
+    @staticmethod
+    def _define_attr_type(v):
+        if isinstance(v, (int, float)):
+            t = 'any_number'
         else:
-            filename = self._context._make_pcd_filename(item)
-        image_info["name"] = filename
-        self._frames.update({index: filename})
+            t = 'any_string'
+        return t
 
-        if item.has_pcd:
-            if self._context._save_images:
-                self._context._image_dir = osp.join(self._context._default_dir, "pointcloud")
-
-                related_dir = osp.join(self._context._default_dir, "related_images")
-                related_dir = osp.join(related_dir, f"{filename.rsplit('.', maxsplit=1)[0]}_pcd" )
-
-                self._context._save_pcd(item,
-                                          osp.join(self._context._image_dir, filename))
-
-                for rimage in item.related_images:
-
-                    try:
-                        name = rimage["name"]
-                    except AttributeError:
-                        name = "".join(random.choice(string.ascii_lowercase) for i in range(6))
-                        name = f"{name}.jpg"
-
-                    path = osp.join(related_dir, name)
-
-                    path = osp.abspath(path)
-                    os.makedirs(osp.dirname(path), exist_ok=True)
-
-                    if isinstance(rimage["image"], ByteImage):
-                        with open(path, 'wb') as f:
-                            f.write(item.get_bytes())
-                    else:
-                        save_image(path, rimage["image"].data)
-
-                    path = osp.join(related_dir, f"{name}.json")
-                    self._image_json["name"] = name
-                    with open(path, "w") as f:
-                        json.dump(self._image_json, f, indent=4)
-        else:
-            log.debug("Item '%s' has no image info", item.id)
-
-        return index
-
-
-    def write_key_id_data(self, f):
-        json.dump(self._key_id_data, f, indent=4)
-
-    def write_meta_data(self, f):
-        json.dump(self._meta_data, f, indent=4)
-
-    def write_frame_data(self, f, key):
-        frame = {
-            "description": "",
-            "key": self.get_video_key(int(key)),
-            "tags": self._tags,
-            "objects": self._label_objects,
-            "figures": {}
+    def _register_tag(self, name, **kwargs):
+        tag = {
+            'name': name,
+            'value_type': None,
+            'color': '',
+            'id': len(self._tag_meta) + 1,
+            'hotkey': '',
+            'applicable_type': 'all',
+            'classes': set()
         }
+        tag.update(kwargs)
+        return self._tag_meta.setdefault(name, tag)
 
-        if self._frame_data.get(key):
-            frame["figures"] = self._frame_data[key]
+    def _make_dirs(self):
+        save_dir = self._context._save_dir
+        os.makedirs(save_dir, exist_ok=True)
+        self._save_dir = save_dir
 
-        json.dump(frame, f, indent=4)
+        base_dir = osp.join(self._save_dir, PointCloudPath.BASE_DIR)
+        os.makedirs(base_dir, exist_ok=True)
+
+        ann_dir = osp.join(base_dir, PointCloudPath.ANNNOTATION_DIR)
+        os.makedirs(ann_dir, exist_ok=True)
+        self._ann_dir = ann_dir
+
+        point_cloud_dir = osp.join(base_dir, PointCloudPath.POINT_CLOUD_DIR)
+        os.makedirs(point_cloud_dir, exist_ok=True)
+        self._point_cloud_dir = point_cloud_dir
+
+        related_images_dir = osp.join(base_dir, PointCloudPath.RELATED_IMAGES_DIR)
+        os.makedirs(related_images_dir, exist_ok=True)
+        self._related_images_dir = related_images_dir
+
+    def _init_meta(self):
+        for attr in self._label_cat.attributes:
+            self._register_tag(attr, applicable_type='objectsOnly')
+
+        for idx, label in enumerate(self._label_cat):
+            self._meta_data['classes'].append({
+                'id': idx,
+                'title': label.name,
+                'color': '',
+                'shape': 'cuboid_3d',
+                'geometry_config': {}
+            })
+
+            for attr in label.attributes:
+                tag = self._register_tag(attr, applicable_type='objectsOnly')
+                tag['classes'].add(label.name)
+
+    def _find_image_ext(self, image):
+        src_ext = image.ext
+        return self._context._image_ext or src_ext or \
+            self._context._default_image_ext
+
+    def dump(self):
+        self._make_dirs()
+
+        self._init_meta()
+
+        for item in self._context._extractor:
+            if self._context._save_images:
+                if item.has_pcd:
+                    self._write_pcd(item)
+                else:
+                    log.debug("Item '%s' has no point cloud info", item.id)
+
+                if item.related_images:
+                    self._write_related_images(item)
+                else:
+                    log.debug("Item '%s' has no related images info", item.id)
+
+            self._write_item_annotations(item)
+
+        self._write_meta()
+        self._write_key_id()
 
 
 class SuperviselyPointcloudConverter(Converter):
+    NAME = 'sly_pointcloud'
     DEFAULT_IMAGE_EXT = PointCloudPath.DEFAULT_IMAGE_EXT
 
     @classmethod
@@ -360,33 +391,17 @@ class SuperviselyPointcloudConverter(Converter):
         self._allow_undeclared_attrs = allow_undeclared_attrs
 
     def apply(self):
-        self._default_dir = osp.join(self._save_dir, PointCloudPath.BASE_DIR)
-        os.makedirs(self._default_dir, exist_ok=True)
+        if len(self._extractor.subsets()) != 1:
+            log.warning("Supervisely pointcloud format supports only a single"
+                "subset. Subset information will be ignored on export.")
 
-        self._annotation_dir = osp.join(self._default_dir,
-            PointCloudPath.ANNNOTATION_DIR)
-        os.makedirs(self._annotation_dir, exist_ok=True)
-
-        point_cloud = PointCloudParser(self._extractor, self)
-        for file_name in PointCloudPath.WRITE_FILES:
-            with open(osp.join(self._save_dir, file_name), "w") as f:
-                if file_name == "key_id_map.json":
-                    point_cloud.write_key_id_data(f)
-                elif file_name == "meta.json":
-                    point_cloud.write_meta_data(f)
-
-        frame_files = point_cloud.get_frames()
-        for key, file_name in frame_files.items():
-            with open(osp.join(self._annotation_dir, f"{file_name}.json"), "w") as f:
-                point_cloud.write_frame_data(f, key)
+        _SuperviselyPointcloudDumper(self._extractor, self).dump()
 
     @classmethod
     def patch(cls, dataset, patch, save_dir, **kwargs):
-        for subset in patch.updated_subsets:
-            cls.convert(dataset.get_subset(subset), save_dir=save_dir, **kwargs)
+        conv = cls(patch.as_dataset(dataset), save_dir=save_dir, **kwargs)
+        conv.apply()
 
-        conv = cls(dataset, save_dir=save_dir, **kwargs)
-        pcd_dir = osp.abspath(osp.join(save_dir, PointCloudPath.POINT_CLOUD_DIR))
         for (item_id, subset), status in patch.updated_items.items():
             if status != ItemStatus.removed:
                 item = patch.data.get(item_id, subset)
@@ -396,14 +411,20 @@ class SuperviselyPointcloudConverter(Converter):
             if not (status == ItemStatus.removed or not item.has_pcd):
                 continue
 
-            pcd_path = osp.join(pcd_dir, conv._make_pcd_filename(item))
-            if osp.isfile(pcd_path):
-                os.unlink(pcd_path)
+            pcd_name = conv._make_pcd_filename(item)
 
-            if kwargs:
-                for path in kwargs.get('related_paths'):
-                    image_dir = osp.abspath(osp.join(save_dir,path))
-                for image in kwargs["image_names"]:
-                    image_path = osp.join(image_dir, image)
-                    if osp.isfile(image_path):
-                        os.unlink(image_path)
+            ann_path = osp.join(save_dir, PointCloudPath.BASE_DIR,
+                PointCloudPath.ANNNOTATION_DIR, pcd_name + '.json')
+            if osp.isfile(ann_path):
+                os.remove(ann_path)
+
+            pcd_path = osp.join(save_dir, PointCloudPath.BASE_DIR,
+                PointCloudPath.POINT_CLOUD_DIR, pcd_name)
+            if osp.isfile(pcd_path):
+                os.remove(pcd_path)
+
+            images_dir = osp.join(save_dir, PointCloudPath.BASE_DIR,
+                PointCloudPath.RELATED_IMAGES_DIR,
+                osp.splitext(pcd_name)[0] + '_pcd')
+            if osp.isdir(images_dir):
+                shutil.rmtree(images_dir)
