@@ -22,7 +22,7 @@ jobs:
             python3 -m venv .env
             . .env/bin/activate
             pip install -U pip wheel setuptools
-            pip install bandit
+            pip install $(egrep "bandit.*" ./requirements.txt)
             mkdir -p bandit_report
 
             echo "Bandit version: "`bandit --version | head -1`
