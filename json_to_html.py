@@ -4,10 +4,10 @@
 #
 # SPDX-License-Identifier: MIT
 
-from json2html import *
 import sys
 import os
 import json
+from json2html import *
 
 def json_to_html(path_to_json):
     with open(path_to_json) as json_file:
