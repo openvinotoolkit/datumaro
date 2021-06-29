@@ -45,13 +45,13 @@ class OpenImagesPath:
     ANNOTATIONS_DIR = 'annotations'
     IMAGES_DIR = 'images'
 
-    FULL_IMAGE_DESCRIPTION_NAME = 'image_ids_and_rotation.csv'
-    SUBSET_IMAGE_DESCRIPTION_PATTERNS = (
+    FULL_IMAGE_DESCRIPTION_FILE_NAME = 'image_ids_and_rotation.csv'
+    SUBSET_IMAGE_DESCRIPTION_FILE_PATTERNS = (
         '*-images-with-rotation.csv',
         '*-images-with-labels-with-rotation.csv',
     )
-    V5_CLASS_DESCRIPTION_NAME = 'class-descriptions.csv'
-    HIERARCHY_NAME = 'bbox_labels_600_hierarchy.json'
+    V5_CLASS_DESCRIPTION_FILE_NAME = 'class-descriptions.csv'
+    HIERARCHY_FILE_NAME = 'bbox_labels_600_hierarchy.json'
 
 class OpenImagesExtractor(Extractor):
     def __init__(self, path):
@@ -101,12 +101,12 @@ class OpenImagesExtractor(Extractor):
 
         annotation_name = [
             *self._glob_annotations('oidv*-class-descriptions.csv'),
-            OpenImagesPath.V5_CLASS_DESCRIPTION_NAME,
+            OpenImagesPath.V5_CLASS_DESCRIPTION_FILE_NAME,
         ][0]
 
         with self._open_csv_annotation(annotation_name) as class_description_reader:
             # Prior to OID v6, this file didn't contain a header row.
-            if annotation_name == OpenImagesPath.V5_CLASS_DESCRIPTION_NAME:
+            if annotation_name == OpenImagesPath.V5_CLASS_DESCRIPTION_FILE_NAME:
                 class_description_reader.fieldnames = ('LabelName', 'DisplayName')
 
             for class_description in class_description_reader:
@@ -121,7 +121,7 @@ class OpenImagesExtractor(Extractor):
         label_categories = self._categories[AnnotationType.label]
 
         hierarchy_path = osp.join(
-            self._dataset_dir, OpenImagesPath.ANNOTATIONS_DIR, OpenImagesPath.HIERARCHY_NAME)
+            self._dataset_dir, OpenImagesPath.ANNOTATIONS_DIR, OpenImagesPath.HIERARCHY_FILE_NAME)
 
         try:
             with open(hierarchy_path, 'rb') as hierarchy_file:
@@ -180,9 +180,9 @@ class OpenImagesExtractor(Extractor):
         # However, if it's missing, we'll try loading subset-specific files instead, so that
         # this extractor can be used on individual subsets of the dataset.
         try:
-            load_from(OpenImagesPath.FULL_IMAGE_DESCRIPTION_NAME)
+            load_from(OpenImagesPath.FULL_IMAGE_DESCRIPTION_FILE_NAME)
         except FileNotFoundError:
-            for pattern in OpenImagesPath.SUBSET_IMAGE_DESCRIPTION_PATTERNS:
+            for pattern in OpenImagesPath.SUBSET_IMAGE_DESCRIPTION_FILE_PATTERNS:
                 for path in self._glob_annotations(pattern):
                     load_from(path)
 
@@ -217,8 +217,8 @@ class OpenImagesImporter(Importer):
     @classmethod
     def find_sources(cls, path):
         for pattern in [
-            OpenImagesPath.FULL_IMAGE_DESCRIPTION_NAME,
-            *OpenImagesPath.SUBSET_IMAGE_DESCRIPTION_PATTERNS,
+            OpenImagesPath.FULL_IMAGE_DESCRIPTION_FILE_NAME,
+            *OpenImagesPath.SUBSET_IMAGE_DESCRIPTION_FILE_PATTERNS,
         ]:
             if glob.glob(osp.join(glob.escape(path), OpenImagesPath.ANNOTATIONS_DIR, pattern)):
                 return [{'url': path, 'format': 'open_images'}]
@@ -246,7 +246,7 @@ class OpenImagesConverter(Converter):
 
     def _save_categories(self):
         with self._open_csv_annotation(
-            OpenImagesPath.V5_CLASS_DESCRIPTION_NAME, ['LabelName', 'DisplayName'],
+            OpenImagesPath.V5_CLASS_DESCRIPTION_FILE_NAME, ['LabelName', 'DisplayName'],
         ) as class_description_writer:
             # no .writeheader() here, since we're saving it in the V5 format
 
@@ -295,7 +295,7 @@ class OpenImagesConverter(Converter):
         }
 
         hierarchy_path = osp.join(
-            self._save_dir, OpenImagesPath.ANNOTATIONS_DIR, OpenImagesPath.HIERARCHY_NAME)
+            self._save_dir, OpenImagesPath.ANNOTATIONS_DIR, OpenImagesPath.HIERARCHY_FILE_NAME)
 
         with open(hierarchy_path, 'w', encoding='UTF-8') as hierarchy_file:
             json.dump(root_node, hierarchy_file, indent=4)
