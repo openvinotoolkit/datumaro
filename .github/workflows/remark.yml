@@ -15,4 +15,4 @@ jobs:
           mkdir -p remark_report
 
           echo "Remark version: "`npx remark --version`
-          npx remark .
+          npx remark --frail .
