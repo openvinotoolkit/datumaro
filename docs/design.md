@@ -75,7 +75,7 @@ documentation)
 
 ## RC 1 vision
 
-_CVAT integration_
+### CVAT integration
 
 Datumaro needs to be integrated with [CVAT](https://github.com/openvinotoolkit/cvat),
 extending CVAT UI capabilities regarding task and project operations.

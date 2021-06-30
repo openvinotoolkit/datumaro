@@ -10,7 +10,7 @@
 ## Format specification
 
 - Pascal VOC format specification available
-[here](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/devkit_doc.pdf).
+  [here](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/devkit_doc.pdf).
 
 - Original Pascal VOC dataset format support the following types of annotations:
   - `Labels` (for classification tasks);
@@ -19,12 +19,12 @@
 
 - Supported attributes:
   - `occluded`: indicates that a significant portion of the object within the
-  bounding box is occluded by another object;
+    bounding box is occluded by another object;
   - `truncated`: indicates that the bounding box specified for the object does
-  not correspond to the full extent of the object;
+    not correspond to the full extent of the object;
   - `difficult`: indicates that the object is considered difficult to recognize;
   - action attributes (`jumping`, `reading`, `phoning` and
-  [more](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/actionexamples/index.html)).
+    [more](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/actionexamples/index.html)).
 
 ## Load Pascal VOC dataset
 
@@ -177,22 +177,22 @@ datum convert -if imagenet -i <path/to/imagenet/dataset> \
 Extra options for export to Pascal VOC format:
 
 - `--save-images` - allow to export dataset with saving images
-(by default `False`)
+  (by default `False`)
 
 - `--image-ext IMAGE_EXT` - allow to specify image extension
-for exporting dataset (by default use original or `.jpg` if none)
+  for exporting dataset (by default use original or `.jpg` if none)
 
 - `--apply-colormap APPLY_COLORMAP` - allow to use colormap for class
-and instance masks (by default `True`)
+  and instance masks (by default `True`)
 
 - `--allow-attributes ALLOW_ATTRIBUTES` - allow export of attributes
-(by default `True`)
+  (by default `True`)
 
 - `--keep-empty KEEP_EMPTY` - write subset lists even if they are empty
-(by default: `False`)
+  (by default: `False`)
 
 - `--tasks TASKS` - allow to specify tasks for export dataset,
-by default Datumaro uses all tasks. Example:
+  by default Datumaro uses all tasks. Example:
 
 ```bash
 datum import -o project -f voc -i ./VOC2012

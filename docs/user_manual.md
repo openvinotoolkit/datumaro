@@ -101,7 +101,8 @@ List of supported formats:
   - [Dataset example](../tests/assets/yolo_dataset)
   - [Format documentation](./formats/yolo_user_manual.md)
 - TF Detection API (`bboxes`, `masks`)
-  - Format specifications: [bboxes](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/using_your_own_dataset.md), [masks](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/instance_segmentation.md)
+  - Format specifications: [bboxes](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/using_your_own_dataset.md),
+    [masks](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/instance_segmentation.md)
   - [Dataset example](../tests/assets/tf_detection_api_dataset)
 - WIDER Face (`bboxes`)
   - [Format specification](http://shuoyang1213.me/WIDERFACE/)
@@ -924,14 +925,14 @@ The validation result contains
 Usage:
 - There are five configurable parameters for validation
   - `few_samples_thr` : threshold for giving a warning for minimum number of
-  samples per class
+    samples per class
   - `imbalance_ratio_thr` : threshold for giving imbalance data warning
   - `far_from_mean_thr` : threshold for giving a warning that data is far
-  from mean
+    from mean
   - `dominance_ratio_thr` : threshold for giving a warning bounding box
-  imbalance
+    imbalance
   - `topk_bins` : ratio of bins with the highest number of data to total bins
-  in the histogram
+    in the histogram
 
 ``` bash
 datum validate --help

@@ -144,8 +144,8 @@ The framework provides functions to read and write datasets in specific formats.
 It is supported by `Extractor`s, `Importer`s, and `Converter`s.
 
 Dataset reading is supported by `Extractor`s and `Importer`s:
-- An `Extractor` produces a list of `DatasetItem`s corresponding
-to the dataset. Annotations are available in the `DatasetItem.annotations` list
+- An `Extractor` produces a list of `DatasetItem`s corresponding to the
+  dataset. Annotations are available in the `DatasetItem.annotations` list
 - An `Importer` creates a project from a data source location
 
 It is possible to add custom `Extractor`s and `Importer`s. To do this, you need

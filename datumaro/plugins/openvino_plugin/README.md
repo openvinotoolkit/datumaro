@@ -38,7 +38,8 @@ OpenVINO™ Trained Models.
 
 ## Model download
 - Prerequisites
-  - OpenVINO™ (To install OpenVINO™, please see the [OpenVINO™ Installation Instruction](https://docs.openvinotoolkit.org/latest/openvino_docs_install_guides_installing_openvino_linux.html))
+  - OpenVINO™ (To install OpenVINO™, please see the
+    [OpenVINO™ Installation Instruction](https://docs.openvinotoolkit.org/latest/openvino_docs_install_guides_installing_openvino_linux.html))
   - OpenVINO™ models (To download OpenVINO™ models, please see the [Model Downloader Instruction](https://docs.openvinotoolkit.org/latest/omz_tools_downloader_README.html))
   - PASCAL VOC 2012 dataset (To download VOC 2012 dataset, please go [VOC2012 download](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/#devkit))
 
@@ -53,13 +54,14 @@ OpenVINO™ Trained Models.
 
 ## Model inference
 - Prerequisites:
-  - OpenVINO™ (To install OpenVINO™, please see the [OpenVINO™ Installation Instruction](https://docs.openvinotoolkit.org/latest/openvino_docs_install_guides_installing_openvino_linux.html))
+  - OpenVINO™ (To install OpenVINO™, please see the
+    [OpenVINO™ Installation Instruction](https://docs.openvinotoolkit.org/latest/openvino_docs_install_guides_installing_openvino_linux.html))
   - Datumaro (To install Datumaro, please see the [User Manual](docs/user_manual.md))
   - OpenVINO™ models (To download OpenVINO™ models, please see the [Model Downloader Instruction](https://docs.openvinotoolkit.org/latest/omz_tools_downloader_README.html))
   - PASCAL VOC 2012 dataset (To download VOC 2012 dataset, please go [VOC2012 download](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/#devkit))
 
 - To run the inference with OpenVINO™ models and the interpreter samples,
-please follow the instructions below.
+  please follow the instructions below.
 
   ```bash
   # source <openvino_dir>/bin/setupvars.sh

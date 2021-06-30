@@ -16,9 +16,9 @@
 
 - Supported attributes:
   - `truncated`: indicates that the bounding box specified for the object does
-  not correspond to the full extent of the object;
+    not correspond to the full extent of the object;
   - `occluded`: indicates that a significant portion of the object within the
-  bounding box is occluded by another object.
+    bounding box is occluded by another object.
 
 KITTI segmentations format specification available in `README.md` [here](https://s3.eu-central-1.amazonaws.com/avg-kitti/devkit_semantics.zip).
 
@@ -131,11 +131,11 @@ datum convert -if cityscapes -i <path/to/cityscapes/dataset> \
 
 Extra options for export to KITTI format:
 - `--save-images` allow to export dataset with saving images
-(by default `False`);
+  (by default `False`);
 - `--image-ext IMAGE_EXT` allow to specify image extension
-for exporting dataset (by default - keep original or use `.png`, if none).
+  for exporting dataset (by default - keep original or use `.png`, if none).
 - `--apply-colormap APPLY_COLORMAP` allow to use colormap for class masks
-(in folder `semantic_rgb`, by default `True`);
+  (in folder `semantic_rgb`, by default `True`);
 - `--label_map` allow to define a custom colormap. Example
 
 ``` bash

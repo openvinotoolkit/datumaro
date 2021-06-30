@@ -33,7 +33,7 @@ CVAT annotations                             ---> Publication, statistics etc.
 <!--lint disable list-item-bullet-indent-->
 
 - Convert PASCAL VOC dataset to COCO format, keep only images with `cat` class
-presented:
+  presented:
   ```bash
   # Download VOC dataset:
   # http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar
@@ -44,7 +44,7 @@ presented:
   ```
 
 - Convert only non-`occluded` annotations from a
-[CVAT](https://github.com/opencv/cvat) project to TFrecord:
+  [CVAT](https://github.com/opencv/cvat) project to TFrecord:
   ```bash
   # export Datumaro dataset in CVAT UI, extract somewhere, go to the project dir
   datum filter -e '/item/annotation[occluded="False"]' \
@@ -54,7 +54,7 @@ presented:
   ```
 
 - Annotate MS COCO dataset, extract image subset, re-annotate it in
-[CVAT](https://github.com/opencv/cvat), update old dataset:
+  [CVAT](https://github.com/opencv/cvat), update old dataset:
   ```bash
   # Download COCO dataset http://cocodataset.org/#download
   # Put images to coco/images/ and annotations to coco/annotations/
@@ -68,7 +68,7 @@ presented:
   ```
 
 - Annotate instance polygons in [CVAT](https://github.com/opencv/cvat), export
-as masks in COCO:
+  as masks in COCO:
   ```bash
   datum convert --input-format cvat --input-path <path/to/cvat.xml> \
                 --output-format coco -- --segmentation-mode masks
@@ -265,7 +265,7 @@ dataset.export('dst/dir', 'coco')
 ```
 
 > Check our [developer guide](docs/developer_guide.md) for additional
-information.
+  information.
 
 ## Contributing
 

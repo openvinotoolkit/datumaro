@@ -9,10 +9,10 @@
 ## Format specification
 
 - The image zip format allow to export/import unannotated datasets
-with images to/from zip archive.
+  with images to/from zip archive.
 
 - The image zip format doesn't support any types of annotations
-and attributes.
+  and attributes.
 
 ## Load Image zip dataset
 
@@ -25,7 +25,7 @@ datum import -o project -f image_zip -i ./images.zip
 ```
 
 - From directory with zip archives. Datumaro will loaded images from
-all zip files in the directory:
+  all zip files in the directory:
 
 ```bash
 datum import -o project -f image_zip -i ./foo
@@ -76,12 +76,12 @@ datum export -f image_zip -o ./ --overwrite -- --name voc_images.zip \
 Extra options for export to image_zip format:
 
 - `--save-images` allow to export dataset with saving images
-(default: `False`);
+  (default: `False`);
 - `--image-ext <IMAGE_EXT>` allow to specify image extension
-for exporting dataset (default: use original or `.jpg`, if none);
+  for exporting dataset (default: use original or `.jpg`, if none);
 - `--name` name of output zipfile (default: `default.zip`);
 - `--compression` allow to specify archive compression method.
-Available methods:
-`ZIP_STORED`, `ZIP_DEFLATED`, `ZIP_BZIP2`, `ZIP_LZMA` (default: `ZIP_STORED`).
-Follow [zip documentation](https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT)
-for more information.
+  Available methods:
+  `ZIP_STORED`, `ZIP_DEFLATED`, `ZIP_BZIP2`, `ZIP_LZMA` (default: `ZIP_STORED`).
+  Follow [zip documentation](https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT)
+  for more information.

@@ -21,24 +21,24 @@ MNIST dataset format supports `Labels` annotations.
 The MNIST dataset is available for free download:
 
 - [train-images-idx3-ubyte.gz](https://ossci-datasets.s3.amazonaws.com/mnist/train-images-idx3-ubyte.gz):
-training set images
+  training set images
 - [train-labels-idx1-ubyte.gz](https://ossci-datasets.s3.amazonaws.com/mnist/train-labels-idx1-ubyte.gz):
-training set labels
+  training set labels
 - [t10k-images-idx3-ubyte.gz](https://ossci-datasets.s3.amazonaws.com/mnist/t10k-images-idx3-ubyte.gz):
-test set images
+  test set images
 - [t10k-labels-idx1-ubyte.gz](https://ossci-datasets.s3.amazonaws.com/mnist/t10k-labels-idx1-ubyte.gz):
-test set labels
+  test set labels
 
 The Fashion MNIST dataset is available for free download:
 
 - [train-images-idx3-ubyte.gz](http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/train-images-idx3-ubyte.gz):
-training set images
+  training set images
 - [train-labels-idx1-ubyte.gz](http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/train-labels-idx1-ubyte.gz):
-training set labels
+  training set labels
 - [t10k-images-idx3-ubyte.gz](http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/t10k-images-idx3-ubyte.gz):
-test set images
+  test set images
 - [t10k-labels-idx1-ubyte.gz](http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/t10k-labels-idx1-ubyte.gz):
-test set labels
+  test set labels
 
 The MNIST in CSV dataset is available for free download:
 
