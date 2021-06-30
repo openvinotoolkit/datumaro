@@ -50,7 +50,8 @@ The directory with zip archives should have the following structure:
 ```
 
 Images in a archives should have supported extension,
-follow the [user manual](../user_manual.md#data-formats) to see the supported extensions.
+follow the [user manual](../user_manual.md#data-formats) to see the supported
+extensions.
 
 ## Export to other formats
 
@@ -79,7 +80,8 @@ Extra options for export to image_zip format:
 - `--image-ext <IMAGE_EXT>` allow to specify image extension
 for exporting dataset (default: use original or `.jpg`, if none);
 - `--name` name of output zipfile (default: `default.zip`);
-- `--compression` allow to specify archive compression method. Available methods:
+- `--compression` allow to specify archive compression method.
+Available methods:
 `ZIP_STORED`, `ZIP_DEFLATED`, `ZIP_BZIP2`, `ZIP_LZMA` (default: `ZIP_STORED`).
 Follow [zip documentation](https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT)
 for more information.

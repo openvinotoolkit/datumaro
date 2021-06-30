@@ -13,18 +13,18 @@
 [here](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/devkit_doc.pdf).
 
 - Original Pascal VOC dataset format support the following types of annotations:
-    - `Labels` (for classification tasks);
-    - `Bounding boxes` (for detection, action detection and person layout tasks);
-    - `Masks` (for segmentations tasks).
+  - `Labels` (for classification tasks);
+  - `Bounding boxes` (for detection, action detection and person layout tasks);
+  - `Masks` (for segmentations tasks).
 
 - Supported attributes:
-    - `occluded`: indicates that a significant portion of the object within the
-    bounding box is occluded by another object;
-    - `truncated`: indicates that the bounding box specified for the object does
-    not correspond to the full extent of the object;
-    - `difficult`: indicates that the object is considered difficult to recognize;
-    - action attributes (`jumping`, `reading`, `phoning` and
-    [more](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/actionexamples/index.html)).
+  - `occluded`: indicates that a significant portion of the object within the
+  bounding box is occluded by another object;
+  - `truncated`: indicates that the bounding box specified for the object does
+  not correspond to the full extent of the object;
+  - `difficult`: indicates that the object is considered difficult to recognize;
+  - action attributes (`jumping`, `reading`, `phoning` and
+  [more](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/actionexamples/index.html)).
 
 ## Load Pascal VOC dataset
 
@@ -85,10 +85,11 @@ Pascal VOC dataset directory should have the following structure:
 
 The `ImageSets` directory should contain at least one of the directories:
 `Main`, `Layout`, `Action`, `Segmentation`.
-These directories contain `.txt` files
-with a list of images in a subset, the subset name is the same as the `.txt` file name.
+These directories contain `.txt` files with a list of images in a subset,
+the subset name is the same as the `.txt` file name.
 
-In `label_map.txt` you can define custom color map and non-pascal labels, for example:
+In `label_map.txt` you can define custom color map and non-pascal labels,
+for example:
 
 ```
 # label_map [label : color_rgb : parts : actions]
@@ -130,8 +131,8 @@ Datumaro supports the following Pascal VOC tasks:
 - Class and instance segmentation (`voc_segmentation`)
 - Person layout detection (`voc_layout`)
 
-To make sure that the selected dataset has been added to the project, you can run
-`datum info`, which will display the project and dataset information.
+To make sure that the selected dataset has been added to the project, you
+can run `datum info`, which will display the project and dataset information.
 
 ## Export to other formats
 
@@ -221,7 +222,8 @@ There are few examples of using Datumaro operations to solve
 particular problems with Pascal VOC dataset:
 
 ### Example 1. How to prepare an original dataset for training.
-In this example, preparing the original dataset to train the semantic segmentation model includes:
+In this example, preparing the original dataset to train the semantic
+segmentation model includes:
 loading,
 checking duplicate images,
 setting the number of images,

@@ -16,7 +16,7 @@ COCO dataset format supports `captions`, `image_info`, `instances`, `panoptic`,
 `person_keypoints`, `stuff` annotation tasks
 and, as Datumaro extension, `label` (like `instances` with only `category_id`)
 
-##  Load COCO dataset
+## Load COCO dataset
 
 The COCO dataset is available for free download:
 
@@ -103,16 +103,16 @@ datum import --format coco_stuff --input-path <path/to/stuff.json>
 Datumaro supports the following COCO tasks:
 - [Image Captioning](https://cocodataset.org/#captions-2015) (`coco_caption`)
 - [Object Detection](https://cocodataset.org/#detection-2020) (`coco_instances`)
-- Image classification (our extension) (`coco_labels`) - a format like Object Detection, which uses
-  only `category_id` and `score` annotation fields
+- Image classification (our extension) (`coco_labels`) - a format like
+Object Detection, which uses only `category_id` and `score` annotation fields
 - [Panoptic Segmentation](https://cocodataset.org/#panoptic-2020) (`coco_panoptic`)
 - [Keypoint Detection](https://cocodataset.org/#keypoints-2020) (`coco_person_keypoints`)
 - [Stuff Segmentation](https://cocodataset.org/#stuff-2019) (`coco_stuff`)
 
-To make sure that the selected dataset has been added to the project, you can run
-`datum info`, which will display the project and dataset information.
+To make sure that the selected dataset has been added to the project, you can
+run `datum info`, which will display the project and dataset information.
 
-##  Export to other formats
+## Export to other formats
 
 Datumaro can convert COCO dataset into any other format [Datumaro supports](../user_manual.md#supported-formats).
 To get the expected result, the dataset needs to be converted to formats
@@ -132,7 +132,7 @@ To get information about them, run
 
 `datum export -f <FORMAT> -- -h`
 
-##  Export to COCO
+## Export to COCO
 
 There are few ways to convert dataset to COCO format:
 
@@ -150,12 +150,14 @@ Extra options for export to COCO format:
 (by default `False`);
 - `--image-ext IMAGE_EXT` allow to specify image extension
 for exporting dataset (by default - keep original or use `.jpg`, if none);
-- `--segmentation-mode MODE` allow to specify save mode for instance segmentation:
-    - 'guess': guess the mode for each instance (using 'is_crowd' attribute as hint)
+- `--segmentation-mode MODE` allow to specify save mode for instance
+segmentation:
+    - 'guess': guess the mode for each instance
+    (using 'is_crowd' attribute as hint)
     - 'polygons': save polygons( merge and convert masks, prefer polygons)
     - 'mask': save masks (merge and convert polygons, prefer masks)
 (by default `guess`);
--  `--crop-covered` allow to crop covered segments so that background objects
+- `--crop-covered` allow to crop covered segments so that background objects
 segmentation was more accurate (by default `False`);
 - `--allow-attributes ALLOW_ATTRIBUTES` allow export of attributes
 (by default `True`);

@@ -85,12 +85,14 @@ import datumaro
 ## Supported Formats
 
 List of supported formats:
-- MS COCO (`image_info`, `instances`, `person_keypoints`, `captions`, `labels`, `panoptic`, `stuff`)
+- MS COCO
+  (`image_info`, `instances`, `person_keypoints`, `captions`, `labels`,`panoptic`, `stuff`)
   - [Format specification](http://cocodataset.org/#format-data)
   - [Dataset example](../tests/assets/coco_dataset)
   - `labels` are our extension - like `instances` with only `category_id`
   - [Format documentation](./formats/coco_user_manual.md)
-- PASCAL VOC (`classification`, `detection`, `segmentation` (class, instances), `action_classification`, `person_layout`)
+- PASCAL VOC (`classification`, `detection`, `segmentation` (class, instances),
+  `action_classification`, `person_layout`)
   - [Format specification](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/htmldoc/index.html)
   - [Dataset example](../tests/assets/voc_dataset)
   - [Format documentation](./formats/pascal_voc_user_manual.md)
@@ -258,10 +260,11 @@ Available CLI commands:
 
 ### Convert datasets
 
-This command allows to convert a dataset from one format into another. In fact, this
-command is a combination of `project import` and `project export` and just provides a simpler
-way to obtain the same result when no extra options is needed. A list of supported
-formats can be found in the `--help` output of this command.
+This command allows to convert a dataset from one format into another.
+In fact, this command is a combination of `project import` and `project export`
+and just provides a simpler way to obtain the same result when no extra options
+is needed. A list of supported formats can be found in the `--help` output of
+this command.
 
 Usage:
 
@@ -441,7 +444,8 @@ datum project filter \
     -e '/item[subset="train"]'
 ```
 
-Example: extract a dataset with only large annotations of class `cat` and any non-`persons`
+Example: extract a dataset with only large annotations of class `cat` and any
+non-`persons`
 
 ``` bash
 datum filter \
@@ -520,10 +524,11 @@ datum merge \
 
 ### Merge projects
 
-This command merges items from 2 or more projects and checks annotations for errors.
+This command merges items from 2 or more projects and checks annotations for
+errors.
 
-Spatial annotations are compared by distance and intersected, labels and attributes
-are selected by voting.
+Spatial annotations are compared by distance and intersected, labels and
+attributes are selected by voting.
 Merge conflicts, missing items and annotations, other errors are saved into a `.json` file.
 
 Usage:
@@ -537,7 +542,8 @@ datum merge <project dirs>
 Example: merge 4 (partially-)intersecting projects,
 - consider voting succeeded when there are 3+ same votes
 - consider shapes intersecting when IoU >= 0.6
-- check annotation groups to have `person`, `hand`, `head` and `foot` (`?` for optional)
+- check annotation groups to have `person`, `hand`, `head` and `foot`
+(`?` for optional)
 
 ``` bash
 datum merge project1/ project2/ project3/ project4/ \
@@ -909,19 +915,23 @@ The task types supported are `classification`, `detection`, and `segmentation`.
 The validation result contains
 - `annotation statistics` based on the task type
 - `validation reports`, such as
-    - items not having annotations
-    - items having undefined annotations
-    - imbalanced distribution in class/attributes
-    - too small or large values
+  - items not having annotations
+  - items having undefined annotations
+  - imbalanced distribution in class/attributes
+  - too small or large values
 - `summary`
 
 Usage:
 - There are five configurable parameters for validation
-    - `few_samples_thr` : threshold for giving a warning for minimum number of samples per class
-    - `imbalance_ratio_thr` : threshold for giving imbalance data warning
-    - `far_from_mean_thr` : threshold for giving a warning that data is far from mean
-    - `dominance_ratio_thr` : threshold for giving a warning bounding box imbalance
-    - `topk_bins` : ratio of bins with the highest number of data to total bins in the histogram
+  - `few_samples_thr` : threshold for giving a warning for minimum number of
+  samples per class
+  - `imbalance_ratio_thr` : threshold for giving imbalance data warning
+  - `far_from_mean_thr` : threshold for giving a warning that data is far
+  from mean
+  - `dominance_ratio_thr` : threshold for giving a warning bounding box
+  imbalance
+  - `topk_bins` : ratio of bins with the highest number of data to total bins
+  in the histogram
 
 ``` bash
 datum validate --help
@@ -934,7 +944,8 @@ datum validate -p <project dir> -t <task_type> -- \
     -k <topk_bins>
 ```
 
-Example : give warning when imbalance ratio of data with classification task over 40
+Example : give warning when imbalance ratio of data with classification task
+over 40
 
 ``` bash
 datum validate -p prj-cls -t classification -- \
@@ -1247,7 +1258,7 @@ datum explain -t image.png -m mymodel \
 ```
 
 > Note: this algorithm requires the model to return
-> *all* (or a _reasonable_ amount) the outputs and confidences unfiltered,
+> _all_ (or a _reasonable_ amount) the outputs and confidences unfiltered,
 > i.e. all the `Label` annotations for classification models and
 > all the `Bbox`es for detection models.
 > You can find examples of the expected model outputs in [`tests/test_RISE.py`](../tests/test_RISE.py)
@@ -1355,7 +1366,8 @@ datum transform -t polygons_to_masks
 datum transform -t shapes_to_boxes
 ```
 
-Example: remap dataset labels, `person` to `car` and `cat` to `dog`, keep `bus`, remove others
+Example: remap dataset labels, `person` to `car` and `cat` to `dog`,
+keep `bus`, remove others
 
 ``` bash
 datum transform -t remap_labels -- \
@@ -1372,13 +1384,16 @@ datum transform -t rename -- -e '|pattern|replacement|'
 datum transform -t rename -- -e '|frame_(\d+)|\\1|'
 ```
 
-Example: sampling dataset items as many as the number of target samples with sampling method entered by the user, divide into `sampled` and `unsampled` subsets
+Example: sampling dataset items as many as the number of target samples with
+sampling method entered by the user, divide into `sampled` and `unsampled`
+subsets
 - There are five methods of sampling the m option.
-    - `topk`: Return the k with high uncertainty data
-    - `lowk`: Return the k with low uncertainty data
-    - `randk`: Return the random k data
-    - `mixk`: Return half to topk method and the rest to lowk method
-    - `randtopk`: First, select 3 times the number of k randomly, and return the topk among them.
+  - `topk`: Return the k with high uncertainty data
+  - `lowk`: Return the k with low uncertainty data
+  - `randk`: Return the random k data
+  - `mixk`: Return half to topk method and the rest to lowk method
+  - `randtopk`: First, select 3 times the number of k randomly, and return
+  the topk among them.
 
 ``` bash
 datum transform -t sampler -- \
@@ -1392,11 +1407,11 @@ datum transform -t sampler -- \
 
 Example : control number of outputs to 100 after NDR
 - There are two methods in NDR e option
-    - `random`: sample from removed data randomly
-    - `similarity`: sample from removed data with ascending
+  - `random`: sample from removed data randomly
+  - `similarity`: sample from removed data with ascending
 - There are two methods in NDR u option
-    - `uniform`: sample data with uniform distribution
-    - `inverse`: sample data with reciprocal of the number
+  - `uniform`: sample data with uniform distribution
+  - `inverse`: sample data with reciprocal of the number
 
 ```bash
 datum transform -t ndr -- \
@@ -1409,9 +1424,10 @@ datum transform -t ndr -- \
 
 ## Extending
 
-There are few ways to extend and customize Datumaro behaviour, which is supported by plugins.
-Check [our contribution guide](../CONTRIBUTING.md) for details on plugin implementation.
-In general, a plugin is a Python code file. It must be put into a plugin directory:
+There are few ways to extend and customize Datumaro behaviour, which is
+supported by plugins. Check [our contribution guide](../CONTRIBUTING.md) for
+details on plugin implementation. In general, a plugin is a Python code file.
+It must be put into a plugin directory:
 - `<project_dir>/.datumaro/plugins` for project-specific plugins
 - `<datumaro_dir>/plugins` for global plugins
 
@@ -1467,15 +1483,15 @@ implementation script to a plugin directory.
 
 ### Dataset Conversions ("Transforms")
 
-A Transform is a function for altering a dataset and producing a new one. It can update
-dataset items, annotations, classes, and other properties.
-A list of available transforms for dataset conversions can be extended by adding a Transform
-implementation script into a plugin directory.
+A Transform is a function for altering a dataset and producing a new one.
+It can update dataset items, annotations, classes, and other properties.
+A list of available transforms for dataset conversions can be extended by
+adding a Transform implementation script into a plugin directory.
 
 ### Model launchers
 
-A list of available launchers for model execution can be extended by adding a Launcher
-implementation script into a plugin directory.
+A list of available launchers for model execution can be extended by adding
+a Launcher implementation script into a plugin directory.
 
 ## Links
 - [TensorFlow detection model zoo](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)
