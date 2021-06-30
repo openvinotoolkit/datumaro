@@ -12,7 +12,7 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import AnnotationType, DatasetItem, Label, LabelCategories
 from datumaro.plugins.open_images_format import OpenImagesConverter, OpenImagesImporter
 from datumaro.util.image import Image
-from datumaro.util.test_utils import TestDir, compare_datasets_strict
+from datumaro.util.test_utils import TestDir, compare_datasets
 
 from tests.requirements import Requirements, mark_requirement
 
@@ -46,7 +46,7 @@ class OpenImagesFormatTest(TestCase):
             # the converter assumes that labels without a score have a score of 100%
             source_dataset.get('b', subset='train').annotations[0].attributes['score'] = 1
 
-            compare_datasets_strict(self, source_dataset, parsed_dataset)
+            compare_datasets(self, source_dataset, parsed_dataset, require_images=True)
 
     @mark_requirement(Requirements.DATUM_274)
     def test_can_save_and_load_with_no_subsets(self):
@@ -62,7 +62,7 @@ class OpenImagesFormatTest(TestCase):
 
             parsed_dataset = Dataset.import_from(test_dir, 'open_images')
 
-            compare_datasets_strict(self, source_dataset, parsed_dataset)
+            compare_datasets(self, source_dataset, parsed_dataset)
 
     @mark_requirement(Requirements.DATUM_274)
     def test_can_save_and_load_image_with_arbitrary_extension(self):
@@ -78,7 +78,7 @@ class OpenImagesFormatTest(TestCase):
 
             parsed_dataset = Dataset.import_from(test_dir, 'open_images')
 
-            compare_datasets_strict(self, dataset, parsed_dataset)
+            compare_datasets(self, dataset, parsed_dataset, require_images=True)
 
 ASSETS_DIR = osp.join(osp.dirname(__file__), 'assets')
 
@@ -118,7 +118,7 @@ class OpenImagesImporterTest(TestCase):
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR_V6, 'open_images')
 
-        compare_datasets_strict(self, expected_dataset, dataset)
+        compare_datasets(self, expected_dataset, dataset, require_images=True)
 
     @mark_requirement(Requirements.DATUM_274)
     def test_can_import_v5(self):
@@ -137,7 +137,7 @@ class OpenImagesImporterTest(TestCase):
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR_V5, 'open_images')
 
-        compare_datasets_strict(self, expected_dataset, dataset)
+        compare_datasets(self, expected_dataset, dataset, require_images=True)
 
     @mark_requirement(Requirements.DATUM_274)
     def test_can_detect(self):
