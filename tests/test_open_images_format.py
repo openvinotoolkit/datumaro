@@ -37,16 +37,25 @@ class OpenImagesFormatTest(TestCase):
             },
         )
 
+        expected_dataset = Dataset.from_extractors(source_dataset)
+        expected_dataset.put(
+            DatasetItem(id='b', subset='train', image=np.zeros((8, 8, 3)),
+                annotations=[
+                    # the converter assumes that labels without a score
+                    # have a score of 100%
+                    Label(1, attributes={'score': 1}),
+                    Label(2, attributes={'score': 0}),
+                ]
+            ),
+        )
+
         with TestDir() as test_dir:
             OpenImagesConverter.convert(source_dataset, test_dir,
                 save_images=True)
 
             parsed_dataset = Dataset.import_from(test_dir, 'open_images')
 
-            # the converter assumes that labels without a score have a score of 100%
-            source_dataset.get('b', subset='train').annotations[0].attributes['score'] = 1
-
-            compare_datasets(self, source_dataset, parsed_dataset, require_images=True)
+            compare_datasets(self, expected_dataset, parsed_dataset, require_images=True)
 
     @mark_requirement(Requirements.DATUM_274)
     def test_can_save_and_load_with_no_subsets(self):
