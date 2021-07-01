@@ -1,0 +1,15 @@
+name: Linter
+on: pull_request
+jobs:
+  PyLint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Run checks
+        run: |
+          pip install --user $(egrep "pylint.*" ./requirements.txt)
+          pylint -r n `find . -name "*.py" -type f | awk -F "/" '{print $2}' | uniq`
