@@ -53,6 +53,29 @@ class OpenImagesPath:
     V5_CLASS_DESCRIPTION_FILE_NAME = 'class-descriptions.csv'
     HIERARCHY_FILE_NAME = 'bbox_labels_600_hierarchy.json'
 
+    IMAGE_DESCRIPTION_FIELDS = (
+        'ImageID',
+        'Subset',
+        'OriginalURL',
+        'OriginalLandingURL',
+        'License',
+        'AuthorProfileURL',
+        'Author',
+        'Title',
+        'OriginalSize',
+        'OriginalMD5',
+        'Thumbnail300KURL',
+        'Rotation',
+    )
+
+    LABEL_DESCRIPTION_FIELDS = (
+        'ImageID',
+        'Source',
+        'LabelName',
+        'Confidence',
+    )
+
+
 class OpenImagesExtractor(Extractor):
     def __init__(self, path):
         if not osp.isdir(path):
@@ -310,34 +333,15 @@ class OpenImagesConverter(Converter):
                 raise UnsupportedSubsetNameError(item_id=next(iter(subset)).id, subset=subset)
 
             image_description_name = f'{subset_name}-images-with-rotation.csv'
-            image_description_fields = [
-                'ImageID',
-                'Subset',
-                'OriginalURL',
-                'OriginalLandingURL',
-                'License',
-                'AuthorProfileURL',
-                'Author',
-                'Title',
-                'OriginalSize',
-                'OriginalMD5',
-                'Thumbnail300KURL',
-                'Rotation',
-            ]
-
             label_description_name = f'{subset_name}-annotations-human-imagelabels.csv'
-            label_description_fields =  [
-                'ImageID',
-                'Source',
-                'LabelName',
-                'Confidence',
-            ]
 
             with \
                 self._open_csv_annotation(
-                    image_description_name, image_description_fields) as image_description_writer, \
+                    image_description_name, OpenImagesPath.IMAGE_DESCRIPTION_FIELDS,
+                ) as image_description_writer, \
                 self._open_csv_annotation(
-                    label_description_name, label_description_fields) as label_description_writer \
+                    label_description_name, OpenImagesPath.LABEL_DESCRIPTION_FIELDS,
+                ) as label_description_writer \
             :
                 image_description_writer.writeheader()
                 label_description_writer.writeheader()
