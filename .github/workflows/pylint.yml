@@ -13,4 +13,4 @@ jobs:
         run: |
           pip install --user $(egrep "pylint.*" ./requirements.txt)
           echo "Pylint version: "`pylint --version | head -1`
-          pylint -r n `find . -name "*.py" -type f | awk -F "/" '{print $2}' | uniq`
+          git ls-files -z '*.py' | xargs -0 pylint -r n

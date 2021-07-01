@@ -59,7 +59,7 @@ class LabelMeExtractor(Extractor):
             subset = ''
             if 1 < len(path_parts):
                 subset = path_parts[0]
-                item_path = osp.join(*path_parts[1:])
+                item_path = osp.join(*path_parts[1:]) # pylint: disable=no-value-for-parameter
 
             root = ElementTree.parse(xml_path)
 

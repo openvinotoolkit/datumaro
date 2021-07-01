@@ -52,7 +52,7 @@ def process_outputs(inputs, outputs):
 
         image_results = []
         for i, det in enumerate(detections):
-            image_id = int(det[0])
+            image_id = int(det[0]) # pylint: disable=unused-variable
             label = int(det[1])
             conf = float(det[2])
             det_confs = confs[conf_ids[i]]
