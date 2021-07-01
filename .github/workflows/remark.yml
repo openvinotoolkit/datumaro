@@ -12,7 +12,5 @@ jobs:
       - name: Run checks
         run: |
           npm ci
-          mkdir -p remark_report
-
           echo "Remark version: "`npx remark --version`
           npx remark --frail .

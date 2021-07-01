@@ -14,7 +14,8 @@ A description of the Open Images Dataset (OID) format is available
 on [its website](https://storage.googleapis.com/openimages/web/download.html).
 Datumaro supports versions 4, 5 and 6.
 
-Datumaro currently supports only the human-verified image-level label annotations from this dataset.
+Datumaro currently supports only the human-verified image-level label
+annotations from this dataset.
 
 ## Load Open Images dataset
 
@@ -88,7 +89,7 @@ Open Images dataset directory should have the following structure:
 To use per-subset image description files instead of `image_ids_and_rotation.csv`,
 place them in the `annotations` subdirectory.
 
-##  Export to other formats
+## Export to other formats
 
 Datumaro can convert OID into any other format [Datumaro supports](../user_manual.md#supported-formats).
 To get the expected result, the dataset needs to be converted to a format
@@ -108,7 +109,7 @@ To get information about them, run
 
 `datum export -f <FORMAT> -- -h`
 
-##  Export to Open Images
+## Export to Open Images
 
 Converting datasets to the Open Images format is currently not supported.
 

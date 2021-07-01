@@ -51,7 +51,8 @@ Datumaro is:
 - Provision of iterators for user code
 - Dataset downloading
 - Dataset generation
-- Dataset building (export in a specific format, indexation, statistics, documentation)
+- Dataset building (export in a specific format, indexation, statistics,
+documentation)
 - Dataset exporting to other formats
 - Dataset debugging (run inference, generate dataset slices, compute statistics)
 - "Explainable AI" - highlight network attention areas ([paper](https://arxiv.org/abs/1901.04592))
@@ -65,7 +66,8 @@ Datumaro is:
   Use case: explanation of network "quality", "stability", "certainty"
 - adversarial attacks on networks
 - dataset minification / reduction
-  Use case: removal of redundant information to reach the same network quality with lesser training time
+  Use case: removal of redundant information to reach the same network quality
+  with lesser training time
 - dataset expansion and filtration of additions
   Use case: add only important data
 - guidance for key frame selection for tracking ([paper](https://arxiv.org/abs/1903.11779))
@@ -73,7 +75,7 @@ Datumaro is:
 
 ## RC 1 vision
 
-*CVAT integration*
+### CVAT integration
 
 Datumaro needs to be integrated with [CVAT](https://github.com/openvinotoolkit/cvat),
 extending CVAT UI capabilities regarding task and project operations.

@@ -11,20 +11,20 @@
 ## Format specification
 
 - Original KITTI dataset format support the following types of annotations:
-    - `Bounding boxes` (for [object detection](http://www.cvlibs.net/datasets/kitti/eval_object.php?obj_benchmark));
-    - `Masks` (for [segmentation](http://www.cvlibs.net/datasets/kitti/eval_semseg.php?benchmark=semantics2015) task).
+  - `Bounding boxes` (for [object detection](http://www.cvlibs.net/datasets/kitti/eval_object.php?obj_benchmark));
+  - `Masks` (for [segmentation](http://www.cvlibs.net/datasets/kitti/eval_semseg.php?benchmark=semantics2015) task).
 
 - Supported attributes:
-    - `truncated`: indicates that the bounding box specified for the object does
+  - `truncated`: indicates that the bounding box specified for the object does
     not correspond to the full extent of the object;
-    - `occluded`: indicates that a significant portion of the object within the
+  - `occluded`: indicates that a significant portion of the object within the
     bounding box is occluded by another object.
 
 KITTI segmentations format specification available in `README.md` [here](https://s3.eu-central-1.amazonaws.com/avg-kitti/devkit_semantics.zip).
 
 KITTI object detection format specification available in `README.md` [here](https://s3.eu-central-1.amazonaws.com/avg-kitti/devkit_object.zip).
 
-##  Load KITTI dataset
+## Load KITTI dataset
 
 The KITTI left color images for object detection are available [here](http://www.cvlibs.net/download.php?file=data_object_image_2.zip).
 
@@ -89,10 +89,10 @@ Datumaro supports the following KITTI tasks:
 - Object detection (`kitti_detection`)
 - Class and instance segmentation (`kitti_segmentation`)
 
-To make sure that the selected dataset has been added to the project, you can run
-`datum info`, which will display the project and dataset information.
+To make sure that the selected dataset has been added to the project, you can
+run `datum info`, which will display the project and dataset information.
 
-##  Export to other formats
+## Export to other formats
 
 Datumaro can convert KITTI dataset into any other format [Datumaro supports](../user_manual.md#supported-formats).
 
@@ -116,7 +116,7 @@ To get information about them, run
 
 `datum export -f <FORMAT> -- -h`
 
-##  Export to KITTI
+## Export to KITTI
 
 There are few ways to convert dataset to KITTI format:
 
@@ -131,11 +131,11 @@ datum convert -if cityscapes -i <path/to/cityscapes/dataset> \
 
 Extra options for export to KITTI format:
 - `--save-images` allow to export dataset with saving images
-(by default `False`);
+  (by default `False`);
 - `--image-ext IMAGE_EXT` allow to specify image extension
-for exporting dataset (by default - keep original or use `.png`, if none).
+  for exporting dataset (by default - keep original or use `.png`, if none).
 - `--apply-colormap APPLY_COLORMAP` allow to use colormap for class masks
-(in folder `semantic_rgb`, by default `True`);
+  (in folder `semantic_rgb`, by default `True`);
 - `--label_map` allow to define a custom colormap. Example
 
 ``` bash
