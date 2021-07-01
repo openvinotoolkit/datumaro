@@ -11,6 +11,6 @@ jobs:
 
       - name: Run checks
         run: |
-          pip install --user $(egrep "pylint.*" ./requirements.txt)
+          pip install --user -r <(grep "^pylint" ./requirements.txt)
           echo "Pylint version: "`pylint --version | head -1`
           git ls-files -z '*.py' | xargs -0 pylint -r n
