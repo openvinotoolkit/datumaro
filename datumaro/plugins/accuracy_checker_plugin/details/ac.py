@@ -3,6 +3,9 @@
 #
 # SPDX-License-Identifier: MIT
 
+from datumaro.util.tf_util import import_tf # pylint: disable=wrong-import-order
+import_tf() # prevent TF loading and potential interpreter crash
+
 from itertools import groupby
 
 from accuracy_checker.adapters import create_adapter
@@ -11,9 +14,6 @@ from accuracy_checker.launcher import InputFeeder, create_launcher
 from accuracy_checker.postprocessor import PostprocessingExecutor
 from accuracy_checker.preprocessor import PreprocessingExecutor
 from accuracy_checker.utils import extract_image_representations
-
-from datumaro.util.tf_util import import_tf
-import_tf() # prevent TF loading and potential interpreter crash
 
 from datumaro.components.extractor import AnnotationType, LabelCategories
 
