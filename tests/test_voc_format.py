@@ -9,8 +9,8 @@ import numpy as np
 from datumaro.components.extractor import (Extractor, DatasetItem,
     AnnotationType, Label, Bbox, Mask, LabelCategories, MaskCategories,
 )
-import datumaro.plugins.vocformat.format as VOC
-from datumaro.plugins.vocformat.converter import (
+import datumaro.plugins.voc_format.format as VOC
+from datumaro.plugins.voc_format.converter import (
     VocConverter,
     VocClassificationConverter,
     VocDetectionConverter,
@@ -18,7 +18,7 @@ from datumaro.plugins.vocformat.converter import (
     VocActionConverter,
     VocSegmentationConverter,
 )
-from datumaro.plugins.vocformat.importer import (VocActionImporter,
+from datumaro.plugins.voc_format.importer import (VocActionImporter,
     VocClassificationImporter, VocDetectionImporter, VocImporter,
     VocLayoutImporter, VocSegmentationImporter)
 from datumaro.components.dataset import Dataset

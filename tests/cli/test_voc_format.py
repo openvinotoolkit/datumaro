@@ -3,7 +3,7 @@ from collections import OrderedDict
 from unittest import TestCase
 
 import numpy as np
-import datumaro.plugins.vocformat.format as VOC
+import datumaro.plugins.voc_format.format as VOC
 from datumaro.components.dataset import Dataset, DatasetItem
 from datumaro.components.extractor import Bbox, Label, Mask
 from datumaro.cli.__main__ import main
@@ -18,20 +18,20 @@ def run(test, *args, expected_code=0):
 
 class VocIntegrationScenarios(TestCase):
     def _test_can_save_and_load(self, project_path, source_path, expected_dataset,
-            datasetformat, result_path='', label_map=None):
+            dataset_format, result_path='', label_map=None):
         run(self, 'create', '-o', project_path)
-        run(self, 'add', 'path', '-p', project_path, '-f', datasetformat,
+        run(self, 'add', 'path', '-p', project_path, '-f', dataset_format,
             source_path)
 
         result_dir = osp.join(project_path, 'result')
         extra_args = ['--', '--save-images']
         if label_map:
             extra_args += ['--label-map', label_map]
-        run(self, 'export', '-f', datasetformat, '-p', project_path,
+        run(self, 'export', '-f', dataset_format, '-p', project_path,
             '-o', result_dir, *extra_args)
 
         result_path = osp.join(result_dir, result_path)
-        parsed_dataset = Dataset.import_from(result_path, datasetformat)
+        parsed_dataset = Dataset.import_from(result_path, dataset_format)
         compare_datasets(self, expected_dataset, parsed_dataset,
             require_images=True)
 
@@ -103,7 +103,7 @@ class VocIntegrationScenarios(TestCase):
             compare_datasets(self, expected_dataset, parsed_dataset)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_export_to_vocformat(self):
+    def test_export_to_voc_format(self):
         label_map = OrderedDict(('label_%s' % i, [None, [], []]) for i in range(10))
         label_map['background'] = [None, [], []]
         label_map.move_to_end('background', last=False)
@@ -147,7 +147,7 @@ class VocIntegrationScenarios(TestCase):
                 require_images=True)
 
     @mark_requirement(Requirements.DATUM_283)
-    def test_convert_to_vocformat(self):
+    def test_convert_to_voc_format(self):
         """
         <b>Description:</b>
         Ensure that the dataset can be converted to VOC format with
@@ -196,7 +196,7 @@ class VocIntegrationScenarios(TestCase):
                 require_images=True)
 
     @mark_requirement(Requirements.DATUM_283)
-    def test_convert_from_vocformat(self):
+    def test_convert_from_voc_format(self):
         """
         <b>Description:</b>
         Ensure that the dataset can be converted from VOC format with

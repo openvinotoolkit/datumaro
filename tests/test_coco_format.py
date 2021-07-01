@@ -65,14 +65,14 @@ class CocoImporterTest(TestCase):
             ('val', osp.join(DUMMY_DATASET_DIR, 'coco_instances',
                 'annotations', 'instances_val.json')),
         ]
-        for _format, (subset, path) in product(formats, paths):
+        for format, (subset, path) in product(formats, paths):
             if subset:
                 expected = expected_dataset.get_subset(subset)
             else:
                 expected = expected_dataset
 
-            with self.subTest(path=path, format=_format, subset=subset):
-                dataset = Dataset.import_from(path, _format)
+            with self.subTest(path=path, format=format, subset=subset):
+                dataset = Dataset.import_from(path, format)
                 compare_datasets(self, expected, dataset, require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -100,14 +100,14 @@ class CocoImporterTest(TestCase):
             ('val', osp.join(DUMMY_DATASET_DIR, 'coco_captions',
                 'annotations', 'captions_val.json')),
         ]
-        for _format, (subset, path) in product(formats, paths):
+        for format, (subset, path) in product(formats, paths):
             if subset:
                 expected = expected_dataset.get_subset(subset)
             else:
                 expected = expected_dataset
 
-            with self.subTest(path=path, format=_format, subset=subset):
-                dataset = Dataset.import_from(path, _format)
+            with self.subTest(path=path, format=format, subset=subset):
+                dataset = Dataset.import_from(path, format)
                 compare_datasets(self, expected, dataset, require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -135,14 +135,14 @@ class CocoImporterTest(TestCase):
             ('val', osp.join(DUMMY_DATASET_DIR, 'coco_labels',
                 'annotations', 'labels_val.json')),
         ]
-        for _format, (subset, path) in product(formats, paths):
+        for format, (subset, path) in product(formats, paths):
             if subset:
                 expected = expected_dataset.get_subset(subset)
             else:
                 expected = expected_dataset
 
-            with self.subTest(path=path, format=_format, subset=subset):
-                dataset = Dataset.import_from(path, _format)
+            with self.subTest(path=path, format=format, subset=subset):
+                dataset = Dataset.import_from(path, format)
                 compare_datasets(self, expected, dataset, require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -187,14 +187,14 @@ class CocoImporterTest(TestCase):
             ('val', osp.join(DUMMY_DATASET_DIR, 'coco_person_keypoints',
                 'annotations', 'person_keypoints_val.json')),
         ]
-        for _format, (subset, path) in product(formats, paths):
+        for format, (subset, path) in product(formats, paths):
             if subset:
                 expected = expected_dataset.get_subset(subset)
             else:
                 expected = expected_dataset
 
-            with self.subTest(path=path, format=_format, subset=subset):
-                dataset = Dataset.import_from(path, _format)
+            with self.subTest(path=path, format=format, subset=subset):
+                dataset = Dataset.import_from(path, format)
                 compare_datasets(self, expected, dataset, require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -214,14 +214,14 @@ class CocoImporterTest(TestCase):
             ('val', osp.join(DUMMY_DATASET_DIR, 'coco_image_info',
                 'annotations', 'image_info_val.json')),
         ]
-        for _format, (subset, path) in product(formats, paths):
+        for format, (subset, path) in product(formats, paths):
             if subset:
                 expected = expected_dataset.get_subset(subset)
             else:
                 expected = expected_dataset
 
-            with self.subTest(path=path, format=_format, subset=subset):
-                dataset = Dataset.import_from(path, _format)
+            with self.subTest(path=path, format=format, subset=subset):
+                dataset = Dataset.import_from(path, format)
                 compare_datasets(self, expected, dataset, require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -254,14 +254,14 @@ class CocoImporterTest(TestCase):
             ('val', osp.join(DUMMY_DATASET_DIR, 'coco_panoptic',
                 'annotations', 'panoptic_val.json')),
         ]
-        for _format, (subset, path) in product(formats, paths):
+        for format, (subset, path) in product(formats, paths):
             if subset:
                 expected = expected_dataset.get_subset(subset)
             else:
                 expected = expected_dataset
 
-            with self.subTest(path=path, format=_format, subset=subset):
-                dataset = Dataset.import_from(path, _format)
+            with self.subTest(path=path, format=format, subset=subset):
+                dataset = Dataset.import_from(path, format)
                 compare_datasets(self, expected, dataset, require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -292,14 +292,14 @@ class CocoImporterTest(TestCase):
             ('val', osp.join(DUMMY_DATASET_DIR, 'coco_stuff',
                 'annotations', 'stuff_val.json')),
         ]
-        for _format, (subset, path) in product(formats, paths):
+        for format, (subset, path) in product(formats, paths):
             if subset:
                 expected = expected_dataset.get_subset(subset)
             else:
                 expected = expected_dataset
 
-            with self.subTest(path=path, format=_format, subset=subset):
-                dataset = Dataset.import_from(path, _format)
+            with self.subTest(path=path, format=format, subset=subset):
+                dataset = Dataset.import_from(path, format)
                 compare_datasets(self, expected, dataset, require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
