@@ -4,7 +4,6 @@ from functools import partial
 from unittest import TestCase
 
 import numpy as np
-
 from datumaro.components.extractor import (AnnotationType, Bbox, DatasetItem,
     Extractor, LabelCategories, Mask)
 from datumaro.components.dataset import Dataset

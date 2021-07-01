@@ -1,9 +1,8 @@
 from functools import partial
-import numpy as np
 import os.path as osp
-
 from unittest import TestCase
 
+import numpy as np
 from datumaro.components.extractor import DatasetItem, Mask
 from datumaro.components.dataset import Dataset
 from datumaro.plugins.mots_format import MotsPngConverter, MotsImporter

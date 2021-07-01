@@ -8,9 +8,9 @@
 from enum import Enum, auto
 from io import BytesIO
 from typing import Any, Callable, Iterator, Iterable, Optional, Tuple, Union
-import numpy as np
 import os
 import os.path as osp
+import numpy as np
 
 class _IMAGE_BACKENDS(Enum):
     cv2 = auto()

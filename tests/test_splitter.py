@@ -1,7 +1,6 @@
-import numpy as np
-
 from unittest import TestCase
 
+import numpy as np
 from datumaro.components.project import Dataset
 from datumaro.components.extractor import (
     DatasetItem,

@@ -1,5 +1,6 @@
 from collections import defaultdict
 from unittest import TestCase, skipIf
+import csv
 
 from datumaro.components.project import Dataset
 from datumaro.components.extractor import (
@@ -9,8 +10,6 @@ from datumaro.components.extractor import (
     AnnotationType,
 )
 from datumaro.util.image import Image
-
-import csv
 
 try:
     import pandas as pd

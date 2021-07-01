@@ -8,8 +8,8 @@ import logging as log
 import os
 import os.path as osp
 import shutil
-import numpy as np
 from enum import Enum
+import numpy as np
 
 from datumaro.components.dataset_filter import DatasetItemEncoder
 from datumaro.components.extractor import AnnotationType

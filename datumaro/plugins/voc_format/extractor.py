@@ -5,8 +5,8 @@
 
 from collections import defaultdict
 import logging as log
-import numpy as np
 import os.path as osp
+import numpy as np
 from defusedxml import ElementTree
 
 from datumaro.components.extractor import (SourceExtractor, DatasetItem,

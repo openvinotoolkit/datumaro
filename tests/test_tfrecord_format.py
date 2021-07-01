@@ -1,10 +1,9 @@
 from functools import partial
-import numpy as np
 import os
 import os.path as osp
-
 from unittest import TestCase, skipIf
 
+import numpy as np
 from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import (DatasetItem,
     AnnotationType, Bbox, Mask, LabelCategories

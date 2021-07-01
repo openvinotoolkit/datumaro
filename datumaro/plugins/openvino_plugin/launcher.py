@@ -5,11 +5,11 @@
 
 # pylint: disable=exec-used
 
-import cv2
-import logging as log
-import numpy as np
 import os.path as osp
 import shutil
+import logging as log
+import cv2
+import numpy as np
 
 from openvino.inference_engine import IECore
 

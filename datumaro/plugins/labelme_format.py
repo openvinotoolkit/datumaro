@@ -3,13 +3,13 @@
 # SPDX-License-Identifier: MIT
 
 from collections import defaultdict
-from defusedxml import ElementTree
 from functools import partial
 from glob import glob, iglob
 import logging as log
-import numpy as np
 import os
 import os.path as osp
+from defusedxml import ElementTree
+import numpy as np
 
 from datumaro.components.extractor import (Extractor, Importer,
     DatasetItem, AnnotationType, Mask, Bbox, Polygon, LabelCategories)

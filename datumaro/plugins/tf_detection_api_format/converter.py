@@ -11,9 +11,7 @@ import os
 import os.path as osp
 import string
 
-from datumaro.components.extractor import (AnnotationType, DEFAULT_SUBSET_NAME,
-    LabelCategories
-)
+from datumaro.components.extractor import (AnnotationType, LabelCategories)
 from datumaro.components.converter import Converter
 from datumaro.util.image import encode_image, ByteImage
 from datumaro.util.annotation_util import (max_bbox,

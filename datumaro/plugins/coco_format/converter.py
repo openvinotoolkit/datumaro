@@ -5,11 +5,11 @@
 
 import json
 import logging as log
-import numpy as np
 import os
 import os.path as osp
 from enum import Enum, auto
 from itertools import chain, groupby
+import numpy as np
 
 import pycocotools.mask as mask_utils
 

@@ -1,11 +1,11 @@
-import numpy as np
+from unittest import TestCase
 
+import numpy as np
 from datumaro.components.extractor import (DatasetItem, Label, Bbox,
     Caption, Mask, Points, DEFAULT_SUBSET_NAME)
 from datumaro.components.project import Dataset
 from datumaro.components.operations import DistanceComparator, ExactComparator
 
-from unittest import TestCase
 from .requirements import Requirements, mark_requirement
 
 

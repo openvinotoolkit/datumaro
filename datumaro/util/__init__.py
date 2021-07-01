@@ -3,12 +3,12 @@
 #
 # SPDX-License-Identifier: MIT
 
-import attr
 from contextlib import ExitStack
 from distutils.util import strtobool as str_to_bool # pylint: disable=unused-import
 from functools import partial, wraps
 from itertools import islice
 from typing import Iterable, Tuple
+import attr
 
 
 NOTSET = object()

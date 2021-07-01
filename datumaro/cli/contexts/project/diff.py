@@ -9,11 +9,10 @@ from enum import Enum, auto
 import logging as log
 import os
 import os.path as osp
-
+import warnings
 import cv2
 import numpy as np
 
-import warnings
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     import tensorboardX as tb

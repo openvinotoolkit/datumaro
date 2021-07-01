@@ -2,8 +2,6 @@ import os.path as osp
 from unittest import TestCase
 
 import numpy as np
-import pytest
-
 from datumaro.components.extractor import DatasetItem
 from datumaro.components.project import Dataset
 from datumaro.plugins.image_zip_format import ImageZipPath, ImageZipConverter

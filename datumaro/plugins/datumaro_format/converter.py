@@ -6,10 +6,11 @@
 # pylint: disable=no-self-use
 
 import json
-import numpy as np
 import os
 import os.path as osp
+import numpy as np
 
+import pycocotools.mask as mask_utils
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.extractor import (
@@ -18,7 +19,6 @@ from datumaro.components.extractor import (
     LabelCategories, MaskCategories, PointsCategories
 )
 from datumaro.util import cast
-import pycocotools.mask as mask_utils
 
 from .format import DatumaroPath
 
