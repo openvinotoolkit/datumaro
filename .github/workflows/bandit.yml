@@ -11,22 +11,6 @@ jobs:
 
       - name: Run checks
         run: |
-          URL="https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files"
-          PR_FILES=$(curl -s -X GET -G $URL | jq -r '.[] | select(.status != "removed") | .filename')
-          for files in $PR_FILES; do
-            extension="${files##*.}"
-            if [[ $extension == 'py' ]]; then
-              changed_files_bandit+=" ${files}"
-            fi
-          done
-
-          if [[ ! -z ${changed_files_bandit} ]]; then
-            pip install --user $(egrep "bandit.*" ./requirements.txt)
-            mkdir -p bandit_report
-
-            echo "Bandit version: "`bandit --version | head -1`
-            echo "The files will be checked: "`echo ${changed_files_bandit}`
-            bandit ${changed_files_bandit} --exclude '**/tests/**' -a file --ini ./.bandit
-          else
-            echo "No files with the \"py\" extension found"
-          fi
+          pip install --user $(egrep "bandit.*" ./requirements.txt)
+          echo "Bandit version: "`bandit --version | head -1`
+          bandit -r ./
