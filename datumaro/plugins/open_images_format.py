@@ -8,6 +8,7 @@ import fnmatch
 import glob
 import itertools
 import json
+import logging as log
 import os
 import os.path as osp
 import re
@@ -351,9 +352,12 @@ class OpenImagesConverter(Converter):
                         'ImageID': item.id, 'Subset': subset_name,
                     })
 
-                    if self._save_images and item.has_image:
-                        self._save_image(item, subdir=osp.join(
-                            OpenImagesPath.IMAGES_DIR, subset_name))
+                    if self._save_images:
+                        if item.has_image:
+                            self._save_image(item, subdir=osp.join(
+                                OpenImagesPath.IMAGES_DIR, subset_name))
+                        else:
+                            log.debug("Item '%s' has no image", item.id)
 
                     for annotation in item.annotations:
                         if annotation.type is AnnotationType.label:
