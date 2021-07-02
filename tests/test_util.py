@@ -33,7 +33,7 @@ class TestRollback(TestCase):
             with Rollback() as on_error:
                 on_error.do(cb)
                 raise Exception('err')
-        except Exception:
+        except Exception: # nosec - disable B110:try_except_pass check
             pass
         finally:
             self.assertTrue(success)
@@ -52,7 +52,7 @@ class TestRollback(TestCase):
 
         try:
             foo()
-        except Exception:
+        except Exception: # nosec - disable B110:try_except_pass check
             pass
         finally:
             self.assertTrue(success)
@@ -86,7 +86,7 @@ class TestRollback(TestCase):
 
         try:
             foo()
-        except Exception:
+        except Exception: # nosec - disable B110:try_except_pass check
             pass
         finally:
             self.assertTrue(success)
@@ -111,7 +111,7 @@ class TestRollback(TestCase):
                 on_error.do(cb2, 5, a2=2, ignore_errors=True,
                     fwd_kwargs={'ignore_errors': 4})
                 raise Exception('err')
-        except Exception:
+        except Exception: # nosec - disable B110:try_except_pass check
             pass
         finally:
             self.assertTrue(success1)

@@ -16,7 +16,7 @@ def check_import():
 
     from .os_util import check_instruction_set
 
-    result = subprocess.run([sys.executable, '-c', 'import tensorflow'],
+    result = subprocess.run([sys.executable, '-c', 'import tensorflow'], # nosec - disable B603:subprocess_without_shell_equals_true check
         timeout=60,
         universal_newlines=True, # use text mode for output stream
         stdout=subprocess.PIPE, stderr=subprocess.PIPE) # capture output
