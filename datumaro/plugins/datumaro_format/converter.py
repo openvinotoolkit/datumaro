@@ -255,7 +255,7 @@ class DatumaroConverter(Converter):
         for subset, writer in subsets.items():
             writer.write(annotations_dir)
 
-    def _save_image(self, item, path=None):
+    def _save_image(self, item, path=None): # pylint: disable=arguments-differ
         super()._save_image(item,
             osp.join(self._images_dir, self._make_image_filename(item)))
 

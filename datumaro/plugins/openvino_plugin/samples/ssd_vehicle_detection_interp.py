@@ -41,9 +41,9 @@ def process_outputs(inputs, outputs):
     # results = conversion result; [[ Annotation, ... ], ... ]
 
     results = []
-    for input, detections in zip(inputs, outputs["detection_out"]):
+    for input_, detections in zip(inputs, outputs["detection_out"]):
 
-        input_height, input_width = input.shape[:2]
+        input_height, input_width = input_.shape[:2]
 
         confs = outputs["Softmax_189/Softmax_"]
         detections = detections[0]

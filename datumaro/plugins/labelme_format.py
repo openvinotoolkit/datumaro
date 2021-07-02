@@ -408,8 +408,8 @@ class LabelMeConverter(Converter):
                        cast(v, int) is not None and str(int(v)) == v:
                         v = f'"{v}"' # add escaping for string values
                     else:
-                        v = self._escape(v)
-                attrs.append('%s=%s' % (self._escape(k), v))
+                        v = self._escape(v) # pylint: disable=redundant-keyword-arg due FP https://github.com/PyCQA/pylint/issues/2271
+                attrs.append('%s=%s' % (self._escape(k), v)) # pylint: disable=redundant-keyword-arg due FP https://github.com/PyCQA/pylint/issues/2271
             ET.SubElement(obj_elem, 'attributes').text = ', '.join(attrs)
 
             obj_id += 1

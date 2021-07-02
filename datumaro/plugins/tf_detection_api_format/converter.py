@@ -194,7 +194,7 @@ class TfDetectionApiConverter(Converter):
 
         return tf_example
 
-    def _save_image(self, item, path=None):
+    def _save_image(self, item, path=None): # pylint: disable=arguments-differ
         src_ext = item.image.ext.lower()
         dst_ext = osp.splitext(osp.basename(path))[1].lower()
         fmt = DetectionApiPath.IMAGE_EXT_FORMAT.get(dst_ext, '')

@@ -14,7 +14,7 @@ def process_outputs(inputs, outputs):
     # results = conversion result; [[ Annotation, ... ], ... ]
 
     results = []
-    for input, output in zip(inputs, outputs): # pylint: disable=unused-variable
+    for input_, output in zip(inputs, outputs): # pylint: disable=unused-variable
         image_results = []
         output = softmax(output).tolist()
         label = output.index(max(output))

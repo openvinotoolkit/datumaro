@@ -42,11 +42,11 @@ def process_outputs(inputs, outputs):
     # results = conversion result; [[ Annotation, ... ], ... ]
 
     results = []
-    for input, confs, detections in zip(
+    for input_, confs, detections in zip(
         inputs, outputs["do_ExpandDims_conf/sigmoid"], outputs["DetectionOutput"]
     ):
 
-        input_height, input_width = input.shape[:2]
+        input_height, input_width = input_.shape[:2]
 
         confs = confs[0].reshape(-1, model_class_num)
         detections = detections[0]
