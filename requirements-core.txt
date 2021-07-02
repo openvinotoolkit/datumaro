@@ -4,7 +4,7 @@ GitPython>=3.0.8
 lxml>=4.4.1
 matplotlib>=3.3.1
 numpy>=1.17.3
-Pillow>=6.1.0
+Pillow>=6.1.0,<8.3 # upper bound due to https://github.com/python-pillow/Pillow/issues/5571
 
 # Avoid 2.0.2 Linux binary distribution because of
 # a conflict in numpy versions with TensorFlow:
