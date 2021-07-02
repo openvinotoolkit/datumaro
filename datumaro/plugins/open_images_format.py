@@ -340,12 +340,13 @@ class OpenImagesConverter(Converter):
                 self._open_csv_annotation(
                     image_description_name, OpenImagesPath.IMAGE_DESCRIPTION_FIELDS,
                 ) as image_description_writer, \
-                self._open_csv_annotation(
-                    label_description_name, OpenImagesPath.LABEL_DESCRIPTION_FIELDS,
-                ) as label_description_writer \
+                contextlib.ExitStack() as annotation_writers \
             :
                 image_description_writer.writeheader()
-                label_description_writer.writeheader()
+
+                # The label description writer is created lazily,
+                # so that we don't create the label description file if there are no labels.
+                label_description_writer = None
 
                 for item in subset:
                     image_description_writer.writerow({
@@ -361,6 +362,13 @@ class OpenImagesConverter(Converter):
 
                     for annotation in item.annotations:
                         if annotation.type is AnnotationType.label:
+                            if label_description_writer is None:
+                                label_description_writer = annotation_writers.enter_context(
+                                    self._open_csv_annotation(
+                                        label_description_name,
+                                        OpenImagesPath.LABEL_DESCRIPTION_FIELDS))
+                                label_description_writer.writeheader()
+
                             label_description_writer.writerow({
                                 'ImageID': item.id,
                                 'LabelName': label_categories[annotation.label].name,
