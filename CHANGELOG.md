@@ -16,8 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `keep-empty` export parameter in VOC format (<https://github.com/openvinotoolkit/datumaro/pull/297>)
 - A base class for dataset validation plugins (<https://github.com/openvinotoolkit/datumaro/pull/299>)
 - Partial support for the Open Images format;
-  only reading is supported, and only images and image-level labels can be read
-  (<https://github.com/openvinotoolkit/datumaro/pull/291>).
+  only images and image-level labels can be read/written
+  (<https://github.com/openvinotoolkit/datumaro/pull/291>,
+  <https://github.com/openvinotoolkit/datumaro/pull/315>).
 
 ### Changed
 - Tensorflow AVX check is made optional in API and is disabled by default (<https://github.com/openvinotoolkit/datumaro/pull/305>)
