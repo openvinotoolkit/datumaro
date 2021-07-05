@@ -4,10 +4,11 @@
 # SPDX-License-Identifier: MIT
 
 from contextlib import ExitStack
-import distutils.util
 from functools import partial, wraps
 from itertools import islice
 from typing import Iterable, Tuple
+import distutils.util
+
 import attr
 
 NOTSET = object()
