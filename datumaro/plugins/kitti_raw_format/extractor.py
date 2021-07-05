@@ -3,13 +3,14 @@
 #
 # SPDX-License-Identifier: MIT
 
+from defusedxml import ElementTree as ET
 import os.path as osp
-from collections import OrderedDict
 
 from datumaro.components.extractor import (SourceExtractor, DatasetItem,
     AnnotationType, Cuboid3d, LabelCategories, Importer)
+from datumaro.util.image import find_images
 
-from .format import KittiRawPath
+from .format import KittiRawPath, OcclusionStates
 
 
 class KittiRawExtractor(SourceExtractor):
@@ -24,7 +25,7 @@ class KittiRawExtractor(SourceExtractor):
         if osp.isdir(osp.join(rootpath, KittiRawPath.IMAGES_DIR)):
             images_dir = osp.join(rootpath, KittiRawPath.IMAGES_DIR)
         self._images_dir = images_dir
-        self._path = path
+        self._path = rootpath
 
         if not subset:
             subset = osp.splitext(osp.basename(path))[0]
@@ -36,87 +37,167 @@ class KittiRawExtractor(SourceExtractor):
 
     @classmethod
     def _parse(cls, path):
-        import xml.etree.ElementTree as ET
-        tree = ET.parse(path)
-        root = tree.getroot()
-        shapes = {}
-        shape = {"points": []}
-        labels = OrderedDict()
-        label = {"attributes": []}
-        items = OrderedDict()
-        categories = {}
-        point_tags = ["h", "w", "l", "tx", "ty", "tz", "rx", "ry", "rz"]
+        tracks = []
+        track = None
+        shape = None
+        attr = None
+        labels = {}
+        point_tags = {'tx', 'ty', 'tz', 'rx', 'ry', 'rz'}
 
-        for elem in root.iter():
-            if elem.tag == "objectType":
-                shape["label"] = elem.text
-                label["name"] = elem.text
-            elif elem.tag in point_tags:
-                shape['points'].append(float(elem.text))
-            elif elem.tag == "first_frame":
-                shape['frame'] = int(elem.text)
-            elif elem.tag == "occlusion_kf":
-                shape["occluded"] = 1 if int(elem.text) else 0
-            elif elem.tag == "name":
-                label["attributes"].append(elem.text)
-            elif elem.tag == "finished":
-                for _ in range(7):
-                    shape['points'].append(float(0.0))
-                shape["type"] = "cuboid"
+        tree = ET.iterparse(path, events=("start", "end"))
+        for ev, elem in tree:
+            if ev == "start":
+                if elem.tag == 'item':
+                    if track is None:
+                        track = {
+                            'shapes': [],
+                            'scale': {},
+                            'label': None,
+                            'attributes': {},
+                            'start_frame': None,
+                            'length': None,
+                        }
+                    else:
+                        shape = {
+                            'points': {},
+                            'attributes': {},
+                            'occluded': None,
+                            'occluded_kf': False,
+                        }
 
-                labels[label['name']] = label["attributes"]
+                elif elem.tag == 'attribute':
+                    attr = {}
 
-                shapes.update({len(shapes): shape})
-                shape = {"points": []}
+            elif ev == "end":
+                if elem.tag == 'item':
+                    assert track is not None
 
-        common_attrs = ["occluded"]
+                    if shape:
+                        track['shapes'].append(shape)
+                        shape = None
+                    else:
+                        assert track['length'] == len(track['shapes'])
+
+                        if track['label']:
+                            labels.setdefault(track['label'], set())
+
+                            for a in track['attributes']:
+                                labels[track['label']].add(a)
+
+                            for shape in track['shapes']:
+                                for a in shape['attributes']:
+                                    labels[track['label']].add(a)
+
+                        tracks.append(track)
+                        track = None
+
+                # track tags
+                elif track and elem.tag == 'objectType':
+                    track['label'] = elem.text
+                elif track and elem.tag in {'h', 'w', 'l'}:
+                    track['scale'][elem.tag] = float(elem.text)
+                elif track and elem.tag == 'first_frame':
+                    track['start_frame'] = int(elem.text)
+                elif track and elem.tag == 'count' and track:
+                    track['length'] = int(elem.text)
+
+                # pose tags
+                elif shape and elem.tag in point_tags:
+                    shape['points'][elem.tag] = float(elem.text)
+                elif shape and elem.tag == 'occlusion':
+                    shape['occluded'] = OcclusionStates(int(elem.text))
+                elif shape and elem.tag == 'occlusion_kf':
+                    shape['occluded_kf'] = elem.text == '1'
+
+                # common tags
+                elif attr and elem.tag == 'name':
+                    attr['name'] = elem.text
+                elif attr and elem.tag == 'value':
+                    attr['value'] = elem.text
+                elif attr and elem.tag == 'attribute':
+                    if shape:
+                        shape['attributes'][attr['name']] = elem.tag
+                    else:
+                        track['attributes'][attr['name']] = elem.tag
+
+        if track or shape or attr:
+            raise Exception("Failed to parse anotations from '%s'" % path)
+
+        common_attrs = ['occluded']
         label_cat = LabelCategories(attributes=common_attrs)
-
-        for label, attrs in labels.items():
+        for label, attrs in sorted(labels.items(), key=lambda e: e[0]):
             label_cat.add(label, attributes=attrs)
 
-        categories[AnnotationType.label] = label_cat
+        categories = {AnnotationType.label: label_cat}
 
-        for shape in shapes.values():
-            frame_desc = items.get(shape['frame'], {'annotations': []})
-            frame_desc['annotations'].append(
-                cls._parse_shape_ann(shape, categories))
-            items[shape['frame']] = frame_desc
+        items = {}
+        for idx, track in enumerate(tracks):
+            track_id = idx + 1
+            for i, ann in enumerate(
+                    cls._parse_track(track_id, track, categories)):
+                frame_desc = items.setdefault(track['start_frame'] + i,
+                    {'annotations': []})
+                frame_desc['annotations'].append(ann)
 
         return items, categories
 
     @classmethod
-    def _parse_shape_ann(cls, ann, categories):
-        ann_id = ann.get('id', 0)
-        ann_type = ann['type']
-
-        attributes = ann.get('attributes') or {}
-        if 'occluded' in categories[AnnotationType.label].attributes:
-            attributes['occluded'] = ann.get('occluded', 0)
-
-        group = ann.get('group', 0)
-
-        label = ann.get('label')
-        label_id = categories[AnnotationType.label].find(label)[0]
-
-        z_order = ann.get('z_order', 0)
-        points = ann.get('points', [])
-
-        if ann_type == "cuboid":
-            return Cuboid3d(points, label=label_id, z_order=z_order,
-                          id=ann_id, attributes=attributes, group=group)
+    def _parse_attr(cls, value):
+        if value == 'true':
+            return True
+        elif value == 'false':
+            return False
         else:
-            raise NotImplementedError("Unknown annotation type '%s'" % ann_type)
+            return value
+
+    @classmethod
+    def _parse_track(cls, track_id, track, categories):
+        common_attrs = { k: cls._parse_attr(v)
+            for k, v in track['attributes'].items() }
+        scale = [track['scale'][k] for k in {'w', 'h', 'l'}]
+
+        kf_occluded = None
+        for shape in track['shapes']:
+            occluded = shape['occluded'] in {
+                OcclusionStates.FULLY, OcclusionStates.PARTLY}
+            if shape['occluded_kf']:
+                kf_occluded = occluded
+            elif shape['occluded'] == OcclusionStates.OCCLUSION_UNSET:
+                occluded = kf_occluded
+
+            local_attrs = { k: cls._parse_attr(v)
+                for k, v in shape['attributes'].items() }
+            local_attrs['occluded'] = occluded
+            local_attrs['track_id'] = track_id
+            attrs = dict(common_attrs)
+            attrs.update(local_attrs)
+
+            label = categories[AnnotationType.label].find(shape['label'])[0]
+
+            position = [shape['points'][k] for k in {'tx', 'ty', 'tz'}]
+            rotation = [shape['points'][k] for k in {'rx', 'ry', 'rz'}]
+
+            yield Cuboid3d(position, rotation, scale, label=label,
+                attributes=attrs)
 
     def _load_items(self, parsed):
-        for frame_id, item_desc in parsed.items():
-            name = item_desc.get('name', 'frame_%06d.pcd' % int(frame_id))
+        image_dir = osp.join(self._path, KittiRawPath.IMG_DIR_PREFIX)
+        if osp.isdir(image_dir):
+            images = { osp.splitext(osp.relpath(p, image_dir))[0]: p
+                for p in find_images(image_dir, recursive=True) }
+        else:
+            images = {}
 
-            parsed[frame_id] = DatasetItem(id=osp.splitext(name)[0],
-                                           subset=self._subset, related_images=[],
-                                           annotations=item_desc.get('annotations'),
-                                           attributes={'frame': int(frame_id)})
-        return parsed
+        items = {}
+        for frame_id, item_desc in parsed.items():
+            name = item_desc.get('name', 'frame_%06d' % int(frame_id))
+
+            items[frame_id] = DatasetItem(id=name, subset=self._subset,
+                pcd=osp.join(self._path, KittiRawPath.PCD_DIR, name + '.pcd'),
+                related_images=[images.get(name)],
+                annotations=item_desc.get('annotations'),
+                attributes={'frame': int(frame_id)})
+        return items
 
 
 class KittiRawImporter(Importer):

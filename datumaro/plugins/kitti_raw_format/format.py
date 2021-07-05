@@ -7,8 +7,8 @@ import os.path as osp
 
 
 class KittiRawPath:
-    IMAGES_DIR = osp.join('velodyne_points', 'data')
-    RELATED_IMG_DIR_PREFIX = 'image_'
+    PCD_DIR = osp.join('velodyne_points', 'data')
+    IMG_DIR_PREFIX = 'image_'
     BUILTIN_ATTRS = {'occluded'}
 
 class PoseStates(Enum):
