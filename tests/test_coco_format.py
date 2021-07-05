@@ -230,10 +230,8 @@ class CocoImporterTest(TestCase):
             DatasetItem(id='a', subset='train', image=np.ones((5, 10, 3)),
                 attributes={'id': 5},
                 annotations=[
-                    Mask(np.array(
-                        [[0, 0, 1, 1, 0, 1, 1, 0, 0, 0]] * 5
-                        ), label=0,
-                        id=7, group=7, attributes={'is_crowd': False}),
+                    Mask(np.ones((5, 5)), label=0, id=460551,
+                        group=460551, attributes={'is_crowd': False}),
                 ]),
 
             DatasetItem(id='b', subset='val', image=np.ones((10, 5, 3)),
