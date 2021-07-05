@@ -8,7 +8,7 @@ from datumaro.components.extractor import (DatasetItem,
     AnnotationType, Cuboid3d, LabelCategories)
 from datumaro.plugins.kitti_raw_format.extractor import KittiRawImporter
 from datumaro.plugins.kitti_raw_format.converter import KittiRawConverter
-from datumaro.util.test_utils import (Dimensions, TestDir, compare_datasets,
+from datumaro.util.test_utils import (Dimensions, TestDir, compare_datasets_3d,
     test_save_and_load)
 
 from tests.requirements import mark_requirement, Requirements
@@ -39,38 +39,40 @@ class KittiRawImporterTest(TestCase):
             osp.join(DUMMY_DATASET_DIR, 'IMAGE_00', 'data', '0000000003.png'))
 
         expected_dataset = Dataset.from_iterable([
-            DatasetItem(id='frame_000000',
+            DatasetItem(id='0000000000',
                 annotations=[
-                    Cuboid3d(position=[-3.62, 7.95, -1.03],
-                        attributes={'occluded': 0, 'track_id': 1}, label=0),
+                    Cuboid3d(position=[1, 2, 3], scale=[7.95, -3.62, -1.03],
+                        label=1, attributes={'occluded': False, 'track_id': 1}),
 
-                    Cuboid3d(position=[23.01, 8.34, -0.76],
-                        attributes={'occluded': 0, 'track_id': 2}, label=1)
+                    Cuboid3d(position=[1, 1, 0], scale=[8.34, 23.01, -0.76],
+                        label=0, attributes={'occluded': False, 'track_id': 2})
                 ],
                 pcd=pcd1, related_images=[image1],
                 attributes={'frame': 0}),
 
-            DatasetItem(id='frame_000001',
+            DatasetItem(id='0000000001',
                 annotations=[
-                    Cuboid3d(position=[0.39, 7.28, -0.89],
-                        attributes={'occluded': 0, 'track_id': 2}, label=1)
+                    Cuboid3d(position=[0, 1, 0], scale=[8.34, 23.01, -0.76],
+                        rotation=[1, 1, 3],
+                        label=0, attributes={'occluded': True, 'track_id': 2})
                 ],
                 pcd=pcd2, related_images=[image2],
                 attributes={'frame': 1}),
 
-            DatasetItem(id='frame_000002',
+            DatasetItem(id='0000000002',
                 annotations=[
-                    Cuboid3d(position=[13.54, -9.41, 0.24],
-                        attributes={'occluded': 0, 'track_id': 3}, label=0)
+                    Cuboid3d(position=[1, 2, 3], scale=[-9.41, 13.54, 0.24],
+                        label=1, attributes={'occluded': False, 'track_id': 3})
                 ],
                 pcd=pcd3, related_images=[image3],
                 attributes={'frame': 2})
 
-        ], categories=['car', 'bus'])
+        ], categories=['bus', 'car'])
 
         parsed_dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'kitti_raw')
 
-        compare_datasets(self, expected_dataset, parsed_dataset)
+        compare_datasets_3d(self, expected_dataset, parsed_dataset,
+            require_pcd=True)
 
 
 class KittiRawConverterTest(TestCase):
@@ -98,32 +100,73 @@ class KittiRawConverterTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load(self):
-        src_label_cat = LabelCategories(attributes={'occluded'})
-        src_label_cat.add('car')
-
         source_dataset = Dataset.from_iterable([
-            DatasetItem(id='frame_000000',
+            DatasetItem(id='0000000000',
                 annotations=[
-                    Cuboid3d(position=[13.54, -9.41, 0.24],
-                        attributes={'occluded': 0}, label=0)
+                    Cuboid3d(position=[13.54, -9.41, 0.24], label=0,
+                        attributes={'occluded': False, 'track_id': 1}),
+
+                    Cuboid3d(position=[3.4, -2.11, 4.4], label=1,
+                        attributes={'occluded': True, 'track_id': 2})
                 ],
                 pcd=self.pcd1, related_images=[self.image1],
                 attributes={'frame': 0}
             ),
-        ], categories={AnnotationType.label: src_label_cat})
+
+            DatasetItem(id='0000000001',
+                annotations=[
+                    Cuboid3d(position=[1.4, 2.1, 1.4], label=0,
+                        attributes={'track_id': 2}),
+
+                    Cuboid3d(position=[11.4, -0.1, 4.2], scale=[2, 1, 2],
+                        label=0, attributes={'track_id': 3})
+                ],
+            ),
+
+            DatasetItem(id='0000000002',
+                annotations=[
+                    Cuboid3d(position=[0.4, -1, 2.24], label=0,
+                        attributes={'track_id': 3}),
+                ],
+                pcd=self.pcd3,
+                attributes={'frame': 2}
+            ),
+        ], categories=['cat', 'dog'])
 
         target_label_cat = LabelCategories(attributes={'occluded'})
-        target_label_cat.add('car')
+        target_label_cat.add('cat', 'dog')
 
         target_dataset = Dataset.from_iterable([
-            DatasetItem(id='frame_000000',
+            DatasetItem(id='0000000000',
                 annotations=[
-                    Cuboid3d(position=[13.54, -9.41, 0.24],
-                        attributes={'occluded': 0}, label=0)
+                    Cuboid3d(position=[13.54, -9.41, 0.24], label=0,
+                        attributes={'occluded': False, 'track_id': 1}),
+
+                    Cuboid3d(position=[3.4, -2.11, 4.4], label=1,
+                        attributes={'occluded': True, 'track_id': 2})
                 ],
-                pcd=self.pcd1,
-                related_images=[self.image1],
+                pcd=self.pcd1, related_images=[self.image1],
                 attributes={'frame': 0}
+            ),
+
+            DatasetItem(id='0000000001',
+                annotations=[
+                    Cuboid3d(position=[1.4, 2.1, 1.4], label=0,
+                        attributes={'occluded': False, 'track_id': 2}),
+
+                    Cuboid3d(position=[11.4, -0.1, 4.2], scale=[2, 1, 2],
+                        label=0, attributes={'occluded': False, 'track_id': 3})
+                ],
+                attributes={'frame': 1}
+            ),
+
+            DatasetItem(id='0000000002',
+                annotations=[
+                    Cuboid3d(position=[0.4, -1, 2.24], label=0,
+                        attributes={'occluded': False, 'track_id': 3}),
+                ],
+                pcd=self.pcd3,
+                attributes={'frame': 2}
             ),
         ], categories={AnnotationType.label: target_label_cat})
 
@@ -149,7 +192,7 @@ class KittiRawConverterTest(TestCase):
         ])
 
         expected_dataset = Dataset.from_iterable([
-            DatasetItem(id='abc', attributes={'frame': 0})
+            DatasetItem(id='0000000000', attributes={'frame': 0})
         ])
 
         with TestDir() as test_dir:
@@ -164,7 +207,7 @@ class KittiRawConverterTest(TestCase):
         src_label_cat.items[0].attributes.update(['a1', 'a2', 'empty'])
 
         source_dataset = Dataset.from_iterable([
-            DatasetItem(id='frame_000000',
+            DatasetItem(id='0000000000',
                 annotations=[
                     Cuboid3d(position=[13.54, -9.41, 0.24],
                         attributes={'occluded': 0}, label=0)
@@ -179,7 +222,7 @@ class KittiRawConverterTest(TestCase):
         target_label_cat.items[0].attributes.update(['a1', 'a2', 'empty'])
 
         target_dataset = Dataset.from_iterable([
-            DatasetItem(id='frame_000000',
+            DatasetItem(id='0000000000',
                 annotations=[
                     Cuboid3d(position=[13.54, -9.41, 0.24],
                         attributes={'occluded': 0}, label=0)

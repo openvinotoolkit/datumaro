@@ -6,20 +6,20 @@
   <item_version>1</item_version>
   <item class_id="1" tracking_level="0" version="1">
     <objectType>car</objectType>
-    <h>-3.62</h>
     <w>7.95</w>
+    <h>-3.62</h>
     <l>-1.03</l>
     <first_frame>0</first_frame>
     <poses class_id="2" tracking_level="0" version="0">
       <count>1</count>
       <item_version>2</item_version>
       <item class_id="3" tracking_level="0" version="2">
-        <tx>0.0</tx>
-        <ty>0.0</ty>
-        <tz>0.0</tz>
-        <rx>1.0</rx>
-        <ry>1.0</ry>
-        <rz>1.0</rz>
+        <tx>1.0</tx>
+        <ty>2.0</ty>
+        <tz>3.0</tz>
+        <rx>0.0</rx>
+        <ry>0.0</ry>
+        <rz>0.0</rz>
         <state>2</state>
         <occlusion>-1</occlusion>
         <occlusion_kf>0</occlusion_kf>
@@ -35,20 +35,20 @@
   </item>
   <item>
     <objectType>bus</objectType>
-    <h>23.01</h>
     <w>8.34</w>
+    <h>23.01</h>
     <l>-0.76</l>
     <first_frame>0</first_frame>
     <poses>
-      <count>1</count>
+      <count>2</count>
       <item_version>3</item_version>
       <item>
-        <tx>0.0</tx>
-        <ty>0.0</ty>
+        <tx>1.0</tx>
+        <ty>1.0</ty>
         <tz>0.0</tz>
-        <rx>1.0</rx>
-        <ry>1.0</ry>
-        <rz>1.0</rz>
+        <rx>0.0</rx>
+        <ry>0.0</ry>
+        <rz>0.0</rz>
         <state>2</state>
         <occlusion>-1</occlusion>
         <occlusion_kf>0</occlusion_kf>
@@ -59,27 +59,15 @@
         <amt_occlusion_kf>-1</amt_occlusion_kf>
         <amt_border_kf>-1</amt_border_kf>
       </item>
-    </poses>
-    <finished>1</finished>
-  </item>
-  <item>
-    <objectType>bus</objectType>
-    <h>0.39</h>
-    <w>7.28</w>
-    <l>-0.89</l>
-    <first_frame>1</first_frame>
-    <poses>
-      <count>1</count>
-      <item_version>4</item_version>
       <item>
         <tx>0.0</tx>
-        <ty>0.0</ty>
+        <ty>1.0</ty>
         <tz>0.0</tz>
         <rx>1.0</rx>
         <ry>1.0</ry>
-        <rz>1.0</rz>
+        <rz>3.0</rz>
         <state>2</state>
-        <occlusion>-1</occlusion>
+        <occlusion>1</occlusion>
         <occlusion_kf>0</occlusion_kf>
         <truncation>-1</truncation>
         <amt_occlusion>-1</amt_occlusion>
@@ -93,20 +81,20 @@
   </item>
   <item>
     <objectType>car</objectType>
-    <h>13.54</h>
     <w>-9.41</w>
+    <h>13.54</h>
     <l>0.24</l>
     <first_frame>2</first_frame>
     <poses>
       <count>1</count>
       <item_version>5</item_version>
       <item>
-        <tx>0.0</tx>
-        <ty>0.0</ty>
-        <tz>0.0</tz>
-        <rx>1.0</rx>
-        <ry>1.0</ry>
-        <rz>1.0</rz>
+        <tx>1.0</tx>
+        <ty>2.0</ty>
+        <tz>3.0</tz>
+        <rx>0.0</rx>
+        <ry>0.0</ry>
+        <rz>0.0</rz>
         <state>2</state>
         <occlusion>-1</occlusion>
         <occlusion_kf>0</occlusion_kf>

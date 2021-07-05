@@ -3,6 +3,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import os
 from defusedxml import ElementTree as ET
 import os.path as osp
 
@@ -16,19 +17,20 @@ from .format import KittiRawPath, OcclusionStates
 class KittiRawExtractor(SourceExtractor):
     # http://www.cvlibs.net/datasets/kitti/raw_data.php
     # https://s3.eu-central-1.amazonaws.com/avg-kitti/devkit_raw_data.zip
-    # Check cpp header implementation
+    # Check cpp header implementation for field meaning
 
     def __init__(self, path, subset=None):
         assert osp.isfile(path), path
         rootpath = osp.dirname(path)
-        images_dir = ''
-        if osp.isdir(osp.join(rootpath, KittiRawPath.IMAGES_DIR)):
-            images_dir = osp.join(rootpath, KittiRawPath.IMAGES_DIR)
-        self._images_dir = images_dir
-        self._path = rootpath
+        image_dir = ''
+        for p in os.listdir(rootpath):
+            if p.lower().startswith(KittiRawPath.IMG_DIR_PREFIX) and \
+                    p.lower() != KittiRawPath.IMG_DIR_PREFIX and \
+                    osp.isdir(p):
+                image_dir = osp.join(rootpath, p)
+        self._image_dir = image_dir
+        self._path = path
 
-        if not subset:
-            subset = osp.splitext(osp.basename(path))[0]
         super().__init__(subset=subset)
 
         items, categories = self._parse(path)
@@ -84,8 +86,8 @@ class KittiRawExtractor(SourceExtractor):
                             for a in track['attributes']:
                                 labels[track['label']].add(a)
 
-                            for shape in track['shapes']:
-                                for a in shape['attributes']:
+                            for s in track['shapes']:
+                                for a in s['attributes']:
                                     labels[track['label']].add(a)
 
                         tracks.append(track)
@@ -110,17 +112,18 @@ class KittiRawExtractor(SourceExtractor):
                     shape['occluded_kf'] = elem.text == '1'
 
                 # common tags
-                elif attr and elem.tag == 'name':
+                elif attr is not None and elem.tag == 'name':
                     attr['name'] = elem.text
-                elif attr and elem.tag == 'value':
+                elif attr is not None and elem.tag == 'value':
                     attr['value'] = elem.text
-                elif attr and elem.tag == 'attribute':
+                elif attr is not None and elem.tag == 'attribute':
                     if shape:
                         shape['attributes'][attr['name']] = elem.tag
                     else:
                         track['attributes'][attr['name']] = elem.tag
+                    attr = None
 
-        if track or shape or attr:
+        if track is not None or shape is not None or attr is not None:
             raise Exception("Failed to parse anotations from '%s'" % path)
 
         common_attrs = ['occluded']
@@ -154,9 +157,10 @@ class KittiRawExtractor(SourceExtractor):
     def _parse_track(cls, track_id, track, categories):
         common_attrs = { k: cls._parse_attr(v)
             for k, v in track['attributes'].items() }
-        scale = [track['scale'][k] for k in {'w', 'h', 'l'}]
+        scale = [track['scale'][k] for k in ['w', 'h', 'l']]
+        label = categories[AnnotationType.label].find(track['label'])[0]
 
-        kf_occluded = None
+        kf_occluded = False
         for shape in track['shapes']:
             occluded = shape['occluded'] in {
                 OcclusionStates.FULLY, OcclusionStates.PARTLY}
@@ -172,16 +176,14 @@ class KittiRawExtractor(SourceExtractor):
             attrs = dict(common_attrs)
             attrs.update(local_attrs)
 
-            label = categories[AnnotationType.label].find(shape['label'])[0]
-
-            position = [shape['points'][k] for k in {'tx', 'ty', 'tz'}]
-            rotation = [shape['points'][k] for k in {'rx', 'ry', 'rz'}]
+            position = [shape['points'][k] for k in ['tx', 'ty', 'tz']]
+            rotation = [shape['points'][k] for k in ['rx', 'ry', 'rz']]
 
             yield Cuboid3d(position, rotation, scale, label=label,
                 attributes=attrs)
 
     def _load_items(self, parsed):
-        image_dir = osp.join(self._path, KittiRawPath.IMG_DIR_PREFIX)
+        image_dir = osp.join(self._image_dir, KittiRawPath.IMG_DIR_PREFIX)
         if osp.isdir(image_dir):
             images = { osp.splitext(osp.relpath(p, image_dir))[0]: p
                 for p in find_images(image_dir, recursive=True) }
@@ -190,11 +192,15 @@ class KittiRawExtractor(SourceExtractor):
 
         items = {}
         for frame_id, item_desc in parsed.items():
-            name = item_desc.get('name', 'frame_%06d' % int(frame_id))
+            name = item_desc.get('name', '%010d' % int(frame_id))
+            related_images = []
+            if name in images:
+                related_images.append(images[name])
 
             items[frame_id] = DatasetItem(id=name, subset=self._subset,
-                pcd=osp.join(self._path, KittiRawPath.PCD_DIR, name + '.pcd'),
-                related_images=[images.get(name)],
+                pcd=osp.join(osp.dirname(self._path),
+                    KittiRawPath.PCD_DIR, name + '.pcd'),
+                related_images=related_images,
                 annotations=item_desc.get('annotations'),
                 attributes={'frame': int(frame_id)})
         return items
