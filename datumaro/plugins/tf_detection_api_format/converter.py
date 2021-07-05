@@ -11,9 +11,7 @@ import os
 import os.path as osp
 import string
 
-from datumaro.components.extractor import (AnnotationType, DEFAULT_SUBSET_NAME,
-    LabelCategories
-)
+from datumaro.components.extractor import (AnnotationType, LabelCategories)
 from datumaro.components.converter import Converter
 from datumaro.util.image import encode_image, ByteImage
 from datumaro.util.annotation_util import (max_bbox,
@@ -196,7 +194,7 @@ class TfDetectionApiConverter(Converter):
 
         return tf_example
 
-    def _save_image(self, item, path=None):
+    def _save_image(self, item, path=None): # pylint: disable=arguments-differ
         src_ext = item.image.ext.lower()
         dst_ext = osp.splitext(osp.basename(path))[1].lower()
         fmt = DetectionApiPath.IMAGE_EXT_FORMAT.get(dst_ext, '')

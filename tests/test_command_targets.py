@@ -1,8 +1,7 @@
-import numpy as np
 import os.path as osp
-
 from unittest import TestCase
 
+import numpy as np
 from datumaro.components.project import Project
 from datumaro.util.command_targets import ProjectTarget, \
     ImageTarget, SourceTarget

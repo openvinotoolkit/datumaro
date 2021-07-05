@@ -4,8 +4,6 @@ from unittest import TestCase
 from zipfile import ZipFile
 
 import numpy as np
-import pytest
-
 from datumaro.cli.__main__ import main
 from datumaro.components.dataset import Dataset, DatasetItem
 from datumaro.util.test_utils import TestDir, compare_datasets

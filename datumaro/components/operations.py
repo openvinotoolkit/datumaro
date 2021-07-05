@@ -6,12 +6,12 @@ from collections import OrderedDict
 from copy import deepcopy
 import hashlib
 import logging as log
+from unittest import TestCase
 
 import attr
 import cv2
 import numpy as np
 from attr import attrib, attrs
-from unittest import TestCase
 
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.util import find, filter_dict

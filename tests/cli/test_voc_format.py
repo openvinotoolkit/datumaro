@@ -1,9 +1,8 @@
 import os.path as osp
 from collections import OrderedDict
-
-import numpy as np
 from unittest import TestCase
 
+import numpy as np
 import datumaro.plugins.voc_format.format as VOC
 from datumaro.components.dataset import Dataset, DatasetItem
 from datumaro.components.extractor import Bbox, Label, Mask

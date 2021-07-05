@@ -1,9 +1,8 @@
 from itertools import product
-import numpy as np
 import os.path as osp
-
 from unittest import TestCase
 
+import numpy as np
 import datumaro.util.image as image_module
 from datumaro.util.test_utils import TestDir
 from .requirements import Requirements, mark_requirement

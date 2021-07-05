@@ -1,9 +1,9 @@
 from functools import partial
 import os
 import os.path as osp
+from unittest import TestCase
 
 import numpy as np
-from unittest import TestCase
 from datumaro.components.project import Dataset
 from datumaro.components.extractor import (DatasetItem,
     AnnotationType, Points, Polygon, PolyLine, Bbox, Label,

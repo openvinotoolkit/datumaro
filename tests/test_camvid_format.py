@@ -3,8 +3,8 @@ from collections import OrderedDict
 from functools import partial
 from unittest import TestCase
 
-import datumaro.plugins.camvid_format as Camvid
 import numpy as np
+import datumaro.plugins.camvid_format as Camvid
 from datumaro.components.extractor import (AnnotationType, DatasetItem,
     Extractor, LabelCategories, Mask)
 from datumaro.components.dataset import Dataset
