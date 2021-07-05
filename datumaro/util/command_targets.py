@@ -25,7 +25,7 @@ def is_project_path(value):
         try:
             Project.load(value)
             return True
-        except Exception:
+        except Exception: # nosec - disable B110:try_except_pass check
             pass
     return False
 
