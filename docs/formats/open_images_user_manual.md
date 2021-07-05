@@ -29,8 +29,8 @@ which can be downloaded from the following URLs:
 
 - [complete set](https://storage.googleapis.com/openimages/2018_04/image_ids_and_rotation.csv)
 - [train set](https://storage.googleapis.com/openimages/v6/oidv6-train-images-with-labels-with-rotation.csv)
-- [validation set](https://storage.googleapis.com/openimages/2018_04/test/test-images-with-rotation.csv)
-- [test set](https://storage.googleapis.com/openimages/2018_04/validation/validation-images-with-rotation.csv)
+- [validation set](https://storage.googleapis.com/openimages/2018_04/validation/validation-images-with-rotation.csv)
+- [test set](https://storage.googleapis.com/openimages/2018_04/test/test-images-with-rotation.csv)
 
 Datumaro expects at least one of the files above to be present.
 
