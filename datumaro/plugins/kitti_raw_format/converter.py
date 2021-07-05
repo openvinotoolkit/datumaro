@@ -3,12 +3,12 @@
 #
 # SPDX-License-Identifier: MIT
 
-import os
-import os.path as osp
-import logging as log
 from collections import OrderedDict
 from itertools import chain
 from xml.sax.saxutils import XMLGenerator
+import os
+import os.path as osp
+import logging as log
 
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
@@ -17,12 +17,11 @@ from datumaro.components.extractor import (AnnotationType, DatasetItem,
 from datumaro.util import cast
 from datumaro.util.image import ByteImage, save_image
 
-from .format import VelodynePointsPath, VelodynePointsState
+from .format import KittiRawPath, OcclusionStates, TruncationStates, PoseStates
 
 
 
 class XmlAnnotationWriter:
-
     def __init__(self, file, tracklets):
         self.version = "1.1"
         self._file = file
@@ -217,7 +216,7 @@ class _SubsetWriter:
         for i, data in enumerate(subset):
             index = self._write_item(data, i)
             for item in data.annotations:
-                if item.type == AnnotationType.cuboid:
+                if item.type == AnnotationType.cuboid_3d:
                     if item.label is None:
                         log.warning("Item %s: skipping a %s with no label",
                                     item.id, item.type.name)
@@ -349,7 +348,7 @@ class _SubsetWriter:
         if index is not None:
             return index
 
-class VelodynePointsConverter(Converter):
+class KittiRawConverter(Converter):
     DEFAULT_IMAGE_EXT = ".pcd"
 
     @classmethod
@@ -367,7 +366,7 @@ class VelodynePointsConverter(Converter):
         super().__init__(extractor, save_dir, **kwargs)
 
         self._reindex = reindex
-        self._builtin_attrs = VelodynePointsPath.BUILTIN_ATTRS
+        self._builtin_attrs = KittiRawPath.BUILTIN_ATTRS
         self._allow_undeclared_attrs = allow_undeclared_attrs
 
     def apply(self):
@@ -381,7 +380,7 @@ class VelodynePointsConverter(Converter):
             cls.convert(dataset.get_subset(subset), save_dir=save_dir, **kwargs)
 
         conv = cls(dataset, save_dir=save_dir, **kwargs)
-        pcd_dir = osp.abspath(osp.join(save_dir, VelodynePointsPath.IMAGES_DIR))
+        pcd_dir = osp.abspath(osp.join(save_dir, KittiRawPath.IMAGES_DIR))
 
         for (item_id, subset), status in patch.updated_items.items():
             if status != ItemStatus.removed:

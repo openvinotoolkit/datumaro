@@ -7,22 +7,22 @@ import os.path as osp
 from collections import OrderedDict
 
 from datumaro.components.extractor import (SourceExtractor, DatasetItem,
-                                           AnnotationType, Cuboid3D,
-                                           LabelCategories, Importer
-                                           )
+    AnnotationType, Cuboid3d, LabelCategories, Importer)
 
-from .format import VelodynePointsPath
+from .format import KittiRawPath
 
 
-class VelodynePointsExtractor(SourceExtractor):
-    _SUPPORTED_SHAPES = ('cuboid_3d')
+class KittiRawExtractor(SourceExtractor):
+    # http://www.cvlibs.net/datasets/kitti/raw_data.php
+    # https://s3.eu-central-1.amazonaws.com/avg-kitti/devkit_raw_data.zip
+    # Check cpp header implementation
 
     def __init__(self, path, subset=None):
         assert osp.isfile(path), path
         rootpath = osp.dirname(path)
         images_dir = ''
-        if osp.isdir(osp.join(rootpath, VelodynePointsPath.IMAGES_DIR)):
-            images_dir = osp.join(rootpath, VelodynePointsPath.IMAGES_DIR)
+        if osp.isdir(osp.join(rootpath, KittiRawPath.IMAGES_DIR)):
+            images_dir = osp.join(rootpath, KittiRawPath.IMAGES_DIR)
         self._images_dir = images_dir
         self._path = path
 
@@ -103,7 +103,7 @@ class VelodynePointsExtractor(SourceExtractor):
         points = ann.get('points', [])
 
         if ann_type == "cuboid":
-            return Cuboid3D(points, label=label_id, z_order=z_order,
+            return Cuboid3d(points, label=label_id, z_order=z_order,
                           id=ann_id, attributes=attributes, group=group)
         else:
             raise NotImplementedError("Unknown annotation type '%s'" % ann_type)
@@ -119,7 +119,7 @@ class VelodynePointsExtractor(SourceExtractor):
         return parsed
 
 
-class VelodynePointsImporter(Importer):
+class KittiRawImporter(Importer):
     @classmethod
     def find_sources(cls, path):
-        return cls._find_sources_recursive(path, '.xml', 'velodyne_points')
+        return cls._find_sources_recursive(path, '.xml', 'kitti_raw')

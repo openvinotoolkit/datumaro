@@ -6,23 +6,21 @@ import os.path as osp
 from datumaro.components.project import Dataset
 from datumaro.components.extractor import (DatasetItem,
     AnnotationType, Cuboid3d, LabelCategories)
-from datumaro.plugins.velodynepoints_format.extractor import \
-    VelodynePointsImporter
-from datumaro.plugins.velodynepoints_format.converter import \
-    VelodynePointsConverter
+from datumaro.plugins.kitti_raw_format.extractor import KittiRawImporter
+from datumaro.plugins.kitti_raw_format.converter import KittiRawConverter
 from datumaro.util.test_utils import (Dimensions, TestDir, compare_datasets,
     test_save_and_load)
 
 from tests.requirements import mark_requirement, Requirements
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(
-    __file__), 'assets', 'velodynepoints_dataset')
+    __file__), 'assets', 'kitti_dataset', 'kitti_raw')
 
 
-class VelodynePointsImporterTest(TestCase):
+class KittiRawImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_image(self):
-        self.assertTrue(VelodynePointsImporter.detect(DUMMY_DATASET_DIR))
+        self.assertTrue(KittiRawImporter.detect(DUMMY_DATASET_DIR))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_load_pcd(self):
@@ -41,42 +39,41 @@ class VelodynePointsImporterTest(TestCase):
             osp.join(DUMMY_DATASET_DIR, 'IMAGE_00', 'data', '0000000003.png'))
 
         expected_dataset = Dataset.from_iterable([
-            DatasetItem(id='frame_000000', subset='tracklets',
+            DatasetItem(id='frame_000000',
                 annotations=[
-                    Cuboid3d(id=0, position=[-3.62, 7.95, -1.03],
-                        attributes={'occluded': 0}, label=0),
+                    Cuboid3d(position=[-3.62, 7.95, -1.03],
+                        attributes={'occluded': 0, 'track_id': 1}, label=0),
 
-                    Cuboid3d(id=0, position=[23.01, 8.34, -0.76],
-                        attributes={'occluded': 0}, label=1)
+                    Cuboid3d(position=[23.01, 8.34, -0.76],
+                        attributes={'occluded': 0, 'track_id': 2}, label=1)
                 ],
                 pcd=pcd1, related_images=[image1],
                 attributes={'frame': 0}),
 
-            DatasetItem(id='frame_000001', subset='tracklets',
+            DatasetItem(id='frame_000001',
                 annotations=[
-                    Cuboid3d(id=0, position=[0.39, 7.28, -0.89],
-                        attributes={'occluded': 0}, label=1)
+                    Cuboid3d(position=[0.39, 7.28, -0.89],
+                        attributes={'occluded': 0, 'track_id': 2}, label=1)
                 ],
                 pcd=pcd2, related_images=[image2],
                 attributes={'frame': 1}),
 
-            DatasetItem(id='frame_000002', subset='tracklets',
+            DatasetItem(id='frame_000002',
                 annotations=[
-                    Cuboid3d(id=0, position=[13.54, -9.41, 0.24],
-                        attributes={'occluded': 0}, label=0)
+                    Cuboid3d(position=[13.54, -9.41, 0.24],
+                        attributes={'occluded': 0, 'track_id': 3}, label=0)
                 ],
                 pcd=pcd3, related_images=[image3],
                 attributes={'frame': 2})
 
         ], categories=['car', 'bus'])
 
-        parsed_dataset = Dataset.import_from(
-            DUMMY_DATASET_DIR, 'velodyne_points')
+        parsed_dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'kitti_raw')
 
         compare_datasets(self, expected_dataset, parsed_dataset)
 
 
-class VelodynePointsConverterTest(TestCase):
+class KittiRawConverterTest(TestCase):
     pcd1 = osp.abspath(osp.join(DUMMY_DATASET_DIR,
         'velodyne_points', 'data', '0000000000.pcd'))
     pcd2 = osp.abspath(osp.join(DUMMY_DATASET_DIR,
@@ -96,7 +93,7 @@ class VelodynePointsConverterTest(TestCase):
             target_dataset=None, importer_args=None, **kwargs):
         kwargs.setdefault('dimension', Dimensions.dim_3d)
         return test_save_and_load(self, source_dataset, converter, test_dir,
-            importer='velodyne_points', target_dataset=target_dataset,
+            importer='kitti_raw', target_dataset=target_dataset,
             importer_args=importer_args, **kwargs)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -105,9 +102,9 @@ class VelodynePointsConverterTest(TestCase):
         src_label_cat.add('car')
 
         source_dataset = Dataset.from_iterable([
-            DatasetItem(id='frame_000000', subset='tracklets',
+            DatasetItem(id='frame_000000',
                 annotations=[
-                    Cuboid3d(id=0, position=[13.54, -9.41, 0.24],
+                    Cuboid3d(position=[13.54, -9.41, 0.24],
                         attributes={'occluded': 0}, label=0)
                 ],
                 pcd=self.pcd1, related_images=[self.image1],
@@ -119,9 +116,9 @@ class VelodynePointsConverterTest(TestCase):
         target_label_cat.add('car')
 
         target_dataset = Dataset.from_iterable([
-            DatasetItem(id='frame_000000', subset='tracklets',
+            DatasetItem(id='frame_000000',
                 annotations=[
-                    Cuboid3d(id=0, position=[13.54, -9.41, 0.24],
+                    Cuboid3d(position=[13.54, -9.41, 0.24],
                         attributes={'occluded': 0}, label=0)
                 ],
                 pcd=self.pcd1,
@@ -132,7 +129,7 @@ class VelodynePointsConverterTest(TestCase):
 
         with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
-                partial(VelodynePointsConverter.convert, save_images=True),
+                partial(KittiRawConverter.convert, save_images=True),
                 test_dir, target_dataset=target_dataset)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -143,7 +140,7 @@ class VelodynePointsConverterTest(TestCase):
 
         with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
-                VelodynePointsConverter.convert, test_dir)
+                KittiRawConverter.convert, test_dir)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_reindex(self):
@@ -157,7 +154,7 @@ class VelodynePointsConverterTest(TestCase):
 
         with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
-                partial(VelodynePointsConverter.convert, reindex=True),
+                partial(KittiRawConverter.convert, reindex=True),
                 test_dir, target_dataset=expected_dataset)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -167,9 +164,9 @@ class VelodynePointsConverterTest(TestCase):
         src_label_cat.items[0].attributes.update(['a1', 'a2', 'empty'])
 
         source_dataset = Dataset.from_iterable([
-            DatasetItem(id='frame_000000', subset='tracklets',
+            DatasetItem(id='frame_000000',
                 annotations=[
-                    Cuboid3d(id=0, position=[13.54, -9.41, 0.24],
+                    Cuboid3d(position=[13.54, -9.41, 0.24],
                         attributes={'occluded': 0}, label=0)
                 ],
                 pcd=self.pcd1, related_images=[],
@@ -182,9 +179,9 @@ class VelodynePointsConverterTest(TestCase):
         target_label_cat.items[0].attributes.update(['a1', 'a2', 'empty'])
 
         target_dataset = Dataset.from_iterable([
-            DatasetItem(id='frame_000000', subset='tracklets',
+            DatasetItem(id='frame_000000',
                 annotations=[
-                    Cuboid3d(id=0, position=[13.54, -9.41, 0.24],
+                    Cuboid3d(position=[13.54, -9.41, 0.24],
                         attributes={'occluded': 0}, label=0)
                 ],
                 pcd=self.pcd1, related_images=[],
@@ -195,7 +192,7 @@ class VelodynePointsConverterTest(TestCase):
         with TestDir() as test_dir:
 
             self._test_save_and_load(source_dataset,
-                                     partial(VelodynePointsConverter.convert,
+                                     partial(KittiRawConverter.convert,
                                              save_images=True), test_dir,
                                      target_dataset=target_dataset)
 
@@ -208,7 +205,7 @@ class VelodynePointsConverterTest(TestCase):
                 DatasetItem('0000000000.pcd', subset='tracklets'),
                 DatasetItem('0000000001.pcd', subset='tracklets'),
                 DatasetItem('0000000002.pcd',
-                            subset='tracklets',
+
                             pcd=self.pcd3,
                             related_images=[self.image2],
                             )
@@ -223,7 +220,7 @@ class VelodynePointsConverterTest(TestCase):
                 osp.join(path, 'IMAGE_00', 'data', '0000000001.png'))))
 
             dataset.put(DatasetItem(2,
-                                    subset='tracklets',
+
                                     pcd=self.pcd2,
                                     related_images=[self.image2],
                                     ))
