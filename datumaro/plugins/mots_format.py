@@ -7,9 +7,9 @@
 from enum import Enum
 from glob import iglob
 import logging as log
-import numpy as np
 import os
 import os.path as osp
+import numpy as np
 
 from datumaro.components.extractor import (SourceExtractor, Importer,
     DatasetItem, AnnotationType, Mask, LabelCategories

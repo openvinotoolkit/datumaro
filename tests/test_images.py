@@ -1,8 +1,7 @@
-import numpy as np
 import os.path as osp
-
 from unittest import TestCase
 
+import numpy as np
 from datumaro.util.test_utils import TestDir
 from datumaro.util.image import (lazy_image, load_image, save_image, \
     Image, ByteImage, encode_image)

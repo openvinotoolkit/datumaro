@@ -4,12 +4,12 @@
 
 from functools import partial
 from glob import glob
-import git
 import inspect
 import logging as log
 import os
 import os.path as osp
 from typing import Dict, Iterable
+import git
 
 from datumaro.components.config import Config
 from datumaro.components.config_model import Model, Source

@@ -42,11 +42,11 @@ def process_outputs(inputs, outputs):
     # results = conversion result; [[ Annotation, ... ], ... ]
 
     results = []
-    for input, confs, detections in zip(
+    for input_, confs, detections in zip(
         inputs, outputs["do_ExpandDims_conf/sigmoid"], outputs["DetectionOutput"]
     ):
 
-        input_height, input_width = input.shape[:2]
+        input_height, input_width = input_.shape[:2]
 
         confs = confs[0].reshape(-1, model_class_num)
         detections = detections[0]
@@ -55,7 +55,7 @@ def process_outputs(inputs, outputs):
 
         image_results = []
         for i, det in enumerate(detections):
-            image_id = int(det[0])
+            image_id = int(det[0]) # pylint: disable=unused-variable
             label = int(det[1])
             conf = float(det[2])
             det_confs = confs[conf_ids[i]]

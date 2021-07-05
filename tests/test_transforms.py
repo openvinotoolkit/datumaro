@@ -1,9 +1,9 @@
 import logging as log
-import numpy as np
-
 from unittest import TestCase
+
+import numpy as np
 from datumaro.components.project import Dataset
-from datumaro.components.extractor import (Extractor, DatasetItem,
+from datumaro.components.extractor import (DatasetItem,
     Mask, Polygon, PolyLine, Points, Bbox, Label,
     LabelCategories, MaskCategories, AnnotationType
 )

@@ -1,9 +1,8 @@
 import os
 import os.path as osp
-
-import numpy as np
 from unittest import TestCase
 
+import numpy as np
 from datumaro.components.dataset_filter import (
     XPathDatasetFilter, XPathAnnotationsFilter, DatasetItemEncoder)
 from datumaro.components.dataset import (Dataset, DEFAULT_FORMAT, ItemStatus,

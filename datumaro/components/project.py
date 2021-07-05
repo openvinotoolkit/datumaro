@@ -140,7 +140,7 @@ class ProjectDataset(IDataset):
     def __len__(self):
         return sum(len(s) for s in self._subsets.values())
 
-    def get(self, id, subset=None, path=None):
+    def get(self, id, subset=None, path=None): # pylint: disable=arguments-differ
         if path:
             source = path[0]
             return self._sources[source].get(id=id, subset=subset)
