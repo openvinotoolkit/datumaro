@@ -20,7 +20,8 @@ from datumaro.components.errors import (
     DatasetError, RepeatedItemError, UndefinedLabel,
 )
 from datumaro.components.extractor import (
-    AnnotationType, DatasetItem, Extractor, Importer, Label, LabelCategories,
+    AnnotationType, Bbox, DatasetItem, Extractor, Importer, Label,
+    LabelCategories,
 )
 from datumaro.components.validator import Severity
 from datumaro.util.image import find_images
@@ -56,6 +57,9 @@ class OpenImagesPath:
     V5_CLASS_DESCRIPTION_FILE_NAME = 'class-descriptions.csv'
     HIERARCHY_FILE_NAME = 'bbox_labels_600_hierarchy.json'
 
+    LABEL_DESCRIPTION_FILE_SUFFIX = '-annotations-human-imagelabels.csv'
+    BBOX_DESCRIPTION_FILE_SUFFIX = '-annotations-bbox.csv'
+
     IMAGE_DESCRIPTION_FIELDS = (
         'ImageID',
         'Subset',
@@ -78,6 +82,21 @@ class OpenImagesPath:
         'Confidence',
     )
 
+    BBOX_DESCRIPTION_FIELDS = (
+        'ImageID',
+        'Source',
+        'LabelName',
+        'Confidence',
+        'XMin',
+        'XMax',
+        'YMin',
+        'YMax',
+        'IsOccluded',
+        'IsTruncated',
+        'IsGroupOf',
+        'IsDepiction',
+        'IsInside',
+    )
 
 class OpenImagesExtractor(Extractor):
     def __init__(self, path):
@@ -215,13 +234,16 @@ class OpenImagesExtractor(Extractor):
         self._items.extend(items_by_id.values())
 
         self._load_labels(items_by_id)
+        self._load_bboxes(items_by_id)
 
     def _load_labels(self, items_by_id):
         label_categories = self._categories[AnnotationType.label]
 
         # TODO: implement reading of machine-annotated labels
 
-        for label_path in self._glob_annotations('*-human-imagelabels.csv'):
+        for label_path in self._glob_annotations(
+            '*' + OpenImagesPath.LABEL_DESCRIPTION_FILE_SUFFIX
+        ):
             with self._open_csv_annotation(label_path) as label_reader:
                 for label_description in label_reader:
                     image_id = label_description['ImageID']
@@ -237,6 +259,42 @@ class OpenImagesExtractor(Extractor):
                             label_name=label_name, severity=Severity.error)
                     item.annotations.append(Label(
                         label=label_index, attributes={'score': confidence}))
+
+    def _load_bboxes(self, items_by_id):
+        label_categories = self._categories[AnnotationType.label]
+
+        for bbox_path in self._glob_annotations(
+            '*' + OpenImagesPath.BBOX_DESCRIPTION_FILE_SUFFIX
+        ):
+            with self._open_csv_annotation(bbox_path) as bbox_reader:
+                for bbox_description in bbox_reader:
+                    image_id = bbox_description['ImageID']
+                    item = items_by_id[image_id]
+
+                    label_name = bbox_description['LabelName']
+                    label_index, _ = label_categories.find(label_name)
+                    if label_index is None:
+                        raise UndefinedLabel(
+                            item_id=item.id, subset=item.subset,
+                            label_name=label_name, severity=Severity.error)
+
+                    # TODO: what if there is no image
+                    height, width = item.image.size
+
+                    x_min = float(bbox_description['XMin']) * width
+                    x_max = float(bbox_description['XMax']) * width
+                    y_min = float(bbox_description['YMin']) * height
+                    y_max = float(bbox_description['YMax']) * height
+
+                    confidence = float(bbox_description['Confidence'])
+                    # TODO: other attributes?
+
+                    item.annotations.append(Bbox(
+                        label=label_index,
+                        x=x_min, y=y_min,
+                        w=x_max - x_min, h=y_max - y_min,
+                        attributes={'score': confidence},
+                    ))
 
 
 class OpenImagesImporter(Importer):
@@ -336,7 +394,6 @@ class OpenImagesConverter(Converter):
                 raise UnsupportedSubsetNameError(item_id=next(iter(subset)).id, subset=subset)
 
             image_description_name = f'{subset_name}-images-with-rotation.csv'
-            label_description_name = f'{subset_name}-annotations-human-imagelabels.csv'
 
             with \
                 self._open_csv_annotation(
@@ -346,9 +403,10 @@ class OpenImagesConverter(Converter):
             :
                 image_description_writer.writeheader()
 
-                # The label description writer is created lazily,
+                # The annotation description writers are created lazily,
                 # so that we don't create the label description file if there are no labels.
                 label_description_writer = None
+                bbox_description_writer = None
 
                 for item in subset:
                     image_description_writer.writerow({
@@ -367,7 +425,7 @@ class OpenImagesConverter(Converter):
                             if label_description_writer is None:
                                 label_description_writer = annotation_writers.enter_context(
                                     self._open_csv_annotation(
-                                        label_description_name,
+                                        subset_name + OpenImagesPath.LABEL_DESCRIPTION_FILE_SUFFIX,
                                         OpenImagesPath.LABEL_DESCRIPTION_FIELDS))
                                 label_description_writer.writeheader()
 
@@ -375,4 +433,23 @@ class OpenImagesConverter(Converter):
                                 'ImageID': item.id,
                                 'LabelName': label_categories[annotation.label].name,
                                 'Confidence': str(annotation.attributes.get('score', 1)),
+                            })
+                        elif annotation.type is AnnotationType.bbox:
+                            if bbox_description_writer is None:
+                                bbox_description_writer = annotation_writers.enter_context(
+                                    self._open_csv_annotation(
+                                        subset_name + OpenImagesPath.BBOX_DESCRIPTION_FILE_SUFFIX,
+                                        OpenImagesPath.BBOX_DESCRIPTION_FIELDS))
+                                bbox_description_writer.writeheader()
+
+                            height, width = item.image.size
+
+                            bbox_description_writer.writerow({
+                                'ImageID': item.id,
+                                'LabelName': label_categories[annotation.label].name,
+                                'Confidence': str(annotation.attributes.get('score', 1)),
+                                'XMin': annotation.x / width,
+                                'YMin': annotation.y / height,
+                                'XMax': (annotation.x + annotation.w) / width,
+                                'YMax': (annotation.y + annotation.h) / height,
                             })

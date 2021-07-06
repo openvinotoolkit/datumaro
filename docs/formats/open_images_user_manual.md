@@ -15,7 +15,7 @@ on [its website](https://storage.googleapis.com/openimages/web/download.html).
 Datumaro supports versions 4, 5 and 6.
 
 Datumaro currently supports only the human-verified image-level label
-annotations from this dataset.
+annotations and bounding box annotations from this dataset.
 
 ## Load Open Images dataset
 
@@ -47,6 +47,9 @@ Annotations can be downloaded from the following URLs:
 - [train image labels](https://storage.googleapis.com/openimages/v6/oidv6-train-annotations-human-imagelabels.csv)
 - [validation image labels](https://storage.googleapis.com/openimages/v5/validation-annotations-human-imagelabels.csv)
 - [test image labels](https://storage.googleapis.com/openimages/v5/test-annotations-human-imagelabels.csv)
+- [train bounding boxes](https://storage.googleapis.com/openimages/v6/oidv6-train-annotations-bbox.csv)
+- [validation bounding boxes](https://storage.googleapis.com/openimages/v5/validation-annotations-bbox.csv)
+- [test bounding boxes](https://storage.googleapis.com/openimages/v5/test-annotations-bbox.csv)
 
 The annotations are optional.
 
