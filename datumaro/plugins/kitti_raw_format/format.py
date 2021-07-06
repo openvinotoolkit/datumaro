@@ -9,7 +9,10 @@ import os.path as osp
 class KittiRawPath:
     PCD_DIR = osp.join('velodyne_points', 'data')
     IMG_DIR_PREFIX = 'image_'
-    BUILTIN_ATTRS = {'occluded'}
+    BUILTIN_ATTRS = {'occluded', 'truncation', 'occlusion'}
+    SPECIAL_ATTRS = {'track_id', }
+    ANNO_FILE = 'tracklet_labels.xml'
+    NAME_MAPPING_FILE = 'frame_list.txt'
 
 class PoseStates(Enum):
     UNSET = 0

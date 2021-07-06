@@ -156,7 +156,7 @@ def compare_datasets_strict(test, expected, actual):
                 (idx, item_a, item_b))
 
 def compare_datasets_3d(test, expected, actual, ignored_attrs=None,
-        require_pcd=False):
+        require_pcd=False, require_images=False):
     compare_categories(test, expected.categories(), actual.categories())
 
     if actual.subsets():
@@ -177,6 +177,12 @@ def compare_datasets_3d(test, expected, actual, ignored_attrs=None,
         if (require_pcd and item_a.has_pcd) or \
                 (item_a.has_pcd and item_b.has_pcd):
             test.assertEqual(item_a.pcd, item_b.pcd, item_a.id)
+        if (require_images and item_a.related_images) or \
+                (item_a.related_images and item_b.related_images):
+            test.assertEqual(
+                set(img.path for img in item_a.related_images),
+                set(img.path for img in item_b.related_images),
+                item_a.id)
         test.assertEqual(len(item_a.annotations), len(item_b.annotations))
         for ann_a in item_a.annotations:
             # We might find few corresponding items, so check them all

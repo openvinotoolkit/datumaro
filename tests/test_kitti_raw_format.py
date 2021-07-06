@@ -19,24 +19,24 @@ DUMMY_DATASET_DIR = osp.join(osp.dirname(
 
 class KittiRawImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_detect_image(self):
+    def test_can_detect(self):
         self.assertTrue(KittiRawImporter.detect(DUMMY_DATASET_DIR))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_load_pcd(self):
-        pcd1 = osp.abspath(osp.join(DUMMY_DATASET_DIR,
-            'velodyne_points', 'data', '0000000000.pcd'))
-        pcd2 = osp.abspath(osp.join(DUMMY_DATASET_DIR,
-            'velodyne_points', 'data', '0000000001.pcd'))
-        pcd3 = osp.abspath(osp.join(DUMMY_DATASET_DIR,
-            'velodyne_points', 'data', '0000000002.pcd'))
+    def test_can_load(self):
+        pcd1 = osp.join(DUMMY_DATASET_DIR,
+            'velodyne_points', 'data', '0000000000.pcd')
+        pcd2 = osp.join(DUMMY_DATASET_DIR,
+            'velodyne_points', 'data', '0000000001.pcd')
+        pcd3 = osp.join(DUMMY_DATASET_DIR,
+            'velodyne_points', 'data', '0000000002.pcd')
 
-        image1 = osp.abspath(
-            osp.join(DUMMY_DATASET_DIR, 'IMAGE_00', 'data', '0000000000.png'))
-        image2 = osp.abspath(
-            osp.join(DUMMY_DATASET_DIR, 'IMAGE_00', 'data', '0000000001.png'))
-        image3 = osp.abspath(
-            osp.join(DUMMY_DATASET_DIR, 'IMAGE_00', 'data', '0000000003.png'))
+        image1 = osp.join(DUMMY_DATASET_DIR,
+            'IMAGE_00', 'data', '0000000000.png')
+        image2 = osp.join(DUMMY_DATASET_DIR,
+            'IMAGE_00', 'data', '0000000001.png')
+        image3 = osp.join(DUMMY_DATASET_DIR,
+            'IMAGE_00', 'data', '0000000002.png')
 
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='0000000000',
@@ -72,7 +72,7 @@ class KittiRawImporterTest(TestCase):
         parsed_dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'kitti_raw')
 
         compare_datasets_3d(self, expected_dataset, parsed_dataset,
-            require_pcd=True)
+            require_pcd=True, require_images=True)
 
 
 class KittiRawConverterTest(TestCase):
@@ -88,7 +88,7 @@ class KittiRawConverterTest(TestCase):
     image2 = osp.abspath(osp.join(DUMMY_DATASET_DIR,
         'IMAGE_00', 'data', '0000000001.png'))
     image3 = osp.abspath(osp.join(DUMMY_DATASET_DIR,
-        'IMAGE_00', 'data', '0000000003.png'))
+        'IMAGE_00', 'data', '0000000002.png'))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def _test_save_and_load(self, source_dataset, converter, test_dir,
@@ -115,7 +115,7 @@ class KittiRawConverterTest(TestCase):
 
             DatasetItem(id='0000000001',
                 annotations=[
-                    Cuboid3d(position=[1.4, 2.1, 1.4], label=0,
+                    Cuboid3d(position=[1.4, 2.1, 1.4], label=1,
                         attributes={'track_id': 2}),
 
                     Cuboid3d(position=[11.4, -0.1, 4.2], scale=[2, 1, 2],
@@ -125,75 +125,86 @@ class KittiRawConverterTest(TestCase):
 
             DatasetItem(id='0000000002',
                 annotations=[
-                    Cuboid3d(position=[0.4, -1, 2.24], label=0,
-                        attributes={'track_id': 3}),
+                    Cuboid3d(position=[0.4, -1, 2.24], scale=[2, 1, 2],
+                        label=0, attributes={'track_id': 3}),
                 ],
                 pcd=self.pcd3,
                 attributes={'frame': 2}
             ),
         ], categories=['cat', 'dog'])
 
-        target_label_cat = LabelCategories(attributes={'occluded'})
-        target_label_cat.add('cat', 'dog')
-
-        target_dataset = Dataset.from_iterable([
-            DatasetItem(id='0000000000',
-                annotations=[
-                    Cuboid3d(position=[13.54, -9.41, 0.24], label=0,
-                        attributes={'occluded': False, 'track_id': 1}),
-
-                    Cuboid3d(position=[3.4, -2.11, 4.4], label=1,
-                        attributes={'occluded': True, 'track_id': 2})
-                ],
-                pcd=self.pcd1, related_images=[self.image1],
-                attributes={'frame': 0}
-            ),
-
-            DatasetItem(id='0000000001',
-                annotations=[
-                    Cuboid3d(position=[1.4, 2.1, 1.4], label=0,
-                        attributes={'occluded': False, 'track_id': 2}),
-
-                    Cuboid3d(position=[11.4, -0.1, 4.2], scale=[2, 1, 2],
-                        label=0, attributes={'occluded': False, 'track_id': 3})
-                ],
-                attributes={'frame': 1}
-            ),
-
-            DatasetItem(id='0000000002',
-                annotations=[
-                    Cuboid3d(position=[0.4, -1, 2.24], label=0,
-                        attributes={'occluded': False, 'track_id': 3}),
-                ],
-                pcd=self.pcd3,
-                attributes={'frame': 2}
-            ),
-        ], categories={AnnotationType.label: target_label_cat})
-
         with TestDir() as test_dir:
+            target_label_cat = LabelCategories(attributes={'occluded'})
+            target_label_cat.add('cat')
+            target_label_cat.add('dog')
+
+            target_dataset = Dataset.from_iterable([
+                DatasetItem(id='0000000000',
+                    annotations=[
+                        Cuboid3d(position=[13.54, -9.41, 0.24], label=0,
+                            attributes={
+                                'occluded': False, 'track_id': 1}),
+
+                        Cuboid3d(position=[3.4, -2.11, 4.4], label=1,
+                            attributes={
+                                'occluded': True, 'track_id': 2})
+                    ],
+                    pcd=osp.join(test_dir,
+                        'velodyne_points', 'data', '0000000000.pcd'),
+                    related_images=[osp.join(test_dir,
+                        'image_00', 'data', '0000000000.png')
+                    ],
+                    attributes={'frame': 0}
+                ),
+
+                DatasetItem(id='0000000001',
+                    annotations=[
+                        Cuboid3d(position=[1.4, 2.1, 1.4], label=1,
+                            attributes={'occluded': False, 'track_id': 2}),
+
+                        Cuboid3d(position=[11.4, -0.1, 4.2], scale=[2, 1, 2],
+                            label=0, attributes={
+                                'occluded': False, 'track_id': 3})
+                    ],
+                    attributes={'frame': 1}
+                ),
+
+                DatasetItem(id='0000000002',
+                    annotations=[
+                        Cuboid3d(position=[0.4, -1, 2.24], scale=[2, 1, 2],
+                            label=0, attributes={
+                                'occluded': False, 'track_id': 3}),
+                    ],
+                    pcd=osp.join(test_dir,
+                        'velodyne_points', 'data', '0000000002.pcd'),
+                    attributes={'frame': 2}
+                ),
+            ], categories={AnnotationType.label: target_label_cat})
+
             self._test_save_and_load(source_dataset,
                 partial(KittiRawConverter.convert, save_images=True),
-                test_dir, target_dataset=target_dataset)
+                test_dir, target_dataset=target_dataset,
+                require_pcd=True, require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_preserve_frame_ids(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='abc', attributes={'frame': 40})
-        ])
+        ], categories=[])
 
         with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
                 KittiRawConverter.convert, test_dir)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_reindex(self):
+    def test_reindex_frames(self):
         source_dataset = Dataset.from_iterable([
-            DatasetItem(id='abc', attributes={'frame': 20})
-        ])
+            DatasetItem(id='abc')
+        ], categories=[])
 
         expected_dataset = Dataset.from_iterable([
-            DatasetItem(id='0000000000', attributes={'frame': 0})
-        ])
+            DatasetItem(id='abc', attributes={'frame': 0})
+        ], categories=[])
 
         with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
@@ -201,88 +212,223 @@ class KittiRawConverterTest(TestCase):
                 test_dir, target_dataset=expected_dataset)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_save_and_load_without_related_images(self):
-        src_label_cat = LabelCategories(attributes={'occluded'})
-        src_label_cat.add('car')
-        src_label_cat.items[0].attributes.update(['a1', 'a2', 'empty'])
+    def test_requires_track_id(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id='abc',
+                annotations=[
+                    Cuboid3d(position=[0.4, -1, 2.24], label=0),
+                ]
+            )
+        ], categories=['dog'])
 
+        with TestDir() as test_dir:
+            with self.assertRaisesRegex(Exception, 'track_id'):
+                KittiRawConverter.convert(source_dataset, test_dir)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_reindex_allows_single_annotations(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id='abc',
+                annotations=[
+                    Cuboid3d(position=[0.4, -1, 2.24], label=0),
+                ]
+            )
+        ], categories=['dog'])
+
+        expected_dataset = Dataset.from_iterable([
+            DatasetItem(id='abc',
+                annotations=[
+                    Cuboid3d(position=[0.4, -1, 2.24], label=0,
+                        attributes={'track_id': 1, 'occluded': False}),
+                ],
+                attributes={'frame': 0})
+        ], categories=['dog'])
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(source_dataset,
+                partial(KittiRawConverter.convert, reindex=True),
+                test_dir, target_dataset=expected_dataset)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_save_and_load_attributes(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='0000000000',
                 annotations=[
-                    Cuboid3d(position=[13.54, -9.41, 0.24],
-                        attributes={'occluded': 0}, label=0)
+                    Cuboid3d(position=[13.54, -9.41, 0.24], label=0,
+                        attributes={'track_id': 1,
+                            'occluded': True, 'a': 'w', 'b': 5})
                 ],
-                pcd=self.pcd1, related_images=[],
                 attributes={'frame': 0}
-                        ),
-        ], categories={AnnotationType.label: src_label_cat})
+            )
+        ], categories=['cat'])
 
         target_label_cat = LabelCategories(attributes={'occluded'})
-        target_label_cat.add('ca')
-        target_label_cat.items[0].attributes.update(['a1', 'a2', 'empty'])
-
+        target_label_cat.add('cat', attributes=['a', 'b'])
         target_dataset = Dataset.from_iterable([
             DatasetItem(id='0000000000',
                 annotations=[
-                    Cuboid3d(position=[13.54, -9.41, 0.24],
-                        attributes={'occluded': 0}, label=0)
+                    Cuboid3d(position=[13.54, -9.41, 0.24], label=0,
+                        attributes={'track_id': 1,
+                            'occluded': True, 'a': 'w', 'b': 5})
                 ],
-                pcd=self.pcd1, related_images=[],
                 attributes={'frame': 0}
-                        ),
+            )
         ], categories={AnnotationType.label: target_label_cat})
 
         with TestDir() as test_dir:
+            self._test_save_and_load(source_dataset,
+                partial(KittiRawConverter.convert, allow_attrs=True),
+                test_dir, target_dataset=target_dataset)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_discard_attributes(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id='0000000000',
+                annotations=[
+                    Cuboid3d(position=[13.54, -9.41, 0.24], label=0,
+                        attributes={'track_id': 1, 'a': 'w', 'b': 5})
+                ],
+                attributes={'frame': 0}
+            )
+        ], categories=['cat'])
+
+        target_label_cat = LabelCategories(attributes={'occluded'})
+        target_label_cat.add('cat')
+        target_dataset = Dataset.from_iterable([
+            DatasetItem(id='0000000000',
+                annotations=[
+                    Cuboid3d(position=[13.54, -9.41, 0.24], label=0,
+                        attributes={'track_id': 1, 'occluded': False})
+                ],
+                attributes={'frame': 0}
+            )
+        ], categories={AnnotationType.label: target_label_cat})
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(source_dataset,
+                KittiRawConverter.convert,
+                test_dir, target_dataset=target_dataset)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_save_and_load_without_annotations(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id='0000000000', attributes={'frame': 0})
+        ], categories=[])
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(source_dataset,
+                KittiRawConverter.convert, test_dir)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_save_and_load_arbitrary_paths(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id='a/d',
+                annotations=[
+                    Cuboid3d(position=[1, 2, 3], label=0,
+                        attributes={'track_id': 1})
+                ],
+                pcd=self.pcd1, related_images=[self.image1],
+                attributes={'frame': 3}
+            ),
+        ], categories=['cat'])
+
+        with TestDir() as test_dir:
+            target_label_cat = LabelCategories(attributes={'occluded'})
+            target_label_cat.add('cat')
+            target_dataset = Dataset.from_iterable([
+                DatasetItem(id='a/d',
+                    annotations=[
+                        Cuboid3d(position=[1, 2, 3], label=0,
+                            attributes={'track_id': 1, 'occluded': False})
+                    ],
+                    pcd=osp.join(test_dir,
+                        'velodyne_points', 'data', 'a', 'd.pcd'),
+                    related_images=[
+                        osp.join(test_dir, 'image_00', 'data', 'a', 'd.png'),
+                    ],
+                    attributes={'frame': 3}
+                ),
+            ], categories={AnnotationType.label: target_label_cat})
 
             self._test_save_and_load(source_dataset,
-                                     partial(KittiRawConverter.convert,
-                                             save_images=True), test_dir,
-                                     target_dataset=target_dataset)
+                partial(KittiRawConverter.convert, save_images=True),
+                test_dir, target_dataset=target_dataset,
+                require_pcd=True, require_images=True)
+            self.assertTrue(osp.isfile(osp.join(
+                test_dir, 'image_00', 'data', 'a', 'd.png')))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_save_and_load_multiple_related_images(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id='a/d',
+                annotations=[
+                    Cuboid3d(position=[1, 2, 3], label=0,
+                        attributes={'track_id': 1})
+                ],
+                pcd=self.pcd1,
+                related_images=[self.image1, self.image2, self.image3],
+                attributes={'frame': 3}
+            ),
+        ], categories=['cat'])
+
+        with TestDir() as test_dir:
+            target_label_cat = LabelCategories(attributes={'occluded'})
+            target_label_cat.add('cat')
+            target_dataset = Dataset.from_iterable([
+                DatasetItem(id='a/d',
+                    annotations=[
+                        Cuboid3d(position=[1, 2, 3], label=0,
+                            attributes={'track_id': 1, 'occluded': False})
+                    ],
+                    pcd=osp.join(test_dir,
+                        'velodyne_points', 'data', 'a', 'd.pcd'),
+                    related_images=[
+                        osp.join(test_dir, 'image_00', 'data', 'a', 'd.png'),
+                        osp.join(test_dir, 'image_01', 'data', 'a', 'd.png'),
+                        osp.join(test_dir, 'image_02', 'data', 'a', 'd.png'),
+                    ],
+                    attributes={'frame': 3}
+                ),
+            ], categories={AnnotationType.label: target_label_cat})
+
+            self._test_save_and_load(source_dataset,
+                partial(KittiRawConverter.convert, save_images=True),
+                test_dir, target_dataset=target_dataset,
+                require_pcd=True, require_images=True)
+            self.assertTrue(osp.isfile(osp.join(
+                test_dir, 'image_00', 'data', 'a', 'd.png')))
+            self.assertTrue(osp.isfile(osp.join(
+                test_dir, 'image_01', 'data', 'a', 'd.png')))
+            self.assertTrue(osp.isfile(osp.join(
+                test_dir, 'image_02', 'data', 'a', 'd.png')))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_inplace_save_writes_only_updated_data(self):
         with TestDir() as path:
-            # generate initial dataset
-
             dataset = Dataset.from_iterable([
-                DatasetItem('0000000000.pcd', subset='tracklets'),
-                DatasetItem('0000000001.pcd', subset='tracklets'),
-                DatasetItem('0000000002.pcd',
+                DatasetItem(id='frame1',
+                    annotations=[
+                        Cuboid3d(position=[3.5, 9.8, 0.3], label=0,
+                            attributes={'track_id': 1})
+                    ],
+                    pcd=self.pcd1, related_images=[self.image1],
+                    attributes={'frame': 0}
+                )
+            ], categories=['car', 'bus'])
+            dataset.export(path, 'kitti_raw', save_images=True)
 
-                            pcd=self.pcd3,
-                            related_images=[self.image2],
-                            )
-            ])
+            dataset.put(DatasetItem('frame2',
+                annotations=[
+                    Cuboid3d(position=[1, 2, 0], label=1,
+                        attributes={'track_id': 1})
+                ],
+                pcd=self.pcd2, related_images=[self.image2],
+                attributes={'frame': 1}
+            ))
+            dataset.remove('frame1')
+            dataset.save(save_images=True)
 
-            dataset.export(path, 'velodyne_points', save_images=True)
-
-            os.unlink(osp.join(path, 'tracklets.xml'))
-            self.assertTrue(osp.isfile(osp.abspath(
-                osp.join(path, 'IMAGE_00', 'data', '0000000002.png'))))
-            self.assertFalse(osp.isfile(osp.abspath(
-                osp.join(path, 'IMAGE_00', 'data', '0000000001.png'))))
-
-            dataset.put(DatasetItem(2,
-
-                                    pcd=self.pcd2,
-                                    related_images=[self.image2],
-                                    ))
-
-            dataset.remove('0000000002.pcd', 'tracklets')
-            related_image_path = {'related_paths': [
-                'IMAGE_00', 'data'], 'image_names': ['0000000002.png']}
-            dataset.save(save_images=True, **related_image_path)
-
-            self.assertFalse(osp.isfile(osp.abspath(
-                osp.join(path, 'velodyne_points', 'data', '0000000000.pcd'))))
-            self.assertFalse(osp.isfile(osp.abspath(
-                osp.join(path, 'velodyne_points', 'data', '0000000002.pcd'))))
-            self.assertTrue(osp.isfile(osp.abspath(
-                osp.join(path, 'velodyne_points', 'data', '0000000001.pcd'))))
-
-            self.assertFalse(osp.isfile(osp.abspath(
-                osp.join(path, 'IMAGE_00', 'data', '0000000000.png'))))
-            self.assertFalse(osp.isfile(osp.abspath(
-                osp.join(path, 'IMAGE_00', 'data', '0000000002.png'))))
-            self.assertTrue(osp.isfile(osp.abspath(
-                osp.join(path, 'IMAGE_00', 'data', '0000000001.png'))))
+            self.assertEqual({'frame2.png'}, set(os.listdir(
+                osp.join(path, 'image_00', 'data'))))
+            self.assertEqual({'frame2.pcd'}, set(os.listdir(
+                osp.join(path, 'velodyne_points', 'data'))))

@@ -3,12 +3,15 @@
 #
 # SPDX-License-Identifier: MIT
 
+from typing import Union
 import logging as log
 import os
 import os.path as osp
 import shutil
 
 from datumaro.components.cli_plugin import CliPlugin
+from datumaro.components.extractor import DatasetItem
+from datumaro.util.image import Image
 
 
 class Converter(CliPlugin):
@@ -49,10 +52,13 @@ class Converter(CliPlugin):
         self._extractor = extractor
         self._save_dir = save_dir
 
-    def _find_image_ext(self, item):
+    def _find_image_ext(self, item: Union[DatasetItem, Image]):
         src_ext = None
-        if item.has_image:
+
+        if isinstance(item, DatasetItem) and item.has_image:
             src_ext = item.image.ext
+        elif isinstance(item, Image):
+            src_ext = item.ext
 
         return self._image_ext or src_ext or self._default_image_ext
 

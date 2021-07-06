@@ -1,10 +1,8 @@
-
 # Copyright (C) 2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
-from collections import OrderedDict
-from itertools import chain
+from copy import deepcopy
 from xml.sax.saxutils import XMLGenerator
 import os
 import os.path as osp
@@ -15,275 +13,390 @@ from datumaro.components.dataset import ItemStatus
 from datumaro.components.extractor import (AnnotationType, DatasetItem,
     LabelCategories)
 from datumaro.util import cast
-from datumaro.util.image import ByteImage, save_image
+from datumaro.util.image import find_images
 
 from .format import KittiRawPath, OcclusionStates, TruncationStates, PoseStates
 
 
+class _XmlAnnotationWriter:
+    # Format constants
+    _tracking_level = 0
 
-class XmlAnnotationWriter:
+    _tracklets_class_id = 0
+    _tracklets_version = 0
+
+    _tracklet_class_id = 1
+    _tracklet_version = 1
+
+    _poses_class_id = 2
+    _poses_version = 0
+
+    _pose_class_id = 3
+    _pose_version = 1
+
+    # XML headers
+    _header = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>"""
+    _doctype = "<!DOCTYPE boost_serialization>"
+
     def __init__(self, file, tracklets):
-        self.version = "1.1"
         self._file = file
-        self.xmlgen = XMLGenerator(self._file, 'utf-8')
-        self._level = 0
         self._tracklets = tracklets
-        self._class_id = 0
-        self._tracking_level = 0
-        self._item_version = 1
-        self._pose_state = True
-        self._item_state = True
-        self._item = 1
-        self._header = """<?xml version="{}" encoding="{}" standalone="{}" ?>""".format("1.0", 'UTF-8', 'yes')
-        self._doctype = """<!DOCTYPE {}>""".format('boost_serialization')
-        self._serialization = """<boost_serialization signature="{}" version="{}">""".format("serialization::archive",
-                                                                                             "9")
+
+        self._xmlgen = XMLGenerator(self._file, encoding='utf-8')
+        self._level = 0
+
+        # See reference for section headers here:
+        # https://www.boost.org/doc/libs/1_40_0/libs/serialization/doc/traits.html
+        # XML archives have regular structure, so we only include headers once
+        self._add_tracklet_header = True
+        self._add_poses_header = True
+        self._add_pose_header = True
 
     def _indent(self, newline=True):
         if newline:
-            self.xmlgen.ignorableWhitespace("\n")
-        self.xmlgen.ignorableWhitespace("  " * self._level)
+            self._xmlgen.ignorableWhitespace("\n")
+        self._xmlgen.ignorableWhitespace("  " * self._level)
 
-    def _write_headers(self):
+    def _add_headers(self):
         self._file.write(self._header)
 
-    def _write_doctype(self):
         self._indent(newline=True)
         self._file.write(self._doctype)
 
     def _open_serialization(self):
         self._indent(newline=True)
-        self.xmlgen.startElement("boost_serialization", {"signature": "serialization::archive", "version": "9"})
+        self._xmlgen.startElement("boost_serialization", {
+            "version": "9", "signature": "serialization::archive"
+        })
 
     def _close_serialization(self):
         self._indent(newline=True)
-        self.xmlgen.endElement("boost_serialization")
+        self._xmlgen.endElement("boost_serialization")
 
-    def _add_count(self, item):
-        self.xmlgen.startElement("count", {})
-        self.xmlgen.characters(str(len(item)))
-        self.xmlgen.endElement("count")
+    def _add_count(self, count):
+        self._indent(newline=True)
+        self._xmlgen.startElement("count", {})
+        self._xmlgen.characters(str(count))
+        self._xmlgen.endElement("count")
+
+    def _add_item_version(self, version):
+        self._indent(newline=True)
+        self._xmlgen.startElement("item_version", {})
+        self._xmlgen.characters(str(version))
+        self._xmlgen.endElement("item_version")
+
+    def _open_tracklets(self, tracklets):
+        self._indent(newline=True)
+        self._xmlgen.startElement("tracklets", {
+            "version": str(self._tracklets_version),
+            "tracking_level": str(self._tracking_level),
+            "class_id": str(self._tracklets_class_id),
+        })
+        self._level += 1
+        self._add_count(len(tracklets))
+        self._add_item_version(self._tracklet_version)
+
+    def _close_tracklets(self):
+        self._level -= 1
+        self._indent(newline=True)
+        self._xmlgen.endElement("tracklets")
 
     def _open_tracklet(self):
         self._indent(newline=True)
-        self.xmlgen.startElement("tracklets",
-                                 {"class_id": str(self._class_id), "tracking_level": str(self._tracking_level),
-                                  "version": "0"})
-        self._class_id += 1
+        if self._add_tracklet_header:
+            self._xmlgen.startElement("item", {
+                "version": str(self._tracklet_class_id),
+                "tracking_level": str(self._tracking_level),
+                "class_id": str(self._tracklet_class_id),
+            })
+            self._add_tracklet_header = False
+        else:
+            self._xmlgen.startElement("item", {})
         self._level += 1
-        self._indent()
-
-    def open_root(self):
-        self._write_headers()
-        self._write_doctype()
-        self._open_serialization()
-        self._open_tracklet()
-
-    def _add_item_version(self):
-        self._indent(newline=True)
-        self.xmlgen.startElement("item_version", {})
-        self.xmlgen.characters(str(self._item_version))
-        self._item_version += 1
-        self.xmlgen.endElement("item_version")
 
     def _close_tracklet(self):
         self._level -= 1
-        self._indent()
-        self.xmlgen.endElement("tracklets")
+        self._indent(newline=True)
+        self._xmlgen.endElement("item")
 
-    def _start_item(self):
-        self._indent()
-        if self._item_state:
-            self.xmlgen.startElement("item",
-                                     {"class_id": str(self._class_id), "tracking_level": str(self._tracking_level),
-                                      "version": str(self._item)})
-            if self._item == 2:
-                self._item_state = False
+    def _add_tracklet(self, tracklet):
+        self._open_tracklet()
+
+        for key, value in tracklet.items():
+            if key == "poses":
+                self._add_poses(value)
+            elif key == "attributes":
+                self._add_attributes(value)
+            else:
+                self._indent(newline=True)
+                self._xmlgen.startElement(key, {})
+                self._xmlgen.characters(str(value))
+                self._xmlgen.endElement(key)
+
+        self._close_tracklet()
+
+    def _open_poses(self, poses):
+        self._indent(newline=True)
+        if self._add_poses_header:
+            self._xmlgen.startElement("poses", {
+                "version": str(self._poses_version),
+                "tracking_level": str(self._tracking_level),
+                "class_id": str(self._poses_class_id),
+            })
+            self._add_poses_header = False
         else:
-            self.xmlgen.startElement("item", {})
-        self._item += 1
-        self._class_id += 1
+            self._xmlgen.startElement("poses", {})
         self._level += 1
 
-    def _end_item(self):
+        self._add_count(len(poses))
+        self._add_item_version(self._poses_version)
+
+    def _close_poses(self):
         self._level -= 1
-        self._indent()
-        self.xmlgen.endElement("item")
+        self._indent(newline=True)
+        self._xmlgen.endElement("poses")
+
+    def _add_poses(self, poses):
+        self._open_poses(poses)
+
+        for pose in poses:
+            self._add_pose(pose)
+
+        self._close_poses()
 
     def _open_pose(self):
         self._indent(newline=True)
-        if self._pose_state:
-            self.xmlgen.startElement("poses",
-                                     {"class_id": str(self._class_id), "tracking_level": str(self._tracking_level),
-                                      "version": "0"})
-            self._class_id += 1
-            self._pose_state = False
+        if self._add_pose_header:
+            self._xmlgen.startElement("item", {
+                "version": str(self._pose_version),
+                "tracking_level": str(self._tracking_level),
+                "class_id": str(self._pose_class_id),
+            })
+            self._add_pose_header = False
         else:
-            self.xmlgen.startElement("poses", {})
+            self._xmlgen.startElement("item", {})
         self._level += 1
-        self._indent()
 
     def _close_pose(self):
         self._level -= 1
-        self._indent()
-        self.xmlgen.endElement("poses")
+        self._indent(newline=True)
+        self._xmlgen.endElement("item")
 
-    def _add_pose(self, poses):
+    def _add_pose(self, pose):
         self._open_pose()
-        self._add_count(poses)
-        self._add_item_version()
-        for pose in poses:
-            self._start_item()
-            for element, value in pose.items():
+
+        for key, value in pose.items():
+            if key == 'attributes':
+                self._add_attributes(value)
+            elif key != 'frame_id':
                 self._indent(newline=True)
-                self.xmlgen.startElement(element, {})
-                self.xmlgen.characters(str(value))
-                self.xmlgen.endElement(element)
-            self._end_item()
+                self._xmlgen.startElement(key, {})
+                self._xmlgen.characters(str(value))
+                self._xmlgen.endElement(key)
+
         self._close_pose()
 
     def _open_attributes(self):
         self._indent(newline=True)
-        self.xmlgen.startElement("attributes", {})
+        self._xmlgen.startElement("attributes", {})
         self._level += 1
-        self._indent()
 
     def _close_attributes(self):
         self._level -= 1
-        self._indent()
-        self.xmlgen.endElement("attributes")
+        self._indent(newline=True)
+        self._xmlgen.endElement("attributes")
+
+    def _add_attributes(self, attributes):
+        self._open_attributes()
+
+        for name, value in attributes.items():
+            self._add_attribute(name, value)
+
+        self._close_attributes()
 
     def _open_attribute(self):
-        self.xmlgen.startElement("attribute", {})
+        self._indent(newline=True)
+        self._xmlgen.startElement("attribute", {})
         self._level += 1
-        self._indent()
 
     def _close_attribute(self):
         self._level -= 1
-        self._indent()
-        self.xmlgen.endElement("attribute")
+        self._indent(newline=True)
+        self._xmlgen.endElement("attribute")
 
-    def _add_attribute(self, attributes):
-        self._open_attributes()
-        for attribute in attributes:
-            self._open_attribute()
-            for index, key in enumerate(attribute.keys()):
-                self.xmlgen.startElement(key, {})
-                self.xmlgen.characters(attribute[key])
-                self.xmlgen.endElement(key)
-                if index < len(attribute.keys()) - 1:
-                    self._indent(newline=True)
-            self._close_attribute()
-        self._close_attributes()
+    def _add_attribute(self, name, value):
+        self._open_attribute()
 
-    def generate_tracklets(self):
-        self._write_headers()
-        self._write_doctype()
+        self._indent(newline=True)
+        self._xmlgen.startElement("name", {})
+        self._xmlgen.characters(name)
+        self._xmlgen.endElement("name")
+
+        self._xmlgen.startElement("value", {})
+        self._xmlgen.characters(str(value))
+        self._xmlgen.endElement("value")
+
+        self._close_attribute()
+
+    def write(self):
+        self._add_headers()
         self._open_serialization()
-        self._open_tracklet()
-        if self._tracklets:
-            self._add_count(self._tracklets)
-            self._add_item_version()
 
-            for tracklet in self._tracklets:
-                self._start_item()
-                for element, value in tracklet.items():
-                    if element == "poses":
-                        self._add_pose(value)
-                    elif element == "attributes":
-                        self._add_attribute(value)
-                    else:
-                        self._indent(newline=True)
-                        self.xmlgen.startElement(element, {})
-                        self.xmlgen.characters(str(value))
-                        self.xmlgen.endElement(element)
+        self._open_tracklets(self._tracklets)
 
-                self._end_item()
-        self._close_tracklet()
+        for tracklet in self._tracklets:
+            self._add_tracklet(tracklet)
+
+        self._close_tracklets()
+
         self._close_serialization()
 
 
-class _SubsetWriter:
-    def __init__(self, file, extractor, context):
-        self._file = file
-        self._extractor = extractor
-        self._context = context
-        self._tracklets = []
-        self.create_tracklets(self._extractor)
+class KittiRawConverter(Converter):
+    DEFAULT_IMAGE_EXT = ".jpg"
 
-    def create_tracklets(self, subset):
+    @classmethod
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument('--reindex', action='store_true',
+            help="Assign new indices to frames and tracks. "
+                "Allows annotations without 'track_id' (default: %(default)s)")
+        parser.add_argument('--allow-attrs', action='store_true',
+            help="Allow writing annotation attributes (default: %(default)s)")
+        return parser
 
-        for i, data in enumerate(subset):
-            index = self._write_item(data, i)
-            for item in data.annotations:
-                if item.type == AnnotationType.cuboid_3d:
-                    if item.label is None:
-                        log.warning("Item %s: skipping a %s with no label",
-                                    item.id, item.type.name)
+    def __init__(self, extractor, save_dir, reindex=False,
+            allow_attrs=False, **kwargs):
+        super().__init__(extractor, save_dir, **kwargs)
 
-                    label_name = self._get_label(item.label).name
+        self._reindex = reindex
+        self._builtin_attrs = \
+            KittiRawPath.BUILTIN_ATTRS | KittiRawPath.SPECIAL_ATTRS
+        self._allow_attrs = allow_attrs
 
-                    tracklet = {
-                        "objectType": label_name,
-                        "h": item.points[0],
-                        "w": item.points[1],
-                        "l": item.points[2],
-                        "first_frame": index if index is not None else data.attributes.get('frame', 0),
-                        "attributes": [],
-                        "poses": []
+    def _create_tracklets(self, subset):
+        tracks = {} # track_id -> track
+        name_mapping = {} # frame_id -> name
+
+        for frame_id, item in enumerate(subset):
+            frame_id = self._write_item(item, frame_id)
+
+            assert frame_id not in name_mapping, \
+                "Item %s: frame id %s is repeated in the dataset"
+            name_mapping[frame_id] = item.id
+
+            for ann in item.annotations:
+                if ann.type != AnnotationType.cuboid_3d:
+                    continue
+
+                if ann.label is None:
+                    log.warning("Item %s: skipping a %s%s with no label",
+                        item.id, ann.type.name,
+                        '(#%s) ' % ann.id if ann.id is not None else '')
+                    continue
+
+                label = self._get_label(ann.label).name
+
+                track_id = ann.attributes.get('track_id')
+                if self._reindex and track_id is None:
+                    track_id = len(tracks) + 1
+                if track_id is None:
+                    raise Exception("Item %s: expected track annotations "
+                        "having 'track_id' (integer) attribute. "
+                        "Use --reindex to export single shapes." % item.id)
+
+                track_id = int(track_id)
+                track = tracks.get(track_id)
+                if not track:
+                    track = {
+                        "objectType": label,
+                        "h": ann.scale[1],
+                        "w": ann.scale[0],
+                        "l": ann.scale[2],
+                        "first_frame": frame_id,
+                        "poses": [],
+                        "finished": 1 # keep last
                     }
+                    tracks[track_id] = track
+                else:
+                    if [track['w'], track['h'], track['l']] != ann.scale:
+                        # Tracks have fixed scale in the format
+                        raise Exception("Item %s: mismatching track shapes, " \
+                            "track id %s" % (item.id, track_id))
 
-                    for attrs in self._get_label_attrs(item.label):
-                        if attrs == "occluded":
+                    if track['objectType'] != label:
+                        raise Exception("Item %s: mismatching track labels, " \
+                            "track id %s: %s vs. %s" % \
+                            (item.id, track_id, track['objectType'], label))
+
+                    # If there is a skip in track frames, add missing
+                    if frame_id != track['poses'][-1]['frame_id'] + 1:
+                        last_key_pose = track['poses'][-1]
+                        last_keyframe_id = last_key_pose['frame_id']
+                        last_key_pose['occlusion_kf'] = 1
+                        for i in range(last_keyframe_id + 1, frame_id):
+                            pose = deepcopy(last_key_pose)
+                            pose['occlusion'] = OcclusionStates.OCCLUSION_UNSET
+                            pose['truncation'] = TruncationStates.OUT_IMAGE
+                            pose['frame_id'] = i
+                            track['poses'].append(pose)
+
+                occlusion = OcclusionStates.VISIBLE
+                if 'occlusion' in ann.attributes:
+                    occlusion = OcclusionStates(
+                        ann.attributes['occlusion'].upper())
+                elif 'occluded' in ann.attributes:
+                    if ann.attributes['occluded']:
+                        occlusion = OcclusionStates.PARTLY
+
+                truncation = TruncationStates.IN_IMAGE
+                if 'truncation' in ann.attributes:
+                    truncation = TruncationStates(
+                        ann.attributes['truncation'].upper())
+
+                pose = {
+                    "tx": ann.position[0],
+                    "ty": ann.position[1],
+                    "tz": ann.position[2],
+                    "rx": ann.rotation[0],
+                    "ry": ann.rotation[1],
+                    "rz": ann.rotation[2],
+                    "state": PoseStates.LABELED.value,
+                    "occlusion": occlusion.value,
+                    "occlusion_kf": \
+                        int(ann.attributes.get("keyframe", False) == True),
+                    "truncation": truncation.value,
+                    "amt_occlusion": -1,
+                    "amt_border_l": -1,
+                    "amt_border_r": -1,
+                    "amt_occlusion_kf": -1,
+                    "amt_border_kf": -1,
+                    "frame_id": frame_id,
+                }
+
+                if self._allow_attrs:
+                    attributes = {}
+                    for name, value in ann.attributes.items():
+                        if name in self._builtin_attrs:
                             continue
-                        attribute = {
-                            "name": attrs,
-                            "mutable": "True",
-                            "input_type": "text",
-                            "default_value": "",
-                            "values": ""
-                        }
 
-                        tracklet["attributes"].append(attribute)
+                        if isinstance(value, bool):
+                            value = 'true' if value else 'false'
+                        attributes[name] = value
 
-                    pose = {
-                        "tx": item.points[3],
-                        "ty": item.points[4],
-                        "tz": item.points[5],
-                        "rx": item.points[6],
-                        "ry": item.points[7],
-                        "rz": item.points[8],
-                        "state": VelodynePointsState.POSE_STATES.get(item.attributes.get("state"), VelodynePointsState.POSE_STATES["LABELED"]),
-                        "occlusion": VelodynePointsState.OCCLUSION_STATES.get(item.attributes.get("occlusion"), VelodynePointsState.OCCLUSION_STATES["OCCLUSION_UNSET"]),
-                        "occlusion_kf": 1 if item.attributes.get("occluded", False) else 0,
-                        "truncation": VelodynePointsState.TRUNCATION_STATE.get(item.attributes.get("truncation"), VelodynePointsState.TRUNCATION_STATE["TRUNCATION_UNSET"]),
-                        "amt_occlusion": -1,
-                        "amt_border_l": -1,
-                        "amt_border_r": -1,
-                        "amt_occlusion_kf": -1,
-                        "amt_border_kf": -1,
-                    }
-                    tracklet["poses"].append(pose)
-                    tracklet["finished"] = 1
-                    self._tracklets.append(tracklet)
+                    pose["attributes"] = attributes
 
-                    label_name = self._get_label(item.label).name
-                    for attr_name, attr_value in item.attributes.items():
-                        if attr_name in self._context._builtin_attrs:
-                            continue
-                        if isinstance(attr_value, bool):
-                            attr_value = 'true' if attr_value else 'false'
-                        if self._context._allow_undeclared_attrs or \
-                                attr_name in self._get_label_attrs(item.label):
-                            continue
-                        else:
-                            log.warning("Item %s: skipping undeclared "
-                                        "attribute '%s' for label '%s' "
-                                        "(allow with --allow-undeclared-attrs option)",
-                                        item.id, attr_name, label_name)
+                track["poses"].append(pose)
 
-        tracklets = XmlAnnotationWriter(self._file, self._tracklets)
-        tracklets.generate_tracklets()
+        self._write_name_mapping(name_mapping)
+
+        return [e[1] for e in sorted(tracks.items(), key=lambda e: e[0])]
+
+    def _write_name_mapping(self, name_mapping):
+        with open(osp.join(self._save_dir, KittiRawPath.NAME_MAPPING_FILE),
+                'w', encoding='utf-8') as f:
+            f.writelines('%s %s\n' % (frame_id, name)
+                for frame_id, name in name_mapping.items())
 
     def _get_label(self, label_id):
         if label_id is None:
@@ -292,96 +405,46 @@ class _SubsetWriter:
             AnnotationType.label, LabelCategories())
         return label_cat.items[label_id]
 
-    def _get_label_attrs(self, label):
-        label_cat = self._extractor.categories().get(
-            AnnotationType.label, LabelCategories())
-        if isinstance(label, int):
-            label = label_cat[label]
-        return set(chain(label.attributes, label_cat.attributes)) - \
-            self._context._builtin_attrs
-
     def _write_item(self, item, index):
-        if not self._context._reindex:
+        if not self._reindex:
             index = cast(item.attributes.get('frame'), int, index)
-        image_info = OrderedDict([("id", str(index)), ])
-        if isinstance(item.pcd, str) and osp.isfile(item.pcd):
-            path = item.pcd.replace(os.sep, '/')
-            filename = path.rsplit("/", maxsplit=1)[-1]
-        else:
-            filename = self._context._make_pcd_filename(item)
-        image_info["name"] = filename
 
-        if item.has_pcd:
-            if self._context._save_images:
-                velodyne_dir = osp.join(self._context._save_dir, "velodyne_points")
-                self._context._image_dir = osp.join(velodyne_dir, "data")
+        if self._save_images:
+            if item.has_pcd:
+                self._save_pcd(item, subdir=KittiRawPath.PCD_DIR)
 
-                self._context._save_pcd(item,
-                                        osp.join(self._context._image_dir, filename))
-
-                if item.related_images:
-
-                    for i, related_image in enumerate(item.related_images):
-
-                        image_path = related_image["save_path"]
-                        related_dir = osp.join(self._context._save_dir, image_path)
-                        path = osp.join(related_dir, "data")
-                        os.makedirs(path, exist_ok=True)
-
-                        try:
-                            name = related_image["name"]
-                            image = related_image["image"]
-                        except AttributeError:
-                            name = f"{i}.jpg"
-
-                        path = osp.join(path, name)
-
-                        if isinstance(image, ByteImage):
-                            with open(path, 'wb') as f:
-                                f.write(image.get_bytes())
-                        else:
-                            save_image(path, image.data)
+            print(item.related_images)
+            images = sorted(item.related_images, key=lambda img: img.path)
+            for i, image in enumerate(images):
+                if image.has_data:
+                    image.save(osp.join(self._save_dir,
+                        KittiRawPath.IMG_DIR_PREFIX + ('%02d' % i), 'data',
+                        item.id + self._find_image_ext(image)))
 
         else:
             log.debug("Item '%s' has no image info", item.id)
 
-        if index is not None:
-            return index
-
-class KittiRawConverter(Converter):
-    DEFAULT_IMAGE_EXT = ".pcd"
-
-    @classmethod
-    def build_cmdline_parser(cls, **kwargs):
-        parser = super().build_cmdline_parser(**kwargs)
-        parser.add_argument('--reindex', action='store_true',
-            help="Assign new indices to frames (default: %(default)s)")
-        parser.add_argument('--allow-undeclared-attrs', action='store_true',
-            help="Write annotation attributes even if they are not present in "
-                "the input dataset metainfo (default: %(default)s)")
-        return parser
-
-    def __init__(self, extractor, save_dir, reindex=False,
-            allow_undeclared_attrs=False, **kwargs):
-        super().__init__(extractor, save_dir, **kwargs)
-
-        self._reindex = reindex
-        self._builtin_attrs = KittiRawPath.BUILTIN_ATTRS
-        self._allow_undeclared_attrs = allow_undeclared_attrs
+        return index
 
     def apply(self):
         os.makedirs(self._save_dir, exist_ok=True)
-        with open(osp.join(self._save_dir, 'tracklets.xml'), 'w') as f:
-            _SubsetWriter(f, self._extractor, self)
+
+        if 1 < len(self._extractor.subsets()):
+            log.warning("Kitti RAW format supports only a single"
+                "subset. Subset information will be ignored on export.")
+
+        tracklets = self._create_tracklets(self._extractor)
+        with open(osp.join(self._save_dir, KittiRawPath.ANNO_FILE),
+                'w', encoding='utf-8') as f:
+            writer = _XmlAnnotationWriter(f, tracklets)
+            writer.write()
 
     @classmethod
     def patch(cls, dataset, patch, save_dir, **kwargs):
-        for subset in patch.updated_subsets:
-            cls.convert(dataset.get_subset(subset), save_dir=save_dir, **kwargs)
+        conv = cls(patch.as_dataset(dataset), save_dir=save_dir, **kwargs)
+        conv.apply()
 
-        conv = cls(dataset, save_dir=save_dir, **kwargs)
-        pcd_dir = osp.abspath(osp.join(save_dir, KittiRawPath.IMAGES_DIR))
-
+        pcd_dir = osp.abspath(osp.join(save_dir, KittiRawPath.PCD_DIR))
         for (item_id, subset), status in patch.updated_items.items():
             if status != ItemStatus.removed:
                 item = patch.data.get(item_id, subset)
@@ -395,11 +458,11 @@ class KittiRawConverter(Converter):
             if osp.isfile(pcd_path):
                 os.unlink(pcd_path)
 
-            if kwargs:
-                for path in kwargs.get('related_paths'):
-                    image_dir = osp.abspath(osp.join(save_dir,path))
-                for image in kwargs["image_names"]:
-                    image_path = osp.join(image_dir, image)
-                    if osp.isfile(image_path):
-                        os.unlink(image_path)
-
+            for d in os.listdir(save_dir):
+                image_dir = osp.join(save_dir, d, 'data', osp.dirname(item.id))
+                if d.startswith(KittiRawPath.IMG_DIR_PREFIX) and \
+                        osp.isdir(image_dir):
+                    for p in find_images(image_dir):
+                        if osp.splitext(osp.basename(p))[0] == \
+                                osp.basename(item.id):
+                            os.unlink(p)

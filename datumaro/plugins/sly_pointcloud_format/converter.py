@@ -391,7 +391,7 @@ class SuperviselyPointcloudConverter(Converter):
         self._allow_undeclared_attrs = allow_undeclared_attrs
 
     def apply(self):
-        if len(self._extractor.subsets()) != 1:
+        if 1 < len(self._extractor.subsets()):
             log.warning("Supervisely pointcloud format supports only a single"
                 "subset. Subset information will be ignored on export.")
 

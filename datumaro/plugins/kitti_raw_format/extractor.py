@@ -1,17 +1,17 @@
-
 # Copyright (C) 2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
-import os
 from defusedxml import ElementTree as ET
+import os
 import os.path as osp
 
 from datumaro.components.extractor import (SourceExtractor, DatasetItem,
     AnnotationType, Cuboid3d, LabelCategories, Importer)
+from datumaro.util import cast
 from datumaro.util.image import find_images
 
-from .format import KittiRawPath, OcclusionStates
+from .format import KittiRawPath, OcclusionStates, TruncationStates
 
 
 class KittiRawExtractor(SourceExtractor):
@@ -21,15 +21,7 @@ class KittiRawExtractor(SourceExtractor):
 
     def __init__(self, path, subset=None):
         assert osp.isfile(path), path
-        rootpath = osp.dirname(path)
-        image_dir = ''
-        for p in os.listdir(rootpath):
-            if p.lower().startswith(KittiRawPath.IMG_DIR_PREFIX) and \
-                    p.lower() != KittiRawPath.IMG_DIR_PREFIX and \
-                    osp.isdir(p):
-                image_dir = osp.join(rootpath, p)
-        self._image_dir = image_dir
-        self._path = path
+        self._rootdir = osp.dirname(path)
 
         super().__init__(subset=subset)
 
@@ -46,6 +38,13 @@ class KittiRawExtractor(SourceExtractor):
         labels = {}
         point_tags = {'tx', 'ty', 'tz', 'rx', 'ry', 'rz'}
 
+        # Can fail with "XML declaration not well-formed" on documents with
+        # <?xml ... standalone="true"?>
+        #                       ^^^^
+        # (like the original Kitti dataset), while
+        # <?xml ... standalone="yes"?>
+        #                       ^^^
+        # works.
         tree = ET.iterparse(path, events=("start", "end"))
         for ev, elem in tree:
             if ev == "start":
@@ -110,6 +109,8 @@ class KittiRawExtractor(SourceExtractor):
                     shape['occluded'] = OcclusionStates(int(elem.text))
                 elif shape and elem.tag == 'occlusion_kf':
                     shape['occluded_kf'] = elem.text == '1'
+                elif shape and elem.tag == 'truncation':
+                    shape['truncation'] = TruncationStates(int(elem.text))
 
                 # common tags
                 elif attr is not None and elem.tag == 'name':
@@ -118,18 +119,19 @@ class KittiRawExtractor(SourceExtractor):
                     attr['value'] = elem.text
                 elif attr is not None and elem.tag == 'attribute':
                     if shape:
-                        shape['attributes'][attr['name']] = elem.tag
+                        shape['attributes'][attr['name']] = attr['value']
                     else:
-                        track['attributes'][attr['name']] = elem.tag
+                        track['attributes'][attr['name']] = attr['value']
                     attr = None
 
         if track is not None or shape is not None or attr is not None:
             raise Exception("Failed to parse anotations from '%s'" % path)
 
+        special_attrs = KittiRawPath.SPECIAL_ATTRS
         common_attrs = ['occluded']
         label_cat = LabelCategories(attributes=common_attrs)
         for label, attrs in sorted(labels.items(), key=lambda e: e[0]):
-            label_cat.add(label, attributes=attrs)
+            label_cat.add(label, attributes=set(attrs) - special_attrs)
 
         categories = {AnnotationType.label: label_cat}
 
@@ -150,6 +152,10 @@ class KittiRawExtractor(SourceExtractor):
             return True
         elif value == 'false':
             return False
+        elif str(cast(value, int, 0)) == value:
+            return int(value)
+        elif str(cast(value, float, 0)) == value:
+            return float(value)
         else:
             return value
 
@@ -169,6 +175,11 @@ class KittiRawExtractor(SourceExtractor):
             elif shape['occluded'] == OcclusionStates.OCCLUSION_UNSET:
                 occluded = kf_occluded
 
+            if shape['truncation'] in {TruncationStates.OUT_IMAGE,
+                    TruncationStates.BEHIND_IMAGE}:
+                # skip these frames
+                continue
+
             local_attrs = { k: cls._parse_attr(v)
                 for k, v in shape['attributes'].items() }
             local_attrs['occluded'] = occluded
@@ -182,27 +193,61 @@ class KittiRawExtractor(SourceExtractor):
             yield Cuboid3d(position, rotation, scale, label=label,
                 attributes=attrs)
 
+    @staticmethod
+    def _parse_name_mapping(path):
+        rootdir = osp.dirname(path)
+
+        name_mapping = {}
+        if osp.isfile(path):
+            with open(path, encoding='utf-8') as f:
+                for line in f:
+                    line = line.strip()
+                    if not line or line.startswith('#'):
+                        continue
+
+                    idx, path = line.split(maxsplit=1)
+                    path = osp.abspath(osp.join(rootdir, path))
+                    assert path.startswith(rootdir), path
+                    path = osp.relpath(path, rootdir)
+                    name_mapping[int(idx)] = path
+
+        return name_mapping
+
     def _load_items(self, parsed):
-        image_dir = osp.join(self._image_dir, KittiRawPath.IMG_DIR_PREFIX)
-        if osp.isdir(image_dir):
-            images = { osp.splitext(osp.relpath(p, image_dir))[0]: p
-                for p in find_images(image_dir, recursive=True) }
-        else:
-            images = {}
+        images = {}
+        for d in os.listdir(self._rootdir):
+            image_dir = osp.join(self._rootdir, d, 'data')
+            if not (d.lower().startswith(KittiRawPath.IMG_DIR_PREFIX) and \
+                    osp.isdir(image_dir)):
+                continue
+
+            for p in find_images(image_dir, recursive=True):
+                image_name = osp.splitext(osp.relpath(p, image_dir))[0]
+                images.setdefault(image_name, []).append(p)
+
+        name_mapping = self._parse_name_mapping(
+            osp.join(self._rootdir, KittiRawPath.NAME_MAPPING_FILE))
 
         items = {}
         for frame_id, item_desc in parsed.items():
-            name = item_desc.get('name', '%010d' % int(frame_id))
-            related_images = []
-            if name in images:
-                related_images.append(images[name])
-
+            name = name_mapping.get(frame_id, '%010d' % int(frame_id))
             items[frame_id] = DatasetItem(id=name, subset=self._subset,
-                pcd=osp.join(osp.dirname(self._path),
+                pcd=osp.join(self._rootdir,
                     KittiRawPath.PCD_DIR, name + '.pcd'),
-                related_images=related_images,
+                related_images=sorted(images.get(name, [])),
                 annotations=item_desc.get('annotations'),
                 attributes={'frame': int(frame_id)})
+
+        for frame_id, name in name_mapping.items():
+            if frame_id in items:
+                continue
+
+            items[frame_id] = DatasetItem(id=name, subset=self._subset,
+                pcd=osp.join(self._rootdir,
+                    KittiRawPath.PCD_DIR, name + '.pcd'),
+                related_images=sorted(images.get(name, [])),
+                attributes={'frame': int(frame_id)})
+
         return items
 
 

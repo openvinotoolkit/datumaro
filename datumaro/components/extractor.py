@@ -392,6 +392,7 @@ class Cuboid3d(Annotation):
 
     @property
     def position(self):
+        """[x, y, z]"""
         return self._points[0:3]
 
     @position.setter
@@ -401,6 +402,7 @@ class Cuboid3d(Annotation):
 
     @property
     def rotation(self):
+        """[rx, ry, rz]"""
         return self._points[3:6]
 
     @rotation.setter
@@ -410,6 +412,7 @@ class Cuboid3d(Annotation):
 
     @property
     def scale(self):
+        """[sx, sy, sz]"""
         return self._points[6:9]
 
     @scale.setter
@@ -579,14 +582,18 @@ class DatasetItem:
         type=str, validator=not_empty)
     annotations = attrib(factory=list, validator=default_if_none(list))
     subset = attrib(converter=lambda v: v or DEFAULT_SUBSET_NAME, default=None)
+
+    # Currently unused
     path = attrib(factory=list, validator=default_if_none(list))
+
+    # TODO: introduce "media" field with type info. Replace image and pcd.
     image = attrib(type=Image, default=None)
     pcd = attrib(type=bytes, default=None)
     related_images = attrib(factory=list, validator=default_if_none(list))
 
     def __attrs_post_init__(self):
         assert not (self.has_image and self.has_pcd), \
-            "Can't set both image and point cloud"
+            "Can't set both image and point cloud info"
 
     @related_images.validator
     def _related_image_validator(self, attribute, related_images):
