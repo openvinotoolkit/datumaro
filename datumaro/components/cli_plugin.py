@@ -20,10 +20,11 @@ class CliPlugin:
     def _get_doc(cls):
         doc = getattr(cls, '__doc__', "")
         if doc:
-            from datumaro.components.launcher import Launcher
-            from datumaro.components.extractor import Extractor, Transform, \
-                Importer
             from datumaro.components.converter import Converter
+            from datumaro.components.extractor import (
+                Extractor, Importer, Transform,
+            )
+            from datumaro.components.launcher import Launcher
             base_classes = [Launcher, Extractor, Transform, Importer, Converter]
 
             if any(getattr(t, '__doc__', '') == doc for t in base_classes):

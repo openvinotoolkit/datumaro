@@ -6,10 +6,11 @@ import logging as log
 import os
 import os.path as osp
 
-from datumaro.components.extractor import (DatasetItem, Label,
-    LabelCategories, AnnotationType, SourceExtractor, Importer
-)
 from datumaro.components.converter import Converter
+from datumaro.components.extractor import (
+    AnnotationType, DatasetItem, Importer, Label, LabelCategories,
+    SourceExtractor,
+)
 from datumaro.util.image import find_images
 
 

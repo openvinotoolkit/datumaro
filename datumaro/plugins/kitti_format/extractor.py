@@ -6,14 +6,16 @@ import os.path as osp
 
 import numpy as np
 
-from datumaro.components.extractor import (SourceExtractor,
-    AnnotationType, DatasetItem, Mask, Bbox)
-from datumaro.util.image import load_image, find_images
+from datumaro.components.extractor import (
+    AnnotationType, Bbox, DatasetItem, Mask, SourceExtractor,
+)
+from datumaro.util.image import find_images, load_image
 
 from .format import (
-    KittiTask, KittiPath, KittiLabelMap, parse_label_map,
-    make_kitti_categories, make_kitti_detection_categories
+    KittiLabelMap, KittiPath, KittiTask, make_kitti_categories,
+    make_kitti_detection_categories, parse_label_map,
 )
+
 
 class _KittiExtractor(SourceExtractor):
     def __init__(self, path, task, subset=None):

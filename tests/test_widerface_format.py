@@ -1,12 +1,16 @@
-import os.path as osp
 from unittest import TestCase
+import os.path as osp
 
 import numpy as np
-from datumaro.components.extractor import (Bbox, DatasetItem, Label)
+
 from datumaro.components.dataset import Dataset
-from datumaro.plugins.widerface_format import WiderFaceConverter, WiderFaceImporter
+from datumaro.components.extractor import Bbox, DatasetItem, Label
+from datumaro.plugins.widerface_format import (
+    WiderFaceConverter, WiderFaceImporter,
+)
 from datumaro.util.image import Image
 from datumaro.util.test_utils import TestDir, compare_datasets
+
 from .requirements import Requirements, mark_requirement
 
 

@@ -68,7 +68,8 @@ def make_file_name(s):
     Normalizes string, converts to lowercase, removes non-alpha characters,
     and converts spaces to hyphens.
     """
-    import unicodedata, re
+    import re
+    import unicodedata
     s = unicodedata.normalize('NFKD', s).encode('ascii', 'ignore')
     s = s.decode()
     s = re.sub(r'[^\w\s-]', '', s).strip().lower()

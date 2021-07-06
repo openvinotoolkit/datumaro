@@ -8,15 +8,16 @@
 import json
 import os
 import os.path as osp
-import numpy as np
 
+import numpy as np
 import pycocotools.mask as mask_utils
+
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.extractor import (
-    DEFAULT_SUBSET_NAME, Annotation, DatasetItem, _Shape,
-    Label, Mask, RleMask, Points, Polygon, PolyLine, Bbox, Caption,
-    LabelCategories, MaskCategories, PointsCategories
+    DEFAULT_SUBSET_NAME, Annotation, Bbox, Caption, DatasetItem, Label,
+    LabelCategories, Mask, MaskCategories, Points, PointsCategories, Polygon,
+    PolyLine, RleMask, _Shape,
 )
 from datumaro.util import cast
 

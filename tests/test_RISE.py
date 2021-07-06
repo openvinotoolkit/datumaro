@@ -2,9 +2,11 @@ from collections import namedtuple
 from unittest import TestCase
 
 import numpy as np
-from datumaro.components.extractor import Label, Bbox
-from datumaro.components.launcher import Launcher
+
 from datumaro.components.algorithms.rise import RISE
+from datumaro.components.extractor import Bbox, Label
+from datumaro.components.launcher import Launcher
+
 from .requirements import Requirements, mark_requirement
 
 

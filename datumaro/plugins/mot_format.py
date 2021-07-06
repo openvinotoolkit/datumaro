@@ -7,19 +7,19 @@
 # Another description: https://motchallenge.net/instructions
 
 from collections import OrderedDict
-import csv
 from enum import Enum
+import csv
 import logging as log
 import os
 import os.path as osp
 
-from datumaro.components.extractor import (SourceExtractor, Importer,
-    DatasetItem, AnnotationType, Bbox, LabelCategories
-)
 from datumaro.components.converter import Converter
+from datumaro.components.extractor import (
+    AnnotationType, Bbox, DatasetItem, Importer, LabelCategories,
+    SourceExtractor,
+)
 from datumaro.util import cast
 from datumaro.util.image import Image, find_images
-
 
 MotLabel = Enum('MotLabel', [
     ('pedestrian', 1),

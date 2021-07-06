@@ -1,19 +1,14 @@
 from unittest import TestCase
 
 import numpy as np
-from datumaro.components.project import Dataset
-from datumaro.components.extractor import (
-    DatasetItem,
-    Label,
-    Bbox,
-    Mask,
-    Polygon,
-    LabelCategories,
-    AnnotationType,
-)
 
-import datumaro.plugins.splitter as splitter
+from datumaro.components.extractor import (
+    AnnotationType, Bbox, DatasetItem, Label, LabelCategories, Mask, Polygon,
+)
 from datumaro.components.operations import compute_ann_statistics
+from datumaro.components.project import Dataset
+import datumaro.plugins.splitter as splitter
+
 from .requirements import Requirements, mark_requirement
 
 

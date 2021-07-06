@@ -9,7 +9,7 @@ import os.path as osp
 import shutil
 
 from datumaro.components.cli_plugin import CliPlugin
-from datumaro.util.image import save_image, ByteImage
+from datumaro.util.image import ByteImage, save_image
 
 
 class Converter(CliPlugin):

@@ -5,16 +5,16 @@
 
 from enum import Enum, auto
 from glob import iglob
-from typing import Callable, Iterable, List, Dict, Optional
+from typing import Callable, Dict, Iterable, List, Optional
 import os
 import os.path as osp
 
-from attr import attrs, attrib
+from attr import attrib, attrs
 import attr
 import numpy as np
 
+from datumaro.util.attrs_util import default_if_none, not_empty
 from datumaro.util.image import Image
-from datumaro.util.attrs_util import not_empty, default_if_none
 
 
 class AnnotationType(Enum):
@@ -655,7 +655,7 @@ class Importer:
         raise NotImplementedError()
 
     def __call__(self, path, **extra_params):
-        from datumaro.components.project import Project # cyclic import
+        from datumaro.components.project import Project  # cyclic import
         project = Project()
 
         sources = self.find_sources(osp.normpath(path))

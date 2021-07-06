@@ -3,16 +3,16 @@
 # SPDX-License-Identifier: MIT
 
 from enum import Enum
+from zipfile import ZIP_BZIP2, ZIP_DEFLATED, ZIP_LZMA, ZIP_STORED, ZipFile
 import logging as log
 import os
 import os.path as osp
-from zipfile import ZIP_BZIP2, ZIP_DEFLATED, ZIP_LZMA, ZIP_STORED, ZipFile
 
 from datumaro.components.converter import Converter
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
-
 from datumaro.util import parse_str_enum_value
 from datumaro.util.image import IMAGE_EXTENSIONS, ByteImage, encode_image
+
 
 class Compression(Enum):
     ZIP_STORED = ZIP_STORED

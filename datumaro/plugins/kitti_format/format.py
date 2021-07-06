@@ -6,10 +6,9 @@
 from collections import OrderedDict
 from enum import Enum, auto
 
-from datumaro.components.extractor import (AnnotationType,
-    LabelCategories, MaskCategories
+from datumaro.components.extractor import (
+    AnnotationType, LabelCategories, MaskCategories,
 )
-
 from datumaro.util.mask_tools import generate_colormap
 
 

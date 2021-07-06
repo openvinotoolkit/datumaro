@@ -1,11 +1,11 @@
+from unittest import TestCase
 import os
 import os.path as osp
 
-from unittest import TestCase
-
 from datumaro.util import Rollback, error_rollback
-from datumaro.util.test_utils import TestDir
 from datumaro.util.os_util import walk
+from datumaro.util.test_utils import TestDir
+
 from .requirements import Requirements, mark_requirement
 
 

@@ -4,6 +4,7 @@
 # SPDX-License-Identifier: MIT
 
 import os.path as osp
+
 import yaml
 
 from datumaro.components.cli_plugin import CliPlugin
