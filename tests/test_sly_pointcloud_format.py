@@ -69,7 +69,7 @@ class SuperviselyPointcloudImporterTest(TestCase):
         parsed_dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'sly_pointcloud')
 
         compare_datasets_3d(self, expected_dataset, parsed_dataset,
-            require_pcd=True)
+            require_pcd=True, require_images=True)
 
 
 class PointCloudConverterTest(TestCase):

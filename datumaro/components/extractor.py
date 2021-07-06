@@ -589,7 +589,7 @@ class DatasetItem:
     # TODO: introduce "media" field with type info. Replace image and pcd.
     image = attrib(type=Image, default=None)
     pcd = attrib(type=bytes, default=None)
-    related_images = attrib(factory=list, validator=default_if_none(list))
+    related_images = attrib(type=list, default=None)
 
     def __attrs_post_init__(self):
         assert not (self.has_image and self.has_pcd), \

@@ -413,7 +413,6 @@ class KittiRawConverter(Converter):
             if item.has_pcd:
                 self._save_pcd(item, subdir=KittiRawPath.PCD_DIR)
 
-            print(item.related_images)
             images = sorted(item.related_images, key=lambda img: img.path)
             for i, image in enumerate(images):
                 if image.has_data:
