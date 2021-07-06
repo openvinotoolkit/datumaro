@@ -27,11 +27,3 @@ jobs:
         run: |
           pytest -v
           datum -h
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Checking whitespace
-        run: |
-          empty_tree="$(git hash-object -t tree --stdin < /dev/null)"
-          git diff --check "$empty_tree"
