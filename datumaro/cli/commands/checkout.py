@@ -30,7 +30,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         |s|s%(prog)s 33fbfbe my-source
         """, formatter_class=MultilineFormatter)
 
-    parser.add_argument('_positionals', nargs='+',
+    parser.add_argument('_positionals', nargs=argparse.REMAINDER,
         help=argparse.SUPPRESS) # workaround for -- eaten by positionals
     parser.add_argument('rev', nargs='?',
         help="Commit or tag (default: current)")
