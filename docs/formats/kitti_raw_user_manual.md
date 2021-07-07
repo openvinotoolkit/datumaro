@@ -11,25 +11,25 @@
 ## Format specification
 
 Velodyne Points / KITTI Raw 3D data format:
-    - [home page](http://www.cvlibs.net/datasets/kitti/raw_data.php).
-    - [specification](https://s3.eu-central-1.amazonaws.com/avg-kitti/devkit_raw_data.zip)
+- [home page](http://www.cvlibs.net/datasets/kitti/raw_data.php).
+- [specification](https://s3.eu-central-1.amazonaws.com/avg-kitti/devkit_raw_data.zip)
 
 This dataset format supports the following types of annotations:
-    - `cuboid_3d` (tracks)
+- `cuboid_3d` (tracks)
 
 Supported annotation attributes:
-    - `truncation` (write, string), possible values: `truncation_unset`,
-        `in_image`, `truncated`, `out_image`, `behind_image` (case-independent).
-    - `occlusion` (write, string), possible values: `occlusion_unset`, `visible`,
-        `partly`, `fully` (case-independent). This atribute has priority
-        over `occluded`.
-    - `occluded` (read/write, boolean)
-    - `keyframe` (read/write, boolean). Resposible for `occlusion_kf` field.
-    - `track_id` (read/write, integer). Indicates the group over frames for
-        annotations.
+- `truncation` (write, string), possible values: `truncation_unset`,
+  `in_image`, `truncated`, `out_image`, `behind_image` (case-independent).
+- `occlusion` (write, string), possible values: `occlusion_unset`, `visible`,
+  `partly`, `fully` (case-independent). This atribute has priority
+  over `occluded`.
+- `occluded` (read/write, boolean)
+- `keyframe` (read/write, boolean). Resposible for `occlusion_kf` field.
+- `track_id` (read/write, integer). Indicates the group over frames for
+  annotations.
 
 Supported image attributes:
-    - `frame` (read/write, integer). Indicates frame number of the image.
+- `frame` (read/write, integer). Indicates frame number of the image.
 
 ## Import KITTI Raw dataset
 
@@ -127,14 +127,14 @@ datum convert -if sly_pointcloud -i <path/to/sly_pcd/dataset> \
 Extra options for exporting in KITTI Raw format:
 
 - `--save-images` allow to export dataset with saving images. This will
-    include point clouds and related images (by default `False`)
+  include point clouds and related images (by default `False`)
 - `--image-ext IMAGE_EXT` allow to specify image extension
-    for exporting dataset (by default - keep original or use `.png`, if none)
+  for exporting dataset (by default - keep original or use `.png`, if none)
 - `--reindex` assigns new indices to frames and tracks. Allows annotations
-    without `track_id` attribute (they will be exported as signle-frame tracks).
+  without `track_id` attribute (they will be exported as signle-frame tracks).
 - `--allow-attrs` allows writing arbitrary annotation attributes. They will
-    be written in `<annotations>` section of `<poses><item>`
-    (disabled by default)
+  be written in `<annotations>` section of `<poses><item>`
+  (disabled by default)
 
 ## Examples
 

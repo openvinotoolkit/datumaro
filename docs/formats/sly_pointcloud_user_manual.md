@@ -11,28 +11,28 @@
 ## Format specification
 
 Point Cloud data format:
-    - [specification](https://docs.supervise.ly/data-organization/00_ann_format_navi).
-    - [example](https://drive.google.com/file/d/1BtZyffWtWNR-mk_PHNPMnGgSlAkkQpBl/view).
+- [specification](https://docs.supervise.ly/data-organization/00_ann_format_navi).
+- [example](https://drive.google.com/file/d/1BtZyffWtWNR-mk_PHNPMnGgSlAkkQpBl/view).
 
 This dataset format supports the following types of annotations:
-    - `cuboid_3d`
+- `cuboid_3d`
 
 Supported annotation attributes:
-    - `object` (read/write, integer),
-    - `createdAt` (write, string),
-    - `updatedAt` (write, string),
-    - `labelerLogin` (write, string), responsible for the corresponding fields
-        in the annotation file.
-    - arbitrary attributes
+- `object` (read/write, integer),
+- `createdAt` (write, string),
+- `updatedAt` (write, string),
+- `labelerLogin` (write, string), responsible for the corresponding fields
+  in the annotation file.
+- arbitrary attributes
 
 Supported image attributes:
-    - `description` (read/write, string),
-    - `createdAt` (write, string),
-    - `updatedAt` (write, string),
-    - `labelerLogin` (write, string), responsible for the corresponding fields
-        in the annotation file.
-    - `frame` (read/write, integer). Indicates frame number of the image.
-    - arbitrary attributes
+- `description` (read/write, string),
+- `createdAt` (write, string),
+- `updatedAt` (write, string),
+- `labelerLogin` (write, string), responsible for the corresponding fields
+  in the annotation file.
+- `frame` (read/write, integer). Indicates frame number of the image.
+- arbitrary attributes
 
 ## Import Supervisely Point Cloud dataset
 
@@ -118,13 +118,13 @@ datum convert -if kitti_raw -i <path/to/kitti_raw/dataset> \
 Extra options for exporting in Supervisely Point Cloud format:
 
 - `--save-images` allow to export dataset with saving images. This will
-    include point clouds and related images (by default `False`)
+  include point clouds and related images (by default `False`)
 - `--image-ext IMAGE_EXT` allow to specify image extension
-    for exporting dataset (by default - keep original or use `.png`, if none)
+  for exporting dataset (by default - keep original or use `.png`, if none)
 - `--reindex` assigns new indices to frames and annotations.
 - `--allow-undeclared-attrs` allows writing arbitrary annotation attributes.
-    By default, only attributes specified in the input dataset metainfo
-    will be written.
+  By default, only attributes specified in the input dataset metainfo
+  will be written.
 
 ## Examples
 
