@@ -1,4 +1,4 @@
-# Point Cloud user manual
+# Supervisely Point Cloud user manual
 
 ## Contents
 

@@ -64,6 +64,7 @@ class KittiRawExtractor(SourceExtractor):
                             'attributes': {},
                             'occluded': None,
                             'occluded_kf': False,
+                            'truncated': None,
                         }
 
                 elif elem.tag == 'attribute':
@@ -110,7 +111,7 @@ class KittiRawExtractor(SourceExtractor):
                 elif shape and elem.tag == 'occlusion_kf':
                     shape['occluded_kf'] = elem.text == '1'
                 elif shape and elem.tag == 'truncation':
-                    shape['truncation'] = TruncationStates(int(elem.text))
+                    shape['truncated'] = TruncationStates(int(elem.text))
 
                 # common tags
                 elif attr is not None and elem.tag == 'name':
@@ -175,7 +176,7 @@ class KittiRawExtractor(SourceExtractor):
             elif shape['occluded'] == OcclusionStates.OCCLUSION_UNSET:
                 occluded = kf_occluded
 
-            if shape['truncation'] in {TruncationStates.OUT_IMAGE,
+            if shape['truncated'] in {TruncationStates.OUT_IMAGE,
                     TruncationStates.BEHIND_IMAGE}:
                 # skip these frames
                 continue

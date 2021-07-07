@@ -281,8 +281,10 @@ class KittiRawConverter(Converter):
         for frame_id, item in enumerate(subset):
             frame_id = self._write_item(item, frame_id)
 
-            assert frame_id not in name_mapping, \
-                "Item %s: frame id %s is repeated in the dataset"
+            if frame_id in name_mapping:
+                raise Exception(
+                    "Item %s: frame id %s is repeated in the dataset" % \
+                    (item.id, frame_id))
             name_mapping[frame_id] = item.id
 
             for ann in item.annotations:
@@ -297,15 +299,17 @@ class KittiRawConverter(Converter):
 
                 label = self._get_label(ann.label).name
 
-                track_id = ann.attributes.get('track_id')
+                track_id = cast(ann.attributes.get('track_id'), int, None)
                 if self._reindex and track_id is None:
-                    track_id = len(tracks) + 1
+                    # In this format, track id is not used for anything except
+                    # annotation grouping. So we only need to pick a definitely
+                    # unused id. A negative one, for example.
+                    track_id = -(len(tracks) + 1)
                 if track_id is None:
                     raise Exception("Item %s: expected track annotations "
                         "having 'track_id' (integer) attribute. "
                         "Use --reindex to export single shapes." % item.id)
 
-                track_id = int(track_id)
                 track = tracks.get(track_id)
                 if not track:
                     track = {
@@ -329,7 +333,7 @@ class KittiRawConverter(Converter):
                             "track id %s: %s vs. %s" % \
                             (item.id, track_id, track['objectType'], label))
 
-                    # If there is a skip in track frames, add missing
+                    # If there is a skip in track frames, add missing as outside
                     if frame_id != track['poses'][-1]['frame_id'] + 1:
                         last_key_pose = track['poses'][-1]
                         last_keyframe_id = last_key_pose['frame_id']

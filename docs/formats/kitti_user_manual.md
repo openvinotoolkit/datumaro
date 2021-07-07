@@ -10,7 +10,7 @@
 
 ## Format specification
 
-- Original KITTI dataset format support the following types of annotations:
+- Original KITTI dataset format supports the following types of annotations:
     - `Bounding boxes` (for [object detection](http://www.cvlibs.net/datasets/kitti/eval_object.php?obj_benchmark));
     - `Masks` (for [segmentation](http://www.cvlibs.net/datasets/kitti/eval_semseg.php?benchmark=semantics2015) task).
 
@@ -88,6 +88,7 @@ datum add path -f kitti_detection <path/to/dataset>
 Datumaro supports the following KITTI tasks:
 - Object detection (`kitti_detection`)
 - Class and instance segmentation (`kitti_segmentation`)
+- [3d point clouds / velodyne points (`kitti_raw`)](./kitti_raw_user_manual.md)
 
 To make sure that the selected dataset has been added to the project, you can run
 `datum info`, which will display the project and dataset information.
@@ -186,7 +187,7 @@ from datumaro.components.extractor import Mask, DatasetItem
 
 import datumaro.plugins.kitti_format as KITTI
 
-label_map = OrderedDict()
+label_map = {}
 label_map['background'] = (0, 0, 0)
 label_map['label_1'] = (1, 2, 3)
 label_map['label_2'] = (3, 2, 1)

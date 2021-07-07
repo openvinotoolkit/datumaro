@@ -38,6 +38,9 @@ class KittiRawImporterTest(TestCase):
         image3 = osp.join(DUMMY_DATASET_DIR,
             'IMAGE_00', 'data', '0000000002.png')
 
+        expected_label_cat = LabelCategories(attributes={'occluded'})
+        expected_label_cat.add('bus')
+        expected_label_cat.add('car')
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='0000000000',
                 annotations=[
@@ -67,7 +70,7 @@ class KittiRawImporterTest(TestCase):
                 pcd=pcd3, related_images=[image3],
                 attributes={'frame': 2})
 
-        ], categories=['bus', 'car'])
+        ], categories={AnnotationType.label: expected_label_cat})
 
         parsed_dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'kitti_raw')
 
