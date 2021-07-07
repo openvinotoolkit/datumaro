@@ -6,8 +6,10 @@ from glob import iglob
 import json
 import os.path as osp
 
-from datumaro.components.extractor import (SourceExtractor, DatasetItem,
-    AnnotationType, Cuboid3d, LabelCategories, Importer)
+from datumaro.components.extractor import (
+    AnnotationType, Cuboid3d, DatasetItem, Importer, LabelCategories,
+    SourceExtractor,
+)
 from datumaro.util.image import find_images
 
 from .format import PointCloudPath

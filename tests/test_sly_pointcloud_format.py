@@ -3,15 +3,20 @@ from unittest import TestCase
 import os
 import os.path as osp
 
-from datumaro.components.extractor import (DatasetItem, AnnotationType,
-    Cuboid3d, LabelCategories)
+from datumaro.components.extractor import (
+    AnnotationType, Cuboid3d, DatasetItem, LabelCategories,
+)
 from datumaro.components.project import Dataset
-from datumaro.plugins.sly_pointcloud_format.converter import \
-    SuperviselyPointcloudConverter
-from datumaro.plugins.sly_pointcloud_format.extractor import \
-    SuperviselyPointcloudImporter
-from datumaro.util.test_utils import (Dimensions, TestDir, compare_datasets_3d,
-    test_save_and_load)
+from datumaro.plugins.sly_pointcloud_format.converter import (
+    SuperviselyPointcloudConverter,
+)
+from datumaro.plugins.sly_pointcloud_format.extractor import (
+    SuperviselyPointcloudImporter,
+)
+from datumaro.util.test_utils import (
+    Dimensions, TestDir, compare_datasets_3d, test_save_and_load,
+)
+
 from .requirements import Requirements, mark_requirement
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(

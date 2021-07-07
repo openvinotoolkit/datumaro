@@ -3,15 +3,17 @@ from unittest import TestCase
 import os
 import os.path as osp
 
+from datumaro.components.extractor import (
+    AnnotationType, Cuboid3d, DatasetItem, LabelCategories,
+)
 from datumaro.components.project import Dataset
-from datumaro.components.extractor import (DatasetItem,
-    AnnotationType, Cuboid3d, LabelCategories)
-from datumaro.plugins.kitti_raw_format.extractor import KittiRawImporter
 from datumaro.plugins.kitti_raw_format.converter import KittiRawConverter
-from datumaro.util.test_utils import (Dimensions, TestDir, compare_datasets_3d,
-    test_save_and_load)
+from datumaro.plugins.kitti_raw_format.extractor import KittiRawImporter
+from datumaro.util.test_utils import (
+    Dimensions, TestDir, compare_datasets_3d, test_save_and_load,
+)
 
-from tests.requirements import mark_requirement, Requirements
+from tests.requirements import Requirements, mark_requirement
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(
     __file__), 'assets', 'kitti_dataset', 'kitti_raw')

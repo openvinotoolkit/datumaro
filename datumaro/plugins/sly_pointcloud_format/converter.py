@@ -15,8 +15,9 @@ import uuid
 
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
-from datumaro.components.extractor import (AnnotationType, DatasetItem,
-    IExtractor, LabelCategories)
+from datumaro.components.extractor import (
+    AnnotationType, DatasetItem, IExtractor, LabelCategories,
+)
 from datumaro.util import cast
 
 from .format import PointCloudPath

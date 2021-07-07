@@ -2,12 +2,15 @@
 #
 # SPDX-License-Identifier: MIT
 
-from defusedxml import ElementTree as ET
 import os
 import os.path as osp
 
-from datumaro.components.extractor import (SourceExtractor, DatasetItem,
-    AnnotationType, Cuboid3d, LabelCategories, Importer)
+from defusedxml import ElementTree as ET
+
+from datumaro.components.extractor import (
+    AnnotationType, Cuboid3d, DatasetItem, Importer, LabelCategories,
+    SourceExtractor,
+)
 from datumaro.util import cast
 from datumaro.util.image import find_images
 

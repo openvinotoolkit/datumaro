@@ -4,18 +4,19 @@
 
 from copy import deepcopy
 from xml.sax.saxutils import XMLGenerator
+import logging as log
 import os
 import os.path as osp
-import logging as log
 
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
-from datumaro.components.extractor import (AnnotationType, DatasetItem,
-    LabelCategories)
+from datumaro.components.extractor import (
+    AnnotationType, DatasetItem, LabelCategories,
+)
 from datumaro.util import cast
 from datumaro.util.image import find_images
 
-from .format import KittiRawPath, OcclusionStates, TruncationStates, PoseStates
+from .format import KittiRawPath, OcclusionStates, PoseStates, TruncationStates
 
 
 class _XmlAnnotationWriter:
