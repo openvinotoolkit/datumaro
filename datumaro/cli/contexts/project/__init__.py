@@ -283,7 +283,10 @@ def filter_command(args):
         else:
             for target in targets:
                 dataset = project.working_tree.make_dataset(target)
-                dataset.save(save_images=True)
+
+                # Source might be missing in the working dir, so we specify
+                # the output directory
+                dataset.save(project.source_data_dir(target), save_images=True)
 
             log.info("Finished")
 
@@ -385,7 +388,10 @@ def transform_command(args):
         else:
             for target in targets:
                 dataset = project.working_tree.make_dataset(target)
-                dataset.save(save_images=True)
+
+                # Source might be missing in the working dir, so we specify
+                # the output directory
+                dataset.save(project.source_data_dir(target), save_images=True)
 
             log.info("Finished")
 
