@@ -38,7 +38,7 @@ Supported image attributes:
 
 An example datast in Supervisely Point Cloud format is available for download:
 
-https://drive.google.com/u/0/uc?id=1BtZyffWtWNR-mk_PHNPMnGgSlAkkQpBl&export=download
+<https://drive.google.com/u/0/uc?id=1BtZyffWtWNR-mk_PHNPMnGgSlAkkQpBl&export=download>
 
 Point Cloud dataset directory should have the following structure:
 

@@ -35,9 +35,9 @@ Supported image attributes:
 
 The velodyne points/KITTI Raw dataset is available for download:
 
-http://www.cvlibs.net/datasets/kitti/raw_data.php
+<http://www.cvlibs.net/datasets/kitti/raw_data.php>
 
-https://cloud.enterprise.deepsystems.io/s/YcyfIf5zrS7NZcI/download
+<https://cloud.enterprise.deepsystems.io/s/YcyfIf5zrS7NZcI/download>
 
 KITTI Raw dataset directory should have the following structure:
 
