@@ -138,15 +138,7 @@ Extra options for exporting in KITTI Raw format:
 
 ## Examples
 
-Datumaro supports filtering, transformation, merging etc. for all formats
-and for the KITTI Raw format in particular. Follow
-[user manual](../user_manual.md)
-to get more information about these operations.
-
-There are few examples of using Datumaro operations to solve
-particular problems with KITTI Raw dataset:
-
-### Example 1. Load KITTI Raw dataset, compute statistics
+### Example 1. Import dataset, compute statistics
 
 ```bash
 datum create -o project
