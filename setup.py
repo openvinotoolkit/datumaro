@@ -7,6 +7,7 @@ from distutils.util import strtobool
 import os
 import os.path as osp
 import re
+
 import setuptools
 
 # Snyk scan integration

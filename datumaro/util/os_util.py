@@ -8,7 +8,6 @@ import os.path as osp
 import subprocess
 import sys
 
-
 DEFAULT_MAX_DEPTH = 10
 
 def check_instruction_set(instruction):

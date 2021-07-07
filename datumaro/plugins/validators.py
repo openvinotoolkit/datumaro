@@ -6,17 +6,17 @@ from copy import deepcopy
 
 import numpy as np
 
-from datumaro.components.validator import (Severity, TaskType, Validator)
 from datumaro.components.cli_plugin import CliPlugin
-from datumaro.components.errors import (MissingLabelCategories,
-    MissingAnnotation, MultiLabelAnnotations, MissingAttribute,
-    UndefinedLabel, UndefinedAttribute, LabelDefinedButNotFound,
-    AttributeDefinedButNotFound, OnlyOneLabel, FewSamplesInLabel,
-    FewSamplesInAttribute, ImbalancedLabels, ImbalancedAttribute,
-    ImbalancedDistInLabel, ImbalancedDistInAttribute,
-    NegativeLength, InvalidValue, FarFromLabelMean,
-    FarFromAttrMean, OnlyOneAttributeValue)
+from datumaro.components.errors import (
+    AttributeDefinedButNotFound, FarFromAttrMean, FarFromLabelMean,
+    FewSamplesInAttribute, FewSamplesInLabel, ImbalancedAttribute,
+    ImbalancedDistInAttribute, ImbalancedDistInLabel, ImbalancedLabels,
+    InvalidValue, LabelDefinedButNotFound, MissingAnnotation, MissingAttribute,
+    MissingLabelCategories, MultiLabelAnnotations, NegativeLength,
+    OnlyOneAttributeValue, OnlyOneLabel, UndefinedAttribute, UndefinedLabel,
+)
 from datumaro.components.extractor import AnnotationType, LabelCategories
+from datumaro.components.validator import Severity, TaskType, Validator
 from datumaro.util import parse_str_enum_value
 
 

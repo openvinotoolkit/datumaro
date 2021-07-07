@@ -3,8 +3,8 @@
 #
 # SPDX-License-Identifier: MIT
 
-import argparse
 from enum import Enum, auto
+import argparse
 
 from datumaro.components.project import Project
 from datumaro.util.image import load_image

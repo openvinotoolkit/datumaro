@@ -9,12 +9,14 @@ from glob import iglob
 import logging as log
 import os
 import os.path as osp
+
 import numpy as np
 
-from datumaro.components.extractor import (SourceExtractor, Importer,
-    DatasetItem, AnnotationType, Mask, LabelCategories
-)
 from datumaro.components.converter import Converter
+from datumaro.components.extractor import (
+    AnnotationType, DatasetItem, Importer, LabelCategories, Mask,
+    SourceExtractor,
+)
 from datumaro.util.image import find_images, load_image, save_image
 from datumaro.util.mask_tools import merge_masks
 

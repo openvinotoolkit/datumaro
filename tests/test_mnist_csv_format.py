@@ -1,14 +1,18 @@
-import os.path as osp
 from unittest import TestCase
+import os.path as osp
 
 import numpy as np
+
 from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import (AnnotationType, DatasetItem, Label,
-    LabelCategories)
-from datumaro.plugins.mnist_csv_format import (MnistCsvConverter,
-    MnistCsvImporter)
+from datumaro.components.extractor import (
+    AnnotationType, DatasetItem, Label, LabelCategories,
+)
+from datumaro.plugins.mnist_csv_format import (
+    MnistCsvConverter, MnistCsvImporter,
+)
 from datumaro.util.image import Image
 from datumaro.util.test_utils import TestDir, compare_datasets
+
 from .requirements import Requirements, mark_requirement
 
 

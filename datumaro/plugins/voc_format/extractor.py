@@ -6,20 +6,21 @@
 from collections import defaultdict
 import logging as log
 import os.path as osp
-import numpy as np
-from defusedxml import ElementTree
 
-from datumaro.components.extractor import (SourceExtractor, DatasetItem,
-    AnnotationType, Label, Mask, Bbox, CompiledMask
+from defusedxml import ElementTree
+import numpy as np
+
+from datumaro.components.extractor import (
+    AnnotationType, Bbox, CompiledMask, DatasetItem, Label, Mask,
+    SourceExtractor,
 )
-from datumaro.util.os_util import dir_items
 from datumaro.util.image import Image, find_images
-from datumaro.util.mask_tools import lazy_mask, invert_colormap
+from datumaro.util.mask_tools import invert_colormap, lazy_mask
+from datumaro.util.os_util import dir_items
 
 from .format import (
-    VocTask, VocPath, VocInstColormap, parse_label_map, make_voc_categories
+    VocInstColormap, VocPath, VocTask, make_voc_categories, parse_label_map,
 )
-
 
 _inverse_inst_colormap = invert_colormap(VocInstColormap)
 

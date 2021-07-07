@@ -1,17 +1,22 @@
+from unittest import TestCase
 import os
 import os.path as osp
-from unittest import TestCase
 
 import numpy as np
+
+from datumaro.components.dataset import (
+    DEFAULT_FORMAT, Dataset, ItemStatus, eager_mode,
+)
 from datumaro.components.dataset_filter import (
-    XPathDatasetFilter, XPathAnnotationsFilter, DatasetItemEncoder)
-from datumaro.components.dataset import (Dataset, DEFAULT_FORMAT, ItemStatus,
-    eager_mode)
+    DatasetItemEncoder, XPathAnnotationsFilter, XPathDatasetFilter,
+)
 from datumaro.components.environment import Environment
 from datumaro.components.errors import DatumaroError, RepeatedItemError
-from datumaro.components.extractor import (DEFAULT_SUBSET_NAME, Extractor,
-    DatasetItem, ItemTransform, Label, Mask, Points, Polygon, PolyLine, Bbox, Caption,
-    LabelCategories, AnnotationType, Transform)
+from datumaro.components.extractor import (
+    DEFAULT_SUBSET_NAME, AnnotationType, Bbox, Caption, DatasetItem, Extractor,
+    ItemTransform, Label, LabelCategories, Mask, Points, Polygon, PolyLine,
+    Transform,
+)
 from datumaro.components.launcher import Launcher
 from datumaro.util.image import Image
 from datumaro.util.test_utils import TestDir, compare_datasets

@@ -6,8 +6,9 @@ from itertools import groupby
 
 import numpy as np
 
-from datumaro.components.extractor import (LabelCategories, _Shape, Mask,
-    AnnotationType, RleMask)
+from datumaro.components.extractor import (
+    AnnotationType, LabelCategories, Mask, RleMask, _Shape,
+)
 from datumaro.util.mask_tools import mask_to_rle
 
 

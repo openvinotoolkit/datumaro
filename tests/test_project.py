@@ -1,16 +1,19 @@
+from unittest import TestCase
 import os
 import os.path as osp
-from unittest import TestCase
 
 import numpy as np
-from datumaro.components.project import Project, Environment
-from datumaro.components.config_model import Source, Model
-from datumaro.components.launcher import Launcher, ModelTransform
-from datumaro.components.extractor import (Extractor, DatasetItem,
-    Label, LabelCategories, AnnotationType)
+
 from datumaro.components.config import Config
-from datumaro.components.dataset import Dataset, DEFAULT_FORMAT
+from datumaro.components.config_model import Model, Source
+from datumaro.components.dataset import DEFAULT_FORMAT, Dataset
+from datumaro.components.extractor import (
+    AnnotationType, DatasetItem, Extractor, Label, LabelCategories,
+)
+from datumaro.components.launcher import Launcher, ModelTransform
+from datumaro.components.project import Environment, Project
 from datumaro.util.test_utils import TestDir, compare_datasets
+
 from .requirements import Requirements, mark_requirement
 
 

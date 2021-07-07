@@ -8,16 +8,19 @@ from glob import glob, iglob
 import logging as log
 import os
 import os.path as osp
+
 from defusedxml import ElementTree
 import numpy as np
 
-from datumaro.components.extractor import (Extractor, Importer,
-    DatasetItem, AnnotationType, Mask, Bbox, Polygon, LabelCategories)
 from datumaro.components.converter import Converter
+from datumaro.components.extractor import (
+    AnnotationType, Bbox, DatasetItem, Extractor, Importer, LabelCategories,
+    Mask, Polygon,
+)
 from datumaro.util import cast, escape, unescape
-from datumaro.util.os_util import split_path
 from datumaro.util.image import Image, save_image
-from datumaro.util.mask_tools import load_mask, find_mask_bbox
+from datumaro.util.mask_tools import find_mask_bbox, load_mask
+from datumaro.util.os_util import split_path
 
 
 class LabelMePath:

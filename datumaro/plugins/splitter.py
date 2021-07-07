@@ -2,15 +2,17 @@
 #
 # SPDX-License-Identifier: MIT
 
-import logging as log
-import copy
-from math import gcd
 from enum import Enum, auto
+from math import gcd
+import copy
+import logging as log
+
 import numpy as np
 
-from datumaro.components.extractor import (Transform, AnnotationType,
-    DEFAULT_SUBSET_NAME)
 from datumaro.components.cli_plugin import CliPlugin
+from datumaro.components.extractor import (
+    DEFAULT_SUBSET_NAME, AnnotationType, Transform,
+)
 from datumaro.util import cast
 
 NEAR_ZERO = 1e-7

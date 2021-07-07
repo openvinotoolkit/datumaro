@@ -1,0 +1,15 @@
+name: Linter
+on: pull_request
+jobs:
+  isort:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Run checks
+        run: |
+          pip install --user -r <(grep "^isort" ./requirements.txt)
+          isort --check --diff .

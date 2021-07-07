@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 
-from datumaro.components.extractor import Label, LabelCategories, AnnotationType
+from datumaro.components.extractor import AnnotationType, Label, LabelCategories
 from datumaro.util.annotation_util import softmax
 
 

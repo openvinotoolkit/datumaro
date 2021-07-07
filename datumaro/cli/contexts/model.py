@@ -12,8 +12,9 @@ from datumaro.components.project import Environment
 from datumaro.util import error_rollback
 
 from ..util import CliException, MultilineFormatter, add_subparser
-from ..util.project import load_project, \
-    generate_next_name, generate_next_file_name
+from ..util.project import (
+    generate_next_file_name, generate_next_name, load_project,
+)
 
 
 def build_add_parser(parser_ctor=argparse.ArgumentParser):

@@ -41,7 +41,7 @@ def import_tf(check=None):
     not_found = object()
     tf = sys.modules.get('tensorflow', not_found)
     if tf is None:
-        import tensorflow as tf # emit default error
+        import tensorflow as tf  # emit default error
     elif tf is not not_found:
         return tf
 

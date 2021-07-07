@@ -7,11 +7,12 @@ from collections import OrderedDict
 import os.path as osp
 import re
 
-from datumaro.components.extractor import (SourceExtractor, Extractor,
-    DatasetItem, AnnotationType, Bbox, LabelCategories, Importer
+from datumaro.components.extractor import (
+    AnnotationType, Bbox, DatasetItem, Extractor, Importer, LabelCategories,
+    SourceExtractor,
 )
-from datumaro.util.os_util import split_path
 from datumaro.util.image import Image
+from datumaro.util.os_util import split_path
 
 from .format import YoloPath
 

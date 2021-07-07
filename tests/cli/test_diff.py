@@ -1,20 +1,19 @@
 from unittest import TestCase
-
 import os
 import os.path as osp
 
 import numpy as np
 
 from datumaro.cli.contexts.project.diff import DatasetDiffVisualizer
+from datumaro.components.extractor import (
+    AnnotationType, Bbox, Caption, DatasetItem, Label, LabelCategories, Mask,
+    MaskCategories, Points, PointsCategories, Polygon, PolyLine,
+)
 from datumaro.components.operations import DistanceComparator
 from datumaro.components.project import Dataset
-from datumaro.components.extractor import (DatasetItem,
-    AnnotationType, Label, Mask, Points, Polygon,
-    PolyLine, Bbox, Caption,
-    LabelCategories, MaskCategories, PointsCategories
-)
 from datumaro.util.image import Image
 from datumaro.util.test_utils import TestDir
+
 from ..requirements import Requirements, mark_requirement
 
 

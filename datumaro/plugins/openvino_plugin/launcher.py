@@ -5,13 +5,13 @@
 
 # pylint: disable=exec-used
 
+import logging as log
 import os.path as osp
 import shutil
-import logging as log
-import cv2
-import numpy as np
 
 from openvino.inference_engine import IECore
+import cv2
+import numpy as np
 
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.launcher import Launcher

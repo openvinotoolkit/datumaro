@@ -4,11 +4,12 @@
 
 from functools import partial
 from glob import glob
+from typing import Dict, Iterable
 import inspect
 import logging as log
 import os
 import os.path as osp
-from typing import Dict, Iterable
+
 import git
 
 from datumaro.components.config import Config
@@ -112,7 +113,8 @@ class Environment:
 
     def __init__(self, config=None):
         from datumaro.components.project import (
-            PROJECT_DEFAULT_CONFIG, PROJECT_SCHEMA)
+            PROJECT_DEFAULT_CONFIG, PROJECT_SCHEMA,
+        )
         config = Config(config,
             fallback=PROJECT_DEFAULT_CONFIG, schema=PROJECT_SCHEMA)
 
@@ -128,8 +130,9 @@ class Environment:
             return lambda t: issubclass(t, accept) and t not in skip
 
         from datumaro.components.converter import Converter
-        from datumaro.components.extractor import (Importer, Extractor,
-            SourceExtractor, Transform, ItemTransform)
+        from datumaro.components.extractor import (
+            Extractor, Importer, ItemTransform, SourceExtractor, Transform,
+        )
         from datumaro.components.launcher import Launcher
         self._extractors = PluginRegistry(_filter(Extractor,
             skip=SourceExtractor))
@@ -207,8 +210,9 @@ class Environment:
     def _load_plugins(cls, plugins_dir, types=None):
         if not types:
             from datumaro.components.converter import Converter
-            from datumaro.components.extractor import (Extractor, Importer,
-                Transform)
+            from datumaro.components.extractor import (
+                Extractor, Importer, Transform,
+            )
             from datumaro.components.launcher import Launcher
             types = [Extractor, Converter, Importer, Launcher, Transform]
 
