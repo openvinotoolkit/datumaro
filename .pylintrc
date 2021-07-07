@@ -55,18 +55,112 @@ confidence=
 # multiple time (only on the command line, not in the configuration file where
 # it should appear only once). See also the "--disable" option for examples.
 disable=all
-enable= E0001,E0100,E0101,E0102,E0103,E0104,E0105,E0106,E0107,E0110,
-        E0113,E0114,E0115,E0116,E0117,E0108,E0202,E0203,E0211,E0236,
-        E0238,E0239,E0240,E0241,E0301,E0302,E0601,E0603,E0604,E0701,
-        E0702,E0703,E0704,E0710,E0711,E0712,E1003,E1102,E1111,E0112,
-        E1120,E1121,E1123,E1124,E1125,E1126,E1127,E1132,E1200,E1201,
-        E1205,E1206,E1300,E1301,E1302,E1303,E1304,E1305,E1306,
-        C0123,C0200,C0303,C1001,
-        W0101,W0102,W0104,W0105,W0106,W0107,W0108,W0109,W0110,W0120,
-        W0122,W0124,W0150,W0199,W0221,W0222,W0233,W0404,W0410,W0601,
-        W0602,W0604,W0611,W0612,W0622,W0623,W0702,W0705,W0711,W1300,
-        W1301,W1302,W1303,W1305,W1306,W1307
-        R0102,R0202,R0203
+enable=
+    C0123, # unidiomatic-typecheck
+    C0200, # consider-using-enumerate
+    C0303, # trailing-whitespace
+    C1001, # old-style-class
+
+    E0001, # syntax-error
+    E0100, # init-is-generator
+    E0101, # return-in-init
+    E0102, # function-redefined
+    E0103, # not-in-loop
+    E0104, # return-outside-function
+    E0105, # yield-outside-function
+    E0106, # return-arg-in-generator
+    E0107, # nonexistent-operator
+    E0108, # duplicate-argument-name
+    E0110, # abstract-class-instantiated
+    E0112, # too-many-star-expressions
+    E0113, # invalid-star-assignment-target
+    E0114, # star-needs-assignment-target
+    E0115, # nonlocal-and-global
+    E0116, # continue-in-finally
+    E0117, # nonlocal-without-binding
+    E0202, # method-hidden
+    E0203, # access-member-before-definition
+    E0211, # no-method-argument
+    E0236, # invalid-slots-object
+    E0238, # invalid-slots
+    E0239, # inherit-non-class
+    E0240, # inconsistent-mro
+    E0241, # duplicate-bases
+    E0301, # non-iterator-returned
+    E0302, # unexpected-special-method-signature
+    E0601, # used-before-assignment
+    E0603, # undefined-all-variable
+    E0604, # invalid-all-object
+    E0701, # bad-except-order
+    E0702, # raising-bad-type
+    E0703, # bad-exception-context
+    E0704, # misplaced-bare-raise
+    E0710, # raising-non-exception
+    E0711, # notimplemented-raised
+    E0712, # catching-non-exception
+    E1003, # bad-super-call
+    E1102, # not-callable
+    E1111, # assignment-from-no-return
+    E1120, # no-value-for-parameter
+    E1121, # too-many-function-args
+    E1123, # unexpected-keyword-arg
+    E1124, # redundant-keyword-arg
+    E1125, # missing-kwoa
+    E1126, # invalid-sequence-index
+    E1127, # invalid-slice-index
+    E1132, # repeated-keyword
+    E1200, # logging-unsupported-format
+    E1201, # logging-format-truncated
+    E1205, # logging-too-many-args
+    E1206, # logging-too-few-args
+    E1300, # bad-format-character
+    E1301, # truncated-format-string
+    E1302, # mixed-format-string
+    E1303, # format-needs-mapping
+    E1304, # missing-format-string-key
+    E1305, # too-many-format-args
+    E1306, # too-few-format-args
+
+    R0102, # simplifiable-if-statement
+    R0202, # no-classmethod-decorator
+    R0203, # no-staticmethod-decorator
+
+    W0101, # unreachable
+    W0102, # dangerous-default-value
+    W0104, # pointless-statement
+    W0105, # pointless-string-statement
+    W0106, # expression-not-assigned
+    W0107, # unnecessary-pass
+    W0108, # unnecessary-lambda
+    W0109, # duplicate-key
+    W0110, # deprecated-lambda
+    W0120, # useless-else-on-loop
+    W0122, # exec-used
+    W0124, # confusing-with-statement
+    W0150, # lost-exception
+    W0199, # assert-on-tuple
+    W0221, # arguments-differ
+    W0222, # signature-differs
+    W0233, # non-parent-init-called
+    W0404, # reimported
+    W0410, # misplaced-future
+    W0601, # global-variable-undefined
+    W0602, # global-variable-not-assigned
+    W0604, # global-at-module-level
+    W0611, # unused-import
+    W0612, # unused-variable
+    W0622, # redefined-builtin
+    W0623, # redefine-in-handler
+    W0702, # bare-except
+    W0705, # duplicate-except
+    W0711, # binary-op-exception
+    W1300, # bad-format-string-key
+    W1301, # unused-format-string-key
+    W1302, # bad-format-string
+    W1303, # missing-format-argument-key
+    W1305, # format-combined-specification
+    W1306, # missing-format-attribute
+    W1307, # invalid-format-index
 
 
 # Disable the message, report, category or checker with the given id(s). You
