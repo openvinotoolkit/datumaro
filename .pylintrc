@@ -59,7 +59,6 @@ enable=
     C0123, # unidiomatic-typecheck
     C0200, # consider-using-enumerate
     C0303, # trailing-whitespace
-    C1001, # old-style-class
 
     E0001, # syntax-error
     E0100, # init-is-generator
@@ -68,7 +67,6 @@ enable=
     E0103, # not-in-loop
     E0104, # return-outside-function
     E0105, # yield-outside-function
-    E0106, # return-arg-in-generator
     E0107, # nonexistent-operator
     E0108, # duplicate-argument-name
     E0110, # abstract-class-instantiated
@@ -121,9 +119,9 @@ enable=
     E1305, # too-many-format-args
     E1306, # too-few-format-args
 
-    R0102, # simplifiable-if-statement
     R0202, # no-classmethod-decorator
     R0203, # no-staticmethod-decorator
+    R1703, # simplifiable-if-statement
 
     W0101, # unreachable
     W0102, # dangerous-default-value
@@ -133,7 +131,6 @@ enable=
     W0107, # unnecessary-pass
     W0108, # unnecessary-lambda
     W0109, # duplicate-key
-    W0110, # deprecated-lambda
     W0120, # useless-else-on-loop
     W0122, # exec-used
     W0124, # confusing-with-statement
@@ -150,7 +147,6 @@ enable=
     W0611, # unused-import
     W0612, # unused-variable
     W0622, # redefined-builtin
-    W0623, # redefine-in-handler
     W0702, # bare-except
     W0705, # duplicate-except
     W0711, # binary-op-exception
