@@ -116,7 +116,7 @@ class PointCloudConverterTest(TestCase):
                         position=[23.04, 8.75, -0.78],
                         attributes={'occluded': False, 'object': 2})
                 ],
-                pcd=self.pcd2, related_images=[self.image1],
+                pcd=self.pcd2, related_images=[self.image2],
                 attributes={'frame': 1}
             ),
         ], categories={ AnnotationType.label: src_label_cat })
@@ -147,7 +147,8 @@ class PointCloudConverterTest(TestCase):
                             attributes={'occluded': False, 'object': 2}),
                     ],
                     pcd=osp.join(test_dir, 'ds0', 'pointcloud', 'frm2.pcd'),
-                    related_images=[self.image1],
+                    related_images=[osp.join(test_dir, 'ds0', 'related_images',
+                        'frm2_pcd', 'img1.png')],
                     attributes={'frame': 1, 'description': ''})
             ], categories={ AnnotationType.label: target_label_cat })
 
