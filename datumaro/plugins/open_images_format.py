@@ -12,6 +12,7 @@ import logging as log
 import os
 import os.path as osp
 import re
+import types
 
 from attr import attrs
 
@@ -97,6 +98,15 @@ class OpenImagesPath:
         'IsDepiction',
         'IsInside',
     )
+
+    BBOX_BOOLEAN_ATTRIBUTES = (
+        types.SimpleNamespace(datumaro_name='occluded', oid_name='IsOccluded'),
+        types.SimpleNamespace(datumaro_name='truncated', oid_name='IsTruncated'),
+        types.SimpleNamespace(datumaro_name='is_group_of', oid_name='IsGroupOf'),
+        types.SimpleNamespace(datumaro_name='is_depiction', oid_name='IsDepiction'),
+        types.SimpleNamespace(datumaro_name='is_inside', oid_name='IsInside'),
+    )
+
 
 class OpenImagesExtractor(Extractor):
     def __init__(self, path):
@@ -286,14 +296,20 @@ class OpenImagesExtractor(Extractor):
                     y_min = float(bbox_description['YMin']) * height
                     y_max = float(bbox_description['YMax']) * height
 
-                    confidence = float(bbox_description['Confidence'])
-                    # TODO: other attributes?
+                    attributes = {
+                        'score': float(bbox_description['Confidence']),
+                    }
+
+                    for bool_attr in OpenImagesPath.BBOX_BOOLEAN_ATTRIBUTES:
+                        int_value = int(bbox_description[bool_attr.oid_name])
+                        if int_value >= 0:
+                            attributes[bool_attr.datumaro_name] = bool(int_value)
 
                     item.annotations.append(Bbox(
                         label=label_index,
                         x=x_min, y=y_min,
                         w=x_max - x_min, h=y_max - y_min,
-                        attributes={'score': confidence},
+                        attributes=attributes,
                     ))
 
 
@@ -452,4 +468,9 @@ class OpenImagesConverter(Converter):
                                 'YMin': annotation.y / height,
                                 'XMax': (annotation.x + annotation.w) / width,
                                 'YMax': (annotation.y + annotation.h) / height,
+                                **{
+                                    bool_attr.oid_name:
+                                        int(annotation.attributes.get(bool_attr.datumaro_name, -1))
+                                    for bool_attr in OpenImagesPath.BBOX_BOOLEAN_ATTRIBUTES
+                                },
                             })

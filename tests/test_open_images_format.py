@@ -9,7 +9,7 @@ import numpy as np
 
 from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import (
-    AnnotationType, DatasetItem, Label, LabelCategories,
+    AnnotationType, Bbox, DatasetItem, Label, LabelCategories,
 )
 from datumaro.plugins.open_images_format import (
     OpenImagesConverter, OpenImagesImporter,
@@ -29,7 +29,17 @@ class OpenImagesFormatTest(TestCase):
                     annotations=[Label(0, attributes={'score': 0.7})]
                 ),
                 DatasetItem(id='b', subset='train', image=np.zeros((8, 8, 3)),
-                    annotations=[Label(1), Label(2, attributes={'score': 0})]
+                    annotations=[
+                        Label(1),
+                        Label(2, attributes={'score': 0}),
+                        Bbox(label=0, x=4, y=3, w=2, h=3),
+                        Bbox(label=1, x=2, y=3, w=6, h=1, attributes={
+                            'score': 0.7,
+                            'occluded': True, 'truncated': False,
+                            'is_group_of': True, 'is_depiction': False,
+                            'is_inside': False,
+                        }),
+                    ]
                 ),
             ],
             categories={
@@ -45,10 +55,17 @@ class OpenImagesFormatTest(TestCase):
         expected_dataset.put(
             DatasetItem(id='b', subset='train', image=np.zeros((8, 8, 3)),
                 annotations=[
-                    # the converter assumes that labels without a score
+                    # the converter assumes that annotations without a score
                     # have a score of 100%
                     Label(1, attributes={'score': 1}),
                     Label(2, attributes={'score': 0}),
+                    Bbox(label=0, x=4, y=3, w=2, h=3, attributes={'score': 1}),
+                    Bbox(label=1, x=2, y=3, w=6, h=1, attributes={
+                        'score': 0.7,
+                        'occluded': True, 'truncated': False,
+                        'is_group_of': True, 'is_depiction': False,
+                        'is_inside': False,
+                    }),
                 ]
             ),
         )
@@ -111,6 +128,13 @@ class OpenImagesImporterTest(TestCase):
                     annotations=[
                         Label(label=1, attributes={'score': 1}),
                         Label(label=3, attributes={'score': 1}),
+                        Bbox(label=1, x=1, y=3, w=4, h=2, attributes={'score': 1}),
+                        Bbox(label=3, x=3.5, y=0, w=0.5, h=5, attributes={
+                            'score': 0.7,
+                            'occluded': True, 'truncated': False,
+                            'is_group_of': True, 'is_depiction': False,
+                            'is_inside': False,
+                        }),
                     ]),
                 DatasetItem(id='d', subset='validation', image=np.ones((1, 5, 3)),
                     annotations=[]),

@@ -17,6 +17,24 @@ Datumaro supports versions 4, 5 and 6.
 Datumaro currently supports only the human-verified image-level label
 annotations and bounding box annotations from this dataset.
 
+One attribute is supported on the labels:
+
+- `score`: the confidence level from 0 to 1. A score of 0 indicates that
+  the image does not contain objects of the corresponding class.
+
+The following attributes are supported on the bounding boxes:
+
+- `score`: the confidence level from 0 to 1. In the original dataset
+  this is always equal to 1, but custom datasets may be created with
+  arbitrary values.
+- `occluded`: whether the object is occluded by another object.
+- `truncated`: whether the object extends beyond the boundary of the image.
+- `is_group_of`: whether the object represents a group of objects
+  of the same class.
+- `is_depiction`: whether the object is a depiction (such as a drawing)
+  rather than a real object.
+- `is_inside`: whether the object is seen from the inside.
+
 ## Load Open Images dataset
 
 The Open Images dataset is available for free download.
