@@ -38,11 +38,21 @@ extension-pkg-whitelist=
 # all. Valid levels: HIGH, INFERENCE, INFERENCE_FAILURE, UNDEFINED
 confidence=
 
+# Disable the message, report, category or checker with the given id(s). You
+# can either give multiple identifiers separated by comma (,) or put this
+# option multiple times (only on the command line, not in the configuration
+# file where it should appear only once).You can also use "--disable=all" to
+# disable everything first and then reenable specific checks. For example, if
+# you want to run only the similarities checker, you can use "--disable=all
+# --enable=similarities". If you want to run only the classes checker, but have
+# no Warning level messages displayed, use"--disable=all --enable=classes
+# --disable=W"
+disable=all
+
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
 # multiple time (only on the command line, not in the configuration file where
 # it should appear only once). See also the "--disable" option for examples.
-disable=all
 enable=
     C0123, # unidiomatic-typecheck
     C0200, # consider-using-enumerate
@@ -145,18 +155,6 @@ enable=
     W1305, # format-combined-specification
     W1306, # missing-format-attribute
     W1307, # invalid-format-index
-
-
-# Disable the message, report, category or checker with the given id(s). You
-# can either give multiple identifiers separated by comma (,) or put this
-# option multiple times (only on the command line, not in the configuration
-# file where it should appear only once).You can also use "--disable=all" to
-# disable everything first and then reenable specific checks. For example, if
-# you want to run only the similarities checker, you can use "--disable=all
-# --enable=similarities". If you want to run only the classes checker, but have
-# no Warning level messages displayed, use"--disable=all --enable=classes
-# --disable=W"
-#disable=old-octal-literal,basestring-builtin,no-absolute-import,old-division,coerce-method,long-suffix,reload-builtin,unichr-builtin,indexing-exception,raising-string,dict-iter-method,metaclass-assignment,filter-builtin-not-iterating,import-star-module-level,next-method-called,cmp-method,raw_input-builtin,old-raise-syntax,cmp-builtin,apply-builtin,getslice-method,input-builtin,backtick,coerce-builtin,range-builtin-not-iterating,xrange-builtin,using-cmp-argument,buffer-builtin,hex-method,execfile-builtin,unpacking-in-except,standarderror-builtin,round-builtin,nonzero-method,unicode-builtin,reduce-builtin,file-builtin,dict-view-method,old-ne-operator,print-statement,suppressed-message,oct-method,useless-suppression,delslice-method,long-builtin,setslice-method,zip-builtin-not-iterating,map-builtin-not-iterating,intern-builtin,parameter-unpacking
 
 
 [REPORTS]
