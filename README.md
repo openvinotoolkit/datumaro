@@ -32,7 +32,8 @@ CVAT annotations                             ---> Publication, statistics etc.
 <!--lint disable list-item-indent-->
 <!--lint disable list-item-bullet-indent-->
 
-- Convert PASCAL VOC dataset to COCO format, keep only images with `cat` class presented:
+- Convert PASCAL VOC dataset to COCO format, keep only images with `cat` class
+  presented:
   ```bash
   # Download VOC dataset:
   # http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar
@@ -42,7 +43,8 @@ CVAT annotations                             ---> Publication, statistics etc.
                 -- --reindex 1 # avoid annotation id conflicts
   ```
 
-- Convert only non-`occluded` annotations from a [CVAT](https://github.com/opencv/cvat) project to TFrecord:
+- Convert only non-`occluded` annotations from a
+  [CVAT](https://github.com/opencv/cvat) project to TFrecord:
   ```bash
   # export Datumaro dataset in CVAT UI, extract somewhere, go to the project dir
   datum filter -e '/item/annotation[occluded="False"]' \
@@ -51,7 +53,8 @@ CVAT annotations                             ---> Publication, statistics etc.
     --format tf_detection_api -- --save-images
   ```
 
-- Annotate MS COCO dataset, extract image subset, re-annotate it in [CVAT](https://github.com/opencv/cvat), update old dataset:
+- Annotate MS COCO dataset, extract image subset, re-annotate it in
+  [CVAT](https://github.com/opencv/cvat), update old dataset:
   ```bash
   # Download COCO dataset http://cocodataset.org/#download
   # Put images to coco/images/ and annotations to coco/annotations/
@@ -64,7 +67,8 @@ CVAT annotations                             ---> Publication, statistics etc.
   datum export --format coco
   ```
 
-- Annotate instance polygons in [CVAT](https://github.com/opencv/cvat), export as masks in COCO:
+- Annotate instance polygons in [CVAT](https://github.com/opencv/cvat), export
+  as masks in COCO:
   ```bash
   datum convert --input-format cvat --input-path <path/to/cvat.xml> \
                 --output-format coco -- --segmentation-mode masks
@@ -261,12 +265,15 @@ for item in dataset:
 dataset.export('dst/dir', 'coco')
 ```
 
-> Check our [developer guide](docs/developer_guide.md) for additional information.
+> Check our [developer guide](docs/developer_guide.md) for additional
+  information.
 
 ## Contributing
 
 [(Back to top)](#table-of-contents)
 
-Feel free to [open an Issue](https://github.com/openvinotoolkit/datumaro/issues/new), if you
-think something needs to be changed. You are welcome to participate in development,
-instructions are available in our [contribution guide](CONTRIBUTING.md).
+Feel free to
+[open an Issue](https://github.com/openvinotoolkit/datumaro/issues/new), if you
+think something needs to be changed. You are welcome to participate in
+development, instructions are available in our
+[contribution guide](CONTRIBUTING.md).

@@ -14,7 +14,7 @@ def process_outputs(inputs, outputs):
     # results = conversion result; [[ Annotation, ... ], ... ]
 
     results = []
-    for input, output in zip(inputs, outputs):
+    for input_, output in zip(inputs, outputs): # pylint: disable=unused-variable
         image_results = []
         output = softmax(output).tolist()
         label = output.index(max(output))
@@ -30,7 +30,7 @@ def get_categories():
 
     label_categories = LabelCategories()
 
-    with open("samples/imagenet.class", "r") as file:
+    with open("samples/imagenet.class", "r", encoding='utf-8') as file:
         for line in file.readlines():
             label = line.strip()
             label_categories.add(label)

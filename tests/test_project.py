@@ -1,9 +1,8 @@
-import numpy as np
 import os
 import os.path as osp
-
 from unittest import TestCase
 
+import numpy as np
 from datumaro.components.project import Project, Environment
 from datumaro.components.config_model import Source, Model
 from datumaro.components.launcher import Launcher, ModelTransform

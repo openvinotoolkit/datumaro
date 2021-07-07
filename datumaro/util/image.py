@@ -3,9 +3,8 @@
 #
 # SPDX-License-Identifier: MIT
 
-# pylint: disable=unused-import
-
 from enum import Enum, auto
+import importlib
 from io import BytesIO
 from typing import Any, Callable, Iterator, Iterable, Optional, Tuple, Union
 import os
@@ -20,7 +19,7 @@ class _IMAGE_BACKENDS(Enum):
 _IMAGE_BACKEND = None
 _image_loading_errors = (FileNotFoundError, )
 try:
-    import cv2
+    importlib.import_module('cv2')
     _IMAGE_BACKEND = _IMAGE_BACKENDS.cv2
 except ImportError:
     import PIL

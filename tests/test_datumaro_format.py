@@ -1,9 +1,9 @@
 from functools import partial
 import os
 import os.path as osp
+from unittest import TestCase
 
 import numpy as np
-from unittest import TestCase
 from datumaro.components.project import Dataset
 from datumaro.components.extractor import (DatasetItem,
     AnnotationType, Label, Mask, Points, Polygon,
@@ -109,6 +109,37 @@ class DatumaroConverterTest(TestCase):
 
         with TestDir() as test_dir:
             self._test_save_and_load(test_dataset,
+                partial(DatumaroConverter.convert, save_images=True), test_dir)
+
+
+    @mark_requirement(Requirements.DATUM_231)
+    def test_can_save_dataset_with_cjk_categories(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(id=1, subset='train', image=np.ones((4, 4, 3)),
+                annotations=[
+                    Bbox(0, 1, 2, 2,
+                        label=0, group=1, id=1,
+                        attributes={ 'is_crowd': False }),
+                ], attributes={'id': 1}),
+            DatasetItem(id=2, subset='train', image=np.ones((4, 4, 3)),
+                annotations=[
+                    Bbox(1, 0, 2, 2, label=1, group=2, id=2,
+                        attributes={ 'is_crowd': False }),
+                ], attributes={'id': 2}),
+
+            DatasetItem(id=3, subset='train', image=np.ones((4, 4, 3)),
+                annotations=[
+                    Bbox(0, 1, 2, 2, label=2, group=3, id=3,
+                        attributes={ 'is_crowd': False }),
+                ], attributes={'id': 3}),
+            ],
+            categories=[
+                "고양이", "ネコ", "猫"
+            ]
+        )
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(expected,
                 partial(DatumaroConverter.convert, save_images=True), test_dir)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)

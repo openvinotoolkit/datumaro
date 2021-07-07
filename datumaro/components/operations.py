@@ -6,12 +6,12 @@ from collections import OrderedDict
 from copy import deepcopy
 import hashlib
 import logging as log
+from unittest import TestCase
 
 import attr
 import cv2
 import numpy as np
 from attr import attrib, attrs
-from unittest import TestCase
 
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.util import find, filter_dict
@@ -1322,7 +1322,8 @@ def find_unique_images(dataset, item_hash=None):
             log.warning("Item (%s, %s) has no image "
                 "info, counted as unique", item.id, item.subset)
             return None
-        return hashlib.md5(item.image.data.tobytes()).hexdigest()
+        # ignore B303 (md5 check), because the hash is not used in a security context
+        return hashlib.md5(item.image.data.tobytes()).hexdigest() # nosec
 
     if item_hash is None:
         item_hash = _default_hash

@@ -5,11 +5,11 @@
 
 import json
 import logging as log
-import numpy as np
 import os
 import os.path as osp
 from enum import Enum, auto
 from itertools import chain, groupby
+import numpy as np
 
 import pycocotools.mask as mask_utils
 
@@ -100,8 +100,8 @@ class _TaskConverter:
                 ann['id'] = next_id
                 next_id += 1
 
-        with open(path, 'w') as outfile:
-            json.dump(self._data, outfile)
+        with open(path, 'w', encoding='utf-8') as outfile:
+            json.dump(self._data, outfile, ensure_ascii=False)
 
     @property
     def annotations(self):
@@ -461,8 +461,8 @@ class _StuffConverter(_InstancesConverter):
 
 class _PanopticConverter(_TaskConverter):
     def write(self, path):
-        with open(path, 'w') as outfile:
-            json.dump(self._data, outfile)
+        with open(path, 'w', encoding='utf-8') as outfile:
+            json.dump(self._data, outfile, ensure_ascii=False)
 
     def save_categories(self, dataset):
         label_categories = dataset.categories().get(AnnotationType.label)

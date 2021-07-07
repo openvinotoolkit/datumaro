@@ -1,17 +1,17 @@
-# OpenVINO™ Inference Interpreter 
+# OpenVINO™ Inference Interpreter
 Interpreter samples to parse OpenVINO™ inference outputs.
 
 ## Models supported from interpreter samples
-There are detection and image classification examples. 
-    
+There are detection and image classification examples.
+
 - Detection (SSD-based)
-  - Intel Pre-trained Models > Object Detection  
+  - Intel Pre-trained Models > Object Detection
     - [face-detection-0200](https://docs.openvinotoolkit.org/latest/omz_models_intel_face_detection_0200_description_face_detection_0200.html)
     - [face-detection-0202](https://docs.openvinotoolkit.org/latest/omz_models_intel_face_detection_0202_description_face_detection_0202.html)
     - [face-detection-0204](https://docs.openvinotoolkit.org/latest/omz_models_intel_face_detection_0204_description_face_detection_0204.html)
     - [person-detection-0200](https://docs.openvinotoolkit.org/latest/omz_models_intel_person_detection_0200_description_person_detection_0200.html)
     - [person-detection-0201](https://docs.openvinotoolkit.org/latest/omz_models_intel_person_detection_0201_description_person_detection_0201.html)
-    - [person-detection-0202](https://docs.openvinotoolkit.org/latest/omz_models_intel_person_detection_0202_description_person_detection_0202.html) 
+    - [person-detection-0202](https://docs.openvinotoolkit.org/latest/omz_models_intel_person_detection_0202_description_person_detection_0202.html)
     - [person-vehicle-bike-detection-2000](https://docs.openvinotoolkit.org/latest/omz_models_intel_person_vehicle_bike_detection_2000_description_person_vehicle_bike_detection_2000.html)
     - [person-vehicle-bike-detection-2001](https://docs.openvinotoolkit.org/latest/omz_models_intel_person_vehicle_bike_detection_2001_description_person_vehicle_bike_detection_2001.html)
     - [person-vehicle-bike-detection-2002](https://docs.openvinotoolkit.org/latest/omz_models_intel_person_vehicle_bike_detection_2002_description_person_vehicle_bike_detection_2002.html)
@@ -27,17 +27,21 @@ There are detection and image classification examples.
   - Public Pre-Trained Models(OMZ) > Classification
     - [mobilenet-v2-pytorch](https://docs.openvinotoolkit.org/latest/omz_models_public_mobilenet_v2_pytorch_mobilenet_v2_pytorch.html)
 
-You can find more OpenVINO™ Trained Models [here](https://docs.openvinotoolkit.org/latest/omz_models_intel_index.html)
-To run the inference with OpenVINO™, the model format should be Intermediate Representation(IR). 
+You can find more OpenVINO™ Trained Models
+[here](https://docs.openvinotoolkit.org/latest/omz_models_intel_index.html)
+To run the inference with OpenVINO™, the model format should be Intermediate
+Representation(IR).
 For the Caffe/TensorFlow/MXNet/Kaldi/ONNX models, please see the [Model Conversion Instruction](https://docs.openvinotoolkit.org/latest/openvino_docs_MO_DG_prepare_model_convert_model_Converting_Model.html)
 
-You need to implement your own interpreter samples to support the other OpenVINO™ Trained Models.
+You need to implement your own interpreter samples to support the other
+OpenVINO™ Trained Models.
 
 ## Model download
 - Prerequisites
-    - OpenVINO™ (To install OpenVINO™, please see the [OpenVINO™ Installation Instruction](https://docs.openvinotoolkit.org/latest/openvino_docs_install_guides_installing_openvino_linux.html))
-    - OpenVINO™ models (To download OpenVINO™ models, please see the [Model Downloader Instruction](https://docs.openvinotoolkit.org/latest/omz_tools_downloader_README.html))
-    - PASCAL VOC 2012 dataset (To download VOC 2012 dataset, please go [VOC2012 download](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/#devkit))
+  - OpenVINO™ (To install OpenVINO™, please see the
+    [OpenVINO™ Installation Instruction](https://docs.openvinotoolkit.org/latest/openvino_docs_install_guides_installing_openvino_linux.html))
+  - OpenVINO™ models (To download OpenVINO™ models, please see the [Model Downloader Instruction](https://docs.openvinotoolkit.org/latest/omz_tools_downloader_README.html))
+  - PASCAL VOC 2012 dataset (To download VOC 2012 dataset, please go [VOC2012 download](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/#devkit))
 
   ```bash
   # cd <openvino_dir>/deployment_tools/open_model_zoo/tools/downloader
@@ -49,13 +53,15 @@ You need to implement your own interpreter samples to support the other OpenVINO
   ```
 
 ## Model inference
-- Prerequisites: 
-    - OpenVINO™ (To install OpenVINO™, please see the [OpenVINO™ Installation Instruction](https://docs.openvinotoolkit.org/latest/openvino_docs_install_guides_installing_openvino_linux.html))
-    - Datumaro (To install Datumaro, please see the [User Manual](docs/user_manual.md))
-    - OpenVINO™ models (To download OpenVINO™ models, please see the [Model Downloader Instruction](https://docs.openvinotoolkit.org/latest/omz_tools_downloader_README.html))
-    - PASCAL VOC 2012 dataset (To download VOC 2012 dataset, please go [VOC2012 download](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/#devkit))
-    
-- To run the inference with OpenVINO™ models and the interpreter samples, please follow the instructions below.
+- Prerequisites:
+  - OpenVINO™ (To install OpenVINO™, please see the
+    [OpenVINO™ Installation Instruction](https://docs.openvinotoolkit.org/latest/openvino_docs_install_guides_installing_openvino_linux.html))
+  - Datumaro (To install Datumaro, please see the [User Manual](docs/user_manual.md))
+  - OpenVINO™ models (To download OpenVINO™ models, please see the [Model Downloader Instruction](https://docs.openvinotoolkit.org/latest/omz_tools_downloader_README.html))
+  - PASCAL VOC 2012 dataset (To download VOC 2012 dataset, please go [VOC2012 download](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/#devkit))
+
+- To run the inference with OpenVINO™ models and the interpreter samples,
+  please follow the instructions below.
 
   ```bash
   # source <openvino_dir>/bin/setupvars.sh
@@ -76,7 +82,7 @@ You need to implement your own interpreter samples to support the other OpenVINO
       -i samples/ssd_mobilenet_coco_detection_interp.py
   datum add path -p proj_ssd_mobilenet_v2_coco_detection -f voc VOCdevkit/
   datum model run -p proj_ssd_mobilenet_v2_coco_detection -m model-0
-  
+
   # Classification> mobilenet-v2-pytorch
   source /opt/intel/openvino/bin/setupvars.sh
   cd datumaro/plugins/openvino_plugin

@@ -1,0 +1,13 @@
+{
+    "LabelName": "/m/x",
+    "Subcategory": [
+        {
+            "LabelName": "/m/0",
+            "Subcategory": [
+                {
+                    "LabelName": "/m/1"
+                }
+            ]
+        }
+    ]
+}

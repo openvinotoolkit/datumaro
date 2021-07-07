@@ -120,7 +120,7 @@ class YoloExtractor(SourceExtractor):
             # NOTE: when path is like [data/]<subset>_obj/<image_name>
             # drop everything but <image name>
             # <image name> can be <a/b/c/filename.ext>, so not just basename()
-            path = osp.join(*parts[1:])
+            path = osp.join(*parts[1:]) # pylint: disable=no-value-for-parameter
         return osp.splitext(path)[0]
 
     def _get(self, item_id, subset_name):

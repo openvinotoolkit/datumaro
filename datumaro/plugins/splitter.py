@@ -3,10 +3,10 @@
 # SPDX-License-Identifier: MIT
 
 import logging as log
-import numpy as np
 import copy
 from math import gcd
 from enum import Enum, auto
+import numpy as np
 
 from datumaro.components.extractor import (Transform, AnnotationType,
     DEFAULT_SUBSET_NAME)

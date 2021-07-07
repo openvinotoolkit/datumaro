@@ -18,14 +18,17 @@ class Requirements:
 
     # GitHub issues (not bugs)
     # https://github.com/openvinotoolkit/datumaro/issues
+    DATUM_231 = "Readable formats for CJK"
     DATUM_244 = "Add Snyk integration"
     DATUM_267 = "Add Image zip format"
+    DATUM_274 = "Support the Open Images dataset"
     DATUM_280 = "Support KITTI dataset formats"
     DATUM_283 = "Create cli tests for testing convert command for VOC format"
 
     # GitHub issues (bugs)
     # https://github.com/openvinotoolkit/datumaro/issues
     DATUM_BUG_219 = "Return format is not uniform"
+    DATUM_BUG_257 = "Dataset.filter doesn't count removed items"
     DATUM_BUG_259 = "Dataset.filter fails on merged datasets"
 
 

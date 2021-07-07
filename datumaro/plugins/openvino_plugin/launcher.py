@@ -1,15 +1,15 @@
 
-# Copyright (C) 2019-2020 Intel Corporation
+# Copyright (C) 2019-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 # pylint: disable=exec-used
 
-import cv2
-import logging as log
-import numpy as np
 import os.path as osp
 import shutil
+import logging as log
+import cv2
+import numpy as np
 
 from openvino.inference_engine import IECore
 
@@ -54,7 +54,7 @@ class _OpenvinoImporter(CliPlugin):
 
 class InterpreterScript:
     def __init__(self, path):
-        with open(path, 'r') as f:
+        with open(path, 'r', encoding='utf-8') as f:
             script = f.read()
 
         context = {}
@@ -195,4 +195,3 @@ class OpenvinoLauncher(Launcher):
 
     def process_outputs(self, inputs, outputs):
         return self._interpreter.process_outputs(inputs, outputs)
-

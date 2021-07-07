@@ -1,0 +1,5 @@
+ImageID,Subset,OriginalURL,OriginalLandingURL,License,AuthorProfileURL,Author,Title,OriginalSize,OriginalMD5,Thumbnail300KURL,Rotation
+a,train,,,,,Intel,Test Image A,,,,0
+b,train,,,,,Intel,Test Image B,,,,0
+c,test,,,,,Intel,Test Image C,,,,0
+d,validation,,,,Intel,Test Image D,,,,0

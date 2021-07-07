@@ -2,8 +2,7 @@ import os.path as osp
 from unittest import TestCase
 
 import numpy as np
-from datumaro.components.extractor import (AnnotationType, Bbox, DatasetItem,
-    Label, LabelCategories)
+from datumaro.components.extractor import (Bbox, DatasetItem, Label)
 from datumaro.components.dataset import Dataset
 from datumaro.plugins.widerface_format import WiderFaceConverter, WiderFaceImporter
 from datumaro.util.image import Image

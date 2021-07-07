@@ -1,9 +1,8 @@
-import numpy as np
 import os
 import os.path as osp
-
 from unittest import TestCase
 
+import numpy as np
 from datumaro.components.project import Dataset
 from datumaro.components.extractor import DatasetItem
 from datumaro.plugins.image_dir_format import ImageDirConverter

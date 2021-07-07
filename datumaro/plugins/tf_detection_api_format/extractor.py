@@ -4,9 +4,9 @@
 # SPDX-License-Identifier: MIT
 
 from collections import OrderedDict
-import numpy as np
 import os.path as osp
 import re
+import numpy as np
 
 from datumaro.components.extractor import (SourceExtractor, DatasetItem,
     AnnotationType, Bbox, Mask, LabelCategories, Importer

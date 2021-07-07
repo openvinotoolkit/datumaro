@@ -1,9 +1,8 @@
-import numpy as np
 import os
 import os.path as osp
-
 from unittest import TestCase
 
+import numpy as np
 from datumaro.components.extractor import (DatasetItem,
     AnnotationType, Bbox, LabelCategories,
 )
