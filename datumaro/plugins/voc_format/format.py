@@ -6,10 +6,11 @@
 from collections import OrderedDict
 from enum import Enum, auto
 from itertools import chain
+
 import numpy as np
 
-from datumaro.components.extractor import (AnnotationType,
-    LabelCategories, MaskCategories
+from datumaro.components.extractor import (
+    AnnotationType, LabelCategories, MaskCategories,
 )
 
 

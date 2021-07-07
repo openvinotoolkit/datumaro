@@ -1,17 +1,21 @@
-import os.path as osp
 from collections import OrderedDict
 from functools import partial
 from unittest import TestCase
+import os.path as osp
 
 import numpy as np
-import datumaro.plugins.camvid_format as Camvid
-from datumaro.components.extractor import (AnnotationType, DatasetItem,
-    Extractor, LabelCategories, Mask)
+
 from datumaro.components.dataset import Dataset
+from datumaro.components.extractor import (
+    AnnotationType, DatasetItem, Extractor, LabelCategories, Mask,
+)
 from datumaro.plugins.camvid_format import CamvidConverter, CamvidImporter
 from datumaro.util.image import Image
-from datumaro.util.test_utils import (TestDir, compare_datasets,
-    test_save_and_load)
+from datumaro.util.test_utils import (
+    TestDir, compare_datasets, test_save_and_load,
+)
+import datumaro.plugins.camvid_format as Camvid
+
 from .requirements import Requirements, mark_requirement
 
 

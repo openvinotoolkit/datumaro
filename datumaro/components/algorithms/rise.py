@@ -6,6 +6,7 @@
 # pylint: disable=unused-variable
 
 from math import ceil
+
 import numpy as np
 
 from datumaro.components.extractor import AnnotationType

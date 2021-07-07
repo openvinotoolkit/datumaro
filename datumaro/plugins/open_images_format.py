@@ -16,9 +16,11 @@ import re
 from attr import attrs
 
 from datumaro.components.converter import Converter
-from datumaro.components.errors import DatasetError, RepeatedItemError, UndefinedLabel
+from datumaro.components.errors import (
+    DatasetError, RepeatedItemError, UndefinedLabel,
+)
 from datumaro.components.extractor import (
-    AnnotationType, DatasetItem, Importer, Label, LabelCategories, Extractor,
+    AnnotationType, DatasetItem, Extractor, Importer, Label, LabelCategories,
 )
 from datumaro.components.validator import Severity
 from datumaro.util.image import find_images

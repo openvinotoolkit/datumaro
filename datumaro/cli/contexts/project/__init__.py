@@ -2,27 +2,30 @@
 #
 # SPDX-License-Identifier: MIT
 
+from enum import Enum
 import argparse
 import json
 import logging as log
 import os
 import os.path as osp
 import shutil
-from enum import Enum
+
 import numpy as np
 
 from datumaro.components.dataset_filter import DatasetItemEncoder
 from datumaro.components.extractor import AnnotationType
-from datumaro.components.operations import (DistanceComparator,
-    ExactComparator, compute_ann_statistics, compute_image_statistics)
-from datumaro.components.project import \
-    PROJECT_DEFAULT_CONFIG as DEFAULT_CONFIG
+from datumaro.components.operations import (
+    DistanceComparator, ExactComparator, compute_ann_statistics,
+    compute_image_statistics,
+)
+from datumaro.components.project import PROJECT_DEFAULT_CONFIG as DEFAULT_CONFIG
 from datumaro.components.project import Environment, Project
 from datumaro.components.validator import TaskType
 from datumaro.util import error_rollback
 
-from ...util import (CliException, MultilineFormatter, add_subparser,
-    make_file_name)
+from ...util import (
+    CliException, MultilineFormatter, add_subparser, make_file_name,
+)
 from ...util.project import generate_next_file_name, load_project
 from .diff import DatasetDiffVisualizer
 

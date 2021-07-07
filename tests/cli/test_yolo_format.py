@@ -1,14 +1,16 @@
-import os.path as osp
 from unittest import TestCase
+import os.path as osp
 
 import numpy as np
+
 from datumaro.cli.__main__ import main
 from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import (DatasetItem,
-    AnnotationType, Bbox)
+from datumaro.components.extractor import AnnotationType, Bbox, DatasetItem
 from datumaro.util.test_utils import TestDir, compare_datasets
 import datumaro.plugins.voc_format.format as VOC
+
 from ..requirements import Requirements, mark_requirement
+
 
 def run(test, *args, expected_code=0):
     test.assertEqual(expected_code, main(args), str(args))

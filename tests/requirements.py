@@ -5,8 +5,8 @@
 import typing
 
 from attr import attrs
-
 import pytest
+
 
 class DatumaroComponent:
     Datumaro = "datumaro"

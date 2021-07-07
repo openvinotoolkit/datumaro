@@ -3,26 +3,28 @@
 #
 # SPDX-License-Identifier: MIT
 
+from collections import OrderedDict
+from enum import Enum, auto
 import logging as log
 import os
 import os.path as osp
-from collections import OrderedDict
-from enum import Enum, auto
 
 import numpy as np
 
 from datumaro.components.converter import Converter
-from datumaro.components.extractor import (AnnotationType,
-    CompiledMask, LabelCategories)
-from datumaro.util import parse_str_enum_value, str_to_bool, cast
+from datumaro.components.extractor import (
+    AnnotationType, CompiledMask, LabelCategories,
+)
+from datumaro.util import cast, parse_str_enum_value, str_to_bool
 from datumaro.util.annotation_util import make_label_id_mapping
 from datumaro.util.image import save_image
 from datumaro.util.mask_tools import paint_mask
 
-from .format import (KittiTask, KittiPath, KittiLabelMap,
-    make_kitti_categories, make_kitti_detection_categories,
-    parse_label_map, write_label_map,
+from .format import (
+    KittiLabelMap, KittiPath, KittiTask, make_kitti_categories,
+    make_kitti_detection_categories, parse_label_map, write_label_map,
 )
+
 
 class LabelmapType(Enum):
     kitti = auto()

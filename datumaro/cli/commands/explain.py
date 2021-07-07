@@ -8,9 +8,12 @@ import os
 import os.path as osp
 
 from datumaro.components.project import Project
-from datumaro.util.command_targets import (TargetKinds, target_selector,
-    ProjectTarget, SourceTarget, ImageTarget, is_project_path)
+from datumaro.util.command_targets import (
+    ImageTarget, ProjectTarget, SourceTarget, TargetKinds, is_project_path,
+    target_selector,
+)
 from datumaro.util.image import load_image, save_image
+
 from ..util import MultilineFormatter
 from ..util.project import load_project
 
@@ -108,8 +111,8 @@ def explain_command(args):
             args.project_dir = osp.dirname(osp.abspath(args.target[1]))
 
 
-    import cv2
     from matplotlib import cm
+    import cv2
 
     project = load_project(args.project_dir)
 

@@ -7,8 +7,10 @@ import os.path as osp
 
 import numpy as np
 
-from datumaro.components.extractor import (Bbox, Caption, DatasetItem,
-    Importer, Mask, MaskCategories, Polygon, SourceExtractor)
+from datumaro.components.extractor import (
+    Bbox, Caption, DatasetItem, Importer, Mask, MaskCategories, Polygon,
+    SourceExtractor,
+)
 from datumaro.util.image import find_images
 from datumaro.util.mask_tools import lazy_mask
 

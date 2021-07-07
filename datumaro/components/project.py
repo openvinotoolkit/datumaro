@@ -9,11 +9,13 @@ import os.path as osp
 import shutil
 
 from datumaro.components.config import Config
-from datumaro.components.config_model import (Model, Source,
-    PROJECT_DEFAULT_CONFIG, PROJECT_SCHEMA)
-from datumaro.components.dataset import (IDataset, Dataset, DEFAULT_FORMAT)
-from datumaro.components.dataset_filter import (XPathAnnotationsFilter,
-    XPathDatasetFilter)
+from datumaro.components.config_model import (
+    PROJECT_DEFAULT_CONFIG, PROJECT_SCHEMA, Model, Source,
+)
+from datumaro.components.dataset import DEFAULT_FORMAT, Dataset, IDataset
+from datumaro.components.dataset_filter import (
+    XPathAnnotationsFilter, XPathDatasetFilter,
+)
 from datumaro.components.environment import Environment
 from datumaro.components.errors import DatumaroError
 from datumaro.components.extractor import DEFAULT_SUBSET_NAME, Extractor

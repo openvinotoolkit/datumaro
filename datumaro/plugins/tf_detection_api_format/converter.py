@@ -3,23 +3,25 @@
 #
 # SPDX-License-Identifier: MIT
 
-import codecs
 from collections import OrderedDict
+import codecs
 import hashlib
 import logging as log
 import os
 import os.path as osp
 import string
 
-from datumaro.components.extractor import (AnnotationType, LabelCategories)
 from datumaro.components.converter import Converter
-from datumaro.util.image import encode_image, ByteImage
-from datumaro.util.annotation_util import (max_bbox,
-    find_group_leader, find_instances)
+from datumaro.components.extractor import AnnotationType, LabelCategories
+from datumaro.util.annotation_util import (
+    find_group_leader, find_instances, max_bbox,
+)
+from datumaro.util.image import ByteImage, encode_image
 from datumaro.util.mask_tools import merge_masks
 from datumaro.util.tf_util import import_tf as _import_tf
 
 from .format import DetectionApiPath
+
 tf = _import_tf()
 
 

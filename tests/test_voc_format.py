@@ -6,26 +6,26 @@ import os.path as osp
 
 import numpy as np
 
-from datumaro.components.extractor import (Extractor, DatasetItem,
-    AnnotationType, Label, Bbox, Mask, LabelCategories, MaskCategories,
-)
-import datumaro.plugins.voc_format.format as VOC
-from datumaro.plugins.voc_format.converter import (
-    VocConverter,
-    VocClassificationConverter,
-    VocDetectionConverter,
-    VocLayoutConverter,
-    VocActionConverter,
-    VocSegmentationConverter,
-)
-from datumaro.plugins.voc_format.importer import (VocActionImporter,
-    VocClassificationImporter, VocDetectionImporter, VocImporter,
-    VocLayoutImporter, VocSegmentationImporter)
 from datumaro.components.dataset import Dataset
+from datumaro.components.extractor import (
+    AnnotationType, Bbox, DatasetItem, Extractor, Label, LabelCategories, Mask,
+    MaskCategories,
+)
+from datumaro.plugins.voc_format.converter import (
+    VocActionConverter, VocClassificationConverter, VocConverter,
+    VocDetectionConverter, VocLayoutConverter, VocSegmentationConverter,
+)
+from datumaro.plugins.voc_format.importer import (
+    VocActionImporter, VocClassificationImporter, VocDetectionImporter,
+    VocImporter, VocLayoutImporter, VocSegmentationImporter,
+)
 from datumaro.util.image import Image
 from datumaro.util.mask_tools import load_mask
-from datumaro.util.test_utils import (TestDir, compare_datasets,
-    test_save_and_load)
+from datumaro.util.test_utils import (
+    TestDir, compare_datasets, test_save_and_load,
+)
+import datumaro.plugins.voc_format.format as VOC
+
 from .requirements import Requirements, mark_requirement
 
 

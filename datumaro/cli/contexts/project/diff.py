@@ -4,12 +4,13 @@
 # SPDX-License-Identifier: MIT
 
 from collections import Counter
-from itertools import zip_longest
 from enum import Enum, auto
+from itertools import zip_longest
 import logging as log
 import os
 import os.path as osp
 import warnings
+
 import cv2
 import numpy as np
 

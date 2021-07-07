@@ -1,24 +1,29 @@
 from functools import partial
+from unittest import TestCase, skipIf
 import os
 import os.path as osp
-from unittest import TestCase, skipIf
 
 import numpy as np
+
 from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import (DatasetItem,
-    AnnotationType, Bbox, Mask, LabelCategories
+from datumaro.components.extractor import (
+    AnnotationType, Bbox, DatasetItem, LabelCategories, Mask,
 )
-from datumaro.util.image import Image, ByteImage, encode_image
-from datumaro.util.test_utils import (TestDir, compare_datasets,
-    test_save_and_load)
+from datumaro.util.image import ByteImage, Image, encode_image
+from datumaro.util.test_utils import (
+    TestDir, compare_datasets, test_save_and_load,
+)
 from datumaro.util.tf_util import check_import
+
 from .requirements import Requirements, mark_requirement
 
 try:
-    from datumaro.plugins.tf_detection_api_format.extractor import \
-        TfDetectionApiExtractor, TfDetectionApiImporter
-    from datumaro.plugins.tf_detection_api_format.converter import \
-        TfDetectionApiConverter
+    from datumaro.plugins.tf_detection_api_format.converter import (
+        TfDetectionApiConverter,
+    )
+    from datumaro.plugins.tf_detection_api_format.extractor import (
+        TfDetectionApiExtractor, TfDetectionApiImporter,
+    )
     import_failed = False
 except ImportError:
     import_failed = True

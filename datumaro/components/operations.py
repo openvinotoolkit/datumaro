@@ -4,27 +4,32 @@
 
 from collections import OrderedDict
 from copy import deepcopy
+from unittest import TestCase
 import hashlib
 import logging as log
-from unittest import TestCase
 
+from attr import attrib, attrs
 import attr
 import cv2
 import numpy as np
-from attr import attrib, attrs
 
 from datumaro.components.cli_plugin import CliPlugin
-from datumaro.util import find, filter_dict
-from datumaro.components.extractor import (AnnotationType, Bbox,
-    CategoriesInfo, Label,
-    LabelCategories, PointsCategories, MaskCategories)
-from datumaro.components.errors import (DatumaroError, FailedAttrVotingError,
-    FailedLabelVotingError, MismatchingImageInfoError, NoMatchingAnnError,
-    NoMatchingItemError, AnnotationsTooCloseError, WrongGroupError)
 from datumaro.components.dataset import Dataset, DatasetItemStorage
-from datumaro.util.attrs_util import ensure_cls, default_if_none
-from datumaro.util.annotation_util import (segment_iou, bbox_iou,
-    mean_bbox, OKS, find_instances, max_bbox, smooth_line)
+from datumaro.components.errors import (
+    AnnotationsTooCloseError, DatumaroError, FailedAttrVotingError,
+    FailedLabelVotingError, MismatchingImageInfoError, NoMatchingAnnError,
+    NoMatchingItemError, WrongGroupError,
+)
+from datumaro.components.extractor import (
+    AnnotationType, Bbox, CategoriesInfo, Label, LabelCategories,
+    MaskCategories, PointsCategories,
+)
+from datumaro.util import filter_dict, find
+from datumaro.util.annotation_util import (
+    OKS, bbox_iou, find_instances, max_bbox, mean_bbox, segment_iou,
+    smooth_line,
+)
+from datumaro.util.attrs_util import default_if_none, ensure_cls
 
 
 def get_ann_type(anns, t):

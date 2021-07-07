@@ -1,17 +1,17 @@
-
 # Copyright (C) 2019-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 from enum import Enum, auto
-import importlib
 from io import BytesIO
-from typing import Any, Callable, Iterator, Iterable, Optional, Tuple, Union
+from typing import Any, Callable, Iterable, Iterator, Optional, Tuple, Union
+import importlib
 import os
 import os.path as osp
 import shutil
 
 import numpy as np
+
 
 class _IMAGE_BACKENDS(Enum):
     cv2 = auto()

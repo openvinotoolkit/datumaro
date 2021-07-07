@@ -1,10 +1,12 @@
 from itertools import product
-import os.path as osp
 from unittest import TestCase
+import os.path as osp
 
 import numpy as np
-import datumaro.util.image as image_module
+
 from datumaro.util.test_utils import TestDir
+import datumaro.util.image as image_module
+
 from .requirements import Requirements, mark_requirement
 
 

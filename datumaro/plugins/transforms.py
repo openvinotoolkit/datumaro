@@ -12,14 +12,15 @@ import re
 
 import pycocotools.mask as mask_utils
 
-from datumaro.components.extractor import (ItemTransform, Transform,
-    AnnotationType, RleMask, Polygon, Bbox, Label, DEFAULT_SUBSET_NAME,
-    LabelCategories, MaskCategories, PointsCategories
-)
 from datumaro.components.cli_plugin import CliPlugin
-import datumaro.util.mask_tools as mask_tools
-from datumaro.util import parse_str_enum_value, NOTSET
+from datumaro.components.extractor import (
+    DEFAULT_SUBSET_NAME, AnnotationType, Bbox, ItemTransform, Label,
+    LabelCategories, MaskCategories, PointsCategories, Polygon, RleMask,
+    Transform,
+)
+from datumaro.util import NOTSET, parse_str_enum_value
 from datumaro.util.annotation_util import find_group_leader, find_instances
+import datumaro.util.mask_tools as mask_tools
 
 
 class CropCoveredSegments(ItemTransform, CliPlugin):

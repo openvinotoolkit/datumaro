@@ -4,6 +4,7 @@
 # SPDX-License-Identifier: MIT
 
 from itertools import chain
+
 import numpy as np
 
 from datumaro.util.image import lazy_image, load_image

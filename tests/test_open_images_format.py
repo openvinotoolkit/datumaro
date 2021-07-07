@@ -2,19 +2,23 @@
 #
 # SPDX-License-Identifier: MIT
 
-import os.path as osp
-
 from unittest.case import TestCase
+import os.path as osp
 
 import numpy as np
 
 from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import AnnotationType, DatasetItem, Label, LabelCategories
-from datumaro.plugins.open_images_format import OpenImagesConverter, OpenImagesImporter
+from datumaro.components.extractor import (
+    AnnotationType, DatasetItem, Label, LabelCategories,
+)
+from datumaro.plugins.open_images_format import (
+    OpenImagesConverter, OpenImagesImporter,
+)
 from datumaro.util.image import Image
 from datumaro.util.test_utils import TestDir, compare_datasets
 
 from tests.requirements import Requirements, mark_requirement
+
 
 class OpenImagesFormatTest(TestCase):
     @mark_requirement(Requirements.DATUM_274)
