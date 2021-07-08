@@ -155,6 +155,8 @@ enable=
     W1305, # format-combined-specification
     W1306, # missing-format-attribute
     W1307, # invalid-format-index
+    W1401, # anomalous-backslash-in-string
+    W1402, # anomalous-unicode-escape-in-string
 
 
 [REPORTS]
