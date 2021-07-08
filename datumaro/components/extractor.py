@@ -4,7 +4,7 @@
 
 from enum import Enum, auto
 from glob import iglob
-from typing import Callable, Dict, Iterable, List, Optional
+from typing import Callable, Dict, Iterable, List, Optional, Union
 import os
 import os.path as osp
 
@@ -395,6 +395,9 @@ class Cuboid3d(Annotation):
 
     @position.setter
     def _set_poistion(self, value):
+        # TODO: fix the issue with separate coordinate rounding:
+        # self.position[0] = 12.345676
+        # - the number assigned won't be rounded.
         self.position[:] = \
             [round(p, _COORDINATE_ROUNDING_DIGITS) for p in value]
 
@@ -586,42 +589,30 @@ class DatasetItem:
 
     # TODO: introduce "media" field with type info. Replace image and pcd.
     image = attrib(type=Image, default=None)
-    pcd = attrib(type=bytes, default=None)
-    related_images = attrib(type=list, default=None)
+    pcd = attrib(type=Union[str, bytes], default=None)
+    related_images = attrib(type=List[Image], default=None)
 
     def __attrs_post_init__(self):
         assert not (self.has_image and self.has_pcd), \
             "Can't set both image and point cloud info"
 
-    @related_images.validator
-    def _related_image_validator(self, attribute, related_images):
-        self.related_images = []
-
-        if not related_images:
-            return
-        for image in related_images:
-            if callable(image) or isinstance(image, np.ndarray):
-                image = Image(data=image)
-            elif isinstance(image, str):
-                image = Image(path=image)
-            assert isinstance(image, Image), type(image)
-
-            self.related_images.append(image)
-
-    @pcd.validator
-    def _pcd_validator(self, attribute, pcd):
-        if pcd:
-            assert isinstance(pcd, (bytes, str)) or callable(pcd), type(pcd)
-            self.pcd = pcd
-
-    @image.validator
-    def _image_validator(self, attribute, image):
+    def _image_converter(image):
         if callable(image) or isinstance(image, np.ndarray):
             image = Image(data=image)
         elif isinstance(image, str):
             image = Image(path=image)
-        assert image is None or isinstance(image, Image)
-        self.image = image
+        assert image is None or isinstance(image, Image), type(image)
+        return image
+    image.converter = _image_converter
+
+    def _related_image_converter(images):
+        return list(map(__class__._image_converter, images or []))
+    related_images.converter = _related_image_converter
+
+    @pcd.validator
+    def _pcd_validator(self, attribute, pcd):
+        assert pcd is None or isinstance(pcd, (bytes, str)) or callable(pcd), \
+            type(pcd)
 
     attributes = attrib(factory=dict, validator=default_if_none(dict))
 
