@@ -1,4 +1,3 @@
-
 # Copyright (C) 2019-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
@@ -9,6 +8,7 @@ from typing import Any, Callable, Iterable, Iterator, Optional, Tuple, Union
 import importlib
 import os
 import os.path as osp
+import shutil
 
 import numpy as np
 
@@ -315,6 +315,17 @@ class Image:
             (self.has_data and np.array_equal(self.data, other.data) or \
                 not self.has_data)
 
+    def save(self, path):
+        src_ext = self.ext.lower()
+        dst_ext = osp.splitext(osp.basename(path))[1].lower()
+
+        os.makedirs(osp.dirname(path), exist_ok=True)
+        if src_ext == dst_ext and osp.isfile(self.path):
+            if self.path != path:
+                shutil.copyfile(self.path, path)
+        else:
+            save_image(path, self.data)
+
 class ByteImage(Image):
     def __init__(self, data=None, path=None, ext=None, cache=None, size=None):
         loader = None
@@ -355,3 +366,17 @@ class ByteImage(Image):
             (self.has_data == other.has_data) and \
             (self.has_data and self.get_bytes() == other.get_bytes() or \
                 not self.has_data)
+
+    def save(self, path):
+        src_ext = self.ext.lower()
+        dst_ext = osp.splitext(osp.basename(path))[1].lower()
+
+        os.makedirs(osp.dirname(path), exist_ok=True)
+        if src_ext == dst_ext and osp.isfile(self.path):
+            if self.path != path:
+                shutil.copyfile(self.path, path)
+        elif src_ext == dst_ext:
+            with open(path, 'wb') as f:
+                f.write(self.get_bytes())
+        else:
+            save_image(path, self.data)

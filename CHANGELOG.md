@@ -19,9 +19,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   only images and image-level labels can be read/written
   (<https://github.com/openvinotoolkit/datumaro/pull/291>,
   <https://github.com/openvinotoolkit/datumaro/pull/315>).
+- Support for Supervisely Point Cloud dataset format (<https://github.com/openvinotoolkit/datumaro/pull/245>)
+- Support for KITTI Raw / Velodyne Points dataset format (<https://github.com/openvinotoolkit/datumaro/pull/245>)
 
 ### Changed
-- Tensorflow AVX check is made optional in API and is disabled by default (<https://github.com/openvinotoolkit/datumaro/pull/305>)
+- Tensorflow AVX check is made optional in API and disabled by default (<https://github.com/openvinotoolkit/datumaro/pull/305>)
 - Extensions for images in ImageNet_txt are now mandatory (<https://github.com/openvinotoolkit/datumaro/pull/302>)
 - Several dependencies now have lower bounds (<https://github.com/openvinotoolkit/datumaro/pull/308>)
 

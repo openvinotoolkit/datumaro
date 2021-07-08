@@ -447,6 +447,8 @@ class IntersectMerge(MergingStrategy):
                 return _make(PointsMerger, **kwargs)
             elif t is AnnotationType.caption:
                 return _make(CaptionsMerger, **kwargs)
+            elif t is AnnotationType.cuboid_3d:
+                return _make(Cuboid3dMerger, **kwargs)
             else:
                 raise NotImplementedError("Type %s is not supported" % t)
 
@@ -781,6 +783,11 @@ class CaptionsMatcher(AnnotationMatcher):
     def match_annotations(self, sources):
         raise NotImplementedError()
 
+@attrs
+class Cuboid3dMatcher(_ShapeMatcher):
+    @staticmethod
+    def distance(a, b):
+        raise NotImplementedError()
 
 @attrs(kw_only=True)
 class AnnotationMerger:
@@ -823,19 +830,7 @@ class _ShapeMerger(AnnotationMerger, _ShapeMatcher):
     quorum = attrib(converter=int, default=0)
 
     def merge_clusters(self, clusters):
-        merged = []
-        for cluster in clusters:
-            label, label_score = self.find_cluster_label(cluster)
-            shape, shape_score = self.merge_cluster_shape(cluster)
-
-            shape.z_order = max(cluster, key=lambda a: a.z_order).z_order
-            shape.label = label
-            shape.attributes['score'] = label_score * shape_score \
-                if label is not None else shape_score
-
-            merged.append(shape)
-
-        return merged
+        return list(map(self.merge_cluster, clusters))
 
     def find_cluster_label(self, cluster):
         votes = {}
@@ -866,6 +861,17 @@ class _ShapeMerger(AnnotationMerger, _ShapeMatcher):
             for s in cluster) / len(cluster)
         return shape, shape_score
 
+    def merge_cluster(self, cluster):
+        label, label_score = self.find_cluster_label(cluster)
+        shape, shape_score = self.merge_cluster_shape(cluster)
+
+        shape.z_order = max(cluster, key=lambda a: a.z_order).z_order
+        shape.label = label
+        shape.attributes['score'] = label_score * shape_score \
+            if label is not None else shape_score
+
+        return shape
+
 @attrs
 class BboxMerger(_ShapeMerger, BboxMatcher):
     pass
@@ -889,6 +895,26 @@ class LineMerger(_ShapeMerger, LineMatcher):
 @attrs
 class CaptionsMerger(AnnotationMerger, CaptionsMatcher):
     pass
+
+@attrs
+class Cuboid3dMerger(_ShapeMerger, Cuboid3dMatcher):
+    @staticmethod
+    def _merge_cluster_shape_mean_box_nearest(cluster):
+        raise NotImplementedError()
+        # mbbox = Bbox(*mean_cuboid(cluster))
+        # dist = (segment_iou(mbbox, s) for s in cluster)
+        # nearest_pos, _ = max(enumerate(dist), key=lambda e: e[1])
+        # return cluster[nearest_pos]
+
+    def merge_cluster(self, cluster):
+        label, label_score = self.find_cluster_label(cluster)
+        shape, shape_score = self.merge_cluster_shape(cluster)
+
+        shape.label = label
+        shape.attributes['score'] = label_score * shape_score \
+            if label is not None else shape_score
+
+        return shape
 
 def match_segments(a_segms, b_segms, distance=segment_iou, dist_thresh=1.0,
         label_matcher=lambda a, b: a.label == b.label):
