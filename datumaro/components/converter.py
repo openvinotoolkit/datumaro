@@ -61,15 +61,17 @@ class Converter(CliPlugin):
 
         return self._image_ext or src_ext or self._default_image_ext
 
-    def _make_image_filename(self, item, *, name=None, subdir=None):
+    def _make_item_filename(self, item, *, name=None, subdir=None):
         name = name or item.id
         subdir = subdir or ''
-        return osp.join(subdir, name + self._find_image_ext(item))
+        return osp.join(subdir, name)
+
+    def _make_image_filename(self, item, *, name=None, subdir=None):
+        return self._make_item_filename(item, name=name, subdir=subdir) + \
+            self._find_image_ext(item)
 
     def _make_pcd_filename(self, item, *, name=None, subdir=None):
-        name = name or item.id
-        subdir = subdir or ''
-        return osp.join(subdir, name + '.pcd')
+        return self._make_item_filename(item, name=name, subdir=subdir) + '.pcd'
 
     def _save_image(self, item, path=None, *,
             name=None, subdir=None, basedir=None):
