@@ -156,7 +156,7 @@ def compare_datasets_strict(test, expected, actual):
                 (idx, item_a, item_b))
 
 def compare_datasets_3d(test, expected, actual, ignored_attrs=None,
-        require_pcd=False, require_images=False):
+        require_point_cloud=False):
     compare_categories(test, expected.categories(), actual.categories())
 
     if actual.subsets():
@@ -174,11 +174,9 @@ def compare_datasets_3d(test, expected, actual, ignored_attrs=None,
         else:
             test.assertEqual(item_a.attributes, item_b.attributes, item_a.id)
 
-        if (require_pcd and item_a.has_pcd) or \
-                (item_a.has_pcd and item_b.has_pcd):
-            test.assertEqual(item_a.pcd, item_b.pcd, item_a.id)
-        if (require_images and item_a.related_images) or \
-                (item_a.related_images and item_b.related_images):
+        if (require_point_cloud and item_a.has_point_cloud) or \
+                (item_a.has_point_cloud and item_b.has_point_cloud):
+            test.assertEqual(item_a.point_cloud, item_b.point_cloud, item_a.id)
             test.assertEqual(
                 set(img.path for img in item_a.related_images),
                 set(img.path for img in item_b.related_images),

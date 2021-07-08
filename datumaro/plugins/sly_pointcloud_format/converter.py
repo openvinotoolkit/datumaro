@@ -86,7 +86,7 @@ class _SuperviselyPointcloudDumper:
                 json.dump(img_data, f, ensure_ascii=False, indent=4)
 
     def _write_pcd(self, item):
-        self._context._save_pcd(item, basedir=self._point_cloud_dir)
+        self._context._save_point_cloud(item, basedir=self._point_cloud_dir)
 
     def _write_meta(self):
         for tag in self._tag_meta.values():
@@ -354,7 +354,7 @@ class _SuperviselyPointcloudDumper:
 
         for item in self._context._extractor:
             if self._context._save_images:
-                if item.has_pcd:
+                if item.has_point_cloud:
                     self._write_pcd(item)
                 else:
                     log.debug("Item '%s' has no point cloud info", item.id)
@@ -409,7 +409,7 @@ class SuperviselyPointcloudConverter(Converter):
             else:
                 item = DatasetItem(item_id, subset=subset)
 
-            if not (status == ItemStatus.removed or not item.has_pcd):
+            if not (status == ItemStatus.removed or not item.has_point_cloud):
                 continue
 
             pcd_name = conv._make_pcd_filename(item)

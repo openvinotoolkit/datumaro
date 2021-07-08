@@ -415,8 +415,8 @@ class KittiRawConverter(Converter):
             index = cast(item.attributes.get('frame'), int, index)
 
         if self._save_images:
-            if item.has_pcd:
-                self._save_pcd(item, subdir=KittiRawPath.PCD_DIR)
+            if item.has_point_cloud:
+                self._save_point_cloud(item, subdir=KittiRawPath.PCD_DIR)
 
             images = sorted(item.related_images, key=lambda img: img.path)
             for i, image in enumerate(images):
@@ -455,7 +455,7 @@ class KittiRawConverter(Converter):
             else:
                 item = DatasetItem(item_id, subset=subset)
 
-            if not (status == ItemStatus.removed or not item.has_pcd):
+            if not (status == ItemStatus.removed or not item.has_point_cloud):
                 continue
 
             pcd_path = osp.join(pcd_dir, conv._make_pcd_filename(item))

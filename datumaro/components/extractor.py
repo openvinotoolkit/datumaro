@@ -589,12 +589,15 @@ class DatasetItem:
 
     # TODO: introduce "media" field with type info. Replace image and pcd.
     image = attrib(type=Image, default=None)
-    pcd = attrib(type=Union[str, bytes], default=None)
+    # TODO: introduce pcd type like Image
+    point_cloud = attrib(type=str, default=None)
     related_images = attrib(type=List[Image], default=None)
 
     def __attrs_post_init__(self):
-        assert not (self.has_image and self.has_pcd), \
-            "Can't set both image and point cloud info"
+        if (self.has_image and self.has_point_cloud):
+            raise ValueError("Can't set both image and point cloud info")
+        if self.related_images and not self.has_point_cloud:
+            raise ValueError("Related images require point cloud")
 
     def _image_converter(image):
         if callable(image) or isinstance(image, np.ndarray):
@@ -609,10 +612,9 @@ class DatasetItem:
         return list(map(__class__._image_converter, images or []))
     related_images.converter = _related_image_converter
 
-    @pcd.validator
-    def _pcd_validator(self, attribute, pcd):
-        assert pcd is None or isinstance(pcd, (bytes, str)) or callable(pcd), \
-            type(pcd)
+    @point_cloud.validator
+    def _point_cloud_validator(self, attribute, pcd):
+        assert pcd is None or isinstance(pcd, str), type(pcd)
 
     attributes = attrib(factory=dict, validator=default_if_none(dict))
 
@@ -621,8 +623,8 @@ class DatasetItem:
         return self.image is not None
 
     @property
-    def has_pcd(self):
-        return self.pcd is not None
+    def has_point_cloud(self):
+        return self.point_cloud is not None
 
     def wrap(item, **kwargs):
         return attr.evolve(item, **kwargs)

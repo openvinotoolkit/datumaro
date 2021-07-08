@@ -55,7 +55,7 @@ class SuperviselyPointcloudImporterTest(TestCase):
                         attributes={'object': 231831,
                             'tag1': 'v12', 'tag3': ''}),
                 ],
-                pcd=pcd1, related_images=[image1],
+                point_cloud=pcd1, related_images=[image1],
                 attributes={'frame': 0, 'description': '',
                     'tag1': '25dsd', 'tag2': 65}
             ),
@@ -66,7 +66,7 @@ class SuperviselyPointcloudImporterTest(TestCase):
                         position=[0.59, 14.41, -0.61],
                         attributes={'object': 36, 'tag1': '', 'tag3': ''})
                 ],
-                pcd=pcd2, related_images=[image2],
+                point_cloud=pcd2, related_images=[image2],
                 attributes={'frame': 1, 'description': ''}
             ),
         ], categories={AnnotationType.label: label_cat})
@@ -74,7 +74,7 @@ class SuperviselyPointcloudImporterTest(TestCase):
         parsed_dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'sly_pointcloud')
 
         compare_datasets_3d(self, expected_dataset, parsed_dataset,
-            require_pcd=True, require_images=True)
+            require_point_cloud=True)
 
 
 class PointCloudConverterTest(TestCase):
@@ -111,7 +111,7 @@ class PointCloudConverterTest(TestCase):
                         position=[318.19, 974.65, 1.29],
                         attributes={'occluded': True, 'object': 2}),
                 ],
-                pcd=self.pcd1,
+                point_cloud=self.pcd1,
                 attributes={'frame': 0, 'description': 'zzz'}
             ),
 
@@ -121,7 +121,7 @@ class PointCloudConverterTest(TestCase):
                         position=[23.04, 8.75, -0.78],
                         attributes={'occluded': False, 'object': 2})
                 ],
-                pcd=self.pcd2, related_images=[self.image2],
+                point_cloud=self.pcd2, related_images=[self.image2],
                 attributes={'frame': 1}
             ),
         ], categories={ AnnotationType.label: src_label_cat })
@@ -142,7 +142,8 @@ class PointCloudConverterTest(TestCase):
                             position=[318.19, 974.65, 1.29],
                             attributes={'occluded': True, 'object': 2}),
                     ],
-                    pcd=osp.join(test_dir, 'ds0', 'pointcloud', 'frame_1.pcd'),
+                    point_cloud=osp.join(test_dir,
+                        'ds0', 'pointcloud', 'frame_1.pcd'),
                     attributes={'frame': 0, 'description': 'zzz'}),
 
                 DatasetItem(id='frm2',
@@ -151,15 +152,18 @@ class PointCloudConverterTest(TestCase):
                             position=[23.04, 8.75, -0.78],
                             attributes={'occluded': False, 'object': 2}),
                     ],
-                    pcd=osp.join(test_dir, 'ds0', 'pointcloud', 'frm2.pcd'),
-                    related_images=[osp.join(test_dir, 'ds0', 'related_images',
-                        'frm2_pcd', 'img1.png')],
+                    point_cloud=osp.join(test_dir,
+                        'ds0', 'pointcloud', 'frm2.pcd'),
+                    related_images=[osp.join(test_dir,
+                        'ds0', 'related_images', 'frm2_pcd', 'img1.png')
+                    ],
                     attributes={'frame': 1, 'description': ''})
             ], categories={ AnnotationType.label: target_label_cat })
 
             self._test_save_and_load(source_dataset,
                 partial(SuperviselyPointcloudConverter.convert, save_images=True),
-                test_dir, target_dataset=target_dataset, require_pcd=True)
+                test_dir, target_dataset=target_dataset,
+                require_point_cloud=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_preserve_frame_ids(self):
@@ -243,23 +247,25 @@ class PointCloudConverterTest(TestCase):
     def test_have_arbitrary_item_ids(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='a/b/c235',
-                pcd=self.pcd1, related_images=[self.image1],
+                point_cloud=self.pcd1, related_images=[self.image1],
                 attributes={'frame': 20}),
         ])
 
         with TestDir() as test_dir:
             pcd_path = osp.join(test_dir, 'ds0', 'pointcloud',
                 'a', 'b', 'c235.pcd')
+            img_path = osp.join(test_dir, 'ds0', 'related_images',
+                'a', 'b', 'c235_pcd', 'img2.png')
             target_dataset = Dataset.from_iterable([
                 DatasetItem(id='a/b/c235',
-                    pcd=pcd_path, related_images=[self.image1],
+                    point_cloud=pcd_path, related_images=[img_path],
                     attributes={'frame': 20}),
             ], categories=[])
 
             self._test_save_and_load(source_dataset,
                 partial(SuperviselyPointcloudConverter.convert, save_images=True),
                 test_dir, target_dataset=target_dataset,
-                ignored_attrs={'description'}, require_pcd=True)
+                ignored_attrs={'description'}, require_point_cloud=True)
 
             self.assertTrue(osp.isfile(
                 osp.join(test_dir, 'ds0', 'ann', 'a', 'b', 'c235.pcd.json')))
@@ -277,7 +283,7 @@ class PointCloudConverterTest(TestCase):
                         Cuboid3d(id=215,
                             position=[320.59, 979.48, 1.03], label=0)
                     ],
-                    pcd=self.pcd1, related_images=[self.image1],
+                    point_cloud=self.pcd1, related_images=[self.image1],
                     attributes={'frame': 0})
             ], categories=['car', 'bus'])
             dataset.export(path, 'sly_pointcloud', save_images=True)
@@ -286,7 +292,7 @@ class PointCloudConverterTest(TestCase):
                 annotations=[
                     Cuboid3d(id=216, position=[0.59, 14.41, -0.61], label=1)
                 ],
-                pcd=self.pcd2, related_images=[self.image2],
+                point_cloud=self.pcd2, related_images=[self.image2],
                 attributes={'frame': 1})
             )
 

@@ -89,12 +89,12 @@ class Converter(CliPlugin):
 
         item.image.save(path)
 
-    def _save_pcd(self, item=None, path=None, *,
+    def _save_point_cloud(self, item=None, path=None, *,
             name=None, subdir=None, basedir=None):
         assert not ((subdir or name or basedir) and path), \
             "Can't use both subdir or name or basedir and path arguments"
 
-        if not item.pcd:
+        if not item.point_cloud:
             log.warning("Item '%s' has no pcd", item.id)
             return
 
@@ -104,9 +104,6 @@ class Converter(CliPlugin):
         path = osp.abspath(path)
 
         os.makedirs(osp.dirname(path), exist_ok=True)
-        if isinstance(item.pcd, bytes):
-            with open(path, 'wb') as f:
-                f.write(item.pcd)
-        elif item.pcd and osp.isfile(item.pcd):
-            if item.pcd != path:
-                shutil.copyfile(item.pcd, path)
+        if item.point_cloud and osp.isfile(item.point_cloud):
+            if item.point_cloud != path:
+                shutil.copyfile(item.point_cloud, path)

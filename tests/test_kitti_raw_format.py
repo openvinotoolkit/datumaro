@@ -52,7 +52,7 @@ class KittiRawImporterTest(TestCase):
                     Cuboid3d(position=[1, 1, 0], scale=[8.34, 23.01, -0.76],
                         label=0, attributes={'occluded': False, 'track_id': 2})
                 ],
-                pcd=pcd1, related_images=[image1],
+                point_cloud=pcd1, related_images=[image1],
                 attributes={'frame': 0}),
 
             DatasetItem(id='0000000001',
@@ -61,7 +61,7 @@ class KittiRawImporterTest(TestCase):
                         rotation=[1, 1, 3],
                         label=0, attributes={'occluded': True, 'track_id': 2})
                 ],
-                pcd=pcd2, related_images=[image2],
+                point_cloud=pcd2, related_images=[image2],
                 attributes={'frame': 1}),
 
             DatasetItem(id='0000000002',
@@ -69,7 +69,7 @@ class KittiRawImporterTest(TestCase):
                     Cuboid3d(position=[1, 2, 3], scale=[-9.41, 13.54, 0.24],
                         label=1, attributes={'occluded': False, 'track_id': 3})
                 ],
-                pcd=pcd3, related_images=[image3],
+                point_cloud=pcd3, related_images=[image3],
                 attributes={'frame': 2})
 
         ], categories={AnnotationType.label: expected_label_cat})
@@ -77,7 +77,7 @@ class KittiRawImporterTest(TestCase):
         parsed_dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'kitti_raw')
 
         compare_datasets_3d(self, expected_dataset, parsed_dataset,
-            require_pcd=True, require_images=True)
+            require_point_cloud=True)
 
 
 class KittiRawConverterTest(TestCase):
@@ -114,7 +114,7 @@ class KittiRawConverterTest(TestCase):
                     Cuboid3d(position=[3.4, -2.11, 4.4], label=1,
                         attributes={'occluded': True, 'track_id': 2})
                 ],
-                pcd=self.pcd1, related_images=[self.image1],
+                point_cloud=self.pcd1, related_images=[self.image1],
                 attributes={'frame': 0}
             ),
 
@@ -133,7 +133,7 @@ class KittiRawConverterTest(TestCase):
                     Cuboid3d(position=[0.4, -1, 2.24], scale=[2, 1, 2],
                         label=0, attributes={'track_id': 3}),
                 ],
-                pcd=self.pcd3,
+                point_cloud=self.pcd3,
                 attributes={'frame': 2}
             ),
         ], categories=['cat', 'dog'])
@@ -154,7 +154,7 @@ class KittiRawConverterTest(TestCase):
                             attributes={
                                 'occluded': True, 'track_id': 2})
                     ],
-                    pcd=osp.join(test_dir,
+                    point_cloud=osp.join(test_dir,
                         'velodyne_points', 'data', '0000000000.pcd'),
                     related_images=[osp.join(test_dir,
                         'image_00', 'data', '0000000000.png')
@@ -180,7 +180,7 @@ class KittiRawConverterTest(TestCase):
                             label=0, attributes={
                                 'occluded': False, 'track_id': 3}),
                     ],
-                    pcd=osp.join(test_dir,
+                    point_cloud=osp.join(test_dir,
                         'velodyne_points', 'data', '0000000002.pcd'),
                     attributes={'frame': 2}
                 ),
@@ -189,7 +189,7 @@ class KittiRawConverterTest(TestCase):
             self._test_save_and_load(source_dataset,
                 partial(KittiRawConverter.convert, save_images=True),
                 test_dir, target_dataset=target_dataset,
-                require_pcd=True, require_images=True)
+                require_point_cloud=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_preserve_frame_ids(self):
@@ -332,7 +332,7 @@ class KittiRawConverterTest(TestCase):
                     Cuboid3d(position=[1, 2, 3], label=0,
                         attributes={'track_id': 1})
                 ],
-                pcd=self.pcd1, related_images=[self.image1],
+                point_cloud=self.pcd1, related_images=[self.image1],
                 attributes={'frame': 3}
             ),
         ], categories=['cat'])
@@ -346,7 +346,7 @@ class KittiRawConverterTest(TestCase):
                         Cuboid3d(position=[1, 2, 3], label=0,
                             attributes={'track_id': 1, 'occluded': False})
                     ],
-                    pcd=osp.join(test_dir,
+                    point_cloud=osp.join(test_dir,
                         'velodyne_points', 'data', 'a', 'd.pcd'),
                     related_images=[
                         osp.join(test_dir, 'image_00', 'data', 'a', 'd.png'),
@@ -358,7 +358,7 @@ class KittiRawConverterTest(TestCase):
             self._test_save_and_load(source_dataset,
                 partial(KittiRawConverter.convert, save_images=True),
                 test_dir, target_dataset=target_dataset,
-                require_pcd=True, require_images=True)
+                require_point_cloud=True)
             self.assertTrue(osp.isfile(osp.join(
                 test_dir, 'image_00', 'data', 'a', 'd.png')))
 
@@ -370,7 +370,7 @@ class KittiRawConverterTest(TestCase):
                     Cuboid3d(position=[1, 2, 3], label=0,
                         attributes={'track_id': 1})
                 ],
-                pcd=self.pcd1,
+                point_cloud=self.pcd1,
                 related_images=[self.image1, self.image2, self.image3],
                 attributes={'frame': 3}
             ),
@@ -385,7 +385,7 @@ class KittiRawConverterTest(TestCase):
                         Cuboid3d(position=[1, 2, 3], label=0,
                             attributes={'track_id': 1, 'occluded': False})
                     ],
-                    pcd=osp.join(test_dir,
+                    point_cloud=osp.join(test_dir,
                         'velodyne_points', 'data', 'a', 'd.pcd'),
                     related_images=[
                         osp.join(test_dir, 'image_00', 'data', 'a', 'd.png'),
@@ -399,7 +399,7 @@ class KittiRawConverterTest(TestCase):
             self._test_save_and_load(source_dataset,
                 partial(KittiRawConverter.convert, save_images=True),
                 test_dir, target_dataset=target_dataset,
-                require_pcd=True, require_images=True)
+                require_point_cloud=True)
             self.assertTrue(osp.isfile(osp.join(
                 test_dir, 'image_00', 'data', 'a', 'd.png')))
             self.assertTrue(osp.isfile(osp.join(
@@ -416,7 +416,7 @@ class KittiRawConverterTest(TestCase):
                         Cuboid3d(position=[3.5, 9.8, 0.3], label=0,
                             attributes={'track_id': 1})
                     ],
-                    pcd=self.pcd1, related_images=[self.image1],
+                    point_cloud=self.pcd1, related_images=[self.image1],
                     attributes={'frame': 0}
                 )
             ], categories=['car', 'bus'])
@@ -427,7 +427,7 @@ class KittiRawConverterTest(TestCase):
                     Cuboid3d(position=[1, 2, 0], label=1,
                         attributes={'track_id': 1})
                 ],
-                pcd=self.pcd2, related_images=[self.image2],
+                point_cloud=self.pcd2, related_images=[self.image2],
                 attributes={'frame': 1}
             ))
             dataset.remove('frame1')
