@@ -102,9 +102,9 @@ class Converter(CliPlugin):
         path = osp.abspath(path)
 
         os.makedirs(osp.dirname(path), exist_ok=True)
-        if item.pcd and osp.isfile(item.pcd):
-            if item.pcd != path:
-                shutil.copyfile(item.pcd, path)
-        elif isinstance(item.pcd, bytes):
+        if isinstance(item.pcd, bytes):
             with open(path, 'wb') as f:
                 f.write(item.pcd)
+        elif item.pcd and osp.isfile(item.pcd):
+            if item.pcd != path:
+                shutil.copyfile(item.pcd, path)
