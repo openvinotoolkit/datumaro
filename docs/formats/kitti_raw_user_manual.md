@@ -93,8 +93,8 @@ format [Datumaro supports](../user_manual.md#supported-formats).
 
 Such conversion will only be successful if the output
 format can represent the type of dataset you want to convert,
-e.g. 3d point clouds annotations can be
-saved in `Supervisely Pointclouds` format, but not as `COCO keypoints`.
+e.g. 3D point clouds can be saved in Supervisely Point Clouds format,
+but not in COCO keypoints.
 
 There are few ways to convert KITTI Raw dataset to other dataset format:
 
