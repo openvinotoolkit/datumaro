@@ -4,7 +4,7 @@
 
 from enum import Enum, auto
 from glob import iglob
-from typing import Callable, Dict, Iterable, List, Optional, Union
+from typing import Callable, Dict, Iterable, List, Optional
 import os
 import os.path as osp
 
