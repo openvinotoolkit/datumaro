@@ -830,11 +830,7 @@ class _ShapeMerger(AnnotationMerger, _ShapeMatcher):
     quorum = attrib(converter=int, default=0)
 
     def merge_clusters(self, clusters):
-        merged = []
-        for cluster in clusters:
-            merged.append(self.merge_cluster(cluster))
-
-        return merged
+        return list(map(self.merge_cluster, clusters))
 
     def find_cluster_label(self, cluster):
         votes = {}
