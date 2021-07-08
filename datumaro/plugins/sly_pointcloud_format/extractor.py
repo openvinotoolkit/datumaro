@@ -164,14 +164,13 @@ class SuperviselyPointcloudExtractor(SourceExtractor):
 
             related_images_dir = osp.join(self._rootdir,
                 PointCloudPath.BASE_DIR,
-                PointCloudPath.RELATED_IMAGES_DIR, osp.dirname(pcd_name),
-                name + '_pcd')
+                PointCloudPath.RELATED_IMAGES_DIR, name + '_pcd')
             related_images = None
             if osp.isdir(related_images_dir):
                 related_images = find_images(related_images_dir)
 
             parsed[frame_id] = DatasetItem(id=name, subset=self._subset,
-                pcd=pcd_path, related_images=related_images,
+                point_cloud=pcd_path, related_images=related_images,
                 annotations=frame_desc.get('annotations'),
                 attributes={'frame': int(frame_id), **frame_desc['attributes']})
 
