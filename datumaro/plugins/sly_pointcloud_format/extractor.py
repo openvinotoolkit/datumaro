@@ -15,7 +15,7 @@ from datumaro.util.image import find_images
 from .format import PointCloudPath
 
 
-class SuperviselyPointcloudExtractor(SourceExtractor):
+class SuperviselyPointCloudExtractor(SourceExtractor):
     NAME = 'sly_pointcloud'
     _SUPPORTED_SHAPES = 'cuboid'
 
@@ -177,7 +177,7 @@ class SuperviselyPointcloudExtractor(SourceExtractor):
         return parsed
 
 
-class SuperviselyPointcloudImporter(Importer):
+class SuperviselyPointCloudImporter(Importer):
     NAME = 'sly_pointcloud'
 
     @classmethod

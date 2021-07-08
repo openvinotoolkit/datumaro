@@ -23,12 +23,12 @@ from datumaro.util import cast
 from .format import PointCloudPath
 
 
-class _SuperviselyPointcloudDumper:
+class _SuperviselyPointCloudDumper:
     SPECIAL_ATTRS = {'description', 'object',
         'labelerLogin', 'createdAt', 'updatedAt', 'frame'}
 
     def __init__(self, extractor: IExtractor,
-            context: 'SuperviselyPointcloudConverter'):
+            context: 'SuperviselyPointCloudConverter'):
         self._extractor = extractor
         self._context = context
 
@@ -370,7 +370,7 @@ class _SuperviselyPointcloudDumper:
         self._write_key_id()
 
 
-class SuperviselyPointcloudConverter(Converter):
+class SuperviselyPointCloudConverter(Converter):
     NAME = 'sly_pointcloud'
     DEFAULT_IMAGE_EXT = PointCloudPath.DEFAULT_IMAGE_EXT
 
@@ -396,7 +396,7 @@ class SuperviselyPointcloudConverter(Converter):
             log.warning("Supervisely pointcloud format supports only a single"
                 "subset. Subset information will be ignored on export.")
 
-        _SuperviselyPointcloudDumper(self._extractor, self).dump()
+        _SuperviselyPointCloudDumper(self._extractor, self).dump()
 
     @classmethod
     def patch(cls, dataset, patch, save_dir, **kwargs):
