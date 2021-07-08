@@ -126,8 +126,7 @@ class LabelCategories(Categories):
 @attrs
 class Label(Annotation):
     _type = AnnotationType.label
-    label = attrib(converter=int, default=0)
-
+    label = attrib(converter=int)
 
 @attrs(eq=False)
 class MaskCategories(Categories):
