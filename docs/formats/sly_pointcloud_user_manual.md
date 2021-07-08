@@ -83,8 +83,8 @@ format [Datumaro supports](../user_manual.md#supported-formats).
 
 Such conversion will only be successful if the output
 format can represent the type of dataset you want to convert,
-e.g. 3d point clouds annotations can be
-saved in `KITTI Raw` format, but not as `COCO keypoints`.
+e.g. 3D point clouds can be saved
+in "KITTI Raw" format, but not in "COCO keypoints".
 
 There are few ways to convert Supervisely Point Cloud dataset
 to other dataset formats:
@@ -179,5 +179,5 @@ dataset.export('my_dataset/', format='sly_pointcloud', save_images=True,
     allow_undeclared_attrs=True)
 ```
 
-More examples of working with KITTI Raw dataset from code can be found in
-[tests](../../tests/test_sly_pointcloud_format.py)
+More examples of working with Supervisely Point Cloud dataset from code can
+be found in [tests](../../tests/test_sly_pointcloud_format.py)
