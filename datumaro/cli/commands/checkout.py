@@ -48,6 +48,9 @@ def checkout_command(args):
     has_sep = '--' in args._positionals
     if has_sep:
         pos = args._positionals.index('--')
+        if 1 < pos:
+            raise argparse.ArgumentError(None, message="Expected no more than "
+                "1 revision argument")
     else:
         pos = 1
     args.rev = (args._positionals[:pos] or [None])[0]

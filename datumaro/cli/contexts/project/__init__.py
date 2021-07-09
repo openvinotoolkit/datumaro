@@ -128,6 +128,9 @@ def export_command(args):
     has_sep = '--' in args._positionals
     if has_sep:
         pos = args._positionals.index('--')
+        if 1 < pos:
+            raise argparse.ArgumentError(None, message="Expected no more than "
+                "1 target argument")
     else:
         pos = 1
     args.target = (args._positionals[:pos] or \
@@ -343,6 +346,9 @@ def transform_command(args):
     has_sep = '--' in args._positionals
     if has_sep:
         pos = args._positionals.index('--')
+        if 1 < pos:
+            raise argparse.ArgumentError(None, message="Expected no more than "
+                "1 target argument")
     else:
         pos = 1
     args.target = (args._positionals[:pos] or \
