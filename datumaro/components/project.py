@@ -1545,7 +1545,8 @@ class DiffStatus(Enum):
     foreign_modified = auto()
 
 class Project:
-    Revision = NewType('Revision', str)
+    Revision = NewType('Revision', str) # commit hash or named reference
+    Reference = NewType('Reference', str) # commit or object hash
 
     @staticmethod
     def find_project_dir(path: str) -> Optional[str]:
@@ -1774,7 +1775,7 @@ class Project:
         assert obj_type == self._RefKind.tree, obj_type
         return self._is_cached(obj_hash)
 
-    def is_obj_cached(self, obj_hash: str) -> bool:
+    def is_obj_cached(self, obj_hash: Reference) -> bool:
         return self._is_cached(obj_hash) or \
             self._can_retrieve_from_vcs_cache(obj_hash)
 
@@ -1782,7 +1783,8 @@ class Project:
         tree = auto()
         blob = auto()
 
-    def _parse_ref(self, ref: str) -> Tuple[_RefKind, str]:
+    def _parse_ref(self, ref: Union[Revision, Reference] ) \
+            -> Tuple[_RefKind, Reference]:
         if not ref: # working tree marker
             return self._RefKind.tree, ref
 
@@ -1811,10 +1813,10 @@ class Project:
         self._git.write_tree(tree, obj_dir)
         return obj_dir
 
-    def _is_cached(self, obj_hash):
+    def _is_cached(self, obj_hash: Reference):
         return osp.isdir(self.cache_path(obj_hash))
 
-    def cache_path(self, obj_hash: str) -> str:
+    def cache_path(self, obj_hash: Reference) -> str:
         assert self._git.is_hash(obj_hash) or self._dvc.is_hash(obj_hash), obj_hash
         if self._dvc.is_dir_hash(obj_hash):
             obj_hash = obj_hash[:self._dvc.FILE_HASH_LEN]
@@ -1822,7 +1824,7 @@ class Project:
         return osp.join(self._aux_dir, ProjectLayout.cache_dir,
             obj_hash[:2], obj_hash[2:])
 
-    def _can_retrieve_from_vcs_cache(self, obj_hash):
+    def _can_retrieve_from_vcs_cache(self, obj_hash: Reference):
         if not self._dvc.is_dir_hash(obj_hash):
             dir_check = self._dvc.is_cached(
                 obj_hash + self._dvc.DIR_HASH_SUFFIX)
@@ -1849,7 +1851,7 @@ class Project:
             suffix = '_' + suffix
         return tempfile.TemporaryDirectory(suffix=suffix, dir=project_tmp_dir)
 
-    def remove_cache_obj(self, ref: str):
+    def remove_cache_obj(self, ref: Union[Revision, Reference]):
         obj_type, obj_hash = self._parse_ref(ref)
 
         if self._is_cached(obj_hash):
@@ -1903,7 +1905,7 @@ class Project:
             'hash': obj_hash,
         }, dvcfile, data_dir
 
-    def _refresh_source_hash(self, source: str) -> str:
+    def _refresh_source_hash(self, source: str) -> Reference:
         source_dir = self.source_data_dir(source)
 
         if not osp.isdir(source_dir):
@@ -1922,7 +1924,7 @@ class Project:
 
         return obj_hash
 
-    def _materialize_obj(self, obj_hash: str):
+    def _materialize_obj(self, obj_hash: Reference):
         if not self._can_retrieve_from_vcs_cache(obj_hash):
             raise MissingObjectError(obj_hash)
 
@@ -2119,7 +2121,7 @@ class Project:
         for name in ['config', '.gitignore']:
             os.replace(osp.join(src_dir, name), osp.join(dst_dir, name))
 
-    def checkout(self, rev: Optional[str] = None,
+    def checkout(self, rev: Optional[Revision] = None,
             sources: Union[None, str, List[str]] = None, force: bool = False):
         """
         Copies tree and objects from cache to working tree.
@@ -2210,7 +2212,7 @@ class Project:
 
         self._working_tree = None
 
-    def is_ref(self, ref: str) -> bool:
+    def is_ref(self, ref: Union[None, str]) -> bool:
         if not ref:
             return True # working tree
         return self._git.is_ref(ref)
