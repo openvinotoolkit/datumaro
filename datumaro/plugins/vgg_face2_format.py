@@ -61,14 +61,13 @@ class VggFace2Extractor(SourceExtractor):
         return { AnnotationType.label: label_cat }
 
     def _load_items(self, path):
-        def _split_item_path(path):
+        def _get_label(path):
             label_name = path.split('/')[0]
             label = None
             if label_name != VggFace2Path.IMAGES_DIR_NO_LABEL:
                 label = \
                     self._categories[AnnotationType.label].find(label_name)[0]
-            item_id = path[len(label_name) + 1:]
-            return item_id, label
+            return label
 
         items = {}
 
@@ -85,7 +84,7 @@ class VggFace2Extractor(SourceExtractor):
             item_id = row['NAME_ID']
             label = None
             if '/' in item_id:
-                item_id, label = _split_item_path(item_id)
+                label = _get_label(item_id)
 
             if item_id not in items:
                 items[item_id] = DatasetItem(id=item_id, subset=self._subset,
@@ -111,7 +110,7 @@ class VggFace2Extractor(SourceExtractor):
                 item_id = row['NAME_ID']
                 label = None
                 if '/' in item_id:
-                    item_id, label = _split_item_path(item_id)
+                    label = _get_label(item_id)
 
                 if item_id not in items:
                     items[item_id] = DatasetItem(id=item_id, subset=self._subset,
