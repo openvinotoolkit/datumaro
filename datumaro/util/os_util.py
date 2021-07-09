@@ -78,9 +78,15 @@ def copytree(src, dst):
         os.makedirs(basedir, exist_ok=True)
 
     if sys.platform == 'windows':
-        subprocess.check_call(["xcopy", src, dst, "/s", "/e"])
+        # Ignore
+        #   B603: subprocess_without_shell_equals_true
+        #   B607: start_process_with_partial_path
+        # In this case we control what is called and command arguments
+        # PATH overriding is considered low risk
+        subprocess.check_call(["xcopy", src, dst, "/s", "/e"]) # nosec
     elif sys.platform == 'linux':
-        subprocess.check_call(["cp", "-r", "--reflink=auto", src, dst])
+        # As above
+        subprocess.check_call(["cp", "-r", "--reflink=auto", src, dst]) # nosec
     else:
         shutil.copytree(src, dst)
 

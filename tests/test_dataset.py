@@ -1224,4 +1224,3 @@ class DatasetFilterTest(TestCase):
             '/item/annotation[label_id = 2]', remove_empty=True)
 
         compare_datasets(self, expected, filtered)
-
