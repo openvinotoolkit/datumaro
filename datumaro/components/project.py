@@ -42,9 +42,8 @@ from datumaro.util.os_util import (
 
 class ProjectSourceDataset(Dataset):
     @classmethod
-    def load(cls, path: str, tree: 'Tree',
-            source: str, readonly: bool = False) \
-                -> 'ProjectSourceDataset': # pylint: disable=arguments-differ
+    def load(cls, path: str, tree: 'Tree', # pylint: disable=arguments-differ
+            source: str, readonly: bool = False) -> 'ProjectSourceDataset':
         config = tree.sources[source]
 
         if config.path:
