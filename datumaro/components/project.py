@@ -11,7 +11,7 @@ import shutil
 import tempfile
 import unittest.mock
 from contextlib import ExitStack
-from enum import Enum
+from enum import Enum, auto
 from typing import Dict, Iterable, List, NewType, Optional, Tuple, Union
 
 import networkx as nx
@@ -71,7 +71,10 @@ class ProjectSourceDataset(Dataset):
         return self._config
 
 
-IgnoreMode = Enum('IgnoreMode', ['rewrite', 'append', 'remove'])
+class IgnoreMode(Enum):
+    rewrite = auto()
+    append = auto()
+    remove = auto()
 
 def _update_ignore_file(paths: List[str], repo_root: str, filepath: str,
         mode: Optional[IgnoreMode] = None):
@@ -178,8 +181,13 @@ class ProjectSources(_DataSourceBase):
             raise KeyError("Unknown source '%s'" % name)
 
 
-BuildStageType = Enum('BuildStageType',
-    ['source', 'project', 'transform', 'filter', 'convert', 'inference'])
+class BuildStageType(Enum):
+    source = auto()
+    project = auto()
+    transform = auto()
+    filter = auto()
+    convert = auto()
+    inference = auto()
 
 class Pipeline:
     @staticmethod
@@ -1529,9 +1537,12 @@ class Tree:
         return self._project.cache_path(obj_hash)
 
 
-DiffStatus = Enum('DiffStatus', [
-    'added', 'modified', 'removed', 'missing', 'foreign_modified'
-])
+class DiffStatus(Enum):
+    added = auto()
+    modified = auto()
+    removed = auto()
+    missing = auto()
+    foreign_modified = auto()
 
 class Project:
     Revision = NewType('Revision', str)
@@ -1767,7 +1778,10 @@ class Project:
         return self._is_cached(obj_hash) or \
             self._can_retrieve_from_vcs_cache(obj_hash)
 
-    _RefKind = Enum('RefKind', ['tree', 'blob'])
+    class _RefKind(Enum):
+        tree = auto()
+        blob = auto()
+
     def _parse_ref(self, ref: str) -> Tuple[_RefKind, str]:
         if not ref: # working tree marker
             return self._RefKind.tree, ref
@@ -2204,7 +2218,7 @@ class Project:
     def has_commits(self) -> bool:
         return self._git.has_commits()
 
-    def status(self) -> Dict:
+    def status(self) -> Dict[str, DiffStatus]:
         wd = self.working_tree
 
         if not self.has_commits():
