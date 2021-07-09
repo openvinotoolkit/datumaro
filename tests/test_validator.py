@@ -8,18 +8,21 @@ from unittest import TestCase
 import numpy as np
 
 from datumaro.components.dataset import Dataset, DatasetItem
-from datumaro.components.errors import (MissingLabelCategories,
-    MissingAnnotation, MultiLabelAnnotations, MissingAttribute,
-    UndefinedLabel, UndefinedAttribute, LabelDefinedButNotFound,
-    AttributeDefinedButNotFound, OnlyOneLabel, FewSamplesInLabel,
-    FewSamplesInAttribute, ImbalancedLabels, ImbalancedAttribute,
-    ImbalancedDistInLabel, ImbalancedDistInAttribute,
-    NegativeLength, InvalidValue, FarFromLabelMean,
-    FarFromAttrMean, OnlyOneAttributeValue)
+from datumaro.components.errors import (
+    AttributeDefinedButNotFound, FarFromAttrMean, FarFromLabelMean,
+    FewSamplesInAttribute, FewSamplesInLabel, ImbalancedAttribute,
+    ImbalancedDistInAttribute, ImbalancedDistInLabel, ImbalancedLabels,
+    InvalidValue, LabelDefinedButNotFound, MissingAnnotation, MissingAttribute,
+    MissingLabelCategories, MultiLabelAnnotations, NegativeLength,
+    OnlyOneAttributeValue, OnlyOneLabel, UndefinedAttribute, UndefinedLabel,
+)
 from datumaro.components.extractor import Bbox, Label, Mask, Polygon
 from datumaro.components.validator import TaskType
-from datumaro.plugins.validators import (_TaskValidator,
-    ClassificationValidator, DetectionValidator, SegmentationValidator)
+from datumaro.plugins.validators import (
+    ClassificationValidator, DetectionValidator, SegmentationValidator,
+    _TaskValidator,
+)
+
 from .requirements import Requirements, mark_requirement
 
 

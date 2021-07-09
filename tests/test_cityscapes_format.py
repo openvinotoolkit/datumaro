@@ -1,18 +1,23 @@
-import os.path as osp
 from collections import OrderedDict
 from functools import partial
 from unittest import TestCase
+import os.path as osp
 
-import datumaro.plugins.cityscapes_format as Cityscapes
 import numpy as np
-from datumaro.components.extractor import (AnnotationType, DatasetItem,
-    Extractor, LabelCategories, Mask)
+
 from datumaro.components.dataset import Dataset
-from datumaro.plugins.cityscapes_format import (CityscapesImporter,
-    CityscapesConverter)
+from datumaro.components.extractor import (
+    AnnotationType, DatasetItem, Extractor, LabelCategories, Mask,
+)
+from datumaro.plugins.cityscapes_format import (
+    CityscapesConverter, CityscapesImporter,
+)
 from datumaro.util.image import Image
-from datumaro.util.test_utils import (TestDir, compare_datasets,
-    test_save_and_load)
+from datumaro.util.test_utils import (
+    TestDir, compare_datasets, test_save_and_load,
+)
+import datumaro.plugins.cityscapes_format as Cityscapes
+
 from .requirements import Requirements, mark_requirement
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets',

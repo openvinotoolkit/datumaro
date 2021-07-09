@@ -21,6 +21,13 @@ from datumaro.components.config import Config
 from datumaro.components.config_model import (BuildStage, Model, PipelineConfig,
     ProjectConfig, ProjectLayout, Source, TreeConfig, TreeLayout)
 from datumaro.components.dataset import DEFAULT_FORMAT, Dataset, IDataset
+from datumaro.components.config_model import (
+    PROJECT_DEFAULT_CONFIG, PROJECT_SCHEMA, Model, Source,
+)
+from datumaro.components.dataset import DEFAULT_FORMAT, Dataset, IDataset
+from datumaro.components.dataset_filter import (
+    XPathAnnotationsFilter, XPathDatasetFilter,
+)
 from datumaro.components.environment import Environment
 from datumaro.components.errors import (DatasetMergeError, EmptyCommitError,
     EmptyPipelineError, ForeignChangesError, MismatchingObjectError,

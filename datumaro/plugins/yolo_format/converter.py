@@ -3,15 +3,16 @@
 #
 # SPDX-License-Identifier: MIT
 
+from collections import OrderedDict
 import logging as log
 import os
 import os.path as osp
-from collections import OrderedDict
 
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
-from datumaro.components.extractor import (AnnotationType, DEFAULT_SUBSET_NAME,
-    DatasetItem)
+from datumaro.components.extractor import (
+    DEFAULT_SUBSET_NAME, AnnotationType, DatasetItem,
+)
 
 from .format import YoloPath
 

@@ -7,8 +7,8 @@ import logging as log
 import os
 import os.path as osp
 
-from datumaro.components.extractor import DatasetItem, SourceExtractor, Importer
 from datumaro.components.converter import Converter
+from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.util.image import find_images
 
 

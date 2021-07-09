@@ -4,10 +4,13 @@ import os.path as osp
 
 import numpy as np
 
-import datumaro.plugins.voc_format.format as VOC
+from datumaro.cli.__main__ import main
 from datumaro.components.dataset import Dataset, DatasetItem
 from datumaro.components.extractor import Bbox, Label, Mask
 from datumaro.util.test_utils import TestDir, compare_datasets, run_datum as run
+from datumaro.util.test_utils import TestDir, compare_datasets
+import datumaro.plugins.voc_format.format as VOC
+
 from ..requirements import Requirements, mark_requirement
 
 DUMMY_DATASETS_DIR = osp.join(__file__[:__file__.rfind(osp.join('tests', ''))],

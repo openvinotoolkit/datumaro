@@ -1,7 +1,7 @@
-import os
-import os.path as osp
 from unittest import TestCase
 from zipfile import ZipFile
+import os
+import os.path as osp
 
 import numpy as np
 

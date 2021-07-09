@@ -24,7 +24,6 @@ except ImportError:
     from shutil import rmtree  # pylint: disable=unused-import
     from os import remove as rmfile  # pylint: disable=unused-import
 
-
 DEFAULT_MAX_DEPTH = 10
 
 def check_instruction_set(instruction):

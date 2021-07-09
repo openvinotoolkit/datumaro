@@ -9,14 +9,14 @@
 
 ## Format specification
 
-- The YOLO dataset format is for training and validating object detection models.
-Specification for this format available
-[here](https://github.com/AlexeyAB/darknet#how-to-train-to-detect-your-custom-objects).
-And also you can find some official examples on working with YOLO dataset
-[here](https://pjreddie.com/darknet/yolo/);
+- The YOLO dataset format is for training and validating object detection
+  models. Specification for this format available
+  [here](https://github.com/AlexeyAB/darknet#how-to-train-to-detect-your-custom-objects).
+  And also you can find some official examples on working with YOLO dataset
+  [here](https://pjreddie.com/darknet/yolo/);
 
 - The YOLO dataset format support the following types of annotations:
-    - `Bounding boxes`
+  - `Bounding boxes`
 
 - YOLO format doesn't support attributes for annotations;
 
@@ -63,14 +63,14 @@ YOLO dataset directory should have the following structure:
    │    ├── ...
 ```
 > YOLO dataset cannot contain a subset with a name other than `train` or `valid`.
-If imported dataset contains such subsets, they will be ignored.
-If you are exporting a project into yolo format,
-all subsets different from `train` and `valid` will be skipped.
-If there is no subset separation in a project, the data
-will be saved in `train` subset.
+  If imported dataset contains such subsets, they will be ignored.
+  If you are exporting a project into yolo format,
+  all subsets different from `train` and `valid` will be skipped.
+  If there is no subset separation in a project, the data
+  will be saved in `train` subset.
 
 - `obj.data` should have the following content, it is not necessary to have both
-subsets, but necessary to have one of them:
+  subsets, but necessary to have one of them:
 ```
 classes = 5 # optional
 names = <path/to/obj.names>
@@ -101,8 +101,9 @@ for images:
 0 0.250000 0.400000 0.300000 0.400000
 3 0.600000 0.400000 0.400000 0.266667
 ```
-Here `x_center`, `y_center`, `width`, and `height` are relative to the image's width and height.
-The `x_center` and `y_center` are center of rectangle (are not top-left corner).
+Here `x_center`, `y_center`, `width`, and `height` are relative to the image's
+width and height. The `x_center` and `y_center` are center of rectangle
+(are not top-left corner).
 
 ## Export to other formats
 

@@ -2,8 +2,6 @@
 #
 # SPDX-License-Identifier: MIT
 
-# pylint: disable=unused-import
-
 import argparse
 import logging as log
 import os

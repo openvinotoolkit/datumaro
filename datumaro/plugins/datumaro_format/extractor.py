@@ -6,9 +6,10 @@
 import json
 import os.path as osp
 
-from datumaro.components.extractor import (SourceExtractor, DatasetItem,
-    AnnotationType, Label, RleMask, Points, Polygon, PolyLine, Bbox, Caption,
-    LabelCategories, MaskCategories, PointsCategories, Importer
+from datumaro.components.extractor import (
+    AnnotationType, Bbox, Caption, DatasetItem, Importer, Label,
+    LabelCategories, MaskCategories, Points, PointsCategories, Polygon,
+    PolyLine, RleMask, SourceExtractor,
 )
 from datumaro.util.image import Image
 

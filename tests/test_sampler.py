@@ -1,21 +1,19 @@
 from collections import defaultdict
 from unittest import TestCase, skipIf
-
-from datumaro.components.project import Dataset
-from datumaro.components.extractor import (
-    DatasetItem,
-    Label,
-    LabelCategories,
-    AnnotationType,
-)
-from datumaro.util.image import Image
-
 import csv
+
+from datumaro.components.extractor import (
+    AnnotationType, DatasetItem, Label, LabelCategories,
+)
+from datumaro.components.project import Dataset
+from datumaro.util.image import Image
 
 try:
     import pandas as pd
+
+    from datumaro.plugins.sampler.algorithm.entropy import \
+        SampleEntropy as entropy
     from datumaro.plugins.sampler.sampler import Sampler
-    from datumaro.plugins.sampler.algorithm.entropy import SampleEntropy as entropy
     has_libs = True
 except ImportError:
     has_libs = False

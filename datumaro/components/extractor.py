@@ -1,20 +1,19 @@
-
 # Copyright (C) 2019-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 from enum import Enum, auto
 from glob import iglob
-from typing import Callable, Iterable, List, Dict, Optional
+from typing import Callable, Dict, Iterable, List, Optional
 import os
 import os.path as osp
 
-from attr import attrs, attrib
+from attr import attrib, attrs
 import attr
 import numpy as np
 
+from datumaro.util.attrs_util import default_if_none, not_empty
 from datumaro.util.image import Image
-from datumaro.util.attrs_util import not_empty, default_if_none
 
 
 class AnnotationType(Enum):
@@ -25,6 +24,7 @@ class AnnotationType(Enum):
     polyline = auto()
     bbox = auto()
     caption = auto()
+    cuboid_3d = auto()
 
 _COORDINATE_ROUNDING_DIGITS = 2
 
@@ -359,6 +359,72 @@ class PolyLine(_Shape):
     def get_area(self):
         return 0
 
+
+@attrs
+class Cuboid3d(Annotation):
+    _type = AnnotationType.cuboid_3d
+    _points = attrib(type=list, default=None)
+    label = attrib(converter=attr.converters.optional(int),
+        default=None, kw_only=True)
+
+    @_points.validator
+    def _points_validator(self, attribute, points):
+        if points is None:
+            points = [0, 0, 0,  0, 0, 0,  1, 1, 1]
+        else:
+            assert len(points) == 3 + 3 + 3, points
+            points = [round(p, _COORDINATE_ROUNDING_DIGITS) for p in points]
+        self._points = points
+
+    # will be overridden by attrs, then will be overridden again by us
+    # attrs' method will be renamed to __attrs_init__
+    def __init__(self, position, rotation=None, scale=None, **kwargs):
+        assert len(position) == 3, position
+        if not rotation:
+            rotation = [0] * 3
+        if not scale:
+            scale = [1] * 3
+        kwargs.pop('points', None)
+        self.__attrs_init__(points=[*position, *rotation, *scale], **kwargs)
+    __actual_init__ = __init__ # save pointer
+
+    @property
+    def position(self):
+        """[x, y, z]"""
+        return self._points[0:3]
+
+    @position.setter
+    def _set_poistion(self, value):
+        # TODO: fix the issue with separate coordinate rounding:
+        # self.position[0] = 12.345676
+        # - the number assigned won't be rounded.
+        self.position[:] = \
+            [round(p, _COORDINATE_ROUNDING_DIGITS) for p in value]
+
+    @property
+    def rotation(self):
+        """[rx, ry, rz]"""
+        return self._points[3:6]
+
+    @rotation.setter
+    def _set_rotation(self, value):
+        self.rotation[:] = \
+            [round(p, _COORDINATE_ROUNDING_DIGITS) for p in value]
+
+    @property
+    def scale(self):
+        """[sx, sy, sz]"""
+        return self._points[6:9]
+
+    @scale.setter
+    def _set_scale(self, value):
+        self.scale[:] = \
+            [round(p, _COORDINATE_ROUNDING_DIGITS) for p in value]
+
+assert not hasattr(Cuboid3d, '__attrs_init__') # hopefully, it will be supported
+setattr(Cuboid3d, '__attrs_init__', Cuboid3d.__init__)
+setattr(Cuboid3d, '__init__', Cuboid3d.__actual_init__)
+
 @attrs
 class Polygon(_Shape):
     _type = AnnotationType.polygon
@@ -517,23 +583,48 @@ class DatasetItem:
         type=str, validator=not_empty)
     annotations = attrib(factory=list, validator=default_if_none(list))
     subset = attrib(converter=lambda v: v or DEFAULT_SUBSET_NAME, default=None)
+
+    # Currently unused
     path = attrib(factory=list, validator=default_if_none(list))
 
+    # TODO: introduce "media" field with type info. Replace image and pcd.
     image = attrib(type=Image, default=None)
-    @image.validator
-    def _image_validator(self, attribute, image):
+    # TODO: introduce pcd type like Image
+    point_cloud = attrib(type=str, default=None)
+    related_images = attrib(type=List[Image], default=None)
+
+    def __attrs_post_init__(self):
+        if (self.has_image and self.has_point_cloud):
+            raise ValueError("Can't set both image and point cloud info")
+        if self.related_images and not self.has_point_cloud:
+            raise ValueError("Related images require point cloud")
+
+    def _image_converter(image):
         if callable(image) or isinstance(image, np.ndarray):
             image = Image(data=image)
         elif isinstance(image, str):
             image = Image(path=image)
-        assert image is None or isinstance(image, Image)
-        self.image = image
+        assert image is None or isinstance(image, Image), type(image)
+        return image
+    image.converter = _image_converter
+
+    def _related_image_converter(images):
+        return list(map(__class__._image_converter, images or []))
+    related_images.converter = _related_image_converter
+
+    @point_cloud.validator
+    def _point_cloud_validator(self, attribute, pcd):
+        assert pcd is None or isinstance(pcd, str), type(pcd)
 
     attributes = attrib(factory=dict, validator=default_if_none(dict))
 
     @property
     def has_image(self):
         return self.image is not None
+
+    @property
+    def has_point_cloud(self):
+        return self.point_cloud is not None
 
     def wrap(item, **kwargs):
         return attr.evolve(item, **kwargs)

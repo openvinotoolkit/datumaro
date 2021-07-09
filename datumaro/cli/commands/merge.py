@@ -2,12 +2,12 @@
 #
 # SPDX-License-Identifier: MIT
 
+from collections import OrderedDict
 import argparse
 import json
 import logging as log
 import os
 import os.path as osp
-from collections import OrderedDict
 
 from datumaro.components.operations import IntersectMerge
 from datumaro.components.errors import (DatasetQualityError, DatasetMergeError,

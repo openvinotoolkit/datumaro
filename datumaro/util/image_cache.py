@@ -4,7 +4,6 @@
 
 from collections import OrderedDict
 
-
 _instance = None
 
 DEFAULT_CAPACITY = 2

@@ -3,21 +3,24 @@
 # SPDX-License-Identifier: MIT
 
 from collections import defaultdict
-from defusedxml import ElementTree
 from functools import partial
 from glob import glob, iglob
 import logging as log
-import numpy as np
 import os
 import os.path as osp
 
-from datumaro.components.extractor import (Extractor, Importer,
-    DatasetItem, AnnotationType, Mask, Bbox, Polygon, LabelCategories)
+from defusedxml import ElementTree
+import numpy as np
+
 from datumaro.components.converter import Converter
+from datumaro.components.extractor import (
+    AnnotationType, Bbox, DatasetItem, Extractor, Importer, LabelCategories,
+    Mask, Polygon,
+)
 from datumaro.util import cast, escape, unescape
-from datumaro.util.os_util import split_path
 from datumaro.util.image import Image, save_image
-from datumaro.util.mask_tools import load_mask, find_mask_bbox
+from datumaro.util.mask_tools import find_mask_bbox, load_mask
+from datumaro.util.os_util import split_path
 
 
 class LabelMePath:
@@ -59,7 +62,7 @@ class LabelMeExtractor(Extractor):
             subset = ''
             if 1 < len(path_parts):
                 subset = path_parts[0]
-                item_path = osp.join(*path_parts[1:])
+                item_path = osp.join(*path_parts[1:]) # pylint: disable=no-value-for-parameter
 
             root = ElementTree.parse(xml_path)
 
@@ -408,8 +411,8 @@ class LabelMeConverter(Converter):
                        cast(v, int) is not None and str(int(v)) == v:
                         v = f'"{v}"' # add escaping for string values
                     else:
-                        v = self._escape(v)
-                attrs.append('%s=%s' % (self._escape(k), v))
+                        v = self._escape(v) # pylint: disable=redundant-keyword-arg due FP https://github.com/PyCQA/pylint/issues/2271
+                attrs.append('%s=%s' % (self._escape(k), v)) # pylint: disable=redundant-keyword-arg due FP https://github.com/PyCQA/pylint/issues/2271
             ET.SubElement(obj_elem, 'attributes').text = ', '.join(attrs)
 
             obj_id += 1

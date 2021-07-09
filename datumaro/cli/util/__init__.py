@@ -6,9 +6,6 @@
 import argparse
 import textwrap
 
-from datumaro.util.os_util import make_file_name # pylint: disable=unused-import
-
-
 
 def add_subparser(subparsers, name, builder):
     return builder(lambda **kwargs: subparsers.add_parser(name, **kwargs))

@@ -3,26 +3,28 @@
 #
 # SPDX-License-Identifier: MIT
 
-import json
-import logging as log
-import numpy as np
-import os
-import os.path as osp
 from enum import Enum, auto
 from itertools import chain, groupby
+import json
+import logging as log
+import os
+import os.path as osp
 
+import numpy as np
 import pycocotools.mask as mask_utils
 
-import datumaro.util.annotation_util as anno_tools
-import datumaro.util.mask_tools as mask_tools
 from datumaro.components.converter import Converter
-from datumaro.components.extractor import (DatasetItem,
-    _COORDINATE_ROUNDING_DIGITS, AnnotationType, Points)
 from datumaro.components.dataset import ItemStatus
+from datumaro.components.extractor import (
+    _COORDINATE_ROUNDING_DIGITS, AnnotationType, DatasetItem, Points,
+)
 from datumaro.util import cast, find, str_to_bool
 from datumaro.util.image import save_image
+import datumaro.util.annotation_util as anno_tools
+import datumaro.util.mask_tools as mask_tools
 
 from .format import CocoPath, CocoTask
+
 
 class SegmentationMode(Enum):
     guess = auto()

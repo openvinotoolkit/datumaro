@@ -63,8 +63,9 @@ class Environment:
             return lambda t: issubclass(t, accept) and t not in skip
 
         from datumaro.components.converter import Converter
-        from datumaro.components.extractor import (Importer, Extractor,
-            SourceExtractor, Transform, ItemTransform)
+        from datumaro.components.extractor import (
+            Extractor, Importer, ItemTransform, SourceExtractor, Transform,
+        )
         from datumaro.components.launcher import Launcher
         self._extractors = PluginRegistry(_filter(Extractor,
             skip=SourceExtractor))
@@ -142,8 +143,9 @@ class Environment:
     def _load_plugins(cls, plugins_dir, types=None):
         if not types:
             from datumaro.components.converter import Converter
-            from datumaro.components.extractor import (Extractor, Importer,
-                Transform)
+            from datumaro.components.extractor import (
+                Extractor, Importer, Transform,
+            )
             from datumaro.components.launcher import Launcher
             types = [Extractor, Converter, Importer, Launcher, Transform]
 

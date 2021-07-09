@@ -4,12 +4,15 @@
 
 import os
 import os.path as osp
-import pickle
+import pickle  # nosec - disable B403:import_pickle check
 
 import numpy as np
+
 from datumaro.components.converter import Converter
-from datumaro.components.extractor import (AnnotationType, DatasetItem,
-    Importer, Label, LabelCategories, SourceExtractor)
+from datumaro.components.extractor import (
+    AnnotationType, DatasetItem, Importer, Label, LabelCategories,
+    SourceExtractor,
+)
 from datumaro.util import cast
 
 
@@ -52,7 +55,7 @@ class CifarExtractor(SourceExtractor):
             #               'dog', 'frog', 'horse', 'ship', 'truck']
             # num_vis: 3072
             with open(path, 'rb') as labels_file:
-                data = pickle.load(labels_file)
+                data = pickle.load(labels_file) # nosec - disable B301:pickle check
             for label in data['label_names']:
                 label_cat.add(label)
         else:
@@ -69,7 +72,7 @@ class CifarExtractor(SourceExtractor):
         # 'filenames': list
         # 'labels': list
         with open(path, 'rb') as anno_file:
-            annotation_dict = pickle.load(anno_file, encoding='latin1')
+            annotation_dict = pickle.load(anno_file, encoding='latin1') # nosec - disable B301:pickle check
 
         labels = annotation_dict.get('labels', [])
         filenames = annotation_dict.get('filenames', [])

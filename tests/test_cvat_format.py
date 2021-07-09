@@ -1,4 +1,5 @@
 from functools import partial
+from unittest import TestCase
 import os
 import os.path as osp
 
@@ -9,11 +10,14 @@ from datumaro.components.extractor import (DatasetItem,
     AnnotationType, Points, Polygon, PolyLine, Bbox, Label,
     LabelCategories,
 )
-from datumaro.plugins.cvat_format.extractor import CvatImporter
+from datumaro.components.project import Dataset
 from datumaro.plugins.cvat_format.converter import CvatConverter
+from datumaro.plugins.cvat_format.extractor import CvatImporter
 from datumaro.util.image import Image
-from datumaro.util.test_utils import (TestDir, compare_datasets,
-    test_save_and_load)
+from datumaro.util.test_utils import (
+    TestDir, compare_datasets, test_save_and_load,
+)
+
 from .requirements import Requirements, mark_requirement
 
 DUMMY_IMAGE_DATASET_DIR = osp.join(osp.dirname(__file__),

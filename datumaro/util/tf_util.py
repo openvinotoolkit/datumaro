@@ -16,7 +16,8 @@ def check_import():
 
     from .os_util import check_instruction_set
 
-    result = subprocess.run([sys.executable, '-c', 'import tensorflow'],
+    # Disable B603:subprocess_without_shell_equals_true - the command line is controlled
+    result = subprocess.run([sys.executable, '-c', 'import tensorflow'], # nosec
         timeout=60,
         universal_newlines=True, # use text mode for output stream
         stdout=subprocess.PIPE, stderr=subprocess.PIPE) # capture output
@@ -40,7 +41,7 @@ def import_tf(check=None):
     not_found = object()
     tf = sys.modules.get('tensorflow', not_found)
     if tf is None:
-        import tensorflow as tf # emit default error
+        import tensorflow as tf  # emit default error
     elif tf is not not_found:
         return tf
 

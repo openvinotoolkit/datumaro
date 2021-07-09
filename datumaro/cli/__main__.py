@@ -13,7 +13,6 @@ from .util import add_subparser
 from .util.errors import CliException
 from ..version import VERSION
 
-
 _log_levels = {
     'debug': log.DEBUG,
     'info': log.INFO,

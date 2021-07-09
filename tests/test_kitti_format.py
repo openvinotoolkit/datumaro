@@ -1,25 +1,26 @@
-import os.path as osp
 from collections import OrderedDict
 from functools import partial
 from unittest import TestCase
+import os.path as osp
 
 import numpy as np
 
-from datumaro.components.extractor import (AnnotationType, Bbox, DatasetItem,
-    Extractor, LabelCategories, Mask)
 from datumaro.components.dataset import Dataset
-from datumaro.plugins.kitti_format.converter import (
-    KittiConverter,
+from datumaro.components.extractor import (
+    AnnotationType, Bbox, DatasetItem, Extractor, LabelCategories, Mask,
 )
-from datumaro.plugins.kitti_format.format import (KittiPath, KittiTask,
-    make_kitti_categories, make_kitti_detection_categories,
-    KittiLabelMap, parse_label_map, write_label_map,
+from datumaro.plugins.kitti_format.converter import KittiConverter
+from datumaro.plugins.kitti_format.format import (
+    KittiLabelMap, KittiPath, KittiTask, make_kitti_categories,
+    make_kitti_detection_categories, parse_label_map, write_label_map,
 )
-from datumaro.plugins.kitti_format.importer import (KittiImporter,
-    KittiDetectionImporter, KittiSegmentationImporter)
+from datumaro.plugins.kitti_format.importer import (
+    KittiDetectionImporter, KittiImporter, KittiSegmentationImporter,
+)
 from datumaro.util.image import Image
-from datumaro.util.test_utils import (TestDir, compare_datasets,
-    test_save_and_load)
+from datumaro.util.test_utils import (
+    TestDir, compare_datasets, test_save_and_load,
+)
 
 from .requirements import Requirements, mark_requirement
 

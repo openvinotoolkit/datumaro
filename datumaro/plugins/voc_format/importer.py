@@ -7,7 +7,7 @@ import os.path as osp
 
 from datumaro.components.extractor import Importer
 
-from .format import VocTask, VocPath
+from .format import VocPath, VocTask
 
 
 class VocImporter(Importer):

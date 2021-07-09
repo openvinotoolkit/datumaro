@@ -3,18 +3,19 @@
 #
 # SPDX-License-Identifier: MIT
 
+from collections import OrderedDict
+from enum import Enum, auto
 import logging as log
 import os
 import os.path as osp
-from collections import OrderedDict
-from enum import Enum, auto
 
 import numpy as np
 
 from datumaro.components.converter import Converter
-from datumaro.components.extractor import (AnnotationType, CompiledMask,
-    DatasetItem, Importer, LabelCategories, Mask,
-    MaskCategories, SourceExtractor)
+from datumaro.components.extractor import (
+    AnnotationType, CompiledMask, DatasetItem, Importer, LabelCategories, Mask,
+    MaskCategories, SourceExtractor,
+)
 from datumaro.util import find, str_to_bool
 from datumaro.util.annotation_util import make_label_id_mapping
 from datumaro.util.image import save_image

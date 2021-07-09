@@ -7,11 +7,12 @@ from collections import OrderedDict
 import os.path as osp
 import re
 
-from datumaro.components.extractor import (SourceExtractor, Extractor,
-    DatasetItem, AnnotationType, Bbox, LabelCategories, Importer
+from datumaro.components.extractor import (
+    AnnotationType, Bbox, DatasetItem, Extractor, Importer, LabelCategories,
+    SourceExtractor,
 )
-from datumaro.util.os_util import split_path
 from datumaro.util.image import Image
+from datumaro.util.os_util import split_path
 
 from .format import YoloPath
 
@@ -120,7 +121,7 @@ class YoloExtractor(SourceExtractor):
             # NOTE: when path is like [data/]<subset>_obj/<image_name>
             # drop everything but <image name>
             # <image name> can be <a/b/c/filename.ext>, so not just basename()
-            path = osp.join(*parts[1:])
+            path = osp.join(*parts[1:]) # pylint: disable=no-value-for-parameter
         return osp.splitext(path)[0]
 
     def _get(self, item_id, subset_name):

@@ -1,9 +1,10 @@
-import numpy as np
-
 from unittest import TestCase
 
-import datumaro.util.mask_tools as mask_tools
+import numpy as np
+
 from datumaro.components.extractor import CompiledMask
+import datumaro.util.mask_tools as mask_tools
+
 from .requirements import Requirements, mark_requirement
 
 

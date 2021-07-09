@@ -2,28 +2,29 @@
 #
 # SPDX-License-Identifier: MIT
 
-from copy import copy
 from contextlib import contextmanager
+from copy import copy
 from enum import Enum, auto
-from typing import Any, Iterable, Iterator, Optional, Tuple, Union, Dict, List
-import logging as log
+from typing import Any, Dict, Iterable, Iterator, List, Optional, Tuple, Union
 import inspect
+import logging as log
 import os
 import os.path as osp
 import shutil
 
-from datumaro.components.dataset_filter import \
-    XPathDatasetFilter, XPathAnnotationsFilter
-from datumaro.components.extractor import (CategoriesInfo, Extractor,
-    IExtractor, ItemTransform, LabelCategories, AnnotationType, DatasetItem,
-    DEFAULT_SUBSET_NAME, Transform)
+from datumaro.components.dataset_filter import (
+    XPathAnnotationsFilter, XPathDatasetFilter,
+)
 from datumaro.components.environment import Environment
 from datumaro.components.errors import (CategoriesRedefinedError,
     DatumaroError, MultipleFormatsMatchError, NoFormatsMatchError,
     RepeatedItemError)
+from datumaro.components.extractor import (
+    DEFAULT_SUBSET_NAME, AnnotationType, CategoriesInfo, DatasetItem, Extractor,
+    IExtractor, ItemTransform, LabelCategories, Transform,
+)
 from datumaro.util import error_rollback, is_member_redefined
 from datumaro.util.log_utils import logging_disabled
-
 
 DEFAULT_FORMAT = 'datumaro'
 

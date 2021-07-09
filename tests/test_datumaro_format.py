@@ -1,21 +1,23 @@
 from functools import partial
+from unittest import TestCase
 import os
 import os.path as osp
 
 import numpy as np
-from unittest import TestCase
-from datumaro.components.project import Dataset
-from datumaro.components.extractor import (DatasetItem,
-    AnnotationType, Label, Mask, Points, Polygon,
-    PolyLine, Bbox, Caption,
-    LabelCategories, MaskCategories, PointsCategories
+
+from datumaro.components.extractor import (
+    AnnotationType, Bbox, Caption, DatasetItem, Label, LabelCategories, Mask,
+    MaskCategories, Points, PointsCategories, Polygon, PolyLine,
 )
-from datumaro.plugins.datumaro_format.extractor import DatumaroImporter
+from datumaro.components.project import Dataset
 from datumaro.plugins.datumaro_format.converter import DatumaroConverter
-from datumaro.util.mask_tools import generate_colormap
+from datumaro.plugins.datumaro_format.extractor import DatumaroImporter
 from datumaro.util.image import Image
-from datumaro.util.test_utils import (TestDir, compare_datasets_strict,
-    test_save_and_load)
+from datumaro.util.mask_tools import generate_colormap
+from datumaro.util.test_utils import (
+    TestDir, compare_datasets_strict, test_save_and_load,
+)
+
 from .requirements import Requirements, mark_requirement
 
 
