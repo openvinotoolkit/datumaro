@@ -85,7 +85,7 @@ include_members_list = [
 ]
 
 def skip_member(app, what, name, obj, skip, options):
-    if all(name != a for a in include_members_list) == True:
+    if all(name != a for a in include_members_list):
         return name.startswith('_')
 
 def replace(app, what, name, obj, options, lines):

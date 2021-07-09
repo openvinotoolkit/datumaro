@@ -215,7 +215,7 @@ class _InstancesConverter(_TaskConverter):
         polygons = [p.points for p in polygons]
 
         if self._context._segmentation_mode == SegmentationMode.guess:
-            use_masks = True == leader.attributes.get('is_crowd',
+            use_masks = True is leader.attributes.get('is_crowd',
                 find(masks, lambda x: x.label == leader.label) is not None)
         elif self._context._segmentation_mode == SegmentationMode.polygons:
             use_masks = False

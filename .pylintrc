@@ -54,6 +54,7 @@ disable=all
 # multiple time (only on the command line, not in the configuration file where
 # it should appear only once). See also the "--disable" option for examples.
 enable=
+    C0121, # singleton-comparison
     C0123, # unidiomatic-typecheck
     C0200, # consider-using-enumerate
     C0303, # trailing-whitespace

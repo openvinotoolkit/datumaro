@@ -41,7 +41,7 @@ class VideoTest:
         video = Video(fxt_sample_video)
         on_exit_do(video.close)
 
-        assert None == video.length
+        assert None is video.length
         assert (4, 6) == video.frame_size
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -105,7 +105,7 @@ class VideoTest:
         video = Video(fxt_sample_video)
         on_exit_do(video.close)
 
-        assert None == video.length
+        assert None is video.length
 
         for idx, frame in enumerate(video):
             assert idx == frame.index
