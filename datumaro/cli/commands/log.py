@@ -10,7 +10,7 @@ from ..util.project import load_project
 def build_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(description="Prints project history.")
 
-    parser.add_argument('-n', '--count', default=10, type=int,
+    parser.add_argument('-n', '--max-count', default=10, type=int,
         help="Count of last commits to print (default: %(default)s)")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to operate on (default: current dir)")
@@ -21,9 +21,10 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 def log_command(args):
     project = load_project(args.project_dir)
 
-    revisions = project.history(args.count)
+    revisions = project.history(args.max_count)
     if revisions:
-        print('\n'.join('%s %s' % line for line in revisions))
+        for rev, message in revisions:
+            print('%s %s' % (rev, message))
     else:
         print("(Project history is empty)")
 

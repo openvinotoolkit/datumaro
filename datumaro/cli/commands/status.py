@@ -27,7 +27,8 @@ def status_command(args):
         print("HEAD is detached at commit %s" % project.head_rev)
 
     if statuses:
-        print('\n'.join('%s\t%s' % (s.name, p) for p, s in statuses.items()))
+        for target, status in statuses.items():
+            print('%s\t%s' % (status.name, target))
     else:
         print("Working directory clean")
 

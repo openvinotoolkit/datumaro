@@ -2254,7 +2254,7 @@ class Project:
 
         return changed_targets
 
-    def history(self, max_count=10) -> List[str]:
+    def history(self, max_count=10) -> List[Tuple[Revision, str]]:
         return [(c.hexsha, c.message) for c, _ in self._git.log(max_count)]
 
     def diff(self, rev_a: Union[Tree, Revision],

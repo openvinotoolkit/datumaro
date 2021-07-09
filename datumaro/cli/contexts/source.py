@@ -42,7 +42,7 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
             - Add a local directory with a VOC-like dataset:|n
             |s|s%(prog)s -f voc path/to/voc|n
             - Add a directory with a COCO dataset, use only a specific file:|n
-            |s|s%(prog)s -f coco_instances path/to/voc -r anns/train.json|n
+            |s|s%(prog)s -f coco_instances path/to/coco -r anns/train.json|n
             - Add a local file with CVAT annotations, call it 'mysource'|n
             |s|s|s|sto the project in a specific place:|n
             |s|s%(prog)s -f cvat -n mysource -p project/path/ path/to/cvat.xml

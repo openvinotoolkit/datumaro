@@ -55,7 +55,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         - Merge annotations from 3 (or more) annotators:|n
         |s|s%(prog)s project1/ project2/ project3/|n
         |n
-        - Check groups of the merged dataset for consistence:|n
+        - Check groups of the merged dataset for consistency:|n
         |s|s|slook for groups consising of 'person', 'hand' 'head', 'foot'|n
         |s|s%(prog)s project1/ project2/ -g 'person,hand?,head,foot?'|n
         |n

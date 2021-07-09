@@ -21,8 +21,8 @@ from ..contexts.project.diff import DatasetDiffVisualizer
 
 
 class ComparisonMethod(Enum):
-        equality = auto()
-        distance = auto()
+    equality = auto()
+    distance = auto()
 
 eq_default_if = ['id', 'group'] # avoid https://bugs.python.org/issue16399
 
@@ -57,7 +57,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         |n
         Examples:|n
         - Compare two projects by distance, match boxes if IoU > 0.7,|n
-        |s|s|s|sprint results to Tensorboard:|n
+        |s|s|s|ssave results to Tensorboard:|n
         |s|s%(prog)s other/project -o diff/ -f tensorboard --iou-thresh 0.7|n
         |n
         - Compare two projects for equality, exclude annotation groups |n
@@ -97,7 +97,8 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     parser.add_argument('second_target', nargs='?',
         help="The second project or revision to be compared")
     parser.add_argument('-o', '--output-dir', dest='dst_dir', default=None,
-        help="Directory to save comparison results (default: do not save)")
+        help="Directory to save comparison results "
+            "(default: generate automatically)")
     parser.add_argument('-m', '--method', type=_parse_comparison_method,
         default=ComparisonMethod.equality.name,
         help="Comparison method, one of {} (default: %(default)s)" \
