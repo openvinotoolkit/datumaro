@@ -179,14 +179,13 @@ class Rollback:
     def __enter__(self):
         return self
 
-    # pylint: disable=redefined-builtin
-    def __exit__(self, type=None, value=None, traceback=None):
+    def __exit__(self, type=None, value=None, \
+            traceback=None): # pylint: disable=redefined-builtin
         if type is None:
             return
         if not self.enabled:
             return
         self._stack.__exit__(type, value, traceback)
-    # pylint: enable=redefined-builtin
 
 @optional_arg_decorator
 def error_rollback(func, arg_name='on_error', implicit=False):

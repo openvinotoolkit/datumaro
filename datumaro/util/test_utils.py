@@ -30,13 +30,11 @@ class FileRemover:
     def __enter__(self):
         return self.path
 
-    # pylint: disable=redefined-builtin
-    def __exit__(self, type=None, value=None, traceback=None):
+    def __exit__(self, *args, **kwargs):
         if self.is_dir:
             rmtree(self.path)
         else:
             rmfile(self.path)
-    # pylint: enable=redefined-builtin
 
 class TestDir(FileRemover):
     """

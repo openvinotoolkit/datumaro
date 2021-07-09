@@ -715,8 +715,8 @@ class ProjectBuildTargets(CrudProxy):
             'params': params,
         }, name=name)
 
-    def add_convert_stage(self, target: str, format: str, \
-            params: Optional[Dict] = None, name: Optional[str] = None): # pylint: disable=redefined-builtin
+    def add_convert_stage(self, target: str, format: str,
+            params: Optional[Dict] = None, name: Optional[str] = None):
         if not self._tree.env.is_format_known(format):
             raise KeyError("Unknown format '%s'" % format)
 
@@ -896,7 +896,7 @@ class GitWrapper:
 
         self.write_tree(tree, dst_dir)
 
-    def add(self, paths, base=None): # pylint: disable=redefined-builtin
+    def add(self, paths, base=None):
         """
         Adds paths to index.
         Paths can be truncated relatively to base.
@@ -1941,8 +1941,7 @@ class Project:
 
     def import_source(self, name: str, url: Optional[str],
             format: str, options: Optional[Dict] = None,
-            no_cache: bool = False, path: Optional[str] = None) -> Source: \
-                #pylint: disable=redefined-builtin
+            no_cache: bool = False, path: Optional[str] = None) -> Source:
         """
         Adds a new source (dataset) to the working directory of the project.
 
