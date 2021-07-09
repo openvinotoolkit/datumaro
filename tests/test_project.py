@@ -3,6 +3,8 @@ import os
 import os.path as osp
 import shutil
 
+import numpy as np
+
 from datumaro.components.config_model import Model, Source
 from datumaro.components.dataset import DEFAULT_FORMAT, Dataset
 from datumaro.components.errors import (
