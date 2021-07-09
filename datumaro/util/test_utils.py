@@ -2,29 +2,17 @@
 #
 # SPDX-License-Identifier: MIT
 
-from glob import glob
 from enum import Enum, auto
+from glob import glob
 import inspect
 import os
 import os.path as osp
 import tempfile
 
-from datumaro.components.extractor import AnnotationType
-from datumaro.components.dataset import Dataset
-from datumaro.util import find
-from datumaro.util.os_util import rmfile, rmtree
-try:
-    # Use rmtree from GitPython to avoid the problem with removal of
-    # readonly files on Windows, which Git uses extensively
-    # It double checks if a file cannot be removed because of readonly flag
-    from git.util import rmfile, rmtree
-except ImportError:
-    from shutil import rmtree
-    from os import remove as rmfile
-
 from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import AnnotationType
 from datumaro.util import filter_dict, find
+from datumaro.util.os_util import rmfile, rmtree
 
 
 class Dimensions(Enum):

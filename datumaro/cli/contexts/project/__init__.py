@@ -15,16 +15,19 @@ from datumaro.components.dataset_filter import DatasetItemEncoder
 from datumaro.components.environment import Environment
 from datumaro.components.errors import DatasetMergeError
 from datumaro.components.extractor import AnnotationType
-from datumaro.components.operations import (compute_ann_statistics,
-    compute_image_statistics)
+from datumaro.components.operations import (
+    compute_ann_statistics, compute_image_statistics,
+)
 from datumaro.components.project import ProjectBuildTargets
 from datumaro.components.validator import TaskType
 from datumaro.util import str_to_bool
+from datumaro.util.os_util import make_file_name
 
-from ...util import MultilineFormatter, add_subparser, make_file_name
+from ...util import MultilineFormatter, add_subparser
 from ...util.errors import CliException
-from ...util.project import (generate_next_file_name, load_project,
-    parse_local_revpath)
+from ...util.project import (
+    generate_next_file_name, load_project, parse_local_revpath,
+)
 
 
 class FilterModes(Enum):

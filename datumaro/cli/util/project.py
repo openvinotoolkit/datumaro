@@ -6,11 +6,11 @@ from itertools import count
 import os
 import re
 
-from datumaro.components.environment import Environment
+from datumaro.cli.util.errors import WrongRevpathError
 from datumaro.components.dataset import Dataset
+from datumaro.components.environment import Environment
 from datumaro.components.errors import ProjectNotFoundError
 from datumaro.components.project import Project
-from datumaro.cli.util.errors import WrongRevpathError
 from datumaro.util.os_util import generate_next_name
 
 

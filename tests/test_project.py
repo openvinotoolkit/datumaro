@@ -3,18 +3,19 @@ import os
 import os.path as osp
 import shutil
 
-from unittest import TestCase
-from datumaro.components.config_model import Source, Model
-from datumaro.components.dataset import Dataset, DEFAULT_FORMAT
-from datumaro.components.errors import (EmptyCommitError, ForeignChangesError,
-    SourceOutsideError)
-from datumaro.components.extractor import (Bbox, DatasetItem, ItemTransform,
-    Label)
+from datumaro.components.config_model import Model, Source
+from datumaro.components.dataset import DEFAULT_FORMAT, Dataset
+from datumaro.components.errors import (
+    EmptyCommitError, ForeignChangesError, SourceOutsideError,
+)
+from datumaro.components.extractor import (
+    Bbox, DatasetItem, ItemTransform, Label,
+)
 from datumaro.components.launcher import Launcher
 from datumaro.components.project import DiffStatus, Project
 from datumaro.util.test_utils import TestDir, compare_datasets, compare_dirs
 
-from .requirements import mark_requirement, Requirements
+from .requirements import Requirements, mark_requirement
 
 
 class ProjectTest(TestCase):

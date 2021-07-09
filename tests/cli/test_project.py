@@ -6,7 +6,8 @@ import numpy as np
 
 from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import Bbox, DatasetItem
-from datumaro.util.test_utils import TestDir, compare_datasets, run_datum as run
+from datumaro.util.test_utils import TestDir, compare_datasets
+from datumaro.util.test_utils import run_datum as run
 
 
 class ProjectIntegrationScenarios(TestCase):

@@ -6,9 +6,7 @@
 from datumaro.components.config import Config
 from datumaro.components.config import DictConfig as _DictConfig
 from datumaro.components.config import SchemaBuilder as _SchemaBuilder
-
 from datumaro.util import find
-
 
 SOURCE_SCHEMA = _SchemaBuilder() \
     .add('url', str) \

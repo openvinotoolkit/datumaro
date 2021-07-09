@@ -13,8 +13,10 @@ from datumaro.util.os_util import rmtree
 
 from ..util import MultilineFormatter, add_subparser
 from ..util.errors import CliException
-from ..util.project import (load_project, parse_full_revpath,
-    generate_next_name, generate_next_file_name)
+from ..util.project import (
+    generate_next_file_name, generate_next_name, load_project,
+    parse_full_revpath,
+)
 
 
 def build_add_parser(parser_ctor=argparse.ArgumentParser):

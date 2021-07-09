@@ -12,7 +12,9 @@ from datumaro.components.extractor import (
 from datumaro.components.operations import DistanceComparator
 from datumaro.components.project import Dataset
 from datumaro.util.image import Image
-from datumaro.util.test_utils import TestDir, run_datum as run
+from datumaro.util.test_utils import TestDir
+from datumaro.util.test_utils import run_datum as run
+
 from ..requirements import Requirements, mark_requirement
 
 

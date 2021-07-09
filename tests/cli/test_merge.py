@@ -3,11 +3,14 @@ import os.path as osp
 
 import numpy as np
 
-import datumaro.plugins.voc_format.format as VOC
+from datumaro.components.extractor import (
+    AnnotationType, Bbox, DatasetItem, LabelCategories, MaskCategories,
+)
 from datumaro.components.project import Dataset, Project
-from datumaro.components.extractor import (AnnotationType, DatasetItem, Bbox,
-    LabelCategories, MaskCategories)
-from datumaro.util.test_utils import TestDir, compare_datasets, run_datum as run
+from datumaro.util.test_utils import TestDir, compare_datasets
+from datumaro.util.test_utils import run_datum as run
+import datumaro.plugins.voc_format.format as VOC
+
 from ..requirements import Requirements, mark_requirement
 
 

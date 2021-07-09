@@ -7,7 +7,8 @@ import logging as log
 import os
 import os.path as osp
 
-from datumaro.util.image import load_image, save_image, is_image
+from datumaro.util.image import is_image, load_image, save_image
+
 from ..util import MultilineFormatter
 from ..util.project import load_project, parse_full_revpath
 
@@ -110,8 +111,8 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     return parser
 
 def explain_command(args):
-    import cv2
     from matplotlib import cm
+    import cv2
 
     project = load_project(args.project_dir)
 

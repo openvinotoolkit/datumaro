@@ -13,11 +13,13 @@ from datumaro.components.errors import ProjectNotFoundError
 from datumaro.components.operations import DistanceComparator, ExactComparator
 from datumaro.util import error_rollback
 from datumaro.util.os_util import rmtree
+
+from ..contexts.project.diff import DatasetDiffVisualizer
 from ..util import MultilineFormatter
 from ..util.errors import CliException
-from ..util.project import (generate_next_file_name, load_project,
-    parse_full_revpath)
-from ..contexts.project.diff import DatasetDiffVisualizer
+from ..util.project import (
+    generate_next_file_name, load_project, parse_full_revpath,
+)
 
 
 class ComparisonMethod(Enum):

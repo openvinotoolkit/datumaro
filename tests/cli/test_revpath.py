@@ -1,15 +1,16 @@
 from unittest.case import TestCase
 import os.path as osp
 
-from datumaro.components.dataset import Dataset, DEFAULT_FORMAT, IDataset
-from datumaro.components.extractor import DatasetItem
-from datumaro.components.errors import (MultipleFormatsMatchError,
-    ProjectNotFoundError, UnknownTargetError)
-from datumaro.components.project import Project
 from datumaro.cli.util.project import WrongRevpathError, parse_full_revpath
+from datumaro.components.dataset import DEFAULT_FORMAT, Dataset, IDataset
+from datumaro.components.errors import (
+    MultipleFormatsMatchError, ProjectNotFoundError, UnknownTargetError,
+)
+from datumaro.components.extractor import DatasetItem
+from datumaro.components.project import Project
 from datumaro.util.test_utils import TestDir
 
-from ..requirements import mark_requirement, Requirements
+from ..requirements import Requirements, mark_requirement
 
 
 class TestRevpath(TestCase):

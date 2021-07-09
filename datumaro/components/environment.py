@@ -4,11 +4,11 @@
 
 from functools import partial
 from glob import glob
+from typing import Iterable
 import inspect
 import logging as log
 import os
 import os.path as osp
-from typing import Iterable
 
 from datumaro.util.os_util import import_foreign_module
 

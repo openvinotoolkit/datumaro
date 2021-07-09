@@ -1,6 +1,5 @@
-import os.path as osp
-
 from unittest import TestCase
+import os.path as osp
 
 from datumaro.components.config import Config, DictConfig, SchemaBuilder
 from datumaro.util.test_utils import TestDir

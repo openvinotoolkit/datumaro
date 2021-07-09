@@ -4,11 +4,9 @@ import os.path as osp
 import numpy as np
 
 from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import (DatasetItem,
-    AnnotationType, Bbox)
-from datumaro.util.test_utils import TestDir, compare_datasets, run_datum as run
 from datumaro.components.extractor import AnnotationType, Bbox, DatasetItem
 from datumaro.util.test_utils import TestDir, compare_datasets
+from datumaro.util.test_utils import run_datum as run
 import datumaro.plugins.voc_format.format as VOC
 
 from ..requirements import Requirements, mark_requirement

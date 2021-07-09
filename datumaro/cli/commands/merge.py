@@ -9,14 +9,16 @@ import logging as log
 import os
 import os.path as osp
 
+from datumaro.components.errors import (
+    DatasetMergeError, DatasetQualityError, ProjectNotFoundError,
+)
 from datumaro.components.operations import IntersectMerge
-from datumaro.components.errors import (DatasetQualityError, DatasetMergeError,
-    ProjectNotFoundError)
 
 from ..util import MultilineFormatter
 from ..util.errors import CliException
-from ..util.project import (generate_next_file_name, load_project,
-    parse_full_revpath)
+from ..util.project import (
+    generate_next_file_name, load_project, parse_full_revpath,
+)
 
 
 def build_parser(parser_ctor=argparse.ArgumentParser):

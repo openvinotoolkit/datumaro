@@ -8,7 +8,6 @@ import logging as log
 import os.path as osp
 
 from datumaro.components.extractor import Importer
-from datumaro.util.log_utils import logging_disabled
 
 from .format import KittiPath, KittiTask
 

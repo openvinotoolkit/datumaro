@@ -16,9 +16,10 @@ from datumaro.components.dataset_filter import (
     XPathAnnotationsFilter, XPathDatasetFilter,
 )
 from datumaro.components.environment import Environment
-from datumaro.components.errors import (CategoriesRedefinedError,
-    DatumaroError, MultipleFormatsMatchError, NoFormatsMatchError,
-    RepeatedItemError)
+from datumaro.components.errors import (
+    CategoriesRedefinedError, DatumaroError, MultipleFormatsMatchError,
+    NoFormatsMatchError, RepeatedItemError,
+)
 from datumaro.components.extractor import (
     DEFAULT_SUBSET_NAME, AnnotationType, CategoriesInfo, DatasetItem, Extractor,
     IExtractor, ItemTransform, LabelCategories, Transform,

@@ -4,10 +4,10 @@
 
 from collections import OrderedDict
 from copy import deepcopy
+from typing import Callable
 from unittest import TestCase
 import hashlib
 import logging as log
-from typing import Callable
 
 from attr import attrib, attrs
 import attr
@@ -15,23 +15,11 @@ import cv2
 import numpy as np
 
 from datumaro.components.cli_plugin import CliPlugin
-from datumaro.util import find, filter_dict
-from datumaro.components.extractor import (AnnotationType, Bbox,
-    CategoriesInfo, Label,
-    LabelCategories, PointsCategories, MaskCategories)
-from datumaro.components.errors import (DatasetMergeError, FailedAttrVotingError,
-    FailedLabelVotingError, ConflictingCategoriesError,
-    MismatchingImageInfoError, NoMatchingAnnError,
-    NoMatchingItemError, AnnotationsTooCloseError, WrongGroupError)
 from datumaro.components.dataset import Dataset, DatasetItemStorage, IDataset
-from datumaro.util.attrs_util import ensure_cls, default_if_none
-from datumaro.util.annotation_util import (segment_iou, bbox_iou,
-    mean_bbox, OKS, find_instances, max_bbox, smooth_line)
-from datumaro.components.dataset import Dataset, DatasetItemStorage
 from datumaro.components.errors import (
-    AnnotationsTooCloseError, DatumaroError, FailedAttrVotingError,
-    FailedLabelVotingError, MismatchingImageInfoError, NoMatchingAnnError,
-    NoMatchingItemError, WrongGroupError,
+    AnnotationsTooCloseError, ConflictingCategoriesError, DatasetMergeError,
+    FailedAttrVotingError, FailedLabelVotingError, MismatchingImageInfoError,
+    NoMatchingAnnError, NoMatchingItemError, WrongGroupError,
 )
 from datumaro.components.extractor import (
     AnnotationType, Bbox, CategoriesInfo, Label, LabelCategories,

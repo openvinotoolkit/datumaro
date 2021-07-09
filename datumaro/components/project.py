@@ -2,6 +2,9 @@
 #
 # SPDX-License-Identifier: MIT
 
+from contextlib import ExitStack
+from enum import Enum, auto
+from typing import Dict, Iterable, List, NewType, Optional, Tuple, Union
 import json
 import logging as log
 import os
@@ -10,37 +13,31 @@ import re
 import shutil
 import tempfile
 import unittest.mock
-from contextlib import ExitStack
-from enum import Enum, auto
-from typing import Dict, Iterable, List, NewType, Optional, Tuple, Union
 
 import networkx as nx
 import ruamel.yaml as yaml
 
 from datumaro.components.config import Config
-from datumaro.components.config_model import (BuildStage, Model, PipelineConfig,
-    ProjectConfig, ProjectLayout, Source, TreeConfig, TreeLayout)
-from datumaro.components.dataset import DEFAULT_FORMAT, Dataset, IDataset
 from datumaro.components.config_model import (
-    PROJECT_DEFAULT_CONFIG, PROJECT_SCHEMA, Model, Source,
+    BuildStage, Model, PipelineConfig, ProjectConfig, ProjectLayout, Source,
+    TreeConfig, TreeLayout,
 )
 from datumaro.components.dataset import DEFAULT_FORMAT, Dataset, IDataset
-from datumaro.components.dataset_filter import (
-    XPathAnnotationsFilter, XPathDatasetFilter,
-)
 from datumaro.components.environment import Environment
-from datumaro.components.errors import (DatasetMergeError, EmptyCommitError,
-    EmptyPipelineError, ForeignChangesError, MismatchingObjectError,
-    MissingObjectError, MissingPipelineHeadError, MultiplePipelineHeadsError,
-    ProjectAlreadyExists, ProjectNotFoundError, ReadonlyDatasetError,
-    SourceExistsError, SourceOutsideError, UnknownRefError, UnknownSourceError,
-    UnknownStageError, VcsError, UnsavedChangesError, WrongSourceNodeError,
-    UnknownTargetError)
+from datumaro.components.errors import (
+    DatasetMergeError, EmptyCommitError, EmptyPipelineError,
+    ForeignChangesError, MismatchingObjectError, MissingObjectError,
+    MissingPipelineHeadError, MultiplePipelineHeadsError, ProjectAlreadyExists,
+    ProjectNotFoundError, ReadonlyDatasetError, SourceExistsError,
+    SourceOutsideError, UnknownRefError, UnknownSourceError, UnknownStageError,
+    UnknownTargetError, UnsavedChangesError, VcsError, WrongSourceNodeError,
+)
 from datumaro.components.launcher import Launcher
 from datumaro.util import error_rollback, find, parse_str_enum_value
 from datumaro.util.log_utils import catch_logs, logging_disabled
-from datumaro.util.os_util import (copytree, generate_next_name, make_file_name,
-    rmtree)
+from datumaro.util.os_util import (
+    copytree, generate_next_name, make_file_name, rmtree,
+)
 
 
 class ProjectSourceDataset(Dataset):

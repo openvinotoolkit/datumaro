@@ -9,9 +9,10 @@ import os.path as osp
 
 from datumaro.components.dataset import Dataset
 from datumaro.components.project import Environment
+from datumaro.util.os_util import make_file_name
 
 from ..contexts.project import FilterModes
-from ..util import MultilineFormatter, make_file_name
+from ..util import MultilineFormatter
 from ..util.errors import CliException
 from ..util.project import generate_next_file_name
 
