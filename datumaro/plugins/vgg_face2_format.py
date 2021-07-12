@@ -42,10 +42,17 @@ class VggFace2Extractor(Extractor):
 
         self._subsets = {osp.splitext(f.split('_')[2])[0] for f in annotation_files}
 
-        self._categories = self._load_categories()
-        self.items = []
+        self._categories = {}
+        self._load_categories()
+        self._items = []
         for subset in self._subsets:
             self._items.extend(list(self._load_items(subset).values()))
+
+    def __iter__(self):
+        return iter(self._items)
+
+    def categories(self):
+        return self._categories
 
     def _load_categories(self):
         label_cat = LabelCategories()
@@ -68,7 +75,7 @@ class VggFace2Extractor(Extractor):
                         if osp.isdir(osp.join(subset_path, images_dir)) and \
                                 images_dir != VggFace2Path.IMAGES_DIR_NO_LABEL:
                             label_cat.add(images_dir)
-        return { AnnotationType.label: label_cat }
+        self._categories[AnnotationType.label] = label_cat
 
     def _load_items(self, subset):
         def _get_label(path):
