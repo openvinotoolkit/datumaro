@@ -5,6 +5,7 @@
 import os
 import os.path as osp
 import pickle
+from collections import OrderedDict
 
 import numpy as np
 from datumaro.components.converter import Converter
@@ -47,10 +48,14 @@ class CifarExtractor(SourceExtractor):
         label_cat = LabelCategories()
 
         if osp.isfile(path):
+            # CIFAR-10:
             # num_cases_per_batch: 1000
             # label_names: ['airplane', 'automobile', 'bird', 'cat', 'deer',
             #               'dog', 'frog', 'horse', 'ship', 'truck']
             # num_vis: 3072
+            # CIFAR-100:
+            # fine_label_names: ['apple', 'aquarium_fish', 'baby', ...]
+            # coarse_label_names: ['aquatic_mammals', 'fish', 'flowers', ...]
             with open(path, 'rb') as labels_file:
                 data = pickle.load(labels_file)
             labels = data.get('label_names')
@@ -59,14 +64,10 @@ class CifarExtractor(SourceExtractor):
                     label_cat.add(label)
             else:
                 labels = data.get('fine_label_names')
-                superclasses = data.get('coarse_label_names', [])
+                self._coarse_labels = data.get('coarse_label_names', [])
                 if labels != None:
-                    for i, label in enumerate(labels):
-                        superclass = ''
-                        if 0 < len(superclasses):
-                            superclass = superclasses[i // \
-                                (len(labels) // len(superclasses))]
-                        label_cat.add(label, superclass)
+                    for label in labels:
+                        label_cat.add(label)
         else:
             for label in Cifar10Label:
                 label_cat.add(label)
@@ -75,11 +76,15 @@ class CifarExtractor(SourceExtractor):
 
     def _load_items(self, path):
         items = {}
+        label_cat = self._categories[AnnotationType.label]
 
         # 'batch_label': 'training batch 1 of 5'
         # 'data': ndarray
         # 'filenames': list
-        # 'labels': list
+        # CIFAR-10: 'labels': list
+        # CIFAR-100: 'fine_labels': list
+        #            'coarse_labels': list
+
         with open(path, 'rb') as anno_file:
             annotation_dict = pickle.load(anno_file, encoding='latin1')
 
@@ -103,11 +108,9 @@ class CifarExtractor(SourceExtractor):
             item_id = osp.splitext(filename)[0]
             annotations = []
             if label != None:
-                if 0 < len(coarse_labels) and coarse_labels[i] != None:
-                    annotations.append(Label(label,
-                        attributes={'coarse_label': coarse_labels[i]}))
-                else:
-                    annotations.append(Label(label))
+                annotations.append(Label(label))
+                if 0 < len(coarse_labels) and coarse_labels[i] != None and label_cat[label].parent == '':
+                    label_cat[label].parent = self._coarse_labels[coarse_labels[i]]
 
             image = None
             if 0 < len(images_data):
@@ -146,14 +149,14 @@ class CifarConverter(Converter):
         coarse_label_names = []
         for label in label_categories:
             label_names.append(label.name)
-            if label.parent != '':
-                if len(coarse_label_names) == 0 or \
-                        coarse_label_names[-1] != label.parent:
-                    coarse_label_names.append(label.parent)
+            if label.parent != '' and label.parent not in coarse_label_names:
+                coarse_label_names.append(label.parent)
+        coarse_label_names.sort()
 
         if 0 < len(coarse_label_names):
             labels_dict = { 'fine_label_names': label_names,
                             'coarse_label_names': coarse_label_names }
+            coarse_label_names = OrderedDict({name: i for i, name in enumerate(coarse_label_names)})
         else:
             labels_dict = { 'label_names': label_names }
 
@@ -174,9 +177,9 @@ class CifarConverter(Converter):
                     if a.type == AnnotationType.label]
                 if 0 < len(anns):
                     labels.append(anns[0].label)
-                    coarse_label = int(anns[0].attributes.get('coarse_label', -1))
-                    if coarse_label != -1:
-                        coarse_labels.append(coarse_label)
+                    if 0 < len(coarse_label_names):
+                        superclass = label_categories[anns[0].label].parent
+                        coarse_labels.append(coarse_label_names[superclass])
                 else:
                     labels.append(None)
                     coarse_labels.append(None)

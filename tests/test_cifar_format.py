@@ -130,18 +130,14 @@ class CifarFormatTest(TestCase):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='image_2', subset='test',
                 image=np.ones((32, 32, 3)),
-                annotations=[Label(0, attributes={
-                    'coarse_label': 0
-                })]
+                annotations=[Label(0)]
             ),
             DatasetItem(id='image_3', subset='test',
                 image=np.ones((32, 32, 3))
             ),
             DatasetItem(id='image_4', subset='test',
                 image=np.ones((32, 32, 3)),
-                annotations=[Label(1, attributes={
-                    'coarse_label': 0
-                })]
+                annotations=[Label(1)]
             )
         ], categories=[['class_0', 'superclass_0'], ['class_1', 'superclass_0']])
 
@@ -156,14 +152,10 @@ class CifarFormatTest(TestCase):
     def test_can_save_and_load_cifar100_without_saving_images(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='a', subset='train_1',
-                annotations=[Label(0, attributes={
-                    'coarse_label': 0
-                })]
+                annotations=[Label(0)]
             ),
-            DatasetItem(id='b', subset='train_first',
-                annotations=[Label(1, attributes={
-                    'coarse_label': 0
-                })]
+            DatasetItem(id='b', subset='train_1',
+                annotations=[Label(1)]
             ),
         ], categories=[['class_0', 'superclass_0'], ['class_1', 'superclass_0']])
 
