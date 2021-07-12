@@ -4,13 +4,17 @@ import shutil
 
 import numpy as np
 
-from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import Bbox, DatasetItem
+from datumaro.components.dataset import DEFAULT_FORMAT, Dataset
+from datumaro.components.extractor import Bbox, DatasetItem, Label
+from datumaro.components.project import Project
 from datumaro.util.test_utils import TestDir, compare_datasets
 from datumaro.util.test_utils import run_datum as run
 
+from ..requirements import Requirements, mark_requirement
+
 
 class ProjectIntegrationScenarios(TestCase):
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_convert_voc_as_coco(self):
         voc_dir = osp.join(__file__[:__file__.rfind(osp.join('tests', ''))],
             'tests', 'assets', 'voc_dataset', 'voc_dataset1')
@@ -25,6 +29,7 @@ class ProjectIntegrationScenarios(TestCase):
 
             self.assertTrue(osp.isdir(result_dir))
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_export_coco_as_voc(self):
         # TODO: use subformats once importers are removed
         coco_dir = osp.join(__file__[:__file__.rfind(osp.join('tests', ''))],
@@ -40,6 +45,7 @@ class ProjectIntegrationScenarios(TestCase):
 
             self.assertTrue(osp.isdir(result_dir))
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_list_info(self):
         # TODO: use subformats once importers are removed
         coco_dir = osp.join(__file__[:__file__.rfind(osp.join('tests', ''))],
@@ -51,6 +57,7 @@ class ProjectIntegrationScenarios(TestCase):
 
             run(self, 'info', '-p', test_dir)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_use_vcs(self):
         with TestDir() as test_dir:
             dataset_dir = osp.join(test_dir, 'dataset')
@@ -100,3 +107,31 @@ class ProjectIntegrationScenarios(TestCase):
                         group=2, id=2, attributes={'is_crowd': False}),
                 ], attributes={ 'id': 1 })
             ], categories=['a', 'cat']), parsed, require_images=True)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_chain_transforms_in_working_tree(self):
+        with TestDir() as test_dir:
+            source_url = osp.join(test_dir, 'test_repo')
+            dataset = Dataset.from_iterable([
+                DatasetItem(1, annotations=[Label(0)]),
+                DatasetItem(2, annotations=[Label(1)]),
+            ], categories=['a', 'b'])
+            dataset.save(source_url)
+
+            project_dir = osp.join(test_dir, 'proj')
+            run(self, 'create', '-o', project_dir)
+            run(self, 'add', '-p', project_dir,
+                '--format', DEFAULT_FORMAT, source_url)
+            run(self, 'filter', '-p', project_dir,
+                '-e', '/item/annotation[label="b"]')
+            run(self, 'transform', '-p', project_dir,
+                '-t', 'rename', '--', '-e', '|2|qq|')
+            run(self, 'transform', '-p', project_dir,
+                '-t', 'remap_labels', '--', '-l', 'a:cat', '-l', 'b:dog')
+
+            built_dataset = Project(project_dir).working_tree.make_dataset()
+
+            expected_dataset = Dataset.from_iterable([
+                DatasetItem('qq', annotations=[Label(1)]),
+            ], categories=['cat', 'dog'])
+            compare_datasets(self, expected_dataset, built_dataset)

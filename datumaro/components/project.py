@@ -552,8 +552,7 @@ class ProjectBuilder:
                     wd_hash = self._project._refresh_source_hash(target)
                     work_dir_hashes[target] = wd_hash
 
-                if obj_hash != wd_hash:
-                    return False
+                return obj_hash == wd_hash
 
             if obj_hash and self._project.is_obj_cached(obj_hash):
                 return True
