@@ -23,20 +23,29 @@ class VggFace2Path:
     IMAGES_DIR_NO_LABEL = 'no_label'
 
 class VggFace2Extractor(SourceExtractor):
-    def __init__(self, path, subset=None):
-        if not osp.isfile(path):
-            raise Exception("Can't read .csv annotation file '%s'" % path)
-        self._path = path
-        self._dataset_dir = osp.dirname(osp.dirname(path))
+    def __init__(self, path):
+        if not osp.isdir(path):
+            raise Exception("Can't read directory with annotations '%s'" % path)
 
-        if not subset:
-            subset = osp.splitext(osp.basename(path))[0]
-            if subset.startswith(VggFace2Path.LANDMARKS_FILE):
-                subset = subset.split('_')[2]
-        super().__init__(subset=subset)
+        annotation_files = [p for p in os.listdir(path)
+            if (osp.basename(p).startswith(VggFace2Path.BBOXES_FILE) or \
+                osp.basename(p).startswith(VggFace2Path.LANDMARKS_FILE)) and \
+                p.endswith('csv')]
+
+        if len(annotation_files) < 1:
+            raise Exception("Can't find annotations in the directory '%s'" % path)
+
+        super().__init__()
+
+        self._path = path
+        self._dataset_dir = osp.dirname(path)
+
+        self._subsets = {osp.splitext(f.split('_')[2])[0] for f in annotation_files}
 
         self._categories = self._load_categories()
-        self._items = list(self._load_items(path).values())
+        self.items = []
+        for subset in self._subsets:
+            self._items.extend(list(self._load_items(subset).values()))
 
     def _load_categories(self):
         label_cat = LabelCategories()
@@ -52,15 +61,16 @@ class VggFace2Extractor(SourceExtractor):
                     class_name = objects[1]
                 label_cat.add(label, parent=class_name)
         else:
-            subset_path = osp.join(self._dataset_dir, self._subset)
-            if osp.isdir(subset_path):
-                for images_dir in sorted(os.listdir(subset_path)):
-                    if osp.isdir(osp.join(subset_path, images_dir)) and \
-                            images_dir != VggFace2Path.IMAGES_DIR_NO_LABEL:
-                        label_cat.add(images_dir)
+            for subset in self._subsets:
+                subset_path = osp.join(self._dataset_dir, subset)
+                if osp.isdir(subset_path):
+                    for images_dir in sorted(os.listdir(subset_path)):
+                        if osp.isdir(osp.join(subset_path, images_dir)) and \
+                                images_dir != VggFace2Path.IMAGES_DIR_NO_LABEL:
+                            label_cat.add(images_dir)
         return { AnnotationType.label: label_cat }
 
-    def _load_items(self, path):
+    def _load_items(self, subset):
         def _get_label(path):
             label_name = path.split('/')[0]
             label = None
@@ -71,14 +81,16 @@ class VggFace2Extractor(SourceExtractor):
 
         items = {}
 
-        image_dir = osp.join(self._dataset_dir, self._subset)
+        image_dir = osp.join(self._dataset_dir, subset)
         if osp.isdir(image_dir):
             images = { osp.splitext(osp.relpath(p, image_dir))[0]: p
                 for p in find_images(image_dir, recursive=True) }
         else:
             images = {}
 
-        with open(path, encoding='utf-8') as content:
+        landmarks_path = osp.join(self._dataset_dir, VggFace2Path.ANNOTATION_DIR,
+            VggFace2Path.LANDMARKS_FILE + subset + '.csv')
+        with open(landmarks_path, encoding='utf-8') as content:
             landmarks_table = list(csv.DictReader(content))
         for row in landmarks_table:
             item_id = row['NAME_ID']
@@ -87,7 +99,7 @@ class VggFace2Extractor(SourceExtractor):
                 label = _get_label(item_id)
 
             if item_id not in items:
-                items[item_id] = DatasetItem(id=item_id, subset=self._subset,
+                items[item_id] = DatasetItem(id=item_id, subset=subset,
                     image=images.get(row['NAME_ID']))
 
             annotations = items[item_id].annotations
@@ -102,7 +114,7 @@ class VggFace2Extractor(SourceExtractor):
                 annotations.append(Label(label=label))
 
         bboxes_path = osp.join(self._dataset_dir, VggFace2Path.ANNOTATION_DIR,
-            VggFace2Path.BBOXES_FILE + self._subset + '.csv')
+            VggFace2Path.BBOXES_FILE + subset + '.csv')
         if osp.isfile(bboxes_path):
             with open(bboxes_path, encoding='utf-8') as content:
                 bboxes_table = list(csv.DictReader(content))
@@ -113,7 +125,7 @@ class VggFace2Extractor(SourceExtractor):
                     label = _get_label(item_id)
 
                 if item_id not in items:
-                    items[item_id] = DatasetItem(id=item_id, subset=self._subset,
+                    items[item_id] = DatasetItem(id=item_id, subset=subset,
                         image=images.get(row['NAME_ID']))
 
                 annotations = items[item_id].annotations
@@ -129,10 +141,10 @@ class VggFace2Extractor(SourceExtractor):
 class VggFace2Importer(Importer):
     @classmethod
     def find_sources(cls, path):
-        return cls._find_sources_recursive(path, '.csv', 'vgg_face2',
-            dirname=VggFace2Path.ANNOTATION_DIR,
-            file_filter=lambda p: \
-                not osp.basename(p).startswith(VggFace2Path.BBOXES_FILE))
+        annotation_dir = osp.join(path, VggFace2Path.ANNOTATION_DIR)
+        if osp.isdir(annotation_dir):
+            return [{'url': annotation_dir, 'format': 'vgg_face2'}]
+        return []
 
 class VggFace2Converter(Converter):
     DEFAULT_IMAGE_EXT = VggFace2Path.IMAGE_EXT
