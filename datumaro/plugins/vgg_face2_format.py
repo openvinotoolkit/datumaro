@@ -138,6 +138,12 @@ class VggFace2Converter(Converter):
     DEFAULT_IMAGE_EXT = VggFace2Path.IMAGE_EXT
 
     def apply(self):
+        def _get_name_id(item_parts, label_name):
+            if 1 < len(item_parts) and item_parts[0] == label_name:
+                return '/'.join([label_name, *item_parts[1:]])
+            else:
+                return '/'.join([label_name, *item_parts])
+
         save_dir = self._save_dir
         os.makedirs(save_dir, exist_ok=True)
 
@@ -157,16 +163,23 @@ class VggFace2Converter(Converter):
             bboxes_table = []
             landmarks_table = []
             for item in subset:
+                item_parts = item.id.split('/')
                 if item.has_image and self._save_images:
                     labels = set(p.label for p in item.annotations
                         if getattr(p, 'label') != None)
                     if labels:
                         for label in labels:
+                            image_dir = label_categories[label].name
+                            if 1 < len(item_parts) and image_dir == item_parts[0]:
+                                image_dir = ''
                             self._save_image(item, subdir=osp.join(subset_name,
-                                label_categories[label].name))
+                                image_dir))
                     else:
+                        image_dir = VggFace2Path.IMAGES_DIR_NO_LABEL
+                        if 1 < len(item_parts) and image_dir == item_parts[0]:
+                            image_dir = ''
                         self._save_image(item, subdir=osp.join(subset_name,
-                            VggFace2Path.IMAGES_DIR_NO_LABEL))
+                            image_dir))
 
                 landmarks = [a for a in item.annotations
                     if a.type == AnnotationType.points]
@@ -176,11 +189,11 @@ class VggFace2Converter(Converter):
                 if landmarks:
                     if landmarks[0].label is not None and \
                             label_categories[landmarks[0].label].name:
-                        name_id = label_categories[landmarks[0].label].name \
-                            + '/' + item.id
+                        name_id = _get_name_id(item_parts,
+                            label_categories[landmarks[0].label].name)
                     else:
-                        name_id = VggFace2Path.IMAGES_DIR_NO_LABEL \
-                            + '/' + item.id
+                        name_id = _get_name_id(item_parts,
+                            VggFace2Path.IMAGES_DIR_NO_LABEL)
                     points = landmarks[0].points
                     if len(points) != 10:
                         landmarks_table.append({'NAME_ID': name_id})
@@ -200,11 +213,11 @@ class VggFace2Converter(Converter):
                 if bboxes:
                     if bboxes[0].label is not None and \
                             label_categories[bboxes[0].label].name:
-                        name_id = label_categories[bboxes[0].label].name \
-                            + '/' + item.id
+                        name_id = _get_name_id(item_parts,
+                            label_categories[bboxes[0].label].name)
                     else:
-                        name_id = VggFace2Path.IMAGES_DIR_NO_LABEL \
-                            + '/' + item.id
+                        name_id = _get_name_id(item_parts,
+                            VggFace2Path.IMAGES_DIR_NO_LABEL)
                     bboxes_table.append({'NAME_ID': name_id, 'X': bboxes[0].x,
                         'Y': bboxes[0].y, 'W': bboxes[0].w, 'H': bboxes[0].h})
 
@@ -213,16 +226,16 @@ class VggFace2Converter(Converter):
                 for label in labels:
                     if label.label is not None and \
                             label_categories[label.label].name:
-                        name_id = label_categories[label.label].name \
-                            + '/' + item.id
+                        name_id = _get_name_id(item_parts,
+                            label_categories[labels[0].label].name)
                     else:
-                        name_id = VggFace2Path.IMAGES_DIR_NO_LABEL \
-                            + '/' + item.id
+                        name_id = _get_name_id(item_parts,
+                            VggFace2Path.IMAGES_DIR_NO_LABEL)
                     landmarks_table.append({'NAME_ID': name_id})
 
                 if not landmarks and not bboxes and not labels:
-                    landmarks_table.append({'NAME_ID':
-                        VggFace2Path.IMAGES_DIR_NO_LABEL + '/' + item.id})
+                    landmarks_table.append({'NAME_ID': _get_name_id(item_parts,
+                        VggFace2Path.IMAGES_DIR_NO_LABEL)})
 
             landmarks_path = osp.join(save_dir, VggFace2Path.ANNOTATION_DIR,
                 VggFace2Path.LANDMARKS_FILE + subset_name + '.csv')
