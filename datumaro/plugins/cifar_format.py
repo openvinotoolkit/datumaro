@@ -71,6 +71,9 @@ class CifarExtractor(SourceExtractor):
                 if labels != None:
                     for label in labels:
                         label_cat.add(label)
+        else:
+            for label in Cifar10Label:
+                label_cat.add(label)
 
         return { AnnotationType.label: label_cat }
 
