@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+from datumaro.components.dataset import ItemStatus
 import os
 import os.path as osp
 import pickle  # nosec - disable B403:import_pickle check
@@ -140,7 +141,7 @@ class CifarConverter(Converter):
             data = []
             image_sizes = {}
             for item in subset:
-                filenames.append(item.id + self._find_image_ext(item))
+                filenames.append(self._make_image_filename(item))
 
                 anns = [a.label for a in item.annotations
                     if a.type == AnnotationType.label]
@@ -149,7 +150,7 @@ class CifarConverter(Converter):
                     label = anns[0]
                 labels.append(label)
 
-                if item.has_image and self._save_images:
+                if self._save_images and item.has_image:
                     image = item.image
                     if not image.has_data:
                         data.append(None)
@@ -159,7 +160,8 @@ class CifarConverter(Converter):
                             (2, 0, 1)).reshape(-1).astype(np.uint8))
                         if image.shape[0] != CifarPath.IMAGE_SIZE or \
                                 image.shape[1] != CifarPath.IMAGE_SIZE:
-                            image_sizes[len(data) - 1] = (image.shape[0], image.shape[1])
+                            image_sizes[len(data) - 1] = \
+                                (image.shape[0], image.shape[1])
 
             annotation_dict = {}
             annotation_dict['filenames'] = filenames
@@ -179,11 +181,38 @@ class CifarConverter(Converter):
                 num = subset_name.split('_')[1]
                 filename = CifarPath.TRAIN_ANNOTATION_FILE + num
                 batch_label = 'training batch %s of 5' % (num, )
-            if subset_name == 'test':
+            elif subset_name == 'test':
                 batch_label = 'testing batch 1 of 1'
+
             if batch_label:
                 annotation_dict['batch_label'] = batch_label
 
             annotation_file = osp.join(self._save_dir, filename)
-            with open(annotation_file, 'wb') as labels_file:
-                pickle.dump(annotation_dict, labels_file)
+            if hasattr(self, '_patch') and \
+                    subset_name in self._patch.updated_subsets and \
+                    not annotation_dict['filenames'] and \
+                    osp.isfile(annotation_file):
+                # Remove subsets that became empty
+                os.remove(annotation_file)
+            else:
+                with open(annotation_file, 'wb') as labels_file:
+                    pickle.dump(annotation_dict, labels_file)
+
+    @classmethod
+    def patch(cls, dataset, patch, save_dir, **kwargs):
+        conv = cls(patch.as_dataset(dataset), save_dir=save_dir, **kwargs)
+        conv._patch = patch
+        conv.apply()
+
+        for subset, status in patch.updated_subsets.items():
+            if status != ItemStatus.removed:
+                continue
+
+            subset_file = osp.join(save_dir, '%s_batch' % subset)
+            if subset.startswith('train_') and \
+                    cast(subset.split('_')[1], int) is not None:
+                num = subset.split('_')[1]
+                subset_file = CifarPath.TRAIN_ANNOTATION_FILE + num
+
+            if osp.isfile(subset_file):
+                os.remove(subset_file)
