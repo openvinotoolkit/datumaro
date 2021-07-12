@@ -8,8 +8,10 @@ import os.path as osp
 import re
 
 from datumaro.components.converter import Converter
-from datumaro.components.extractor import (AnnotationType, Bbox, DatasetItem,
-    Importer, Label, LabelCategories, SourceExtractor)
+from datumaro.components.extractor import (
+    AnnotationType, Bbox, DatasetItem, Importer, Label, LabelCategories,
+    SourceExtractor,
+)
 from datumaro.util import str_to_bool
 
 

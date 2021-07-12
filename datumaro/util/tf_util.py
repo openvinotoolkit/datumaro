@@ -4,6 +4,8 @@
 # SPDX-License-Identifier: MIT
 
 
+enable_tf_check = False
+
 def check_import():
     # Workaround for checking import availability:
     # Official TF builds include AVX instructions. Once we try to import,
@@ -14,7 +16,8 @@ def check_import():
 
     from .os_util import check_instruction_set
 
-    result = subprocess.run([sys.executable, '-c', 'import tensorflow'],
+    # Disable B603:subprocess_without_shell_equals_true - the command line is controlled
+    result = subprocess.run([sys.executable, '-c', 'import tensorflow'], # nosec
         timeout=60,
         universal_newlines=True, # use text mode for output stream
         stdout=subprocess.PIPE, stderr=subprocess.PIPE) # capture output
@@ -32,19 +35,22 @@ def check_import():
 
         raise ImportError(message)
 
-def import_tf(check=True):
+def import_tf(check=None):
     import sys
 
     not_found = object()
     tf = sys.modules.get('tensorflow', not_found)
     if tf is None:
-        import tensorflow as tf # emit default error
+        import tensorflow as tf  # emit default error
     elif tf is not not_found:
         return tf
 
     # Reduce output noise, https://stackoverflow.com/questions/38073432/how-to-suppress-verbose-tensorflow-logging
     import os
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+
+    if check is None:
+        check = enable_tf_check
 
     if check:
         try:

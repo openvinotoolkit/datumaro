@@ -6,9 +6,10 @@
 import json
 import os.path as osp
 
-from datumaro.components.extractor import (SourceExtractor, DatasetItem,
-    AnnotationType, Label, RleMask, Points, Polygon, PolyLine, Bbox, Caption,
-    LabelCategories, MaskCategories, PointsCategories, Importer
+from datumaro.components.extractor import (
+    AnnotationType, Bbox, Caption, DatasetItem, Importer, Label,
+    LabelCategories, MaskCategories, Points, PointsCategories, Polygon,
+    PolyLine, RleMask, SourceExtractor,
 )
 from datumaro.util.image import Image
 
@@ -28,7 +29,7 @@ class DatumaroExtractor(SourceExtractor):
 
         super().__init__(subset=osp.splitext(osp.basename(path))[0])
 
-        with open(path, 'r') as f:
+        with open(path, 'r', encoding='utf-8') as f:
             parsed_anns = json.load(f)
         self._categories = self._load_categories(parsed_anns)
         self._items = self._load_items(parsed_anns)

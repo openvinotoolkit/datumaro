@@ -1,20 +1,19 @@
-import os.path as osp
 from unittest import TestCase
+import os.path as osp
 
 import numpy as np
-import pytest
 
 from datumaro.components.extractor import DatasetItem
 from datumaro.components.project import Dataset
-from datumaro.plugins.image_zip_format import ImageZipPath, ImageZipConverter
+from datumaro.plugins.image_zip_format import ImageZipConverter, ImageZipPath
 from datumaro.util.image import Image, save_image
 from datumaro.util.test_utils import TestDir, compare_datasets
 
-from .requirements import Requirements
+from .requirements import Requirements, mark_requirement
 
 
 class ImageZipConverterTest(TestCase):
-    @pytest.mark.reqids(Requirements.DATUM_267)
+    @mark_requirement(Requirements.DATUM_267)
     def _test_can_save_and_load(self, source_dataset, test_dir,
             **kwargs):
         archive_path = osp.join(test_dir, kwargs.get('name',
@@ -24,7 +23,7 @@ class ImageZipConverterTest(TestCase):
 
         compare_datasets(self, source_dataset, parsed_dataset)
 
-    @pytest.mark.reqids(Requirements.DATUM_267)
+    @mark_requirement(Requirements.DATUM_267)
     def test_can_save_and_load(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='1', image=np.ones((10, 6, 3))),
@@ -34,7 +33,7 @@ class ImageZipConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_can_save_and_load(source_dataset, test_dir)
 
-    @pytest.mark.reqids(Requirements.DATUM_267)
+    @mark_requirement(Requirements.DATUM_267)
     def test_can_save_and_load_with_custom_archive_name(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='img_1', image=np.ones((10, 10, 3))),
@@ -44,7 +43,7 @@ class ImageZipConverterTest(TestCase):
             self._test_can_save_and_load(source_dataset, test_dir,
                 name='my_archive.zip')
 
-    @pytest.mark.reqids(Requirements.DATUM_267)
+    @mark_requirement(Requirements.DATUM_267)
     def test_relative_paths(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='1', image=np.ones((10, 10, 3))),
@@ -55,7 +54,7 @@ class ImageZipConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_can_save_and_load(source_dataset, test_dir)
 
-    @pytest.mark.reqids(Requirements.DATUM_267)
+    @mark_requirement(Requirements.DATUM_267)
     def test_can_save_and_load_custom_compresion_method(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='1', image=np.ones((5, 5, 3))),
@@ -66,7 +65,7 @@ class ImageZipConverterTest(TestCase):
             self._test_can_save_and_load(source_dataset, test_dir,
                 compression='ZIP_DEFLATED')
 
-    @pytest.mark.reqids(Requirements.DATUM_267)
+    @mark_requirement(Requirements.DATUM_267)
     def test_can_save_and_load_with_arbitrary_extensions(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='subset/1',
@@ -87,7 +86,7 @@ class ImageZipConverterTest(TestCase):
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'image_zip_dataset')
 
 class ImageZipImporterTest(TestCase):
-    @pytest.mark.reqids(Requirements.DATUM_267)
+    @mark_requirement(Requirements.DATUM_267)
     def test_can_import(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='1', image=np.ones((10, 10, 3)))
@@ -98,7 +97,7 @@ class ImageZipImporterTest(TestCase):
         compare_datasets(self, source_dataset, parsed_dataset)
 
 
-    @pytest.mark.reqids(Requirements.DATUM_267)
+    @mark_requirement(Requirements.DATUM_267)
     def test_can_import_from_directory(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='1', image=np.ones((10, 10, 3))),

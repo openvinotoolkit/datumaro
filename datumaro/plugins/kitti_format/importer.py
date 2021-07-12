@@ -10,7 +10,8 @@ import os.path as osp
 from datumaro.components.extractor import Importer
 from datumaro.util.log_utils import logging_disabled
 
-from .format import KittiTask, KittiPath
+from .format import KittiPath, KittiTask
+
 
 class KittiImporter(Importer):
     _TASKS = {
@@ -24,7 +25,7 @@ class KittiImporter(Importer):
             return len(cls.find_sources(path)) != 0
 
     def __call__(self, path, **extra_params):
-        from datumaro.components.project import Project # cyclic import
+        from datumaro.components.project import Project  # cyclic import
         project = Project()
 
         subsets = self.find_sources(path)

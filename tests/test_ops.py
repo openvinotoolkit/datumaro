@@ -2,14 +2,19 @@ from unittest import TestCase
 
 import numpy as np
 
-from datumaro.components.extractor import (Bbox, Caption, DatasetItem,
-    Label, Mask, Points, Polygon, PolyLine, DEFAULT_SUBSET_NAME,
-    LabelCategories, PointsCategories, MaskCategories, AnnotationType)
-from datumaro.components.operations import (FailedAttrVotingError,
-    IntersectMerge, NoMatchingAnnError, NoMatchingItemError, WrongGroupError,
-    compute_ann_statistics, mean_std, find_unique_images)
 from datumaro.components.dataset import Dataset
+from datumaro.components.extractor import (
+    DEFAULT_SUBSET_NAME, AnnotationType, Bbox, Caption, DatasetItem, Label,
+    LabelCategories, Mask, MaskCategories, Points, PointsCategories, Polygon,
+    PolyLine,
+)
+from datumaro.components.operations import (
+    FailedAttrVotingError, IntersectMerge, NoMatchingAnnError,
+    NoMatchingItemError, WrongGroupError, compute_ann_statistics,
+    find_unique_images, mean_std,
+)
 from datumaro.util.test_utils import compare_datasets
+
 from .requirements import Requirements, mark_requirement
 
 
@@ -82,6 +87,7 @@ class TestOperations(TestCase):
                 'mask': { 'count': 1, },
                 'points': { 'count': 1, },
                 'caption': { 'count': 2, },
+                'cuboid_3d': {'count': 0},
             },
             'annotations': {
                 'labels': {
@@ -164,6 +170,7 @@ class TestOperations(TestCase):
                 'mask': { 'count': 0, },
                 'points': { 'count': 0, },
                 'caption': { 'count': 0, },
+                'cuboid_3d': {'count': 0},
             },
             'annotations': {
                 'labels': {
@@ -177,7 +184,7 @@ class TestOperations(TestCase):
                     'attributes': {}
                 },
                 'segments': {
-                    'avg. area': 0,
+                    'avg. area': 0.0,
                     'area distribution': [],
                     'pixel distribution': {
                         'label_0': [0, 0.0],

@@ -3,24 +3,24 @@
 #
 # SPDX-License-Identifier: MIT
 
-import logging as log
-import os
-import os.path as osp
 from collections import OrderedDict
 from enum import Enum, auto
 from glob import iglob
+import logging as log
+import os
+import os.path as osp
 
 import numpy as np
 
 from datumaro.components.converter import Converter
-from datumaro.components.extractor import (AnnotationType, CompiledMask,
-    DatasetItem, Importer, LabelCategories, Mask,
-    MaskCategories, SourceExtractor)
+from datumaro.components.extractor import (
+    AnnotationType, CompiledMask, DatasetItem, Importer, LabelCategories, Mask,
+    MaskCategories, SourceExtractor,
+)
 from datumaro.util import str_to_bool
 from datumaro.util.annotation_util import make_label_id_mapping
-from datumaro.util.image import save_image, load_image
+from datumaro.util.image import load_image, save_image
 from datumaro.util.mask_tools import generate_colormap, paint_mask
-
 
 CityscapesLabelMap = OrderedDict([
     ('unlabeled', (0, 0, 0)),
@@ -98,7 +98,7 @@ def parse_label_map(path):
         return None
 
     label_map = OrderedDict()
-    with open(path, 'r') as f:
+    with open(path, 'r', encoding='utf-8') as f:
         for line in f:
             # skip empty and commented lines
             line = line.strip()
@@ -122,7 +122,7 @@ def parse_label_map(path):
     return label_map
 
 def write_label_map(path, label_map):
-    with open(path, 'w') as f:
+    with open(path, 'w', encoding='utf-8') as f:
         for label_name, label_desc in label_map.items():
             if label_desc:
                 color_rgb = ' '.join(str(c) for c in label_desc)

@@ -4,16 +4,16 @@
 # SPDX-License-Identifier: MIT
 
 from collections import Counter
-from itertools import zip_longest
 from enum import Enum, auto
+from itertools import zip_longest
 import logging as log
 import os
 import os.path as osp
+import warnings
 
 import cv2
 import numpy as np
 
-import warnings
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     import tensorboardX as tb
@@ -217,8 +217,9 @@ class DatasetDiffVisualizer:
 
     def get_label_diff_file(self):
         if self.label_diff_writer is None:
-            self.label_diff_writer = \
-                open(osp.join(self.save_dir, 'label_diff.txt'), 'w')
+            self.label_diff_writer = open(
+                osp.join(self.save_dir, 'label_diff.txt'),
+                'w', encoding='utf-8')
         return self.label_diff_writer
 
     def save_item_label_diff(self, item_a, item_b, diff):

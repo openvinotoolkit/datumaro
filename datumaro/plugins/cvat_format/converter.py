@@ -3,17 +3,18 @@
 #
 # SPDX-License-Identifier: MIT
 
-import logging as log
-import os
-import os.path as osp
 from collections import OrderedDict
 from itertools import chain
 from xml.sax.saxutils import XMLGenerator
+import logging as log
+import os
+import os.path as osp
 
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
-from datumaro.components.extractor import (AnnotationType, DatasetItem,
-    LabelCategories)
+from datumaro.components.extractor import (
+    AnnotationType, DatasetItem, LabelCategories,
+)
 from datumaro.util import cast, pairs
 
 from .format import CvatPath
@@ -370,7 +371,8 @@ class CvatConverter(Converter):
         os.makedirs(self._images_dir, exist_ok=True)
 
         for subset_name, subset in self._extractor.subsets().items():
-            with open(osp.join(self._save_dir, '%s.xml' % subset_name), 'w') as f:
+            with open(osp.join(self._save_dir, '%s.xml' % subset_name),
+                    'w', encoding='utf-8') as f:
                 writer = _SubsetWriter(f, subset_name, subset, self)
                 writer.write()
 

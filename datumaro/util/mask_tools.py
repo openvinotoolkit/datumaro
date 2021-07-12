@@ -4,6 +4,7 @@
 # SPDX-License-Identifier: MIT
 
 from itertools import chain
+
 import numpy as np
 
 from datumaro.util.image import lazy_image, load_image
@@ -114,8 +115,8 @@ def make_binary_mask(mask):
     return mask.astype(bool)
 
 def bgr2index(img):
-    if img.dtype.kind not in {'b', 'i', 'u'}:
-        img = img.astype(np.uint8)
+    if img.dtype.kind not in {'b', 'i', 'u'} or img.dtype.itemsize < 4:
+        img = img.astype(np.uint32)
     return (img[..., 0] << 16) + (img[..., 1] << 8) + img[..., 2]
 
 def index2bgr(id_map):

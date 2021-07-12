@@ -1,11 +1,12 @@
 from collections import namedtuple
-import numpy as np
-
 from unittest import TestCase
 
-from datumaro.components.extractor import Label, Bbox
-from datumaro.components.launcher import Launcher
+import numpy as np
+
 from datumaro.components.algorithms.rise import RISE
+from datumaro.components.extractor import Bbox, Label
+from datumaro.components.launcher import Launcher
+
 from .requirements import Requirements, mark_requirement
 
 

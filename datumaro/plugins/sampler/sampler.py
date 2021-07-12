@@ -6,14 +6,14 @@ from collections import defaultdict
 
 import pandas as pd
 
-from datumaro.components.extractor import Transform
 from datumaro.components.cli_plugin import CliPlugin
+from datumaro.components.extractor import Transform
 
-from .algorithm.algorithm import SamplingMethod, Algorithm
+from .algorithm.algorithm import Algorithm, SamplingMethod
 
 
 class Sampler(Transform, CliPlugin):
-    """
+    r"""
     Sampler that analyzes model inference results on the dataset |n
     and picks the best sample for training.|n
     |n

@@ -6,6 +6,7 @@
 from contextlib import contextmanager
 import logging
 
+
 @contextmanager
 def logging_disabled(max_level=logging.CRITICAL):
     previous_level = logging.root.manager.disable

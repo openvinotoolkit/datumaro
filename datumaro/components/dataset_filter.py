@@ -4,10 +4,12 @@
 # SPDX-License-Identifier: MIT
 
 import logging as log
-from lxml import etree as ET # lxml has proper XPath implementation
-from datumaro.components.extractor import (Transform,
-    Annotation, AnnotationType,
-    Label, Mask, Points, Polygon, PolyLine, Bbox, Caption,
+
+from lxml import etree as ET  # lxml has proper XPath implementation
+
+from datumaro.components.extractor import (
+    Annotation, AnnotationType, Bbox, Caption, ItemTransform, Label, Mask,
+    Points, Polygon, PolyLine,
 )
 
 
@@ -213,7 +215,7 @@ class DatasetItemEncoder:
     def to_string(encoded_item):
         return ET.tostring(encoded_item, encoding='unicode', pretty_print=True)
 
-class XPathDatasetFilter(Transform):
+class XPathDatasetFilter(ItemTransform):
     def __init__(self, extractor, xpath=None):
         super().__init__(extractor)
 
@@ -229,16 +231,12 @@ class XPathDatasetFilter(Transform):
         else:
             self._f = None
 
-    def __iter__(self):
-        if self._f:
-            if hasattr(self._extractor, 'select'):
-                yield from self._extractor.select(self._f)
-            else:
-                yield from filter(self._f, self._extractor)
-        else:
-            yield from self._extractor
+    def transform_item(self, item):
+        if self._f and not self._f(item):
+            return None
+        return item
 
-class XPathAnnotationsFilter(Transform):
+class XPathAnnotationsFilter(ItemTransform):
     def __init__(self, extractor, xpath=None, remove_empty=False):
         super().__init__(extractor)
 
@@ -251,12 +249,6 @@ class XPathAnnotationsFilter(Transform):
         self._filter = xpath
 
         self._remove_empty = remove_empty
-
-    def __iter__(self):
-        for item in self._extractor:
-            item = self.transform_item(item)
-            if item is not None:
-                yield item
 
     def transform_item(self, item):
         if self._filter is None:

@@ -1,12 +1,14 @@
-import numpy as np
+from unittest import TestCase
 import os.path as osp
 
-from unittest import TestCase
+import numpy as np
 
-from datumaro.util.test_utils import TestDir
-from datumaro.util.image import (lazy_image, load_image, save_image, \
-    Image, ByteImage, encode_image)
+from datumaro.util.image import (
+    ByteImage, Image, encode_image, lazy_image, load_image, save_image,
+)
 from datumaro.util.image_cache import ImageCache
+from datumaro.util.test_utils import TestDir
+
 from .requirements import Requirements, mark_requirement
 
 

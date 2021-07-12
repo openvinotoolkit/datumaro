@@ -1,15 +1,17 @@
+from unittest import TestCase
 import logging as log
+
 import numpy as np
 
-from unittest import TestCase
-from datumaro.components.project import Dataset
-from datumaro.components.extractor import (Extractor, DatasetItem,
-    Mask, Polygon, PolyLine, Points, Bbox, Label,
-    LabelCategories, MaskCategories, AnnotationType
+from datumaro.components.extractor import (
+    AnnotationType, Bbox, DatasetItem, Label, LabelCategories, Mask,
+    MaskCategories, Points, Polygon, PolyLine,
 )
-import datumaro.util.mask_tools as mask_tools
-import datumaro.plugins.transforms as transforms
+from datumaro.components.project import Dataset
 from datumaro.util.test_utils import compare_datasets
+import datumaro.plugins.transforms as transforms
+import datumaro.util.mask_tools as mask_tools
+
 from .requirements import Requirements, mark_requirement
 
 

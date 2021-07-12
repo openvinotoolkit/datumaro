@@ -31,7 +31,7 @@ class CocoImporter(Importer):
             return len(cls.find_sources(path)) != 0
 
     def __call__(self, path, **extra_params):
-        from datumaro.components.project import Project # cyclic import
+        from datumaro.components.project import Project  # cyclic import
         project = Project()
 
         subsets = self.find_sources(path)

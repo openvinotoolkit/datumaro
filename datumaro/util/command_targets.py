@@ -3,8 +3,8 @@
 #
 # SPDX-License-Identifier: MIT
 
-import argparse
 from enum import Enum, auto
+import argparse
 
 from datumaro.components.project import Project
 from datumaro.util.image import load_image
@@ -25,7 +25,7 @@ def is_project_path(value):
         try:
             Project.load(value)
             return True
-        except Exception:
+        except Exception: # nosec - disable B110:try_except_pass check
             pass
     return False
 

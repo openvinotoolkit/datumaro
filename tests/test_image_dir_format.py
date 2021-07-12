@@ -1,14 +1,17 @@
-import numpy as np
+from unittest import TestCase
 import os
 import os.path as osp
 
-from unittest import TestCase
+import numpy as np
 
-from datumaro.components.project import Dataset
 from datumaro.components.extractor import DatasetItem
+from datumaro.components.project import Dataset
 from datumaro.plugins.image_dir_format import ImageDirConverter
 from datumaro.util.image import Image, save_image
-from datumaro.util.test_utils import TestDir, compare_datasets, test_save_and_load
+from datumaro.util.test_utils import (
+    TestDir, compare_datasets, test_save_and_load,
+)
+
 from .requirements import Requirements, mark_requirement
 
 

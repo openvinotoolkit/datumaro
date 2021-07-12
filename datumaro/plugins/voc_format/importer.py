@@ -7,7 +7,7 @@ import os.path as osp
 
 from datumaro.components.extractor import Importer
 
-from .format import VocTask, VocPath
+from .format import VocPath, VocTask
 
 
 class VocImporter(Importer):
@@ -20,7 +20,7 @@ class VocImporter(Importer):
     }
 
     def __call__(self, path, **extra_params):
-        from datumaro.components.project import Project # cyclic import
+        from datumaro.components.project import Project  # cyclic import
         project = Project()
 
         subsets = self.find_sources(path)

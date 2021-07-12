@@ -6,9 +6,12 @@ import os
 import os.path as osp
 
 import numpy as np
+
 from datumaro.components.converter import Converter
-from datumaro.components.extractor import (AnnotationType, DatasetItem,
-    Importer, Label, LabelCategories, SourceExtractor)
+from datumaro.components.extractor import (
+    AnnotationType, DatasetItem, Importer, Label, LabelCategories,
+    SourceExtractor,
+)
 
 
 class MnistCsvPath:

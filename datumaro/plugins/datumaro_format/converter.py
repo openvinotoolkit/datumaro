@@ -6,19 +6,20 @@
 # pylint: disable=no-self-use
 
 import json
-import numpy as np
 import os
 import os.path as osp
+
+import numpy as np
+import pycocotools.mask as mask_utils
 
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.extractor import (
-    DEFAULT_SUBSET_NAME, Annotation, DatasetItem, _Shape,
-    Label, Mask, RleMask, Points, Polygon, PolyLine, Bbox, Caption,
-    LabelCategories, MaskCategories, PointsCategories
+    DEFAULT_SUBSET_NAME, Annotation, Bbox, Caption, DatasetItem, Label,
+    LabelCategories, Mask, MaskCategories, Points, PointsCategories, Polygon,
+    PolyLine, RleMask, _Shape,
 )
 from datumaro.util import cast
-import pycocotools.mask as mask_utils
 
 from .format import DatumaroPath
 
@@ -100,8 +101,9 @@ class _SubsetWriter:
             self.categories[ann_type.name] = converted_desc
 
     def write(self, save_dir):
-        with open(osp.join(save_dir, '%s.json' % self._name), 'w') as f:
-            json.dump(self._data, f)
+        with open(osp.join(save_dir, '%s.json' % self._name),
+                'w', encoding='utf-8') as f:
+            json.dump(self._data, f, ensure_ascii=False)
 
     def _convert_annotation(self, obj):
         assert isinstance(obj, Annotation)
@@ -254,7 +256,7 @@ class DatumaroConverter(Converter):
         for subset, writer in subsets.items():
             writer.write(annotations_dir)
 
-    def _save_image(self, item, path=None):
+    def _save_image(self, item, path=None): # pylint: disable=arguments-differ
         super()._save_image(item,
             osp.join(self._images_dir, self._make_image_filename(item)))
 

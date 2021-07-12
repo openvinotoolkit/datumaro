@@ -1,14 +1,10 @@
-attrs>=19.3.0
 Cython>=0.27.3 # include before pycocotools
-defusedxml>=0.6.0
-GitPython>=3.0.8
-lxml>=4.4.1
-matplotlib>=3.3.1
+-r requirements-core.txt --no-binary=pycocotools # https://github.com/openvinotoolkit/datumaro/issues/253
 opencv-python-headless>=4.1.0.25
-Pillow>=6.1.0
-pycocotools>=2.0.0 --no-binary=pycocotools # https://github.com/openvinotoolkit/datumaro/issues/253
-PyYAML>=5.3.1
-scikit-image>=0.15.0
-tensorboardX>=1.8
 pandas>=1.1.5
 pytest>=5.3.5
+
+# linters
+bandit>=1.7.0
+isort~=5.9
+pylint>=2.7.0

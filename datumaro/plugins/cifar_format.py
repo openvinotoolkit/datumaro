@@ -2,15 +2,18 @@
 #
 # SPDX-License-Identifier: MIT
 
+from collections import OrderedDict
 import os
 import os.path as osp
-import pickle
-from collections import OrderedDict
+import pickle  # nosec - disable B403:import_pickle check
 
 import numpy as np
+
 from datumaro.components.converter import Converter
-from datumaro.components.extractor import (AnnotationType, DatasetItem,
-    Importer, Label, LabelCategories, SourceExtractor)
+from datumaro.components.extractor import (
+    AnnotationType, DatasetItem, Importer, Label, LabelCategories,
+    SourceExtractor,
+)
 from datumaro.util import cast
 
 
@@ -57,7 +60,7 @@ class CifarExtractor(SourceExtractor):
             # fine_label_names: ['apple', 'aquarium_fish', 'baby', ...]
             # coarse_label_names: ['aquatic_mammals', 'fish', 'flowers', ...]
             with open(path, 'rb') as labels_file:
-                data = pickle.load(labels_file)
+                data = pickle.load(labels_file) # nosec - disable B301:pickle check
             labels = data.get('label_names')
             if labels != None:
                 for label in labels:
@@ -68,9 +71,6 @@ class CifarExtractor(SourceExtractor):
                 if labels != None:
                     for label in labels:
                         label_cat.add(label)
-        else:
-            for label in Cifar10Label:
-                label_cat.add(label)
 
         return { AnnotationType.label: label_cat }
 
@@ -86,7 +86,7 @@ class CifarExtractor(SourceExtractor):
         #            'coarse_labels': list
 
         with open(path, 'rb') as anno_file:
-            annotation_dict = pickle.load(anno_file, encoding='latin1')
+            annotation_dict = pickle.load(anno_file, encoding='latin1') # nosec - disable B301:pickle check
 
         labels = annotation_dict.get('labels', [])
         coarse_labels = annotation_dict.get('coarse_labels', [])

@@ -6,10 +6,11 @@
 from collections import OrderedDict
 from enum import Enum, auto
 from itertools import chain
+
 import numpy as np
 
-from datumaro.components.extractor import (AnnotationType,
-    LabelCategories, MaskCategories
+from datumaro.components.extractor import (
+    AnnotationType, LabelCategories, MaskCategories,
 )
 
 
@@ -121,7 +122,7 @@ def parse_label_map(path):
         return None
 
     label_map = OrderedDict()
-    with open(path, 'r') as f:
+    with open(path, 'r', encoding='utf-8') as f:
         for line in f:
             # skip empty and commented lines
             line = line.strip()
@@ -158,7 +159,7 @@ def parse_label_map(path):
     return label_map
 
 def write_label_map(path, label_map):
-    with open(path, 'w') as f:
+    with open(path, 'w', encoding='utf-8') as f:
         f.write('# label:color_rgb:parts:actions\n')
         for label_name, label_desc in label_map.items():
             if label_desc[0]:

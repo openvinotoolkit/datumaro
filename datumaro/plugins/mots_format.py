@@ -7,14 +7,16 @@
 from enum import Enum
 from glob import iglob
 import logging as log
-import numpy as np
 import os
 import os.path as osp
 
-from datumaro.components.extractor import (SourceExtractor, Importer,
-    DatasetItem, AnnotationType, Mask, LabelCategories
-)
+import numpy as np
+
 from datumaro.components.converter import Converter
+from datumaro.components.extractor import (
+    AnnotationType, DatasetItem, Importer, LabelCategories, Mask,
+    SourceExtractor,
+)
 from datumaro.util.image import find_images, load_image, save_image
 from datumaro.util.mask_tools import merge_masks
 
@@ -50,8 +52,12 @@ class MotsPngExtractor(SourceExtractor):
 
     def _parse_categories(self, path):
         if osp.isfile(path):
-            with open(path) as f:
-                labels = [l.strip() for l in f]
+            labels = []
+            with open(path, encoding='utf-8') as f:
+                for label in f:
+                    label = label.strip()
+                    if label:
+                        labels.append(label)
         else:
             labels = [l.name for l in MotsLabels]
         return { AnnotationType.label: LabelCategories.from_iterable(labels) }
@@ -132,7 +138,8 @@ class MotsPngConverter(Converter):
 
                 self._save_annotations(item, anno_dir)
 
-            with open(osp.join(anno_dir, MotsPath.LABELS_FILE), 'w') as f:
+            with open(osp.join(anno_dir, MotsPath.LABELS_FILE),
+                    'w', encoding='utf-8') as f:
                 f.write('\n'.join(l.name
                     for l in subset.categories()[AnnotationType.label].items))
 

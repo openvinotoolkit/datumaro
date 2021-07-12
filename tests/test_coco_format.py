@@ -1,33 +1,31 @@
 from functools import partial
 from itertools import product
+from unittest import TestCase
 import os
 import os.path as osp
-from unittest import TestCase
 
 import numpy as np
 
 from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import (DatasetItem,
-    AnnotationType, Label, Mask, Points, Polygon, Bbox, Caption,
-    LabelCategories, PointsCategories
+from datumaro.components.extractor import (
+    AnnotationType, Bbox, Caption, DatasetItem, Label, LabelCategories, Mask,
+    Points, PointsCategories, Polygon,
 )
 from datumaro.plugins.coco_format.converter import (
-    CocoConverter,
-    CocoImageInfoConverter,
-    CocoCaptionsConverter,
-    CocoInstancesConverter,
-    CocoPersonKeypointsConverter,
-    CocoLabelsConverter,
-    CocoPanopticConverter,
-    CocoStuffConverter,
+    CocoCaptionsConverter, CocoConverter, CocoImageInfoConverter,
+    CocoInstancesConverter, CocoLabelsConverter, CocoPanopticConverter,
+    CocoPersonKeypointsConverter, CocoStuffConverter,
 )
-from datumaro.plugins.coco_format.importer import (CocoCaptionsImporter,
-    CocoImageInfoImporter, CocoImporter, CocoInstancesImporter,
-    CocoLabelsImporter, CocoPanopticImporter, CocoPersonKeypointsImporter,
-    CocoStuffImporter)
+from datumaro.plugins.coco_format.importer import (
+    CocoCaptionsImporter, CocoImageInfoImporter, CocoImporter,
+    CocoInstancesImporter, CocoLabelsImporter, CocoPanopticImporter,
+    CocoPersonKeypointsImporter, CocoStuffImporter,
+)
 from datumaro.util.image import Image
-from datumaro.util.test_utils import (TestDir, compare_datasets,
-    test_save_and_load)
+from datumaro.util.test_utils import (
+    TestDir, compare_datasets, test_save_and_load,
+)
+
 from .requirements import Requirements, mark_requirement
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'coco_dataset')
@@ -230,10 +228,8 @@ class CocoImporterTest(TestCase):
             DatasetItem(id='a', subset='train', image=np.ones((5, 10, 3)),
                 attributes={'id': 5},
                 annotations=[
-                    Mask(np.array(
-                        [[0, 0, 1, 1, 0, 1, 1, 0, 0, 0]] * 5
-                        ), label=0,
-                        id=7, group=7, attributes={'is_crowd': False}),
+                    Mask(np.ones((5, 5)), label=0, id=460551,
+                        group=460551, attributes={'is_crowd': False}),
                 ]),
 
             DatasetItem(id='b', subset='val', image=np.ones((10, 5, 3)),
@@ -717,6 +713,36 @@ class CocoConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(expected_dataset,
                 CocoImageInfoConverter.convert, test_dir)
+
+    @mark_requirement(Requirements.DATUM_231)
+    def test_can_save_dataset_with_cjk_categories(self):
+        expected_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, subset='train', image=np.ones((4, 4, 3)),
+                annotations=[
+                    Bbox(0, 1, 2, 2,
+                        label=0, group=1, id=1,
+                        attributes={ 'is_crowd': False }),
+                ], attributes={'id': 1}),
+            DatasetItem(id=2, subset='train', image=np.ones((4, 4, 3)),
+                annotations=[
+                    Bbox(1, 0, 2, 2, label=1, group=2, id=2,
+                        attributes={ 'is_crowd': False }),
+                ], attributes={'id': 2}),
+
+            DatasetItem(id=3, subset='train', image=np.ones((4, 4, 3)),
+                annotations=[
+                    Bbox(0, 1, 2, 2, label=2, group=3, id=3,
+                        attributes={ 'is_crowd': False }),
+                ], attributes={'id': 3}),
+            ],
+            categories=[
+                "고양이", "ネコ", "猫"
+            ]
+        )
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(expected_dataset,
+                CocoInstancesConverter.convert, test_dir)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):

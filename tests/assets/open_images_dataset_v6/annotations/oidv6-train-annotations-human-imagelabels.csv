@@ -1,0 +1,3 @@
+ImageID,Source,LabelName,Confidence
+a,verification,/m/0,1
+b,verification,/m/0,0

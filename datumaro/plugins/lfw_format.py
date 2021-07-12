@@ -7,8 +7,10 @@ import os.path as osp
 import re
 
 from datumaro.components.converter import Converter
-from datumaro.components.extractor import (AnnotationType, DatasetItem,
-    Importer, Label, LabelCategories, Points, SourceExtractor)
+from datumaro.components.extractor import (
+    AnnotationType, DatasetItem, Importer, Label, LabelCategories, Points,
+    SourceExtractor,
+)
 from datumaro.util.image import find_images
 
 

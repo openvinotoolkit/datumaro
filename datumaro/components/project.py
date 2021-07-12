@@ -9,11 +9,13 @@ import os.path as osp
 import shutil
 
 from datumaro.components.config import Config
-from datumaro.components.config_model import (Model, Source,
-    PROJECT_DEFAULT_CONFIG, PROJECT_SCHEMA)
-from datumaro.components.dataset import (IDataset, Dataset, DEFAULT_FORMAT)
-from datumaro.components.dataset_filter import (XPathAnnotationsFilter,
-    XPathDatasetFilter)
+from datumaro.components.config_model import (
+    PROJECT_DEFAULT_CONFIG, PROJECT_SCHEMA, Model, Source,
+)
+from datumaro.components.dataset import DEFAULT_FORMAT, Dataset, IDataset
+from datumaro.components.dataset_filter import (
+    XPathAnnotationsFilter, XPathDatasetFilter,
+)
 from datumaro.components.environment import Environment
 from datumaro.components.errors import DatumaroError
 from datumaro.components.extractor import DEFAULT_SUBSET_NAME, Extractor
@@ -38,7 +40,7 @@ class ProjectDataset(IDataset):
             def categories(self):
                 return self.parent.categories()
 
-            def get(self, id, subset=None): #pylint: disable=redefined-builtin
+            def get(self, id, subset=None):
                 subset = subset or self.name
                 assert subset == self.name, '%s != %s' % (subset, self.name)
                 return super().get(id, subset)
@@ -53,13 +55,17 @@ class ProjectDataset(IDataset):
 
         sources = {}
         for s_name, source in config.sources.items():
-            s_format = source.format or env.PROJECT_EXTRACTOR_NAME
+            s_format = source.format
 
             url = source.url
             if not source.url:
                 url = osp.join(config.project_dir, config.sources_dir, s_name)
-            sources[s_name] = Dataset.import_from(url,
-                format=s_format, env=env, **source.options)
+
+            if s_format:
+                sources[s_name] = Dataset.import_from(url,
+                    format=s_format, env=env, **source.options)
+            else:
+                sources[s_name] = Project.load(url).make_dataset()
         self._sources = sources
 
         own_source = None
@@ -91,8 +97,7 @@ class ProjectDataset(IDataset):
                     item = ExactMerge.merge_items(existing_item, item, path=path)
                 else:
                     s_config = config.sources[source_name]
-                    if s_config and \
-                            s_config.format != env.PROJECT_EXTRACTOR_NAME:
+                    if s_config and s_config.format:
                         # NOTE: consider imported sources as our own dataset
                         path = None
                     else:
@@ -137,22 +142,20 @@ class ProjectDataset(IDataset):
     def __len__(self):
         return sum(len(s) for s in self._subsets.values())
 
-    def get(self, id, subset=None, \
-            path=None): #pylint: disable=redefined-builtin
+    def get(self, id, subset=None, path=None): # pylint: disable=arguments-differ
         if path:
             source = path[0]
             return self._sources[source].get(id=id, subset=subset)
         return self._subsets.get(subset, {}).get(id)
 
-    def put(self, item, id=None, subset=None, \
-            path=None): #pylint: disable=redefined-builtin
+    def put(self, item, id=None, subset=None, path=None):
         if path is None:
             path = item.path
 
         if path:
             source = path[0]
             # TODO: reverse remapping
-            self._sources[source].put(item, id=id, subset=subset)
+            self._sources[source].put(item, id=id, subset=subset, path=path[1:])
 
         if id is None:
             id = item.id
@@ -277,8 +280,7 @@ class ProjectDataset(IDataset):
 
         return self.transform(_DatasetFilter)
 
-    def export(self, save_dir: str, format, \
-            **kwargs): #pylint: disable=redefined-builtin
+    def export(self, save_dir: str, format, **kwargs):
         dataset = Dataset.from_extractors(self, env=self.env)
         dataset.export(save_dir, format, **kwargs)
 
@@ -415,6 +417,8 @@ class Project:
             fallback=PROJECT_DEFAULT_CONFIG, schema=PROJECT_SCHEMA)
         if env is None:
             env = Environment(self.config)
+            env.models.batch_register(self.config.models)
+            env.sources.batch_register(self.config.sources)
         elif config is not None:
             raise ValueError("env can only be provided when no config provided")
         self.env = env
@@ -485,6 +489,3 @@ class Project:
 
     def local_source_dir(self, source_name):
         return osp.join(self.config.sources_dir, source_name)
-
-def load_project_as_dataset(url):
-    return Project.load(url).make_dataset()

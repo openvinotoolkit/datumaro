@@ -11,15 +11,15 @@ import os.path as osp
 from pycocotools.coco import COCO
 import pycocotools.mask as mask_utils
 
-from datumaro.components.extractor import (CompiledMask, Mask, SourceExtractor,
-    DEFAULT_SUBSET_NAME, DatasetItem,
-    AnnotationType, Label, RleMask, Points, Polygon, Bbox, Caption,
-    LabelCategories, PointsCategories
+from datumaro.components.extractor import (
+    DEFAULT_SUBSET_NAME, AnnotationType, Bbox, Caption, CompiledMask,
+    DatasetItem, Label, LabelCategories, Mask, Points, PointsCategories,
+    Polygon, RleMask, SourceExtractor,
 )
 from datumaro.util.image import Image, lazy_image, load_image
 from datumaro.util.mask_tools import bgr2index
 
-from .format import CocoTask, CocoPath
+from .format import CocoPath, CocoTask
 
 
 class _CocoExtractor(SourceExtractor):
@@ -61,7 +61,7 @@ class _CocoExtractor(SourceExtractor):
     def _make_subset_loader(path):
         # COCO API has an 'unclosed file' warning
         coco_api = COCO()
-        with open(path, 'r') as f:
+        with open(path, 'r', encoding='utf-8') as f:
             dataset = json.load(f)
 
         coco_api.dataset = dataset
@@ -110,7 +110,7 @@ class _CocoExtractor(SourceExtractor):
 
     @staticmethod
     def _load_panoptic_config(path):
-        with open(path, 'r') as f:
+        with open(path, 'r', encoding='utf-8') as f:
             return json.load(f)
 
     def _load_panoptic_categories(self, config):
