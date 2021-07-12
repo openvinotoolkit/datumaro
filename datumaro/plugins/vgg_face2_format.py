@@ -8,8 +8,8 @@ import os.path as osp
 
 from datumaro.components.converter import Converter
 from datumaro.components.extractor import (
-    AnnotationType, Bbox, DatasetItem, Importer, Label, LabelCategories, Points,
-    SourceExtractor,
+    AnnotationType, Bbox, DatasetItem, Extractor, Importer, Label,
+    LabelCategories, Points,
 )
 from datumaro.util.image import find_images
 
@@ -22,7 +22,7 @@ class VggFace2Path:
     LABELS_FILE = 'labels.txt'
     IMAGES_DIR_NO_LABEL = 'no_label'
 
-class VggFace2Extractor(SourceExtractor):
+class VggFace2Extractor(Extractor):
     def __init__(self, path):
         if not osp.isdir(path):
             raise Exception("Can't read directory with annotations '%s'" % path)
