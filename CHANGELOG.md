@@ -38,6 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - An error when xpath fiter is applied to the dataset or its subset (<https://github.com/openvinotoolkit/datumaro/issues/259>)
 - Tracking of `Dataset` changes done by transforms (<https://github.com/openvinotoolkit/datumaro/pull/297>)
 - Improved CLI startup time in several cases (<https://github.com/openvinotoolkit/datumaro/pull/306>)
+- Fixed patching of datasets in COCO formats (<https://github.com/openvinotoolkit/datumaro/pull/347>)
 
 ### Security
 - TBD
