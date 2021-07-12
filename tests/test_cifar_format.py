@@ -1,5 +1,5 @@
-import os
 from unittest import TestCase
+import os
 import os.path as osp
 
 import numpy as np

@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MIT
 
-from datumaro.components.dataset import ItemStatus
 import os
 import os.path as osp
 import pickle  # nosec - disable B403:import_pickle check
@@ -10,6 +9,7 @@ import pickle  # nosec - disable B403:import_pickle check
 import numpy as np
 
 from datumaro.components.converter import Converter
+from datumaro.components.dataset import ItemStatus
 from datumaro.components.extractor import (
     AnnotationType, DatasetItem, Importer, Label, LabelCategories,
     SourceExtractor,
