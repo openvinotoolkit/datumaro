@@ -33,7 +33,7 @@ class ForeignChangesError(VcsError):
 class EmptyCommitError(VcsError):
     pass
 
-class SourceOutsideError(VcsError):
+class PathOutsideSourceError(VcsError):
     pass
 
 class PipelineError(DatumaroError):

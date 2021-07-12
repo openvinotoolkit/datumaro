@@ -8,7 +8,8 @@ import numpy as np
 from datumaro.components.config_model import Model, Source
 from datumaro.components.dataset import DEFAULT_FORMAT, Dataset
 from datumaro.components.errors import (
-    EmptyCommitError, ForeignChangesError, SourceOutsideError,
+    EmptyCommitError, ForeignChangesError, MismatchingObjectError,
+    PathOutsideSourceError,
 )
 from datumaro.components.extractor import (
     Bbox, DatasetItem, ItemTransform, Label,
@@ -147,7 +148,7 @@ class ProjectTest(TestCase):
 
             project = Project.init(osp.join(test_dir, 'proj'))
 
-            with self.assertRaises(SourceOutsideError):
+            with self.assertRaises(PathOutsideSourceError):
                 project.import_source('s1', url=source_url,
                     format=DEFAULT_FORMAT, path='..')
 
@@ -233,6 +234,7 @@ class ProjectTest(TestCase):
             project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
             project.commit("A commit")
 
+            # remove local source data
             project.remove_cache_obj(
                 project.working_tree.build_targets['s1'].head.hash)
             shutil.rmtree(project.source_data_dir('s1'))
@@ -242,6 +244,81 @@ class ProjectTest(TestCase):
             compare_datasets(self, source_dataset, read_dataset)
             compare_dirs(self, source_url, project.cache_path(
                 project.working_tree.build_targets['s1'].root.hash))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_redownload_source_and_check_data_hash(self):
+        with TestDir() as test_dir:
+            source_url = osp.join(test_dir, 'source')
+            source_dataset = Dataset.from_iterable([
+                DatasetItem(0, image=np.ones((2, 3, 3)),
+                    annotations=[ Bbox(1, 2, 3, 4, label=0) ]),
+                DatasetItem(1, subset='s', image=np.zeros((10, 20, 3)),
+                    annotations=[ Bbox(1, 2, 3, 4, label=1) ]),
+            ], categories=['a', 'b'])
+            source_dataset.save(source_url, save_images=True)
+
+            project = Project.init(osp.join(test_dir, 'proj'))
+            project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
+            project.commit("A commit")
+
+            # remove local source data
+            project.remove_cache_obj(
+                project.working_tree.build_targets['s1'].head.hash)
+            shutil.rmtree(project.source_data_dir('s1'))
+
+            # modify the source repo
+            with open(osp.join(source_url, 'extra_file.txt'), 'w') as f:
+                f.write('text\n')
+
+            with self.assertRaises(MismatchingObjectError):
+                project.working_tree.make_dataset('s1')
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_use_source_from_cache_is_no_local_data(self):
+        with TestDir() as test_dir:
+            source_url = osp.join(test_dir, 'source')
+            source_dataset = Dataset.from_iterable([
+                DatasetItem(0, image=np.ones((2, 3, 3)),
+                    annotations=[ Bbox(1, 2, 3, 4, label=0) ]),
+                DatasetItem(1, subset='s', image=np.zeros((10, 20, 3)),
+                    annotations=[ Bbox(1, 2, 3, 4, label=1) ]),
+            ], categories=['a', 'b'])
+            source_dataset.save(source_url, save_images=True)
+
+            project = Project.init(osp.join(test_dir, 'proj'))
+            project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
+            project.commit("A commit")
+
+            shutil.rmtree(project.source_data_dir('s1'))
+
+            read_dataset = project.working_tree.make_dataset('s1')
+
+            compare_datasets(self, source_dataset, read_dataset)
+            self.assertFalse(osp.isdir(project.source_data_dir('s1')))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_raises_an_error_if_local_data_unknown(self):
+        with TestDir() as test_dir:
+            source_url = osp.join(test_dir, 'source')
+            source_dataset = Dataset.from_iterable([
+                DatasetItem(0, image=np.ones((2, 3, 3)),
+                    annotations=[ Bbox(1, 2, 3, 4, label=0) ]),
+                DatasetItem(1, subset='s', image=np.zeros((10, 20, 3)),
+                    annotations=[ Bbox(1, 2, 3, 4, label=1) ]),
+            ], categories=['a', 'b'])
+            source_dataset.save(source_url, save_images=True)
+
+            project = Project.init(osp.join(test_dir, 'proj'))
+            project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
+            project.commit("A commit")
+
+            # modify local source data
+            with open(osp.join(project.source_data_dir('s1'), 'extra.txt'),
+                    'w') as f:
+                f.write('text\n')
+
+            with self.assertRaises(ForeignChangesError):
+                project.working_tree.make_dataset('s1')
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_read_working_copy_of_source(self):
@@ -319,7 +396,8 @@ class ProjectTest(TestCase):
 
             compare_datasets(self, dataset, built_dataset)
             self.assertEqual(DEFAULT_FORMAT, built_dataset.format)
-            self.assertEqual(project.source_data_dir('s1'), built_dataset.data_path)
+            self.assertEqual(project.source_data_dir('s1'),
+                built_dataset.data_path)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_add_filter_stage(self):
@@ -430,7 +508,8 @@ class ProjectTest(TestCase):
 
             self.assertTrue(project.is_ref(commit_hash))
             self.assertEqual(len(project.history()), 2)
-            self.assertEqual(project.history()[0], (commit_hash, "First commit"))
+            self.assertEqual(project.history()[0],
+                (commit_hash, "First commit"))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_cant_commit_empty(self):

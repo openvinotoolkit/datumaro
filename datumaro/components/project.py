@@ -27,10 +27,11 @@ from datumaro.components.environment import Environment
 from datumaro.components.errors import (
     DatasetMergeError, EmptyCommitError, EmptyPipelineError,
     ForeignChangesError, MismatchingObjectError, MissingObjectError,
-    MissingPipelineHeadError, MultiplePipelineHeadsError, ProjectAlreadyExists,
-    ProjectNotFoundError, ReadonlyDatasetError, SourceExistsError,
-    SourceOutsideError, UnknownRefError, UnknownSourceError, UnknownStageError,
-    UnknownTargetError, UnsavedChangesError, VcsError, WrongSourceNodeError,
+    MissingPipelineHeadError, MultiplePipelineHeadsError,
+    PathOutsideSourceError, ProjectAlreadyExists, ProjectNotFoundError,
+    ReadonlyDatasetError, SourceExistsError, UnknownRefError,
+    UnknownSourceError, UnknownStageError, UnknownTargetError,
+    UnsavedChangesError, VcsError, WrongSourceNodeError,
 )
 from datumaro.components.launcher import Launcher
 from datumaro.util import error_rollback, find, parse_str_enum_value
@@ -302,6 +303,12 @@ class ProjectBuilder:
             target, stage = ProjectBuildTargets.split_target_name(s)
             assert not stage or stage == ProjectBuildTargets.BASE_STAGE, s
             source = self._tree.sources[target]
+
+            if wd_hashes.get(target):
+                raise ForeignChangesError("Local source '%s' data does not "
+                    "match any previous source revision. Probably, the source "
+                    "was modified outside Datumaro. You can restore the "
+                    "latest source revision with 'checkout' command." % target)
 
             assert source.hash, target
             with self._project._make_tmp_dir() as tmp_dir:
@@ -1987,7 +1994,7 @@ class Project:
                     raise FileNotFoundError(path)
 
                 if not path.startswith(url + os.sep):
-                    raise SourceOutsideError(
+                    raise PathOutsideSourceError(
                         "Source data path is outside of the directory, "
                         "specified by source URL: '%s', '%s'" % (path, url))
 
@@ -2083,7 +2090,9 @@ class Project:
                         "only be available for reproduction from the cache.", t)
                 else:
                     raise ForeignChangesError(
-                        "Source %s is changed without Datumaro" % t)
+                        "The source '%s' is changed outside Datumaro. You can "
+                        "restore the latest source revision with 'checkout' "
+                        "command." % t)
 
         for s in self.working_tree.sources:
             source_dir = self.source_data_dir(s)
