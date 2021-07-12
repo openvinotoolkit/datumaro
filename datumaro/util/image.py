@@ -10,6 +10,7 @@ from typing import (
 import importlib
 import os
 import os.path as osp
+import shlex
 import shutil
 
 import numpy as np
@@ -395,6 +396,8 @@ def load_image_meta_file(image_meta_path: str) -> ImageMeta:
         <image name 2> <height 2> <width 2>
         ...
 
+    Shell-like comments and quoted fields are allowed.
+
     This can be useful to support datasets in which image dimensions are
     required to interpret annotations.
     """
@@ -407,7 +410,12 @@ def load_image_meta_file(image_meta_path: str) -> ImageMeta:
 
     with open(image_meta_path, encoding='utf-8') as f:
         for line in f:
-            image_name, h, w = line.strip().rsplit(maxsplit=2)
+            fields = shlex.split(line, comments=True)
+            if not fields:
+                continue
+
+            # ignore extra fields, so that the format can be extended later
+            image_name, h, w = fields[:3]
             image_meta[image_name] = (int(h), int(w))
 
     return image_meta

@@ -135,7 +135,14 @@ class BytesImageTest(TestCase):
 class ImageMetaTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_loading(self):
-        meta_original = {
+        meta_file_contents = r"""
+        # this is a comment
+
+        a 123 456
+        'b c' 10 20 # inline comment
+        """
+
+        meta_expected = {
             'a': (123, 456),
             'b c': (10, 20),
         }
@@ -144,9 +151,8 @@ class ImageMetaTest(TestCase):
             meta_path = osp.join(test_dir, 'images.meta')
 
             with open(meta_path, 'w') as meta_file:
-                for name, (h, w) in meta_original.items():
-                    print(name, h, w, file=meta_file)
+                meta_file.write(meta_file_contents)
 
-            meta_reloaded = load_image_meta_file(meta_path)
+            meta_loaded = load_image_meta_file(meta_path)
 
-        self.assertEqual(meta_reloaded, meta_original)
+        self.assertEqual(meta_loaded, meta_expected)
