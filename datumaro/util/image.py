@@ -4,10 +4,13 @@
 
 from enum import Enum, auto
 from io import BytesIO
-from typing import Any, Callable, Iterable, Iterator, Optional, Tuple, Union
+from typing import (
+    Any, Callable, Dict, Iterable, Iterator, Optional, Tuple, Union,
+)
 import importlib
 import os
 import os.path as osp
+import shlex
 import shutil
 
 import numpy as np
@@ -380,3 +383,39 @@ class ByteImage(Image):
                 f.write(self.get_bytes())
         else:
             save_image(path, self.data)
+
+ImageMeta = Dict[str, Tuple[int, int]]
+
+DEFAULT_IMAGE_META_FILE_NAME = 'images.meta'
+
+def load_image_meta_file(image_meta_path: str) -> ImageMeta:
+    """
+    Loads image metadata from a file with the following format:
+
+        <image name 1> <height 1> <width 1>
+        <image name 2> <height 2> <width 2>
+        ...
+
+    Shell-like comments and quoted fields are allowed.
+
+    This can be useful to support datasets in which image dimensions are
+    required to interpret annotations.
+    """
+    assert isinstance(image_meta_path, str)
+
+    if not osp.isfile(image_meta_path):
+        raise Exception("Can't read image meta file '%s'" % image_meta_path)
+
+    image_meta = {}
+
+    with open(image_meta_path, encoding='utf-8') as f:
+        for line in f:
+            fields = shlex.split(line, comments=True)
+            if not fields:
+                continue
+
+            # ignore extra fields, so that the format can be extended later
+            image_name, h, w = fields[:3]
+            image_meta[image_name] = (int(h), int(w))
+
+    return image_meta
