@@ -15,9 +15,9 @@ import pycocotools.mask as mask_utils
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.extractor import (
-    Cuboid3d, DEFAULT_SUBSET_NAME, Annotation, Bbox, Caption, DatasetItem, Label,
-    LabelCategories, Mask, MaskCategories, Points, PointsCategories, Polygon,
-    PolyLine, RleMask, _Shape,
+    DEFAULT_SUBSET_NAME, Annotation, Bbox, Caption, Cuboid3d, DatasetItem,
+    Label, LabelCategories, Mask, MaskCategories, Points, PointsCategories,
+    Polygon, PolyLine, RleMask, _Shape,
 )
 from datumaro.util import cast
 
