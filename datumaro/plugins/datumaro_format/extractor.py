@@ -26,6 +26,10 @@ class DatumaroExtractor(SourceExtractor):
         if rootpath and osp.isdir(osp.join(rootpath, DatumaroPath.IMAGES_DIR)):
             images_dir = osp.join(rootpath, DatumaroPath.IMAGES_DIR)
         self._images_dir = images_dir
+        pcd_dir = ''
+        if rootpath and osp.isdir(osp.join(rootpath, DatumaroPath.PCD_DIR)):
+            pcd_dir = osp.join(rootpath, DatumaroPath.PCD_DIR)
+        self._pcd_dir = pcd_dir
 
         super().__init__(subset=osp.splitext(osp.basename(path))[0])
 
@@ -82,10 +86,16 @@ class DatumaroExtractor(SourceExtractor):
                 image_path = osp.join(self._images_dir, image_path)
                 image = Image(path=image_path, size=image_info.get('size'))
 
+            point_cloud = None
+            pcd_info = item_desc.get('point_cloud')
+            if pcd_info:
+                pcd_path = pcd_info.get('path')
+                point_cloud = osp.join(self._pcd_dir, pcd_path)
+
             annotations = self._load_annotations(item_desc)
 
             item = DatasetItem(id=item_id, subset=self._subset,
-                annotations=annotations, image=image,
+                annotations=annotations, image=image, point_cloud=point_cloud,
                 attributes=item_desc.get('attr'))
 
             items.append(item)

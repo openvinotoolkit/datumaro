@@ -6,6 +6,7 @@
 class DatumaroPath:
     IMAGES_DIR = 'images'
     ANNOTATIONS_DIR = 'annotations'
+    PCD_DIR = 'point_clouds'
     MASKS_DIR = 'masks'
 
     IMAGE_EXT = '.jpg'
