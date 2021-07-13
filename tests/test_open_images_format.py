@@ -123,12 +123,14 @@ class OpenImagesImporterTest(TestCase):
                 DatasetItem(id='a', subset='train', image=np.zeros((8, 6, 3)),
                     annotations=[Label(label=0, attributes={'score': 1})]),
                 DatasetItem(id='b', subset='train', image=np.zeros((2, 8, 3)),
-                    annotations=[Label(label=0, attributes={'score': 0})]),
+                    annotations=[
+                        Label(label=0, attributes={'score': 0}),
+                        Bbox(label=0, x=1.6, y=0.6, w=6.4, h=0.4, attributes={'score': 1}),
+                    ]),
                 DatasetItem(id='c', subset='test', image=np.ones((10, 5, 3)),
                     annotations=[
                         Label(label=1, attributes={'score': 1}),
                         Label(label=3, attributes={'score': 1}),
-                        Bbox(label=1, x=1, y=3, w=4, h=2, attributes={'score': 1}),
                         Bbox(label=3, x=3.5, y=0, w=0.5, h=5, attributes={
                             'score': 0.7,
                             'occluded': True, 'truncated': False,

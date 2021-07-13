@@ -12,6 +12,7 @@ import logging as log
 import os
 import os.path as osp
 import re
+import shlex
 import types
 
 from attr import attrs
@@ -25,7 +26,9 @@ from datumaro.components.extractor import (
     LabelCategories,
 )
 from datumaro.components.validator import Severity
-from datumaro.util.image import find_images
+from datumaro.util.image import (
+    DEFAULT_IMAGE_META_FILE_NAME, Image, find_images, load_image_meta_file,
+)
 from datumaro.util.os_util import split_path
 
 # A regex to check whether a subset name can be used as a "normal" path
@@ -122,6 +125,14 @@ class OpenImagesExtractor(Extractor):
 
         self._categories = {}
         self._items = []
+
+        try:
+            self._image_meta = load_image_meta_file(osp.join(
+                path, OpenImagesPath.ANNOTATIONS_DIR,
+                DEFAULT_IMAGE_META_FILE_NAME
+            ))
+        except Exception:
+            self._image_meta = {}
 
         self._load_categories()
         self._load_items()
@@ -223,9 +234,17 @@ class OpenImagesExtractor(Extractor):
                     if _RE_INVALID_SUBSET.fullmatch(subset):
                         raise UnsupportedSubsetNameError(item_id=image_id, subset=subset)
 
+                    image_path = image_paths_by_id.get(image_id)
+
+                    image = None
+                    if image_path is not None:
+                        image = Image(
+                            path=image_path, size=self._image_meta.get(image_id),
+                        )
+
                     items_by_id[image_id] = DatasetItem(
                         id=image_id,
-                        image=image_paths_by_id.get(image_id),
+                        image=image,
                         subset=subset,
                     )
 
@@ -288,8 +307,13 @@ class OpenImagesExtractor(Extractor):
                             item_id=item.id, subset=item.subset,
                             label_name=label_name, severity=Severity.error)
 
-                    # TODO: what if there is no image
-                    height, width = item.image.size
+                    if item.has_image:
+                        height, width = item.image.size
+                    else:
+                        log.warning(
+                            "Can't decode box for item '%s' due to missing image file",
+                            item.id)
+                        continue
 
                     x_min = float(bbox_description['XMin']) * width
                     x_max = float(bbox_description['XMax']) * width
@@ -405,6 +429,8 @@ class OpenImagesConverter(Converter):
         label_categories = self._extractor.categories().get(
             AnnotationType.label, LabelCategories())
 
+        image_meta = {}
+
         for subset_name, subset in self._extractor.subsets().items():
             if _RE_INVALID_SUBSET.fullmatch(subset_name):
                 raise UnsupportedSubsetNameError(item_id=next(iter(subset)).id, subset=subset)
@@ -458,7 +484,13 @@ class OpenImagesConverter(Converter):
                                         OpenImagesPath.BBOX_DESCRIPTION_FIELDS))
                                 bbox_description_writer.writeheader()
 
-                            height, width = item.image.size
+                            if item.has_image:
+                                image_meta[item.id] = (height, width) = item.image.size
+                            else:
+                                log.warning(
+                                    "Can't encode box for item '%s' due to missing image file",
+                                    item.id)
+                                continue
 
                             bbox_description_writer.writerow({
                                 'ImageID': item.id,
@@ -474,3 +506,12 @@ class OpenImagesConverter(Converter):
                                     for bool_attr in OpenImagesPath.BBOX_BOOLEAN_ATTRIBUTES
                                 },
                             })
+
+        if image_meta:
+            image_meta_file_path = osp.join(
+                self._save_dir, OpenImagesPath.ANNOTATIONS_DIR,
+                DEFAULT_IMAGE_META_FILE_NAME)
+
+            with open(image_meta_file_path, 'w') as image_meta_file:
+                for image_name, (height, width) in image_meta.items():
+                    print(shlex.quote(image_name), height, width, file=image_meta_file)

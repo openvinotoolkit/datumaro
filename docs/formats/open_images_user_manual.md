@@ -110,6 +110,36 @@ Open Images dataset directory should have the following structure:
 To use per-subset image description files instead of `image_ids_and_rotation.csv`,
 place them in the `annotations` subdirectory.
 
+### Speeding up bounding box loading
+
+To load bounding box annotations,
+Datumaro needs to know the sizes of the corresponding images.
+By default, it will determine these sizes by loading each image from disk,
+which will make the loading process slow.
+
+You can speed up this process
+by extracting the image size information in advance
+and recording it in an `images.meta` file.
+This file must be located in the `annotations` directory,
+and must contain one line per image, with the following structure:
+
+```
+<ID> <height> <width>
+```
+
+Where `<ID>` is the file name of the image without the extension,
+and `<height>` and `<width>` are the dimensions of that image.
+`<ID>` may be quoted with either single or double quotes.
+
+Here's one way to create the `images.meta` file using ImageMagick:
+
+```bash
+# run this from the dataset directory
+find images -name '*.jpg' -exec \
+    identify -format '"%[basename]" %[height] %[width]\n' {} + \
+    > annotations/images.meta
+```
+
 ## Export to other formats
 
 Datumaro can convert OID into any other format [Datumaro supports](../user_manual.md#supported-formats).
