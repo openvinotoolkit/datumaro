@@ -130,7 +130,7 @@ class CifarFormatTest(TestCase):
                 require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_inplace_save_writes_only_updated_data_with_direct_changes(self):
+    def test_inplace_save_writes_only_updated_data(self):
         expected = Dataset.from_iterable([
             DatasetItem(1, subset='a', image=np.ones((2, 1, 3)),
                 annotations=[ Label(0) ]),
@@ -154,40 +154,6 @@ class CifarFormatTest(TestCase):
             dataset.save(save_images=True)
 
             self.assertEqual({'a_batch', 'b_batch', 'batches.meta'},
-                set(os.listdir(path)))
-            compare_datasets(self, expected, Dataset.import_from(path, 'cifar'),
-                require_images=True)
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_inplace_save_writes_only_updated_data_with_transforms(self):
-        expected = Dataset.from_iterable([
-            DatasetItem(3, subset='test', image=np.ones((2, 3, 3)),
-                annotations=[ Label(2) ]),
-
-            DatasetItem(4, subset='train', image=np.ones((2, 4, 3)),
-                annotations=[ Label(3) ]),
-        ], categories=['a', 'b', 'c', 'd'])
-
-        dataset = Dataset.from_iterable([
-            DatasetItem(1, subset='a', image=np.ones((2, 1, 3)),
-                annotations=[ Label(0) ]),
-            DatasetItem(2, subset='b', image=np.ones((2, 2, 3)),
-                annotations=[ Label(1) ]),
-            DatasetItem(3, subset='b', image=np.ones((2, 3, 3)),
-                annotations=[ Label(2) ]),
-            DatasetItem(4, subset='c', image=np.ones((2, 4, 3)),
-                annotations=[ Label(3) ]),
-        ], categories=['a', 'b', 'c', 'd'])
-
-        with TestDir() as path:
-            dataset.export(path, 'cifar', save_images=True)
-
-            dataset.filter('/item[id >= 3]')
-            dataset.transform('random_split', (('train', 0.5), ('test', 0.5)),
-                seed=42)
-            dataset.save(save_images=True)
-
-            self.assertEqual({'train_batch', 'test_batch', 'batches.meta'},
                 set(os.listdir(path)))
             compare_datasets(self, expected, Dataset.import_from(path, 'cifar'),
                 require_images=True)
