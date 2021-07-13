@@ -67,6 +67,27 @@ The 100 classes in the CIFAR-100 are grouped into 20 superclasses. Each image
 comes with a "fine" label (the class to which it belongs) and a "coarse" label
 (the superclass to which it belongs)
 
+The difference between CIFAR-10 and CIFAR-100 is how labels are stored
+in the meta file (batches.meta or meta) and in the annotation file (train,
+data_batch_1, test_batch, etc.).
+<!--lint disable fenced-code-flag-->
+```
+meta file:
+CIFAR-10: num_cases_per_batch: 1000
+          label_names: ['airplane', 'automobile', 'bird', ...]
+          num_vis: 3072
+CIFAR-100: fine_label_names: ['apple', 'aquarium_fish', 'baby', ...]
+           coarse_label_names: ['aquatic_mammals', 'fish', 'flowers', ...]
+
+annotation file:
+'batch_label': 'training batch 1 of 5'
+'data': ndarray
+'filenames': list
+CIFAR-10: 'labels': list
+CIFAR-100: 'fine_labels': list
+           'coarse_labels': list
+```
+
 ## Export to other formats
 
 Datumaro can convert CIFAR dataset into any other format [Datumaro supports](../user_manual.md#supported-formats).
@@ -100,6 +121,9 @@ Extra options for export to CIFAR format:
 (by default `False`);
 - `--image-ext <IMAGE_EXT>` allow to specify image extension
 for exporting dataset (by default `.png`).
+
+The format (CIFAR-10 or CIFAR-100) in which the dataset will be
+exported depends on the presence of superclasses in the `LabelCategories`.
 
 ## Particular use cases
 
