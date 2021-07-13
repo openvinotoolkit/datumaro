@@ -44,7 +44,7 @@ class VggFace2Extractor(Extractor):
         super().__init__()
 
         self._dataset_dir = osp.dirname(self._path)
-        self._subsets = set(subset) if subset else set(
+        self._subsets = set([subset]) if subset else set(
             osp.splitext(f.split('_')[2])[0] for f in annotation_files
         )
 
