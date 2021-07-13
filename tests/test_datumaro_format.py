@@ -2,11 +2,12 @@ from functools import partial
 from unittest import TestCase
 import os
 import os.path as osp
+from attr import attributes
 
 import numpy as np
 
 from datumaro.components.extractor import (
-    AnnotationType, Bbox, Caption, DatasetItem, Label, LabelCategories, Mask,
+    AnnotationType, Bbox, Caption, Cuboid3d, DatasetItem, Label, LabelCategories, Mask,
     MaskCategories, Points, PointsCategories, Polygon, PolyLine,
 )
 from datumaro.components.project import Dataset
@@ -75,6 +76,13 @@ class DatumaroConverterTest(TestCase):
                 annotations=[
                     PolyLine([1, 2, 3, 4, 5, 6, 7, 8], id=11, z_order=1),
                     Polygon([1, 2, 3, 4, 5, 6, 7, 8], id=12, z_order=4),
+                ]),
+
+            DatasetItem(id=1, subset='test',
+                annotations=[
+                    Cuboid3d([1.0, 2.0, 3.0], [2.0, 2.0, 4.0], [1.0, 3.0, 4.0],
+                        id=6, label=0, attributes={'occluded': True}, group=6
+                    )
                 ]),
 
             DatasetItem(id=42, subset='test',
