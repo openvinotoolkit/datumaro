@@ -19,8 +19,9 @@ from datumaro.util import cast
 
 class CifarPath:
     BATCHES_META = 'batches.meta'
+    META = 'meta'
     TRAIN_ANNOTATION_FILE = 'data_batch_'
-    IMAGES_DIR = 'images'
+    USELESS_FILE = 'file.txt~'
     IMAGE_SIZE = 32
 
 Cifar10Label = ['airplane', 'automobile', 'bird', 'cat',
@@ -42,15 +43,17 @@ class CifarExtractor(SourceExtractor):
 
         super().__init__(subset=subset)
 
-        batches_meta_file = osp.join(osp.dirname(path), CifarPath.BATCHES_META)
-        self._categories = self._load_categories(batches_meta_file)
+        self._categories = self._load_categories(osp.dirname(path))
 
         self._items = list(self._load_items(path).values())
 
     def _load_categories(self, path):
         label_cat = LabelCategories()
 
-        if osp.isfile(path):
+        meta_file = osp.join(path, CifarPath.BATCHES_META)
+        if not osp.isfile(meta_file):
+            meta_file = osp.join(path, CifarPath.META)
+        if osp.isfile(meta_file):
             # CIFAR-10:
             # num_cases_per_batch: 1000
             # label_names: ['airplane', 'automobile', 'bird', 'cat', 'deer',
@@ -59,7 +62,7 @@ class CifarExtractor(SourceExtractor):
             # CIFAR-100:
             # fine_label_names: ['apple', 'aquarium_fish', 'baby', ...]
             # coarse_label_names: ['aquatic_mammals', 'fish', 'flowers', ...]
-            with open(path, 'rb') as labels_file:
+            with open(meta_file, 'rb') as labels_file:
                 data = pickle.load(labels_file) # nosec - disable B301:pickle check
             labels = data.get('label_names')
             if labels != None:
@@ -138,7 +141,7 @@ class CifarImporter(Importer):
     def find_sources(cls, path):
         return cls._find_sources_recursive(path, '', 'cifar',
             file_filter=lambda p: osp.basename(p) not in
-                {CifarPath.BATCHES_META, CifarPath.IMAGES_DIR})
+                {CifarPath.BATCHES_META, CifarPath.META, CifarPath.USELESS_FILE})
 
 
 class CifarConverter(Converter):
