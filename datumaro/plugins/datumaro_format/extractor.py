@@ -7,7 +7,7 @@ import json
 import os.path as osp
 
 from datumaro.components.extractor import (
-    AnnotationType, Bbox, Caption, DatasetItem, Importer, Label,
+    AnnotationType, Bbox, Caption, Cuboid3d, DatasetItem, Importer, Label,
     LabelCategories, MaskCategories, Points, PointsCategories, Polygon,
     PolyLine, RleMask, SourceExtractor,
 )
@@ -142,6 +142,12 @@ class DatumaroExtractor(SourceExtractor):
             elif ann_type == AnnotationType.caption:
                 caption = ann.get('caption')
                 loaded.append(Caption(caption,
+                    id=ann_id, attributes=attributes, group=group))
+
+            elif ann_type == AnnotationType.cuboid_3d:
+                cuboid_3d = ann.get('cuboid_3d')
+                loaded.append(Cuboid3d(cuboid_3d['position'],
+                    cuboid_3d['rotation'], cuboid_3d['scale'], label=label_id,
                     id=ann_id, attributes=attributes, group=group))
 
             else:

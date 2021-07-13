@@ -15,7 +15,7 @@ import pycocotools.mask as mask_utils
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.extractor import (
-    DEFAULT_SUBSET_NAME, Annotation, Bbox, Caption, DatasetItem, Label,
+    Cuboid3d, DEFAULT_SUBSET_NAME, Annotation, Bbox, Caption, DatasetItem, Label,
     LabelCategories, Mask, MaskCategories, Points, PointsCategories, Polygon,
     PolyLine, RleMask, _Shape,
 )
@@ -84,6 +84,8 @@ class _SubsetWriter:
                 converted_ann = self._convert_bbox_object(ann)
             elif isinstance(ann, Caption):
                 converted_ann = self._convert_caption_object(ann)
+            elif isinstance(ann, Cuboid3d):
+                converted_ann = self._convert_cuboid_3d_object(ann)
             else:
                 raise NotImplementedError()
             annotations.append(converted_ann)
@@ -185,6 +187,18 @@ class _SubsetWriter:
 
         converted.update({
             'caption': cast(obj.caption, str),
+        })
+        return converted
+
+    def _convert_cuboid_3d_object(self, obj):
+        converted = self._convert_annotation(obj)
+        converted.update({
+            'label_id': cast(obj.label, int),
+            'cuboid_3d': {
+                'position': [float(p) for p in obj.position],
+                'rotation': [float(p) for p in obj.rotation],
+                'scale': [float(p) for p in obj.scale]
+            }
         })
         return converted
 
