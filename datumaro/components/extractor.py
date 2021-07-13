@@ -686,6 +686,9 @@ class Extractor(IExtractor):
         if self._subsets is None:
             self._init_cache()
         if name in self._subsets:
+            if len(self._subsets) == 1:
+                return self
+
             return self.select(lambda item: item.subset == name)
         else:
             raise Exception("Unknown subset '%s', available subsets: %s" % \
