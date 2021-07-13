@@ -24,10 +24,16 @@ class VggFace2Path:
 
 class VggFace2Extractor(Extractor):
     def __init__(self, path):
-        if not osp.isdir(path):
-            raise Exception("Can't read directory with annotations '%s'" % path)
+        subset = None
+        if osp.isdir(path):
+            self._path = path
+        elif osp.isfile(path):
+            subset = osp.splitext(osp.basename(path).split('_')[2])[0]
+            self._path = osp.dirname(path)
+        else:
+            raise Exception("Can't read annotations from '%s'" % path)
 
-        annotation_files = [p for p in os.listdir(path)
+        annotation_files = [p for p in os.listdir(self._path)
             if (osp.basename(p).startswith(VggFace2Path.BBOXES_FILE) or \
                 osp.basename(p).startswith(VggFace2Path.LANDMARKS_FILE)) and \
                 p.endswith('csv')]
@@ -37,14 +43,15 @@ class VggFace2Extractor(Extractor):
 
         super().__init__()
 
-        self._path = path
-        self._dataset_dir = osp.dirname(path)
-
-        self._subsets = {osp.splitext(f.split('_')[2])[0] for f in annotation_files}
+        self._dataset_dir = osp.dirname(self._path)
+        self._subsets = set(subset) if subset else set(
+            osp.splitext(f.split('_')[2])[0] for f in annotation_files
+        )
 
         self._categories = {}
-        self._load_categories()
         self._items = []
+
+        self._load_categories()
         for subset in self._subsets:
             self._items.extend(list(self._load_items(subset).values()))
 
@@ -97,28 +104,31 @@ class VggFace2Extractor(Extractor):
 
         landmarks_path = osp.join(self._dataset_dir, VggFace2Path.ANNOTATION_DIR,
             VggFace2Path.LANDMARKS_FILE + subset + '.csv')
-        with open(landmarks_path, encoding='utf-8') as content:
-            landmarks_table = list(csv.DictReader(content))
-        for row in landmarks_table:
-            item_id = row['NAME_ID']
-            label = None
-            if '/' in item_id:
-                label = _get_label(item_id)
+        if osp.isfile(landmarks_path):
+            with open(landmarks_path, encoding='utf-8') as content:
+                landmarks_table = list(csv.DictReader(content))
+            for row in landmarks_table:
+                item_id = row['NAME_ID']
+                label = None
+                if '/' in item_id:
+                    label = _get_label(item_id)
 
-            if item_id not in items:
-                items[item_id] = DatasetItem(id=item_id, subset=subset,
-                    image=images.get(row['NAME_ID']))
+                if item_id not in items:
+                    items[item_id] = DatasetItem(id=item_id, subset=subset,
+                        image=images.get(row['NAME_ID']))
 
-            annotations = items[item_id].annotations
-            if [a for a in annotations if a.type == AnnotationType.points]:
-                raise Exception("Item %s: an image can have only one "
-                    "set of landmarks" % item_id)
+                annotations = items[item_id].annotations
+                if [a for a in annotations if a.type == AnnotationType.points]:
+                    raise Exception("Item %s: an image can have only one "
+                        "set of landmarks" % item_id)
 
-            if len([p for p in row if row[p] == '']) == 0 and len(row) == 11:
-                annotations.append(Points(
-                    [float(row[p]) for p in row if p != 'NAME_ID'], label=label))
-            elif label is not None:
-                annotations.append(Label(label=label))
+                if len([p for p in row if row[p] == '']) == 0 and len(row) == 11:
+                    annotations.append(Points(
+                        [float(row[p]) for p in row if p != 'NAME_ID'],
+                        label=label)
+                    )
+                elif label is not None:
+                    annotations.append(Label(label=label))
 
         bboxes_path = osp.join(self._dataset_dir, VggFace2Path.ANNOTATION_DIR,
             VggFace2Path.BBOXES_FILE + subset + '.csv')
@@ -148,9 +158,15 @@ class VggFace2Extractor(Extractor):
 class VggFace2Importer(Importer):
     @classmethod
     def find_sources(cls, path):
-        annotation_dir = osp.join(path, VggFace2Path.ANNOTATION_DIR)
-        if osp.isdir(annotation_dir):
-            return [{'url': annotation_dir, 'format': 'vgg_face2'}]
+        if osp.isdir(path):
+            annotation_dir = osp.join(path, VggFace2Path.ANNOTATION_DIR)
+            if osp.isdir(annotation_dir):
+                return [{'url': annotation_dir, 'format': 'vgg_face2'}]
+        elif osp.isfile(path):
+            if (osp.basename(path).startswith(VggFace2Path.LANDMARKS_FILE) or \
+                osp.basename(path).startswith(VggFace2Path.BBOXES_FILE)) and \
+                path.endswith('.csv'):
+                return [{'url': path, 'format': 'vgg_face2'}]
         return []
 
 class VggFace2Converter(Converter):
