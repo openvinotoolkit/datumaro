@@ -8,7 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[Unreleased]
 ### Added
-- TBD
+- The Open Images format now supports bounding box annotations
+  (<https://github.com/openvinotoolkit/datumaro/pull/352>).
 
 ### Changed
 - TBD
