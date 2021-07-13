@@ -215,11 +215,39 @@ class VggFace2ImporterTest(TestCase):
                         3.634, 1.43, 3.34, 1.65, 3.32], label=1)
                 ]
             ),
+            DatasetItem(id='n000003/0003_01', subset='test',
+                image=np.ones((10, 15, 3)),
+                annotations=[
+                    Bbox(1, 1, 1, 1, label=2),
+                    Points([0.2, 2.8, 0.8, 2.9, 0.5,
+                        2.6, 0.4, 2.3, 0.6, 2.3], label=2)
+                ]
+            )
         ], categories={
             AnnotationType.label: LabelCategories.from_iterable(
-                [('n000001', 'car'), ('n000002', 'person')]),
+                [('n000001', 'Karl'), ('n000002', 'Jay'), ('n000003', 'Pol')]),
         })
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'vgg_face2')
+
+        compare_datasets(self, expected_dataset, dataset)
+
+    def test_can_import_specific_subset(self):
+        expected_dataset = Dataset.from_iterable([
+            DatasetItem(id='n000003/0003_01', subset='test',
+                image=np.ones((10, 15, 3)),
+                annotations=[
+                    Bbox(1, 1, 1, 1, label=2),
+                    Points([0.2, 2.8, 0.8, 2.9, 0.5,
+                        2.6, 0.4, 2.3, 0.6, 2.3], label=2)
+                ]
+            )
+        ], categories={
+            AnnotationType.label: LabelCategories.from_iterable(
+                [('n000001', 'Karl'), ('n000002', 'Jay'), ('n000003', 'Pol')]),
+        })
+
+        specific_subset = osp.join(DUMMY_DATASET_DIR, 'bb_landmark', 'loose_bb_test.csv')
+        dataset = Dataset.import_from(specific_subset, 'vgg_face2')
 
         compare_datasets(self, expected_dataset, dataset)
