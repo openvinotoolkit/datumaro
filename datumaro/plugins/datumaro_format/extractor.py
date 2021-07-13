@@ -145,9 +145,8 @@ class DatumaroExtractor(SourceExtractor):
                     id=ann_id, attributes=attributes, group=group))
 
             elif ann_type == AnnotationType.cuboid_3d:
-                cuboid_3d = ann.get('cuboid_3d')
-                loaded.append(Cuboid3d(cuboid_3d['position'],
-                    cuboid_3d['rotation'], cuboid_3d['scale'], label=label_id,
+                loaded.append(Cuboid3d(ann.get('position'),
+                    ann.get('rotation'), ann.get('scale'), label=label_id,
                     id=ann_id, attributes=attributes, group=group))
 
             else:

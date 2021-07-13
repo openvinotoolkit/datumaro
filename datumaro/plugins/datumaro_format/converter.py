@@ -194,11 +194,9 @@ class _SubsetWriter:
         converted = self._convert_annotation(obj)
         converted.update({
             'label_id': cast(obj.label, int),
-            'cuboid_3d': {
-                'position': [float(p) for p in obj.position],
-                'rotation': [float(p) for p in obj.rotation],
-                'scale': [float(p) for p in obj.scale]
-            }
+            'position': [float(p) for p in obj.position],
+            'rotation': [float(p) for p in obj.rotation],
+            'scale': [float(p) for p in obj.scale]
         })
         return converted
 
