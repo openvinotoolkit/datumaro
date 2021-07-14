@@ -1,5 +1,4 @@
-
-# Copyright (C) 2019-2020 Intel Corporation
+# Copyright (C) 2019-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -7,7 +6,7 @@ import json
 import os.path as osp
 
 from datumaro.components.extractor import (
-    AnnotationType, Bbox, Caption, DatasetItem, Importer, Label,
+    AnnotationType, Bbox, Caption, Cuboid3d, DatasetItem, Importer, Label,
     LabelCategories, MaskCategories, Points, PointsCategories, Polygon,
     PolyLine, RleMask, SourceExtractor,
 )
@@ -19,13 +18,25 @@ from .format import DatumaroPath
 class DatumaroExtractor(SourceExtractor):
     def __init__(self, path):
         assert osp.isfile(path), path
+
         rootpath = ''
         if path.endswith(osp.join(DatumaroPath.ANNOTATIONS_DIR, osp.basename(path))):
             rootpath = path.rsplit(DatumaroPath.ANNOTATIONS_DIR, maxsplit=1)[0]
+
         images_dir = ''
         if rootpath and osp.isdir(osp.join(rootpath, DatumaroPath.IMAGES_DIR)):
             images_dir = osp.join(rootpath, DatumaroPath.IMAGES_DIR)
         self._images_dir = images_dir
+
+        pcd_dir = ''
+        if rootpath and osp.isdir(osp.join(rootpath, DatumaroPath.PCD_DIR)):
+            pcd_dir = osp.join(rootpath, DatumaroPath.PCD_DIR)
+        self._pcd_dir = pcd_dir
+
+        related_images_dir = ''
+        if rootpath and osp.isdir(osp.join(rootpath, DatumaroPath.RELATED_IMAGES_DIR)):
+            related_images_dir = osp.join(rootpath, DatumaroPath.RELATED_IMAGES_DIR)
+        self._related_images_dir = related_images_dir
 
         super().__init__(subset=osp.splitext(osp.basename(path))[0])
 
@@ -82,11 +93,27 @@ class DatumaroExtractor(SourceExtractor):
                 image_path = osp.join(self._images_dir, image_path)
                 image = Image(path=image_path, size=image_info.get('size'))
 
+            point_cloud = None
+            pcd_info = item_desc.get('point_cloud')
+            if pcd_info:
+                pcd_path = pcd_info.get('path')
+                point_cloud = osp.join(self._pcd_dir, pcd_path)
+
+            related_images = None
+            ri_info = item_desc.get('related_images')
+            if ri_info:
+                related_images = [
+                    Image(size=ri.get('size'),
+                        path=osp.join(self._related_images_dir, ri.get('path'))
+                    )
+                    for ri in ri_info
+                ]
+
             annotations = self._load_annotations(item_desc)
 
             item = DatasetItem(id=item_id, subset=self._subset,
-                annotations=annotations, image=image,
-                attributes=item_desc.get('attr'))
+                annotations=annotations, image=image, point_cloud=point_cloud,
+                related_images=related_images, attributes=item_desc.get('attr'))
 
             items.append(item)
 
@@ -142,6 +169,11 @@ class DatumaroExtractor(SourceExtractor):
             elif ann_type == AnnotationType.caption:
                 caption = ann.get('caption')
                 loaded.append(Caption(caption,
+                    id=ann_id, attributes=attributes, group=group))
+
+            elif ann_type == AnnotationType.cuboid_3d:
+                loaded.append(Cuboid3d(ann.get('position'),
+                    ann.get('rotation'), ann.get('scale'), label=label_id,
                     id=ann_id, attributes=attributes, group=group))
 
             else:
