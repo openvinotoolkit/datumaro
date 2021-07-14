@@ -77,6 +77,24 @@ class _SubsetWriter:
             item_desc['point_cloud'] = {
                 'path': path
             }
+        if item.related_images:
+            related_images = [{'path': img.path} for img in item.related_images]
+            if self._context._save_images:
+                related_images = []
+                for img in item.related_images:
+                    ri_desc = {}
+                    ri_desc['path'] = osp.join(item.id,
+                        osp.splitext(osp.basename(img.path))[0] + \
+                            self._context._find_image_ext(img))
+
+                    if img.has_data:
+                        img.save(osp.join(self._context._related_images_dir,
+                            ri_desc['path']))
+                    if img.has_size:
+                        ri_desc['size'] = img.size
+                    related_images.append(ri_desc)
+
+            item_desc['related_images'] = related_images
         self.items.append(item_desc)
 
         for ann in item.annotations:
@@ -266,6 +284,8 @@ class DatumaroConverter(Converter):
         self._annotations_dir = annotations_dir
 
         self._pcd_dir = osp.join(self._save_dir, DatumaroPath.PCD_DIR)
+        self._related_images_dir = osp.join(self._save_dir,
+            DatumaroPath.RELATED_IMAGES_DIR)
 
         subsets = {s: _SubsetWriter(s, self) for s in self._extractor.subsets()}
         for subset, writer in subsets.items():
