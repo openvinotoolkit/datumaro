@@ -41,7 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved CLI startup time in several cases (<https://github.com/openvinotoolkit/datumaro/pull/306>)
 
 ### Security
-- TBD
+- Known issue: loading CIFAR can result in arbitrary code execution (<https://github.com/openvinotoolkit/datumaro/issues/327>)
 
 ## 03/06/2021 - Release v0.1.9
 ### Added
