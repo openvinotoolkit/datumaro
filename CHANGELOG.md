@@ -19,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   only images and image-level labels can be read/written
   (<https://github.com/openvinotoolkit/datumaro/pull/291>,
   <https://github.com/openvinotoolkit/datumaro/pull/315>).
-- Support for Supervisely Point Cloud dataset format (<https://github.com/openvinotoolkit/datumaro/pull/245>)
+- Support for Supervisely Point Cloud dataset format (<https://github.com/openvinotoolkit/datumaro/pull/245>, <https://github.com/openvinotoolkit/datumaro/pull/353>)
 - Support for KITTI Raw / Velodyne Points dataset format (<https://github.com/openvinotoolkit/datumaro/pull/245>)
 - Support for CIFAR-100 and documentation for CIFAR-10/100 (<https://github.com/openvinotoolkit/datumaro/pull/301>)
 
