@@ -16,7 +16,7 @@ from datumaro.plugins.datumaro_format.extractor import DatumaroImporter
 from datumaro.util.image import Image
 from datumaro.util.mask_tools import generate_colormap
 from datumaro.util.test_utils import (
-    TestDir, compare_datasets_strict, test_save_and_load,
+    Dimensions, TestDir, compare_datasets_strict, test_save_and_load,
 )
 
 from .requirements import Requirements, mark_requirement
@@ -24,11 +24,12 @@ from .requirements import Requirements, mark_requirement
 
 class DatumaroConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
-            target_dataset=None, importer_args=None):
+            target_dataset=None, importer_args=None,
+            compare=compare_datasets_strict, **kwargs):
         return test_save_and_load(self, source_dataset, converter, test_dir,
             importer='datumaro',
             target_dataset=target_dataset, importer_args=importer_args,
-            compare=compare_datasets_strict)
+            compare=compare, **kwargs)
 
     @property
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -202,3 +203,32 @@ class DatumaroConverterTest(TestCase):
             self.assertTrue(osp.isfile(osp.join(path, 'annotations', 'c.json')))
             self.assertTrue(osp.isfile(osp.join(path, 'images', '2.jpg')))
             self.assertFalse(osp.isfile(osp.join(path, 'images', '3.jpg')))
+
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_save_and_load_with_pointcloud(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, subset='test', point_cloud='1.pcd',
+                related_images= [Image(data=np.ones((5, 5, 3)), path='1/a.jpg')],
+                annotations=[
+                    Cuboid3d([2.0, 2.0, 2.0], [1.0, 1.0, 1.0], [3.0, 3.0, 1.0],
+                        id=1, label=0, attributes={'occluded': True}, group=1
+                    )
+                ]),
+        ], categories=['label'])
+
+        with TestDir() as test_dir:
+            target_dataset = Dataset.from_iterable([
+                DatasetItem(id=1, subset='test',
+                    point_cloud=osp.join(test_dir, 'point_clouds', '1.pcd'),
+                    related_images= [Image(data=np.ones((5, 5, 3)),
+                        path=osp.join(test_dir, 'related_images', '1/a.jpg'))],
+                    annotations=[
+                        Cuboid3d([2.0, 2.0, 2.0], [1.0, 1.0, 1.0], [3.0, 3.0, 1.0],
+                            id=1, label=0, attributes={'occluded': True}, group=1
+                        )
+                    ]),
+            ], categories=['label'])
+            self._test_save_and_load(source_dataset,
+                partial(DatumaroConverter.convert, save_images=True), test_dir,
+                target_dataset, compare=None, dimension=Dimensions.dim_3d)
