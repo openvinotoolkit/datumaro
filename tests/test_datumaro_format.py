@@ -209,10 +209,15 @@ class DatumaroConverterTest(TestCase):
     def test_can_save_and_load_with_pointcloud(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='test', point_cloud='1.pcd',
-                related_images= [Image(data=np.ones((5, 5, 3)), path='1/a.jpg')],
+                related_images= [
+                    Image(data=np.ones((5, 5, 3)), path='1/a.jpg'),
+                    Image(data=np.ones((5, 4, 3)), path='1/b.jpg'),
+                    Image(size=(5, 3), path='1/c.jpg'),
+                    '1/d.jpg',
+                ],
                 annotations=[
-                    Cuboid3d([2.0, 2.0, 2.0], [1.0, 1.0, 1.0], [3.0, 3.0, 1.0],
-                        id=1, label=0, attributes={'occluded': True}, group=1
+                    Cuboid3d([2, 2, 2], [1, 1, 1], [3, 3, 1],
+                        id=1, group=1, label=0, attributes={'x': True}
                     )
                 ]),
         ], categories=['label'])
@@ -221,11 +226,18 @@ class DatumaroConverterTest(TestCase):
             target_dataset = Dataset.from_iterable([
                 DatasetItem(id=1, subset='test',
                     point_cloud=osp.join(test_dir, 'point_clouds', '1.pcd'),
-                    related_images= [Image(data=np.ones((5, 5, 3)),
-                        path=osp.join(test_dir, 'related_images', '1/a.jpg'))],
+                    related_images= [
+                        Image(data=np.ones((5, 5, 3)), path=osp.join(
+                            test_dir, 'related_images', '1/a.jpg')),
+                        Image(data=np.ones((5, 4, 3)), path=osp.join(
+                            test_dir, 'related_images', '1/b.jpg')),
+                        Image(size=(5, 3), path=osp.join(
+                            test_dir, 'related_images', '1/c.jpg')),
+                        osp.join(test_dir, 'related_images', '1/d.jpg'),
+                    ],
                     annotations=[
-                        Cuboid3d([2.0, 2.0, 2.0], [1.0, 1.0, 1.0], [3.0, 3.0, 1.0],
-                            id=1, label=0, attributes={'occluded': True}, group=1
+                        Cuboid3d([2, 2, 2], [1, 1, 1], [3, 3, 1],
+                            id=1, group=1, label=0, attributes={'x': True}
                         )
                     ]),
             ], categories=['label'])
