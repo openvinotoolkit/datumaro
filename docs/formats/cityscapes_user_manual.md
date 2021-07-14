@@ -15,7 +15,7 @@ Cityscapes format specification available [here](https://github.com/mcordts/city
 
 Cityscapes dataset format supports `Masks` (segmentations tasks) annotations.
 
-##  Load Cityscapes dataset
+## Load Cityscapes dataset
 
 The Cityscapes dataset is available for free [download](https://www.cityscapes-dataset.com/downloads/).
 
@@ -67,10 +67,10 @@ Annotated files description:
     then the pixels have the regular ID of that class
 1. *labelIds.png - class labels are encoded by its ID
 
-To make sure that the selected dataset has been added to the project, you can run
-`datum info`, which will display the project and dataset information.
+To make sure that the selected dataset has been added to the project, you can
+run `datum info`, which will display the project and dataset information.
 
-##  Export to other formats
+## Export to other formats
 
 Datumaro can convert Cityscapes dataset into any other format [Datumaro supports](../user_manual.md#supported-formats).
 To get the expected result, the dataset needs to be converted to formats
@@ -90,7 +90,7 @@ To get information about them, run
 
 `datum export -f <FORMAT> -- -h`
 
-##  Export to Cityscapes
+## Export to Cityscapes
 
 There are few ways to convert dataset to Cityscapes format:
 
@@ -139,7 +139,7 @@ particular problems with Cityscapes dataset:
 datum create -o project
 datum add path -p project -f cityscapes ./Cityscapes/
 datum stats -p project
-datum export -p final_project -o dataset -f voc --overwrite  -- --save-images
+datum export -p final_project -o dataset -f voc -- --save-images
 ```
 
 ### Example 2. How to create custom Cityscapes-like dataset

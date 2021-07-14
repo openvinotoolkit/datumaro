@@ -1,17 +1,19 @@
 
-# Copyright (C) 2019-2020 Intel Corporation
+# Copyright (C) 2019-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
-import attr
 from contextlib import ExitStack
-from distutils.util import strtobool as str_to_bool # pylint: disable=unused-import
 from functools import partial, wraps
 from itertools import islice
 from typing import Iterable, Tuple
+import distutils.util
 
+import attr
 
 NOTSET = object()
+
+str_to_bool = distutils.util.strtobool
 
 def find(iterable, pred=lambda x: True, default=None):
     return next((x for x in iterable if pred(x)), default)
@@ -103,6 +105,10 @@ def unescape(s: str, escapes: Iterable[Tuple[str, str]]) -> str:
     for pattern, sub in escapes:
         s = s.replace(sub, pattern)
     return s
+
+def is_member_redefined(member_name, base_class, target_class) -> bool:
+    return getattr(target_class, member_name) != \
+           getattr(base_class, member_name)
 
 def optional_arg_decorator(fn):
     @wraps(fn)

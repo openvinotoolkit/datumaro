@@ -2,23 +2,29 @@
 #
 # SPDX-License-Identifier: MIT
 
-from enum import Enum
+from enum import Enum, auto
 import logging as log
 
+from scipy.linalg import orth
 import cv2
 import numpy as np
-from scipy.linalg import orth
 
-from datumaro.components.extractor import Transform, DEFAULT_SUBSET_NAME
 from datumaro.components.cli_plugin import CliPlugin
+from datumaro.components.extractor import DEFAULT_SUBSET_NAME, Transform
 from datumaro.util import parse_str_enum_value
 
 
-Algorithm = Enum("Algorithm", ["gradient"]) # other algorithms will be added
+class Algorithm(Enum):
+    gradient = auto()
+    # other algorithms will be added
 
-OverSamplingMethod = Enum("OverSamplingMethod", ["random", "similarity"])
+class OverSamplingMethod(Enum):
+    random = auto()
+    similarity = auto()
 
-UnderSamplingMethod = Enum("UnderSamplingMethod", ["uniform", "inverse"])
+class UnderSamplingMethod(Enum):
+    uniform = auto()
+    inverse = auto()
 
 class NDR(Transform, CliPlugin):
     """

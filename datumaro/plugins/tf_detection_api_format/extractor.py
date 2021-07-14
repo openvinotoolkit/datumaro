@@ -4,17 +4,20 @@
 # SPDX-License-Identifier: MIT
 
 from collections import OrderedDict
-import numpy as np
 import os.path as osp
 import re
 
-from datumaro.components.extractor import (SourceExtractor, DatasetItem,
-    AnnotationType, Bbox, Mask, LabelCategories, Importer
+import numpy as np
+
+from datumaro.components.extractor import (
+    AnnotationType, Bbox, DatasetItem, Importer, LabelCategories, Mask,
+    SourceExtractor,
 )
 from datumaro.util.image import ByteImage, decode_image, lazy_image
 from datumaro.util.tf_util import import_tf as _import_tf
 
 from .format import DetectionApiPath
+
 tf = _import_tf()
 
 

@@ -1,13 +1,15 @@
-import numpy as np
+from unittest import TestCase
 import os.path as osp
 
-from unittest import TestCase
+import numpy as np
 
 from datumaro.components.project import Project
-from datumaro.util.command_targets import ProjectTarget, \
-    ImageTarget, SourceTarget
+from datumaro.util.command_targets import (
+    ImageTarget, ProjectTarget, SourceTarget,
+)
 from datumaro.util.image import save_image
 from datumaro.util.test_utils import TestDir
+
 from .requirements import Requirements, mark_requirement
 
 

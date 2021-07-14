@@ -2,17 +2,17 @@
 #
 # SPDX-License-Identifier: MIT
 
+from collections import OrderedDict
 import argparse
 import json
 import logging as log
 import os.path as osp
-from collections import OrderedDict
 
-from datumaro.components.project import Project
+from datumaro.components.errors import MergeError, QualityError
 from datumaro.components.operations import IntersectMerge
-from datumaro.components.errors import QualityError, MergeError
+from datumaro.components.project import Project
 
-from ..util import at_least, MultilineFormatter, CliException
+from ..util import CliException, MultilineFormatter, at_least
 from ..util.project import generate_next_file_name, load_project
 
 
@@ -119,5 +119,5 @@ def save_merge_report(merger, path):
         ('All errors', all_errors),
     ])
 
-    with open(path, 'w') as f:
+    with open(path, 'w', encoding='utf-8') as f:
         json.dump(errors, f, indent=4)

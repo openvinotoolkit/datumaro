@@ -1,13 +1,16 @@
-import os.path as osp
 from unittest import TestCase
+import os.path as osp
 
 import numpy as np
+
 from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import (AnnotationType, DatasetItem, Label,
-    LabelCategories)
+from datumaro.components.extractor import (
+    AnnotationType, DatasetItem, Label, LabelCategories,
+)
 from datumaro.plugins.cifar_format import CifarConverter, CifarImporter
 from datumaro.util.image import Image
 from datumaro.util.test_utils import TestDir, compare_datasets
+
 from .requirements import Requirements, mark_requirement
 
 
@@ -125,6 +128,48 @@ class CifarFormatTest(TestCase):
             compare_datasets(self, dataset, parsed_dataset,
                 require_images=True)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_save_and_load_cifar100(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id='image_2', subset='test',
+                image=np.ones((32, 32, 3)),
+                annotations=[Label(0)]
+            ),
+            DatasetItem(id='image_3', subset='test',
+                image=np.ones((32, 32, 3))
+            ),
+            DatasetItem(id='image_4', subset='test',
+                image=np.ones((32, 32, 3)),
+                annotations=[Label(1)]
+            )
+        ], categories=[['class_0', 'superclass_0'], ['class_1', 'superclass_0']])
+
+        with TestDir() as test_dir:
+            CifarConverter.convert(source_dataset, test_dir, save_images=True)
+            parsed_dataset = Dataset.import_from(test_dir, 'cifar')
+
+            compare_datasets(self, source_dataset, parsed_dataset,
+                require_images=True)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_save_and_load_cifar100_without_saving_images(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id='a', subset='train_1',
+                annotations=[Label(0)]
+            ),
+            DatasetItem(id='b', subset='train_1',
+                annotations=[Label(1)]
+            ),
+        ], categories=[['class_0', 'superclass_0'], ['class_1', 'superclass_0']])
+
+        with TestDir() as test_dir:
+            CifarConverter.convert(source_dataset, test_dir, save_images=False)
+            parsed_dataset = Dataset.import_from(test_dir, 'cifar')
+
+            compare_datasets(self, source_dataset, parsed_dataset,
+                require_images=True)
+
+
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'cifar_dataset')
 
 class CifarImporterTest(TestCase):
@@ -146,12 +191,17 @@ class CifarImporterTest(TestCase):
             DatasetItem(id='image_4', subset='test',
                 image=np.ones((32, 32, 3)),
                 annotations=[Label(2)]
+            ),
+            DatasetItem(id='image_5', subset='test',
+                image=np.array([[[1., 2., 3.], [4., 5., 6.]],
+                                [[1., 2., 3.], [4., 5., 6.]]]),
+                annotations=[Label(3)]
             )
         ], categories=['airplane', 'automobile', 'bird', 'cat'])
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'cifar')
 
-        compare_datasets(self, expected_dataset, dataset)
+        compare_datasets(self, expected_dataset, dataset, require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect(self):

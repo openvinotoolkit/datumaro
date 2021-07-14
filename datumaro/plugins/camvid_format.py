@@ -1,20 +1,21 @@
 
-# Copyright (C) 2020 Intel Corporation
+# Copyright (C) 2020-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
+from collections import OrderedDict
+from enum import Enum, auto
 import logging as log
 import os
 import os.path as osp
-from collections import OrderedDict
-from enum import Enum
 
 import numpy as np
 
 from datumaro.components.converter import Converter
-from datumaro.components.extractor import (AnnotationType, CompiledMask,
-    DatasetItem, Importer, LabelCategories, Mask,
-    MaskCategories, SourceExtractor)
+from datumaro.components.extractor import (
+    AnnotationType, CompiledMask, DatasetItem, Importer, LabelCategories, Mask,
+    MaskCategories, SourceExtractor,
+)
 from datumaro.util import find, str_to_bool
 from datumaro.util.annotation_util import make_label_id_mapping
 from datumaro.util.image import save_image
@@ -67,7 +68,7 @@ def parse_label_map(path):
         return None
 
     label_map = OrderedDict()
-    with open(path, 'r') as f:
+    with open(path, 'r', encoding='utf-8') as f:
         for line in f:
             # skip empty and commented lines
             line = line.strip()
@@ -91,7 +92,7 @@ def parse_label_map(path):
     return label_map
 
 def write_label_map(path, label_map):
-    with open(path, 'w') as f:
+    with open(path, 'w', encoding='utf-8') as f:
         for label_name, label_desc in label_map.items():
             if label_desc:
                 color_rgb = ' '.join(str(c) for c in label_desc)
@@ -213,7 +214,9 @@ class CamvidImporter(Importer):
             file_filter=lambda p: osp.basename(p) != CamvidPath.LABELMAP_FILE)
 
 
-LabelmapType = Enum('LabelmapType', ['camvid', 'source'])
+class LabelmapType(Enum):
+    camvid = auto()
+    source = auto()
 
 class CamvidConverter(Converter):
     DEFAULT_IMAGE_EXT = CamvidPath.IMAGE_EXT

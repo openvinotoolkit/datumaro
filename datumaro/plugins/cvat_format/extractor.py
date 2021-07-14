@@ -5,11 +5,12 @@
 
 from collections import OrderedDict
 import os.path as osp
+
 from defusedxml import ElementTree
 
-from datumaro.components.extractor import (SourceExtractor, DatasetItem,
-    AnnotationType, Points, Polygon, PolyLine, Bbox, Label,
-    LabelCategories, Importer
+from datumaro.components.extractor import (
+    AnnotationType, Bbox, DatasetItem, Importer, Label, LabelCategories, Points,
+    Polygon, PolyLine, SourceExtractor,
 )
 from datumaro.util.image import Image
 

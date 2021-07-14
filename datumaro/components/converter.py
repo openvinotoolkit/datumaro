@@ -1,15 +1,16 @@
-
-# Copyright (C) 2019-2020 Intel Corporation
+# Copyright (C) 2019-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
+from typing import Union
 import logging as log
 import os
 import os.path as osp
 import shutil
 
 from datumaro.components.cli_plugin import CliPlugin
-from datumaro.util.image import save_image, ByteImage
+from datumaro.components.extractor import DatasetItem
+from datumaro.util.image import Image
 
 
 class Converter(CliPlugin):
@@ -50,24 +51,34 @@ class Converter(CliPlugin):
         self._extractor = extractor
         self._save_dir = save_dir
 
-    def _find_image_ext(self, item):
+    def _find_image_ext(self, item: Union[DatasetItem, Image]):
         src_ext = None
-        if item.has_image:
+
+        if isinstance(item, DatasetItem) and item.has_image:
             src_ext = item.image.ext
+        elif isinstance(item, Image):
+            src_ext = item.ext
 
         return self._image_ext or src_ext or self._default_image_ext
 
-    def _make_image_filename(self, item, *, name=None, subdir=None):
+    def _make_item_filename(self, item, *, name=None, subdir=None):
         name = name or item.id
         subdir = subdir or ''
-        return osp.join(subdir, name + self._find_image_ext(item))
+        return osp.join(subdir, name)
+
+    def _make_image_filename(self, item, *, name=None, subdir=None):
+        return self._make_item_filename(item, name=name, subdir=subdir) + \
+            self._find_image_ext(item)
+
+    def _make_pcd_filename(self, item, *, name=None, subdir=None):
+        return self._make_item_filename(item, name=name, subdir=subdir) + '.pcd'
 
     def _save_image(self, item, path=None, *,
             name=None, subdir=None, basedir=None):
         assert not ((subdir or name or basedir) and path), \
             "Can't use both subdir or name or basedir and path arguments"
 
-        if not item.image.has_data:
+        if not item.has_image or not item.image.has_data:
             log.warning("Item '%s' has no image", item.id)
             return
 
@@ -76,15 +87,23 @@ class Converter(CliPlugin):
             self._make_image_filename(item, name=name, subdir=subdir))
         path = osp.abspath(path)
 
-        src_ext = item.image.ext.lower()
-        dst_ext = osp.splitext(osp.basename(path))[1].lower()
+        item.image.save(path)
+
+    def _save_point_cloud(self, item=None, path=None, *,
+            name=None, subdir=None, basedir=None):
+        assert not ((subdir or name or basedir) and path), \
+            "Can't use both subdir or name or basedir and path arguments"
+
+        if not item.point_cloud:
+            log.warning("Item '%s' has no pcd", item.id)
+            return
+
+        basedir = basedir or self._save_dir
+        path = path or osp.join(basedir,
+            self._make_pcd_filename(item, name=name, subdir=subdir))
+        path = osp.abspath(path)
 
         os.makedirs(osp.dirname(path), exist_ok=True)
-        if src_ext == dst_ext and osp.isfile(item.image.path):
-            if item.image.path != path:
-                shutil.copyfile(item.image.path, path)
-        elif src_ext == dst_ext and isinstance(item.image, ByteImage):
-            with open(path, 'wb') as f:
-                f.write(item.image.get_bytes())
-        else:
-            save_image(path, item.image.data)
+        if item.point_cloud and osp.isfile(item.point_cloud):
+            if item.point_cloud != path:
+                shutil.copyfile(item.point_cloud, path)

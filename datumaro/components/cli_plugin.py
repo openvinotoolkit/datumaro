@@ -18,7 +18,18 @@ class CliPlugin:
 
     @staticmethod
     def _get_doc(cls):
-        return getattr(cls, '__doc__', "")
+        doc = getattr(cls, '__doc__', "")
+        if doc:
+            from datumaro.components.converter import Converter
+            from datumaro.components.extractor import (
+                Extractor, Importer, Transform,
+            )
+            from datumaro.components.launcher import Launcher
+            base_classes = [Launcher, Extractor, Transform, Importer, Converter]
+
+            if any(getattr(t, '__doc__', '') == doc for t in base_classes):
+                doc = ''
+        return doc
 
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
@@ -45,6 +56,6 @@ class CliPlugin:
         return args
 
 def remove_plugin_type(s):
-    for t in {'transform', 'extractor', 'converter', 'launcher', 'importer'}:
+    for t in {'transform', 'extractor', 'converter', 'launcher', 'importer', 'validator'}:
         s = s.replace('_' + t, '')
     return s

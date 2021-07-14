@@ -8,10 +8,9 @@ import logging as log
 import os.path as osp
 import sys
 
-from . import contexts, commands
-from .util import CliException, add_subparser
 from ..version import VERSION
-
+from . import commands, contexts
+from .util import CliException, add_subparser
 
 _log_levels = {
     'debug': log.DEBUG,

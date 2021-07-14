@@ -1,31 +1,35 @@
 from functools import partial
+from unittest import TestCase
 import os
 import os.path as osp
 
 import numpy as np
-from unittest import TestCase
-from datumaro.components.project import Dataset
-from datumaro.components.extractor import (DatasetItem,
-    AnnotationType, Label, Mask, Points, Polygon,
-    PolyLine, Bbox, Caption,
-    LabelCategories, MaskCategories, PointsCategories
+
+from datumaro.components.extractor import (
+    AnnotationType, Bbox, Caption, Cuboid3d, DatasetItem, Label,
+    LabelCategories, Mask, MaskCategories, Points, PointsCategories, Polygon,
+    PolyLine,
 )
-from datumaro.plugins.datumaro_format.extractor import DatumaroImporter
+from datumaro.components.project import Dataset
 from datumaro.plugins.datumaro_format.converter import DatumaroConverter
-from datumaro.util.mask_tools import generate_colormap
+from datumaro.plugins.datumaro_format.extractor import DatumaroImporter
 from datumaro.util.image import Image
-from datumaro.util.test_utils import (TestDir, compare_datasets_strict,
-    test_save_and_load)
+from datumaro.util.mask_tools import generate_colormap
+from datumaro.util.test_utils import (
+    Dimensions, TestDir, compare_datasets_strict, test_save_and_load,
+)
+
 from .requirements import Requirements, mark_requirement
 
 
 class DatumaroConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
-            target_dataset=None, importer_args=None):
+            target_dataset=None, importer_args=None,
+            compare=compare_datasets_strict, **kwargs):
         return test_save_and_load(self, source_dataset, converter, test_dir,
             importer='datumaro',
             target_dataset=target_dataset, importer_args=importer_args,
-            compare=compare_datasets_strict)
+            compare=compare, **kwargs)
 
     @property
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -75,6 +79,13 @@ class DatumaroConverterTest(TestCase):
                     Polygon([1, 2, 3, 4, 5, 6, 7, 8], id=12, z_order=4),
                 ]),
 
+            DatasetItem(id=1, subset='test',
+                annotations=[
+                    Cuboid3d([1.0, 2.0, 3.0], [2.0, 2.0, 4.0], [1.0, 3.0, 4.0],
+                        id=6, label=0, attributes={'occluded': True}, group=6
+                    )
+                ]),
+
             DatasetItem(id=42, subset='test',
                 attributes={'a1': 5, 'a2': '42'}),
 
@@ -109,6 +120,37 @@ class DatumaroConverterTest(TestCase):
 
         with TestDir() as test_dir:
             self._test_save_and_load(test_dataset,
+                partial(DatumaroConverter.convert, save_images=True), test_dir)
+
+
+    @mark_requirement(Requirements.DATUM_231)
+    def test_can_save_dataset_with_cjk_categories(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(id=1, subset='train', image=np.ones((4, 4, 3)),
+                annotations=[
+                    Bbox(0, 1, 2, 2,
+                        label=0, group=1, id=1,
+                        attributes={ 'is_crowd': False }),
+                ], attributes={'id': 1}),
+            DatasetItem(id=2, subset='train', image=np.ones((4, 4, 3)),
+                annotations=[
+                    Bbox(1, 0, 2, 2, label=1, group=2, id=2,
+                        attributes={ 'is_crowd': False }),
+                ], attributes={'id': 2}),
+
+            DatasetItem(id=3, subset='train', image=np.ones((4, 4, 3)),
+                annotations=[
+                    Bbox(0, 1, 2, 2, label=2, group=3, id=3,
+                        attributes={ 'is_crowd': False }),
+                ], attributes={'id': 3}),
+            ],
+            categories=[
+                "고양이", "ネコ", "猫"
+            ]
+        )
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(expected,
                 partial(DatumaroConverter.convert, save_images=True), test_dir)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -161,3 +203,44 @@ class DatumaroConverterTest(TestCase):
             self.assertTrue(osp.isfile(osp.join(path, 'annotations', 'c.json')))
             self.assertTrue(osp.isfile(osp.join(path, 'images', '2.jpg')))
             self.assertFalse(osp.isfile(osp.join(path, 'images', '3.jpg')))
+
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_save_and_load_with_pointcloud(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, subset='test', point_cloud='1.pcd',
+                related_images= [
+                    Image(data=np.ones((5, 5, 3)), path='1/a.jpg'),
+                    Image(data=np.ones((5, 4, 3)), path='1/b.jpg'),
+                    Image(size=(5, 3), path='1/c.jpg'),
+                    '1/d.jpg',
+                ],
+                annotations=[
+                    Cuboid3d([2, 2, 2], [1, 1, 1], [3, 3, 1],
+                        id=1, group=1, label=0, attributes={'x': True}
+                    )
+                ]),
+        ], categories=['label'])
+
+        with TestDir() as test_dir:
+            target_dataset = Dataset.from_iterable([
+                DatasetItem(id=1, subset='test',
+                    point_cloud=osp.join(test_dir, 'point_clouds', '1.pcd'),
+                    related_images= [
+                        Image(data=np.ones((5, 5, 3)), path=osp.join(
+                            test_dir, 'related_images', '1/a.jpg')),
+                        Image(data=np.ones((5, 4, 3)), path=osp.join(
+                            test_dir, 'related_images', '1/b.jpg')),
+                        Image(size=(5, 3), path=osp.join(
+                            test_dir, 'related_images', '1/c.jpg')),
+                        osp.join(test_dir, 'related_images', '1/d.jpg'),
+                    ],
+                    annotations=[
+                        Cuboid3d([2, 2, 2], [1, 1, 1], [3, 3, 1],
+                            id=1, group=1, label=0, attributes={'x': True}
+                        )
+                    ]),
+            ], categories=['label'])
+            self._test_save_and_load(source_dataset,
+                partial(DatumaroConverter.convert, save_images=True), test_dir,
+                target_dataset, compare=None, dimension=Dimensions.dim_3d)

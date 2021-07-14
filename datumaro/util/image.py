@@ -1,22 +1,28 @@
-
-# Copyright (C) 2019-2020 Intel Corporation
+# Copyright (C) 2019-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
-# pylint: disable=unused-import
-
-from enum import Enum
+from enum import Enum, auto
 from io import BytesIO
-from typing import Any, Callable, Iterator, Iterable, Optional, Tuple, Union
-import numpy as np
+from typing import (
+    Any, Callable, Dict, Iterable, Iterator, Optional, Tuple, Union,
+)
+import importlib
 import os
 import os.path as osp
+import shlex
+import shutil
 
-_IMAGE_BACKENDS = Enum('_IMAGE_BACKENDS', ['cv2', 'PIL'])
+import numpy as np
+
+
+class _IMAGE_BACKENDS(Enum):
+    cv2 = auto()
+    PIL = auto()
 _IMAGE_BACKEND = None
 _image_loading_errors = (FileNotFoundError, )
 try:
-    import cv2
+    importlib.import_module('cv2')
     _IMAGE_BACKEND = _IMAGE_BACKENDS.cv2
 except ImportError:
     import PIL
@@ -241,7 +247,7 @@ class Image:
         assert size is None or len(size) == 2, size
         if size is not None:
             assert len(size) == 2 and 0 < size[0] and 0 < size[1], size
-            size = tuple(size)
+            size = tuple(map(int, size))
         self._size = size # (H, W)
 
         assert path is None or isinstance(path, str), path
@@ -278,7 +284,7 @@ class Image:
             data = self._data
 
         if self._size is None and data is not None:
-            self._size = data.shape[:2]
+            self._size =  tuple(map(int, data.shape[:2]))
         return data
 
     @property
@@ -297,7 +303,7 @@ class Image:
             except _image_loading_errors:
                 return None
             if data is not None:
-                self._size = data.shape[:2]
+                self._size = tuple(map(int, data.shape[:2]))
         return self._size
 
     def __eq__(self, other):
@@ -311,6 +317,17 @@ class Image:
             (self.has_data == other.has_data) and \
             (self.has_data and np.array_equal(self.data, other.data) or \
                 not self.has_data)
+
+    def save(self, path):
+        src_ext = self.ext.lower()
+        dst_ext = osp.splitext(osp.basename(path))[1].lower()
+
+        os.makedirs(osp.dirname(path), exist_ok=True)
+        if src_ext == dst_ext and osp.isfile(self.path):
+            if self.path != path:
+                shutil.copyfile(self.path, path)
+        else:
+            save_image(path, self.data)
 
 class ByteImage(Image):
     def __init__(self, data=None, path=None, ext=None, cache=None, size=None):
@@ -352,3 +369,53 @@ class ByteImage(Image):
             (self.has_data == other.has_data) and \
             (self.has_data and self.get_bytes() == other.get_bytes() or \
                 not self.has_data)
+
+    def save(self, path):
+        src_ext = self.ext.lower()
+        dst_ext = osp.splitext(osp.basename(path))[1].lower()
+
+        os.makedirs(osp.dirname(path), exist_ok=True)
+        if src_ext == dst_ext and osp.isfile(self.path):
+            if self.path != path:
+                shutil.copyfile(self.path, path)
+        elif src_ext == dst_ext:
+            with open(path, 'wb') as f:
+                f.write(self.get_bytes())
+        else:
+            save_image(path, self.data)
+
+ImageMeta = Dict[str, Tuple[int, int]]
+
+DEFAULT_IMAGE_META_FILE_NAME = 'images.meta'
+
+def load_image_meta_file(image_meta_path: str) -> ImageMeta:
+    """
+    Loads image metadata from a file with the following format:
+
+        <image name 1> <height 1> <width 1>
+        <image name 2> <height 2> <width 2>
+        ...
+
+    Shell-like comments and quoted fields are allowed.
+
+    This can be useful to support datasets in which image dimensions are
+    required to interpret annotations.
+    """
+    assert isinstance(image_meta_path, str)
+
+    if not osp.isfile(image_meta_path):
+        raise Exception("Can't read image meta file '%s'" % image_meta_path)
+
+    image_meta = {}
+
+    with open(image_meta_path, encoding='utf-8') as f:
+        for line in f:
+            fields = shlex.split(line, comments=True)
+            if not fields:
+                continue
+
+            # ignore extra fields, so that the format can be extended later
+            image_name, h, w = fields[:3]
+            image_meta[image_name] = (int(h), int(w))
+
+    return image_meta

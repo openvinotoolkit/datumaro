@@ -10,20 +10,20 @@
 ## Format specification
 
 - Pascal VOC format specification available
-[here](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/devkit_doc.pdf).
+  [here](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/devkit_doc.pdf).
 
-- Original Pascal VOC dataset format support the followoing types of annotations:
-    - `Labels` (for classification tasks);
-    - `Bounding boxes` (for detection, action detection and person layout tasks);
-    - `Masks` (for segmentations tasks).
+- Original Pascal VOC dataset format support the following types of annotations:
+  - `Labels` (for classification tasks);
+  - `Bounding boxes` (for detection, action detection and person layout tasks);
+  - `Masks` (for segmentations tasks).
 
 - Supported attributes:
-    - `occluded`: indicates that a significant portion of the object within the
+  - `occluded`: indicates that a significant portion of the object within the
     bounding box is occluded by another object;
-    - `truncated`: indicates that the bounding box specified for the object does
+  - `truncated`: indicates that the bounding box specified for the object does
     not correspond to the full extent of the object;
-    - `difficult`: indicates that the object is considered difficult to recognize;
-    - action attributes (`jumping`, `reading`, `phoning` and
+  - `difficult`: indicates that the object is considered difficult to recognize;
+  - action attributes (`jumping`, `reading`, `phoning` and
     [more](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/actionexamples/index.html)).
 
 ## Load Pascal VOC dataset
@@ -85,10 +85,11 @@ Pascal VOC dataset directory should have the following structure:
 
 The `ImageSets` directory should contain at least one of the directories:
 `Main`, `Layout`, `Action`, `Segmentation`.
-These directories contain `.txt` files
-with a list of images in a subset, the subset name is the same as the `.txt` file name.
+These directories contain `.txt` files with a list of images in a subset,
+the subset name is the same as the `.txt` file name.
 
-In `label_map.txt` you can define custom color map and non-pascal labels, for example:
+In `label_map.txt` you can define custom color map and non-pascal labels,
+for example:
 
 ```
 # label_map [label : color_rgb : parts : actions]
@@ -130,8 +131,8 @@ Datumaro supports the following Pascal VOC tasks:
 - Class and instance segmentation (`voc_segmentation`)
 - Person layout detection (`voc_layout`)
 
-To make sure that the selected dataset has been added to the project, you can run
-`datum info`, which will display the project and dataset information.
+To make sure that the selected dataset has been added to the project, you
+can run `datum info`, which will display the project and dataset information.
 
 ## Export to other formats
 
@@ -175,20 +176,23 @@ datum convert -if imagenet -i <path/to/imagenet/dataset> \
 
 Extra options for export to Pascal VOC format:
 
-- `--save-images` allow to export dataset with saving images
-(by default `False`);
+- `--save-images` - allow to export dataset with saving images
+  (by default `False`)
 
-- `--image-ext IMAGE_EXT` allow to specify image extension
-for exporting dataset (by default use original or `.jpg` if none);
+- `--image-ext IMAGE_EXT` - allow to specify image extension
+  for exporting dataset (by default use original or `.jpg` if none)
 
-- `--apply-colormap APPLY_COLORMAP` allow to use colormap for class
-and instance masks (by default `True`);
+- `--apply-colormap APPLY_COLORMAP` - allow to use colormap for class
+  and instance masks (by default `True`)
 
-- `--allow-attributes ALLOW_ATTRIBUTES` allow export of attributes
-(by default `True`);
+- `--allow-attributes ALLOW_ATTRIBUTES` - allow export of attributes
+  (by default `True`)
 
-- `--tasks TASKS` allow to specify tasks for export dataset,
-by default Datumaro uses all tasks. Example:
+- `--keep-empty KEEP_EMPTY` - write subset lists even if they are empty
+  (by default: `False`)
+
+- `--tasks TASKS` - allow to specify tasks for export dataset,
+  by default Datumaro uses all tasks. Example:
 
 ```bash
 datum import -o project -f voc -i ./VOC2012
@@ -218,7 +222,8 @@ There are few examples of using Datumaro operations to solve
 particular problems with Pascal VOC dataset:
 
 ### Example 1. How to prepare an original dataset for training.
-In this example, preparing the original dataset to train the semantic segmentation model includes:
+In this example, preparing the original dataset to train the semantic
+segmentation model includes:
 loading,
 checking duplicate images,
 setting the number of images,

@@ -2,22 +2,26 @@
 #
 # SPDX-License-Identifier: MIT
 
-import logging as log
-import numpy as np
-import copy
+from enum import Enum, auto
 from math import gcd
-from enum import Enum
+import copy
+import logging as log
 
-from datumaro.components.extractor import (Transform, AnnotationType,
-    DEFAULT_SUBSET_NAME)
+import numpy as np
+
 from datumaro.components.cli_plugin import CliPlugin
+from datumaro.components.extractor import (
+    DEFAULT_SUBSET_NAME, AnnotationType, Transform,
+)
 from datumaro.util import cast
 
 NEAR_ZERO = 1e-7
 
-SplitTask = Enum(
-    "split", ["classification", "detection", "segmentation", "reid"]
-)
+class SplitTask(Enum):
+    classification = auto()
+    detection = auto()
+    segmentation = auto()
+    reid = auto()
 
 
 class Split(Transform, CliPlugin):

@@ -1,30 +1,35 @@
 
-# Copyright (C) 2020 Intel Corporation
+# Copyright (C) 2020-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
+from enum import Enum, auto
+from itertools import chain, groupby
 import json
 import logging as log
-import numpy as np
 import os
 import os.path as osp
-from enum import Enum
-from itertools import chain, groupby
 
+import numpy as np
 import pycocotools.mask as mask_utils
 
-import datumaro.util.annotation_util as anno_tools
-import datumaro.util.mask_tools as mask_tools
 from datumaro.components.converter import Converter
-from datumaro.components.extractor import (DatasetItem,
-    _COORDINATE_ROUNDING_DIGITS, AnnotationType, Points)
 from datumaro.components.dataset import ItemStatus
+from datumaro.components.extractor import (
+    _COORDINATE_ROUNDING_DIGITS, AnnotationType, DatasetItem, Points,
+)
 from datumaro.util import cast, find, str_to_bool
 from datumaro.util.image import save_image
+import datumaro.util.annotation_util as anno_tools
+import datumaro.util.mask_tools as mask_tools
 
 from .format import CocoPath, CocoTask
 
-SegmentationMode = Enum('SegmentationMode', ['guess', 'polygons', 'mask'])
+
+class SegmentationMode(Enum):
+    guess = auto()
+    polygons = auto()
+    mask = auto()
 
 class _TaskConverter:
     def __init__(self, context):
@@ -97,8 +102,8 @@ class _TaskConverter:
                 ann['id'] = next_id
                 next_id += 1
 
-        with open(path, 'w') as outfile:
-            json.dump(self._data, outfile)
+        with open(path, 'w', encoding='utf-8') as outfile:
+            json.dump(self._data, outfile, ensure_ascii=False)
 
     @property
     def annotations(self):
@@ -458,8 +463,8 @@ class _StuffConverter(_InstancesConverter):
 
 class _PanopticConverter(_TaskConverter):
     def write(self, path):
-        with open(path, 'w') as outfile:
-            json.dump(self._data, outfile)
+        with open(path, 'w', encoding='utf-8') as outfile:
+            json.dump(self._data, outfile, ensure_ascii=False)
 
     def save_categories(self, dataset):
         label_categories = dataset.categories().get(AnnotationType.label)

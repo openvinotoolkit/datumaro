@@ -1,15 +1,18 @@
 from functools import partial
-import numpy as np
+from unittest import TestCase
 import os
 import os.path as osp
 
-from unittest import TestCase
+import numpy as np
+
 from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import (DatasetItem, Bbox, Mask, Polygon)
-from datumaro.plugins.labelme_format import LabelMeImporter, LabelMeConverter
+from datumaro.components.extractor import Bbox, DatasetItem, Mask, Polygon
+from datumaro.plugins.labelme_format import LabelMeConverter, LabelMeImporter
 from datumaro.util.image import Image
-from datumaro.util.test_utils import (TestDir, compare_datasets,
-    test_save_and_load)
+from datumaro.util.test_utils import (
+    TestDir, compare_datasets, test_save_and_load,
+)
+
 from .requirements import Requirements, mark_requirement
 
 

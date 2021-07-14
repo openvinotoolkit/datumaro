@@ -2,15 +2,14 @@
 #
 # SPDX-License-Identifier: MIT
 
+from distutils.util import strtobool
+from itertools import chain
 import os
 import os.path as osp
 import re
-from distutils.util import strtobool
-from itertools import chain
 
 from datumaro.components.converter import Converter
-from datumaro.components.extractor import (DatasetItem, Importer,
-    SourceExtractor)
+from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.util.image import find_images
 
 

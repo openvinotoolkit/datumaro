@@ -4,10 +4,12 @@
 # SPDX-License-Identifier: MIT
 
 import logging as log
-from lxml import etree as ET # lxml has proper XPath implementation
-from datumaro.components.extractor import (Transform,
-    Annotation, AnnotationType,
-    Label, Mask, Points, Polygon, PolyLine, Bbox, Caption,
+
+from lxml import etree as ET  # lxml has proper XPath implementation
+
+from datumaro.components.extractor import (
+    Annotation, AnnotationType, Bbox, Caption, ItemTransform, Label, Mask,
+    Points, Polygon, PolyLine,
 )
 
 
@@ -213,19 +215,28 @@ class DatasetItemEncoder:
     def to_string(encoded_item):
         return ET.tostring(encoded_item, encoding='unicode', pretty_print=True)
 
-def XPathDatasetFilter(extractor, xpath=None):
-    if xpath is None:
-        return extractor
-    try:
-        xpath = ET.XPath(xpath)
-    except Exception:
-        log.error("Failed to create XPath from expression '%s'", xpath)
-        raise
-    f = lambda item: bool(xpath(
-        DatasetItemEncoder.encode(item, extractor.categories())))
-    return extractor.select(f)
+class XPathDatasetFilter(ItemTransform):
+    def __init__(self, extractor, xpath=None):
+        super().__init__(extractor)
 
-class XPathAnnotationsFilter(Transform):
+        if xpath is not None:
+            try:
+                xpath = ET.XPath(xpath)
+            except Exception:
+                log.error("Failed to create XPath from expression '%s'", xpath)
+                raise
+
+            self._f = lambda item: bool(xpath(
+                DatasetItemEncoder.encode(item, extractor.categories())))
+        else:
+            self._f = None
+
+    def transform_item(self, item):
+        if self._f and not self._f(item):
+            return None
+        return item
+
+class XPathAnnotationsFilter(ItemTransform):
     def __init__(self, extractor, xpath=None, remove_empty=False):
         super().__init__(extractor)
 
@@ -238,12 +249,6 @@ class XPathAnnotationsFilter(Transform):
         self._filter = xpath
 
         self._remove_empty = remove_empty
-
-    def __iter__(self):
-        for item in self._extractor:
-            item = self.transform_item(item)
-            if item is not None:
-                yield item
 
     def transform_item(self, item):
         if self._filter is None:

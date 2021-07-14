@@ -2,26 +2,29 @@
 #
 # SPDX-License-Identifier: MIT
 
-#pylint: disable=redefined-builtin
-
 from contextlib import contextmanager
-from enum import Enum
-from typing import Iterable, Iterator, Optional, Tuple, Union, Dict, List
+from copy import copy
+from enum import Enum, auto
+from typing import Any, Dict, Iterable, Iterator, List, Optional, Tuple, Union
+import inspect
 import logging as log
 import os
 import os.path as osp
 import shutil
 
-from datumaro.components.dataset_filter import \
-    XPathDatasetFilter, XPathAnnotationsFilter
-from datumaro.components.extractor import (CategoriesInfo, Extractor,
-    IExtractor, LabelCategories, AnnotationType, DatasetItem,
-    DEFAULT_SUBSET_NAME, Transform)
+from datumaro.components.dataset_filter import (
+    XPathAnnotationsFilter, XPathDatasetFilter,
+)
 from datumaro.components.environment import Environment
-from datumaro.components.errors import DatumaroError, RepeatedItemError
-from datumaro.util import error_rollback
+from datumaro.components.errors import (
+    CategoriesRedefinedError, DatumaroError, RepeatedItemError,
+)
+from datumaro.components.extractor import (
+    DEFAULT_SUBSET_NAME, AnnotationType, CategoriesInfo, DatasetItem, Extractor,
+    IExtractor, ItemTransform, LabelCategories, Transform,
+)
+from datumaro.util import error_rollback, is_member_redefined
 from datumaro.util.log_utils import logging_disabled
-
 
 DEFAULT_FORMAT = 'datumaro'
 
@@ -39,36 +42,47 @@ class DatasetItemStorage:
     def __len__(self) -> int:
         return len(self._traversal_order)
 
+    def is_empty(self) -> bool:
+        # Subsets might contain removed items, so this may differ from __len__
+        return all(len(s) == 0 for s in self.data.values())
+
     def put(self, item) -> bool:
         subset = self.data.setdefault(item.subset, {})
-        is_new = subset.get(item.id) == None
+        is_new = subset.get(item.id) is None
         self._traversal_order[(item.id, item.subset)] = item
         subset[item.id] = item
         return is_new
 
-    def _get(self, id, subset=None, dummy=None):
-        id = str(id)
-        subset = subset or DEFAULT_SUBSET_NAME
+    def get(self, id: Union[str, DatasetItem], subset: Optional[str] = None,
+            dummy: Any = None) -> Optional[DatasetItem]:
+        if isinstance(id, DatasetItem):
+            id, subset = id.id, id.subset
+        else:
+            id = str(id)
+            subset = subset or DEFAULT_SUBSET_NAME
 
         return self.data.get(subset, {}).get(id, dummy)
 
-    def get(self, id, subset=None) -> Optional[DatasetItem]:
-        return self._get(id, subset)
+    def remove(self, id: Union[str, DatasetItem],
+            subset: Optional[str] = None) -> bool:
+        if isinstance(id, DatasetItem):
+            id, subset = id.id, id.subset
+        else:
+            id = str(id)
+            subset = subset or DEFAULT_SUBSET_NAME
 
-    def remove(self, id, subset=None) -> bool:
-        id = str(id)
-        subset = subset or DEFAULT_SUBSET_NAME
-
-        subset_data = self.data.get(subset, {})
-        is_removed = subset_data.pop(id, None) is not None
+        subset_data = self.data.setdefault(subset, {})
+        is_removed = subset_data.get(id) is not None
+        subset_data[id] = None
         if is_removed:
             self._traversal_order.pop((id, subset))
         return is_removed
 
     def __contains__(self, x: Union[DatasetItem, Tuple[str, str]]) -> bool:
-        if isinstance(x, DatasetItem):
-            x = (x.id, x.subset)
-        return self.get(*x) is not None
+        if not isinstance(x, tuple):
+            x = [x]
+        dummy = 0
+        return self.get(*x, dummy=dummy) is not dummy
 
     def get_subset(self, name):
         return self.data.get(name, {})
@@ -76,9 +90,15 @@ class DatasetItemStorage:
     def subsets(self):
         return self.data
 
+    def __copy__(self):
+        copied = DatasetItemStorage()
+        copied._traversal_order = copy(self._traversal_order)
+        copied.data = copy(self.data)
+        return copied
+
 class DatasetItemStorageDatasetView(IDataset):
     class Subset(IDataset):
-        def __init__(self, parent, name):
+        def __init__(self, parent: 'DatasetItemStorageDatasetView', name: str):
             super().__init__()
             self.parent = parent
             self.name = name
@@ -88,7 +108,9 @@ class DatasetItemStorageDatasetView(IDataset):
             return self.parent._get_subset_data(self.name)
 
         def __iter__(self):
-            yield from self._data.values()
+            for item in self._data.values():
+                if item:
+                    yield item
 
         def __len__(self):
             return len(self._data)
@@ -97,22 +119,22 @@ class DatasetItemStorageDatasetView(IDataset):
             return self._data.put(item)
 
         def get(self, id, subset=None):
-            assert subset or DEFAULT_SUBSET_NAME == \
-                   self.name or DEFAULT_SUBSET_NAME
+            assert (subset or DEFAULT_SUBSET_NAME) == \
+                   (self.name or DEFAULT_SUBSET_NAME)
             return self._data.get(id, subset)
 
         def remove(self, id, subset=None):
-            assert subset or DEFAULT_SUBSET_NAME == \
-                   self.name or DEFAULT_SUBSET_NAME
+            assert (subset or DEFAULT_SUBSET_NAME) == \
+                   (self.name or DEFAULT_SUBSET_NAME)
             return self._data.remove(id, subset)
 
         def get_subset(self, name):
-            assert name or DEFAULT_SUBSET_NAME == \
-                   self.name or DEFAULT_SUBSET_NAME
+            assert (name or DEFAULT_SUBSET_NAME) == \
+                   (self.name or DEFAULT_SUBSET_NAME)
             return self
 
         def subsets(self):
-            return { self.name or DEFAULT_SUBSET_NAME: self }
+            return { self.name or DEFAULT_SUBSET_NAME : self }
 
         def categories(self):
             return self.parent.categories()
@@ -144,7 +166,10 @@ class DatasetItemStorageDatasetView(IDataset):
         return self._parent.get(id, subset=subset)
 
 
-ItemStatus = Enum('ItemStatus', ['added', 'modified', 'removed'])
+class ItemStatus(Enum):
+    added = auto()
+    modified = auto()
+    removed = auto()
 
 class DatasetPatch:
     def __init__(self, data: DatasetItemStorage,
@@ -159,12 +184,9 @@ class DatasetPatch:
     @property
     def updated_subsets(self) -> Dict[str, ItemStatus]:
         if self._updated_subsets is None:
-            subset_stats = set()
+            self._updated_subsets = {}
             for _, subset in self.updated_items:
-                subset_stats.add(subset)
-            self._updated_subsets = {
-                subset: ItemStatus.modified for subset in subset_stats
-            }
+                self._updated_subsets.setdefault(subset, ItemStatus.modified)
         return self._updated_subsets
 
     def as_dataset(self, parent: IDataset) -> IDataset:
@@ -187,22 +209,24 @@ class DatasetSubset(IDataset): # non-owning view
         return self.parent.put(item, subset=self.name)
 
     def get(self, id, subset=None):
-        assert subset or DEFAULT_SUBSET_NAME == \
-               self.name or DEFAULT_SUBSET_NAME
+        assert (subset or DEFAULT_SUBSET_NAME) == \
+               (self.name or DEFAULT_SUBSET_NAME)
         return self.parent.get(id, subset=self.name)
 
     def remove(self, id, subset=None):
-        assert subset or DEFAULT_SUBSET_NAME == \
-               self.name or DEFAULT_SUBSET_NAME
+        assert (subset or DEFAULT_SUBSET_NAME) == \
+               (self.name or DEFAULT_SUBSET_NAME)
         return self.parent.remove(id, subset=self.name)
 
     def get_subset(self, name):
-        assert name or DEFAULT_SUBSET_NAME == \
-               self.name or DEFAULT_SUBSET_NAME
+        assert (name or DEFAULT_SUBSET_NAME) == \
+               (self.name or DEFAULT_SUBSET_NAME)
         return self
 
     def subsets(self):
-        return { self.name or DEFAULT_SUBSET_NAME: self }
+        if (self.name or DEFAULT_SUBSET_NAME) == DEFAULT_SUBSET_NAME:
+            return self.parent.subsets()
+        return { self.name: self }
 
     def categories(self):
         return self.parent.categories()
@@ -220,75 +244,194 @@ class DatasetStorage(IDataset):
             raise ValueError("Can't use both source and categories")
         self._categories = categories
 
-        # possible combinations
-        # 1. source + storage (patch)
+        # Possible combinations:
+        # 1. source + storage
+        #      - Storage contains a patch to the Source data.
         # 2. no source + storage
-        #      cache or just a dataset from scratch, or cached transform
-        #  - In this case updated_items describes the patch
+        #      - a dataset created from scratch
+        #      - a dataset from a source or transform, which was cached
         self._source = source
         self._storage = DatasetItemStorage() # patch or cache
-        self._updated_items = {} # (id, subset) -> ItemStatus
-        self._transformed = False
+        self._transforms = [] # A stack of postponed transforms
 
-        self._length = None
+        # Describes changes in the dataset since initialization
+        self._updated_items = {} # (id, subset) -> ItemStatus
+
+        self._flush_changes = False # Deferred flush indicator
+
+        self._length = 0 if source is None else None
 
     def is_cache_initialized(self) -> bool:
-        return self._source is None
+        return self._source is None and not self._transforms
 
     @property
     def _is_unchanged_wrapper(self) -> bool:
-        return self._source is not None and not self._updated_items
+        return self._source is not None and self._storage.is_empty() and \
+            not self._transforms
 
     def init_cache(self):
         if not self.is_cache_initialized():
             for _ in self._iter_init_cache(): pass
 
-        self._length = len(self._storage)
-
     def _iter_init_cache(self) -> Iterable[DatasetItem]:
-        # Merges the source and patch, caches the result and
-        # provides an iterator for the resulting item sequence.
+        # Merges the source, source transforms and patch, caches the result
+        # and provides an iterator for the resulting item sequence.
         #
         # If iterated in parallel, the result is undefined.
         # If storage is changed during iteration, the result is undefined.
         #
         # TODO: can potentially be optimized by sharing
         # the cache between parallel consumers and introducing some kind of lock
+        #
+        # Cases:
+        # 1. Has source and patch
+        # 2. Has source, transforms and patch
+        #   a. Transforms affect only an item (i.e. they are local)
+        #   b. Transforms affect whole dataset
+        #
+        # The patch is always applied on top of the source / transforms stack.
+
+        class _StackedTransform(Transform):
+            def __init__(self, source, transforms):
+                super().__init__(source)
+
+                self.is_local = True
+                self.transforms = []
+                for transform in transforms:
+                    source = transform[0](source, *transform[1], **transform[2])
+                    self.transforms.append(source)
+
+                    if self.is_local and not isinstance(source, ItemTransform):
+                        self.is_local = False
+
+            def transform_item(self, item):
+                for t in self.transforms:
+                    if item is None:
+                        break
+                    item = t.transform_item(item)
+                return item
+
+            def __iter__(self):
+                yield from self.transforms[-1]
+
+            def categories(self):
+                return self.transforms[-1].categories()
+
+        def _update_status(item_id, new_status: ItemStatus):
+            current_status = self._updated_items.get(item_id)
+
+            if current_status is None:
+                self._updated_items[item_id] = new_status
+            elif new_status == ItemStatus.removed:
+                if current_status == ItemStatus.added:
+                    self._updated_items.pop(item_id)
+                else:
+                    self._updated_items[item_id] = ItemStatus.removed
+            elif new_status == ItemStatus.modified:
+                if current_status != ItemStatus.added:
+                    self._updated_items[item_id] = ItemStatus.modified
+            elif new_status == ItemStatus.added:
+                if current_status != ItemStatus.added:
+                    self._updated_items[item_id] = ItemStatus.modified
+            else:
+                assert False, "Unknown status %s" % new_status
 
         patch = self._storage # must be empty after transforming
         cache = DatasetItemStorage()
+        source = self._source
+        transform = None
+
+        if self._transforms:
+            transform = _StackedTransform(source, self._transforms)
+            if transform.is_local:
+                # An optimized way to find modified items:
+                # Transform items inplace and analyze transform outputs
+                pass
+            else:
+                # A generic way to find modified items:
+                # Collect all the dataset original ids and compare
+                # with transform outputs.
+                # TODO: introduce Extractor.items() / .ids() to avoid extra
+                # dataset traversals?
+                old_ids = set((item.id, item.subset) for item in source)
+                source = transform
 
         i = -1
-        for i, item in enumerate(self._source):
-            if item in cache:
-                raise RepeatedItemError((item.id, item.subset))
+        for i, item in enumerate(source):
+            if transform and transform.is_local:
+                old_id = (item.id, item.subset)
+                item = transform.transform_item(item)
+
+            item_id = (item.id, item.subset) if item else None
+
+            if item_id in cache:
+                raise RepeatedItemError(item_id)
+
             if item in patch:
-                item = patch.get(item.id, item.subset)
-            if self._updated_items.get((item.id, item.subset)) == \
-                    ItemStatus.removed:
-                item = None
-            if item:
-                cache.put(item)
-                yield item
+                # Apply changes from the patch
+                item = patch.get(*item_id)
+            elif transform and not self._flush_changes:
+                # Find changes made by transforms, if not overridden by patch
+                if transform.is_local:
+                    if not item:
+                        _update_status(old_id, ItemStatus.removed)
+                    elif old_id != item_id:
+                        _update_status(old_id, ItemStatus.removed)
+                        _update_status(item_id, ItemStatus.added)
+                    else:
+                        # Consider all items modified without comparison,
+                        # because such comparison would be very expensive
+                        _update_status(old_id, ItemStatus.modified)
+                else:
+                    if item:
+                        if item_id not in old_ids:
+                            _update_status(item_id, ItemStatus.added)
+                        else:
+                            _update_status(item_id, ItemStatus.modified)
+
+            if not item:
+                continue
+
+            cache.put(item)
+            yield item
+
         if i == -1:
             cache = patch
             for item in patch:
-                self._updated_items[(item.id, item.subset)] = ItemStatus.added
+                if not self._flush_changes:
+                    _update_status((item.id, item.subset), ItemStatus.added)
                 yield item
         else:
             for item in patch:
                 if item in cache: # already processed
                     continue
-                self._updated_items[(item.id, item.subset)] = ItemStatus.added
+                if not self._flush_changes:
+                    _update_status((item.id, item.subset), ItemStatus.added)
                 cache.put(item)
                 yield item
 
+        if not self._flush_changes and transform and not transform.is_local:
+            # Mark removed items that were not produced by transforms
+            for old_id in old_ids:
+                if old_id not in self._updated_items:
+                    self._updated_items[old_id] = ItemStatus.removed
+
         self._storage = cache
-        source_cat = self._source.categories()
+        self._length = len(cache)
+
+        if transform:
+            source_cat = transform.categories()
+        else:
+            source_cat = source.categories()
         if source_cat is not None:
             self._categories = source_cat
-        self._length = len(cache)
+
         self._source = None
+        self._transforms = []
+
+        if self._flush_changes:
+            self._flush_changes = False
+            self._updated_items = {}
 
     def __iter__(self) -> Iterable[DatasetItem]:
         if self._is_unchanged_wrapper:
@@ -309,18 +452,29 @@ class DatasetStorage(IDataset):
         return self._length
 
     def categories(self) -> CategoriesInfo:
-        if self._categories is not None:
+        if self.is_cache_initialized():
+            return self._categories
+        elif self._categories is not None:
+            return self._categories
+        elif any(is_member_redefined('categories', Transform, t[0])
+                for t in self._transforms):
+            self.init_cache()
             return self._categories
         else:
             return self._source.categories()
 
+    def define_categories(self, categories: CategoriesInfo):
+        if self._categories or self._source is not None:
+            raise CategoriesRedefinedError()
+        self._categories = categories
+
     def put(self, item):
         is_new = self._storage.put(item)
 
-        if not self.is_cache_initialized() or not is_new:
-            self._updated_items[(item.id, item.subset)] = ItemStatus.modified
-        elif is_new:
+        if not self.is_cache_initialized() or is_new:
             self._updated_items[(item.id, item.subset)] = ItemStatus.added
+        else:
+            self._updated_items[(item.id, item.subset)] = ItemStatus.modified
 
         if is_new and not self.is_cache_initialized():
             self._length = None
@@ -360,40 +514,50 @@ class DatasetStorage(IDataset):
         return self._merged().get_subset(name)
 
     def subsets(self):
-        subsets = {}
-        if not self.is_cache_initialized():
-            subsets.update(self._source.subsets())
-        subsets.update(self._storage.subsets())
-        return subsets
+        # TODO: check if this can be optimized in case of transforms
+        # and other cases
+        return self._merged().subsets()
 
-    def transform(self, method, *args, **kwargs):
-        self._source = method(self._merged(), *args, **kwargs)
-        self._storage = DatasetItemStorage()
-        # TODO: can be optimized by analyzing methods
-        self._categories = None
+    def transform(self, method: Transform, *args, **kwargs):
+        # Flush accumulated changes
+        if not self._storage.is_empty():
+            source = self._merged()
+            self._storage = DatasetItemStorage()
+        else:
+            source = self._source
+
+        if not self._transforms:
+            # The stack of transforms only needs a single source
+            self._source = source
+        self._transforms.append((method, args, kwargs))
+
+        if is_member_redefined('categories', Transform, method):
+            self._categories = None
         self._length = None
-        self._transformed = True
-        self._updated_items = {}
 
     def has_updated_items(self):
-        return self._transformed or self._updated_items
+        return self._transforms or self._updated_items
 
     def get_patch(self):
         # Patch includes only added or modified items.
         # To find removed items, one needs to consult updated_items list.
-        if self._transformed:
+        if self._transforms:
             self.init_cache()
-            # Consider all items modified after transforming
-            self._updated_items = {
-                (item.id, item.subset): ItemStatus.modified
-                for item in self._storage
-            }
-        return DatasetPatch(self._storage, self._categories,
+
+        # The current patch (storage) can miss some removals done
+        # so we add them manually
+        patch = copy(self._storage)
+        for (item_id, subset), status in self._updated_items.items():
+            if status is ItemStatus.removed:
+                patch.remove(item_id, subset)
+
+        return DatasetPatch(patch, self._categories,
             self._updated_items)
 
     def flush_changes(self):
         self._updated_items = {}
-        self._transformed = False
+        if not (self.is_cache_initialized() or self._is_unchanged_wrapper):
+            self._flush_changes = True
 
 
 class Dataset(IDataset):
@@ -454,8 +618,7 @@ class Dataset(IDataset):
         self._source_path = None
 
     def define_categories(self, categories: Dict):
-        assert not self._data._categories and self._data._source is None
-        self._data._categories = categories
+        self._data.define_categories(categories)
 
     def init_cache(self):
         self._data.init_cache()
@@ -513,8 +676,18 @@ class Dataset(IDataset):
 
     def transform(self, method: Union[str, Transform],
             *args, **kwargs) -> 'Dataset':
+        """
+        Applies some function to dataset items.
+        """
+
         if isinstance(method, str):
-            method = self.env.make_transform(method)
+            method = self.env.transforms[method]
+
+        if inspect.isclass(method) and issubclass(method, Transform):
+            pass
+        else:
+            raise TypeError("Unexpected 'method' argument type: %s" % \
+                type(method))
 
         self._data.transform(method, *args, **kwargs)
         if self.is_eager:
@@ -533,9 +706,11 @@ class Dataset(IDataset):
             raise TypeError('Unexpected model argument type: %s' % type(model))
 
     def select(self, pred):
-        class _DatasetFilter(Transform):
-            def __iter__(self):
-                return filter(pred, iter(self._extractor))
+        class _DatasetFilter(ItemTransform):
+            def transform_item(self, item):
+                if pred(item):
+                    return item
+                return None
 
         return self.transform(_DatasetFilter)
 

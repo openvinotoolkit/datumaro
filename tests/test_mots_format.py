@@ -1,15 +1,17 @@
 from functools import partial
-import numpy as np
+from unittest import TestCase
 import os.path as osp
 
-from unittest import TestCase
+import numpy as np
 
-from datumaro.components.extractor import DatasetItem, Mask
 from datumaro.components.dataset import Dataset
-from datumaro.plugins.mots_format import MotsPngConverter, MotsImporter
+from datumaro.components.extractor import DatasetItem, Mask
+from datumaro.plugins.mots_format import MotsImporter, MotsPngConverter
 from datumaro.util.image import Image
-from datumaro.util.test_utils import (TestDir, compare_datasets,
-    test_save_and_load)
+from datumaro.util.test_utils import (
+    TestDir, compare_datasets, test_save_and_load,
+)
+
 from .requirements import Requirements, mark_requirement
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'mots_dataset')

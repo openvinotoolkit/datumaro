@@ -1,2 +1,3 @@
-n000001 car
-n000002 person
+n000001 Karl
+n000002 Jay
+n000003 Pol

@@ -1,0 +1,48 @@
+{
+    "classes": [
+        {
+            "id": 35,
+            "title": "car",
+            "color": "#fa3253",
+            "shape": "cuboid_3d",
+            "geometry_config": {}
+        },
+        {
+            "id": 36,
+            "title": "bus",
+            "color": "#fafa37",
+            "shape": "cuboid_3d",
+            "geometry_config": {}
+        }
+    ],
+    "tags": [
+        {
+            "name": "tag1",
+            "value_type": "any_string",
+            "color": "#243175",
+            "id": 29185993,
+            "hotkey": "",
+            "applicable_type": "all",
+            "classes": []
+        },
+        {
+            "name": "tag2",
+            "value_type": "any_number",
+            "color": "#4DD562",
+            "id": 29185994,
+            "hotkey": "",
+            "applicable_type": "imagesOnly",
+            "classes": []
+        },
+        {
+            "name": "tag3",
+            "value_type": "any_string",
+            "color": "#3A3FE9",
+            "id": 29185995,
+            "hotkey": "",
+            "applicable_type": "objectsOnly",
+            "classes": []
+        }
+    ],
+    "projectType": "point_clouds"
+}
