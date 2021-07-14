@@ -43,8 +43,7 @@ class SuperviselyPointCloudExtractor(SourceExtractor):
                 encoding='utf-8') as f:
             meta = json.load(f)
 
-        label_cat = LabelCategories(
-            attributes=set(PointCloudPath.BUILTIN_ATTRS))
+        label_cat = LabelCategories()
         for label in meta.get('classes', []):
             label_cat.add(label['title'])
 
@@ -131,7 +130,7 @@ class SuperviselyPointCloudExtractor(SourceExtractor):
                     obj['classTitle'])[0]
 
                 attributes = {}
-                attributes['object'] = obj['id']
+                attributes['track_id'] = obj['id']
                 for tag in obj.get('tags', []):
                     attributes[tag['name']] = _parse_tag(tag)
                 for attr in _get_label_attrs(label):
