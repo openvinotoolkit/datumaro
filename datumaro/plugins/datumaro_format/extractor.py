@@ -1,5 +1,4 @@
-
-# Copyright (C) 2019-2020 Intel Corporation
+# Copyright (C) 2019-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -19,17 +18,21 @@ from .format import DatumaroPath
 class DatumaroExtractor(SourceExtractor):
     def __init__(self, path):
         assert osp.isfile(path), path
+
         rootpath = ''
         if path.endswith(osp.join(DatumaroPath.ANNOTATIONS_DIR, osp.basename(path))):
             rootpath = path.rsplit(DatumaroPath.ANNOTATIONS_DIR, maxsplit=1)[0]
+
         images_dir = ''
         if rootpath and osp.isdir(osp.join(rootpath, DatumaroPath.IMAGES_DIR)):
             images_dir = osp.join(rootpath, DatumaroPath.IMAGES_DIR)
         self._images_dir = images_dir
+
         pcd_dir = ''
         if rootpath and osp.isdir(osp.join(rootpath, DatumaroPath.PCD_DIR)):
             pcd_dir = osp.join(rootpath, DatumaroPath.PCD_DIR)
         self._pcd_dir = pcd_dir
+
         related_images_dir = ''
         if rootpath and osp.isdir(osp.join(rootpath, DatumaroPath.RELATED_IMAGES_DIR)):
             related_images_dir = osp.join(rootpath, DatumaroPath.RELATED_IMAGES_DIR)
@@ -99,8 +102,12 @@ class DatumaroExtractor(SourceExtractor):
             related_images = None
             ri_info = item_desc.get('related_images')
             if ri_info:
-                related_images = [Image(path=osp.join(self._related_images_dir,
-                    ri.get('path')), size=ri.get('size')) for ri in ri_info]
+                related_images = [
+                    Image(size=ri.get('size'),
+                        path=osp.join(self._related_images_dir, ri.get('path'))
+                    )
+                    for ri in ri_info
+                ]
 
             annotations = self._load_annotations(item_desc)
 
