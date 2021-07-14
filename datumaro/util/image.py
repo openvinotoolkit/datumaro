@@ -247,7 +247,7 @@ class Image:
         assert size is None or len(size) == 2, size
         if size is not None:
             assert len(size) == 2 and 0 < size[0] and 0 < size[1], size
-            size = tuple(size)
+            size = tuple(map(int, size))
         self._size = size # (H, W)
 
         assert path is None or isinstance(path, str), path
@@ -284,7 +284,7 @@ class Image:
             data = self._data
 
         if self._size is None and data is not None:
-            self._size = data.shape[:2]
+            self._size =  tuple(map(int, data.shape[:2]))
         return data
 
     @property
@@ -303,7 +303,7 @@ class Image:
             except _image_loading_errors:
                 return None
             if data is not None:
-                self._size = data.shape[:2]
+                self._size = tuple(map(int, data.shape[:2]))
         return self._size
 
     def __eq__(self, other):
