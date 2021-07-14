@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
-## \[Unreleased]
+## 14/07/2021 - Release v0.1.10
 ### Added
 - Support for import/export zip archives with images (<https://github.com/openvinotoolkit/datumaro/pull/273>)
 - Subformat importers for VOC and COCO (<https://github.com/openvinotoolkit/datumaro/pull/281>)
@@ -41,7 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved CLI startup time in several cases (<https://github.com/openvinotoolkit/datumaro/pull/306>)
 
 ### Security
-- TBD
+- Known issue: loading CIFAR can result in arbitrary code execution (<https://github.com/openvinotoolkit/datumaro/issues/327>)
 
 ## 03/06/2021 - Release v0.1.9
 ### Added
