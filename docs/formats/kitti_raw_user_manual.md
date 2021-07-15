@@ -150,7 +150,7 @@ datum stats -p project
 
 ``` bash
 datum convert -if sly_pointcloud -i ../sly_pcd/ \
-    -f kitti_raw -o my_kitti/ -- --save-images --reindex --allow-attrs
+    -f kitti_raw -o my_kitti/ -- --save-images --allow-attrs
 ```
 
 ### Example 3. Create a custom dataset

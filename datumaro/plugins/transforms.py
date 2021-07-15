@@ -399,7 +399,7 @@ class IdFromImageName(ItemTransform, CliPlugin):
             return item
 
 class Rename(ItemTransform, CliPlugin):
-    """
+    r"""
     Renames items in the dataset. Supports regular expressions.
     The first character in the expression is a delimiter for
     the pattern and replacement parts. Replacement part can also
@@ -409,7 +409,7 @@ class Rename(ItemTransform, CliPlugin):
     - Replace 'pattern' with 'replacement':|n
     |s|srename -e '|pattern|replacement|'|n
     - Remove 'frame_' from item ids:|n
-    |s|srename -e '|frame_(\d+)|\\1|'
+    |s|srename -e '|frame_(\d+)|\1|'
     """
 
     @classmethod

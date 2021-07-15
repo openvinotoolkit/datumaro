@@ -14,4 +14,5 @@ class PointCloudPath:
     KEY_ID_FILE = 'key_id_map.json'
     META_FILE = 'meta.json'
 
-    BUILTIN_ATTRS = {'object'}
+    SPECIAL_ATTRS = {'description', 'track_id',
+        'labelerLogin', 'createdAt', 'updatedAt', 'frame'}

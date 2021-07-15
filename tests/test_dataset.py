@@ -868,6 +868,120 @@ class DatasetTest(TestCase):
         self.assertEqual(iter_called, 1)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_get_len_after_local_transforms(self):
+        iter_called = 0
+        class TestExtractor(Extractor):
+            def __iter__(self):
+                nonlocal iter_called
+                iter_called += 1
+                yield from [
+                    DatasetItem(1),
+                    DatasetItem(2),
+                    DatasetItem(3),
+                    DatasetItem(4),
+                ]
+        dataset = Dataset.from_extractors(TestExtractor())
+
+        class TestTransform(ItemTransform):
+            def transform_item(self, item):
+                return self.wrap_item(item, id=int(item.id) + 1)
+
+        dataset.transform(TestTransform)
+        dataset.transform(TestTransform)
+
+        self.assertEqual(iter_called, 0)
+
+        self.assertEqual(4, len(dataset))
+
+        self.assertEqual(iter_called, 1)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_get_len_after_nonlocal_transforms(self):
+        iter_called = 0
+        class TestExtractor(Extractor):
+            def __iter__(self):
+                nonlocal iter_called
+                iter_called += 1
+                yield from [
+                    DatasetItem(1),
+                    DatasetItem(2),
+                    DatasetItem(3),
+                    DatasetItem(4),
+                ]
+        dataset = Dataset.from_extractors(TestExtractor())
+
+        class TestTransform(Transform):
+            def __iter__(self):
+                for item in self._extractor:
+                    yield self.wrap_item(item, id=int(item.id) + 1)
+
+        dataset.transform(TestTransform)
+        dataset.transform(TestTransform)
+
+        self.assertEqual(iter_called, 0)
+
+        self.assertEqual(4, len(dataset))
+
+        self.assertEqual(iter_called, 2)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_get_subsets_after_local_transforms(self):
+        iter_called = 0
+        class TestExtractor(Extractor):
+            def __iter__(self):
+                nonlocal iter_called
+                iter_called += 1
+                yield from [
+                    DatasetItem(1),
+                    DatasetItem(2),
+                    DatasetItem(3),
+                    DatasetItem(4),
+                ]
+        dataset = Dataset.from_extractors(TestExtractor())
+
+        class TestTransform(ItemTransform):
+            def transform_item(self, item):
+                return self.wrap_item(item, id=int(item.id) + 1, subset='a')
+
+        dataset.transform(TestTransform)
+        dataset.transform(TestTransform)
+
+        self.assertEqual(iter_called, 0)
+
+        self.assertEqual({'a'}, set(dataset.subsets()))
+
+        self.assertEqual(iter_called, 1)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_get_subsets_after_nonlocal_transforms(self):
+        iter_called = 0
+        class TestExtractor(Extractor):
+            def __iter__(self):
+                nonlocal iter_called
+                iter_called += 1
+                yield from [
+                    DatasetItem(1),
+                    DatasetItem(2),
+                    DatasetItem(3),
+                    DatasetItem(4),
+                ]
+        dataset = Dataset.from_extractors(TestExtractor())
+
+        class TestTransform(Transform):
+            def __iter__(self):
+                for item in self._extractor:
+                    yield self.wrap_item(item, id=int(item.id) + 1, subset='a')
+
+        dataset.transform(TestTransform)
+        dataset.transform(TestTransform)
+
+        self.assertEqual(iter_called, 0)
+
+        self.assertEqual({'a'}, set(dataset.subsets()))
+
+        self.assertEqual(iter_called, 2)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_raises_when_repeated_items_in_source(self):
         dataset = Dataset.from_iterable([DatasetItem(0), DatasetItem(0)])
 

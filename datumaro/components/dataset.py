@@ -266,7 +266,8 @@ class DatasetStorage(IDataset):
 
     @property
     def _is_unchanged_wrapper(self) -> bool:
-        return self._source is not None and self._storage.is_empty()
+        return self._source is not None and self._storage.is_empty() and \
+            not self._transforms
 
     def init_cache(self):
         if not self.is_cache_initialized():
@@ -513,16 +514,17 @@ class DatasetStorage(IDataset):
         return self._merged().get_subset(name)
 
     def subsets(self):
-        subsets = {}
-        if not self.is_cache_initialized():
-            subsets.update(self._source.subsets())
-        subsets.update(self._storage.subsets())
-        return subsets
+        # TODO: check if this can be optimized in case of transforms
+        # and other cases
+        return self._merged().subsets()
 
     def transform(self, method: Transform, *args, **kwargs):
         # Flush accumulated changes
-        source = self._merged()
-        self._storage = DatasetItemStorage()
+        if not self._storage.is_empty():
+            source = self._merged()
+            self._storage = DatasetItemStorage()
+        else:
+            source = self._source
 
         if not self._transforms:
             # The stack of transforms only needs a single source
