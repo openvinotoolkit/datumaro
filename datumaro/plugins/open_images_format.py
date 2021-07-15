@@ -307,7 +307,7 @@ class OpenImagesExtractor(Extractor):
                             item_id=item.id, subset=item.subset,
                             label_name=label_name, severity=Severity.error)
 
-                    if item.has_image:
+                    if item.has_image and item.image.size is not None:
                         height, width = item.image.size
                     else:
                         log.warning(
@@ -484,7 +484,7 @@ class OpenImagesConverter(Converter):
                                         OpenImagesPath.BBOX_DESCRIPTION_FIELDS))
                                 bbox_description_writer.writeheader()
 
-                            if item.has_image:
+                            if item.has_image and item.image.size is not None:
                                 image_meta[item.id] = (height, width) = item.image.size
                             else:
                                 log.warning(
