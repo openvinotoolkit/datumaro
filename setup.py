@@ -78,4 +78,5 @@ setuptools.setup(
             'datum=datumaro.cli.__main__:main',
         ],
     },
+    include_package_data=True,
 )

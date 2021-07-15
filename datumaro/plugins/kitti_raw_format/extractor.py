@@ -118,9 +118,11 @@ class KittiRawExtractor(SourceExtractor):
 
                 # common tags
                 elif attr is not None and elem.tag == 'name':
+                    if not elem.text:
+                        raise ValueError("Attribute name can't be empty")
                     attr['name'] = elem.text
                 elif attr is not None and elem.tag == 'value':
-                    attr['value'] = elem.text
+                    attr['value'] = elem.text or ''
                 elif attr is not None and elem.tag == 'attribute':
                     if shape:
                         shape['attributes'][attr['name']] = attr['value']

@@ -18,7 +18,7 @@ This dataset format supports the following types of annotations:
 - `cuboid_3d`
 
 Supported annotation attributes:
-- `object` (read/write, integer),
+- `track_id` (read/write, integer), responsible for `object` field
 - `createdAt` (write, string),
 - `updatedAt` (write, string),
 - `labelerLogin` (write, string), responsible for the corresponding fields
@@ -154,11 +154,11 @@ dataset = Dataset.from_iterable([
         annotations=[
             Cuboid3d(id=206, label=0,
                 position=[320.86, 979.18, 1.04],
-                attributes={'occluded': False, 'object': 1, 'x': 1}),
+                attributes={'occluded': False, 'track_id': 1, 'x': 1}),
 
             Cuboid3d(id=207, label=1,
                 position=[318.19, 974.65, 1.29],
-                attributes={'occluded': True, 'object': 2}),
+                attributes={'occluded': True, 'track_id': 2}),
         ],
         pcd='path/to/pcd1.pcd',
         attributes={'frame': 0, 'description': 'zzz'}
@@ -168,7 +168,7 @@ dataset = Dataset.from_iterable([
         annotations=[
             Cuboid3d(id=208, label=1,
                 position=[23.04, 8.75, -0.78],
-                attributes={'occluded': False, 'object': 2})
+                attributes={'occluded': False, 'track_id': 2})
         ],
         pcd='path/to/pcd2.pcd', related_images=['image2.png'],
         attributes={'frame': 1}

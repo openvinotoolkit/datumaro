@@ -38,7 +38,7 @@ class SuperviselyPointcloudImporterTest(TestCase):
         image2 = osp.join(DUMMY_DATASET_DIR,
             'ds0', 'related_images', 'frame2_pcd', 'img1.png')
 
-        label_cat = LabelCategories(attributes={'tag1', 'tag3', 'object'})
+        label_cat = LabelCategories(attributes={'tag1', 'tag3'})
         label_cat.add('car')
         label_cat.add('bus')
 
@@ -47,12 +47,12 @@ class SuperviselyPointcloudImporterTest(TestCase):
                 annotations=[
                     Cuboid3d(id=755220128, label=0,
                         position=[0.47, 0.23, 0.79], scale=[0.01, 0.01, 0.01],
-                        attributes={'object': 231825,
+                        attributes={'track_id': 231825,
                             'tag1': 'fd', 'tag3': '4s'}),
 
                     Cuboid3d(id=755337225, label=0,
                         position=[0.36, 0.64, 0.93], scale=[0.01, 0.01, 0.01],
-                        attributes={'object': 231831,
+                        attributes={'track_id': 231831,
                             'tag1': 'v12', 'tag3': ''}),
                 ],
                 point_cloud=pcd1, related_images=[image1],
@@ -64,7 +64,7 @@ class SuperviselyPointcloudImporterTest(TestCase):
                 annotations=[
                     Cuboid3d(id=216, label=1,
                         position=[0.59, 14.41, -0.61],
-                        attributes={'object': 36, 'tag1': '', 'tag3': ''})
+                        attributes={'track_id': 36, 'tag1': '', 'tag3': ''})
                 ],
                 point_cloud=pcd2, related_images=[image2],
                 attributes={'frame': 1, 'description': ''}
@@ -105,11 +105,11 @@ class PointCloudConverterTest(TestCase):
                 annotations=[
                     Cuboid3d(id=206, label=0,
                         position=[320.86, 979.18, 1.04],
-                        attributes={'occluded': False, 'object': 1, 'x': 1}),
+                        attributes={'occluded': False, 'track_id': 1, 'x': 1}),
 
                     Cuboid3d(id=207, label=1,
                         position=[318.19, 974.65, 1.29],
-                        attributes={'occluded': True, 'object': 2}),
+                        attributes={'occluded': True, 'track_id': 2}),
                 ],
                 point_cloud=self.pcd1,
                 attributes={'frame': 0, 'description': 'zzz'}
@@ -119,7 +119,7 @@ class PointCloudConverterTest(TestCase):
                 annotations=[
                     Cuboid3d(id=208, label=1,
                         position=[23.04, 8.75, -0.78],
-                        attributes={'occluded': False, 'object': 2})
+                        attributes={'occluded': False, 'track_id': 2})
                 ],
                 point_cloud=self.pcd2, related_images=[self.image2],
                 attributes={'frame': 1}
@@ -136,11 +136,12 @@ class PointCloudConverterTest(TestCase):
                     annotations=[
                         Cuboid3d(id=206, label=0,
                             position=[320.86, 979.18, 1.04],
-                            attributes={'occluded': False, 'object': 1, 'x': 1}),
+                            attributes={'occluded': False,
+                                'track_id': 1, 'x': 1}),
 
                         Cuboid3d(id=207, label=1,
                             position=[318.19, 974.65, 1.29],
-                            attributes={'occluded': True, 'object': 2}),
+                            attributes={'occluded': True, 'track_id': 2}),
                     ],
                     point_cloud=osp.join(test_dir,
                         'ds0', 'pointcloud', 'frame_1.pcd'),
@@ -150,7 +151,7 @@ class PointCloudConverterTest(TestCase):
                     annotations=[
                         Cuboid3d(id=208, label=1,
                             position=[23.04, 8.75, -0.78],
-                            attributes={'occluded': False, 'object': 2}),
+                            attributes={'occluded': False, 'track_id': 2}),
                     ],
                     point_cloud=osp.join(test_dir,
                         'ds0', 'pointcloud', 'frm2.pcd'),
@@ -201,7 +202,7 @@ class PointCloudConverterTest(TestCase):
             DatasetItem(id='frame_000000',
                 annotations=[
                     Cuboid3d(id=206, label=0, position=[320.86, 979.18, 1.04],
-                        attributes={'object': 1, 'occluded': False,
+                        attributes={'track_id': 1, 'occluded': False,
                             'a': 5, 'undeclared': 'y'}),
                 ],
                 attributes={'frame': 0}),
@@ -232,7 +233,7 @@ class PointCloudConverterTest(TestCase):
             DatasetItem(id='frame_000000',
                 annotations=[
                     Cuboid3d(id=206, label=0, position=[320.86, 979.18, 1.04],
-                        attributes={'object': 206, 'occluded': False, 'a': 5}),
+                        attributes={'track_id': 206, 'occluded': False, 'a': 5}),
                 ],
                 attributes={'frame': 0}),
         ], categories={AnnotationType.label: src_label_cat})

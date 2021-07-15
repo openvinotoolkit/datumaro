@@ -8,6 +8,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[Unreleased]
 ### Added
+- TBD
+
+### Changed
+- TBD
+
+### Deprecated
+- TBD
+
+### Removed
+- TBD
+
+### Fixed
+- TBD
+
+### Security
+- TBD
+
+## 14/07/2021 - Release v0.1.10
+### Added
 - Support for import/export zip archives with images (<https://github.com/openvinotoolkit/datumaro/pull/273>)
 - Subformat importers for VOC and COCO (<https://github.com/openvinotoolkit/datumaro/pull/281>)
 - Support for KITTI dataset segmentation and detection format (<https://github.com/openvinotoolkit/datumaro/pull/282>)
@@ -19,8 +38,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   only images and image-level labels can be read/written
   (<https://github.com/openvinotoolkit/datumaro/pull/291>,
   <https://github.com/openvinotoolkit/datumaro/pull/315>).
-- Support for Supervisely Point Cloud dataset format (<https://github.com/openvinotoolkit/datumaro/pull/245>)
+- Support for Supervisely Point Cloud dataset format (<https://github.com/openvinotoolkit/datumaro/pull/245>, <https://github.com/openvinotoolkit/datumaro/pull/353>)
 - Support for KITTI Raw / Velodyne Points dataset format (<https://github.com/openvinotoolkit/datumaro/pull/245>)
+- Support for CIFAR-100 and documentation for CIFAR-10/100 (<https://github.com/openvinotoolkit/datumaro/pull/301>)
 
 ### Changed
 - Tensorflow AVX check is made optional in API and disabled by default (<https://github.com/openvinotoolkit/datumaro/pull/305>)
@@ -41,7 +61,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dataset patching in CIFAR format (<https://github.com/openvinotoolkit/datumaro/pull/346>)
 
 ### Security
-- TBD
+- Known issue: loading CIFAR can result in arbitrary code execution (<https://github.com/openvinotoolkit/datumaro/issues/327>)
 
 ## 03/06/2021 - Release v0.1.9
 ### Added

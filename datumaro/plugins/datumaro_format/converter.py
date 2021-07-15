@@ -1,5 +1,4 @@
-
-# Copyright (C) 2019-2020 Intel Corporation
+# Copyright (C) 2019-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -15,9 +14,9 @@ import pycocotools.mask as mask_utils
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.extractor import (
-    DEFAULT_SUBSET_NAME, Annotation, Bbox, Caption, DatasetItem, Label,
-    LabelCategories, Mask, MaskCategories, Points, PointsCategories, Polygon,
-    PolyLine, RleMask, _Shape,
+    DEFAULT_SUBSET_NAME, Annotation, Bbox, Caption, Cuboid3d, DatasetItem,
+    Label, LabelCategories, Mask, MaskCategories, Points, PointsCategories,
+    Polygon, PolyLine, RleMask, _Shape,
 )
 from datumaro.util import cast
 
@@ -67,6 +66,34 @@ class _SubsetWriter:
             }
             if item.image.has_size: # avoid occasional loading
                 item_desc['image']['size'] = item.image.size
+        if item.has_point_cloud:
+            path = item.point_cloud
+            if self._context._save_images:
+                path = self._context._make_pcd_filename(item)
+                self._context._save_point_cloud(item,
+                    osp.join(self._context._pcd_dir, path))
+
+            item_desc['point_cloud'] = {
+                'path': path
+            }
+        if item.related_images:
+            related_images = [{'path': img.path} for img in item.related_images]
+            if self._context._save_images:
+                related_images = []
+                for img in item.related_images:
+                    ri_desc = {}
+                    ri_desc['path'] = osp.join(item.id,
+                        osp.splitext(osp.basename(img.path))[0] + \
+                            self._context._find_image_ext(img))
+
+                    if img.has_data:
+                        img.save(osp.join(self._context._related_images_dir,
+                            ri_desc['path']))
+                    if img.has_size:
+                        ri_desc['size'] = img.size
+                    related_images.append(ri_desc)
+
+            item_desc['related_images'] = related_images
         self.items.append(item_desc)
 
         for ann in item.annotations:
@@ -84,6 +111,8 @@ class _SubsetWriter:
                 converted_ann = self._convert_bbox_object(ann)
             elif isinstance(ann, Caption):
                 converted_ann = self._convert_caption_object(ann)
+            elif isinstance(ann, Cuboid3d):
+                converted_ann = self._convert_cuboid_3d_object(ann)
             else:
                 raise NotImplementedError()
             annotations.append(converted_ann)
@@ -188,6 +217,16 @@ class _SubsetWriter:
         })
         return converted
 
+    def _convert_cuboid_3d_object(self, obj):
+        converted = self._convert_annotation(obj)
+        converted.update({
+            'label_id': cast(obj.label, int),
+            'position': [float(p) for p in obj.position],
+            'rotation': [float(p) for p in obj.rotation],
+            'scale': [float(p) for p in obj.scale]
+        })
+        return converted
+
     def _convert_attribute_categories(self, attributes):
         return sorted(attributes)
 
@@ -242,6 +281,10 @@ class DatumaroConverter(Converter):
         annotations_dir = osp.join(self._save_dir, DatumaroPath.ANNOTATIONS_DIR)
         os.makedirs(annotations_dir, exist_ok=True)
         self._annotations_dir = annotations_dir
+
+        self._pcd_dir = osp.join(self._save_dir, DatumaroPath.PCD_DIR)
+        self._related_images_dir = osp.join(self._save_dir,
+            DatumaroPath.RELATED_IMAGES_DIR)
 
         subsets = {s: _SubsetWriter(s, self) for s in self._extractor.subsets()}
         for subset, writer in subsets.items():
