@@ -12,7 +12,6 @@ import logging as log
 import os
 import os.path as osp
 import re
-import shlex
 import types
 
 from attr import attrs
@@ -28,6 +27,7 @@ from datumaro.components.extractor import (
 from datumaro.components.validator import Severity
 from datumaro.util.image import (
     DEFAULT_IMAGE_META_FILE_NAME, Image, find_images, load_image_meta_file,
+    save_image_meta_file,
 )
 from datumaro.util.os_util import split_path
 
@@ -512,6 +512,4 @@ class OpenImagesConverter(Converter):
                 self._save_dir, OpenImagesPath.ANNOTATIONS_DIR,
                 DEFAULT_IMAGE_META_FILE_NAME)
 
-            with open(image_meta_file_path, 'w') as image_meta_file:
-                for image_name, (height, width) in image_meta.items():
-                    print(shlex.quote(image_name), height, width, file=image_meta_file)
+            save_image_meta_file(image_meta, image_meta_file_path)
