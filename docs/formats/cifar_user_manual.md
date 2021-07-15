@@ -12,9 +12,18 @@
 
 CIFAR format specification available [here](https://www.cs.toronto.edu/~kriz/cifar.html).
 
-CIFAR dataset format supports `Labels` annotations.
+CIFAR dataset format supports `Label` annotations.
 
 Datumaro supports Python version CIFAR-10/100.
+The difference between CIFAR-10 and CIFAR-100 is how labels are stored
+in the meta files (`batches.meta` or `meta`) and in the annotation files.
+
+CIFAR formats contains 32 x 32 images. As an extension, Datumaro supports
+reading and writing of arbitrary-sized images.
+
+The 100 classes in the CIFAR-100 are grouped into 20 superclasses. Each image
+comes with a "fine" label (the class to which it belongs) and a "coarse" label
+(the superclass to which it belongs).
 
 ## Load CIFAR dataset
 
@@ -43,12 +52,9 @@ CIFAR-10 dataset directory should have the following structure:
 ```
 └─ Dataset/
     ├── batches.meta
-    ├── data_batch_1
-    ├── data_batch_2
-    ├── data_batch_3
-    ├── data_batch_4
-    ├── data_batch_5
-    └── test_batch
+    ├── <subset_name1>
+    ├── <subset_name2>
+    └── ...
 ```
 
 CIFAR-100 dataset directory should have the following structure:
@@ -57,35 +63,44 @@ CIFAR-100 dataset directory should have the following structure:
 ```
 └─ Dataset/
     ├── meta
-    ├── test
-    └── train
+    ├── <subset_name1>
+    ├── <subset_name2>
+    └── ...
 ```
 
-CIFAR format only supports 32 x 32 images.
+Dataset files use [Pickle](https://docs.python.org/3/library/pickle.html)
+data format.
 
-The 100 classes in the CIFAR-100 are grouped into 20 superclasses. Each image
-comes with a "fine" label (the class to which it belongs) and a "coarse" label
-(the superclass to which it belongs)
-
-The difference between CIFAR-10 and CIFAR-100 is how labels are stored
-in the meta file (batches.meta or meta) and in the annotation file (train,
-data_batch_1, test_batch, etc.).
+Meta files:
 <!--lint disable fenced-code-flag-->
 ```
-meta file:
-CIFAR-10: num_cases_per_batch: 1000
-          label_names: ['airplane', 'automobile', 'bird', ...]
-          num_vis: 3072
-CIFAR-100: fine_label_names: ['apple', 'aquarium_fish', 'baby', ...]
-           coarse_label_names: ['aquatic_mammals', 'fish', 'flowers', ...]
+CIFAR-10:
+    num_cases_per_batch: 1000
+    label_names: list of strings (['airplane', 'automobile', 'bird', ...])
+    num_vis: 3072
 
-annotation file:
-'batch_label': 'training batch 1 of 5'
-'data': ndarray
-'filenames': list
-CIFAR-10: 'labels': list
-CIFAR-100: 'fine_labels': list
-           'coarse_labels': list
+CIFAR-100:
+    fine_label_names: list of strings (['apple', 'aquarium_fish', ...])
+    coarse_label_names: list of strings (['aquatic_mammals', 'fish', ...])
+```
+
+Annotation files:
+<!--lint disable fenced-code-flag-->
+```
+Common:
+    'batch_label': 'training batch 1 of <N>'
+    'data': numpy.ndarray of uint8, layout N x C x H x W
+    'filenames': list of strings
+
+    If images have non-default size (32x32) (Datumaro extension):
+        'image_sizes': list of (H, W) tuples
+
+CIFAR-10:
+    'labels': list of strings
+
+CIFAR-100:
+    'fine_labels': list of integers
+    'coarse_labels': list of integers
 ```
 
 ## Export to other formats
@@ -147,8 +162,8 @@ dataset = Dataset.from_iterable([
     DatasetItem(id=1, image=np.ones((32, 32, 3)),
         annotations=[Label(8)]
     )
-], categories=[['airplane', 'automobile', 'bird', 'cat', 'deer',
-                'dog', 'frog', 'horse', 'ship', 'truck']])
+], categories=['airplane', 'automobile', 'bird', 'cat', 'deer',
+               'dog', 'frog', 'horse', 'ship', 'truck'])
 
 dataset.export('./dataset', format='cifar')
 ```
