@@ -19,13 +19,15 @@ annotations and bounding box annotations from this dataset.
 
 One attribute is supported on the labels:
 
-- `score` (read/write, float). The confidence level from 0 to 1.
+- `score` (read/write, float).
+  The confidence level from 0 to 1.
   A score of 0 indicates that
   the image does not contain objects of the corresponding class.
 
 The following attributes are supported on the bounding boxes:
 
-- `score` (read/write, float). The confidence level from 0 to 1.
+- `score` (read/write, float).
+  The confidence level from 0 to 1.
   In the original dataset this is always equal to 1,
   but custom datasets may be created with arbitrary values.
 - `occluded` (read/write, boolean).
@@ -115,17 +117,19 @@ Open Images dataset directory should have the following structure:
 To use per-subset image description files instead of `image_ids_and_rotation.csv`,
 place them in the `annotations` subdirectory.
 
-### Speeding up bounding box loading
+### Creating an image metadata file
 
 To load bounding box annotations,
 Datumaro needs to know the sizes of the corresponding images.
 By default, it will determine these sizes by loading each image from disk,
-which will make the loading process slow.
+which requires the images to be present and makes the loading process slow.
 
-You can speed up this process
-by extracting the image size information in advance
-and recording it in an `images.meta` file.
-This file must be located in the `annotations` directory,
+If you want to load the bounding box annotations on a machine where
+the images are not available,
+or just to speed up the dataset loading process,
+you can extract the image size information in advance
+and record it in an image metadata file.
+This file must be placed at `annotations/images.meta`,
 and must contain one line per image, with the following structure:
 
 ```
@@ -136,7 +140,11 @@ Where `<ID>` is the file name of the image without the extension,
 and `<height>` and `<width>` are the dimensions of that image.
 `<ID>` may be quoted with either single or double quotes.
 
-Here's one way to create the `images.meta` file using ImageMagick:
+The image metadata file, if present, will be used to determine the image
+sizes without loading the images themselves.
+
+Here's one way to create the `images.meta` file using ImageMagick,
+assuming that the images are present on the current machine:
 
 ```bash
 # run this from the dataset directory
