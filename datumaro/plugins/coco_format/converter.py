@@ -505,12 +505,14 @@ class _PanopticConverter(_TaskConverter):
             segments_info.append(segment_info)
             masks.append(ann)
 
-        if masks:
-            pan_format = mask_tools.merge_masks(
-                ((m.image, m.id) for m in masks),
-                start=np.zeros(item.image.size, dtype=np.uint32))
-            save_image(osp.join(self._context._segmentation_dir, ann_filename),
-                mask_tools.index2bgr(pan_format), create_dir=True)
+        if not masks:
+            return
+
+        pan_format = mask_tools.merge_masks(
+            ((m.image, m.id) for m in masks),
+            start=np.zeros(item.image.size, dtype=np.uint32))
+        save_image(osp.join(self._context._segmentation_dir, ann_filename),
+            mask_tools.index2bgr(pan_format), create_dir=True)
 
         elem = {
             'image_id': self._get_image_id(item),
@@ -586,6 +588,8 @@ class CocoConverter(Converter):
                     tasks[i] = CocoTask[t]
                 else:
                     assert t in CocoTask, t
+        else:
+            tasks = set()
         self._tasks = tasks
 
         assert segmentation_mode is None or \
@@ -603,6 +607,8 @@ class CocoConverter(Converter):
         self._merge_images = merge_images
 
         self._image_ids = {}
+
+        self._patch = None
 
     def _make_dirs(self):
         self._images_dir = osp.join(self._save_dir, CocoPath.IMAGES_DIR)
@@ -659,17 +665,24 @@ class CocoConverter(Converter):
                     task_conv.save_annotations(item)
 
             for task, task_conv in task_converters.items():
-                if task_conv.is_empty() and not self._tasks:
+                ann_file = osp.join(self._ann_dir,
+                    '%s_%s.json' % (task.name, subset_name))
+
+                if task_conv.is_empty() and (not self._tasks or self._patch):
+                    if task == CocoTask.panoptic:
+                        os.rmdir(self._segmentation_dir)
+                    if self._patch:
+                        if osp.isfile(ann_file):
+                            os.remove(ann_file)
                     continue
-                task_conv.write(osp.join(self._ann_dir,
-                    '%s_%s.json' % (task.name, subset_name)))
+                task_conv.write(ann_file)
 
     @classmethod
     def patch(cls, dataset, patch, save_dir, **kwargs):
-        for subset in patch.updated_subsets:
-            cls.convert(dataset.get_subset(subset), save_dir=save_dir, **kwargs)
+        conv = cls(patch.as_dataset(dataset), save_dir=save_dir, **kwargs)
+        conv._patch = patch
+        conv.apply()
 
-        conv = cls(dataset, save_dir=save_dir, **kwargs)
         images_dir = osp.join(save_dir, CocoPath.IMAGES_DIR)
         for (item_id, subset), status in patch.updated_items.items():
             if status != ItemStatus.removed:
