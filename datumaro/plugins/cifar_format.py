@@ -5,9 +5,10 @@
 from collections import OrderedDict
 import os
 import os.path as osp
-import pickle  # nosec - disable B403:import_pickle check, TODO: issue #327
+import pickle  # nosec - disable B403:import_pickle check - fixed
 
 import numpy as np
+import numpy.core.multiarray
 
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
@@ -17,6 +18,26 @@ from datumaro.components.extractor import (
 )
 from datumaro.util import cast
 
+
+class RestrictedUnpickler(pickle.Unpickler):
+    def find_class(self, module, name):
+        if module == "numpy.core.multiarray" and \
+                name in PickleLoader.safe_numpy:
+            return getattr(numpy.core.multiarray, name)
+        elif module == 'numpy' and name in PickleLoader.safe_numpy:
+            return getattr(numpy, name)
+        raise pickle.UnpicklingError("Global '%s.%s' is forbidden"
+            % (module, name))
+
+class PickleLoader():
+    safe_numpy = {
+        'dtype',
+        'ndarray',
+        '_reconstruct',
+    }
+
+    def restricted_load(s):
+        return RestrictedUnpickler(s, encoding='latin1').load()
 
 class CifarPath:
     META_10_FILE = 'batches.meta'
@@ -59,7 +80,7 @@ class CifarExtractor(SourceExtractor):
             # fine_label_names: ['apple', 'aquarium_fish', 'baby', ...]
             # coarse_label_names: ['aquatic_mammals', 'fish', 'flowers', ...]
             with open(meta_file, 'rb') as labels_file:
-                data = pickle.load(labels_file) # nosec - disable B301:pickle check
+                data = PickleLoader.restricted_load(labels_file)
             labels = data.get('label_names')
             if labels != None:
                 for label in labels:
@@ -88,7 +109,7 @@ class CifarExtractor(SourceExtractor):
         #            'coarse_labels': list
 
         with open(path, 'rb') as anno_file:
-            annotation_dict = pickle.load(anno_file, encoding='latin1') # nosec - disable B301:pickle check
+            annotation_dict = PickleLoader.restricted_load(anno_file)
 
         labels = annotation_dict.get('labels', [])
         coarse_labels = annotation_dict.get('coarse_labels', [])
