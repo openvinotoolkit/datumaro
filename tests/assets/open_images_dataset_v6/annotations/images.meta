@@ -1,0 +1,3 @@
+b 2 8
+# c also has boxes, but we don't mention it here in order to test
+# that Datumaro correctly falls back to reading the image file

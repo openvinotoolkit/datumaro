@@ -419,3 +419,15 @@ def load_image_meta_file(image_meta_path: str) -> ImageMeta:
             image_meta[image_name] = (int(h), int(w))
 
     return image_meta
+
+def save_image_meta_file(image_meta: ImageMeta, image_meta_path: str) -> None:
+    """
+    Saves image_meta to the path specified by image_meta_path in the format
+    defined in load_image_meta_file's documentation.
+    """
+
+    assert isinstance(image_meta_path, str)
+
+    with open(image_meta_path, 'w', encoding='utf-8') as f:
+        for image_name, (height, width) in image_meta.items():
+            print(shlex.quote(image_name), height, width, file=f)
