@@ -46,7 +46,7 @@ class DatasetItemStorage:
         # Subsets might contain removed items, so this may differ from __len__
         return all(len(s) == 0 for s in self.data.values())
 
-    def put(self, item) -> bool:
+    def put(self, item: DatasetItem) -> bool:
         subset = self.data.setdefault(item.subset, {})
         is_new = subset.get(item.id) is None
         self._traversal_order[(item.id, item.subset)] = item
@@ -172,6 +172,16 @@ class ItemStatus(Enum):
     removed = auto()
 
 class DatasetPatch:
+    class DatasetPatchWrapper(DatasetItemStorageDatasetView):
+        # The purpose of this class is to indicate that the input dataset is
+        # a patch and autofill patch info in Converter
+        def __init__(self, patch: 'DatasetPatch', parent: IDataset):
+            super().__init__(patch.data, parent.categories())
+            self.patch = patch
+
+        def subsets(self):
+            return { s: self.get_subset(s) for s in self.patch.updated_subsets }
+
     def __init__(self, data: DatasetItemStorage,
             categories: CategoriesInfo,
             updated_items: Dict[Tuple[str, str], ItemStatus],
@@ -184,14 +194,12 @@ class DatasetPatch:
     @property
     def updated_subsets(self) -> Dict[str, ItemStatus]:
         if self._updated_subsets is None:
-            self._updated_subsets = {}
-            for _, subset in self.updated_items:
-                self._updated_subsets.setdefault(subset, ItemStatus.modified)
+            self._updated_subsets = {s: ItemStatus.modified
+                for s in self.data.subsets()}
         return self._updated_subsets
 
     def as_dataset(self, parent: IDataset) -> IDataset:
-        return DatasetItemStorageDatasetView(self.data, parent.categories())
-
+        return __class__.DatasetPatchWrapper(self, parent)
 
 class DatasetSubset(IDataset): # non-owning view
     def __init__(self, parent: 'Dataset', name: str):
@@ -544,12 +552,17 @@ class DatasetStorage(IDataset):
         if self._transforms:
             self.init_cache()
 
-        # The current patch (storage) can miss some removals done
-        # so we add them manually
-        patch = copy(self._storage)
+        # The current patch (storage)
+        # - can miss some removals done so we add them manually
+        # - can include items than not in the patch
+        #     (e.g. an item could get there after source was cached)
+        # So we reconstruct the patch instead of copying storege.
+        patch = DatasetItemStorage()
         for (item_id, subset), status in self._updated_items.items():
             if status is ItemStatus.removed:
                 patch.remove(item_id, subset)
+            else:
+                patch.put(self._storage.get(item_id, subset))
 
         return DatasetPatch(patch, self._categories,
             self._updated_items)
@@ -726,8 +739,7 @@ class Dataset(IDataset):
     def is_modified(self) -> bool:
         return self._data.has_updated_items()
 
-    @property
-    def patch(self) -> DatasetPatch:
+    def get_patch(self) -> DatasetPatch:
         return self._data.get_patch()
 
     @property
@@ -776,7 +788,7 @@ class Dataset(IDataset):
                 self.bind(save_dir, format)
                 self.flush_changes()
         else:
-            converter.patch(self, self.patch, save_dir=save_dir, **kwargs)
+            converter.patch(self, self.get_patch(), save_dir=save_dir, **kwargs)
 
     def save(self, save_dir: str = None, **kwargs):
         self.export(save_dir or self._source_path,

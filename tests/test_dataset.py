@@ -301,31 +301,6 @@ class DatasetTest(TestCase):
         compare_datasets(self, expected, actual)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_inplace_save_writes_only_updated_data(self):
-        with TestDir() as path:
-            # generate initial dataset
-            dataset = Dataset.from_iterable([
-                DatasetItem(1, subset='a'),
-                DatasetItem(2, subset='b'),
-                DatasetItem(3, subset='c'),
-            ])
-            dataset.save(path)
-            os.unlink(osp.join(
-                path, 'annotations', 'a.json')) # should be rewritten
-            os.unlink(osp.join(
-                path, 'annotations', 'b.json')) # should not be rewritten
-            os.unlink(osp.join(
-                path, 'annotations', 'c.json')) # should not be rewritten
-
-            dataset.put(DatasetItem(2, subset='a'))
-            dataset.remove(3, 'c')
-            dataset.save()
-
-            self.assertTrue(osp.isfile(osp.join(path, 'annotations', 'a.json')))
-            self.assertFalse(osp.isfile(osp.join(path, 'annotations', 'b.json')))
-            self.assertTrue(osp.isfile(osp.join(path, 'annotations', 'c.json')))
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_track_modifications_on_addition(self):
         dataset = Dataset.from_iterable([
             DatasetItem(1),
@@ -366,7 +341,7 @@ class DatasetTest(TestCase):
         dataset.put(DatasetItem(3, subset='a'))
         dataset.remove(1)
 
-        patch = dataset.patch
+        patch = dataset.get_patch()
 
         self.assertEqual({
             ('1', DEFAULT_SUBSET_NAME): ItemStatus.removed,
@@ -402,7 +377,7 @@ class DatasetTest(TestCase):
         dataset.put(DatasetItem(3, subset='a'))
         dataset.remove(1)
 
-        patch = dataset.patch
+        patch = dataset.get_patch()
 
         self.assertEqual({
             ('1', DEFAULT_SUBSET_NAME): ItemStatus.removed,
@@ -454,7 +429,7 @@ class DatasetTest(TestCase):
         dataset.transform(Remove1)
         dataset.transform(Add3)
 
-        patch = dataset.patch
+        patch = dataset.get_patch()
 
         self.assertEqual({
             ('1', DEFAULT_SUBSET_NAME): ItemStatus.removed,
@@ -512,7 +487,7 @@ class DatasetTest(TestCase):
         dataset.transform(Remove1)
         dataset.transform(Add3)
 
-        patch = dataset.patch
+        patch = dataset.get_patch()
 
         self.assertEqual({
             ('1', DEFAULT_SUBSET_NAME): ItemStatus.removed,
@@ -579,7 +554,7 @@ class DatasetTest(TestCase):
         dataset.remove(2)
         dataset.transform(Add3)
 
-        patch = dataset.patch
+        patch = dataset.get_patch()
 
         self.assertEqual({
             ('1', DEFAULT_SUBSET_NAME): ItemStatus.removed,
@@ -636,7 +611,7 @@ class DatasetTest(TestCase):
         dataset.transform(ShiftIds)
         dataset.put(DatasetItem(5))
 
-        patch = dataset.patch
+        patch = dataset.get_patch()
 
         self.assertEqual({
             ('1', DEFAULT_SUBSET_NAME): ItemStatus.removed,
@@ -700,7 +675,7 @@ class DatasetTest(TestCase):
         dataset.transform(Remove1)
         dataset.transform(Add3)
 
-        patch = dataset.patch
+        patch = dataset.get_patch()
 
         self.assertEqual({
             ('1', DEFAULT_SUBSET_NAME): ItemStatus.removed,
@@ -1177,7 +1152,7 @@ class DatasetTest(TestCase):
         self.assertEqual({
             ('0', 'train'): ItemStatus.removed,
             ('1', 'test'): ItemStatus.modified, # TODO: remove this line
-        }, dataset.patch.updated_items)
+        }, dataset.get_patch().updated_items)
 
     @mark_requirement(Requirements.DATUM_BUG_259)
     def test_can_filter_annotations(self):
