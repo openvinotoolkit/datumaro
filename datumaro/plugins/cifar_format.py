@@ -5,7 +5,7 @@
 from collections import OrderedDict
 import os
 import os.path as osp
-import pickle  # nosec - disable B403:import_pickle check, TODO: issue #327
+import pickle  # nosec - disable B403:import_pickle check - fixed
 
 import numpy as np
 import numpy.core.multiarray
