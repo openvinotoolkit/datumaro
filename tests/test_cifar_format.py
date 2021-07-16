@@ -1,7 +1,7 @@
 from unittest import TestCase
 import os
 import os.path as osp
-import pickle
+import pickle  # nosec - disable B403:import_pickle check, TODO: issue #327
 
 import numpy as np
 

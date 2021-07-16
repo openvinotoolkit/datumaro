@@ -5,7 +5,7 @@
 from collections import OrderedDict
 import os
 import os.path as osp
-import pickle
+import pickle  # nosec - disable B403:import_pickle check, TODO: issue #327
 
 import numpy as np
 import numpy.core.multiarray
@@ -17,6 +17,7 @@ from datumaro.components.extractor import (
     SourceExtractor,
 )
 from datumaro.util import cast
+
 
 class RestrictedUnpickler(pickle.Unpickler):
     def find_class(self, module, name):
