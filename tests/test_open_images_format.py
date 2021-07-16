@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 from unittest.case import TestCase
+import os
 import os.path as osp
 
 import numpy as np
@@ -109,6 +110,42 @@ class OpenImagesFormatTest(TestCase):
             parsed_dataset = Dataset.import_from(test_dir, 'open_images')
 
             compare_datasets(self, dataset, parsed_dataset, require_images=True)
+
+    @mark_requirement(Requirements.DATUM_274)
+    def test_inplace_save_writes_only_updated_data(self):
+        dataset = Dataset.from_iterable([
+            DatasetItem('a', subset='s', image=np.ones((2, 1, 3)),
+                annotations=[
+                    Label(0, attributes={'score': 1}),
+                    Bbox(0, 0, 1, 2, label=0),
+                ]),
+            DatasetItem('b', subset='t', image=np.ones((3, 2, 3)),
+                annotations=[Label(1, attributes={'score': 1})]),
+        ], categories=['/m/0', '/m/1', '/m/2'])
+
+        with TestDir() as path:
+            dataset.export(path, 'open_images', save_images=True)
+
+            dataset.put(DatasetItem('c', subset='u', image=np.ones((3, 2, 3)),
+                annotations=[Label(1, attributes={'score': 1})]))
+            dataset.remove('b', subset='t')
+            del dataset.get('a', subset='s').annotations[1]
+            dataset.save(save_images=True)
+
+            self.assertEqual(
+                {
+                    'bbox_labels_600_hierarchy.json',
+                    'class-descriptions.csv',
+                    's-annotations-human-imagelabels.csv',
+                    's-images-with-rotation.csv',
+                    'u-annotations-human-imagelabels.csv',
+                    'u-images-with-rotation.csv',
+                },
+                set(os.listdir(osp.join(path, 'annotations'))),
+            )
+            dataset_reloaded = Dataset.import_from(path, 'open_images')
+            compare_datasets(self, dataset, dataset_reloaded, require_images=True)
+
 
 ASSETS_DIR = osp.join(osp.dirname(__file__), 'assets')
 

@@ -382,10 +382,19 @@ class _LazyCsvDictWriter:
 
 
 class _AnnotationWriter:
+    _POSSIBLE_ANNOTATION_FILE_PATTERNS = (
+        # class description files don't need to be listed,
+        # because they are always written
+        OpenImagesPath.FULL_IMAGE_DESCRIPTION_FILE_NAME,
+        *OpenImagesPath.SUBSET_IMAGE_DESCRIPTION_FILE_PATTERNS,
+        '*' + OpenImagesPath.LABEL_DESCRIPTION_FILE_SUFFIX,
+        '*' + OpenImagesPath.BBOX_DESCRIPTION_FILE_SUFFIX,
+        DEFAULT_IMAGE_META_FILE_NAME,
+    )
+
     def __init__(self, root_dir):
         self._annotations_dir = osp.join(root_dir, OpenImagesPath.ANNOTATIONS_DIR)
         self._written_annotations = set()
-        self._potential_annotation_patterns = set()
 
         os.makedirs(self._annotations_dir, exist_ok=True)
 
@@ -408,22 +417,26 @@ class _AnnotationWriter:
         return _LazyCsvDictWriter(
             lambda: self.open_csv(file_name, field_names))
 
-    def add_potential_annotation_pattern(self, pattern):
-        self._potential_annotation_patterns.add(pattern)
-
     def remove_unwritten(self):
         for file_name in os.listdir(self._annotations_dir):
             if file_name not in self._written_annotations and any(
                 fnmatch.fnmatch(file_name, pattern)
-                for pattern in self._potential_annotation_patterns
+                for pattern in self._POSSIBLE_ANNOTATION_FILE_PATTERNS
             ):
-                os.unlink(file_name)
+                os.unlink(osp.join(self._annotations_dir, file_name))
 
 class OpenImagesConverter(Converter):
     DEFAULT_IMAGE_EXT = '.jpg'
 
     def apply(self):
         self._save(_AnnotationWriter(self._save_dir))
+
+    @classmethod
+    def patch(cls, dataset, patch, save_dir, **options):
+        converter = cls(dataset, save_dir, **options)
+        annotation_writer = _AnnotationWriter(save_dir)
+        converter._save(annotation_writer)
+        annotation_writer.remove_unwritten()
 
     def _save(self, annotation_writer):
         self._save_categories(annotation_writer)
