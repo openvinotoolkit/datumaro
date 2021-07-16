@@ -22,7 +22,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - TBD
 
 ### Fixed
-- Patching of datasets in Datumaro, CVAT, COCO and CIFAR formats (<https://github.com/openvinotoolkit/datumaro/pull/365>, <https://github.com/openvinotoolkit/datumaro/pull/347>, <https://github.com/openvinotoolkit/datumaro/pull/346>)
+- Patching of datasets in Datumaro, CVAT, COCO, CIFAR and Open Images formats
+  (<https://github.com/openvinotoolkit/datumaro/pull/365>,
+  <https://github.com/openvinotoolkit/datumaro/pull/347>,
+  <https://github.com/openvinotoolkit/datumaro/pull/346>,
+  <https://github.com/openvinotoolkit/datumaro/pull/363>)
+  <https://github.com/openvinotoolkit/datumaro/pull/346>,
+  <https://github.com/openvinotoolkit/datumaro/pull/363>)
 - Unsafe unpickling in CIFAR import (<https://github.com/openvinotoolkit/datumaro/pull/362>)
 
 ### Security
