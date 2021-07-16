@@ -1,0 +1,2 @@
+ImageID,Source,LabelName,Confidence,XMin,XMax,YMin,YMax,IsOccluded,IsTruncated,IsGroupOf,IsDepiction,IsInside
+b,xclick,/m/0,1,0.2,1,0.3,0.5,-1,-1,-1,-1,-1
