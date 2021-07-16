@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: MIT
 
 from collections import OrderedDict
-import io
 import os
 import os.path as osp
 import pickle
