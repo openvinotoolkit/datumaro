@@ -590,7 +590,8 @@ class DatasetItem:
     # TODO: introduce "media" field with type info. Replace image and pcd.
     image = attrib(type=Image, default=None)
     # TODO: introduce pcd type like Image
-    point_cloud = attrib(type=str, default=None)
+    point_cloud = attrib(converter=lambda x: str(x).replace('\\', '/'),
+        type=str, default=None)
     related_images = attrib(type=List[Image], default=None)
 
     def __attrs_post_init__(self):
