@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Patching of datasets in COCO and CIFAR formats (<https://github.com/openvinotoolkit/datumaro/pull/347>, <https://github.com/openvinotoolkit/datumaro/pull/346>)
+- Unsafe unpickling in CIFAR import (<https://github.com/openvinotoolkit/datumaro/pull/362>)
 
 ### Security
 - TBD
