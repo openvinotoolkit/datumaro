@@ -90,21 +90,24 @@ class DatumaroExtractor(SourceExtractor):
             if image_info:
                 image_path = image_info.get('path') or \
                     item_id + DatumaroPath.IMAGE_EXT
-                image_path = osp.join(self._images_dir, image_path)
+                # TODO: add backward compatibility
+                image_path = osp.join(self._images_dir, self._subset,
+                    image_path)
                 image = Image(path=image_path, size=image_info.get('size'))
 
             point_cloud = None
             pcd_info = item_desc.get('point_cloud')
             if pcd_info:
                 pcd_path = pcd_info.get('path')
-                point_cloud = osp.join(self._pcd_dir, pcd_path)
+                point_cloud = osp.join(self._pcd_dir, self._subset, pcd_path)
 
             related_images = None
             ri_info = item_desc.get('related_images')
             if ri_info:
                 related_images = [
                     Image(size=ri.get('size'),
-                        path=osp.join(self._related_images_dir, ri.get('path'))
+                        path=osp.join(self._related_images_dir, self._subset,
+                            item_id, ri.get('path'))
                     )
                     for ri in ri_info
                 ]
