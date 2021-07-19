@@ -8,7 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[Unreleased]
 ### Added
-- TBD
+- The Open Images format now supports bounding box annotations
+  (<https://github.com/openvinotoolkit/datumaro/pull/352>).
 
 ### Changed
 - TBD
@@ -21,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Patching of datasets in Datumaro, CVAT, COCO and CIFAR formats (<https://github.com/openvinotoolkit/datumaro/pull/365>, <https://github.com/openvinotoolkit/datumaro/pull/347>, <https://github.com/openvinotoolkit/datumaro/pull/346>)
+- Unsafe unpickling in CIFAR import (<https://github.com/openvinotoolkit/datumaro/pull/362>)
 
 ### Security
 - TBD

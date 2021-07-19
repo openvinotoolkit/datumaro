@@ -1,6 +1,7 @@
 from unittest import TestCase
 import os
 import os.path as osp
+import pickle  # nosec - disable B403:import_pickle check
 
 import numpy as np
 
@@ -202,6 +203,15 @@ class CifarFormatTest(TestCase):
 
             compare_datasets(self, source_dataset, parsed_dataset,
                 require_images=True)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_catch_pickle_exception(self):
+        with TestDir() as test_dir:
+            anno_file = osp.join(test_dir, 'test')
+            with open(anno_file, 'wb') as file:
+                pickle.dump(enumerate([1, 2, 3]), file)
+            with self.assertRaisesRegex(pickle.UnpicklingError, "Global"):
+                Dataset.import_from(test_dir, 'cifar')
 
 
 DUMMY_10_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets',

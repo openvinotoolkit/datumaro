@@ -5,7 +5,7 @@ import numpy as np
 
 from datumaro.util.image import (
     ByteImage, Image, encode_image, lazy_image, load_image,
-    load_image_meta_file, save_image,
+    load_image_meta_file, save_image, save_image_meta_file,
 )
 from datumaro.util.image_cache import ImageCache
 from datumaro.util.test_utils import TestDir
@@ -156,3 +156,18 @@ class ImageMetaTest(TestCase):
             meta_loaded = load_image_meta_file(meta_path)
 
         self.assertEqual(meta_loaded, meta_expected)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_saving(self):
+        meta_original = {
+            'a': (123, 456),
+            'b c': (10, 20),
+        }
+
+        with TestDir() as test_dir:
+            meta_path = osp.join(test_dir, 'images.meta')
+
+            save_image_meta_file(meta_original, meta_path)
+            meta_reloaded = load_image_meta_file(meta_path)
+
+        self.assertEqual(meta_reloaded, meta_original)
