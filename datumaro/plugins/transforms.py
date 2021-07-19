@@ -9,7 +9,6 @@ import logging as log
 import os.path as osp
 import random
 import re
-from attr import attributes
 
 import pycocotools.mask as mask_utils
 
