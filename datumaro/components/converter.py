@@ -9,6 +9,7 @@ import os.path as osp
 import shutil
 
 from datumaro.components.cli_plugin import CliPlugin
+from datumaro.components.dataset import DatasetPatch
 from datumaro.components.extractor import DatasetItem
 from datumaro.util.image import Image
 
@@ -50,6 +51,13 @@ class Converter(CliPlugin):
 
         self._extractor = extractor
         self._save_dir = save_dir
+
+        # TODO: refactor this variable.
+        # Can be used by a subclass to store the current patch info
+        if isinstance(extractor, DatasetPatch.DatasetPatchWrapper):
+            self._patch = extractor.patch
+        else:
+            self._patch = None
 
     def _find_image_ext(self, item: Union[DatasetItem, Image]):
         src_ext = None

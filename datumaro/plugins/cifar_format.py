@@ -258,21 +258,23 @@ class CifarConverter(Converter):
                 annotation_dict['batch_label'] = batch_label
 
             annotation_file = osp.join(self._save_dir, subset_name)
-            if hasattr(self, '_patch') and \
-                    subset_name in self._patch.updated_subsets and \
-                    not annotation_dict['filenames'] and \
-                    osp.isfile(annotation_file):
-                # Remove subsets that became empty
-                os.remove(annotation_file)
-            else:
-                with open(annotation_file, 'wb') as labels_file:
-                    pickle.dump(annotation_dict, labels_file)
+
+            if self._patch and subset_name in self._patch.updated_subsets and \
+                    not annotation_dict['filenames']:
+                if osp.isfile(annotation_file):
+                    # Remove subsets that became empty
+                    os.remove(annotation_file)
+                continue
+
+            with open(annotation_file, 'wb') as labels_file:
+                pickle.dump(annotation_dict, labels_file)
 
     @classmethod
     def patch(cls, dataset, patch, save_dir, **kwargs):
-        conv = cls(patch.as_dataset(dataset), save_dir=save_dir, **kwargs)
-        conv._patch = patch
-        conv.apply()
+        for subset in patch.updated_subsets:
+            conv = cls(dataset.get_subset(subset), save_dir=save_dir, **kwargs)
+            conv._patch = patch
+            conv.apply()
 
         for subset, status in patch.updated_subsets.items():
             if status != ItemStatus.removed:

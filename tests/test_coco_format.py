@@ -992,8 +992,14 @@ class CocoConverterTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_inplace_save_writes_only_updated_data(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(1, subset='a'),
+            DatasetItem(2, subset='a', image=np.ones((3, 2, 3))),
+
+            DatasetItem(2, subset='b'),
+        ])
+
         with TestDir() as path:
-            # generate initial dataset
             dataset = Dataset.from_iterable([
                 DatasetItem(1, subset='a'),
                 DatasetItem(2, subset='b'),
@@ -1009,3 +1015,5 @@ class CocoConverterTest(TestCase):
                 set(os.listdir(osp.join(path, 'annotations'))))
             self.assertTrue(osp.isfile(osp.join(path, 'images', 'a', '2.jpg')))
             self.assertFalse(osp.isfile(osp.join(path, 'images', 'c', '3.jpg')))
+            compare_datasets(self, expected, Dataset.import_from(path, 'coco'),
+                require_images=True, ignored_attrs={'id'})

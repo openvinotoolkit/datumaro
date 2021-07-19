@@ -127,13 +127,20 @@ class CifarFormatTest(TestCase):
         expected = Dataset.from_iterable([
             DatasetItem(1, subset='a', image=np.ones((2, 1, 3)),
                 annotations=[ Label(0) ]),
-            DatasetItem(2, subset='b', image=np.ones((3, 2, 3)),
+            DatasetItem(2, subset='a', image=np.ones((3, 2, 3)),
+                annotations=[ Label(1) ]),
+
+            DatasetItem(2, subset='b', image=np.ones((2, 2, 3)),
                 annotations=[ Label(1) ]),
         ], categories=['a', 'b', 'c', 'd'])
 
         dataset = Dataset.from_iterable([
             DatasetItem(1, subset='a', image=np.ones((2, 1, 3)),
                 annotations=[ Label(0) ]),
+
+            DatasetItem(2, subset='b', image=np.ones((2, 2, 3)),
+                annotations=[ Label(1) ]),
+
             DatasetItem(3, subset='c', image=np.ones((2, 3, 3)),
                 annotations=[ Label(2) ]),
         ], categories=['a', 'b', 'c', 'd'])
@@ -141,7 +148,7 @@ class CifarFormatTest(TestCase):
         with TestDir() as path:
             dataset.export(path, 'cifar', save_images=True)
 
-            dataset.put(DatasetItem(2, subset='b', image=np.ones((3, 2, 3)),
+            dataset.put(DatasetItem(2, subset='a', image=np.ones((3, 2, 3)),
                 annotations=[ Label(1) ]))
             dataset.remove(3, 'c')
             dataset.save(save_images=True)

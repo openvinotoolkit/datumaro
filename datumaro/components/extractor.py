@@ -582,15 +582,18 @@ class DatasetItem:
     id = attrib(converter=lambda x: str(x).replace('\\', '/'),
         type=str, validator=not_empty)
     annotations = attrib(factory=list, validator=default_if_none(list))
-    subset = attrib(converter=lambda v: v or DEFAULT_SUBSET_NAME, default=None)
+    subset = attrib(converter=lambda v: v or DEFAULT_SUBSET_NAME,
+        type=str, default=None)
 
     # Currently unused
     path = attrib(factory=list, validator=default_if_none(list))
 
     # TODO: introduce "media" field with type info. Replace image and pcd.
-    image = attrib(type=Image, default=None)
+    image = attrib(type=Optional[Image], default=None)
     # TODO: introduce pcd type like Image
-    point_cloud = attrib(type=str, default=None)
+    point_cloud = attrib(converter=lambda x: \
+            str(x).replace('\\', '/') if x else None,
+        type=Optional[str], default=None)
     related_images = attrib(type=List[Image], default=None)
 
     def __attrs_post_init__(self):

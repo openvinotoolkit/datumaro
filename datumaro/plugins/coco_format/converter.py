@@ -1,4 +1,3 @@
-
 # Copyright (C) 2020-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
@@ -673,16 +672,20 @@ class CocoConverter(Converter):
                         os.rmdir(self._segmentation_dir)
                     if self._patch:
                         if osp.isfile(ann_file):
+                            # Remove subsets that became empty
                             os.remove(ann_file)
                     continue
+
                 task_conv.write(ann_file)
 
     @classmethod
     def patch(cls, dataset, patch, save_dir, **kwargs):
-        conv = cls(patch.as_dataset(dataset), save_dir=save_dir, **kwargs)
-        conv._patch = patch
-        conv.apply()
+        for subset in patch.updated_subsets:
+            conv = cls(dataset.get_subset(subset), save_dir=save_dir, **kwargs)
+            conv._patch = patch
+            conv.apply()
 
+        conv = cls(dataset, save_dir=save_dir, **kwargs)
         images_dir = osp.join(save_dir, CocoPath.IMAGES_DIR)
         for (item_id, subset), status in patch.updated_items.items():
             if status != ItemStatus.removed:
@@ -692,6 +695,8 @@ class CocoConverter(Converter):
 
             if not (status == ItemStatus.removed or not item.has_image):
                 continue
+
+            # Converter supports saving in separate dirs and common image dir
 
             image_path = osp.join(images_dir, conv._make_image_filename(item))
             if osp.isfile(image_path):

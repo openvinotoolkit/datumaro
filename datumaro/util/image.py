@@ -254,7 +254,7 @@ class Image:
         if path is None:
             path = ''
         elif path:
-            path = osp.abspath(path)
+            path = osp.abspath(path).replace('\\', '/')
         self._path = path
 
         assert data is not None or path or loader, "Image can not be empty"
