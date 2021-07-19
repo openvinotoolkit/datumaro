@@ -4,7 +4,6 @@ from unittest import TestCase
 import os
 import os.path as osp
 
-from numpy.core.records import array
 import numpy as np
 
 from datumaro.components.dataset import Dataset
