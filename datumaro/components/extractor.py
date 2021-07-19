@@ -131,9 +131,19 @@ class Label(Annotation):
 @attrs(eq=False)
 class MaskCategories(Categories):
     @classmethod
-    def make_default(cls, size=256):
+    def generate(cls, size=256, include_background=True):
+        """
+        Generates a color map with the specified size.
+
+        If include_background is True, the result will include the item
+            "0: (0, 0, 0)", which is typically used as a background color.
+        """
         from datumaro.util.mask_tools import generate_colormap
-        return cls(generate_colormap(size))
+        colormap = generate_colormap(size)
+        if not include_background:
+            colormap.pop(0)
+            colormap = { k - 1: v for k, v in colormap.items() }
+        return cls(colormap)
 
     colormap = attrib(factory=dict, validator=default_if_none(dict))
     _inverse_colormap = attrib(default=None,
