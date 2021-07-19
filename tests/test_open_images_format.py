@@ -114,32 +114,40 @@ class OpenImagesFormatTest(TestCase):
     @mark_requirement(Requirements.DATUM_274)
     def test_inplace_save_writes_only_updated_data(self):
         dataset = Dataset.from_iterable([
-            DatasetItem('a', subset='s', image=np.ones((2, 1, 3)),
+            DatasetItem('a', subset='modified', image=np.ones((2, 1, 3)),
                 annotations=[
                     Label(0, attributes={'score': 1}),
                     Bbox(0, 0, 1, 2, label=0),
                 ]),
-            DatasetItem('b', subset='t', image=np.ones((3, 2, 3)),
-                annotations=[Label(1, attributes={'score': 1})]),
-        ], categories=['/m/0', '/m/1', '/m/2'])
+            DatasetItem('b', subset='modified', image=np.ones((2, 1, 3)),
+                annotations=[
+                    Label(1, attributes={'score': 1}),
+                ]),
+            DatasetItem('c', subset='removed', image=np.ones((3, 2, 3)),
+                annotations=[Label(2, attributes={'score': 1})]),
+            DatasetItem('d', subset='unmodified', image=np.ones((4, 3, 3)),
+                annotations=[Label(3, attributes={'score': 1})]),
+        ], categories=['/m/0', '/m/1', '/m/2', '/m/3'])
 
         with TestDir() as path:
             dataset.export(path, 'open_images', save_images=True)
 
-            dataset.put(DatasetItem('c', subset='u', image=np.ones((3, 2, 3)),
+            dataset.put(DatasetItem('e', subset='new', image=np.ones((5, 4, 3)),
                 annotations=[Label(1, attributes={'score': 1})]))
-            dataset.remove('b', subset='t')
-            del dataset.get('a', subset='s').annotations[1]
+            dataset.remove('c', subset='removed')
+            del dataset.get('a', subset='modified').annotations[1]
             dataset.save(save_images=True)
 
             self.assertEqual(
                 {
                     'bbox_labels_600_hierarchy.json',
                     'class-descriptions.csv',
-                    's-annotations-human-imagelabels.csv',
-                    's-images-with-rotation.csv',
-                    'u-annotations-human-imagelabels.csv',
-                    'u-images-with-rotation.csv',
+                    'modified-annotations-human-imagelabels.csv',
+                    'modified-images-with-rotation.csv',
+                    'new-annotations-human-imagelabels.csv',
+                    'new-images-with-rotation.csv',
+                    'unmodified-annotations-human-imagelabels.csv',
+                    'unmodified-images-with-rotation.csv',
                 },
                 set(os.listdir(osp.join(path, 'annotations'))),
             )
