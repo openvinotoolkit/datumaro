@@ -1,5 +1,4 @@
-
-# Copyright (C) 2019-2020 Intel Corporation
+# Copyright (C) 2019-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -151,6 +150,10 @@ class _SubsetWriter:
         self._name = name
         self._extractor = extractor
         self._context = context
+        self._item_count = 0
+
+    def is_empty(self):
+        return self._item_count == 0
 
     def write(self):
         self._writer.open_root()
@@ -191,6 +194,8 @@ class _SubsetWriter:
                 continue
 
         self._writer.close_image()
+
+        self._item_count += 1
 
     def _write_meta(self):
         label_cat = self._extractor.categories().get(
@@ -371,18 +376,30 @@ class CvatConverter(Converter):
         os.makedirs(self._images_dir, exist_ok=True)
 
         for subset_name, subset in self._extractor.subsets().items():
-            with open(osp.join(self._save_dir, '%s.xml' % subset_name),
-                    'w', encoding='utf-8') as f:
+            ann_path = osp.join(self._save_dir, '%s.xml' % subset_name)
+            with open(ann_path, 'w', encoding='utf-8') as f:
                 writer = _SubsetWriter(f, subset_name, subset, self)
                 writer.write()
+
+            if self._patch and subset_name in self._patch.updated_subsets and \
+                    writer.is_empty():
+                os.remove(ann_path)
 
     @classmethod
     def patch(cls, dataset, patch, save_dir, **kwargs):
         for subset in patch.updated_subsets:
-            cls.convert(dataset.get_subset(subset), save_dir=save_dir, **kwargs)
+            conv = cls(dataset.get_subset(subset), save_dir=save_dir, **kwargs)
+            conv._patch = patch
+            conv.apply()
 
         conv = cls(dataset, save_dir=save_dir, **kwargs)
-        images_dir = osp.join(save_dir, CvatPath.IMAGES_DIR)
+        # Find images that needs to be removed
+        # images from different subsets are stored in the common directory
+        # Avoid situations like:
+        # (a, test): added
+        # (a, train): removed
+        # where the second line removes images from the first.
+        ids_to_remove = {}
         for (item_id, subset), status in patch.updated_items.items():
             if status != ItemStatus.removed:
                 item = patch.data.get(item_id, subset)
@@ -390,8 +407,15 @@ class CvatConverter(Converter):
                 item = DatasetItem(item_id, subset=subset)
 
             if not (status == ItemStatus.removed or not item.has_image):
+                ids_to_remove[item_id] = (item, False)
+            else:
+                ids_to_remove.setdefault(item_id, (item, True))
+
+        for item, to_remove in ids_to_remove.values():
+            if not to_remove:
                 continue
 
-            image_path = osp.join(images_dir, conv._make_image_filename(item))
+            image_path = osp.join(save_dir, CvatPath.IMAGES_DIR,
+                conv._make_image_filename(item))
             if osp.isfile(image_path):
                 os.unlink(image_path)
