@@ -576,3 +576,20 @@ class AnnsToLabels(ItemTransform, CliPlugin):
             annotations.append(Label(label=label))
 
         return item.wrap(annotations=annotations)
+
+class BboxValuesDecrement(ItemTransform, CliPlugin):
+    """
+    Subtracts one from the coordinates of bounding boxes
+    """
+
+    def transform_item(self, item):
+        annotations = [p for p in item.annotations
+            if p.type != AnnotationType.bbox]
+        bboxes = [p for p in item.annotations
+            if p.type == AnnotationType.bbox]
+        for bbox in bboxes:
+            annotations.append(Bbox(
+                bbox.x - 1, bbox.y - 1, bbox.w, bbox.h,
+                label=bbox.label, attributes=bbox.attributes))
+
+        return item.wrap(annotations=annotations)

@@ -441,3 +441,25 @@ class TransformsTest(TestCase):
         actual = transforms.AnnsToLabels(src_dataset)
 
         compare_datasets(self, dst_dataset, actual)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_bboxes_values_decrement_transform(self):
+        src_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[
+                Label(1),
+                Bbox(2, 3, 3, 4, label=2),
+                Bbox(1.3, 3.5, 3.33, 3.12)
+            ])
+        ], categories=['label%s' % i for i in range(6)])
+
+        dst_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[
+                Label(1),
+                Bbox(1, 2, 3, 4, label=2),
+                Bbox(0.3, 2.5, 3.33, 3.12)
+            ]),
+        ], categories=['label%s' % i for i in range(6)])
+
+        actual = transforms.BboxValuesDecrement(src_dataset)
+
+        compare_datasets(self, dst_dataset, actual)
