@@ -3,13 +3,13 @@
 # SPDX-License-Identifier: MIT
 
 from enum import Enum, auto
+from typing import Collection, Union
 import inspect
 import os
 import os.path as osp
 import tempfile
-from typing import Collection, Union
-from typing_extensions import Literal
 
+from typing_extensions import Literal
 
 try:
     # Use rmtree from GitPython to avoid the problem with removal of
