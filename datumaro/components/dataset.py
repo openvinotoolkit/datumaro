@@ -556,7 +556,7 @@ class DatasetStorage(IDataset):
         # - can miss some removals done so we add them manually
         # - can include items than not in the patch
         #     (e.g. an item could get there after source was cached)
-        # So we reconstruct the patch instead of copying storege.
+        # So we reconstruct the patch instead of copying storage.
         patch = DatasetItemStorage()
         for (item_id, subset), status in self._updated_items.items():
             if status is ItemStatus.removed:
