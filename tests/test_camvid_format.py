@@ -1,13 +1,16 @@
 from collections import OrderedDict
 from functools import partial
 from unittest import TestCase
+import os
 import os.path as osp
 
+from numpy.core.records import array
 import numpy as np
 
 from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import (
     AnnotationType, DatasetItem, Extractor, LabelCategories, Mask,
+    MaskCategories,
 )
 from datumaro.plugins.camvid_format import CamvidConverter, CamvidImporter
 from datumaro.util.image import Image
@@ -210,8 +213,10 @@ class CamvidConverterTest(TestCase):
         class DstExtractor(TestExtractorBase):
             def __iter__(self):
                 yield DatasetItem(id=1, image=np.ones((1, 5, 3)), annotations=[
-                    Mask(image=np.array([[1, 1, 0, 1, 0]]), label=self._label('Label_1')),
-                    Mask(image=np.array([[0, 0, 1, 0, 0]]), label=self._label('label_2')),
+                    Mask(image=np.array([[1, 1, 0, 1, 0]]),
+                        label=self._label('Label_1')),
+                    Mask(image=np.array([[0, 0, 1, 0, 0]]),
+                        label=self._label('label_2')),
                 ])
 
             def categories(self):
@@ -245,8 +250,10 @@ class CamvidConverterTest(TestCase):
         class DstExtractor(TestExtractorBase):
             def __iter__(self):
                 yield DatasetItem(id=1, image=np.ones((1, 5, 3)), annotations=[
-                    Mask(image=np.array([[1, 1, 0, 1, 0]]), label=self._label('label_1')),
-                    Mask(image=np.array([[0, 0, 1, 0, 1]]), label=self._label('label_2')),
+                    Mask(image=np.array([[1, 1, 0, 1, 0]]),
+                        label=self._label('label_1')),
+                    Mask(image=np.array([[0, 0, 1, 0, 1]]),
+                        label=self._label('label_2')),
                 ])
 
             def categories(self):
@@ -315,3 +322,51 @@ class CamvidConverterTest(TestCase):
                 partial(CamvidConverter.convert, save_images=True),
                 test_dir, require_images=True,
                 target_dataset=DstExtractor())
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_inplace_save_writes_only_updated_data(self):
+        src_mask_cat = MaskCategories.generate(3, include_background=False)
+
+        expected = Dataset.from_iterable([
+            DatasetItem(1, subset='a', image=np.ones((2, 1, 3)),
+                annotations=[
+                    Mask(np.ones((2, 1)), label=2)
+                ]),
+            DatasetItem(2, subset='a', image=np.ones((3, 2, 3))),
+
+            DatasetItem(2, subset='b'),
+        ], categories=Camvid.make_camvid_categories(OrderedDict([
+            ('background', (0, 0, 0)),
+            ('a', src_mask_cat.colormap[0]),
+            ('b', src_mask_cat.colormap[1]),
+        ])))
+
+        with TestDir() as path:
+            dataset = Dataset.from_iterable([
+                DatasetItem(1, subset='a', image=np.ones((2, 1, 3)),
+                    annotations=[
+                        Mask(np.ones((2, 1)), label=1)
+                    ]),
+                DatasetItem(2, subset='b'),
+                DatasetItem(3, subset='c', image=np.ones((2, 2, 3)),
+                    annotations=[
+                        Mask(np.ones((2, 2)), label=0)
+                    ]),
+
+            ], categories={
+                AnnotationType.label: LabelCategories.from_iterable(['a', 'b']),
+                AnnotationType.mask: src_mask_cat
+            })
+            dataset.export(path, 'camvid', save_images=True)
+
+            dataset.put(DatasetItem(2, subset='a', image=np.ones((3, 2, 3))))
+            dataset.remove(3, 'c')
+            dataset.save(save_images=True)
+
+            self.assertEqual({'a', 'aannot',
+                    'a.txt', 'b.txt', 'label_colors.txt'},
+                set(os.listdir(path)))
+            self.assertEqual({'1.jpg', '2.jpg'},
+                set(os.listdir(osp.join(path, 'a'))))
+            compare_datasets(self, expected, Dataset.import_from(path, 'camvid'),
+                require_images=True)
