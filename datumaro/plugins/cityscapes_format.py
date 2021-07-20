@@ -1,11 +1,9 @@
-
 # Copyright (C) 2020-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 from collections import OrderedDict
 from enum import Enum, auto
-from glob import iglob
 import logging as log
 import os
 import os.path as osp
@@ -13,6 +11,7 @@ import os.path as osp
 import numpy as np
 
 from datumaro.components.converter import Converter
+from datumaro.components.dataset import ItemStatus
 from datumaro.components.extractor import (
     AnnotationType, CompiledMask, DatasetItem, Importer, LabelCategories, Mask,
     MaskCategories, SourceExtractor,
@@ -64,7 +63,7 @@ class CityscapesPath:
     GT_FINE_DIR = 'gtFine'
     IMGS_FINE_DIR = 'imgsFine'
     ORIGINAL_IMAGE_DIR = 'leftImg8bit'
-    ORIGINAL_IMAGE = '_%s.png' % ORIGINAL_IMAGE_DIR
+    ORIGINAL_IMAGE = '_' + ORIGINAL_IMAGE_DIR
     INSTANCES_IMAGE = '_instanceIds.png'
     COLOR_IMAGE = '_color.png'
     LABELIDS_IMAGE = '_labelIds.png'
@@ -357,3 +356,50 @@ class CityscapesConverter(Converter):
                 colormap = self._categories[AnnotationType.mask].colormap
             mask = paint_mask(mask, colormap)
         save_image(path, mask, create_dir=True, dtype=dtype)
+
+    @classmethod
+    def patch(cls, dataset, patch, save_dir, **kwargs):
+        for subset in patch.updated_subsets:
+            conv = cls(dataset.get_subset(subset), save_dir=save_dir, **kwargs)
+            conv._patch = patch
+            conv.apply()
+
+        conv = cls(dataset, save_dir=save_dir, **kwargs)
+        for (item_id, subset), status in patch.updated_items.items():
+            if status != ItemStatus.removed:
+                item = patch.data.get(item_id, subset)
+            else:
+                item = DatasetItem(item_id, subset=subset)
+
+            if not (status == ItemStatus.removed or \
+                    not item.has_image and not item.has_point_cloud):
+                continue
+
+            image_path = osp.join(save_dir, CityscapesPath.IMGS_FINE_DIR,
+                CityscapesPath.ORIGINAL_IMAGE_DIR, subset,
+                item.id + CityscapesPath.ORIGINAL_IMAGE + \
+                    conv._find_image_ext(item))
+
+            mask_dir = osp.join(save_dir, CityscapesPath.GT_FINE_DIR, subset)
+            mask_name = item.id + '_' + CityscapesPath.GT_FINE_DIR
+            color_mask_path = osp.join(mask_dir,
+                mask_name + CityscapesPath.COLOR_IMAGE)
+            labelids_mask_path = osp.join(mask_dir,
+                mask_name + CityscapesPath.LABELIDS_IMAGE)
+            inst_mask_path = osp.join(mask_dir,
+                mask_name + CityscapesPath.INSTANCES_IMAGE)
+
+            for path in [image_path, color_mask_path, labelids_mask_path,
+                    inst_mask_path]:
+                if osp.isfile(path):
+                    os.unlink(path)
+
+        for subset in patch.updated_subsets:
+            mask_dir = osp.join(save_dir, CityscapesPath.GT_FINE_DIR, subset)
+            if osp.isdir(mask_dir) and not os.listdir(mask_dir):
+                os.rmdir(mask_dir)
+
+            img_dir = osp.join(save_dir, CityscapesPath.IMGS_FINE_DIR,
+                CityscapesPath.ORIGINAL_IMAGE_DIR, subset)
+            if osp.isdir(img_dir) and not os.listdir(img_dir):
+                os.rmdir(img_dir)

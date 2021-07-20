@@ -1,6 +1,7 @@
 from collections import OrderedDict
 from functools import partial
 from unittest import TestCase
+import os
 import os.path as osp
 
 import numpy as np
@@ -8,13 +9,14 @@ import numpy as np
 from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import (
     AnnotationType, DatasetItem, Extractor, LabelCategories, Mask,
+    MaskCategories,
 )
 from datumaro.plugins.cityscapes_format import (
     CityscapesConverter, CityscapesImporter,
 )
 from datumaro.util.image import Image
 from datumaro.util.test_utils import (
-    TestDir, compare_datasets, test_save_and_load,
+    IGNORE_ALL, TestDir, compare_datasets, test_save_and_load,
 )
 import datumaro.plugins.cityscapes_format as Cityscapes
 
@@ -367,3 +369,70 @@ class CityscapesConverterTest(TestCase):
             self._test_save_and_load(TestExtractor(),
                 partial(CityscapesConverter.convert, save_images=True),
                 test_dir, require_images=True)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_inplace_save_writes_only_updated_data(self):
+        src_mask_cat = MaskCategories.generate(2, include_background=False)
+
+        expected = Dataset.from_iterable([
+            DatasetItem(1, subset='a', image=np.ones((2, 1, 3)),
+                annotations=[
+                    Mask(np.ones((2, 1)), label=2)
+                ]),
+            DatasetItem(2, subset='a', image=np.ones((3, 2, 3))),
+
+            DatasetItem(2, subset='b', image=np.ones((2, 2, 3)),
+                annotations=[
+                    Mask(np.ones((2, 2)), label=1)
+                ]),
+        ], categories=Cityscapes.make_cityscapes_categories(OrderedDict([
+            ('a', src_mask_cat.colormap[0]),
+            ('b', src_mask_cat.colormap[1]),
+        ])))
+
+        with TestDir() as path:
+            dataset = Dataset.from_iterable([
+                DatasetItem(1, subset='a', image=np.ones((2, 1, 3)),
+                    annotations=[
+                        Mask(np.ones((2, 1)), label=1)
+                    ]),
+                DatasetItem(2, subset='b', image=np.ones((2, 2, 3)),
+                    annotations=[
+                        Mask(np.ones((2, 2)), label=0)
+                    ]),
+                DatasetItem(3, subset='c', image=np.ones((2, 3, 3)),
+                    annotations=[
+                        Mask(np.ones((2, 2)), label=0)
+                    ]),
+
+            ], categories={
+                AnnotationType.label: LabelCategories.from_iterable(['a', 'b']),
+                AnnotationType.mask: src_mask_cat
+            })
+            dataset.export(path, 'cityscapes', save_images=True)
+
+            dataset.put(DatasetItem(2, subset='a', image=np.ones((3, 2, 3))))
+            dataset.remove(3, 'c')
+            dataset.save(save_images=True)
+
+            self.assertEqual({'a', 'b'},
+                set(os.listdir(osp.join(path, 'gtFine'))))
+            self.assertEqual({
+                    '1_gtFine_color.png', '1_gtFine_instanceIds.png',
+                    '1_gtFine_labelIds.png'
+                },
+                set(os.listdir(osp.join(path, 'gtFine', 'a'))))
+            self.assertEqual({
+                    '2_gtFine_color.png', '2_gtFine_instanceIds.png',
+                    '2_gtFine_labelIds.png'
+                },
+                set(os.listdir(osp.join(path, 'gtFine', 'b'))))
+            self.assertEqual({'a', 'b'},
+                set(os.listdir(osp.join(path, 'imgsFine', 'leftImg8bit'))))
+            self.assertEqual({'1_leftImg8bit.png', '2_leftImg8bit.png'},
+                set(os.listdir(osp.join(path, 'imgsFine', 'leftImg8bit', 'a'))))
+            self.assertEqual({'2_leftImg8bit.png'},
+                set(os.listdir(osp.join(path, 'imgsFine', 'leftImg8bit', 'b'))))
+            compare_datasets(self, expected,
+                Dataset.import_from(path, 'cityscapes'),
+                require_images=True, ignored_attrs=IGNORE_ALL)
