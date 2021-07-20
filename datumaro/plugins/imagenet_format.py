@@ -39,8 +39,6 @@ class ImagenetExtractor(SourceExtractor):
         for image_path in find_images(path, recursive=True, max_depth=1):
             label = osp.basename(osp.dirname(image_path))
             image_name = osp.splitext(osp.basename(image_path))[0]
-            if image_name.startswith(label + '_'):
-                image_name = image_name[len(label) + 1:]
 
             item = items.get(image_name)
             if item is None:
@@ -82,10 +80,9 @@ class ImagenetConverter(Converter):
             for label in labels:
                 label_name = extractor.categories()[AnnotationType.label][label].name
                 self._save_image(item, osp.join(subset_dir, label_name,
-                    '%s_%s' %  (label_name, self._make_image_filename(item))))
+                    self._make_image_filename(item)))
 
             if not labels:
                 self._save_image(item, osp.join(subset_dir,
                     ImagenetPath.IMAGE_DIR_NO_LABEL,
-                    ImagenetPath.IMAGE_DIR_NO_LABEL + '_' + \
                     self._make_image_filename(item)))
