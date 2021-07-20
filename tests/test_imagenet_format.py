@@ -85,9 +85,9 @@ class ImagenetFormatTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         dataset = Dataset.from_iterable([
-            DatasetItem(id='no_label_a', image=Image(path='a.JPEG',
+            DatasetItem(id='a', image=Image(path='a.JPEG',
                 data=np.zeros((4, 3, 3)))),
-            DatasetItem(id='no_label_b', image=Image(path='b.bmp',
+            DatasetItem(id='b', image=Image(path='b.bmp',
                 data=np.zeros((3, 4, 3)))),
         ], categories=[])
 
