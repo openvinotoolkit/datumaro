@@ -85,9 +85,9 @@ class ImagenetFormatTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         dataset = Dataset.from_iterable([
-            DatasetItem(id='a', image=Image(path='a.JPEG',
+            DatasetItem(id='no_label_a', image=Image(path='a.JPEG',
                 data=np.zeros((4, 3, 3)))),
-            DatasetItem(id='b', image=Image(path='b.bmp',
+            DatasetItem(id='no_label_b', image=Image(path='b.bmp',
                 data=np.zeros((3, 4, 3)))),
         ], categories=[])
 
@@ -105,14 +105,18 @@ class ImagenetImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import(self):
         expected_dataset = Dataset.from_iterable([
-            DatasetItem(id='1',
+            DatasetItem(id='label_0_1',
                 image=np.ones((8, 8, 3)),
-                annotations=[Label(0), Label(1)]
+                annotations=[Label(0)]
             ),
-            DatasetItem(id='2',
+            DatasetItem(id='label_0_2',
                 image=np.ones((10, 10, 3)),
                 annotations=[Label(0)]
             ),
+            DatasetItem(id='label_1_1',
+                image=np.ones((8, 8, 3)),
+                annotations=[Label(1)]
+            )
         ], categories={
             AnnotationType.label: LabelCategories.from_iterable(
                 'label_' + str(label) for label in range(2)),
