@@ -17,6 +17,7 @@ import types
 from attr import attrs
 
 from datumaro.components.converter import Converter
+from datumaro.components.dataset import ItemStatus
 from datumaro.components.errors import (
     DatasetError, RepeatedItemError, UndefinedLabel,
 )
@@ -447,6 +448,19 @@ class OpenImagesConverter(Converter):
         annotation_writer = _AnnotationWriter(save_dir)
         converter._save(annotation_writer)
         annotation_writer.remove_unwritten()
+
+        images_dir = osp.join(save_dir, OpenImagesPath.IMAGES_DIR)
+        for (item_id, subset), status in patch.updated_items.items():
+            if status != ItemStatus.removed:
+                continue
+
+            item = DatasetItem(item_id, subset=subset)
+
+            image_path = osp.join(images_dir,
+                converter._make_image_filename(item, subdir=subset))
+
+            if osp.isfile(image_path):
+                os.unlink(image_path)
 
     def _save(self, annotation_writer):
         self._save_categories(annotation_writer)

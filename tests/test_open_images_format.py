@@ -151,6 +151,16 @@ class OpenImagesFormatTest(TestCase):
                 },
                 set(os.listdir(osp.join(path, 'annotations'))),
             )
+
+            expected_images = {f'{id}.jpg' for id in ['a', 'b', 'd', 'e']}
+
+            actual_images = {file_name
+                for _, _, file_names in os.walk(osp.join(path, 'images'))
+                for file_name in file_names
+            }
+
+            self.assertEqual(actual_images, expected_images)
+
             dataset_reloaded = Dataset.import_from(path, 'open_images')
             compare_datasets(self, dataset, dataset_reloaded, require_images=True)
 
