@@ -198,6 +198,9 @@ class DatasetPatch:
                 for s in self.data.subsets()}
         return self._updated_subsets
 
+    def __contains__(self, x: Union[DatasetItem, Tuple[str, str]]) -> bool:
+        return x in self.data
+
     def as_dataset(self, parent: IDataset) -> IDataset:
         return __class__.DatasetPatchWrapper(self, parent)
 
