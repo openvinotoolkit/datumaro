@@ -232,6 +232,7 @@ class VggFace2ImporterTest(TestCase):
 
         compare_datasets(self, expected_dataset, dataset)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_specific_subset(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='n000003/0003_01', subset='test',
