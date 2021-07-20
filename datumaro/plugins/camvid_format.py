@@ -389,8 +389,7 @@ class CamvidConverter(Converter):
             else:
                 item = DatasetItem(item_id, subset=subset)
 
-            if not (status == ItemStatus.removed or \
-                    not item.has_image and not item.has_point_cloud):
+            if not (status == ItemStatus.removed or not item.has_image):
                 continue
 
             image_path = osp.join(save_dir,
