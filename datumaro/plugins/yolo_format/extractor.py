@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2020 Intel Corporation
+# Copyright (C) 2019-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -10,7 +10,9 @@ from datumaro.components.extractor import (
     AnnotationType, Bbox, DatasetItem, Extractor, Importer, LabelCategories,
     SourceExtractor,
 )
-from datumaro.util.image import Image
+from datumaro.util.image import (
+    DEFAULT_IMAGE_META_FILE_NAME, Image, load_image_meta_file,
+)
 from datumaro.util.os_util import split_path
 
 from .format import YoloPath
@@ -46,17 +48,12 @@ class YoloExtractor(SourceExtractor):
 
         assert image_info is None or isinstance(image_info, (str, dict))
         if image_info is None:
-            image_info = osp.join(rootpath, YoloPath.IMAGE_META_FILE)
+            image_info = osp.join(rootpath, DEFAULT_IMAGE_META_FILE_NAME)
             if not osp.isfile(image_info):
                 image_info = {}
         if isinstance(image_info, str):
-            if not osp.isfile(image_info):
-                raise Exception("Can't read image meta file '%s'" % image_info)
-            with open(image_info, encoding='utf-8') as f:
-                image_info = {}
-                for line in f:
-                    image_name, h, w = line.strip().rsplit(maxsplit=2)
-                    image_info[image_name] = (int(h), int(w))
+            image_info = load_image_meta_file(image_info)
+
         self._image_info = image_info
 
         with open(config_path, 'r', encoding='utf-8') as f:

@@ -57,6 +57,7 @@ enable=
     C0123, # unidiomatic-typecheck
     C0200, # consider-using-enumerate
     C0303, # trailing-whitespace
+    C0304, # missing-final-newline
 
     E0001, # syntax-error
     E0100, # init-is-generator
@@ -155,6 +156,8 @@ enable=
     W1305, # format-combined-specification
     W1306, # missing-format-attribute
     W1307, # invalid-format-index
+    W1401, # anomalous-backslash-in-string
+    W1402, # anomalous-unicode-escape-in-string
 
 
 [REPORTS]

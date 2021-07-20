@@ -399,7 +399,7 @@ class IdFromImageName(ItemTransform, CliPlugin):
             return item
 
 class Rename(ItemTransform, CliPlugin):
-    """
+    r"""
     Renames items in the dataset. Supports regular expressions.
     The first character in the expression is a delimiter for
     the pattern and replacement parts. Replacement part can also
@@ -409,7 +409,7 @@ class Rename(ItemTransform, CliPlugin):
     - Replace 'pattern' with 'replacement':|n
     |s|srename -e '|pattern|replacement|'|n
     - Remove 'frame_' from item ids:|n
-    |s|srename -e '|frame_(\d+)|\\1|'
+    |s|srename -e '|frame_(\d+)|\1|'
     """
 
     @classmethod
@@ -574,5 +574,22 @@ class AnnsToLabels(ItemTransform, CliPlugin):
         annotations = []
         for label in labels:
             annotations.append(Label(label=label))
+
+        return item.wrap(annotations=annotations)
+
+class BboxValuesDecrement(ItemTransform, CliPlugin):
+    """
+    Subtracts one from the coordinates of bounding boxes
+    """
+
+    def transform_item(self, item):
+        annotations = [p for p in item.annotations
+            if p.type != AnnotationType.bbox]
+        bboxes = [p for p in item.annotations
+            if p.type == AnnotationType.bbox]
+        for bbox in bboxes:
+            annotations.append(Bbox(
+                bbox.x - 1, bbox.y - 1, bbox.w, bbox.h,
+                label=bbox.label, attributes=bbox.attributes))
 
         return item.wrap(annotations=annotations)

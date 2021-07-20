@@ -4,10 +4,13 @@
 
 from enum import Enum, auto
 from io import BytesIO
-from typing import Any, Callable, Iterable, Iterator, Optional, Tuple, Union
+from typing import (
+    Any, Callable, Dict, Iterable, Iterator, Optional, Tuple, Union,
+)
 import importlib
 import os
 import os.path as osp
+import shlex
 import shutil
 
 import numpy as np
@@ -248,14 +251,14 @@ class Image:
         assert size is None or len(size) == 2, size
         if size is not None:
             assert len(size) == 2 and 0 < size[0] and 0 < size[1], size
-            size = tuple(size)
+            size = tuple(map(int, size))
         self._size = size # (H, W)
 
         assert path is None or isinstance(path, str), path
         if path is None:
             path = ''
         elif path:
-            path = osp.abspath(path)
+            path = osp.abspath(path).replace('\\', '/')
         self._path = path
 
         assert data is not None or path or loader, "Image can not be empty"
@@ -285,7 +288,7 @@ class Image:
             data = self._data
 
         if self._size is None and data is not None:
-            self._size = data.shape[:2]
+            self._size =  tuple(map(int, data.shape[:2]))
         return data
 
     @property
@@ -306,7 +309,7 @@ class Image:
             except _image_loading_errors:
                 return None
             if data is not None:
-                self._size = data.shape[:2]
+                self._size = tuple(map(int, data.shape[:2]))
         return self._size
 
     def __eq__(self, other):
@@ -386,3 +389,51 @@ class ByteImage(Image):
                 f.write(self.get_bytes())
         else:
             save_image(path, self.data)
+
+ImageMeta = Dict[str, Tuple[int, int]]
+
+DEFAULT_IMAGE_META_FILE_NAME = 'images.meta'
+
+def load_image_meta_file(image_meta_path: str) -> ImageMeta:
+    """
+    Loads image metadata from a file with the following format:
+
+        <image name 1> <height 1> <width 1>
+        <image name 2> <height 2> <width 2>
+        ...
+
+    Shell-like comments and quoted fields are allowed.
+
+    This can be useful to support datasets in which image dimensions are
+    required to interpret annotations.
+    """
+    assert isinstance(image_meta_path, str)
+
+    if not osp.isfile(image_meta_path):
+        raise Exception("Can't read image meta file '%s'" % image_meta_path)
+
+    image_meta = {}
+
+    with open(image_meta_path, encoding='utf-8') as f:
+        for line in f:
+            fields = shlex.split(line, comments=True)
+            if not fields:
+                continue
+
+            # ignore extra fields, so that the format can be extended later
+            image_name, h, w = fields[:3]
+            image_meta[image_name] = (int(h), int(w))
+
+    return image_meta
+
+def save_image_meta_file(image_meta: ImageMeta, image_meta_path: str) -> None:
+    """
+    Saves image_meta to the path specified by image_meta_path in the format
+    defined in load_image_meta_file's documentation.
+    """
+
+    assert isinstance(image_meta_path, str)
+
+    with open(image_meta_path, 'w', encoding='utf-8') as f:
+        for image_name, (height, width) in image_meta.items():
+            print(shlex.quote(image_name), height, width, file=f)

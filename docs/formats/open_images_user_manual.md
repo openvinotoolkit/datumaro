@@ -15,7 +15,32 @@ on [its website](https://storage.googleapis.com/openimages/web/download.html).
 Datumaro supports versions 4, 5 and 6.
 
 Datumaro currently supports only the human-verified image-level label
-annotations from this dataset.
+annotations and bounding box annotations from this dataset.
+
+One attribute is supported on the labels:
+
+- `score` (read/write, float).
+  The confidence level from 0 to 1.
+  A score of 0 indicates that
+  the image does not contain objects of the corresponding class.
+
+The following attributes are supported on the bounding boxes:
+
+- `score` (read/write, float).
+  The confidence level from 0 to 1.
+  In the original dataset this is always equal to 1,
+  but custom datasets may be created with arbitrary values.
+- `occluded` (read/write, boolean).
+  Whether the object is occluded by another object.
+- `truncated` (read/write, boolean).
+  Whether the object extends beyond the boundary of the image.
+- `is_group_of` (read/write, boolean).
+  Whether the object represents a group of objects of the same class.
+- `is_depiction` (read/write, boolean).
+  Whether the object is a depiction (such as a drawing)
+  rather than a real object.
+- `is_inside` (read/write, boolean).
+  Whether the object is seen from the inside.
 
 ## Load Open Images dataset
 
@@ -47,6 +72,9 @@ Annotations can be downloaded from the following URLs:
 - [train image labels](https://storage.googleapis.com/openimages/v6/oidv6-train-annotations-human-imagelabels.csv)
 - [validation image labels](https://storage.googleapis.com/openimages/v5/validation-annotations-human-imagelabels.csv)
 - [test image labels](https://storage.googleapis.com/openimages/v5/test-annotations-human-imagelabels.csv)
+- [train bounding boxes](https://storage.googleapis.com/openimages/v6/oidv6-train-annotations-bbox.csv)
+- [validation bounding boxes](https://storage.googleapis.com/openimages/v5/validation-annotations-bbox.csv)
+- [test bounding boxes](https://storage.googleapis.com/openimages/v5/test-annotations-bbox.csv)
 
 The annotations are optional.
 
@@ -88,6 +116,42 @@ Open Images dataset directory should have the following structure:
 
 To use per-subset image description files instead of `image_ids_and_rotation.csv`,
 place them in the `annotations` subdirectory.
+
+### Creating an image metadata file
+
+To load bounding box annotations,
+Datumaro needs to know the sizes of the corresponding images.
+By default, it will determine these sizes by loading each image from disk,
+which requires the images to be present and makes the loading process slow.
+
+If you want to load the bounding box annotations on a machine where
+the images are not available,
+or just to speed up the dataset loading process,
+you can extract the image size information in advance
+and record it in an image metadata file.
+This file must be placed at `annotations/images.meta`,
+and must contain one line per image, with the following structure:
+
+```
+<ID> <height> <width>
+```
+
+Where `<ID>` is the file name of the image without the extension,
+and `<height>` and `<width>` are the dimensions of that image.
+`<ID>` may be quoted with either single or double quotes.
+
+The image metadata file, if present, will be used to determine the image
+sizes without loading the images themselves.
+
+Here's one way to create the `images.meta` file using ImageMagick,
+assuming that the images are present on the current machine:
+
+```bash
+# run this from the dataset directory
+find images -name '*.jpg' -exec \
+    identify -format '"%[basename]" %[height] %[width]\n' {} + \
+    > annotations/images.meta
+```
 
 ## Export to other formats
 

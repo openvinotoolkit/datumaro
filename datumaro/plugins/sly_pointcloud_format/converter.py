@@ -24,9 +24,6 @@ from .format import PointCloudPath
 
 
 class _SuperviselyPointCloudDumper:
-    SPECIAL_ATTRS = {'description', 'object',
-        'labelerLogin', 'createdAt', 'updatedAt', 'frame'}
-
     def __init__(self, extractor: IExtractor,
             context: 'SuperviselyPointCloudConverter'):
         self._extractor = extractor
@@ -139,7 +136,7 @@ class _SuperviselyPointCloudDumper:
 
     def _export_item_attributes(self, item, item_ann_data, item_user_info):
         for attr_name, attr_value in item.attributes.items():
-            if attr_name in self.SPECIAL_ATTRS:
+            if attr_name in PointCloudPath.SPECIAL_ATTRS:
                 continue
 
             attr_value = self._encode_attr_value(attr_value)
@@ -182,7 +179,7 @@ class _SuperviselyPointCloudDumper:
             if not ann.type == AnnotationType.cuboid_3d:
                 continue
 
-            obj_id = cast(ann.attributes.get('object', ann.id), int)
+            obj_id = cast(ann.attributes.get('track_id', ann.id), int)
             if obj_id is None:
                 # should not be affected by reindex
                 # because it is used to match figures,
@@ -205,7 +202,7 @@ class _SuperviselyPointCloudDumper:
                 }
 
                 for attr_name, attr_value in ann.attributes.items():
-                    if attr_name in self.SPECIAL_ATTRS:
+                    if attr_name in PointCloudPath.SPECIAL_ATTRS:
                         continue
 
                     attr_value = self._encode_attr_value(attr_value)

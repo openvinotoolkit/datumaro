@@ -4,12 +4,15 @@
 
 from enum import Enum, auto
 from glob import glob
+from typing import Collection, Union
 import inspect
 import os
 import os.path as osp
 import tempfile
 
-from datumaro.components.dataset import Dataset
+from typing_extensions import Literal
+
+from datumaro.components.dataset import Dataset, IDataset
 from datumaro.components.extractor import AnnotationType
 from datumaro.util import filter_dict, find
 from datumaro.util.os_util import rmfile, rmtree
@@ -78,6 +81,8 @@ def compare_categories(test, expected, actual):
             actual[AnnotationType.points].items,
         )
 
+IGNORE_ALL = '*'
+
 def _compare_annotations(expected, actual, ignored_attrs=None):
     if not ignored_attrs:
         return expected == actual
@@ -85,16 +90,23 @@ def _compare_annotations(expected, actual, ignored_attrs=None):
     a_attr = expected.attributes
     b_attr = actual.attributes
 
-    expected.attributes = filter_dict(a_attr, exclude_keys=ignored_attrs)
-    actual.attributes = filter_dict(b_attr, exclude_keys=ignored_attrs)
+    if ignored_attrs != IGNORE_ALL:
+        expected.attributes = filter_dict(a_attr, exclude_keys=ignored_attrs)
+        actual.attributes = filter_dict(b_attr, exclude_keys=ignored_attrs)
+    else:
+        expected.attributes = {}
+        actual.attributes = {}
+
     r = expected == actual
 
     expected.attributes = a_attr
     actual.attributes = b_attr
+
     return r
 
-def compare_datasets(test, expected, actual, ignored_attrs=None,
-        require_images=False):
+def compare_datasets(test, expected: IDataset, actual: IDataset,
+        ignored_attrs: Union[None, Literal['*'], Collection[str]] = None,
+        require_images: bool = False):
     compare_categories(test, expected.categories(), actual.categories())
 
     test.assertEqual(sorted(expected.subsets()), sorted(actual.subsets()))
@@ -104,11 +116,11 @@ def compare_datasets(test, expected, actual, ignored_attrs=None,
             x.subset == item_a.subset)
         test.assertFalse(item_b is None, item_a.id)
 
-        if ignored_attrs:
+        if ignored_attrs and ignored_attrs != IGNORE_ALL:
             test.assertEqual(item_a.attributes,
                 filter_dict(item_b.attributes, exclude_keys=ignored_attrs),
                 item_a.id)
-        else:
+        elif not ignored_attrs:
             test.assertEqual(item_a.attributes, item_b.attributes, item_a.id)
 
         if (require_images and item_a.has_image and item_a.image.has_data) or \
@@ -146,8 +158,9 @@ def compare_datasets_strict(test, expected, actual):
                 '%s:\n%s\nvs.\n%s\n' % \
                 (idx, item_a, item_b))
 
-def compare_datasets_3d(test, expected, actual, ignored_attrs=None,
-        require_point_cloud=False):
+def compare_datasets_3d(test, expected: IDataset, actual: IDataset,
+        ignored_attrs: Union[None, Literal['*'], Collection[str]] = None,
+        require_point_cloud: bool = False):
     compare_categories(test, expected.categories(), actual.categories())
 
     if actual.subsets():
@@ -158,11 +171,11 @@ def compare_datasets_3d(test, expected, actual, ignored_attrs=None,
         item_b = find(actual, lambda x: x.id == item_a.id)
         test.assertFalse(item_b is None, item_a.id)
 
-        if ignored_attrs:
+        if ignored_attrs and ignored_attrs != IGNORE_ALL:
             test.assertEqual(item_a.attributes,
                 filter_dict(item_b.attributes, exclude_keys=ignored_attrs),
                 item_a.id)
-        else:
+        elif not ignored_attrs:
             test.assertEqual(item_a.attributes, item_b.attributes, item_a.id)
 
         if (require_point_cloud and item_a.has_point_cloud) or \
@@ -192,7 +205,7 @@ def test_save_and_load(test, source_dataset, converter, test_dir, importer,
 
     if importer_args is None:
         importer_args = {}
-    parsed_dataset = Dataset.import_from(test_dir, importer, **importer_args)
+    parsed_dataset = Dataset, IDataset.import_from(test_dir, importer, **importer_args)
 
     if target_dataset is None:
         target_dataset = source_dataset

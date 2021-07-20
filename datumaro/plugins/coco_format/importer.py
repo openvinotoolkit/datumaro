@@ -69,8 +69,12 @@ class CocoImporter(Importer):
 
     @classmethod
     def find_sources(cls, path):
-        if path.endswith('.json') and osp.isfile(path):
-            subset_paths = [path]
+        if osp.isfile(path):
+            if len(cls._TASKS) == 1:
+                return {'': { next(iter(cls._TASKS)): path }}
+
+            if path.endswith('.json'):
+                subset_paths = [path]
         else:
             subset_paths = glob(osp.join(path, '**', '*_*.json'),
                 recursive=True)

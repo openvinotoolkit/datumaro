@@ -4,7 +4,8 @@ import os.path as osp
 import numpy as np
 
 from datumaro.util.image import (
-    ByteImage, Image, encode_image, lazy_image, load_image, save_image,
+    ByteImage, Image, encode_image, lazy_image, load_image,
+    load_image_meta_file, save_image, save_image_meta_file,
 )
 from datumaro.util.image_cache import ImageCache
 from datumaro.util.test_utils import TestDir
@@ -130,3 +131,43 @@ class BytesImageTest(TestCase):
                     if 'ext' in args or 'path' in args:
                         self.assertEqual(img.ext, args.get('ext', '.png'))
                     # pylint: enable=pointless-statement
+
+class ImageMetaTest(TestCase):
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_loading(self):
+        meta_file_contents = r"""
+        # this is a comment
+
+        a 123 456
+        'b c' 10 20 # inline comment
+        """
+
+        meta_expected = {
+            'a': (123, 456),
+            'b c': (10, 20),
+        }
+
+        with TestDir() as test_dir:
+            meta_path = osp.join(test_dir, 'images.meta')
+
+            with open(meta_path, 'w') as meta_file:
+                meta_file.write(meta_file_contents)
+
+            meta_loaded = load_image_meta_file(meta_path)
+
+        self.assertEqual(meta_loaded, meta_expected)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_saving(self):
+        meta_original = {
+            'a': (123, 456),
+            'b c': (10, 20),
+        }
+
+        with TestDir() as test_dir:
+            meta_path = osp.join(test_dir, 'images.meta')
+
+            save_image_meta_file(meta_original, meta_path)
+            meta_reloaded = load_image_meta_file(meta_path)
+
+        self.assertEqual(meta_reloaded, meta_original)

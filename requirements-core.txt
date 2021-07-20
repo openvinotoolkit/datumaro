@@ -1,4 +1,4 @@
-attrs>=19.3.0
+attrs>=21.1.0
 defusedxml>=0.6.0
 dvc>=2.3.0
 GitPython>=3.0.8

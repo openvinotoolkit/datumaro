@@ -12,6 +12,7 @@ import logging as log
 import os
 import os.path as osp
 import re
+import types
 
 from attr import attrs
 
@@ -20,10 +21,14 @@ from datumaro.components.errors import (
     DatasetError, RepeatedItemError, UndefinedLabel,
 )
 from datumaro.components.extractor import (
-    AnnotationType, DatasetItem, Extractor, Importer, Label, LabelCategories,
+    AnnotationType, Bbox, DatasetItem, Extractor, Importer, Label,
+    LabelCategories,
 )
 from datumaro.components.validator import Severity
-from datumaro.util.image import find_images
+from datumaro.util.image import (
+    DEFAULT_IMAGE_META_FILE_NAME, Image, find_images, load_image_meta_file,
+    save_image_meta_file,
+)
 from datumaro.util.os_util import split_path
 
 # A regex to check whether a subset name can be used as a "normal" path
@@ -56,6 +61,9 @@ class OpenImagesPath:
     V5_CLASS_DESCRIPTION_FILE_NAME = 'class-descriptions.csv'
     HIERARCHY_FILE_NAME = 'bbox_labels_600_hierarchy.json'
 
+    LABEL_DESCRIPTION_FILE_SUFFIX = '-annotations-human-imagelabels.csv'
+    BBOX_DESCRIPTION_FILE_SUFFIX = '-annotations-bbox.csv'
+
     IMAGE_DESCRIPTION_FIELDS = (
         'ImageID',
         'Subset',
@@ -78,6 +86,30 @@ class OpenImagesPath:
         'Confidence',
     )
 
+    BBOX_DESCRIPTION_FIELDS = (
+        'ImageID',
+        'Source',
+        'LabelName',
+        'Confidence',
+        'XMin',
+        'XMax',
+        'YMin',
+        'YMax',
+        'IsOccluded',
+        'IsTruncated',
+        'IsGroupOf',
+        'IsDepiction',
+        'IsInside',
+    )
+
+    BBOX_BOOLEAN_ATTRIBUTES = (
+        types.SimpleNamespace(datumaro_name='occluded', oid_name='IsOccluded'),
+        types.SimpleNamespace(datumaro_name='truncated', oid_name='IsTruncated'),
+        types.SimpleNamespace(datumaro_name='is_group_of', oid_name='IsGroupOf'),
+        types.SimpleNamespace(datumaro_name='is_depiction', oid_name='IsDepiction'),
+        types.SimpleNamespace(datumaro_name='is_inside', oid_name='IsInside'),
+    )
+
 
 class OpenImagesExtractor(Extractor):
     def __init__(self, path):
@@ -93,6 +125,14 @@ class OpenImagesExtractor(Extractor):
 
         self._categories = {}
         self._items = []
+
+        try:
+            self._image_meta = load_image_meta_file(osp.join(
+                path, OpenImagesPath.ANNOTATIONS_DIR,
+                DEFAULT_IMAGE_META_FILE_NAME
+            ))
+        except Exception:
+            self._image_meta = {}
 
         self._load_categories()
         self._load_items()
@@ -194,9 +234,17 @@ class OpenImagesExtractor(Extractor):
                     if _RE_INVALID_SUBSET.fullmatch(subset):
                         raise UnsupportedSubsetNameError(item_id=image_id, subset=subset)
 
+                    image_path = image_paths_by_id.get(image_id)
+
+                    image = None
+                    if image_path is not None:
+                        image = Image(
+                            path=image_path, size=self._image_meta.get(image_id),
+                        )
+
                     items_by_id[image_id] = DatasetItem(
                         id=image_id,
-                        image=image_paths_by_id.get(image_id),
+                        image=image,
                         subset=subset,
                     )
 
@@ -215,13 +263,16 @@ class OpenImagesExtractor(Extractor):
         self._items.extend(items_by_id.values())
 
         self._load_labels(items_by_id)
+        self._load_bboxes(items_by_id)
 
     def _load_labels(self, items_by_id):
         label_categories = self._categories[AnnotationType.label]
 
         # TODO: implement reading of machine-annotated labels
 
-        for label_path in self._glob_annotations('*-human-imagelabels.csv'):
+        for label_path in self._glob_annotations(
+            '*' + OpenImagesPath.LABEL_DESCRIPTION_FILE_SUFFIX
+        ):
             with self._open_csv_annotation(label_path) as label_reader:
                 for label_description in label_reader:
                     image_id = label_description['ImageID']
@@ -237,6 +288,53 @@ class OpenImagesExtractor(Extractor):
                             label_name=label_name, severity=Severity.error)
                     item.annotations.append(Label(
                         label=label_index, attributes={'score': confidence}))
+
+    def _load_bboxes(self, items_by_id):
+        label_categories = self._categories[AnnotationType.label]
+
+        for bbox_path in self._glob_annotations(
+            '*' + OpenImagesPath.BBOX_DESCRIPTION_FILE_SUFFIX
+        ):
+            with self._open_csv_annotation(bbox_path) as bbox_reader:
+                for bbox_description in bbox_reader:
+                    image_id = bbox_description['ImageID']
+                    item = items_by_id[image_id]
+
+                    label_name = bbox_description['LabelName']
+                    label_index, _ = label_categories.find(label_name)
+                    if label_index is None:
+                        raise UndefinedLabel(
+                            item_id=item.id, subset=item.subset,
+                            label_name=label_name, severity=Severity.error)
+
+                    if item.has_image and item.image.size is not None:
+                        height, width = item.image.size
+                    else:
+                        log.warning(
+                            "Can't decode box for item '%s' due to missing image file",
+                            item.id)
+                        continue
+
+                    x_min = float(bbox_description['XMin']) * width
+                    x_max = float(bbox_description['XMax']) * width
+                    y_min = float(bbox_description['YMin']) * height
+                    y_max = float(bbox_description['YMax']) * height
+
+                    attributes = {
+                        'score': float(bbox_description['Confidence']),
+                    }
+
+                    for bool_attr in OpenImagesPath.BBOX_BOOLEAN_ATTRIBUTES:
+                        int_value = int(bbox_description[bool_attr.oid_name])
+                        if int_value >= 0:
+                            attributes[bool_attr.datumaro_name] = bool(int_value)
+
+                    item.annotations.append(Bbox(
+                        label=label_index,
+                        x=x_min, y=y_min,
+                        w=x_max - x_min, h=y_max - y_min,
+                        attributes=attributes,
+                    ))
 
 
 class OpenImagesImporter(Importer):
@@ -331,12 +429,13 @@ class OpenImagesConverter(Converter):
         label_categories = self._extractor.categories().get(
             AnnotationType.label, LabelCategories())
 
+        image_meta = {}
+
         for subset_name, subset in self._extractor.subsets().items():
             if _RE_INVALID_SUBSET.fullmatch(subset_name):
                 raise UnsupportedSubsetNameError(item_id=next(iter(subset)).id, subset=subset)
 
             image_description_name = f'{subset_name}-images-with-rotation.csv'
-            label_description_name = f'{subset_name}-annotations-human-imagelabels.csv'
 
             with \
                 self._open_csv_annotation(
@@ -346,9 +445,10 @@ class OpenImagesConverter(Converter):
             :
                 image_description_writer.writeheader()
 
-                # The label description writer is created lazily,
+                # The annotation description writers are created lazily,
                 # so that we don't create the label description file if there are no labels.
                 label_description_writer = None
+                bbox_description_writer = None
 
                 for item in subset:
                     image_description_writer.writerow({
@@ -367,7 +467,7 @@ class OpenImagesConverter(Converter):
                             if label_description_writer is None:
                                 label_description_writer = annotation_writers.enter_context(
                                     self._open_csv_annotation(
-                                        label_description_name,
+                                        subset_name + OpenImagesPath.LABEL_DESCRIPTION_FILE_SUFFIX,
                                         OpenImagesPath.LABEL_DESCRIPTION_FIELDS))
                                 label_description_writer.writeheader()
 
@@ -376,3 +476,40 @@ class OpenImagesConverter(Converter):
                                 'LabelName': label_categories[annotation.label].name,
                                 'Confidence': str(annotation.attributes.get('score', 1)),
                             })
+                        elif annotation.type is AnnotationType.bbox:
+                            if bbox_description_writer is None:
+                                bbox_description_writer = annotation_writers.enter_context(
+                                    self._open_csv_annotation(
+                                        subset_name + OpenImagesPath.BBOX_DESCRIPTION_FILE_SUFFIX,
+                                        OpenImagesPath.BBOX_DESCRIPTION_FIELDS))
+                                bbox_description_writer.writeheader()
+
+                            if item.has_image and item.image.size is not None:
+                                image_meta[item.id] = (height, width) = item.image.size
+                            else:
+                                log.warning(
+                                    "Can't encode box for item '%s' due to missing image file",
+                                    item.id)
+                                continue
+
+                            bbox_description_writer.writerow({
+                                'ImageID': item.id,
+                                'LabelName': label_categories[annotation.label].name,
+                                'Confidence': str(annotation.attributes.get('score', 1)),
+                                'XMin': annotation.x / width,
+                                'YMin': annotation.y / height,
+                                'XMax': (annotation.x + annotation.w) / width,
+                                'YMax': (annotation.y + annotation.h) / height,
+                                **{
+                                    bool_attr.oid_name:
+                                        int(annotation.attributes.get(bool_attr.datumaro_name, -1))
+                                    for bool_attr in OpenImagesPath.BBOX_BOOLEAN_ATTRIBUTES
+                                },
+                            })
+
+        if image_meta:
+            image_meta_file_path = osp.join(
+                self._save_dir, OpenImagesPath.ANNOTATIONS_DIR,
+                DEFAULT_IMAGE_META_FILE_NAME)
+
+            save_image_meta_file(image_meta, image_meta_file_path)

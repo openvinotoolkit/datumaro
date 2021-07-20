@@ -123,6 +123,7 @@ List of supported formats:
 - CIFAR-10/100 (`classification` (python version))
   - [Format specification](https://www.cs.toronto.edu/~kriz/cifar.html)
   - [Dataset example](../tests/assets/cifar_dataset)
+  - [Format documentation](./formats/cifar_user_manual.md)
 - MNIST (`classification`)
   - [Format specification](http://yann.lecun.com/exdb/mnist/)
   - [Dataset example](../tests/assets/mnist_dataset)
