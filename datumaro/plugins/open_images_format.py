@@ -398,12 +398,22 @@ class _AnnotationWriter:
 
         os.makedirs(self._annotations_dir, exist_ok=True)
 
+    @contextlib.contextmanager
     def open(self, file_name, newline=None):
         self._written_annotations.add(file_name)
-        f = open(
-            osp.join(self._annotations_dir, file_name),
-            'w', encoding='utf-8', newline=newline)
-        return f
+
+        file_path = osp.join(self._annotations_dir, file_name)
+
+        # Write to a temporary file first, to avoid data loss if we're patching
+        # an existing dataset and the process is interrupted.
+        temp_file_path = file_path + '.tmp'
+
+        with open(
+            temp_file_path, 'w', encoding='utf-8', newline=newline,
+        ) as f:
+            yield f
+
+        os.replace(temp_file_path, file_path)
 
     @contextlib.contextmanager
     def open_csv(self, file_name, field_names, *, write_header=True):
