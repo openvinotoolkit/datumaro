@@ -16,9 +16,9 @@ from datumaro.components.extractor import (
     AnnotationType, CompiledMask, DatasetItem, Importer, LabelCategories, Mask,
     MaskCategories, SourceExtractor,
 )
-from datumaro.util import str_to_bool
+from datumaro.util import find
 from datumaro.util.annotation_util import make_label_id_mapping
-from datumaro.util.image import load_image, save_image
+from datumaro.util.image import find_images, load_image, save_image
 from datumaro.util.mask_tools import generate_colormap, paint_mask
 
 CityscapesLabelMap = OrderedDict([
@@ -73,6 +73,18 @@ class CityscapesPath:
 def make_cityscapes_categories(label_map=None):
     if label_map is None:
         label_map = CityscapesLabelMap
+
+    # There must always be a label with color (0, 0, 0) at index 0
+    bg_label = find(label_map.items(), lambda x: x[1] == (0, 0, 0))
+    if bg_label is not None:
+        bg_label = bg_label[0]
+    else:
+        bg_label = 'background'
+        if bg_label not in label_map:
+            has_colors = any(v is not None for v in label_map.values())
+            color = (0, 0, 0) if has_colors else None
+            label_map[bg_label] = color
+    label_map.move_to_end(bg_label, last=False)
 
     categories = {}
     label_categories = LabelCategories()
@@ -157,10 +169,12 @@ class CityscapesExtractor(SourceExtractor):
         annotations_path = osp.normpath(osp.join(self._path, '../../../',
             CityscapesPath.GT_FINE_DIR, self._subset))
 
-        for image_path in iglob(
-                osp.join(self._path, '**', '*' + CityscapesPath.ORIGINAL_IMAGE),
-                recursive=True):
-            sample_id = osp.relpath(image_path, self._path) \
+        for image_path in find_images(self._path, recursive=True):
+            if not osp.splitext(osp.basename(image_path))[0] \
+                    .endswith(CityscapesPath.ORIGINAL_IMAGE):
+                continue
+
+            sample_id = osp.splitext(osp.relpath(image_path, self._path))[0] \
                 .replace(CityscapesPath.ORIGINAL_IMAGE, '')
             anns = []
             instances_path = osp.join(annotations_path, sample_id + '_' +
@@ -169,18 +183,19 @@ class CityscapesExtractor(SourceExtractor):
                 instances_mask = load_image(instances_path, dtype=np.int32)
                 segm_ids = np.unique(instances_mask)
                 for segm_id in segm_ids:
+                    # either is_crowd or ann_id should be set
                     if segm_id < 1000:
-                        semanticId = segm_id
-                        isCrowd = True
-                        ann_id = segm_id
+                        label_id = segm_id
+                        is_crowd = True
+                        ann_id = None
                     else:
-                        semanticId = segm_id // 1000
-                        isCrowd = False
+                        label_id = segm_id // 1000
+                        is_crowd = False
                         ann_id = segm_id % 1000
                     anns.append(Mask(
                         image=self._lazy_extract_mask(instances_mask, segm_id),
-                        label=semanticId, id=ann_id,
-                        attributes = { 'is_crowd': isCrowd }))
+                        label=label_id, id=ann_id,
+                        attributes = { 'is_crowd': is_crowd }))
             items[sample_id] = DatasetItem(id=sample_id, subset=self._subset,
                 image=image_path, annotations=anns)
         return items
@@ -220,8 +235,6 @@ class CityscapesConverter(Converter):
     def build_cmdline_parser(cls, **kwargs):
         parser = super().build_cmdline_parser(**kwargs)
 
-        parser.add_argument('--apply-colormap', type=str_to_bool, default=True,
-            help="Use colormap for class masks (default: %(default)s)")
         parser.add_argument('--label-map', type=cls._get_labelmap, default=None,
             help="Labelmap file path or one of %s" % \
                 ', '.join(t.name for t in LabelmapType))
@@ -244,46 +257,52 @@ class CityscapesConverter(Converter):
             for item in subset:
                 image_path = osp.join(CityscapesPath.IMGS_FINE_DIR,
                     CityscapesPath.ORIGINAL_IMAGE_DIR, subset_name,
-                    item.id + CityscapesPath.ORIGINAL_IMAGE)
+                    item.id + CityscapesPath.ORIGINAL_IMAGE + \
+                        self._find_image_ext(item))
                 if self._save_images:
                     self._save_image(item, osp.join(self._save_dir, image_path))
-
-                common_folder_path = osp.join(CityscapesPath.GT_FINE_DIR,
-                    subset_name)
 
                 masks = [a for a in item.annotations
                     if a.type == AnnotationType.mask]
                 if not masks:
                     continue
 
-                common_image_name = item.id + '_' + CityscapesPath.GT_FINE_DIR
-
-                compiled_class_mask = CompiledMask.from_instance_masks(masks,
+                # If a label can distinquish between instances,
+                # make id an instance id. Otherwise use label id.
+                compiled_mask = CompiledMask.from_instance_masks(masks,
+                    instance_ids = [self._label_id_mapping(m.label)
+                        if m.attributes.get('is_crowd', False)
+                        else self._label_id_mapping(m.label) * 1000 + \
+                            (m.id or (i + 1))
+                        for i, m in enumerate(masks)
+                    ],
                     instance_labels=[self._label_id_mapping(m.label)
                         for m in masks])
-                color_mask_path = osp.join(common_folder_path,
-                    common_image_name + CityscapesPath.COLOR_IMAGE)
-                self.save_mask(osp.join(self._save_dir, color_mask_path),
-                    compiled_class_mask.class_mask)
 
-                labelids_mask_path = osp.join(common_folder_path,
-                    common_image_name + CityscapesPath.LABELIDS_IMAGE)
-                self.save_mask(osp.join(self._save_dir, labelids_mask_path),
-                    compiled_class_mask.class_mask, apply_colormap=False,
-                    dtype=np.int32)
+                mask_dir = osp.join(self._save_dir,
+                    CityscapesPath.GT_FINE_DIR, subset_name)
+                mask_name = item.id + '_' + CityscapesPath.GT_FINE_DIR
 
-                compiled_instance_mask = CompiledMask.from_instance_masks(masks,
-                    instance_labels=[m.id if m.attributes.get('is_crowd', True)
-                    else m.label * 1000 + m.id for m in masks])
-                inst_path = osp.join(common_folder_path,
-                    common_image_name + CityscapesPath.INSTANCES_IMAGE)
-                self.save_mask(osp.join(self._save_dir, inst_path),
-                    compiled_instance_mask.class_mask, apply_colormap=False,
-                    dtype=np.int32)
+                color_mask_path = osp.join(mask_dir,
+                    mask_name + CityscapesPath.COLOR_IMAGE)
+                self.save_mask(color_mask_path, compiled_mask.class_mask)
+
+                cls_mask_path = osp.join(mask_dir,
+                    mask_name + CityscapesPath.LABELIDS_IMAGE)
+                self.save_mask(cls_mask_path, compiled_mask.class_mask,
+                    apply_colormap=False, dtype=np.int32)
+
+                inst_mask_path = osp.join(mask_dir,
+                    mask_name + CityscapesPath.INSTANCES_IMAGE)
+                self.save_mask(inst_mask_path, compiled_mask.instance_mask,
+                    apply_colormap=False, dtype=np.int32)
         self.save_label_map()
 
     def save_label_map(self):
         path = osp.join(self._save_dir, CityscapesPath.LABELMAP_FILE)
+        labels = self._extractor.categories()[AnnotationType.label]
+        if len(self._label_map) > len(labels):
+            self._label_map.pop('background')
         write_label_map(path, self._label_map)
 
     def _load_categories(self, label_map_source):
@@ -350,8 +369,8 @@ class CityscapesConverter(Converter):
         return map_id
 
     def save_mask(self, path, mask, colormap=None, apply_colormap=True,
-        dtype=np.uint8):
-        if self._apply_colormap and apply_colormap:
+            dtype=np.uint8):
+        if apply_colormap:
             if colormap is None:
                 colormap = self._categories[AnnotationType.mask].colormap
             mask = paint_mask(mask, colormap)

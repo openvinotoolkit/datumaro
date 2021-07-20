@@ -307,7 +307,7 @@ class CamvidConverter(Converter):
 
     def save_label_map(self):
         path = osp.join(self._save_dir, CamvidPath.LABELMAP_FILE)
-        labels = self._extractor.categories()[AnnotationType.label]._indices
+        labels = self._extractor.categories()[AnnotationType.label]
         if len(self._label_map) > len(labels):
             self._label_map.pop('background')
         write_label_map(path, self._label_map)

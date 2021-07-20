@@ -41,16 +41,17 @@ class CityscapesFormatTest(TestCase):
 class CityscapesImportTest(TestCase):
     @mark_requirement(Requirements.DATUM_267)
     def test_can_import(self):
+        # is_crowd marks labels allowing to specify instance id
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='defaultcity/defaultcity_000001_000031',
                 subset='test',
                 image=np.ones((1, 5, 3)),
                 annotations=[
-                    Mask(image=np.array([[1, 1, 0, 0, 0]]), id=3, label=3,
+                    Mask(np.array([[1, 1, 0, 0, 0]]), label=3,
                         attributes={'is_crowd': True}),
-                    Mask(image=np.array([[0, 0, 1, 0, 0]]), id=1, label=27,
+                    Mask(np.array([[0, 0, 1, 0, 0]]), id=1, label=27,
                         attributes={'is_crowd': False}),
-                    Mask(image=np.array([[0, 0, 0, 1, 1]]), id=2, label=27,
+                    Mask(np.array([[0, 0, 0, 1, 1]]), id=2, label=27,
                         attributes={'is_crowd': False}),
                 ]
             ),
@@ -58,11 +59,11 @@ class CityscapesImportTest(TestCase):
                 subset='test',
                 image=np.ones((1, 5, 3)),
                 annotations=[
-                    Mask(image=np.array([[1, 1, 0, 0, 0]]), id=1, label=31,
+                    Mask(np.array([[1, 1, 0, 0, 0]]), id=1, label=31,
                         attributes={'is_crowd': False}),
-                    Mask(image=np.array([[0, 0, 1, 0, 0]]), id=12, label=12,
+                    Mask(np.array([[0, 0, 1, 0, 0]]), label=12,
                         attributes={'is_crowd': True}),
-                    Mask(image=np.array([[0, 0, 0, 1, 1]]), id=3, label=3,
+                    Mask(np.array([[0, 0, 0, 1, 1]]), label=3,
                         attributes={'is_crowd': True}),
                 ]
             ),
@@ -70,9 +71,9 @@ class CityscapesImportTest(TestCase):
                 subset='train',
                 image=np.ones((1, 5, 3)),
                 annotations=[
-                    Mask(image=np.array([[1, 1, 0, 1, 1]]), id=3, label=3,
+                    Mask(np.array([[1, 1, 0, 1, 1]]), label=3,
                         attributes={'is_crowd': True}),
-                    Mask(image=np.array([[0, 0, 1, 0, 0]]), id=1, label=24,
+                    Mask(np.array([[0, 0, 1, 0, 0]]), id=1, label=24,
                         attributes={'is_crowd': False}),
                 ]
             ),
@@ -80,9 +81,9 @@ class CityscapesImportTest(TestCase):
                 subset = 'val',
                 image=np.ones((1, 5, 3)),
                 annotations=[
-                    Mask(image=np.array([[1, 0, 0, 1, 1]]), id=3, label=3,
+                    Mask(np.array([[1, 0, 0, 1, 1]]), label=3,
                         attributes={'is_crowd': True}),
-                    Mask(image=np.array([[0, 1, 1, 0, 0]]), id=24, label=1,
+                    Mask(np.array([[0, 1, 1, 0, 0]]), id=24, label=1,
                         attributes={'is_crowd': False}),
                 ]
             ),
@@ -112,97 +113,68 @@ class CityscapesConverterTest(TestCase):
             target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
     @mark_requirement(Requirements.DATUM_267)
-    def test_can_save_cityscapes_segm(self):
+    def test_can_save_segm(self):
         class TestExtractor(TestExtractorBase):
             def __iter__(self):
                 return iter([
                     DatasetItem(id='defaultcity_1_2', subset='test',
-                        image=np.ones((1, 5, 3)), annotations=[
-                        Mask(image=np.array([[0, 0, 0, 1, 0]]), label=3, id=3,
-                            attributes={'is_crowd': True}),
-                        Mask(image=np.array([[0, 1, 1, 0, 0]]), label=24, id=1,
-                            attributes={'is_crowd': False}),
-                        Mask(image=np.array([[1, 0, 0, 0, 1]]), label=15, id=15,
-                            attributes={'is_crowd': True}),
-                    ]),
+                        image=np.ones((1, 5, 3)),
+                        annotations=[
+                            Mask(np.array([[0, 0, 0, 1, 0]]), label=3,
+                                attributes={'is_crowd': True}),
+                            Mask(np.array([[0, 1, 1, 0, 0]]), label=24, id=1,
+                                attributes={'is_crowd': False}),
+                            Mask(np.array([[1, 0, 0, 0, 1]]), label=15,
+                                attributes={'is_crowd': True}),
+                        ]
+                    ),
+
                     DatasetItem(id='defaultcity_3', subset='val',
-                        image=np.ones((1, 5, 3)), annotations=[
-                        Mask(image=np.array([[1, 1, 0, 1, 1]]), label=3, id=3,
-                            attributes={'is_crowd': True}),
-                        Mask(image=np.array([[0, 0, 1, 0, 0]]), label=5, id=5,
-                            attributes={'is_crowd': True}),
-                    ]),
-                ])
-        with TestDir() as test_dir:
-            self._test_save_and_load(TestExtractor(),
-                partial(CityscapesConverter.convert, label_map='cityscapes',
-                save_images=True), test_dir)
-
-    @mark_requirement(Requirements.DATUM_267)
-    def test_can_save_cityscapes_segm_unpainted(self):
-        class TestExtractor(TestExtractorBase):
-            def __iter__(self):
-                return iter([
-                    DatasetItem(id='defaultcity_1_2', subset='test',
-                        image=np.ones((1, 5, 3)), annotations=[
-                        Mask(image=np.array([[0, 0, 0, 1, 0]]), label=3, id=3,
-                            attributes={'is_crowd': True}),
-                        Mask(image=np.array([[0, 1, 1, 0, 0]]), label=24, id=1,
-                            attributes={'is_crowd': False}),
-                        Mask(image=np.array([[1, 0, 0, 0, 1]]), label=15, id=15,
-                            attributes={'is_crowd': True}),
-                    ]),
+                        image=np.ones((1, 5, 3)),
+                        annotations=[
+                            Mask(np.array([[1, 1, 0, 1, 1]]), label=3,
+                                attributes={'is_crowd': True}),
+                            Mask(np.array([[0, 0, 1, 0, 0]]), label=5,
+                                attributes={'is_crowd': True}),
+                        ]
+                    ),
                 ])
 
         with TestDir() as test_dir:
             self._test_save_and_load(TestExtractor(),
                 partial(CityscapesConverter.convert, label_map='cityscapes',
-                save_images=True, apply_colormap=False), test_dir)
+                    save_images=True), test_dir)
 
     @mark_requirement(Requirements.DATUM_267)
-    def test_can_save_cityscapes_dataset_with_no_subsets(self):
+    def test_can_save_with_no_subsets(self):
         class TestExtractor(TestExtractorBase):
             def __iter__(self):
                 return iter([
                     DatasetItem(id='defaultcity_1_2',
-                        image=np.ones((1, 5, 3)), annotations=[
-                        Mask(image=np.array([[1, 0, 0, 1, 0]]), label=0, id=0,
-                            attributes={'is_crowd': True}),
-                        Mask(image=np.array([[0, 1, 1, 0, 1]]), label=3, id=3,
-                            attributes={'is_crowd': True}),
-                    ]),
+                        image=np.ones((1, 5, 3)),
+                        annotations=[
+                            Mask(np.array([[1, 0, 0, 1, 0]]), label=0,
+                                attributes={'is_crowd': True}),
+                            Mask(np.array([[0, 1, 1, 0, 1]]), label=3,
+                                attributes={'is_crowd': True}),
+                        ]
+                    ),
 
                     DatasetItem(id='defaultcity_1_3',
-                        image=np.ones((1, 5, 3)), annotations=[
-                        Mask(image=np.array([[1, 1, 0, 1, 0]]), label=1, id=1,
-                            attributes={'is_crowd': True}),
-                        Mask(image=np.array([[0, 0, 1, 0, 1]]), label=2, id=2,
-                            attributes={'is_crowd': True}),
-                    ]),
+                        image=np.ones((1, 5, 3)),
+                        annotations=[
+                            Mask(np.array([[1, 1, 0, 1, 0]]), label=1,
+                                attributes={'is_crowd': True}),
+                            Mask(np.array([[0, 0, 1, 0, 1]]), label=2,
+                                attributes={'is_crowd': True}),
+                        ]
+                    ),
                 ])
 
         with TestDir() as test_dir:
             self._test_save_and_load(TestExtractor(),
                 partial(CityscapesConverter.convert, label_map='cityscapes',
-                save_images=True), test_dir)
-
-    @mark_requirement(Requirements.DATUM_267)
-    def test_can_save_cityscapes_dataset_without_frame_and_sequence(self):
-        class TestExtractor(TestExtractorBase):
-            def __iter__(self):
-                return iter([
-                    DatasetItem(id='justcity', subset='test',
-                        image=np.ones((1, 5, 3)), annotations=[
-                        Mask(image=np.array([[1, 0, 0, 1, 1]]), label=3, id=3,
-                            attributes={'is_crowd': True}),
-                        Mask(image=np.array([[0, 1, 1, 0, 0]]), label=24, id=1,
-                            attributes={'is_crowd': False}),
-                    ]),
-                ])
-        with TestDir() as test_dir:
-            self._test_save_and_load(TestExtractor(),
-                partial(CityscapesConverter.convert, label_map='cityscapes',
-                save_images=True), test_dir)
+                    save_images=True), test_dir)
 
     @mark_requirement(Requirements.DATUM_267)
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
@@ -210,37 +182,41 @@ class CityscapesConverterTest(TestCase):
             def __iter__(self):
                 return iter([
                     DatasetItem(id='кириллица с пробелом',
-                       image=np.ones((1, 5, 3)), annotations=[
-                         Mask(image=np.array([[1, 0, 0, 1, 1]]), label=3, id=3,
-                             attributes={'is_crowd': True}),
-                         Mask(image=np.array([[0, 1, 1, 0, 0]]), label=24, id=1,
-                             attributes={'is_crowd': False}),
-                    ]),
+                        image=np.ones((1, 5, 3)),
+                        annotations=[
+                            Mask(np.array([[1, 0, 0, 1, 1]]), label=3,
+                                attributes={'is_crowd': True}),
+                            Mask(np.array([[0, 1, 1, 0, 0]]), label=24, id=1,
+                                attributes={'is_crowd': False}),
+                        ]
+                    ),
                 ])
 
         with TestDir() as test_dir:
             self._test_save_and_load(TestExtractor(),
                 partial(CityscapesConverter.convert, label_map='cityscapes',
-                save_images=True), test_dir)
+                    save_images=True), test_dir)
 
     @mark_requirement(Requirements.DATUM_267)
-    def test_can_save_cityscapes_dataset_with_strange_id(self):
+    def test_can_save_with_relative_path_in_id(self):
         class TestExtractor(TestExtractorBase):
             def __iter__(self):
                 return iter([
                     DatasetItem(id='a/b/1', subset='test',
-                        image=np.ones((1, 5, 3)), annotations=[
-                        Mask(image=np.array([[1, 0, 0, 1, 1]]), label=3, id=3,
-                            attributes={'is_crowd': True}),
-                        Mask(image=np.array([[0, 1, 1, 0, 0]]), label=24, id=1,
-                            attributes={'is_crowd': False}),
-                    ]),
+                        image=np.ones((1, 5, 3)),
+                        annotations=[
+                            Mask(np.array([[1, 0, 0, 1, 1]]), label=3,
+                                attributes={'is_crowd': True}),
+                            Mask(np.array([[0, 1, 1, 0, 0]]), label=24, id=1,
+                                attributes={'is_crowd': False}),
+                        ]
+                    ),
                 ])
 
         with TestDir() as test_dir:
             self._test_save_and_load(TestExtractor(),
                 partial(CityscapesConverter.convert, label_map='cityscapes',
-                save_images=True), test_dir)
+                    save_images=True), test_dir)
 
     @mark_requirement(Requirements.DATUM_267)
     def test_can_save_with_no_masks(self):
@@ -259,55 +235,44 @@ class CityscapesConverterTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_267)
     def test_dataset_with_source_labelmap_undefined(self):
-        class SrcExtractor(TestExtractorBase):
-            def __iter__(self):
-                yield DatasetItem(id=1, image=np.ones((1, 5, 3)), annotations=[
-                    Mask(image=np.array([[1, 0, 0, 1, 1]]), label=1, id=1,
-                        attributes={'is_crowd': False}),
-                    Mask(image=np.array([[0, 1, 1, 0, 0]]), label=2, id=2,
-                        attributes={'is_crowd': False}),
-                ])
-
-            def categories(self):
-                label_cat = LabelCategories()
-                label_cat.add('background')
-                label_cat.add('Label_1')
-                label_cat.add('label_2')
-                return {
-                    AnnotationType.label: label_cat,
-                }
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, image=np.ones((1, 5, 3)), annotations=[
+                Mask(np.array([[1, 0, 0, 1, 1]]), label=0),
+                Mask(np.array([[0, 1, 1, 0, 0]]), label=1),
+            ]),
+        ], categories=['a', 'b'])
 
         class DstExtractor(TestExtractorBase):
             def __iter__(self):
                 yield DatasetItem(id=1, image=np.ones((1, 5, 3)), annotations=[
-                    Mask(image=np.array([[1, 0, 0, 1, 1]]),
+                    Mask(np.array([[1, 0, 0, 1, 1]]),
                         attributes={'is_crowd': False}, id=1,
-                        label=self._label('Label_1')),
-                    Mask(image=np.array([[0, 1, 1, 0, 0]]),
+                        label=self._label('a')),
+                    Mask(np.array([[0, 1, 1, 0, 0]]),
                         attributes={'is_crowd': False}, id=2,
-                        label=self._label('label_2')),
+                        label=self._label('b')),
                 ])
 
             def categories(self):
                 label_map = OrderedDict()
                 label_map['background'] = None
-                label_map['Label_1'] = None
-                label_map['label_2'] = None
+                label_map['a'] = None
+                label_map['b'] = None
                 return Cityscapes.make_cityscapes_categories(label_map)
 
         with TestDir() as test_dir:
-            self._test_save_and_load(SrcExtractor(),
+            self._test_save_and_load(source_dataset,
                 partial(CityscapesConverter.convert, label_map='source',
-                save_images=True), test_dir, target_dataset=DstExtractor())
+                    save_images=True), test_dir, target_dataset=DstExtractor())
 
     @mark_requirement(Requirements.DATUM_267)
     def test_dataset_with_source_labelmap_defined(self):
         class SrcExtractor(TestExtractorBase):
             def __iter__(self):
                 yield DatasetItem(id=1, image=np.ones((1, 5, 3)), annotations=[
-                    Mask(image=np.array([[1, 0, 0, 1, 1]]), label=1, id=1,
+                    Mask(np.array([[1, 0, 0, 1, 1]]), label=1, id=1,
                         attributes={'is_crowd': False}),
-                    Mask(image=np.array([[0, 1, 1, 0, 0]]), label=2, id=2,
+                    Mask(np.array([[0, 1, 1, 0, 0]]), label=2, id=2,
                         attributes={'is_crowd': False}),
                 ])
 
@@ -321,10 +286,10 @@ class CityscapesConverterTest(TestCase):
         class DstExtractor(TestExtractorBase):
             def __iter__(self):
                 yield DatasetItem(id=1, image=np.ones((1, 5, 3)), annotations=[
-                    Mask(image=np.array([[1, 0, 0, 1, 1]]),
+                    Mask(np.array([[1, 0, 0, 1, 1]]),
                         attributes={'is_crowd': False}, id=1,
                         label=self._label('label_1')),
-                    Mask(image=np.array([[0, 1, 1, 0, 0]]),
+                    Mask(np.array([[0, 1, 1, 0, 0]]),
                         attributes={'is_crowd': False}, id=2,
                         label=self._label('label_2')),
                 ])
@@ -346,18 +311,19 @@ class CityscapesConverterTest(TestCase):
         class TestExtractor(TestExtractorBase):
             def __iter__(self):
                 return iter([
-                    DatasetItem(id='q/1', image=Image(path='q/1.JPEG',
-                        data=np.zeros((4, 3, 3)))),
+                    DatasetItem(id='q',
+                        image=Image(path='q.JPEG', data=np.zeros((4, 3, 3)))
+                    ),
 
-                    DatasetItem(id='a/b/c/2', image=Image(
-                             path='a/b/c/2.bmp', data=np.ones((1, 5, 3))
-                         ), annotations=[
-                        Mask(image=np.array([[1, 0, 0, 1, 0]]), label=0, id=0,
-                            attributes={'is_crowd': True}),
-                        Mask(image=np.array([[0, 1, 1, 0, 1]]), label=1, id=1,
-                            attributes={'is_crowd': True}),
-                    ]),
-                ])
+                    DatasetItem(id='w',
+                        image=Image(path='w.bmp', data=np.ones((1, 5, 3))),
+                        annotations=[
+                            Mask(np.array([[1, 0, 0, 1, 0]]), label=0,
+                                attributes={'is_crowd': True}),
+                            Mask(np.array([[0, 1, 1, 0, 1]]), label=1,
+                                attributes={'is_crowd': True}),
+                        ]),
+                    ])
 
             def categories(self):
                 label_map = OrderedDict()
@@ -377,13 +343,13 @@ class CityscapesConverterTest(TestCase):
         expected = Dataset.from_iterable([
             DatasetItem(1, subset='a', image=np.ones((2, 1, 3)),
                 annotations=[
-                    Mask(np.ones((2, 1)), label=2)
+                    Mask(np.ones((2, 1)), label=2, id=1)
                 ]),
             DatasetItem(2, subset='a', image=np.ones((3, 2, 3))),
 
             DatasetItem(2, subset='b', image=np.ones((2, 2, 3)),
                 annotations=[
-                    Mask(np.ones((2, 2)), label=1)
+                    Mask(np.ones((2, 2)), label=1, id=1)
                 ]),
         ], categories=Cityscapes.make_cityscapes_categories(OrderedDict([
             ('a', src_mask_cat.colormap[0]),
