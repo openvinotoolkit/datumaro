@@ -270,17 +270,28 @@ class CityscapesConverter(Converter):
                 labelids_mask_path = osp.join(common_folder_path,
                     common_image_name + CityscapesPath.LABELIDS_IMAGE)
                 self.save_mask(osp.join(self._save_dir, labelids_mask_path),
-                    compiled_class_mask.class_mask, apply_colormap=False,
-                    dtype=np.int32)
+                    compiled_class_mask.class_mask, apply_colormap=False)
 
+                instance_labels = []
+                dtype=np.int32
+                for m in masks:
+                    is_crowd = m.attributes.get('is_crowd', None)
+                    if is_crowd:
+                        instance_labels.append(m.id)
+                    elif is_crowd == False:
+                        instance_labels.append(m.label * 1000 + m.id)
+                    else:
+                        instance_labels = [self._label_id_mapping(m.label)
+                            for m in masks]
+                        dtype=np.uint8
+                        break
                 compiled_instance_mask = CompiledMask.from_instance_masks(masks,
-                    instance_labels=[m.id if m.attributes.get('is_crowd', True)
-                    else m.label * 1000 + m.id for m in masks])
+                    instance_labels=instance_labels)
                 inst_path = osp.join(common_folder_path,
                     common_image_name + CityscapesPath.INSTANCES_IMAGE)
                 self.save_mask(osp.join(self._save_dir, inst_path),
                     compiled_instance_mask.class_mask, apply_colormap=False,
-                    dtype=np.int32)
+                    dtype=dtype)
         self.save_label_map()
 
     def save_label_map(self):
