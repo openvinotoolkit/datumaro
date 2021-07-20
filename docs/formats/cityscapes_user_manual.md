@@ -15,6 +15,11 @@ Cityscapes format specification available [here](https://github.com/mcordts/city
 
 Cityscapes dataset format supports `Masks` (segmentations tasks) annotations.
 
+Supported annotation attributes:
+- `is_crowd` (boolean). Specifies if the annotation label can
+    distinquish between different instances.
+    If `False`, the annotation `id` field encodes the instance id.
+
 ## Load Cityscapes dataset
 
 The Cityscapes dataset is available for free [download](https://www.cityscapes-dataset.com/downloads/).
@@ -58,14 +63,14 @@ Cityscapes dataset directory should have the following structure:
 ```
 
 Annotated files description:
-1. *leftImg8bit.png - left images in 8-bit LDR format
-1. *color.png - class labels are encoded by its color
-1. *instanceIds.png - class and instance labels are encoded by an instance ID.
+1. `*_leftImg8bit.png` - left images in 8-bit LDR format
+1. `*_color.png` - class labels encoded by its color
+1. `*_labelIds.png` - class labels are encoded by its index
+1. `*_instanceIds.png` - class and instance labels encoded by an instance ID.
     The pixel values encode class and the individual instance: the integer part
     of a division by 1000 of each ID provides class ID, the remainder
     is the instance ID. If a certain annotation describes multiple instances,
     then the pixels have the regular ID of that class
-1. *labelIds.png - class labels are encoded by its ID
 
 To make sure that the selected dataset has been added to the project, you can
 run `datum info`, which will display the project and dataset information.
@@ -108,8 +113,6 @@ Extra options for export to cityscapes format:
 (by default `False`);
 - `--image-ext IMAGE_EXT` allow to specify image extension
 for exporting dataset (by default - keep original or use `.png`, if none).
-- `--apply-colormap APPLY_COLORMAP` allow to use colormap for class masks
-(`*color.png` files, by default `True`);
 - `--label_map` allow to define a custom colormap. Example
 
 ``` bash
@@ -159,15 +162,14 @@ categories = Cityscapes.make_cityscapes_categories(label_map)
 
 dataset = Dataset.from_iterable([
     DatasetItem(id=1,
-                image=np.ones((1, 5, 3)),
-                annotations=[
-                    Mask(image=np.array([[1, 0, 0, 1, 1]]), label=1, id=1,
-                        attributes={'is_crowd': False}),
-                    Mask(image=np.array([[0, 1, 1, 0, 0]]), label=2, id=2,
-                        attributes={'is_crowd': False}),
-                ]
-            ),
-    ], categories=categories)
+        image=np.ones((1, 5, 3)),
+        annotations=[
+            Mask(image=np.array([[1, 0, 0, 1, 1]]), label=1),
+            Mask(image=np.array([[0, 1, 1, 0, 0]]), label=2, id=2,
+                attributes={'is_crowd': False}),
+        ]
+    ),
+], categories=categories)
 
 dataset.export('./dataset', format='cityscapes')
 ```
