@@ -131,7 +131,7 @@ class Label(Annotation):
 @attrs(eq=False)
 class MaskCategories(Categories):
     @classmethod
-    def generate(cls, size=256, include_background=True):
+    def generate(cls, size=255, include_background=True):
         """
         Generates a color map with the specified size.
 
