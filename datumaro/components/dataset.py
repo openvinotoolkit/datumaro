@@ -761,7 +761,7 @@ class Dataset(IDataset):
 
     @property
     def is_bound(self) -> bool:
-        return self._source_path and self._format
+        return bool(self._source_path) and bool(self._format)
 
     def bind(self, path: str, format: str = None):
         self._source_path = path
