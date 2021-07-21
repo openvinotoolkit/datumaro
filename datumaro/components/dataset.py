@@ -198,6 +198,9 @@ class DatasetPatch:
                 for s in self.data.subsets()}
         return self._updated_subsets
 
+    def __contains__(self, x: Union[DatasetItem, Tuple[str, str]]) -> bool:
+        return x in self.data
+
     def as_dataset(self, parent: IDataset) -> IDataset:
         return __class__.DatasetPatchWrapper(self, parent)
 
@@ -758,7 +761,7 @@ class Dataset(IDataset):
 
     @property
     def is_bound(self) -> bool:
-        return self._source_path and self._format
+        return bool(self._source_path) and bool(self._format)
 
     def bind(self, path: str, format: str = None):
         self._source_path = path

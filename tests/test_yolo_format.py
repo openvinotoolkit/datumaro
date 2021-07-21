@@ -98,7 +98,8 @@ class YoloFormatTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         source_dataset = Dataset.from_iterable([
-            DatasetItem(id='кириллица с пробелом', subset='train', image=np.ones((8, 8, 3)),
+            DatasetItem(id='кириллица с пробелом', subset='train',
+                image=np.ones((8, 8, 3)),
                 annotations=[
                     Bbox(0, 2, 4, 2, label=2),
                     Bbox(0, 1, 2, 3, label=4),
@@ -152,8 +153,12 @@ class YoloFormatTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_inplace_save_writes_only_updated_data(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(1, subset='train', image=np.ones((2, 4, 3))),
+            DatasetItem(2, subset='train', image=np.ones((3, 2, 3))),
+        ], categories=[])
+
         with TestDir() as path:
-            # generate initial dataset
             dataset = Dataset.from_iterable([
                 DatasetItem(1, subset='train', image=np.ones((2, 4, 3))),
                 DatasetItem(2, subset='train',
@@ -161,21 +166,17 @@ class YoloFormatTest(TestCase):
                 DatasetItem(3, subset='valid', image=np.ones((2, 2, 3))),
             ], categories=[])
             dataset.export(path, 'yolo', save_images=True)
-            os.unlink(osp.join(path, 'obj_train_data', '1.txt'))
-            os.unlink(osp.join(path, 'obj_train_data', '2.txt'))
-            os.unlink(osp.join(path, 'obj_valid_data', '3.txt'))
-            self.assertFalse(osp.isfile(osp.join(path, 'obj_train_data', '2.jpg')))
-            self.assertTrue(osp.isfile(osp.join(path, 'obj_valid_data', '3.jpg')))
 
             dataset.put(DatasetItem(2, subset='train', image=np.ones((3, 2, 3))))
             dataset.remove(3, 'valid')
             dataset.save(save_images=True)
 
-            self.assertTrue(osp.isfile(osp.join(path, 'obj_train_data', '1.txt')))
-            self.assertTrue(osp.isfile(osp.join(path, 'obj_train_data', '2.txt')))
-            self.assertFalse(osp.isfile(osp.join(path, 'obj_valid_data', '3.txt')))
-            self.assertTrue(osp.isfile(osp.join(path, 'obj_train_data', '2.jpg')))
-            self.assertFalse(osp.isfile(osp.join(path, 'obj_valid_data', '3.jpg')))
+            self.assertEqual({'1.txt', '2.txt', '1.jpg', '2.jpg'},
+                set(os.listdir(osp.join(path, 'obj_train_data'))))
+            self.assertEqual(set(),
+                set(os.listdir(osp.join(path, 'obj_valid_data'))))
+            compare_datasets(self, expected, Dataset.import_from(path, 'yolo'),
+                require_images=True)
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'yolo_dataset')
 
