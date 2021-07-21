@@ -5,6 +5,7 @@
 import contextlib
 import csv
 import fnmatch
+import functools
 import glob
 import itertools
 import json
@@ -15,7 +16,10 @@ import re
 import types
 
 from attr import attrs
+import cv2
+import numpy as np
 
+from datumaro.cli.util import make_file_name
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.errors import (
@@ -23,21 +27,21 @@ from datumaro.components.errors import (
 )
 from datumaro.components.extractor import (
     AnnotationType, Bbox, DatasetItem, Extractor, Importer, Label,
-    LabelCategories,
+    LabelCategories, Mask,
 )
 from datumaro.components.validator import Severity
 from datumaro.util.image import (
-    DEFAULT_IMAGE_META_FILE_NAME, Image, find_images, load_image_meta_file,
-    save_image_meta_file,
+    DEFAULT_IMAGE_META_FILE_NAME, Image, find_images, lazy_image, load_image,
+    load_image_meta_file, save_image, save_image_meta_file,
 )
 from datumaro.util.os_util import split_path
 
-# A regex to check whether a subset name can be used as a "normal" path
+# A regex to check whether a string can be used as a "normal" path
 # component.
-# Accepting a subset name that doesn't match this regex could lead
-# to accessing data outside of the expected directory, so it's best
-# to reject them.
-_RE_INVALID_SUBSET = re.compile(r'''
+# Some strings that are loaded from annotation files are used in paths,
+# and we need to validate them with this, so that a specially crafted
+# annotation file can't access files outside of the expected directory.
+_RE_INVALID_PATH_COMPONENT = re.compile(r'''
     # empty
     | \.\.? # special path component
     | .*[/\\\0].* # contains special characters
@@ -50,9 +54,26 @@ class UnsupportedSubsetNameError(DatasetError):
     def __str__(self):
         return "Item %s has an unsupported subset name %r." % (self.item_id, self.subset)
 
+@attrs(auto_attribs=True)
+class UnsupportedBoxIdError(DatasetError):
+    box_id: str
+
+    def __str__(self):
+        return "Item %s has a mask with an unsupported box ID %r." % (
+            self.item_id, self.box_id)
+
+@attrs(auto_attribs=True)
+class UnsupportedMaskPathError(DatasetError):
+    mask_path: str
+
+    def __str__(self):
+        return "Item %s has a mask with an unsupported path %r." % (
+            self.item_id, self.mask_path)
+
 class OpenImagesPath:
     ANNOTATIONS_DIR = 'annotations'
     IMAGES_DIR = 'images'
+    MASKS_DIR = 'masks'
 
     FULL_IMAGE_DESCRIPTION_FILE_NAME = 'image_ids_and_rotation.csv'
     SUBSET_IMAGE_DESCRIPTION_FILE_PATTERNS = (
@@ -64,6 +85,7 @@ class OpenImagesPath:
 
     LABEL_DESCRIPTION_FILE_SUFFIX = '-annotations-human-imagelabels.csv'
     BBOX_DESCRIPTION_FILE_SUFFIX = '-annotations-bbox.csv'
+    MASK_DESCRIPTION_FILE_SUFFIX = '-annotations-object-segmentation.csv'
 
     IMAGE_DESCRIPTION_FIELDS = (
         'ImageID',
@@ -111,6 +133,18 @@ class OpenImagesPath:
         types.SimpleNamespace(datumaro_name='is_inside', oid_name='IsInside'),
     )
 
+    MASK_DESCRIPTION_FIELDS = (
+        'MaskPath',
+        'ImageID',
+        'LabelName',
+        'BoxID',
+        'BoxXMin',
+        'BoxXMax',
+        'BoxYMin',
+        'BoxYMax',
+        'PredictedIoU',
+        'Clicks',
+    )
 
 class OpenImagesExtractor(Extractor):
     def __init__(self, path):
@@ -232,7 +266,7 @@ class OpenImagesExtractor(Extractor):
 
                     subset = image_description['Subset']
 
-                    if _RE_INVALID_SUBSET.fullmatch(subset):
+                    if _RE_INVALID_PATH_COMPONENT.fullmatch(subset):
                         raise UnsupportedSubsetNameError(item_id=image_id, subset=subset)
 
                     image_path = image_paths_by_id.get(image_id)
@@ -265,6 +299,7 @@ class OpenImagesExtractor(Extractor):
 
         self._load_labels(items_by_id)
         self._load_bboxes(items_by_id)
+        self._load_masks(items_by_id)
 
     def _load_labels(self, items_by_id):
         label_categories = self._categories[AnnotationType.label]
@@ -337,6 +372,89 @@ class OpenImagesExtractor(Extractor):
                         attributes=attributes,
                     ))
 
+    def _load_masks(self, items_by_id):
+        label_categories = self._categories[AnnotationType.label]
+
+        for mask_path in self._glob_annotations(
+            '*' + OpenImagesPath.MASK_DESCRIPTION_FILE_SUFFIX
+        ):
+            with self._open_csv_annotation(mask_path) as mask_reader:
+                for mask_description in mask_reader:
+                    mask_path = mask_description['MaskPath']
+                    if _RE_INVALID_PATH_COMPONENT.fullmatch(mask_path):
+                        raise UnsupportedMaskPathError(item_id=item.id, mask_path=mask_path)
+
+                    image_id = mask_description['ImageID']
+                    item = items_by_id[image_id]
+
+                    label_name = mask_description['LabelName']
+                    label_index, _ = label_categories.find(label_name)
+                    if label_index is None:
+                        raise UndefinedLabel(
+                            item_id=item.id, subset=item.subset,
+                            label_name=label_name, severity=Severity.error)
+
+                    attributes = {}
+
+                    # The box IDs are rather useless, because the _box_ annotations
+                    # don't include them, so they cannot be used to match masks to boxes.
+                    # However, it is still desirable to record them, because they are
+                    # included in the mask file names, so in order to save each mask to the
+                    # file it was loaded from when saving in-places, we need to know
+                    # the original box ID.
+                    box_id = mask_description['BoxID']
+                    if _RE_INVALID_PATH_COMPONENT.fullmatch(box_id):
+                        raise UnsupportedBoxIdError(item_id=item.id, box_id=box_id)
+                    attributes['box_id'] = box_id
+
+                    # In the original OID, the masks are often bigger than
+                    # the images, which doesn't fit Datumaro's data model.
+                    # We also need the image size to denormalize the box coordinates.
+                    # As a workaround, we resize all masks to the image's size.
+                    if not item.has_image or item.image.size is None:
+                        log.warning(
+                            "Can't load mask for item '%s' due to missing image file",
+                            item.id)
+                        continue
+
+                    height, width = item.image.size
+
+                    # The original OID has box coordinates for all masks, but
+                    # a dataset converted from another dataset might not.
+                    if all(mask_description[f] for f in [
+                        'BoxXMin' ,'BoxXMax', 'BoxYMin', 'BoxYMax',
+                    ]):
+                        box = attributes['box'] = {}
+                        # We convert the box attributes into the Datumaro box format,
+                        # so that it's easier for the user to match up the mask to
+                        # the corresponding box annotation.
+                        box['x'] = float(mask_description['BoxXMin']) * width
+                        box['y'] = float(mask_description['BoxYMin']) * height
+                        box['w'] = float(mask_description['BoxXMax']) * width - box['x']
+                        box['h'] = float(mask_description['BoxYMax']) * height - box['y']
+
+                    if mask_description['PredictedIoU']:
+                        attributes['predicted_iou'] = float(mask_description['PredictedIoU'])
+
+                    item.annotations.append(Mask(
+                        image=lazy_image(
+                            osp.join(
+                                self._dataset_dir, OpenImagesPath.MASKS_DIR,
+                                item.subset, mask_path,
+                            ),
+                            loader=functools.partial(
+                                self._load_and_resize_mask, size=item.image.size),
+                        ),
+                        label=label_index,
+                        attributes=attributes,
+                    ))
+
+    @staticmethod
+    def _load_and_resize_mask(path, size):
+        raw = load_image(path, dtype=np.uint8)
+        resized = cv2.resize(raw, (size[1], size[0]),
+            interpolation=cv2.INTER_NEAREST)
+        return resized.astype(np.bool)
 
 class OpenImagesImporter(Importer):
     @classmethod
@@ -390,6 +508,7 @@ class _AnnotationWriter:
         *OpenImagesPath.SUBSET_IMAGE_DESCRIPTION_FILE_PATTERNS,
         '*' + OpenImagesPath.LABEL_DESCRIPTION_FILE_SUFFIX,
         '*' + OpenImagesPath.BBOX_DESCRIPTION_FILE_SUFFIX,
+        '*' + OpenImagesPath.MASK_DESCRIPTION_FILE_SUFFIX,
         DEFAULT_IMAGE_META_FILE_NAME,
     )
 
@@ -531,7 +650,7 @@ class OpenImagesConverter(Converter):
         image_meta = {}
 
         for subset_name, subset in self._extractor.subsets().items():
-            if _RE_INVALID_SUBSET.fullmatch(subset_name):
+            if _RE_INVALID_PATH_COMPONENT.fullmatch(subset_name):
                 raise UnsupportedSubsetNameError(item_id=next(iter(subset)).id, subset=subset)
 
             image_description_name = f'{subset_name}-images-with-rotation.csv'
@@ -547,7 +666,11 @@ class OpenImagesConverter(Converter):
                 annotation_writer.open_csv_lazy(
                     subset_name + OpenImagesPath.BBOX_DESCRIPTION_FILE_SUFFIX,
                     OpenImagesPath.BBOX_DESCRIPTION_FIELDS,
-                ) as bbox_description_writer \
+                ) as bbox_description_writer, \
+                annotation_writer.open_csv_lazy(
+                    subset_name + OpenImagesPath.MASK_DESCRIPTION_FILE_SUFFIX,
+                    OpenImagesPath.MASK_DESCRIPTION_FIELDS,
+                ) as mask_description_writer \
             :
                 for item in subset:
                     image_description_writer.writerow({
@@ -560,6 +683,15 @@ class OpenImagesConverter(Converter):
                                 OpenImagesPath.IMAGES_DIR, subset_name))
                         else:
                             log.debug("Item '%s' has no image", item.id)
+
+                    next_box_id = 0
+
+                    existing_box_ids = {
+                        annotation.attributes['box_id']
+                        for annotation in item.annotations
+                        if annotation.type is AnnotationType.mask
+                        if 'box_id' in annotation.attributes
+                    }
 
                     for annotation in item.annotations:
                         if annotation.type is AnnotationType.label:
@@ -591,6 +723,58 @@ class OpenImagesConverter(Converter):
                                     for bool_attr in OpenImagesPath.BBOX_BOOLEAN_ATTRIBUTES
                                 },
                             })
+                        elif annotation.type is AnnotationType.mask:
+                            mask_dir = osp.join(self._save_dir, OpenImagesPath.MASKS_DIR, item.subset)
+
+                            box_id_str = annotation.attributes.get('box_id')
+
+                            if box_id_str:
+                                if _RE_INVALID_PATH_COMPONENT.fullmatch(box_id_str):
+                                    raise UnsupportedBoxIdError(item_id=item.id, box_id=box_id_str)
+                            else:
+                                # find a box ID that isn't used in any other annotations
+                                while True:
+                                    box_id_str = format(next_box_id, "08x")
+                                    next_box_id += 1
+                                    if box_id_str not in existing_box_ids:
+                                        break
+
+                            label_name = label_categories[annotation.label].name
+                            mask_file_name = '%s_%s_%s.png' % (
+                                make_file_name(item.id), make_file_name(label_name), box_id_str,
+                            )
+
+                            box = annotation.attributes.get('box')
+                            box_coords = {}
+
+                            if box is not None:
+                                if item.has_image and item.image.size is not None:
+                                    image_meta[item.id] = (height, width) = item.image.size
+
+                                    box_coords = {
+                                        'BoxXMin': box['x'] / width,
+                                        'BoxXMax': (box['x'] + box['w']) / width,
+                                        'BoxYMin': box['y'] / height,
+                                        'BoxYMax': (box['y'] + box['h']) / height,
+                                    }
+                                else:
+                                    log.warning(
+                                        "Can't encode box coordinates for a mask"
+                                            " for item '%s' due to missing image file",
+                                        item.id)
+
+                            mask_description_writer.writerow({
+                                'MaskPath': mask_file_name,
+                                'ImageID': item.id,
+                                'LabelName': label_name,
+                                'BoxID': box_id_str,
+                                **box_coords,
+                                'PredictedIoU':
+                                    annotation.attributes.get('predicted_iou', ''),
+                            })
+
+                            save_image(osp.join(mask_dir, mask_file_name),
+                                annotation.image, create_dir=True)
 
         if image_meta:
             image_meta_file_path = osp.join(
