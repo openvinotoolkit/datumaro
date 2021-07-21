@@ -290,7 +290,7 @@ class CityscapesConverter(Converter):
                 cls_mask_path = osp.join(mask_dir,
                     mask_name + CityscapesPath.LABELIDS_IMAGE)
                 self.save_mask(cls_mask_path, compiled_mask.class_mask,
-                    apply_colormap=False, dtype=np.int32)
+                    apply_colormap=False, dtype=np.uint8)
 
                 inst_mask_path = osp.join(mask_dir,
                     mask_name + CityscapesPath.INSTANCES_IMAGE)
