@@ -86,6 +86,7 @@ enable=
     E0301, # non-iterator-returned
     E0302, # unexpected-special-method-signature
     E0601, # used-before-assignment
+    E0602, # undefined-variable
     E0603, # undefined-all-variable
     E0604, # invalid-all-object
     E0701, # bad-except-order
