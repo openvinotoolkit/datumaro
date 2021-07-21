@@ -17,6 +17,7 @@ import types
 from attr import attrs
 
 from datumaro.components.converter import Converter
+from datumaro.components.dataset import ItemStatus
 from datumaro.components.errors import (
     DatasetError, RepeatedItemError, UndefinedLabel,
 )
@@ -349,38 +350,136 @@ class OpenImagesImporter(Importer):
 
         return []
 
+
+class _LazyCsvDictWriter:
+    """
+    For annotation files, we only learn that the file is required after
+    we find at least one occurrence of the corresponding annotation type.
+    However, it's convenient to create the writer ahead of time, so that
+    it can be used in a `with` statement.
+
+    This class behaves like a csv.DictWriter, but it only creates the file
+    once the first row is written.
+    """
+
+    def __init__(self, writer_manager_factory):
+        self._writer_manager_factory = writer_manager_factory
+        self._writer_manager = None
+        self._writer = None
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if self._writer_manager:
+            self._writer_manager.__exit__(exc_type, exc_value, traceback)
+
+    def writerow(self, rowdict):
+        if not self._writer_manager:
+            self._writer_manager = self._writer_manager_factory()
+            self._writer = self._writer_manager.__enter__()
+
+        self._writer.writerow(rowdict)
+
+
+class _AnnotationWriter:
+    _POSSIBLE_ANNOTATION_FILE_PATTERNS = (
+        # class description files don't need to be listed,
+        # because they are always written
+        OpenImagesPath.FULL_IMAGE_DESCRIPTION_FILE_NAME,
+        *OpenImagesPath.SUBSET_IMAGE_DESCRIPTION_FILE_PATTERNS,
+        '*' + OpenImagesPath.LABEL_DESCRIPTION_FILE_SUFFIX,
+        '*' + OpenImagesPath.BBOX_DESCRIPTION_FILE_SUFFIX,
+        DEFAULT_IMAGE_META_FILE_NAME,
+    )
+
+    def __init__(self, root_dir):
+        self._annotations_dir = osp.join(root_dir, OpenImagesPath.ANNOTATIONS_DIR)
+        self._written_annotations = set()
+
+        os.makedirs(self._annotations_dir, exist_ok=True)
+
+    @contextlib.contextmanager
+    def open(self, file_name, newline=None):
+        self._written_annotations.add(file_name)
+
+        file_path = osp.join(self._annotations_dir, file_name)
+
+        # Write to a temporary file first, to avoid data loss if we're patching
+        # an existing dataset and the process is interrupted.
+        temp_file_path = file_path + '.tmp'
+
+        with open(
+            temp_file_path, 'w', encoding='utf-8', newline=newline,
+        ) as f:
+            yield f
+
+        os.replace(temp_file_path, file_path)
+
+    @contextlib.contextmanager
+    def open_csv(self, file_name, field_names, *, write_header=True):
+        with self.open(file_name, newline='') as f:
+            writer = csv.DictWriter(f, field_names)
+            if write_header:
+                writer.writeheader()
+            yield writer
+
+    def open_csv_lazy(self, file_name, field_names):
+        return _LazyCsvDictWriter(
+            lambda: self.open_csv(file_name, field_names))
+
+    def remove_unwritten(self):
+        for file_name in os.listdir(self._annotations_dir):
+            if file_name not in self._written_annotations and any(
+                fnmatch.fnmatch(file_name, pattern)
+                for pattern in self._POSSIBLE_ANNOTATION_FILE_PATTERNS
+            ):
+                os.unlink(osp.join(self._annotations_dir, file_name))
+
 class OpenImagesConverter(Converter):
     DEFAULT_IMAGE_EXT = '.jpg'
 
-    @contextlib.contextmanager
-    def _open_csv_annotation(self, file_name, field_names):
-        absolute_path = osp.join(self._save_dir, OpenImagesPath.ANNOTATIONS_DIR, file_name)
-
-        with open(absolute_path, 'w', encoding='utf-8', newline='') as f:
-            yield csv.DictWriter(f, field_names)
-
     def apply(self):
-        annotations_dir = osp.join(self._save_dir, OpenImagesPath.ANNOTATIONS_DIR)
+        self._save(_AnnotationWriter(self._save_dir))
 
-        os.makedirs(annotations_dir, exist_ok=True)
+    @classmethod
+    def patch(cls, dataset, patch, save_dir, **options):
+        converter = cls(dataset, save_dir, **options)
+        annotation_writer = _AnnotationWriter(save_dir)
+        converter._save(annotation_writer)
+        annotation_writer.remove_unwritten()
 
-        self._save_categories()
-        self._save_label_category_parents()
-        self._save_subsets()
+        images_dir = osp.join(save_dir, OpenImagesPath.IMAGES_DIR)
+        for (item_id, subset), status in patch.updated_items.items():
+            if status != ItemStatus.removed:
+                continue
 
-    def _save_categories(self):
-        with self._open_csv_annotation(
+            item = DatasetItem(item_id, subset=subset)
+
+            image_path = osp.join(images_dir,
+                converter._make_image_filename(item, subdir=subset))
+
+            if osp.isfile(image_path):
+                os.unlink(image_path)
+
+    def _save(self, annotation_writer):
+        self._save_categories(annotation_writer)
+        self._save_label_category_parents(annotation_writer)
+        self._save_subsets(annotation_writer)
+
+    def _save_categories(self, annotation_writer):
+        with annotation_writer.open_csv(
             OpenImagesPath.V5_CLASS_DESCRIPTION_FILE_NAME, ['LabelName', 'DisplayName'],
+            # no header, since we're saving it in the V5 format
+            write_header=False,
         ) as class_description_writer:
-            # no .writeheader() here, since we're saving it in the V5 format
-
             for category in self._extractor.categories()[AnnotationType.label]:
                 class_description_writer.writerow({
                     'LabelName': category.name,
                     'DisplayName': category.name,
                 })
 
-    def _save_label_category_parents(self):
+    def _save_label_category_parents(self, annotation_writer):
         all_label_names = set()
         hierarchy_nodes = {}
         orphan_nodes = []
@@ -421,11 +520,11 @@ class OpenImagesConverter(Converter):
         hierarchy_path = osp.join(
             self._save_dir, OpenImagesPath.ANNOTATIONS_DIR, OpenImagesPath.HIERARCHY_FILE_NAME)
 
-        with open(hierarchy_path, 'w', encoding='utf-8') as hierarchy_file:
+        with annotation_writer.open(hierarchy_path) as hierarchy_file:
             json.dump(root_node, hierarchy_file, indent=4, ensure_ascii=False)
             hierarchy_file.write('\n')
 
-    def _save_subsets(self):
+    def _save_subsets(self, annotation_writer):
         label_categories = self._extractor.categories().get(
             AnnotationType.label, LabelCategories())
 
@@ -438,18 +537,18 @@ class OpenImagesConverter(Converter):
             image_description_name = f'{subset_name}-images-with-rotation.csv'
 
             with \
-                self._open_csv_annotation(
+                annotation_writer.open_csv(
                     image_description_name, OpenImagesPath.IMAGE_DESCRIPTION_FIELDS,
                 ) as image_description_writer, \
-                contextlib.ExitStack() as annotation_writers \
+                annotation_writer.open_csv_lazy(
+                    subset_name + OpenImagesPath.LABEL_DESCRIPTION_FILE_SUFFIX,
+                    OpenImagesPath.LABEL_DESCRIPTION_FIELDS,
+                ) as label_description_writer, \
+                annotation_writer.open_csv_lazy(
+                    subset_name + OpenImagesPath.BBOX_DESCRIPTION_FILE_SUFFIX,
+                    OpenImagesPath.BBOX_DESCRIPTION_FIELDS,
+                ) as bbox_description_writer \
             :
-                image_description_writer.writeheader()
-
-                # The annotation description writers are created lazily,
-                # so that we don't create the label description file if there are no labels.
-                label_description_writer = None
-                bbox_description_writer = None
-
                 for item in subset:
                     image_description_writer.writerow({
                         'ImageID': item.id, 'Subset': subset_name,
@@ -464,26 +563,12 @@ class OpenImagesConverter(Converter):
 
                     for annotation in item.annotations:
                         if annotation.type is AnnotationType.label:
-                            if label_description_writer is None:
-                                label_description_writer = annotation_writers.enter_context(
-                                    self._open_csv_annotation(
-                                        subset_name + OpenImagesPath.LABEL_DESCRIPTION_FILE_SUFFIX,
-                                        OpenImagesPath.LABEL_DESCRIPTION_FIELDS))
-                                label_description_writer.writeheader()
-
                             label_description_writer.writerow({
                                 'ImageID': item.id,
                                 'LabelName': label_categories[annotation.label].name,
                                 'Confidence': str(annotation.attributes.get('score', 1)),
                             })
                         elif annotation.type is AnnotationType.bbox:
-                            if bbox_description_writer is None:
-                                bbox_description_writer = annotation_writers.enter_context(
-                                    self._open_csv_annotation(
-                                        subset_name + OpenImagesPath.BBOX_DESCRIPTION_FILE_SUFFIX,
-                                        OpenImagesPath.BBOX_DESCRIPTION_FIELDS))
-                                bbox_description_writer.writeheader()
-
                             if item.has_image and item.image.size is not None:
                                 image_meta[item.id] = (height, width) = item.image.size
                             else:
