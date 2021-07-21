@@ -11,7 +11,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The Open Images format now supports bounding box annotations
   (<https://github.com/openvinotoolkit/datumaro/pull/352>).
 - Bounding boxes values decrement transform (<https://github.com/openvinotoolkit/datumaro/pull/366>)
-
 ### Changed
 - TBD
 
