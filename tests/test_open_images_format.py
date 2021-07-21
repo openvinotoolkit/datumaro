@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 from unittest.case import TestCase
+import os
 import os.path as osp
 
 import numpy as np
@@ -109,6 +110,60 @@ class OpenImagesFormatTest(TestCase):
             parsed_dataset = Dataset.import_from(test_dir, 'open_images')
 
             compare_datasets(self, dataset, parsed_dataset, require_images=True)
+
+    @mark_requirement(Requirements.DATUM_274)
+    def test_inplace_save_writes_only_updated_data(self):
+        dataset = Dataset.from_iterable([
+            DatasetItem('a', subset='modified', image=np.ones((2, 1, 3)),
+                annotations=[
+                    Label(0, attributes={'score': 1}),
+                    Bbox(0, 0, 1, 2, label=0),
+                ]),
+            DatasetItem('b', subset='modified', image=np.ones((2, 1, 3)),
+                annotations=[
+                    Label(1, attributes={'score': 1}),
+                ]),
+            DatasetItem('c', subset='removed', image=np.ones((3, 2, 3)),
+                annotations=[Label(2, attributes={'score': 1})]),
+            DatasetItem('d', subset='unmodified', image=np.ones((4, 3, 3)),
+                annotations=[Label(3, attributes={'score': 1})]),
+        ], categories=['/m/0', '/m/1', '/m/2', '/m/3'])
+
+        with TestDir() as path:
+            dataset.export(path, 'open_images', save_images=True)
+
+            dataset.put(DatasetItem('e', subset='new', image=np.ones((5, 4, 3)),
+                annotations=[Label(1, attributes={'score': 1})]))
+            dataset.remove('c', subset='removed')
+            del dataset.get('a', subset='modified').annotations[1]
+            dataset.save(save_images=True)
+
+            self.assertEqual(
+                {
+                    'bbox_labels_600_hierarchy.json',
+                    'class-descriptions.csv',
+                    'modified-annotations-human-imagelabels.csv',
+                    'modified-images-with-rotation.csv',
+                    'new-annotations-human-imagelabels.csv',
+                    'new-images-with-rotation.csv',
+                    'unmodified-annotations-human-imagelabels.csv',
+                    'unmodified-images-with-rotation.csv',
+                },
+                set(os.listdir(osp.join(path, 'annotations'))),
+            )
+
+            expected_images = {f'{id}.jpg' for id in ['a', 'b', 'd', 'e']}
+
+            actual_images = {file_name
+                for _, _, file_names in os.walk(osp.join(path, 'images'))
+                for file_name in file_names
+            }
+
+            self.assertEqual(actual_images, expected_images)
+
+            dataset_reloaded = Dataset.import_from(path, 'open_images')
+            compare_datasets(self, dataset, dataset_reloaded, require_images=True)
+
 
 ASSETS_DIR = osp.join(osp.dirname(__file__), 'assets')
 

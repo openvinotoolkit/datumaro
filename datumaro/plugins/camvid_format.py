@@ -241,6 +241,8 @@ class CamvidConverter(Converter):
             help="Labelmap file path or one of %s" % \
                 ', '.join(t.name for t in LabelmapType))
 
+        return parser
+
     def __init__(self, extractor, save_dir,
             apply_colormap=True, label_map=None, **kwargs):
         super().__init__(extractor, save_dir, **kwargs)

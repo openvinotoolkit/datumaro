@@ -370,7 +370,7 @@ class PolyLine(_Shape):
         return 0
 
 
-@attrs
+@attrs(init=False)
 class Cuboid3d(Annotation):
     _type = AnnotationType.cuboid_3d
     _points = attrib(type=list, default=None)
@@ -386,8 +386,6 @@ class Cuboid3d(Annotation):
             points = [round(p, _COORDINATE_ROUNDING_DIGITS) for p in points]
         self._points = points
 
-    # will be overridden by attrs, then will be overridden again by us
-    # attrs' method will be renamed to __attrs_init__
     def __init__(self, position, rotation=None, scale=None, **kwargs):
         assert len(position) == 3, position
         if not rotation:
@@ -396,7 +394,6 @@ class Cuboid3d(Annotation):
             scale = [1] * 3
         kwargs.pop('points', None)
         self.__attrs_init__(points=[*position, *rotation, *scale], **kwargs)
-    __actual_init__ = __init__ # save pointer
 
     @property
     def position(self):
@@ -431,9 +428,6 @@ class Cuboid3d(Annotation):
         self.scale[:] = \
             [round(p, _COORDINATE_ROUNDING_DIGITS) for p in value]
 
-assert not hasattr(Cuboid3d, '__attrs_init__') # hopefully, it will be supported
-setattr(Cuboid3d, '__attrs_init__', Cuboid3d.__init__)
-setattr(Cuboid3d, '__init__', Cuboid3d.__actual_init__)
 
 @attrs
 class Polygon(_Shape):
@@ -452,16 +446,13 @@ class Polygon(_Shape):
         area = mask_utils.area(rle)[0]
         return area
 
-@attrs
+@attrs(init=False)
 class Bbox(_Shape):
     _type = AnnotationType.bbox
 
-    # will be overridden by attrs, then will be overridden again by us
-    # attrs' method will be renamed to __attrs_init__
     def __init__(self, x, y, w, h, *args, **kwargs):
         kwargs.pop('points', None) # comes from wrap()
         self.__attrs_init__([x, y, x + w, y + h], *args, **kwargs)
-    __actual_init__ = __init__ # save pointer
 
     @property
     def x(self):
@@ -503,9 +494,6 @@ class Bbox(_Shape):
         d.update(kwargs)
         return attr.evolve(item, **d)
 
-assert not hasattr(Bbox, '__attrs_init__') # hopefully, it will be supported
-setattr(Bbox, '__attrs_init__', Bbox.__init__)
-setattr(Bbox, '__init__', Bbox.__actual_init__)
 
 @attrs
 class PointsCategories(Categories):

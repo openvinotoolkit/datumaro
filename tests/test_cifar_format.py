@@ -158,6 +158,7 @@ class CifarFormatTest(TestCase):
             compare_datasets(self, expected, Dataset.import_from(path, 'cifar'),
                 require_images=True)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_cifar100(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='image_2', subset='test',
