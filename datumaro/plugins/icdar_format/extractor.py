@@ -63,8 +63,8 @@ class _IcdarExtractor(SourceExtractor):
                     captions = []
                     for caption in objects[1:]:
                         if caption[0] != '\"' or caption[-1] != '\"':
-                            log.warning('Captions must be inside double quotes, \
-                                %s for %s skipped' % (caption, item_id))
+                            log.warning("Line %s: unexpected number "
+                                "of quotes" % line)
                         else:
                             captions.append(caption.replace('\\', '')[1:-1])
                 else:
