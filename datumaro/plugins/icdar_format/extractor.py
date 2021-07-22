@@ -4,6 +4,7 @@
 
 from glob import iglob
 import os.path as osp
+import logging as log
 
 import numpy as np
 
@@ -53,22 +54,18 @@ class _IcdarExtractor(SourceExtractor):
     def _load_recognition_items(self):
         items = {}
 
-        with open(self._path, encoding='utf-8') as f:
+        with open(self._path, encoding='utf_8') as f:
             for line in f:
                 line = line.strip()
                 objects = line.split(', ')
                 if len(objects) == 2:
                     image = objects[0]
-                    objects = objects[1].split('\"')
-                    if 1 < len(objects):
-                        if len(objects) % 2:
-                            captions = [objects[2 * i + 1]
-                                for i in range(int(len(objects) / 2))]
-                        else:
-                            raise Exception("Line %s: unexpected number "
-                                "of quotes in filename" % line)
-                    else:
-                        captions = objects[0].split()
+                    captions = []
+                    for caption in objects[1:]:
+                        if caption[0] != '\"' or caption[-1] != '\"':
+                            log.warning('Captions must be inside double quotes, \
+                                %s for %s skipped' % (caption, item_id))
+                        captions.append(caption.replace('\\', '')[1:-1])
                 else:
                     image = objects[0][:-1]
                     captions = []
