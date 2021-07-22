@@ -29,7 +29,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   <https://github.com/openvinotoolkit/datumaro/pull/346>,
   <https://github.com/openvinotoolkit/datumaro/pull/363>)
 - Unsafe unpickling in CIFAR import (<https://github.com/openvinotoolkit/datumaro/pull/362>)
-- Item id in ImageNet format (<https://github.com/openvinotoolkit/datumaro/pull/371>)
 
 ### Security
 - TBD
