@@ -255,3 +255,16 @@ class IcdarConverterTest(TestCase):
                 self._test_save_and_load(expected,
                     partial(converter.convert, save_images=True),
                     test_dir, importer, require_images=True)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_save_and_load_captions_with_quotes(self):
+        expected_dataset = Dataset.from_iterable([
+            DatasetItem(id='1', image=np.ones((5, 5, 3)),
+                annotations=[Caption('caption\"')]
+            )
+        ])
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(expected_dataset,
+                partial(IcdarWordRecognitionConverter.convert, save_images=True),
+                test_dir, 'icdar_word_recognition')
