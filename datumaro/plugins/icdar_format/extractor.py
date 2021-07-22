@@ -3,8 +3,8 @@
 # SPDX-License-Identifier: MIT
 
 from glob import iglob
-import os.path as osp
 import logging as log
+import os.path as osp
 
 import numpy as np
 
@@ -54,7 +54,7 @@ class _IcdarExtractor(SourceExtractor):
     def _load_recognition_items(self):
         items = {}
 
-        with open(self._path, encoding='utf_8') as f:
+        with open(self._path, encoding='utf-8') as f:
             for line in f:
                 line = line.strip()
                 objects = line.split(', ')
