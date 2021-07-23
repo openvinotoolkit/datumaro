@@ -14,8 +14,11 @@ A description of the Open Images Dataset (OID) format is available
 on [its website](https://storage.googleapis.com/openimages/web/download.html).
 Datumaro supports versions 4, 5 and 6.
 
-Datumaro currently supports only the human-verified image-level label
-annotations and bounding box annotations from this dataset.
+Datumaro currently supports the following types of annotations:
+
+- human-verified image-level labels;
+- bounding boxes;
+- segmentation masks.
 
 One attribute is supported on the labels:
 
@@ -41,6 +44,19 @@ The following attributes are supported on the bounding boxes:
   rather than a real object.
 - `is_inside` (read/write, boolean).
   Whether the object is seen from the inside.
+
+The following attributes are supported on the masks:
+
+- `box_id` (read/write, string).
+  An identifier for the bounding box associated with the mask.
+
+- `box` (read/write, dict).
+  A dictionary describing the bounding box associated with the mask.
+  The keys are `x`, `y`, `w` and `h`, and their values correspond
+  to the analogous properties of the Datumaro `BBox` type.
+
+- `predicted_iou` (read/write, float).
+  Predicted IoU value with respect to the ground truth.
 
 ## Load Open Images dataset
 
@@ -75,8 +91,64 @@ Annotations can be downloaded from the following URLs:
 - [train bounding boxes](https://storage.googleapis.com/openimages/v6/oidv6-train-annotations-bbox.csv)
 - [validation bounding boxes](https://storage.googleapis.com/openimages/v5/validation-annotations-bbox.csv)
 - [test bounding boxes](https://storage.googleapis.com/openimages/v5/test-annotations-bbox.csv)
+- [train segmentation masks (metadata)](https://storage.googleapis.com/openimages/v5/train-annotations-object-segmentation.csv)
+- train segmentation masks (images):
+  [0](https://storage.googleapis.com/openimages/v5/train-masks/train-masks-0.zip)
+  [1](https://storage.googleapis.com/openimages/v5/train-masks/train-masks-1.zip)
+  [2](https://storage.googleapis.com/openimages/v5/train-masks/train-masks-2.zip)
+  [3](https://storage.googleapis.com/openimages/v5/train-masks/train-masks-3.zip)
+  [4](https://storage.googleapis.com/openimages/v5/train-masks/train-masks-4.zip)
+  [5](https://storage.googleapis.com/openimages/v5/train-masks/train-masks-5.zip)
+  [6](https://storage.googleapis.com/openimages/v5/train-masks/train-masks-6.zip)
+  [7](https://storage.googleapis.com/openimages/v5/train-masks/train-masks-7.zip)
+  [8](https://storage.googleapis.com/openimages/v5/train-masks/train-masks-8.zip)
+  [9](https://storage.googleapis.com/openimages/v5/train-masks/train-masks-9.zip)
+  [a](https://storage.googleapis.com/openimages/v5/train-masks/train-masks-a.zip)
+  [b](https://storage.googleapis.com/openimages/v5/train-masks/train-masks-b.zip)
+  [c](https://storage.googleapis.com/openimages/v5/train-masks/train-masks-c.zip)
+  [d](https://storage.googleapis.com/openimages/v5/train-masks/train-masks-d.zip)
+  [e](https://storage.googleapis.com/openimages/v5/train-masks/train-masks-e.zip)
+  [f](https://storage.googleapis.com/openimages/v5/train-masks/train-masks-f.zip)
+- [validation segmentation masks (metadata)](https://storage.googleapis.com/openimages/v5/validation-annotations-object-segmentation.csv)
+- validation segmentation masks (images):
+  [0](https://storage.googleapis.com/openimages/v5/validation-masks/validation-masks-0.zip)
+  [1](https://storage.googleapis.com/openimages/v5/validation-masks/validation-masks-1.zip)
+  [2](https://storage.googleapis.com/openimages/v5/validation-masks/validation-masks-2.zip)
+  [3](https://storage.googleapis.com/openimages/v5/validation-masks/validation-masks-3.zip)
+  [4](https://storage.googleapis.com/openimages/v5/validation-masks/validation-masks-4.zip)
+  [5](https://storage.googleapis.com/openimages/v5/validation-masks/validation-masks-5.zip)
+  [6](https://storage.googleapis.com/openimages/v5/validation-masks/validation-masks-6.zip)
+  [7](https://storage.googleapis.com/openimages/v5/validation-masks/validation-masks-7.zip)
+  [8](https://storage.googleapis.com/openimages/v5/validation-masks/validation-masks-8.zip)
+  [9](https://storage.googleapis.com/openimages/v5/validation-masks/validation-masks-9.zip)
+  [a](https://storage.googleapis.com/openimages/v5/validation-masks/validation-masks-a.zip)
+  [b](https://storage.googleapis.com/openimages/v5/validation-masks/validation-masks-b.zip)
+  [c](https://storage.googleapis.com/openimages/v5/validation-masks/validation-masks-c.zip)
+  [d](https://storage.googleapis.com/openimages/v5/validation-masks/validation-masks-d.zip)
+  [e](https://storage.googleapis.com/openimages/v5/validation-masks/validation-masks-e.zip)
+  [f](https://storage.googleapis.com/openimages/v5/validation-masks/validation-masks-f.zip)
+- [test segmentation masks (metadata)](https://storage.googleapis.com/openimages/v5/test-annotations-object-segmentation.csv)
+- test segmentation masks (images):
+  [0](https://storage.googleapis.com/openimages/v5/test-masks/test-masks-0.zip)
+  [1](https://storage.googleapis.com/openimages/v5/test-masks/test-masks-1.zip)
+  [2](https://storage.googleapis.com/openimages/v5/test-masks/test-masks-2.zip)
+  [3](https://storage.googleapis.com/openimages/v5/test-masks/test-masks-3.zip)
+  [4](https://storage.googleapis.com/openimages/v5/test-masks/test-masks-4.zip)
+  [5](https://storage.googleapis.com/openimages/v5/test-masks/test-masks-5.zip)
+  [6](https://storage.googleapis.com/openimages/v5/test-masks/test-masks-6.zip)
+  [7](https://storage.googleapis.com/openimages/v5/test-masks/test-masks-7.zip)
+  [8](https://storage.googleapis.com/openimages/v5/test-masks/test-masks-8.zip)
+  [9](https://storage.googleapis.com/openimages/v5/test-masks/test-masks-9.zip)
+  [a](https://storage.googleapis.com/openimages/v5/test-masks/test-masks-a.zip)
+  [b](https://storage.googleapis.com/openimages/v5/test-masks/test-masks-b.zip)
+  [c](https://storage.googleapis.com/openimages/v5/test-masks/test-masks-c.zip)
+  [d](https://storage.googleapis.com/openimages/v5/test-masks/test-masks-d.zip)
+  [e](https://storage.googleapis.com/openimages/v5/test-masks/test-masks-e.zip)
+  [f](https://storage.googleapis.com/openimages/v5/test-masks/test-masks-f.zip)
 
-The annotations are optional.
+All annotation files are optional,
+except that if the mask metadata files for a given subset are downloaded,
+all corresponding images must be downloaded as well, and vice versa.
 
 There are two ways to create Datumaro project and add OID to it:
 
@@ -98,33 +170,50 @@ Open Images dataset directory should have the following structure:
     │   └── bbox_labels_600_hierarchy.json
     │   └── image_ids_and_rotation.csv
     │   └── oidv6-class-descriptions.csv
-    │   └── *-human-imagelabels.csv
-    └── images/
-        ├── test
-        │   ├── <image_name1.jpg>
-        │   ├── <image_name2.jpg>
+    │   └── *-annotations-bbox.csv
+    │   └── *-annotations-human-imagelabels.csv
+    │   └── *-annotations-object-segmentation.csv
+    ├── images/
+    |   ├── test/
+    |   │   ├── <image_name1.jpg>
+    |   │   ├── <image_name2.jpg>
+    |   │   └── ...
+    |   ├── train/
+    |   │   ├── <image_name1.jpg>
+    |   │   ├── <image_name2.jpg>
+    |   │   └── ...
+    |   └── validation/
+    |       ├── <image_name1.jpg>
+    |       ├── <image_name2.jpg>
+    |       └── ...
+    └── masks/
+        ├── test/
+        │   ├── <mask_name1.png>
+        │   ├── <mask_name2.png>
         │   └── ...
-        ├── train
-        │   ├── <image_name1.jpg>
-        │   ├── <image_name2.jpg>
+        ├── train/
+        │   ├── <mask_name1.png>
+        │   ├── <mask_name2.png>
         │   └── ...
-        └── validation
-            ├── <image_name1.jpg>
-            ├── <image_name2.jpg>
+        └── validation/
+            ├── <mask_name1.png>
+            ├── <mask_name2.png>
             └── ...
 ```
+
+The mask images must be extracted from the ZIP archives linked above.
 
 To use per-subset image description files instead of `image_ids_and_rotation.csv`,
 place them in the `annotations` subdirectory.
 
 ### Creating an image metadata file
 
-To load bounding box annotations,
+To load bounding box and segmentation mask annotations,
 Datumaro needs to know the sizes of the corresponding images.
 By default, it will determine these sizes by loading each image from disk,
 which requires the images to be present and makes the loading process slow.
 
-If you want to load the bounding box annotations on a machine where
+If you want to load the aforementioned annotations on a machine where
 the images are not available,
 or just to speed up the dataset loading process,
 you can extract the image size information in advance
