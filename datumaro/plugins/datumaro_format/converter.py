@@ -348,17 +348,3 @@ class DatumaroConverter(Converter):
                 DatumaroPath.RELATED_IMAGES_DIR, item.subset, item.id)
             if osp.isdir(related_images_path):
                 shutil.rmtree(related_images_path)
-
-class DatumaroProjectConverter(Converter):
-    @classmethod
-    def convert(cls, extractor, save_dir, **kwargs):
-        os.makedirs(save_dir, exist_ok=True)
-
-        from datumaro.components.project import Project
-        project = Project.generate(save_dir,
-            config=kwargs.pop('project_config', None))
-
-        DatumaroConverter.convert(extractor,
-            save_dir=osp.join(
-                project.config.project_dir, project.config.dataset_dir),
-            **kwargs)
