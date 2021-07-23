@@ -21,7 +21,7 @@ from datumaro.components.operations import (
 from datumaro.components.project import PROJECT_DEFAULT_CONFIG as DEFAULT_CONFIG
 from datumaro.components.project import Environment, Project
 from datumaro.components.validator import TaskType
-from datumaro.util import error_rollback
+from datumaro.util import error_rollback, on_error_do
 
 from ...util import (
     CliException, MultilineFormatter, add_subparser, make_file_name,
@@ -527,7 +527,7 @@ def build_diff_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
-@error_rollback('on_error', implicit=True)
+@error_rollback
 def diff_command(args):
     first_project = load_project(args.project_dir)
     second_project = load_project(args.other_project_dir)
@@ -548,7 +548,7 @@ def diff_command(args):
     log.info("Saving diff to '%s'" % dst_dir)
 
     if not osp.exists(dst_dir):
-        on_error.do(shutil.rmtree, dst_dir, ignore_errors=True)
+        on_error_do(shutil.rmtree, dst_dir, ignore_errors=True)
 
     with DatasetDiffVisualizer(save_dir=dst_dir, comparator=comparator,
             output_format=args.visualizer) as visualizer:

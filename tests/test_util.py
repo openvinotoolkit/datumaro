@@ -2,7 +2,7 @@ from unittest import TestCase
 import os
 import os.path as osp
 
-from datumaro.util import Rollback, error_rollback
+from datumaro.util import Rollback, error_rollback, on_error_do
 from datumaro.util.os_util import walk
 from datumaro.util.test_utils import TestDir
 
@@ -73,15 +73,15 @@ class TestRollback(TestCase):
         self.assertTrue(success)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_decorator_supports_implicit_arg(self):
+    def test_decorator_supports_implicit_form(self):
         success = False
         def cb():
             nonlocal success
             success = True
 
-        @error_rollback('on_error', implicit=True)
+        @error_rollback
         def foo():
-            on_error.do(cb)  # noqa: F821
+            on_error_do(cb)
             raise Exception('err')
 
         try:
@@ -119,7 +119,7 @@ class TestRollback(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_decorator_can_return_on_success_in_implicit_form(self):
-        @error_rollback('on_error', implicit=True)
+        @error_rollback
         def f():
             return 42
 
