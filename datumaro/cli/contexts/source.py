@@ -49,7 +49,7 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
         """.format(', '.join(builtins)),
         formatter_class=MultilineFormatter)
     parser.add_argument('url',
-        help="URL to the source dataset")
+        help="URL to the source dataset. A path to a file of directory")
     parser.add_argument('-n', '--name',
         help="Name of the new source (default: generate automatically)")
     parser.add_argument('-f', '--format', required=True,
@@ -59,6 +59,8 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
             "a path to subset, subtask, or a specific file in URL.")
     parser.add_argument('--no-check', action='store_true',
         help="Skip source correctness checking")
+    parser.add_argument('--no-cache', action='store_true',
+        help="Do not put a copy into the project cache")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to operate on (default: current dir)")
     parser.add_argument('extra_args', nargs=argparse.REMAINDER,
@@ -98,7 +100,7 @@ def add_command(args):
                 "extra parameters" % fmt)
 
     project.import_source(name, url=args.url, format=args.format,
-        options=extra_args)
+        options=extra_args, no_cache=args.no_cache, rpath=args.path)
     on_error.do(project.remove_source, name, force=True, keep_data=False,
         ignore_errors=True)
 

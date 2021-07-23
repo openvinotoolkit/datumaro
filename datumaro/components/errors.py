@@ -36,6 +36,12 @@ class EmptyCommitError(VcsError):
 class PathOutsideSourceError(VcsError):
     pass
 
+class SourceUrlInsideProjectError(VcsError):
+    pass
+
+class UnexpectedUrlError(VcsError):
+    pass
+
 class PipelineError(DatumaroError):
         pass
 
@@ -92,7 +98,6 @@ class SourceExistsError(DatumaroError):
 
     def __str__(self):
         return "Source %s already exists" % (self.name, )
-
 
 @attrs
 class DatasetError(DatumaroError):

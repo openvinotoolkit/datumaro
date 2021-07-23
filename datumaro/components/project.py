@@ -29,9 +29,9 @@ from datumaro.components.errors import (
     ForeignChangesError, MismatchingObjectError, MissingObjectError,
     MissingPipelineHeadError, MultiplePipelineHeadsError,
     PathOutsideSourceError, ProjectAlreadyExists, ProjectNotFoundError,
-    ReadonlyDatasetError, SourceExistsError, UnknownRefError,
-    UnknownSourceError, UnknownStageError, UnknownTargetError,
-    UnsavedChangesError, VcsError, WrongSourceNodeError,
+    ReadonlyDatasetError, SourceExistsError, SourceUrlInsideProjectError,
+    UnexpectedUrlError, UnknownRefError, UnknownSourceError, UnknownStageError,
+    UnknownTargetError, UnsavedChangesError, VcsError, WrongSourceNodeError,
 )
 from datumaro.components.launcher import Launcher
 from datumaro.util import error_rollback, find, parse_str_enum_value
@@ -312,14 +312,14 @@ class ProjectBuilder:
 
             assert source.hash, target
             with self._project._make_tmp_dir() as tmp_dir:
-                conf, _, _ = \
-                    self._project._download_source(target, source.url, tmp_dir)
+                obj_hash, _, _ = \
+                    self._project._download_source(source.url, tmp_dir)
 
-                if source.hash != conf['hash']:
+                if source.hash != obj_hash:
                     raise MismatchingObjectError(
                         "Downloaded source '%s' data is different " \
                         "from what is saved in the build pipeline: "
-                        "'%s' vs '%s'" % (s, conf['hash'], source.hash))
+                        "'%s' vs '%s'" % (s, obj_hash, source.hash))
 
         return self._init_pipeline(pipeline, working_dir_hashes=wd_hashes)
 
@@ -1246,7 +1246,7 @@ class DvcWrapper:
                 args.extend(targets)
         self._exec(args)
 
-    def add(self, paths, dvc_path=None, no_commit=False):
+    def add(self, paths, dvc_path=None, no_commit=False, allow_external=False):
         args = ['add']
         if dvc_path:
             args.append('--file')
@@ -1254,6 +1254,8 @@ class DvcWrapper:
             os.makedirs(osp.dirname(dvc_path), exist_ok=True)
         if no_commit:
             args.append('--no-commit')
+        if allow_external:
+            args.append('--external')
         if paths:
             if isinstance(paths, str):
                 args.append(paths)
@@ -1891,27 +1893,47 @@ class Project:
         if name.lower() in reserved_names:
             raise ValueError("Source name is reserved for internal use")
 
-    def _download_source(self, name, url, dst_dir, no_cache=False):
+    def _download_source(self, url: str, dst_dir: str, no_cache=False):
         assert url
+        assert dst_dir
 
-        dvcfile = osp.join(dst_dir, name + '.dvc')
+        dvcfile = osp.join(dst_dir, 'source.dvc')
         data_dir = osp.join(dst_dir, 'data')
 
         if osp.isdir(url):
             copytree(url, data_dir)
-        else:
+        elif osp.isfile(url):
             os.makedirs(data_dir, exist_ok=True)
             shutil.copy(url, data_dir)
-        self._dvc.add(data_dir, dvc_path=dvcfile, no_commit=no_cache)
+        else:
+            raise UnexpectedUrlError(url)
 
-        obj_hash = self._dvc.get_hash_from_dvcfile(dvcfile)
-        if obj_hash.endswith(self._dvc.DIR_HASH_SUFFIX):
-            obj_hash = obj_hash[:-len(self._dvc.DIR_HASH_SUFFIX)]
+        obj_hash = self._compute_source_hash(data_dir,
+            dvcfile, no_cache=no_cache, allow_external=True)
+        if not no_cache:
+            log.debug("Data is added to DVC cache")
+        log.debug("Data hash: '%s'", obj_hash)
 
-        return {
-            'url': url,
-            'hash': obj_hash,
-        }, dvcfile, data_dir
+        return obj_hash, dvcfile, data_dir
+
+    def _dvcfile_cache_path(self, obj_hash):
+        assert self._dvc.is_hash(obj_hash), obj_hash
+        return osp.join(self._aux_dir, ProjectLayout.cache_dir,
+            ProjectLayout.dvcfiles_dir, obj_hash[:2], obj_hash[2:])
+
+    @staticmethod
+    def _get_source_hash(dvcfile):
+        obj_hash = DvcWrapper.get_hash_from_dvcfile(dvcfile)
+        if obj_hash.endswith(DvcWrapper.DIR_HASH_SUFFIX):
+            obj_hash = obj_hash[:-len(DvcWrapper.DIR_HASH_SUFFIX)]
+        return obj_hash
+
+    def _compute_source_hash(self, data_dir, dvcfile,
+            no_cache=False, allow_external=True):
+        self._dvc.add(data_dir, dvc_path=dvcfile, no_commit=no_cache,
+            allow_external=allow_external)
+        obj_hash = self._get_source_hash(dvcfile)
+        return obj_hash
 
     def _refresh_source_hash(self, source: str) -> Reference:
         source_dir = self.source_data_dir(source)
@@ -1921,10 +1943,8 @@ class Project:
 
         with self._make_tmp_dir() as tmp_dir:
             tmp_dvcfile = osp.join(tmp_dir, 'obj.dvc')
-            self._dvc.add(source_dir, dvc_path=tmp_dvcfile, no_commit=True)
-
-            obj_hash = self._dvc.get_hash_from_dvcfile(tmp_dvcfile)
-            obj_hash = obj_hash[:-len(self._dvc.DIR_HASH_SUFFIX)]
+            obj_hash = self._compute_source_hash(source_dir, tmp_dvcfile,
+                no_cache=True)
 
             dvcfile = self._source_dvcfile_path(source)
             os.makedirs(osp.dirname(dvcfile), exist_ok=True)
@@ -1943,9 +1963,10 @@ class Project:
         self._dvc.write_obj(obj_hash, dst_dir, allow_links=True)
         return dst_dir
 
+    @error_rollback('on_error', implicit=True)
     def import_source(self, name: str, url: Optional[str],
             format: str, options: Optional[Dict] = None,
-            no_cache: bool = False, path: Optional[str] = None) -> Source:
+            no_cache: bool = False, rpath: Optional[str] = None) -> Source:
         """
         Adds a new source (dataset) to the working directory of the project.
 
@@ -1955,14 +1976,13 @@ class Project:
 
         Parameters:
         - name (str) - Name of the new source
-        - url (str) - URL of the new source. Currently, a local path to
-            the file or directory.
-        - format - Dataset format
-        - options - (dict) - options for format Extractor
-        - no_cache (bool) - Download the source, but don't put data into cache.
-            Can be used to reduce storage size.
-        - path (str) - Used to specify a relative path to the dataset
-            inside of the directory pointed by URL. Defaults to URL.
+        - url (str) - URL of the new source. A path to a file or directory
+        - format (str) - Dataset format
+        - options (dict) - Options for the format Extractor
+        - no_cache (bool) - Don't put a copy of files into the project cache.
+            Can be used to reduce project cache size.
+        - rpath (str) - Used to specify a relative path to the dataset
+            inside of the directory pointed by URL.
 
         Returns: the new source config
         """
@@ -1975,8 +1995,8 @@ class Project:
         data_dir = self.source_data_dir(name)
         if osp.exists(data_dir):
             if os.listdir(data_dir):
-                raise FileExistsError("Source directory '%s' already exists" % \
-                    data_dir)
+                raise FileExistsError("Source directory '%s' already "
+                    "exists" % data_dir)
             os.rmdir(data_dir)
 
         if url:
@@ -1984,43 +2004,47 @@ class Project:
             if not osp.exists(url):
                 raise FileNotFoundError(url)
 
-            if path:
-                path = osp.normpath(osp.join(url, path))
+            if url.startswith(self._root_dir + os.sep):
+                raise SourceUrlInsideProjectError("Source URL cannot point "
+                    "inside the project")
 
-                if not osp.exists(path):
-                    raise FileNotFoundError(path)
+            if rpath:
+                rpath = osp.normpath(osp.join(url, rpath))
 
-                if not path.startswith(url + os.sep):
+                if not osp.exists(rpath):
+                    raise FileNotFoundError(rpath)
+
+                if not rpath.startswith(url + os.sep):
                     raise PathOutsideSourceError(
                         "Source data path is outside of the directory, "
-                        "specified by source URL: '%s', '%s'" % (path, url))
+                        "specified by source URL: '%s', '%s'" % (rpath, url))
 
-                path = osp.relpath(path, url)
+                rpath = osp.relpath(rpath, url)
         else:
-            path = None
+            rpath = None
 
         config = Source({
             'url': url or '',
-            'path': path or '',
+            'path': rpath or '',
             'format': format,
             'options': options or {},
         })
 
-        if config.is_generated:
-            self._git.ignore(name)
-        else:
-            # add a source
-            with self._make_tmp_dir(suffix=name) as tmp_dir:
-                config_update, tmp_dvcfile, tmp_data_dir = \
-                    self._download_source(name, url, tmp_dir, no_cache=no_cache)
-                self._git.ignore([data_dir])
-                shutil.move(tmp_data_dir, data_dir)
+        if not config.is_generated:
+            dvcfile = self._source_dvcfile_path(name)
+            os.makedirs(osp.dirname(dvcfile), exist_ok=True)
 
-                dvcfile = self._source_dvcfile_path(name)
-                os.makedirs(osp.dirname(dvcfile), exist_ok=True)
+            with self._make_tmp_dir(suffix=name) as tmp_dir:
+                obj_hash, tmp_dvcfile, tmp_data_dir = \
+                    self._download_source(url, tmp_dir, no_cache=no_cache)
+
+                shutil.move(tmp_data_dir, data_dir)
+                on_error.do(shutil.rmtree, data_dir)
                 os.replace(tmp_dvcfile, dvcfile)
 
-            config.update(config_update)
+            config['hash'] = obj_hash
+
+        self._git.ignore([data_dir])
 
         config = self.working_tree.sources.add(name, config)
         target = self.working_tree.build_targets.add_target(name)
@@ -2093,19 +2117,8 @@ class Project:
 
         for s in self.working_tree.sources:
             source_dir = self.source_data_dir(s)
-
-            with self._make_tmp_dir(suffix=s) as tmp_dir:
-                tmp_dvcfile = osp.join(tmp_dir, s + '.dvc')
-
-                self._dvc.add(source_dir, dvc_path=tmp_dvcfile,
-                    no_commit=no_cache)
-
-                obj_hash = self._dvc.get_hash_from_dvcfile(tmp_dvcfile)
-                obj_hash = obj_hash[:-len(self._dvc.DIR_HASH_SUFFIX)]
-
-                dvcfile = self._source_dvcfile_path(s)
-                os.makedirs(osp.dirname(dvcfile), exist_ok=True)
-                os.replace(tmp_dvcfile, dvcfile)
+            dvcfile = self._source_dvcfile_path(s)
+            self._compute_source_hash(source_dir, dvcfile, no_cache=no_cache)
 
         tree_dir = osp.join(self._aux_dir, ProjectLayout.tree_dir)
         self.working_tree.save()

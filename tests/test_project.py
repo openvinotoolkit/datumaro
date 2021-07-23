@@ -9,7 +9,7 @@ from datumaro.components.config_model import Model, Source
 from datumaro.components.dataset import DEFAULT_FORMAT, Dataset
 from datumaro.components.errors import (
     EmptyCommitError, ForeignChangesError, MismatchingObjectError,
-    PathOutsideSourceError,
+    PathOutsideSourceError, SourceUrlInsideProjectError,
 )
 from datumaro.components.extractor import (
     Bbox, DatasetItem, ItemTransform, Label,
@@ -107,7 +107,7 @@ class ProjectTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_local_source_with_relpath(self):
         # This form must copy all the data in URL, but read only
-        # specified files. Required to support subtasks, subsets.
+        # specified files. Required to support subtasks and subsets.
 
         with TestDir() as test_dir:
             source_url = osp.join(test_dir, 'source')
@@ -125,9 +125,9 @@ class ProjectTest(TestCase):
             ], categories=['a', 'b'])
 
             project = Project.init(osp.join(test_dir, 'proj'))
-            project.import_source('s1', url=source_url, format=DEFAULT_FORMAT,
-                path=osp.join('annotations', 'b.json'))
 
+            project.import_source('s1', url=source_url, format=DEFAULT_FORMAT,
+                rpath=osp.join('annotations', 'b.json'))
 
             source = project.working_tree.sources['s1']
             self.assertEqual(DEFAULT_FORMAT, source.format)
@@ -150,7 +150,20 @@ class ProjectTest(TestCase):
 
             with self.assertRaises(PathOutsideSourceError):
                 project.import_source('s1', url=source_url,
-                    format=DEFAULT_FORMAT, path='..')
+                    format=DEFAULT_FORMAT, rpath='..')
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_cant_import_local_source_with_url_inside_project(self):
+        with TestDir() as test_dir:
+            source_url = osp.join(test_dir, 'qq')
+            with open(source_url, 'w') as f:
+                f.write('hello')
+
+            project = Project.init(test_dir)
+
+            with self.assertRaises(SourceUrlInsideProjectError):
+                project.import_source('s1', url=source_url,
+                    format=DEFAULT_FORMAT)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_generated_source(self):
@@ -274,7 +287,7 @@ class ProjectTest(TestCase):
                 project.working_tree.make_dataset('s1')
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_use_source_from_cache_is_no_local_data(self):
+    def test_can_use_source_from_cache_with_working_copy(self):
         with TestDir() as test_dir:
             source_url = osp.join(test_dir, 'source')
             source_dataset = Dataset.from_iterable([
