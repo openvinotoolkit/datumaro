@@ -11,7 +11,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The Open Images format now supports bounding box annotations
   (<https://github.com/openvinotoolkit/datumaro/pull/352>).
 - Bounding boxes values decrement transform (<https://github.com/openvinotoolkit/datumaro/pull/366>)
-
 ### Changed
 - TBD
 
@@ -22,8 +21,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - TBD
 
 ### Fixed
-- Patching of datasets in Datumaro, CVAT, COCO and CIFAR formats (<https://github.com/openvinotoolkit/datumaro/pull/365>, <https://github.com/openvinotoolkit/datumaro/pull/347>, <https://github.com/openvinotoolkit/datumaro/pull/346>)
+- Patching of datasets in formats (<https://github.com/openvinotoolkit/datumaro/issues/348>)
 - Unsafe unpickling in CIFAR import (<https://github.com/openvinotoolkit/datumaro/pull/362>)
+- Improved Cityscapes export performance (<https://github.com/openvinotoolkit/datumaro/pull/367>)
+- Incorrect format of `*_labelIds.png` in Cityscapes export (<https://github.com/openvinotoolkit/datumaro/issues/325>, <https://github.com/openvinotoolkit/datumaro/issues/342>)
+- Item id in ImageNet format (<https://github.com/openvinotoolkit/datumaro/pull/371>)
+- Fix double quotes for ICDAR Word Recognition (<https://github.com/openvinotoolkit/datumaro/pull/375>)
 
 ### Security
 - TBD

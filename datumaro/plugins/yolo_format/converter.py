@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2020 Intel Corporation
+# Copyright (C) 2019-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -92,9 +92,15 @@ class YoloConverter(Converter):
                     f.write(yolo_annotation)
 
             subset_list_name = '%s.txt' % subset_name
+            subset_list_path = osp.join(save_dir, subset_list_name)
+            if self._patch and subset_name in self._patch.updated_subsets and \
+                    not image_paths:
+                if osp.isfile(subset_list_path):
+                    os.remove(subset_list_path)
+                continue
+
             subset_lists[subset_name] = subset_list_name
-            with open(osp.join(save_dir, subset_list_name),
-                    'w', encoding='utf-8') as f:
+            with open(subset_list_path, 'w', encoding='utf-8') as f:
                 f.writelines('%s\n' % s for s in image_paths.values())
 
         with open(osp.join(save_dir, 'obj.data'), 'w', encoding='utf-8') as f:
@@ -109,10 +115,10 @@ class YoloConverter(Converter):
 
     @classmethod
     def patch(cls, dataset, patch, save_dir, **kwargs):
-        for subset in patch.updated_subsets:
-            cls.convert(dataset.get_subset(subset), save_dir=save_dir, **kwargs)
-
         conv = cls(dataset, save_dir=save_dir, **kwargs)
+        conv._patch = patch
+        conv.apply()
+
         for (item_id, subset), status in patch.updated_items.items():
             if status != ItemStatus.removed:
                 item = patch.data.get(item_id, subset)
@@ -124,7 +130,12 @@ class YoloConverter(Converter):
 
             if subset == DEFAULT_SUBSET_NAME:
                 subset = YoloPath.DEFAULT_SUBSET_NAME
-            image_path = osp.join(save_dir, 'obj_%s_data' % subset,
-                conv._make_image_filename(item))
+            subset_dir = osp.join(save_dir, 'obj_%s_data' % subset)
+
+            image_path = osp.join(subset_dir, conv._make_image_filename(item))
             if osp.isfile(image_path):
-                os.unlink(image_path)
+                os.remove(image_path)
+
+            ann_path = osp.join(subset_dir, '%s.txt' % item.id)
+            if osp.isfile(ann_path):
+                os.remove(ann_path)

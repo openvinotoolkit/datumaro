@@ -213,15 +213,16 @@ class VocIntegrationScenarios(TestCase):
         3. Verify that resulting dataset is equal to the expected dataset.
         """
 
+        labels = sorted([l.name for l in VOC.VocLabel if l.value % 2 == 1])
+
         expected_dataset = Dataset.from_iterable([
-            DatasetItem(id='2007_000001', subset='default',
-                image=np.ones((10, 20, 3)),
-                annotations=[Label(i) for i in range(11)]
-            ),
-            DatasetItem(id='2007_000002', subset='default',
-               image=np.ones((10, 20, 3))
-            )
-        ], categories=sorted([l.name for l in VOC.VocLabel if l.value % 2 == 1]))
+            DatasetItem(id='/'.join([label, '2007_000001']),
+                subset='default', annotations=[Label(i)])
+                for i, label in enumerate(labels)
+            ] + [DatasetItem(id='no_label/2007_000002', subset='default',
+                   image=np.ones((10, 20, 3)))
+            ], categories=labels
+        )
 
         voc_dir = osp.join(DUMMY_DATASETS_DIR, 'voc_dataset1')
         with TestDir() as test_dir:

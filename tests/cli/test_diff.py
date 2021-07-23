@@ -22,7 +22,7 @@ class DiffTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_compare_projects(self): # just a smoke test
         label_categories1 = LabelCategories.from_iterable(['x', 'a', 'b', 'y'])
-        mask_categories1 = MaskCategories.make_default(len(label_categories1))
+        mask_categories1 = MaskCategories.generate(len(label_categories1))
 
         point_categories1 = PointsCategories()
         for index, _ in enumerate(label_categories1.items):
@@ -70,7 +70,7 @@ class DiffTest(TestCase):
 
 
         label_categories2 = LabelCategories.from_iterable(['a', 'b', 'x', 'y'])
-        mask_categories2 = MaskCategories.make_default(len(label_categories2))
+        mask_categories2 = MaskCategories.generate(len(label_categories2))
 
         point_categories2 = PointsCategories()
         for index, _ in enumerate(label_categories2.items):
