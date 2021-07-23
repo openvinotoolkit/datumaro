@@ -387,7 +387,7 @@ class ProjectBuilder:
                 wd_hash = working_dir_hashes.get(target)
                 if not wd_hash:
                     if osp.isdir(data_dir):
-                        wd_hash = self._project._refresh_source_hash(target)
+                        wd_hash = self._project.refresh_source_hash(target)
                         working_dir_hashes[target] = wd_hash
                     else:
                         log.debug("Build: skipping checking working dir '%s', "
@@ -549,7 +549,7 @@ class ProjectBuilder:
                     if not osp.isdir(data_dir):
                         return False
 
-                    wd_hash = self._project._refresh_source_hash(target)
+                    wd_hash = self._project.refresh_source_hash(target)
                     work_dir_hashes[target] = wd_hash
 
                 return obj_hash == wd_hash
@@ -1935,20 +1935,19 @@ class Project:
         obj_hash = self._get_source_hash(dvcfile)
         return obj_hash
 
-    def _refresh_source_hash(self, source: str) -> Reference:
+    def refresh_source_hash(self, source: str) -> Reference:
+        build_target = self.working_tree.build_targets[source]
         source_dir = self.source_data_dir(source)
 
         if not osp.isdir(source_dir):
             return None
 
-        with self._make_tmp_dir() as tmp_dir:
-            tmp_dvcfile = osp.join(tmp_dir, 'obj.dvc')
-            obj_hash = self._compute_source_hash(source_dir, tmp_dvcfile,
-                no_cache=True)
+        dvcfile = self._source_dvcfile_path(source)
+        os.makedirs(osp.dirname(dvcfile), exist_ok=True)
+        obj_hash = self._compute_source_hash(source_dir, dvcfile,
+            no_cache=True)
 
-            dvcfile = self._source_dvcfile_path(source)
-            os.makedirs(osp.dirname(dvcfile), exist_ok=True)
-            os.replace(tmp_dvcfile, dvcfile)
+        build_target.head.hash = obj_hash
 
         return obj_hash
 
@@ -2253,18 +2252,16 @@ class Project:
 
         changed_targets = {}
 
-        for t_name in wd.build_targets:
-            wd_target = wd.build_targets[t_name]
+        for t_name, wd_target in wd.build_targets.items():
+            if t_name == ProjectBuildTargets.MAIN_TARGET:
+                continue
 
             if osp.isdir(self.source_data_dir(t_name)):
-                wd_hash = self._refresh_source_hash(t_name)
+                old_hash = wd_target.head.hash
+                new_hash = self.refresh_source_hash(t_name)
 
-                if wd_target.head.hash != wd_hash:
+                if old_hash != new_hash:
                     changed_targets[t_name] = DiffStatus.foreign_modified
-
-                wd_target.head.hash = wd_hash
-                if not wd_target.has_stages:
-                    wd_target = wd_hash
 
         for t_name in set(head.build_targets) | set(wd.build_targets):
             if t_name == ProjectBuildTargets.MAIN_TARGET:

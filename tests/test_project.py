@@ -652,6 +652,47 @@ class ProjectTest(TestCase):
             compare_dirs(self, source_url, project.source_data_dir('s1'))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_check_status(self):
+        with TestDir() as test_dir:
+            source_url = osp.join(test_dir, 'test_repo')
+            dataset = Dataset.from_iterable([
+                DatasetItem(1, annotations=[Label(0)]),
+                DatasetItem(2, annotations=[Label(1)]),
+            ], categories=['a', 'b'])
+            dataset.save(source_url)
+
+            project = Project.init(osp.join(test_dir, 'proj'))
+            project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
+            project.import_source('s2', url=source_url, format=DEFAULT_FORMAT)
+            project.import_source('s3', url=source_url, format=DEFAULT_FORMAT)
+            project.import_source('s4', url=source_url, format=DEFAULT_FORMAT)
+            project.import_source('s5', url=source_url, format=DEFAULT_FORMAT)
+            project.commit("Commit 1")
+
+            project.remove_source('s2')
+            project.import_source('s6', url=source_url, format=DEFAULT_FORMAT)
+
+            shutil.rmtree(project.source_data_dir('s3'))
+
+            project.working_tree.build_targets \
+                .add_transform_stage('s4', 'reindex')
+            project.working_tree.make_dataset('s4').save()
+            project.refresh_source_hash('s4')
+
+            s5_dir = osp.join(project.source_data_dir('s5'))
+            with open(osp.join(s5_dir, 'annotations', 't.txt'), 'w') as f:
+                f.write("hello")
+
+            status = project.status()
+            self.assertEqual({
+                's2': DiffStatus.removed,
+                's3': DiffStatus.missing,
+                's4': DiffStatus.modified,
+                's5': DiffStatus.foreign_modified,
+                's6': DiffStatus.added,
+            }, status)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_compare_revisions(self):
         with TestDir() as test_dir:
             source_url = osp.join(test_dir, 'test_repo')
