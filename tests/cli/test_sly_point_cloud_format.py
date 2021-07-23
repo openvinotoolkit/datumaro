@@ -63,10 +63,8 @@ class SlyPointCloudIntegrationScenarios(TestCase):
                 ),
             ], categories={AnnotationType.label: expected_label_cat})
 
-            run(self, 'import', '-f', 'sly_pointcloud',
-                '-i', DUMMY_DATASET_DIR, '-o', test_dir)
-
-            run(self, 'export', '-p', test_dir,
+            run(self, 'convert',
+                '-if', 'sly_pointcloud', '-i', DUMMY_DATASET_DIR,
                 '-f', 'kitti_raw', '-o', export_dir,
                 '--', '--save-images', '--allow-attrs')
 

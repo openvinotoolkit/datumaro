@@ -35,12 +35,13 @@ class ImageZipIntegrationScenarios(TestCase):
             zip_path = osp.join(test_dir, 'images.zip')
             make_zip_archive(test_dir, zip_path)
 
-            run(self, 'create', '-o', test_dir)
-            run(self, 'add', '-p', test_dir, '-f', 'image_zip', zip_path)
+            proj_dir = osp.join(test_dir, 'proj')
+            run(self, 'create', '-o', proj_dir)
+            run(self, 'add', '-p', proj_dir, '-f', 'image_zip', zip_path)
 
             result_dir = osp.join(test_dir, 'result')
             export_path = osp.join(result_dir, 'export.zip')
-            run(self, 'export', '-p', test_dir, '-f', 'image_zip',
+            run(self, 'export', '-p', proj_dir, '-f', 'image_zip',
                 '-o', result_dir, '--', '--name', osp.basename(export_path)
             )
 
@@ -78,11 +79,12 @@ class ImageZipIntegrationScenarios(TestCase):
             zip_path = osp.join(test_dir, 'images.zip')
             make_zip_archive(test_dir, zip_path)
 
-            run(self, 'create', '-o', test_dir)
-            run(self, 'add', '-p', test_dir, '-f', 'image_zip', zip_path)
+            proj_dir = osp.join(test_dir, 'proj')
+            run(self, 'create', '-o', proj_dir)
+            run(self, 'add', '-p', proj_dir, '-f', 'image_zip', zip_path)
 
             export_path = osp.join(test_dir, 'export.zip')
-            run(self, 'export', '-p', test_dir, '-f', 'image_zip',
+            run(self, 'export', '-p', proj_dir, '-f', 'image_zip',
                 '-o', test_dir, '--overwrite', '--',
                 '--name', osp.basename(export_path), '--image-ext', '.png')
 

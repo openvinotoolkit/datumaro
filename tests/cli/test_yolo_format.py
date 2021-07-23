@@ -119,11 +119,12 @@ class YoloIntegrationScenarios(TestCase):
             dataset_dir = osp.join(test_dir, 'dataset_dir')
             source_dataset.save(dataset_dir, save_images=True)
 
-            run(self, 'create', '-o', test_dir)
-            run(self, 'add', '-p', test_dir, '-f', 'datumaro', dataset_dir)
+            proj_dir = osp.join(test_dir, 'proj')
+            run(self, 'create', '-o', proj_dir)
+            run(self, 'add', '-p', proj_dir, '-f', 'datumaro', dataset_dir)
 
             yolo_dir = osp.join(test_dir, 'yolo_dir')
-            run(self, 'export', '-p', test_dir, '-o', yolo_dir,
+            run(self, 'export', '-p', proj_dir, '-o', yolo_dir,
                 '-f', 'yolo', '--', '--save-images')
 
             parsed_dataset = Dataset.import_from(yolo_dir, format='yolo')

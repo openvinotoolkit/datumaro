@@ -77,10 +77,8 @@ class KittiRawIntegrationScenarios(TestCase):
                 ),
             ], categories={AnnotationType.label: expected_label_cat})
 
-            run(self, 'import', '-f', 'kitti_raw',
-                '-i', DUMMY_DATASET_DIR, '-o', test_dir)
-
-            run(self, 'export', '-p', test_dir,
+            run(self, 'convert',
+                '-if', 'kitti_raw', '-i', DUMMY_DATASET_DIR,
                 '-f', 'sly_pointcloud', '-o', export_dir,
                 '--', '--save-images')
 

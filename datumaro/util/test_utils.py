@@ -205,7 +205,7 @@ def test_save_and_load(test, source_dataset, converter, test_dir, importer,
 
     if importer_args is None:
         importer_args = {}
-    parsed_dataset = Dataset, IDataset.import_from(test_dir, importer, **importer_args)
+    parsed_dataset = Dataset.import_from(test_dir, importer, **importer_args)
 
     if target_dataset is None:
         target_dataset = source_dataset
