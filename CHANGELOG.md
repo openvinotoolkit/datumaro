@@ -12,7 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/352>).
 - Bounding boxes values decrement transform (<https://github.com/openvinotoolkit/datumaro/pull/366>)
 ### Changed
-- TBD
+- Datumaro no longer depends on scikit-image
+  (<https://github.com/openvinotoolkit/datumaro/pull/379>)
 
 ### Deprecated
 - TBD
