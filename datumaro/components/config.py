@@ -198,7 +198,8 @@ class Config:
 
         if self._schema is not None:
             if key not in self._schema:
-                raise Exception("Can not set key '%s' - schema mismatch" % (key))
+                raise ValueError("Can not set key '%s' - schema mismatch: "
+                    "unknown key" % (key, ))
 
             schema_entry = self._schema[key]
             schema_entry_instance = schema_entry()
@@ -208,7 +209,10 @@ class Config:
                     schema_entry_instance.update(value)
                     value = schema_entry_instance
                 else:
-                    raise Exception("Can not set key '%s' - schema mismatch" % (key))
+                    raise ValueError("Can not set key '%s' - schema mismatch:"
+                        "unexpected value type %s, expected %s" % (key,
+                        type(value), type(schema_entry_instance))
+                    )
 
         self._config[key] = value
         return value

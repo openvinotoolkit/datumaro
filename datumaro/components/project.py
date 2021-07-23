@@ -42,21 +42,19 @@ from datumaro.util.os_util import (
 
 
 class ProjectSourceDataset(Dataset):
-    @classmethod
-    def load(cls, path: str, tree: 'Tree', # pylint: disable=arguments-differ
+    def __init__(self, path: str, tree: 'Tree',
             source: str, readonly: bool = False) -> 'ProjectSourceDataset':
         config = tree.sources[source]
 
         if config.path:
             path = osp.join(path, config.path)
 
-        dataset = cls.import_from(path, env=tree.env,
-            format=config.format, **config.options)
-        dataset._tree = tree
-        dataset._config = config
-        dataset._readonly = readonly
-        dataset.name = source
-        return dataset
+        self.__dict__['_dataset'] = Dataset.import_from(path,
+            env=tree.env, format=config.format, **config.options)
+
+        self.__dict__['_config'] = config
+        self.__dict__['_readonly'] = readonly
+        self.__dict__['name'] = source
 
     def save(self, save_dir=None, **kwargs):
         if save_dir is None and self.readonly:
@@ -65,15 +63,17 @@ class ProjectSourceDataset(Dataset):
 
     @property
     def readonly(self):
-        return not self._readonly and self.is_bound
-
-    @property
-    def _env(self):
-        return self._tree.env
+        return self._readonly or not self.is_bound
 
     @property
     def config(self):
         return self._config
+
+    def __getattr__(self, name):
+        return getattr(self._dataset, name)
+
+    def __setattr__(self, name, value):
+        return setattr(self._dataset, name, value)
 
 
 class IgnoreMode(Enum):
@@ -81,8 +81,8 @@ class IgnoreMode(Enum):
     append = auto()
     remove = auto()
 
-def _update_ignore_file(paths: List[str], repo_root: str, filepath: str,
-        mode: Optional[IgnoreMode] = None):
+def _update_ignore_file(paths: Union[str, List[str]], repo_root: str,
+        filepath: str, mode: Optional[IgnoreMode] = None):
     def _make_ignored_path(path):
         path = osp.join(repo_root, osp.normpath(path))
         assert path.startswith(repo_root), path
@@ -418,7 +418,7 @@ class ProjectBuilder:
                 assert osp.isdir(data_dir), data_dir
                 log.debug("Build: loading stage '%s' from '%s'",
                     current_name, data_dir)
-                return ProjectSourceDataset.load(
+                return ProjectSourceDataset(
                     data_dir, self._tree, target, readonly=cached)
 
             return None
@@ -519,7 +519,7 @@ class ProjectBuilder:
                     source_dir = self._project.source_data_dir(source_name)
                 else:
                     source_dir = None
-                dataset = ProjectSourceDataset.load(source_dir, self._tree,
+                dataset = ProjectSourceDataset(source_dir, self._tree,
                     source_name, readonly=not source_dir)
 
             elif type_ == BuildStageType.project:
@@ -1068,9 +1068,8 @@ class GitWrapper:
         obj = self.repo.rev_parse(ref)
         return obj.type, obj.hexsha
 
-    IgnoreMode = IgnoreMode
-
-    def ignore(self, paths: List[str], mode: Optional[IgnoreMode] = None,
+    def ignore(self, paths: Union[str, List[str]],
+            mode: Optional[IgnoreMode] = None,
             gitignore: Optional[str] = None):
         if not gitignore:
             gitignore = '.gitignore'
@@ -1395,9 +1394,8 @@ class DvcWrapper:
             root = osp.join(self._project_dir, '.dvc', 'cache')
         return osp.join(root, obj_hash[:2], obj_hash[2:])
 
-    IgnoreMode = IgnoreMode
-
-    def ignore(self, paths: List[str], mode: Optional[IgnoreMode] = None,
+    def ignore(self, paths: Union[str, List[str]],
+            mode: Optional[IgnoreMode] = None,
             dvcignore: Optional[str] = None):
         if not dvcignore:
             dvcignore = '.dvcignore'
