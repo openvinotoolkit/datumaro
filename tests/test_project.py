@@ -8,8 +8,9 @@ import numpy as np
 from datumaro.components.config_model import Model, Source
 from datumaro.components.dataset import DEFAULT_FORMAT, Dataset
 from datumaro.components.errors import (
-    EmptyCommitError, ForeignChangesError, MismatchingObjectError,
-    PathOutsideSourceError, SourceUrlInsideProjectError,
+    DatasetMergeError, EmptyCommitError, ForeignChangesError,
+    MismatchingObjectError, PathOutsideSourceError, SourceExistsError,
+    SourceUrlInsideProjectError,
 )
 from datumaro.components.extractor import (
     Bbox, DatasetItem, ItemTransform, Label,
@@ -162,6 +163,47 @@ class ProjectTest(TestCase):
             project = Project.init(test_dir)
 
             with self.assertRaises(SourceUrlInsideProjectError):
+                project.import_source('s1', url=source_url,
+                    format=DEFAULT_FORMAT)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_report_incompatible_sources(self):
+        with TestDir() as test_dir:
+            source1_url = osp.join(test_dir, 'dataset1')
+            dataset1 = Dataset.from_iterable([
+                DatasetItem(1, annotations=[Label(0)]),
+            ], categories=['a', 'b'])
+            dataset1.save(source1_url)
+
+            source2_url = osp.join(test_dir, 'dataset2')
+            dataset2 = Dataset.from_iterable([
+                DatasetItem(1, annotations=[Label(0)]),
+            ], categories=['c', 'd'])
+            dataset2.save(source2_url)
+
+            project = Project.init(osp.join(test_dir, 'proj'))
+            project.import_source('s1', url=source1_url, format=DEFAULT_FORMAT)
+            project.import_source('s2', url=source2_url, format=DEFAULT_FORMAT)
+
+            with self.assertRaises(DatasetMergeError) as cm:
+                project.working_tree.make_dataset()
+
+            self.assertEqual({'s1.root', 's2.root'}, cm.exception.sources)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_cant_add_sources_with_same_names(self):
+        with TestDir() as test_dir:
+            source_url = osp.join(test_dir, 'test_repo')
+            dataset = Dataset.from_iterable([
+                DatasetItem(1, annotations=[Label(0)]),
+                DatasetItem(2, annotations=[Label(1)]),
+            ], categories=['a', 'b'])
+            dataset.save(source_url)
+
+            project = Project.init(osp.join(test_dir, 'proj'))
+            project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
+
+            with self.assertRaises(SourceExistsError):
                 project.import_source('s1', url=source_url,
                     format=DEFAULT_FORMAT)
 
@@ -714,6 +756,29 @@ class ProjectTest(TestCase):
             diff = project.diff(rev1, rev2)
             self.assertEqual(diff,
                 { 's2': DiffStatus.removed, 's3': DiffStatus.added })
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_restore_revision(self):
+        with TestDir() as test_dir:
+            source_url = osp.join(test_dir, 'test_repo')
+            dataset = Dataset.from_iterable([
+                DatasetItem(1, annotations=[Label(0)]),
+                DatasetItem(2, annotations=[Label(1)]),
+            ], categories=['a', 'b'])
+            dataset.save(source_url)
+
+            project = Project.init(osp.join(test_dir, 'proj'))
+            project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
+            rev1 = project.commit("Commit 1")
+
+            project.remove_cache_obj(rev1)
+
+            self.assertFalse(project.is_rev_cached(rev1))
+
+            head_dataset = project.head.make_dataset()
+
+            self.assertTrue(project.is_rev_cached(rev1))
+            compare_datasets(self, dataset, head_dataset)
 
 
 class BackwardCompatibilityTests_v0_1(TestCase):

@@ -41,9 +41,9 @@ from datumaro.util.os_util import (
 )
 
 
-class ProjectSourceDataset(Dataset):
-    def __init__(self, path: str, tree: 'Tree',
-            source: str, readonly: bool = False) -> 'ProjectSourceDataset':
+class ProjectSourceDataset(IDataset):
+    def __init__(self, path: str, tree: 'Tree', source: str,
+            readonly: bool = False):
         config = tree.sources[source]
 
         if config.path:
@@ -59,7 +59,7 @@ class ProjectSourceDataset(Dataset):
     def save(self, save_dir=None, **kwargs):
         if save_dir is None and self.readonly:
             raise ReadonlyDatasetError("Can't update a read-only dataset")
-        super().save(save_dir, **kwargs)
+        self._dataset.save(save_dir, **kwargs)
 
     @property
     def readonly(self):
@@ -74,6 +74,24 @@ class ProjectSourceDataset(Dataset):
 
     def __setattr__(self, name, value):
         return setattr(self._dataset, name, value)
+
+    def __iter__(self):
+        yield from self._dataset
+
+    def __len__(self):
+        return len(self._dataset)
+
+    def subsets(self):
+        return self._dataset.subsets()
+
+    def get_subset(self, name):
+        return self._dataset.get_subset(name)
+
+    def categories(self):
+        return self._dataset.categories()
+
+    def get(self, id, subset=None):
+        return self._dataset.get(id, subset)
 
 
 class IgnoreMode(Enum):
@@ -327,20 +345,6 @@ class ProjectBuilder:
         graph, head = self._run_pipeline(pipeline)
         return graph.nodes[head]['dataset']
 
-    def _stage_data_dir(self, stage: str) -> str:
-        target, stage = ProjectBuildTargets.split_target_name(stage)
-        stage_hash = self._tree.build_targets[target].get_stage(stage).hash
-
-        if self._tree.is_working_tree and \
-                target in self._tree.sources and \
-                stage == self._tree.build_targets[target].head.name:
-            return self._project.source_data_dir(target)
-
-        if stage_hash and self._project.is_obj_cached(stage_hash):
-            return self._project.cache_path(stage_hash)
-
-        return None
-
     def _init_pipeline(self, pipeline, working_dir_hashes=None):
         def _join_parent_datasets(force=False):
             parents = { p: graph.nodes[p] for p in initialized_parents }
@@ -387,7 +391,7 @@ class ProjectBuilder:
                 wd_hash = working_dir_hashes.get(target)
                 if not wd_hash:
                     if osp.isdir(data_dir):
-                        wd_hash = self._project.refresh_source_hash(target)
+                        wd_hash = self._project.compute_source_hash(data_dir)
                         working_dir_hashes[target] = wd_hash
                     else:
                         log.debug("Build: skipping checking working dir '%s', "
@@ -549,7 +553,8 @@ class ProjectBuilder:
                     if not osp.isdir(data_dir):
                         return False
 
-                    wd_hash = self._project.refresh_source_hash(target)
+                    wd_hash = self._project.compute_source_hash(
+                        self._project.source_data_dir(target))
                     work_dir_hashes[target] = wd_hash
 
                 return obj_hash == wd_hash
@@ -1574,8 +1579,13 @@ class Project:
     def _migrate_from_v1_to_v2(self) -> bool:
         old_config_path = osp.join(self._aux_dir, 'config.yaml')
         old_config = Config.parse(old_config_path)
-        if not old_config.format_version == 1:
-            return False
+        if old_config.format_version == 1:
+            pass
+        elif old_config.format_version == 2:
+            return
+        else:
+            raise Exception("Failed to migrate to the new config version: "
+                "unknown old version '%s'" % old_config.format_version)
 
         log.debug("Migrating project from v1 to v2...")
 
@@ -1685,7 +1695,7 @@ class Project:
                 "a project already exists" % path)
 
         path = osp.abspath(path)
-        if not (path + os.sep).endswith(ProjectLayout.aux_dir + os.sep):
+        if osp.basename(path) != ProjectLayout.aux_dir:
             path = osp.join(path, ProjectLayout.aux_dir)
 
         project_dir = osp.dirname(path)
@@ -1814,12 +1824,11 @@ class Project:
             raise UnknownRefError("Can't parse ref '%s'" % ref)
 
     def _materialize_rev(self, rev: Revision):
-        tree = self._git.get_tree(rev)
-
-        obj_dir = self.cache_path(tree.hexsha)
+        obj_dir = self.cache_path(rev)
         if osp.isdir(obj_dir):
             return obj_dir
 
+        tree = self._git.get_tree(rev)
         self._git.write_tree(tree, obj_dir)
         return obj_dir
 
@@ -1908,18 +1917,13 @@ class Project:
         else:
             raise UnexpectedUrlError(url)
 
-        obj_hash = self._compute_source_hash(data_dir,
+        obj_hash = self.compute_source_hash(data_dir,
             dvcfile, no_cache=no_cache, allow_external=True)
         if not no_cache:
             log.debug("Data is added to DVC cache")
         log.debug("Data hash: '%s'", obj_hash)
 
         return obj_hash, dvcfile, data_dir
-
-    def _dvcfile_cache_path(self, obj_hash):
-        assert self._dvc.is_hash(obj_hash), obj_hash
-        return osp.join(self._aux_dir, ProjectLayout.cache_dir,
-            ProjectLayout.dvcfiles_dir, obj_hash[:2], obj_hash[2:])
 
     @staticmethod
     def _get_source_hash(dvcfile):
@@ -1928,14 +1932,20 @@ class Project:
             obj_hash = obj_hash[:-len(DvcWrapper.DIR_HASH_SUFFIX)]
         return obj_hash
 
-    def _compute_source_hash(self, data_dir, dvcfile,
-            no_cache=False, allow_external=True):
-        self._dvc.add(data_dir, dvc_path=dvcfile, no_commit=no_cache,
-            allow_external=allow_external)
-        obj_hash = self._get_source_hash(dvcfile)
+    def compute_source_hash(self, data_dir, dvcfile: Optional[str] = None,
+            no_cache=True, allow_external=True) -> Reference:
+        es = ExitStack()
+        if not dvcfile:
+            tmp_dir = es.enter_context(self._make_tmp_dir())
+            dvcfile = osp.join(tmp_dir, 'source.dvc')
+        with es:
+            self._dvc.add(data_dir, dvc_path=dvcfile, no_commit=no_cache,
+                allow_external=allow_external)
+            obj_hash = self._get_source_hash(dvcfile)
         return obj_hash
 
-    def refresh_source_hash(self, source: str) -> Reference:
+    def refresh_source_hash(self, source: str,
+            no_cache: bool = True) -> Reference:
         build_target = self.working_tree.build_targets[source]
         source_dir = self.source_data_dir(source)
 
@@ -1944,8 +1954,8 @@ class Project:
 
         dvcfile = self._source_dvcfile_path(source)
         os.makedirs(osp.dirname(dvcfile), exist_ok=True)
-        obj_hash = self._compute_source_hash(source_dir, dvcfile,
-            no_cache=True)
+        obj_hash = self.compute_source_hash(source_dir, dvcfile,
+            no_cache=no_cache)
 
         build_target.head.hash = obj_hash
 
@@ -2055,7 +2065,11 @@ class Project:
 
     def remove_source(self, name: str, force: bool = False,
             keep_data: bool = True):
-        """Force - ignores errors and tries to wipe remaining data"""
+        """
+        Options:
+            - force (bool) - ignores errors and tries to wipe remaining data
+            - keep_data (bool) - leaves source data untouched
+        """
 
         if name not in self.working_tree.sources and not force:
             raise KeyError("Unknown source '%s'" % name)
@@ -2115,9 +2129,7 @@ class Project:
                         "command." % t)
 
         for s in self.working_tree.sources:
-            source_dir = self.source_data_dir(s)
-            dvcfile = self._source_dvcfile_path(s)
-            self._compute_source_hash(source_dir, dvcfile, no_cache=no_cache)
+            self.refresh_source_hash(s, no_cache=no_cache)
 
         tree_dir = osp.join(self._aux_dir, ProjectLayout.tree_dir)
         self.working_tree.save()
