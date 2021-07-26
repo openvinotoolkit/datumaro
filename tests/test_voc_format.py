@@ -140,7 +140,7 @@ class VocImportTest(TestCase):
         compare_datasets(self, DstExtractor(), dataset)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_save_and_load_voc_classification_dataset(self):
+    def test_can_import_voc_classification_dataset(self):
         class DstExtractor(TestExtractorBase):
             def __iter__(self):
                 return iter([
@@ -174,7 +174,7 @@ class VocImportTest(TestCase):
                 compare_datasets(self, expected, actual, require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_save_and_load_voc_layout_dataset(self):
+    def test_can_import_voc_layout_dataset(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='2007_000001', subset='train',
                 image=np.ones((10, 20, 3)),
@@ -216,7 +216,7 @@ class VocImportTest(TestCase):
                 compare_datasets(self, expected, actual, require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_save_and_load_voc_detection_dataset(self):
+    def test_can_import_voc_detection_dataset(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='2007_000001', subset='train',
                 image=np.ones((10, 20, 3)),
@@ -264,7 +264,7 @@ class VocImportTest(TestCase):
                 compare_datasets(self, expected, actual, require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_save_and_load_voc_segmentation_dataset(self):
+    def test_can_import_voc_segmentation_dataset(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='2007_000001', subset='train',
                 image=np.ones((10, 20, 3)),
@@ -295,7 +295,7 @@ class VocImportTest(TestCase):
                 compare_datasets(self, expected, actual, require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_save_and_load_voc_action_dataset(self):
+    def test_can_import_voc_action_dataset(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='2007_000001', subset='train',
                 image=np.ones((10, 20, 3)),
