@@ -16,11 +16,13 @@ class TestRollback(TestCase):
         def cb():
             nonlocal success
             success = False
+            return 5
 
         with Rollback() as on_error:
-            on_error.do(cb)
+            retval = on_error.do(cb)
 
         self.assertTrue(success)
+        self.assertEqual(5, retval)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_calls_on_error(self):
