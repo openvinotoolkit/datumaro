@@ -12,7 +12,7 @@ from datumaro.components.dataset_filter import (
 )
 from datumaro.components.environment import Environment
 from datumaro.components.errors import (
-    ConflictingCategoriesError, MultipleFormatsMatchError,
+    ConflictingCategoriesError, DatasetNotFoundError, MultipleFormatsMatchError,
     NoMatchingFormatsError, RepeatedItemError, UnknownFormatError,
 )
 from datumaro.components.extractor import (
@@ -172,6 +172,19 @@ class DatasetTest(TestCase):
             self.assertEqual(imported_dataset.data_path, test_dir)
             self.assertEqual(imported_dataset.format, DEFAULT_FORMAT)
             compare_datasets(self, source_dataset, imported_dataset)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_report_no_dataset_found(self):
+        env = Environment()
+        env.importers.items = {
+            DEFAULT_FORMAT: env.importers[DEFAULT_FORMAT],
+        }
+        env.extractors.items = {
+            DEFAULT_FORMAT: env.extractors[DEFAULT_FORMAT],
+        }
+
+        with TestDir() as test_dir, self.assertRaises(DatasetNotFoundError):
+            Dataset.import_from(test_dir, DEFAULT_FORMAT, env=env)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_report_multiple_formats_match(self):

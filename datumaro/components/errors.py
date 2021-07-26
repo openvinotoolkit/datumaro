@@ -28,6 +28,9 @@ class CategoriesRedefinedError(DatasetError):
 class DatasetImportError(DatumaroError):
     pass
 
+class DatasetNotFoundError(DatasetImportError):
+    pass
+
 @attrs
 class MultipleFormatsMatchError(DatasetImportError):
     formats = attrib()

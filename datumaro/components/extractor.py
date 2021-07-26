@@ -12,6 +12,7 @@ from attr import attrib, attrs
 import attr
 import numpy as np
 
+from datumaro.components.errors import DatasetNotFoundError
 from datumaro.util.attrs_util import default_if_none, not_empty
 from datumaro.util.image import Image
 
@@ -762,18 +763,22 @@ class Importer:
         raise NotImplementedError()
 
     def __call__(self, path, **extra_params):
-        found_sources = self.find_sources(osp.normpath(path))
-        if len(found_sources) == 0:
-            raise Exception("Failed to find dataset at '%s'" % path)
+        from datumaro.components.project import Project  # cyclic import
+        project = Project()
 
-        sources = []
-        for desc in found_sources:
+        sources = self.find_sources(osp.normpath(path))
+        if len(sources) == 0:
+            raise DatasetNotFoundError("Failed to find dataset at '%s'" % path)
+
+        for desc in sources:
             params = dict(extra_params)
             params.update(desc.get('options', {}))
             desc['options'] = params
-            sources.append(desc)
 
-        return sources
+            source_name = osp.splitext(osp.basename(desc['url']))[0]
+            project.add_source(source_name, desc)
+
+        return project
 
     @classmethod
     def _find_sources_recursive(cls, path: str, ext: Optional[str],
