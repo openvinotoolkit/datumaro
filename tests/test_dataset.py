@@ -1,4 +1,6 @@
 from unittest import TestCase
+import os
+import os.path as osp
 
 import numpy as np
 
@@ -233,6 +235,24 @@ class DatasetTest(TestCase):
 
         with TestDir() as test_dir:
             dataset.export(format='qq', save_dir=test_dir)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_remember_export_options(self):
+        dataset = Dataset.from_iterable([
+            DatasetItem(id=1, image=np.ones((1, 2, 3))),
+        ], categories=['a'])
+
+        with TestDir() as test_dir:
+            dataset.save(test_dir, save_images=True)
+            dataset.put(dataset.get(1)) # mark the item modified for patching
+
+            image_path = osp.join(test_dir, 'images', 'default', '1.jpg')
+            os.remove(image_path)
+
+            dataset.save(test_dir)
+
+            self.assertEqual({'save_images': True}, dataset.options)
+            self.assertTrue(osp.isfile(image_path))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_compute_length_when_created_from_scratch(self):
