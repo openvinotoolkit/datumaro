@@ -1,4 +1,3 @@
-
 # Copyright (C) 2019-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
@@ -179,14 +178,13 @@ class Rollback:
     def __enter__(self):
         return self
 
-    # pylint: disable=redefined-builtin
-    def __exit__(self, type=None, value=None, traceback=None):
+    def __exit__(self, type=None, value=None, \
+            traceback=None): # pylint: disable=redefined-builtin
         if type is None:
             return
         if not self.enabled:
             return
         self._stack.__exit__(type, value, traceback)
-    # pylint: enable=redefined-builtin
 
 @optional_arg_decorator
 def error_rollback(func, arg_name='on_error', implicit=False):
@@ -200,7 +198,7 @@ def error_rollback(func, arg_name='on_error', implicit=False):
                 old_val = fglobals.get(arg_name)
                 fglobals[arg_name] = manager
                 try:
-                    func(*args, **kwargs)
+                    ret_val = func(*args, **kwargs)
                 finally:
                     if has_arg:
                         func.__globals__[arg_name] = old_val
@@ -208,5 +206,6 @@ def error_rollback(func, arg_name='on_error', implicit=False):
                         func.__globals__.pop(arg_name)
             else:
                 kwargs[arg_name] = manager
-                func(*args, **kwargs)
+                ret_val = func(*args, **kwargs)
+            return ret_val
     return wrapped_func

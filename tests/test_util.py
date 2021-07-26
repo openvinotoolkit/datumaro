@@ -117,6 +117,26 @@ class TestRollback(TestCase):
             self.assertTrue(success1)
             self.assertTrue(success2)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_decorator_can_return_on_success_in_implicit_form(self):
+        @error_rollback('on_error', implicit=True)
+        def f():
+            return 42
+
+        retval = f()
+
+        self.assertEqual(42, retval)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_decorator_can_return_on_success_in_explicit_form(self):
+        @error_rollback('on_error')
+        def f(on_error=None):
+            return 42
+
+        retval = f()
+
+        self.assertEqual(42, retval)
+
 class TestOsUtils(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_walk_with_maxdepth(self):
