@@ -6,6 +6,7 @@ import os.path as osp
 import yaml
 
 from datumaro.components.config import Config, DictConfig, SchemaBuilder
+from datumaro.components.errors import ImmutableObjectError
 from datumaro.util.test_utils import TestDir
 
 from .requirements import Requirements, mark_requirement
@@ -100,7 +101,7 @@ class ConfigTest(TestCase):
     def test_cant_change_immutable(self):
         conf = Config({ 'x': 42 }, mutable=False)
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ImmutableObjectError):
             conf.y = 5
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
