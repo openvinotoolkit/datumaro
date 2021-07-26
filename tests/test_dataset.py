@@ -9,7 +9,10 @@ from datumaro.components.dataset_filter import (
     DatasetItemEncoder, XPathAnnotationsFilter, XPathDatasetFilter,
 )
 from datumaro.components.environment import Environment
-from datumaro.components.errors import DatumaroError, RepeatedItemError
+from datumaro.components.errors import (
+    ConflictingCategoriesError, MultipleFormatsMatchError,
+    NoMatchingFormatsError, RepeatedItemError, UnknownFormatError,
+)
 from datumaro.components.extractor import (
     DEFAULT_SUBSET_NAME, AnnotationType, Bbox, Caption, DatasetItem, Extractor,
     ItemTransform, Label, LabelCategories, Mask, Points, Polygon, PolyLine,
@@ -169,6 +172,57 @@ class DatasetTest(TestCase):
             compare_datasets(self, source_dataset, imported_dataset)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_report_multiple_formats_match(self):
+        env = Environment()
+        env.importers.items = {
+            'a': env.importers[DEFAULT_FORMAT],
+            'b': env.importers[DEFAULT_FORMAT],
+        }
+        env.extractors.items = {
+            'a': env.extractors[DEFAULT_FORMAT],
+            'b': env.extractors[DEFAULT_FORMAT],
+        }
+
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[ Label(2) ]),
+        ], categories=['a', 'b', 'c'])
+
+        with TestDir() as test_dir, self.assertRaises(MultipleFormatsMatchError):
+            source_dataset.save(test_dir)
+
+            Dataset.import_from(test_dir, env=env)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_report_no_matching_formats(self):
+        env = Environment()
+        env.importers.items = {}
+        env.extractors.items = {}
+
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[ Label(2) ]),
+        ], categories=['a', 'b', 'c'])
+
+        with TestDir() as test_dir, self.assertRaises(NoMatchingFormatsError):
+            source_dataset.save(test_dir)
+
+            Dataset.import_from(test_dir, env=env)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_report_unknown_format_requested(self):
+        env = Environment()
+        env.importers.items = {}
+        env.extractors.items = {}
+
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[ Label(2) ]),
+        ], categories=['a', 'b', 'c'])
+
+        with TestDir() as test_dir, self.assertRaises(UnknownFormatError):
+            source_dataset.save(test_dir)
+
+            Dataset.import_from(test_dir, format='custom', env=env)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_export_by_string_format_name(self):
         env = Environment()
         env.converters.items = {'qq': env.converters[DEFAULT_FORMAT]}
@@ -283,7 +337,7 @@ class DatasetTest(TestCase):
         s1 = Dataset.from_iterable([], categories=['a', 'b'])
         s2 = Dataset.from_iterable([], categories=['b', 'a'])
 
-        with self.assertRaisesRegex(DatumaroError, "different categories"):
+        with self.assertRaises(ConflictingCategoriesError):
             Dataset.from_extractors(s1, s2)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)

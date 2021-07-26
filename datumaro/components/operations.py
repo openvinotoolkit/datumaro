@@ -4,6 +4,7 @@
 
 from collections import OrderedDict
 from copy import deepcopy
+from typing import Callable
 from unittest import TestCase
 import hashlib
 import logging as log
@@ -14,11 +15,11 @@ import cv2
 import numpy as np
 
 from datumaro.components.cli_plugin import CliPlugin
-from datumaro.components.dataset import Dataset, DatasetItemStorage
+from datumaro.components.dataset import Dataset, DatasetItemStorage, IDataset
 from datumaro.components.errors import (
-    AnnotationsTooCloseError, DatumaroError, FailedAttrVotingError,
-    FailedLabelVotingError, MismatchingImageInfoError, NoMatchingAnnError,
-    NoMatchingItemError, WrongGroupError,
+    AnnotationsTooCloseError, ConflictingCategoriesError, DatasetMergeError,
+    FailedAttrVotingError, FailedLabelVotingError, MismatchingImageInfoError,
+    NoMatchingAnnError, NoMatchingItemError, WrongGroupError,
 )
 from datumaro.components.extractor import (
     AnnotationType, Bbox, CategoriesInfo, Label, LabelCategories,
@@ -57,16 +58,17 @@ def merge_annotations_equal(a, b):
 
 def merge_categories(sources):
     categories = {}
-    for source in sources:
+    for source_idx, source in enumerate(sources):
         for cat_type, source_cat in source.items():
             existing_cat = categories.setdefault(cat_type, source_cat)
             if existing_cat != source_cat and len(source_cat) != 0:
                 if len(existing_cat) == 0:
                     categories[cat_type] = source_cat
                 else:
-                    raise DatumaroError(
+                    raise ConflictingCategoriesError(
                         "Merging of datasets with different categories is "
-                        "only allowed in 'merge' command.")
+                        "only allowed in 'merge' command.",
+                        sources=list(range(source_idx)))
     return categories
 
 class MergingStrategy(CliPlugin):
@@ -86,22 +88,21 @@ class ExactMerge:
     @classmethod
     def merge(cls, *sources):
         items = DatasetItemStorage()
-        for source in sources:
+        for source_idx, source in enumerate(sources):
             for item in source:
                 existing_item = items.get(item.id, item.subset)
                 if existing_item is not None:
                     path = existing_item.path
                     if item.path != path:
                         path = None
-                    item = cls.merge_items(existing_item, item, path=path)
+                    try:
+                        item = cls.merge_items(existing_item, item, path=path)
+                    except DatasetMergeError as e:
+                        e.sources = set(range(source_idx))
+                        raise e
 
                 items.put(item)
         return items
-
-    @staticmethod
-    def _lazy_image(item):
-        # NOTE: avoid https://docs.python.org/3/faq/programming.html#why-do-lambdas-defined-in-a-loop-with-different-values-all-return-the-same-result
-        return lambda: item.image
 
     @classmethod
     def merge_items(cls, existing_item, current_item, path=None):
@@ -335,6 +336,9 @@ class IntersectMerge(MergingStrategy):
     def _merge_point_categories(self, sources, label_cat):
         dst_point_cat = PointsCategories()
 
+        if all(AnnotationType.points not in cats for cats in sources):
+            return None
+
         for src_id, src_categories in enumerate(sources):
             src_label_cat = src_categories.get(AnnotationType.label)
             src_point_cat = src_categories.get(AnnotationType.points)
@@ -364,6 +368,9 @@ class IntersectMerge(MergingStrategy):
 
     def _merge_mask_categories(self, sources, label_cat):
         dst_mask_cat = MaskCategories()
+
+        if all(AnnotationType.mask not in cats for cats in sources):
+            return None
 
         for src_id, src_categories in enumerate(sources):
             src_label_cat = src_categories.get(AnnotationType.label)
@@ -1287,7 +1294,7 @@ class DistanceComparator:
         return match_segments(a_lines, b_lines,
             dist_thresh=self.iou_threshold, distance=matcher.distance)
 
-def match_items_by_id(a, b):
+def match_items_by_id(a: IDataset, b: IDataset):
     a_items = set((item.id, item.subset) for item in a)
     b_items = set((item.id, item.subset) for item in b)
 
@@ -1297,7 +1304,7 @@ def match_items_by_id(a, b):
     b_unmatched = b_items - a_items
     return matches, a_unmatched, b_unmatched
 
-def match_items_by_image_hash(a, b):
+def match_items_by_image_hash(a: IDataset, b: IDataset):
     a_hash = find_unique_images(a)
     b_hash = find_unique_images(b)
 
@@ -1314,7 +1321,7 @@ def match_items_by_image_hash(a, b):
 
     return matches, a_unmatched, b_unmatched
 
-def find_unique_images(dataset, item_hash=None):
+def find_unique_images(dataset: IDataset, item_hash: Callable = None):
     def _default_hash(item):
         if not item.image or not item.image.has_data:
             if item.image and item.image.path:

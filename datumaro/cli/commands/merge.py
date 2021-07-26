@@ -8,7 +8,7 @@ import json
 import logging as log
 import os.path as osp
 
-from datumaro.components.errors import MergeError, QualityError
+from datumaro.components.errors import DatasetMergeError, DatasetQualityError
 from datumaro.components.operations import IntersectMerge
 from datumaro.components.project import Project
 
@@ -104,9 +104,9 @@ def save_merge_report(merger, path):
     all_errors = []
 
     for e in merger.errors:
-        if isinstance(e, QualityError):
+        if isinstance(e, DatasetQualityError):
             item_errors[str(e.item_id)] = item_errors.get(str(e.item_id), 0) + 1
-        elif isinstance(e, MergeError):
+        elif isinstance(e, DatasetMergeError):
             for s in e.sources:
                 source_errors[s] = source_errors.get(s, 0) + 1
             item_errors[str(e.item_id)] = item_errors.get(str(e.item_id), 0) + 1

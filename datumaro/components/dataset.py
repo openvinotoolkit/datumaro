@@ -17,7 +17,8 @@ from datumaro.components.dataset_filter import (
 )
 from datumaro.components.environment import Environment
 from datumaro.components.errors import (
-    CategoriesRedefinedError, DatumaroError, RepeatedItemError,
+    CategoriesRedefinedError, MultipleFormatsMatchError, NoMatchingFormatsError,
+    RepeatedItemError, UnknownFormatError,
 )
 from datumaro.components.extractor import (
     DEFAULT_SUBSET_NAME, AnnotationType, CategoriesInfo, DatasetItem, Extractor,
@@ -632,6 +633,7 @@ class Dataset(IDataset):
 
         self._format = DEFAULT_FORMAT
         self._source_path = None
+        self._options = {}
 
     def define_categories(self, categories: Dict):
         self._data.define_categories(categories)
@@ -794,8 +796,11 @@ class Dataset(IDataset):
             converter.patch(self, self.get_patch(), save_dir=save_dir, **kwargs)
 
     def save(self, save_dir: str = None, **kwargs):
+        options = dict(self._options)
+        options.update(kwargs)
+
         self.export(save_dir or self._source_path,
-            format=self._format, **kwargs)
+            format=self._format, **options)
 
     @classmethod
     def load(cls, path: str, **kwargs) -> 'Dataset':
@@ -823,7 +828,7 @@ class Dataset(IDataset):
                 'url': path, 'format': format, 'options': kwargs
             }]
         else:
-            raise DatumaroError("Unknown source format '%s'. To make it "
+            raise UnknownFormatError("Unknown source format '%s'. To make it "
                 "available, add the corresponding Extractor implementation "
                 "to the environment" % format)
 
@@ -847,14 +852,11 @@ class Dataset(IDataset):
 
         matches = env.detect_dataset(path)
         if not matches:
-            raise DatumaroError(
+            raise NoMatchingFormatsError(
                 "Failed to detect dataset format automatically: "
                 "no matching formats found")
         if 1 < len(matches):
-            raise DatumaroError(
-                "Failed to detect dataset format automatically:"
-                " data matches more than one format: %s" % \
-                ', '.join(matches))
+            raise MultipleFormatsMatchError(matches)
         return matches[0]
 
 @contextmanager
