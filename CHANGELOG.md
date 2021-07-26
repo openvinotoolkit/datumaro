@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved error reporting in Dataset (<https://github.com/openvinotoolkit/datumaro/pull/386>)
 
 ### Changed
+- Datumaro no longer depends on scikit-image
+  (<https://github.com/openvinotoolkit/datumaro/pull/379>)
 - `Dataset` remembers export options on saving / exporting for the first time (<https://github.com/openvinotoolkit/datumaro/pull/386>)
 
 ### Deprecated

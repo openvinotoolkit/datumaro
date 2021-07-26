@@ -1,4 +1,3 @@
-
 # Copyright (C) 2020-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
@@ -358,7 +357,13 @@ class VocConverter(Converter):
         lines = {}
         with open(path, encoding='utf-8') as f:
             for line in f:
-                item, text, _ = line.split(maxsplit=1) + ['', '']
+                line = line.strip()
+                if not line:
+                    continue
+                line_parts = line.split(maxsplit=1)
+                if len(line_parts) < 2:
+                    line_parts.append('')
+                item, text = line_parts
                 if not patch or patch.updated_items.get((item, subset)) != \
                         ItemStatus.removed:
                     lines.setdefault(item, []).append(text)

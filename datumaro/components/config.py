@@ -1,9 +1,12 @@
-
 # Copyright (C) 2019-2020 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
+from typing import IO, Union
+
 import yaml
+
+from datumaro.components.errors import ImmutableObjectError
 
 
 class Schema:
@@ -52,7 +55,7 @@ class Schema:
         default = object()
         value = self.get(key, default=default)
         if value is default:
-            raise KeyError('Key "%s" does not exist' % (key))
+            raise KeyError('Key "%s" does not exist' % (key, ))
         return value
 
     def get(self, key, default=None):
@@ -62,6 +65,7 @@ class Schema:
 
         if self._fallback is not None:
             return self._fallback.get(key, default)
+        return found
 
 class SchemaBuilder:
     def __init__(self):
@@ -69,7 +73,7 @@ class SchemaBuilder:
 
     def add(self, name, ctor=str, internal=False):
         if name in self._items:
-            raise KeyError('Key "%s" already exists' % (name))
+            raise KeyError('Key "%s" already exists' % (name, ))
 
         self._items[name] = Schema.Item(ctor, internal=internal)
         return self
@@ -102,7 +106,7 @@ class Config:
         if not allow_internal and self._schema is not None:
             for key, item in self._schema.items():
                 if item.internal:
-                    all_config.pop(key)
+                    all_config.pop(key, None)
         return all_config
 
     def items(self, allow_fallback=True, allow_internal=True):
@@ -136,14 +140,18 @@ class Config:
         default = object()
         value = self.get(key, default=default)
         if value is default:
-            raise KeyError('Key "%s" does not exist' % (key))
+            raise KeyError('Key "%s" does not exist' % (key, ))
         return value
 
     def __setitem__(self, key, value):
         return self.set(key, value)
 
     def __getattr__(self, key):
-        return self.get(key)
+        default = object()
+        found = self.get(key, default=default)
+        if found is default:
+            raise AttributeError(key)
+        return found
 
     def __setattr__(self, key, value):
         return self.set(key, value)
@@ -169,7 +177,7 @@ class Config:
 
     def remove(self, key):
         if not self._mutable:
-            raise Exception("Cannot set value of immutable object")
+            raise ImmutableObjectError()
 
         self._config.pop(key, None)
 
@@ -190,11 +198,12 @@ class Config:
 
     def set(self, key, value):
         if not self._mutable:
-            raise Exception("Cannot set value of immutable object")
+            raise ImmutableObjectError()
 
         if self._schema is not None:
             if key not in self._schema:
-                raise Exception("Can not set key '%s' - schema mismatch" % (key))
+                raise KeyError("Can not set key '%s' - schema mismatch: "
+                    "unknown key" % (key, ))
 
             schema_entry = self._schema[key]
             schema_entry_instance = schema_entry()
@@ -204,32 +213,39 @@ class Config:
                     schema_entry_instance.update(value)
                     value = schema_entry_instance
                 else:
-                    raise Exception("Can not set key '%s' - schema mismatch" % (key))
+                    raise ValueError("Can not set key '%s' - schema mismatch:"
+                        "unexpected value type %s, expected %s" % \
+                        (key, type(value), type(schema_entry_instance))
+                    )
 
         self._config[key] = value
         return value
 
-    @staticmethod
-    def parse(path, *args, **kwargs):
+    @classmethod
+    def parse(cls, path: Union[str, IO], *args, **kwargs):
         if isinstance(path, str):
             with open(path, 'r', encoding='utf-8') as f:
-                return Config(yaml.safe_load(f), *args, **kwargs)
+                return cls(yaml.safe_load(f), *args, **kwargs)
         else:
-            return Config(yaml.safe_load(path), *args, **kwargs)
+            return cls(yaml.safe_load(path), *args, **kwargs)
 
     @staticmethod
     def yaml_representer(dumper, value):
         return dumper.represent_data(
             value._items(allow_internal=False, allow_fallback=False))
 
-    def dump(self, path):
+    def dump(self, path: Union[str, IO]):
         if isinstance(path, str):
             with open(path, 'w', encoding='utf-8') as f:
-                yaml.dump(self, f)
+                yaml.safe_dump(self, f)
         else:
-            yaml.dump(self, path)
+            yaml.safe_dump(self, path)
 
-yaml.add_multi_representer(Config, Config.yaml_representer)
+yaml.add_multi_representer(Config, Config.yaml_representer,
+    Dumper=yaml.SafeDumper)
+yaml.add_multi_representer(tuple,
+    lambda dumper, value: dumper.represent_data(list(value)),
+    Dumper=yaml.SafeDumper)
 
 
 class DictConfig(Config):
@@ -238,8 +254,16 @@ class DictConfig(Config):
         self.__dict__['_default'] = default
 
     def set(self, key, value):
-        if key not in self.keys(allow_fallback=False):
-            value = self._default(value)
-            return super().set(key, value)
-        else:
-            return super().set(key, value)
+        if self._default is not None:
+            schema_entry_instance = self._default(value)
+            if not isinstance(value, type(schema_entry_instance)):
+                if isinstance(value, dict) and \
+                        isinstance(schema_entry_instance, Config):
+                    value = schema_entry_instance
+                else:
+                   raise ValueError("Can not set key '%s' - schema mismatch:"
+                        "unexpected value type %s, expected %s" % \
+                        (key, type(value), type(schema_entry_instance))
+                    )
+
+        return super().set(key, value)
