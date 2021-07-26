@@ -5,6 +5,10 @@
 from attr import attrib, attrs
 
 
+class ImmutableObjectError(Exception):
+    def __str__(self):
+        return "Cannot set value of immutable object"
+
 class DatumaroError(Exception):
     pass
 
