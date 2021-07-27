@@ -111,17 +111,11 @@ def catch_output():
     stdout = StringIO()
     stderr = StringIO()
 
-    old_stdout = sys.stdout
-    sys.stdout = stdout
-
-    old_stderr = sys.stderr
-    sys.stderr = stderr
-
-    try:
+    es = ExitStack()
+    es.enter_context(redirect_stdout(stderr))
+    es.enter_context(redirect_stderr(stdout))
+    with es:
         yield stdout, stderr
-    finally:
-        sys.stdout = old_stdout
-        sys.stderr = old_stderr
 
 def dir_items(path, ext, truncate_ext=False):
     items = []
