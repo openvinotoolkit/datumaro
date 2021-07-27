@@ -2,10 +2,10 @@
 #
 # SPDX-License-Identifier: MIT
 
-from io import StringIO
 from contextlib import (
     ExitStack, contextmanager, redirect_stderr, redirect_stdout,
 )
+from io import StringIO
 import importlib
 import os
 import os.path as osp
