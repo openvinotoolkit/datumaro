@@ -135,7 +135,7 @@ def build_run_parser(parser_ctor=argparse.ArgumentParser):
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to operate on (default: current dir)")
     parser.add_argument('--overwrite', action='store_true',
-        help="Overwrite output dorectory if exists")
+        help="Overwrite output directory if exists")
     parser.set_defaults(command=run_command)
 
     return parser
