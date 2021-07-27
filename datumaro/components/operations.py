@@ -4,7 +4,7 @@
 
 from collections import OrderedDict
 from copy import deepcopy
-from typing import Callable
+from typing import Callable, Optional
 from unittest import TestCase
 import hashlib
 import logging as log
