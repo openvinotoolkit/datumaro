@@ -2,6 +2,9 @@
 #
 # SPDX-License-Identifier: MIT
 
+from contextlib import (
+    ExitStack, contextmanager, redirect_stderr, redirect_stdout,
+)
 import importlib
 import os
 import os.path as osp
@@ -71,3 +74,17 @@ def split_path(path):
     parts.reverse()
 
     return parts
+
+@contextmanager
+def suppress_output(stdout: bool = True, stderr: bool = False):
+    with open(os.devnull, 'w') as devnull:
+        es = ExitStack()
+
+        if stdout:
+            es.enter_context(redirect_stdout(devnull))
+
+        if stderr:
+            es.enter_context(redirect_stderr(devnull))
+
+        with es:
+            yield

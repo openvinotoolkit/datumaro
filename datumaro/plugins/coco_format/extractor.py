@@ -1,5 +1,4 @@
-
-# Copyright (C) 2019-2020 Intel Corporation
+# Copyright (C) 2019-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -18,6 +17,7 @@ from datumaro.components.extractor import (
 )
 from datumaro.util.image import Image, lazy_image, load_image
 from datumaro.util.mask_tools import bgr2index
+from datumaro.util.os_util import suppress_output
 
 from .format import CocoPath, CocoTask
 
@@ -59,13 +59,18 @@ class _CocoExtractor(SourceExtractor):
 
     @staticmethod
     def _make_subset_loader(path):
-        # COCO API has an 'unclosed file' warning
+        # TODO: remove pycocotools dependency?
+
+        # COCO API has an unclosed file problem, so we read json manually
         coco_api = COCO()
         with open(path, 'r', encoding='utf-8') as f:
             dataset = json.load(f)
 
         coco_api.dataset = dataset
-        coco_api.createIndex()
+
+        # suppress annoying messages about dataset reading from cocoapi
+        with suppress_output():
+            coco_api.createIndex()
         return coco_api
 
     def _load_categories(self, loader):
