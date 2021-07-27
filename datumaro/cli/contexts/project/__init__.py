@@ -27,7 +27,7 @@ from ...util import (
     CliException, MultilineFormatter, add_subparser, make_file_name,
 )
 from ...util.project import generate_next_file_name, load_project
-from .diff import DatasetDiffVisualizer
+from .diff import DiffVisualizer
 
 
 def build_create_parser(parser_ctor=argparse.ArgumentParser):
@@ -512,8 +512,8 @@ def build_diff_parser(parser_ctor=argparse.ArgumentParser):
     parser.add_argument('-o', '--output-dir', dest='dst_dir', default=None,
         help="Directory to save comparison results (default: do not save)")
     parser.add_argument('-v', '--visualizer',
-        default=DatasetDiffVisualizer.DEFAULT_FORMAT.name,
-        choices=[f.name for f in DatasetDiffVisualizer.OutputFormat],
+        default=DiffVisualizer.DEFAULT_FORMAT.name,
+        choices=[f.name for f in DiffVisualizer.OutputFormat],
         help="Output format (default: %(default)s)")
     parser.add_argument('--iou-thresh', default=0.5, type=float,
         help="IoU match threshold for detections (default: %(default)s)")
@@ -550,7 +550,7 @@ def diff_command(args):
     if not osp.exists(dst_dir):
         on_error.do(shutil.rmtree, dst_dir, ignore_errors=True)
 
-    with DatasetDiffVisualizer(save_dir=dst_dir, comparator=comparator,
+    with DiffVisualizer(save_dir=dst_dir, comparator=comparator,
             output_format=args.visualizer) as visualizer:
         visualizer.save(
             first_project.make_dataset(),
