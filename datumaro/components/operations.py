@@ -206,7 +206,8 @@ class IntersectMerge(MergingStrategy):
                 missing_sources = set(id(s) for s in datasets) - set(items)
                 missing_sources = [self._dataset_map[s][1]
                     for s in missing_sources]
-                self.add_item_error(NoMatchingItemError, missing_sources)
+                self.add_item_error(NoMatchingItemError,
+                    sources=missing_sources)
             merged.put(self.merge_items(items))
 
         return merged
@@ -541,7 +542,7 @@ class IntersectMerge(MergingStrategy):
                 missing_sources = [self._dataset_map[s][1]
                     for s in missing_sources]
                 self.add_item_error(FailedAttrVotingError,
-                    missing_sources, name, votes, ann)
+                    name, votes, ann, sources=missing_sources)
                 continue
             attributes[name] = winner
 
@@ -564,7 +565,8 @@ class IntersectMerge(MergingStrategy):
         missing_sources = [self._dataset_map[s][1] for s in missing_sources
             if _has_item(s)]
         if missing_sources:
-            self.add_item_error(NoMatchingAnnError, missing_sources, cluster[0])
+            self.add_item_error(NoMatchingAnnError, cluster[0],
+                sources=missing_sources)
 
     def _check_annotation_distance(self, t, annotations):
         for a_idx, a_ann in enumerate(annotations):
@@ -822,8 +824,8 @@ class LabelMerger(AnnotationMerger, LabelMatcher):
                     if label not in [self._context._get_src_label_name(l, l.label)
                         for l in a])
                 sources = [self._context._dataset_map[s][1] for s in sources]
-                self._context.add_item_error(FailedLabelVotingError,
-                    sources, votes)
+                self._context.add_item_error(FailedLabelVotingError, votes,
+                    sources=sources)
                 continue
 
             merged.append(Label(self._context._get_label_id(label), attributes={

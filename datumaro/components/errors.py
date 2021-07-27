@@ -80,7 +80,7 @@ class WrongGroupError(DatasetQualityError):
 
 @attrs
 class DatasetMergeError(DatasetError):
-    sources = attrib(converter=set, factory=set)
+    sources = attrib(converter=set, factory=set, kw_only=True)
 
 @attrs
 class MismatchingImageInfoError(DatasetMergeError):
