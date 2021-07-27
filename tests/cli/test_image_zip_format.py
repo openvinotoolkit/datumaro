@@ -5,15 +5,12 @@ import os.path as osp
 
 import numpy as np
 
-from datumaro.cli.__main__ import main
 from datumaro.components.dataset import Dataset, DatasetItem
 from datumaro.util.test_utils import TestDir, compare_datasets
+from datumaro.util.test_utils import run_datum as run
 
 from ..requirements import Requirements, mark_requirement
 
-
-def run(test, *args, expected_code=0):
-    test.assertEqual(expected_code, main(args), str(args))
 
 def make_zip_archive(src_path, dst_path):
     with ZipFile(dst_path, 'w') as archive:

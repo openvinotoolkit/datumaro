@@ -5,11 +5,11 @@ import os.path as osp
 
 import numpy as np
 
+from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import (
     AnnotationType, Bbox, DatasetItem, Label, LabelCategories, Points, Polygon,
     PolyLine,
 )
-from datumaro.components.project import Dataset
 from datumaro.plugins.cvat_format.converter import CvatConverter
 from datumaro.plugins.cvat_format.extractor import CvatImporter
 from datumaro.util.image import Image
