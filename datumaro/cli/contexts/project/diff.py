@@ -1,4 +1,3 @@
-
 # Copyright (C) 2019-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
@@ -6,6 +5,7 @@
 from collections import Counter
 from enum import Enum, auto
 from itertools import zip_longest
+from typing import Union
 import logging as log
 import os
 import os.path as osp
@@ -20,38 +20,35 @@ with warnings.catch_warnings():
 
 from datumaro.components.dataset import IDataset
 from datumaro.components.extractor import AnnotationType, LabelCategories
+from datumaro.util import parse_str_enum_value
 from datumaro.util.image import save_image
 
 
-class OutputFormat(Enum):
-    simple = auto()
-    tensorboard = auto()
+class DiffVisualizer:
+    class OutputFormat(Enum):
+        simple = auto()
+        tensorboard = auto()
 
-class DatasetDiffVisualizer:
-    OutputFormat = OutputFormat
     DEFAULT_FORMAT = OutputFormat.simple
-
     _UNMATCHED_LABEL = -1
 
+    def __init__(self, comparator, save_dir: str,
+            output_format: Union[None, str, OutputFormat] = None):
+        self._cmp = comparator
 
-    def __init__(self, comparator, save_dir, output_format=DEFAULT_FORMAT):
-        self.cmp = comparator
+        self._output_format = parse_str_enum_value(output_format,
+            self.OutputFormat, default=self.DEFAULT_FORMAT)
 
-        if isinstance(output_format, str):
-            output_format = OutputFormat[output_format]
-        assert output_format in OutputFormat
-        self.output_format = output_format
-
-        self.save_dir = save_dir
+        self._save_dir = save_dir
 
     def __enter__(self):
-        os.makedirs(self.save_dir, exist_ok=True)
+        os.makedirs(self._save_dir, exist_ok=True)
 
-        if self.output_format is OutputFormat.tensorboard:
-            logdir = osp.join(self.save_dir, 'logs', 'diff')
-            self.file_writer = tb.SummaryWriter(logdir)
-        elif self.output_format is OutputFormat.simple:
-            self.label_diff_writer = None
+        if self._output_format is self.OutputFormat.tensorboard:
+            logdir = osp.join(self._save_dir, 'logs', 'diff')
+            self._file_writer = tb.SummaryWriter(logdir)
+        elif self._output_format is self.OutputFormat.simple:
+            self._label_diff_writer = None
 
         self._a_classes = {}
         self._b_classes = {}
@@ -64,13 +61,13 @@ class DatasetDiffVisualizer:
         return self
 
     def __exit__(self, *args, **kwargs):
-        if self.output_format is OutputFormat.tensorboard:
-            self.file_writer.flush()
-            self.file_writer.close()
-        elif self.output_format is OutputFormat.simple:
-            if self.label_diff_writer:
-                self.label_diff_writer.flush()
-                self.label_diff_writer.close()
+        if self._output_format is self.OutputFormat.tensorboard:
+            self._file_writer.flush()
+            self._file_writer.close()
+        elif self._output_format is self.OutputFormat.simple:
+            if self._label_diff_writer:
+                self._label_diff_writer.flush()
+                self._label_diff_writer.close()
 
     def save(self, a: IDataset, b: IDataset):
         if len(a) != len(b):
@@ -111,16 +108,16 @@ class DatasetDiffVisualizer:
             item_a = a.get(item_id, item_subset)
             item_b = b.get(item_id, item_subset)
 
-            label_diff = self.cmp.match_labels(item_a, item_b)
+            label_diff = self._cmp.match_labels(item_a, item_b)
             self.update_label_confusion(label_diff)
 
-            bbox_diff = self.cmp.match_boxes(item_a, item_b)
+            bbox_diff = self._cmp.match_boxes(item_a, item_b)
             self.update_bbox_confusion(bbox_diff)
 
-            polygon_diff = self.cmp.match_polygons(item_a, item_b)
+            polygon_diff = self._cmp.match_polygons(item_a, item_b)
             self.update_polygon_confusion(polygon_diff)
 
-            mask_diff = self.cmp.match_masks(item_a, item_b)
+            mask_diff = self._cmp.match_masks(item_a, item_b)
             self.update_mask_confusion(mask_diff)
 
             self.save_item_label_diff(item_a, item_b, label_diff)
@@ -216,30 +213,30 @@ class DatasetDiffVisualizer:
             label, shape.attributes.get('score', 1), color)
 
     def get_label_diff_file(self):
-        if self.label_diff_writer is None:
-            self.label_diff_writer = open(
-                osp.join(self.save_dir, 'label_diff.txt'),
+        if self._label_diff_writer is None:
+            self._label_diff_writer = open(
+                osp.join(self._save_dir, 'label_diff.txt'),
                 'w', encoding='utf-8')
-        return self.label_diff_writer
+        return self._label_diff_writer
 
     def save_item_label_diff(self, item_a, item_b, diff):
         _, a_unmatched, b_unmatched = diff
 
         if 0 < len(a_unmatched) + len(b_unmatched):
-            if self.output_format is OutputFormat.simple:
+            if self._output_format is self.OutputFormat.simple:
                 f = self.get_label_diff_file()
                 f.write(item_a.id + '\n')
                 for a_label in a_unmatched:
                     f.write('  >%s\n' % self.get_a_label(a_label))
                 for b_label in b_unmatched:
                     f.write('  <%s\n' % self.get_b_label(b_label))
-            elif self.output_format is OutputFormat.tensorboard:
+            elif self._output_format is self.OutputFormat.tensorboard:
                 tag = item_a.id
                 for a_label in a_unmatched:
-                    self.file_writer.add_text(tag,
+                    self._file_writer.add_text(tag,
                         '>%s\n' % self.get_a_label(a_label))
                 for b_label in b_unmatched:
-                    self.file_writer.add_text(tag,
+                    self._file_writer.add_text(tag,
                         '<%s\n' % self.get_b_label(b_label))
 
     def save_item_bbox_diff(self, item_a, item_b, diff):
@@ -266,18 +263,18 @@ class DatasetDiffVisualizer:
 
             img = np.hstack([img_a, img_b])
 
-            path = osp.join(self.save_dir, item_a.subset, item_a.id)
+            path = osp.join(self._save_dir, item_a.subset, item_a.id)
 
-            if self.output_format is OutputFormat.simple:
+            if self._output_format is self.OutputFormat.simple:
                 save_image(path + '.png', img, create_dir=True)
-            elif self.output_format is OutputFormat.tensorboard:
+            elif self._output_format is self.OutputFormat.tensorboard:
                 self.save_as_tensorboard(img, path)
 
     def save_as_tensorboard(self, img, name):
         img = img[:, :, ::-1] # to RGB
         img = np.transpose(img, (2, 0, 1)) # to (C, H, W)
         img = img.astype(dtype=np.uint8)
-        self.file_writer.add_image(name, img)
+        self._file_writer.add_image(name, img)
 
     def save_conf_matrix(self, conf_matrix, filename):
         import matplotlib.pyplot as plt
@@ -316,8 +313,10 @@ class DatasetDiffVisualizer:
         table.set_fontsize(8)
         table.scale(3, 3)
         # Removing ticks and spines enables you to get the figure only with table
-        plt.tick_params(axis='x', which='both', bottom=False, top=False, labelbottom=False)
-        plt.tick_params(axis='y', which='both', right=False, left=False, labelleft=False)
+        plt.tick_params(axis='x', which='both',
+            bottom=False, top=False, labelbottom=False)
+        plt.tick_params(axis='y', which='both',
+            right=False, left=False, labelleft=False)
         for pos in ['right','top','bottom','left']:
             plt.gca().spines[pos].set_visible(False)
 
@@ -330,5 +329,5 @@ class DatasetDiffVisualizer:
                 else:
                     table._cells[(i + 1, j)].set_facecolor('#FF0000')
 
-        plt.savefig(osp.join(self.save_dir, filename),
+        plt.savefig(osp.join(self._save_dir, filename),
             bbox_inches='tight', pad_inches=0.05)
