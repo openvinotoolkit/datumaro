@@ -1321,7 +1321,7 @@ def match_items_by_image_hash(a: IDataset, b: IDataset):
 
     return matches, a_unmatched, b_unmatched
 
-def find_unique_images(dataset: IDataset, item_hash: Callable = None):
+def find_unique_images(dataset: IDataset, item_hash: Optional[Callable] = None):
     def _default_hash(item):
         if not item.image or not item.image.has_data:
             if item.image and item.image.path:

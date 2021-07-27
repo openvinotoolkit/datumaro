@@ -769,15 +769,15 @@ class Dataset(IDataset):
     def is_bound(self) -> bool:
         return bool(self._source_path) and bool(self._format)
 
-    def bind(self, path: str, format: str = None,
-            options: Dict[str, Any] = None):
+    def bind(self, path: str, format: Optional[str] = None,
+            options: Optional[Dict[str, Any]] = None):
         """
         Binds the dataset to a speific directory.
         Following saves will be done to this directory by default.
         """
         self._source_path = path
         self._format = format or DEFAULT_FORMAT
-        self._options = options
+        self._options = options or {}
 
     def flush_changes(self):
         self._data.flush_changes()
@@ -800,7 +800,7 @@ class Dataset(IDataset):
         if not inplace:
             converter.convert(self, save_dir=save_dir, **kwargs)
             if not self.is_bound:
-                self.bind(save_dir, format, copy(kwargs))
+                self.bind(save_dir, format, options=copy(kwargs))
                 self.flush_changes()
         else:
             converter.patch(self, self.get_patch(), save_dir=save_dir, **kwargs)
