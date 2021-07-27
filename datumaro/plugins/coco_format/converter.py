@@ -9,7 +9,6 @@ import logging as log
 import os
 import os.path as osp
 
-import numpy as np
 import pycocotools.mask as mask_utils
 
 from datumaro.components.converter import Converter
@@ -66,16 +65,10 @@ class _TaskConverter:
         return self._context._get_image_id(item)
 
     def save_image_info(self, item, filename):
-        if item.has_image:
-            size = item.image.size
-            if size is not None:
-                h, w = size
-            else:
-                h = 0
-                w = 0
-        else:
-            h = 0
-            w = 0
+        h = 0
+        w = 0
+        if item.has_image and item.image.size:
+            h, w = item.image.size
 
         self._data['images'].append({
             'id': self._get_image_id(item),
@@ -268,7 +261,7 @@ class _InstancesConverter(_TaskConverter):
         if not instances:
             return
 
-        if not item.has_image or not item.image.has_size:
+        if not item.has_image or not item.image.size:
             log.warning("Item '%s': skipping writing instances "
                 "since no image info available" % item.id)
             return
@@ -297,10 +290,10 @@ class _InstancesConverter(_TaskConverter):
 
         area = 0
         if segmentation:
-            if item.has_image:
+            if item.has_image and item.image.size:
                 h, w = item.image.size
             else:
-                # NOTE: here we can guess the image size as
+                # Here we can guess the image size as
                 # it is only needed for the area computation
                 w = bbox[0] + bbox[2]
                 h = bbox[1] + bbox[3]
@@ -507,9 +500,7 @@ class _PanopticConverter(_TaskConverter):
         if not masks:
             return
 
-        pan_format = mask_tools.merge_masks(
-            ((m.image, m.id) for m in masks),
-            start=np.zeros(item.image.size, dtype=np.uint32))
+        pan_format = mask_tools.merge_masks((m.image, m.id) for m in masks)
         save_image(osp.join(self._context._segmentation_dir, ann_filename),
             mask_tools.index2bgr(pan_format), create_dir=True)
 

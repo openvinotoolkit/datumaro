@@ -231,7 +231,6 @@ def compare_dirs(test, expected, actual, skip_empty_dirs=True):
                 open(b_path, 'rb') as b_file:
             test.assertEqual(a_file.read(), b_file.read(), rel_path)
 
-
 def run_datum(test, *args, expected_code=0):
     from datumaro.cli.__main__ import main
     test.assertEqual(expected_code, main(args), str(args))

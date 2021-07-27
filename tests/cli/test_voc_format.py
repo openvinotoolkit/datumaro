@@ -15,7 +15,6 @@ from ..requirements import Requirements, mark_requirement
 DUMMY_DATASETS_DIR = osp.join(__file__[:__file__.rfind(osp.join('tests', ''))],
     'tests', 'assets', 'voc_dataset')
 
-
 class VocIntegrationScenarios(TestCase):
     def _test_can_save_and_load(self, project_path, source_path, expected_dataset,
             dataset_format, result_path='', label_map=None):

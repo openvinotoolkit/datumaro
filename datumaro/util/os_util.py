@@ -2,8 +2,10 @@
 #
 # SPDX-License-Identifier: MIT
 
-from contextlib import contextmanager
 from io import StringIO
+from contextlib import (
+    ExitStack, contextmanager, redirect_stderr, redirect_stdout,
+)
 import importlib
 import os
 import os.path as osp
@@ -91,23 +93,18 @@ def copytree(src, dst):
         shutil.copytree(src, dst)
 
 @contextmanager
-def suppress_output(stdout=True, stderr=False):
-    with open(os.devnull, "w") as devnull:
+def suppress_output(stdout: bool = True, stderr: bool = False):
+    with open(os.devnull, 'w') as devnull:
+        es = ExitStack()
+
         if stdout:
-            old_stdout = sys.stdout
-            sys.stdout = devnull
+            es.enter_context(redirect_stdout(devnull))
 
         if stderr:
-            old_stderr = sys.stderr
-            sys.stderr = devnull
+            es.enter_context(redirect_stderr(devnull))
 
-        try:
+        with es:
             yield
-        finally:
-            if stdout:
-                sys.stdout = old_stdout
-            if stderr:
-                sys.stderr = old_stderr
 
 @contextmanager
 def catch_output():

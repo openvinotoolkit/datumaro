@@ -1,20 +1,17 @@
 from unittest import TestCase
 import os.path as osp
 
-from datumaro.cli.__main__ import main
 from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import (
     AnnotationType, Cuboid3d, DatasetItem, LabelCategories,
 )
 from datumaro.util.test_utils import TestDir, compare_datasets_3d
+from datumaro.util.test_utils import run_datum as run
 
 from ..requirements import Requirements, mark_requirement
 
 DUMMY_DATASET_DIR = osp.join(__file__[:__file__.rfind(osp.join('tests', ''))],
     'tests', 'assets', 'kitti_dataset', 'kitti_raw')
-
-def run(test, *args, expected_code=0):
-    test.assertEqual(expected_code, main(args), str(args))
 
 class KittiRawIntegrationScenarios(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)

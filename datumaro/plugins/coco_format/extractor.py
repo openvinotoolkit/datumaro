@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2020 Intel Corporation
+# Copyright (C) 2019-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -59,13 +59,16 @@ class _CocoExtractor(SourceExtractor):
 
     @staticmethod
     def _make_subset_loader(path):
-        # COCO API has an 'unclosed file' warning
+        # TODO: remove pycocotools dependency?
+
+        # COCO API has an unclosed file problem, so we read json manually
         coco_api = COCO()
         with open(path, 'r', encoding='utf-8') as f:
             dataset = json.load(f)
 
         coco_api.dataset = dataset
 
+        # suppress annoying messages about dataset reading from cocoapi
         with suppress_output():
             coco_api.createIndex()
         return coco_api
