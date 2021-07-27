@@ -4,19 +4,16 @@ import os.path as osp
 
 import numpy as np
 
-from datumaro.cli.__main__ import main
 from datumaro.components.dataset import Dataset, DatasetItem
 from datumaro.components.extractor import Bbox, Label, Mask
 from datumaro.util.test_utils import TestDir, compare_datasets
+from datumaro.util.test_utils import run_datum as run
 import datumaro.plugins.voc_format.format as VOC
 
 from ..requirements import Requirements, mark_requirement
 
 DUMMY_DATASETS_DIR = osp.join(__file__[:__file__.rfind(osp.join('tests', ''))],
     'tests', 'assets', 'voc_dataset')
-
-def run(test, *args, expected_code=0):
-    test.assertEqual(expected_code, main(args), str(args))
 
 class VocIntegrationScenarios(TestCase):
     def _test_can_save_and_load(self, project_path, source_path, expected_dataset,
