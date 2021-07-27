@@ -12,6 +12,7 @@ class ImmutableObjectError(Exception):
 class DatumaroError(Exception):
     pass
 
+@attrs
 class UnknownFormatError(DatumaroError):
     format = attrib()
 
@@ -79,13 +80,12 @@ class WrongGroupError(DatasetQualityError):
 
 @attrs
 class DatasetMergeError(DatasetError):
-    sources = attrib(converter=set)
+    sources = attrib(converter=set, factory=set)
 
 @attrs
 class MismatchingImageInfoError(DatasetMergeError):
     a = attrib()
     b = attrib()
-    sources = attrib(converter=set, default=set())
 
     def __str__(self):
         return "Item %s: mismatching image size info: %s vs %s" % \
@@ -93,7 +93,7 @@ class MismatchingImageInfoError(DatasetMergeError):
 
 @attrs
 class ConflictingCategoriesError(DatasetMergeError):
-    sources = attrib(converter=set, default=set())
+    pass
 
 @attrs
 class NoMatchingAnnError(DatasetMergeError):
