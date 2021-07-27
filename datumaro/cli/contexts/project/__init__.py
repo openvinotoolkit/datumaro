@@ -447,7 +447,8 @@ def stats_command(args):
 def build_info_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(help="Get project info",
         description="""
-            Outputs project info.|n
+            Outputs project info - information about plugins,
+            sources and models.|n
             |n
             Examples:|n
             - Print project contents:|n
