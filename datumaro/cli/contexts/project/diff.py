@@ -5,6 +5,7 @@
 from collections import Counter
 from enum import Enum, auto
 from itertools import zip_longest
+from typing import Union
 import logging as log
 import os
 import os.path as osp
@@ -19,37 +20,34 @@ with warnings.catch_warnings():
 
 from datumaro.components.dataset import IDataset
 from datumaro.components.extractor import AnnotationType, LabelCategories
+from datumaro.util import parse_str_enum_value
 from datumaro.util.image import save_image
 
 
-class OutputFormat(Enum):
-    simple = auto()
-    tensorboard = auto()
+class DiffVisualizer:
+    class OutputFormat(Enum):
+        simple = auto()
+        tensorboard = auto()
 
-class DatasetDiffVisualizer:
-    OutputFormat = OutputFormat
     DEFAULT_FORMAT = OutputFormat.simple
-
     _UNMATCHED_LABEL = -1
 
-
-    def __init__(self, comparator, save_dir, output_format=DEFAULT_FORMAT):
+    def __init__(self, comparator, save_dir: str,
+            output_format: Union[None, str, OutputFormat] = None):
         self._cmp = comparator
 
-        if isinstance(output_format, str):
-            output_format = OutputFormat[output_format]
-        assert output_format in OutputFormat
-        self._output_format = output_format
+        self._output_format = parse_str_enum_value(output_format,
+            self.OutputFormat, default=self.DEFAULT_FORMAT)
 
         self._save_dir = save_dir
 
     def __enter__(self):
         os.makedirs(self._save_dir, exist_ok=True)
 
-        if self._output_format is OutputFormat.tensorboard:
+        if self._output_format is self.OutputFormat.tensorboard:
             logdir = osp.join(self._save_dir, 'logs', 'diff')
             self._file_writer = tb.SummaryWriter(logdir)
-        elif self._output_format is OutputFormat.simple:
+        elif self._output_format is self.OutputFormat.simple:
             self._label_diff_writer = None
 
         self._a_classes = {}
@@ -63,10 +61,10 @@ class DatasetDiffVisualizer:
         return self
 
     def __exit__(self, *args, **kwargs):
-        if self._output_format is OutputFormat.tensorboard:
+        if self._output_format is self.OutputFormat.tensorboard:
             self._file_writer.flush()
             self._file_writer.close()
-        elif self._output_format is OutputFormat.simple:
+        elif self._output_format is self.OutputFormat.simple:
             if self._label_diff_writer:
                 self._label_diff_writer.flush()
                 self._label_diff_writer.close()
@@ -225,14 +223,14 @@ class DatasetDiffVisualizer:
         _, a_unmatched, b_unmatched = diff
 
         if 0 < len(a_unmatched) + len(b_unmatched):
-            if self._output_format is OutputFormat.simple:
+            if self._output_format is self.OutputFormat.simple:
                 f = self.get_label_diff_file()
                 f.write(item_a.id + '\n')
                 for a_label in a_unmatched:
                     f.write('  >%s\n' % self.get_a_label(a_label))
                 for b_label in b_unmatched:
                     f.write('  <%s\n' % self.get_b_label(b_label))
-            elif self._output_format is OutputFormat.tensorboard:
+            elif self._output_format is self.OutputFormat.tensorboard:
                 tag = item_a.id
                 for a_label in a_unmatched:
                     self._file_writer.add_text(tag,
@@ -267,9 +265,9 @@ class DatasetDiffVisualizer:
 
             path = osp.join(self._save_dir, item_a.subset, item_a.id)
 
-            if self._output_format is OutputFormat.simple:
+            if self._output_format is self.OutputFormat.simple:
                 save_image(path + '.png', img, create_dir=True)
-            elif self._output_format is OutputFormat.tensorboard:
+            elif self._output_format is self.OutputFormat.tensorboard:
                 self.save_as_tensorboard(img, path)
 
     def save_as_tensorboard(self, img, name):

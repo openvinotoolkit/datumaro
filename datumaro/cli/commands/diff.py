@@ -14,7 +14,7 @@ from datumaro.components.operations import DistanceComparator, ExactComparator
 from datumaro.util import error_rollback
 from datumaro.util.os_util import rmtree
 
-from ..contexts.project.diff import DatasetDiffVisualizer
+from ..contexts.project.diff import DiffVisualizer
 from ..util import MultilineFormatter
 from ..util.errors import CliException
 from ..util.project import (
@@ -77,12 +77,12 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         """,
         formatter_class=MultilineFormatter)
 
-    formats = ', '.join(f.name for f in DatasetDiffVisualizer.OutputFormat)
+    formats = ', '.join(f.name for f in DiffVisualizer.OutputFormat)
     comp_methods = ', '.join(m.name for m in ComparisonMethod)
 
     def _parse_output_format(s):
         try:
-            return DatasetDiffVisualizer.OutputFormat[s.lower()]
+            return DiffVisualizer.OutputFormat[s.lower()]
         except KeyError:
             raise argparse.ArgumentError('format', message="Unknown output "
                 "format '%s', the only available are: %s" % (s, formats))
@@ -115,7 +115,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     distance_parser.add_argument('--iou-thresh', default=0.5, type=float,
         help="IoU match threshold for shapes (default: %(default)s)")
     parser.add_argument('-f', '--format', type=_parse_output_format,
-        default=DatasetDiffVisualizer.DEFAULT_FORMAT.name,
+        default=DiffVisualizer.DEFAULT_FORMAT.name,
         help="Output format, one of {} (default: %(default)s)".format(formats))
 
     equality_parser = parser.add_argument_group("Equality comparison options")
@@ -202,7 +202,7 @@ def diff_command(args):
     elif args.method is ComparisonMethod.distance:
         comparator = DistanceComparator(iou_threshold=args.iou_thresh)
 
-        with DatasetDiffVisualizer(save_dir=dst_dir, comparator=comparator,
+        with DiffVisualizer(save_dir=dst_dir, comparator=comparator,
                 output_format=args.format) as visualizer:
             log.info("Saving diff to '%s'" % dst_dir)
             visualizer.save(first_dataset, second_dataset)

@@ -4,7 +4,7 @@ import os.path as osp
 
 import numpy as np
 
-from datumaro.cli.contexts.project.diff import DatasetDiffVisualizer
+from datumaro.cli.contexts.project.diff import DiffVisualizer
 from datumaro.components.extractor import (
     AnnotationType, Bbox, Caption, DatasetItem, Label, LabelCategories, Mask,
     MaskCategories, Points, PointsCategories, Polygon, PolyLine,
@@ -117,7 +117,7 @@ class DiffTest(TestCase):
         })
 
         with TestDir() as test_dir:
-            with DatasetDiffVisualizer(save_dir=test_dir,
+            with DiffVisualizer(save_dir=test_dir,
                         comparator=DistanceComparator(iou_threshold=0.8),
                     ) as visualizer:
                 visualizer.save(dataset1, dataset2)
