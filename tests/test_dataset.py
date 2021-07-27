@@ -202,10 +202,11 @@ class DatasetTest(TestCase):
             DatasetItem(id=1, annotations=[ Label(2) ]),
         ], categories=['a', 'b', 'c'])
 
-        with TestDir() as test_dir, self.assertRaises(MultipleFormatsMatchError):
+        with TestDir() as test_dir:
             source_dataset.save(test_dir)
 
-            Dataset.import_from(test_dir, env=env)
+            with self.assertRaises(MultipleFormatsMatchError):
+                Dataset.import_from(test_dir, env=env)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_report_no_matching_formats(self):
@@ -217,10 +218,11 @@ class DatasetTest(TestCase):
             DatasetItem(id=1, annotations=[ Label(2) ]),
         ], categories=['a', 'b', 'c'])
 
-        with TestDir() as test_dir, self.assertRaises(NoMatchingFormatsError):
+        with TestDir() as test_dir:
             source_dataset.save(test_dir)
 
-            Dataset.import_from(test_dir, env=env)
+            with self.assertRaises(NoMatchingFormatsError):
+                Dataset.import_from(test_dir, env=env)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_report_unknown_format_requested(self):
@@ -232,10 +234,11 @@ class DatasetTest(TestCase):
             DatasetItem(id=1, annotations=[ Label(2) ]),
         ], categories=['a', 'b', 'c'])
 
-        with TestDir() as test_dir, self.assertRaises(UnknownFormatError):
+        with TestDir() as test_dir:
             source_dataset.save(test_dir)
 
-            Dataset.import_from(test_dir, format='custom', env=env)
+            with self.assertRaises(UnknownFormatError):
+                Dataset.import_from(test_dir, format='custom', env=env)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_export_by_string_format_name(self):
