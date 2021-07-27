@@ -1,8 +1,12 @@
-# Copyright (C) 2019-2020 Intel Corporation
+# Copyright (C) 2019-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
+from typing import IO, Union
+
 import yaml
+
+from datumaro.components.errors import ImmutableObjectError
 
 
 class Schema:
@@ -51,7 +55,7 @@ class Schema:
         default = object()
         value = self.get(key, default=default)
         if value is default:
-            raise KeyError('Key "%s" does not exist' % (key))
+            raise KeyError('Key "%s" does not exist' % (key, ))
         return value
 
     def get(self, key, default=None):
@@ -69,7 +73,7 @@ class SchemaBuilder:
 
     def add(self, name, ctor=str, internal=False):
         if name in self._items:
-            raise KeyError('Key "%s" already exists' % (name))
+            raise KeyError('Key "%s" already exists' % (name, ))
 
         self._items[name] = Schema.Item(ctor, internal=internal)
         return self
@@ -136,7 +140,7 @@ class Config:
         default = object()
         value = self.get(key, default=default)
         if value is default:
-            raise KeyError('Key "%s" does not exist' % (key))
+            raise KeyError('Key "%s" does not exist' % (key, ))
         return value
 
     def __setitem__(self, key, value):
@@ -173,7 +177,7 @@ class Config:
 
     def remove(self, key):
         if not self._mutable:
-            raise Exception("Cannot set value of immutable object")
+            raise ImmutableObjectError()
 
         self._config.pop(key, None)
 
@@ -194,11 +198,11 @@ class Config:
 
     def set(self, key, value):
         if not self._mutable:
-            raise Exception("Cannot set value of immutable object")
+            raise ImmutableObjectError()
 
         if self._schema is not None:
             if key not in self._schema:
-                raise ValueError("Can not set key '%s' - schema mismatch: "
+                raise KeyError("Can not set key '%s' - schema mismatch: "
                     "unknown key" % (key, ))
 
             schema_entry = self._schema[key]
@@ -210,15 +214,15 @@ class Config:
                     value = schema_entry_instance
                 else:
                     raise ValueError("Can not set key '%s' - schema mismatch:"
-                        "unexpected value type %s, expected %s" % (key,
-                        type(value), type(schema_entry_instance))
+                        "unexpected value type %s, expected %s" % \
+                        (key, type(value), type(schema_entry_instance))
                     )
 
         self._config[key] = value
         return value
 
     @classmethod
-    def parse(cls, path, *args, **kwargs):
+    def parse(cls, path: Union[str, IO], *args, **kwargs):
         if isinstance(path, str):
             with open(path, 'r', encoding='utf-8') as f:
                 return cls(yaml.safe_load(f), *args, **kwargs)
@@ -230,7 +234,7 @@ class Config:
         return dumper.represent_data(
             value._items(allow_internal=False, allow_fallback=False))
 
-    def dump(self, path):
+    def dump(self, path: Union[str, IO]):
         if isinstance(path, str):
             with open(path, 'w', encoding='utf-8') as f:
                 yaml.safe_dump(self, f)
@@ -257,6 +261,9 @@ class DictConfig(Config):
                         isinstance(schema_entry_instance, Config):
                     value = schema_entry_instance
                 else:
-                    raise Exception("Can not set key '%s' - schema mismatch" % (key))
+                   raise ValueError("Can not set key '%s' - schema mismatch:"
+                        "unexpected value type %s, expected %s" % \
+                        (key, type(value), type(schema_entry_instance))
+                    )
 
         return super().set(key, value)
