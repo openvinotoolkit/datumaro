@@ -838,9 +838,7 @@ class Dataset(IDataset):
                 'url': path, 'format': format, 'options': kwargs
             }]
         else:
-            raise UnknownFormatError("Unknown source format '%s'. To make it "
-                "available, add the corresponding Extractor implementation "
-                "to the environment" % format)
+            raise UnknownFormatError(format)
 
         extractors = []
         for src_conf in detected_sources:

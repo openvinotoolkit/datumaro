@@ -13,7 +13,12 @@ class DatumaroError(Exception):
     pass
 
 class UnknownFormatError(DatumaroError):
-    pass
+    format = attrib()
+
+    def __str__(self):
+        return "Unknown source format '%s'. To make it " \
+            "available, add the corresponding Extractor implementation " \
+            "to the environment" % self.format
 
 @attrs
 class DatasetError(DatumaroError):

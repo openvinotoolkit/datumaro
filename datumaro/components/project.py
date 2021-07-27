@@ -17,7 +17,9 @@ from datumaro.components.dataset_filter import (
     XPathAnnotationsFilter, XPathDatasetFilter,
 )
 from datumaro.components.environment import Environment
-from datumaro.components.errors import DatumaroError
+from datumaro.components.errors import (
+    MultipleFormatsMatchError, NoMatchingFormatsError, UnknownFormatError,
+)
 from datumaro.components.extractor import DEFAULT_SUBSET_NAME, Extractor
 from datumaro.components.launcher import ModelTransform
 from datumaro.components.operations import ExactMerge
@@ -379,37 +381,31 @@ class Project:
         return project
 
     @staticmethod
-    def import_from(path, dataset_format=None, env=None, **format_options):
+    def import_from(path, format=None, env=None, **options):
         if env is None:
             env = Environment()
 
-        if not dataset_format:
+        if not format:
             matches = env.detect_dataset(path)
             if not matches:
-                raise DatumaroError(
-                    "Failed to detect dataset format automatically")
+                raise NoMatchingFormatsError()
             if 1 < len(matches):
-                raise DatumaroError(
-                    "Failed to detect dataset format automatically:"
-                    " data matches more than one format: %s" % \
-                    ', '.join(matches))
-            dataset_format = matches[0]
-        elif not env.is_format_known(dataset_format):
-            raise KeyError("Unknown dataset format '%s'" % dataset_format)
+                raise MultipleFormatsMatchError(matches)
+            format = matches[0]
+        elif not env.is_format_known(format):
+            raise UnknownFormatError(format)
 
-        if dataset_format in env.importers:
-            project = env.make_importer(dataset_format)(path, **format_options)
-        elif dataset_format in env.extractors:
+        if format in env.importers:
+            project = env.make_importer(format)(path, **options)
+        elif format in env.extractors:
             project = Project(env=env)
             project.add_source('source', {
                 'url': path,
-                'format': dataset_format,
-                'options': format_options,
+                'format': format,
+                'options': options,
             })
         else:
-            raise DatumaroError("Unknown format '%s'. To make it "
-                "available, add the corresponding Extractor implementation "
-                "to the environment" % dataset_format)
+            raise UnknownFormatError(format)
         return project
 
     def __init__(self, config=None, env=None):
