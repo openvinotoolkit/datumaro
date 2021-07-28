@@ -203,8 +203,9 @@ class Rollback:
             self._thread_locals.current = previous
 
 # shorthand for common cases
-def on_error_do(callback, *args, ignore_errors=False):
-    Rollback.current().do(callback, *args, ignore_errors=ignore_errors)
+def on_error_do(callback, *args, ignore_errors=False, **kwargs):
+    Rollback.current().do(callback, *args, ignore_errors=ignore_errors,
+        **kwargs)
 
 @optional_arg_decorator
 def error_rollback(func, arg_name=None):

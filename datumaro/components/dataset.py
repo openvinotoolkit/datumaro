@@ -10,7 +10,6 @@ import inspect
 import logging as log
 import os
 import os.path as osp
-import shutil
 
 from datumaro.components.dataset_filter import (
     XPathAnnotationsFilter, XPathDatasetFilter,
@@ -26,6 +25,7 @@ from datumaro.components.extractor import (
 )
 from datumaro.util import error_rollback, is_member_redefined, on_error_do
 from datumaro.util.log_utils import logging_disabled
+from datumaro.util.os_util import rmtree
 
 DEFAULT_FORMAT = 'datumaro'
 

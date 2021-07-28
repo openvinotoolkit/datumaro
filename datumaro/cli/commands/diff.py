@@ -11,7 +11,7 @@ import os.path as osp
 
 from datumaro.components.errors import ProjectNotFoundError
 from datumaro.components.operations import DistanceComparator, ExactComparator
-from datumaro.util import error_rollback
+from datumaro.util import error_rollback, on_error_do
 from datumaro.util.os_util import rmtree
 
 from ..contexts.project.diff import DiffVisualizer
@@ -133,7 +133,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
-@error_rollback('on_error', implicit=True)
+@error_rollback
 def diff_command(args):
     dst_dir = args.dst_dir
     if dst_dir:
@@ -145,7 +145,7 @@ def diff_command(args):
     dst_dir = osp.abspath(dst_dir)
 
     if not osp.exists(dst_dir):
-        on_error.do(rmtree, dst_dir, ignore_errors=True)
+        on_error_do(rmtree, dst_dir, ignore_errors=True)
         os.makedirs(dst_dir)
 
     try:

@@ -7,7 +7,7 @@ import logging as log
 import os
 
 from datumaro.components.project import Environment
-from datumaro.util import error_rollback
+from datumaro.util import error_rollback, on_error_do
 
 from ..util import MultilineFormatter, add_subparser
 from ..util.errors import CliException
@@ -69,7 +69,7 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
-@error_rollback('on_error', implicit=True)
+@error_rollback
 def add_command(args):
     project = load_project(args.project_dir)
 
@@ -101,7 +101,7 @@ def add_command(args):
 
     project.import_source(name, url=args.url, format=args.format,
         options=extra_args, no_cache=args.no_cache, rpath=args.path)
-    on_error.do(project.remove_source, name, force=True, keep_data=False,
+    on_error_do(project.remove_source, name, force=True, keep_data=False,
         ignore_errors=True)
 
     if not args.no_check:
