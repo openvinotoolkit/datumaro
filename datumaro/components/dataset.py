@@ -721,7 +721,8 @@ class Dataset(IDataset):
         elif isinstance(model, ModelTransform):
             return self.transform(model, batch_size=batch_size)
         else:
-            raise TypeError('Unexpected model argument type: %s' % type(model))
+            raise TypeError("Unexpected 'model' argument type: %s" % \
+                type(model))
 
     def select(self, pred):
         class _DatasetFilter(ItemTransform):
@@ -860,9 +861,7 @@ class Dataset(IDataset):
 
         matches = env.detect_dataset(path)
         if not matches:
-            raise NoMatchingFormatsError(
-                "Failed to detect dataset format automatically: "
-                "no matching formats found")
+            raise NoMatchingFormatsError()
         if 1 < len(matches):
             raise MultipleFormatsMatchError(matches)
         return matches[0]

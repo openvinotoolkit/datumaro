@@ -38,8 +38,12 @@ class CategoriesRedefinedError(DatasetError):
 class DatasetImportError(DatumaroError):
     pass
 
+@attrs
 class DatasetNotFoundError(DatasetImportError):
-    pass
+    path = attrib()
+
+    def __str__(self):
+        return "Failed to find dataset at '%s'" % self.path
 
 @attrs
 class MultipleFormatsMatchError(DatasetImportError):
@@ -51,7 +55,9 @@ class MultipleFormatsMatchError(DatasetImportError):
             ', '.join(self.formats)
 
 class NoMatchingFormatsError(DatasetImportError):
-    pass
+    def __str__(self):
+        return "Failed to detect dataset format automatically: " \
+            "no matching formats found"
 
 @attrs
 class DatasetQualityError(DatasetError):

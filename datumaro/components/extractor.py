@@ -695,7 +695,7 @@ class ExtractorBase(IExtractor):
             subset._subsets = [name]
             return subset
         else:
-            raise Exception("Unknown subset '%s', available subsets: %s" % \
+            raise KeyError("Unknown subset '%s', available subsets: %s" % \
                 (name, set(self._subsets)))
 
     def transform(self, method, *args, **kwargs):
@@ -768,7 +768,7 @@ class Importer:
 
         sources = self.find_sources(osp.normpath(path))
         if len(sources) == 0:
-            raise DatasetNotFoundError("Failed to find dataset at '%s'" % path)
+            raise DatasetNotFoundError(path)
 
         for desc in sources:
             params = dict(extra_params)
