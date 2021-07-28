@@ -12,6 +12,7 @@ class ImmutableObjectError(Exception):
 class DatumaroError(Exception):
     pass
 
+
 class VcsError(DatumaroError):
     pass
 
@@ -80,6 +81,7 @@ class WrongSourceNodeError(InvalidPipelineError):
 class MigrationError(DatumaroError):
     pass
 
+
 @attrs
 class ProjectNotFoundError(DatumaroError):
     path = attrib()
@@ -109,17 +111,13 @@ class UnknownTargetError(DatumaroError):
     def __str__(self):
         return f"Unknown target '{self.name}'"
 
-@attrs
-class MultipleFormatsMatchError(DatumaroError):
-    formats = attrib()
+class UnknownFormatError(DatumaroError):
+    format = attrib()
 
     def __str__(self):
-        return "Failed to detect dataset format automatically:" \
-            " data matches more than one format: %s" % \
-            ', '.join(self.formats)
-
-class NoFormatsMatchError(DatumaroError):
-    pass
+        return f"Unknown source format '{self.format}'. To make it " \
+            "available, add the corresponding Extractor implementation " \
+            "to the environment"
 
 @attrs
 class SourceExistsError(DatumaroError):
@@ -127,6 +125,32 @@ class SourceExistsError(DatumaroError):
 
     def __str__(self):
         return f"Source '{self.name}' already exists"
+
+
+class DatasetImportError(DatumaroError):
+    pass
+
+@attrs
+class DatasetNotFoundError(DatasetImportError):
+    path = attrib()
+
+    def __str__(self):
+        return f"Failed to find dataset at '{self.path}'"
+
+@attrs
+class MultipleFormatsMatchError(DatasetImportError):
+    formats = attrib()
+
+    def __str__(self):
+        return "Failed to detect dataset format automatically:" \
+            " data matches more than one format: %s" % \
+            ', '.join(self.formats)
+
+class NoMatchingFormatsError(DatasetImportError):
+    def __str__(self):
+        return "Failed to detect dataset format automatically: " \
+            "no matching formats found"
+
 
 @attrs
 class DatasetError(DatumaroError):
@@ -139,7 +163,8 @@ class CategoriesRedefinedError(DatasetError):
 @attrs
 class RepeatedItemError(DatasetError):
     def __str__(self):
-        return "Item %s is repeated in the source sequence." % (self.item_id, )
+        return f"Item {self.item_id} is repeated in the source sequence."
+
 
 @attrs
 class DatasetQualityError(DatasetError):
@@ -166,15 +191,15 @@ class WrongGroupError(DatasetQualityError):
             "found %s, expected %s, group %s" % \
             (self.item_id, self.found, self.expected, self.group)
 
+
 @attrs
 class DatasetMergeError(DatasetError):
-    sources = attrib(converter=set)
+    sources = attrib(converter=set, factory=set, kw_only=True)
 
 @attrs
 class MismatchingImageInfoError(DatasetMergeError):
     a = attrib()
     b = attrib()
-    sources = attrib(converter=set, default=set())
 
     def __str__(self):
         return "Item %s: mismatching image size info: %s vs %s" % \
@@ -182,7 +207,7 @@ class MismatchingImageInfoError(DatasetMergeError):
 
 @attrs
 class ConflictingCategoriesError(DatasetMergeError):
-    sources = attrib(converter=set, default=set())
+    pass
 
 @attrs
 class NoMatchingAnnError(DatasetMergeError):
@@ -231,6 +256,7 @@ class DatasetValidationError(DatumaroError):
             'severity': self.severity.name,
         }
 
+
 @attrs
 class DatasetItemValidationError(DatasetValidationError):
     item_id = attrib()
@@ -252,6 +278,7 @@ class MissingLabelCategories(DatasetValidationError):
 @attrs
 class MissingAnnotation(DatasetItemValidationError):
     ann_type = attrib()
+
     def __str__(self):
         return f"Item needs '{self.ann_type}' annotation(s), " \
             "but not found."

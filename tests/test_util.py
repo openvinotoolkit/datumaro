@@ -1,8 +1,10 @@
-from unittest import TestCase
+from unittest import TestCase, mock
 import os
 import os.path as osp
 
-from datumaro.util import Rollback, error_rollback, on_error_do
+from datumaro.util import (
+    Rollback, error_rollback, is_method_redefined, on_error_do,
+)
 from datumaro.util.os_util import walk
 from datumaro.util.test_utils import TestDir
 
@@ -149,3 +151,40 @@ class TestOsUtils(TestCase):
                 osp.join(rootdir, '1'),
                 osp.join(rootdir, '1', '2'),
             }, visited)
+
+
+class TestMemberRedefined(TestCase):
+    class Base:
+        def method(self):
+            pass
+
+    def test_can_detect_no_changes_in_derived_class(self):
+        class Derived(self.Base):
+            pass
+
+        self.assertFalse(is_method_redefined('method', self.Base, Derived))
+
+    def test_can_detect_no_changes_in_derived_instance(self):
+        class Derived(self.Base):
+            pass
+
+        self.assertFalse(is_method_redefined('method', self.Base, Derived()))
+
+    def test_can_detect_changes_in_derived_class(self):
+        class Derived(self.Base):
+            def method(self):
+                pass
+
+        self.assertTrue(is_method_redefined('method', self.Base, Derived))
+
+    def test_can_detect_changes_in_derived_instance(self):
+        class Derived(self.Base):
+            def method(self):
+                pass
+
+        self.assertTrue(is_method_redefined('method', self.Base, Derived()))
+
+    def test_can_detect_changes_in_patched_instance(self):
+        obj = self.Base()
+        with mock.patch.object(obj, 'method'):
+            self.assertTrue(is_method_redefined('method', self.Base, obj))

@@ -5,7 +5,9 @@
 from contextlib import contextmanager
 from copy import copy
 from enum import Enum, auto
-from typing import Any, Dict, Iterable, Iterator, List, Optional, Tuple, Union
+from typing import (
+    Any, Dict, Iterable, Iterator, List, Optional, Tuple, Type, Union,
+)
 import inspect
 import logging as log
 import os
@@ -16,14 +18,14 @@ from datumaro.components.dataset_filter import (
 )
 from datumaro.components.environment import Environment
 from datumaro.components.errors import (
-    CategoriesRedefinedError, DatumaroError, MultipleFormatsMatchError,
-    NoFormatsMatchError, RepeatedItemError,
+    CategoriesRedefinedError, MultipleFormatsMatchError, NoMatchingFormatsError,
+    RepeatedItemError, UnknownFormatError,
 )
 from datumaro.components.extractor import (
     DEFAULT_SUBSET_NAME, AnnotationType, CategoriesInfo, DatasetItem, Extractor,
     IExtractor, ItemTransform, LabelCategories, Transform,
 )
-from datumaro.util import error_rollback, is_member_redefined, on_error_do
+from datumaro.util import error_rollback, is_method_redefined, on_error_do
 from datumaro.util.log_utils import logging_disabled
 from datumaro.util.os_util import rmtree
 
@@ -468,7 +470,7 @@ class DatasetStorage(IDataset):
             return self._categories
         elif self._categories is not None:
             return self._categories
-        elif any(is_member_redefined('categories', Transform, t[0])
+        elif any(is_method_redefined('categories', Transform, t[0])
                 for t in self._transforms):
             self.init_cache()
             return self._categories
@@ -530,7 +532,7 @@ class DatasetStorage(IDataset):
         # and other cases
         return self._merged().subsets()
 
-    def transform(self, method: Transform, *args, **kwargs):
+    def transform(self, method: Type[Transform], *args, **kwargs):
         # Flush accumulated changes
         if not self._storage.is_empty():
             source = self._merged()
@@ -543,7 +545,7 @@ class DatasetStorage(IDataset):
             self._source = source
         self._transforms.append((method, args, kwargs))
 
-        if is_member_redefined('categories', Transform, method):
+        if is_method_redefined('categories', Transform, method):
             self._categories = None
         self._length = None
 
@@ -578,7 +580,7 @@ class DatasetStorage(IDataset):
 
 
 class Dataset(IDataset):
-    _g_eager = False
+    _global_eager = False
 
     @classmethod
     def from_iterable(cls, iterable: Iterable[DatasetItem],
@@ -692,7 +694,7 @@ class Dataset(IDataset):
             self.put(item)
         return self
 
-    def transform(self, method: Union[str, Transform],
+    def transform(self, method: Union[str, Type[Transform]],
             *args, **kwargs) -> 'Dataset':
         """
         Applies some function to dataset items.
@@ -721,7 +723,8 @@ class Dataset(IDataset):
         elif isinstance(model, ModelTransform):
             return self.transform(model, batch_size=batch_size)
         else:
-            raise TypeError('Unexpected model argument type: %s' % type(model))
+            raise TypeError("Unexpected 'model' argument type: %s" % \
+                type(model))
 
     def select(self, pred):
         class _DatasetFilter(ItemTransform):
@@ -739,6 +742,10 @@ class Dataset(IDataset):
     @property
     def format(self) -> Optional[str]:
         return self._format
+
+    @property
+    def options(self) -> Dict[str, Any]:
+        return self._options
 
     @property
     def is_modified(self) -> bool:
@@ -759,15 +766,25 @@ class Dataset(IDataset):
 
     @property
     def is_eager(self) -> bool:
-        return self.eager if self.eager is not None else self._g_eager
+        return self.eager if self.eager is not None else self._global_eager
 
     @property
     def is_bound(self) -> bool:
         return bool(self._source_path) and bool(self._format)
 
-    def bind(self, path: str, format: str = None):
+    def bind(self, path: str, format: Optional[str] = None, *,
+            options: Optional[Dict[str, Any]] = None):
+        """
+        Binds the dataset to a speific directory.
+        Allows to set default saving parameters.
+
+        The following saves will be done to this directory by default and will
+        use the saved parameters.
+        """
+
         self._source_path = path
         self._format = format or DEFAULT_FORMAT
+        self._options = options or {}
 
     def flush_changes(self):
         self._data.flush_changes()
@@ -790,7 +807,7 @@ class Dataset(IDataset):
         if not inplace:
             converter.convert(self, save_dir=save_dir, **kwargs)
             if not self.is_bound:
-                self.bind(save_dir, format)
+                self.bind(save_dir, format, options=copy(kwargs))
                 self.flush_changes()
         else:
             converter.patch(self, self.get_patch(), save_dir=save_dir, **kwargs)
@@ -827,9 +844,7 @@ class Dataset(IDataset):
                 'url': path, 'format': format, 'options': kwargs
             }]
         else:
-            raise DatumaroError("Unknown source format '%s'. To make it "
-                "available, add the corresponding Extractor implementation "
-                "to the environment" % format)
+            raise UnknownFormatError(format)
 
         extractors = []
         for src_conf in detected_sources:
@@ -851,9 +866,7 @@ class Dataset(IDataset):
 
         matches = env.detect_dataset(path)
         if not matches:
-            raise NoFormatsMatchError(
-                "Failed to detect dataset format automatically: "
-                "no matching formats found")
+            raise NoMatchingFormatsError()
         if 1 < len(matches):
             raise MultipleFormatsMatchError(matches)
         return matches[0]
@@ -869,10 +882,10 @@ def eager_mode(new_mode=True, dataset: Dataset = None):
         finally:
             dataset.eager = old_mode
     else:
-        old_mode = Dataset._g_eager
+        old_mode = Dataset._global_eager
 
         try:
-            Dataset._g_eager = new_mode
+            Dataset._global_eager = new_mode
             yield
         finally:
-            Dataset._g_eager = old_mode
+            Dataset._global_eager = old_mode

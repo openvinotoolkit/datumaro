@@ -12,6 +12,8 @@ from attr import attrib, attrs
 import attr
 import numpy as np
 
+from datumaro.components.errors import DatasetNotFoundError
+from datumaro.util import is_method_redefined
 from datumaro.util.attrs_util import default_if_none, not_empty
 from datumaro.util.image import Image
 
@@ -694,7 +696,7 @@ class ExtractorBase(IExtractor):
             subset._subsets = [name]
             return subset
         else:
-            raise Exception("Unknown subset '%s', available subsets: %s" % \
+            raise KeyError("Unknown subset '%s', available subsets: %s" % \
                 (name, set(self._subsets)))
 
     def transform(self, method, *args, **kwargs):
@@ -720,9 +722,18 @@ class ExtractorBase(IExtractor):
         return None
 
 class Extractor(ExtractorBase):
-    "A base class for user-defined and built-in extractors"
+    """
+    A base class for user-defined and built-in extractors.
+    Should be used in cases, where SourceExtractor is not enough,
+    or its use makes problems with performance, implementation etc.
+    """
 
 class SourceExtractor(Extractor):
+    """
+    A base class for simple, single-subset extractors.
+    Should be used by default for user-defined extractors.
+    """
+
     def __init__(self, length=None, subset=None):
         self._subset = subset or DEFAULT_SUBSET_NAME
         super().__init__(length=length, subsets=[self._subset])
@@ -754,8 +765,8 @@ class Importer:
 
     def __call__(self, path, **extra_params):
         found_sources = self.find_sources(osp.normpath(path))
-        if len(found_sources) == 0:
-            raise Exception("Failed to find dataset at '%s'" % path)
+        if not found_sources:
+            raise DatasetNotFoundError(path)
 
         sources = []
         for desc in found_sources:
@@ -838,7 +849,7 @@ class Transform(ExtractorBase):
     def __len__(self):
         assert self._length in {None, 'parent'} or isinstance(self._length, int)
         if self._length is None and \
-                    self.__iter__.__func__ == __class__.__iter__ \
+                    not is_method_redefined('__iter__', Transform, self) \
                 or self._length == 'parent':
             self._length = len(self._extractor)
         return super().__len__()
