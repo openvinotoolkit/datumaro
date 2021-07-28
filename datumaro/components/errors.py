@@ -16,10 +16,15 @@ class VcsError(DatumaroError):
     pass
 
 class ReadonlyDatasetError(VcsError):
-    pass
+    def __str__(self):
+        return "Can't update a read-only dataset"
 
+@attrs
 class UnknownRefError(VcsError):
-    pass
+    ref = attrib()
+
+    def __str__(self):
+        return f"Can't parse ref '{self.ref}'"
 
 class MissingObjectError(VcsError):
     pass
@@ -31,6 +36,9 @@ class MismatchingObjectError(VcsError):
 class UnsavedChangesError(VcsError):
     paths = attrib()
 
+    def __str__(self):
+        return "There are some uncommitted changes: %s" % ', '.join(self.paths)
+
 class ForeignChangesError(VcsError):
     pass
 
@@ -41,7 +49,8 @@ class PathOutsideSourceError(VcsError):
     pass
 
 class SourceUrlInsideProjectError(VcsError):
-    pass
+    def __str__(self):
+        return "Source URL cannot point inside the project"
 
 class UnexpectedUrlError(VcsError):
     pass
@@ -68,21 +77,37 @@ class WrongSourceNodeError(InvalidPipelineError):
     pass
 
 
+class MigrationError(DatumaroError):
+    pass
+
+@attrs
 class ProjectNotFoundError(DatumaroError):
-    pass
+    path = attrib()
 
+    def __str__(self):
+        return f"Can't find project at '{self.path}'"
+
+@attrs
 class ProjectAlreadyExists(DatumaroError):
-    pass
+    path = attrib()
 
+    def __str__(self):
+        return f"Can't create project: a project already exists " \
+            f"at '{self.path}'"
+
+@attrs
 class UnknownSourceError(DatumaroError):
-    pass
+    name = attrib()
+
+    def __str__(self):
+        return f"Unknown source '{self.name}'"
 
 @attrs
 class UnknownTargetError(DatumaroError):
     name = attrib()
 
     def __str__(self):
-        return "Unknown target '%s'" % self.name
+        return f"Unknown target '{self.name}'"
 
 @attrs
 class MultipleFormatsMatchError(DatumaroError):
@@ -101,7 +126,7 @@ class SourceExistsError(DatumaroError):
     name = attrib()
 
     def __str__(self):
-        return "Source %s already exists" % (self.name, )
+        return f"Source '{self.name}' already exists"
 
 @attrs
 class DatasetError(DatumaroError):

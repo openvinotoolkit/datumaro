@@ -26,15 +26,17 @@ from datumaro.components.dataset import DEFAULT_FORMAT, Dataset, IDataset
 from datumaro.components.environment import Environment
 from datumaro.components.errors import (
     DatasetMergeError, EmptyCommitError, EmptyPipelineError,
-    ForeignChangesError, MismatchingObjectError, MissingObjectError,
-    MissingPipelineHeadError, MultiplePipelineHeadsError,
+    ForeignChangesError, MigrationError, MismatchingObjectError,
+    MissingObjectError, MissingPipelineHeadError, MultiplePipelineHeadsError,
     PathOutsideSourceError, ProjectAlreadyExists, ProjectNotFoundError,
     ReadonlyDatasetError, SourceExistsError, SourceUrlInsideProjectError,
     UnexpectedUrlError, UnknownRefError, UnknownSourceError, UnknownStageError,
     UnknownTargetError, UnsavedChangesError, VcsError, WrongSourceNodeError,
 )
 from datumaro.components.launcher import Launcher
-from datumaro.util import error_rollback, find, on_error_do, parse_str_enum_value
+from datumaro.util import (
+    error_rollback, find, on_error_do, parse_str_enum_value,
+)
 from datumaro.util.log_utils import catch_logs, logging_disabled
 from datumaro.util.os_util import (
     copytree, generate_next_name, make_file_name, rmtree,
@@ -58,7 +60,7 @@ class ProjectSourceDataset(IDataset):
 
     def save(self, save_dir=None, **kwargs):
         if save_dir is None and self.readonly:
-            raise ReadonlyDatasetError("Can't update a read-only dataset")
+            raise ReadonlyDatasetError()
         self._dataset.save(save_dir, **kwargs)
 
     @property
@@ -186,7 +188,7 @@ class _DataSourceBase(CrudProxy):
 
     def add(self, name, value):
         if name in self:
-            raise SourceExistsError("Source '%s' already exists" % name)
+            raise SourceExistsError(name)
 
         return self._data.set(name, value)
 
@@ -1560,8 +1562,8 @@ class DiffStatus(Enum):
     foreign_modified = auto()
 
 class Project:
-    Revision = NewType('Revision', str) # commit hash or named reference
-    Reference = NewType('Reference', str) # commit or object hash
+    Revision = NewType('Revision', str) # a commit hash or a named reference
+    Reference = NewType('Reference', str) # a commit or an object hash
 
     @staticmethod
     def find_project_dir(path: str) -> Optional[str]:
@@ -1584,8 +1586,9 @@ class Project:
         elif old_config.format_version == 2:
             return
         else:
-            raise Exception("Failed to migrate to the new config version: "
-                "unknown old version '%s'" % old_config.format_version)
+            raise MigrationError("Failed to migrate to the new config "
+                "version: unknown old version '%s'" % \
+                old_config.format_version)
 
         log.debug("Migrating project from v1 to v2...")
 
@@ -1639,7 +1642,7 @@ class Project:
             path = osp.curdir
         found_path = self.find_project_dir(path)
         if not found_path:
-            raise ProjectNotFoundError("Can't find project at '%s'" % path)
+            raise ProjectNotFoundError(path)
 
         self._aux_dir = found_path
         self._root_dir = osp.dirname(found_path)
@@ -1691,8 +1694,7 @@ class Project:
     def init(cls, path):
         existing_project = cls.find_project_dir(path)
         if existing_project:
-            raise ProjectAlreadyExists("Can't create project in '%s': " \
-                "a project already exists" % path)
+            raise ProjectAlreadyExists(path)
 
         path = osp.abspath(path)
         if osp.basename(path) != ProjectLayout.aux_dir:
@@ -1756,7 +1758,7 @@ class Project:
 
     def get_rev(self, rev: Revision) -> Tree:
         """
-        Ref convetions:
+        Reference convetions:
         - None or "" - working dir
         - "<40 symbols>" - revision hash
         """
@@ -1821,7 +1823,7 @@ class Project:
             assert self._dvc.is_hash(ref), ref
             return self._RefKind.blob, ref
         except Exception:
-            raise UnknownRefError("Can't parse ref '%s'" % ref)
+            raise UnknownRefError(ref)
 
     def _materialize_rev(self, rev: Revision):
         obj_dir = self.cache_path(rev)
@@ -1859,6 +1861,7 @@ class Project:
         root - Path to the tree root directory. If not set,
             the working tree is used.
         """
+
         if not root:
             root = osp.join(self._aux_dir, ProjectLayout.tree_dir)
         return osp.join(root, TreeLayout.sources_dir, name + '.dvc')
@@ -1953,6 +1956,7 @@ class Project:
 
         Returns: hash
         """
+
         build_target = self.working_tree.build_targets[source]
         source_dir = self.source_data_dir(source)
 
@@ -2006,7 +2010,7 @@ class Project:
         self.validate_source_name(name)
 
         if name in self.working_tree.sources:
-            raise SourceExistsError("Source '%s' already exists" % name)
+            raise SourceExistsError(name)
 
         data_dir = self.source_data_dir(name)
         if osp.exists(data_dir):
@@ -2021,8 +2025,7 @@ class Project:
                 raise FileNotFoundError(url)
 
             if url.startswith(self._root_dir + os.sep):
-                raise SourceUrlInsideProjectError("Source URL cannot point "
-                    "inside the project")
+                raise SourceUrlInsideProjectError()
 
             if rpath:
                 rpath = osp.normpath(osp.join(url, rpath))
@@ -2074,12 +2077,12 @@ class Project:
             keep_data: bool = True):
         """
         Options:
-            - force (bool) - ignores errors and tries to wipe remaining data
-            - keep_data (bool) - leaves source data untouched
+        - force (bool) - ignores errors and tries to wipe remaining data
+        - keep_data (bool) - leaves source data untouched
         """
 
         if name not in self.working_tree.sources and not force:
-            raise KeyError("Unknown source '%s'" % name)
+            raise UnknownSourceError(name)
 
         self.working_tree.sources.remove(name)
 
