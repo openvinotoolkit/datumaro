@@ -17,9 +17,9 @@ class UnknownFormatError(DatumaroError):
     format = attrib()
 
     def __str__(self):
-        return "Unknown source format '%s'. To make it " \
+        return f"Unknown source format '{self.format}'. To make it " \
             "available, add the corresponding Extractor implementation " \
-            "to the environment" % self.format
+            "to the environment"
 
 @attrs
 class DatasetError(DatumaroError):
@@ -28,7 +28,7 @@ class DatasetError(DatumaroError):
 @attrs
 class RepeatedItemError(DatasetError):
     def __str__(self):
-        return "Item %s is repeated in the source sequence." % (self.item_id, )
+        return f"Item {self.item_id} is repeated in the source sequence."
 
 class CategoriesRedefinedError(DatasetError):
     def __str__(self):
@@ -43,7 +43,7 @@ class DatasetNotFoundError(DatasetImportError):
     path = attrib()
 
     def __str__(self):
-        return "Failed to find dataset at '%s'" % self.path
+        return f"Failed to find dataset at '{self.path}'"
 
 @attrs
 class MultipleFormatsMatchError(DatasetImportError):
@@ -169,6 +169,7 @@ class MissingLabelCategories(DatasetValidationError):
 @attrs
 class MissingAnnotation(DatasetItemValidationError):
     ann_type = attrib()
+
     def __str__(self):
         return f"Item needs '{self.ann_type}' annotation(s), " \
             "but not found."
