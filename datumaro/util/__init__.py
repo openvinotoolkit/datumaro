@@ -5,6 +5,7 @@
 
 from contextlib import ExitStack
 from functools import partial, wraps
+from inspect import isclass
 from itertools import islice
 from typing import Iterable, Tuple
 import distutils.util
@@ -106,9 +107,11 @@ def unescape(s: str, escapes: Iterable[Tuple[str, str]]) -> str:
         s = s.replace(sub, pattern)
     return s
 
-def is_member_redefined(member_name, base_class, target_class) -> bool:
-    return getattr(target_class, member_name) != \
-           getattr(base_class, member_name)
+def is_method_redefined(method_name, base_class, target) -> bool:
+    target_method = getattr(target, method_name, None)
+    if not isclass(target) and target_method:
+        target_method = getattr(target_method, '__func__', None)
+    return getattr(base_class, method_name) != target_method
 
 def optional_arg_decorator(fn):
     @wraps(fn)

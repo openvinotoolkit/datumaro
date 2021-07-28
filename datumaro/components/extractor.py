@@ -13,6 +13,7 @@ import attr
 import numpy as np
 
 from datumaro.components.errors import DatasetNotFoundError
+from datumaro.util import is_method_redefined
 from datumaro.util.attrs_util import default_if_none, not_empty
 from datumaro.util.image import Image
 
@@ -852,7 +853,7 @@ class Transform(ExtractorBase):
     def __len__(self):
         assert self._length in {None, 'parent'} or isinstance(self._length, int)
         if self._length is None and \
-                    self.__iter__.__func__ == __class__.__iter__ \
+                    not is_method_redefined('__iter__', Transform, self) \
                 or self._length == 'parent':
             self._length = len(self._extractor)
         return super().__len__()

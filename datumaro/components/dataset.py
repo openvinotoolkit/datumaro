@@ -5,7 +5,9 @@
 from contextlib import contextmanager
 from copy import copy
 from enum import Enum, auto
-from typing import Any, Dict, Iterable, Iterator, List, Optional, Tuple, Union
+from typing import (
+    Any, Dict, Iterable, Iterator, List, Optional, Tuple, Type, Union,
+)
 import inspect
 import logging as log
 import os
@@ -24,7 +26,7 @@ from datumaro.components.extractor import (
     DEFAULT_SUBSET_NAME, AnnotationType, CategoriesInfo, DatasetItem, Extractor,
     IExtractor, ItemTransform, LabelCategories, Transform,
 )
-from datumaro.util import error_rollback, is_member_redefined
+from datumaro.util import error_rollback, is_method_redefined
 from datumaro.util.log_utils import logging_disabled
 
 DEFAULT_FORMAT = 'datumaro'
@@ -468,7 +470,7 @@ class DatasetStorage(IDataset):
             return self._categories
         elif self._categories is not None:
             return self._categories
-        elif any(is_member_redefined('categories', Transform, t[0])
+        elif any(is_method_redefined('categories', Transform, t[0])
                 for t in self._transforms):
             self.init_cache()
             return self._categories
@@ -530,7 +532,7 @@ class DatasetStorage(IDataset):
         # and other cases
         return self._merged().subsets()
 
-    def transform(self, method: Transform, *args, **kwargs):
+    def transform(self, method: Type[Transform], *args, **kwargs):
         # Flush accumulated changes
         if not self._storage.is_empty():
             source = self._merged()
@@ -543,7 +545,7 @@ class DatasetStorage(IDataset):
             self._source = source
         self._transforms.append((method, args, kwargs))
 
-        if is_member_redefined('categories', Transform, method):
+        if is_method_redefined('categories', Transform, method):
             self._categories = None
         self._length = None
 
@@ -692,7 +694,7 @@ class Dataset(IDataset):
             self.put(item)
         return self
 
-    def transform(self, method: Union[str, Transform],
+    def transform(self, method: Union[str, Type[Transform]],
             *args, **kwargs) -> 'Dataset':
         """
         Applies some function to dataset items.
