@@ -770,12 +770,16 @@ class Dataset(IDataset):
     def is_bound(self) -> bool:
         return bool(self._source_path) and bool(self._format)
 
-    def bind(self, path: str, format: Optional[str] = None,
+    def bind(self, path: str, format: Optional[str] = None, *,
             options: Optional[Dict[str, Any]] = None):
         """
         Binds the dataset to a speific directory.
-        Following saves will be done to this directory by default.
+        Allows to set default saving parameters.
+
+        The following saves will be done to this directory by default and will
+        use the saved parameters.
         """
+
         self._source_path = path
         self._format = format or DEFAULT_FORMAT
         self._options = options or {}
