@@ -318,11 +318,12 @@ class IntersectMerge(MergingStrategy):
                     if dst_label != src_label:
                         if src_label.parent and dst_label.parent and \
                                 src_label.parent != dst_label.parent:
-                            raise ValueError("Can't merge label category "
-                                "%s (from #%s): "
-                                "parent label conflict: %s vs. %s" % \
-                                (src_label.name, src_id,
-                                 src_label.parent, dst_label.parent)
+                            raise ConflictingCategoriesError(
+                                "Can't merge label category %s (from #%s): "
+                                    "parent label conflict: %s vs. %s" % \
+                                    (src_label.name, src_id,
+                                        src_label.parent, dst_label.parent),
+                                sources=list(range(src_id))
                             )
                         dst_label.parent = dst_label.parent or src_label.parent
                         dst_label.attributes |= src_label.attributes
@@ -337,9 +338,6 @@ class IntersectMerge(MergingStrategy):
     def _merge_point_categories(self, sources, label_cat):
         dst_point_cat = PointsCategories()
 
-        if all(AnnotationType.points not in cats for cats in sources):
-            return None
-
         for src_id, src_categories in enumerate(sources):
             src_label_cat = src_categories.get(AnnotationType.label)
             src_point_cat = src_categories.get(AnnotationType.points)
@@ -352,9 +350,11 @@ class IntersectMerge(MergingStrategy):
                 dst_cat = dst_point_cat.items.get(dst_label_id)
                 if dst_cat is not None:
                     if dst_cat != src_cat:
-                        raise ValueError("Can't merge point category for label "
-                            "%s (from #%s): %s vs. %s" % \
-                            (src_label, src_id, src_cat, dst_cat)
+                        raise ConflictingCategoriesError(
+                            "Can't merge point category for label "
+                                "%s (from #%s): %s vs. %s" % \
+                                (src_label, src_id, src_cat, dst_cat),
+                            sources=list(range(src_id))
                         )
                     else:
                         pass
@@ -370,9 +370,6 @@ class IntersectMerge(MergingStrategy):
     def _merge_mask_categories(self, sources, label_cat):
         dst_mask_cat = MaskCategories()
 
-        if all(AnnotationType.mask not in cats for cats in sources):
-            return None
-
         for src_id, src_categories in enumerate(sources):
             src_label_cat = src_categories.get(AnnotationType.label)
             src_mask_cat = src_categories.get(AnnotationType.mask)
@@ -385,9 +382,11 @@ class IntersectMerge(MergingStrategy):
                 dst_cat = dst_mask_cat.colormap.get(dst_label_id)
                 if dst_cat is not None:
                     if dst_cat != src_cat:
-                        raise ValueError("Can't merge mask category for label "
-                            "%s (from #%s): %s vs. %s" % \
-                            (src_label, src_id, src_cat, dst_cat)
+                        raise ConflictingCategoriesError(
+                            "Can't merge mask category for label "
+                                "%s (from #%s): %s vs. %s" % \
+                                (src_label, src_id, src_cat, dst_cat),
+                            sources=list(range(src_id))
                         )
                     else:
                         pass
