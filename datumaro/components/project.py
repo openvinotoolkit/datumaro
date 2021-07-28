@@ -1903,7 +1903,7 @@ class Project:
             raise ValueError("Source name is reserved for internal use")
 
     @error_rollback
-    def _download_source(self, url: str, dst_dir: str, no_cache=False):
+    def _download_source(self, url: str, dst_dir: str, no_cache: bool = False):
         assert url
         assert dst_dir
 
@@ -1920,7 +1920,7 @@ class Project:
         on_error_do(rmtree, data_dir, ignore_errors=True)
 
         obj_hash = self.compute_source_hash(data_dir,
-            dvcfile, no_cache=no_cache, allow_external=True)
+            dvcfile=dvcfile, no_cache=no_cache, allow_external=True)
         if not no_cache:
             log.debug("Data is added to DVC cache")
         log.debug("Data hash: '%s'", obj_hash)
@@ -1935,7 +1935,7 @@ class Project:
         return obj_hash
 
     def compute_source_hash(self, data_dir, dvcfile: Optional[str] = None,
-            no_cache=True, allow_external=True) -> Reference:
+            no_cache: bool = True, allow_external: bool = True) -> Reference:
         es = ExitStack()
         if not dvcfile:
             tmp_dir = es.enter_context(self._make_tmp_dir())
@@ -1948,6 +1948,11 @@ class Project:
 
     def refresh_source_hash(self, source: str,
             no_cache: bool = True) -> Reference:
+        """
+        Computes and updates hashes of a source in the working directory.
+
+        Returns: hash
+        """
         build_target = self.working_tree.build_targets[source]
         source_dir = self.source_data_dir(source)
 
@@ -1956,8 +1961,8 @@ class Project:
 
         dvcfile = self._source_dvcfile_path(source)
         os.makedirs(osp.dirname(dvcfile), exist_ok=True)
-        obj_hash = self.compute_source_hash(source_dir, dvcfile,
-            no_cache=no_cache)
+        obj_hash = self.compute_source_hash(source_dir,
+            dvcfile=dvcfile, no_cache=no_cache)
 
         build_target.head.hash = obj_hash
 
