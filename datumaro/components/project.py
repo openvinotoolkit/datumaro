@@ -1756,7 +1756,10 @@ class Project:
     def models(self) -> Dict[str, Model]:
         return dict(self._config.models)
 
-    def get_rev(self, rev: Revision) -> Tree:
+    def get_rev(self, rev: Revision) -> Tree: \
+            # pylint: disable=undefined-variable
+            # 'Revision' is incorrecly shown undefined
+            # https://github.com/PyCQA/pylint/issues/1976
         """
         Reference convetions:
         - None or "" - working dir

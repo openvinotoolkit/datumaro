@@ -89,7 +89,7 @@ def add_command(args):
                 args.launcher)
 
     project.add_model(name, launcher=args.launcher, options=model_args)
-    on_error.do(project.remove_model, name, ignore_errors=True)
+    on_error_do(project.remove_model, name, ignore_errors=True)
 
     if not args.no_check:
         log.info("Checking the model...")
