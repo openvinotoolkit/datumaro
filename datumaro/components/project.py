@@ -1561,10 +1561,10 @@ class DiffStatus(Enum):
     missing = auto()
     foreign_modified = auto()
 
-class Project:
-    Revision = NewType('Revision', str) # a commit hash or a named reference
-    Reference = NewType('Reference', str) # a commit or an object hash
+Revision = NewType('Revision', str) # a commit hash or a named reference
+Reference = NewType('Reference', str) # a commit or an object hash
 
+class Project:
     @staticmethod
     def find_project_dir(path: str) -> Optional[str]:
         path = osp.abspath(path)
@@ -1756,10 +1756,7 @@ class Project:
     def models(self) -> Dict[str, Model]:
         return dict(self._config.models)
 
-    def get_rev(self, rev: Revision) -> Tree: \
-            # pylint: disable=undefined-variable
-            # 'Revision' is incorrecly shown undefined
-            # https://github.com/PyCQA/pylint/issues/1976
+    def get_rev(self, rev: Revision) -> Tree:
         """
         Reference convetions:
         - None or "" - working dir
