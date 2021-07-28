@@ -1,4 +1,6 @@
 from unittest import TestCase
+import os
+import os.path as osp
 
 import numpy as np
 
@@ -9,7 +11,10 @@ from datumaro.components.dataset_filter import (
     DatasetItemEncoder, XPathAnnotationsFilter, XPathDatasetFilter,
 )
 from datumaro.components.environment import Environment
-from datumaro.components.errors import DatumaroError, RepeatedItemError
+from datumaro.components.errors import (
+    ConflictingCategoriesError, DatasetNotFoundError, MultipleFormatsMatchError,
+    NoMatchingFormatsError, RepeatedItemError, UnknownFormatError,
+)
 from datumaro.components.extractor import (
     DEFAULT_SUBSET_NAME, AnnotationType, Bbox, Caption, DatasetItem, Extractor,
     ItemTransform, Label, LabelCategories, Mask, Points, Polygon, PolyLine,
@@ -169,6 +174,73 @@ class DatasetTest(TestCase):
             compare_datasets(self, source_dataset, imported_dataset)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_report_no_dataset_found(self):
+        env = Environment()
+        env.importers.items = {
+            DEFAULT_FORMAT: env.importers[DEFAULT_FORMAT],
+        }
+        env.extractors.items = {
+            DEFAULT_FORMAT: env.extractors[DEFAULT_FORMAT],
+        }
+
+        with TestDir() as test_dir, self.assertRaises(DatasetNotFoundError):
+            Dataset.import_from(test_dir, DEFAULT_FORMAT, env=env)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_report_multiple_formats_match(self):
+        env = Environment()
+        env.importers.items = {
+            'a': env.importers[DEFAULT_FORMAT],
+            'b': env.importers[DEFAULT_FORMAT],
+        }
+        env.extractors.items = {
+            'a': env.extractors[DEFAULT_FORMAT],
+            'b': env.extractors[DEFAULT_FORMAT],
+        }
+
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[ Label(2) ]),
+        ], categories=['a', 'b', 'c'])
+
+        with TestDir() as test_dir:
+            source_dataset.save(test_dir)
+
+            with self.assertRaises(MultipleFormatsMatchError):
+                Dataset.import_from(test_dir, env=env)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_report_no_matching_formats(self):
+        env = Environment()
+        env.importers.items = {}
+        env.extractors.items = {}
+
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[ Label(2) ]),
+        ], categories=['a', 'b', 'c'])
+
+        with TestDir() as test_dir:
+            source_dataset.save(test_dir)
+
+            with self.assertRaises(NoMatchingFormatsError):
+                Dataset.import_from(test_dir, env=env)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_report_unknown_format_requested(self):
+        env = Environment()
+        env.importers.items = {}
+        env.extractors.items = {}
+
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[ Label(2) ]),
+        ], categories=['a', 'b', 'c'])
+
+        with TestDir() as test_dir:
+            source_dataset.save(test_dir)
+
+            with self.assertRaises(UnknownFormatError):
+                Dataset.import_from(test_dir, format='custom', env=env)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_export_by_string_format_name(self):
         env = Environment()
         env.converters.items = {'qq': env.converters[DEFAULT_FORMAT]}
@@ -179,6 +251,24 @@ class DatasetTest(TestCase):
 
         with TestDir() as test_dir:
             dataset.export(format='qq', save_dir=test_dir)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_remember_export_options(self):
+        dataset = Dataset.from_iterable([
+            DatasetItem(id=1, image=np.ones((1, 2, 3))),
+        ], categories=['a'])
+
+        with TestDir() as test_dir:
+            dataset.save(test_dir, save_images=True)
+            dataset.put(dataset.get(1)) # mark the item modified for patching
+
+            image_path = osp.join(test_dir, 'images', 'default', '1.jpg')
+            os.remove(image_path)
+
+            dataset.save(test_dir)
+
+            self.assertEqual({'save_images': True}, dataset.options)
+            self.assertTrue(osp.isfile(image_path))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_compute_length_when_created_from_scratch(self):
@@ -283,7 +373,7 @@ class DatasetTest(TestCase):
         s1 = Dataset.from_iterable([], categories=['a', 'b'])
         s2 = Dataset.from_iterable([], categories=['b', 'a'])
 
-        with self.assertRaisesRegex(DatumaroError, "different categories"):
+        with self.assertRaises(ConflictingCategoriesError):
             Dataset.from_extractors(s1, s2)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)

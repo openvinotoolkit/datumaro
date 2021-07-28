@@ -12,6 +12,8 @@ from attr import attrib, attrs
 import attr
 import numpy as np
 
+from datumaro.components.errors import DatasetNotFoundError
+from datumaro.util import is_method_redefined
 from datumaro.util.attrs_util import default_if_none, not_empty
 from datumaro.util.image import Image
 
@@ -655,7 +657,7 @@ class IExtractor:
     def get(self, id, subset=None) -> Optional[DatasetItem]:
         raise NotImplementedError()
 
-class Extractor(IExtractor):
+class ExtractorBase(IExtractor):
     def __init__(self, length=None, subsets=None):
         self._length = length
         self._subsets = subsets
@@ -690,24 +692,24 @@ class Extractor(IExtractor):
             if len(self._subsets) == 1:
                 return self
 
-            return self.select(lambda item: item.subset == name)
+            subset = self.select(lambda item: item.subset == name)
+            subset._subsets = [name]
+            return subset
         else:
-            raise Exception("Unknown subset '%s', available subsets: %s" % \
+            raise KeyError("Unknown subset '%s', available subsets: %s" % \
                 (name, set(self._subsets)))
 
     def transform(self, method, *args, **kwargs):
         return method(self, *args, **kwargs)
 
     def select(self, pred):
-        class _DatasetFilter(Extractor):
-            def __init__(self, _):
-                super().__init__()
+        class _DatasetFilter(ExtractorBase):
             def __iter__(_):
                 return filter(pred, iter(self))
             def categories(_):
                 return self.categories()
 
-        return self.transform(_DatasetFilter)
+        return _DatasetFilter()
 
     def categories(self):
         return {}
@@ -719,7 +721,19 @@ class Extractor(IExtractor):
                 return item
         return None
 
+class Extractor(ExtractorBase):
+    """
+    A base class for user-defined and built-in extractors.
+    Should be used in cases, where SourceExtractor is not enough,
+    or its use makes problems with performance, implementation etc.
+    """
+
 class SourceExtractor(Extractor):
+    """
+    A base class for simple, single-subset extractors.
+    Should be used by default for user-defined extractors.
+    """
+
     def __init__(self, length=None, subset=None):
         self._subset = subset or DEFAULT_SUBSET_NAME
         super().__init__(length=length, subsets=[self._subset])
@@ -755,7 +769,7 @@ class Importer:
 
         sources = self.find_sources(osp.normpath(path))
         if len(sources) == 0:
-            raise Exception("Failed to find dataset at '%s'" % path)
+            raise DatasetNotFoundError(path)
 
         for desc in sources:
             params = dict(extra_params)
@@ -813,8 +827,7 @@ class Importer:
                     break
         return sources
 
-
-class Transform(Extractor):
+class Transform(ExtractorBase):
     """
     A base class for dataset transformations that change dataset items
     or their annotations.
@@ -840,7 +853,7 @@ class Transform(Extractor):
     def __len__(self):
         assert self._length in {None, 'parent'} or isinstance(self._length, int)
         if self._length is None and \
-                    self.__iter__.__func__ == Transform.__iter__ \
+                    not is_method_redefined('__iter__', Transform, self) \
                 or self._length == 'parent':
             self._length = len(self._extractor)
         return super().__len__()

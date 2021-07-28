@@ -1,4 +1,4 @@
-# Copyright (C) 2020 Intel Corporation
+# Copyright (C) 2020-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -55,6 +55,8 @@ class CliPlugin:
         return args
 
 def remove_plugin_type(s):
-    for t in {'transform', 'extractor', 'converter', 'launcher', 'importer', 'validator'}:
+    for t in {
+        'transform', 'extractor', 'converter', 'launcher', 'importer', 'validator',
+    }:
         s = s.replace('_' + t, '')
     return s
