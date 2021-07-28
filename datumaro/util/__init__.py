@@ -2,11 +2,12 @@
 #
 # SPDX-License-Identifier: MIT
 
-from contextlib import ExitStack
+from contextlib import ExitStack, contextmanager
 from functools import partial, wraps
 from itertools import islice
 from typing import Iterable, Tuple
 import distutils.util
+import threading
 
 import attr
 
@@ -124,6 +125,8 @@ def optional_arg_decorator(fn):
     return wrapped_decorator
 
 class Rollback:
+    _thread_locals = threading.local()
+
     @attr.attrs
     class Handler:
         callback = attr.attrib()
@@ -186,24 +189,31 @@ class Rollback:
             return
         self._stack.__exit__(type, value, traceback)
 
+    @classmethod
+    def current(cls) -> "Rollback":
+        return cls._thread_locals.current
+
+    @contextmanager
+    def as_current(self):
+        previous = getattr(self._thread_locals, 'current', None)
+        self._thread_locals.current = self
+        try:
+            yield
+        finally:
+            self._thread_locals.current = previous
+
+# shorthand for common cases
+def on_error_do(callback, *args, ignore_errors=False):
+    Rollback.current().do(callback, *args, ignore_errors=ignore_errors)
+
 @optional_arg_decorator
-def error_rollback(func, arg_name='on_error', implicit=False):
+def error_rollback(func, arg_name=None):
     @wraps(func)
     def wrapped_func(*args, **kwargs):
         with Rollback() as manager:
-            if implicit:
-                fglobals = func.__globals__
-
-                has_arg = arg_name in fglobals
-                old_val = fglobals.get(arg_name)
-                fglobals[arg_name] = manager
-                try:
+            if arg_name is None:
+                with manager.as_current():
                     ret_val = func(*args, **kwargs)
-                finally:
-                    if has_arg:
-                        func.__globals__[arg_name] = old_val
-                    else:
-                        func.__globals__.pop(arg_name)
             else:
                 kwargs[arg_name] = manager
                 ret_val = func(*args, **kwargs)
