@@ -86,6 +86,7 @@ enable=
     E0301, # non-iterator-returned
     E0302, # unexpected-special-method-signature
     E0601, # used-before-assignment
+    E0602, # undefined-variable
     E0603, # undefined-all-variable
     E0604, # invalid-all-object
     E0701, # bad-except-order
@@ -369,7 +370,7 @@ ignored-classes=optparse.Values,thread._local,_thread._local
 # List of members which are set dynamically and missed by pylint inference
 # system, and so shouldn't trigger E1101 when accessed. Python regular
 # expressions are accepted.
-generated-members=on_error
+generated-members=
 
 # List of decorators that produce context managers, such as
 # contextlib.contextmanager. Add to this list to register other decorators that

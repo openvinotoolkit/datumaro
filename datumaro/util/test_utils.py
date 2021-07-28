@@ -225,3 +225,7 @@ def test_save_and_load(test, source_dataset, converter, test_dir, importer,
     elif not compare:
         compare = compare_datasets
     compare(test, expected=target_dataset, actual=parsed_dataset, **kwargs)
+
+def run_datum(test, *args, expected_code=0):
+    from datumaro.cli.__main__ import main
+    test.assertEqual(expected_code, main(args), str(args))

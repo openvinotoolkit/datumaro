@@ -1,4 +1,3 @@
-
 # Copyright (C) 2020-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
@@ -35,7 +34,7 @@ def import_prediction(pred):
     elif isinstance(pred, (ac.DetectionPrediction, ac.ActionDetectionPrediction)):
         return (dm.Bbox(x0, y0, x1 - x0, y1 - y0, int(label_id),
                 attributes={'score': float(score)})
-            for label, score, x0, y0, x1, y1 in zip(pred.labels, pred.scores,
+            for label_id, score, x0, y0, x1, y1 in zip(pred.labels, pred.scores,
                 pred.x_mins, pred.y_mins, pred.x_maxs, pred.y_maxs)
         )
     elif isinstance(pred, ac.DepthEstimationPrediction):

@@ -811,7 +811,7 @@ class Importer:
                 ext = '.' + ext
             ext = ext.lower()
 
-        if (ext and path.lower().endswith(ext) and osp.isfile(path)) or \
+        if (path.lower().endswith(ext) and osp.isfile(path)) or \
                 (not ext and dirname and osp.isdir(path) and \
                 os.sep + osp.normpath(dirname.lower()) + os.sep in \
                     osp.abspath(path.lower()) + os.sep):

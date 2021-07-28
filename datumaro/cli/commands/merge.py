@@ -6,6 +6,7 @@ from collections import OrderedDict
 import argparse
 import json
 import logging as log
+import os
 import os.path as osp
 
 from datumaro.components.errors import DatasetMergeError, DatasetQualityError
