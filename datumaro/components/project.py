@@ -34,7 +34,7 @@ from datumaro.components.errors import (
     UnknownTargetError, UnsavedChangesError, VcsError, WrongSourceNodeError,
 )
 from datumaro.components.launcher import Launcher
-from datumaro.util import error_rollback, find, parse_str_enum_value
+from datumaro.util import error_rollback, find, on_error_do, parse_str_enum_value
 from datumaro.util.log_utils import catch_logs, logging_disabled
 from datumaro.util.os_util import (
     copytree, generate_next_name, make_file_name, rmtree,
@@ -1687,7 +1687,7 @@ class Project:
                 osp.join(self._root_dir, '.dvc', 'plots'), r=True)
 
     @classmethod
-    @error_rollback('on_error', implicit=True)
+    @error_rollback
     def init(cls, path):
         existing_project = cls.find_project_dir(path)
         if existing_project:
@@ -1700,19 +1700,19 @@ class Project:
 
         project_dir = osp.dirname(path)
         if not osp.isdir(project_dir):
-            on_error.do(rmtree, project_dir, ignore_errors=True)
+            on_error_do(rmtree, project_dir, ignore_errors=True)
 
         os.makedirs(path, exist_ok=True)
 
-        on_error.do(rmtree, osp.join(project_dir, ProjectLayout.cache_dir),
+        on_error_do(rmtree, osp.join(project_dir, ProjectLayout.cache_dir),
             ignore_errors=True)
-        on_error.do(rmtree, osp.join(project_dir, ProjectLayout.tmp_dir),
+        on_error_do(rmtree, osp.join(project_dir, ProjectLayout.tmp_dir),
             ignore_errors=True)
         os.makedirs(osp.join(path, ProjectLayout.cache_dir))
         os.makedirs(osp.join(path, ProjectLayout.tmp_dir))
 
-        on_error.do(rmtree, osp.join(project_dir, '.git'), ignore_errors=True)
-        on_error.do(rmtree, osp.join(project_dir, '.dvc'), ignore_errors=True)
+        on_error_do(rmtree, osp.join(project_dir, '.git'), ignore_errors=True)
+        on_error_do(rmtree, osp.join(project_dir, '.dvc'), ignore_errors=True)
         project = Project(path)
         project._init_vcs()
         project.commit('Initial commit', allow_empty=True)
@@ -1902,6 +1902,7 @@ class Project:
         if name.lower() in reserved_names:
             raise ValueError("Source name is reserved for internal use")
 
+    @error_rollback
     def _download_source(self, url: str, dst_dir: str, no_cache=False):
         assert url
         assert dst_dir
@@ -1916,6 +1917,7 @@ class Project:
             shutil.copy(url, data_dir)
         else:
             raise UnexpectedUrlError(url)
+        on_error_do(rmtree, data_dir, ignore_errors=True)
 
         obj_hash = self.compute_source_hash(data_dir,
             dvcfile, no_cache=no_cache, allow_external=True)
@@ -1972,7 +1974,7 @@ class Project:
         self._dvc.write_obj(obj_hash, dst_dir, allow_links=True)
         return dst_dir
 
-    @error_rollback('on_error', implicit=True)
+    @error_rollback
     def import_source(self, name: str, url: Optional[str],
             format: str, options: Optional[Dict] = None,
             no_cache: bool = False, rpath: Optional[str] = None) -> Source:
@@ -2048,7 +2050,7 @@ class Project:
                     self._download_source(url, tmp_dir, no_cache=no_cache)
 
                 shutil.move(tmp_data_dir, data_dir)
-                on_error.do(shutil.rmtree, data_dir)
+                on_error_do(shutil.rmtree, data_dir)
                 os.replace(tmp_dvcfile, dvcfile)
 
             config['hash'] = obj_hash

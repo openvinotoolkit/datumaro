@@ -257,6 +257,11 @@ class CifarImporterTest(TestCase):
         self.assertTrue(CifarImporter.detect(DUMMY_10_DATASET_DIR))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_detect_10_subset(self):
+        self.assertTrue(CifarImporter.detect(
+            osp.join(DUMMY_10_DATASET_DIR, 'data_batch_1')))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_100(self):
         # Unless simple dataset merge can't overlap labels and add parent
         # information, the datasets must contain all the possible labels.
@@ -301,3 +306,8 @@ class CifarImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_100(self):
         self.assertTrue(CifarImporter.detect(DUMMY_100_DATASET_DIR))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_detect_100_subset(self):
+        self.assertTrue(CifarImporter.detect(
+            osp.join(DUMMY_100_DATASET_DIR, 'train')))

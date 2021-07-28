@@ -24,7 +24,7 @@ from datumaro.components.extractor import (
     DEFAULT_SUBSET_NAME, AnnotationType, CategoriesInfo, DatasetItem, Extractor,
     IExtractor, ItemTransform, LabelCategories, Transform,
 )
-from datumaro.util import error_rollback, is_member_redefined
+from datumaro.util import error_rollback, is_member_redefined, on_error_do
 from datumaro.util.log_utils import logging_disabled
 
 DEFAULT_FORMAT = 'datumaro'
@@ -772,7 +772,7 @@ class Dataset(IDataset):
     def flush_changes(self):
         self._data.flush_changes()
 
-    @error_rollback('on_error', implicit=True)
+    @error_rollback
     def export(self, save_dir: str, format, **kwargs):
         inplace = (save_dir == self._source_path and format == self._format)
 
@@ -783,7 +783,7 @@ class Dataset(IDataset):
 
         save_dir = osp.abspath(save_dir)
         if not osp.exists(save_dir):
-            on_error.do(shutil.rmtree, save_dir, ignore_errors=True)
+            on_error_do(rmtree, save_dir, ignore_errors=True)
             inplace = False
         os.makedirs(save_dir, exist_ok=True)
 
