@@ -27,26 +27,26 @@ def generate_next_file_name(basename, basedir='.', sep='.', ext=''):
 
     return generate_next_name(os.listdir(basedir), basename, sep, ext)
 
+_dataset_revpath_regex = None
+_full_revpath_regex = None
 def parse_full_revpath(s, ctx_project):
-    # named groups cannot be duplicated
-    _counter = count()
-    def maybe_quoted(exp, g=None):
-        if g is None:
-            g = '__tmpg' + str(next(_counter))
-        return rf"(?P<{g}>['\"]?){exp}(?P={g})"
-
     if ctx_project:
         env = ctx_project.env
     else:
         env = Environment()
 
     def parse_dataset_pathspec(s):
-        regex = "%s(:%s)?" % (
-            maybe_quoted(r"(?P<dataset_path>[^:]+)"),
-            maybe_quoted(r"(?P<format>.+)")
-        )
+        global _dataset_revpath_regex
+        if not _dataset_revpath_regex:
+            _dataset_revpath_regex = re.compile(
+                "%s(:%s)?" % \
+                (
+                    r"(?P<dataset_path>[^:]+)",
+                    r"(?P<format>.+)"
+                )
+            )
 
-        match = re.match(regex, s)
+        match = re.match(_dataset_revpath_regex, s)
         if not match:
             raise ValueError("Failed to recognize dataset pathspec in '%s'" % s)
         match = match.groupdict()
@@ -56,14 +56,18 @@ def parse_full_revpath(s, ctx_project):
         return Dataset.import_from(path, format, env=env)
 
     def parse_revspec(s):
-        regex = "(%(proj_path)s(@%(rev)s)?(:%(source)s)?)" % \
-        {
-            'proj_path': maybe_quoted(r"(?P<proj_path>[^@:]+)"),
-            'rev': maybe_quoted(r"(?P<rev>[^:]+)"),
-            'source': maybe_quoted(r"(?P<source>.+)"),
-        }
+        global _full_revpath_regex
+        if not _full_revpath_regex:
+            _full_revpath_regex = re.compile(
+                "(%(proj_path)s(@%(rev)s)?(:%(source)s)?)" % \
+                {
+                    'proj_path': r"(?P<proj_path>[^@:]+)",
+                    'rev': r"(?P<rev>[^:]+)",
+                    'source': r"(?P<source>.+)",
+                }
+            )
 
-        match = re.match(regex, s)
+        match = re.match(_full_revpath_regex, s)
         if not match:
             raise ValueError("Failed to recognize revspec in '%s'" % s)
         match = match.groupdict()
