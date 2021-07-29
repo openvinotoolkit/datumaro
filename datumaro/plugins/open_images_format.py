@@ -702,7 +702,8 @@ class OpenImagesConverter(Converter):
                             })
                         elif annotation.type is AnnotationType.bbox:
                             if item.has_image and item.image.size is not None:
-                                image_meta[item.id] = (height, width) = item.image.size
+                                image_meta[item.id] = item.image.size
+                                height, width = item.image.size
                             else:
                                 log.warning(
                                     "Can't encode box for item '%s' due to missing image file",
@@ -749,7 +750,8 @@ class OpenImagesConverter(Converter):
 
                             if box is not None:
                                 if item.has_image and item.image.size is not None:
-                                    image_meta[item.id] = (height, width) = item.image.size
+                                    image_meta[item.id] = item.image.size
+                                    height, width = item.image.size
 
                                     box_coords = {
                                         'BoxXMin': box['x'] / width,
