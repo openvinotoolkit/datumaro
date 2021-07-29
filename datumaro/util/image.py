@@ -182,7 +182,7 @@ def find_images(dirpath: str, exts: Union[str, Iterable[str]] = None,
     elif exts is None:
         exts = IMAGE_EXTENSIONS
     else:
-        exts = list('.' + e.lower().lstrip('.') for e in exts)
+        exts = set('.' + e.lower().lstrip('.') for e in exts)
 
     def _check_image_ext(filename: str):
         dotpos = filename.rfind('.')
