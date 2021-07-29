@@ -1359,21 +1359,19 @@ class DvcWrapper:
         ]
 
     def _exec(self, args, hide_output=True, answer_on_input='y'):
-        contexts = ExitStack()
-
         args = ['--cd', self._project_dir, '-q'] + args
-        contexts.callback(os.chdir, os.getcwd()) # restore cd after DVC
 
-        if answer_on_input is not None:
-            def _input(*args): return answer_on_input
-            contexts.enter_context(unittest.mock.patch(
-                'dvc.prompt.input', new=_input))
+        with ExitStack() as contexts:
+            contexts.callback(os.chdir, os.getcwd()) # restore cd after DVC
 
-        log.debug("Calling DVC main with args: %s", args)
+            if answer_on_input is not None:
+                def _input(*args): return answer_on_input
+                contexts.enter_context(unittest.mock.patch(
+                    'dvc.prompt.input', new=_input))
 
-        logs = contexts.enter_context(catch_logs('dvc'))
+            log.debug("Calling DVC main with args: %s", args)
 
-        with contexts:
+            logs = contexts.enter_context(catch_logs('dvc'))
             retcode = self.module.main.main(args)
 
         logs = logs.getvalue()

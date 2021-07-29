@@ -90,15 +90,11 @@ def copytree(src, dst):
 
 @contextmanager
 def suppress_output(stdout: bool = True, stderr: bool = False):
-    with open(os.devnull, 'w') as devnull:
-        es = ExitStack()
-
+    with open(os.devnull, 'w') as devnull, ExitStack() as es:
         if stdout:
             es.enter_context(redirect_stdout(devnull))
-
-        if stderr:
+        elif stderr:
             es.enter_context(redirect_stderr(devnull))
-
         with es:
             yield
 
@@ -107,10 +103,7 @@ def catch_output():
     stdout = StringIO()
     stderr = StringIO()
 
-    es = ExitStack()
-    es.enter_context(redirect_stdout(stderr))
-    es.enter_context(redirect_stderr(stdout))
-    with es:
+    with redirect_stdout(stdout), redirect_stderr(stderr):
         yield stdout, stderr
 
 def dir_items(path, ext, truncate_ext=False):

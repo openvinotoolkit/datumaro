@@ -33,7 +33,7 @@ class FileRemover:
     def __enter__(self):
         return self.path
 
-    def __exit__(self, *args, **kwargs):
+    def __exit__(self, exc_type=None, exc_value=None, traceback=None):
         if self.is_dir:
             rmtree(self.path)
         else:
