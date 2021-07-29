@@ -22,10 +22,9 @@ from datumaro.components.project import PROJECT_DEFAULT_CONFIG as DEFAULT_CONFIG
 from datumaro.components.project import Environment, Project
 from datumaro.components.validator import TaskType
 from datumaro.util import error_rollback, on_error_do
+from datumaro.util.os_util import make_file_name
 
-from ...util import (
-    CliException, MultilineFormatter, add_subparser, make_file_name,
-)
+from ...util import CliException, MultilineFormatter, add_subparser
 from ...util.project import generate_next_file_name, load_project
 from .diff import DiffVisualizer
 

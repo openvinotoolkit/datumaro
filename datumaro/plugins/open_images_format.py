@@ -19,7 +19,6 @@ from attr import attrs
 import cv2
 import numpy as np
 
-from datumaro.cli.util import make_file_name
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.errors import (
@@ -34,7 +33,7 @@ from datumaro.util.image import (
     DEFAULT_IMAGE_META_FILE_NAME, Image, find_images, lazy_image, load_image,
     load_image_meta_file, save_image, save_image_meta_file,
 )
-from datumaro.util.os_util import split_path
+from datumaro.util.os_util import make_file_name, split_path
 
 # A regex to check whether a string can be used as a "normal" path
 # component.
