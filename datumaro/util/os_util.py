@@ -67,7 +67,7 @@ def copytree(src, dst):
     # https://docs.python.org/3/library/shutil.html#platform-dependent-efficient-copy-operations
     # https://bugs.python.org/issue33671
 
-    if sys.version_info[1] >= (3, 8):
+    if sys.version_info >= (3, 8):
         shutil.copytree(src, dst)
         return
 
