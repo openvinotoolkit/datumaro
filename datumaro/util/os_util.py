@@ -17,16 +17,12 @@ import unicodedata
 
 from . import cast
 
-try:
-    # Declare functions to remove files and directories.
-    #
-    # Use rmtree from GitPython to avoid the problem with removal of
-    # readonly files on Windows, which Git uses extensively
-    # It double checks if a file cannot be removed because of readonly flag
-    from git.util import rmfile, rmtree  # pylint: disable=unused-import
-except ImportError:
-    from os import remove as rmfile  # pylint: disable=unused-import
-    from shutil import rmtree  # pylint: disable=unused-import
+# Declare functions to remove files and directories.
+#
+# Use rmtree from GitPython to avoid the problem with removal of
+# readonly files on Windows, which Git uses extensively
+# It double checks if a file cannot be removed because of readonly flag
+from git.util import rmfile, rmtree  # pylint: disable=unused-import
 
 DEFAULT_MAX_DEPTH = 10
 
