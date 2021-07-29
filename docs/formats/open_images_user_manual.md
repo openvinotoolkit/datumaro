@@ -50,11 +50,6 @@ The following attributes are supported on the masks:
 - `box_id` (read/write, string).
   An identifier for the bounding box associated with the mask.
 
-- `box` (read/write, dict).
-  A dictionary describing the bounding box associated with the mask.
-  The keys are `x`, `y`, `w` and `h`, and their values correspond
-  to the analogous properties of the Datumaro `BBox` type.
-
 - `predicted_iou` (read/write, float).
   Predicted IoU value with respect to the ground truth.
 

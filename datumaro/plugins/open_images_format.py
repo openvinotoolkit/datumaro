@@ -29,6 +29,7 @@ from datumaro.components.extractor import (
     LabelCategories, Mask,
 )
 from datumaro.components.validator import Severity
+from datumaro.util.annotation_util import find_instances
 from datumaro.util.image import (
     DEFAULT_IMAGE_META_FILE_NAME, Image, find_images, lazy_image, load_image,
     load_image_meta_file, save_image, save_image_meta_file,
@@ -297,8 +298,8 @@ class OpenImagesExtractor(Extractor):
         self._items.extend(items_by_id.values())
 
         self._load_labels(items_by_id)
-        self._load_bboxes(items_by_id)
-        self._load_masks(items_by_id)
+        normalized_coords = self._load_bboxes(items_by_id)
+        self._load_masks(items_by_id, normalized_coords)
 
     def _load_labels(self, items_by_id):
         label_categories = self._categories[AnnotationType.label]
@@ -327,6 +328,13 @@ class OpenImagesExtractor(Extractor):
     def _load_bboxes(self, items_by_id):
         label_categories = self._categories[AnnotationType.label]
 
+        # OID specifies box coordinates in the normalized form, which we have to
+        # convert to the unnormalized form to fit the Datumaro data model.
+        # However, we need to temporarily preserve the normalized form as well,
+        # because we will need it later to match up box and mask annotations.
+        # So we store each box's normalized coordinates in this dictionary.
+        normalized_coords = {}
+
         for bbox_path in self._glob_annotations(
             '*' + OpenImagesPath.BBOX_DESCRIPTION_FILE_SUFFIX
         ):
@@ -350,10 +358,15 @@ class OpenImagesExtractor(Extractor):
                             item.id)
                         continue
 
-                    x_min = float(bbox_description['XMin']) * width
-                    x_max = float(bbox_description['XMax']) * width
-                    y_min = float(bbox_description['YMin']) * height
-                    y_max = float(bbox_description['YMax']) * height
+                    x_min_norm, x_max_norm, y_min_norm, y_max_norm = [
+                        float(bbox_description[field])
+                        for field in ['XMin', 'XMax', 'YMin', 'YMax']
+                    ]
+
+                    x_min = x_min_norm * width
+                    x_max = x_max_norm * width
+                    y_min = y_min_norm * height
+                    y_max = y_max_norm * height
 
                     attributes = {
                         'score': float(bbox_description['Confidence']),
@@ -364,14 +377,30 @@ class OpenImagesExtractor(Extractor):
                         if int_value >= 0:
                             attributes[bool_attr.datumaro_name] = bool(int_value)
 
+                    # Give each box within an item a distinct group ID,
+                    # so that we can later group them together with the corresponding masks.
+                    if (
+                        item.annotations
+                        and item.annotations[-1].type is AnnotationType.bbox
+                    ):
+                        group = item.annotations[-1].group + 1
+                    else:
+                        group = 1
+
                     item.annotations.append(Bbox(
                         label=label_index,
                         x=x_min, y=y_min,
                         w=x_max - x_min, h=y_max - y_min,
                         attributes=attributes,
+                        group=group,
                     ))
 
-    def _load_masks(self, items_by_id):
+                    normalized_coords[id(item.annotations[-1])] \
+                        = np.array([x_min_norm, x_max_norm, y_min_norm, y_max_norm])
+
+        return normalized_coords
+
+    def _load_masks(self, items_by_id, normalized_coords):
         label_categories = self._categories[AnnotationType.label]
 
         for mask_path in self._glob_annotations(
@@ -406,31 +435,32 @@ class OpenImagesExtractor(Extractor):
                         raise UnsupportedBoxIdError(item_id=item.id, box_id=box_id)
                     attributes['box_id'] = box_id
 
-                    # In the original OID, the masks are often bigger than
-                    # the images, which doesn't fit Datumaro's data model.
-                    # We also need the image size to denormalize the box coordinates.
-                    # As a workaround, we resize all masks to the image's size.
-                    if not item.has_image or item.image.size is None:
-                        log.warning(
-                            "Can't load mask for item '%s' due to missing image file",
-                            item.id)
-                        continue
+                    group = 0
 
-                    height, width = item.image.size
+                    box_coord_fields = ('BoxXMin', 'BoxXMax', 'BoxYMin', 'BoxYMax')
 
                     # The original OID has box coordinates for all masks, but
                     # a dataset converted from another dataset might not.
-                    if all(mask_description[f] for f in [
-                        'BoxXMin' ,'BoxXMax', 'BoxYMin', 'BoxYMax',
-                    ]):
-                        box = attributes['box'] = {}
-                        # We convert the box attributes into the Datumaro box format,
-                        # so that it's easier for the user to match up the mask to
-                        # the corresponding box annotation.
-                        box['x'] = float(mask_description['BoxXMin']) * width
-                        box['y'] = float(mask_description['BoxYMin']) * height
-                        box['w'] = float(mask_description['BoxXMax']) * width - box['x']
-                        box['h'] = float(mask_description['BoxYMax']) * height - box['y']
+                    if all(mask_description[f] for f in box_coord_fields):
+                        # Try to find the box annotation corresponding to the
+                        # current mask.
+                        mask_box_coords = np.array([
+                            float(mask_description[field])
+                            for field in box_coord_fields
+                        ])
+
+                        for annotation in item.annotations:
+                            if (
+                                annotation.type is AnnotationType.bbox
+                                and annotation.label == label_index
+                            ):
+                                # In the original OID, mask box coordinates are stored
+                                # with 6 digit precision, hence the tolerance.
+                                if np.allclose(
+                                    mask_box_coords, normalized_coords[id(annotation)],
+                                    rtol=0, atol=1e-6,
+                                ):
+                                    group = annotation.group
 
                     if mask_description['PredictedIoU']:
                         attributes['predicted_iou'] = float(mask_description['PredictedIoU'])
@@ -446,6 +476,7 @@ class OpenImagesExtractor(Extractor):
                         ),
                         label=label_index,
                         attributes=attributes,
+                        group=group,
                     ))
 
     @staticmethod
@@ -692,90 +723,94 @@ class OpenImagesConverter(Converter):
                         if 'box_id' in annotation.attributes
                     }
 
-                    for annotation in item.annotations:
-                        if annotation.type is AnnotationType.label:
-                            label_description_writer.writerow({
-                                'ImageID': item.id,
-                                'LabelName': label_categories[annotation.label].name,
-                                'Confidence': str(annotation.attributes.get('score', 1)),
-                            })
-                        elif annotation.type is AnnotationType.bbox:
-                            if item.has_image and item.image.size is not None:
-                                image_meta[item.id] = item.image.size
-                                height, width = item.image.size
-                            else:
-                                log.warning(
-                                    "Can't encode box for item '%s' due to missing image file",
-                                    item.id)
-                                continue
+                    for instance in find_instances(item.annotations):
+                        instance_box = next(
+                            (a for a in instance if a.type is AnnotationType.bbox),
+                            None)
 
-                            bbox_description_writer.writerow({
-                                'ImageID': item.id,
-                                'LabelName': label_categories[annotation.label].name,
-                                'Confidence': str(annotation.attributes.get('score', 1)),
-                                'XMin': annotation.x / width,
-                                'YMin': annotation.y / height,
-                                'XMax': (annotation.x + annotation.w) / width,
-                                'YMax': (annotation.y + annotation.h) / height,
-                                **{
-                                    bool_attr.oid_name:
-                                        int(annotation.attributes.get(bool_attr.datumaro_name, -1))
-                                    for bool_attr in OpenImagesPath.BBOX_BOOLEAN_ATTRIBUTES
-                                },
-                            })
-                        elif annotation.type is AnnotationType.mask:
-                            mask_dir = osp.join(self._save_dir, OpenImagesPath.MASKS_DIR, item.subset)
-
-                            box_id_str = annotation.attributes.get('box_id')
-
-                            if box_id_str:
-                                if _RE_INVALID_PATH_COMPONENT.fullmatch(box_id_str):
-                                    raise UnsupportedBoxIdError(item_id=item.id, box_id=box_id_str)
-                            else:
-                                # find a box ID that isn't used in any other annotations
-                                while True:
-                                    box_id_str = format(next_box_id, "08x")
-                                    next_box_id += 1
-                                    if box_id_str not in existing_box_ids:
-                                        break
-
-                            label_name = label_categories[annotation.label].name
-                            mask_file_name = '%s_%s_%s.png' % (
-                                make_file_name(item.id), make_file_name(label_name), box_id_str,
-                            )
-
-                            box = annotation.attributes.get('box')
-                            box_coords = {}
-
-                            if box is not None:
+                        for annotation in instance:
+                            if annotation.type is AnnotationType.label:
+                                label_description_writer.writerow({
+                                    'ImageID': item.id,
+                                    'LabelName': label_categories[annotation.label].name,
+                                    'Confidence': str(annotation.attributes.get('score', 1)),
+                                })
+                            elif annotation.type is AnnotationType.bbox:
                                 if item.has_image and item.image.size is not None:
                                     image_meta[item.id] = item.image.size
                                     height, width = item.image.size
-
-                                    box_coords = {
-                                        'BoxXMin': box['x'] / width,
-                                        'BoxXMax': (box['x'] + box['w']) / width,
-                                        'BoxYMin': box['y'] / height,
-                                        'BoxYMax': (box['y'] + box['h']) / height,
-                                    }
                                 else:
                                     log.warning(
-                                        "Can't encode box coordinates for a mask"
-                                            " for item '%s' due to missing image file",
+                                        "Can't encode box for item '%s' due to missing image file",
                                         item.id)
+                                    continue
 
-                            mask_description_writer.writerow({
-                                'MaskPath': mask_file_name,
-                                'ImageID': item.id,
-                                'LabelName': label_name,
-                                'BoxID': box_id_str,
-                                **box_coords,
-                                'PredictedIoU':
-                                    annotation.attributes.get('predicted_iou', ''),
-                            })
+                                bbox_description_writer.writerow({
+                                    'ImageID': item.id,
+                                    'LabelName': label_categories[annotation.label].name,
+                                    'Confidence': str(annotation.attributes.get('score', 1)),
+                                    'XMin': annotation.x / width,
+                                    'YMin': annotation.y / height,
+                                    'XMax': (annotation.x + annotation.w) / width,
+                                    'YMax': (annotation.y + annotation.h) / height,
+                                    **{
+                                        bool_attr.oid_name:
+                                            int(annotation.attributes.get(bool_attr.datumaro_name, -1))
+                                        for bool_attr in OpenImagesPath.BBOX_BOOLEAN_ATTRIBUTES
+                                    },
+                                })
+                            elif annotation.type is AnnotationType.mask:
+                                mask_dir = osp.join(self._save_dir, OpenImagesPath.MASKS_DIR, item.subset)
 
-                            save_image(osp.join(mask_dir, mask_file_name),
-                                annotation.image, create_dir=True)
+                                box_id_str = annotation.attributes.get('box_id')
+
+                                if box_id_str:
+                                    if _RE_INVALID_PATH_COMPONENT.fullmatch(box_id_str):
+                                        raise UnsupportedBoxIdError(item_id=item.id, box_id=box_id_str)
+                                else:
+                                    # find a box ID that isn't used in any other annotations
+                                    while True:
+                                        box_id_str = format(next_box_id, "08x")
+                                        next_box_id += 1
+                                        if box_id_str not in existing_box_ids:
+                                            break
+
+                                label_name = label_categories[annotation.label].name
+                                mask_file_name = '%s_%s_%s.png' % (
+                                    make_file_name(item.id), make_file_name(label_name), box_id_str,
+                                )
+
+                                box_coords = {}
+
+                                if instance_box is not None:
+                                    if item.has_image and item.image.size is not None:
+                                        image_meta[item.id] = item.image.size
+                                        height, width = item.image.size
+
+                                        box_coords = {
+                                            'BoxXMin': instance_box.x / width,
+                                            'BoxXMax': (instance_box.x + instance_box.w) / width,
+                                            'BoxYMin': instance_box.y / height,
+                                            'BoxYMax': (instance_box.y + instance_box.h) / height,
+                                        }
+                                    else:
+                                        log.warning(
+                                            "Can't encode box coordinates for a mask"
+                                                " for item '%s' due to missing image file",
+                                            item.id)
+
+                                mask_description_writer.writerow({
+                                    'MaskPath': mask_file_name,
+                                    'ImageID': item.id,
+                                    'LabelName': label_name,
+                                    'BoxID': box_id_str,
+                                    **box_coords,
+                                    'PredictedIoU':
+                                        annotation.attributes.get('predicted_iou', ''),
+                                })
+
+                                save_image(osp.join(mask_dir, mask_file_name),
+                                    annotation.image, create_dir=True)
 
         if image_meta:
             image_meta_file_path = osp.join(
