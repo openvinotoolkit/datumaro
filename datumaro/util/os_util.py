@@ -67,7 +67,7 @@ def copytree(src, dst):
     # https://docs.python.org/3/library/shutil.html#platform-dependent-efficient-copy-operations
     # https://bugs.python.org/issue33671
 
-    if sys.version_info[1] >= 8:
+    if sys.version_info[1] >= (3, 8):
         shutil.copytree(src, dst)
         return
 
@@ -81,10 +81,14 @@ def copytree(src, dst):
         #   B607: start_process_with_partial_path
         # In this case we control what is called and command arguments
         # PATH overriding is considered low risk
-        subprocess.check_call(["xcopy", src, dst, "/s", "/e"]) # nosec
+        assert src and dst
+        src = osp.abspath(src)
+        dst = osp.abspath(dst)
+        subprocess.check_output(["xcopy", src, dst,
+            "/s", "/e", "/q", "/y", "/i"], stderr=subprocess.STDOUT) # nosec
     elif sys.platform == 'linux':
         # As above
-        subprocess.check_call(["cp", "-r", "--reflink=auto", src, dst]) # nosec
+        subprocess.check_call(["cp", "-r", src, dst]) # nosec
     else:
         shutil.copytree(src, dst)
 
