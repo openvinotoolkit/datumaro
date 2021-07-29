@@ -714,103 +714,14 @@ class OpenImagesConverter(Converter):
                         else:
                             log.debug("Item '%s' has no image", item.id)
 
-                    next_box_id = 0
-
-                    existing_box_ids = {
-                        annotation.attributes['box_id']
-                        for annotation in item.annotations
-                        if annotation.type is AnnotationType.mask
-                        if 'box_id' in annotation.attributes
-                    }
-
-                    for instance in find_instances(item.annotations):
-                        instance_box = next(
-                            (a for a in instance if a.type is AnnotationType.bbox),
-                            None)
-
-                        for annotation in instance:
-                            if annotation.type is AnnotationType.label:
-                                label_description_writer.writerow({
-                                    'ImageID': item.id,
-                                    'LabelName': label_categories[annotation.label].name,
-                                    'Confidence': str(annotation.attributes.get('score', 1)),
-                                })
-                            elif annotation.type is AnnotationType.bbox:
-                                if item.has_image and item.image.size is not None:
-                                    image_meta[item.id] = item.image.size
-                                    height, width = item.image.size
-                                else:
-                                    log.warning(
-                                        "Can't encode box for item '%s' due to missing image file",
-                                        item.id)
-                                    continue
-
-                                bbox_description_writer.writerow({
-                                    'ImageID': item.id,
-                                    'LabelName': label_categories[annotation.label].name,
-                                    'Confidence': str(annotation.attributes.get('score', 1)),
-                                    'XMin': annotation.x / width,
-                                    'YMin': annotation.y / height,
-                                    'XMax': (annotation.x + annotation.w) / width,
-                                    'YMax': (annotation.y + annotation.h) / height,
-                                    **{
-                                        bool_attr.oid_name:
-                                            int(annotation.attributes.get(bool_attr.datumaro_name, -1))
-                                        for bool_attr in OpenImagesPath.BBOX_BOOLEAN_ATTRIBUTES
-                                    },
-                                })
-                            elif annotation.type is AnnotationType.mask:
-                                mask_dir = osp.join(self._save_dir, OpenImagesPath.MASKS_DIR, item.subset)
-
-                                box_id_str = annotation.attributes.get('box_id')
-
-                                if box_id_str:
-                                    if _RE_INVALID_PATH_COMPONENT.fullmatch(box_id_str):
-                                        raise UnsupportedBoxIdError(item_id=item.id, box_id=box_id_str)
-                                else:
-                                    # find a box ID that isn't used in any other annotations
-                                    while True:
-                                        box_id_str = format(next_box_id, "08x")
-                                        next_box_id += 1
-                                        if box_id_str not in existing_box_ids:
-                                            break
-
-                                label_name = label_categories[annotation.label].name
-                                mask_file_name = '%s_%s_%s.png' % (
-                                    make_file_name(item.id), make_file_name(label_name), box_id_str,
-                                )
-
-                                box_coords = {}
-
-                                if instance_box is not None:
-                                    if item.has_image and item.image.size is not None:
-                                        image_meta[item.id] = item.image.size
-                                        height, width = item.image.size
-
-                                        box_coords = {
-                                            'BoxXMin': instance_box.x / width,
-                                            'BoxXMax': (instance_box.x + instance_box.w) / width,
-                                            'BoxYMin': instance_box.y / height,
-                                            'BoxYMax': (instance_box.y + instance_box.h) / height,
-                                        }
-                                    else:
-                                        log.warning(
-                                            "Can't encode box coordinates for a mask"
-                                                " for item '%s' due to missing image file",
-                                            item.id)
-
-                                mask_description_writer.writerow({
-                                    'MaskPath': mask_file_name,
-                                    'ImageID': item.id,
-                                    'LabelName': label_name,
-                                    'BoxID': box_id_str,
-                                    **box_coords,
-                                    'PredictedIoU':
-                                        annotation.attributes.get('predicted_iou', ''),
-                                })
-
-                                save_image(osp.join(mask_dir, mask_file_name),
-                                    annotation.image, create_dir=True)
+                    self._save_item_annotations(
+                        item,
+                        label_description_writer,
+                        bbox_description_writer,
+                        mask_description_writer,
+                        label_categories,
+                        image_meta,
+                    )
 
         if image_meta:
             image_meta_file_path = osp.join(
@@ -818,3 +729,110 @@ class OpenImagesConverter(Converter):
                 DEFAULT_IMAGE_META_FILE_NAME)
 
             save_image_meta_file(image_meta, image_meta_file_path)
+
+    def _save_item_annotations(
+        self,
+        item,
+        label_description_writer,
+        bbox_description_writer,
+        mask_description_writer,
+        label_categories,
+        image_meta,
+    ):
+        next_box_id = 0
+
+        existing_box_ids = {
+            annotation.attributes['box_id']
+            for annotation in item.annotations
+            if annotation.type is AnnotationType.mask
+            if 'box_id' in annotation.attributes
+        }
+
+        for instance in find_instances(item.annotations):
+            instance_box = next(
+                (a for a in instance if a.type is AnnotationType.bbox),
+                None)
+
+            for annotation in instance:
+                if annotation.type is AnnotationType.label:
+                    label_description_writer.writerow({
+                        'ImageID': item.id,
+                        'LabelName': label_categories[annotation.label].name,
+                        'Confidence': str(annotation.attributes.get('score', 1)),
+                    })
+                elif annotation.type is AnnotationType.bbox:
+                    if item.has_image and item.image.size is not None:
+                        image_meta[item.id] = item.image.size
+                        height, width = item.image.size
+                    else:
+                        log.warning(
+                            "Can't encode box for item '%s' due to missing image file",
+                            item.id)
+                        continue
+
+                    bbox_description_writer.writerow({
+                        'ImageID': item.id,
+                        'LabelName': label_categories[annotation.label].name,
+                        'Confidence': str(annotation.attributes.get('score', 1)),
+                        'XMin': annotation.x / width,
+                        'YMin': annotation.y / height,
+                        'XMax': (annotation.x + annotation.w) / width,
+                        'YMax': (annotation.y + annotation.h) / height,
+                        **{
+                            bool_attr.oid_name:
+                                int(annotation.attributes.get(bool_attr.datumaro_name, -1))
+                            for bool_attr in OpenImagesPath.BBOX_BOOLEAN_ATTRIBUTES
+                        },
+                    })
+                elif annotation.type is AnnotationType.mask:
+                    mask_dir = osp.join(self._save_dir, OpenImagesPath.MASKS_DIR, item.subset)
+
+                    box_id_str = annotation.attributes.get('box_id')
+
+                    if box_id_str:
+                        if _RE_INVALID_PATH_COMPONENT.fullmatch(box_id_str):
+                            raise UnsupportedBoxIdError(item_id=item.id, box_id=box_id_str)
+                    else:
+                        # find a box ID that isn't used in any other annotations
+                        while True:
+                            box_id_str = format(next_box_id, "08x")
+                            next_box_id += 1
+                            if box_id_str not in existing_box_ids:
+                                break
+
+                    label_name = label_categories[annotation.label].name
+                    mask_file_name = '%s_%s_%s.png' % (
+                        make_file_name(item.id), make_file_name(label_name), box_id_str,
+                    )
+
+                    box_coords = {}
+
+                    if instance_box is not None:
+                        if item.has_image and item.image.size is not None:
+                            image_meta[item.id] = item.image.size
+                            height, width = item.image.size
+
+                            box_coords = {
+                                'BoxXMin': instance_box.x / width,
+                                'BoxXMax': (instance_box.x + instance_box.w) / width,
+                                'BoxYMin': instance_box.y / height,
+                                'BoxYMax': (instance_box.y + instance_box.h) / height,
+                            }
+                        else:
+                            log.warning(
+                                "Can't encode box coordinates for a mask"
+                                    " for item '%s' due to missing image file",
+                                item.id)
+
+                    mask_description_writer.writerow({
+                        'MaskPath': mask_file_name,
+                        'ImageID': item.id,
+                        'LabelName': label_name,
+                        'BoxID': box_id_str,
+                        **box_coords,
+                        'PredictedIoU':
+                            annotation.attributes.get('predicted_iou', ''),
+                    })
+
+                    save_image(osp.join(mask_dir, mask_file_name),
+                        annotation.image, create_dir=True)
