@@ -202,7 +202,7 @@ def find_images(dirpath: str, exts: Union[str, Iterable[str]] = None,
 
 def is_image(path: str):
     trunk, ext = osp.splitext(osp.basename(path))
-    return path and trunk and ext.lower() in IMAGE_EXTENSIONS and \
+    return trunk and ext.lower() in IMAGE_EXTENSIONS and \
         osp.isfile(path)
 
 class lazy_image:
