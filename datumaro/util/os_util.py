@@ -88,3 +88,18 @@ def suppress_output(stdout: bool = True, stderr: bool = False):
 
         with es:
             yield
+
+def make_file_name(s):
+    # adapted from
+    # https://docs.djangoproject.com/en/2.1/_modules/django/utils/text/#slugify
+    """
+    Normalizes string, converts to lowercase, removes non-alpha characters,
+    and converts spaces to hyphens.
+    """
+    import re
+    import unicodedata
+    s = unicodedata.normalize('NFKD', s).encode('ascii', 'ignore')
+    s = s.decode()
+    s = re.sub(r'[^\w\s-]', '', s).strip().lower()
+    s = re.sub(r'[-\s]+', '-', s)
+    return s
