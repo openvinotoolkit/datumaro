@@ -84,7 +84,7 @@ def copytree(src, dst):
         assert src and dst
         src = osp.abspath(src)
         dst = osp.abspath(dst)
-        subprocess.check_output(["xcopy", src, dst,
+        subprocess.check_output(["xcopy", src, dst, # nosec
             "/s", "/e", "/q", "/y", "/i"], stderr=subprocess.STDOUT) # nosec
     elif sys.platform == 'linux':
         # As above
