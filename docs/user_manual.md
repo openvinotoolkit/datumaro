@@ -3,11 +3,12 @@
 ## Contents
 
 - [Installation](#installation)
-- [Interfaces](#interfaces)
+- [How to use Datumaro](#how-to-use-datumaro)
 - [Supported dataset formats and annotations](#supported-formats)
-- [Supported data formats](#data-formats)
-- [Command line workflow](#command-line-workflow)
-  - [Project structure](#project-structure)
+- [Supported media formats](#media-formats)
+- [Glossary](#glossary)
+- [Command-line workflow](#command-line-workflow)
+  - [Project layout](#project-layout)
 - [Command reference](#command-reference)
   - [Convert datasets](#convert-datasets)
   - [Create project](#create-project)
@@ -58,7 +59,7 @@ pip install 'git+https://github.com/openvinotoolkit/datumaro'
 > You can change the installation branch with `...@<branch_name>`
 > Also use `--force-reinstall` parameter in this case.
 
-## Interfaces
+## How to use Datumaro
 
 As a standalone tool:
 
@@ -79,7 +80,10 @@ python datum.py --help
 As a python library:
 
 ``` python
-import datumaro
+from datumaro.components.project import Project
+from datumaro.components.dataset import Dataset
+from datumaro.components.extractor import Label, Bbox, DatasetItem
+...
 ```
 
 ## Supported Formats
@@ -175,17 +179,18 @@ List of supported annotation types:
 - (Segmentation) Masks
 - (Key-)Points
 - Captions
+- 3D cuboids
 
-## Data formats
+## Media formats
 
-Datumaro only works with 2d RGB(A) images.
+Datumaro supports 2D RGB(A) images and KITTI Point Clouds media.
 
 To create an unlabelled dataset from an arbitrary directory with images use
-`ImageDir` format:
+`ImageDir` and `ImageZip` formats:
 
 ```bash
 datum create -o <project/dir>
-datum add path -p <project/dir> -f image_dir <directory/path/>
+datum add -p <project/dir> -f image_dir <directory/path/>
 ```
 
 or if you work with Datumaro API:
@@ -195,12 +200,9 @@ For using with a project:
 ```python
 from datumaro.components.project import Project
 
-project = Project()
-project.add_source('source1', {
-  'format': 'image_dir',
-  'url': 'directory/path/'
-})
-dataset = project.make_dataset()
+project = Project.init()
+project.import_source('source1', format='image_dir', url='directory/path/')
+dataset = project.working_tree.make_dataset()
 ```
 
 And for using as a dataset:
@@ -213,52 +215,119 @@ dataset = Dataset.import_from('directory/path/', 'image_dir')
 
 This will search for images in the directory recursively and add
 them as dataset entries with names like `<subdir1>/<subsubdir1>/<image_name1>`.
-The list of formats matches the list of supported image formats in OpenCV.
+The list of formats matches the list of supported image formats in OpenCV:
 ```
 .jpg, .jpeg, .jpe, .jp2, .png, .bmp, .dib, .tif, .tiff, .tga, .webp, .pfm,
 .sr, .ras, .exr, .hdr, .pic, .pbm, .pgm, .ppm, .pxm, .pnm
 ```
 
-After addition into a project, images can be split into subsets and renamed
-with transformations, filtered, joined with existing annotations etc.
+Once there is a `Dataset` instance, it's items can be split into subsets,
+renamed, filtered, joined with annotations, exported in various formats etc.
 
 To use a video as an input, one should either [create an Extractor plugin](../docs/developer_guide.md#plugins),
 which splits a video into frames, or split the video manually and import images.
 
-## Command line workflow
+## Glossary
 
-The key object is a project, so most CLI commands operate on projects.
-However, there are few commands operating on datasets directly.
-A project is a combination of a project's own dataset, a number of
-external data sources and an environment.
-An empty Project can be created by `project create` command,
-an existing dataset can be imported with `project import` command.
-A typical way to obtain projects is to export tasks in CVAT UI.
+- Basic concepts:
+  - dataset - A number of media (dataset items) and associated annotations
+  - project - A combination of multiple datasets, plugins, models and metadata
+
+- Project versioning concepts:
+  - data source - a link to a dataset or a copy of a dataset inside a project.
+    Basically, an URL + dataset format name
+  - project revision - a commit hash or a named reference from
+    Git (branch, tag, HEAD~3 etc.).
+  - working / head / revision tree - a project build tree and plugins at
+    a specified revision
+  - data source revision - a data source hash at a specific stage
+  - object - a tree or a data source revision data
+
+- Dataset path concepts:
+  - source / dataset / revision / project path - a path to a dataset in a
+    special format
+
+    - (project local) **rev**ision **path**s - a way to specify the path
+      to a source revision in the CLI, the syntax is:
+      `<revision>:<source/target name>`, any part can be missing.
+
+    - dataset revpath - a path to a dataset in the following format:
+      `<dataset path>:<format>`
+      - Format is optional. If not specified, will try to autodetect
+
+    - full revpath - a path to a source revision in a project, the syntax is:
+      `<project path>@<revision>:<target name>`, any part can be missing.
+      - Default project is the current project (`-p`/`--project` CLI arg.)
+      - Default revision is the working tree of the project
+      - Default target is the compiled project
+
+- Dataset building concepts:
+  - stage - a modification of a data source. A transformation,
+    filter or something else.
+  - build tree - a directed graph (tree) with leaf nodes at data sources
+    and a single root node called "project"
+  - build target - a data source or a stage
+  - pipeline - a subgraph of a build target
+
+## Command-line workflow
+
+In Datumaro, most command-line commands operate on projects, but there are
+also few commands operating on datasets directly. There are 2 basic ways
+to use Datumaro from the command-line:
+- Use [`convert`](#convert), [`diff`](#compare), [`merge`](#merge)
+  directly on existing datasets
+
+- Create a Datumaro project and operate on it:
+  - Create an empty project with [`create`](#create-project)
+  - Import a dataset with [`add`](#add-source)
+
+Basically, a project is a combination of datasets, models and environment.
+
+A project can contain an arbitrary number of data sources. Each data source
+describes a dataset in a specific format. A project acts as a manager for
+the data sources and allows to manipulate them separately or as a whole, in
+which case it combines dataset items from all the sources into one composite
+dataset. You can manage separate sources in a project by commands in
+the `datum source` command line context.
 
 If you want to interact with models, you need to add them to project first.
 
-### Project structure
+A typical way to obtain Datumaro projects is to export tasks in
+[CVAT](https://github.com/openvinotoolkit/cvat) UI.
 
-<!--lint disable fenced-code-flag-->
+### Project layout
+
+```bash
+project
+├── .dvc/
+├── .dvcignore
+├── .git/
+├── .gitignore
+├── .datumaro/
+│   ├── cache/ # object cache
+│   │   ├── <2 leading symbols of obj hash>/
+│   │   │   └── <rest symbols of obj hash>/
+│   │   │       └── <object data>
+│   ├── models/
+│   ├── plugins/ # custom project-specific plugins
+│   │   ├── plugin1/
+│   │   |   ├── __init__.py
+│   │   |   └── file2.py
+│   │   ├── plugin2.py
+│   │   └── ...
+│   ├── tmp/ # temp files
+│   └── tree/ # working tree metadata
+│       ├── config.yml
+│       └── sources/
+│           ├── <source name 1>.dvc
+│           ├── <source name 2>.dvc
+│           └── ...
+│
+├── <source name 1>/
+│   └── <source data>
+└── <source name 2>/
+    └── <source data>
 ```
-└── project/
-    ├── .datumaro/
-    |   ├── config.yml
-    │   ├── .git/
-    │   ├── models/
-    │   └── plugins/
-    │       ├── plugin1/
-    │       |   ├── file1.py
-    │       |   └── file2.py
-    │       ├── plugin2.py
-    │       ├── custom_extractor1.py
-    │       └── ...
-    ├── dataset/
-    └── sources/
-        ├── source1
-        └── ...
-```
-<!--lint enable fenced-code-flag-->
 
 ## Command reference
 
@@ -268,12 +337,12 @@ If you want to interact with models, you need to add them to project first.
 Available CLI commands:
 ![CLI design doc](images/cli_design.png)
 
-### Convert datasets
+### Convert datasets <a id="convert"></a>
 
-This command allows to convert a dataset from one format into another.
-In fact, this command is a combination of `project import` and `project export`
-and just provides a simpler way to obtain the same result when no extra options
-is needed. A list of supported formats can be found in the `--help` output of
+This command allows to convert a dataset from one format to another.
+In fact, this command is a usability alias of `create`, `add` and `export`
+and just provides a simpler way to obtain the same result in simple cases.
+A list of supported formats can be found in the `--help` output of
 this command.
 
 Usage:
@@ -296,50 +365,7 @@ datum convert --input-format voc --input-path <path/to/voc/> \
               --output-format coco
 ```
 
-### Import project
-
-This command creates a Project from an existing dataset.
-
-Supported formats are listed in the command help. Check [extending tips](#extending)
-for information on extra format support.
-
-Usage:
-
-``` bash
-datum import --help
-
-datum import \
-    -i <dataset_path> \
-    -o <project_dir> \
-    -f <format>
-```
-
-Example: create a project from COCO-like dataset
-
-``` bash
-datum import \
-    -i /home/coco_dir \
-    -o /home/project_dir \
-    -f coco
-```
-
-An _MS COCO_-like dataset should have the following directory structure:
-
-<!--lint disable fenced-code-flag-->
-```
-COCO/
-├── annotations/
-│   ├── instances_val2017.json
-│   ├── instances_train2017.json
-├── images/
-│   ├── val2017
-│   ├── train2017
-```
-<!--lint enable fenced-code-flag-->
-
-Everything after the last `_` is considered a subset name in the COCO format.
-
-### Create project
+### Create project <a id="create-project"></a>
 
 The command creates an empty project. Once a Project is created, there are
 a few options to interact with it.
@@ -359,12 +385,14 @@ Example: create an empty project `my_dataset`
 datum create -o my_dataset/
 ```
 
-### Add and remove data
+### Add and remove data sources <a id="add-source"></a>
 
-A Project can contain a number of external Data Sources. Each Data Source
-describes a way to produce dataset items. A Project combines dataset items from
-all the sources and its own dataset into one composite dataset. You can manage
-project sources by commands in the `source` command line context.
+A project can contain an arbitrary number of data sources. Each data source
+describes a dataset in a specific format. A project acts as a manager for
+the data sources and allows to manipulate them separately or as a whole, in
+which case it combines dataset items from all the sources into one composite
+dataset. You can manage separate sources in a project by commands in
+the `datum source` command line context.
 
 Datasets come in a wide variety of formats. Each dataset
 format defines its own data structure and rules on how to
@@ -388,7 +416,7 @@ datum add --help
 datum remove --help
 
 datum add \
-    path <path> \
+    <path> \
     -p <project dir> \
     -f <format> \
     -n <name>
@@ -404,17 +432,17 @@ and generate TFrecord for TF Detection API for model training
 ``` bash
 datum create
 # 'default' is the name of the subset below
-datum add path <path/to/coco/instances_default.json> -f coco_instances
-datum add path <path/to/cvat/default.xml> -f cvat
-datum add path <path/to/voc> -f voc_detection
-datum add path <path/to/datumaro/default.json> -f datumaro
-datum add path <path/to/images/dir> -f image_dir
+datum add <path/to/coco/instances_default.json> -f coco_instances
+datum add <path/to/cvat/default.xml> -f cvat
+datum add <path/to/voc> -f voc_detection
+datum add <path/to/datumaro/default.json> -f datumaro
+datum add <path/to/images/dir> -f image_dir
 datum export -f tf_detection_api
 ```
 
-### Filter project
+### Filter project <a id="filter"></a>
 
-This command allows to create a sub-Project from a Project. The new project
+This command allows to create a sub-dataset from a dataset. The new dataset
 includes only items satisfying some condition. [XPath](https://devhints.io/xpath)
 is used as a query format.
 
@@ -428,6 +456,41 @@ When filtering annotations, use the `items+annotations`
 mode to point that annotation-less dataset items should be
 removed. To select an annotation, write an XPath that
 returns `annotation` elements (see examples).
+
+Item representations are available with `--dry-run` parameter:
+
+``` xml
+<item>
+  <id>290768</id>
+  <subset>minival2014</subset>
+  <image>
+    <width>612</width>
+    <height>612</height>
+    <depth>3</depth>
+  </image>
+  <annotation>
+    <id>80154</id>
+    <type>bbox</type>
+    <label_id>39</label_id>
+    <x>264.59</x>
+    <y>150.25</y>
+    <w>11.199999999999989</w>
+    <h>42.31</h>
+    <area>473.87199999999956</area>
+  </annotation>
+  <annotation>
+    <id>669839</id>
+    <type>bbox</type>
+    <label_id>41</label_id>
+    <x>163.58</x>
+    <y>191.75</y>
+    <w>76.98999999999998</w>
+    <h>73.63</h>
+    <area>5668.773699999998</area>
+  </annotation>
+  ...
+</item>
+```
 
 Usage:
 
@@ -471,75 +534,14 @@ datum filter \
     -m i+a -e '/item/annotation[occluded="True"]'
 ```
 
-Item representations are available with `--dry-run` parameter:
-
-``` xml
-<item>
-  <id>290768</id>
-  <subset>minival2014</subset>
-  <image>
-    <width>612</width>
-    <height>612</height>
-    <depth>3</depth>
-  </image>
-  <annotation>
-    <id>80154</id>
-    <type>bbox</type>
-    <label_id>39</label_id>
-    <x>264.59</x>
-    <y>150.25</y>
-    <w>11.199999999999989</w>
-    <h>42.31</h>
-    <area>473.87199999999956</area>
-  </annotation>
-  <annotation>
-    <id>669839</id>
-    <type>bbox</type>
-    <label_id>41</label_id>
-    <x>163.58</x>
-    <y>191.75</y>
-    <w>76.98999999999998</w>
-    <h>73.63</h>
-    <area>5668.773699999998</area>
-  </annotation>
-  ...
-</item>
-```
-
-### Update project
-
-This command updates items in a project from another one
-(check [Merge Projects](#merge-projects) for complex merging).
-
-Usage:
-
-``` bash
-datum merge --help
-
-datum merge \
-    -p <project dir> \
-    -o <output dir> \
-    <other project dir>
-```
-
-Example: update annotations in the `first_project` with annotations
-from the `second_project` and save the result as `merged_project`
-
-``` bash
-datum merge \
-    -p first_project \
-    -o merged_project \
-    second_project
-```
-
-### Merge projects
+### Merge datasets <a id="merge"></a>
 
 This command merges items from 2 or more projects and checks annotations for
 errors.
 
 Spatial annotations are compared by distance and intersected, labels and
-attributes are selected by voting.
-Merge conflicts, missing items and annotations, other errors are saved into a `.json` file.
+attributes are selected by voting. Merge conflicts, missing items and
+annotations, other errors are saved into a `.json` file.
 
 Usage:
 
@@ -562,7 +564,7 @@ datum merge project1/ project2/ project3/ project4/ \
     --groups 'person,hand?,head,foot?'
 ```
 
-### Export project
+### Export datasets <a id="export"></a>
 
 This command exports a Project as a dataset in some format.
 
