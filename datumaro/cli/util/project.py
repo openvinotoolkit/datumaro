@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-from itertools import count
+from typing import Optional
 import os
 import re
 
@@ -11,6 +11,7 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
 from datumaro.components.errors import ProjectNotFoundError
 from datumaro.components.project import Project
+from datumaro.util import escape, unescape
 from datumaro.util.os_util import generate_next_name
 
 
@@ -29,13 +30,13 @@ def generate_next_file_name(basename, basedir='.', sep='.', ext=''):
 
 _dataset_revpath_regex = None
 _full_revpath_regex = None
-def parse_full_revpath(s, ctx_project):
+def parse_full_revpath(s: str, ctx_project: Optional[Project]):
     if ctx_project:
         env = ctx_project.env
     else:
         env = Environment()
 
-    def parse_dataset_pathspec(s):
+    def parse_dataset_pathspec(s: str):
         global _dataset_revpath_regex
         if not _dataset_revpath_regex:
             _dataset_revpath_regex = re.compile(
@@ -49,13 +50,14 @@ def parse_full_revpath(s, ctx_project):
         match = re.fullmatch(_dataset_revpath_regex, s)
         if not match:
             raise ValueError("Failed to recognize dataset pathspec in '%s'" % s)
-        match = match.groupdict()
+        match = { k: unescape(v, escapes=escapes) if v else v
+            for k, v in match.groupdict().items() }
 
         path = match["dataset_path"]
         format = match["format"]
         return Dataset.import_from(path, format, env=env)
 
-    def parse_revspec(s):
+    def parse_revspec(s: str):
         global _full_revpath_regex
         if not _full_revpath_regex:
             _full_revpath_regex = re.compile(
@@ -70,7 +72,8 @@ def parse_full_revpath(s, ctx_project):
         match = re.fullmatch(_full_revpath_regex, s)
         if not match:
             raise ValueError("Failed to recognize revspec in '%s'" % s)
-        match = match.groupdict()
+        match = { k: unescape(v, escapes=escapes) if v else v
+            for k, v in match.groupdict().items() }
 
         proj_path = match["proj_path"]
         rev = match["rev"]
@@ -97,6 +100,10 @@ def parse_full_revpath(s, ctx_project):
         tree = project.get_rev(rev)
         return tree.make_dataset(source)
 
+
+    # Escape backward slashes to handle Windows in a generic way
+    escapes = [('\\', r'%%backslash%%')]
+    s = escape(s, escapes=escapes)
 
     errors = []
     try:
