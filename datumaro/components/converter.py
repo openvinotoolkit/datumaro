@@ -7,10 +7,12 @@ import logging as log
 import os
 import os.path as osp
 import shutil
+import uuid
 
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.dataset import DatasetPatch
 from datumaro.components.extractor import DatasetItem
+from datumaro.util import error_rollback, on_error_do
 from datumaro.util.image import Image
 
 
@@ -34,8 +36,22 @@ class Converter(CliPlugin):
         return converter.apply()
 
     @classmethod
+    @error_rollback
     def patch(cls, dataset, patch, save_dir, **options):
-        return cls.convert(dataset, save_dir, **options)
+        # Is not any better in performance than just writing a dataset,
+        # but in case of patching (i.e. writing to the previous location),
+        # it allows to avoid many problems with removing and replacing
+        # existing files. Surely, this approach also has problems with
+        # removal of the given directory.
+        tmpdir = save_dir + '.tmp' + uuid.uuid4().hex
+        os.makedirs(tmpdir, exist_ok=False)
+        on_error_do(shutil.rmtree, tmpdir, ignore_errors=True)
+
+        retval = cls.convert(dataset, tmpdir, **options)
+        shutil.rmtree(save_dir, ignore_errors=True)
+        os.replace(tmpdir, save_dir)
+
+        return retval
 
     def apply(self):
         raise NotImplementedError("Should be implemented in a subclass")
