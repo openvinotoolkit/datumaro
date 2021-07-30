@@ -101,8 +101,9 @@ def parse_full_revpath(s: str, ctx_project: Optional[Project]):
         return tree.make_dataset(source)
 
 
-    # Escape backward slashes to handle Windows in a generic way
-    escapes = [('\\', r'%%backslash%%')]
+    # Escape colons used in absolute paths on Windows
+    escapes = [(':\\', r'%%driveroot_bs%%')]
+    escapes = [(':/', r'%%driveroot_s%%')]
     s = escape(s, escapes=escapes)
 
     errors = []
