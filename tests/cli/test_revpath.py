@@ -15,7 +15,7 @@ from ..requirements import Requirements, mark_requirement
 
 class TestRevpath(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_parse_revspec(self):
+    def test_can_parse(self):
         with TestDir() as test_dir:
             dataset_url = osp.join(test_dir, 'source')
             dataset = Dataset.from_iterable([DatasetItem(1)])

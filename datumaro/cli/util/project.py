@@ -46,7 +46,7 @@ def parse_full_revpath(s, ctx_project):
                 )
             )
 
-        match = re.match(_dataset_revpath_regex, s)
+        match = re.fullmatch(_dataset_revpath_regex, s)
         if not match:
             raise ValueError("Failed to recognize dataset pathspec in '%s'" % s)
         match = match.groupdict()
@@ -67,7 +67,7 @@ def parse_full_revpath(s, ctx_project):
                 }
             )
 
-        match = re.match(_full_revpath_regex, s)
+        match = re.fullmatch(_full_revpath_regex, s)
         if not match:
             raise ValueError("Failed to recognize revspec in '%s'" % s)
         match = match.groupdict()
