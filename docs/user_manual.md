@@ -24,6 +24,10 @@
   - [Validate](#validate)
   - [Transform](#transform)
   - [Run model inference explanation (explain)](#explain)
+  - [Commit](#commit)
+  - [Checkout](#checkout)
+  - [Status](#status)
+  - [Log](#log)
   - Models:
     - [Add](#model-add)
     - [Run](#run-model)
@@ -1170,6 +1174,61 @@ numerical_stat_template = {
 ```
 
 </details>
+
+
+### Commit <a id="commit"></a>
+
+This command allows to fix current state of a project and create a new
+project revision.
+
+Usage:
+
+```bash
+datum commit --help
+
+datum commit \
+    -m "Commit message"
+```
+
+### Checkout <a id="checkout"></a>
+
+This command allows to restore a specific project revision in the project
+tree or to restore states of specific sources.
+
+Usage:
+
+```bash
+datum checkout --help
+
+datum checkout <commit_hash>
+datum checkout -- <source_name1> <source_name2> ...
+datum checkout <commit_hash> -- <source_name1> <source_name2> ...
+```
+
+### Status <a id="status"></a>
+
+This command prints the summary of the changes between the working tree
+of a project and its HEAD revision.
+
+Usage:
+
+```bash
+datum status --help
+
+datum status
+```
+
+### Log <a id="log"></a>
+
+This command prints the history of the current project revision.
+
+Usage:
+
+```bash
+datum log --help
+
+datum log
+```
 
 ### Register model <a id="model-add"></a>
 
