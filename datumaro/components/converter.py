@@ -2,12 +2,12 @@
 #
 # SPDX-License-Identifier: MIT
 
+from tempfile import mkdtemp
 from typing import Union
 import logging as log
 import os
 import os.path as osp
 import shutil
-import uuid
 
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.dataset import DatasetPatch
@@ -49,12 +49,15 @@ class Converter(CliPlugin):
         # Probably, a better solution could be to wipe directory
         # contents and write new data there. Note that directly doing this
         # also doesn't work, because images may be needed for writing.
-        tmpdir = save_dir + '.tmp' + uuid.uuid4().hex
-        os.makedirs(tmpdir, exist_ok=False)
+        tmpdir = mkdtemp(dir=osp.dirname(save_dir),
+            prefix=osp.basename(save_dir), suffix='.tmp')
         on_error_do(shutil.rmtree, tmpdir, ignore_errors=True)
 
         retval = cls.convert(dataset, tmpdir, **options)
-        shutil.rmtree(save_dir)
+
+        if osp.isdir(save_dir):
+            shutil.copymode(save_dir, tmpdir)
+            shutil.rmtree(save_dir)
         os.replace(tmpdir, save_dir)
 
         return retval
