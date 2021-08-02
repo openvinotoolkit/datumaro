@@ -56,22 +56,34 @@ pip install datumaro
 pip install 'git+https://github.com/openvinotoolkit/datumaro'
 ```
 
-> You can change the installation branch with `...@<branch_name>`
-> Also use `--force-reinstall` parameter in this case.
+**Plugins**
+
+Datumaro has many plugins, which are responsible for dataset formats
+and other optional components. If a plugin has dependencies, they can
+require additional installation. You can find the list of all the plugin
+dependencies in the [plugins](#plugins) section.
+
+**Customizing installation parameters**
+
+- In some cases, there can be limited use for UI elements outside CLI,
+  or limited options of installing graphical libraries in the system
+  (various Docker environments, servers etc). You can select bewtween using
+  `opencv` and `opencv-headless` by setting the `DATUMARO_HEADLESS`
+  environment variable to `0` or `1` before installing the package.
+  It requires building from source:
+  `DATUMARO_HEADLESS=1 pip install datumaro --no-binary=datumaro`
+
+- You can change the installation branch with `...@<branch_name>`.
+  Also use `--force-reinstall` parameter in this case.
+  It can be useful for testing of unreleased versions from GitHub Pull Requests
 
 ## How to use Datumaro
 
-As a standalone tool:
+As a standalone tool or a Python module:
 
 ``` bash
 datum --help
-```
 
-As a python module:
-> The directory containing Datumaro should be in the `PYTHONPATH`
-> environment variable or `cvat/datumaro/` should be the current directory.
-
-``` bash
 python -m datumaro --help
 python datumaro/ --help
 python datum.py --help
@@ -1443,7 +1455,7 @@ It must be put into a plugin directory:
 - `<project_dir>/.datumaro/plugins` for project-specific plugins
 - `<datumaro_dir>/plugins` for global plugins
 
-### Built-in plugins
+### Built-in plugins <a id="builtin-plugins"></a>
 
 Datumaro provides several builtin plugins. Plugins can have dependencies,
 which need to be installed separately.
@@ -1451,7 +1463,11 @@ which need to be installed separately.
 #### TensorFlow
 
 The plugin provides support of TensorFlow Detection API format, which includes
-boxes and masks. It depends on TensorFlow, which can be installed with `pip`:
+boxes and masks.
+
+**Dependencies**
+
+The plugin depends on TensorFlow, which can be installed with `pip`:
 
 ```bash
 pip install tensorflow
@@ -1468,15 +1484,23 @@ pip install datumaro[tf-gpu]
 This plugin allows to use [Accuracy Checker](https://github.com/openvinotoolkit/open_model_zoo/tree/master/tools/accuracy_checker)
 to launch deep learning models from various frameworks
 (Caffe, MxNet, PyTorch, OpenVINO, ...) through Accuracy Checker's API.
+
+**Dependencies**
+
 The plugin depends on Accuracy Checker, which can be installed with `pip`:
 
 ```bash
 pip install 'git+https://github.com/openvinotoolkit/open_model_zoo.git#subdirectory=tools/accuracy_checker'
 ```
 
+To execute models with deep learning frameworks, they need to be installed too.
+
 #### OpenVINO™
 
 This plugin provides support for model inference with [OpenVINO™](https://01.org/openvinotoolkit).
+
+**Dependencies**
+
 The plugin depends on the OpenVINO™ Toolkit, which can be installed by
 following [these instructions](https://docs.openvinotoolkit.org/latest/index.html#packaging_and_deployment)
 
