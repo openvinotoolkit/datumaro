@@ -54,7 +54,7 @@ class Converter(CliPlugin):
         on_error_do(shutil.rmtree, tmpdir, ignore_errors=True)
 
         retval = cls.convert(dataset, tmpdir, **options)
-        shutil.rmtree(save_dir, ignore_errors=True)
+        shutil.rmtree(save_dir)
         os.replace(tmpdir, save_dir)
 
         return retval
