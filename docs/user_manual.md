@@ -10,22 +10,22 @@
 - [Command-line workflow](#command-line-workflow)
   - [Project layout](#project-layout)
 - [Command reference](#command-reference)
-  - [Convert datasets](#convert-datasets)
-  - [Create project](#create-project)
-  - [Add and remove data](#add-and-remove-data)
-  - [Import project](#import-project)
-  - [Filter project](#filter-project)
-  - [Update project (merge)](#update-project)
-  - [Merge projects](#merge-projects)
-  - [Export project](#export-project)
-  - [Compare projects](#compare-projects)
-  - [Obtaining project info](#get-project-info)
-  - [Obtaining project statistics](#get-project-statistics)
-  - [Validate project annotations](#validate-project-annotations)
-  - [Register model](#register-model)
-  - [Run inference](#run-model)
-  - [Run inference explanation](#explain-inference)
-  - [Transform project](#transform-project)
+  - [Convert](#convert)
+  - [Create](#create)
+  - [Add](#source-add)
+  - [Remove](#source-add)
+  - [Filter](#filter)
+  - [Merge](#merge)
+  - [Export](#export)
+  - [Diff](#diff)
+  - [Info](#info)
+  - [Stats](#stats)
+  - [Validate](#validate)
+  - [Transform](#transform)
+  - [Run model inference explanation (explain)](#explain)
+  - Models:
+    - [Add](#model-add)
+    - [Run](#run-model)
 - [Extending](#extending)
   - [Builtin plugins](#builtin-plugins)
 - [Links](#links)
@@ -195,35 +195,37 @@ List of supported annotation types:
 
 ## Media formats
 
-Datumaro supports 2D RGB(A) images and KITTI Point Clouds media.
+Datumaro supports the following media types:
+- 2D RGB(A) images
+- KITTI Point Clouds
 
 To create an unlabelled dataset from an arbitrary directory with images use
-`ImageDir` and `ImageZip` formats:
+`image_dir` and `image_zip` formats:
 
 ```bash
 datum create -o <project/dir>
 datum add -p <project/dir> -f image_dir <directory/path/>
 ```
 
-or if you work with Datumaro API:
+or, if you work with Datumaro API:
 
-For using with a project:
+- for using with a project:
 
-```python
-from datumaro.components.project import Project
+  ```python
+  from datumaro.components.project import Project
 
-project = Project.init()
-project.import_source('source1', format='image_dir', url='directory/path/')
-dataset = project.working_tree.make_dataset()
-```
+  project = Project.init()
+  project.import_source('source1', format='image_dir', url='directory/path/')
+  dataset = project.working_tree.make_dataset()
+  ```
 
-And for using as a dataset:
+- for using as a dataset:
 
-```python
-from datumaro.components.dataset import Dataset
+  ```python
+  from datumaro.components.dataset import Dataset
 
-dataset = Dataset.import_from('directory/path/', 'image_dir')
-```
+  dataset = Dataset.import_from('directory/path/', 'image_dir')
+  ```
 
 This will search for images in the directory recursively and add
 them as dataset entries with names like `<subdir1>/<subsubdir1>/<image_name1>`.
@@ -290,8 +292,8 @@ to use Datumaro from the command-line:
   directly on existing datasets
 
 - Create a Datumaro project and operate on it:
-  - Create an empty project with [`create`](#create-project)
-  - Import a dataset with [`add`](#add-source)
+  - Create an empty project with [`create`](#create)
+  - Import a dataset with [`add`](#source-add)
 
 Basically, a project is a combination of datasets, models and environment.
 
@@ -346,16 +348,13 @@ project
 > **Note**: command invocation syntax is subject to change,
 > **always refer to command --help output**
 
-Available CLI commands:
-![CLI design doc](images/cli_design.png)
-
 ### Convert datasets <a id="convert"></a>
 
 This command allows to convert a dataset from one format to another.
-In fact, this command is a usability alias of `create`, `add` and `export`
-and just provides a simpler way to obtain the same result in simple cases.
-A list of supported formats can be found in the `--help` output of
-this command.
+The command is a usability alias for [`create`](#create),
+[`add`](#source-add) and [`export`](#export) and just provides a simpler
+way to obtain the same result in simple cases. A list of supported
+formats can be found in the `--help` output of this command.
 
 Usage:
 
@@ -374,10 +373,11 @@ Example: convert a VOC-like dataset to a COCO-like one:
 
 ``` bash
 datum convert --input-format voc --input-path <path/to/voc/> \
-              --output-format coco
+              --output-format coco \
+              -- --save-images
 ```
 
-### Create project <a id="create-project"></a>
+### Create project <a id="create"></a>
 
 The command creates an empty project. Once a Project is created, there are
 a few options to interact with it.
@@ -397,7 +397,7 @@ Example: create an empty project `my_dataset`
 datum create -o my_dataset/
 ```
 
-### Add and remove data sources <a id="add-source"></a>
+### Add and remove data sources <a id="source-add"></a>
 
 A project can contain an arbitrary number of data sources. Each data source
 describes a dataset in a specific format. A project acts as a manager for
@@ -578,10 +578,13 @@ datum merge project1/ project2/ project3/ project4/ \
 
 ### Export datasets <a id="export"></a>
 
-This command exports a Project as a dataset in some format.
+This command exports a project or a source as a dataset in some format.
+Check [supported formats](#supported-formats) for more info about
+format specifications, supported options and other details.
+The list of formats can be extened by custom plugins, check [extending tips](#extending)
+for information on this topic.
 
-Supported formats are listed in the command help. Check [extending tips](#extending)
-for information on extra format support.
+Available formats are listed in the command help output.
 
 Usage:
 
@@ -595,7 +598,8 @@ datum export \
     -- [additional format parameters]
 ```
 
-Example: save project as VOC-like dataset, include images, convert images to `PNG`
+Example: save a project as a VOC-like dataset, include images, convert
+images to `PNG` from any other formats.
 
 ``` bash
 datum export \
@@ -605,7 +609,7 @@ datum export \
     -- --save-images --image-ext='.png'
 ```
 
-### Get project info
+### Get project info <a id="info"></a>
 
 This command outputs project status information.
 
@@ -645,7 +649,7 @@ Dataset:
           labels: person, bicycle, car, motorcycle (and 76 more)
 ```
 
-### Get project statistics
+### Get project statistics <a id="stats"></a>
 
 This command computes various project statistics, such as:
 - image mean and std. dev.
@@ -929,7 +933,7 @@ datum stats -p test_project
 </details>
 
 
-### Validate project annotations
+### Validate project annotations <a id="validate"></a>
 
 This command inspects annotations with respect to the task type
 and stores the result in JSON file.
@@ -1125,7 +1129,7 @@ numerical_stat_template = {
 
 </details>
 
-### Register model
+### Register model <a id="model-add"></a>
 
 Supported models:
 - OpenVINO
@@ -1194,7 +1198,7 @@ def get_categories():
     return { AnnotationType.label: label_categories }
 ```
 
-### Run model
+### Run model <a id="model-run"></a>
 
 This command applies model to dataset images and produces a new project.
 
@@ -1217,7 +1221,7 @@ datum model add mymodel <...>
 datum model run -m mymodel -o inference
 ```
 
-### Compare projects
+### Compare datasets <a id="diff"></a>
 
 The command compares two datasets and saves the results in the
 specified directory. The current project is considered to be
@@ -1238,7 +1242,7 @@ datum transform <...> -o inference
 datum diff inference -o diff
 ```
 
-### Explain inference
+### Explain inference <a id="explain"></a>
 
 Runs an explainable AI algorithm for a model.
 
@@ -1343,7 +1347,7 @@ def process_outputs(inputs, outputs):
     return results
 ```
 
-### Transform Project
+### Transform project <a id="transform"></a>
 
 This command allows to modify images or annotations in a project all at once.
 
