@@ -9,6 +9,7 @@
 - [Glossary](#glossary)
 - [Command-line workflow](#command-line-workflow)
   - [Project layout](#project-layout)
+  - [Examples](#cli-examples)
 - [Command reference](#command-reference)
   - [Convert](#convert)
   - [Create](#create)
@@ -293,7 +294,10 @@ to use Datumaro from the command-line:
 
 - Create a Datumaro project and operate on it:
   - Create an empty project with [`create`](#create)
-  - Import a dataset with [`add`](#source-add)
+  - Import datasets with [`add`](#source-add)
+  - Modify the project with [`transform`](#transform) and [`filter`](#filter)
+  - Create new revisions of the project, navigate over them, compare
+  - Export the resulting dataset with [`export`](#export)
 
 Basically, a project is a combination of datasets, models and environment.
 
@@ -341,6 +345,23 @@ project
 │   └── <source data>
 └── <source name 2>/
     └── <source data>
+```
+
+### Examples <a id="cli-examples"></a>
+
+Example: create a project, add dataset, modify, restore an old version
+
+``` bash
+datum create
+datum add <path/to/coco/dataset> -f coco -n source1
+datum commit -m "Added a dataset"
+datum transform -t shapes_to_boxes
+datum filter -e '/item/annotation[label="cat" or label="dog"]' -m i+a
+datum commit -m "Transformed"
+datum checkout HEAD~1 -- source1 # restore a previous revision
+datum status # prints "modified source1"
+datum checkout source1 # restore the last revision
+datum export -f voc -- --save-images
 ```
 
 ## Command reference
@@ -399,7 +420,7 @@ datum create -o my_dataset/
 
 ### Add and remove data sources <a id="source-add"></a>
 
-A project can contain an arbitrary number of data sources. Each data source
+A project can contain an arbitrary number of Data Sources. Each Data Source
 describes a dataset in a specific format. A project acts as a manager for
 the data sources and allows to manipulate them separately or as a whole, in
 which case it combines dataset items from all the sources into one composite
@@ -418,8 +439,30 @@ is used in COCO format:
 ```
 <!--lint enable fenced-code-flag-->
 
-Supported formats are listed in the command help. Check [extending tips](#extending)
-for information on extra format support.
+Check [supported formats](#supported-formats) for more info about
+format specifications, supported options and other details.
+The list of formats can be extened by custom plugins, check [extending tips](#extending)
+for information on this topic.
+
+Available formats are listed in the command help output.
+
+Datumaro supports working with datasets with annotations only.
+
+A dataset is imported by its URL. Currently, only local filesystem
+paths are supported. The URL can be a file or a directory path
+to a dataset. When the dataset is read, it is read as a whole.
+Many formats can have multiple subsets like `train`, `val`, `test` etc. If
+you want to limit reading only to a specific subset, use the `-r/--path`
+parameter. It can also be useful when subset files have non-standard
+placement or names.
+
+When a dataset is imported, the following things are done:
+- URL is saved in the project config
+- data in copied into the project
+- data is cached inside the project (use `--no-cache` to disable)
+
+The dataset is added into the working tree of the project. A new commit
+is *not* done automatically.
 
 Usage:
 
@@ -428,10 +471,9 @@ datum add --help
 datum remove --help
 
 datum add \
-    <path> \
+    <url> \
     -p <project dir> \
-    -f <format> \
-    -n <name>
+    -f <format>
 
 datum remove \
     -p <project dir> \
@@ -446,7 +488,7 @@ datum create
 # 'default' is the name of the subset below
 datum add <path/to/coco/instances_default.json> -f coco_instances
 datum add <path/to/cvat/default.xml> -f cvat
-datum add <path/to/voc> -f voc_detection
+datum add <path/to/voc> -f voc_detection -r custom_subset_dir/default.txt
 datum add <path/to/datumaro/default.json> -f datumaro
 datum add <path/to/images/dir> -f image_dir
 datum export -f tf_detection_api
