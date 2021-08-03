@@ -17,7 +17,7 @@ Cityscapes dataset format supports `Masks` (segmentations tasks) annotations.
 
 Supported annotation attributes:
 - `is_crowd` (boolean). Specifies if the annotation label can
-    distinquish between different instances.
+    distinguish between different instances.
     If `False`, the annotation `id` field encodes the instance id.
 
 ## Load Cityscapes dataset

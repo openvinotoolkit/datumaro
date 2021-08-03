@@ -277,7 +277,7 @@ Extra options for export to the Open Images format:
 - `--save-images` - save image files when exporting the dataset
   (by default, `False`)
 
-- `--image-ext IMAGE_EXT` - save image files with the speficied extension
+- `--image-ext IMAGE_EXT` - save image files with the specified extension
   when exporting the dataset (by default, uses the original extension
   or `.jpg` if there isn't one)
 
