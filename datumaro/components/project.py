@@ -151,7 +151,7 @@ def _update_ignore_file(paths: Union[str, List[str]], repo_root: str,
 
         if not new_lines or new_lines[0] != header:
             f.write(header + '\n')
-        f.writelines('\n'.join(new_lines))
+        f.write('\n'.join(new_lines))
         f.truncate()
 
 class CrudProxy:
