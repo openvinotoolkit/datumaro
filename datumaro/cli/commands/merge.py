@@ -47,7 +47,6 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         |s|s- <project path> [ @<rev> ] [ :<target> ]|n
         |s|s- <rev> [ :<target> ]|n
         |s|s- <target>|n
-        Parts can be enclosed in quotes.|n
         |n
         The current project (-p/--project) is used as a context for plugins.
         It can be useful for dataset paths in targets. When not specified,

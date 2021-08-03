@@ -1,7 +1,9 @@
 from unittest.case import TestCase
 import os.path as osp
 
-from datumaro.cli.util.project import WrongRevpathError, parse_full_revpath
+from datumaro.cli.util.project import (
+    WrongRevpathError, parse_full_revpath, split_local_revpath,
+)
 from datumaro.components.dataset import DEFAULT_FORMAT, Dataset, IDataset
 from datumaro.components.errors import (
     MultipleFormatsMatchError, ProjectNotFoundError, UnknownTargetError,
@@ -81,3 +83,17 @@ class TestRevpath(TestCase):
                 self.assertTrue(isinstance(
                     parse_full_revpath(dataset_url + ":datumaro", None),
                     IDataset))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_split_local_revpath(self):
+        with self.subTest("full"):
+            self.assertEqual(("rev", "tgt"), split_local_revpath("rev:tgt"))
+
+        with self.subTest("rev only"):
+            self.assertEqual(("rev", ""), split_local_revpath("rev:"))
+
+        with self.subTest("build target only"):
+            self.assertEqual(("", "tgt"), split_local_revpath("tgt"))
+
+        with self.subTest("build target only (empty rev)"):
+            self.assertEqual(("", "tgt"), split_local_revpath(":tgt"))

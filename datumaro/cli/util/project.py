@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-from typing import Optional
+from typing import Optional, Tuple
 import os
 import re
 
@@ -10,8 +10,7 @@ from datumaro.cli.util.errors import WrongRevpathError
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
 from datumaro.components.errors import ProjectNotFoundError
-from datumaro.components.project import Project
-from datumaro.util import escape, unescape
+from datumaro.components.project import Project, Revision
 from datumaro.util.os_util import generate_next_name
 
 
@@ -29,97 +28,124 @@ def generate_next_file_name(basename, basedir='.', sep='.', ext=''):
     return generate_next_name(os.listdir(basedir), basename, sep, ext)
 
 _dataset_revpath_regex = None
+def parse_dataset_pathspec(s: str,
+        env: Optional[Environment] = None) -> Dataset:
+    """
+    Parses Dataset paths. The syntax is:
+    - <dataset path>[ :<format> ]
+
+    Returns: a dataset from the parsed path
+    """
+
+    global _dataset_revpath_regex
+    if not _dataset_revpath_regex:
+        _dataset_revpath_regex = re.compile(
+            r"""
+            (?P<dataset_path>(?: [^:] | :[/\\] )+)
+            (:(?P<format>.+))?
+            """,
+            re.VERBOSE
+        )
+
+    match = re.fullmatch(_dataset_revpath_regex, s)
+    if not match:
+        raise ValueError("Failed to recognize dataset pathspec in '%s'" % s)
+    match = match.groupdict()
+
+    path = match["dataset_path"]
+    format = match["format"]
+    return Dataset.import_from(path, format, env=env)
+
 _full_revpath_regex = None
-def parse_full_revpath(s: str, ctx_project: Optional[Project]):
+def parse_revspec(s: str, ctx_project: Optional[Project] = None) -> Dataset:
+    """
+    Parses Revision paths. The syntax is:
+    - <project path> [ @<rev> ] [ :<target> ]
+    - <rev> [ :<target> ]
+    - <target>
+    The second and the third forms assume an existing "current" project.
+
+    Returns: a dataset from the parsed path
+    """
+
+    global _full_revpath_regex
+    if not _full_revpath_regex:
+        _full_revpath_regex = re.compile(
+            r"""
+            (?P<proj_path>(?: [^@:] | :[/\\] )+)
+            (@(?P<rev>[^:]+))?
+            (:(?P<source>.+))?
+            """,
+            re.VERBOSE
+        )
+
+    match = re.fullmatch(_full_revpath_regex, s)
+    if not match:
+        raise ValueError("Failed to recognize revspec in '%s'" % s)
+    match = match.groupdict()
+
+    proj_path = match["proj_path"]
+    rev = match["rev"]
+    source = match["source"]
+
+    assert proj_path
+    if rev:
+        project = load_project(proj_path)
+
+        # proj_path is either proj_path or rev or source name
+    elif Project.find_project_dir(proj_path):
+        project = load_project(proj_path)
+    elif ctx_project:
+        project = ctx_project
+        if project.is_ref(proj_path):
+            rev = proj_path
+        elif not source:
+            source = proj_path
+    else:
+        raise ProjectNotFoundError("Failed to find project at '%s'. " \
+            "Specify project path with '-p/--project' or in the "
+            "target pathspec." % proj_path)
+
+    tree = project.get_rev(rev)
+    return tree.make_dataset(source)
+
+def parse_full_revpath(s: str, ctx_project: Optional[Project]) -> Dataset:
+    """
+    revpath - either a Dataset path or a Revision path.
+
+    Returns: a dataset from the parsed path
+    """
+
     if ctx_project:
         env = ctx_project.env
     else:
         env = Environment()
 
-    def parse_dataset_pathspec(s: str):
-        global _dataset_revpath_regex
-        if not _dataset_revpath_regex:
-            _dataset_revpath_regex = re.compile(
-                "%s(:%s)?" % \
-                (
-                    r"(?P<dataset_path>[^:]+)",
-                    r"(?P<format>.+)"
-                )
-            )
-
-        match = re.fullmatch(_dataset_revpath_regex, s)
-        if not match:
-            raise ValueError("Failed to recognize dataset pathspec in '%s'" % s)
-        match = { k: unescape(v, escapes=escapes) if v else v
-            for k, v in match.groupdict().items() }
-
-        path = match["dataset_path"]
-        format = match["format"]
-        return Dataset.import_from(path, format, env=env)
-
-    def parse_revspec(s: str):
-        global _full_revpath_regex
-        if not _full_revpath_regex:
-            _full_revpath_regex = re.compile(
-                "(%(proj_path)s(@%(rev)s)?(:%(source)s)?)" % \
-                {
-                    'proj_path': r"(?P<proj_path>[^@:]+)",
-                    'rev': r"(?P<rev>[^:]+)",
-                    'source': r"(?P<source>.+)",
-                }
-            )
-
-        match = re.fullmatch(_full_revpath_regex, s)
-        if not match:
-            raise ValueError("Failed to recognize revspec in '%s'" % s)
-        match = { k: unescape(v, escapes=escapes) if v else v
-            for k, v in match.groupdict().items() }
-
-        proj_path = match["proj_path"]
-        rev = match["rev"]
-        source = match["source"]
-
-        assert proj_path
-        if rev:
-            project = load_project(proj_path)
-
-            # proj_path is either proj_path or rev or source name
-        elif Project.find_project_dir(proj_path):
-            project = load_project(proj_path)
-        elif ctx_project:
-            project = ctx_project
-            if project.is_ref(proj_path):
-                rev = proj_path
-            elif not source:
-                source = proj_path
-        else:
-            raise ProjectNotFoundError("Failed to find project at '%s'. " \
-                "Specify project path with '-p/--project' or in the "
-                "target pathspec." % proj_path)
-
-        tree = project.get_rev(rev)
-        return tree.make_dataset(source)
-
-
-    # Escape colons used in absolute paths on Windows
-    escapes = [(':\\', r'%%driveroot_bs%%')]
-    escapes = [(':/', r'%%driveroot_s%%')]
-    s = escape(s, escapes=escapes)
-
     errors = []
     try:
-        return parse_dataset_pathspec(s)
+        return parse_dataset_pathspec(s, env=env)
     except Exception as e:
         errors.append(e)
 
     try:
-        return parse_revspec(s)
+        return parse_revspec(s, ctx_project=ctx_project)
     except Exception as e:
         errors.append(e)
 
     raise WrongRevpathError(problems=errors)
 
-def parse_local_revpath(revpath: str):
+def split_local_revpath(revpath: str) -> Tuple[Revision, str]:
+    """
+    Splits the given string into revpath components.
+
+    A local revpath is a path to a revision withing the current project.
+    The syntax is:
+    - [ <revision> : ] [ <target> ]
+    At least one part must be present.
+
+    Returns: (revision, build target)
+    """
+
     sep_pos = revpath.find(':')
     if -1 < sep_pos:
         rev = revpath[:sep_pos]

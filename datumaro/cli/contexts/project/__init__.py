@@ -26,7 +26,7 @@ from datumaro.util.os_util import make_file_name
 from ...util import MultilineFormatter, add_subparser
 from ...util.errors import CliException
 from ...util.project import (
-    generate_next_file_name, load_project, parse_local_revpath,
+    generate_next_file_name, load_project, split_local_revpath,
 )
 
 
@@ -431,7 +431,7 @@ def build_stats_parser(parser_ctor=argparse.ArgumentParser):
     return parser
 
 def stats_command(args):
-    rev, target = parse_local_revpath(args.target)
+    rev, target = split_local_revpath(args.target)
     project = load_project(args.project_dir)
     dataset = project.get_rev(rev).make_dataset(target)
 
@@ -467,7 +467,7 @@ def build_info_parser(parser_ctor=argparse.ArgumentParser):
     return parser
 
 def info_command(args):
-    rev, target = parse_local_revpath(args.target)
+    rev, target = split_local_revpath(args.target)
     project = load_project(args.project_dir)
     config = project.working_tree.config
     env = project.working_tree.env
@@ -570,7 +570,7 @@ def build_validate_parser(parser_ctor=argparse.ArgumentParser):
     return parser
 
 def validate_command(args):
-    rev, target = parse_local_revpath(args.target)
+    rev, target = split_local_revpath(args.target)
     project = load_project(args.project_dir)
     dst_file_name = f'report-{target}-{args.task_type}'
 
