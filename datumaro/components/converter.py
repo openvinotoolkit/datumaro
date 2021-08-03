@@ -49,15 +49,18 @@ class Converter(CliPlugin):
         # Probably, a better solution could be to wipe directory
         # contents and write new data there. Note that directly doing this
         # also doesn't work, because images may be needed for writing.
+
+        if not osp.isdir(save_dir):
+            return cls.convert(dataset, save_dir, **options)
+
         tmpdir = mkdtemp(dir=osp.dirname(save_dir),
             prefix=osp.basename(save_dir), suffix='.tmp')
         on_error_do(shutil.rmtree, tmpdir, ignore_errors=True)
+        shutil.copymode(save_dir, tmpdir)
 
         retval = cls.convert(dataset, tmpdir, **options)
 
-        if osp.isdir(save_dir):
-            shutil.copymode(save_dir, tmpdir)
-            shutil.rmtree(save_dir)
+        shutil.rmtree(save_dir)
         os.replace(tmpdir, save_dir)
 
         return retval
