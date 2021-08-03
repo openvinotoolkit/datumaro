@@ -6,13 +6,22 @@ on:
   pull_request:
     branches:
       - '*'
+defaults:
+  run:
+    shell: bash
 jobs:
-  build_and_tests_on_python:
+  build_and_test:
     strategy:
       fail-fast: false
       matrix:
+        os: ['ubuntu-20.04', 'windows-2016']
         python-version: ['3.6', '3.7', '3.8', '3.9']
-    runs-on: ubuntu-latest
+        exclude:
+        # pycocotools-windows doesn't have a wheel for Python 3.9
+        - os: windows-2016
+          python-version: 3.9
+    name: build and test (${{ matrix.os }}, Python ${{ matrix.python-version }})
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
       - name: Installing python
