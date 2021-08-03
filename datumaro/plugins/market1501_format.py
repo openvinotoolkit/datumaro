@@ -1,4 +1,4 @@
-# Copyright (C) 2020 Intel Corporation
+# Copyright (C) 2020-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -138,5 +138,5 @@ class Market1501Converter(Converter):
 
             annotation_file = osp.join(self._save_dir,
                 Market1501Path.LIST_PREFIX + subset_name + '.txt')
-            with open(annotation_file, 'w') as f:
+            with open(annotation_file, 'w', encoding='utf-8') as f:
                 f.write(annotation)
