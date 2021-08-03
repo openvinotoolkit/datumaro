@@ -17,7 +17,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Datumaro no longer depends on scikit-image
   (<https://github.com/openvinotoolkit/datumaro/pull/379>)
 - `Dataset` remembers export options on saving / exporting for the first time (<https://github.com/openvinotoolkit/datumaro/pull/386>)
-- Saving of images with Unicode paths on Windows (<https://github.com/openvinotoolkit/datumaro/pull/392>)
 
 ### Deprecated
 - TBD
@@ -36,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Non utf-8 encoding of annotation files in Market-1501 export (<https://github.com/openvinotoolkit/datumaro/pull/392>)
 - Import of ICDAR, PASCAL VOC and VGGFace2 images from subdirectories on WIndows
   (<https://github.com/openvinotoolkit/datumaro/pull/392>)
+- Saving of images with Unicode paths on Windows (<https://github.com/openvinotoolkit/datumaro/pull/392>)
 
 ### Security
 - TBD
