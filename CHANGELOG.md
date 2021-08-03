@@ -17,15 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Datumaro no longer depends on scikit-image
   (<https://github.com/openvinotoolkit/datumaro/pull/379>)
 - `Dataset` remembers export options on saving / exporting for the first time (<https://github.com/openvinotoolkit/datumaro/pull/386>)
-- When using the OpenCV backend, Datumaro now saves images
-  by encoding them in memory
-  and then writing the encoded result to the file system,
-  and loads images by reading the entire image file into memory
-  and decoding it
-  (rather than letting OpenCV manage the reading/writing of files).
-  This works around OpenCV's lack of support for Unicode paths on Windows
-  (see <https://github.com/opencv/opencv/issues/4292>).
-  (<https://github.com/openvinotoolkit/datumaro/pull/392>)
+- Saving of images with Unicode paths on Windows (<https://github.com/openvinotoolkit/datumaro/pull/392>)
 
 ### Deprecated
 - TBD
@@ -41,11 +33,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Item id in ImageNet format (<https://github.com/openvinotoolkit/datumaro/pull/371>)
 - Double quotes for ICDAR Word Recognition (<https://github.com/openvinotoolkit/datumaro/pull/375>)
 - Wrong display of builtin formats in CLI (<https://github.com/openvinotoolkit/datumaro/issues/332>)
-- The Market-1501 converter now saves the annotation file in UTF-8
-  rather than the locale encoding
-  (<https://github.com/openvinotoolkit/datumaro/pull/392>)
-- The ICDAR, PASCAL VOC and VGGFace2 extractors
-  can now load images from subdirectories on WIndows
+- Non utf-8 encoding of annotation files in Market-1501 export (<https://github.com/openvinotoolkit/datumaro/pull/392>)
+- Import of ICDAR, PASCAL VOC and VGGFace2 images from subdirectories on WIndows
   (<https://github.com/openvinotoolkit/datumaro/pull/392>)
 
 ### Security
