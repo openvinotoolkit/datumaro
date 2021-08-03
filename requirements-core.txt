@@ -4,6 +4,7 @@ dvc>=2.3.0
 GitPython>=3.0.8
 lxml>=4.4.1
 matplotlib>=3.3.1
+networkx>=2.5
 numpy>=1.17.3
 Pillow>=6.1.0
 ruamel.yaml>=0.17.0
