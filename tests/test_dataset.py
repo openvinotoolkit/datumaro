@@ -4,6 +4,7 @@ import os.path as osp
 
 import numpy as np
 
+from datumaro.components.converter import Converter
 from datumaro.components.dataset import (
     DEFAULT_FORMAT, Dataset, ItemStatus, eager_mode,
 )
@@ -1284,6 +1285,46 @@ class DatasetTest(TestCase):
             filter_annotations=True, remove_empty=True)
 
         self.assertEqual(1, len(dataset))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_inplace_save_writes_only_updated_data(self):
+        class CustomConverter(Converter):
+            DEFAULT_IMAGE_EXT = '.jpg'
+
+            def apply(self):
+                assert osp.isdir(self._save_dir)
+
+                for item in self._extractor:
+                    name = f'{item.subset}_{item.id}'
+                    with open(osp.join(
+                            self._save_dir, name + '.txt'), 'w') as f:
+                        f.write('\n')
+
+                    if self._save_images and \
+                            item.has_image and item.image.has_data:
+                        self._save_image(item, name=name)
+
+        env = Environment()
+        env.converters.items = { 'test': CustomConverter }
+
+        with TestDir() as path:
+            dataset = Dataset.from_iterable([
+                DatasetItem(1, subset='train', image=np.ones((2, 4, 3))),
+                DatasetItem(2, subset='train',
+                    image=Image(path='2.jpg', size=(3, 2))),
+                DatasetItem(3, subset='valid', image=np.ones((2, 2, 3))),
+            ], categories=[], env=env)
+            dataset.export(path, 'test', save_images=True)
+
+            dataset.put(DatasetItem(2, subset='train', image=np.ones((3, 2, 3))))
+            dataset.remove(3, 'valid')
+            dataset.save(save_images=True)
+
+            self.assertEqual({
+                    'train_1.txt', 'train_1.jpg',
+                    'train_2.txt', 'train_2.jpg'
+                },
+                set(os.listdir(path)))
 
 
 class DatasetItemTest(TestCase):
