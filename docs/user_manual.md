@@ -4,7 +4,7 @@
 
 - [Installation](#installation)
 - [How to use Datumaro](#how-to-use-datumaro)
-- [Supported dataset formats and annotations](#supported-formats)
+- [Supported dataset formats and annotations](#dataset-formats)
 - [Supported media formats](#media-formats)
 - [Glossary](#glossary)
 - [Command-line workflow](#command-line-workflow)
@@ -63,10 +63,10 @@ pip install 'git+https://github.com/openvinotoolkit/datumaro'
 
 **Plugins**
 
-Datumaro has many plugins, which are responsible for dataset formats
-and other optional components. If a plugin has dependencies, they can
-require additional installation. You can find the list of all the plugin
-dependencies in the [plugins](#plugins) section.
+Datumaro has many plugins, which are responsible for dataset formats,
+model launchers and other optional components. If a plugin has dependencies,
+they can require additional installation. You can find the list of all the
+plugin dependencies in the [plugins](#extending) section.
 
 **Customizing installation parameters**
 
@@ -77,6 +77,12 @@ dependencies in the [plugins](#plugins) section.
   environment variable to `0` or `1` before installing the package.
   It requires building from source:
   `DATUMARO_HEADLESS=1 pip install datumaro --no-binary=datumaro`
+
+- Although Datumaro has `pycocotools==2.0.1` in requirements, it works with
+  2.0.2 perfectly fine. The reason for such requirement is binary
+  incompatibility of the `numpy` dependency in the `TensorFlow` and
+  `pycocotools` binary packages
+  (see [#253](https://github.com/openvinotoolkit/datumaro/issues/253))
 
 - You can change the installation branch with `...@<branch_name>`.
   Also use `--force-reinstall` parameter in this case.
@@ -94,16 +100,18 @@ python datumaro/ --help
 python datum.py --help
 ```
 
-As a python library:
+As a Python library:
 
 ``` python
 from datumaro.components.project import Project
 from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import Label, Bbox, DatasetItem
 ...
+dataset = Dataset.import_from(path, format)
+...
 ```
 
-## Supported Formats
+## Supported Formats <a id="dataset-formats">
 
 List of supported formats:
 - MS COCO
@@ -188,7 +196,8 @@ List of supported formats:
   - [Format specification](http://vis-www.cs.umass.edu/lfw/)
   - [Dataset example](../tests/assets/lfw_dataset)
 
-List of supported annotation types:
+### Supported annotation types
+
 - Labels
 - Bounding boxes
 - Polygons
@@ -243,7 +252,7 @@ The list of formats matches the list of supported image formats in OpenCV:
 Once there is a `Dataset` instance, it's items can be split into subsets,
 renamed, filtered, joined with annotations, exported in various formats etc.
 
-To use a video as an input, one should either [create an Extractor plugin](../docs/developer_guide.md#plugins),
+To use a video as an input, one should either create a [plugin](#extending),
 which splits a video into frames, or split the video manually and import images.
 
 ## Glossary
@@ -268,14 +277,16 @@ which splits a video into frames, or split the video manually and import images.
 
     - (project local) **rev**ision **path**s - a way to specify the path
       to a source revision in the CLI, the syntax is:
-      `<revision>:<source/target name>`, any part can be missing.
+      `<revision>:<source/target name>`, any part can be omitted.
+      - Default revision is the working tree of the project
+      - Default target is the compiled project
 
     - dataset revpath - a path to a dataset in the following format:
       `<dataset path>:<format>`
       - Format is optional. If not specified, will try to autodetect
 
     - full revpath - a path to a source revision in a project, the syntax is:
-      `<project path>@<revision>:<target name>`, any part can be missing.
+      `<project path>@<revision>:<target name>`, any part can be omitted.
       - Default project is the current project (`-p`/`--project` CLI arg.)
       - Default revision is the working tree of the project
       - Default target is the compiled project
@@ -298,7 +309,7 @@ to use Datumaro from the command-line:
 
 - Create a Datumaro project and operate on it:
   - Create an empty project with [`create`](#create)
-  - Import datasets with [`add`](#source-add)
+  - Import existing datasets with [`add`](#source-add)
   - Modify the project with [`transform`](#transform) and [`filter`](#filter)
   - Create new revisions of the project, navigate over them, compare
   - Export the resulting dataset with [`export`](#export)
@@ -443,7 +454,7 @@ is used in COCO format:
 ```
 <!--lint enable fenced-code-flag-->
 
-Check [supported formats](#supported-formats) for more info about
+Check [supported formats](#dataset-formats) for more info about
 format specifications, supported options and other details.
 The list of formats can be extened by custom plugins, check [extending tips](#extending)
 for information on this topic.
@@ -625,7 +636,7 @@ datum merge project1/ project2/ project3/ project4/ \
 ### Export datasets <a id="export"></a>
 
 This command exports a project or a source as a dataset in some format.
-Check [supported formats](#supported-formats) for more info about
+Check [supported formats](#dataset-formats) for more info about
 format specifications, supported options and other details.
 The list of formats can be extened by custom plugins, check [extending tips](#extending)
 for information on this topic.
@@ -1452,12 +1463,15 @@ def process_outputs(inputs, outputs):
 
 This command allows to modify images or annotations in a project all at once.
 
+Note that this command is designed for batch processing and if you only
+need to modify few elements of a dataset, you might want to use
+other approaches for better performance.
+
 ``` bash
 datum transform --help
 
 datum transform \
     -p <project_dir> \
-    -o <output_dir> \
     -t <transform_name> \
     -- [extra transform options]
 ```
