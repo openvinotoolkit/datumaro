@@ -102,7 +102,7 @@ class IgnoreMode(Enum):
     remove = auto()
 
 def _update_ignore_file(paths: Union[str, List[str]], repo_root: str,
-        filepath: str, mode: Optional[IgnoreMode] = None):
+        filepath: str, mode: Union[None, str, IgnoreMode] = None):
     def _make_ignored_path(path):
         path = osp.join(repo_root, osp.normpath(path))
         assert path.startswith(repo_root), path
@@ -1076,7 +1076,7 @@ class GitWrapper:
         return obj.type, obj.hexsha
 
     def ignore(self, paths: Union[str, List[str]],
-            mode: Optional[IgnoreMode] = None,
+            mode: Union[None, str, IgnoreMode] = None,
             gitignore: Optional[str] = None):
         if not gitignore:
             gitignore = '.gitignore'
@@ -1402,7 +1402,7 @@ class DvcWrapper:
         return osp.join(root, obj_hash[:2], obj_hash[2:])
 
     def ignore(self, paths: Union[str, List[str]],
-            mode: Optional[IgnoreMode] = None,
+            mode: Union[None, str, IgnoreMode] = None,
             dvcignore: Optional[str] = None):
         if not dvcignore:
             dvcignore = '.dvcignore'
