@@ -105,8 +105,8 @@ def suppress_output(stdout: bool = True, stderr: bool = False):
             es.enter_context(redirect_stdout(devnull))
         elif stderr:
             es.enter_context(redirect_stderr(devnull))
-        with es:
-            yield
+
+        yield
 
 @contextmanager
 def catch_output():
