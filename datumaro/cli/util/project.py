@@ -27,7 +27,6 @@ def generate_next_file_name(basename, basedir='.', sep='.', ext=''):
 
     return generate_next_name(os.listdir(basedir), basename, sep, ext)
 
-_dataset_revpath_regex = None
 def parse_dataset_pathspec(s: str,
         env: Optional[Environment] = None) -> Dataset:
     """
@@ -37,17 +36,10 @@ def parse_dataset_pathspec(s: str,
     Returns: a dataset from the parsed path
     """
 
-    global _dataset_revpath_regex
-    if not _dataset_revpath_regex:
-        _dataset_revpath_regex = re.compile(
-            r"""
-            (?P<dataset_path>(?: [^:] | :[/\\] )+)
-            (:(?P<format>.+))?
-            """,
-            re.VERBOSE
-        )
-
-    match = re.fullmatch(_dataset_revpath_regex, s)
+    match = re.fullmatch(r"""
+        (?P<dataset_path>(?: [^:] | :[/\\] )+)
+        (:(?P<format>.+))?
+        """, s, flags=re.VERBOSE)
     if not match:
         raise ValueError("Failed to recognize dataset pathspec in '%s'" % s)
     match = match.groupdict()
@@ -56,7 +48,6 @@ def parse_dataset_pathspec(s: str,
     format = match["format"]
     return Dataset.import_from(path, format, env=env)
 
-_full_revpath_regex = None
 def parse_revspec(s: str, ctx_project: Optional[Project] = None) -> Dataset:
     """
     Parses Revision paths. The syntax is:
@@ -68,18 +59,11 @@ def parse_revspec(s: str, ctx_project: Optional[Project] = None) -> Dataset:
     Returns: a dataset from the parsed path
     """
 
-    global _full_revpath_regex
-    if not _full_revpath_regex:
-        _full_revpath_regex = re.compile(
-            r"""
-            (?P<proj_path>(?: [^@:] | :[/\\] )+)
-            (@(?P<rev>[^:]+))?
-            (:(?P<source>.+))?
-            """,
-            re.VERBOSE
-        )
-
-    match = re.fullmatch(_full_revpath_regex, s)
+    match = re.fullmatch(r"""
+        (?P<proj_path>(?: [^@:] | :[/\\] )+)
+        (@(?P<rev>[^:]+))?
+        (:(?P<source>.+))?
+        """, s, flags=re.VERBOSE)
     if not match:
         raise ValueError("Failed to recognize revspec in '%s'" % s)
     match = match.groupdict()
