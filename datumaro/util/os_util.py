@@ -63,6 +63,8 @@ def walk(path, max_depth=None):
         yield dirpath, dirnames, filenames
 
 def copytree(src, dst):
+    # Serves as a replacement for shutil.copytree().
+    #
     # Shutil works very slow pre 3.8
     # https://docs.python.org/3/library/shutil.html#platform-dependent-efficient-copy-operations
     # https://bugs.python.org/issue33671
@@ -71,9 +73,16 @@ def copytree(src, dst):
         shutil.copytree(src, dst)
         return
 
-    basedir = osp.dirname(dst)
-    if basedir:
-        os.makedirs(basedir, exist_ok=True)
+    assert src and dst
+    src = osp.abspath(src)
+    dst = osp.abspath(dst)
+
+    if osp.isdir(dst):
+        raise FileExistsError("Destination directory '%s' already exists" % dst)
+
+    dst_basedir = osp.dirname(dst)
+    if dst_basedir:
+        os.makedirs(dst_basedir, exist_ok=True)
 
     if sys.platform == 'windows':
         # Ignore
@@ -81,9 +90,6 @@ def copytree(src, dst):
         #   B607: start_process_with_partial_path
         # In this case we control what is called and command arguments
         # PATH overriding is considered low risk
-        assert src and dst
-        src = osp.abspath(src)
-        dst = osp.abspath(dst)
         subprocess.check_output(["xcopy", src, dst, # nosec
             "/s", "/e", "/q", "/y", "/i"], stderr=subprocess.STDOUT) # nosec
     elif sys.platform == 'linux':
