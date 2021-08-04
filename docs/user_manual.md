@@ -441,7 +441,9 @@ which splits a video into frames, or split the video manually and import images.
 
 ## Command reference
 
-> **Note**: command invocation syntax is subject to change,
+![cli](images/datum_cli.svg)
+
+> **Note**: command invocation syntax is subject of change,
 > **always refer to command --help output**
 
 ### Convert datasets <a id="convert"></a>
