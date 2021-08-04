@@ -278,24 +278,11 @@ class Pipeline:
 
     @staticmethod
     def _get_subgraph(graph, target):
-        target_parents = set()
-        visited = set()
-        to_visit = {target}
-        while to_visit:
-            current = to_visit.pop()
-            visited.add(current)
-            for pred in graph.predecessors(current):
-                target_parents.add(pred)
-                if pred not in visited:
-                    to_visit.add(pred)
-
-        target_parents.add(target)
-
-        return graph.subgraph(target_parents)
+        return graph.subgraph(nx.ancestors(graph, target) | {target})
 
     def get_slice(self, target) -> 'Pipeline':
         pipeline = Pipeline()
-        pipeline._graph = self._get_subgraph(self._graph, target)
+        pipeline._graph = self._get_subgraph(self._graph, target).copy()
         return pipeline
 
 class ProjectBuilder:
