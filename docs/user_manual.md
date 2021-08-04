@@ -196,16 +196,18 @@ A typical way to obtain Datumaro projects is to export tasks in
 
 ### Project data model <a id="data-model"></a>
 
+![project model](images/project_model.svg)
+
 Datumaro tries to combine a "Git for datasets" and a build system like
 make or CMake for datasets in a single solution. Currently, `Project`
-represents a Version Control System for datasets. Each `Revision`
-describes a build tree of a dataset with all the related metadata.
-A build tree consists of a number of data sources and transformation stages.
-Each data source has its own set of build steps (stages). Datumaro supposes
-copying of datasets and working in-place by default. Modifying operations
-are recorded in the project, so any of the dataset revisions can be reproduced
-when needed. Multiple dataset versions can be stored in different branches
-with the common data shared.
+represents a Version Control System for datasets, which is based on Git and DVC
+projects. Each project `Revision` describes a build tree of a dataset
+with all the related metadata. A build tree consists of a number of data
+sources and transformation stages. Each data source has its own set of build
+steps (stages). Datumaro supposes copying of datasets and working in-place by
+default. Modifying operations are recorded in the project, so any of the
+dataset revisions can be reproduced when needed. Multiple dataset versions can
+be stored in different branches with the common data shared.
 
 Let's consider an example of a build tree:
 ![build tree](images/build_tree.svg)
@@ -386,8 +388,8 @@ List of supported formats:
 - 3D cuboids
 
 Datumaro does not separate datasets by tasks like classification, detection
-etc. Instead, datasets can have any annotations. When exporting a datasets
-in a format, only relevant annotations are exported.
+etc. Instead, datasets can have any annotations. When a dataset is exported
+in a specific format, only relevant annotations are exported.
 
 ## Media formats
 
