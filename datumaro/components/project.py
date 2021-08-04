@@ -293,8 +293,18 @@ class ProjectBuilder:
     def make_dataset(self, pipeline) -> IDataset:
         dataset = self._get_resulting_dataset(pipeline)
 
-        # need to save and load, because it can modify dataset,
-        # unless we work with the internal format
+        # TODO: May be need to save and load, because it can modify dataset,
+        # unless we work with the internal format. For example, it can
+        # add format-specific attributes. It should be needed as soon
+        # format converting stages (export, convert, load) are allowed.
+        #
+        # TODO: If the target was rebuilt from sources, it may require saving
+        # and hashing, so the resulting hash could be compared with the saved
+        # one in the pipeline. This is needed to make sure the reproduced
+        # version of the dataset is correct. Currently we only rely on the
+        # initial source version check, which can be not enough if stages
+        # produce different result (because of the library changes etc).
+        #
         # save_in_cache(project, pipeline) # update and check hash in config!
         # dataset = load_dataset(project, pipeline)
 
