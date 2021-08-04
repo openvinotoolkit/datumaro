@@ -21,10 +21,10 @@ Supported annotation attributes:
 - `truncation` (write, string), possible values: `truncation_unset`,
   `in_image`, `truncated`, `out_image`, `behind_image` (case-independent).
 - `occlusion` (write, string), possible values: `occlusion_unset`, `visible`,
-  `partly`, `fully` (case-independent). This atribute has priority
+  `partly`, `fully` (case-independent). This attribute has priority
   over `occluded`.
 - `occluded` (read/write, boolean)
-- `keyframe` (read/write, boolean). Resposible for `occlusion_kf` field.
+- `keyframe` (read/write, boolean). Responsible for `occlusion_kf` field.
 - `track_id` (read/write, integer). Indicates the group over frames for
   annotations.
 

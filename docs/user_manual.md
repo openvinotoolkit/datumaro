@@ -34,7 +34,7 @@
 ### Dependencies
 
 - Python (3.6+)
-- Optional: OpenVINO, TensforFlow, PyTorch, MxNet, Caffe, Accuracy Checker
+- Optional: OpenVINO, TensorFlow, PyTorch, MxNet, Caffe, Accuracy Checker
 
 ### Installation steps
 

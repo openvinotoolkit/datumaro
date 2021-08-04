@@ -787,7 +787,7 @@ class Importer:
         to filter file names and directories.
         Supposed to be used, and to be the only call in subclasses.
 
-        Paramters:
+        Parameters:
         - path - a directory or file path, where sources need to be found.
         - ext - file extension to match. To match directories,
             set this parameter to None or ''. Comparison is case-independent,
