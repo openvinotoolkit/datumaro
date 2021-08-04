@@ -4,12 +4,14 @@
 
 - [Installation](#installation)
 - [How to use Datumaro](#how-to-use-datumaro)
-- [Supported dataset formats and annotations](#dataset-formats)
-- [Supported media formats](#media-formats)
-- [Glossary](#glossary)
-- [Command-line workflow](#command-line-workflow)
+  - [Glossary](#glossary)
+  - [Command-line workflow](#command-line-workflow)
+  - [Project data model](#data-model)
   - [Project layout](#project-layout)
   - [Examples](#cli-examples)
+- [Supported dataset formats](#dataset-formats)
+- [Supported annotation types](#annotation-types)
+- [Supported media formats](#media-formats)
 - [Command reference](#command-reference)
   - [Convert](#convert)
   - [Create](#create)
@@ -111,6 +113,182 @@ dataset = Dataset.import_from(path, format)
 ...
 ```
 
+### Glossary
+
+- Basic concepts:
+  - dataset - A number of media (dataset items) and associated annotations
+  - project - A combination of multiple datasets, plugins, models and metadata
+
+- Project versioning concepts:
+  - data source - a link to a dataset or a copy of a dataset inside a project.
+    Basically, an URL + dataset format name
+  - project revision - a commit hash or a named reference from
+    Git (branch, tag, HEAD~3 etc.).
+  - working / head / revision tree - a project build tree and plugins at
+    a specified revision
+  - data source revision - a data source hash at a specific stage
+  - object - a tree or a data source revision data
+
+- Dataset path concepts:
+  - source / dataset / revision / project path - a path to a dataset in a
+    special format
+
+    - (project local) **rev**ision **path**s - a way to specify the path
+      to a source revision in the CLI, the syntax is:
+      `<revision>:<source/target name>`, any part can be omitted.
+      - Default revision is the working tree of the project
+      - Default target is the compiled project
+
+    - dataset revpath - a path to a dataset in the following format:
+      `<dataset path>:<format>`
+      - Format is optional. If not specified, will try to autodetect
+
+    - full revpath - a path to a source revision in a project, the syntax is:
+      `<project path>@<revision>:<target name>`, any part can be omitted.
+      - Default project is the current project (`-p`/`--project` CLI arg.)
+      - Default revision is the working tree of the project
+      - Default target is the compiled project
+
+- Dataset building concepts:
+  - stage - a modification of a data source. A transformation,
+    filter or something else.
+  - build tree - a directed graph (tree) with leaf nodes at data sources
+    and a single root node called "project"
+  - build target - a data source or a stage
+  - pipeline - a subgraph of a build target
+
+- Other:
+  - transform - a transformation operation over dataset elements. Examples are
+    image renaming, filtering by a condition, image flipping,
+    label remapping etc. Corresponds to the [transform command](#transform)
+
+### Command-line workflow
+
+In Datumaro, most command-line commands operate on projects, but there are
+also few commands operating on datasets directly. There are 2 basic ways
+to use Datumaro from the command-line:
+- Use [`convert`](#convert), [`diff`](#compare), [`merge`](#merge)
+  directly on existing datasets
+
+- Create a Datumaro project and operate on it:
+  - Create an empty project with [`create`](#create)
+  - Import existing datasets with [`add`](#source-add)
+  - Modify the project with [`transform`](#transform) and [`filter`](#filter)
+  - Create new revisions of the project, navigate over them, compare
+  - Export the resulting dataset with [`export`](#export)
+
+Basically, a project is a combination of datasets, models and environment.
+
+A project can contain an arbitrary number of data sources. Each data source
+describes a dataset in a specific format. A project acts as a manager for
+the data sources and allows to manipulate them separately or as a whole, in
+which case it combines dataset items from all the sources into one composite
+dataset. You can manage separate sources in a project by commands in
+the `datum source` command-line context.
+
+Note that **modifying operations** (`transform`, `filter`) **are applied
+in-place** to the data sources by default.
+
+If you want to interact with models, you need to add them to project first.
+
+A typical way to obtain Datumaro projects is to export tasks in
+[CVAT](https://github.com/openvinotoolkit/cvat) UI.
+
+### Project data model <a id="data-model"></a>
+
+Datumaro tries to combine a "Git for datasets" and a build system like
+make or CMake for datasets in a single solution. Currently, `Project`
+represents a Version Control System for datasets. Each `Revision`
+describes a build tree of a dataset with all the related metadata.
+A build tree consists of a number of data sources and transformation stages.
+Each data source has its own set of build steps (stages). Datumaro supposes
+copying of datasets and working in-place by default. Modifying operations
+are recorded in the project, so any of the dataset revisions can be reproduced
+when needed. Multiple dataset versions can be stored in different branches
+with the common data shared.
+
+Let's consider an example of a build tree:
+![build tree](images/build_tree.svg)
+There are 2 data sources in the example project. The resulting dataset
+is obtained by simple merging (joining) the results of the input datasets.
+"Source 1" and "Source 2" are the names of data sources in the project. Each
+source has several stages with their own names. The first stage (called "root")
+represents the original contents of a data source - the data at the
+user-provided URL. The following stages represent operations, which needs to
+be done with the data source to prepare the resulting dataset.
+
+Roughly, such build tree can be created by the following commands (arguments
+are omitted for simplicity):
+```bash
+datum create
+
+# describe the first source
+datum add
+datum filter
+datum transform
+datum transform
+
+# describe the second source
+datum add
+datum model add
+datum transform
+datum transform
+
+# now, the resulting dataset can be built with
+datum export
+```
+
+### Project layout
+
+```bash
+project/
+├── .dvc/
+├── .dvcignore
+├── .git/
+├── .gitignore
+├── .datumaro/
+│   ├── cache/ # object cache
+│   │   ├── <2 leading symbols of obj hash>/
+│   │   │   └── <rest symbols of obj hash>/
+│   │   │       └── <object data>
+│   ├── models/
+│   ├── plugins/ # custom project-specific plugins
+│   │   ├── plugin1/
+│   │   |   ├── __init__.py
+│   │   |   └── file2.py
+│   │   ├── plugin2.py
+│   │   └── ...
+│   ├── tmp/ # temp files
+│   └── tree/ # working tree metadata
+│       ├── config.yml
+│       └── sources/
+│           ├── <source name 1>.dvc
+│           ├── <source name 2>.dvc
+│           └── ...
+│
+├── <source name 1>/
+│   └── <source data>
+└── <source name 2>/
+    └── <source data>
+```
+
+### Examples <a id="cli-examples"></a>
+
+Example: create a project, add dataset, modify, restore an old version
+
+``` bash
+datum create
+datum add <path/to/coco/dataset> -f coco -n source1
+datum commit -m "Added a dataset"
+datum transform -t shapes_to_boxes
+datum filter -e '/item/annotation[label="cat" or label="dog"]' -m i+a
+datum commit -m "Transformed"
+datum checkout HEAD~1 -- source1 # restore a previous revision
+datum status # prints "modified source1"
+datum checkout source1 # restore the last revision
+datum export -f voc -- --save-images
+```
+
 ## Supported Formats <a id="dataset-formats">
 
 List of supported formats:
@@ -196,7 +374,7 @@ List of supported formats:
   - [Format specification](http://vis-www.cs.umass.edu/lfw/)
   - [Dataset example](../tests/assets/lfw_dataset)
 
-### Supported annotation types
+### Supported annotation types <a id="annotation-types"></a>
 
 - Labels
 - Bounding boxes
@@ -206,6 +384,10 @@ List of supported formats:
 - (Key-)Points
 - Captions
 - 3D cuboids
+
+Datumaro does not separate datasets by tasks like classification, detection
+etc. Instead, datasets can have any annotations. When exporting a datasets
+in a format, only relevant annotations are exported.
 
 ## Media formats
 
@@ -254,130 +436,6 @@ renamed, filtered, joined with annotations, exported in various formats etc.
 
 To use a video as an input, one should either create a [plugin](#extending),
 which splits a video into frames, or split the video manually and import images.
-
-## Glossary
-
-- Basic concepts:
-  - dataset - A number of media (dataset items) and associated annotations
-  - project - A combination of multiple datasets, plugins, models and metadata
-
-- Project versioning concepts:
-  - data source - a link to a dataset or a copy of a dataset inside a project.
-    Basically, an URL + dataset format name
-  - project revision - a commit hash or a named reference from
-    Git (branch, tag, HEAD~3 etc.).
-  - working / head / revision tree - a project build tree and plugins at
-    a specified revision
-  - data source revision - a data source hash at a specific stage
-  - object - a tree or a data source revision data
-
-- Dataset path concepts:
-  - source / dataset / revision / project path - a path to a dataset in a
-    special format
-
-    - (project local) **rev**ision **path**s - a way to specify the path
-      to a source revision in the CLI, the syntax is:
-      `<revision>:<source/target name>`, any part can be omitted.
-      - Default revision is the working tree of the project
-      - Default target is the compiled project
-
-    - dataset revpath - a path to a dataset in the following format:
-      `<dataset path>:<format>`
-      - Format is optional. If not specified, will try to autodetect
-
-    - full revpath - a path to a source revision in a project, the syntax is:
-      `<project path>@<revision>:<target name>`, any part can be omitted.
-      - Default project is the current project (`-p`/`--project` CLI arg.)
-      - Default revision is the working tree of the project
-      - Default target is the compiled project
-
-- Dataset building concepts:
-  - stage - a modification of a data source. A transformation,
-    filter or something else.
-  - build tree - a directed graph (tree) with leaf nodes at data sources
-    and a single root node called "project"
-  - build target - a data source or a stage
-  - pipeline - a subgraph of a build target
-
-## Command-line workflow
-
-In Datumaro, most command-line commands operate on projects, but there are
-also few commands operating on datasets directly. There are 2 basic ways
-to use Datumaro from the command-line:
-- Use [`convert`](#convert), [`diff`](#compare), [`merge`](#merge)
-  directly on existing datasets
-
-- Create a Datumaro project and operate on it:
-  - Create an empty project with [`create`](#create)
-  - Import existing datasets with [`add`](#source-add)
-  - Modify the project with [`transform`](#transform) and [`filter`](#filter)
-  - Create new revisions of the project, navigate over them, compare
-  - Export the resulting dataset with [`export`](#export)
-
-Basically, a project is a combination of datasets, models and environment.
-
-A project can contain an arbitrary number of data sources. Each data source
-describes a dataset in a specific format. A project acts as a manager for
-the data sources and allows to manipulate them separately or as a whole, in
-which case it combines dataset items from all the sources into one composite
-dataset. You can manage separate sources in a project by commands in
-the `datum source` command line context.
-
-If you want to interact with models, you need to add them to project first.
-
-A typical way to obtain Datumaro projects is to export tasks in
-[CVAT](https://github.com/openvinotoolkit/cvat) UI.
-
-### Project layout
-
-```bash
-project
-├── .dvc/
-├── .dvcignore
-├── .git/
-├── .gitignore
-├── .datumaro/
-│   ├── cache/ # object cache
-│   │   ├── <2 leading symbols of obj hash>/
-│   │   │   └── <rest symbols of obj hash>/
-│   │   │       └── <object data>
-│   ├── models/
-│   ├── plugins/ # custom project-specific plugins
-│   │   ├── plugin1/
-│   │   |   ├── __init__.py
-│   │   |   └── file2.py
-│   │   ├── plugin2.py
-│   │   └── ...
-│   ├── tmp/ # temp files
-│   └── tree/ # working tree metadata
-│       ├── config.yml
-│       └── sources/
-│           ├── <source name 1>.dvc
-│           ├── <source name 2>.dvc
-│           └── ...
-│
-├── <source name 1>/
-│   └── <source data>
-└── <source name 2>/
-    └── <source data>
-```
-
-### Examples <a id="cli-examples"></a>
-
-Example: create a project, add dataset, modify, restore an old version
-
-``` bash
-datum create
-datum add <path/to/coco/dataset> -f coco -n source1
-datum commit -m "Added a dataset"
-datum transform -t shapes_to_boxes
-datum filter -e '/item/annotation[label="cat" or label="dog"]' -m i+a
-datum commit -m "Transformed"
-datum checkout HEAD~1 -- source1 # restore a previous revision
-datum status # prints "modified source1"
-datum checkout source1 # restore the last revision
-datum export -f voc -- --save-images
-```
 
 ## Command reference
 
