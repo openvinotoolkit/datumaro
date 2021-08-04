@@ -240,11 +240,7 @@ class Pipeline:
             self._graph = nx.DiGraph()
 
     def __getattr__(self, key):
-        notfound = object()
-        obj = getattr(self._graph, key, notfound)
-        if obj is notfound:
-            raise AttributeError(key)
-        return obj
+        return getattr(self._graph, key)
 
     @staticmethod
     def _find_head_node(graph) -> Optional[str]:
