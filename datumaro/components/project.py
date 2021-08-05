@@ -484,8 +484,9 @@ class ProjectBuilder:
                 kind = current['config'].kind
                 try:
                     transform = self._tree.env.transforms[kind]
-                except KeyError:
-                    raise UnknownStageError("Unknown transform '%s'" % kind)
+                except KeyError as e:
+                    raise UnknownStageError("Unknown transform '%s'" % kind) \
+                        from e
 
                 dataset = _join_parent_datasets()
                 dataset = dataset.transform(transform, **params)
@@ -1813,8 +1814,8 @@ class Project:
         try:
             assert self._dvc.is_hash(ref), ref
             return self._RefKind.blob, ref
-        except Exception:
-            raise UnknownRefError(ref)
+        except Exception as e:
+            raise UnknownRefError(ref) from e
 
     def _materialize_rev(self, rev: Revision):
         obj_dir = self.cache_path(rev)
