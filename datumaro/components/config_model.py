@@ -66,7 +66,7 @@ class BuildTarget(Config):
 
     @property
     def has_stages(self) -> bool:
-        return len(self.stages) == 1
+        return 1 < len(self.stages)
 
     def find_stage(self, stage):
         if stage == 'root':
