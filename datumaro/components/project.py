@@ -182,7 +182,7 @@ class _DataSourceBase(CrudProxy):
         self._project = project
         self._field = config_field
 
-    @CrudProxy._data.getter
+    @property
     def _data(self):
         return self._project.config[self._field]
 
