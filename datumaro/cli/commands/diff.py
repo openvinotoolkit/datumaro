@@ -147,13 +147,12 @@ def diff_command(args):
         on_error_do(rmtree, dst_dir, ignore_errors=True)
         os.makedirs(dst_dir)
 
+    project = None
     try:
         project = load_project(args.project_dir)
-    except ProjectNotFoundError as e:
+    except ProjectNotFoundError:
         if args.project_dir:
             raise
-        else:
-            project = None
 
     try:
         if not args.second_target:

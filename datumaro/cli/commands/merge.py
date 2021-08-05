@@ -9,6 +9,7 @@ import logging as log
 import os
 import os.path as osp
 
+from datumaro.components.dataset import DEFAULT_FORMAT
 from datumaro.components.errors import (
     DatasetMergeError, DatasetQualityError, ProjectNotFoundError,
 )
@@ -24,7 +25,8 @@ from ..util.project import (
 def build_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(help="Merge few projects",
         description="""
-        Merges multiple datasets into one. This can be useful if you
+        Merges multiple datasets into one and produces a new
+        dataset in the default format. This can be useful if you
         have few annotations and wish to merge them,
         taking into consideration potential overlaps and conflicts.
         This command can try to find a common ground by voting or
@@ -37,7 +39,8 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         1 - Merges the current project's main target ('project')
         in the working tree with the specified dataset.|n
         2 - Merges the specified datasets.
-        Note that the current project is not included automatically.|n
+        Note that the current project is not included in the list of merged
+        sources automatically.|n
         |n
         <revpath> - either a dataset path or a revision path. The full
         syntax is:|n
@@ -75,7 +78,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         return s.split(',')
 
     parser.add_argument('targets', nargs='+',
-        help="Target revspecs (repeatable)")
+        help="Target revpaths (repeatable)")
     parser.add_argument('-iou', '--iou-thresh', default=0.25, type=float,
         help="IoU match threshold for segments (default: %(default)s)")
     parser.add_argument('-oconf', '--output-conf-thresh',
@@ -109,13 +112,12 @@ def merge_command(args):
         dst_dir = generate_next_file_name('merged')
     dst_dir = osp.abspath(dst_dir)
 
+    project = None
     try:
         project = load_project(args.project_dir)
-    except ProjectNotFoundError as e:
+    except ProjectNotFoundError:
         if args.project_dir:
             raise
-        else:
-            project = None
 
     source_datasets = []
     try:
@@ -132,7 +134,7 @@ def merge_command(args):
         output_conf_thresh=args.output_conf_thresh, quorum=args.quorum
     ))
     merged_dataset = merger(source_datasets)
-    merged_dataset.save(save_dir=dst_dir)
+    merged_dataset.export(save_dir=dst_dir, format=DEFAULT_FORMAT)
 
     report_path = osp.join(dst_dir, 'merge_report.json')
     save_merge_report(merger, report_path)
