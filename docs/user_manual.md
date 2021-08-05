@@ -539,7 +539,7 @@ When a dataset is imported, the following things are done:
 - data is cached inside the project (use `--no-cache` to disable)
 
 The dataset is added into the working tree of the project. A new commit
-is *not* done automatically.
+is _not_ done automatically.
 
 Usage:
 
