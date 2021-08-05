@@ -77,6 +77,9 @@ def copytree(src, dst):
     src = osp.abspath(src)
     dst = osp.abspath(dst)
 
+    if not osp.isdir(src):
+        raise FileNotFoundError("Source directory '%s' doesn't exist" % src)
+
     if osp.isdir(dst):
         raise FileExistsError("Destination directory '%s' already exists" % dst)
 
@@ -84,19 +87,25 @@ def copytree(src, dst):
     if dst_basedir:
         os.makedirs(dst_basedir, exist_ok=True)
 
-    if sys.platform == 'windows':
-        # Ignore
-        #   B603: subprocess_without_shell_equals_true
-        #   B607: start_process_with_partial_path
-        # In this case we control what is called and command arguments
-        # PATH overriding is considered low risk
-        subprocess.check_output(["xcopy", src, dst, # nosec
-            "/s", "/e", "/q", "/y", "/i"], stderr=subprocess.STDOUT) # nosec
-    elif sys.platform == 'linux':
-        # As above
-        subprocess.check_call(["cp", "-r", src, dst]) # nosec
-    else:
-        shutil.copytree(src, dst)
+    try:
+        if sys.platform == 'windows':
+            # Ignore
+            #   B603: subprocess_without_shell_equals_true
+            #   B607: start_process_with_partial_path
+            # In this case we control what is called and command arguments
+            # PATH overriding is considered low risk
+            subprocess.check_output(["xcopy", src, dst, # nosec
+                    "/s", "/e", "/q", "/y", "/i"],
+                stderr=subprocess.STDOUT, universal_newlines=True)
+        elif sys.platform == 'linux':
+            # As above
+            subprocess.check_output(["cp", "-r", src, dst], # nosec
+                stderr=subprocess.STDOUT, universal_newlines=True)
+        else:
+            shutil.copytree(src, dst)
+    except subprocess.CalledProcessError as e:
+        raise Exception("Failed to copy data. The command '%s' "
+            "has failed with the following output: '%s'" % (e.cmd, e.stdout))
 
 @contextmanager
 def suppress_output(stdout: bool = True, stderr: bool = False):
