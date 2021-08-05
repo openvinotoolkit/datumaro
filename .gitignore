@@ -59,3 +59,9 @@ docs/_build/
 #Pycharm config files
 .idea/
 user_config.py
+
+# Website temporary files
+/site/public/
+/site/resources/
+/site/node_modules/
+/site/tech-doc-hugo
