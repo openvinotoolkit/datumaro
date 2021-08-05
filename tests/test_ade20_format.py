@@ -1,11 +1,13 @@
 # Copyright (C) 2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
+
 from unittest.case import TestCase
 import os.path as osp
+
 import numpy as np
 
-from datumaro.components.dataset import DatasetItem, Dataset
+from datumaro.components.dataset import Dataset, DatasetItem
 from datumaro.components.extractor import AnnotationType, LabelCategories, Mask
 from datumaro.util.test_utils import compare_datasets
 
