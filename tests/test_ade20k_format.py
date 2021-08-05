@@ -13,9 +13,9 @@ from datumaro.util.test_utils import compare_datasets
 
 from tests.requirements import Requirements, mark_requirement
 
-DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'ade20_dataset')
+DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'ade20k_dataset')
 
-class OpenImagesImporterTest(TestCase):
+class Ade20kImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_399)
     def test_can_import(self):
         expected_dataset = Dataset.from_iterable(
@@ -49,5 +49,5 @@ class OpenImagesImporterTest(TestCase):
                 }
         )
 
-        dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'ade20')
-        compare_datasets(self, dataset, expected_dataset)
+        imported_dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'ade20k')
+        compare_datasets(self, expected_dataset, imported_dataset)

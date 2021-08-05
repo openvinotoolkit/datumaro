@@ -16,7 +16,7 @@ from datumaro.components.extractor import (
 from datumaro.util.image import find_images, load_image
 
 
-class ADE20Extractor(Extractor):
+class Ade20kExtractor(Extractor):
     def __init__(self, path):
         if not osp.isdir(path):
             raise FileNotFoundError("Can't read dataset directory '%s'" % path)
