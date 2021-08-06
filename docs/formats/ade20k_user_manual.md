@@ -110,4 +110,3 @@ from datumaro.components.dataset import Dataset
 dataset = Dataset.import_from('<path/to/dataset>', 'ade20k')
 dataset.export('save_dir', 'coco')
 ```
-
