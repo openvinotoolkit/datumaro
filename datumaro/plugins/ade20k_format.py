@@ -25,7 +25,7 @@ class Ade20kExtractor(Extractor):
         if len(subsets) < 1:
             raise FileNotFoundError("Can't read subsets in directory '%s'" % path)
 
-        super().__init__(subsets=subsets)
+        super().__init__(subsets=sorted(subsets))
         self._path = path
 
         self._items = []
