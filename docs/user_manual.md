@@ -32,7 +32,7 @@
   - [Log](#log)
   - Models:
     - [Add](#model-add)
-    - [Run](#run-model)
+    - [Run](#model-run)
 - [Extending](#extending)
   - [Builtin plugins](#builtin-plugins)
 - [Links](#links)
