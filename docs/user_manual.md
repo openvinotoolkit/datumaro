@@ -1616,6 +1616,33 @@ def process_outputs(inputs, outputs):
 
 ### Transform project <a id="transform"></a>
 
+#### Built-in transforms <a id="builtin-transforms"></a>
+- Basic dataset item transforms:
+  - `rename`
+  - `id_from_image_name`
+  - `reindex`
+  - `ndr`
+  - `sampler`
+
+- Annotation transforms:
+  - `remap_labels`
+  - `shapes_to_boxes`
+  - `boxes_to_masks`
+  - `polygons_to_masks`
+  - `masks_to_polygons`
+  - `anns_to_labels`
+  - `merge_instance_segments`
+  - `crop_covered_segments`
+  - `bbox_value_decrement`
+
+- Subset splitters and naming
+  - `random_split`
+  - `classification_split`
+  - `detection_split`
+  - `reid_split`
+  - `map_subsets`
+
+
 This command allows to modify images or annotations in a project all at once.
 
 Note that this command is designed for batch processing and if you only
