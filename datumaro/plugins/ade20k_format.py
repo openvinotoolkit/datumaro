@@ -87,8 +87,8 @@ class Ade20kExtractor(Extractor):
                     attributes['part_level'] = part_level
                     image = instance_mask == instance_id
 
-                    item_annotations.append(Mask(image=image, label=label_id,
-                        group=instance_id, attributes=attributes))
+                    item_annotations.append(Mask(image=image, group=instance_id,
+                        label=label_id, attributes=attributes, z_order=part_level))
 
                 part_level += 1
                 mask_path = image_path.replace('.jpg', '_parts_%s.png' % part_level)
