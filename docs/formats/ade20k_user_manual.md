@@ -84,7 +84,8 @@ line in the text file contains:
 - column 4: original raw name (might provide a more detailed categorization),
 - column 5: class name (parsed using wordnet),
 - column 6: double-quoted list of attributes, separated by commas.
-Each column is separated by a `#`.
+Each column is separated by a `#`. See example of dataset
+[here](../..//tests/assets/ade20k_dataset).
 # Export to other formats
 
 Datumaro can convert ADE20K into any other format [Datumaro supports](../user_manual.md#supported-formats).
