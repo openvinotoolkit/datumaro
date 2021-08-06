@@ -23,29 +23,29 @@ class Ade20kImporterTest(TestCase):
                 DatasetItem(id='1', subset='training',
                     image=np.ones((3, 4, 3)),
                     annotations=[
-                        Mask(image=np.array([[0, 1, 0, 0]] * 3), label=0,
+                        Mask(image=np.array([[0, 1, 0, 0]] * 3), label=1,
                             group=1, attributes={'part_level': 0}),
-                        Mask(image=np.array([[0, 0, 0, 1]] * 3), label=2,
+                        Mask(image=np.array([[0, 0, 0, 1]] * 3), label=3,
                             group=1, attributes={'part_level': 1}),
                         Mask(image=np.array([[0, 0, 1, 1]] * 3),
-                            group=2, label=1,
+                            group=2, label=2,
                             attributes={'walkin': True, 'part_level': 0})
                     ]),
                 DatasetItem(id='2', subset='validation',
                     image=np.ones((3, 4, 3)),
                     annotations=[
-                        Mask(image=np.array([[0, 1, 0, 1]] * 3), label=0,
+                        Mask(image=np.array([[0, 1, 0, 1]] * 3), label=1,
                             group=1, attributes={'part_level': 0}),
-                        Mask(image=np.array([[0, 0, 1, 0]] * 3), label=1,
+                        Mask(image=np.array([[0, 0, 1, 0]] * 3), label=2,
                             group=2, attributes={'part_level': 0}),
-                        Mask(image=np.array([[0, 1, 0, 1]] * 3), label=2,
+                        Mask(image=np.array([[0, 1, 0, 1]] * 3), label=3,
                             group=1, attributes={'part_level': 1}),
-                        Mask(image=np.array([[0, 1, 0, 0]] * 3), label=3,
+                        Mask(image=np.array([[0, 1, 0, 0]] * 3), label=4,
                             group=1, attributes={'part_level': 2})
                     ])
             ], categories={AnnotationType.label: LabelCategories.from_iterable([
-                    ('sky', 'street'), ('person', 'street'),
-                    ('license plate', 'street'), 'rim', 'street'])
+                    'street', ('sky', 'street'), ('person', 'street'),
+                    ('license plate', 'street'), 'rim'])
                 }
         )
 
