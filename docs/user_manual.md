@@ -1266,17 +1266,39 @@ datum commit \
 ### Checkout <a id="checkout"></a>
 
 This command allows to restore a specific project revision in the project
-tree or to restore states of specific sources.
+tree or to restore separate revisions of sources. A revision can be a commit
+hash, branch, tag, or any [relative reference in the Git format](https://git-scm.com/book/en/v2/Git-Tools-Revision-Selection).
 
-Usage:
-
+This command has multiple forms:
 ```bash
-datum checkout --help
-
-datum checkout <commit_hash>
-datum checkout -- <source_name1> <source_name2> ...
-datum checkout <commit_hash> -- <source_name1> <source_name2> ...
+1) checkout \<revision\>
+2) checkout [--] \<source1\> ...
+3) checkout \<revision\> [--] \<source1\> \<source2\> ...
 ```
+
+1 - Restores a revision and all the corresponding sources in the
+working directory. If there are conflicts between modified files in the
+working directory and the target revision, an error is raised.
+
+2, 3 - Restores only selected sources from the specified revision.
+The current revision is used, when not set.
+
+"--" can be used to separate source names and revisions:
+- `checkout name` - will look for revision "name"
+- `checkout -- name` - will look for source "name" in the current revision
+
+Examples:
+- Restore the previous revision:
+  `checkout HEAD~1`
+  <br>
+
+- Restore the saved version of a source in the working tree
+  `checkout -- source-1`
+  <br>
+
+- Restore a previous version of a source
+  `checkout 33fbfbe my-source`
+  <br>
 
 ### Status <a id="status"></a>
 
