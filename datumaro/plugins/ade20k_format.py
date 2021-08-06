@@ -16,6 +16,7 @@ from datumaro.components.extractor import (
 )
 from datumaro.util.image import find_images, lazy_image, load_image
 
+
 class Ade20kExtractor(Extractor):
     def __init__(self, path):
         if not osp.isdir(path):
