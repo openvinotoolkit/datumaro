@@ -1251,16 +1251,42 @@ numerical_stat_template = {
 
 ### Commit <a id="commit"></a>
 
-This command allows to fix current state of a project and create a new
-project revision.
+This command allows to fix the current state of a project and
+create a new revision from the working tree.
+
+By default, this command checks sources in the working tree for
+changes. If there are unknown changes found, an error will be raised,
+unless `--allow-foreign` is used. If such changes are committed,
+the source will only be available for reproduction from the project
+cache, because Datumaro will not know how to repeat them.
+
+The command will add the sources into the project cache. If you only
+need to record revision metadata, you can use the `--no-cache` parameter.
+This can be useful if you want to save disk space and/or have a backup copy
+of datasets used in the project.
+
+If there are no changes found, the command will stop. To allow empty
+commits, use `--allow-empty`.
+
+Options:
+- `--allow-empty` - Allow commits with no changes
+- `--allow-foreign` - Allow commits with changes made not by Datumaro
+- `--no-cache` - Don't put committed datasets into cache, save only metadata
 
 Usage:
 
 ```bash
 datum commit --help
 
-datum commit \
-    -m "Commit message"
+datum commit -m "Commit message"
+```
+
+Example:
+
+```bash
+datum create
+datum add path/to/coco/ -f coco
+datum commit -m "Added COCO"
 ```
 
 ### Checkout <a id="checkout"></a>
