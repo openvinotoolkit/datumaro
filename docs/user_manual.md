@@ -1271,9 +1271,9 @@ hash, branch, tag, or any [relative reference in the Git format](https://git-scm
 
 This command has multiple forms:
 ```bash
-1) checkout \<revision\>
-2) checkout [--] \<source1\> ...
-3) checkout \<revision\> [--] \<source1\> \<source2\> ...
+1) datum checkout \<revision\>
+2) datum checkout [--] \<source1\> ...
+3) datum checkout \<revision\> [--] \<source1\> \<source2\> ...
 ```
 
 1 - Restores a revision and all the corresponding sources in the
@@ -1284,26 +1284,41 @@ working directory and the target revision, an error is raised.
 The current revision is used, when not set.
 
 "--" can be used to separate source names and revisions:
-- `checkout name` - will look for revision "name"
-- `checkout -- name` - will look for source "name" in the current revision
+- `datum checkout name` - will look for revision "name"
+- `datum checkout -- name` - will look for source "name" in the current revision
 
 Examples:
 - Restore the previous revision:
-  `checkout HEAD~1`
+  `datum checkout HEAD~1`
   <br>
 
 - Restore the saved version of a source in the working tree
-  `checkout -- source-1`
+  `datum checkout -- source-1`
   <br>
 
 - Restore a previous version of a source
-  `checkout 33fbfbe my-source`
+  `datum checkout 33fbfbe my-source`
   <br>
 
 ### Status <a id="status"></a>
 
-This command prints the summary of the changes between the working tree
-of a project and its HEAD revision.
+This command prints the summary of the source changes between
+the working tree of a project and its HEAD revision.
+
+Prints differences in the following format: `<status> <source name>`
+
+The list of possible `status` values:
+- `modified` - the source data exists and it is changed
+- `foreign_modified` - the source data exists and it is changed,
+  but Datumaro does not know about the way the differences were made.
+  If changes are committed, they will only be available for reproduction
+  from the project cache.
+- `added` - the source was added in the working tree
+- `removed` - the source was removed from the working tree. This status won't
+  be reported if just the source _data_ is removed in the working tree.
+  In such situation the status will be `missing`.
+- `missing` - the source data is removed from the working directory.
+  The source still can be restored from the project cache or reproduced.
 
 Usage:
 
@@ -1311,6 +1326,16 @@ Usage:
 datum status --help
 
 datum status
+```
+
+Example output:
+
+```bash
+added source-1
+modified source-2
+foreign_modified source-3
+removed source-4
+missing source-5
 ```
 
 ### Log <a id="log"></a>
