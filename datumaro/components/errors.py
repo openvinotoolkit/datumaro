@@ -71,10 +71,10 @@ class MultiplePipelineHeadsError(InvalidPipelineError):
 class MissingPipelineHeadError(InvalidPipelineError):
     pass
 
-class UnknownStageError(InvalidPipelineError):
+class InvalidStageError(InvalidPipelineError):
     pass
 
-class WrongSourceNodeError(InvalidPipelineError):
+class UnknownStageError(InvalidStageError):
     pass
 
 

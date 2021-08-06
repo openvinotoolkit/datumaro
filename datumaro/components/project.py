@@ -26,12 +26,13 @@ from datumaro.components.dataset import DEFAULT_FORMAT, Dataset, IDataset
 from datumaro.components.environment import Environment
 from datumaro.components.errors import (
     DatasetMergeError, EmptyCommitError, EmptyPipelineError,
-    ForeignChangesError, MigrationError, MismatchingObjectError,
-    MissingObjectError, MissingPipelineHeadError, MultiplePipelineHeadsError,
-    PathOutsideSourceError, ProjectAlreadyExists, ProjectNotFoundError,
-    ReadonlyDatasetError, SourceExistsError, SourceUrlInsideProjectError,
-    UnexpectedUrlError, UnknownRefError, UnknownSourceError, UnknownStageError,
-    UnknownTargetError, UnsavedChangesError, VcsError, WrongSourceNodeError,
+    ForeignChangesError, InvalidStageError, MigrationError,
+    MismatchingObjectError, MissingObjectError, MissingPipelineHeadError,
+    MultiplePipelineHeadsError, PathOutsideSourceError, ProjectAlreadyExists,
+    ProjectNotFoundError, ReadonlyDatasetError, SourceExistsError,
+    SourceUrlInsideProjectError, UnexpectedUrlError, UnknownRefError,
+    UnknownSourceError, UnknownStageError, UnknownTargetError,
+    UnsavedChangesError, VcsError,
 )
 from datumaro.components.launcher import Launcher
 from datumaro.util import (
@@ -290,7 +291,7 @@ class ProjectBuilder:
         self._project = project
         self._tree = tree
 
-    def make_dataset(self, pipeline) -> IDataset:
+    def make_dataset(self, pipeline: Pipeline) -> IDataset:
         dataset = self._get_resulting_dataset(pipeline)
 
         # TODO: May be need to save and load, because it can modify dataset,
@@ -310,7 +311,9 @@ class ProjectBuilder:
 
         return dataset
 
-    def _run_pipeline(self, pipeline):
+    def _run_pipeline(self, pipeline: Pipeline):
+        self._validate_pipeline(pipeline)
+
         missing_sources, wd_hashes = self._find_missing_sources(pipeline)
         for s in missing_sources:
             target, stage = ProjectBuildTargets.split_target_name(s)
@@ -340,7 +343,7 @@ class ProjectBuilder:
         graph, head = self._run_pipeline(pipeline)
         return graph.nodes[head]['dataset']
 
-    def _init_pipeline(self, pipeline, working_dir_hashes=None):
+    def _init_pipeline(self, pipeline: Pipeline, working_dir_hashes=None):
         def _join_parent_datasets(force=False):
             parents = { p: graph.nodes[p] for p in initialized_parents }
 
@@ -366,7 +369,8 @@ class ProjectBuilder:
 
         if working_dir_hashes is None:
             working_dir_hashes = {}
-        def _try_load_from_cache(current_name, current) -> Dataset:
+        def _try_load_from_cache(stage_name: str, stage_config: BuildStage) \
+                -> Dataset:
             # Check if we can restore this stage from the cache or
             # from the working directory.
             #
@@ -374,12 +378,12 @@ class ProjectBuilder:
             # and can have a cache entry or,
             # if this is the last stage of a target in the working tree,
             # we can use data from the working directory.
-            obj_hash = current['config'].hash
+            stage_hash = stage_config.hash
 
             data_dir = None
             cached = False
 
-            target = ProjectBuildTargets.strip_target_name(current_name)
+            target = ProjectBuildTargets.strip_target_name(stage_name)
             if self._tree.is_working_tree and target in self._tree.sources:
                 data_dir = self._project.source_data_dir(target)
 
@@ -393,36 +397,137 @@ class ProjectBuilder:
                             "because it does not exist", data_dir)
                         data_dir = None
 
-                if obj_hash != wd_hash:
+                if stage_hash != wd_hash:
                     log.debug("Build: skipping loading stage '%s' from "
                         "working dir '%s', because hashes does not match",
-                        current_name, data_dir)
+                        stage_name, data_dir)
                     data_dir = None
 
             if not data_dir:
-                if self._project._is_cached(obj_hash):
-                    data_dir = self._project.cache_path(obj_hash)
+                if self._project._is_cached(stage_hash):
+                    data_dir = self._project.cache_path(stage_hash)
                     cached = True
-                elif self._project._can_retrieve_from_vcs_cache(obj_hash):
-                    data_dir = self._project._materialize_obj(obj_hash)
+                elif self._project._can_retrieve_from_vcs_cache(stage_hash):
+                    data_dir = self._project._materialize_obj(stage_hash)
                     cached = True
 
                 if not data_dir or not osp.isdir(data_dir):
                     log.debug("Build: skipping loading stage '%s' from "
                         "cache obj '%s', because it is not available",
-                        current_name, obj_hash)
+                        stage_name, stage_hash)
                     return None
 
             if data_dir:
                 assert osp.isdir(data_dir), data_dir
                 log.debug("Build: loading stage '%s' from '%s'",
-                    current_name, data_dir)
+                    stage_name, data_dir)
                 return ProjectSourceDataset(
                     data_dir, self._tree, target, readonly=cached)
 
             return None
 
+        # Pipeline is assumed to be validated already
+        graph = pipeline._graph
+        head = pipeline.head
 
+        # traverse the graph and initialize nodes from sources to the head
+        to_visit = [head]
+        while to_visit:
+            stage_name = to_visit.pop()
+            stage = graph.nodes[stage_name]
+            stage_config = stage['config']
+            stage_type = BuildStageType[stage_config.type]
+
+            assert stage.get('dataset') is None
+
+            stage_hash = stage_config.hash
+            if stage_hash:
+                dataset = _try_load_from_cache(stage_name, stage_config)
+                if dataset is not None:
+                    stage['dataset'] = dataset
+                    continue
+
+            uninitialized_parents = []
+            initialized_parents = []
+            for p_name in graph.predecessors(stage_name):
+                parent = graph.nodes[p_name]
+                if parent.get('dataset') is None:
+                    uninitialized_parents.append(p_name)
+                else:
+                    initialized_parents.append(p_name)
+
+            if uninitialized_parents:
+                to_visit.append(stage_name)
+                to_visit.extend(uninitialized_parents)
+                continue
+
+            if stage_type == BuildStageType.transform:
+                kind = stage_config.kind
+                try:
+                    transform = self._tree.env.transforms[kind]
+                except KeyError as e:
+                    raise UnknownStageError("Unknown transform '%s'" % kind) \
+                        from e
+
+                dataset = _join_parent_datasets()
+                dataset = dataset.transform(transform, **stage_config.params)
+
+            elif stage_type == BuildStageType.filter:
+                dataset = _join_parent_datasets()
+                dataset = dataset.filter(**stage_config.params)
+
+            elif stage_type == BuildStageType.inference:
+                kind = stage_config.kind
+                model = self._project.make_model(kind)
+
+                dataset = _join_parent_datasets()
+                dataset = dataset.run_model(model)
+
+            elif stage_type == BuildStageType.source:
+                # Stages of type "Source" cannot have inputs,
+                # they are build tree inputs themselves
+                assert graph.in_degree(stage_name) == 0, stage_name
+
+                # The only valid situation we get here is that it is a
+                # generated source:
+                # - No cache entry
+                # - No local dir data
+                source_name = ProjectBuildTargets.strip_target_name(stage_name)
+                source = self._tree.sources[source_name]
+                if not source.is_generated:
+                    # Source is missing in the cache and the working tree,
+                    # and cannot be retrieved from the VCS cache.
+                    # It is assumed that all the missing sources were
+                    # downloaded earlier.
+                    raise MissingObjectError(
+                        "Failed to initialize stage '%s': "
+                        "object '%s' was not found in cache" % \
+                        (stage_name, stage_hash))
+
+                # Generated sources do not require a data directory,
+                # but they still can be bound to a directory
+                if self._tree.is_working_tree:
+                    source_dir = self._project.source_data_dir(source_name)
+                else:
+                    source_dir = None
+                dataset = ProjectSourceDataset(source_dir, self._tree,
+                    source_name, readonly=not source_dir)
+
+            elif stage_type == BuildStageType.project:
+                dataset = _join_parent_datasets(force=True)
+
+            elif stage_type == BuildStageType.convert:
+                dataset = _join_parent_datasets()
+
+            else:
+                raise UnknownStageError("Unknown stage type '%s'" % stage_type)
+
+            stage['dataset'] = dataset
+
+        return graph, head
+
+    @staticmethod
+    def _validate_pipeline(pipeline: Pipeline):
         graph = pipeline._graph
         if len(graph) == 0:
             raise EmptyPipelineError()
@@ -431,127 +536,44 @@ class ProjectBuilder:
         if not head:
             raise MissingPipelineHeadError()
 
-        # traverse the graph and initialize nodes from sources to the head
-        to_visit = [head]
-        while to_visit:
-            current_name = to_visit.pop()
-            current = graph.nodes[current_name]
+        for stage_name, stage in graph.nodes.items():
+            stage_type = BuildStageType[stage['config'].type]
 
-            assert current.get('dataset') is None
-
-            obj_hash = current['config'].hash
-            if obj_hash:
-                dataset = _try_load_from_cache(current_name, current)
-                if dataset is not None:
-                    current['dataset'] = dataset
-                    continue
-
-            uninitialized_parents = []
-            initialized_parents = []
-            if graph.in_degree(current_name) == 0:
-                if current['config'].type == 'source':
-                    source = self._tree.sources[
-                        self._tree.build_targets.strip_target_name(current_name)]
-                    if not source.is_generated:
-                        # Source is missing in the cache and cannot
-                        # be retrieved. It is assumed that all the
-                        # sources were downloaded earlier
-                        raise MissingObjectError("Failed to load target '%s': "
-                            "obj '%s' was not found in cache" % \
-                            (current_name, obj_hash))
-                elif current['config'].type == 'project':
-                    pass # pipeline is empty
-                else:
-                    raise WrongSourceNodeError(
-                        "Unexpected leaf node '%s' of type '%s'" %
-                        (current_name, current['config'].type))
+            if graph.in_degree(stage_name) == 0:
+                if stage_type != BuildStageType.source:
+                    raise InvalidStageError(
+                        "Stage '%s' of type '%s' must have inputs" %
+                        (stage_name, stage_type.name))
             else:
-                for p_name in graph.predecessors(current_name):
-                    parent = graph.nodes[p_name]
-                    if parent.get('dataset') is None:
-                        uninitialized_parents.append(p_name)
-                    else:
-                        initialized_parents.append(p_name)
+                if stage_type == BuildStageType.source:
+                    raise InvalidStageError(
+                        "Stage '%s' of type '%s' can't have inputs" %
+                        (stage_name, stage_type.name))
 
-                if uninitialized_parents:
-                    to_visit.append(current_name)
-                    to_visit.extend(uninitialized_parents)
-                    continue
-
-            type_ = BuildStageType[current['config'].type]
-            params = current['config'].params
-            if type_ == BuildStageType.transform:
-                kind = current['config'].kind
-                try:
-                    transform = self._tree.env.transforms[kind]
-                except KeyError as e:
-                    raise UnknownStageError("Unknown transform '%s'" % kind) \
-                        from e
-
-                dataset = _join_parent_datasets()
-                dataset = dataset.transform(transform, **params)
-
-            elif type_ == BuildStageType.filter:
-                dataset = _join_parent_datasets()
-                dataset = dataset.filter(**params)
-
-            elif type_ == BuildStageType.inference:
-                kind = current['config'].kind
-                model = self._project.make_model(kind)
-
-                dataset = _join_parent_datasets()
-                dataset = dataset.run_model(model)
-
-            elif type_ == BuildStageType.source:
-                assert len(initialized_parents) == 0, current_name
-
-                # The only valid situation we get here is that it is a
-                # generated source:
-                # - No cache entry
-                # - No local dir data
-                source_name = ProjectBuildTargets.strip_target_name(current_name)
-                source = self._tree.sources[source_name]
-                if not source.is_generated:
-                    raise MissingObjectError("Can't initialize stage '%s': "
-                        "source data is not available" % current_name)
-
-                if self._tree.is_working_tree:
-                    source_dir = self._project.source_data_dir(source_name)
-                else:
-                    source_dir = None
-                dataset = ProjectSourceDataset(source_dir, self._tree,
-                    source_name, readonly=not source_dir)
-
-            elif type_ == BuildStageType.project:
-                dataset = _join_parent_datasets(force=True)
-
-            elif type_ == BuildStageType.convert:
-                dataset = _join_parent_datasets()
-
-            else:
-                raise UnknownStageError("Unknown stage type '%s'" % type_)
-
-            current['dataset'] = dataset
-
-        return graph, head
+            if graph.out_degree(stage_name) == 0:
+                if stage_name != head:
+                    raise InvalidStageError(
+                        "Stage '%s' of type '%s' has no outputs, "
+                        "but is not the head stage" %
+                        (stage_name, stage_type.name))
 
     def _find_missing_sources(self, pipeline: Pipeline):
         work_dir_hashes = {}
-        def _can_retrieve(target, conf):
-            obj_hash = conf.hash
+        def _can_retrieve(stage_name: str, stage_config: BuildStage):
+            obj_hash = stage_config.hash
 
-            target = ProjectBuildTargets.strip_target_name(target)
-            if self._tree.is_working_tree and target in self._tree.sources:
-                data_dir = self._project.source_data_dir(target)
+            stage_name = ProjectBuildTargets.strip_target_name(stage_name)
+            if self._tree.is_working_tree and stage_name in self._tree.sources:
+                data_dir = self._project.source_data_dir(stage_name)
 
-                wd_hash = work_dir_hashes.get(target)
+                wd_hash = work_dir_hashes.get(stage_name)
                 if not wd_hash:
                     if not osp.isdir(data_dir):
                         return False
 
                     wd_hash = self._project.compute_source_hash(
-                        self._project.source_data_dir(target))
-                    work_dir_hashes[target] = wd_hash
+                        self._project.source_data_dir(stage_name))
+                    work_dir_hashes[stage_name] = wd_hash
 
                 return obj_hash == wd_hash
 
@@ -562,34 +584,28 @@ class ProjectBuilder:
 
         missing_sources = set()
         checked_deps = set()
-        missing_deps = [pipeline.head]
-        while missing_deps:
-            t = missing_deps.pop()
-            if t in checked_deps:
+        unchecked_deps = [pipeline.head]
+        while unchecked_deps:
+            stage = unchecked_deps.pop()
+            if stage in checked_deps:
                 continue
 
-            t_conf = pipeline._graph.nodes[t]['config']
+            stage_config = pipeline._graph.nodes[stage]['config']
 
-            if not _can_retrieve(t, t_conf):
-                if pipeline._graph.in_degree(t) == 0:
-                    if t_conf.type == 'project':
-                        pass # pipeline is empty
-                    elif t_conf.type == 'source':
-                        source = self._tree.sources[
-                            self._tree.build_targets.strip_target_name(t)]
-                        if not source.is_generated:
-                            missing_sources.add(t)
-                    else:
-                        raise WrongSourceNodeError(
-                            "Unexpected leaf node '%s' of type '%s'" %
-                            (t, t_conf.type))
+            if not _can_retrieve(stage, stage_config):
+                if pipeline._graph.in_degree(stage) == 0:
+                    assert stage_config.type == 'source', stage_config.type
+                    source = self._tree.sources[
+                        self._tree.build_targets.strip_target_name(stage)]
+                    if not source.is_generated:
+                        missing_sources.add(stage)
                 else:
-                    for p in pipeline._graph.predecessors(t):
+                    for p in pipeline._graph.predecessors(stage):
                         if p not in checked_deps:
-                            missing_deps.append(p)
+                            unchecked_deps.append(p)
                     continue
 
-            checked_deps.add(t)
+            checked_deps.add(stage)
         return missing_sources, work_dir_hashes
 
 class ProjectBuildTargets(CrudProxy):
