@@ -1278,14 +1278,19 @@ This command has multiple forms:
 
 1 - Restores a revision and all the corresponding sources in the
 working directory. If there are conflicts between modified files in the
-working directory and the target revision, an error is raised.
+working directory and the target revision, an error is raised, unless
+`--force` is used.
 
 2, 3 - Restores only selected sources from the specified revision.
 The current revision is used, when not set.
 
 "--" can be used to separate source names and revisions:
 - `datum checkout name` - will look for revision "name"
-- `datum checkout -- name` - will look for source "name" in the current revision
+- `datum checkout -- name` - will look for source "name" in the current
+  revision
+
+Options:
+- `--force` - overwrites unsaved changes in case of conflicts
 
 Examples:
 - Restore the previous revision:
@@ -1305,7 +1310,8 @@ Examples:
 This command prints the summary of the source changes between
 the working tree of a project and its HEAD revision.
 
-Prints differences in the following format: `<status> <source name>`
+Prints lines in the following format:
+`<status> <source name>`
 
 The list of possible `status` values:
 - `modified` - the source data exists and it is changed
@@ -1342,12 +1348,26 @@ missing source-5
 
 This command prints the history of the current project revision.
 
+Prints lines in the following format:
+`<short commit hash> <commit message>`
+
+Options:
+- `-n N, --max-count N` (integer, default: 10) - The maximum number of
+  previous revisions in the output
+
 Usage:
 
 ```bash
 datum log --help
 
 datum log
+```
+
+Example output:
+
+```bash
+affbh33 Added COCO dataset
+eeffa35 Added VOC dataset
 ```
 
 ### Register model <a id="model-add"></a>
