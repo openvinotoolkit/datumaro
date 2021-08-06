@@ -66,8 +66,11 @@ class Ade20kExtractor(Extractor):
                 elif label_idx is not None and not labels[label_idx].parent:
                     labels[label_idx].parent = super_label
 
-            part_level = 0
             mask_path = image_path.replace('.jpg', '_seg.png')
+            if not osp.isfile(mask_path):
+                log.warning("Can't find mask for image: %s" % image_path)
+
+            part_level = 0
             while osp.isfile(mask_path):
                 mask = load_image(mask_path)
 
@@ -97,7 +100,7 @@ class Ade20kExtractor(Extractor):
         atr_path = path.replace('.jpg', '_atr.txt')
         item_info = []
         if not osp.isfile(atr_path):
-            log.warning("Can't find annotation file for image %s" % path)
+            raise Exception("Can't find annotation file for image %s" % path)
         else:
             with open(atr_path, 'r') as f:
                 for line in f:
