@@ -45,7 +45,9 @@ class Ade20kExtractor(Extractor):
             LabelCategories())
         path = osp.join(self._path, subset)
 
-        for image_path in find_images(path, '.jpg', recursive=True):
+        images = [i for i in find_images(path, '.jpg', recursive=True)]
+
+        for image_path in sorted(images):
             path_parts = osp.relpath(image_path, path).split(osp.sep)
             item_id = osp.splitext(path_parts[-1])[0]
             item_annotations = []
