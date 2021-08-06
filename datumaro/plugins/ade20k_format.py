@@ -11,10 +11,10 @@ import numpy as np
 
 from datumaro.components.converter import Converter
 from datumaro.components.extractor import (
-    AnnotationType, DatasetItem, Extractor, Importer, LabelCategories, Mask,
+    AnnotationType, CompiledMask, DatasetItem, Extractor, Importer,
+    LabelCategories, Mask,
 )
-from datumaro.util.image import find_images, load_image
-
+from datumaro.util.image import find_images, lazy_image, load_image
 
 class Ade20kExtractor(Extractor):
     def __init__(self, path):
@@ -72,10 +72,8 @@ class Ade20kExtractor(Extractor):
 
             part_level = 0
             while osp.isfile(mask_path):
-                mask = load_image(mask_path)
-
-                _, instance_mask = np.unique(mask[:, :, 0], return_inverse=True)
-                instance_mask = instance_mask.reshape(mask[:, :, 0].shape)
+                mask = lazy_image(mask_path, loader=self._load_instance_mask)
+                mask = CompiledMask(instance_mask=mask)
 
                 for v in item_info:
                     if v['part_level'] != part_level:
@@ -85,10 +83,10 @@ class Ade20kExtractor(Extractor):
                     instance_id = v['id']
                     attributes = {k: True for k in v['attributes']}
                     attributes['part_level'] = part_level
-                    image = instance_mask == instance_id
 
-                    item_annotations.append(Mask(image=image, group=instance_id,
-                        label=label_id, attributes=attributes, z_order=part_level))
+                    item_annotations.append(Mask(image=mask.lazy_extract(instance_id),
+                        label=label_id, attributes=attributes, z_order=part_level,
+                        group=instance_id))
 
                 part_level += 1
                 mask_path = image_path.replace('.jpg', '_parts_%s.png' % part_level)
@@ -122,6 +120,13 @@ class Ade20kExtractor(Extractor):
                             'attributes': attributes
                         })
         return item_info
+
+    @staticmethod
+    def _load_instance_mask(path):
+        mask = load_image(path)
+        _, instance_mask = np.unique(mask[:, :, 0], return_inverse=True)
+        instance_mask = instance_mask.reshape(mask[:, :, 0].shape)
+        return instance_mask
 
 class ADE20Importer(Importer):
     @classmethod
