@@ -14,13 +14,13 @@
 available [here](https://groups.csail.mit.edu/vision/datasets/ADE20K/ADE20K_2017_05_30_consistency.zip).
 
 - ADE20K format supports the following type of annotations:
-    - `Masks`
+  - `Masks`
 
 - The following attributes are supported on the masks:
-    - `occluded` (boolean): whether the object is occluded by another object.
-    - `part_level` (int): part level of objects on the masks.
-    - other boolean user attributes can be specified
-      in the annotation file `*_atr.txt`
+  - `occluded` (boolean): whether the object is occluded by another object.
+  - `part_level` (int): part level of objects on the masks.
+  - other boolean user attributes can be specified
+    in the annotation file `*_atr.txt`
 
 # Load ADE20K dataset
 
