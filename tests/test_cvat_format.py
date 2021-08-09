@@ -43,7 +43,7 @@ class CvatImporterTest(TestCase):
                     Bbox(0, 2, 4, 2, label=0, z_order=1,
                         attributes={
                             'occluded': True,
-                            'a1': True, 'a2': 'v3'
+                            'a1': True, 'a2': 'v3', 'a3': '0003'
                         }),
                     PolyLine([1, 2, 3, 4, 5, 6, 7, 8],
                         attributes={'occluded': False}),
@@ -58,7 +58,7 @@ class CvatImporterTest(TestCase):
                 ], attributes={'frame': 1}),
         ], categories={
             AnnotationType.label: LabelCategories.from_iterable([
-                ['label1', '', {'a1', 'a2'}],
+                ['label1', '', {'a1', 'a2', 'a3'}],
                 ['label2'],
             ])
         })
@@ -169,10 +169,10 @@ class CvatConverterTest(TestCase):
                         attributes={ 'occluded': True, 'common': 't' }),
                     Points([1, 1, 3, 2, 2, 3],
                         label=2,
-                        attributes={ 'a1': 'x', 'a2': 42, 'empty': '',
+                        attributes={ 'a1': 'x', 'a2': '42', 'empty': '',
                             'unknown': 'bar' }),
                     Label(1),
-                    Label(2, attributes={ 'a1': 'y', 'a2': 44 }),
+                    Label(2, attributes={ 'a1': 'y', 'a2': '44' }),
                 ]
             ),
             DatasetItem(id=1, subset='s1',
@@ -211,9 +211,9 @@ class CvatConverterTest(TestCase):
                     Points([1, 1, 3, 2, 2, 3],
                         label=2,
                         attributes={ 'occluded': False, 'empty': '',
-                            'a1': 'x', 'a2': 42 }),
+                            'a1': 'x', 'a2': '42' }),
                     Label(1),
-                    Label(2, attributes={ 'a1': 'y', 'a2': 44 }),
+                    Label(2, attributes={ 'a1': 'y', 'a2': '44' }),
                 ], attributes={'frame': 0}
             ),
             DatasetItem(id=1, subset='s1',
@@ -258,9 +258,9 @@ class CvatConverterTest(TestCase):
         target_label_cat.add('a', attributes={'x'})
         target_dataset = Dataset.from_iterable([
             DatasetItem(id=0, annotations=[
-                Label(0, attributes={ 'x': 4, 'y': 2 }),
+                Label(0, attributes={ 'x': '4', 'y': '2' }),
                 Bbox(1, 2, 3, 4, label=0,
-                    attributes={ 'x': 1, 'y': 1, 'occluded': False }),
+                    attributes={ 'x': '1', 'y': '1', 'occluded': False }),
             ], attributes={'frame': 0}),
         ], categories={ AnnotationType.label: target_label_cat })
 
