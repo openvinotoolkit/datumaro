@@ -41,7 +41,7 @@ class CvatExtractor(SourceExtractor):
         context = ElementTree.iterparse(path, events=("start", "end"))
         context = iter(context)
 
-        categories, frame_size = cls._parse_meta(context)
+        categories, frame_size, attribute_types = cls._parse_meta(context)
 
         items = OrderedDict()
 
@@ -91,7 +91,7 @@ class CvatExtractor(SourceExtractor):
                     attr_value = el.text or ''
                     if el.text in ['true', 'false']:
                         attr_value = attr_value == 'true'
-                    else:
+                    elif attribute_types.get(el.attrib['name']) == 'number':
                         try:
                             attr_value = float(attr_value)
                         except ValueError:
@@ -189,11 +189,12 @@ class CvatExtractor(SourceExtractor):
                 elif accepted('original_size', 'width', next_state='frame_width'): pass
                 elif accepted('task', 'labels'): pass
                 elif accepted('labels', 'label'):
-                    label = { 'name': None, 'attributes': set() }
+                    label = { 'name': None, 'attributes': [] }
                 elif accepted('label', 'name', next_state='label_name'): pass
                 elif accepted('label', 'attributes'): pass
                 elif accepted('attributes', 'attribute'): pass
                 elif accepted('attribute', 'name', next_state='attr_name'): pass
+                elif accepted('attribute', 'input_type', next_state='attr_type'): pass
                 elif accepted('annotations', 'image') or \
                      accepted('annotations', 'track') or \
                      accepted('annotations', 'tag'):
@@ -214,7 +215,9 @@ class CvatExtractor(SourceExtractor):
                 elif consumed('label_name', 'name'):
                     label['name'] = el.text
                 elif consumed('attr_name', 'name'):
-                    label['attributes'].add(el.text)
+                    label['attributes'].append({'name': el.text})
+                elif consumed('attr_type', 'input_type'):
+                    label['attributes'][-1]['input_type'] = el.text
                 elif consumed('attribute', 'attribute'): pass
                 elif consumed('attributes', 'attributes'): pass
                 elif consumed('label', 'label'):
@@ -234,12 +237,15 @@ class CvatExtractor(SourceExtractor):
             common_attrs.append('track_id')
 
         label_cat = LabelCategories(attributes=common_attrs)
+        attribute_types = {}
         for label, attrs in labels.items():
-            label_cat.add(label, attributes=attrs)
+            attr_names = {v['name'] for v in attrs}
+            label_cat.add(label, attributes=attr_names)
+            for attr in attrs:
+                attribute_types[attr['name']] = attr['input_type']
 
         categories[AnnotationType.label] = label_cat
-
-        return categories, frame_size
+        return categories, frame_size, attribute_types
 
     @classmethod
     def _parse_shape_ann(cls, ann, categories):
