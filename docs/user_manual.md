@@ -583,6 +583,7 @@ datum add <url> -f <format>
 ```
 
 Parameters:
+- `<url>` (string) - A file of directory path to the dataset.
 - `-f, --format` (string) - Dataset format
 - `-r, --path` (string) - A path relative to the source URL the data source.
   Useful to specify a path to a subset, subtask, or a specific file in URL.
@@ -621,6 +622,7 @@ datum remove <name> ...
 ```
 
 Parameters:
+- `<name>` (string) - The name of the source to removed (repeatable)
 - `-f, --force` - Do not fail and stop on errors during removal
 - `--keep-data` - Do not remove source data from the working directory, remove
   only project metainfo.
@@ -638,11 +640,11 @@ datum remove src1
 
 ### Filter datasets <a id="filter"></a>
 
-This command allows to create a sub-dataset from a dataset. The new dataset
-includes only items satisfying some condition. [XPath](https://devhints.io/xpath)
+This command allows to extract a sub-dataset from a dataset. The new dataset
+includes only items satisfying some condition. The XML [XPath](https://devhints.io/xpath)
 is used as a query format.
 
-There are several filtering modes available (`-m/--mode` parameter).
+There are several filtering modes available (the `-m/--mode` parameter).
 Supported modes:
 - `i`, `items`
 - `a`, `annotations`
@@ -650,10 +652,11 @@ Supported modes:
 
 When filtering annotations, use the `items+annotations`
 mode to point that annotation-less dataset items should be
-removed. To select an annotation, write an XPath that
-returns `annotation` elements (see examples).
+removed, otherwise they will be kept in the resulting dataset.
+To select an annotation, write an XPath that returns `annotation`
+elements (see examples).
 
-Item representations are available with `--dry-run` parameter:
+Item representations can be printed with the `--dry-run` parameter:
 
 ``` xml
 <item>
@@ -670,9 +673,9 @@ Item representations are available with `--dry-run` parameter:
     <label_id>39</label_id>
     <x>264.59</x>
     <y>150.25</y>
-    <w>11.199999999999989</w>
+    <w>11.19</w>
     <h>42.31</h>
-    <area>473.87199999999956</area>
+    <area>473.87</area>
   </annotation>
   <annotation>
     <id>669839</id>
@@ -680,54 +683,82 @@ Item representations are available with `--dry-run` parameter:
     <label_id>41</label_id>
     <x>163.58</x>
     <y>191.75</y>
-    <w>76.98999999999998</w>
+    <w>76.98</w>
     <h>73.63</h>
-    <area>5668.773699999998</area>
+    <area>5668.77</area>
   </annotation>
   ...
 </item>
 ```
 
+The command can only be applied to a project build target, a stage or the
+combined `project` target, in which case all the targets will be affected.
+A build tree stage will be added if `--stage` is enabled, and the resulting
+dataset(-s) will be saved if `--apply` is enabled.
+
 Usage:
 
 ``` bash
-datum filter --help
-
-datum filter \
-    -p <project dir> \
-    -e '<xpath filter expression>'
+datum filter -e '<xpath filter expression>'
 ```
 
-Example: extract a dataset with only images which `width` < `height`
+Parameters:
+- `<target>` (string) - Project build target to apply transform to.
+  By default, all project targes are affected.
+- `-e, --filter` (string) - XML XPath filter expression for dataset items
+- `-m, --mode` (string) - The filtering mode. Default is the `i` mode.
+- `--dry-run` - Print XML representations of the filtered dataset and exit.
+- `--stage` (bool) - Include this action as a project build step.
+  If true, this operation will be saved in the project
+  build tree, allowing to reproduce the resulting dataset later.
+  Applicable only to data source targets (i.e. not intermediate stages)
+  and the `project` target. Enabled by default.
+- `--apply` (bool) - Run this command immediately. If disabled, only the
+  build tree stage will be written. Enabled by default.
+- `-o, --output-dir` (string) - Output directory. Can be omitted for
+  data source targets (i.e. not intermediate stages)and the `project` target,
+  in which case the results will be saved inplace in the working tree.
+- `--overwrite` - Allows to overwrite existing files in the output directory,
+  when it is specified and is not empty.
+- `-p, --project` (string) - Directory of the project to operate on
+  (default: current directory).
+- `--help` - Print the help message and exit.
+
+Example: extract a dataset with images with `width` < `height`
 
 ``` bash
 datum filter \
-    -p test_project \
-    -e '/item[image/width < image/height]'
+  -p test_project \
+  -e '/item[image/width < image/height]'
 ```
 
-Example: extract a dataset with only images of subset `train`.
-``` bash
-datum project filter \
-    -p test_project \
-    -e '/item[subset="train"]'
-```
-
-Example: extract a dataset with only large annotations of class `cat` and any
-non-`persons`
+Example: extract a dataset with images of the `train` subset
 
 ``` bash
 datum filter \
-    -p test_project \
-    --mode annotations -e '/item/annotation[(label="cat" and area > 99.5) or label!="person"]'
+  -p test_project \
+  -e '/item[subset="train"]'
 ```
 
-Example: extract a dataset with only occluded annotations, remove empty images
+Example: extract a dataset with only large annotations of the `cat` class and
+any non-`persons`
 
 ``` bash
 datum filter \
-    -p test_project \
-    -m i+a -e '/item/annotation[occluded="True"]'
+  -p test_project \
+  --mode annotations \
+  -e '/item/annotation[(label="cat" and area > 99.5) or label!="person"]'
+```
+
+Example: extract a dataset with only occluded annotations, remove empty images.
+Use data only from the "s1" source of the project.
+
+``` bash
+datum create
+datum add path/to/dataset1/ --format voc --name s1
+datum add path/to/dataset2/ --format voc --name s2
+datum filter s1 \
+  -m i+a -e '/item/annotation[occluded="True"]'
 ```
 
 ### Merge datasets <a id="merge"></a>
