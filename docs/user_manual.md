@@ -17,9 +17,9 @@
   - [Create](#create)
   - [Add](#source-add)
   - [Remove](#source-remove)
+  - [Export](#export)
   - [Filter](#filter)
   - [Merge](#merge)
-  - [Export](#export)
   - [Diff](#diff)
   - [Info](#info)
   - [Stats](#stats)
@@ -638,6 +638,67 @@ datum add path/to/dataset/ -f voc -n src1
 datum remove src1
 ```
 
+### Export datasets <a id="export"></a>
+
+This command exports a project or a source as a dataset in some format.
+
+Check [supported formats](#dataset-formats) for more info about
+format specifications, supported options and other details.
+The list of formats can be extened by custom plugins, check [extending tips](#extending)
+for information on this topic.
+
+Available formats are listed in the command help output.
+
+Dataset format writers support additional export options. To pass
+such options, use the `--` separator after the main command arguments.
+The usage information can be printed with `datum add -f <format> -- --help`.
+
+Common export options:
+- Most formats (where applicable) support the `--save-images` option, which
+  allows to export dataset images along with annotations. The option is
+  disabled be default.
+- If `--save-images` is used, the `image-ext` option can be passed to
+  specify the output image file extension (`.jpg`, `.png` etc.). By default,
+  tries to Datumaro keep the original image extension. This option
+  allows to convert all the images from one format into another.
+
+This command allows to use the `-f/--filter` parameter to select dataset
+elements needed for exporting. Read the [`filter`](#filter) command
+description for more info about this functionality.
+
+Usage:
+
+``` bash
+datum export
+```
+
+Parameters:
+- `<target>` (string) - A project build target to be exported.
+  By default, all project targes are affected.
+- `-f, --format` (string) - Output format.
+- `-e, --filter` (string) - XML XPath filter expression for dataset items
+- `--filter-mode` (string) - The filtering mode. Default is the `i` mode.
+- `-o, --output-dir` (string) - Output directory. By default, a subdirectory
+  in the current directory is used.
+- `--overwrite` - Allows to overwrite existing files in the output directory,
+  when it is not empty.
+- `-p, --project` (string) - Directory of the project to operate on
+  (default: current directory).
+- `-- <extra format args>` - Additional arguments for the format writer
+  (use `-- -h` for help). Must be specified after the main command arguments.
+- `--help` - Print the help message and exit.
+
+Example: save a project as a VOC-like dataset, include images, convert
+images to `PNG` from other formats.
+
+``` bash
+datum export \
+  -p test_project \
+  -o test_project-export \
+  -f voc \
+  -- --save-images --image-ext='.png'
+```
+
 ### Filter datasets <a id="filter"></a>
 
 This command allows to extract a sub-dataset from a dataset. The new dataset
@@ -703,7 +764,7 @@ datum filter -e '<xpath filter expression>'
 ```
 
 Parameters:
-- `<target>` (string) - Project build target to apply transform to.
+- `<target>` (string) - A project build target to be filtered.
   By default, all project targes are affected.
 - `-e, --filter` (string) - XML XPath filter expression for dataset items
 - `-m, --mode` (string) - The filtering mode. Default is the `i` mode.
@@ -789,39 +850,6 @@ datum merge project1/ project2/ project3/ project4/ \
     --quorum 3 \
     -iou 0.6 \
     --groups 'person,hand?,head,foot?'
-```
-
-### Export datasets <a id="export"></a>
-
-This command exports a project or a source as a dataset in some format.
-Check [supported formats](#dataset-formats) for more info about
-format specifications, supported options and other details.
-The list of formats can be extened by custom plugins, check [extending tips](#extending)
-for information on this topic.
-
-Available formats are listed in the command help output.
-
-Usage:
-
-``` bash
-datum export --help
-
-datum export \
-    -p <project dir> \
-    -o <output dir> \
-    -f <format> \
-    -- [additional format parameters]
-```
-
-Example: save a project as a VOC-like dataset, include images, convert
-images to `PNG` from any other formats.
-
-``` bash
-datum export \
-    -p test_project \
-    -o test_project-export \
-    -f voc \
-    -- --save-images --image-ext='.png'
 ```
 
 ### Get project info <a id="info"></a>
