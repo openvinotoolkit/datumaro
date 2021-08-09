@@ -16,7 +16,7 @@
   - [Convert](#convert)
   - [Create](#create)
   - [Add](#source-add)
-  - [Remove](#source-add)
+  - [Remove](#source-remove)
   - [Filter](#filter)
   - [Merge](#merge)
   - [Export](#export)
@@ -167,14 +167,16 @@ dataset = Dataset.import_from(path, format)
 In Datumaro, most command-line commands operate on projects, but there are
 also few commands operating on datasets directly. There are 2 basic ways
 to use Datumaro from the command-line:
-- Use [`convert`](#convert), [`diff`](#compare), [`merge`](#merge)
-  directly on existing datasets
+- Use the [`convert`](#convert), [`diff`](#diff), [`merge`](#merge)
+  commands directly on existing datasets
 
 - Create a Datumaro project and operate on it:
   - Create an empty project with [`create`](#create)
   - Import existing datasets with [`add`](#source-add)
   - Modify the project with [`transform`](#transform) and [`filter`](#filter)
-  - Create new revisions of the project, navigate over them, compare
+  - Create new revisions of the project with [commit](#commit), navigate over
+    them using [checkout](#checkout), compare with [diff](#diff), compute
+    statistics with [stats](#stats)
   - Export the resulting dataset with [`export`](#export)
 
 Basically, a project is a combination of datasets, models and environment.
@@ -189,7 +191,8 @@ the `datum source` command-line context.
 Note that **modifying operations** (`transform`, `filter`) **are applied
 in-place** to the data sources by default.
 
-If you want to interact with models, you need to add them to project first.
+If you want to interact with models, you need to add them to the project
+first using the [`model add`](#model-add) command.
 
 A typical way to obtain Datumaro projects is to export tasks in
 [CVAT](https://github.com/openvinotoolkit/cvat) UI.
@@ -444,14 +447,14 @@ which splits a video into frames, or split the video manually and import images.
 ![cli](images/datum_cli.svg)
 
 > **Note**: command invocation syntax is subject of change,
-> **always refer to command --help output**
+> **always refer to the `--help` output of the specific command**
 
 ### Convert datasets <a id="convert"></a>
 
 This command allows to convert a dataset from one format to another.
 The command is a usability alias for [`create`](#create),
 [`add`](#source-add) and [`export`](#export) and just provides a simpler
-way to obtain the same result in simple cases. A list of supported
+way to obtain the same results in simple cases. A list of supported
 formats can be found in the `--help` output of this command.
 
 Usage:
@@ -477,25 +480,45 @@ datum convert --input-format voc --input-path <path/to/voc/> \
 
 ### Create project <a id="create"></a>
 
-The command creates an empty project. Once a Project is created, there are
+The command creates an empty project. Once a project is created, there are
 a few options to interact with it.
+
+By default, the project is created in the current directory. To specify
+another output directory, pass the `-o/--output-dir` parameter. If output
+already directory contains a Datumaro project, an error is raised, unless
+`--overwrite` is used.
 
 Usage:
 
 ``` bash
-datum create --help
-
-datum create \
-    -o <project_dir>
+datum create [-o <project_dir>]
 ```
 
-Example: create an empty project `my_dataset`
+Parameters:
+- `-o, --output-dir <path>` (string) - Allows to specify an output directory.
+  The current directory is used by default.
+- `--overwrite` - Allows to overwrite existing project files in the output
+  directory. Any other files are not touched.
+- `--help` - Print the help message and exit.
+
+Examples:
+
+Example: create an empty project in the `my_dataset` directory
 
 ``` bash
 datum create -o my_dataset/
 ```
 
-### Add and remove data sources <a id="source-add"></a>
+Example: create a new empty project in the current directory, remove the
+existing one
+
+``` bash
+datum create
+...
+datum create --overwrite
+```
+
+### Import datasets <a id="source-add"></a>
 
 A project can contain an arbitrary number of Data Sources. Each Data Source
 describes a dataset in a specific format. A project acts as a manager for
@@ -503,6 +526,8 @@ the data sources and allows to manipulate them separately or as a whole, in
 which case it combines dataset items from all the sources into one composite
 dataset. You can manage separate sources in a project by commands in
 the `datum source` command line context.
+
+Existing datasets can be added to a Datumaro project with the `add` command.
 
 Datasets come in a wide variety of formats. Each dataset
 format defines its own data structure and rules on how to
@@ -516,49 +541,63 @@ is used in COCO format:
 ```
 <!--lint enable fenced-code-flag-->
 
+Dataset format readers can provide some additional import options. To pass
+such options, use the `--` separator after the main command arguments.
+The usage information can be printed with `datum add -f <format> -- --help`.
+
 Check [supported formats](#dataset-formats) for more info about
 format specifications, supported options and other details.
 The list of formats can be extened by custom plugins, check [extending tips](#extending)
 for information on this topic.
 
-Available formats are listed in the command help output.
+The list of currently available formats are listed in the command help output.
 
-Datumaro supports working with datasets with annotations only.
+Datumaro supports working with complete datasets, having both image data and
+annotations, or with annotations only. It can be used to prepare
+images and annotations independenty of each other, or to process the
+lightweight annotations without downloading the whole dataset.
 
 A dataset is imported by its URL. Currently, only local filesystem
 paths are supported. The URL can be a file or a directory path
 to a dataset. When the dataset is read, it is read as a whole.
-Many formats can have multiple subsets like `train`, `val`, `test` etc. If
-you want to limit reading only to a specific subset, use the `-r/--path`
-parameter. It can also be useful when subset files have non-standard
-placement or names.
+However, many formats can have multiple subsets like `train`, `val`, `test`
+etc. If you want to limit reading only to a specific subset, use
+the `-r/--path` parameter. It can also be useful when subset files have
+non-standard placement or names.
 
 When a dataset is imported, the following things are done:
 - URL is saved in the project config
 - data in copied into the project
 - data is cached inside the project (use `--no-cache` to disable)
 
+Each data source has a name assigned, which can be used in other commands. To
+set a specific name, use the `-n/--name` parameter.
+
 The dataset is added into the working tree of the project. A new commit
 is _not_ done automatically.
 
 Usage:
 
-``` bash
-datum add --help
-datum remove --help
-
-datum add \
-    <url> \
-    -p <project dir> \
-    -f <format>
-
-datum remove \
-    -p <project dir> \
-    -n <name>
+```bash
+datum add <url> -f <format>
 ```
 
-Example: create a project from a bunch of different annotations and images,
-and generate TFrecord for TF Detection API for model training
+Parameters:
+- `-f, --format` (string) - Dataset format
+- `-r, --path` (string) - A path relative to the source URL the data source.
+  Useful to specify a path to a subset, subtask, or a specific file in URL.
+- `--no-check` - Don't try to read the source after importing
+- `--no-cache` - Don't put a copy into the project cache
+- `-n`, `--name` (string) - Name of the new source (default: generate
+  automatically)
+- `-- <extra format args>` - Additional arguments for the format reader
+  (use `-- -h` for help). Must be specified after the main command arguments.
+- `-p, --project` (string) - Directory of the project to operate on
+  (default: current directory).
+- `--help` - Print the help message and exit.
+
+Example: create a project from images and annotations in different formats,
+export as TFrecord for TF Detection API for model training
 
 ``` bash
 datum create
@@ -568,10 +607,36 @@ datum add <path/to/cvat/default.xml> -f cvat
 datum add <path/to/voc> -f voc_detection -r custom_subset_dir/default.txt
 datum add <path/to/datumaro/default.json> -f datumaro
 datum add <path/to/images/dir> -f image_dir
-datum export -f tf_detection_api
+datum export -f tf_detection_api -- --save-images
 ```
 
-### Filter project <a id="filter"></a>
+### Remove datasets <a id="source-remove"></a>
+
+To remove a data source from a project, use the `remove` command.
+
+Usage:
+
+``` bash
+datum remove <name> ...
+```
+
+Parameters:
+- `-f, --force` - Do not fail and stop on errors during removal
+- `--keep-data` - Do not remove source data from the working directory, remove
+  only project metainfo.
+- `-p, --project` (string) - Directory of the project to operate on
+  (default: current directory).
+- `--help` - Print the help message and exit.
+
+Example:
+
+```bash
+datum create
+datum add path/to/dataset/ -f voc -n src1
+datum remove src1
+```
+
+### Filter datasets <a id="filter"></a>
 
 This command allows to create a sub-dataset from a dataset. The new dataset
 includes only items satisfying some condition. [XPath](https://devhints.io/xpath)
@@ -1268,10 +1333,13 @@ of datasets used in the project.
 If there are no changes found, the command will stop. To allow empty
 commits, use `--allow-empty`.
 
-Options:
+Parameters:
 - `--allow-empty` - Allow commits with no changes
 - `--allow-foreign` - Allow commits with changes made not by Datumaro
 - `--no-cache` - Don't put committed datasets into cache, save only metadata
+- `-p, --project` (string) - Directory of the project to operate on
+  (default: current directory).
+- `--help` - Print the help message and exit.
 
 Usage:
 
@@ -1315,8 +1383,11 @@ The current revision is used, when not set.
 - `datum checkout -- name` - will look for source "name" in the current
   revision
 
-Options:
+Parameters:
 - `--force` - overwrites unsaved changes in case of conflicts
+- `-p, --project` (string) - Directory of the project to operate on
+  (default: current directory).
+- `--help` - Print the help message and exit.
 
 Examples:
 - Restore the previous revision:
@@ -1355,10 +1426,13 @@ The list of possible `status` values:
 Usage:
 
 ```bash
-datum status --help
-
 datum status
 ```
+
+Parameters:
+- `-p, --project` (string) - Directory of the project to operate on
+  (default: current directory).
+- `--help` - Print the help message and exit.
 
 Example output:
 
@@ -1377,9 +1451,12 @@ This command prints the history of the current project revision.
 Prints lines in the following format:
 `<short commit hash> <commit message>`
 
-Options:
+Parameters:
 - `-n N, --max-count N` (integer, default: 10) - The maximum number of
   previous revisions in the output
+- `-p, --project` (string) - Directory of the project to operate on
+  (default: current directory).
+- `--help` - Print the help message and exit.
 
 Usage:
 
