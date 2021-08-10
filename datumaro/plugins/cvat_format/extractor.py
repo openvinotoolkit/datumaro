@@ -89,9 +89,10 @@ class CvatExtractor(SourceExtractor):
             elif ev == 'end':
                 if el.tag == 'attribute' and attributes is not None:
                     attr_value = el.text or ''
+                    attr_type = attribute_types.get(el.attrib['name'])
                     if el.text in ['true', 'false']:
                         attr_value = attr_value == 'true'
-                    elif attribute_types.get(el.attrib['name']) == 'number':
+                    elif  attr_type is not None and attr_type != 'text':
                         try:
                             attr_value = float(attr_value)
                         except ValueError:
