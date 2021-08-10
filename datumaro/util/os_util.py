@@ -105,7 +105,8 @@ def copytree(src, dst):
             shutil.copytree(src, dst)
     except subprocess.CalledProcessError as e:
         raise Exception("Failed to copy data. The command '%s' "
-            "has failed with the following output: '%s'" % (e.cmd, e.stdout))
+            "has failed with the following output: '%s'" % (e.cmd, e.stdout)) \
+            from e
 
 @contextmanager
 def suppress_output(stdout: bool = True, stderr: bool = False):
