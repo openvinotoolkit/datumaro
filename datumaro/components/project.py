@@ -344,7 +344,8 @@ class ProjectBuilder:
 
     def _init_pipeline(self, pipeline: Pipeline, working_dir_hashes=None):
         def _join_parent_datasets(force=False):
-            parents = { p: graph.nodes[p] for p in initialized_parents }
+            parents = { p: graph.nodes[p]
+                for p in graph.predecessors(stage_name) }
 
             if 1 < len(parents) or force:
                 try:
@@ -447,13 +448,10 @@ class ProjectBuilder:
                     continue
 
             uninitialized_parents = []
-            initialized_parents = []
             for p_name in graph.predecessors(stage_name):
                 parent = graph.nodes[p_name]
                 if parent.get('dataset') is None:
                     uninitialized_parents.append(p_name)
-                else:
-                    initialized_parents.append(p_name)
 
             if uninitialized_parents:
                 to_visit.append(stage_name)
@@ -519,7 +517,8 @@ class ProjectBuilder:
                 dataset = _join_parent_datasets()
 
             else:
-                raise UnknownStageError("Unknown stage type '%s'" % stage_type)
+                raise UnknownStageError("Unexpected stage type '%s'" % \
+                    stage_type)
 
             stage['dataset'] = dataset
 
@@ -688,7 +687,7 @@ class ProjectBuildTargets(CrudProxy):
         value['name'] = name
 
         value = BuildStage(value)
-        assert BuildStageType[value.type]
+        assert value.type in BuildStageType.__members__
         target.stages.insert(prev_stage + 1, value)
 
         return self.make_target_name(target_name, name)
