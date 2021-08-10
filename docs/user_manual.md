@@ -893,7 +893,7 @@ Parameters:
 - `-oconf`, `--output-conf-thresh` (number) - Confidence threshold for output
   annotations to be included in the resulting dataset. Default is 0.
 - `-o, --output-dir` (string) - Output directory. By default, a new directory
-  is create in the current directory.
+  is created in the current directory.
 - `--overwrite` - Allows to overwrite existing files in the output directory,
   when it is specified and is not empty.
 - `-p, --project` (string) - Directory of the project to operate on
@@ -911,9 +911,9 @@ Merge 4 (partially-)intersecting projects,
 
 ``` bash
 datum merge project1/ project2/ project3/ project4/ \
-    --quorum 3 \
-    -iou 0.6 \
-    --groups 'person,hand?,head,foot?'
+  --quorum 3 \
+  -iou 0.6 \
+  --groups 'person,hand?,head,foot?'
 ```
 
 Merge images and annotations from 2 datasets in COCO format:
@@ -931,6 +931,82 @@ Merge the current working tree and a dataset:
 
 Merge a source from a previous revision and a dataset:
 `datum merge HEAD~2:source-2 path/to/dataset2:yolo`
+
+### Compare datasets <a id="diff"></a>
+
+The command compares two datasets and saves the results in the
+specified directory. The current project is considered to be
+"ground truth".
+
+Datasets can be compared using different methods:
+- `equality` - Annotations are compared to be equal
+- `distance` - A distance metric is used
+
+This command has multiple forms:
+``` bash
+1) datum diff <revpath>
+2) datum diff <revpath> <revpath>
+```
+
+1 - Compares the current project's main target (`project`)
+  in the working tree with the specified dataset.
+
+2 - Compares two specified datasets.
+
+\<revpath\> - [a dataset path or a revision path](#revpath).
+
+Parameters:
+- `<target>` (string) - Target [dataset revpaths](#revpath)
+- `-m, --method` (string) - Comparison method.
+- `-o, --output-dir` (string) - Output directory. By default, a new directory
+  is created in the current directory.
+- `--overwrite` - Allows to overwrite existing files in the output directory,
+  when it is specified and is not empty.
+- `-p, --project` (string) - Directory of the project to operate on
+  (default: current directory).
+- `--help` - Print the help message and exit.
+
+- Distance comparison options:
+  - `--iou-thresh` (number) - The IoU threshold for spatial annotations
+    (default is 0.5).
+  - `-f, --format` (string) - Output format, one of `simple`
+    (text files and images) and `tensorboard` (a TB log directory)
+
+- Equality comparison options:
+  - `-iia, --ignore-item-attr` (string) - Ignore an item attribute (repeatable)
+  - `-ia, --ignore-attr` (string) - Ignore an annotation attribute (repeatable)
+  - `-if, --ignore-field` (string) - Ignore an annotation field (repeatable)
+    Default is `id` and `group`
+  - `--match-images` - Match dataset items by image pixels instead of ids
+  - `--all` - Include matches in the output. By default, only differences are
+    printed.
+
+
+Examples:
+- Compare two projects by distance, match boxes if IoU > 0.7,
+  save results to Tensorboard:
+`datum diff other/project -o diff/ -f tensorboard --iou-thresh 0.7`
+
+- Compare two projects for equality, exclude annotation groups
+  and the `is_crowd` attribute from comparison:
+`datum diff other/project/ -if group -ia is_crowd`
+
+- Compare two datasets, specify formats:
+`datum diff path/to/dataset1:voc path/to/dataset2:coco`
+
+- Compare the current working tree and a dataset:
+`datum diff path/to/dataset2:coco`
+
+- Compare a source from a previous revision and a dataset:
+`datum diff HEAD~2:source-2 path/to/dataset2:yolo`
+
+- Compare a dataset with model inference
+``` bash
+datum import <...>
+datum model add mymodel <...>
+datum transform <...> -o inference
+datum diff inference -o diff
+```
 
 ### Get project info <a id="info"></a>
 
@@ -1721,27 +1797,6 @@ Example: launch inference on a dataset
 datum import <...>
 datum model add mymodel <...>
 datum model run -m mymodel -o inference
-```
-
-### Compare datasets <a id="diff"></a>
-
-The command compares two datasets and saves the results in the
-specified directory. The current project is considered to be
-"ground truth".
-
-``` bash
-datum diff --help
-
-datum diff <other_project_dir> -o <save_dir>
-```
-
-Example: compare a dataset with model inference
-
-``` bash
-datum import <...>
-datum model add mymodel <...>
-datum transform <...> -o inference
-datum diff inference -o diff
 ```
 
 ### Explain inference <a id="explain"></a>
