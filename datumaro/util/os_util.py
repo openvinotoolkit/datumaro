@@ -151,6 +151,15 @@ def split_path(path):
 
     return parts
 
+def is_subpath(path: str, base: str) -> bool:
+    """
+    Tests is a path is subpath of another path.
+    """
+
+    base = osp.abspath(base)
+    path = osp.abspath(path)
+    return osp.join(path, '').startswith(osp.join(base, ''))
+
 def make_file_name(s):
     # adapted from
     # https://docs.djangoproject.com/en/2.1/_modules/django/utils/text/#slugify

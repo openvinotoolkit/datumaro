@@ -40,7 +40,7 @@ from datumaro.util import (
 )
 from datumaro.util.log_utils import catch_logs, logging_disabled
 from datumaro.util.os_util import (
-    copytree, generate_next_name, make_file_name, rmtree,
+    copytree, generate_next_name, is_subpath, make_file_name, rmtree,
 )
 
 
@@ -898,7 +898,7 @@ class GitWrapper:
 
         repo_dir = osp.abspath(self._project_dir)
         dst_dir = osp.abspath(dst_dir)
-        assert dst_dir.startswith(repo_dir)
+        assert is_subpath(dst_dir, base=repo_dir)
 
         if not force:
             statuses = self.status(tree, base_dir=dst_dir)
@@ -1629,7 +1629,7 @@ class Project:
             }
             os.rename(old_dataset_dir, self.source_data_dir(name))
 
-
+        # Keep the old file on error so it won't be lost
         old_config_tmp = tempfile.mkstemp(dir=self._aux_dir,
             prefix=osp.basename(old_config_path))[1]
 
@@ -2031,7 +2031,7 @@ class Project:
             if not osp.exists(url):
                 raise FileNotFoundError(url)
 
-            if url.startswith(self._root_dir + os.sep):
+            if is_subpath(url, base=self._root_dir):
                 raise SourceUrlInsideProjectError()
 
             if rpath:
@@ -2040,7 +2040,7 @@ class Project:
                 if not osp.exists(rpath):
                     raise FileNotFoundError(rpath)
 
-                if not rpath.startswith(url + os.sep):
+                if not is_subpath(rpath, base=url):
                     raise PathOutsideSourceError(
                         "Source data path is outside of the directory, "
                         "specified by source URL: '%s', '%s'" % (rpath, url))
