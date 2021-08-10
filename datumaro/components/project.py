@@ -4,7 +4,7 @@
 
 from contextlib import ExitStack
 from enum import Enum, auto
-from typing import Dict, Iterable, List, NewType, Optional, Tuple, Union
+from typing import Any, Dict, Iterable, List, NewType, Optional, Tuple, Union
 import json
 import logging as log
 import os
@@ -1101,7 +1101,11 @@ class GitWrapper:
     def is_hash(cls, s: str) -> bool:
         return len(s) == cls.HASH_LEN
 
-    def log(self, depth=10) -> List[str]:
+    def log(self, depth=10) -> List[Tuple[Any, int]]:
+        """
+        Returns: a list of (commit, index) pairs
+        """
+
         commits = []
 
         if not self.has_commits():
