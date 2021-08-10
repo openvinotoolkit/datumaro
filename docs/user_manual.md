@@ -916,8 +916,8 @@ datum merge project1/ project2/ project3/ project4/ \
     --groups 'person,hand?,head,foot?'
 ```
 
-Merge annotations from 3 (or more) annotators:
-`datum merge project1/ project2/ project3/`
+Merge images and annotations from 2 datasets in COCO format:
+`datum merge dataset1/:image_dir dataset2/:coco dataset3/:coco`
 
 Check groups of the merged dataset for consistency:
   look for groups consising of `person`, `hand` `head`, `foot`
@@ -934,16 +934,23 @@ Merge a source from a previous revision and a dataset:
 
 ### Get project info <a id="info"></a>
 
-This command outputs project status information.
+This command outputs project status information, lists of data sources,
+plugins and models.
 
 Usage:
 
 ``` bash
-datum info --help
-
-datum info \
-    -p <project dir>
+datum info
 ```
+
+Parameters:
+- `<target>` (string) - Target [source revpaths](#revpath). By default,
+  prints information about all the sources and the merged dataset.
+- `--all` - Print all the information: do not fold long lists of labels etc.
+- `-p, --project` (string) - Directory of the project to operate on
+  (default: current directory).
+- `--help` - Print the help message and exit.
+
 
 Example:
 
@@ -983,11 +990,15 @@ This command computes various project statistics, such as:
 Usage:
 
 ``` bash
-datum stats --help
-
-datum stats \
-    -p <project dir>
+datum stats
 ```
+
+Parameters:
+- `<target>` (string) - Target [source revpath](#revpath). By default,
+  computes statistics of the merged dataset.
+- `-p, --project` (string) - Directory of the project to operate on
+  (default: current directory).
+- `--help` - Print the help message and exit.
 
 Example:
 
@@ -1256,12 +1267,13 @@ datum stats -p test_project
 </details>
 
 
-### Validate project annotations <a id="validate"></a>
+### Validate dataset <a id="validate"></a>
 
 This command inspects annotations with respect to the task type
-and stores the result in JSON file.
+and stores the results in JSON file.
 
-The task types supported are `classification`, `detection`, and `segmentation`.
+The task types supported are `classification`, `detection`, and
+`segmentation` (the `-t/--task-type` parameter).
 
 The validation result contains
 - `annotation statistics` based on the task type
@@ -1273,34 +1285,43 @@ The validation result contains
 - `summary`
 
 Usage:
-- There are five configurable parameters for validation
-  - `few_samples_thr` : threshold for giving a warning for minimum number of
-    samples per class
-  - `imbalance_ratio_thr` : threshold for giving imbalance data warning
-  - `far_from_mean_thr` : threshold for giving a warning that data is far
-    from mean
-  - `dominance_ratio_thr` : threshold for giving a warning bounding box
-    imbalance
-  - `topk_bins` : ratio of bins with the highest number of data to total bins
-    in the histogram
 
 ``` bash
-datum validate --help
-
 datum validate -p <project dir> -t <task_type> -- \
-    -fs <few_samples_thr> \
-    -ir <imbalance_ratio_thr> \
-    -m <far_from_mean_thr> \
-    -dr <dominance_ratio_thr> \
-    -k <topk_bins>
+  -fs <few_samples_thr> \
+  -ir <imbalance_ratio_thr> \
+  -m <far_from_mean_thr> \
+  -dr <dominance_ratio_thr> \
+  -k <topk_bins>
 ```
+
+Parameters:
+- `<target>` (string) - Target [dataset revpath](#revpath). By default,
+  validates the current project.
+- `-t, --task-type` (string) - Task type for validation
+- `-s, --subset` (string) - Dataset subset to be validated
+- `-p, --project` (string) - Directory of the project to operate on
+  (default: current directory).
+- `--help` - Print the help message and exit.
+- `<extra args>` - The list of extra validation parameters. Should be passed
+  after the `--` separator after the main command arguments:
+  - `-fs, --few_samples_thr` (number) - The threshold for giving a warning
+    for minimum number of samples per class
+  - `-ir, --imbalance_ratio_thr` (number) - The threshold for giving
+    imbalance data warning
+  - `-m, --far_from_mean_thr` (number) - The threshold for giving
+    a warning that data is far from mean
+  - `-dr, --dominance_ratio_thr` (number) - The threshold for giving
+    a warning bounding box imbalance
+  - `-k, --topk_bins` (number) - The ratio of bins with the highest
+    number of data to total bins in the histogram
+
 
 Example : give warning when imbalance ratio of data with classification task
 over 40
 
 ``` bash
-datum validate -p prj-cls -t classification -- \
-    -ir 40
+datum validate -p prj/ -t classification -- -ir 40
 ```
 
 Here is the list of validation items(a.k.a. anomaly types).
@@ -1472,6 +1493,12 @@ of datasets used in the project.
 If there are no changes found, the command will stop. To allow empty
 commits, use `--allow-empty`.
 
+Usage:
+
+```bash
+datum commit
+```
+
 Parameters:
 - `--allow-empty` - Allow commits with no changes
 - `--allow-foreign` - Allow commits with changes made not by Datumaro
@@ -1479,14 +1506,6 @@ Parameters:
 - `-p, --project` (string) - Directory of the project to operate on
   (default: current directory).
 - `--help` - Print the help message and exit.
-
-Usage:
-
-```bash
-datum commit --help
-
-datum commit -m "Commit message"
-```
 
 Example:
 
@@ -1523,7 +1542,7 @@ The current revision is used, when not set.
   revision
 
 Parameters:
-- `--force` - overwrites unsaved changes in case of conflicts
+- `--force` - Allows to overwrite unsaved changes in case of conflicts
 - `-p, --project` (string) - Directory of the project to operate on
   (default: current directory).
 - `--help` - Print the help message and exit.
@@ -1591,7 +1610,7 @@ Prints lines in the following format:
 `<short commit hash> <commit message>`
 
 Parameters:
-- `-n N, --max-count N` (integer, default: 10) - The maximum number of
+- `-n, --max-count` (number, default: 10) - The maximum number of
   previous revisions in the output
 - `-p, --project` (string) - Directory of the project to operate on
   (default: current directory).
