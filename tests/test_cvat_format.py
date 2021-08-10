@@ -43,7 +43,7 @@ class CvatImporterTest(TestCase):
                     Bbox(0, 2, 4, 2, label=0, z_order=1,
                         attributes={
                             'occluded': True,
-                            'a1': True, 'a2': 'v3', 'a3': '0003'
+                            'a1': True, 'a2': 'v3', 'a3': '0003', 'a4': 2.4,
                         }),
                     PolyLine([1, 2, 3, 4, 5, 6, 7, 8],
                         attributes={'occluded': False}),
@@ -58,7 +58,7 @@ class CvatImporterTest(TestCase):
                 ], attributes={'frame': 1}),
         ], categories={
             AnnotationType.label: LabelCategories.from_iterable([
-                ['label1', '', {'a1', 'a2', 'a3'}],
+                ['label1', '', {'a1', 'a2', 'a3', 'a4'}],
                 ['label2'],
             ])
         })
@@ -169,10 +169,10 @@ class CvatConverterTest(TestCase):
                         attributes={ 'occluded': True, 'common': 't' }),
                     Points([1, 1, 3, 2, 2, 3],
                         label=2,
-                        attributes={ 'a1': 'x', 'a2': '42', 'empty': '',
+                        attributes={ 'a1': 'x', 'a2': 42, 'empty': '',
                             'unknown': 'bar' }),
                     Label(1),
-                    Label(2, attributes={ 'a1': 'y', 'a2': '44' }),
+                    Label(2, attributes={ 'a1': 'y', 'a2': 44 }),
                 ]
             ),
             DatasetItem(id=1, subset='s1',

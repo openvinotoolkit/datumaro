@@ -26,6 +26,12 @@
               <default_value>0000</default_value>
               <values>0001 0002 0003</values>
             </attribute>
+            <attribute>
+              <name>a4</name>
+              <input_type>number</input_type>
+              <default_value>0</default_value>
+              <values>2.4 1 -5.6</values>
+            </attribute>
           </attributes>
         </label>
         <label>
@@ -39,6 +45,7 @@
       <attribute name="a1">true</attribute>
       <attribute name="a2">v3</attribute>
       <attribute name="a3">0003</attribute>
+      <attribute name="a4">2.4</attribute>
     </box>
     <polyline label="" points="1.0,2;3,4;5,6;7,8"/>
   </image>
