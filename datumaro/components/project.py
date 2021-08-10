@@ -120,7 +120,7 @@ def _update_ignore_file(paths: Union[str, List[str]], repo_root: str,
 
     openmode = 'r+'
     if not osp.isfile(filepath):
-        openmode = 'w+' # r+ cannot create, w+ truncates
+        openmode = 'w+' # r+ cannot create, w truncates
     with open(filepath, openmode) as f:
         lines = []
         if mode in {IgnoreMode.append, IgnoreMode.remove}:
@@ -142,17 +142,16 @@ def _update_ignore_file(paths: Union[str, List[str]], repo_root: str,
                     paths.pop(line_path)
                 new_lines.append(line)
             elif mode == IgnoreMode.remove:
-                if line_path in paths:
-                    paths.pop(line_path)
-                else:
+                if line_path not in paths:
                     new_lines.append(line)
 
         if mode in { IgnoreMode.rewrite, IgnoreMode.append }:
             new_lines.extend(paths.values())
 
         if not new_lines or new_lines[0] != header:
-            f.write(header + '\n')
-        f.write('\n'.join(new_lines))
+            print(header, file=f)
+        for line in new_lines:
+            print(line, file=f)
         f.truncate()
 
 class CrudProxy:
