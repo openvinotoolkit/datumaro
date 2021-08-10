@@ -202,8 +202,8 @@ class ProjectSources(_DataSourceBase):
     def __getitem__(self, name):
         try:
             return super().__getitem__(name)
-        except KeyError:
-            raise KeyError("Unknown source '%s'" % name)
+        except KeyError as e:
+            raise KeyError("Unknown source '%s'" % name) from e
 
 
 class BuildStageType(Enum):
