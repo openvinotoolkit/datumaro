@@ -614,7 +614,7 @@ class ProjectBuildTargets(CrudProxy):
     def __init__(self, tree: 'Tree'):
         self._tree = tree
 
-    @CrudProxy._data.getter
+    @property
     def _data(self):
         data = self._tree.config.build_targets
 
