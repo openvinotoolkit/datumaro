@@ -25,7 +25,6 @@
   - [Stats](#stats)
   - [Validate](#validate)
   - [Transform](#transform)
-  - [Run model inference explanation (explain)](#explain)
   - [Commit](#commit)
   - [Checkout](#checkout)
   - [Status](#status)
@@ -33,6 +32,7 @@
   - Models:
     - [Add](#model-add)
     - [Run](#model-run)
+  - [Run model inference explanation (explain)](#explain)
 - [Extending](#extending)
   - [Builtin plugins](#builtin-plugins)
 - [Links](#links)
@@ -1871,15 +1871,34 @@ eeffa35 Added VOC dataset
 
 ### Register model <a id="model-add"></a>
 
-Supported models:
+Datumaro can execute deep learning models in various frameworks. Check
+[the plugins section](#builtin-plugins) for more info.
+
+Supported frameworks:
 - OpenVINO
 - Custom models via custom `launchers`
+
+Models need to be added to the Datumaro project first. It can be done with
+the `datum model add` command.
 
 Usage:
 
 ``` bash
-datum model add --help
+datum model add
 ```
+
+Parameters:
+- `-l, --launcher` (string) - Model launcher name
+- `--copy` - Copy model data into project. By default, only the link is saved.
+- `--no-check` - Don't check the model can be loaded
+- `-n`, `--name` (string) - Name of the new model (default: generate
+  automatically)
+- `-p, --project` (string) - Directory of the project to operate on
+  (default: current directory).
+- `--help` - Print the help message and exit.
+- `<extra args>` - Additional arguments for the model launcher
+  (use `-- -h` for help). Must be specified after the main command arguments.
+
 
 Example: register an OpenVINO model
 
