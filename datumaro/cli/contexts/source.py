@@ -71,7 +71,26 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
 
 @error_rollback
 def add_command(args):
-    project = load_project(args.project_dir)
+    if '-h' in args.extra_args or '--help' in args.extra_args:
+        if not args.format:
+            raise argparse.ArgumentError('-f/--format',
+                "Extra format args require the format to be specified")
+
+        env = Environment()
+    else:
+        project = load_project(args.project_dir)
+        env = project.env
+
+    fmt = args.format
+    if fmt in env.importers:
+        arg_parser = env.importers[fmt]
+    elif fmt in env.extractors:
+        arg_parser = env.extractors[fmt]
+    else:
+        raise CliException("Unknown format '%s'. A format can be added"
+            "by providing an Extractor and Importer plugins" % fmt)
+
+    extra_args = arg_parser.parse_cmdline(args.extra_args)
 
     name = args.name
     if name:
@@ -81,23 +100,6 @@ def add_command(args):
         name = generate_next_name(
             list(project.working_tree.sources) + os.listdir(),
             'source', sep='-', default='1')
-
-    fmt = args.format
-    if fmt in project.working_tree.env.importers:
-        arg_parser = project.working_tree.env.importers[fmt]
-    elif fmt in project.working_tree.env.extractors:
-        arg_parser = project.working_tree.env.extractors[fmt]
-    else:
-        raise CliException("Unknown format '%s'. A format can be added"
-            "by providing an Extractor and Importer plugins" % fmt)
-
-    extra_args = {}
-    if args.extra_args:
-        if hasattr(arg_parser, 'parse_cmdline'):
-            extra_args = arg_parser.parse_cmdline(args.extra_args)
-        else:
-            raise CliException("Format '%s' does not accept "
-                "extra parameters" % fmt)
 
     project.import_source(name, url=args.url, format=args.format,
         options=extra_args, no_cache=args.no_cache, rpath=args.path)

@@ -54,7 +54,15 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
 
 @error_rollback
 def add_command(args):
-    project = load_project(args.project_dir)
+    if '-h' in args.extra_args or '--help' in args.extra_args:
+        if not args.launcher:
+            raise argparse.ArgumentError('-l/--launcher',
+                "Extra launcher args require the launcher to be specified")
+
+        env = Environment()
+    else:
+        project = load_project(args.project_dir)
+        env = project.env
 
     name = args.name
     if name:
@@ -65,14 +73,12 @@ def add_command(args):
             'model', sep='-', default=0)
 
     try:
-        launcher = project.env.launchers[args.launcher]
+        launcher = env.launchers[args.launcher]
     except KeyError:
         raise CliException("Launcher '%s' is not found" % args.launcher)
 
     cli_plugin = getattr(launcher, 'cli_plugin', launcher)
-    model_args = {}
-    if args.extra_args:
-        model_args = cli_plugin.parse_cmdline(args.extra_args)
+    model_args = cli_plugin.parse_cmdline(args.extra_args)
 
     if args.copy:
         log.info("Copying model data")

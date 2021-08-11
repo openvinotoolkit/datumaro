@@ -18,8 +18,9 @@ from ..util.project import generate_next_file_name
 
 
 def build_parser(parser_ctor=argparse.ArgumentParser):
-    builtin_importers = sorted(Environment().importers.items)
-    builtin_converters = sorted(Environment().converters.items)
+    builtin_readers = sorted(
+        set(Environment().importers) | set(Environment().extractors))
+    builtin_writers = sorted(Environment().converters)
 
     parser = parser_ctor(help="Convert an existing dataset to another format",
         description="""
@@ -36,7 +37,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
             |n
             - Export a dataset as a COCO dataset to a specific directory:|n
             |s|s%(prog)s -i src/path -f coco -o path/I/like/
-        """.format(', '.join(builtin_importers), ', '.join(builtin_converters)),
+        """.format(', '.join(builtin_readers), ', '.join(builtin_writers)),
         formatter_class=MultilineFormatter)
 
     parser.add_argument('-i', '--input-path', default='.', dest='source',

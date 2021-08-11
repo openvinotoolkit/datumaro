@@ -70,7 +70,7 @@ class FilterModes(Enum):
         return [m.name.replace('_', '+') for m in cls]
 
 def build_export_parser(parser_ctor=argparse.ArgumentParser):
-    builtins = sorted(Environment().converters.items)
+    builtins = sorted(Environment().converters)
 
     parser = parser_ctor(help="Export project",
         description="""
@@ -137,7 +137,22 @@ def export_command(args):
         [ProjectBuildTargets.MAIN_TARGET])[0]
     args.extra_args = args._positionals[pos + has_sep:]
 
-    project = load_project(args.project_dir)
+    if '-h' in args.extra_args or '--help' in args.extra_args:
+        if not args.format:
+            raise argparse.ArgumentError('-f/--format',
+                "Extra format args require the format to be specified")
+
+        env = Environment()
+    else:
+        project = load_project(args.project_dir)
+        env = project.env
+
+    try:
+        converter = env.converters[args.format]
+    except KeyError:
+        raise CliException("Converter for format '%s' is not found" % \
+            args.format)
+    extra_args = converter.parse_cmdline(args.extra_args)
 
     dst_dir = args.dst_dir
     if dst_dir:
@@ -148,15 +163,6 @@ def export_command(args):
         dst_dir = generate_next_file_name('export-%s' % \
             make_file_name(args.format))
     dst_dir = osp.abspath(dst_dir)
-
-    try:
-        converter = project.working_tree.env.converters[args.format]
-    except KeyError:
-        raise CliException("Converter for format '%s' is not found" % \
-            args.format)
-    extra_args = {}
-    if args.extra_args:
-        extra_args = converter.parse_cmdline(args.extra_args)
 
     if args.filter:
         filter_args = FilterModes.make_filter_args(args.filter_mode)
@@ -304,7 +310,7 @@ def filter_command(args):
     return 0
 
 def build_transform_parser(parser_ctor=argparse.ArgumentParser):
-    builtins = sorted(Environment().transforms.items)
+    builtins = sorted(Environment().transforms)
 
     parser = parser_ctor(help="Transform project",
         description="""
@@ -354,7 +360,22 @@ def transform_command(args):
         [ProjectBuildTargets.MAIN_TARGET])[0]
     args.extra_args = args._positionals[pos + has_sep:]
 
-    project = load_project(args.project_dir)
+    if '-h' in args.extra_args or '--help' in args.extra_args:
+        if not args.transform:
+            raise argparse.ArgumentError('-t/--transform',
+                "Extra transform args require the transform to be specified")
+
+        env = Environment()
+    else:
+        project = load_project(args.project_dir)
+        env = project.env
+
+    try:
+        transform = env.transforms[args.transform]
+    except KeyError:
+        raise CliException("Transform '%s' is not found" % args.transform)
+
+    extra_args = transform.parse_cmdline(args.extra_args)
 
     if args.stage and args.target not in project.working_tree.build_targets:
         raise CliException("Adding a stage is only allowed for "
@@ -366,15 +387,6 @@ def transform_command(args):
             raise CliException("Directory '%s' already exists "
                 "(pass --overwrite to overwrite)" % dst_dir)
         dst_dir = osp.abspath(dst_dir)
-
-    try:
-        transform = project.working_tree.env.transforms[args.transform]
-    except KeyError:
-        raise CliException("Transform '%s' is not found" % args.transform)
-
-    extra_args = {}
-    if hasattr(transform, 'parse_cmdline'):
-        extra_args = transform.parse_cmdline(args.extra_args)
 
     if args.target == ProjectBuildTargets.MAIN_TARGET:
         targets = list(project.working_tree.sources)
