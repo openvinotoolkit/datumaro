@@ -12,6 +12,7 @@ from attr import attrib, attrs
 import attr
 import numpy as np
 
+from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.errors import DatasetNotFoundError
 from datumaro.util import is_method_redefined
 from datumaro.util.attrs_util import default_if_none, not_empty
@@ -721,7 +722,7 @@ class ExtractorBase(IExtractor):
                 return item
         return None
 
-class Extractor(ExtractorBase):
+class Extractor(ExtractorBase, CliPlugin):
     """
     A base class for user-defined and built-in extractors.
     Should be used in cases, where SourceExtractor is not enough,
@@ -754,7 +755,7 @@ class SourceExtractor(Extractor):
         assert subset == self._subset, '%s != %s' % (subset, self._subset)
         return super().get(id, subset or self._subset)
 
-class Importer:
+class Importer(CliPlugin):
     @classmethod
     def detect(cls, path):
         return len(cls.find_sources(path)) != 0
@@ -823,7 +824,7 @@ class Importer:
                     break
         return sources
 
-class Transform(ExtractorBase):
+class Transform(ExtractorBase, CliPlugin):
     """
     A base class for dataset transformations that change dataset items
     or their annotations.
