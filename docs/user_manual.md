@@ -1959,18 +1959,26 @@ def get_categories():
 
 ### Run model <a id="model-run"></a>
 
-This command applies model to dataset images and produces a new project.
+This command applies model to dataset images and produces a new dataset.
 
 Usage:
 
 ``` bash
-datum model run --help
-
-datum model run \
-  -p <project dir> \
-  -m <model_name> \
-  -o <save_dir>
+datum model run
 ```
+
+Parameters:
+- `<target>` (string) - A project build target to be used.
+  By default, uses the combined project dataset.
+- `-m, --model` (string) - Model name
+- `-o, --output-dir` (string) - Output directory. By default, results will
+  be stored in an auto-generated directory in the current directory.
+- `--overwrite` - Allows to overwrite existing files in the output directory,
+  when it is specified and is not empty.
+- `-p, --project` (string) - Directory of the project to operate on
+  (default: current directory).
+- `--help` - Print the help message and exit.
+
 
 Example: launch inference on a dataset
 
