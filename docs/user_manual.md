@@ -777,7 +777,7 @@ Parameters:
 - `--apply` (bool) - Run this command immediately. If disabled, only the
   build tree stage will be written. Enabled by default.
 - `-o, --output-dir` (string) - Output directory. Can be omitted for
-  data source targets (i.e. not intermediate stages)and the `project` target,
+  data source targets (i.e. not intermediate stages) and the `project` target,
   in which case the results will be saved inplace in the working tree.
 - `--overwrite` - Allows to overwrite existing files in the output directory,
   when it is specified and is not empty.
@@ -811,7 +811,7 @@ datum filter \
   -e '/item/annotation[(label="cat" and area > 99.5) or label!="person"]'
 ```
 
-Example: extract a dataset with only occluded annotations, remove empty images.
+Example: extract a dataset with non-occluded annotations, remove empty images.
 Use data only from the "s1" source of the project.
 
 ``` bash
@@ -819,7 +819,169 @@ datum create
 datum add path/to/dataset1/ --format voc --name s1
 datum add path/to/dataset2/ --format voc --name s2
 datum filter s1 \
-  -m i+a -e '/item/annotation[occluded="True"]'
+  -m i+a -e '/item/annotation[occluded="False"]'
+```
+
+### Transform dataset <a id="transform"></a>
+
+Often datasets need to be modified during preparation for model training and
+experimenting. In trivial cases it can be done manually - e.g. image renaming
+or label renaming. However, in more complex cases even simple modifications
+can require too much efforts, distracting the user from the real work.
+Datumaro provides the `datum transform` command to help in such cases.
+
+This command allows to modify dataset images or annotations all at once.
+
+> This command is designed for batch dataset processing, so if you only
+> need to modify few elements of a dataset, you might want to use
+> other approaches for better performance. A possible solution can be
+> a simple script, which uses [Datumaro API](./developer_guide.md).
+
+Usage:
+
+``` bash
+datum transform
+```
+
+Parameters:
+- `<target>` (string) - A project build target to be transformed.
+  By default, all project targets are affected.
+- `-t, --transform` (string) - Transform method name
+- `--stage` (bool) - Include this action as a project build step.
+  If true, this operation will be saved in the project
+  build tree, allowing to reproduce the resulting dataset later.
+  Applicable only to data source targets (i.e. not intermediate stages)
+  and the `project` target. Enabled by default.
+- `--apply` (bool) - Run this command immediately. If disabled, only the
+  build tree stage will be written. Enabled by default.
+- `-o, --output-dir` (string) - Output directory. Can be omitted for
+  data source targets (i.e. not intermediate stages) and the `project` target,
+  in which case the results will be saved inplace in the working tree.
+- `--overwrite` - Allows to overwrite existing files in the output directory,
+  when it is specified and is not empty.
+- `-p, --project` (string) - Directory of the project to operate on
+  (default: current directory).
+- `--help` - Print the help message and exit.
+- `<extra args>` - The list of extra transformation parameters. Should be
+  passed after the `--` separator after the main command arguments. See
+  transform descriptions for info about extra parameters. Use the `--help`
+  option to print parameter info.
+
+#### Built-in transforms <a id="builtin-transforms"></a>
+
+Basic dataset item manipulations:
+- `rename` - Renames dataset items by regular expression
+- `id_from_image_name` - Renames dataset items to their image filenames
+- `reindex` - Renames dataset items with numbers
+- `ndr` - Removes duplicated images from dataset
+- `sampler` - Runs inference and leaves only the most representative images
+
+Subset manipulations:
+- `random_split` - Splits dataset into subsets randomly
+- `split` - Splits dataset into subsets for classification, detection,
+  segmentation or re-identification
+- `map_subsets` - Renames and removes subsets
+
+Annotation manipulations:
+- `remap_labels` - Renames, adds or removes labels in dataset
+- `shapes_to_boxes` - Replaces spatial annotations with bounding boxes
+- `boxes_to_masks` - Converts bounding boxes to instance masks
+- `polygons_to_masks` - Converts polygons to instance masks
+- `masks_to_polygons` - Converts instance masks to polygons
+- `anns_to_labels` - Replaces annotations having labels with label annotations
+- `merge_instance_segments` - Merges grouped spatial annotations into a mask
+- `crop_covered_segments` - Removes occluded segments of covered masks
+- `bbox_value_decrement` - Subtracts 1 from bbox coordinates
+
+Examples:
+
+- Split a dataset randomly to `train` and `test` subsets, ratio is 2:1
+``` bash
+datum transform -t random_split -- --subset train:.67 --subset test:.33
+```
+
+- Split a dataset for a specific task. The tasks supported are
+classification, detection, segmentation and re-identification.
+
+``` bash
+datum transform -t split -- \
+  -t classification --subset train:.5 --subset val:.2 --subset test:.3
+
+datum transform -t split -- \
+  -t detection --subset train:.5 --subset val:.2 --subset test:.3
+
+datum transform -t split -- \
+  -t segmentation --subset train:.5 --subset val:.2 --subset test:.3
+
+datum transform -t split -- \
+  -t reid --subset train:.5 --subset val:.2 --subset test:.3 \
+  --query .5
+```
+
+- Convert spatial annotations between each other
+
+``` bash
+datum transform -t boxes_to_masks
+datum transform -t masks_to_polygons
+datum transform -t polygons_to_masks
+datum transform -t shapes_to_boxes
+```
+
+- Remap dataset labels, `person` to `car` and `cat` to `dog`,
+keep `bus`, remove others
+
+``` bash
+datum transform -t remap_labels -- \
+  -l person:car -l bus:bus -l cat:dog \
+  --default delete
+```
+
+- Rename dataset items by a regular expression
+  - Replace `pattern` with `replacement`
+  - Remove `frame_` from item ids
+
+``` bash
+datum transform -t rename -- -e '|pattern|replacement|'
+datum transform -t rename -- -e '|frame_(\d+)|\\1|'
+```
+
+- Create a dataset from K the most hard items for a model. The dataset will
+be split into the `sampled` and `unsampled` subsets, based on the model
+confidence, which is stored in the `scores` annotation attribute.
+
+There are five methods of sampling (the `-m/--method` option):
+- `topk` - Return the k with high uncertainty data
+- `lowk` - Return the k with low uncertainty data
+- `randk` - Return the random k data
+- `mixk` - Return half to topk method and the rest to lowk method
+- `randtopk` - First, select 3 times the number of k randomly, and return
+  the topk among them.
+
+``` bash
+datum transform -t sampler -- \
+  -a entropy \
+  -i train \
+  -o sampled \
+  -u unsampled \
+  -m topk \
+  -k 20
+```
+
+- Remove dumplicated images from a dataset. Keep at most N resulting images.
+  - Available sampling options (the `-e` parameter):
+    - `random` - sample from removed data randomly
+    - `similarity` - sample from removed data with ascending
+  - Available sampling methods (the `-u` parameter):
+    - `uniform` - sample data with uniform distribution
+    - `inverse` - sample data with reciprocal of the number
+
+```bash
+datum transform -t ndr -- \
+  -w train \
+  -a gradient \
+  -k 100 \
+  -e random \
+  -u uniform
 ```
 
 ### Merge datasets <a id="merge"></a>
@@ -1936,139 +2098,6 @@ def process_outputs(inputs, outputs):
             results.append(image_results[:max_det])
 
     return results
-```
-
-### Transform project <a id="transform"></a>
-
-#### Built-in transforms <a id="builtin-transforms"></a>
-- Basic dataset item transforms:
-  - `rename`
-  - `id_from_image_name`
-  - `reindex`
-  - `ndr`
-  - `sampler`
-
-- Annotation transforms:
-  - `remap_labels`
-  - `shapes_to_boxes`
-  - `boxes_to_masks`
-  - `polygons_to_masks`
-  - `masks_to_polygons`
-  - `anns_to_labels`
-  - `merge_instance_segments`
-  - `crop_covered_segments`
-  - `bbox_value_decrement`
-
-- Subset splitters and naming
-  - `random_split`
-  - `classification_split`
-  - `detection_split`
-  - `reid_split`
-  - `map_subsets`
-
-
-This command allows to modify images or annotations in a project all at once.
-
-Note that this command is designed for batch processing and if you only
-need to modify few elements of a dataset, you might want to use
-other approaches for better performance.
-
-``` bash
-datum transform --help
-
-datum transform \
-    -p <project_dir> \
-    -t <transform_name> \
-    -- [extra transform options]
-```
-
-Example: split a dataset randomly to `train` and `test` subsets, ratio is 2:1
-
-``` bash
-datum transform -t random_split -- --subset train:.67 --subset test:.33
-```
-
-Example: split a dataset in task-specific manner. The tasks supported are
-classification, detection, segmentation and re-identification.
-
-``` bash
-datum transform -t split -- \
-    -t classification --subset train:.5 --subset val:.2 --subset test:.3
-
-datum transform -t split -- \
-    -t detection --subset train:.5 --subset val:.2 --subset test:.3
-
-datum transform -t split -- \
-    -t segmentation --subset train:.5 --subset val:.2 --subset test:.3
-
-datum transform -t split -- \
-    -t reid --subset train:.5 --subset val:.2 --subset test:.3 \
-    --query .5
-```
-
-Example: convert polygons to masks, masks to boxes etc.:
-
-``` bash
-datum transform -t boxes_to_masks
-datum transform -t masks_to_polygons
-datum transform -t polygons_to_masks
-datum transform -t shapes_to_boxes
-```
-
-Example: remap dataset labels, `person` to `car` and `cat` to `dog`,
-keep `bus`, remove others
-
-``` bash
-datum transform -t remap_labels -- \
-    -l person:car -l bus:bus -l cat:dog \
-    --default delete
-```
-
-Example: rename dataset items by a regular expression
-- Replace `pattern` with `replacement`
-- Remove `frame_` from item ids
-
-``` bash
-datum transform -t rename -- -e '|pattern|replacement|'
-datum transform -t rename -- -e '|frame_(\d+)|\\1|'
-```
-
-Example: sampling dataset items as many as the number of target samples with
-sampling method entered by the user, divide into `sampled` and `unsampled`
-subsets
-- There are five methods of sampling the m option.
-  - `topk`: Return the k with high uncertainty data
-  - `lowk`: Return the k with low uncertainty data
-  - `randk`: Return the random k data
-  - `mixk`: Return half to topk method and the rest to lowk method
-  - `randtopk`: First, select 3 times the number of k randomly, and return
-  the topk among them.
-
-``` bash
-datum transform -t sampler -- \
-    -a entropy \
-    -i train \
-    -o sampled \
-    -u unsampled \
-    -m topk \
-    -k 20
-```
-
-Example : control number of outputs to 100 after NDR
-- There are two methods in NDR e option
-  - `random`: sample from removed data randomly
-  - `similarity`: sample from removed data with ascending
-- There are two methods in NDR u option
-  - `uniform`: sample data with uniform distribution
-  - `inverse`: sample data with reciprocal of the number
-
-```bash
-datum transform -t ndr -- \
-    -w train \
-    -a gradient \
-    -k 100 \
-    -e random \
-    -u uniform
 ```
 
 ## Extending
