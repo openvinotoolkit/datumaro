@@ -1397,17 +1397,22 @@ class DvcWrapper:
         # return set(s.addressing for s in self.repo.stages)
 
     def run(self, name, cmd, deps=None, outs=None, force=False):
-        args = ['run', '-n', name]
-        if force:
-            args.append('--force')
-        for d in deps:
-            args.append('-d')
-            args.append(d)
-        for o in outs:
-            args.append('--outs')
-            args.append(o)
-        args.extend(cmd)
-        self._exec(args, hide_output=False)
+        # This functionality is not used by the project yet
+        raise NotImplementedError()
+
+        # args = ['run', '-n', name]
+        # if force:
+        #     args.append('--force')
+        # if deps:
+        #     for d in deps:
+        #         args.append('-d')
+        #         args.append(d)
+        # if outs:
+        #     for o in outs:
+        #         args.append('--outs')
+        #         args.append(o)
+        # args.extend(cmd)
+        # self._exec(args, hide_output=False)
 
     def repro(self, targets=None, force=False, pull=False):
         # This functionality is not used by the project yet
