@@ -1004,7 +1004,7 @@ unique ones across datasets. Annotations are matched between matching dataset
 items by distance. Spatial annotations are compared by the applicable distance
 measure (IoU, OKS, PDJ etc.), labels and annotation attributes are selected
 by voting. Each set of matching annotations produces a single annotation in
-the resulting dataset. The `score` (a number in the range [0; 1]) attribute
+the resulting dataset. The `score` (a number in the range \[0; 1\]) attribute
 indicates the agreement between different sources in the produced annotation.
 The working time of the function can be estimated as
 `O( (summary dataset length) * (dataset count) ^ 2 * (item annotations) ^ 2 )`
@@ -1908,7 +1908,7 @@ used to convert model outputs to internal data structures.
 ``` bash
 datum create
 datum model add \
-  -n <model_name> -l open_vino -- \
+  -n <model_name> -l openvino -- \
   -d <path_to_xml> -w <path_to_bin> -i <path_to_interpretation_script>
 ```
 
