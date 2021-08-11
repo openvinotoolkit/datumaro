@@ -13,7 +13,7 @@ import numpy as np
 
 from datumaro.components.dataset_filter import DatasetItemEncoder
 from datumaro.components.environment import Environment
-from datumaro.components.errors import DatasetMergeError
+from datumaro.components.errors import DatasetMergeError, ProjectNotFoundError
 from datumaro.components.extractor import AnnotationType
 from datumaro.components.operations import (
     compute_ann_statistics, compute_image_statistics,
@@ -26,7 +26,8 @@ from datumaro.util.os_util import make_file_name
 from ...util import MultilineFormatter, add_subparser
 from ...util.errors import CliException
 from ...util.project import (
-    generate_next_file_name, load_project, split_local_revpath,
+    generate_next_file_name, load_project, parse_full_revpath,
+    split_local_revpath,
 )
 
 
@@ -74,29 +75,29 @@ def build_export_parser(parser_ctor=argparse.ArgumentParser):
 
     parser = parser_ctor(help="Export project",
         description="""
-            Exports the project dataset in some format. Optionally, a filter
-            can be passed, check 'filter' command description for more info.
-            Each dataset format has its own options, which
-            are passed after '--' separator (see examples), pass '-- -h'
-            for more info. If not stated otherwise, by default
-            only annotations are exported, to include images pass
-            '--save-images' parameter.|n
-            |n
-            Formats:|n
-            In Datumaro dataset formats are supported by Converter-s.
-            A Converter produces a dataset of a specific format
-            from dataset items. It is possible to add a custom Converter.
-            To do this, you need to put a Converter
-            definition script to <project_dir>/.datumaro/converters.|n
-            |n
-            List of builtin dataset formats: {}|n
-            |n
-            Examples:|n
-            - Export project as a VOC-like dataset, include images:|n
-            |s|s%(prog)s -f voc -- --save-images|n
-            |n
-            - Export project as a COCO-like dataset in other directory:|n
-            |s|s%(prog)s -f coco -o path/I/like/
+        Exports a dataset in some format. Optionally, a filter
+        can be passed, check 'filter' command description for more info.
+        Each dataset format has its own options, which
+        are passed after '--' separator (see examples), pass '-- -h'
+        for more info. If not stated otherwise, by default
+        only annotations are exported, to include images pass
+        '--save-images' parameter.|n
+        |n
+        Formats:|n
+        In Datumaro dataset formats are supported by Converter-s.
+        A Converter produces a dataset of a specific format
+        from dataset items. It is possible to add a custom Converter.
+        To do this, you need to put a Converter
+        definition script to <project_dir>/.datumaro/converters.|n
+        |n
+        List of builtin dataset formats: {}|n
+        |n
+        Examples:|n
+        - Export project as a VOC-like dataset, include images:|n
+        |s|s%(prog)s -f voc -- --save-images|n
+        |n
+        - Export project as a COCO-like dataset in other directory:|n
+        |s|s%(prog)s -f coco -o path/I/like/
         """.format(', '.join(builtins)),
         formatter_class=MultilineFormatter)
 
@@ -185,40 +186,40 @@ def export_command(args):
     return 0
 
 def build_filter_parser(parser_ctor=argparse.ArgumentParser):
-    parser = parser_ctor(help="Extract subproject",
+    parser = parser_ctor(help="Extract subdataset",
         description="""
-            Extracts a subproject that contains only items matching filter.
-            A filter is an XPath expression, which is applied to XML
-            representation of a dataset item. Check '--dry-run' parameter
-            to see XML representations of the dataset items.|n
-            |n
-            To filter annotations use the mode ('-m') parameter.|n
-            Supported modes:|n
-            - 'i', 'items'|n
-            - 'a', 'annotations'|n
-            - 'i+a', 'a+i', 'items+annotations', 'annotations+items'|n
-            When filtering annotations, use the 'items+annotations'
-            mode to point that annotation-less dataset items should be
-            removed. To select an annotation, write an XPath that
-            returns 'annotation' elements (see examples).|n
-            |n
-            Examples:|n
-            - Filter images with width < height:|n
-            |s|s%(prog)s -e '/item[image/width < image/height]'|n
-            |n
-            - Filter images with large-area bboxes:|n
-            |s|s%(prog)s -e '/item[annotation/type="bbox" and
-                annotation/area>2000]'|n
-            |n
-            - Filter out all irrelevant annotations from items:|n
-            |s|s%(prog)s -m a -e '/item/annotation[label = "person"]'|n
-            |n
-            - Filter out all irrelevant annotations from items:|n
-            |s|s%(prog)s -m a -e '/item/annotation[label="cat" and
-            area > 99.5]'|n
-            |n
-            - Filter occluded annotations and items, if no annotations left:|n
-            |s|s%(prog)s -m i+a -e '/item/annotation[occluded="True"]'
+        Extracts a subdataset that contains only items matching filter.
+        A filter is an XPath expression, which is applied to XML
+        representation of a dataset item. Check '--dry-run' parameter
+        to see XML representations of the dataset items.|n
+        |n
+        To filter annotations use the mode ('-m') parameter.|n
+        Supported modes:|n
+        - 'i', 'items'|n
+        - 'a', 'annotations'|n
+        - 'i+a', 'a+i', 'items+annotations', 'annotations+items'|n
+        When filtering annotations, use the 'items+annotations'
+        mode to point that annotation-less dataset items should be
+        removed. To select an annotation, write an XPath that
+        returns 'annotation' elements (see examples).|n
+        |n
+        Examples:|n
+        - Filter images with width < height:|n
+        |s|s%(prog)s -e '/item[image/width < image/height]'|n
+        |n
+        - Filter images with large-area bboxes:|n
+        |s|s%(prog)s -e '/item[annotation/type="bbox" and
+            annotation/area>2000]'|n
+        |n
+        - Filter out all irrelevant annotations from items:|n
+        |s|s%(prog)s -m a -e '/item/annotation[label = "person"]'|n
+        |n
+        - Filter out all irrelevant annotations from items:|n
+        |s|s%(prog)s -m a -e '/item/annotation[label="cat" and
+        area > 99.5]'|n
+        |n
+        - Filter occluded annotations and items, if no annotations left:|n
+        |s|s%(prog)s -m i+a -e '/item/annotation[occluded="True"]'
         """,
         formatter_class=MultilineFormatter)
 
@@ -314,14 +315,13 @@ def build_transform_parser(parser_ctor=argparse.ArgumentParser):
 
     parser = parser_ctor(help="Transform project",
         description="""
-            Applies some operation to dataset items in the project
-            and produces a new project.|n
-            |n
-            Builtin transforms: {}|n
-            |n
-            Examples:|n
-            - Convert instance polygons to masks:|n
-            |s|s%(prog)s -t polygons_to_masks
+        Applies a batch operation to dataset and produces a new dataset.|n
+        |n
+        Builtin transforms: {}|n
+        |n
+        Examples:|n
+        - Convert instance polygons to masks:|n
+        |s|s%(prog)s -t polygons_to_masks
         """.format(', '.join(builtins)),
         formatter_class=MultilineFormatter)
 
@@ -425,17 +425,29 @@ def transform_command(args):
 def build_stats_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(help="Get project statistics",
         description="""
-            Outputs various project statistics like image mean and std,
-            annotations count etc.|n
-            |n
-            Examples:|n
-            - Compute project statistics:|n
-            |s|s%(prog)s
+        Outputs various project statistics like image mean and std,
+        annotations count etc.|n
+        |n
+        Target dataset is specified by a revpath. The full syntax is:|n
+        - Dataset paths:|n
+        |s|s- <dataset path>[ :<format> ]|n
+        - Revision paths:|n
+        |s|s- <project path> [ @<rev> ] [ :<target> ]|n
+        |s|s- <rev> [ :<target> ]|n
+        |s|s- <target>|n
+        |n
+        Both forms use the -p/--project as a context for plugins. It can be
+        useful for dataset paths in targets. When not specified, the current
+        project's working tree is used.|n
+        |n
+        Examples:|n
+        - Compute project statistics:|n
+        |s|s%(prog)s
         """,
         formatter_class=MultilineFormatter)
 
     parser.add_argument('target', default='project', nargs='?',
-        help="Target revpath (default: project)")
+        help="Target dataset revpath (default: project)")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to operate on (default: current dir)")
     parser.set_defaults(command=stats_command)
@@ -443,9 +455,14 @@ def build_stats_parser(parser_ctor=argparse.ArgumentParser):
     return parser
 
 def stats_command(args):
-    rev, target = split_local_revpath(args.target)
-    project = load_project(args.project_dir)
-    dataset = project.get_rev(rev).make_dataset(target)
+    project = None
+    try:
+        project = load_project(args.project_dir)
+    except ProjectNotFoundError:
+        if args.project_dir:
+            raise
+
+    dataset = parse_full_revpath(args.target, project)
 
     stats = {}
     stats.update(compute_image_statistics(dataset))
@@ -459,17 +476,17 @@ def stats_command(args):
 def build_info_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(help="Get project info",
         description="""
-            Outputs project info - information about plugins,
-            sources and models.|n
-            |n
-            Examples:|n
-            - Print project contents:|n
-            |s|s%(prog)s
+        Outputs project info - information about plugins,
+        sources and models.|n
+        |n
+        Examples:|n
+        - Print project contents:|n
+        |s|s%(prog)s
         """,
         formatter_class=MultilineFormatter)
 
     parser.add_argument('target', default='project', nargs='?',
-        help="Target revpath (default: project)")
+        help="Target source revpath (default: project)")
     parser.add_argument('--all', action='store_true',
         help="Print all information")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
@@ -550,12 +567,23 @@ def info_command(args):
 def build_validate_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(help="Validate project",
         description="""
-            Validates a project according to the task type and
-            reports summary in a JSON file.|n
-            |n
-            Examples:|n
-            - Validate a project's subset as a classification dataset:|n
-            |s|s%(prog)s -t classification -s train
+        Validates a dataset according to the task type and
+        reports summary in a JSON file.|n
+        Target dataset is specified by a revpath. The full syntax is:|n
+        - Dataset paths:|n
+        |s|s- <dataset path>[ :<format> ]|n
+        - Revision paths:|n
+        |s|s- <project path> [ @<rev> ] [ :<target> ]|n
+        |s|s- <rev> [ :<target> ]|n
+        |s|s- <target>|n
+        |n
+        Both forms use the -p/--project as a context for plugins. It can be
+        useful for dataset paths in targets. When not specified, the current
+        project's working tree is used.|n
+        |n
+        Examples:|n
+        - Validate a project's subset as a classification dataset:|n
+        |s|s%(prog)s -t classification -s train
         """,
         formatter_class=MultilineFormatter)
 
@@ -568,7 +596,7 @@ def build_validate_parser(parser_ctor=argparse.ArgumentParser):
                 "one of: %s" % (s, task_types))
 
     parser.add_argument('target', default='project', nargs='?',
-        help="Target revpath to validate (default: project)")
+        help="Target dataset revpath (default: project)")
     parser.add_argument('-t', '--task_type', type=_parse_task_type,
         help="Task type for validation, one of %s" % task_types)
     parser.add_argument('-s', '--subset', dest='subset_name', default=None,
@@ -582,23 +610,31 @@ def build_validate_parser(parser_ctor=argparse.ArgumentParser):
     return parser
 
 def validate_command(args):
-    rev, target = split_local_revpath(args.target)
-    project = load_project(args.project_dir)
-    dst_file_name = f'report-{target}-{args.task_type}'
+    project = None
+    try:
+        project = load_project(args.project_dir)
+    except ProjectNotFoundError:
+        if args.project_dir:
+            raise
 
-    dataset = project.get_rev(rev).make_dataset(target)
+    if project is not None:
+        env = project.env
+    else:
+        env = Environment()
+
+    dst_file_name = f'validation-report'
+
+    dataset = parse_full_revpath(args.target, project)
     if args.subset_name is not None:
         dataset = dataset.get_subset(args.subset_name)
         dst_file_name += f'-{args.subset_name}'
 
     try:
-        validator_type = project.env.validators[args.task_type]
+        validator_type = env.validators[args.task_type]
     except KeyError:
         raise CliException("Validator type '%s' is not found" % args.task_type)
 
-    extra_args = {}
-    if hasattr(validator_type, 'parse_cmdline'):
-        extra_args = validator_type.parse_cmdline(args.extra_args)
+    extra_args = validator_type.parse_cmdline(args.extra_args)
 
     validator = validator_type(**extra_args)
     report = validator.validate(dataset)
