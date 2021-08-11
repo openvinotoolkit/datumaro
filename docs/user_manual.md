@@ -31,6 +31,7 @@
   - [Log](#log)
   - Models:
     - [Add](#model-add)
+    - [Remove](#model-add)
     - [Run](#model-run)
   - [Run model inference explanation (explain)](#explain)
 - [Extending](#extending)
@@ -622,7 +623,7 @@ datum remove <name> ...
 ```
 
 Parameters:
-- `<name>` (string) - The name of the source to removed (repeatable)
+- `<name>` (string) - The name of the source to be removed (repeatable)
 - `-f, --force` - Do not fail and stop on errors during removal
 - `--keep-data` - Do not remove source data from the working directory, remove
   only project metainfo.
@@ -1955,6 +1956,30 @@ def get_categories():
     label_categories.add('person')
     label_categories.add('car')
     return { AnnotationType.label: label_categories }
+```
+
+### Remove models <a id="model-remove"></a>
+
+To remove a model from a project, use the `datum model remove` command.
+
+Usage:
+
+``` bash
+datum remove <name> ...
+```
+
+Parameters:
+- `<name>` (string) - The name of the model to be removed
+- `-p, --project` (string) - Directory of the project to operate on
+  (default: current directory).
+- `--help` - Print the help message and exit.
+
+Example:
+
+```bash
+datum create
+datum model add <...> -n model1
+datum remove model1
 ```
 
 ### Run model <a id="model-run"></a>
