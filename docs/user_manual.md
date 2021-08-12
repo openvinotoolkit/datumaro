@@ -75,7 +75,7 @@ plugin dependencies in the [plugins](#extending) section.
 
 - In some cases, there can be limited use for UI elements outside CLI,
   or limited options of installing graphical libraries in the system
-  (various Docker environments, servers etc). You can select bewtween using
+  (various Docker environments, servers etc). You can select between using
   `opencv` and `opencv-headless` by setting the `DATUMARO_HEADLESS`
   environment variable to `0` or `1` before installing the package.
   It requires building from source:
@@ -450,6 +450,19 @@ which splits a video into frames, or split the video manually and import images.
 > **Note**: command invocation syntax is subject of change,
 > **always refer to the `--help` output of the specific command**
 
+Datumaro functionality is available with the `datum` command.
+
+Usage:
+```bash
+datum [-h] [--version] [--loglevel LOGLEVEL] [command] [command args]
+```
+
+Parameters:
+- `--loglevel` (string) - Logging level, one of
+  `debug`, `info`, `warning`, `error`, `critical` (default: `info`)
+- `--version` Print the version number and exit.
+- `--help` - Print the help message and exit.
+
 ### Convert datasets <a id="convert"></a>
 
 This command allows to convert a dataset from one format to another.
@@ -461,15 +474,25 @@ formats can be found in the `--help` output of this command.
 Usage:
 
 ``` bash
-datum convert --help
-
-datum convert \
-    -i <input path> \
-    -if <input format> \
-    -o <output path> \
-    -f <output format> \
-    -- [extra parameters for output format]
+datum convert
 ```
+
+Parameters:
+- `-i, --input-path` (string) - Input dataset path.
+- `-if, --input-format` (string) - Input dataset format. Will try to detect,
+  if not specified.
+- `-f, --output-format` (string) - Output format
+- `-o, --output-dir` (string) - Output directory. By default, a subdirectory
+  in the current directory is used.
+- `--overwrite` - Allows to overwrite existing files in the output directory,
+  when it is not empty.
+- `-e, --filter` (string) - XML XPath filter expression for dataset items
+- `--filter-mode` (string) - The filtering mode. Default is the `i` mode.
+- `-p, --project` (string) - Directory of the project to operate on
+  (default: current directory).
+- `-- <extra export args>` - Additional arguments for the format writer
+  (use `-- -h` for help). Must be specified after the main command arguments.
+- `--help` - Print the help message and exit.
 
 Example: convert a VOC-like dataset to a COCO-like one:
 
@@ -496,7 +519,7 @@ datum create [-o <project_dir>]
 ```
 
 Parameters:
-- `-o, --output-dir <path>` (string) - Allows to specify an output directory.
+- `-o, --output-dir` (string) - Allows to specify an output directory.
   The current directory is used by default.
 - `--overwrite` - Allows to overwrite existing project files in the output
   directory. Any other files are not touched.
@@ -548,14 +571,14 @@ The usage information can be printed with `datum add -f <format> -- --help`.
 
 Check [supported formats](#dataset-formats) for more info about
 format specifications, supported options and other details.
-The list of formats can be extened by custom plugins, check [extending tips](#extending)
+The list of formats can be extended by custom plugins, check [extending tips](#extending)
 for information on this topic.
 
 The list of currently available formats are listed in the command help output.
 
 Datumaro supports working with complete datasets, having both image data and
 annotations, or with annotations only. It can be used to prepare
-images and annotations independenty of each other, or to process the
+images and annotations independently of each other, or to process the
 lightweight annotations without downloading the whole dataset.
 
 A dataset is imported by its URL. Currently, only local filesystem
@@ -592,11 +615,11 @@ Parameters:
 - `--no-cache` - Don't put a copy into the project cache
 - `-n`, `--name` (string) - Name of the new source (default: generate
   automatically)
-- `-- <extra format args>` - Additional arguments for the format reader
-  (use `-- -h` for help). Must be specified after the main command arguments.
 - `-p, --project` (string) - Directory of the project to operate on
   (default: current directory).
 - `--help` - Print the help message and exit.
+- `-- <extra format args>` - Additional arguments for the format reader
+  (use `-- -h` for help). Must be specified after the main command arguments.
 
 Example: create a project from images and annotations in different formats,
 export as TFrecord for TF Detection API for model training
@@ -619,7 +642,7 @@ To remove a data source from a project, use the `remove` command.
 Usage:
 
 ``` bash
-datum remove <name> ...
+datum remove <name>
 ```
 
 Parameters:
@@ -645,7 +668,7 @@ This command exports a project or a source as a dataset in some format.
 
 Check [supported formats](#dataset-formats) for more info about
 format specifications, supported options and other details.
-The list of formats can be extened by custom plugins, check [extending tips](#extending)
+The list of formats can be extended by custom plugins, check [extending tips](#extending)
 for information on this topic.
 
 Available formats are listed in the command help output.
@@ -675,7 +698,7 @@ datum export
 
 Parameters:
 - `<target>` (string) - A project build target to be exported.
-  By default, all project targes are affected.
+  By default, all project targets are affected.
 - `-f, --format` (string) - Output format.
 - `-e, --filter` (string) - XML XPath filter expression for dataset items
 - `--filter-mode` (string) - The filtering mode. Default is the `i` mode.
@@ -685,9 +708,9 @@ Parameters:
   when it is not empty.
 - `-p, --project` (string) - Directory of the project to operate on
   (default: current directory).
+- `--help` - Print the help message and exit.
 - `-- <extra format args>` - Additional arguments for the format writer
   (use `-- -h` for help). Must be specified after the main command arguments.
-- `--help` - Print the help message and exit.
 
 Example: save a project as a VOC-like dataset, include images, convert
 images to `PNG` from other formats.
@@ -761,7 +784,7 @@ dataset(-s) will be saved if `--apply` is enabled.
 Usage:
 
 ``` bash
-datum filter -e '<xpath filter expression>'
+datum filter
 ```
 
 Parameters:
@@ -968,7 +991,7 @@ datum transform -t sampler -- \
   -k 20
 ```
 
-- Remove dumplicated images from a dataset. Keep at most N resulting images.
+- Remove duplicated images from a dataset. Keep at most N resulting images.
   - Available sampling options (the `-e` parameter):
     - `random` - sample from removed data randomly
     - `similarity` - sample from removed data with ascending
@@ -1083,7 +1106,7 @@ Merge images and annotations from 2 datasets in COCO format:
 `datum merge dataset1/:image_dir dataset2/:coco dataset3/:coco`
 
 Check groups of the merged dataset for consistency:
-  look for groups consising of `person`, `hand` `head`, `foot`
+  look for groups consisting of `person`, `hand` `head`, `foot`
 `datum merge project1/ project2/ -g 'person,hand?,head,foot?'`
 
 Merge two datasets, specify formats:
@@ -1147,7 +1170,7 @@ Parameters:
 
 Examples:
 - Compare two projects by distance, match boxes if IoU > 0.7,
-  save results to Tensorboard:
+  save results to TensorBoard:
 `datum diff other/project -o diff/ -f tensorboard --iou-thresh 0.7`
 
 - Compare two projects for equality, exclude annotation groups
@@ -1699,7 +1722,7 @@ numerical_stat_template = {
     'items_far_from_mean': <dict>,
     # {'<item_key>': {<ann_id:int>: <value:float>, }, }
     'mean': <float>,
-    'stdev': <float>,
+    'stddev': <float>,
     'min': <float>,
     'max': <float>,
     'median': <float>,
@@ -2062,7 +2085,7 @@ Parameters:
     (default: mask size ^ 2).
   - `--mw, --mask-width` (number) - Mask width in pixels (default: 7)
   - `--mh, --mask-height` (number) - Mask height in pixels (default: 7)
-  - `--prob` (number) - Mask pixel inclusion probablility, controls
+  - `--prob` (number) - Mask pixel inclusion probability, controls
     mask density (default: 0.5)
   - `--iou, --iou-thresh` (number) - IoU match threshold for detections
     (default: 0.9)
@@ -2154,7 +2177,7 @@ def process_outputs(inputs, outputs):
 
 ## Extending
 
-There are few ways to extend and customize Datumaro behaviour, which is
+There are few ways to extend and customize Datumaro behavior, which is
 supported by plugins. Check [our contribution guide](../CONTRIBUTING.md) for
 details on plugin implementation. In general, a plugin is a Python code file.
 It must be put into a plugin directory:
