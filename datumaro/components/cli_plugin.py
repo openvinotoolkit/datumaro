@@ -2,12 +2,32 @@
 #
 # SPDX-License-Identifier: MIT
 
+from typing import List, Type
 import argparse
 import logging as log
 
 from datumaro.cli.util import MultilineFormatter
 from datumaro.util import to_snake_case
 
+_plugin_types = None
+def plugin_types() -> List[Type['CliPlugin']]:
+    global _plugin_types
+    if _plugin_types is None:
+        from datumaro.components.converter import Converter
+        from datumaro.components.extractor import Extractor, Importer, Transform
+        from datumaro.components.launcher import Launcher
+        from datumaro.components.validator import Validator
+
+        _plugin_types = [Launcher, Extractor, Transform, Importer,
+            Converter, Validator]
+
+    return _plugin_types
+
+def remove_plugin_type(s):
+    for t in {'transform', 'extractor', 'converter', 'launcher', 'importer',
+            'validator'}:
+        s = s.replace('_' + t, '')
+    return s
 
 class CliPlugin:
     @staticmethod
@@ -19,14 +39,7 @@ class CliPlugin:
     def _get_doc(cls):
         doc = getattr(cls, '__doc__', "")
         if doc:
-            from datumaro.components.converter import Converter
-            from datumaro.components.extractor import (
-                Extractor, Importer, Transform,
-            )
-            from datumaro.components.launcher import Launcher
-            base_classes = [Launcher, Extractor, Transform, Importer, Converter]
-
-            if any(getattr(t, '__doc__', '') == doc for t in base_classes):
+            if any(getattr(t, '__doc__', '') == doc for t in plugin_types()):
                 doc = ''
         return doc
 
@@ -53,9 +66,3 @@ class CliPlugin:
             '\n\t'.join('%s: %s' % (k, v) for k, v in args.items()))
 
         return args
-
-def remove_plugin_type(s):
-    for t in {'transform', 'extractor', 'converter', 'launcher', 'importer',
-            'validator'}:
-        s = s.replace('_' + t, '')
-    return s

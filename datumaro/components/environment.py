@@ -10,6 +10,7 @@ import logging as log
 import os
 import os.path as osp
 
+from datumaro.components.cli_plugin import CliPlugin, plugin_types
 from datumaro.util.os_util import import_foreign_module
 
 
@@ -43,8 +44,6 @@ class PluginRegistry(Registry):
         self.filter = filter
 
     def batch_register(self, values: Iterable):
-        from datumaro.components.cli_plugin import CliPlugin
-
         for v in values:
             if self.filter and not self.filter(v):
                 continue
@@ -67,6 +66,7 @@ class Environment:
             Extractor, Importer, ItemTransform, SourceExtractor, Transform,
         )
         from datumaro.components.launcher import Launcher
+        from datumaro.components.validator import Validator
         self._extractors = PluginRegistry(_filter(Extractor,
             skip=SourceExtractor))
         self._importers = PluginRegistry(_filter(Importer))
@@ -74,6 +74,7 @@ class Environment:
         self._converters = PluginRegistry(_filter(Converter))
         self._transforms = PluginRegistry(_filter(Transform,
             skip=ItemTransform))
+        self._validators = PluginRegistry(_filter(Validator))
         self._builtins_initialized = False
 
     def _get_plugin_registry(self, name):
@@ -101,6 +102,10 @@ class Environment:
     @property
     def transforms(self) -> PluginRegistry:
         return self._get_plugin_registry('_transforms')
+
+    @property
+    def validators(self) -> PluginRegistry:
+        return self._get_plugin_registry('_validators')
 
     @staticmethod
     def _find_plugins(plugins_dir):
@@ -141,15 +146,7 @@ class Environment:
 
     @classmethod
     def _load_plugins(cls, plugins_dir, types=None):
-        if not types:
-            from datumaro.components.converter import Converter
-            from datumaro.components.extractor import (
-                Extractor, Importer, Transform,
-            )
-            from datumaro.components.launcher import Launcher
-            types = [Extractor, Converter, Importer, Launcher, Transform]
-
-        types = tuple(types)
+        types = tuple(types or plugin_types())
 
         plugins = cls._find_plugins(plugins_dir)
 
@@ -206,6 +203,7 @@ class Environment:
         self.launchers.batch_register(plugins)
         self.converters.batch_register(plugins)
         self.transforms.batch_register(plugins)
+        self.validators.batch_register(plugins)
 
     def make_extractor(self, name, *args, **kwargs):
         return self.extractors.get(name)(*args, **kwargs)
