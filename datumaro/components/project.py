@@ -847,59 +847,6 @@ class GitWrapper:
 
         self.repo = repo
 
-    @property
-    def refs(self) -> List[str]:
-        return [t.name for t in self.repo.refs]
-
-    @property
-    def tags(self) -> List[str]:
-        return [t.name for t in self.repo.tags]
-
-    def push(self, remote=None):
-        # This functionality is not used by the project yet
-        raise NotImplementedError()
-
-        # args = [remote] if remote else []
-        # remote = self.repo.remote(*args)
-        # branch = self.repo.head.ref.name
-        # if not self.repo.head.ref.tracking_branch():
-        #     self.repo.git.push('--set-upstream', remote, branch)
-        # else:
-        #     remote.push(branch)
-
-    def pull(self, remote=None):
-        # This functionality is not used by the project yet
-        raise NotImplementedError()
-
-        # args = [remote] if remote else []
-        # return self.repo.remote(*args).pull()
-
-    def check_updates(self, remote=None) -> List[str]:
-        # This functionality is not used by the project yet
-        raise NotImplementedError()
-
-        # args = [remote] if remote else []
-        # remote = self.repo.remote(*args)
-        # prev_refs = {r.name: r.commit.hexsha for r in remote.refs}
-        # remote.update()
-        # new_refs = {r.name: r.commit.hexsha for r in remote.refs}
-        # updated_refs = [(prev_refs.get(n), new_refs.get(n))
-        #     for n, _ in (set(prev_refs.items()) ^ set(new_refs.items()))]
-        # return updated_refs
-
-    def fetch(self, remote=None):
-        # This functionality is not used by the project yet
-        raise NotImplementedError()
-
-        # args = [remote] if remote else []
-        # self.repo.remote(*args).fetch()
-
-    def tag(self, name):
-        # This functionality is not used by the project yet
-        raise NotImplementedError()
-
-        # self.repo.create_tag(name)
-
     def checkout(self, ref: str = None, dst_dir=None, clean=False, force=False):
         # If user wants to navigate to a head, we need to supply its object
         # insted of just a string. Otherwise, we'll get a detached head.
@@ -1040,24 +987,6 @@ class GitWrapper:
 
         return statuses
 
-    def list_remotes(self):
-        # This functionality is not used by the project yet
-        raise NotImplementedError()
-
-        # return { r.name: r.url for r in self.repo.remotes }
-
-    def add_remote(self, name, url):
-        # This functionality is not used by the project yet
-        raise NotImplementedError()
-
-        # self.repo.create_remote(name, url)
-
-    def remove_remote(self, name):
-        # This functionality is not used by the project yet
-        raise NotImplementedError()
-
-        # self.repo.delete_remote(name)
-
     def is_ref(self, rev):
         try:
             self.repo.commit(rev)
@@ -1067,12 +996,6 @@ class GitWrapper:
 
     def has_commits(self):
         return self.is_ref('HEAD')
-
-    def show(self, path, rev=None):
-        # This functionality is not used by the project yet
-        raise NotImplementedError()
-
-        # return self.repo.git.show('%s:%s' % (rev or '', path))
 
     def get_tree(self, ref):
         return self.repo.tree(ref)
@@ -1178,11 +1101,6 @@ class DvcWrapper:
     def initialized(self):
         return self._repo is not None
 
-    @property
-    def repo(self):
-        self._repo = self.module.repo.Repo(self._project_dir)
-        return self._repo
-
     def init(self):
         if self.initialized:
             return
@@ -1195,119 +1113,6 @@ class DvcWrapper:
             filepath=osp.join(repo_dir, '.gitignore'),
             repo_root=repo_dir
         )
-
-    def push(self, targets=None, remote=None):
-        # This functionality is not used by the project yet
-        raise NotImplementedError()
-
-        # args = ['push']
-        # if remote:
-        #     args.append('--remote')
-        #     args.append(remote)
-        # if targets:
-        #     if isinstance(targets, str):
-        #         args.append(targets)
-        #     else:
-        #         args.extend(targets)
-        # self._exec(args)
-
-    def pull(self, targets=None, remote=None):
-        # This functionality is not used by the project yet
-        raise NotImplementedError()
-
-        # args = ['pull']
-        # if remote:
-        #     args.append('--remote')
-        #     args.append(remote)
-        # if targets:
-        #     if isinstance(targets, str):
-        #         args.append(targets)
-        #     else:
-        #         args.extend(targets)
-        # self._exec(args)
-
-    def check_updates(self, targets=None, remote=None):
-        # This functionality is not used by the project yet
-        raise NotImplementedError()
-
-        # args = ['fetch'] # no other way now?
-        # if remote:
-        #     args.append('--remote')
-        #     args.append(remote)
-        # if targets:
-        #     if isinstance(targets, str):
-        #         args.append(targets)
-        #     else:
-        #         args.extend(targets)
-        # self._exec(args)
-
-    def fetch(self, targets=None, remote=None):
-        # This functionality is not used by the project yet
-        raise NotImplementedError()
-
-        # args = ['fetch']
-        # if remote:
-        #     args.append('--remote')
-        #     args.append(remote)
-        # if targets:
-        #     if isinstance(targets, str):
-        #         args.append(targets)
-        #     else:
-        #         args.extend(targets)
-        # self._exec(args)
-
-    def import_repo(self, url, path, out=None, dvc_path=None, rev=None,
-            download=True):
-        # This functionality is not used by the project yet
-        raise NotImplementedError()
-
-        # args = ['import']
-        # if dvc_path:
-        #     args.append('--file')
-        #     args.append(dvc_path)
-        #     os.makedirs(osp.dirname(dvc_path), exist_ok=True)
-        # if rev:
-        #     args.append('--rev')
-        #     args.append(rev)
-        # if out:
-        #     args.append('-o')
-        #     args.append(out)
-        # if not download:
-        #     args.append('--no-exec')
-        # args.append(url)
-        # args.append(path)
-        # self._exec(args)
-
-    def import_url(self, url, out=None, dvc_path=None, download=True):
-        # This functionality is not used by the project yet
-        raise NotImplementedError()
-
-        # args = ['import-url']
-        # if dvc_path:
-        #     args.append('--file')
-        #     args.append(dvc_path)
-        #     os.makedirs(osp.dirname(dvc_path), exist_ok=True)
-        # if not download:
-        #     args.append('--no-exec')
-        # args.append(url)
-        # if out:
-        #     args.append(out)
-        # self._exec(args)
-
-    def update_imports(self, targets=None, rev=None):
-        # This functionality is not used by the project yet
-        raise NotImplementedError()
-
-        # args = ['update']
-        # if rev:
-        #     args.append('--rev')
-        #     args.append(rev)
-        # if targets:
-        #     if isinstance(targets, str):
-        #         args.append(targets)
-        #     else:
-        #         args.extend(targets)
-        # self._exec(args)
 
     def checkout(self, targets=None):
         args = ['checkout']
@@ -1334,126 +1139,6 @@ class DvcWrapper:
             else:
                 args.extend(paths)
         self._exec(args)
-
-    def remove(self, paths, outs=False):
-        args = ['remove']
-        if outs:
-            args.append('--outs')
-        if paths:
-            if isinstance(paths, str):
-                args.append(paths)
-            else:
-                args.extend(paths)
-        self._exec(args)
-
-    def commit(self, paths):
-        args = ['commit', '--recursive', '--force']
-        if paths:
-            if isinstance(paths, str):
-                args.append(paths)
-            else:
-                args.extend(paths)
-        self._exec(args)
-
-    def add_remote(self, name, config):
-        # This functionality is not used by the project yet
-        raise NotImplementedError()
-
-        # self._exec(['remote', 'add', name, config['url']])
-
-    def remove_remote(self, name):
-        # This functionality is not used by the project yet
-        raise NotImplementedError()
-
-        # self._exec(['remote', 'remove', name])
-
-    def list_remotes(self):
-        # This functionality is not used by the project yet
-        raise NotImplementedError()
-
-        # out = self._exec(['remote', 'list'])
-        # return dict(line.split() for line in out.split('\n') if line)
-
-    def get_default_remote(self):
-        # This functionality is not used by the project yet
-        raise NotImplementedError()
-
-        # out = self._exec(['remote', 'default'])
-        # if out == 'No default remote set' or 1 < len(out.split()):
-        #     return None
-        # return out
-
-    def set_default_remote(self, name):
-        # This functionality is not used by the project yet
-        raise NotImplementedError()
-
-        # assert name and 1 == len(name.split()), "Invalid remote name '%s'" % name
-        # self._exec(['remote', 'default', name])
-
-    def list_stages(self):
-        # This functionality is not used by the project yet
-        raise NotImplementedError()
-
-        # return set(s.addressing for s in self.repo.stages)
-
-    def run(self, name, cmd, deps=None, outs=None, force=False):
-        # This functionality is not used by the project yet
-        raise NotImplementedError()
-
-        # args = ['run', '-n', name]
-        # if force:
-        #     args.append('--force')
-        # if deps:
-        #     for d in deps:
-        #         args.append('-d')
-        #         args.append(d)
-        # if outs:
-        #     for o in outs:
-        #         args.append('--outs')
-        #         args.append(o)
-        # args.extend(cmd)
-        # self._exec(args, hide_output=False)
-
-    def repro(self, targets=None, force=False, pull=False):
-        # This functionality is not used by the project yet
-        raise NotImplementedError()
-
-        # args = ['repro']
-        # if force:
-        #     args.append('--force')
-        # if pull:
-        #     args.append('--pull')
-        # if targets:
-        #     if isinstance(targets, str):
-        #         args.append(targets)
-        #     else:
-        #         args.extend(targets)
-        # self._exec(args)
-
-    def status(self, targets=None):
-        # This functionality is not used by the project yet
-        raise NotImplementedError()
-
-        # args = ['status', '--show-json']
-        # if targets:
-        #     if isinstance(targets, str):
-        #         args.append(targets)
-        #     else:
-        #         args.extend(targets)
-        # out = self._exec(args).splitlines()[-1]
-        # return json.loads(out)
-
-    @staticmethod
-    def check_stage_status(data, stage, status):
-        # This functionality is not used by the project yet
-        raise NotImplementedError()
-
-        # assert status in {'deleted', 'modified'}
-        # return status in [s
-        #     for d in data.get(stage, []) if 'changed outs' in d
-        #     for co in d.values()
-        #     for s in co.values()
-        # ]
 
     def _exec(self, args, hide_output=True, answer_on_input='y'):
         args = ['--cd', self._project_dir, '-q'] + args
