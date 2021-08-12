@@ -23,7 +23,7 @@ from datumaro.components.validator import TaskType
 from datumaro.util import str_to_bool
 from datumaro.util.os_util import make_file_name
 
-from ...util import MultilineFormatter, add_subparser
+from ...util import MultilineFormatter, add_subparser, join_cli_args
 from ...util.errors import CliException
 from ...util.project import (
     generate_next_file_name, load_project, parse_full_revpath,
@@ -126,6 +126,7 @@ def build_export_parser(parser_ctor=argparse.ArgumentParser):
     return parser
 
 def export_command(args):
+    args._positionals += join_cli_args(args, 'target', 'extra_args')
     has_sep = '--' in args._positionals
     if has_sep:
         pos = args._positionals.index('--')
@@ -138,21 +139,26 @@ def export_command(args):
         [ProjectBuildTargets.MAIN_TARGET])[0]
     args.extra_args = args._positionals[pos + has_sep:]
 
-    if '-h' in args.extra_args or '--help' in args.extra_args:
-        if not args.format:
-            raise argparse.ArgumentError('-f/--format',
-                "Extra format args require the format to be specified")
+    show_plugin_help = '-h' in args.extra_args or '--help' in args.extra_args
 
-        env = Environment()
-    else:
+    project = None
+    try:
         project = load_project(args.project_dir)
+    except ProjectNotFoundError:
+        if not show_plugin_help and args.project_dir:
+            raise
+
+    if project is not None:
         env = project.env
+    else:
+        env = Environment()
 
     try:
         converter = env.converters[args.format]
     except KeyError:
         raise CliException("Converter for format '%s' is not found" % \
             args.format)
+
     extra_args = converter.parse_cmdline(args.extra_args)
 
     dst_dir = args.dst_dir
@@ -348,6 +354,7 @@ def build_transform_parser(parser_ctor=argparse.ArgumentParser):
     return parser
 
 def transform_command(args):
+    args._positionals += join_cli_args(args, 'target', 'extra_args')
     has_sep = '--' in args._positionals
     if has_sep:
         pos = args._positionals.index('--')
@@ -360,15 +367,19 @@ def transform_command(args):
         [ProjectBuildTargets.MAIN_TARGET])[0]
     args.extra_args = args._positionals[pos + has_sep:]
 
-    if '-h' in args.extra_args or '--help' in args.extra_args:
-        if not args.transform:
-            raise argparse.ArgumentError('-t/--transform',
-                "Extra transform args require the transform to be specified")
+    show_plugin_help = '-h' in args.extra_args or '--help' in args.extra_args
 
-        env = Environment()
-    else:
+    project = None
+    try:
         project = load_project(args.project_dir)
+    except ProjectNotFoundError:
+        if not show_plugin_help and args.project_dir:
+            raise
+
+    if project is not None:
         env = project.env
+    else:
+        env = Environment()
 
     try:
         transform = env.transforms[args.transform]
@@ -595,9 +606,12 @@ def build_validate_parser(parser_ctor=argparse.ArgumentParser):
             raise argparse.ArgumentTypeError("Unknown task type %s. Expected "
                 "one of: %s" % (s, task_types))
 
+    parser.add_argument('_positionals', nargs=argparse.REMAINDER,
+        help=argparse.SUPPRESS) # workaround for -- eaten by positionals
     parser.add_argument('target', default='project', nargs='?',
         help="Target dataset revpath (default: project)")
-    parser.add_argument('-t', '--task_type', type=_parse_task_type,
+    parser.add_argument('-t', '--task',
+        type=_parse_task_type, required=True,
         help="Task type for validation, one of %s" % task_types)
     parser.add_argument('-s', '--subset', dest='subset_name', default=None,
         help="Subset to validate (default: whole dataset)")
@@ -610,11 +624,25 @@ def build_validate_parser(parser_ctor=argparse.ArgumentParser):
     return parser
 
 def validate_command(args):
+    args._positionals += join_cli_args(args, 'target', 'extra_args')
+    has_sep = '--' in args._positionals
+    if has_sep:
+        pos = args._positionals.index('--')
+        if 1 < pos:
+            raise argparse.ArgumentError(None, message="Expected no more than "
+                "1 target argument")
+    else:
+        pos = 1
+    args.target = (args._positionals[:pos] or ['project'])[0]
+    args.extra_args = args._positionals[pos + has_sep:]
+
+    show_plugin_help = '-h' in args.extra_args or '--help' in args.extra_args
+
     project = None
     try:
         project = load_project(args.project_dir)
     except ProjectNotFoundError:
-        if args.project_dir:
+        if not show_plugin_help and args.project_dir:
             raise
 
     if project is not None:
@@ -622,19 +650,18 @@ def validate_command(args):
     else:
         env = Environment()
 
-    dst_file_name = f'validation-report'
+    try:
+        validator_type = env.validators[args.task]
+    except KeyError:
+        raise CliException("Validator type '%s' is not found" % args.task)
 
+    extra_args = validator_type.parse_cmdline(args.extra_args)
+
+    dst_file_name = f'validation-report'
     dataset = parse_full_revpath(args.target, project)
     if args.subset_name is not None:
         dataset = dataset.get_subset(args.subset_name)
         dst_file_name += f'-{args.subset_name}'
-
-    try:
-        validator_type = env.validators[args.task_type]
-    except KeyError:
-        raise CliException("Validator type '%s' is not found" % args.task_type)
-
-    extra_args = validator_type.parse_cmdline(args.extra_args)
 
     validator = validator_type(**extra_args)
     report = validator.validate(dataset)

@@ -6,10 +6,11 @@ import argparse
 import logging as log
 import os
 
+from datumaro.components.errors import ProjectNotFoundError
 from datumaro.components.project import Environment
 from datumaro.util import error_rollback, on_error_do
 
-from ..util import MultilineFormatter, add_subparser
+from ..util import MultilineFormatter, add_subparser, join_cli_args
 from ..util.errors import CliException
 from ..util.project import generate_next_name, load_project
 
@@ -48,8 +49,11 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
             |s|s%(prog)s -f cvat -n mysource -p project/path/ path/to/cvat.xml
         """.format(', '.join(builtins)),
         formatter_class=MultilineFormatter)
+
+    parser.add_argument('_positionals', nargs=argparse.REMAINDER,
+        help=argparse.SUPPRESS) # workaround for -- eaten by positionals
     parser.add_argument('url',
-        help="URL to the source dataset. A path to a file of directory")
+        help="URL to the source dataset. A path to a file or directory")
     parser.add_argument('-n', '--name',
         help="Name of the new source (default: generate automatically)")
     parser.add_argument('-f', '--format', required=True,
@@ -71,15 +75,28 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
 
 @error_rollback
 def add_command(args):
-    if '-h' in args.extra_args or '--help' in args.extra_args:
-        if not args.format:
-            raise argparse.ArgumentError('-f/--format',
-                "Extra format args require the format to be specified")
-
-        env = Environment()
+    args._positionals += join_cli_args(args, 'url', 'extra_args')
+    has_sep = '--' in args._positionals
+    if has_sep:
+        pos = args._positionals.index('--')
     else:
+        pos = 1
+    args.url = (args._positionals[:pos] or [''])[0]
+    args.extra_args = args._positionals[pos + has_sep:]
+
+    show_plugin_help = '-h' in args.extra_args or '--help' in args.extra_args
+
+    project = None
+    try:
         project = load_project(args.project_dir)
+    except ProjectNotFoundError:
+        if not show_plugin_help and args.project_dir:
+            raise
+
+    if project is not None:
         env = project.env
+    else:
+        env = Environment()
 
     fmt = args.format
     if fmt in env.importers:

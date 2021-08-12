@@ -7,6 +7,7 @@ import logging as log
 import os
 import os.path as osp
 
+from datumaro.components.errors import ProjectNotFoundError
 from datumaro.components.project import Environment
 from datumaro.util import error_rollback, on_error_do
 from datumaro.util.os_util import rmtree
@@ -54,15 +55,19 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
 
 @error_rollback
 def add_command(args):
-    if '-h' in args.extra_args or '--help' in args.extra_args:
-        if not args.launcher:
-            raise argparse.ArgumentError('-l/--launcher',
-                "Extra launcher args require the launcher to be specified")
+    show_plugin_help = '-h' in args.extra_args or '--help' in args.extra_args
 
-        env = Environment()
-    else:
+    project = None
+    try:
         project = load_project(args.project_dir)
+    except ProjectNotFoundError:
+        if not show_plugin_help and args.project_dir:
+            raise
+
+    if project is not None:
         env = project.env
+    else:
+        env = Environment()
 
     name = args.name
     if name:
