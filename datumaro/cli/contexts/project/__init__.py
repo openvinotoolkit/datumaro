@@ -23,7 +23,7 @@ from datumaro.components.validator import TaskType
 from datumaro.util import str_to_bool
 from datumaro.util.os_util import make_file_name
 
-from ...util import MultilineFormatter, add_subparser, join_cli_args
+from ...util import MultilineFormatter, add_subparser
 from ...util.errors import CliException
 from ...util.project import (
     generate_next_file_name, load_project, parse_full_revpath,
@@ -138,7 +138,6 @@ def build_export_parser(parser_ctor=argparse.ArgumentParser):
     return parser
 
 def export_command(args):
-    args._positionals += join_cli_args(args, 'target', 'extra_args')
     has_sep = '--' in args._positionals
     if has_sep:
         pos = args._positionals.index('--')
@@ -407,7 +406,6 @@ def build_transform_parser(parser_ctor=argparse.ArgumentParser):
     return parser
 
 def transform_command(args):
-    args._positionals += join_cli_args(args, 'target', 'extra_args')
     has_sep = '--' in args._positionals
     if has_sep:
         pos = args._positionals.index('--')
@@ -677,7 +675,6 @@ def build_validate_parser(parser_ctor=argparse.ArgumentParser):
     return parser
 
 def validate_command(args):
-    args._positionals += join_cli_args(args, 'target', 'extra_args')
     has_sep = '--' in args._positionals
     if has_sep:
         pos = args._positionals.index('--')

@@ -80,7 +80,9 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
 
 @error_rollback
 def add_command(args):
+    # Workaround. Required positionals consume positionals from the end
     args._positionals += join_cli_args(args, 'url', 'extra_args')
+
     has_sep = '--' in args._positionals
     if has_sep:
         pos = args._positionals.index('--')
