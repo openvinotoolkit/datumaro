@@ -225,7 +225,7 @@ be done with the data source to prepare the resulting dataset.
 
 Roughly, such build tree can be created by the following commands (arguments
 are omitted for simplicity):
-```bash
+``` bash
 datum create
 
 # describe the first source
@@ -246,7 +246,7 @@ datum export
 
 ### Project layout
 
-```bash
+``` bash
 project/
 ├── .dvc/
 ├── .dvcignore
@@ -404,7 +404,7 @@ Datumaro supports the following media types:
 To create an unlabelled dataset from an arbitrary directory with images use
 `image_dir` and `image_zip` formats:
 
-```bash
+``` bash
 datum create -o <project/dir>
 datum add -p <project/dir> -f image_dir <directory/path/>
 ```
@@ -453,7 +453,7 @@ which splits a video into frames, or split the video manually and import images.
 Datumaro functionality is available with the `datum` command.
 
 Usage:
-```bash
+``` bash
 datum [-h] [--version] [--loglevel LOGLEVEL] [command] [command args]
 ```
 
@@ -461,7 +461,7 @@ Parameters:
 - `--loglevel` (string) - Logging level, one of
   `debug`, `info`, `warning`, `error`, `critical` (default: `info`)
 - `--version` Print the version number and exit.
-- `--help` - Print the help message and exit.
+- `-h, --help` - Print the help message and exit.
 
 ### Convert datasets <a id="convert"></a>
 
@@ -474,25 +474,28 @@ formats can be found in the `--help` output of this command.
 Usage:
 
 ``` bash
-datum convert
+datum convert [-h] [-i SOURCE] [-if INPUT_FORMAT] -f OUTPUT_FORMAT
+  [-o DST_DIR] [--overwrite] [-e FILTER] [--filter-mode FILTER_MODE]
+  [-- EXTRA_EXPORT_ARGS]
 ```
 
 Parameters:
-- `-i, --input-path` (string) - Input dataset path.
+- `-i, --input-path` (string) - Input dataset path. The current directory is
+  used by default.
 - `-if, --input-format` (string) - Input dataset format. Will try to detect,
   if not specified.
 - `-f, --output-format` (string) - Output format
 - `-o, --output-dir` (string) - Output directory. By default, a subdirectory
   in the current directory is used.
-- `--overwrite` - Allows to overwrite existing files in the output directory,
+- `--overwrite` - Allows overwriting existing files in the output directory,
   when it is not empty.
 - `-e, --filter` (string) - XML XPath filter expression for dataset items
 - `--filter-mode` (string) - The filtering mode. Default is the `i` mode.
 - `-p, --project` (string) - Directory of the project to operate on
   (default: current directory).
+- `-h, --help` - Print the help message and exit.
 - `-- <extra export args>` - Additional arguments for the format writer
   (use `-- -h` for help). Must be specified after the main command arguments.
-- `--help` - Print the help message and exit.
 
 Example: convert a VOC-like dataset to a COCO-like one:
 
@@ -504,8 +507,8 @@ datum convert --input-format voc --input-path <path/to/voc/> \
 
 ### Create project <a id="create"></a>
 
-The command creates an empty project. Once a project is created, there are
-a few options to interact with it.
+The command creates an empty project. A project is required for the most of
+Datumaro functionality.
 
 By default, the project is created in the current directory. To specify
 another output directory, pass the `-o/--output-dir` parameter. If output
@@ -515,7 +518,7 @@ already directory contains a Datumaro project, an error is raised, unless
 Usage:
 
 ``` bash
-datum create [-o <project_dir>]
+datum create [-h] [-o DST_DIR] [--overwrite]
 ```
 
 Parameters:
@@ -523,7 +526,7 @@ Parameters:
   The current directory is used by default.
 - `--overwrite` - Allows to overwrite existing project files in the output
   directory. Any other files are not touched.
-- `--help` - Print the help message and exit.
+- `-h, --help` - Print the help message and exit.
 
 Examples:
 
@@ -602,8 +605,9 @@ is _not_ done automatically.
 
 Usage:
 
-```bash
-datum add <url> -f <format>
+``` bash
+datum add [-h] [-n NAME] -f FORMAT [-r PATH] [--no-check] [--no-cache]
+  [-p PROJECT_DIR] url [-- EXTRA_FORMAT_ARGS]
 ```
 
 Parameters:
@@ -617,7 +621,7 @@ Parameters:
   automatically)
 - `-p, --project` (string) - Directory of the project to operate on
   (default: current directory).
-- `--help` - Print the help message and exit.
+- `-h, --help` - Print the help message and exit.
 - `-- <extra format args>` - Additional arguments for the format reader
   (use `-- -h` for help). Must be specified after the main command arguments.
 
@@ -642,7 +646,7 @@ To remove a data source from a project, use the `remove` command.
 Usage:
 
 ``` bash
-datum remove <name>
+datum remove [-h] [--force] [--keep-data] [-p PROJECT_DIR] name [name ...]
 ```
 
 Parameters:
@@ -652,11 +656,11 @@ Parameters:
   only project metainfo.
 - `-p, --project` (string) - Directory of the project to operate on
   (default: current directory).
-- `--help` - Print the help message and exit.
+- `-h, --help` - Print the help message and exit.
 
 Example:
 
-```bash
+``` bash
 datum create
 datum add path/to/dataset/ -f voc -n src1
 datum remove src1
@@ -690,10 +694,15 @@ This command allows to use the `-f/--filter` parameter to select dataset
 elements needed for exporting. Read the [`filter`](#filter) command
 description for more info about this functionality.
 
+The command can only be applied to a project build target, a stage
+or the combined 'project' target, in which case all the targets will
+be affected.
+
 Usage:
 
 ``` bash
-datum export
+datum export [-h] [-e FILTER] [--filter-mode FILTER_MODE] [-o DST_DIR]
+  [--overwrite] [-p PROJECT_DIR] -f FORMAT [target] [-- EXTRA_FORMAT_ARGS]
 ```
 
 Parameters:
@@ -704,11 +713,11 @@ Parameters:
 - `--filter-mode` (string) - The filtering mode. Default is the `i` mode.
 - `-o, --output-dir` (string) - Output directory. By default, a subdirectory
   in the current directory is used.
-- `--overwrite` - Allows to overwrite existing files in the output directory,
+- `--overwrite` - Allows overwriting existing files in the output directory,
   when it is not empty.
 - `-p, --project` (string) - Directory of the project to operate on
   (default: current directory).
-- `--help` - Print the help message and exit.
+- `-h, --help` - Print the help message and exit.
 - `-- <extra format args>` - Additional arguments for the format writer
   (use `-- -h` for help). Must be specified after the main command arguments.
 
@@ -784,7 +793,8 @@ dataset(-s) will be saved if `--apply` is enabled.
 Usage:
 
 ``` bash
-datum filter
+datum filter [-h] [-e FILTER] [-m MODE] [--dry-run] [--stage STAGE]
+  [--apply APPLY] [-o DST_DIR] [--overwrite] [-p PROJECT_DIR] [target]
 ```
 
 Parameters:
@@ -807,7 +817,7 @@ Parameters:
   when it is specified and is not empty.
 - `-p, --project` (string) - Directory of the project to operate on
   (default: current directory).
-- `--help` - Print the help message and exit.
+- `-h, --help` - Print the help message and exit.
 
 Example: extract a dataset with images with `width` < `height`
 
@@ -861,10 +871,16 @@ This command allows to modify dataset images or annotations all at once.
 > other approaches for better performance. A possible solution can be
 > a simple script, which uses [Datumaro API](./developer_guide.md).
 
+The command can only be applied to a project build target, a stage
+or the combined `project` target, in which case all the targets will
+be affected. A build tree stage will be added if `--stage` is enabled,
+and the resulting dataset(-s) will be saved if `--apply` is enabled.
+
 Usage:
 
 ``` bash
-datum transform
+datum transform [-h] -t TRANSFORM [-o DST_DIR] [--overwrite]
+  [-p PROJECT_DIR] [--stage STAGE] [--apply APPLY] [target] [-- EXTRA_ARGS]
 ```
 
 Parameters:
@@ -885,7 +901,7 @@ Parameters:
   when it is specified and is not empty.
 - `-p, --project` (string) - Directory of the project to operate on
   (default: current directory).
-- `--help` - Print the help message and exit.
+- `-h, --help` - Print the help message and exit.
 - `<extra args>` - The list of extra transformation parameters. Should be
   passed after the `--` separator after the main command arguments. See
   transform descriptions for info about extra parameters. Use the `--help`
@@ -999,7 +1015,7 @@ datum transform -t sampler -- \
     - `uniform` - sample data with uniform distribution
     - `inverse` - sample data with reciprocal of the number
 
-```bash
+``` bash
 datum transform -t ndr -- \
   -w train \
   -a gradient \
@@ -1067,6 +1083,14 @@ This command has multiple forms:
   Note that the current project is not included in the list of merged
   sources automatically.
 
+Usage:
+``` bash
+datum merge [-h] [-iou IOU_THRESH] [-oconf OUTPUT_CONF_THRESH]
+  [--quorum QUORUM] [-g GROUPS] [-o DST_DIR] [--overwrite]
+  [-p PROJECT_DIR]
+  target [target ...]
+```
+
 Parameters:
 - `<target>` (string) - Target [dataset revpaths](#revpath) (repeatable)
 - `-iou`, `--iou-thresh` (number) - IoU matching threshold for spatial
@@ -1084,7 +1108,7 @@ Parameters:
   when it is specified and is not empty.
 - `-p, --project` (string) - Directory of the project to operate on
   (default: current directory).
-- `--help` - Print the help message and exit.
+- `-h, --help` - Print the help message and exit.
 
 
 Examples:
@@ -1141,6 +1165,15 @@ This command has multiple forms:
 
 \<revpath\> - [a dataset path or a revision path](#revpath).
 
+Usage:
+``` bash
+datum diff [-h] [-o DST_DIR] [-m METHOD] [--overwrite] [-p PROJECT_DIR]
+  [--iou-thresh IOU_THRESH] [-f FORMAT]
+  [-iia IGNORE_ITEM_ATTR] [-ia IGNORE_ATTR] [-if IGNORE_FIELD]
+  [--match-images] [--all]
+  first_target [second_target]
+```
+
 Parameters:
 - `<target>` (string) - Target [dataset revpaths](#revpath)
 - `-m, --method` (string) - Comparison method.
@@ -1150,7 +1183,7 @@ Parameters:
   when it is specified and is not empty.
 - `-p, --project` (string) - Directory of the project to operate on
   (default: current directory).
-- `--help` - Print the help message and exit.
+- `-h, --help` - Print the help message and exit.
 
 - Distance comparison options:
   - `--iou-thresh` (number) - The IoU threshold for spatial annotations
@@ -1202,7 +1235,7 @@ plugins and models.
 Usage:
 
 ``` bash
-datum info
+datum info [-h] [--all] [-p PROJECT_DIR] [target]
 ```
 
 Parameters:
@@ -1211,7 +1244,7 @@ Parameters:
 - `--all` - Print all the information: do not fold long lists of labels etc.
 - `-p, --project` (string) - Directory of the project to operate on
   (default: current directory).
-- `--help` - Print the help message and exit.
+- `-h, --help` - Print the help message and exit.
 
 
 Example:
@@ -1252,7 +1285,7 @@ This command computes various project statistics, such as:
 Usage:
 
 ``` bash
-datum stats
+datum stats [-h] [-p PROJECT_DIR] [target]
 ```
 
 Parameters:
@@ -1260,7 +1293,7 @@ Parameters:
   computes statistics of the merged dataset.
 - `-p, --project` (string) - Directory of the project to operate on
   (default: current directory).
-- `--help` - Print the help message and exit.
+- `-h, --help` - Print the help message and exit.
 
 Example:
 
@@ -1549,12 +1582,8 @@ The validation result contains
 Usage:
 
 ``` bash
-datum validate -p <project dir> -t <task_type> -- \
-  -fs <few_samples_thr> \
-  -ir <imbalance_ratio_thr> \
-  -m <far_from_mean_thr> \
-  -dr <dominance_ratio_thr> \
-  -k <topk_bins>
+datum validate [-h] -t TASK [-s SUBSET_NAME] [-p PROJECT_DIR]
+  [target] [-- EXTRA_ARGS]
 ```
 
 Parameters:
@@ -1564,18 +1593,18 @@ Parameters:
 - `-s, --subset` (string) - Dataset subset to be validated
 - `-p, --project` (string) - Directory of the project to operate on
   (default: current directory).
-- `--help` - Print the help message and exit.
+- `-h, --help` - Print the help message and exit.
 - `<extra args>` - The list of extra validation parameters. Should be passed
   after the `--` separator after the main command arguments:
-  - `-fs, --few_samples_thr` (number) - The threshold for giving a warning
+  - `-fs, --few-samples-thr` (number) - The threshold for giving a warning
     for minimum number of samples per class
-  - `-ir, --imbalance_ratio_thr` (number) - The threshold for giving
+  - `-ir, --imbalance-ratio-thr` (number) - The threshold for giving
     imbalance data warning
-  - `-m, --far_from_mean_thr` (number) - The threshold for giving
+  - `-m, --far-from-mean-thr` (number) - The threshold for giving
     a warning that data is far from mean
-  - `-dr, --dominance_ratio_thr` (number) - The threshold for giving
+  - `-dr, --dominance-ratio-thr` (number) - The threshold for giving
     a warning bounding box imbalance
-  - `-k, --topk_bins` (number) - The ratio of bins with the highest
+  - `-k, --topk-bins` (number) - The ratio of bins with the highest
     number of data to total bins in the histogram
 
 
@@ -1757,8 +1786,9 @@ commits, use `--allow-empty`.
 
 Usage:
 
-```bash
-datum commit
+``` bash
+datum commit [-h] -m MESSAGE [--allow-empty] [--allow-foreign]
+  [--no-cache] [-p PROJECT_DIR]
 ```
 
 Parameters:
@@ -1767,11 +1797,11 @@ Parameters:
 - `--no-cache` - Don't put committed datasets into cache, save only metadata
 - `-p, --project` (string) - Directory of the project to operate on
   (default: current directory).
-- `--help` - Print the help message and exit.
+- `-h, --help` - Print the help message and exit.
 
 Example:
 
-```bash
+``` bash
 datum create
 datum add path/to/coco/ -f coco
 datum commit -m "Added COCO"
@@ -1784,7 +1814,7 @@ tree or to restore separate revisions of sources. A revision can be a commit
 hash, branch, tag, or any [relative reference in the Git format](https://git-scm.com/book/en/v2/Git-Tools-Revision-Selection).
 
 This command has multiple forms:
-```bash
+``` bash
 1) datum checkout \<revision\>
 2) datum checkout [--] \<source1\> ...
 3) datum checkout \<revision\> [--] \<source1\> \<source2\> ...
@@ -1803,11 +1833,16 @@ The current revision is used, when not set.
 - `datum checkout -- name` - will look for source "name" in the current
   revision
 
+Usage:
+``` bash
+datum checkout [-h] [-f] [-p PROJECT_DIR] [rev] [--] [sources [sources ...]]
+```
+
 Parameters:
 - `--force` - Allows to overwrite unsaved changes in case of conflicts
 - `-p, --project` (string) - Directory of the project to operate on
   (default: current directory).
-- `--help` - Print the help message and exit.
+- `-h, --help` - Print the help message and exit.
 
 Examples:
 - Restore the previous revision:
@@ -1845,18 +1880,18 @@ The list of possible `status` values:
 
 Usage:
 
-```bash
-datum status
+``` bash
+datum status [-h] [-p PROJECT_DIR]
 ```
 
 Parameters:
 - `-p, --project` (string) - Directory of the project to operate on
   (default: current directory).
-- `--help` - Print the help message and exit.
+- `-h, --help` - Print the help message and exit.
 
 Example output:
 
-```bash
+``` bash
 added source-1
 modified source-2
 foreign_modified source-3
@@ -1871,24 +1906,22 @@ This command prints the history of the current project revision.
 Prints lines in the following format:
 `<short commit hash> <commit message>`
 
+Usage:
+
+``` bash
+datum log [-h] [-n MAX_COUNT] [-p PROJECT_DIR]
+```
+
 Parameters:
 - `-n, --max-count` (number, default: 10) - The maximum number of
   previous revisions in the output
 - `-p, --project` (string) - Directory of the project to operate on
   (default: current directory).
-- `--help` - Print the help message and exit.
-
-Usage:
-
-```bash
-datum log --help
-
-datum log
-```
+- `-h, --help` - Print the help message and exit.
 
 Example output:
 
-```bash
+``` bash
 affbh33 Added COCO dataset
 eeffa35 Added VOC dataset
 ```
@@ -1908,7 +1941,8 @@ the `datum model add` command.
 Usage:
 
 ``` bash
-datum model add
+datum model add [-h] [-n NAME] -l LAUNCHER [--copy] [--no-check]
+  [-p PROJECT_DIR] [-- EXTRA_ARGS]
 ```
 
 Parameters:
@@ -1919,7 +1953,7 @@ Parameters:
   automatically)
 - `-p, --project` (string) - Directory of the project to operate on
   (default: current directory).
-- `--help` - Print the help message and exit.
+- `-h, --help` - Print the help message and exit.
 - `<extra args>` - Additional arguments for the model launcher
   (use `-- -h` for help). Must be specified after the main command arguments.
 
@@ -1988,18 +2022,18 @@ To remove a model from a project, use the `datum model remove` command.
 Usage:
 
 ``` bash
-datum remove <name> ...
+datum model remove [-h] [-p PROJECT_DIR] name
 ```
 
 Parameters:
 - `<name>` (string) - The name of the model to be removed
 - `-p, --project` (string) - Directory of the project to operate on
   (default: current directory).
-- `--help` - Print the help message and exit.
+- `-h, --help` - Print the help message and exit.
 
 Example:
 
-```bash
+``` bash
 datum create
 datum model add <...> -n model1
 datum remove model1
@@ -2025,7 +2059,7 @@ Parameters:
   when it is specified and is not empty.
 - `-p, --project` (string) - Directory of the project to operate on
   (default: current directory).
-- `--help` - Print the help message and exit.
+- `-h, --help` - Print the help message and exit.
 
 
 Example: launch inference on a dataset
@@ -2062,7 +2096,8 @@ The following use cases available:
 Usage:
 
 ``` bash
-datum explain <image path or revpath>
+datum explain [-h] -m MODEL [-o SAVE_DIR] [-p PROJECT_DIR]
+  [target] {rise} [RISE_ARGS]
 ```
 
 \<image path\> - a path to the file.
@@ -2078,7 +2113,7 @@ Parameters:
   (default: display only)
 - `-p, --project` (string) - Directory of the project to operate on
   (default: current directory).
-- `--help` - Print the help message and exit.
+- `-h, --help` - Print the help message and exit.
 
 - RISE options:
   - `-s, --max-samples` (number) - Number of algorithm model runs per image
@@ -2198,7 +2233,7 @@ boxes and masks.
 
 The plugin depends on TensorFlow, which can be installed with `pip`:
 
-```bash
+``` bash
 pip install tensorflow
 # or
 pip install tensorflow-gpu
@@ -2218,7 +2253,7 @@ to launch deep learning models from various frameworks
 
 The plugin depends on Accuracy Checker, which can be installed with `pip`:
 
-```bash
+``` bash
 pip install 'git+https://github.com/openvinotoolkit/open_model_zoo.git#subdirectory=tools/accuracy_checker'
 ```
 
