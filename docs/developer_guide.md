@@ -69,9 +69,9 @@ Datasets typically have annotations, and these annotations can
 require additional information to be interpreted correctly. For instance, it
 can include class names, class hierarchy, keypoint connections,
 class colors for masks, class attributes.
-This information is stored in `dataset.categories`, which is a mapping from
+This information is stored in `dataset.categories()`, which is a mapping from
 `AnnotationType` to a corresponding `...Categories` class. Each annotation type
-can have its `Categories`. Typically, there will be a `LabelCategories` object.
+can have its `Categories`. Typically, there will be at least `LabelCategories`.
 Annotations and other categories address dataset labels
 by their indices in this object.
 
@@ -126,11 +126,13 @@ for subset_name, subset in dataset.subsets().items():
 ### Projects
 
 Projects are intended for complex use of Datumaro. They provide means of
-persistence, of extending, and CLI operation for Datasets. A project can
-be converted to a Dataset with `project.make_dataset`. Project datasets
-can have multiple data sources, which are merged on dataset creation. They
-can have a hierarchy. Project configuration is available in `project.config`.
-A dataset can be saved in `datumaro_project` format.
+persistence, versioning and high-level operations for datasets and
+Datumaro extending. A project provides access to build trees  and revisions,
+data sources, models, config, plugins and cache. The current build tree can
+be converted to a `Dataset` with `project.working_tree.make_dataset`. Projects
+can have multiple data sources, which are merged on dataset creation.
+Project configuration is available in `project.config`.
+To add a dataset
 
 The `Environment` class is responsible for accessing built-in and
 project-specific plugins. For a project, there is an instance of
