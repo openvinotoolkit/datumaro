@@ -2,7 +2,7 @@
 
 ## Basics
 
-The center part of the library is the `Dataset` class, which represents
+The central part of the library is the `Dataset` class, which represents
 a dataset and allows to iterate over its elements.
 `DatasetItem`, an element of a dataset, represents a single
 dataset entry with annotations - an image, video sequence, audio track etc.
@@ -62,46 +62,81 @@ The `Dataset` class from the `datumaro.components.dataset` module represents
 a dataset, consisting of multiple `DatasetItem`s. Annotations are
 represented by members of the `datumaro.components.extractor` module,
 such as `Label`, `Mask` or `Polygon`. A dataset can contain items from one or
-multiple subsets (e.g. `train`, `test`, `val` etc.), the list of dataset subsets
-is available at `dataset.subsets`.
+multiple subsets (e.g. `train`, `test`, `val` etc.), the list of dataset
+subsets is available in `dataset.subsets()`.
+
+A `DatasetItem` is an element of a dataset. Its `id` is a name of the
+corresponding image, video frame, or other media type being annotated.
+An item can have some `attributes`, associated media info and `annotations`.
 
 Datasets typically have annotations, and these annotations can
 require additional information to be interpreted correctly. For instance, it
-can include class names, class hierarchy, keypoint connections,
+can be class names, class hierarchy, keypoint connections,
 class colors for masks, class attributes.
-This information is stored in `dataset.categories()`, which is a mapping from
+Such information is stored in `dataset.categories()`, which is a mapping from
 `AnnotationType` to a corresponding `...Categories` class. Each annotation type
-can have its `Categories`. Typically, there will be at least `LabelCategories`.
-Annotations and other categories address dataset labels
-by their indices in this object.
+can have its `Categories`. Typically, there will be at least `LabelCategories`;
+if there are instance masks, the dataset will contain `MaskCategories` etc.
+The "main" type of categories is `LabelCategories` - annotations and other
+categories use label indices from this object.
 
-The main operation for a dataset is iteration over its elements.
-An item corresponds to a single image, a video sequence, etc. There are also
-few other operations available, such as filtration (`dataset.select`) and
-transformations (`dataset.transform`). A dataset can be created from extractors
-or other datasets with `Dataset.from_extractors()` and directly from items with
-`Dataset.from_iterable()`. A dataset is an extractor itself. If it is created
-from multiple extractors, their categories must match, and their contents
-will be merged.
+The main operation for a dataset is iteration over its elements
+(`DatasetItem`s). An item corresponds to a single image, a video sequence,
+etc. There are also many other operations available, such as filtration
+(`dataset.select()`) and transformations (`dataset.transform()`),
+exporting (`dataset.export()`) and others. A `Dataset` is an `Iterable` and
+`Extractor` by itself.
 
-A dataset item is an element of a dataset. Its `id` is a name of a
-corresponding image. There can be some image `attributes`,
-an `image` and `annotations`.
+A `Dataset` can be created from scratch by its class constructor.
+Categories can be set immediately or later with the
+`define_categories()` method, but only once. You can populate a dataset
+with initial `DatasetItem`s with `Dataset.from_iterable()`.
+If you need to create a dataset from one or many other datasets
+(or extractors), it can be done with `Dataset.from_extractors()`.
+`Dataset` can be loaded from an existing dataset on disk with
+`Dataset.import_from()` and `Dataset.load()` (for the Datumaro data format).
+
+If a dataset is created from multiple extractors with
+`Dataset.from_extractors()`, the source datasets will be joined,
+so their categories must match. If datasets have mismatching categories,
+use more complex `IntersectMerge` from `datumaro.components.operations`,
+which will merge all the labels and remap the shifted indices in annotations.
+
+By default, `Dataset` works lazily, which means all the operations requiring
+iteration over inputs will be deferred as much as possible. If you don't want
+such behavior, use the `init_cache()` method or wrap the code in
+`eager_mode` (from `datumaro.components.dataset`), which will load all
+the annotations into memory. The media won't be loaded unless the data
+is required, because it can quickly waste all the available memory.
+You can check if the dataset is cached with the `is_cache_initialized`
+attribute.
+
+Once created, a dataset can be modified in batch mode with transforms or
+directly with the `put()` and `remove()` methods. `Dataset` instances
+record information about changes done, which can be obtained by `get_patch()`.
+Changes can be flushed with `flush_changes()`. This information is used
+automatically on on saving and exporting to reduce the amount of disk writes.
 
 ```python
 from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import Bbox, Polygon, DatasetItem
 
-# create a dataset from other datasets
-dataset = Dataset.from_extractors(dataset1, dataset2)
-
-# or directly from items
-dataset = Dataset.from_iterable([
+# create a dataset directly from items
+dataset1 = Dataset.from_iterable([
   DatasetItem(id='image1', annotations=[
     Bbox(x=1, y=2, w=3, h=4, label=1),
     Polygon([1, 2, 3, 2, 4, 4], label=2),
   ]),
-], categories=['cat', 'dog', 'person'])
+], categories=['cat', 'dog', 'person', 'truck'])
+
+dataset2 = Dataset(categories=dataset1.categories())
+dataset2.put(DatasetItem(id='image2', annotations=[
+  Label(label=3),
+  Bbox(x=2, y=0, w=3, h=1, label=2)
+]))
+
+# create a dataset from other datasets
+dataset = Dataset.from_extractors(dataset1, dataset2)
 
 # keep only annotated images
 dataset.select(lambda item: len(item.annotations) != 0)
@@ -126,13 +161,14 @@ for subset_name, subset in dataset.subsets().items():
 ### Projects
 
 Projects are intended for complex use of Datumaro. They provide means of
-persistence, versioning and high-level operations for datasets and
-Datumaro extending. A project provides access to build trees  and revisions,
-data sources, models, config, plugins and cache. The current build tree can
-be converted to a `Dataset` with `project.working_tree.make_dataset`. Projects
-can have multiple data sources, which are merged on dataset creation.
-Project configuration is available in `project.config`.
-To add a dataset
+persistence, versioning, high-level operations for datasets and
+Datumaro extending. A project provides access to build trees and revisions,
+data sources, models, config, plugins and cache.  Projects can have
+multiple data sources, which are merged on dataset creation by joining.
+Project configuration is available in `project.config`. To add a data
+source into a `Project`, use the `import_source()` method. The build tree
+of the current working directory can be converted to a `Dataset` with
+`project.working_tree.make_dataset()`.
 
 The `Environment` class is responsible for accessing built-in and
 project-specific plugins. For a project, there is an instance of
