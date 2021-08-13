@@ -343,6 +343,12 @@ class ProjectBuilder:
         return graph.nodes[head]['dataset']
 
     def _init_pipeline(self, pipeline: Pipeline, working_dir_hashes=None):
+        """
+        Initializes datasets in the pipeline nodes. Currently, only the head
+        node will have a dataset on exit, so no extra memory is wasted
+        for the intermediate nodes.
+        """
+
         def _join_parent_datasets(force=False):
             parents = { p: graph.nodes[p]
                 for p in graph.predecessors(stage_name) }
