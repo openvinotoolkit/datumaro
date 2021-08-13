@@ -1,6 +1,6 @@
 ---
-title: "Documentation"
-linkTitle: "Documentation"
+title: 'Documentation'
+linkTitle: 'Documentation'
 weight: 20
 no_list: true
 menu:

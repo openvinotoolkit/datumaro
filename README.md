@@ -97,4 +97,4 @@ Feel free to
 [open an Issue](https://github.com/openvinotoolkit/datumaro/issues/new), if you
 think something needs to be changed. You are welcome to participate in
 development, instructions are available in our
-[contribution guide](openvinotoolskit.io/contribution-guide/).
+[contribution guide](openvinotoolkit.io/datumaro/contribution-guide/).

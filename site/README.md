@@ -16,11 +16,12 @@ Please note that files have a markup for correct display on the site: the title,
 the weight (affects the order of files display on the sidebar) and description (optional):
 
     ---
-    title: "Title"
-    linkTitle: "Link Title"
+    title: 'Title'
+    linkTitle: 'Link Title'
     weight: 1
     description: >
         Description
+    tags: [ 'Tag1', 'Tag2' ]
     ---
 
 ### Start site localy

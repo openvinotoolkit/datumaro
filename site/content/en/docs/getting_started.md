@@ -7,7 +7,7 @@ weight: 1
 tags: ['Basics',  'Examples for python module',  'Examples for standalone tool', 'CVAT', 'OpenVINO™', 'PASCAL VOC', 'MS COCO', ]
 ---
 
-To read about the  design concept and features of Datumaro, go to the [design section](/docs/design/).
+To read about the design concept and features of Datumaro, go to the [design section](/docs/design/).
 
 ## Installation
 
