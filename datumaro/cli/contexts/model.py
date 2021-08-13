@@ -25,15 +25,15 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
 
     parser = parser_ctor(help="Add model to project",
         description="""
-            Registers an executable model into a project. A model requires
-            a launcher to be executed. Each launcher has its own options, which
-            are passed after '--' separator, pass '-- -h' for more info.
-            |n
-            List of builtin launchers: {}|n
-            |n
-            Examples:|n
-            - Add an OpenVINO model into a project:|n
-            |s|s%(prog)s -l openvino -- -d model.xml -w model.bin -i parse_outs.py
+        Adds an executable model into a project. A model requires
+        a launcher to be executed. Each launcher has its own options, which
+        are passed after the '--' separator, pass '-- -h' for more info.
+        |n
+        List of builtin launchers: {}|n
+        |n
+        Examples:|n
+        - Add an OpenVINO model into a project:|n
+        |s|s%(prog)s -l openvino -- -d model.xml -w model.bin -i parse_outs.py
         """.format(', '.join(builtins)),
         formatter_class=MultilineFormatter)
 
@@ -135,10 +135,24 @@ def remove_command(args):
 
 def build_run_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(help="Launches model inference",
-        description="Launches model inference on a project target.")
+        description="""
+        Launches model inference on a dataset.|n
+        |n
+        Target dataset is specified by a revpath. The full syntax is:|n
+        - Dataset paths:|n
+        |s|s- <dataset path>[ :<format> ]|n
+        - Revision paths:|n
+        |s|s- <project path> [ @<rev> ] [ :<target> ]|n
+        |s|s- <rev> [ :<target> ]|n
+        |s|s- <target>|n
+        |n
+        Both forms use the -p/--project as a context for plugins and models.
+        When not specified, the current project's working tree is used.|n
+        """,
+        formatter_class=MultilineFormatter)
 
     parser.add_argument('target', nargs='?', default='project',
-        help="Project target to launch inference on (default: project)")
+        help="Target dataset revpath (default: %(default)s)")
     parser.add_argument('-o', '--output-dir', dest='dst_dir',
         help="Directory to save output (default: auto-generated)")
     parser.add_argument('-m', '--model', dest='model_name', required=True,

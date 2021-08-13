@@ -78,7 +78,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         return s.split(',')
 
     parser.add_argument('targets', nargs='+',
-        help="Target revpaths (repeatable)")
+        help="Target dataset revpaths (repeatable)")
     parser.add_argument('-iou', '--iou-thresh', default=0.25, type=float,
         help="IoU match threshold for segments (default: %(default)s)")
     parser.add_argument('-oconf', '--output-conf-thresh',

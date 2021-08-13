@@ -21,32 +21,35 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
 
     parser = parser_ctor(help="Add data source to project",
         description="""
-            Adds a data source to a project. A data source is a dataset
-            in a supported format (check 'formats' section below).|n
-            |n
-            Currently, only local paths to sources are supported.|n
-            Once added, a source is copied into project.|n
-            |n
-            Formats:|n
-            Datasets come in a wide variety of formats. Each dataset
-            format defines its own data structure and rules on how to
-            interpret the data. Check the user manual for the list of
-            supported formats, examples and documentation.
-            |n
-            The list of supported formats can be extended by project plugins.
-            Check plugin section of developer guide for information about
-            plugin implementation.|n
-            |n
-            Builtin formats: {}|n
-            |n
-            Examples:|n
-            - Add a local directory with a VOC-like dataset:|n
-            |s|s%(prog)s -f voc path/to/voc|n
-            - Add a directory with a COCO dataset, use only a specific file:|n
-            |s|s%(prog)s -f coco_instances path/to/coco -r anns/train.json|n
-            - Add a local file with CVAT annotations, call it 'mysource'|n
-            |s|s|s|sto the project in a specific place:|n
-            |s|s%(prog)s -f cvat -n mysource -p project/path/ path/to/cvat.xml
+        Adds a data source to a project. A data source is a dataset
+        in a supported format (check 'formats' section below).|n
+        |n
+        Currently, only local paths to sources are supported.|n
+        Once added, a source is copied into project.|n
+        |n
+        Formats:|n
+        Datasets come in a wide variety of formats. Each dataset
+        format defines its own data structure and rules on how to
+        interpret the data. Check the user manual for the list of
+        supported formats, examples and documentation.
+        |n
+        The list of supported formats can be extended by plugins.
+        Check the "plugins" section of the developer guide for information
+        about plugin implementation.|n
+        |n
+        Each dataset format has its own import options, which are passed
+        after the '--' separator (see examples), pass '-- -h' for more info.
+        |n
+        Builtin formats: {}|n
+        |n
+        Examples:|n
+        - Add a local directory with a VOC-like dataset:|n
+        |s|s%(prog)s -f voc path/to/voc|n
+        - Add a directory with a COCO dataset, use only a specific file:|n
+        |s|s%(prog)s -f coco_instances -r anns/train.json path/to/coco|n
+        - Add a local file with CVAT annotations, call it 'mysource'|n
+        |s|s|s|sto the project in a specific place:|n
+        |s|s%(prog)s -f cvat -n mysource -p project/path/ path/to/cvat.xml
         """.format(', '.join(builtins)),
         formatter_class=MultilineFormatter)
 
@@ -62,13 +65,15 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
         help="A path relative to URL to the source data. Useful to specify "
             "a path to subset, subtask, or a specific file in URL.")
     parser.add_argument('--no-check', action='store_true',
-        help="Skip source correctness checking")
+        help="Don't try to read the source after importing")
     parser.add_argument('--no-cache', action='store_true',
-        help="Do not put a copy into the project cache")
+        help="Don't put a copy into the project cache")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to operate on (default: current dir)")
     parser.add_argument('extra_args', nargs=argparse.REMAINDER,
-        help="Additional arguments for extractor (pass '-- -h' for help)")
+        help="Additional arguments for extractor (pass '-- -h' for help). "
+            "Must be specified after the main command arguments and after "
+            "the '--' separator")
     parser.set_defaults(command=add_command)
 
     return parser
@@ -141,9 +146,10 @@ def build_remove_parser(parser_ctor=argparse.ArgumentParser):
     parser.add_argument('names', nargs='+',
         help="Names of the sources to be removed")
     parser.add_argument('--force', action='store_true',
-        help="Ignore possible errors during removal")
+        help="Do not fail and stop on errors during removal")
     parser.add_argument('--keep-data', action='store_true',
-        help="Do not remove source data")
+        help="Do not remove source data from the working directory, remove "
+            "only project metainfo.")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to operate on (default: current dir)")
     parser.set_defaults(command=remove_command)

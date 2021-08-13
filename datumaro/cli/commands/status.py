@@ -4,11 +4,19 @@
 
 import argparse
 
+from datumaro.cli.util import MultilineFormatter
+
 from ..util.project import load_project
 
 
 def build_parser(parser_ctor=argparse.ArgumentParser):
-    parser = parser_ctor(description="Prints project history.")
+    parser = parser_ctor(help="Prints project status.",
+        description="""
+        This command prints the summary of the project changes between
+        the working tree of a project and its HEAD revision.
+        """,
+        formatter_class=MultilineFormatter
+    )
 
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to operate on (default: current dir)")

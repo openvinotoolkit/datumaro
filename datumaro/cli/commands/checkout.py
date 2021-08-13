@@ -19,7 +19,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         1 - Restores a revision and all the sources in the working directory.|n
         2, 3 - Restores only specified sources from the specified revision.|n
         |s|sThe current revision is used, when not set.|n
-        |s|s"--" is optinally used to separate source names and revisions.|n
+        |s|s"--" is optionally used to separate source names and revisions.|n
         |n
         Examples:|n
         - Restore the previous revision:|n
@@ -37,7 +37,8 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     parser.add_argument('sources', nargs='*',
         help="Sources to restore (default: all)")
     parser.add_argument('-f', '--force', action='store_true',
-        help="Ignore unsaved changes (default: %(default)s)")
+        help="Allows to overwrite unsaved changes in case of conflicts "
+            "(default: %(default)s)")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to operate on (default: current dir)")
     parser.set_defaults(command=checkout_command)

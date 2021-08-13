@@ -75,22 +75,32 @@ def build_export_parser(parser_ctor=argparse.ArgumentParser):
 
     parser = parser_ctor(help="Export project",
         description="""
-        Exports a dataset in some format. Optionally, a filter
-        can be passed, check 'filter' command description for more info.
-        Each dataset format has its own options, which
-        are passed after '--' separator (see examples), pass '-- -h'
-        for more info. If not stated otherwise, by default
+        Exports a project in some format.|n
+        |n
+        Each dataset format has its own export
+        options, which are passed after the '--' separator (see examples),
+        pass '-- -h' for more info. If not stated otherwise, by default
         only annotations are exported, to include images pass
         '--save-images' parameter.|n
         |n
+        A filter can be passed, check the 'filter' command description for
+        more info.|n
+        |n
         Formats:|n
-        In Datumaro dataset formats are supported by Converter-s.
-        A Converter produces a dataset of a specific format
-        from dataset items. It is possible to add a custom Converter.
-        To do this, you need to put a Converter
-        definition script to <project_dir>/.datumaro/converters.|n
+        Datasets come in a wide variety of formats. Each dataset
+        format defines its own data structure and rules on how to
+        interpret the data. Check the user manual for the list of
+        supported formats, examples and documentation.
+        |n
+        The list of supported formats can be extended by plugins.
+        Check the "plugins" section of the developer guide for information
+        about plugin implementation.|n
         |n
         List of builtin dataset formats: {}|n
+        |n
+        The command can only be applied to a project build target, a stage
+        or the combined 'project' target, in which case all the targets will
+        be affected.
         |n
         Examples:|n
         - Export project as a VOC-like dataset, include images:|n
@@ -104,14 +114,14 @@ def build_export_parser(parser_ctor=argparse.ArgumentParser):
     parser.add_argument('_positionals', nargs=argparse.REMAINDER,
         help=argparse.SUPPRESS) # workaround for -- eaten by positionals
     parser.add_argument('target', nargs='?', default='project',
-        help="Target to do export for (default: '%(default)s')")
-    parser.add_argument('-e', '--filter', default=None,
-        help="Filter expression for dataset items")
+        help="A project target to be exported (default: %(default)s)")
+    parser.add_argument('-e', '--filter',
+        help="XML XPath filter expression for dataset items")
     parser.add_argument('--filter-mode', default=FilterModes.i.name,
         type=FilterModes.parse,
         help="Filter mode (options: %s; default: %s)" % \
             (', '.join(FilterModes.list_options()) , '%(default)s'))
-    parser.add_argument('-o', '--output-dir', dest='dst_dir', default=None,
+    parser.add_argument('-o', '--output-dir', dest='dst_dir',
         help="Directory to save output (default: a subdir in the current one)")
     parser.add_argument('--overwrite', action='store_true',
         help="Overwrite existing files in the save directory")
@@ -119,8 +129,10 @@ def build_export_parser(parser_ctor=argparse.ArgumentParser):
         help="Directory of the project to operate on (default: current dir)")
     parser.add_argument('-f', '--format', required=True,
         help="Output format")
-    parser.add_argument('extra_args', nargs=argparse.REMAINDER, default=None,
-        help="Additional arguments for converter (pass '-- -h' for help)")
+    parser.add_argument('extra_args', nargs=argparse.REMAINDER,
+        help="Additional arguments for converter (pass '-- -h' for help). "
+            "Must be specified after the main command arguments and after "
+            "the '--' separator")
     parser.set_defaults(command=export_command)
 
     return parser
@@ -209,6 +221,11 @@ def build_filter_parser(parser_ctor=argparse.ArgumentParser):
         removed. To select an annotation, write an XPath that
         returns 'annotation' elements (see examples).|n
         |n
+        The command can only be applied to a project build target, a stage
+        or the combined 'project' target, in which case all the targets will
+        be affected. A build tree stage will be added if '--stage' is enabled,
+        and the resulting dataset(-s) will be saved if '--apply' is enabled.
+        |n
         Examples:|n
         - Filter images with width < height:|n
         |s|s%(prog)s -e '/item[image/width < image/height]'|n
@@ -230,8 +247,8 @@ def build_filter_parser(parser_ctor=argparse.ArgumentParser):
         formatter_class=MultilineFormatter)
 
     parser.add_argument('target', nargs='?', default='project',
-        help="Project target to apply transform to (default: all)")
-    parser.add_argument('-e', '--filter', default=None,
+        help="A project target to apply transform to (default: %(default)s)")
+    parser.add_argument('-e', '--filter',
         help="XML XPath filter expression for dataset items")
     parser.add_argument('-m', '--mode', default=FilterModes.i.name,
         type=FilterModes.parse,
@@ -239,12 +256,24 @@ def build_filter_parser(parser_ctor=argparse.ArgumentParser):
             (', '.join(FilterModes.list_options()) , '%(default)s'))
     parser.add_argument('--dry-run', action='store_true',
         help="Print XML representations to be filtered and exit")
+    parser.add_argument('-o', '--output-dir', dest='dst_dir',
+        help="""
+            Output directory. Can be omitted for data source targets
+            (i.e. not intermediate stages) and the 'project' target,
+            in which case the results will be saved inplace in the
+            working tree.
+            """)
     parser.add_argument('--stage', type=str_to_bool, default=True,
-        help="Include this action as a project build step (default: %(default)s)")
+        help="""
+            Include this action as a project build step.
+            If true, this operation will be saved in the project
+            build tree, allowing to reproduce the resulting dataset later.
+            Applicable only to data source targets (i.e. not intermediate
+            stages) and the 'project' target (default: %(default)s)
+            """)
     parser.add_argument('--apply', type=str_to_bool, default=True,
-        help="Run this action immediately (default: %(default)s)")
-    parser.add_argument('-o', '--output-dir', dest='dst_dir', default=None,
-        help="Output directory (default: update current project)")
+        help="Run this command immediately. If disabled, only the "
+            "build tree stage will be written (default: %(default)s)")
     parser.add_argument('--overwrite', action='store_true',
         help="Overwrite existing files in the save directory")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
@@ -325,9 +354,19 @@ def build_transform_parser(parser_ctor=argparse.ArgumentParser):
         |n
         Builtin transforms: {}|n
         |n
+        The command can only be applied to a project build target, a stage
+        or the combined 'project' target, in which case all the targets will
+        be affected. A build tree stage will be added if '--stage' is enabled,
+        and the resulting dataset(-s) will be saved if '--apply' is enabled.
+        |n
         Examples:|n
         - Convert instance polygons to masks:|n
-        |s|s%(prog)s -t polygons_to_masks
+        |s|s%(prog)s -t polygons_to_masks|n
+        - Rename dataset items by a regular expression|n
+        |s|s- Replace 'pattern' with 'replacement'|n|n
+        |s|s%(prog)s -t rename -- -e '|pattern|replacement|'|n
+        |s|s- Remove 'frame_' from item ids|n
+        |s|s%(prog)s -t rename -- -e '|frame_(\\d+)|\\1|'
         """.format(', '.join(builtins)),
         formatter_class=MultilineFormatter)
 
@@ -337,18 +376,32 @@ def build_transform_parser(parser_ctor=argparse.ArgumentParser):
         help="Project target to apply transform to (default: all)")
     parser.add_argument('-t', '--transform', required=True,
         help="Transform to apply to the project")
-    parser.add_argument('-o', '--output-dir', dest='dst_dir', default=None,
-        help="Directory to save output (default: current dir)")
+    parser.add_argument('-o', '--output-dir', dest='dst_dir',
+        help="""
+            Output directory. Can be omitted for data source targets
+            (i.e. not intermediate stages) and the 'project' target,
+            in which case the results will be saved inplace in the
+            working tree.
+            """)
     parser.add_argument('--overwrite', action='store_true',
         help="Overwrite existing files in the save directory")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to operate on (default: current dir)")
     parser.add_argument('--stage', type=str_to_bool, default=True,
-        help="Include this action as a project build step (default: %(default)s)")
+        help="""
+            Include this action as a project build step.
+            If true, this operation will be saved in the project
+            build tree, allowing to reproduce the resulting dataset later.
+            Applicable only to data source targets (i.e. not intermediate
+            stages) and the 'project' target (default: %(default)s)
+            """)
     parser.add_argument('--apply', type=str_to_bool, default=True,
-        help="Run this action immediately (default: %(default)s)")
+        help="Run this command immediately. If disabled, only the "
+            "build tree stage will be written (default: %(default)s)")
     parser.add_argument('extra_args', nargs=argparse.REMAINDER,
-        help="Additional arguments for transformation (pass '-- -h' for help)")
+        help="Additional arguments for transformation (pass '-- -h' for help). "
+            "Must be specified after the main command arguments and after "
+            "the '--' separator")
     parser.set_defaults(command=transform_command)
 
     return parser
@@ -613,11 +666,11 @@ def build_validate_parser(parser_ctor=argparse.ArgumentParser):
     parser.add_argument('-t', '--task',
         type=_parse_task_type, required=True,
         help="Task type for validation, one of %s" % task_types)
-    parser.add_argument('-s', '--subset', dest='subset_name', default=None,
+    parser.add_argument('-s', '--subset', dest='subset_name',
         help="Subset to validate (default: whole dataset)")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to validate (default: current dir)")
-    parser.add_argument('extra_args', nargs=argparse.REMAINDER, default=None,
+    parser.add_argument('extra_args', nargs=argparse.REMAINDER,
         help="Optional arguments for validator (pass '-- -h' for help)")
     parser.set_defaults(command=validate_command)
 

@@ -94,9 +94,9 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
                 "method '%s', the only available are: %s" % (s, comp_methods))
 
     parser.add_argument('first_target',
-        help="The first project or revision to be compared")
+        help="The first dataset revpath to be compared")
     parser.add_argument('second_target', nargs='?',
-        help="The second project or revision to be compared")
+        help="The second dataset revpath to be compared")
     parser.add_argument('-o', '--output-dir', dest='dst_dir', default=None,
         help="Directory to save comparison results "
             "(default: generate automatically)")
