@@ -60,7 +60,7 @@ docs/_build/
 .idea/
 user_config.py
 
-# Website temporary files
+# Temporary website files
 /site/public/
 /site/resources/
 /site/node_modules/

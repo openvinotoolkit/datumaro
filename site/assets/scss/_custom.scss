@@ -1,0 +1,55 @@
+// Copyright (C) 2021 Intel Corporation
+//
+// SPDX-License-Identifier: MIT
+
+/* Increased left padding on the sidebar of documentation */
+
+.td-sidebar-nav__section .ul-1 ul {
+    padding-left: 0.6rem !important;
+    padding-right: 0.1rem !important;
+}
+
+/* Main documentation page */
+
+#docs section {
+    padding-top: 2rem;
+    padding-bottom: 7.5rem;
+}
+
+#docs .row div {
+    margin-top: 1rem;
+}
+
+/* Footer */
+
+.footer-disclaimer {
+    font-size: 0.75rem;
+    line-height: 1.2;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    padding-bottom: 1.5rem ;
+}
+
+.container-fluid footer {
+    min-height: inherit;
+    padding-bottom: 0.5rem !important;
+    padding-top: 2rem !important;
+}
+
+/* Icon color for temporary page */
+
+#temporary-page i {
+    color: lightgrey;
+}
+
+/* Meramaid config */
+
+.mermaid svg {
+    width: 70%;
+    height: auto;
+}
+
+.large-scheme svg {
+    width: 60%;
+    font-size: 55px !important;
+}
