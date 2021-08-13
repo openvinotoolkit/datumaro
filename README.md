@@ -16,10 +16,10 @@ CVAT annotations                             ---> Publication, statistics etc.
 ```
 <!--lint enable fenced-code-flag-->
 
-- [Getting started](openvinotoolkit.io/datumaro/getting_started)
-- [Examples](openvinotoolkit.io/datumaro/examples)
+- [Getting started](https://openvinotoolkit.github.io/datumaro/getting_started)
+- [Examples](https://openvinotoolkit.github.io/datumaro/examples)
 - [Features](#features)
-- [User manual](openvinotoolkit.io/datumaro/docs/user-manual)
+- [User manual](https://openvinotoolkit.github.io/datumaro/docs/user-manual)
 - [Contributing](#contributing)
 
 ## Features
@@ -86,8 +86,8 @@ CVAT annotations                             ---> Publication, statistics etc.
     - RISE for classification
     - RISE for object detection
 
-> Check [the design document](openvinotoolkit.io/datumaro/docs/design) for a full list of features.
-> Check [the user manual](openvinotoolkit.io/datumaro/docs/user-manual) for usage instructions.
+> Check [the design document](https://openvinotoolkit.github.io/datumaro/docs/design) for a full list of features.
+> Check [the user manual](https://openvinotoolkit.github.io/datumaro/docs/user-manual) for usage instructions.
 
 ## Contributing
 
@@ -97,4 +97,4 @@ Feel free to
 [open an Issue](https://github.com/openvinotoolkit/datumaro/issues/new), if you
 think something needs to be changed. You are welcome to participate in
 development, instructions are available in our
-[contribution guide](openvinotoolkit.io/datumaro/contribution-guide/).
+[contribution guide](https://openvinotoolkit.github.io/datumaro/contribution-guide/).
