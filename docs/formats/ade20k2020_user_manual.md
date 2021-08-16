@@ -78,20 +78,22 @@ ADE20K dataset directory should has the following structure:
 
 ```
 
-The mask images `<image_name>_seg.png` contain information about the object class
-segmentation masks and also separates each class into instances. The channels R
-and G encode the objects class masks. The channel B encodes the instance object
-masks.
+The mask images `<image_name>_seg.png` contain information about the object
+class segmentation masks and also separates each class into instances.
+The channels R and G encode the objects class masks.
+The channel B encodes the instance object masks.
 
-The mask images `<image_name>_parts_N.png` contain segmentation mask for parts of
-objects, where N is a number indicating the level in the part hierarchy.
+The mask images `<image_name>_parts_N.png` contain segmentation mask for
+parts of objects, where N is a number indicating the level in the part
+hierarchy.
 
 The `<image_name>` directory contains instance masks for each
 object in the image, these masks represent three-channel images that
 use channel B to identify an object.
 
 The annotation files `<image_name>.json` describing the content of each image.
-See our [tests asset](../../tests/assets/ade20k2020_dataset) for example of this file,
+See our [tests asset](../../tests/assets/ade20k2020_dataset)
+for example of this file,
 or check [ADE20K toolkit](https://github.com/CSAILVision/ADE20K) for it.
 # Export to other formats
 

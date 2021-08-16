@@ -68,16 +68,16 @@ ADE20K dataset directory should has the following structure:
 
 ```
 
-The mask images `<image_name>_seg.png` contain information about the object class
-segmentation masks and also separates each class into instances. The channels R
-and G encode the objects class masks. The channel B encodes the instance object
-masks.
+The mask images `<image_name>_seg.png` contain information about the object
+class segmentation masks and also separates each class into instances.
+The channels R and G encode the objects class masks.
+The channel B encodes the instance object masks.
 
-The mask images `<image_name>_parts_N.png` contain segmentation mask for parts of
-objects, where N is a number indicating the level in the part hierarchy.
+The mask images `<image_name>_parts_N.png` contain segmentation mask for parts
+of objects, where N is a number indicating the level in the part hierarchy.
 
-The annotation files `<image_name>_atr.txt` describing the content of each image. Each
-line in the text file contains:
+The annotation files `<image_name>_atr.txt` describing the content of each
+image. Each line in the text file contains:
 - column 1: instance number,
 - column 2: part level (0 for objects),
 - column 3: occluded (1 for true),
