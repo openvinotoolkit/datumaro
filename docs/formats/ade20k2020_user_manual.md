@@ -86,7 +86,7 @@ masks.
 The mask images `<image_name>_parts_N.png` contain segmentation mask for parts of
 objects, where N is a number indicating the level in the part hierarchy.
 
-The instance masks in `<image_name>` directory contain instance masks for each
+The `<image_name>` directory contains instance masks for each
 object in the image, these masks represent three-channel images that
 use channel B to identify an object.
 
