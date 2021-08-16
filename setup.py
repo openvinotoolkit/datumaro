@@ -61,7 +61,7 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/openvinotoolkit/datumaro",
-    packages=setuptools.find_packages(exclude=['tests*']),
+    packages=setuptools.find_packages(include=['datumaro']),
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
@@ -72,6 +72,10 @@ setuptools.setup(
     extras_require={
         'tf': ['tensorflow'],
         'tf-gpu': ['tensorflow-gpu'],
+        'default': [
+            'dvc>=2.3.0',
+            'GitPython>=3.0.8'
+        ]
     },
     entry_points={
         'console_scripts': [
