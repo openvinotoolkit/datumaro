@@ -210,8 +210,10 @@ python -m virtualenv venv
 Install Datumaro package:
 
 ``` bash
-pip install datumaro
+pip install datumaro[default]
 ```
+
+Read full installation instructions in [the user manual](docs/user_manual.md#installation).
 
 ## Usage
 

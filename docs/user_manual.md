@@ -58,11 +58,14 @@ python -m virtualenv venv
 Install:
 ``` bash
 # From PyPI:
-pip install datumaro
+pip install datumaro[default]
 
 # From the GitHub repository:
-pip install 'git+https://github.com/openvinotoolkit/datumaro'
+pip install 'git+https://github.com/openvinotoolkit/datumaro[default]'
 ```
+
+Read more about choosing between `datumaro` and `datumaro[default]`
+[here](#core-install).
 
 **Plugins**
 
@@ -73,13 +76,22 @@ plugin dependencies in the [plugins](#extending) section.
 
 **Customizing installation parameters**
 
+- <a id="core-install"></a>In restricted installation environments,
+  or if you need only basic Datumaro functionality, you can choose
+  the installation option:
+  - `pip install datumaro` - for core library functionality
+  - `pip install datumaro[default]` - for normal CLI experience
+
 - In some cases, there can be limited use for UI elements outside CLI,
   or limited options of installing graphical libraries in the system
   (various Docker environments, servers etc). You can select between using
   `opencv` and `opencv-headless` by setting the `DATUMARO_HEADLESS`
   environment variable to `0` or `1` before installing the package.
-  It requires building from source:
-  `DATUMARO_HEADLESS=1 pip install datumaro --no-binary=datumaro`
+  It requires installation from the sources:
+  ```bash
+  DATUMARO_HEADLESS=1 pip install datumaro --no-binary=datumaro
+  ```
+  This option can't be covered by extras due to `pip` limitations.
 
 - Although Datumaro has `pycocotools==2.0.1` in requirements, it works with
   2.0.2 perfectly fine. The reason for such requirement is binary
