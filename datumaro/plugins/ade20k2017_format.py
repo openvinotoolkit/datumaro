@@ -12,7 +12,7 @@ import numpy as np
 from datumaro.components.converter import Converter
 from datumaro.components.extractor import (
     AnnotationType, CompiledMask, DatasetItem, Extractor, Importer,
-    LabelCategories, Mask
+    LabelCategories, Mask,
 )
 from datumaro.util.image import find_images, lazy_image, load_image
 
