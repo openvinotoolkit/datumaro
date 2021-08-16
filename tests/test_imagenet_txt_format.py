@@ -120,6 +120,8 @@ class ImagenetTxtFormatTest(TestCase):
                 require_images=True)
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'imagenet_txt_dataset')
+DUMMY_DATASET_WITH_CUSTOM_LABELS_DIR = osp.join(
+    osp.dirname(__file__), 'assets', 'imagenet_txt_dataset_custom_labels')
 
 class ImagenetTxtImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -143,6 +145,21 @@ class ImagenetTxtImporterTest(TestCase):
         })
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'imagenet_txt')
+
+        compare_datasets(self, expected_dataset, dataset, require_images=True)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_import_with_custom_labels_file(self):
+        expected_dataset = Dataset.from_iterable([
+            DatasetItem(id='1', subset='train',
+                annotations=[Label(0)]
+            ),
+        ], categories=['alt_label_%s' % label for label in range(10)])
+
+        dataset = Dataset.import_from(
+            DUMMY_DATASET_WITH_CUSTOM_LABELS_DIR, 'imagenet_txt',
+            labels=osp.join(
+                DUMMY_DATASET_WITH_CUSTOM_LABELS_DIR, 'synsets-alt.txt'))
 
         compare_datasets(self, expected_dataset, dataset, require_images=True)
 

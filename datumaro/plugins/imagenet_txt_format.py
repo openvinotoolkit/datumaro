@@ -1,4 +1,4 @@
-# Copyright (C) 2020 Intel Corporation
+# Copyright (C) 2020-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -30,6 +30,8 @@ class ImagenetTxtExtractor(SourceExtractor):
 
         if labels is None:
             labels = osp.join(osp.dirname(path), ImagenetTxtPath.LABELS_FILE)
+            labels = self._parse_labels(labels)
+        elif isinstance(labels, str):
             labels = self._parse_labels(labels)
         else:
             assert all(isinstance(e, str) for e in labels)
@@ -81,10 +83,14 @@ class ImagenetTxtExtractor(SourceExtractor):
 
 class ImagenetTxtImporter(Importer):
     @classmethod
-    def find_sources(cls, path):
+    def find_sources_with_params(cls, path, **extra_params):
+        labels = extra_params.get('labels')
+        labels_file_name = osp.basename(labels) \
+            if isinstance(labels, str) else ImagenetTxtPath.LABELS_FILE
+
         return cls._find_sources_recursive(path, '.txt', 'imagenet_txt',
             file_filter=lambda p: \
-                osp.basename(p) != ImagenetTxtPath.LABELS_FILE)
+                osp.basename(p) != labels_file_name)
 
 
 class ImagenetTxtConverter(Converter):
