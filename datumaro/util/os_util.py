@@ -15,12 +15,18 @@ import subprocess
 import sys
 import unicodedata
 
-# Declare functions to remove files and directories.
-#
-# Use rmtree from GitPython to avoid the problem with removal of
-# readonly files on Windows, which Git uses extensively
-# It double checks if a file cannot be removed because of readonly flag
-from git.util import rmfile, rmtree  # pylint: disable=unused-import
+try:
+    import git
+
+    # Declare functions to remove files and directories.
+    #
+    # Use rmtree from GitPython to avoid the problem with removal of
+    # readonly files on Windows, which Git uses extensively
+    # It double checks if a file cannot be removed because of readonly flag
+    from git.util import rmfile, rmtree  # pylint: disable=unused-import
+except ImportError:
+    from os import remove as rmfile # pylint: disable=unused-import
+    from shutil import rmtree as rmtree # pylint: disable=unused-import
 
 from . import cast
 
