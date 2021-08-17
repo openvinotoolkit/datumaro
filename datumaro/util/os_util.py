@@ -16,8 +16,6 @@ import sys
 import unicodedata
 
 try:
-    import git
-
     # Declare functions to remove files and directories.
     #
     # Use rmtree from GitPython to avoid the problem with removal of
