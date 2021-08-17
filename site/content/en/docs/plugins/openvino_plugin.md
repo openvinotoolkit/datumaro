@@ -1,3 +1,4 @@
+<!--lint enable maximum-line-length-->
 ---
 title: 'OpenVINO™ Inference Interpreter'
 linkTitle: 'OpenVINO™ Inference Interpreter'
@@ -6,6 +7,7 @@ description: 'Interpreter samples to parse OpenVINO™ inference outputs.
 weight: 49
 tags: [ 'OpenVINO™', 'PASCAL VOC', 'MS COCO', ]
 ---
+<!--lint disable maximum-line-length-->
 
 ## Models supported from interpreter samples
 There are detection and image classification examples.

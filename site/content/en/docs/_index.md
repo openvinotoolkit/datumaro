@@ -11,7 +11,8 @@ tags: [ 'Schemes', ]
 
 Welcome to the documentation for the Dataset Management Framework (Datumaro).
 
-The Datumaro is a free framework and CLI tool for building, transforming, and analyzing datasets.
+The Datumaro is a free framework and CLI tool for building, transforming,
+and analyzing datasets.
 It is developed and used by Intel to build, transform, and analyze annotations
 and datasets in a large number of [supported formats](/docs/user-manual/supported-formats/).
 
@@ -35,6 +36,7 @@ flowchart LR
 
 </div>
 
+<!--lint enable maximum-line-length-->
 <section id="docs">
 
 {{< blocks/section color="docs" >}}
@@ -60,3 +62,4 @@ Documentation for Datumaro developers.
 {{< /blocks/section >}}
 
 </section>
+<!--lint disable maximum-line-length-->

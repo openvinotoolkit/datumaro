@@ -3,7 +3,8 @@ title: 'Run inference explanation'
 linkTitle: 'Explain inference'
 description: ''
 weight: 22
-tags: [ 'RISE',    'Examples for standalone tool', 'Examples for python module', ]
+tags: [ 'RISE', 'Examples for standalone tool',
+    'Examples for python module', ]
 ---
 
 Runs an explainable AI algorithm for a model.

@@ -3,7 +3,8 @@ title: 'KITTI'
 linkTitle: 'KITTI'
 description: ''
 weight: 6
-tags: [ 'Formats',  'Examples for python module',  'Examples for standalone tool', 'MS COCO', ]
+tags: [ 'Formats',  'Examples for python module',
+    'Examples for standalone tool', 'MS COCO', ]
 ---
 
 ## Format specification

@@ -7,7 +7,8 @@ tags: [  'Examples for standalone tool', ]
 ---
 
 This command updates items in a project from another one
-(check [Merge Projects](/docs/user-manual/command-reference/merge-projects/) for complex merging).
+(check [Merge Projects](/docs/user-manual/command-reference/merge-projects/)
+for complex merging).
 
 Usage:
 

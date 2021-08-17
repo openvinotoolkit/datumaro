@@ -3,7 +3,8 @@ title: 'Open Images'
 linkTitle: 'Open Images'
 description: ''
 weight: 8
-tags: [ 'Formats',  'Examples for python module',  'Examples for standalone tool', ]
+tags: [ 'Formats',  'Examples for python module',
+    'Examples for standalone tool', ]
 ---
 
 ## Format specification

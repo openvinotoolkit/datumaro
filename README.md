@@ -86,8 +86,12 @@ CVAT annotations                             ---> Publication, statistics etc.
     - RISE for classification
     - RISE for object detection
 
-> Check [the design document](https://openvinotoolkit.github.io/datumaro/docs/design) for a full list of features.
-> Check [the user manual](https://openvinotoolkit.github.io/datumaro/docs/user-manual) for usage instructions.
+> Check
+  [the design document](https://openvinotoolkit.github.io/datumaro/docs/design)
+  for a full list of features.
+> Check
+  [the user manual](https://openvinotoolkit.github.io/datumaro/docs/user-manual)
+  for usage instructions.
 
 ## Contributing
 

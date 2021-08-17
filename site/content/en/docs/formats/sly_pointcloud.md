@@ -3,7 +3,8 @@ title: 'Supervisely Point Cloud'
 linkTitle: 'Supervisely Point Cloud'
 description: ''
 weight: 10
-tags: [ 'Formats',  'Examples for python module',  'Examples for standalone tool', ]
+tags: [ 'Formats',  'Examples for python module',
+    'Examples for standalone tool', ]
 ---
 
 ## Format specification

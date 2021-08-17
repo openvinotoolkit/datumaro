@@ -3,7 +3,8 @@ title: 'CIFAR'
 linkTitle: 'CIFAR'
 description: ''
 weight: 1
-tags: [ 'Formats',   'Examples for standalone tool', 'Examples for python module', ]
+tags: [ 'Formats', 'Examples for standalone tool',
+    'Examples for python module', ]
 ---
 
 ## Format specification
