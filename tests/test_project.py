@@ -1,6 +1,7 @@
 from unittest import TestCase
 import os
 import os.path as osp
+import textwrap
 
 import numpy as np
 
@@ -428,3 +429,35 @@ class ProjectTest(TestCase):
         dataset = project.make_dataset()
 
         compare_datasets(self, CustomExtractor(), dataset)
+
+    @mark_requirement(Requirements.DATUM_BUG_404)
+    def test_can_add_plugin(self):
+        with TestDir() as test_dir:
+            Project.generate(test_dir)
+
+            plugin_dir = osp.join(test_dir, '.datumaro', 'plugins')
+            os.makedirs(plugin_dir)
+            with open(osp.join(plugin_dir, '__init__.py'), 'w') as f:
+                f.write(textwrap.dedent("""
+                    from datumaro.components.extractor import (SourceExtractor,
+                        DatasetItem)
+
+                    class MyExtractor(SourceExtractor):
+                        def __iter__(self):
+                            yield from [
+                                DatasetItem('1'),
+                                DatasetItem('2'),
+                            ]
+                """))
+
+            project = Project.load(test_dir)
+            project.add_source('src', {
+                'url': '',
+                'format': 'my'
+            })
+
+            expected = Dataset.from_iterable([
+                DatasetItem('1'),
+                DatasetItem('2')
+            ])
+            compare_datasets(self, expected, project.make_dataset())
