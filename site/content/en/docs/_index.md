@@ -15,7 +15,8 @@ The Datumaro is a free framework and CLI tool for building, transforming, and an
 It is developed and used by Intel to build, transform, and analyze annotations
 and datasets in a large number of [supported formats](/docs/user-manual/supported-formats/).
 
-Our documentation provides information for AI researchers, developers, and teams those working with datasets and annotations.
+Our documentation provides information for AI researchers, developers,
+and teams, who are working with datasets and annotations.
 
 <div class="text-center">
 
