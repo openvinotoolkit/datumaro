@@ -136,12 +136,6 @@ pytest -v
 python -m pytest -v
 ```
 
-If you're working inside of a CVAT environment, you can also use:
-
-``` bash
-python manage.py test datumaro/
-```
-
 
 ### Test cases <a id="Test_case_description"></a>
 

@@ -183,8 +183,15 @@ It is supported by `Extractor`s, `Importer`s, and `Converter`s.
 
 Dataset reading is supported by `Extractor`s and `Importer`s:
 - An `Extractor` produces a list of `DatasetItem`s corresponding to the
-  dataset. Annotations are available in the `DatasetItem.annotations` list
-- An `Importer` creates a project from a data source location
+  dataset. Annotations are available in the `DatasetItem.annotations` list.
+  The `SourceExtractor` class is designed for loading simple, single-subset
+  datasets. It should be used by default. The `Extractor` base class should
+  be used when `SourceExtractor`'s functionality is not enough.
+- An `Importer` detects dataset files and generates dataset loading parameters
+  for the corresponding `Extractor`s. `Importer`s are optional, they are
+  only extend the Extractor functionality and make them more flexible and
+  simple. They are mostly used to locate dataset subsets, but they also can
+  do some data compatibility checks and have other required logic.
 
 It is possible to add custom `Extractor`s and `Importer`s. To do this, you need
 to put an `Extractor` and `Importer` implementations to a plugin directory.
@@ -193,7 +200,6 @@ Dataset writing is supported by `Converter`s.
 A `Converter` produces a dataset of a specific format from dataset items.
 It is possible to add custom `Converter`s. To do this, you need to put a
 `Converter` implementation script to a plugin directory.
-
 
 ### Dataset Conversions ("Transforms")
 
