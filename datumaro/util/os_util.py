@@ -50,8 +50,6 @@ def import_foreign_module(name, path, package=None):
         sys.modules.pop(name, None) # remove from cache
         module = importlib.import_module(name, package=package)
         sys.modules.pop(name) # remove from cache
-    except Exception:
-        raise
     finally:
         sys.path = default_path
     return module

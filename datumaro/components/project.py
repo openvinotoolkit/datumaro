@@ -811,14 +811,15 @@ class ProjectBuildTargets(CrudProxy):
 
 class GitWrapper:
     @staticmethod
-    def import_module():
-        import git
-        return git
-
-    try:
-        module = import_module.__func__()
-    except ImportError:
-        module = None
+    def module():
+        try:
+            import git
+            return git
+        except ModuleNotFoundError as e:
+            raise ModuleNotFoundError("Can't import the 'git' package. "
+                "Make sure GitPython is installed, or install it with "
+                "'pip install datumaro[default]'."
+            ) from e
 
     def _git_dir(self):
         return osp.join(self._project_dir, '.git')
@@ -829,7 +830,7 @@ class GitWrapper:
 
         if repo is None and \
                 osp.isdir(project_dir) and osp.isdir(self._git_dir()):
-            self.repo = self.module.Repo(project_dir)
+            self.repo = self.module().Repo(project_dir)
 
     @property
     def initialized(self):
@@ -839,7 +840,7 @@ class GitWrapper:
         if self.initialized:
             return
 
-        repo = self.module.Repo.init(path=self._project_dir)
+        repo = self.module().Repo.init(path=self._project_dir)
         repo.config_writer() \
             .set_value("user", "name", "User") \
             .set_value("user", "email", "<>") \
@@ -953,7 +954,7 @@ class GitWrapper:
         Returns: { abspath(base_dir + path): status }
         """
 
-        if paths is None or isinstance(paths, self.module.objects.tree.Tree):
+        if paths is None or isinstance(paths, self.module().objects.tree.Tree):
             if paths is None:
                 tree = self.repo.head.commit.tree
             else:
@@ -997,7 +998,7 @@ class GitWrapper:
         try:
             self.repo.commit(rev)
             return True
-        except (ValueError, self.module.exc.BadName):
+        except (ValueError, self.module().exc.BadName):
             return False
 
     def has_commits(self):
@@ -1078,16 +1079,17 @@ class GitWrapper:
 
 class DvcWrapper:
     @staticmethod
-    def import_module():
-        import dvc
-        import dvc.main
-        import dvc.repo
-        return dvc
-
-    try:
-        module = import_module.__func__()
-    except ImportError:
-        module = None
+    def module():
+        try:
+            import dvc
+            import dvc.main
+            import dvc.repo
+            return dvc
+        except ModuleNotFoundError as e:
+            raise ModuleNotFoundError("Can't import the 'dvc' package. "
+                "Make sure DVC is installed, or install it with "
+                "'pip install datumaro[default]'."
+            ) from e
 
     def _dvc_dir(self):
         return osp.join(self._project_dir, '.dvc')
@@ -1101,7 +1103,7 @@ class DvcWrapper:
 
         if osp.isdir(project_dir) and osp.isdir(self._dvc_dir()):
             with logging_disabled():
-                self._repo = self.module.repo.Repo(project_dir)
+                self._repo = self.module().repo.Repo(project_dir)
 
     @property
     def initialized(self):
@@ -1112,7 +1114,7 @@ class DvcWrapper:
             return
 
         with logging_disabled():
-            self._repo = self.module.repo.Repo.init(self._project_dir)
+            self._repo = self.module().repo.Repo.init(self._project_dir)
 
         repo_dir = osp.join(self._project_dir, '.dvc')
         _update_ignore_file([osp.join(repo_dir, 'plots')],
@@ -1160,7 +1162,7 @@ class DvcWrapper:
             log.debug("Calling DVC main with args: %s", args)
 
             logs = contexts.enter_context(catch_logs('dvc'))
-            retcode = self.module.main.main(args)
+            retcode = self.module().main.main(args)
 
         logs = logs.getvalue()
         if retcode != 0:
@@ -1433,8 +1435,13 @@ class Project:
         self._aux_dir = found_path
         self._root_dir = osp.dirname(found_path)
 
-        GitWrapper.import_module()
-        DvcWrapper.import_module()
+        # Force import errors on missing dependencies.
+        #
+        # TODO: maybe allow class use in some cases, which not require
+        # Git or DVC
+        GitWrapper.module()
+        DvcWrapper.module()
+
         self._git = GitWrapper(self._root_dir)
         self._dvc = DvcWrapper(self._root_dir)
 

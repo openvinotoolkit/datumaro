@@ -6,6 +6,7 @@ networkx>=2.5
 numpy>=1.17.3
 Pillow>=6.1.0
 ruamel.yaml>=0.17.0
+typing_extensions>=3.7.4.3
 
 # Avoid 2.0.2 Linux binary distribution because of
 # a conflict in numpy versions with TensorFlow:
