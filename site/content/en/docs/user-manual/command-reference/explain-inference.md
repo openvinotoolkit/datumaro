@@ -18,7 +18,7 @@ image to produce a heatmap of activations for each output of the
 first inference. As a result, we obtain few heatmaps, which
 shows, how image pixels affected the inference result. This algorithm doesn't
 require any special information about the model, but it requires the model to
-return all the outputs and confidences. The algorighm only supports
+return all the outputs and confidences. The algorithm only supports
 classification and detection models.
 
 The following use cases available:

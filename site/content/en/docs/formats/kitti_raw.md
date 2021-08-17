@@ -129,7 +129,7 @@ Extra options for exporting in KITTI Raw format:
 - `--image-ext IMAGE_EXT` allow to specify image extension
   for exporting dataset (by default - keep original or use `.png`, if none)
 - `--reindex` assigns new indices to frames and tracks. Allows annotations
-  without `track_id` attribute (they will be exported as signle-frame tracks).
+  without `track_id` attribute (they will be exported as single-frame tracks).
 - `--allow-attrs` allows writing arbitrary annotation attributes. They will
   be written in `<annotations>` section of `<poses><item>`
   (disabled by default)
