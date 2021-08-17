@@ -7,7 +7,7 @@ tags: [ 'TensorFlow', 'OpenVINO™' ]
 ---
 
 There are few ways to extend and customize Datumaro behaviour, which is
-supported by plugins. Check [our contribution guide](/docs/contribution-guide) for
+supported by plugins. Check [our contribution guide](/docs/contribution) for
 details on plugin implementation. In general, a plugin is a Python code file.
 It must be put into a plugin directory:
 - `<project_dir>/.datumaro/plugins` for project-specific plugins
