@@ -24,7 +24,7 @@ try:
     # readonly files on Windows, which Git uses extensively
     # It double checks if a file cannot be removed because of readonly flag
     from git.util import rmfile, rmtree  # pylint: disable=unused-import
-except ImportError:
+except ModuleNotFoundError:
     from os import remove as rmfile # pylint: disable=unused-import
     from shutil import rmtree as rmtree # pylint: disable=unused-import
 

@@ -24,7 +24,7 @@ _image_loading_errors = (FileNotFoundError, )
 try:
     importlib.import_module('cv2')
     _IMAGE_BACKEND = _IMAGE_BACKENDS.cv2
-except ImportError:
+except ModuleNotFoundError:
     import PIL
     _IMAGE_BACKEND = _IMAGE_BACKENDS.PIL
     _image_loading_errors = (*_image_loading_errors, PIL.UnidentifiedImageError)
