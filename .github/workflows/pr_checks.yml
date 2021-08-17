@@ -31,7 +31,7 @@ jobs:
       - name: Installing dependencies
         run: |
           pip install tensorflow pytest
-          pip install -e ./
+          pip install -e .[default]
       - name: Unit testing
         run: |
           pytest -v
