@@ -38,6 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Import of ICDAR, PASCAL VOC and VGGFace2 images from subdirectories on WIndows
   (<https://github.com/openvinotoolkit/datumaro/pull/392>)
 - Saving of images with Unicode paths on Windows (<https://github.com/openvinotoolkit/datumaro/pull/392>)
+- Calling `ProjectDataset.transform()` with a string argument (<https://github.com/openvinotoolkit/datumaro/issues/402>)
 
 ### Security
 - TBD
