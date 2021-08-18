@@ -164,6 +164,6 @@ class Ade20k2020Importer(Importer):
     def find_sources(cls, path):
         for i in range(0, 5):
             for i in glob.iglob(osp.join(path, *('*' * i))):
-                    if osp.splitext(i)[1] in IMAGE_EXTENSIONS:
+                    if osp.splitext(i)[1].lower() in IMAGE_EXTENSIONS:
                         return [{'url': path, 'format': 'ade20k2020'}]
         return []
