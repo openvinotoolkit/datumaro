@@ -89,7 +89,7 @@ class Ade20k2017Extractor(Extractor):
                     ))
 
                 mask_path = osp.splitext(image_path)[0] \
-                    + '_parts_%s'.png % (part_level + 1)
+                    + '_parts_%s.png' % (part_level + 1)
 
             self._items.append(DatasetItem(item_id, subset=subset,
                 image=image_path, annotations=item_annotations))
