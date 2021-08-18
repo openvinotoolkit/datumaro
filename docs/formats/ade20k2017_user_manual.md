@@ -44,27 +44,27 @@ ade20k_dataset = Dataset.import_from('<path/to/dataset>', 'ade20k2017')
 ADE20K dataset directory should has the following structure:
 
 ```
-└─ Dataset/
+|-- Dataset/
     ├── subset1/
-    │   └── img1.jpg
-    │   └── img1_seg.png
-    │   └── img1_parts_1.png
-    │   └── img1_atr.txt
-    │   └── img2.jpg
-    │   └── img2_seg.png
-    │   └── ...
+    │   |--- img1.jpg
+    │   |--- img1_seg.png
+    │   |--- img1_parts_1.png
+    │   |--- img1_atr.txt
+    │   |--- img2.jpg
+    │   |--- img2_seg.png
+    │   |--- ...
     │
     ├── subset2/
-    │   └── super_label_1/
-    |       └── img4.jpg
-    |       └── img4_seg.png
-    |       └── img4_atr.txt
-    |       └── img5.jpg
-    |       └── img5_seg.png
-    |       └── ...
-    |   └── img3.jpg
-    |   └── img3_seg.png
-    |   └── img3_atr.txt
+    │   |--- super_label_1/
+    |       |--- img4.jpg
+    |       |--- img4_seg.png
+    |       |--- img4_atr.txt
+    |       |--- img5.jpg
+    |       |--- img5_seg.png
+    |       |--- ...
+    |   |--- img3.jpg
+    |   |--- img3_seg.png
+    |   |--- img3_atr.txt
 
 ```
 

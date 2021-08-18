@@ -44,37 +44,37 @@ ade20k_dataset = Dataset.import_from('<path/to/dataset>', 'ade20k2020')
 ADE20K dataset directory should has the following structure:
 
 ```
-└─ Dataset/
-    ├── subset1/
-    │   └── img1/ # directory with instance masks for img1
-    |       └── 001_img1.jpg
-    |       └── 002_img1.jpg
-    |       └── ...
-    │   └── img1.jpg
-    │   └── img1_seg.png
-    │   └── img1_parts_1.png
-    │   └── img1.json
-    │   └── img2/ # directory with instance masks for img2
-    |       └── 001_img2.jpg
-    |       └── 002_img2.jpg
-    |       └── ...
-    │   └── img2.jpg
-    │   └── img2_seg.png
-    │   └── ...
+|-- Dataset/
+    |--- subset1/
+    │   |--- img1/ # directory with instance masks for img1
+    |       |--- 001_img1.jpg
+    |       |--- 002_img1.jpg
+    |       |--- ...
+    │   |--- img1.jpg
+    │   |--- img1_seg.png
+    │   |--- img1_parts_1.png
+    │   |--- img1.json
+    │   |--- img2/ # directory with instance masks for img2
+    |       |--- 001_img2.jpg
+    |       |--- 002_img2.jpg
+    |       |--- ...
+    │   |--- img2.jpg
+    │   |--- img2_seg.png
+    │   |--- ...
     │
     ├── subset2/
-    │   └── super_label_1/
-    |       └── img4/
-    |       └── img4.jpg
-    |       └── img4_seg.png
-    |       └── img4.json
-    |       └── img5.jpg
-    |       └── img5_seg.png
-    |       └── ...
-    |   └── img/
-    |   └── img3.jpg
-    |   └── img3_seg.png
-    |   └── img3.txt
+    │   |--- super_label_1/
+    |       |--- img4/
+    |       |--- img4.jpg
+    |       |--- img4_seg.png
+    |       |--- img4.json
+    |       |--- img5.jpg
+    |       |--- img5_seg.png
+    |       |--- ...
+    |   |--- img/
+    |   |--- img3.jpg
+    |   |--- img3_seg.png
+    |   |--- img3.txt
 
 ```
 
