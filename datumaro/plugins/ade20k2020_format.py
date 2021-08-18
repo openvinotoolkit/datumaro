@@ -51,7 +51,7 @@ class Ade20k2020Extractor(Extractor):
         images = [i for i in find_images(path, '.jpg', recursive=True)]
 
         for image_path in sorted(images):
-            item_id = osp.splitext(osp.basename(image_path))[0]
+            item_id = osp.splitext(osp.relpath(image_path, path))[0]
             item_annotations = []
 
             item_info = self._load_item_info(image_path)
