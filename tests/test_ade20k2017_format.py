@@ -9,6 +9,7 @@ import numpy as np
 
 from datumaro.components.dataset import Dataset, DatasetItem
 from datumaro.components.extractor import AnnotationType, LabelCategories, Mask
+from datumaro.plugins.ade20k2017_format import Ade20k2017Importer
 from datumaro.util.test_utils import compare_datasets
 
 from tests.requirements import Requirements, mark_requirement
@@ -16,6 +17,10 @@ from tests.requirements import Requirements, mark_requirement
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'ade20k2017_dataset')
 
 class Ade20k2017ImporterTest(TestCase):
+    @mark_requirement(Requirements.DATUM_399)
+    def test_can_detect(self):
+        self.assertTrue(Ade20k2017Importer.detect(DUMMY_DATASET_DIR))
+
     @mark_requirement(Requirements.DATUM_399)
     def test_can_import(self):
         expected_dataset = Dataset.from_iterable(
