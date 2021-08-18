@@ -3,7 +3,6 @@ title: 'Plugins'
 linkTitle: 'Plugins'
 description: ''
 weight: 8
-
 ---
 
 Datumaro comes with a number of built-in formats and other tools,
