@@ -3,7 +3,6 @@ title: 'Obtaining project statistics'
 linkTitle: 'Get project statistics'
 description: ''
 weight: 18
-tags: [  'Examples for standalone tool', ]
 ---
 
 This command computes various project statistics, such as:

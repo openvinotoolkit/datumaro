@@ -3,7 +3,6 @@ title: 'Filter project'
 linkTitle: 'Filter project'
 description: ''
 weight: 12
-tags: [  'Examples for standalone tool', ]
 ---
 
 This command allows to create a sub-Project from a Project. The new project

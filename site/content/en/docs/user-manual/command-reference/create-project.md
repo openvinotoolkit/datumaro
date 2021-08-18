@@ -3,7 +3,6 @@ title: 'Create project'
 linkTitle: 'Create project'
 description: ''
 weight: 10
-tags: [  'Examples for standalone tool', ]
 ---
 
 The command creates an empty project. Once a Project is created, there are

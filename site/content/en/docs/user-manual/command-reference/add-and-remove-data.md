@@ -3,7 +3,6 @@ title: 'Add and remove data'
 linkTitle: 'Add and remove data'
 description: ''
 weight: 11
-tags: [  'Examples for standalone tool', 'MS COCO', ]
 ---
 
 A Project can contain a number of external Data Sources. Each Data Source

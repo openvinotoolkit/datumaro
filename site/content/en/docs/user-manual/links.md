@@ -3,7 +3,6 @@ title: 'Links'
 linkTitle: 'Links'
 description: ''
 weight: 29
-tags: [ 'TensorFlow', 'OpenVINO™', 'Models', ]
 ---
 
 - [TensorFlow detection model zoo](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/tf2_detection_zoo.md)

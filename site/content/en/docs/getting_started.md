@@ -4,9 +4,6 @@ linkTitle: 'Getting started'
 description: ''
 no_list: true
 weight: 1
-tags: ['Basics',  'Examples for python module',
-    'Examples for standalone tool', 'CVAT', 'OpenVINO™', 'PASCAL VOC',
-    'MS COCO', ]
 ---
 
 To read about the design concept and features of Datumaro, go to the [design section](/docs/design/).
@@ -82,7 +79,7 @@ for item in dataset:
 dataset.export('dst/dir', 'coco')
 ```
 
-> Check our [developer guide](/docs/developer-guide/) for additional
+> Check our [developer manual](/docs/developer-manual/) for additional
   information.
 
 ## Examples

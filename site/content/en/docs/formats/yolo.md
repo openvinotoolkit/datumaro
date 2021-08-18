@@ -3,8 +3,6 @@ title: 'YOLO'
 linkTitle: 'YOLO'
 description: ''
 weight: 11
-tags: [ 'Formats',  'PASCAL VOC', 'Examples for python module',
-    'Examples for standalone tool', 'Subsets', ]
 ---
 
 ## Format specification

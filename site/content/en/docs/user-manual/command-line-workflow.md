@@ -3,7 +3,6 @@ title: 'Command line workflow'
 linkTitle: 'Command line workflow'
 description: ''
 weight: 5
-tags: [  'Examples for standalone tool', ]
 ---
 
 The key object is a project, so most CLI commands operate on projects.

@@ -3,7 +3,6 @@ title: 'Export project'
 linkTitle: 'Export project'
 description: ''
 weight: 15
-tags: [  'Examples for standalone tool', ]
 ---
 
 This command exports a Project as a dataset in some format.

@@ -3,7 +3,6 @@ title: 'Run inference'
 linkTitle: 'Run model'
 description: ''
 weight: 21
-tags: [ 'Models',  'Examples for standalone tool', ]
 ---
 
 This command applies model to dataset images and produces a new project.

@@ -3,7 +3,6 @@ title: 'Supported dataset formats and annotations'
 linkTitle: 'Supported Formats'
 description: ''
 weight: 3
-tags: ["Formats"]
 ---
 
 List of supported formats:

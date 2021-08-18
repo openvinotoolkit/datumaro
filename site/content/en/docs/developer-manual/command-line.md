@@ -3,7 +3,6 @@ title: 'Command-line'
 linkTitle: 'Command-line'
 description: ''
 weight: 11
-tags: [ 'Schemes', ]
 ---
 
 

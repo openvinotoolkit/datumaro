@@ -3,7 +3,6 @@ title: 'Update project (merge)'
 linkTitle: 'Update project'
 description: ''
 weight: 13
-tags: [  'Examples for standalone tool', ]
 ---
 
 This command updates items in a project from another one

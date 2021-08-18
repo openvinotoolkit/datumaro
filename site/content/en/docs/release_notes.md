@@ -1,6 +1,6 @@
 ---
-title: 'Release note'
-linkTitle: 'Release note'
+title: 'Release notes'
+linkTitle: 'Release notes'
 description: ''
 ---
 

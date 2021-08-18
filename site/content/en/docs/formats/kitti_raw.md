@@ -3,8 +3,6 @@ title: 'Velodyne Points / KITTI Raw 3D'
 linkTitle: 'Velodyne Points / KITTI Raw 3D'
 description: ''
 weight: 5
-tags: [ 'Formats',  'MS COCO', 'Examples for python module',
-    'Examples for standalone tool', ]
 ---
 
 ## Format specification

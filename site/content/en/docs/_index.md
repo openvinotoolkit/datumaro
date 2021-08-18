@@ -3,10 +3,6 @@ title: 'Dataset Management Framework Documentation'
 linkTitle: 'Documentation'
 weight: 20
 no_list: true
-menu:
-  main:
-    weight: 20
-tags: [ 'Schemes', ]
 ---
 
 Welcome to the documentation for the Dataset Management Framework (Datumaro).
@@ -53,7 +49,7 @@ This section contains documents for Datumaro users.
 
 {{% /blocks/feature %}}
 
-{{% blocks/feature icon="fa-code" title="[Developer Guide](/docs/developer-guide/)" %}}
+{{% blocks/feature icon="fa-code" title="[Developer Manual](/docs/developer-manual/)" %}}
 
 Documentation for Datumaro developers.
 

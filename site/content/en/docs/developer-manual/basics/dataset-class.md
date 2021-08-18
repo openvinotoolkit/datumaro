@@ -3,7 +3,6 @@ title: 'The Dataset class'
 linkTitle: 'The Dataset class'
 description: ''
 weight: 2
-tags: [ 'Examples for python module', 'Subsets', ]
 ---
 
 The `Dataset` class from the `datumaro.components.dataset` module represents

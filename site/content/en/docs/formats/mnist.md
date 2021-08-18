@@ -3,8 +3,6 @@ title: 'MNIST'
 linkTitle: 'MNIST'
 description: ''
 weight: 7
-tags: [ 'Formats',  'Examples for python module',
-    'Examples for standalone tool', ]
 ---
 
 ## Format specification

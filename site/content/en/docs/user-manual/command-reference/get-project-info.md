@@ -3,7 +3,6 @@ title: 'Obtaining project info'
 linkTitle: 'Get project info'
 description: ''
 weight: 17
-tags: [  'Examples for standalone tool', 'MS COCO', ]
 ---
 
 This command outputs project status information.

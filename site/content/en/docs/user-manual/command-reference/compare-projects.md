@@ -3,7 +3,6 @@ title: 'Compare projects'
 linkTitle: 'Compare projects'
 description: ''
 weight: 16
-tags: [  'Examples for standalone tool', ]
 ---
 
 The command compares two datasets and saves the results in the

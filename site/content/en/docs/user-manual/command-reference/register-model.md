@@ -3,7 +3,6 @@ title: 'Register model'
 linkTitle: 'Register model'
 description: ''
 weight: 20
-tags: [ 'Models', 'OpenVINO™',   'Examples for standalone tool', ]
 ---
 
 Supported models:

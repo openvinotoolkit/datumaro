@@ -3,7 +3,6 @@ title: 'Interfaces'
 linkTitle: 'Interfaces'
 description: ''
 weight: 2
-tags: ['Basics']
 ---
 
 As a standalone tool:

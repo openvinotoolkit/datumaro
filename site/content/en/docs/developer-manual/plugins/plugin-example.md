@@ -3,7 +3,6 @@ title: 'Plugin example'
 linkTitle: 'Plugin example'
 description: ''
 weight: 10
-tags: [  'Examples for python module', ]
 ---
 
 <!--lint disable fenced-code-flag-->

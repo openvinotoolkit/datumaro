@@ -3,7 +3,6 @@ title: 'Basics'
 linkTitle: 'Basics'
 description: ''
 weight: 1
-tags: [ 'PASCAL VOC',  'Schemes', 'Features', 'Subsets', ]
 ---
 
 The center part of the library is the `Dataset` class, which represents

@@ -3,7 +3,6 @@ title: 'Import project'
 linkTitle: 'Import project'
 description: ''
 weight: 14
-tags: [  'Examples for standalone tool', 'MS COCO',]
 ---
 
 This command creates a Project from an existing dataset.

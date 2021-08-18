@@ -3,7 +3,6 @@ title: 'Image zip'
 linkTitle: 'Image zip'
 description: ''
 weight: 4
-tags: [ 'Formats',   'Examples for standalone tool', ]
 ---
 
 ## Format specification

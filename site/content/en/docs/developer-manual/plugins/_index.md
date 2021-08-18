@@ -3,7 +3,7 @@ title: 'Plugins'
 linkTitle: 'Plugins'
 description: ''
 weight: 8
-tags: [  'Examples for python module', ]
+
 ---
 
 Datumaro comes with a number of built-in formats and other tools,

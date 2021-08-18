@@ -3,7 +3,6 @@ title: 'Validate project annotations'
 linkTitle: 'Validate project annotations'
 description: ''
 weight: 19
-tags: [  'Examples for standalone tool', ]
 ---
 
 This command inspects annotations with respect to the task type

@@ -3,7 +3,6 @@ title: 'Extending'
 linkTitle: 'Extending'
 description: ''
 weight: 24
-tags: [ 'TensorFlow', 'OpenVINO™' ]
 ---
 
 There are few ways to extend and customize Datumaro behavior, which is

@@ -3,7 +3,6 @@ title: 'Command reference'
 linkTitle: 'Command reference'
 description: ''
 weight: 7
-tags: [ 'Schemes', ]
 ---
 
 > **Note**: command invocation syntax is subject to change,

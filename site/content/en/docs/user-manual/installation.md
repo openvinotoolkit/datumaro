@@ -3,7 +3,6 @@ title: 'Installation'
 linkTitle: 'Installation'
 description: ''
 weight: 1
-tags: ["Basics"]
 ---
 
 ### Dependencies

@@ -3,8 +3,6 @@ title: 'Pascal VOC'
 linkTitle: 'Pascal VOC'
 description: ''
 weight: 9
-tags: [ 'Formats',  'PASCAL VOC', 'Examples for python module',
-    'Examples for standalone tool', 'Subsets', ]
 ---
 
 ## Format specification

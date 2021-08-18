@@ -8,7 +8,7 @@ weight: 50
 ## Related sections:
 
 - [Design document](/docs/design/)
-- [Developer guide](/docs/developer-guide/)
+- [Developer manual](/docs/developer-manual/)
 
 ## Installation
 

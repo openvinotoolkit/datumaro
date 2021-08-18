@@ -3,7 +3,6 @@ title: 'Writing a plugin'
 linkTitle: 'Writing a plugin'
 description: ''
 weight: 9
-tags: [  'Examples for python module', ]
 ---
 
 A plugin is a Python module with any name, which exports some symbols. Symbols,

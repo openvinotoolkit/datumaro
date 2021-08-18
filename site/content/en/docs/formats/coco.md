@@ -3,8 +3,6 @@ title: 'COCO'
 linkTitle: 'COCO'
 description: ''
 weight: 3
-tags: [ 'Formats',  'MS COCO', 'Examples for python module',
-    'Examples for standalone tool', ]
 ---
 
 ## Format specification

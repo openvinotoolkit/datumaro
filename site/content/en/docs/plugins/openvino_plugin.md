@@ -5,7 +5,6 @@ linkTitle: 'OpenVINO™ Inference Interpreter'
 description: 'Interpreter samples to parse OpenVINO™ inference outputs.
   This section on [GitHub](https://github.com/openvinotoolkit/datumaro/tree/develop/datumaro/plugins/openvino_plugin)'
 weight: 49
-tags: [ 'OpenVINO™', 'PASCAL VOC', 'MS COCO', ]
 
 ---
 

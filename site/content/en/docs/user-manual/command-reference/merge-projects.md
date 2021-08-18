@@ -3,7 +3,6 @@ title: 'Merge projects'
 linkTitle: 'Merge projects'
 description: ''
 weight: 15
-tags: [  'Examples for standalone tool', ]
 ---
 
 This command merges items from 2 or more projects and checks annotations for

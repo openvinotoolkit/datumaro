@@ -3,7 +3,6 @@ title: 'Convert datasets'
 linkTitle: 'Convert datasets'
 description: ''
 weight: 8
-tags: [  'Examples for standalone tool', 'MS COCO', ]
 ---
 
 This command allows to convert a dataset from one format into another.

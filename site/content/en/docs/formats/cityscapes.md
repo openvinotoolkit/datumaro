@@ -3,8 +3,6 @@ title: 'Cityscapes'
 linkTitle: 'Cityscapes'
 description: ''
 weight: 2
-tags: [ 'Formats',  'Examples for python module',
-    'Examples for standalone tool', 'PASCAL VOC', ]
 ---
 
 ## Format specification

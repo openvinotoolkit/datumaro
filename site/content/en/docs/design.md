@@ -3,7 +3,7 @@ title: 'Datumaro Design'
 linkTitle: 'Design'
 description: ''
 weight: 2
-tags: ['Basics', 'Features', 'CVAT', 'Schemes', ]
+
 ---
 
 <!--lint disable list-item-indent-->

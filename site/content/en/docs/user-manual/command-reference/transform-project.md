@@ -3,7 +3,6 @@ title: 'Transform Project'
 linkTitle: 'Transform Project'
 description: ''
 weight: 23
-tags: [   'Examples for standalone tool', 'Subsets', ]
 ---
 
 This command allows to modify images or annotations in a project all at once.
