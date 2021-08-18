@@ -50,18 +50,18 @@ dataset
 │       ├── img1.jpg
 │       ├── img1_atr.txt
 │       ├── img1_parts_1.png
-│       └── img1_seg.png
-│       └── img2.jpg
-│       └── img2_atr.txt
+│       ├── img1_seg.png
+│       ├── img2.jpg
+│       ├── img2_atr.txt
 │       └── ...
-└── subset2
+├── subset2
 │   ├── img3.jpg
 │   ├── img3_atr.txt
 │   ├── img3_parts_1.png
 │   ├── img3_parts_2.png
-│   └── img4.jpg
-│   └── img4_atr.txt
-│   └── img4_seg.png
+│   ├── img4.jpg
+│   ├── img4_atr.txt
+│   ├── img4_seg.png
 │   └── ...
 ```
 
