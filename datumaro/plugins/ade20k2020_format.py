@@ -92,7 +92,6 @@ class Ade20k2020Extractor(Extractor):
                 label_id = labels.find(item['label_name'])[0]
                 instance_id = item['id']
                 attributes = {k: True for k in item['attributes']}
-                attributes['part_level'] = item['part_level']
                 polygon_points = item['polygon_points']
 
                 item_annotations.append(Mask(label=label_id,

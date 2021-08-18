@@ -74,7 +74,6 @@ class Ade20k2017Extractor(Extractor):
                     label_id = labels.find(v['label_name'])[0]
                     instance_id = v['id']
                     attributes = {k: True for k in v['attributes']}
-                    attributes['part_level'] = part_level
 
                     item_annotations.append(Mask(label=label_id,
                         image=mask.lazy_extract(instance_id),
