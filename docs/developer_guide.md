@@ -65,8 +65,8 @@ such as `Label`, `Mask` or `Polygon`. A dataset can contain items from one or
 multiple subsets (e.g. `train`, `test`, `val` etc.), the list of dataset
 subsets is available in `dataset.subsets()`.
 
-A `DatasetItem` is an element of a dataset. Its `id` is a name of the
-corresponding image, video frame, or other media type being annotated.
+A `DatasetItem` is an element of a dataset. Its `id` is the name of the
+corresponding image, video frame, or other media being annotated.
 An item can have some `attributes`, associated media info and `annotations`.
 
 Datasets typically have annotations, and these annotations can
@@ -83,7 +83,7 @@ categories use label indices from this object.
 The main operation for a dataset is iteration over its elements
 (`DatasetItem`s). An item corresponds to a single image, a video sequence,
 etc. There are also many other operations available, such as filtration
-(`dataset.select()`) and transformations (`dataset.transform()`),
+(`dataset.select()`), transformation (`dataset.transform()`),
 exporting (`dataset.export()`) and others. A `Dataset` is an `Iterable` and
 `Extractor` by itself.
 
@@ -93,13 +93,13 @@ Categories can be set immediately or later with the
 with initial `DatasetItem`s with `Dataset.from_iterable()`.
 If you need to create a dataset from one or many other datasets
 (or extractors), it can be done with `Dataset.from_extractors()`.
-`Dataset` can be loaded from an existing dataset on disk with
+A `Dataset` can be loaded from an existing dataset on disk with
 `Dataset.import_from()` and `Dataset.load()` (for the Datumaro data format).
 
 If a dataset is created from multiple extractors with
 `Dataset.from_extractors()`, the source datasets will be joined,
 so their categories must match. If datasets have mismatching categories,
-use more complex `IntersectMerge` from `datumaro.components.operations`,
+use the more complex `IntersectMerge` class from `datumaro.components.operations`,
 which will merge all the labels and remap the shifted indices in annotations.
 
 By default, `Dataset` works lazily, which means all the operations requiring
@@ -115,7 +115,7 @@ Once created, a dataset can be modified in batch mode with transforms or
 directly with the `put()` and `remove()` methods. `Dataset` instances
 record information about changes done, which can be obtained by `get_patch()`.
 Changes can be flushed with `flush_changes()`. This information is used
-automatically on on saving and exporting to reduce the amount of disk writes.
+automatically on saving and exporting to reduce the amount of disk writes.
 
 ```python
 from datumaro.components.dataset import Dataset
@@ -162,8 +162,8 @@ for subset_name, subset in dataset.subsets().items():
 
 Projects are intended for complex use of Datumaro. They provide means of
 persistence, versioning, high-level operations for datasets and
-Datumaro extending. A project provides access to build trees and revisions,
-data sources, models, config, plugins and cache.  Projects can have
+Datumaro extension. A project provides access to build trees and revisions,
+data sources, models, configuration, plugins and cache.  Projects can have
 multiple data sources, which are merged on dataset creation by joining.
 Project configuration is available in `project.config`. To add a data
 source into a `Project`, use the `import_source()` method. The build tree
@@ -188,7 +188,7 @@ Dataset reading is supported by `Extractor`s and `Importer`s:
   datasets. It should be used by default. The `Extractor` base class should
   be used when `SourceExtractor`'s functionality is not enough.
 - An `Importer` detects dataset files and generates dataset loading parameters
-  for the corresponding `Extractor`s. `Importer`s are optional, they are
+  for the corresponding `Extractor`s. `Importer`s are optional, they
   only extend the Extractor functionality and make them more flexible and
   simple. They are mostly used to locate dataset subsets, but they also can
   do some data compatibility checks and have other required logic.

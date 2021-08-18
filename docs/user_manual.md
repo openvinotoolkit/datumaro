@@ -101,7 +101,7 @@ plugin dependencies in the [plugins](#extending) section.
 
 - You can change the installation branch with `...@<branch_name>`.
   Also use `--force-reinstall` parameter in this case.
-  It can be useful for testing of unreleased versions from GitHub Pull Requests
+  It can be useful for testing of unreleased versions from GitHub pull requests.
 
 ## How to use Datumaro
 
