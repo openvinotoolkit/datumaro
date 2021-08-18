@@ -19,8 +19,8 @@ available [here](https://groups.csail.mit.edu/vision/datasets/ADE20K/ADE20K_2017
 - The following attributes are supported on the masks:
   - `occluded` (boolean): whether the object is occluded by another object.
   - `part_level` (int): part level of objects on the masks.
-  - other boolean user attributes can be specified
-    in the annotation file `*_atr.txt`
+  - other arbitrary boolean user attributes can be specified
+    in the annotation file `<image_name>.json`
 
 # Load ADE20K dataset
 
@@ -74,7 +74,7 @@ ADE20K dataset directory should has the following structure:
     |   |--- img/
     |   |--- img3.jpg
     |   |--- img3_seg.png
-    |   |--- img3.txt
+    |   |--- img3.json
 
 ```
 

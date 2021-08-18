@@ -86,6 +86,7 @@ image. Each line in the text file contains:
 - column 6: double-quoted list of attributes, separated by commas.
 Each column is separated by a `#`. See example of dataset
 [here](../..//tests/assets/ade20k2017_dataset).
+
 # Export to other formats
 
 Datumaro can convert ADE20K into any other format [Datumaro supports](../user_manual.md#supported-formats).
