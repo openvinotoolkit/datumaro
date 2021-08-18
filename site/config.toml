@@ -124,7 +124,7 @@ github_subdir = "site"
 
 # Uncomment this if you have a newer GitHub repo with "main" as the default branch,
 # or specify a new value if you want to reference another branch in your GitHub links
-github_branch= "develop"
+github_branch = "develop"
 
 # Github links
 repo_link= "https://github.com/openvinotoolkit/datumaro/tree/develop/"
@@ -145,7 +145,6 @@ prism_syntax_highlighting = false
 [params.ui]
 # Enable to show the side bar menu in its compact state.
 sidebar_menu_compact = true
-ui_show=2
 #  Set to true to disable breadcrumb navigation.
 breadcrumb_disable = false
 #  Set to true to hide the sidebar search box (the top nav search box will still be displayed if search is enabled)
