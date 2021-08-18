@@ -11,12 +11,13 @@ import os.path as osp
 
 import numpy as np
 
-from datumaro.components.converter import Converter
 from datumaro.components.extractor import (
     AnnotationType, CompiledMask, DatasetItem, Extractor, Importer,
     LabelCategories, Mask, Polygon,
 )
-from datumaro.util.image import find_images, lazy_image, load_image
+from datumaro.util.image import (
+    IMAGE_EXTENSIONS, find_images, lazy_image, load_image,
+)
 
 
 class Ade20k2020Extractor(Extractor):
@@ -163,7 +164,8 @@ class Ade20k2020Importer(Importer):
     @classmethod
     def find_sources(cls, path):
         for i in range(0, 5):
-            for i in glob.iglob(osp.join(path, *('*' * i), '*.jpg')):
-                return [{'url': path, 'format': 'ade20k2020'}]
+            for i in glob.iglob(osp.join(path, *('*' * i))):
+                    if osp.splitext(i)[1] in IMAGE_EXTENSIONS:
+                        return [{'url': path, 'format': 'ade20k2020'}]
         return []
 
