@@ -167,4 +167,3 @@ class Ade20k2020Importer(Importer):
                     if osp.splitext(i)[1] in IMAGE_EXTENSIONS:
                         return [{'url': path, 'format': 'ade20k2020'}]
         return []
-
