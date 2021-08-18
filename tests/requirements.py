@@ -30,6 +30,7 @@ class Requirements:
     DATUM_BUG_219 = "Return format is not uniform"
     DATUM_BUG_257 = "Dataset.filter doesn't count removed items"
     DATUM_BUG_259 = "Dataset.filter fails on merged datasets"
+    DATUM_BUG_402 = "Troubles running 'remap_labels' on ProjectDataset"
 
 
 class SkipMessages:

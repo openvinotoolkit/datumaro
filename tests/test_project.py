@@ -428,3 +428,29 @@ class ProjectTest(TestCase):
         dataset = project.make_dataset()
 
         compare_datasets(self, CustomExtractor(), dataset)
+
+    @mark_requirement(Requirements.DATUM_BUG_402)
+    def test_can_transform_by_name(self):
+        class CustomExtractor(Extractor):
+            def __iter__(self):
+                return iter([
+                    DatasetItem('a'),
+                    DatasetItem('b'),
+                ])
+
+        extractor_name = 'ext1'
+        project = Project()
+        project.env.extractors.register(extractor_name, CustomExtractor)
+        project.add_source('src1', {
+            'url': '',
+            'format': extractor_name,
+        })
+        dataset = project.make_dataset()
+
+        dataset = dataset.transform('reindex')
+
+        expected = Dataset.from_iterable([
+            DatasetItem(1),
+            DatasetItem(2),
+        ])
+        compare_datasets(self, expected, dataset)

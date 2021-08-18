@@ -257,6 +257,9 @@ class ProjectDataset(IDataset):
         dst_dataset.save(save_dir=save_dir, merge=True)
 
     def transform(self, method, *args, **kwargs):
+        if isinstance(method, str):
+            method = self.env.make_transform(method)
+
         return method(self, *args, **kwargs)
 
     def filter(self, expr: str, filter_annotations: bool = False,
@@ -292,9 +295,6 @@ class ProjectDataset(IDataset):
 
     def transform_project(self, method, save_dir=None, **method_kwargs):
         # NOTE: probably this function should be in the ViewModel layer
-        if isinstance(method, str):
-            method = self.env.make_transform(method)
-
         transformed = self.transform(method, **method_kwargs)
         self._save_branch_project(transformed, save_dir=save_dir)
 
