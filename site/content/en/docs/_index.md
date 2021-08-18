@@ -36,7 +36,7 @@ flowchart LR
 
 </div>
 
-<!--lint enable maximum-line-length-->
+<!--lint disable maximum-line-length-->
 <section id="docs">
 
 {{< blocks/section color="docs" >}}
@@ -62,4 +62,4 @@ Documentation for Datumaro developers.
 {{< /blocks/section >}}
 
 </section>
-<!--lint disable maximum-line-length-->
+<!--lint enable maximum-line-length-->

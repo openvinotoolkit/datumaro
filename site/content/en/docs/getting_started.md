@@ -125,8 +125,8 @@ dataset.export('dst/dir', 'coco')
   datum export --format coco
   ```
 
-- Annotate instance polygons in [CVAT](https://github.com/openvinotoolkit/cvat), export
-  as masks in COCO:
+- Annotate instance polygons in
+  [CVAT](https://github.com/openvinotoolkit/cvat), export as masks in COCO:
   ```bash
   datum convert --input-format cvat --input-path <path/to/cvat.xml> \
                 --output-format coco -- --segmentation-mode masks

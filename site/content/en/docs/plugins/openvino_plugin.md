@@ -1,4 +1,4 @@
-<!--lint enable maximum-line-length-->
+<!--lint disable maximum-heading-length-->
 ---
 title: 'OpenVINO™ Inference Interpreter'
 linkTitle: 'OpenVINO™ Inference Interpreter'
@@ -6,8 +6,10 @@ description: 'Interpreter samples to parse OpenVINO™ inference outputs.
   This section on [GitHub](https://github.com/openvinotoolkit/datumaro/tree/develop/datumaro/plugins/openvino_plugin)'
 weight: 49
 tags: [ 'OpenVINO™', 'PASCAL VOC', 'MS COCO', ]
+
 ---
-<!--lint disable maximum-line-length-->
+
+<!--lint enable maximum-heading-length-->
 
 ## Models supported from interpreter samples
 There are detection and image classification examples.

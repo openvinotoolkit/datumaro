@@ -36,19 +36,25 @@ Add a path to "hugo" in the "Path" environment variable.
 
 Clone a repository branch containing the site. For example,
 using a git command:
+
 ```
 git clone --branch <branchname> <remote-repo-url>
 ```
+
 If you want to build and/or serve your site locally,
 you also need to get local copies of the theme’s own submodules:
+
 ```
 git submodule update --init --recursive
 ```
+
 To build and preview your site locally, use:
+
 ```
 cd <your local directory>/datumaro/site/
 hugo server
 ```
+
 By default, your site will be available at <http://localhost:1313/>.
 
 Instead of a "hugo server" command, you can use the "hugo" command
