@@ -20,7 +20,7 @@ class Ade20k2020ImporterTest(TestCase):
     def test_can_import(self):
         expected_dataset = Dataset.from_iterable(
             [
-                DatasetItem(id='1', subset='training',
+                DatasetItem(id='street/1', subset='training',
                     image=np.ones((5, 5, 3)),
                     annotations=[
                         Mask(image=np.array([[0, 0, 1, 1, 1]] * 5), label=0,
@@ -30,12 +30,12 @@ class Ade20k2020ImporterTest(TestCase):
                         Mask(image=np.array([[0, 0, 0, 1, 1]] * 5), label=2,
                             id=774, group=774, z_order=1),
                         Mask(image=np.array([[0, 0, 1, 1, 1]] * 5), label=0,
-                            group=0, z_order=0, attributes={'part_level': 0}),
+                            group=0, z_order=0),
                         Mask(image=np.array([[0, 1, 0, 0, 0]] * 5), label=1,
                             group=1, z_order=0,
-                            attributes={'walkin': True, 'part_level': 0}),
+                            attributes={'walkin': True}),
                         Mask(image=np.array([[0, 0, 0, 1, 1]] * 5), label=2,
-                            group=2, z_order=1, attributes={'part_level': 1}),
+                            group=2, z_order=1),
                     ]),
                 DatasetItem(id='2', subset='validation',
                     image=np.ones((5, 5, 3)),
@@ -49,14 +49,14 @@ class Ade20k2020ImporterTest(TestCase):
                         Mask(image=np.array([[0, 0, 0, 1, 1]] * 5), label=2,
                             group=774, z_order=1, id=774),
                         Mask(image=np.array([[0, 0, 1, 1, 1]] * 5), label=0,
-                            group=0, z_order=0, attributes={'part_level': 0}),
+                            group=0, z_order=0),
                         Mask(image=np.array([[0, 1, 0, 0, 0]] * 5), label=1,
                             group=1, z_order=0,
-                            attributes={'walkin': True, 'part_level': 0}),
+                            attributes={'walkin': True}),
                         Mask(image=np.array([[0, 0, 0, 1, 1]] * 5), label=2,
-                            group=2, z_order=1, attributes={'part_level': 1}),
+                            group=2, z_order=1),
                         Mask(image=np.array([[0, 0, 0, 0, 1]] * 5), label=3,
-                            group=3, z_order=2, attributes={'part_level': 2}),
+                            group=3, z_order=2),
                     ])
             ], categories={AnnotationType.label: LabelCategories.from_iterable([
                     'car', 'person', 'door', 'rim'])
