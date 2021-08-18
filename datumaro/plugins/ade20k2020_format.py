@@ -60,9 +60,14 @@ class Ade20k2020Extractor(Extractor):
                 if label_idx is None:
                     labels.add(item['label_name'])
 
-            mask_path = image_path.replace('.jpg', '_seg.png')
-            part_level = 0
-            while osp.isfile(mask_path):
+            mask_path = osp.splitext(image_path)[0] + '_seg.png'
+            max_part_level = max([p['part_level'] for p in item_info])
+            for part_level in range(1, max_part_level + 1):
+                if not osp.exists(mask_path):
+                    log.warning('Can`t find part level %s mask for %s' \
+                        % (part_level, image_path))
+                    continue
+
                 mask = lazy_image(mask_path, loader=self._load_class_mask)
                 mask = CompiledMask(instance_mask=mask)
 
@@ -77,7 +82,8 @@ class Ade20k2020Extractor(Extractor):
                     ))
 
                 part_level += 1
-                mask_path = image_path.replace('.jpg', '_parts_%s.png' % part_level)
+                mask_path = osp.splitext(image_path)[0] \
+                    + ('_parts_%s.png') % part_level
 
             for item in item_info:
                 instance_path = osp.join(osp.dirname(image_path),
@@ -111,7 +117,7 @@ class Ade20k2020Extractor(Extractor):
                 image=image_path, annotations=item_annotations))
 
     def _load_item_info(self, path):
-        json_path = path.replace('.jpg', '.json')
+        json_path = osp.splitext(path)[0] + '.json'
         item_info = []
         if not osp.isfile(json_path):
             raise Exception("Can't find annotation file (*.json) \

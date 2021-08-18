@@ -58,12 +58,18 @@ class Ade20k2017Extractor(Extractor):
                 if label_idx is None:
                     labels.add(item['label_name'])
 
-            mask_path = image_path.replace('.jpg', '_seg.png')
+            mask_path = osp.splitext(image_path)[0] + '_seg.png'
             if not osp.isfile(mask_path):
                 log.warning("Can't find mask for image: %s" % image_path)
 
             part_level = 0
-            while osp.isfile(mask_path):
+            max_part_level = max([p['part_level'] for p in item_info])
+            for part_level in range(1, max_part_level + 1):
+                if not osp.exists(mask_path):
+                    log.warning('Can`t find part level %s mask for %s' \
+                        % (part_level, image_path))
+                    continue
+
                 mask = lazy_image(mask_path, loader=self._load_instance_mask)
                 mask = CompiledMask(instance_mask=mask)
 
@@ -82,14 +88,14 @@ class Ade20k2017Extractor(Extractor):
                     ))
 
                 part_level += 1
-                mask_path = image_path.replace('.jpg', '_parts_%s.png' \
-                    % part_level)
+                mask_path = osp.splitext(image_path)[0] \
+                    + ('_parts_%s'.png % part_level)
 
             self._items.append(DatasetItem(item_id, subset=subset,
                 image=image_path, annotations=item_annotations))
 
     def _load_item_info(self, path):
-        attr_path = path.replace('.jpg', '_atr.txt')
+        attr_path = osp.splitext(path)[0] + '_atr.txt'
         if not osp.isfile(attr_path):
             raise Exception("Can't find annotation file for image %s" % path)
 
