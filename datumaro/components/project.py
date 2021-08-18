@@ -415,6 +415,8 @@ class Project:
             env = Environment(self.config)
             env.models.batch_register(self.config.models)
             env.sources.batch_register(self.config.sources)
+            env.load_plugins(osp.join(self.config.project_dir,
+                self.config.env_dir, self.config.plugins_dir))
         elif config is not None:
             raise ValueError("env can only be provided when no config provided")
         self.env = env
