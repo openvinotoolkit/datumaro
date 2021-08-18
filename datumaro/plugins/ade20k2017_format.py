@@ -65,7 +65,7 @@ class Ade20k2017Extractor(Extractor):
 
             part_level = 0
             max_part_level = max([p['part_level'] for p in item_info])
-            for part_level in range(1, max_part_level + 1):
+            for part_level in range(max_part_level + 1):
                 if not osp.exists(mask_path):
                     log.warning('Can`t find part level %s mask for %s' \
                         % (part_level, image_path))
@@ -89,7 +89,7 @@ class Ade20k2017Extractor(Extractor):
                     ))
 
                 mask_path = osp.splitext(image_path)[0] \
-                    + ('_parts_%s'.png % part_level)
+                    + '_parts_%s'.png % (part_level + 1)
 
             self._items.append(DatasetItem(item_id, subset=subset,
                 image=image_path, annotations=item_annotations))

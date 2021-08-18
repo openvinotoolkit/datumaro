@@ -63,7 +63,7 @@ class Ade20k2020Extractor(Extractor):
 
             mask_path = osp.splitext(image_path)[0] + '_seg.png'
             max_part_level = max([p['part_level'] for p in item_info])
-            for part_level in range(1, max_part_level + 1):
+            for part_level in range(max_part_level + 1):
                 if not osp.exists(mask_path):
                     log.warning('Can`t find part level %s mask for %s' \
                         % (part_level, image_path))
@@ -83,7 +83,7 @@ class Ade20k2020Extractor(Extractor):
                     ))
 
                 mask_path = osp.splitext(image_path)[0] \
-                    + ('_parts_%s.png') % part_level
+                    + '_parts_%s.png' % (part_level + 1)
 
             for item in item_info:
                 instance_path = osp.join(osp.dirname(image_path),
