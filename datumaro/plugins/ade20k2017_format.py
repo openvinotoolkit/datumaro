@@ -134,5 +134,5 @@ class Ade20k2017Importer(Importer):
         for i in range(0, 5):
             for i in glob.iglob(osp.join(path, *('*' * i))):
                     if osp.splitext(i)[1] in IMAGE_EXTENSIONS:
-                        return [{'url': path, 'format': 'ade20k2020'}]
+                        return [{'url': path, 'format': 'ade20k2017'}]
         return []
