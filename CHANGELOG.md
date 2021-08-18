@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - TBD
 
 ### Fixed
+- Application of `remap_labels` to dataset categories of different length (<https://github.com/openvinotoolkit/datumaro/issues/314>)
 - Patching of datasets in formats (<https://github.com/openvinotoolkit/datumaro/issues/348>)
 - Unsafe unpickling in CIFAR import (<https://github.com/openvinotoolkit/datumaro/pull/362>)
 - Improved Cityscapes export performance (<https://github.com/openvinotoolkit/datumaro/pull/367>)
