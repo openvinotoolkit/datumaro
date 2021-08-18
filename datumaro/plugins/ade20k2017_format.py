@@ -130,6 +130,3 @@ class Ade20k2017Importer(Importer):
             for i in glob.iglob(osp.join(path, *('*' * i), '*.jpg')):
                 return [{'url': path, 'format': 'ade20k2017'}]
         return []
-
-class Ade20k2017Converter(Converter):
-    NotImplementedError()

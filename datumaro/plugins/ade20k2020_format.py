@@ -162,5 +162,3 @@ class Ade20k2020Importer(Importer):
                 return [{'url': path, 'format': 'ade20k2020'}]
         return []
 
-class Ade20k2020Converter(Converter):
-    NotImplementedError()
