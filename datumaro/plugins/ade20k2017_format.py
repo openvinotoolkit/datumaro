@@ -88,7 +88,6 @@ class Ade20k2017Extractor(Extractor):
                         group=instance_id
                     ))
 
-                part_level += 1
                 mask_path = osp.splitext(image_path)[0] \
                     + ('_parts_%s'.png % part_level)
 

@@ -19,7 +19,7 @@ available [here](https://groups.csail.mit.edu/vision/datasets/ADE20K/ADE20K_2017
 - The following attributes are supported on the masks:
   - `occluded` (boolean): whether the object is occluded by another object.
   - `part_level` (int): part level of objects on the masks.
-  - other boolean user attributes can be specified
+  - other arbitrary boolean user attributes can be specified
     in the annotation file `<image_name>_atr.txt`
 
 # Load ADE20K 2017 dataset
