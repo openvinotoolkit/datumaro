@@ -83,7 +83,7 @@ class Ade20k2017Extractor(Extractor):
                     attributes = {k: True for k in v['attributes']}
 
                     item_annotations.append(Mask(label=label_id,
-                        image=mask.lazy_extract(instance_id),
+                        image=mask.lazy_extract(instance_id), id=instance_id,
                         attributes=attributes, z_order=part_level,
                         group=instance_id
                     ))
@@ -131,7 +131,7 @@ class Ade20k2017Extractor(Extractor):
 class Ade20k2017Importer(Importer):
     @classmethod
     def find_sources(cls, path):
-        for i in range(0, 5):
+        for i in range(5):
             for i in glob.iglob(osp.join(path, *('*' * i))):
                     if osp.splitext(i)[1].lower() in IMAGE_EXTENSIONS:
                         return [{'url': path, 'format': 'ade20k2017'}]

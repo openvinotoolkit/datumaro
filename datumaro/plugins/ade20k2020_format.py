@@ -101,7 +101,7 @@ class Ade20k2020Extractor(Extractor):
                 polygon_points = item['polygon_points']
 
                 item_annotations.append(Mask(label=label_id,
-                    image=mask.lazy_extract(1),
+                    image=mask.lazy_extract(1), id=instance_id,
                     attributes=attributes, z_order=item['part_level'],
                     group=instance_id
                 ))
@@ -148,8 +148,8 @@ class Ade20k2020Extractor(Extractor):
     @staticmethod
     def _load_instance_mask(path):
         mask = load_image(path)
-        _, instance_mask = np.unique(mask[:, :, 0], return_inverse=True)
-        instance_mask = instance_mask.reshape(mask[:, :, 0].shape)
+        _, instance_mask = np.unique(mask, return_inverse=True)
+        instance_mask = instance_mask.reshape(mask.shape)
         return instance_mask
 
     @staticmethod
@@ -162,7 +162,7 @@ class Ade20k2020Extractor(Extractor):
 class Ade20k2020Importer(Importer):
     @classmethod
     def find_sources(cls, path):
-        for i in range(0, 5):
+        for i in range(5):
             for i in glob.iglob(osp.join(path, *('*' * i))):
                     if osp.splitext(i)[1].lower() in IMAGE_EXTENSIONS:
                         return [{'url': path, 'format': 'ade20k2020'}]
