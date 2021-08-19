@@ -8,6 +8,7 @@ import json
 import logging as log
 import os
 import os.path as osp
+import re
 
 import numpy as np
 
@@ -18,6 +19,10 @@ from datumaro.components.extractor import (
 from datumaro.util.image import (
     IMAGE_EXTENSIONS, find_images, lazy_image, load_image,
 )
+
+
+class Ade20k2020Path:
+    MASK_IMAGE_PATTERN = re.compile('_seg|_parts_|instance')
 
 
 class Ade20k2020Extractor(Extractor):
@@ -49,12 +54,15 @@ class Ade20k2020Extractor(Extractor):
             LabelCategories())
         path = osp.join(self._path, subset)
 
-        images = [i for i in find_images(path, '.jpg', recursive=True)]
+        images = [i for i in find_images(path, recursive=True)]
 
         for image_path in sorted(images):
             item_id = osp.splitext(osp.relpath(image_path, path))[0]
-            item_annotations = []
 
+            if Ade20k2020Path.MASK_IMAGE_PATTERN.search(item_id):
+                continue
+
+            item_annotations = []
             item_info = self._load_item_info(image_path)
             for item in item_info:
                 label_idx = labels.find(item['label_name'])[0]
