@@ -18,7 +18,6 @@ available [here](https://groups.csail.mit.edu/vision/datasets/ADE20K/ADE20K_2017
 
 - The following attributes are supported on the masks:
   - `occluded` (boolean): whether the object is occluded by another object.
-  - `part_level` (int): part level of objects on the masks.
   - other arbitrary boolean user attributes can be specified
     in the annotation file `<image_name>.json`
 
@@ -92,8 +91,8 @@ parts of objects, where N is a number indicating the level in the part
 hierarchy.
 
 The `<image_name>` directory contains instance masks for each
-object in the image, these masks represent three-channel images that
-use channel B to identify an object.
+object in the image, these masks represent one-channel images,
+each pixel of which indicates an affinity to a specific object.
 
 The annotation files `<image_name>.json` describing the content of each image.
 See our [tests asset](../../tests/assets/ade20k2020_dataset)
