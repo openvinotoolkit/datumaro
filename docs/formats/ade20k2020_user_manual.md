@@ -46,16 +46,16 @@ ADE20K dataset directory should has the following structure:
 dataset
 ├── subset1
 │   ├── img1  # directory with instance masks for img1
-│   |    ├── 001_img1.png
-│   |    ├── 002_img1.png
+│   |    ├── instance_001_img1.png
+│   |    ├── instance_002_img1.png
 │   |    ├── ...
 │   ├── img1.jpg
 │   ├── img1.json
 │   └── img1_seg.png
 │   ├── img1_parts_1.png
 │   ├── img2  # directory with instance masks for img2
-│   |    ├── 001_img2.png
-│   |    ├── 002_img2.png
+│   |    ├── instance_001_img2.png
+│   |    ├── instance_002_img2.png
 │   |    ├── ...
 │   └── img2.jpg
 │   └── img2.json
@@ -63,8 +63,8 @@ dataset
 └── subset2
 │   ├── super_label_1
 │   |   ├── img3  # directory with instance masks for img3
-│   |   |    ├── 001_img3.png
-│   |   |    ├── 002_img3.png
+│   |   |    ├── instance_001_img3.png
+│   |   |    ├── instance_002_img3.png
 │   |   |    ├── ...
 │   |   ├── img3.jpg
 │   |   ├── img3.json
@@ -72,8 +72,8 @@ dataset
 │   |   ├── img3_parts_1.png
 │   |   ├── ...
 │   ├── img4  # directory with instance masks for img4
-│   |   ├── 001_img4.png
-│   |   ├── 002_img4.png
+│   |   ├── instance_001_img4.png
+│   |   ├── instance_002_img4.png
 │   |   ├── ...
 │   ├── img4.jpg
 │   ├── img4.json
