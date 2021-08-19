@@ -290,6 +290,17 @@ project/
     └── <source data>
 ```
 
+### Use cases
+
+![use case 1](images/usecase1_diag.svg)
+
+Datumaro tries to restore a dataset from the project cache or reproduce it
+from sources. It can be done as long as the source operations are recorded
+and any step data is available.
+
+
+![use case 2](images/usecase2_diag.svg)
+
 ### Examples <a id="cli-examples"></a>
 
 Example: create a project, add dataset, modify, restore an old version
