@@ -3,6 +3,8 @@
 ## Contents
 
 - [Installation](#installation)
+  - [Plugins](#installation-plugins)
+  - [Customizing installation](#customizing-installation)
 - [How to use Datumaro](#how-to-use-datumaro)
   - [Glossary](#glossary)
   - [Command-line workflow](#command-line-workflow)
@@ -67,14 +69,14 @@ pip install 'git+https://github.com/openvinotoolkit/datumaro[default]'
 Read more about choosing between `datumaro` and `datumaro[default]`
 [here](#core-install).
 
-**Plugins**
+#### Plugins <a id="installation-plugins"></a>
 
 Datumaro has many plugins, which are responsible for dataset formats,
 model launchers and other optional components. If a plugin has dependencies,
 they can require additional installation. You can find the list of all the
 plugin dependencies in the [plugins](#extending) section.
 
-**Customizing installation parameters**
+#### Customizing installation
 
 - <a id="core-install"></a>In restricted installation environments,
   or if you need only basic Datumaro functionality, you can choose
@@ -85,23 +87,33 @@ plugin dependencies in the [plugins](#extending) section.
 - In some cases, there can be limited use for UI elements outside CLI,
   or limited options of installing graphical libraries in the system
   (various Docker environments, servers etc). You can select between using
-  `opencv` and `opencv-headless` by setting the `DATUMARO_HEADLESS`
-  environment variable to `0` or `1` before installing the package.
-  It requires installation from the sources:
+  `opencv-python` and `opencv-python-headless` by setting the
+  `DATUMARO_HEADLESS` environment variable to `0` or `1` before installing
+  the package. It requires installation from sources (using `--no-binary`):
   ```bash
   DATUMARO_HEADLESS=1 pip install datumaro --no-binary=datumaro
   ```
-  This option can't be covered by extras due to `pip` limitations.
+  This option can't be covered by extras due to Python packaging system
+  limitations.
 
-- Although Datumaro has `pycocotools==2.0.1` in requirements, it works with
-  2.0.2 perfectly fine. The reason for such requirement is binary
-  incompatibility of the `numpy` dependency in the `TensorFlow` and
-  `pycocotools` binary packages
-  (see [#253](https://github.com/openvinotoolkit/datumaro/issues/253))
+- Although Datumaro excludes `pycocotools` of version 2.0.2 in
+  requirements, it works with this version perfectly fine. The
+  reason for such requirement is binary incompatibility of the `numpy`
+  dependency in the `TensorFlow` and `pycocotools` binary packages,
+  and the current workaround forces this package to be build from sources
+  on most platforms
+  (see [#253](https://github.com/openvinotoolkit/datumaro/issues/253)).
+  If you need to use 2.0.2, make sure it is linked with the same version
+  of `numpy` as `TensorFlow` by reinstalling the package:
+  ``` bash
+  pip uninstall pycocotools
+  pip install pycocotools --no-binary=pycocotools
+  ```
 
-- You can change the installation branch with `...@<branch_name>`.
-  Also use `--force-reinstall` parameter in this case.
-  It can be useful for testing of unreleased versions from GitHub pull requests.
+- When installing directly from the repository, you can change the
+  installation branch with `...@<branch_name>`. Also use `--force-reinstall`
+  parameter in this case. It can be useful for testing of unreleased
+  versions from GitHub pull requests.
 
 ## How to use Datumaro
 
