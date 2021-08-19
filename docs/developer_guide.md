@@ -24,8 +24,8 @@ Extractors -> Dataset -> Converter
                 ...
 ```
 
-1. Data is read (or produced) by one or many `Extractor`s and merged
-  into a `Dataset`
+1. Data is read (or produced) by one or many `Extractor`s and
+  [merged](#merging) into a `Dataset`
 1. The dataset is processed in some way
 1. The dataset is saved with a `Converter`
 
@@ -89,18 +89,20 @@ exporting (`dataset.export()`) and others. A `Dataset` is an `Iterable` and
 
 A `Dataset` can be created from scratch by its class constructor.
 Categories can be set immediately or later with the
-`define_categories()` method, but only once. You can populate a dataset
+`define_categories()` method, but only once. You can create a dataset filled
 with initial `DatasetItem`s with `Dataset.from_iterable()`.
-If you need to create a dataset from one or many other datasets
-(or extractors), it can be done with `Dataset.from_extractors()`.
-A `Dataset` can be loaded from an existing dataset on disk with
-`Dataset.import_from()` and `Dataset.load()` (for the Datumaro data format).
+If you need to create a dataset from one or many other extractors
+(or datasets), it can be done with `Dataset.from_extractors()`.
 
 If a dataset is created from multiple extractors with
-`Dataset.from_extractors()`, the source datasets will be joined,
+`Dataset.from_extractors()`, the source datasets will be [joined](#merging),
 so their categories must match. If datasets have mismatching categories,
 use the more complex `IntersectMerge` class from `datumaro.components.operations`,
 which will merge all the labels and remap the shifted indices in annotations.
+
+A `Dataset` can be loaded from an existing dataset on disk with
+`Dataset.import_from()` (for arbitrary formats) and
+`Dataset.load()` (for the Datumaro data format).
 
 By default, `Dataset` works lazily, which means all the operations requiring
 iteration over inputs will be deferred as much as possible. If you don't want
@@ -114,8 +116,9 @@ attribute.
 Once created, a dataset can be modified in batch mode with transforms or
 directly with the `put()` and `remove()` methods. `Dataset` instances
 record information about changes done, which can be obtained by `get_patch()`.
-Changes can be flushed with `flush_changes()`. This information is used
-automatically on saving and exporting to reduce the amount of disk writes.
+The patch information is used automatically on saving and exporting to
+reduce the amount of disk writes. Changes can be flushed with
+`flush_changes()`.
 
 ```python
 from datumaro.components.dataset import Dataset
@@ -158,21 +161,62 @@ for subset_name, subset in dataset.subsets().items():
     print(item.id, item.annotations)
 ```
 
+#### Dataset merging
+
+There are 2 methods of merging datasets in Datumaro:
+
+- simple merging ("joining")
+- complex merging
+
+#### The simple merging ("joining")
+
+This approach finds the corresponding `DatasetItem`s in inputs,
+finds equal annotations and leaves only the unique set of annotations.
+This approach requires all the inputs to have categories with the same
+labels (or no labels) in the same order.
+
+This algorithm is applied automatically in `Dataset.from_extractors()`
+and when the build targets are merged in the `ProjectTree.make_dataset()`.
+
+#### The complex merging
+
+If datasets have mismatching categories, they can't be
+merged by the simple approach, because it can lead to errors in the
+resulting annotations. For complex cases Datumaro provides a more
+sophisticated algorithm, which finds matching annotations by computing
+distances between them. Labels and attributes are deduced by voting,
+spatial annotations use the corresponding metrics like
+Intersection-over-Union (IoU), OKS, PDJ and others.
+
+The categories of the input datasets are compared, the matching ones
+complement missing information in each other, the mismatching ones are
+appended after next. Label indices in annotations are shifted to the
+new values.
+
+The complex algorithm is available in the `IntersectMerge` class
+from `datumaro.components.operations`. It must be used explicitly.
+This class also allows to check the inputs and the output dataset
+for errors and problems.
+
 ### Projects
 
 Projects are intended for complex use of Datumaro. They provide means of
-persistence, versioning, high-level operations for datasets and
-Datumaro extension. A project provides access to build trees and revisions,
-data sources, models, configuration, plugins and cache.  Projects can have
-multiple data sources, which are merged on dataset creation by joining.
-Project configuration is available in `project.config`. To add a data
-source into a `Project`, use the `import_source()` method. The build tree
-of the current working directory can be converted to a `Dataset` with
+persistence, versioning, high-level operations for datasets and also
+allow to extend Datumaro via [plugins](#plugins). A project provides
+access to build trees and revisions, data sources, models, configuration,
+plugins and cache. Projects can have multiple data sources, which are
+[joined](#merging) on dataset creation. Project configuration is available
+in `project.config`. To add a data source into a `Project`, use
+the `import_source()` method. The build tree of the current working
+directory can be converted to a `Dataset` with
 `project.working_tree.make_dataset()`.
 
 The `Environment` class is responsible for accessing built-in and
-project-specific plugins. For a project, there is an instance of
+project-specific plugins. For a `Project` object, there is an instance of
 related `Environment` in `project.env`.
+
+Check the [Data Model section of the User Manual](./user_manual.md#data-model)
+for more info about Project behavior and high-level details.
 
 ## Library contents
 
