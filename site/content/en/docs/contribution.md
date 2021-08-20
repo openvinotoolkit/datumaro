@@ -14,7 +14,7 @@ weight: 50
 
 ### Prerequisites
 
-- Python (3.5+)
+- Python (3.6+)
 
 ``` bash
 git clone https://github.com/openvinotoolkit/datumaro
