@@ -163,7 +163,7 @@ class MyTests(TestCase):
 ```
 
 Such marking will apply markings from the requirement specified.
-They can be overriden for a specific test:
+They can be overridden for a specific test:
 
 ```python
 import pytest
@@ -187,7 +187,7 @@ DATUM_BUG_219 = "Return format is not uniform"
 # Fully defined in GitHub issues:
 @pytest.mark.reqids(Requirements.DATUM_244, Requirements.DATUM_333)
 
-# And defined ony other way:
+# And defined any other way:
 @pytest.mark.reqids(Requirements.DATUM_GENERAL_REQ)
 ```
 

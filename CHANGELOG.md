@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - TBD
 
 ### Fixed
+- Application of `remap_labels` to dataset categories of different length (<https://github.com/openvinotoolkit/datumaro/issues/314>)
 - Patching of datasets in formats (<https://github.com/openvinotoolkit/datumaro/issues/348>)
 - Unsafe unpickling in CIFAR import (<https://github.com/openvinotoolkit/datumaro/pull/362>)
 - Improved Cityscapes export performance (<https://github.com/openvinotoolkit/datumaro/pull/367>)
@@ -34,6 +35,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Item id in ImageNet format (<https://github.com/openvinotoolkit/datumaro/pull/371>)
 - Double quotes for ICDAR Word Recognition (<https://github.com/openvinotoolkit/datumaro/pull/375>)
 - Wrong display of builtin formats in CLI (<https://github.com/openvinotoolkit/datumaro/issues/332>)
+- Non utf-8 encoding of annotation files in Market-1501 export (<https://github.com/openvinotoolkit/datumaro/pull/392>)
+- Import of ICDAR, PASCAL VOC and VGGFace2 images from subdirectories on WIndows
+  (<https://github.com/openvinotoolkit/datumaro/pull/392>)
+- Saving of images with Unicode paths on Windows (<https://github.com/openvinotoolkit/datumaro/pull/392>)
+- Calling `ProjectDataset.transform()` with a string argument (<https://github.com/openvinotoolkit/datumaro/issues/402>)
+- Attributes casting for CVAT format (<https://github.com/openvinotoolkit/datumaro/pull/403>)
+- Loading of custom project plugins (<https://github.com/openvinotoolkit/datumaro/issues/404>)
 
 ### Security
 - TBD
@@ -68,7 +76,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Incorrect image layout on saving and a problem with ecoding on loading (<https://github.com/openvinotoolkit/datumaro/pull/284>)
-- An error when xpath fiter is applied to the dataset or its subset (<https://github.com/openvinotoolkit/datumaro/issues/259>)
+- An error when XPath filter is applied to the dataset or its subset (<https://github.com/openvinotoolkit/datumaro/issues/259>)
 - Tracking of `Dataset` changes done by transforms (<https://github.com/openvinotoolkit/datumaro/pull/297>)
 - Improved CLI startup time in several cases (<https://github.com/openvinotoolkit/datumaro/pull/306>)
 

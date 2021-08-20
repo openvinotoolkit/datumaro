@@ -1,5 +1,14 @@
-# OpenVINO™ Inference Interpreter
-Interpreter samples to parse OpenVINO™ inference outputs.
+<!--lint disable maximum-heading-length-->
+---
+title: 'OpenVINO™ Inference Interpreter'
+linkTitle: 'OpenVINO™ Inference Interpreter'
+description: 'Interpreter samples to parse OpenVINO™ inference outputs.
+  This section on [GitHub](https://github.com/openvinotoolkit/datumaro/tree/develop/datumaro/plugins/openvino_plugin)'
+weight: 49
+
+---
+
+<!--lint enable maximum-heading-length-->
 
 ## Models supported from interpreter samples
 There are detection and image classification examples.
@@ -56,7 +65,7 @@ OpenVINO™ Trained Models.
 - Prerequisites:
   - OpenVINO™ (To install OpenVINO™, please see the
     [OpenVINO™ Installation Instruction](https://docs.openvinotoolkit.org/latest/openvino_docs_install_guides_installing_openvino_linux.html))
-  - Datumaro (To install Datumaro, please see the [User Manual](docs/user_manual.md))
+  - Datumaro (To install Datumaro, please see the [User Manual](/docs/user-manual/))
   - OpenVINO™ models (To download OpenVINO™ models, please see the [Model Downloader Instruction](https://docs.openvinotoolkit.org/latest/omz_tools_downloader_README.html))
   - PASCAL VOC 2012 dataset (To download VOC 2012 dataset, please go [VOC2012 download](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/#devkit))
 

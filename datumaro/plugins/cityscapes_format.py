@@ -267,7 +267,7 @@ class CityscapesConverter(Converter):
                 if not masks:
                     continue
 
-                # If a label can distinquish between instances,
+                # If a label can distinguish between instances,
                 # make id an instance id. Otherwise use label id.
                 compiled_mask = CompiledMask.from_instance_masks(masks,
                     instance_ids = [self._label_id_mapping(m.label)

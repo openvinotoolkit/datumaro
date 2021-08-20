@@ -501,20 +501,20 @@ class RemapLabels(ItemTransform, CliPlugin):
             assert src_label_cat is not None
             dst_mask_cat = MaskCategories(attributes=src_mask_cat.attributes)
             dst_mask_cat.colormap = {
-                id: src_mask_cat.colormap[id]
+                id: src_mask_cat[id]
                 for id, _ in enumerate(src_label_cat.items)
-                if self._map_id(id) or id == 0
+                if id in src_mask_cat and (self._map_id(id) or id == 0)
             }
             self._categories[AnnotationType.mask] = dst_mask_cat
 
-        src_points_cat = self._extractor.categories().get(AnnotationType.points)
-        if src_points_cat is not None:
+        src_point_cat = self._extractor.categories().get(AnnotationType.points)
+        if src_point_cat is not None:
             assert src_label_cat is not None
-            dst_points_cat = PointsCategories(attributes=src_points_cat.attributes)
+            dst_points_cat = PointsCategories(attributes=src_point_cat.attributes)
             dst_points_cat.items = {
-                id: src_points_cat.items[id]
-                for id, item in enumerate(src_label_cat.items)
-                if self._map_id(id) or id == 0
+                id: src_point_cat[id]
+                for id, _ in enumerate(src_label_cat.items)
+                if id in src_point_cat and (self._map_id(id) or id == 0)
             }
             self._categories[AnnotationType.points] = dst_points_cat
 
