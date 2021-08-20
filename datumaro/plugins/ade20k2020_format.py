@@ -137,6 +137,11 @@ class Ade20k2020Extractor(Extractor):
         with open(json_path, 'r', encoding='latin-1') as f:
             item_objects = json.load(f)['annotation']['object']
             for obj in item_objects:
+                polygon_points = []
+                for x, y in zip(obj['polygon']['x'], obj['polygon']['y']):
+                    polygon_points.append(x)
+                    polygon_points.append(y)
+
                 attributes = obj['attributes']
                 if isinstance(attributes, str):
                     attributes = [attributes]
@@ -150,8 +155,7 @@ class Ade20k2020Extractor(Extractor):
                     'label_name': obj['raw_name'],
                     'attributes': attributes,
                     'instance_mask': obj['instance_mask'],
-                    'polygon_points': list(chain(obj['polygon']['x'],
-                        obj['polygon']['y']))
+                    'polygon_points': polygon_points
                 })
 
         return item_info
