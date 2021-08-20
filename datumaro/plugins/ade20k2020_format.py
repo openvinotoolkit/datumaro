@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MIT
 
-from itertools import chain
 import glob
 import json
 import logging as log
