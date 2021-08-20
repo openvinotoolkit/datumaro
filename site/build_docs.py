@@ -3,9 +3,8 @@
 # SPDX-License-Identifier: MIT
 
 import os
-from packaging import version
 import subprocess
-
+from packaging import version
 import git
 
 MINIMUM_VERSION='1.5.0'
