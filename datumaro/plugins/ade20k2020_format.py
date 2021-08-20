@@ -22,7 +22,10 @@ from datumaro.util.image import (
 
 
 class Ade20k2020Path:
-    MASK_IMAGE_PATTERN = re.compile('_seg|_parts_|instance')
+    MASK_PATTERN = re.compile(r'''\w+_seg\.\w+
+        | \w+_parts_\d+\.\w+
+        | instance_\w+\.\w+
+    ''', re.VERBOSE)
 
 
 class Ade20k2020Extractor(Extractor):
@@ -59,7 +62,7 @@ class Ade20k2020Extractor(Extractor):
         for image_path in sorted(images):
             item_id = osp.splitext(osp.relpath(image_path, path))[0]
 
-            if Ade20k2020Path.MASK_IMAGE_PATTERN.search(item_id):
+            if Ade20k2020Path.MASK_PATTERN.fullmatch(osp.basename(image_path)):
                 continue
 
             item_annotations = []
@@ -117,7 +120,7 @@ class Ade20k2020Extractor(Extractor):
                 if (len(item['polygon_points']) % 2 == 0 \
                         and 3 <= len(item['polygon_points']) // 2):
                     item_annotations.append(Polygon(polygon_points,
-                        label=label_id, attributes=attributes,
+                        label=label_id, attributes=attributes, id=instance_id,
                         z_order=item['part_level'], group=instance_id
                     ))
 
