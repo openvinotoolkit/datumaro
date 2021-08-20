@@ -78,16 +78,18 @@ plugin dependencies in the [plugins](#extending) section.
 
 #### Customizing installation
 
-- <a id="core-install"></a>In restricted installation environments,
-  or if you need only basic Datumaro functionality, you can choose
-  the installation option:
+- <a id="core-install"></a>Datumaro has the following installation options:
   - `pip install datumaro` - for core library functionality
   - `pip install datumaro[default]` - for normal CLI experience
 
-- In some cases, there can be limited use for UI elements outside CLI,
-  or limited options of installing graphical libraries in the system
-  (various Docker environments, servers etc). You can select between using
-  `opencv-python` and `opencv-python-headless` by setting the
+  In restricted installation environments, where some dependencies are
+  not available, or if you need only the core library functionality,
+  you can install Datumaro without extra plugins.
+
+  In some cases, installing just the core library may be not enough,
+  because there can be limited options of installing graphical libraries
+  in the system (various Docker environments, servers etc). You can select
+  between using `opencv-python` and `opencv-python-headless` by setting the
   `DATUMARO_HEADLESS` environment variable to `0` or `1` before installing
   the package. It requires installation from sources (using `--no-binary`):
   ```bash
