@@ -21,9 +21,9 @@ from datumaro.util.image import (
 
 
 class Ade20k2020Path:
-    MASK_PATTERN = re.compile(r'''\w+_seg\.\w+
-        | \w+_parts_\d+\.\w+
-        | instance_\w+\.\w+
+    MASK_PATTERN = re.compile(r'''[\w|\s|-]+_seg\.\w+
+        | [\w|\s|-]+_parts_\d+\.\w+
+        | instance_[\w|\s|-]+\.\w+
     ''', re.VERBOSE)
 
 
