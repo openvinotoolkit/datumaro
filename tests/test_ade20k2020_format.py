@@ -8,7 +8,9 @@ import os.path as osp
 import numpy as np
 
 from datumaro.components.dataset import Dataset, DatasetItem
-from datumaro.components.extractor import AnnotationType, LabelCategories, Mask
+from datumaro.components.extractor import (
+    AnnotationType, LabelCategories, Mask, Polygon,
+)
 from datumaro.plugins.ade20k2020_format import Ade20k2020Importer
 from datumaro.util.test_utils import compare_datasets
 
@@ -28,6 +30,9 @@ class Ade20k2020ImporterTest(TestCase):
                 DatasetItem(id='street/1', subset='training',
                     image=np.ones((5, 5, 3)),
                     annotations=[
+                        Polygon([1, 0, 1, 1, 1, 2, 1, 3, 1, 4],
+                            group=1, z_order=0, id=1, label=1,
+                            attributes={'walkin': True}),
                         Mask(image=np.array([[0, 0, 1, 1, 1]] * 5), label=0,
                             group=401, z_order=0, id=401),
                         Mask(image=np.array([[0, 1, 0, 0, 0]] * 5), label=1,

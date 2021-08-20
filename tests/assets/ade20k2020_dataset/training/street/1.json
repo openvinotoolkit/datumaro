@@ -78,8 +78,8 @@
         },
         "instance_mask": "1/instance_001_ADE_train_1.png",
         "polygon": {
-          "x": [],
-          "y": []
+          "x": [1, 1, 1, 1, 1],
+          "y": [0, 1, 2, 3, 4]
         },
         "saved_date": "1-Jan-1970 00:00:00"
       },
