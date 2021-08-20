@@ -21,7 +21,7 @@ from datumaro.util.image import (
 
 class Ade20k2017Path:
     MASK_PATTERN = re.compile(r'''.+_seg
-        | .+_parts_\d
+        | .+_parts_\d+
     ''', re.VERBOSE)
 
 
