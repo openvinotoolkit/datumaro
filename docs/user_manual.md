@@ -166,6 +166,14 @@ List of supported formats:
 - LFW (`classification`, `person re-identification`, `landmarks`)
   - [Format specification](http://vis-www.cs.umass.edu/lfw/)
   - [Dataset example](../tests/assets/lfw_dataset)
+- ADE20K 2017 (`segmentation`)
+  - [Format specification](https://www.kaggle.com/soumikrakshit/ade20k)
+  - [Dataset example](../tests/assets/ade20k2017_dataset)
+  - [Format documentation](./formats/ade20k2017_user_manual.md)
+- ADE20K 2020 (`segmentation`)
+  - [Format specification](http://groups.csail.mit.edu/vision/datasets/ADE20K/)
+  - [Dataset example](../tests/assets/ade20k2020_dataset)
+  - [Format documentation](./formats/ade20k2020_user_manual.md)
 
 List of supported annotation types:
 - Labels
