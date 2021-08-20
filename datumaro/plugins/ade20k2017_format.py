@@ -20,8 +20,8 @@ from datumaro.util.image import (
 
 
 class Ade20k2017Path:
-    MASK_PATTERN = re.compile(r'''[\w|\s|-]+_seg\.\w+
-        | [\w|\s|-]+_parts_\d+\.\w+
+    MASK_PATTERN = re.compile(r'''.+_seg
+        | .+_parts_\d
     ''', re.VERBOSE)
 
 
@@ -59,7 +59,7 @@ class Ade20k2017Extractor(Extractor):
         for image_path in sorted(images):
             item_id = osp.splitext(osp.relpath(image_path, path))[0]
 
-            if Ade20k2017Path.MASK_PATTERN.fullmatch(osp.basename(image_path)):
+            if Ade20k2017Path.MASK_PATTERN.fullmatch(osp.basename(item_id)):
                 continue
 
             item_annotations = []
