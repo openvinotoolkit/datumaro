@@ -79,7 +79,7 @@ for item in dataset:
 dataset.export('dst/dir', 'coco')
 ```
 
-> Check our [developer manual](/docs/developer-manual/) for additional
+> Check our [developer manual](/docs/developer_manual/) for additional
   information.
 
 ## Examples

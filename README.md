@@ -16,8 +16,8 @@ CVAT annotations                             ---> Publication, statistics etc.
 ```
 <!--lint enable fenced-code-flag-->
 
-- [Getting started](https://openvinotoolkit.github.io/datumaro/getting_started)
-- [Examples](https://openvinotoolkit.github.io/datumaro/examples)
+- [Getting started](https://openvinotoolkit.github.io/datumaro/docs/getting_started)
+- [Examples](https://openvinotoolkit.github.io/datumaro/docs/getting_started/#examples)
 - [Features](#features)
 - [User manual](https://openvinotoolkit.github.io/datumaro/docs/user-manual)
 - [Contributing](#contributing)
@@ -26,7 +26,7 @@ CVAT annotations                             ---> Publication, statistics etc.
 
 [(Back to top)](#dataset-management-framework-datumaro)
 
-- Dataset reading, writing, conversion in any direction. [Supported formats](docs/user_manual.md#supported-formats):
+- Dataset reading, writing, conversion in any direction. [Supported formats](https://openvinotoolkit.github.io/datumaro/docs/user-manual/supported-formats):
   - [COCO](http://cocodataset.org/#format-data) (`image_info`, `instances`, `person_keypoints`, `captions`, `labels`, `panoptic`, `stuff`)
   - [PASCAL VOC](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/htmldoc/index.html) (`classification`, `detection`, `segmentation`, `action_classification`, `person_layout`)
   - [YOLO](https://github.com/AlexeyAB/darknet#how-to-train-pascal-voc-data) (`bboxes`)
@@ -43,7 +43,7 @@ CVAT annotations                             ---> Publication, statistics etc.
   - [Cityscapes](https://www.cityscapes-dataset.com/)
   - [Kitti](http://www.cvlibs.net/datasets/kitti/index.php) (`segmentation`, `detection`, `3D raw` / `velodyne points`)
   - [Supervisely](https://docs.supervise.ly/data-organization/00_ann_format_navi) (`point cloud`)
-  - [CVAT](https://github.com/openvinotoolkit/cvat/blob/develop/cvat/apps/documentation/xml_format.md)
+  - [CVAT](https://openvinotoolkit.github.io/cvat/docs/manual/advanced/xml_format)
   - [LabelMe](http://labelme.csail.mit.edu/Release3.0)
   - [ICDAR13/15](https://rrc.cvc.uab.es/?ch=2) (`word_recognition`, `text_localization`, `text_segmentation`)
   - [Market-1501](https://www.aitribune.com/dataset/2018051063) (`person re-identification`)
@@ -101,4 +101,4 @@ Feel free to
 [open an Issue](https://github.com/openvinotoolkit/datumaro/issues/new), if you
 think something needs to be changed. You are welcome to participate in
 development, instructions are available in our
-[contribution guide](https://openvinotoolkit.github.io/datumaro/contribution-guide/).
+[contribution guide](https://openvinotoolkit.github.io/datumaro/docs/contribution).
