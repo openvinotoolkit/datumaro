@@ -49,5 +49,5 @@ The list of formats matches the list of supported image formats in OpenCV.
 After addition into a project, images can be split into subsets and renamed
 with transformations, filtered, joined with existing annotations etc.
 
-To use a video as an input, one should either [create an Extractor plugin](/docs/developer-manual/plugins/),
+To use a video as an input, one should either [create an Extractor plugin](/docs/developer_manual/#plugins),
 which splits a video into frames, or split the video manually and import images.
