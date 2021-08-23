@@ -131,6 +131,11 @@ datum import --format coco_stuff --input-path <path/to/stuff.json>
 To make sure that the selected dataset has been added to the project, you can
 run `datum info`, which will display the project and dataset information.
 
+Notes:
+- COCO categories can have any integer ids, however, Datumaro will count
+  annotation category id 0 as "not specified". This does not contradict
+  the original annotations, because they have category indices starting from 1.
+
 ## Export to other formats
 
 Datumaro can convert COCO dataset into any other format [Datumaro supports](/docs/user-manual/supported-formats/).
