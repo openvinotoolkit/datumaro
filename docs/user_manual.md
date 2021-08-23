@@ -306,6 +306,16 @@ project/
 
 ### Use cases
 
+Consider few diagrams describing what Datumaro does for you behind the scene.
+
+Imagine we have a project with 2 data sources. Roughly, it corresponds to
+the following set of commands:
+
+```bash
+datum create
+datum
+```
+
 ![use case 1](images/usecase1_diag.svg)
 
 Datumaro tries to restore a dataset from the project cache or reproduce it
