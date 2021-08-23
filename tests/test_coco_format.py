@@ -1057,3 +1057,4 @@ class CocoConverterTest(TestCase):
             self._test_save_and_load(source_dataset,
                  partial(CocoInstancesConverter.convert),
                  test_dir, target_dataset=target_dataset)
+
