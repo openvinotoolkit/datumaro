@@ -143,51 +143,65 @@ dataset = Dataset.import_from(path, format)
 ### Glossary
 
 - Basic concepts:
-  - dataset - A number of media (dataset items) and associated annotations
-  - project - A combination of multiple datasets, plugins, models and metadata
+  - Dataset - A collection of dataset items, which consist of media and
+    associated annotations.
+  - Dataset item - A basic single element of the dataset. Also known as
+    "sample", "entry". In different datasets it can be an image, a video
+    frame, a whole video, a 3d point cloud etc. Typically, has corresponding
+    annotations.
+  - (Datumaro) Project - A combination of multiple datasets, plugins,
+    models and metadata.
 
 - Project versioning concepts:
-  - data source - a link to a dataset or a copy of a dataset inside a project.
-    Basically, an URL + dataset format name
-  - project revision - a commit hash or a named reference from
-    Git (branch, tag, HEAD~3 etc.).
-  - working / head / revision tree - a project build tree and plugins at
-    a specified revision
-  - data source revision - a data source hash at a specific stage
-  - object - a tree or a data source revision data
+  - Data source - A link to a dataset or a copy of a dataset inside a project.
+    Basically, a URL + dataset format name.
+  - Project revision - A commit or a reference from Git (branch, tag,
+    HEAD~3 etc.). A revision is referenced by data hash. The `HEAD`
+    revision is the currently selected revision of the project.
+  - Revision tree - A project build tree and plugins at
+    a specified revision.
+  - Working tree - The revision tree in the working directory of a project.
+  - data source revision - a state of a data source at a specific stage.
+    A revision is referenced by the data hash.
+  - Object - The data of a revision tree or a data source revision.
+    An object is referenced by the data hash.
 
 - Dataset path concepts: <a id="revpath"></a>
-  - source / dataset / revision / project path - a path to a dataset in a
-    special format
+  - Dataset revpath - A path to a dataset in a special format. They are
+    supposed to specify paths to files, directories or data source revisions
+    in a uniform way in the CLI.
 
-    - (project local) **rev**ision **path**s - a way to specify the path
-      to a source revision in the CLI, the syntax is:
-      `<revision>:<source/target name>`, any part can be omitted.
-      - Default revision is the working tree of the project
-      - Default target is the compiled project
-
-    - dataset revpath - a path to a dataset in the following format:
+    - dataset path - a path to a dataset in the following format:
       `<dataset path>:<format>`
-      - Format is optional. If not specified, will try to autodetect
+      - `format` is optional. If not specified, will try to detect automatically
 
-    - full revpath - a path to a source revision in a project, the syntax is:
+    - **rev**ision path - a path to a data source revision in a project.
+      The syntax is:
       `<project path>@<revision>:<target name>`, any part can be omitted.
       - Default project is the current project (`-p`/`--project` CLI arg.)
+        Local revpaths imply that the current project is used and this part
+        should be omitted.
       - Default revision is the working tree of the project
-      - Default target is the compiled project
+      - Default target is `project`
+
+      If a path refers to `project` (i.e. target name is not set, or
+      this target is exactly specified), the target dataset is the result of
+      [joining](./developer_guide.md#merging) all the project data sources.
+      Otherwise, if the path refers to a data source revision, the
+      corresponding stage from the revision build tree will be used.
 
 - Dataset building concepts:
-  - stage - a modification of a data source. A transformation,
+  - Stage - A modification of a data source. A transformation,
     filter or something else.
-  - build tree - a directed graph (tree) with leaf nodes at data sources
-    and a single root node called "project"
-  - build target - a data source or a stage
-  - pipeline - a subgraph of a build target
+  - Build tree - A directed graph (tree) with leaf nodes at data sources
+    and a single root node called `project`.
+  - Build target - A data source or a stage.
+  - Pipeline - A subgraph of a build target, which includes all the ancestors.
 
 - Other:
-  - transform - a transformation operation over dataset elements. Examples are
-    image renaming, filtering by a condition, image flipping,
-    label remapping etc. Corresponds to the [transform command](#transform)
+  - Transform - A transformation operation over dataset elements. Examples
+    are image renaming, image flipping, image and subset renaming,
+    label remapping etc. Corresponds to the [`transform` command](#transform).
 
 ### Command-line workflow
 
@@ -201,9 +215,9 @@ to use Datumaro from the command-line:
   - Create an empty project with [`create`](#create)
   - Import existing datasets with [`add`](#source-add)
   - Modify the project with [`transform`](#transform) and [`filter`](#filter)
-  - Create new revisions of the project with [commit](#commit), navigate over
-    them using [checkout](#checkout), compare with [diff](#diff), compute
-    statistics with [stats](#stats)
+  - Create new revisions of the project with [`commit`](#commit), navigate over
+    them using [`checkout`](#checkout), compare with [`diff`](#diff), compute
+    statistics with [`stats`](#stats)
   - Export the resulting dataset with [`export`](#export)
 
 Basically, a project is a combination of datasets, models and environment.

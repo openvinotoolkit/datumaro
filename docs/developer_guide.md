@@ -161,7 +161,7 @@ for subset_name, subset in dataset.subsets().items():
     print(item.id, item.annotations)
 ```
 
-#### Dataset merging
+#### Dataset merging <a id="merging"></a>
 
 There are 2 methods of merging datasets in Datumaro:
 
