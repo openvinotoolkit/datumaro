@@ -182,7 +182,7 @@ dataset = Dataset.import_from(path, format)
         Local revpaths imply that the current project is used and this part
         should be omitted.
       - Default revision is the working tree of the project
-      - Default target is `project`
+      - Default build target is `project`
 
       If a path refers to `project` (i.e. target name is not set, or
       this target is exactly specified), the target dataset is the result of
@@ -191,12 +191,17 @@ dataset = Dataset.import_from(path, format)
       corresponding stage from the revision build tree will be used.
 
 - Dataset building concepts:
-  - Stage - A modification of a data source. A transformation,
-    filter or something else.
-  - Build tree - A directed graph (tree) with leaf nodes at data sources
-    and a single root node called `project`.
-  - Build target - A data source or a stage.
-  - Pipeline - A subgraph of a build target, which includes all the ancestors.
+  - Stage - A revision of a dataset - the original dataset or its modification
+    after transformation, filtration or something else. A build tree node.
+    A stage is referred by a name.
+  - Build tree - A directed graph (tree) with root nodes at data sources
+    and a single top node called `project`, which represents
+    a [joined](./developer_guide.md#merging) dataset.
+    Each data source has a starting `root` node, which corresponds to the
+    original dataset. The internal graph nodes are stages.
+  - Build target - A data source or a stage name. Data source names correspond
+    to the last stages of data sources.
+  - Pipeline - A subgraph of a stage, which includes all the ancestors.
 
 - Other:
   - Transform - A transformation operation over dataset elements. Examples
@@ -327,17 +332,50 @@ the following set of commands:
 
 ```bash
 datum create
-datum
+datum add <...> -n source1
+datum add <...> -n source2
+datum transform <...> source1 # used 3 times
+datum transform <...> source2 # used 5 times
 ```
+
+Then, for some reasons, the project cache was cleaned from `source1` revisions.
+We also don't have anything in the project working directories.
+Let's see what happens, if we call the `diff` command with 2 different
+revisions now.
 
 ![use case 1](images/usecase1_diag.svg)
 
-Datumaro tries to restore a dataset from the project cache or reproduce it
-from sources. It can be done as long as the source operations are recorded
-and any step data is available.
+Datumaro needs to reproduce 2 dataset revisions requested so that they could
+be read and compared. `source1` will be looked for in the project cache.
+It will be found missing, since the cache was cleaned (1). Then, Datumaro
+will look for previous source revisions and won't find any (2, 3). Then, it
+will try to download the original data and reproduce the resulting dataset,
+re-applying all the operations from the source history (4, 5). When it is
+done, the resulting dataset is returned (6).
 
+The `source2` will be looked for the same way. In our case, it will be found
+in the cache and returned. Once both datasets are restored and read, they
+are compared.
+
+Consider the second situation. Let's try to `export` the `source1`. Suppose
+we have a clear project cache and the `source1` has a copy in the working
+directory.
 
 ![use case 2](images/usecase2_diag.svg)
+
+Again, Datumaro needs to reproduce a dataset revision (stage) requested. It
+looks for the dataset in the working directory and finds some data (1). The
+data hash is computed and compared with the saved one in the history (2).
+If the hashes match, the dataset is read and returned (3a). Otherwise,
+Datumaro tries to reproduce the dataset using the approach described above.
+Then, the dataset is exported in the requested format.
+
+To sum up, Datumaro tries to restore a dataset from the project cache or
+reproduce it from sources. It can be done as long as the source operations
+are recorded and any step data is available. Note that cache objects share
+common files, so if there are only annotation changes between datasets,
+or data sources contain the same images, there will only be a single copy
+of the related media files. This helps to keep storage use reasonable.
 
 ### Examples <a id="cli-examples"></a>
 
@@ -756,7 +794,7 @@ elements needed for exporting. Read the [`filter`](#filter) command
 description for more info about this functionality.
 
 The command can only be applied to a project build target, a stage
-or the combined 'project' target, in which case all the targets will
+or the combined `project` target, in which case all the targets will
 be affected.
 
 Usage:
@@ -2112,7 +2150,7 @@ datum model run
 
 Parameters:
 - `<target>` (string) - A project build target to be used.
-  By default, uses the combined project dataset.
+  By default, uses the combined `project` target.
 - `-m, --model` (string) - Model name
 - `-o, --output-dir` (string) - Output directory. By default, results will
   be stored in an auto-generated directory in the current directory.
