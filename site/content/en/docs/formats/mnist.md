@@ -7,11 +7,22 @@ weight: 7
 
 ## Format specification
 
-MNIST format specification available [here](http://yann.lecun.com/exdb/mnist/).
-Fashion MNIST format specification available [here](https://github.com/zalandoresearch/fashion-mnist).
-MNIST in CSV  format specification available [here](https://pjreddie.com/projects/mnist-in-csv/).
+MNIST format specification is available [here](http://yann.lecun.com/exdb/mnist/).
+Fashion MNIST format specification is available [here](https://github.com/zalandoresearch/fashion-mnist).
+MNIST in CSV  format specification is available [here](https://pjreddie.com/projects/mnist-in-csv/).
 
-MNIST dataset format supports `Labels` annotations.
+The dataset has few data formats available. Datumaro supports the
+binary (Python pickle) format and the CSV variant. Each data format is covered
+by a separate Datumaro format.
+
+Supported formats:
+- Binary (Python pickle) - `mnist`
+- CSV - `mnist_csv`
+
+Supported annotation types:
+- `Label`
+
+The format only supports single channel 28 x 28 images.
 
 ## Load MNIST dataset
 
@@ -75,6 +86,7 @@ MNIST dataset directory should have the following structure:
     ├── train-images-idx3-ubyte.gz
     └── train-labels-idx1-ubyte.gz
 ```
+
 MNIST in CSV dataset directory should have the following structure:
 
 <!--lint disable fenced-code-flag-->
@@ -84,9 +96,11 @@ MNIST in CSV dataset directory should have the following structure:
     ├── mnist_test.csv
     └── mnist_train.csv
 ```
-If the dataset needs non-digit labels, you need to add the labels.txt
-to the dataset folder.
-For example, labels.txt for Fashion MNIST labels contains the following:
+
+If the dataset needs non-digit labels, you need to add the `labels.txt`
+to the dataset folder. For example, `labels.txt` for Fashion MNIST the
+following contents:
+
 <!--lint disable fenced-code-flag-->
 ```
 T-shirt/top
@@ -101,12 +115,10 @@ Bag
 Ankle boot
 ```
 
-MNIST format only supports single channel 28 x 28 images.
-
 ## Export to other formats
 
 Datumaro can convert MNIST dataset into any other format [Datumaro supports](/docs/user-manual/supported-formats/).
-To get the expected result, the dataset needs to be converted to formats
+To get the expected result, convert the dataset to formats
 that support the classification task (e.g. CIFAR-10/100, ImageNet, PascalVOC,
 etc.) There are few ways to convert MNIST dataset to other dataset format:
 
@@ -141,7 +153,7 @@ for exporting dataset (by default `.png`).
 
 These commands also work for MNIST in CSV if you use `mnist_csv` instead of `mnist`.
 
-## Particular use cases
+## Examples
 
 Datumaro supports filtering, transformation, merging etc. for all formats
 and for the MNIST format in particular. Follow [user manual](/docs/user-manual/)
@@ -182,5 +194,5 @@ datum convert --input-format mnist --input-path <path/to/mnist> \
               --filter '/item[annotation/label="3"]'
 ```
 
-More examples of working with MNIST dataset from code can be found in
-[tests_mnist](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/test_mnist_format.py) and [tests_mnist_csv](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/test_mnist_csv_format.py)
+Examples of using this format from the code can be found in
+the [binary format tests](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/test_mnist_format.py) and [csv format tests](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/test_mnist_csv_format.py)
