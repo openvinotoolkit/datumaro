@@ -201,9 +201,9 @@ to use Datumaro from the command-line:
   - Create an empty project with [`create`](#create)
   - Import existing datasets with [`add`](#source-add)
   - Modify the project with [`transform`](#transform) and [`filter`](#filter)
-  - Create new revisions of the project with [commit](#commit), navigate over
-    them using [checkout](#checkout), compare with [diff](#diff), compute
-    statistics with [stats](#stats)
+  - Create new revisions of the project with [`commit`](#commit), navigate over
+    them using [`checkout`](#checkout), compare with [`diff`](#diff), compute
+    statistics with [`stats`](#stats)
   - Export the resulting dataset with [`export`](#export)
 
 Basically, a project is a combination of datasets, models and environment.
