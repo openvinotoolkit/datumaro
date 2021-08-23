@@ -231,7 +231,7 @@ class _InstancesConverter(_TaskConverter):
             if masks:
                 masks = (m.image for m in masks)
                 if mask is not None:
-                    masks += chain(masks, [mask])
+                    masks = chain(masks, [mask])
                 mask = mask_tools.merge_masks(masks)
 
             if mask is not None:
