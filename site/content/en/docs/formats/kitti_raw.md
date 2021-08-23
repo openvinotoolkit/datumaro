@@ -11,8 +11,8 @@ Velodyne Points / KITTI Raw 3D data format:
 - [home page](http://www.cvlibs.net/datasets/kitti/raw_data.php).
 - [specification](https://s3.eu-central-1.amazonaws.com/avg-kitti/devkit_raw_data.zip)
 
-This dataset format supports the following types of annotations:
-- `cuboid_3d` (tracks)
+Supported annotation types:
+- `Cuboid3d` (represent tracks)
 
 Supported annotation attributes:
 - `truncation` (write, string), possible values: `truncation_unset`,
@@ -23,18 +23,16 @@ Supported annotation attributes:
 - `occluded` (read/write, boolean)
 - `keyframe` (read/write, boolean). Responsible for `occlusion_kf` field.
 - `track_id` (read/write, integer). Indicates the group over frames for
-  annotations.
+  annotations, represent tracks.
 
 Supported image attributes:
 - `frame` (read/write, integer). Indicates frame number of the image.
 
 ## Import KITTI Raw dataset
 
-The velodyne points/KITTI Raw dataset is available for download:
-
-<http://www.cvlibs.net/datasets/kitti/raw_data.php>
-
-<https://cloud.enterprise.deepsystems.io/s/YcyfIf5zrS7NZcI/download>
+The velodyne points/KITTI Raw dataset is available for downloading
+[here](http://www.cvlibs.net/datasets/kitti/raw_data.php) and
+[here](https://cloud.enterprise.deepsystems.io/s/YcyfIf5zrS7NZcI/download).
 
 KITTI Raw dataset directory should have the following structure:
 
@@ -174,5 +172,5 @@ dataset = Dataset.from_iterable([
 dataset.export('my_dataset/', format='kitti_raw', save_images=True)
 ```
 
-More examples of working with KITTI Raw dataset from code can be found in
-[tests](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/test_kitti_raw_format.py)
+Examples of using this format from the code can be found in
+[the format tests](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/test_kitti_raw_format.py)

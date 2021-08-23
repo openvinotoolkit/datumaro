@@ -7,27 +7,31 @@ weight: 6
 
 ## Format specification
 
-- Original KITTI dataset format support the following types of annotations:
-  - `Bounding boxes` (for [object detection](http://www.cvlibs.net/datasets/kitti/eval_object.php?obj_benchmark));
-  - `Masks` (for [segmentation](http://www.cvlibs.net/datasets/kitti/eval_semseg.php?benchmark=semantics2015) task).
+The KITTI dataset has many annotations for different tasks. Datumaro supports
+only few of them.
 
-- Supported attributes:
-  - `truncated`: indicates that the bounding box specified for the object does
-    not correspond to the full extent of the object;
-  - `occluded`: indicates that a significant portion of the object within the
-    bounding box is occluded by another object.
+Supported tasks / formats:
+- [Object Detection](http://www.cvlibs.net/datasets/kitti/eval_object.php?obj_benchmark) - `kitti_detection`
+  The format specification is available in `README.md` [here](https://s3.eu-central-1.amazonaws.com/avg-kitti/devkit_object.zip).
+- [Segmentation](http://www.cvlibs.net/datasets/kitti/eval_semseg.php?benchmark=semantics2015) - `kitti_segmentation`
+  The format specification is available in `README.md` [here](https://s3.eu-central-1.amazonaws.com/avg-kitti/devkit_semantics.zip).
+- Raw 3D / Velodyne Points - described [here](/kitti_raw.md)
 
-KITTI segmentations format specification available in `README.md` [here](https://s3.eu-central-1.amazonaws.com/avg-kitti/devkit_semantics.zip).
+Supported annotation types:
+- `Bbox` (object detection)
+- `Mask` (segmentation)
 
-KITTI object detection format specification available in `README.md` [here](https://s3.eu-central-1.amazonaws.com/avg-kitti/devkit_object.zip).
+Supported attributes:
+- `truncated` (boolean) - indicates that the bounding box specified for
+  the object does not correspond to the full extent of the object
+- `occluded` (boolean) - indicates that a significant portion of the object
+  within the bounding box is occluded by another object
 
 ## Load KITTI dataset
 
 The KITTI left color images for object detection are available [here](http://www.cvlibs.net/download.php?file=data_object_image_2.zip).
-
 The KITTI object detection labels are available [here](http://www.cvlibs.net/download.php?file=data_object_label_2.zip).
-
-The KITTI segmentations dataset is available [here](http://www.cvlibs.net/download.php?file=data_semantics.zip).
+The KITTI segmentation dataset is available [here](http://www.cvlibs.net/download.php?file=data_semantics.zip).
 
 There are two ways to create Datumaro project and add KITTI dataset to it:
 
@@ -51,27 +55,27 @@ KITTI segmentation dataset directory should have the following structure:
     │       ├── <name_1>.<img_ext>
     │       ├── <name_2>.<img_ext>
     │       └── ...
-    ├── training/
-    │   ├── image_2/ # left color camera images
-    │   │   ├── <name_1>.<img_ext>
-    │   │   ├── <name_2>.<img_ext>
-    │   │   └── ...
-    │   ├── label_2/ # left color camera label files
-    │   │   ├── <name_1>.txt
-    │   │   ├── <name_2>.txt
-    │   │   └── ...
-    │   ├── instance/ # instance segmentation masks
-    │   │   ├── <name_1>.png
-    │   │   ├── <name_2>.png
-    │   │   └── ...
-    │   ├── semantic/ # semantic segmentation masks (labels are encoded by its id)
-    │   │   ├── <name_1>.png
-    │   │   ├── <name_2>.png
-    │   │   └── ...
-    │   └── semantic_rgb/ # semantic segmentation masks (labels are encoded by its color)
-    │       ├── <name_1>.png
-    │       ├── <name_2>.png
-    │       └── ...
+    └── training/
+        ├── image_2/ # left color camera images
+        │   ├── <name_1>.<img_ext>
+        │   ├── <name_2>.<img_ext>
+        │   └── ...
+        ├── label_2/ # left color camera label files
+        │   ├── <name_1>.txt
+        │   ├── <name_2>.txt
+        │   └── ...
+        ├── instance/ # instance segmentation masks
+        │   ├── <name_1>.png
+        │   ├── <name_2>.png
+        │   └── ...
+        ├── semantic/ # semantic segmentation masks (labels are encoded by its id)
+        │   ├── <name_1>.png
+        │   ├── <name_2>.png
+        │   └── ...
+        └── semantic_rgb/ # semantic segmentation masks (labels are encoded by its color)
+            ├── <name_1>.png
+            ├── <name_2>.png
+            └── ...
 ```
 
 You can import dataset for specific tasks
@@ -81,11 +85,6 @@ for example:
 ``` bash
 datum add path -f kitti_detection <path/to/dataset>
 ```
-
-Datumaro supports the following KITTI tasks:
-- Object detection (`kitti_detection`)
-- Class and instance segmentation (`kitti_segmentation`)
-- [3d point clouds / velodyne points (`kitti_raw`)](/docs/formats/kitti_raw/)
 
 To make sure that the selected dataset has been added to the project, you can
 run `datum info`, which will display the project and dataset information.
@@ -156,7 +155,7 @@ datum export -p project -f kitti -- --tasks detection
 - `--allow-attributes ALLOW_ATTRIBUTES` allow export of attributes
 (by default `True`).
 
-## Particular use cases
+## Examples
 
 Datumaro supports filtering, transformation, merging etc. for all formats
 and for the KITTI format in particular. Follow
@@ -205,5 +204,5 @@ dataset = Dataset.from_iterable([
 dataset.export('./dataset', format='kitti')
 ```
 
-More examples of working with KITTI dataset from code can be found in
-[tests](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/test_kitti_format.py)
+Examples of using this format from the code can be found in
+[the format tests](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/test_kitti_format.py)

@@ -7,22 +7,41 @@ weight: 9
 
 ## Format specification
 
-- Pascal VOC format specification available
-  [here](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/devkit_doc.pdf).
+Pascal VOC format specification is available
+[here](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/devkit_doc.pdf).
 
-- Original Pascal VOC dataset format support the following types of annotations:
-  - `Labels` (for classification tasks);
-  - `Bounding boxes` (for detection, action detection and person layout tasks);
-  - `Masks` (for segmentations tasks).
+The dataset has annotations for multiple tasks. Each task has its own format
+in Datumaro, and there is also a combined `voc` format, which includes all
+the available tasks. The sub-formats have the same options as the "main"
+format and only limit the set of annotation files they work with. To work with
+multiple formats, use the corresponding option of the `voc` format.
 
-- Supported attributes:
-  - `occluded`: indicates that a significant portion of the object within the
-    bounding box is occluded by another object;
-  - `truncated`: indicates that the bounding box specified for the object does
-    not correspond to the full extent of the object;
-  - `difficult`: indicates that the object is considered difficult to recognize;
-  - action attributes (`jumping`, `reading`, `phoning` and
-    [more](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/actionexamples/index.html)).
+Supported tasks / formats:
+- The combined format - `voc`
+- Image classification - `voc_classification`
+- Object detection - `voc_detection`
+- Action classification - `voc_action`
+- Class and instance segmentation - `voc_segmentation`
+- Person layout detection - `voc_layout`
+
+Supported annotation types:
+- `Label` (classification)
+- `Bbox` (detection, action detection and person layout)
+- `Mask` (segmentation)
+
+Supported annotation attributes:
+- `occluded` (boolean) - indicates that a significant portion of the
+  object within the bounding box is occluded by another object
+- `truncated` (boolean) - indicates that the bounding box specified for
+  the object does not correspond to the full extent of the object
+- `difficult` (boolean) - indicates that the object is considered difficult
+  to recognize
+- action attributes (boolean) - `jumping`, `reading` and
+  [others](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/actionexamples/index.html).
+  Indicate that the object does the corresponding action.
+- arbitrary attributes (string/number) - A Datumaro extension. Stored
+  in the `attributes` section of the annotation `xml` file. Available for
+  bbox annotations only.
 
 ## Load Pascal VOC dataset
 
@@ -45,46 +64,49 @@ Pascal VOC dataset directory should have the following structure:
 <!--lint disable fenced-code-flag-->
 ```
 └─ Dataset/
-   ├── label_map.txt # list of non-pascal labels (optional)
+   ├── label_map.txt # a list of non-Pascal labels (optional)
+   │
    ├── Annotations/
    │     ├── ann1.xml # Pascal VOC format annotation file
    │     ├── ann2.xml
-   │     ├── ...
+   │     └── ...
    ├── JPEGImages/
    │    ├── img1.jpg
    │    ├── img2.jpg
-   │    ├── ...
+   │    └── ...
    ├── SegmentationClass/ # directory with semantic segmentation masks
    │    ├── img1.png
    │    ├── img2.png
-   │    ├── ...
+   │    └── ...
    ├── SegmentationObject/ # directory with instance segmentation masks
    │    ├── img1.png
    │    ├── img2.png
-   │    ├── ...
-   ├── ImageSets/
-   │    ├── Main/ # directory with list of images for detection and classification task
-   │    │   ├── test.txt  # list of image names in test subset  (without extension)
-   |    |   ├── train.txt # list of image names in train subset (without extension)
-   |    |   ├── ...
-   │    ├── Layout/ # directory with list of images for person layout task
-   │    │   ├── test.txt
-   |    |   ├── train.txt
-   |    |   ├── ...
-   │    ├── Action/ # directory with list of images for action classification task
-   │    │   ├── test.txt
-   |    |   ├── train.txt
-   |    |   ├── ...
-   │    ├── Segmentation/ # directory with list of images for segmentation task
-   │    │   ├── test.txt
-   |    |   ├── train.txt
-   |    |   ├── ...
+   │    └── ...
+   │
+   └── ImageSets/
+        ├── Main/ # directory with list of images for detection and classification task
+        │   ├── test.txt  # list of image names in test subset  (without extension)
+        |   ├── train.txt # list of image names in train subset (without extension)
+        |   └── ...
+        ├── Layout/ # directory with list of images for person layout task
+        │   ├── test.txt
+        |   ├── train.txt
+        |   └── ...
+        ├── Action/ # directory with list of images for action classification task
+        │   ├── test.txt
+        |   ├── train.txt
+        |   └── ...
+        └── Segmentation/ # directory with list of images for segmentation task
+            ├── test.txt
+            ├── train.txt
+            └── ...
 ```
 
 The `ImageSets` directory should contain at least one of the directories:
 `Main`, `Layout`, `Action`, `Segmentation`.
 These directories contain `.txt` files with a list of images in a subset,
-the subset name is the same as the `.txt` file name.
+the subset name is the same as the `.txt` file name. Subset names can be
+arbitrary.
 
 In `label_map.txt` you can define custom color map and non-pascal labels,
 for example:
@@ -121,13 +143,6 @@ for example:
 ``` bash
 datum add path -f voc_detection <path/to/dataset/ImageSets/Main/train.txt>
 ```
-
-Datumaro supports the following Pascal VOC tasks:
-- Image classification (`voc_classification`)
-- Object detection (`voc_detection`)
-- Action classification (`voc_action`)
-- Class and instance segmentation (`voc_segmentation`)
-- Person layout detection (`voc_layout`)
 
 To make sure that the selected dataset has been added to the project, you
 can run `datum info`, which will display the project and dataset information.
@@ -209,7 +224,7 @@ datum export -f voc_segmentation -- --label-map mycolormap.txt
 datum export -f voc_segmentation -- --label-map voc
 ```
 
-## Particular use cases
+## Examples
 
 Datumaro supports filtering, transformation, merging etc. for all formats
 and for the Pascal VOC format in particular. Follow
@@ -316,5 +331,5 @@ After executing this code, we can see that there are 5826 images
 in Pascal VOC 2012 has for segmentation task and this result is the same as the
 [official documentation](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/dbstats.html)
 
-More examples of working with Pascal VOC dataset from code can be found in
+Examples of using this format from the code can be found in
 [tests](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/test_voc_format.py)

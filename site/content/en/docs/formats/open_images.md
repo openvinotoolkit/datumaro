@@ -11,44 +11,40 @@ A description of the Open Images Dataset (OID) format is available
 on [its website](https://storage.googleapis.com/openimages/web/download.html).
 Datumaro supports versions 4, 5 and 6.
 
-Datumaro currently supports the following types of annotations:
+Supported annotation types:
+- `Label` (human-verified image-level labels)
+- `Bbox` (bounding boxes)
+- `Mask` (segmentation masks)
 
-- human-verified image-level labels;
-- bounding boxes;
-- segmentation masks.
+Supported annotation attributes:
+- Labels
+  - `score` (read/write, float).
+    The confidence level from 0 to 1.
+    A score of 0 indicates that
+    the image does not contain objects of the corresponding class.
 
-One attribute is supported on the labels:
+- Bounding boxes
+  - `score` (read/write, float).
+    The confidence level from 0 to 1.
+    In the original dataset this is always equal to 1,
+    but custom datasets may be created with arbitrary values.
+  - `occluded` (read/write, boolean).
+    Whether the object is occluded by another object.
+  - `truncated` (read/write, boolean).
+    Whether the object extends beyond the boundary of the image.
+  - `is_group_of` (read/write, boolean).
+    Whether the object represents a group of objects of the same class.
+  - `is_depiction` (read/write, boolean).
+    Whether the object is a depiction (such as a drawing)
+    rather than a real object.
+  - `is_inside` (read/write, boolean).
+    Whether the object is seen from the inside.
 
-- `score` (read/write, float).
-  The confidence level from 0 to 1.
-  A score of 0 indicates that
-  the image does not contain objects of the corresponding class.
-
-The following attributes are supported on the bounding boxes:
-
-- `score` (read/write, float).
-  The confidence level from 0 to 1.
-  In the original dataset this is always equal to 1,
-  but custom datasets may be created with arbitrary values.
-- `occluded` (read/write, boolean).
-  Whether the object is occluded by another object.
-- `truncated` (read/write, boolean).
-  Whether the object extends beyond the boundary of the image.
-- `is_group_of` (read/write, boolean).
-  Whether the object represents a group of objects of the same class.
-- `is_depiction` (read/write, boolean).
-  Whether the object is a depiction (such as a drawing)
-  rather than a real object.
-- `is_inside` (read/write, boolean).
-  Whether the object is seen from the inside.
-
-The following attributes are supported on the masks:
-
-- `box_id` (read/write, string).
-  An identifier for the bounding box associated with the mask.
-
-- `predicted_iou` (read/write, float).
-  Predicted IoU value with respect to the ground truth.
+- Masks
+  - `box_id` (read/write, string).
+    An identifier for the bounding box associated with the mask.
+  - `predicted_iou` (read/write, float).
+    Predicted IoU value with respect to the ground truth.
 
 ## Load Open Images dataset
 
@@ -237,7 +233,7 @@ find images -name '*.jpg' -exec \
 ## Export to other formats
 
 Datumaro can convert OID into any other format [Datumaro supports](/docs/user-manual/supported-formats).
-To get the expected result, the dataset needs to be converted to a format
+To get the expected result, convert the dataset to a format
 that supports image-level labels.
 There are a few ways to convert OID to other dataset format:
 
@@ -278,7 +274,7 @@ Extra options for export to the Open Images format:
   when exporting the dataset (by default, uses the original extension
   or `.jpg` if there isn't one)
 
-## Particular use cases
+## Examples
 
 Datumaro supports filtering, transformation, merging etc. for all formats
 and for the Open Images format in particular. Follow
@@ -288,7 +284,7 @@ to get more information about these operations.
 Here are a few examples of using Datumaro operations to solve
 particular problems with the Open Images dataset:
 
-### Example 1. How to load the Open Images dataset and convert to the format used by CVAT
+### Example 1. Load the Open Images dataset and convert to the CVAT format
 
 ```bash
 datum create -o project
@@ -297,7 +293,7 @@ datum stats -p project
 datum export -p project -o dataset -f cvat --overwrite -- --save-images
 ```
 
-### Example 2. How to create a custom OID-like dataset
+### Example 2. Create a custom OID-like dataset
 
 ```python
 import numpy as np
@@ -323,5 +319,5 @@ dataset = Dataset.from_iterable(
 dataset.export('./dataset', format='open_images')
 ```
 
-More examples of working with OID from code can be found in
-[tests](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/test_open_images_format.py).
+Examples of using this format from the code can be found in
+[the format tests](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/test_open_images_format.py).

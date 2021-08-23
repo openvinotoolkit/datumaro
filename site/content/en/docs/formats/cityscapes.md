@@ -7,15 +7,16 @@ weight: 2
 
 ## Format specification
 
-Cityscapes format overview available [here](https://www.cityscapes-dataset.com/dataset-overview/).
-Cityscapes format specification available [here](https://github.com/mcordts/cityscapesScripts#the-cityscapes-dataset).
+Cityscapes format overview is available [here](https://www.cityscapes-dataset.com/dataset-overview/).
+Cityscapes format specification is available [here](https://github.com/mcordts/cityscapesScripts#the-cityscapes-dataset).
 
-Cityscapes dataset format supports `Masks` (segmentations tasks) annotations.
+Supported annotation types:
+- `Masks`
 
 Supported annotation attributes:
 - `is_crowd` (boolean). Specifies if the annotation label can
-    distinguish between different instances.
-    If `False`, the annotation `id` field encodes the instance id.
+  distinguish between different instances.
+  If `False`, the annotation `id` field encodes the instance id.
 
 ## Load Cityscapes dataset
 
@@ -47,16 +48,16 @@ Cityscapes dataset directory should have the following structure:
     │   │   |   ├── {city2}
     │   │   │   └── ...
     │   │   └── ...
-    ├── gtFine/
-    │   ├── <split: train,val, ...>
-    │   │   ├── {city1}
-    │   │   |   ├── {city1}_{seq:[0...6]}_{frame:[0...6]}_gtFine_color.png
-    │   │   |   ├── {city1}_{seq:[0...6]}_{frame:[0...6]}_gtFine_instanceIds.png
-    │   │   |   ├── {city1}_{seq:[0...6]}_{frame:[0...6]}_gtFine_labelIds.png
-    │   │   │   └── ...
-    │   │   ├── {city2}
-    │   │   └── ...
-    │   └── ...
+    └── gtFine/
+        ├── <split: train,val, ...>
+        │   ├── {city1}
+        │   |   ├── {city1}_{seq:[0...6]}_{frame:[0...6]}_gtFine_color.png
+        │   |   ├── {city1}_{seq:[0...6]}_{frame:[0...6]}_gtFine_instanceIds.png
+        │   |   ├── {city1}_{seq:[0...6]}_{frame:[0...6]}_gtFine_labelIds.png
+        │   │   └── ...
+        │   ├── {city2}
+        │   └── ...
+        └── ...
 ```
 
 Annotated files description:
@@ -64,10 +65,10 @@ Annotated files description:
 1. `*_color.png` - class labels encoded by its color
 1. `*_labelIds.png` - class labels are encoded by its index
 1. `*_instanceIds.png` - class and instance labels encoded by an instance ID.
-    The pixel values encode class and the individual instance: the integer part
-    of a division by 1000 of each ID provides class ID, the remainder
-    is the instance ID. If a certain annotation describes multiple instances,
-    then the pixels have the regular ID of that class
+  The pixel values encode class and the individual instance: the integer part
+  of a division by 1000 of each ID provides class ID, the remainder
+  is the instance ID. If a certain annotation describes multiple instances,
+  then the pixels have the regular ID of that class
 
 To make sure that the selected dataset has been added to the project, you can
 run `datum info`, which will display the project and dataset information.
@@ -75,7 +76,7 @@ run `datum info`, which will display the project and dataset information.
 ## Export to other formats
 
 Datumaro can convert Cityscapes dataset into any other format [Datumaro supports](/docs/user-manual/supported-formats/).
-To get the expected result, the dataset needs to be converted to formats
+To get the expected result, convert the dataset to formats
 that support the segmentation task (e.g. PascalVOC, CamVID, etc.)
 There are few ways to convert Cityscapes dataset to other dataset format:
 
@@ -123,7 +124,7 @@ datum export -f cityscapes -- --label-map mycolormap.txt
 datum export -f cityscapes -- --label-map cityscapes
 ```
 
-## Particular use cases
+## Examples
 
 Datumaro supports filtering, transformation, merging etc. for all formats
 and for the Cityscapes format in particular. Follow
@@ -133,7 +134,7 @@ to get more information about these operations.
 There are few examples of using Datumaro operations to solve
 particular problems with Cityscapes dataset:
 
-### Example 1. How to load an original Cityscapes dataset and convert to Pascal VOC
+### Example 1. Load the original Cityscapes dataset and convert to Pascal VOC
 
 ```bash
 datum create -o project
@@ -142,7 +143,7 @@ datum stats -p project
 datum export -p final_project -o dataset -f voc -- --save-images
 ```
 
-### Example 2. How to create custom Cityscapes-like dataset
+### Example 2. Create a custom Cityscapes-like dataset
 
 ```python
 import numpy as np
@@ -171,5 +172,5 @@ dataset = Dataset.from_iterable([
 dataset.export('./dataset', format='cityscapes')
 ```
 
-More examples of working with Cityscapes dataset from code can be found in
-[tests](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/test_cityscapes_format.py)
+Examples of using this format from the code can be found in
+[the format tests](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/test_cityscapes_format.py)

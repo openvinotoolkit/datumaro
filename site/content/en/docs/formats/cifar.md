@@ -7,20 +7,20 @@ weight: 1
 
 ## Format specification
 
-CIFAR format specification available [here](https://www.cs.toronto.edu/~kriz/cifar.html).
+CIFAR format specification is available [here](https://www.cs.toronto.edu/~kriz/cifar.html).
 
-CIFAR dataset format supports `Label` annotations.
+Supported annotation types:
+- `Label`
 
 Datumaro supports Python version CIFAR-10/100.
 The difference between CIFAR-10 and CIFAR-100 is how labels are stored
 in the meta files (`batches.meta` or `meta`) and in the annotation files.
+The 100 classes in the CIFAR-100 are grouped into 20 superclasses. Each image
+comes with a "fine" label (the class to which it belongs) and a "coarse" label
+(the superclass to which it belongs). In CIFAR-10 there are no superclasses.
 
 CIFAR formats contains 32 x 32 images. As an extension, Datumaro supports
 reading and writing of arbitrary-sized images.
-
-The 100 classes in the CIFAR-100 are grouped into 20 superclasses. Each image
-comes with a "fine" label (the class to which it belongs) and a "coarse" label
-(the superclass to which it belongs).
 
 ## Load CIFAR dataset
 
@@ -69,6 +69,7 @@ Dataset files use [Pickle](https://docs.python.org/3/library/pickle.html)
 data format.
 
 Meta files:
+
 <!--lint disable fenced-code-flag-->
 ```
 CIFAR-10:
@@ -82,6 +83,7 @@ CIFAR-100:
 ```
 
 Annotation files:
+
 <!--lint disable fenced-code-flag-->
 ```
 Common:
@@ -103,7 +105,7 @@ CIFAR-100:
 ## Export to other formats
 
 Datumaro can convert CIFAR dataset into any other format [Datumaro supports](/docs/user-manual/supported-formats).
-To get the expected result, the dataset needs to be converted to formats
+To get the expected result, convert the dataset to formats
 that support the classification task (e.g. MNIST, ImageNet, PascalVOC,
 etc.) There are few ways to convert CIFAR dataset to other dataset format:
 
@@ -137,7 +139,7 @@ for exporting dataset (by default `.png`).
 The format (CIFAR-10 or CIFAR-100) in which the dataset will be
 exported depends on the presence of superclasses in the `LabelCategories`.
 
-## Particular use cases
+## Examples
 
 Datumaro supports filtering, transformation, merging etc. for all formats
 and for the CIFAR format in particular. Follow [user manual](/docs/user-manual)
@@ -178,5 +180,5 @@ datum convert --input-format cifar --input-path <path/to/cifar> \
               --filter '/item[annotation/label="dog"]'
 ```
 
-More examples of working with CIFAR dataset from code can be found in
-[tests_cifar](https://github.com/openvinotoolkit/datumaro/blob/develop/tests/test_cifar_format.py)
+Examples of using this format from the code can be found in
+[the format tests](https://github.com/openvinotoolkit/datumaro/blob/develop/tests/test_cifar_format.py)

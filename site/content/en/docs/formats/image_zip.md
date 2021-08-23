@@ -7,11 +7,9 @@ weight: 4
 
 ## Format specification
 
-- The image zip format allow to export/import unannotated datasets
-  with images to/from zip archive.
-
-- The image zip format doesn't support any types of annotations
-  and attributes.
+The image zip format allow to export/import unannotated datasets
+with images to/from zip archive. The format doesn't support any
+annotations or attributes.
 
 ## Load Image zip dataset
 
@@ -33,19 +31,19 @@ datum import -o project -f image_zip -i ./foo
 The directory with zip archives should have the following structure:
 
 ```
-├── foo/
-|   ├── archive1.zip/
-|   |   ├── image_1.jpg
-|   |   ├── image_2.png
-|   |   ├── subdir/
-|   |   |   ├── image_3.jpg
-|   |   |   ├── ...
-|   |   ├── ...
-|   ├── archive2.zip/
-|   |   ├── image_101.jpg
-|   |   ├── image_102.jpg
-|   |   ├── ...
-|   ...
+└── foo/
+    ├── archive1.zip/
+    |   ├── image_1.jpg
+    |   ├── image_2.png
+    |   ├── subdir/
+    |   |   ├── image_3.jpg
+    |   |   └── ...
+    |   └── ...
+    ├── archive2.zip/
+    |   ├── image_101.jpg
+    |   ├── image_102.jpg
+    |   └── ...
+    ...
 ```
 
 Images in a archives should have supported extension,
@@ -84,3 +82,9 @@ Extra options for export to image_zip format:
   `ZIP_STORED`, `ZIP_DEFLATED`, `ZIP_BZIP2`, `ZIP_LZMA` (default: `ZIP_STORED`).
   Follow [zip documentation](https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT)
   for more information.
+
+
+## Examples
+
+Examples of using this format from the code can be found in
+[the format tests](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/test_image_zip_format.py)

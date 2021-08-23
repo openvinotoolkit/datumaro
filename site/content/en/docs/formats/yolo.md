@@ -140,9 +140,9 @@ Extra options for export to YOLO format:
 - `--image-ext <IMAGE_EXT>` allow to specify image extension
 for exporting dataset (default: use original or `.jpg`, if none).
 
-## Particular use cases
+## Examples
 
-### How to prepare PASCAL VOC dataset for exporting to YOLO format dataset?
+### Example 1. Prepare PASCAL VOC dataset for exporting to YOLO format dataset
 
 ```bash
 datum import -o project -f voc -i ./VOC2012
@@ -152,7 +152,7 @@ datum transform -p trainval_voc -o trainvalid_voc \
 datum export -p trainvalid_voc -f yolo -o ./yolo_dataset -- --save-images
 ```
 
-### How to remove some class from YOLO dataset?
+### Example 2. Remove some class from YOLO dataset
 Delete all items, which contain `cat` objects and remove
 `cat` from list of classes:
 ```bash
@@ -162,7 +162,7 @@ datum transform -p filtered -o without_cat -t remap_labels -- -l cat:
 datum export -p without_cat -f yolo -o ./yolo_without_cats
 ```
 
-### How to create custom dataset in YOLO format?
+### Example 3. Create custom dataset in YOLO format
 ```python
 import numpy as np
 from datumaro.components.dataset import Dataset
@@ -187,7 +187,7 @@ dataset = Dataset.from_iterable([
 dataset.export('../yolo_dataset', format='yolo', save_images=True)
 ```
 
-### How to get information about objects on each images?
+### Example 4. Get information about objects on each image
 
 If you only want information about label names for each
 images, then you can get it from code:

@@ -11,7 +11,7 @@ Point Cloud data format:
 - [specification](https://docs.supervise.ly/data-organization/00_ann_format_navi).
 - [example](https://drive.google.com/file/d/1BtZyffWtWNR-mk_PHNPMnGgSlAkkQpBl/view).
 
-This dataset format supports the following types of annotations:
+Supported annotation types:
 - `cuboid_3d`
 
 Supported annotation attributes:
@@ -133,7 +133,7 @@ datum add path -p project -f sly_pointcloud ../sly_dataset/
 datum stats -p project
 ```
 
-### Example 2. Convert Supervisely Pointclouds to KITTI Raw
+### Example 2. Convert Supervisely Point Clouds to KITTI Raw
 
 ``` bash
 datum convert -if sly_pointcloud -i ../sly_pcd/ \
@@ -176,5 +176,5 @@ dataset.export('my_dataset/', format='sly_pointcloud', save_images=True,
     allow_undeclared_attrs=True)
 ```
 
-More examples of working with Supervisely Point Cloud dataset from code can
-be found in [tests](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/test_sly_pointcloud_format.py)
+Examples of using this format from the code can be found in
+[the format tests](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/test_sly_pointcloud_format.py)
