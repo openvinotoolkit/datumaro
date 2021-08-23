@@ -34,6 +34,7 @@ class Requirements:
     DATUM_BUG_314 = "Unsuccessful remap_labels"
     DATUM_BUG_402 = "Troubles running 'remap_labels' on ProjectDataset"
     DATUM_BUG_404 = "custom importer/extractor not loading"
+    DATUM_BUG_425 = 'Bug: concatenation for the different types in COCO format'
 
 
 class SkipMessages:
