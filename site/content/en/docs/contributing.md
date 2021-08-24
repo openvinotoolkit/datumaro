@@ -1,18 +1,20 @@
-## Table of Contents
+---
+title: 'Contribution Guide'
+linkTitle: 'Contributing'
+description: ''
+weight: 50
+---
 
-- [Design document](docs/design.md)
-- [Developer guide](docs/developer_guide.md)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Code style](#code-style)
-- [Development environment](#environment)
-- [Testing](#testing)
+## Related sections:
+
+- [Design document](/docs/design/)
+- [Developer manual](/docs/developer_manual/)
 
 ## Installation
 
 ### Prerequisites
 
-- Python (3.5+)
+- Python (3.6+)
 
 ``` bash
 git clone https://github.com/openvinotoolkit/datumaro
@@ -176,7 +178,7 @@ import pytest
 
 #### Requirements <a id="Requirements"></a>
 
-Requirements and other links need to be added to [`tests/requirements.py`](tests/requirements.py):
+Requirements and other links need to be added to [`tests/requirements.py`](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/requirements.py):
 
 ```python
 DATUM_244 = "Add Snyk integration"
@@ -194,7 +196,7 @@ DATUM_BUG_219 = "Return format is not uniform"
 
 ##### Available annotations for tests and requirements
 
-Markings are defined in [`tests/conftest.py`](tests/conftest.py).
+Markings are defined in [`tests/conftest.py`](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/conftest.py).
 
 **A list of requirements and bugs**
 ```python
@@ -238,7 +240,7 @@ Parameters are used for running the same test with different parameters e.g.
 
 ### Test documentation <a id="TestDoc"></a>
 
-Tests are documented with docstrings. Test descriptions must contain
+Tests are documented with docs strings. Test descriptions must contain
 the following: sections: `Description`, `Expected results` and `Steps`.
 
 ```python
