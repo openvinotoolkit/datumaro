@@ -4,19 +4,16 @@ import os.path as osp
 
 import numpy as np
 
-from datumaro.cli.__main__ import main
 from datumaro.components.dataset import Dataset, DatasetItem
 from datumaro.components.extractor import Bbox, Label, Mask
 from datumaro.util.test_utils import TestDir, compare_datasets
+from datumaro.util.test_utils import run_datum as run
 import datumaro.plugins.voc_format.format as VOC
 
 from ..requirements import Requirements, mark_requirement
 
 DUMMY_DATASETS_DIR = osp.join(__file__[:__file__.rfind(osp.join('tests', ''))],
     'tests', 'assets', 'voc_dataset')
-
-def run(test, *args, expected_code=0):
-    test.assertEqual(expected_code, main(args), str(args))
 
 class VocIntegrationScenarios(TestCase):
     def _test_can_save_and_load(self, project_path, source_path, expected_dataset,
@@ -213,15 +210,16 @@ class VocIntegrationScenarios(TestCase):
         3. Verify that resulting dataset is equal to the expected dataset.
         """
 
+        labels = sorted([l.name for l in VOC.VocLabel if l.value % 2 == 1])
+
         expected_dataset = Dataset.from_iterable([
-            DatasetItem(id='2007_000001', subset='default',
-                image=np.ones((10, 20, 3)),
-                annotations=[Label(i) for i in range(11)]
-            ),
-            DatasetItem(id='2007_000002', subset='default',
-               image=np.ones((10, 20, 3))
-            )
-        ], categories=sorted([l.name for l in VOC.VocLabel if l.value % 2 == 1]))
+            DatasetItem(id='/'.join([label, '2007_000001']),
+                subset='default', annotations=[Label(i)])
+                for i, label in enumerate(labels)
+            ] + [DatasetItem(id='no_label/2007_000002', subset='default',
+                   image=np.ones((10, 20, 3)))
+            ], categories=labels
+        )
 
         voc_dir = osp.join(DUMMY_DATASETS_DIR, 'voc_dataset1')
         with TestDir() as test_dir:

@@ -1,4 +1,5 @@
 from unittest import TestCase
+import os
 import os.path as osp
 
 import numpy as np
@@ -9,7 +10,7 @@ from datumaro.plugins.widerface_format import (
     WiderFaceConverter, WiderFaceImporter,
 )
 from datumaro.util.image import Image
-from datumaro.util.test_utils import TestDir, compare_datasets
+from datumaro.util.test_utils import IGNORE_ALL, TestDir, compare_datasets
 
 from .requirements import Requirements, mark_requirement
 
@@ -151,6 +152,35 @@ class WiderFaceFormatTest(TestCase):
             parsed_dataset = Dataset.import_from(test_dir, 'wider_face')
 
             compare_datasets(self, dataset, parsed_dataset, require_images=True)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_inplace_save_writes_only_updated_data(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(1, subset='train', image=np.ones((2, 4, 3))),
+            DatasetItem(2, subset='train', image=np.ones((3, 2, 3))),
+        ], categories=[])
+
+        with TestDir() as path:
+            dataset = Dataset.from_iterable([
+                DatasetItem(1, subset='train', image=np.ones((2, 4, 3))),
+                DatasetItem(2, subset='train',
+                    image=Image(path='2.jpg', size=(3, 2))),
+                DatasetItem(3, subset='valid', image=np.ones((2, 2, 3))),
+            ], categories=[])
+            dataset.export(path, 'wider_face', save_images=True)
+
+            dataset.put(DatasetItem(2, subset='train', image=np.ones((3, 2, 3))))
+            dataset.remove(3, 'valid')
+            dataset.save(save_images=True)
+
+            self.assertEqual({'1.jpg', '2.jpg'},
+                set(os.listdir(osp.join(path,
+                    'WIDER_train', 'images', 'no_label'))))
+            self.assertEqual({'wider_face_train_bbx_gt.txt'},
+                set(os.listdir(osp.join(path, 'wider_face_split'))))
+            compare_datasets(self, expected,
+                Dataset.import_from(path, 'wider_face'),
+                require_images=True, ignored_attrs=IGNORE_ALL)
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'widerface_dataset')
 

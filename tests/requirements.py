@@ -24,12 +24,17 @@ class Requirements:
     DATUM_274 = "Support the Open Images dataset"
     DATUM_280 = "Support KITTI dataset formats"
     DATUM_283 = "Create cli tests for testing convert command for VOC format"
+    DATUM_399 = "Implement import for ADE20K dataset"
 
     # GitHub issues (bugs)
     # https://github.com/openvinotoolkit/datumaro/issues
     DATUM_BUG_219 = "Return format is not uniform"
     DATUM_BUG_257 = "Dataset.filter doesn't count removed items"
     DATUM_BUG_259 = "Dataset.filter fails on merged datasets"
+    DATUM_BUG_314 = "Unsuccessful remap_labels"
+    DATUM_BUG_402 = "Troubles running 'remap_labels' on ProjectDataset"
+    DATUM_BUG_404 = "custom importer/extractor not loading"
+    DATUM_BUG_425 = "Bug: concatenation for the different types in COCO format"
 
 
 class SkipMessages:

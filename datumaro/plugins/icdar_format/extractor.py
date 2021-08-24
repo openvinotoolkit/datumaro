@@ -1,8 +1,9 @@
-# Copyright (C) 2020 Intel Corporation
+# Copyright (C) 2020-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 from glob import iglob
+import logging as log
 import os.path as osp
 
 import numpy as np
@@ -59,16 +60,13 @@ class _IcdarExtractor(SourceExtractor):
                 objects = line.split(', ')
                 if len(objects) == 2:
                     image = objects[0]
-                    objects = objects[1].split('\"')
-                    if 1 < len(objects):
-                        if len(objects) % 2:
-                            captions = [objects[2 * i + 1]
-                                for i in range(int(len(objects) / 2))]
+                    captions = []
+                    for caption in objects[1:]:
+                        if caption[0] != '\"' or caption[-1] != '\"':
+                            log.warning("Line %s: unexpected number "
+                                "of quotes" % line)
                         else:
-                            raise Exception("Line %s: unexpected number "
-                                "of quotes in filename" % line)
-                    else:
-                        captions = objects[0].split()
+                            captions.append(caption.replace('\\', '')[1:-1])
                 else:
                     image = objects[0][:-1]
                     captions = []
@@ -91,8 +89,10 @@ class _IcdarExtractor(SourceExtractor):
 
         image_dir = osp.join(self._path, IcdarPath.IMAGES_DIR)
         if osp.isdir(image_dir):
-            images = { osp.splitext(osp.relpath(p, image_dir))[0]: p
-                for p in find_images(image_dir, recursive=True) }
+            images = {
+                osp.splitext(osp.relpath(p, image_dir))[0].replace('\\', '/'): p
+                for p in find_images(image_dir, recursive=True)
+            }
         else:
             images = {}
 
@@ -157,8 +157,10 @@ class _IcdarExtractor(SourceExtractor):
 
         image_dir = osp.join(self._path, IcdarPath.IMAGES_DIR)
         if osp.isdir(image_dir):
-            images = { osp.splitext(osp.relpath(p, image_dir))[0]: p
-                for p in find_images(image_dir, recursive=True) }
+            images = {
+                osp.splitext(osp.relpath(p, image_dir))[0].replace('\\', '/'): p
+                for p in find_images(image_dir, recursive=True)
+            }
         else:
             images = {}
 

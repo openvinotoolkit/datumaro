@@ -5,11 +5,11 @@ import os.path as osp
 
 import numpy as np
 
+from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import (
     AnnotationType, Bbox, DatasetItem, Label, LabelCategories, Points, Polygon,
     PolyLine,
 )
-from datumaro.components.project import Dataset
 from datumaro.plugins.cvat_format.converter import CvatConverter
 from datumaro.plugins.cvat_format.extractor import CvatImporter
 from datumaro.util.image import Image
@@ -43,7 +43,7 @@ class CvatImporterTest(TestCase):
                     Bbox(0, 2, 4, 2, label=0, z_order=1,
                         attributes={
                             'occluded': True,
-                            'a1': True, 'a2': 'v3'
+                            'a1': True, 'a2': 'v3', 'a3': '0003', 'a4': 2.4,
                         }),
                     PolyLine([1, 2, 3, 4, 5, 6, 7, 8],
                         attributes={'occluded': False}),
@@ -58,7 +58,7 @@ class CvatImporterTest(TestCase):
                 ], attributes={'frame': 1}),
         ], categories={
             AnnotationType.label: LabelCategories.from_iterable([
-                ['label1', '', {'a1', 'a2'}],
+                ['label1', '', {'a1', 'a2', 'a3', 'a4'}],
                 ['label2'],
             ])
         })
@@ -211,9 +211,9 @@ class CvatConverterTest(TestCase):
                     Points([1, 1, 3, 2, 2, 3],
                         label=2,
                         attributes={ 'occluded': False, 'empty': '',
-                            'a1': 'x', 'a2': 42 }),
+                            'a1': 'x', 'a2': '42' }),
                     Label(1),
-                    Label(2, attributes={ 'a1': 'y', 'a2': 44 }),
+                    Label(2, attributes={ 'a1': 'y', 'a2': '44' }),
                 ], attributes={'frame': 0}
             ),
             DatasetItem(id=1, subset='s1',
@@ -258,9 +258,9 @@ class CvatConverterTest(TestCase):
         target_label_cat.add('a', attributes={'x'})
         target_dataset = Dataset.from_iterable([
             DatasetItem(id=0, annotations=[
-                Label(0, attributes={ 'x': 4, 'y': 2 }),
+                Label(0, attributes={ 'x': '4', 'y': '2' }),
                 Bbox(1, 2, 3, 4, label=0,
-                    attributes={ 'x': 1, 'y': 1, 'occluded': False }),
+                    attributes={ 'x': '1', 'y': '1', 'occluded': False }),
             ], attributes={'frame': 0}),
         ], categories={ AnnotationType.label: target_label_cat })
 
@@ -373,6 +373,13 @@ class CvatConverterTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_inplace_save_writes_only_updated_data(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(1, subset='a'),
+            DatasetItem(2, subset='a', image=np.ones((3, 2, 3))),
+
+            DatasetItem(2, subset='b'),
+        ], categories=[])
+
         with TestDir() as path:
             # generate initial dataset
             dataset = Dataset.from_iterable([
@@ -381,18 +388,14 @@ class CvatConverterTest(TestCase):
                 DatasetItem(3, subset='c', image=np.ones((2, 2, 3))),
             ])
             dataset.export(path, 'cvat', save_images=True)
-            os.unlink(osp.join(path, 'a.xml'))
-            os.unlink(osp.join(path, 'b.xml'))
-            os.unlink(osp.join(path, 'c.xml'))
-            self.assertFalse(osp.isfile(osp.join(path, 'images', '2.jpg')))
-            self.assertTrue(osp.isfile(osp.join(path, 'images', '3.jpg')))
 
             dataset.put(DatasetItem(2, subset='a', image=np.ones((3, 2, 3))))
             dataset.remove(3, 'c')
             dataset.save(save_images=True)
 
-            self.assertTrue(osp.isfile(osp.join(path, 'a.xml')))
-            self.assertFalse(osp.isfile(osp.join(path, 'b.xml')))
-            self.assertTrue(osp.isfile(osp.join(path, 'c.xml')))
-            self.assertTrue(osp.isfile(osp.join(path, 'images', '2.jpg')))
-            self.assertFalse(osp.isfile(osp.join(path, 'images', '3.jpg')))
+            self.assertEqual({'a.xml', 'b.xml', 'images'},
+                set(os.listdir(path)))
+            self.assertEqual({'2.jpg'},
+                set(os.listdir(osp.join(path, 'images'))))
+            compare_datasets(self, expected, Dataset.import_from(path, 'cvat'),
+                require_images=True, ignored_attrs={'frame'})

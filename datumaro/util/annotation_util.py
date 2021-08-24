@@ -1,4 +1,4 @@
-# Copyright (C) 2020 Intel Corporation
+# Copyright (C) 2020-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -58,7 +58,7 @@ def nms(segments, iou_thresh=0.5):
     """
 
     indices = np.argsort([b.attributes['score'] for b in segments])
-    ious = np.array([[iou(a, b) for b in segments] for a in segments])
+    ious = np.array([[segment_iou(a, b) for b in segments] for a in segments])
 
     predictions = []
     while len(indices) != 0:

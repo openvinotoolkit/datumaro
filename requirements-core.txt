@@ -1,4 +1,4 @@
-attrs>=19.3.0
+attrs>=21.1.0
 defusedxml>=0.6.0
 GitPython>=3.0.8
 lxml>=4.4.1
@@ -17,7 +17,7 @@ pycocotools>=2.0.0,!=2.0.2; platform_system != "Windows"
 
 pycocotools-windows; platform_system == "Windows"
 PyYAML>=5.3.1
-scikit-image>=0.15.0
+scipy
 
 # 2.3 has an unlisted dependency on PyTorch, which we don't need
 tensorboardX>=1.8,!=2.3

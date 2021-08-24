@@ -992,29 +992,68 @@ class CocoConverterTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_inplace_save_writes_only_updated_data(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(1, subset='a'),
+            DatasetItem(2, subset='a', image=np.ones((3, 2, 3))),
+
+            DatasetItem(2, subset='b'),
+        ])
+
         with TestDir() as path:
-            # generate initial dataset
             dataset = Dataset.from_iterable([
                 DatasetItem(1, subset='a'),
                 DatasetItem(2, subset='b'),
                 DatasetItem(3, subset='c', image=np.ones((2, 2, 3))),
             ])
             dataset.export(path, 'coco', save_images=True)
-            os.unlink(osp.join(path, 'annotations', 'image_info_a.json'))
-            os.unlink(osp.join(path, 'annotations', 'image_info_b.json'))
-            os.unlink(osp.join(path, 'annotations', 'image_info_c.json'))
-            self.assertFalse(osp.isfile(osp.join(path, 'images', 'b', '2.jpg')))
-            self.assertTrue(osp.isfile(osp.join(path, 'images', 'c', '3.jpg')))
 
             dataset.put(DatasetItem(2, subset='a', image=np.ones((3, 2, 3))))
             dataset.remove(3, 'c')
             dataset.save(save_images=True)
 
-            self.assertTrue(osp.isfile(osp.join(
-                path, 'annotations', 'image_info_a.json')))
-            self.assertFalse(osp.isfile(osp.join(
-                path, 'annotations', 'image_info_b.json')))
-            self.assertFalse(osp.isfile(osp.join(
-                path, 'annotations', 'image_info_c.json')))
+            self.assertEqual({'image_info_a.json', 'image_info_b.json'},
+                set(os.listdir(osp.join(path, 'annotations'))))
             self.assertTrue(osp.isfile(osp.join(path, 'images', 'a', '2.jpg')))
             self.assertFalse(osp.isfile(osp.join(path, 'images', 'c', '3.jpg')))
+            compare_datasets(self, expected, Dataset.import_from(path, 'coco'),
+                require_images=True, ignored_attrs={'id'})
+
+    @mark_requirement(Requirements. DATUM_BUG_425)
+    def test_can_save_and_load_grouped_masks_and_polygons(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, image=np.zeros((5, 5, 3)),
+                annotations=[
+                    Mask(np.array([
+                            [0, 0, 0, 0, 0],
+                            [0, 1, 1, 1, 0],
+                            [0, 1, 1, 1, 0],
+                            [0, 1, 1, 1, 0],
+                            [0, 0, 0, 0, 0]],
+                        ),
+                        label=0, id=0, z_order=0, group=1),
+                    Polygon([1, 1, 1, 3, 3, 3, 3, 1],
+                        label=0, id=1, z_order=0, group=1),
+                ]
+            ),
+        ], categories=['label_1'])
+
+        target_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, image=np.zeros((5, 5, 3)),
+                annotations=[
+                    Mask(np.array([
+                            [0, 0, 0, 0, 0],
+                            [0, 1, 1, 1, 0],
+                            [0, 1, 1, 1, 0],
+                            [0, 1, 1, 1, 0],
+                            [0, 0, 0, 0, 0]],
+                        ),
+                        attributes={ 'is_crowd': True },
+                        label=0, id=0, group=1),
+                ], attributes={'id': 1}
+            ),
+        ], categories=['label_1'])
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(source_dataset,
+                 partial(CocoInstancesConverter.convert),
+                 test_dir, target_dataset=target_dataset)

@@ -1,4 +1,4 @@
-# Copyright (C) 2020 Intel Corporation
+# Copyright (C) 2020-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -97,8 +97,10 @@ class VggFace2Extractor(Extractor):
 
         image_dir = osp.join(self._dataset_dir, subset)
         if osp.isdir(image_dir):
-            images = { osp.splitext(osp.relpath(p, image_dir))[0]: p
-                for p in find_images(image_dir, recursive=True) }
+            images = {
+                osp.splitext(osp.relpath(p, image_dir))[0].replace('\\', '/'): p
+                for p in find_images(image_dir, recursive=True)
+            }
         else:
             images = {}
 

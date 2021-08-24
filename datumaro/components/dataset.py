@@ -5,7 +5,9 @@
 from contextlib import contextmanager
 from copy import copy
 from enum import Enum, auto
-from typing import Any, Dict, Iterable, Iterator, List, Optional, Tuple, Union
+from typing import (
+    Any, Dict, Iterable, Iterator, List, Optional, Tuple, Type, Union,
+)
 import inspect
 import logging as log
 import os
@@ -17,13 +19,14 @@ from datumaro.components.dataset_filter import (
 )
 from datumaro.components.environment import Environment
 from datumaro.components.errors import (
-    CategoriesRedefinedError, DatumaroError, RepeatedItemError,
+    CategoriesRedefinedError, MultipleFormatsMatchError, NoMatchingFormatsError,
+    RepeatedItemError, UnknownFormatError,
 )
 from datumaro.components.extractor import (
     DEFAULT_SUBSET_NAME, AnnotationType, CategoriesInfo, DatasetItem, Extractor,
     IExtractor, ItemTransform, LabelCategories, Transform,
 )
-from datumaro.util import error_rollback, is_member_redefined
+from datumaro.util import error_rollback, is_method_redefined, on_error_do
 from datumaro.util.log_utils import logging_disabled
 
 DEFAULT_FORMAT = 'datumaro'
@@ -46,7 +49,7 @@ class DatasetItemStorage:
         # Subsets might contain removed items, so this may differ from __len__
         return all(len(s) == 0 for s in self.data.values())
 
-    def put(self, item) -> bool:
+    def put(self, item: DatasetItem) -> bool:
         subset = self.data.setdefault(item.subset, {})
         is_new = subset.get(item.id) is None
         self._traversal_order[(item.id, item.subset)] = item
@@ -172,6 +175,16 @@ class ItemStatus(Enum):
     removed = auto()
 
 class DatasetPatch:
+    class DatasetPatchWrapper(DatasetItemStorageDatasetView):
+        # The purpose of this class is to indicate that the input dataset is
+        # a patch and autofill patch info in Converter
+        def __init__(self, patch: 'DatasetPatch', parent: IDataset):
+            super().__init__(patch.data, parent.categories())
+            self.patch = patch
+
+        def subsets(self):
+            return { s: self.get_subset(s) for s in self.patch.updated_subsets }
+
     def __init__(self, data: DatasetItemStorage,
             categories: CategoriesInfo,
             updated_items: Dict[Tuple[str, str], ItemStatus],
@@ -184,14 +197,15 @@ class DatasetPatch:
     @property
     def updated_subsets(self) -> Dict[str, ItemStatus]:
         if self._updated_subsets is None:
-            self._updated_subsets = {}
-            for _, subset in self.updated_items:
-                self._updated_subsets.setdefault(subset, ItemStatus.modified)
+            self._updated_subsets = {s: ItemStatus.modified
+                for s in self.data.subsets()}
         return self._updated_subsets
 
-    def as_dataset(self, parent: IDataset) -> IDataset:
-        return DatasetItemStorageDatasetView(self.data, parent.categories())
+    def __contains__(self, x: Union[DatasetItem, Tuple[str, str]]) -> bool:
+        return x in self.data
 
+    def as_dataset(self, parent: IDataset) -> IDataset:
+        return __class__.DatasetPatchWrapper(self, parent)
 
 class DatasetSubset(IDataset): # non-owning view
     def __init__(self, parent: 'Dataset', name: str):
@@ -456,7 +470,7 @@ class DatasetStorage(IDataset):
             return self._categories
         elif self._categories is not None:
             return self._categories
-        elif any(is_member_redefined('categories', Transform, t[0])
+        elif any(is_method_redefined('categories', Transform, t[0])
                 for t in self._transforms):
             self.init_cache()
             return self._categories
@@ -518,7 +532,7 @@ class DatasetStorage(IDataset):
         # and other cases
         return self._merged().subsets()
 
-    def transform(self, method: Transform, *args, **kwargs):
+    def transform(self, method: Type[Transform], *args, **kwargs):
         # Flush accumulated changes
         if not self._storage.is_empty():
             source = self._merged()
@@ -531,7 +545,7 @@ class DatasetStorage(IDataset):
             self._source = source
         self._transforms.append((method, args, kwargs))
 
-        if is_member_redefined('categories', Transform, method):
+        if is_method_redefined('categories', Transform, method):
             self._categories = None
         self._length = None
 
@@ -544,12 +558,17 @@ class DatasetStorage(IDataset):
         if self._transforms:
             self.init_cache()
 
-        # The current patch (storage) can miss some removals done
-        # so we add them manually
-        patch = copy(self._storage)
+        # The current patch (storage)
+        # - can miss some removals done so we add them manually
+        # - can include items than not in the patch
+        #     (e.g. an item could get there after source was cached)
+        # So we reconstruct the patch instead of copying storage.
+        patch = DatasetItemStorage()
         for (item_id, subset), status in self._updated_items.items():
             if status is ItemStatus.removed:
                 patch.remove(item_id, subset)
+            else:
+                patch.put(self._storage.get(item_id, subset))
 
         return DatasetPatch(patch, self._categories,
             self._updated_items)
@@ -616,6 +635,7 @@ class Dataset(IDataset):
 
         self._format = DEFAULT_FORMAT
         self._source_path = None
+        self._options = {}
 
     def define_categories(self, categories: Dict):
         self._data.define_categories(categories)
@@ -674,7 +694,7 @@ class Dataset(IDataset):
             self.put(item)
         return self
 
-    def transform(self, method: Union[str, Transform],
+    def transform(self, method: Union[str, Type[Transform]],
             *args, **kwargs) -> 'Dataset':
         """
         Applies some function to dataset items.
@@ -703,7 +723,8 @@ class Dataset(IDataset):
         elif isinstance(model, ModelTransform):
             return self.transform(model, batch_size=batch_size)
         else:
-            raise TypeError('Unexpected model argument type: %s' % type(model))
+            raise TypeError("Unexpected 'model' argument type: %s" % \
+                type(model))
 
     def select(self, pred):
         class _DatasetFilter(ItemTransform):
@@ -723,11 +744,14 @@ class Dataset(IDataset):
         return self._format
 
     @property
+    def options(self) -> Dict[str, Any]:
+        return self._options
+
+    @property
     def is_modified(self) -> bool:
         return self._data.has_updated_items()
 
-    @property
-    def patch(self) -> DatasetPatch:
+    def get_patch(self) -> DatasetPatch:
         return self._data.get_patch()
 
     @property
@@ -746,16 +770,26 @@ class Dataset(IDataset):
 
     @property
     def is_bound(self) -> bool:
-        return self._source_path and self._format
+        return bool(self._source_path) and bool(self._format)
 
-    def bind(self, path: str, format: str = None):
+    def bind(self, path: str, format: Optional[str] = None, *,
+            options: Optional[Dict[str, Any]] = None):
+        """
+        Binds the dataset to a speific directory.
+        Allows to set default saving parameters.
+
+        The following saves will be done to this directory by default and will
+        use the saved parameters.
+        """
+
         self._source_path = path
         self._format = format or DEFAULT_FORMAT
+        self._options = options or {}
 
     def flush_changes(self):
         self._data.flush_changes()
 
-    @error_rollback('on_error', implicit=True)
+    @error_rollback
     def export(self, save_dir: str, format, **kwargs):
         inplace = (save_dir == self._source_path and format == self._format)
 
@@ -766,21 +800,24 @@ class Dataset(IDataset):
 
         save_dir = osp.abspath(save_dir)
         if not osp.exists(save_dir):
-            on_error.do(shutil.rmtree, save_dir, ignore_errors=True)
+            on_error_do(shutil.rmtree, save_dir, ignore_errors=True)
             inplace = False
         os.makedirs(save_dir, exist_ok=True)
 
         if not inplace:
             converter.convert(self, save_dir=save_dir, **kwargs)
             if not self.is_bound:
-                self.bind(save_dir, format)
+                self.bind(save_dir, format, options=copy(kwargs))
                 self.flush_changes()
         else:
-            converter.patch(self, self.patch, save_dir=save_dir, **kwargs)
+            converter.patch(self, self.get_patch(), save_dir=save_dir, **kwargs)
 
     def save(self, save_dir: str = None, **kwargs):
+        options = dict(self._options)
+        options.update(kwargs)
+
         self.export(save_dir or self._source_path,
-            format=self._format, **kwargs)
+            format=self._format, **options)
 
     @classmethod
     def load(cls, path: str, **kwargs) -> 'Dataset':
@@ -808,9 +845,7 @@ class Dataset(IDataset):
                 'url': path, 'format': format, 'options': kwargs
             }]
         else:
-            raise DatumaroError("Unknown source format '%s'. To make it "
-                "available, add the corresponding Extractor implementation "
-                "to the environment" % format)
+            raise UnknownFormatError(format)
 
         extractors = []
         for src_conf in detected_sources:
@@ -832,14 +867,9 @@ class Dataset(IDataset):
 
         matches = env.detect_dataset(path)
         if not matches:
-            raise DatumaroError(
-                "Failed to detect dataset format automatically: "
-                "no matching formats found")
+            raise NoMatchingFormatsError()
         if 1 < len(matches):
-            raise DatumaroError(
-                "Failed to detect dataset format automatically:"
-                " data matches more than one format: %s" % \
-                ', '.join(matches))
+            raise MultipleFormatsMatchError(matches)
         return matches[0]
 
 @contextmanager

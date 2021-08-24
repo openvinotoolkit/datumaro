@@ -1,0 +1,2 @@
+MaskPath,ImageID,LabelName,BoxID,BoxXMin,BoxXMax,BoxYMin,BoxYMax,PredictedIoU,Clicks
+b_m0_01234567.png,b,/m/0,01234567,0.2,1,0.3,0.5,0.5,

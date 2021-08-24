@@ -5,8 +5,21 @@
 from attr import attrib, attrs
 
 
+class ImmutableObjectError(Exception):
+    def __str__(self):
+        return "Cannot set value of immutable object"
+
 class DatumaroError(Exception):
     pass
+
+@attrs
+class UnknownFormatError(DatumaroError):
+    format = attrib()
+
+    def __str__(self):
+        return f"Unknown source format '{self.format}'. To make it " \
+            "available, add the corresponding Extractor implementation " \
+            "to the environment"
 
 @attrs
 class DatasetError(DatumaroError):
@@ -15,27 +28,43 @@ class DatasetError(DatumaroError):
 @attrs
 class RepeatedItemError(DatasetError):
     def __str__(self):
-        return "Item %s is repeated in the source sequence." % (self.item_id, )
+        return f"Item {self.item_id} is repeated in the source sequence."
 
 class CategoriesRedefinedError(DatasetError):
     def __str__(self):
         return "Categories can only be set once for a dataset"
 
-@attrs
-class MismatchingImageInfoError(DatasetError):
-    a = attrib()
-    b = attrib()
 
-    def __str__(self):
-        return "Item %s: mismatching image size info: %s vs %s" % \
-            (self.item_id, self.a, self.b)
-
-@attrs
-class QualityError(DatasetError):
+class DatasetImportError(DatumaroError):
     pass
 
 @attrs
-class AnnotationsTooCloseError(QualityError):
+class DatasetNotFoundError(DatasetImportError):
+    path = attrib()
+
+    def __str__(self):
+        return f"Failed to find dataset at '{self.path}'"
+
+@attrs
+class MultipleFormatsMatchError(DatasetImportError):
+    formats = attrib()
+
+    def __str__(self):
+        return "Failed to detect dataset format automatically:" \
+            " data matches more than one format: %s" % \
+            ', '.join(self.formats)
+
+class NoMatchingFormatsError(DatasetImportError):
+    def __str__(self):
+        return "Failed to detect dataset format automatically: " \
+            "no matching formats found"
+
+@attrs
+class DatasetQualityError(DatasetError):
+    pass
+
+@attrs
+class AnnotationsTooCloseError(DatasetQualityError):
     a = attrib()
     b = attrib()
     distance = attrib()
@@ -45,7 +74,7 @@ class AnnotationsTooCloseError(QualityError):
             (self.item_id, self.a, self.b, self.distance)
 
 @attrs
-class WrongGroupError(QualityError):
+class WrongGroupError(DatasetQualityError):
     found = attrib(converter=set)
     expected = attrib(converter=set)
     group = attrib(converter=list)
@@ -56,11 +85,24 @@ class WrongGroupError(QualityError):
             (self.item_id, self.found, self.expected, self.group)
 
 @attrs
-class MergeError(DatasetError):
-    sources = attrib(converter=set)
+class DatasetMergeError(DatasetError):
+    sources = attrib(converter=set, factory=set, kw_only=True)
 
 @attrs
-class NoMatchingAnnError(MergeError):
+class MismatchingImageInfoError(DatasetMergeError):
+    a = attrib()
+    b = attrib()
+
+    def __str__(self):
+        return "Item %s: mismatching image size info: %s vs %s" % \
+            (self.item_id, self.a, self.b)
+
+@attrs
+class ConflictingCategoriesError(DatasetMergeError):
+    pass
+
+@attrs
+class NoMatchingAnnError(DatasetMergeError):
     ann = attrib()
 
     def __str__(self):
@@ -69,13 +111,13 @@ class NoMatchingAnnError(MergeError):
             (self.item_id, self.sources, self.ann)
 
 @attrs
-class NoMatchingItemError(MergeError):
+class NoMatchingItemError(DatasetMergeError):
     def __str__(self):
         return "Item %s: can't find matching item in sources %s" % \
             (self.item_id, self.sources)
 
 @attrs
-class FailedLabelVotingError(MergeError):
+class FailedLabelVotingError(DatasetMergeError):
     votes = attrib()
     ann = attrib(default=None)
 
@@ -85,7 +127,7 @@ class FailedLabelVotingError(MergeError):
             self.votes, self.sources)
 
 @attrs
-class FailedAttrVotingError(MergeError):
+class FailedAttrVotingError(DatasetMergeError):
     attr = attrib()
     votes = attrib()
     ann = attrib()
@@ -127,6 +169,7 @@ class MissingLabelCategories(DatasetValidationError):
 @attrs
 class MissingAnnotation(DatasetItemValidationError):
     ann_type = attrib()
+
     def __str__(self):
         return f"Item needs '{self.ann_type}' annotation(s), " \
             "but not found."

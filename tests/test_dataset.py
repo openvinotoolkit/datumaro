@@ -4,6 +4,7 @@ import os.path as osp
 
 import numpy as np
 
+from datumaro.components.converter import Converter
 from datumaro.components.dataset import (
     DEFAULT_FORMAT, Dataset, ItemStatus, eager_mode,
 )
@@ -11,7 +12,10 @@ from datumaro.components.dataset_filter import (
     DatasetItemEncoder, XPathAnnotationsFilter, XPathDatasetFilter,
 )
 from datumaro.components.environment import Environment
-from datumaro.components.errors import DatumaroError, RepeatedItemError
+from datumaro.components.errors import (
+    ConflictingCategoriesError, DatasetNotFoundError, MultipleFormatsMatchError,
+    NoMatchingFormatsError, RepeatedItemError, UnknownFormatError,
+)
 from datumaro.components.extractor import (
     DEFAULT_SUBSET_NAME, AnnotationType, Bbox, Caption, DatasetItem, Extractor,
     ItemTransform, Label, LabelCategories, Mask, Points, Polygon, PolyLine,
@@ -171,6 +175,73 @@ class DatasetTest(TestCase):
             compare_datasets(self, source_dataset, imported_dataset)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_report_no_dataset_found(self):
+        env = Environment()
+        env.importers.items = {
+            DEFAULT_FORMAT: env.importers[DEFAULT_FORMAT],
+        }
+        env.extractors.items = {
+            DEFAULT_FORMAT: env.extractors[DEFAULT_FORMAT],
+        }
+
+        with TestDir() as test_dir, self.assertRaises(DatasetNotFoundError):
+            Dataset.import_from(test_dir, DEFAULT_FORMAT, env=env)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_report_multiple_formats_match(self):
+        env = Environment()
+        env.importers.items = {
+            'a': env.importers[DEFAULT_FORMAT],
+            'b': env.importers[DEFAULT_FORMAT],
+        }
+        env.extractors.items = {
+            'a': env.extractors[DEFAULT_FORMAT],
+            'b': env.extractors[DEFAULT_FORMAT],
+        }
+
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[ Label(2) ]),
+        ], categories=['a', 'b', 'c'])
+
+        with TestDir() as test_dir:
+            source_dataset.save(test_dir)
+
+            with self.assertRaises(MultipleFormatsMatchError):
+                Dataset.import_from(test_dir, env=env)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_report_no_matching_formats(self):
+        env = Environment()
+        env.importers.items = {}
+        env.extractors.items = {}
+
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[ Label(2) ]),
+        ], categories=['a', 'b', 'c'])
+
+        with TestDir() as test_dir:
+            source_dataset.save(test_dir)
+
+            with self.assertRaises(NoMatchingFormatsError):
+                Dataset.import_from(test_dir, env=env)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_report_unknown_format_requested(self):
+        env = Environment()
+        env.importers.items = {}
+        env.extractors.items = {}
+
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[ Label(2) ]),
+        ], categories=['a', 'b', 'c'])
+
+        with TestDir() as test_dir:
+            source_dataset.save(test_dir)
+
+            with self.assertRaises(UnknownFormatError):
+                Dataset.import_from(test_dir, format='custom', env=env)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_export_by_string_format_name(self):
         env = Environment()
         env.converters.items = {'qq': env.converters[DEFAULT_FORMAT]}
@@ -181,6 +252,24 @@ class DatasetTest(TestCase):
 
         with TestDir() as test_dir:
             dataset.export(format='qq', save_dir=test_dir)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_remember_export_options(self):
+        dataset = Dataset.from_iterable([
+            DatasetItem(id=1, image=np.ones((1, 2, 3))),
+        ], categories=['a'])
+
+        with TestDir() as test_dir:
+            dataset.save(test_dir, save_images=True)
+            dataset.put(dataset.get(1)) # mark the item modified for patching
+
+            image_path = osp.join(test_dir, 'images', 'default', '1.jpg')
+            os.remove(image_path)
+
+            dataset.save(test_dir)
+
+            self.assertEqual({'save_images': True}, dataset.options)
+            self.assertTrue(osp.isfile(image_path))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_compute_length_when_created_from_scratch(self):
@@ -285,7 +374,7 @@ class DatasetTest(TestCase):
         s1 = Dataset.from_iterable([], categories=['a', 'b'])
         s2 = Dataset.from_iterable([], categories=['b', 'a'])
 
-        with self.assertRaisesRegex(DatumaroError, "different categories"):
+        with self.assertRaises(ConflictingCategoriesError):
             Dataset.from_extractors(s1, s2)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -299,31 +388,6 @@ class DatasetTest(TestCase):
         actual = Dataset.from_extractors(s1, s2)
 
         compare_datasets(self, expected, actual)
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_inplace_save_writes_only_updated_data(self):
-        with TestDir() as path:
-            # generate initial dataset
-            dataset = Dataset.from_iterable([
-                DatasetItem(1, subset='a'),
-                DatasetItem(2, subset='b'),
-                DatasetItem(3, subset='c'),
-            ])
-            dataset.save(path)
-            os.unlink(osp.join(
-                path, 'annotations', 'a.json')) # should be rewritten
-            os.unlink(osp.join(
-                path, 'annotations', 'b.json')) # should not be rewritten
-            os.unlink(osp.join(
-                path, 'annotations', 'c.json')) # should not be rewritten
-
-            dataset.put(DatasetItem(2, subset='a'))
-            dataset.remove(3, 'c')
-            dataset.save()
-
-            self.assertTrue(osp.isfile(osp.join(path, 'annotations', 'a.json')))
-            self.assertFalse(osp.isfile(osp.join(path, 'annotations', 'b.json')))
-            self.assertTrue(osp.isfile(osp.join(path, 'annotations', 'c.json')))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_track_modifications_on_addition(self):
@@ -366,7 +430,7 @@ class DatasetTest(TestCase):
         dataset.put(DatasetItem(3, subset='a'))
         dataset.remove(1)
 
-        patch = dataset.patch
+        patch = dataset.get_patch()
 
         self.assertEqual({
             ('1', DEFAULT_SUBSET_NAME): ItemStatus.removed,
@@ -402,7 +466,7 @@ class DatasetTest(TestCase):
         dataset.put(DatasetItem(3, subset='a'))
         dataset.remove(1)
 
-        patch = dataset.patch
+        patch = dataset.get_patch()
 
         self.assertEqual({
             ('1', DEFAULT_SUBSET_NAME): ItemStatus.removed,
@@ -454,7 +518,7 @@ class DatasetTest(TestCase):
         dataset.transform(Remove1)
         dataset.transform(Add3)
 
-        patch = dataset.patch
+        patch = dataset.get_patch()
 
         self.assertEqual({
             ('1', DEFAULT_SUBSET_NAME): ItemStatus.removed,
@@ -512,7 +576,7 @@ class DatasetTest(TestCase):
         dataset.transform(Remove1)
         dataset.transform(Add3)
 
-        patch = dataset.patch
+        patch = dataset.get_patch()
 
         self.assertEqual({
             ('1', DEFAULT_SUBSET_NAME): ItemStatus.removed,
@@ -579,7 +643,7 @@ class DatasetTest(TestCase):
         dataset.remove(2)
         dataset.transform(Add3)
 
-        patch = dataset.patch
+        patch = dataset.get_patch()
 
         self.assertEqual({
             ('1', DEFAULT_SUBSET_NAME): ItemStatus.removed,
@@ -636,7 +700,7 @@ class DatasetTest(TestCase):
         dataset.transform(ShiftIds)
         dataset.put(DatasetItem(5))
 
-        patch = dataset.patch
+        patch = dataset.get_patch()
 
         self.assertEqual({
             ('1', DEFAULT_SUBSET_NAME): ItemStatus.removed,
@@ -700,7 +764,7 @@ class DatasetTest(TestCase):
         dataset.transform(Remove1)
         dataset.transform(Add3)
 
-        patch = dataset.patch
+        patch = dataset.get_patch()
 
         self.assertEqual({
             ('1', DEFAULT_SUBSET_NAME): ItemStatus.removed,
@@ -1054,7 +1118,7 @@ class DatasetTest(TestCase):
                     DatasetItem(4),
                 ])
 
-            def get(self, id, subset=None): #pylint: disable=redefined-builtin
+            def get(self, id, subset=None):
                 nonlocal get_called
                 get_called += 1
                 return DatasetItem(id, subset=subset)
@@ -1177,7 +1241,7 @@ class DatasetTest(TestCase):
         self.assertEqual({
             ('0', 'train'): ItemStatus.removed,
             ('1', 'test'): ItemStatus.modified, # TODO: remove this line
-        }, dataset.patch.updated_items)
+        }, dataset.get_patch().updated_items)
 
     @mark_requirement(Requirements.DATUM_BUG_259)
     def test_can_filter_annotations(self):
@@ -1221,6 +1285,46 @@ class DatasetTest(TestCase):
             filter_annotations=True, remove_empty=True)
 
         self.assertEqual(1, len(dataset))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_inplace_save_writes_only_updated_data(self):
+        class CustomConverter(Converter):
+            DEFAULT_IMAGE_EXT = '.jpg'
+
+            def apply(self):
+                assert osp.isdir(self._save_dir)
+
+                for item in self._extractor:
+                    name = f'{item.subset}_{item.id}'
+                    with open(osp.join(
+                            self._save_dir, name + '.txt'), 'w') as f:
+                        f.write('\n')
+
+                    if self._save_images and \
+                            item.has_image and item.image.has_data:
+                        self._save_image(item, name=name)
+
+        env = Environment()
+        env.converters.items = { 'test': CustomConverter }
+
+        with TestDir() as path:
+            dataset = Dataset.from_iterable([
+                DatasetItem(1, subset='train', image=np.ones((2, 4, 3))),
+                DatasetItem(2, subset='train',
+                    image=Image(path='2.jpg', size=(3, 2))),
+                DatasetItem(3, subset='valid', image=np.ones((2, 2, 3))),
+            ], categories=[], env=env)
+            dataset.export(path, 'test', save_images=True)
+
+            dataset.put(DatasetItem(2, subset='train', image=np.ones((3, 2, 3))))
+            dataset.remove(3, 'valid')
+            dataset.save(save_images=True)
+
+            self.assertEqual({
+                    'train_1.txt', 'train_1.jpg',
+                    'train_2.txt', 'train_2.jpg'
+                },
+                set(os.listdir(path)))
 
 
 class DatasetItemTest(TestCase):

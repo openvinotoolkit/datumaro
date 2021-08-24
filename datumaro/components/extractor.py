@@ -4,7 +4,7 @@
 
 from enum import Enum, auto
 from glob import iglob
-from typing import Callable, Dict, Iterable, List, Optional
+from typing import Callable, Dict, Iterable, List, Optional, Tuple
 import os
 import os.path as osp
 
@@ -12,6 +12,8 @@ from attr import attrib, attrs
 import attr
 import numpy as np
 
+from datumaro.components.errors import DatasetNotFoundError
+from datumaro.util import is_method_redefined
 from datumaro.util.attrs_util import default_if_none, not_empty
 from datumaro.util.image import Image
 
@@ -131,9 +133,19 @@ class Label(Annotation):
 @attrs(eq=False)
 class MaskCategories(Categories):
     @classmethod
-    def make_default(cls, size=256):
+    def generate(cls, size=255, include_background=True):
+        """
+        Generates a color map with the specified size.
+
+        If include_background is True, the result will include the item
+            "0: (0, 0, 0)", which is typically used as a background color.
+        """
         from datumaro.util.mask_tools import generate_colormap
-        return cls(generate_colormap(size))
+        colormap = generate_colormap(size + (not include_background))
+        if not include_background:
+            colormap.pop(0)
+            colormap = { k - 1: v for k, v in colormap.items() }
+        return cls(colormap)
 
     colormap = attrib(factory=dict, validator=default_if_none(dict))
     _inverse_colormap = attrib(default=None,
@@ -146,6 +158,15 @@ class MaskCategories(Categories):
             if self.colormap is not None:
                 self._inverse_colormap = invert_colormap(self.colormap)
         return self._inverse_colormap
+
+    def __contains__(self, idx: int) -> bool:
+        return idx in self.colormap
+
+    def __getitem__(self, idx: int) -> Tuple[int, int, int]:
+        return self.colormap[idx]
+
+    def __len__(self):
+        return len(self.colormap)
 
     def __eq__(self, other):
         if not super().__eq__(other):
@@ -238,12 +259,12 @@ class CompiledMask:
             instance_ids=None, instance_labels=None, dtype=None):
         from datumaro.util.mask_tools import make_index_mask
 
-        if instance_ids is not None:
+        if instance_ids:
             assert len(instance_ids) == len(instance_masks)
         else:
             instance_ids = [None] * len(instance_masks)
 
-        if instance_labels is not None:
+        if instance_labels:
             assert len(instance_labels) == len(instance_masks)
         else:
             instance_labels = [None] * len(instance_masks)
@@ -360,7 +381,7 @@ class PolyLine(_Shape):
         return 0
 
 
-@attrs
+@attrs(init=False)
 class Cuboid3d(Annotation):
     _type = AnnotationType.cuboid_3d
     _points = attrib(type=list, default=None)
@@ -376,8 +397,6 @@ class Cuboid3d(Annotation):
             points = [round(p, _COORDINATE_ROUNDING_DIGITS) for p in points]
         self._points = points
 
-    # will be overridden by attrs, then will be overridden again by us
-    # attrs' method will be renamed to __attrs_init__
     def __init__(self, position, rotation=None, scale=None, **kwargs):
         assert len(position) == 3, position
         if not rotation:
@@ -386,7 +405,6 @@ class Cuboid3d(Annotation):
             scale = [1] * 3
         kwargs.pop('points', None)
         self.__attrs_init__(points=[*position, *rotation, *scale], **kwargs)
-    __actual_init__ = __init__ # save pointer
 
     @property
     def position(self):
@@ -421,9 +439,6 @@ class Cuboid3d(Annotation):
         self.scale[:] = \
             [round(p, _COORDINATE_ROUNDING_DIGITS) for p in value]
 
-assert not hasattr(Cuboid3d, '__attrs_init__') # hopefully, it will be supported
-setattr(Cuboid3d, '__attrs_init__', Cuboid3d.__init__)
-setattr(Cuboid3d, '__init__', Cuboid3d.__actual_init__)
 
 @attrs
 class Polygon(_Shape):
@@ -442,16 +457,13 @@ class Polygon(_Shape):
         area = mask_utils.area(rle)[0]
         return area
 
-@attrs
+@attrs(init=False)
 class Bbox(_Shape):
     _type = AnnotationType.bbox
 
-    # will be overridden by attrs, then will be overridden again by us
-    # attrs' method will be renamed to __attrs_init__
     def __init__(self, x, y, w, h, *args, **kwargs):
         kwargs.pop('points', None) # comes from wrap()
         self.__attrs_init__([x, y, x + w, y + h], *args, **kwargs)
-    __actual_init__ = __init__ # save pointer
 
     @property
     def x(self):
@@ -493,9 +505,6 @@ class Bbox(_Shape):
         d.update(kwargs)
         return attr.evolve(item, **d)
 
-assert not hasattr(Bbox, '__attrs_init__') # hopefully, it will be supported
-setattr(Bbox, '__attrs_init__', Bbox.__init__)
-setattr(Bbox, '__init__', Bbox.__actual_init__)
 
 @attrs
 class PointsCategories(Categories):
@@ -529,6 +538,16 @@ class PointsCategories(Categories):
             joints = []
         joints = set(map(tuple, joints))
         self.items[label_id] = self.Category(labels, joints)
+
+    def __contains__(self, idx: int) -> bool:
+        return idx in self.items
+
+    def __getitem__(self, idx: int) -> Tuple[int, int, int]:
+        return self.items[idx]
+
+    def __len__(self):
+        return len(self.items)
+
 
 @attrs
 class Points(_Shape):
@@ -582,15 +601,18 @@ class DatasetItem:
     id = attrib(converter=lambda x: str(x).replace('\\', '/'),
         type=str, validator=not_empty)
     annotations = attrib(factory=list, validator=default_if_none(list))
-    subset = attrib(converter=lambda v: v or DEFAULT_SUBSET_NAME, default=None)
+    subset = attrib(converter=lambda v: v or DEFAULT_SUBSET_NAME,
+        type=str, default=None)
 
     # Currently unused
     path = attrib(factory=list, validator=default_if_none(list))
 
     # TODO: introduce "media" field with type info. Replace image and pcd.
-    image = attrib(type=Image, default=None)
+    image = attrib(type=Optional[Image], default=None)
     # TODO: introduce pcd type like Image
-    point_cloud = attrib(type=str, default=None)
+    point_cloud = attrib(converter=lambda x: \
+            str(x).replace('\\', '/') if x else None,
+        type=Optional[str], default=None)
     related_images = attrib(type=List[Image], default=None)
 
     def __attrs_post_init__(self):
@@ -654,7 +676,7 @@ class IExtractor:
     def get(self, id, subset=None) -> Optional[DatasetItem]:
         raise NotImplementedError()
 
-class Extractor(IExtractor):
+class ExtractorBase(IExtractor):
     def __init__(self, length=None, subsets=None):
         self._length = length
         self._subsets = subsets
@@ -689,24 +711,24 @@ class Extractor(IExtractor):
             if len(self._subsets) == 1:
                 return self
 
-            return self.select(lambda item: item.subset == name)
+            subset = self.select(lambda item: item.subset == name)
+            subset._subsets = [name]
+            return subset
         else:
-            raise Exception("Unknown subset '%s', available subsets: %s" % \
+            raise KeyError("Unknown subset '%s', available subsets: %s" % \
                 (name, set(self._subsets)))
 
     def transform(self, method, *args, **kwargs):
         return method(self, *args, **kwargs)
 
     def select(self, pred):
-        class _DatasetFilter(Extractor):
-            def __init__(self, _):
-                super().__init__()
+        class _DatasetFilter(ExtractorBase):
             def __iter__(_):
                 return filter(pred, iter(self))
             def categories(_):
                 return self.categories()
 
-        return self.transform(_DatasetFilter)
+        return _DatasetFilter()
 
     def categories(self):
         return {}
@@ -718,7 +740,19 @@ class Extractor(IExtractor):
                 return item
         return None
 
+class Extractor(ExtractorBase):
+    """
+    A base class for user-defined and built-in extractors.
+    Should be used in cases, where SourceExtractor is not enough,
+    or its use makes problems with performance, implementation etc.
+    """
+
 class SourceExtractor(Extractor):
+    """
+    A base class for simple, single-subset extractors.
+    Should be used by default for user-defined extractors.
+    """
+
     def __init__(self, length=None, subset=None):
         self._subset = subset or DEFAULT_SUBSET_NAME
         super().__init__(length=length, subsets=[self._subset])
@@ -754,7 +788,7 @@ class Importer:
 
         sources = self.find_sources(osp.normpath(path))
         if len(sources) == 0:
-            raise Exception("Failed to find dataset at '%s'" % path)
+            raise DatasetNotFoundError(path)
 
         for desc in sources:
             params = dict(extra_params)
@@ -776,7 +810,7 @@ class Importer:
         to filter file names and directories.
         Supposed to be used, and to be the only call in subclasses.
 
-        Paramters:
+        Parameters:
         - path - a directory or file path, where sources need to be found.
         - ext - file extension to match. To match directories,
             set this parameter to None or ''. Comparison is case-independent,
@@ -796,7 +830,7 @@ class Importer:
                 ext = '.' + ext
             ext = ext.lower()
 
-        if (ext and path.lower().endswith(ext) and osp.isfile(path)) or \
+        if (path.lower().endswith(ext) and osp.isfile(path)) or \
                 (not ext and dirname and osp.isdir(path) and \
                 os.sep + osp.normpath(dirname.lower()) + os.sep in \
                     osp.abspath(path.lower()) + os.sep):
@@ -812,8 +846,7 @@ class Importer:
                     break
         return sources
 
-
-class Transform(Extractor):
+class Transform(ExtractorBase):
     """
     A base class for dataset transformations that change dataset items
     or their annotations.
@@ -839,7 +872,7 @@ class Transform(Extractor):
     def __len__(self):
         assert self._length in {None, 'parent'} or isinstance(self._length, int)
         if self._length is None and \
-                    self.__iter__.__func__ == Transform.__iter__ \
+                    not is_method_redefined('__iter__', Transform, self) \
                 or self._length == 'parent':
             self._length = len(self._extractor)
         return super().__len__()

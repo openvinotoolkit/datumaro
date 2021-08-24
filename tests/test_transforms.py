@@ -5,7 +5,7 @@ import numpy as np
 
 from datumaro.components.extractor import (
     AnnotationType, Bbox, DatasetItem, Label, LabelCategories, Mask,
-    MaskCategories, Points, Polygon, PolyLine,
+    MaskCategories, Points, PointsCategories, Polygon, PolyLine,
 )
 from datumaro.components.project import Dataset
 from datumaro.util.test_utils import compare_datasets
@@ -415,6 +415,33 @@ class TransformsTest(TestCase):
 
         compare_datasets(self, target_dataset, actual)
 
+    @mark_requirement(Requirements.DATUM_BUG_314)
+    def test_remap_labels_ignore_missing_labels_in_secondary_categories(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[
+                Label(0),
+            ])
+        ], categories={
+            AnnotationType.label: LabelCategories.from_iterable(['a', 'b', 'c']),
+            AnnotationType.points: PointsCategories.from_iterable([]), # all missing
+            AnnotationType.mask: MaskCategories.generate(2) # no c color
+        })
+
+        target_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[
+                Label(0),
+            ]),
+        ], categories={
+            AnnotationType.label: LabelCategories.from_iterable(['d', 'e', 'f']),
+            AnnotationType.points: PointsCategories.from_iterable([]),
+            AnnotationType.mask: MaskCategories.generate(2)
+        })
+
+        actual = transforms.RemapLabels(source_dataset,
+            mapping={ 'a': 'd', 'b': 'e', 'c': 'f' }, default='delete')
+
+        compare_datasets(self, target_dataset, actual)
+
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_transform_labels(self):
         src_dataset = Dataset.from_iterable([
@@ -439,5 +466,27 @@ class TransformsTest(TestCase):
         ], categories=['label%s' % i for i in range(6)])
 
         actual = transforms.AnnsToLabels(src_dataset)
+
+        compare_datasets(self, dst_dataset, actual)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_bboxes_values_decrement_transform(self):
+        src_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[
+                Label(1),
+                Bbox(2, 3, 3, 4, label=2),
+                Bbox(1.3, 3.5, 3.33, 3.12)
+            ])
+        ], categories=['label%s' % i for i in range(6)])
+
+        dst_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[
+                Label(1),
+                Bbox(1, 2, 3, 4, label=2),
+                Bbox(0.3, 2.5, 3.33, 3.12)
+            ]),
+        ], categories=['label%s' % i for i in range(6)])
+
+        actual = transforms.BboxValuesDecrement(src_dataset)
 
         compare_datasets(self, dst_dataset, actual)

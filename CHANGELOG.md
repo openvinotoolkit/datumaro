@@ -6,6 +6,47 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## 24/08/2021 - Release v0.1.11
+### Added
+- The Open Images format now supports bounding box
+  and segmentation mask annotations
+  (<https://github.com/openvinotoolkit/datumaro/pull/352>,
+  <https://github.com/openvinotoolkit/datumaro/pull/388>).
+- Bounding boxes values decrement transform (<https://github.com/openvinotoolkit/datumaro/pull/366>)
+- Improved error reporting in `Dataset` (<https://github.com/openvinotoolkit/datumaro/pull/386>)
+- Support ADE20K format (import only) (<https://github.com/openvinotoolkit/datumaro/pull/400>)
+- Documentation website at <https://openvinotoolkit.github.io/datumaro> (<https://github.com/openvinotoolkit/datumaro/pull/420>)
+
+### Changed
+- Datumaro no longer depends on scikit-image
+  (<https://github.com/openvinotoolkit/datumaro/pull/379>)
+- `Dataset` remembers export options on saving / exporting for the first time (<https://github.com/openvinotoolkit/datumaro/pull/386>)
+
+### Deprecated
+- TBD
+
+### Removed
+- TBD
+
+### Fixed
+- Application of `remap_labels` to dataset categories of different length (<https://github.com/openvinotoolkit/datumaro/issues/314>)
+- Patching of datasets in formats (<https://github.com/openvinotoolkit/datumaro/issues/348>)
+- Improved Cityscapes export performance (<https://github.com/openvinotoolkit/datumaro/pull/367>)
+- Incorrect format of `*_labelIds.png` in Cityscapes export (<https://github.com/openvinotoolkit/datumaro/issues/325>, <https://github.com/openvinotoolkit/datumaro/issues/342>)
+- Item id in ImageNet format (<https://github.com/openvinotoolkit/datumaro/pull/371>)
+- Double quotes for ICDAR Word Recognition (<https://github.com/openvinotoolkit/datumaro/pull/375>)
+- Wrong display of builtin formats in CLI (<https://github.com/openvinotoolkit/datumaro/issues/332>)
+- Non utf-8 encoding of annotation files in Market-1501 export (<https://github.com/openvinotoolkit/datumaro/pull/392>)
+- Import of ICDAR, PASCAL VOC and VGGFace2 images from subdirectories on WIndows
+  (<https://github.com/openvinotoolkit/datumaro/pull/392>)
+- Saving of images with Unicode paths on Windows (<https://github.com/openvinotoolkit/datumaro/pull/392>)
+- Calling `ProjectDataset.transform()` with a string argument (<https://github.com/openvinotoolkit/datumaro/issues/402>)
+- Attributes casting for CVAT format (<https://github.com/openvinotoolkit/datumaro/pull/403>)
+- Loading of custom project plugins (<https://github.com/openvinotoolkit/datumaro/issues/404>)
+
+### Security
+- Fixed unsafe unpickling in CIFAR import (<https://github.com/openvinotoolkit/datumaro/pull/362>)
+
 ## 14/07/2021 - Release v0.1.10
 ### Added
 - Support for import/export zip archives with images (<https://github.com/openvinotoolkit/datumaro/pull/273>)
@@ -36,7 +77,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Incorrect image layout on saving and a problem with ecoding on loading (<https://github.com/openvinotoolkit/datumaro/pull/284>)
-- An error when xpath fiter is applied to the dataset or its subset (<https://github.com/openvinotoolkit/datumaro/issues/259>)
+- An error when XPath filter is applied to the dataset or its subset (<https://github.com/openvinotoolkit/datumaro/issues/259>)
 - Tracking of `Dataset` changes done by transforms (<https://github.com/openvinotoolkit/datumaro/pull/297>)
 - Improved CLI startup time in several cases (<https://github.com/openvinotoolkit/datumaro/pull/306>)
 

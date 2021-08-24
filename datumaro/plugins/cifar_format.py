@@ -5,11 +5,13 @@
 from collections import OrderedDict
 import os
 import os.path as osp
-import pickle  # nosec - disable B403:import_pickle check
+import pickle  # nosec - disable B403:import_pickle check - fixed
 
 import numpy as np
+import numpy.core.multiarray
 
 from datumaro.components.converter import Converter
+from datumaro.components.dataset import ItemStatus
 from datumaro.components.extractor import (
     AnnotationType, DatasetItem, Importer, Label, LabelCategories,
     SourceExtractor,
@@ -17,10 +19,30 @@ from datumaro.components.extractor import (
 from datumaro.util import cast
 
 
+class RestrictedUnpickler(pickle.Unpickler):
+    def find_class(self, module, name):
+        if module == "numpy.core.multiarray" and \
+                name in PickleLoader.safe_numpy:
+            return getattr(numpy.core.multiarray, name)
+        elif module == 'numpy' and name in PickleLoader.safe_numpy:
+            return getattr(numpy, name)
+        raise pickle.UnpicklingError("Global '%s.%s' is forbidden"
+            % (module, name))
+
+class PickleLoader():
+    safe_numpy = {
+        'dtype',
+        'ndarray',
+        '_reconstruct',
+    }
+
+    def restricted_load(s):
+        return RestrictedUnpickler(s, encoding='latin1').load()
+
 class CifarPath:
-    BATCHES_META = 'batches.meta'
-    META = 'meta'
-    TRAIN_ANNOTATION_FILE = 'data_batch_'
+    META_10_FILE = 'batches.meta'
+    META_100_FILE = 'meta'
+    TRAIN_FILE_PREFIX = 'data_batch_'
     USELESS_FILE = 'file.txt~'
     IMAGE_SIZE = 32
 
@@ -35,24 +57,19 @@ class CifarExtractor(SourceExtractor):
             raise FileNotFoundError("Can't read annotation file '%s'" % path)
 
         if not subset:
-            file_name = osp.splitext(osp.basename(path))[0]
-            if file_name.startswith(CifarPath.TRAIN_ANNOTATION_FILE):
-                subset = 'train_%s' % file_name.split('_')[-1]
-            else:
-                subset = file_name.rsplit('_', maxsplit=1)[0]
+            subset = osp.splitext(osp.basename(path))[0]
 
         super().__init__(subset=subset)
 
         self._categories = self._load_categories(osp.dirname(path))
-
         self._items = list(self._load_items(path).values())
 
     def _load_categories(self, path):
         label_cat = LabelCategories()
 
-        meta_file = osp.join(path, CifarPath.BATCHES_META)
+        meta_file = osp.join(path, CifarPath.META_10_FILE)
         if not osp.isfile(meta_file):
-            meta_file = osp.join(path, CifarPath.META)
+            meta_file = osp.join(path, CifarPath.META_100_FILE)
         if osp.isfile(meta_file):
             # CIFAR-10:
             # num_cases_per_batch: 1000
@@ -63,7 +80,7 @@ class CifarExtractor(SourceExtractor):
             # fine_label_names: ['apple', 'aquarium_fish', 'baby', ...]
             # coarse_label_names: ['aquatic_mammals', 'fish', 'flowers', ...]
             with open(meta_file, 'rb') as labels_file:
-                data = pickle.load(labels_file) # nosec - disable B301:pickle check
+                data = PickleLoader.restricted_load(labels_file)
             labels = data.get('label_names')
             if labels != None:
                 for label in labels:
@@ -92,7 +109,7 @@ class CifarExtractor(SourceExtractor):
         #            'coarse_labels': list
 
         with open(path, 'rb') as anno_file:
-            annotation_dict = pickle.load(anno_file, encoding='latin1') # nosec - disable B301:pickle check
+            annotation_dict = PickleLoader.restricted_load(anno_file)
 
         labels = annotation_dict.get('labels', [])
         coarse_labels = annotation_dict.get('coarse_labels', [])
@@ -115,19 +132,21 @@ class CifarExtractor(SourceExtractor):
             annotations = []
             if label != None:
                 annotations.append(Label(label))
-                if 0 < len(coarse_labels) and coarse_labels[i] != None and label_cat[label].parent == '':
-                    label_cat[label].parent = self._coarse_labels[coarse_labels[i]]
+                if 0 < len(coarse_labels) and coarse_labels[i] != None and \
+                        label_cat[label].parent == '':
+                    label_cat[label].parent = \
+                        self._coarse_labels[coarse_labels[i]]
 
             image = None
             if 0 < len(images_data):
                 image = images_data[i]
                 if size is not None and image is not None:
-                    image = image.reshape(3, size[i][0],
-                        size[i][1]).astype(np.uint8)
+                    image = image.astype(np.uint8) \
+                        .reshape(3, size[i][0], size[i][1])
                     image = np.transpose(image, (1, 2, 0))
                 elif image is not None:
-                    image = image.reshape(3, CifarPath.IMAGE_SIZE,
-                        CifarPath.IMAGE_SIZE).astype(np.uint8)
+                    image = image.astype(np.uint8) \
+                        .reshape(3, CifarPath.IMAGE_SIZE, CifarPath.IMAGE_SIZE)
                     image = np.transpose(image, (1, 2, 0))
 
             items[item_id] = DatasetItem(id=item_id, subset=self._subset,
@@ -140,8 +159,14 @@ class CifarImporter(Importer):
     @classmethod
     def find_sources(cls, path):
         return cls._find_sources_recursive(path, '', 'cifar',
-            file_filter=lambda p: osp.basename(p) not in
-                {CifarPath.BATCHES_META, CifarPath.META, CifarPath.USELESS_FILE})
+            file_filter=lambda p: \
+                # subset files have no extension in the format
+                not osp.splitext(osp.basename(p))[1] and \
+                osp.basename(p) not in {
+                    CifarPath.META_10_FILE, CifarPath.META_100_FILE,
+                    CifarPath.USELESS_FILE
+                }
+        )
 
 
 class CifarConverter(Converter):
@@ -155,20 +180,21 @@ class CifarConverter(Converter):
         coarse_label_names = []
         for label in label_categories:
             label_names.append(label.name)
-            if label.parent != '' and label.parent not in coarse_label_names:
+            if label.parent and (label.parent not in coarse_label_names):
                 coarse_label_names.append(label.parent)
         coarse_label_names.sort()
 
-        if 0 < len(coarse_label_names):
+        if coarse_label_names:
             labels_dict = { 'fine_label_names': label_names,
                             'coarse_label_names': coarse_label_names }
-            coarse_label_names = OrderedDict({name: i for i, name in enumerate(coarse_label_names)})
+            coarse_label_names = OrderedDict((name, i)
+                for i, name in enumerate(coarse_label_names))
+            meta_file = osp.join(self._save_dir, CifarPath.META_100_FILE)
         else:
             labels_dict = { 'label_names': label_names }
-
-        batches_meta_file = osp.join(self._save_dir, CifarPath.BATCHES_META)
-        with open(batches_meta_file, 'wb') as labels_file:
-            pickle.dump(labels_dict, labels_file)
+            meta_file = osp.join(self._save_dir, CifarPath.META_10_FILE)
+        with open(meta_file, 'wb') as f:
+            pickle.dump(labels_dict, f)
 
         for subset_name, subset in self._extractor.subsets().items():
             filenames = []
@@ -177,60 +203,83 @@ class CifarConverter(Converter):
             data = []
             image_sizes = {}
             for item in subset:
-                filenames.append(item.id + self._find_image_ext(item))
+                filenames.append(self._make_image_filename(item))
 
                 anns = [a for a in item.annotations
                     if a.type == AnnotationType.label]
-                if 0 < len(anns):
+                if anns:
                     labels.append(anns[0].label)
-                    if 0 < len(coarse_label_names):
+                    if coarse_label_names:
                         superclass = label_categories[anns[0].label].parent
                         coarse_labels.append(coarse_label_names[superclass])
                 else:
                     labels.append(None)
                     coarse_labels.append(None)
 
-                if item.has_image and self._save_images:
+                if self._save_images and item.has_image:
                     image = item.image
                     if not image.has_data:
                         data.append(None)
                     else:
                         image = image.data
-                        data.append(np.transpose(image,
-                            (2, 0, 1)).reshape(-1).astype(np.uint8))
+                        data.append(np.transpose(image, (2, 0, 1)) \
+                            .reshape(-1).astype(np.uint8))
                         if image.shape[0] != CifarPath.IMAGE_SIZE or \
                                 image.shape[1] != CifarPath.IMAGE_SIZE:
-                            image_sizes[len(data) - 1] = (image.shape[0], image.shape[1])
+                            image_sizes[len(data) - 1] = \
+                                (image.shape[0], image.shape[1])
 
             annotation_dict = {}
+
             annotation_dict['filenames'] = filenames
-            if 0 < len(labels) and len(labels) == len(coarse_labels):
+            if labels and (len(labels) == len(coarse_labels)):
                 annotation_dict['fine_labels'] = labels
                 annotation_dict['coarse_labels'] = coarse_labels
             else:
                 annotation_dict['labels'] = labels
             annotation_dict['data'] = np.array(data, dtype=object)
-            if len(image_sizes):
+
+            if image_sizes:
                 size = (CifarPath.IMAGE_SIZE, CifarPath.IMAGE_SIZE)
                 # 'image_sizes' isn't included in the standard format,
                 # needed for different image sizes
                 annotation_dict['image_sizes'] = [image_sizes.get(p, size)
                     for p in range(len(data))]
 
-            filename = '%s_batch' % subset_name
             batch_label = None
-            if subset_name.startswith('train_') and \
-                    cast(subset_name.split('_')[1], int) is not None:
-                num = subset_name.split('_')[1]
-                filename = CifarPath.TRAIN_ANNOTATION_FILE + num
-                batch_label = 'training batch %s of 5' % (num, )
+            if subset_name.startswith(CifarPath.TRAIN_FILE_PREFIX):
+                num = subset_name[len(CifarPath.TRAIN_FILE_PREFIX):]
+                if cast(num, int) is not None:
+                    batch_label = 'training batch %s of 5' % num
             elif subset_name == 'test':
                 batch_label = 'testing batch 1 of 1'
-            elif subset_name == 'train':
-                filename = subset_name
+
             if batch_label:
                 annotation_dict['batch_label'] = batch_label
 
-            annotation_file = osp.join(self._save_dir, filename)
+            annotation_file = osp.join(self._save_dir, subset_name)
+
+            if self._patch and subset_name in self._patch.updated_subsets and \
+                    not annotation_dict['filenames']:
+                if osp.isfile(annotation_file):
+                    # Remove subsets that became empty
+                    os.remove(annotation_file)
+                continue
+
             with open(annotation_file, 'wb') as labels_file:
                 pickle.dump(annotation_dict, labels_file)
+
+    @classmethod
+    def patch(cls, dataset, patch, save_dir, **kwargs):
+        for subset in patch.updated_subsets:
+            conv = cls(dataset.get_subset(subset), save_dir=save_dir, **kwargs)
+            conv._patch = patch
+            conv.apply()
+
+        for subset, status in patch.updated_subsets.items():
+            if status != ItemStatus.removed:
+                continue
+
+            subset_file = osp.join(save_dir, subset)
+            if osp.isfile(subset_file):
+                os.remove(subset_file)

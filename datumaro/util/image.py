@@ -39,11 +39,14 @@ def load_image(path, dtype=np.float32):
     """
 
     if _IMAGE_BACKEND == _IMAGE_BACKENDS.cv2:
-        import cv2
-        image = cv2.imread(path, cv2.IMREAD_UNCHANGED)
-        if image is None:
-            raise FileNotFoundError("Can't open image: %s" % path)
-        image = image.astype(dtype)
+        # cv2.imread does not support paths that are not representable
+        # in the locale encoding on Windows, so we read the image bytes
+        # ourselves.
+
+        with open(path, 'rb') as f:
+            image_bytes = f.read()
+
+        return decode_image(image_bytes, dtype=dtype)
     elif _IMAGE_BACKEND == _IMAGE_BACKENDS.PIL:
         from PIL import Image
         image = Image.open(path)
@@ -78,18 +81,15 @@ def save_image(path, image, create_dir=False, dtype=np.uint8, **kwargs):
     if dtype == np.int32:
         backend = _IMAGE_BACKENDS.PIL
     if backend == _IMAGE_BACKENDS.cv2:
-        import cv2
+        # cv2.imwrite does not support paths that are not representable
+        # in the locale encoding on Windows, so we write the image bytes
+        # ourselves.
 
-        params = []
+        ext = osp.splitext(path)[1]
+        image_bytes = encode_image(image, ext, dtype=dtype, **kwargs)
 
-        ext = path[-4:]
-        if ext.upper() == '.JPG':
-            params = [
-                int(cv2.IMWRITE_JPEG_QUALITY), kwargs.get('jpeg_quality', 75)
-            ]
-
-        image = image.astype(dtype)
-        cv2.imwrite(path, image, params=params)
+        with open(path, 'wb') as f:
+            f.write(image_bytes)
     elif backend == _IMAGE_BACKENDS.PIL:
         from PIL import Image
 
@@ -254,7 +254,7 @@ class Image:
         if path is None:
             path = ''
         elif path:
-            path = osp.abspath(path)
+            path = osp.abspath(path).replace('\\', '/')
         self._path = path
 
         assert data is not None or path or loader, "Image can not be empty"
@@ -419,3 +419,15 @@ def load_image_meta_file(image_meta_path: str) -> ImageMeta:
             image_meta[image_name] = (int(h), int(w))
 
     return image_meta
+
+def save_image_meta_file(image_meta: ImageMeta, image_meta_path: str) -> None:
+    """
+    Saves image_meta to the path specified by image_meta_path in the format
+    defined in load_image_meta_file's documentation.
+    """
+
+    assert isinstance(image_meta_path, str)
+
+    with open(image_meta_path, 'w', encoding='utf-8') as f:
+        for image_name, (height, width) in image_meta.items():
+            print(shlex.quote(image_name), height, width, file=f)

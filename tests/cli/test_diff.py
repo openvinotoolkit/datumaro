@@ -4,7 +4,7 @@ import os.path as osp
 
 import numpy as np
 
-from datumaro.cli.contexts.project.diff import DatasetDiffVisualizer
+from datumaro.cli.contexts.project.diff import DiffVisualizer
 from datumaro.components.extractor import (
     AnnotationType, Bbox, Caption, DatasetItem, Label, LabelCategories, Mask,
     MaskCategories, Points, PointsCategories, Polygon, PolyLine,
@@ -21,7 +21,7 @@ class DiffTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_compare_projects(self): # just a smoke test
         label_categories1 = LabelCategories.from_iterable(['x', 'a', 'b', 'y'])
-        mask_categories1 = MaskCategories.make_default(len(label_categories1))
+        mask_categories1 = MaskCategories.generate(len(label_categories1))
 
         point_categories1 = PointsCategories()
         for index, _ in enumerate(label_categories1.items):
@@ -69,7 +69,7 @@ class DiffTest(TestCase):
 
 
         label_categories2 = LabelCategories.from_iterable(['a', 'b', 'x', 'y'])
-        mask_categories2 = MaskCategories.make_default(len(label_categories2))
+        mask_categories2 = MaskCategories.generate(len(label_categories2))
 
         point_categories2 = PointsCategories()
         for index, _ in enumerate(label_categories2.items):
@@ -116,7 +116,7 @@ class DiffTest(TestCase):
         })
 
         with TestDir() as test_dir:
-            with DatasetDiffVisualizer(save_dir=test_dir,
+            with DiffVisualizer(save_dir=test_dir,
                         comparator=DistanceComparator(iou_threshold=0.8),
                     ) as visualizer:
                 visualizer.save(dataset1, dataset2)

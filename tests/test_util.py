@@ -1,8 +1,10 @@
-from unittest import TestCase
+from unittest import TestCase, mock
 import os
 import os.path as osp
 
-from datumaro.util import Rollback, error_rollback
+from datumaro.util import (
+    Rollback, error_rollback, is_method_redefined, on_error_do,
+)
 from datumaro.util.os_util import walk
 from datumaro.util.test_utils import TestDir
 
@@ -73,15 +75,15 @@ class TestRollback(TestCase):
         self.assertTrue(success)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_decorator_supports_implicit_arg(self):
+    def test_decorator_supports_implicit_form(self):
         success = False
         def cb():
             nonlocal success
             success = True
 
-        @error_rollback('on_error', implicit=True)
+        @error_rollback
         def foo():
-            on_error.do(cb)  # noqa: F821
+            on_error_do(cb)
             raise Exception('err')
 
         try:
@@ -117,6 +119,26 @@ class TestRollback(TestCase):
             self.assertTrue(success1)
             self.assertTrue(success2)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_decorator_can_return_on_success_in_implicit_form(self):
+        @error_rollback
+        def f():
+            return 42
+
+        retval = f()
+
+        self.assertEqual(42, retval)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_decorator_can_return_on_success_in_explicit_form(self):
+        @error_rollback('on_error')
+        def f(on_error=None):
+            return 42
+
+        retval = f()
+
+        self.assertEqual(42, retval)
+
 class TestOsUtils(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_walk_with_maxdepth(self):
@@ -129,3 +151,40 @@ class TestOsUtils(TestCase):
                 osp.join(rootdir, '1'),
                 osp.join(rootdir, '1', '2'),
             }, visited)
+
+
+class TestMemberRedefined(TestCase):
+    class Base:
+        def method(self):
+            pass
+
+    def test_can_detect_no_changes_in_derived_class(self):
+        class Derived(self.Base):
+            pass
+
+        self.assertFalse(is_method_redefined('method', self.Base, Derived))
+
+    def test_can_detect_no_changes_in_derived_instance(self):
+        class Derived(self.Base):
+            pass
+
+        self.assertFalse(is_method_redefined('method', self.Base, Derived()))
+
+    def test_can_detect_changes_in_derived_class(self):
+        class Derived(self.Base):
+            def method(self):
+                pass
+
+        self.assertTrue(is_method_redefined('method', self.Base, Derived))
+
+    def test_can_detect_changes_in_derived_instance(self):
+        class Derived(self.Base):
+            def method(self):
+                pass
+
+        self.assertTrue(is_method_redefined('method', self.Base, Derived()))
+
+    def test_can_detect_changes_in_patched_instance(self):
+        obj = self.Base()
+        with mock.patch.object(obj, 'method'):
+            self.assertTrue(is_method_redefined('method', self.Base, obj))

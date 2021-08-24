@@ -1,4 +1,3 @@
-
 # Copyright (C) 2020-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
@@ -10,7 +9,6 @@ import logging as log
 import os
 import os.path as osp
 
-import numpy as np
 import pycocotools.mask as mask_utils
 
 from datumaro.components.converter import Converter
@@ -67,16 +65,10 @@ class _TaskConverter:
         return self._context._get_image_id(item)
 
     def save_image_info(self, item, filename):
-        if item.has_image:
-            size = item.image.size
-            if size is not None:
-                h, w = size
-            else:
-                h = 0
-                w = 0
-        else:
-            h = 0
-            w = 0
+        h = 0
+        w = 0
+        if item.has_image and item.image.size:
+            h, w = item.image.size
 
         self._data['images'].append({
             'id': self._get_image_id(item),
@@ -239,7 +231,7 @@ class _InstancesConverter(_TaskConverter):
             if masks:
                 masks = (m.image for m in masks)
                 if mask is not None:
-                    masks += chain(masks, [mask])
+                    masks = chain(masks, [mask])
                 mask = mask_tools.merge_masks(masks)
 
             if mask is not None:
@@ -269,7 +261,7 @@ class _InstancesConverter(_TaskConverter):
         if not instances:
             return
 
-        if not item.has_image:
+        if not item.has_image or not item.image.size:
             log.warning("Item '%s': skipping writing instances "
                 "since no image info available" % item.id)
             return
@@ -298,10 +290,10 @@ class _InstancesConverter(_TaskConverter):
 
         area = 0
         if segmentation:
-            if item.has_image:
+            if item.has_image and item.image.size:
                 h, w = item.image.size
             else:
-                # NOTE: here we can guess the image size as
+                # Here we can guess the image size as
                 # it is only needed for the area computation
                 w = bbox[0] + bbox[2]
                 h = bbox[1] + bbox[3]
@@ -505,12 +497,12 @@ class _PanopticConverter(_TaskConverter):
             segments_info.append(segment_info)
             masks.append(ann)
 
-        if masks:
-            pan_format = mask_tools.merge_masks(
-                ((m.image, m.id) for m in masks),
-                start=np.zeros(item.image.size, dtype=np.uint32))
-            save_image(osp.join(self._context._segmentation_dir, ann_filename),
-                mask_tools.index2bgr(pan_format), create_dir=True)
+        if not masks:
+            return
+
+        pan_format = mask_tools.merge_masks((m.image, m.id) for m in masks)
+        save_image(osp.join(self._context._segmentation_dir, ann_filename),
+            mask_tools.index2bgr(pan_format), create_dir=True)
 
         elem = {
             'image_id': self._get_image_id(item),
@@ -586,6 +578,8 @@ class CocoConverter(Converter):
                     tasks[i] = CocoTask[t]
                 else:
                     assert t in CocoTask, t
+        else:
+            tasks = set()
         self._tasks = tasks
 
         assert segmentation_mode is None or \
@@ -603,6 +597,8 @@ class CocoConverter(Converter):
         self._merge_images = merge_images
 
         self._image_ids = {}
+
+        self._patch = None
 
     def _make_dirs(self):
         self._images_dir = osp.join(self._save_dir, CocoPath.IMAGES_DIR)
@@ -659,15 +655,26 @@ class CocoConverter(Converter):
                     task_conv.save_annotations(item)
 
             for task, task_conv in task_converters.items():
-                if task_conv.is_empty() and not self._tasks:
+                ann_file = osp.join(self._ann_dir,
+                    '%s_%s.json' % (task.name, subset_name))
+
+                if task_conv.is_empty() and (not self._tasks or self._patch):
+                    if task == CocoTask.panoptic:
+                        os.rmdir(self._segmentation_dir)
+                    if self._patch:
+                        if osp.isfile(ann_file):
+                            # Remove subsets that became empty
+                            os.remove(ann_file)
                     continue
-                task_conv.write(osp.join(self._ann_dir,
-                    '%s_%s.json' % (task.name, subset_name)))
+
+                task_conv.write(ann_file)
 
     @classmethod
     def patch(cls, dataset, patch, save_dir, **kwargs):
         for subset in patch.updated_subsets:
-            cls.convert(dataset.get_subset(subset), save_dir=save_dir, **kwargs)
+            conv = cls(dataset.get_subset(subset), save_dir=save_dir, **kwargs)
+            conv._patch = patch
+            conv.apply()
 
         conv = cls(dataset, save_dir=save_dir, **kwargs)
         images_dir = osp.join(save_dir, CocoPath.IMAGES_DIR)
@@ -679,6 +686,8 @@ class CocoConverter(Converter):
 
             if not (status == ItemStatus.removed or not item.has_image):
                 continue
+
+            # Converter supports saving in separate dirs and common image dir
 
             image_path = osp.join(images_dir, conv._make_image_filename(item))
             if osp.isfile(image_path):

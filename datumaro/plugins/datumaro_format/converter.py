@@ -7,6 +7,7 @@
 import json
 import os
 import os.path as osp
+import shutil
 
 import numpy as np
 import pycocotools.mask as mask_utils
@@ -24,8 +25,7 @@ from .format import DatumaroPath
 
 
 class _SubsetWriter:
-    def __init__(self, name, context):
-        self._name = name
+    def __init__(self, context):
         self._context = context
 
         self._data = {
@@ -42,58 +42,69 @@ class _SubsetWriter:
     def items(self):
         return self._data['items']
 
-    def empty(self):
+    def is_empty(self):
         return not self.items
 
-    def write_item(self, item):
+    def add_item(self, item):
         annotations = []
         item_desc = {
             'id': item.id,
             'annotations': annotations,
         }
+
         if item.attributes:
             item_desc['attr'] = item.attributes
+
         if item.path:
             item_desc['path'] = item.path
+
         if item.has_image:
             path = item.image.path
             if self._context._save_images:
                 path = self._context._make_image_filename(item)
-                self._context._save_image(item, path)
+                self._context._save_image(item,
+                    osp.join(self._context._images_dir, item.subset, path))
 
             item_desc['image'] = {
                 'path': path,
             }
             if item.image.has_size: # avoid occasional loading
                 item_desc['image']['size'] = item.image.size
+
         if item.has_point_cloud:
             path = item.point_cloud
             if self._context._save_images:
                 path = self._context._make_pcd_filename(item)
                 self._context._save_point_cloud(item,
-                    osp.join(self._context._pcd_dir, path))
+                    osp.join(self._context._pcd_dir, item.subset, path))
 
             item_desc['point_cloud'] = {
                 'path': path
             }
+
         if item.related_images:
-            related_images = [{'path': img.path} for img in item.related_images]
+            images = sorted(item.related_images, key=lambda i: i.path)
             if self._context._save_images:
                 related_images = []
-                for img in item.related_images:
+                for i, img in enumerate(images):
                     ri_desc = {}
-                    ri_desc['path'] = osp.join(item.id,
-                        osp.splitext(osp.basename(img.path))[0] + \
-                            self._context._find_image_ext(img))
+
+                    # Images can have completely the same names or don't have
+                    # them at all, so we just rename them
+                    ri_desc['path'] = \
+                        f'image_{i}{self._context._find_image_ext(img)}'
 
                     if img.has_data:
                         img.save(osp.join(self._context._related_images_dir,
-                            ri_desc['path']))
+                            item.subset, item.id, ri_desc['path']))
                     if img.has_size:
                         ri_desc['size'] = img.size
                     related_images.append(ri_desc)
+            else:
+                related_images = [{'path': img.path} for img in images]
 
             item_desc['related_images'] = related_images
+
         self.items.append(item_desc)
 
         for ann in item.annotations:
@@ -117,7 +128,7 @@ class _SubsetWriter:
                 raise NotImplementedError()
             annotations.append(converted_ann)
 
-    def write_categories(self, categories):
+    def add_categories(self, categories):
         for ann_type, desc in categories.items():
             if isinstance(desc, LabelCategories):
                 converted_desc = self._convert_label_categories(desc)
@@ -129,9 +140,8 @@ class _SubsetWriter:
                 raise NotImplementedError()
             self.categories[ann_type.name] = converted_desc
 
-    def write(self, save_dir):
-        with open(osp.join(save_dir, '%s.json' % self._name),
-                'w', encoding='utf-8') as f:
+    def write(self, ann_file):
+        with open(ann_file, 'w', encoding='utf-8') as f:
             json.dump(self._data, f, ensure_ascii=False)
 
     def _convert_annotation(self, obj):
@@ -286,42 +296,58 @@ class DatumaroConverter(Converter):
         self._related_images_dir = osp.join(self._save_dir,
             DatumaroPath.RELATED_IMAGES_DIR)
 
-        subsets = {s: _SubsetWriter(s, self) for s in self._extractor.subsets()}
-        for subset, writer in subsets.items():
-            writer.write_categories(self._extractor.categories())
+        writers = {s: _SubsetWriter(self) for s in self._extractor.subsets()}
+        for writer in writers.values():
+            writer.add_categories(self._extractor.categories())
 
         for item in self._extractor:
             subset = item.subset or DEFAULT_SUBSET_NAME
-            writer = subsets[subset]
+            writers[subset].add_item(item)
 
-            writer.write_item(item)
+        for subset, writer in writers.items():
+            ann_file = osp.join(self._annotations_dir, '%s.json' % subset)
 
-        for subset, writer in subsets.items():
-            writer.write(annotations_dir)
+            if self._patch and subset in self._patch.updated_subsets and \
+                    writer.is_empty():
+                if osp.isfile(ann_file):
+                    # Remove subsets that became empty
+                    os.remove(ann_file)
+                continue
 
-    def _save_image(self, item, path=None): # pylint: disable=arguments-differ
-        super()._save_image(item,
-            osp.join(self._images_dir, self._make_image_filename(item)))
+            writer.write(ann_file)
 
     @classmethod
     def patch(cls, dataset, patch, save_dir, **kwargs):
         for subset in patch.updated_subsets:
-            cls.convert(dataset.get_subset(subset), save_dir=save_dir, **kwargs)
+            conv = cls(dataset.get_subset(subset), save_dir=save_dir, **kwargs)
+            conv._patch = patch
+            conv.apply()
 
         conv = cls(dataset, save_dir=save_dir, **kwargs)
-        images_dir = osp.join(save_dir, DatumaroPath.IMAGES_DIR)
         for (item_id, subset), status in patch.updated_items.items():
             if status != ItemStatus.removed:
                 item = patch.data.get(item_id, subset)
             else:
                 item = DatasetItem(item_id, subset=subset)
 
-            if not (status == ItemStatus.removed or not item.has_image):
+            if not (status == ItemStatus.removed or \
+                    not item.has_image and not item.has_point_cloud):
                 continue
 
-            image_path = osp.join(images_dir, conv._make_image_filename(item))
+            image_path = osp.join(save_dir, DatumaroPath.IMAGES_DIR,
+                item.subset, conv._make_image_filename(item))
             if osp.isfile(image_path):
                 os.unlink(image_path)
+
+            pcd_path = osp.join(save_dir, DatumaroPath.PCD_DIR,
+                item.subset, conv._make_pcd_filename(item))
+            if osp.isfile(pcd_path):
+                os.unlink(pcd_path)
+
+            related_images_path = osp.join(save_dir,
+                DatumaroPath.RELATED_IMAGES_DIR, item.subset, item.id)
+            if osp.isdir(related_images_path):
+                shutil.rmtree(related_images_path)
 
 class DatumaroProjectConverter(Converter):
     @classmethod

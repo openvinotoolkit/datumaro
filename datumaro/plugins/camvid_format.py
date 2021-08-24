@@ -1,4 +1,3 @@
-
 # Copyright (C) 2020-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
@@ -12,6 +11,7 @@ import os.path as osp
 import numpy as np
 
 from datumaro.components.converter import Converter
+from datumaro.components.dataset import ItemStatus
 from datumaro.components.extractor import (
     AnnotationType, CompiledMask, DatasetItem, Importer, LabelCategories, Mask,
     MaskCategories, SourceExtractor,
@@ -118,7 +118,7 @@ def make_camvid_categories(label_map=None):
 
     categories = {}
     label_categories = LabelCategories()
-    for label, desc in label_map.items():
+    for label in label_map:
         label_categories.add(label)
     categories[AnnotationType.label] = label_categories
 
@@ -128,7 +128,7 @@ def make_camvid_categories(label_map=None):
     else: # only copy defined colors
         label_id = lambda label: label_categories.find(label)[0]
         colormap = { label_id(name): (desc[0], desc[1], desc[2])
-            for name, desc in label_map.items() }
+            for name, desc in label_map.items() if desc }
     mask_categories = MaskCategories(colormap)
     mask_categories.inverse_colormap # pylint: disable=pointless-statement
     categories[AnnotationType.mask] = mask_categories
@@ -241,6 +241,8 @@ class CamvidConverter(Converter):
             help="Labelmap file path or one of %s" % \
                 ', '.join(t.name for t in LabelmapType))
 
+        return parser
+
     def __init__(self, extractor, save_dir,
             apply_colormap=True, label_map=None, **kwargs):
         super().__init__(extractor, save_dir, **kwargs)
@@ -288,10 +290,14 @@ class CamvidConverter(Converter):
         save_image(path, mask, create_dir=True)
 
     def save_segm_lists(self, subset_name, segm_list):
+        ann_file = osp.join(self._save_dir, subset_name + '.txt')
+
         if not segm_list:
+            if self._patch and subset_name in self._patch.updated_subsets:
+                if osp.isfile(ann_file):
+                    os.remove(ann_file)
             return
 
-        ann_file = osp.join(self._save_dir, subset_name + '.txt')
         with open(ann_file, 'w', encoding='utf-8') as f:
             for (image_path, mask_path) in segm_list.values():
                 image_path = '/' + image_path.replace('\\', '/')
@@ -303,7 +309,7 @@ class CamvidConverter(Converter):
 
     def save_label_map(self):
         path = osp.join(self._save_dir, CamvidPath.LABELMAP_FILE)
-        labels = self._extractor.categories()[AnnotationType.label]._indices
+        labels = self._extractor.categories()[AnnotationType.label]
         if len(self._label_map) > len(labels):
             self._label_map.pop('background')
         write_label_map(path, self._label_map)
@@ -370,3 +376,39 @@ class CamvidConverter(Converter):
         )
 
         return map_id
+
+    @classmethod
+    def patch(cls, dataset, patch, save_dir, **kwargs):
+        for subset in patch.updated_subsets:
+            conv = cls(dataset.get_subset(subset), save_dir=save_dir, **kwargs)
+            conv._patch = patch
+            conv.apply()
+
+        conv = cls(dataset, save_dir=save_dir, **kwargs)
+        for (item_id, subset), status in patch.updated_items.items():
+            if status != ItemStatus.removed:
+                item = patch.data.get(item_id, subset)
+            else:
+                item = DatasetItem(item_id, subset=subset)
+
+            if not (status == ItemStatus.removed or not item.has_image):
+                continue
+
+            image_path = osp.join(save_dir,
+                conv._make_image_filename(item, subdir=subset))
+            if osp.isfile(image_path):
+                os.unlink(image_path)
+
+            mask_path = osp.join(save_dir, subset + CamvidPath.SEGM_DIR,
+                item.id + CamvidPath.MASK_EXT)
+            if osp.isfile(mask_path):
+                os.remove(mask_path)
+
+        for subset in patch.updated_subsets:
+            ann_dir = osp.join(save_dir, subset + CamvidPath.SEGM_DIR)
+            if osp.isdir(ann_dir) and not os.listdir(ann_dir):
+                os.rmdir(ann_dir)
+
+            img_dir = osp.join(save_dir, subset)
+            if osp.isdir(img_dir) and not os.listdir(img_dir):
+                os.rmdir(img_dir)

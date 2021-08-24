@@ -1,5 +1,4 @@
-
-# Copyright (C) 2019-2020 Intel Corporation
+# Copyright (C) 2019-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -46,7 +45,7 @@ _default_colormap = generate_colormap()
 _default_unpaint_colormap = invert_colormap(_default_colormap)
 
 def unpaint_mask(painted_mask, inverse_colormap=None):
-    # Covert color mask to index mask
+    # Convert color mask to index mask
 
     # mask: HWC BGR [0; 255]
     # colormap: (R, G, B) -> index
