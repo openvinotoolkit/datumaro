@@ -147,7 +147,7 @@ python -m pytest -v
 For better integration with CI and requirements tracking,
 we use special annotations for tests.
 
-A test needs to marked with a requirement it is related to. To mark a
+A test needs to linked with a requirement it is related to. To link a
 test, use:
 
 ```python
