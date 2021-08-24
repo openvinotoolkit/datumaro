@@ -12,7 +12,7 @@
 
 ### Prerequisites
 
-- Python (3.5+)
+- Python (3.6+)
 
 ``` bash
 git clone https://github.com/openvinotoolkit/datumaro
@@ -124,7 +124,11 @@ The recommended editor is VS Code with the Python language plugin.
 ## Testing <a id="testing"></a>
 
 It is expected that all Datumaro functionality is covered and checked by
-unit tests. Tests are placed in `tests/` directory.
+unit tests. Tests are placed in the `tests/` directory. Additional
+pre-generated files for tests can be stored in the `tests/assets/` directory.
+CLI tests are separated from the core tests, they are stored in the
+`tests/cli/` directory.
+
 Currently, we use [`pytest`](https://docs.pytest.org/) for testing, but we
 also compatible with `unittest`.
 
@@ -136,13 +140,6 @@ pytest -v
 python -m pytest -v
 ```
 
-If you're working inside of a CVAT environment, you can also use:
-
-``` bash
-python manage.py test datumaro/
-```
-
-
 ### Test cases <a id="Test_case_description"></a>
 
 ### Test marking <a id="Test_marking"></a>
@@ -150,7 +147,8 @@ python manage.py test datumaro/
 For better integration with CI and requirements tracking,
 we use special annotations for tests.
 
-A test needs to marked with a requirement it is related to. To mark a test, use:
+A test needs to linked with a requirement it is related to. To link a
+test, use:
 
 ```python
 from unittest import TestCase

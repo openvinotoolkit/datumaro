@@ -175,7 +175,7 @@ It should be capable of downloading and processing data from CVAT.
   - [ ] Documentation generation
 
 - Dataset building
-  - [ ] Dataset minification / Extraction of the most representative subset
+  - [x] Dataset minification / Extraction of the most representative subset
     - Use case: generate low-precision calibration dataset
 
 - Dataset and model debugging
