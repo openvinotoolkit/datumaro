@@ -2,6 +2,7 @@ from unittest import TestCase
 import os
 import os.path as osp
 import shutil
+import textwrap
 
 import numpy as np
 
@@ -13,7 +14,7 @@ from datumaro.components.errors import (
     SourceUrlInsideProjectError,
 )
 from datumaro.components.extractor import (
-    Bbox, DatasetItem, ItemTransform, Label,
+    Bbox, DatasetItem, Extractor, ItemTransform, Label,
 )
 from datumaro.components.launcher import Launcher
 from datumaro.components.project import DiffStatus, Project
@@ -792,6 +793,59 @@ class ProjectTest(TestCase):
 
             self.assertTrue(project.is_rev_cached(rev1))
             compare_datasets(self, dataset, head_dataset)
+
+    @mark_requirement(Requirements.DATUM_BUG_404)
+    def test_can_add_plugin(self):
+        with TestDir() as test_dir:
+            Project.init(test_dir)
+
+            plugin_dir = osp.join(test_dir, '.datumaro', 'plugins')
+            os.makedirs(plugin_dir)
+            with open(osp.join(plugin_dir, '__init__.py'), 'w') as f:
+                f.write(textwrap.dedent("""
+                    from datumaro.components.extractor import (SourceExtractor,
+                        DatasetItem)
+
+                    class MyExtractor(SourceExtractor):
+                        def __iter__(self):
+                            yield from [
+                                DatasetItem('1'),
+                                DatasetItem('2'),
+                            ]
+                """))
+
+            project = Project(test_dir)
+            project.import_source('src', url='', format='my')
+
+            expected = Dataset.from_iterable([
+                DatasetItem('1'),
+                DatasetItem('2')
+            ])
+            compare_datasets(self, expected, project.working_tree.make_dataset())
+
+    @mark_requirement(Requirements.DATUM_BUG_402)
+    def test_can_transform_by_name(self):
+        class CustomExtractor(Extractor):
+            def __iter__(self):
+                return iter([
+                    DatasetItem('a'),
+                    DatasetItem('b'),
+                ])
+
+        with TestDir() as test_dir:
+            extractor_name = 'ext1'
+            project = Project.init(test_dir)
+            project.env.extractors.register(extractor_name, CustomExtractor)
+            project.import_source('src1', url='', format=extractor_name)
+            dataset = project.working_tree.make_dataset()
+
+            dataset = dataset.transform('reindex')
+
+            expected = Dataset.from_iterable([
+                DatasetItem(1),
+                DatasetItem(2),
+            ])
+            compare_datasets(self, expected, dataset)
 
 
 class BackwardCompatibilityTests_v0_1(TestCase):

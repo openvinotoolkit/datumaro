@@ -12,16 +12,25 @@
               <name>a1</name>
               <input_type>checkbox</input_type>
               <default_value>false</default_value>
-              <values>false
-true</values>
+              <values>false true</values>
             </attribute>
             <attribute>
               <name>a2</name>
               <input_type>radio</input_type>
               <default_value>v1</default_value>
-              <values>v1
-v2
-v3</values>
+              <values>v1 v2 v3</values>
+            </attribute>
+            <attribute>
+              <name>a3</name>
+              <input_type>text</input_type>
+              <default_value>0000</default_value>
+              <values>0001 0002 0003</values>
+            </attribute>
+            <attribute>
+              <name>a4</name>
+              <input_type>number</input_type>
+              <default_value>0</default_value>
+              <values>2.4 1 -5.6</values>
             </attribute>
           </attributes>
         </label>
@@ -35,6 +44,8 @@ v3</values>
     <box label="label1" occluded="1" xbr="4" xtl="0" ybr="4" ytl="2" z_order="1">
       <attribute name="a1">true</attribute>
       <attribute name="a2">v3</attribute>
+      <attribute name="a3">0003</attribute>
+      <attribute name="a4">2.4</attribute>
     </box>
     <polyline label="" points="1.0,2;3,4;5,6;7,8"/>
   </image>

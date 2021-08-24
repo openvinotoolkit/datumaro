@@ -4,7 +4,7 @@
 
 from enum import Enum, auto
 from glob import iglob
-from typing import Callable, Dict, Iterable, List, Optional
+from typing import Callable, Dict, Iterable, List, Optional, Tuple
 import os
 import os.path as osp
 
@@ -159,6 +159,15 @@ class MaskCategories(Categories):
             if self.colormap is not None:
                 self._inverse_colormap = invert_colormap(self.colormap)
         return self._inverse_colormap
+
+    def __contains__(self, idx: int) -> bool:
+        return idx in self.colormap
+
+    def __getitem__(self, idx: int) -> Tuple[int, int, int]:
+        return self.colormap[idx]
+
+    def __len__(self):
+        return len(self.colormap)
 
     def __eq__(self, other):
         if not super().__eq__(other):
@@ -530,6 +539,16 @@ class PointsCategories(Categories):
             joints = []
         joints = set(map(tuple, joints))
         self.items[label_id] = self.Category(labels, joints)
+
+    def __contains__(self, idx: int) -> bool:
+        return idx in self.items
+
+    def __getitem__(self, idx: int) -> Tuple[int, int, int]:
+        return self.items[idx]
+
+    def __len__(self):
+        return len(self.items)
+
 
 @attrs
 class Points(_Shape):

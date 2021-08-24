@@ -5,7 +5,7 @@ import numpy as np
 
 from datumaro.components.extractor import (
     AnnotationType, Bbox, DatasetItem, Label, LabelCategories, Mask,
-    MaskCategories, Points, Polygon, PolyLine,
+    MaskCategories, Points, PointsCategories, Polygon, PolyLine,
 )
 from datumaro.components.project import Dataset
 from datumaro.util.test_utils import compare_datasets
@@ -412,6 +412,33 @@ class TransformsTest(TestCase):
 
         actual = transforms.RemapLabels(source_dataset,
             mapping={ 'label1': 'label1' }, default='delete')
+
+        compare_datasets(self, target_dataset, actual)
+
+    @mark_requirement(Requirements.DATUM_BUG_314)
+    def test_remap_labels_ignore_missing_labels_in_secondary_categories(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[
+                Label(0),
+            ])
+        ], categories={
+            AnnotationType.label: LabelCategories.from_iterable(['a', 'b', 'c']),
+            AnnotationType.points: PointsCategories.from_iterable([]), # all missing
+            AnnotationType.mask: MaskCategories.generate(2) # no c color
+        })
+
+        target_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[
+                Label(0),
+            ]),
+        ], categories={
+            AnnotationType.label: LabelCategories.from_iterable(['d', 'e', 'f']),
+            AnnotationType.points: PointsCategories.from_iterable([]),
+            AnnotationType.mask: MaskCategories.generate(2)
+        })
+
+        actual = transforms.RemapLabels(source_dataset,
+            mapping={ 'a': 'd', 'b': 'e', 'c': 'f' }, default='delete')
 
         compare_datasets(self, target_dataset, actual)
 
