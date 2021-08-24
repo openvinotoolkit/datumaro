@@ -8,7 +8,7 @@ import subprocess
 from packaging import version
 import git
 
-MINIMUM_VERSION='1.5.0'
+MINIMUM_VERSION='0.1.11' # the initial version for the documentation site
 
 def prepare_tags(repo):
     tags = {}
