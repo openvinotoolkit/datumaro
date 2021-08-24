@@ -1357,12 +1357,11 @@ class Project:
     def find_project_dir(path: str) -> Optional[str]:
         path = osp.abspath(path)
 
-        if path.endswith(ProjectLayout.aux_dir) and osp.isdir(path):
-            return path
+        if osp.basename(path) != ProjectLayout.aux_dir:
+            path = osp.join(path, ProjectLayout.aux_dir)
 
-        temp_path = osp.join(path, ProjectLayout.aux_dir)
-        if osp.isdir(temp_path):
-            return temp_path
+        if osp.isdir(path):
+            return path
 
         return None
 

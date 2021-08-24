@@ -31,6 +31,19 @@ class ProjectTest(TestCase):
             Project(test_dir)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_find_project_in_project_dir(self):
+        with TestDir() as test_dir:
+            Project.init(test_dir)
+
+            self.assertEqual(osp.join(test_dir, '.datumaro'),
+                Project.find_project_dir(test_dir))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_cant_find_project_when_no_project(self):
+        with TestDir() as test_dir:
+            self.assertEqual(None, Project.find_project_dir(test_dir))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_add_local_model(self):
         with TestDir() as test_dir:
             class TestLauncher(Launcher):
