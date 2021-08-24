@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
-## \[Unreleased]
+## 24/08/2021 - Release v0.1.11
 ### Added
 - The Open Images format now supports bounding box
   and segmentation mask annotations
@@ -31,7 +31,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Application of `remap_labels` to dataset categories of different length (<https://github.com/openvinotoolkit/datumaro/issues/314>)
 - Patching of datasets in formats (<https://github.com/openvinotoolkit/datumaro/issues/348>)
-- Unsafe unpickling in CIFAR import (<https://github.com/openvinotoolkit/datumaro/pull/362>)
 - Improved Cityscapes export performance (<https://github.com/openvinotoolkit/datumaro/pull/367>)
 - Incorrect format of `*_labelIds.png` in Cityscapes export (<https://github.com/openvinotoolkit/datumaro/issues/325>, <https://github.com/openvinotoolkit/datumaro/issues/342>)
 - Item id in ImageNet format (<https://github.com/openvinotoolkit/datumaro/pull/371>)
@@ -46,7 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Loading of custom project plugins (<https://github.com/openvinotoolkit/datumaro/issues/404>)
 
 ### Security
-- TBD
+- Fixed unsafe unpickling in CIFAR import (<https://github.com/openvinotoolkit/datumaro/pull/362>)
 
 ## 14/07/2021 - Release v0.1.10
 ### Added
