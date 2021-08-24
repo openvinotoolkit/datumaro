@@ -1371,7 +1371,7 @@ class Project:
         if old_config.format_version == 1:
             pass
         elif old_config.format_version == 2:
-            return
+            return False
         else:
             raise MigrationError("Failed to migrate to the new config "
                 "version: unknown old version '%s'" % \
@@ -1410,9 +1410,7 @@ class Project:
             os.rename(old_dataset_dir, self.source_data_dir(name))
 
         # Keep the old file on error so it won't be lost
-        old_config_tmp = tempfile.mkstemp(dir=self._aux_dir,
-            prefix=osp.basename(old_config_path))[1]
-
+        old_config_tmp = old_config_path + '.old'
         os.rename(old_config_path, old_config_tmp)
 
         new_tree_config.dump(osp.join(wd_tree_dir, TreeLayout.conf_file))
