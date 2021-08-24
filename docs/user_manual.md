@@ -274,19 +274,22 @@ are omitted for simplicity):
 datum create
 
 # describe the first source
-datum add
-datum filter
-datum transform
-datum transform
+datum add <...> -n source1
+datum filter <...> source1
+datum transform <...> source1
+datum transform <...> source1
 
 # describe the second source
-datum add
-datum model add
-datum transform
-datum transform
+datum add <...> -n source2
+datum model add <...>
+datum transform <...> source2
+datum transform <...> source2
+```
 
-# now, the resulting dataset can be built with
-datum export
+Now, the resulting dataset can be built with:
+
+``` bash
+datum export <...>
 ```
 
 ### Project layout
@@ -299,16 +302,19 @@ project/
 ├── .gitignore
 ├── .datumaro/
 │   ├── cache/ # object cache
-│   │   ├── <2 leading symbols of obj hash>/
-│   │   │   └── <rest symbols of obj hash>/
-│   │   │       └── <object data>
-│   ├── models/
-│   ├── plugins/ # custom project-specific plugins
-│   │   ├── plugin1/
+│   │   └── <2 leading symbols of obj hash>/
+│   │       └── <remaining symbols of obj hash>/
+│   │           └── <object data>
+│   │
+│   ├── models/ # project-specific models
+│   │
+│   ├── plugins/ # project-specific plugins
+│   │   ├── plugin1/ # composite plugin, a directory
 │   │   |   ├── __init__.py
 │   │   |   └── file2.py
-│   │   ├── plugin2.py
+│   │   ├── plugin2.py # simple plugin, a file
 │   │   └── ...
+│   │
 │   ├── tmp/ # temp files
 │   └── tree/ # working tree metadata
 │       ├── config.yml
@@ -317,18 +323,69 @@ project/
 │           ├── <source name 2>.dvc
 │           └── ...
 │
-├── <source name 1>/
+├── <source name 1>/ # working directory for the source 1
 │   └── <source data>
-└── <source name 2>/
+└── <source name 2>/ # working directory for the source 2
     └── <source data>
 ```
 
 ### Use cases
 
-Consider few diagrams describing what Datumaro does for you behind the scene.
+Let's consider few examples describing what Datumaro does for you behind the
+scene.
 
-Imagine we have a project with 2 data sources. Roughly, it corresponds to
-the following set of commands:
+The first example explains how working trees, working directories and the
+cache interact. Suppose, there is a dataset which we want to modify and
+export in some other format. To do it with Datumaro, we need to create a
+project and register the dataset as a data source:
+
+``` bash
+datum create
+datum add <...> -n source1
+```
+
+The dataset will be copied to the working directory inside the project. It
+will be hashed and added to the project working tree.
+
+After the dataset is added, we want to transform it and filter out some
+irrelevant samples, so we run the following commands:
+
+``` bash
+datum transform <...> source1
+datum filter <...> source1
+```
+
+The commands modify the data source inside the working directory, inplace.
+The operations done are recorded in the working tree, the results are hashed.
+
+Now, we want to make a new version of the dataset and make a snapshot in the
+project cache. So we `commit` the working tree:
+
+``` bash
+datum commit <...>
+```
+
+![cache interaction diagram 1](images/behavior_diag1.svg)
+
+At this time, the data source is copied into the project cache and a new
+project revision is created. The dataset operation history is saved, so
+the dataset can be reproduced even if it is removed from the cache and the
+working directory.
+
+After this, we do some other modifications to the dataset and make a new
+commit. Note that the dataset is not cached, until a `commit` is done.
+
+When the dataset is ready and all the required operations are done, we
+can `export` it to the required format. We can export the resulting dataset,
+or any previous stage.
+
+``` bash
+datum export <...> source1
+datum export <...> source1.stage3
+```
+
+Let's extend the example. Imagine we have a project with 2 data sources.
+Roughly, it corresponds to the following set of commands:
 
 ```bash
 datum create
@@ -339,43 +396,67 @@ datum transform <...> source2 # used 5 times
 ```
 
 Then, for some reasons, the project cache was cleaned from `source1` revisions.
-We also don't have anything in the project working directories.
+We also don't have anything in the project working directories - suppose,
+the user removed them to save disk space.
+
 Let's see what happens, if we call the `diff` command with 2 different
 revisions now.
 
-![use case 1](images/usecase1_diag.svg)
+![cache interaction diagram 2](images/behavior_diag2.svg)
 
 Datumaro needs to reproduce 2 dataset revisions requested so that they could
-be read and compared. `source1` will be looked for in the project cache.
-It will be found missing, since the cache was cleaned (1). Then, Datumaro
-will look for previous source revisions and won't find any (2, 3). Then, it
-will try to download the original data and reproduce the resulting dataset,
-re-applying all the operations from the source history (4, 5). When it is
-done, the resulting dataset is returned (6).
+be read and compared. Let's see how the first dataset is reproduced
+step-by-step:
+
+1. `source1.stage2` will be looked for in the project cache. It won't be
+  found, since the cache was cleaned.
+1. Then, Datumaro will look for previous source revisions in the cache
+  and won't find any.
+1. Then, it will try to download the original data and reproduce the
+  resulting dataset. The data hash will be computed, hashes will be
+  compared. On success, the data will be put into the cache.
+1. The downloaded dataset will be read and the remaining operations from the
+  source history will be re-applied.
+1. The resulting dataset might be cached in some cases.
+1. The resulting dataset is returned.
 
 The `source2` will be looked for the same way. In our case, it will be found
 in the cache and returned. Once both datasets are restored and read, they
 are compared.
 
-Consider the second situation. Let's try to `export` the `source1`. Suppose
+Consider other situation. Let's try to `export` the `source1`. Suppose
 we have a clear project cache and the `source1` has a copy in the working
 directory.
 
-![use case 2](images/usecase2_diag.svg)
+![cache interaction diagram 3](images/behavior_diag3.svg)
 
-Again, Datumaro needs to reproduce a dataset revision (stage) requested. It
-looks for the dataset in the working directory and finds some data (1). The
-data hash is computed and compared with the saved one in the history (2).
-If the hashes match, the dataset is read and returned (3a). Otherwise,
-Datumaro tries to reproduce the dataset using the approach described above.
-Then, the dataset is exported in the requested format.
+Again, Datumaro needs to reproduce a dataset revision (stage) requested.
+1. It looks for the dataset in the working directory and finds some data. If
+  there is no source working directory, Datumaro will try to reproduce the
+  source using the approach described above.
+1. The data hash is computed and compared with the one saved in the history.
+  If the hashes match, the dataset is read and returned (4).
+  Note: we don’t use the cached hash of the working tree - it can be outdated.
+1. Otherwise, Datumaro tries to detect the stage by the data hash.
+  If the current stage is not cached, the tree is the working tree and the
+  working directory is not empty, the working copy is hashed and matched
+  against the source stage list. If there is a matching stage, it will be
+  read and the missing stages will be added.
+  The result might be cached in some cases. If there is no matching stage in
+  the source history, the situation can be contradictory. Currently,
+  the working directory data is read and returned (4) and the working tree
+  dataset hash is updated.
+1. The resulting dataset is returned.
+
+After the requested dataset is obtained, is is exported in the requested format.
 
 To sum up, Datumaro tries to restore a dataset from the project cache or
 reproduce it from sources. It can be done as long as the source operations
 are recorded and any step data is available. Note that cache objects share
-common files, so if there are only annotation changes between datasets,
+common files, so if there are only annotation differences between datasets,
 or data sources contain the same images, there will only be a single copy
-of the related media files. This helps to keep storage use reasonable.
+of the related media files. This helps to keep storage use reasonable and
+avoid unnecessary data copies.
 
 ### Examples <a id="cli-examples"></a>
 
@@ -536,7 +617,7 @@ The list of formats matches the list of supported image formats in OpenCV:
 .sr, .ras, .exr, .hdr, .pic, .pbm, .pgm, .ppm, .pxm, .pnm
 ```
 
-Once there is a `Dataset` instance, it's items can be split into subsets,
+Once there is a `Dataset` instance, its items can be split into subsets,
 renamed, filtered, joined with annotations, exported in various formats etc.
 
 To use a video as an input, one should either create a [plugin](#extending),
@@ -546,8 +627,8 @@ which splits a video into frames, or split the video manually and import images.
 
 ![cli](images/datum_cli.svg)
 
-> **Note**: command invocation syntax is subject of change,
-> **always refer to the `--help` output of the specific command**
+> **Note**: command behavior is subject to change and might be outdated,
+> **always check the `--help` output of the specific command**
 
 Datumaro functionality is available with the `datum` command.
 
@@ -559,7 +640,7 @@ datum [-h] [--version] [--loglevel LOGLEVEL] [command] [command args]
 Parameters:
 - `--loglevel` (string) - Logging level, one of
   `debug`, `info`, `warning`, `error`, `critical` (default: `info`)
-- `--version` Print the version number and exit.
+- `--version` - Print the version number and exit.
 - `-h, --help` - Print the help message and exit.
 
 ### Convert datasets <a id="convert"></a>
