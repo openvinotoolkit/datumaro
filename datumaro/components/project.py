@@ -1379,16 +1379,16 @@ class Project:
 
         log.debug("Migrating project from v1 to v2...")
 
-        wd_tree_dir = osp.join(self._aux_dir, ProjectLayout.tree_dir)
-        os.makedirs(wd_tree_dir, exist_ok=True)
+        wtree_dir = osp.join(self._aux_dir, ProjectLayout.working_tree_dir)
+        os.makedirs(wtree_dir, exist_ok=True)
 
         plugins_dir = osp.join(self._aux_dir, 'plugins')
         if osp.isdir(plugins_dir):
-            shutil.move(plugins_dir, osp.join(wd_tree_dir, 'plugins'))
+            shutil.move(plugins_dir, osp.join(wtree_dir, 'plugins'))
 
         models_dir = osp.join(self._aux_dir, 'models')
         if osp.isdir(models_dir):
-            shutil.move(models_dir, osp.join(wd_tree_dir, 'models'))
+            shutil.move(models_dir, osp.join(wtree_dir, 'models'))
 
         new_tree_config = TreeConfig()
         new_local_config = ProjectConfig()
@@ -1413,7 +1413,7 @@ class Project:
         old_config_tmp = old_config_path + '.old'
         os.rename(old_config_path, old_config_tmp)
 
-        new_tree_config.dump(osp.join(wd_tree_dir, TreeLayout.conf_file))
+        new_tree_config.dump(osp.join(wtree_dir, TreeLayout.conf_file))
         new_local_config.dump(osp.join(self._aux_dir, ProjectLayout.conf_file))
 
         os.remove(old_config_tmp)
@@ -1474,7 +1474,7 @@ class Project:
             self._dvc.init()
             self._dvc.ignore([
                 osp.join(self._aux_dir, ProjectLayout.cache_dir),
-                osp.join(self._aux_dir, ProjectLayout.tree_dir),
+                osp.join(self._aux_dir, ProjectLayout.working_tree_dir),
             ])
             self._git.repo.index.remove(
                 osp.join(self._root_dir, '.dvc', 'plots'), r=True)
@@ -1558,7 +1558,7 @@ class Project:
 
         if self._is_working_tree_ref(obj_hash):
             config_path = osp.join(self._aux_dir,
-                ProjectLayout.tree_dir, TreeLayout.conf_file)
+                ProjectLayout.working_tree_dir, TreeLayout.conf_file)
             # TODO: backward compatibility
             if osp.isfile(config_path):
                 tree_config = TreeConfig.parse(config_path)
@@ -1666,17 +1666,18 @@ class Project:
     def source_data_dir(self, name: str) -> str:
         return osp.join(self._root_dir, name)
 
-    def _source_dvcfile_path(self, name: str, root: str = None) -> str:
+    def _source_dvcfile_path(self, name: str,
+            root: Optional[str] = None) -> str:
         """
         root - Path to the tree root directory. If not set,
             the working tree is used.
         """
 
         if not root:
-            root = osp.join(self._aux_dir, ProjectLayout.tree_dir)
+            root = osp.join(self._aux_dir, ProjectLayout.working_tree_dir)
         return osp.join(root, TreeLayout.sources_dir, name + '.dvc')
 
-    def _make_tmp_dir(self, suffix=None):
+    def _make_tmp_dir(self, suffix: Optional[str] = None):
         project_tmp_dir = osp.join(self._aux_dir, ProjectLayout.tmp_dir)
         os.makedirs(project_tmp_dir, exist_ok=True)
         if suffix:
@@ -1690,6 +1691,8 @@ class Project:
             rmtree(self.cache_path(obj_hash))
 
         if obj_type == self._ObjectIdKind.tree:
+            # Revision metadata is cheap enough and needed to materialize
+            # the revision, so we keep it in the Git cache.
             pass
         elif obj_type == self._ObjectIdKind.blob:
             self._dvc.remove_cache_obj(obj_hash)
@@ -1750,7 +1753,7 @@ class Project:
             obj_hash = obj_hash[:-len(DvcWrapper.DIR_HASH_SUFFIX)]
         return obj_hash
 
-    def compute_source_hash(self, data_dir, dvcfile: Optional[str] = None,
+    def compute_source_hash(self, data_dir: str, dvcfile: Optional[str] = None,
             no_cache: bool = True, allow_external: bool = True) -> ObjectId:
         with ExitStack() as es:
             if not dvcfile:
@@ -1962,9 +1965,9 @@ class Project:
         for s in self.working_tree.sources:
             self.refresh_source_hash(s, no_cache=no_cache)
 
-        tree_dir = osp.join(self._aux_dir, ProjectLayout.tree_dir)
+        wtree_dir = osp.join(self._aux_dir, ProjectLayout.working_tree_dir)
         self.working_tree.save()
-        self._git.add(tree_dir, base=tree_dir)
+        self._git.add(wtree_dir, base=wtree_dir)
         self._git.add([
             osp.join(self._root_dir, '.dvc', '.gitignore'),
             osp.join(self._root_dir, '.dvc', 'config'),
@@ -1974,14 +1977,14 @@ class Project:
         ], base=self._root_dir)
         head = self._git.commit(message)
 
-        copytree(tree_dir, self.cache_path(head))
+        copytree(wtree_dir, self.cache_path(head))
 
         self._head_tree = None
 
         return head
 
     @staticmethod
-    def _copy_dvc_dir(src_dir, dst_dir):
+    def _move_dvc_dir(src_dir, dst_dir):
         for name in {'config', '.gitignore'}:
             os.replace(osp.join(src_dir, name), osp.join(dst_dir, name))
 
@@ -2043,9 +2046,9 @@ class Project:
             # Check working tree for unsaved changes,
             # set HEAD to the revision
             # write revision tree to working tree
-            tree_dir = osp.join(self._aux_dir, ProjectLayout.tree_dir)
-            self._git.checkout(rev, dst_dir=tree_dir, clean=True, force=force)
-            self._copy_dvc_dir(osp.join(tree_dir, '.dvc'),
+            wtree_dir = osp.join(self._aux_dir, ProjectLayout.working_tree_dir)
+            self._git.checkout(rev, dst_dir=wtree_dir, clean=True, force=force)
+            self._move_dvc_dir(osp.join(wtree_dir, '.dvc'),
                                osp.join(self._root_dir, '.dvc'))
 
             self._working_tree = None
@@ -2074,9 +2077,9 @@ class Project:
 
                 self._dvc.checkout(dvcfiles)
 
-            os.replace(osp.join(tree_dir, '.gitignore'),
+            os.replace(osp.join(wtree_dir, '.gitignore'),
                        osp.join(self._root_dir, '.gitignore'))
-            os.replace(osp.join(tree_dir, '.dvcignore'),
+            os.replace(osp.join(wtree_dir, '.dvcignore'),
                        osp.join(self._root_dir, '.dvcignore'))
 
         self._working_tree = None

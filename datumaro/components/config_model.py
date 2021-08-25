@@ -128,7 +128,7 @@ class ProjectLayout:
     aux_dir = '.datumaro'
     cache_dir = 'cache'
     index_dir = 'index'
-    tree_dir = 'tree'
+    working_tree_dir = 'tree'
     head_file = 'head'
     tmp_dir = 'tmp'
     models_dir = 'models'
