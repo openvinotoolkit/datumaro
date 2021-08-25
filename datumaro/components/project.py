@@ -2171,8 +2171,11 @@ class Project:
         if not launcher in self.env.launchers:
             raise KeyError("Unknown launcher '%s'" % launcher)
 
+        if not name:
+            raise ValueError("Model name can't be empty")
+
         if name in self.models:
-            raise KeyError("Model '%s' laready exists" % name)
+            raise KeyError("Model '%s' already exists" % name)
 
         return self._config.models.set(name, {
             'launcher': launcher,
