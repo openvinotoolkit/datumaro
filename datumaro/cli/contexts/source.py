@@ -38,15 +38,17 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
         about plugin implementation.|n
         |n
         Each dataset format has its own import options, which are passed
-        after the '--' separator (see examples), pass '-- -h' for more info.
+        after the '--' separator (see examples), pass '-- -h' for more info.|n
         |n
         Builtin formats: {}|n
         |n
         Examples:|n
         - Add a local directory with a VOC-like dataset:|n
         |s|s%(prog)s -f voc path/to/voc|n
+        |n
         - Add a directory with a COCO dataset, use only a specific file:|n
         |s|s%(prog)s -f coco_instances -r anns/train.json path/to/coco|n
+        |n
         - Add a local file with CVAT annotations, call it 'mysource'|n
         |s|s|s|sto the project in a specific place:|n
         |s|s%(prog)s -f cvat -n mysource -p project/path/ path/to/cvat.xml
