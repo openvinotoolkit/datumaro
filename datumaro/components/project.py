@@ -686,7 +686,7 @@ class ProjectBuildTargets(CrudProxy):
         name = value.get('name') or name
         if not name:
             name = generate_next_name((s.name for s in target.stages),
-                value['type'], sep='-')
+                'stage', sep='-', default='1')
         else:
             if target.find_stage(name):
                 raise VcsError("Stage '%s' already exists" % name)
