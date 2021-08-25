@@ -1731,12 +1731,11 @@ class Project:
         return obj_hash
 
     def compute_source_hash(self, data_dir, dvcfile: Optional[str] = None,
-            no_cache: bool = True, allow_external: bool = True) -> Reference:
-        es = ExitStack()
-        if not dvcfile:
-            tmp_dir = es.enter_context(self._make_tmp_dir())
-            dvcfile = osp.join(tmp_dir, 'source.dvc')
-        with es:
+        with ExitStack() as es:
+            if not dvcfile:
+                tmp_dir = es.enter_context(self._make_tmp_dir())
+                dvcfile = osp.join(tmp_dir, 'source.dvc')
+
             self._dvc.add(data_dir, dvc_path=dvcfile, no_commit=no_cache,
                 allow_external=allow_external)
             obj_hash = self._get_source_hash(dvcfile)
