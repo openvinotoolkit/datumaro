@@ -1677,7 +1677,10 @@ class Project:
             raise ValueError("Unexpected object type '%s'" % obj_type)
 
     def validate_source_name(self, name: str):
-        disallowed_symbols = r"[^\\\ \.\~\-\_\w\d]"
+        if not name:
+            raise ValueError("Source name cannot be empty")
+
+        disallowed_symbols = r"[^\\ .~-\w]"
         found_wrong_symbols = re.findall(disallowed_symbols, name)
         if found_wrong_symbols:
             raise ValueError("Source name contains invalid symbols: %s" %
