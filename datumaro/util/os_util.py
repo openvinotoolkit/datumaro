@@ -101,7 +101,7 @@ def copytree(src, dst):
                 stderr=subprocess.STDOUT, universal_newlines=True)
         elif sys.platform == 'linux':
             # As above
-            subprocess.check_output(["cp", "-r", src, dst], # nosec
+            subprocess.check_output(["cp", "-r", '--', src, dst], # nosec
                 stderr=subprocess.STDOUT, universal_newlines=True)
         else:
             shutil.copytree(src, dst)
