@@ -1703,7 +1703,7 @@ class Project:
         if not name:
             raise ValueError("Source name cannot be empty")
 
-        disallowed_symbols = r"[^\\ .~-\w]"
+        disallowed_symbols = r"[^\\ \.\~\-\w]"
         found_wrong_symbols = re.findall(disallowed_symbols, name)
         if found_wrong_symbols:
             raise ValueError("Source name contains invalid symbols: %s" %
