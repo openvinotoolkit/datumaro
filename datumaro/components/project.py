@@ -1845,7 +1845,7 @@ class Project:
             dvcfile = self._source_dvcfile_path(name)
             os.makedirs(osp.dirname(dvcfile), exist_ok=True)
 
-            with self._make_tmp_dir(suffix=name) as tmp_dir:
+            with self._make_tmp_dir() as tmp_dir:
                 obj_hash, tmp_dvcfile, tmp_data_dir = \
                     self._download_source(url, tmp_dir, no_cache=no_cache)
 
@@ -1965,10 +1965,14 @@ class Project:
         When sources specified, only copies objects from cache to working tree.
         """
 
-        assert sources is None or isinstance(sources, (str, list)), sources
-        if sources:
+        if isinstance(sources, str):
+            sources = {sources}
+        elif sources is None:
+            sources = {}
+        else:
             sources = set(sources)
 
+        if sources:
             rev_tree = self.get_rev(rev or 'HEAD')
 
             # Check targets
@@ -1977,7 +1981,7 @@ class Project:
                     raise UnknownSourceError(s)
 
             rev_dir = rev_tree.config.base_dir
-            with self._make_tmp_dir(suffix='co_%s' % rev) as tmp_dir:
+            with self._make_tmp_dir() as tmp_dir:
                 dvcfiles = []
 
                 for s in sources:
@@ -2021,7 +2025,7 @@ class Project:
             # avoid extra memory use from materializing
             # the head commit sources in the cache
             rev_tree = self.working_tree
-            with self._make_tmp_dir(suffix='co_%s' % rev) as tmp_dir:
+            with self._make_tmp_dir() as tmp_dir:
                 dvcfiles = []
 
                 for s in rev_tree.sources:
