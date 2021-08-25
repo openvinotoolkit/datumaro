@@ -22,7 +22,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         |n
         Examples:|n
         - Create a project in the current directory:|n
-        |s|s%(prog)s -n myproject|n
+        |s|s%(prog)s|n
         |n
         - Create a project in other directory:|n
         |s|s%(prog)s -o path/I/like/
