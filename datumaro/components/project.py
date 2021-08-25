@@ -1279,7 +1279,7 @@ class Tree:
 
     def __init__(self, project: 'Project',
             config: Optional[TreeConfig] = None,
-            rev: Optional[str] = None):
+            rev: Union[None, 'Revision'] = None):
         assert isinstance(project, Project)
         assert not rev or project.is_ref(rev), rev
 
@@ -1320,7 +1320,7 @@ class Tree:
         return self._project.env
 
     @property
-    def rev(self) -> str:
+    def rev(self) -> Union[None, 'Revision']:
         return self._rev
 
     def make_dataset(self, target: Optional[str] = None) -> Dataset:
@@ -1350,7 +1350,7 @@ class DiffStatus(Enum):
     foreign_modified = auto()
 
 Revision = NewType('Revision', str) # a commit hash or a named reference
-Reference = NewType('Reference', str) # a commit or an object hash
+ObjectId = NewType('ObjectId', str) # a commit or an object hash
 
 class Project:
     @staticmethod
@@ -1546,17 +1546,17 @@ class Project:
     def models(self) -> Dict[str, Model]:
         return dict(self._config.models)
 
-    def get_rev(self, rev: Revision) -> Tree:
+    def get_rev(self, rev: Union[None, Revision]) -> Tree:
         """
-        Reference convetions:
+        Reference conventions:
         - None or "" - working dir
         - "<40 symbols>" - revision hash
         """
 
         obj_type, obj_hash = self._parse_ref(rev)
-        assert obj_type == self._RefKind.tree, obj_type
+        assert obj_type == self._ObjectIdKind.tree, obj_type
 
-        if not obj_hash:
+        if self._is_working_tree_ref(obj_hash):
             config_path = osp.join(self._aux_dir,
                 ProjectLayout.tree_dir, TreeLayout.conf_file)
             # TODO: backward compatibility
@@ -1584,38 +1584,58 @@ class Project:
 
     def is_rev_cached(self, rev: Revision) -> bool:
         obj_type, obj_hash = self._parse_ref(rev)
-        assert obj_type == self._RefKind.tree, obj_type
+        assert obj_type == self._ObjectIdKind.tree, obj_type
         return self._is_cached(obj_hash)
 
-    def is_obj_cached(self, obj_hash: Reference) -> bool:
+    def is_obj_cached(self, obj_hash: ObjectId) -> bool:
         return self._is_cached(obj_hash) or \
             self._can_retrieve_from_vcs_cache(obj_hash)
 
-    class _RefKind(Enum):
+    @staticmethod
+    def _is_working_tree_ref(ref: Union[None, Revision, ObjectId]) -> bool:
+        return not ref
+
+    class _ObjectIdKind(Enum):
+        # Project revision data. Currently, a Git commit hash.
         tree = auto()
+
+        # Source revision data. DVC directories and files.
         blob = auto()
 
-    def _parse_ref(self, ref: Union[Revision, Reference] ) \
-            -> Tuple[_RefKind, Reference]:
-        if not ref: # working tree marker
-            return self._RefKind.tree, ref
+    def _parse_ref(self, ref: Union[None, Revision, ObjectId]) \
+            -> Tuple[_ObjectIdKind, ObjectId]:
+        """
+        Resolves the reference to an object hash.
+        """
+
+        if self._is_working_tree_ref(ref):
+            return self._ObjectIdKind.tree, ref
 
         try:
             obj_type, obj_hash = self._git.rev_parse(ref)
-            assert obj_type == 'commit', obj_hash
+        except Exception:
+            pass
+        else:
+            if obj_type != 'commit':
+                raise UnknownRefError(obj_hash)
 
-            return self._RefKind.tree, obj_hash
-        except Exception as e:
-            if isinstance(e, AssertionError):
-                raise
+            return self._ObjectIdKind.tree, obj_hash
 
         try:
             assert self._dvc.is_hash(ref), ref
-            return self._RefKind.blob, ref
+            return self._ObjectIdKind.blob, ref
         except Exception as e:
             raise UnknownRefError(ref) from e
 
-    def _materialize_rev(self, rev: Revision):
+    def _materialize_rev(self, rev: Revision) -> str:
+        """
+        Restores the revision tree data in the project cache from Git.
+
+        Returns: cache object path
+        """
+        # TODO: maybe avoid this operation by providing a virtual filesystem
+        # object
+
         obj_dir = self.cache_path(rev)
         if osp.isdir(obj_dir):
             return obj_dir
@@ -1624,10 +1644,10 @@ class Project:
         self._git.write_tree(tree, obj_dir)
         return obj_dir
 
-    def _is_cached(self, obj_hash: Reference):
+    def _is_cached(self, obj_hash: ObjectId):
         return osp.isdir(self.cache_path(obj_hash))
 
-    def cache_path(self, obj_hash: Reference) -> str:
+    def cache_path(self, obj_hash: ObjectId) -> str:
         assert self._git.is_hash(obj_hash) or self._dvc.is_hash(obj_hash), obj_hash
         if self._dvc.is_dir_hash(obj_hash):
             obj_hash = obj_hash[:self._dvc.FILE_HASH_LEN]
@@ -1635,7 +1655,7 @@ class Project:
         return osp.join(self._aux_dir, ProjectLayout.cache_dir,
             obj_hash[:2], obj_hash[2:])
 
-    def _can_retrieve_from_vcs_cache(self, obj_hash: Reference):
+    def _can_retrieve_from_vcs_cache(self, obj_hash: ObjectId):
         if not self._dvc.is_dir_hash(obj_hash):
             dir_check = self._dvc.is_cached(
                 obj_hash + self._dvc.DIR_HASH_SUFFIX)
@@ -1663,15 +1683,15 @@ class Project:
             suffix = '_' + suffix
         return tempfile.TemporaryDirectory(suffix=suffix, dir=project_tmp_dir)
 
-    def remove_cache_obj(self, ref: Union[Revision, Reference]):
+    def remove_cache_obj(self, ref: Union[Revision, ObjectId]):
         obj_type, obj_hash = self._parse_ref(ref)
 
         if self._is_cached(obj_hash):
             rmtree(self.cache_path(obj_hash))
 
-        if obj_type == self._RefKind.tree:
+        if obj_type == self._ObjectIdKind.tree:
             pass
-        elif obj_type == self._RefKind.blob:
+        elif obj_type == self._ObjectIdKind.blob:
             self._dvc.remove_cache_obj(obj_hash)
         else:
             raise ValueError("Unexpected object type '%s'" % obj_type)
@@ -1731,6 +1751,7 @@ class Project:
         return obj_hash
 
     def compute_source_hash(self, data_dir, dvcfile: Optional[str] = None,
+            no_cache: bool = True, allow_external: bool = True) -> ObjectId:
         with ExitStack() as es:
             if not dvcfile:
                 tmp_dir = es.enter_context(self._make_tmp_dir())
@@ -1742,9 +1763,9 @@ class Project:
         return obj_hash
 
     def refresh_source_hash(self, source: str,
-            no_cache: bool = True) -> Reference:
+            no_cache: bool = True) -> ObjectId:
         """
-        Computes and updates hashes of a source in the working directory.
+        Computes and updates the source hash in the working directory.
 
         Returns: hash
         """
@@ -1764,7 +1785,15 @@ class Project:
 
         return obj_hash
 
-    def _materialize_obj(self, obj_hash: Reference):
+    def _materialize_obj(self, obj_hash: ObjectId) -> str:
+        """
+        Restores the object data in the project cache from DVC.
+
+        Returns: cache object path
+        """
+        # TODO: maybe avoid this operation by providing a virtual filesystem
+        # object
+
         if not self._can_retrieve_from_vcs_cache(obj_hash):
             raise MissingObjectError(obj_hash)
 
@@ -1953,11 +1982,12 @@ class Project:
 
     @staticmethod
     def _copy_dvc_dir(src_dir, dst_dir):
-        for name in ['config', '.gitignore']:
+        for name in {'config', '.gitignore'}:
             os.replace(osp.join(src_dir, name), osp.join(dst_dir, name))
 
-    def checkout(self, rev: Optional[Revision] = None,
-            sources: Union[None, str, List[str]] = None, force: bool = False):
+    def checkout(self, rev: Union[None, Revision] = None,
+            sources: Union[None, str, Iterable[str]] = None,
+            force: bool = False):
         """
         Copies tree and objects from cache to working tree.
 
@@ -2052,8 +2082,8 @@ class Project:
         self._working_tree = None
 
     def is_ref(self, ref: Union[None, str]) -> bool:
-        if not ref:
-            return True # working tree
+        if self._is_working_tree_ref(ref):
+            return True
         return self._git.is_ref(ref)
 
     def has_commits(self) -> bool:
