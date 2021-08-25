@@ -968,7 +968,7 @@ class GitWrapper:
 
         repo_dir = osp.abspath(self._project_dir)
         base_dir = osp.abspath(base_dir)
-        assert base_dir.startswith(repo_dir)
+        assert is_subpath(base_dir, base=repo_dir)
 
         statuses = {}
         for obj_path in paths:
@@ -1198,7 +1198,7 @@ class DvcWrapper:
             dvcignore = '.dvcignore'
         repo_root = self._project_dir
         dvcignore = osp.abspath(osp.join(repo_root, dvcignore))
-        assert dvcignore.startswith(repo_root), dvcignore
+        assert is_subpath(dvcignore, base=repo_root), dvcignore
 
         _update_ignore_file(paths, repo_root=repo_root,
             mode=mode, filepath=dvcignore)

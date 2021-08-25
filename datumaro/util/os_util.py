@@ -6,6 +6,7 @@ from contextlib import (
     ExitStack, contextmanager, redirect_stderr, redirect_stdout,
 )
 from io import StringIO
+from typing import Iterable, Optional
 import importlib
 import os
 import os.path as osp
@@ -156,14 +157,14 @@ def split_path(path):
 
 def is_subpath(path: str, base: str) -> bool:
     """
-    Tests is a path is subpath of another path.
+    Tests if a path is subpath of another path or the paths are equal.
     """
 
     base = osp.abspath(base)
     path = osp.abspath(path)
     return osp.join(path, '').startswith(osp.join(base, ''))
 
-def make_file_name(s):
+def make_file_name(s: str) -> str:
     # adapted from
     # https://docs.djangoproject.com/en/2.1/_modules/django/utils/text/#slugify
     """
@@ -176,7 +177,27 @@ def make_file_name(s):
     s = re.sub(r'[-\s]+', '-', s)
     return s
 
-def generate_next_name(names, basename, sep='.', suffix='', default=None):
+def generate_next_name(names: Iterable[str], basename: str,
+        sep: str = '.', suffix: str = '', default: Optional[str] = None) -> str:
+    """
+    Generates the "next" name by appending a next index to the occurrence
+    of the basename with the highest index in the input collection.
+
+    Returns: next string name
+
+    Example:
+
+    Inputs:
+        name_abc
+        name_base
+        name_base1
+        name_base5
+
+    Basename: name_base
+
+    Output: name_base6
+    """
+
     pattern = re.compile(r'%s(?:%s(\d+))?%s' % \
         tuple(map(re.escape, [basename, sep, suffix])))
     matches = [match for match in (pattern.match(n) for n in names) if match]
