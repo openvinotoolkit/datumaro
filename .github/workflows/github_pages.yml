@@ -33,6 +33,7 @@ jobs:
       - name: Build docs
         run: |
           pip install gitpython packaging
+          pip install toml
           python site/build_docs.py
 
       - name: Deploy

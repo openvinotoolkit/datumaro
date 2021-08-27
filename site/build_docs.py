@@ -4,6 +4,7 @@
 
 import os
 import subprocess
+import toml
 
 from packaging import version
 import git
@@ -28,9 +29,15 @@ def generate_versioning_config(filename, versions, url_prefix=''):
         file_object.write('url = "{}"\n\n'.format(url))
 
     with open(filename, 'w') as f:
-        write_version_item(f, 'develop', '{}/'.format(url_prefix))
+        write_version_item(f, 'Latest version', '{}/'.format(url_prefix))        
         for v in versions:
             write_version_item(f, v, '{}/{}'.format(url_prefix, v))
+
+def change_version_menu_toml(filename, version):
+    data = toml.load(filename)
+    data['params']['version_menu'] = version
+    f = open(filename,'w')
+    toml.dump(data, f)
 
 def generate_docs(repo, output_dir, tags):
     def run_hugo(content_loc, destination_dir):
@@ -50,12 +57,14 @@ def generate_docs(repo, output_dir, tags):
         os.makedirs(output_dir)
 
     generate_versioning_config(os.path.join(cwd, 'site', 'versioning.toml'), (t.name for t in tags))
+    change_version_menu_toml(os.path.join(cwd, 'site', 'versioning.toml'), 'Latest version')
     run_hugo(content_loc, output_dir)
 
     generate_versioning_config(os.path.join(cwd, 'site', 'versioning.toml'), (t.name for t in tags), '/..')
     for tag in tags:
         repo.git.checkout(tag.name, '--', 'site/content/en/docs')
         destination_dir = os.path.join(output_dir, tag.name)
+        change_version_menu_toml(os.path.join(cwd, 'site', 'versioning.toml'), tag.name)
         os.makedirs(destination_dir)
         run_hugo(content_loc, destination_dir)
 
