@@ -4,10 +4,10 @@
 
 import os
 import subprocess
-import toml
 
 from packaging import version
 import git
+import toml
 
 MINIMUM_VERSION='0.1.11' # the initial version for the documentation site
 
