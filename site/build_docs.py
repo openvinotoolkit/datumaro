@@ -29,7 +29,7 @@ def generate_versioning_config(filename, versions, url_prefix=''):
         file_object.write('url = "{}"\n\n'.format(url))
 
     with open(filename, 'w') as f:
-        write_version_item(f, 'Latest version', '{}/'.format(url_prefix))        
+        write_version_item(f, 'Latest version', '{}/'.format(url_prefix))
         for v in versions:
             write_version_item(f, v, '{}/{}'.format(url_prefix, v))
 
