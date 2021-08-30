@@ -20,6 +20,10 @@ class ReadonlyDatasetError(VcsError):
     def __str__(self):
         return "Can't update a read-only dataset"
 
+class ReadonlyProjectError(VcsError):
+    def __str__(self):
+        return "Can't change a read-only project"
+
 @attrs
 class UnknownRefError(VcsError):
     ref = attrib()
@@ -111,6 +115,7 @@ class UnknownTargetError(DatumaroError):
     def __str__(self):
         return f"Unknown target '{self.name}'"
 
+@attrs
 class UnknownFormatError(DatumaroError):
     format = attrib()
 

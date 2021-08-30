@@ -4,7 +4,9 @@
 
 import argparse
 
-from datumaro.components.errors import DatasetMergeError, ProjectNotFoundError
+from datumaro.components.errors import (
+    DatasetMergeError, MissingObjectError, ProjectNotFoundError,
+)
 from datumaro.components.extractor import AnnotationType
 
 from ..util import MultilineFormatter
@@ -63,12 +65,14 @@ def info_command(args):
 
     try:
         # TODO: avoid computing working tree hashes
-        # TODO: disallow downloading, just display "data is not available"
         dataset = parse_full_revpath(args.target, project)
     except DatasetMergeError as e:
         dataset = None
         dataset_problem = "Can't merge project sources automatically: %s " \
             "Conflicting sources are: %s" % (e, ', '.join(e.sources))
+    except MissingObjectError as e:
+        dataset = None
+        dataset_problem = str(e)
 
     def print_dataset_info(dataset, indent=''):
         print("%slength:" % indent, len(dataset))
@@ -100,6 +104,6 @@ def info_command(args):
             print("  '%s':" % subset_name)
             print_dataset_info(subset, indent="    ")
     else:
-        print("Merged dataset info is not available: ", dataset_problem)
+        print("Dataset info is not available: ", dataset_problem)
 
     return 0

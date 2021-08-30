@@ -29,9 +29,9 @@ from datumaro.components.errors import (
     ForeignChangesError, InvalidStageError, MigrationError,
     MismatchingObjectError, MissingObjectError, MissingPipelineHeadError,
     MultiplePipelineHeadsError, PathOutsideSourceError, ProjectAlreadyExists,
-    ProjectNotFoundError, ReadonlyDatasetError, SourceExistsError,
-    SourceUrlInsideProjectError, UnexpectedUrlError, UnknownRefError,
-    UnknownSourceError, UnknownStageError, UnknownTargetError,
+    ProjectNotFoundError, ReadonlyDatasetError, ReadonlyProjectError,
+    SourceExistsError, SourceUrlInsideProjectError, UnexpectedUrlError,
+    UnknownRefError, UnknownSourceError, UnknownStageError, UnknownTargetError,
     UnsavedChangesError, VcsError,
 )
 from datumaro.components.launcher import Launcher
@@ -325,6 +325,9 @@ class ProjectBuilder:
                     "was modified outside Datumaro. You can restore the "
                     "latest source revision with 'checkout' command." % target)
 
+            if self._project.readonly:
+                continue
+
             assert source.hash, target
             with self._project._make_tmp_dir() as tmp_dir:
                 obj_hash, _, _ = \
@@ -579,7 +582,8 @@ class ProjectBuilder:
                         self._project.source_data_dir(stage_name))
                     work_dir_hashes[stage_name] = wd_hash
 
-                return obj_hash == wd_hash
+                if obj_hash == wd_hash:
+                    return True
 
             if obj_hash and self._project.is_obj_cached(obj_hash):
                 return True
@@ -1366,6 +1370,10 @@ class Project:
         return None
 
     def _migrate_from_v1_to_v2(self) -> bool:
+        if self.readonly:
+            raise MigrationError("Can't update project to the new "
+                "version: the project is read-only")
+
         old_config_path = osp.join(self._aux_dir, 'config.yaml')
         old_config = Config.parse(old_config_path)
         if old_config.format_version == 1:
@@ -1422,7 +1430,7 @@ class Project:
 
         return True
 
-    def __init__(self, path: Optional[str] = None):
+    def __init__(self, path: Optional[str] = None, readonly=False):
         if not path:
             path = osp.curdir
         found_path = self.find_project_dir(path)
@@ -1431,6 +1439,8 @@ class Project:
 
         self._aux_dir = found_path
         self._root_dir = osp.dirname(found_path)
+
+        self._readonly = readonly
 
         # Force import errors on missing dependencies.
         #
@@ -1513,6 +1523,10 @@ class Project:
 
     def save(self):
         self._config.dump(osp.join(self._aux_dir, ProjectLayout.conf_file))
+
+    @property
+    def readonly(self) -> bool:
+        return self._readonly
 
     @property
     def working_tree(self) -> Tree:
@@ -1636,6 +1650,9 @@ class Project:
         # TODO: maybe avoid this operation by providing a virtual filesystem
         # object
 
+        if self.readonly:
+            raise ReadonlyProjectError()
+
         obj_dir = self.cache_path(rev)
         if osp.isdir(obj_dir):
             return obj_dir
@@ -1656,6 +1673,9 @@ class Project:
             obj_hash[:2], obj_hash[2:])
 
     def _can_retrieve_from_vcs_cache(self, obj_hash: ObjectId):
+        if self.readonly:
+            return False
+
         if not self._dvc.is_dir_hash(obj_hash):
             dir_check = self._dvc.is_cached(
                 obj_hash + self._dvc.DIR_HASH_SUFFIX)
@@ -1685,6 +1705,9 @@ class Project:
         return tempfile.TemporaryDirectory(suffix=suffix, dir=project_tmp_dir)
 
     def remove_cache_obj(self, ref: Union[Revision, ObjectId]):
+        if self.readonly:
+            raise ReadonlyProjectError()
+
         obj_type, obj_hash = self._parse_ref(ref)
 
         if self._is_cached(obj_hash):
@@ -1777,6 +1800,9 @@ class Project:
         Returns: hash
         """
 
+        if self.readonly:
+            raise ReadonlyProjectError()
+
         build_target = self.working_tree.build_targets[source]
         source_dir = self.source_data_dir(source)
 
@@ -1800,6 +1826,9 @@ class Project:
         """
         # TODO: maybe avoid this operation by providing a virtual filesystem
         # object
+
+        if self.readonly:
+            raise ReadonlyProjectError()
 
         if not self._can_retrieve_from_vcs_cache(obj_hash):
             raise MissingObjectError(obj_hash)
@@ -1834,6 +1863,9 @@ class Project:
 
         Returns: the new source config
         """
+
+        if self.readonly:
+            raise ReadonlyProjectError()
 
         self.validate_source_name(name)
 
@@ -1909,6 +1941,9 @@ class Project:
         - keep_data (bool) - leaves source data untouched
         """
 
+        if self.readonly:
+            raise ReadonlyProjectError()
+
         if name not in self.working_tree.sources and not force:
             raise UnknownSourceError(name)
 
@@ -1947,6 +1982,9 @@ class Project:
 
         Returns: the new commit hash
         """
+
+        if self.readonly:
+            raise ReadonlyProjectError()
 
         statuses = self.status()
 
@@ -2001,6 +2039,9 @@ class Project:
         Sets HEAD to the specified revision, unless targets specified.
         When sources specified, only copies objects from cache to working tree.
         """
+
+        if self.readonly:
+            raise ReadonlyProjectError()
 
         if isinstance(sources, str):
             sources = {sources}
@@ -2205,6 +2246,9 @@ class Project:
             **model.options, model_dir=model_dir)
 
     def add_model(self, name: str, launcher: str, options = None) -> Model:
+        if self.readonly:
+            raise ReadonlyProjectError()
+
         if not launcher in self.env.launchers:
             raise KeyError("Unknown launcher '%s'" % launcher)
 
@@ -2220,6 +2264,9 @@ class Project:
         })
 
     def remove_model(self, name: str):
+        if self.readonly:
+            raise ReadonlyProjectError()
+
         if name in self.models:
             raise KeyError("Unknown model '%s'" % name)
 

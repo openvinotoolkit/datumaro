@@ -9,13 +9,13 @@ import re
 from datumaro.cli.util.errors import WrongRevpathError
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
-from datumaro.components.errors import ProjectNotFoundError
+from datumaro.components.errors import DatumaroError, ProjectNotFoundError
 from datumaro.components.project import Project, Revision
 from datumaro.util.os_util import generate_next_name
 
 
-def load_project(project_dir):
-    return Project(project_dir)
+def load_project(project_dir, readonly=False):
+    return Project(project_dir, readonly=readonly)
 
 def generate_next_file_name(basename, basedir='.', sep='.', ext=''):
     """
@@ -74,11 +74,11 @@ def parse_revspec(s: str, ctx_project: Optional[Project] = None) -> Dataset:
 
     assert proj_path
     if rev:
-        project = load_project(proj_path)
+        project = load_project(proj_path, readonly=True)
 
         # proj_path is either proj_path or rev or source name
     elif Project.find_project_dir(proj_path):
-        project = load_project(proj_path)
+        project = load_project(proj_path, readonly=True)
     elif ctx_project:
         project = ctx_project
         if project.is_ref(proj_path):
@@ -108,12 +108,12 @@ def parse_full_revpath(s: str, ctx_project: Optional[Project]) -> Dataset:
     errors = []
     try:
         return parse_dataset_pathspec(s, env=env)
-    except Exception as e:
+    except DatumaroError as e:
         errors.append(e)
 
     try:
         return parse_revspec(s, ctx_project=ctx_project)
-    except Exception as e:
+    except DatumaroError as e:
         errors.append(e)
 
     raise WrongRevpathError(problems=errors)

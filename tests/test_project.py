@@ -10,8 +10,8 @@ from datumaro.components.config_model import Model, Source
 from datumaro.components.dataset import DEFAULT_FORMAT, Dataset
 from datumaro.components.errors import (
     DatasetMergeError, EmptyCommitError, ForeignChangesError,
-    MismatchingObjectError, PathOutsideSourceError, SourceExistsError,
-    SourceUrlInsideProjectError,
+    MismatchingObjectError, MissingObjectError, PathOutsideSourceError,
+    ReadonlyProjectError, SourceExistsError, SourceUrlInsideProjectError,
 )
 from datumaro.components.extractor import (
     Bbox, DatasetItem, Extractor, ItemTransform, Label,
@@ -847,6 +847,58 @@ class ProjectTest(TestCase):
             ])
             compare_datasets(self, expected, dataset)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_cant_modify_readonly(self):
+
+        with TestDir() as test_dir:
+            dataset_url = osp.join(test_dir, 'dataset')
+            Dataset.from_iterable([
+                DatasetItem('a'),
+                DatasetItem('b'),
+            ]).save(dataset_url)
+
+            proj_dir = osp.join(test_dir, 'proj')
+            project = Project.init(proj_dir)
+            project.import_source('source1', url=dataset_url,
+                format=DEFAULT_FORMAT)
+            project.commit('first commit')
+            project.remove_source('source1')
+            commit2 = project.commit('second commit')
+            project.checkout('HEAD~1')
+            project.remove_cache_obj(commit2)
+            project.remove_cache_obj(
+                project.working_tree.sources['source1'].hash)
+
+            project = Project(proj_dir, readonly=True)
+
+            self.assertTrue(project.readonly)
+
+            with self.subTest("add source"), self.assertRaises(ReadonlyProjectError):
+                project.import_source('src1', url='', format=DEFAULT_FORMAT)
+
+            with self.subTest("remove source"), self.assertRaises(ReadonlyProjectError):
+                project.remove_source('src1')
+
+            with self.subTest("add model"), self.assertRaises(ReadonlyProjectError):
+                project.add_model('m1', launcher='x')
+
+            with self.subTest("remove model"), self.assertRaises(ReadonlyProjectError):
+                project.remove_model('m1')
+
+            with self.subTest("checkout"), self.assertRaises(ReadonlyProjectError):
+                project.checkout('HEAD')
+
+            with self.subTest("commit"), self.assertRaises(ReadonlyProjectError):
+                project.commit('third commit', allow_empty=True)
+
+            with self.subTest("diff"), self.assertRaises(ReadonlyProjectError):
+                project.diff(commit2, commit2 + '~1')
+
+            with self.subTest("get rev"), self.assertRaises(ReadonlyProjectError):
+                project.get_rev(commit2)
+
+            with self.subTest("make_dataset"), self.assertRaises(MissingObjectError):
+                project.get_rev('HEAD').make_dataset()
 
 class BackwardCompatibilityTests_v0_1(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
