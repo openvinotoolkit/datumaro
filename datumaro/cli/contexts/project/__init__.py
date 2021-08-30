@@ -13,8 +13,7 @@ import numpy as np
 
 from datumaro.components.dataset_filter import DatasetItemEncoder
 from datumaro.components.environment import Environment
-from datumaro.components.errors import DatasetMergeError, ProjectNotFoundError
-from datumaro.components.extractor import AnnotationType
+from datumaro.components.errors import ProjectNotFoundError
 from datumaro.components.operations import (
     compute_ann_statistics, compute_image_statistics,
 )
@@ -27,7 +26,6 @@ from ...util import MultilineFormatter, add_subparser
 from ...util.errors import CliException
 from ...util.project import (
     generate_next_file_name, load_project, parse_full_revpath,
-    split_local_revpath,
 )
 
 
@@ -539,18 +537,19 @@ def build_info_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(help="Get project info",
         description="""
         Outputs project info - information about plugins,
-        sources and models.|n
+        sources, build tree, models and revisions.|n
         |n
         Examples:|n
-        - Print project contents:|n
-        |s|s%(prog)s
+        - Print project info for the current working tree:|n
+        |s|s%(prog)s|n
+        |n
+        - Print project info for the previous revision:|n
+        |s|s%(prog)s HEAD~1
         """,
         formatter_class=MultilineFormatter)
 
-    parser.add_argument('target', default='project', nargs='?',
-        help="Target source revpath (default: project)")
-    parser.add_argument('--all', action='store_true',
-        help="Print all information")
+    parser.add_argument('revision', default='', nargs='?',
+        help="Target revision (default: current working tree)")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to operate on (default: current dir)")
     parser.set_defaults(command=info_command)
@@ -558,17 +557,9 @@ def build_info_parser(parser_ctor=argparse.ArgumentParser):
     return parser
 
 def info_command(args):
-    rev, target = split_local_revpath(args.target)
     project = load_project(args.project_dir)
-    config = project.working_tree.config
-    env = project.working_tree.env
-
-    try:
-        dataset = project.get_rev(rev).make_dataset(target)
-    except DatasetMergeError as e:
-        dataset = None
-        dataset_problem = "Can't merge project sources automatically: %s " \
-            "Conflicting sources are: %s" % (e, ', '.join(e.sources))
+    rev = project.get_rev(args.revision)
+    env = rev.env
 
     print("Project:")
     print("  location:", project._root_dir)
@@ -578,51 +569,30 @@ def info_command(args):
     print("  converters:", ', '.join(env.converters))
     print("  launchers:", ', '.join(env.launchers))
 
-    print("Sources:")
-    for source_name, source in config.sources.items():
-        print("  source '%s':" % source_name)
-        print("    format:", source.format)
-        print("    url:", source.url)
-        print("    location:", project.source_data_dir(source_name))
-        print("    options:", source.options)
-
-    def print_extractor_info(extractor, indent=''):
-        print("%slength:" % indent, len(extractor))
-
-        categories = extractor.categories()
-        print("%scategories:" % indent, ', '.join(c.name for c in categories))
-
-        for cat_type, cat in categories.items():
-            print("%s  %s:" % (indent, cat_type.name))
-            if cat_type == AnnotationType.label:
-                print("%s    count:" % indent, len(cat.items))
-
-                count_threshold = 10
-                if args.all:
-                    count_threshold = len(cat.items)
-                labels = ', '.join(c.name for c in cat.items[:count_threshold])
-                if count_threshold < len(cat.items):
-                    labels += " (and %s more)" % (
-                        len(cat.items) - count_threshold)
-                print("%s    labels:" % indent, labels)
-
-    if dataset is not None:
-        print("Dataset:")
-        print_extractor_info(dataset, indent="  ")
-
-        subsets = dataset.subsets()
-        print("  subsets:", ', '.join(subsets))
-        for subset_name in subsets:
-            subset = dataset.get_subset(subset_name)
-            print("    subset '%s':" % subset_name)
-            print_extractor_info(subset, indent="      ")
-    else:
-        print("Merged dataset info is not available: ", dataset_problem)
-
     print("Models:")
     for model_name, model in project.models.items():
         print("  model '%s':" % model_name)
         print("    type:", model.launcher)
+
+    print("Sources:")
+    for source_name, source in rev.sources.items():
+        print("  '%s':" % source_name)
+        print("    format:", source.format)
+        print("    url:", source.url)
+        print("    location:",
+            osp.join(project.source_data_dir(source_name), source.path))
+        print("    options:", source.options)
+        print("    hash:", source.hash)
+
+        print("    stages:")
+        for stage in rev.build_targets[source_name].stages:
+            print("      '%s':" % stage.name)
+            print("        type:", stage.type)
+            print("        hash:", stage.hash)
+            if stage.kind:
+                print("        kind:", stage.kind)
+            if stage.params:
+                print("        parameters:", stage.params)
 
     return 0
 
