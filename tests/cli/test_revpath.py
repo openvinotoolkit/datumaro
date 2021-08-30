@@ -40,7 +40,14 @@ class TestRevpath(TestCase):
 
             with self.subTest("project ref source"):
                 self.assertTrue(isinstance(
-                    parse_full_revpath(proj_dir + "@" + ref + ":source-1", None),
+                    parse_full_revpath(
+                        proj_dir + "@" + ref + ":source-1", None),
+                    IDataset))
+
+            with self.subTest("project ref source stage"):
+                self.assertTrue(isinstance(
+                    parse_full_revpath(
+                        proj_dir + "@" + ref + ":source-1.root", None),
                     IDataset))
 
             with self.subTest("ref"):
@@ -53,9 +60,19 @@ class TestRevpath(TestCase):
                     parse_full_revpath(ref + ":source-1", proj),
                     IDataset))
 
+            with self.subTest("ref source stage"):
+                self.assertTrue(isinstance(
+                    parse_full_revpath(ref + ":source-1.root", proj),
+                    IDataset))
+
             with self.subTest("source"):
                 self.assertTrue(isinstance(
                     parse_full_revpath("source-1", proj),
+                    IDataset))
+
+            with self.subTest("source stage"):
+                self.assertTrue(isinstance(
+                    parse_full_revpath("source-1.root", proj),
                     IDataset))
 
             with self.subTest("dataset (in context)"):
