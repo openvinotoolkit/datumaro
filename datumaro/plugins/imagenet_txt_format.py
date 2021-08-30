@@ -5,6 +5,7 @@
 import os
 import os.path as osp
 
+from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.converter import Converter
 from datumaro.components.extractor import (
     AnnotationType, DatasetItem, Importer, Label, LabelCategories,
@@ -81,7 +82,14 @@ class ImagenetTxtExtractor(SourceExtractor):
         return items
 
 
-class ImagenetTxtImporter(Importer):
+class ImagenetTxtImporter(Importer, CliPlugin):
+    @classmethod
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument('--labels-file', dest='labels',
+            help="Path to the file with label descriptions (synsets.txt)")
+        return parser
+
     @classmethod
     def find_sources_with_params(cls, path, **extra_params):
         labels = extra_params.get('labels')
