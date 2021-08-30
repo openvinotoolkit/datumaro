@@ -1729,6 +1729,8 @@ class Project:
         dvcfile = osp.join(dst_dir, 'source.dvc')
         data_dir = osp.join(dst_dir, 'data')
 
+        log.debug(f"Copying from '{url}' to '{data_dir}'")
+
         if osp.isdir(url):
             copytree(url, data_dir)
         elif osp.isfile(url):
@@ -1737,6 +1739,8 @@ class Project:
         else:
             raise UnexpectedUrlError(url)
         on_error_do(rmtree, data_dir, ignore_errors=True)
+
+        log.debug("Done")
 
         obj_hash = self.compute_source_hash(data_dir,
             dvcfile=dvcfile, no_cache=no_cache, allow_external=True)
