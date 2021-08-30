@@ -119,9 +119,10 @@ class ImagenetTxtFormatTest(TestCase):
             compare_datasets(self, dataset, parsed_dataset,
                 require_images=True)
 
-DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'imagenet_txt_dataset')
+DUMMY_DATASET_DIR = osp.join(
+    osp.dirname(__file__), 'assets/imagenet_txt_dataset/basic')
 DUMMY_DATASET_WITH_CUSTOM_LABELS_DIR = osp.join(
-    osp.dirname(__file__), 'assets', 'imagenet_txt_dataset_custom_labels')
+    osp.dirname(__file__), 'assets/imagenet_txt_dataset/custom_labels')
 
 class ImagenetTxtImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
