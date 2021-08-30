@@ -36,8 +36,9 @@ def generate_versioning_config(filename, versions, url_prefix=''):
 def change_version_menu_toml(filename, version):
     data = toml.load(filename)
     data['params']['version_menu'] = version
-    f = open(filename,'w')
-    toml.dump(data, f)
+
+    with open(filename,'w') as f:
+        toml.dump(data, f)
 
 def generate_docs(repo, output_dir, tags):
     def run_hugo(content_loc, destination_dir):
