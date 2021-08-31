@@ -20,7 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - TBD
 
 ### Fixed
-- TBD
+- Deprecation warning in `open_images_format.py`
+  (<https://github.com/openvinotoolkit/datumaro/pull/440>)
 
 ### Security
 - TBD
