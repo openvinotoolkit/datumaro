@@ -46,8 +46,7 @@ class ProjectIntegrationScenarios(TestCase):
             self.assertTrue(osp.isdir(result_dir))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_list_info(self):
-        # TODO: use subformats once importers are removed
+    def test_can_list_project_info(self):
         coco_dir = osp.join(__file__[:__file__.rfind(osp.join('tests', ''))],
             'tests', 'assets', 'coco_dataset', 'coco_instances')
 
@@ -55,7 +54,33 @@ class ProjectIntegrationScenarios(TestCase):
             run(self, 'create', '-o', test_dir)
             run(self, 'add', '-f', 'coco', '-p', test_dir, coco_dir)
 
-            run(self, 'info', '-p', test_dir)
+            with self.subTest("on project"):
+                run(self, 'project', 'info', '-p', test_dir)
+
+            with self.subTest("on project revision"):
+                run(self, 'project', 'info', '-p', test_dir, 'HEAD')
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_list_dataset_info(self):
+        coco_dir = osp.join(__file__[:__file__.rfind(osp.join('tests', ''))],
+            'tests', 'assets', 'coco_dataset', 'coco_instances')
+
+        with TestDir() as test_dir:
+            run(self, 'create', '-o', test_dir)
+            run(self, 'add', '-f', 'coco', '-p', test_dir, coco_dir)
+            run(self, 'commit', '-m', 'first', '-p', test_dir)
+
+            with self.subTest("on current project"):
+                run(self, 'info', '-p', test_dir)
+
+            with self.subTest("on current project revision"):
+                run(self, 'info', '-p', test_dir, 'HEAD')
+
+            with self.subTest("on other project"):
+                run(self, 'info', test_dir)
+
+            with self.subTest("on dataset"):
+                run(self, 'info', coco_dir + ':coco')
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_use_vcs(self):
