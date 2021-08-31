@@ -108,12 +108,12 @@ def parse_full_revpath(s: str, ctx_project: Optional[Project]) -> Dataset:
     errors = []
     try:
         return parse_dataset_pathspec(s, env=env)
-    except DatumaroError as e:
+    except (DatumaroError, OSError) as e:
         errors.append(e)
 
     try:
         return parse_revspec(s, ctx_project=ctx_project)
-    except DatumaroError as e:
+    except (DatumaroError, OSError) as e:
         errors.append(e)
 
     raise WrongRevpathError(problems=errors)
