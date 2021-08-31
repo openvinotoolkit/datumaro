@@ -12,11 +12,11 @@ import os.path as osp
 from defusedxml import ElementTree
 import numpy as np
 
-from datumaro.components.converter import Converter
-from datumaro.components.extractor import (
-    AnnotationType, Bbox, DatasetItem, Extractor, Importer, LabelCategories,
-    Mask, Polygon,
+from datumaro.components.annotation import (
+    AnnotationType, Bbox, LabelCategories, Mask, Polygon,
 )
+from datumaro.components.converter import Converter
+from datumaro.components.extractor import DatasetItem, Extractor, Importer
 from datumaro.util import cast, escape, unescape
 from datumaro.util.image import Image, save_image
 from datumaro.util.mask_tools import find_mask_bbox, load_mask

@@ -6,6 +6,7 @@ from copy import deepcopy
 
 import numpy as np
 
+from datumaro.components.annotation import AnnotationType, LabelCategories
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.errors import (
     AttributeDefinedButNotFound, FarFromAttrMean, FarFromLabelMean,
@@ -15,7 +16,6 @@ from datumaro.components.errors import (
     MissingLabelCategories, MultiLabelAnnotations, NegativeLength,
     OnlyOneAttributeValue, OnlyOneLabel, UndefinedAttribute, UndefinedLabel,
 )
-from datumaro.components.extractor import AnnotationType, LabelCategories
 from datumaro.components.validator import Severity, TaskType, Validator
 from datumaro.util import parse_str_enum_value
 

@@ -10,8 +10,8 @@ import os
 import os.path as osp
 import string
 
+from datumaro.components.annotation import AnnotationType, LabelCategories
 from datumaro.components.converter import Converter
-from datumaro.components.extractor import AnnotationType, LabelCategories
 from datumaro.util.annotation_util import (
     find_group_leader, find_instances, max_bbox,
 )

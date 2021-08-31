@@ -5,12 +5,13 @@ import textwrap
 
 import numpy as np
 
+from datumaro.components.annotation import (
+    AnnotationType, Label, LabelCategories,
+)
 from datumaro.components.config import Config
 from datumaro.components.config_model import Model, Source
 from datumaro.components.dataset import DEFAULT_FORMAT, Dataset
-from datumaro.components.extractor import (
-    AnnotationType, DatasetItem, Extractor, Label, LabelCategories,
-)
+from datumaro.components.extractor import DatasetItem, Extractor
 from datumaro.components.launcher import Launcher, ModelTransform
 from datumaro.components.project import Environment, Project
 from datumaro.util.test_utils import TestDir, compare_datasets

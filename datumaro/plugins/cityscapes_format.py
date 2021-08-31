@@ -10,12 +10,12 @@ import os.path as osp
 
 import numpy as np
 
+from datumaro.components.annotation import (
+    AnnotationType, CompiledMask, LabelCategories, Mask, MaskCategories,
+)
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
-from datumaro.components.extractor import (
-    AnnotationType, CompiledMask, DatasetItem, Importer, LabelCategories, Mask,
-    MaskCategories, SourceExtractor,
-)
+from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.util import find
 from datumaro.util.annotation_util import make_label_id_mapping
 from datumaro.util.image import find_images, load_image, save_image

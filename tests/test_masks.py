@@ -2,7 +2,7 @@ from unittest import TestCase
 
 import numpy as np
 
-from datumaro.components.extractor import CompiledMask
+from datumaro.components.annotation import CompiledMask
 import datumaro.util.mask_tools as mask_tools
 
 from .requirements import Requirements, mark_requirement

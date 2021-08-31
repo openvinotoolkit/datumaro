@@ -20,8 +20,8 @@ except ImportError:
     from shutil import rmtree
     from os import remove as rmfile
 
+from datumaro.components.annotation import AnnotationType
 from datumaro.components.dataset import Dataset, IDataset
-from datumaro.components.extractor import AnnotationType
 from datumaro.util import filter_dict, find
 
 

@@ -13,11 +13,9 @@ import logging as log
 import os
 import os.path as osp
 
+from datumaro.components.annotation import AnnotationType, Bbox, LabelCategories
 from datumaro.components.converter import Converter
-from datumaro.components.extractor import (
-    AnnotationType, Bbox, DatasetItem, Importer, LabelCategories,
-    SourceExtractor,
-)
+from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.util import cast
 from datumaro.util.image import Image, find_images
 

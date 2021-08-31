@@ -14,6 +14,10 @@ import attr
 import cv2
 import numpy as np
 
+from datumaro.components.annotation import (
+    AnnotationType, Bbox, Label, LabelCategories, MaskCategories,
+    PointsCategories,
+)
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.dataset import Dataset, DatasetItemStorage, IDataset
 from datumaro.components.errors import (
@@ -21,10 +25,7 @@ from datumaro.components.errors import (
     FailedAttrVotingError, FailedLabelVotingError, MismatchingImageInfoError,
     NoMatchingAnnError, NoMatchingItemError, WrongGroupError,
 )
-from datumaro.components.extractor import (
-    AnnotationType, Bbox, CategoriesInfo, Label, LabelCategories,
-    MaskCategories, PointsCategories,
-)
+from datumaro.components.extractor import CategoriesInfo
 from datumaro.util import filter_dict, find
 from datumaro.util.annotation_util import (
     OKS, bbox_iou, find_instances, max_bbox, mean_bbox, segment_iou,

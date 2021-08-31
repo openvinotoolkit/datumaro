@@ -8,7 +8,7 @@ from itertools import chain
 
 import numpy as np
 
-from datumaro.components.extractor import (
+from datumaro.components.annotation import (
     AnnotationType, LabelCategories, MaskCategories,
 )
 

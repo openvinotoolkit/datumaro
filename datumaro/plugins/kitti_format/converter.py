@@ -10,10 +10,10 @@ import os.path as osp
 
 import numpy as np
 
-from datumaro.components.converter import Converter
-from datumaro.components.extractor import (
+from datumaro.components.annotation import (
     AnnotationType, CompiledMask, LabelCategories,
 )
+from datumaro.components.converter import Converter
 from datumaro.util import cast, parse_str_enum_value, str_to_bool
 from datumaro.util.annotation_util import make_label_id_mapping
 from datumaro.util.image import save_image

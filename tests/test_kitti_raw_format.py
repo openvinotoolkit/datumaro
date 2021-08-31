@@ -3,9 +3,10 @@ from unittest import TestCase
 import os
 import os.path as osp
 
-from datumaro.components.extractor import (
-    AnnotationType, Cuboid3d, DatasetItem, LabelCategories,
+from datumaro.components.annotation import (
+    AnnotationType, Cuboid3d, LabelCategories,
 )
+from datumaro.components.extractor import DatasetItem
 from datumaro.components.project import Dataset
 from datumaro.plugins.kitti_raw_format.converter import KittiRawConverter
 from datumaro.plugins.kitti_raw_format.extractor import KittiRawImporter

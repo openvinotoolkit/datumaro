@@ -10,10 +10,12 @@ import os.path as osp
 from pycocotools.coco import COCO
 import pycocotools.mask as mask_utils
 
+from datumaro.components.annotation import (
+    AnnotationType, Bbox, Caption, CompiledMask, Label, LabelCategories, Mask,
+    Points, PointsCategories, Polygon, RleMask,
+)
 from datumaro.components.extractor import (
-    DEFAULT_SUBSET_NAME, AnnotationType, Bbox, Caption, CompiledMask,
-    DatasetItem, Label, LabelCategories, Mask, Points, PointsCategories,
-    Polygon, RleMask, SourceExtractor,
+    DEFAULT_SUBSET_NAME, DatasetItem, SourceExtractor,
 )
 from datumaro.util.image import Image, lazy_image, load_image
 from datumaro.util.mask_tools import bgr2index
