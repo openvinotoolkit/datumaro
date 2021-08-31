@@ -777,6 +777,9 @@ class SourceExtractor(Extractor):
 class Importer(CliPlugin):
     @classmethod
     def detect(cls, path):
+        if not path or not osp.exists(path):
+            return False
+
         return len(cls.find_sources(path)) != 0
 
     @classmethod
@@ -784,6 +787,9 @@ class Importer(CliPlugin):
         raise NotImplementedError()
 
     def __call__(self, path, **extra_params):
+        if not path or not osp.exists(path):
+            raise DatasetNotFoundError(path)
+
         found_sources = self.find_sources(osp.normpath(path))
         if not found_sources:
             raise DatasetNotFoundError(path)
