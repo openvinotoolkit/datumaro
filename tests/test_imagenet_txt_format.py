@@ -159,8 +159,7 @@ class ImagenetTxtImporterTest(TestCase):
 
         dataset = Dataset.import_from(
             DUMMY_DATASET_WITH_CUSTOM_LABELS_DIR, 'imagenet_txt',
-            labels=osp.join(
-                DUMMY_DATASET_WITH_CUSTOM_LABELS_DIR, 'synsets-alt.txt'))
+            labels='synsets-alt.txt')
 
         compare_datasets(self, expected_dataset, dataset, require_images=True)
 

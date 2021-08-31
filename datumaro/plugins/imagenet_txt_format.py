@@ -29,11 +29,10 @@ class ImagenetTxtExtractor(SourceExtractor):
             image_dir = ImagenetTxtPath.IMAGE_DIR
         self.image_dir = osp.join(osp.dirname(path), image_dir)
 
-        if labels is None:
-            labels = osp.join(osp.dirname(path), ImagenetTxtPath.LABELS_FILE)
-            labels = self._parse_labels(labels)
-        elif isinstance(labels, str):
-            labels = self._parse_labels(labels)
+        if labels is None or isinstance(labels, str):
+            labels = self._parse_labels(
+                osp.join(osp.dirname(path),
+                    labels or ImagenetTxtPath.LABELS_FILE))
         else:
             assert all(isinstance(e, str) for e in labels)
         self._categories = self._load_categories(labels)
