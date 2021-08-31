@@ -256,7 +256,7 @@ class Pipeline:
         return head
 
     @property
-    def head(self):
+    def head(self) -> str:
         if self._head is None:
             self._head = self._find_head_node(self._graph)
         return self._head
@@ -278,6 +278,10 @@ class Pipeline:
 
     @staticmethod
     def _get_subgraph(graph, target):
+        """
+        Returns a subgraph with all the target dependencies and
+        the target itself.
+        """
         return graph.subgraph(nx.ancestors(graph, target) | {target})
 
     def get_slice(self, target) -> 'Pipeline':
@@ -314,21 +318,22 @@ class ProjectBuilder:
         self._validate_pipeline(pipeline)
 
         missing_sources, wd_hashes = self._find_missing_sources(pipeline)
-        for s in missing_sources:
-            target, stage = ProjectBuildTargets.split_target_name(s)
-            assert not stage or stage == ProjectBuildTargets.BASE_STAGE, s
-            source = self._tree.sources[target]
+        for source_name in missing_sources:
+            source = self._tree.sources[source_name]
 
-            if wd_hashes.get(target):
+            if wd_hashes.get(source_name):
                 raise ForeignChangesError("Local source '%s' data does not "
                     "match any previous source revision. Probably, the source "
                     "was modified outside Datumaro. You can restore the "
-                    "latest source revision with 'checkout' command." % target)
+                    "latest source revision with 'checkout' command." % \
+                    source_name)
 
             if self._project.readonly:
+                log.debug("Skipping downloading missing source '%s' because "
+                    "project is read-only", source_name)
                 continue
 
-            assert source.hash, target
+            assert source.hash, source_name
             with self._project._make_tmp_dir() as tmp_dir:
                 obj_hash, _, _ = \
                     self._project._download_source(source.url, tmp_dir)
@@ -337,7 +342,7 @@ class ProjectBuilder:
                     raise MismatchingObjectError(
                         "Downloaded source '%s' data is different " \
                         "from what is saved in the build pipeline: "
-                        "'%s' vs '%s'" % (s, obj_hash, source.hash))
+                        "'%s' vs '%s'" % (source_name, obj_hash, source.hash))
 
         return self._init_pipeline(pipeline, working_dir_hashes=wd_hashes)
 
@@ -567,21 +572,18 @@ class ProjectBuilder:
 
     def _find_missing_sources(self, pipeline: Pipeline):
         work_dir_hashes = {}
+
         def _can_retrieve(stage_name: str, stage_config: BuildStage):
             obj_hash = stage_config.hash
 
-            stage_name = ProjectBuildTargets.strip_target_name(stage_name)
-            if self._tree.is_working_tree and stage_name in self._tree.sources:
-                data_dir = self._project.source_data_dir(stage_name)
+            source_name = ProjectBuildTargets.strip_target_name(stage_name)
+            if self._tree.is_working_tree and source_name in self._tree.sources:
+                data_dir = self._project.source_data_dir(source_name)
 
-                wd_hash = work_dir_hashes.get(stage_name)
-                if not wd_hash:
-                    if not osp.isdir(data_dir):
-                        return False
-
+                wd_hash = work_dir_hashes.get(source_name)
                     wd_hash = self._project.compute_source_hash(
-                        self._project.source_data_dir(stage_name))
-                    work_dir_hashes[stage_name] = wd_hash
+                        self._project.source_data_dir(source_name))
+                    work_dir_hashes[source_name] = wd_hash
 
                 if obj_hash == wd_hash:
                     return True
@@ -595,26 +597,27 @@ class ProjectBuilder:
         checked_deps = set()
         unchecked_deps = [pipeline.head]
         while unchecked_deps:
-            stage = unchecked_deps.pop()
-            if stage in checked_deps:
+            stage_name = unchecked_deps.pop()
+            if stage_name in checked_deps:
                 continue
 
-            stage_config = pipeline._graph.nodes[stage]['config']
+            stage_config = pipeline._graph.nodes[stage_name]['config']
 
-            if not _can_retrieve(stage, stage_config):
-                if pipeline._graph.in_degree(stage) == 0:
+            if not _can_retrieve(stage_name, stage_config):
+                if pipeline._graph.in_degree(stage_name) == 0:
                     assert stage_config.type == 'source', stage_config.type
-                    source = self._tree.sources[
-                        self._tree.build_targets.strip_target_name(stage)]
+                    source_name = \
+                        self._tree.build_targets.strip_target_name(stage_name)
+                    source = self._tree.sources[source_name]
                     if not source.is_generated:
-                        missing_sources.add(stage)
+                        missing_sources.add(source_name)
                 else:
-                    for p in pipeline._graph.predecessors(stage):
+                    for p in pipeline._graph.predecessors(stage_name):
                         if p not in checked_deps:
                             unchecked_deps.append(p)
                     continue
 
-            checked_deps.add(stage)
+            checked_deps.add(stage_name)
         return missing_sources, work_dir_hashes
 
 class ProjectBuildTargets(CrudProxy):
@@ -786,6 +789,7 @@ class ProjectBuildTargets(CrudProxy):
     def _make_full_pipeline(self) -> Pipeline:
         pipeline = Pipeline()
         graph = pipeline._graph
+
         for target_name, target in self.items():
             if target_name == self.MAIN_TARGET:
                 # main target combines all the others
@@ -797,7 +801,9 @@ class ProjectBuildTargets(CrudProxy):
 
             for stage in target.stages:
                 stage_name = self.make_target_name(target_name, stage['name'])
+
                 graph.add_node(stage_name, config=stage)
+
                 for prev_stage in prev_stages:
                     graph.add_edge(prev_stage, stage_name)
                 prev_stages = [stage_name]
