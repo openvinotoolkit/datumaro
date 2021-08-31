@@ -381,6 +381,10 @@ class ProjectTest(TestCase):
             project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
             project.commit("A commit")
 
+            # remove the cached object so that it couldn't be matched
+            project.remove_cache_obj(
+                project.working_tree.build_targets['s1'].root.hash)
+
             # modify local source data
             with open(osp.join(project.source_data_dir('s1'), 'extra.txt'),
                     'w') as f:
@@ -849,7 +853,6 @@ class ProjectTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_cant_modify_readonly(self):
-
         with TestDir() as test_dir:
             dataset_url = osp.join(test_dir, 'dataset')
             Dataset.from_iterable([

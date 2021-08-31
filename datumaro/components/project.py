@@ -581,11 +581,12 @@ class ProjectBuilder:
                 data_dir = self._project.source_data_dir(source_name)
 
                 wd_hash = work_dir_hashes.get(source_name)
+                if not wd_hash and osp.isdir(data_dir):
                     wd_hash = self._project.compute_source_hash(
                         self._project.source_data_dir(source_name))
                     work_dir_hashes[source_name] = wd_hash
 
-                if obj_hash == wd_hash:
+                if obj_hash and obj_hash == wd_hash:
                     return True
 
             if obj_hash and self._project.is_obj_cached(obj_hash):
