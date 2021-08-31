@@ -31,11 +31,16 @@
   - [Checkout](#checkout)
   - [Status](#status)
   - [Log](#log)
+  - [Run model inference explanation (explain)](#explain)
   - Models:
     - [Add](#model-add)
     - [Remove](#model-add)
     - [Run](#model-run)
-  - [Run model inference explanation (explain)](#explain)
+  - Sources:
+    - [Add](#source-add)
+    - [Remove](#source-remove)
+  - Projects:
+    - [Info](#project-info)
 - [Extending](#extending)
   - [Builtin plugins](#builtin-plugins)
 - [Links](#links)
@@ -1407,51 +1412,49 @@ datum transform <...> -o inference
 datum diff inference -o diff
 ```
 
-### Get project info <a id="info"></a>
+### Print dataset info <a id="info"></a>
 
-This command outputs project status information, lists of data sources,
-plugins and models.
+This command outputs highlevel dataset information such as sample count,
+categories and subsets.
 
 Usage:
 
 ``` bash
-datum info [-h] [--all] [-p PROJECT_DIR] [target]
+datum info [-h] [--all] [-p PROJECT_DIR] [revpath]
 ```
 
 Parameters:
-- `<target>` (string) - Target [source revpaths](#revpath). By default,
-  prints information about all the sources and the merged dataset.
+- `<target>` (string) - Target [dataset revpath](#revpath). By default,
+  prints info about the joined `project` dataset.
 - `--all` - Print all the information: do not fold long lists of labels etc.
 - `-p, --project` (string) - Directory of the project to operate on
   (default: current directory).
 - `-h, --help` - Print the help message and exit.
 
 
-Example:
+Examples:
 
-``` bash
-datum info -p /test_project
+- Print info about a project dataset:
+`datum info -p test_project/`
 
-Project:
-  name: test_project
-  location: /test_project
-Sources:
-  source 'instances_minival2014':
-    format: coco_instances
-    url: /coco_like/annotations/instances_minival2014.json
-Dataset:
-  length: 5000
-  categories: label
-    label:
-      count: 80
-      labels: person, bicycle, car, motorcycle (and 76 more)
-  subsets: minival2014
-    subset 'minival2014':
-      length: 5000
-      categories: label
-        label:
-          count: 80
-          labels: person, bicycle, car, motorcycle (and 76 more)
+- Print info about a COCO-like dataset:
+`datum info path/to/dataset:coco`
+
+Sample output:
+
+```
+length: 5000
+categories: label
+  label:
+    count: 80
+    labels: person, bicycle, car, motorcycle (and 76 more)
+subsets: minival2014
+  'minival2014':
+    length: 5000
+    categories: label
+      label:
+        count: 80
+        labels: person, bicycle, car, motorcycle (and 76 more)
 ```
 
 ### Get project statistics <a id="stats"></a>
@@ -1477,11 +1480,15 @@ Parameters:
 
 Example:
 
-<details>
-
 ``` bash
 datum stats -p test_project
+```
 
+Sample output:
+
+<details>
+
+```
 {
     "annotations": {
         "labels": {
@@ -2280,12 +2287,11 @@ datum explain [-h] -m MODEL [-o SAVE_DIR] [-p PROJECT_DIR]
   [target] {rise} [RISE_ARGS]
 ```
 
-\<image path\> - a path to the file.
-\<revpath\> - [a dataset path or a revision path](#revpath).
-
 Parameters:
 - `<target>` (string) - Target [dataset revpath](#revpath). By default,
   uses the whole current project. An image path can be specified instead.
+  \<image path\> - a path to the file.
+  \<revpath\> - [a dataset path or a revision path](#revpath).
 - `<method>` (string) - The algorithm to use. Currently, only `rise`
   is supported.
 - `-m, --model` (string) - The model to use for inference
@@ -2389,6 +2395,73 @@ def process_outputs(inputs, outputs):
 
     return results
 ```
+
+### Print project info <a id="project-info"></a>
+
+Prints project configuration info such as available plugins, registered models,
+imported sources and build tree.
+
+Usage:
+
+``` bash
+datum project info [-h] [-p PROJECT_DIR] [revision]
+```
+
+Parameters:
+- `<revision>` (string) - Target project revision. By default,
+  uses the working tree.
+- `-p, --project` (string) - Directory of the project to operate on
+  (default: current directory).
+- `-h, --help` - Print the help message and exit.
+
+Examples:
+- Print project info for the current working tree:
+`datum project info`
+
+- Print project info for the previous revision:
+`datum project info HEAD~1`
+
+Sample output:
+
+<details>
+
+```
+Project:
+  location: /test_proj
+
+Plugins:
+  extractors: ade20k2017, ade20k2020, camvid, cifar, cityscapes, coco, coco_captions, coco_image_info, coco_instances, coco_labels, coco_panoptic, coco_person_keypoints, coco_stuff, cvat, datumaro, icdar_text_localization, icdar_text_segmentation, icdar_word_recognition, image_dir, image_zip, imagenet, imagenet_txt, kitti, kitti_detection, kitti_raw, kitti_segmentation, label_me, lfw, market1501, mnist, mnist_csv, mot_seq, mots, mots_png, open_images, sly_pointcloud, tf_detection_api, vgg_face2, voc, voc_action, voc_classification, voc_detection, voc_layout, voc_segmentation, wider_face, yolo
+
+  converters: camvid, mot_seq_gt, coco_captions, coco, coco_image_info, coco_instances, coco_labels, coco_panoptic, coco_person_keypoints, coco_stuff, kitti, kitti_detection, kitti_segmentation, icdar_text_localization, icdar_text_segmentation, icdar_word_recognition, lfw, datumaro, open_images, image_zip, cifar, yolo, voc_action, voc_classification, voc, voc_detection, voc_layout, voc_segmentation, tf_detection_api, label_me, mnist, cityscapes, mnist_csv, kitti_raw, wider_face, vgg_face2, sly_pointcloud, mots_png, image_dir, imagenet_txt, market1501, imagenet, cvat
+
+  launchers:
+
+Models:
+
+Sources:
+  'source-2':
+    format: voc
+    url: /datasets/pascal/VOC2012
+    location: /test_proj/source-2/
+    options: {}
+    hash: 3eb282cdd7339d05b75bd932a1fd3201
+    stages:
+      'root':
+        type: source
+        hash: 3eb282cdd7339d05b75bd932a1fd3201
+  'source-3':
+    format: imagenet
+    url: /datasets/imagenet/ILSVRC2012_img_val/train
+    location: /test_proj/source-3/
+    options: {}
+    hash: e47804a3ec1a54c9b145e5f1007ec72f
+    stages:
+      'root':
+        type: source
+        hash: e47804a3ec1a54c9b145e5f1007ec72f
+```
+
+</details>
 
 ## Extending
 
