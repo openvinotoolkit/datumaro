@@ -48,3 +48,15 @@
   width: 60%;
   font-size: 55px !important;
 }
+
+/* Display version menu on mobile version of the site */
+
+@media (max-width: 991.98px) {
+  .td-navbar .td-navbar-nav-scroll .navbar-nav {
+    overflow-x: inherit !important;
+  }
+
+  .td-navbar .td-navbar-nav-scroll {
+    overflow: inherit !important;
+  }
+}
