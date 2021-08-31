@@ -484,7 +484,7 @@ class OpenImagesExtractor(Extractor):
         raw = load_image(path, dtype=np.uint8)
         resized = cv2.resize(raw, (size[1], size[0]),
             interpolation=cv2.INTER_NEAREST)
-        return resized.astype(np.bool)
+        return resized.astype(bool)
 
 class OpenImagesImporter(Importer):
     @classmethod
