@@ -430,8 +430,8 @@ class ProjectBuilder:
                 assert osp.isdir(data_dir), data_dir
                 log.debug("Build: loading stage '%s' from '%s'",
                     stage_name, data_dir)
-                return ProjectSourceDataset(
-                    data_dir, self._tree, target, readonly=cached)
+                return ProjectSourceDataset(data_dir, self._tree, target,
+                    readonly=cached or self._project.readonly)
 
             return None
 
@@ -517,7 +517,8 @@ class ProjectBuilder:
                 else:
                     source_dir = None
                 dataset = ProjectSourceDataset(source_dir, self._tree,
-                    source_name, readonly=not source_dir)
+                    source_name,
+                    readonly=not source_dir or self._project.readonly)
 
             elif stage_type == BuildStageType.project:
                 dataset = _join_parent_datasets(force=True)
