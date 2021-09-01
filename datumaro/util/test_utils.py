@@ -217,7 +217,13 @@ def test_save_and_load(test, source_dataset, converter, test_dir, importer,
         compare = compare_datasets
     compare(test, expected=target_dataset, actual=parsed_dataset, **kwargs)
 
-def compare_dirs(test, expected, actual, skip_empty_dirs=True):
+def compare_dirs(test, expected: str, actual: str):
+    """
+    Compares file and directory structures in the given directories.
+    Empty directories are skipped.
+    """
+    skip_empty_dirs = True
+
     for a_path in glob(osp.join(expected, '**', '*'), recursive=True):
         rel_path = osp.relpath(a_path, expected)
         b_path = osp.join(actual, rel_path)
