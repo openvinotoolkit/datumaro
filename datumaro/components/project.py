@@ -1515,19 +1515,22 @@ class Project:
 
         project_dir = osp.dirname(path)
         if not osp.isdir(project_dir):
-            on_error_do(rmtree, project_dir, ignore_errors=True)
+            on_error_do(rmtree, project_dir, ignore_errors=True,
+                fwd_kwargs={'ignore_errors': True})
 
         os.makedirs(path, exist_ok=True)
 
         on_error_do(rmtree, osp.join(project_dir, ProjectLayout.cache_dir),
-            ignore_errors=True)
+            ignore_errors=True, fwd_kwargs={'ignore_errors': True})
         on_error_do(rmtree, osp.join(project_dir, ProjectLayout.tmp_dir),
-            ignore_errors=True)
+            ignore_errors=True, fwd_kwargs={'ignore_errors': True})
         os.makedirs(osp.join(path, ProjectLayout.cache_dir))
         os.makedirs(osp.join(path, ProjectLayout.tmp_dir))
 
-        on_error_do(rmtree, osp.join(project_dir, '.git'), ignore_errors=True)
-        on_error_do(rmtree, osp.join(project_dir, '.dvc'), ignore_errors=True)
+        on_error_do(rmtree, osp.join(project_dir, '.git'), ignore_errors=True,
+            fwd_kwargs={'ignore_errors': True})
+        on_error_do(rmtree, osp.join(project_dir, '.dvc'), ignore_errors=True,
+            fwd_kwargs={'ignore_errors': True})
         project = Project(path)
         project._init_vcs()
         project.commit('Initial commit', allow_empty=True)
@@ -1771,7 +1774,8 @@ class Project:
             shutil.copy(url, data_dir)
         else:
             raise UnexpectedUrlError(url)
-        on_error_do(rmtree, data_dir, ignore_errors=True)
+        on_error_do(rmtree, data_dir, ignore_errors=True,
+            fwd_kwargs={'ignore_errors': True})
 
         log.debug("Done")
 
