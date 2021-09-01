@@ -325,13 +325,16 @@ class Image:
                 not self.has_data)
 
     def save(self, path):
-        src_ext = self.ext.lower()
-        dst_ext = osp.splitext(osp.basename(path))[1].lower()
+        cur_path = osp.abspath(self.path)
+        path = osp.abspath(path)
+
+        cur_ext = self.ext.lower()
+        new_ext = osp.splitext(osp.basename(path))[1].lower()
 
         os.makedirs(osp.dirname(path), exist_ok=True)
-        if src_ext == dst_ext and osp.isfile(self.path):
-            if self.path != path:
-                shutil.copyfile(self.path, path)
+        if cur_ext == new_ext and osp.isfile(cur_path):
+            if cur_path != path:
+                shutil.copyfile(cur_path, path)
         else:
             save_image(path, self.data)
 
@@ -377,14 +380,17 @@ class ByteImage(Image):
                 not self.has_data)
 
     def save(self, path):
-        src_ext = self.ext.lower()
-        dst_ext = osp.splitext(osp.basename(path))[1].lower()
+        cur_path = osp.abspath(self.path)
+        path = osp.abspath(path)
+
+        cur_ext = self.ext.lower()
+        new_ext = osp.splitext(osp.basename(path))[1].lower()
 
         os.makedirs(osp.dirname(path), exist_ok=True)
-        if src_ext == dst_ext and osp.isfile(self.path):
-            if self.path != path:
-                shutil.copyfile(self.path, path)
-        elif src_ext == dst_ext:
+        if cur_ext == new_ext and osp.isfile(cur_path):
+            if cur_path != path:
+                shutil.copyfile(cur_path, path)
+        elif cur_ext == new_ext:
             with open(path, 'wb') as f:
                 f.write(self.get_bytes())
         else:
