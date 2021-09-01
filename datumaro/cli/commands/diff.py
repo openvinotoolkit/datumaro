@@ -144,8 +144,7 @@ def diff_command(args):
     dst_dir = osp.abspath(dst_dir)
 
     if not osp.exists(dst_dir):
-        on_error_do(rmtree, dst_dir, ignore_errors=True,
-            fwd_kwargs={'ignore_errors': True})
+        on_error_do(rmtree, dst_dir, ignore_errors=True)
         os.makedirs(dst_dir)
 
     project = None

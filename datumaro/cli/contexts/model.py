@@ -90,8 +90,7 @@ def add_command(args):
 
         model_dir = project.model_data_dir(name)
         os.makedirs(model_dir, exist_ok=False)
-        on_error_do(rmtree, model_dir, ignore_errors=True,
-            fwd_kwargs={'ignore_errors': True})
+        on_error_do(rmtree, model_dir, ignore_errors=True)
 
         try:
             cli_plugin.copy_model(model_dir, model_args)

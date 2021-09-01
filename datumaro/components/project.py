@@ -11,6 +11,7 @@ import os
 import os.path as osp
 import re
 import shutil
+import subprocess
 import tempfile
 import unittest.mock
 
@@ -1116,16 +1117,16 @@ class DvcWrapper:
 
     def __init__(self, project_dir):
         self._project_dir = project_dir
-        self._initialized = False
+        self._repo = False
 
         if osp.isdir(project_dir) and osp.isdir(self._dvc_dir()):
             with logging_disabled():
                 self.module().repo.Repo(project_dir)
-                self._initialized = True
+                self._repo = True
 
     @property
     def initialized(self):
-        return self._initialized
+        return self._repo
 
     def init(self):
         if self.initialized:
@@ -1133,7 +1134,7 @@ class DvcWrapper:
 
         with logging_disabled():
             self.module().repo.Repo.init(self._project_dir)
-            self._initialized = True
+            self._repo = True
 
         repo_dir = osp.join(self._project_dir, '.dvc')
         _update_ignore_file([osp.join(repo_dir, 'plots')],
@@ -1182,6 +1183,7 @@ class DvcWrapper:
 
             logs = contexts.enter_context(catch_logs('dvc'))
             retcode = self.module().main.main(args)
+            # retcode = subprocess.call(['dvc'] + args)
 
         logs = logs.getvalue()
         if retcode != 0:
@@ -1517,22 +1519,19 @@ class Project:
 
         project_dir = osp.dirname(path)
         if not osp.isdir(project_dir):
-            on_error_do(rmtree, project_dir, ignore_errors=True,
-                fwd_kwargs={'ignore_errors': True})
+            on_error_do(rmtree, project_dir, ignore_errors=True)
 
         os.makedirs(path, exist_ok=True)
 
         on_error_do(rmtree, osp.join(project_dir, ProjectLayout.cache_dir),
-            ignore_errors=True, fwd_kwargs={'ignore_errors': True})
+            ignore_errors=True)
         on_error_do(rmtree, osp.join(project_dir, ProjectLayout.tmp_dir),
-            ignore_errors=True, fwd_kwargs={'ignore_errors': True})
+            ignore_errors=True)
         os.makedirs(osp.join(path, ProjectLayout.cache_dir))
         os.makedirs(osp.join(path, ProjectLayout.tmp_dir))
 
-        on_error_do(rmtree, osp.join(project_dir, '.git'), ignore_errors=True,
-            fwd_kwargs={'ignore_errors': True})
-        on_error_do(rmtree, osp.join(project_dir, '.dvc'), ignore_errors=True,
-            fwd_kwargs={'ignore_errors': True})
+        on_error_do(rmtree, osp.join(project_dir, '.git'), ignore_errors=True)
+        on_error_do(rmtree, osp.join(project_dir, '.dvc'), ignore_errors=True)
         project = Project(path)
         project._init_vcs()
         project.commit('Initial commit', allow_empty=True)
@@ -1717,7 +1716,11 @@ class Project:
         os.makedirs(project_tmp_dir, exist_ok=True)
         if suffix:
             suffix = '_' + suffix
-        return tempfile.TemporaryDirectory(suffix=suffix, dir=project_tmp_dir)
+
+        from datumaro.util.test_utils import TestDir
+        from uuid import uuid4
+        return TestDir(path=osp.join(project_tmp_dir, f'tmp_{uuid4().hex}_{suffix}'))
+        # return tempfile.TemporaryDirectory(suffix=suffix, dir=project_tmp_dir)
 
     def remove_cache_obj(self, ref: Union[Revision, ObjectId]):
         if self.readonly:
@@ -1776,8 +1779,7 @@ class Project:
             shutil.copy(url, data_dir)
         else:
             raise UnexpectedUrlError(url)
-        on_error_do(rmtree, data_dir, ignore_errors=True,
-            fwd_kwargs={'ignore_errors': True})
+        on_error_do(rmtree, data_dir, ignore_errors=True)
 
         log.debug("Done")
 
@@ -1934,7 +1936,7 @@ class Project:
                     self._download_source(url, tmp_dir, no_cache=no_cache)
 
                 shutil.move(tmp_data_dir, data_dir)
-                on_error_do(shutil.rmtree, data_dir)
+                on_error_do(rmtree, data_dir)
                 os.replace(tmp_dvcfile, dvcfile)
 
             config['hash'] = obj_hash
