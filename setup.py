@@ -34,9 +34,12 @@ def find_version(project_dir=None):
     version = version_text[match.start(1) : match.end(1)]
     return version
 
-def get_requirements():
-    with open('requirements-core.txt') as fh:
-        requirements = [fh.read()]
+CORE_REQUIREMENTS_FILE = 'requirements-core.txt'
+DEFAULT_REQUIREMENTS_FILE = 'requirements-default.txt'
+
+def get_requirements(filename=CORE_REQUIREMENTS_FILE):
+    with open(filename) as fh:
+        requirements = fh.readlines()
 
     if strtobool(os.getenv('DATUMARO_HEADLESS', '0').lower()):
         requirements.append('opencv-python-headless')
@@ -68,14 +71,11 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     python_requires='>=3.6',
-    install_requires=get_requirements(),
+    install_requires=get_requirements(CORE_REQUIREMENTS_FILE),
     extras_require={
         'tf': ['tensorflow'],
         'tf-gpu': ['tensorflow-gpu'],
-        'default': [
-            'dvc>=2.3.0',
-            'GitPython>=3.0.8'
-        ]
+        'default': get_requirements(DEFAULT_REQUIREMENTS_FILE),
     },
     entry_points={
         'console_scripts': [
