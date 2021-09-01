@@ -229,6 +229,7 @@ to use Datumaro from the command-line:
     them using [`checkout`](#checkout), compare with [`diff`](#diff), compute
     statistics with [`stats`](#stats)
   - Export the resulting dataset with [`export`](#export)
+  - Check project config with [`project info`](#project-info)
 
 Basically, a project is a combination of datasets, models and environment.
 
