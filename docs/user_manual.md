@@ -417,9 +417,21 @@ step-by-step:
   found, since the cache was cleaned.
 1. Then, Datumaro will look for previous source revisions in the cache
   and won't find any.
-1. Then, it will try to download the original data and reproduce the
-  resulting dataset. The data hash will be computed, hashes will be
-  compared. On success, the data will be put into the cache.
+1. The project can be marked read-only, if we are not working with the
+  "current" project (which is specified by the `-p/--project` command
+  parameter). In the example, the command is `datum diff rev1:... rev2:...`,
+  which means there is a project in the current directory, so the project
+  we are working with is not read-only. If a command target was specified as
+  `datum diff <project>@<rev>:<source>`, the project would be loaded
+  as read-only. If a project is read-only, we can't do anything more to
+  reproduce the dataset and can only exit with an error (3a). The reason for
+  such behavior is that the dataset downloading can be quite expensive (in
+  terms of time, disk space etc.). It is supposed, that such side-effects
+  should be controlled manually.
+1. If the project is not read-only (3b), Datumaro will try to download
+  the original dataset and reproduce the resulting dataset. The data hash
+  will be computed and hashes will be compared. On success, the data will be
+  put into the cache.
 1. The downloaded dataset will be read and the remaining operations from the
   source history will be re-applied.
 1. The resulting dataset might be cached in some cases.
@@ -438,22 +450,23 @@ directory.
 Again, Datumaro needs to reproduce a dataset revision (stage) requested.
 1. It looks for the dataset in the working directory and finds some data. If
   there is no source working directory, Datumaro will try to reproduce the
-  source using the approach described above.
+  source using the approach described above (1b).
 1. The data hash is computed and compared with the one saved in the history.
   If the hashes match, the dataset is read and returned (4).
-  Note: we don’t use the cached hash of the working tree - it can be outdated.
+  Note: we can't use the cached hash stored in the working tree info -
+  it can be outdated, so we need to compute it again.
 1. Otherwise, Datumaro tries to detect the stage by the data hash.
   If the current stage is not cached, the tree is the working tree and the
   working directory is not empty, the working copy is hashed and matched
   against the source stage list. If there is a matching stage, it will be
-  read and the missing stages will be added.
-  The result might be cached in some cases. If there is no matching stage in
-  the source history, the situation can be contradictory. Currently,
-  the working directory data is read and returned (4) and the working tree
-  dataset hash is updated.
+  read and the missing stages will be added. The result might be cached in
+  some cases.
+  If there is no matching stage in the source history, the situation can
+  be contradictory. Currently, an error is raised (3b).
 1. The resulting dataset is returned.
 
-After the requested dataset is obtained, is is exported in the requested format.
+After the requested dataset is obtained, it is exported in the requested
+format.
 
 To sum up, Datumaro tries to restore a dataset from the project cache or
 reproduce it from sources. It can be done as long as the source operations
@@ -632,8 +645,18 @@ which splits a video into frames, or split the video manually and import images.
 
 ![cli](images/datum_cli.svg)
 
+The command line is split into the separate *commands* and command *contexts*.
+Contexts group multiple commands related to a specific topic, e.g.
+project operations, data source operations etc. Almost all the commands
+operate on projects, so the `project` context and commands without a context
+are mostly the same. By default, commands look for a project in the current
+directory. If the project you're working on is located somewhere else, you
+can pass the `-p/--project <path>` argument to the command.
+
 > **Note**: command behavior is subject to change and might be outdated,
 > **always check the `--help` output of the specific command**
+
+> **Note**: command parameters must be passed prior to the positional arguments.
 
 Datumaro functionality is available with the `datum` command.
 
