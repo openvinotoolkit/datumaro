@@ -1297,7 +1297,7 @@ class Tree:
     # - attached to a revision
 
     def __init__(self, project: 'Project',
-            config: Optional[TreeConfig] = None,
+            config: Union[None, Dict, Config, TreeConfig] = None,
             rev: Union[None, 'Revision'] = None):
         assert isinstance(project, Project)
         assert not rev or project.is_ref(rev), rev
