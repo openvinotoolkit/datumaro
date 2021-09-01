@@ -140,8 +140,8 @@ def export_command(args):
     if has_sep:
         pos = args._positionals.index('--')
         if 1 < pos:
-            raise argparse.ArgumentError(None, message="Expected no more than "
-                "1 target argument")
+            raise argparse.ArgumentError(None,
+                message="Expected no more than 1 target argument")
     else:
         pos = 1
     args.target = (args._positionals[:pos] or \
@@ -282,12 +282,14 @@ def build_filter_parser(parser_ctor=argparse.ArgumentParser):
 def filter_command(args):
     project = load_project(args.project_dir)
 
-    if args.stage and args.target not in project.working_tree.build_targets:
+    # TODO: check if we can accept a dataset revpath here
+    if not args.dry_run and args.stage and \
+            args.target not in project.working_tree.build_targets:
         raise CliException("Adding a stage is only allowed for "
             "source and 'project' targets, not '%s'" % args.target)
 
     dst_dir = args.dst_dir
-    if dst_dir:
+    if not args.dry_run and dst_dir:
         if not args.overwrite and osp.isdir(dst_dir) and os.listdir(dst_dir):
             raise CliException("Directory '%s' already exists "
                 "(pass --overwrite to overwrite)" % dst_dir)
@@ -297,7 +299,7 @@ def filter_command(args):
     filter_expr = args.filter
 
     if args.dry_run:
-        dataset = project.working_tree.make_dataset()
+        dataset = project.working_tree.make_dataset(args.target)
         dataset = dataset.filter(expr=filter_expr, **filter_args)
         for item in dataset:
             encoded_item = DatasetItemEncoder.encode(item, dataset.categories())
@@ -330,7 +332,10 @@ def filter_command(args):
                 dataset = project.working_tree.make_dataset(target)
 
                 # Source might be missing in the working dir, so we specify
-                # the output directory
+                # the output directory.
+                # We specify save_images here as a heuristic. It can probably
+                # be improved by checking if there are images in the dataset
+                # directory.
                 dataset.save(project.source_data_dir(target), save_images=True)
 
             log.info("Finished")
@@ -408,8 +413,8 @@ def transform_command(args):
     if has_sep:
         pos = args._positionals.index('--')
         if 1 < pos:
-            raise argparse.ArgumentError(None, message="Expected no more than "
-                "1 target argument")
+            raise argparse.ArgumentError(None,
+                message="Expected no more than 1 target argument")
     else:
         pos = 1
     args.target = (args._positionals[:pos] or \
@@ -437,6 +442,7 @@ def transform_command(args):
 
     extra_args = transform.parse_cmdline(args.extra_args)
 
+    # TODO: check if we can accept a dataset revpath here
     if args.stage and args.target not in project.working_tree.build_targets:
         raise CliException("Adding a stage is only allowed for "
             "source and 'project' targets, not '%s'" % args.target)
@@ -471,6 +477,9 @@ def transform_command(args):
 
                 # Source might be missing in the working dir, so we specify
                 # the output directory
+                # We specify save_images here as a heuristic. It can probably
+                # be improved by checking if there are images in the dataset
+                # directory.
                 dataset.save(project.source_data_dir(target), save_images=True)
 
             log.info("Finished")
@@ -649,8 +658,8 @@ def validate_command(args):
     if has_sep:
         pos = args._positionals.index('--')
         if 1 < pos:
-            raise argparse.ArgumentError(None, message="Expected no more than "
-                "1 target argument")
+            raise argparse.ArgumentError(None,
+                message="Expected no more than 1 target argument")
     else:
         pos = 1
     args.target = (args._positionals[:pos] or ['project'])[0]

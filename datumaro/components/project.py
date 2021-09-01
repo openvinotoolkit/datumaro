@@ -337,6 +337,7 @@ class ProjectBuilder:
                     "is disabled in read-only projects.", source_name)
                 continue
 
+            # TODO: check if we can avoid computing source hash in some cases
             assert source.hash, source_name
             with self._project._make_tmp_dir() as tmp_dir:
                 obj_hash, _, _ = \
