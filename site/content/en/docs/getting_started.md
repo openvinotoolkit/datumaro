@@ -162,8 +162,10 @@ dataset.export('dst/dir', 'coco')
 - Create a custom COCO-like dataset:
   ```python
   import numpy as np
-  from datumaro.components.extractor import (DatasetItem,
-    Bbox, LabelCategories, AnnotationType)
+  from datumaro.components.annotation import (
+    AnnotationType, Bbox, LabelCategories,
+  )
+  from datumaro.components.extractor import DatasetItem
   from datumaro.components.dataset import Dataset
 
   dataset = Dataset(categories={
