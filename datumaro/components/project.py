@@ -329,8 +329,12 @@ class ProjectBuilder:
                     source_name)
 
             if self._project.readonly:
-                log.debug("Skipping downloading missing source '%s' because "
-                    "project is read-only", source_name)
+                # Source re-downloading is prohibited in readonly projects
+                # because it can seriously hurt free storage space. It must
+                # be run manually, so that the user could know about this.
+                log.info("Skipping re-downloading missing source '%s', "
+                    "because the project is read-only. Automatic downloading "
+                    "is disabled in read-only projects.", source_name)
                 continue
 
             assert source.hash, source_name
@@ -1658,8 +1662,8 @@ class Project:
         # TODO: maybe avoid this operation by providing a virtual filesystem
         # object
 
-        if self.readonly:
-            raise ReadonlyProjectError()
+        # Allowed to be run when readonly, because it doesn't modify project
+        # data and doesn't hurt disk space.
 
         obj_dir = self.cache_path(rev)
         if osp.isdir(obj_dir):
@@ -1681,9 +1685,6 @@ class Project:
             obj_hash[:2], obj_hash[2:])
 
     def _can_retrieve_from_vcs_cache(self, obj_hash: ObjectId):
-        if self.readonly:
-            return False
-
         if not self._dvc.is_dir_hash(obj_hash):
             dir_check = self._dvc.is_cached(
                 obj_hash + self._dvc.DIR_HASH_SUFFIX)
@@ -1835,8 +1836,8 @@ class Project:
         # TODO: maybe avoid this operation by providing a virtual filesystem
         # object
 
-        if self.readonly:
-            raise ReadonlyProjectError()
+        # Allowed to be run when readonly, because it shouldn't hurt disk
+        # space, if object is materialized with symlinks.
 
         if not self._can_retrieve_from_vcs_cache(obj_hash):
             raise MissingObjectError(obj_hash)

@@ -79,6 +79,9 @@ class ProjectIntegrationScenarios(TestCase):
             with self.subTest("on other project"):
                 run(self, 'info', test_dir)
 
+            with self.subTest("on other project revision"):
+                run(self, 'info', test_dir + '@HEAD')
+
             with self.subTest("on dataset"):
                 run(self, 'info', coco_dir + ':coco')
 

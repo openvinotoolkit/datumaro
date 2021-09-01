@@ -894,12 +894,7 @@ class ProjectTest(TestCase):
             with self.subTest("commit"), self.assertRaises(ReadonlyProjectError):
                 project.commit('third commit', allow_empty=True)
 
-            with self.subTest("diff"), self.assertRaises(ReadonlyProjectError):
-                project.diff(commit2, commit2 + '~1')
-
-            with self.subTest("get rev"), self.assertRaises(ReadonlyProjectError):
-                project.get_rev(commit2)
-
+            # Can't re-download the source in a readonly project
             with self.subTest("make_dataset"), self.assertRaises(MissingObjectError):
                 project.get_rev('HEAD').make_dataset()
 
