@@ -11,7 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - TBD
 
 ### Changed
-- TBD
+- Annotation-related classes were moved into a new module,
+  `datumaro.components.annotation`
+  (<https://github.com/openvinotoolkit/datumaro/pull/439>)
 
 ### Deprecated
 - TBD
