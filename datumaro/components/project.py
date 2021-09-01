@@ -1116,22 +1116,24 @@ class DvcWrapper:
 
     def __init__(self, project_dir):
         self._project_dir = project_dir
-        self._repo = None
+        self._initialized = False
 
         if osp.isdir(project_dir) and osp.isdir(self._dvc_dir()):
             with logging_disabled():
-                self._repo = self.module().repo.Repo(project_dir)
+                self.module().repo.Repo(project_dir)
+                self._initialized = True
 
     @property
     def initialized(self):
-        return self._repo is not None
+        return self._initialized
 
     def init(self):
         if self.initialized:
             return
 
         with logging_disabled():
-            self._repo = self.module().repo.Repo.init(self._project_dir)
+            self.module().repo.Repo.init(self._project_dir)
+            self._initialized = True
 
         repo_dir = osp.join(self._project_dir, '.dvc')
         _update_ignore_file([osp.join(repo_dir, 'plots')],
