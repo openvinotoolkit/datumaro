@@ -73,8 +73,8 @@ List of supported formats:
   - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/sly_pointcloud)
   - [Format documentation](/docs/formats/sly_pointcloud)
 - CVAT
-  - [Format specification](https://github.com/opencv/cvat/blob/develop/cvat/apps/documentation/xml_format)
-  - [Dataset example](https://openvinotoolkit.github.io/cvat/docs/manual/advanced/xml_format/)
+  - [Format specification](https://openvinotoolkit.github.io/cvat/docs/manual/advanced/xml_format)
+  - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/cvat_dataset)
 - LabelMe
   - [Format specification](http://labelme.csail.mit.edu/Release3.0)
   - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/labelme_dataset)
