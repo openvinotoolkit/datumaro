@@ -34,7 +34,8 @@ datum explain [-h] -m MODEL [-o SAVE_DIR] [-p PROJECT_DIR]
 ```
 
 Parameters:
-- `<target>` (string) - Target [dataset revpath](/docs/user-manual/how_to_use_datumaro/#revpath). By default,
+- `<target>` (string) - Target
+  [dataset revpath](/docs/user-manual/how_to_use_datumaro/#revpath).By default,
   uses the whole current project. An image path can be specified instead.
   \<image path\> - a path to the file.
   \<revpath\> - [a dataset path or a revision path](/docs/user-manual/how_to_use_datumaro/#revpath).

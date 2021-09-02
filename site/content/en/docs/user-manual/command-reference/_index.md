@@ -49,7 +49,7 @@ flowchart LR
 
 </div>
 
-The command line is split into the separate *commands* and command *contexts*.
+The command line is split into the separate _commands_ and command _contexts_.
 Contexts group multiple commands related to a specific topic, e.g.
 project operations, data source operations etc. Almost all the commands
 operate on projects, so the `project` context and commands without a context

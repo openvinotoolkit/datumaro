@@ -212,8 +212,8 @@ persistence, versioning, high-level operations for datasets and also
 allow to extend Datumaro via [plugins](#plugins). A project provides
 access to build trees and revisions, data sources, models, configuration,
 plugins and cache. Projects can have multiple data sources, which are
-[joined](#dataset-merging) on dataset creation. Project configuration is available
-in `project.config`. To add a data source into a `Project`, use
+[joined](#dataset-merging) on dataset creation. Project configuration is
+available in `project.config`. To add a data source into a `Project`, use
 the `import_source()` method. The build tree of the current working
 directory can be converted to a `Dataset` with
 `project.working_tree.make_dataset()`.
