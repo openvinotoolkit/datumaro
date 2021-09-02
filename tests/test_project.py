@@ -6,7 +6,7 @@ import textwrap
 
 import numpy as np
 
-from datumaro.components.annotation import Label
+from datumaro.components.annotation import Bbox, Label
 from datumaro.components.config_model import Model, Source
 from datumaro.components.dataset import DEFAULT_FORMAT, Dataset
 from datumaro.components.errors import (
