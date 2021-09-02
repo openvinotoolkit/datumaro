@@ -5,7 +5,7 @@ import os.path as osp
 
 from datumaro.util import is_method_redefined
 from datumaro.util.os_util import walk
-from datumaro.util.scope import Scope, on_error_do, scoped, on_exit_do
+from datumaro.util.scope import Scope, on_error_do, on_exit_do, scoped
 from datumaro.util.test_utils import TestDir
 
 from .requirements import Requirements, mark_requirement

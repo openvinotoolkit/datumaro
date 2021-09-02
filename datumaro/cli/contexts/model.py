@@ -9,7 +9,7 @@ import os.path as osp
 import shutil
 
 from datumaro.components.project import Environment
-from datumaro.util.scope import scoped, on_error_do
+from datumaro.util.scope import on_error_do, scoped
 
 from ..util import CliException, MultilineFormatter, add_subparser
 from ..util.project import (

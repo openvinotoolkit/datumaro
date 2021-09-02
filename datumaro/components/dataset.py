@@ -28,8 +28,8 @@ from datumaro.components.extractor import (
     ItemTransform, Transform,
 )
 from datumaro.util import is_method_redefined
-from datumaro.util.scope import scoped, on_error_do
 from datumaro.util.log_utils import logging_disabled
+from datumaro.util.scope import on_error_do, scoped
 
 DEFAULT_FORMAT = 'datumaro'
 
