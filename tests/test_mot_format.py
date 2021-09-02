@@ -4,10 +4,9 @@ import os.path as osp
 
 import numpy as np
 
+from datumaro.components.annotation import AnnotationType, Bbox, LabelCategories
 from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import (
-    AnnotationType, Bbox, DatasetItem, LabelCategories,
-)
+from datumaro.components.extractor import DatasetItem
 from datumaro.plugins.mot_format import MotSeqGtConverter, MotSeqImporter
 from datumaro.util.image import Image
 from datumaro.util.test_utils import (

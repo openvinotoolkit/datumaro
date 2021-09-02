@@ -4,10 +4,9 @@ import os.path as osp
 
 import numpy as np
 
+from datumaro.components.annotation import AnnotationType, Bbox, LabelCategories
 from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import (
-    AnnotationType, Bbox, DatasetItem, LabelCategories,
-)
+from datumaro.components.extractor import DatasetItem
 from datumaro.plugins.yolo_format.converter import YoloConverter
 from datumaro.plugins.yolo_format.extractor import YoloImporter
 from datumaro.util.image import Image, save_image

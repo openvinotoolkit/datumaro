@@ -12,8 +12,8 @@ import shutil
 
 import numpy as np
 
+from datumaro.components.annotation import AnnotationType
 from datumaro.components.dataset_filter import DatasetItemEncoder
-from datumaro.components.extractor import AnnotationType
 from datumaro.components.operations import (
     DistanceComparator, ExactComparator, compute_ann_statistics,
     compute_image_statistics,

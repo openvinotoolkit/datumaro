@@ -256,9 +256,10 @@ datum export -p final_project -o dataset -f voc -- --label-map voc --save-images
 ### Example 2. How to create custom dataset
 
 ```python
+from datumaro.components.annotation import Bbox, Polygon, Label
 from datumaro.components.dataset import Dataset
+from datumaro.components.extractor import DatasetItem
 from datumaro.util.image import Image
-from datumaro.components.extractor import Bbox, Polygon, Label, DatasetItem
 
 dataset = Dataset.from_iterable([
     DatasetItem(id='image1', image=Image(path='image1.jpg', size=(10, 20)),
@@ -308,8 +309,8 @@ train_dataset.export('./jumping_label_me', format='label_me', save_images=True)
 ### Example 4. Get information about items in Pascal VOC 2012 dataset for segmentation task:
 
 ```python
+from datumaro.components.annotation import AnnotationType
 from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import AnnotationType
 
 dataset = Dataset.import_from('./VOC2012', format='voc')
 

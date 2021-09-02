@@ -7,10 +7,10 @@ import os.path as osp
 
 import numpy as np
 
-from datumaro.components.dataset import Dataset, DatasetItem
-from datumaro.components.extractor import (
+from datumaro.components.annotation import (
     AnnotationType, LabelCategories, Mask, Polygon,
 )
+from datumaro.components.dataset import Dataset, DatasetItem
 from datumaro.plugins.ade20k2020_format import Ade20k2020Importer
 from datumaro.util.test_utils import compare_datasets
 

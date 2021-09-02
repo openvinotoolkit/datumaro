@@ -2,9 +2,10 @@ from collections import defaultdict
 from unittest import TestCase, skipIf
 import csv
 
-from datumaro.components.extractor import (
-    AnnotationType, DatasetItem, Label, LabelCategories,
+from datumaro.components.annotation import (
+    AnnotationType, Label, LabelCategories,
 )
+from datumaro.components.extractor import DatasetItem
 from datumaro.components.project import Dataset
 from datumaro.util.image import Image
 

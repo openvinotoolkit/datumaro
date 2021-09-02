@@ -13,11 +13,10 @@ import os.path as osp
 import shutil
 import uuid
 
+from datumaro.components.annotation import AnnotationType, LabelCategories
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
-from datumaro.components.extractor import (
-    AnnotationType, DatasetItem, IExtractor, LabelCategories,
-)
+from datumaro.components.extractor import DatasetItem, IExtractor
 from datumaro.util import cast
 
 from .format import PointCloudPath

@@ -10,12 +10,12 @@ import pickle  # nosec - disable B403:import_pickle check - fixed
 import numpy as np
 import numpy.core.multiarray
 
+from datumaro.components.annotation import (
+    AnnotationType, Label, LabelCategories,
+)
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
-from datumaro.components.extractor import (
-    AnnotationType, DatasetItem, Importer, Label, LabelCategories,
-    SourceExtractor,
-)
+from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.util import cast
 
 

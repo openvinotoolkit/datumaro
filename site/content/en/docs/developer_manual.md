@@ -43,8 +43,9 @@ Datumaro has a number of dataset and annotation features:
 - various annotation operations
 
 ```python
+from datumaro.components.annotation import Bbox, Polygon
 from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import Bbox, Polygon, DatasetItem
+from datumaro.components.extractor import DatasetItem
 
 # Import and export a dataset
 dataset = Dataset.import_from('src/dir', 'voc')
@@ -126,8 +127,9 @@ reduce the amount of disk writes. Changes can be flushed with
 `flush_changes()`.
 
 ```python
+from datumaro.components.annotation import Bbox, Polygon
 from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import Bbox, Polygon, DatasetItem
+from datumaro.components.extractor import DatasetItem
 
 # create a dataset directly from items
 dataset1 = Dataset.from_iterable([

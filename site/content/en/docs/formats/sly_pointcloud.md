@@ -143,8 +143,9 @@ datum convert -if sly_pointcloud -i ../sly_pcd/ \
 ### Example 3. Create a custom dataset
 
 ``` python
+from datumaro.components.annotation import Cuboid3d
 from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import Cuboid3d, DatasetItem
+from datumaro.components.extractor import DatasetItem
 
 dataset = Dataset.from_iterable([
     DatasetItem(id='frame_1',

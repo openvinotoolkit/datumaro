@@ -6,11 +6,12 @@ import os.path as osp
 
 import numpy as np
 
-from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import (
-    AnnotationType, Bbox, Caption, DatasetItem, Label, LabelCategories, Mask,
-    Points, PointsCategories, Polygon,
+from datumaro.components.annotation import (
+    AnnotationType, Bbox, Caption, Label, LabelCategories, Mask, Points,
+    PointsCategories, Polygon,
 )
+from datumaro.components.dataset import Dataset
+from datumaro.components.extractor import DatasetItem
 from datumaro.plugins.coco_format.converter import (
     CocoCaptionsConverter, CocoConverter, CocoImageInfoConverter,
     CocoInstancesConverter, CocoLabelsConverter, CocoPanopticConverter,

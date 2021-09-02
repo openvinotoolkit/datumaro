@@ -4,9 +4,8 @@ import os.path as osp
 
 import numpy as np
 
-from datumaro.components.extractor import (
-    Bbox, Caption, DatasetItem, Mask, Polygon,
-)
+from datumaro.components.annotation import Bbox, Caption, Mask, Polygon
+from datumaro.components.extractor import DatasetItem
 from datumaro.components.project import Dataset
 from datumaro.plugins.icdar_format.converter import (
     IcdarTextLocalizationConverter, IcdarTextSegmentationConverter,

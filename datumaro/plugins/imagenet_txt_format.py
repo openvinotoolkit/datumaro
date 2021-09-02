@@ -1,15 +1,16 @@
-# Copyright (C) 2020 Intel Corporation
+# Copyright (C) 2020-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 import os
 import os.path as osp
 
-from datumaro.components.converter import Converter
-from datumaro.components.extractor import (
-    AnnotationType, DatasetItem, Importer, Label, LabelCategories,
-    SourceExtractor,
+from datumaro.components.annotation import (
+    AnnotationType, Label, LabelCategories,
 )
+from datumaro.components.cli_plugin import CliPlugin
+from datumaro.components.converter import Converter
+from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 
 
 class ImagenetTxtPath:
@@ -28,9 +29,10 @@ class ImagenetTxtExtractor(SourceExtractor):
             image_dir = ImagenetTxtPath.IMAGE_DIR
         self.image_dir = osp.join(osp.dirname(path), image_dir)
 
-        if labels is None:
-            labels = osp.join(osp.dirname(path), ImagenetTxtPath.LABELS_FILE)
-            labels = self._parse_labels(labels)
+        if labels is None or isinstance(labels, str):
+            labels = self._parse_labels(
+                osp.join(osp.dirname(path),
+                    labels or ImagenetTxtPath.LABELS_FILE))
         else:
             assert all(isinstance(e, str) for e in labels)
         self._categories = self._load_categories(labels)
@@ -79,12 +81,23 @@ class ImagenetTxtExtractor(SourceExtractor):
         return items
 
 
-class ImagenetTxtImporter(Importer):
+class ImagenetTxtImporter(Importer, CliPlugin):
     @classmethod
-    def find_sources(cls, path):
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument('--labels-file', dest='labels',
+            help="Path to the file with label descriptions (synsets.txt)")
+        return parser
+
+    @classmethod
+    def find_sources_with_params(cls, path, **extra_params):
+        labels = extra_params.get('labels')
+        labels_file_name = osp.basename(labels) \
+            if isinstance(labels, str) else ImagenetTxtPath.LABELS_FILE
+
         return cls._find_sources_recursive(path, '.txt', 'imagenet_txt',
             file_filter=lambda p: \
-                osp.basename(p) != ImagenetTxtPath.LABELS_FILE)
+                osp.basename(p) != labels_file_name)
 
 
 class ImagenetTxtConverter(Converter):

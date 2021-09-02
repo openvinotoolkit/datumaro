@@ -4,9 +4,8 @@
 
 import numpy as np
 
-from datumaro.components.extractor import (
-    AnnotationType, LabelCategories, Transform,
-)
+from datumaro.components.annotation import AnnotationType, LabelCategories
+from datumaro.components.extractor import Transform
 from datumaro.util import take_by
 
 

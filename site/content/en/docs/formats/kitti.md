@@ -178,8 +178,9 @@ datum export -p final_project -o dataset -f cityscapes -- --save-images
 
 ```python
 import numpy as np
+from datumaro.components.annotation import Mask
 from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import Mask, DatasetItem
+from datumaro.components.extractor import DatasetItem
 
 import datumaro.plugins.kitti_format as KITTI
 

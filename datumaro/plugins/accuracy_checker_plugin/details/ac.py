@@ -15,7 +15,7 @@ from accuracy_checker.postprocessor import PostprocessingExecutor
 from accuracy_checker.preprocessor import PreprocessingExecutor
 from accuracy_checker.utils import extract_image_representations
 
-from datumaro.components.extractor import AnnotationType, LabelCategories
+from datumaro.components.annotation import AnnotationType, LabelCategories
 
 from .representation import import_predictions
 
