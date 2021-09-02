@@ -51,13 +51,19 @@ class TestDir(FileRemover):
     """
 
     def __init__(self, path=None):
+        super().__init__(path, is_dir=True)
+
+    def __enter__(self):
+        path = self.path
+
         if path is None:
             path = osp.abspath('temp_%s-' % current_function_name(2))
             path = tempfile.mkdtemp(dir=os.getcwd(), prefix=path)
+            self.path = path
         else:
             os.makedirs(path, exist_ok=False)
 
-        super().__init__(path, is_dir=True)
+        return path
 
 def compare_categories(test, expected, actual):
     test.assertEqual(

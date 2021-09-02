@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-from contextlib import ExitStack
+from contextlib import ExitStack, suppress
 from enum import Enum, auto
 from typing import Any, Dict, Iterable, List, NewType, Optional, Tuple, Union
 import json
@@ -11,7 +11,6 @@ import os
 import os.path as osp
 import re
 import shutil
-import subprocess
 import tempfile
 import unittest.mock
 
@@ -872,6 +871,15 @@ class GitWrapper:
 
         self.repo = repo
 
+    def close(self):
+        if self.repo:
+            self.repo.close()
+            self.repo = None
+
+    def __del__(self):
+        with suppress(Exception):
+            self.close()
+
     def checkout(self, ref: str = None, dst_dir=None, clean=False, force=False):
         # If user wants to navigate to a head, we need to supply its object
         # insted of just a string. Otherwise, we'll get a detached head.
@@ -1117,30 +1125,37 @@ class DvcWrapper:
 
     def __init__(self, project_dir):
         self._project_dir = project_dir
-        self._repo = False
+        self.repo = None
 
         if osp.isdir(project_dir) and osp.isdir(self._dvc_dir()):
             with logging_disabled():
-                self.module().repo.Repo(project_dir)
-                self._repo = True
+                self.repo = self.module().repo.Repo(project_dir)
 
     @property
     def initialized(self):
-        return self._repo
+        return self.repo is not None
 
     def init(self):
         if self.initialized:
             return
 
         with logging_disabled():
-            self.module().repo.Repo.init(self._project_dir)
-            self._repo = True
+            self.repo = self.module().repo.Repo.init(self._project_dir)
 
         repo_dir = osp.join(self._project_dir, '.dvc')
         _update_ignore_file([osp.join(repo_dir, 'plots')],
             filepath=osp.join(repo_dir, '.gitignore'),
             repo_root=repo_dir
         )
+
+    def close(self):
+        if self.repo:
+            self.repo.close()
+            self.repo = None
+
+    def __del__(self):
+        with suppress(Exception):
+            self.close()
 
     def checkout(self, targets=None):
         args = ['checkout']
@@ -1183,7 +1198,6 @@ class DvcWrapper:
 
             logs = contexts.enter_context(catch_logs('dvc'))
             retcode = self.module().main.main(args)
-            # retcode = subprocess.call(['dvc'] + args)
 
         logs = logs.getvalue()
         if retcode != 0:
@@ -1538,6 +1552,25 @@ class Project:
 
         return project
 
+    def close(self):
+        if self._dvc:
+            self._dvc.close()
+            self._dvc = None
+
+        if self._git:
+            self._git.close()
+            self._git = None
+
+    def __del__(self):
+        with suppress(Exception):
+            self.close()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args, **kwargs):
+        self.close()
+
     def save(self):
         self._config.dump(osp.join(self._aux_dir, ProjectLayout.conf_file))
 
@@ -1717,10 +1750,7 @@ class Project:
         if suffix:
             suffix = '_' + suffix
 
-        from datumaro.util.test_utils import TestDir
-        from uuid import uuid4
-        return TestDir(path=osp.join(project_tmp_dir, f'tmp_{uuid4().hex}_{suffix}'))
-        # return tempfile.TemporaryDirectory(suffix=suffix, dir=project_tmp_dir)
+        return tempfile.TemporaryDirectory(suffix=suffix, dir=project_tmp_dir)
 
     def remove_cache_obj(self, ref: Union[Revision, ObjectId]):
         if self.readonly:
