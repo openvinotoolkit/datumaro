@@ -1,14 +1,15 @@
 ---
-title: 'Validate project annotations'
-linkTitle: 'Validate project annotations'
+title: 'Validate Dataset'
+linkTitle: 'Validate'
 description: ''
-weight: 19
+weight: 17
 ---
 
 This command inspects annotations with respect to the task type
-and stores the result in JSON file.
+and stores the results in JSON file.
 
-The task types supported are `classification`, `detection`, and `segmentation`.
+The task types supported are `classification`, `detection`, and
+`segmentation` (the `-t/--task-type` parameter).
 
 The validation result contains
 - `annotation statistics` based on the task type
@@ -20,34 +21,39 @@ The validation result contains
 - `summary`
 
 Usage:
-- There are five configurable parameters for validation
-  - `few_samples_thr` : threshold for giving a warning for minimum number of
-    samples per class
-  - `imbalance_ratio_thr` : threshold for giving imbalance data warning
-  - `far_from_mean_thr` : threshold for giving a warning that data is far
-    from mean
-  - `dominance_ratio_thr` : threshold for giving a warning bounding box
-    imbalance
-  - `topk_bins` : ratio of bins with the highest number of data to total bins
-    in the histogram
 
 ``` bash
-datum validate --help
-
-datum validate -p <project dir> -t <task_type> -- \
-    -fs <few_samples_thr> \
-    -ir <imbalance_ratio_thr> \
-    -m <far_from_mean_thr> \
-    -dr <dominance_ratio_thr> \
-    -k <topk_bins>
+datum validate [-h] -t TASK [-s SUBSET_NAME] [-p PROJECT_DIR]
+  [target] [-- EXTRA_ARGS]
 ```
+
+Parameters:
+- `<target>` (string) - Target [dataset revpath](/docs/user-manual/how_to_use_datumaro/#revpath). By default,
+  validates the current project.
+- `-t, --task-type` (string) - Task type for validation
+- `-s, --subset` (string) - Dataset subset to be validated
+- `-p, --project` (string) - Directory of the project to operate on
+  (default: current directory).
+- `-h, --help` - Print the help message and exit.
+- `<extra args>` - The list of extra validation parameters. Should be passed
+  after the `--` separator after the main command arguments:
+  - `-fs, --few-samples-thr` (number) - The threshold for giving a warning
+    for minimum number of samples per class
+  - `-ir, --imbalance-ratio-thr` (number) - The threshold for giving
+    imbalance data warning
+  - `-m, --far-from-mean-thr` (number) - The threshold for giving
+    a warning that data is far from mean
+  - `-dr, --dominance-ratio-thr` (number) - The threshold for giving
+    a warning bounding box imbalance
+  - `-k, --topk-bins` (number) - The ratio of bins with the highest
+    number of data to total bins in the histogram
+
 
 Example : give warning when imbalance ratio of data with classification task
 over 40
 
 ``` bash
-datum validate -p prj-cls -t classification -- \
-    -ir 40
+datum validate -p prj/ -t classification -- -ir 40
 ```
 
 Here is the list of validation items(a.k.a. anomaly types).
@@ -186,7 +192,7 @@ numerical_stat_template = {
     'items_far_from_mean': <dict>,
     # {'<item_key>': {<ann_id:int>: <value:float>, }, }
     'mean': <float>,
-    'stdev': <float>,
+    'stddev': <float>,
     'min': <float>,
     'max': <float>,
     'median': <float>,

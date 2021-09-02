@@ -123,7 +123,7 @@ def do_important_work(parameter1, parameter2, parameter3,
 
 The recommended editor is VS Code with the Python language plugin.
 
-## Testing <a id="testing"></a>
+## Testing
 
 It is expected that all Datumaro functionality is covered and checked by
 unit tests. Tests are placed in the `tests/` directory. Additional
@@ -142,9 +142,9 @@ pytest -v
 python -m pytest -v
 ```
 
-### Test cases <a id="Test_case_description"></a>
+### Test cases
 
-### Test marking <a id="Test_marking"></a>
+### Test marking
 
 For better integration with CI and requirements tracking,
 we use special annotations for tests.
@@ -174,7 +174,7 @@ import pytest
         ... do stuff ...
 ```
 
-#### Requirements <a id="Requirements"></a>
+#### Requirements
 
 Requirements and other links need to be added to [`tests/requirements.py`](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/requirements.py):
 
@@ -236,7 +236,7 @@ Parameters are used for running the same test with different parameters e.g.
 ])
 ```
 
-### Test documentation <a id="TestDoc"></a>
+### Test documentation
 
 Tests are documented with docs strings. Test descriptions must contain
 the following: sections: `Description`, `Expected results` and `Steps`.

@@ -1,7 +1,6 @@
 Cython>=0.27.3 # include before pycocotools
 -r requirements-core.txt --no-binary=pycocotools # https://github.com/openvinotoolkit/datumaro/issues/253
 opencv-python-headless>=4.1.0.25
-pandas>=1.1.5
 pytest>=5.3.5
 
 # linters
