@@ -27,7 +27,8 @@ from datumaro.components.extractor import (
     DEFAULT_SUBSET_NAME, CategoriesInfo, DatasetItem, Extractor, IExtractor,
     ItemTransform, Transform,
 )
-from datumaro.util import error_rollback, is_method_redefined, on_error_do
+from datumaro.util import is_method_redefined
+from datumaro.util.scope import scoped, on_error_do
 from datumaro.util.log_utils import logging_disabled
 
 DEFAULT_FORMAT = 'datumaro'
@@ -790,7 +791,7 @@ class Dataset(IDataset):
     def flush_changes(self):
         self._data.flush_changes()
 
-    @error_rollback
+    @scoped
     def export(self, save_dir: str, format, **kwargs):
         inplace = (save_dir == self._source_path and format == self._format)
 
