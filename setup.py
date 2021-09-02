@@ -37,16 +37,17 @@ def find_version(project_dir=None):
 CORE_REQUIREMENTS_FILE = 'requirements-core.txt'
 DEFAULT_REQUIREMENTS_FILE = 'requirements-default.txt'
 
-def get_requirements(filename=CORE_REQUIREMENTS_FILE):
+def parse_requirements(filename=CORE_REQUIREMENTS_FILE):
     with open(filename) as fh:
-        requirements = fh.readlines()
+        return fh.readlines()
 
-    if strtobool(os.getenv('DATUMARO_HEADLESS', '0').lower()):
-        requirements.append('opencv-python-headless')
-    else:
-        requirements.append('opencv-python')
+CORE_REQUIREMENTS = parse_requirements(CORE_REQUIREMENTS_FILE)
+if strtobool(os.getenv('DATUMARO_HEADLESS', '0').lower()):
+    CORE_REQUIREMENTS.append('opencv-python-headless')
+else:
+    CORE_REQUIREMENTS.append('opencv-python')
 
-    return requirements
+DEFAULT_REQUIREMENTS = parse_requirements(DEFAULT_REQUIREMENTS_FILE)
 
 with open('README.md', 'r') as fh:
     long_description = fh.read()
@@ -71,11 +72,11 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     python_requires='>=3.6',
-    install_requires=get_requirements(CORE_REQUIREMENTS_FILE),
+    install_requires=CORE_REQUIREMENTS,
     extras_require={
         'tf': ['tensorflow'],
         'tf-gpu': ['tensorflow-gpu'],
-        'default': get_requirements(DEFAULT_REQUIREMENTS_FILE),
+        'default': DEFAULT_REQUIREMENTS,
     },
     entry_points={
         'console_scripts': [
