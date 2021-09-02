@@ -22,8 +22,8 @@ List of supported formats:
   - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/yolo_dataset)
   - [Format documentation](/docs/formats/yolo)
 - TF Detection API (`bboxes`, `masks`)
-  - Format specifications: [bboxes](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/using_your_own_dataset),
-    [masks](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/instance_segmentation)
+  - Format specifications: [bboxes](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/using_your_own_dataset.md),
+    [masks](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/instance_segmentation.md)
   - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/tf_detection_api_dataset)
 - WIDER Face (`bboxes`)
   - [Format specification](http://shuoyang1213.me/WIDERFACE/)
@@ -74,7 +74,7 @@ List of supported formats:
   - [Format documentation](/docs/formats/sly_pointcloud)
 - CVAT
   - [Format specification](https://github.com/opencv/cvat/blob/develop/cvat/apps/documentation/xml_format)
-  - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/cvat_dataset)
+  - [Dataset example](https://openvinotoolkit.github.io/cvat/docs/manual/advanced/xml_format/)
 - LabelMe
   - [Format specification](http://labelme.csail.mit.edu/Release3.0)
   - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/labelme_dataset)
@@ -87,3 +87,18 @@ List of supported formats:
 - LFW (`classification`, `person re-identification`, `landmarks`)
   - [Format specification](http://vis-www.cs.umass.edu/lfw/)
   - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/lfw_dataset)
+
+### Supported annotation types <a id="annotation-types"></a>
+
+- Labels
+- Bounding boxes
+- Polygons
+- Polylines
+- (Segmentation) Masks
+- (Key-)Points
+- Captions
+- 3D cuboids
+
+Datumaro does not separate datasets by tasks like classification, detection
+etc. Instead, datasets can have any annotations. When a dataset is exported
+in a specific format, only relevant annotations are exported.

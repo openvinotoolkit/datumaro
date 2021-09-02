@@ -18,7 +18,7 @@ weight: 3
   - [Project layout](./how_to_use_datumaro/#project-layout)
   - [Examples](./how_to_use_datumaro/#examples)
 - [Supported dataset formats](./supported_formats)
-- [Supported annotation types](./supported_annotation_types)
+- [Supported annotation types](./supported_formats/#annotation-types)
 - [Supported media formats](./media_formats)
 - [Command reference](./command-reference)
   - [Convert](./command-reference/convert)
