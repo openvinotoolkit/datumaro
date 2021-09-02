@@ -2,15 +2,11 @@
 #
 # SPDX-License-Identifier: MIT
 
-from contextlib import ExitStack, contextmanager
-from functools import partial, wraps
+from functools import wraps
 from inspect import isclass
 from itertools import islice
 from typing import Iterable, Tuple
 import distutils.util
-import threading
-
-import attr
 
 NOTSET = object()
 
@@ -126,99 +122,3 @@ def optional_arg_decorator(fn):
             return real_decorator
 
     return wrapped_decorator
-
-class Rollback:
-    _thread_locals = threading.local()
-
-    @attr.attrs
-    class Handler:
-        callback = attr.attrib()
-        enabled = attr.attrib(default=True)
-        ignore_errors = attr.attrib(default=False)
-
-        def __call__(self):
-            if self.enabled:
-                try:
-                    self.callback()
-                except: # pylint: disable=bare-except
-                    if not self.ignore_errors:
-                        raise
-
-    def __init__(self):
-        self._handlers = {}
-        self._stack = ExitStack()
-        self.enabled = True
-
-    def add(self, callback, *args,
-            name=None, enabled=True, ignore_errors=False,
-            fwd_kwargs=None, **kwargs):
-        if args or kwargs or fwd_kwargs:
-            if fwd_kwargs:
-                kwargs.update(fwd_kwargs)
-            callback = partial(callback, *args, **kwargs)
-        name = name or hash(callback)
-        assert name not in self._handlers
-        handler = self.Handler(callback,
-            enabled=enabled, ignore_errors=ignore_errors)
-        self._handlers[name] = handler
-        self._stack.callback(handler)
-        return name
-
-    do = add # readability alias
-
-    def enable(self, name=None):
-        if name:
-            self._handlers[name].enabled = True
-        else:
-            self.enabled = True
-
-    def disable(self, name=None):
-        if name:
-            self._handlers[name].enabled = False
-        else:
-            self.enabled = False
-
-    def clean(self):
-        self.__exit__(None, None, None)
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, type=None, value=None, \
-            traceback=None): # pylint: disable=redefined-builtin
-        if type is None:
-            return
-        if not self.enabled:
-            return
-        self._stack.__exit__(type, value, traceback)
-
-    @classmethod
-    def current(cls) -> "Rollback":
-        return cls._thread_locals.current
-
-    @contextmanager
-    def as_current(self):
-        previous = getattr(self._thread_locals, 'current', None)
-        self._thread_locals.current = self
-        try:
-            yield
-        finally:
-            self._thread_locals.current = previous
-
-# shorthand for common cases
-def on_error_do(callback, *args, ignore_errors=False):
-    Rollback.current().do(callback, *args, ignore_errors=ignore_errors)
-
-@optional_arg_decorator
-def error_rollback(func, arg_name=None):
-    @wraps(func)
-    def wrapped_func(*args, **kwargs):
-        with Rollback() as manager:
-            if arg_name is None:
-                with manager.as_current():
-                    ret_val = func(*args, **kwargs)
-            else:
-                kwargs[arg_name] = manager
-                ret_val = func(*args, **kwargs)
-            return ret_val
-    return wrapped_func
