@@ -8,7 +8,8 @@ weight: 22
 ### Register model <a id="model-add"></a>
 
 Datumaro can execute deep learning models in various frameworks. Check
-[the plugins section](/docs/user-manual/extending/#builtin-plugins) for more info.
+[the plugins section](/docs/user-manual/extending/#builtin-plugins)
+for more info.
 
 Supported frameworks:
 - OpenVINO

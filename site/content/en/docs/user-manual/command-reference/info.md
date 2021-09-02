@@ -15,8 +15,8 @@ datum info [-h] [--all] [-p PROJECT_DIR] [revpath]
 ```
 
 Parameters:
-- `<target>` (string) - Target [dataset revpath](/docs/user-manual/how_to_use_datumaro/#revpath). By default,
-  prints info about the joined `project` dataset.
+- `<target>` (string) - Target [dataset revpath](/docs/user-manual/how_to_use_datumaro/#revpath).
+  By default, prints info about the joined `project` dataset.
 - `--all` - Print all the information: do not fold long lists of labels etc.
 - `-p, --project` (string) - Directory of the project to operate on
   (default: current directory).

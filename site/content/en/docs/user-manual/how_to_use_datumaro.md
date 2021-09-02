@@ -106,8 +106,10 @@ to use Datumaro from the command-line:
   - Create an empty project with [`create`](/docs/user-manual/command-reference/create)
   - Import existing datasets with [`add`](/docs/user-manual/command-reference/sources/#source-add)
   - Modify the project with [`transform`](/docs/user-manual/command-reference/transform) and [`filter`](/docs/user-manual/command-reference/filter)
-  - Create new revisions of the project with [`commit`](/docs/user-manual/command-reference/commit), navigate over
-    them using [`checkout`](/docs/user-manual/command-reference/checkout), compare with [`diff`](/docs/user-manual/command-reference/diff), compute
+  - Create new revisions of the project with
+    [`commit`](/docs/user-manual/command-reference/commit), navigate over
+    them using [`checkout`](/docs/user-manual/command-reference/checkout),
+    compare with [`diff`](/docs/user-manual/command-reference/diff), compute
     statistics with [`stats`](/docs/user-manual/command-reference/stats)
   - Export the resulting dataset with [`export`](/docs/user-manual/command-reference/export)
   - Check project config with [`project info`](/docs/user-manual/command-reference/projects/#print-project-info)

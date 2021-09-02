@@ -18,8 +18,9 @@ datum stats [-h] [-p PROJECT_DIR] [target]
 ```
 
 Parameters:
-- `<target>` (string) - Target [source revpath](/docs/user-manual/how_to_use_datumaro/#revpath). By default,
-  computes statistics of the merged dataset.
+- `<target>` (string) - Target
+  [source revpath](/docs/user-manual/how_to_use_datumaro/#revpath).
+  By default, computes statistics of the merged dataset.
 - `-p, --project` (string) - Directory of the project to operate on
   (default: current directory).
 - `-h, --help` - Print the help message and exit.

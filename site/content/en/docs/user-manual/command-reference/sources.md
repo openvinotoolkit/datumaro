@@ -32,8 +32,8 @@ Dataset format readers can provide some additional import options. To pass
 such options, use the `--` separator after the main command arguments.
 The usage information can be printed with `datum add -f <format> -- --help`.
 
-Check [supported formats](/docs/user-manual/supported_formats) for more info about
-format specifications, supported options and other details.
+Check [supported formats](/docs/user-manual/supported_formats) for more info
+about format specifications, supported options and other details.
 The list of formats can be extended by custom plugins, check [extending tips](/docs/user-manual/extending)
 for information on this topic.
 
