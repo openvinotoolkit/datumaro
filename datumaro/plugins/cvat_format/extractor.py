@@ -7,10 +7,10 @@ import os.path as osp
 
 from defusedxml import ElementTree
 
-from datumaro.components.extractor import (
-    AnnotationType, Bbox, DatasetItem, Importer, Label, LabelCategories, Points,
-    Polygon, PolyLine, SourceExtractor,
+from datumaro.components.annotation import (
+    AnnotationType, Bbox, Label, LabelCategories, Points, Polygon, PolyLine,
 )
+from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.util.image import Image
 
 from .format import CvatPath

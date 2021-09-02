@@ -5,10 +5,11 @@ import os.path as osp
 
 import numpy as np
 
-from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import (
-    AnnotationType, Bbox, DatasetItem, LabelCategories, Mask,
+from datumaro.components.annotation import (
+    AnnotationType, Bbox, LabelCategories, Mask,
 )
+from datumaro.components.dataset import Dataset
+from datumaro.components.extractor import DatasetItem
 from datumaro.util.image import ByteImage, Image, encode_image
 from datumaro.util.test_utils import (
     TestDir, compare_datasets, test_save_and_load,

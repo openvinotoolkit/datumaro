@@ -5,8 +5,9 @@ import pickle  # nosec - disable B403:import_pickle check
 
 import numpy as np
 
+from datumaro.components.annotation import Label
 from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import DatasetItem, Label
+from datumaro.components.extractor import DatasetItem
 from datumaro.plugins.cifar_format import CifarConverter, CifarImporter
 from datumaro.util.image import Image
 from datumaro.util.test_utils import TestDir, compare_datasets

@@ -11,11 +11,12 @@ import os.path as osp
 
 import pycocotools.mask as mask_utils
 
+from datumaro.components.annotation import (
+    _COORDINATE_ROUNDING_DIGITS, AnnotationType, Points,
+)
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
-from datumaro.components.extractor import (
-    _COORDINATE_ROUNDING_DIGITS, AnnotationType, DatasetItem, Points,
-)
+from datumaro.components.extractor import DatasetItem
 from datumaro.util import cast, find, str_to_bool
 from datumaro.util.image import save_image
 import datumaro.util.annotation_util as anno_tools

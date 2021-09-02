@@ -3,10 +3,11 @@ import logging as log
 
 import numpy as np
 
-from datumaro.components.extractor import (
-    AnnotationType, Bbox, DatasetItem, Label, LabelCategories, Mask,
-    MaskCategories, Points, PointsCategories, Polygon, PolyLine,
+from datumaro.components.annotation import (
+    AnnotationType, Bbox, Label, LabelCategories, Mask, MaskCategories, Points,
+    PointsCategories, Polygon, PolyLine,
 )
+from datumaro.components.extractor import DatasetItem
 from datumaro.components.project import Dataset
 from datumaro.util.test_utils import compare_datasets
 import datumaro.plugins.transforms as transforms

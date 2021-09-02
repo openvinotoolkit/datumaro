@@ -11,10 +11,10 @@ import re
 
 import numpy as np
 
-from datumaro.components.extractor import (
-    AnnotationType, CompiledMask, DatasetItem, Extractor, Importer,
-    LabelCategories, Mask, Polygon,
+from datumaro.components.annotation import (
+    AnnotationType, CompiledMask, LabelCategories, Mask, Polygon,
 )
+from datumaro.components.extractor import DatasetItem, Extractor, Importer
 from datumaro.util.image import (
     IMAGE_EXTENSIONS, find_images, lazy_image, load_image,
 )

@@ -1,10 +1,11 @@
 from unittest import TestCase
 import os.path as osp
 
-from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import (
-    AnnotationType, Cuboid3d, DatasetItem, LabelCategories,
+from datumaro.components.annotation import (
+    AnnotationType, Cuboid3d, LabelCategories,
 )
+from datumaro.components.dataset import Dataset
+from datumaro.components.extractor import DatasetItem
 from datumaro.util.test_utils import TestDir, compare_datasets_3d
 from datumaro.util.test_utils import run_datum as run
 

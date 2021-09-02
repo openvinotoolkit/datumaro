@@ -2,12 +2,12 @@ from unittest import TestCase
 
 import numpy as np
 
-from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import (
-    DEFAULT_SUBSET_NAME, AnnotationType, Bbox, Caption, DatasetItem, Label,
-    LabelCategories, Mask, MaskCategories, Points, PointsCategories, Polygon,
-    PolyLine,
+from datumaro.components.annotation import (
+    AnnotationType, Bbox, Caption, Label, LabelCategories, Mask, MaskCategories,
+    Points, PointsCategories, Polygon, PolyLine,
 )
+from datumaro.components.dataset import Dataset
+from datumaro.components.extractor import DEFAULT_SUBSET_NAME, DatasetItem
 from datumaro.components.operations import (
     FailedAttrVotingError, IntersectMerge, NoMatchingAnnError,
     NoMatchingItemError, WrongGroupError, compute_ann_statistics,

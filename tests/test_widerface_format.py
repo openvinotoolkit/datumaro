@@ -4,8 +4,9 @@ import os.path as osp
 
 import numpy as np
 
+from datumaro.components.annotation import Bbox, Label
 from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import Bbox, DatasetItem, Label
+from datumaro.components.extractor import DatasetItem
 from datumaro.plugins.widerface_format import (
     WiderFaceConverter, WiderFaceImporter,
 )

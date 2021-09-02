@@ -19,15 +19,15 @@ from attr import attrs
 import cv2
 import numpy as np
 
+from datumaro.components.annotation import (
+    AnnotationType, Bbox, Label, LabelCategories, Mask,
+)
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.errors import (
     DatasetError, RepeatedItemError, UndefinedLabel,
 )
-from datumaro.components.extractor import (
-    AnnotationType, Bbox, DatasetItem, Extractor, Importer, Label,
-    LabelCategories, Mask,
-)
+from datumaro.components.extractor import DatasetItem, Extractor, Importer
 from datumaro.components.validator import Severity
 from datumaro.util.annotation_util import find_instances
 from datumaro.util.image import (

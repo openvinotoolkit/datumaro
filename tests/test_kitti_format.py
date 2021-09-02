@@ -5,10 +5,11 @@ import os.path as osp
 
 import numpy as np
 
-from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import (
-    AnnotationType, Bbox, DatasetItem, Extractor, LabelCategories, Mask,
+from datumaro.components.annotation import (
+    AnnotationType, Bbox, LabelCategories, Mask,
 )
+from datumaro.components.dataset import Dataset
+from datumaro.components.extractor import DatasetItem, Extractor
 from datumaro.plugins.kitti_format.converter import KittiConverter
 from datumaro.plugins.kitti_format.format import (
     KittiLabelMap, KittiPath, KittiTask, make_kitti_categories,

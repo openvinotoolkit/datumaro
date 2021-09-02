@@ -7,8 +7,8 @@ import os.path as osp
 
 import numpy as np
 
+from datumaro.components.annotation import AnnotationType, LabelCategories, Mask
 from datumaro.components.dataset import Dataset, DatasetItem
-from datumaro.components.extractor import AnnotationType, LabelCategories, Mask
 from datumaro.plugins.ade20k2017_format import Ade20k2017Importer
 from datumaro.util.test_utils import compare_datasets
 

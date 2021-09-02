@@ -5,11 +5,11 @@ import os.path as osp
 
 import numpy as np
 
-from datumaro.components.extractor import (
-    AnnotationType, Bbox, Caption, Cuboid3d, DatasetItem, Label,
-    LabelCategories, Mask, MaskCategories, Points, PointsCategories, Polygon,
-    PolyLine,
+from datumaro.components.annotation import (
+    AnnotationType, Bbox, Caption, Cuboid3d, Label, LabelCategories, Mask,
+    MaskCategories, Points, PointsCategories, Polygon, PolyLine,
 )
+from datumaro.components.extractor import DatasetItem
 from datumaro.components.project import Dataset
 from datumaro.plugins.datumaro_format.converter import DatumaroConverter
 from datumaro.plugins.datumaro_format.extractor import DatumaroImporter

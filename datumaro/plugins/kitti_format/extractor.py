@@ -6,8 +6,9 @@ import os.path as osp
 
 import numpy as np
 
+from datumaro.components.annotation import Bbox, Mask
 from datumaro.components.extractor import (
-    AnnotationType, Bbox, DatasetItem, Mask, SourceExtractor,
+    AnnotationType, DatasetItem, SourceExtractor,
 )
 from datumaro.util.image import find_images, load_image
 

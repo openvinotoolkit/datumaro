@@ -13,6 +13,7 @@ import logging as log
 import os
 import os.path as osp
 
+from datumaro.components.annotation import AnnotationType, LabelCategories
 from datumaro.components.dataset_filter import (
     XPathAnnotationsFilter, XPathDatasetFilter,
 )
@@ -22,8 +23,8 @@ from datumaro.components.errors import (
     RepeatedItemError, UnknownFormatError,
 )
 from datumaro.components.extractor import (
-    DEFAULT_SUBSET_NAME, AnnotationType, CategoriesInfo, DatasetItem, Extractor,
-    IExtractor, ItemTransform, LabelCategories, Transform,
+    DEFAULT_SUBSET_NAME, CategoriesInfo, DatasetItem, Extractor, IExtractor,
+    ItemTransform, Transform,
 )
 from datumaro.util import error_rollback, is_method_redefined, on_error_do
 from datumaro.util.log_utils import logging_disabled

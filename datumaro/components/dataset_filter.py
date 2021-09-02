@@ -6,10 +6,11 @@ import logging as log
 
 from lxml import etree as ET  # lxml has proper XPath implementation
 
-from datumaro.components.extractor import (
-    Annotation, AnnotationType, Bbox, Caption, ItemTransform, Label, Mask,
-    Points, Polygon, PolyLine,
+from datumaro.components.annotation import (
+    Annotation, AnnotationType, Bbox, Caption, Label, Mask, Points, Polygon,
+    PolyLine,
 )
+from datumaro.components.extractor import ItemTransform
 
 
 class DatasetItemEncoder:
