@@ -4,6 +4,10 @@ import os.path as osp
 
 import numpy as np
 
+from datumaro.components.annotation import (
+    AnnotationType, Bbox, Caption, Label, LabelCategories, Mask, Points,
+    Polygon, PolyLine,
+)
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import (
     DEFAULT_FORMAT, Dataset, ItemStatus, eager_mode,
@@ -17,9 +21,7 @@ from datumaro.components.errors import (
     NoMatchingFormatsError, RepeatedItemError, UnknownFormatError,
 )
 from datumaro.components.extractor import (
-    DEFAULT_SUBSET_NAME, AnnotationType, Bbox, Caption, DatasetItem, Extractor,
-    ItemTransform, Label, LabelCategories, Mask, Points, Polygon, PolyLine,
-    Transform,
+    DEFAULT_SUBSET_NAME, DatasetItem, Extractor, ItemTransform, Transform,
 )
 from datumaro.components.launcher import Launcher
 from datumaro.util.image import Image

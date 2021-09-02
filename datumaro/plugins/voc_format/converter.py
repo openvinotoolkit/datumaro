@@ -11,11 +11,12 @@ import os.path as osp
 
 from lxml import etree as ET
 
+from datumaro.components.annotation import (
+    AnnotationType, CompiledMask, LabelCategories,
+)
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
-from datumaro.components.extractor import (
-    AnnotationType, CompiledMask, DatasetItem, LabelCategories,
-)
+from datumaro.components.extractor import DatasetItem
 from datumaro.util import find, str_to_bool
 from datumaro.util.annotation_util import make_label_id_mapping
 from datumaro.util.image import save_image

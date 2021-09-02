@@ -57,7 +57,7 @@ For OpenVINO models the output processing script would look like this:
 Classification scenario:
 
 ``` python
-from datumaro.components.extractor import *
+from datumaro.components.annotation import Label
 from datumaro.util.annotation_util import softmax
 
 def process_outputs(inputs, outputs):
@@ -78,7 +78,7 @@ def process_outputs(inputs, outputs):
 Object Detection scenario:
 
 ``` python
-from datumaro.components.extractor import *
+from datumaro.components.annotation import Bbox
 
 # return a significant number of output boxes to make multiple runs
 # statistically correct and meaningful

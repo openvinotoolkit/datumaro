@@ -12,8 +12,8 @@ import tempfile
 
 from typing_extensions import Literal
 
+from datumaro.components.annotation import AnnotationType
 from datumaro.components.dataset import Dataset, IDataset
-from datumaro.components.extractor import AnnotationType
 from datumaro.util import filter_dict, find
 from datumaro.util.os_util import rmfile, rmtree
 

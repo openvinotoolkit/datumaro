@@ -7,6 +7,7 @@ from unittest import TestCase
 
 import numpy as np
 
+from datumaro.components.annotation import Bbox, Label, Mask, Polygon
 from datumaro.components.dataset import Dataset, DatasetItem
 from datumaro.components.errors import (
     AttributeDefinedButNotFound, FarFromAttrMean, FarFromLabelMean,
@@ -16,7 +17,6 @@ from datumaro.components.errors import (
     MissingLabelCategories, MultiLabelAnnotations, NegativeLength,
     OnlyOneAttributeValue, OnlyOneLabel, UndefinedAttribute, UndefinedLabel,
 )
-from datumaro.components.extractor import Bbox, Label, Mask, Polygon
 from datumaro.components.validator import TaskType
 from datumaro.plugins.validators import (
     ClassificationValidator, DetectionValidator, SegmentationValidator,

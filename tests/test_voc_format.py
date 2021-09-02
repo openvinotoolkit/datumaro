@@ -6,11 +6,11 @@ import os.path as osp
 
 import numpy as np
 
-from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import (
-    AnnotationType, Bbox, DatasetItem, Extractor, Label, LabelCategories, Mask,
-    MaskCategories,
+from datumaro.components.annotation import (
+    AnnotationType, Bbox, Label, LabelCategories, Mask, MaskCategories,
 )
+from datumaro.components.dataset import Dataset
+from datumaro.components.extractor import DatasetItem, Extractor
 from datumaro.plugins.voc_format.converter import (
     VocActionConverter, VocClassificationConverter, VocConverter,
     VocDetectionConverter, VocLayoutConverter, VocSegmentationConverter,

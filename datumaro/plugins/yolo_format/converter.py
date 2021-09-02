@@ -7,11 +7,10 @@ import logging as log
 import os
 import os.path as osp
 
+from datumaro.components.annotation import AnnotationType
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
-from datumaro.components.extractor import (
-    DEFAULT_SUBSET_NAME, AnnotationType, DatasetItem,
-)
+from datumaro.components.extractor import DEFAULT_SUBSET_NAME, DatasetItem
 
 from .format import YoloPath
 

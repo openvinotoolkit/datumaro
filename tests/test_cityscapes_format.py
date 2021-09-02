@@ -6,11 +6,11 @@ import os.path as osp
 
 import numpy as np
 
-from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import (
-    AnnotationType, DatasetItem, Extractor, LabelCategories, Mask,
-    MaskCategories,
+from datumaro.components.annotation import (
+    AnnotationType, LabelCategories, Mask, MaskCategories,
 )
+from datumaro.components.dataset import Dataset
+from datumaro.components.extractor import DatasetItem, Extractor
 from datumaro.plugins.cityscapes_format import (
     CityscapesConverter, CityscapesImporter,
 )

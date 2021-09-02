@@ -165,8 +165,9 @@ particular problems with MNIST dataset:
 ### Example 1. How to create custom MNIST-like dataset
 
 ```python
+from datumaro.components.annotation import Label
 from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import Label, DatasetItem
+from datumaro.components.extractor import DatasetItem
 
 dataset = Dataset.from_iterable([
     DatasetItem(id=0, image=np.ones((28, 28)),

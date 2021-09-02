@@ -6,6 +6,7 @@ import textwrap
 
 import numpy as np
 
+from datumaro.components.annotation import Label
 from datumaro.components.config_model import Model, Source
 from datumaro.components.dataset import DEFAULT_FORMAT, Dataset
 from datumaro.components.errors import (
@@ -13,9 +14,7 @@ from datumaro.components.errors import (
     MismatchingObjectError, MissingObjectError, PathOutsideSourceError,
     ReadonlyProjectError, SourceExistsError, SourceUrlInsideProjectError,
 )
-from datumaro.components.extractor import (
-    Bbox, DatasetItem, Extractor, ItemTransform, Label,
-)
+from datumaro.components.extractor import DatasetItem, Extractor, ItemTransform
 from datumaro.components.launcher import Launcher
 from datumaro.components.project import DiffStatus, Project
 from datumaro.util.test_utils import TestDir, compare_datasets, compare_dirs
