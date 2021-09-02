@@ -9,10 +9,10 @@ import os.path as osp
 from defusedxml import ElementTree
 import numpy as np
 
-from datumaro.components.extractor import (
-    AnnotationType, Bbox, CompiledMask, DatasetItem, Label, Mask,
-    SourceExtractor,
+from datumaro.components.annotation import (
+    AnnotationType, Bbox, CompiledMask, Label, Mask,
 )
+from datumaro.components.extractor import DatasetItem, SourceExtractor
 from datumaro.util.image import Image, find_images
 from datumaro.util.mask_tools import invert_colormap, lazy_mask
 from datumaro.util.os_util import dir_items

@@ -12,11 +12,13 @@ import re
 
 import pycocotools.mask as mask_utils
 
+from datumaro.components.annotation import (
+    AnnotationType, Bbox, Label, LabelCategories, MaskCategories,
+    PointsCategories, Polygon, RleMask,
+)
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.extractor import (
-    DEFAULT_SUBSET_NAME, AnnotationType, Bbox, ItemTransform, Label,
-    LabelCategories, MaskCategories, PointsCategories, Polygon, RleMask,
-    Transform,
+    DEFAULT_SUBSET_NAME, ItemTransform, Transform,
 )
 from datumaro.util import NOTSET, parse_str_enum_value
 from datumaro.util.annotation_util import find_group_leader, find_instances

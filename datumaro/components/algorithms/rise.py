@@ -8,7 +8,7 @@ from math import ceil
 
 import numpy as np
 
-from datumaro.components.extractor import AnnotationType
+from datumaro.components.annotation import AnnotationType
 from datumaro.util.annotation_util import nms
 
 

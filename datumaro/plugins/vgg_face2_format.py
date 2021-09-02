@@ -6,11 +6,11 @@ import csv
 import os
 import os.path as osp
 
-from datumaro.components.converter import Converter
-from datumaro.components.extractor import (
-    AnnotationType, Bbox, DatasetItem, Extractor, Importer, Label,
-    LabelCategories, Points,
+from datumaro.components.annotation import (
+    AnnotationType, Bbox, Label, LabelCategories, Points,
 )
+from datumaro.components.converter import Converter
+from datumaro.components.extractor import DatasetItem, Extractor, Importer
 from datumaro.util.image import find_images
 
 

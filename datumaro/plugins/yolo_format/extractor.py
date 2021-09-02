@@ -6,9 +6,9 @@ from collections import OrderedDict
 import os.path as osp
 import re
 
+from datumaro.components.annotation import AnnotationType, Bbox, LabelCategories
 from datumaro.components.extractor import (
-    AnnotationType, Bbox, DatasetItem, Extractor, Importer, LabelCategories,
-    SourceExtractor,
+    DatasetItem, Extractor, Importer, SourceExtractor,
 )
 from datumaro.util.image import (
     DEFAULT_IMAGE_META_FILE_NAME, Image, load_image_meta_file,

@@ -165,8 +165,9 @@ datum export -p without_cat -f yolo -o ./yolo_without_cats
 ### Example 3. Create custom dataset in YOLO format
 ```python
 import numpy as np
+from datumaro.components.annotation import Bbox
 from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import Bbox, DatasetItem
+from datumaro.components.extractor import DatasetItem
 
 dataset = Dataset.from_iterable([
     DatasetItem(id='image_001', subset='train',
@@ -192,8 +193,8 @@ dataset.export('../yolo_dataset', format='yolo', save_images=True)
 If you only want information about label names for each
 images, then you can get it from code:
 ```python
+from datumaro.components.annotation import AnnotationType
 from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import AnnotationType
 
 dataset = Dataset.import_from('./yolo_dataset', format='yolo')
 cats = dataset.categories()[AnnotationType.label]

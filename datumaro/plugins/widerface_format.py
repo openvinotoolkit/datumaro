@@ -6,11 +6,11 @@ import os
 import os.path as osp
 import re
 
-from datumaro.components.converter import Converter
-from datumaro.components.extractor import (
-    AnnotationType, Bbox, DatasetItem, Importer, Label, LabelCategories,
-    SourceExtractor,
+from datumaro.components.annotation import (
+    AnnotationType, Bbox, Label, LabelCategories,
 )
+from datumaro.components.converter import Converter
+from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.util import str_to_bool
 
 

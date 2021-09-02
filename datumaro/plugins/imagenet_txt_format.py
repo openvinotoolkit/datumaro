@@ -5,12 +5,12 @@
 import os
 import os.path as osp
 
+from datumaro.components.annotation import (
+    AnnotationType, Label, LabelCategories,
+)
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.converter import Converter
-from datumaro.components.extractor import (
-    AnnotationType, DatasetItem, Importer, Label, LabelCategories,
-    SourceExtractor,
-)
+from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 
 
 class ImagenetTxtPath:

@@ -7,10 +7,10 @@ import os.path as osp
 
 from defusedxml import ElementTree as ET
 
-from datumaro.components.extractor import (
-    AnnotationType, Cuboid3d, DatasetItem, Importer, LabelCategories,
-    SourceExtractor,
+from datumaro.components.annotation import (
+    AnnotationType, Cuboid3d, LabelCategories,
 )
+from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.util import cast
 from datumaro.util.image import find_images
 

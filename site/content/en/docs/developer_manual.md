@@ -43,8 +43,9 @@ Datumaro has a number of dataset and annotation features:
 - various annotation operations
 
 ```python
+from datumaro.components.annotation import Bbox, Polygon
 from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import Bbox, Polygon, DatasetItem
+from datumaro.components.extractor import DatasetItem
 
 # Import and export a dataset
 dataset = Dataset.import_from('src/dir', 'voc')
@@ -94,8 +95,9 @@ corresponding image. There can be some image `attributes`,
 an `image` and `annotations`.
 
 ```python
+from datumaro.components.annotation import Bbox, Polygon
 from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import Bbox, Polygon, DatasetItem
+from datumaro.components.extractor import DatasetItem
 
 # create a dataset from other datasets
 dataset = Dataset.from_extractors(dataset1, dataset2)

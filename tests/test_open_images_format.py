@@ -8,10 +8,11 @@ import os.path as osp
 
 import numpy as np
 
-from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import (
-    AnnotationType, Bbox, DatasetItem, Label, LabelCategories, Mask,
+from datumaro.components.annotation import (
+    AnnotationType, Bbox, Label, LabelCategories, Mask,
 )
+from datumaro.components.dataset import Dataset
+from datumaro.components.extractor import DatasetItem
 from datumaro.plugins.open_images_format import (
     OpenImagesConverter, OpenImagesImporter,
 )

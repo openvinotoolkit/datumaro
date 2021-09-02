@@ -3,10 +3,11 @@ import os.path as osp
 
 import numpy as np
 
-from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import (
-    AnnotationType, Bbox, DatasetItem, Label, LabelCategories, Points,
+from datumaro.components.annotation import (
+    AnnotationType, Bbox, Label, LabelCategories, Points,
 )
+from datumaro.components.dataset import Dataset
+from datumaro.components.extractor import DatasetItem
 from datumaro.plugins.vgg_face2_format import (
     VggFace2Converter, VggFace2Importer,
 )

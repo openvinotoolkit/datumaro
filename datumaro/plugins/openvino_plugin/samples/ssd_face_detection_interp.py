@@ -2,8 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-
-from datumaro.components.extractor import *
+from datumaro.components.annotation import AnnotationType, Bbox, LabelCategories
 
 conf_thresh = 0.02
 

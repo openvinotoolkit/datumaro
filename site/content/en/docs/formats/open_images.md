@@ -298,9 +298,10 @@ datum export -p project -o dataset -f cvat --overwrite -- --save-images
 ```python
 import numpy as np
 from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import (
-    AnnotationType, Label, LabelCategories, DatasetItem,
+from datumaro.components.annotation import (
+    AnnotationType, Label, LabelCategories,
 )
+from datumaro.components.extractor import DatasetItem
 
 dataset = Dataset.from_iterable(
     [

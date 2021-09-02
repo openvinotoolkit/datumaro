@@ -32,7 +32,7 @@ You can find OpenVINO model interpreter samples in
 `datumaro/plugins/openvino/samples` ([instruction](/docs/plugins/openvino_plugin/)).
 
 ``` python
-from datumaro.components.extractor import *
+from datumaro.components.annotation import AnnotationType, Bbox, LabelCategories
 
 max_det = 10
 conf_thresh = 0.1

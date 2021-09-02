@@ -2,9 +2,10 @@ from unittest import TestCase
 
 import numpy as np
 
-from datumaro.components.extractor import (
-    AnnotationType, DatasetItem, Label, LabelCategories,
+from datumaro.components.annotation import (
+    AnnotationType, Label, LabelCategories,
 )
+from datumaro.components.extractor import DatasetItem
 from datumaro.components.project import Dataset
 import datumaro.plugins.ndr as ndr
 
