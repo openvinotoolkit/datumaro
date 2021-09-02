@@ -48,3 +48,9 @@
   width: 25%;
   font-size: 50px !important;
 }
+
+/* Fix in-page anchors */
+
+html {
+  scroll-padding-top: 70px; /* height of sticky header */
+}

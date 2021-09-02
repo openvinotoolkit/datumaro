@@ -5,7 +5,7 @@ description: ''
 weight: 29
 ---
 
-### Print project info
+### Print project info <a id="project-info"></a>
 
 Prints project configuration info such as available plugins, registered models,
 imported sources and build tree.

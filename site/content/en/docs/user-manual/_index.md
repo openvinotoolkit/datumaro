@@ -16,7 +16,7 @@ weight: 3
   - [Command-line workflow](./how_to_use_datumaro/#command-line-workflow)
   - [Project data model](./how_to_use_datumaro/#data-model)
   - [Project layout](./how_to_use_datumaro/#project-layout)
-  - [Examples](./how_to_use_datumaro/#cli-examples)
+  - [Examples](./how_to_use_datumaro/#examples)
 - [Supported dataset formats](./supported_formats)
 - [Supported annotation types](./supported_annotation_types)
 - [Supported media formats](./media_formats)
@@ -37,14 +37,14 @@ weight: 3
   - [Log](./command-reference/log)
   - [Run model inference explanation (explain)](./command-reference/explain)
   - Models:
-    - [Add](./command-reference/models/#register-model)
-    - [Remove](./command-reference/models/#remove-models)
-    - [Run](./command-reference/models/#run-model)
+    - [Add](./command-reference/models/#model-add)
+    - [Remove](./command-reference/models/#model-remove)
+    - [Run](./command-reference/models/#model-run)
   - Sources:
     - [Add](./command-reference/sources/#source-add)
     - [Remove](./command-reference/sources/#source-remove)
   - Projects:
-    - [Info](./command-reference/projects/#print-project-info)
+    - [Info](./command-reference/projects/#project-info)
 - [Extending](./extending)
   - [Builtin plugins](./extending/#builtin-plugins)
   - [Dataset Formats](./extending/#dataset-formats)

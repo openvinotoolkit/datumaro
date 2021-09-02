@@ -18,6 +18,7 @@ and teams, who are working with datasets and annotations.
 <div class="text-center">
 
 ```mermaid
+%%{init {'theme':'base'}}%%
 flowchart LR
     datasets[(VOC dataset<br/>+<br/>COCO datset<br/>+<br/>CVAT annotation)]
     datumaro{Datumaro}

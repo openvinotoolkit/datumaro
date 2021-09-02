@@ -5,7 +5,7 @@ description: ''
 weight: 26
 ---
 
-### Import Datasets
+### Import Datasets <a id="source-add"></a>
 
 A project can contain an arbitrary number of Data Sources. Each Data Source
 describes a dataset in a specific format. A project acts as a manager for
@@ -99,7 +99,7 @@ datum add <path/to/images/dir> -f image_dir
 datum export -f tf_detection_api -- --save-images
 ```
 
-### Remove Datasets
+### Remove Datasets <a id="source-remove"></a>
 
 To remove a data source from a project, use the `remove` command.
 
