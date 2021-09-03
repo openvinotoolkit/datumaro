@@ -4,13 +4,15 @@
 
 from contextlib import ExitStack, contextmanager
 from functools import partial, wraps
-from typing import Any, ContextManager, Dict, Optional
+from typing import Any, ContextManager, Dict, Optional, TypeVar
 import threading
 
 from attr import attrs
 
 from datumaro.util import optional_arg_decorator
 
+
+T = TypeVar('T')
 
 class Scope:
     """
@@ -83,9 +85,11 @@ class Scope:
         self._exit_stack.callback(handler)
         return name
 
-    def add(self, cm: ContextManager) -> Any:
+    def add(self, cm: ContextManager[T]) -> T:
         """
         Enters a context manager and adds it to the exit stack.
+
+        Returns: cm.__enter__() result
         """
 
         return self._exit_stack.enter_context(cm)
@@ -152,17 +156,19 @@ def scoped(func, arg_name=None):
     return wrapped_func
 
 # Shorthands for common cases
-def on_error_do(callback, *args, ignore_errors=False):
+def on_error_do(callback, *args, ignore_errors=False,
+        fwd_kwargs=None, **kwargs):
     return Scope.current().on_error_do(callback, *args,
-        ignore_errors=ignore_errors)
+        ignore_errors=ignore_errors, fwd_kwargs=fwd_kwargs, **kwargs)
 on_error_do.__doc__ = Scope.on_error_do.__doc__
 
-def on_exit_do(callback, *args, ignore_errors=False):
+def on_exit_do(callback, *args, ignore_errors=False,
+        fwd_kwargs=None, **kwargs):
     return Scope.current().on_exit_do(callback, *args,
-        ignore_errors=ignore_errors)
+        ignore_errors=ignore_errors, fwd_kwargs=fwd_kwargs, **kwargs)
 on_exit_do.__doc__ = Scope.on_exit_do.__doc__
 
-def add(cm: ContextManager):
+def add(cm: ContextManager[T]) -> T:
     return Scope.current().add(cm)
 add.__doc__ = Scope.add.__doc__
 
