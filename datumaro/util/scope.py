@@ -25,7 +25,7 @@ class Scope:
         callback: Callable[[], Any]
         ignore_errors: bool = True
 
-        def __exit__(self, exc_type=None, exc_value=None, exc_traceback=None):
+        def __exit__(self, exc_type, exc_value, exc_traceback):
             try:
                 self.callback()
             except Exception:
@@ -34,7 +34,7 @@ class Scope:
 
     @attrs
     class ErrorHandler(ExitHandler):
-        def __exit__(self, exc_type=None, exc_value=None, exc_traceback=None):
+        def __exit__(self, exc_type, exc_value, exc_traceback):
             if exc_type:
                 return super().__exit__(exc_type=exc_type, exc_value=exc_value,
                     exc_traceback=exc_traceback)
@@ -54,7 +54,7 @@ class Scope:
         will be ignored.
         """
 
-        return self._register_callback(self.ErrorHandler,
+        self._register_callback(self.ErrorHandler,
             ignore_errors=ignore_errors,
             callback=callback, args=args, kwargs=kwargs)
 
@@ -65,7 +65,7 @@ class Scope:
         Registers a function to be called on scope exit.
         """
 
-        return self._register_callback(self.ExitHandler,
+        self._register_callback(self.ExitHandler,
             ignore_errors=ignore_errors,
             callback=callback, args=args, kwargs=kwargs)
 
@@ -93,16 +93,17 @@ class Scope:
         self.enabled = False
 
     def close(self):
-        self.__exit__()
+        self.__exit__(None, None, None)
 
-    def __enter__(self):
+    def __enter__(self) -> 'Scope':
         return self
 
-    def __exit__(self, exc_type=None, exc_value=None, exc_traceback=None):
+    def __exit__(self, exc_type, exc_value, exc_traceback):
         if not self.enabled:
             return
 
         self._stack.__exit__(exc_type, exc_value, exc_traceback)
+        self._stack.pop_all() # prevent issues on repetitive calls
 
     @classmethod
     def current(cls) -> 'Scope':
