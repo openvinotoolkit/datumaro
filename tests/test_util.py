@@ -14,13 +14,13 @@ from .requirements import Requirements, mark_requirement
 class TestException(Exception):
     pass
 
-class TestScope(TestCase):
+class ScopeTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_calls_on_no_error(self):
+    def test_calls_only_exit_callback_on_exit(self):
         error_cb = mock.MagicMock()
         exit_cb = mock.MagicMock()
 
-        with suppress(TestException), Scope() as scope:
+        with Scope() as scope:
             scope.on_error_do(error_cb)
             scope.on_exit_do(exit_cb)
 
@@ -28,26 +28,17 @@ class TestScope(TestCase):
         exit_cb.assert_called_once()
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_calls_both_stacks_on_error(self):
+    def test_calls_both_callbacks_on_error(self):
         error_cb = mock.MagicMock()
         exit_cb = mock.MagicMock()
 
-        with suppress(TestException), Scope() as scope:
+        with self.assertRaises(TestException), Scope() as scope:
             scope.on_error_do(error_cb)
             scope.on_exit_do(exit_cb)
-            raise TestException('err')
+            raise TestException()
 
         error_cb.assert_called_once()
         exit_cb.assert_called_once()
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_cant_add_single_callback_in_both_stacks(self):
-        cb = mock.MagicMock()
-
-        with self.assertRaisesRegex(AssertionError, "already registered"):
-            with Scope() as scope:
-                scope.on_error_do(cb)
-                scope.on_exit_do(cb)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_adds_cm(self):
@@ -82,7 +73,7 @@ class TestScope(TestCase):
         @scoped('scope')
         def foo(scope=None):
             scope.on_error_do(cb)
-            raise TestException('err')
+            raise TestException()
 
         with suppress(TestException):
             foo()
@@ -113,7 +104,7 @@ class TestScope(TestCase):
         def foo():
             on_error_do(error_cb)
             on_exit_do(exit_cb)
-            raise TestException('err')
+            raise TestException()
 
         with suppress(TestException):
             foo()
@@ -123,17 +114,13 @@ class TestScope(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_fowrard_args(self):
-        cb1 = mock.MagicMock()
-        cb2 = mock.MagicMock()
+        cb = mock.MagicMock()
 
         with suppress(TestException), Scope() as scope:
-            scope.on_error_do(cb1, 5, a2=2, ignore_errors=True)
-            scope.on_error_do(cb2, 5, a2=2, ignore_errors=True,
-                fwd_kwargs={'ignore_errors': 4})
-            raise TestException('err')
+            scope.on_error_do(cb, 5, ignore_errors=True, kwargs={'a2': 2})
+            raise TestException()
 
-        cb1.assert_called_once_with(5, a2=2)
-        cb2.assert_called_once_with(5, a2=2, ignore_errors=4)
+        cb.assert_called_once_with(5, a2=2)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_decorator_can_return_on_success_in_implicit_form(self):
