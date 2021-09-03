@@ -147,5 +147,5 @@ def on_exit_do(callback, *args, ignore_errors=False, kwargs=None):
     return Scope.current().on_exit_do(callback, *args,
         ignore_errors=ignore_errors, kwargs=kwargs)
 
-def add(cm: ContextManager[T]) -> T:
+def scope_add(cm: ContextManager[T]) -> T:
     return Scope.current().add(cm)
