@@ -3,12 +3,12 @@
 # SPDX-License-Identifier: MIT
 
 import os
+import shutil
 import subprocess
 
 from packaging import version
 import git
 import toml
-import shutil
 
 MINIMUM_VERSION='0.1.11' # the initial version for the documentation site
 
@@ -35,12 +35,12 @@ def generate_versioning_config(filename, versions, url_prefix=''):
             write_version_item(f, v, '{}/{}'.format(url_prefix, v))
 
 def git_checkout(tagname, cwd):
-    docs_dir = os.path.join(cwd, 'site', 'content','en', 'docs')
+    docs_dir = os.path.join(cwd, 'site', 'content', 'en', 'docs')
     shutil.rmtree(docs_dir)
     repo.git.checkout(tagname, '--', 'site/content/en/docs')
     repo.git.checkout(tagname, '--', 'site/assets/scss/_custom.scss')
     if tagname != "v0.1.11":
-        images_dir = os.path.join(cwd, 'site', 'content','en', 'images')
+        images_dir = os.path.join(cwd, 'site', 'content', 'en', 'images')
         shutil.rmtree(images_dir)
         repo.git.checkout(tagname, '--', 'site/content/en/images')
 
