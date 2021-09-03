@@ -41,7 +41,7 @@ latexDashes = true
 
 [params.mermaid]
 enable = true
-theme = "neutral"
+theme = "base"
 
 [params.mermaid.flowchart]
 diagramPadding = 1

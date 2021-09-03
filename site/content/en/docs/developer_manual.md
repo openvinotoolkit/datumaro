@@ -401,6 +401,7 @@ and also special commands, which are hard to be put into any specific context.
 <div class="text-center large-scheme">
 
 ```mermaid
+%%{init { 'theme':'netrual' }}%%
 flowchart LR
   d(("#0009; datum #0009;")):::mainclass
   s(source):::nofillclass
@@ -447,6 +448,7 @@ Model-View-ViewModel (MVVM) UI pattern is used.
 <div class="text-center">
 
 ```mermaid
+%%{init { 'theme':'netrual' }}%%
 flowchart LR
     c((CLI))<--CliModel--->d((Domain))
     g((GUI))<--GuiModel--->d
