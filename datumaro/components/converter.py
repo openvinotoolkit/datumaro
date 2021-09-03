@@ -12,9 +12,9 @@ import shutil
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.dataset import DatasetPatch
 from datumaro.components.extractor import DatasetItem
-from datumaro.util import error_rollback, on_error_do
 from datumaro.util.image import Image
 from datumaro.util.os_util import rmtree
+from datumaro.util.scope import on_error_do, scoped
 
 
 class Converter(CliPlugin):
@@ -37,7 +37,7 @@ class Converter(CliPlugin):
         return converter.apply()
 
     @classmethod
-    @error_rollback
+    @scoped
     def patch(cls, dataset, patch, save_dir, **options):
         # This solution is not any better in performance than just
         # writing a dataset, but in case of patching (i.e. writing

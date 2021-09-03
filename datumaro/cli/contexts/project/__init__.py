@@ -21,6 +21,7 @@ from datumaro.components.project import ProjectBuildTargets
 from datumaro.components.validator import TaskType
 from datumaro.util import str_to_bool
 from datumaro.util.os_util import make_file_name
+from datumaro.util.scope import on_exit_do, scoped
 
 from ...util import MultilineFormatter, add_subparser
 from ...util.errors import CliException

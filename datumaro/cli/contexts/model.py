@@ -9,8 +9,8 @@ import os.path as osp
 
 from datumaro.components.errors import ProjectNotFoundError
 from datumaro.components.project import Environment
-from datumaro.util import error_rollback, on_error_do
 from datumaro.util.os_util import rmtree
+from datumaro.util.scope import on_error_do, scoped
 
 from ..util import MultilineFormatter, add_subparser
 from ..util.errors import CliException
@@ -53,7 +53,7 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
-@error_rollback
+@scoped
 def add_command(args):
     show_plugin_help = '-h' in args.extra_args or '--help' in args.extra_args
 
