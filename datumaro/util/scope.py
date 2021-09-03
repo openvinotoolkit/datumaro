@@ -171,7 +171,3 @@ on_exit_do.__doc__ = Scope.on_exit_do.__doc__
 def add(cm: ContextManager[T]) -> T:
     return Scope.current().add(cm)
 add.__doc__ = Scope.add.__doc__
-
-def current():
-    return Scope.current()
-current.__doc__ = Scope.current.__doc__
