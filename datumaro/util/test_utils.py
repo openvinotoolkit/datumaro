@@ -50,14 +50,15 @@ class TestDir(FileRemover):
         ...
     """
 
-    def __init__(self, path=None):
+    def __init__(self, path=None, frame_id=2):
         super().__init__(path, is_dir=True)
+        self._frame_id = frame_id
 
     def __enter__(self):
         path = self.path
 
         if path is None:
-            path = osp.abspath('temp_%s-' % current_function_name(2))
+            path = f'temp_{current_function_name(self._frame_id)}-'
             path = tempfile.mkdtemp(dir=os.getcwd(), prefix=path)
             self.path = path
         else:
