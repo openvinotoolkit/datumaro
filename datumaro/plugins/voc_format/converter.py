@@ -93,12 +93,15 @@ class VocConverter(Converter):
         parser.add_argument('--tasks', type=cls._split_tasks_string,
             help="VOC task filter, comma-separated list of {%s} "
                 "(default: all)" % ', '.join(t.name for t in VocTask))
+        parser.add_argument('--add-background', type=str_to_bool, default=True,
+            help="Allow export dataset with/without adding background label "
+                "(default: %(default)s)")
 
         return parser
 
-    def __init__(self, extractor, save_dir,
-            tasks=None, apply_colormap=True, label_map=None,
-            allow_attributes=True, keep_empty=False, **kwargs):
+    def __init__(self, extractor, save_dir, tasks=None,
+            apply_colormap=True, label_map=None, allow_attributes=True,
+            keep_empty=False, add_background=True, **kwargs):
         super().__init__(extractor, save_dir, **kwargs)
 
         assert tasks is None or isinstance(tasks, (VocTask, list, set))
@@ -113,6 +116,7 @@ class VocConverter(Converter):
         self._apply_colormap = apply_colormap
         self._allow_attributes = allow_attributes
         self._keep_empty = keep_empty
+        self._add_background = add_background
 
         if label_map is None:
             label_map = LabelmapType.source.name
@@ -559,16 +563,17 @@ class VocConverter(Converter):
                 (label_map_source, ', '.join(t.name for t in LabelmapType)))
 
         # There must always be a label with color (0, 0, 0) at index 0
-        bg_label = find(label_map.items(), lambda x: x[1][0] == (0, 0, 0))
-        if bg_label is not None:
-            bg_label = bg_label[0]
-        else:
-            bg_label = 'background'
-            if bg_label not in label_map:
-                has_colors = any(v[0] is not None for v in label_map.values())
-                color = (0, 0, 0) if has_colors else None
-                label_map[bg_label] = [color, [], []]
-        label_map.move_to_end(bg_label, last=False)
+        if self._add_background:
+            bg_label = find(label_map.items(), lambda x: x[1][0] == (0, 0, 0))
+            if bg_label is not None:
+                bg_label = bg_label[0]
+            else:
+                bg_label = 'background'
+                if bg_label not in label_map:
+                    has_colors = any(v[0] is not None for v in label_map.values())
+                    color = (0, 0, 0) if has_colors else None
+                    label_map[bg_label] = [color, [], []]
+            label_map.move_to_end(bg_label, last=False)
 
         self._categories = make_voc_categories(label_map)
 
