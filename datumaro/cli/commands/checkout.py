@@ -4,6 +4,9 @@
 
 import argparse
 
+from datumaro.util.scope import scoped
+import datumaro.util.scope as scope
+
 from ..util import MultilineFormatter
 from ..util.project import load_project
 
@@ -45,6 +48,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+@scoped
 def checkout_command(args):
     has_sep = '--' in args._positionals
     if has_sep:
@@ -60,7 +64,7 @@ def checkout_command(args):
         raise argparse.ArgumentError('sources', message="When '--' is used, "
             "at least 1 source name must be specified")
 
-    project = load_project(args.project_dir)
+    project = scope.add(load_project(args.project_dir))
 
     project.checkout(rev=args.rev, sources=args.sources, force=args.force)
 

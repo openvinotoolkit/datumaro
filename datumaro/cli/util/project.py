@@ -12,6 +12,7 @@ from datumaro.components.environment import Environment
 from datumaro.components.errors import DatumaroError, ProjectNotFoundError
 from datumaro.components.project import Project, Revision
 from datumaro.util.os_util import generate_next_name
+from datumaro.util.scope import on_error_do, scoped
 
 
 def load_project(project_dir, readonly=False):
@@ -48,7 +49,9 @@ def parse_dataset_pathspec(s: str,
     format = match["format"]
     return Dataset.import_from(path, format, env=env)
 
-def parse_revspec(s: str, ctx_project: Optional[Project] = None) -> Dataset:
+@scoped
+def parse_revspec(s: str, ctx_project: Optional[Project] = None) \
+        -> Tuple[Dataset, Project]:
     """
     Parses Revision paths. The syntax is:
     - <project path> [ @<rev> ] [ :<target> ]
@@ -56,7 +59,8 @@ def parse_revspec(s: str, ctx_project: Optional[Project] = None) -> Dataset:
     - <target>
     The second and the third forms assume an existing "current" project.
 
-    Returns: a dataset from the parsed path
+    Returns: the dataset and the project from the parsed path.
+      The project is only returned when specified in the revpath.
     """
 
     match = re.fullmatch(r"""
@@ -72,32 +76,41 @@ def parse_revspec(s: str, ctx_project: Optional[Project] = None) -> Dataset:
     rev = match["rev"]
     source = match["source"]
 
+    target_project = None
+
     assert proj_path
     if rev:
-        project = load_project(proj_path, readonly=True)
-
-        # proj_path is either proj_path or rev or source name
+        target_project = load_project(proj_path, readonly=True)
+        project = target_project
+    # proj_path is either proj_path or rev or source name
     elif Project.find_project_dir(proj_path):
-        project = load_project(proj_path, readonly=True)
+        target_project = load_project(proj_path, readonly=True)
+        project = target_project
     elif ctx_project:
         project = ctx_project
         if project.is_ref(proj_path):
             rev = proj_path
         elif not source:
             source = proj_path
+
     else:
         raise ProjectNotFoundError("Failed to find project at '%s'. " \
             "Specify project path with '-p/--project' or in the "
             "target pathspec." % proj_path)
 
-    tree = project.get_rev(rev)
-    return tree.make_dataset(source)
+    if target_project:
+        on_error_do(Project.close, target_project, ignore_errors=True)
 
-def parse_full_revpath(s: str, ctx_project: Optional[Project]) -> Dataset:
+    tree = project.get_rev(rev)
+    return tree.make_dataset(source), target_project
+
+def parse_full_revpath(s: str, ctx_project: Optional[Project] = None) \
+        -> Tuple[Dataset, Optional[Project]]:
     """
     revpath - either a Dataset path or a Revision path.
 
-    Returns: a dataset from the parsed path
+    Returns: the dataset and the project from the parsed path
+      The project is only returned when specified in the revpath.
     """
 
     if ctx_project:
@@ -107,7 +120,7 @@ def parse_full_revpath(s: str, ctx_project: Optional[Project]) -> Dataset:
 
     errors = []
     try:
-        return parse_dataset_pathspec(s, env=env)
+        return parse_dataset_pathspec(s, env=env), None
     except (DatumaroError, OSError) as e:
         errors.append(e)
 

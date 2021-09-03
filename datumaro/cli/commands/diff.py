@@ -11,8 +11,9 @@ import os.path as osp
 
 from datumaro.components.errors import ProjectNotFoundError
 from datumaro.components.operations import DistanceComparator, ExactComparator
-from datumaro.util import error_rollback, on_error_do
 from datumaro.util.os_util import rmtree
+from datumaro.util.scope import on_error_do, scoped
+import datumaro.util.scope as scope
 
 from ..contexts.project.diff import DiffVisualizer
 from ..util import MultilineFormatter
@@ -132,7 +133,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
-@error_rollback
+@scoped
 def diff_command(args):
     dst_dir = args.dst_dir
     if dst_dir:
@@ -149,7 +150,7 @@ def diff_command(args):
 
     project = None
     try:
-        project = load_project(args.project_dir)
+        project = scope.add(load_project(args.project_dir))
     except ProjectNotFoundError:
         if args.project_dir:
             raise
@@ -157,13 +158,22 @@ def diff_command(args):
     try:
         if not args.second_target:
             first_dataset = project.working_tree.make_dataset()
-            second_dataset = parse_full_revpath(args.first_target, project)
+            second_dataset, target_project = \
+                parse_full_revpath(args.first_target, project)
+            if target_project:
+                scope.add(target_project)
         else:
-            first_dataset = parse_full_revpath(args.first_target, project)
-            second_dataset = parse_full_revpath(args.second_target, project)
+            first_dataset, target_project = \
+                parse_full_revpath(args.first_target, project)
+            if target_project:
+                scope.add(target_project)
+
+            second_dataset, target_project = \
+                parse_full_revpath(args.second_target, project)
+            if target_project:
+                scope.add(target_project)
     except Exception as e:
         raise CliException(str(e))
-
 
     if args.method is ComparisonMethod.equality:
         if args.ignore_field:

@@ -35,13 +35,12 @@ from datumaro.components.errors import (
     UnsavedChangesError, VcsError,
 )
 from datumaro.components.launcher import Launcher
-from datumaro.util import (
-    error_rollback, find, on_error_do, parse_str_enum_value,
-)
+from datumaro.util import find, parse_str_enum_value
 from datumaro.util.log_utils import catch_logs, logging_disabled
 from datumaro.util.os_util import (
     copytree, generate_next_name, is_subpath, make_file_name, rmtree,
 )
+from datumaro.util.scope import on_error_do, scoped
 
 
 class ProjectSourceDataset(IDataset):
@@ -1521,8 +1520,8 @@ class Project:
                 osp.join(self._root_dir, '.dvc', 'plots'), r=True)
 
     @classmethod
-    @error_rollback
-    def init(cls, path):
+    @scoped
+    def init(cls, path) -> 'Project':
         existing_project = cls.find_project_dir(path)
         if existing_project:
             raise ProjectAlreadyExists(path)
@@ -1792,7 +1791,7 @@ class Project:
         if name.lower() in reserved_names:
             raise ValueError("Source name is reserved for internal use")
 
-    @error_rollback
+    @scoped
     def _download_source(self, url: str, dst_dir: str, no_cache: bool = False):
         assert url
         assert dst_dir
@@ -1888,7 +1887,7 @@ class Project:
         self._dvc.write_obj(obj_hash, dst_dir, allow_links=True)
         return dst_dir
 
-    @error_rollback
+    @scoped
     def import_source(self, name: str, url: Optional[str],
             format: str, options: Optional[Dict] = None,
             no_cache: bool = False, rpath: Optional[str] = None) -> Source:

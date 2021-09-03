@@ -21,7 +21,8 @@ from datumaro.components.project import ProjectBuildTargets
 from datumaro.components.validator import TaskType
 from datumaro.util import str_to_bool
 from datumaro.util.os_util import make_file_name
-from datumaro.util.scope import on_exit_do, scoped
+from datumaro.util.scope import scoped
+import datumaro.util.scope as scope
 
 from ...util import MultilineFormatter, add_subparser
 from ...util.errors import CliException
@@ -136,6 +137,7 @@ def build_export_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+@scoped
 def export_command(args):
     has_sep = '--' in args._positionals
     if has_sep:
@@ -153,7 +155,7 @@ def export_command(args):
 
     project = None
     try:
-        project = load_project(args.project_dir)
+        project = scope.add(load_project(args.project_dir))
     except ProjectNotFoundError:
         if not show_plugin_help and args.project_dir:
             raise
@@ -280,8 +282,9 @@ def build_filter_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+@scoped
 def filter_command(args):
-    project = load_project(args.project_dir)
+    project = scope.add(load_project(args.project_dir))
 
     # TODO: check if we can accept a dataset revpath here
     if not args.dry_run and args.stage and \
@@ -409,6 +412,7 @@ def build_transform_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+@scoped
 def transform_command(args):
     has_sep = '--' in args._positionals
     if has_sep:
@@ -426,7 +430,7 @@ def transform_command(args):
 
     project = None
     try:
-        project = load_project(args.project_dir)
+        project = scope.add(load_project(args.project_dir))
     except ProjectNotFoundError:
         if not show_plugin_help and args.project_dir:
             raise
@@ -524,15 +528,18 @@ def build_stats_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+@scoped
 def stats_command(args):
     project = None
     try:
-        project = load_project(args.project_dir)
+        project = scope.add(load_project(args.project_dir))
     except ProjectNotFoundError:
         if args.project_dir:
             raise
 
-    dataset = parse_full_revpath(args.target, project)
+    dataset, target_project = parse_full_revpath(args.target, project)
+    if target_project:
+        scope.add(target_project)
 
     stats = {}
     stats.update(compute_image_statistics(dataset))
@@ -566,8 +573,9 @@ def build_info_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+@scoped
 def info_command(args):
-    project = load_project(args.project_dir)
+    project = scope.add(load_project(args.project_dir))
     rev = project.get_rev(args.revision)
     env = rev.env
 
@@ -654,6 +662,7 @@ def build_validate_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+@scoped
 def validate_command(args):
     has_sep = '--' in args._positionals
     if has_sep:
@@ -670,7 +679,7 @@ def validate_command(args):
 
     project = None
     try:
-        project = load_project(args.project_dir)
+        project = scope.add(load_project(args.project_dir))
     except ProjectNotFoundError:
         if not show_plugin_help and args.project_dir:
             raise
@@ -687,8 +696,11 @@ def validate_command(args):
 
     extra_args = validator_type.parse_cmdline(args.extra_args)
 
+    dataset, target_project = parse_full_revpath(args.target, project)
+    if target_project:
+        scope.add(target_project)
+
     dst_file_name = f'validation-report'
-    dataset = parse_full_revpath(args.target, project)
     if args.subset_name is not None:
         dataset = dataset.get_subset(args.subset_name)
         dst_file_name += f'-{args.subset_name}'

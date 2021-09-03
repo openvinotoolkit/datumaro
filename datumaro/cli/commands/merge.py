@@ -14,6 +14,8 @@ from datumaro.components.errors import (
     DatasetMergeError, DatasetQualityError, ProjectNotFoundError,
 )
 from datumaro.components.operations import IntersectMerge
+from datumaro.util.scope import scoped
+import datumaro.util.scope as scope
 
 from ..util import MultilineFormatter
 from ..util.errors import CliException
@@ -102,6 +104,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+@scoped
 def merge_command(args):
     dst_dir = args.dst_dir
     if dst_dir:
@@ -114,7 +117,7 @@ def merge_command(args):
 
     project = None
     try:
-        project = load_project(args.project_dir)
+        project = scope.add(load_project(args.project_dir))
     except ProjectNotFoundError:
         if args.project_dir:
             raise
@@ -125,7 +128,10 @@ def merge_command(args):
             source_datasets.append(project.working_tree.make_dataset())
 
         for t in args.targets:
-            source_datasets.append(parse_full_revpath(t, project))
+            target_dataset, target_project = parse_full_revpath(t, project)
+            if target_project:
+                scope.add(target_project)
+            source_datasets.append(target_dataset)
     except Exception as e:
         raise CliException(str(e))
 
