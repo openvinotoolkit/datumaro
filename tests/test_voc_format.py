@@ -1127,3 +1127,32 @@ class VocConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(TestExtractor(),
                 partial(VocConverter.convert, label_map='voc'), test_dir)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_save_dataset_without_bg_label(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(1, subset='test', image=np.ones((2, 3, 3)),
+                annotations=[
+                    Bbox(0, 1, 0, 0, label=1, group=1, id=1, attributes={
+                        'truncated': False,
+                        'difficult': False,
+                        'occluded': False,
+                    })
+                ]),
+        ], categories={
+            AnnotationType.label: LabelCategories.from_iterable(
+                ['a', 'b']),
+            AnnotationType.mask: MaskCategories(
+                colormap=VOC.generate_colormap(2)),
+        })
+
+        dataset = Dataset.from_iterable([
+            DatasetItem(1, subset='test', image=np.ones((2, 3, 3)),
+                annotations=[ Bbox(0, 1, 0, 0, label=1) ]),
+        ], categories=['a', 'b'])
+
+        with TestDir() as path:
+            dataset.export(path, 'voc', save_images=True, add_background=False)
+
+            compare_datasets(self, expected, Dataset.import_from(path, 'voc'),
+                require_images=True)
