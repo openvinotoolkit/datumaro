@@ -11,7 +11,6 @@ from attr import attrs
 
 from datumaro.util import optional_arg_decorator
 
-
 T = TypeVar('T')
 
 class Scope:
