@@ -212,8 +212,9 @@ datum import -o project -f voc -i ./VOC2012
 datum export -p project -f voc -- --tasks detection,classification
 ```
 
-- `--add-background ADD_BACKGROUND` - allow export dataset with/without
-adding background label (by default: `True`)
+- `--add-background ADD_BACKGROUND` - if there is no background label,
+allow exporting the dataset with/without adding a background label
+(by default: `True`). Use `True` for the segmentation task.
 
 - `--label_map` allow to define a custom colormap. Example
 
