@@ -927,8 +927,9 @@ class GitWrapper:
             repo_root = osp.abspath(self._project_dir)
             assert is_subpath(base, base=repo_root), \
                 "Base path should be inside of the repo"
-            base = base[len(repo_root) + len(osp.sep) : ]
-            path_rewriter = lambda entry: osp.relpath(entry.path, base)
+            base = osp.relpath(base, repo_root)
+            path_rewriter = lambda entry: osp.relpath(entry.path, base) \
+                .replace('\\', '/')
 
         if isinstance(paths, str):
             paths = [paths]
@@ -1006,10 +1007,12 @@ class GitWrapper:
             elif file_exists and not index_entry:
                 status = 'A'
             elif file_exists and index_entry:
-                status = self.repo.git.diff('--name-status',
+                # '--ignore-cr-at-eol' doesn't affect '--name-status'
+                # so we can't really obtain 'T'
+                status = self.repo.git.diff('--ignore-cr-at-eol',
                     index_entry.hexsha, file_path)
                 if status:
-                    status = status[0]
+                    status = 'M'
                 assert status in {'', 'M', 'T'}, status
             else:
                 status = '' # ignore missing paths
