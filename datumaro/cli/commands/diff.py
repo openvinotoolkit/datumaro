@@ -12,8 +12,7 @@ import os.path as osp
 from datumaro.components.errors import ProjectNotFoundError
 from datumaro.components.operations import DistanceComparator, ExactComparator
 from datumaro.util.os_util import rmtree
-from datumaro.util.scope import on_error_do, scoped
-import datumaro.util.scope as scope
+from datumaro.util.scope import on_error_do, scope_add, scoped
 
 from ..contexts.project.diff import DiffVisualizer
 from ..util import MultilineFormatter
@@ -150,7 +149,7 @@ def diff_command(args):
 
     project = None
     try:
-        project = scope.add(load_project(args.project_dir))
+        project = scope_add(load_project(args.project_dir))
     except ProjectNotFoundError:
         if args.project_dir:
             raise
@@ -161,17 +160,17 @@ def diff_command(args):
             second_dataset, target_project = \
                 parse_full_revpath(args.first_target, project)
             if target_project:
-                scope.add(target_project)
+                scope_add(target_project)
         else:
             first_dataset, target_project = \
                 parse_full_revpath(args.first_target, project)
             if target_project:
-                scope.add(target_project)
+                scope_add(target_project)
 
             second_dataset, target_project = \
                 parse_full_revpath(args.second_target, project)
             if target_project:
-                scope.add(target_project)
+                scope_add(target_project)
     except Exception as e:
         raise CliException(str(e))
 

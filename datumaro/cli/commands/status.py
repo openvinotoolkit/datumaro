@@ -5,8 +5,7 @@
 import argparse
 
 from datumaro.cli.util import MultilineFormatter
-from datumaro.util.scope import scoped
-import datumaro.util.scope as scope
+from datumaro.util.scope import scope_add, scoped
 
 from ..util.project import load_project
 
@@ -28,7 +27,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 
 @scoped
 def status_command(args):
-    project = scope.add(load_project(args.project_dir))
+    project = scope_add(load_project(args.project_dir))
 
     statuses = project.status()
 

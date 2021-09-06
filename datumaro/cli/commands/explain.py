@@ -8,8 +8,7 @@ import os
 import os.path as osp
 
 from datumaro.util.image import is_image, load_image, save_image
-from datumaro.util.scope import scoped
-import datumaro.util.scope as scope
+from datumaro.util.scope import scope_add, scoped
 
 from ..util import MultilineFormatter
 from ..util.project import load_project, parse_full_revpath
@@ -117,7 +116,7 @@ def explain_command(args):
     from matplotlib import cm
     import cv2
 
-    project = scope.add(load_project(args.project_dir))
+    project = scope_add(load_project(args.project_dir))
 
     model = project.working_tree.models.make_executable_model(args.model)
 
@@ -174,7 +173,7 @@ def explain_command(args):
         dataset, target_project = \
             parse_full_revpath(args.target or 'project', project)
         if target_project:
-            scope.add(target_project)
+            scope_add(target_project)
 
         log.info("Running inference explanation for '%s'" % args.target)
 

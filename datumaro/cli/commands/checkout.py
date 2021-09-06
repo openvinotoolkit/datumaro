@@ -4,8 +4,7 @@
 
 import argparse
 
-from datumaro.util.scope import scoped
-import datumaro.util.scope as scope
+from datumaro.util.scope import scope_add, scoped
 
 from ..util import MultilineFormatter
 from ..util.project import load_project
@@ -64,7 +63,7 @@ def checkout_command(args):
         raise argparse.ArgumentError('sources', message="When '--' is used, "
             "at least 1 source name must be specified")
 
-    project = scope.add(load_project(args.project_dir))
+    project = scope_add(load_project(args.project_dir))
 
     project.checkout(rev=args.rev, sources=args.sources, force=args.force)
 

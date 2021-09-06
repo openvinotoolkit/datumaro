@@ -8,8 +8,7 @@ import os
 
 from datumaro.components.errors import ProjectNotFoundError
 from datumaro.components.project import Environment
-from datumaro.util.scope import on_error_do, scoped
-import datumaro.util.scope as scope
+from datumaro.util.scope import on_error_do, scope_add, scoped
 
 from ..util import MultilineFormatter, add_subparser, join_cli_args
 from ..util.errors import CliException
@@ -98,7 +97,7 @@ def add_command(args):
 
     project = None
     try:
-        project = scope.add(load_project(args.project_dir))
+        project = scope_add(load_project(args.project_dir))
     except ProjectNotFoundError:
         if not show_plugin_help and args.project_dir:
             raise
@@ -163,7 +162,7 @@ def build_remove_parser(parser_ctor=argparse.ArgumentParser):
 
 @scoped
 def remove_command(args):
-    project = scope.add(load_project(args.project_dir))
+    project = scope_add(load_project(args.project_dir))
 
     if not args.names:
         raise CliException("Expected source name")
@@ -192,7 +191,7 @@ def build_info_parser(parser_ctor=argparse.ArgumentParser):
 
 @scoped
 def info_command(args):
-    project = scope.add(load_project(args.project_dir))
+    project = scope_add(load_project(args.project_dir))
 
     if args.name:
         source = project.working_tree.sources[args.name]
