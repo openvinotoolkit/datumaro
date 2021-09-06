@@ -40,6 +40,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved error reporting in `Dataset` (<https://github.com/openvinotoolkit/datumaro/pull/386>)
 - Support ADE20K format (import only) (<https://github.com/openvinotoolkit/datumaro/pull/400>)
 - Documentation website at <https://openvinotoolkit.github.io/datumaro> (<https://github.com/openvinotoolkit/datumaro/pull/420>)
+- 'add-background' parameter to VOC converter (<https://github.com/openvinotoolkit/datumaro/pull/446>)
 
 ### Changed
 - Datumaro no longer depends on scikit-image
