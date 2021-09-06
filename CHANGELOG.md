@@ -67,6 +67,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Calling `ProjectDataset.transform()` with a string argument (<https://github.com/openvinotoolkit/datumaro/issues/402>)
 - Attributes casting for CVAT format (<https://github.com/openvinotoolkit/datumaro/pull/403>)
 - Loading of custom project plugins (<https://github.com/openvinotoolkit/datumaro/issues/404>)
+- Reading, writing anno file and saving name of the subset for test subset(<https://github.com/openvinotoolkit/datumaro/pull/447>)
 
 ### Security
 - Fixed unsafe unpickling in CIFAR import (<https://github.com/openvinotoolkit/datumaro/pull/362>)
