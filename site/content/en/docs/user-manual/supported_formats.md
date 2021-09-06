@@ -27,7 +27,7 @@ List of supported formats:
   - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/tf_detection_api_dataset)
 - WIDER Face (`bboxes`)
   - [Format specification](http://shuoyang1213.me/WIDERFACE/)
-  - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/wider_dataset)
+  - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/widerface_dataset)
 - VGGFace2 (`landmarks`, `bboxes`)
   - [Format specification](https://github.com/ox-vgg/vgg_face2)
   - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/vgg_face2_dataset)
@@ -43,7 +43,8 @@ List of supported formats:
   - Detection format is the same as in PASCAL VOC
 - CIFAR-10/100 (`classification` (python version))
   - [Format specification](https://www.cs.toronto.edu/~kriz/cifar.html)
-  - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/cifar_dataset)
+  - [Dataset example CIFAR-10](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/cifar10_dataset)
+  - [Dataset example CIFAR-100](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/cifar100_dataset)
   - [Format documentation](/docs/formats/cifar)
 - MNIST (`classification`)
   - [Format specification](http://yann.lecun.com/exdb/mnist/)
@@ -70,7 +71,7 @@ List of supported formats:
   - [Format documentation](/docs/formats/kitti_raw)
 - Supervisely (`pointcloud`)
   - [Format specification](https://docs.supervise.ly/data-organization/00_ann_format_navi)
-  - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/sly_pointcloud)
+  - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/sly_pointcloud_dataset)
   - [Format documentation](/docs/formats/sly_pointcloud)
 - CVAT
   - [Format specification](https://openvinotoolkit.github.io/cvat/docs/manual/advanced/xml_format)

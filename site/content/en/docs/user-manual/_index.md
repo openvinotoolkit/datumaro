@@ -7,7 +7,6 @@ weight: 3
 ---
 
 ## Contents
-
 - [Installation](./installation)
   - [Plugins](./installation/#installation-plugins)
   - [Customizing installation](./installation/#customizing-installation)
@@ -48,6 +47,6 @@ weight: 3
 - [Extending](./extending)
   - [Builtin plugins](./extending/#builtin-plugins)
   - [Dataset Formats](./extending/#dataset-formats)
-  - [Dataset Conversions](./extending/#dataset-conversions)
+  - [Dataset Conversions ("Transforms")](./extending/#dataset-conversions)
   - [Model launchers](./extending/#model-launchers)
 - [Links](#links)
