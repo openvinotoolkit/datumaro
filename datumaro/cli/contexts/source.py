@@ -129,8 +129,8 @@ def add_command(args):
 
     project.import_source(name, url=args.url, format=args.format,
         options=extra_args, no_cache=args.no_cache, rpath=args.path)
-    on_error_do(project.remove_source, name, force=True, keep_data=False,
-        ignore_errors=True)
+    on_error_do(project.remove_source, name, ignore_errors=True,
+        kwargs={'force': True, 'keep_data': False})
 
     if not args.no_check:
         log.info("Checking the source...")
