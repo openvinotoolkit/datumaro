@@ -5,7 +5,7 @@ description: ''
 weight: 6
 ---
 
-<div class="text-center large-scheme">
+<div class="text-center large-scheme-two">
 
 ```mermaid
 %%{init { 'theme':'netrual' }}%%

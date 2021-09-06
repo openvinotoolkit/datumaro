@@ -398,7 +398,7 @@ Single commands are handy shorter alternatives for the most used commands
 and also special commands, which are hard to be put into any specific context.
 [Docker](https://www.docker.com/) is an example of similar approach.
 
-<div class="text-center large-scheme">
+<div class="text-center large-scheme-two">
 
 ```mermaid
 %%{init { 'theme':'netrual' }}%%

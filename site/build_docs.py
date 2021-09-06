@@ -38,7 +38,6 @@ def git_checkout(tagname, cwd):
     docs_dir = os.path.join(cwd, 'site', 'content', 'en', 'docs')
     shutil.rmtree(docs_dir)
     repo.git.checkout(tagname, '--', 'site/content/en/docs')
-    repo.git.checkout(tagname, '--', 'site/assets/scss/_custom.scss')
     if tagname != "v0.1.11":
         images_dir = os.path.join(cwd, 'site', 'content', 'en', 'images')
         shutil.rmtree(images_dir)
