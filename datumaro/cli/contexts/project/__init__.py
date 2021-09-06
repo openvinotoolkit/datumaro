@@ -21,8 +21,8 @@ from datumaro.components.operations import (
 from datumaro.components.project import PROJECT_DEFAULT_CONFIG as DEFAULT_CONFIG
 from datumaro.components.project import Environment, Project
 from datumaro.components.validator import TaskType
-from datumaro.util import error_rollback, on_error_do
 from datumaro.util.os_util import make_file_name
+from datumaro.util.scope import on_error_do, scoped
 
 from ...util import CliException, MultilineFormatter, add_subparser
 from ...util.project import generate_next_file_name, load_project
@@ -526,7 +526,7 @@ def build_diff_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
-@error_rollback
+@scoped
 def diff_command(args):
     first_project = load_project(args.project_dir)
     second_project = load_project(args.other_project_dir)

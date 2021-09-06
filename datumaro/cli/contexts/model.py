@@ -9,7 +9,7 @@ import os.path as osp
 import shutil
 
 from datumaro.components.project import Environment
-from datumaro.util import error_rollback, on_error_do
+from datumaro.util.scope import on_error_do, scoped
 
 from ..util import CliException, MultilineFormatter, add_subparser
 from ..util.project import (
@@ -46,7 +46,7 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
-@error_rollback
+@scoped
 def add_command(args):
     project = load_project(args.project_dir)
 
