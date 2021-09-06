@@ -34,7 +34,8 @@ class WiderFaceExtractor(SourceExtractor):
 
         if not subset:
             subset = osp.splitext(osp.basename(path))[0]
-            if re.fullmatch(r'wider_face_\S+_bbx_gt', subset):
+            if re.fullmatch(r'wider_face_\S+_bbx_gt', subset) or \
+                    re.fullmatch(r'wider_face_\S+_filelist', subset):
                 subset = subset.split('_')[2]
         super().__init__(subset=subset)
 
@@ -102,6 +103,8 @@ class WiderFaceExtractor(SourceExtractor):
             try:
                 bbox_count = int(lines[line_idx + 1]) # can be the next image
             except ValueError:
+                continue
+            except IndexError:
                 continue
 
             bbox_lines = lines[line_idx + 2 : line_idx + bbox_count + 2]
@@ -176,7 +179,8 @@ class WiderFaceConverter(Converter):
 
                 bboxes = [a for a in item.annotations
                     if a.type == AnnotationType.bbox]
-                wider_annotation += '%s\n' % len(bboxes)
+                if len(bboxes) > 0:
+                    wider_annotation += '%s\n' % len(bboxes)
                 for bbox in bboxes:
                     wider_bb = ' '.join('%s' % p for p in bbox.get_bbox())
                     wider_annotation += '%s ' % wider_bb
