@@ -30,7 +30,7 @@ Extractors -> Dataset -> Converter
 ```
 
 1. Data is read (or produced) by one or many `Extractor`s and
-  [merged](#dataset-merging) into a `Dataset`
+  [merged](#merging) into a `Dataset`
 1. The dataset is processed in some way
 1. The dataset is saved with a `Converter`
 
@@ -43,9 +43,8 @@ Datumaro has a number of dataset and annotation features:
 - various annotation operations
 
 ```python
-from datumaro.components.annotation import Bbox, Polygon
 from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import DatasetItem
+from datumaro.components.extractor import Bbox, Polygon, DatasetItem
 
 # Import and export a dataset
 dataset = Dataset.import_from('src/dir', 'voc')
@@ -101,7 +100,7 @@ If you need to create a dataset from one or many other extractors
 (or datasets), it can be done with `Dataset.from_extractors()`.
 
 If a dataset is created from multiple extractors with
-`Dataset.from_extractors()`, the source datasets will be [joined](#dataset-merging),
+`Dataset.from_extractors()`, the source datasets will be [joined](#merging),
 so their categories must match. If datasets have mismatching categories,
 use the more complex `IntersectMerge` class from `datumaro.components.operations`,
 which will merge all the labels and remap the shifted indices in annotations.
@@ -127,9 +126,8 @@ reduce the amount of disk writes. Changes can be flushed with
 `flush_changes()`.
 
 ```python
-from datumaro.components.annotation import Bbox, Polygon
 from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import DatasetItem
+from datumaro.components.extractor import Bbox, Polygon, DatasetItem
 
 # create a dataset directly from items
 dataset1 = Dataset.from_iterable([
@@ -168,7 +166,7 @@ for subset_name, subset in dataset.subsets().items():
     print(item.id, item.annotations)
 ```
 
-#### Dataset merging
+#### Dataset merging <a id="merging"></a>
 
 There are 2 methods of merging datasets in Datumaro:
 
@@ -212,8 +210,8 @@ persistence, versioning, high-level operations for datasets and also
 allow to extend Datumaro via [plugins](#plugins). A project provides
 access to build trees and revisions, data sources, models, configuration,
 plugins and cache. Projects can have multiple data sources, which are
-[joined](#dataset-merging) on dataset creation. Project configuration is
-available in `project.config`. To add a data source into a `Project`, use
+[joined](#merging) on dataset creation. Project configuration is available
+in `project.config`. To add a data source into a `Project`, use
 the `import_source()` method. The build tree of the current working
 directory can be converted to a `Dataset` with
 `project.working_tree.make_dataset()`.
