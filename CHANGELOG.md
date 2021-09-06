@@ -26,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Deprecation warning in `open_images_format.py`
   (<https://github.com/openvinotoolkit/datumaro/pull/440>)
+- `lazy_image` returning unrelated data sometimes
+  (<https://github.com/openvinotoolkit/datumaro/issues/409>)
 
 ### Security
 - TBD

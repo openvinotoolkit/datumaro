@@ -10,8 +10,7 @@ import os.path as osp
 from datumaro.components.errors import ProjectNotFoundError
 from datumaro.components.project import Environment
 from datumaro.util.os_util import rmtree
-from datumaro.util.scope import on_error_do, scoped
-import datumaro.util.scope as scope
+from datumaro.util.scope import on_error_do, scope_add, scoped
 
 from ..util import MultilineFormatter, add_subparser
 from ..util.errors import CliException
@@ -60,7 +59,7 @@ def add_command(args):
 
     project = None
     try:
-        project = scope.add(load_project(args.project_dir))
+        project = scope_add(load_project(args.project_dir))
     except ProjectNotFoundError:
         if not show_plugin_help and args.project_dir:
             raise
@@ -128,7 +127,7 @@ def build_remove_parser(parser_ctor=argparse.ArgumentParser):
 
 @scoped
 def remove_command(args):
-    project = scope.add(load_project(args.project_dir))
+    project = scope_add(load_project(args.project_dir))
 
     project.remove_model(args.name)
     project.save()
@@ -178,11 +177,11 @@ def run_command(args):
         dst_dir = generate_next_file_name('%s-inference' % args.model_name)
     dst_dir = osp.abspath(dst_dir)
 
-    project = scope.add(load_project(args.project_dir))
+    project = scope_add(load_project(args.project_dir))
 
     dataset, target_project = parse_full_revpath(args.target, project)
     if target_project:
-        scope.add(target_project)
+        scope_add(target_project)
 
     model = project.make_model(args.model_name)
     inference = dataset.run_model(model)
@@ -207,7 +206,7 @@ def build_info_parser(parser_ctor=argparse.ArgumentParser):
 
 @scoped
 def info_command(args):
-    project = scope.add(load_project(args.project_dir))
+    project = scope_add(load_project(args.project_dir))
 
     if args.name:
         print(project.models[args.name])

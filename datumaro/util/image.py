@@ -12,6 +12,7 @@ import os
 import os.path as osp
 import shlex
 import shutil
+import weakref
 
 import numpy as np
 
@@ -209,28 +210,28 @@ class lazy_image:
     def __init__(self, path, loader=None, cache=None):
         if loader is None:
             loader = load_image
-        self.path = path
-        self.loader = loader
+        self._path = path
+        self._loader = loader
 
         # Cache:
         # - False: do not cache
         # - None: use the global cache
         # - object: an object to be used as cache
         assert cache in {None, False} or isinstance(cache, object)
-        self.cache = cache
+        self._cache = cache
 
     def __call__(self):
         image = None
-        image_id = hash(self) # path is not necessary hashable or a file path
+        cache_key = weakref.ref(self)
 
-        cache = self._get_cache(self.cache)
+        cache = self._get_cache(self._cache)
         if cache is not None:
-            image = cache.get(image_id)
+            image = cache.get(cache_key)
 
         if image is None:
-            image = self.loader(self.path)
+            image = self._loader(self._path)
             if cache is not None:
-                cache.push(image_id, image)
+                cache.push(cache_key, image)
         return image
 
     @staticmethod
@@ -240,9 +241,6 @@ class lazy_image:
         elif cache == False:
             return None
         return cache
-
-    def __hash__(self):
-        return hash((id(self), self.path, self.loader))
 
 class Image:
     def __init__(self, data: Union[None, Callable, np.ndarray] = None,
