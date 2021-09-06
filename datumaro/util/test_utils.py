@@ -4,7 +4,7 @@
 
 from enum import Enum, auto
 from glob import glob
-from typing import Collection, Union
+from typing import Collection, Optional, Union
 import inspect
 import os
 import os.path as osp
@@ -46,20 +46,30 @@ class TestDir(FileRemover):
 
     Usage:
 
-    with TestDir() as test_dir:
-        ...
+        with TestDir() as test_dir:
+            ...
     """
 
-    def __init__(self, path=None, frame_id=2):
-        super().__init__(path, is_dir=True)
-        self._frame_id = frame_id
+    def __init__(self, path: Optional[str] = None, frame_id: int = 2):
+        if not path:
+            prefix = f'temp_{current_function_name(frame_id)}-'
+        else:
+            prefix = None
+        self._prefix = prefix
 
-    def __enter__(self):
+        super().__init__(path, is_dir=True)
+
+    def __enter__(self) -> str:
+        """
+        Creates a test directory.
+
+        Returns: path to the directory
+        """
+
         path = self.path
 
         if path is None:
-            path = f'temp_{current_function_name(self._frame_id)}-'
-            path = tempfile.mkdtemp(dir=os.getcwd(), prefix=path)
+            path = tempfile.mkdtemp(dir=os.getcwd(), prefix=self._prefix)
             self.path = path
         else:
             os.makedirs(path, exist_ok=False)

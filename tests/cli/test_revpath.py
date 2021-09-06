@@ -20,7 +20,7 @@ class TestRevpath(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
     def test_can_parse(self):
-        test_dir = scope_add(TestDir(frame_id=5))
+        test_dir = scope_add(TestDir())
 
         dataset_url = osp.join(test_dir, 'source')
         Dataset.from_iterable([DatasetItem(1)]).save(dataset_url)
