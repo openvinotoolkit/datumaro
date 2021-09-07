@@ -406,6 +406,7 @@ flowchart LR
   d(("#0009; datum #0009;")):::mainclass
   s(source):::nofillclass
   m(model):::nofillclass
+  p(project):::nofillclass
 
   d===s
     s===id1[add]:::hideclass
@@ -416,6 +417,8 @@ flowchart LR
     m===id5[remove]:::hideclass
     m===id6[run]:::hideclass
     m===id7[info]:::hideclass
+  d===p
+    p===info:::hideclass
   d====str1[create]:::filloneclass
   d====str2[add]:::filloneclass
   d====str3[remove]:::filloneclass
