@@ -34,7 +34,7 @@ class WiderFaceExtractor(SourceExtractor):
 
         if not subset:
             subset = osp.splitext(osp.basename(path))[0]
-            if re.fullmatch(r'wider_face_\S+(_bbx_gt)|(_filelist)', subset):
+            if re.fullmatch(r'wider_face_\S+((_bbx_gt)|(_filelist))', subset):
                 subset = subset.split('_')[2]
         super().__init__(subset=subset)
 
