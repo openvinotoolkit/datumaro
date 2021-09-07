@@ -40,7 +40,7 @@ from datumaro.util.log_utils import catch_logs, logging_disabled
 from datumaro.util.os_util import (
     copytree, generate_next_name, is_subpath, make_file_name, rmfile, rmtree,
 )
-from datumaro.util.scope import on_error_do, scoped
+from datumaro.util.scope import on_error_do, scope_add, scoped
 
 
 class ProjectSourceDataset(IDataset):
@@ -1114,6 +1114,7 @@ class DvcWrapper:
     def module():
         try:
             import dvc
+            import dvc.env
             import dvc.main
             import dvc.repo
             return dvc
@@ -1190,19 +1191,23 @@ class DvcWrapper:
         self._exec(args)
 
     def _exec(self, args, hide_output=True, answer_on_input='y'):
-        args = ['--cd', self._project_dir, '-q'] + args
+        args = ['--cd', self._project_dir] + args
 
-        with ExitStack() as contexts:
-            contexts.callback(os.chdir, os.getcwd()) # restore cd after DVC
+        # Avoid calling an extra process. Improves call performance and
+        # removes an extra console window on Windows.
+        os.environ[self.module().env.DVC_NO_ANALYTICS] = '1'
+
+        with ExitStack() as es:
+            es.callback(os.chdir, os.getcwd()) # restore cd after DVC
 
             if answer_on_input is not None:
                 def _input(*args): return answer_on_input
-                contexts.enter_context(unittest.mock.patch(
+                es.enter_context(unittest.mock.patch(
                     'dvc.prompt.input', new=_input))
 
             log.debug("Calling DVC main with args: %s", args)
 
-            logs = contexts.enter_context(catch_logs('dvc'))
+            logs = es.enter_context(catch_logs('dvc'))
             retcode = self.module().main.main(args)
 
         logs = logs.getvalue()
@@ -1834,16 +1839,16 @@ class Project:
             obj_hash = obj_hash[:-len(DvcWrapper.DIR_HASH_SUFFIX)]
         return obj_hash
 
+    @scoped
     def compute_source_hash(self, data_dir: str, dvcfile: Optional[str] = None,
             no_cache: bool = True, allow_external: bool = True) -> ObjectId:
-        with ExitStack() as es:
-            if not dvcfile:
-                tmp_dir = es.enter_context(self._make_tmp_dir())
-                dvcfile = osp.join(tmp_dir, 'source.dvc')
+        if not dvcfile:
+            tmp_dir = scope_add(self._make_tmp_dir())
+            dvcfile = osp.join(tmp_dir, 'source.dvc')
 
-            self._dvc.add(data_dir, dvc_path=dvcfile, no_commit=no_cache,
-                allow_external=allow_external)
-            obj_hash = self._get_source_hash(dvcfile)
+        self._dvc.add(data_dir, dvc_path=dvcfile, no_commit=no_cache,
+            allow_external=allow_external)
+        obj_hash = self._get_source_hash(dvcfile)
         return obj_hash
 
     def refresh_source_hash(self, source: str,
