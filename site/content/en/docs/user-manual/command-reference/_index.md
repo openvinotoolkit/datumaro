@@ -8,7 +8,7 @@ weight: 6
 <div class="text-center large-scheme-two">
 
 ```mermaid
-%%{init { 'theme':'netrual' }}%%
+%%{init { 'theme':'neutral' }}%%
 flowchart LR
   d(("#0009; datum #0009;")):::mainclass
   s(source):::nofillclass
