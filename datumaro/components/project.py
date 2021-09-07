@@ -28,11 +28,11 @@ from datumaro.components.errors import (
     DatasetMergeError, EmptyCommitError, EmptyPipelineError,
     ForeignChangesError, InvalidStageError, MigrationError,
     MismatchingObjectError, MissingObjectError, MissingPipelineHeadError,
-    MultiplePipelineHeadsError, PathOutsideSourceError, ProjectAlreadyExists,
-    ProjectNotFoundError, ReadonlyDatasetError, ReadonlyProjectError,
-    SourceExistsError, SourceUrlInsideProjectError, UnexpectedUrlError,
-    UnknownRefError, UnknownSourceError, UnknownStageError, UnknownTargetError,
-    UnsavedChangesError, VcsError,
+    MultiplePipelineHeadsError, OldProjectError, PathOutsideSourceError,
+    ProjectAlreadyExists, ProjectNotFoundError, ReadonlyDatasetError,
+    ReadonlyProjectError, SourceExistsError, SourceUrlInsideProjectError,
+    UnexpectedUrlError, UnknownRefError, UnknownSourceError, UnknownStageError,
+    UnknownTargetError, UnsavedChangesError, VcsError,
 )
 from datumaro.components.launcher import Launcher
 from datumaro.util import find, parse_str_enum_value
@@ -1411,66 +1411,74 @@ class Project:
 
         return None
 
-    def _migrate_from_v1_to_v2(self) -> bool:
-        if self.readonly:
-            raise MigrationError("Can't update project to the new "
-                "version: the project is read-only")
+    @staticmethod
+    @scoped
+    def migrate_from_v1_to_v2(src_dir: str, dst_dir: str):
+        if not osp.isdir(src_dir):
+            raise FileNotFoundError("Source project is not found")
 
-        old_config_path = osp.join(self._aux_dir, 'config.yaml')
-        old_config = Config.parse(old_config_path)
-        if old_config.format_version == 1:
-            pass
-        elif old_config.format_version == 2:
-            return False
-        else:
-            raise MigrationError("Failed to migrate to the new config "
-                "version: unknown old version '%s'" % \
+        if osp.exists(dst_dir):
+            raise FileExistsError("Output path already exists")
+
+        old_aux_dir = osp.join(src_dir, '.datumaro')
+        old_config = Config.parse(osp.join(old_aux_dir, 'config.yaml'))
+        if old_config.format_version != 1:
+            raise MigrationError("Failed to migrate project: "
+                "unexpected old version '%s'" % \
                 old_config.format_version)
 
-        log.debug("Migrating project from v1 to v2...")
+        new_project = scope_add(Project.init(dst_dir))
 
-        wtree_dir = osp.join(self._aux_dir, ProjectLayout.working_tree_dir)
-        os.makedirs(wtree_dir, exist_ok=True)
+        new_wtree_dir = osp.join(new_project._aux_dir,
+            ProjectLayout.working_tree_dir)
+        os.makedirs(new_wtree_dir, exist_ok=True)
 
-        plugins_dir = osp.join(self._aux_dir, 'plugins')
-        if osp.isdir(plugins_dir):
-            shutil.move(plugins_dir, osp.join(wtree_dir, 'plugins'))
+        old_plugins_dir = osp.join(old_aux_dir, 'plugins')
+        if osp.isdir(old_plugins_dir):
+            copytree(old_plugins_dir,
+                osp.join(new_project._aux_dir, ProjectLayout.plugins_dir))
 
-        models_dir = osp.join(self._aux_dir, 'models')
-        if osp.isdir(models_dir):
-            shutil.move(models_dir, osp.join(wtree_dir, 'models'))
+        old_models_dir = osp.join(old_aux_dir, 'models')
+        if osp.isdir(old_models_dir):
+            copytree(old_models_dir,
+                osp.join(new_project._aux_dir, ProjectLayout.models_dir))
 
-        new_tree_config = TreeConfig()
-        new_local_config = ProjectConfig()
+        new_tree_config = new_project.working_tree.config
+        new_local_config = new_project.config
 
         if 'models' in old_config:
-            new_local_config.models.update(old_config.models)
+            for name, old_model in old_config.models.items():
+                new_local_config.models[name] = Model({
+                    'launcher': old_model['launcher'],
+                    'options': old_model['options']
+                })
 
         if 'sources' in old_config:
-            new_tree_config.sources.update(old_config.sources)
+            for name, old_source in old_config.sources.items():
+                url = old_source['url']
+                if not old_source['url']:
+                    url = osp.join(src_dir, name, url)
+                    if not osp.isdir(url):
+                        url = ''
 
-        old_dataset_dir = osp.join(self._root_dir, 'dataset')
+                new_project.import_source(name, url=url,
+                    format=old_source['format'], options=old_source['options'])
+
+        old_dataset_dir = osp.join(src_dir, 'dataset')
         if osp.isdir(old_dataset_dir):
-            name = generate_next_name(list(new_tree_config.sources), 'source',
-                sep='-', default='1')
-            new_tree_config.sources[name] = {
-                'url': '',
-                'format': DEFAULT_FORMAT,
-            }
-            os.rename(old_dataset_dir, self.source_data_dir(name))
+            # Such source cannot be represented in v2 directly.
+            # However, it can be just a generated source with
+            # working tree data.
+            name = generate_next_name(list(new_tree_config.sources),
+                'local_dataset', sep='-', default='1')
+            source = new_project.import_source(name, url=old_dataset_dir,
+                format=DEFAULT_FORMAT)
 
-        # Keep the old file on error so it won't be lost
-        old_config_tmp = old_config_path + '.old'
-        os.rename(old_config_path, old_config_tmp)
+            # Make the source generated. It can only have local data.
+            source.url = ''
 
-        new_tree_config.dump(osp.join(wtree_dir, TreeLayout.conf_file))
-        new_local_config.dump(osp.join(self._aux_dir, ProjectLayout.conf_file))
-
-        rmfile(old_config_tmp)
-
-        log.debug("Finished")
-
-        return True
+        new_project.save()
+        new_project.close()
 
     def __init__(self, path: Optional[str] = None, readonly=False):
         if not path:
@@ -1478,6 +1486,11 @@ class Project:
         found_path = self.find_project_dir(path)
         if not found_path:
             raise ProjectNotFoundError(path)
+
+        old_config_path = osp.join(found_path, 'config.yaml')
+        if osp.isfile(old_config_path):
+            if Config.parse(old_config_path).format_version != 2:
+                raise OldProjectError()
 
         self._aux_dir = found_path
         self._root_dir = osp.dirname(found_path)
@@ -1496,11 +1509,6 @@ class Project:
 
         self._working_tree = None
         self._head_tree = None
-
-        old_config_path = osp.join(self._aux_dir, 'config.yaml')
-        if osp.isfile(old_config_path):
-            if self._migrate_from_v1_to_v2():
-                self._init_vcs()
 
         local_config = osp.join(self._aux_dir, ProjectLayout.conf_file)
         if osp.isfile(local_config):
@@ -1530,6 +1538,7 @@ class Project:
             ])
             self._git.repo.index.remove(
                 osp.join(self._root_dir, '.dvc', 'plots'), r=True)
+        self.commit('Initial commit', allow_empty=True)
 
     @classmethod
     @scoped
@@ -1559,7 +1568,6 @@ class Project:
         on_error_do(rmtree, osp.join(project_dir, '.dvc'), ignore_errors=True)
         project = Project(path)
         project._init_vcs()
-        project.commit('Initial commit', allow_empty=True)
 
         return project
 
@@ -1584,6 +1592,9 @@ class Project:
 
     def save(self):
         self._config.dump(osp.join(self._aux_dir, ProjectLayout.conf_file))
+
+        if self._working_tree:
+            self._working_tree.save()
 
     @property
     def readonly(self) -> bool:
@@ -1634,7 +1645,6 @@ class Project:
         if self._is_working_tree_ref(obj_hash):
             config_path = osp.join(self._aux_dir,
                 ProjectLayout.working_tree_dir, TreeLayout.conf_file)
-            # TODO: backward compatibility
             if osp.isfile(config_path):
                 tree_config = TreeConfig.parse(config_path)
             else:
@@ -1643,7 +1653,6 @@ class Project:
                 tree_config.dump(config_path)
             tree_config.config_path = config_path
             tree_config.base_dir = osp.dirname(config_path)
-            # TODO: adjust paths in config
             tree = Tree(config=tree_config, project=self, rev=obj_hash)
         else:
             if not self.is_rev_cached(obj_hash):
@@ -1653,7 +1662,6 @@ class Project:
             tree_config = TreeConfig.parse(osp.join(rev_dir,
                 TreeLayout.conf_file))
             tree_config.base_dir = rev_dir
-            # TODO: adjust paths in config
             tree = Tree(config=tree_config, project=self, rev=obj_hash)
         return tree
 

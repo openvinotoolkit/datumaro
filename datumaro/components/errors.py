@@ -85,6 +85,14 @@ class UnknownStageError(InvalidStageError):
 class MigrationError(DatumaroError):
     pass
 
+class OldProjectError(DatumaroError):
+    def __str__(self):
+        return """
+            The project you're trying to load was
+            created by the old Datumaro version. Try to migrate the
+            project with 'datum migrate' and then reload.
+            """
+
 
 @attrs
 class ProjectNotFoundError(DatumaroError):
