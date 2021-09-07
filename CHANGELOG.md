@@ -28,6 +28,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/440>)
 - `lazy_image` returning unrelated data sometimes
   (<https://github.com/openvinotoolkit/datumaro/issues/409>)
+- Invalid call to `pycocotools.mask.iou`
+  (<https://github.com/openvinotoolkit/datumaro/pull/450>)
 
 ### Security
 - TBD
