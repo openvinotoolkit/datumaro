@@ -17,7 +17,7 @@ from datumaro.components.errors import (
 from datumaro.components.extractor import DatasetItem, Extractor, ItemTransform
 from datumaro.components.launcher import Launcher
 from datumaro.components.project import DiffStatus, Project
-from datumaro.util.scope import scoped, scope_add
+from datumaro.util.scope import scope_add, scoped
 from datumaro.util.test_utils import TestDir, compare_datasets, compare_dirs
 
 from .requirements import Requirements, mark_requirement
@@ -127,7 +127,7 @@ class ProjectTest(TestCase):
         self.assertEqual('fmt', source.format)
         compare_dirs(self, source_base_url, project.source_data_dir('s1'))
         with open(osp.join(test_dir, 'proj', '.gitignore')) as f:
-            self.assertTrue('s1' in [line.strip() for line in f])
+            self.assertTrue('/s1' in [line.strip() for line in f])
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
@@ -164,7 +164,7 @@ class ProjectTest(TestCase):
             require_images=True)
 
         with open(osp.join(test_dir, 'proj', '.gitignore')) as f:
-            self.assertTrue('s1' in [line.strip() for line in f])
+            self.assertTrue('/s1' in [line.strip() for line in f])
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
@@ -254,7 +254,7 @@ class ProjectTest(TestCase):
         self.assertEqual(added.format, origin.format)
         self.assertEqual(added.options, origin.options)
         with open(osp.join(test_dir, '.gitignore')) as f:
-            self.assertTrue(source_name in [line.strip() for line in f])
+            self.assertTrue('/' + source_name in [line.strip() for line in f])
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
@@ -284,7 +284,7 @@ class ProjectTest(TestCase):
         self.assertFalse('s1' in project.working_tree.sources)
         compare_dirs(self, source_url, project.source_data_dir('s1'))
         with open(osp.join(test_dir, 'proj', '.gitignore')) as f:
-            self.assertFalse('s1' in [line.strip() for line in f])
+            self.assertFalse('/s1' in [line.strip() for line in f])
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
@@ -303,7 +303,7 @@ class ProjectTest(TestCase):
         self.assertFalse('s1' in project.working_tree.sources)
         self.assertFalse(osp.exists(project.source_data_dir('s1')))
         with open(osp.join(test_dir, 'proj', '.gitignore')) as f:
-            self.assertFalse('s1' in [line.strip() for line in f])
+            self.assertFalse('/s1' in [line.strip() for line in f])
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
@@ -698,7 +698,7 @@ class ProjectTest(TestCase):
 
         compare_dirs(self, source_url, project.source_data_dir('s1'))
         with open(osp.join(test_dir, 'proj', '.gitignore')) as f:
-            self.assertTrue('s1' in [line.strip() for line in f])
+            self.assertTrue('/s1' in [line.strip() for line in f])
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
@@ -724,8 +724,8 @@ class ProjectTest(TestCase):
         compare_dirs(self, source_url, project.source_data_dir('s2'))
         with open(osp.join(test_dir, 'proj', '.gitignore')) as f:
             lines = [line.strip() for line in f]
-            self.assertTrue('s1' in lines)
-            self.assertTrue('s2' in lines)
+            self.assertTrue('/s1' in lines)
+            self.assertTrue('/s2' in lines)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped

@@ -38,7 +38,7 @@ from datumaro.components.launcher import Launcher
 from datumaro.util import find, parse_str_enum_value
 from datumaro.util.log_utils import catch_logs, logging_disabled
 from datumaro.util.os_util import (
-    copytree, generate_next_name, is_subpath, make_file_name, rmtree,
+    copytree, generate_next_name, is_subpath, make_file_name, rmfile, rmtree,
 )
 from datumaro.util.scope import on_error_do, scoped
 
@@ -137,7 +137,8 @@ def _update_ignore_file(paths: Union[str, List[str]], repo_root: str,
                 continue
 
             line_path = osp.join(repo_root,
-                osp.normpath(line.split('#', maxsplit=1)[0]).lstrip('/'))
+                osp.normpath(line.split('#', maxsplit=1)[0]) \
+                    .replace('\\', '/').lstrip('/'))
 
             if mode == IgnoreMode.append:
                 if line_path in paths:
@@ -1296,7 +1297,7 @@ class DvcWrapper:
     def remove_cache_obj(self, obj_hash: str):
         src = self.obj_path(obj_hash)
         if osp.isfile(src):
-            os.remove(src)
+            rmfile(src)
             return
 
         src += self.DIR_HASH_SUFFIX
@@ -1308,9 +1309,9 @@ class DvcWrapper:
         for entry in src_meta:
             entry_path = self.obj_path(entry['md5'])
             if osp.isfile(entry_path):
-                os.remove(entry_path)
+                rmfile(entry_path)
 
-        os.remove(src)
+        rmfile(src)
 
 class Tree:
     # can be:
@@ -1460,7 +1461,7 @@ class Project:
         new_tree_config.dump(osp.join(wtree_dir, TreeLayout.conf_file))
         new_local_config.dump(osp.join(self._aux_dir, ProjectLayout.conf_file))
 
-        os.remove(old_config_tmp)
+        rmfile(old_config_tmp)
 
         log.debug("Finished")
 
@@ -2010,7 +2011,7 @@ class Project:
         dvcfile = self._source_dvcfile_path(name)
         if osp.isfile(dvcfile):
             try:
-                os.remove(dvcfile)
+                rmfile(dvcfile)
             except Exception:
                 if not force:
                     raise
@@ -2063,16 +2064,25 @@ class Project:
         wtree_dir = osp.join(self._aux_dir, ProjectLayout.working_tree_dir)
         self.working_tree.save()
         self._git.add(wtree_dir, base=wtree_dir)
-        self._git.add([
+
+        extra_files = [
             osp.join(self._root_dir, '.dvc', '.gitignore'),
             osp.join(self._root_dir, '.dvc', 'config'),
             osp.join(self._root_dir, '.dvcignore'),
             osp.join(self._root_dir, '.gitignore'),
             osp.join(self._aux_dir, '.gitignore'),
-        ], base=self._root_dir)
+        ]
+        self._git.add(extra_files, base=self._root_dir)
+
         head = self._git.commit(message)
 
-        copytree(wtree_dir, self.cache_path(head))
+        rev_dir = self.cache_path(head)
+        copytree(wtree_dir, rev_dir)
+        for p in extra_files:
+            if osp.isfile(p):
+                dst_path = osp.join(rev_dir, osp.relpath(p, self._root_dir))
+                os.makedirs(osp.dirname(dst_path), exist_ok=True)
+                shutil.copyfile(p, dst_path)
 
         self._head_tree = None
 
