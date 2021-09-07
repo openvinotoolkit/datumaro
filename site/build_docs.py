@@ -30,7 +30,7 @@ def generate_versioning_config(filename, versions, url_prefix=''):
         file_object.write('url = "{}"\n\n'.format(url))
 
     with open(filename, 'w') as f:
-        write_version_item(f, 'Latest version', '{}/'.format(url_prefix))
+        write_version_item(f, 'develop', '{}/'.format(url_prefix))
         for v in versions:
             write_version_item(f, v, '{}/{}'.format(url_prefix, v))
 
@@ -68,7 +68,7 @@ def generate_docs(repo, output_dir, tags):
         os.makedirs(output_dir)
 
     generate_versioning_config(os.path.join(cwd, 'site', 'versioning.toml'), (t.name for t in tags))
-    change_version_menu_toml(os.path.join(cwd, 'site', 'versioning.toml'), 'Latest version')
+    change_version_menu_toml(os.path.join(cwd, 'site', 'versioning.toml'), 'develop')
     run_hugo(content_loc, output_dir)
 
     generate_versioning_config(os.path.join(cwd, 'site', 'versioning.toml'), (t.name for t in tags), '/..')

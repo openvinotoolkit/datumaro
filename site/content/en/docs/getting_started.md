@@ -58,10 +58,10 @@ formats and providing high performance operations:
 from datumaro.components.project import Project
 
 # load a Datumaro project
-project = Project.load('directory')
+project = Project('directory')
 
 # create a dataset
-dataset = project.make_dataset()
+dataset = project.working_tree.make_dataset()
 
 # keep only annotated images
 dataset.select(lambda item: len(item.annotations) != 0)
@@ -79,6 +79,9 @@ for item in dataset:
 
 # export the resulting dataset in COCO format
 dataset.export('dst/dir', 'coco')
+
+# optionally, release the project resources
+project.close()
 ```
 
 > Check our [developer manual](/docs/developer_manual/) for additional
