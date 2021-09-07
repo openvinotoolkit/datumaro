@@ -25,7 +25,11 @@ from .format import CocoPath, CocoTask
 
 
 class _CocoExtractor(SourceExtractor):
-    def __init__(self, path, task, merge_instance_polygons=False, subset=None):
+    def __init__(self, path, task, *,
+        merge_instance_polygons=False,
+        subset=None,
+        preserve_original_category_ids=False,
+    ):
         assert osp.isfile(path), path
 
         if not subset:
@@ -51,12 +55,19 @@ class _CocoExtractor(SourceExtractor):
             panoptic_config = self._load_panoptic_config(path)
             panoptic_images = osp.splitext(path)[0]
 
-            self._load_panoptic_categories(panoptic_config)
+            self._load_label_categories(
+                panoptic_config['categories'],
+                preserve_original_ids=preserve_original_category_ids,
+            )
+
             self._items = list(self._load_panoptic_items(panoptic_config,
                 panoptic_images).values())
         else:
             loader = self._make_subset_loader(path)
-            self._load_categories(loader)
+            self._load_categories(
+                loader,
+                preserve_original_ids=preserve_original_category_ids,
+            )
             self._items = list(self._load_items(loader).values())
 
     @staticmethod
@@ -75,32 +86,39 @@ class _CocoExtractor(SourceExtractor):
             coco_api.createIndex()
         return coco_api
 
-    def _load_categories(self, loader):
+    def _load_categories(self, loader, *, preserve_original_ids):
         self._categories = {}
 
         if self._task in [CocoTask.instances, CocoTask.labels,
                 CocoTask.person_keypoints, CocoTask.stuff]:
-            label_categories, label_map = self._load_label_categories(loader)
-            self._categories[AnnotationType.label] = label_categories
-            self._label_map = label_map
+            self._load_label_categories(
+                loader.loadCats(loader.getCatIds()),
+                preserve_original_ids=preserve_original_ids,
+            )
 
         if self._task == CocoTask.person_keypoints:
-            person_kp_categories = self._load_person_kp_categories(loader)
-            self._categories[AnnotationType.points] = person_kp_categories
+            self._load_person_kp_categories(loader)
 
-    # pylint: disable=no-self-use
-    def _load_label_categories(self, loader):
-        catIds = loader.getCatIds()
-        cats = loader.loadCats(catIds)
 
+    def _load_label_categories(self, raw_cats, *, preserve_original_ids):
         categories = LabelCategories()
         label_map = {}
-        for idx, cat in enumerate(cats):
-            label_map[cat['id']] = idx
-            categories.add(name=cat['name'], parent=cat.get('supercategory'))
 
-        return categories, label_map
-    # pylint: enable=no-self-use
+        if preserve_original_ids:
+            for cat in sorted(raw_cats, key=lambda cat: cat['id']):
+                label_map[cat['id']] = cat['id']
+
+                while len(categories) < cat['id']:
+                    categories.add(name=f"class-{len(categories)}")
+
+                categories.add(name=cat['name'], parent=cat.get('supercategory'))
+        else:
+            for idx, cat in enumerate(raw_cats):
+                label_map[cat['id']] = idx
+                categories.add(name=cat['name'], parent=cat.get('supercategory'))
+
+        self._categories[AnnotationType.label] = categories
+        self._label_map = label_map
 
     def _load_person_kp_categories(self, loader):
         catIds = loader.getCatIds()
@@ -113,23 +131,12 @@ class _CocoExtractor(SourceExtractor):
                 labels=cat['keypoints'], joints=cat['skeleton']
             )
 
-        return categories
+        self._categories[AnnotationType.points] = categories
 
     @staticmethod
     def _load_panoptic_config(path):
         with open(path, 'r', encoding='utf-8') as f:
             return json.load(f)
-
-    def _load_panoptic_categories(self, config):
-        label_categories = LabelCategories()
-        label_map = {}
-        for idx, cat in enumerate(config['categories']):
-            label_map[cat['id']] = idx
-            label_categories.add(name=cat['name'],
-                parent=cat.get('supercategory'))
-
-        self._categories[AnnotationType.label] = label_categories
-        self._label_map = label_map
 
     def _load_items(self, loader):
         items = OrderedDict()
