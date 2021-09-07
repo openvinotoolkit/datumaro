@@ -1,29 +1,42 @@
 {
-    "info":{},
+    "info":{
+
+    },
     "categories":{
       "label":{
         "labels":[
           {
             "name":"a",
-            "parent":""
+            "parent":"",
+            "attributes":[
+
+            ]
           },
           {
             "name":"b",
-            "parent":""
+            "parent":"",
+            "attributes":[
+
+            ]
           }
+        ],
+        "attributes":[
+
         ]
       }
     },
     "items":[
       {
-        "id":"1",
+        "id":"0",
         "annotations":[
           {
             "id":0,
             "type":"label",
-            "attributes":{},
+            "attributes":{
+
+            },
             "group":0,
-            "label_id":1
+            "label_id":0
           }
         ]
       }
