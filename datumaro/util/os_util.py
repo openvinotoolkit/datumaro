@@ -28,8 +28,10 @@ try:
     from git.util import rmtree as _rmtree
 
     def rmtree(path):
-        with suppress(unittest.SkipTest):
+        try:
             _rmtree(path)
+        except unittest.SkipTest as e:
+            raise AssertionError(f"Failed to remove '{path}'") from e
 
 except ModuleNotFoundError:
     from os import remove as rmfile # pylint: disable=unused-import

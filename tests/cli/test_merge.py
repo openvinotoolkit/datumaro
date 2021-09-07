@@ -3,9 +3,10 @@ import os.path as osp
 
 import numpy as np
 
-from datumaro.components.extractor import (
-    AnnotationType, Bbox, DatasetItem, LabelCategories, MaskCategories,
+from datumaro.components.annotation import (
+    AnnotationType, Bbox, LabelCategories, MaskCategories,
 )
+from datumaro.components.extractor import DatasetItem
 from datumaro.components.project import Dataset, Project
 from datumaro.util.test_utils import TestDir, compare_datasets
 from datumaro.util.test_utils import run_datum as run
@@ -58,8 +59,8 @@ class MergeTest(TestCase):
             dataset2.export(dataset2_url, 'voc', save_images=True)
 
             proj_dir = osp.join(test_dir, 'proj')
-            project = Project.init(proj_dir)
-            project.import_source('source', dataset2_url, 'voc')
+            with Project.init(proj_dir) as project:
+                project.import_source('source', dataset2_url, 'voc')
 
             result_dir = osp.join(test_dir, 'cmp_result')
             run(self, 'merge', dataset1_url + ':coco', '-o', result_dir,
