@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 from contextlib import (
-    ExitStack, contextmanager, redirect_stderr, redirect_stdout, suppress,
+    ExitStack, contextmanager, redirect_stderr, redirect_stdout,
 )
 from io import StringIO
 from typing import Iterable, Optional
@@ -22,16 +22,9 @@ try:
     # Use rmtree from GitPython to avoid the problem with removal of
     # readonly files on Windows, which Git uses extensively
     # It double checks if a file cannot be removed because of readonly flag
-    import unittest
-
-    from git.util import rmfile  # pylint: disable=unused-import
-    from git.util import rmtree as _rmtree
-
-    def rmtree(path):
-        try:
-            _rmtree(path)
-        except unittest.SkipTest as e:
-            raise AssertionError(f"Failed to remove '{path}'") from e
+    from git.util import rmfile, rmtree  # pylint: disable=unused-import
+    import git.util
+    git.util.HIDE_WINDOWS_KNOWN_ERRORS = False
 
 except ModuleNotFoundError:
     from os import remove as rmfile # pylint: disable=unused-import
