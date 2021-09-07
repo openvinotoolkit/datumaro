@@ -4,6 +4,8 @@
 
 import argparse
 
+from datumaro.util.scope import scope_add, scoped
+
 from ..util.project import load_project
 
 
@@ -18,8 +20,9 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+@scoped
 def log_command(args):
-    project = load_project(args.project_dir)
+    project = scope_add(load_project(args.project_dir))
 
     revisions = project.history(args.max_count)
     if revisions:

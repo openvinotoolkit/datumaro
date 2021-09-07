@@ -8,6 +8,7 @@ from datumaro.components.errors import (
     DatasetMergeError, MissingObjectError, ProjectNotFoundError,
 )
 from datumaro.components.extractor import AnnotationType
+from datumaro.util.scope import scope_add, scoped
 
 from ..util import MultilineFormatter
 from ..util.project import load_project, parse_full_revpath
@@ -55,17 +56,20 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+@scoped
 def info_command(args):
     project = None
     try:
-        project = load_project(args.project_dir)
+        project = scope_add(load_project(args.project_dir))
     except ProjectNotFoundError:
         if args.project_dir:
             raise
 
     try:
         # TODO: avoid computing working tree hashes
-        dataset = parse_full_revpath(args.target, project)
+        dataset, target_project = parse_full_revpath(args.target, project)
+        if target_project:
+            scope_add(target_project)
     except DatasetMergeError as e:
         dataset = None
         dataset_problem = "Can't merge project sources automatically: %s " \

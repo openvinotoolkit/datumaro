@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Annotation-related classes were moved into a new module,
   `datumaro.components.annotation`
   (<https://github.com/openvinotoolkit/datumaro/pull/439>)
+- Rollback utilities replaced with Scope utilities
+  (<https://github.com/openvinotoolkit/datumaro/pull/444>)
 
 ### Deprecated
 - TBD

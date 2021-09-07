@@ -4,6 +4,8 @@
 
 import argparse
 
+from datumaro.util.scope import scope_add, scoped
+
 from ..util import MultilineFormatter
 from ..util.project import load_project
 
@@ -32,8 +34,9 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+@scoped
 def commit_command(args):
-    project = load_project(args.project_dir)
+    project = scope_add(load_project(args.project_dir))
 
     old_tree = project.head
 

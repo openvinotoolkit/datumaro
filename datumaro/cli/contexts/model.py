@@ -9,8 +9,8 @@ import os.path as osp
 
 from datumaro.components.errors import ProjectNotFoundError
 from datumaro.components.project import Environment
-from datumaro.util import error_rollback, on_error_do
 from datumaro.util.os_util import rmtree
+from datumaro.util.scope import on_error_do, scope_add, scoped
 
 from ..util import MultilineFormatter, add_subparser
 from ..util.errors import CliException
@@ -53,13 +53,13 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
-@error_rollback
+@scoped
 def add_command(args):
     show_plugin_help = '-h' in args.extra_args or '--help' in args.extra_args
 
     project = None
     try:
-        project = load_project(args.project_dir)
+        project = scope_add(load_project(args.project_dir))
     except ProjectNotFoundError:
         if not show_plugin_help and args.project_dir:
             raise
@@ -125,8 +125,9 @@ def build_remove_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+@scoped
 def remove_command(args):
-    project = load_project(args.project_dir)
+    project = scope_add(load_project(args.project_dir))
 
     project.remove_model(args.name)
     project.save()
@@ -165,6 +166,7 @@ def build_run_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+@scoped
 def run_command(args):
     dst_dir = args.dst_dir
     if dst_dir:
@@ -175,8 +177,12 @@ def run_command(args):
         dst_dir = generate_next_file_name('%s-inference' % args.model_name)
     dst_dir = osp.abspath(dst_dir)
 
-    project = load_project(args.project_dir)
-    dataset = parse_full_revpath(args.target, project)
+    project = scope_add(load_project(args.project_dir))
+
+    dataset, target_project = parse_full_revpath(args.target, project)
+    if target_project:
+        scope_add(target_project)
+
     model = project.make_model(args.model_name)
     inference = dataset.run_model(model)
     inference.save(dst_dir)
@@ -198,8 +204,9 @@ def build_info_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+@scoped
 def info_command(args):
-    project = load_project(args.project_dir)
+    project = scope_add(load_project(args.project_dir))
 
     if args.name:
         print(project.models[args.name])

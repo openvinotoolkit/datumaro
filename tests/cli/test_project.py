@@ -4,8 +4,9 @@ import shutil
 
 import numpy as np
 
+from datumaro.components.annotation import Bbox, Label
 from datumaro.components.dataset import DEFAULT_FORMAT, Dataset
-from datumaro.components.extractor import Bbox, DatasetItem, Label
+from datumaro.components.extractor import DatasetItem
 from datumaro.components.project import Project
 from datumaro.util.test_utils import TestDir, compare_datasets
 from datumaro.util.test_utils import run_datum as run
@@ -157,9 +158,10 @@ class ProjectIntegrationScenarios(TestCase):
             run(self, 'transform', '-p', project_dir,
                 '-t', 'remap_labels', '--', '-l', 'a:cat', '-l', 'b:dog')
 
-            built_dataset = Project(project_dir).working_tree.make_dataset()
+            with Project(project_dir) as project:
+                built_dataset = project.working_tree.make_dataset()
 
-            expected_dataset = Dataset.from_iterable([
-                DatasetItem('qq', annotations=[Label(1)]),
-            ], categories=['cat', 'dog'])
-            compare_datasets(self, expected_dataset, built_dataset)
+                expected_dataset = Dataset.from_iterable([
+                    DatasetItem('qq', annotations=[Label(1)]),
+                ], categories=['cat', 'dog'])
+                compare_datasets(self, expected_dataset, built_dataset)
