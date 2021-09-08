@@ -734,16 +734,15 @@ def build_migrate_parser(parser_ctor=argparse.ArgumentParser):
         Migrates the project from the old version to a new one.|n
         |n
         Examples:
-        - Migrate a project from v1 to v2:|n
-        |s|s%(prog)s <path/to/v1>
+        - Migrate a project from v1 to v2, save the new project in other dir:|n
+        |s|s%(prog)s -o <output/dir/>
         """,
         formatter_class=MultilineFormatter)
 
-    parser.add_argument('target',
-        help="Target project (default: project)")
-    parser.add_argument('-o', '--output-dir', dest='dst_dir',
-        help="Output directory for the updated project (default: generate "
-            "automatically in the current directory)")
+    parser.add_argument('-o', '--output-dir', dest='dst_dir', required=True,
+        help="Output directory for the updated project")
+    parser.add_argument('-p', '--project', dest='project_dir', default='.',
+        help="Directory of the project to validate (default: current dir)")
     parser.add_argument('--overwrite', action='store_true',
         help="Overwrite existing files in the save directory")
     parser.set_defaults(command=migrate_command)
@@ -753,17 +752,14 @@ def build_migrate_parser(parser_ctor=argparse.ArgumentParser):
 @scoped
 def migrate_command(args):
     dst_dir = args.dst_dir
-    if dst_dir:
-        if not args.overwrite and osp.isdir(dst_dir) and os.listdir(dst_dir):
-            raise CliException("Directory '%s' already exists "
-                "(pass --overwrite to overwrite)" % dst_dir)
-    else:
-        dst_dir = generate_next_file_name('migrated-project')
+    if not args.overwrite and osp.isdir(dst_dir) and os.listdir(dst_dir):
+        raise CliException("Directory '%s' already exists "
+            "(pass --overwrite to overwrite)" % dst_dir)
     dst_dir = osp.abspath(dst_dir)
 
     log.debug("Migrating project from v1 to v2...")
 
-    Project.migrate_from_v1_to_v2(args.target, dst_dir)
+    Project.migrate_from_v1_to_v2(args.project, dst_dir)
     on_error_do(rmtree, dst_dir, ignore_errors=True)
 
     # Check
