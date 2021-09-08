@@ -1495,6 +1495,8 @@ class Project:
                             "Try to add this source manually with "
                             "'datum add', once migration is finished. The "
                             "reason is: %s", e)
+                        new_project.remove_source(name,
+                            force=True, keep_data=False)
 
         old_dataset_dir = osp.join(src_dir, 'dataset')
         if osp.isdir(old_dataset_dir):
