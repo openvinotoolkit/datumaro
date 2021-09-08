@@ -1413,7 +1413,8 @@ class Project:
 
     @staticmethod
     @scoped
-    def migrate_from_v1_to_v2(src_dir: str, dst_dir: str):
+    def migrate_from_v1_to_v2(src_dir: str, dst_dir: str,
+            skip_import_errors=False):
         if not osp.isdir(src_dir):
             raise FileNotFoundError("Source project is not found")
 
@@ -1433,6 +1434,7 @@ class Project:
                 "unexpected old version '%s'" % \
                 old_config.format_version)
 
+        on_error_do(rmtree, dst_dir, ignore_errors=True)
         new_project = scope_add(Project.init(dst_dir))
 
         new_wtree_dir = osp.join(new_project._aux_dir,
@@ -1462,21 +1464,37 @@ class Project:
         if 'sources' in old_config:
             for name, old_source in old_config.sources.items():
                 is_local = False
-                source_dir = osp.join(src_dir, name)
+                source_dir = osp.join(src_dir, 'sources', name)
                 url = osp.abspath(osp.join(source_dir, old_source['url']))
                 rpath = None
-                if osp.exists(url) and is_subpath(url, source_dir):
-                    if url != source_dir:
-                        rpath = osp.relpath(url, source_dir)
-                        url = source_dir
-                    is_local = True
+                if osp.exists(url):
+                    if is_subpath(url, source_dir):
+                        if url != source_dir:
+                            rpath = osp.relpath(url, source_dir)
+                            url = source_dir
+                        is_local = True
+                    elif osp.isfile(url):
+                        url, rpath = osp.split(url)
                 elif not old_source['url']:
                     url = ''
 
-                source = new_project.import_source(name, url=url, rpath=rpath,
-                    format=old_source['format'], options=old_source['options'])
-                if is_local:
-                    source.url = ''
+                try:
+                    source = new_project.import_source(name,
+                        url=url, rpath=rpath, format=old_source['format'],
+                        options=old_source['options'])
+                    if is_local:
+                        source.url = ''
+
+                    new_project.working_tree.make_dataset(name)
+                except Exception as e:
+                    if not skip_import_errors:
+                        raise MigrationError(
+                            f"Failed to migrate the source '{name}'") from e
+                    else:
+                        log.warning(f"Failed to migrate the source '{name}'. "
+                            "Try to add this source manually with "
+                            "'datum add', once migration is finished. The "
+                            "reason is: %s", e)
 
         old_dataset_dir = osp.join(src_dir, 'dataset')
         if osp.isdir(old_dataset_dir):

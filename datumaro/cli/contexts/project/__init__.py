@@ -13,15 +13,15 @@ import numpy as np
 
 from datumaro.components.dataset_filter import DatasetItemEncoder
 from datumaro.components.environment import Environment
-from datumaro.components.errors import ProjectNotFoundError
+from datumaro.components.errors import MigrationError, ProjectNotFoundError
 from datumaro.components.operations import (
     compute_ann_statistics, compute_image_statistics,
 )
 from datumaro.components.project import Project, ProjectBuildTargets
 from datumaro.components.validator import TaskType
 from datumaro.util import str_to_bool
-from datumaro.util.os_util import make_file_name, rmtree
-from datumaro.util.scope import on_error_do, scope_add, scoped
+from datumaro.util.os_util import make_file_name
+from datumaro.util.scope import scope_add, scoped
 
 from ...util import MultilineFormatter, add_subparser
 from ...util.errors import CliException
@@ -741,6 +741,8 @@ def build_migrate_parser(parser_ctor=argparse.ArgumentParser):
 
     parser.add_argument('-o', '--output-dir', dest='dst_dir', required=True,
         help="Output directory for the updated project")
+    parser.add_argument('-f', '--force', action='store_true',
+        help="Ignore source import errors (default: %(default)s)")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to validate (default: current dir)")
     parser.add_argument('--overwrite', action='store_true',
@@ -759,12 +761,13 @@ def migrate_command(args):
 
     log.debug("Migrating project from v1 to v2...")
 
-    Project.migrate_from_v1_to_v2(args.project, dst_dir)
-    on_error_do(rmtree, dst_dir, ignore_errors=True)
-
-    # Check
-    project = scope_add(Project(dst_dir))
-    project.working_tree.make_dataset()
+    try:
+        Project.migrate_from_v1_to_v2(args.project_dir, dst_dir,
+            skip_import_errors=args.force)
+    except Exception as e:
+        raise MigrationError("Failed to migrate the project "
+            "automatically. Try to create a new project and "
+            "add sources manually with 'datum create' and 'datum add'.") from e
 
     log.debug("Finished")
 
