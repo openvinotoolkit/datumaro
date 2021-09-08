@@ -90,7 +90,7 @@ class OldProjectError(DatumaroError):
         return """
             The project you're trying to load was
             created by the old Datumaro version. Try to migrate the
-            project with 'datum migrate' and then reload.
+            project with 'datum project migrate' and then reload.
             """
 
 
