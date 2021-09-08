@@ -8,20 +8,55 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[Unreleased\]
 ### Added
-- TBD
+- A new installation target: `pip install datumaro[default]`, which should
+  be used by default. The simple `datumaro` is supposed for library users.
+  (<https://github.com/openvinotoolkit/datumaro/pull/238>)
+- Dataset and project versioning capabilities (Git-like)
+  (<https://github.com/openvinotoolkit/datumaro/pull/238>)
+- "dataset revpath" concept in CLI, allowing to pass a dataset path with
+  the dataset format in `diff`, `merge`, `explain` and `info` CLI commands
+  (<https://github.com/openvinotoolkit/datumaro/pull/238>)
+- `add`, `remove`, `commit`, `checkout`, `log`, `status`, `info` CLI commands
+  (<https://github.com/openvinotoolkit/datumaro/pull/238>)
 
 ### Changed
+- A project can contain and manage multiple datasets instead of a single one.
+  CLI operations can be applied to the whole project, or to separate datasets.
+  Datasets are modified inplace, by default
+  (<https://github.com/openvinotoolkit/datumaro/issues/328>)
+- CLI help for builtin plugins doesn't require project
+  (<https://github.com/openvinotoolkit/datumaro/issues/328>)
 - Annotation-related classes were moved into a new module,
   `datumaro.components.annotation`
   (<https://github.com/openvinotoolkit/datumaro/pull/439>)
 - Rollback utilities replaced with Scope utilities
   (<https://github.com/openvinotoolkit/datumaro/pull/444>)
+- The `Project` class from `datumaro.components` is changed completely
+  (<https://github.com/openvinotoolkit/datumaro/pull/238>)
+- `diff` and `ediff` are joined into a single `diff` CLI command
+  (<https://github.com/openvinotoolkit/datumaro/pull/238>)
+- Projects use new file layout, incompatible with old projects.
+  An old project can be updated with `datum project migrate`
+  (<https://github.com/openvinotoolkit/datumaro/pull/238>)
+- Inheriting `CliPlugin` is not required in plugin classes
+  (<https://github.com/openvinotoolkit/datumaro/pull/238>)
+- `Importer`s do not create `Project`s anymore and just return a list of
+  extractor configurations
+  (<https://github.com/openvinotoolkit/datumaro/pull/238>)
 
 ### Deprecated
 - TBD
 
 ### Removed
-- TBD
+- `import`, `project merge` CLI commands
+  (<https://github.com/openvinotoolkit/datumaro/pull/238>)
+- Support for project hierarchies. A project cannot be a source anymore
+  (<https://github.com/openvinotoolkit/datumaro/pull/238>)
+- Project cannot have independent internal dataset anymore. All the project
+  data must be stored in the project data sources
+  (<https://github.com/openvinotoolkit/datumaro/pull/238>)
+- `datumaro_project` format
+  (<https://github.com/openvinotoolkit/datumaro/pull/238>)
 
 ### Fixed
 - Deprecation warning in `open_images_format.py`
