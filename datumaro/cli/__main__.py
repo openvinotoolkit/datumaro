@@ -9,7 +9,8 @@ import sys
 
 from ..version import VERSION
 from . import commands, contexts
-from .util import CliException, add_subparser
+from .util import add_subparser
+from .util.errors import CliException
 
 _log_levels = {
     'debug': log.DEBUG,
@@ -59,22 +60,31 @@ def make_parser():
     _LogManager._define_loglevel_option(parser)
 
     known_contexts = [
-        ('project', contexts.project, "Actions with project (deprecated)"),
+        ('project', contexts.project, "Actions with project"),
         ('source', contexts.source, "Actions with data sources"),
         ('model', contexts.model, "Actions with models"),
     ]
     known_commands = [
-        ('create', commands.create, "Create project"),
-        ('import', commands.import_, "Create project from existing dataset"),
+        ("Project modification:", None, ''),
+        ('create', commands.create, "Create empty project"),
         ('add', commands.add, "Add data source to project"),
         ('remove', commands.remove, "Remove data source from project"),
+
+        ("", None, ''),
+        ("Project versioning:", None, ''),
+        ('checkout', commands.checkout, "Switch to another branch or revision"),
+        ('commit', commands.commit, "Commit changes in tracked files"),
+        ('log', commands.log, "List history"),
+        ('status', commands.status, "Display current status"),
+
+        ("", None, ''),
+        ("Dataset and project operations:", None, ''),
         ('export', commands.export, "Export project in some format"),
-        ('filter', commands.filter, "Filter project"),
-        ('transform', commands.transform, "Transform project"),
-        ('merge', commands.merge, "Merge projects"),
-        ('convert', commands.convert, "Convert dataset into another format"),
-        ('diff', commands.diff, "Compare projects with intersection"),
-        ('ediff', commands.ediff, "Compare projects for equality"),
+        ('filter', commands.filter, "Filter project items"),
+        ('transform', commands.transform, "Modify project items"),
+        ('merge', commands.merge, "Merge datasets"),
+        ('convert', commands.convert, "Convert dataset between formats"),
+        ('diff', commands.diff, "Compare datasets"),
         ('stats', commands.stats, "Compute project statistics"),
         ('info', commands.info, "Print project info"),
         ('explain', commands.explain, "Run Explainable AI algorithm for model"),
@@ -105,7 +115,8 @@ def make_parser():
     subcommands = parser.add_subparsers(title=subcommands_desc,
         description="", help=argparse.SUPPRESS)
     for command_name, command, _ in known_contexts + known_commands:
-        add_subparser(subcommands, command_name, command.build_parser)
+        if command is not None:
+            add_subparser(subcommands, command_name, command.build_parser)
 
     return parser
 
@@ -121,7 +132,10 @@ def main(args=None):
         return 1
 
     try:
-        return args.command(args)
+        retcode = args.command(args)
+        if retcode is None:
+            retcode = 0
+        return retcode
     except CliException as e:
         log.error(e)
         return 1

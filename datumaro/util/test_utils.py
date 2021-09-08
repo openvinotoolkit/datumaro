@@ -3,7 +3,8 @@
 # SPDX-License-Identifier: MIT
 
 from enum import Enum, auto
-from typing import Collection, Union
+from glob import glob
+from typing import Collection, Optional, Union
 import inspect
 import os
 import os.path as osp
@@ -11,18 +12,10 @@ import tempfile
 
 from typing_extensions import Literal
 
-try:
-    # Use rmtree from GitPython to avoid the problem with removal of
-    # readonly files on Windows, which Git uses extensively
-    # It double checks if a file cannot be removed because of readonly flag
-    from git.util import rmfile, rmtree
-except ImportError:
-    from shutil import rmtree
-    from os import remove as rmfile
-
 from datumaro.components.annotation import AnnotationType
 from datumaro.components.dataset import Dataset, IDataset
 from datumaro.util import filter_dict, find
+from datumaro.util.os_util import rmfile, rmtree
 
 
 class Dimensions(Enum):
@@ -40,13 +33,11 @@ class FileRemover:
     def __enter__(self):
         return self.path
 
-    # pylint: disable=redefined-builtin
-    def __exit__(self, type=None, value=None, traceback=None):
+    def __exit__(self, exc_type=None, exc_value=None, traceback=None):
         if self.is_dir:
             rmtree(self.path)
         else:
             rmfile(self.path)
-    # pylint: enable=redefined-builtin
 
 class TestDir(FileRemover):
     """
@@ -55,18 +46,35 @@ class TestDir(FileRemover):
 
     Usage:
 
-    with TestDir() as test_dir:
-        ...
+        with TestDir() as test_dir:
+            ...
     """
 
-    def __init__(self, path=None):
+    def __init__(self, path: Optional[str] = None, frame_id: int = 2):
+        if not path:
+            prefix = f'temp_{current_function_name(frame_id)}-'
+        else:
+            prefix = None
+        self._prefix = prefix
+
+        super().__init__(path, is_dir=True)
+
+    def __enter__(self) -> str:
+        """
+        Creates a test directory.
+
+        Returns: path to the directory
+        """
+
+        path = self.path
+
         if path is None:
-            path = osp.abspath('temp_%s-' % current_function_name(2))
-            path = tempfile.mkdtemp(dir=os.getcwd(), prefix=path)
+            path = tempfile.mkdtemp(dir=os.getcwd(), prefix=self._prefix)
+            self.path = path
         else:
             os.makedirs(path, exist_ok=False)
 
-        super().__init__(path, is_dir=True)
+        return path
 
 def compare_categories(test, expected, actual):
     test.assertEqual(
@@ -225,6 +233,26 @@ def test_save_and_load(test, source_dataset, converter, test_dir, importer,
     elif not compare:
         compare = compare_datasets
     compare(test, expected=target_dataset, actual=parsed_dataset, **kwargs)
+
+def compare_dirs(test, expected: str, actual: str):
+    """
+    Compares file and directory structures in the given directories.
+    Empty directories are skipped.
+    """
+    skip_empty_dirs = True
+
+    for a_path in glob(osp.join(expected, '**', '*'), recursive=True):
+        rel_path = osp.relpath(a_path, expected)
+        b_path = osp.join(actual, rel_path)
+        if osp.isdir(a_path):
+            if not (skip_empty_dirs and not os.listdir(a_path)):
+                test.assertTrue(osp.isdir(b_path), rel_path)
+            continue
+
+        test.assertTrue(osp.isfile(b_path), rel_path)
+        with open(a_path, 'rb') as a_file, \
+                open(b_path, 'rb') as b_file:
+            test.assertEqual(a_file.read(), b_file.read(), rel_path)
 
 def run_datum(test, *args, expected_code=0):
     from datumaro.cli.__main__ import main

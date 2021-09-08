@@ -6,61 +6,79 @@ import argparse
 import logging as log
 import os
 import os.path as osp
-import shutil
 
+from datumaro.components.errors import ProjectNotFoundError
 from datumaro.components.project import Environment
-from datumaro.util.scope import on_error_do, scoped
+from datumaro.util.os_util import rmtree
+from datumaro.util.scope import on_error_do, scope_add, scoped
 
-from ..util import CliException, MultilineFormatter, add_subparser
+from ..util import MultilineFormatter, add_subparser
+from ..util.errors import CliException
 from ..util.project import (
     generate_next_file_name, generate_next_name, load_project,
+    parse_full_revpath,
 )
 
 
 def build_add_parser(parser_ctor=argparse.ArgumentParser):
-    builtins = sorted(Environment().launchers.items)
+    builtins = sorted(Environment().launchers)
 
     parser = parser_ctor(help="Add model to project",
         description="""
-            Registers an executable model into a project. A model requires
-            a launcher to be executed. Each launcher has its own options, which
-            are passed after '--' separator, pass '-- -h' for more info.
-            |n
-            List of builtin launchers: %s
-        """ % ', '.join(builtins),
+        Adds an executable model into a project. A model requires
+        a launcher to be executed. Each launcher has its own options, which
+        are passed after the '--' separator, pass '-- -h' for more info.
+        |n
+        List of builtin launchers: {}|n
+        |n
+        Examples:|n
+        - Add an OpenVINO model into a project:|n
+        |s|s%(prog)s -l openvino -- -d model.xml -w model.bin -i parse_outs.py
+        """.format(', '.join(builtins)),
         formatter_class=MultilineFormatter)
 
-    parser.add_argument('-l', '--launcher', required=True,
-        help="Model launcher")
-    parser.add_argument('extra_args', nargs=argparse.REMAINDER, default=None,
-        help="Additional arguments for converter (pass '-- -h' for help)")
-    parser.add_argument('--copy', action='store_true',
-        help="Copy the model to the project")
     parser.add_argument('-n', '--name', default=None,
         help="Name of the model to be added (default: generate automatically)")
-    parser.add_argument('--overwrite', action='store_true',
-        help="Overwrite if exists")
+    parser.add_argument('-l', '--launcher', required=True,
+        help="Model launcher")
+    parser.add_argument('--copy', action='store_true',
+        help="Copy model data into project (default: %(default)s)")
+    parser.add_argument('--no-check', action='store_true',
+        help="Don't check model loading (default: %(default)s)")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to operate on (default: current dir)")
+    parser.add_argument('extra_args', nargs=argparse.REMAINDER, default=None,
+        help="Additional arguments for converter (pass '-- -h' for help)")
     parser.set_defaults(command=add_command)
 
     return parser
 
 @scoped
 def add_command(args):
-    project = load_project(args.project_dir)
+    show_plugin_help = '-h' in args.extra_args or '--help' in args.extra_args
 
-    if args.name:
-        if not args.overwrite and args.name in project.config.models:
-            raise CliException("Model '%s' already exists "
-                "(pass --overwrite to overwrite)" % args.name)
+    project = None
+    try:
+        project = scope_add(load_project(args.project_dir))
+    except ProjectNotFoundError:
+        if not show_plugin_help and args.project_dir:
+            raise
+
+    if project is not None:
+        env = project.env
     else:
-        args.name = generate_next_name(
-            project.config.models, 'model', '-', default=0)
-        assert args.name not in project.config.models, args.name
+        env = Environment()
+
+    name = args.name
+    if name:
+        if name in project.models:
+            raise CliException("Model '%s' already exists" % name)
+    else:
+        name = generate_next_name(list(project.models),
+            'model', sep='-', default=0)
 
     try:
-        launcher = project.env.launchers[args.launcher]
+        launcher = env.launchers[args.launcher]
     except KeyError:
         raise CliException("Launcher '%s' is not found" % args.launcher)
 
@@ -70,33 +88,34 @@ def add_command(args):
     if args.copy:
         log.info("Copying model data")
 
-        model_dir = osp.join(project.config.project_dir,
-            project.local_model_dir(args.name))
+        model_dir = project.model_data_dir(name)
         os.makedirs(model_dir, exist_ok=False)
-        on_error_do(shutil.rmtree, model_dir, ignore_errors=True)
+        on_error_do(rmtree, model_dir, ignore_errors=True)
 
         try:
             cli_plugin.copy_model(model_dir, model_args)
         except (AttributeError, NotImplementedError):
-            log.error("Can't copy: copying is not available for '%s' models" % \
+            raise NotImplementedError(
+                "Can't copy: copying is not available for '%s' models. " %
                 args.launcher)
 
-    log.info("Checking the model")
-    project.add_model(args.name, {
-        'launcher': args.launcher,
-        'options': model_args,
-    })
-    project.make_executable_model(args.name)
+    project.add_model(name, launcher=args.launcher, options=model_args)
+    on_error_do(project.remove_model, name, ignore_errors=True)
+
+    if not args.no_check:
+        log.info("Checking the model...")
+        project.make_model(name)
 
     project.save()
 
-    log.info("Model '%s' with launcher '%s' has been added to project '%s'" % \
-        (args.name, args.launcher, project.config.project_name))
+    log.info("Model '%s' with launcher '%s' has been added to project",
+        name, args.launcher)
 
     return 0
 
 def build_remove_parser(parser_ctor=argparse.ArgumentParser):
-    parser = parser_ctor()
+    parser = parser_ctor(help="Remove model from project",
+        description="Remove a model from a project")
 
     parser.add_argument('name',
         help="Name of the model to be removed")
@@ -106,8 +125,9 @@ def build_remove_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+@scoped
 def remove_command(args):
-    project = load_project(args.project_dir)
+    project = scope_add(load_project(args.project_dir))
 
     project.remove_model(args.name)
     project.save()
@@ -115,35 +135,57 @@ def remove_command(args):
     return 0
 
 def build_run_parser(parser_ctor=argparse.ArgumentParser):
-    parser = parser_ctor()
+    parser = parser_ctor(help="Launches model inference",
+        description="""
+        Launches model inference on a dataset.|n
+        |n
+        Target dataset is specified by a revpath. The full syntax is:|n
+        - Dataset paths:|n
+        |s|s- <dataset path>[ :<format> ]|n
+        - Revision paths:|n
+        |s|s- <project path> [ @<rev> ] [ :<target> ]|n
+        |s|s- <rev> [ :<target> ]|n
+        |s|s- <target>|n
+        |n
+        Both forms use the -p/--project as a context for plugins and models.
+        When not specified, the current project's working tree is used.|n
+        """,
+        formatter_class=MultilineFormatter)
 
+    parser.add_argument('target', nargs='?', default='project',
+        help="Target dataset revpath (default: %(default)s)")
     parser.add_argument('-o', '--output-dir', dest='dst_dir',
-        help="Directory to save output")
+        help="Directory to save output (default: auto-generated)")
     parser.add_argument('-m', '--model', dest='model_name', required=True,
         help="Model to apply to the project")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to operate on (default: current dir)")
     parser.add_argument('--overwrite', action='store_true',
-        help="Overwrite if exists")
+        help="Overwrite output directory if exists")
     parser.set_defaults(command=run_command)
 
     return parser
 
+@scoped
 def run_command(args):
-    project = load_project(args.project_dir)
-
     dst_dir = args.dst_dir
     if dst_dir:
         if not args.overwrite and osp.isdir(dst_dir) and os.listdir(dst_dir):
             raise CliException("Directory '%s' already exists "
                 "(pass --overwrite overwrite)" % dst_dir)
     else:
-        dst_dir = generate_next_file_name('%s-inference' % \
-            project.config.project_name)
+        dst_dir = generate_next_file_name('%s-inference' % args.model_name)
+    dst_dir = osp.abspath(dst_dir)
 
-    project.make_dataset().apply_model(
-        save_dir=osp.abspath(dst_dir),
-        model=args.model_name)
+    project = scope_add(load_project(args.project_dir))
+
+    dataset, target_project = parse_full_revpath(args.target, project)
+    if target_project:
+        scope_add(target_project)
+
+    model = project.make_model(args.model_name)
+    inference = dataset.run_model(model)
+    inference.save(dst_dir)
 
     log.info("Inference results have been saved to '%s'" % dst_dir)
 
@@ -162,14 +204,14 @@ def build_info_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+@scoped
 def info_command(args):
-    project = load_project(args.project_dir)
+    project = scope_add(load_project(args.project_dir))
 
     if args.name:
-        model = project.get_model(args.name)
-        print(model)
+        print(project.models[args.name])
     else:
-        for name, conf in project.config.models.items():
+        for name, conf in project.models.items():
             print(name)
             if args.verbose:
                 print(dict(conf))

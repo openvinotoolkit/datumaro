@@ -25,7 +25,7 @@ _image_loading_errors = (FileNotFoundError, )
 try:
     importlib.import_module('cv2')
     _IMAGE_BACKEND = _IMAGE_BACKENDS.cv2
-except ImportError:
+except ModuleNotFoundError:
     import PIL
     _IMAGE_BACKEND = _IMAGE_BACKENDS.PIL
     _image_loading_errors = (*_image_loading_errors, PIL.UnidentifiedImageError)
@@ -179,11 +179,11 @@ IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.jpe', '.jp2',
 def find_images(dirpath: str, exts: Union[str, Iterable[str]] = None,
         recursive: bool = False, max_depth: int = None) -> Iterator[str]:
     if isinstance(exts, str):
-        exts = ['.' + exts.lower().lstrip('.')]
+        exts = {'.' + exts.lower().lstrip('.')}
     elif exts is None:
         exts = IMAGE_EXTENSIONS
     else:
-        exts = list('.' + e.lower().lstrip('.') for e in exts)
+        exts = {'.' + e.lower().lstrip('.') for e in exts}
 
     def _check_image_ext(filename: str):
         dotpos = filename.rfind('.')
@@ -201,6 +201,10 @@ def find_images(dirpath: str, exts: Union[str, Iterable[str]] = None,
 
             yield osp.join(d, filename)
 
+def is_image(path: str):
+    trunk, ext = osp.splitext(osp.basename(path))
+    return trunk and ext.lower() in IMAGE_EXTENSIONS and \
+        osp.isfile(path)
 
 class lazy_image:
     def __init__(self, path, loader=None, cache=None):
@@ -295,6 +299,8 @@ class Image:
 
     @property
     def size(self) -> Optional[Tuple[int, int]]:
+        "Returns (H, W)"
+
         if self._size is None:
             try:
                 data = self.data
@@ -317,13 +323,16 @@ class Image:
                 not self.has_data)
 
     def save(self, path):
-        src_ext = self.ext.lower()
-        dst_ext = osp.splitext(osp.basename(path))[1].lower()
+        cur_path = osp.abspath(self.path)
+        path = osp.abspath(path)
+
+        cur_ext = self.ext.lower()
+        new_ext = osp.splitext(osp.basename(path))[1].lower()
 
         os.makedirs(osp.dirname(path), exist_ok=True)
-        if src_ext == dst_ext and osp.isfile(self.path):
-            if self.path != path:
-                shutil.copyfile(self.path, path)
+        if cur_ext == new_ext and osp.isfile(cur_path):
+            if cur_path != path:
+                shutil.copyfile(cur_path, path)
         else:
             save_image(path, self.data)
 
@@ -369,14 +378,17 @@ class ByteImage(Image):
                 not self.has_data)
 
     def save(self, path):
-        src_ext = self.ext.lower()
-        dst_ext = osp.splitext(osp.basename(path))[1].lower()
+        cur_path = osp.abspath(self.path)
+        path = osp.abspath(path)
+
+        cur_ext = self.ext.lower()
+        new_ext = osp.splitext(osp.basename(path))[1].lower()
 
         os.makedirs(osp.dirname(path), exist_ok=True)
-        if src_ext == dst_ext and osp.isfile(self.path):
-            if self.path != path:
-                shutil.copyfile(self.path, path)
-        elif src_ext == dst_ext:
+        if cur_ext == new_ext and osp.isfile(cur_path):
+            if cur_path != path:
+                shutil.copyfile(cur_path, path)
+        elif cur_ext == new_ext:
             with open(path, 'wb') as f:
                 f.write(self.get_bytes())
         else:

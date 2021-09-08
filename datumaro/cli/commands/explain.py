@@ -7,15 +7,11 @@ import logging as log
 import os
 import os.path as osp
 
-from datumaro.components.project import Project
-from datumaro.util.command_targets import (
-    ImageTarget, ProjectTarget, SourceTarget, TargetKinds, is_project_path,
-    target_selector,
-)
-from datumaro.util.image import load_image, save_image
+from datumaro.util.image import is_image, load_image, save_image
+from datumaro.util.scope import scope_add, scoped
 
 from ..util import MultilineFormatter
-from ..util.project import load_project
+from ..util.project import load_project, parse_full_revpath
 
 
 def build_parser(parser_ctor=argparse.ArgumentParser):
@@ -42,16 +38,36 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         - RISE for classification|n
         - RISE for Object Detection|n
         |n
+        This command has the following syntax:|n
+        |s|s%(prog)s <image path or revpath>|n
+        |n
+        <image path> - a path to the file.|n
+        <revpath> - either a dataset path or a revision path. The full
+        syntax is:|n
+        - Dataset paths:|n
+        |s|s- <dataset path>[ :<format> ]|n
+        - Revision paths:|n
+        |s|s- <project path> [ @<rev> ] [ :<target> ]|n
+        |s|s- <rev> [ :<target> ]|n
+        |s|s- <target>|n
+        Parts can be enclosed in quotes.|n
+        |n
+        The current project (-p/--project) is used as a context for plugins
+        and models. It is used when there is a dataset path in target.
+        When not specified, the current project's working tree is used.|n
+        |n
         Examples:|n
         - Run RISE on an image, display results:|n
-        |s|s%(prog)s -t path/to/image.jpg -m mymodel rise --max-samples 50
+        |s|s%(prog)s path/to/image.jpg -m mymodel rise --max-samples 50|n
+        |n
+        - Run RISE on a source revision:|n
+        |s|s%(prog)s HEAD~1:source-1 -m model rise
         """, formatter_class=MultilineFormatter)
 
+    parser.add_argument('target', nargs='?', default=None,
+        help="Inference target - image, revpath (default: project)")
     parser.add_argument('-m', '--model', required=True,
         help="Model to use for inference")
-    parser.add_argument('-t', '--target', default=None,
-        help="Inference target - image, source, project "
-             "(default: current project)")
     parser.add_argument('-o', '--output-dir', dest='save_dir', default=None,
         help="Directory to save output (default: display only)")
 
@@ -95,28 +111,14 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+@scoped
 def explain_command(args):
-    project_path = args.project_dir
-    if is_project_path(project_path):
-        project = Project.load(project_path)
-    else:
-        project = None
-    args.target = target_selector(
-        ProjectTarget(is_default=True, project=project),
-        SourceTarget(project=project),
-        ImageTarget()
-    )(args.target)
-    if args.target[0] == TargetKinds.project:
-        if is_project_path(args.target[1]):
-            args.project_dir = osp.dirname(osp.abspath(args.target[1]))
-
-
     from matplotlib import cm
     import cv2
 
-    project = load_project(args.project_dir)
+    project = scope_add(load_project(args.project_dir))
 
-    model = project.make_executable_model(args.model)
+    model = project.working_tree.models.make_executable_model(args.model)
 
     if str(args.algorithm).lower() != 'rise':
         raise NotImplementedError()
@@ -132,8 +134,8 @@ def explain_command(args):
         det_conf_thresh=args.det_conf_thresh,
         batch_size=args.batch_size)
 
-    if args.target[0] == TargetKinds.image:
-        image_path = args.target[1]
+    if args.target and is_image(args.target):
+        image_path = args.target
         image = load_image(image_path)
 
         log.info("Running inference explanation for '%s'" % image_path)
@@ -166,23 +168,20 @@ def explain_command(args):
                 disp = (image + cm.jet(heatmap)[:, :, 2::-1]) / 2
                 cv2.imshow(file_name + '-heatmap-%s' % j, disp)
             cv2.waitKey(0)
-    elif args.target[0] == TargetKinds.source or \
-         args.target[0] == TargetKinds.project:
-        if args.target[0] == TargetKinds.source:
-            source_name = args.target[1]
-            dataset = project.make_source_project(source_name).make_dataset()
-            log.info("Running inference explanation for '%s'" % source_name)
-        else:
-            project_name = project.config.project_name
-            dataset = project.make_dataset()
-            log.info("Running inference explanation for '%s'" % project_name)
+
+    else:
+        dataset, target_project = \
+            parse_full_revpath(args.target or 'project', project)
+        if target_project:
+            scope_add(target_project)
+
+        log.info("Running inference explanation for '%s'" % args.target)
 
         for item in dataset:
             image = item.image.data
             if image is None:
-                log.warning(
-                    "Dataset item %s does not have image data. Skipping." % \
-                    (item.id))
+                log.warning("Item %s does not have image data. Skipping.",
+                    item.id)
                 continue
 
             heatmap_iter = rise.apply(image)
@@ -204,7 +203,5 @@ def explain_command(args):
                     disp = (image + cm.jet(heatmap)[:, :, 2::-1]) / 2
                     cv2.imshow(item.id + '-heatmap-%s' % j, disp)
                 cv2.waitKey(0)
-    else:
-        raise NotImplementedError()
 
     return 0
