@@ -10,7 +10,7 @@ sources:
   source2:
     format: datumaro
     options: {}
-    url: ''
+    url: annotations/test.json
   source3:
     format: my
     options: {}

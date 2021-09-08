@@ -1420,6 +1420,7 @@ class Project:
         if osp.exists(dst_dir):
             raise FileExistsError("Output path already exists")
 
+        src_dir = osp.abspath(src_dir)
         old_aux_dir = osp.join(src_dir, '.datumaro')
         old_config = Config.parse(osp.join(old_aux_dir, 'config.yaml'))
         if old_config.format_version != 1:
@@ -1455,19 +1456,27 @@ class Project:
 
         if 'sources' in old_config:
             for name, old_source in old_config.sources.items():
-                url = old_source['url']
-                if not old_source['url']:
-                    url = osp.join(src_dir, name, url)
-                    if not osp.isdir(url):
-                        url = ''
+                is_local = False
+                source_dir = osp.join(src_dir, name)
+                url = osp.abspath(osp.join(source_dir, old_source['url']))
+                rpath = None
+                if osp.exists(url) and is_subpath(url, source_dir):
+                    if url != source_dir:
+                        rpath = osp.relpath(url, source_dir)
+                        url = source_dir
+                    is_local = True
+                elif not old_source['url']:
+                    url = ''
 
-                new_project.import_source(name, url=url,
+                source = new_project.import_source(name, url=url, rpath=rpath,
                     format=old_source['format'], options=old_source['options'])
+                if is_local:
+                    source.url = ''
 
         old_dataset_dir = osp.join(src_dir, 'dataset')
         if osp.isdir(old_dataset_dir):
             # Such source cannot be represented in v2 directly.
-            # However, it can be just a generated source with
+            # However, it can be considered a generated source with
             # working tree data.
             name = generate_next_name(list(new_tree_config.sources),
                 'local_dataset', sep='-', default='1')
@@ -1970,8 +1979,8 @@ class Project:
             rpath = None
 
         config = Source({
-            'url': url or '',
-            'path': rpath or '',
+            'url': (url or '').replace('\\', '/'),
+            'path': (rpath or '').replace('\\', '/'),
             'format': format,
             'options': options or {},
         })
