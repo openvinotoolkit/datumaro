@@ -969,17 +969,6 @@ class BackwardCompatibilityTests_v0_1(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
-    def test_cant_migrate_inplace(self):
-        test_dir = scope_add(TestDir())
-        shutil.copytree(osp.join(osp.dirname(__file__),
-                'assets', 'compat', 'v0.1', 'project'),
-            test_dir)
-
-        with self.assertRaisesRegex(MigrationError, "cannot be done inplace"):
-            Project.migrate_from_v1_to_v2(test_dir, test_dir)
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    @scoped
     def test_cant_load_old_project(self):
         test_dir = scope_add(TestDir())
         proj_dir = osp.join(test_dir, 'old_proj')

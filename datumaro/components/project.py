@@ -1451,6 +1451,9 @@ class Project:
             copytree(old_models_dir,
                 osp.join(new_project._aux_dir, ProjectLayout.models_dir))
 
+        new_project.env.load_plugins(
+            osp.join(new_project._aux_dir, ProjectLayout.plugins_dir))
+
         new_tree_config = new_project.working_tree.config
         new_local_config = new_project.config
 
