@@ -18,33 +18,6 @@ class VocImporter(Importer):
         VocTask.action_classification: ('voc_action', 'Action'),
     }
 
-    def __call__(self, path, **extra_params):
-        from datumaro.components.project import Project  # cyclic import
-        project = Project()
-
-        subsets = self.find_sources(path)
-        if len(subsets) == 0:
-            raise Exception("Failed to find 'voc' dataset at '%s'" % path)
-
-        for config in subsets:
-            subset_path = config['url']
-            extractor_type = config['format']
-
-            task = extractor_type.split('_')[1]
-
-            opts = dict(config.get('options') or {})
-            opts.update(extra_params)
-
-            project.add_source('%s-%s' %
-                (task, osp.splitext(osp.basename(subset_path))[0]),
-            {
-                'url': subset_path,
-                'format': extractor_type,
-                'options': opts,
-            })
-
-        return project
-
     @classmethod
     def find_sources(cls, path):
         subsets = []

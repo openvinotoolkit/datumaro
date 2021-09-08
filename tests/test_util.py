@@ -1,127 +1,130 @@
+from contextlib import suppress
 from unittest import TestCase, mock
 import os
 import os.path as osp
 
-from datumaro.util import (
-    Rollback, error_rollback, is_method_redefined, on_error_do,
-)
+from datumaro.util import is_method_redefined
 from datumaro.util.os_util import walk
+from datumaro.util.scope import Scope, on_error_do, on_exit_do, scoped
 from datumaro.util.test_utils import TestDir
 
 from .requirements import Requirements, mark_requirement
 
 
-class TestRollback(TestCase):
+class TestException(Exception):
+    pass
+
+class ScopeTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_does_not_call_on_no_error(self):
-        success = True
-        def cb():
-            nonlocal success
-            success = False
+    def test_calls_only_exit_callback_on_exit(self):
+        error_cb = mock.MagicMock()
+        exit_cb = mock.MagicMock()
 
-        with Rollback() as on_error:
-            on_error.do(cb)
+        with Scope() as scope:
+            scope.on_error_do(error_cb)
+            scope.on_exit_do(exit_cb)
 
-        self.assertTrue(success)
+        error_cb.assert_not_called()
+        exit_cb.assert_called_once()
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_calls_on_error(self):
-        success = False
-        def cb():
-            nonlocal success
-            success = True
+    def test_calls_both_callbacks_on_error(self):
+        error_cb = mock.MagicMock()
+        exit_cb = mock.MagicMock()
 
-        try:
-            with Rollback() as on_error:
-                on_error.do(cb)
-                raise Exception('err')
-        except Exception: # nosec - disable B110:try_except_pass check
-            pass
-        finally:
-            self.assertTrue(success)
+        with self.assertRaises(TestException), Scope() as scope:
+            scope.on_error_do(error_cb)
+            scope.on_exit_do(exit_cb)
+            raise TestException()
+
+        error_cb.assert_called_once()
+        exit_cb.assert_called_once()
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_adds_cm(self):
+        cm = mock.Mock()
+        cm.__enter__ = mock.MagicMock(return_value=42)
+        cm.__exit__ = mock.MagicMock()
+
+        with Scope() as scope:
+            retval = scope.add(cm)
+
+        cm.__enter__.assert_called_once()
+        cm.__exit__.assert_called_once()
+        self.assertEqual(42, retval)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_calls_cm_on_error(self):
+        cm = mock.Mock()
+        cm.__enter__ = mock.MagicMock()
+        cm.__exit__ = mock.MagicMock()
+
+        with suppress(TestException), Scope() as scope:
+            scope.add(cm)
+            raise TestException()
+
+        cm.__enter__.assert_called_once()
+        cm.__exit__.assert_called_once()
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_decorator_calls_on_error(self):
-        success = False
-        def cb():
-            nonlocal success
-            success = True
+        cb = mock.MagicMock()
 
-        @error_rollback('on_error')
-        def foo(on_error=None):
-            on_error.do(cb)
-            raise Exception('err')
+        @scoped('scope')
+        def foo(scope=None):
+            scope.on_error_do(cb)
+            raise TestException()
 
-        try:
+        with suppress(TestException):
             foo()
-        except Exception: # nosec - disable B110:try_except_pass check
-            pass
-        finally:
-            self.assertTrue(success)
+
+        cb.assert_called_once()
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_decorator_does_not_call_on_no_error(self):
-        success = True
-        def cb():
-            nonlocal success
-            success = False
+        error_cb = mock.MagicMock()
+        exit_cb = mock.MagicMock()
 
-        @error_rollback('on_error')
-        def foo(on_error=None):
-            on_error.do(cb)
+        @scoped('scope')
+        def foo(scope=None):
+            scope.on_error_do(error_cb)
+            scope.on_exit_do(exit_cb)
 
         foo()
 
-        self.assertTrue(success)
+        error_cb.assert_not_called()
+        exit_cb.assert_called_once()
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_decorator_supports_implicit_form(self):
-        success = False
-        def cb():
-            nonlocal success
-            success = True
+        error_cb = mock.MagicMock()
+        exit_cb = mock.MagicMock()
 
-        @error_rollback
+        @scoped
         def foo():
-            on_error_do(cb)
-            raise Exception('err')
+            on_error_do(error_cb)
+            on_exit_do(exit_cb)
+            raise TestException()
 
-        try:
+        with suppress(TestException):
             foo()
-        except Exception: # nosec - disable B110:try_except_pass check
-            pass
-        finally:
-            self.assertTrue(success)
+
+        error_cb.assert_called_once()
+        exit_cb.assert_called_once()
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_fowrard_args(self):
-        success1 = False
-        def cb1(a1, a2=None, ignore_errors=None):
-            nonlocal success1
-            if a1 == 5 and a2 == 2 and ignore_errors == None:
-                success1 = True
+        cb = mock.MagicMock()
 
-        success2 = False
-        def cb2(a1, a2=None, ignore_errors=None):
-            nonlocal success2
-            if a1 == 5 and a2 == 2 and ignore_errors == 4:
-                success2 = True
+        with suppress(TestException), Scope() as scope:
+            scope.on_error_do(cb, 5, ignore_errors=True, kwargs={'a2': 2})
+            raise TestException()
 
-        try:
-            with Rollback() as on_error:
-                on_error.do(cb1, 5, a2=2, ignore_errors=True)
-                on_error.do(cb2, 5, a2=2, ignore_errors=True,
-                    fwd_kwargs={'ignore_errors': 4})
-                raise Exception('err')
-        except Exception: # nosec - disable B110:try_except_pass check
-            pass
-        finally:
-            self.assertTrue(success1)
-            self.assertTrue(success2)
+        cb.assert_called_once_with(5, a2=2)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_decorator_can_return_on_success_in_implicit_form(self):
-        @error_rollback
+        @scoped
         def f():
             return 42
 
@@ -131,8 +134,8 @@ class TestRollback(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_decorator_can_return_on_success_in_explicit_form(self):
-        @error_rollback('on_error')
-        def f(on_error=None):
+        @scoped('scope')
+        def f(scope=None):
             return 42
 
         retval = f()

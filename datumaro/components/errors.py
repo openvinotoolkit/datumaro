@@ -12,6 +12,117 @@ class ImmutableObjectError(Exception):
 class DatumaroError(Exception):
     pass
 
+
+class VcsError(DatumaroError):
+    pass
+
+class ReadonlyDatasetError(VcsError):
+    def __str__(self):
+        return "Can't update a read-only dataset"
+
+class ReadonlyProjectError(VcsError):
+    def __str__(self):
+        return "Can't change a read-only project"
+
+@attrs
+class UnknownRefError(VcsError):
+    ref = attrib()
+
+    def __str__(self):
+        return f"Can't parse ref '{self.ref}'"
+
+class MissingObjectError(VcsError):
+    pass
+
+class MismatchingObjectError(VcsError):
+    pass
+
+@attrs
+class UnsavedChangesError(VcsError):
+    paths = attrib()
+
+    def __str__(self):
+        return "There are some uncommitted changes: %s" % ', '.join(self.paths)
+
+class ForeignChangesError(VcsError):
+    pass
+
+class EmptyCommitError(VcsError):
+    pass
+
+class PathOutsideSourceError(VcsError):
+    pass
+
+class SourceUrlInsideProjectError(VcsError):
+    def __str__(self):
+        return "Source URL cannot point inside the project"
+
+class UnexpectedUrlError(VcsError):
+    pass
+
+class PipelineError(DatumaroError):
+        pass
+
+class InvalidPipelineError(PipelineError):
+    pass
+
+class EmptyPipelineError(InvalidPipelineError):
+    pass
+
+class MultiplePipelineHeadsError(InvalidPipelineError):
+    pass
+
+class MissingPipelineHeadError(InvalidPipelineError):
+    pass
+
+class InvalidStageError(InvalidPipelineError):
+    pass
+
+class UnknownStageError(InvalidStageError):
+    pass
+
+
+class MigrationError(DatumaroError):
+    pass
+
+class OldProjectError(DatumaroError):
+    def __str__(self):
+        return """
+            The project you're trying to load was
+            created by the old Datumaro version. Try to migrate the
+            project with 'datum project migrate' and then reload.
+            """
+
+
+@attrs
+class ProjectNotFoundError(DatumaroError):
+    path = attrib()
+
+    def __str__(self):
+        return f"Can't find project at '{self.path}'"
+
+@attrs
+class ProjectAlreadyExists(DatumaroError):
+    path = attrib()
+
+    def __str__(self):
+        return f"Can't create project: a project already exists " \
+            f"at '{self.path}'"
+
+@attrs
+class UnknownSourceError(DatumaroError):
+    name = attrib()
+
+    def __str__(self):
+        return f"Unknown source '{self.name}'"
+
+@attrs
+class UnknownTargetError(DatumaroError):
+    name = attrib()
+
+    def __str__(self):
+        return f"Unknown target '{self.name}'"
+
 @attrs
 class UnknownFormatError(DatumaroError):
     format = attrib()
@@ -22,17 +133,11 @@ class UnknownFormatError(DatumaroError):
             "to the environment"
 
 @attrs
-class DatasetError(DatumaroError):
-    item_id = attrib()
+class SourceExistsError(DatumaroError):
+    name = attrib()
 
-@attrs
-class RepeatedItemError(DatasetError):
     def __str__(self):
-        return f"Item {self.item_id} is repeated in the source sequence."
-
-class CategoriesRedefinedError(DatasetError):
-    def __str__(self):
-        return "Categories can only be set once for a dataset"
+        return f"Source '{self.name}' already exists"
 
 
 class DatasetImportError(DatumaroError):
@@ -59,6 +164,21 @@ class NoMatchingFormatsError(DatasetImportError):
         return "Failed to detect dataset format automatically: " \
             "no matching formats found"
 
+
+@attrs
+class DatasetError(DatumaroError):
+    item_id = attrib()
+
+class CategoriesRedefinedError(DatasetError):
+    def __str__(self):
+        return "Categories can only be set once for a dataset"
+
+@attrs
+class RepeatedItemError(DatasetError):
+    def __str__(self):
+        return f"Item {self.item_id} is repeated in the source sequence."
+
+
 @attrs
 class DatasetQualityError(DatasetError):
     pass
@@ -83,6 +203,7 @@ class WrongGroupError(DatasetQualityError):
         return "Item %s: annotation group has wrong labels: " \
             "found %s, expected %s, group %s" % \
             (self.item_id, self.found, self.expected, self.group)
+
 
 @attrs
 class DatasetMergeError(DatasetError):
@@ -147,6 +268,7 @@ class DatasetValidationError(DatumaroError):
             'description': str(self),
             'severity': self.severity.name,
         }
+
 
 @attrs
 class DatasetItemValidationError(DatasetValidationError):

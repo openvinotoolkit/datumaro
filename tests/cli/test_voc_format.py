@@ -19,8 +19,12 @@ class VocIntegrationScenarios(TestCase):
     def _test_can_save_and_load(self, project_path, source_path, expected_dataset,
             dataset_format, result_path='', label_map=None):
         run(self, 'create', '-o', project_path)
-        run(self, 'add', 'path', '-p', project_path, '-f', dataset_format,
-            source_path)
+
+        extra_args = []
+        if result_path:
+            extra_args += ['-r', result_path]
+        run(self, 'add', '-p', project_path, '-f', dataset_format,
+            *extra_args, source_path)
 
         result_dir = osp.join(project_path, 'result')
         extra_args = ['--', '--save-images']
@@ -83,19 +87,17 @@ class VocIntegrationScenarios(TestCase):
 
         with TestDir() as test_dir:
             run(self, 'create', '-o', test_dir)
-            run(self, 'add', 'path', '-p', test_dir, '-f', 'voc', dataset_path)
+            run(self, 'add', '-p', test_dir, '-f', 'voc', dataset_path)
 
-            result_path = osp.join(test_dir, 'result')
             run(self, 'filter', '-p', test_dir, '-m', 'i+a',
-                '-e', "/item/annotation[occluded='False']", '-o', result_path)
+                '-e', "/item/annotation[occluded='False']")
 
-            split_path = osp.join(test_dir, 'split')
-            run(self, 'transform', '-p', result_path, '-o', split_path,
+            run(self, 'transform', '-p', test_dir,
                 '-t', 'random_split', '--', '-s', 'test:.5',
                 '-s', 'train:.5', '--seed', '1')
 
             export_path = osp.join(test_dir, 'dataset')
-            run(self, 'export', '-p', split_path, '-f', 'voc',
+            run(self, 'export', '-p', test_dir, '-f', 'voc',
                 '-o', export_path, '--', '--label-map', 'voc')
 
             parsed_dataset = Dataset.import_from(export_path, format='voc')
@@ -135,7 +137,7 @@ class VocIntegrationScenarios(TestCase):
                 'tests', 'assets', 'yolo_dataset')
 
             run(self, 'create', '-o', test_dir)
-            run(self, 'add', 'path', '-p', test_dir, '-f', 'yolo', yolo_dir)
+            run(self, 'add', '-p', test_dir, '-f', 'yolo', yolo_dir)
 
             voc_export = osp.join(test_dir, 'voc_export')
             run(self, 'export', '-p', test_dir, '-f', 'voc',
@@ -271,7 +273,7 @@ class VocIntegrationScenarios(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_voc_layout_dataset(self):
-        source_dataset = Dataset.from_iterable([
+        expected_dataset = Dataset.from_iterable([
             DatasetItem(id='2007_000001', subset='train',
                 image=np.ones((10, 20, 3)),
                 annotations=[
@@ -303,18 +305,17 @@ class VocIntegrationScenarios(TestCase):
         for format, subset, path in matrix:
             with self.subTest(format=format, subset=subset, path=path):
                 if subset:
-                    source = source_dataset.get_subset(subset)
+                    expected = expected_dataset.get_subset(subset)
                 else:
-                    source = source_dataset
+                    expected = expected_dataset
 
                 with TestDir() as test_dir:
-                    self._test_can_save_and_load(test_dir,
-                        osp.join(dataset_dir, path), source,
-                        format, result_path=path, label_map='voc')
+                    self._test_can_save_and_load(test_dir, dataset_dir,
+                        expected, format, result_path=path, label_map='voc')
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_voc_classification_dataset(self):
-        source_dataset = Dataset.from_iterable([
+        expected_dataset = Dataset.from_iterable([
             DatasetItem(id='2007_000001', subset='train',
                 image=np.ones((10, 20, 3)),
                 annotations=[Label(i) for i in range(22) if i % 2 == 1]),
@@ -332,18 +333,17 @@ class VocIntegrationScenarios(TestCase):
         for format, subset, path in matrix:
             with self.subTest(format=format, subset=subset, path=path):
                 if subset:
-                    source = source_dataset.get_subset(subset)
+                    expected = expected_dataset.get_subset(subset)
                 else:
-                    source = source_dataset
+                    expected = expected_dataset
 
                 with TestDir() as test_dir:
-                    self._test_can_save_and_load(test_dir,
-                        osp.join(dataset_dir, path), source,
-                        format, result_path=path, label_map='voc')
+                    self._test_can_save_and_load(test_dir, dataset_dir,
+                        expected, format, result_path=path, label_map='voc')
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_voc_detection_dataset(self):
-        source_dataset = Dataset.from_iterable([
+        expected_dataset = Dataset.from_iterable([
             DatasetItem(id='2007_000001', subset='train',
                 image=np.ones((10, 20, 3)),
                 annotations=[
@@ -381,18 +381,17 @@ class VocIntegrationScenarios(TestCase):
         for format, subset, path in matrix:
             with self.subTest(format=format, subset=subset, path=path):
                 if subset:
-                    source = source_dataset.get_subset(subset)
+                    expected = expected_dataset.get_subset(subset)
                 else:
-                    source = source_dataset
+                    expected = expected_dataset
 
                 with TestDir() as test_dir:
-                    self._test_can_save_and_load(test_dir,
-                        osp.join(dataset_dir, path), source,
-                        format, result_path=path, label_map='voc')
+                    self._test_can_save_and_load(test_dir, dataset_dir,
+                        expected, format, result_path=path, label_map='voc')
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_voc_segmentation_dataset(self):
-        source_dataset = Dataset.from_iterable([
+        expected_dataset = Dataset.from_iterable([
             DatasetItem(id='2007_000001', subset='train',
                 image=np.ones((10, 20, 3)),
                 annotations=[
@@ -413,14 +412,13 @@ class VocIntegrationScenarios(TestCase):
         for format, subset, path in matrix:
             with self.subTest(format=format, subset=subset, path=path):
                 if subset:
-                    source = source_dataset.get_subset(subset)
+                    expected = expected_dataset.get_subset(subset)
                 else:
-                    source = source_dataset
+                    expected = expected_dataset
 
                 with TestDir() as test_dir:
-                    self._test_can_save_and_load(test_dir,
-                        osp.join(dataset_dir, path), source,
-                        format, result_path=path, label_map='voc')
+                    self._test_can_save_and_load(test_dir, dataset_dir,
+                        expected, format, result_path=path, label_map='voc')
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_voc_action_dataset(self):
@@ -460,6 +458,5 @@ class VocIntegrationScenarios(TestCase):
                     expected = expected_dataset
 
                 with TestDir() as test_dir:
-                    self._test_can_save_and_load(test_dir,
-                        osp.join(dataset_dir, path), expected,
-                        format, result_path=path, label_map='voc')
+                    self._test_can_save_and_load(test_dir, dataset_dir,
+                        expected, format, result_path=path, label_map='voc')

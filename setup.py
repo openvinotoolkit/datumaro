@@ -34,16 +34,20 @@ def find_version(project_dir=None):
     version = version_text[match.start(1) : match.end(1)]
     return version
 
-def get_requirements():
-    with open('requirements-core.txt') as fh:
-        requirements = [fh.read()]
+CORE_REQUIREMENTS_FILE = 'requirements-core.txt'
+DEFAULT_REQUIREMENTS_FILE = 'requirements-default.txt'
 
-    if strtobool(os.getenv('DATUMARO_HEADLESS', '0').lower()):
-        requirements.append('opencv-python-headless')
-    else:
-        requirements.append('opencv-python')
+def parse_requirements(filename=CORE_REQUIREMENTS_FILE):
+    with open(filename) as fh:
+        return fh.readlines()
 
-    return requirements
+CORE_REQUIREMENTS = parse_requirements(CORE_REQUIREMENTS_FILE)
+if strtobool(os.getenv('DATUMARO_HEADLESS', '0').lower()):
+    CORE_REQUIREMENTS.append('opencv-python-headless')
+else:
+    CORE_REQUIREMENTS.append('opencv-python')
+
+DEFAULT_REQUIREMENTS = parse_requirements(DEFAULT_REQUIREMENTS_FILE)
 
 with open('README.md', 'r') as fh:
     long_description = fh.read()
@@ -61,17 +65,18 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/openvinotoolkit/datumaro",
-    packages=setuptools.find_packages(exclude=['tests*']),
+    packages=setuptools.find_packages(include=['datumaro']),
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
     python_requires='>=3.6',
-    install_requires=get_requirements(),
+    install_requires=CORE_REQUIREMENTS,
     extras_require={
         'tf': ['tensorflow'],
         'tf-gpu': ['tensorflow-gpu'],
+        'default': DEFAULT_REQUIREMENTS,
     },
     entry_points={
         'console_scripts': [

@@ -12,7 +12,6 @@ import inspect
 import logging as log
 import os
 import os.path as osp
-import shutil
 
 from datumaro.components.annotation import AnnotationType, LabelCategories
 from datumaro.components.dataset_filter import (
@@ -27,8 +26,10 @@ from datumaro.components.extractor import (
     DEFAULT_SUBSET_NAME, CategoriesInfo, DatasetItem, Extractor, IExtractor,
     ItemTransform, Transform,
 )
-from datumaro.util import error_rollback, is_method_redefined, on_error_do
+from datumaro.util import is_method_redefined
 from datumaro.util.log_utils import logging_disabled
+from datumaro.util.os_util import rmtree
+from datumaro.util.scope import on_error_do, scoped
 
 DEFAULT_FORMAT = 'datumaro'
 
@@ -790,7 +791,7 @@ class Dataset(IDataset):
     def flush_changes(self):
         self._data.flush_changes()
 
-    @error_rollback
+    @scoped
     def export(self, save_dir: str, format, **kwargs):
         inplace = (save_dir == self._source_path and format == self._format)
 
@@ -801,7 +802,7 @@ class Dataset(IDataset):
 
         save_dir = osp.abspath(save_dir)
         if not osp.exists(save_dir):
-            on_error_do(shutil.rmtree, save_dir, ignore_errors=True)
+            on_error_do(rmtree, save_dir, ignore_errors=True)
             inplace = False
         os.makedirs(save_dir, exist_ok=True)
 
@@ -839,8 +840,7 @@ class Dataset(IDataset):
         if format in env.importers:
             importer = env.make_importer(format)
             with logging_disabled(log.INFO):
-                project = importer(path, **kwargs)
-            detected_sources = list(project.config.sources.values())
+                detected_sources = importer(path, **kwargs)
         elif format in env.extractors:
             detected_sources = [{
                 'url': path, 'format': format, 'options': kwargs

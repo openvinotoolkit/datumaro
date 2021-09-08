@@ -12,6 +12,7 @@ import os
 import os.path as osp
 import shlex
 import shutil
+import weakref
 
 import numpy as np
 
@@ -24,7 +25,7 @@ _image_loading_errors = (FileNotFoundError, )
 try:
     importlib.import_module('cv2')
     _IMAGE_BACKEND = _IMAGE_BACKENDS.cv2
-except ImportError:
+except ModuleNotFoundError:
     import PIL
     _IMAGE_BACKEND = _IMAGE_BACKENDS.PIL
     _image_loading_errors = (*_image_loading_errors, PIL.UnidentifiedImageError)
@@ -178,11 +179,11 @@ IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.jpe', '.jp2',
 def find_images(dirpath: str, exts: Union[str, Iterable[str]] = None,
         recursive: bool = False, max_depth: int = None) -> Iterator[str]:
     if isinstance(exts, str):
-        exts = ['.' + exts.lower().lstrip('.')]
+        exts = {'.' + exts.lower().lstrip('.')}
     elif exts is None:
         exts = IMAGE_EXTENSIONS
     else:
-        exts = list('.' + e.lower().lstrip('.') for e in exts)
+        exts = {'.' + e.lower().lstrip('.') for e in exts}
 
     def _check_image_ext(filename: str):
         dotpos = filename.rfind('.')
@@ -200,33 +201,37 @@ def find_images(dirpath: str, exts: Union[str, Iterable[str]] = None,
 
             yield osp.join(d, filename)
 
+def is_image(path: str):
+    trunk, ext = osp.splitext(osp.basename(path))
+    return trunk and ext.lower() in IMAGE_EXTENSIONS and \
+        osp.isfile(path)
 
 class lazy_image:
     def __init__(self, path, loader=None, cache=None):
         if loader is None:
             loader = load_image
-        self.path = path
-        self.loader = loader
+        self._path = path
+        self._loader = loader
 
         # Cache:
         # - False: do not cache
         # - None: use the global cache
         # - object: an object to be used as cache
         assert cache in {None, False} or isinstance(cache, object)
-        self.cache = cache
+        self._cache = cache
 
     def __call__(self):
         image = None
-        image_id = hash(self) # path is not necessary hashable or a file path
+        cache_key = weakref.ref(self)
 
-        cache = self._get_cache(self.cache)
+        cache = self._get_cache(self._cache)
         if cache is not None:
-            image = cache.get(image_id)
+            image = cache.get(cache_key)
 
         if image is None:
-            image = self.loader(self.path)
+            image = self._loader(self._path)
             if cache is not None:
-                cache.push(image_id, image)
+                cache.push(cache_key, image)
         return image
 
     @staticmethod
@@ -236,9 +241,6 @@ class lazy_image:
         elif cache == False:
             return None
         return cache
-
-    def __hash__(self):
-        return hash((id(self), self.path, self.loader))
 
 class Image:
     def __init__(self, data: Union[None, Callable, np.ndarray] = None,
@@ -297,6 +299,8 @@ class Image:
 
     @property
     def size(self) -> Optional[Tuple[int, int]]:
+        "Returns (H, W)"
+
         if self._size is None:
             try:
                 data = self.data
@@ -319,13 +323,16 @@ class Image:
                 not self.has_data)
 
     def save(self, path):
-        src_ext = self.ext.lower()
-        dst_ext = osp.splitext(osp.basename(path))[1].lower()
+        cur_path = osp.abspath(self.path)
+        path = osp.abspath(path)
+
+        cur_ext = self.ext.lower()
+        new_ext = osp.splitext(osp.basename(path))[1].lower()
 
         os.makedirs(osp.dirname(path), exist_ok=True)
-        if src_ext == dst_ext and osp.isfile(self.path):
-            if self.path != path:
-                shutil.copyfile(self.path, path)
+        if cur_ext == new_ext and osp.isfile(cur_path):
+            if cur_path != path:
+                shutil.copyfile(cur_path, path)
         else:
             save_image(path, self.data)
 
@@ -371,14 +378,17 @@ class ByteImage(Image):
                 not self.has_data)
 
     def save(self, path):
-        src_ext = self.ext.lower()
-        dst_ext = osp.splitext(osp.basename(path))[1].lower()
+        cur_path = osp.abspath(self.path)
+        path = osp.abspath(path)
+
+        cur_ext = self.ext.lower()
+        new_ext = osp.splitext(osp.basename(path))[1].lower()
 
         os.makedirs(osp.dirname(path), exist_ok=True)
-        if src_ext == dst_ext and osp.isfile(self.path):
-            if self.path != path:
-                shutil.copyfile(self.path, path)
-        elif src_ext == dst_ext:
+        if cur_ext == new_ext and osp.isfile(cur_path):
+            if cur_path != path:
+                shutil.copyfile(cur_path, path)
+        elif cur_ext == new_ext:
             with open(path, 'wb') as f:
                 f.write(self.get_bytes())
         else:

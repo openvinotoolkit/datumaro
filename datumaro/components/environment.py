@@ -4,16 +4,13 @@
 
 from functools import partial
 from glob import glob
-from typing import Dict, Iterable
+from typing import Iterable
 import inspect
 import logging as log
 import os
 import os.path as osp
 
-import git
-
-from datumaro.components.config import Config
-from datumaro.components.config_model import Model, Source
+from datumaro.components.cli_plugin import CliPlugin, plugin_types
 from datumaro.util.os_util import import_foreign_module
 
 
@@ -41,25 +38,12 @@ class Registry:
     def __iter__(self):
         return iter(self.items)
 
-class ModelRegistry(Registry):
-    def batch_register(self, items: Dict[str, Model]):
-        for name, model in items.items():
-            self.register(name, model)
-
-
-class SourceRegistry(Registry):
-    def batch_register(self, items: Dict[str, Source]):
-        for name, source in items.items():
-            self.register(name, source)
-
 class PluginRegistry(Registry):
     def __init__(self, filter=None): #pylint: disable=redefined-builtin
         super().__init__()
         self.filter = filter
 
     def batch_register(self, values: Iterable):
-        from datumaro.components.cli_plugin import CliPlugin
-
         for v in values:
             if self.filter and not self.filter(v):
                 continue
@@ -67,62 +51,10 @@ class PluginRegistry(Registry):
 
             self.register(name, v)
 
-class GitWrapper:
-    def __init__(self, config=None):
-        self.repo = None
-
-        if config is not None and config.project_dir:
-            self.init(config.project_dir)
-
-    @staticmethod
-    def _git_dir(base_path):
-        return osp.join(base_path, '.git')
-
-    @classmethod
-    def spawn(cls, path):
-        spawn = not osp.isdir(cls._git_dir(path))
-        repo = git.Repo.init(path=path)
-        if spawn:
-            repo.config_writer().set_value("user", "name", "User") \
-                .set_value("user", "email", "user@nowhere.com") \
-                .release()
-            # gitpython does not support init, use git directly
-            repo.git.init()
-            repo.git.commit('-m', 'Initial commit', '--allow-empty')
-        return repo
-
-    def init(self, path):
-        self.repo = self.spawn(path)
-        return self.repo
-
-    def is_initialized(self):
-        return self.repo is not None
-
-    def create_submodule(self, name, dst_dir, **kwargs):
-        self.repo.create_submodule(name, dst_dir, **kwargs)
-
-    def has_submodule(self, name):
-        return name in [submodule.name for submodule in self.repo.submodules]
-
-    def remove_submodule(self, name, **kwargs):
-        return self.repo.submodule(name).remove(**kwargs)
-
-
 class Environment:
     _builtin_plugins = None
 
-    def __init__(self, config=None):
-        from datumaro.components.project import (
-            PROJECT_DEFAULT_CONFIG, PROJECT_SCHEMA,
-        )
-        config = Config(config,
-            fallback=PROJECT_DEFAULT_CONFIG, schema=PROJECT_SCHEMA)
-
-        self.models = ModelRegistry()
-        self.sources = SourceRegistry()
-
-        self.git = GitWrapper(config)
-
+    def __init__(self):
         def _filter(accept, skip=None):
             accept = (accept, ) if inspect.isclass(accept) else tuple(accept)
             skip = {skip} if inspect.isclass(skip) else set(skip or [])
@@ -134,6 +66,7 @@ class Environment:
             Extractor, Importer, ItemTransform, SourceExtractor, Transform,
         )
         from datumaro.components.launcher import Launcher
+        from datumaro.components.validator import Validator
         self._extractors = PluginRegistry(_filter(Extractor,
             skip=SourceExtractor))
         self._importers = PluginRegistry(_filter(Importer))
@@ -141,6 +74,7 @@ class Environment:
         self._converters = PluginRegistry(_filter(Converter))
         self._transforms = PluginRegistry(_filter(Transform,
             skip=ItemTransform))
+        self._validators = PluginRegistry(_filter(Validator))
         self._builtins_initialized = False
 
     def _get_plugin_registry(self, name):
@@ -168,6 +102,10 @@ class Environment:
     @property
     def transforms(self) -> PluginRegistry:
         return self._get_plugin_registry('_transforms')
+
+    @property
+    def validators(self) -> PluginRegistry:
+        return self._get_plugin_registry('_validators')
 
     @staticmethod
     def _find_plugins(plugins_dir):
@@ -208,15 +146,7 @@ class Environment:
 
     @classmethod
     def _load_plugins(cls, plugins_dir, types=None):
-        if not types:
-            from datumaro.components.converter import Converter
-            from datumaro.components.extractor import (
-                Extractor, Importer, Transform,
-            )
-            from datumaro.components.launcher import Launcher
-            types = [Extractor, Converter, Importer, Launcher, Transform]
-
-        types = tuple(types)
+        types = tuple(types or plugin_types())
 
         plugins = cls._find_plugins(plugins_dir)
 
@@ -226,11 +156,7 @@ class Environment:
                 exports = cls._import_module(module_dir, module_name, types,
                     package)
             except Exception as e:
-                module_search_error = ImportError
-                try:
-                    module_search_error = ModuleNotFoundError # python 3.6+
-                except NameError:
-                    pass
+                module_search_error = ModuleNotFoundError
 
                 message = ["Failed to import module '%s': %s", module_name, e]
                 if isinstance(e, module_search_error):
@@ -273,6 +199,7 @@ class Environment:
         self.launchers.batch_register(plugins)
         self.converters.batch_register(plugins)
         self.transforms.batch_register(plugins)
+        self.validators.batch_register(plugins)
 
     def make_extractor(self, name, *args, **kwargs):
         return self.extractors.get(name)(*args, **kwargs)
@@ -291,12 +218,6 @@ class Environment:
 
     def make_transform(self, name, *args, **kwargs):
         return partial(self.transforms.get(name), *args, **kwargs)
-
-    def register_model(self, name, model):
-        self.models.register(name, model)
-
-    def unregister_model(self, name):
-        self.models.unregister(name)
 
     def is_format_known(self, name):
         return name in self.importers or name in self.extractors

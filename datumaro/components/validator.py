@@ -5,6 +5,7 @@
 from enum import Enum, auto
 from typing import Dict, List
 
+from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.dataset import IDataset
 
 
@@ -19,7 +20,7 @@ class TaskType(Enum):
     segmentation = auto()
 
 
-class Validator:
+class Validator(CliPlugin):
     def validate(self, dataset: IDataset) -> Dict:
         """
         Returns the validation results of a dataset based on task type.

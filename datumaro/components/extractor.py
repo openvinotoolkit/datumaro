@@ -12,6 +12,7 @@ import attr
 import numpy as np
 
 from datumaro.components.annotation import AnnotationType, Categories
+from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.errors import DatasetNotFoundError
 from datumaro.util import is_method_redefined
 from datumaro.util.attrs_util import default_if_none, not_empty
@@ -172,7 +173,7 @@ class ExtractorBase(IExtractor):
                 return item
         return None
 
-class Extractor(ExtractorBase):
+class Extractor(ExtractorBase, CliPlugin):
     """
     A base class for user-defined and built-in extractors.
     Should be used in cases, where SourceExtractor is not enough,
@@ -205,9 +206,12 @@ class SourceExtractor(Extractor):
         assert subset == self._subset, '%s != %s' % (subset, self._subset)
         return super().get(id, subset or self._subset)
 
-class Importer:
+class Importer(CliPlugin):
     @classmethod
     def detect(cls, path):
+        if not path or not osp.exists(path):
+            return False
+
         return len(cls.find_sources_with_params(path)) != 0
 
     @classmethod
@@ -219,22 +223,21 @@ class Importer:
         return cls.find_sources(path)
 
     def __call__(self, path, **extra_params):
-        from datumaro.components.project import Project  # cyclic import
-        project = Project()
-
-        sources = self.find_sources_with_params(osp.normpath(path), **extra_params)
-        if len(sources) == 0:
+        if not path or not osp.exists(path):
             raise DatasetNotFoundError(path)
 
-        for desc in sources:
+        found_sources = self.find_sources_with_params(osp.normpath(path), **extra_params)
+        if not found_sources:
+            raise DatasetNotFoundError(path)
+
+        sources = []
+        for desc in found_sources:
             params = dict(extra_params)
             params.update(desc.get('options', {}))
             desc['options'] = params
+            sources.append(desc)
 
-            source_name = osp.splitext(osp.basename(desc['url']))[0]
-            project.add_source(source_name, desc)
-
-        return project
+        return sources
 
     @classmethod
     def _find_sources_recursive(cls, path: str, ext: Optional[str],
@@ -282,7 +285,7 @@ class Importer:
                     break
         return sources
 
-class Transform(ExtractorBase):
+class Transform(ExtractorBase, CliPlugin):
     """
     A base class for dataset transformations that change dataset items
     or their annotations.
