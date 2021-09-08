@@ -43,6 +43,7 @@ weight: 3
     - [Add](./command-reference/sources/#source-add)
     - [Remove](./command-reference/sources/#source-remove)
   - Projects:
+    - [Migrate](./command-reference/projects/#project-migrate)
     - [Info](./command-reference/projects/#project-info)
 - [Extending](./extending)
   - [Builtin plugins](./extending/#builtin-plugins)

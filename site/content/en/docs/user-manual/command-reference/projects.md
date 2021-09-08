@@ -5,6 +5,35 @@ description: ''
 weight: 29
 ---
 
+### Migrate project <a id="project-migrate"></a>
+
+Updates the project from an old version to the current one and saves the
+resulting project in the output directory. Projects cannot be updated
+inplace.
+
+The command tries to map the old source configuration to the new one.
+This can fail in some cases, so the command will exit with an error,
+unless `-f/--force` is specified. With this flag, the command will
+skip these errors an continue its work.
+
+Usage:
+
+``` bash
+datum project migrate [-h] -o DST_DIR [-f] [-p PROJECT_DIR] [--overwrite]
+```
+
+Parameters:
+- `-o, --output-dir` (string) - Output directory for the updated project
+- `-f, --force` - Ignore source import errors (default: False)
+- `--overwrite` - Overwrite existing files in the save directory.
+- `-p, --project` (string) - Directory of the project to operate on
+  (default: current directory).
+- `-h, --help` - Print the help message and exit.
+
+Examples:
+- Migrate a project from v1 to v2, save the new project in other dir:
+`datum project migrate -o <output/dir/>`
+
 ### Print project info <a id="project-info"></a>
 
 Prints project configuration info such as available plugins, registered models,
