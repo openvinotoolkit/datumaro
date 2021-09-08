@@ -3,7 +3,6 @@ Cython>=0.27.3 # include before pycocotools
 -r requirements-default.txt
 
 opencv-python-headless>=4.1.0.25
-pandas>=1.1.5
 
 # testing
 pytest>=5.3.5

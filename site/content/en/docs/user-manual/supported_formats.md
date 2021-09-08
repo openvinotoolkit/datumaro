@@ -1,6 +1,6 @@
 ---
-title: 'Supported dataset formats and annotations'
-linkTitle: 'Supported Formats'
+title: 'Supported Formats'
+linkTitle: 'Dataset Formats'
 description: ''
 weight: 3
 ---
@@ -74,7 +74,7 @@ List of supported formats:
   - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/sly_pointcloud_dataset)
   - [Format documentation](/docs/formats/sly_pointcloud)
 - CVAT
-  - [Format specification](https://openvinotoolkit.github.io/cvat/docs/manual/advanced/xml_format/)
+  - [Format specification](https://openvinotoolkit.github.io/cvat/docs/manual/advanced/xml_format)
   - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/cvat_dataset)
 - LabelMe
   - [Format specification](http://labelme.csail.mit.edu/Release3.0)
@@ -89,7 +89,8 @@ List of supported formats:
   - [Format specification](http://vis-www.cs.umass.edu/lfw/)
   - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/lfw_dataset)
 
-List of supported annotation types:
+### Supported annotation types <a id="annotation-types"></a>
+
 - Labels
 - Bounding boxes
 - Polygons
@@ -97,3 +98,8 @@ List of supported annotation types:
 - (Segmentation) Masks
 - (Key-)Points
 - Captions
+- 3D cuboids
+
+Datumaro does not separate datasets by tasks like classification, detection
+etc. Instead, datasets can have any annotations. When a dataset is exported
+in a specific format, only relevant annotations are exported.

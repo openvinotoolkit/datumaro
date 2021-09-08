@@ -1,8 +1,8 @@
 ---
-title: 'Obtaining project statistics'
-linkTitle: 'Get project statistics'
+title: 'Get Project Statistics'
+linkTitle: 'Statistics'
 description: ''
-weight: 18
+weight: 16
 ---
 
 This command computes various project statistics, such as:
@@ -14,19 +14,28 @@ This command computes various project statistics, such as:
 Usage:
 
 ``` bash
-datum stats --help
-
-datum stats \
-    -p <project dir>
+datum stats [-h] [-p PROJECT_DIR] [target]
 ```
+
+Parameters:
+- `<target>` (string) - Target
+  [source revpath](/docs/user-manual/how_to_use_datumaro/#revpath).
+  By default, computes statistics of the merged dataset.
+- `-p, --project` (string) - Directory of the project to operate on
+  (default: current directory).
+- `-h, --help` - Print the help message and exit.
 
 Example:
 
-<details>
-
 ``` bash
 datum stats -p test_project
+```
 
+Sample output:
+
+<details>
+
+```
 {
     "annotations": {
         "labels": {
