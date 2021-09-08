@@ -230,7 +230,7 @@ def crop_covered_segments(segments, width, height,
         rles_top = []
         for j in range(i + 1, len(input_rles)):
             rle_top = input_rles[j]
-            iou = sum(mask_utils.iou(rle_bottom, rle_top, [0, 0]))[0]
+            iou = sum(mask_utils.iou(rle_bottom, rle_top, [0]))[0]
 
             if iou <= iou_threshold:
                 continue
