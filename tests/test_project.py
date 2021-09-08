@@ -10,7 +10,7 @@ from datumaro.components.annotation import Bbox, Label
 from datumaro.components.config_model import Model, Source
 from datumaro.components.dataset import DEFAULT_FORMAT, Dataset
 from datumaro.components.errors import (
-    DatasetMergeError, EmptyCommitError, ForeignChangesError, MigrationError,
+    DatasetMergeError, EmptyCommitError, ForeignChangesError,
     MismatchingObjectError, MissingObjectError, OldProjectError,
     PathOutsideSourceError, ReadonlyProjectError, SourceExistsError,
     SourceUrlInsideProjectError,
