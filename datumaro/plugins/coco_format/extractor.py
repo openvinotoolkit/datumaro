@@ -28,7 +28,7 @@ class _CocoExtractor(SourceExtractor):
     def __init__(self, path, task, *,
         merge_instance_polygons=False,
         subset=None,
-        preserve_original_category_ids=False,
+        keep_original_category_ids=False,
     ):
         assert osp.isfile(path), path
 
@@ -57,7 +57,7 @@ class _CocoExtractor(SourceExtractor):
 
             self._load_label_categories(
                 panoptic_config['categories'],
-                preserve_original_ids=preserve_original_category_ids,
+                keep_original_ids=keep_original_category_ids,
             )
 
             self._items = list(self._load_panoptic_items(panoptic_config,
@@ -66,7 +66,7 @@ class _CocoExtractor(SourceExtractor):
             loader = self._make_subset_loader(path)
             self._load_categories(
                 loader,
-                preserve_original_ids=preserve_original_category_ids,
+                keep_original_ids=keep_original_category_ids,
             )
             self._items = list(self._load_items(loader).values())
 
@@ -86,25 +86,25 @@ class _CocoExtractor(SourceExtractor):
             coco_api.createIndex()
         return coco_api
 
-    def _load_categories(self, loader, *, preserve_original_ids):
+    def _load_categories(self, loader, *, keep_original_ids):
         self._categories = {}
 
         if self._task in [CocoTask.instances, CocoTask.labels,
                 CocoTask.person_keypoints, CocoTask.stuff]:
             self._load_label_categories(
                 loader.loadCats(loader.getCatIds()),
-                preserve_original_ids=preserve_original_ids,
+                keep_original_ids=keep_original_ids,
             )
 
         if self._task == CocoTask.person_keypoints:
             self._load_person_kp_categories(loader)
 
 
-    def _load_label_categories(self, raw_cats, *, preserve_original_ids):
+    def _load_label_categories(self, raw_cats, *, keep_original_ids):
         categories = LabelCategories()
         label_map = {}
 
-        if preserve_original_ids:
+        if keep_original_ids:
             for cat in sorted(raw_cats, key=lambda cat: cat['id']):
                 label_map[cat['id']] = cat['id']
 

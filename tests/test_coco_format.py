@@ -90,7 +90,7 @@ class CocoImporterTest(TestCase):
             osp.join(DUMMY_DATASET_DIR, 'coco_instances',
                 'annotations', 'instances_train.json'),
             'coco_instances',
-            preserve_original_category_ids=True)
+            keep_original_category_ids=True)
         compare_datasets(self, expected_dataset, actual_dataset,
             require_images=True)
 
@@ -240,7 +240,7 @@ class CocoImporterTest(TestCase):
             osp.join(DUMMY_DATASET_DIR, 'coco_person_keypoints',
                 'annotations', 'person_keypoints_train.json'),
             'coco_person_keypoints',
-            preserve_original_category_ids=True)
+            keep_original_category_ids=True)
 
         compare_datasets(self, expected_dataset, actual_dataset,
             require_images=True)
@@ -325,7 +325,7 @@ class CocoImporterTest(TestCase):
             osp.join(DUMMY_DATASET_DIR, 'coco_panoptic',
                 'annotations', 'panoptic_train.json'),
             'coco_panoptic',
-            preserve_original_category_ids=True)
+            keep_original_category_ids=True)
         compare_datasets(self, expected_dataset, actual_dataset,
             require_images=True)
 
