@@ -580,6 +580,18 @@ class DatasetStorage(IDataset):
         if not (self.is_cache_initialized() or self._is_unchanged_wrapper):
             self._flush_changes = True
 
+    def update(self, patch: Union[DatasetPatch, Iterable[DatasetItem]]):
+        # TODO: provide a more efficient implementation with patch reuse
+
+        if isinstance(patch, DatasetPatch):
+            for item_id, status in patch.updated_items.items():
+                if status == ItemStatus.removed:
+                    self.remove(*item_id)
+                else:
+                    self.put(patch.data.get(*item_id))
+        else:
+            for item in patch:
+                self.put(item)
 
 class Dataset(IDataset):
     _global_eager = False
@@ -691,9 +703,9 @@ class Dataset(IDataset):
         else:
             return self.transform(XPathDatasetFilter, expr)
 
-    def update(self, items: Iterable[DatasetItem]) -> 'Dataset':
-        for item in items:
-            self.put(item)
+    def update(self, patch: Union[DatasetPatch, Iterable[DatasetItem]]) \
+            -> 'Dataset':
+        self._data.update(patch)
         return self
 
     def transform(self, method: Union[str, Type[Transform]],
@@ -793,6 +805,9 @@ class Dataset(IDataset):
 
     @scoped
     def export(self, save_dir: str, format, **kwargs):
+        if not save_dir:
+            raise ValueError("Dataset export path is not specified")
+
         inplace = (save_dir == self._source_path and format == self._format)
 
         if isinstance(format, str):
