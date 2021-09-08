@@ -733,7 +733,7 @@ def build_migrate_parser(parser_ctor=argparse.ArgumentParser):
         description="""
         Migrates the project from the old version to a new one.|n
         |n
-        Examples:
+        Examples:|n
         - Migrate a project from v1 to v2, save the new project in other dir:|n
         |s|s%(prog)s -o <output/dir/>
         """,
@@ -744,7 +744,7 @@ def build_migrate_parser(parser_ctor=argparse.ArgumentParser):
     parser.add_argument('-f', '--force', action='store_true',
         help="Ignore source import errors (default: %(default)s)")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
-        help="Directory of the project to validate (default: current dir)")
+        help="Directory of the project to migrate (default: current dir)")
     parser.add_argument('--overwrite', action='store_true',
         help="Overwrite existing files in the save directory")
     parser.set_defaults(command=migrate_command)
