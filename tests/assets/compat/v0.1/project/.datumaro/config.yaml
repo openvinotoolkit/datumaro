@@ -2,3 +2,16 @@ format_version: 1
 models: {}
 project_name: undefined
 subsets: []
+sources:
+  source1:
+    format: datumaro
+    options: {}
+    url: ''
+  source2:
+    format: datumaro
+    options: {}
+    url: annotations/test.json
+  source3:
+    format: my
+    options: {}
+    url: ''

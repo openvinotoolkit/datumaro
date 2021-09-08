@@ -13,11 +13,11 @@ import numpy as np
 
 from datumaro.components.dataset_filter import DatasetItemEncoder
 from datumaro.components.environment import Environment
-from datumaro.components.errors import ProjectNotFoundError
+from datumaro.components.errors import MigrationError, ProjectNotFoundError
 from datumaro.components.operations import (
     compute_ann_statistics, compute_image_statistics,
 )
-from datumaro.components.project import ProjectBuildTargets
+from datumaro.components.project import Project, ProjectBuildTargets
 from datumaro.components.validator import TaskType
 from datumaro.util import str_to_bool
 from datumaro.util.os_util import make_file_name
@@ -728,6 +728,49 @@ def validate_command(args):
         json.dump(report, f, indent=4, sort_keys=True,
                   default=numpy_encoder)
 
+def build_migrate_parser(parser_ctor=argparse.ArgumentParser):
+    parser = parser_ctor(help="Migrate project",
+        description="""
+        Migrates the project from the old version to a new one.|n
+        |n
+        Examples:
+        - Migrate a project from v1 to v2, save the new project in other dir:|n
+        |s|s%(prog)s -o <output/dir/>
+        """,
+        formatter_class=MultilineFormatter)
+
+    parser.add_argument('-o', '--output-dir', dest='dst_dir', required=True,
+        help="Output directory for the updated project")
+    parser.add_argument('-f', '--force', action='store_true',
+        help="Ignore source import errors (default: %(default)s)")
+    parser.add_argument('-p', '--project', dest='project_dir', default='.',
+        help="Directory of the project to validate (default: current dir)")
+    parser.add_argument('--overwrite', action='store_true',
+        help="Overwrite existing files in the save directory")
+    parser.set_defaults(command=migrate_command)
+
+    return parser
+
+@scoped
+def migrate_command(args):
+    dst_dir = args.dst_dir
+    if not args.overwrite and osp.isdir(dst_dir) and os.listdir(dst_dir):
+        raise CliException("Directory '%s' already exists "
+            "(pass --overwrite to overwrite)" % dst_dir)
+    dst_dir = osp.abspath(dst_dir)
+
+    log.debug("Migrating project from v1 to v2...")
+
+    try:
+        Project.migrate_from_v1_to_v2(args.project_dir, dst_dir,
+            skip_import_errors=args.force)
+    except Exception as e:
+        raise MigrationError("Failed to migrate the project "
+            "automatically. Try to create a new project and "
+            "add sources manually with 'datum create' and 'datum add'.") from e
+
+    log.debug("Finished")
+
 def build_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(
         description="""
@@ -746,5 +789,6 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     add_subparser(subparsers, 'info', build_info_parser)
     add_subparser(subparsers, 'stats', build_stats_parser)
     add_subparser(subparsers, 'validate', build_validate_parser)
+    add_subparser(subparsers, 'migrate', build_migrate_parser)
 
     return parser

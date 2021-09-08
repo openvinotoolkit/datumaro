@@ -10,9 +10,10 @@ from datumaro.components.annotation import Bbox, Label
 from datumaro.components.config_model import Model, Source
 from datumaro.components.dataset import DEFAULT_FORMAT, Dataset
 from datumaro.components.errors import (
-    DatasetMergeError, EmptyCommitError, ForeignChangesError,
-    MismatchingObjectError, MissingObjectError, PathOutsideSourceError,
-    ReadonlyProjectError, SourceExistsError, SourceUrlInsideProjectError,
+    DatasetMergeError, EmptyCommitError, ForeignChangesError, MigrationError,
+    MismatchingObjectError, MissingObjectError, OldProjectError,
+    PathOutsideSourceError, ReadonlyProjectError, SourceExistsError,
+    SourceUrlInsideProjectError,
 )
 from datumaro.components.extractor import DatasetItem, Extractor, ItemTransform
 from datumaro.components.launcher import Launcher
@@ -944,18 +945,47 @@ class ProjectTest(TestCase):
 class BackwardCompatibilityTests_v0_1(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
-    def test_can_load_old_project(self):
+    def test_can_migrate_old_project(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(0, subset='train', annotations=[Label(0)]),
             DatasetItem(1, subset='test', annotations=[Label(1)]),
+            DatasetItem(2, subset='train', annotations=[Label(0)]),
+            DatasetItem(1),
+            DatasetItem(2),
         ], categories=['a', 'b'])
 
         test_dir = scope_add(TestDir())
+        old_proj_dir = osp.join(test_dir, 'old_proj')
+        new_proj_dir = osp.join(test_dir, 'new_proj')
         shutil.copytree(osp.join(osp.dirname(__file__),
                 'assets', 'compat', 'v0.1', 'project'),
-            osp.join(test_dir, 'proj'))
+            old_proj_dir)
 
-        project = scope_add(Project(osp.join(test_dir, 'proj')))
+        Project.migrate_from_v1_to_v2(old_proj_dir, new_proj_dir)
+
+        project = scope_add(Project(new_proj_dir))
         loaded_dataset = project.working_tree.make_dataset()
-
         compare_datasets(self, expected_dataset, loaded_dataset)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_cant_migrate_inplace(self):
+        test_dir = scope_add(TestDir())
+        shutil.copytree(osp.join(osp.dirname(__file__),
+                'assets', 'compat', 'v0.1', 'project'),
+            test_dir)
+
+        with self.assertRaisesRegex(MigrationError, "cannot be done inplace"):
+            Project.migrate_from_v1_to_v2(test_dir, test_dir)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_cant_load_old_project(self):
+        test_dir = scope_add(TestDir())
+        proj_dir = osp.join(test_dir, 'old_proj')
+        shutil.copytree(osp.join(osp.dirname(__file__),
+                'assets', 'compat', 'v0.1', 'project'),
+            proj_dir)
+
+        with self.assertRaises(OldProjectError):
+            scope_add(Project(proj_dir))
