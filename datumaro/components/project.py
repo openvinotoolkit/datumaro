@@ -1421,6 +1421,11 @@ class Project:
             raise FileExistsError("Output path already exists")
 
         src_dir = osp.abspath(src_dir)
+        dst_dir = osp.abspath(dst_dir)
+        if src_dir == dst_dir:
+            raise MigrationError("Source and destination paths are the same. "
+                "Project migration cannot be done inplace.")
+
         old_aux_dir = osp.join(src_dir, '.datumaro')
         old_config = Config.parse(osp.join(old_aux_dir, 'config.yaml'))
         if old_config.format_version != 1:

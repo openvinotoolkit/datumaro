@@ -10,7 +10,7 @@ from datumaro.components.annotation import Bbox, Label
 from datumaro.components.config_model import Model, Source
 from datumaro.components.dataset import DEFAULT_FORMAT, Dataset
 from datumaro.components.errors import (
-    DatasetMergeError, EmptyCommitError, ForeignChangesError,
+    DatasetMergeError, EmptyCommitError, ForeignChangesError, MigrationError,
     MismatchingObjectError, MissingObjectError, OldProjectError,
     PathOutsideSourceError, ReadonlyProjectError, SourceExistsError,
     SourceUrlInsideProjectError,
@@ -966,6 +966,17 @@ class BackwardCompatibilityTests_v0_1(TestCase):
         project = scope_add(Project(new_proj_dir))
         loaded_dataset = project.working_tree.make_dataset()
         compare_datasets(self, expected_dataset, loaded_dataset)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_cant_migrate_inplace(self):
+        test_dir = scope_add(TestDir())
+        shutil.copytree(osp.join(osp.dirname(__file__),
+                'assets', 'compat', 'v0.1', 'project'),
+            test_dir)
+
+        with self.assertRaisesRegex(MigrationError, "cannot be done inplace"):
+            Project.migrate_from_v1_to_v2(test_dir, test_dir)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
