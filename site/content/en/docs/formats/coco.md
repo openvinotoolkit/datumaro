@@ -72,6 +72,12 @@ datum add path -f coco <path/to/dataset>
 It is possible to specify project name and project directory, run
 `datum create --help` for more information.
 
+Extra options for adding a source in the COCO format:
+
+- `--keep-original-category-ids`: Add dummy label categories so that
+ category indexes in the imported data source correspond to the category IDs
+ in the original annotation file.
+
 A COCO dataset directory should have the following layout:
 
 <!--lint disable fenced-code-flag-->
