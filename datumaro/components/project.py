@@ -19,8 +19,8 @@ import ruamel.yaml as yaml
 
 from datumaro.components.config import Config
 from datumaro.components.config_model import (
-    BuildStage, Model, PipelineConfig, ProjectConfig, ProjectLayout, Source,
-    TreeConfig, TreeLayout,
+    BuildStage, BuildTarget, Model, PipelineConfig, ProjectConfig,
+    ProjectLayout, Source, TreeConfig, TreeLayout,
 )
 from datumaro.components.dataset import DEFAULT_FORMAT, Dataset, IDataset
 from datumaro.components.environment import Environment
@@ -391,7 +391,7 @@ class ProjectBuilder:
 
         if working_dir_hashes is None:
             working_dir_hashes = {}
-        def _try_load_from_cache(stage_name: str, stage_config: BuildStage) \
+        def _try_load_from_disk(stage_name: str, stage_config: BuildStage) \
                 -> Dataset:
             # Check if we can restore this stage from the cache or
             # from the working directory.
@@ -405,27 +405,32 @@ class ProjectBuilder:
             data_dir = None
             cached = False
 
-            target = ProjectBuildTargets.strip_target_name(stage_name)
-            if self._tree.is_working_tree and target in self._tree.sources:
-                data_dir = self._project.source_data_dir(target)
+            source_name, source_stage_name = \
+                ProjectBuildTargets.split_target_name(stage_name)
+            if self._tree.is_working_tree and source_name in self._tree.sources:
+                target = self._tree.build_targets[source_name]
+                data_dir = self._project.source_data_dir(source_name)
+                wd_hash = working_dir_hashes.get(source_name)
 
-                wd_hash = working_dir_hashes.get(target)
-                if not wd_hash:
+                if not stage_hash and osp.isdir(data_dir) and \
+                        source_stage_name == target.head.name:
+                    pass
+                elif not wd_hash:
                     if osp.isdir(data_dir):
                         wd_hash = self._project.compute_source_hash(data_dir)
-                        working_dir_hashes[target] = wd_hash
+                        working_dir_hashes[source_name] = wd_hash
                     else:
                         log.debug("Build: skipping checking working dir '%s', "
                             "because it does not exist", data_dir)
                         data_dir = None
 
-                if stage_hash != wd_hash:
+                if stage_hash and stage_hash != wd_hash:
                     log.debug("Build: skipping loading stage '%s' from "
-                        "working dir '%s', because hashes does not match",
+                        "working dir '%s', because hashes do not match",
                         stage_name, data_dir)
                     data_dir = None
 
-            if not data_dir:
+            if not data_dir and stage_hash:
                 if self._project._is_cached(stage_hash):
                     data_dir = self._project.cache_path(stage_hash)
                     cached = True
@@ -443,7 +448,7 @@ class ProjectBuilder:
                 assert osp.isdir(data_dir), data_dir
                 log.debug("Build: loading stage '%s' from '%s'",
                     stage_name, data_dir)
-                return ProjectSourceDataset(data_dir, self._tree, target,
+                return ProjectSourceDataset(data_dir, self._tree, source_name,
                     readonly=cached or self._project.readonly)
 
             return None
@@ -459,15 +464,14 @@ class ProjectBuilder:
             stage = graph.nodes[stage_name]
             stage_config = stage['config']
             stage_type = BuildStageType[stage_config.type]
+            stage_hash = stage_config.hash
 
             assert stage.get('dataset') is None
 
-            stage_hash = stage_config.hash
-            if stage_hash:
-                dataset = _try_load_from_cache(stage_name, stage_config)
-                if dataset is not None:
-                    stage['dataset'] = dataset
-                    continue
+            dataset = _try_load_from_disk(stage_name, stage_config)
+            if dataset is not None:
+                stage['dataset'] = dataset
+                continue
 
             uninitialized_parents = []
             for p_name in graph.predecessors(stage_name):
@@ -584,9 +588,15 @@ class ProjectBuilder:
         def _can_retrieve(stage_name: str, stage_config: BuildStage):
             obj_hash = stage_config.hash
 
-            source_name = ProjectBuildTargets.strip_target_name(stage_name)
+            source_name, source_stage_name = \
+                ProjectBuildTargets.split_target_name(stage_name)
             if self._tree.is_working_tree and source_name in self._tree.sources:
+                target = self._tree.build_targets[source_name]
                 data_dir = self._project.source_data_dir(source_name)
+
+                if not obj_hash and source_stage_name == target.head.name \
+                        and osp.isdir(data_dir):
+                    return True
 
                 wd_hash = work_dir_hashes.get(source_name)
                 if not wd_hash and osp.isdir(data_dir):
@@ -663,6 +673,9 @@ class ProjectBuildTargets(CrudProxy):
 
         return data
 
+    def __getitem__(self, name) -> BuildTarget:
+        return super().__getitem__(name)
+
     def __contains__(self, key):
         if '.' in key:
             target, stage = self.split_target_name(key)
@@ -670,7 +683,7 @@ class ProjectBuildTargets(CrudProxy):
                 self._data[target].find_stage(stage) is not None
         return key in self._data
 
-    def add_target(self, name):
+    def add_target(self, name) -> BuildTarget:
         return self._data.set(name, {
             'stages': [
                 BuildStage({
@@ -1849,7 +1862,9 @@ class Project:
             raise ValueError("Source name is reserved for internal use")
 
     @scoped
-    def _download_source(self, url: str, dst_dir: str, no_cache: bool = False):
+    def _download_source(self, url: str, dst_dir: str, *,
+            no_cache: bool = False, no_hash: bool = False) \
+                -> Tuple[str, str, str]:
         assert url
         assert dst_dir
 
@@ -1869,11 +1884,14 @@ class Project:
 
         log.debug("Done")
 
-        obj_hash = self.compute_source_hash(data_dir,
-            dvcfile=dvcfile, no_cache=no_cache, allow_external=True)
-        if not no_cache:
-            log.debug("Data is added to DVC cache")
-        log.debug("Data hash: '%s'", obj_hash)
+        if not no_hash:
+            obj_hash = self.compute_source_hash(data_dir,
+                dvcfile=dvcfile, no_cache=no_cache, allow_external=True)
+            if not no_cache:
+                log.debug("Data is added to DVC cache")
+            log.debug("Data hash: '%s'", obj_hash)
+        else:
+            obj_hash = ''
 
         return obj_hash, dvcfile, data_dir
 
@@ -1946,8 +1964,9 @@ class Project:
 
     @scoped
     def import_source(self, name: str, url: Optional[str],
-            format: str, options: Optional[Dict] = None,
-            no_cache: bool = False, rpath: Optional[str] = None) -> Source:
+            format: str, options: Optional[Dict] = None, *,
+            no_cache: bool = False, no_hash: bool = False,
+            rpath: Optional[str] = None) -> Source:
         """
         Adds a new source (dataset) to the working directory of the project.
 
@@ -1962,6 +1981,9 @@ class Project:
         - options (dict) - Options for the format Extractor
         - no_cache (bool) - Don't put a copy of files into the project cache.
             Can be used to reduce project cache size.
+        - no_hash (bool) - Don't compute source data hash. Implies "no_cache".
+            Useful to reduce import time at the cost of disabled data
+            integrity checks.
         - rpath (str) - Used to specify a relative path to the dataset
             inside of the directory pointed by URL.
 
@@ -2006,6 +2028,9 @@ class Project:
         else:
             rpath = None
 
+        if no_hash:
+            no_cache = True
+
         config = Source({
             'url': (url or '').replace('\\', '/'),
             'path': (rpath or '').replace('\\', '/'),
@@ -2019,13 +2044,15 @@ class Project:
 
             with self._make_tmp_dir() as tmp_dir:
                 obj_hash, tmp_dvcfile, tmp_data_dir = \
-                    self._download_source(url, tmp_dir, no_cache=no_cache)
+                    self._download_source(url, tmp_dir,
+                        no_cache=no_cache, no_hash=no_hash)
 
                 shutil.move(tmp_data_dir, data_dir)
                 on_error_do(rmtree, data_dir)
-                os.replace(tmp_dvcfile, dvcfile)
 
-            config['hash'] = obj_hash
+                if not no_hash:
+                    os.replace(tmp_dvcfile, dvcfile)
+                    config['hash'] = obj_hash
 
         self._git.ignore([data_dir])
 
@@ -2037,8 +2064,8 @@ class Project:
 
         return config
 
-    def remove_source(self, name: str, force: bool = False,
-            keep_data: bool = True):
+    def remove_source(self, name: str, *,
+            force: bool = False, keep_data: bool = True):
         """
         Options:
         - force (bool) - ignores errors and tries to wipe remaining data
@@ -2072,7 +2099,7 @@ class Project:
 
         self._git.ignore([data_dir], mode='remove')
 
-    def commit(self, message: str, no_cache: bool = False,
+    def commit(self, message: str, *, no_cache: bool = False,
             allow_empty: bool = False, allow_foreign: bool = False) -> Revision:
         """
         Copies tree and objects from the working dir to the cache.
@@ -2144,7 +2171,7 @@ class Project:
             os.replace(osp.join(src_dir, name), osp.join(dst_dir, name))
 
     def checkout(self, rev: Union[None, Revision] = None,
-            sources: Union[None, str, Iterable[str]] = None,
+            sources: Union[None, str, Iterable[str]] = None, *,
             force: bool = False):
         """
         Copies tree and objects from cache to working tree.
@@ -2358,7 +2385,8 @@ class Project:
         return self._env.make_launcher(model.launcher,
             **model.options, model_dir=model_dir)
 
-    def add_model(self, name: str, launcher: str, options = None) -> Model:
+    def add_model(self, name: str, launcher: str,
+            options: Dict[str, Any] = None) -> Model:
         if self.readonly:
             raise ReadonlyProjectError()
 

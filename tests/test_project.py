@@ -942,6 +942,26 @@ class ProjectTest(TestCase):
         with self.subTest("make_dataset"), self.assertRaises(MissingObjectError):
             project.get_rev('HEAD').make_dataset()
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_can_import_without_hashing(self):
+        test_dir = scope_add(TestDir())
+        dataset_url = osp.join(test_dir, 'dataset')
+        dataset = Dataset.from_iterable([
+            DatasetItem('a'),
+            DatasetItem('b'),
+        ])
+        dataset.save(dataset_url)
+
+        proj_dir = osp.join(test_dir, 'proj')
+        project = scope_add(Project.init(proj_dir))
+        project.import_source('source1', url=dataset_url,
+            format=DEFAULT_FORMAT, no_hash=True)
+
+        self.assertEqual('', project.working_tree.sources['source1'].hash)
+        compare_dirs(self, dataset_url, project.source_data_dir('source1'))
+        compare_datasets(self, dataset, project.working_tree.make_dataset())
+
 class BackwardCompatibilityTests_v0_1(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
