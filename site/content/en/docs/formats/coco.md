@@ -66,7 +66,7 @@ There are two ways to create Datumaro project and add COCO dataset to it:
 datum import --format coco --input-path <path/to/dataset>
 # or
 datum create
-datum add path -f coco <path/to/dataset>
+datum add -f coco <path/to/dataset>
 ```
 
 It is possible to specify project name and project directory, run
@@ -211,7 +211,7 @@ particular problems with COCO dataset:
 
 ```bash
 datum create -o project
-datum add path -p project -f coco_panoptic ./COCO/annotations/panoptic_val2017.json
+datum add -p project -f coco_panoptic ./COCO/annotations/panoptic_val2017.json
 datum stats -p project
 datum export -p final_project -o dataset -f voc  --overwrite  -- --save-images
 ```

@@ -76,7 +76,7 @@ OpenVINO™ Trained Models.
   # source <openvino_dir>/bin/setupvars.sh
   # datum create -o <proj_dir>
   # datum model add -l <launcher> -p <proj_dir> --copy -- -d <path_to_xml> -w <path_to_bin> -i <path_to_interpreter_script>
-  # datum add path -p <proj_dir> -f <format> <path_to_dataset>
+  # datum add -p <proj_dir> -f <format> <path_to_dataset>
   # datum model run -p <proj_dir> -m model-0
   #
   # Examples
@@ -89,7 +89,7 @@ OpenVINO™ Trained Models.
       -d model/ssd_mobilenet_v2_coco.xml \
       -w model/ssd_mobilenet_v2_coco.bin \
       -i samples/ssd_mobilenet_coco_detection_interp.py
-  datum add path -p proj_ssd_mobilenet_v2_coco_detection -f voc VOCdevkit/
+  datum add -p proj_ssd_mobilenet_v2_coco_detection -f voc VOCdevkit/
   datum model run -p proj_ssd_mobilenet_v2_coco_detection -m model-0
 
   # Classification> mobilenet-v2-pytorch
@@ -100,6 +100,6 @@ OpenVINO™ Trained Models.
       -d model/mobilenet-v2-pytorch.xml \
       -w model/mobilenet-v2-pytorch.bin \
       -i samples/mobilenet_v2_pytorch_interp.py
-  datum add path -p proj_mobilenet_v2_classification -f voc VOCdevkit/
+  datum add -p proj_mobilenet_v2_classification -f voc VOCdevkit/
   datum model run -p proj_mobilenet_v2_classification -m model-0
   ```

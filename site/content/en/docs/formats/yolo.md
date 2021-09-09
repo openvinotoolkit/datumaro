@@ -29,10 +29,10 @@ datum import -o project -f yolo -i <path/to/yolo/dataset>
 
 # another way to do the same:
 datum create -o project
-datum add path -p project -f yolo -i <path/to/yolo/dataset>
+datum add -p project -f yolo -i <path/to/yolo/dataset>
 
 # and you can add another one yolo dataset:
-datum add path -p project -f yolo -i <path/to/other/yolo/dataset>
+datum add -p project -f yolo -i <path/to/other/yolo/dataset>
 ```
 
 YOLO dataset directory should have the following structure:
