@@ -962,6 +962,49 @@ class ProjectTest(TestCase):
         compare_dirs(self, dataset_url, project.source_data_dir('source1'))
         compare_datasets(self, dataset, project.working_tree.make_dataset())
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_can_check_status_of_unhashed(self):
+        test_dir = scope_add(TestDir())
+        dataset_url = osp.join(test_dir, 'dataset')
+        Dataset.from_iterable([
+            DatasetItem('a'),
+            DatasetItem('b'),
+        ]).save(dataset_url)
+
+        proj_dir = osp.join(test_dir, 'proj')
+        project = scope_add(Project.init(proj_dir))
+        project.import_source('source1', url=dataset_url,
+            format=DEFAULT_FORMAT, no_hash=True)
+        project.import_source('source2', url=dataset_url,
+            format=DEFAULT_FORMAT, no_hash=True)
+        project.working_tree.build_targets.add_transform_stage('source2',
+            'reindex')
+
+        status = project.status()
+        self.assertEqual(status['source1'], DiffStatus.added)
+        self.assertEqual(status['source2'], DiffStatus.added)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_can_commit_unhashed(self):
+        test_dir = scope_add(TestDir())
+        dataset_url = osp.join(test_dir, 'dataset')
+        Dataset.from_iterable([
+            DatasetItem('a'),
+            DatasetItem('b'),
+        ]).save(dataset_url)
+
+        proj_dir = osp.join(test_dir, 'proj')
+        project = scope_add(Project.init(proj_dir))
+        project.import_source('source1', url=dataset_url,
+            format=DEFAULT_FORMAT, no_hash=True)
+        project.commit('a commit')
+
+        self.assertNotEqual('', project.working_tree.sources['source1'].hash)
+        self.assertNotEqual('',
+            project.working_tree.build_targets['source1'].head.hash)
+
 class BackwardCompatibilityTests_v0_1(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped

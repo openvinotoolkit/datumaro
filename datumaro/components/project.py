@@ -1937,6 +1937,8 @@ class Project:
             dvcfile=dvcfile, no_cache=no_cache)
 
         build_target.head.hash = obj_hash
+        if not build_target.has_stages:
+            self.working_tree.sources[source].hash = obj_hash
 
         return obj_hash
 
@@ -2294,9 +2296,9 @@ class Project:
 
             if osp.isdir(self.source_data_dir(t_name)):
                 old_hash = wd_target.head.hash
-                new_hash = self.refresh_source_hash(t_name)
+                new_hash = self.compute_source_hash(t_name, no_cache=True)
 
-                if old_hash != new_hash:
+                if old_hash and old_hash != new_hash:
                     changed_targets[t_name] = DiffStatus.foreign_modified
 
         for t_name in set(head.build_targets) | set(wd.build_targets):
