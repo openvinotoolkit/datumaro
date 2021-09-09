@@ -25,6 +25,15 @@ class CocoImporter(Importer):
     }
 
     @classmethod
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument('--keep-original-category-ids', action='store_true',
+            help="Add dummy label categories so that category indexes"
+                " correspond to the category IDs in the original annotation"
+                " file")
+        return parser
+
+    @classmethod
     def detect(cls, path):
         with logging_disabled(log.WARN):
             return len(cls.find_sources(path)) != 0
