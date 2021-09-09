@@ -59,7 +59,7 @@ There are two ways to create Datumaro project and add MNIST dataset to it:
 datum import --format mnist --input-path <path/to/dataset>
 # or
 datum create
-datum add path -f mnist <path/to/dataset>
+datum add -f mnist <path/to/dataset>
 ```
 
 There are two ways to create Datumaro project and add MNIST in CSV dataset
@@ -69,7 +69,7 @@ to it:
 datum import --format mnist_csv --input-path <path/to/dataset>
 # or
 datum create
-datum add path -f mnist_csv <path/to/dataset>
+datum add -f mnist_csv <path/to/dataset>
 ```
 
 It is possible to specify project name and project directory run

@@ -144,7 +144,7 @@ There are two ways to create Datumaro project and add OID to it:
 datum import --format open_images --input-path <path/to/dataset>
 # or
 datum create
-datum add path -f open_images <path/to/dataset>
+datum add -f open_images <path/to/dataset>
 ```
 
 It is possible to specify project name and project directory; run
@@ -288,7 +288,7 @@ particular problems with the Open Images dataset:
 
 ```bash
 datum create -o project
-datum add path -p project -f open_images ./open-images-dataset/
+datum add -p project -f open_images ./open-images-dataset/
 datum stats -p project
 datum export -p project -o dataset -f cvat --overwrite -- --save-images
 ```

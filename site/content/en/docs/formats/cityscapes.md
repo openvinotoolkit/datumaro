@@ -28,7 +28,7 @@ There are two ways to create Datumaro project and add Cityscapes dataset to it:
 datum import --format cityscapes --input-path <path/to/dataset>
 # or
 datum create
-datum add path -f cityscapes <path/to/dataset>
+datum add -f cityscapes <path/to/dataset>
 ```
 
 It is possible to specify project name and project directory run
@@ -138,7 +138,7 @@ particular problems with Cityscapes dataset:
 
 ```bash
 datum create -o project
-datum add path -p project -f cityscapes ./Cityscapes/
+datum add -p project -f cityscapes ./Cityscapes/
 datum stats -p project
 datum export -p final_project -o dataset -f voc -- --save-images
 ```

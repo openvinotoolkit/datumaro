@@ -74,7 +74,7 @@ There are two ways to create Datumaro project and add KITTI dataset to it:
 datum import --format kitti_raw --input-path <path/to/dataset>
 # or
 datum create
-datum add path -f kitti_raw <path/to/dataset>
+datum add -f kitti_raw <path/to/dataset>
 ```
 
 To make sure that the selected dataset has been added to the project,
@@ -137,7 +137,7 @@ Extra options for exporting in KITTI Raw format:
 
 ```bash
 datum create -o project
-datum add path -p project -f kitti_raw ../../kitti_raw/
+datum add -p project -f kitti_raw ../../kitti_raw/
 datum stats -p project
 ```
 

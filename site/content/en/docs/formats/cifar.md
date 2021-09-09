@@ -37,7 +37,7 @@ There are two ways to create Datumaro project and add CIFAR dataset to it:
 datum import --format cifar --input-path <path/to/dataset>
 # or
 datum create
-datum add path -f cifar <path/to/dataset>
+datum add -f cifar <path/to/dataset>
 ```
 
 It is possible to specify project name and project directory run
