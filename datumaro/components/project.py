@@ -4,7 +4,10 @@
 
 from contextlib import ExitStack, suppress
 from enum import Enum, auto
-from typing import Any, Dict, Iterable, List, NewType, Optional, Tuple, Union
+from typing import (
+    Any, Dict, Generic, Iterable, List, NewType, Optional, Tuple, TypeVar,
+    Union,
+)
 import json
 import logging as log
 import os
@@ -157,50 +160,55 @@ def _update_ignore_file(paths: Union[str, List[str]], repo_root: str,
             print(line, file=f)
         f.truncate()
 
-class CrudProxy:
+
+CrudEntry = TypeVar('CrudEntry')
+T = TypeVar('T')
+
+class CrudProxy(Generic[CrudEntry]):
     @property
-    def _data(self):
+    def _data(self) -> Dict[str, CrudEntry]:
         raise NotImplementedError()
 
     def __len__(self):
         return len(self._data)
 
-    def __getitem__(self, name):
+    def __getitem__(self, name: str) -> CrudEntry:
         return self._data[name]
 
-    def get(self, name, default=None):
+    def get(self, name: str, default: Union[None, T, CrudEntry] = None) \
+            -> Union[None, T, CrudEntry]:
         return self._data.get(name, default)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterable[CrudEntry]:
         return iter(self._data.keys())
 
-    def items(self):
+    def items(self) -> Iterable[Tuple[str, CrudEntry]]:
         return iter(self._data.items())
 
-    def __contains__(self, name):
+    def __contains__(self, name: str):
         return name in self._data
 
-class _DataSourceBase(CrudProxy):
-    def __init__(self, project, config_field):
-        self._project = project
+class _DataSourceBase(CrudProxy[Source]):
+    def __init__(self, tree: 'Tree', config_field: str):
+        self._tree = tree
         self._field = config_field
 
     @property
-    def _data(self):
-        return self._project.config[self._field]
+    def _data(self) -> Dict[str, Source]:
+        return self._tree.config[self._field]
 
-    def add(self, name, value):
+    def add(self, name: str, value: Union[Dict, Config, Source]) -> Source:
         if name in self:
             raise SourceExistsError(name)
 
         return self._data.set(name, value)
 
-    def remove(self, name):
+    def remove(self, name: str):
         self._data.remove(name)
 
 class ProjectSources(_DataSourceBase):
-    def __init__(self, project):
-        super().__init__(project, 'sources')
+    def __init__(self, tree: 'Tree'):
+        super().__init__(tree, 'sources')
 
     def __getitem__(self, name):
         try:
@@ -639,7 +647,7 @@ class ProjectBuilder:
             checked_deps.add(stage_name)
         return missing_sources, work_dir_hashes
 
-class ProjectBuildTargets(CrudProxy):
+class ProjectBuildTargets(CrudProxy[BuildTarget]):
     MAIN_TARGET = 'project'
     BASE_STAGE = 'root'
 
@@ -672,9 +680,6 @@ class ProjectBuildTargets(CrudProxy):
                 }
 
         return data
-
-    def __getitem__(self, name) -> BuildTarget:
-        return super().__getitem__(name)
 
     def __contains__(self, key):
         if '.' in key:
