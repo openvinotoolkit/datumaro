@@ -8,7 +8,8 @@ from datumaro.components.annotation import Bbox, Label
 from datumaro.components.dataset import DEFAULT_FORMAT, Dataset
 from datumaro.components.extractor import DatasetItem
 from datumaro.components.project import Project
-from datumaro.util.test_utils import TestDir, compare_datasets
+from datumaro.util.scope import scope_add, scoped
+from datumaro.util.test_utils import TestDir, compare_datasets, compare_dirs
 from datumaro.util.test_utils import run_datum as run
 
 from ..requirements import Requirements, mark_requirement
@@ -165,3 +166,40 @@ class ProjectIntegrationScenarios(TestCase):
                     DatasetItem('qq', annotations=[Label(1)]),
                 ], categories=['cat', 'dog'])
                 compare_datasets(self, expected_dataset, built_dataset)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_can_transform_without_hash(self):
+        test_dir = scope_add(TestDir())
+        source_url = osp.join(test_dir, 'test_repo')
+        dataset = Dataset.from_iterable([
+            DatasetItem(1, annotations=[Label(0)]),
+            DatasetItem(2, annotations=[Label(1)]),
+        ], categories=['a', 'b'])
+        dataset.save(source_url)
+
+        project_dir = osp.join(test_dir, 'proj')
+        run(self, 'create', '-o', project_dir)
+        run(self, 'add', '-p', project_dir, '-n', 'source1',
+            '--format', DEFAULT_FORMAT, '--no-hash', source_url)
+        run(self, 'filter', '-p', project_dir,
+            '-e', '/item/annotation[label="b"]')
+        run(self, 'transform', '-p', project_dir,
+            '-t', 'rename', '--', '-e', '|2|qq|')
+
+        project = scope_add(Project(project_dir))
+        built_dataset = project.working_tree.make_dataset()
+
+        expected_dataset = Dataset.from_iterable([
+            DatasetItem('qq', annotations=[Label(1)]),
+        ], categories=['a', 'b'])
+        compare_datasets(self, expected_dataset, built_dataset)
+
+        with self.assertRaises(Exception):
+            compare_dirs(self, source_url, project.source_data_dir('source1'))
+
+        source1_target = project.working_tree.build_targets['source1']
+        self.assertEqual(3, len(source1_target.stages))
+        self.assertEqual('', source1_target.stages[0].hash)
+        self.assertEqual('', source1_target.stages[1].hash)
+        self.assertEqual('', source1_target.stages[2].hash)
