@@ -173,13 +173,15 @@ project.close()
   from datumaro.components.extractor import DatasetItem
   from datumaro.components.dataset import Dataset
 
-  dataset = Dataset(categories={
-    AnnotationType.label: LabelCategories.from_iterable(['cat', 'dog'])
-  })
-  dataset.put(DatasetItem(id=0, image=np.ones((5, 5, 3)), annotations=[
-    Bbox(1, 2, 3, 4, label=0),
-  ]))
-  dataset.export('test_dataset', 'coco')
+  dataset = Dataset([
+    DatasetItem(id=0, image=np.ones((5, 5, 3)),
+      annotations=[
+        Bbox(1, 2, 3, 4, label=0),
+      ]
+    ),
+    # ...
+  ], categories=['cat', 'dog'])
+  dataset.export('test_dataset/', 'coco')
   ```
 
 <!--lint enable list-item-bullet-indent-->
