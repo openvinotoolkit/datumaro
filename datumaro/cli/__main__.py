@@ -7,10 +7,13 @@ import logging as log
 import os.path as osp
 import sys
 
+from ..util.telemetry_utils import (
+    close_telemetry_session, init_telemetry_session,
+    send_command_exception_info, send_command_failure_info,
+    send_command_success_info,
+)
 from ..version import VERSION
 from . import commands, contexts
-from ..util.telemetry_utils import (init_telemetry_session, close_telemetry_session,
-    send_command_success_info, send_command_failure_info, send_command_exception_info)
 from .util import add_subparser
 from .util.errors import CliException
 

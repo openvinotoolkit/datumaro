@@ -24,7 +24,7 @@ PyYAML>=5.3.1
 tensorboardX>=1.8,!=2.3
 
 # OpenVINO telemetry library
-git+https://github.com/openvinotoolkit/telemetry.git@master#egg=openvino-telemetry
+openvino-telemetry @ git+https://github.com/openvinotoolkit/telemetry.git@master#egg=openvino-telemetry
 
 # Builtin plugin dependencies
 
