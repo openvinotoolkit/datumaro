@@ -48,7 +48,8 @@ Supported annotation attributes:
 The Pascal VOC dataset is available for free download
 [here](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/index.html#devkit)
 
-A Datumaro project with a [] source can be created the following way: Pascal VOC dataset to it:
+A Datumaro project with a [] source can be created the following way:
+Pascal VOC dataset to it:
 
 ``` bash
 datum create

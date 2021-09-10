@@ -33,7 +33,8 @@ The KITTI left color images for object detection are available [here](http://www
 The KITTI object detection labels are available [here](http://www.cvlibs.net/download.php?file=data_object_label_2.zip).
 The KITTI segmentation dataset is available [here](http://www.cvlibs.net/download.php?file=data_semantics.zip).
 
-A Datumaro project with a [] source can be created the following way: KITTI dataset to it:
+A Datumaro project with a [] source can be created the following way:
+KITTI dataset to it:
 
 ``` bash
 datum create
