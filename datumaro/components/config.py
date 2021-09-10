@@ -213,7 +213,7 @@ class Config:
                     schema_entry_instance.update(value)
                     value = schema_entry_instance
                 else:
-                    raise ValueError("Can not set key '%s' - schema mismatch:"
+                    raise ValueError("Can not set key '%s' - schema mismatch: "
                         "unexpected value type %s, expected %s" % \
                         (key, type(value), type(schema_entry_instance))
                     )
@@ -261,7 +261,7 @@ class DictConfig(Config):
                         isinstance(schema_entry_instance, Config):
                     value = schema_entry_instance
                 else:
-                   raise ValueError("Can not set key '%s' - schema mismatch:"
+                   raise ValueError("Can not set key '%s' - schema mismatch: "
                         "unexpected value type %s, expected %s" % \
                         (key, type(value), type(schema_entry_instance))
                     )

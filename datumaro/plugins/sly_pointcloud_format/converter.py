@@ -389,7 +389,7 @@ class SuperviselyPointCloudConverter(Converter):
 
     def apply(self):
         if 1 < len(self._extractor.subsets()):
-            log.warning("Supervisely pointcloud format supports only a single"
+            log.warning("Supervisely pointcloud format supports only a single "
                 "subset. Subset information will be ignored on export.")
 
         _SuperviselyPointCloudDumper(self._extractor, self).dump()
