@@ -18,7 +18,7 @@ Few ways to load unannotated datasets to your Datumaro project:
 - From existing archive:
 
 ```bash
-datum create -o project
+datum create
 datum add -f image_zip ./images.zip
 ```
 
@@ -26,7 +26,7 @@ datum add -f image_zip ./images.zip
   all zip files in the directory:
 
 ```bash
-datum create -o project
+datum create
 datum add -f image_zip ./foo
 ```
 
@@ -59,8 +59,8 @@ Datumaro can load dataset images from a zip archive and convert it to
 for example:
 
 ```bash
-datum create -o project
-datum add -f image_zip -i ./images.zip
+datum create
+datum add -f image_zip ./images.zip
 datum export -f coco -o ./new_dir -- --save-images
 ```
 
@@ -68,8 +68,8 @@ datum export -f coco -o ./new_dir -- --save-images
 
 Example: exporting images from VOC dataset to zip archives:
 ```bash
-datum create -o project
-datum add -f voc -i ./VOC2012
+datum create
+datum add -f voc ./VOC2012
 datum export -f image_zip -o ./ --overwrite -- --name voc_images.zip \
     --compression ZIP_DEFLATED
 ```

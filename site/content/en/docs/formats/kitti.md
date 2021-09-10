@@ -33,13 +33,9 @@ The KITTI left color images for object detection are available [here](http://www
 The KITTI object detection labels are available [here](http://www.cvlibs.net/download.php?file=data_object_label_2.zip).
 The KITTI segmentation dataset is available [here](http://www.cvlibs.net/download.php?file=data_semantics.zip).
 
-A Datumaro project with a [] source can be created the following way:
-KITTI dataset to it:
+A Datumaro project with a KITTI source can be created the following way:
 
 ``` bash
-datum create
-datum add --format kitti --input-path <path/to/dataset>
-# or
 datum create
 datum add -f kitti <path/to/dataset>
 ```
@@ -152,9 +148,7 @@ datum export -f kitti -- --label-map kitti
 by default Datumaro uses all tasks. Example:
 
 ```bash
-datum create -o project
-datum add -f kitti -i <dataset>
-datum export -p project -f kitti -- --tasks detection
+datum export -f kitti -- --tasks detection
 ```
 - `--allow-attributes ALLOW_ATTRIBUTES` allow export of attributes
 (by default `True`).
@@ -175,7 +169,7 @@ particular problems with KITTI dataset:
 datum create -o project
 datum add -p project -f kitti ./KITTI/
 datum stats -p project
-datum export -p final_project -o dataset -f cityscapes -- --save-images
+datum export -p project -o dataset -f cityscapes -- --save-images
 ```
 
 ### Example 2. How to create custom KITTI-like dataset
