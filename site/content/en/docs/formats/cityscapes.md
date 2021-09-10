@@ -22,17 +22,12 @@ Supported annotation attributes:
 
 The Cityscapes dataset is available for free [download](https://www.cityscapes-dataset.com/downloads/).
 
-There are two ways to create Datumaro project and add Cityscapes dataset to it:
+A Datumaro project with a Cityscapes source can be created the following way:
 
 ``` bash
-datum import --format cityscapes --input-path <path/to/dataset>
-# or
 datum create
-datum add path -f cityscapes <path/to/dataset>
+datum add --format cityscapes <path/to/dataset>
 ```
-
-It is possible to specify project name and project directory run
-`datum create --help` for more information.
 
 Cityscapes dataset directory should have the following structure:
 
@@ -81,7 +76,8 @@ that support the segmentation task (e.g. PascalVOC, CamVID, etc.)
 There are few ways to convert Cityscapes dataset to other dataset format:
 
 ``` bash
-datum project import -f cityscapes -i <path/to/cityscapes>
+datum create
+datum add -f cityscapes <path/to/cityscapes>
 datum export -f voc -o <path/to/output/dir>
 # or
 datum convert -if cityscapes -i <path/to/cityscapes> -f voc -o <path/to/output/dir>
@@ -138,7 +134,7 @@ particular problems with Cityscapes dataset:
 
 ```bash
 datum create -o project
-datum add path -p project -f cityscapes ./Cityscapes/
+datum add -p project -f cityscapes ./Cityscapes/
 datum stats -p project
 datum export -p final_project -o dataset -f voc -- --save-images
 ```
@@ -160,14 +156,14 @@ label_map['label_2'] = (3, 2, 1)
 categories = Cityscapes.make_cityscapes_categories(label_map)
 
 dataset = Dataset.from_iterable([
-    DatasetItem(id=1,
-        image=np.ones((1, 5, 3)),
-        annotations=[
-            Mask(image=np.array([[1, 0, 0, 1, 1]]), label=1),
-            Mask(image=np.array([[0, 1, 1, 0, 0]]), label=2, id=2,
-                attributes={'is_crowd': False}),
-        ]
-    ),
+  DatasetItem(id=1,
+    image=np.ones((1, 5, 3)),
+    annotations=[
+      Mask(image=np.array([[1, 0, 0, 1, 1]]), label=1),
+      Mask(image=np.array([[0, 1, 1, 0, 0]]), label=2, id=2,
+        attributes={'is_crowd': False}),
+    ]
+  ),
 ], categories=categories)
 
 dataset.export('./dataset', format='cityscapes')

@@ -146,7 +146,8 @@ Parameters:
 Example: launch inference on a dataset
 
 ``` bash
-datum import <...>
+datum create
+datum add <...>
 datum model add mymodel <...>
 datum model run -m mymodel -o inference
 ```

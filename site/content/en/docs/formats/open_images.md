@@ -138,13 +138,14 @@ All annotation files are optional,
 except that if the mask metadata files for a given subset are downloaded,
 all corresponding images must be downloaded as well, and vice versa.
 
-There are two ways to create Datumaro project and add OID to it:
+A Datumaro project with a [] source can be created the following way: OID to it:
 
 ``` bash
-datum import --format open_images --input-path <path/to/dataset>
+datum create
+datum add --format open_images --input-path <path/to/dataset>
 # or
 datum create
-datum add path -f open_images <path/to/dataset>
+datum add -f open_images <path/to/dataset>
 ```
 
 It is possible to specify project name and project directory; run
@@ -238,7 +239,8 @@ that supports image-level labels.
 There are a few ways to convert OID to other dataset format:
 
 ``` bash
-datum project import -f open_images -i <path/to/open_images>
+datum create
+datum add -f open_images <path/to/open_images>
 datum export -f cvat -o <path/to/output/dir>
 # or
 datum convert -if open_images -i <path/to/open_images> -f cvat -o <path/to/output/dir>
@@ -288,7 +290,7 @@ particular problems with the Open Images dataset:
 
 ```bash
 datum create -o project
-datum add path -p project -f open_images ./open-images-dataset/
+datum add -p project -f open_images ./open-images-dataset/
 datum stats -p project
 datum export -p project -o dataset -f cvat --overwrite -- --save-images
 ```

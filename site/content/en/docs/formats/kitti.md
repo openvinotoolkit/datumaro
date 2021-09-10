@@ -33,13 +33,14 @@ The KITTI left color images for object detection are available [here](http://www
 The KITTI object detection labels are available [here](http://www.cvlibs.net/download.php?file=data_object_label_2.zip).
 The KITTI segmentation dataset is available [here](http://www.cvlibs.net/download.php?file=data_semantics.zip).
 
-There are two ways to create Datumaro project and add KITTI dataset to it:
+A Datumaro project with a [] source can be created the following way: KITTI dataset to it:
 
 ``` bash
-datum import --format kitti --input-path <path/to/dataset>
+datum create
+datum add --format kitti --input-path <path/to/dataset>
 # or
 datum create
-datum add path -f kitti <path/to/dataset>
+datum add -f kitti <path/to/dataset>
 ```
 
 It is possible to specify project name and project directory run
@@ -83,7 +84,7 @@ of KITTI dataset instead of the whole dataset,
 for example:
 
 ``` bash
-datum add path -f kitti_detection <path/to/dataset>
+datum add -f kitti_detection <path/to/dataset>
 ```
 
 To make sure that the selected dataset has been added to the project, you can
@@ -101,7 +102,8 @@ saved in `Cityscapes` format, but no as `COCO keypoints`.
 There are few ways to convert KITTI dataset to other dataset format:
 
 ``` bash
-datum project import -f kitti -i <path/to/kitti>
+datum create
+datum add -f kitti <path/to/kitti>
 datum export -f cityscapes -o <path/to/output/dir>
 # or
 datum convert -if kitti -i <path/to/kitti> -f cityscapes -o <path/to/output/dir>
@@ -149,7 +151,8 @@ datum export -f kitti -- --label-map kitti
 by default Datumaro uses all tasks. Example:
 
 ```bash
-datum import -o project -f kitti -i <dataset>
+datum create
+datum add -o project -f kitti -i <dataset>
 datum export -p project -f kitti -- --tasks detection
 ```
 - `--allow-attributes ALLOW_ATTRIBUTES` allow export of attributes
@@ -169,7 +172,7 @@ particular problems with KITTI dataset:
 
 ```bash
 datum create -o project
-datum add path -p project -f kitti ./KITTI/
+datum add -p project -f kitti ./KITTI/
 datum stats -p project
 datum export -p final_project -o dataset -f cityscapes -- --save-images
 ```

@@ -48,13 +48,14 @@ Supported annotation attributes:
 The Pascal VOC dataset is available for free download
 [here](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/index.html#devkit)
 
-There are two ways to create Datumaro project and add Pascal VOC dataset to it:
+A Datumaro project with a [] source can be created the following way: Pascal VOC dataset to it:
 
 ``` bash
-datum import --format voc --input-path <path/to/dataset>
+datum create
+datum add --format voc --input-path <path/to/dataset>
 # or
 datum create
-datum add path -f voc <path/to/dataset>
+datum add -f voc <path/to/dataset>
 ```
 
 It is possible to specify project name and project directory run
@@ -141,7 +142,7 @@ of Pascal VOC dataset instead of the whole dataset,
 for example:
 
 ``` bash
-datum add path -f voc_detection <path/to/dataset/ImageSets/Main/train.txt>
+datum add -f voc_detection <path/to/dataset/ImageSets/Main/train.txt>
 ```
 
 To make sure that the selected dataset has been added to the project, you
@@ -160,7 +161,8 @@ saved in `ImageNet` format, but no as `COCO keypoints`.
 There are few ways to convert Pascal VOC dataset to other dataset format:
 
 ``` bash
-datum import -f voc -i <path/to/voc>
+datum create
+datum add -f voc <path/to/voc>
 datum export -f coco -o <path/to/output/dir>
 # or
 datum convert -if voc -i <path/to/voc> -f coco -o <path/to/output/dir>
@@ -208,7 +210,8 @@ Extra options for export to Pascal VOC format:
   by default Datumaro uses all tasks. Example:
 
 ```bash
-datum import -o project -f voc -i ./VOC2012
+datum create
+datum add -o project -f voc -i ./VOC2012
 datum export -p project -f voc -- --tasks detection,classification
 ```
 
@@ -245,7 +248,7 @@ export the result to Pascal VOC format.
 
 ```bash
 datum create -o project
-datum add path -p project -f voc_segmentation ./VOC2012/ImageSets/Segmentation/trainval.txt
+datum add -p project -f voc_segmentation ./VOC2012/ImageSets/Segmentation/trainval.txt
 datum stats -p project # check statisctics.json -> repeated images
 datum transform -p project -o ndr_project -t ndr -- -w trainval -k 2500
 datum filter -p ndr_project -o trainval2500 -e '/item[subset="trainval"]'

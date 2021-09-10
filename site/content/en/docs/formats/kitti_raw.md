@@ -68,13 +68,11 @@ provides an option to use a special index file to allow this.
 ...
 ```
 
-There are two ways to create Datumaro project and add KITTI dataset to it:
+A Datumaro project with a KITTI source can be created the following way:
 
 ```bash
-datum import --format kitti_raw --input-path <path/to/dataset>
-# or
 datum create
-datum add path -f kitti_raw <path/to/dataset>
+datum add --format kitti_raw <path/to/dataset>
 ```
 
 To make sure that the selected dataset has been added to the project,
@@ -94,8 +92,9 @@ but not in COCO keypoints.
 There are few ways to convert KITTI Raw dataset to other dataset format:
 
 ``` bash
-datum import -f kitti_raw -i <path/to/kitti_raw> -o proj/
-datum export -f sly_pointcloud -o <path/to/output/dir> -p proj/
+datum create
+datum add -f kitti_raw <path/to/kitti_raw>
+datum export -f sly_pointcloud -o <path/to/output/dir>
 # or
 datum convert -if kitti_raw -i <path/to/kitti_raw> -f sly_pointcloud
 ```
@@ -137,7 +136,7 @@ Extra options for exporting in KITTI Raw format:
 
 ```bash
 datum create -o project
-datum add path -p project -f kitti_raw ../../kitti_raw/
+datum add -p project -f kitti_raw ../../kitti_raw/
 datum stats -p project
 ```
 
