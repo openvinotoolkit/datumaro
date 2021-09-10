@@ -118,7 +118,8 @@ project.close()
   ```bash
   # Download COCO dataset http://cocodataset.org/#download
   # Put images to coco/images/ and annotations to coco/annotations/
-  datum import --format coco --input-path <path/to/coco>
+  datum create
+  datum add --format coco <path/to/coco>
   datum export --filter '/image[images_I_dont_like]' --format cvat \
     --output-dir reannotation
   # import dataset and images to CVAT, re-annotate
@@ -137,7 +138,8 @@ project.close()
 - Apply an OpenVINO detection model to some COCO-like dataset,
   then compare annotations with ground truth and visualize in TensorBoard:
   ```bash
-  datum import --format coco --input-path <path/to/coco>
+  datum create
+  datum add --format coco <path/to/coco>
   # create model results interpretation script
   datum model add mymodel openvino \
     --weights model.bin --description model.xml \
@@ -148,7 +150,8 @@ project.close()
 
 - Change colors in PASCAL VOC-like `.png` masks:
   ```bash
-  datum import --format voc --input-path <path/to/voc/dataset>
+  datum create
+  datum add --format voc <path/to/voc/dataset>
 
   # Create a color map file with desired colors:
   #

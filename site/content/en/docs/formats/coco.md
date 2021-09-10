@@ -60,13 +60,11 @@ Annotations:
 - [person_keypoints](http://images.cocodataset.org/annotations/annotations_trainval2017.zip)
 - [stuff](http://images.cocodataset.org/annotations/stuff_annotations_trainval2017.zip)
 
-There are two ways to create Datumaro project and add COCO dataset to it:
+A Datumaro project with a COCO source can be created the following way:
 
 ``` bash
-datum import --format coco --input-path <path/to/dataset>
-# or
 datum create
-datum add -f coco <path/to/dataset>
+datum add --format coco <path/to/dataset>
 ```
 
 It is possible to specify project name and project directory, run
@@ -131,7 +129,8 @@ instead of the whole dataset. This option also allows to import annotation
 files with non-default names. For example:
 
 ``` bash
-datum import --format coco_stuff --input-path <path/to/stuff.json>
+datum create
+datum add --format coco_stuff <path/to/dataset> -r <relpath/to/stuff.json>
 ```
 
 To make sure that the selected dataset has been added to the project, you can
@@ -150,7 +149,8 @@ that support the specified task (e.g. for panoptic segmentation - VOC, CamVID)
 There are few ways to convert COCO dataset to other dataset format:
 
 ``` bash
-datum project import -f coco -i <path/to/coco>
+datum create
+datum add -f coco <path/to/coco>
 datum export -f voc -o <path/to/output/dir>
 # or
 datum convert -if coco -i <path/to/coco> -f voc -o <path/to/output/dir>
@@ -199,8 +199,9 @@ Extra options for export to COCO format:
   by default Datumaro uses all tasks. Example:
 
 ```bash
-datum import -o project -f coco -i <dataset>
-datum export -p project -f coco -- --tasks instances,stuff
+datum create
+datum add -f coco <path/to/dataset>
+datum export -f coco -- --tasks instances,stuff
 ```
 
 ## Examples
@@ -231,18 +232,18 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import DatasetItem
 
 dataset = Dataset.from_iterable([
-    DatasetItem(id='000000000001',
-                image=np.ones((1, 5, 3)),
-                subset='val',
-                attributes={'id': 40},
-                annotations=[
-                    Mask(image=np.array([[0, 0, 1, 1, 0]]), label=3,
-                        id=7, group=7, attributes={'is_crowd': False}),
-                    Mask(image=np.array([[0, 1, 0, 0, 1]]), label=1,
-                        id=20, group=20, attributes={'is_crowd': True}),
-                ]
-            ),
-    ], categories=['a', 'b', 'c', 'd'])
+  DatasetItem(id='000000000001',
+    image=np.ones((1, 5, 3)),
+    subset='val',
+    attributes={'id': 40},
+    annotations=[
+      Mask(image=np.array([[0, 0, 1, 1, 0]]), label=3,
+        id=7, group=7, attributes={'is_crowd': False}),
+      Mask(image=np.array([[0, 1, 0, 0, 1]]), label=1,
+        id=20, group=20, attributes={'is_crowd': True}),
+    ]
+  ),
+], categories=['a', 'b', 'c', 'd'])
 
 dataset.export('./dataset', format='coco_panoptic')
 ```

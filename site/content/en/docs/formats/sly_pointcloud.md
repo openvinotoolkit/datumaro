@@ -63,7 +63,8 @@ Point Cloud dataset directory should have the following structure:
 There are two ways to import Supervisely Point Cloud dataset:
 
 ```bash
-datum import --format sly_pointcloud --input-path <path/to/dataset>
+datum create
+datum add --format sly_pointcloud --input-path <path/to/dataset>
 # or
 datum create
 datum add -f sly_pointcloud <path/to/dataset>
@@ -87,8 +88,9 @@ There are few ways to convert Supervisely Point Cloud dataset
 to other dataset formats:
 
 ``` bash
-datum import -f sly_pointcloud -i <path/to/sly_pcd/> -o proj/
-datum export -f kitti_raw -o <path/to/output/dir> -p proj/
+datum create
+datum add -f sly_pointcloud <path/to/sly_pcd/>
+datum export -f kitti_raw -o <path/to/output/dir>
 # or
 datum convert -if sly_pointcloud -i <path/to/sly_pcd/> -f kitti_raw
 ```

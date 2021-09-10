@@ -53,27 +53,13 @@ The MNIST in CSV dataset is available for free download:
 - [mnist_train.csv](https://pjreddie.com/media/files/mnist_train.csv)
 - [mnist_test.csv](https://pjreddie.com/media/files/mnist_test.csv)
 
-There are two ways to create Datumaro project and add MNIST dataset to it:
+A Datumaro project with a MNIST source can be created the following way:
 
 ``` bash
-datum import --format mnist --input-path <path/to/dataset>
-# or
 datum create
-datum add -f mnist <path/to/dataset>
+datum add --format mnist --input-path <path/to/dataset>
+datum add --format mnist_csv --input-path <path/to/dataset>
 ```
-
-There are two ways to create Datumaro project and add MNIST in CSV dataset
-to it:
-
-``` bash
-datum import --format mnist_csv --input-path <path/to/dataset>
-# or
-datum create
-datum add -f mnist_csv <path/to/dataset>
-```
-
-It is possible to specify project name and project directory run
-`datum create --help` for more information.
 
 MNIST dataset directory should have the following structure:
 
@@ -123,7 +109,8 @@ that support the classification task (e.g. CIFAR-10/100, ImageNet, PascalVOC,
 etc.) There are few ways to convert MNIST dataset to other dataset format:
 
 ``` bash
-datum project import -f mnist -i <path/to/mnist>
+datum create
+datum add -f mnist <path/to/mnist>
 datum export -f imagenet -o <path/to/output/dir>
 # or
 datum convert -if mnist -i <path/to/mnist> -f imagenet -o <path/to/output/dir>
