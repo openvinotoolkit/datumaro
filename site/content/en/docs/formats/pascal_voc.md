@@ -211,8 +211,8 @@ Extra options for export to Pascal VOC format:
   by default Datumaro uses all tasks. Example:
 
 ```bash
-datum create
-datum add -o project -f voc -i ./VOC2012
+datum create -o project
+datum add -f voc -i ./VOC2012
 datum export -p project -f voc -- --tasks detection,classification
 ```
 
