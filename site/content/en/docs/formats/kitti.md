@@ -15,7 +15,7 @@ Supported tasks / formats:
   The format specification is available in `README.md` [here](https://s3.eu-central-1.amazonaws.com/avg-kitti/devkit_object.zip).
 - [Segmentation](http://www.cvlibs.net/datasets/kitti/eval_semseg.php?benchmark=semantics2015) - `kitti_segmentation`
   The format specification is available in `README.md` [here](https://s3.eu-central-1.amazonaws.com/avg-kitti/devkit_semantics.zip).
-- Raw 3D / Velodyne Points - described [here](/kitti_raw.md)
+- Raw 3D / Velodyne Points - described [here](/formats/kitti_raw)
 
 Supported annotation types:
 - `Bbox` (object detection)
@@ -33,12 +33,9 @@ The KITTI left color images for object detection are available [here](http://www
 The KITTI object detection labels are available [here](http://www.cvlibs.net/download.php?file=data_object_label_2.zip).
 The KITTI segmentation dataset is available [here](http://www.cvlibs.net/download.php?file=data_semantics.zip).
 
-A Datumaro project with a [] source can be created the following way: KITTI dataset to it:
+A Datumaro project with a KITTI source can be created the following way:
 
 ``` bash
-datum create
-datum add --format kitti --input-path <path/to/dataset>
-# or
 datum create
 datum add -f kitti <path/to/dataset>
 ```
@@ -92,7 +89,7 @@ run `datum info`, which will display the project and dataset information.
 
 ## Export to other formats
 
-Datumaro can convert KITTI dataset into any other format [Datumaro supports](/docs/user-manual/supported-formats/).
+Datumaro can convert KITTI dataset into any other format [Datumaro supports](/docs/user-manual/supported_formats/).
 
 Such conversion will only be successful if the output
 format can represent the type of dataset you want to convert,
@@ -151,9 +148,7 @@ datum export -f kitti -- --label-map kitti
 by default Datumaro uses all tasks. Example:
 
 ```bash
-datum create
-datum add -o project -f kitti -i <dataset>
-datum export -p project -f kitti -- --tasks detection
+datum export -f kitti -- --tasks detection
 ```
 - `--allow-attributes ALLOW_ATTRIBUTES` allow export of attributes
 (by default `True`).
@@ -174,7 +169,7 @@ particular problems with KITTI dataset:
 datum create -o project
 datum add -p project -f kitti ./KITTI/
 datum stats -p project
-datum export -p final_project -o dataset -f cityscapes -- --save-images
+datum export -p project -o dataset -f cityscapes -- --save-images
 ```
 
 ### Example 2. How to create custom KITTI-like dataset

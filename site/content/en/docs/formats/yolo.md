@@ -100,15 +100,13 @@ width and height. The `x_center` and `y_center` are center of rectangle
 ## Export to other formats
 
 Datumaro can convert YOLO dataset into any other format
-[Datumaro supports](/docs/user-manual/supported-formats/).
+[Datumaro supports](/docs/user-manual/supported_formats/).
 For successful conversion the output format should support
 object detection task (e.g. Pascal VOC, COCO, TF Detection API etc.)
 
 Examples:
 ```bash
-datum create
-datum add -o project -f yolo <path/to/yolo/dataset>
-datum export -p project -f voc -o <path/to/output/voc/dataset>
+datum export -f voc -o <output/dir/>
 ```
 
 ```bash
@@ -125,8 +123,8 @@ Example:
 
 ```
 datum create
-datum add -p project -f coco_instances <path/to/coco/dataset>
-datum export -p project -f yolo -o <path/to/output/yolo/dataset> -- --save-images
+datum add -f coco_instances <path/to/dataset>
+datum export -f yolo -o <path/to/output/yolo/dataset> -- --save-images
 ```
 
 Extra options for export to YOLO format:
@@ -141,8 +139,8 @@ for exporting dataset (default: use original or `.jpg`, if none).
 ### Example 1. Prepare PASCAL VOC dataset for exporting to YOLO format dataset
 
 ```bash
-datum create
-datum add -o project -f voc ./VOC2012
+datum create -o project
+datum add -p project -f voc ./VOC2012
 datum filter -p project -e '/item[subset="train" or subset="val"]' -o trainval_voc
 datum transform -p trainval_voc -o trainvalid_voc \
     -t map_subsets -- -s train:train -s val:valid
@@ -153,8 +151,8 @@ datum export -p trainvalid_voc -f yolo -o ./yolo_dataset -- --save-images
 Delete all items, which contain `cat` objects and remove
 `cat` from list of classes:
 ```bash
-datum create
-datum add -o project -f yolo ./yolo_dataset
+datum create -o project
+datum add -p project -f yolo ./yolo_dataset
 datum filter -p project -o filtered -m i+a -e '/item/annotation[label!="cat"]'
 datum transform -p filtered -o without_cat -t remap_labels -- -l cat:
 datum export -p without_cat -f yolo -o ./yolo_without_cats
@@ -206,6 +204,6 @@ for item in dataset:
 And If you want complete information about each item you can run:
 ```bash
 datum create -o project
-datum add -o project -f yolo ./yolo_dataset
+datum add -p project -f yolo ./yolo_dataset
 datum filter -p project --dry-run -e '/item'
 ```

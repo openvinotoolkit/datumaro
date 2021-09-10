@@ -77,7 +77,7 @@ information.
 ## Export to other formats
 
 Datumaro can convert Supervisely Point Cloud dataset into any other
-format [Datumaro supports](/docs/user-manual/supported-formats/).
+format [Datumaro supports](/docs/user-manual/supported_formats/).
 
 Such conversion will only be successful if the output
 format can represent the type of dataset you want to convert,

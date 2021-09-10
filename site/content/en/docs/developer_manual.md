@@ -418,6 +418,7 @@ flowchart LR
     m===id6[run]:::hideclass
     m===id7[info]:::hideclass
   d===p
+    p===migrate:::hideclass
     p===info:::hideclass
   d====str1[create]:::filloneclass
   d====str2[add]:::filloneclass

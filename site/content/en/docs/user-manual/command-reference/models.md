@@ -52,7 +52,7 @@ datum model add \
 
 Interpretation script for an OpenVINO detection model (`convert.py`):
 You can find OpenVINO model interpreter samples in
-`datumaro/plugins/openvino/samples` ([instruction](datumaro/plugins/openvino/README)).
+`datumaro/plugins/openvino/samples` ([instruction](/docs/plugins/openvino_plugin)).
 
 ``` python
 from datumaro.components.extractor import *

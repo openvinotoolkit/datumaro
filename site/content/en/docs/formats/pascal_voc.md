@@ -48,14 +48,11 @@ Supported annotation attributes:
 The Pascal VOC dataset is available for free download
 [here](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/index.html#devkit)
 
-A Datumaro project with a [] source can be created the following way: Pascal VOC dataset to it:
+A Datumaro project with a Pascal VOC source can be created the following way:
 
 ``` bash
 datum create
-datum add --format voc --input-path <path/to/dataset>
-# or
-datum create
-datum add -f voc <path/to/dataset>
+datum add --format voc <path/to/dataset>
 ```
 
 It is possible to specify project name and project directory run
@@ -142,7 +139,7 @@ of Pascal VOC dataset instead of the whole dataset,
 for example:
 
 ``` bash
-datum add -f voc_detection <path/to/dataset/ImageSets/Main/train.txt>
+datum add -f voc_detection -r ImageSets/Main/train.txt <path/to/dataset>
 ```
 
 To make sure that the selected dataset has been added to the project, you
@@ -151,7 +148,7 @@ can run `datum info`, which will display the project and dataset information.
 ## Export to other formats
 
 Datumaro can convert Pascal VOC dataset into any other format
-[Datumaro supports](/docs/user-manual/supported-formats).
+[Datumaro supports](/docs/user-manual/supported_formats).
 
 Such conversion will only be successful if the output
 format can represent the type of dataset you want to convert,
@@ -210,9 +207,7 @@ Extra options for export to Pascal VOC format:
   by default Datumaro uses all tasks. Example:
 
 ```bash
-datum create
-datum add -o project -f voc -i ./VOC2012
-datum export -p project -f voc -- --tasks detection,classification
+datum export -f voc -- --tasks detection,classification
 ```
 
 - `--label_map` allow to define a custom colormap. Example
