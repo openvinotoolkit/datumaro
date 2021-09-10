@@ -22,17 +22,11 @@ weight: 11
 
 ## Load YOLO dataset
 
-Few ways to create Datumaro project and add YOLO dataset to it:
+A Datumaro project with a YOLO source can be created the following way:
 
 ```bash
-datum import -o project -f yolo -i <path/to/yolo/dataset>
-
-# another way to do the same:
-datum create -o project
-datum add path -p project -f yolo -i <path/to/yolo/dataset>
-
-# and you can add another one yolo dataset:
-datum add path -p project -f yolo -i <path/to/other/yolo/dataset>
+datum create
+datum add --format yolo <path/to/dataset>
 ```
 
 YOLO dataset directory should have the following structure:
@@ -51,14 +45,14 @@ YOLO dataset directory should have the following structure:
    │    ├── image1.jpg
    │    ├── image2.txt
    │    ├── image2.jpg
-   │    ├── ...
+   │    └── ...
    │
-   ├── obj_valid_data/  # directory with annotations and images for valid subset
-   │    ├── image101.txt
-   │    ├── image101.jpg
-   │    ├── image102.txt
-   │    ├── image102.jpg
-   │    ├── ...
+   └── obj_valid_data/  # directory with annotations and images for valid subset
+        ├── image101.txt
+        ├── image101.jpg
+        ├── image102.txt
+        ├── image102.jpg
+        └── ...
 ```
 > YOLO dataset cannot contain a subset with a name other than `train` or `valid`.
   If imported dataset contains such subsets, they will be ignored.
@@ -106,19 +100,18 @@ width and height. The `x_center` and `y_center` are center of rectangle
 ## Export to other formats
 
 Datumaro can convert YOLO dataset into any other format
-[Datumaro supports](/docs/user-manual/supported-formats/).
+[Datumaro supports](/docs/user-manual/supported_formats/).
 For successful conversion the output format should support
 object detection task (e.g. Pascal VOC, COCO, TF Detection API etc.)
 
 Examples:
 ```bash
-datum import -o project -f yolo -i <path/to/yolo/dataset>
-datum export -p project -f voc -o <path/to/output/voc/dataset>
+datum export -f voc -o <output/dir>
 ```
 
 ```bash
-datum convert -if yolo -i <path/to/yolo/dataset> \
-              -f coco_instances -o <path/to/output/coco/dataset>
+datum convert -if yolo -i <path/to/dataset> \
+              -f coco_instances -o <path/to/dataset>
 ```
 
 ## Export to YOLO format
@@ -129,8 +122,9 @@ if the dataset supports object detection task.
 Example:
 
 ```
-datum import -p project -f coco_instances -i <path/to/coco/dataset>
-datum export -p project -f yolo -o <path/to/output/yolo/dataset> -- --save-images
+datum create
+datum add -f coco_instances <path/to/dataset>
+datum export -f yolo -o <path/to/dataset> -- --save-images
 ```
 
 Extra options for export to YOLO format:
@@ -145,21 +139,22 @@ for exporting dataset (default: use original or `.jpg`, if none).
 ### Example 1. Prepare PASCAL VOC dataset for exporting to YOLO format dataset
 
 ```bash
-datum import -o project -f voc -i ./VOC2012
-datum filter -p project -e '/item[subset="train" or subset="val"]' -o trainval_voc
-datum transform -p trainval_voc -o trainvalid_voc \
-    -t map_subsets -- -s train:train -s val:valid
-datum export -p trainvalid_voc -f yolo -o ./yolo_dataset -- --save-images
+datum create -o project
+datum add -p project -f voc ./VOC2012
+datum filter -p project -e '/item[subset="train" or subset="val"]'
+datum transform -p project -t map_subsets -- -s train:train -s val:valid
+datum export -p project -f yolo -- --save-images
 ```
 
 ### Example 2. Remove some class from YOLO dataset
 Delete all items, which contain `cat` objects and remove
 `cat` from list of classes:
 ```bash
-datum import -o project -f yolo -i ./yolo_dataset
-datum filter -p project -o filtered -m i+a -e '/item/annotation[label!="cat"]'
-datum transform -p filtered -o without_cat -t remap_labels -- -l cat:
-datum export -p without_cat -f yolo -o ./yolo_without_cats
+datum create -o project
+datum add -p project -f yolo ./yolo_dataset
+datum filter -p project -m i+a -e '/item/annotation[label!="cat"]'
+datum transform -p project -t remap_labels -- -l cat:
+datum export -p project -f yolo -o ./yolo_without_cats
 ```
 
 ### Example 3. Create custom dataset in YOLO format
@@ -192,6 +187,7 @@ dataset.export('../yolo_dataset', format='yolo', save_images=True)
 
 If you only want information about label names for each
 images, then you can get it from code:
+
 ```python
 from datumaro.components.annotation import AnnotationType
 from datumaro.components.dataset import Dataset
@@ -204,8 +200,9 @@ for item in dataset:
         print(item.id, cats[ann.label].name)
 ```
 
-And If you want complete information about each items you can run:
+And If you want complete information about each item you can run:
 ```bash
-datum import -o project -f yolo -i ./yolo_dataset
+datum create -o project
+datum add -p project -f yolo ./yolo_dataset
 datum filter -p project --dry-run -e '/item'
 ```

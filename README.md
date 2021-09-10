@@ -26,7 +26,7 @@ CVAT annotations                             ---> Publication, statistics etc.
 
 [(Back to top)](#dataset-management-framework-datumaro)
 
-- Dataset reading, writing, conversion in any direction. [Supported formats](https://openvinotoolkit.github.io/datumaro/docs/user-manual/supported-formats):
+- Dataset reading, writing, conversion in any direction. [Supported formats](https://openvinotoolkit.github.io/datumaro/docs/user-manual/supported_formats):
   - [COCO](http://cocodataset.org/#format-data) (`image_info`, `instances`, `person_keypoints`, `captions`, `labels`, `panoptic`, `stuff`)
   - [PASCAL VOC](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/htmldoc/index.html) (`classification`, `detection`, `segmentation`, `action_classification`, `person_layout`)
   - [YOLO](https://github.com/AlexeyAB/darknet#how-to-train-pascal-voc-data) (`bboxes`)

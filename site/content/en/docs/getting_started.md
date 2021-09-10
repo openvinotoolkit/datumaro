@@ -107,10 +107,8 @@ project.close()
   [CVAT](https://github.com/openvinotoolkit/cvat) project to TFrecord:
   ```bash
   # export Datumaro dataset in CVAT UI, extract somewhere, go to the project dir
-  datum filter -e '/item/annotation[occluded="False"]' \
-    --mode items+anno --output-dir not_occluded
-  datum export --project not_occluded \
-    --format tf_detection_api -- --save-images
+  datum filter -e '/item/annotation[occluded="False"]' --mode items+anno
+  datum export --format tf_detection_api -- --save-images
   ```
 
 - Annotate MS COCO dataset, extract image subset, re-annotate it in
@@ -118,12 +116,12 @@ project.close()
   ```bash
   # Download COCO dataset http://cocodataset.org/#download
   # Put images to coco/images/ and annotations to coco/annotations/
-  datum import --format coco --input-path <path/to/coco>
-  datum export --filter '/image[images_I_dont_like]' --format cvat \
-    --output-dir reannotation
+  datum create
+  datum add --format coco <path/to/coco>
+  datum export --filter '/image[images_I_dont_like]' --format cvat
   # import dataset and images to CVAT, re-annotate
   # export Datumaro project, extract to 'reannotation-upd'
-  datum merge reannotation-upd
+  datum project update reannotation-upd
   datum export --format coco
   ```
 
@@ -137,18 +135,20 @@ project.close()
 - Apply an OpenVINO detection model to some COCO-like dataset,
   then compare annotations with ground truth and visualize in TensorBoard:
   ```bash
-  datum import --format coco --input-path <path/to/coco>
+  datum create
+  datum add --format coco <path/to/coco>
   # create model results interpretation script
-  datum model add mymodel openvino \
+  datum model add -n mymodel openvino \
     --weights model.bin --description model.xml \
     --interpretation-script parse_results.py
-  datum model run --model mymodel --output-dir mymodel_inference/
+  datum model run --model -n mymodel --output-dir mymodel_inference/
   datum diff mymodel_inference/ --format tensorboard --output-dir diff
   ```
 
 - Change colors in PASCAL VOC-like `.png` masks:
   ```bash
-  datum import --format voc --input-path <path/to/voc/dataset>
+  datum create
+  datum add --format voc <path/to/voc/dataset>
 
   # Create a color map file with desired colors:
   #
@@ -173,13 +173,15 @@ project.close()
   from datumaro.components.extractor import DatasetItem
   from datumaro.components.dataset import Dataset
 
-  dataset = Dataset(categories={
-    AnnotationType.label: LabelCategories.from_iterable(['cat', 'dog'])
-  })
-  dataset.put(DatasetItem(id=0, image=np.ones((5, 5, 3)), annotations=[
-    Bbox(1, 2, 3, 4, label=0),
-  ]))
-  dataset.export('test_dataset', 'coco')
+  dataset = Dataset([
+    DatasetItem(id=0, image=np.ones((5, 5, 3)),
+      annotations=[
+        Bbox(1, 2, 3, 4, label=0),
+      ]
+    ),
+    # ...
+  ], categories=['cat', 'dog'])
+  dataset.export('test_dataset/', 'coco')
   ```
 
 <!--lint enable list-item-bullet-indent-->
