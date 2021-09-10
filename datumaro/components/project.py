@@ -1972,7 +1972,7 @@ class Project:
     @scoped
     def import_source(self, name: str, url: Optional[str],
             format: str, options: Optional[Dict] = None, *,
-            no_cache: bool = False, no_hash: bool = False,
+            no_cache: bool = True, no_hash: bool = True,
             rpath: Optional[str] = None) -> Source:
         """
         Adds a new source (dataset) to the working directory of the project.
