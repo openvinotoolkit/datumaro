@@ -91,11 +91,11 @@ export as TFrecord for TF Detection API for model training
 ``` bash
 datum create
 # 'default' is the name of the subset below
-datum add -f coco_instances -i <path/to/coco/instances_default.json>
-datum add -f cvat -i <path/to/cvat/default.xml>
-datum add -f voc_detection -i <path/to/voc> -r custom_subset_dir/default.txt
-datum add -f datumaro -i <path/to/datumaro/default.json>
-datum add -f image_dir -i <path/to/images/dir>
+datum add -f coco_instances -r annotations/instances_default.json path/to/coco
+datum add -f cvat <path/to/cvat/default.xml>
+datum add -f voc_detection -r custom_subset_dir/default.txt <path/to/voc>
+datum add -f datumaro <path/to/datumaro/default.json>
+datum add -f image_dir <path/to/images/dir>
 datum export -f tf_detection_api -- --save-images
 ```
 
@@ -122,6 +122,6 @@ Example:
 
 ``` bash
 datum create
-datum add -f voc -i <path/to/dataset/> -n src1
+datum add -f voc -n src1 <path/to/dataset/>
 datum remove src1
 ```
