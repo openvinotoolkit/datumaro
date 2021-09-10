@@ -102,7 +102,7 @@ CIFAR-100:
 
 ## Export to other formats
 
-Datumaro can convert CIFAR dataset into any other format [Datumaro supports](/docs/user-manual/supported-formats).
+Datumaro can convert CIFAR dataset into any other format [Datumaro supports](/docs/user-manual/supported_formats).
 To get the expected result, convert the dataset to formats
 that support the classification task (e.g. MNIST, ImageNet, PascalVOC,
 etc.) There are few ways to convert CIFAR dataset to other dataset format:

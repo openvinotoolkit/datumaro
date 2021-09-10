@@ -103,7 +103,7 @@ Ankle boot
 
 ## Export to other formats
 
-Datumaro can convert MNIST dataset into any other format [Datumaro supports](/docs/user-manual/supported-formats/).
+Datumaro can convert MNIST dataset into any other format [Datumaro supports](/docs/user-manual/supported_formats/).
 To get the expected result, convert the dataset to formats
 that support the classification task (e.g. CIFAR-10/100, ImageNet, PascalVOC,
 etc.) There are few ways to convert MNIST dataset to other dataset format:

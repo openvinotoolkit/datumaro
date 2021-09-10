@@ -100,7 +100,7 @@ width and height. The `x_center` and `y_center` are center of rectangle
 ## Export to other formats
 
 Datumaro can convert YOLO dataset into any other format
-[Datumaro supports](/docs/user-manual/supported-formats/).
+[Datumaro supports](/docs/user-manual/supported_formats/).
 For successful conversion the output format should support
 object detection task (e.g. Pascal VOC, COCO, TF Detection API etc.)
 

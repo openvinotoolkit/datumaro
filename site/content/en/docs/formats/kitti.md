@@ -15,7 +15,7 @@ Supported tasks / formats:
   The format specification is available in `README.md` [here](https://s3.eu-central-1.amazonaws.com/avg-kitti/devkit_object.zip).
 - [Segmentation](http://www.cvlibs.net/datasets/kitti/eval_semseg.php?benchmark=semantics2015) - `kitti_segmentation`
   The format specification is available in `README.md` [here](https://s3.eu-central-1.amazonaws.com/avg-kitti/devkit_semantics.zip).
-- Raw 3D / Velodyne Points - described [here](/kitti_raw.md)
+- Raw 3D / Velodyne Points - described [here](/formats/kitti_raw)
 
 Supported annotation types:
 - `Bbox` (object detection)
@@ -92,7 +92,7 @@ run `datum info`, which will display the project and dataset information.
 
 ## Export to other formats
 
-Datumaro can convert KITTI dataset into any other format [Datumaro supports](/docs/user-manual/supported-formats/).
+Datumaro can convert KITTI dataset into any other format [Datumaro supports](/docs/user-manual/supported_formats/).
 
 Such conversion will only be successful if the output
 format can represent the type of dataset you want to convert,

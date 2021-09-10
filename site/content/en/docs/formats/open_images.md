@@ -233,7 +233,7 @@ find images -name '*.jpg' -exec \
 
 ## Export to other formats
 
-Datumaro can convert OID into any other format [Datumaro supports](/docs/user-manual/supported-formats).
+Datumaro can convert OID into any other format [Datumaro supports](/docs/user-manual/supported_formats).
 To get the expected result, convert the dataset to a format
 that supports image-level labels.
 There are a few ways to convert OID to other dataset format:

@@ -70,7 +70,7 @@ run `datum info`, which will display the project and dataset information.
 
 ## Export to other formats
 
-Datumaro can convert Cityscapes dataset into any other format [Datumaro supports](/docs/user-manual/supported-formats/).
+Datumaro can convert Cityscapes dataset into any other format [Datumaro supports](/docs/user-manual/supported_formats/).
 To get the expected result, convert the dataset to formats
 that support the segmentation task (e.g. PascalVOC, CamVID, etc.)
 There are few ways to convert Cityscapes dataset to other dataset format:

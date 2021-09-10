@@ -49,13 +49,13 @@ The directory with zip archives should have the following structure:
 ```
 
 Images in a archives should have supported extension,
-follow the [user manual](/docs/user-manual/data-formats/) to see the supported
+follow the [user manual](/docs/user-manual/media_formats/) to see the supported
 extensions.
 
 ## Export to other formats
 
 Datumaro can load dataset images from a zip archive and convert it to
-[another supported dataset format](/docs/user-manual/supported-formats),
+[another supported dataset format](/docs/user-manual/supported_formats),
 for example:
 
 ```bash

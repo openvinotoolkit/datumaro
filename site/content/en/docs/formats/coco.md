@@ -143,7 +143,7 @@ Notes:
 
 ## Export to other formats
 
-Datumaro can convert COCO dataset into any other format [Datumaro supports](/docs/user-manual/supported-formats/).
+Datumaro can convert COCO dataset into any other format [Datumaro supports](/docs/user-manual/supported_formats/).
 To get the expected result, convert the dataset to formats
 that support the specified task (e.g. for panoptic segmentation - VOC, CamVID)
 There are few ways to convert COCO dataset to other dataset format:

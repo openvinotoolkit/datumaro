@@ -7,7 +7,7 @@ weight: 7
 
 This command allows to convert a dataset from one format to another.
 The command is a usability alias for [`create`](../create),
-[`add`](../source_add) and [`export`](../export) and just provides a simpler
+[`add`](../sources/#sources-add) and [`export`](../export) and just provides a simpler
 way to obtain the same results in simple cases. A list of supported
 formats can be found in the `--help` output of this command.
 

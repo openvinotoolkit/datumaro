@@ -151,7 +151,7 @@ can run `datum info`, which will display the project and dataset information.
 ## Export to other formats
 
 Datumaro can convert Pascal VOC dataset into any other format
-[Datumaro supports](/docs/user-manual/supported-formats).
+[Datumaro supports](/docs/user-manual/supported_formats).
 
 Such conversion will only be successful if the output
 format can represent the type of dataset you want to convert,
