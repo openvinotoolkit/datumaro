@@ -597,17 +597,18 @@ def info_command(args):
     for source_name, source in rev.sources.items():
         print("  '%s':" % source_name)
         print("    format:", source.format)
-        print("    url:", source.url)
-        print("    location:",
-            osp.join(project.source_data_dir(source_name), source.path))
+        print("    url:", osp.abspath(source.url) if source.url else '')
+        print("    location:", osp.abspath(osp.join(
+            project.source_data_dir(source_name), source.path)))
         print("    options:", source.options)
-        print("    hash:", source.hash)
 
         print("    stages:")
         for stage in rev.build_targets[source_name].stages:
             print("      '%s':" % stage.name)
             print("        type:", stage.type)
             print("        hash:", stage.hash)
+            print("        cached:",
+                project.is_obj_cached(stage.hash) if stage.hash else 'n/a')
             if stage.kind:
                 print("        kind:", stage.kind)
             if stage.params:
