@@ -341,11 +341,8 @@ def filter_command(args):
 
     if args.stage:
         for target in targets:
-            had_hash = bool(project.working_tree.build_targets[target].head.hash)
             project.working_tree.build_targets.add_filter_stage(target,
                 expr=filter_expr, params=filter_args)
-            if had_hash:
-                project.refresh_source_hash(target)
         project.working_tree.save()
 
     return 0
@@ -488,11 +485,8 @@ def transform_command(args):
 
     if args.stage:
         for target in targets:
-            had_hash = bool(project.working_tree.build_targets[target].head.hash)
             project.working_tree.build_targets.add_transform_stage(target,
                 args.transform, params=extra_args)
-            if had_hash:
-                project.refresh_source_hash(target)
         project.working_tree.save()
 
     return 0
