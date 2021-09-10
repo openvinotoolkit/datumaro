@@ -94,16 +94,10 @@ There are few ways to convert KITTI Raw dataset to other dataset format:
 ``` bash
 datum create
 datum add -f kitti_raw <path/to/kitti_raw>
-datum export -f sly_pointcloud -o <path/to/output/dir>
+datum export -f sly_pointcloud -o <output/dir>
 # or
 datum convert -if kitti_raw -i <path/to/kitti_raw> -f sly_pointcloud
 ```
-
-Some formats provide extra options for conversion.
-These options are passed after double dash (`--`) in the command line.
-To get information about them, run
-
-`datum export -f <FORMAT> -- -h`
 
 ## Export to KITTI Raw
 
@@ -111,11 +105,11 @@ There are few ways to convert dataset to KITTI Raw format:
 
 ``` bash
 # export dataset into KITTI Raw format from existing project
-datum export -p <path/to/project> -f kitti_raw -o <path/to/export/dir> \
+datum export -p <path/to/project> -f kitti_raw -o <output/dir> \
     -- --save-images
 # converting to KITTI Raw format from other format
-datum convert -if sly_pointcloud -i <path/to/sly_pcd/dataset> \
-    -f kitti_raw -o <path/to/export/dir> -- --save-images --reindex
+datum convert -if sly_pointcloud -i <path/to/dataset> \
+    -f kitti_raw -o <output/dir> -- --save-images --reindex
 ```
 
 Extra options for exporting in KITTI Raw format:
@@ -136,7 +130,7 @@ Extra options for exporting in KITTI Raw format:
 
 ```bash
 datum create -o project
-datum add -p project -f kitti_raw ../../kitti_raw/
+datum add -p project -f kitti_raw ../kitti_raw/
 datum stats -p project
 ```
 

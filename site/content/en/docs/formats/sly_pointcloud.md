@@ -90,16 +90,10 @@ to other dataset formats:
 ``` bash
 datum create
 datum add -f sly_pointcloud <path/to/sly_pcd/>
-datum export -f kitti_raw -o <path/to/output/dir>
+datum export -f kitti_raw -o <output/dir>
 # or
 datum convert -if sly_pointcloud -i <path/to/sly_pcd/> -f kitti_raw
 ```
-
-Some formats provide extra options for conversion.
-These options are passed after double dash (`--`) in the command line.
-To get information about them, run
-
-`datum export -f <FORMAT> -- -h`
 
 ## Export to Supervisely Point Cloud
 
@@ -107,11 +101,11 @@ There are few ways to convert dataset to Supervisely Point Cloud format:
 
 ``` bash
 # export dataset into Supervisely Point Cloud format from existing project
-datum export -p <path/to/project> -f sly_pointcloud -o <path/to/export/dir> \
+datum export -p <path/to/project> -f sly_pointcloud -o <output/dir> \
     -- --save-images
 # converting to Supervisely Point Cloud format from other format
-datum convert -if kitti_raw -i <path/to/kitti_raw/dataset> \
-    -f sly_pointcloud -o <path/to/export/dir> -- --save-images
+datum convert -if kitti_raw -i <path/to/dataset> \
+    -f sly_pointcloud -o <output/dir> -- --save-images
 ```
 
 Extra options for exporting in Supervisely Point Cloud format:

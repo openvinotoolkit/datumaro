@@ -110,9 +110,10 @@ etc.) There are few ways to convert CIFAR dataset to other dataset format:
 ``` bash
 datum create
 datum add -f cifar <path/to/cifar>
-datum export -f imagenet -o <path/to/output/dir>
+datum export -f imagenet -o <output/dir>
 # or
-datum convert -if cifar -i <path/to/cifar> -f imagenet -o <path/to/output/dir>
+datum convert -if cifar -i <path/to/dataset> \
+    -f imagenet -o <output/dir> -- --save-images
 ```
 
 ## Export to CIFAR
@@ -121,11 +122,12 @@ There are few ways to convert dataset to CIFAR format:
 
 ``` bash
 # export dataset into CIFAR format from existing project
-datum export -p <path/to/project> -f cifar -o <path/to/export/dir> \
+datum export -p <path/to/project> -f cifar -o <output/dir> \
     -- --save-images
+
 # converting to CIFAR format from other format
-datum convert -if imagenet -i <path/to/imagenet/dataset> \
-    -f cifar -o <path/to/export/dir> -- --save-images
+datum convert -if imagenet -i <path/to/dataset> \
+    -f cifar -o <output/dir> -- --save-images
 ```
 
 Extra options for export to CIFAR format:

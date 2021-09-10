@@ -59,19 +59,18 @@ Datumaro can load dataset images from a zip archive and convert it to
 for example:
 
 ```bash
-datum create
-datum add -f image_zip ./images.zip
-datum export -f coco -o ./new_dir -- --save-images
+datum create -o project
+datum add -p project -f image_zip ./images.zip
+datum export -p project -f coco -o ./new_dir -- --save-images
 ```
 
 ## Export unannotated dataset to zip archive
 
 Example: exporting images from VOC dataset to zip archives:
 ```bash
-datum create
-datum add -f voc ./VOC2012
-datum export -f image_zip -o ./ --overwrite -- --name voc_images.zip \
-    --compression ZIP_DEFLATED
+datum create -o project
+datum add -p project -f voc ./VOC2012
+datum export -p project -f image_zip -- --name voc_images.zip
 ```
 
 Extra options for export to image_zip format:

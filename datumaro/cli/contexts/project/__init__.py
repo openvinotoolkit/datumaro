@@ -735,7 +735,7 @@ def build_migrate_parser(parser_ctor=argparse.ArgumentParser):
         |n
         Examples:|n
         - Migrate a project from v1 to v2, save the new project in other dir:|n
-        |s|s%(prog)s -o <output/dir/>
+        |s|s%(prog)s -o <output/dir>
         """,
         formatter_class=MultilineFormatter)
 

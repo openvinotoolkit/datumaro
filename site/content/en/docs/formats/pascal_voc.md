@@ -160,17 +160,11 @@ There are few ways to convert Pascal VOC dataset to other dataset format:
 ``` bash
 datum create
 datum add -f voc <path/to/voc>
-datum export -f coco -o <path/to/output/dir>
+datum export -f coco -o <output/dir>
 # or
-datum convert -if voc -i <path/to/voc> -f coco -o <path/to/output/dir>
+datum convert -if voc -i <path/to/voc> -f coco -o <output/dir>
 
 ```
-
-Some formats provide extra options for conversion.
-These options are passed after double dash (`--`) in the command line.
-To get information about them, run
-
-`datum export -f <FORMAT> -- -h`
 
 ## Export to Pascal VOC
 
@@ -178,11 +172,11 @@ There are few ways to convert an existing dataset to Pascal VOC format:
 
 ``` bash
 # export dataset into Pascal VOC format (classification) from existing project
-datum export -p <path/to/project> -f voc -o <path/to/export/dir> -- --tasks classification
+datum export -p <path/to/project> -f voc -o <output/dir> -- --tasks classification
 
 # converting to Pascal VOC format from other format
-datum convert -if imagenet -i <path/to/imagenet/dataset> \
-    -f voc -o <path/to/export/dir> \
+datum convert -if imagenet -i <path/to/dataset> \
+    -f voc -o <output/dir> \
     -- --label_map voc --save-images
 ```
 
@@ -245,10 +239,10 @@ export the result to Pascal VOC format.
 datum create -o project
 datum add -p project -f voc_segmentation ./VOC2012/ImageSets/Segmentation/trainval.txt
 datum stats -p project # check statisctics.json -> repeated images
-datum transform -p project -o ndr_project -t ndr -- -w trainval -k 2500
-datum filter -p ndr_project -o trainval2500 -e '/item[subset="trainval"]'
-datum transform -p trainval2500 -o final_project -t random_split -- -s train:.8 -s val:.2
-datum export -p final_project -o dataset -f voc -- --label-map voc --save-images
+datum transform -p project -t ndr -- -w trainval -k 2500
+datum filter -p project -e '/item[subset="trainval"]'
+datum transform -p project -t random_split -- -s train:.8 -s val:.2
+datum export -p project -f voc -- --label-map voc --save-images
 ```
 
 ### Example 2. How to create custom dataset

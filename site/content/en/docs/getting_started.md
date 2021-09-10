@@ -107,10 +107,8 @@ project.close()
   [CVAT](https://github.com/openvinotoolkit/cvat) project to TFrecord:
   ```bash
   # export Datumaro dataset in CVAT UI, extract somewhere, go to the project dir
-  datum filter -e '/item/annotation[occluded="False"]' \
-    --mode items+anno --output-dir not_occluded
-  datum export --project not_occluded \
-    --format tf_detection_api -- --save-images
+  datum filter -e '/item/annotation[occluded="False"]' --mode items+anno
+  datum export --format tf_detection_api -- --save-images
   ```
 
 - Annotate MS COCO dataset, extract image subset, re-annotate it in
@@ -120,11 +118,10 @@ project.close()
   # Put images to coco/images/ and annotations to coco/annotations/
   datum create
   datum add --format coco <path/to/coco>
-  datum export --filter '/image[images_I_dont_like]' --format cvat \
-    --output-dir reannotation
+  datum export --filter '/image[images_I_dont_like]' --format cvat
   # import dataset and images to CVAT, re-annotate
   # export Datumaro project, extract to 'reannotation-upd'
-  datum merge reannotation-upd
+  datum project update reannotation-upd
   datum export --format coco
   ```
 
@@ -141,10 +138,10 @@ project.close()
   datum create
   datum add --format coco <path/to/coco>
   # create model results interpretation script
-  datum model add mymodel openvino \
+  datum model add -n mymodel openvino \
     --weights model.bin --description model.xml \
     --interpretation-script parse_results.py
-  datum model run --model mymodel --output-dir mymodel_inference/
+  datum model run --model -n mymodel --output-dir mymodel_inference/
   datum diff mymodel_inference/ --format tensorboard --output-dir diff
   ```
 

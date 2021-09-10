@@ -32,7 +32,7 @@ Parameters:
 
 Examples:
 - Migrate a project from v1 to v2, save the new project in other dir:
-`datum project migrate -o <output/dir/>`
+`datum project migrate -o <output/dir>`
 
 ### Print project info <a id="project-info"></a>
 

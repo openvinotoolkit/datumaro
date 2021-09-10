@@ -26,7 +26,7 @@ A Datumaro project with a YOLO source can be created the following way:
 
 ```bash
 datum create
-datum add -f yolo <path/to/yolo/dataset>
+datum add --format yolo <path/to/dataset>
 ```
 
 YOLO dataset directory should have the following structure:
@@ -45,14 +45,14 @@ YOLO dataset directory should have the following structure:
    │    ├── image1.jpg
    │    ├── image2.txt
    │    ├── image2.jpg
-   │    ├── ...
+   │    └── ...
    │
-   ├── obj_valid_data/  # directory with annotations and images for valid subset
-   │    ├── image101.txt
-   │    ├── image101.jpg
-   │    ├── image102.txt
-   │    ├── image102.jpg
-   │    ├── ...
+   └── obj_valid_data/  # directory with annotations and images for valid subset
+        ├── image101.txt
+        ├── image101.jpg
+        ├── image102.txt
+        ├── image102.jpg
+        └── ...
 ```
 > YOLO dataset cannot contain a subset with a name other than `train` or `valid`.
   If imported dataset contains such subsets, they will be ignored.
@@ -106,12 +106,12 @@ object detection task (e.g. Pascal VOC, COCO, TF Detection API etc.)
 
 Examples:
 ```bash
-datum export -f voc -o <output/dir/>
+datum export -f voc -o <output/dir>
 ```
 
 ```bash
-datum convert -if yolo -i <path/to/yolo/dataset> \
-              -f coco_instances -o <path/to/output/coco/dataset>
+datum convert -if yolo -i <path/to/dataset> \
+              -f coco_instances -o <path/to/dataset>
 ```
 
 ## Export to YOLO format
@@ -124,7 +124,7 @@ Example:
 ```
 datum create
 datum add -f coco_instances <path/to/dataset>
-datum export -f yolo -o <path/to/output/yolo/dataset> -- --save-images
+datum export -f yolo -o <path/to/dataset> -- --save-images
 ```
 
 Extra options for export to YOLO format:
@@ -141,10 +141,9 @@ for exporting dataset (default: use original or `.jpg`, if none).
 ```bash
 datum create -o project
 datum add -p project -f voc ./VOC2012
-datum filter -p project -e '/item[subset="train" or subset="val"]' -o trainval_voc
-datum transform -p trainval_voc -o trainvalid_voc \
-    -t map_subsets -- -s train:train -s val:valid
-datum export -p trainvalid_voc -f yolo -o ./yolo_dataset -- --save-images
+datum filter -p project -e '/item[subset="train" or subset="val"]'
+datum transform -p project -t map_subsets -- -s train:train -s val:valid
+datum export -p project -f yolo -- --save-images
 ```
 
 ### Example 2. Remove some class from YOLO dataset
@@ -153,9 +152,9 @@ Delete all items, which contain `cat` objects and remove
 ```bash
 datum create -o project
 datum add -p project -f yolo ./yolo_dataset
-datum filter -p project -o filtered -m i+a -e '/item/annotation[label!="cat"]'
-datum transform -p filtered -o without_cat -t remap_labels -- -l cat:
-datum export -p without_cat -f yolo -o ./yolo_without_cats
+datum filter -p project -m i+a -e '/item/annotation[label!="cat"]'
+datum transform -p project -t remap_labels -- -l cat:
+datum export -p project -f yolo -o ./yolo_without_cats
 ```
 
 ### Example 3. Create custom dataset in YOLO format

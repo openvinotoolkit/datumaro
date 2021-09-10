@@ -57,8 +57,8 @@ A Datumaro project with a MNIST source can be created the following way:
 
 ``` bash
 datum create
-datum add --format mnist --input-path <path/to/dataset>
-datum add --format mnist_csv --input-path <path/to/dataset>
+datum add --format mnist <path/to/dataset>
+datum add --format mnist_csv <path/to/dataset>
 ```
 
 MNIST dataset directory should have the following structure:
@@ -111,9 +111,9 @@ etc.) There are few ways to convert MNIST dataset to other dataset format:
 ``` bash
 datum create
 datum add -f mnist <path/to/mnist>
-datum export -f imagenet -o <path/to/output/dir>
+datum export -f imagenet -o <output/dir>
 # or
-datum convert -if mnist -i <path/to/mnist> -f imagenet -o <path/to/output/dir>
+datum convert -if mnist -i <path/to/mnist> -f imagenet -o <output/dir>
 ```
 
 These commands also work for MNIST in CSV if you use `mnist_csv` instead of `mnist`.
@@ -124,11 +124,11 @@ There are few ways to convert dataset to MNIST format:
 
 ``` bash
 # export dataset into MNIST format from existing project
-datum export -p <path/to/project> -f mnist -o <path/to/export/dir> \
+datum export -p <path/to/project> -f mnist -o <output/dir> \
     -- --save-images
 # converting to MNIST format from other format
-datum convert -if imagenet -i <path/to/imagenet/dataset> \
-    -f mnist -o <path/to/export/dir> -- --save-images
+datum convert -if imagenet -i <path/to/dataset> \
+    -f mnist -o <output/dir> -- --save-images
 ```
 
 Extra options for export to MNIST format:

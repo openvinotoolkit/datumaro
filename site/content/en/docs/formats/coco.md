@@ -130,7 +130,7 @@ files with non-default names. For example:
 
 ``` bash
 datum create
-datum add --format coco_stuff <path/to/dataset> -r <relpath/to/stuff.json>
+datum add --format coco_stuff -r <relpath/to/stuff.json> <path/to/dataset>
 ```
 
 To make sure that the selected dataset has been added to the project, you can
@@ -151,16 +151,10 @@ There are few ways to convert COCO dataset to other dataset format:
 ``` bash
 datum create
 datum add -f coco <path/to/coco>
-datum export -f voc -o <path/to/output/dir>
+datum export -f voc -o <output/dir>
 # or
-datum convert -if coco -i <path/to/coco> -f voc -o <path/to/output/dir>
+datum convert -if coco -i <path/to/coco> -f voc -o <output/dir>
 ```
-
-Some formats provide extra options for conversion.
-These options are passed after double dash (`--`) in the command line.
-To get information about them, run
-
-`datum export -f <FORMAT> -- -h`
 
 ## Export to COCO
 
@@ -168,11 +162,11 @@ There are few ways to convert dataset to COCO format:
 
 ``` bash
 # export dataset into COCO format from existing project
-datum export -p <path/to/project> -f coco -o <path/to/export/dir> \
+datum export -p <path/to/project> -f coco -o <output/dir> \
     -- --save-images
 # converting to COCO format from other format
-datum convert -if voc -i <path/to/voc/dataset> \
-    -f coco -o <path/to/export/dir> -- --save-images
+datum convert -if voc -i <path/to/dataset> \
+    -f coco -o <output/dir> -- --save-images
 ```
 
 Extra options for export to COCO format:
@@ -220,7 +214,7 @@ particular problems with COCO dataset:
 datum create -o project
 datum add -p project -f coco_panoptic ./COCO/annotations/panoptic_val2017.json
 datum stats -p project
-datum export -p final_project -o dataset -f voc  --overwrite  -- --save-images
+datum export -p project -f voc -- --save-images
 ```
 
 ### Example 2. How to create custom COCO-like dataset

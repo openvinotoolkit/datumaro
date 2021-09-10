@@ -78,16 +78,11 @@ There are few ways to convert Cityscapes dataset to other dataset format:
 ``` bash
 datum create
 datum add -f cityscapes <path/to/cityscapes>
-datum export -f voc -o <path/to/output/dir>
+datum export -f voc -o <output/dir>
 # or
-datum convert -if cityscapes -i <path/to/cityscapes> -f voc -o <path/to/output/dir>
+datum convert -if cityscapes -i <path/to/cityscapes> \
+    -f voc -o <output/dir> -- --save-images
 ```
-
-Some formats provide extra options for conversion.
-These options are passed after double dash (`--`) in the command line.
-To get information about them, run
-
-`datum export -f <FORMAT> -- -h`
 
 ## Export to Cityscapes
 
@@ -95,11 +90,11 @@ There are few ways to convert dataset to Cityscapes format:
 
 ``` bash
 # export dataset into Cityscapes format from existing project
-datum export -p <path/to/project> -f cityscapes -o <path/to/export/dir> \
+datum export -p <path/to/project> -f cityscapes -o <output/dir> \
     -- --save-images
 # converting to Cityscapes format from other format
-datum convert -if voc -i <path/to/voc/dataset> \
-    -f cityscapes -o <path/to/export/dir> -- --save-images
+datum convert -if voc -i <path/to/dataset> \
+    -f cityscapes -o <output/dir> -- --save-images
 ```
 
 Extra options for export to cityscapes format:
@@ -136,7 +131,7 @@ particular problems with Cityscapes dataset:
 datum create -o project
 datum add -p project -f cityscapes ./Cityscapes/
 datum stats -p project
-datum export -p final_project -o dataset -f voc -- --save-images
+datum export -p project -o dataset/ -f voc -- --save-images
 ```
 
 ### Example 2. Create a custom Cityscapes-like dataset
