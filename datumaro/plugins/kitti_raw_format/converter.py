@@ -433,7 +433,7 @@ class KittiRawConverter(Converter):
         os.makedirs(self._save_dir, exist_ok=True)
 
         if 1 < len(self._extractor.subsets()):
-            log.warning("Kitti RAW format supports only a single"
+            log.warning("Kitti RAW format supports only a single "
                 "subset. Subset information will be ignored on export.")
 
         tracklets = self._create_tracklets(self._extractor)
