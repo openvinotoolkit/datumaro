@@ -68,10 +68,6 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
             "a path to subset, subtask, or a specific file in URL.")
     parser.add_argument('--no-check', action='store_true',
         help="Don't try to read the source after importing")
-    parser.add_argument('--no-cache', action='store_true',
-        help="Don't put a copy into the project cache")
-    parser.add_argument('--no-hash', action='store_true',
-        help="Don't compute source hash. Implies '--no-cache'.")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to operate on (default: current dir)")
     parser.add_argument('extra_args', nargs=argparse.REMAINDER,
@@ -130,7 +126,7 @@ def add_command(args):
             'source', sep='-', default='1')
 
     project.import_source(name, url=args.url, format=args.format,
-        options=extra_args, no_cache=args.no_cache, no_hash=args.no_hash,
+        options=extra_args, no_cache=True, no_hash=True,
         rpath=args.path)
     on_error_do(project.remove_source, name, ignore_errors=True,
         kwargs={'force': True, 'keep_data': False})
