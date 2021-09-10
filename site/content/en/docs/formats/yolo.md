@@ -22,17 +22,11 @@ weight: 11
 
 ## Load YOLO dataset
 
-Few ways to create Datumaro project and add YOLO dataset to it:
+A Datumaro project with a YOLO source can be created the following way:
 
 ```bash
-datum import -o project -f yolo -i <path/to/yolo/dataset>
-
-# another way to do the same:
-datum create -o project
-datum add -p project -f yolo -i <path/to/yolo/dataset>
-
-# and you can add another one yolo dataset:
-datum add -p project -f yolo -i <path/to/other/yolo/dataset>
+datum create
+datum add -f yolo <path/to/yolo/dataset>
 ```
 
 YOLO dataset directory should have the following structure:
@@ -112,7 +106,8 @@ object detection task (e.g. Pascal VOC, COCO, TF Detection API etc.)
 
 Examples:
 ```bash
-datum import -o project -f yolo -i <path/to/yolo/dataset>
+datum create
+datum add -o project -f yolo <path/to/yolo/dataset>
 datum export -p project -f voc -o <path/to/output/voc/dataset>
 ```
 
@@ -129,7 +124,8 @@ if the dataset supports object detection task.
 Example:
 
 ```
-datum import -p project -f coco_instances -i <path/to/coco/dataset>
+datum create
+datum add -p project -f coco_instances <path/to/coco/dataset>
 datum export -p project -f yolo -o <path/to/output/yolo/dataset> -- --save-images
 ```
 
@@ -145,7 +141,8 @@ for exporting dataset (default: use original or `.jpg`, if none).
 ### Example 1. Prepare PASCAL VOC dataset for exporting to YOLO format dataset
 
 ```bash
-datum import -o project -f voc -i ./VOC2012
+datum create
+datum add -o project -f voc ./VOC2012
 datum filter -p project -e '/item[subset="train" or subset="val"]' -o trainval_voc
 datum transform -p trainval_voc -o trainvalid_voc \
     -t map_subsets -- -s train:train -s val:valid
@@ -156,7 +153,8 @@ datum export -p trainvalid_voc -f yolo -o ./yolo_dataset -- --save-images
 Delete all items, which contain `cat` objects and remove
 `cat` from list of classes:
 ```bash
-datum import -o project -f yolo -i ./yolo_dataset
+datum create
+datum add -o project -f yolo ./yolo_dataset
 datum filter -p project -o filtered -m i+a -e '/item/annotation[label!="cat"]'
 datum transform -p filtered -o without_cat -t remap_labels -- -l cat:
 datum export -p without_cat -f yolo -o ./yolo_without_cats
@@ -192,6 +190,7 @@ dataset.export('../yolo_dataset', format='yolo', save_images=True)
 
 If you only want information about label names for each
 images, then you can get it from code:
+
 ```python
 from datumaro.components.annotation import AnnotationType
 from datumaro.components.dataset import Dataset
@@ -204,8 +203,9 @@ for item in dataset:
         print(item.id, cats[ann.label].name)
 ```
 
-And If you want complete information about each items you can run:
+And If you want complete information about each item you can run:
 ```bash
-datum import -o project -f yolo -i ./yolo_dataset
+datum create -o project
+datum add -o project -f yolo ./yolo_dataset
 datum filter -p project --dry-run -e '/item'
 ```

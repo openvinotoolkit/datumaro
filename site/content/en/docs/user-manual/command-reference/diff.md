@@ -82,7 +82,8 @@ Examples:
 
 - Compare a dataset with model inference
 ``` bash
-datum import <...>
+datum create
+datum add <...>
 datum model add mymodel <...>
 datum transform <...> -o inference
 datum diff inference -o diff

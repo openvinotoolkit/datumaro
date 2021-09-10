@@ -31,13 +31,11 @@ The CIFAR dataset is available for free download:
 - [cifar-100-python.tar.gz](https://www.cs.toronto.edu/~kriz/cifar-100-python.tar.gz):
   CIFAR-100 python version
 
-There are two ways to create Datumaro project and add CIFAR dataset to it:
+A Datumaro project with a CIFAR source can be created the following way:
 
 ``` bash
-datum import --format cifar --input-path <path/to/dataset>
-# or
 datum create
-datum add -f cifar <path/to/dataset>
+datum add --format cifar <path/to/dataset>
 ```
 
 It is possible to specify project name and project directory run
@@ -110,7 +108,8 @@ that support the classification task (e.g. MNIST, ImageNet, PascalVOC,
 etc.) There are few ways to convert CIFAR dataset to other dataset format:
 
 ``` bash
-datum project import -f cifar -i <path/to/cifar>
+datum create
+datum add -f cifar <path/to/cifar>
 datum export -f imagenet -o <path/to/output/dir>
 # or
 datum convert -if cifar -i <path/to/cifar> -f imagenet -o <path/to/output/dir>
