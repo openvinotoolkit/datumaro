@@ -34,6 +34,11 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+def get_params_with_paths():
+    return {
+        commit_command: ['message', 'project_dir',],
+    }
+
 @scoped
 def commit_command(args):
     project = scope_add(load_project(args.project_dir))

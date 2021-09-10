@@ -132,6 +132,11 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+def get_params_with_paths():
+    return {
+        diff_command: ['first_taret', 'second_target', 'dst_dir', 'project_dir',],
+    }
+
 @scoped
 def diff_command(args):
     dst_dir = args.dst_dir

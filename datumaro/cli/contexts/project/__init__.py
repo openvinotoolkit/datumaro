@@ -136,6 +136,11 @@ def build_export_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+def get_export_params_with_paths():
+    return {
+        export_command: ['dst_dir', 'project_dir', 'name',],
+    }
+
 @scoped
 def export_command(args):
     has_sep = '--' in args._positionals
@@ -281,6 +286,11 @@ def build_filter_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+def get_filter_params_with_paths():
+    return {
+        filter_command: ['target', 'filter', 'dst_dir', 'project_dir',],
+    }
+
 @scoped
 def filter_command(args):
     project = scope_add(load_project(args.project_dir))
@@ -411,6 +421,11 @@ def build_transform_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+def get_transform_params_with_paths():
+    return {
+        transform_command: ['dst_dir', 'project_dir',],
+    }
+
 @scoped
 def transform_command(args):
     has_sep = '--' in args._positionals
@@ -527,6 +542,11 @@ def build_stats_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+def get_stats_params_with_paths():
+    return {
+        stats_command: ['project_dir',],
+    }
+
 @scoped
 def stats_command(args):
     project = None
@@ -571,6 +591,11 @@ def build_info_parser(parser_ctor=argparse.ArgumentParser):
     parser.set_defaults(command=info_command)
 
     return parser
+
+def get_info_params_with_paths():
+    return {
+        info_command: ['project_dir',],
+    }
 
 @scoped
 def info_command(args):
@@ -660,6 +685,11 @@ def build_validate_parser(parser_ctor=argparse.ArgumentParser):
     parser.set_defaults(command=validate_command)
 
     return parser
+
+def get_validate_params_with_paths():
+    return {
+        validate_command: ['target', 'project_dir',],
+    }
 
 @scoped
 def validate_command(args):
@@ -751,6 +781,11 @@ def build_migrate_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+def get_migrate_params_with_paths():
+    return {
+        migrate_command: ['dst_dir', 'project_dir',],
+    }
+
 @scoped
 def migrate_command(args):
     dst_dir = args.dst_dir
@@ -792,3 +827,14 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     add_subparser(subparsers, 'migrate', build_migrate_parser)
 
     return parser
+
+def get_params_with_paths():
+    return {
+        **get_export_params_with_paths(),
+        **get_filter_params_with_paths(),
+        **get_transform_params_with_paths(),
+        **get_stats_params_with_paths(),
+        **get_info_params_with_paths(),
+        **get_validate_params_with_paths(),
+        **get_migrate_params_with_paths(),
+    }

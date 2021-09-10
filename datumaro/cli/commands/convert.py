@@ -69,6 +69,11 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+def get_params_with_paths():
+    return {
+        convert_command: ['source', 'dst_dir',],
+    }
+
 def convert_command(args):
     env = Environment()
 

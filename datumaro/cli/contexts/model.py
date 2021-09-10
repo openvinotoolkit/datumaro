@@ -53,6 +53,11 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+def get_add_params_with_paths():
+    return {
+        add_command: ['project_dir', 'name',],
+    }
+
 @scoped
 def add_command(args):
     show_plugin_help = '-h' in args.extra_args or '--help' in args.extra_args
@@ -125,6 +130,11 @@ def build_remove_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+def get_remove_params_with_paths():
+    return {
+        remove_command: ['project_dir', 'name',],
+    }
+
 @scoped
 def remove_command(args):
     project = scope_add(load_project(args.project_dir))
@@ -166,6 +176,11 @@ def build_run_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+def get_run_params_with_paths():
+    return {
+        run_command: ['target', 'dst_dir', 'model_name', 'project_dir',],
+    }
+
 @scoped
 def run_command(args):
     dst_dir = args.dst_dir
@@ -204,6 +219,11 @@ def build_info_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+def get_info_params_with_paths():
+    return {
+        info_command: ['name', 'project_dir',],
+    }
+
 @scoped
 def info_command(args):
     project = scope_add(load_project(args.project_dir))
@@ -226,3 +246,11 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     add_subparser(subparsers, 'info', build_info_parser)
 
     return parser
+
+def get_params_with_paths():
+    return {
+        **get_add_params_with_paths(),
+        **get_remove_params_with_paths(),
+        **get_run_params_with_paths(),
+        **get_info_params_with_paths(),
+    }

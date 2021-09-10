@@ -9,6 +9,8 @@ import sys
 
 from ..version import VERSION
 from . import commands, contexts
+from ..util.telemetry_utils import (init_telemetry_session, close_telemetry_session,
+    send_command_success_info, send_command_failure_info, send_command_exception_info)
 from .util import add_subparser
 from .util.errors import CliException
 
@@ -49,22 +51,15 @@ def _make_subcommands_help(commands, help_line_start=0):
             (command_name, command_help)
     return desc
 
-def make_parser():
-    parser = argparse.ArgumentParser(
-        description="Dataset Framework",
-        formatter_class=argparse.RawDescriptionHelpFormatter)
-    if parser.prog == osp.basename(__file__): # python -m datumaro ...
-        parser.prog = 'datumaro'
-
-    parser.add_argument('--version', action='version', version=VERSION)
-    _LogManager._define_loglevel_option(parser)
-
-    known_contexts = [
+def _get_known_contexts():
+    return [
         ('project', contexts.project, "Actions with project"),
         ('source', contexts.source, "Actions with data sources"),
         ('model', contexts.model, "Actions with models"),
     ]
-    known_commands = [
+
+def _get_known_commands():
+    return [
         ("Project modification:", None, ''),
         ('create', commands.create, "Create empty project"),
         ('add', commands.add, "Add data source to project"),
@@ -90,6 +85,30 @@ def make_parser():
         ('explain', commands.explain, "Run Explainable AI algorithm for model"),
         ('validate', commands.validate, "Validate project")
     ]
+
+def _get_params_with_paths():
+    known_contexts = _get_known_contexts()
+    known_commands = _get_known_commands()
+
+    res = {}
+    for _, command, _ in known_contexts + known_commands:
+        if command is not None:
+            res.update(command.get_params_with_paths())
+
+    return res
+
+def make_parser():
+    parser = argparse.ArgumentParser(
+        description="Dataset Framework",
+        formatter_class=argparse.RawDescriptionHelpFormatter)
+    if parser.prog == osp.basename(__file__): # python -m datumaro ...
+        parser.prog = 'datumaro'
+
+    parser.add_argument('--version', action='version', version=VERSION)
+    _LogManager._define_loglevel_option(parser)
+
+    known_contexts = _get_known_contexts()
+    known_commands = _get_known_commands()
 
     # Argparse doesn't support subparser groups:
     # https://stackoverflow.com/questions/32017020/grouping-argparse-subparser-arguments
@@ -131,18 +150,29 @@ def main(args=None):
         parser.print_help()
         return 1
 
+    args_with_paths = _get_params_with_paths()
+    telemetry = init_telemetry_session(app_name='Datumaro', app_version=VERSION)
+
     try:
         retcode = args.command(args)
         if retcode is None:
             retcode = 0
-        return retcode
     except CliException as e:
         log.error(e)
+        send_command_exception_info(telemetry, args, args_with_paths[args.command])
         return 1
     except Exception as e:
         log.error(e)
+        send_command_exception_info(telemetry, args, args_with_paths[args.command])
         raise
-
+    else:
+        if retcode:
+            send_command_failure_info(telemetry, args, args_with_paths[args.command])
+        else:
+            send_command_success_info(telemetry, args, args_with_paths[args.command])
+        return retcode
+    finally:
+        close_telemetry_session(telemetry)
 
 if __name__ == '__main__':
     sys.exit(main())
