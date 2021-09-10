@@ -106,8 +106,8 @@ object detection task (e.g. Pascal VOC, COCO, TF Detection API etc.)
 
 Examples:
 ```bash
-datum create
-datum add -o project -f yolo <path/to/yolo/dataset>
+datum create -o project
+datum add -f yolo <path/to/yolo/dataset>
 datum export -p project -f voc -o <path/to/output/voc/dataset>
 ```
 
@@ -141,8 +141,8 @@ for exporting dataset (default: use original or `.jpg`, if none).
 ### Example 1. Prepare PASCAL VOC dataset for exporting to YOLO format dataset
 
 ```bash
-datum create
-datum add -o project -f voc ./VOC2012
+datum create -o project
+datum add -f voc ./VOC2012
 datum filter -p project -e '/item[subset="train" or subset="val"]' -o trainval_voc
 datum transform -p trainval_voc -o trainvalid_voc \
     -t map_subsets -- -s train:train -s val:valid
@@ -153,8 +153,8 @@ datum export -p trainvalid_voc -f yolo -o ./yolo_dataset -- --save-images
 Delete all items, which contain `cat` objects and remove
 `cat` from list of classes:
 ```bash
-datum create
-datum add -o project -f yolo ./yolo_dataset
+datum create -o project
+datum add -f yolo ./yolo_dataset
 datum filter -p project -o filtered -m i+a -e '/item/annotation[label!="cat"]'
 datum transform -p filtered -o without_cat -t remap_labels -- -l cat:
 datum export -p without_cat -f yolo -o ./yolo_without_cats
@@ -206,6 +206,6 @@ for item in dataset:
 And If you want complete information about each item you can run:
 ```bash
 datum create -o project
-datum add -o project -f yolo ./yolo_dataset
+datum add -f yolo ./yolo_dataset
 datum filter -p project --dry-run -e '/item'
 ```

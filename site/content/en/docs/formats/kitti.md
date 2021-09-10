@@ -152,8 +152,8 @@ datum export -f kitti -- --label-map kitti
 by default Datumaro uses all tasks. Example:
 
 ```bash
-datum create
-datum add -o project -f kitti -i <dataset>
+datum create -o project
+datum add -f kitti -i <dataset>
 datum export -p project -f kitti -- --tasks detection
 ```
 - `--allow-attributes ALLOW_ATTRIBUTES` allow export of attributes
