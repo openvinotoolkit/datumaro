@@ -183,16 +183,16 @@ label_map['label_2'] = (3, 2, 1)
 categories = KITTI.make_kitti_categories(label_map)
 
 dataset = Dataset.from_iterable([
-    DatasetItem(id=1,
-                image=np.ones((1, 5, 3)),
-                annotations=[
-                    Mask(image=np.array([[1, 0, 0, 1, 1]]), label=1, id=0,
-                        attributes={'is_crowd': False}),
-                    Mask(image=np.array([[0, 1, 1, 0, 0]]), label=2, id=0,
-                        attributes={'is_crowd': False}),
-                ]
-            ),
-    ], categories=categories)
+  DatasetItem(id=1,
+    image=np.ones((1, 5, 3)),
+    annotations=[
+      Mask(image=np.array([[1, 0, 0, 1, 1]]), label=1, id=0,
+        attributes={'is_crowd': False}),
+      Mask(image=np.array([[0, 1, 1, 0, 0]]), label=2, id=0,
+        attributes={'is_crowd': False}),
+    ]
+  ),
+], categories=categories)
 
 dataset.export('./dataset', format='kitti')
 ```

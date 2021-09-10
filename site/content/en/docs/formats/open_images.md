@@ -296,20 +296,18 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.extractor import DatasetItem
 
-dataset = Dataset.from_iterable(
-    [
-        DatasetItem(
-            id='0000000000000001',
-            image=np.ones((1, 5, 3)),
-            subset='validation',
-            annotations=[
-                Label(0, attributes={'score': 1}),
-                Label(1, attributes={'score': 0}),
-            ],
-        ),
+dataset = Dataset.from_iterable([
+  DatasetItem(
+    id='0000000000000001',
+    image=np.ones((1, 5, 3)),
+    subset='validation',
+    annotations=[
+      Label(0, attributes={'score': 1}),
+      Label(1, attributes={'score': 0}),
     ],
-    categories=['/m/0', '/m/1'],
-)
+  ),
+], categories=['/m/0', '/m/1'])
+
 dataset.export('./dataset', format='open_images')
 ```
 

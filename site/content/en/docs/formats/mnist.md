@@ -157,12 +157,12 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import DatasetItem
 
 dataset = Dataset.from_iterable([
-    DatasetItem(id=0, image=np.ones((28, 28)),
-        annotations=[Label(2)]
-    ),
-    DatasetItem(id=1, image=np.ones((28, 28)),
-        annotations=[Label(7)]
-    )
+  DatasetItem(id=0, image=np.ones((28, 28)),
+    annotations=[Label(2)]
+  ),
+  DatasetItem(id=1, image=np.ones((28, 28)),
+    annotations=[Label(7)]
+  )
 ], categories=[str(label) for label in range(10)])
 
 dataset.export('./dataset', format='mnist')

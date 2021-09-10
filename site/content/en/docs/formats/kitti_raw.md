@@ -149,18 +149,18 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import DatasetItem
 
 dataset = Dataset.from_iterable([
-    DatasetItem(id='some/name/qq',
-        annotations=[
-            Cuboid3d(position=[13.54, -9.41, 0.24], label=0,
-                attributes={'occluded': False, 'track_id': 1}),
+  DatasetItem(id='some/name/qq',
+    annotations=[
+      Cuboid3d(position=[13.54, -9.41, 0.24], label=0,
+        attributes={'occluded': False, 'track_id': 1}),
 
-            Cuboid3d(position=[3.4, -2.11, 4.4], label=1,
-                attributes={'occluded': True, 'track_id': 2})
-        ],
-        pcd='path/to/pcd1.pcd',
-        related_images=[np.ones((10, 10)), 'path/to/image2.png', 'image3.jpg'],
-        attributes={'frame': 0}
-    ),
+      Cuboid3d(position=[3.4, -2.11, 4.4], label=1,
+        attributes={'occluded': True, 'track_id': 2})
+    ],
+    pcd='path/to/pcd1.pcd',
+    related_images=[np.ones((10, 10)), 'path/to/image2.png', 'image3.jpg'],
+    attributes={'frame': 0}
+  ),
 ], categories=['cat', 'dog'])
 
 dataset.export('my_dataset/', format='kitti_raw', save_images=True)
