@@ -143,7 +143,7 @@ datum add -f voc_detection -r ImageSets/Main/train.txt <path/to/dataset>
 ```
 
 To make sure that the selected dataset has been added to the project, you
-can run `datum info`, which will display the project and dataset information.
+can run `datum project info`, which will display the project and dataset information.
 
 ## Export to other formats
 

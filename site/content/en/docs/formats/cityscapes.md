@@ -66,7 +66,7 @@ Annotated files description:
   then the pixels have the regular ID of that class
 
 To make sure that the selected dataset has been added to the project, you can
-run `datum info`, which will display the project and dataset information.
+run `datum project info`, which will display the project and dataset information.
 
 ## Export to other formats
 
