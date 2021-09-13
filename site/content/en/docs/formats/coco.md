@@ -134,7 +134,7 @@ datum add --format coco_stuff -r <relpath/to/stuff.json> <path/to/dataset>
 ```
 
 To make sure that the selected dataset has been added to the project, you can
-run `datum project info`, which will display the project and dataset information.
+run `datum project info`, which will display the project information.
 
 Notes:
 - COCO categories can have any integer ids, however, Datumaro will count
