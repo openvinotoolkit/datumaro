@@ -513,12 +513,16 @@ class ProjectTest(TestCase):
         project = scope_add(Project.init(osp.join(test_dir, 'proj')))
         project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
 
-        stage = project.working_tree.build_targets.add_filter_stage('s1',
+        new_tree = project.working_tree.clone()
+        stage = new_tree.build_targets.add_filter_stage('s1',
             '/item/annotation[label="b"]'
         )
 
-        self.assertTrue(stage in project.working_tree.build_targets)
-        resulting_dataset = project.working_tree.make_dataset('s1')
+        self.assertTrue(stage in new_tree.build_targets)
+        self.assertTrue(stage not in project.working_tree.build_targets)
+
+        resulting_dataset = project.working_tree.make_dataset(
+            new_tree.make_pipeline('s1'))
         compare_datasets(self, Dataset.from_iterable([
             DatasetItem(2, annotations=[Label(1)]),
         ], categories=['a', 'b']), resulting_dataset)
@@ -567,18 +571,26 @@ class ProjectTest(TestCase):
         project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
         project.working_tree.env.transforms.register('tr', TestTransform)
 
-        stage = project.working_tree.build_targets.add_transform_stage('s1',
+        # TODO: simplify adding stages and making datasets from them
+        new_tree = project.working_tree.clone()
+        stage = new_tree.build_targets.add_transform_stage('s1',
             'tr', params={'p1': 5, 'p2': ['1', 2, 3.5]}
         )
 
-        self.assertTrue(stage in project.working_tree.build_targets)
-        resulting_dataset = project.working_tree.make_dataset('s1')
+        self.assertTrue(stage in new_tree.build_targets)
+        self.assertTrue(stage not in project.working_tree.build_targets)
+
+        resulting_dataset = project.working_tree.make_dataset(
+            new_tree.make_pipeline('s1'))
         compare_datasets(self, Dataset.from_iterable([
             DatasetItem(1, annotations=[Label(0)],
                 attributes={'p1': 5, 'p2': ['1', 2, 3.5]}),
             DatasetItem(2, annotations=[Label(1)],
                 attributes={'p1': 5, 'p2': ['1', 2, 3.5]}),
         ], categories=['a', 'b']), resulting_dataset)
+
+        project.working_tree.config.update(new_tree.config)
+        self.assertTrue(stage in project.working_tree.build_targets)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
@@ -593,15 +605,10 @@ class ProjectTest(TestCase):
 
         project = scope_add(Project.init(osp.join(test_dir, 'proj')))
         project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
-        stage = project.working_tree.build_targets.add_filter_stage('s1',
-            '/item/annotation[label="b"]')
 
-        built_dataset = project.working_tree.make_dataset(stage)
+        built_dataset = project.working_tree.make_dataset('s1.root')
 
-        expected_dataset = Dataset.from_iterable([
-            DatasetItem(2, annotations=[Label(1)]),
-        ], categories=['a', 'b'])
-        compare_datasets(self, expected_dataset, built_dataset)
+        compare_datasets(self, dataset, built_dataset)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped

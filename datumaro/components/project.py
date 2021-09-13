@@ -420,9 +420,16 @@ class ProjectBuilder:
                 data_dir = self._project.source_data_dir(source_name)
                 wd_hash = working_dir_hashes.get(source_name)
 
-                if not stage_hash and osp.isdir(data_dir) and \
-                        source_stage_name == target.head.name:
-                    pass
+                if not stage_hash:
+                    if source_stage_name == target.head.name and \
+                            osp.isdir(data_dir):
+                        pass
+                    else:
+                        log.debug("Build: skipping loading stage '%s' from "
+                            "working dir '%s', because the stage has no hash "
+                            "and is not the head stage",
+                            stage_name, data_dir)
+                        data_dir = None
                 elif not wd_hash:
                     if osp.isdir(data_dir):
                         wd_hash = self._project.compute_source_hash(data_dir)
@@ -594,7 +601,7 @@ class ProjectBuilder:
         work_dir_hashes = {}
 
         def _can_retrieve(stage_name: str, stage_config: BuildStage):
-            obj_hash = stage_config.hash
+            stage_hash = stage_config.hash
 
             source_name, source_stage_name = \
                 ProjectBuildTargets.split_target_name(stage_name)
@@ -602,9 +609,9 @@ class ProjectBuilder:
                 target = self._tree.build_targets[source_name]
                 data_dir = self._project.source_data_dir(source_name)
 
-                if not obj_hash and source_stage_name == target.head.name \
-                        and osp.isdir(data_dir):
-                    return True
+                if not stage_hash:
+                    return source_stage_name == target.head.name and \
+                        osp.isdir(data_dir)
 
                 wd_hash = work_dir_hashes.get(source_name)
                 if not wd_hash and osp.isdir(data_dir):
@@ -612,10 +619,10 @@ class ProjectBuilder:
                         self._project.source_data_dir(source_name))
                     work_dir_hashes[source_name] = wd_hash
 
-                if obj_hash and obj_hash == wd_hash:
+                if stage_hash and stage_hash == wd_hash:
                     return True
 
-            if obj_hash and self._project.is_obj_cached(obj_hash):
+            if stage_hash and self._project.is_obj_cached(stage_hash):
                 return True
 
             return False
@@ -837,7 +844,7 @@ class ProjectBuildTargets(CrudProxy[BuildTarget]):
 
         return pipeline
 
-    def make_pipeline(self, target) -> Pipeline:
+    def make_pipeline(self, target: str) -> Pipeline:
         if not target in self:
             raise UnknownTargetError(target)
 
@@ -1367,6 +1374,9 @@ class Tree:
         os.makedirs(osp.dirname(path), exist_ok=True)
         self._config.dump(path)
 
+    def clone(self) -> 'Tree':
+        return Tree(self._project, TreeConfig(self.config), self._rev)
+
     @property
     def sources(self) -> ProjectSources:
         return self._sources
@@ -1387,11 +1397,21 @@ class Tree:
     def rev(self) -> Union[None, 'Revision']:
         return self._rev
 
-    def make_dataset(self, target: Optional[str] = None) -> Dataset:
+    def make_pipeline(self, target: Optional[str] = None) -> Pipeline:
         if not target:
             target = 'project'
 
-        pipeline = self.build_targets.make_pipeline(target)
+        return self.build_targets.make_pipeline(target)
+
+    def make_dataset(self,
+            target: Union[None, str, Pipeline] = None) -> Dataset:
+        if not target or isinstance(target, str):
+            pipeline = self.make_pipeline(target)
+        elif isinstance(target, Pipeline):
+            pipeline = target
+        else:
+            raise TypeError(f"Unexpected target type {type(target)}")
+
         return ProjectBuilder(self._project, self).make_dataset(pipeline)
 
     @property
