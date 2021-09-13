@@ -9,6 +9,7 @@ import inspect
 import os
 import os.path as osp
 import tempfile
+import unittest
 
 from typing_extensions import Literal
 
@@ -35,7 +36,12 @@ class FileRemover:
 
     def __exit__(self, exc_type=None, exc_value=None, traceback=None):
         if self.is_dir:
-            rmtree(self.path)
+            try:
+                rmtree(self.path)
+            except unittest.SkipTest:
+                # Suppress skip test errors from git.util.rmtree
+                if not exc_type:
+                    raise
         else:
             rmfile(self.path)
 

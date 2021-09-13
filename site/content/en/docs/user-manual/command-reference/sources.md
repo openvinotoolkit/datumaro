@@ -55,7 +55,6 @@ non-standard placement or names.
 When a dataset is imported, the following things are done:
 - URL is saved in the project config
 - data in copied into the project
-- data is cached inside the project (use `--no-cache` to disable)
 
 Each data source has a name assigned, which can be used in other commands. To
 set a specific name, use the `-n/--name` parameter.
@@ -66,7 +65,7 @@ is _not_ done automatically.
 Usage:
 
 ``` bash
-datum add [-h] [-n NAME] -f FORMAT [-r PATH] [--no-check] [--no-cache]
+datum add [-h] [-n NAME] -f FORMAT [-r PATH] [--no-check]
   [-p PROJECT_DIR] url [-- EXTRA_FORMAT_ARGS]
 ```
 
@@ -76,7 +75,6 @@ Parameters:
 - `-r, --path` (string) - A path relative to the source URL the data source.
   Useful to specify a path to a subset, subtask, or a specific file in URL.
 - `--no-check` - Don't try to read the source after importing
-- `--no-cache` - Don't put a copy into the project cache
 - `-n`, `--name` (string) - Name of the new source (default: generate
   automatically)
 - `-p, --project` (string) - Directory of the project to operate on

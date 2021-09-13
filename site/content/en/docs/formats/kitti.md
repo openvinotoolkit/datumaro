@@ -85,7 +85,7 @@ datum add --format kitti_detection <path/to/dataset>
 ```
 
 To make sure that the selected dataset has been added to the project, you can
-run `datum info`, which will display the project and dataset information.
+run `datum project info`, which will display the project information.
 
 ## Export to other formats
 
