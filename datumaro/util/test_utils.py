@@ -17,6 +17,7 @@ from datumaro.components.dataset import Dataset, IDataset
 from datumaro.util import filter_dict, find
 from datumaro.util.os_util import rmfile, rmtree
 
+import unittest
 
 class Dimensions(Enum):
     dim_2d = auto()
@@ -35,7 +36,12 @@ class FileRemover:
 
     def __exit__(self, exc_type=None, exc_value=None, traceback=None):
         if self.is_dir:
-            rmtree(self.path)
+            try:
+                rmtree(self.path)
+            except unittest.SkipTest:
+                # Suppress skip test errors from git.util.rmtree
+                if not exc_type:
+                    raise
         else:
             rmfile(self.path)
 
