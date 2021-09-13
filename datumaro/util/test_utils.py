@@ -9,6 +9,7 @@ import inspect
 import os
 import os.path as osp
 import tempfile
+import unittest
 
 from typing_extensions import Literal
 
@@ -17,7 +18,6 @@ from datumaro.components.dataset import Dataset, IDataset
 from datumaro.util import filter_dict, find
 from datumaro.util.os_util import rmfile, rmtree
 
-import unittest
 
 class Dimensions(Enum):
     dim_2d = auto()
