@@ -139,37 +139,8 @@ class ProjectIntegrationScenarios(TestCase):
             ], categories=['a', 'cat']), parsed, require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_chain_transforms_in_working_tree(self):
-        with TestDir() as test_dir:
-            source_url = osp.join(test_dir, 'test_repo')
-            dataset = Dataset.from_iterable([
-                DatasetItem(1, annotations=[Label(0)]),
-                DatasetItem(2, annotations=[Label(1)]),
-            ], categories=['a', 'b'])
-            dataset.save(source_url)
-
-            project_dir = osp.join(test_dir, 'proj')
-            run(self, 'create', '-o', project_dir)
-            run(self, 'add', '-p', project_dir,
-                '--format', DEFAULT_FORMAT, source_url)
-            run(self, 'filter', '-p', project_dir,
-                '-e', '/item/annotation[label="b"]')
-            run(self, 'transform', '-p', project_dir,
-                '-t', 'rename', '--', '-e', '|2|qq|')
-            run(self, 'transform', '-p', project_dir,
-                '-t', 'remap_labels', '--', '-l', 'a:cat', '-l', 'b:dog')
-
-            with Project(project_dir) as project:
-                built_dataset = project.working_tree.make_dataset()
-
-                expected_dataset = Dataset.from_iterable([
-                    DatasetItem('qq', annotations=[Label(1)]),
-                ], categories=['cat', 'dog'])
-                compare_datasets(self, expected_dataset, built_dataset)
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
-    def test_can_transform_without_hash(self):
+    def test_can_chain_transforms_in_working_tree_without_hashing(self):
         test_dir = scope_add(TestDir())
         source_url = osp.join(test_dir, 'test_repo')
         dataset = Dataset.from_iterable([
@@ -181,25 +152,27 @@ class ProjectIntegrationScenarios(TestCase):
         project_dir = osp.join(test_dir, 'proj')
         run(self, 'create', '-o', project_dir)
         run(self, 'add', '-p', project_dir, '-n', 'source1',
-            '--format', DEFAULT_FORMAT, '--no-hash', source_url)
+            '--format', DEFAULT_FORMAT, source_url)
         run(self, 'filter', '-p', project_dir,
             '-e', '/item/annotation[label="b"]')
         run(self, 'transform', '-p', project_dir,
             '-t', 'rename', '--', '-e', '|2|qq|')
+        run(self, 'transform', '-p', project_dir,
+            '-t', 'remap_labels', '--', '-l', 'a:cat', '-l', 'b:dog')
 
         project = scope_add(Project(project_dir))
         built_dataset = project.working_tree.make_dataset()
 
         expected_dataset = Dataset.from_iterable([
             DatasetItem('qq', annotations=[Label(1)]),
-        ], categories=['a', 'b'])
+        ], categories=['cat', 'dog'])
         compare_datasets(self, expected_dataset, built_dataset)
 
         with self.assertRaises(Exception):
             compare_dirs(self, source_url, project.source_data_dir('source1'))
 
         source1_target = project.working_tree.build_targets['source1']
-        self.assertEqual(3, len(source1_target.stages))
+        self.assertEqual(4, len(source1_target.stages))
         self.assertEqual('', source1_target.stages[0].hash)
         self.assertEqual('', source1_target.stages[1].hash)
         self.assertEqual('', source1_target.stages[2].hash)

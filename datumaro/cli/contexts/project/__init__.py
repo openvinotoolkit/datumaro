@@ -316,19 +316,24 @@ def filter_command(args):
     else:
         targets = [args.target]
 
+    build_tree = project.working_tree.clone()
+    for target in targets:
+        build_tree.build_targets.add_filter_stage(target,
+            expr=filter_expr, params=filter_args)
+
     if args.apply:
         log.info("Filtering...")
 
         if args.dst_dir:
-            dataset = project.working_tree.make_dataset(args.target)
-            dataset.filter(filter_expr, **filter_args)
+            dataset = project.working_tree.make_dataset(
+                build_tree.make_pipeline(args.target))
             dataset.save(dst_dir, save_images=True)
 
             log.info("Results have been saved to '%s'" % dst_dir)
         else:
             for target in targets:
-                dataset = project.working_tree.make_dataset(target)
-                dataset.filter(filter_expr, **filter_args)
+                dataset = project.working_tree.make_dataset(
+                    build_tree.make_pipeline(target))
 
                 # Source might be missing in the working dir, so we specify
                 # the output directory.
@@ -340,9 +345,7 @@ def filter_command(args):
             log.info("Finished")
 
     if args.stage:
-        for target in targets:
-            project.working_tree.build_targets.add_filter_stage(target,
-                expr=filter_expr, params=filter_args)
+        project.working_tree.config.update(build_tree.config)
         project.working_tree.save()
 
     return 0
@@ -460,19 +463,24 @@ def transform_command(args):
     else:
         targets = [args.target]
 
+    build_tree = project.working_tree.clone()
+    for target in targets:
+        build_tree.build_targets.add_transform_stage(target,
+            args.transform, params=extra_args)
+
     if args.apply:
         log.info("Transforming...")
 
         if args.dst_dir:
-            dataset = project.working_tree.make_dataset(args.target)
-            dataset.transform(args.transform, **extra_args)
+            dataset = project.working_tree.make_dataset(
+                build_tree.make_pipeline(args.target))
             dataset.save(dst_dir, save_images=True)
 
             log.info("Results have been saved to '%s'" % dst_dir)
         else:
             for target in targets:
-                dataset = project.working_tree.make_dataset(target)
-                dataset.transform(args.transform, **extra_args)
+                dataset = project.working_tree.make_dataset(
+                    build_tree.make_pipeline(target))
 
                 # Source might be missing in the working dir, so we specify
                 # the output directory
@@ -484,9 +492,7 @@ def transform_command(args):
             log.info("Finished")
 
     if args.stage:
-        for target in targets:
-            project.working_tree.build_targets.add_transform_stage(target,
-                args.transform, params=extra_args)
+        project.working_tree.config.update(build_tree.config)
         project.working_tree.save()
 
     return 0
