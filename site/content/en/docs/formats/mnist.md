@@ -53,27 +53,13 @@ The MNIST in CSV dataset is available for free download:
 - [mnist_train.csv](https://pjreddie.com/media/files/mnist_train.csv)
 - [mnist_test.csv](https://pjreddie.com/media/files/mnist_test.csv)
 
-There are two ways to create Datumaro project and add MNIST dataset to it:
+A Datumaro project with a MNIST source can be created the following way:
 
 ``` bash
-datum import --format mnist --input-path <path/to/dataset>
-# or
 datum create
-datum add path -f mnist <path/to/dataset>
+datum add --format mnist <path/to/dataset>
+datum add --format mnist_csv <path/to/dataset>
 ```
-
-There are two ways to create Datumaro project and add MNIST in CSV dataset
-to it:
-
-``` bash
-datum import --format mnist_csv --input-path <path/to/dataset>
-# or
-datum create
-datum add path -f mnist_csv <path/to/dataset>
-```
-
-It is possible to specify project name and project directory run
-`datum create --help` for more information.
 
 MNIST dataset directory should have the following structure:
 
@@ -117,16 +103,17 @@ Ankle boot
 
 ## Export to other formats
 
-Datumaro can convert MNIST dataset into any other format [Datumaro supports](/docs/user-manual/supported-formats/).
+Datumaro can convert MNIST dataset into any other format [Datumaro supports](/docs/user-manual/supported_formats/).
 To get the expected result, convert the dataset to formats
 that support the classification task (e.g. CIFAR-10/100, ImageNet, PascalVOC,
 etc.) There are few ways to convert MNIST dataset to other dataset format:
 
 ``` bash
-datum project import -f mnist -i <path/to/mnist>
-datum export -f imagenet -o <path/to/output/dir>
+datum create
+datum add -f mnist <path/to/mnist>
+datum export -f imagenet -o <output/dir>
 # or
-datum convert -if mnist -i <path/to/mnist> -f imagenet -o <path/to/output/dir>
+datum convert -if mnist -i <path/to/mnist> -f imagenet -o <output/dir>
 ```
 
 These commands also work for MNIST in CSV if you use `mnist_csv` instead of `mnist`.
@@ -137,11 +124,11 @@ There are few ways to convert dataset to MNIST format:
 
 ``` bash
 # export dataset into MNIST format from existing project
-datum export -p <path/to/project> -f mnist -o <path/to/export/dir> \
+datum export -p <path/to/project> -f mnist -o <output/dir> \
     -- --save-images
 # converting to MNIST format from other format
-datum convert -if imagenet -i <path/to/imagenet/dataset> \
-    -f mnist -o <path/to/export/dir> -- --save-images
+datum convert -if imagenet -i <path/to/dataset> \
+    -f mnist -o <output/dir> -- --save-images
 ```
 
 Extra options for export to MNIST format:
@@ -170,12 +157,12 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import DatasetItem
 
 dataset = Dataset.from_iterable([
-    DatasetItem(id=0, image=np.ones((28, 28)),
-        annotations=[Label(2)]
-    ),
-    DatasetItem(id=1, image=np.ones((28, 28)),
-        annotations=[Label(7)]
-    )
+  DatasetItem(id=0, image=np.ones((28, 28)),
+    annotations=[Label(2)]
+  ),
+  DatasetItem(id=1, image=np.ones((28, 28)),
+    annotations=[Label(7)]
+  )
 ], categories=[str(label) for label in range(10)])
 
 dataset.export('./dataset', format='mnist')

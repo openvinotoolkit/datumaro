@@ -68,7 +68,7 @@ class _TaskValidator(Validator, CliPlugin):
                 "Dominace_ratio = ratio of Top-k bin to total in histogram "
                 "(default: %(default)s)")
         parser.add_argument('-k', '--topk-bins', default=0.1, type=float,
-            help="Ratio of bins with the highest number of data"
+            help="Ratio of bins with the highest number of data "
                 "to total bins in the histogram. A value in the range [0, 1] "
                 "(default: %(default)s)")
         return parser

@@ -366,7 +366,7 @@ Example: create a project, add dataset, modify, restore an old version
 
 ``` bash
 datum create
-datum add <path/to/coco/dataset> -f coco -n source1
+datum add <path/to/dataset> -f coco -n source1
 datum commit -m "Added a dataset"
 datum transform -t shapes_to_boxes
 datum filter -e '/item/annotation[label="cat" or label="dog"]' -m i+a

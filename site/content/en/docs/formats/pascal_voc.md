@@ -48,13 +48,11 @@ Supported annotation attributes:
 The Pascal VOC dataset is available for free download
 [here](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/index.html#devkit)
 
-There are two ways to create Datumaro project and add Pascal VOC dataset to it:
+A Datumaro project with a Pascal VOC source can be created the following way:
 
 ``` bash
-datum import --format voc --input-path <path/to/dataset>
-# or
 datum create
-datum add path -f voc <path/to/dataset>
+datum add --format voc <path/to/dataset>
 ```
 
 It is possible to specify project name and project directory run
@@ -141,7 +139,7 @@ of Pascal VOC dataset instead of the whole dataset,
 for example:
 
 ``` bash
-datum add path -f voc_detection <path/to/dataset/ImageSets/Main/train.txt>
+datum add -f voc_detection -r ImageSets/Main/train.txt <path/to/dataset>
 ```
 
 To make sure that the selected dataset has been added to the project, you
@@ -150,7 +148,7 @@ can run `datum info`, which will display the project and dataset information.
 ## Export to other formats
 
 Datumaro can convert Pascal VOC dataset into any other format
-[Datumaro supports](/docs/user-manual/supported-formats).
+[Datumaro supports](/docs/user-manual/supported_formats).
 
 Such conversion will only be successful if the output
 format can represent the type of dataset you want to convert,
@@ -160,18 +158,13 @@ saved in `ImageNet` format, but no as `COCO keypoints`.
 There are few ways to convert Pascal VOC dataset to other dataset format:
 
 ``` bash
-datum import -f voc -i <path/to/voc>
-datum export -f coco -o <path/to/output/dir>
+datum create
+datum add -f voc <path/to/voc>
+datum export -f coco -o <output/dir>
 # or
-datum convert -if voc -i <path/to/voc> -f coco -o <path/to/output/dir>
+datum convert -if voc -i <path/to/voc> -f coco -o <output/dir>
 
 ```
-
-Some formats provide extra options for conversion.
-These options are passed after double dash (`--`) in the command line.
-To get information about them, run
-
-`datum export -f <FORMAT> -- -h`
 
 ## Export to Pascal VOC
 
@@ -179,11 +172,11 @@ There are few ways to convert an existing dataset to Pascal VOC format:
 
 ``` bash
 # export dataset into Pascal VOC format (classification) from existing project
-datum export -p <path/to/project> -f voc -o <path/to/export/dir> -- --tasks classification
+datum export -p <path/to/project> -f voc -o <output/dir> -- --tasks classification
 
 # converting to Pascal VOC format from other format
-datum convert -if imagenet -i <path/to/imagenet/dataset> \
-    -f voc -o <path/to/export/dir> \
+datum convert -if imagenet -i <path/to/dataset> \
+    -f voc -o <output/dir> \
     -- --label_map voc --save-images
 ```
 
@@ -208,8 +201,7 @@ Extra options for export to Pascal VOC format:
   by default Datumaro uses all tasks. Example:
 
 ```bash
-datum import -o project -f voc -i ./VOC2012
-datum export -p project -f voc -- --tasks detection,classification
+datum export -f voc -- --tasks detection,classification
 ```
 
 - `--label_map` allow to define a custom colormap. Example
@@ -245,12 +237,12 @@ export the result to Pascal VOC format.
 
 ```bash
 datum create -o project
-datum add path -p project -f voc_segmentation ./VOC2012/ImageSets/Segmentation/trainval.txt
+datum add -p project -f voc_segmentation ./VOC2012/ImageSets/Segmentation/trainval.txt
 datum stats -p project # check statisctics.json -> repeated images
-datum transform -p project -o ndr_project -t ndr -- -w trainval -k 2500
-datum filter -p ndr_project -o trainval2500 -e '/item[subset="trainval"]'
-datum transform -p trainval2500 -o final_project -t random_split -- -s train:.8 -s val:.2
-datum export -p final_project -o dataset -f voc -- --label-map voc --save-images
+datum transform -p project -t ndr -- -w trainval -k 2500
+datum filter -p project -e '/item[subset="trainval"]'
+datum transform -p project -t random_split -- -s train:.8 -s val:.2
+datum export -p project -f voc -- --label-map voc --save-images
 ```
 
 ### Example 2. How to create custom dataset

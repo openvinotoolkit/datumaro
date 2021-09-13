@@ -18,6 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/238>)
 - `add`, `remove`, `commit`, `checkout`, `log`, `status`, `info` CLI commands
   (<https://github.com/openvinotoolkit/datumaro/pull/238>)
+- `Coco*Extractor` classes now have an option to preserve label IDs from the
+  original annotation file
+  (<https://github.com/openvinotoolkit/datumaro/pull/453>)
 
 ### Changed
 - A project can contain and manage multiple datasets instead of a single one.

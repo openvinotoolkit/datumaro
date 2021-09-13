@@ -121,8 +121,8 @@ Use data only from the "s1" source of the project.
 
 ``` bash
 datum create
-datum add path/to/dataset1/ --format voc --name s1
-datum add path/to/dataset2/ --format voc --name s2
+datum add --format voc -i <path/to/dataset1/> --name s1
+datum add --format voc -i <path/to/dataset2/> --name s2
 datum filter s1 \
   -m i+a -e '/item/annotation[occluded="False"]'
 ```

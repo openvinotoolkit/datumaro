@@ -60,17 +60,21 @@ Annotations:
 - [person_keypoints](http://images.cocodataset.org/annotations/annotations_trainval2017.zip)
 - [stuff](http://images.cocodataset.org/annotations/stuff_annotations_trainval2017.zip)
 
-There are two ways to create Datumaro project and add COCO dataset to it:
+A Datumaro project with a COCO source can be created the following way:
 
 ``` bash
-datum import --format coco --input-path <path/to/dataset>
-# or
 datum create
-datum add path -f coco <path/to/dataset>
+datum add --format coco <path/to/dataset>
 ```
 
 It is possible to specify project name and project directory, run
 `datum create --help` for more information.
+
+Extra options for adding a source in the COCO format:
+
+- `--keep-original-category-ids`: Add dummy label categories so that
+ category indexes in the imported data source correspond to the category IDs
+ in the original annotation file.
 
 A COCO dataset directory should have the following layout:
 
@@ -125,7 +129,8 @@ instead of the whole dataset. This option also allows to import annotation
 files with non-default names. For example:
 
 ``` bash
-datum import --format coco_stuff --input-path <path/to/stuff.json>
+datum create
+datum add --format coco_stuff -r <relpath/to/stuff.json> <path/to/dataset>
 ```
 
 To make sure that the selected dataset has been added to the project, you can
@@ -138,23 +143,18 @@ Notes:
 
 ## Export to other formats
 
-Datumaro can convert COCO dataset into any other format [Datumaro supports](/docs/user-manual/supported-formats/).
+Datumaro can convert COCO dataset into any other format [Datumaro supports](/docs/user-manual/supported_formats/).
 To get the expected result, convert the dataset to formats
 that support the specified task (e.g. for panoptic segmentation - VOC, CamVID)
 There are few ways to convert COCO dataset to other dataset format:
 
 ``` bash
-datum project import -f coco -i <path/to/coco>
-datum export -f voc -o <path/to/output/dir>
+datum create
+datum add -f coco <path/to/coco>
+datum export -f voc -o <output/dir>
 # or
-datum convert -if coco -i <path/to/coco> -f voc -o <path/to/output/dir>
+datum convert -if coco -i <path/to/coco> -f voc -o <output/dir>
 ```
-
-Some formats provide extra options for conversion.
-These options are passed after double dash (`--`) in the command line.
-To get information about them, run
-
-`datum export -f <FORMAT> -- -h`
 
 ## Export to COCO
 
@@ -162,11 +162,11 @@ There are few ways to convert dataset to COCO format:
 
 ``` bash
 # export dataset into COCO format from existing project
-datum export -p <path/to/project> -f coco -o <path/to/export/dir> \
+datum export -p <path/to/project> -f coco -o <output/dir> \
     -- --save-images
 # converting to COCO format from other format
-datum convert -if voc -i <path/to/voc/dataset> \
-    -f coco -o <path/to/export/dir> -- --save-images
+datum convert -if voc -i <path/to/dataset> \
+    -f coco -o <output/dir> -- --save-images
 ```
 
 Extra options for export to COCO format:
@@ -193,8 +193,9 @@ Extra options for export to COCO format:
   by default Datumaro uses all tasks. Example:
 
 ```bash
-datum import -o project -f coco -i <dataset>
-datum export -p project -f coco -- --tasks instances,stuff
+datum create
+datum add -f coco <path/to/dataset>
+datum export -f coco -- --tasks instances,stuff
 ```
 
 ## Examples
@@ -211,9 +212,9 @@ particular problems with COCO dataset:
 
 ```bash
 datum create -o project
-datum add path -p project -f coco_panoptic ./COCO/annotations/panoptic_val2017.json
+datum add -p project -f coco_panoptic ./COCO/annotations/panoptic_val2017.json
 datum stats -p project
-datum export -p final_project -o dataset -f voc  --overwrite  -- --save-images
+datum export -p project -f voc -- --save-images
 ```
 
 ### Example 2. How to create custom COCO-like dataset
@@ -225,18 +226,18 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import DatasetItem
 
 dataset = Dataset.from_iterable([
-    DatasetItem(id='000000000001',
-                image=np.ones((1, 5, 3)),
-                subset='val',
-                attributes={'id': 40},
-                annotations=[
-                    Mask(image=np.array([[0, 0, 1, 1, 0]]), label=3,
-                        id=7, group=7, attributes={'is_crowd': False}),
-                    Mask(image=np.array([[0, 1, 0, 0, 1]]), label=1,
-                        id=20, group=20, attributes={'is_crowd': True}),
-                ]
-            ),
-    ], categories=['a', 'b', 'c', 'd'])
+  DatasetItem(id='000000000001',
+    image=np.ones((1, 5, 3)),
+    subset='val',
+    attributes={'id': 40},
+    annotations=[
+      Mask(image=np.array([[0, 0, 1, 1, 0]]), label=3,
+        id=7, group=7, attributes={'is_crowd': False}),
+      Mask(image=np.array([[0, 1, 0, 0, 1]]), label=1,
+        id=20, group=20, attributes={'is_crowd': True}),
+    ]
+  ),
+], categories=['a', 'b', 'c', 'd'])
 
 dataset.export('./dataset', format='coco_panoptic')
 ```

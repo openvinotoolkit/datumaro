@@ -68,13 +68,11 @@ provides an option to use a special index file to allow this.
 ...
 ```
 
-There are two ways to create Datumaro project and add KITTI dataset to it:
+A Datumaro project with a KITTI source can be created the following way:
 
 ```bash
-datum import --format kitti_raw --input-path <path/to/dataset>
-# or
 datum create
-datum add path -f kitti_raw <path/to/dataset>
+datum add --format kitti_raw <path/to/dataset>
 ```
 
 To make sure that the selected dataset has been added to the project,
@@ -84,7 +82,7 @@ information.
 ## Export to other formats
 
 Datumaro can convert KITTI Raw dataset into any other
-format [Datumaro supports](/docs/user-manual/supported-formats/).
+format [Datumaro supports](/docs/user-manual/supported_formats/).
 
 Such conversion will only be successful if the output
 format can represent the type of dataset you want to convert,
@@ -94,17 +92,12 @@ but not in COCO keypoints.
 There are few ways to convert KITTI Raw dataset to other dataset format:
 
 ``` bash
-datum import -f kitti_raw -i <path/to/kitti_raw> -o proj/
-datum export -f sly_pointcloud -o <path/to/output/dir> -p proj/
+datum create
+datum add -f kitti_raw <path/to/kitti_raw>
+datum export -f sly_pointcloud -o <output/dir>
 # or
 datum convert -if kitti_raw -i <path/to/kitti_raw> -f sly_pointcloud
 ```
-
-Some formats provide extra options for conversion.
-These options are passed after double dash (`--`) in the command line.
-To get information about them, run
-
-`datum export -f <FORMAT> -- -h`
 
 ## Export to KITTI Raw
 
@@ -112,11 +105,11 @@ There are few ways to convert dataset to KITTI Raw format:
 
 ``` bash
 # export dataset into KITTI Raw format from existing project
-datum export -p <path/to/project> -f kitti_raw -o <path/to/export/dir> \
+datum export -p <path/to/project> -f kitti_raw -o <output/dir> \
     -- --save-images
 # converting to KITTI Raw format from other format
-datum convert -if sly_pointcloud -i <path/to/sly_pcd/dataset> \
-    -f kitti_raw -o <path/to/export/dir> -- --save-images --reindex
+datum convert -if sly_pointcloud -i <path/to/dataset> \
+    -f kitti_raw -o <output/dir> -- --save-images --reindex
 ```
 
 Extra options for exporting in KITTI Raw format:
@@ -137,7 +130,7 @@ Extra options for exporting in KITTI Raw format:
 
 ```bash
 datum create -o project
-datum add path -p project -f kitti_raw ../../kitti_raw/
+datum add -p project -f kitti_raw ../kitti_raw/
 datum stats -p project
 ```
 
@@ -156,18 +149,18 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import DatasetItem
 
 dataset = Dataset.from_iterable([
-    DatasetItem(id='some/name/qq',
-        annotations=[
-            Cuboid3d(position=[13.54, -9.41, 0.24], label=0,
-                attributes={'occluded': False, 'track_id': 1}),
+  DatasetItem(id='some/name/qq',
+    annotations=[
+      Cuboid3d(position=[13.54, -9.41, 0.24], label=0,
+        attributes={'occluded': False, 'track_id': 1}),
 
-            Cuboid3d(position=[3.4, -2.11, 4.4], label=1,
-                attributes={'occluded': True, 'track_id': 2})
-        ],
-        pcd='path/to/pcd1.pcd',
-        related_images=[np.ones((10, 10)), 'path/to/image2.png', 'image3.jpg'],
-        attributes={'frame': 0}
-    ),
+      Cuboid3d(position=[3.4, -2.11, 4.4], label=1,
+        attributes={'occluded': True, 'track_id': 2})
+    ],
+    pcd='path/to/pcd1.pcd',
+    related_images=[np.ones((10, 10)), 'path/to/image2.png', 'image3.jpg'],
+    attributes={'frame': 0}
+  ),
 ], categories=['cat', 'dog'])
 
 dataset.export('my_dataset/', format='kitti_raw', save_images=True)
