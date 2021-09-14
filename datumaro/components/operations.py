@@ -1329,7 +1329,7 @@ def find_unique_images(dataset: IDataset, item_hash: Optional[Callable] = None):
             log.warning("Item (%s, %s) has no image "
                 "info, counted as unique", item.id, item.subset)
             return None
-        # ignore B303 (md5 check), because the hash is not used in a security context
+        # Disable B303:md5, because the hash is not used in a security context
         return hashlib.md5(item.image.data.tobytes()).hexdigest() # nosec
 
     if item_hash is None:

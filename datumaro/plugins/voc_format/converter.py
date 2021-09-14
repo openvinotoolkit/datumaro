@@ -9,7 +9,8 @@ import logging as log
 import os
 import os.path as osp
 
-from lxml import etree as ET
+# Disable B410: import_lxml - the library is used for writing
+from lxml import etree as ET  # nosec
 
 from datumaro.components.annotation import (
     AnnotationType, CompiledMask, LabelCategories,
