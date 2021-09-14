@@ -269,7 +269,7 @@ class OpenImagesExtractor(Extractor):
                     if _RE_INVALID_PATH_COMPONENT.fullmatch(subset):
                         raise UnsupportedSubsetNameError(item_id=image_id, subset=subset)
 
-                    image_path = image_paths_by_id.get(image_id)
+                    image_path = image_paths_by_id.get(image_id, image_id)
 
                     image = None
                     if image_path is not None:
