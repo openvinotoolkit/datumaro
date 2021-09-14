@@ -93,11 +93,8 @@ class ExactMerge:
             for item in source:
                 existing_item = items.get(item.id, item.subset)
                 if existing_item is not None:
-                    path = existing_item.path
-                    if item.path != path:
-                        path = None
                     try:
-                        item = cls.merge_items(existing_item, item, path=path)
+                        item = cls.merge_items(existing_item, item)
                     except DatasetMergeError as e:
                         e.sources = set(range(source_idx))
                         raise e
@@ -106,8 +103,8 @@ class ExactMerge:
         return items
 
     @classmethod
-    def merge_items(cls, existing_item, current_item, path=None):
-        return existing_item.wrap(path=path,
+    def merge_items(cls, existing_item, current_item):
+        return existing_item.wrap(
             image=cls.merge_images(existing_item, current_item),
             annotations=cls.merge_anno(
                 existing_item.annotations, current_item.annotations))
