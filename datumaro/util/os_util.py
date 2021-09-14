@@ -12,7 +12,7 @@ import os
 import os.path as osp
 import re
 import shutil
-import subprocess
+import subprocess  # nosec - B404: import_subprocess
 import sys
 import unicodedata
 

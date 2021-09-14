@@ -1,4 +1,4 @@
-# Copyright (C) 2020 Intel Corporation
+# Copyright (C) 2020-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -308,7 +308,8 @@ class LabelMeConverter(Converter):
     _escape = partial(escape, escapes=LabelMePath.ATTR_EXPORT_ESCAPES)
 
     def _save_item(self, item, subset_dir):
-        from lxml import etree as ET
+        # Disable B410: import_lxml - the library is used for writing here
+        from lxml import etree as ET  # nosec
 
         log.debug("Converting item '%s'", item.id)
 

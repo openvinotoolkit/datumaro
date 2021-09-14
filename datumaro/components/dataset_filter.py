@@ -1,10 +1,11 @@
-# Copyright (C) 2019-2020 Intel Corporation
+# Copyright (C) 2019-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 import logging as log
 
-from lxml import etree as ET  # lxml has proper XPath implementation
+# Disable B410: import_lxml - the library is used for writing
+from lxml import etree as ET  # nosec, lxml has proper XPath implementation
 
 from datumaro.components.annotation import (
     Annotation, AnnotationType, Bbox, Caption, Label, Mask, Points, Polygon,
