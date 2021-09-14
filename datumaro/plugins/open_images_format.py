@@ -269,7 +269,7 @@ class OpenImagesExtractor(Extractor):
                     if _RE_INVALID_PATH_COMPONENT.fullmatch(subset):
                         raise UnsupportedSubsetNameError(item_id=image_id, subset=subset)
 
-                    image_path = image_paths_by_id.get(image_id, image_id)
+                    image_path = image_paths_by_id.get(image_id)
 
                     image = None
                     if image_path is not None:
@@ -350,8 +350,11 @@ class OpenImagesExtractor(Extractor):
                             item_id=item.id, subset=item.subset,
                             label_name=label_name, severity=Severity.error)
 
+
                     if item.has_image and item.image.size is not None:
                         height, width = item.image.size
+                    elif self._image_meta.get(item.id):
+                        height, width = self._image_meta[item.id]
                     else:
                         log.warning(
                             "Can't decode box for item '%s' due to missing image file",
@@ -422,6 +425,16 @@ class OpenImagesExtractor(Extractor):
                             item_id=item.id, subset=item.subset,
                             label_name=label_name, severity=Severity.error)
 
+                    if item.has_image and item.image.has_size:
+                        image_size = item.image.size
+                    elif self._image_meta.get(item.id):
+                        image_size = self._image_meta.get(item.id)
+                    else:
+                        log.warning(
+                            "Can't decode mask for item '%s' due to missing image file",
+                            item.id)
+                        continue
+
                     attributes = {}
 
                     # The box IDs are rather useless, because the _box_ annotations
@@ -472,7 +485,7 @@ class OpenImagesExtractor(Extractor):
                                 item.subset, mask_path,
                             ),
                             loader=functools.partial(
-                                self._load_and_resize_mask, size=item.image.size),
+                                self._load_and_resize_mask, size=image_size),
                         ),
                         label=label_index,
                         attributes=attributes,
