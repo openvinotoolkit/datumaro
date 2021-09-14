@@ -37,7 +37,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
-def get_params_with_paths():
+def get_sensitive_args():
     return {
         create_command: ['dst_dir',],
     }

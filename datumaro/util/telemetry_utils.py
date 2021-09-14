@@ -44,27 +44,25 @@ def _get_action_name(command):
         return 'model_run_result'
     elif command is contexts.model.info_command:
         return 'model_info_result'
-    elif command is commands.checkout:
+    elif command is commands.checkout.checkout_command:
         return 'checkout_result'
-    elif command is commands.commit:
+    elif command is commands.commit.commit_command:
         return 'commit_result'
-    elif command is commands.convert:
+    elif command is commands.convert.convert_command:
         return 'convert_result'
-    elif command is commands.create:
+    elif command is commands.create.create_command:
         return 'create_result'
-    elif command is commands.diff:
+    elif command is commands.diff.diff_command:
         return 'diff_result'
-    elif command is commands.explain:
+    elif command is commands.explain.explain_command:
         return 'explain_result'
-    elif command is commands.explain:
-        return 'explain_result'
-    elif command is commands.info:
+    elif command is commands.info.info_command:
         return 'info_result'
-    elif command is commands.log:
+    elif command is commands.log.log_command:
         return 'log_result'
-    elif command is commands.merge:
+    elif command is commands.merge.merge_command:
         return 'merge_result'
-    elif command is commands.status:
+    elif command is commands.status.status_command:
         return 'status_result'
 
     return 'unknown_command_result'
@@ -104,7 +102,7 @@ def _cleanup_stacktrace():
 def init_telemetry_session(app_name, app_version):
     telemetry = tm.Telemetry(app_name=app_name, app_version=app_version, tid='UA-114865019-4')
     telemetry.start_session('dm')
-    telemetry.send_event('dm', 'version', app_version)
+    send_version_info(telemetry, app_version)
 
     return telemetry
 
@@ -121,7 +119,7 @@ def _send_result_info(result, telemetry, args, sensetive_params):
     telemetry.send_event('dm', action, json.dumps(payload))
 
 def send_version_info(telemetry, version):
-    telemetry.send_event('dm', version, str(version))
+    telemetry.send_event('dm', 'version', str(version))
 
 def send_command_success_info(telemetry, args, sensetive_params):
     _send_result_info('success', telemetry, args, sensetive_params)

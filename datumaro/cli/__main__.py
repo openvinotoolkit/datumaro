@@ -89,14 +89,14 @@ def _get_known_commands():
         ('validate', commands.validate, "Validate project")
     ]
 
-def _get_params_with_paths():
+def _get_sensitive_args():
     known_contexts = _get_known_contexts()
     known_commands = _get_known_commands()
 
     res = {}
     for _, command, _ in known_contexts + known_commands:
         if command is not None:
-            res.update(command.get_params_with_paths())
+            res.update(command.get_sensitive_args())
 
     return res
 
@@ -153,7 +153,7 @@ def main(args=None):
         parser.print_help()
         return 1
 
-    args_with_paths = _get_params_with_paths()
+    args_with_paths = _get_sensitive_args()
     telemetry = init_telemetry_session(app_name='Datumaro', app_version=VERSION)
 
     try:

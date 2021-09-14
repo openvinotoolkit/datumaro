@@ -239,7 +239,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
-def get_params_with_paths():
+def get_sensitive_args():
     return {
         **get_add_params_with_paths(),
         **get_remove_params_with_paths(),
