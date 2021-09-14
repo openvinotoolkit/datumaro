@@ -56,9 +56,6 @@ class _SubsetWriter:
         if item.attributes:
             item_desc['attr'] = item.attributes
 
-        if item.path:
-            item_desc['path'] = item.path
-
         if item.has_image:
             path = item.image.path
             if self._context._save_images:

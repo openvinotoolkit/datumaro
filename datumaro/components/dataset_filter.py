@@ -19,7 +19,6 @@ class DatasetItemEncoder:
         item_elem = ET.Element('item')
         ET.SubElement(item_elem, 'id').text = str(item.id)
         ET.SubElement(item_elem, 'subset').text = str(item.subset)
-        ET.SubElement(item_elem, 'path').text = str('/'.join(item.path))
 
         image = item.image
         if image is not None:
