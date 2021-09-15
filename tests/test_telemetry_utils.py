@@ -3,11 +3,11 @@ import types
 import json
 from unittest.mock import Mock
 
+from datumaro.cli.commands.info import info_command
 from datumaro.util.telemetry_utils import (
     send_command_exception_info, send_command_failure_info,
-    send_command_success_info, send_version_info
+    send_command_success_info, send_version_info,
 )
-from datumaro.cli.commands.info import info_command
 
 try:
     import openvino_telemetry as tm
@@ -28,7 +28,7 @@ class TestTelemetryUtils(unittest.TestCase):
 
     def test_send_command_success_info(self):
         cli_args = types.SimpleNamespace(loglevel='20', target='project', all='False',
-            project_dir='/tmp/some_datumero_project', command=info_command)
+            project_dir='/a/b/c', command=info_command)
 
         send_command_success_info(self.telemetry, cli_args, ('project_dir', 'target'))
         self.telemetry.send_event.assert_any_call('dm', 'info_result', json.dumps({
@@ -41,7 +41,7 @@ class TestTelemetryUtils(unittest.TestCase):
 
     def test_send_command_failure_info(self):
         cli_args = types.SimpleNamespace(loglevel='20', target='project', all='False',
-            project_dir='/tmp/some_datumero_project', command=info_command)
+            project_dir='/a/b/c', command=info_command)
 
         send_command_failure_info(self.telemetry, cli_args, ('project_dir', 'target'))
         self.telemetry.send_event.assert_any_call('dm', 'info_result', json.dumps({
@@ -57,7 +57,7 @@ class TestTelemetryUtils(unittest.TestCase):
             raise ValueError('Test value exception')
         except ValueError:
             cli_args = types.SimpleNamespace(loglevel='20', target='project', all='False',
-                project_dir='/tmp/some_datumero_project', command=info_command)
+                project_dir='/a/b/c', command=info_command)
 
             send_command_exception_info(self.telemetry, cli_args, ('project_dir', 'target'))
             self.telemetry.send_event.assert_any_call('dm', 'info_result', json.dumps({

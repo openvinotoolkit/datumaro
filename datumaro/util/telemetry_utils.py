@@ -67,14 +67,14 @@ def _get_action_name(command):
 
     return 'unknown_command_result'
 
-def _cleanup_params_info(args, params_with_paths):
+def _cleanup_params_info(args, sensitive_args):
     fields_to_exclude = ('command', '_positionals',)
     cli_params = {}
     for arg in vars(args):
         if arg in fields_to_exclude:
             continue
         arg_value = getattr(args, arg)
-        if arg in params_with_paths:
+        if arg in sensitive_args:
             # If command line argument value is a directory or a path to file it is not sent
             # as it may contain confidential information. "1" value is used instead.
             cli_params[arg] = str(1)

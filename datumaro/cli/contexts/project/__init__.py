@@ -136,7 +136,7 @@ def build_export_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
-def get_export_params_with_paths():
+def get_export_sensitive_args():
     return {
         export_command: ['dst_dir', 'project_dir', 'name',],
     }
@@ -286,7 +286,7 @@ def build_filter_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
-def get_filter_params_with_paths():
+def get_filter_sensitive_args():
     return {
         filter_command: ['target', 'filter', 'dst_dir', 'project_dir',],
     }
@@ -421,7 +421,7 @@ def build_transform_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
-def get_transform_params_with_paths():
+def get_transform_sensitive_args():
     return {
         transform_command: ['dst_dir', 'project_dir',],
     }
@@ -542,7 +542,7 @@ def build_stats_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
-def get_stats_params_with_paths():
+def get_stats_sensitive_args():
     return {
         stats_command: ['project_dir',],
     }
@@ -592,7 +592,7 @@ def build_info_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
-def get_info_params_with_paths():
+def get_info_sensitive_args():
     return {
         info_command: ['project_dir',],
     }
@@ -686,7 +686,7 @@ def build_validate_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
-def get_validate_params_with_paths():
+def get_validate_sensitive_args():
     return {
         validate_command: ['target', 'project_dir',],
     }
@@ -781,7 +781,7 @@ def build_migrate_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
-def get_migrate_params_with_paths():
+def get_migrate_sensitive_args():
     return {
         migrate_command: ['dst_dir', 'project_dir',],
     }
@@ -830,11 +830,11 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 
 def get_sensitive_args():
     return {
-        **get_export_params_with_paths(),
-        **get_filter_params_with_paths(),
-        **get_transform_params_with_paths(),
-        **get_stats_params_with_paths(),
-        **get_info_params_with_paths(),
-        **get_validate_params_with_paths(),
-        **get_migrate_params_with_paths(),
+        **get_export_sensitive_args(),
+        **get_filter_sensitive_args(),
+        **get_transform_sensitive_args(),
+        **get_stats_sensitive_args(),
+        **get_info_sensitive_args(),
+        **get_validate_sensitive_args(),
+        **get_migrate_sensitive_args(),
     }

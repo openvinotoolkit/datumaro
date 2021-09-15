@@ -53,7 +53,7 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
-def get_add_params_with_paths():
+def get_add_sensitive_args():
     return {
         add_command: ['project_dir', 'name',],
     }
@@ -130,7 +130,7 @@ def build_remove_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
-def get_remove_params_with_paths():
+def get_remove_sensitive_args():
     return {
         remove_command: ['project_dir', 'name',],
     }
@@ -176,7 +176,7 @@ def build_run_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
-def get_run_params_with_paths():
+def get_run_sensitive_args():
     return {
         run_command: ['target', 'dst_dir', 'model_name', 'project_dir',],
     }
@@ -219,7 +219,7 @@ def build_info_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
-def get_info_params_with_paths():
+def get_info_sensitive_args():
     return {
         info_command: ['name', 'project_dir',],
     }
@@ -249,8 +249,8 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 
 def get_sensitive_args():
     return {
-        **get_add_params_with_paths(),
-        **get_remove_params_with_paths(),
-        **get_run_params_with_paths(),
-        **get_info_params_with_paths(),
+        **get_add_sensitive_args(),
+        **get_remove_sensitive_args(),
+        **get_run_sensitive_args(),
+        **get_info_sensitive_args(),
     }
