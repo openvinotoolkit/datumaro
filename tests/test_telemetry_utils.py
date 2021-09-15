@@ -1,7 +1,7 @@
-import unittest
-import types
-import json
 from unittest.mock import Mock
+import json
+import types
+import unittest
 
 from datumaro.cli.commands.info import info_command
 from datumaro.util.telemetry_utils import (
