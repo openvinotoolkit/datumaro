@@ -147,7 +147,7 @@ class OpenImagesPath:
     )
 
 class OpenImagesExtractor(Extractor):
-    def __init__(self, path):
+    def __init__(self, path, image_meta=None):
         if not osp.isdir(path):
             raise FileNotFoundError("Can't read dataset directory '%s'" % path)
 
@@ -168,6 +168,9 @@ class OpenImagesExtractor(Extractor):
             ))
         except Exception:
             self._image_meta = {}
+
+        if isinstance(image_meta, dict):
+            self._image_meta.update(image_meta)
 
         self._load_categories()
         self._load_items()
