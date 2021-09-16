@@ -28,7 +28,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         You can add your own formats and do many more by creating a
         Datumaro project.|n
         |n
-        This command serves as an alias for the "create", "add", and
+        This command serves as an alias for the "create", "import", and
         "export" commands, allowing to obtain the same results simpler
         and faster. Check descriptions of these commands for more info.|n
         |n

@@ -23,7 +23,7 @@ class VocIntegrationScenarios(TestCase):
         extra_args = []
         if result_path:
             extra_args += ['-r', result_path]
-        run(self, 'add', '-p', project_path, '-f', dataset_format,
+        run(self, 'import', '-p', project_path, '-f', dataset_format,
             *extra_args, source_path)
 
         result_dir = osp.join(project_path, 'result')
@@ -87,7 +87,7 @@ class VocIntegrationScenarios(TestCase):
 
         with TestDir() as test_dir:
             run(self, 'create', '-o', test_dir)
-            run(self, 'add', '-p', test_dir, '-f', 'voc', dataset_path)
+            run(self, 'import', '-p', test_dir, '-f', 'voc', dataset_path)
 
             run(self, 'filter', '-p', test_dir, '-m', 'i+a',
                 '-e', "/item/annotation[occluded='False']")
@@ -137,7 +137,7 @@ class VocIntegrationScenarios(TestCase):
                 'tests', 'assets', 'yolo_dataset')
 
             run(self, 'create', '-o', test_dir)
-            run(self, 'add', '-p', test_dir, '-f', 'yolo', yolo_dir)
+            run(self, 'import', '-p', test_dir, '-f', 'yolo', yolo_dir)
 
             voc_export = osp.join(test_dir, 'voc_export')
             run(self, 'export', '-p', test_dir, '-f', 'voc',

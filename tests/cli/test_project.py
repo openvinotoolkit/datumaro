@@ -39,7 +39,7 @@ class ProjectIntegrationScenarios(TestCase):
 
         with TestDir() as test_dir:
             run(self, 'create', '-o', test_dir)
-            run(self, 'add', '-f', 'coco', '-p', test_dir, coco_dir)
+            run(self, 'import', '-f', 'coco', '-p', test_dir, coco_dir)
 
             result_dir = osp.join(test_dir, 'voc_export')
             run(self, 'export', '-f', 'voc', '-p', test_dir, '-o', result_dir,
@@ -54,7 +54,7 @@ class ProjectIntegrationScenarios(TestCase):
 
         with TestDir() as test_dir:
             run(self, 'create', '-o', test_dir)
-            run(self, 'add', '-f', 'coco', '-p', test_dir, coco_dir)
+            run(self, 'import', '-f', 'coco', '-p', test_dir, coco_dir)
 
             with self.subTest("on project"):
                 run(self, 'project', 'info', '-p', test_dir)
@@ -69,7 +69,7 @@ class ProjectIntegrationScenarios(TestCase):
 
         with TestDir() as test_dir:
             run(self, 'create', '-o', test_dir)
-            run(self, 'add', '-f', 'coco', '-p', test_dir, coco_dir)
+            run(self, 'import', '-f', 'coco', '-p', test_dir, coco_dir)
             run(self, 'commit', '-m', 'first', '-p', test_dir)
 
             with self.subTest("on current project"):
@@ -102,7 +102,7 @@ class ProjectIntegrationScenarios(TestCase):
             ], categories=['a', 'b']).save(dataset_dir, save_images=True)
 
             run(self, 'create', '-o', project_dir)
-            run(self, 'add', '-p', project_dir, '-f', 'datumaro', dataset_dir)
+            run(self, 'import', '-p', project_dir, '-f', 'datumaro', dataset_dir)
             run(self, 'commit', '-p', project_dir, '-m', 'Add data')
 
             run(self, 'transform', '-p', project_dir,
@@ -151,7 +151,7 @@ class ProjectIntegrationScenarios(TestCase):
 
         project_dir = osp.join(test_dir, 'proj')
         run(self, 'create', '-o', project_dir)
-        run(self, 'add', '-p', project_dir, '-n', 'source1',
+        run(self, 'import', '-p', project_dir, '-n', 'source1',
             '--format', DEFAULT_FORMAT, source_url)
         run(self, 'filter', '-p', project_dir,
             '-e', '/item/annotation[label="b"]')

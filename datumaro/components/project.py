@@ -1534,7 +1534,7 @@ class Project:
                     else:
                         log.warning(f"Failed to migrate the source '{name}'. "
                             "Try to add this source manually with "
-                            "'datum add', once migration is finished. The "
+                            "'datum import', once migration is finished. The "
                             "reason is: %s", e)
                         new_project.remove_source(name,
                             force=True, keep_data=False)

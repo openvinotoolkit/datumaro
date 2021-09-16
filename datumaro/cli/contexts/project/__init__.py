@@ -769,8 +769,8 @@ def migrate_command(args):
             skip_import_errors=args.force)
     except Exception as e:
         raise MigrationError("Failed to migrate the project "
-            "automatically. Try to create a new project and "
-            "add sources manually with 'datum create' and 'datum add'.") from e
+            "automatically. Try to create a new project and import sources "
+            "manually with 'datum create' and 'datum import'.") from e
 
     log.debug("Finished")
 
