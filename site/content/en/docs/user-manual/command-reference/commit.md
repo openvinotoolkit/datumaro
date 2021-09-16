@@ -41,6 +41,6 @@ Example:
 
 ``` bash
 datum create
-datum add -f coco <path/to/coco/>
+datum import -f coco <path/to/coco/>
 datum commit -m "Added COCO"
 ```

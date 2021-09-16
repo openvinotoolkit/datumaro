@@ -14,7 +14,7 @@ To create an unlabelled dataset from an arbitrary directory with images use
 
 ``` bash
 datum create -o <project/dir>
-datum add -p <project/dir> -f image_dir <directory/path/>
+datum import -p <project/dir> -f image_dir <directory/path/>
 ```
 
 or, if you work with Datumaro API:

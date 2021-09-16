@@ -16,7 +16,7 @@ Available formats are listed in the command help output.
 
 Dataset format writers support additional export options. To pass
 such options, use the `--` separator after the main command arguments.
-The usage information can be printed with `datum add -f <format> -- --help`.
+The usage information can be printed with `datum import -f <format> -- --help`.
 
 Common export options:
 - Most formats (where applicable) support the `--save-images` option, which

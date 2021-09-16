@@ -147,7 +147,7 @@ Example: launch inference on a dataset
 
 ``` bash
 datum create
-datum add <...>
+datum import <...>
 datum model add mymodel <...>
 datum model run -m mymodel -o inference
 ```
