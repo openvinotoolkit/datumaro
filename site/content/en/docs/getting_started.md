@@ -117,7 +117,7 @@ project.close()
   # Download COCO dataset http://cocodataset.org/#download
   # Put images to coco/images/ and annotations to coco/annotations/
   datum create
-  datum add --format coco <path/to/coco>
+  datum import --format coco <path/to/coco>
   datum export --filter '/image[images_I_dont_like]' --format cvat
   # import dataset and images to CVAT, re-annotate
   # export Datumaro project, extract to 'reannotation-upd'
@@ -136,7 +136,7 @@ project.close()
   then compare annotations with ground truth and visualize in TensorBoard:
   ```bash
   datum create
-  datum add --format coco <path/to/coco>
+  datum import --format coco <path/to/coco>
   # create model results interpretation script
   datum model add -n mymodel openvino \
     --weights model.bin --description model.xml \
@@ -148,7 +148,7 @@ project.close()
 - Change colors in PASCAL VOC-like `.png` masks:
   ```bash
   datum create
-  datum add --format voc <path/to/voc/dataset>
+  datum import --format voc <path/to/voc/dataset>
 
   # Create a color map file with desired colors:
   #

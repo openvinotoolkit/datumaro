@@ -64,10 +64,10 @@ There are two ways to import Supervisely Point Cloud dataset:
 
 ```bash
 datum create
-datum add --format sly_pointcloud --input-path <path/to/dataset>
+datum import --format sly_pointcloud --input-path <path/to/dataset>
 # or
 datum create
-datum add -f sly_pointcloud <path/to/dataset>
+datum import -f sly_pointcloud <path/to/dataset>
 ```
 
 To make sure that the selected dataset has been added to the project,
@@ -89,7 +89,7 @@ to other dataset formats:
 
 ``` bash
 datum create
-datum add -f sly_pointcloud <path/to/sly_pcd/>
+datum import -f sly_pointcloud <path/to/sly_pcd/>
 datum export -f kitti_raw -o <output/dir>
 # or
 datum convert -if sly_pointcloud -i <path/to/sly_pcd/> -f kitti_raw
@@ -125,7 +125,7 @@ Extra options for exporting in Supervisely Point Cloud format:
 
 ```bash
 datum create -o project
-datum add -p project -f sly_pointcloud ../sly_dataset/
+datum import -p project -f sly_pointcloud ../sly_dataset/
 datum stats -p project
 ```
 

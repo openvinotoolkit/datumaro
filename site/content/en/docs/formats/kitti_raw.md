@@ -72,7 +72,7 @@ A Datumaro project with a KITTI source can be created the following way:
 
 ```bash
 datum create
-datum add --format kitti_raw <path/to/dataset>
+datum import --format kitti_raw <path/to/dataset>
 ```
 
 To make sure that the selected dataset has been added to the project,
@@ -93,7 +93,7 @@ There are few ways to convert KITTI Raw dataset to other dataset format:
 
 ``` bash
 datum create
-datum add -f kitti_raw <path/to/kitti_raw>
+datum import -f kitti_raw <path/to/kitti_raw>
 datum export -f sly_pointcloud -o <output/dir>
 # or
 datum convert -if kitti_raw -i <path/to/kitti_raw> -f sly_pointcloud
@@ -130,7 +130,7 @@ Extra options for exporting in KITTI Raw format:
 
 ```bash
 datum create -o project
-datum add -p project -f kitti_raw ../kitti_raw/
+datum import -p project -f kitti_raw ../kitti_raw/
 datum stats -p project
 ```
 

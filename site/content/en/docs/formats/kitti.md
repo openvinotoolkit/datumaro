@@ -37,7 +37,7 @@ A Datumaro project with a KITTI source can be created the following way:
 
 ``` bash
 datum create
-datum add --format kitti <path/to/dataset>
+datum import --format kitti <path/to/dataset>
 ```
 
 It is possible to specify project name and project directory run
@@ -81,7 +81,7 @@ of KITTI dataset instead of the whole dataset,
 for example:
 
 ``` bash
-datum add --format kitti_detection <path/to/dataset>
+datum import --format kitti_detection <path/to/dataset>
 ```
 
 To make sure that the selected dataset has been added to the project, you can
@@ -100,7 +100,7 @@ There are few ways to convert KITTI dataset to other dataset format:
 
 ``` bash
 datum create
-datum add -f kitti <path/to/kitti>
+datum import -f kitti <path/to/kitti>
 datum export -f cityscapes -o <output/dir>
 # or
 datum convert -if kitti -i <path/to/kitti> -f cityscapes -o <output/dir>
@@ -161,7 +161,7 @@ particular problems with KITTI dataset:
 
 ```bash
 datum create -o project
-datum add -p project -f kitti ./KITTI/
+datum import -p project -f kitti ./KITTI/
 datum stats -p project
 datum export -p project -f cityscapes -- --save-images
 ```
