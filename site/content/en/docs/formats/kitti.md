@@ -21,7 +21,7 @@ Supported annotation types:
 - `Bbox` (object detection)
 - `Mask` (segmentation)
 
-Supported attributes:
+Supported annotation attributes:
 - `truncated` (boolean) - indicates that the bounding box specified for
   the object does not correspond to the full extent of the object
 - `occluded` (boolean) - indicates that a significant portion of the object

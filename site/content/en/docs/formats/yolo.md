@@ -7,18 +7,16 @@ weight: 11
 
 ## Format specification
 
-- The YOLO dataset format is for training and validating object detection
-  models. Specification for this format is available
-  [here](https://github.com/AlexeyAB/darknet#how-to-train-to-detect-your-custom-objects).
-  You can also find official examples on working with YOLO dataset
-  [here](https://pjreddie.com/darknet/yolo/);
+The YOLO dataset format is for training and validating object detection
+models. Specification for this format is available
+[here](https://github.com/AlexeyAB/darknet#how-to-train-to-detect-your-custom-objects).
 
-- The YOLO dataset format supports the following types of annotations:
-  - `Bounding boxes`
+You can also find official examples of working with YOLO dataset [here](https://pjreddie.com/darknet/yolo/).
 
-- YOLO format doesn't support attributes for annotations;
+Supported annotation types:
+- `Bounding boxes`
 
-- The format only supports subsets named `train` or `valid`.
+YOLO format doesn't support attributes for annotations. The format only supports subsets named `train` or `valid`.
 
 ## Load YOLO dataset
 

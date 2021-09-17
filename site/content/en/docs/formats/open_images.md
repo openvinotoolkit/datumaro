@@ -8,7 +8,7 @@ weight: 8
 ## Format specification
 
 A description of the Open Images Dataset (OID) format is available
-on [its website](https://storage.googleapis.com/openimages/web/download.html).
+[here](https://storage.googleapis.com/openimages/web/download.html).
 Datumaro supports versions 4, 5 and 6.
 
 Supported annotation types:

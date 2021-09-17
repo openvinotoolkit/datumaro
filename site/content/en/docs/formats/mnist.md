@@ -8,7 +8,9 @@ weight: 7
 ## Format specification
 
 MNIST format specification is available [here](http://yann.lecun.com/exdb/mnist/).
+
 Fashion MNIST format specification is available [here](https://github.com/zalandoresearch/fashion-mnist).
+
 MNIST in CSV  format specification is available [here](https://pjreddie.com/projects/mnist-in-csv/).
 
 The dataset has several data formats available. Datumaro supports the

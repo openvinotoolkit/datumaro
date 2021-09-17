@@ -8,6 +8,7 @@ weight: 2
 ## Format specification
 
 Cityscapes format overview is available [here](https://www.cityscapes-dataset.com/dataset-overview/).
+
 Cityscapes format specification is available [here](https://github.com/mcordts/cityscapesScripts#the-cityscapes-dataset).
 
 Supported annotation types:

@@ -7,9 +7,11 @@ weight: 10
 
 ## Format specification
 
-Point Cloud data format:
-- [specification](https://docs.supervise.ly/data-organization/00_ann_format_navi).
-- [example](https://drive.google.com/file/d/1BtZyffWtWNR-mk_PHNPMnGgSlAkkQpBl/view).
+Specification for the Point Cloud data format is available
+[here](https://docs.supervise.ly/data-organization/00_ann_format_navi).
+
+You can also find examples of working with the dataset
+[here](https://drive.google.com/file/d/1BtZyffWtWNR-mk_PHNPMnGgSlAkkQpBl/view).
 
 Supported annotation types:
 - `cuboid_3d`

@@ -7,9 +7,11 @@ weight: 5
 
 ## Format specification
 
-Velodyne Points / KITTI Raw 3D data format:
-- [home page](http://www.cvlibs.net/datasets/kitti/raw_data.php).
-- [specification](https://s3.eu-central-1.amazonaws.com/avg-kitti/devkit_raw_data.zip)
+Velodyne Points / KITTI Raw 3D data format homepage is
+available [here](http://www.cvlibs.net/datasets/kitti/raw_data.php).
+
+Velodyne Points / KITTI Raw 3D data format specification
+is available [here](https://s3.eu-central-1.amazonaws.com/avg-kitti/devkit_raw_data.zip).
 
 Supported annotation types:
 - `Cuboid3d` (represent tracks)
