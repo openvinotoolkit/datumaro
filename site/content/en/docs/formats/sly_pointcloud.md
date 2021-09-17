@@ -60,7 +60,7 @@ Point Cloud dataset directory should have the following structure:
     └── meta.json
 ```
 
-There are two ways to import Supervisely Point Cloud dataset:
+There are two ways to import a Supervisely Point Cloud dataset:
 
 ```bash
 datum create
@@ -81,10 +81,10 @@ format [Datumaro supports](/docs/user-manual/supported_formats/).
 
 Such conversion will only be successful if the output
 format can represent the type of dataset you want to convert,
-e.g. 3D point clouds can be saved in KITTI Raw format,
-but not in COCO keypoints.
+e.g. 3D point clouds can be saved in `KITTI Raw` format,
+but not in `COCO keypoints`.
 
-There are few ways to convert Supervisely Point Cloud dataset
+There are several ways to convert a Supervisely Point Cloud dataset
 to other dataset formats:
 
 ``` bash
@@ -97,7 +97,7 @@ datum convert -if sly_pointcloud -i <path/to/sly_pcd/> -f kitti_raw
 
 ## Export to Supervisely Point Cloud
 
-There are few ways to convert dataset to Supervisely Point Cloud format:
+There are several ways to convert a dataset to Supervisely Point Cloud format:
 
 ``` bash
 # export dataset into Supervisely Point Cloud format from existing project

@@ -8,7 +8,7 @@ weight: 6
 ## Format specification
 
 The KITTI dataset has many annotations for different tasks. Datumaro supports
-only few of them.
+only a few of them.
 
 Supported tasks / formats:
 - [Object Detection](http://www.cvlibs.net/datasets/kitti/eval_object.php?obj_benchmark) - `kitti_detection`
@@ -33,14 +33,14 @@ The KITTI left color images for object detection are available [here](http://www
 The KITTI object detection labels are available [here](http://www.cvlibs.net/download.php?file=data_object_label_2.zip).
 The KITTI segmentation dataset is available [here](http://www.cvlibs.net/download.php?file=data_semantics.zip).
 
-A Datumaro project with a KITTI source can be created the following way:
+A Datumaro project with a KITTI source can be created in the following way:
 
 ``` bash
 datum create
 datum add --format kitti <path/to/dataset>
 ```
 
-It is possible to specify project name and project directory run
+It is possible to specify project name and project directory. Run
 `datum create --help` for more information.
 
 KITTI segmentation dataset directory should have the following structure:
@@ -76,7 +76,7 @@ KITTI segmentation dataset directory should have the following structure:
             └── ...
 ```
 
-You can import dataset for specific tasks
+You can import a dataset for specific tasks
 of KITTI dataset instead of the whole dataset,
 for example:
 
@@ -89,14 +89,14 @@ run `datum project info`, which will display the project information.
 
 ## Export to other formats
 
-Datumaro can convert KITTI dataset into any other format [Datumaro supports](/docs/user-manual/supported_formats/).
+Datumaro can convert a KITTI dataset into any other format [Datumaro supports](/docs/user-manual/supported_formats/).
 
 Such conversion will only be successful if the output
 format can represent the type of dataset you want to convert,
 e.g. segmentation annotations can be
-saved in `Cityscapes` format, but no as `COCO keypoints`.
+saved in `Cityscapes` format, but not as `COCO keypoints`.
 
-There are few ways to convert KITTI dataset to other dataset format:
+There are several ways to convert a KITTI dataset to other dataset formats:
 
 ``` bash
 datum create
@@ -108,7 +108,7 @@ datum convert -if kitti -i <path/to/kitti> -f cityscapes -o <output/dir>
 
 ## Export to KITTI
 
-There are few ways to convert dataset to KITTI format:
+There are several ways to convert a dataset to KITTI format:
 
 ``` bash
 # export dataset into KITTI format from existing project
@@ -119,7 +119,7 @@ datum convert -if cityscapes -i <path/to/dataset> \
     -f kitti -o <output/dir> -- --save-images
 ```
 
-Extra options for export to KITTI format:
+Extra options for exporting to KITTI format:
 - `--save-images` allow to export dataset with saving images
   (by default `False`);
 - `--image-ext IMAGE_EXT` allow to specify image extension
@@ -150,11 +150,11 @@ datum export -f kitti -- --tasks detection
 ## Examples
 
 Datumaro supports filtering, transformation, merging etc. for all formats
-and for the KITTI format in particular. Follow
+and for the KITTI format in particular. Follow the
 [user manual](/docs/user-manual/)
 to get more information about these operations.
 
-There are few examples of using Datumaro operations to solve
+There are several examples of using Datumaro operations to solve
 particular problems with KITTI dataset:
 
 ### Example 1. How to load an original KITTI dataset and convert to Cityscapes
@@ -166,7 +166,7 @@ datum stats -p project
 datum export -p project -f cityscapes -- --save-images
 ```
 
-### Example 2. How to create custom KITTI-like dataset
+### Example 2. How to create a custom KITTI-like dataset
 
 ```python
 import numpy as np
