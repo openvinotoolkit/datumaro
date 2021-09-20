@@ -153,7 +153,7 @@ def main(args=None):
         parser.print_help()
         return 1
 
-    args_with_paths = _get_sensitive_args()
+    sensitive_args = _get_sensitive_args()
     telemetry = init_telemetry_session(app_name='Datumaro', app_version=VERSION)
 
     try:
@@ -162,17 +162,21 @@ def main(args=None):
             retcode = 0
     except CliException as e:
         log.error(e)
-        send_command_exception_info(telemetry, args, args_with_paths[args.command])
+        send_command_exception_info(telemetry, args,
+            sensitive_args=sensitive_args[args.command])
         return 1
     except Exception as e:
         log.error(e)
-        send_command_exception_info(telemetry, args, args_with_paths[args.command])
+        send_command_exception_info(telemetry, args,
+            sensitive_args=sensitive_args[args.command])
         raise
     else:
         if retcode:
-            send_command_failure_info(telemetry, args, args_with_paths[args.command])
+            send_command_failure_info(telemetry, args,
+                sensitive_args=sensitive_args[args.command])
         else:
-            send_command_success_info(telemetry, args, args_with_paths[args.command])
+            send_command_success_info(telemetry, args,
+                sensitive_args=sensitive_args[args.command])
         return retcode
     finally:
         close_telemetry_session(telemetry)

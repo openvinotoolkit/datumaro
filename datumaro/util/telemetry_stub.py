@@ -5,7 +5,7 @@
 
 class Telemetry(object):
     """
-    Stab file for the Telemetry class which is used when Telemetry class is not available.
+    Stub file for the Telemetry class which is used when Telemetry class is not available.
     """
 
     def __init__(self, *arg, **kwargs):

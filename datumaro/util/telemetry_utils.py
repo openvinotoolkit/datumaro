@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 import json
-import os
+import os.path as osp
 import re
 import sys
 import traceback
@@ -65,7 +65,7 @@ def _get_action_name(command):
     elif command is commands.status.status_command:
         return 'status_result'
 
-    return 'unknown_command_result'
+    return f'{command.__name__}_result'
 
 def _cleanup_params_info(args, sensitive_args):
     fields_to_exclude = ('command', '_positionals',)
@@ -76,26 +76,26 @@ def _cleanup_params_info(args, sensitive_args):
         arg_value = getattr(args, arg)
         if arg in sensitive_args:
             # If command line argument value is a directory or a path to file it is not sent
-            # as it may contain confidential information. "1" value is used instead.
-            cli_params[arg] = str(1)
+            # as it may contain confidential information. "True" value is used instead.
+            cli_params[arg] = str(True)
         else:
             cli_params[arg] = str(arg_value)
     return cli_params
 
 def _cleanup_stacktrace():
-    installation_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    installation_dir = osp.dirname(osp.dirname(osp.abspath(__file__)))
     def clean_path(match):
         file_path = match.group(1)
         if file_path.startswith(installation_dir):
-            file_path = os.path.relpath(file_path, installation_dir)
+            file_path = osp.relpath(file_path, installation_dir)
         else:
-            file_path = os.path.basename(file_path)
+            file_path = osp.basename(file_path)
 
-        return 'File "{}"'.format(file_path)
+        return f"File \"{file_path}\""
 
     exc_type, _, exc_traceback = sys.exc_info()
     tb_lines = traceback.format_list(traceback.extract_tb(exc_traceback))
-    tb_lines = [re.sub(r'File "([^"]+)"', clean_path, line, 1) for line in tb_lines]
+    tb_lines = [re.sub(r'File "([^"]+)"', clean_path, line, count=1) for line in tb_lines]
 
     return exc_type.__name__, ''.join(tb_lines)
 
@@ -110,10 +110,10 @@ def close_telemetry_session(telemetry):
     telemetry.end_session('dm')
     telemetry.force_shutdown(1.0)
 
-def _send_result_info(result, telemetry, args, sensetive_params):
+def _send_result_info(result, telemetry, args, sensitive_args):
     payload = {
         'status': result,
-        **_cleanup_params_info(args, sensetive_params),
+        **_cleanup_params_info(args, sensitive_args),
     }
     action = _get_action_name(args.command)
     telemetry.send_event('dm', action, json.dumps(payload))
@@ -121,22 +121,22 @@ def _send_result_info(result, telemetry, args, sensetive_params):
 def send_version_info(telemetry, version):
     telemetry.send_event('dm', 'version', str(version))
 
-def send_command_success_info(telemetry, args, sensetive_params):
-    _send_result_info('success', telemetry, args, sensetive_params)
+def send_command_success_info(telemetry, args, *, sensitive_args):
+    _send_result_info('success', telemetry, args, sensitive_args)
 
-def send_command_failure_info(telemetry, args, sensetive_params):
-    _send_result_info('failure', telemetry, args, sensetive_params)
+def send_command_failure_info(telemetry, args, *, sensitive_args):
+    _send_result_info('failure', telemetry, args, sensitive_args)
 
-def send_command_exception_info(telemetry, args, sensetive_params):
-    _send_result_info('exception', telemetry, args, sensetive_params)
-    send_error_info(telemetry, args, sensetive_params)
+def send_command_exception_info(telemetry, args, *, sensitive_args):
+    _send_result_info('exception', telemetry, args, sensitive_args)
+    send_error_info(telemetry, args, sensitive_args)
 
-def send_error_info(telemetry, args, sensetive_params):
+def send_error_info(telemetry, args, sensitive_args):
     exc_type, stack_trace = _cleanup_stacktrace()
     payload = {
         'exception_type': exc_type,
         'stack_trace': stack_trace,
-        **_cleanup_params_info(args, sensetive_params),
+        **_cleanup_params_info(args, sensitive_args),
     }
 
     telemetry.send_event('dm', 'error', json.dumps(payload))

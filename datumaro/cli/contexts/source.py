@@ -119,7 +119,7 @@ def add_command(args):
         arg_parser = env.extractors[fmt]
     else:
         raise CliException("Unknown format '%s'. A format can be added"
-            "by providing an Extractor and Importer plugins" % fmt)
+            " by providing an Extractor and Importer plugins" % fmt)
 
     extra_args = arg_parser.parse_cmdline(args.extra_args)
 

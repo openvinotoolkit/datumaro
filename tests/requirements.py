@@ -15,6 +15,7 @@ class DatumaroComponent:
 class Requirements:
     # Exact requirements
     DATUM_GENERAL_REQ = "Datumaro general requirement"
+    DATUM_TELEMETRY = "Datumaro telemetry requirement"
 
     # GitHub issues (not bugs)
     # https://github.com/openvinotoolkit/datumaro/issues
