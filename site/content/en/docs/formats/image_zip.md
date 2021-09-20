@@ -11,9 +11,9 @@ The image zip format allows to export/import unannotated datasets
 with images to/from a zip archive. The format doesn't support any
 annotations or attributes.
 
-## Load Image zip dataset
+## Import Image zip dataset
 
-There are several ways to load unannotated datasets to your Datumaro project:
+There are several ways to import unannotated datasets to your Datumaro project:
 
 - From an existing archive:
 
@@ -22,7 +22,7 @@ datum create
 datum add -f image_zip ./images.zip
 ```
 
-- From a directory with zip archives. Datumaro will load images from
+- From a directory with zip archives. Datumaro will import images from
   all zip files in the directory:
 
 ```bash

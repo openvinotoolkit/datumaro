@@ -18,7 +18,7 @@ Supported annotation types:
 
 YOLO format doesn't support attributes for annotations. The format only supports subsets named `train` or `valid`.
 
-## Load YOLO dataset
+## Import YOLO dataset
 
 A Datumaro project with a YOLO source can be created in the following way:
 

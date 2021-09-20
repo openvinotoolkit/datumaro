@@ -19,7 +19,7 @@ Supported annotation attributes:
   distinguish between different instances.
   If `False`, the annotation `id` field encodes the instance id.
 
-## Load Cityscapes dataset
+## Import Cityscapes dataset
 
 The Cityscapes dataset is available for free [download](https://www.cityscapes-dataset.com/downloads/).
 

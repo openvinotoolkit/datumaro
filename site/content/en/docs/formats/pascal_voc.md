@@ -43,7 +43,7 @@ Supported annotation attributes:
   in the `attributes` section of the annotation `xml` file. Available for
   bbox annotations only.
 
-## Load Pascal VOC dataset
+## Import Pascal VOC dataset
 
 The Pascal VOC dataset is available for free download
 [here](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/index.html#devkit)
@@ -57,6 +57,7 @@ datum add --format voc <path/to/dataset>
 
 It is possible to specify project name and project directory. Run
 `datum create --help` for more information.
+
 Pascal VOC dataset directory should have the following structure:
 
 <!--lint disable fenced-code-flag-->

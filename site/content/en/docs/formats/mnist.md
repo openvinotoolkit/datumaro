@@ -26,7 +26,7 @@ Supported annotation types:
 
 The format only supports single channel 28 x 28 images.
 
-## Load MNIST dataset
+## Import MNIST dataset
 
 The MNIST dataset is available for free download:
 

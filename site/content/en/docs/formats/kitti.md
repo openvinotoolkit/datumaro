@@ -27,7 +27,7 @@ Supported annotation attributes:
 - `occluded` (boolean) - indicates that a significant portion of the object
   within the bounding box is occluded by another object
 
-## Load KITTI dataset
+## Import KITTI dataset
 
 The KITTI left color images for object detection are available [here](http://www.cvlibs.net/download.php?file=data_object_image_2.zip).
 The KITTI object detection labels are available [here](http://www.cvlibs.net/download.php?file=data_object_label_2.zip).

@@ -42,7 +42,7 @@ Supported annotation attributes:
 - arbitrary attributes (string/number) - A Datumaro extension. Stored
   in the `attributes` section of the annotation descriptor.
 
-## Load COCO dataset
+## Import COCO dataset
 
 The COCO dataset is available for free download:
 
@@ -67,7 +67,7 @@ datum create
 datum add --format coco <path/to/dataset>
 ```
 
-It is possible to specify project name and project directory, run
+It is possible to specify project name and project directory. Run
 `datum create --help` for more information.
 
 Extra options for adding a source in the COCO format:

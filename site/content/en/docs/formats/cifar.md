@@ -22,7 +22,7 @@ comes with a "fine" label (the class to which it belongs) and a "coarse" label
 CIFAR formats contain 32 x 32 images. As an extension, Datumaro supports
 reading and writing of arbitrary-sized images.
 
-## Load CIFAR dataset
+## Import CIFAR dataset
 
 The CIFAR dataset is available for free download:
 

@@ -46,7 +46,7 @@ Supported annotation attributes:
   - `predicted_iou` (read/write, float).
     Predicted IoU value with respect to the ground truth.
 
-## Load Open Images dataset
+## Import Open Images dataset
 
 The Open Images dataset is available for free download.
 
@@ -145,7 +145,7 @@ datum create
 datum add --format open_images <path/to/dataset>
 ```
 
-It is possible to specify project name and project directory; run
+It is possible to specify project name and project directory. Run
 `datum create --help` for more information.
 
 Open Images dataset directory should have the following structure:
