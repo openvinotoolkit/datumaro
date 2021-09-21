@@ -414,7 +414,8 @@ def load_image_meta_file(image_meta_path: str) -> ImageMeta:
     assert isinstance(image_meta_path, str)
 
     if not osp.isfile(image_meta_path):
-        raise Exception("Can't read image meta file '%s'" % image_meta_path)
+        raise FileNotFoundError("Can't read image meta file '%s'" % \
+            image_meta_path)
 
     image_meta = {}
 
@@ -439,5 +440,9 @@ def save_image_meta_file(image_meta: ImageMeta, image_meta_path: str) -> None:
     assert isinstance(image_meta_path, str)
 
     with open(image_meta_path, 'w', encoding='utf-8') as f:
+        # Add a comment about file syntax
+        print("# <image name> <height> <width>", file=f)
+        print("", file=f)
+
         for image_name, (height, width) in image_meta.items():
             print(shlex.quote(image_name), height, width, file=f)
