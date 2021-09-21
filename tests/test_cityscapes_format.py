@@ -421,4 +421,6 @@ class CityscapesConverterTest(TestCase):
 
         with TestDir() as test_dir:
             self._test_save_and_load(TestExtractor(),
-                partial(CityscapesConverter.convert, label_map='cityscapes'), test_dir)
+                partial(CityscapesConverter.convert, label_map='cityscapes'),
+                test_dir
+            )
