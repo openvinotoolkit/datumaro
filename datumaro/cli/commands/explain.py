@@ -111,6 +111,11 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+def get_sensitive_args():
+    return {
+        explain_command: ['target', 'model', 'save_dir', 'project_dir',],
+    }
+
 @scoped
 def explain_command(args):
     from matplotlib import cm

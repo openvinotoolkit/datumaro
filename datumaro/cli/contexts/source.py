@@ -78,6 +78,11 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+def get_add_sensitive_args():
+    return {
+        add_command: ['path', 'project_dir', 'url', 'name',],
+    }
+
 @scoped
 def add_command(args):
     # Workaround. Required positionals consume positionals from the end
@@ -158,6 +163,11 @@ def build_remove_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+def get_remove_sensitive_args():
+    return {
+        remove_command: ['project_dir', 'names',],
+    }
+
 @scoped
 def remove_command(args):
     project = scope_add(load_project(args.project_dir))
@@ -186,6 +196,11 @@ def build_info_parser(parser_ctor=argparse.ArgumentParser):
     parser.set_defaults(command=info_command)
 
     return parser
+
+def get_info_sensitive_args():
+    return {
+        info_command: ['name', 'project_dir',],
+    }
 
 @scoped
 def info_command(args):
@@ -221,3 +236,10 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     add_subparser(subparsers, 'info', build_info_parser)
 
     return parser
+
+def get_sensitive_args():
+    return {
+        **get_add_sensitive_args(),
+        **get_remove_sensitive_args(),
+        **get_info_sensitive_args(),
+    }

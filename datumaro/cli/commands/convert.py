@@ -69,6 +69,11 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+def get_sensitive_args():
+    return {
+        convert_command: ['source', 'dst_dir',],
+    }
+
 def convert_command(args):
     env = Environment()
 
