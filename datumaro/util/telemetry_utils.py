@@ -9,6 +9,7 @@ import sys
 import traceback
 
 from datumaro.cli import commands, contexts
+from datumaro.util.os_util import is_subpath
 
 try:
     import openvino_telemetry as tm
@@ -67,6 +68,8 @@ def _get_action_name(command):
 
     return f'{command.__name__}_result'
 
+ARG_USED_FLAG = 'True'
+
 def _cleanup_params_info(args, sensitive_args):
     fields_to_exclude = ('command', '_positionals',)
     cli_params = {}
@@ -75,18 +78,20 @@ def _cleanup_params_info(args, sensitive_args):
             continue
         arg_value = getattr(args, arg)
         if arg in sensitive_args:
-            # If command line argument value is a directory or a path to file it is not sent
-            # as it may contain confidential information. "True" value is used instead.
-            cli_params[arg] = str(True)
+            # If a command line argument is a file path, it must not be sent,
+            # because it can contain confidential information.
+            # A placeholder value is used instead.
+            cli_params[arg] = str(ARG_USED_FLAG)
         else:
             cli_params[arg] = str(arg_value)
     return cli_params
 
 def _cleanup_stacktrace():
     installation_dir = osp.dirname(osp.dirname(osp.abspath(__file__)))
+
     def clean_path(match):
         file_path = match.group(1)
-        if file_path.startswith(installation_dir):
+        if is_subpath(file_path, base=installation_dir):
             file_path = osp.relpath(file_path, installation_dir)
         else:
             file_path = osp.basename(file_path)
@@ -95,7 +100,8 @@ def _cleanup_stacktrace():
 
     exc_type, _, exc_traceback = sys.exc_info()
     tb_lines = traceback.format_list(traceback.extract_tb(exc_traceback))
-    tb_lines = [re.sub(r'File "([^"]+)"', clean_path, line, count=1) for line in tb_lines]
+    tb_lines = [re.sub(r'File "([^"]+)"', clean_path, line, count=1)
+        for line in tb_lines]
 
     return exc_type.__name__, ''.join(tb_lines)
 

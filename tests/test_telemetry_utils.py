@@ -1,6 +1,6 @@
+from unittest import TestCase, mock
 import json
 import types
-import unittest
 
 from datumaro.cli.commands.info import info_command
 from datumaro.util.telemetry_utils import (
@@ -9,15 +9,17 @@ from datumaro.util.telemetry_utils import (
 )
 
 from .requirements import Requirements, mark_requirement
-from .test_util import TestException
 
 try:
     import openvino_telemetry as tm
 except ImportError:
     import datumaro.util.telemetry_stub as tm
 
-@unittest.mock.patch(f'{tm.__name__}.Telemetry.send_event')
-class TestTelemetryUtils(unittest.TestCase):
+class TestException(Exception):
+    pass
+
+@mock.patch(f'{tm.__name__}.Telemetry.send_event')
+class TelemetryTest(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.telemetry = tm.Telemetry('Datumaro')
@@ -27,7 +29,8 @@ class TestTelemetryUtils(unittest.TestCase):
         version = '12.3.456'
 
         send_version_info(self.telemetry, version)
-        mock_send_event.assert_any_call('dm', 'version', '12.3.456')
+
+        mock_send_event.assert_any_call('dm', 'version', version)
 
     @mark_requirement(Requirements.DATUM_TELEMETRY)
     def test_send_command_success_info(self, mock_send_event):
@@ -36,6 +39,7 @@ class TestTelemetryUtils(unittest.TestCase):
 
         send_command_success_info(self.telemetry, cli_args,
             sensitive_args=('project_dir', 'target'))
+
         mock_send_event.assert_any_call('dm', 'info_result', json.dumps({
             'status': 'success',
             'loglevel': '20',
@@ -50,6 +54,7 @@ class TestTelemetryUtils(unittest.TestCase):
 
         send_command_failure_info(self.telemetry, cli_args,
             sensitive_args=('project_dir', 'target'))
+
         mock_send_event.assert_any_call('dm', 'info_result', json.dumps({
             'status': 'failure',
             'loglevel': '20',
