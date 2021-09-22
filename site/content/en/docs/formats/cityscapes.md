@@ -8,6 +8,7 @@ weight: 2
 ## Format specification
 
 Cityscapes format overview is available [here](https://www.cityscapes-dataset.com/dataset-overview/).
+
 Cityscapes format specification is available [here](https://github.com/mcordts/cityscapesScripts#the-cityscapes-dataset).
 
 Supported annotation types:
@@ -18,11 +19,11 @@ Supported annotation attributes:
   distinguish between different instances.
   If `False`, the annotation `id` field encodes the instance id.
 
-## Load Cityscapes dataset
+## Import Cityscapes dataset
 
 The Cityscapes dataset is available for free [download](https://www.cityscapes-dataset.com/downloads/).
 
-A Datumaro project with a Cityscapes source can be created the following way:
+A Datumaro project with a Cityscapes source can be created in the following way:
 
 ``` bash
 datum create
@@ -70,10 +71,10 @@ run `datum project info`, which will display the project information.
 
 ## Export to other formats
 
-Datumaro can convert Cityscapes dataset into any other format [Datumaro supports](/docs/user-manual/supported_formats/).
+Datumaro can convert a Cityscapes dataset into any other format [Datumaro supports](/docs/user-manual/supported_formats/).
 To get the expected result, convert the dataset to formats
 that support the segmentation task (e.g. PascalVOC, CamVID, etc.)
-There are few ways to convert Cityscapes dataset to other dataset format:
+There are few ways to convert a Cityscapes dataset to other dataset formats:
 
 ``` bash
 datum create
@@ -86,7 +87,7 @@ datum convert -if cityscapes -i <path/to/cityscapes> \
 
 ## Export to Cityscapes
 
-There are few ways to convert dataset to Cityscapes format:
+There are several ways to convert a dataset to Cityscapes format:
 
 ``` bash
 # export dataset into Cityscapes format from existing project
@@ -97,12 +98,12 @@ datum convert -if voc -i <path/to/dataset> \
     -f cityscapes -o <output/dir> -- --save-images
 ```
 
-Extra options for export to cityscapes format:
+Extra options for exporting to Cityscapes format:
 - `--save-images` allow to export dataset with saving images
 (by default `False`);
 - `--image-ext IMAGE_EXT` allow to specify image extension
 for exporting dataset (by default - keep original or use `.png`, if none).
-- `--label_map` allow to define a custom colormap. Example
+- `--label_map` allow to define a custom colormap. Example:
 
 ``` bash
 # mycolormap.txt :
@@ -118,12 +119,12 @@ datum export -f cityscapes -- --label-map cityscapes
 ## Examples
 
 Datumaro supports filtering, transformation, merging etc. for all formats
-and for the Cityscapes format in particular. Follow
+and for the Cityscapes format in particular. Follow the
 [user manual](/docs/user-manual/)
 to get more information about these operations.
 
-There are few examples of using Datumaro operations to solve
-particular problems with Cityscapes dataset:
+There are several examples of using Datumaro operations to solve
+particular problems with a Cityscapes dataset:
 
 ### Example 1. Load the original Cityscapes dataset and convert to Pascal VOC
 

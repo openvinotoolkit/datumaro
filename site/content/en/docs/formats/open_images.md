@@ -8,7 +8,7 @@ weight: 8
 ## Format specification
 
 A description of the Open Images Dataset (OID) format is available
-on [its website](https://storage.googleapis.com/openimages/web/download.html).
+[here](https://storage.googleapis.com/openimages/web/download.html).
 Datumaro supports versions 4, 5 and 6.
 
 Supported annotation types:
@@ -46,7 +46,7 @@ Supported annotation attributes:
   - `predicted_iou` (read/write, float).
     Predicted IoU value with respect to the ground truth.
 
-## Load Open Images dataset
+## Import Open Images dataset
 
 The Open Images dataset is available for free download.
 
@@ -138,14 +138,14 @@ All annotation files are optional,
 except that if the mask metadata files for a given subset are downloaded,
 all corresponding images must be downloaded as well, and vice versa.
 
-A Datumaro project with a OID source can be created the following way:
+A Datumaro project with an OID source can be created in the following way:
 
 ``` bash
 datum create
 datum add --format open_images <path/to/dataset>
 ```
 
-It is possible to specify project name and project directory; run
+It is possible to specify project name and project directory. Run
 `datum create --help` for more information.
 
 Open Images dataset directory should have the following structure:
@@ -233,7 +233,7 @@ find images -name '*.jpg' -exec \
 Datumaro can convert OID into any other format [Datumaro supports](/docs/user-manual/supported_formats).
 To get the expected result, convert the dataset to a format
 that supports image-level labels.
-There are a few ways to convert OID to other dataset format:
+There are several ways to convert OID to other dataset formats:
 
 ``` bash
 datum create
@@ -245,7 +245,7 @@ datum convert -if open_images -i <path/to/open_images> -f cvat -o <output/dir>
 
 ## Export to Open Images
 
-There are few ways to convert an existing dataset to the Open Images format:
+There are several ways to convert an existing dataset to the Open Images format:
 
 ``` bash
 # export dataset into Open Images format from existing project
@@ -258,7 +258,7 @@ datum convert -if imagenet -i <path/to/dataset> \
     -- --save-images
 ```
 
-Extra options for export to the Open Images format:
+Extra options for exporting to the Open Images format:
 
 - `--save-images` - save image files when exporting the dataset
   (by default, `False`)
@@ -270,7 +270,7 @@ Extra options for export to the Open Images format:
 ## Examples
 
 Datumaro supports filtering, transformation, merging etc. for all formats
-and for the Open Images format in particular. Follow
+and for the Open Images format in particular. Follow the
 [user manual](/docs/user-manual/)
 to get more information about these operations.
 

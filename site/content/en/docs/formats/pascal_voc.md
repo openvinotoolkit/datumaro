@@ -43,20 +43,21 @@ Supported annotation attributes:
   in the `attributes` section of the annotation `xml` file. Available for
   bbox annotations only.
 
-## Load Pascal VOC dataset
+## Import Pascal VOC dataset
 
 The Pascal VOC dataset is available for free download
 [here](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/index.html#devkit)
 
-A Datumaro project with a Pascal VOC source can be created the following way:
+A Datumaro project with a Pascal VOC source can be created in the following way:
 
 ``` bash
 datum create
 datum add --format voc <path/to/dataset>
 ```
 
-It is possible to specify project name and project directory run
+It is possible to specify project name and project directory. Run
 `datum create --help` for more information.
+
 Pascal VOC dataset directory should have the following structure:
 
 <!--lint disable fenced-code-flag-->
@@ -147,15 +148,15 @@ can run `datum project info`, which will display the project information.
 
 ## Export to other formats
 
-Datumaro can convert Pascal VOC dataset into any other format
+Datumaro can convert a Pascal VOC dataset into any other format
 [Datumaro supports](/docs/user-manual/supported_formats).
 
 Such conversion will only be successful if the output
 format can represent the type of dataset you want to convert,
 e.g. image classification annotations can be
-saved in `ImageNet` format, but no as `COCO keypoints`.
+saved in `ImageNet` format, but not as `COCO keypoints`.
 
-There are few ways to convert Pascal VOC dataset to other dataset format:
+There are several ways to convert a Pascal VOC dataset to other dataset formats:
 
 ``` bash
 datum create
@@ -168,7 +169,7 @@ datum convert -if voc -i <path/to/voc> -f coco -o <output/dir>
 
 ## Export to Pascal VOC
 
-There are few ways to convert an existing dataset to Pascal VOC format:
+There are several ways to convert an existing dataset to Pascal VOC format:
 
 ``` bash
 # export dataset into Pascal VOC format (classification) from existing project
@@ -180,7 +181,7 @@ datum convert -if imagenet -i <path/to/dataset> \
     -- --label_map voc --save-images
 ```
 
-Extra options for export to Pascal VOC format:
+Extra options for exporting to Pascal VOC format:
 
 - `--save-images` - allow to export dataset with saving images
   (by default `False`)
@@ -195,7 +196,7 @@ Extra options for export to Pascal VOC format:
   (by default `True`)
 
 - `--keep-empty KEEP_EMPTY` - write subset lists even if they are empty
-  (by default: `False`)
+  (by default `False`)
 
 - `--tasks TASKS` - allow to specify tasks for export dataset,
   by default Datumaro uses all tasks. Example:
@@ -204,7 +205,7 @@ Extra options for export to Pascal VOC format:
 datum export -f voc -- --tasks detection,classification
 ```
 
-- `--label_map` allow to define a custom colormap. Example
+- `--label_map` allow to define a custom colormap. Example:
 
 ``` bash
 # mycolormap.txt [label : color_rgb : parts : actions]:
@@ -245,7 +246,7 @@ datum transform -p project -t random_split -- -s train:.8 -s val:.2
 datum export -p project -f voc -- --label-map voc --save-images
 ```
 
-### Example 2. How to create custom dataset
+### Example 2. How to create a custom dataset
 
 ```python
 from datumaro.components.annotation import Bbox, Polygon, Label

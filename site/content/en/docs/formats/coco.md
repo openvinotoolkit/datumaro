@@ -7,7 +7,7 @@ weight: 3
 
 ## Format specification
 
-COCO format specification available [here](https://cocodataset.org/#format-data).
+COCO format specification is available [here](https://cocodataset.org/#format-data).
 
 The dataset has annotations for multiple tasks. Each task has its own format
 in Datumaro, and there is also a combined `coco` format, which includes all
@@ -42,7 +42,7 @@ Supported annotation attributes:
 - arbitrary attributes (string/number) - A Datumaro extension. Stored
   in the `attributes` section of the annotation descriptor.
 
-## Load COCO dataset
+## Import COCO dataset
 
 The COCO dataset is available for free download:
 
@@ -60,14 +60,14 @@ Annotations:
 - [person_keypoints](http://images.cocodataset.org/annotations/annotations_trainval2017.zip)
 - [stuff](http://images.cocodataset.org/annotations/stuff_annotations_trainval2017.zip)
 
-A Datumaro project with a COCO source can be created the following way:
+A Datumaro project with a COCO source can be created in the following way:
 
 ``` bash
 datum create
 datum add --format coco <path/to/dataset>
 ```
 
-It is possible to specify project name and project directory, run
+It is possible to specify project name and project directory. Run
 `datum create --help` for more information.
 
 Extra options for adding a source in the COCO format:
@@ -76,7 +76,7 @@ Extra options for adding a source in the COCO format:
  category indexes in the imported data source correspond to the category IDs
  in the original annotation file.
 
-A COCO dataset directory should have the following layout:
+A COCO dataset directory should have the following structure:
 
 <!--lint disable fenced-code-flag-->
 ```
@@ -95,7 +95,7 @@ A COCO dataset directory should have the following layout:
         └── ...
 ```
 
-For the panoptic task, a dataset directory should have the following layout:
+For the panoptic task, a dataset directory should have the following structure:
 
 <!--lint disable fenced-code-flag-->
 ```
@@ -124,7 +124,7 @@ For the panoptic task, a dataset directory should have the following layout:
 
 Annotation files must have the names like `<task>_<subset_name><year>.json`.
 
-You can import dataset for one or few tasks
+You can import a dataset for one or several tasks
 instead of the whole dataset. This option also allows to import annotation
 files with non-default names. For example:
 
@@ -146,7 +146,7 @@ Notes:
 Datumaro can convert COCO dataset into any other format [Datumaro supports](/docs/user-manual/supported_formats/).
 To get the expected result, convert the dataset to formats
 that support the specified task (e.g. for panoptic segmentation - VOC, CamVID)
-There are few ways to convert COCO dataset to other dataset format:
+There are several ways to convert a COCO dataset to other dataset formats:
 
 ``` bash
 datum create
@@ -158,7 +158,7 @@ datum convert -if coco -i <path/to/coco> -f voc -o <output/dir>
 
 ## Export to COCO
 
-There are few ways to convert dataset to COCO format:
+There are several ways to convert a dataset to COCO format:
 
 ``` bash
 # export dataset into COCO format from existing project
@@ -169,7 +169,7 @@ datum convert -if voc -i <path/to/dataset> \
     -f coco -o <output/dir> -- --save-images
 ```
 
-Extra options for export to COCO format:
+Extra options for exporting to COCO format:
 - `--save-images` allow to export dataset with saving images
   (by default `False`);
 - `--image-ext IMAGE_EXT` allow to specify image extension
@@ -178,7 +178,7 @@ Extra options for export to COCO format:
   segmentation:
   - 'guess': guess the mode for each instance
     (using 'is_crowd' attribute as hint)
-  - 'polygons': save polygons( merge and convert masks, prefer polygons)
+  - 'polygons': save polygons (merge and convert masks, prefer polygons)
   - 'mask': save masks (merge and convert polygons, prefer masks)
 (by default `guess`);
 - `--crop-covered` allow to crop covered segments so that background objects
@@ -201,12 +201,12 @@ datum export -f coco -- --tasks instances,stuff
 ## Examples
 
 Datumaro supports filtering, transformation, merging etc. for all formats
-and for the COCO format in particular. Follow
+and for the COCO format in particular. Follow the
 [user manual](/docs/user-manual/)
 to get more information about these operations.
 
-There are few examples of using Datumaro operations to solve
-particular problems with COCO dataset:
+There are several examples of using Datumaro operations to solve
+particular problems with a COCO dataset:
 
 ### Example 1. How to load an original panoptic COCO dataset and convert to Pascal VOC
 
