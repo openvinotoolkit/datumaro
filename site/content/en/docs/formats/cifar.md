@@ -104,8 +104,7 @@ CIFAR-100:
 
 Datumaro can convert a CIFAR dataset into any other format [Datumaro supports](/docs/user-manual/supported_formats).
 To get the expected result, convert the dataset to a format
-that supports the classification task (e.g. MNIST, ImageNet, PascalVOC,
-etc.)
+that supports the classification task (e.g. MNIST, ImageNet, PascalVOC, etc.)
 
 There are several ways to convert a CIFAR dataset to other dataset
 formats using CLI:
@@ -145,9 +144,9 @@ datum convert -if imagenet -i <path/to/dataset> \
 Extra options for exporting to CIFAR format:
 
 - `--save-images` allow to export dataset with saving images
-(by default `False`)
+  (by default `False`)
 - `--image-ext <IMAGE_EXT>` allow to specify image extension
-for exporting the dataset (by default `.png`)
+  for exporting the dataset (by default `.png`)
 
 The format (CIFAR-10 or CIFAR-100) in which the dataset will be
 exported depends on the presence of superclasses in the `LabelCategories`.
