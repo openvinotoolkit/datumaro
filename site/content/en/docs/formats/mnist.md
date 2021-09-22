@@ -147,9 +147,9 @@ datum convert -if imagenet -i <path/to/dataset> \
 
 Extra options for exporting to MNIST format:
 - `--save-images` allow to export dataset with saving images
-(by default `False`);
+  (by default `False`)
 - `--image-ext <IMAGE_EXT>` allow to specify image extension
-for exporting dataset (by default `.png`).
+  for exporting dataset (by default `.png`)
 
 These commands also work for MNIST in CSV if you use `mnist_csv` instead of `mnist`.
 

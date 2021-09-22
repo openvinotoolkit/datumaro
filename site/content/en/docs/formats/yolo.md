@@ -137,9 +137,9 @@ datum export -f yolo -o <path/to/dataset> -- --save-images
 
 Extra options for exporting to YOLO format:
 - `--save-images` allow to export dataset with saving images
-(default: `False`);
+  (default: `False`)
 - `--image-ext <IMAGE_EXT>` allow to specify image extension
-for exporting dataset (default: use original or `.jpg`, if none).
+  for exporting dataset (default: use original or `.jpg`, if none)
 
 ## Examples
 

@@ -111,9 +111,9 @@ datum convert -if voc -i <path/to/dataset> \
 
 Extra options for exporting to Cityscapes format:
 - `--save-images` allow to export dataset with saving images
-(by default `False`)
+  (by default `False`)
 - `--image-ext IMAGE_EXT` allow to specify image extension
-for exporting dataset (by default - keep original or use `.png`, if none)
+  for exporting dataset (by default - keep original or use `.png`, if none)
 - `--label_map` allow to define a custom colormap. Example:
 
 ``` bash
