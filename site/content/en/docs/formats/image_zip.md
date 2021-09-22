@@ -30,7 +30,7 @@ datum create
 datum add -f image_zip ./foo
 ```
 
-The directory with zip archives should have the following structure:
+The directory with zip archives must have the following structure:
 
 ```
 └── foo/
@@ -48,20 +48,28 @@ The directory with zip archives should have the following structure:
     ...
 ```
 
-Images in the archives should have a supported extension,
+Images in the archives must have a supported extension,
 follow the [user manual](/docs/user-manual/media_formats/) to see the supported
 extensions.
 
 ## Export to other formats
 
-Datumaro can load dataset images from a zip archive and convert it to an
-[another supported dataset format](/docs/user-manual/supported_formats),
-for example:
+Datumaro can convert image zip dataset into any other format [Datumaro supports](/docs/user-manual/supported_formats/).
+For example:
 
 ```bash
 datum create -o project
 datum add -p project -f image_zip ./images.zip
 datum export -p project -f coco -o ./new_dir -- --save-images
+```
+
+Or, using Python API:
+
+```python
+from datumaro.components.dataset import Dataset
+
+dataset = Dataset.import_from('<path/to/dataset>', 'image_zip')
+dataset.export('save_dir', 'coco', save_images=True)
 ```
 
 ## Export an unannotated dataset to a zip archive
@@ -74,12 +82,11 @@ datum export -p project -f image_zip -- --name voc_images.zip
 ```
 
 Extra options for exporting to image_zip format:
-
 - `--save-images` allow to export dataset with saving images
-  (default: `False`);
+  (default: `False`)
 - `--image-ext <IMAGE_EXT>` allow to specify image extension
-  for exporting dataset (default: use original or `.jpg`, if none);
-- `--name` name of output zipfile (default: `default.zip`);
+  for exporting dataset (default: use original or `.jpg`, if none)
+- `--name` name of output zipfile (default: `default.zip`)
 - `--compression` allow to specify archive compression method.
   Available methods:
   `ZIP_STORED`, `ZIP_DEFLATED`, `ZIP_BZIP2`, `ZIP_LZMA` (default: `ZIP_STORED`).

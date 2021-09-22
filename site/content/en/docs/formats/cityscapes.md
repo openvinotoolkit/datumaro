@@ -74,7 +74,9 @@ run `datum project info`, which will display the project information.
 Datumaro can convert a Cityscapes dataset into any other format [Datumaro supports](/docs/user-manual/supported_formats/).
 To get the expected result, convert the dataset to formats
 that support the segmentation task (e.g. PascalVOC, CamVID, etc.)
-There are few ways to convert a Cityscapes dataset to other dataset formats:
+
+There are several ways to convert a Cityscapes dataset to other dataset
+formats using CLI:
 
 ``` bash
 datum create
@@ -83,6 +85,15 @@ datum export -f voc -o <output/dir>
 # or
 datum convert -if cityscapes -i <path/to/cityscapes> \
     -f voc -o <output/dir> -- --save-images
+```
+
+Or, using Python API:
+
+```python
+from datumaro.components.dataset import Dataset
+
+dataset = Dataset.import_from('<path/to/dataset>', 'cityscapes')
+dataset.export('save_dir', 'voc', save_images=True)
 ```
 
 ## Export to Cityscapes
@@ -100,9 +111,9 @@ datum convert -if voc -i <path/to/dataset> \
 
 Extra options for exporting to Cityscapes format:
 - `--save-images` allow to export dataset with saving images
-(by default `False`);
+(by default `False`)
 - `--image-ext IMAGE_EXT` allow to specify image extension
-for exporting dataset (by default - keep original or use `.png`, if none).
+for exporting dataset (by default - keep original or use `.png`, if none)
 - `--label_map` allow to define a custom colormap. Example:
 
 ``` bash

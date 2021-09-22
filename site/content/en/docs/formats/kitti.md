@@ -106,6 +106,15 @@ datum export -f cityscapes -o <output/dir>
 datum convert -if kitti -i <path/to/kitti> -f cityscapes -o <output/dir>
 ```
 
+Or, using Python API:
+
+```python
+from datumaro.components.dataset import Dataset
+
+dataset = Dataset.import_from('<path/to/dataset>', 'kitti')
+dataset.export('save_dir', 'cityscapes', save_images=True)
+```
+
 ## Export to KITTI
 
 There are several ways to convert a dataset to KITTI format:
@@ -121,12 +130,12 @@ datum convert -if cityscapes -i <path/to/dataset> \
 
 Extra options for exporting to KITTI format:
 - `--save-images` allow to export dataset with saving images
-  (by default `False`);
+  (by default `False`)
 - `--image-ext IMAGE_EXT` allow to specify image extension
-  for exporting dataset (by default - keep original or use `.png`, if none).
+  for exporting dataset (by default - keep original or use `.png`, if none)
 - `--apply-colormap APPLY_COLORMAP` allow to use colormap for class masks
-  (in folder `semantic_rgb`, by default `True`);
-- `--label_map` allow to define a custom colormap. Example
+  (in folder `semantic_rgb`, by default `True`)
+- `--label_map` allow to define a custom colormap. Example:
 
 ``` bash
 # mycolormap.txt :

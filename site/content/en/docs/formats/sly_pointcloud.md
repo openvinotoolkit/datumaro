@@ -97,6 +97,15 @@ datum export -f kitti_raw -o <output/dir>
 datum convert -if sly_pointcloud -i <path/to/sly_pcd/> -f kitti_raw
 ```
 
+Or, using Python API:
+
+```python
+from datumaro.components.dataset import Dataset
+
+dataset = Dataset.import_from('<path/to/dataset>', 'sly_pointcloud')
+dataset.export('save_dir', 'kitti_raw', save_images=True)
+```
+
 ## Export to Supervisely Point Cloud
 
 There are several ways to convert a dataset to Supervisely Point Cloud format:
@@ -111,7 +120,6 @@ datum convert -if kitti_raw -i <path/to/dataset> \
 ```
 
 Extra options for exporting in Supervisely Point Cloud format:
-
 - `--save-images` allow to export dataset with saving images. This will
   include point clouds and related images (by default `False`)
 - `--image-ext IMAGE_EXT` allow to specify image extension

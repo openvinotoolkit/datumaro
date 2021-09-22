@@ -146,7 +146,9 @@ Notes:
 Datumaro can convert COCO dataset into any other format [Datumaro supports](/docs/user-manual/supported_formats/).
 To get the expected result, convert the dataset to formats
 that support the specified task (e.g. for panoptic segmentation - VOC, CamVID)
-There are several ways to convert a COCO dataset to other dataset formats:
+
+There are several ways to convert a COCO dataset to other dataset formats
+using CLI:
 
 ``` bash
 datum create
@@ -154,6 +156,15 @@ datum add -f coco <path/to/coco>
 datum export -f voc -o <output/dir>
 # or
 datum convert -if coco -i <path/to/coco> -f voc -o <output/dir>
+```
+
+Or, using Python API:
+
+```python
+from datumaro.components.dataset import Dataset
+
+dataset = Dataset.import_from('<path/to/dataset>', 'coco')
+dataset.export('save_dir', 'voc', save_images=True)
 ```
 
 ## Export to COCO
@@ -171,24 +182,24 @@ datum convert -if voc -i <path/to/dataset> \
 
 Extra options for exporting to COCO format:
 - `--save-images` allow to export dataset with saving images
-  (by default `False`);
+  (by default `False`)
 - `--image-ext IMAGE_EXT` allow to specify image extension
-  for exporting dataset (by default - keep original or use `.jpg`, if none);
+  for exporting dataset (by default - keep original or use `.jpg`, if none)
 - `--segmentation-mode MODE` allow to specify save mode for instance
   segmentation:
   - 'guess': guess the mode for each instance
     (using 'is_crowd' attribute as hint)
   - 'polygons': save polygons (merge and convert masks, prefer polygons)
   - 'mask': save masks (merge and convert polygons, prefer masks)
-(by default `guess`);
+(by default `guess`)
 - `--crop-covered` allow to crop covered segments so that background objects
-  segmentation was more accurate (by default `False`);
+  segmentation was more accurate (by default `False`)
 - `--allow-attributes ALLOW_ATTRIBUTES` allow export of attributes
-  (by default `True`);
+  (by default `True`)
 - `--reindex REINDEX` allow to assign new indices to images and annotations,
-  useful to avoid merge conflicts (by default `False`);
+  useful to avoid merge conflicts (by default `False`)
 - `--merge-images` allow to save all images into a single directory
-  (by default `False`);
+  (by default `False`)
 - `--tasks TASKS` allow to specify tasks for export dataset,
   by default Datumaro uses all tasks. Example:
 

@@ -101,6 +101,15 @@ datum export -f sly_pointcloud -o <output/dir>
 datum convert -if kitti_raw -i <path/to/kitti_raw> -f sly_pointcloud
 ```
 
+Or, using Python API:
+
+```python
+from datumaro.components.dataset import Dataset
+
+dataset = Dataset.import_from('<path/to/dataset>', 'kitti_raw')
+dataset.export('save_dir', 'sly_pointcloud', save_images=True)
+```
+
 ## Export to KITTI Raw
 
 There are several ways to convert a dataset to KITTI Raw format:
@@ -115,7 +124,6 @@ datum convert -if sly_pointcloud -i <path/to/dataset> \
 ```
 
 Extra options for exporting to KITTI Raw format:
-
 - `--save-images` allow to export dataset with saving images. This will
   include point clouds and related images (by default `False`)
 - `--image-ext IMAGE_EXT` allow to specify image extension
