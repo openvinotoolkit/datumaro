@@ -15,6 +15,7 @@ class DatumaroComponent:
 class Requirements:
     # Exact requirements
     DATUM_GENERAL_REQ = "Datumaro general requirement"
+    DATUM_TELEMETRY = "Datumaro telemetry requirement"
 
     # GitHub issues (not bugs)
     # https://github.com/openvinotoolkit/datumaro/issues
@@ -35,6 +36,8 @@ class Requirements:
     DATUM_BUG_402 = "Troubles running 'remap_labels' on ProjectDataset"
     DATUM_BUG_404 = "custom importer/extractor not loading"
     DATUM_BUG_425 = "Bug: concatenation for the different types in COCO format"
+    DATUM_BUG_466 = "Can't correct import Open Images dataset without images"
+    DATUM_BUG_470 = "Cannot to import Cityscapes dataset without images"
 
 
 class SkipMessages:

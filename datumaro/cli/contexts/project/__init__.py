@@ -136,6 +136,11 @@ def build_export_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+def get_export_sensitive_args():
+    return {
+        export_command: ['dst_dir', 'project_dir', 'name',],
+    }
+
 @scoped
 def export_command(args):
     has_sep = '--' in args._positionals
@@ -279,6 +284,11 @@ def build_filter_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+def get_filter_sensitive_args():
+    return {
+        filter_command: ['target', 'filter', 'dst_dir', 'project_dir',],
+    }
+
 @scoped
 def filter_command(args):
     project = scope_add(load_project(args.project_dir))
@@ -411,6 +421,11 @@ def build_transform_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+def get_transform_sensitive_args():
+    return {
+        transform_command: ['dst_dir', 'project_dir',],
+    }
+
 @scoped
 def transform_command(args):
     has_sep = '--' in args._positionals
@@ -529,6 +544,11 @@ def build_stats_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+def get_stats_sensitive_args():
+    return {
+        stats_command: ['project_dir',],
+    }
+
 @scoped
 def stats_command(args):
     project = None
@@ -573,6 +593,11 @@ def build_info_parser(parser_ctor=argparse.ArgumentParser):
     parser.set_defaults(command=info_command)
 
     return parser
+
+def get_info_sensitive_args():
+    return {
+        info_command: ['project_dir',],
+    }
 
 @scoped
 def info_command(args):
@@ -664,6 +689,11 @@ def build_validate_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+def get_validate_sensitive_args():
+    return {
+        validate_command: ['target', 'project_dir',],
+    }
+
 @scoped
 def validate_command(args):
     has_sep = '--' in args._positionals
@@ -754,6 +784,11 @@ def build_migrate_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+def get_migrate_sensitive_args():
+    return {
+        migrate_command: ['dst_dir', 'project_dir',],
+    }
+
 @scoped
 def migrate_command(args):
     dst_dir = args.dst_dir
@@ -795,3 +830,14 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     add_subparser(subparsers, 'migrate', build_migrate_parser)
 
     return parser
+
+def get_sensitive_args():
+    return {
+        **get_export_sensitive_args(),
+        **get_filter_sensitive_args(),
+        **get_transform_sensitive_args(),
+        **get_stats_sensitive_args(),
+        **get_info_sensitive_args(),
+        **get_validate_sensitive_args(),
+        **get_migrate_sensitive_args(),
+    }

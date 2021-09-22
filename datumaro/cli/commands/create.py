@@ -37,6 +37,11 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+def get_sensitive_args():
+    return {
+        create_command: ['dst_dir',],
+    }
+
 def create_command(args):
     project_dir = osp.abspath(args.dst_dir)
 

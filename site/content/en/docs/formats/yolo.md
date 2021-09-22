@@ -7,22 +7,22 @@ weight: 11
 
 ## Format specification
 
-- The YOLO dataset format is for training and validating object detection
-  models. Specification for this format available
-  [here](https://github.com/AlexeyAB/darknet#how-to-train-to-detect-your-custom-objects).
-  And also you can find some official examples on working with YOLO dataset
-  [here](https://pjreddie.com/darknet/yolo/);
+The YOLO dataset format is for training and validating object detection
+models. Specification for this format is available
+[here](https://github.com/AlexeyAB/darknet#how-to-train-to-detect-your-custom-objects).
 
-- The YOLO dataset format support the following types of annotations:
-  - `Bounding boxes`
+You can also find official examples of working with YOLO dataset [here](https://pjreddie.com/darknet/yolo/).
 
-- YOLO format doesn't support attributes for annotations;
+Supported annotation types:
+- `Bounding boxes`
 
-- The format only supports subsets named `train` or `valid`.
+YOLO format doesn't support attributes for annotations.
 
-## Load YOLO dataset
+The format only supports subsets named `train` or `valid`.
 
-A Datumaro project with a YOLO source can be created the following way:
+## Import YOLO dataset
+
+A Datumaro project with a YOLO source can be created in the following way:
 
 ```bash
 datum create
@@ -55,8 +55,8 @@ YOLO dataset directory should have the following structure:
         └── ...
 ```
 > YOLO dataset cannot contain a subset with a name other than `train` or `valid`.
-  If imported dataset contains such subsets, they will be ignored.
-  If you are exporting a project into yolo format,
+  If an imported dataset contains such subsets, they will be ignored.
+  If you are exporting a project into YOLO format,
   all subsets different from `train` and `valid` will be skipped.
   If there is no subset separation in a project, the data
   will be saved in `train` subset.
@@ -70,7 +70,7 @@ train = <path/to/train.txt>
 valid = <path/to/valid.txt>
 backup = backup/ # optional
 ```
-- `obj.names` contain list of classes.
+- `obj.names` contains a list of classes.
 The line number for the class is the same as its index:
 ```
 label1  # label1 has index 0
@@ -104,14 +104,24 @@ Datumaro can convert YOLO dataset into any other format
 For successful conversion the output format should support
 object detection task (e.g. Pascal VOC, COCO, TF Detection API etc.)
 
-Examples:
-```bash
-datum export -f voc -o <output/dir>
-```
+There are several ways to convert a YOLO dataset to other dataset formats:
 
 ```bash
+datum create
+datum add -f yolo <path/to/yolo/>
+datum export -f voc -o <output/dir>
+# or
 datum convert -if yolo -i <path/to/dataset> \
               -f coco_instances -o <path/to/dataset>
+```
+
+Or, using Python API:
+
+```python
+from datumaro.components.dataset import Dataset
+
+dataset = Dataset.import_from('<path/to/dataset>', 'yolo')
+dataset.export('save_dir', 'coco_instances', save_images=True)
 ```
 
 ## Export to YOLO format
@@ -127,12 +137,11 @@ datum import -f coco_instances <path/to/dataset>
 datum export -f yolo -o <path/to/dataset> -- --save-images
 ```
 
-Extra options for export to YOLO format:
-
+Extra options for exporting to YOLO format:
 - `--save-images` allow to export dataset with saving images
-(default: `False`);
+  (default: `False`)
 - `--image-ext <IMAGE_EXT>` allow to specify image extension
-for exporting dataset (default: use original or `.jpg`, if none).
+  for exporting dataset (default: use original or `.jpg`, if none)
 
 ## Examples
 
@@ -146,7 +155,7 @@ datum transform -p project -t map_subsets -- -s train:train -s val:valid
 datum export -p project -f yolo -- --save-images
 ```
 
-### Example 2. Remove some class from YOLO dataset
+### Example 2. Remove a class from YOLO dataset
 Delete all items, which contain `cat` objects and remove
 `cat` from list of classes:
 ```bash
@@ -157,7 +166,7 @@ datum transform -p project -t remap_labels -- -l cat:
 datum export -p project -f yolo -o ./yolo_without_cats
 ```
 
-### Example 3. Create custom dataset in YOLO format
+### Example 3. Create a custom dataset in YOLO format
 ```python
 import numpy as np
 from datumaro.components.annotation import Bbox
@@ -186,7 +195,7 @@ dataset.export('../yolo_dataset', format='yolo', save_images=True)
 ### Example 4. Get information about objects on each image
 
 If you only want information about label names for each
-images, then you can get it from code:
+image, then you can get it from code:
 
 ```python
 from datumaro.components.annotation import AnnotationType

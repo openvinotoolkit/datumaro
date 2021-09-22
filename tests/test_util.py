@@ -161,18 +161,21 @@ class TestMemberRedefined(TestCase):
         def method(self):
             pass
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_no_changes_in_derived_class(self):
         class Derived(self.Base):
             pass
 
         self.assertFalse(is_method_redefined('method', self.Base, Derived))
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_no_changes_in_derived_instance(self):
         class Derived(self.Base):
             pass
 
         self.assertFalse(is_method_redefined('method', self.Base, Derived()))
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_changes_in_derived_class(self):
         class Derived(self.Base):
             def method(self):
@@ -180,6 +183,7 @@ class TestMemberRedefined(TestCase):
 
         self.assertTrue(is_method_redefined('method', self.Base, Derived))
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_changes_in_derived_instance(self):
         class Derived(self.Base):
             def method(self):
@@ -187,6 +191,7 @@ class TestMemberRedefined(TestCase):
 
         self.assertTrue(is_method_redefined('method', self.Base, Derived()))
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_changes_in_patched_instance(self):
         obj = self.Base()
         with mock.patch.object(obj, 'method'):

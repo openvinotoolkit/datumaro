@@ -47,6 +47,11 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+def get_sensitive_args():
+    return {
+        checkout_command: ['rev', 'sources', 'project_dir',],
+    }
+
 @scoped
 def checkout_command(args):
     has_sep = '--' in args._positionals

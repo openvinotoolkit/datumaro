@@ -402,3 +402,25 @@ class CityscapesConverterTest(TestCase):
             compare_datasets(self, expected,
                 Dataset.import_from(path, 'cityscapes'),
                 require_images=True, ignored_attrs=IGNORE_ALL)
+
+    @mark_requirement(Requirements.DATUM_BUG_470)
+    def test_can_save_and_load_without_image_saving(self):
+        class TestExtractor(TestExtractorBase):
+            def __iter__(self):
+                return iter([
+                    DatasetItem(id='a', subset='test',
+                        image=np.ones((1, 5, 3)),
+                        annotations=[
+                            Mask(np.array([[0, 1, 1, 1, 0]]), label=3,
+                                attributes={'is_crowd': True}),
+                            Mask(np.array([[1, 0, 0, 0, 1]]), label=4,
+                                attributes={'is_crowd': True}),
+                        ]
+                    ),
+                ])
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(TestExtractor(),
+                partial(CityscapesConverter.convert, label_map='cityscapes'),
+                test_dir
+            )

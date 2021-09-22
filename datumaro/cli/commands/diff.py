@@ -132,6 +132,11 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+def get_sensitive_args():
+    return {
+        diff_command: ['first_taret', 'second_target', 'dst_dir', 'project_dir',],
+    }
+
 @scoped
 def diff_command(args):
     dst_dir = args.dst_dir
