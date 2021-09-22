@@ -37,6 +37,7 @@ class Requirements:
     DATUM_BUG_404 = "custom importer/extractor not loading"
     DATUM_BUG_425 = "Bug: concatenation for the different types in COCO format"
     DATUM_BUG_466 = "Can't correct import Open Images dataset without images"
+    DATUM_BUG_470 = "Cannot to import Cityscapes dataset without images"
 
 
 class SkipMessages:
