@@ -16,7 +16,9 @@ You can also find official examples of working with YOLO dataset [here](https://
 Supported annotation types:
 - `Bounding boxes`
 
-YOLO format doesn't support attributes for annotations. The format only supports subsets named `train` or `valid`.
+YOLO format doesn't support attributes for annotations.
+
+The format only supports subsets named `train` or `valid`.
 
 ## Import YOLO dataset
 

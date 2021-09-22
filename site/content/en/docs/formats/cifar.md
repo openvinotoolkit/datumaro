@@ -182,8 +182,8 @@ dataset.export('./dataset', format='cifar')
 
 ### Example 2. How to filter and convert a CIFAR dataset to ImageNet
 
-Convert a CIFAR dataset to ImageNet format, keep only images with the `dog` class
-presented:
+Convert a CIFAR dataset to ImageNet format, keep only images with the
+`dog` class present:
 
 ``` bash
 # Download CIFAR-10 dataset:
