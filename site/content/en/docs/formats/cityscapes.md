@@ -27,7 +27,7 @@ A Datumaro project with a Cityscapes source can be created in the following way:
 
 ``` bash
 datum create
-datum add --format cityscapes <path/to/dataset>
+datum import --format cityscapes <path/to/dataset>
 ```
 
 Cityscapes dataset directory should have the following structure:
@@ -80,7 +80,7 @@ formats using CLI:
 
 ``` bash
 datum create
-datum add -f cityscapes <path/to/cityscapes>
+datum import -f cityscapes <path/to/cityscapes>
 datum export -f voc -o <output/dir>
 # or
 datum convert -if cityscapes -i <path/to/cityscapes> \
@@ -141,7 +141,7 @@ particular problems with a Cityscapes dataset:
 
 ```bash
 datum create -o project
-datum add -p project -f cityscapes ./Cityscapes/
+datum import -p project -f cityscapes ./Cityscapes/
 datum stats -p project
 datum export -p project -o dataset/ -f voc -- --save-images
 ```

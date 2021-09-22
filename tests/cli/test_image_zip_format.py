@@ -34,7 +34,7 @@ class ImageZipIntegrationScenarios(TestCase):
 
             proj_dir = osp.join(test_dir, 'proj')
             run(self, 'create', '-o', proj_dir)
-            run(self, 'add', '-p', proj_dir, '-f', 'image_zip', zip_path)
+            run(self, 'import', '-p', proj_dir, '-f', 'image_zip', zip_path)
 
             result_dir = osp.join(test_dir, 'result')
             export_path = osp.join(result_dir, 'export.zip')
@@ -52,7 +52,7 @@ class ImageZipIntegrationScenarios(TestCase):
                 'tests', 'assets', 'coco_dataset')
 
             run(self, 'create', '-o', test_dir)
-            run(self, 'add', '-p', test_dir, '-f', 'coco', coco_dir)
+            run(self, 'import', '-p', test_dir, '-f', 'coco', coco_dir)
 
             export_path = osp.join(test_dir, 'export.zip')
             run(self, 'export', '-p', test_dir, '-f', 'image_zip',
@@ -78,7 +78,7 @@ class ImageZipIntegrationScenarios(TestCase):
 
             proj_dir = osp.join(test_dir, 'proj')
             run(self, 'create', '-o', proj_dir)
-            run(self, 'add', '-p', proj_dir, '-f', 'image_zip', zip_path)
+            run(self, 'import', '-p', proj_dir, '-f', 'image_zip', zip_path)
 
             export_path = osp.join(test_dir, 'export.zip')
             run(self, 'export', '-p', proj_dir, '-f', 'image_zip',

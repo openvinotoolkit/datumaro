@@ -31,7 +31,7 @@ class YoloIntegrationScenarios(TestCase):
                 'tests', 'assets', 'yolo_dataset')
 
             run(self, 'create', '-o', test_dir)
-            run(self, 'add', '-p', test_dir, '-f', 'yolo', yolo_dir)
+            run(self, 'import', '-p', test_dir, '-f', 'yolo', yolo_dir)
 
             export_dir = osp.join(test_dir, 'export_dir')
             run(self, 'export', '-p', test_dir, '-o', export_dir,
@@ -55,7 +55,7 @@ class YoloIntegrationScenarios(TestCase):
                 'tests', 'assets', 'mot_dataset')
 
             run(self, 'create', '-o', test_dir)
-            run(self, 'add', '-p', test_dir, '-f', 'mot_seq', mot_dir)
+            run(self, 'import', '-p', test_dir, '-f', 'mot_seq', mot_dir)
 
             yolo_dir = osp.join(test_dir, 'yolo_dir')
             run(self, 'export', '-p', test_dir, '-o', yolo_dir,
@@ -122,7 +122,7 @@ class YoloIntegrationScenarios(TestCase):
 
             proj_dir = osp.join(test_dir, 'proj')
             run(self, 'create', '-o', proj_dir)
-            run(self, 'add', '-p', proj_dir, '-f', 'datumaro', dataset_dir)
+            run(self, 'import', '-p', proj_dir, '-f', 'datumaro', dataset_dir)
 
             yolo_dir = osp.join(test_dir, 'yolo_dir')
             run(self, 'export', '-p', proj_dir, '-o', yolo_dir,
@@ -147,7 +147,7 @@ class YoloIntegrationScenarios(TestCase):
                 'tests', 'assets', 'yolo_dataset')
 
             run(self, 'create', '-o', test_dir)
-            run(self, 'add', '-p', test_dir, '-f', 'yolo', yolo_dir)
+            run(self, 'import', '-p', test_dir, '-f', 'yolo', yolo_dir)
 
             run(self, 'filter', '-p', test_dir,
                 '-m', 'i+a', '-e', "/item/annotation[label='label_2']")

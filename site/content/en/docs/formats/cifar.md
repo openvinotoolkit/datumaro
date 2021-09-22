@@ -35,7 +35,7 @@ A Datumaro project with a CIFAR source can be created in the following way:
 
 ``` bash
 datum create
-datum add --format cifar <path/to/dataset>
+datum import --format cifar <path/to/dataset>
 ```
 
 It is possible to specify project name and project directory. Run
@@ -111,7 +111,7 @@ formats using CLI:
 
 ``` bash
 datum create
-datum add -f cifar <path/to/cifar>
+datum import -f cifar <path/to/cifar>
 datum export -f imagenet -o <output/dir>
 # or
 datum convert -if cifar -i <path/to/dataset> \

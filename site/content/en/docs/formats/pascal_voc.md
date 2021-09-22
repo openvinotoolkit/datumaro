@@ -52,7 +52,7 @@ A Datumaro project with a Pascal VOC source can be created in the following way:
 
 ``` bash
 datum create
-datum add --format voc <path/to/dataset>
+datum import --format voc <path/to/dataset>
 ```
 
 It is possible to specify project name and project directory. Run
@@ -140,7 +140,7 @@ of Pascal VOC dataset instead of the whole dataset,
 for example:
 
 ``` bash
-datum add -f voc_detection -r ImageSets/Main/train.txt <path/to/dataset>
+datum import -f voc_detection -r ImageSets/Main/train.txt <path/to/dataset>
 ```
 
 To make sure that the selected dataset has been added to the project, you
@@ -160,7 +160,7 @@ There are several ways to convert a Pascal VOC dataset to other dataset formats:
 
 ``` bash
 datum create
-datum add -f voc <path/to/voc>
+datum import -f voc <path/to/voc>
 datum export -f coco -o <output/dir>
 # or
 datum convert -if voc -i <path/to/voc> -f coco -o <output/dir>
@@ -241,7 +241,7 @@ export the result to Pascal VOC format.
 
 ```bash
 datum create -o project
-datum add -p project -f voc_segmentation ./VOC2012/ImageSets/Segmentation/trainval.txt
+datum import -p project -f voc_segmentation ./VOC2012/ImageSets/Segmentation/trainval.txt
 datum stats -p project # check statisctics.json -> repeated images
 datum transform -p project -t ndr -- -w trainval -k 2500
 datum filter -p project -e '/item[subset="trainval"]'

@@ -142,7 +142,7 @@ A Datumaro project with an OID source can be created in the following way:
 
 ``` bash
 datum create
-datum add --format open_images <path/to/dataset>
+datum import --format open_images <path/to/dataset>
 ```
 
 It is possible to specify project name and project directory. Run
@@ -237,7 +237,7 @@ There are several ways to convert OID to other dataset formats:
 
 ``` bash
 datum create
-datum add -f open_images <path/to/open_images>
+datum import -f open_images <path/to/open_images>
 datum export -f cvat -o <output/dir>
 # or
 datum convert -if open_images -i <path/to/open_images> -f cvat -o <output/dir>
@@ -288,7 +288,7 @@ particular problems with the Open Images dataset:
 
 ```bash
 datum create -o project
-datum add -p project -f open_images ./open-images-dataset/
+datum import -p project -f open_images ./open-images-dataset/
 datum stats -p project
 datum export -p project -f cvat -- --save-images
 ```

@@ -64,7 +64,7 @@ A Datumaro project with a COCO source can be created in the following way:
 
 ``` bash
 datum create
-datum add --format coco <path/to/dataset>
+datum import --format coco <path/to/dataset>
 ```
 
 It is possible to specify project name and project directory. Run
@@ -130,7 +130,7 @@ files with non-default names. For example:
 
 ``` bash
 datum create
-datum add --format coco_stuff -r <relpath/to/stuff.json> <path/to/dataset>
+datum import --format coco_stuff -r <relpath/to/stuff.json> <path/to/dataset>
 ```
 
 To make sure that the selected dataset has been added to the project, you can
@@ -152,7 +152,7 @@ using CLI:
 
 ``` bash
 datum create
-datum add -f coco <path/to/coco>
+datum import -f coco <path/to/coco>
 datum export -f voc -o <output/dir>
 # or
 datum convert -if coco -i <path/to/coco> -f voc -o <output/dir>
@@ -205,7 +205,7 @@ Extra options for exporting to COCO format:
 
 ```bash
 datum create
-datum add -f coco <path/to/dataset>
+datum import -f coco <path/to/dataset>
 datum export -f coco -- --tasks instances,stuff
 ```
 
@@ -223,7 +223,7 @@ particular problems with a COCO dataset:
 
 ```bash
 datum create -o project
-datum add -p project -f coco_panoptic ./COCO/annotations/panoptic_val2017.json
+datum import -p project -f coco_panoptic ./COCO/annotations/panoptic_val2017.json
 datum stats -p project
 datum export -p project -f voc -- --save-images
 ```

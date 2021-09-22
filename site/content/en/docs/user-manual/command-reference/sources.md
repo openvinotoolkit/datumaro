@@ -14,7 +14,7 @@ which case it combines dataset items from all the sources into one composite
 dataset. You can manage separate sources in a project by commands in
 the `datum source` command line context.
 
-Existing datasets can be added to a Datumaro project with the `add` command.
+Existing datasets can be added to a Datumaro project with the `import` command.
 
 Datasets come in a wide variety of formats. Each dataset
 format defines its own data structure and rules on how to
@@ -30,7 +30,7 @@ is used in COCO format:
 
 Dataset format readers can provide some additional import options. To pass
 such options, use the `--` separator after the main command arguments.
-The usage information can be printed with `datum add -f <format> -- --help`.
+The usage information can be printed with `datum import -f <format> -- --help`.
 
 Check [supported formats](/docs/user-manual/supported_formats) for more info
 about format specifications, supported options and other details.
@@ -65,7 +65,7 @@ is _not_ done automatically.
 Usage:
 
 ``` bash
-datum add [-h] [-n NAME] -f FORMAT [-r PATH] [--no-check]
+datum import [-h] [-n NAME] -f FORMAT [-r PATH] [--no-check]
   [-p PROJECT_DIR] url [-- EXTRA_FORMAT_ARGS]
 ```
 
@@ -89,11 +89,11 @@ export as TFrecord for TF Detection API for model training
 ``` bash
 datum create
 # 'default' is the name of the subset below
-datum add -f coco_instances -r annotations/instances_default.json path/to/coco
-datum add -f cvat <path/to/cvat/default.xml>
-datum add -f voc_detection -r custom_subset_dir/default.txt <path/to/voc>
-datum add -f datumaro <path/to/datumaro/default.json>
-datum add -f image_dir <path/to/images/dir>
+datum import -f coco_instances -r annotations/instances_default.json path/to/coco
+datum import -f cvat <path/to/cvat/default.xml>
+datum import -f voc_detection -r custom_subset_dir/default.txt <path/to/voc>
+datum import -f datumaro <path/to/datumaro/default.json>
+datum import -f image_dir <path/to/images/dir>
 datum export -f tf_detection_api -- --save-images
 ```
 
@@ -120,6 +120,6 @@ Example:
 
 ``` bash
 datum create
-datum add -f voc -n src1 <path/to/dataset/>
+datum import -f voc -n src1 <path/to/dataset/>
 datum remove src1
 ```

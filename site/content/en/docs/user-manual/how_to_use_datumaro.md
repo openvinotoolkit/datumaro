@@ -104,7 +104,7 @@ to use Datumaro from the command-line:
 
 - Create a Datumaro project and operate on it:
   - Create an empty project with [`create`](/docs/user-manual/command-reference/create)
-  - Import existing datasets with [`add`](/docs/user-manual/command-reference/sources/#source-add)
+  - Import existing datasets with [`import`](/docs/user-manual/command-reference/sources/#source-add)
   - Modify the project with [`transform`](/docs/user-manual/command-reference/transform) and [`filter`](/docs/user-manual/command-reference/filter)
   - Create new revisions of the project with
     [`commit`](/docs/user-manual/command-reference/commit), navigate over
@@ -163,13 +163,13 @@ are omitted for simplicity):
 datum create
 
 # describe the first source
-datum add <...> -n source1
+datum import <...> -n source1
 datum filter <...> source1
 datum transform <...> source1
 datum transform <...> source1
 
 # describe the second source
-datum add <...> -n source2
+datum import <...> -n source2
 datum model add <...>
 datum transform <...> source2
 datum transform <...> source2
@@ -230,7 +230,7 @@ project and register the dataset as a data source:
 
 ``` bash
 datum create
-datum add <...> -n source1
+datum import <...> -n source1
 ```
 
 The dataset will be copied to the working directory inside the project. It
@@ -280,8 +280,8 @@ Roughly, it corresponds to the following set of commands:
 
 ```bash
 datum create
-datum add <...> -n source1
-datum add <...> -n source2
+datum import <...> -n source1
+datum import <...> -n source2
 datum transform <...> source1 # used 3 times
 datum transform <...> source2 # used 5 times
 ```
@@ -368,7 +368,7 @@ Example: create a project, add dataset, modify, restore an old version
 
 ``` bash
 datum create
-datum add <path/to/dataset> -f coco -n source1
+datum import <path/to/dataset> -f coco -n source1
 datum commit -m "Added a dataset"
 datum transform -t shapes_to_boxes
 datum filter -e '/item/annotation[label="cat" or label="dog"]' -m i+a

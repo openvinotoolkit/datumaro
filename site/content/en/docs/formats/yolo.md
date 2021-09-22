@@ -26,7 +26,7 @@ A Datumaro project with a YOLO source can be created in the following way:
 
 ```bash
 datum create
-datum add --format yolo <path/to/dataset>
+datum import --format yolo <path/to/dataset>
 ```
 
 YOLO dataset directory should have the following structure:
@@ -133,7 +133,7 @@ Example:
 
 ```
 datum create
-datum add -f coco_instances <path/to/dataset>
+datum import -f coco_instances <path/to/dataset>
 datum export -f yolo -o <path/to/dataset> -- --save-images
 ```
 
@@ -149,7 +149,7 @@ Extra options for exporting to YOLO format:
 
 ```bash
 datum create -o project
-datum add -p project -f voc ./VOC2012
+datum import -p project -f voc ./VOC2012
 datum filter -p project -e '/item[subset="train" or subset="val"]'
 datum transform -p project -t map_subsets -- -s train:train -s val:valid
 datum export -p project -f yolo -- --save-images
@@ -160,7 +160,7 @@ Delete all items, which contain `cat` objects and remove
 `cat` from list of classes:
 ```bash
 datum create -o project
-datum add -p project -f yolo ./yolo_dataset
+datum import -p project -f yolo ./yolo_dataset
 datum filter -p project -m i+a -e '/item/annotation[label!="cat"]'
 datum transform -p project -t remap_labels -- -l cat:
 datum export -p project -f yolo -o ./yolo_without_cats
@@ -212,6 +212,6 @@ for item in dataset:
 And If you want complete information about each item you can run:
 ```bash
 datum create -o project
-datum add -p project -f yolo ./yolo_dataset
+datum import -p project -f yolo ./yolo_dataset
 datum filter -p project --dry-run -e '/item'
 ```

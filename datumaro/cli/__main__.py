@@ -65,8 +65,8 @@ def _get_known_commands():
     return [
         ("Project modification:", None, ''),
         ('create', commands.create, "Create empty project"),
-        ('add', commands.add, "Add data source to project"),
-        ('remove', commands.remove, "Remove data source from project"),
+        ('import', commands.import_, "Import dataset to project"),
+        ('remove', commands.remove, "Remove dataset from project"),
 
         ("", None, ''),
         ("Project versioning:", None, ''),
@@ -76,17 +76,17 @@ def _get_known_commands():
         ('status', commands.status, "Display current status"),
 
         ("", None, ''),
-        ("Dataset and project operations:", None, ''),
-        ('export', commands.export, "Export project in some format"),
-        ('filter', commands.filter, "Filter project items"),
-        ('transform', commands.transform, "Modify project items"),
+        ("Dataset operations:", None, ''),
+        ('export', commands.export, "Export dataset in some format"),
+        ('filter', commands.filter, "Filter dataset items"),
+        ('transform', commands.transform, "Modify dataset items"),
         ('merge', commands.merge, "Merge datasets"),
         ('convert', commands.convert, "Convert dataset between formats"),
         ('diff', commands.diff, "Compare datasets"),
-        ('stats', commands.stats, "Compute project statistics"),
-        ('info', commands.info, "Print project info"),
+        ('stats', commands.stats, "Compute dataset statistics"),
+        ('info', commands.info, "Print dataset info"),
         ('explain', commands.explain, "Run Explainable AI algorithm for model"),
-        ('validate', commands.validate, "Validate project")
+        ('validate', commands.validate, "Validate dataset")
     ]
 
 def _get_sensitive_args():
