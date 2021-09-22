@@ -234,7 +234,7 @@ datum add <...> -n source1
 ```
 
 The dataset will be copied to the working directory inside the project. It
-will be hashed and added to the project working tree.
+will be added to the project working tree.
 
 After the dataset is added, we want to transform it and filter out some
 irrelevant samples, so we run the following commands:
@@ -245,7 +245,7 @@ datum filter <...> source1
 ```
 
 The commands modify the data source inside the working directory, inplace.
-The operations done are recorded in the working tree, the results are hashed.
+The operations done are recorded in the working tree.
 
 Now, we want to make a new version of the dataset and make a snapshot in the
 project cache. So we `commit` the working tree:
@@ -259,7 +259,9 @@ datum commit <...>
 At this time, the data source is copied into the project cache and a new
 project revision is created. The dataset operation history is saved, so
 the dataset can be reproduced even if it is removed from the cache and the
-working directory.
+working directory. Note, however, that the original dataset hash was not
+computed, so Datumaro won't be able to compare dataset hash on re-downloading.
+If it is desired, consider making a `commit` with an unmodified data source.
 
 After this, we do some other modifications to the dataset and make a new
 commit. Note that the dataset is not cached, until a `commit` is done.
@@ -314,8 +316,8 @@ step-by-step:
   should be controlled manually.
 1. If the project is not read-only (3b), Datumaro will try to download
   the original dataset and reproduce the resulting dataset. The data hash
-  will be computed and hashes will be compared. On success, the data will be
-  put into the cache.
+  will be computed and hashes will be compared (if the data source had hash
+  computed on addition). On success, the data will be put into the cache.
 1. The downloaded dataset will be read and the remaining operations from the
   source history will be re-applied.
 1. The resulting dataset might be cached in some cases.
@@ -366,7 +368,7 @@ Example: create a project, add dataset, modify, restore an old version
 
 ``` bash
 datum create
-datum add <path/to/coco/dataset> -f coco -n source1
+datum add <path/to/dataset> -f coco -n source1
 datum commit -m "Added a dataset"
 datum transform -t shapes_to_boxes
 datum filter -e '/item/annotation[label="cat" or label="dog"]' -m i+a

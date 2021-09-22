@@ -60,6 +60,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/238>)
 - `datumaro_project` format
   (<https://github.com/openvinotoolkit/datumaro/pull/238>)
+- Unused `path` field of `DatasetItem`
+  (<https://github.com/openvinotoolkit/datumaro/pull/455>)
 
 ### Fixed
 - Deprecation warning in `open_images_format.py`
@@ -68,6 +70,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/issues/409>)
 - Invalid call to `pycocotools.mask.iou`
   (<https://github.com/openvinotoolkit/datumaro/pull/450>)
+- Importing of Open Images datasets without image data
+  (<https://github.com/openvinotoolkit/datumaro/pull/463>)
 
 ### Security
 - TBD

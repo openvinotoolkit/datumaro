@@ -8,7 +8,7 @@ weight: 8
 ## Format specification
 
 A description of the Open Images Dataset (OID) format is available
-on [its website](https://storage.googleapis.com/openimages/web/download.html).
+[here](https://storage.googleapis.com/openimages/web/download.html).
 Datumaro supports versions 4, 5 and 6.
 
 Supported annotation types:
@@ -46,7 +46,7 @@ Supported annotation attributes:
   - `predicted_iou` (read/write, float).
     Predicted IoU value with respect to the ground truth.
 
-## Load Open Images dataset
+## Import Open Images dataset
 
 The Open Images dataset is available for free download.
 
@@ -138,16 +138,14 @@ All annotation files are optional,
 except that if the mask metadata files for a given subset are downloaded,
 all corresponding images must be downloaded as well, and vice versa.
 
-There are two ways to create Datumaro project and add OID to it:
+A Datumaro project with an OID source can be created in the following way:
 
 ``` bash
-datum import --format open_images --input-path <path/to/dataset>
-# or
 datum create
-datum add path -f open_images <path/to/dataset>
+datum add --format open_images <path/to/dataset>
 ```
 
-It is possible to specify project name and project directory; run
+It is possible to specify project name and project directory. Run
 `datum create --help` for more information.
 
 Open Images dataset directory should have the following structure:
@@ -232,44 +230,46 @@ find images -name '*.jpg' -exec \
 
 ## Export to other formats
 
-Datumaro can convert OID into any other format [Datumaro supports](/docs/user-manual/supported-formats).
+Datumaro can convert OID into any other format [Datumaro supports](/docs/user-manual/supported_formats).
 To get the expected result, convert the dataset to a format
 that supports image-level labels.
-There are a few ways to convert OID to other dataset format:
+There are several ways to convert OID to other dataset formats:
 
 ``` bash
-datum project import -f open_images -i <path/to/open_images>
-datum export -f cvat -o <path/to/output/dir>
+datum create
+datum add -f open_images <path/to/open_images>
+datum export -f cvat -o <output/dir>
 # or
-datum convert -if open_images -i <path/to/open_images> -f cvat -o <path/to/output/dir>
+datum convert -if open_images -i <path/to/open_images> -f cvat -o <output/dir>
 ```
 
-Some formats provide extra options for conversion.
-These options are passed after double dash (`--`) in the command line.
-To get information about them, run
+Or, using Python API:
 
-`datum export -f <FORMAT> -- -h`
+```python
+from datumaro.components.dataset import Dataset
+
+dataset = Dataset.import_from('<path/to/dataset>', 'open_images')
+dataset.export('save_dir', 'cvat', save_images=True)
+```
 
 ## Export to Open Images
 
-There are few ways to convert an existing dataset to the Open Images format:
+There are several ways to convert an existing dataset to the Open Images format:
 
 ``` bash
 # export dataset into Open Images format from existing project
-datum export -p <path/to/project> -f open_images -o <path/to/export/dir> \
+datum export -p <path/to/project> -f open_images -o <output/dir> \
   -- --save_images
 
 # convert a dataset in another format to the Open Images format
-datum convert -if imagenet -i <path/to/imagenet/dataset> \
-    -f open_images -o <path/to/export/dir> \
+datum convert -if imagenet -i <path/to/dataset> \
+    -f open_images -o <output/dir> \
     -- --save-images
 ```
 
-Extra options for export to the Open Images format:
-
+Extra options for exporting to the Open Images format:
 - `--save-images` - save image files when exporting the dataset
   (by default, `False`)
-
 - `--image-ext IMAGE_EXT` - save image files with the specified extension
   when exporting the dataset (by default, uses the original extension
   or `.jpg` if there isn't one)
@@ -277,7 +277,7 @@ Extra options for export to the Open Images format:
 ## Examples
 
 Datumaro supports filtering, transformation, merging etc. for all formats
-and for the Open Images format in particular. Follow
+and for the Open Images format in particular. Follow the
 [user manual](/docs/user-manual/)
 to get more information about these operations.
 
@@ -288,9 +288,9 @@ particular problems with the Open Images dataset:
 
 ```bash
 datum create -o project
-datum add path -p project -f open_images ./open-images-dataset/
+datum add -p project -f open_images ./open-images-dataset/
 datum stats -p project
-datum export -p project -o dataset -f cvat --overwrite -- --save-images
+datum export -p project -f cvat -- --save-images
 ```
 
 ### Example 2. Create a custom OID-like dataset
@@ -303,20 +303,18 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.extractor import DatasetItem
 
-dataset = Dataset.from_iterable(
-    [
-        DatasetItem(
-            id='0000000000000001',
-            image=np.ones((1, 5, 3)),
-            subset='validation',
-            annotations=[
-                Label(0, attributes={'score': 1}),
-                Label(1, attributes={'score': 0}),
-            ],
-        ),
+dataset = Dataset.from_iterable([
+  DatasetItem(
+    id='0000000000000001',
+    image=np.ones((1, 5, 3)),
+    subset='validation',
+    annotations=[
+      Label(0, attributes={'score': 1}),
+      Label(1, attributes={'score': 0}),
     ],
-    categories=['/m/0', '/m/1'],
-)
+  ),
+], categories=['/m/0', '/m/1'])
+
 dataset.export('./dataset', format='open_images')
 ```
 

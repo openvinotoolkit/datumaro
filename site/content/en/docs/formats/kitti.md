@@ -8,41 +8,39 @@ weight: 6
 ## Format specification
 
 The KITTI dataset has many annotations for different tasks. Datumaro supports
-only few of them.
+only a few of them.
 
 Supported tasks / formats:
 - [Object Detection](http://www.cvlibs.net/datasets/kitti/eval_object.php?obj_benchmark) - `kitti_detection`
   The format specification is available in `README.md` [here](https://s3.eu-central-1.amazonaws.com/avg-kitti/devkit_object.zip).
 - [Segmentation](http://www.cvlibs.net/datasets/kitti/eval_semseg.php?benchmark=semantics2015) - `kitti_segmentation`
   The format specification is available in `README.md` [here](https://s3.eu-central-1.amazonaws.com/avg-kitti/devkit_semantics.zip).
-- Raw 3D / Velodyne Points - described [here](/kitti_raw.md)
+- Raw 3D / Velodyne Points - described [here](/formats/kitti_raw)
 
 Supported annotation types:
 - `Bbox` (object detection)
 - `Mask` (segmentation)
 
-Supported attributes:
+Supported annotation attributes:
 - `truncated` (boolean) - indicates that the bounding box specified for
   the object does not correspond to the full extent of the object
 - `occluded` (boolean) - indicates that a significant portion of the object
   within the bounding box is occluded by another object
 
-## Load KITTI dataset
+## Import KITTI dataset
 
 The KITTI left color images for object detection are available [here](http://www.cvlibs.net/download.php?file=data_object_image_2.zip).
 The KITTI object detection labels are available [here](http://www.cvlibs.net/download.php?file=data_object_label_2.zip).
 The KITTI segmentation dataset is available [here](http://www.cvlibs.net/download.php?file=data_semantics.zip).
 
-There are two ways to create Datumaro project and add KITTI dataset to it:
+A Datumaro project with a KITTI source can be created in the following way:
 
 ``` bash
-datum import --format kitti --input-path <path/to/dataset>
-# or
 datum create
-datum add path -f kitti <path/to/dataset>
+datum add --format kitti <path/to/dataset>
 ```
 
-It is possible to specify project name and project directory run
+It is possible to specify project name and project directory. Run
 `datum create --help` for more information.
 
 KITTI segmentation dataset directory should have the following structure:
@@ -78,62 +76,66 @@ KITTI segmentation dataset directory should have the following structure:
             └── ...
 ```
 
-You can import dataset for specific tasks
+You can import a dataset for specific tasks
 of KITTI dataset instead of the whole dataset,
 for example:
 
 ``` bash
-datum add path -f kitti_detection <path/to/dataset>
+datum add --format kitti_detection <path/to/dataset>
 ```
 
 To make sure that the selected dataset has been added to the project, you can
-run `datum info`, which will display the project and dataset information.
+run `datum project info`, which will display the project information.
 
 ## Export to other formats
 
-Datumaro can convert KITTI dataset into any other format [Datumaro supports](/docs/user-manual/supported-formats/).
+Datumaro can convert a KITTI dataset into any other format [Datumaro supports](/docs/user-manual/supported_formats/).
 
 Such conversion will only be successful if the output
 format can represent the type of dataset you want to convert,
 e.g. segmentation annotations can be
-saved in `Cityscapes` format, but no as `COCO keypoints`.
+saved in `Cityscapes` format, but not as `COCO keypoints`.
 
-There are few ways to convert KITTI dataset to other dataset format:
+There are several ways to convert a KITTI dataset to other dataset formats:
 
 ``` bash
-datum project import -f kitti -i <path/to/kitti>
-datum export -f cityscapes -o <path/to/output/dir>
+datum create
+datum add -f kitti <path/to/kitti>
+datum export -f cityscapes -o <output/dir>
 # or
-datum convert -if kitti -i <path/to/kitti> -f cityscapes -o <path/to/output/dir>
+datum convert -if kitti -i <path/to/kitti> -f cityscapes -o <output/dir>
 ```
 
-Some formats provide extra options for conversion.
-These options are passed after double dash (`--`) in the command line.
-To get information about them, run
+Or, using Python API:
 
-`datum export -f <FORMAT> -- -h`
+```python
+from datumaro.components.dataset import Dataset
+
+dataset = Dataset.import_from('<path/to/dataset>', 'kitti')
+dataset.export('save_dir', 'cityscapes', save_images=True)
+```
 
 ## Export to KITTI
 
-There are few ways to convert dataset to KITTI format:
+There are several ways to convert a dataset to KITTI format:
 
 ``` bash
 # export dataset into KITTI format from existing project
-datum export -p <path/to/project> -f kitti -o <path/to/export/dir> \
+datum export -p <path/to/project> -f kitti -o <output/dir> \
     -- --save-images
 # converting to KITTI format from other format
-datum convert -if cityscapes -i <path/to/cityscapes/dataset> \
-    -f kitti -o <path/to/export/dir> -- --save-images
+datum convert -if cityscapes -i <path/to/dataset> \
+    -f kitti -o <output/dir> -- --save-images
 ```
 
-Extra options for export to KITTI format:
+Extra options for exporting to KITTI format:
 - `--save-images` allow to export dataset with saving images
-  (by default `False`);
+  (by default `False`)
 - `--image-ext IMAGE_EXT` allow to specify image extension
-  for exporting dataset (by default - keep original or use `.png`, if none).
+  for exporting dataset (by default - keep original or use `.png`, if none)
 - `--apply-colormap APPLY_COLORMAP` allow to use colormap for class masks
-  (in folder `semantic_rgb`, by default `True`);
-- `--label_map` allow to define a custom colormap. Example
+  (in folder `semantic_rgb`, by default `True`)
+- `--label_map` allow to define a custom colormap. Example:
 
 ``` bash
 # mycolormap.txt :
@@ -149,8 +151,7 @@ datum export -f kitti -- --label-map kitti
 by default Datumaro uses all tasks. Example:
 
 ```bash
-datum import -o project -f kitti -i <dataset>
-datum export -p project -f kitti -- --tasks detection
+datum export -f kitti -- --tasks detection
 ```
 - `--allow-attributes ALLOW_ATTRIBUTES` allow export of attributes
 (by default `True`).
@@ -158,23 +159,23 @@ datum export -p project -f kitti -- --tasks detection
 ## Examples
 
 Datumaro supports filtering, transformation, merging etc. for all formats
-and for the KITTI format in particular. Follow
+and for the KITTI format in particular. Follow the
 [user manual](/docs/user-manual/)
 to get more information about these operations.
 
-There are few examples of using Datumaro operations to solve
+There are several examples of using Datumaro operations to solve
 particular problems with KITTI dataset:
 
 ### Example 1. How to load an original KITTI dataset and convert to Cityscapes
 
 ```bash
 datum create -o project
-datum add path -p project -f kitti ./KITTI/
+datum add -p project -f kitti ./KITTI/
 datum stats -p project
-datum export -p final_project -o dataset -f cityscapes -- --save-images
+datum export -p project -f cityscapes -- --save-images
 ```
 
-### Example 2. How to create custom KITTI-like dataset
+### Example 2. How to create a custom KITTI-like dataset
 
 ```python
 import numpy as np
@@ -191,16 +192,16 @@ label_map['label_2'] = (3, 2, 1)
 categories = KITTI.make_kitti_categories(label_map)
 
 dataset = Dataset.from_iterable([
-    DatasetItem(id=1,
-                image=np.ones((1, 5, 3)),
-                annotations=[
-                    Mask(image=np.array([[1, 0, 0, 1, 1]]), label=1, id=0,
-                        attributes={'is_crowd': False}),
-                    Mask(image=np.array([[0, 1, 1, 0, 0]]), label=2, id=0,
-                        attributes={'is_crowd': False}),
-                ]
-            ),
-    ], categories=categories)
+  DatasetItem(id=1,
+    image=np.ones((1, 5, 3)),
+    annotations=[
+      Mask(image=np.array([[1, 0, 0, 1, 1]]), label=1, id=0,
+        attributes={'is_crowd': False}),
+      Mask(image=np.array([[0, 1, 1, 0, 0]]), label=2, id=0,
+        attributes={'is_crowd': False}),
+    ]
+  ),
+], categories=categories)
 
 dataset.export('./dataset', format='kitti')
 ```

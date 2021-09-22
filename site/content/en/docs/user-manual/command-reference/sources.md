@@ -55,7 +55,6 @@ non-standard placement or names.
 When a dataset is imported, the following things are done:
 - URL is saved in the project config
 - data in copied into the project
-- data is cached inside the project (use `--no-cache` to disable)
 
 Each data source has a name assigned, which can be used in other commands. To
 set a specific name, use the `-n/--name` parameter.
@@ -66,7 +65,7 @@ is _not_ done automatically.
 Usage:
 
 ``` bash
-datum add [-h] [-n NAME] -f FORMAT [-r PATH] [--no-check] [--no-cache]
+datum add [-h] [-n NAME] -f FORMAT [-r PATH] [--no-check]
   [-p PROJECT_DIR] url [-- EXTRA_FORMAT_ARGS]
 ```
 
@@ -76,7 +75,6 @@ Parameters:
 - `-r, --path` (string) - A path relative to the source URL the data source.
   Useful to specify a path to a subset, subtask, or a specific file in URL.
 - `--no-check` - Don't try to read the source after importing
-- `--no-cache` - Don't put a copy into the project cache
 - `-n`, `--name` (string) - Name of the new source (default: generate
   automatically)
 - `-p, --project` (string) - Directory of the project to operate on
@@ -91,11 +89,11 @@ export as TFrecord for TF Detection API for model training
 ``` bash
 datum create
 # 'default' is the name of the subset below
-datum add <path/to/coco/instances_default.json> -f coco_instances
-datum add <path/to/cvat/default.xml> -f cvat
-datum add <path/to/voc> -f voc_detection -r custom_subset_dir/default.txt
-datum add <path/to/datumaro/default.json> -f datumaro
-datum add <path/to/images/dir> -f image_dir
+datum add -f coco_instances -r annotations/instances_default.json path/to/coco
+datum add -f cvat <path/to/cvat/default.xml>
+datum add -f voc_detection -r custom_subset_dir/default.txt <path/to/voc>
+datum add -f datumaro <path/to/datumaro/default.json>
+datum add -f image_dir <path/to/images/dir>
 datum export -f tf_detection_api -- --save-images
 ```
 
@@ -122,6 +120,6 @@ Example:
 
 ``` bash
 datum create
-datum add path/to/dataset/ -f voc -n src1
+datum add -f voc -n src1 <path/to/dataset/>
 datum remove src1
 ```

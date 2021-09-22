@@ -126,3 +126,31 @@ class ConfigTest(TestCase):
 
         with self.assertRaises(yaml.constructor.ConstructorError):
             Config.parse(s)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_copy_recursively(self):
+        # will be copied shallow, because uses plain dict
+        schema_low = SchemaBuilder() \
+            .add('options', dict) \
+            .build()
+
+        # will be copied deeply, because uses DictConfig
+        schema_top = SchemaBuilder() \
+            .add('container', lambda: DictConfig(
+                lambda v: Config(v, schema=schema_low))) \
+            .build()
+
+        src_conf = Config({
+            'container': {
+                'x': {
+                    'options': {
+                        'k': 1
+                    }
+                }
+            }
+        }, schema=schema_top)
+
+        copied_conf = Config(src_conf, schema=schema_top)
+        copied_conf['container']['y'] = {'options': {'k': 2} }
+
+        self.assertNotEqual(copied_conf, src_conf)

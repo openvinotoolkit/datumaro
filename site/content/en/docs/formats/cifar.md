@@ -19,10 +19,10 @@ The 100 classes in the CIFAR-100 are grouped into 20 superclasses. Each image
 comes with a "fine" label (the class to which it belongs) and a "coarse" label
 (the superclass to which it belongs). In CIFAR-10 there are no superclasses.
 
-CIFAR formats contains 32 x 32 images. As an extension, Datumaro supports
+CIFAR formats contain 32 x 32 images. As an extension, Datumaro supports
 reading and writing of arbitrary-sized images.
 
-## Load CIFAR dataset
+## Import CIFAR dataset
 
 The CIFAR dataset is available for free download:
 
@@ -31,16 +31,14 @@ The CIFAR dataset is available for free download:
 - [cifar-100-python.tar.gz](https://www.cs.toronto.edu/~kriz/cifar-100-python.tar.gz):
   CIFAR-100 python version
 
-There are two ways to create Datumaro project and add CIFAR dataset to it:
+A Datumaro project with a CIFAR source can be created in the following way:
 
 ``` bash
-datum import --format cifar --input-path <path/to/dataset>
-# or
 datum create
-datum add path -f cifar <path/to/dataset>
+datum add --format cifar <path/to/dataset>
 ```
 
-It is possible to specify project name and project directory run
+It is possible to specify project name and project directory. Run
 `datum create --help` for more information.
 
 CIFAR-10 dataset directory should have the following structure:
@@ -65,7 +63,7 @@ CIFAR-100 dataset directory should have the following structure:
     └── ...
 ```
 
-Dataset files use [Pickle](https://docs.python.org/3/library/pickle.html)
+Dataset files use the [Pickle](https://docs.python.org/3/library/pickle.html)
 data format.
 
 Meta files:
@@ -104,37 +102,51 @@ CIFAR-100:
 
 ## Export to other formats
 
-Datumaro can convert CIFAR dataset into any other format [Datumaro supports](/docs/user-manual/supported-formats).
-To get the expected result, convert the dataset to formats
-that support the classification task (e.g. MNIST, ImageNet, PascalVOC,
-etc.) There are few ways to convert CIFAR dataset to other dataset format:
+Datumaro can convert a CIFAR dataset into any other format [Datumaro supports](/docs/user-manual/supported_formats).
+To get the expected result, convert the dataset to a format
+that supports the classification task (e.g. MNIST, ImageNet, PascalVOC, etc.)
+
+There are several ways to convert a CIFAR dataset to other dataset
+formats using CLI:
 
 ``` bash
-datum project import -f cifar -i <path/to/cifar>
-datum export -f imagenet -o <path/to/output/dir>
+datum create
+datum add -f cifar <path/to/cifar>
+datum export -f imagenet -o <output/dir>
 # or
-datum convert -if cifar -i <path/to/cifar> -f imagenet -o <path/to/output/dir>
+datum convert -if cifar -i <path/to/dataset> \
+    -f imagenet -o <output/dir> -- --save-images
+```
+
+Or, using Python API:
+
+```python
+from datumaro.components.dataset import Dataset
+
+dataset = Dataset.import_from('<path/to/dataset>', 'cifar')
+dataset.export('save_dir', 'imagenet', save_images=True)
 ```
 
 ## Export to CIFAR
 
-There are few ways to convert dataset to CIFAR format:
+There are several ways to convert a dataset to CIFAR format:
 
 ``` bash
 # export dataset into CIFAR format from existing project
-datum export -p <path/to/project> -f cifar -o <path/to/export/dir> \
+datum export -p <path/to/project> -f cifar -o <output/dir> \
     -- --save-images
+
 # converting to CIFAR format from other format
-datum convert -if imagenet -i <path/to/imagenet/dataset> \
-    -f cifar -o <path/to/export/dir> -- --save-images
+datum convert -if imagenet -i <path/to/dataset> \
+    -f cifar -o <output/dir> -- --save-images
 ```
 
-Extra options for export to CIFAR format:
+Extra options for exporting to CIFAR format:
 
 - `--save-images` allow to export dataset with saving images
-(by default `False`);
+  (by default `False`)
 - `--image-ext <IMAGE_EXT>` allow to specify image extension
-for exporting dataset (by default `.png`).
+  for exporting the dataset (by default `.png`)
 
 The format (CIFAR-10 or CIFAR-100) in which the dataset will be
 exported depends on the presence of superclasses in the `LabelCategories`.
@@ -142,13 +154,13 @@ exported depends on the presence of superclasses in the `LabelCategories`.
 ## Examples
 
 Datumaro supports filtering, transformation, merging etc. for all formats
-and for the CIFAR format in particular. Follow [user manual](/docs/user-manual)
+and for the CIFAR format in particular. Follow the [user manual](/docs/user-manual)
 to get more information about these operations.
 
-There are few examples of using Datumaro operations to solve
+There are several examples of using Datumaro operations to solve
 particular problems with CIFAR dataset:
 
-### Example 1. How to create custom CIFAR-like dataset
+### Example 1. How to create a custom CIFAR-like dataset
 
 ```python
 from datumaro.components.annotation import Label
@@ -168,10 +180,10 @@ dataset = Dataset.from_iterable([
 dataset.export('./dataset', format='cifar')
 ```
 
-### Example 2. How to filter and convert CIFAR dataset to ImageNet
+### Example 2. How to filter and convert a CIFAR dataset to ImageNet
 
-Convert CIFAR dataset to ImageNet format, keep only images with `dog` class
-presented:
+Convert a CIFAR dataset to ImageNet format, keep only images with the
+`dog` class present:
 
 ``` bash
 # Download CIFAR-10 dataset:

@@ -193,14 +193,12 @@ def export_command(args):
 
     log.info("Loading the project...")
 
-    target = args.target
+    dataset = project.working_tree.make_dataset(args.target)
     if args.filter:
-        target = project.working_tree.build_targets.add_filter_stage(
-            target, expr=filter_expr, params=filter_args)
+        dataset.filter(filter_expr, **filter_args)
 
     log.info("Exporting...")
 
-    dataset = project.working_tree.make_dataset(target)
     dataset.export(save_dir=dst_dir, format=converter, **extra_args)
 
     log.info("Results have been saved to '%s'" % dst_dir)
@@ -328,21 +326,24 @@ def filter_command(args):
     else:
         targets = [args.target]
 
+    build_tree = project.working_tree.clone()
     for target in targets:
-        project.working_tree.build_targets.add_filter_stage(target,
+        build_tree.build_targets.add_filter_stage(target,
             expr=filter_expr, params=filter_args)
 
     if args.apply:
         log.info("Filtering...")
 
         if args.dst_dir:
-            dataset = project.working_tree.make_dataset(args.target)
+            dataset = project.working_tree.make_dataset(
+                build_tree.make_pipeline(args.target))
             dataset.save(dst_dir, save_images=True)
 
             log.info("Results have been saved to '%s'" % dst_dir)
         else:
             for target in targets:
-                dataset = project.working_tree.make_dataset(target)
+                dataset = project.working_tree.make_dataset(
+                    build_tree.make_pipeline(target))
 
                 # Source might be missing in the working dir, so we specify
                 # the output directory.
@@ -354,8 +355,7 @@ def filter_command(args):
             log.info("Finished")
 
     if args.stage:
-        for target_name in targets:
-            project.refresh_source_hash(target_name)
+        project.working_tree.config.update(build_tree.config)
         project.working_tree.save()
 
     return 0
@@ -478,21 +478,24 @@ def transform_command(args):
     else:
         targets = [args.target]
 
+    build_tree = project.working_tree.clone()
     for target in targets:
-        project.working_tree.build_targets.add_transform_stage(target,
+        build_tree.build_targets.add_transform_stage(target,
             args.transform, params=extra_args)
 
     if args.apply:
         log.info("Transforming...")
 
         if args.dst_dir:
-            dataset = project.working_tree.make_dataset(args.target)
+            dataset = project.working_tree.make_dataset(
+                build_tree.make_pipeline(args.target))
             dataset.save(dst_dir, save_images=True)
 
             log.info("Results have been saved to '%s'" % dst_dir)
         else:
             for target in targets:
-                dataset = project.working_tree.make_dataset(target)
+                dataset = project.working_tree.make_dataset(
+                    build_tree.make_pipeline(target))
 
                 # Source might be missing in the working dir, so we specify
                 # the output directory
@@ -504,8 +507,7 @@ def transform_command(args):
             log.info("Finished")
 
     if args.stage:
-        for target_name in targets:
-            project.refresh_source_hash(target_name)
+        project.working_tree.config.update(build_tree.config)
         project.working_tree.save()
 
     return 0
@@ -620,17 +622,18 @@ def info_command(args):
     for source_name, source in rev.sources.items():
         print("  '%s':" % source_name)
         print("    format:", source.format)
-        print("    url:", source.url)
-        print("    location:",
-            osp.join(project.source_data_dir(source_name), source.path))
+        print("    url:", osp.abspath(source.url) if source.url else '')
+        print("    location:", osp.abspath(osp.join(
+            project.source_data_dir(source_name), source.path)))
         print("    options:", source.options)
-        print("    hash:", source.hash)
 
         print("    stages:")
         for stage in rev.build_targets[source_name].stages:
             print("      '%s':" % stage.name)
             print("        type:", stage.type)
             print("        hash:", stage.hash)
+            print("        cached:",
+                project.is_obj_cached(stage.hash) if stage.hash else 'n/a')
             if stage.kind:
                 print("        kind:", stage.kind)
             if stage.params:
@@ -765,7 +768,7 @@ def build_migrate_parser(parser_ctor=argparse.ArgumentParser):
         |n
         Examples:|n
         - Migrate a project from v1 to v2, save the new project in other dir:|n
-        |s|s%(prog)s -o <output/dir/>
+        |s|s%(prog)s -o <output/dir>
         """,
         formatter_class=MultilineFormatter)
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2020 Intel Corporation
+# Copyright (C) 2019-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -10,12 +10,13 @@ def check_import():
     # Official TF builds include AVX instructions. Once we try to import,
     # the program crashes. We raise an exception instead.
 
-    import subprocess
+    import subprocess  # nosec - B404: import_subprocess
     import sys
 
     from .os_util import check_instruction_set
 
-    # Disable B603:subprocess_without_shell_equals_true - the command line is controlled
+    # Disable B603:subprocess_without_shell_equals_true - the command line
+    # is controlled
     result = subprocess.run([sys.executable, '-c', 'import tensorflow'], # nosec
         timeout=60,
         universal_newlines=True, # use text mode for output stream

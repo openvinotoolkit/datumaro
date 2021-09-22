@@ -8,10 +8,12 @@ weight: 7
 ## Format specification
 
 MNIST format specification is available [here](http://yann.lecun.com/exdb/mnist/).
+
 Fashion MNIST format specification is available [here](https://github.com/zalandoresearch/fashion-mnist).
+
 MNIST in CSV  format specification is available [here](https://pjreddie.com/projects/mnist-in-csv/).
 
-The dataset has few data formats available. Datumaro supports the
+The dataset has several data formats available. Datumaro supports the
 binary (Python pickle) format and the CSV variant. Each data format is covered
 by a separate Datumaro format.
 
@@ -24,7 +26,7 @@ Supported annotation types:
 
 The format only supports single channel 28 x 28 images.
 
-## Load MNIST dataset
+## Import MNIST dataset
 
 The MNIST dataset is available for free download:
 
@@ -53,27 +55,13 @@ The MNIST in CSV dataset is available for free download:
 - [mnist_train.csv](https://pjreddie.com/media/files/mnist_train.csv)
 - [mnist_test.csv](https://pjreddie.com/media/files/mnist_test.csv)
 
-There are two ways to create Datumaro project and add MNIST dataset to it:
+A Datumaro project with a MNIST source can be created in the following way:
 
 ``` bash
-datum import --format mnist --input-path <path/to/dataset>
-# or
 datum create
-datum add path -f mnist <path/to/dataset>
+datum add --format mnist <path/to/dataset>
+datum add --format mnist_csv <path/to/dataset>
 ```
-
-There are two ways to create Datumaro project and add MNIST in CSV dataset
-to it:
-
-``` bash
-datum import --format mnist_csv --input-path <path/to/dataset>
-# or
-datum create
-datum add path -f mnist_csv <path/to/dataset>
-```
-
-It is possible to specify project name and project directory run
-`datum create --help` for more information.
 
 MNIST dataset directory should have the following structure:
 
@@ -117,52 +105,64 @@ Ankle boot
 
 ## Export to other formats
 
-Datumaro can convert MNIST dataset into any other format [Datumaro supports](/docs/user-manual/supported-formats/).
+Datumaro can convert a MNIST dataset into any other format [Datumaro supports](/docs/user-manual/supported_formats/).
 To get the expected result, convert the dataset to formats
 that support the classification task (e.g. CIFAR-10/100, ImageNet, PascalVOC,
-etc.) There are few ways to convert MNIST dataset to other dataset format:
+etc.)
+
+There are several ways to convert a MNIST dataset to other dataset formats:
 
 ``` bash
-datum project import -f mnist -i <path/to/mnist>
-datum export -f imagenet -o <path/to/output/dir>
+datum create
+datum add -f mnist <path/to/mnist>
+datum export -f imagenet -o <output/dir>
 # or
-datum convert -if mnist -i <path/to/mnist> -f imagenet -o <path/to/output/dir>
+datum convert -if mnist -i <path/to/mnist> -f imagenet -o <output/dir>
 ```
 
-These commands also work for MNIST in CSV if you use `mnist_csv` instead of `mnist`.
+Or, using Python API:
+
+```python
+from datumaro.components.dataset import Dataset
+
+dataset = Dataset.import_from('<path/to/dataset>', 'mnist')
+dataset.export('save_dir', 'imagenet', save_images=True)
+```
+
+These steps also will work for MNIST in CSV, if you use `mnist_csv`
+instead of `mnist`.
 
 ## Export to MNIST
 
-There are few ways to convert dataset to MNIST format:
+There are several ways to convert a dataset to MNIST format:
 
 ``` bash
 # export dataset into MNIST format from existing project
-datum export -p <path/to/project> -f mnist -o <path/to/export/dir> \
+datum export -p <path/to/project> -f mnist -o <output/dir> \
     -- --save-images
 # converting to MNIST format from other format
-datum convert -if imagenet -i <path/to/imagenet/dataset> \
-    -f mnist -o <path/to/export/dir> -- --save-images
+datum convert -if imagenet -i <path/to/dataset> \
+    -f mnist -o <output/dir> -- --save-images
 ```
 
-Extra options for export to MNIST format:
-
+Extra options for exporting to MNIST format:
 - `--save-images` allow to export dataset with saving images
-(by default `False`);
+  (by default `False`)
 - `--image-ext <IMAGE_EXT>` allow to specify image extension
-for exporting dataset (by default `.png`).
+  for exporting dataset (by default `.png`)
 
 These commands also work for MNIST in CSV if you use `mnist_csv` instead of `mnist`.
 
 ## Examples
 
 Datumaro supports filtering, transformation, merging etc. for all formats
-and for the MNIST format in particular. Follow [user manual](/docs/user-manual/)
+and for the MNIST format in particular. Follow the [user manual](/docs/user-manual/)
 to get more information about these operations.
 
-There are few examples of using Datumaro operations to solve
+There are several examples of using Datumaro operations to solve
 particular problems with MNIST dataset:
 
-### Example 1. How to create custom MNIST-like dataset
+### Example 1. How to create a custom MNIST-like dataset
 
 ```python
 from datumaro.components.annotation import Label
@@ -170,18 +170,18 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import DatasetItem
 
 dataset = Dataset.from_iterable([
-    DatasetItem(id=0, image=np.ones((28, 28)),
-        annotations=[Label(2)]
-    ),
-    DatasetItem(id=1, image=np.ones((28, 28)),
-        annotations=[Label(7)]
-    )
+  DatasetItem(id=0, image=np.ones((28, 28)),
+    annotations=[Label(2)]
+  ),
+  DatasetItem(id=1, image=np.ones((28, 28)),
+    annotations=[Label(7)]
+  )
 ], categories=[str(label) for label in range(10)])
 
 dataset.export('./dataset', format='mnist')
 ```
 
-### Example 2. How to filter and convert MNIST dataset to ImageNet
+### Example 2. How to filter and convert a MNIST dataset to ImageNet
 
 Convert MNIST dataset to ImageNet format, keep only images with `3` class
 presented:
