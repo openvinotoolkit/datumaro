@@ -243,6 +243,15 @@ datum export -f cvat -o <output/dir>
 datum convert -if open_images -i <path/to/open_images> -f cvat -o <output/dir>
 ```
 
+Or, using Python API:
+
+```python
+from datumaro.components.dataset import Dataset
+
+dataset = Dataset.import_from('<path/to/dataset>', 'open_images')
+dataset.export('save_dir', 'cvat', save_images=True)
+```
+
 ## Export to Open Images
 
 There are several ways to convert an existing dataset to the Open Images format:
@@ -259,10 +268,8 @@ datum convert -if imagenet -i <path/to/dataset> \
 ```
 
 Extra options for exporting to the Open Images format:
-
 - `--save-images` - save image files when exporting the dataset
   (by default, `False`)
-
 - `--image-ext IMAGE_EXT` - save image files with the specified extension
   when exporting the dataset (by default, uses the original extension
   or `.jpg` if there isn't one)

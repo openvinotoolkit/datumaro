@@ -16,7 +16,9 @@ You can also find official examples of working with YOLO dataset [here](https://
 Supported annotation types:
 - `Bounding boxes`
 
-YOLO format doesn't support attributes for annotations. The format only supports subsets named `train` or `valid`.
+YOLO format doesn't support attributes for annotations.
+
+The format only supports subsets named `train` or `valid`.
 
 ## Import YOLO dataset
 
@@ -102,14 +104,24 @@ Datumaro can convert YOLO dataset into any other format
 For successful conversion the output format should support
 object detection task (e.g. Pascal VOC, COCO, TF Detection API etc.)
 
-Examples:
-```bash
-datum export -f voc -o <output/dir>
-```
+There are several ways to convert a YOLO dataset to other dataset formats:
 
 ```bash
+datum create
+datum add -f yolo <path/to/yolo/>
+datum export -f voc -o <output/dir>
+# or
 datum convert -if yolo -i <path/to/dataset> \
               -f coco_instances -o <path/to/dataset>
+```
+
+Or, using Python API:
+
+```python
+from datumaro.components.dataset import Dataset
+
+dataset = Dataset.import_from('<path/to/dataset>', 'yolo')
+dataset.export('save_dir', 'coco_instances', save_images=True)
 ```
 
 ## Export to YOLO format
@@ -126,11 +138,10 @@ datum export -f yolo -o <path/to/dataset> -- --save-images
 ```
 
 Extra options for exporting to YOLO format:
-
 - `--save-images` allow to export dataset with saving images
-(default: `False`);
+  (default: `False`)
 - `--image-ext <IMAGE_EXT>` allow to specify image extension
-for exporting dataset (default: use original or `.jpg`, if none).
+  for exporting dataset (default: use original or `.jpg`, if none)
 
 ## Examples
 

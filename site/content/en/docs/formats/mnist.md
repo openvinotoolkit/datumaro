@@ -108,7 +108,9 @@ Ankle boot
 Datumaro can convert a MNIST dataset into any other format [Datumaro supports](/docs/user-manual/supported_formats/).
 To get the expected result, convert the dataset to formats
 that support the classification task (e.g. CIFAR-10/100, ImageNet, PascalVOC,
-etc.) There are several ways to convert a MNIST dataset to other dataset formats:
+etc.)
+
+There are several ways to convert a MNIST dataset to other dataset formats:
 
 ``` bash
 datum create
@@ -118,7 +120,17 @@ datum export -f imagenet -o <output/dir>
 datum convert -if mnist -i <path/to/mnist> -f imagenet -o <output/dir>
 ```
 
-These commands also work for MNIST in CSV if you use `mnist_csv` instead of `mnist`.
+Or, using Python API:
+
+```python
+from datumaro.components.dataset import Dataset
+
+dataset = Dataset.import_from('<path/to/dataset>', 'mnist')
+dataset.export('save_dir', 'imagenet', save_images=True)
+```
+
+These steps also will work for MNIST in CSV, if you use `mnist_csv`
+instead of `mnist`.
 
 ## Export to MNIST
 
@@ -134,11 +146,10 @@ datum convert -if imagenet -i <path/to/dataset> \
 ```
 
 Extra options for exporting to MNIST format:
-
 - `--save-images` allow to export dataset with saving images
-(by default `False`);
+  (by default `False`)
 - `--image-ext <IMAGE_EXT>` allow to specify image extension
-for exporting dataset (by default `.png`).
+  for exporting dataset (by default `.png`)
 
 These commands also work for MNIST in CSV if you use `mnist_csv` instead of `mnist`.
 

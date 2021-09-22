@@ -167,6 +167,15 @@ datum convert -if voc -i <path/to/voc> -f coco -o <output/dir>
 
 ```
 
+Or, using Python API:
+
+```python
+from datumaro.components.dataset import Dataset
+
+dataset = Dataset.import_from('<path/to/dataset>', 'voc')
+dataset.export('save_dir', 'coco', save_images=True)
+```
+
 ## Export to Pascal VOC
 
 There are several ways to convert an existing dataset to Pascal VOC format:
@@ -182,22 +191,16 @@ datum convert -if imagenet -i <path/to/dataset> \
 ```
 
 Extra options for exporting to Pascal VOC format:
-
 - `--save-images` - allow to export dataset with saving images
   (by default `False`)
-
 - `--image-ext IMAGE_EXT` - allow to specify image extension
   for exporting dataset (by default use original or `.jpg` if none)
-
 - `--apply-colormap APPLY_COLORMAP` - allow to use colormap for class
   and instance masks (by default `True`)
-
 - `--allow-attributes ALLOW_ATTRIBUTES` - allow export of attributes
   (by default `True`)
-
 - `--keep-empty KEEP_EMPTY` - write subset lists even if they are empty
   (by default `False`)
-
 - `--tasks TASKS` - allow to specify tasks for export dataset,
   by default Datumaro uses all tasks. Example:
 
@@ -205,7 +208,7 @@ Extra options for exporting to Pascal VOC format:
 datum export -f voc -- --tasks detection,classification
 ```
 
-- `--label_map` allow to define a custom colormap. Example:
+- `--label_map PATH` - allows to define a custom colormap. Example:
 
 ``` bash
 # mycolormap.txt [label : color_rgb : parts : actions]:
