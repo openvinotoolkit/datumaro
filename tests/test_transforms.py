@@ -444,6 +444,36 @@ class TransformsTest(TestCase):
         compare_datasets(self, target_dataset, actual)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_reorder_labels(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[
+                Label(1),
+                Bbox(1, 2, 3, 4, label=None),
+            ])
+        ], categories=['a', 'b', 'c'])
+
+        target_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[
+                Label(2),
+                Bbox(1, 2, 3, 4, label=None),
+            ]),
+        ], categories=['c', 'a', 'b'])
+
+        actual = transforms.ReorderLabels(source_dataset,
+            mapping={ 0: 1, 1: 2, 2: 0 })
+
+        compare_datasets(self, target_dataset, actual)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_reorder_labels_requires_all_indices(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[])
+        ], categories=['a', 'b', 'c'])
+
+        with self.assertRaisesRegex(Exception, "All the label indices"):
+            transforms.ReorderLabels(source_dataset, mapping={ 0: 1 })
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_transform_labels(self):
         src_dataset = Dataset.from_iterable([
             DatasetItem(id=1, annotations=[

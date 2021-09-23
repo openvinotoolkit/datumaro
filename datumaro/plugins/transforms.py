@@ -5,6 +5,7 @@
 from collections import Counter
 from enum import Enum, auto
 from itertools import chain
+from typing import Dict, List, Tuple, Union
 import logging as log
 import os.path as osp
 import random
@@ -12,13 +13,14 @@ import re
 
 import pycocotools.mask as mask_utils
 
+from build.lib.datumaro.components.errors import DatumaroError
 from datumaro.components.annotation import (
     AnnotationType, Bbox, Label, LabelCategories, MaskCategories,
     PointsCategories, Polygon, RleMask,
 )
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.extractor import (
-    DEFAULT_SUBSET_NAME, ItemTransform, Transform,
+    DEFAULT_SUBSET_NAME, IExtractor, ItemTransform, Transform,
 )
 from datumaro.util import NOTSET, parse_str_enum_value
 from datumaro.util.annotation_util import find_group_leader, find_instances
@@ -450,11 +452,11 @@ class RemapLabels(ItemTransform, CliPlugin):
     |n
     Examples:|n
     - Remove the 'person' label (and corresponding annotations):|n
-    |s|sremap_labels -l person: --default keep|n
+    |s|s%(prog)s -l person: --default keep|n
     - Rename 'person' to 'pedestrian' and 'human' to 'pedestrian', join:|n
-    |s|sremap_labels -l person:pedestrian -l human:pedestrian --default keep|n
+    |s|s%(prog)s -l person:pedestrian -l human:pedestrian --default keep|n
     - Rename 'person' to 'car' and 'cat' to 'dog', keep 'bus', remove others:|n
-    |s|sremap_labels -l person:car -l bus:bus -l cat:dog --default delete
+    |s|s%(prog)s -l person:car -l bus:bus -l cat:dog --default delete
     """
 
     class DefaultAction(Enum):
@@ -481,7 +483,9 @@ class RemapLabels(ItemTransform, CliPlugin):
             help="Action for unspecified labels (default: %(default)s)")
         return parser
 
-    def __init__(self, extractor, mapping, default=None):
+    def __init__(self, extractor: IExtractor,
+            mapping: Union[Dict[str, str], List[Tuple[str, str]]],
+            default: Union[None, str, DefaultAction] = None):
         super().__init__(extractor)
 
         default = parse_str_enum_value(default, self.DefaultAction,
@@ -512,13 +516,13 @@ class RemapLabels(ItemTransform, CliPlugin):
         src_point_cat = self._extractor.categories().get(AnnotationType.points)
         if src_point_cat is not None:
             assert src_label_cat is not None
-            dst_points_cat = PointsCategories(attributes=src_point_cat.attributes)
-            dst_points_cat.items = {
+            dst_point_cat = PointsCategories(attributes=src_point_cat.attributes)
+            dst_point_cat.items = {
                 id: src_point_cat[id]
                 for id, _ in enumerate(src_label_cat.items)
                 if id in src_point_cat and (self._map_id(id) or id == 0)
             }
-            self._categories[AnnotationType.points] = dst_points_cat
+            self._categories[AnnotationType.points] = dst_point_cat
 
     def _make_label_id_map(self, src_label_cat, label_mapping, default_action):
         dst_label_cat = LabelCategories(attributes=src_label_cat.attributes)
@@ -561,6 +565,116 @@ class RemapLabels(ItemTransform, CliPlugin):
                 if conv_label is not None:
                     annotations.append(ann.wrap(label=conv_label))
             elif self._default_action is self.DefaultAction.keep:
+                annotations.append(ann.wrap())
+        return item.wrap(annotations=annotations)
+
+class ReorderLabels(ItemTransform, CliPlugin):
+    """
+    Changes the order of labels in the dataset.|n
+    All the indices must be specified.|n
+    |n
+    Examples:|n
+    - Shift indices right by 1:|n
+    |s|s%(prog)s -l 0:1 -l 1:2 -l 2:0
+    """
+
+    class DefaultAction(Enum):
+        keep = auto()
+        delete = auto()
+
+    @staticmethod
+    def _split_arg(s):
+        parts = s.split(':')
+        if len(parts) != 2:
+            import argparse
+            raise argparse.ArgumentTypeError()
+        return (parts[0], parts[1])
+
+    @classmethod
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument('-l', '--label', action='append',
+            type=cls._split_arg, dest='mapping',
+            help="Label in the form of: '<src idx>:<dst idx>' (repeatable)")
+        return parser
+
+    def __init__(self, extractor: IExtractor,
+            mapping: Union[Dict[int, int], List[Tuple[int, int]]]):
+        super().__init__(extractor)
+
+        assert isinstance(mapping, (dict, list))
+        if isinstance(mapping, list):
+            mapping = dict(mapping)
+        mapping = { int(k): int(v) for k, v in mapping.items() }
+
+        self._categories = {}
+
+        src_label_cat = self._extractor.categories().get(AnnotationType.label)
+        if src_label_cat is not None:
+            self._make_label_id_map(src_label_cat, mapping)
+        elif mapping:
+            raise DatumaroError("Can't reorder labels when there "
+                "is no labels in the target dataset")
+
+        src_mask_cat = self._extractor.categories().get(AnnotationType.mask)
+        if src_mask_cat is not None:
+            assert src_label_cat is not None
+            dst_mask_cat = MaskCategories(attributes=src_mask_cat.attributes)
+            dst_mask_cat.colormap = {
+                id: src_mask_cat[id]
+                for id, _ in enumerate(src_label_cat.items)
+                if id in src_mask_cat and (self._map_id(id) or id == 0)
+            }
+            self._categories[AnnotationType.mask] = dst_mask_cat
+
+        src_point_cat = self._extractor.categories().get(AnnotationType.points)
+        if src_point_cat is not None:
+            assert src_label_cat is not None
+            dst_point_cat = PointsCategories(attributes=src_point_cat.attributes)
+            dst_point_cat.items = {
+                id: src_point_cat[id]
+                for id, _ in enumerate(src_label_cat.items)
+                if id in src_point_cat and (self._map_id(id) or id == 0)
+            }
+            self._categories[AnnotationType.points] = dst_point_cat
+
+    def _make_label_id_map(self, src_label_cat, id_mapping):
+        dst_values = set(id_mapping.values())
+        assert 0 <= min(dst_values) and max(dst_values) < len(src_label_cat)
+        assert len(id_mapping) == len(dst_values), \
+            "Target indices must be a permutation of source indices"
+        assert len(id_mapping) == len(src_label_cat), \
+            "All the label indices must be specified"
+
+        dst_label_cat = LabelCategories(attributes=src_label_cat.attributes)
+        sorted_id_mapping = sorted(id_mapping.items(), key=lambda e: e[1])
+        for src_id, _ in sorted_id_mapping:
+            src_label = src_label_cat[src_id]
+            dst_label_cat.add(src_label.name,
+                src_label.parent, src_label.attributes)
+
+        if log.getLogger().isEnabledFor(log.DEBUG):
+            log.debug("Label mapping:")
+            for src_id, src_label in enumerate(src_label_cat.items):
+                log.debug("#%s '%s' -> #%s '%s'",
+                    src_id, src_label.name, id_mapping[src_id],
+                    dst_label_cat[id_mapping[src_id]].name
+                )
+
+        self._map_id = lambda src_id: id_mapping[src_id]
+        self._categories[AnnotationType.label] = dst_label_cat
+
+    def categories(self):
+        return self._categories
+
+    def transform_item(self, item):
+        annotations = []
+        for ann in item.annotations:
+            if getattr(ann, 'label') is not None:
+                conv_label = self._map_id(ann.label)
+                if conv_label is not None:
+                    annotations.append(ann.wrap(label=conv_label))
+            else:
                 annotations.append(ann.wrap())
         return item.wrap(annotations=annotations)
 
