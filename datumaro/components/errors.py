@@ -164,10 +164,8 @@ class NoMatchingFormatsError(DatasetImportError):
         return "Failed to detect dataset format automatically: " \
             "no matching formats found"
 
-
-@attrs
 class DatasetError(DatumaroError):
-    item_id = attrib()
+    pass
 
 class CategoriesRedefinedError(DatasetError):
     def __str__(self):
@@ -175,16 +173,18 @@ class CategoriesRedefinedError(DatasetError):
 
 @attrs
 class RepeatedItemError(DatasetError):
+    item_id = attrib()
+
     def __str__(self):
         return f"Item {self.item_id} is repeated in the source sequence."
 
 
-@attrs
 class DatasetQualityError(DatasetError):
     pass
 
 @attrs
 class AnnotationsTooCloseError(DatasetQualityError):
+    item_id = attrib()
     a = attrib()
     b = attrib()
     distance = attrib()
@@ -195,6 +195,7 @@ class AnnotationsTooCloseError(DatasetQualityError):
 
 @attrs
 class WrongGroupError(DatasetQualityError):
+    item_id = attrib()
     found = attrib(converter=set)
     expected = attrib(converter=set)
     group = attrib(converter=list)
@@ -205,12 +206,17 @@ class WrongGroupError(DatasetQualityError):
             (self.item_id, self.found, self.expected, self.group)
 
 
-@attrs
+@attrs(init=False)
 class DatasetMergeError(DatasetError):
     sources = attrib(converter=set, factory=set, kw_only=True)
 
+    def __init__(self, msg=None, *, sources=None):
+        super().__init__(msg)
+        self.__attrs_init__(sources=sources or set())
+
 @attrs
 class MismatchingImageInfoError(DatasetMergeError):
+    item_id = attrib()
     a = attrib()
     b = attrib()
 
@@ -218,12 +224,12 @@ class MismatchingImageInfoError(DatasetMergeError):
         return "Item %s: mismatching image size info: %s vs %s" % \
             (self.item_id, self.a, self.b)
 
-@attrs
 class ConflictingCategoriesError(DatasetMergeError):
     pass
 
 @attrs
 class NoMatchingAnnError(DatasetMergeError):
+    item_id = attrib()
     ann = attrib()
 
     def __str__(self):
@@ -233,12 +239,15 @@ class NoMatchingAnnError(DatasetMergeError):
 
 @attrs
 class NoMatchingItemError(DatasetMergeError):
+    item_id = attrib()
+
     def __str__(self):
         return "Item %s: can't find matching item in sources %s" % \
             (self.item_id, self.sources)
 
 @attrs
 class FailedLabelVotingError(DatasetMergeError):
+    item_id = attrib()
     votes = attrib()
     ann = attrib(default=None)
 
@@ -249,6 +258,7 @@ class FailedLabelVotingError(DatasetMergeError):
 
 @attrs
 class FailedAttrVotingError(DatasetMergeError):
+    item_id = attrib()
     attr = attrib()
     votes = attrib()
     ann = attrib()
