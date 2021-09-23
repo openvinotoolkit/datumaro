@@ -1328,6 +1328,53 @@ class DatasetTest(TestCase):
                 },
                 set(os.listdir(path)))
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_update_overwrites_matching_items(self):
+        patch = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[ Bbox(1, 2, 3, 4, label=1) ])
+        ], categories=['a', 'b'])
+
+        dataset = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[ Bbox(2, 2, 1, 1, label=0) ]),
+            DatasetItem(id=2, annotations=[ Bbox(1, 1, 1, 1, label=1) ]),
+        ], categories=['a', 'b'])
+
+        expected = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[ Bbox(1, 2, 3, 4, label=1) ]),
+            DatasetItem(id=2, annotations=[ Bbox(1, 1, 1, 1, label=1) ]),
+        ], categories=['a', 'b'])
+
+        dataset.update(patch)
+
+        compare_datasets(self, expected, dataset)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_update_can_reorder_labels(self):
+        patch = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[ Bbox(1, 2, 3, 4, label=1) ])
+        ], categories=['b', 'a'])
+
+        dataset = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[ Bbox(2, 2, 1, 1, label=0) ])
+        ], categories=['a', 'b'])
+
+        # Note that label id and categories are changed
+        expected = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[ Bbox(1, 2, 3, 4, label=0) ])
+        ], categories=['a', 'b'])
+
+        dataset.update(patch)
+
+        compare_datasets(self, expected, dataset)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_update_fails_on_mismatching_labels(self):
+        patch = Dataset.from_iterable([], categories=['c'])
+        dataset = Dataset.from_iterable([], categories=['a', 'b'])
+
+        with self.assertRaises(ConflictingCategoriesError):
+            dataset.update(patch)
+
 
 class DatasetItemTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)

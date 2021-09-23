@@ -19,13 +19,15 @@ from datumaro.components.dataset_filter import (
 )
 from datumaro.components.environment import Environment
 from datumaro.components.errors import (
-    CategoriesRedefinedError, MultipleFormatsMatchError, NoMatchingFormatsError,
-    RepeatedItemError, UnknownFormatError,
+    CategoriesRedefinedError, ConflictingCategoriesError,
+    MultipleFormatsMatchError, NoMatchingFormatsError, RepeatedItemError,
+    UnknownFormatError,
 )
 from datumaro.components.extractor import (
     DEFAULT_SUBSET_NAME, CategoriesInfo, DatasetItem, Extractor, IExtractor,
     ItemTransform, Transform,
 )
+from datumaro.plugins.transforms import ReorderLabels
 from datumaro.util import is_method_redefined
 from datumaro.util.log_utils import logging_disabled
 from datumaro.util.os_util import rmtree
@@ -572,25 +574,41 @@ class DatasetStorage(IDataset):
             else:
                 patch.put(self._storage.get(item_id, subset))
 
-        return DatasetPatch(patch, self._categories,
-            self._updated_items)
+        return DatasetPatch(patch, self._categories, self._updated_items)
 
     def flush_changes(self):
         self._updated_items = {}
         if not (self.is_cache_initialized() or self._is_unchanged_wrapper):
             self._flush_changes = True
 
-    def update(self, patch: Union[DatasetPatch, Iterable[DatasetItem]]):
+    def update(self, source: Union[DatasetPatch, Iterable[DatasetItem]]):
         # TODO: provide a more efficient implementation with patch reuse
 
-        if isinstance(patch, DatasetPatch):
-            for item_id, status in patch.updated_items.items():
+        if isinstance(source, DatasetPatch):
+            if source.categories() != self.categories():
+                raise ConflictingCategoriesError()
+
+            for item_id, status in source.updated_items.items():
                 if status == ItemStatus.removed:
                     self.remove(*item_id)
                 else:
-                    self.put(patch.data.get(*item_id))
+                    self.put(source.data.get(*item_id))
+        elif isinstance(source, IExtractor):
+            mapping = {}
+            my_cat = self.categories().get(
+                AnnotationType.label, LabelCategories())
+            for patch_id, patch_label in enumerate(source.categories().get(
+                    AnnotationType.label, LabelCategories())):
+                my_id = my_cat.find(patch_label.name)[0]
+                if my_id is None:
+                    raise ConflictingCategoriesError()
+
+                mapping[patch_id] = my_id
+
+            for item in ReorderLabels(source, mapping):
+                self.put(item)
         else:
-            for item in patch:
+            for item in source:
                 self.put(item)
 
 class Dataset(IDataset):
@@ -703,9 +721,22 @@ class Dataset(IDataset):
         else:
             return self.transform(XPathDatasetFilter, expr)
 
-    def update(self, patch: Union[DatasetPatch, Iterable[DatasetItem]]) \
-            -> 'Dataset':
-        self._data.update(patch)
+    def update(self,
+            source: Union[DatasetPatch, IExtractor, Iterable[DatasetItem]]) \
+                -> 'Dataset':
+        """
+        Updates items of the current dataset from other dataset or an
+        iterable (the source). Items from the source overwrite matching
+        items in the current dataset. Unmatched items are just appended.
+
+        If the source is a DatasetPatch, the removed items in the patch
+        will be removed in the current dataset.
+
+        If the source is a dataset, labels are matched. If the labels match,
+        but the order is different, the annotation labels will be remapped to
+        the current dataset label order during updating.
+        """
+        self._data.update(source)
         return self
 
     def transform(self, method: Union[str, Type[Transform]],
