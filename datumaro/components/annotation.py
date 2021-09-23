@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 from enum import Enum, auto
-from typing import Tuple
+from typing import Tuple, Union
 
 from attr import attrib, attrs
 import attr
@@ -110,8 +110,11 @@ class LabelCategories(Categories):
     def __getitem__(self, idx):
         return self.items[idx]
 
-    def __contains__(self, idx):
-        return 0 <= idx and idx < len(self.items)
+    def __contains__(self, value: Union[int, str]):
+        if isinstance(value, str):
+            return self.find(value)[1] is not None
+        else:
+            return 0 <= value and value < len(self.items)
 
     def __len__(self):
         return len(self.items)
