@@ -444,34 +444,26 @@ class TransformsTest(TestCase):
         compare_datasets(self, target_dataset, actual)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_reorder_labels(self):
-        source_dataset = Dataset.from_iterable([
+    def test_project_labels(self):
+        source = Dataset.from_iterable([
             DatasetItem(id=1, annotations=[
-                Label(1),
-                Bbox(1, 2, 3, 4, label=None),
+                Label(1), # Label must be remapped
+                Label(3), # Must be removed (extra label)
+                Bbox(1, 2, 3, 4, label=None), # Must be kept (no label)
             ])
-        ], categories=['a', 'b', 'c'])
+        ], categories=['a', 'b', 'c', 'd'])
 
-        target_dataset = Dataset.from_iterable([
+        expected = Dataset.from_iterable([
             DatasetItem(id=1, annotations=[
                 Label(2),
                 Bbox(1, 2, 3, 4, label=None),
             ]),
         ], categories=['c', 'a', 'b'])
 
-        actual = transforms.ReorderLabels(source_dataset,
-            mapping={ 0: 1, 1: 2, 2: 0 })
+        actual = transforms.ProjectLabels(source,
+            dst_labels=LabelCategories.from_iterable(['c', 'a', 'b']))
 
-        compare_datasets(self, target_dataset, actual)
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_reorder_labels_requires_all_indices(self):
-        source_dataset = Dataset.from_iterable([
-            DatasetItem(id=1, annotations=[])
-        ], categories=['a', 'b', 'c'])
-
-        with self.assertRaisesRegex(Exception, "All the label indices"):
-            transforms.ReorderLabels(source_dataset, mapping={ 0: 1 })
+        compare_datasets(self, expected, actual)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_transform_labels(self):

@@ -13,7 +13,6 @@ import re
 
 import pycocotools.mask as mask_utils
 
-from build.lib.datumaro.components.errors import DatumaroError
 from datumaro.components.annotation import (
     AnnotationType, Bbox, Label, LabelCategories, MaskCategories,
     PointsCategories, Polygon, RleMask,
@@ -568,53 +567,24 @@ class RemapLabels(ItemTransform, CliPlugin):
                 annotations.append(ann.wrap())
         return item.wrap(annotations=annotations)
 
-class ReorderLabels(ItemTransform, CliPlugin):
+class ProjectLabels(ItemTransform):
     """
-    Changes the order of labels in the dataset.|n
-    All the indices must be specified.|n
-    |n
-    Examples:|n
-    - Shift indices right by 1:|n
-    |s|s%(prog)s -l 0:1 -l 1:2 -l 2:0
+    Changes the order of labels in the dataset from the existing
+    to the desired one and removes unknown labels. Updates or removes
+    the corresponding annotations.
+
+    Labels are matched by names (case dependent).
+
+    Useful for merging similar datasets.
     """
 
-    class DefaultAction(Enum):
-        keep = auto()
-        delete = auto()
-
-    @staticmethod
-    def _split_arg(s):
-        parts = s.split(':')
-        if len(parts) != 2:
-            import argparse
-            raise argparse.ArgumentTypeError()
-        return (parts[0], parts[1])
-
-    @classmethod
-    def build_cmdline_parser(cls, **kwargs):
-        parser = super().build_cmdline_parser(**kwargs)
-        parser.add_argument('-l', '--label', action='append',
-            type=cls._split_arg, dest='mapping',
-            help="Label in the form of: '<src idx>:<dst idx>' (repeatable)")
-        return parser
-
-    def __init__(self, extractor: IExtractor,
-            mapping: Union[Dict[int, int], List[Tuple[int, int]]]):
+    def __init__(self, extractor: IExtractor, dst_labels: LabelCategories):
         super().__init__(extractor)
-
-        assert isinstance(mapping, (dict, list))
-        if isinstance(mapping, list):
-            mapping = dict(mapping)
-        mapping = { int(k): int(v) for k, v in mapping.items() }
 
         self._categories = {}
 
         src_label_cat = self._extractor.categories().get(AnnotationType.label)
-        if src_label_cat is not None:
-            self._make_label_id_map(src_label_cat, mapping)
-        elif mapping:
-            raise DatumaroError("Can't reorder labels when there "
-                "is no labels in the target dataset")
+        self._make_label_id_map(src_label_cat, dst_labels)
 
         src_mask_cat = self._extractor.categories().get(AnnotationType.mask)
         if src_mask_cat is not None:
@@ -638,30 +608,9 @@ class ReorderLabels(ItemTransform, CliPlugin):
             }
             self._categories[AnnotationType.points] = dst_point_cat
 
-    def _make_label_id_map(self, src_label_cat, id_mapping):
-        dst_values = set(id_mapping.values())
-        assert 0 <= min(dst_values) and max(dst_values) < len(src_label_cat)
-        assert len(id_mapping) == len(dst_values), \
-            "Target indices must be a permutation of source indices"
-        assert len(id_mapping) == len(src_label_cat), \
-            "All the label indices must be specified"
-
-        dst_label_cat = LabelCategories(attributes=src_label_cat.attributes)
-        sorted_id_mapping = sorted(id_mapping.items(), key=lambda e: e[1])
-        for src_id, _ in sorted_id_mapping:
-            src_label = src_label_cat[src_id]
-            dst_label_cat.add(src_label.name,
-                src_label.parent, src_label.attributes)
-
-        if log.getLogger().isEnabledFor(log.DEBUG):
-            log.debug("Label mapping:")
-            for src_id, src_label in enumerate(src_label_cat.items):
-                log.debug("#%s '%s' -> #%s '%s'",
-                    src_id, src_label.name, id_mapping[src_id],
-                    dst_label_cat[id_mapping[src_id]].name
-                )
-
-        self._map_id = lambda src_id: id_mapping[src_id]
+    def _make_label_id_map(self, src_label_cat, dst_label_cat):
+        self._map_id = lambda src_id: \
+            dst_label_cat.find(src_label_cat[src_id].name)[0]
         self._categories[AnnotationType.label] = dst_label_cat
 
     def categories(self):
