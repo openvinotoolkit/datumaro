@@ -74,8 +74,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         |s|s%(prog)s -o new_src2/ HEAD~2:source-2 path/to/dataset2:yolo|n
         |n
         - Update a dataset in a custom format, described in a project plugin:|n
-        |s|s%(prog)s -p proj/ --overwrite dataset/:my_format dataset2/:coco|n
-        |n
+        |s|s%(prog)s -p proj/ --overwrite dataset/:my_format dataset2/:coco
         """,
         formatter_class=MultilineFormatter)
 
