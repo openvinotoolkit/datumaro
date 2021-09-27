@@ -13,9 +13,9 @@ updating inplace, use the `--overwrite` parameter along with the
 `--save-images` export option (inplace updates fail by default
 to prevent data loss).
 
-Unlike the regular project [data source joining], the datasets are not
-required to have the same labels. The labels from the "patch"
-dataset are projected onto the labels of the patched dataset,
+Unlike the regular project [data source joining](/docs/developer_manual/#merging),
+the datasets are not required to have the same labels. The labels from
+the "patch" dataset are projected onto the labels of the patched dataset,
 so only the annotations with the matching labels are used, i.e.
 all the annotations having unknown labels are ignored. Currently,
 this command doesn't allow to update the label information in the
