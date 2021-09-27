@@ -554,7 +554,7 @@ class DatasetStorage(IDataset):
         self._length = None
 
     def has_updated_items(self):
-        return self._transforms or self._updated_items
+        return bool(self._transforms) or bool(self._updated_items)
 
     def get_patch(self):
         # Patch includes only added or modified items.
