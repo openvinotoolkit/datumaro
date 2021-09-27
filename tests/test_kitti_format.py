@@ -439,7 +439,7 @@ class KittiConverterTest(TestCase):
                 KittiPath.IMAGES_DIR, 'q/1.JPEG')))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_save_and_load_without_image_saving_segmentation(self):
+    def test_can_save_and_load_with_no_save_images_segmentation(self):
         class TestExtractor(TestExtractorBase):
             def __iter__(self):
                 return iter([
@@ -459,7 +459,7 @@ class KittiConverterTest(TestCase):
                     label_map='kitti'), test_dir)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_save_and_load_without_image_saving_detection(self):
+    def test_can_save_and_load_with_no_save_images_detection(self):
         class TestExtractor(TestExtractorBase):
             def __iter__(self):
                 return iter([

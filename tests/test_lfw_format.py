@@ -45,8 +45,7 @@ class LfwFormatTest(TestCase):
             ),
         ], categories=['name0', 'name1'])
 
-        save_images_options = {True, False}
-        for save_images in save_images_options:
+        for save_images in (True, False):
             with self.subTest(save_images=save_images):
                 with TestDir() as test_dir:
                     LfwConverter.convert(source_dataset, test_dir,
