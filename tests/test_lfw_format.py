@@ -45,11 +45,16 @@ class LfwFormatTest(TestCase):
             ),
         ], categories=['name0', 'name1'])
 
-        with TestDir() as test_dir:
-            LfwConverter.convert(source_dataset, test_dir, save_images=True)
-            parsed_dataset = Dataset.import_from(test_dir, 'lfw')
+        save_images_options = {True, False}
+        for save_images in save_images_options:
+            with self.subTest(save_images=save_images):
+                with TestDir() as test_dir:
+                    LfwConverter.convert(source_dataset, test_dir,
+                        save_images=save_images)
+                    parsed_dataset = Dataset.import_from(test_dir, 'lfw')
 
-            compare_datasets(self, source_dataset, parsed_dataset)
+                    compare_datasets(self, source_dataset, parsed_dataset,
+                        require_images=save_images)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_with_landmarks(self):
