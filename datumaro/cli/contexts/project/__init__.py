@@ -136,6 +136,11 @@ def build_export_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+def get_export_sensitive_args():
+    return {
+        export_command: ['dst_dir', 'project_dir', 'name',],
+    }
+
 @scoped
 def export_command(args):
     has_sep = '--' in args._positionals
@@ -188,14 +193,12 @@ def export_command(args):
 
     log.info("Loading the project...")
 
-    target = args.target
+    dataset = project.working_tree.make_dataset(args.target)
     if args.filter:
-        target = project.working_tree.build_targets.add_filter_stage(
-            target, expr=filter_expr, params=filter_args)
+        dataset.filter(filter_expr, **filter_args)
 
     log.info("Exporting...")
 
-    dataset = project.working_tree.make_dataset(target)
     dataset.export(save_dir=dst_dir, format=converter, **extra_args)
 
     log.info("Results have been saved to '%s'" % dst_dir)
@@ -281,6 +284,11 @@ def build_filter_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+def get_filter_sensitive_args():
+    return {
+        filter_command: ['target', 'filter', 'dst_dir', 'project_dir',],
+    }
+
 @scoped
 def filter_command(args):
     project = scope_add(load_project(args.project_dir))
@@ -318,21 +326,24 @@ def filter_command(args):
     else:
         targets = [args.target]
 
+    build_tree = project.working_tree.clone()
     for target in targets:
-        project.working_tree.build_targets.add_filter_stage(target,
+        build_tree.build_targets.add_filter_stage(target,
             expr=filter_expr, params=filter_args)
 
     if args.apply:
         log.info("Filtering...")
 
         if args.dst_dir:
-            dataset = project.working_tree.make_dataset(args.target)
+            dataset = project.working_tree.make_dataset(
+                build_tree.make_pipeline(args.target))
             dataset.save(dst_dir, save_images=True)
 
             log.info("Results have been saved to '%s'" % dst_dir)
         else:
             for target in targets:
-                dataset = project.working_tree.make_dataset(target)
+                dataset = project.working_tree.make_dataset(
+                    build_tree.make_pipeline(target))
 
                 # Source might be missing in the working dir, so we specify
                 # the output directory.
@@ -344,8 +355,7 @@ def filter_command(args):
             log.info("Finished")
 
     if args.stage:
-        for target_name in targets:
-            project.refresh_source_hash(target_name)
+        project.working_tree.config.update(build_tree.config)
         project.working_tree.save()
 
     return 0
@@ -411,6 +421,11 @@ def build_transform_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+def get_transform_sensitive_args():
+    return {
+        transform_command: ['dst_dir', 'project_dir',],
+    }
+
 @scoped
 def transform_command(args):
     has_sep = '--' in args._positionals
@@ -463,21 +478,24 @@ def transform_command(args):
     else:
         targets = [args.target]
 
+    build_tree = project.working_tree.clone()
     for target in targets:
-        project.working_tree.build_targets.add_transform_stage(target,
+        build_tree.build_targets.add_transform_stage(target,
             args.transform, params=extra_args)
 
     if args.apply:
         log.info("Transforming...")
 
         if args.dst_dir:
-            dataset = project.working_tree.make_dataset(args.target)
+            dataset = project.working_tree.make_dataset(
+                build_tree.make_pipeline(args.target))
             dataset.save(dst_dir, save_images=True)
 
             log.info("Results have been saved to '%s'" % dst_dir)
         else:
             for target in targets:
-                dataset = project.working_tree.make_dataset(target)
+                dataset = project.working_tree.make_dataset(
+                    build_tree.make_pipeline(target))
 
                 # Source might be missing in the working dir, so we specify
                 # the output directory
@@ -489,8 +507,7 @@ def transform_command(args):
             log.info("Finished")
 
     if args.stage:
-        for target_name in targets:
-            project.refresh_source_hash(target_name)
+        project.working_tree.config.update(build_tree.config)
         project.working_tree.save()
 
     return 0
@@ -526,6 +543,11 @@ def build_stats_parser(parser_ctor=argparse.ArgumentParser):
     parser.set_defaults(command=stats_command)
 
     return parser
+
+def get_stats_sensitive_args():
+    return {
+        stats_command: ['project_dir',],
+    }
 
 @scoped
 def stats_command(args):
@@ -572,6 +594,11 @@ def build_info_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+def get_info_sensitive_args():
+    return {
+        info_command: ['project_dir',],
+    }
+
 @scoped
 def info_command(args):
     project = scope_add(load_project(args.project_dir))
@@ -595,17 +622,18 @@ def info_command(args):
     for source_name, source in rev.sources.items():
         print("  '%s':" % source_name)
         print("    format:", source.format)
-        print("    url:", source.url)
-        print("    location:",
-            osp.join(project.source_data_dir(source_name), source.path))
+        print("    url:", osp.abspath(source.url) if source.url else '')
+        print("    location:", osp.abspath(osp.join(
+            project.source_data_dir(source_name), source.path)))
         print("    options:", source.options)
-        print("    hash:", source.hash)
 
         print("    stages:")
         for stage in rev.build_targets[source_name].stages:
             print("      '%s':" % stage.name)
             print("        type:", stage.type)
             print("        hash:", stage.hash)
+            print("        cached:",
+                project.is_obj_cached(stage.hash) if stage.hash else 'n/a')
             if stage.kind:
                 print("        kind:", stage.kind)
             if stage.params:
@@ -660,6 +688,11 @@ def build_validate_parser(parser_ctor=argparse.ArgumentParser):
     parser.set_defaults(command=validate_command)
 
     return parser
+
+def get_validate_sensitive_args():
+    return {
+        validate_command: ['target', 'project_dir',],
+    }
 
 @scoped
 def validate_command(args):
@@ -735,7 +768,7 @@ def build_migrate_parser(parser_ctor=argparse.ArgumentParser):
         |n
         Examples:|n
         - Migrate a project from v1 to v2, save the new project in other dir:|n
-        |s|s%(prog)s -o <output/dir/>
+        |s|s%(prog)s -o <output/dir>
         """,
         formatter_class=MultilineFormatter)
 
@@ -750,6 +783,11 @@ def build_migrate_parser(parser_ctor=argparse.ArgumentParser):
     parser.set_defaults(command=migrate_command)
 
     return parser
+
+def get_migrate_sensitive_args():
+    return {
+        migrate_command: ['dst_dir', 'project_dir',],
+    }
 
 @scoped
 def migrate_command(args):
@@ -766,8 +804,8 @@ def migrate_command(args):
             skip_import_errors=args.force)
     except Exception as e:
         raise MigrationError("Failed to migrate the project "
-            "automatically. Try to create a new project and "
-            "add sources manually with 'datum create' and 'datum add'.") from e
+            "automatically. Try to create a new project and import sources "
+            "manually with 'datum create' and 'datum import'.") from e
 
     log.debug("Finished")
 
@@ -792,3 +830,14 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     add_subparser(subparsers, 'migrate', build_migrate_parser)
 
     return parser
+
+def get_sensitive_args():
+    return {
+        **get_export_sensitive_args(),
+        **get_filter_sensitive_args(),
+        **get_transform_sensitive_args(),
+        **get_stats_sensitive_args(),
+        **get_info_sensitive_args(),
+        **get_validate_sensitive_args(),
+        **get_migrate_sensitive_args(),
+    }

@@ -7,28 +7,30 @@ weight: 4
 
 ## Format specification
 
-The image zip format allow to export/import unannotated datasets
-with images to/from zip archive. The format doesn't support any
+The image zip format allows to export/import unannotated datasets
+with images to/from a zip archive. The format doesn't support any
 annotations or attributes.
 
-## Load Image zip dataset
+## Import Image zip dataset
 
-Few ways to load unannotated datasets to your Datumaro project:
+There are several ways to import unannotated datasets to your Datumaro project:
 
-- From existing archive:
+- From an existing archive:
 
 ```bash
-datum import -o project -f image_zip -i ./images.zip
+datum create
+datum import -f image_zip ./images.zip
 ```
 
-- From directory with zip archives. Datumaro will loaded images from
+- From a directory with zip archives. Datumaro will import images from
   all zip files in the directory:
 
 ```bash
-datum import -o project -f image_zip -i ./foo
+datum create
+datum import -f image_zip ./foo
 ```
 
-The directory with zip archives should have the following structure:
+The directory with zip archives must have the following structure:
 
 ```
 └── foo/
@@ -46,37 +48,45 @@ The directory with zip archives should have the following structure:
     ...
 ```
 
-Images in a archives should have supported extension,
-follow the [user manual](/docs/user-manual/data-formats/) to see the supported
+Images in the archives must have a supported extension,
+follow the [user manual](/docs/user-manual/media_formats/) to see the supported
 extensions.
 
 ## Export to other formats
 
-Datumaro can load dataset images from a zip archive and convert it to
-[another supported dataset format](/docs/user-manual/supported-formats),
-for example:
+Datumaro can convert image zip dataset into any other format [Datumaro supports](/docs/user-manual/supported_formats/).
+For example:
 
 ```bash
-datum import -o project -f image_zip -i ./images.zip
-datum export -f coco -o ./new_dir -- --save-images
+datum create -o project
+datum import -p project -f image_zip ./images.zip
+datum export -p project -f coco -o ./new_dir -- --save-images
 ```
 
-## Export unannotated dataset to zip archive
+Or, using Python API:
 
-Example: exporting images from VOC dataset to zip archives:
+```python
+from datumaro.components.dataset import Dataset
+
+dataset = Dataset.import_from('<path/to/dataset>', 'image_zip')
+dataset.export('save_dir', 'coco', save_images=True)
+```
+
+## Export an unannotated dataset to a zip archive
+
+Example: exporting images from a VOC dataset to zip archives:
 ```bash
-datum import -o project -f voc -i ./VOC2012
-datum export -f image_zip -o ./ --overwrite -- --name voc_images.zip \
-    --compression ZIP_DEFLATED
+datum create -o project
+datum import -p project -f voc ./VOC2012
+datum export -p project -f image_zip -- --name voc_images.zip
 ```
 
-Extra options for export to image_zip format:
-
+Extra options for exporting to image_zip format:
 - `--save-images` allow to export dataset with saving images
-  (default: `False`);
+  (default: `False`)
 - `--image-ext <IMAGE_EXT>` allow to specify image extension
-  for exporting dataset (default: use original or `.jpg`, if none);
-- `--name` name of output zipfile (default: `default.zip`);
+  for exporting dataset (default: use original or `.jpg`, if none)
+- `--name` name of output zipfile (default: `default.zip`)
 - `--compression` allow to specify archive compression method.
   Available methods:
   `ZIP_STORED`, `ZIP_DEFLATED`, `ZIP_BZIP2`, `ZIP_LZMA` (default: `ZIP_STORED`).

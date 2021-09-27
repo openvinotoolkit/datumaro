@@ -91,7 +91,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
             "results to be counted (default: %(default)s)")
     parser.add_argument('-g', '--groups', action='append', type=_group,
         help="A comma-separated list of labels in "
-            "annotation groups to check. '?' postfix can be added to a label to"
+            "annotation groups to check. '?' postfix can be added to a label to "
             "make it optional in the group (repeatable)")
     parser.add_argument('-o', '--output-dir', dest='dst_dir', default=None,
         help="Output directory (default: generate a new one)")
@@ -102,6 +102,11 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     parser.set_defaults(command=merge_command)
 
     return parser
+
+def get_sensitive_args():
+    return {
+        merge_command: ['targets', 'labels', 'project_dir', 'dst_dir',],
+    }
 
 @scoped
 def merge_command(args):

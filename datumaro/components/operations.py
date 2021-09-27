@@ -93,11 +93,8 @@ class ExactMerge:
             for item in source:
                 existing_item = items.get(item.id, item.subset)
                 if existing_item is not None:
-                    path = existing_item.path
-                    if item.path != path:
-                        path = None
                     try:
-                        item = cls.merge_items(existing_item, item, path=path)
+                        item = cls.merge_items(existing_item, item)
                     except DatasetMergeError as e:
                         e.sources = set(range(source_idx))
                         raise e
@@ -106,8 +103,8 @@ class ExactMerge:
         return items
 
     @classmethod
-    def merge_items(cls, existing_item, current_item, path=None):
-        return existing_item.wrap(path=path,
+    def merge_items(cls, existing_item, current_item):
+        return existing_item.wrap(
             image=cls.merge_images(existing_item, current_item),
             annotations=cls.merge_anno(
                 existing_item.annotations, current_item.annotations))
@@ -1332,7 +1329,7 @@ def find_unique_images(dataset: IDataset, item_hash: Optional[Callable] = None):
             log.warning("Item (%s, %s) has no image "
                 "info, counted as unique", item.id, item.subset)
             return None
-        # ignore B303 (md5 check), because the hash is not used in a security context
+        # Disable B303:md5, because the hash is not used in a security context
         return hashlib.md5(item.image.data.tobytes()).hexdigest() # nosec
 
     if item_hash is None:

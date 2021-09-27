@@ -12,7 +12,7 @@ import os
 import os.path as osp
 import re
 import shutil
-import subprocess
+import subprocess  # nosec - B404: import_subprocess
 import sys
 import unicodedata
 
@@ -23,9 +23,6 @@ try:
     # readonly files on Windows, which Git uses extensively
     # It double checks if a file cannot be removed because of readonly flag
     from git.util import rmfile, rmtree  # pylint: disable=unused-import
-    import git.util
-    git.util.HIDE_WINDOWS_KNOWN_ERRORS = False
-
 except ModuleNotFoundError:
     from os import remove as rmfile # pylint: disable=unused-import
     from shutil import rmtree as rmtree # pylint: disable=unused-import

@@ -37,9 +37,6 @@ class DatasetItem:
     subset = attrib(converter=lambda v: v or DEFAULT_SUBSET_NAME,
         type=str, default=None)
 
-    # Currently unused
-    path = attrib(factory=list, validator=default_if_none(list))
-
     # TODO: introduce "media" field with type info. Replace image and pcd.
     image = attrib(type=Optional[Image], default=None)
     # TODO: introduce pcd type like Image

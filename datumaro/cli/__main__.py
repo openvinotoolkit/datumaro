@@ -7,6 +7,11 @@ import logging as log
 import os.path as osp
 import sys
 
+from ..util.telemetry_utils import (
+    close_telemetry_session, init_telemetry_session,
+    send_command_exception_info, send_command_failure_info,
+    send_command_success_info,
+)
 from ..version import VERSION
 from . import commands, contexts
 from .util import add_subparser
@@ -49,6 +54,53 @@ def _make_subcommands_help(commands, help_line_start=0):
             (command_name, command_help)
     return desc
 
+def _get_known_contexts():
+    return [
+        ('project', contexts.project, "Actions with project"),
+        ('source', contexts.source, "Actions with data sources"),
+        ('model', contexts.model, "Actions with models"),
+    ]
+
+def _get_known_commands():
+    return [
+        ("Project modification:", None, ''),
+        ('create', commands.create, "Create empty project"),
+        ('import', commands.import_, "Import dataset to project"),
+        ('remove', commands.remove, "Remove dataset from project"),
+
+        ("", None, ''),
+        ("Project versioning:", None, ''),
+        ('checkout', commands.checkout, "Switch to another branch or revision"),
+        ('commit', commands.commit, "Commit changes in tracked files"),
+        ('log', commands.log, "List history"),
+        ('status', commands.status, "Display current status"),
+
+        ("", None, ''),
+        ("Dataset operations:", None, ''),
+        ('export', commands.export, "Export dataset in some format"),
+        ('filter', commands.filter, "Filter dataset items"),
+        ('transform', commands.transform, "Modify dataset items"),
+        ('merge', commands.merge, "Merge datasets"),
+        ('patch', commands.patch, "Update dataset from another one"),
+        ('convert', commands.convert, "Convert dataset between formats"),
+        ('diff', commands.diff, "Compare datasets"),
+        ('stats', commands.stats, "Compute dataset statistics"),
+        ('info', commands.info, "Print dataset info"),
+        ('explain', commands.explain, "Run Explainable AI algorithm for model"),
+        ('validate', commands.validate, "Validate dataset")
+    ]
+
+def _get_sensitive_args():
+    known_contexts = _get_known_contexts()
+    known_commands = _get_known_commands()
+
+    res = {}
+    for _, command, _ in known_contexts + known_commands:
+        if command is not None:
+            res.update(command.get_sensitive_args())
+
+    return res
+
 def make_parser():
     parser = argparse.ArgumentParser(
         description="Dataset Framework",
@@ -59,38 +111,8 @@ def make_parser():
     parser.add_argument('--version', action='version', version=VERSION)
     _LogManager._define_loglevel_option(parser)
 
-    known_contexts = [
-        ('project', contexts.project, "Actions with project"),
-        ('source', contexts.source, "Actions with data sources"),
-        ('model', contexts.model, "Actions with models"),
-    ]
-    known_commands = [
-        ("Project modification:", None, ''),
-        ('create', commands.create, "Create empty project"),
-        ('add', commands.add, "Add data source to project"),
-        ('remove', commands.remove, "Remove data source from project"),
-
-        ("", None, ''),
-        ("Project versioning:", None, ''),
-        ('checkout', commands.checkout, "Switch to another branch or revision"),
-        ('commit', commands.commit, "Commit changes in tracked files"),
-        ('log', commands.log, "List history"),
-        ('status', commands.status, "Display current status"),
-
-        ("", None, ''),
-        ("Dataset and project operations:", None, ''),
-        ('export', commands.export, "Export project in some format"),
-        ('filter', commands.filter, "Filter project items"),
-        ('transform', commands.transform, "Modify project items"),
-        ('merge', commands.merge, "Merge datasets"),
-        ('patch', commands.patch, "Update dataset from another one"),
-        ('convert', commands.convert, "Convert dataset between formats"),
-        ('diff', commands.diff, "Compare datasets"),
-        ('stats', commands.stats, "Compute project statistics"),
-        ('info', commands.info, "Print project info"),
-        ('explain', commands.explain, "Run Explainable AI algorithm for model"),
-        ('validate', commands.validate, "Validate project")
-    ]
+    known_contexts = _get_known_contexts()
+    known_commands = _get_known_commands()
 
     # Argparse doesn't support subparser groups:
     # https://stackoverflow.com/questions/32017020/grouping-argparse-subparser-arguments
@@ -132,18 +154,33 @@ def main(args=None):
         parser.print_help()
         return 1
 
+    sensitive_args = _get_sensitive_args()
+    telemetry = init_telemetry_session(app_name='Datumaro', app_version=VERSION)
+
     try:
         retcode = args.command(args)
         if retcode is None:
             retcode = 0
-        return retcode
     except CliException as e:
         log.error(e)
+        send_command_exception_info(telemetry, args,
+            sensitive_args=sensitive_args[args.command])
         return 1
     except Exception as e:
         log.error(e)
+        send_command_exception_info(telemetry, args,
+            sensitive_args=sensitive_args[args.command])
         raise
-
+    else:
+        if retcode:
+            send_command_failure_info(telemetry, args,
+                sensitive_args=sensitive_args[args.command])
+        else:
+            send_command_success_info(telemetry, args,
+                sensitive_args=sensitive_args[args.command])
+        return retcode
+    finally:
+        close_telemetry_session(telemetry)
 
 if __name__ == '__main__':
     sys.exit(main())

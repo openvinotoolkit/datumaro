@@ -68,8 +68,6 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
             "a path to subset, subtask, or a specific file in URL.")
     parser.add_argument('--no-check', action='store_true',
         help="Don't try to read the source after importing")
-    parser.add_argument('--no-cache', action='store_true',
-        help="Don't put a copy into the project cache")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to operate on (default: current dir)")
     parser.add_argument('extra_args', nargs=argparse.REMAINDER,
@@ -79,6 +77,11 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
     parser.set_defaults(command=add_command)
 
     return parser
+
+def get_add_sensitive_args():
+    return {
+        add_command: ['path', 'project_dir', 'url', 'name',],
+    }
 
 @scoped
 def add_command(args):
@@ -114,7 +117,7 @@ def add_command(args):
         arg_parser = env.extractors[fmt]
     else:
         raise CliException("Unknown format '%s'. A format can be added"
-            "by providing an Extractor and Importer plugins" % fmt)
+            " by providing an Extractor and Importer plugins" % fmt)
 
     extra_args = arg_parser.parse_cmdline(args.extra_args)
 
@@ -128,7 +131,7 @@ def add_command(args):
             'source', sep='-', default='1')
 
     project.import_source(name, url=args.url, format=args.format,
-        options=extra_args, no_cache=args.no_cache, rpath=args.path)
+        options=extra_args, no_cache=True, no_hash=True, rpath=args.path)
     on_error_do(project.remove_source, name, ignore_errors=True,
         kwargs={'force': True, 'keep_data': False})
 
@@ -160,6 +163,11 @@ def build_remove_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+def get_remove_sensitive_args():
+    return {
+        remove_command: ['project_dir', 'names',],
+    }
+
 @scoped
 def remove_command(args):
     project = scope_add(load_project(args.project_dir))
@@ -188,6 +196,11 @@ def build_info_parser(parser_ctor=argparse.ArgumentParser):
     parser.set_defaults(command=info_command)
 
     return parser
+
+def get_info_sensitive_args():
+    return {
+        info_command: ['name', 'project_dir',],
+    }
 
 @scoped
 def info_command(args):
@@ -223,3 +236,10 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     add_subparser(subparsers, 'info', build_info_parser)
 
     return parser
+
+def get_sensitive_args():
+    return {
+        **get_add_sensitive_args(),
+        **get_remove_sensitive_args(),
+        **get_info_sensitive_args(),
+    }

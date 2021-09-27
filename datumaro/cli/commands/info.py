@@ -56,6 +56,11 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+def get_sensitive_args():
+    return {
+        info_command: ['target', 'project_dir',],
+    }
+
 @scoped
 def info_command(args):
     project = None

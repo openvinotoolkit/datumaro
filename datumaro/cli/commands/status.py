@@ -25,6 +25,11 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 
     return parser
 
+def get_sensitive_args():
+    return {
+        status_command: ['project_dir',],
+    }
+
 @scoped
 def status_command(args):
     project = scope_add(load_project(args.project_dir))

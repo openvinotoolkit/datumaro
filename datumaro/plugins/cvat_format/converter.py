@@ -4,7 +4,8 @@
 
 from collections import OrderedDict
 from itertools import chain
-from xml.sax.saxutils import XMLGenerator
+# Disable B406: import_xml_sax - the library is used for writing
+from xml.sax.saxutils import XMLGenerator  # nosec
 import logging as log
 import os
 import os.path as osp

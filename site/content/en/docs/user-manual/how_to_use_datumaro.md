@@ -104,7 +104,7 @@ to use Datumaro from the command-line:
 
 - Create a Datumaro project and operate on it:
   - Create an empty project with [`create`](/docs/user-manual/command-reference/create)
-  - Import existing datasets with [`add`](/docs/user-manual/command-reference/sources/#source-add)
+  - Import existing datasets with [`import`](/docs/user-manual/command-reference/sources/#source-add)
   - Modify the project with [`transform`](/docs/user-manual/command-reference/transform) and [`filter`](/docs/user-manual/command-reference/filter)
   - Create new revisions of the project with
     [`commit`](/docs/user-manual/command-reference/commit), navigate over
@@ -163,13 +163,13 @@ are omitted for simplicity):
 datum create
 
 # describe the first source
-datum add <...> -n source1
+datum import <...> -n source1
 datum filter <...> source1
 datum transform <...> source1
 datum transform <...> source1
 
 # describe the second source
-datum add <...> -n source2
+datum import <...> -n source2
 datum model add <...>
 datum transform <...> source2
 datum transform <...> source2
@@ -230,11 +230,11 @@ project and register the dataset as a data source:
 
 ``` bash
 datum create
-datum add <...> -n source1
+datum import <...> -n source1
 ```
 
 The dataset will be copied to the working directory inside the project. It
-will be hashed and added to the project working tree.
+will be added to the project working tree.
 
 After the dataset is added, we want to transform it and filter out some
 irrelevant samples, so we run the following commands:
@@ -245,7 +245,7 @@ datum filter <...> source1
 ```
 
 The commands modify the data source inside the working directory, inplace.
-The operations done are recorded in the working tree, the results are hashed.
+The operations done are recorded in the working tree.
 
 Now, we want to make a new version of the dataset and make a snapshot in the
 project cache. So we `commit` the working tree:
@@ -259,7 +259,9 @@ datum commit <...>
 At this time, the data source is copied into the project cache and a new
 project revision is created. The dataset operation history is saved, so
 the dataset can be reproduced even if it is removed from the cache and the
-working directory.
+working directory. Note, however, that the original dataset hash was not
+computed, so Datumaro won't be able to compare dataset hash on re-downloading.
+If it is desired, consider making a `commit` with an unmodified data source.
 
 After this, we do some other modifications to the dataset and make a new
 commit. Note that the dataset is not cached, until a `commit` is done.
@@ -278,8 +280,8 @@ Roughly, it corresponds to the following set of commands:
 
 ```bash
 datum create
-datum add <...> -n source1
-datum add <...> -n source2
+datum import <...> -n source1
+datum import <...> -n source2
 datum transform <...> source1 # used 3 times
 datum transform <...> source2 # used 5 times
 ```
@@ -314,8 +316,8 @@ step-by-step:
   should be controlled manually.
 1. If the project is not read-only (3b), Datumaro will try to download
   the original dataset and reproduce the resulting dataset. The data hash
-  will be computed and hashes will be compared. On success, the data will be
-  put into the cache.
+  will be computed and hashes will be compared (if the data source had hash
+  computed on addition). On success, the data will be put into the cache.
 1. The downloaded dataset will be read and the remaining operations from the
   source history will be re-applied.
 1. The resulting dataset might be cached in some cases.
@@ -366,7 +368,7 @@ Example: create a project, add dataset, modify, restore an old version
 
 ``` bash
 datum create
-datum add <path/to/coco/dataset> -f coco -n source1
+datum import <path/to/dataset> -f coco -n source1
 datum commit -m "Added a dataset"
 datum transform -t shapes_to_boxes
 datum filter -e '/item/annotation[label="cat" or label="dog"]' -m i+a

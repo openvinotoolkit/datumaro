@@ -93,7 +93,7 @@ class ImageZipConverter(Converter):
         archive_path = osp.join(self._save_dir, self._archive_name)
 
         if osp.exists(archive_path):
-            raise FileExistsError('Zip file: %s, already exist,'
+            raise FileExistsError('Zip file: %s, already exist, '
                 'specify archive name with --name extra argument' % archive_path)
 
         with ZipFile(archive_path, 'w', self._compression) as zf:

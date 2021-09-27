@@ -8,7 +8,8 @@ from datumaro.components.annotation import Bbox, Label
 from datumaro.components.dataset import DEFAULT_FORMAT, Dataset
 from datumaro.components.extractor import DatasetItem
 from datumaro.components.project import Project
-from datumaro.util.test_utils import TestDir, compare_datasets
+from datumaro.util.scope import scope_add, scoped
+from datumaro.util.test_utils import TestDir, compare_datasets, compare_dirs
 from datumaro.util.test_utils import run_datum as run
 
 from ..requirements import Requirements, mark_requirement
@@ -38,7 +39,7 @@ class ProjectIntegrationScenarios(TestCase):
 
         with TestDir() as test_dir:
             run(self, 'create', '-o', test_dir)
-            run(self, 'add', '-f', 'coco', '-p', test_dir, coco_dir)
+            run(self, 'import', '-f', 'coco', '-p', test_dir, coco_dir)
 
             result_dir = osp.join(test_dir, 'voc_export')
             run(self, 'export', '-f', 'voc', '-p', test_dir, '-o', result_dir,
@@ -53,7 +54,7 @@ class ProjectIntegrationScenarios(TestCase):
 
         with TestDir() as test_dir:
             run(self, 'create', '-o', test_dir)
-            run(self, 'add', '-f', 'coco', '-p', test_dir, coco_dir)
+            run(self, 'import', '-f', 'coco', '-p', test_dir, coco_dir)
 
             with self.subTest("on project"):
                 run(self, 'project', 'info', '-p', test_dir)
@@ -68,7 +69,7 @@ class ProjectIntegrationScenarios(TestCase):
 
         with TestDir() as test_dir:
             run(self, 'create', '-o', test_dir)
-            run(self, 'add', '-f', 'coco', '-p', test_dir, coco_dir)
+            run(self, 'import', '-f', 'coco', '-p', test_dir, coco_dir)
             run(self, 'commit', '-m', 'first', '-p', test_dir)
 
             with self.subTest("on current project"):
@@ -101,7 +102,7 @@ class ProjectIntegrationScenarios(TestCase):
             ], categories=['a', 'b']).save(dataset_dir, save_images=True)
 
             run(self, 'create', '-o', project_dir)
-            run(self, 'add', '-p', project_dir, '-f', 'datumaro', dataset_dir)
+            run(self, 'import', '-p', project_dir, '-f', 'datumaro', dataset_dir)
             run(self, 'commit', '-p', project_dir, '-m', 'Add data')
 
             run(self, 'transform', '-p', project_dir,
@@ -138,30 +139,40 @@ class ProjectIntegrationScenarios(TestCase):
             ], categories=['a', 'cat']), parsed, require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_chain_transforms_in_working_tree(self):
-        with TestDir() as test_dir:
-            source_url = osp.join(test_dir, 'test_repo')
-            dataset = Dataset.from_iterable([
-                DatasetItem(1, annotations=[Label(0)]),
-                DatasetItem(2, annotations=[Label(1)]),
-            ], categories=['a', 'b'])
-            dataset.save(source_url)
+    @scoped
+    def test_can_chain_transforms_in_working_tree_without_hashing(self):
+        test_dir = scope_add(TestDir())
+        source_url = osp.join(test_dir, 'test_repo')
+        dataset = Dataset.from_iterable([
+            DatasetItem(1, annotations=[Label(0)]),
+            DatasetItem(2, annotations=[Label(1)]),
+        ], categories=['a', 'b'])
+        dataset.save(source_url)
 
-            project_dir = osp.join(test_dir, 'proj')
-            run(self, 'create', '-o', project_dir)
-            run(self, 'add', '-p', project_dir,
-                '--format', DEFAULT_FORMAT, source_url)
-            run(self, 'filter', '-p', project_dir,
-                '-e', '/item/annotation[label="b"]')
-            run(self, 'transform', '-p', project_dir,
-                '-t', 'rename', '--', '-e', '|2|qq|')
-            run(self, 'transform', '-p', project_dir,
-                '-t', 'remap_labels', '--', '-l', 'a:cat', '-l', 'b:dog')
+        project_dir = osp.join(test_dir, 'proj')
+        run(self, 'create', '-o', project_dir)
+        run(self, 'import', '-p', project_dir, '-n', 'source1',
+            '--format', DEFAULT_FORMAT, source_url)
+        run(self, 'filter', '-p', project_dir,
+            '-e', '/item/annotation[label="b"]')
+        run(self, 'transform', '-p', project_dir,
+            '-t', 'rename', '--', '-e', '|2|qq|')
+        run(self, 'transform', '-p', project_dir,
+            '-t', 'remap_labels', '--', '-l', 'a:cat', '-l', 'b:dog')
 
-            with Project(project_dir) as project:
-                built_dataset = project.working_tree.make_dataset()
+        project = scope_add(Project(project_dir))
+        built_dataset = project.working_tree.make_dataset()
 
-                expected_dataset = Dataset.from_iterable([
-                    DatasetItem('qq', annotations=[Label(1)]),
-                ], categories=['cat', 'dog'])
-                compare_datasets(self, expected_dataset, built_dataset)
+        expected_dataset = Dataset.from_iterable([
+            DatasetItem('qq', annotations=[Label(1)]),
+        ], categories=['cat', 'dog'])
+        compare_datasets(self, expected_dataset, built_dataset)
+
+        with self.assertRaises(Exception):
+            compare_dirs(self, source_url, project.source_data_dir('source1'))
+
+        source1_target = project.working_tree.build_targets['source1']
+        self.assertEqual(4, len(source1_target.stages))
+        self.assertEqual('', source1_target.stages[0].hash)
+        self.assertEqual('', source1_target.stages[1].hash)
+        self.assertEqual('', source1_target.stages[2].hash)

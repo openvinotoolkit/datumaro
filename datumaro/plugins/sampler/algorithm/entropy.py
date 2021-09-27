@@ -88,7 +88,7 @@ class SampleEntropy(InferenceResultAnalyzer):
                 raise ValueError(f"Unknown sampling method '{method}'")
         else:
             log.warning(
-                "The number of samples is greater than the size of the"
+                "The number of samples is greater than the size of the "
                 "selected subset."
             )
 

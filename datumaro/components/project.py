@@ -4,7 +4,10 @@
 
 from contextlib import ExitStack, suppress
 from enum import Enum, auto
-from typing import Any, Dict, Iterable, List, NewType, Optional, Tuple, Union
+from typing import (
+    Any, Dict, Generic, Iterable, List, NewType, Optional, Tuple, TypeVar,
+    Union,
+)
 import json
 import logging as log
 import os
@@ -19,8 +22,8 @@ import ruamel.yaml as yaml
 
 from datumaro.components.config import Config
 from datumaro.components.config_model import (
-    BuildStage, Model, PipelineConfig, ProjectConfig, ProjectLayout, Source,
-    TreeConfig, TreeLayout,
+    BuildStage, BuildTarget, Model, PipelineConfig, ProjectConfig,
+    ProjectLayout, Source, TreeConfig, TreeLayout,
 )
 from datumaro.components.dataset import DEFAULT_FORMAT, Dataset, IDataset
 from datumaro.components.environment import Environment
@@ -157,50 +160,55 @@ def _update_ignore_file(paths: Union[str, List[str]], repo_root: str,
             print(line, file=f)
         f.truncate()
 
-class CrudProxy:
+
+CrudEntry = TypeVar('CrudEntry')
+T = TypeVar('T')
+
+class CrudProxy(Generic[CrudEntry]):
     @property
-    def _data(self):
+    def _data(self) -> Dict[str, CrudEntry]:
         raise NotImplementedError()
 
     def __len__(self):
         return len(self._data)
 
-    def __getitem__(self, name):
+    def __getitem__(self, name: str) -> CrudEntry:
         return self._data[name]
 
-    def get(self, name, default=None):
+    def get(self, name: str, default: Union[None, T, CrudEntry] = None) \
+            -> Union[None, T, CrudEntry]:
         return self._data.get(name, default)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterable[CrudEntry]:
         return iter(self._data.keys())
 
-    def items(self):
+    def items(self) -> Iterable[Tuple[str, CrudEntry]]:
         return iter(self._data.items())
 
-    def __contains__(self, name):
+    def __contains__(self, name: str):
         return name in self._data
 
-class _DataSourceBase(CrudProxy):
-    def __init__(self, project, config_field):
-        self._project = project
+class _DataSourceBase(CrudProxy[Source]):
+    def __init__(self, tree: 'Tree', config_field: str):
+        self._tree = tree
         self._field = config_field
 
     @property
-    def _data(self):
-        return self._project.config[self._field]
+    def _data(self) -> Dict[str, Source]:
+        return self._tree.config[self._field]
 
-    def add(self, name, value):
+    def add(self, name: str, value: Union[Dict, Config, Source]) -> Source:
         if name in self:
             raise SourceExistsError(name)
 
         return self._data.set(name, value)
 
-    def remove(self, name):
+    def remove(self, name: str):
         self._data.remove(name)
 
 class ProjectSources(_DataSourceBase):
-    def __init__(self, project):
-        super().__init__(project, 'sources')
+    def __init__(self, tree: 'Tree'):
+        super().__init__(tree, 'sources')
 
     def __getitem__(self, name):
         try:
@@ -391,7 +399,7 @@ class ProjectBuilder:
 
         if working_dir_hashes is None:
             working_dir_hashes = {}
-        def _try_load_from_cache(stage_name: str, stage_config: BuildStage) \
+        def _try_load_from_disk(stage_name: str, stage_config: BuildStage) \
                 -> Dataset:
             # Check if we can restore this stage from the cache or
             # from the working directory.
@@ -405,27 +413,39 @@ class ProjectBuilder:
             data_dir = None
             cached = False
 
-            target = ProjectBuildTargets.strip_target_name(stage_name)
-            if self._tree.is_working_tree and target in self._tree.sources:
-                data_dir = self._project.source_data_dir(target)
+            source_name, source_stage_name = \
+                ProjectBuildTargets.split_target_name(stage_name)
+            if self._tree.is_working_tree and source_name in self._tree.sources:
+                target = self._tree.build_targets[source_name]
+                data_dir = self._project.source_data_dir(source_name)
+                wd_hash = working_dir_hashes.get(source_name)
 
-                wd_hash = working_dir_hashes.get(target)
-                if not wd_hash:
+                if not stage_hash:
+                    if source_stage_name == target.head.name and \
+                            osp.isdir(data_dir):
+                        pass
+                    else:
+                        log.debug("Build: skipping loading stage '%s' from "
+                            "working dir '%s', because the stage has no hash "
+                            "and is not the head stage",
+                            stage_name, data_dir)
+                        data_dir = None
+                elif not wd_hash:
                     if osp.isdir(data_dir):
                         wd_hash = self._project.compute_source_hash(data_dir)
-                        working_dir_hashes[target] = wd_hash
+                        working_dir_hashes[source_name] = wd_hash
                     else:
                         log.debug("Build: skipping checking working dir '%s', "
                             "because it does not exist", data_dir)
                         data_dir = None
 
-                if stage_hash != wd_hash:
+                if stage_hash and stage_hash != wd_hash:
                     log.debug("Build: skipping loading stage '%s' from "
-                        "working dir '%s', because hashes does not match",
+                        "working dir '%s', because hashes do not match",
                         stage_name, data_dir)
                     data_dir = None
 
-            if not data_dir:
+            if not data_dir and stage_hash:
                 if self._project._is_cached(stage_hash):
                     data_dir = self._project.cache_path(stage_hash)
                     cached = True
@@ -443,7 +463,7 @@ class ProjectBuilder:
                 assert osp.isdir(data_dir), data_dir
                 log.debug("Build: loading stage '%s' from '%s'",
                     stage_name, data_dir)
-                return ProjectSourceDataset(data_dir, self._tree, target,
+                return ProjectSourceDataset(data_dir, self._tree, source_name,
                     readonly=cached or self._project.readonly)
 
             return None
@@ -459,15 +479,14 @@ class ProjectBuilder:
             stage = graph.nodes[stage_name]
             stage_config = stage['config']
             stage_type = BuildStageType[stage_config.type]
+            stage_hash = stage_config.hash
 
             assert stage.get('dataset') is None
 
-            stage_hash = stage_config.hash
-            if stage_hash:
-                dataset = _try_load_from_cache(stage_name, stage_config)
-                if dataset is not None:
-                    stage['dataset'] = dataset
-                    continue
+            dataset = _try_load_from_disk(stage_name, stage_config)
+            if dataset is not None:
+                stage['dataset'] = dataset
+                continue
 
             uninitialized_parents = []
             for p_name in graph.predecessors(stage_name):
@@ -582,11 +601,17 @@ class ProjectBuilder:
         work_dir_hashes = {}
 
         def _can_retrieve(stage_name: str, stage_config: BuildStage):
-            obj_hash = stage_config.hash
+            stage_hash = stage_config.hash
 
-            source_name = ProjectBuildTargets.strip_target_name(stage_name)
+            source_name, source_stage_name = \
+                ProjectBuildTargets.split_target_name(stage_name)
             if self._tree.is_working_tree and source_name in self._tree.sources:
+                target = self._tree.build_targets[source_name]
                 data_dir = self._project.source_data_dir(source_name)
+
+                if not stage_hash:
+                    return source_stage_name == target.head.name and \
+                        osp.isdir(data_dir)
 
                 wd_hash = work_dir_hashes.get(source_name)
                 if not wd_hash and osp.isdir(data_dir):
@@ -594,10 +619,10 @@ class ProjectBuilder:
                         self._project.source_data_dir(source_name))
                     work_dir_hashes[source_name] = wd_hash
 
-                if obj_hash and obj_hash == wd_hash:
+                if stage_hash and stage_hash == wd_hash:
                     return True
 
-            if obj_hash and self._project.is_obj_cached(obj_hash):
+            if stage_hash and self._project.is_obj_cached(stage_hash):
                 return True
 
             return False
@@ -629,7 +654,7 @@ class ProjectBuilder:
             checked_deps.add(stage_name)
         return missing_sources, work_dir_hashes
 
-class ProjectBuildTargets(CrudProxy):
+class ProjectBuildTargets(CrudProxy[BuildTarget]):
     MAIN_TARGET = 'project'
     BASE_STAGE = 'root'
 
@@ -670,7 +695,7 @@ class ProjectBuildTargets(CrudProxy):
                 self._data[target].find_stage(stage) is not None
         return key in self._data
 
-    def add_target(self, name):
+    def add_target(self, name) -> BuildTarget:
         return self._data.set(name, {
             'stages': [
                 BuildStage({
@@ -819,7 +844,7 @@ class ProjectBuildTargets(CrudProxy):
 
         return pipeline
 
-    def make_pipeline(self, target) -> Pipeline:
+    def make_pipeline(self, target: str) -> Pipeline:
         if not target in self:
             raise UnknownTargetError(target)
 
@@ -1349,6 +1374,9 @@ class Tree:
         os.makedirs(osp.dirname(path), exist_ok=True)
         self._config.dump(path)
 
+    def clone(self) -> 'Tree':
+        return Tree(self._project, TreeConfig(self.config), self._rev)
+
     @property
     def sources(self) -> ProjectSources:
         return self._sources
@@ -1369,11 +1397,21 @@ class Tree:
     def rev(self) -> Union[None, 'Revision']:
         return self._rev
 
-    def make_dataset(self, target: Optional[str] = None) -> Dataset:
+    def make_pipeline(self, target: Optional[str] = None) -> Pipeline:
         if not target:
             target = 'project'
 
-        pipeline = self.build_targets.make_pipeline(target)
+        return self.build_targets.make_pipeline(target)
+
+    def make_dataset(self,
+            target: Union[None, str, Pipeline] = None) -> Dataset:
+        if not target or isinstance(target, str):
+            pipeline = self.make_pipeline(target)
+        elif isinstance(target, Pipeline):
+            pipeline = target
+        else:
+            raise TypeError(f"Unexpected target type {type(target)}")
+
         return ProjectBuilder(self._project, self).make_dataset(pipeline)
 
     @property
@@ -1496,7 +1534,7 @@ class Project:
                     else:
                         log.warning(f"Failed to migrate the source '{name}'. "
                             "Try to add this source manually with "
-                            "'datum add', once migration is finished. The "
+                            "'datum import', once migration is finished. The "
                             "reason is: %s", e)
                         new_project.remove_source(name,
                             force=True, keep_data=False)
@@ -1849,7 +1887,9 @@ class Project:
             raise ValueError("Source name is reserved for internal use")
 
     @scoped
-    def _download_source(self, url: str, dst_dir: str, no_cache: bool = False):
+    def _download_source(self, url: str, dst_dir: str, *,
+            no_cache: bool = False, no_hash: bool = False) \
+                -> Tuple[str, str, str]:
         assert url
         assert dst_dir
 
@@ -1869,11 +1909,14 @@ class Project:
 
         log.debug("Done")
 
-        obj_hash = self.compute_source_hash(data_dir,
-            dvcfile=dvcfile, no_cache=no_cache, allow_external=True)
-        if not no_cache:
-            log.debug("Data is added to DVC cache")
-        log.debug("Data hash: '%s'", obj_hash)
+        if not no_hash:
+            obj_hash = self.compute_source_hash(data_dir,
+                dvcfile=dvcfile, no_cache=no_cache, allow_external=True)
+            if not no_cache:
+                log.debug("Data is added to DVC cache")
+            log.debug("Data hash: '%s'", obj_hash)
+        else:
+            obj_hash = ''
 
         return obj_hash, dvcfile, data_dir
 
@@ -1919,6 +1962,8 @@ class Project:
             dvcfile=dvcfile, no_cache=no_cache)
 
         build_target.head.hash = obj_hash
+        if not build_target.has_stages:
+            self.working_tree.sources[source].hash = obj_hash
 
         return obj_hash
 
@@ -1946,8 +1991,9 @@ class Project:
 
     @scoped
     def import_source(self, name: str, url: Optional[str],
-            format: str, options: Optional[Dict] = None,
-            no_cache: bool = False, rpath: Optional[str] = None) -> Source:
+            format: str, options: Optional[Dict] = None, *,
+            no_cache: bool = True, no_hash: bool = True,
+            rpath: Optional[str] = None) -> Source:
         """
         Adds a new source (dataset) to the working directory of the project.
 
@@ -1962,6 +2008,9 @@ class Project:
         - options (dict) - Options for the format Extractor
         - no_cache (bool) - Don't put a copy of files into the project cache.
             Can be used to reduce project cache size.
+        - no_hash (bool) - Don't compute source data hash. Implies "no_cache".
+            Useful to reduce import time at the cost of disabled data
+            integrity checks.
         - rpath (str) - Used to specify a relative path to the dataset
             inside of the directory pointed by URL.
 
@@ -2006,6 +2055,9 @@ class Project:
         else:
             rpath = None
 
+        if no_hash:
+            no_cache = True
+
         config = Source({
             'url': (url or '').replace('\\', '/'),
             'path': (rpath or '').replace('\\', '/'),
@@ -2019,13 +2071,15 @@ class Project:
 
             with self._make_tmp_dir() as tmp_dir:
                 obj_hash, tmp_dvcfile, tmp_data_dir = \
-                    self._download_source(url, tmp_dir, no_cache=no_cache)
+                    self._download_source(url, tmp_dir,
+                        no_cache=no_cache, no_hash=no_hash)
 
                 shutil.move(tmp_data_dir, data_dir)
                 on_error_do(rmtree, data_dir)
-                os.replace(tmp_dvcfile, dvcfile)
 
-            config['hash'] = obj_hash
+                if not no_hash:
+                    os.replace(tmp_dvcfile, dvcfile)
+                    config['hash'] = obj_hash
 
         self._git.ignore([data_dir])
 
@@ -2037,8 +2091,8 @@ class Project:
 
         return config
 
-    def remove_source(self, name: str, force: bool = False,
-            keep_data: bool = True):
+    def remove_source(self, name: str, *,
+            force: bool = False, keep_data: bool = True):
         """
         Options:
         - force (bool) - ignores errors and tries to wipe remaining data
@@ -2072,7 +2126,7 @@ class Project:
 
         self._git.ignore([data_dir], mode='remove')
 
-    def commit(self, message: str, no_cache: bool = False,
+    def commit(self, message: str, *, no_cache: bool = False,
             allow_empty: bool = False, allow_foreign: bool = False) -> Revision:
         """
         Copies tree and objects from the working dir to the cache.
@@ -2144,7 +2198,7 @@ class Project:
             os.replace(osp.join(src_dir, name), osp.join(dst_dir, name))
 
     def checkout(self, rev: Union[None, Revision] = None,
-            sources: Union[None, str, Iterable[str]] = None,
+            sources: Union[None, str, Iterable[str]] = None, *,
             force: bool = False):
         """
         Copies tree and objects from cache to working tree.
@@ -2267,9 +2321,9 @@ class Project:
 
             if osp.isdir(self.source_data_dir(t_name)):
                 old_hash = wd_target.head.hash
-                new_hash = self.refresh_source_hash(t_name)
+                new_hash = self.compute_source_hash(t_name, no_cache=True)
 
-                if old_hash != new_hash:
+                if old_hash and old_hash != new_hash:
                     changed_targets[t_name] = DiffStatus.foreign_modified
 
         for t_name in set(head.build_targets) | set(wd.build_targets):
@@ -2358,7 +2412,8 @@ class Project:
         return self._env.make_launcher(model.launcher,
             **model.options, model_dir=model_dir)
 
-    def add_model(self, name: str, launcher: str, options = None) -> Model:
+    def add_model(self, name: str, launcher: str,
+            options: Dict[str, Any] = None) -> Model:
         if self.readonly:
             raise ReadonlyProjectError()
 

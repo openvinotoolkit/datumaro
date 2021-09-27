@@ -1448,7 +1448,7 @@ class DatasetFilterTest(TestCase):
     @staticmethod
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_item_representations():
-        item = DatasetItem(id=1, subset='subset', path=['a', 'b'],
+        item = DatasetItem(id=1, subset='subset',
             image=np.ones((5, 4, 3)),
             annotations=[
                 Label(0, attributes={'a1': 1, 'a2': '2'}, id=1, group=2),
