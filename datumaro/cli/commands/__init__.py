@@ -6,5 +6,5 @@
 
 from . import (
     checkout, commit, convert, create, diff, explain, export, filter, import_,
-    info, log, merge, remove, stats, status, transform, validate, patch
+    info, log, merge, patch, remove, stats, status, transform, validate,
 )
