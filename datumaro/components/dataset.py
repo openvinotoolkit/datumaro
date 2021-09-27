@@ -27,7 +27,7 @@ from datumaro.components.extractor import (
     DEFAULT_SUBSET_NAME, CategoriesInfo, DatasetItem, Extractor, IExtractor,
     ItemTransform, Transform,
 )
-from datumaro.plugins.transforms import ReorderLabels
+from datumaro.plugins.transforms import ProjectLabels
 from datumaro.util import is_method_redefined
 from datumaro.util.log_utils import logging_disabled
 from datumaro.util.os_util import rmtree
@@ -581,7 +581,8 @@ class DatasetStorage(IDataset):
         if not (self.is_cache_initialized() or self._is_unchanged_wrapper):
             self._flush_changes = True
 
-    def update(self, source: Union[DatasetPatch, Iterable[DatasetItem]]):
+    def update(self,
+            source: Union[DatasetPatch, IExtractor, Iterable[DatasetItem]]):
         # TODO: provide a more efficient implementation with patch reuse
 
         if isinstance(source, DatasetPatch):
@@ -594,18 +595,8 @@ class DatasetStorage(IDataset):
                 else:
                     self.put(source.data.get(*item_id))
         elif isinstance(source, IExtractor):
-            mapping = {}
-            my_cat = self.categories().get(
-                AnnotationType.label, LabelCategories())
-            for patch_id, patch_label in enumerate(source.categories().get(
+            for item in ProjectLabels(source, self.categories().get(
                     AnnotationType.label, LabelCategories())):
-                my_id = my_cat.find(patch_label.name)[0]
-                if my_id is None:
-                    raise ConflictingCategoriesError()
-
-                mapping[patch_id] = my_id
-
-            for item in ReorderLabels(source, mapping):
                 self.put(item)
         else:
             for item in source:

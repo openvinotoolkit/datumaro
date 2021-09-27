@@ -1368,6 +1368,53 @@ class DatasetTest(TestCase):
         compare_datasets(self, expected, dataset)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_update_can_project_labels(self):
+        dataset = Dataset.from_iterable([
+            # Must be overridden
+            DatasetItem(id=100, annotations=[
+                Bbox(1, 2, 3, 3, label=0),
+            ]),
+
+            # Must be kept
+            DatasetItem(id=1, annotations=[
+                Bbox(1, 2, 3, 4, label=1)
+            ]),
+        ], categories=['a', 'b'])
+
+        patch = Dataset.from_iterable([
+            # Must override
+            DatasetItem(id=100, annotations=[
+                Bbox(1, 2, 3, 4, label=0), # Label must be remapped
+                Bbox(5, 6, 2, 3, label=1), # Label must be remapped
+                Bbox(2, 2, 2, 3, label=2), # Will be dropped due to label
+            ]),
+
+            # Must be added
+            DatasetItem(id=2, annotations=[
+                Bbox(1, 2, 3, 2, label=1) # Label must be remapped
+            ]),
+        ], categories=['b', 'a', 'c'])
+
+        expected = Dataset.from_iterable([
+            DatasetItem(id=100, annotations=[
+                Bbox(1, 2, 3, 4, label=1),
+                Bbox(5, 6, 2, 3, label=0),
+            ]),
+
+            DatasetItem(id=1, annotations=[
+                Bbox(1, 2, 3, 4, label=1)
+            ]),
+
+            DatasetItem(id=2, annotations=[
+                Bbox(1, 2, 3, 2, label=0)
+            ]),
+        ], categories=['a', 'b'])
+
+        dataset.update(patch)
+
+        compare_datasets(self, expected, dataset, ignored_attrs='*')
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_update_fails_on_mismatching_labels(self):
         patch = Dataset.from_iterable([], categories=['c'])
         dataset = Dataset.from_iterable([], categories=['a', 'b'])
