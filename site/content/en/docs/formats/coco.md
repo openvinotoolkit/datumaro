@@ -171,24 +171,33 @@ datum convert -if voc -i <path/to/voc/dataset> \
 
 Extra options for export to COCO format:
 - `--save-images` allow to export dataset with saving images
-  (by default `False`);
+  (by default `False`)
 - `--image-ext IMAGE_EXT` allow to specify image extension
-  for exporting dataset (by default - keep original or use `.jpg`, if none);
+  for exporting dataset (by default - keep original or use `.jpg`, if none)
 - `--segmentation-mode MODE` allow to specify save mode for instance
   segmentation:
   - 'guess': guess the mode for each instance
     (using 'is_crowd' attribute as hint)
   - 'polygons': save polygons( merge and convert masks, prefer polygons)
   - 'mask': save masks (merge and convert polygons, prefer masks)
-(by default `guess`);
+(by default `guess`)
 - `--crop-covered` allow to crop covered segments so that background objects
-  segmentation was more accurate (by default `False`);
+  segmentation was more accurate (by default `False`)
 - `--allow-attributes ALLOW_ATTRIBUTES` allow export of attributes
-  (by default `True`);
+  (by default `True`). The parameter enables or disables writing
+  the custom annotation attributes in the "attributes" annotation
+  field. This section is an extension to the original COCO format
 - `--reindex REINDEX` allow to assign new indices to images and annotations,
-  useful to avoid merge conflicts (by default `False`);
+  useful to avoid merge conflicts (by default `False`).
+  This option allows to control if the images and
+  annotations must be given new indices. It can be useful, when
+  you want to preserve the original indices in the produced dataset.
+  Consider enabling this option when converting from other formats
+  or merging datasets to avoid conflicts
 - `--merge-images` allow to save all images into a single directory
-  (by default `False`);
+  (by default `False`). The parameter controls the output directory for
+  images. When enabled, the dataset images are saved into a single
+  directory, otherwise they are saved in separate directories by subsets.
 - `--tasks TASKS` allow to specify tasks for export dataset,
   by default Datumaro uses all tasks. Example:
 
