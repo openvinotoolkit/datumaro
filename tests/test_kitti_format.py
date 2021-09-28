@@ -4,7 +4,6 @@ from unittest import TestCase
 import os.path as osp
 
 import numpy as np
-from numpy.lib.function_base import extract
 
 from datumaro.components.annotation import (
     AnnotationType, Bbox, LabelCategories, Mask,
@@ -478,4 +477,3 @@ class KittiConverterTest(TestCase):
             self._test_save_and_load(TestExtractor(),
                 partial(KittiConverter.convert, tasks=KittiTask.detection,
                     save_images=False), test_dir)
-

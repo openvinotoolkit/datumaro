@@ -87,7 +87,7 @@ class MotsPngConverterTest(TestCase):
             self._test_save_and_load(source_dataset,
                 partial(MotsPngConverter.convert, save_images=False),
                 test_dir)
- 
+
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         source = Dataset.from_iterable([
