@@ -70,6 +70,7 @@ def _get_known_commands():
 
         ("", None, ''),
         ("Project versioning:", None, ''),
+        ('add', commands.add, "Add or update dataset"),
         ('checkout', commands.checkout, "Switch to another branch or revision"),
         ('commit', commands.commit, "Commit changes in tracked files"),
         ('log', commands.log, "List history"),

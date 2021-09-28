@@ -2091,6 +2091,79 @@ class Project:
 
         return config
 
+    @scoped
+    def add_source(self, path: Optional[str],
+            format: str, options: Optional[Dict] = None, *,
+            rpath: Optional[str] = None) -> Source:
+        """
+        Adds a new source (dataset) to the working directory of the project.
+
+        When 'path' is specified, will copy all the data from URL, but read
+        only the specified file. Required to support subtasks and subsets
+        in datasets.
+
+        Parameters:
+        - name (str) - Name of the new source
+        - url (str) - URL of the new source. A path to a file or directory
+        - format (str) - Dataset format
+        - options (dict) - Options for the format Extractor
+        - rpath (str) - Used to specify a relative path to the dataset
+            inside of the directory pointed by URL.
+
+        Returns: the new source config
+        """
+
+        if self.readonly:
+            raise ReadonlyProjectError()
+
+        if not path:
+            raise ValueError("Source path cannot be empty")
+
+        path = osp.abspath(path)
+
+        name = osp.basename(path)
+        self.validate_source_name(name)
+
+        if name in self.working_tree.sources:
+            raise SourceExistsError(name)
+
+        if not osp.exists(path):
+            raise FileNotFoundError(path)
+
+        if osp.dirname(path) != self._root_dir:
+            raise SourceUrlInsideProjectError()
+
+        if rpath:
+            rpath = osp.normpath(osp.join(path, rpath))
+
+            if not osp.exists(rpath):
+                raise FileNotFoundError(rpath)
+
+            if not is_subpath(rpath, base=path):
+                raise PathOutsideSourceError(
+                    "Source data path is outside of the directory, "
+                    "specified by source URL: '%s', '%s'" % (rpath, path))
+
+            rpath = osp.relpath(rpath, path)
+        else:
+            rpath = None
+
+        config = Source({
+            'url': (path or '').replace('\\', '/'),
+            'path': (rpath or '').replace('\\', '/'),
+            'format': format,
+            'options': options or {},
+        })
+
+        self._git.ignore([path])
+
+        config = self.working_tree.sources.add(name, config)
+        self.working_tree.build_targets.add_target(name)
+
+        self.working_tree.save()
+
+        return config
+
     def remove_source(self, name: str, *,
             force: bool = False, keep_data: bool = True):
         """
