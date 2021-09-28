@@ -60,8 +60,11 @@ class SourceUrlInsideProjectError(VcsError):
 class UnexpectedUrlError(VcsError):
     pass
 
+class MissingSourceHashError(VcsError):
+    pass
+
 class PipelineError(DatumaroError):
-        pass
+    pass
 
 class InvalidPipelineError(PipelineError):
     pass

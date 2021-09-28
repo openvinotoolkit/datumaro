@@ -31,11 +31,12 @@ from datumaro.components.errors import (
     DatasetMergeError, EmptyCommitError, EmptyPipelineError,
     ForeignChangesError, InvalidStageError, MigrationError,
     MismatchingObjectError, MissingObjectError, MissingPipelineHeadError,
-    MultiplePipelineHeadsError, OldProjectError, PathOutsideSourceError,
-    ProjectAlreadyExists, ProjectNotFoundError, ReadonlyDatasetError,
-    ReadonlyProjectError, SourceExistsError, SourceUrlInsideProjectError,
-    UnexpectedUrlError, UnknownRefError, UnknownSourceError, UnknownStageError,
-    UnknownTargetError, UnsavedChangesError, VcsError,
+    MissingSourceHashError, MultiplePipelineHeadsError, OldProjectError,
+    PathOutsideSourceError, ProjectAlreadyExists, ProjectNotFoundError,
+    ReadonlyDatasetError, ReadonlyProjectError, SourceExistsError,
+    SourceUrlInsideProjectError, UnexpectedUrlError, UnknownRefError,
+    UnknownSourceError, UnknownStageError, UnknownTargetError,
+    UnsavedChangesError, VcsError,
 )
 from datumaro.components.launcher import Launcher
 from datumaro.util import find, parse_str_enum_value
@@ -349,13 +350,16 @@ class ProjectBuilder:
                     "is disabled in read-only projects.", source_name)
                 continue
 
-            # TODO: check if we can avoid computing source hash in some cases
-            assert source.hash, source_name
+            if not source.hash:
+                raise MissingSourceHashError("Unable to re-download source "
+                    "'%s': the source was added with no hash information. " % \
+                    source_name)
+
             with self._project._make_tmp_dir() as tmp_dir:
                 obj_hash, _, _ = \
                     self._project._download_source(source.url, tmp_dir)
 
-                if source.hash != obj_hash:
+                if source.hash and source.hash != obj_hash:
                     raise MismatchingObjectError(
                         "Downloaded source '%s' data is different " \
                         "from what is saved in the build pipeline: "
