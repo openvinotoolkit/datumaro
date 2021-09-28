@@ -1414,14 +1414,6 @@ class DatasetTest(TestCase):
 
         compare_datasets(self, expected, dataset, ignored_attrs='*')
 
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_update_fails_on_mismatching_labels(self):
-        patch = Dataset.from_iterable([], categories=['c'])
-        dataset = Dataset.from_iterable([], categories=['a', 'b'])
-
-        with self.assertRaises(ConflictingCategoriesError):
-            dataset.update(patch)
-
 
 class DatasetItemTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
