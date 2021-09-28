@@ -62,7 +62,8 @@ class ProjectSourceDataset(IDataset):
         self.__dict__['name'] = source
 
     def save(self, save_dir=None, **kwargs):
-        if self.readonly and (save_dir is None or save_dir == self.data_path):
+        if self.readonly and (save_dir is None or \
+                osp.abspath(save_dir) == osp.abspath(self.data_path)):
             raise ReadonlyDatasetError()
         self._dataset.save(save_dir, **kwargs)
 
