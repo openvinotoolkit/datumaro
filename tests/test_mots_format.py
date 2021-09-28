@@ -73,6 +73,22 @@ class MotsPngConverterTest(TestCase):
                 test_dir, target_dataset=target)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_save_and_load_with_no_save_images(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, subset='a', image=np.ones((5, 1)), annotations=[
+                Mask(np.array([[1, 1, 0, 0, 0]]), label=0,
+                    attributes={'track_id': 3}),
+                Mask(np.array([[0, 0, 1, 1, 1]]), label=1,
+                    attributes={'track_id': 3}),
+            ]),
+        ], categories=['label_0', 'label_1'])
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(source_dataset,
+                partial(MotsPngConverter.convert, save_images=False),
+                test_dir)
+ 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         source = Dataset.from_iterable([
             DatasetItem(id='кириллица с пробелом', subset='a',

@@ -139,10 +139,12 @@ class IcdarConverterTest(TestCase):
                 ]),
         ])
 
-        with TestDir() as test_dir:
-            self._test_save_and_load(expected_dataset,
-                partial(IcdarWordRecognitionConverter.convert, save_images=True),
-                test_dir, 'icdar_word_recognition')
+        for save_images in (True, False):
+            with self.subTest(save_images=save_images), TestDir() as test_dir:
+                self._test_save_and_load(expected_dataset,
+                    partial(IcdarWordRecognitionConverter.convert,
+                        save_images=save_images),
+                    test_dir, 'icdar_word_recognition')
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_bboxes(self):
@@ -166,10 +168,12 @@ class IcdarConverterTest(TestCase):
                 ]),
         ])
 
-        with TestDir() as test_dir:
-            self._test_save_and_load(expected_dataset,
-                partial(IcdarTextLocalizationConverter.convert, save_images=True),
-                test_dir, 'icdar_text_localization')
+        for save_images in (True, False):
+            with self.subTest(save_images=save_images), TestDir() as test_dir:
+                self._test_save_and_load(expected_dataset,
+                    partial(IcdarTextLocalizationConverter.convert,
+                        save_images=save_images),
+                    test_dir, 'icdar_text_localization')
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_masks(self):
@@ -200,10 +204,12 @@ class IcdarConverterTest(TestCase):
                 ]),
         ])
 
-        with TestDir() as test_dir:
-            self._test_save_and_load(expected_dataset,
-                partial(IcdarTextSegmentationConverter.convert, save_images=True),
-                test_dir, 'icdar_text_segmentation')
+        for save_images in (True, False):
+            with self.subTest(save_images=save_images), TestDir() as test_dir:
+                self._test_save_and_load(expected_dataset,
+                    partial(IcdarTextSegmentationConverter.convert,
+                        save_images=save_images),
+                    test_dir, 'icdar_text_segmentation')
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_with_no_subsets(self):
