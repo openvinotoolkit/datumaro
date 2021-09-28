@@ -1030,8 +1030,6 @@ class ProjectTest(TestCase):
             'reindex')
         project.commit('a commit')
 
-        shutil.rmtree(project.source_data_dir('source1'))
-
         with self.assertRaises(MissingSourceHashError):
             project.working_tree.make_dataset('source1.root')
 
