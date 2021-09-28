@@ -45,14 +45,42 @@ class LfwFormatTest(TestCase):
             ),
         ], categories=['name0', 'name1'])
 
-        for save_images in (True, False):
-            with self.subTest(save_images=save_images), TestDir() as test_dir:
-                LfwConverter.convert(source_dataset, test_dir,
-                    save_images=save_images)
-                parsed_dataset = Dataset.import_from(test_dir, 'lfw')
+        with TestDir() as test_dir:
+            LfwConverter.convert(source_dataset, test_dir,
+                save_images=True)
+            parsed_dataset = Dataset.import_from(test_dir, 'lfw')
 
-                compare_datasets(self, source_dataset, parsed_dataset,
-                    require_images=save_images)
+            compare_datasets(self, source_dataset, parsed_dataset,
+                require_images=True)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_save_and_load_with_no_save_images(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id='name0_0001', subset='test',
+                image=np.ones((2, 5, 3)),
+                annotations=[Label(0, attributes={
+                    'positive_pairs': ['name0/name0_0002']
+                })]
+            ),
+            DatasetItem(id='name0_0002', subset='test',
+                image=np.ones((2, 5, 3)),
+                annotations=[Label(0, attributes={
+                    'positive_pairs': ['name0/name0_0001'],
+                    'negative_pairs': ['name1/name1_0001']
+                })]
+            ),
+            DatasetItem(id='name1_0001', subset='test',
+                image=np.ones((2, 5, 3)),
+                annotations=[Label(1, attributes={})]
+            ),
+        ], categories=['name0', 'name1'])
+
+        with TestDir() as test_dir:
+            LfwConverter.convert(source_dataset, test_dir,
+                save_images=False)
+            parsed_dataset = Dataset.import_from(test_dir, 'lfw')
+
+            compare_datasets(self, source_dataset, parsed_dataset)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_with_landmarks(self):
