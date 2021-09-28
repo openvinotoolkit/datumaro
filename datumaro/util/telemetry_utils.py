@@ -63,6 +63,8 @@ def _get_action_name(command):
         return 'log_result'
     elif command is commands.merge.merge_command:
         return 'merge_result'
+    elif command is commands.patch.patch_command:
+        return 'patch_result'
     elif command is commands.status.status_command:
         return 'status_result'
 
