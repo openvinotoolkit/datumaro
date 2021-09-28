@@ -104,6 +104,13 @@ class DatumaroConverterTest(TestCase):
                 partial(DatumaroConverter.convert, save_images=True), test_dir)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_save_and_load_with_no_save_images(self):
+        with TestDir() as test_dir:
+            self._test_save_and_load(self.test_dataset,
+                partial(DatumaroConverter.convert, save_images=True), test_dir,
+                compare=None, require_images=False)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect(self):
         with TestDir() as test_dir:
             DatumaroConverter.convert(self.test_dataset, save_dir=test_dir)

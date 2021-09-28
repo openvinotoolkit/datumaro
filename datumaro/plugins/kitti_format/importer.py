@@ -24,16 +24,16 @@ class KittiImporter(Importer):
             raise Exception("Failed to find 'kitti' dataset at '%s'" % path)
 
         # TODO: should be removed when proper label merging is implemented
-        conflicting_types = {KittiTask.segmentation, KittiTask.detection}
+        conflicting_types = {'kitti_segmentation','kitti_detection'}
         ann_types = set(t for s in subsets.values() for t in s) \
             & conflicting_types
         if 1 <= len(ann_types):
-            selected_ann_type = sorted(ann_types, key=lambda x: x.name)[0]
+            selected_ann_type = sorted(ann_types)[0]
         if 1 < len(ann_types):
             log.warning("Not implemented: "
                 "Found potentially conflicting source types with labels: %s. "
                 "Only one type will be used: %s" \
-                % (", ".join(t.name for t in ann_types), selected_ann_type.name))
+                % (", ".join(ann_types), selected_ann_type))
 
         sources = []
         for ann_files in subsets.values():

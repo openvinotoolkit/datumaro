@@ -436,3 +436,44 @@ class KittiConverterTest(TestCase):
                 KittiPath.IMAGES_DIR, 'a/b/c/2.bmp')))
             self.assertTrue(osp.isfile(osp.join(test_dir, 'default',
                 KittiPath.IMAGES_DIR, 'q/1.JPEG')))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_save_and_load_with_no_save_images_segmentation(self):
+        class TestExtractor(TestExtractorBase):
+            def __iter__(self):
+                return iter([
+                    DatasetItem(id='a', image=np.ones((5, 5, 3)),
+                        annotations=[
+                            Mask(image=np.array([[1, 0, 0, 0, 0]] * 5),
+                                label=0, attributes={'is_crowd':True}),
+                            Mask(image=np.array([[0, 1, 1, 1, 1]] * 5),
+                                label=1, attributes={'is_crowd': True}),
+                        ]
+                    ),
+                ])
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(TestExtractor(),
+                partial(KittiConverter.convert, save_images=False,
+                    label_map='kitti'), test_dir)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_save_and_load_with_no_save_images_detection(self):
+        class TestExtractor(TestExtractorBase):
+            def __iter__(self):
+                return iter([
+                    DatasetItem(id='b', subset='val', image=np.ones((5, 5, 3)),
+                        annotations=[
+                            Bbox(0, 0, 3, 3, label=2, attributes={
+                                'truncated': True, 'occluded': False
+                            })
+                        ])
+                ])
+
+            def categories(self):
+                return make_kitti_detection_categories()
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(TestExtractor(),
+                partial(KittiConverter.convert, tasks=KittiTask.detection,
+                    save_images=False), test_dir)
