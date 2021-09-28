@@ -210,9 +210,13 @@ class WrongGroupError(DatasetQualityError):
 class DatasetMergeError(DatasetError):
     sources = attrib(converter=set, factory=set, kw_only=True)
 
-    def __init__(self, msg=None, *, sources=None):
+    def _my__init__(self, msg=None, *, sources=None):
         super().__init__(msg)
         self.__attrs_init__(sources=sources or set())
+
+# Pylint will raise false positive warnings for derived classes,
+# when __init__ is defined directly
+setattr(DatasetMergeError, '__init__', DatasetMergeError._my__init__)
 
 @attrs
 class MismatchingImageInfoError(DatasetMergeError):
