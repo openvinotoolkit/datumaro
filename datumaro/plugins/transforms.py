@@ -505,22 +505,24 @@ class RemapLabels(ItemTransform, CliPlugin):
         if src_mask_cat is not None:
             assert src_label_cat is not None
             dst_mask_cat = MaskCategories(attributes=src_mask_cat.attributes)
-            dst_mask_cat.colormap = {
-                id: src_mask_cat[id]
-                for id, _ in enumerate(src_label_cat.items)
-                if id in src_mask_cat and (self._map_id(id) or id == 0)
-            }
+            for old_id, _ in enumerate(src_label_cat.items):
+                new_id = self._map_id(old_id)
+                if old_id in src_mask_cat and new_id is not None and \
+                        new_id not in dst_mask_cat:
+                    dst_mask_cat.colormap[new_id] = src_mask_cat[old_id]
+
             self._categories[AnnotationType.mask] = dst_mask_cat
 
         src_point_cat = self._extractor.categories().get(AnnotationType.points)
         if src_point_cat is not None:
             assert src_label_cat is not None
             dst_point_cat = PointsCategories(attributes=src_point_cat.attributes)
-            dst_point_cat.items = {
-                id: src_point_cat[id]
-                for id, _ in enumerate(src_label_cat.items)
-                if id in src_point_cat and (self._map_id(id) or id == 0)
-            }
+            for old_id, _ in enumerate(src_label_cat.items):
+                new_id = self._map_id(old_id)
+                if old_id in src_point_cat and new_id is not None and \
+                        new_id not in dst_point_cat:
+                    dst_point_cat.items[new_id] = src_point_cat[old_id]
+
             self._categories[AnnotationType.points] = dst_point_cat
 
     def _make_label_id_map(self, src_label_cat, label_mapping, default_action):
@@ -590,22 +592,24 @@ class ProjectLabels(ItemTransform):
         if src_mask_cat is not None:
             assert src_label_cat is not None
             dst_mask_cat = MaskCategories(attributes=src_mask_cat.attributes)
-            dst_mask_cat.colormap = {
-                id: src_mask_cat[id]
-                for id, _ in enumerate(src_label_cat.items)
-                if id in src_mask_cat and (self._map_id(id) or id == 0)
-            }
+            for old_id, _ in enumerate(src_label_cat.items):
+                new_id = self._map_id(old_id)
+                if old_id in src_mask_cat and new_id is not None and \
+                        new_id not in dst_mask_cat:
+                    dst_mask_cat.colormap[new_id] = src_mask_cat[old_id]
+
             self._categories[AnnotationType.mask] = dst_mask_cat
 
         src_point_cat = self._extractor.categories().get(AnnotationType.points)
         if src_point_cat is not None:
             assert src_label_cat is not None
             dst_point_cat = PointsCategories(attributes=src_point_cat.attributes)
-            dst_point_cat.items = {
-                id: src_point_cat[id]
-                for id, _ in enumerate(src_label_cat.items)
-                if id in src_point_cat and (self._map_id(id) or id == 0)
-            }
+            for old_id, _ in enumerate(src_label_cat.items):
+                new_id = self._map_id(old_id)
+                if old_id in src_point_cat and new_id is not None and \
+                        new_id not in dst_point_cat:
+                    dst_point_cat.items[new_id] = src_point_cat[old_id]
+
             self._categories[AnnotationType.points] = dst_point_cat
 
     def _make_label_id_map(self, src_label_cat, dst_label_cat):

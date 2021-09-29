@@ -365,6 +365,8 @@ class TransformsTest(TestCase):
                 'label%s' % i for i in range(6)),
             AnnotationType.mask: MaskCategories(
                 colormap=mask_tools.generate_colormap(6)),
+            AnnotationType.points: PointsCategories.from_iterable(
+                [(i, [str(i)]) for i in range(6)])
         })
 
         dst_dataset = Dataset.from_iterable([
@@ -380,15 +382,19 @@ class TransformsTest(TestCase):
             AnnotationType.label: LabelCategories.from_iterable(
                 ['label0', 'label9', 'label5']),
             AnnotationType.mask: MaskCategories(colormap={
-                k: v for k, v in mask_tools.generate_colormap(6).items()
-                if k in { 0, 1, 3, 5 }
-            })
+                i: v for i, v in enumerate({
+                    k: v for k, v in mask_tools.generate_colormap(6).items()
+                    if k in { 0, 1, 5 }
+                }.values())
+            }),
+            AnnotationType.points: PointsCategories.from_iterable(
+                [(0, ['0']), (1, ['1']), (2, ['5'])])
         })
 
         actual = transforms.RemapLabels(src_dataset, mapping={
             'label1': 'label9', # rename & join with new label9 (from label3)
             'label2': 'label0', # rename & join with existing label0
-            'label3': 'label9', # rename & join with new label9 (form label1)
+            'label3': 'label9', # rename & join with new label9 (from label1)
             'label4': '', # delete the label and associated annotations
             # 'label5' - unchanged
         }, default='keep')
