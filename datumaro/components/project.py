@@ -20,6 +20,8 @@ import unittest.mock
 import networkx as nx
 import ruamel.yaml as yaml
 
+import subprocess
+
 from datumaro.components.config import Config
 from datumaro.components.config_model import (
     BuildStage, BuildTarget, Model, PipelineConfig, ProjectConfig,
@@ -1220,7 +1222,7 @@ class DvcWrapper:
 
         # Avoid calling an extra process. Improves call performance and
         # removes an extra console window on Windows.
-        os.environ[self.module().env.DVC_NO_ANALYTICS] = '1'
+        os.environ['DVC_NO_ANALYTICS'] = '1'
 
         with ExitStack() as es:
             es.callback(os.chdir, os.getcwd()) # restore cd after DVC
@@ -1233,7 +1235,7 @@ class DvcWrapper:
             log.debug("Calling DVC main with args: %s", args)
 
             logs = es.enter_context(catch_logs('dvc'))
-            retcode = self.module().main.main(args)
+            retcode = subprocess.call(['dvc'] + args)
 
         logs = logs.getvalue()
         if retcode != 0:
