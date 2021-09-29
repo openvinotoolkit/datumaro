@@ -49,6 +49,7 @@ _RE_INVALID_PATH_COMPONENT = re.compile(r'''
 
 @attrs(auto_attribs=True)
 class UnsupportedSubsetNameError(DatasetError):
+    item_id: str
     subset: str
 
     def __str__(self):
@@ -57,6 +58,7 @@ class UnsupportedSubsetNameError(DatasetError):
 
 @attrs(auto_attribs=True)
 class UnsupportedBoxIdError(DatasetError):
+    item_id: str
     box_id: str
 
     def __str__(self):
@@ -65,6 +67,7 @@ class UnsupportedBoxIdError(DatasetError):
 
 @attrs(auto_attribs=True)
 class UnsupportedMaskPathError(DatasetError):
+    item_id: str
     mask_path: str
 
     def __str__(self):
@@ -275,7 +278,8 @@ class OpenImagesExtractor(Extractor):
                     subset = image_description['Subset']
 
                     if _RE_INVALID_PATH_COMPONENT.fullmatch(subset):
-                        raise UnsupportedSubsetNameError(item_id=image_id, subset=subset)
+                        raise UnsupportedSubsetNameError(
+                            item_id=image_id, subset=subset)
 
                     image_path = image_paths_by_id.get(image_id)
 
@@ -453,7 +457,8 @@ class OpenImagesExtractor(Extractor):
                     # the original box ID.
                     box_id = mask_description['BoxID']
                     if _RE_INVALID_PATH_COMPONENT.fullmatch(box_id):
-                        raise UnsupportedBoxIdError(item_id=item.id, box_id=box_id)
+                        raise UnsupportedBoxIdError(
+                            item_id=item.id, box_id=box_id)
                     attributes['box_id'] = box_id
 
                     group = 0
@@ -703,7 +708,8 @@ class OpenImagesConverter(Converter):
 
         for subset_name, subset in self._extractor.subsets().items():
             if _RE_INVALID_PATH_COMPONENT.fullmatch(subset_name):
-                raise UnsupportedSubsetNameError(item_id=next(iter(subset)).id, subset=subset)
+                raise UnsupportedSubsetNameError(
+                    item_id=next(iter(subset)).id, subset=subset)
 
             image_description_name = f'{subset_name}-images-with-rotation.csv'
 
