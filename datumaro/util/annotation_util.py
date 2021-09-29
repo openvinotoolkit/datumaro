@@ -235,10 +235,10 @@ def make_label_id_mapping(
     """
 
     source_labels = { id: label.name
-        for id, label in enumerate(src_labels or LabelCategories())
+        for id, label in enumerate(src_labels or ())
     }
     target_labels = { label.name: id
-        for id, label in enumerate(dst_labels or LabelCategories())
+        for id, label in enumerate(dst_labels or ())
     }
     id_mapping = { src_id: target_labels.get(src_label, fallback)
         for src_id, src_label in source_labels.items()

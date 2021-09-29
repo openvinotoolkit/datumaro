@@ -561,7 +561,7 @@ class RemapLabels(ItemTransform, CliPlugin):
     def transform_item(self, item):
         annotations = []
         for ann in item.annotations:
-            if getattr(ann, 'label') is not None:
+            if getattr(ann, 'label', None) is not None:
                 conv_label = self._map_id(ann.label)
                 if conv_label is not None:
                     annotations.append(ann.wrap(label=conv_label))
@@ -626,7 +626,7 @@ class ProjectLabels(ItemTransform):
     def transform_item(self, item):
         annotations = []
         for ann in item.annotations:
-            if getattr(ann, 'label') is not None:
+            if getattr(ann, 'label', None) is not None:
                 conv_label = self._map_id(ann.label)
                 if conv_label is not None:
                     annotations.append(ann.wrap(label=conv_label))
