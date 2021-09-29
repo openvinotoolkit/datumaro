@@ -36,13 +36,14 @@ flowchart LR
   d====str7[filter]:::filltwoclass
   d====str8[diff]:::fillthreeclass
   d====str9[merge]:::fillthreeclass
-  d====str10[validate]:::fillthreeclass
-  d====str11[explain]:::fillthreeclass
-  d====str12[stats]:::fillthreeclass
-  d====str13[commit]:::fillfourclass
-  d====str14[checkout]:::fillfourclass
-  d====str15[status]:::fillfourclass
-  d====str16[log]:::fillfourclass
+  d====str10[patch]:::fillthreeclass
+  d====str11[validate]:::fillthreeclass
+  d====str12[explain]:::fillthreeclass
+  d====str13[stats]:::fillthreeclass
+  d====str14[commit]:::fillfourclass
+  d====str15[checkout]:::fillfourclass
+  d====str16[status]:::fillfourclass
+  d====str17[log]:::fillfourclass
 
   classDef nofillclass fill-opacity:0;
   classDef hideclass fill-opacity:0,stroke-opacity:0;

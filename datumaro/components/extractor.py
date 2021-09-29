@@ -292,7 +292,7 @@ class Transform(ExtractorBase, CliPlugin):
     def wrap_item(item, **kwargs):
         return item.wrap(**kwargs)
 
-    def __init__(self, extractor):
+    def __init__(self, extractor: IExtractor):
         super().__init__()
 
         self._extractor = extractor

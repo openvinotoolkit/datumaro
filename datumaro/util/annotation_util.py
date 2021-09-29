@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 from itertools import groupby
+from typing import Callable, Dict, Optional, Tuple
 
 import numpy as np
 
@@ -214,12 +215,30 @@ def smooth_line(points, segments):
     return new_points, step
 
 def make_label_id_mapping(
-        src_labels: LabelCategories, dst_labels: LabelCategories, fallback=0):
+        src_labels: LabelCategories, dst_labels: LabelCategories,
+        fallback: int = 0) \
+        -> Tuple[
+            Callable[[int], Optional[int]],
+            Dict[int, int],
+            Dict[int, str],
+            Dict[int, str]
+        ]:
+    """
+    Maps label ids from source to destination. Fallback is used for missing
+    labels.
+
+    Returns:
+      function to map labels: src id -> dst id
+      dict: src id -> dst id
+      dict: src id -> src label
+      dict: dst id -> dst label
+    """
+
     source_labels = { id: label.name
-        for id, label in enumerate(src_labels or LabelCategories().items)
+        for id, label in enumerate(src_labels or ())
     }
     target_labels = { label.name: id
-        for id, label in enumerate(dst_labels or LabelCategories().items)
+        for id, label in enumerate(dst_labels or ())
     }
     id_mapping = { src_id: target_labels.get(src_label, fallback)
         for src_id, src_label in source_labels.items()

@@ -195,11 +195,20 @@ Extra options for exporting to COCO format:
 - `--crop-covered` allow to crop covered segments so that background objects
   segmentation was more accurate (by default `False`)
 - `--allow-attributes ALLOW_ATTRIBUTES` allow export of attributes
-  (by default `True`)
+  (by default `True`). The parameter enables or disables writing
+  the custom annotation attributes to the "attributes" annotation
+  field. This field is an extension to the original COCO format
 - `--reindex REINDEX` allow to assign new indices to images and annotations,
-  useful to avoid merge conflicts (by default `False`)
+  useful to avoid merge conflicts (by default `False`).
+  This option allows to control if the images and
+  annotations must be given new indices. It can be useful, when
+  you want to preserve the original indices in the produced dataset.
+  Consider having this option enabled when converting from other formats
+  or merging datasets to avoid conflicts
 - `--merge-images` allow to save all images into a single directory
-  (by default `False`)
+  (by default `False`). The parameter controls the output directory for
+  images. When enabled, the dataset images are saved into a single
+  directory, otherwise they are saved in separate directories by subsets.
 - `--tasks TASKS` allow to specify tasks for export dataset,
   by default Datumaro uses all tasks. Example:
 
