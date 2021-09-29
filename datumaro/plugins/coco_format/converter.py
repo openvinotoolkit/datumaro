@@ -531,11 +531,12 @@ class CocoConverter(Converter):
             The '--reindex' option allows to control if the images and
             annotations must be given new indices. It can be useful, when
             you want to preserve the original indices in the produced dataset.
-            Consider enabling this option when converting from other formats.|n
+            Consider having this option enabled when converting from other
+            formats.|n
             |n
             The '--allow-attributes' parameter enables or disables writing
-            the custom annotation attributes in the "attributes" annotation
-            field. This section is an extension to the original COCO format.|n
+            the custom annotation attributes to the "attributes" annotation
+            field. This field is an extension to the original COCO format.|n
             |n
             The '--merge-images' parameter controls the output directory for
             images. When enabled, the dataset images are saved into a single
