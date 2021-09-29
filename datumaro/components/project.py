@@ -1140,11 +1140,7 @@ class DvcWrapper:
     @staticmethod
     def module():
         try:
-            import dvc
-            import dvc.env
-            import dvc.main
-            import dvc.repo
-            return dvc
+            pass
         except ModuleNotFoundError as e:
             raise ModuleNotFoundError("Can't import the 'dvc' package. "
                 "Make sure DVC is installed, or install it with "
@@ -1159,22 +1155,17 @@ class DvcWrapper:
 
     def __init__(self, project_dir):
         self._project_dir = project_dir
-        self.repo = None
-
-        if osp.isdir(project_dir) and osp.isdir(self._dvc_dir()):
-            with logging_disabled():
-                self.repo = self.module().repo.Repo(project_dir)
+        self._initialized = osp.isdir(project_dir) and osp.isdir(self._dvc_dir())
 
     @property
     def initialized(self):
-        return self.repo is not None
+        return self._initialized
 
     def init(self):
         if self.initialized:
             return
 
-        with logging_disabled():
-            self.repo = self.module().repo.Repo.init(self._project_dir)
+        self._exec(['init'])
 
         repo_dir = osp.join(self._project_dir, '.dvc')
         _update_ignore_file([osp.join(repo_dir, 'plots')],
@@ -1183,9 +1174,7 @@ class DvcWrapper:
         )
 
     def close(self):
-        if self.repo:
-            self.repo.close()
-            self.repo = None
+        pass
 
     def __del__(self):
         with suppress(Exception):
@@ -1217,28 +1206,23 @@ class DvcWrapper:
                 args.extend(paths)
         self._exec(args)
 
-    def _exec(self, args, hide_output=True, answer_on_input='y'):
+    def _exec(self, args, hide_output=True):
         args = ['--cd', self._project_dir] + args
 
-        # Avoid calling an extra process. Improves call performance and
-        # removes an extra console window on Windows.
-        os.environ['DVC_NO_ANALYTICS'] = '1'
+        # Avoid calling an extra process for telemetry. Improves call
+        # performance and removes an extra console window on Windows.
+        env = dict(os.environ)
+        env['DVC_NO_ANALYTICS'] = '1'
 
-        with ExitStack() as es:
-            es.callback(os.chdir, os.getcwd()) # restore cd after DVC
+        log.debug("Calling DVC with args: %s", args)
 
-            if answer_on_input is not None:
-                def _input(*args): return answer_on_input
-                es.enter_context(unittest.mock.patch(
-                    'dvc.prompt.input', new=_input))
+        result = subprocess.run(['dvc'] + args,
+            universal_newlines=True,
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+            check=False, env=env)
 
-            log.debug("Calling DVC main with args: %s", args)
-
-            logs = es.enter_context(catch_logs('dvc'))
-            retcode = subprocess.call(['dvc'] + args)
-
-        logs = logs.getvalue()
-        if retcode != 0:
+        logs = result.stdout
+        if result.returncode != 0:
             raise self.DvcError(logs)
         if not hide_output:
             print(logs)
