@@ -613,8 +613,11 @@ class ProjectLabels(ItemTransform):
             self._categories[AnnotationType.points] = dst_point_cat
 
     def _make_label_id_map(self, src_label_cat, dst_label_cat):
-        self._map_id = lambda src_id: \
-            dst_label_cat.find(src_label_cat[src_id].name)[0]
+        id_mapping = {
+            src_id: dst_label_cat.find(src_label_cat[src_id].name)[0]
+            for src_id in range(len(src_label_cat))
+        }
+        self._map_id = lambda src_id: id_mapping.get(src_id, None)
         self._categories[AnnotationType.label] = dst_label_cat
 
     def categories(self):
