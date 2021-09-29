@@ -76,6 +76,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/450>)
 - Importing of Open Images datasets without image data
   (<https://github.com/openvinotoolkit/datumaro/pull/463>)
+- Return value type in `Dataset.is_modified`
+  (<https://github.com/openvinotoolkit/datumaro/pull/401>)
+- Remapping of secondary categories in `RemapLabels`
+  (<https://github.com/openvinotoolkit/datumaro/pull/401>)
 
 ### Security
 - TBD
