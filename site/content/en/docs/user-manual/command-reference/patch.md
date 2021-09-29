@@ -9,8 +9,8 @@ Updates items of the first dataset with items from the second one.
 
 By default, datasets are updated in-place. The `-o/--output-dir`
 option can be used to specify another output directory. When
-updating inplace, use the `--overwrite` parameter along with the
-`--save-images` export option (inplace updates fail by default
+updating in-place, use the `--overwrite` parameter along with the
+`--save-images` export option (in-place updates fail by default
 to prevent data loss).
 
 Unlike the regular project [data source joining](/docs/developer_manual/#merging),
@@ -27,7 +27,7 @@ and after the `--` separator. Particularly, this is useful to include
 images in the output dataset with `--save-images`.
 
 This command can be applied to the current project targets or
-arbitrary datasets outside a project. Note that if the destination
+arbitrary datasets outside a project. Note that if the target dataset
 is read-only (e.g. if it is a project, stage or a cache entry),
 the output directory must be provided.
 
@@ -57,7 +57,7 @@ Parameters:
   (use `-- -h` for help). Must be specified after the main command arguments.
 
 Examples:
-- Update a VOC-like dataset with a COCO-like annotations:
+- Update a VOC-like dataset with COCO-like annotations:
 ``` bash
 datum patch --overwrite dataset1/:voc dataset2/:coco -- --save-images
 ```
@@ -67,7 +67,7 @@ datum patch --overwrite dataset1/:voc dataset2/:coco -- --save-images
 datum patch -o patched_proj1/ proj1/ proj2/
 ```
 
-- Update the "source1" the current project with a dataset:
+- Update the "source1" source in the current project with a dataset:
 ``` bash
 datum patch -p proj/ --overwrite source1 path/to/dataset2:coco
 ```

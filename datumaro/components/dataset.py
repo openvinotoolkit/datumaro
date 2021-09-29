@@ -716,7 +716,7 @@ class Dataset(IDataset):
             source: Union[DatasetPatch, IExtractor, Iterable[DatasetItem]]) \
                 -> 'Dataset':
         """
-        Updates items of the current dataset from other dataset or an
+        Updates items of the current dataset from another dataset or an
         iterable (the source). Items from the source overwrite matching
         items in the current dataset. Unmatched items are just appended.
 

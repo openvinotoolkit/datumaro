@@ -22,8 +22,8 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         Updates items of the first dataset with items from the second one.
         By default, datasets are updated in-place. The '-o/--output-dir'
         option can be used to specify another output directory. When
-        updating inplace, use the '--overwrite' parameter along with the
-        '--save-images' export option (inplace updates fail by default
+        updating in-place, use the '--overwrite' parameter along with the
+        '--save-images' export option (in-place updates fail by default
         to prevent data loss).|n
         |n
         Unlike the regular project data source joining, the datasets are not
@@ -40,7 +40,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         images in the output dataset with '--save-images'.|n
         |n
         This command can be applied to the current project targets or
-        arbitrary datasets outside a project. Note that if the destination
+        arbitrary datasets outside a project. Note that if the target dataset
         is read-only (e.g. if it is a project, stage or a cache entry),
         the output directory must be provided.|n
         |n
@@ -61,13 +61,13 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         When not specified, the current project's working tree is used.|n
         |n
         Examples:|n
-        - Update a VOC-like dataset with a COCO-like annotations:|n
+        - Update a VOC-like dataset with COCO-like annotations:|n
         |s|s%(prog)s --overwrite dataset1/:voc dataset2/:coco -- --save-images|n
         |n
         - Generate a patched dataset, based on a project:|n
         |s|s%(prog)s -o patched_proj1/ proj1/ proj2/|n
         |n
-        - Update the "source1" the current project with a dataset:|n
+        - Update the "source1" source in the current project with a dataset:|n
         |s|s%(prog)s -p proj/ --overwrite source1 path/to/dataset2:coco|n
         |n
         - Generate a patched source from a previous revision and a dataset:|n
