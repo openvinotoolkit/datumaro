@@ -23,6 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/453>)
 - `patch` CLI command to patch datasets
   (<https://github.com/openvinotoolkit/datumaro/pull/401>)
+- `ProjectLabels` transform (library API only) to arrange dataset labels
+  for merging etc. (<https://github.com/openvinotoolkit/datumaro/pull/401>)
 
 ### Changed
 - A project can contain and manage multiple datasets instead of a single one.
@@ -48,8 +50,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Importer`s do not create `Project`s anymore and just return a list of
   extractor configurations
   (<https://github.com/openvinotoolkit/datumaro/pull/238>)
-- `ProjectLabels` transform (library API only) to arrange dataset labels
-  for merging etc. (<https://github.com/openvinotoolkit/datumaro/pull/401>)
 
 ### Deprecated
 - TBD
