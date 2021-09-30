@@ -223,7 +223,8 @@ class Importer(CliPlugin):
         if not path or not osp.exists(path):
             raise DatasetNotFoundError(path)
 
-        found_sources = self.find_sources_with_params(osp.normpath(path), **extra_params)
+        found_sources = self.find_sources_with_params(
+            osp.normpath(path), **extra_params)
         if not found_sources:
             raise DatasetNotFoundError(path)
 
