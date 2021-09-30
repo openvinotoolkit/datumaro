@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 from enum import Enum, auto
-from typing import Tuple, Union
+from typing import Iterator, Optional, Tuple, Union
 
 from attr import attrib, attrs
 import attr
@@ -101,13 +101,13 @@ class LabelCategories(Categories):
         self._indices[name] = index
         return index
 
-    def find(self, name: str):
+    def find(self, name: str) -> Tuple[Optional[int], Optional[Category]]:
         index = self._indices.get(name)
         if index is not None:
             return index, self.items[index]
         return index, None
 
-    def __getitem__(self, idx):
+    def __getitem__(self, idx) -> Category:
         return self.items[idx]
 
     def __contains__(self, value: Union[int, str]):
@@ -119,7 +119,7 @@ class LabelCategories(Categories):
     def __len__(self):
         return len(self.items)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Category]:
         return iter(self.items)
 
 @attrs
@@ -539,7 +539,7 @@ class PointsCategories(Categories):
     def __contains__(self, idx: int) -> bool:
         return idx in self.items
 
-    def __getitem__(self, idx: int) -> Tuple[int, int, int]:
+    def __getitem__(self, idx: int) -> Category:
         return self.items[idx]
 
     def __len__(self):
