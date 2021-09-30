@@ -913,7 +913,7 @@ class GitWrapper:
         with suppress(Exception):
             self.close()
 
-    def checkout(self, ref: str = None, dst_dir=None, clean=False, force=False):
+    def checkout(self, ref: str, dst_dir=None, clean=False, force=False):
         # If user wants to navigate to a head, we need to supply its object
         # insted of just a string. Otherwise, we'll get a detached head.
         try:
@@ -2222,8 +2222,10 @@ class Project:
         else:
             sources = set(sources)
 
+        rev = rev or 'HEAD'
+
         if sources:
-            rev_tree = self.get_rev(rev or 'HEAD')
+            rev_tree = self.get_rev(rev)
 
             # Check targets
             for s in sources:
