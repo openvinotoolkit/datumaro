@@ -7,7 +7,7 @@ import os.path as osp
 
 import numpy as np
 
-from datumaro.components.annotation import Bbox, Mask
+from datumaro.components.annotation import Bbox, Mask, LabelCategories
 from datumaro.components.extractor import (
     AnnotationType, DatasetItem, SourceExtractor,
 )
@@ -37,7 +37,16 @@ class _KittiExtractor(SourceExtractor):
         if self._task == KittiTask.segmentation:
             return self._load_categories_segmentation(path)
         elif self._task == KittiTask.detection:
-            return make_kitti_detection_categories()
+            return self._load_categories_detection(path)
+
+    def _load_categories_detection(self, path):
+        labels_list_path = osp.join(path, KittiPath.LABELS_LIST_FILE)
+        if osp.isfile(labels_list_path):
+            labels_cat = LabelCategories().from_iterable(
+                parse_label_map(labels_list_path).keys())
+            return {AnnotationType.label: labels_cat}
+        else:
+             return make_kitti_detection_categories()
 
     def _load_categories_segmentation(self, path):
         label_map = None

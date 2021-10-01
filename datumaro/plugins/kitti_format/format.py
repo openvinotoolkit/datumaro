@@ -75,6 +75,7 @@ class KittiPath:
     MASK_EXT = '.png'
 
     LABELMAP_FILE = 'label_colors.txt'
+    LABELS_LIST_FILE = 'labels.txt'
 
     DEFAULT_TRUNCATED = 0.0 # 0% truncated
     DEFAULT_OCCLUDED = 0    # fully visible
@@ -143,3 +144,8 @@ def write_label_map(path, label_map):
             else:
                 color_rgb = ''
             f.write('%s %s\n' % (color_rgb, label_name))
+
+def write_labels_list(path, labels):
+    with open(path, 'w', encoding='utf-8') as f:
+        for label in labels:
+            f.write('%s\n' % label)
