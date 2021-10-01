@@ -115,7 +115,8 @@ class KittiConverter(Converter):
 
                     # TODO: optimize second merging
                     compiled_instance_mask = CompiledMask.from_instance_masks(masks,
-                        instance_labels=[(m.label << 8) + m.id for m in masks])
+                        instance_labels=[(self._label_id_mapping(m.label) << 8) \
+                            + m.id for m in masks])
                     inst_path = osp.join(subset_name,
                         KittiPath.INSTANCES_DIR, item.id + KittiPath.MASK_EXT)
                     self.save_mask(osp.join(self._save_dir, inst_path),
