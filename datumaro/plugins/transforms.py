@@ -646,6 +646,24 @@ class ProjectLabels(ItemTransform):
                         new_id not in dst_mask_cat:
                     dst_mask_cat.colormap[new_id] = deepcopy(src_mask_cat[old_id])
 
+            # Generate new colors for new labels, keep old untouched
+            color_bank = mask_tools.generate_colormap(len(dst_mask_cat) + 1,
+                include_background=False)
+            existing_colors = set(dst_mask_cat.colormap.values())
+            for new_id, new_label in enumerate(dst_label_cat):
+                if new_label.name in src_label_cat:
+                    continue
+                if new_id in dst_mask_cat:
+                    continue
+
+                color = None
+                while not color or color in existing_colors:
+                    color = color_bank.pop(next(iter(color_bank)))
+
+                assert color
+                dst_mask_cat.colormap[new_id] = color
+                existing_colors.add(color)
+
             self._categories[AnnotationType.mask] = dst_mask_cat
 
         src_point_cat = src_categories.get(AnnotationType.points)
