@@ -85,8 +85,8 @@ class CelebaExtractor(SourceExtractor):
                     item_id, item_ann = self.split_annotation(line)
                     if len(name_attr) != len(item_ann):
                         continue
-                    for i in range(len(item_ann)):
-                            attr[name_attr[i]] = item_ann[i]
+                    for i, ann in enumerate(item_ann):
+                        attr[name_attr[i]] = ann
 
                     if item_id not in items:
                         items[item_id] = DatasetItem(id=item_id, image=images.get(item_id))
