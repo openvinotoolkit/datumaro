@@ -3,7 +3,6 @@ from functools import partial
 from unittest import TestCase
 import os.path as osp
 
-from attr import attributes
 import numpy as np
 
 from datumaro.components.annotation import (
