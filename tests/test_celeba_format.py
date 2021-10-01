@@ -15,7 +15,7 @@ DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets',
     'celeba_dataset')
 
 class CelebaImporterTest(TestCase):
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @mark_requirement(Requirements.DATUM_475)
     def test_can_import(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='000001', subset='train',
@@ -67,6 +67,6 @@ class CelebaImporterTest(TestCase):
 
         compare_datasets(self, expected_dataset, dataset, require_images=True)
 
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @mark_requirement(Requirements.DATUM_475)
     def test_can_detect(self):
         self.assertTrue(CelebaImporter.detect(DUMMY_DATASET_DIR))
