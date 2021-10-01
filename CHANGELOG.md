@@ -25,6 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/401>)
 - `ProjectLabels` transform (library API only) to arrange dataset labels
   for merging etc. (<https://github.com/openvinotoolkit/datumaro/pull/401>)
+- Import for CelebA dataset format.
+  (<https://github.com/openvinotoolkit/datumaro/pull/484>)
 
 ### Changed
 - A project can contain and manage multiple datasets instead of a single one.
