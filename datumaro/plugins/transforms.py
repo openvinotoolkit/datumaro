@@ -589,7 +589,9 @@ class ProjectLabels(ItemTransform):
     Updates or removes the corresponding annotations.|n
     |n
     Labels are matched by names (case dependent). Parent labels are only kept
-    if they are present in the resulting set of labels.|n
+    if they are present in the resulting set of labels. If new labels are
+    added, and the dataset has mask colors defined, new labels will obtain
+    generated colors.|n
     |n
     Useful for merging similar datasets, which labels needs to be aligned.|n
     |n
@@ -678,8 +680,6 @@ class ProjectLabels(ItemTransform):
                     dst_point_cat.items[new_id] = deepcopy(src_point_cat[old_id])
 
             self._categories[AnnotationType.points] = dst_point_cat
-
-        assert len(self._categories) == len(src_categories)
 
     def _make_label_id_map(self, src_label_cat, dst_label_cat):
         id_mapping = {
