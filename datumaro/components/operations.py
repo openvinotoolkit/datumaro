@@ -644,7 +644,7 @@ class IntersectMerge(MergingStrategy):
 
 @attrs(kw_only=True)
 class AnnotationMatcher:
-    _context = attrib(type=IntersectMerge, default=None)
+    _context: Optional[IntersectMerge] = attrib(default=None)
 
     def match_annotations(self, sources):
         raise NotImplementedError()
@@ -753,7 +753,7 @@ class MaskMatcher(_ShapeMatcher):
 
 @attrs(kw_only=True)
 class PointsMatcher(_ShapeMatcher):
-    sigma = attrib(type=list, default=None)
+    sigma: Optional[list] = attrib(default=None)
     instance_map = attrib(converter=dict)
 
     def distance(self, a, b):
@@ -1357,7 +1357,7 @@ def match_classes(a: CategoriesInfo, b: CategoriesInfo):
 
 @attrs
 class ExactComparator:
-    match_images = attrib(kw_only=True, type=bool, default=False)
+    match_images: bool = attrib(kw_only=True, default=False)
     ignored_fields = attrib(kw_only=True,
         factory=set, validator=default_if_none(set))
     ignored_attrs = attrib(kw_only=True,
@@ -1365,8 +1365,8 @@ class ExactComparator:
     ignored_item_attrs = attrib(kw_only=True,
         factory=set, validator=default_if_none(set))
 
-    _test = attrib(init=False, type=TestCase)
-    errors = attrib(init=False, type=list)
+    _test: TestCase = attrib(init=False)
+    errors: list = attrib(init=False)
 
     def __attrs_post_init__(self):
         self._test = TestCase()
