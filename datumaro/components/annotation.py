@@ -138,11 +138,8 @@ class MaskCategories(Categories):
             "0: (0, 0, 0)", which is typically used as a background color.
         """
         from datumaro.util.mask_tools import generate_colormap
-        colormap = generate_colormap(size + (not include_background))
-        if not include_background:
-            colormap.pop(0)
-            colormap = { k - 1: v for k, v in colormap.items() }
-        return cls(colormap)
+        return cls(generate_colormap(size,
+            include_background=include_background))
 
     colormap = attrib(factory=dict, validator=default_if_none(dict))
     _inverse_colormap = attrib(default=None,

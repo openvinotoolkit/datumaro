@@ -9,12 +9,19 @@ import numpy as np
 from datumaro.util.image import lazy_image, load_image
 
 
-def generate_colormap(length=256):
+def generate_colormap(length=256, include_background=True):
     """
     Generates colors using PASCAL VOC algorithm.
 
+    If include_background is True, the result will include the item
+        "0: (0, 0, 0)", which is typically used as a background color.
+        Otherwise, indices will start from 0, but (0, 0, 0) is not included.
+
     Returns index -> (R, G, B) mapping.
     """
+
+    offset = int(not include_background)
+    length = length + offset
 
     def get_bit(number, index):
         return (number >> index) & 1
@@ -28,7 +35,7 @@ def generate_colormap(length=256):
         indices >>= 3
 
     return {
-        id: tuple(color) for id, color in enumerate(colormap)
+        id: tuple(color) for id, color in enumerate(colormap[offset:])
     }
 
 def invert_colormap(colormap):
