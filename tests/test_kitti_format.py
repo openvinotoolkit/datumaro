@@ -2,6 +2,7 @@ from collections import OrderedDict
 from functools import partial
 from unittest import TestCase
 import os.path as osp
+from attr import attributes
 
 import numpy as np
 
@@ -13,7 +14,7 @@ from datumaro.components.extractor import DatasetItem, Extractor
 from datumaro.plugins.kitti_format.converter import KittiConverter
 from datumaro.plugins.kitti_format.format import (
     KittiLabelMap, KittiPath, KittiTask, make_kitti_categories,
-    make_kitti_detection_categories, parse_label_map, write_label_map,
+    make_kitti_detection_categories, parse_label_map, write_label_map, write_labels_list,
 )
 from datumaro.plugins.kitti_format.importer import (
     KittiDetectionImporter, KittiImporter, KittiSegmentationImporter,
@@ -445,7 +446,7 @@ class KittiConverterTest(TestCase):
                     DatasetItem(id='a', image=np.ones((5, 5, 3)),
                         annotations=[
                             Mask(image=np.array([[1, 0, 0, 0, 0]] * 5),
-                                label=0, attributes={'is_crowd':True}),
+                                label=0, attributes={'is_crowd': True}),
                             Mask(image=np.array([[0, 1, 1, 1, 1]] * 5),
                                 label=1, attributes={'is_crowd': True}),
                         ]
@@ -477,3 +478,68 @@ class KittiConverterTest(TestCase):
             self._test_save_and_load(TestExtractor(),
                 partial(KittiConverter.convert, tasks=KittiTask.detection,
                     save_images=False), test_dir)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_save_and_load_segmentation_with_unordered_labels(self):
+        source_label_map = {
+            'background': (0, 0, 0),
+            'label_1': (10, 10, 10),
+            'label_0': (20, 20, 20)
+        }
+
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id='a', image=np.ones((1, 5, 3)),
+                annotations=[
+                    Mask(image=np.array([[1, 0, 0, 0, 0]]),
+                        attributes={'is_crowd': False}, label=0, id=1),
+                    Mask(image=np.array([[0, 1, 0, 0, 0]]),
+                        attributes={'is_crowd': False}, label=1, id=1),
+                    Mask(image=np.array([[0, 0, 1, 1, 1]]),
+                        attributes={'is_crowd': False}, label=2, id=2)
+                ]
+            )
+        ], categories=make_kitti_categories(source_label_map))
+
+        expected_label_map = {
+            'background': (0, 0, 0),
+            'label_0': (20, 20, 20),
+            'label_1': (10, 10, 10)
+        }
+
+        expected_dataset = Dataset.from_iterable([
+            DatasetItem(id='a', image=np.ones((1, 5, 3)),
+                annotations=[
+                    Mask(image=np.array([[1, 0, 0, 0, 0]]),
+                        attributes={'is_crowd': False}, label=0, id=1),
+                    Mask(image=np.array([[0, 1, 0, 0, 0]]),
+                        attributes={'is_crowd': False}, label=2, id=1),
+                    Mask(image=np.array([[0, 0, 1, 1, 1]]),
+                        attributes={'is_crowd': False}, label=1, id=2)
+                ]
+            )
+        ], categories=make_kitti_categories(expected_label_map))
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(source_dataset,
+                partial(KittiConverter.convert, tasks=KittiTask.segmentation,
+                    label_map=source_label_map), test_dir,
+                    target_dataset=expected_dataset)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_save_and_load_detection_with_source_labels(self):
+        labels = ['label_0', 'label_1']
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id='a', image=np.ones((5, 5, 3)),
+                annotations=[
+                    Bbox(1.0, 1.0, 2.0, 2.0, label=0, id=0,
+                        attributes={'occluded': False, 'truncated': False}),
+                    Bbox(0.0, 0.0, 1.0, 1.0, label=1, id=1,
+                        attributes={'occluded': False, 'truncated': False})
+                ]
+            )
+        ], categories=labels)
+
+        with TestDir() as test_dir:
+            write_labels_list(osp.join(test_dir, KittiPath.LABELS_LIST_FILE), labels)
+            self._test_save_and_load(source_dataset,
+                partial(KittiConverter.convert, tasks=KittiTask.detection), test_dir)
