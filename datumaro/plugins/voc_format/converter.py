@@ -335,6 +335,16 @@ class VocConverter(Converter):
                         colormap=VocInstColormap)
 
                     segm_list[item.id] = True
+                elif not masks and self._patch:
+                    cls_mask_path = osp.join(self._segm_dir,
+                        item.id + VocPath.SEGM_EXT)
+                    if osp.isfile(cls_mask_path):
+                        os.remove(cls_mask_path)
+
+                    inst_mask_path = osp.join(self._inst_dir,
+                        item.id + VocPath.SEGM_EXT)
+                    if osp.isfile(inst_mask_path):
+                        os.remove(inst_mask_path)
 
                 if len(item.annotations) == 0:
                     clsdet_list[item.id] = None
@@ -419,7 +429,7 @@ class VocConverter(Converter):
                     if item in action_list:
                         _write_item(f, item, action_list[item], action)
                     elif item in lines:
-                        f.writelines(lines[item])
+                        print(item, *lines[item], file=f)
 
     def save_class_lists(self, subset_name, class_lists):
         def _write_item(f, item, item_labels):
@@ -450,7 +460,7 @@ class VocConverter(Converter):
                     if item in class_lists:
                         _write_item(f, item, class_lists[item])
                     elif item in lines:
-                        f.writelines(lines[item])
+                        print(item, *lines[item], file=f)
 
     def save_clsdet_lists(self, subset_name, clsdet_list):
         os.makedirs(self._cls_subsets_dir, exist_ok=True)
@@ -510,7 +520,7 @@ class VocConverter(Converter):
                 if item in layout_list:
                     _write_item(f, item, layout_list[item])
                 elif item in lines:
-                    f.writelines(lines[item])
+                    print(item, *lines[item], file=f)
 
     def save_segm(self, path, mask, colormap=None):
         if self._apply_colormap:
@@ -633,7 +643,15 @@ class VocConverter(Converter):
         conv._patch = patch
         conv.apply()
 
-        # Find images that needs to be removed
+        for filename in os.listdir(conv._cls_subsets_dir):
+            if '_' not in filename or not filename.endswith('.txt'):
+                continue
+
+            label, subset = osp.splitext(filename)[0].split('_', maxsplit=1)
+            if label not in conv._label_map or subset not in dataset.subsets():
+                os.remove(osp.join(conv._cls_subsets_dir, filename))
+
+        # Find images that need to be removed
         # images from different subsets are stored in the common directory
         # Avoid situations like:
         # (a, test): added
