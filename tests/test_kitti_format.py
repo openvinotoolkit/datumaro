@@ -2,8 +2,8 @@ from collections import OrderedDict
 from functools import partial
 from unittest import TestCase
 import os.path as osp
-from attr import attributes
 
+from attr import attributes
 import numpy as np
 
 from datumaro.components.annotation import (
@@ -14,7 +14,8 @@ from datumaro.components.extractor import DatasetItem, Extractor
 from datumaro.plugins.kitti_format.converter import KittiConverter
 from datumaro.plugins.kitti_format.format import (
     KittiLabelMap, KittiPath, KittiTask, make_kitti_categories,
-    make_kitti_detection_categories, parse_label_map, write_label_map, write_labels_list,
+    make_kitti_detection_categories, parse_label_map, write_label_map,
+    write_labels_list,
 )
 from datumaro.plugins.kitti_format.importer import (
     KittiDetectionImporter, KittiImporter, KittiSegmentationImporter,
