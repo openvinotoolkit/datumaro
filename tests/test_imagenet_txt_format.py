@@ -140,6 +140,8 @@ DUMMY_DATASET_DIR = osp.join(
     osp.dirname(__file__), 'assets/imagenet_txt_dataset/basic')
 DUMMY_DATASET_WITH_CUSTOM_LABELS_DIR = osp.join(
     osp.dirname(__file__), 'assets/imagenet_txt_dataset/custom_labels')
+DUMMY_DATASET_WITH_NO_LABELS_DIR = osp.join(
+    osp.dirname(__file__), 'assets/imagenet_txt_dataset/no_labels')
 
 class ImagenetTxtImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -176,7 +178,21 @@ class ImagenetTxtImporterTest(TestCase):
 
         dataset = Dataset.import_from(
             DUMMY_DATASET_WITH_CUSTOM_LABELS_DIR, 'imagenet_txt',
-            labels='synsets-alt.txt')
+            labels_file='synsets-alt.txt')
+
+        compare_datasets(self, expected_dataset, dataset, require_images=True)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_import_with_no_labels_file(self):
+        expected_dataset = Dataset.from_iterable([
+            DatasetItem(id='1', subset='train',
+                annotations=[Label(4)]
+            ),
+        ], categories=['class-%s' % label for label in range(5)])
+
+        dataset = Dataset.import_from(
+            DUMMY_DATASET_WITH_NO_LABELS_DIR, 'imagenet_txt',
+            labels_source='generate')
 
         compare_datasets(self, expected_dataset, dataset, require_images=True)
 
