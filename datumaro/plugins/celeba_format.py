@@ -13,10 +13,12 @@ from datumaro.util.image import find_images
 
 class CelebaPath:
     IMAGES_DIR = 'Img/img_celeba'
+    IMAGES_ALIGN_DIR = 'Img/img_align_celeba'
     LABELS_FILE = 'identity_CelebA'
     BBOXES_FILE = 'list_bbox_celeba.txt'
     ATTRS_FILE = 'list_attr_celeba.txt'
     LANDMARKS_FILE = 'list_landmarks_celeba.txt'
+    LANDMARKS_ALIGN_FILE = 'list_landmarks_align_celeba.txt'
     SUBSETS_FILE = 'Eval/list_eval_partition.txt'
     SUBSETS = {'0': 'train', '1': 'val', '2': 'test'}
 
@@ -35,12 +37,14 @@ class CelebaExtractor(SourceExtractor):
         items = {}
 
         image_dir = osp.join(osp.dirname(self._anno_dir), CelebaPath.IMAGES_DIR)
+        if not osp.isdir(image_dir):
+            image_dir = osp.join(osp.dirname(self._anno_dir), CelebaPath.IMAGES_ALIGN_DIR)
         if osp.isdir(image_dir):
             images = {
                 osp.splitext(osp.relpath(p, image_dir))[0].replace('\\', '/'): p
                 for p in find_images(image_dir, recursive=True)
             }
-        else:
+        elif osp.isdir(osp.join(osp.dirname(self._anno_dir), CelebaPath.IMAGES_DIR)):
             images = {}
 
         label_categories = self._categories[AnnotationType.label]
@@ -93,6 +97,8 @@ class CelebaExtractor(SourceExtractor):
                     items[item_id].attributes = attr
 
         landmark_path = osp.join(self._anno_dir, CelebaPath.LANDMARKS_FILE)
+        if not osp.isfile(landmark_path):
+            landmark_path = osp.join(self._anno_dir, CelebaPath.LANDMARKS_ALIGN_FILE)
         if osp.isfile(landmark_path):
             with open(landmark_path, encoding='utf-8') as f:
                 for line in f:

@@ -64,14 +64,39 @@ dataset/
         └── ...
 ```
 
-`identity_CelebA.txt` file contains labels.
-`list_attr_celeba.txt` file contains attributes.
-`list_bbox_celeba.txt` file contains bounding boxes.
-`list_landmarks_celeba.txt` file contains landmarks.
-`list_eval_partition.txt` file contains subsets.
+`identity_CelebA.txt` file contains labels (required).
+`list_attr_celeba.txt` file contains attributes (optional).
+`list_bbox_celeba.txt` file contains bounding boxes (optional).
+`list_landmarks_celeba.txt` file contains landmarks (optional).
+`list_eval_partition.txt` file contains subsets (optional).
 
 The original CelebA dataset stores images in .7z archive. The archive
 needs to be unpacked before importing.
+
+It is not possible to import both regular images and images with alignment.
+If you need to work with aligned images and landmarks, you need to remove
+the usual images and annotations to them from the folder.\
+
+CelebA align dataset directory should have the following structure:
+
+<!--lint disable fenced-code-flag-->
+```
+dataset/
+├── Anno
+│   ├── identity_CelebA.txt
+│   ├── list_attr_celeba.txt
+│   └── list_landmarks_align_celeba.txt
+├── Eval
+│   └── list_eval_partition.txt
+└── Img
+    └── img_align_celeba
+        ├── 000001.jpg
+        ├── 000002.jpg
+        ├── 000003.jpg
+        ├── 000004.jpg
+        ├── 000005.jpg
+        └── ...
+```
 
 ## Export to other formats
 
