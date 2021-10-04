@@ -38,8 +38,16 @@ CORE_REQUIREMENTS_FILE = 'requirements-core.txt'
 DEFAULT_REQUIREMENTS_FILE = 'requirements-default.txt'
 
 def parse_requirements(filename=CORE_REQUIREMENTS_FILE):
-    with open(filename) as fh:
-        return fh.readlines()
+    reqs = []
+
+    with open(filename) as f:
+        for line in f:
+            line = line.strip()
+            req = line.split('@', maxsplit=1)[0]
+            if req:
+                reqs.append(req)
+
+    return reqs
 
 CORE_REQUIREMENTS = parse_requirements(CORE_REQUIREMENTS_FILE)
 if strtobool(os.getenv('DATUMARO_HEADLESS', '0').lower()):
@@ -49,8 +57,8 @@ else:
 
 DEFAULT_REQUIREMENTS = parse_requirements(DEFAULT_REQUIREMENTS_FILE)
 
-with open('README.md', 'r') as fh:
-    long_description = fh.read()
+with open('README.md', 'r') as f:
+    long_description = f.read()
 
 setuptools.dist.Distribution().fetch_build_eggs([
     'Cython>=0.27.3' # required for pycocotools and others, if need to compile
