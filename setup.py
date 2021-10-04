@@ -84,4 +84,7 @@ setuptools.setup(
         ],
     },
     include_package_data=True,
+    dependency_links=[
+        'git+https://github.com/openvinotoolkit/telemetry.git@master#egg=openvino-telemetry'
+    ]
 )
