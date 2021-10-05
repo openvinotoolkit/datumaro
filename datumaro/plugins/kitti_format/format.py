@@ -64,7 +64,6 @@ class KittiPath:
     MASK_EXT = '.png'
 
     LABELMAP_FILE = 'label_colors.txt'
-    LABELS_LIST_FILE = 'labels.txt'
 
     DEFAULT_TRUNCATED = 0.0 # 0% truncated
     DEFAULT_OCCLUDED = 0    # fully visible

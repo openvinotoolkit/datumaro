@@ -14,8 +14,7 @@ from datumaro.components.extractor import (
 from datumaro.util.image import find_images, load_image
 
 from .format import (
-    KittiLabelMap, KittiPath, KittiTask, make_kitti_categories,
-    parse_label_map,
+    KittiLabelMap, KittiPath, KittiTask, make_kitti_categories, parse_label_map,
 )
 
 

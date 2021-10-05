@@ -20,8 +20,8 @@ from datumaro.util.image import save_image
 from datumaro.util.mask_tools import paint_mask
 
 from .format import (
-    KittiLabelMap, KittiPath, KittiTask, make_kitti_categories,
-    parse_label_map, write_label_map,
+    KittiLabelMap, KittiPath, KittiTask, make_kitti_categories, parse_label_map,
+    write_label_map,
 )
 
 

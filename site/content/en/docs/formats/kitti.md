@@ -49,7 +49,6 @@ KITTI segmentation dataset directory should have the following structure:
 ```
 └─ Dataset/
     ├── label_colors.txt # optional, color map for non-original segmentation labels
-    ├── labels.txt # optional, file for non-original detection labels
     ├── testing/
     │   └── image_2/
     │       ├── <name_1>.<img_ext>
