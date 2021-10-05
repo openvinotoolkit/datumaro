@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 from itertools import groupby
-from typing import Callable, Dict, Optional, Tuple
+from typing import Callable, Dict, Literal, Optional, Tuple, Union
 
 import numpy as np
 
@@ -74,7 +74,7 @@ def nms(segments, iou_thresh=0.5):
 
     return predictions
 
-def bbox_iou(a, b):
+def bbox_iou(a, b) -> Union[Literal[-1], float]:
     """
     IoU computations for simple cases with bounding boxes
     """
@@ -106,8 +106,8 @@ def segment_iou(a, b):
     """
     from pycocotools import mask as mask_utils
 
-    a_bbox = a.get_bbox()
-    b_bbox = b.get_bbox()
+    a_bbox = list(a.get_bbox())
+    b_bbox = list(b.get_bbox())
 
     is_bbox = AnnotationType.bbox in [a.type, b.type]
     if is_bbox:
