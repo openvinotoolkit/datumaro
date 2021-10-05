@@ -737,6 +737,33 @@ class ProjectTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
+    def test_can_checkout_with_force(self):
+        test_dir = scope_add(TestDir())
+        source_url = osp.join(test_dir, 'test_repo')
+        dataset = Dataset.from_iterable([
+            DatasetItem(1, annotations=[Label(0)]),
+            DatasetItem(2, annotations=[Label(1)]),
+        ], categories=['a', 'b'])
+        dataset.save(source_url)
+
+        project = scope_add(Project.init(osp.join(test_dir, 'proj')))
+        project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
+        project.import_source('s2', url=source_url, format=DEFAULT_FORMAT)
+        project.commit("Commit 1")
+        project.remove_source('s1', keep_data=False) # remove s1 from tree
+        shutil.rmtree(project.source_data_dir('s2')) # modify s2 "manually"
+
+        project.checkout(force=True)
+
+        compare_dirs(self, source_url, project.source_data_dir('s1'))
+        compare_dirs(self, source_url, project.source_data_dir('s2'))
+        with open(osp.join(test_dir, 'proj', '.gitignore')) as f:
+            lines = [line.strip() for line in f]
+            self.assertTrue('/s1' in lines)
+            self.assertTrue('/s2' in lines)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
     def test_can_checkout_sources_from_revision(self):
         test_dir = scope_add(TestDir())
         source_url = osp.join(test_dir, 'test_repo')

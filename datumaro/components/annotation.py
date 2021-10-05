@@ -378,7 +378,7 @@ class PolyLine(_Shape):
 @attrs(init=False)
 class Cuboid3d(Annotation):
     _type = AnnotationType.cuboid_3d
-    _points = attrib(type=list, default=None)
+    _points: list = attrib(default=None)
     label = attrib(converter=attr.converters.optional(int),
         default=None, kw_only=True)
 
@@ -552,7 +552,7 @@ class Points(_Shape):
 
     _type = AnnotationType.points
 
-    visibility = attrib(type=list, default=None)
+    visibility: list = attrib(default=None)
     @visibility.validator
     def _visibility_validator(self, attribute, visibility):
         if visibility is None:

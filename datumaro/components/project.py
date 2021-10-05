@@ -2206,10 +2206,17 @@ class Project:
             sources: Union[None, str, Iterable[str]] = None, *,
             force: bool = False):
         """
-        Copies tree and objects from cache to working tree.
+        Copies tree and objects from the cache to the working tree.
 
-        Sets HEAD to the specified revision, unless targets specified.
-        When sources specified, only copies objects from cache to working tree.
+        Sets HEAD to the specified revision, unless sources specified.
+        When sources specified, only copies objects from the cache to
+        the working tree. When no revision and no sources is specified,
+        restores the sources from the current revision.
+
+        By default, uses the current (HEAD) revision.
+
+        Options:
+        - force (bool) - ignore unsaved changes. By default, an error is raised
         """
 
         if self.readonly:
