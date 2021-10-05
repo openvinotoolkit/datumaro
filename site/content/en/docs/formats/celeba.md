@@ -8,7 +8,7 @@ weight: 1
 ## Format specification
 
 The original CelebA dataset is available
-[here](https://drive.google.com/drive/folders/0B7EVK8r0v71pWEZsZE9oNnFzTm8?resourcekey=0-5BR16BdXnb8hVj6CNHKzLg).
+[here](https://mmlab.ie.cuhk.edu.hk/projects/CelebA.html).
 
 Supported annotation types:
 - `Label`
@@ -17,17 +17,17 @@ Supported annotation types:
 
 Supported attributes: `5_o_Clock_Shadow`, `Arched_Eyebrows`, `Attractive`,
 `Bags_Under_Eyes`, `Bald`, `Bangs`, `Big_Lips`, `Big_Nose`, `Black_Hair`,
-`Blond_Hair`, `Blurry Brown_Hair`, `Bushy_Eyebrows`, `Chubby`, `Double_Chin`,
+`Blond_Hair`, `Blurry`, `Brown_Hair`, `Bushy_Eyebrows`, `Chubby`, `Double_Chin`,
 `Eyeglasses`, `Goatee`, `Gray_Hair`, `Heavy_Makeup`, `High_Cheekbones`,
-`Male`, `Mouth_Slightly_Open`, `Mustache Narrow_Eyes`, `No_Beard`, `Oval_Face`,
-`Pale_Skin`, `Pointy_Nose`, `Receding_Hairline`, `Rosy_Cheeks`, `Sideburns Smiling`,
+`Male`, `Mouth_Slightly_Open`, `Mustache`, `Narrow_Eyes`, `No_Beard`, `Oval_Face`,
+`Pale_Skin`, `Pointy_Nose`, `Receding_Hairline`, `Rosy_Cheeks`, `Sideburns`, `Smiling`,
 `Straight_Hair`, `Wavy_Hair`, `Wearing_Earrings`, `Wearing_Hat`, `Wearing_Lipstick`,
 `Wearing_Necklace`, `Wearing_Necktie`, `Young`.
 Attributes take values: `1` represents positive, `-1` represents negative.
 
 ## Import CelebA dataset
 
-A Datumaro project with an CelebA source can be created in the following way:
+A Datumaro project with a CelebA source can be created in the following way:
 
 ```bash
 datum create
@@ -64,18 +64,18 @@ dataset/
         └── ...
 ```
 
-`identity_CelebA.txt` file contains labels (required).
-`list_attr_celeba.txt` file contains attributes (optional).
-`list_bbox_celeba.txt` file contains bounding boxes (optional).
-`list_landmarks_celeba.txt` file contains landmarks (optional).
-`list_eval_partition.txt` file contains subsets (optional).
+Annotation file `identity_CelebA.txt` contains labels (required).
+Annotation files`list_attr_celeba.txt`, `list_bbox_celeba.txt`,
+`list_landmarks_celeba.txt`, `list_eval_partition.txt` contain
+attributes, bounding boxes, landmarks and subsets respectively
+(optional).
 
 The original CelebA dataset stores images in .7z archive. The archive
 needs to be unpacked before importing.
 
 It is not possible to import both regular images and images with alignment.
 If you need to work with aligned images and landmarks, you need to remove
-the usual images and annotations to them from the folder.\
+the usual images and annotations to them from the folder.
 
 CelebA align dataset directory should have the following structure:
 
