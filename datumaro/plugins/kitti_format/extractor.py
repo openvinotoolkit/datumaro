@@ -15,7 +15,7 @@ from datumaro.util.image import find_images, load_image
 
 from .format import (
     KittiLabelMap, KittiPath, KittiTask, make_kitti_categories,
-    make_kitti_detection_categories, parse_label_map,
+    parse_label_map,
 )
 
 
@@ -37,16 +37,7 @@ class _KittiExtractor(SourceExtractor):
         if self._task == KittiTask.segmentation:
             return self._load_categories_segmentation(path)
         elif self._task == KittiTask.detection:
-            return self._load_categories_detection(path)
-
-    def _load_categories_detection(self, path):
-        labels_list_path = osp.join(path, KittiPath.LABELS_LIST_FILE)
-        if osp.isfile(labels_list_path):
-            labels_cat = LabelCategories().from_iterable(
-                parse_label_map(labels_list_path).keys())
-            return {AnnotationType.label: labels_cat}
-        else:
-             return make_kitti_detection_categories()
+            return {AnnotationType.label: LabelCategories()}
 
     def _load_categories_segmentation(self, path):
         label_map = None
@@ -91,8 +82,8 @@ class _KittiExtractor(SourceExtractor):
 
         det_dir = osp.join(self._path, KittiPath.LABELS_DIR)
         if self._task == KittiTask.detection:
-            for labels_path in glob.glob(osp.join(det_dir, '**', '*.txt'),
-                    recursive=True):
+            for labels_path in sorted(glob.glob(osp.join(det_dir, '**', '*.txt'),
+                    recursive=True)):
                 item_id = osp.splitext(osp.relpath(labels_path, det_dir))[0]
                 anns = []
 
@@ -113,8 +104,8 @@ class _KittiExtractor(SourceExtractor):
                     label_id = self.categories()[
                         AnnotationType.label].find(line[0])[0]
                     if label_id is None:
-                        raise Exception("Item %s: unknown label '%s'" % \
-                            (item_id, line[0]))
+                        label_id = self.categories()[AnnotationType.label].add(
+                            line[0])
 
                     anns.append(
                         Bbox(x=x1, y=y1, w=x2-x1, h=y2-y1, id=line_idx,

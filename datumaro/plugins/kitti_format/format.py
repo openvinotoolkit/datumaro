@@ -53,17 +53,6 @@ KittiLabelMap = OrderedDict([
     ('licenseplate', (0, 0, 142)),
 ])
 
-KittiDetectionLabel = [
-    'Car',
-    'Van',
-    'Truck',
-    'Pedestrian',
-    'Person_sitting',
-    'Cyclist',
-    'Tram',
-    'Misc',
-    'DontCare',
-]
 
 class KittiPath:
     IMAGES_DIR = 'image_2'
@@ -144,8 +133,3 @@ def write_label_map(path, label_map):
             else:
                 color_rgb = ''
             f.write('%s %s\n' % (color_rgb, label_name))
-
-def write_labels_list(path, labels):
-    with open(path, 'w', encoding='utf-8') as f:
-        for label in labels:
-            f.write('%s\n' % label)
