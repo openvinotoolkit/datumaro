@@ -6,14 +6,14 @@ import os.path as osp
 import numpy as np
 
 from datumaro.components.annotation import (
-    AnnotationType, Bbox, Categories, LabelCategories, Mask,
+    AnnotationType, Bbox, LabelCategories, Mask,
 )
 from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import DatasetItem, Extractor
 from datumaro.plugins.kitti_format.converter import KittiConverter
 from datumaro.plugins.kitti_format.format import (
-    KittiLabelMap, KittiPath, KittiTask, make_kitti_categories,
-    parse_label_map, write_label_map,
+    KittiLabelMap, KittiPath, KittiTask, make_kitti_categories, parse_label_map,
+    write_label_map,
 )
 from datumaro.plugins.kitti_format.importer import (
     KittiDetectionImporter, KittiImporter, KittiSegmentationImporter,

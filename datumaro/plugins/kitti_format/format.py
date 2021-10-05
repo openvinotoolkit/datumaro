@@ -91,14 +91,6 @@ def make_kitti_categories(label_map=None):
     categories[AnnotationType.mask] = mask_categories
     return categories
 
-def make_kitti_detection_categories():
-    categories = {}
-    label_categories = LabelCategories()
-    for label in KittiDetectionLabel:
-        label_categories.add(label)
-    categories[AnnotationType.label] = label_categories
-    return categories
-
 def parse_label_map(path):
     label_map = OrderedDict()
     with open(path, 'r', encoding='utf-8') as f:
