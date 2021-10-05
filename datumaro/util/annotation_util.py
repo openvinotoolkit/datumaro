@@ -3,8 +3,9 @@
 # SPDX-License-Identifier: MIT
 
 from itertools import groupby
-from typing import Callable, Dict, Literal, Optional, Tuple, Union
+from typing import Callable, Dict, Optional, Tuple, Union
 
+from typing_extensions import Literal
 import numpy as np
 
 from datumaro.components.annotation import (

@@ -4,11 +4,11 @@
 
 from enum import Enum, auto
 from typing import (
-    Any, Callable, Dict, Iterable, Iterator, List, Literal, Optional, Set,
-    Tuple, Union,
+    Any, Callable, Dict, Iterable, Iterator, List, Optional, Set, Tuple, Union,
 )
 
 from attr import attrib, attrs
+from typing_extensions import Literal
 import attr
 import numpy as np
 
