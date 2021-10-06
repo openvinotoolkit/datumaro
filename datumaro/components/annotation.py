@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 from enum import Enum, auto
+from itertools import zip_longest
 from typing import (
     Any, Callable, Dict, Iterable, Iterator, List, Optional, Set, Tuple, Union,
 )
@@ -73,18 +74,23 @@ class LabelCategories(Categories):
             factory=set, validator=default_if_none(set))
 
     items: List[str] = attrib(factory=list, validator=default_if_none(list))
-    _indices: Dict[int, str] = attrib(factory=dict, init=False, eq=False)
+    _indices: Dict[str, int] = attrib(factory=dict, init=False, eq=False)
 
     @classmethod
-    def from_iterable(cls, iterable: Union[str, Tuple[str, str, List[str]]]):
+    def from_iterable(cls, iterable: Iterable[Union[
+        str,
+        Tuple[str],
+        Tuple[str, str],
+        Tuple[str, str, List[str]],
+    ]]) -> 'LabelCategories':
         """
         Creates a LabelCategories from iterable.
 
         Args:
-            iterable ([type]): This iterable object can be:
-            - a list of str - will interpreted as list of Category names
+            iterable: This iterable object can be:
+            - a list of str - will be interpreted as list of Category names
             - a list of positional arguments - will generate Categories
-              with this arguments
+              with these arguments
 
         Returns: a LabelCategories object
         """
@@ -144,6 +150,9 @@ class Label(Annotation):
     _type = AnnotationType.label
     label: int = attrib(converter=int)
 
+RgbColor = Tuple[int, int, int]
+Colormap = Dict[int, RgbColor]
+
 @attrs(eq=False)
 class MaskCategories(Categories):
     """
@@ -166,15 +175,13 @@ class MaskCategories(Categories):
             colormap = { k - 1: v for k, v in colormap.items() }
         return cls(colormap)
 
-    Color = Tuple[int, int, int] # an RGB color
-
-    colormap: Dict[int, Color] = attrib(
+    colormap: Colormap = attrib(
         factory=dict, validator=default_if_none(dict))
-    _inverse_colormap: Optional[Dict[Color, int]] = attrib(
+    _inverse_colormap: Optional[Dict[RgbColor, int]] = attrib(
         default=None, validator=attr.validators.optional(dict))
 
     @property
-    def inverse_colormap(self) -> Dict[Color, int]:
+    def inverse_colormap(self) -> Dict[RgbColor, int]:
         from datumaro.util.mask_tools import invert_colormap
         if self._inverse_colormap is None:
             if self.colormap is not None:
@@ -184,7 +191,7 @@ class MaskCategories(Categories):
     def __contains__(self, idx: int) -> bool:
         return idx in self.colormap
 
-    def __getitem__(self, idx: int) -> Color:
+    def __getitem__(self, idx: int) -> RgbColor:
         return self.colormap[idx]
 
     def __len__(self) -> int:
@@ -201,13 +208,14 @@ class MaskCategories(Categories):
                 return False
         return True
 
+BinaryMaskImage = np.ndarray # 2d array of type bool
+IndexMaskImage = np.ndarray # 2d array of type int
+
 @attrs(eq=False)
 class Mask(Annotation):
     """
     Represents a 2d single-instance binary segmentation mask.
     """
-
-    BinaryMask = np.ndarray # 2d of type bool
 
     _type = AnnotationType.mask
     _image = attrib()
@@ -221,18 +229,24 @@ class Mask(Annotation):
             self._image = self._image.astype(bool)
 
     @property
-    def image(self) -> 'Mask.BinaryMask':
+    def image(self) -> BinaryMaskImage:
         if callable(self._image):
             return self._image()
         return self._image
 
-    def as_class_mask(self, label_id: Optional[int] = None) -> np.ndarray:
+    def as_class_mask(self, label_id: Optional[int] = None) -> IndexMaskImage:
+        """
+        Produces a class index mask. Mask label id can be changed.
+        """
         if label_id is None:
             label_id = self.label
         from datumaro.util.mask_tools import make_index_mask
         return make_index_mask(self.image, label_id)
 
-    def as_instance_mask(self, instance_id: Optional[int] = None) -> np.ndarray:
+    def as_instance_mask(self, instance_id: int) -> IndexMaskImage:
+        """
+        Produces a instance index mask.
+        """
         from datumaro.util.mask_tools import make_index_mask
         return make_index_mask(self.image, instance_id)
 
@@ -248,7 +262,7 @@ class Mask(Annotation):
         from datumaro.util.mask_tools import find_mask_bbox
         return find_mask_bbox(self.image)
 
-    def paint(self, colormap: Dict[int, MaskCategories.Color]) -> np.ndarray:
+    def paint(self, colormap: Colormap) -> np.ndarray:
         """
         Applies a colormap to the mask and produces the resulting image.
         """
@@ -295,6 +309,8 @@ class RleMask(Mask):
             return super().__eq__(other)
         return self.rle == other.rle
 
+CompiledMaskImage = np.ndarray # 2d of integers (of different precision)
+
 class CompiledMask:
     """
     Represents class- and instance- segmentation masks with
@@ -318,22 +334,14 @@ class CompiledMask:
 
         from datumaro.util.mask_tools import make_index_mask
 
-        if instance_ids:
-            assert len(instance_ids) == len(instance_masks)
-        else:
-            instance_ids = [None] * len(instance_masks)
-
-        if instance_labels:
-            assert len(instance_labels) == len(instance_masks)
-        else:
-            instance_labels = [None] * len(instance_masks)
-
-        max_index = len(instance_masks) + 1
-        index_dtype = np.min_scalar_type(max_index)
-
+        instance_ids = instance_ids or []
+        instance_labels = instance_labels or []
         masks = sorted(
-            zip(instance_masks, instance_ids, instance_labels),
+            zip_longest(instance_masks, instance_ids, instance_labels),
             key=lambda m: m[0].z_order)
+
+        max_index = len(masks) + 1
+        index_dtype = np.min_scalar_type(max_index)
 
         masks = ((
             m, 1 + i,
@@ -383,16 +391,14 @@ class CompiledMask:
         return __class__(class_mask=merged_class_mask,
             instance_mask=merged_instance_mask)
 
-    CompiledMaskImage = np.ndarray # 2d of integers
-
     def __init__(self,
             class_mask: Union[None,
                 CompiledMaskImage,
-                Callable[..., CompiledMaskImage]
+                Callable[[], CompiledMaskImage]
             ] = None,
             instance_mask: Union[None,
                 CompiledMaskImage,
-                Callable[..., CompiledMaskImage]
+                Callable[[], CompiledMaskImage]
             ] = None):
         self._class_mask = class_mask
         self._instance_mask = instance_mask
@@ -433,22 +439,25 @@ class CompiledMask:
         }
         return instance_labels
 
-    def extract(self, instance_id: int):
+    def extract(self, instance_id: int) -> IndexMaskImage:
         """
         Extracts a single-instance mask from the compiled mask.
         """
 
         return self.instance_mask == instance_id
 
-    def lazy_extract(self, instance_id: int):
+    def lazy_extract(self, instance_id: int) -> Callable[[], IndexMaskImage]:
         return lambda: self.extract(instance_id)
 
 @attrs
 class _Shape(Annotation):
+    # Flattened list of point coordinates
     points: List[float] = attrib(converter=lambda x:
         [round(p, COORDINATE_ROUNDING_DIGITS) for p in x])
+
     label: Optional[int] = attrib(converter=attr.converters.optional(int),
         default=None, kw_only=True)
+
     z_order: int = attrib(default=0, validator=default_if_none(int),
         kw_only=True)
 
@@ -608,32 +617,49 @@ class Bbox(_Shape):
 
 @attrs
 class PointsCategories(Categories):
-    @attrs(repr_ns="PointsCategories")
-    class Category:
-        labels = attrib(factory=list, validator=default_if_none(list))
-        joints = attrib(factory=set, validator=default_if_none(set))
+    """
+    Describes (key-)point metainfo such as point names and joints.
+    """
 
-    items = attrib(factory=dict, validator=default_if_none(dict))
+    @attrs
+    class Category:
+        # Names for specific points, e.g. eye, hose, mouth etc.
+        # These labels are not required to be in LabelCategories
+        labels: List[str] = attrib(
+            factory=list, validator=default_if_none(list))
+
+        # Pairs of connected point indices
+        joints: Set[Tuple[int, int]] = attrib(
+            factory=set, validator=default_if_none(set))
+
+    items: Dict[int, Category] = attrib(
+        factory=dict, validator=default_if_none(dict))
 
     @classmethod
-    def from_iterable(cls, iterable):
-        """Generation of PointsCategories from iterable object
+    def from_iterable(cls, iterable: Union[
+        Tuple[int, List[str]],
+        Tuple[int, List[str], Set[Tuple[int, int]]],
+    ]) -> 'PointsCategories':
+        """
+        Create PointsCategories from an iterable.
 
         Args:
-            iterable ([type]): This iterable object can be:
-            1) list of positional arguments - will generate Categories
-                with these arguments
+          - iterable - An Iterable with the following elements:
+            - a label id
+            - a list of positional arguments for Categories
 
         Returns:
             PointsCategories: PointsCategories object
         """
         temp_categories = cls()
 
-        for category in iterable:
-            temp_categories.add(*category)
+        for label_id, args in iterable:
+            temp_categories.add(label_id, *args)
         return temp_categories
 
-    def add(self, label_id, labels=None, joints=None):
+    def add(self, label_id: int,
+            labels: Optional[Iterable[str]] = None,
+            joints: Iterable[Tuple[int, int]] = None):
         if joints is None:
             joints = []
         joints = set(map(tuple, joints))
@@ -645,12 +671,16 @@ class PointsCategories(Categories):
     def __getitem__(self, idx: int) -> Category:
         return self.items[idx]
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.items)
 
 
 @attrs
 class Points(_Shape):
+    """
+    Represents an ordered set of points.
+    """
+
     class Visibility(Enum):
         absent = 0
         hidden = 1
@@ -690,5 +720,9 @@ class Points(_Shape):
 
 @attrs
 class Caption(Annotation):
+    """
+    Represents arbitrary text annotations.
+    """
+
     _type = AnnotationType.caption
     caption: str = attrib(converter=str)
