@@ -20,8 +20,11 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         |n
         1 - Restores a revision and all the sources in the working directory.|n
         2, 3 - Restores only specified sources from the specified revision.|n
-        |s|sThe current revision is used, when not set.|n
-        |s|s"--" is optionally used to separate source names and revisions.|n
+        |n
+        The current revision is used, when not set. When no revision
+        and no sources is specified, restores the
+        current revision (like the 1-st form).
+        "--" is optionally used to separate source names and revisions.|n
         |n
         Examples:|n
         - Restore the previous revision:|n
