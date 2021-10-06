@@ -102,3 +102,28 @@ Feel free to
 think something needs to be changed. You are welcome to participate in
 development, instructions are available in our
 [contribution guide](https://openvinotoolkit.github.io/datumaro/docs/contributing).
+
+
+## Telemetry data collection note
+
+The [OpenVINO telemetry library](https://github.com/openvinotoolkit/telemetry/)
+is used to collect basic information about Datumaro using.
+
+A short description of the information collected:
+| Event             | Description |
+| ----------------- | ----------- |
+| version           | Datumaro version |
+| session start/end | Accessory event, there is no additional info here |
+| {command}_result  | Datumaro command result with arguments passed (all sensitive arguments, such as filesystem paths or names, are sanitized) |
+| error | Sanitized stack trace in case of exception |
+
+### How to enable/disable telemetry
+
+To enable the collection of telemetry data, the ISIP consent file
+must exist and contain "1", otherwise telemetry will be disabled.
+The ISIP file can be created/modified by OpenVINO installer
+or manually and used by other OpenVINO tools.
+
+The location of the ISIP consent file depends on the OS:
+- Windows: `%localappdata%\Intel Corporation\isip`,
+- Linux, MacOS: `$HOME/intel/isip`.
