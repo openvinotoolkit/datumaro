@@ -91,14 +91,14 @@ class LfwFormatTest(TestCase):
                     Label(0, attributes={
                         'positive_pairs': ['name0/name0_0002']
                     }),
-                    Points([0, 4, 3, 3, 2, 2, 1, 0, 3, 0]),
+                    Points([0, 4, 3, 3, 2, 2, 1, 0, 3, 0], label=0),
                 ]
             ),
             DatasetItem(id='name0_0002',
                 subset='test', image=np.ones((2, 5, 3)),
                 annotations=[
                     Label(0),
-                    Points([0, 5, 3, 5, 2, 2, 1, 0, 3, 0]),
+                    Points([0, 5, 3, 5, 2, 2, 1, 0, 3, 0], label=0),
                 ]
             ),
         ], categories=['name0'])
@@ -213,7 +213,7 @@ class LfwImporterTest(TestCase):
                         'negative_pairs': ['name1/name1_0001',
                             'name1/name1_0002']
                     }),
-                    Points([0, 4, 3, 3, 2, 2, 1, 0, 3, 0]),
+                    Points([0, 4, 3, 3, 2, 2, 1, 0, 3, 0], label=0),
                 ]
             ),
             DatasetItem(id='name1_0001', subset='test',
@@ -222,14 +222,14 @@ class LfwImporterTest(TestCase):
                     Label(1, attributes={
                         'positive_pairs': ['name1/name1_0002'],
                     }),
-                    Points([1, 6, 4, 6, 3, 3, 2, 1, 4, 1]),
+                    Points([1, 6, 4, 6, 3, 3, 2, 1, 4, 1], label=1),
                 ]
             ),
             DatasetItem(id='name1_0002', subset='test',
                 image=np.ones((2, 5, 3)),
                 annotations=[
                     Label(1),
-                    Points([0, 5, 3, 5, 2, 2, 1, 0, 3, 0]),
+                    Points([0, 5, 3, 5, 2, 2, 1, 0, 3, 0], label=1),
                 ]
             ),
         ], categories=['name0', 'name1'])
