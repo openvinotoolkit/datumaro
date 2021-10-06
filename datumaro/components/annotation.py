@@ -653,8 +653,8 @@ class PointsCategories(Categories):
         """
         temp_categories = cls()
 
-        for label_id, args in iterable:
-            temp_categories.add(label_id, *args)
+        for args in iterable:
+            temp_categories.add(*args)
         return temp_categories
 
     def add(self, label_id: int,
