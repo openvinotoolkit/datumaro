@@ -81,7 +81,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remapping of secondary categories in `RemapLabels`
   (<https://github.com/openvinotoolkit/datumaro/pull/401>)
 - Missing `label` for `Points` read in the LFW format
-  (https://github.com/openvinotoolkit/datumaro/pull/494)
+  (<https://github.com/openvinotoolkit/datumaro/pull/494>)
 
 ### Security
 - TBD
