@@ -1,11 +1,35 @@
 +++
 Title = 404
 +++
+<script>
+  function startTimer(duration, display) {
+      var timer = duration, seconds;
+      var end =setInterval(function () {
+          seconds = parseInt(timer % 60, 10);
 
-  <main id="main">
-    <div class="text-center">
-      <h1>404</h1>
-      <p>Not found</p>
-      <p>Oops! This page doesn't exist. Try going back to <a href="/docs">documentation page</a>.</p>
+          display.textContent = seconds;
+
+          if (--timer < 0) {
+              window.location = "/datumaro/docs";
+              clearInterval(end);
+          }
+      }, 1000);
+  }
+
+  window.onload = function () {
+      var fiveSeconds = 5,
+          display = document.querySelector('#time');
+      startTimer(fiveSeconds, display);
+  };
+</script>
+<main id="main">
+  <div class="text-center">
+    <h1>404</h1>
+    <p>Not found</p>
+    <div>
+      <p>
+        You will be redirected to the <a href="/docs">documentation page</a> after <span id="time">5</span> seconds
+      </p>
     </div>
-  </main>
+  </div>
+</main>
