@@ -25,6 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/401>)
 - `ProjectLabels` transform (library API only) to arrange dataset labels
   for merging etc. (<https://github.com/openvinotoolkit/datumaro/pull/401>)
+- Support for custom labels in the KITTI detection format
+  (<https://github.com/openvinotoolkit/datumaro/pull/481>)
 
 ### Changed
 - A project can contain and manage multiple datasets instead of a single one.
@@ -80,6 +82,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/401>)
 - Remapping of secondary categories in `RemapLabels`
   (<https://github.com/openvinotoolkit/datumaro/pull/401>)
+- Exported mask label ids in KITTI segmentation
+  (<https://github.com/openvinotoolkit/datumaro/pull/481>)
 - Missing `label` for `Points` read in the LFW format
   (<https://github.com/openvinotoolkit/datumaro/pull/494>)
 
