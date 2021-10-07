@@ -53,17 +53,6 @@ KittiLabelMap = OrderedDict([
     ('licenseplate', (0, 0, 142)),
 ])
 
-KittiDetectionLabel = [
-    'Car',
-    'Van',
-    'Truck',
-    'Pedestrian',
-    'Person_sitting',
-    'Cyclist',
-    'Tram',
-    'Misc',
-    'DontCare',
-]
 
 class KittiPath:
     IMAGES_DIR = 'image_2'
@@ -100,14 +89,6 @@ def make_kitti_categories(label_map=None):
     mask_categories = MaskCategories(colormap)
     mask_categories.inverse_colormap # pylint: disable=pointless-statement
     categories[AnnotationType.mask] = mask_categories
-    return categories
-
-def make_kitti_detection_categories():
-    categories = {}
-    label_categories = LabelCategories()
-    for label in KittiDetectionLabel:
-        label_categories.add(label)
-    categories[AnnotationType.label] = label_categories
     return categories
 
 def parse_label_map(path):

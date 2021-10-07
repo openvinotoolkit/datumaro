@@ -147,7 +147,8 @@ class LfwExtractor(SourceExtractor):
                             image=osp.join(images_dir, line[0]))
 
                     annotations = items[item_id].annotations
-                    annotations.append(Points([float(p) for p in line[1:]]))
+                    annotations.append(Points([float(p) for p in line[1:]],
+                        label=label))
 
         return items
 

@@ -12,7 +12,7 @@ import os.path as osp
 import pycocotools.mask as mask_utils
 
 from datumaro.components.annotation import (
-    _COORDINATE_ROUNDING_DIGITS, AnnotationType, Points,
+    COORDINATE_ROUNDING_DIGITS, AnnotationType, Points,
 )
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
@@ -316,7 +316,7 @@ class _InstancesConverter(_TaskConverter):
             'category_id': cast(ann.label, int, -1) + 1,
             'segmentation': segmentation,
             'area': float(area),
-            'bbox': [round(float(n), _COORDINATE_ROUNDING_DIGITS) for n in bbox],
+            'bbox': [round(float(n), COORDINATE_ROUNDING_DIGITS) for n in bbox],
             'iscrowd': int(is_crowd),
         }
         if 'score' in ann.attributes:

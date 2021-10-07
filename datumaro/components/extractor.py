@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 from glob import iglob
-from typing import Callable, Dict, Iterable, List, Optional
+from typing import Any, Callable, Dict, Iterable, List, Optional
 import os
 import os.path as osp
 
@@ -11,7 +11,9 @@ from attr import attrib, attrs
 import attr
 import numpy as np
 
-from datumaro.components.annotation import AnnotationType, Categories
+from datumaro.components.annotation import (
+    Annotation, AnnotationType, Categories,
+)
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.errors import DatasetNotFoundError
 from datumaro.util import is_method_redefined
@@ -33,7 +35,8 @@ DEFAULT_SUBSET_NAME = 'default'
 class DatasetItem:
     id: str = attrib(converter=lambda x: str(x).replace('\\', '/'),
         validator=not_empty)
-    annotations = attrib(factory=list, validator=default_if_none(list))
+    annotations: List[Annotation] = attrib(
+        factory=list, validator=default_if_none(list))
     subset: str = attrib(converter=lambda v: v or DEFAULT_SUBSET_NAME,
         default=None)
 
@@ -68,7 +71,8 @@ class DatasetItem:
     def _point_cloud_validator(self, attribute, pcd):
         assert pcd is None or isinstance(pcd, str), type(pcd)
 
-    attributes = attrib(factory=dict, validator=default_if_none(dict))
+    attributes: Dict[str, Any] = attrib(
+        factory=dict, validator=default_if_none(dict))
 
     @property
     def has_image(self):
