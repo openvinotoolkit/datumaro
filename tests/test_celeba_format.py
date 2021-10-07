@@ -12,9 +12,9 @@ from datumaro.util.test_utils import compare_datasets
 from .requirements import Requirements, mark_requirement
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets',
-    'celeba_dataset')
+    'celeba_dataset', 'celeba')
 DUMMY_ALIGN_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets',
-    'align_celeba_dataset')
+    'celeba_dataset', 'align_celeba')
 
 class CelebaImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_475)
@@ -56,7 +56,7 @@ class CelebaImporterTest(TestCase):
                     Bbox(236, 109, 120, 166, label=7),
                     Points([273, 169, 328, 161, 298, 172, 283, 208, 323, 207], label=7)]
             )
-        ], categories=['class_%d' % i for i in range(13)])
+        ], categories=['class-%d' % i for i in range(13)])
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'celeba')
 
@@ -95,7 +95,7 @@ class CelebaImporterTest(TestCase):
                 annotations=[Label(7),
                     Points([66, 114, 112, 112, 86, 119, 71, 147, 104, 150], label=7)]
             )
-        ], categories=['class_%d' % i for i in range(13)])
+        ], categories=['class-%d' % i for i in range(13)])
 
         dataset = Dataset.import_from(DUMMY_ALIGN_DATASET_DIR, 'celeba')
 
@@ -104,3 +104,7 @@ class CelebaImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_475)
     def test_can_detect(self):
         self.assertTrue(CelebaImporter.detect(DUMMY_DATASET_DIR))
+
+    @mark_requirement(Requirements.DATUM_475)
+    def test_can_detect_align_dataset(self):
+        self.assertTrue(CelebaImporter.detect(DUMMY_ALIGN_DATASET_DIR))

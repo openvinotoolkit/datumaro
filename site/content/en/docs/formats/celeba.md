@@ -23,7 +23,7 @@ Supported attributes: `5_o_Clock_Shadow`, `Arched_Eyebrows`, `Attractive`,
 `Pale_Skin`, `Pointy_Nose`, `Receding_Hairline`, `Rosy_Cheeks`, `Sideburns`, `Smiling`,
 `Straight_Hair`, `Wavy_Hair`, `Wearing_Earrings`, `Wearing_Hat`, `Wearing_Lipstick`,
 `Wearing_Necklace`, `Wearing_Necktie`, `Young`.
-Attributes take values: `1` represents positive, `-1` represents negative.
+Attributes take values: `True` represents positive, `False` represents negative.
 
 ## Import CelebA dataset
 
