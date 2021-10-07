@@ -20,8 +20,8 @@ from datumaro.util.image import save_image
 from datumaro.util.mask_tools import paint_mask
 
 from .format import (
-    KittiLabelMap, KittiPath, KittiTask, make_kitti_categories,
-    make_kitti_detection_categories, parse_label_map, write_label_map,
+    KittiLabelMap, KittiPath, KittiTask, make_kitti_categories, parse_label_map,
+    write_label_map,
 )
 
 
@@ -81,7 +81,9 @@ class KittiConverter(Converter):
         if KittiTask.segmentation in self._tasks:
             self._load_categories(label_map)
         elif KittiTask.detection in self._tasks:
-            self._load_detection_categories()
+            self._categories = {AnnotationType.label:
+                self._extractor.categories().get(AnnotationType.label,
+                    LabelCategories())}
 
     def apply(self):
         os.makedirs(self._save_dir, exist_ok=True)
@@ -115,7 +117,8 @@ class KittiConverter(Converter):
 
                     # TODO: optimize second merging
                     compiled_instance_mask = CompiledMask.from_instance_masks(masks,
-                        instance_labels=[(m.label << 8) + m.id for m in masks])
+                        instance_labels=[(self._label_id_mapping(m.label) << 8) \
+                            + m.id for m in masks])
                     inst_path = osp.join(subset_name,
                         KittiPath.INSTANCES_DIR, item.id + KittiPath.MASK_EXT)
                     self.save_mask(osp.join(self._save_dir, inst_path),
@@ -192,9 +195,6 @@ class KittiConverter(Converter):
         self._categories = make_kitti_categories(label_map)
         self._label_map = label_map
         self._label_id_mapping = self._make_label_id_map()
-
-    def _load_detection_categories(self):
-        self._categories = make_kitti_detection_categories()
 
     def _make_label_id_map(self):
         map_id, id_mapping, src_labels, dst_labels = make_label_id_mapping(
