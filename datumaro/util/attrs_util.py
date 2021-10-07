@@ -33,7 +33,7 @@ def default_if_none(conv):
             elif conv and inspect.isclass(conv):
                 dst_type = conv
 
-            if not dst_type or dst_type and not isinstance(value, dst_type):
+            if not dst_type or not isinstance(value, dst_type):
                 value = conv(value)
         setattr(inst, attribute.name, value)
     return validator
