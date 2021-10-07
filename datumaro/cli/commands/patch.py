@@ -97,7 +97,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 
 def get_sensitive_args():
     return {
-        patch_command: ['target', 'patch', 'dst_dir', 'project_dir',],
+        patch_command: ['target', 'patch', 'dst_dir', 'project_dir', 'extra_args'],
     }
 
 @scoped
