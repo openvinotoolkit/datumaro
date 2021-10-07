@@ -1,27 +1,7 @@
 +++
 Title = 404
 +++
-<script>
-  function startTimer(duration, display) {
-      var timer = duration, seconds;
-      var end =setInterval(function () {
-          seconds = parseInt(timer % 60, 10);
 
-          display.textContent = seconds;
-
-          if (--timer < 0) {
-              window.location = "/datumaro/docs";
-              clearInterval(end);
-          }
-      }, 1000);
-  }
-
-  window.onload = function () {
-      var fiveSeconds = 5,
-          display = document.querySelector('#time');
-      startTimer(fiveSeconds, display);
-  };
-</script>
 <main id="main">
   <div class="text-center">
     <h1>404</h1>
