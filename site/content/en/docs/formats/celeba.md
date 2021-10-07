@@ -15,15 +15,16 @@ Supported annotation types:
 - `Bbox`
 - `Points` (landmarks)
 
-Supported attributes: `5_o_Clock_Shadow`, `Arched_Eyebrows`, `Attractive`,
-`Bags_Under_Eyes`, `Bald`, `Bangs`, `Big_Lips`, `Big_Nose`, `Black_Hair`,
-`Blond_Hair`, `Blurry`, `Brown_Hair`, `Bushy_Eyebrows`, `Chubby`, `Double_Chin`,
-`Eyeglasses`, `Goatee`, `Gray_Hair`, `Heavy_Makeup`, `High_Cheekbones`,
-`Male`, `Mouth_Slightly_Open`, `Mustache`, `Narrow_Eyes`, `No_Beard`, `Oval_Face`,
-`Pale_Skin`, `Pointy_Nose`, `Receding_Hairline`, `Rosy_Cheeks`, `Sideburns`, `Smiling`,
-`Straight_Hair`, `Wavy_Hair`, `Wearing_Earrings`, `Wearing_Hat`, `Wearing_Lipstick`,
-`Wearing_Necklace`, `Wearing_Necktie`, `Young`.
-Attributes take values: `True` represents positive, `False` represents negative.
+Supported attributes:
+- `5_o_Clock_Shadow`, `Arched_Eyebrows`, `Attractive`,
+  `Bags_Under_Eyes`, `Bald`, `Bangs`, `Big_Lips`, `Big_Nose`, `Black_Hair`,
+  `Blond_Hair`, `Blurry`, `Brown_Hair`, `Bushy_Eyebrows`, `Chubby`,
+  `Double_Chin`, `Eyeglasses`, `Goatee`, `Gray_Hair`, `Heavy_Makeup`,
+  `High_Cheekbones`, `Male`, `Mouth_Slightly_Open`, `Mustache`, `Narrow_Eyes`,
+  `No_Beard`, `Oval_Face`, `Pale_Skin`, `Pointy_Nose`, `Receding_Hairline`,
+  `Rosy_Cheeks`, `Sideburns`, `Smiling`, `Straight_Hair`, `Wavy_Hair`,
+  `Wearing_Earrings`, `Wearing_Hat`, `Wearing_Lipstick`, `Wearing_Necklace`,
+  `Wearing_Necktie`, `Young` (boolean)
 
 ## Import CelebA dataset
 
@@ -47,30 +48,27 @@ CelebA dataset directory should have the following structure:
 <!--lint disable fenced-code-flag-->
 ```
 dataset/
-├── Anno
+├── Anno/
 │   ├── identity_CelebA.txt
 │   ├── list_attr_celeba.txt
 │   ├── list_bbox_celeba.txt
 │   └── list_landmarks_celeba.txt
-├── Eval
+├── Eval/
 │   └── list_eval_partition.txt
-└── Img
-    └── img_celeba
+└── Img/
+    └── img_celeba/
         ├── 000001.jpg
         ├── 000002.jpg
-        ├── 000003.jpg
-        ├── 000004.jpg
-        ├── 000005.jpg
         └── ...
 ```
 
-Annotation file `identity_CelebA.txt` contains labels (required).
-Annotation files`list_attr_celeba.txt`, `list_bbox_celeba.txt`,
-`list_landmarks_celeba.txt`, `list_eval_partition.txt` contain
+The `identity_CelebA.txt` file contains labels (required).
+The `list_attr_celeba.txt`, `list_bbox_celeba.txt`,
+`list_landmarks_celeba.txt`, `list_eval_partition.txt` files contain
 attributes, bounding boxes, landmarks and subsets respectively
 (optional).
 
-The original CelebA dataset stores images in .7z archive. The archive
+The original CelebA dataset stores images in a .7z archive. The archive
 needs to be unpacked before importing.
 
 It is not possible to import both regular images and images with alignment.
@@ -82,19 +80,16 @@ CelebA align dataset directory should have the following structure:
 <!--lint disable fenced-code-flag-->
 ```
 dataset/
-├── Anno
+├── Anno/
 │   ├── identity_CelebA.txt
 │   ├── list_attr_celeba.txt
 │   └── list_landmarks_align_celeba.txt
-├── Eval
+├── Eval/
 │   └── list_eval_partition.txt
-└── Img
-    └── img_align_celeba
+└── Img/
+    └── img_align_celeba/
         ├── 000001.jpg
         ├── 000002.jpg
-        ├── 000003.jpg
-        ├── 000004.jpg
-        ├── 000005.jpg
         └── ...
 ```
 
