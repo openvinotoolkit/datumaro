@@ -509,11 +509,10 @@ class RemapLabels(ItemTransform, CliPlugin):
             assert src_label_cat is not None
             dst_mask_cat = MaskCategories(
                 attributes=deepcopy(src_mask_cat.attributes))
-            for old_id, _ in enumerate(src_label_cat.items):
+            for old_id, old_color in src_mask_cat.colormap.items():
                 new_id = self._map_id(old_id)
-                if old_id in src_mask_cat and new_id is not None and \
-                        new_id not in dst_mask_cat:
-                    dst_mask_cat.colormap[new_id] = deepcopy(src_mask_cat[old_id])
+                if new_id is not None and new_id not in dst_mask_cat:
+                    dst_mask_cat.colormap[new_id] = deepcopy(old_color)
 
             self._categories[AnnotationType.mask] = dst_mask_cat
 
@@ -522,11 +521,10 @@ class RemapLabels(ItemTransform, CliPlugin):
             assert src_label_cat is not None
             dst_point_cat = PointsCategories(
                 attributes=deepcopy(src_point_cat.attributes))
-            for old_id, _ in enumerate(src_label_cat.items):
+            for old_id, old_cat in src_point_cat.items.items():
                 new_id = self._map_id(old_id)
-                if old_id in src_point_cat and new_id is not None and \
-                        new_id not in dst_point_cat:
-                    dst_point_cat.items[new_id] = deepcopy(src_point_cat[old_id])
+                if new_id is not None and new_id not in dst_point_cat:
+                    dst_point_cat.items[new_id] = deepcopy(old_cat)
 
             self._categories[AnnotationType.points] = dst_point_cat
 
@@ -642,11 +640,10 @@ class ProjectLabels(ItemTransform):
             assert src_label_cat is not None
             dst_mask_cat = MaskCategories(
                 attributes=deepcopy(src_mask_cat.attributes))
-            for old_id, _ in enumerate(src_label_cat.items):
+            for old_id, old_color in src_mask_cat.colormap.items():
                 new_id = self._map_id(old_id)
-                if old_id in src_mask_cat and new_id is not None and \
-                        new_id not in dst_mask_cat:
-                    dst_mask_cat.colormap[new_id] = deepcopy(src_mask_cat[old_id])
+                if new_id is not None and new_id not in dst_mask_cat:
+                    dst_mask_cat.colormap[new_id] = deepcopy(old_color)
 
             # Generate new colors for new labels, keep old untouched
             color_bank = mask_tools.generate_colormap(len(dst_mask_cat) + 1,
@@ -673,11 +670,10 @@ class ProjectLabels(ItemTransform):
             assert src_label_cat is not None
             dst_point_cat = PointsCategories(
                 attributes=deepcopy(src_point_cat.attributes))
-            for old_id, _ in enumerate(src_label_cat.items):
+            for old_id, old_cat in src_point_cat.items.items():
                 new_id = self._map_id(old_id)
-                if old_id in src_point_cat and new_id is not None and \
-                        new_id not in dst_point_cat:
-                    dst_point_cat.items[new_id] = deepcopy(src_point_cat[old_id])
+                if new_id is not None and new_id not in dst_point_cat:
+                    dst_point_cat.items[new_id] = deepcopy(old_cat)
 
             self._categories[AnnotationType.points] = dst_point_cat
 
