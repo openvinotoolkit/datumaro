@@ -117,13 +117,5 @@ A short description of the information collected:
 | {command}_result  | Datumaro command result with arguments passed (all sensitive arguments, such as filesystem paths or names, are sanitized) |
 | error | Sanitized stack trace in case of exception |
 
-### How to enable/disable telemetry
-
-To enable the collection of telemetry data, the ISIP consent file
-must exist and contain "1", otherwise telemetry will be disabled.
-The ISIP file can be created/modified by OpenVINO installer
-or manually and used by other OpenVINO tools.
-
-The location of the ISIP consent file depends on the OS:
-- Windows: `%localappdata%\Intel Corporation\isip`,
-- Linux, MacOS: `$HOME/intel/isip`.
+To enable/disable telemetry data collection please see the
+[guide](https://openvinotoolkit.github.io/datumaro/docs/docs/user-manual/how_to_control_tm_data_colletion).
