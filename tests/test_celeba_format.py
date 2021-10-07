@@ -23,19 +23,19 @@ class CelebaImporterTest(TestCase):
                 annotations=[Label(12),
                     Bbox(95, 71, 226, 313, label=12),
                     Points([165, 184, 244, 176, 196, 249, 194, 271, 266, 260], label=12)],
-                attributes={'5_o_Clock_Shadow': '-1', 'Arched_Eyebrows': '1',
-                    'Attractive': '1', 'Bags_Under_Eyes': '-1', 'Bald': '-1',
-                    'Bangs': '-1', 'Big_Lips': '-1', 'Big_Nose': '-1', 'Black_Hair': '-1',
-                    'Blond_Hair': '-1', 'Blurry': '-1', 'Brown_Hair': '1',
-                    'Bushy_Eyebrows': '-1', 'Chubby': '-1', 'Double_Chin': '-1',
-                    'Eyeglasses': '-1', 'Goatee': '-1', 'Gray_Hair': '-1',
-                    'Heavy_Makeup': '1', 'High_Cheekbones': '1', 'Male': '-1',
-                    'Mouth_Slightly_Open': '1', 'Mustache': '-1', 'Narrow_Eyes': '-1',
-                    'No_Beard': '1', 'Oval_Face': '-1', 'Pale_Skin': '-1', 'Pointy_Nose': '1',
-                    'Receding_Hairline': '-1', 'Rosy_Cheeks': '-1', 'Sideburns': '-1',
-                    'Smiling': '1', 'Straight_Hair': '1', 'Wavy_Hair': '-1',
-                    'Wearing_Earrings': '1', 'Wearing_Hat': '-1', 'Wearing_Lipstick': '1',
-                    'Wearing_Necklace': '-1', 'Wearing_Necktie': '-1', 'Young': '1'}
+                attributes={'5_o_Clock_Shadow': False, 'Arched_Eyebrows': True,
+                    'Attractive': True, 'Bags_Under_Eyes': False, 'Bald': False,
+                    'Bangs': False, 'Big_Lips': False, 'Big_Nose': False, 'Black_Hair': False,
+                    'Blond_Hair': False, 'Blurry': False, 'Brown_Hair': True,
+                    'Bushy_Eyebrows': False, 'Chubby': False, 'Double_Chin': False,
+                    'Eyeglasses': False, 'Goatee': False, 'Gray_Hair': False,
+                    'Heavy_Makeup': True, 'High_Cheekbones': True, 'Male': False,
+                    'Mouth_Slightly_Open': True, 'Mustache': False, 'Narrow_Eyes': False,
+                    'No_Beard': True, 'Oval_Face': False, 'Pale_Skin': False, 'Pointy_Nose': True,
+                    'Receding_Hairline': False, 'Rosy_Cheeks': False, 'Sideburns': False,
+                    'Smiling': True, 'Straight_Hair': True, 'Wavy_Hair': False,
+                    'Wearing_Earrings': True, 'Wearing_Hat': False, 'Wearing_Lipstick': True,
+                    'Wearing_Necklace': False, 'Wearing_Necktie': False, 'Young': True}
             ),
             DatasetItem(id='000002', subset='train',
                 image=np.ones((3, 4, 3)),
@@ -61,7 +61,7 @@ class CelebaImporterTest(TestCase):
                     Bbox(236, 109, 120, 166, label=7),
                     Points([273, 169, 328, 161, 298, 172, 283, 208, 323, 207], label=7)]
             )
-        ], categories=['label_%d' % i for i in range(13)])
+        ], categories=['class_%d' % i for i in range(13)])
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'celeba')
 

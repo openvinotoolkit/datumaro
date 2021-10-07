@@ -21,6 +21,9 @@ class CelebaPath:
     LANDMARKS_ALIGN_FILE = 'list_landmarks_align_celeba.txt'
     SUBSETS_FILE = 'Eval/list_eval_partition.txt'
     SUBSETS = {'0': 'train', '1': 'val', '2': 'test'}
+    BBOXES_HEADER = 'image_id x_1 y_1 width height'
+    LANDMARKS_HEADER = 'lefteye_x lefteye_y righteye_x righteye_y ' \
+        'nose_x nose_y leftmouth_x leftmouth_y rightmouth_x rightmouth_y'
 
 class CelebaExtractor(SourceExtractor):
     def __init__(self, path, subset=None):
@@ -36,15 +39,19 @@ class CelebaExtractor(SourceExtractor):
     def _load_items(self, path):
         items = {}
 
+        align_dataset = False
+
         image_dir = osp.join(osp.dirname(self._anno_dir), CelebaPath.IMAGES_DIR)
         if not osp.isdir(image_dir):
             image_dir = osp.join(osp.dirname(self._anno_dir), CelebaPath.IMAGES_ALIGN_DIR)
+            align_dataset = True
         if osp.isdir(image_dir):
             images = {
                 osp.splitext(osp.relpath(p, image_dir))[0].replace('\\', '/'): p
                 for p in find_images(image_dir, recursive=True)
             }
-        elif osp.isdir(osp.join(osp.dirname(self._anno_dir), CelebaPath.IMAGES_DIR)):
+        else:
+            align_dataset = False
             images = {}
 
         label_categories = self._categories[AnnotationType.label]
@@ -54,56 +61,77 @@ class CelebaExtractor(SourceExtractor):
                 label_ids = [int(id) for id in item_ann]
                 anno = []
                 for label in label_ids:
-                    if label > len(label_categories):
-                        for i in range(len(label_categories), label + 1):
-                            label_categories.add('label_%d' % i)
+                    while label >= len(label_categories):
+                        label_categories.add('class_%d' % len(label_categories))
                     anno.append(Label(label))
 
                 items[item_id] = DatasetItem(id=item_id, image=images.get(item_id),
                     annotations=anno)
 
-        bbox_path = osp.join(self._anno_dir, CelebaPath.BBOXES_FILE)
-        if osp.isfile(bbox_path):
-            with open(bbox_path, encoding='utf-8') as f:
-                for line in f:
-                    if len(line.split()) < 5 or 'image_id' == line[0:8]:
-                        continue
-                    item_id, item_ann = self.split_annotation(line)
-                    bbox = [float(id) for id in item_ann]
-                    if item_id not in items:
-                        items[item_id] = DatasetItem(id=item_id, image=images.get(item_id))
-                    anno = items[item_id].annotations
-                    label = None
-                    if 0 < len(anno):
-                        label = anno[0].label
-                    anno.append(Bbox(bbox[0], bbox[1], bbox[2], bbox[3], label=label))
+        if not align_dataset:
+            bbox_path = osp.join(self._anno_dir, CelebaPath.BBOXES_FILE)
+            if osp.isfile(bbox_path):
+                with open(bbox_path, encoding='utf-8') as f:
+                    bboxes_number = int(f.readline().strip())
+                    counter = 0
+                    if f.readline().strip() != CelebaPath.BBOXES_HEADER:
+                        raise Exception("File %s does not match "
+                            "the expected format 'image_id x_1 y_1 "
+                            "width height'" % bbox_path)
+                    for line in f:
+                        item_id, item_ann = self.split_annotation(line)
+                        bbox = [float(id) for id in item_ann]
+                        if item_id not in items:
+                            items[item_id] = DatasetItem(id=item_id,
+                                image=images.get(item_id))
+                        anno = items[item_id].annotations
+                        label = None
+                        if 0 < len(anno):
+                            label = anno[0].label
+                        anno.append(Bbox(bbox[0], bbox[1], bbox[2], bbox[3], label=label))
+                        counter += 1
+                    if bboxes_number != counter:
+                        raise Exception("File %s: the number of bounding "
+                            "boxes does not match the specified number "
+                            "at the beginning of the file " % bbox_path)
 
         attr_path = osp.join(self._anno_dir, CelebaPath.ATTRS_FILE)
         if osp.isfile(attr_path):
             with open(attr_path, encoding='utf-8') as f:
-                f.readline()
-                line = f.readline()
-                name_attr = line.split()
+                attr_number = int(f.readline().strip())
+                counter = 0
+                attr_names = f.readline().split()
                 attr = {}
                 for line in f:
                     item_id, item_ann = self.split_annotation(line)
-                    if len(name_attr) != len(item_ann):
-                        continue
-                    for i, ann in enumerate(item_ann):
-                        attr[name_attr[i]] = ann
+                    if len(attr_names) != len(item_ann):
+                        raise Exception("Line %s: the number of attributes "
+                            "in the line does not match the number at the "
+                            "beginning of the file " % line)
+                    attr = {name: True if int(ann) == 1 else False
+                        for name, ann in zip(attr_names, item_ann)}
 
                     if item_id not in items:
                         items[item_id] = DatasetItem(id=item_id, image=images.get(item_id))
                     items[item_id].attributes = attr
-
-        landmark_path = osp.join(self._anno_dir, CelebaPath.LANDMARKS_FILE)
-        if not osp.isfile(landmark_path):
+                    counter += 1
+                if attr_number != counter:
+                    raise Exception("File %s: the number of items with "
+                        "attributes does not match the specified number "
+                        "at the beginning of the file " % attr_path)
+        if not align_dataset:
+            landmark_path = osp.join(self._anno_dir, CelebaPath.LANDMARKS_FILE)
+        else:
             landmark_path = osp.join(self._anno_dir, CelebaPath.LANDMARKS_ALIGN_FILE)
         if osp.isfile(landmark_path):
             with open(landmark_path, encoding='utf-8') as f:
+                landmarks_number = int(f.readline().strip())
+                counter = 0
+                if f.readline().strip() != CelebaPath.LANDMARKS_HEADER:
+                    raise Exception("File %s does not match "
+                        "the expected format 'image_id x_1 y_1 "
+                        "width height'" % bbox_path)
                 for line in f:
-                    if len(line.split()) < 11 or 'lefteye_x' == line[0:9]:
-                        continue
                     item_id, item_ann = self.split_annotation(line)
                     landmarks = [float(id) for id in item_ann]
                     if item_id not in items:
@@ -113,6 +141,11 @@ class CelebaExtractor(SourceExtractor):
                     if 0 < len(anno):
                         label = anno[0].label
                     anno.append(Points(landmarks, label=label))
+                    counter += 1
+                if landmarks_number != counter:
+                    raise Exception("File %s: the number of landmarks "
+                        "does not match the specified number at the "
+                        "beginning of the file " % landmark_path)
 
         subset_path = osp.join(osp.dirname(self._anno_dir), CelebaPath.SUBSETS_FILE)
         if osp.isfile(subset_path):
