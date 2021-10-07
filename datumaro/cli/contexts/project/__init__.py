@@ -138,7 +138,8 @@ def build_export_parser(parser_ctor=argparse.ArgumentParser):
 
 def get_export_sensitive_args():
     return {
-        export_command: ['dst_dir', 'project_dir', 'name',],
+        export_command: ['dst_dir', 'project_dir', 'name', 'extra_args',
+            'target', 'filter'],
     }
 
 @scoped
@@ -423,7 +424,7 @@ def build_transform_parser(parser_ctor=argparse.ArgumentParser):
 
 def get_transform_sensitive_args():
     return {
-        transform_command: ['dst_dir', 'project_dir',],
+        transform_command: ['dst_dir', 'project_dir', 'extra_args', 'target'],
     }
 
 @scoped
@@ -546,7 +547,7 @@ def build_stats_parser(parser_ctor=argparse.ArgumentParser):
 
 def get_stats_sensitive_args():
     return {
-        stats_command: ['project_dir',],
+        stats_command: ['project_dir', 'target'],
     }
 
 @scoped
@@ -596,7 +597,7 @@ def build_info_parser(parser_ctor=argparse.ArgumentParser):
 
 def get_info_sensitive_args():
     return {
-        info_command: ['project_dir',],
+        info_command: ['project_dir', 'revision'],
     }
 
 @scoped
@@ -691,7 +692,7 @@ def build_validate_parser(parser_ctor=argparse.ArgumentParser):
 
 def get_validate_sensitive_args():
     return {
-        validate_command: ['target', 'project_dir',],
+        validate_command: ['target', 'project_dir', 'subset_name', 'extra_args'],
     }
 
 @scoped

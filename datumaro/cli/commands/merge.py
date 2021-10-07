@@ -105,7 +105,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 
 def get_sensitive_args():
     return {
-        merge_command: ['targets', 'labels', 'project_dir', 'dst_dir',],
+        merge_command: ['targets', 'project_dir', 'dst_dir', 'groups'],
     }
 
 @scoped

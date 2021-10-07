@@ -80,7 +80,7 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
 
 def get_add_sensitive_args():
     return {
-        add_command: ['path', 'project_dir', 'url', 'name',],
+        add_command: ['path', 'project_dir', 'url', 'name', 'extra_args'],
     }
 
 @scoped
