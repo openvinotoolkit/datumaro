@@ -28,6 +28,8 @@ class AnnotationType(Enum):
 
 COORDINATE_ROUNDING_DIGITS = 2
 
+NO_GROUP = 0
+
 @attrs(kw_only=True)
 class Annotation:
     """
@@ -37,10 +39,25 @@ class Annotation:
     from the AnnotationType enum.
     """
 
+    # Describes an identifier of the annotation
+    # Is not required to be unique within DatasetItem annotations or dataset
     id: int = attrib(default=0, validator=default_if_none(int))
+
+    # Arbitrary annotation-specific attributes. Typically, includes
+    # metainfo and properties that are not covered by other fields.
+    # If possible, try to limit value types of values by the simple
+    # builtin types (int, float, bool, str) to increase compatibility with
+    # different formats.
+    # There are some established names for common attributes like:
+    # - "occluded" (bool)
+    # - "visible" (bool)
+    # Possible dataset attributes can be descibed in Categories.attributes.
     attributes: Dict[str, Any] = attrib(
         factory=dict, validator=default_if_none(dict))
-    group: int = attrib(default=0, validator=default_if_none(int))
+
+    # Annotations can be grouped, which means they describe parts of a
+    # single object. The value of 0 means there is no group.
+    group: int = attrib(default=NO_GROUP, validator=default_if_none(int))
 
     def __attrs_post_init__(self):
         assert isinstance(self.type, AnnotationType)
@@ -61,6 +78,8 @@ class Categories:
     label attributes etc.
     """
 
+    # Describes the list of possible annotation-type specific attrbutes
+    # in a dataset.
     attributes: Set[str] = attrib(
         factory=set, validator=default_if_none(set), eq=False)
 
