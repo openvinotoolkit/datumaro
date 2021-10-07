@@ -1,3 +1,7 @@
+// Copyright (C) 2021 Intel Corporation
+//
+// SPDX-License-Identifier: MIT
+
 // timer and redirect
 function startTimer(duration, display) {
     var timer = duration, seconds;
