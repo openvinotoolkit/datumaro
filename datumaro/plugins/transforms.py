@@ -591,7 +591,7 @@ class ProjectLabels(ItemTransform):
     added, and the dataset has mask colors defined, new labels will obtain
     generated colors.|n
     |n
-    Useful for merging similar datasets, which labels needs to be aligned.|n
+    Useful for merging similar datasets, which labels need to be aligned.|n
     |n
     Examples:|n
     - Align the source dataset labels to [person, cat, dog]:|n
