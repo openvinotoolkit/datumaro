@@ -7,15 +7,14 @@ import os.path as osp
 
 import numpy as np
 
-from datumaro.components.annotation import Bbox, Mask
+from datumaro.components.annotation import Bbox, LabelCategories, Mask
 from datumaro.components.extractor import (
     AnnotationType, DatasetItem, SourceExtractor,
 )
 from datumaro.util.image import find_images, load_image
 
 from .format import (
-    KittiLabelMap, KittiPath, KittiTask, make_kitti_categories,
-    make_kitti_detection_categories, parse_label_map,
+    KittiLabelMap, KittiPath, KittiTask, make_kitti_categories, parse_label_map,
 )
 
 
@@ -37,7 +36,7 @@ class _KittiExtractor(SourceExtractor):
         if self._task == KittiTask.segmentation:
             return self._load_categories_segmentation(path)
         elif self._task == KittiTask.detection:
-            return make_kitti_detection_categories()
+            return {AnnotationType.label: LabelCategories()}
 
     def _load_categories_segmentation(self, path):
         label_map = None
@@ -82,8 +81,8 @@ class _KittiExtractor(SourceExtractor):
 
         det_dir = osp.join(self._path, KittiPath.LABELS_DIR)
         if self._task == KittiTask.detection:
-            for labels_path in glob.glob(osp.join(det_dir, '**', '*.txt'),
-                    recursive=True):
+            for labels_path in sorted(glob.glob(osp.join(det_dir, '**', '*.txt'),
+                    recursive=True)):
                 item_id = osp.splitext(osp.relpath(labels_path, det_dir))[0]
                 anns = []
 
@@ -104,8 +103,8 @@ class _KittiExtractor(SourceExtractor):
                     label_id = self.categories()[
                         AnnotationType.label].find(line[0])[0]
                     if label_id is None:
-                        raise Exception("Item %s: unknown label '%s'" % \
-                            (item_id, line[0]))
+                        label_id = self.categories()[AnnotationType.label].add(
+                            line[0])
 
                     anns.append(
                         Bbox(x=x1, y=y1, w=x2-x1, h=y2-y1, id=line_idx,
