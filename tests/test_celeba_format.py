@@ -25,17 +25,7 @@ class CelebaImporterTest(TestCase):
                     Points([165, 184, 244, 176, 196, 249, 194, 271, 266, 260], label=12)],
                 attributes={'5_o_Clock_Shadow': False, 'Arched_Eyebrows': True,
                     'Attractive': True, 'Bags_Under_Eyes': False, 'Bald': False,
-                    'Bangs': False, 'Big_Lips': False, 'Big_Nose': False, 'Black_Hair': False,
-                    'Blond_Hair': False, 'Blurry': False, 'Brown_Hair': True,
-                    'Bushy_Eyebrows': False, 'Chubby': False, 'Double_Chin': False,
-                    'Eyeglasses': False, 'Goatee': False, 'Gray_Hair': False,
-                    'Heavy_Makeup': True, 'High_Cheekbones': True, 'Male': False,
-                    'Mouth_Slightly_Open': True, 'Mustache': False, 'Narrow_Eyes': False,
-                    'No_Beard': True, 'Oval_Face': False, 'Pale_Skin': False, 'Pointy_Nose': True,
-                    'Receding_Hairline': False, 'Rosy_Cheeks': False, 'Sideburns': False,
-                    'Smiling': True, 'Straight_Hair': True, 'Wavy_Hair': False,
-                    'Wearing_Earrings': True, 'Wearing_Hat': False, 'Wearing_Lipstick': True,
-                    'Wearing_Necklace': False, 'Wearing_Necktie': False, 'Young': True}
+                    'Bangs': False, 'Big_Lips': False, 'Big_Nose': False}
             ),
             DatasetItem(id='000002', subset='train',
                 image=np.ones((3, 4, 3)),

@@ -167,7 +167,7 @@ class CelebaExtractor(SourceExtractor):
         item = line.split('\"')
         if 1 < len(item):
             if len(item) == 3:
-                item_id = item[1]
+                item_id = osp.splitext(item[1])[0]
                 item = item[2].split()
             else:
                 raise Exception("Line %s: unexpected number "
