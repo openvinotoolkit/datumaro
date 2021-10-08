@@ -1,10 +1,11 @@
-# Copyright (C) 2020 Intel Corporation
+# Copyright (C) 2020-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
+import inspect
+
 import attr
 
-_NOTSET = object()
 
 def not_empty(inst, attribute, x):
     assert len(x) != 0, x
@@ -19,8 +20,21 @@ def default_if_none(conv):
                 value = default.factory()
             else:
                 value = default
-        elif not isinstance(value, attribute.type or conv):
-            value = conv(value)
+        else:
+            dst_type = None
+            if attribute.type and inspect.isclass(attribute.type) and \
+                    not hasattr(attribute.type, '__origin__'):
+                #       ^^^^^^^
+                # Disallow Generics in python 3.6
+                # Can be dropped with 3.6 support. Generics canot be used
+                # in isinstance() checks.
+
+                dst_type = attribute.type
+            elif conv and inspect.isclass(conv):
+                dst_type = conv
+
+            if not dst_type or not isinstance(value, dst_type):
+                value = conv(value)
         setattr(inst, attribute.name, value)
     return validator
 
