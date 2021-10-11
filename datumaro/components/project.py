@@ -33,9 +33,10 @@ from datumaro.components.errors import (
     MismatchingObjectError, MissingObjectError, MissingPipelineHeadError,
     MultiplePipelineHeadsError, OldProjectError, PathOutsideSourceError,
     ProjectAlreadyExists, ProjectNotFoundError, ReadonlyDatasetError,
-    ReadonlyProjectError, SourceExistsError, SourceOutsideProjectError, SourceUrlInsideProjectError,
-    UnexpectedUrlError, UnknownRefError, UnknownSourceError, UnknownStageError,
-    UnknownTargetError, UnsavedChangesError, VcsError,
+    ReadonlyProjectError, SourceExistsError, SourceOutsideProjectError,
+    SourceUrlInsideProjectError, UnexpectedUrlError, UnknownRefError,
+    UnknownSourceError, UnknownStageError, UnknownTargetError,
+    UnsavedChangesError, VcsError,
 )
 from datumaro.components.launcher import Launcher
 from datumaro.util import find, parse_str_enum_value

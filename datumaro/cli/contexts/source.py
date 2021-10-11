@@ -5,7 +5,6 @@
 import argparse
 import logging as log
 import os
-import os.path as osp
 
 from datumaro.components.errors import ProjectNotFoundError
 from datumaro.components.project import Environment

@@ -12,8 +12,8 @@ from datumaro.components.dataset import DEFAULT_FORMAT, Dataset
 from datumaro.components.errors import (
     DatasetMergeError, EmptyCommitError, ForeignChangesError,
     MismatchingObjectError, MissingObjectError, OldProjectError,
-    PathOutsideSourceError, ReadonlyProjectError, SourceExistsError, SourceOutsideProjectError,
-    SourceUrlInsideProjectError, UnexpectedUrlError,
+    PathOutsideSourceError, ReadonlyProjectError, SourceExistsError,
+    SourceOutsideProjectError, SourceUrlInsideProjectError, UnexpectedUrlError,
 )
 from datumaro.components.extractor import DatasetItem, Extractor, ItemTransform
 from datumaro.components.launcher import Launcher
