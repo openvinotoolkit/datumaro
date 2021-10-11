@@ -7,7 +7,6 @@ import logging as log
 import os.path as osp
 
 from datumaro.components.extractor import Importer
-from datumaro.util import parse_str_enum_value
 from datumaro.util.log_utils import logging_disabled
 
 from .format import CocoTask
@@ -78,6 +77,14 @@ class CocoImporter(Importer):
 
     @classmethod
     def find_sources(cls, path):
+        def detect_coco_task(filename):
+            for task in CocoTask:
+                if filename.startswith(task.name + '_'):
+                    return task
+            raise ValueError("Unknown task in file name: %s.\
+                    The only known are: %s" % \
+                        (filename, ', '.join(e.name for e in CocoTask)))
+
         if osp.isfile(path):
             if len(cls._TASKS) == 1:
                 return {'': { next(iter(cls._TASKS)): path }}
@@ -90,15 +97,12 @@ class CocoImporter(Importer):
 
         subsets = {}
         for subset_path in subset_paths:
-            name_parts = osp.splitext(osp.basename(subset_path))[0] \
-                .rsplit('_', maxsplit=1)
-
-            ann_type = parse_str_enum_value(name_parts[0], CocoTask,
-                default=None)
+            ann_type = detect_coco_task(osp.basename(subset_path))
             if ann_type not in cls._TASKS:
                 continue
 
-            subset_name = name_parts[1]
+            subset_name = osp.splitext(osp.basename(subset_path))[0] \
+                .replace(ann_type.name + '_', '')
             subsets.setdefault(subset_name, {})[ann_type] = subset_path
 
         return subsets

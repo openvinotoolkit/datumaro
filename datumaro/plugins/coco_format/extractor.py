@@ -33,8 +33,8 @@ class _CocoExtractor(SourceExtractor):
         assert osp.isfile(path), path
 
         if not subset:
-            subset = osp.splitext(osp.basename(path))[0].rsplit('_', maxsplit=1)
-            subset = subset[1] if len(subset) == 2 else None
+            subset = osp.splitext(osp.basename(path))[0].replace(task.name + '_', '')
+            subset = subset if subset else None
         super().__init__(subset=subset)
 
         rootpath = ''

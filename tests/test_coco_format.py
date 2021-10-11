@@ -3,6 +3,7 @@ from itertools import product
 from unittest import TestCase
 import os
 import os.path as osp
+from attr import attributes
 
 import numpy as np
 
@@ -1009,6 +1010,20 @@ class CocoConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
                 CocoConverter.convert, test_dir, target_dataset=target_dataset)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_subset_can_contain_underscore(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id=2, image=np.ones((4, 2, 3)), subset='subset_1',
+                annotations=[Polygon([0, 0, 4, 0, 4, 4], label=0, id=1, group=1,
+                    attributes={'is_crowd': False}),
+            ], attributes={'id': 1})
+        ], categories=[str(i) for i in range(10)])
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(source_dataset,
+                CocoConverter.convert, test_dir)
+
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_reindex(self):
