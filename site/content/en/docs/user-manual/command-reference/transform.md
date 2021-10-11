@@ -71,6 +71,7 @@ Subset manipulations:
 
 Annotation manipulations:
 - `remap_labels` - Renames, adds or removes labels in dataset
+- `project_labels` - Sets dataset labels to the requested sequence
 - `shapes_to_boxes` - Replaces spatial annotations with bounding boxes
 - `boxes_to_masks` - Converts bounding boxes to instance masks
 - `polygons_to_masks` - Converts polygons to instance masks
@@ -112,6 +113,14 @@ datum transform -t boxes_to_masks
 datum transform -t masks_to_polygons
 datum transform -t polygons_to_masks
 datum transform -t shapes_to_boxes
+```
+
+- Set dataset labels to {`person`, `cat`, `dog`}, remove others, add missing.
+  Original labels (can be any): `cat`, `dog`, `elephant`, `human`
+  New labels: `person` (added), `cat` (kept), `dog` (kept)
+
+``` bash
+datum transform -t project_labels -- -l person -l cat -l dog
 ```
 
 - Remap dataset labels, `person` to `car` and `cat` to `dog`,
