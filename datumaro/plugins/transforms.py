@@ -572,21 +572,57 @@ class RemapLabels(ItemTransform, CliPlugin):
 class ProjectLabels(ItemTransform):
     """
     Changes the order of labels in the dataset from the existing
-    to the desired one and removes unknown labels. Updates or removes
-    the corresponding annotations.
-
-    Labels are matched by names (case dependent).
-
-    Useful for merging similar datasets.
+    to the desired one, removes unknown labels and adds new labels.
+    Updates or removes the corresponding annotations.|n
+    |n
+    Labels are matched by names (case dependent). Parent labels are only kept
+    if they are present in the resulting set of labels. If new labels are
+    added, and the dataset has mask colors defined, new labels will obtain
+    generated colors.|n
+    |n
+    Useful for merging similar datasets, which labels need to be aligned.|n
+    |n
+    Examples:|n
+    - Align the source dataset labels to [person, cat, dog]:|n
+    |s|s%(prog)s -l person -l cat -l dog
     """
 
-    def __init__(self, extractor: IExtractor, dst_labels: LabelCategories):
+    @classmethod
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument('-l', '--label', action='append', dest='dst_labels',
+            help="Label name (repeatable, ordered)")
+        return parser
+
+    def __init__(self, extractor: IExtractor,
+            dst_labels: Union[Iterable[str], LabelCategories]):
         super().__init__(extractor)
 
         self._categories = {}
 
-        src_label_cat = self._extractor.categories().get(AnnotationType.label)
-        self._make_label_id_map(src_label_cat, dst_labels)
+        src_categories = self._extractor.categories()
+
+        src_label_cat = src_categories.get(AnnotationType.label)
+
+        if not isinstance(dst_labels, LabelCategories):
+            dst_labels = [str(label) for label in dst_labels]
+
+            if not src_label_cat:
+                dst_label_cat = LabelCategories.from_iterable(dst_labels)
+            else:
+                dst_label_cat = LabelCategories(
+                    attributes=deepcopy(src_label_cat.attributes))
+
+                for dst_label in dst_labels:
+                    src_label = src_label_cat.find(dst_label)[1]
+                    if src_label is not None:
+                        dst_label_cat.add(dst_label, src_label.parent,
+                            deepcopy(src_label.attributes))
+                    else:
+                        dst_label_cat.add(dst_label)
+        else:
+            dst_label_cat = deepcopy(dst_labels)
+        self._make_label_id_map(src_label_cat, dst_label_cat)
 
         src_mask_cat = self._extractor.categories().get(AnnotationType.mask)
         if src_mask_cat is not None:
