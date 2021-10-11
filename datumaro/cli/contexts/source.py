@@ -192,10 +192,10 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
     parser.add_argument('-f', '--format', required=True,
         help="Source dataset format")
     parser.add_argument('-r', '--path', dest='rpath',
-        help="A path relative to URL to the source data. Useful to specify "
-            "a path to subset, subtask, or a specific file in URL.")
+        help="A path relative to source root to the source data. Useful to "
+            "specify a path to subset, subtask, or a specific file in dataset.")
     parser.add_argument('--no-check', action='store_true',
-        help="Don't try to read the source after importing")
+        help="Don't try to read the source")
     parser.add_argument('-p', '--project', dest='project_dir', default='.',
         help="Directory of the project to operate on (default: current dir)")
     parser.add_argument('extra_args', nargs=argparse.REMAINDER,
@@ -221,7 +221,7 @@ def add_command(args):
         pos = args._positionals.index('--')
     else:
         pos = 1
-    args.rpath = (args._positionals[:pos] or [''])[0]
+    args.path = (args._positionals[:pos] or [''])[0]
     args.extra_args = args._positionals[pos + has_sep:]
 
     show_plugin_help = '-h' in args.extra_args or '--help' in args.extra_args
@@ -249,12 +249,8 @@ def add_command(args):
 
     extra_args = arg_parser.parse_cmdline(args.extra_args)
 
-    name = osp.basename(args.path)
-    if name in project.working_tree.sources:
-        raise CliException("Source '%s' already exists" % name)
-
-    project.add_source(name, path=args.path, format=args.format,
-        options=extra_args, no_cache=True, no_hash=True, rpath=args.rpath)
+    name, _ = project.add_source(args.path,
+        format=args.format, options=extra_args, rpath=args.rpath)
     on_error_do(project.remove_source, name, ignore_errors=True,
         kwargs={'force': True, 'keep_data': False})
 

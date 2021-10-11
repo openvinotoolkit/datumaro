@@ -33,7 +33,7 @@ from datumaro.components.errors import (
     MismatchingObjectError, MissingObjectError, MissingPipelineHeadError,
     MultiplePipelineHeadsError, OldProjectError, PathOutsideSourceError,
     ProjectAlreadyExists, ProjectNotFoundError, ReadonlyDatasetError,
-    ReadonlyProjectError, SourceExistsError, SourceUrlInsideProjectError,
+    ReadonlyProjectError, SourceExistsError, SourceOutsideProjectError, SourceUrlInsideProjectError,
     UnexpectedUrlError, UnknownRefError, UnknownSourceError, UnknownStageError,
     UnknownTargetError, UnsavedChangesError, VcsError,
 )
@@ -2092,27 +2092,9 @@ class Project:
         return config
 
     @scoped
-    def add_source(self, path: Optional[str],
+    def add_source(self, path: str,
             format: str, options: Optional[Dict] = None, *,
-            rpath: Optional[str] = None) -> Source:
-        """
-        Adds a new source (dataset) to the working directory of the project.
-
-        When 'path' is specified, will copy all the data from URL, but read
-        only the specified file. Required to support subtasks and subsets
-        in datasets.
-
-        Parameters:
-        - name (str) - Name of the new source
-        - url (str) - URL of the new source. A path to a file or directory
-        - format (str) - Dataset format
-        - options (dict) - Options for the format Extractor
-        - rpath (str) - Used to specify a relative path to the dataset
-            inside of the directory pointed by URL.
-
-        Returns: the new source config
-        """
-
+            rpath: Optional[str] = None) -> Tuple[str, Source]:
         if self.readonly:
             raise ReadonlyProjectError()
 
@@ -2127,11 +2109,15 @@ class Project:
         if name in self.working_tree.sources:
             raise SourceExistsError(name)
 
-        if not osp.exists(path):
-            raise FileNotFoundError(path)
+        if not osp.isdir(path):
+            raise FileNotFoundError("Source directory '%s' is not found" % path)
+
+        if not is_subpath(path, base=self._root_dir):
+            raise UnexpectedUrlError("The source path is expected to be "
+                "a directory in the project root")
 
         if osp.dirname(path) != self._root_dir:
-            raise SourceUrlInsideProjectError()
+            raise SourceOutsideProjectError()
 
         if rpath:
             rpath = osp.normpath(osp.join(path, rpath))
@@ -2148,21 +2134,19 @@ class Project:
         else:
             rpath = None
 
-        config = Source({
+        self._git.ignore([path])
+
+        config = self.working_tree.sources.add(name, {
             'url': (path or '').replace('\\', '/'),
             'path': (rpath or '').replace('\\', '/'),
             'format': format,
             'options': options or {},
         })
-
-        self._git.ignore([path])
-
-        config = self.working_tree.sources.add(name, config)
         self.working_tree.build_targets.add_target(name)
 
         self.working_tree.save()
 
-        return config
+        return name, config
 
     def remove_source(self, name: str, *,
             force: bool = False, keep_data: bool = True):
