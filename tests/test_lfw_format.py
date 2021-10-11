@@ -184,11 +184,13 @@ class LfwFormatTest(TestCase):
         dataset = Dataset.from_iterable([
             DatasetItem(id='a/1', image=Image(
                 path='a/1.JPEG', data=np.zeros((4, 3, 3))),
+                annotations=[Label(0)]
             ),
             DatasetItem(id='b/c/d/2', image=Image(
                 path='b/c/d/2.bmp', data=np.zeros((3, 4, 3))),
+                annotations=[Label(1)]
             ),
-        ], categories=[])
+        ], categories=['name0', 'name1'])
 
         with TestDir() as test_dir:
             LfwConverter.convert(dataset, test_dir, save_images=True)
