@@ -633,6 +633,12 @@ class ProjectLabels(ItemTransform):
                         dst_label_cat.add(dst_label)
         else:
             dst_label_cat = deepcopy(dst_labels)
+
+        for label in dst_label_cat:
+            if label.parent not in dst_label_cat:
+                label.parent = ''
+        self._categories[AnnotationType.label] = dst_label_cat
+
         self._make_label_id_map(src_label_cat, dst_label_cat)
 
         src_mask_cat = src_categories.get(AnnotationType.mask)
@@ -683,11 +689,6 @@ class ProjectLabels(ItemTransform):
             for src_id in range(len(src_label_cat or ()))
         }
         self._map_id = lambda src_id: id_mapping.get(src_id, None)
-
-        for label in dst_label_cat:
-            if label.parent not in dst_label_cat:
-                label.parent = ''
-        self._categories[AnnotationType.label] = dst_label_cat
 
     def categories(self):
         return self._categories
