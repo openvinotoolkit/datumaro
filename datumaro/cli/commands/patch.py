@@ -19,7 +19,8 @@ from ..util.project import load_project, parse_full_revpath
 def build_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(help="Updates dataset from another one",
         description="""
-        Updates items of the first dataset with items from the second one.
+        Updates items of the first dataset with items from the second one.|n
+        |n
         By default, datasets are updated in-place. The '-o/--output-dir'
         option can be used to specify another output directory. When
         updating in-place, use the '--overwrite' parameter along with the
