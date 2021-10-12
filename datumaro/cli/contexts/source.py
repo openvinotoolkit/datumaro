@@ -349,7 +349,8 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         formatter_class=MultilineFormatter)
 
     subparsers = parser.add_subparsers()
-    add_subparser(subparsers, 'add', build_import_parser)
+    add_subparser(subparsers, 'import', build_import_parser)
+    add_subparser(subparsers, 'add', build_add_parser)
     add_subparser(subparsers, 'remove', build_remove_parser)
     add_subparser(subparsers, 'info', build_info_parser)
 
@@ -357,6 +358,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 
 def get_sensitive_args():
     return {
+        **get_add_sensitive_args(),
         **get_import_sensitive_args(),
         **get_remove_sensitive_args(),
         **get_info_sensitive_args(),
