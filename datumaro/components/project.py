@@ -2002,7 +2002,7 @@ class Project:
         """
         Adds a new source (dataset) to the working directory of the project.
 
-        When 'path' is specified, will copy all the data from URL, but read
+        When 'rpath' is specified, will copy all the data from URL, but read
         only the specified file. Required to support subtasks and subsets
         in datasets.
 
@@ -2100,6 +2100,27 @@ class Project:
     def add_source(self, path: str,
             format: str, options: Optional[Dict] = None, *,
             rpath: Optional[str] = None) -> Tuple[str, Source]:
+        """
+        Adds a new source (dataset) from the working directory of the project.
+
+        Only directories from the project root can be added. This command is
+        useful after a source was removed and you need to re-add it, or when
+        the dataset was copied or downloaded manually.
+
+        When 'rpath' is specified, will copy all the data from URL, but read
+        only the specified file. Required to support subtasks and subsets
+        in datasets.
+
+        Parameters:
+        - url (str) - URL of the new source. A path to a file or directory
+        - format (str) - Dataset format
+        - options (dict) - Options for the format Extractor
+        - rpath (str) - Used to specify a relative path to the dataset
+            inside of the directory pointed by URL.
+
+        Returns: the name and the config of the new source
+        """
+
         if self.readonly:
             raise ReadonlyProjectError()
 
