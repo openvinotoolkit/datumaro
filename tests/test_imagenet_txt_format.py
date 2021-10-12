@@ -192,7 +192,7 @@ class ImagenetTxtImporterTest(TestCase):
 
         dataset = Dataset.import_from(
             DUMMY_DATASET_WITH_NO_LABELS_DIR, 'imagenet_txt',
-            labels_source='generate')
+            labels='generate')
 
         compare_datasets(self, expected_dataset, dataset, require_images=True)
 

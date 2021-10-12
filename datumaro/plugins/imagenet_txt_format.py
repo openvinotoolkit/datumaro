@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 from enum import Enum, auto
-from typing import Iterable, Optional
+from typing import Iterable, Optional, Union
 import os
 import os.path as osp
 
@@ -26,8 +26,7 @@ class _LabelsSource(Enum):
 
 class ImagenetTxtExtractor(SourceExtractor):
     def __init__(self, path: str, *,
-        labels: Optional[Iterable[str]] = None,
-        labels_source: str = _LabelsSource.file.name,
+        labels: Union[Iterable[str], str] = _LabelsSource.file.name,
         labels_file: str = ImagenetTxtPath.LABELS_FILE,
         image_dir: Optional[str] = None,
         subset: Optional[str] = None,
@@ -44,19 +43,19 @@ class ImagenetTxtExtractor(SourceExtractor):
 
         self._generate_labels = False
 
-        if labels:
-            assert all(isinstance(e, str) for e in labels)
-        else:
-            labels_source_enum = _LabelsSource[labels_source]
+        if isinstance(labels, str):
+            labels_source = _LabelsSource[labels]
 
-            if labels_source_enum == _LabelsSource.generate:
+            if labels_source == _LabelsSource.generate:
                 labels = ()
                 self._generate_labels = True
-            elif labels_source_enum == _LabelsSource.file:
+            elif labels_source == _LabelsSource.file:
                 labels = self._parse_labels(
                     osp.join(osp.dirname(path), labels_file))
             else:
-                assert False, "Unhandled labels source %s" % labels_source_enum
+                assert False, "Unhandled labels source %s" % labels_source
+        else:
+            assert all(isinstance(e, str) for e in labels)
 
         self._categories = self._load_categories(labels)
 
@@ -119,21 +118,21 @@ class ImagenetTxtImporter(Importer, CliPlugin):
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
         parser = super().build_cmdline_parser(**kwargs)
-        parser.add_argument('--labels-file', dest='labels_file',
-            default=ImagenetTxtPath.LABELS_FILE,
-            help="Path to the file with label descriptions (synsets.txt)")
-        parser.add_argument('--labels-source', dest='labels_source',
+        parser.add_argument('--labels',
             choices=_LabelsSource.__members__,
             default=_LabelsSource.file.name,
             help="Where to get label descriptions from (use "
                 "'file' to load from the file specified by --labels-file; "
                 "'generate' to create generic ones)")
+        parser.add_argument('--labels-file',
+            default=ImagenetTxtPath.LABELS_FILE,
+            help="Path to the file with label descriptions (synsets.txt)")
         return parser
 
     @classmethod
     def find_sources_with_params(cls, path, **extra_params):
-        if 'labels_source' not in extra_params \
-            or extra_params['labels_source'] == _LabelsSource.file.name:
+        if 'labels' not in extra_params \
+            or extra_params['labels'] == _LabelsSource.file.name:
 
             labels_file_name = osp.basename(
                 extra_params.get('labels_file') or ImagenetTxtPath.LABELS_FILE)
