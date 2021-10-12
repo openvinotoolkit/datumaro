@@ -14,7 +14,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 
     parser.add_argument('-n', '--max-count', default=10, type=int,
         help="Count of last commits to print (default: %(default)s)")
-    parser.add_argument('-p', '--project', dest='project_dir', default='.',
+    parser.add_argument('-p', '--project', dest='project_dir',
         help="Directory of the project to operate on (default: current dir)")
     parser.set_defaults(command=log_command)
 

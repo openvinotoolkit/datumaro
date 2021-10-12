@@ -124,7 +124,7 @@ def build_export_parser(parser_ctor=argparse.ArgumentParser):
         help="Directory to save output (default: a subdir in the current one)")
     parser.add_argument('--overwrite', action='store_true',
         help="Overwrite existing files in the save directory")
-    parser.add_argument('-p', '--project', dest='project_dir', default='.',
+    parser.add_argument('-p', '--project', dest='project_dir',
         help="Directory of the project to operate on (default: current dir)")
     parser.add_argument('-f', '--format', required=True,
         help="Output format")
@@ -279,7 +279,7 @@ def build_filter_parser(parser_ctor=argparse.ArgumentParser):
             "build tree stage will be written (default: %(default)s)")
     parser.add_argument('--overwrite', action='store_true',
         help="Overwrite existing files in the save directory")
-    parser.add_argument('-p', '--project', dest='project_dir', default='.',
+    parser.add_argument('-p', '--project', dest='project_dir',
         help="Directory of the project to operate on (default: current dir)")
     parser.set_defaults(command=filter_command)
 
@@ -424,7 +424,7 @@ def build_transform_parser(parser_ctor=argparse.ArgumentParser):
             """)
     parser.add_argument('--overwrite', action='store_true',
         help="Overwrite existing files in the save directory")
-    parser.add_argument('-p', '--project', dest='project_dir', default='.',
+    parser.add_argument('-p', '--project', dest='project_dir',
         help="Directory of the project to operate on (default: current dir)")
     parser.add_argument('--stage', type=str_to_bool, default=True,
         help="""
@@ -568,7 +568,7 @@ def build_stats_parser(parser_ctor=argparse.ArgumentParser):
 
     parser.add_argument('target', default='project', nargs='?',
         help="Target dataset revpath (default: project)")
-    parser.add_argument('-p', '--project', dest='project_dir', default='.',
+    parser.add_argument('-p', '--project', dest='project_dir',
         help="Directory of the project to operate on (default: current dir)")
     parser.set_defaults(command=stats_command)
 
@@ -618,7 +618,7 @@ def build_info_parser(parser_ctor=argparse.ArgumentParser):
 
     parser.add_argument('revision', default='', nargs='?',
         help="Target revision (default: current working tree)")
-    parser.add_argument('-p', '--project', dest='project_dir', default='.',
+    parser.add_argument('-p', '--project', dest='project_dir',
         help="Directory of the project to operate on (default: current dir)")
     parser.set_defaults(command=info_command)
 
@@ -711,7 +711,7 @@ def build_validate_parser(parser_ctor=argparse.ArgumentParser):
         help="Task type for validation, one of %s" % task_types)
     parser.add_argument('-s', '--subset', dest='subset_name',
         help="Subset to validate (default: whole dataset)")
-    parser.add_argument('-p', '--project', dest='project_dir', default='.',
+    parser.add_argument('-p', '--project', dest='project_dir',
         help="Directory of the project to validate (default: current dir)")
     parser.add_argument('extra_args', nargs=argparse.REMAINDER,
         help="Optional arguments for validator (pass '-- -h' for help)")
@@ -806,7 +806,7 @@ def build_migrate_parser(parser_ctor=argparse.ArgumentParser):
         help="Output directory for the updated project")
     parser.add_argument('-f', '--force', action='store_true',
         help="Ignore source import errors (default: %(default)s)")
-    parser.add_argument('-p', '--project', dest='project_dir', default='.',
+    parser.add_argument('-p', '--project', dest='project_dir',
         help="Directory of the project to migrate (default: current dir)")
     parser.add_argument('--overwrite', action='store_true',
         help="Overwrite existing files in the save directory")
