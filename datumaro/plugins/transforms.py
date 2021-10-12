@@ -652,7 +652,7 @@ class ProjectLabels(ItemTransform):
                     dst_mask_cat.colormap[new_id] = deepcopy(old_color)
 
             # Generate new colors for new labels, keep old untouched
-            color_bank = mask_tools.generate_colormap(len(dst_mask_cat) + 1,
+            color_bank = mask_tools.generate_colormap(len(dst_mask_cat),
                 include_background=False)
             existing_colors = set(dst_mask_cat.colormap.values())
             for new_id, new_label in enumerate(dst_label_cat):
@@ -662,10 +662,9 @@ class ProjectLabels(ItemTransform):
                     continue
 
                 color = None
-                while not color or color in existing_colors:
+                while color in existing_colors or not color:
                     color = color_bank.pop(next(iter(color_bank)))
 
-                assert color
                 dst_mask_cat.colormap[new_id] = color
                 existing_colors.add(color)
 

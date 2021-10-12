@@ -515,8 +515,8 @@ class TransformsTest(TestCase):
         actual = transforms.ProjectLabels(source, dst_labels=['a', 'c', 'd'])
 
         self.assertEqual((0, 0, 0), actual.categories()[AnnotationType.mask][0])
-        self.assertFalse(1 in actual.categories()[AnnotationType.mask])
-        self.assertTrue(2 in actual.categories()[AnnotationType.mask])
+        self.assertNotIn(1, actual.categories()[AnnotationType.mask])
+        self.assertIn(2, actual.categories()[AnnotationType.mask])
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_transform_to_labels(self):
