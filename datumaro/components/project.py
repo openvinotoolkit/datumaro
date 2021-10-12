@@ -34,8 +34,8 @@ from datumaro.components.errors import (
     MissingSourceHashError, MultiplePipelineHeadsError, OldProjectError,
     PathOutsideSourceError, ProjectAlreadyExists, ProjectNotFoundError,
     ReadonlyDatasetError, ReadonlyProjectError, SourceExistsError,
-    SourceOutsideProjectError, SourceUrlInsideProjectError, UnexpectedUrlError,
-    UnknownRefError, UnknownSourceError, UnknownStageError, UnknownTargetError,
+    SourceUrlInsideProjectError, UnexpectedUrlError, UnknownRefError,
+    UnknownSourceError, UnknownStageError, UnknownTargetError,
     UnsavedChangesError, VcsError,
 )
 from datumaro.components.launcher import Launcher
@@ -2138,12 +2138,10 @@ class Project:
         if not osp.isdir(path):
             raise FileNotFoundError("Source directory '%s' is not found" % path)
 
-        if not is_subpath(path, base=self._root_dir):
+        if not (is_subpath(path, base=self._root_dir) and \
+                osp.dirname(path) == self._root_dir):
             raise UnexpectedUrlError("The source path is expected to be "
                 "a directory in the project root")
-
-        if osp.dirname(path) != self._root_dir:
-            raise SourceOutsideProjectError()
 
         if rpath:
             rpath = osp.normpath(osp.join(path, rpath))

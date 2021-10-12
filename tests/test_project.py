@@ -13,8 +13,7 @@ from datumaro.components.errors import (
     DatasetMergeError, EmptyCommitError, ForeignChangesError,
     MismatchingObjectError, MissingObjectError, MissingSourceHashError,
     OldProjectError, PathOutsideSourceError, ReadonlyProjectError,
-    SourceExistsError, SourceOutsideProjectError, SourceUrlInsideProjectError,
-    UnexpectedUrlError,
+    SourceExistsError, SourceUrlInsideProjectError, UnexpectedUrlError,
 )
 from datumaro.components.extractor import DatasetItem, Extractor, ItemTransform
 from datumaro.components.launcher import Launcher
@@ -306,7 +305,7 @@ class ProjectTest(TestCase):
         with open(source_file_path, 'w') as f:
             f.write('hello')
 
-        with self.assertRaisesRegex(UnexpectedUrlError, "must be a directory"):
+        with self.assertRaises(UnexpectedUrlError):
             project.add_source(source_base_url, format='fmt')
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -318,7 +317,7 @@ class ProjectTest(TestCase):
 
         project = scope_add(Project.init(osp.join(test_dir, 'proj')))
 
-        with self.assertRaises(SourceOutsideProjectError):
+        with self.assertRaises(UnexpectedUrlError):
             project.add_source(source_url, format='fmt')
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)

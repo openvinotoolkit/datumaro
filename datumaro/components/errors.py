@@ -57,10 +57,6 @@ class SourceUrlInsideProjectError(VcsError):
     def __str__(self):
         return "Source URL cannot point inside the project"
 
-class SourceOutsideProjectError(VcsError):
-    def __str__(self):
-        return "Source cannot be outside the project directory"
-
 class UnexpectedUrlError(VcsError):
     pass
 
