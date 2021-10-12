@@ -19,7 +19,7 @@ def build_import_parser(parser_ctor=argparse.ArgumentParser):
     env = Environment()
     builtins = sorted(set(env.extractors) | set(env.importers))
 
-    parser = parser_ctor(help="Imports data sources to project",
+    parser = parser_ctor(help="Import dataset to project",
         description="""
         Imports a data source to a project. A data source is a dataset
         in a supported format (check 'formats' section below).|n
@@ -251,7 +251,7 @@ def add_command(args):
     name, _ = project.add_source(args.path,
         format=args.format, options=extra_args, rpath=args.rpath)
     on_error_do(project.remove_source, name, ignore_errors=True,
-        kwargs={'force': True, 'keep_data': False})
+        kwargs={'force': True, 'keep_data': True})
 
     if not args.no_check:
         log.info("Checking the source...")
