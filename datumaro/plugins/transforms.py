@@ -618,13 +618,14 @@ class ProjectLabels(ItemTransform):
         if isinstance(dst_labels, LabelCategories):
             dst_label_cat = deepcopy(dst_labels)
         else:
-            dst_labels = [str(label) for label in dst_labels]
+            dst_labels = list(dst_labels)
 
             if src_label_cat:
                 dst_label_cat = LabelCategories(
                     attributes=deepcopy(src_label_cat.attributes))
 
                 for dst_label in dst_labels:
+                    assert isinstance(dst_label, str)
                     src_label = src_label_cat.find(dst_label)[1]
                     if src_label is not None:
                         dst_label_cat.add(dst_label, src_label.parent,
