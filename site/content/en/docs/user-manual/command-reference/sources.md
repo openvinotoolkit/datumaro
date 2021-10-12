@@ -5,44 +5,20 @@ description: ''
 weight: 26
 ---
 
-### Import Datasets <a id="source-add"></a>
+These commands are specific for Data Sources. Read more about them [here](/docs/user-manual/how_to_use_datumaro#data-sources).
 
-A project can contain an arbitrary number of Data Sources. Each Data Source
-describes a dataset in a specific format. A project acts as a manager for
-the data sources and allows to manipulate them separately or as a whole, in
-which case it combines dataset items from all the sources into one composite
-dataset. You can manage separate sources in a project by commands in
-the `datum source` command line context.
+### Import Dataset <a id="source-import"></a>
 
-Existing datasets can be added to a Datumaro project with the `import` command.
-
-Datasets come in a wide variety of formats. Each dataset
-format defines its own data structure and rules on how to
-interpret the data. For example, the following data structure
-is used in COCO format:
-<!--lint disable fenced-code-flag-->
-```
-/dataset/
-- /images/<id>.jpg
-- /annotations/
-```
-<!--lint enable fenced-code-flag-->
+Datasets can be added to a Datumaro project with the `import` command,
+which adds a dataset link into the project and downloads (or copies)
+the dataset. If you need to add a dataset already copied into the project,
+use the [`add`](./sources#source-add) command.
 
 Dataset format readers can provide some additional import options. To pass
 such options, use the `--` separator after the main command arguments.
 The usage information can be printed with `datum import -f <format> -- --help`.
 
-Check [supported formats](/docs/user-manual/supported_formats) for more info
-about format specifications, supported options and other details.
-The list of formats can be extended by custom plugins, check [extending tips](/docs/user-manual/extending)
-for information on this topic.
-
-The list of currently available formats are listed in the command help output.
-
-Datumaro supports working with complete datasets, having both image data and
-annotations, or with annotations only. It can be used to prepare
-images and annotations independently of each other, or to process the
-lightweight annotations without downloading the whole dataset.
+The list of currently available formats is listed in the command help output.
 
 A dataset is imported by its URL. Currently, only local filesystem
 paths are supported. The URL can be a file or a directory path
@@ -87,14 +63,66 @@ Example: create a project from images and annotations in different formats,
 export as TFrecord for TF Detection API for model training
 
 ``` bash
-datum create
 # 'default' is the name of the subset below
+datum create
 datum import -f coco_instances -r annotations/instances_default.json path/to/coco
 datum import -f cvat <path/to/cvat/default.xml>
 datum import -f voc_detection -r custom_subset_dir/default.txt <path/to/voc>
 datum import -f datumaro <path/to/datumaro/default.json>
 datum import -f image_dir <path/to/images/dir>
 datum export -f tf_detection_api -- --save-images
+```
+
+### Add Dataset <a id="source-add"></a>
+
+Existing datasets can be added to a Datumaro project with the `add` command.
+The command adds a project-local directory as a data source in the project.
+Unlike the [`import`](./sources#source-import)
+command, it does not copy datasets and only works with local directories.
+The source name is defined by the directory name.
+
+Dataset format readers can provide some additional import options. To pass
+such options, use the `--` separator after the main command arguments.
+The usage information can be printed with `datum add -f <format> -- --help`.
+
+The list of currently available formats is listed in the command help output.
+
+A dataset is imported as a directory. When the dataset is read, it is read
+as a whole. However, many formats can have multiple subsets like `train`,
+`val`, `test` etc. If you want to limit reading only to a specific subset,
+use the `-r/--path` parameter. It can also be useful when subset files have
+non-standard placement or names.
+
+The dataset is added into the working tree of the project. A new commit
+is _not_ done automatically.
+
+Usage:
+
+``` bash
+datum add [-h] [-n NAME] -f FORMAT [-r PATH] [--no-check]
+  [-p PROJECT_DIR] path [-- EXTRA_FORMAT_ARGS]
+```
+
+Parameters:
+- `<url>` (string) - A file of directory path to the dataset.
+- `-f, --format` (string) - Dataset format
+- `-r, --path` (string) - A path relative to the source URL the data source.
+  Useful to specify a path to a subset, subtask, or a specific file in URL.
+- `--no-check` - Don't try to read the source after importing
+- `-p, --project` (string) - Directory of the project to operate on
+  (default: current directory).
+- `-h, --help` - Print the help message and exit.
+- `-- <extra format args>` - Additional arguments for the format reader
+  (use `-- -h` for help). Must be specified after the main command arguments.
+
+Example: create a project from images and annotations in different formats,
+export in YOLO for model training
+
+``` bash
+datum create
+datum add -f coco -r annotations/instances_train.json dataset1/
+datum add -f cvat dataset2/train.xml
+datum export -f yolo -- --save-images
 ```
 
 ### Remove Datasets <a id="source-remove"></a>
