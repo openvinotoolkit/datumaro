@@ -405,7 +405,9 @@ def build_transform_parser(parser_ctor=argparse.ArgumentParser):
         |s|s- Replace 'pattern' with 'replacement'|n|n
         |s|s%(prog)s -t rename -- -e '|pattern|replacement|'|n
         |s|s- Remove 'frame_' from item ids|n
-        |s|s%(prog)s -t rename -- -e '|frame_(\\d+)|\\1|'
+        |s|s%(prog)s -t rename -- -e '|frame_(\\d+)|\\1|'|n
+        - Split a dataset randomly:|n
+        |s|s%(prog)s -t random_split --overwrite path/to/dataset:voc
         """.format(', '.join(builtins)),
         formatter_class=MultilineFormatter)
 
