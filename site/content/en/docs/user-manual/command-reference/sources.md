@@ -99,7 +99,7 @@ is _not_ done automatically.
 Usage:
 
 ``` bash
-datum add [-h] [-n NAME] -f FORMAT [-r PATH] [--no-check]
+datum add [-h] -f FORMAT [-r PATH] [--no-check]
   [-p PROJECT_DIR] path [-- EXTRA_FORMAT_ARGS]
 ```
 
