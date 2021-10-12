@@ -82,6 +82,7 @@ def _get_known_commands():
         ('filter', commands.filter, "Filter dataset items"),
         ('transform', commands.transform, "Modify dataset items"),
         ('merge', commands.merge, "Merge datasets"),
+        ('patch', commands.patch, "Update dataset from another one"),
         ('convert', commands.convert, "Convert dataset between formats"),
         ('diff', commands.diff, "Compare datasets"),
         ('stats', commands.stats, "Compute dataset statistics"),

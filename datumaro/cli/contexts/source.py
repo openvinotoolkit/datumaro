@@ -6,8 +6,8 @@ import argparse
 import logging as log
 import os
 
+from datumaro.components.environment import Environment
 from datumaro.components.errors import ProjectNotFoundError
-from datumaro.components.project import Environment
 from datumaro.util.scope import on_error_do, scope_add, scoped
 
 from ..util import MultilineFormatter, add_subparser, join_cli_args
@@ -80,7 +80,7 @@ def build_import_parser(parser_ctor=argparse.ArgumentParser):
 
 def get_import_sensitive_args():
     return {
-        import_command: ['rpath', 'project_dir', 'url', 'name',],
+        import_command: ['url', 'project_dir', 'rpath', 'name', 'extra_args'],
     }
 
 @scoped
@@ -207,7 +207,7 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
 
 def get_add_sensitive_args():
     return {
-        add_command: ['path', 'project_dir', 'rpath', 'name',],
+        add_command: ['url', 'project_dir', 'rpath', 'extra_args'],
     }
 
 @scoped

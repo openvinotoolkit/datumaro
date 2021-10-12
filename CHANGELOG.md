@@ -16,11 +16,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - "dataset revpath" concept in CLI, allowing to pass a dataset path with
   the dataset format in `diff`, `merge`, `explain` and `info` CLI commands
   (<https://github.com/openvinotoolkit/datumaro/pull/238>)
-- `add`, `remove`, `commit`, `checkout`, `log`, `status`, `info` CLI commands
+- `import`, `remove`, `commit`, `checkout`, `log`, `status`, `info` CLI commands
   (<https://github.com/openvinotoolkit/datumaro/pull/238>)
 - `Coco*Extractor` classes now have an option to preserve label IDs from the
   original annotation file
   (<https://github.com/openvinotoolkit/datumaro/pull/453>)
+- `patch` CLI command to patch datasets
+  (<https://github.com/openvinotoolkit/datumaro/pull/401>)
+- `ProjectLabels` transform (library API only) to arrange dataset labels
+  for merging etc. (<https://github.com/openvinotoolkit/datumaro/pull/401>)
+- Support for custom labels in the KITTI detection format
+  (<https://github.com/openvinotoolkit/datumaro/pull/481>)
+- Type annotations and docs for Annotation classes
+  (<https://github.com/openvinotoolkit/datumaro/pull/493>)
 
 ### Changed
 - A project can contain and manage multiple datasets instead of a single one.
@@ -72,6 +80,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/450>)
 - Importing of Open Images datasets without image data
   (<https://github.com/openvinotoolkit/datumaro/pull/463>)
+- Return value type in `Dataset.is_modified`
+  (<https://github.com/openvinotoolkit/datumaro/pull/401>)
+- Remapping of secondary categories in `RemapLabels`
+  (<https://github.com/openvinotoolkit/datumaro/pull/401>)
+- Exported mask label ids in KITTI segmentation
+  (<https://github.com/openvinotoolkit/datumaro/pull/481>)
+- Missing `label` for `Points` read in the LFW format
+  (<https://github.com/openvinotoolkit/datumaro/pull/494>)
 
 ### Security
 - TBD

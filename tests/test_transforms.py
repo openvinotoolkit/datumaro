@@ -365,6 +365,8 @@ class TransformsTest(TestCase):
                 'label%s' % i for i in range(6)),
             AnnotationType.mask: MaskCategories(
                 colormap=mask_tools.generate_colormap(6)),
+            AnnotationType.points: PointsCategories.from_iterable(
+                [(i, [str(i)]) for i in range(6)])
         })
 
         dst_dataset = Dataset.from_iterable([
@@ -380,15 +382,19 @@ class TransformsTest(TestCase):
             AnnotationType.label: LabelCategories.from_iterable(
                 ['label0', 'label9', 'label5']),
             AnnotationType.mask: MaskCategories(colormap={
-                k: v for k, v in mask_tools.generate_colormap(6).items()
-                if k in { 0, 1, 3, 5 }
-            })
+                i: v for i, v in enumerate({
+                    k: v for k, v in mask_tools.generate_colormap(6).items()
+                    if k in { 0, 1, 5 }
+                }.values())
+            }),
+            AnnotationType.points: PointsCategories.from_iterable(
+                [(0, ['0']), (1, ['1']), (2, ['5'])])
         })
 
         actual = transforms.RemapLabels(src_dataset, mapping={
             'label1': 'label9', # rename & join with new label9 (from label3)
             'label2': 'label0', # rename & join with existing label0
-            'label3': 'label9', # rename & join with new label9 (form label1)
+            'label3': 'label9', # rename & join with new label9 (from label1)
             'label4': '', # delete the label and associated annotations
             # 'label5' - unchanged
         }, default='keep')
@@ -442,6 +448,28 @@ class TransformsTest(TestCase):
             mapping={ 'a': 'd', 'b': 'e', 'c': 'f' }, default='delete')
 
         compare_datasets(self, target_dataset, actual)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_project_labels(self):
+        source = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[
+                Label(1), # Label must be remapped
+                Label(3), # Must be removed (extra label)
+                Bbox(1, 2, 3, 4, label=None), # Must be kept (no label)
+            ])
+        ], categories=['a', 'b', 'c', 'd'])
+
+        expected = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[
+                Label(2),
+                Bbox(1, 2, 3, 4, label=None),
+            ]),
+        ], categories=['c', 'a', 'b'])
+
+        actual = transforms.ProjectLabels(source,
+            dst_labels=LabelCategories.from_iterable(['c', 'a', 'b']))
+
+        compare_datasets(self, expected, actual)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_transform_labels(self):

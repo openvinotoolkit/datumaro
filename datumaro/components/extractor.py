@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 from glob import iglob
-from typing import Callable, Dict, Iterable, List, Optional
+from typing import Any, Callable, Dict, Iterable, List, Optional
 import os
 import os.path as osp
 
@@ -11,7 +11,9 @@ from attr import attrib, attrs
 import attr
 import numpy as np
 
-from datumaro.components.annotation import AnnotationType, Categories
+from datumaro.components.annotation import (
+    Annotation, AnnotationType, Categories,
+)
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.errors import DatasetNotFoundError
 from datumaro.util import is_method_redefined
@@ -31,19 +33,20 @@ DEFAULT_SUBSET_NAME = 'default'
 
 @attrs
 class DatasetItem:
-    id = attrib(converter=lambda x: str(x).replace('\\', '/'),
-        type=str, validator=not_empty)
-    annotations = attrib(factory=list, validator=default_if_none(list))
-    subset = attrib(converter=lambda v: v or DEFAULT_SUBSET_NAME,
-        type=str, default=None)
+    id: str = attrib(converter=lambda x: str(x).replace('\\', '/'),
+        validator=not_empty)
+    annotations: List[Annotation] = attrib(
+        factory=list, validator=default_if_none(list))
+    subset: str = attrib(converter=lambda v: v or DEFAULT_SUBSET_NAME,
+        default=None)
 
     # TODO: introduce "media" field with type info. Replace image and pcd.
-    image = attrib(type=Optional[Image], default=None)
+    image: Optional[Image] = attrib(default=None)
     # TODO: introduce pcd type like Image
-    point_cloud = attrib(converter=lambda x: \
-            str(x).replace('\\', '/') if x else None,
-        type=Optional[str], default=None)
-    related_images = attrib(type=List[Image], default=None)
+    point_cloud: Optional[str] = attrib(
+        converter=lambda x: str(x).replace('\\', '/') if x else None,
+        default=None)
+    related_images: List[Image] = attrib(default=None)
 
     def __attrs_post_init__(self):
         if (self.has_image and self.has_point_cloud):
@@ -68,7 +71,8 @@ class DatasetItem:
     def _point_cloud_validator(self, attribute, pcd):
         assert pcd is None or isinstance(pcd, str), type(pcd)
 
-    attributes = attrib(factory=dict, validator=default_if_none(dict))
+    attributes: Dict[str, Any] = attrib(
+        factory=dict, validator=default_if_none(dict))
 
     @property
     def has_image(self):
@@ -223,7 +227,8 @@ class Importer(CliPlugin):
         if not path or not osp.exists(path):
             raise DatasetNotFoundError(path)
 
-        found_sources = self.find_sources_with_params(osp.normpath(path), **extra_params)
+        found_sources = self.find_sources_with_params(
+            osp.normpath(path), **extra_params)
         if not found_sources:
             raise DatasetNotFoundError(path)
 
@@ -292,7 +297,7 @@ class Transform(ExtractorBase, CliPlugin):
     def wrap_item(item, **kwargs):
         return item.wrap(**kwargs)
 
-    def __init__(self, extractor):
+    def __init__(self, extractor: IExtractor):
         super().__init__()
 
         self._extractor = extractor

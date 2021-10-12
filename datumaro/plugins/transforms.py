@@ -5,6 +5,7 @@
 from collections import Counter
 from enum import Enum, auto
 from itertools import chain
+from typing import Dict, List, Tuple, Union
 import logging as log
 import os.path as osp
 import random
@@ -18,7 +19,7 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.extractor import (
-    DEFAULT_SUBSET_NAME, ItemTransform, Transform,
+    DEFAULT_SUBSET_NAME, IExtractor, ItemTransform, Transform,
 )
 from datumaro.util import NOTSET, parse_str_enum_value
 from datumaro.util.annotation_util import find_group_leader, find_instances
@@ -450,11 +451,11 @@ class RemapLabels(ItemTransform, CliPlugin):
     |n
     Examples:|n
     - Remove the 'person' label (and corresponding annotations):|n
-    |s|sremap_labels -l person: --default keep|n
+    |s|s%(prog)s -l person: --default keep|n
     - Rename 'person' to 'pedestrian' and 'human' to 'pedestrian', join:|n
-    |s|sremap_labels -l person:pedestrian -l human:pedestrian --default keep|n
+    |s|s%(prog)s -l person:pedestrian -l human:pedestrian --default keep|n
     - Rename 'person' to 'car' and 'cat' to 'dog', keep 'bus', remove others:|n
-    |s|sremap_labels -l person:car -l bus:bus -l cat:dog --default delete
+    |s|s%(prog)s -l person:car -l bus:bus -l cat:dog --default delete
     """
 
     class DefaultAction(Enum):
@@ -481,7 +482,9 @@ class RemapLabels(ItemTransform, CliPlugin):
             help="Action for unspecified labels (default: %(default)s)")
         return parser
 
-    def __init__(self, extractor, mapping, default=None):
+    def __init__(self, extractor: IExtractor,
+            mapping: Union[Dict[str, str], List[Tuple[str, str]]],
+            default: Union[None, str, DefaultAction] = None):
         super().__init__(extractor)
 
         default = parse_str_enum_value(default, self.DefaultAction,
@@ -502,23 +505,25 @@ class RemapLabels(ItemTransform, CliPlugin):
         if src_mask_cat is not None:
             assert src_label_cat is not None
             dst_mask_cat = MaskCategories(attributes=src_mask_cat.attributes)
-            dst_mask_cat.colormap = {
-                id: src_mask_cat[id]
-                for id, _ in enumerate(src_label_cat.items)
-                if id in src_mask_cat and (self._map_id(id) or id == 0)
-            }
+            for old_id, _ in enumerate(src_label_cat.items):
+                new_id = self._map_id(old_id)
+                if old_id in src_mask_cat and new_id is not None and \
+                        new_id not in dst_mask_cat:
+                    dst_mask_cat.colormap[new_id] = src_mask_cat[old_id]
+
             self._categories[AnnotationType.mask] = dst_mask_cat
 
         src_point_cat = self._extractor.categories().get(AnnotationType.points)
         if src_point_cat is not None:
             assert src_label_cat is not None
-            dst_points_cat = PointsCategories(attributes=src_point_cat.attributes)
-            dst_points_cat.items = {
-                id: src_point_cat[id]
-                for id, _ in enumerate(src_label_cat.items)
-                if id in src_point_cat and (self._map_id(id) or id == 0)
-            }
-            self._categories[AnnotationType.points] = dst_points_cat
+            dst_point_cat = PointsCategories(attributes=src_point_cat.attributes)
+            for old_id, _ in enumerate(src_label_cat.items):
+                new_id = self._map_id(old_id)
+                if old_id in src_point_cat and new_id is not None and \
+                        new_id not in dst_point_cat:
+                    dst_point_cat.items[new_id] = src_point_cat[old_id]
+
+            self._categories[AnnotationType.points] = dst_point_cat
 
     def _make_label_id_map(self, src_label_cat, label_mapping, default_action):
         dst_label_cat = LabelCategories(attributes=src_label_cat.attributes)
@@ -556,11 +561,76 @@ class RemapLabels(ItemTransform, CliPlugin):
     def transform_item(self, item):
         annotations = []
         for ann in item.annotations:
-            if getattr(ann, 'label') is not None:
+            if getattr(ann, 'label', None) is not None:
                 conv_label = self._map_id(ann.label)
                 if conv_label is not None:
                     annotations.append(ann.wrap(label=conv_label))
             elif self._default_action is self.DefaultAction.keep:
+                annotations.append(ann.wrap())
+        return item.wrap(annotations=annotations)
+
+class ProjectLabels(ItemTransform):
+    """
+    Changes the order of labels in the dataset from the existing
+    to the desired one and removes unknown labels. Updates or removes
+    the corresponding annotations.
+
+    Labels are matched by names (case dependent).
+
+    Useful for merging similar datasets.
+    """
+
+    def __init__(self, extractor: IExtractor, dst_labels: LabelCategories):
+        super().__init__(extractor)
+
+        self._categories = {}
+
+        src_label_cat = self._extractor.categories().get(AnnotationType.label)
+        self._make_label_id_map(src_label_cat, dst_labels)
+
+        src_mask_cat = self._extractor.categories().get(AnnotationType.mask)
+        if src_mask_cat is not None:
+            assert src_label_cat is not None
+            dst_mask_cat = MaskCategories(attributes=src_mask_cat.attributes)
+            for old_id, _ in enumerate(src_label_cat.items):
+                new_id = self._map_id(old_id)
+                if old_id in src_mask_cat and new_id is not None and \
+                        new_id not in dst_mask_cat:
+                    dst_mask_cat.colormap[new_id] = src_mask_cat[old_id]
+
+            self._categories[AnnotationType.mask] = dst_mask_cat
+
+        src_point_cat = self._extractor.categories().get(AnnotationType.points)
+        if src_point_cat is not None:
+            assert src_label_cat is not None
+            dst_point_cat = PointsCategories(attributes=src_point_cat.attributes)
+            for old_id, _ in enumerate(src_label_cat.items):
+                new_id = self._map_id(old_id)
+                if old_id in src_point_cat and new_id is not None and \
+                        new_id not in dst_point_cat:
+                    dst_point_cat.items[new_id] = src_point_cat[old_id]
+
+            self._categories[AnnotationType.points] = dst_point_cat
+
+    def _make_label_id_map(self, src_label_cat, dst_label_cat):
+        id_mapping = {
+            src_id: dst_label_cat.find(src_label_cat[src_id].name)[0]
+            for src_id in range(len(src_label_cat or ()))
+        }
+        self._map_id = lambda src_id: id_mapping.get(src_id, None)
+        self._categories[AnnotationType.label] = dst_label_cat
+
+    def categories(self):
+        return self._categories
+
+    def transform_item(self, item):
+        annotations = []
+        for ann in item.annotations:
+            if getattr(ann, 'label', None) is not None:
+                conv_label = self._map_id(ann.label)
+                if conv_label is not None:
+                    annotations.append(ann.wrap(label=conv_label))
+            else:
                 annotations.append(ann.wrap())
         return item.wrap(annotations=annotations)
 

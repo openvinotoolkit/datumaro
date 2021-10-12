@@ -11,9 +11,10 @@ from datumaro.components.config_model import Model, Source
 from datumaro.components.dataset import DEFAULT_FORMAT, Dataset
 from datumaro.components.errors import (
     DatasetMergeError, EmptyCommitError, ForeignChangesError,
-    MismatchingObjectError, MissingObjectError, OldProjectError,
-    PathOutsideSourceError, ReadonlyProjectError, SourceExistsError,
-    SourceOutsideProjectError, SourceUrlInsideProjectError, UnexpectedUrlError,
+    MismatchingObjectError, MissingObjectError, MissingSourceHashError,
+    OldProjectError, PathOutsideSourceError, ReadonlyProjectError,
+    SourceExistsError, SourceOutsideProjectError, SourceUrlInsideProjectError,
+    UnexpectedUrlError,
 )
 from datumaro.components.extractor import DatasetItem, Extractor, ItemTransform
 from datumaro.components.launcher import Launcher
@@ -789,6 +790,33 @@ class ProjectTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
+    def test_can_checkout_with_force(self):
+        test_dir = scope_add(TestDir())
+        source_url = osp.join(test_dir, 'test_repo')
+        dataset = Dataset.from_iterable([
+            DatasetItem(1, annotations=[Label(0)]),
+            DatasetItem(2, annotations=[Label(1)]),
+        ], categories=['a', 'b'])
+        dataset.save(source_url)
+
+        project = scope_add(Project.init(osp.join(test_dir, 'proj')))
+        project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
+        project.import_source('s2', url=source_url, format=DEFAULT_FORMAT)
+        project.commit("Commit 1")
+        project.remove_source('s1', keep_data=False) # remove s1 from tree
+        shutil.rmtree(project.source_data_dir('s2')) # modify s2 "manually"
+
+        project.checkout(force=True)
+
+        compare_dirs(self, source_url, project.source_data_dir('s1'))
+        compare_dirs(self, source_url, project.source_data_dir('s2'))
+        with open(osp.join(test_dir, 'proj', '.gitignore')) as f:
+            lines = [line.strip() for line in f]
+            self.assertTrue('/s1' in lines)
+            self.assertTrue('/s2' in lines)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
     def test_can_checkout_sources_from_revision(self):
         test_dir = scope_add(TestDir())
         source_url = osp.join(test_dir, 'test_repo')
@@ -1063,6 +1091,27 @@ class ProjectTest(TestCase):
         self.assertNotEqual('', project.working_tree.sources['source1'].hash)
         self.assertNotEqual('',
             project.working_tree.build_targets['source1'].head.hash)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_cant_redownload_unhashed(self):
+        test_dir = scope_add(TestDir())
+        dataset_url = osp.join(test_dir, 'dataset')
+        Dataset.from_iterable([
+            DatasetItem('a'),
+            DatasetItem('b'),
+        ]).save(dataset_url)
+
+        proj_dir = osp.join(test_dir, 'proj')
+        project = scope_add(Project.init(proj_dir))
+        project.import_source('source1', url=dataset_url,
+            format=DEFAULT_FORMAT, no_hash=True)
+        project.working_tree.build_targets.add_transform_stage('source1',
+            'reindex')
+        project.commit('a commit')
+
+        with self.assertRaises(MissingSourceHashError):
+            project.working_tree.make_dataset('source1.root')
 
 class BackwardCompatibilityTests_v0_1(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)

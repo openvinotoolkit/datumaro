@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 from itertools import chain
+from typing import Tuple
 
 import numpy as np
 
@@ -280,12 +281,12 @@ def rles_to_mask(rles, width, height):
     mask = mask_utils.decode(rles)
     return mask
 
-def find_mask_bbox(mask):
+def find_mask_bbox(mask) -> Tuple[int, int, int, int]:
     cols = np.any(mask, axis=0)
     rows = np.any(mask, axis=1)
     x0, x1 = np.where(cols)[0][[0, -1]]
     y0, y1 = np.where(rows)[0][[0, -1]]
-    return [x0, y0, x1 - x0, y1 - y0]
+    return (x0, y0, x1 - x0, y1 - y0)
 
 def merge_masks(masks, start=None):
     """

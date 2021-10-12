@@ -31,11 +31,11 @@ from datumaro.components.errors import (
     DatasetMergeError, EmptyCommitError, EmptyPipelineError,
     ForeignChangesError, InvalidStageError, MigrationError,
     MismatchingObjectError, MissingObjectError, MissingPipelineHeadError,
-    MultiplePipelineHeadsError, OldProjectError, PathOutsideSourceError,
-    ProjectAlreadyExists, ProjectNotFoundError, ReadonlyDatasetError,
-    ReadonlyProjectError, SourceExistsError, SourceOutsideProjectError,
-    SourceUrlInsideProjectError, UnexpectedUrlError, UnknownRefError,
-    UnknownSourceError, UnknownStageError, UnknownTargetError,
+    MissingSourceHashError, MultiplePipelineHeadsError, OldProjectError,
+    PathOutsideSourceError, ProjectAlreadyExists, ProjectNotFoundError,
+    ReadonlyDatasetError, ReadonlyProjectError, SourceExistsError,
+    SourceOutsideProjectError, SourceUrlInsideProjectError, UnexpectedUrlError,
+    UnknownRefError, UnknownSourceError, UnknownStageError, UnknownTargetError,
     UnsavedChangesError, VcsError,
 )
 from datumaro.components.launcher import Launcher
@@ -63,7 +63,8 @@ class ProjectSourceDataset(IDataset):
         self.__dict__['name'] = source
 
     def save(self, save_dir=None, **kwargs):
-        if save_dir is None and self.readonly:
+        if self.readonly and (save_dir is None or \
+                osp.abspath(save_dir) == osp.abspath(self.data_path)):
             raise ReadonlyDatasetError()
         self._dataset.save(save_dir, **kwargs)
 
@@ -349,13 +350,16 @@ class ProjectBuilder:
                     "is disabled in read-only projects.", source_name)
                 continue
 
-            # TODO: check if we can avoid computing source hash in some cases
-            assert source.hash, source_name
+            if not source.hash:
+                raise MissingSourceHashError("Unable to re-download source "
+                    "'%s': the source was added with no hash information. " % \
+                    source_name)
+
             with self._project._make_tmp_dir() as tmp_dir:
                 obj_hash, _, _ = \
                     self._project._download_source(source.url, tmp_dir)
 
-                if source.hash != obj_hash:
+                if source.hash and source.hash != obj_hash:
                     raise MismatchingObjectError(
                         "Downloaded source '%s' data is different " \
                         "from what is saved in the build pipeline: "
@@ -909,7 +913,7 @@ class GitWrapper:
         with suppress(Exception):
             self.close()
 
-    def checkout(self, ref: str = None, dst_dir=None, clean=False, force=False):
+    def checkout(self, ref: str, dst_dir=None, clean=False, force=False):
         # If user wants to navigate to a head, we need to supply its object
         # insted of just a string. Otherwise, we'll get a detached head.
         try:
@@ -2259,10 +2263,17 @@ class Project:
             sources: Union[None, str, Iterable[str]] = None, *,
             force: bool = False):
         """
-        Copies tree and objects from cache to working tree.
+        Copies tree and objects from the cache to the working tree.
 
-        Sets HEAD to the specified revision, unless targets specified.
-        When sources specified, only copies objects from cache to working tree.
+        Sets HEAD to the specified revision, unless sources specified.
+        When sources specified, only copies objects from the cache to
+        the working tree. When no revision and no sources is specified,
+        restores the sources from the current revision.
+
+        By default, uses the current (HEAD) revision.
+
+        Options:
+        - force (bool) - ignore unsaved changes. By default, an error is raised
         """
 
         if self.readonly:
@@ -2275,8 +2286,10 @@ class Project:
         else:
             sources = set(sources)
 
+        rev = rev or 'HEAD'
+
         if sources:
-            rev_tree = self.get_rev(rev or 'HEAD')
+            rev_tree = self.get_rev(rev)
 
             # Check targets
             for s in sources:

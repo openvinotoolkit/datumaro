@@ -25,6 +25,7 @@ weight: 3
   - [Export](./command-reference/export)
   - [Filter](./command-reference/filter)
   - [Merge](./command-reference/merge)
+  - [Patch](./command-reference/patch)
   - [Diff](./command-reference/diff)
   - [Info](./command-reference/info)
   - [Stats](./command-reference/stats)
