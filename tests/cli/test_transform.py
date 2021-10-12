@@ -23,14 +23,15 @@ class TransformTest(TestCase):
             DatasetItem(2, annotations=[Label(1)]),
         ], categories=['a', 'b']).export(test_dir, 'coco')
 
-        run(self, 'transform', '-t', 'remap_labels', test_dir, '--overwrite',
-            '--', '-l', 'a:cat', '-l', 'b:dog')
+        run(self, 'transform', '-t', 'remap_labels', '--overwrite',
+            test_dir + ':coco', '--', '-l', 'a:cat', '-l', 'b:dog')
 
         expected_dataset = Dataset.from_iterable([
-            DatasetItem('qq', annotations=[Label(1)]),
+            DatasetItem(1, annotations=[Label(0, id=1, group=1)]),
+            DatasetItem(2, annotations=[Label(1, id=2, group=2)]),
         ], categories=['cat', 'dog'])
         compare_datasets(self, expected_dataset,
-            Dataset.from_iterable(test_dir), ignored_attrs='*')
+            Dataset.import_from(test_dir, 'coco'), ignored_attrs='*')
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_transform_fails_on_inplace_update_without_overwrite(self):
@@ -39,7 +40,7 @@ class TransformTest(TestCase):
                 DatasetItem(id=1, annotations=[ Bbox(1, 2, 3, 4, label=1) ]),
             ], categories=['a', 'b']).export(test_dir, 'coco')
 
-            run(self, 'transform', '-t', 'remap_labels', test_dir + ':coco',
+            run(self, 'transform', '-t', 'random_split', test_dir + ':coco',
                 expected_code=1)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -58,10 +59,11 @@ class TransformTest(TestCase):
                 project.commit('first commit')
 
             with self.subTest('without overwrite'):
-                run(self, 'transform', '-p', project_dir, 'HEAD:source-1',
+                run(self, 'transform', '-p', project_dir,
+                    '-t', 'random_split', 'HEAD:source-1',
                     expected_code=1)
 
             with self.subTest('with overwrite'):
                 with self.assertRaises(ReadonlyDatasetError):
                     run(self, 'transform', '-p', project_dir, '--overwrite',
-                        'HEAD:source-1')
+                        '-t', 'random_split', 'HEAD:source-1')
