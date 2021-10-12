@@ -486,17 +486,11 @@ def transform_command(args):
 
     extra_args = transform.parse_cmdline(args.extra_args)
 
-    dst_dir = args.dst_dir
-    if dst_dir:
-        if not args.overwrite and osp.isdir(dst_dir) and os.listdir(dst_dir):
-            raise CliException("Directory '%s' already exists "
-                "(pass --overwrite to overwrite)" % dst_dir)
-        dst_dir = osp.abspath(dst_dir)
-
-    is_target = project and args.target in project.working_tree.build_targets
+    is_target = project is not None and \
+        args.target in project.working_tree.build_targets
     if is_target:
-        if not args.dst_dir and args.stage and \
-                ProjectBuildTargets.split_target_name(args.target)[1]:
+        if not args.dst_dir and args.stage and (args.target != \
+                ProjectBuildTargets.strip_target_name(args.target)):
             raise CliException("Adding a stage is only allowed for "
                 "project targets, not their stages.")
 
@@ -527,9 +521,15 @@ def transform_command(args):
 
             log.info("Finished")
         elif not is_target or args.dst_dir:
-            dataset, target_project = parse_full_revpath(args.target, project)
-            if target_project:
-                scope_add(target_project)
+            dataset, _project = parse_full_revpath(args.target, project)
+            if _project:
+                scope_add(_project)
+
+            dst_dir = args.dst_dir or dataset.data_path
+            if not args.overwrite and osp.isdir(dst_dir) and os.listdir(dst_dir):
+                raise CliException("Directory '%s' already exists "
+                    "(pass --overwrite to overwrite)" % dst_dir)
+            dst_dir = osp.abspath(dst_dir)
 
             dataset.transform(args.transform, **extra_args)
             dataset.save(dst_dir, save_images=True)

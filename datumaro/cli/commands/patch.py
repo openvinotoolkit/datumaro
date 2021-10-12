@@ -127,9 +127,7 @@ def patch_command(args):
 
     extra_args = converter.parse_cmdline(args.extra_args)
 
-    dst_dir = args.dst_dir
-    if not dst_dir:
-        dst_dir = target_dataset.data_path
+    dst_dir = args.dst_dir or target_dataset.data_path
     if not args.overwrite and osp.isdir(dst_dir) and os.listdir(dst_dir):
         raise CliException("Directory '%s' already exists "
             "(pass --overwrite to overwrite)" % dst_dir)
