@@ -615,12 +615,12 @@ class ProjectLabels(ItemTransform):
 
         src_label_cat = src_categories.get(AnnotationType.label)
 
-        if not isinstance(dst_labels, LabelCategories):
+        if isinstance(dst_labels, LabelCategories):
+            dst_label_cat = deepcopy(dst_labels)
+        else:
             dst_labels = [str(label) for label in dst_labels]
 
-            if not src_label_cat:
-                dst_label_cat = LabelCategories.from_iterable(dst_labels)
-            else:
+            if src_label_cat:
                 dst_label_cat = LabelCategories(
                     attributes=deepcopy(src_label_cat.attributes))
 
@@ -631,8 +631,8 @@ class ProjectLabels(ItemTransform):
                             deepcopy(src_label.attributes))
                     else:
                         dst_label_cat.add(dst_label)
-        else:
-            dst_label_cat = deepcopy(dst_labels)
+            else:
+                dst_label_cat = LabelCategories.from_iterable(dst_labels)
 
         for label in dst_label_cat:
             if label.parent not in dst_label_cat:
