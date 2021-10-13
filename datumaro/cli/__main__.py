@@ -56,7 +56,7 @@ def _make_subcommands_help(commands, help_line_start=0):
 
 def _get_known_contexts():
     return [
-        ('project', contexts.project, "Actions with project"),
+        ('project', contexts.project, "Actions with projects"),
         ('source', contexts.source, "Actions with data sources"),
         ('model', contexts.model, "Actions with models"),
     ]
@@ -65,8 +65,9 @@ def _get_known_commands():
     return [
         ("Project modification:", None, ''),
         ('create', commands.create, "Create empty project"),
-        ('import', commands.import_, "Import dataset to project"),
-        ('remove', commands.remove, "Remove dataset from project"),
+        ('import', commands.import_, "Import dataset"),
+        ('add', commands.add, "Add dataset"),
+        ('remove', commands.remove, "Remove dataset"),
 
         ("", None, ''),
         ("Project versioning:", None, ''),
