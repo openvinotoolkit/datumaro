@@ -230,7 +230,9 @@ class OpenImagesExtractor(Extractor):
         annotation_name = class_desc_files[0]
         with self._open_csv_annotation(annotation_name) as class_description_reader:
             # Prior to OID v6, this file didn't contain a header row.
-            class_description_reader.fieldnames = ('LabelName', 'DisplayName')
+            if annotation_name in {OpenImagesPath.V5_CLASS_DESCRIPTION_BBOX_FILE_NAME,
+                    OpenImagesPath.V5_CLASS_DESCRIPTION_FILE_NAME}:
+                class_description_reader.fieldnames = ('LabelName', 'DisplayName')
 
             for class_description in class_description_reader:
                 label_name = class_description['LabelName']
