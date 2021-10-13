@@ -49,13 +49,14 @@ Parameters:
 - `--stage` (bool) - Include this action as a project build step.
   If true, this operation will be saved in the project
   build tree, allowing to reproduce the resulting dataset later.
-  Applicable only to data source targets (i.e. not intermediate stages)
-  and the `project` target. Enabled by default.
+  Applicable only to main project targets (i.e. data sources
+  and the `project` target, but not intermediate stages). Enabled by default.
 - `--apply` (bool) - Run this command immediately. If disabled, only the
   build tree stage will be written. Enabled by default.
 - `-o, --output-dir` (string) - Output directory. Can be omitted for
-  data source targets (i.e. not intermediate stages) and the `project` target,
-  in which case the results will be saved inplace in the working tree.
+  main project targets (i.e. data sources and the `project` target, but not
+  intermediate stages) and dataset targets. If not specified, the results
+  will be saved inplace.
 - `--overwrite` - Allows to overwrite existing files in the output directory,
   when it is specified and is not empty.
 - `-p, --project` (string) - Directory of the project to operate on
