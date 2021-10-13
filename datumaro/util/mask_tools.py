@@ -21,9 +21,6 @@ def generate_colormap(length=256, include_background=True):
     Returns index -> (R, G, B) mapping.
     """
 
-    offset = int(not include_background)
-    length = length + offset
-
     def get_bit(number, index):
         return (number >> index) & 1
 
@@ -38,7 +35,7 @@ def generate_colormap(length=256, include_background=True):
         indices >>= 3
 
     return {
-        id: tuple(color) for id, color in enumerate(colormap[offset:])
+        id: tuple(color) for id, color in enumerate(colormap)
     }
 
 def invert_colormap(colormap):
