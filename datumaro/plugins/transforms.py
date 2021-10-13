@@ -655,7 +655,7 @@ class ProjectLabels(ItemTransform):
             # Generate new colors for new labels, keep old untouched
             existing_colors = set(dst_mask_cat.colormap.values())
             color_bank = iter(mask_tools.generate_colormap(
-                len(dst_mask_cat), include_background=False).values())
+                len(dst_label_cat), include_background=False).values())
             for new_id, new_label in enumerate(dst_label_cat):
                 if new_label.name in src_label_cat:
                     continue
