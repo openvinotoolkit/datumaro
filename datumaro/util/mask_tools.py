@@ -28,7 +28,9 @@ def generate_colormap(length=256, include_background=True):
         return (number >> index) & 1
 
     colormap = np.zeros((length, 3), dtype=int)
-    indices = np.arange(length, dtype=int)
+
+    offset = int(not include_background)
+    indices = np.arange(offset, length + offset, dtype=int)
 
     for j in range(7, -1, -1):
         for c in range(3):

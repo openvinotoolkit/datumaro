@@ -591,7 +591,7 @@ class ProjectLabels(ItemTransform):
     added, and the dataset has mask colors defined, new labels will obtain
     generated colors.|n
     |n
-    Useful for merging similar datasets, which labels need to be aligned.|n
+    Useful for merging similar datasets, whose labels need to be aligned.|n
     |n
     Examples:|n
     - Align the source dataset labels to [person, cat, dog]:|n
@@ -615,24 +615,31 @@ class ProjectLabels(ItemTransform):
 
         src_label_cat = src_categories.get(AnnotationType.label)
 
-        if not isinstance(dst_labels, LabelCategories):
-            dst_labels = [str(label) for label in dst_labels]
+        if isinstance(dst_labels, LabelCategories):
+            dst_label_cat = deepcopy(dst_labels)
+        else:
+            dst_labels = list(dst_labels)
 
-            if not src_label_cat:
-                dst_label_cat = LabelCategories.from_iterable(dst_labels)
-            else:
+            if src_label_cat:
                 dst_label_cat = LabelCategories(
                     attributes=deepcopy(src_label_cat.attributes))
 
                 for dst_label in dst_labels:
+                    assert isinstance(dst_label, str)
                     src_label = src_label_cat.find(dst_label)[1]
                     if src_label is not None:
                         dst_label_cat.add(dst_label, src_label.parent,
                             deepcopy(src_label.attributes))
                     else:
                         dst_label_cat.add(dst_label)
-        else:
-            dst_label_cat = deepcopy(dst_labels)
+            else:
+                dst_label_cat = LabelCategories.from_iterable(dst_labels)
+
+        for label in dst_label_cat:
+            if label.parent not in dst_label_cat:
+                label.parent = ''
+        self._categories[AnnotationType.label] = dst_label_cat
+
         self._make_label_id_map(src_label_cat, dst_label_cat)
 
         src_mask_cat = src_categories.get(AnnotationType.mask)
@@ -646,22 +653,20 @@ class ProjectLabels(ItemTransform):
                     dst_mask_cat.colormap[new_id] = deepcopy(old_color)
 
             # Generate new colors for new labels, keep old untouched
-            color_bank = mask_tools.generate_colormap(len(dst_mask_cat) + 1,
-                include_background=False)
             existing_colors = set(dst_mask_cat.colormap.values())
+            color_bank = iter(mask_tools.generate_colormap(
+                len(dst_mask_cat), include_background=False).values())
             for new_id, new_label in enumerate(dst_label_cat):
                 if new_label.name in src_label_cat:
                     continue
                 if new_id in dst_mask_cat:
                     continue
 
-                color = None
-                while not color or color in existing_colors:
-                    color = color_bank.pop(next(iter(color_bank)))
+                color = next(color_bank)
+                while color in existing_colors:
+                    color = next(color_bank)
 
-                assert color
                 dst_mask_cat.colormap[new_id] = color
-                existing_colors.add(color)
 
             self._categories[AnnotationType.mask] = dst_mask_cat
 
@@ -683,11 +688,6 @@ class ProjectLabels(ItemTransform):
             for src_id in range(len(src_label_cat or ()))
         }
         self._map_id = lambda src_id: id_mapping.get(src_id, None)
-
-        for label in dst_label_cat:
-            if label.parent not in dst_label_cat:
-                label.parent = ''
-        self._categories[AnnotationType.label] = dst_label_cat
 
     def categories(self):
         return self._categories

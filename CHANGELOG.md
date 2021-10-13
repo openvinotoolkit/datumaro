@@ -30,6 +30,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/481>)
 - Type annotations and docs for Annotation classes
   (<https://github.com/openvinotoolkit/datumaro/pull/493>)
+- Options to control label loading behavior in `imagenet_txt` import
+  (<https://github.com/openvinotoolkit/datumaro/pull/434>,
+  <https://github.com/openvinotoolkit/datumaro/pull/489>)
 
 ### Changed
 - A project can contain and manage multiple datasets instead of a single one.
