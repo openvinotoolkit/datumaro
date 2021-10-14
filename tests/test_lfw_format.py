@@ -3,8 +3,9 @@ import os.path as osp
 
 import numpy as np
 
+from datumaro.components.annotation import Label, Points
 from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import DatasetItem, Label, Points
+from datumaro.components.extractor import DatasetItem
 from datumaro.plugins.lfw_format import LfwConverter, LfwImporter
 from datumaro.util.image import Image
 from datumaro.util.test_utils import TestDir, compare_datasets
@@ -45,7 +46,38 @@ class LfwFormatTest(TestCase):
         ], categories=['name0', 'name1'])
 
         with TestDir() as test_dir:
-            LfwConverter.convert(source_dataset, test_dir, save_images=True)
+            LfwConverter.convert(source_dataset, test_dir,
+                save_images=True)
+            parsed_dataset = Dataset.import_from(test_dir, 'lfw')
+
+            compare_datasets(self, source_dataset, parsed_dataset,
+                require_images=True)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_save_and_load_with_no_save_images(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id='name0_0001', subset='test',
+                image=np.ones((2, 5, 3)),
+                annotations=[Label(0, attributes={
+                    'positive_pairs': ['name0/name0_0002']
+                })]
+            ),
+            DatasetItem(id='name0_0002', subset='test',
+                image=np.ones((2, 5, 3)),
+                annotations=[Label(0, attributes={
+                    'positive_pairs': ['name0/name0_0001'],
+                    'negative_pairs': ['name1/name1_0001']
+                })]
+            ),
+            DatasetItem(id='name1_0001', subset='test',
+                image=np.ones((2, 5, 3)),
+                annotations=[Label(1, attributes={})]
+            ),
+        ], categories=['name0', 'name1'])
+
+        with TestDir() as test_dir:
+            LfwConverter.convert(source_dataset, test_dir,
+                save_images=False)
             parsed_dataset = Dataset.import_from(test_dir, 'lfw')
 
             compare_datasets(self, source_dataset, parsed_dataset)
@@ -59,14 +91,14 @@ class LfwFormatTest(TestCase):
                     Label(0, attributes={
                         'positive_pairs': ['name0/name0_0002']
                     }),
-                    Points([0, 4, 3, 3, 2, 2, 1, 0, 3, 0]),
+                    Points([0, 4, 3, 3, 2, 2, 1, 0, 3, 0], label=0),
                 ]
             ),
             DatasetItem(id='name0_0002',
                 subset='test', image=np.ones((2, 5, 3)),
                 annotations=[
                     Label(0),
-                    Points([0, 5, 3, 5, 2, 2, 1, 0, 3, 0]),
+                    Points([0, 5, 3, 5, 2, 2, 1, 0, 3, 0], label=0),
                 ]
             ),
         ], categories=['name0'])
@@ -181,7 +213,7 @@ class LfwImporterTest(TestCase):
                         'negative_pairs': ['name1/name1_0001',
                             'name1/name1_0002']
                     }),
-                    Points([0, 4, 3, 3, 2, 2, 1, 0, 3, 0]),
+                    Points([0, 4, 3, 3, 2, 2, 1, 0, 3, 0], label=0),
                 ]
             ),
             DatasetItem(id='name1_0001', subset='test',
@@ -190,14 +222,14 @@ class LfwImporterTest(TestCase):
                     Label(1, attributes={
                         'positive_pairs': ['name1/name1_0002'],
                     }),
-                    Points([1, 6, 4, 6, 3, 3, 2, 1, 4, 1]),
+                    Points([1, 6, 4, 6, 3, 3, 2, 1, 4, 1], label=1),
                 ]
             ),
             DatasetItem(id='name1_0002', subset='test',
                 image=np.ones((2, 5, 3)),
                 annotations=[
                     Label(1),
-                    Points([0, 5, 3, 5, 2, 2, 1, 0, 3, 0]),
+                    Points([0, 5, 3, 5, 2, 2, 1, 0, 3, 0], label=1),
                 ]
             ),
         ], categories=['name0', 'name1'])

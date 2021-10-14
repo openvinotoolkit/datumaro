@@ -1,4 +1,4 @@
-# Copyright (C) 2020 Intel Corporation
+# Copyright (C) 2020-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -12,11 +12,11 @@ import os.path as osp
 from defusedxml import ElementTree
 import numpy as np
 
-from datumaro.components.converter import Converter
-from datumaro.components.extractor import (
-    AnnotationType, Bbox, DatasetItem, Extractor, Importer, LabelCategories,
-    Mask, Polygon,
+from datumaro.components.annotation import (
+    AnnotationType, Bbox, LabelCategories, Mask, Polygon,
 )
+from datumaro.components.converter import Converter
+from datumaro.components.extractor import DatasetItem, Extractor, Importer
 from datumaro.util import cast, escape, unescape
 from datumaro.util.image import Image, save_image
 from datumaro.util.mask_tools import find_mask_bbox, load_mask
@@ -308,7 +308,8 @@ class LabelMeConverter(Converter):
     _escape = partial(escape, escapes=LabelMePath.ATTR_EXPORT_ESCAPES)
 
     def _save_item(self, item, subset_dir):
-        from lxml import etree as ET
+        # Disable B410: import_lxml - the library is used for writing here
+        from lxml import etree as ET  # nosec
 
         log.debug("Converting item '%s'", item.id)
 

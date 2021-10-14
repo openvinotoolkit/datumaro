@@ -4,10 +4,9 @@ import os.path as osp
 
 import numpy as np
 
+from datumaro.components.annotation import AnnotationType, Bbox, LabelCategories
 from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import (
-    AnnotationType, Bbox, DatasetItem, LabelCategories,
-)
+from datumaro.components.extractor import DatasetItem
 from datumaro.plugins.mot_format import MotSeqGtConverter, MotSeqImporter
 from datumaro.util.image import Image
 from datumaro.util.test_utils import (
@@ -102,6 +101,37 @@ class MotConverterTest(TestCase):
             self._test_save_and_load(source_dataset,
                 partial(MotSeqGtConverter.convert, save_images=True),
                 test_dir, target_dataset=target_dataset, require_images=True)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_save_and_load_with_no_save_images(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id=1,
+                image=np.ones((16, 16, 3)),
+                annotations=[
+                    Bbox(0, 4, 4, 8, label=0, attributes={
+                        'occluded': True,
+                        'visibility': 0.0,
+                        'ignored': False,
+                    }),
+                ]
+            ),
+
+            DatasetItem(id=2,
+                image=np.ones((8, 8, 3)),
+                annotations=[
+                    Bbox(1, 2, 4, 2, label=1, attributes={
+                        'occluded': False,
+                        'visibility': 1.0,
+                        'ignored': False,
+                    }),
+                ]
+            ),
+        ], categories=['label_0', 'label_1'])
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(source_dataset,
+                partial(MotSeqGtConverter.convert, save_images=False),
+                test_dir)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_image_with_arbitrary_extension(self):

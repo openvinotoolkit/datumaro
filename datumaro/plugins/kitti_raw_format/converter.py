@@ -3,16 +3,16 @@
 # SPDX-License-Identifier: MIT
 
 from copy import deepcopy
-from xml.sax.saxutils import XMLGenerator
+# Disable B406: import_xml_sax - the library is used for writing
+from xml.sax.saxutils import XMLGenerator  # nosec
 import logging as log
 import os
 import os.path as osp
 
+from datumaro.components.annotation import AnnotationType, LabelCategories
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
-from datumaro.components.extractor import (
-    AnnotationType, DatasetItem, LabelCategories,
-)
+from datumaro.components.extractor import DatasetItem
 from datumaro.util import cast
 from datumaro.util.image import find_images
 
@@ -434,7 +434,7 @@ class KittiRawConverter(Converter):
         os.makedirs(self._save_dir, exist_ok=True)
 
         if 1 < len(self._extractor.subsets()):
-            log.warning("Kitti RAW format supports only a single"
+            log.warning("Kitti RAW format supports only a single "
                 "subset. Subset information will be ignored on export.")
 
         tracklets = self._create_tracklets(self._extractor)

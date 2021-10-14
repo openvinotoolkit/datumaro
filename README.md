@@ -26,7 +26,7 @@ CVAT annotations                             ---> Publication, statistics etc.
 
 [(Back to top)](#dataset-management-framework-datumaro)
 
-- Dataset reading, writing, conversion in any direction. [Supported formats](https://openvinotoolkit.github.io/datumaro/docs/user-manual/supported-formats):
+- Dataset reading, writing, conversion in any direction. [Supported formats](https://openvinotoolkit.github.io/datumaro/docs/user-manual/supported_formats):
   - [COCO](http://cocodataset.org/#format-data) (`image_info`, `instances`, `person_keypoints`, `captions`, `labels`, `panoptic`, `stuff`)
   - [PASCAL VOC](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/htmldoc/index.html) (`classification`, `detection`, `segmentation`, `action_classification`, `person_layout`)
   - [YOLO](https://github.com/AlexeyAB/darknet#how-to-train-pascal-voc-data) (`bboxes`)
@@ -102,3 +102,20 @@ Feel free to
 think something needs to be changed. You are welcome to participate in
 development, instructions are available in our
 [contribution guide](https://openvinotoolkit.github.io/datumaro/docs/contributing).
+
+
+## Telemetry data collection note
+
+The [OpenVINO telemetry library](https://github.com/openvinotoolkit/telemetry/)
+is used to collect basic information about Datumaro using.
+
+A short description of the information collected:
+| Event             | Description |
+| ----------------- | ----------- |
+| version           | Datumaro version |
+| session start/end | Accessory event, there is no additional info here |
+| {command}_result  | Datumaro command result with arguments passed (all sensitive arguments, such as filesystem paths or names, are sanitized) |
+| error | Sanitized stack trace in case of exception |
+
+To enable/disable telemetry data collection please see the
+[guide](https://openvinotoolkit.github.io/datumaro/docs/docs/user-manual/how_to_control_tm_data_colletion).

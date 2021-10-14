@@ -4,6 +4,10 @@ import os.path as osp
 
 import numpy as np
 
+from datumaro.components.annotation import (
+    AnnotationType, Bbox, Caption, Label, LabelCategories, Mask, Points,
+    Polygon, PolyLine,
+)
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import (
     DEFAULT_FORMAT, Dataset, ItemStatus, eager_mode,
@@ -17,9 +21,7 @@ from datumaro.components.errors import (
     NoMatchingFormatsError, RepeatedItemError, UnknownFormatError,
 )
 from datumaro.components.extractor import (
-    DEFAULT_SUBSET_NAME, AnnotationType, Bbox, Caption, DatasetItem, Extractor,
-    ItemTransform, Label, LabelCategories, Mask, Points, Polygon, PolyLine,
-    Transform,
+    DEFAULT_SUBSET_NAME, DatasetItem, Extractor, ItemTransform, Transform,
 )
 from datumaro.components.launcher import Launcher
 from datumaro.util.image import Image
@@ -1326,6 +1328,92 @@ class DatasetTest(TestCase):
                 },
                 set(os.listdir(path)))
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_update_overwrites_matching_items(self):
+        patch = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[ Bbox(1, 2, 3, 4, label=1) ])
+        ], categories=['a', 'b'])
+
+        dataset = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[ Bbox(2, 2, 1, 1, label=0) ]),
+            DatasetItem(id=2, annotations=[ Bbox(1, 1, 1, 1, label=1) ]),
+        ], categories=['a', 'b'])
+
+        expected = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[ Bbox(1, 2, 3, 4, label=1) ]),
+            DatasetItem(id=2, annotations=[ Bbox(1, 1, 1, 1, label=1) ]),
+        ], categories=['a', 'b'])
+
+        dataset.update(patch)
+
+        compare_datasets(self, expected, dataset)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_update_can_reorder_labels(self):
+        patch = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[ Bbox(1, 2, 3, 4, label=1) ])
+        ], categories=['b', 'a'])
+
+        dataset = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[ Bbox(2, 2, 1, 1, label=0) ])
+        ], categories=['a', 'b'])
+
+        # Note that label id and categories are changed
+        expected = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[ Bbox(1, 2, 3, 4, label=0) ])
+        ], categories=['a', 'b'])
+
+        dataset.update(patch)
+
+        compare_datasets(self, expected, dataset)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_update_can_project_labels(self):
+        dataset = Dataset.from_iterable([
+            # Must be overridden
+            DatasetItem(id=100, annotations=[
+                Bbox(1, 2, 3, 3, label=0),
+            ]),
+
+            # Must be kept
+            DatasetItem(id=1, annotations=[
+                Bbox(1, 2, 3, 4, label=1)
+            ]),
+        ], categories=['a', 'b'])
+
+        patch = Dataset.from_iterable([
+            # Must override
+            DatasetItem(id=100, annotations=[
+                Bbox(1, 2, 3, 4, label=0), # Label must be remapped
+                Bbox(5, 6, 2, 3, label=1), # Label must be remapped
+                Bbox(2, 2, 2, 3, label=2), # Will be dropped due to label
+            ]),
+
+            # Must be added
+            DatasetItem(id=2, annotations=[
+                Bbox(1, 2, 3, 2, label=1) # Label must be remapped
+            ]),
+        ], categories=['b', 'a', 'c'])
+
+        expected = Dataset.from_iterable([
+            DatasetItem(id=100, annotations=[
+                Bbox(1, 2, 3, 4, label=1),
+                Bbox(5, 6, 2, 3, label=0),
+            ]),
+
+            DatasetItem(id=1, annotations=[
+                Bbox(1, 2, 3, 4, label=1)
+            ]),
+
+            DatasetItem(id=2, annotations=[
+                Bbox(1, 2, 3, 2, label=0)
+            ]),
+        ], categories=['a', 'b'])
+
+        dataset.update(patch)
+
+        compare_datasets(self, expected, dataset, ignored_attrs='*')
+
 
 class DatasetItemTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -1352,7 +1440,7 @@ class DatasetFilterTest(TestCase):
     @staticmethod
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_item_representations():
-        item = DatasetItem(id=1, subset='subset', path=['a', 'b'],
+        item = DatasetItem(id=1, subset='subset',
             image=np.ones((5, 4, 3)),
             annotations=[
                 Label(0, attributes={'a1': 1, 'a2': '2'}, id=1, group=2),

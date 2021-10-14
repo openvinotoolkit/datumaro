@@ -3,10 +3,11 @@ import os.path as osp
 
 import numpy as np
 
-from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import (
-    AnnotationType, DatasetItem, Label, LabelCategories,
+from datumaro.components.annotation import (
+    AnnotationType, Label, LabelCategories,
 )
+from datumaro.components.dataset import Dataset
+from datumaro.components.extractor import DatasetItem
 from datumaro.plugins.imagenet_format import ImagenetConverter, ImagenetImporter
 from datumaro.util.image import Image
 from datumaro.util.test_utils import TestDir, compare_datasets

@@ -13,11 +13,10 @@ import os.path as osp
 import shutil
 import uuid
 
+from datumaro.components.annotation import AnnotationType, LabelCategories
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
-from datumaro.components.extractor import (
-    AnnotationType, DatasetItem, IExtractor, LabelCategories,
-)
+from datumaro.components.extractor import DatasetItem, IExtractor
 from datumaro.util import cast
 
 from .format import PointCloudPath
@@ -390,7 +389,7 @@ class SuperviselyPointCloudConverter(Converter):
 
     def apply(self):
         if 1 < len(self._extractor.subsets()):
-            log.warning("Supervisely pointcloud format supports only a single"
+            log.warning("Supervisely pointcloud format supports only a single "
                 "subset. Subset information will be ignored on export.")
 
         _SuperviselyPointCloudDumper(self._extractor, self).dump()

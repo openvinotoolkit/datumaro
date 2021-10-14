@@ -1,436 +1,962 @@
 from unittest import TestCase
 import os
 import os.path as osp
+import shutil
 import textwrap
 
 import numpy as np
 
-from datumaro.components.config import Config
+from datumaro.components.annotation import Bbox, Label
 from datumaro.components.config_model import Model, Source
 from datumaro.components.dataset import DEFAULT_FORMAT, Dataset
-from datumaro.components.extractor import (
-    AnnotationType, DatasetItem, Extractor, Label, LabelCategories,
+from datumaro.components.errors import (
+    DatasetMergeError, EmptyCommitError, ForeignChangesError,
+    MismatchingObjectError, MissingObjectError, MissingSourceHashError,
+    OldProjectError, PathOutsideSourceError, ReadonlyProjectError,
+    SourceExistsError, SourceUrlInsideProjectError, UnexpectedUrlError,
 )
-from datumaro.components.launcher import Launcher, ModelTransform
-from datumaro.components.project import Environment, Project
-from datumaro.util.test_utils import TestDir, compare_datasets
+from datumaro.components.extractor import DatasetItem, Extractor, ItemTransform
+from datumaro.components.launcher import Launcher
+from datumaro.components.project import DiffStatus, Project
+from datumaro.util.scope import scope_add, scoped
+from datumaro.util.test_utils import TestDir, compare_datasets, compare_dirs
 
 from .requirements import Requirements, mark_requirement
 
 
 class ProjectTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_project_generate(self):
-        src_config = Config({
-            'project_name': 'test_project',
-            'format_version': 1,
-        })
+    @scoped
+    def test_can_init_and_load(self):
+        test_dir = scope_add(TestDir())
 
-        with TestDir() as test_dir:
-            project_path = test_dir
-            Project.generate(project_path, src_config)
+        scope_add(Project.init(test_dir)).close()
+        scope_add(Project(test_dir))
 
-            self.assertTrue(osp.isdir(project_path))
-
-            result_config = Project.load(project_path).config
-            self.assertEqual(
-                src_config.project_name, result_config.project_name)
-            self.assertEqual(
-                src_config.format_version, result_config.format_version)
-
-    @staticmethod
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_default_ctor_is_ok():
-        Project()
-
-    @staticmethod
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_empty_config_is_ok():
-        Project(Config())
+        self.assertTrue('.datumaro' in os.listdir(test_dir))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_add_source(self):
-        source_name = 'source'
-        origin = Source({
-            'url': 'path',
-            'format': 'ext'
-        })
-        project = Project()
+    @scoped
+    def test_can_find_project_in_project_dir(self):
+        test_dir = scope_add(TestDir())
 
-        project.add_source(source_name, origin)
+        scope_add(Project.init(test_dir))
 
-        added = project.get_source(source_name)
-        self.assertIsNotNone(added)
-        self.assertEqual(added, origin)
+        self.assertEqual(osp.join(test_dir, '.datumaro'),
+            Project.find_project_dir(test_dir))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_added_source_can_be_saved(self):
-        source_name = 'source'
-        origin = Source({
-            'url': 'path',
-        })
-        project = Project()
-        project.add_source(source_name, origin)
+    @scoped
+    def test_cant_find_project_when_no_project(self):
+        test_dir = scope_add(TestDir())
 
-        saved = project.config
-
-        self.assertEqual(origin, saved.sources[source_name])
+        self.assertEqual(None, Project.find_project_dir(test_dir))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_added_source_can_be_dumped(self):
-        source_name = 'source'
-        origin = Source({
-            'url': 'path',
-        })
-        project = Project()
-        project.add_source(source_name, origin)
-
-        with TestDir() as test_dir:
-            project.save(test_dir)
-
-            loaded = Project.load(test_dir)
-            loaded = loaded.get_source(source_name)
-            self.assertEqual(origin, loaded)
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_import_with_custom_importer(self):
-        class TestImporter:
-            def __call__(self, path, subset=None):
-                return Project({
-                    'project_filename': path,
-                    'subsets': [ subset ]
-                })
-
-        path = 'path'
-        importer_name = 'test_importer'
-
-        env = Environment()
-        env.importers.register(importer_name, TestImporter)
-
-        project = Project.import_from(path, importer_name, env,
-            subset='train')
-
-        self.assertEqual(path, project.config.project_filename)
-        self.assertListEqual(['train'], project.config.subsets)
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_dump_added_model(self):
-        model_name = 'model'
-
-        project = Project()
-        saved = Model({ 'launcher': 'name' })
-        project.add_model(model_name, saved)
-
-        with TestDir() as test_dir:
-            project.save(test_dir)
-
-            loaded = Project.load(test_dir)
-            loaded = loaded.get_model(model_name)
-            self.assertEqual(saved, loaded)
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_have_project_source(self):
-        with TestDir() as test_dir:
-            Project.generate(test_dir)
-
-            project2 = Project()
-            project2.add_source('project1', {
-                'url': test_dir,
-            })
-            dataset = project2.make_dataset()
-
-            self.assertTrue('project1' in dataset.sources)
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_batch_launch_custom_model(self):
-        dataset = Dataset.from_iterable([
-            DatasetItem(id=i, subset='train', image=np.array([i]))
-            for i in range(5)
-        ], categories=['label'])
-
+    @scoped
+    def test_can_add_local_model(self):
         class TestLauncher(Launcher):
-            def launch(self, inputs):
-                for i, inp in enumerate(inputs):
-                    yield [ Label(0, attributes={'idx': i, 'data': inp.item()}) ]
+            pass
 
-        model_name = 'model'
-        launcher_name = 'custom_launcher'
+        source_name = 'source'
+        config = Model({
+            'launcher': 'test',
+            'options': { 'a': 5, 'b': 'hello' }
+        })
 
-        project = Project()
-        project.env.launchers.register(launcher_name, TestLauncher)
-        project.add_model(model_name, { 'launcher': launcher_name })
-        model = project.make_executable_model(model_name)
+        test_dir = scope_add(TestDir())
+        project = scope_add(Project.init(test_dir))
+        project.env.launchers.register('test', TestLauncher)
 
-        batch_size = 3
-        executor = ModelTransform(dataset, model, batch_size=batch_size)
+        project.add_model(source_name,
+            launcher=config.launcher, options=config.options)
 
-        for item in executor:
-            self.assertEqual(1, len(item.annotations))
-            self.assertEqual(int(item.id) % batch_size,
-                item.annotations[0].attributes['idx'])
-            self.assertEqual(int(item.id),
-                item.annotations[0].attributes['data'])
+        added = project.models[source_name]
+        self.assertEqual(added.launcher, config.launcher)
+        self.assertEqual(added.options, config.options)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_do_transform_with_custom_model(self):
-        class TestExtractorSrc(Extractor):
-            def __iter__(self):
-                for i in range(2):
-                    yield DatasetItem(id=i, image=np.ones([2, 2, 3]) * i,
-                        annotations=[Label(i)])
-
-            def categories(self):
-                label_cat = LabelCategories()
-                label_cat.add('0')
-                label_cat.add('1')
-                return { AnnotationType.label: label_cat }
-
+    @scoped
+    def test_can_run_inference(self):
         class TestLauncher(Launcher):
             def launch(self, inputs):
                 for inp in inputs:
                     yield [ Label(inp[0, 0, 0]) ]
 
-        class TestExtractorDst(Extractor):
-            def __init__(self, url):
-                super().__init__()
-                self.items = [osp.join(url, p) for p in sorted(os.listdir(url))]
+        expected = Dataset.from_iterable([
+            DatasetItem(0, image=np.zeros([2, 2, 3]), annotations=[Label(0)]),
+            DatasetItem(1, image=np.ones([2, 2, 3]), annotations=[Label(1)])
+        ], categories=['a', 'b'])
 
-            def __iter__(self):
-                for path in self.items:
-                    with open(path, 'r') as f:
-                        index = osp.splitext(osp.basename(path))[0]
-                        label = int(f.readline().strip())
-                        yield DatasetItem(id=index, annotations=[Label(label)])
-
-        model_name = 'model'
         launcher_name = 'custom_launcher'
-        extractor_name = 'custom_extractor'
+        model_name = 'model'
 
-        project = Project()
-        project.env.launchers.register(launcher_name, TestLauncher)
-        project.env.extractors.register(extractor_name, TestExtractorSrc)
-        project.add_model(model_name, { 'launcher': launcher_name })
-        project.add_source('source', { 'format': extractor_name })
-
-        with TestDir() as test_dir:
-            project.make_dataset().apply_model(model=model_name,
-                save_dir=test_dir)
-
-            result = Project.load(test_dir)
-            result.env.extractors.register(extractor_name, TestExtractorDst)
-            it = iter(result.make_dataset())
-            item1 = next(it)
-            item2 = next(it)
-            self.assertEqual(0, item1.annotations[0].label)
-            self.assertEqual(1, item2.annotations[0].label)
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_source_datasets_can_be_merged(self):
-        class TestExtractor(Extractor):
-            def __init__(self, url, n=0, s=0):
-                super().__init__(length=n)
-                self.n = n
-                self.s = s
-
-            def __iter__(self):
-                for i in range(self.n):
-                    yield DatasetItem(id=self.s + i, subset='train')
-
-        e_name1 = 'e1'
-        e_name2 = 'e2'
-        n1 = 2
-        n2 = 4
-
-        project = Project()
-        project.env.extractors.register(e_name1, lambda p: TestExtractor(p, n=n1))
-        project.env.extractors.register(e_name2, lambda p: TestExtractor(p, n=n2, s=n1))
-        project.add_source('source1', { 'format': e_name1 })
-        project.add_source('source2', { 'format': e_name2 })
-
-        dataset = project.make_dataset()
-
-        self.assertEqual(n1 + n2, len(dataset))
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_cant_merge_different_categories(self):
-        class TestExtractor1(Extractor):
-            def __iter__(self):
-                return iter([])
-
-            def categories(self):
-                return { AnnotationType.label:
-                    LabelCategories.from_iterable(['a', 'b']) }
-
-        class TestExtractor2(Extractor):
-            def __iter__(self):
-                return iter([])
-
-            def categories(self):
-                return { AnnotationType.label:
-                    LabelCategories.from_iterable(['b', 'a']) }
-
-        e_name1 = 'e1'
-        e_name2 = 'e2'
-
-        project = Project()
-        project.env.extractors.register(e_name1, TestExtractor1)
-        project.env.extractors.register(e_name2, TestExtractor2)
-        project.add_source('source1', { 'format': e_name1 })
-        project.add_source('source2', { 'format': e_name2 })
-
-        with self.assertRaisesRegex(Exception, "different categories"):
-            project.make_dataset()
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_project_filter_can_be_applied(self):
-        class TestExtractor(Extractor):
-            def __iter__(self):
-                for i in range(10):
-                    yield DatasetItem(id=i, subset='train')
-
-        e_type = 'type'
-        project = Project()
-        project.env.extractors.register(e_type, TestExtractor)
-        project.add_source('source', { 'format': e_type })
-
-        dataset = project.make_dataset().filter('/item[id < 5]')
-
-        self.assertEqual(5, len(dataset))
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_save_and_load_own_dataset(self):
-        with TestDir() as test_dir:
-            src_project = Project()
-            src_dataset = src_project.make_dataset()
-            item = DatasetItem(id=1)
-            src_dataset.put(item)
-            src_dataset.save(test_dir)
-
-            loaded_project = Project.load(test_dir)
-            loaded_dataset = loaded_project.make_dataset()
-
-            self.assertEqual(list(src_dataset), list(loaded_dataset))
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_project_own_dataset_can_be_modified(self):
-        project = Project()
-        dataset = project.make_dataset()
-
-        item = DatasetItem(id=1)
-        dataset.put(item)
-
-        self.assertEqual(item, next(iter(dataset)))
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_project_compound_child_can_be_modified_recursively(self):
-        with TestDir() as test_dir:
-            child1 = Project({
-                'project_dir': osp.join(test_dir, 'child1'),
-            })
-            child1.save()
-
-            child2 = Project({
-                'project_dir': osp.join(test_dir, 'child2'),
-            })
-            child2.save()
-
-            parent = Project()
-            parent.add_source('child1', {
-                'url': child1.config.project_dir
-            })
-            parent.add_source('child2', {
-                'url': child2.config.project_dir
-            })
-            dataset = parent.make_dataset()
-
-            item1 = DatasetItem(id='ch1', path=['child1'])
-            item2 = DatasetItem(id='ch2', path=['child2'])
-            dataset.put(item1)
-            dataset.put(item2)
-
-            self.assertEqual(2, len(dataset))
-            self.assertEqual(1, len(dataset.sources['child1']))
-            self.assertEqual(1, len(dataset.sources['child2']))
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_project_can_merge_item_annotations(self):
-        class TestExtractor1(Extractor):
-            def __iter__(self):
-                yield DatasetItem(id=1, subset='train', annotations=[
-                    Label(2, id=3),
-                    Label(3, attributes={ 'x': 1 }),
-                ])
-
-        class TestExtractor2(Extractor):
-            def __iter__(self):
-                yield DatasetItem(id=1, subset='train', annotations=[
-                    Label(3, attributes={ 'x': 1 }),
-                    Label(4, id=4),
-                ])
-
-        project = Project()
-        project.env.extractors.register('t1', TestExtractor1)
-        project.env.extractors.register('t2', TestExtractor2)
-        project.add_source('source1', { 'format': 't1' })
-        project.add_source('source2', { 'format': 't2' })
-
-        merged = project.make_dataset()
-
-        self.assertEqual(1, len(merged))
-
-        item = next(iter(merged))
-        self.assertEqual(3, len(item.annotations))
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_detect_and_import(self):
-        env = Environment()
-        env.importers.items = {DEFAULT_FORMAT: env.importers[DEFAULT_FORMAT]}
-        env.extractors.items = {DEFAULT_FORMAT: env.extractors[DEFAULT_FORMAT]}
-
+        test_dir = scope_add(TestDir())
+        source_url = osp.join(test_dir, 'source')
         source_dataset = Dataset.from_iterable([
-            DatasetItem(id=1, annotations=[ Label(2) ]),
-        ], categories=['a', 'b', 'c'])
+            DatasetItem(0, image=np.ones([2, 2, 3]) * 0),
+            DatasetItem(1, image=np.ones([2, 2, 3]) * 1),
+        ], categories=['a', 'b'])
+        source_dataset.save(source_url, save_images=True)
 
-        with TestDir() as test_dir:
-            source_dataset.save(test_dir)
+        project = scope_add(Project.init(osp.join(test_dir, 'proj')))
+        project.env.launchers.register(launcher_name, TestLauncher)
+        project.add_model(model_name, launcher=launcher_name)
+        project.import_source('source', source_url, format=DEFAULT_FORMAT)
 
-            project = Project.import_from(test_dir, env=env)
-            imported_dataset = project.make_dataset()
+        dataset = project.working_tree.make_dataset()
+        model = project.make_model(model_name)
 
-            self.assertEqual(next(iter(project.config.sources.values())).format,
-                DEFAULT_FORMAT)
-            compare_datasets(self, source_dataset, imported_dataset)
+        inference = dataset.run_model(model)
+
+        compare_datasets(self, expected, inference)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_custom_extractor_can_be_created(self):
-        class CustomExtractor(Extractor):
-            def __iter__(self):
-                return iter([
-                    DatasetItem(id=0, subset='train'),
-                    DatasetItem(id=1, subset='train'),
-                    DatasetItem(id=2, subset='train'),
+    @scoped
+    def test_can_import_local_source(self):
+        test_dir = scope_add(TestDir())
+        source_base_url = osp.join(test_dir, 'test_repo')
+        source_file_path = osp.join(source_base_url, 'x', 'y.txt')
+        os.makedirs(osp.dirname(source_file_path), exist_ok=True)
+        with open(source_file_path, 'w') as f:
+            f.write('hello')
 
-                    DatasetItem(id=3, subset='test'),
-                    DatasetItem(id=4, subset='test'),
+        project = scope_add(Project.init(osp.join(test_dir, 'proj')))
+        project.import_source('s1', url=source_base_url, format='fmt')
 
-                    DatasetItem(id=1),
-                    DatasetItem(id=2),
-                    DatasetItem(id=3),
-                ])
+        source = project.working_tree.sources['s1']
+        self.assertEqual('fmt', source.format)
+        compare_dirs(self, source_base_url, project.source_data_dir('s1'))
+        with open(osp.join(test_dir, 'proj', '.gitignore')) as f:
+            self.assertTrue('/s1' in [line.strip() for line in f])
 
-        extractor_name = 'ext1'
-        project = Project()
-        project.env.extractors.register(extractor_name, CustomExtractor)
-        project.add_source('src1', {
-            'url': 'path',
-            'format': extractor_name,
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_can_import_local_source_with_relpath(self):
+        # This form must copy all the data in URL, but read only
+        # specified files. Required to support subtasks and subsets.
+
+        test_dir = scope_add(TestDir())
+        source_url = osp.join(test_dir, 'source')
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(0, subset='a', image=np.ones((2, 3, 3)),
+                annotations=[ Bbox(1, 2, 3, 4, label=0) ]),
+            DatasetItem(1, subset='b', image=np.zeros((10, 20, 3)),
+                annotations=[ Bbox(1, 2, 3, 4, label=1) ]),
+        ], categories=['a', 'b'])
+        source_dataset.save(source_url, save_images=True)
+
+        expected_dataset = Dataset.from_iterable([
+            DatasetItem(1, subset='b', image=np.zeros((10, 20, 3)),
+                annotations=[ Bbox(1, 2, 3, 4, label=1) ]),
+        ], categories=['a', 'b'])
+
+        project = scope_add(Project.init(osp.join(test_dir, 'proj')))
+
+        project.import_source('s1', url=source_url, format=DEFAULT_FORMAT,
+            rpath=osp.join('annotations', 'b.json'))
+
+        source = project.working_tree.sources['s1']
+        self.assertEqual(DEFAULT_FORMAT, source.format)
+
+        compare_dirs(self, source_url, project.source_data_dir('s1'))
+        read_dataset = project.working_tree.make_dataset('s1')
+        compare_datasets(self, expected_dataset, read_dataset,
+            require_images=True)
+
+        with open(osp.join(test_dir, 'proj', '.gitignore')) as f:
+            self.assertTrue('/s1' in [line.strip() for line in f])
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_cant_import_local_source_with_relpath_outside(self):
+        test_dir = scope_add(TestDir())
+        source_url = osp.join(test_dir, 'source')
+        os.makedirs(source_url)
+
+        project = scope_add(Project.init(osp.join(test_dir, 'proj')))
+
+        with self.assertRaises(PathOutsideSourceError):
+            project.import_source('s1', url=source_url,
+                format=DEFAULT_FORMAT, rpath='..')
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_cant_import_local_source_with_url_inside_project(self):
+        test_dir = scope_add(TestDir())
+        source_url = osp.join(test_dir, 'qq')
+        with open(source_url, 'w') as f:
+            f.write('hello')
+
+        project = scope_add(Project.init(test_dir))
+
+        with self.assertRaises(SourceUrlInsideProjectError):
+            project.import_source('s1', url=source_url,
+                format=DEFAULT_FORMAT)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_can_report_incompatible_sources(self):
+        test_dir = scope_add(TestDir())
+        source1_url = osp.join(test_dir, 'dataset1')
+        dataset1 = Dataset.from_iterable([
+            DatasetItem(1, annotations=[Label(0)]),
+        ], categories=['a', 'b'])
+        dataset1.save(source1_url)
+
+        source2_url = osp.join(test_dir, 'dataset2')
+        dataset2 = Dataset.from_iterable([
+            DatasetItem(1, annotations=[Label(0)]),
+        ], categories=['c', 'd'])
+        dataset2.save(source2_url)
+
+        project = scope_add(Project.init(osp.join(test_dir, 'proj')))
+        project.import_source('s1', url=source1_url, format=DEFAULT_FORMAT)
+        project.import_source('s2', url=source2_url, format=DEFAULT_FORMAT)
+
+        with self.assertRaises(DatasetMergeError) as cm:
+            project.working_tree.make_dataset()
+
+        self.assertEqual({'s1.root', 's2.root'}, cm.exception.sources)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_cant_import_sources_with_same_names(self):
+        test_dir = scope_add(TestDir())
+        source_url = osp.join(test_dir, 'test_repo')
+        dataset = Dataset.from_iterable([
+            DatasetItem(1, annotations=[Label(0)]),
+            DatasetItem(2, annotations=[Label(1)]),
+        ], categories=['a', 'b'])
+        dataset.save(source_url)
+
+        project = scope_add(Project.init(osp.join(test_dir, 'proj')))
+        project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
+
+        with self.assertRaises(SourceExistsError):
+            project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_can_import_generated_source(self):
+        test_dir = scope_add(TestDir())
+        source_name = 'source'
+        origin = Source({
+            # no url
+            'format': 'fmt',
+            'options': { 'c': 5, 'd': 'hello' }
         })
+        project = scope_add(Project.init(test_dir))
 
-        dataset = project.make_dataset()
+        project.import_source(source_name, url='',
+            format=origin.format, options=origin.options)
 
-        compare_datasets(self, CustomExtractor(), dataset)
+        added = project.working_tree.sources[source_name]
+        self.assertEqual(added.format, origin.format)
+        self.assertEqual(added.options, origin.options)
+        with open(osp.join(test_dir, '.gitignore')) as f:
+            self.assertTrue('/' + source_name in [line.strip() for line in f])
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_cant_import_source_with_wrong_name(self):
+        test_dir = scope_add(TestDir())
+        project = scope_add(Project.init(test_dir))
+
+        for name in {'dataset', 'project', 'build', '.any'}:
+            with self.subTest(name=name), \
+                    self.assertRaisesRegex(ValueError, "Source name"):
+                project.import_source(name, url='', format='fmt')
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_can_add_project_local_source(self):
+        test_dir = scope_add(TestDir())
+        proj_dir = osp.join(test_dir, 'proj')
+
+        project = scope_add(Project.init(proj_dir))
+
+        source_base_url = osp.join(proj_dir, 'x')
+        source_file_path = osp.join(source_base_url, 'y.txt')
+        os.makedirs(osp.dirname(source_file_path))
+        with open(source_file_path, 'w') as f:
+            f.write('hello')
+
+        name, source = project.add_source(source_base_url, format='fmt')
+
+        self.assertEqual('x', name)
+        self.assertEqual(project.working_tree.sources[name], source)
+        self.assertEqual('fmt', source.format)
+
+        with open(osp.join(test_dir, 'proj', '.gitignore')) as f:
+            self.assertTrue('/x' in [line.strip() for line in f])
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_cant_add_source_deep_in_the_project(self):
+        test_dir = scope_add(TestDir())
+        proj_dir = osp.join(test_dir, 'proj')
+
+        project = scope_add(Project.init(proj_dir))
+
+        source_base_url = osp.join(proj_dir, 'x', 'y')
+        source_file_path = osp.join(source_base_url, 'y.txt')
+        os.makedirs(osp.dirname(source_file_path))
+        with open(source_file_path, 'w') as f:
+            f.write('hello')
+
+        with self.assertRaises(UnexpectedUrlError):
+            project.add_source(source_base_url, format='fmt')
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_cant_add_source_outside_project(self):
+        test_dir = scope_add(TestDir())
+        source_url = osp.join(test_dir, 'x')
+        os.makedirs(source_url)
+
+        project = scope_add(Project.init(osp.join(test_dir, 'proj')))
+
+        with self.assertRaises(UnexpectedUrlError):
+            project.add_source(source_url, format='fmt')
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_can_remove_source_and_keep_data(self):
+        test_dir = scope_add(TestDir())
+        source_url = osp.join(test_dir, 'test_source.txt')
+        os.makedirs(osp.dirname(source_url), exist_ok=True)
+        with open(source_url, 'w') as f:
+            f.write('hello')
+
+        project = scope_add(Project.init(osp.join(test_dir, 'proj')))
+        project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
+
+        project.remove_source('s1', keep_data=True)
+
+        self.assertFalse('s1' in project.working_tree.sources)
+        compare_dirs(self, source_url, project.source_data_dir('s1'))
+        with open(osp.join(test_dir, 'proj', '.gitignore')) as f:
+            self.assertFalse('/s1' in [line.strip() for line in f])
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_can_remove_source_and_wipe_data(self):
+        test_dir = scope_add(TestDir())
+        source_url = osp.join(test_dir, 'test_source.txt')
+        os.makedirs(osp.dirname(source_url), exist_ok=True)
+        with open(source_url, 'w') as f:
+            f.write('hello')
+
+        project = scope_add(Project.init(osp.join(test_dir, 'proj')))
+        project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
+
+        project.remove_source('s1', keep_data=False)
+
+        self.assertFalse('s1' in project.working_tree.sources)
+        self.assertFalse(osp.exists(project.source_data_dir('s1')))
+        with open(osp.join(test_dir, 'proj', '.gitignore')) as f:
+            self.assertFalse('/s1' in [line.strip() for line in f])
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_can_redownload_source_rev_noncached(self):
+        test_dir = scope_add(TestDir())
+        source_url = osp.join(test_dir, 'source')
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(0, image=np.ones((2, 3, 3)),
+                annotations=[ Bbox(1, 2, 3, 4, label=0) ]),
+            DatasetItem(1, subset='s', image=np.zeros((10, 20, 3)),
+                annotations=[ Bbox(1, 2, 3, 4, label=1) ]),
+        ], categories=['a', 'b'])
+        source_dataset.save(source_url, save_images=True)
+
+        project = scope_add(Project.init(osp.join(test_dir, 'proj')))
+        project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
+        project.commit("A commit")
+
+        # remove local source data
+        project.remove_cache_obj(
+            project.working_tree.build_targets['s1'].head.hash)
+        shutil.rmtree(project.source_data_dir('s1'))
+
+        read_dataset = project.working_tree.make_dataset('s1')
+
+        compare_datasets(self, source_dataset, read_dataset)
+        compare_dirs(self, source_url, project.cache_path(
+            project.working_tree.build_targets['s1'].root.hash))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_can_redownload_source_and_check_data_hash(self):
+        test_dir = scope_add(TestDir())
+        source_url = osp.join(test_dir, 'source')
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(0, image=np.ones((2, 3, 3)),
+                annotations=[ Bbox(1, 2, 3, 4, label=0) ]),
+            DatasetItem(1, subset='s', image=np.zeros((10, 20, 3)),
+                annotations=[ Bbox(1, 2, 3, 4, label=1) ]),
+        ], categories=['a', 'b'])
+        source_dataset.save(source_url, save_images=True)
+
+        project = scope_add(Project.init(osp.join(test_dir, 'proj')))
+        project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
+        project.commit("A commit")
+
+        # remove local source data
+        project.remove_cache_obj(
+            project.working_tree.build_targets['s1'].head.hash)
+        shutil.rmtree(project.source_data_dir('s1'))
+
+        # modify the source repo
+        with open(osp.join(source_url, 'extra_file.txt'), 'w') as f:
+            f.write('text\n')
+
+        with self.assertRaises(MismatchingObjectError):
+            project.working_tree.make_dataset('s1')
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_can_use_source_from_cache_with_working_copy(self):
+        test_dir = scope_add(TestDir())
+        source_url = osp.join(test_dir, 'source')
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(0, image=np.ones((2, 3, 3)),
+                annotations=[ Bbox(1, 2, 3, 4, label=0) ]),
+            DatasetItem(1, subset='s', image=np.zeros((10, 20, 3)),
+                annotations=[ Bbox(1, 2, 3, 4, label=1) ]),
+        ], categories=['a', 'b'])
+        source_dataset.save(source_url, save_images=True)
+
+        project = scope_add(Project.init(osp.join(test_dir, 'proj')))
+        project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
+        project.commit("A commit")
+
+        shutil.rmtree(project.source_data_dir('s1'))
+
+        read_dataset = project.working_tree.make_dataset('s1')
+
+        compare_datasets(self, source_dataset, read_dataset)
+        self.assertFalse(osp.isdir(project.source_data_dir('s1')))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_raises_an_error_if_local_data_unknown(self):
+        test_dir = scope_add(TestDir())
+        source_url = osp.join(test_dir, 'source')
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(0, image=np.ones((2, 3, 3)),
+                annotations=[ Bbox(1, 2, 3, 4, label=0) ]),
+            DatasetItem(1, subset='s', image=np.zeros((10, 20, 3)),
+                annotations=[ Bbox(1, 2, 3, 4, label=1) ]),
+        ], categories=['a', 'b'])
+        source_dataset.save(source_url, save_images=True)
+
+        project = scope_add(Project.init(osp.join(test_dir, 'proj')))
+        project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
+        project.commit("A commit")
+
+        # remove the cached object so that it couldn't be matched
+        project.remove_cache_obj(
+            project.working_tree.build_targets['s1'].root.hash)
+
+        # modify local source data
+        with open(osp.join(project.source_data_dir('s1'), 'extra.txt'),
+                'w') as f:
+            f.write('text\n')
+
+        with self.assertRaises(ForeignChangesError):
+            project.working_tree.make_dataset('s1')
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_can_read_working_copy_of_source(self):
+        test_dir = scope_add(TestDir())
+        source_url = osp.join(test_dir, 'source')
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(0, image=np.ones((2, 3, 3)),
+                annotations=[ Bbox(1, 2, 3, 4, label=0) ]),
+            DatasetItem(1, subset='s', image=np.ones((1, 2, 3)),
+                annotations=[ Bbox(1, 2, 3, 4, label=1) ]),
+        ], categories=['a', 'b'])
+        source_dataset.save(source_url, save_images=True)
+
+        project = scope_add(Project.init(osp.join(test_dir, 'proj')))
+        project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
+
+        read_dataset = project.working_tree.make_dataset('s1')
+
+        compare_datasets(self, source_dataset, read_dataset)
+        compare_dirs(self, source_url, project.source_data_dir('s1'))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_can_read_current_revision_of_source(self):
+        test_dir = scope_add(TestDir())
+        source_url = osp.join(test_dir, 'source')
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(0, image=np.ones((2, 3, 3)),
+                annotations=[ Bbox(1, 2, 3, 4, label=0) ]),
+            DatasetItem(1, subset='s', image=np.ones((1, 2, 3)),
+                annotations=[ Bbox(1, 2, 3, 4, label=1) ]),
+        ], categories=['a', 'b'])
+        source_dataset.save(source_url, save_images=True)
+
+        project = scope_add(Project.init(osp.join(test_dir, 'proj')))
+        project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
+        project.commit("A commit")
+
+        shutil.rmtree(project.source_data_dir('s1'))
+
+        read_dataset = project.head.make_dataset('s1')
+
+        compare_datasets(self, source_dataset, read_dataset)
+        self.assertFalse(osp.isdir(project.source_data_dir('s1')))
+        compare_dirs(self, source_url, project.head.source_data_dir('s1'))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_can_make_dataset_from_project(self):
+        test_dir = scope_add(TestDir())
+        source_url = osp.join(test_dir, 'test_repo')
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(1, annotations=[Label(0)]),
+        ], categories=['a', 'b'])
+        source_dataset.save(source_url)
+
+        project = scope_add(Project.init(osp.join(test_dir, 'proj')))
+        project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
+
+        read_dataset = project.working_tree.make_dataset()
+
+        compare_datasets(self, source_dataset, read_dataset)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_can_make_dataset_from_source(self):
+        test_dir = scope_add(TestDir())
+        source_url = osp.join(test_dir, 'test_repo')
+        dataset = Dataset.from_iterable([
+            DatasetItem(1, annotations=[Label(0)]),
+        ], categories=['a', 'b'])
+        dataset.save(source_url)
+
+        project = scope_add(Project.init(osp.join(test_dir, 'proj')))
+        project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
+
+        built_dataset = project.working_tree.make_dataset('s1')
+
+        compare_datasets(self, dataset, built_dataset)
+        self.assertEqual(DEFAULT_FORMAT, built_dataset.format)
+        self.assertEqual(project.source_data_dir('s1'),
+            built_dataset.data_path)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_can_add_filter_stage(self):
+        test_dir = scope_add(TestDir())
+        source_url = osp.join(test_dir, 'test_repo')
+        dataset = Dataset.from_iterable([
+            DatasetItem(1, annotations=[Label(0)]),
+            DatasetItem(2, annotations=[Label(1)]),
+        ], categories=['a', 'b'])
+        dataset.save(source_url)
+
+        project = scope_add(Project.init(osp.join(test_dir, 'proj')))
+        project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
+
+        new_tree = project.working_tree.clone()
+        stage = new_tree.build_targets.add_filter_stage('s1',
+            '/item/annotation[label="b"]'
+        )
+
+        self.assertTrue(stage in new_tree.build_targets)
+        self.assertTrue(stage not in project.working_tree.build_targets)
+
+        resulting_dataset = project.working_tree.make_dataset(
+            new_tree.make_pipeline('s1'))
+        compare_datasets(self, Dataset.from_iterable([
+            DatasetItem(2, annotations=[Label(1)]),
+        ], categories=['a', 'b']), resulting_dataset)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_can_add_convert_stage(self):
+        test_dir = scope_add(TestDir())
+        source_url = osp.join(test_dir, 'test_repo')
+        dataset = Dataset.from_iterable([
+            DatasetItem(1, annotations=[Label(0)]),
+            DatasetItem(2, annotations=[Label(1)]),
+        ], categories=['a', 'b'])
+        dataset.save(source_url)
+
+        project = scope_add(Project.init(osp.join(test_dir, 'proj')))
+        project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
+
+        stage = project.working_tree.build_targets.add_convert_stage('s1',
+            DEFAULT_FORMAT)
+
+        self.assertTrue(stage in project.working_tree.build_targets)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_can_add_transform_stage(self):
+        class TestTransform(ItemTransform):
+            def __init__(self, extractor, p1=None, p2=None):
+                super().__init__(extractor)
+                self.p1 = p1
+                self.p2 = p2
+
+            def transform_item(self, item):
+                return self.wrap_item(item,
+                    attributes={'p1': self.p1, 'p2': self.p2})
+
+        test_dir = scope_add(TestDir())
+        source_url = osp.join(test_dir, 'test_repo')
+        dataset = Dataset.from_iterable([
+            DatasetItem(1, annotations=[Label(0)]),
+            DatasetItem(2, annotations=[Label(1)]),
+        ], categories=['a', 'b'])
+        dataset.save(source_url)
+
+        project = scope_add(Project.init(osp.join(test_dir, 'proj')))
+        project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
+        project.working_tree.env.transforms.register('tr', TestTransform)
+
+        # TODO: simplify adding stages and making datasets from them
+        new_tree = project.working_tree.clone()
+        stage = new_tree.build_targets.add_transform_stage('s1',
+            'tr', params={'p1': 5, 'p2': ['1', 2, 3.5]}
+        )
+
+        self.assertTrue(stage in new_tree.build_targets)
+        self.assertTrue(stage not in project.working_tree.build_targets)
+
+        resulting_dataset = project.working_tree.make_dataset(
+            new_tree.make_pipeline('s1'))
+        compare_datasets(self, Dataset.from_iterable([
+            DatasetItem(1, annotations=[Label(0)],
+                attributes={'p1': 5, 'p2': ['1', 2, 3.5]}),
+            DatasetItem(2, annotations=[Label(1)],
+                attributes={'p1': 5, 'p2': ['1', 2, 3.5]}),
+        ], categories=['a', 'b']), resulting_dataset)
+
+        project.working_tree.config.update(new_tree.config)
+        self.assertTrue(stage in project.working_tree.build_targets)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_can_make_dataset_from_stage(self):
+        test_dir = scope_add(TestDir())
+        source_url = osp.join(test_dir, 'test_repo')
+        dataset = Dataset.from_iterable([
+            DatasetItem(1, annotations=[Label(0)]),
+            DatasetItem(2, annotations=[Label(1)]),
+        ], categories=['a', 'b'])
+        dataset.save(source_url)
+
+        project = scope_add(Project.init(osp.join(test_dir, 'proj')))
+        project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
+
+        built_dataset = project.working_tree.make_dataset('s1.root')
+
+        compare_datasets(self, dataset, built_dataset)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_can_commit(self):
+        test_dir = scope_add(TestDir())
+        project = scope_add(Project.init(test_dir))
+
+        commit_hash = project.commit("First commit", allow_empty=True)
+
+        self.assertTrue(project.is_ref(commit_hash))
+        self.assertEqual(len(project.history()), 2)
+        self.assertEqual(project.history()[0],
+            (commit_hash, "First commit"))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_cant_commit_empty(self):
+        test_dir = scope_add(TestDir())
+        project = scope_add(Project.init(test_dir))
+
+        with self.assertRaises(EmptyCommitError):
+            project.commit("First commit")
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_can_commit_patch(self):
+        test_dir = scope_add(TestDir())
+        source_url = osp.join(test_dir, 'test_source.txt')
+        os.makedirs(osp.dirname(source_url), exist_ok=True)
+        with open(source_url, 'w') as f:
+            f.write('hello')
+
+        project = scope_add(Project.init(osp.join(test_dir, 'proj')))
+        project.import_source('s1', source_url, format=DEFAULT_FORMAT)
+        project.commit("First commit")
+
+        source_path = osp.join(
+            project.source_data_dir('s1'),
+            osp.basename(source_url))
+        with open(source_path, 'w') as f:
+            f.write('world')
+
+        commit_hash = project.commit("Second commit", allow_foreign=True)
+
+        self.assertTrue(project.is_ref(commit_hash))
+        self.assertNotEqual(
+            project.get_rev('HEAD~1').build_targets['s1'].head.hash,
+            project.working_tree.build_targets['s1'].head.hash)
+        self.assertTrue(project.is_obj_cached(
+            project.working_tree.build_targets['s1'].head.hash))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_cant_commit_foreign_changes(self):
+        test_dir = scope_add(TestDir())
+        source_url = osp.join(test_dir, 'test_source.txt')
+        os.makedirs(osp.dirname(source_url), exist_ok=True)
+        with open(source_url, 'w') as f:
+            f.write('hello')
+
+        project = scope_add(Project.init(osp.join(test_dir, 'proj')))
+        project.import_source('s1', source_url, format=DEFAULT_FORMAT)
+        project.commit("First commit")
+
+        source_path = osp.join(
+            project.source_data_dir('s1'),
+            osp.basename(source_url))
+        with open(source_path, 'w') as f:
+            f.write('world')
+
+        with self.assertRaises(ForeignChangesError):
+            project.commit("Second commit")
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_can_checkout_revision(self):
+        test_dir = scope_add(TestDir())
+        source_url = osp.join(test_dir, 'test_source.txt')
+        os.makedirs(osp.dirname(source_url), exist_ok=True)
+        with open(source_url, 'w') as f:
+            f.write('hello')
+
+        project = scope_add(Project.init(osp.join(test_dir, 'proj')))
+        project.import_source('s1', source_url, format=DEFAULT_FORMAT)
+        project.commit("First commit")
+
+        source_path = osp.join(
+            project.source_data_dir('s1'),
+            osp.basename(source_url))
+        with open(source_path, 'w') as f:
+            f.write('world')
+        project.commit("Second commit", allow_foreign=True)
+
+        project.checkout('HEAD~1')
+
+        compare_dirs(self, source_url, project.source_data_dir('s1'))
+        with open(osp.join(test_dir, 'proj', '.gitignore')) as f:
+            self.assertTrue('/s1' in [line.strip() for line in f])
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_can_checkout_sources(self):
+        test_dir = scope_add(TestDir())
+        source_url = osp.join(test_dir, 'test_repo')
+        dataset = Dataset.from_iterable([
+            DatasetItem(1, annotations=[Label(0)]),
+            DatasetItem(2, annotations=[Label(1)]),
+        ], categories=['a', 'b'])
+        dataset.save(source_url)
+
+        project = scope_add(Project.init(osp.join(test_dir, 'proj')))
+        project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
+        project.import_source('s2', url=source_url, format=DEFAULT_FORMAT)
+        project.commit("Commit 1")
+        project.remove_source('s1', keep_data=False) # remove s1 from tree
+        shutil.rmtree(project.source_data_dir('s2')) # modify s2 "manually"
+
+        project.checkout(sources=['s1', 's2'])
+
+        compare_dirs(self, source_url, project.source_data_dir('s1'))
+        compare_dirs(self, source_url, project.source_data_dir('s2'))
+        with open(osp.join(test_dir, 'proj', '.gitignore')) as f:
+            lines = [line.strip() for line in f]
+            self.assertTrue('/s1' in lines)
+            self.assertTrue('/s2' in lines)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_can_checkout_with_force(self):
+        test_dir = scope_add(TestDir())
+        source_url = osp.join(test_dir, 'test_repo')
+        dataset = Dataset.from_iterable([
+            DatasetItem(1, annotations=[Label(0)]),
+            DatasetItem(2, annotations=[Label(1)]),
+        ], categories=['a', 'b'])
+        dataset.save(source_url)
+
+        project = scope_add(Project.init(osp.join(test_dir, 'proj')))
+        project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
+        project.import_source('s2', url=source_url, format=DEFAULT_FORMAT)
+        project.commit("Commit 1")
+        project.remove_source('s1', keep_data=False) # remove s1 from tree
+        shutil.rmtree(project.source_data_dir('s2')) # modify s2 "manually"
+
+        project.checkout(force=True)
+
+        compare_dirs(self, source_url, project.source_data_dir('s1'))
+        compare_dirs(self, source_url, project.source_data_dir('s2'))
+        with open(osp.join(test_dir, 'proj', '.gitignore')) as f:
+            lines = [line.strip() for line in f]
+            self.assertTrue('/s1' in lines)
+            self.assertTrue('/s2' in lines)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_can_checkout_sources_from_revision(self):
+        test_dir = scope_add(TestDir())
+        source_url = osp.join(test_dir, 'test_repo')
+        dataset = Dataset.from_iterable([
+            DatasetItem(1, annotations=[Label(0)]),
+            DatasetItem(2, annotations=[Label(1)]),
+        ], categories=['a', 'b'])
+        dataset.save(source_url)
+
+        project = scope_add(Project.init(osp.join(test_dir, 'proj')))
+        project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
+        project.commit("Commit 1")
+        project.remove_source('s1', keep_data=False)
+        project.commit("Commit 2")
+
+        project.checkout(rev='HEAD~1', sources=['s1'])
+
+        compare_dirs(self, source_url, project.source_data_dir('s1'))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_can_check_status(self):
+        test_dir = scope_add(TestDir())
+        source_url = osp.join(test_dir, 'test_repo')
+        dataset = Dataset.from_iterable([
+            DatasetItem(1, annotations=[Label(0)]),
+            DatasetItem(2, annotations=[Label(1)]),
+        ], categories=['a', 'b'])
+        dataset.save(source_url)
+
+        project = scope_add(Project.init(osp.join(test_dir, 'proj')))
+        project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
+        project.import_source('s2', url=source_url, format=DEFAULT_FORMAT)
+        project.import_source('s3', url=source_url, format=DEFAULT_FORMAT)
+        project.import_source('s4', url=source_url, format=DEFAULT_FORMAT)
+        project.import_source('s5', url=source_url, format=DEFAULT_FORMAT)
+        project.commit("Commit 1")
+
+        project.remove_source('s2')
+        project.import_source('s6', url=source_url, format=DEFAULT_FORMAT)
+
+        shutil.rmtree(project.source_data_dir('s3'))
+
+        project.working_tree.build_targets \
+            .add_transform_stage('s4', 'reindex')
+        project.working_tree.make_dataset('s4').save()
+        project.refresh_source_hash('s4')
+
+        s5_dir = osp.join(project.source_data_dir('s5'))
+        with open(osp.join(s5_dir, 'annotations', 't.txt'), 'w') as f:
+            f.write("hello")
+
+        status = project.status()
+        self.assertEqual({
+            's2': DiffStatus.removed,
+            's3': DiffStatus.missing,
+            's4': DiffStatus.modified,
+            's5': DiffStatus.foreign_modified,
+            's6': DiffStatus.added,
+        }, status)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_can_compare_revisions(self):
+        test_dir = scope_add(TestDir())
+        source_url = osp.join(test_dir, 'test_repo')
+        dataset = Dataset.from_iterable([
+            DatasetItem(1, annotations=[Label(0)]),
+            DatasetItem(2, annotations=[Label(1)]),
+        ], categories=['a', 'b'])
+        dataset.save(source_url)
+
+        project = scope_add(Project.init(osp.join(test_dir, 'proj')))
+        project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
+        project.import_source('s2', url=source_url, format=DEFAULT_FORMAT)
+        rev1 = project.commit("Commit 1")
+
+        project.remove_source('s2')
+        project.import_source('s3', url=source_url, format=DEFAULT_FORMAT)
+        rev2 = project.commit("Commit 2")
+
+        diff = project.diff(rev1, rev2)
+        self.assertEqual(diff,
+            { 's2': DiffStatus.removed, 's3': DiffStatus.added })
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_can_restore_revision(self):
+        test_dir = scope_add(TestDir())
+        source_url = osp.join(test_dir, 'test_repo')
+        dataset = Dataset.from_iterable([
+            DatasetItem(1, annotations=[Label(0)]),
+            DatasetItem(2, annotations=[Label(1)]),
+        ], categories=['a', 'b'])
+        dataset.save(source_url)
+
+        project = scope_add(Project.init(osp.join(test_dir, 'proj')))
+        project.import_source('s1', url=source_url, format=DEFAULT_FORMAT)
+        rev1 = project.commit("Commit 1")
+
+        project.remove_cache_obj(rev1)
+
+        self.assertFalse(project.is_rev_cached(rev1))
+
+        head_dataset = project.head.make_dataset()
+
+        self.assertTrue(project.is_rev_cached(rev1))
+        compare_datasets(self, dataset, head_dataset)
+
+    @mark_requirement(Requirements.DATUM_BUG_404)
+    @scoped
+    def test_can_add_plugin(self):
+        test_dir = scope_add(TestDir())
+        scope_add(Project.init(test_dir)).close()
+
+        plugin_dir = osp.join(test_dir, '.datumaro', 'plugins')
+        os.makedirs(plugin_dir)
+        with open(osp.join(plugin_dir, '__init__.py'), 'w') as f:
+            f.write(textwrap.dedent("""
+                from datumaro.components.extractor import (SourceExtractor,
+                    DatasetItem)
+
+                class MyExtractor(SourceExtractor):
+                    def __iter__(self):
+                        yield from [
+                            DatasetItem('1'),
+                            DatasetItem('2'),
+                        ]
+            """))
+
+        project = scope_add(Project(test_dir))
+        project.import_source('src', url='', format='my')
+
+        expected = Dataset.from_iterable([
+            DatasetItem('1'),
+            DatasetItem('2')
+        ])
+        compare_datasets(self, expected, project.working_tree.make_dataset())
 
     @mark_requirement(Requirements.DATUM_BUG_402)
+    @scoped
     def test_can_transform_by_name(self):
         class CustomExtractor(Extractor):
             def __iter__(self):
@@ -439,14 +965,12 @@ class ProjectTest(TestCase):
                     DatasetItem('b'),
                 ])
 
+        test_dir = scope_add(TestDir())
         extractor_name = 'ext1'
-        project = Project()
+        project = scope_add(Project.init(test_dir))
         project.env.extractors.register(extractor_name, CustomExtractor)
-        project.add_source('src1', {
-            'url': '',
-            'format': extractor_name,
-        })
-        dataset = project.make_dataset()
+        project.import_source('src1', url='', format=extractor_name)
+        dataset = project.working_tree.make_dataset()
 
         dataset = dataset.transform('reindex')
 
@@ -456,34 +980,171 @@ class ProjectTest(TestCase):
         ])
         compare_datasets(self, expected, dataset)
 
-    @mark_requirement(Requirements.DATUM_BUG_404)
-    def test_can_add_plugin(self):
-        with TestDir() as test_dir:
-            Project.generate(test_dir)
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_cant_modify_readonly(self):
+        test_dir = scope_add(TestDir())
+        dataset_url = osp.join(test_dir, 'dataset')
+        Dataset.from_iterable([
+            DatasetItem('a'),
+            DatasetItem('b'),
+        ]).save(dataset_url)
 
-            plugin_dir = osp.join(test_dir, '.datumaro', 'plugins')
-            os.makedirs(plugin_dir)
-            with open(osp.join(plugin_dir, '__init__.py'), 'w') as f:
-                f.write(textwrap.dedent("""
-                    from datumaro.components.extractor import (SourceExtractor,
-                        DatasetItem)
+        proj_dir = osp.join(test_dir, 'proj')
+        with Project.init(proj_dir) as project:
+            project.import_source('source1', url=dataset_url,
+                format=DEFAULT_FORMAT)
+            project.commit('first commit')
+            project.remove_source('source1')
+            commit2 = project.commit('second commit')
+            project.checkout('HEAD~1')
+            project.remove_cache_obj(commit2)
+            project.remove_cache_obj(
+                project.working_tree.sources['source1'].hash)
 
-                    class MyExtractor(SourceExtractor):
-                        def __iter__(self):
-                            yield from [
-                                DatasetItem('1'),
-                                DatasetItem('2'),
-                            ]
-                """))
+        project = scope_add(Project(proj_dir, readonly=True))
 
-            project = Project.load(test_dir)
-            project.add_source('src', {
-                'url': '',
-                'format': 'my'
-            })
+        self.assertTrue(project.readonly)
 
-            expected = Dataset.from_iterable([
-                DatasetItem('1'),
-                DatasetItem('2')
-            ])
-            compare_datasets(self, expected, project.make_dataset())
+        with self.subTest("add source"), self.assertRaises(ReadonlyProjectError):
+            project.import_source('src1', url='', format=DEFAULT_FORMAT)
+
+        with self.subTest("remove source"), self.assertRaises(ReadonlyProjectError):
+            project.remove_source('src1')
+
+        with self.subTest("add model"), self.assertRaises(ReadonlyProjectError):
+            project.add_model('m1', launcher='x')
+
+        with self.subTest("remove model"), self.assertRaises(ReadonlyProjectError):
+            project.remove_model('m1')
+
+        with self.subTest("checkout"), self.assertRaises(ReadonlyProjectError):
+            project.checkout('HEAD')
+
+        with self.subTest("commit"), self.assertRaises(ReadonlyProjectError):
+            project.commit('third commit', allow_empty=True)
+
+        # Can't re-download the source in a readonly project
+        with self.subTest("make_dataset"), self.assertRaises(MissingObjectError):
+            project.get_rev('HEAD').make_dataset()
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_can_import_without_hashing(self):
+        test_dir = scope_add(TestDir())
+        dataset_url = osp.join(test_dir, 'dataset')
+        dataset = Dataset.from_iterable([
+            DatasetItem('a'),
+            DatasetItem('b'),
+        ])
+        dataset.save(dataset_url)
+
+        proj_dir = osp.join(test_dir, 'proj')
+        project = scope_add(Project.init(proj_dir))
+        project.import_source('source1', url=dataset_url,
+            format=DEFAULT_FORMAT, no_hash=True)
+
+        self.assertEqual('', project.working_tree.sources['source1'].hash)
+        compare_dirs(self, dataset_url, project.source_data_dir('source1'))
+        compare_datasets(self, dataset, project.working_tree.make_dataset())
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_can_check_status_of_unhashed(self):
+        test_dir = scope_add(TestDir())
+        dataset_url = osp.join(test_dir, 'dataset')
+        Dataset.from_iterable([
+            DatasetItem('a'),
+            DatasetItem('b'),
+        ]).save(dataset_url)
+
+        proj_dir = osp.join(test_dir, 'proj')
+        project = scope_add(Project.init(proj_dir))
+        project.import_source('source1', url=dataset_url,
+            format=DEFAULT_FORMAT, no_hash=True)
+        project.import_source('source2', url=dataset_url,
+            format=DEFAULT_FORMAT, no_hash=True)
+        project.working_tree.build_targets.add_transform_stage('source2',
+            'reindex')
+
+        status = project.status()
+        self.assertEqual(status['source1'], DiffStatus.added)
+        self.assertEqual(status['source2'], DiffStatus.added)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_can_commit_unhashed(self):
+        test_dir = scope_add(TestDir())
+        dataset_url = osp.join(test_dir, 'dataset')
+        Dataset.from_iterable([
+            DatasetItem('a'),
+            DatasetItem('b'),
+        ]).save(dataset_url)
+
+        proj_dir = osp.join(test_dir, 'proj')
+        project = scope_add(Project.init(proj_dir))
+        project.import_source('source1', url=dataset_url,
+            format=DEFAULT_FORMAT, no_hash=True)
+        project.commit('a commit')
+
+        self.assertNotEqual('', project.working_tree.sources['source1'].hash)
+        self.assertNotEqual('',
+            project.working_tree.build_targets['source1'].head.hash)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_cant_redownload_unhashed(self):
+        test_dir = scope_add(TestDir())
+        dataset_url = osp.join(test_dir, 'dataset')
+        Dataset.from_iterable([
+            DatasetItem('a'),
+            DatasetItem('b'),
+        ]).save(dataset_url)
+
+        proj_dir = osp.join(test_dir, 'proj')
+        project = scope_add(Project.init(proj_dir))
+        project.import_source('source1', url=dataset_url,
+            format=DEFAULT_FORMAT, no_hash=True)
+        project.working_tree.build_targets.add_transform_stage('source1',
+            'reindex')
+        project.commit('a commit')
+
+        with self.assertRaises(MissingSourceHashError):
+            project.working_tree.make_dataset('source1.root')
+
+class BackwardCompatibilityTests_v0_1(TestCase):
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_can_migrate_old_project(self):
+        expected_dataset = Dataset.from_iterable([
+            DatasetItem(0, subset='train', annotations=[Label(0)]),
+            DatasetItem(1, subset='test', annotations=[Label(1)]),
+            DatasetItem(2, subset='train', annotations=[Label(0)]),
+            DatasetItem(1),
+            DatasetItem(2),
+        ], categories=['a', 'b'])
+
+        test_dir = scope_add(TestDir())
+        old_proj_dir = osp.join(test_dir, 'old_proj')
+        new_proj_dir = osp.join(test_dir, 'new_proj')
+        shutil.copytree(osp.join(osp.dirname(__file__),
+                'assets', 'compat', 'v0.1', 'project'),
+            old_proj_dir)
+
+        Project.migrate_from_v1_to_v2(old_proj_dir, new_proj_dir)
+
+        project = scope_add(Project(new_proj_dir))
+        loaded_dataset = project.working_tree.make_dataset()
+        compare_datasets(self, expected_dataset, loaded_dataset)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_cant_load_old_project(self):
+        test_dir = scope_add(TestDir())
+        proj_dir = osp.join(test_dir, 'old_proj')
+        shutil.copytree(osp.join(osp.dirname(__file__),
+                'assets', 'compat', 'v0.1', 'project'),
+            proj_dir)
+
+        with self.assertRaises(OldProjectError):
+            scope_add(Project(proj_dir))

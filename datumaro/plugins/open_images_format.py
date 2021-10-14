@@ -19,15 +19,15 @@ from attr import attrs
 import cv2
 import numpy as np
 
+from datumaro.components.annotation import (
+    AnnotationType, Bbox, Label, LabelCategories, Mask,
+)
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.errors import (
     DatasetError, RepeatedItemError, UndefinedLabel,
 )
-from datumaro.components.extractor import (
-    AnnotationType, Bbox, DatasetItem, Extractor, Importer, Label,
-    LabelCategories, Mask,
-)
+from datumaro.components.extractor import DatasetItem, Extractor, Importer
 from datumaro.components.validator import Severity
 from datumaro.util.annotation_util import find_instances
 from datumaro.util.image import (
@@ -49,13 +49,16 @@ _RE_INVALID_PATH_COMPONENT = re.compile(r'''
 
 @attrs(auto_attribs=True)
 class UnsupportedSubsetNameError(DatasetError):
+    item_id: str
     subset: str
 
     def __str__(self):
-        return "Item %s has an unsupported subset name %r." % (self.item_id, self.subset)
+        return "Item %s has an unsupported subset name %r." % (
+            self.item_id, self.subset)
 
 @attrs(auto_attribs=True)
 class UnsupportedBoxIdError(DatasetError):
+    item_id: str
     box_id: str
 
     def __str__(self):
@@ -64,6 +67,7 @@ class UnsupportedBoxIdError(DatasetError):
 
 @attrs(auto_attribs=True)
 class UnsupportedMaskPathError(DatasetError):
+    item_id: str
     mask_path: str
 
     def __str__(self):
@@ -147,7 +151,7 @@ class OpenImagesPath:
     )
 
 class OpenImagesExtractor(Extractor):
-    def __init__(self, path):
+    def __init__(self, path, image_meta=None):
         if not osp.isdir(path):
             raise FileNotFoundError("Can't read dataset directory '%s'" % path)
 
@@ -161,26 +165,33 @@ class OpenImagesExtractor(Extractor):
         self._categories = {}
         self._items = []
 
-        try:
-            self._image_meta = load_image_meta_file(osp.join(
-                path, OpenImagesPath.ANNOTATIONS_DIR,
-                DEFAULT_IMAGE_META_FILE_NAME
-            ))
-        except Exception:
-            self._image_meta = {}
+        assert image_meta is None or isinstance(image_meta, (dict, str))
+        if isinstance(image_meta, dict):
+            self._image_meta = dict(image_meta)
+        elif isinstance(image_meta, str):
+            self._image_meta = load_image_meta_file(osp.join(path, image_meta))
+        elif image_meta is None:
+            try:
+                self._image_meta = load_image_meta_file(osp.join(
+                    path, OpenImagesPath.ANNOTATIONS_DIR,
+                    DEFAULT_IMAGE_META_FILE_NAME
+                ))
+            except FileNotFoundError:
+                self._image_meta = {}
 
         self._load_categories()
         self._load_items()
 
     def __iter__(self):
-        return iter(self._items)
+        yield from self._items
 
     def categories(self):
         return self._categories
 
     @contextlib.contextmanager
     def _open_csv_annotation(self, file_name):
-        absolute_path = osp.join(self._dataset_dir, OpenImagesPath.ANNOTATIONS_DIR, file_name)
+        absolute_path = osp.join(self._dataset_dir,
+            OpenImagesPath.ANNOTATIONS_DIR, file_name)
 
         with open(absolute_path, 'r', encoding='utf-8', newline='') as f:
             yield csv.DictReader(f)
@@ -267,7 +278,8 @@ class OpenImagesExtractor(Extractor):
                     subset = image_description['Subset']
 
                     if _RE_INVALID_PATH_COMPONENT.fullmatch(subset):
-                        raise UnsupportedSubsetNameError(item_id=image_id, subset=subset)
+                        raise UnsupportedSubsetNameError(
+                            item_id=image_id, subset=subset)
 
                     image_path = image_paths_by_id.get(image_id)
 
@@ -352,6 +364,8 @@ class OpenImagesExtractor(Extractor):
 
                     if item.has_image and item.image.size is not None:
                         height, width = item.image.size
+                    elif self._image_meta.get(item.id):
+                        height, width = self._image_meta[item.id]
                     else:
                         log.warning(
                             "Can't decode box for item '%s' due to missing image file",
@@ -410,7 +424,8 @@ class OpenImagesExtractor(Extractor):
                 for mask_description in mask_reader:
                     mask_path = mask_description['MaskPath']
                     if _RE_INVALID_PATH_COMPONENT.fullmatch(mask_path):
-                        raise UnsupportedMaskPathError(item_id=item.id, mask_path=mask_path)
+                        raise UnsupportedMaskPathError(item_id=item.id,
+                            mask_path=mask_path)
 
                     image_id = mask_description['ImageID']
                     item = items_by_id[image_id]
@@ -422,6 +437,16 @@ class OpenImagesExtractor(Extractor):
                             item_id=item.id, subset=item.subset,
                             label_name=label_name, severity=Severity.error)
 
+                    if item.has_image and item.image.has_size:
+                        image_size = item.image.size
+                    elif self._image_meta.get(item.id):
+                        image_size = self._image_meta.get(item.id)
+                    else:
+                        log.warning(
+                            "Can't decode mask for item '%s' due to missing image file",
+                            item.id)
+                        continue
+
                     attributes = {}
 
                     # The box IDs are rather useless, because the _box_ annotations
@@ -432,7 +457,8 @@ class OpenImagesExtractor(Extractor):
                     # the original box ID.
                     box_id = mask_description['BoxID']
                     if _RE_INVALID_PATH_COMPONENT.fullmatch(box_id):
-                        raise UnsupportedBoxIdError(item_id=item.id, box_id=box_id)
+                        raise UnsupportedBoxIdError(
+                            item_id=item.id, box_id=box_id)
                     attributes['box_id'] = box_id
 
                     group = 0
@@ -472,7 +498,7 @@ class OpenImagesExtractor(Extractor):
                                 item.subset, mask_path,
                             ),
                             loader=functools.partial(
-                                self._load_and_resize_mask, size=item.image.size),
+                                self._load_and_resize_mask, size=image_size),
                         ),
                         label=label_index,
                         attributes=attributes,
@@ -484,7 +510,7 @@ class OpenImagesExtractor(Extractor):
         raw = load_image(path, dtype=np.uint8)
         resized = cv2.resize(raw, (size[1], size[0]),
             interpolation=cv2.INTER_NEAREST)
-        return resized.astype(np.bool)
+        return resized.astype(bool)
 
 class OpenImagesImporter(Importer):
     @classmethod
@@ -493,7 +519,8 @@ class OpenImagesImporter(Importer):
             OpenImagesPath.FULL_IMAGE_DESCRIPTION_FILE_NAME,
             *OpenImagesPath.SUBSET_IMAGE_DESCRIPTION_FILE_PATTERNS,
         ]:
-            if glob.glob(osp.join(glob.escape(path), OpenImagesPath.ANNOTATIONS_DIR, pattern)):
+            if glob.glob(osp.join(glob.escape(path),
+                    OpenImagesPath.ANNOTATIONS_DIR, pattern)):
                 return [{'url': path, 'format': 'open_images'}]
 
         return []
@@ -681,7 +708,8 @@ class OpenImagesConverter(Converter):
 
         for subset_name, subset in self._extractor.subsets().items():
             if _RE_INVALID_PATH_COMPONENT.fullmatch(subset_name):
-                raise UnsupportedSubsetNameError(item_id=next(iter(subset)).id, subset=subset)
+                raise UnsupportedSubsetNameError(
+                    item_id=next(iter(subset)).id, subset=subset)
 
             image_description_name = f'{subset_name}-images-with-rotation.csv'
 

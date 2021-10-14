@@ -5,11 +5,11 @@
 import json
 import os.path as osp
 
-from datumaro.components.extractor import (
-    AnnotationType, Bbox, Caption, Cuboid3d, DatasetItem, Importer, Label,
-    LabelCategories, MaskCategories, Points, PointsCategories, Polygon,
-    PolyLine, RleMask, SourceExtractor,
+from datumaro.components.annotation import (
+    AnnotationType, Bbox, Caption, Cuboid3d, Label, LabelCategories,
+    MaskCategories, Points, PointsCategories, Polygon, PolyLine, RleMask,
 )
+from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.util.image import Image
 
 from .format import DatumaroPath
@@ -192,4 +192,5 @@ class DatumaroExtractor(SourceExtractor):
 class DatumaroImporter(Importer):
     @classmethod
     def find_sources(cls, path):
-        return cls._find_sources_recursive(path, '.json', 'datumaro')
+        return cls._find_sources_recursive(path, '.json', 'datumaro',
+            dirname='annotations')

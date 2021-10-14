@@ -4,8 +4,9 @@ import os.path as osp
 
 import numpy as np
 
+from datumaro.components.annotation import Mask
 from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import DatasetItem, Mask
+from datumaro.components.extractor import DatasetItem
 from datumaro.plugins.mots_format import MotsImporter, MotsPngConverter
 from datumaro.util.image import Image
 from datumaro.util.test_utils import (
@@ -70,6 +71,22 @@ class MotsPngConverterTest(TestCase):
             self._test_save_and_load(source,
                 partial(MotsPngConverter.convert, save_images=True),
                 test_dir, target_dataset=target)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_save_and_load_with_no_save_images(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, subset='a', image=np.ones((5, 1)), annotations=[
+                Mask(np.array([[1, 1, 0, 0, 0]]), label=0,
+                    attributes={'track_id': 3}),
+                Mask(np.array([[0, 0, 1, 1, 1]]), label=1,
+                    attributes={'track_id': 3}),
+            ]),
+        ], categories=['label_0', 'label_1'])
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(source_dataset,
+                partial(MotsPngConverter.convert, save_images=False),
+                test_dir)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):

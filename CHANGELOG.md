@@ -6,6 +6,98 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## \[Unreleased\]
+### Added
+- A new installation target: `pip install datumaro[default]`, which should
+  be used by default. The simple `datumaro` is supposed for library users.
+  (<https://github.com/openvinotoolkit/datumaro/pull/238>)
+- Dataset and project versioning capabilities (Git-like)
+  (<https://github.com/openvinotoolkit/datumaro/pull/238>)
+- "dataset revpath" concept in CLI, allowing to pass a dataset path with
+  the dataset format in `diff`, `merge`, `explain` and `info` CLI commands
+  (<https://github.com/openvinotoolkit/datumaro/pull/238>)
+- `import`, `remove`, `commit`, `checkout`, `log`, `status`, `info` CLI commands
+  (<https://github.com/openvinotoolkit/datumaro/pull/238>)
+- `Coco*Extractor` classes now have an option to preserve label IDs from the
+  original annotation file
+  (<https://github.com/openvinotoolkit/datumaro/pull/453>)
+- `patch` CLI command to patch datasets
+  (<https://github.com/openvinotoolkit/datumaro/pull/401>)
+- `ProjectLabels` transform to change dataset labels for merging etc.
+  (<https://github.com/openvinotoolkit/datumaro/pull/401>,
+   <https://github.com/openvinotoolkit/datumaro/pull/478>)
+- Support for custom labels in the KITTI detection format
+  (<https://github.com/openvinotoolkit/datumaro/pull/481>)
+- Type annotations and docs for Annotation classes
+  (<https://github.com/openvinotoolkit/datumaro/pull/493>)
+- Options to control label loading behavior in `imagenet_txt` import
+  (<https://github.com/openvinotoolkit/datumaro/pull/434>,
+  <https://github.com/openvinotoolkit/datumaro/pull/489>)
+
+### Changed
+- A project can contain and manage multiple datasets instead of a single one.
+  CLI operations can be applied to the whole project, or to separate datasets.
+  Datasets are modified inplace, by default
+  (<https://github.com/openvinotoolkit/datumaro/issues/328>)
+- CLI help for builtin plugins doesn't require project
+  (<https://github.com/openvinotoolkit/datumaro/issues/328>)
+- Annotation-related classes were moved into a new module,
+  `datumaro.components.annotation`
+  (<https://github.com/openvinotoolkit/datumaro/pull/439>)
+- Rollback utilities replaced with Scope utilities
+  (<https://github.com/openvinotoolkit/datumaro/pull/444>)
+- The `Project` class from `datumaro.components` is changed completely
+  (<https://github.com/openvinotoolkit/datumaro/pull/238>)
+- `diff` and `ediff` are joined into a single `diff` CLI command
+  (<https://github.com/openvinotoolkit/datumaro/pull/238>)
+- Projects use new file layout, incompatible with old projects.
+  An old project can be updated with `datum project migrate`
+  (<https://github.com/openvinotoolkit/datumaro/pull/238>)
+- Inheriting `CliPlugin` is not required in plugin classes
+  (<https://github.com/openvinotoolkit/datumaro/pull/238>)
+- `Importer`s do not create `Project`s anymore and just return a list of
+  extractor configurations
+  (<https://github.com/openvinotoolkit/datumaro/pull/238>)
+
+### Deprecated
+- TBD
+
+### Removed
+- `import`, `project merge` CLI commands
+  (<https://github.com/openvinotoolkit/datumaro/pull/238>)
+- Support for project hierarchies. A project cannot be a source anymore
+  (<https://github.com/openvinotoolkit/datumaro/pull/238>)
+- Project cannot have independent internal dataset anymore. All the project
+  data must be stored in the project data sources
+  (<https://github.com/openvinotoolkit/datumaro/pull/238>)
+- `datumaro_project` format
+  (<https://github.com/openvinotoolkit/datumaro/pull/238>)
+- Unused `path` field of `DatasetItem`
+  (<https://github.com/openvinotoolkit/datumaro/pull/455>)
+
+### Fixed
+- Deprecation warning in `open_images_format.py`
+  (<https://github.com/openvinotoolkit/datumaro/pull/440>)
+- `lazy_image` returning unrelated data sometimes
+  (<https://github.com/openvinotoolkit/datumaro/issues/409>)
+- Invalid call to `pycocotools.mask.iou`
+  (<https://github.com/openvinotoolkit/datumaro/pull/450>)
+- Importing of Open Images datasets without image data
+  (<https://github.com/openvinotoolkit/datumaro/pull/463>)
+- Return value type in `Dataset.is_modified`
+  (<https://github.com/openvinotoolkit/datumaro/pull/401>)
+- Remapping of secondary categories in `RemapLabels`
+  (<https://github.com/openvinotoolkit/datumaro/pull/401>)
+- VOC dataset patching for classification and segmentation tasks
+  (<https://github.com/openvinotoolkit/datumaro/pull/478>)
+- Exported mask label ids in KITTI segmentation
+  (<https://github.com/openvinotoolkit/datumaro/pull/481>)
+- Missing `label` for `Points` read in the LFW format
+  (<https://github.com/openvinotoolkit/datumaro/pull/494>)
+
+### Security
+- TBD
+
 ## 24/08/2021 - Release v0.1.11
 ### Added
 - The Open Images format now supports bounding box
@@ -43,6 +135,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Calling `ProjectDataset.transform()` with a string argument (<https://github.com/openvinotoolkit/datumaro/issues/402>)
 - Attributes casting for CVAT format (<https://github.com/openvinotoolkit/datumaro/pull/403>)
 - Loading of custom project plugins (<https://github.com/openvinotoolkit/datumaro/issues/404>)
+- Reading, writing anno file and saving name of the subset for test subset
+  (<https://github.com/openvinotoolkit/datumaro/pull/447>)
 
 ### Security
 - Fixed unsafe unpickling in CIFAR import (<https://github.com/openvinotoolkit/datumaro/pull/362>)

@@ -14,6 +14,10 @@ import attr
 import cv2
 import numpy as np
 
+from datumaro.components.annotation import (
+    AnnotationType, Bbox, Label, LabelCategories, MaskCategories,
+    PointsCategories,
+)
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.dataset import Dataset, DatasetItemStorage, IDataset
 from datumaro.components.errors import (
@@ -21,10 +25,7 @@ from datumaro.components.errors import (
     FailedAttrVotingError, FailedLabelVotingError, MismatchingImageInfoError,
     NoMatchingAnnError, NoMatchingItemError, WrongGroupError,
 )
-from datumaro.components.extractor import (
-    AnnotationType, Bbox, CategoriesInfo, Label, LabelCategories,
-    MaskCategories, PointsCategories,
-)
+from datumaro.components.extractor import CategoriesInfo
 from datumaro.util import filter_dict, find
 from datumaro.util.annotation_util import (
     OKS, bbox_iou, find_instances, max_bbox, mean_bbox, segment_iou,
@@ -92,11 +93,8 @@ class ExactMerge:
             for item in source:
                 existing_item = items.get(item.id, item.subset)
                 if existing_item is not None:
-                    path = existing_item.path
-                    if item.path != path:
-                        path = None
                     try:
-                        item = cls.merge_items(existing_item, item, path=path)
+                        item = cls.merge_items(existing_item, item)
                     except DatasetMergeError as e:
                         e.sources = set(range(source_idx))
                         raise e
@@ -105,8 +103,8 @@ class ExactMerge:
         return items
 
     @classmethod
-    def merge_items(cls, existing_item, current_item, path=None):
-        return existing_item.wrap(path=path,
+    def merge_items(cls, existing_item, current_item):
+        return existing_item.wrap(
             image=cls.merge_images(existing_item, current_item),
             annotations=cls.merge_anno(
                 existing_item.annotations, current_item.annotations))
@@ -646,7 +644,7 @@ class IntersectMerge(MergingStrategy):
 
 @attrs(kw_only=True)
 class AnnotationMatcher:
-    _context = attrib(type=IntersectMerge, default=None)
+    _context: Optional[IntersectMerge] = attrib(default=None)
 
     def match_annotations(self, sources):
         raise NotImplementedError()
@@ -755,7 +753,7 @@ class MaskMatcher(_ShapeMatcher):
 
 @attrs(kw_only=True)
 class PointsMatcher(_ShapeMatcher):
-    sigma = attrib(type=list, default=None)
+    sigma: Optional[list] = attrib(default=None)
     instance_map = attrib(converter=dict)
 
     def distance(self, a, b):
@@ -1331,7 +1329,7 @@ def find_unique_images(dataset: IDataset, item_hash: Optional[Callable] = None):
             log.warning("Item (%s, %s) has no image "
                 "info, counted as unique", item.id, item.subset)
             return None
-        # ignore B303 (md5 check), because the hash is not used in a security context
+        # Disable B303:md5, because the hash is not used in a security context
         return hashlib.md5(item.image.data.tobytes()).hexdigest() # nosec
 
     if item_hash is None:
@@ -1359,7 +1357,7 @@ def match_classes(a: CategoriesInfo, b: CategoriesInfo):
 
 @attrs
 class ExactComparator:
-    match_images = attrib(kw_only=True, type=bool, default=False)
+    match_images: bool = attrib(kw_only=True, default=False)
     ignored_fields = attrib(kw_only=True,
         factory=set, validator=default_if_none(set))
     ignored_attrs = attrib(kw_only=True,
@@ -1367,8 +1365,8 @@ class ExactComparator:
     ignored_item_attrs = attrib(kw_only=True,
         factory=set, validator=default_if_none(set))
 
-    _test = attrib(init=False, type=TestCase)
-    errors = attrib(init=False, type=list)
+    _test: TestCase = attrib(init=False)
+    errors: list = attrib(init=False)
 
     def __attrs_post_init__(self):
         self._test = TestCase()

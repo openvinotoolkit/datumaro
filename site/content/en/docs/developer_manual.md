@@ -7,7 +7,7 @@ weight: 4
 
 ## Basics
 
-The center part of the library is the `Dataset` class, which represents
+The central part of the library is the `Dataset` class, which represents
 a dataset and allows to iterate over its elements.
 `DatasetItem`, an element of a dataset, represents a single
 dataset entry with annotations - an image, video sequence, audio track etc.
@@ -29,8 +29,8 @@ Extractors -> Dataset -> Converter
                 ...
 ```
 
-1. Data is read (or produced) by one or many `Extractor`s and merged
-  into a `Dataset`
+1. Data is read (or produced) by one or many `Extractor`s and
+  [merged](#merging) into a `Dataset`
 1. The dataset is processed in some way
 1. The dataset is saved with a `Converter`
 
@@ -43,8 +43,9 @@ Datumaro has a number of dataset and annotation features:
 - various annotation operations
 
 ```python
+from datumaro.components.annotation import Bbox, Polygon
 from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import Bbox, Polygon, DatasetItem
+from datumaro.components.extractor import DatasetItem
 
 # Import and export a dataset
 dataset = Dataset.import_from('src/dir', 'voc')
@@ -67,46 +68,85 @@ The `Dataset` class from the `datumaro.components.dataset` module represents
 a dataset, consisting of multiple `DatasetItem`s. Annotations are
 represented by members of the `datumaro.components.extractor` module,
 such as `Label`, `Mask` or `Polygon`. A dataset can contain items from one or
-multiple subsets (e.g. `train`, `test`, `val` etc.), the list of dataset subsets
-is available at `dataset.subsets`.
+multiple subsets (e.g. `train`, `test`, `val` etc.), the list of dataset
+subsets is available in `dataset.subsets()`.
+
+A `DatasetItem` is an element of a dataset. Its `id` is the name of the
+corresponding image, video frame, or other media being annotated.
+An item can have some `attributes`, associated media info and `annotations`.
 
 Datasets typically have annotations, and these annotations can
 require additional information to be interpreted correctly. For instance, it
-can include class names, class hierarchy, keypoint connections,
+can be class names, class hierarchy, keypoint connections,
 class colors for masks, class attributes.
-This information is stored in `dataset.categories`, which is a mapping from
+Such information is stored in `dataset.categories()`, which is a mapping from
 `AnnotationType` to a corresponding `...Categories` class. Each annotation type
-can have its `Categories`. Typically, there will be a `LabelCategories` object.
-Annotations and other categories address dataset labels
-by their indices in this object.
+can have its `Categories`. Typically, there will be at least `LabelCategories`;
+if there are instance masks, the dataset will contain `MaskCategories` etc.
+The "main" type of categories is `LabelCategories` - annotations and other
+categories use label indices from this object.
 
-The main operation for a dataset is iteration over its elements.
-An item corresponds to a single image, a video sequence, etc. There are also
-few other operations available, such as filtration (`dataset.select`) and
-transformations (`dataset.transform`). A dataset can be created from extractors
-or other datasets with `Dataset.from_extractors()` and directly from items with
-`Dataset.from_iterable()`. A dataset is an extractor itself. If it is created
-from multiple extractors, their categories must match, and their contents
-will be merged.
+The main operation for a dataset is iteration over its elements
+(`DatasetItem`s). An item corresponds to a single image, a video sequence,
+etc. There are also many other operations available, such as filtration
+(`dataset.select()`), transformation (`dataset.transform()`),
+exporting (`dataset.export()`) and others. A `Dataset` is an `Iterable` and
+`Extractor` by itself.
 
-A dataset item is an element of a dataset. Its `id` is a name of a
-corresponding image. There can be some image `attributes`,
-an `image` and `annotations`.
+A `Dataset` can be created from scratch by its class constructor.
+Categories can be set immediately or later with the
+`define_categories()` method, but only once. You can create a dataset filled
+with initial `DatasetItem`s with `Dataset.from_iterable()`.
+If you need to create a dataset from one or many other extractors
+(or datasets), it can be done with `Dataset.from_extractors()`.
+
+If a dataset is created from multiple extractors with
+`Dataset.from_extractors()`, the source datasets will be [joined](#merging),
+so their categories must match. If datasets have mismatching categories,
+use the more complex `IntersectMerge` class from `datumaro.components.operations`,
+which will merge all the labels and remap the shifted indices in annotations.
+
+A `Dataset` can be loaded from an existing dataset on disk with
+`Dataset.import_from()` (for arbitrary formats) and
+`Dataset.load()` (for the Datumaro data format).
+
+By default, `Dataset` works lazily, which means all the operations requiring
+iteration over inputs will be deferred as much as possible. If you don't want
+such behavior, use the `init_cache()` method or wrap the code in
+`eager_mode` (from `datumaro.components.dataset`), which will load all
+the annotations into memory. The media won't be loaded unless the data
+is required, because it can quickly waste all the available memory.
+You can check if the dataset is cached with the `is_cache_initialized`
+attribute.
+
+Once created, a dataset can be modified in batch mode with transforms or
+directly with the `put()` and `remove()` methods. `Dataset` instances
+record information about changes done, which can be obtained by `get_patch()`.
+The patch information is used automatically on saving and exporting to
+reduce the amount of disk writes. Changes can be flushed with
+`flush_changes()`.
 
 ```python
+from datumaro.components.annotation import Bbox, Polygon
 from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import Bbox, Polygon, DatasetItem
+from datumaro.components.extractor import DatasetItem
 
-# create a dataset from other datasets
-dataset = Dataset.from_extractors(dataset1, dataset2)
-
-# or directly from items
-dataset = Dataset.from_iterable([
+# create a dataset directly from items
+dataset1 = Dataset.from_iterable([
   DatasetItem(id='image1', annotations=[
     Bbox(x=1, y=2, w=3, h=4, label=1),
     Polygon([1, 2, 3, 2, 4, 4], label=2),
   ]),
-], categories=['cat', 'dog', 'person'])
+], categories=['cat', 'dog', 'person', 'truck'])
+
+dataset2 = Dataset(categories=dataset1.categories())
+dataset2.put(DatasetItem(id='image2', annotations=[
+  Label(label=3),
+  Bbox(x=2, y=0, w=3, h=1, label=2)
+]))
+
+# create a dataset from other datasets
+dataset = Dataset.from_extractors(dataset1, dataset2)
 
 # keep only annotated images
 dataset.select(lambda item: len(item.annotations) != 0)
@@ -128,18 +168,62 @@ for subset_name, subset in dataset.subsets().items():
     print(item.id, item.annotations)
 ```
 
+#### Dataset merging <a id="merging"></a>
+
+There are 2 methods of merging datasets in Datumaro:
+
+- simple merging ("joining")
+- complex merging
+
+#### The simple merging ("joining")
+
+This approach finds the corresponding `DatasetItem`s in inputs,
+finds equal annotations and leaves only the unique set of annotations.
+This approach requires all the inputs to have categories with the same
+labels (or no labels) in the same order.
+
+This algorithm is applied automatically in `Dataset.from_extractors()`
+and when the build targets are merged in the `ProjectTree.make_dataset()`.
+
+#### The complex merging
+
+If datasets have mismatching categories, they can't be
+merged by the simple approach, because it can lead to errors in the
+resulting annotations. For complex cases Datumaro provides a more
+sophisticated algorithm, which finds matching annotations by computing
+distances between them. Labels and attributes are deduced by voting,
+spatial annotations use the corresponding metrics like
+Intersection-over-Union (IoU), OKS, PDJ and others.
+
+The categories of the input datasets are compared, the matching ones
+complement missing information in each other, the mismatching ones are
+appended after next. Label indices in annotations are shifted to the
+new values.
+
+The complex algorithm is available in the `IntersectMerge` class
+from `datumaro.components.operations`. It must be used explicitly.
+This class also allows to check the inputs and the output dataset
+for errors and problems.
+
 ### Projects
 
 Projects are intended for complex use of Datumaro. They provide means of
-persistence, of extending, and CLI operation for Datasets. A project can
-be converted to a Dataset with `project.make_dataset`. Project datasets
-can have multiple data sources, which are merged on dataset creation. They
-can have a hierarchy. Project configuration is available in `project.config`.
-A dataset can be saved in `datumaro_project` format.
+persistence, versioning, high-level operations for datasets and also
+allow to extend Datumaro via [plugins](#plugins). A project provides
+access to build trees and revisions, data sources, models, configuration,
+plugins and cache. Projects can have multiple data sources, which are
+[joined](#merging) on dataset creation. Project configuration is available
+in `project.config`. To add a data source into a `Project`, use
+the `import_source()` method. The build tree of the current working
+directory can be converted to a `Dataset` with
+`project.working_tree.make_dataset()`.
 
 The `Environment` class is responsible for accessing built-in and
-project-specific plugins. For a project, there is an instance of
+project-specific plugins. For a `Project` object, there is an instance of
 related `Environment` in `project.env`.
+
+Check the [Data Model section of the User Manual](/docs/user-manual/supported_formats)
+for more info about Project behavior and high-level details.
 
 ## Library contents
 
@@ -150,8 +234,15 @@ It is supported by `Extractor`s, `Importer`s, and `Converter`s.
 
 Dataset reading is supported by `Extractor`s and `Importer`s:
 - An `Extractor` produces a list of `DatasetItem`s corresponding to the
-  dataset. Annotations are available in the `DatasetItem.annotations` list
-- An `Importer` creates a project from a data source location
+  dataset. Annotations are available in the `DatasetItem.annotations` list.
+  The `SourceExtractor` class is designed for loading simple, single-subset
+  datasets. It should be used by default. The `Extractor` base class should
+  be used when `SourceExtractor`'s functionality is not enough.
+- An `Importer` detects dataset files and generates dataset loading parameters
+  for the corresponding `Extractor`s. `Importer`s are optional, they
+  only extend the Extractor functionality and make them more flexible and
+  simple. They are mostly used to locate dataset subsets, but they also can
+  do some data compatibility checks and have other required logic.
 
 It is possible to add custom `Extractor`s and `Importer`s. To do this, you need
 to put an `Extractor` and `Importer` implementations to a plugin directory.
@@ -160,7 +251,6 @@ Dataset writing is supported by `Converter`s.
 A `Converter` produces a dataset of a specific format from dataset items.
 It is possible to add custom `Converter`s. To do this, you need to put a
 `Converter` implementation script to a plugin directory.
-
 
 ### Dataset Conversions ("Transforms")
 
@@ -308,35 +398,51 @@ Single commands are handy shorter alternatives for the most used commands
 and also special commands, which are hard to be put into any specific context.
 [Docker](https://www.docker.com/) is an example of similar approach.
 
-<div class="text-center large-scheme">
+<div class="text-center large-scheme-two">
 
 ```mermaid
+%%{init { 'theme':'neutral' }}%%
 flowchart LR
-    d{datum}
-    p((project))
-    s((source))
-    m((model))
-    d==>p
-    p==create===>str1([Creates a Datumaro project])
-    p==import===>str2([Generates a project from other project or dataset in specific format])
-    p==export===>str3([Saves dataset in a specific format])
-    p==extract===>str4([Extracts subproject by filter])
-    p==merge===>str5([Adds new items to project])
-    p==diff===>str6([Compares two projects])
-    p==transform===>str7([Applies specific transformation to the dataset])
-    p==info===>str8([Outputs valuable info])
-    d==>s
-    s==add===>str9([Adds data source by its URL])
-    s==remove===>str10([Remove source dataset])
-    d==>m
-    m==add===>str11([Registers model for inference])
-    m==remove===>str12([Removes model from project])
-    m==run===>str13([Executes network for inference])
-    d==>c(create)===>str14([Calls project create])
-    d==>a(add)===>str15([Calls source add])
-    d==>r(remove)===>str16([Calls source remove])
-    d==>e(export)===>str17([Calls project export])
-    d==>exp(explain)===>str18([Runs inference explanation])
+  d(("#0009; datum #0009;")):::mainclass
+  s(source):::nofillclass
+  m(model):::nofillclass
+  p(project):::nofillclass
+
+  d===s
+    s===id1[add]:::hideclass
+    s===id2[remove]:::hideclass
+    s===id3[info]:::hideclass
+  d===m
+    m===id4[add]:::hideclass
+    m===id5[remove]:::hideclass
+    m===id6[run]:::hideclass
+    m===id7[info]:::hideclass
+  d===p
+    p===migrate:::hideclass
+    p===info:::hideclass
+  d====str1[create]:::filloneclass
+  d====str2[add]:::filloneclass
+  d====str3[remove]:::filloneclass
+  d====str4[export]:::filloneclass
+  d====str5[info]:::filloneclass
+  d====str6[transform]:::filltwoclass
+  d====str7[filter]:::filltwoclass
+  d====str8[diff]:::fillthreeclass
+  d====str9[merge]:::fillthreeclass
+  d====str10[validate]:::fillthreeclass
+  d====str11[explain]:::fillthreeclass
+  d====str12[stats]:::fillthreeclass
+  d====str13[commit]:::fillfourclass
+  d====str14[checkout]:::fillfourclass
+  d====str15[status]:::fillfourclass
+  d====str16[log]:::fillfourclass
+
+  classDef nofillclass fill-opacity:0;
+  classDef hideclass fill-opacity:0,stroke-opacity:0;
+  classDef filloneclass fill:#CCCCFF,stroke-opacity:0;
+  classDef filltwoclass fill:#FFFF99,stroke-opacity:0;
+  classDef fillthreeclass fill:#CCFFFF,stroke-opacity:0;
+  classDef fillfourclass fill:#CCFFCC,stroke-opacity:0;
 ```
 
 </div>
@@ -346,6 +452,7 @@ Model-View-ViewModel (MVVM) UI pattern is used.
 <div class="text-center">
 
 ```mermaid
+%%{init { 'theme':'neutral' }}%%
 flowchart LR
     c((CLI))<--CliModel--->d((Domain))
     g((GUI))<--GuiModel--->d

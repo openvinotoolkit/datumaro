@@ -1,15 +1,17 @@
-# Copyright (C) 2019-2020 Intel Corporation
+# Copyright (C) 2019-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 import logging as log
 
-from lxml import etree as ET  # lxml has proper XPath implementation
+# Disable B410: import_lxml - the library is used for writing
+from lxml import etree as ET  # nosec, lxml has proper XPath implementation
 
-from datumaro.components.extractor import (
-    Annotation, AnnotationType, Bbox, Caption, ItemTransform, Label, Mask,
-    Points, Polygon, PolyLine,
+from datumaro.components.annotation import (
+    Annotation, AnnotationType, Bbox, Caption, Label, Mask, Points, Polygon,
+    PolyLine,
 )
+from datumaro.components.extractor import ItemTransform
 
 
 class DatasetItemEncoder:
@@ -18,7 +20,6 @@ class DatasetItemEncoder:
         item_elem = ET.Element('item')
         ET.SubElement(item_elem, 'id').text = str(item.id)
         ET.SubElement(item_elem, 'subset').text = str(item.subset)
-        ET.SubElement(item_elem, 'path').text = str('/'.join(item.path))
 
         image = item.image
         if image is not None:

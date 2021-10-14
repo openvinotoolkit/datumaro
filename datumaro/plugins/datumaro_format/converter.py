@@ -12,13 +12,14 @@ import shutil
 import numpy as np
 import pycocotools.mask as mask_utils
 
+from datumaro.components.annotation import (
+    Annotation, Bbox, Caption, Cuboid3d, Label, LabelCategories, Mask,
+    MaskCategories, Points, PointsCategories, Polygon, PolyLine, RleMask,
+    _Shape,
+)
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
-from datumaro.components.extractor import (
-    DEFAULT_SUBSET_NAME, Annotation, Bbox, Caption, Cuboid3d, DatasetItem,
-    Label, LabelCategories, Mask, MaskCategories, Points, PointsCategories,
-    Polygon, PolyLine, RleMask, _Shape,
-)
+from datumaro.components.extractor import DEFAULT_SUBSET_NAME, DatasetItem
 from datumaro.util import cast
 
 from .format import DatumaroPath
@@ -54,9 +55,6 @@ class _SubsetWriter:
 
         if item.attributes:
             item_desc['attr'] = item.attributes
-
-        if item.path:
-            item_desc['path'] = item.path
 
         if item.has_image:
             path = item.image.path
@@ -348,17 +346,3 @@ class DatumaroConverter(Converter):
                 DatumaroPath.RELATED_IMAGES_DIR, item.subset, item.id)
             if osp.isdir(related_images_path):
                 shutil.rmtree(related_images_path)
-
-class DatumaroProjectConverter(Converter):
-    @classmethod
-    def convert(cls, extractor, save_dir, **kwargs):
-        os.makedirs(save_dir, exist_ok=True)
-
-        from datumaro.components.project import Project
-        project = Project.generate(save_dir,
-            config=kwargs.pop('project_config', None))
-
-        DatumaroConverter.convert(extractor,
-            save_dir=osp.join(
-                project.config.project_dir, project.config.dataset_dir),
-            **kwargs)

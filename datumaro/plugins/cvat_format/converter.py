@@ -4,16 +4,16 @@
 
 from collections import OrderedDict
 from itertools import chain
-from xml.sax.saxutils import XMLGenerator
+# Disable B406: import_xml_sax - the library is used for writing
+from xml.sax.saxutils import XMLGenerator  # nosec
 import logging as log
 import os
 import os.path as osp
 
+from datumaro.components.annotation import AnnotationType, LabelCategories
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
-from datumaro.components.extractor import (
-    AnnotationType, DatasetItem, LabelCategories,
-)
+from datumaro.components.extractor import DatasetItem
 from datumaro.util import cast, pairs
 
 from .format import CvatPath

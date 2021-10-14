@@ -4,14 +4,14 @@
 
 import numpy as np
 
-from datumaro.components.extractor import (
-    AnnotationType, LabelCategories, Transform,
-)
+from datumaro.components.annotation import AnnotationType, LabelCategories
+from datumaro.components.cli_plugin import CliPlugin
+from datumaro.components.extractor import Transform
 from datumaro.util import take_by
 
 
 # pylint: disable=no-self-use
-class Launcher:
+class Launcher(CliPlugin):
     def __init__(self, model_dir=None):
         pass
 

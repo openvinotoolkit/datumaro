@@ -3,12 +3,14 @@
 # SPDX-License-Identifier: MIT
 
 import os
+import shutil
 import subprocess
 
 from packaging import version
 import git
+import toml
 
-MINIMUM_VERSION='1.5.0'
+MINIMUM_VERSION='0.1.11' # the initial version for the documentation site
 
 def prepare_tags(repo):
     tags = {}
@@ -32,6 +34,22 @@ def generate_versioning_config(filename, versions, url_prefix=''):
         for v in versions:
             write_version_item(f, v, '{}/{}'.format(url_prefix, v))
 
+def git_checkout(tagname, cwd):
+    docs_dir = os.path.join(cwd, 'site', 'content', 'en', 'docs')
+    shutil.rmtree(docs_dir)
+    repo.git.checkout(tagname, '--', 'site/content/en/docs')
+    if tagname != "v0.1.11":
+        images_dir = os.path.join(cwd, 'site', 'content', 'en', 'images')
+        shutil.rmtree(images_dir)
+        repo.git.checkout(tagname, '--', 'site/content/en/images')
+
+def change_version_menu_toml(filename, version):
+    data = toml.load(filename)
+    data['params']['version_menu'] = version
+
+    with open(filename,'w') as f:
+        toml.dump(data, f)
+
 def generate_docs(repo, output_dir, tags):
     def run_hugo(content_loc, destination_dir):
         subprocess.run([ # nosec
@@ -50,12 +68,14 @@ def generate_docs(repo, output_dir, tags):
         os.makedirs(output_dir)
 
     generate_versioning_config(os.path.join(cwd, 'site', 'versioning.toml'), (t.name for t in tags))
+    change_version_menu_toml(os.path.join(cwd, 'site', 'versioning.toml'), 'develop')
     run_hugo(content_loc, output_dir)
 
     generate_versioning_config(os.path.join(cwd, 'site', 'versioning.toml'), (t.name for t in tags), '/..')
     for tag in tags:
-        repo.git.checkout(tag.name, '--', 'site/content/en/docs')
+        git_checkout(tag.name, cwd)
         destination_dir = os.path.join(output_dir, tag.name)
+        change_version_menu_toml(os.path.join(cwd, 'site', 'versioning.toml'), tag.name)
         os.makedirs(destination_dir)
         run_hugo(content_loc, destination_dir)
 

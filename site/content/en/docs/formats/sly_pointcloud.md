@@ -7,9 +7,11 @@ weight: 10
 
 ## Format specification
 
-Point Cloud data format:
-- [specification](https://docs.supervise.ly/data-organization/00_ann_format_navi).
-- [example](https://drive.google.com/file/d/1BtZyffWtWNR-mk_PHNPMnGgSlAkkQpBl/view).
+Specification for the Point Cloud data format is available
+[here](https://docs.supervise.ly/data-organization/00_ann_format_navi).
+
+You can also find examples of working with the dataset
+[here](https://drive.google.com/file/d/1BtZyffWtWNR-mk_PHNPMnGgSlAkkQpBl/view).
 
 Supported annotation types:
 - `cuboid_3d`
@@ -60,60 +62,64 @@ Point Cloud dataset directory should have the following structure:
     └── meta.json
 ```
 
-There are two ways to import Supervisely Point Cloud dataset:
+There are two ways to import a Supervisely Point Cloud dataset:
 
 ```bash
+datum create
 datum import --format sly_pointcloud --input-path <path/to/dataset>
 # or
 datum create
-datum add path -f sly_pointcloud <path/to/dataset>
+datum import -f sly_pointcloud <path/to/dataset>
 ```
 
 To make sure that the selected dataset has been added to the project,
-you can run `datum info`, which will display the project and dataset
+you can run `datum project info`, which will display the project and dataset
 information.
 
 ## Export to other formats
 
 Datumaro can convert Supervisely Point Cloud dataset into any other
-format [Datumaro supports](/docs/user-manual/supported-formats/).
+format [Datumaro supports](/docs/user-manual/supported_formats/).
 
 Such conversion will only be successful if the output
 format can represent the type of dataset you want to convert,
-e.g. 3D point clouds can be saved in KITTI Raw format,
-but not in COCO keypoints.
+e.g. 3D point clouds can be saved in `KITTI Raw` format,
+but not in `COCO keypoints`.
 
-There are few ways to convert Supervisely Point Cloud dataset
+There are several ways to convert a Supervisely Point Cloud dataset
 to other dataset formats:
 
 ``` bash
-datum import -f sly_pointcloud -i <path/to/sly_pcd/> -o proj/
-datum export -f kitti_raw -o <path/to/output/dir> -p proj/
+datum create
+datum import -f sly_pointcloud <path/to/sly_pcd/>
+datum export -f kitti_raw -o <output/dir>
 # or
 datum convert -if sly_pointcloud -i <path/to/sly_pcd/> -f kitti_raw
 ```
 
-Some formats provide extra options for conversion.
-These options are passed after double dash (`--`) in the command line.
-To get information about them, run
+Or, using Python API:
 
-`datum export -f <FORMAT> -- -h`
+```python
+from datumaro.components.dataset import Dataset
+
+dataset = Dataset.import_from('<path/to/dataset>', 'sly_pointcloud')
+dataset.export('save_dir', 'kitti_raw', save_images=True)
+```
 
 ## Export to Supervisely Point Cloud
 
-There are few ways to convert dataset to Supervisely Point Cloud format:
+There are several ways to convert a dataset to Supervisely Point Cloud format:
 
 ``` bash
 # export dataset into Supervisely Point Cloud format from existing project
-datum export -p <path/to/project> -f sly_pointcloud -o <path/to/export/dir> \
+datum export -p <path/to/project> -f sly_pointcloud -o <output/dir> \
     -- --save-images
 # converting to Supervisely Point Cloud format from other format
-datum convert -if kitti_raw -i <path/to/kitti_raw/dataset> \
-    -f sly_pointcloud -o <path/to/export/dir> -- --save-images
+datum convert -if kitti_raw -i <path/to/dataset> \
+    -f sly_pointcloud -o <output/dir> -- --save-images
 ```
 
 Extra options for exporting in Supervisely Point Cloud format:
-
 - `--save-images` allow to export dataset with saving images. This will
   include point clouds and related images (by default `False`)
 - `--image-ext IMAGE_EXT` allow to specify image extension
@@ -129,7 +135,7 @@ Extra options for exporting in Supervisely Point Cloud format:
 
 ```bash
 datum create -o project
-datum add path -p project -f sly_pointcloud ../sly_dataset/
+datum import -p project -f sly_pointcloud ../sly_dataset/
 datum stats -p project
 ```
 
@@ -143,8 +149,9 @@ datum convert -if sly_pointcloud -i ../sly_pcd/ \
 ### Example 3. Create a custom dataset
 
 ``` python
+from datumaro.components.annotation import Cuboid3d
 from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import Cuboid3d, DatasetItem
+from datumaro.components.extractor import DatasetItem
 
 dataset = Dataset.from_iterable([
     DatasetItem(id='frame_1',

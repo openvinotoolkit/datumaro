@@ -2,13 +2,10 @@
 #
 # SPDX-License-Identifier: MIT
 
+from typing import Iterable, List
 import argparse
 import textwrap
 
-from datumaro.components.errors import DatumaroError
-
-
-class CliException(DatumaroError): pass
 
 def add_subparser(subparsers, name, builder):
     return builder(lambda **kwargs: subparsers.add_parser(name, **kwargs))
@@ -59,3 +56,16 @@ def required_count(nmin=0, nmax=0):
 
 def at_least(n):
     return required_count(n, 0)
+
+def join_cli_args(args: argparse.Namespace, *names: Iterable[str]) -> List:
+    "Merges arg values in a list"
+
+    joined = []
+
+    for name in names:
+        value = getattr(args, name)
+        if not isinstance(value, list):
+            value = [value]
+        joined += value
+
+    return joined

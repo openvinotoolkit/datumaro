@@ -18,8 +18,8 @@ with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     import tensorboardX as tb
 
+from datumaro.components.annotation import AnnotationType, LabelCategories
 from datumaro.components.dataset import IDataset
-from datumaro.components.extractor import AnnotationType, LabelCategories
 from datumaro.util import parse_str_enum_value
 from datumaro.util.image import save_image
 

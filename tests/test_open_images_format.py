@@ -8,10 +8,11 @@ import os.path as osp
 
 import numpy as np
 
-from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import (
-    AnnotationType, Bbox, DatasetItem, Label, LabelCategories, Mask,
+from datumaro.components.annotation import (
+    AnnotationType, Bbox, Label, LabelCategories, Mask,
 )
+from datumaro.components.dataset import Dataset
+from datumaro.components.extractor import DatasetItem
 from datumaro.plugins.open_images_format import (
     OpenImagesConverter, OpenImagesImporter,
 )
@@ -181,6 +182,24 @@ class OpenImagesFormatTest(TestCase):
             dataset_reloaded = Dataset.import_from(path, 'open_images')
             compare_datasets(self, dataset, dataset_reloaded, require_images=True)
 
+    @mark_requirement(Requirements.DATUM_BUG_466)
+    def test_can_save_and_load_without_saving_images(self):
+        dataset = Dataset.from_iterable([
+            DatasetItem(id='a', image=np.ones((5, 5, 3)),
+                annotations=[
+                    Bbox(1, 2, 3, 4, label=0, group=1, attributes={'score': 1.0}),
+                    Mask(label=1, group=0, image=np.ones((5, 5)),
+                        attributes={'box_id': '00000000'})
+                ]
+            )
+        ], categories=['label_0', 'label_1'])
+
+        with TestDir() as test_dir:
+            OpenImagesConverter.convert(dataset, test_dir)
+
+            parsed_dataset = Dataset.import_from(test_dir, 'open_images')
+
+            compare_datasets(self, dataset, parsed_dataset)
 
 ASSETS_DIR = osp.join(osp.dirname(__file__), 'assets')
 

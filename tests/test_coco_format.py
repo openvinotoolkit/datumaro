@@ -6,11 +6,12 @@ import os.path as osp
 
 import numpy as np
 
-from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import (
-    AnnotationType, Bbox, Caption, DatasetItem, Label, LabelCategories, Mask,
-    Points, PointsCategories, Polygon,
+from datumaro.components.annotation import (
+    AnnotationType, Bbox, Caption, Label, LabelCategories, Mask, Points,
+    PointsCategories, Polygon,
 )
+from datumaro.components.dataset import Dataset
+from datumaro.components.extractor import DatasetItem
 from datumaro.plugins.coco_format.converter import (
     CocoCaptionsConverter, CocoConverter, CocoImageInfoConverter,
     CocoInstancesConverter, CocoLabelsConverter, CocoPanopticConverter,
@@ -72,6 +73,26 @@ class CocoImporterTest(TestCase):
             with self.subTest(path=path, format=format, subset=subset):
                 dataset = Dataset.import_from(path, format)
                 compare_datasets(self, expected, dataset, require_images=True)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_import_instances_with_original_cat_ids(self):
+        expected_dataset = Dataset.from_iterable([
+            DatasetItem(id='a', subset='train', image=np.ones((5, 10, 3)),
+                attributes={'id': 5},
+                annotations=[
+                    Bbox(2, 2, 3, 1, label=2,
+                        group=1, id=1, attributes={'is_crowd': False})
+                ]
+            ),
+        ], categories=['class-0', 'a', 'b', 'class-3', 'c'])
+
+        actual_dataset = Dataset.import_from(
+            osp.join(DUMMY_DATASET_DIR, 'coco_instances',
+                'annotations', 'instances_train.json'),
+            'coco_instances',
+            keep_original_category_ids=True)
+        compare_datasets(self, expected_dataset, actual_dataset,
+            require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_captions(self):
@@ -196,6 +217,35 @@ class CocoImporterTest(TestCase):
                 compare_datasets(self, expected, dataset, require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_import_keypoints_with_original_cat_ids(self):
+        expected_dataset = Dataset.from_iterable([
+            DatasetItem(id='a', subset='train', image=np.ones((5, 10, 3)),
+                attributes={'id': 5},
+                annotations=[
+                    Points([0, 0, 0, 2, 4, 1], [0, 1, 2], label=2,
+                        id=1, group=1, attributes={'is_crowd': False}),
+                    Bbox(2, 2, 3, 1, label=2,
+                        id=1, group=1, attributes={'is_crowd': False}),
+                ]),
+        ], categories={
+            AnnotationType.label: LabelCategories.from_iterable(
+                ['class-0', 'a', 'b']
+            ),
+            AnnotationType.points: PointsCategories.from_iterable(
+                [(i, None, [[0, 1], [1, 2]]) for i in range(1, 3)],
+            ),
+        })
+
+        actual_dataset = Dataset.import_from(
+            osp.join(DUMMY_DATASET_DIR, 'coco_person_keypoints',
+                'annotations', 'person_keypoints_train.json'),
+            'coco_person_keypoints',
+            keep_original_category_ids=True)
+
+        compare_datasets(self, expected_dataset, actual_dataset,
+            require_images=True)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_image_info(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='a', subset='train', image=np.ones((5, 10, 3)),
@@ -259,6 +309,25 @@ class CocoImporterTest(TestCase):
             with self.subTest(path=path, format=format, subset=subset):
                 dataset = Dataset.import_from(path, format)
                 compare_datasets(self, expected, dataset, require_images=True)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_import_panoptic_with_original_cat_ids(self):
+        expected_dataset = Dataset.from_iterable([
+            DatasetItem(id='a', subset='train', image=np.ones((5, 10, 3)),
+                attributes={'id': 5},
+                annotations=[
+                    Mask(np.ones((5, 5)), label=1, id=460551,
+                        group=460551, attributes={'is_crowd': False}),
+                ]),
+        ], categories=['class-0', 'a', 'b'])
+
+        actual_dataset = Dataset.import_from(
+            osp.join(DUMMY_DATASET_DIR, 'coco_panoptic',
+                'annotations', 'panoptic_train.json'),
+            'coco_panoptic',
+            keep_original_category_ids=True)
+        compare_datasets(self, expected_dataset, actual_dataset,
+            require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_stuff(self):

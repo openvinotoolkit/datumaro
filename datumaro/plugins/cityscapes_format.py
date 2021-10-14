@@ -10,12 +10,12 @@ import os.path as osp
 
 import numpy as np
 
+from datumaro.components.annotation import (
+    AnnotationType, CompiledMask, LabelCategories, Mask, MaskCategories,
+)
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
-from datumaro.components.extractor import (
-    AnnotationType, CompiledMask, DatasetItem, Importer, LabelCategories, Mask,
-    MaskCategories, SourceExtractor,
-)
+from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.util import find
 from datumaro.util.annotation_util import make_label_id_mapping
 from datumaro.util.image import find_images, load_image, save_image
@@ -65,6 +65,7 @@ class CityscapesPath:
     ORIGINAL_IMAGE_DIR = 'leftImg8bit'
     ORIGINAL_IMAGE = '_' + ORIGINAL_IMAGE_DIR
     INSTANCES_IMAGE = '_instanceIds.png'
+    GT_INSTANCE_MASK_SUFFIX = '_' + GT_FINE_DIR + INSTANCES_IMAGE
     COLOR_IMAGE = '_color.png'
     LABELIDS_IMAGE = '_labelIds.png'
 
@@ -144,14 +145,29 @@ def write_label_map(path, label_map):
 class CityscapesExtractor(SourceExtractor):
     def __init__(self, path, subset=None):
         assert osp.isdir(path), path
-        self._path = path
 
         if not subset:
-            subset = osp.splitext(osp.basename(path))[0]
+            subset = osp.basename(path)
+
+        if osp.basename(osp.dirname(path)) == CityscapesPath.GT_FINE_DIR:
+            self._path = osp.dirname(osp.dirname(path))
+            annotations_dir = path
+            images_dir = osp.join(self._path,
+                CityscapesPath.IMGS_FINE_DIR, CityscapesPath.ORIGINAL_IMAGE_DIR,
+                subset)
+        else:
+            self._path = osp.dirname(osp.dirname(osp.dirname(path)))
+            images_dir = path
+            annotations_dir = osp.join(self._path,
+                CityscapesPath.GT_FINE_DIR, subset)
+
         self._subset = subset
+        self._images_dir = images_dir
+        self._gt_anns_dir = annotations_dir
+
         super().__init__(subset=subset)
 
-        self._categories = self._load_categories(osp.join(self._path, '../../../'))
+        self._categories = self._load_categories(self._path)
         self._items = list(self._load_items().values())
 
     def _load_categories(self, path):
@@ -164,55 +180,75 @@ class CityscapesExtractor(SourceExtractor):
         self._labels = [label for label in label_map]
         return make_cityscapes_categories(label_map)
 
+    def _get_id_from_image_path(self, path):
+        return osp.relpath(osp.splitext(path)[0], self._images_dir) \
+            .replace('_' + CityscapesPath.ORIGINAL_IMAGE_DIR, '')
+
+    def _get_id_from_mask_path(self, path):
+        return osp.relpath(path, self._gt_anns_dir) \
+            .replace(CityscapesPath.GT_INSTANCE_MASK_SUFFIX, '')
+
     def _load_items(self):
         items = {}
-        annotations_path = osp.normpath(osp.join(self._path, '../../../',
-            CityscapesPath.GT_FINE_DIR, self._subset))
+        image_path_by_id = {}
 
-        for image_path in find_images(self._path, recursive=True):
-            if not osp.splitext(osp.basename(image_path))[0] \
-                    .endswith(CityscapesPath.ORIGINAL_IMAGE):
+        if self._images_dir:
+            image_path_by_id = {
+                self._get_id_from_image_path(p): p
+                for p in find_images(self._images_dir, recursive=True)
+            }
+
+        for mask_path in find_images(self._gt_anns_dir, recursive=True):
+            if not mask_path.endswith(CityscapesPath.GT_INSTANCE_MASK_SUFFIX):
                 continue
 
-            sample_id = osp.splitext(osp.relpath(image_path, self._path))[0] \
-                .replace(CityscapesPath.ORIGINAL_IMAGE, '')
+            item_id = self._get_id_from_mask_path(mask_path)
+
             anns = []
-            instances_path = osp.join(annotations_path, sample_id + '_' +
-                CityscapesPath.GT_FINE_DIR + CityscapesPath.INSTANCES_IMAGE)
-            if osp.isfile(instances_path):
-                instances_mask = load_image(instances_path, dtype=np.int32)
-                segm_ids = np.unique(instances_mask)
-                for segm_id in segm_ids:
-                    # either is_crowd or ann_id should be set
-                    if segm_id < 1000:
-                        label_id = segm_id
-                        is_crowd = True
-                        ann_id = None
-                    else:
-                        label_id = segm_id // 1000
-                        is_crowd = False
-                        ann_id = segm_id % 1000
-                    anns.append(Mask(
-                        image=self._lazy_extract_mask(instances_mask, segm_id),
-                        label=label_id, id=ann_id,
-                        attributes = { 'is_crowd': is_crowd }))
-            items[sample_id] = DatasetItem(id=sample_id, subset=self._subset,
-                image=image_path, annotations=anns)
+            instances_mask = load_image(mask_path, dtype=np.int32)
+            segm_ids = np.unique(instances_mask)
+            for segm_id in segm_ids:
+                # either is_crowd or ann_id should be set
+                if segm_id < 1000:
+                    label_id = segm_id
+                    is_crowd = True
+                    ann_id = None
+                else:
+                    label_id = segm_id // 1000
+                    is_crowd = False
+                    ann_id = segm_id % 1000
+                anns.append(Mask(
+                    image=self._lazy_extract_mask(instances_mask, segm_id),
+                    label=label_id, id=ann_id,
+                    attributes = { 'is_crowd': is_crowd }))
+
+            items[item_id] = DatasetItem(id=item_id, subset=self._subset,
+                image=image_path_by_id.pop(item_id, None),
+                annotations=anns)
+
+        for item_id, path in image_path_by_id.items():
+            items[item_id] = DatasetItem(id=item_id, subset=self._subset,
+                image=path)
+
         return items
 
     @staticmethod
     def _lazy_extract_mask(mask, c):
         return lambda: mask == c
 
-
 class CityscapesImporter(Importer):
     @classmethod
     def find_sources(cls, path):
-        return cls._find_sources_recursive(path, '', 'cityscapes',
-            dirname=osp.join(CityscapesPath.IMGS_FINE_DIR,
-                CityscapesPath.ORIGINAL_IMAGE_DIR),
-            max_depth=1)
+        sources = cls._find_sources_recursive(path, '', 'cityscapes',
+            dirname=CityscapesPath.GT_FINE_DIR, max_depth=1)
 
+        if not sources:
+            sources = cls._find_sources_recursive(path, '', 'cityscapes',
+                dirname=osp.join(CityscapesPath.IMGS_FINE_DIR,
+                    CityscapesPath.ORIGINAL_IMAGE_DIR),
+                max_depth=1)
+
+        return sources
 
 class LabelmapType(Enum):
     cityscapes = auto()

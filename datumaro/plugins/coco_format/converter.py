@@ -11,11 +11,12 @@ import os.path as osp
 
 import pycocotools.mask as mask_utils
 
+from datumaro.components.annotation import (
+    COORDINATE_ROUNDING_DIGITS, AnnotationType, Points,
+)
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
-from datumaro.components.extractor import (
-    _COORDINATE_ROUNDING_DIGITS, AnnotationType, DatasetItem, Points,
-)
+from datumaro.components.extractor import DatasetItem
 from datumaro.util import cast, find, str_to_bool
 from datumaro.util.image import save_image
 import datumaro.util.annotation_util as anno_tools
@@ -315,7 +316,7 @@ class _InstancesConverter(_TaskConverter):
             'category_id': cast(ann.label, int, -1) + 1,
             'segmentation': segmentation,
             'area': float(area),
-            'bbox': [round(float(n), _COORDINATE_ROUNDING_DIGITS) for n in bbox],
+            'bbox': [round(float(n), COORDINATE_ROUNDING_DIGITS) for n in bbox],
             'iscrowd': int(is_crowd),
         }
         if 'score' in ann.attributes:
@@ -518,27 +519,42 @@ class CocoConverter(Converter):
 
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
+        kwargs['description'] = """
+            Segmentation mask modes ('--segmentation-mode'):|n
+            - '{sm.guess.name}': guess the mode for each instance,|n
+            |s|suse 'is_crowd' attribute as hint|n
+            - '{sm.polygons.name}': save polygons,|n
+            |s|smerge and convert masks, prefer polygons|n
+            - '{sm.mask.name}': save masks,|n
+            |s|smerge and convert polygons, prefer masks|n
+            |n
+            The '--reindex' option allows to control if the images and
+            annotations must be given new indices. It can be useful, when
+            you want to preserve the original indices in the produced dataset.
+            Consider having this option enabled when converting from other
+            formats.|n
+            |n
+            The '--allow-attributes' parameter enables or disables writing
+            the custom annotation attributes to the "attributes" annotation
+            field. This field is an extension to the original COCO format.|n
+            |n
+            The '--merge-images' parameter controls the output directory for
+            images. When enabled, the dataset images are saved into a single
+            directory, otherwise they are saved in separate directories
+            by subsets.
+            """.format(sm=SegmentationMode)
         parser = super().build_cmdline_parser(**kwargs)
         parser.add_argument('--segmentation-mode',
             choices=[m.name for m in SegmentationMode],
             default=SegmentationMode.guess.name,
-            help="""
-                Save mode for instance segmentation:|n
-                - '{sm.guess.name}': guess the mode for each instance,|n
-                |s|suse 'is_crowd' attribute as hint|n
-                - '{sm.polygons.name}': save polygons,|n
-                |s|smerge and convert masks, prefer polygons|n
-                - '{sm.mask.name}': save masks,|n
-                |s|smerge and convert polygons, prefer masks|n
-                Default: %(default)s.
-                """.format(sm=SegmentationMode))
+            help="Save mode for instance segmentation (default: %(default)s)")
         parser.add_argument('--crop-covered', action='store_true',
             help="Crop covered segments so that background objects' "
                 "segmentation was more accurate (default: %(default)s)")
         parser.add_argument('--allow-attributes',
             type=str_to_bool, default=True,
             help="Allow export of attributes (default: %(default)s)")
-        parser.add_argument('--reindex', type=str_to_bool, default=False,
+        parser.add_argument('--reindex', type=str_to_bool, default=True,
             help="Assign new indices to images and annotations, "
                 "useful to avoid merge conflicts (default: %(default)s)")
         parser.add_argument('--merge-images', type=str_to_bool, default=False,

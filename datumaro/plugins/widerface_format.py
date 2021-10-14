@@ -6,11 +6,11 @@ import os
 import os.path as osp
 import re
 
-from datumaro.components.converter import Converter
-from datumaro.components.extractor import (
-    AnnotationType, Bbox, DatasetItem, Importer, Label, LabelCategories,
-    SourceExtractor,
+from datumaro.components.annotation import (
+    AnnotationType, Bbox, Label, LabelCategories,
 )
+from datumaro.components.converter import Converter
+from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.util import str_to_bool
 
 
@@ -34,7 +34,7 @@ class WiderFaceExtractor(SourceExtractor):
 
         if not subset:
             subset = osp.splitext(osp.basename(path))[0]
-            if re.fullmatch(r'wider_face_\S+_bbx_gt', subset):
+            if re.fullmatch(r'wider_face_\S+((_bbx_gt)|(_filelist))', subset):
                 subset = subset.split('_')[2]
         super().__init__(subset=subset)
 
@@ -100,8 +100,10 @@ class WiderFaceExtractor(SourceExtractor):
                 image=image_path, annotations=annotations)
 
             try:
-                bbox_count = int(lines[line_idx + 1]) # can be the next image
-            except ValueError:
+                bbox_count = int(lines[line_idx + 1])
+            except ValueError: # can be the next image
+                continue
+            except IndexError: # the file can only contain names of images
                 continue
 
             bbox_lines = lines[line_idx + 2 : line_idx + bbox_count + 2]
@@ -176,7 +178,8 @@ class WiderFaceConverter(Converter):
 
                 bboxes = [a for a in item.annotations
                     if a.type == AnnotationType.bbox]
-                wider_annotation += '%s\n' % len(bboxes)
+                if 0 < len(bboxes):
+                    wider_annotation += '%s\n' % len(bboxes)
                 for bbox in bboxes:
                     wider_bb = ' '.join('%s' % p for p in bbox.get_bbox())
                     wider_annotation += '%s ' % wider_bb

@@ -31,13 +31,7 @@ python -m virtualenv venv
 Then install all dependencies:
 
 ``` bash
-while read -r p; do pip install $p; done < requirements.txt
-```
-
-If you're working inside of a CVAT environment:
-``` bash
-. .env/bin/activate
-while read -r p; do pip install $p; done < datumaro/requirements.txt
+pip install -r requirements.txt
 ```
 
 Install Datumaro:

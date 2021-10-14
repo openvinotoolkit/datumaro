@@ -6,6 +6,7 @@ from copy import deepcopy
 
 import numpy as np
 
+from datumaro.components.annotation import AnnotationType, LabelCategories
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.errors import (
     AttributeDefinedButNotFound, FarFromAttrMean, FarFromLabelMean,
@@ -15,7 +16,6 @@ from datumaro.components.errors import (
     MissingLabelCategories, MultiLabelAnnotations, NegativeLength,
     OnlyOneAttributeValue, OnlyOneLabel, UndefinedAttribute, UndefinedLabel,
 )
-from datumaro.components.extractor import AnnotationType, LabelCategories
 from datumaro.components.validator import Severity, TaskType, Validator
 from datumaro.util import parse_str_enum_value
 
@@ -48,21 +48,29 @@ class _TaskValidator(Validator, CliPlugin):
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
         parser = super().build_cmdline_parser(**kwargs)
-        parser.add_argument('-fs', '--few_samples_thr', default=1, type=int,
-            help="Threshold for giving a warning for minimum number of"
-                 "samples per class")
-        parser.add_argument('-ir', '--imbalance_ratio_thr', default=50, type=int,
-            help="Threshold for giving data imbalance warning;"
-                 "IR(imbalance ratio) = majority/minority")
-        parser.add_argument('-m', '--far_from_mean_thr', default=5.0, type=float,
-            help="Threshold for giving a warning that data is far from mean;"
-                 "A constant used to define mean +/- k * standard deviation;")
-        parser.add_argument('-dr', '--dominance_ratio_thr', default=0.8, type=float,
-            help="Threshold for giving a warning for bounding box imbalance;"
-                "Dominace_ratio = ratio of Top-k bin to total in histogram;")
-        parser.add_argument('-k', '--topk_bins', default=0.1, type=float,
-            help="Ratio of bins with the highest number of data"
-                 "to total bins in the histogram; [0, 1]; 0.1 = 10%;")
+        parser.add_argument('-fs', '--few-samples-thr',
+            default=1, type=int,
+            help="Threshold for giving a warning for minimum number of "
+                "samples per class (default: %(default)s)")
+        parser.add_argument('-ir', '--imbalance-ratio-thr',
+            default=50, type=int,
+            help="Threshold for giving data imbalance warning. "
+                "IR(imbalance ratio) = majority/minority "
+                "(default: %(default)s)")
+        parser.add_argument('-m', '--far-from-mean-thr',
+            default=5.0, type=float,
+            help="Threshold for giving a warning that data is far from mean. "
+                "A constant used to define mean +/- k * standard deviation "
+                "(default: %(default)s)")
+        parser.add_argument('-dr', '--dominance-ratio-thr',
+            default=0.8, type=float,
+            help="Threshold for giving a warning for bounding box imbalance. "
+                "Dominace_ratio = ratio of Top-k bin to total in histogram "
+                "(default: %(default)s)")
+        parser.add_argument('-k', '--topk-bins', default=0.1, type=float,
+            help="Ratio of bins with the highest number of data "
+                "to total bins in the histogram. A value in the range [0, 1] "
+                "(default: %(default)s)")
         return parser
 
     def __init__(self, task_type, few_samples_thr=None,

@@ -5,11 +5,11 @@ import os.path as osp
 
 import numpy as np
 
-from datumaro.components.extractor import (
-    AnnotationType, Bbox, Caption, Cuboid3d, DatasetItem, Label,
-    LabelCategories, Mask, MaskCategories, Points, PointsCategories, Polygon,
-    PolyLine,
+from datumaro.components.annotation import (
+    AnnotationType, Bbox, Caption, Cuboid3d, Label, LabelCategories, Mask,
+    MaskCategories, Points, PointsCategories, Polygon, PolyLine,
 )
+from datumaro.components.extractor import DatasetItem
 from datumaro.components.project import Dataset
 from datumaro.plugins.datumaro_format.converter import DatumaroConverter
 from datumaro.plugins.datumaro_format.extractor import DatumaroImporter
@@ -102,6 +102,13 @@ class DatumaroConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(self.test_dataset,
                 partial(DatumaroConverter.convert, save_images=True), test_dir)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_save_and_load_with_no_save_images(self):
+        with TestDir() as test_dir:
+            self._test_save_and_load(self.test_dataset,
+                partial(DatumaroConverter.convert, save_images=True), test_dir,
+                compare=None, require_images=False)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect(self):

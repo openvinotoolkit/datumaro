@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2020 Intel Corporation
+# Copyright (C) 2019-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -207,16 +207,16 @@ class Config:
 
             schema_entry = self._schema[key]
             schema_entry_instance = schema_entry()
-            if not isinstance(value, type(schema_entry_instance)):
-                if isinstance(value, dict) and \
-                        isinstance(schema_entry_instance, Config):
-                    schema_entry_instance.update(value)
-                    value = schema_entry_instance
-                else:
-                    raise ValueError("Can not set key '%s' - schema mismatch:"
-                        "unexpected value type %s, expected %s" % \
-                        (key, type(value), type(schema_entry_instance))
-                    )
+
+            if isinstance(value, (dict, Config)) and \
+                    isinstance(schema_entry_instance, Config):
+                schema_entry_instance.update(value)
+                value = schema_entry_instance
+            elif not isinstance(value, type(schema_entry_instance)):
+                raise ValueError("Can not set key '%s' - schema mismatch:"
+                    "unexpected value type %s, expected %s" % \
+                    (key, type(value), type(schema_entry_instance))
+                )
 
         self._config[key] = value
         return value
@@ -256,14 +256,14 @@ class DictConfig(Config):
     def set(self, key, value):
         if self._default is not None:
             schema_entry_instance = self._default(value)
-            if not isinstance(value, type(schema_entry_instance)):
-                if isinstance(value, dict) and \
-                        isinstance(schema_entry_instance, Config):
-                    value = schema_entry_instance
-                else:
-                   raise ValueError("Can not set key '%s' - schema mismatch:"
-                        "unexpected value type %s, expected %s" % \
-                        (key, type(value), type(schema_entry_instance))
-                    )
+
+            if isinstance(value, (dict, Config)) and \
+                    isinstance(schema_entry_instance, Config):
+                value = schema_entry_instance
+            elif not isinstance(value, type(schema_entry_instance)):
+                raise ValueError("Can not set key '%s' - schema mismatch:"
+                    "unexpected value type %s, expected %s" % \
+                    (key, type(value), type(schema_entry_instance))
+                )
 
         return super().set(key, value)

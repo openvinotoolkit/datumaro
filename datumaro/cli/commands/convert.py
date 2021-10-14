@@ -12,34 +12,41 @@ from datumaro.components.project import Environment
 from datumaro.util.os_util import make_file_name
 
 from ..contexts.project import FilterModes
-from ..util import CliException, MultilineFormatter
+from ..util import MultilineFormatter
+from ..util.errors import CliException
 from ..util.project import generate_next_file_name
 
 
 def build_parser(parser_ctor=argparse.ArgumentParser):
-    builtin_importers = sorted(Environment().importers.items)
-    builtin_converters = sorted(Environment().converters.items)
+    builtin_readers = sorted(
+        set(Environment().importers) | set(Environment().extractors))
+    builtin_writers = sorted(Environment().converters)
 
     parser = parser_ctor(help="Convert an existing dataset to another format",
         description="""
-            Converts a dataset from one format to another.
-            You can add your own formats using a project.|n
-            |n
-            Supported input formats: %s|n
-            |n
-            Supported output formats: %s|n
-            |n
-            Examples:|n
-            - Export a dataset as a PASCAL VOC dataset, include images:|n
-            |s|sconvert -i src/path -f voc -- --save-images|n
-            |n
-            - Export a dataset as a COCO dataset to a specific directory:|n
-            |s|sconvert -i src/path -f coco -o path/I/like/
-        """ % (', '.join(builtin_importers), ', '.join(builtin_converters)),
+        Converts a dataset from one format to another.
+        You can add your own formats and do many more by creating a
+        Datumaro project.|n
+        |n
+        This command serves as an alias for the "create", "import", and
+        "export" commands, allowing to obtain the same results simpler
+        and faster. Check descriptions of these commands for more info.|n
+        |n
+        Supported input formats: {}|n
+        |n
+        Supported output formats: {}|n
+        |n
+        Examples:|n
+        - Export a dataset as a PASCAL VOC dataset, include images:|n
+        |s|s%(prog)s -i src/path -f voc -- --save-images|n
+        |n
+        - Export a dataset as a COCO dataset to a specific directory:|n
+        |s|s%(prog)s -i src/path -f coco -o path/I/like/
+        """.format(', '.join(builtin_readers), ', '.join(builtin_writers)),
         formatter_class=MultilineFormatter)
 
     parser.add_argument('-i', '--input-path', default='.', dest='source',
-        help="Path to look for a dataset")
+        help="Input dataset path (default: current dir)")
     parser.add_argument('-if', '--input-format',
         help="Input dataset format. Will try to detect, if not specified.")
     parser.add_argument('-f', '--output-format', required=True,
@@ -49,16 +56,23 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     parser.add_argument('--overwrite', action='store_true',
         help="Overwrite existing files in the save directory")
     parser.add_argument('-e', '--filter',
-        help="Filter expression for dataset items")
+        help="XML XPath filter expression for dataset items. Read \"filter\" "
+            "command docs for more info")
     parser.add_argument('--filter-mode', default=FilterModes.i.name,
         type=FilterModes.parse,
-        help="Filter mode (options: %s; default: %s)" % \
+        help="Filter mode, one of %s (default: %s)" % \
             (', '.join(FilterModes.list_options()) , '%(default)s'))
     parser.add_argument('extra_args', nargs=argparse.REMAINDER,
-        help="Additional arguments for output format (pass '-- -h' for help)")
+        help="Additional arguments for output format (pass '-- -h' for help). "
+            "Must be specified after the main command arguments")
     parser.set_defaults(command=convert_command)
 
     return parser
+
+def get_sensitive_args():
+    return {
+        convert_command: ['source', 'dst_dir', 'extra_args'],
+    }
 
 def convert_command(args):
     env = Environment()

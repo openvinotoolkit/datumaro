@@ -2,9 +2,10 @@ from unittest import TestCase
 
 import numpy as np
 
-from datumaro.components.extractor import (
-    AnnotationType, Bbox, DatasetItem, Label, LabelCategories, Mask, Polygon,
+from datumaro.components.annotation import (
+    AnnotationType, Bbox, Label, LabelCategories, Mask, Polygon,
 )
+from datumaro.components.extractor import DatasetItem
 from datumaro.components.operations import compute_ann_statistics
 from datumaro.components.project import Dataset
 import datumaro.plugins.splitter as splitter
