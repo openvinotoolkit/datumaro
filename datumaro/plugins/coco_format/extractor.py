@@ -33,8 +33,12 @@ class _CocoExtractor(SourceExtractor):
         assert osp.isfile(path), path
 
         if not subset:
-            subset = osp.splitext(osp.basename(path))[0].replace(task.name + '_', '')
-            subset = subset if subset else None
+            parts = osp.splitext(osp.basename(path))[0].split(task.name + '_',
+                maxsplit=1)
+            if len(parts) != 2:
+                raise Exception("Can't find annotation file %s"
+                    % task.name + '_*.json')
+            subset = parts[1]
         super().__init__(subset=subset)
 
         rootpath = ''

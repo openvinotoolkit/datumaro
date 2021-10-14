@@ -3,7 +3,6 @@ from itertools import product
 from unittest import TestCase
 import os
 import os.path as osp
-from attr import attributes
 
 import numpy as np
 

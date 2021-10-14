@@ -102,7 +102,7 @@ class CocoImporter(Importer):
                 continue
 
             subset_name = osp.splitext(osp.basename(subset_path))[0] \
-                .replace(ann_type.name + '_', '')
+                .split(ann_type.name + '_', maxsplit=1)[1]
             subsets.setdefault(subset_name, {})[ann_type] = subset_path
 
         return subsets
