@@ -81,9 +81,7 @@ class CocoImporter(Importer):
             for task in CocoTask:
                 if filename.startswith(task.name + '_'):
                     return task
-            raise ValueError("Unknown task in file name: %s.\
-                    The only known are: %s" % \
-                        (filename, ', '.join(e.name for e in CocoTask)))
+            return None
 
         if osp.isfile(path):
             if len(cls._TASKS) == 1:
@@ -98,7 +96,14 @@ class CocoImporter(Importer):
         subsets = {}
         for subset_path in subset_paths:
             ann_type = detect_coco_task(osp.basename(subset_path))
+            if ann_type is None and len(cls._TASKS) == 1:
+                ann_type = list(cls._TASKS)[0]
+
             if ann_type not in cls._TASKS:
+                log.warning("File '%s' was skipped, could't match this file "
+                    "with any of these tasks: %s" %
+                    (subset_path, ','.join(e for e in cls._TASKS.values()))
+                )
                 continue
 
             subset_name = osp.splitext(osp.basename(subset_path))[0] \
