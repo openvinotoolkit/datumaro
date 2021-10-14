@@ -330,6 +330,10 @@ class OpenImagesExtractor(Extractor):
         self._items.append(item)
         return item
 
+    def _get_subset_name(self, filename):
+        parts = filename.split('-')
+        return parts[1] if parts[0] == 'oidv6' else parts[0]
+
     def _load_labels(self, items_by_id):
         label_categories = self._categories[AnnotationType.label]
 
@@ -345,7 +349,7 @@ class OpenImagesExtractor(Extractor):
                     if item is None:
                         item = items_by_id.setdefault(
                             image_id, self._add_item(image_id,
-                                label_path.split('-', maxsplit=1)[0])
+                                self._get_subset_name(label_path))
                         )
 
                     confidence = float(label_description['Confidence'])
@@ -379,7 +383,7 @@ class OpenImagesExtractor(Extractor):
                     if item is None:
                         item = items_by_id.setdefault(
                             image_id, self._add_item(image_id,
-                                bbox_path.split('-', maxsplit=1)[0])
+                                self._get_subset_name(bbox_path))
                         )
 
 
@@ -460,7 +464,7 @@ class OpenImagesExtractor(Extractor):
                     if item is None:
                         item = items_by_id.setdefault(
                             image_id, self._add_item(image_id,
-                                mask_path.split('-', maxsplit=1)[0])
+                                self._get_subset_name(mask_path))
                         )
 
 
