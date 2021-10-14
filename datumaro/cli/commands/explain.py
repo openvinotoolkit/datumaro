@@ -105,7 +105,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     rise_parser.add_argument('--display', action='store_true',
         help="Visualize results during computations")
 
-    parser.add_argument('-p', '--project', dest='project_dir', default='.',
+    parser.add_argument('-p', '--project', dest='project_dir',
         help="Directory of the project to operate on (default: current dir)")
     parser.set_defaults(command=explain_command)
 

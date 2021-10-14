@@ -124,7 +124,7 @@ def build_export_parser(parser_ctor=argparse.ArgumentParser):
         help="Directory to save output (default: a subdir in the current one)")
     parser.add_argument('--overwrite', action='store_true',
         help="Overwrite existing files in the save directory")
-    parser.add_argument('-p', '--project', dest='project_dir', default='.',
+    parser.add_argument('-p', '--project', dest='project_dir',
         help="Directory of the project to operate on (default: current dir)")
     parser.add_argument('-f', '--format', required=True,
         help="Output format")
@@ -279,7 +279,7 @@ def build_filter_parser(parser_ctor=argparse.ArgumentParser):
             "build tree stage will be written (default: %(default)s)")
     parser.add_argument('--overwrite', action='store_true',
         help="Overwrite existing files in the save directory")
-    parser.add_argument('-p', '--project', dest='project_dir', default='.',
+    parser.add_argument('-p', '--project', dest='project_dir',
         help="Directory of the project to operate on (default: current dir)")
     parser.set_defaults(command=filter_command)
 
@@ -366,14 +366,37 @@ def build_transform_parser(parser_ctor=argparse.ArgumentParser):
 
     parser = parser_ctor(help="Transform project",
         description="""
-        Applies a batch operation to dataset and produces a new dataset.|n
+        Applies a batch operation to a dataset and produces a new dataset.|n
+        |n
+        By default, datasets are updated in-place. The '-o/--output-dir'
+        option can be used to specify another output directory. When
+        updating in-place, use the '--overwrite' parameter (in-place
+        updates fail by default to prevent data loss), unless a project
+        target is modified.|n
         |n
         Builtin transforms: {}|n
         |n
-        The command can only be applied to a project build target, a stage
-        or the combined 'project' target, in which case all the targets will
-        be affected. A build tree stage will be added if '--stage' is enabled,
-        and the resulting dataset(-s) will be saved if '--apply' is enabled.
+        This command has the following invocation syntax:
+        - %(prog)s <target dataset revpath>|n
+        |n
+        <revpath> - either a dataset path or a revision path. The full
+        syntax is:|n
+        - Dataset paths:|n
+        |s|s- <dataset path>[ :<format> ]|n
+        - Revision paths:|n
+        |s|s- <project path> [ @<rev> ] [ :<target> ]|n
+        |s|s- <rev> [ :<target> ]|n
+        |s|s- <target>|n
+        |n
+        The current project (-p/--project) is also used as a context for
+        plugins, so it can be useful for dataset paths having custom formats.
+        When not specified, the current project's working tree is used.|n
+        |n
+        The command can be applied to a dataset or a project build target,
+        a stage or the combined 'project' target, in which case all the
+        targets will be affected. A build tree stage will be recorded
+        if '--stage' is enabled, and the resulting dataset(-s) will be
+        saved if '--apply' is enabled.|n
         |n
         Examples:|n
         - Convert instance polygons to masks:|n
@@ -382,34 +405,37 @@ def build_transform_parser(parser_ctor=argparse.ArgumentParser):
         |s|s- Replace 'pattern' with 'replacement'|n|n
         |s|s%(prog)s -t rename -- -e '|pattern|replacement|'|n
         |s|s- Remove 'frame_' from item ids|n
-        |s|s%(prog)s -t rename -- -e '|frame_(\\d+)|\\1|'
+        |s|s%(prog)s -t rename -- -e '|frame_(\\d+)|\\1|'|n
+        - Split a dataset randomly:|n
+        |s|s%(prog)s -t random_split --overwrite path/to/dataset:voc
         """.format(', '.join(builtins)),
         formatter_class=MultilineFormatter)
 
     parser.add_argument('_positionals', nargs=argparse.REMAINDER,
         help=argparse.SUPPRESS) # workaround for -- eaten by positionals
     parser.add_argument('target', nargs='?', default='project',
-        help="Project target to apply transform to (default: all)")
+        help="Target dataset revpath (default: project)")
     parser.add_argument('-t', '--transform', required=True,
-        help="Transform to apply to the project")
+        help="Transform to apply to the dataset")
     parser.add_argument('-o', '--output-dir', dest='dst_dir',
         help="""
-            Output directory. Can be omitted for data source targets
-            (i.e. not intermediate stages) and the 'project' target,
-            in which case the results will be saved inplace in the
-            working tree.
+            Output directory. Can be omitted for main project targets
+            (i.e. data sources and the 'project' target, but not
+            intermediate stages) and dataset targets.
+            If not specified, the results will be saved inplace.
             """)
     parser.add_argument('--overwrite', action='store_true',
         help="Overwrite existing files in the save directory")
-    parser.add_argument('-p', '--project', dest='project_dir', default='.',
+    parser.add_argument('-p', '--project', dest='project_dir',
         help="Directory of the project to operate on (default: current dir)")
     parser.add_argument('--stage', type=str_to_bool, default=True,
         help="""
             Include this action as a project build step.
             If true, this operation will be saved in the project
             build tree, allowing to reproduce the resulting dataset later.
-            Applicable only to data source targets (i.e. not intermediate
-            stages) and the 'project' target (default: %(default)s)
+            Applicable only to main project targets (i.e. data sources
+            and the 'project' target, but not intermediate stages)
+            (default: %(default)s)
             """)
     parser.add_argument('--apply', type=str_to_bool, default=True,
         help="Run this command immediately. If disabled, only the "
@@ -462,38 +488,28 @@ def transform_command(args):
 
     extra_args = transform.parse_cmdline(args.extra_args)
 
-    # TODO: check if we can accept a dataset revpath here
-    if args.stage and args.target not in project.working_tree.build_targets:
-        raise CliException("Adding a stage is only allowed for "
-            "source and 'project' targets, not '%s'" % args.target)
+    is_target = project is not None and \
+        args.target in project.working_tree.build_targets
+    if is_target:
+        if not args.dst_dir and args.stage and (args.target != \
+                ProjectBuildTargets.strip_target_name(args.target)):
+            raise CliException("Adding a stage is only allowed for "
+                "project targets, not their stages.")
 
-    dst_dir = args.dst_dir
-    if dst_dir:
-        if not args.overwrite and osp.isdir(dst_dir) and os.listdir(dst_dir):
-            raise CliException("Directory '%s' already exists "
-                "(pass --overwrite to overwrite)" % dst_dir)
-        dst_dir = osp.abspath(dst_dir)
+        if args.target == ProjectBuildTargets.MAIN_TARGET:
+            targets = list(project.working_tree.sources)
+        else:
+            targets = [args.target]
 
-    if args.target == ProjectBuildTargets.MAIN_TARGET:
-        targets = list(project.working_tree.sources)
-    else:
-        targets = [args.target]
-
-    build_tree = project.working_tree.clone()
-    for target in targets:
-        build_tree.build_targets.add_transform_stage(target,
-            args.transform, params=extra_args)
+        build_tree = project.working_tree.clone()
+        for target in targets:
+            build_tree.build_targets.add_transform_stage(target,
+                args.transform, params=extra_args)
 
     if args.apply:
         log.info("Transforming...")
 
-        if args.dst_dir:
-            dataset = project.working_tree.make_dataset(
-                build_tree.make_pipeline(args.target))
-            dataset.save(dst_dir, save_images=True)
-
-            log.info("Results have been saved to '%s'" % dst_dir)
-        else:
+        if is_target and not args.dst_dir:
             for target in targets:
                 dataset = project.working_tree.make_dataset(
                     build_tree.make_pipeline(target))
@@ -506,8 +522,23 @@ def transform_command(args):
                 dataset.save(project.source_data_dir(target), save_images=True)
 
             log.info("Finished")
+        else:
+            dataset, _project = parse_full_revpath(args.target, project)
+            if _project:
+                scope_add(_project)
 
-    if args.stage:
+            dst_dir = args.dst_dir or dataset.data_path
+            if not args.overwrite and osp.isdir(dst_dir) and os.listdir(dst_dir):
+                raise CliException("Directory '%s' already exists "
+                    "(pass --overwrite to overwrite)" % dst_dir)
+            dst_dir = osp.abspath(dst_dir)
+
+            dataset.transform(args.transform, **extra_args)
+            dataset.save(dst_dir, save_images=True)
+
+            log.info("Results have been saved to '%s'" % dst_dir)
+
+    if is_target and args.stage:
         project.working_tree.config.update(build_tree.config)
         project.working_tree.save()
 
@@ -539,7 +570,7 @@ def build_stats_parser(parser_ctor=argparse.ArgumentParser):
 
     parser.add_argument('target', default='project', nargs='?',
         help="Target dataset revpath (default: project)")
-    parser.add_argument('-p', '--project', dest='project_dir', default='.',
+    parser.add_argument('-p', '--project', dest='project_dir',
         help="Directory of the project to operate on (default: current dir)")
     parser.set_defaults(command=stats_command)
 
@@ -589,7 +620,7 @@ def build_info_parser(parser_ctor=argparse.ArgumentParser):
 
     parser.add_argument('revision', default='', nargs='?',
         help="Target revision (default: current working tree)")
-    parser.add_argument('-p', '--project', dest='project_dir', default='.',
+    parser.add_argument('-p', '--project', dest='project_dir',
         help="Directory of the project to operate on (default: current dir)")
     parser.set_defaults(command=info_command)
 
@@ -682,7 +713,7 @@ def build_validate_parser(parser_ctor=argparse.ArgumentParser):
         help="Task type for validation, one of %s" % task_types)
     parser.add_argument('-s', '--subset', dest='subset_name',
         help="Subset to validate (default: whole dataset)")
-    parser.add_argument('-p', '--project', dest='project_dir', default='.',
+    parser.add_argument('-p', '--project', dest='project_dir',
         help="Directory of the project to validate (default: current dir)")
     parser.add_argument('extra_args', nargs=argparse.REMAINDER,
         help="Optional arguments for validator (pass '-- -h' for help)")
@@ -777,7 +808,7 @@ def build_migrate_parser(parser_ctor=argparse.ArgumentParser):
         help="Output directory for the updated project")
     parser.add_argument('-f', '--force', action='store_true',
         help="Ignore source import errors (default: %(default)s)")
-    parser.add_argument('-p', '--project', dest='project_dir', default='.',
+    parser.add_argument('-p', '--project', dest='project_dir',
         help="Directory of the project to migrate (default: current dir)")
     parser.add_argument('--overwrite', action='store_true',
         help="Overwrite existing files in the save directory")
