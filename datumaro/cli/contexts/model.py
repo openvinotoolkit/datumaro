@@ -45,7 +45,7 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
         help="Copy model data into project (default: %(default)s)")
     parser.add_argument('--no-check', action='store_true',
         help="Don't check model loading (default: %(default)s)")
-    parser.add_argument('-p', '--project', dest='project_dir', default='.',
+    parser.add_argument('-p', '--project', dest='project_dir',
         help="Directory of the project to operate on (default: current dir)")
     parser.add_argument('extra_args', nargs=argparse.REMAINDER, default=None,
         help="Additional arguments for converter (pass '-- -h' for help)")
@@ -124,7 +124,7 @@ def build_remove_parser(parser_ctor=argparse.ArgumentParser):
 
     parser.add_argument('name',
         help="Name of the model to be removed")
-    parser.add_argument('-p', '--project', dest='project_dir', default='.',
+    parser.add_argument('-p', '--project', dest='project_dir',
         help="Directory of the project to operate on (default: current dir)")
     parser.set_defaults(command=remove_command)
 
@@ -168,7 +168,7 @@ def build_run_parser(parser_ctor=argparse.ArgumentParser):
         help="Directory to save output (default: auto-generated)")
     parser.add_argument('-m', '--model', dest='model_name', required=True,
         help="Model to apply to the project")
-    parser.add_argument('-p', '--project', dest='project_dir', default='.',
+    parser.add_argument('-p', '--project', dest='project_dir',
         help="Directory of the project to operate on (default: current dir)")
     parser.add_argument('--overwrite', action='store_true',
         help="Overwrite output directory if exists")
@@ -213,7 +213,7 @@ def build_info_parser(parser_ctor=argparse.ArgumentParser):
         help="Model name")
     parser.add_argument('-v', '--verbose', action='store_true',
         help="Show details")
-    parser.add_argument('-p', '--project', dest='project_dir', default='.',
+    parser.add_argument('-p', '--project', dest='project_dir',
         help="Directory of the project to operate on (default: current dir)")
     parser.set_defaults(command=info_command)
 

@@ -19,7 +19,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         formatter_class=MultilineFormatter
     )
 
-    parser.add_argument('-p', '--project', dest='project_dir', default='.',
+    parser.add_argument('-p', '--project', dest='project_dir',
         help="Directory of the project to operate on (default: current dir)")
     parser.set_defaults(command=status_command)
 

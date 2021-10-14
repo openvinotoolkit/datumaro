@@ -18,10 +18,21 @@ This command allows to modify dataset images or annotations all at once.
 > other approaches for better performance. A possible solution can be
 > a simple script, which uses [Datumaro API](/docs/developer_manual/).
 
-The command can only be applied to a project build target, a stage
-or the combined `project` target, in which case all the targets will
-be affected. A build tree stage will be added if `--stage` is enabled,
-and the resulting dataset(-s) will be saved if `--apply` is enabled.
+The command can be applied to a dataset or a project build target,
+a stage or the combined `project` target, in which case all the project
+targets will be affected. A build tree stage will be recorded
+if `--stage` is enabled, and the resulting dataset(-s) will be
+saved if `--apply` is enabled.
+
+By default, datasets are updated in-place. The `-o/--output-dir`
+option can be used to specify another output directory. When
+updating in-place, use the `--overwrite` parameter (in-place
+updates fail by default to prevent data loss), unless a project
+target is modified.
+
+The current project (`-p/--project`) is also used as a context for
+plugins, so it can be useful for dataset paths having custom formats.
+When not specified, the current project's working tree is used.
 
 Usage:
 
@@ -31,19 +42,21 @@ datum transform [-h] -t TRANSFORM [-o DST_DIR] [--overwrite]
 ```
 
 Parameters:
-- `<target>` (string) - A project build target to be transformed.
-  By default, all project targets are affected.
+- `<target>` (string) - Target
+  [dataset revpath](/docs/user-manual/how_to_use_datumaro/#revpath).
+  By default, transforms all targets of the current project.
 - `-t, --transform` (string) - Transform method name
 - `--stage` (bool) - Include this action as a project build step.
   If true, this operation will be saved in the project
   build tree, allowing to reproduce the resulting dataset later.
-  Applicable only to data source targets (i.e. not intermediate stages)
-  and the `project` target. Enabled by default.
+  Applicable only to main project targets (i.e. data sources
+  and the `project` target, but not intermediate stages). Enabled by default.
 - `--apply` (bool) - Run this command immediately. If disabled, only the
   build tree stage will be written. Enabled by default.
 - `-o, --output-dir` (string) - Output directory. Can be omitted for
-  data source targets (i.e. not intermediate stages) and the `project` target,
-  in which case the results will be saved inplace in the working tree.
+  main project targets (i.e. data sources and the `project` target, but not
+  intermediate stages) and dataset targets. If not specified, the results
+  will be saved inplace.
 - `--overwrite` - Allows to overwrite existing files in the output directory,
   when it is specified and is not empty.
 - `-p, --project` (string) - Directory of the project to operate on
@@ -53,6 +66,20 @@ Parameters:
   passed after the `--` separator after the main command arguments. See
   transform descriptions for info about extra parameters. Use the `--help`
   option to print parameter info.
+
+Examples:
+
+- Split a VOC-like dataset randomly:
+``` bash
+datum transform -t random_split --overwrite path/to/dataset:voc
+```
+
+- Rename images in a project data source by a regex from `frame_XXX` to `XXX`:
+``` bash
+datum create <...>
+datum import <...> -n source-1
+datum transform -t rename source-1 -- -e '|frame_(\d+)|\\1|'
+```
 
 #### Built-in transforms <a id="builtin-transforms"></a>
 
@@ -71,6 +98,7 @@ Subset manipulations:
 
 Annotation manipulations:
 - `remap_labels` - Renames, adds or removes labels in dataset
+- `project_labels` - Sets dataset labels to the requested sequence
 - `shapes_to_boxes` - Replaces spatial annotations with bounding boxes
 - `boxes_to_masks` - Converts bounding boxes to instance masks
 - `polygons_to_masks` - Converts polygons to instance masks
@@ -112,6 +140,14 @@ datum transform -t boxes_to_masks
 datum transform -t masks_to_polygons
 datum transform -t polygons_to_masks
 datum transform -t shapes_to_boxes
+```
+
+- Set dataset labels to {`person`, `cat`, `dog`}, remove others, add missing.
+  Original labels (can be any): `cat`, `dog`, `elephant`, `human`
+  New labels: `person` (added), `cat` (kept), `dog` (kept)
+
+``` bash
+datum transform -t project_labels -- -l person -l cat -l dog
 ```
 
 - Remap dataset labels, `person` to `car` and `cat` to `dog`,

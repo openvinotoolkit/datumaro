@@ -104,7 +104,7 @@ to use Datumaro from the command-line:
 
 - Create a Datumaro project and operate on it:
   - Create an empty project with [`create`](/docs/user-manual/command-reference/create)
-  - Import existing datasets with [`import`](/docs/user-manual/command-reference/sources/#source-add)
+  - Import existing datasets with [`import`](/docs/user-manual/command-reference/import)
   - Modify the project with [`transform`](/docs/user-manual/command-reference/transform) and [`filter`](/docs/user-manual/command-reference/filter)
   - Create new revisions of the project with
     [`commit`](/docs/user-manual/command-reference/commit), navigate over
@@ -116,15 +116,15 @@ to use Datumaro from the command-line:
 
 Basically, a project is a combination of datasets, models and environment.
 
-A project can contain an arbitrary number of data sources. Each data source
-describes a dataset in a specific format. A project acts as a manager for
-the data sources and allows to manipulate them separately or as a whole, in
-which case it combines dataset items from all the sources into one composite
-dataset. You can manage separate sources in a project by commands in
-the `datum source` command-line context.
+A project can contain an arbitrary number of datasets ([data sources](/docs/user-manual/how_to_use_datumaro#data-sources)).
+A project acts as a manager for them and allows to manipulate them
+separately or as a whole, in which case it combines dataset items
+from all the sources into one composite dataset. You can manage separate
+datasets in a project by commands in the [`datum source`](/docs/user-manual/command-reference/sources)
+command line context.
 
-Note that **modifying operations** (`transform`, `filter`) **are applied
-in-place** to the data sources by default.
+Note that **modifying operations** (`transform`, `filter`, `patch`)
+**are applied in-place** to the datasets by default.
 
 If you want to interact with models, you need to add them to the project
 first using the [`model add`](/docs/user-manual/command-reference/models/#register-model) command.
@@ -217,6 +217,40 @@ project/
 └── <source name 2>/ # working directory for the source 2
     └── <source data>
 ```
+
+### Datasets and Data Sources <a id="data-sources"></a>
+
+A project can contain an arbitrary number of Data Sources. Each Data Source
+describes a dataset in a specific format. A project acts as a manager for
+the data sources and allows to manipulate them separately or as a whole, in
+which case it combines dataset items from all the sources into one composite
+dataset. You can manage separate sources in a project by commands in
+the [`datum source`](/docs/user-manual/command-reference/sources) command
+line context.
+
+Datasets come in a wide variety of formats. Each dataset
+format defines its own data structure and rules on how to
+interpret the data. For example, the following data structure
+is used in COCO format:
+<!--lint disable fenced-code-flag-->
+```
+/dataset/
+- /images/<id>.jpg
+- /annotations/
+```
+<!--lint enable fenced-code-flag-->
+
+Datumaro supports complete datasets, having both image data and
+annotations, or incomplete ones, having annotations only.
+Incomplete datasets can be used to prepare images and annotations
+independently of each other, or to analyze or modify just the lightweight
+annotations without the need to download the whole dataset.
+
+Check [supported formats](/docs/user-manual/supported_formats) for more info
+about format specifications, supported import and export options and other
+details. The list of formats can be extended by custom plugins,
+check [extending tips](/docs/user-manual/extending) for information on this
+topic.
 
 ### Use cases
 
