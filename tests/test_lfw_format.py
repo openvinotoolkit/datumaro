@@ -1,5 +1,7 @@
 from unittest import TestCase
+import os
 import os.path as osp
+import shutil
 
 import numpy as np
 
@@ -239,3 +241,43 @@ class LfwImporterTest(TestCase):
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'lfw')
 
         compare_datasets(self, expected_dataset, dataset)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_import_without_people_file(self):
+        expected_dataset = Dataset.from_iterable([
+            DatasetItem(id='name0_0001', subset='test',
+                image=np.ones((2, 5, 3)),
+                annotations=[
+                    Label(0, attributes={
+                        'negative_pairs': ['name1/name1_0001',
+                            'name1/name1_0002']
+                    }),
+                    Points([0, 4, 3, 3, 2, 2, 1, 0, 3, 0], label=0),
+                ]
+            ),
+            DatasetItem(id='name1_0001', subset='test',
+                image=np.ones((2, 5, 3)),
+                annotations=[
+                    Label(1, attributes={
+                        'positive_pairs': ['name1/name1_0002'],
+                    }),
+                    Points([1, 6, 4, 6, 3, 3, 2, 1, 4, 1], label=1),
+                ]
+            ),
+            DatasetItem(id='name1_0002', subset='test',
+                image=np.ones((2, 5, 3)),
+                annotations=[
+                    Label(1),
+                    Points([0, 5, 3, 5, 2, 2, 1, 0, 3, 0], label=1),
+                ]
+            ),
+        ], categories=['name0', 'name1'])
+
+        with TestDir() as test_dir:
+            dataset_path = osp.join(test_dir, 'dataset')
+            shutil.copytree(DUMMY_DATASET_DIR, dataset_path)
+            os.remove(osp.join(dataset_path, 'test', 'annotations', 'people.txt'))
+
+            dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'lfw')
+
+            compare_datasets(self, expected_dataset, dataset)

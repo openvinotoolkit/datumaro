@@ -5,6 +5,7 @@
 from unittest.case import TestCase
 import os
 import os.path as osp
+import shutil
 
 import numpy as np
 
@@ -275,6 +276,57 @@ class OpenImagesImporterTest(TestCase):
         dataset = Dataset.import_from(DUMMY_DATASET_DIR_V5, 'open_images')
 
         compare_datasets(self, expected_dataset, dataset, require_images=True)
+
+    @mark_requirement(Requirements.DATUM_274)
+    def test_can_import_without_image_ids_file(self):
+        expected_dataset = Dataset.from_iterable(
+            [
+                DatasetItem(id='a', subset='train', image=np.zeros((8, 6, 3)),
+                    annotations=[Label(label=0, attributes={'score': 1})]),
+                DatasetItem(id='b', subset='train', image=np.zeros((2, 8, 3)),
+                    annotations=[
+                        Label(label=0, attributes={'score': 0}),
+                        Bbox(label=0, x=1.6, y=0.6, w=6.4, h=0.4,
+                            group=1, attributes={'score': 1}),
+                        Mask(label=0, image=np.hstack((np.ones((2, 2)), np.zeros((2, 6)))),
+                            group=1, attributes={
+                                'box_id': '01234567',
+                                'predicted_iou': 0.5,
+                            }
+                        ),
+                    ]),
+                DatasetItem(id='c', subset='test', image=np.ones((10, 5, 3)),
+                    annotations=[
+                        Label(label=1, attributes={'score': 1}),
+                        Label(label=3, attributes={'score': 1}),
+                        Bbox(label=3, x=3.5, y=0, w=0.5, h=5, group=1, attributes={
+                            'score': 0.7,
+                            'occluded': True, 'truncated': False,
+                            'is_group_of': True, 'is_depiction': False,
+                            'is_inside': False,
+                        }),
+                    ]),
+            ],
+            categories={
+                AnnotationType.label: LabelCategories.from_iterable([
+                    '/m/0',
+                    ('/m/1', '/m/0'),
+                    '/m/2',
+                    '/m/3',
+                ]),
+            },
+        )
+
+
+        with TestDir() as test_dir:
+            dataset_path = osp.join(test_dir, 'dataset')
+            shutil.copytree(DUMMY_DATASET_DIR_V6, dataset_path)
+            os.remove(osp.join(dataset_path, 'annotations',
+                'image_ids_and_rotation.csv'))
+
+            dataset = Dataset.import_from(dataset_path, 'open_images')
+
+            compare_datasets(self, expected_dataset, dataset, require_images=True)
 
     @mark_requirement(Requirements.DATUM_274)
     def test_can_detect(self):
