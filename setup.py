@@ -65,7 +65,7 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/openvinotoolkit/datumaro",
-    packages=setuptools.find_packages(include=['datumaro']),
+    packages=setuptools.find_packages(include=['datumaro*']),
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
