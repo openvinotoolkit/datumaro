@@ -522,7 +522,7 @@ def transform_command(args):
                 dataset.save(project.source_data_dir(target), save_images=True)
 
             log.info("Finished")
-        elif not is_target or args.dst_dir:
+        else:
             dataset, _project = parse_full_revpath(args.target, project)
             if _project:
                 scope_add(_project)
