@@ -209,7 +209,14 @@ def export_command(args):
 def build_filter_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(help="Extract subdataset",
         description="""
-        Extracts a subdataset that contains only items matching filter.
+        Extracts a subdataset that contains only items matching filter.|n
+        |n
+        By default, datasets are updated in-place. The '-o/--output-dir'
+        option can be used to specify another output directory. When
+        updating in-place, use the '--overwrite' parameter (in-place
+        updates fail by default to prevent data loss), unless a project
+        target is modified.|n
+        |n
         A filter is an XPath expression, which is applied to XML
         representation of a dataset item. Check '--dry-run' parameter
         to see XML representations of the dataset items.|n
@@ -224,10 +231,27 @@ def build_filter_parser(parser_ctor=argparse.ArgumentParser):
         removed. To select an annotation, write an XPath that
         returns 'annotation' elements (see examples).|n
         |n
-        The command can only be applied to a project build target, a stage
-        or the combined 'project' target, in which case all the targets will
-        be affected. A build tree stage will be added if '--stage' is enabled,
-        and the resulting dataset(-s) will be saved if '--apply' is enabled.
+        This command has the following invocation syntax:
+        - %(prog)s <target dataset revpath>|n
+        |n
+        <revpath> - either a dataset path or a revision path. The full
+        syntax is:|n
+        - Dataset paths:|n
+        |s|s- <dataset path>[ :<format> ]|n
+        - Revision paths:|n
+        |s|s- <project path> [ @<rev> ] [ :<target> ]|n
+        |s|s- <rev> [ :<target> ]|n
+        |s|s- <target>|n
+        |n
+        The current project (-p/--project) is also used as a context for
+        plugins, so it can be useful for dataset paths having custom formats.
+        When not specified, the current project's working tree is used.|n
+        |n
+        The command can be applied to a dataset or a project build target,
+        a stage or the combined 'project' target, in which case all the
+        targets will be affected. A build tree stage will be recorded
+        if '--stage' is enabled, and the resulting dataset(-s) will be
+        saved if '--apply' is enabled.|n
         |n
         Examples:|n
         - Filter images with width < height:|n
@@ -245,12 +269,15 @@ def build_filter_parser(parser_ctor=argparse.ArgumentParser):
         area > 99.5]'|n
         |n
         - Filter occluded annotations and items, if no annotations left:|n
-        |s|s%(prog)s -m i+a -e '/item/annotation[occluded="True"]'
+        |s|s%(prog)s -m i+a -e '/item/annotation[occluded="True"]'|n
+        |n
+        - Filter a VOC-like dataset inplace:|n
+        |s|s%(prog)s -e '/item/annotation[label = "bus"]' --overwrite dataset/:voc
         """,
         formatter_class=MultilineFormatter)
 
     parser.add_argument('target', nargs='?', default='project',
-        help="A project target to apply transform to (default: %(default)s)")
+        help="Target dataset revpath (default: %(default)s)")
     parser.add_argument('-e', '--filter',
         help="XML XPath filter expression for dataset items")
     parser.add_argument('-m', '--mode', default=FilterModes.i.name,
@@ -261,18 +288,19 @@ def build_filter_parser(parser_ctor=argparse.ArgumentParser):
         help="Print XML representations to be filtered and exit")
     parser.add_argument('-o', '--output-dir', dest='dst_dir',
         help="""
-            Output directory. Can be omitted for data source targets
-            (i.e. not intermediate stages) and the 'project' target,
-            in which case the results will be saved inplace in the
-            working tree.
+            Output directory. Can be omitted for main project targets
+            (i.e. data sources and the 'project' target, but not
+            intermediate stages) and dataset targets.
+            If not specified, the results will be saved inplace.
             """)
     parser.add_argument('--stage', type=str_to_bool, default=True,
         help="""
             Include this action as a project build step.
             If true, this operation will be saved in the project
             build tree, allowing to reproduce the resulting dataset later.
-            Applicable only to data source targets (i.e. not intermediate
-            stages) and the 'project' target (default: %(default)s)
+            Applicable only to main project targets (i.e. data sources
+            and the 'project' target, but not intermediate stages)
+            (default: %(default)s)
             """)
     parser.add_argument('--apply', type=str_to_bool, default=True,
         help="Run this command immediately. If disabled, only the "
@@ -292,27 +320,23 @@ def get_filter_sensitive_args():
 
 @scoped
 def filter_command(args):
-    project = scope_add(load_project(args.project_dir))
-
-    # TODO: check if we can accept a dataset revpath here
-    if not args.dry_run and args.stage and \
-            args.target not in project.working_tree.build_targets:
-        raise CliException("Adding a stage is only allowed for "
-            "source and 'project' targets, not '%s'" % args.target)
-
-    dst_dir = args.dst_dir
-    if not args.dry_run and dst_dir:
-        if not args.overwrite and osp.isdir(dst_dir) and os.listdir(dst_dir):
-            raise CliException("Directory '%s' already exists "
-                "(pass --overwrite to overwrite)" % dst_dir)
-        dst_dir = osp.abspath(dst_dir)
+    project = None
+    try:
+        project = scope_add(load_project(args.project_dir))
+    except ProjectNotFoundError:
+        if args.project_dir:
+            raise
 
     filter_args = FilterModes.make_filter_args(args.mode)
     filter_expr = args.filter
 
     if args.dry_run:
-        dataset = project.working_tree.make_dataset(args.target)
+        dataset, _project = parse_full_revpath(args.target, project)
+        if _project:
+            scope_add(_project)
+
         dataset = dataset.filter(expr=filter_expr, **filter_args)
+
         for item in dataset:
             encoded_item = DatasetItemEncoder.encode(item, dataset.categories())
             xml_item = DatasetItemEncoder.to_string(encoded_item)
@@ -322,26 +346,28 @@ def filter_command(args):
     if not args.filter:
         raise CliException("Expected a filter expression ('-e' argument)")
 
-    if args.target == ProjectBuildTargets.MAIN_TARGET:
-        targets = list(project.working_tree.sources)
-    else:
-        targets = [args.target]
+    is_target = project is not None and \
+        args.target in project.working_tree.build_targets
+    if is_target:
+        if not args.dst_dir and args.stage and (args.target != \
+                ProjectBuildTargets.strip_target_name(args.target)):
+            raise CliException("Adding a stage is only allowed for "
+                "project targets, not their stages.")
 
-    build_tree = project.working_tree.clone()
-    for target in targets:
-        build_tree.build_targets.add_filter_stage(target,
-            expr=filter_expr, params=filter_args)
+        if args.target == ProjectBuildTargets.MAIN_TARGET:
+            targets = list(project.working_tree.sources)
+        else:
+            targets = [args.target]
+
+        build_tree = project.working_tree.clone()
+        for target in targets:
+            build_tree.build_targets.add_filter_stage(target,
+                expr=filter_expr, params=filter_args)
 
     if args.apply:
         log.info("Filtering...")
 
-        if args.dst_dir:
-            dataset = project.working_tree.make_dataset(
-                build_tree.make_pipeline(args.target))
-            dataset.save(dst_dir, save_images=True)
-
-            log.info("Results have been saved to '%s'" % dst_dir)
-        else:
+        if is_target and not args.dst_dir:
             for target in targets:
                 dataset = project.working_tree.make_dataset(
                     build_tree.make_pipeline(target))
@@ -354,8 +380,23 @@ def filter_command(args):
                 dataset.save(project.source_data_dir(target), save_images=True)
 
             log.info("Finished")
+        else:
+            dataset, _project = parse_full_revpath(args.target, project)
+            if _project:
+                scope_add(_project)
 
-    if args.stage:
+            dst_dir = args.dst_dir or dataset.data_path
+            if not args.overwrite and osp.isdir(dst_dir) and os.listdir(dst_dir):
+                raise CliException("Directory '%s' already exists "
+                    "(pass --overwrite to overwrite)" % dst_dir)
+            dst_dir = osp.abspath(dst_dir)
+
+            dataset.filter(filter_expr, *filter_args)
+            dataset.save(dst_dir, save_images=True)
+
+            log.info("Results have been saved to '%s'" % dst_dir)
+
+    if is_target and args.stage:
         project.working_tree.config.update(build_tree.config)
         project.working_tree.save()
 
@@ -401,11 +442,14 @@ def build_transform_parser(parser_ctor=argparse.ArgumentParser):
         Examples:|n
         - Convert instance polygons to masks:|n
         |s|s%(prog)s -t polygons_to_masks|n
+        |n
         - Rename dataset items by a regular expression|n
         |s|s- Replace 'pattern' with 'replacement'|n|n
         |s|s%(prog)s -t rename -- -e '|pattern|replacement|'|n
+        |n
         |s|s- Remove 'frame_' from item ids|n
         |s|s%(prog)s -t rename -- -e '|frame_(\\d+)|\\1|'|n
+        |n
         - Split a dataset randomly:|n
         |s|s%(prog)s -t random_split --overwrite path/to/dataset:voc
         """.format(', '.join(builtins)),
