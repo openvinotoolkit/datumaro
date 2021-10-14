@@ -13,7 +13,7 @@ from datumaro.util.test_utils import run_datum as run
 from ..requirements import Requirements, mark_requirement
 
 
-class MergeTest(TestCase):
+class PatchTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_run_patch(self):
         dataset = Dataset.from_iterable([
@@ -81,20 +81,22 @@ class MergeTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_patch_fails_on_inplace_update_without_overwrite(self):
-        dataset1 = Dataset.from_iterable([
-            DatasetItem(id=1, annotations=[ Bbox(1, 2, 3, 4, label=1) ]),
+        dataset = Dataset.from_iterable([
+            DatasetItem(id=1, image=np.zeros((3, 5, 3)),
+                annotations=[ Bbox(1, 2, 3, 4, label=1) ]),
         ], categories=['a', 'b'])
 
-        dataset2 = Dataset.from_iterable([
-            DatasetItem(id=2, annotations=[ Bbox(1, 2, 3, 2, label=1) ]),
+        patch = Dataset.from_iterable([
+            DatasetItem(id=2, image=np.zeros((3, 4, 3)),
+                annotations=[ Bbox(1, 2, 3, 2, label=1) ]),
         ], categories=['b', 'a', 'c'])
 
         with TestDir() as test_dir:
             dataset_url = osp.join(test_dir, 'dataset1')
             patch_url = osp.join(test_dir, 'dataset2')
 
-            dataset1.export(dataset_url, 'coco', save_images=True)
-            dataset2.export(patch_url, 'coco', save_images=True)
+            dataset.export(dataset_url, 'coco', save_images=True)
+            patch.export(patch_url, 'coco', save_images=True)
 
             run(self, 'patch', dataset_url + ':coco', patch_url + ':coco',
                 expected_code=1)
@@ -102,11 +104,13 @@ class MergeTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_patch_fails_on_inplace_update_of_stage(self):
         dataset = Dataset.from_iterable([
-            DatasetItem(id=1, annotations=[ Bbox(1, 2, 3, 4, label=1) ]),
+            DatasetItem(id=1, image=np.zeros((3, 5, 3)),
+                annotations=[ Bbox(1, 2, 3, 4, label=1) ]),
         ], categories=['a', 'b'])
 
         patch = Dataset.from_iterable([
-            DatasetItem(id=2, annotations=[ Bbox(1, 2, 3, 2, label=1) ]),
+            DatasetItem(id=2, image=np.zeros((3, 4, 3)),
+                annotations=[ Bbox(1, 2, 3, 2, label=1) ]),
         ], categories=['b', 'a', 'c'])
 
         with TestDir() as test_dir:

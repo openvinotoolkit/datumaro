@@ -362,7 +362,7 @@ class TransformsTest(TestCase):
             ])
         ], categories={
             AnnotationType.label: LabelCategories.from_iterable(
-                'label%s' % i for i in range(6)),
+                f'label{i}' for i in range(6)),
             AnnotationType.mask: MaskCategories(
                 colormap=mask_tools.generate_colormap(6)),
             AnnotationType.points: PointsCategories.from_iterable(
@@ -466,13 +466,60 @@ class TransformsTest(TestCase):
             ]),
         ], categories=['c', 'a', 'b'])
 
-        actual = transforms.ProjectLabels(source,
-            dst_labels=LabelCategories.from_iterable(['c', 'a', 'b']))
+        actual = transforms.ProjectLabels(source, dst_labels=['c', 'a', 'b'])
 
         compare_datasets(self, expected, actual)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_transform_labels(self):
+    def test_project_labels_maps_secondary_categories(self):
+        source = Dataset.from_iterable([], categories={
+            AnnotationType.label: LabelCategories.from_iterable([
+                'a', 'b', # no parents
+                ('c', 'a'), ('d', 'b') # have parents
+            ]),
+            AnnotationType.points: PointsCategories.from_iterable([
+                (0, ['a']), (1, ['b']), (2, ['c'])
+            ]),
+            AnnotationType.mask: MaskCategories.generate(4)
+        })
+
+        expected = Dataset.from_iterable([], categories={
+            AnnotationType.label: LabelCategories.from_iterable([
+                ('c', 'a'), # must keep parent
+                'a',
+                'd' # must drop parent because it was removed
+            ]),
+            AnnotationType.points: PointsCategories.from_iterable([
+                (0, ['c']), (1, ['a'])
+            ]),
+            AnnotationType.mask: MaskCategories(colormap={
+                i: v for i, v in {
+                    { 2: 0, 0: 1, 3: 2 }.get(k): v
+                    for k, v in mask_tools.generate_colormap(4).items()
+                }.items()
+                if i is not None
+            }),
+        })
+
+        actual = transforms.ProjectLabels(source, dst_labels=['c', 'a', 'd'])
+
+        compare_datasets(self, expected, actual)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_project_labels_generates_colors_for_added_labels(self):
+        source = Dataset.from_iterable([], categories={
+            AnnotationType.label: LabelCategories.from_iterable(['a', 'b', 'c']),
+            AnnotationType.mask: MaskCategories.generate(2)
+        })
+
+        actual = transforms.ProjectLabels(source, dst_labels=['a', 'c', 'd'])
+
+        self.assertEqual((0, 0, 0), actual.categories()[AnnotationType.mask][0])
+        self.assertNotIn(1, actual.categories()[AnnotationType.mask])
+        self.assertIn(2, actual.categories()[AnnotationType.mask])
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_transform_to_labels(self):
         src_dataset = Dataset.from_iterable([
             DatasetItem(id=1, annotations=[
                 Label(1),
