@@ -106,16 +106,8 @@ development, instructions are available in our
 
 ## Telemetry data collection note
 
-The [OpenVINO telemetry library](https://github.com/openvinotoolkit/telemetry/)
-is used to collect basic information about Datumaro using.
-
-A short description of the information collected:
-| Event             | Description |
-| ----------------- | ----------- |
-| version           | Datumaro version |
-| session start/end | Accessory event, there is no additional info here |
-| {command}_result  | Datumaro command result with arguments passed (all sensitive arguments, such as filesystem paths or names, are sanitized) |
-| error | Sanitized stack trace in case of exception |
+The [OpenVINO™ telemetry library](https://github.com/openvinotoolkit/telemetry/)
+is used to collect basic information about Datumaro usage.
 
 To enable/disable telemetry data collection please see the
-[guide](https://openvinotoolkit.github.io/datumaro/docs/docs/user-manual/how_to_control_tm_data_colletion).
+[guide](https://openvinotoolkit.github.io/datumaro/docs/user-manual/how_to_control_tm_data_collection/).
