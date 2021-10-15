@@ -8,22 +8,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[Unreleased\]
 ### Added
--
 
 ### Changed
--
+- File `people.txt` made optional (LFW);
+  (<https://github.com/openvinotoolkit/datumaro/pull/509>)
+- File `image_ids_and_rotation.csv` made optional (Open Images);
+  (<https://github.com/openvinotoolkit/datumaro/pull/509>)
+- Allowed to have underscore for subset names (COCO);
+  (<https://github.com/openvinotoolkit/datumaro/pull/509>)
+- Allowed to have annotation file with arbitrary name (COCO);
+  (<https://github.com/openvinotoolkit/datumaro/pull/509>)
+
 
 ### Deprecated
--
+
 
 ### Removed
--
+
 
 ### Fixed
--
+
 
 ### Security
--
+
 
 ## 14/10/2021 - Release v0.2
 ### Added
