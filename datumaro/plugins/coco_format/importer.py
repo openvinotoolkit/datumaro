@@ -6,7 +6,7 @@ from glob import glob
 import logging as log
 import os.path as osp
 
-from datumaro.components.extractor import Importer
+from datumaro.components.extractor import DEFAULT_SUBSET_NAME, Importer
 from datumaro.util.log_utils import logging_disabled
 
 from .format import CocoTask
@@ -106,8 +106,9 @@ class CocoImporter(Importer):
                 )
                 continue
 
-            subset_name = osp.splitext(osp.basename(subset_path))[0] \
-                .split(ann_type.name + '_', maxsplit=1)[1]
+            parts = osp.splitext(osp.basename(subset_path))[0] \
+                .split(ann_type.name + '_', maxsplit=1)
+            subset_name = parts[1] if len(parts) > 1 else DEFAULT_SUBSET_NAME
             subsets.setdefault(subset_name, {})[ann_type] = subset_path
 
         return subsets
