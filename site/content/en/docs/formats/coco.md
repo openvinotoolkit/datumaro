@@ -123,6 +123,11 @@ For the panoptic task, a dataset directory should have the following structure:
 ```
 
 Annotation files must have the names like `<task>_<subset_name><year>.json`.
+If the annotation file name does't match this pattern you should use one of the
+following task-specified formats: `coco_captions`, `coco_image_info`,
+`coco_instances`, `coco_labels`, `coco_panoptic`, `coco_person_keypoints`,
+`coco_stuff`. And in this case all items of the dataset will be added
+to one `default` subset.
 
 You can import a dataset for one or several tasks
 instead of the whole dataset. This option also allows to import annotation
