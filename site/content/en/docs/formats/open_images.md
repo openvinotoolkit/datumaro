@@ -61,9 +61,8 @@ which can be downloaded from the following URLs:
 - [validation set](https://storage.googleapis.com/openimages/2018_04/validation/validation-images-with-rotation.csv)
 - [test set](https://storage.googleapis.com/openimages/2018_04/test/test-images-with-rotation.csv)
 
-Datumaro expects at least one of the files above to be present.
-
-In addition, the following metadata file must be present as well:
+In addition, the following metadata file must be present
+in the `annotations` directory:
 
 - [class descriptions](https://storage.googleapis.com/openimages/v6/oidv6-class-descriptions.csv)
 
@@ -154,7 +153,7 @@ Open Images dataset directory should have the following structure:
 └─ Dataset/
     ├── annotations/
     │   └── bbox_labels_600_hierarchy.json
-    │   └── image_ids_and_rotation.csv
+    │   └── image_ids_and_rotation.csv  # optional
     │   └── oidv6-class-descriptions.csv
     │   └── *-annotations-bbox.csv
     │   └── *-annotations-human-imagelabels.csv
