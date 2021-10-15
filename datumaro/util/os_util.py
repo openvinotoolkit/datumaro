@@ -6,7 +6,7 @@ from contextlib import (
     ExitStack, contextmanager, redirect_stderr, redirect_stdout,
 )
 from io import StringIO
-from typing import Iterable, Optional
+from typing import Iterable, Iterator, Optional, Union
 import importlib
 import os
 import os.path as osp
@@ -64,6 +64,29 @@ def walk(path, max_depth=None):
             dirnames.clear() # topdown=True allows to modify the list
 
         yield dirpath, dirnames, filenames
+
+def find_files(dirpath: str, exts: Union[str, Iterable[str]],
+        recursive: bool = False, max_depth: int = None) -> Iterator[str]:
+    if isinstance(exts, str):
+        exts = {'.' + exts.lower().lstrip('.')}
+    else:
+        exts = {'.' + e.lower().lstrip('.') for e in exts}
+
+    def _check_ext(filename: str):
+        dotpos = filename.rfind('.')
+        if 0 < dotpos: # exclude '.ext' cases too
+            ext = filename[dotpos:].lower()
+            if ext in exts:
+                return True
+        return False
+
+    for d, _, filenames in walk(dirpath,
+            max_depth=max_depth if recursive else 0):
+        for filename in filenames:
+            if not _check_ext(filename):
+                continue
+
+            yield osp.join(d, filename)
 
 def copytree(src, dst):
     # Serves as a replacement for shutil.copytree().
