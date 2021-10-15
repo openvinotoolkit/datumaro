@@ -13,7 +13,7 @@ from datumaro.components.errors import (
     DatasetMergeError, EmptyCommitError, ForeignChangesError,
     MismatchingObjectError, MissingObjectError, MissingSourceHashError,
     OldProjectError, PathOutsideSourceError, ReadonlyProjectError,
-    SourceExistsError, SourceUrlInsideProjectError,
+    SourceExistsError, SourceUrlInsideProjectError, UnexpectedUrlError,
 )
 from datumaro.components.extractor import DatasetItem, Extractor, ItemTransform
 from datumaro.components.launcher import Launcher
@@ -221,7 +221,7 @@ class ProjectTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
-    def test_cant_add_sources_with_same_names(self):
+    def test_cant_import_sources_with_same_names(self):
         test_dir = scope_add(TestDir())
         source_url = osp.join(test_dir, 'test_repo')
         dataset = Dataset.from_iterable([
@@ -267,6 +267,58 @@ class ProjectTest(TestCase):
             with self.subTest(name=name), \
                     self.assertRaisesRegex(ValueError, "Source name"):
                 project.import_source(name, url='', format='fmt')
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_can_add_project_local_source(self):
+        test_dir = scope_add(TestDir())
+        proj_dir = osp.join(test_dir, 'proj')
+
+        project = scope_add(Project.init(proj_dir))
+
+        source_base_url = osp.join(proj_dir, 'x')
+        source_file_path = osp.join(source_base_url, 'y.txt')
+        os.makedirs(osp.dirname(source_file_path))
+        with open(source_file_path, 'w') as f:
+            f.write('hello')
+
+        name, source = project.add_source(source_base_url, format='fmt')
+
+        self.assertEqual('x', name)
+        self.assertEqual(project.working_tree.sources[name], source)
+        self.assertEqual('fmt', source.format)
+
+        with open(osp.join(test_dir, 'proj', '.gitignore')) as f:
+            self.assertTrue('/x' in [line.strip() for line in f])
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_cant_add_source_deep_in_the_project(self):
+        test_dir = scope_add(TestDir())
+        proj_dir = osp.join(test_dir, 'proj')
+
+        project = scope_add(Project.init(proj_dir))
+
+        source_base_url = osp.join(proj_dir, 'x', 'y')
+        source_file_path = osp.join(source_base_url, 'y.txt')
+        os.makedirs(osp.dirname(source_file_path))
+        with open(source_file_path, 'w') as f:
+            f.write('hello')
+
+        with self.assertRaises(UnexpectedUrlError):
+            project.add_source(source_base_url, format='fmt')
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_cant_add_source_outside_project(self):
+        test_dir = scope_add(TestDir())
+        source_url = osp.join(test_dir, 'x')
+        os.makedirs(source_url)
+
+        project = scope_add(Project.init(osp.join(test_dir, 'proj')))
+
+        with self.assertRaises(UnexpectedUrlError):
+            project.add_source(source_url, format='fmt')
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped

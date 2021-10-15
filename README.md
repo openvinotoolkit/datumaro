@@ -102,3 +102,12 @@ Feel free to
 think something needs to be changed. You are welcome to participate in
 development, instructions are available in our
 [contribution guide](https://openvinotoolkit.github.io/datumaro/docs/contributing).
+
+
+## Telemetry data collection note
+
+The [OpenVINO™ telemetry library](https://github.com/openvinotoolkit/telemetry/)
+is used to collect basic information about Datumaro usage.
+
+To enable/disable telemetry data collection please see the
+[guide](https://openvinotoolkit.github.io/datumaro/docs/user-manual/how_to_control_tm_data_collection/).

@@ -28,7 +28,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     parser.add_argument('--no-cache', action='store_true',
         help="Don't put committed datasets into cache, "
             "save only metainfo (default: %(default)s)")
-    parser.add_argument('-p', '--project', dest='project_dir', default='.',
+    parser.add_argument('-p', '--project', dest='project_dir',
         help="Directory of the project to operate on (default: current dir)")
     parser.set_defaults(command=commit_command)
 

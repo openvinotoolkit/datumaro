@@ -44,7 +44,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     parser.add_argument('-f', '--force', action='store_true',
         help="Allows to overwrite unsaved changes in case of conflicts "
             "(default: %(default)s)")
-    parser.add_argument('-p', '--project', dest='project_dir', default='.',
+    parser.add_argument('-p', '--project', dest='project_dir',
         help="Directory of the project to operate on (default: current dir)")
     parser.set_defaults(command=checkout_command)
 

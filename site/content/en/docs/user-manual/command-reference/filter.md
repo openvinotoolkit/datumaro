@@ -9,6 +9,22 @@ This command allows to extract a sub-dataset from a dataset. The new dataset
 includes only items satisfying some condition. The XML [XPath](https://devhints.io/xpath)
 is used as a query format.
 
+The command can be applied to a dataset or a project build target,
+a stage or the combined `project` target, in which case all the project
+targets will be affected. A build tree stage will be recorded
+if `--stage` is enabled, and the resulting dataset(-s) will be
+saved if `--apply` is enabled.
+
+By default, datasets are updated in-place. The `-o/--output-dir`
+option can be used to specify another output directory. When
+updating in-place, use the `--overwrite` parameter (in-place
+updates fail by default to prevent data loss), unless a project
+target is modified.
+
+The current project (`-p/--project`) is also used as a context for
+plugins, so it can be useful for dataset paths having custom formats.
+When not specified, the current project's working tree is used.
+
 There are several filtering modes available (the `-m/--mode` parameter).
 Supported modes:
 - `i`, `items`
@@ -69,21 +85,23 @@ datum filter [-h] [-e FILTER] [-m MODE] [--dry-run] [--stage STAGE]
 ```
 
 Parameters:
-- `<target>` (string) - A project build target to be filtered.
-  By default, all project targets are affected.
+- `<target>` (string) - Target
+  [dataset revpath](/docs/user-manual/how_to_use_datumaro/#revpath).
+  By default, filters all targets of the current project.
 - `-e, --filter` (string) - XML XPath filter expression for dataset items
 - `-m, --mode` (string) - The filtering mode. Default is the `i` mode.
 - `--dry-run` - Print XML representations of the filtered dataset and exit.
 - `--stage` (bool) - Include this action as a project build step.
   If true, this operation will be saved in the project
   build tree, allowing to reproduce the resulting dataset later.
-  Applicable only to data source targets (i.e. not intermediate stages)
-  and the `project` target. Enabled by default.
+  Applicable only to main project targets (i.e. data sources
+  and the `project` target, but not intermediate stages). Enabled by default.
 - `--apply` (bool) - Run this command immediately. If disabled, only the
   build tree stage will be written. Enabled by default.
 - `-o, --output-dir` (string) - Output directory. Can be omitted for
-  data source targets (i.e. not intermediate stages) and the `project` target,
-  in which case the results will be saved in place in the working tree.
+  main project targets (i.e. data sources and the `project` target, but not
+  intermediate stages) and dataset targets. If not specified, the results
+  will be saved inplace.
 - `--overwrite` - Allows to overwrite existing files in the output directory,
   when it is specified and is not empty.
 - `-p, --project` (string) - Directory of the project to operate on

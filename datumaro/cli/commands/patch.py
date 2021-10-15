@@ -19,7 +19,8 @@ from ..util.project import load_project, parse_full_revpath
 def build_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(help="Updates dataset from another one",
         description="""
-        Updates items of the first dataset with items from the second one.
+        Updates items of the first dataset with items from the second one.|n
+        |n
         By default, datasets are updated in-place. The '-o/--output-dir'
         option can be used to specify another output directory. When
         updating in-place, use the '--overwrite' parameter along with the
@@ -97,7 +98,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 
 def get_sensitive_args():
     return {
-        patch_command: ['target', 'patch', 'dst_dir', 'project_dir',],
+        patch_command: ['target', 'patch', 'dst_dir', 'project_dir', 'extra_args'],
     }
 
 @scoped
@@ -126,9 +127,7 @@ def patch_command(args):
 
     extra_args = converter.parse_cmdline(args.extra_args)
 
-    dst_dir = args.dst_dir
-    if not dst_dir:
-        dst_dir = target_dataset.data_path
+    dst_dir = args.dst_dir or target_dataset.data_path
     if not args.overwrite and osp.isdir(dst_dir) and os.listdir(dst_dir):
         raise CliException("Directory '%s' already exists "
             "(pass --overwrite to overwrite)" % dst_dir)

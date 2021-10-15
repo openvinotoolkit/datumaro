@@ -71,7 +71,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 
 def get_sensitive_args():
     return {
-        convert_command: ['source', 'dst_dir',],
+        convert_command: ['source', 'dst_dir', 'extra_args'],
     }
 
 def convert_command(args):
