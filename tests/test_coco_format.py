@@ -75,6 +75,30 @@ class CocoImporterTest(TestCase):
                 compare_datasets(self, expected, dataset, require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_import_instances_with_any_annotation_filename(self):
+        expected_dataset = Dataset.from_iterable([
+            DatasetItem(id='a', subset='default', image=np.ones((5, 10, 3)),
+                attributes={'id': 5},
+                annotations=[
+                    Bbox(2, 2, 3, 1, label=1,
+                        group=1, id=1, attributes={'is_crowd': False})
+                ]
+            ),
+
+        ], categories=['a', 'b', 'c'])
+
+        format = 'coco_instances'
+        with TestDir() as test_dir:
+            dataset_dir = osp.join(test_dir, 'dataset')
+            expected_dataset.export(dataset_dir, format, save_images=True)
+            os.rename(osp.join(dataset_dir, 'annotations', 'instances_default.json'),
+                osp.join(dataset_dir, 'annotations', 'aa_bbbb_cccc.json'))
+
+            imported_dataset = Dataset.import_from(dataset_dir, format)
+            compare_datasets(self, expected_dataset, imported_dataset,
+                require_images=True)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_instances_with_original_cat_ids(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='a', subset='train', image=np.ones((5, 10, 3)),
@@ -130,6 +154,27 @@ class CocoImporterTest(TestCase):
                 compare_datasets(self, expected, dataset, require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_import_captions_with_any_annotation_filename(self):
+        expected_dataset = Dataset.from_iterable([
+            DatasetItem(id='a', subset='default', image=np.ones((5, 10, 3)),
+                attributes={'id': 5},
+                annotations=[
+                    Caption('hello', id=1, group=1),
+                ]),
+        ])
+
+        format = 'coco_captions'
+        with TestDir() as test_dir:
+            dataset_dir = osp.join(test_dir, 'dataset')
+            expected_dataset.export(dataset_dir, format, save_images=True)
+            os.rename(osp.join(dataset_dir, 'annotations', 'captions_default.json'),
+                osp.join(dataset_dir, 'annotations', 'aa_bbbb_cccc.json'))
+
+            imported_dataset = Dataset.import_from(dataset_dir, format)
+            compare_datasets(self, expected_dataset, imported_dataset,
+                require_images=True)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_labels(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='a', subset='train', image=np.ones((5, 10, 3)),
@@ -163,6 +208,27 @@ class CocoImporterTest(TestCase):
             with self.subTest(path=path, format=format, subset=subset):
                 dataset = Dataset.import_from(path, format)
                 compare_datasets(self, expected, dataset, require_images=True)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_import_labels_with_any_annotation_filename(self):
+        expected_dataset = Dataset.from_iterable([
+            DatasetItem(id='a', subset='default', image=np.ones((5, 10, 3)),
+                attributes={'id': 5},
+                annotations=[
+                    Label(1, id=1, group=1),
+                ]),
+        ], categories=['a', 'b'])
+
+        format = 'coco_labels'
+        with TestDir() as test_dir:
+            dataset_dir = osp.join(test_dir, 'dataset')
+            expected_dataset.export(dataset_dir, format, save_images=True)
+            os.rename(osp.join(dataset_dir, 'annotations', 'labels_default.json'),
+                osp.join(dataset_dir, 'annotations', 'aa_bbbb_cccc.json'))
+
+            imported_dataset = Dataset.import_from(dataset_dir, format)
+            compare_datasets(self, expected_dataset, imported_dataset,
+                require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_keypoints(self):
@@ -215,6 +281,37 @@ class CocoImporterTest(TestCase):
             with self.subTest(path=path, format=format, subset=subset):
                 dataset = Dataset.import_from(path, format)
                 compare_datasets(self, expected, dataset, require_images=True)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_import_keypoints_with_any_annotation_filename(self):
+        expected_dataset = Dataset.from_iterable([
+            DatasetItem(id='a', subset='default', image=np.ones((5, 10, 3)),
+                attributes={'id': 5},
+                annotations=[
+                    Points([0, 0, 0, 2, 4, 1], [0, 1, 2], label=1,
+                        id=1, group=1, attributes={'is_crowd': False}),
+                    Bbox(2, 2, 3, 1, label=1,
+                        id=1, group=1, attributes={'is_crowd': False}),
+                ]),
+        ], categories={
+            AnnotationType.label: LabelCategories.from_iterable(['a', 'b']),
+            AnnotationType.points: PointsCategories.from_iterable(
+                (i, None, [[0, 1], [1, 2]]) for i in range(2)
+            ),
+        })
+
+        format = 'coco_person_keypoints'
+        with TestDir() as test_dir:
+            dataset_dir = osp.join(test_dir, 'dataset')
+            expected_dataset.export(dataset_dir, format, save_images=True)
+            os.rename(osp.join(dataset_dir, 'annotations',
+                'person_keypoints_default.json'), osp.join(dataset_dir,
+                'annotations', 'aa_bbbb_cccc.json')
+            )
+
+            imported_dataset = Dataset.import_from(dataset_dir, format)
+            compare_datasets(self, expected_dataset, imported_dataset,
+                require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_keypoints_with_original_cat_ids(self):
@@ -273,6 +370,24 @@ class CocoImporterTest(TestCase):
                 compare_datasets(self, expected, dataset, require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_import_image_info_with_any_annotation_filename(self):
+        expected_dataset = Dataset.from_iterable([
+            DatasetItem(id='a', subset='default', image=np.ones((5, 10, 3)),
+                attributes={'id': 5}),
+        ])
+
+        format = 'coco_image_info'
+        with TestDir() as test_dir:
+            dataset_dir = osp.join(test_dir, 'dataset')
+            expected_dataset.export(dataset_dir, format, save_images=True)
+            os.rename(osp.join(dataset_dir, 'annotations', 'image_info_default.json'),
+                osp.join(dataset_dir, 'annotations', 'aa_bbbb_cccc.json'))
+
+            imported_dataset = Dataset.import_from(dataset_dir, format)
+            compare_datasets(self, expected_dataset, imported_dataset,
+                require_images=True)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_panoptic(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='a', subset='train', image=np.ones((5, 10, 3)),
@@ -309,6 +424,30 @@ class CocoImporterTest(TestCase):
             with self.subTest(path=path, format=format, subset=subset):
                 dataset = Dataset.import_from(path, format)
                 compare_datasets(self, expected, dataset, require_images=True)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_import_panoptic_with_any_annotation_filename(self):
+        expected_dataset = Dataset.from_iterable([
+            DatasetItem(id='a', subset='default', image=np.ones((5, 10, 3)),
+                attributes={'id': 5},
+                annotations=[
+                    Mask(np.ones((5, 5)), label=0, id=460551,
+                        group=460551, attributes={'is_crowd': False}),
+                ]),
+        ], categories=['a', 'b'])
+
+        format = 'coco_panoptic'
+        with TestDir() as test_dir:
+            dataset_dir = osp.join(test_dir, 'dataset')
+            expected_dataset.export(dataset_dir, format, save_images=True)
+            os.rename(osp.join(dataset_dir, 'annotations', 'panoptic_default'),
+                osp.join(dataset_dir, 'annotations', 'aa_bbbb_cccc'))
+            os.rename(osp.join(dataset_dir, 'annotations', 'panoptic_default.json'),
+                osp.join(dataset_dir, 'annotations', 'aa_bbbb_cccc.json'))
+
+            imported_dataset = Dataset.import_from(dataset_dir, format)
+            compare_datasets(self, expected_dataset, imported_dataset,
+                require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_panoptic_with_original_cat_ids(self):
@@ -366,6 +505,30 @@ class CocoImporterTest(TestCase):
             with self.subTest(path=path, format=format, subset=subset):
                 dataset = Dataset.import_from(path, format)
                 compare_datasets(self, expected, dataset, require_images=True)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_import_stuff_with_any_annotation_filename(self):
+        expected_dataset = Dataset.from_iterable([
+            DatasetItem(id='a', subset='default', image=np.ones((5, 10, 3)),
+                attributes={'id': 5},
+                annotations=[
+                    Mask(np.array(
+                        [[0, 0, 1, 1, 0, 1, 1, 0, 0, 0]] * 5
+                        ), label=0,
+                        id=7, group=7, attributes={'is_crowd': False}),
+                ]),
+        ], categories=['a', 'b'])
+
+        format = 'coco_stuff'
+        with TestDir() as test_dir:
+            dataset_dir = osp.join(test_dir, 'dataset')
+            expected_dataset.export(dataset_dir, format, save_images=True)
+            os.rename(osp.join(dataset_dir, 'annotations', 'stuff_default.json'),
+                osp.join(dataset_dir, 'annotations', 'aa_bbbb_cccc.json'))
+
+            imported_dataset = Dataset.import_from(dataset_dir, format)
+            compare_datasets(self, expected_dataset, imported_dataset,
+                require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect(self):
