@@ -10,27 +10,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 ### Changed
-- File `people.txt` made optional (LFW);
+- File `people.txt` became optional in LFW
   (<https://github.com/openvinotoolkit/datumaro/pull/509>)
-- File `image_ids_and_rotation.csv` made optional (Open Images);
+- File `image_ids_and_rotation.csv` became optional Open Images
   (<https://github.com/openvinotoolkit/datumaro/pull/509>)
-- Allowed to have underscore for subset names (COCO);
+- Allowed underscores (`_`) in subset names in COCO
   (<https://github.com/openvinotoolkit/datumaro/pull/509>)
-- Allowed to have annotation file with arbitrary name (COCO);
+- Allowed annotation files with arbitrary names in COCO
   (<https://github.com/openvinotoolkit/datumaro/pull/509>)
-
 
 ### Deprecated
-
+- TBD
 
 ### Removed
-
+- TBD
 
 ### Fixed
-
+- TBD
 
 ### Security
-
+- TBD
 
 ## 14/10/2021 - Release v0.2
 ### Added
@@ -483,20 +482,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ```
 ## [Unreleased]
 ### Added
--
+- TBD
 
 ### Changed
--
+- TBD
 
 ### Deprecated
--
+- TBD
 
 ### Removed
--
+- TBD
 
 ### Fixed
--
+- TBD
 
 ### Security
--
+- TBD
 ```
