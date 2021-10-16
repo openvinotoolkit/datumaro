@@ -13,7 +13,7 @@ A short description of the information collected:
 | ----------------- | ----------- |
 | version           | Datumaro version |
 | session start/end | Accessory event, there is no additional info here |
-| {cli_command}_result  | Datumaro command result with arguments passed* |
+| {cli_command}_result | Datumaro command result with arguments passed* |
 | error | Stack trace in case of exception* |
 
 > \* All sensitive arguments, such as filesystem paths or names, are sanitized
