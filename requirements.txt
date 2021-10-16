@@ -8,6 +8,15 @@ opencv-python-headless>=4.1.0.25
 # OpenVINO telemetry library
 openvino-telemetry @ git+https://github.com/openvinotoolkit/telemetry.git@master#egg=openvino-telemetry
 
+# Video-related plugins
+# ffmpeg is either LGPL or GPL
+# av is BSD 3
+# Since 8.0, av includes binaries. These binaries include ffmpeg compiled
+# with GPL modules enabled, so they cannot be used here.
+# --no-binary cannot be used in setup.py deps
+# Issue to track: https://github.com/PyAV-Org/PyAV/issues/805
+av~=8.0 --no-binary
+
 # testing
 pytest>=5.3.5
 
