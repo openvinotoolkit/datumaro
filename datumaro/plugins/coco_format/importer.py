@@ -27,9 +27,9 @@ class CocoImporter(Importer):
     def build_cmdline_parser(cls, **kwargs):
         parser = super().build_cmdline_parser(**kwargs)
         parser.add_argument('--keep-original-category-ids', action='store_true',
-            help="Add dummy label categories so that category indexes"
-                " correspond to the category IDs in the original annotation"
-                " file")
+            help="Add dummy label categories so that category indices "
+                "correspond to the category IDs in the original annotation "
+                "file")
         return parser
 
     @classmethod
@@ -108,7 +108,7 @@ class CocoImporter(Importer):
 
             parts = osp.splitext(osp.basename(subset_path))[0] \
                 .split(ann_type.name + '_', maxsplit=1)
-            subset_name = parts[1] if len(parts) > 1 else DEFAULT_SUBSET_NAME
+            subset_name = parts[1] if len(parts) == 2 else DEFAULT_SUBSET_NAME
             subsets.setdefault(subset_name, {})[ann_type] = subset_path
 
         return subsets
