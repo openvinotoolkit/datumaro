@@ -203,8 +203,8 @@ class OpenImagesFormatTest(TestCase):
 
 ASSETS_DIR = osp.join(osp.dirname(__file__), 'assets')
 
-DUMMY_DATASET_DIR_V6 = osp.join(ASSETS_DIR, 'open_images_dataset_v6')
-DUMMY_DATASET_DIR_V5 = osp.join(ASSETS_DIR, 'open_images_dataset_v5')
+DUMMY_DATASET_DIR_V6 = osp.join(ASSETS_DIR, 'open_images_dataset/v6')
+DUMMY_DATASET_DIR_V5 = osp.join(ASSETS_DIR, 'open_images_dataset/v5')
 
 class OpenImagesImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_274)
