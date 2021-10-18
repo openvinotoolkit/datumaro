@@ -7,7 +7,10 @@ import os.path as osp
 import av
 import cv2
 
-from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
+from datumaro.components.extractor import (
+    DEFAULT_SUBSET_NAME, DatasetItem, Extractor, Importer,
+)
+from datumaro.util.image import Image
 
 
 class RandomAccessIterator:
@@ -40,15 +43,26 @@ class RandomAccessIterator:
 
 class VideoFramesImporter(Importer):
     @classmethod
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument('--subset')
+        parser.add_argument('-p', '--name-pattern', default='%06d')
+        parser.add_argument('-s', '--step', type=int, default=1)
+        parser.add_argument('-b', '--start-frame', type=int, default=0)
+        parser.add_argument('-e', '--end-frame', type=int, default=None)
+        return parser
+
+    @classmethod
     def find_sources(cls, path):
         if not osp.isfile(path):
             return []
         return [{ 'url': path, 'format': 'video_frames' }]
 
-class VideoFramesExtractor(SourceExtractor):
+class VideoFramesExtractor(Extractor):
     def __init__(self, url, subset=None, name_pattern='%06d',
             step=1, start_frame=0, end_frame=None):
-        super().__init__(subset=subset)
+        self._subset = subset or DEFAULT_SUBSET_NAME
+        super().__init__(subsets=[self._subset])
 
         assert osp.isfile(url), url
 
@@ -56,17 +70,29 @@ class VideoFramesExtractor(SourceExtractor):
         self._reader = VideoReader(url, step=step,
             start_frame=start_frame, end_frame=end_frame)
 
-    def __iter__(self):
-        frame_iter = iter(self._reader)
+        duration = self._reader.get_duration()
+        if duration is not None:
+            self._length = \
+                (min(duration, end_frame or duration) - start_frame) // step
 
-        for frame_idx, _ in enumerate(frame_iter):
+    def __iter__(self):
+        frame_iter = RandomAccessIterator(self._reader)
+
+        seq_iter = frame_iter
+        if self._length is not None:
+            seq_iter = range(self._length)
+
+        frame_size = self._reader.get_image_size()
+
+        for frame_idx, _ in enumerate(seq_iter):
             yield DatasetItem(id=self._name_pattern % frame_idx,
                 subset=self._subset,
-                image=self._lazy_get_frame(frame_iter, frame_idx))
+                image=Image(loader=self._lazy_get_frame(frame_iter, frame_idx),
+                    size=frame_size))
 
     @staticmethod
     def _lazy_get_frame(frame_iter, idx):
-        return lambda _: frame_iter[idx]
+        return lambda _: frame_iter[idx].to_ndarray(format='bgr24')
 
 
 def rotate_image(image, angle):

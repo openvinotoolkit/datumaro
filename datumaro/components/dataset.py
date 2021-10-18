@@ -25,7 +25,7 @@ from datumaro.components.errors import (
 )
 from datumaro.components.extractor import (
     DEFAULT_SUBSET_NAME, CategoriesInfo, DatasetItem, Extractor, IExtractor,
-    ItemTransform, Transform,
+    ItemTransform, SourceExtractor, Transform,
 )
 from datumaro.plugins.transforms import ProjectLabels
 from datumaro.util import is_method_redefined
@@ -466,7 +466,11 @@ class DatasetStorage(IDataset):
 
     def __len__(self) -> int:
         if self._length is None:
-            self.init_cache()
+            if self._is_unchanged_wrapper and \
+                    is_method_redefined('__len__', SourceExtractor, self._source):
+                self._length = len(self._source)
+            else:
+                self.init_cache()
         return self._length
 
     def categories(self) -> CategoriesInfo:
