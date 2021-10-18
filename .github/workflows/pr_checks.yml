@@ -4,8 +4,7 @@ on:
     branches:
       - 'master'
   pull_request:
-    branches:
-      - '*'
+    types: [edited, ready_for_review, opened, synchronize, reopened]
 defaults:
   run:
     shell: bash
