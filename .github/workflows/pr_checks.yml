@@ -13,8 +13,8 @@ jobs:
   build_and_test:
     if: |
       github.event.pull_request.draft == false &&
-      !contains(github.event.pull_request.title, '[WIP]') &&
-      !contains(github.event.pull_request.title, '[Dependent]')
+      !startsWith(github.event.pull_request.title, '[WIP]') &&
+      !startsWith(github.event.pull_request.title, '[Dependent]')
     strategy:
       fail-fast: false
       matrix:
