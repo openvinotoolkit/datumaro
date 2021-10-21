@@ -3,15 +3,14 @@
 # SPDX-License-Identifier: MIT
 
 from functools import partial
-from glob import glob
 from typing import Iterable
+import glob
 import inspect
 import logging as log
-import os
 import os.path as osp
 
 from datumaro.components.cli_plugin import CliPlugin, plugin_types
-from datumaro.util.os_util import import_foreign_module
+from datumaro.util.os_util import import_foreign_module, split_path
 
 
 class Registry:
@@ -110,25 +109,30 @@ class Environment:
     @staticmethod
     def _find_plugins(plugins_dir):
         plugins = []
-        if not osp.exists(plugins_dir):
-            return plugins
 
-        for plugin_name in os.listdir(plugins_dir):
-            p = osp.join(plugins_dir, plugin_name)
-            if osp.isfile(p) and p.endswith('.py'):
-                plugins.append((plugins_dir, plugin_name, None))
-            elif osp.isdir(p):
-                plugins += [(plugins_dir,
-                        osp.splitext(plugin_name)[0] + '.' + osp.basename(p),
-                        osp.splitext(plugin_name)[0]
-                    )
-                    for p in glob(osp.join(p, '*.py'))]
+        for pattern in ('*.py', '*/*.py'):
+            for path in glob.glob(
+                    osp.join(glob.escape(plugins_dir), pattern)):
+                if not osp.isfile(path):
+                    continue
+
+                path_rel = osp.relpath(path, plugins_dir)
+                name_parts = split_path(osp.splitext(path_rel)[0])
+
+                # a module with a dot in the name won't load correctly
+                if any('.' in part for part in name_parts):
+                    log.warning(
+                        "Python file '%s' in directory '%s' can't be imported "
+                        "due to a dot in the name; skipping.",
+                        path_rel, plugins_dir)
+                    continue
+                plugins.append('.'.join(name_parts))
+
         return plugins
 
     @classmethod
-    def _import_module(cls, module_dir, module_name, types, package=None):
-        module = import_foreign_module(osp.splitext(module_name)[0], module_dir,
-            package=package)
+    def _import_module(cls, module_dir, module_name, types):
+        module = import_foreign_module(module_name, module_dir)
 
         exports = []
         if hasattr(module, 'exports'):
@@ -151,10 +155,9 @@ class Environment:
         plugins = cls._find_plugins(plugins_dir)
 
         all_exports = []
-        for module_dir, module_name, package in plugins:
+        for module_name in plugins:
             try:
-                exports = cls._import_module(module_dir, module_name, types,
-                    package)
+                exports = cls._import_module(plugins_dir, module_name, types)
             except Exception as e:
                 module_search_error = ModuleNotFoundError
 
