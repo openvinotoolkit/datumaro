@@ -121,6 +121,10 @@ class Environment:
 
                 # a module with a dot in the name won't load correctly
                 if any('.' in part for part in name_parts):
+                    log.warning(
+                        "Python file '%s' in directory '%s' can't be imported "
+                        "due to a dot in the name; skipping.",
+                        path_rel, plugins_dir)
                     continue
                 plugins.append('.'.join(name_parts))
 
