@@ -10,6 +10,7 @@ from datumaro.components.annotation import (
     AnnotationType, LabelCategories, Mask, MaskCategories,
 )
 from datumaro.components.dataset import Dataset
+from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem, Extractor
 from datumaro.plugins.cityscapes_format import (
     CityscapesConverter, CityscapesImporter,
@@ -95,7 +96,8 @@ class CityscapesImportTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_267)
     def test_can_detect_cityscapes(self):
-        self.assertTrue(CityscapesImporter.detect(DUMMY_DATASET_DIR))
+        detected_formats = Environment().detect_dataset(DUMMY_DATASET_DIR)
+        self.assertIn(CityscapesImporter.NAME, detected_formats)
 
 
 class TestExtractorBase(Extractor):

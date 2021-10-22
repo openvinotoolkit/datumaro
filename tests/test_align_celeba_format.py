@@ -7,6 +7,7 @@ from datumaro.components.annotation import (
     AnnotationType, Label, LabelCategories, Points, PointsCategories,
 )
 from datumaro.components.dataset import Dataset
+from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
 from datumaro.plugins.align_celeba_format import AlignCelebaImporter
 from datumaro.util.test_utils import compare_datasets
@@ -80,4 +81,5 @@ class AlignCelebaImporterTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_475)
     def test_can_detect_align_dataset(self):
-        self.assertTrue(AlignCelebaImporter.detect(DUMMY_ALIGN_DATASET_DIR))
+        detected_formats = Environment().detect_dataset(DUMMY_ALIGN_DATASET_DIR)
+        self.assertIn(AlignCelebaImporter.NAME, detected_formats)

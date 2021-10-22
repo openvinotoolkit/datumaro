@@ -7,6 +7,7 @@ import numpy as np
 
 from datumaro.components.annotation import Label
 from datumaro.components.dataset import Dataset
+from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
 from datumaro.plugins.cifar_format import CifarConverter, CifarImporter
 from datumaro.util.image import Image
@@ -255,12 +256,15 @@ class CifarImporterTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_10(self):
-        self.assertTrue(CifarImporter.detect(DUMMY_10_DATASET_DIR))
+        detected_formats = Environment().detect_dataset(DUMMY_10_DATASET_DIR)
+        self.assertIn(CifarImporter.NAME, detected_formats)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_10_subset(self):
-        self.assertTrue(CifarImporter.detect(
-            osp.join(DUMMY_10_DATASET_DIR, 'data_batch_1')))
+        # TODO: what to do with single file datasets?
+        detected_formats = Environment().detect_dataset(
+            osp.join(DUMMY_10_DATASET_DIR, 'data_batch_1'))
+        self.assertIn(CifarImporter.NAME, detected_formats)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_100(self):
@@ -306,9 +310,12 @@ class CifarImporterTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_100(self):
-        self.assertTrue(CifarImporter.detect(DUMMY_100_DATASET_DIR))
+        detected_formats = Environment().detect_dataset(DUMMY_100_DATASET_DIR)
+        self.assertIn(CifarImporter.NAME, detected_formats)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_100_subset(self):
-        self.assertTrue(CifarImporter.detect(
-            osp.join(DUMMY_100_DATASET_DIR, 'train')))
+        # TODO: ditto
+        detected_formats = Environment().detect_dataset(
+            osp.join(DUMMY_100_DATASET_DIR, 'train'))
+        self.assertIn(CifarImporter.NAME, detected_formats)

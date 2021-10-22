@@ -11,6 +11,7 @@ from datumaro.components.annotation import (
     PointsCategories, Polygon,
 )
 from datumaro.components.dataset import Dataset
+from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
 from datumaro.plugins.coco_format.converter import (
     CocoCaptionsConverter, CocoConverter, CocoImageInfoConverter,
@@ -563,9 +564,12 @@ class CocoImporterTest(TestCase):
                 CocoPersonKeypointsImporter),
         ]
 
+        env = Environment()
+
         for path, subtask in matrix:
             with self.subTest(path=path, task=subtask):
-                self.assertTrue(subtask.detect(path))
+                detected_formats = env.detect_dataset(path)
+                self.assertIn(subtask.NAME, detected_formats)
 
 class CocoConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,

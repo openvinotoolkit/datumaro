@@ -7,6 +7,7 @@ from datumaro.components.annotation import (
     AnnotationType, Label, LabelCategories,
 )
 from datumaro.components.dataset import Dataset
+from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
 from datumaro.plugins.mnist_format import MnistConverter, MnistImporter
 from datumaro.util.image import Image
@@ -195,4 +196,5 @@ class MnistImporterTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect(self):
-        self.assertTrue(MnistImporter.detect(DUMMY_DATASET_DIR))
+        detected_formats = Environment().detect_dataset(DUMMY_DATASET_DIR)
+        self.assertIn(MnistImporter.NAME, detected_formats)

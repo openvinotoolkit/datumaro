@@ -6,6 +6,7 @@ import os.path as osp
 from datumaro.components.annotation import (
     AnnotationType, Cuboid3d, LabelCategories,
 )
+from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
 from datumaro.components.project import Dataset
 from datumaro.plugins.kitti_raw_format.converter import KittiRawConverter
@@ -23,7 +24,8 @@ DUMMY_DATASET_DIR = osp.join(osp.dirname(
 class KittiRawImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect(self):
-        self.assertTrue(KittiRawImporter.detect(DUMMY_DATASET_DIR))
+        detected_formats = Environment().detect_dataset(DUMMY_DATASET_DIR)
+        self.assertIn(KittiRawImporter.NAME, detected_formats)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_load(self):

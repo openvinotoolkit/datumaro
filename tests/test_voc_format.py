@@ -10,6 +10,7 @@ from datumaro.components.annotation import (
     AnnotationType, Bbox, Label, LabelCategories, Mask, MaskCategories,
 )
 from datumaro.components.dataset import Dataset
+from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem, Extractor
 from datumaro.plugins.voc_format.converter import (
     VocActionConverter, VocClassificationConverter, VocConverter,
@@ -361,9 +362,12 @@ class VocImportTest(TestCase):
                 VocActionImporter),
         ]
 
+        env = Environment()
+
         for path, subtask in matrix:
             with self.subTest(path=path, task=subtask):
-                self.assertTrue(subtask.detect(path))
+                detected_formats = env.detect_dataset(path)
+                self.assertIn(subtask.NAME, detected_formats)
 
 
 class VocConverterTest(TestCase):
