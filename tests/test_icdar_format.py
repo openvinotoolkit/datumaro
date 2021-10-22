@@ -36,7 +36,7 @@ class IcdarImporterTest(TestCase):
     def test_can_detect_text_localization(self):
         detected_formats = Environment().detect_dataset(
             osp.join(DUMMY_DATASET_DIR, 'text_localization'))
-        self.assertIn(IcdarTextLocalizationImporter.NAME, detected_formats)
+        self.assertEqual([IcdarTextLocalizationImporter.NAME], detected_formats)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_text_segmentation(self):
