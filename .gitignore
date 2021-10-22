@@ -61,7 +61,10 @@ docs/_build/
 user_config.py
 
 # Temporary website files
-/site/public/
-/site/resources/
-/site/node_modules/
-/site/tech-doc-hugo
+site/public/
+site/resources/
+site/node_modules/
+site/tech-doc-hugo
+
+# Temporary sphinx files
+build/
