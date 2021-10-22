@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2020 Intel Corporation
+# Copyright (C) 2019-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -7,6 +7,11 @@ import logging as log
 import os.path as osp
 
 from datumaro.components.extractor import DEFAULT_SUBSET_NAME, Importer
+from datumaro.plugins.coco_format.extractor import (
+    CocoCaptionsExtractor, CocoImageInfoExtractor, CocoInstancesExtractor,
+    CocoLabelsExtractor, CocoPanopticExtractor, CocoPersonKeypointsExtractor,
+    CocoStuffExtractor,
+)
 from datumaro.util.log_utils import logging_disabled
 
 from .format import CocoTask
@@ -14,13 +19,13 @@ from .format import CocoTask
 
 class CocoImporter(Importer):
     _TASKS = {
-        CocoTask.instances: 'coco_instances',
-        CocoTask.person_keypoints: 'coco_person_keypoints',
-        CocoTask.captions: 'coco_captions',
-        CocoTask.labels: 'coco_labels',
-        CocoTask.image_info: 'coco_image_info',
-        CocoTask.panoptic: 'coco_panoptic',
-        CocoTask.stuff: 'coco_stuff',
+        CocoTask.instances: CocoInstancesExtractor,
+        CocoTask.person_keypoints: CocoPersonKeypointsExtractor,
+        CocoTask.captions: CocoCaptionsExtractor,
+        CocoTask.labels: CocoLabelsExtractor,
+        CocoTask.image_info: CocoImageInfoExtractor,
+        CocoTask.panoptic: CocoPanopticExtractor,
+        CocoTask.stuff: CocoStuffExtractor,
     }
 
     @classmethod
@@ -69,7 +74,7 @@ class CocoImporter(Importer):
 
                 sources.append({
                     'url': ann_file,
-                    'format': self._TASKS[ann_type],
+                    'format': self._TASKS[ann_type].NAME,
                     'options': dict(extra_params),
                 })
 
@@ -102,7 +107,7 @@ class CocoImporter(Importer):
             if ann_type not in cls._TASKS:
                 log.warning("File '%s' was skipped, could't match this file "
                     "with any of these tasks: %s" %
-                    (subset_path, ','.join(e for e in cls._TASKS.values()))
+                    (subset_path, ','.join(e.NAME for e in cls._TASKS.values()))
                 )
                 continue
 

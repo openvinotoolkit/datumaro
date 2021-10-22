@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2020 Intel Corporation
+# Copyright (C) 2019-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -16,7 +16,7 @@ class ImageDirImporter(Importer):
     def find_sources(cls, path):
         if not osp.isdir(path):
             return []
-        return [{ 'url': path, 'format': 'image_dir' }]
+        return [{ 'url': path, 'format': ImageDirExtractor.NAME }]
 
 class ImageDirExtractor(SourceExtractor):
     def __init__(self, url, subset=None, max_depth=None, exts=None):

@@ -10,7 +10,7 @@ import inspect
 import logging as log
 import os.path as osp
 
-from datumaro.components.cli_plugin import CliPlugin, plugin_types
+from datumaro.components.cli_plugin import plugin_types
 from datumaro.util.os_util import import_foreign_module, split_path
 
 
@@ -47,9 +47,8 @@ class PluginRegistry(Registry):
         for v in values:
             if self.filter and not self.filter(v):
                 continue
-            name = CliPlugin._get_name(v)
 
-            self.register(name, v)
+            self.register(v.NAME, v)
 
 class Environment:
     _builtin_plugins = None
