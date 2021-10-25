@@ -14,10 +14,10 @@ from datumaro.util.image import find_images
 
 class CelebaPath:
     IMAGES_DIR = 'Img/img_celeba'
-    LABELS_FILE = 'identity_CelebA'
-    BBOXES_FILE = 'list_bbox_celeba.txt'
-    ATTRS_FILE = 'list_attr_celeba.txt'
-    LANDMARKS_FILE = 'list_landmarks_celeba.txt'
+    LABELS_FILE = 'Anno/identity_CelebA.txt'
+    BBOXES_FILE = 'Anno/list_bbox_celeba.txt'
+    ATTRS_FILE = 'Anno/list_attr_celeba.txt'
+    LANDMARKS_FILE = 'Anno/list_landmarks_celeba.txt'
     SUBSETS_FILE = 'Eval/list_eval_partition.txt'
     SUBSETS = {'0': 'train', '1': 'val', '2': 'test'}
     BBOXES_HEADER = 'image_id x_1 y_1 width height'
@@ -26,20 +26,18 @@ class CelebaPath:
 
 class CelebaExtractor(SourceExtractor):
     def __init__(self, path):
-        if not osp.isfile(path):
-            raise FileNotFoundError("Can't read annotation file '%s'" % path)
+        if not osp.isdir(path):
+            raise FileNotFoundError("Can't read dataset directory '%s'" % path)
 
         super().__init__()
-        self._anno_dir = osp.dirname(path)
 
         self._categories = { AnnotationType.label: LabelCategories() }
         self._items = list(self._load_items(path).values())
 
-    def _load_items(self, path):
+    def _load_items(self, root_dir):
         items = {}
 
-        image_dir = osp.join(osp.dirname(self._anno_dir),
-            CelebaPath.IMAGES_DIR)
+        image_dir = osp.join(root_dir, CelebaPath.IMAGES_DIR)
 
         if osp.isdir(image_dir):
             images = {
@@ -50,7 +48,12 @@ class CelebaExtractor(SourceExtractor):
             images = {}
 
         label_categories = self._categories[AnnotationType.label]
-        with open(path, encoding='utf-8') as f:
+
+        labels_path = osp.join(root_dir, CelebaPath.LABELS_FILE)
+        if (not osp.isfile(labels_path)):
+            raise DatasetImportError("File '%s': was not found" % labels_path)
+
+        with open(labels_path, encoding='utf-8') as f:
             for line in f:
                 item_id, item_ann = self.split_annotation(line)
                 label_ids = [int(id) for id in item_ann]
@@ -63,7 +66,7 @@ class CelebaExtractor(SourceExtractor):
                 items[item_id] = DatasetItem(id=item_id,
                     image=images.get(item_id), annotations=anno)
 
-        landmark_path = osp.join(self._anno_dir, CelebaPath.LANDMARKS_FILE)
+        landmark_path = osp.join(root_dir, CelebaPath.LANDMARKS_FILE)
         if osp.isfile(landmark_path):
             with open(landmark_path, encoding='utf-8') as f:
                 landmarks_number = int(f.readline().strip())
@@ -92,7 +95,7 @@ class CelebaExtractor(SourceExtractor):
                         "landmarks does not match the specified number "
                         "at the beginning of the file " % landmark_path)
 
-        bbox_path = osp.join(self._anno_dir, CelebaPath.BBOXES_FILE)
+        bbox_path = osp.join(root_dir, CelebaPath.BBOXES_FILE)
         if osp.isfile(bbox_path):
             with open(bbox_path, encoding='utf-8') as f:
                 bboxes_number = int(f.readline().strip())
@@ -123,7 +126,7 @@ class CelebaExtractor(SourceExtractor):
                         "boxes does not match the specified number "
                         "at the beginning of the file " % bbox_path)
 
-        attr_path = osp.join(self._anno_dir, CelebaPath.ATTRS_FILE)
+        attr_path = osp.join(root_dir, CelebaPath.ATTRS_FILE)
         if osp.isfile(attr_path):
             with open(attr_path, encoding='utf-8') as f:
                 attr_number = int(f.readline().strip())
@@ -152,8 +155,7 @@ class CelebaExtractor(SourceExtractor):
                         "with attributes does not match the specified number "
                         "at the beginning of the file " % attr_path)
 
-        subset_path = osp.join(osp.dirname(self._anno_dir),
-            CelebaPath.SUBSETS_FILE)
+        subset_path = osp.join(root_dir, CelebaPath.SUBSETS_FILE)
         if osp.isfile(subset_path):
             with open(subset_path, encoding='utf-8') as f:
                 for line in f:
@@ -190,5 +192,4 @@ class CelebaExtractor(SourceExtractor):
 class CelebaImporter(Importer):
     @classmethod
     def find_sources(cls, path):
-        return cls._find_sources_recursive(path, '.txt', 'celeba',
-            filename=CelebaPath.LABELS_FILE)
+        return [{'url': path, 'format': 'celeba'}]
