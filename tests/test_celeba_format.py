@@ -3,7 +3,9 @@ import os.path as osp
 
 import numpy as np
 
-from datumaro.components.annotation import Bbox, Label, Points
+from datumaro.components.annotation import (
+    AnnotationType, Bbox, Label, LabelCategories, Points, PointsCategories,
+)
 from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import DatasetItem
 from datumaro.plugins.celeba_format import CelebaImporter
@@ -69,7 +71,14 @@ class CelebaImporterTest(TestCase):
                         label=7)
                 ]
             )
-        ], categories=['class-%d' % i for i in range(13)])
+        ], categories={
+            AnnotationType.label: LabelCategories.from_iterable(
+                f'class-{i}' for i in range(13)),
+            AnnotationType.points: PointsCategories.from_iterable(
+                [(0, ['lefteye_x']), (1, ['lefteye_y']), (2, ['righteye_x']), (3, ['righteye_y']),
+                 (4, ['nose_x']), (5, ['nose_y']), (6, ['leftmouth_x']), (7, ['leftmouth_y']),
+                 (8, ['rightmouth_x']), (9, ['rightmouth_y'])])
+        })
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'celeba')
 

@@ -5,7 +5,7 @@
 import os.path as osp
 
 from datumaro.components.annotation import (
-    AnnotationType, Bbox, Label, LabelCategories, Points,
+    AnnotationType, Bbox, Label, LabelCategories, Points, PointsCategories,
 )
 from datumaro.components.errors import DatasetImportError
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
@@ -21,8 +21,6 @@ class CelebaPath:
     SUBSETS_FILE = 'Eval/list_eval_partition.txt'
     SUBSETS = {'0': 'train', '1': 'val', '2': 'test'}
     BBOXES_HEADER = 'image_id x_1 y_1 width height'
-    LANDMARKS_HEADER = 'lefteye_x lefteye_y righteye_x righteye_y ' \
-        'nose_x nose_y leftmouth_x leftmouth_y rightmouth_x rightmouth_y'
 
 class CelebaExtractor(SourceExtractor):
     def __init__(self, path):
@@ -71,15 +69,20 @@ class CelebaExtractor(SourceExtractor):
             with open(landmark_path, encoding='utf-8') as f:
                 landmarks_number = int(f.readline().strip())
 
-                if f.readline().strip() != CelebaPath.LANDMARKS_HEADER:
-                    raise DatasetImportError("File '%s': the header "
-                        "does not match the expected format '%s'" % \
-                        (landmark_path, CelebaPath.LANDMARKS_HEADER))
+                point_cat = PointsCategories()
+                for i, point_name in enumerate(f.readline().strip().split()):
+                    point_cat.add(i, [point_name])
+                self._categories[AnnotationType.points] = point_cat
 
                 counter = 0
                 for counter, line in enumerate(f):
                     item_id, item_ann = self.split_annotation(line)
                     landmarks = [float(id) for id in item_ann]
+
+                    if len(landmarks) != len(point_cat):
+                        raise DatasetImportError("File '%s', line %s: "
+                            "points do not match the header of this file" % \
+                            (landmark_path, line))
 
                     if item_id not in items:
                         raise DatasetImportError("File '%s', line %s: "
