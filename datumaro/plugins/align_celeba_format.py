@@ -5,7 +5,7 @@
 import os.path as osp
 
 from datumaro.components.annotation import (
-    AnnotationType, Bbox, Label, LabelCategories, Points,
+    AnnotationType, Label, LabelCategories, Points,
 )
 from datumaro.components.errors import DatasetImportError
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor

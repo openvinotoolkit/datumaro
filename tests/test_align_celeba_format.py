@@ -3,7 +3,7 @@ import os.path as osp
 
 import numpy as np
 
-from datumaro.components.annotation import Bbox, Label, Points
+from datumaro.components.annotation import Label, Points
 from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import DatasetItem
 from datumaro.plugins.align_celeba_format import AlignCelebaImporter

@@ -27,7 +27,8 @@ Supported attributes:
 
 ## Import align CelebA dataset
 
-A Datumaro project with an align CelebA source can be created in the following way:
+A Datumaro project with an align CelebA source can be created
+in the following way:
 
 ```bash
 datum create
