@@ -13,7 +13,7 @@ from .algorithm.algorithm import Algorithm, SamplingMethod
 
 
 class Sampler(Transform, CliPlugin):
-    r"""
+    """
     Sampler that analyzes model inference results on the dataset |n
     and picks the best sample for training.|n
     |n

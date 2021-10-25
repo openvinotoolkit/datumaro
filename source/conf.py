@@ -32,7 +32,8 @@ release = '0.2'
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
-    'myst_parser',
+    'sphinx.ext.intersphinx', # Link to other projects documentation
+    'myst_parser', # Read markdown files
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -43,7 +44,7 @@ templates_path = ['_templates',
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ['_themes']
+exclude_patterns = ['_themes',]
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -54,12 +55,11 @@ exclude_patterns = ['_themes']
 html_theme = 'sphinx_rtd_theme'
 html_theme_path = ['_themes', ]
 html_theme_options = {
-    'logo_only': False,
     'display_version': True,
     'prev_next_buttons_location': 'bottom',
-    'style_external_links': False,
+    'style_external_links': True,
     'vcs_pageview_mode': '',
-    'style_nav_header_background': 'white',
+    'style_nav_header_background': '#30638E',
     # Toc options
     'collapse_navigation': True,
     'sticky_navigation': True,
@@ -72,6 +72,6 @@ html_theme_options = {
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
-
+html_css_files = ['custom.css', ]
 
 # -- Extension configuration -------------------------------------------------

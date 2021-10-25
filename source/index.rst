@@ -3,11 +3,16 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Datumaro API documentation's documentation!
-======================================================
+Welcome to Datumaro API documentation!
+======================================
 
 .. toctree::
-   :maxdepth: 2
+   :numbered:
+   :maxdepth: 5
+   :glob:
+
+   *
+
    :caption: Contents:
 
 
@@ -18,3 +23,17 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
+Installation
+------------
+
+To install datumaro, use setur.py
+The `setuptools.setup` contains options for installing Datumaro.
+
+.. autoclass:: setuptools.setup
+   :members:
+
+The version is determined using the function ``find_version``. Версия берется из файла `datumaro/version.py`
+
+.. autofunction:: find_version
+   :members:
