@@ -92,6 +92,10 @@ List of supported formats:
   - [Format specification](https://mmlab.ie.cuhk.edu.hk/projects/CelebA.html)
   - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/celeba_dataset)
   - [Format documentation](/docs/formats/celeba)
+- Align CelebA (`classification`, `landmarks`)
+  - [Format specification](https://mmlab.ie.cuhk.edu.hk/projects/CelebA.html)
+  - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/align_celeba_dataset)
+  - [Format documentation](/docs/formats/align_celeba)
 
 ### Supported annotation types <a id="annotation-types"></a>
 
