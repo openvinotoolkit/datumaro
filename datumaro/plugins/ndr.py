@@ -27,7 +27,7 @@ class UnderSamplingMethod(Enum):
     inverse = auto()
 
 class NDR(Transform, CliPlugin):
-    """
+    r"""
     Near-duplicated image removal.|n
     |n
     Removes near-duplicated images in subset|n
