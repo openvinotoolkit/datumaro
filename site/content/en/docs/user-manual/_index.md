@@ -22,7 +22,10 @@ weight: 3
 - [Command reference](./command-reference)
   - [Convert](./command-reference/convert)
   - [Create](./command-reference/create)
+  - [Import](./command-reference/sources/#source-import)
   - [Export](./command-reference/export)
+  - [Add](./command-reference/sources/#source-add)
+  - [Remove](./command-reference/sources/#source-remove)
   - [Filter](./command-reference/filter)
   - [Merge](./command-reference/merge)
   - [Patch](./command-reference/patch)
@@ -41,6 +44,7 @@ weight: 3
     - [Remove](./command-reference/models/#model-remove)
     - [Run](./command-reference/models/#model-run)
   - Sources:
+    - [Import](./command-reference/sources/#source-import)
     - [Add](./command-reference/sources/#source-add)
     - [Remove](./command-reference/sources/#source-remove)
   - Projects:

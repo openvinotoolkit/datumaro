@@ -16,6 +16,7 @@ from datumaro.util.image import find_images
 
 class LfwPath:
     IMAGES_DIR = 'images'
+    ANNOTATION_DIR = 'annotations'
     LANDMARKS_FILE = 'landmarks.txt'
     PAIRS_FILE = 'pairs.txt'
     PEOPLE_FILE = 'people.txt'
@@ -28,10 +29,13 @@ class LfwExtractor(SourceExtractor):
             raise FileNotFoundError("Can't read annotation file '%s'" % path)
 
         if not subset:
-            subset = osp.basename(osp.dirname(path))
+            subset = osp.basename(osp.dirname(osp.dirname(path)))
         super().__init__(subset=subset)
 
-        self._dataset_dir = osp.dirname(osp.dirname(path))
+        self._dataset_dir = osp.dirname(osp.dirname(osp.dirname(path)))
+        self._annotations_dir = osp.dirname(path)
+        self._images_dir = osp.join(self._dataset_dir, self._subset,
+           LfwPath.IMAGES_DIR)
 
         people_file = osp.join(osp.dirname(path), LfwPath.PEOPLE_FILE)
         self._categories = self._load_categories(people_file)
@@ -52,14 +56,23 @@ class LfwExtractor(SourceExtractor):
         items = {}
         label_categories = self._categories.get(AnnotationType.label)
 
-        images_dir = osp.join(self._dataset_dir, self._subset, LfwPath.IMAGES_DIR)
-        if osp.isdir(images_dir):
-            images = { osp.splitext(osp.relpath(p, images_dir))[0].replace('\\', '/'): p
-                for p in find_images(images_dir, recursive=True) }
+        if osp.isdir(self._images_dir):
+            images = {
+                osp.splitext(osp.relpath(p, self._images_dir))[0].replace('\\', '/'): p
+                for p in find_images(self._images_dir, recursive=True)
+            }
         else:
             images = {}
 
         with open(path, encoding='utf-8') as f:
+            def get_label_id(label_name):
+                if not label_name:
+                    return None
+                label_id = label_categories.find(label_name)[0]
+                if label_id is None:
+                    label_id = label_categories.add(label_name)
+                return label_id
+
             for line in f:
                 pair = line.strip().split('\t')
                 if len(pair) == 1 and pair[0] != '':
@@ -69,7 +82,7 @@ class LfwExtractor(SourceExtractor):
                     objects = item_id.split('/')
                     if 1 < len(objects):
                         label_name = objects[0]
-                        label = label_categories.find(label_name)[0]
+                        label = get_label_id(label_name)
                         if label != None:
                             annotations.append(Label(label))
                             item_id = item_id[len(label_name) + 1:]
@@ -79,10 +92,8 @@ class LfwExtractor(SourceExtractor):
                 elif len(pair) == 3:
                     image1, id1 = self.get_image_name(pair[0], pair[1])
                     image2, id2 = self.get_image_name(pair[0], pair[2])
-                    label = label_categories.find(pair[0])[0]
-                    if label == None:
-                        raise Exception("Line %s: people file doesn't "
-                            "contain person %s " % (line, pair[0]))
+                    label = get_label_id(pair[0])
+
                     if id1 not in items:
                         annotations = []
                         annotations.append(Label(label))
@@ -108,17 +119,14 @@ class LfwExtractor(SourceExtractor):
                         image2, id2 = self.get_image_name(pair[2], pair[3])
                     if id1 not in items:
                         annotations = []
-                        label = label_categories.find(pair[0])[0]
-                        if label == None:
-                            raise Exception("Line %s: people file doesn't "
-                                "contain person %s " % (line, pair[0]))
+                        label = get_label_id(pair[0])
                         annotations.append(Label(label))
                         items[id1] = DatasetItem(id=id1, subset=self._subset,
                             image=images.get(image1), annotations=annotations)
                     if id2 not in items:
                         annotations = []
-                        label = label_categories.find(pair[2])[0]
-                        if label != None:
+                        if pair[2] != '-':
+                            label = get_label_id(pair[2])
                             annotations.append(Label(label))
                         items[id2] = DatasetItem(id=id2, subset=self._subset,
                             image=images.get(image2), annotations=annotations)
@@ -128,8 +136,7 @@ class LfwExtractor(SourceExtractor):
                         items[id1].annotations[0].attributes['negative_pairs'] = []
                     items[id1].annotations[0].attributes['negative_pairs'].append(image2)
 
-        landmarks_file = osp.join(self._dataset_dir, self._subset,
-            LfwPath.LANDMARKS_FILE)
+        landmarks_file = osp.join(self._annotations_dir, LfwPath.LANDMARKS_FILE)
         if osp.isfile(landmarks_file):
             with open(landmarks_file, encoding='utf-8') as f:
                 for line in f:
@@ -139,12 +146,12 @@ class LfwExtractor(SourceExtractor):
                     objects = item_id.split('/')
                     if 1 < len(objects):
                         label_name = objects[0]
-                        label = label_categories.find(label_name)[0]
+                        label = get_label_id(label_name)
                         if label != None:
                             item_id = item_id[len(label_name) + 1:]
                     if item_id not in items:
                         items[item_id] = DatasetItem(id=item_id, subset=self._subset,
-                            image=osp.join(images_dir, line[0]))
+                            image=osp.join(self._images_dir, line[0]))
 
                     annotations = items[item_id].annotations
                     annotations.append(Points([float(p) for p in line[1:]],
@@ -168,7 +175,8 @@ class LfwImporter(Importer):
     @classmethod
     def find_sources(cls, path):
         base, ext = osp.splitext(LfwPath.PAIRS_FILE)
-        return cls._find_sources_recursive(path, ext, 'lfw', filename=base)
+        return cls._find_sources_recursive(path, ext, 'lfw', filename=base,
+            dirname=LfwPath.ANNOTATION_DIR)
 
 class LfwConverter(Converter):
     DEFAULT_IMAGE_EXT = LfwPath.IMAGE_EXT
@@ -176,10 +184,7 @@ class LfwConverter(Converter):
     def apply(self):
         for subset_name, subset in self._extractor.subsets().items():
             label_categories = self._extractor.categories()[AnnotationType.label]
-            labels = {}
-            for label in label_categories:
-                f = label.name
-                labels[label.name] = 0
+            labels = {label.name: 0 for label in label_categories}
 
             positive_pairs = []
             negative_pairs = []
@@ -266,7 +271,9 @@ class LfwConverter(Converter):
                     landmarks.append('%s\t%s' % (item.id + LfwPath.IMAGE_EXT,
                         '\t'.join(str(p) for p in landmark.points)))
 
-            pairs_file = osp.join(self._save_dir, subset_name, LfwPath.PAIRS_FILE)
+            annotations_dir = osp.join(self._save_dir, subset_name,
+               LfwPath.ANNOTATION_DIR)
+            pairs_file = osp.join(annotations_dir, LfwPath.PAIRS_FILE)
             os.makedirs(osp.dirname(pairs_file), exist_ok=True)
             with open(pairs_file, 'w', encoding='utf-8') as f:
                 f.writelines(['%s\n' % pair for pair in positive_pairs])
@@ -274,14 +281,12 @@ class LfwConverter(Converter):
                 f.writelines(['%s\n' % item for item in neutral_items])
 
             if landmarks:
-                landmarks_file = osp.join(self._save_dir, subset_name,
-                    LfwPath.LANDMARKS_FILE)
+                landmarks_file = osp.join(annotations_dir, LfwPath.LANDMARKS_FILE)
                 with open(landmarks_file, 'w', encoding='utf-8') as f:
                     f.writelines(['%s\n' % landmark for landmark in landmarks])
 
             if labels:
-                people_file = osp.join(self._save_dir, subset_name,
-                    LfwPath.PEOPLE_FILE)
+                people_file = osp.join(annotations_dir, LfwPath.PEOPLE_FILE)
                 with open(people_file, 'w', encoding='utf-8') as f:
                     f.writelines(['%s\t%d\n' % (label, labels[label])
                         for label in labels])

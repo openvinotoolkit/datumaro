@@ -29,21 +29,22 @@ flowchart LR
     p===info:::hideclass
   d====str1[create]:::filloneclass
   d====str2[import]:::filloneclass
-  d====str3[remove]:::filloneclass
-  d====str4[export]:::filloneclass
-  d====str5[info]:::filloneclass
-  d====str6[transform]:::filltwoclass
-  d====str7[filter]:::filltwoclass
-  d====str8[diff]:::fillthreeclass
-  d====str9[merge]:::fillthreeclass
-  d====str10[patch]:::fillthreeclass
-  d====str11[validate]:::fillthreeclass
-  d====str12[explain]:::fillthreeclass
-  d====str13[stats]:::fillthreeclass
-  d====str14[commit]:::fillfourclass
-  d====str15[checkout]:::fillfourclass
-  d====str16[status]:::fillfourclass
-  d====str17[log]:::fillfourclass
+  d====str3[export]:::filloneclass
+  d====str4[add]:::filloneclass
+  d====str5[remove]:::filloneclass
+  d====str6[info]:::filloneclass
+  d====str7[transform]:::filltwoclass
+  d====str8[filter]:::filltwoclass
+  d====str9[diff]:::fillthreeclass
+  d====str10[merge]:::fillthreeclass
+  d====str11[patch]:::fillthreeclass
+  d====str12[validate]:::fillthreeclass
+  d====str13[explain]:::fillthreeclass
+  d====str14[stats]:::fillthreeclass
+  d====str15[commit]:::fillfourclass
+  d====str16[checkout]:::fillfourclass
+  d====str17[status]:::fillfourclass
+  d====str18[log]:::fillfourclass
 
   classDef nofillclass fill-opacity:0;
   classDef hideclass fill-opacity:0,stroke-opacity:0;

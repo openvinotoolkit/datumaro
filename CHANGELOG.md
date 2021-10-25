@@ -8,6 +8,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[Unreleased\]
 ### Added
+- Import for CelebA dataset format.
+  (<https://github.com/openvinotoolkit/datumaro/pull/484>)
+
+### Changed
+- File `people.txt` became optional in LFW
+  (<https://github.com/openvinotoolkit/datumaro/pull/509>)
+- File `image_ids_and_rotation.csv` became optional Open Images
+  (<https://github.com/openvinotoolkit/datumaro/pull/509>)
+- Allowed underscores (`_`) in subset names in COCO
+  (<https://github.com/openvinotoolkit/datumaro/pull/509>)
+- Allowed annotation files with arbitrary names in COCO
+  (<https://github.com/openvinotoolkit/datumaro/pull/509>)
+
+### Deprecated
+- TBD
+
+### Removed
+- TBD
+
+### Fixed
+- TBD
+
+### Security
+- TBD
+
+## 14/10/2021 - Release v0.2
+### Added
 - A new installation target: `pip install datumaro[default]`, which should
   be used by default. The simple `datumaro` is supposed for library users.
   (<https://github.com/openvinotoolkit/datumaro/pull/238>)
@@ -23,14 +50,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/453>)
 - `patch` CLI command to patch datasets
   (<https://github.com/openvinotoolkit/datumaro/pull/401>)
-- `ProjectLabels` transform (library API only) to arrange dataset labels
-  for merging etc. (<https://github.com/openvinotoolkit/datumaro/pull/401>)
+- `ProjectLabels` transform to change dataset labels for merging etc.
+  (<https://github.com/openvinotoolkit/datumaro/pull/401>,
+   <https://github.com/openvinotoolkit/datumaro/pull/478>)
 - Support for custom labels in the KITTI detection format
   (<https://github.com/openvinotoolkit/datumaro/pull/481>)
 - Type annotations and docs for Annotation classes
   (<https://github.com/openvinotoolkit/datumaro/pull/493>)
-- Import for CelebA dataset format.
-  (<https://github.com/openvinotoolkit/datumaro/pull/484>)
+- Options to control label loading behavior in `imagenet_txt` import
+  (<https://github.com/openvinotoolkit/datumaro/pull/434>,
+  <https://github.com/openvinotoolkit/datumaro/pull/489>)
 
 ### Changed
 - A project can contain and manage multiple datasets instead of a single one.
@@ -86,6 +115,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/401>)
 - Remapping of secondary categories in `RemapLabels`
   (<https://github.com/openvinotoolkit/datumaro/pull/401>)
+- VOC dataset patching for classification and segmentation tasks
+  (<https://github.com/openvinotoolkit/datumaro/pull/478>)
 - Exported mask label ids in KITTI segmentation
   (<https://github.com/openvinotoolkit/datumaro/pull/481>)
 - Missing `label` for `Points` read in the LFW format
@@ -453,20 +484,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ```
 ## [Unreleased]
 ### Added
--
+- TBD
 
 ### Changed
--
+- TBD
 
 ### Deprecated
--
+- TBD
 
 ### Removed
--
+- TBD
 
 ### Fixed
--
+- TBD
 
 ### Security
--
+- TBD
 ```

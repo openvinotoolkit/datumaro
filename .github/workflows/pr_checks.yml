@@ -4,13 +4,16 @@ on:
     branches:
       - 'master'
   pull_request:
-    branches:
-      - '*'
+    types: [edited, ready_for_review, opened, synchronize, reopened]
 defaults:
   run:
     shell: bash
 jobs:
   build_and_test:
+    if: |
+      github.event.pull_request.draft == false &&
+      !startsWith(github.event.pull_request.title, '[WIP]') &&
+      !startsWith(github.event.pull_request.title, '[Dependent]')
     strategy:
       fail-fast: false
       matrix:

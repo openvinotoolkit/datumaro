@@ -1,4 +1,4 @@
-# Copyright (C) 2020 Intel Corporation
+# Copyright (C) 2020-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -60,7 +60,7 @@ class ImagenetImporter(Importer):
     def find_sources(cls, path):
         if not osp.isdir(path):
             return []
-        return [{ 'url': path, 'format': 'imagenet' }]
+        return [{ 'url': path, 'format': ImagenetExtractor.NAME }]
 
 
 class ImagenetConverter(Converter):

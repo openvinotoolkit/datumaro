@@ -3,9 +3,10 @@
 # SPDX-License-Identifier: MIT
 
 from collections import Counter
+from copy import deepcopy
 from enum import Enum, auto
 from itertools import chain
-from typing import Dict, List, Tuple, Union
+from typing import Dict, Iterable, List, Tuple, Union
 import logging as log
 import os.path as osp
 import random
@@ -225,7 +226,7 @@ class MasksToPolygons(ItemTransform, CliPlugin):
                     log.debug("[%s]: item %s: "
                         "Mask conversion to polygons resulted in too "
                         "small polygons, which were discarded" % \
-                        (self._get_name(__class__), item.id))
+                        (self.NAME, item.id))
                 annotations.extend(polygons)
             else:
                 annotations.append(ann)
@@ -497,36 +498,42 @@ class RemapLabels(ItemTransform, CliPlugin):
 
         self._categories = {}
 
-        src_label_cat = self._extractor.categories().get(AnnotationType.label)
+        src_categories = self._extractor.categories()
+
+        src_label_cat = src_categories.get(AnnotationType.label)
         if src_label_cat is not None:
             self._make_label_id_map(src_label_cat, mapping, default)
 
-        src_mask_cat = self._extractor.categories().get(AnnotationType.mask)
+        src_mask_cat = src_categories.get(AnnotationType.mask)
         if src_mask_cat is not None:
             assert src_label_cat is not None
-            dst_mask_cat = MaskCategories(attributes=src_mask_cat.attributes)
-            for old_id, _ in enumerate(src_label_cat.items):
+            dst_mask_cat = MaskCategories(
+                attributes=deepcopy(src_mask_cat.attributes))
+            for old_id, old_color in src_mask_cat.colormap.items():
                 new_id = self._map_id(old_id)
-                if old_id in src_mask_cat and new_id is not None and \
-                        new_id not in dst_mask_cat:
-                    dst_mask_cat.colormap[new_id] = src_mask_cat[old_id]
+                if new_id is not None and new_id not in dst_mask_cat:
+                    dst_mask_cat.colormap[new_id] = deepcopy(old_color)
 
             self._categories[AnnotationType.mask] = dst_mask_cat
 
-        src_point_cat = self._extractor.categories().get(AnnotationType.points)
+        src_point_cat = src_categories.get(AnnotationType.points)
         if src_point_cat is not None:
             assert src_label_cat is not None
-            dst_point_cat = PointsCategories(attributes=src_point_cat.attributes)
-            for old_id, _ in enumerate(src_label_cat.items):
+            dst_point_cat = PointsCategories(
+                attributes=deepcopy(src_point_cat.attributes))
+            for old_id, old_cat in src_point_cat.items.items():
                 new_id = self._map_id(old_id)
-                if old_id in src_point_cat and new_id is not None and \
-                        new_id not in dst_point_cat:
-                    dst_point_cat.items[new_id] = src_point_cat[old_id]
+                if new_id is not None and new_id not in dst_point_cat:
+                    dst_point_cat.items[new_id] = deepcopy(old_cat)
 
             self._categories[AnnotationType.points] = dst_point_cat
 
+        assert len(self._categories) == len(src_categories)
+
     def _make_label_id_map(self, src_label_cat, label_mapping, default_action):
-        dst_label_cat = LabelCategories(attributes=src_label_cat.attributes)
+        dst_label_cat = LabelCategories(
+            attributes=deepcopy(src_label_cat.attributes))
+
         id_mapping = {}
         for src_index, src_label in enumerate(src_label_cat.items):
             dst_label = label_mapping.get(src_label.name, NOTSET)
@@ -538,7 +545,7 @@ class RemapLabels(ItemTransform, CliPlugin):
             dst_index = dst_label_cat.find(dst_label)[0]
             if dst_index is None:
                 dst_index = dst_label_cat.add(dst_label,
-                    src_label.parent, src_label.attributes)
+                    src_label.parent, deepcopy(src_label.attributes))
             id_mapping[src_index] = dst_index
 
         if log.getLogger().isEnabledFor(log.DEBUG):
@@ -553,6 +560,10 @@ class RemapLabels(ItemTransform, CliPlugin):
                     log.debug("#%s '%s' -> <deleted>", src_id, src_label.name)
 
         self._map_id = lambda src_id: id_mapping.get(src_id, None)
+
+        for label in dst_label_cat:
+            if label.parent not in dst_label_cat:
+                label.parent = ''
         self._categories[AnnotationType.label] = dst_label_cat
 
     def categories(self):
@@ -572,43 +583,102 @@ class RemapLabels(ItemTransform, CliPlugin):
 class ProjectLabels(ItemTransform):
     """
     Changes the order of labels in the dataset from the existing
-    to the desired one and removes unknown labels. Updates or removes
-    the corresponding annotations.
-
-    Labels are matched by names (case dependent).
-
-    Useful for merging similar datasets.
+    to the desired one, removes unknown labels and adds new labels.
+    Updates or removes the corresponding annotations.|n
+    |n
+    Labels are matched by names (case dependent). Parent labels are only kept
+    if they are present in the resulting set of labels. If new labels are
+    added, and the dataset has mask colors defined, new labels will obtain
+    generated colors.|n
+    |n
+    Useful for merging similar datasets, whose labels need to be aligned.|n
+    |n
+    Examples:|n
+    - Align the source dataset labels to [person, cat, dog]:|n
+    |s|s%(prog)s -l person -l cat -l dog
     """
 
-    def __init__(self, extractor: IExtractor, dst_labels: LabelCategories):
+    @classmethod
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument('-l', '--label', action='append', dest='dst_labels',
+            help="Label name (repeatable, ordered)")
+        return parser
+
+    def __init__(self, extractor: IExtractor,
+            dst_labels: Union[Iterable[str], LabelCategories]):
         super().__init__(extractor)
 
         self._categories = {}
 
-        src_label_cat = self._extractor.categories().get(AnnotationType.label)
-        self._make_label_id_map(src_label_cat, dst_labels)
+        src_categories = self._extractor.categories()
 
-        src_mask_cat = self._extractor.categories().get(AnnotationType.mask)
+        src_label_cat = src_categories.get(AnnotationType.label)
+
+        if isinstance(dst_labels, LabelCategories):
+            dst_label_cat = deepcopy(dst_labels)
+        else:
+            dst_labels = list(dst_labels)
+
+            if src_label_cat:
+                dst_label_cat = LabelCategories(
+                    attributes=deepcopy(src_label_cat.attributes))
+
+                for dst_label in dst_labels:
+                    assert isinstance(dst_label, str)
+                    src_label = src_label_cat.find(dst_label)[1]
+                    if src_label is not None:
+                        dst_label_cat.add(dst_label, src_label.parent,
+                            deepcopy(src_label.attributes))
+                    else:
+                        dst_label_cat.add(dst_label)
+            else:
+                dst_label_cat = LabelCategories.from_iterable(dst_labels)
+
+        for label in dst_label_cat:
+            if label.parent not in dst_label_cat:
+                label.parent = ''
+        self._categories[AnnotationType.label] = dst_label_cat
+
+        self._make_label_id_map(src_label_cat, dst_label_cat)
+
+        src_mask_cat = src_categories.get(AnnotationType.mask)
         if src_mask_cat is not None:
             assert src_label_cat is not None
-            dst_mask_cat = MaskCategories(attributes=src_mask_cat.attributes)
-            for old_id, _ in enumerate(src_label_cat.items):
+            dst_mask_cat = MaskCategories(
+                attributes=deepcopy(src_mask_cat.attributes))
+            for old_id, old_color in src_mask_cat.colormap.items():
                 new_id = self._map_id(old_id)
-                if old_id in src_mask_cat and new_id is not None and \
-                        new_id not in dst_mask_cat:
-                    dst_mask_cat.colormap[new_id] = src_mask_cat[old_id]
+                if new_id is not None and new_id not in dst_mask_cat:
+                    dst_mask_cat.colormap[new_id] = deepcopy(old_color)
+
+            # Generate new colors for new labels, keep old untouched
+            existing_colors = set(dst_mask_cat.colormap.values())
+            color_bank = iter(mask_tools.generate_colormap(
+                len(dst_label_cat), include_background=False).values())
+            for new_id, new_label in enumerate(dst_label_cat):
+                if new_label.name in src_label_cat:
+                    continue
+                if new_id in dst_mask_cat:
+                    continue
+
+                color = next(color_bank)
+                while color in existing_colors:
+                    color = next(color_bank)
+
+                dst_mask_cat.colormap[new_id] = color
 
             self._categories[AnnotationType.mask] = dst_mask_cat
 
-        src_point_cat = self._extractor.categories().get(AnnotationType.points)
+        src_point_cat = src_categories.get(AnnotationType.points)
         if src_point_cat is not None:
             assert src_label_cat is not None
-            dst_point_cat = PointsCategories(attributes=src_point_cat.attributes)
-            for old_id, _ in enumerate(src_label_cat.items):
+            dst_point_cat = PointsCategories(
+                attributes=deepcopy(src_point_cat.attributes))
+            for old_id, old_cat in src_point_cat.items.items():
                 new_id = self._map_id(old_id)
-                if old_id in src_point_cat and new_id is not None and \
-                        new_id not in dst_point_cat:
-                    dst_point_cat.items[new_id] = src_point_cat[old_id]
+                if new_id is not None and new_id not in dst_point_cat:
+                    dst_point_cat.items[new_id] = deepcopy(old_cat)
 
             self._categories[AnnotationType.points] = dst_point_cat
 
@@ -618,7 +688,6 @@ class ProjectLabels(ItemTransform):
             for src_id in range(len(src_label_cat or ()))
         }
         self._map_id = lambda src_id: id_mapping.get(src_id, None)
-        self._categories[AnnotationType.label] = dst_label_cat
 
     def categories(self):
         return self._categories

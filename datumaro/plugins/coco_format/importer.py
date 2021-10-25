@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2020 Intel Corporation
+# Copyright (C) 2019-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -6,8 +6,12 @@ from glob import glob
 import logging as log
 import os.path as osp
 
-from datumaro.components.extractor import Importer
-from datumaro.util import parse_str_enum_value
+from datumaro.components.extractor import DEFAULT_SUBSET_NAME, Importer
+from datumaro.plugins.coco_format.extractor import (
+    CocoCaptionsExtractor, CocoImageInfoExtractor, CocoInstancesExtractor,
+    CocoLabelsExtractor, CocoPanopticExtractor, CocoPersonKeypointsExtractor,
+    CocoStuffExtractor,
+)
 from datumaro.util.log_utils import logging_disabled
 
 from .format import CocoTask
@@ -15,22 +19,22 @@ from .format import CocoTask
 
 class CocoImporter(Importer):
     _TASKS = {
-        CocoTask.instances: 'coco_instances',
-        CocoTask.person_keypoints: 'coco_person_keypoints',
-        CocoTask.captions: 'coco_captions',
-        CocoTask.labels: 'coco_labels',
-        CocoTask.image_info: 'coco_image_info',
-        CocoTask.panoptic: 'coco_panoptic',
-        CocoTask.stuff: 'coco_stuff',
+        CocoTask.instances: CocoInstancesExtractor,
+        CocoTask.person_keypoints: CocoPersonKeypointsExtractor,
+        CocoTask.captions: CocoCaptionsExtractor,
+        CocoTask.labels: CocoLabelsExtractor,
+        CocoTask.image_info: CocoImageInfoExtractor,
+        CocoTask.panoptic: CocoPanopticExtractor,
+        CocoTask.stuff: CocoStuffExtractor,
     }
 
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
         parser = super().build_cmdline_parser(**kwargs)
         parser.add_argument('--keep-original-category-ids', action='store_true',
-            help="Add dummy label categories so that category indexes"
-                " correspond to the category IDs in the original annotation"
-                " file")
+            help="Add dummy label categories so that category indices "
+                "correspond to the category IDs in the original annotation "
+                "file")
         return parser
 
     @classmethod
@@ -70,7 +74,7 @@ class CocoImporter(Importer):
 
                 sources.append({
                     'url': ann_file,
-                    'format': self._TASKS[ann_type],
+                    'format': self._TASKS[ann_type].NAME,
                     'options': dict(extra_params),
                 })
 
@@ -78,6 +82,12 @@ class CocoImporter(Importer):
 
     @classmethod
     def find_sources(cls, path):
+        def detect_coco_task(filename):
+            for task in CocoTask:
+                if filename.startswith(task.name + '_'):
+                    return task
+            return None
+
         if osp.isfile(path):
             if len(cls._TASKS) == 1:
                 return {'': { next(iter(cls._TASKS)): path }}
@@ -90,15 +100,20 @@ class CocoImporter(Importer):
 
         subsets = {}
         for subset_path in subset_paths:
-            name_parts = osp.splitext(osp.basename(subset_path))[0] \
-                .rsplit('_', maxsplit=1)
+            ann_type = detect_coco_task(osp.basename(subset_path))
+            if ann_type is None and len(cls._TASKS) == 1:
+                ann_type = list(cls._TASKS)[0]
 
-            ann_type = parse_str_enum_value(name_parts[0], CocoTask,
-                default=None)
             if ann_type not in cls._TASKS:
+                log.warning("File '%s' was skipped, could't match this file "
+                    "with any of these tasks: %s" %
+                    (subset_path, ','.join(e.NAME for e in cls._TASKS.values()))
+                )
                 continue
 
-            subset_name = name_parts[1]
+            parts = osp.splitext(osp.basename(subset_path))[0] \
+                .split(ann_type.name + '_', maxsplit=1)
+            subset_name = parts[1] if len(parts) == 2 else DEFAULT_SUBSET_NAME
             subsets.setdefault(subset_name, {})[ann_type] = subset_path
 
         return subsets

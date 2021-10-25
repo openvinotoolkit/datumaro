@@ -31,7 +31,7 @@ def _get_action_name(command):
         return 'project_validate_result'
     elif command is contexts.project.migrate_command:
         return 'project_migrate_result'
-    elif command is contexts.source.add_command:
+    elif command is contexts.source.import_command:
         return 'source_add_result'
     elif command is contexts.source.remove_command:
         return 'source_remove_result'
