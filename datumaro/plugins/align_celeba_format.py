@@ -5,7 +5,7 @@
 import os.path as osp
 
 from datumaro.components.annotation import (
-    AnnotationType, Label, LabelCategories, Points,
+    AnnotationType, Label, LabelCategories, Points, PointsCategories
 )
 from datumaro.components.errors import DatasetImportError
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
@@ -71,15 +71,20 @@ class AlignCelebaExtractor(SourceExtractor):
             with open(landmark_path, encoding='utf-8') as f:
                 landmarks_number = int(f.readline().strip())
 
-                if f.readline().strip() != AlignCelebaPath.LANDMARKS_HEADER:
-                    raise DatasetImportError("File '%s': the header "
-                        "does not match the expected format '%s'" % \
-                        (landmark_path, AlignCelebaPath.LANDMARKS_HEADER))
+                point_cat = PointsCategories()
+                for i, point_name in enumerate(f.readline().strip().split()):
+                    point_cat.add(i, [point_name])
+                self._categories[AnnotationType.points] = point_cat
 
                 counter = 0
                 for counter, line in enumerate(f):
                     item_id, item_ann = self.split_annotation(line)
                     landmarks = [float(id) for id in item_ann]
+
+                    if len(landmarks) != len(point_cat):
+                        raise DatasetImportError("File '%s', line %s: "
+                            "points do not match the header of this file" % \
+                            (landmark_path, line))
 
                     if item_id not in items:
                         raise DatasetImportError("File '%s', line %s: "
