@@ -1,6 +1,10 @@
-@ECHO OFF
+@ECHO ON
+
+cd ..
 
 pushd %~dp0
+
+cd ..
 
 REM Command file for Sphinx documentation
 
@@ -33,3 +37,5 @@ goto end
 
 :end
 popd
+
+cmd /k
