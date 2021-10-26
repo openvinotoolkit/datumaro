@@ -11,7 +11,7 @@ Welcome to Datumaro API documentation!
    :maxdepth: 5
    :glob:
 
-   *
+   Main doccumentation <https://tosmanov.github.io/datumaro/docs/>
 
    :caption: Contents:
 

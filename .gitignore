@@ -67,4 +67,4 @@ site/node_modules/
 site/tech-doc-hugo
 
 # Temporary sphinx files
-build/
+site/static/api

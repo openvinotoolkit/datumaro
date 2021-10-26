@@ -5,8 +5,8 @@
 # from the environment for the first two.
 SPHINXOPTS    ?=
 SPHINXBUILD   ?= sphinx-build
-SOURCEDIR     = source
-BUILDDIR      = build
+SOURCEDIR     = site\source
+BUILDDIR      = site\static\api
 
 # Put it first so that "make" without argument is like "make help".
 help:
