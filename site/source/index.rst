@@ -11,8 +11,9 @@ Welcome to Datumaro API documentation!
    :maxdepth: 5
    :glob:
 
-   Main doccumentation <https://openvinotoolkit.github.io/datumaro/docs/>
-
+   Main documentation <https://openvinotoolkit.github.io/datumaro/docs/>
+   *
+   
    :caption: Contents:
 
 
