@@ -2,5 +2,5 @@
   path = site/themes/docsy
   url = https://github.com/google/docsy.git
 [submodule "site/source/_themes"]
-	path = site/source/_themes
-	url = https://github.com/readthedocs/sphinx_rtd_theme.git
+  path = site/source/_themes
+  url = https://github.com/readthedocs/sphinx_rtd_theme.git
