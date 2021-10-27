@@ -520,24 +520,24 @@ class CocoConverter(Converter):
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
         kwargs['description'] = """
-            Segmentation mask modes ('--segmentation-mode'):|n
-            - '{sm.guess.name}': guess the mode for each instance,|n
-            |s|suse 'is_crowd' attribute as hint|n
-            - '{sm.polygons.name}': save polygons,|n
-            |s|smerge and convert masks, prefer polygons|n
-            - '{sm.mask.name}': save masks,|n
-            |s|smerge and convert polygons, prefer masks|n
-            |n
+            Segmentation mask modes ('--segmentation-mode'):
+            - '{sm.guess.name}': guess the mode for each instance,
+              use 'is_crowd' attribute as hint
+            - '{sm.polygons.name}': save polygons,
+              merge and convert masks, prefer polygons
+            - '{sm.mask.name}': save masks,
+              merge and convert polygons, prefer masks
+
             The '--reindex' option allows to control if the images and
             annotations must be given new indices. It can be useful, when
             you want to preserve the original indices in the produced dataset.
             Consider having this option enabled when converting from other
-            formats.|n
-            |n
+            formats.
+
             The '--allow-attributes' parameter enables or disables writing
             the custom annotation attributes to the "attributes" annotation
-            field. This field is an extension to the original COCO format.|n
-            |n
+            field. This field is an extension to the original COCO format.
+
             The '--merge-images' parameter controls the output directory for
             images. When enabled, the dataset images are saved into a single
             directory, otherwise they are saved in separate directories

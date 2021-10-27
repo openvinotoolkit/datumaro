@@ -27,18 +27,18 @@ class UnderSamplingMethod(Enum):
     inverse = auto()
 
 class NDR(Transform, CliPlugin):
-    r"""
-    Near-duplicated image removal.|n
-    |n
-    Removes near-duplicated images in subset|n
-    |n
-    Example: apply NDR, return no more than 100 images|n
-    |s|s%(prog)s|n
-    |s|s|s|s--working_subset train|n
-    |s|s|s|s--algorithm gradient|n
-    |s|s|s|s--num_cut 100|n
-    |s|s|s|s--over_sample random|n
-    |s|s|s|s--under_sample uniform
+    """
+    Near-duplicated image removal.
+
+    Removes near-duplicated images in subset
+
+    Example: apply NDR, return no more than 100 images
+      %(prog)s
+        --working_subset train
+        --algorithm gradient
+        --num_cut 100
+        --over_sample random
+        --under_sample uniform
     """
 
     @classmethod
@@ -76,7 +76,7 @@ class NDR(Transform, CliPlugin):
         Near-duplicated image removal
 
         Arguments
-        ---------------
+        ---------
         working_subset: str
             name of the subset to operate
             if None, use DEFAULT_SUBSET_NAME
@@ -110,7 +110,7 @@ class NDR(Transform, CliPlugin):
                 the threshold value for saving hash-collided samples.
                 larger value means more generous, i.e., saving more samples
         Return
-        ---------------
+        ------
         None, other subsets combined with the result
         """
         super().__init__(extractor)

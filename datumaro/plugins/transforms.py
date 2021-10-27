@@ -319,10 +319,10 @@ class MapSubsets(ItemTransform, CliPlugin):
 class RandomSplit(Transform, CliPlugin):
     """
     Joins all subsets into one and splits the result into few parts.
-    It is expected that item ids are unique and subset ratios sum up to 1.|n
-    |n
-    Example:|n
-    |s|s%(prog)s --subset train:.67 --subset test:.33
+    It is expected that item ids are unique and subset ratios sum up to 1.
+
+    Example:
+        %(prog)s --subset train:.67 --subset test:.33
     """
 
     # avoid https://bugs.python.org/issue16399
@@ -407,13 +407,13 @@ class Rename(ItemTransform, CliPlugin):
     Renames items in the dataset. Supports regular expressions.
     The first character in the expression is a delimiter for
     the pattern and replacement parts. Replacement part can also
-    contain string.format tokens with 'item' object available.|n
-    |n
-    Examples:|n
-    - Replace 'pattern' with 'replacement':|n
-    |s|srename -e '|pattern|replacement|'|n
-    - Remove 'frame_' from item ids:|n
-    |s|srename -e '|frame_(\d+)|\1|'
+    contain string.format tokens with 'item' object available.
+
+    Examples:
+        - Replace 'pattern' with 'replacement':
+        rename -e '|pattern|replacement|'
+        - Remove 'frame_' from item ids:
+        rename -e '|frame_(\d+)|\1|'
     """
 
     @classmethod
@@ -438,25 +438,25 @@ class Rename(ItemTransform, CliPlugin):
 
 class RemapLabels(ItemTransform, CliPlugin):
     """
-    Changes labels in the dataset.|n
-    |n
-    A label can be:|n
-    - renamed (and joined with existing) -|n
-    |s|swhen specified '--label <old_name>:<new_name>'|n
-    - deleted - when specified '--label <name>:' or default action is 'delete'|n
-    |s|sand the label is not mentioned in the list. When a label|n
-    |s|sis deleted, all the associated annotations are removed|n
-    - kept unchanged - when specified '--label <name>:<name>'|n
-    |s|sor default action is 'keep' and the label is not mentioned in the list|n
-    Annotations with no label are managed by the default action policy.|n
-    |n
-    Examples:|n
-    - Remove the 'person' label (and corresponding annotations):|n
-    |s|s%(prog)s -l person: --default keep|n
-    - Rename 'person' to 'pedestrian' and 'human' to 'pedestrian', join:|n
-    |s|s%(prog)s -l person:pedestrian -l human:pedestrian --default keep|n
-    - Rename 'person' to 'car' and 'cat' to 'dog', keep 'bus', remove others:|n
-    |s|s%(prog)s -l person:car -l bus:bus -l cat:dog --default delete
+    Changes labels in the dataset.
+
+    A label can be:
+        - renamed (and joined with existing) -
+        when specified '--label <old_name>:<new_name>'
+        - deleted - when specified '--label <name>:' or default action is 'delete'
+        and the label is not mentioned in the list. When a label
+        is deleted, all the associated annotations are removed
+        - kept unchanged - when specified '--label <name>:<name>'
+        or default action is 'keep' and the label is not mentioned in the list
+        Annotations with no label are managed by the default action policy.
+
+    Examples:
+        - Remove the 'person' label (and corresponding annotations):
+            %(prog)s -l person: --default keep
+        - Rename 'person' to 'pedestrian' and 'human' to 'pedestrian', join:
+            %(prog)s -l person:pedestrian -l human:pedestrian --default keep
+        - Rename 'person' to 'car' and 'cat' to 'dog', keep 'bus', remove others:
+            %(prog)s -l person:car -l bus:bus -l cat:dog --default delete
     """
 
     class DefaultAction(Enum):
@@ -584,18 +584,18 @@ class ProjectLabels(ItemTransform):
     """
     Changes the order of labels in the dataset from the existing
     to the desired one, removes unknown labels and adds new labels.
-    Updates or removes the corresponding annotations.|n
-    |n
+    Updates or removes the corresponding annotations.
+
     Labels are matched by names (case dependent). Parent labels are only kept
     if they are present in the resulting set of labels. If new labels are
     added, and the dataset has mask colors defined, new labels will obtain
-    generated colors.|n
-    |n
-    Useful for merging similar datasets, whose labels need to be aligned.|n
-    |n
-    Examples:|n
-    - Align the source dataset labels to [person, cat, dog]:|n
-    |s|s%(prog)s -l person -l cat -l dog
+    generated colors.
+
+    Useful for merging similar datasets, whose labels need to be aligned.
+
+    Examples:
+        - Align the source dataset labels to [person, cat, dog]:
+            %(prog)s -l person -l cat -l dog
     """
 
     @classmethod

@@ -22,36 +22,36 @@ def build_import_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(help="Import dataset to project",
         description="""
         Imports a data source to a project. A data source is a dataset
-        in a supported format (check 'formats' section below).|n
-        |n
-        Currently, only local paths to sources are supported.|n
-        During importing, a source is copied into the project.|n
-        |n
-        Formats:|n
+        in a supported format (check 'formats' section below).
+
+        Currently, only local paths to sources are supported.
+        During importing, a source is copied into the project.
+
+        Formats:
         Datasets come in a wide variety of formats. Each dataset
         format defines its own data structure and rules on how to
         interpret the data. Check the user manual for the list of
         supported formats, examples and documentation.
-        |n
+
         The list of supported formats can be extended by plugins.
         Check the "plugins" section of the developer guide for information
-        about plugin implementation.|n
-        |n
+        about plugin implementation.
+
         Each dataset format has its own import options, which are passed
-        after the '--' separator (see examples), pass '-- -h' for more info.|n
-        |n
-        Builtin formats: {}|n
-        |n
-        Examples:|n
-        - Add a local directory with a VOC-like dataset:|n
-        |s|s%(prog)s -f voc path/to/voc|n
-        |n
-        - Add a directory with a COCO dataset, use only a specific file:|n
-        |s|s%(prog)s -f coco_instances -r anns/train.json path/to/coco|n
-        |n
-        - Add a local file with CVAT annotations, call it 'mysource'|n
-        |s|s|s|sto the project in a specific place:|n
-        |s|s%(prog)s -f cvat -n mysource -p project/path/ path/to/cvat.xml
+        after the '--' separator (see examples), pass '-- -h' for more info.
+
+        Builtin formats: {}
+
+        Examples:
+        - Add a local directory with a VOC-like dataset:
+          %(prog)s -f voc path/to/voc
+
+        - Add a directory with a COCO dataset, use only a specific file:
+          %(prog)s -f coco_instances -r anns/train.json path/to/coco
+
+        - Add a local file with CVAT annotations, call it 'mysource'
+            to the project in a specific place:
+          %(prog)s -f cvat -n mysource -p project/path/ path/to/cvat.xml
         """.format(', '.join(builtins)),
         formatter_class=MultilineFormatter)
 
@@ -153,34 +153,34 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(help="Add data source to project",
         description="""
         Adds a data source to a project. A data source is a dataset
-        in a supported format (check 'formats' section below).|n
-        |n
+        in a supported format (check 'formats' section below).
+
         The command adds a project-local directory as a data source in
         the project. Unlike the "import" command, it does not copy datasets
         and only works with local directories. The source name is defined by
-        the directory name.|n
-        |n
-        Formats:|n
+        the directory name.
+
+        Formats:
         Datasets come in a wide variety of formats. Each dataset
         format defines its own data structure and rules on how to
         interpret the data. Check the user manual for the list of
         supported formats, examples and documentation.
-        |n
+
         The list of supported formats can be extended by plugins.
         Check the "plugins" section of the developer guide for information
-        about plugin implementation.|n
-        |n
+        about plugin implementation.
+
         Each dataset format has its own import options, which are passed
-        after the '--' separator (see examples), pass '-- -h' for more info.|n
-        |n
-        Builtin formats: {}|n
-        |n
-        Examples:|n
-        - Add a local directory with a VOC-like dataset:|n
-        |s|s%(prog)s -f voc my_dataset/|n
-        |n
-        - Add a directory with a COCO dataset, use only a specific file:|n
-        |s|s%(prog)s -f coco_instances -r anns/train.json my_source/
+        after the '--' separator (see examples), pass '-- -h' for more info.
+
+        Builtin formats: {}
+
+        Examples:
+        - Add a local directory with a VOC-like dataset:
+          %(prog)s -f voc my_dataset/
+
+        - Add a directory with a COCO dataset, use only a specific file:
+          %(prog)s -f coco_instances -r anns/train.json my_source/
         """.format(', '.join(builtins)),
         formatter_class=MultilineFormatter)
 
@@ -335,13 +335,13 @@ def info_command(args):
 
 def build_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(description="""
-            Manipulate data sources inside of a project.|n
-            |n
+            Manipulate data sources inside of a project.
+
             A data source is a source of data for a project.
             The project combines multiple data sources into one dataset.
             The role of a data source is to provide dataset items - images
-            and/or annotations.|n
-            |n
+            and/or annotations.
+
             By default, the project to be operated on is searched for
             in the current directory. An additional '-p' argument can be
             passed to specify project location.

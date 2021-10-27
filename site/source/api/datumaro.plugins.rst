@@ -5,7 +5,7 @@ Subpackages
 -----------
 
 .. toctree::
-   :maxdepth: 5
+   :maxdepth: 20
 
    datumaro.plugins.accuracy_checker_plugin
    datumaro.plugins.coco_format

@@ -14,25 +14,25 @@ from .algorithm.algorithm import Algorithm, SamplingMethod
 
 class Sampler(Transform, CliPlugin):
     r"""
-    Sampler that analyzes model inference results on the dataset |n
-    and picks the best sample for training.|n
-    |n
-    Notes:|n
+    Sampler that analyzes model inference results on the dataset
+    and picks the best sample for training.
+
+    Notes:
     - Each image's inference result must contain the probability for
-    all classes.|n
+    all classes.
     - Requesting a sample larger than the number of all images will
-    return all images.|n
-    |n
-    Example: select the most relevant data subset of 20 images |n
-    |s|sbased on model certainty, put the result into 'sample' subset
-    |s|sand put all the rest into 'unsampled' subset, use 'train' subset |n
-    |s|sas input. |n
-    |s|s%(prog)s \ |n
-    |s|s|s|s--algorithm entropy \ |n
-    |s|s|s|s--subset_name train \ |n
-    |s|s|s|s--sample_name sample \ |n
-    |s|s|s|s--unsampled_name unsampled \ |n
-    |s|s|s|s--sampling_method topk -k 20
+    return all images.
+
+    Example: select the most relevant data subset of 20 images
+      based on model certainty, put the result into 'sample' subset
+      and put all the rest into 'unsampled' subset, use 'train' subset
+      as input.
+      %(prog)s \
+        --algorithm entropy \
+        --subset_name train \
+        --sample_name sample \
+        --unsampled_name unsampled \
+        --sampling_method topk -k 20
     """
 
     @classmethod

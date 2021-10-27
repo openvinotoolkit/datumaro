@@ -4,37 +4,37 @@
    contain the root `toctree` directive.
 
 Welcome to Datumaro API documentation!
-======================================
+######################################
+
+This API Dataset Management Framework Documentation (Datumaro).
+
+**Contents:**
 
 .. toctree::
-   :numbered:
-   :maxdepth: 5
+   :maxdepth: 2
    :glob:
 
-   Main documentation <https://openvinotoolkit.github.io/datumaro/docs/>
-   *
-   
-   :caption: Contents:
+   /*
 
+API Documentation Contents
+***************************
 
+.. toctree::
+   :maxdepth: 1
+   :glob:
+
+   /api/*
+
+Navigation
+**********
+
+.. toctree::
+
+   Back to main documentation <https://openvinotoolkit.github.io/datumaro/docs/>
 
 Indices and tables
-==================
+******************
 
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
-Installation
-------------
-
-To install datumaro, use setur.py
-The `setuptools.setup` contains options for installing Datumaro.
-
-.. autoclass:: setuptools.setup
-   :members:
-
-The version is determined using the function ``find_version``. The version is taken from the file `datumaro/version.py`
-
-.. autofunction:: find_version
-   :members:

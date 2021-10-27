@@ -5,7 +5,7 @@ Subpackages
 -----------
 
 .. toctree::
-   :maxdepth: 5
+   :maxdepth: 20
 
    datumaro.cli
    datumaro.components

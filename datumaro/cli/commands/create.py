@@ -18,14 +18,16 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(help="Create empty project",
         description="""
         Create an empty Datumaro project. A project is required for the most of
-        Datumaro functionality.|n
-        |n
-        Examples:|n
-        - Create a project in the current directory:|n
-        |s|s%(prog)s|n
-        |n
-        - Create a project in other directory:|n
-        |s|s%(prog)s -o path/I/like/
+        Datumaro functionality.
+
+        Examples:
+        - Create a project in the current directory:
+
+            %(prog)s
+
+        - Create a project in other directory:
+
+            %(prog)s -o path/I/like/
         """,
         formatter_class=MultilineFormatter)
 

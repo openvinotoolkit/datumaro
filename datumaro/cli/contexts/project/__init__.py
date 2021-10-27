@@ -74,39 +74,39 @@ def build_export_parser(parser_ctor=argparse.ArgumentParser):
 
     parser = parser_ctor(help="Export project",
         description="""
-        Exports a project in some format.|n
-        |n
+        Exports a project in some format.
+
         Each dataset format has its own export
         options, which are passed after the '--' separator (see examples),
         pass '-- -h' for more info. If not stated otherwise, by default
         only annotations are exported, to include images pass
-        '--save-images' parameter.|n
-        |n
+        '--save-images' parameter.
+
         A filter can be passed, check the 'filter' command description for
-        more info.|n
-        |n
-        Formats:|n
+        more info.
+
+        Formats:
         Datasets come in a wide variety of formats. Each dataset
         format defines its own data structure and rules on how to
         interpret the data. Check the user manual for the list of
         supported formats, examples and documentation.
-        |n
+
         The list of supported formats can be extended by plugins.
         Check the "plugins" section of the developer guide for information
-        about plugin implementation.|n
-        |n
-        List of builtin dataset formats: {}|n
-        |n
+        about plugin implementation.
+
+        List of builtin dataset formats: {}
+
         The command can only be applied to a project build target, a stage
         or the combined 'project' target, in which case all the targets will
         be affected.
-        |n
-        Examples:|n
-        - Export project as a VOC-like dataset, include images:|n
-        |s|s%(prog)s -f voc -- --save-images|n
-        |n
-        - Export project as a COCO-like dataset in other directory:|n
-        |s|s%(prog)s -f coco -o path/I/like/
+
+        Examples:
+        - Export project as a VOC-like dataset, include images:
+          %(prog)s -f voc -- --save-images
+
+        - Export project as a COCO-like dataset in other directory:
+          %(prog)s -f coco -o path/I/like/
         """.format(', '.join(builtins)),
         formatter_class=MultilineFormatter)
 
@@ -209,70 +209,70 @@ def export_command(args):
 def build_filter_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(help="Extract subdataset",
         description="""
-        Extracts a subdataset that contains only items matching filter.|n
-        |n
+        Extracts a subdataset that contains only items matching filter.
+
         By default, datasets are updated in-place. The '-o/--output-dir'
         option can be used to specify another output directory. When
         updating in-place, use the '--overwrite' parameter (in-place
         updates fail by default to prevent data loss), unless a project
-        target is modified.|n
-        |n
+        target is modified.
+
         A filter is an XPath expression, which is applied to XML
         representation of a dataset item. Check '--dry-run' parameter
-        to see XML representations of the dataset items.|n
-        |n
-        To filter annotations use the mode ('-m') parameter.|n
-        Supported modes:|n
-        - 'i', 'items'|n
-        - 'a', 'annotations'|n
-        - 'i+a', 'a+i', 'items+annotations', 'annotations+items'|n
+        to see XML representations of the dataset items.
+
+        To filter annotations use the mode ('-m') parameter.
+        Supported modes:
+        - 'i', 'items'
+        - 'a', 'annotations'
+        - 'i+a', 'a+i', 'items+annotations', 'annotations+items'
         When filtering annotations, use the 'items+annotations'
         mode to point that annotation-less dataset items should be
         removed. To select an annotation, write an XPath that
-        returns 'annotation' elements (see examples).|n
-        |n
+        returns 'annotation' elements (see examples).
+
         This command has the following invocation syntax:
-        - %(prog)s <target dataset revpath>|n
-        |n
+        - %(prog)s <target dataset revpath>
+
         <revpath> - either a dataset path or a revision path. The full
-        syntax is:|n
-        - Dataset paths:|n
-        |s|s- <dataset path>[ :<format> ]|n
-        - Revision paths:|n
-        |s|s- <project path> [ @<rev> ] [ :<target> ]|n
-        |s|s- <rev> [ :<target> ]|n
-        |s|s- <target>|n
-        |n
+        syntax is:
+        - Dataset paths:
+          - <dataset path>[ :<format> ]
+        - Revision paths:
+          - <project path> [ @<rev> ] [ :<target> ]
+          - <rev> [ :<target> ]
+          - <target>
+
         The current project (-p/--project) is also used as a context for
         plugins, so it can be useful for dataset paths having custom formats.
-        When not specified, the current project's working tree is used.|n
-        |n
+        When not specified, the current project's working tree is used.
+
         The command can be applied to a dataset or a project build target,
         a stage or the combined 'project' target, in which case all the
         targets will be affected. A build tree stage will be recorded
         if '--stage' is enabled, and the resulting dataset(-s) will be
-        saved if '--apply' is enabled.|n
-        |n
-        Examples:|n
-        - Filter images with width < height:|n
-        |s|s%(prog)s -e '/item[image/width < image/height]'|n
-        |n
-        - Filter images with large-area bboxes:|n
-        |s|s%(prog)s -e '/item[annotation/type="bbox" and
-            annotation/area>2000]'|n
-        |n
-        - Filter out all irrelevant annotations from items:|n
-        |s|s%(prog)s -m a -e '/item/annotation[label = "person"]'|n
-        |n
-        - Filter out all irrelevant annotations from items:|n
-        |s|s%(prog)s -m a -e '/item/annotation[label="cat" and
-        area > 99.5]'|n
-        |n
-        - Filter occluded annotations and items, if no annotations left:|n
-        |s|s%(prog)s -m i+a -e '/item/annotation[occluded="True"]'|n
-        |n
-        - Filter a VOC-like dataset inplace:|n
-        |s|s%(prog)s -e '/item/annotation[label = "bus"]' --overwrite dataset/:voc
+        saved if '--apply' is enabled.
+
+        Examples:
+        - Filter images with width < height:
+          %(prog)s -e '/item[image/width < image/height]'
+
+        - Filter images with large-area bboxes:
+          %(prog)s -e '/item[annotation/type="bbox" and
+            annotation/area>2000]'
+
+        - Filter out all irrelevant annotations from items:
+          %(prog)s -m a -e '/item/annotation[label = "person"]'
+
+        - Filter out all irrelevant annotations from items:
+          %(prog)s -m a -e '/item/annotation[label="cat" and
+        area > 99.5]'
+
+        - Filter occluded annotations and items, if no annotations left:
+          %(prog)s -m i+a -e '/item/annotation[occluded="True"]'
+
+        - Filter a VOC-like dataset inplace:
+          %(prog)s -e '/item/annotation[label = "bus"]' --overwrite dataset/:voc
         """,
         formatter_class=MultilineFormatter)
 
@@ -407,51 +407,51 @@ def build_transform_parser(parser_ctor=argparse.ArgumentParser):
 
     parser = parser_ctor(help="Transform project",
         description="""
-        Applies a batch operation to a dataset and produces a new dataset.|n
-        |n
+        Applies a batch operation to a dataset and produces a new dataset.
+
         By default, datasets are updated in-place. The '-o/--output-dir'
         option can be used to specify another output directory. When
         updating in-place, use the '--overwrite' parameter (in-place
         updates fail by default to prevent data loss), unless a project
-        target is modified.|n
-        |n
-        Builtin transforms: {}|n
-        |n
+        target is modified.
+
+        Builtin transforms: {}
+
         This command has the following invocation syntax:
-        - %(prog)s <target dataset revpath>|n
-        |n
+        - %(prog)s <target dataset revpath>
+
         <revpath> - either a dataset path or a revision path. The full
-        syntax is:|n
-        - Dataset paths:|n
-        |s|s- <dataset path>[ :<format> ]|n
-        - Revision paths:|n
-        |s|s- <project path> [ @<rev> ] [ :<target> ]|n
-        |s|s- <rev> [ :<target> ]|n
-        |s|s- <target>|n
-        |n
+        syntax is:
+        - Dataset paths:
+          - <dataset path>[ :<format> ]
+        - Revision paths:
+          - <project path> [ @<rev> ] [ :<target> ]
+          - <rev> [ :<target> ]
+          - <target>
+
         The current project (-p/--project) is also used as a context for
         plugins, so it can be useful for dataset paths having custom formats.
-        When not specified, the current project's working tree is used.|n
-        |n
+        When not specified, the current project's working tree is used.
+
         The command can be applied to a dataset or a project build target,
         a stage or the combined 'project' target, in which case all the
         targets will be affected. A build tree stage will be recorded
         if '--stage' is enabled, and the resulting dataset(-s) will be
-        saved if '--apply' is enabled.|n
-        |n
-        Examples:|n
-        - Convert instance polygons to masks:|n
-        |s|s%(prog)s -t polygons_to_masks|n
-        |n
-        - Rename dataset items by a regular expression|n
-        |s|s- Replace 'pattern' with 'replacement'|n|n
-        |s|s%(prog)s -t rename -- -e '|pattern|replacement|'|n
-        |n
-        |s|s- Remove 'frame_' from item ids|n
-        |s|s%(prog)s -t rename -- -e '|frame_(\\d+)|\\1|'|n
-        |n
-        - Split a dataset randomly:|n
-        |s|s%(prog)s -t random_split --overwrite path/to/dataset:voc
+        saved if '--apply' is enabled.
+
+        Examples:
+        - Convert instance polygons to masks:
+          %(prog)s -t polygons_to_masks
+
+        - Rename dataset items by a regular expression
+          - Replace 'pattern' with 'replacement'
+          %(prog)s -t rename -- -e '|pattern|replacement|'
+
+          - Remove 'frame_' from item ids
+          %(prog)s -t rename -- -e '|frame_(\\d+)|\\1|'
+
+        - Split a dataset randomly:
+          %(prog)s -t random_split --overwrite path/to/dataset:voc
         """.format(', '.join(builtins)),
         formatter_class=MultilineFormatter)
 
@@ -592,23 +592,23 @@ def build_stats_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(help="Get project statistics",
         description="""
         Outputs various project statistics like image mean and std,
-        annotations count etc.|n
-        |n
-        Target dataset is specified by a revpath. The full syntax is:|n
-        - Dataset paths:|n
-        |s|s- <dataset path>[ :<format> ]|n
-        - Revision paths:|n
-        |s|s- <project path> [ @<rev> ] [ :<target> ]|n
-        |s|s- <rev> [ :<target> ]|n
-        |s|s- <target>|n
-        |n
+        annotations count etc.
+
+        Target dataset is specified by a revpath. The full syntax is:
+        - Dataset paths:
+          - <dataset path>[ :<format> ]
+        - Revision paths:
+          - <project path> [ @<rev> ] [ :<target> ]
+          - <rev> [ :<target> ]
+          - <target>
+
         Both forms use the -p/--project as a context for plugins. It can be
         useful for dataset paths in targets. When not specified, the current
-        project's working tree is used.|n
-        |n
-        Examples:|n
-        - Compute project statistics:|n
-        |s|s%(prog)s
+        project's working tree is used.
+
+        Examples:
+        - Compute project statistics:
+          %(prog)s
         """,
         formatter_class=MultilineFormatter)
 
@@ -651,14 +651,14 @@ def build_info_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(help="Get project info",
         description="""
         Outputs project info - information about plugins,
-        sources, build tree, models and revisions.|n
-        |n
-        Examples:|n
-        - Print project info for the current working tree:|n
-        |s|s%(prog)s|n
-        |n
-        - Print project info for the previous revision:|n
-        |s|s%(prog)s HEAD~1
+        sources, build tree, models and revisions.
+
+        Examples:
+        - Print project info for the current working tree:
+          %(prog)s
+
+        - Print project info for the previous revision:
+          %(prog)s HEAD~1
         """,
         formatter_class=MultilineFormatter)
 
@@ -721,22 +721,22 @@ def build_validate_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(help="Validate project",
         description="""
         Validates a dataset according to the task type and
-        reports summary in a JSON file.|n
-        Target dataset is specified by a revpath. The full syntax is:|n
-        - Dataset paths:|n
-        |s|s- <dataset path>[ :<format> ]|n
-        - Revision paths:|n
-        |s|s- <project path> [ @<rev> ] [ :<target> ]|n
-        |s|s- <rev> [ :<target> ]|n
-        |s|s- <target>|n
-        |n
+        reports summary in a JSON file.
+        Target dataset is specified by a revpath. The full syntax is:
+        - Dataset paths:
+          - <dataset path>[ :<format> ]
+        - Revision paths:
+          - <project path> [ @<rev> ] [ :<target> ]
+          - <rev> [ :<target> ]
+          - <target>
+
         Both forms use the -p/--project as a context for plugins. It can be
         useful for dataset paths in targets. When not specified, the current
-        project's working tree is used.|n
-        |n
-        Examples:|n
-        - Validate a project's subset as a classification dataset:|n
-        |s|s%(prog)s -t classification -s train
+        project's working tree is used.
+
+        Examples:
+        - Validate a project's subset as a classification dataset:
+          %(prog)s -t classification -s train
         """,
         formatter_class=MultilineFormatter)
 
@@ -840,11 +840,11 @@ def validate_command(args):
 def build_migrate_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(help="Migrate project",
         description="""
-        Migrates the project from the old version to a new one.|n
-        |n
-        Examples:|n
-        - Migrate a project from v1 to v2, save the new project in other dir:|n
-        |s|s%(prog)s -o <output/dir>
+        Migrates the project from the old version to a new one.
+
+        Examples:
+        - Migrate a project from v1 to v2, save the new project in other dir:
+          %(prog)s -o <output/dir>
         """,
         formatter_class=MultilineFormatter)
 
@@ -888,8 +888,8 @@ def migrate_command(args):
 def build_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(
         description="""
-            Manipulate projects.|n
-            |n
+            Manipulate projects.
+
             By default, the project to be operated on is searched for
             in the current directory. An additional '-p' argument can be
             passed to specify project location.

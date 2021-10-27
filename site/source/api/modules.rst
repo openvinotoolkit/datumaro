@@ -2,6 +2,6 @@ datumaro
 ========
 
 .. toctree::
-   :maxdepth: 5
+   :maxdepth: 20
 
    datumaro

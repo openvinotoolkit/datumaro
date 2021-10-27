@@ -13,26 +13,26 @@ from ..util.project import load_project
 def build_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(help="Navigate to a revision",
         description="""
-        Command forms:|n
-        1) %(prog)s <revision>|n
-        2) %(prog)s [--] <source1> ...|n
-        3) %(prog)s <revision> [--] <source1> <source2> ...|n
-        |n
-        1 - Restores a revision and all the sources in the working directory.|n
-        2, 3 - Restores only specified sources from the specified revision.|n
-        |n
+        Command forms:
+        1) %(prog)s <revision>
+        2) %(prog)s [--] <source1> ...
+        3) %(prog)s <revision> [--] <source1> <source2> ...
+
+        1 - Restores a revision and all the sources in the working directory.
+        2, 3 - Restores only specified sources from the specified revision.
+
         The current revision is used, when not set. When no revision
         and no sources is specified, restores the
         current revision (like the 1-st form).
-        "--" is optionally used to separate source names and revisions.|n
-        |n
-        Examples:|n
-        - Restore the previous revision:|n
-        |s|s%(prog)s HEAD~1 |n |n
-        - Restore the saved version of a source in the working tree|n
-        |s|s%(prog)s -- source-1 |n |n
-        - Restore a previous version of a source|n
-        |s|s%(prog)s 33fbfbe my-source
+        "--" is optionally used to separate source names and revisions.
+
+        Examples:
+        - Restore the previous revision:
+          %(prog)s HEAD~1
+        - Restore the saved version of a source in the working tree
+          %(prog)s -- source-1
+        - Restore a previous version of a source
+          %(prog)s 33fbfbe my-source
         """, formatter_class=MultilineFormatter)
 
     parser.add_argument('_positionals', nargs=argparse.REMAINDER,

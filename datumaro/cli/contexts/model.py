@@ -28,12 +28,12 @@ def build_add_parser(parser_ctor=argparse.ArgumentParser):
         Adds an executable model into a project. A model requires
         a launcher to be executed. Each launcher has its own options, which
         are passed after the '--' separator, pass '-- -h' for more info.
-        |n
-        List of builtin launchers: {}|n
-        |n
-        Examples:|n
-        - Add an OpenVINO model into a project:|n
-        |s|s%(prog)s -l openvino -- -d model.xml -w model.bin -i parse_outs.py
+
+        List of builtin launchers: {}
+
+        Examples:
+        - Add an OpenVINO model into a project:
+          %(prog)s -l openvino -- -d model.xml -w model.bin -i parse_outs.py
         """.format(', '.join(builtins)),
         formatter_class=MultilineFormatter)
 
@@ -147,18 +147,18 @@ def remove_command(args):
 def build_run_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(help="Launches model inference",
         description="""
-        Launches model inference on a dataset.|n
-        |n
-        Target dataset is specified by a revpath. The full syntax is:|n
-        - Dataset paths:|n
-        |s|s- <dataset path>[ :<format> ]|n
-        - Revision paths:|n
-        |s|s- <project path> [ @<rev> ] [ :<target> ]|n
-        |s|s- <rev> [ :<target> ]|n
-        |s|s- <target>|n
-        |n
+        Launches model inference on a dataset.
+
+        Target dataset is specified by a revpath. The full syntax is:
+        - Dataset paths:
+          - <dataset path>[ :<format> ]
+        - Revision paths:
+          - <project path> [ @<rev> ] [ :<target> ]
+          - <rev> [ :<target> ]
+          - <target>
+
         Both forms use the -p/--project as a context for plugins and models.
-        When not specified, the current project's working tree is used.|n
+        When not specified, the current project's working tree is used.
         """,
         formatter_class=MultilineFormatter)
 

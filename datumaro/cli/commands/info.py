@@ -18,30 +18,30 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(help="Prints dataset overview",
         description="""
         Prints info about the dataset at <revpath>, or about the current
-        project's combined dataset, if none is specified.|n
-        |n
+        project's combined dataset, if none is specified.
+
         <revpath> - either a dataset path or a revision path. The full
-        syntax is:|n
-        - Dataset paths:|n
-        |s|s- <dataset path>[ :<format> ]|n
-        - Revision paths:|n
-        |s|s- <project path> [ @<rev> ] [ :<target> ]|n
-        |s|s- <rev> [ :<target> ]|n
-        |s|s- <target>|n
-        |n
+        syntax is:
+        - Dataset paths:
+          - <dataset path>[ :<format> ]
+        - Revision paths:
+          - <project path> [ @<rev> ] [ :<target> ]
+          - <rev> [ :<target> ]
+          - <target>
+
         Both forms use the -p/--project as a context for plugins. It can be
         useful for dataset paths in targets. When not specified, the current
-        project's working tree is used.|n
-        |n
-        Examples:|n
-        - Print dataset info for the current project's working tree:|n
-        |s|s%(prog)s|n
-        |n
-        - Print dataset info for a path and a format name:|n
-        |s|s%(prog)s path/to/dataset:voc|n
-        |n
-        - Print dataset info for a source from a past revision:|n
-        |s|s%(prog)s HEAD~2:source-2
+        project's working tree is used.
+
+        Examples:
+        - Print dataset info for the current project's working tree:
+          %(prog)s
+
+        - Print dataset info for a path and a format name:
+          %(prog)s path/to/dataset:voc
+
+        - Print dataset info for a source from a past revision:
+          %(prog)s HEAD~2:source-2
         """,
         formatter_class=MultilineFormatter)
 

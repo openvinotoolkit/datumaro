@@ -17,13 +17,13 @@ from ..util.project import load_project, parse_full_revpath
 def build_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(help="Run Explainable AI algorithm",
         description="""
-        Runs an explainable AI algorithm for a model.|n
-        |n
+        Runs an explainable AI algorithm for a model.
+
         This tool is supposed to help an AI developer to debug
         a model and a dataset. Basically, it executes inference and
         tries to find problems in the trained model - determine decision
-        boundaries and belief intervals for the classifier.|n
-        |n
+        boundaries and belief intervals for the classifier.
+
         Currently, the only available algorithm is
         RISE (https://arxiv.org/pdf/1806.07421.pdf), which runs
         inference and then re-runs a model multiple times
@@ -33,35 +33,35 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         the inference result. This algorithm doesn't require any special
         information about the model, but it requires the model to
         return all the outputs and confidences. Check the User Manual
-        for usage examples.|n
-        Supported scenarios:|n
-        - RISE for classification|n
-        - RISE for Object Detection|n
-        |n
-        This command has the following syntax:|n
-        |s|s%(prog)s <image path or revpath>|n
-        |n
-        <image path> - a path to the file.|n
+        for usage examples.
+        Supported scenarios:
+        - RISE for classification
+        - RISE for Object Detection
+
+        This command has the following syntax:
+          %(prog)s <image path or revpath>
+
+        <image path> - a path to the file.
         <revpath> - either a dataset path or a revision path. The full
-        syntax is:|n
-        - Dataset paths:|n
-        |s|s- <dataset path>[ :<format> ]|n
-        - Revision paths:|n
-        |s|s- <project path> [ @<rev> ] [ :<target> ]|n
-        |s|s- <rev> [ :<target> ]|n
-        |s|s- <target>|n
-        Parts can be enclosed in quotes.|n
-        |n
+        syntax is:
+        - Dataset paths:
+          - <dataset path>[ :<format> ]
+        - Revision paths:
+          - <project path> [ @<rev> ] [ :<target> ]
+          - <rev> [ :<target> ]
+          - <target>
+        Parts can be enclosed in quotes.
+
         The current project (-p/--project) is used as a context for plugins
         and models. It is used when there is a dataset path in target.
-        When not specified, the current project's working tree is used.|n
-        |n
-        Examples:|n
-        - Run RISE on an image, display results:|n
-        |s|s%(prog)s path/to/image.jpg -m mymodel rise --max-samples 50|n
-        |n
-        - Run RISE on a source revision:|n
-        |s|s%(prog)s HEAD~1:source-1 -m model rise
+        When not specified, the current project's working tree is used.
+
+        Examples:
+        - Run RISE on an image, display results:
+          %(prog)s path/to/image.jpg -m mymodel rise --max-samples 50
+
+        - Run RISE on a source revision:
+          %(prog)s HEAD~1:source-1 -m model rise
         """, formatter_class=MultilineFormatter)
 
     parser.add_argument('target', nargs='?', default=None,
@@ -76,8 +76,8 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     rise_parser = method_sp.add_parser('rise',
         description="""
         RISE: Randomized Input Sampling for
-        Explanation of Black-box Models algorithm|n
-        |n
+        Explanation of Black-box Models algorithm
+
         See explanations at: https://arxiv.org/pdf/1806.07421.pdf
         """,
         formatter_class=MultilineFormatter)
