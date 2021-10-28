@@ -28,7 +28,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - TBD
 
 ### Fixed
-- TBD
+- Unhandled exception when a file is specified as the source for a COCO or
+  MOTS dataset
+  (<https://github.com/openvinotoolkit/datumaro/pull/530>)
 
 ### Security
 - TBD
