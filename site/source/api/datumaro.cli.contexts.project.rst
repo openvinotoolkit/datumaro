@@ -1,5 +1,5 @@
-datumaro.cli.contexts.project package
-=====================================
+:mod:`cli.project` --- Project package
+===================================
 
 Submodules
 ----------
@@ -9,7 +9,8 @@ datumaro.cli.contexts.project.diff module
 
 .. automodule:: datumaro.cli.contexts.project.diff
    :members:
-   :undoc-members:
+   :private-members:
+   :special-members:
    :show-inheritance:
 
 Module contents
@@ -17,5 +18,6 @@ Module contents
 
 .. automodule:: datumaro.cli.contexts.project
    :members:
-   :undoc-members:
+   :private-members:
+   :special-members:
    :show-inheritance:

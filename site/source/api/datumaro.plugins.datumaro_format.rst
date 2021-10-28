@@ -1,4 +1,4 @@
-datumaro.plugins.datumaro\_format package
+:mod:`datumaro` --- Datumaro format package
 =========================================
 
 Submodules
@@ -9,7 +9,8 @@ datumaro.plugins.datumaro\_format.converter module
 
 .. automodule:: datumaro.plugins.datumaro_format.converter
    :members:
-   :undoc-members:
+   :private-members:
+   :special-members:
    :show-inheritance:
 
 datumaro.plugins.datumaro\_format.extractor module
@@ -17,7 +18,8 @@ datumaro.plugins.datumaro\_format.extractor module
 
 .. automodule:: datumaro.plugins.datumaro_format.extractor
    :members:
-   :undoc-members:
+   :private-members:
+   :special-members:
    :show-inheritance:
 
 datumaro.plugins.datumaro\_format.format module
@@ -25,7 +27,8 @@ datumaro.plugins.datumaro\_format.format module
 
 .. automodule:: datumaro.plugins.datumaro_format.format
    :members:
-   :undoc-members:
+   :private-members:
+   :special-members:
    :show-inheritance:
 
 Module contents
@@ -33,5 +36,6 @@ Module contents
 
 .. automodule:: datumaro.plugins.datumaro_format
    :members:
-   :undoc-members:
+   :private-members:
+   :special-members:
    :show-inheritance:

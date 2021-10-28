@@ -1,4 +1,4 @@
-datumaro.plugins.kitti\_format package
+:mod:`kitti` --- KITTI format package
 ======================================
 
 Submodules
@@ -9,7 +9,8 @@ datumaro.plugins.kitti\_format.converter module
 
 .. automodule:: datumaro.plugins.kitti_format.converter
    :members:
-   :undoc-members:
+   :private-members:
+   :special-members:
    :show-inheritance:
 
 datumaro.plugins.kitti\_format.extractor module
@@ -17,7 +18,8 @@ datumaro.plugins.kitti\_format.extractor module
 
 .. automodule:: datumaro.plugins.kitti_format.extractor
    :members:
-   :undoc-members:
+   :private-members:
+   :special-members:
    :show-inheritance:
 
 datumaro.plugins.kitti\_format.format module
@@ -25,7 +27,8 @@ datumaro.plugins.kitti\_format.format module
 
 .. automodule:: datumaro.plugins.kitti_format.format
    :members:
-   :undoc-members:
+   :private-members:
+   :special-members:
    :show-inheritance:
 
 datumaro.plugins.kitti\_format.importer module
@@ -33,7 +36,8 @@ datumaro.plugins.kitti\_format.importer module
 
 .. automodule:: datumaro.plugins.kitti_format.importer
    :members:
-   :undoc-members:
+   :private-members:
+   :special-members:
    :show-inheritance:
 
 Module contents
@@ -41,5 +45,6 @@ Module contents
 
 .. automodule:: datumaro.plugins.kitti_format
    :members:
-   :undoc-members:
+   :private-members:
+   :special-members:
    :show-inheritance:

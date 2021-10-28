@@ -1,4 +1,4 @@
-datumaro.plugins.openvino\_plugin package
+:mod:`openvino` --- OpenVino plugin package
 =========================================
 
 Submodules
@@ -9,7 +9,8 @@ datumaro.plugins.openvino\_plugin.launcher module
 
 .. automodule:: datumaro.plugins.openvino_plugin.launcher
    :members:
-   :undoc-members:
+   :private-members:
+   :special-members:
    :show-inheritance:
 
 Module contents
@@ -17,5 +18,6 @@ Module contents
 
 .. automodule:: datumaro.plugins.openvino_plugin
    :members:
-   :undoc-members:
+   :private-members:
+   :special-members:
    :show-inheritance:

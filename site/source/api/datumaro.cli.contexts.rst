@@ -1,5 +1,5 @@
-datumaro.cli.contexts package
-=============================
+:mod:`cli.contexts` --- Contexts package
+====================================
 
 Subpackages
 -----------
@@ -17,7 +17,8 @@ datumaro.cli.contexts.model module
 
 .. automodule:: datumaro.cli.contexts.model
    :members:
-   :undoc-members:
+   :private-members:
+   :special-members:
    :show-inheritance:
 
 datumaro.cli.contexts.source module
@@ -25,7 +26,8 @@ datumaro.cli.contexts.source module
 
 .. automodule:: datumaro.cli.contexts.source
    :members:
-   :undoc-members:
+   :private-members:
+   :special-members:
    :show-inheritance:
 
 Module contents
@@ -33,5 +35,6 @@ Module contents
 
 .. automodule:: datumaro.cli.contexts
    :members:
-   :undoc-members:
+   :private-members:
+   :special-members:
    :show-inheritance:

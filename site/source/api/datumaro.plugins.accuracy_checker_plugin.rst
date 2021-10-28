@@ -1,5 +1,5 @@
-datumaro.plugins.accuracy\_checker\_plugin package
-==================================================
+:mod:`accuracy` --- Accuracy checker plugin package
+=====================================================
 
 Submodules
 ----------
@@ -9,7 +9,8 @@ datumaro.plugins.accuracy\_checker\_plugin.launcher module
 
 .. automodule:: datumaro.plugins.accuracy_checker_plugin.launcher
    :members:
-   :undoc-members:
+   :private-members:
+   :special-members:
    :show-inheritance:
 
 Module contents
@@ -17,5 +18,6 @@ Module contents
 
 .. automodule:: datumaro.plugins.accuracy_checker_plugin
    :members:
-   :undoc-members:
+   :private-members:
+   :special-members:
    :show-inheritance:

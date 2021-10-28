@@ -8,13 +8,6 @@ Welcome to Datumaro API documentation!
 
 This API Dataset Management Framework Documentation (Datumaro).
 
-**Contents:**
-
-.. toctree::
-   :maxdepth: 2
-   :glob:
-
-   /*
 
 API Documentation Contents
 **************************
@@ -23,7 +16,39 @@ API Documentation Contents
    :maxdepth: 1
    :glob:
 
-   /api/*
+   /*
+
+**CLI**
+
+.. toctree::
+   :maxdepth: 1
+   :glob:
+
+   /api/datumaro.cli*
+
+**Components**
+
+.. toctree::
+   :maxdepth: 1
+   :glob:
+
+   /api/datumaro.components*
+
+**Plugins**
+
+.. toctree::
+   :maxdepth: 1
+   :glob:
+
+   /api/datumaro.plugins*
+
+**Utilities**
+
+.. toctree::
+   :maxdepth: 1
+   :glob:
+
+   /api/datumaro.util*
 
 Navigation
 **********

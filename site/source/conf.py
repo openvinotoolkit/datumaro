@@ -34,6 +34,7 @@ extensions = [
     'sphinx.ext.autodoc',  # Core library for html generation from docstrings
     'sphinx.ext.intersphinx', # Link to other projects documentation
     'myst_parser', # Markdown files reader
+    'sphinx.ext.viewcode', # Find the source files
 ]
 autosummary_generate = True  # Turn on sphinx.ext.autosummary
 
@@ -72,3 +73,4 @@ html_static_path = ['_static']
 html_css_files = ['custom.css' ]
 
 # -- Extension configuration -------------------------------------------------
+autodoc_docstring_signature = True

@@ -1,11 +1,11 @@
-datumaro.cli package
-====================
+:mod:`cli` --- CLI package
+==============================
 
 Subpackages
 -----------
 
 .. toctree::
-   :maxdepth: 20
+   :maxdepth: 1
 
    datumaro.cli.commands
    datumaro.cli.contexts
@@ -16,5 +16,6 @@ Module contents
 
 .. automodule:: datumaro.cli
    :members:
-   :undoc-members:
+   :private-members:
+   :special-members:
    :show-inheritance:

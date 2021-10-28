@@ -1,11 +1,11 @@
-datumaro.components package
-===========================
+:mod:`components` --- Components package
+========================================
 
 Subpackages
 -----------
 
 .. toctree::
-   :maxdepth: 20
+   :maxdepth: 1
 
    datumaro.components.algorithms
 
@@ -17,7 +17,8 @@ datumaro.components.annotation module
 
 .. automodule:: datumaro.components.annotation
    :members:
-   :undoc-members:
+   :private-members:
+   :special-members:
    :show-inheritance:
 
 datumaro.components.cli\_plugin module
@@ -25,7 +26,8 @@ datumaro.components.cli\_plugin module
 
 .. automodule:: datumaro.components.cli_plugin
    :members:
-   :undoc-members:
+   :private-members:
+   :special-members:
    :show-inheritance:
 
 datumaro.components.config module
@@ -33,7 +35,8 @@ datumaro.components.config module
 
 .. automodule:: datumaro.components.config
    :members:
-   :undoc-members:
+   :private-members:
+   :special-members:
    :show-inheritance:
 
 datumaro.components.config\_model module
@@ -41,7 +44,8 @@ datumaro.components.config\_model module
 
 .. automodule:: datumaro.components.config_model
    :members:
-   :undoc-members:
+   :private-members:
+   :special-members:
    :show-inheritance:
 
 datumaro.components.converter module
@@ -49,7 +53,8 @@ datumaro.components.converter module
 
 .. automodule:: datumaro.components.converter
    :members:
-   :undoc-members:
+   :private-members:
+   :special-members:
    :show-inheritance:
 
 datumaro.components.dataset module
@@ -57,7 +62,8 @@ datumaro.components.dataset module
 
 .. automodule:: datumaro.components.dataset
    :members:
-   :undoc-members:
+   :private-members:
+   :special-members:
    :show-inheritance:
 
 datumaro.components.dataset\_filter module
@@ -65,7 +71,8 @@ datumaro.components.dataset\_filter module
 
 .. automodule:: datumaro.components.dataset_filter
    :members:
-   :undoc-members:
+   :private-members:
+   :special-members:
    :show-inheritance:
 
 datumaro.components.environment module
@@ -73,7 +80,8 @@ datumaro.components.environment module
 
 .. automodule:: datumaro.components.environment
    :members:
-   :undoc-members:
+   :private-members:
+   :special-members:
    :show-inheritance:
 
 datumaro.components.errors module
@@ -81,7 +89,8 @@ datumaro.components.errors module
 
 .. automodule:: datumaro.components.errors
    :members:
-   :undoc-members:
+   :private-members:
+   :special-members:
    :show-inheritance:
 
 datumaro.components.extractor module
@@ -89,7 +98,8 @@ datumaro.components.extractor module
 
 .. automodule:: datumaro.components.extractor
    :members:
-   :undoc-members:
+   :private-members:
+   :special-members:
    :show-inheritance:
 
 datumaro.components.launcher module
@@ -97,7 +107,8 @@ datumaro.components.launcher module
 
 .. automodule:: datumaro.components.launcher
    :members:
-   :undoc-members:
+   :private-members:
+   :special-members:
    :show-inheritance:
 
 datumaro.components.operations module
@@ -105,7 +116,8 @@ datumaro.components.operations module
 
 .. automodule:: datumaro.components.operations
    :members:
-   :undoc-members:
+   :private-members:
+   :special-members:
    :show-inheritance:
 
 datumaro.components.project module
@@ -113,7 +125,8 @@ datumaro.components.project module
 
 .. automodule:: datumaro.components.project
    :members:
-   :undoc-members:
+   :private-members:
+   :special-members:
    :show-inheritance:
 
 datumaro.components.validator module
@@ -121,7 +134,8 @@ datumaro.components.validator module
 
 .. automodule:: datumaro.components.validator
    :members:
-   :undoc-members:
+   :private-members:
+   :special-members:
    :show-inheritance:
 
 Module contents
@@ -129,5 +143,6 @@ Module contents
 
 .. automodule:: datumaro.components
    :members:
-   :undoc-members:
+   :private-members:
+   :special-members:
    :show-inheritance:

@@ -1,4 +1,4 @@
-datumaro.plugins.sampler package
+:mod:`sampler` --- Sampler package
 ================================
 
 Submodules
@@ -9,7 +9,8 @@ datumaro.plugins.sampler.sampler module
 
 .. automodule:: datumaro.plugins.sampler.sampler
    :members:
-   :undoc-members:
+   :private-members:
+   :special-members:
    :show-inheritance:
 
 Module contents
@@ -17,5 +18,6 @@ Module contents
 
 .. automodule:: datumaro.plugins.sampler
    :members:
-   :undoc-members:
+   :private-members:
+   :special-members:
    :show-inheritance:
