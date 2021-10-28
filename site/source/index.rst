@@ -17,7 +17,7 @@ This API Dataset Management Framework Documentation (Datumaro).
    /*
 
 API Documentation Contents
-***************************
+**************************
 
 .. toctree::
    :maxdepth: 1
