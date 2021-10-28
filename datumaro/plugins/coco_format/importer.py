@@ -92,8 +92,7 @@ class CocoImporter(Importer):
             if len(cls._TASKS) == 1:
                 return {'': { next(iter(cls._TASKS)): path }}
 
-            if path.endswith('.json'):
-                subset_paths = [path]
+            subset_paths = [path] if path.endswith('.json') else []
         else:
             subset_paths = glob(osp.join(path, '**', '*_*.json'),
                 recursive=True)
