@@ -146,7 +146,7 @@ def apply_format_detector(
     """
     context = FormatDetectionContext(dataset_root_path)
 
-    if not osp.exists(dataset_root_path):
-        context.fail(f"root path {dataset_root_path} must exist")
+    if not osp.isdir(dataset_root_path):
+        context.fail(f"root path {dataset_root_path} must refer to a directory")
 
     return detector(context) or FormatDetectionConfidence.MEDIUM

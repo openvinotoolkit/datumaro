@@ -348,18 +348,6 @@ class VocImportTest(TestCase):
             (DUMMY_DATASET_DIR, VocSegmentationImporter),
             (DUMMY_DATASET_DIR, VocLayoutImporter),
             (DUMMY_DATASET_DIR, VocActionImporter),
-
-            # Subsets of subformats
-            (osp.join(DUMMY_DATASET_DIR, 'ImageSets', 'Main', 'train.txt'),
-                VocClassificationImporter),
-            (osp.join(DUMMY_DATASET_DIR, 'ImageSets', 'Main', 'train.txt'),
-                VocDetectionImporter),
-            (osp.join(DUMMY_DATASET_DIR, 'ImageSets', 'Segmentation', 'train.txt'),
-                VocSegmentationImporter),
-            (osp.join(DUMMY_DATASET_DIR, 'ImageSets', 'Layout', 'train.txt'),
-                VocLayoutImporter),
-            (osp.join(DUMMY_DATASET_DIR, 'ImageSets', 'Action', 'train.txt'),
-                VocActionImporter),
         ]
 
         env = Environment()

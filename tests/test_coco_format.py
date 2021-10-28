@@ -546,22 +546,6 @@ class CocoImporterTest(TestCase):
             (dataset_dir, CocoCaptionsImporter),
             (dataset_dir, CocoImageInfoImporter),
             (dataset_dir, CocoPersonKeypointsImporter),
-
-            # Subsets of subformats
-            (osp.join(dataset_dir, 'annotations', 'labels_train.json'),
-                CocoLabelsImporter),
-            (osp.join(dataset_dir, 'annotations', 'instances_train.json'),
-                CocoInstancesImporter),
-            (osp.join(dataset_dir, 'annotations', 'panoptic_train.json'),
-                CocoPanopticImporter),
-            (osp.join(dataset_dir, 'annotations', 'stuff_train.json'),
-                CocoStuffImporter),
-            (osp.join(dataset_dir, 'annotations', 'captions_train.json'),
-                CocoCaptionsImporter),
-            (osp.join(dataset_dir, 'annotations', 'image_info_train.json'),
-                CocoImageInfoImporter),
-            (osp.join(dataset_dir, 'annotations', 'person_keypoints_train.json'),
-                CocoPersonKeypointsImporter),
         ]
 
         env = Environment()
