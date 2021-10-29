@@ -7,6 +7,8 @@ from typing import Callable, Optional, Sequence
 import glob
 import os.path as osp
 
+from typing_extensions import NoReturn
+
 
 class FormatDetectionConfidence(IntEnum):
     """
@@ -14,9 +16,6 @@ class FormatDetectionConfidence(IntEnum):
     belonging to the detector's format.
     """
 
-    # Note to developers: more confidence levels could be added in the future,
-    # but they should all have positive values. This is to ensure that 0
-    # can be used as a sentinel value for comparing confidence levels.
     LOW = 10
     """
     The dataset seems to belong to the format, but the format is too loosely
@@ -31,6 +30,12 @@ class FormatDetectionConfidence(IntEnum):
     # deserve it. It's reserved for when the detector is sure that
     # the dataset belongs to the format; for example, because the format
     # has explicit identification via magic numbers/files.
+
+# All confidence levels should be positive for a couple of reasons:
+# * It makes it possible to use 0 or a negative number as a special
+#   value that is guaranteed to be less than any real value.
+# * It makes sure that every confidence level is a true value.
+assert all(level > 0 for level in FormatDetectionConfidence)
 
 class FormatRequirementsUnmet(Exception):
     """
@@ -79,7 +84,7 @@ class FormatDetectionContext:
         """
         return self._root_path
 
-    def fail(self, requirement: str) -> str:
+    def fail(self, requirement: str) -> NoReturn:
         """
         Places a requirement that is never met. `requirement` must contain
         a human-readable description of the requirement.
