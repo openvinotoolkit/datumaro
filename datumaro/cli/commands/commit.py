@@ -13,11 +13,11 @@ from ..util.project import load_project
 def build_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(help="Create a revision",
         description="""
-        Creates a new revision from the current state of the working directory.
-
-        Examples:
-        - Create a revision:
-          %(prog)s -m "Added data"
+        Creates a new revision from the current state of the working directory.|n
+        |n
+        Examples:|n
+        - Create a revision:|n
+        |s|s%(prog)s -m "Added data"
         """, formatter_class=MultilineFormatter)
 
     parser.add_argument('-m', '--message', required=True, help="Commit message")

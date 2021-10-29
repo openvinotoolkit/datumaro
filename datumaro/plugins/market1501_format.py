@@ -100,7 +100,7 @@ class Market1501Importer(Importer):
     def find_sources(cls, path):
         if not osp.isdir(path):
             return []
-        return [{ 'url': path, 'format': 'market1501' }]
+        return [{ 'url': path, 'format': Market1501Extractor.NAME }]
 
 class Market1501Converter(Converter):
     DEFAULT_IMAGE_EXT = Market1501Path.IMAGE_EXT

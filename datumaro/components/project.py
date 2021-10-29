@@ -998,18 +998,18 @@ class GitWrapper:
         Compares working directory and index.
 
         Parameters:
-            - paths - an iterable of paths to compare, a git.Tree, or None.
-                When None, uses all the paths from HEAD.
-            - base_dir - a base path for paths. Paths will be prepended by this.
-                When None or '', uses repo root. Can be useful, if index contains
-                displaced paths, which needs to be mapped on real paths.
+        - paths - an iterable of paths to compare, a git.Tree, or None.
+            When None, uses all the paths from HEAD.
+        - base_dir - a base path for paths. Paths will be prepended by this.
+            When None or '', uses repo root. Can be useful, if index contains
+            displaced paths, which needs to be mapped on real paths.
 
         The statuses are:
-            - "A" for added paths
-            - "D" for deleted paths
-            - "R" for renamed paths
-            - "M" for paths with modified data
-            - "T" for changed in the type paths
+        - "A" for added paths
+        - "D" for deleted paths
+        - "R" for renamed paths
+        - "M" for paths with modified data
+        - "T" for changed in the type paths
 
         Returns: { abspath(base_dir + path): status }
         """
@@ -2007,17 +2007,17 @@ class Project:
         in datasets.
 
         Parameters:
-            - name (str) - Name of the new source
-            - url (str) - URL of the new source. A path to a file or directory
-            - format (str) - Dataset format
-            - options (dict) - Options for the format Extractor
-            - no_cache (bool) - Don't put a copy of files into the project cache.
-                Can be used to reduce project cache size.
-            - no_hash (bool) - Don't compute source data hash. Implies "no_cache".
-                Useful to reduce import time at the cost of disabled data
-                integrity checks.
-            - rpath (str) - Used to specify a relative path to the dataset
-                inside of the directory pointed by URL.
+        - name (str) - Name of the new source
+        - url (str) - URL of the new source. A path to a file or directory
+        - format (str) - Dataset format
+        - options (dict) - Options for the format Extractor
+        - no_cache (bool) - Don't put a copy of files into the project cache.
+            Can be used to reduce project cache size.
+        - no_hash (bool) - Don't compute source data hash. Implies "no_cache".
+            Useful to reduce import time at the cost of disabled data
+            integrity checks.
+        - rpath (str) - Used to specify a relative path to the dataset
+            inside of the directory pointed by URL.
 
         Returns: the new source config
         """
@@ -2112,11 +2112,11 @@ class Project:
         in datasets.
 
         Parameters:
-            - url (str) - URL of the new source. A path to a file or directory
-            - format (str) - Dataset format
-            - options (dict) - Options for the format Extractor
-            - rpath (str) - Used to specify a relative path to the dataset
-                inside of the directory pointed by URL.
+        - url (str) - URL of the new source. A path to a file or directory
+        - format (str) - Dataset format
+        - options (dict) - Options for the format Extractor
+        - rpath (str) - Used to specify a relative path to the dataset
+            inside of the directory pointed by URL.
 
         Returns: the name and the config of the new source
         """
@@ -2214,10 +2214,10 @@ class Project:
         Creates a new commit. Moves the HEAD pointer to the new commit.
 
         Options:
-            - no_cache (bool) - don't put added dataset data into cache,
-                store only metainfo. Can be used to reduce storage size.
-            - allow_empty (bool) - allow commits with no changes.
-            - allow_foreign (bool) - allow commits with changes made not by Datumaro.
+        - no_cache (bool) - don't put added dataset data into cache,
+            store only metainfo. Can be used to reduce storage size.
+        - allow_empty (bool) - allow commits with no changes.
+        - allow_foreign (bool) - allow commits with changes made not by Datumaro.
 
         Returns: the new commit hash
         """

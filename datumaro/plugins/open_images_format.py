@@ -562,7 +562,7 @@ class OpenImagesImporter(Importer):
         ]:
             if glob.glob(osp.join(glob.escape(path),
                     OpenImagesPath.ANNOTATIONS_DIR, pattern)):
-                return [{'url': path, 'format': 'open_images'}]
+                return [{'url': path, 'format': OpenImagesExtractor.NAME}]
 
         return []
 

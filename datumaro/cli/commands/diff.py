@@ -31,48 +31,48 @@ eq_default_if = ['id', 'group'] # avoid https://bugs.python.org/issue16399
 def build_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(help="Compares two datasets",
         description="""
-        Compares two datasets. This command has multiple forms:
-        1) %(prog)s <revpath>
-        2) %(prog)s <revpath> <revpath>
-
+        Compares two datasets. This command has multiple forms:|n
+        1) %(prog)s <revpath>|n
+        2) %(prog)s <revpath> <revpath>|n
+        |n
         1 - Compares the current project's main target ('project')
-        in the working tree with the specified dataset.
-        2 - Compares two specified datasets.
-
+        in the working tree with the specified dataset.|n
+        2 - Compares two specified datasets.|n
+        |n
         <revpath> - either a dataset path or a revision path. The full
-        syntax is:
-        - Dataset paths:
-          - <dataset path>[ :<format> ]
-        - Revision paths:
-          - <project path> [ @<rev> ] [ :<target> ]
-          - <rev> [ :<target> ]
-          - <target>
-
+        syntax is:|n
+        - Dataset paths:|n
+        |s|s- <dataset path>[ :<format> ]|n
+        - Revision paths:|n
+        |s|s- <project path> [ @<rev> ] [ :<target> ]|n
+        |s|s- <rev> [ :<target> ]|n
+        |s|s- <target>|n
+        |n
         Both forms use the -p/--project as a context for plugins. It can be
         useful for dataset paths in targets. When not specified, the current
-        project's working tree is used.
-
-        Annotations can be matched 2 ways:
-        - by equality checking
-        - by distance computation
-
-        Examples:
-        - Compare two projects by distance, match boxes if IoU > 0.7,
-            save results to Tensorboard:
-          %(prog)s other/project -o diff/ -f tensorboard --iou-thresh 0.7
-
-        - Compare two projects for equality, exclude annotation groups
-            and the 'is_crowd' attribute from comparison:
-          %(prog)s other/project/ -if group -ia is_crowd
-
-        - Compare two datasets, specify formats:
-          %(prog)s path/to/dataset1:voc path/to/dataset2:coco
-
-        - Compare the current working tree and a dataset:
-          %(prog)s path/to/dataset2:coco
-
-        - Compare a source from a previous revision and a dataset:
-          %(prog)s HEAD~2:source-2 path/to/dataset2:yolo
+        project's working tree is used.|n
+        |n
+        Annotations can be matched 2 ways:|n
+        - by equality checking|n
+        - by distance computation|n
+        |n
+        Examples:|n
+        - Compare two projects by distance, match boxes if IoU > 0.7,|n
+        |s|s|s|ssave results to Tensorboard:|n
+        |s|s%(prog)s other/project -o diff/ -f tensorboard --iou-thresh 0.7|n
+        |n
+        - Compare two projects for equality, exclude annotation groups |n
+        |s|s|s|sand the 'is_crowd' attribute from comparison:|n
+        |s|s%(prog)s other/project/ -if group -ia is_crowd|n
+        |n
+        - Compare two datasets, specify formats:|n
+        |s|s%(prog)s path/to/dataset1:voc path/to/dataset2:coco|n
+        |n
+        - Compare the current working tree and a dataset:|n
+        |s|s%(prog)s path/to/dataset2:coco|n
+        |n
+        - Compare a source from a previous revision and a dataset:|n
+        |s|s%(prog)s HEAD~2:source-2 path/to/dataset2:yolo
         """,
         formatter_class=MultilineFormatter)
 

@@ -26,22 +26,22 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         description="""
         Converts a dataset from one format to another.
         You can add your own formats and do many more by creating a
-        Datumaro project.
-
+        Datumaro project.|n
+        |n
         This command serves as an alias for the "create", "import", and
         "export" commands, allowing to obtain the same results simpler
-        and faster. Check descriptions of these commands for more info.
-
-        Supported input formats: {}
-
-        Supported output formats: {}
-
-        Examples:
-        - Export a dataset as a PASCAL VOC dataset, include images:
-            %(prog)s -i src/path -f voc -- --save-images
-
-        - Export a dataset as a COCO dataset to a specific directory:
-            %(prog)s -i src/path -f coco -o path/I/like/
+        and faster. Check descriptions of these commands for more info.|n
+        |n
+        Supported input formats: {}|n
+        |n
+        Supported output formats: {}|n
+        |n
+        Examples:|n
+        - Export a dataset as a PASCAL VOC dataset, include images:|n
+        |s|s%(prog)s -i src/path -f voc -- --save-images|n
+        |n
+        - Export a dataset as a COCO dataset to a specific directory:|n
+        |s|s%(prog)s -i src/path -f coco -o path/I/like/
         """.format(', '.join(builtin_readers), ', '.join(builtin_writers)),
         formatter_class=MultilineFormatter)
 

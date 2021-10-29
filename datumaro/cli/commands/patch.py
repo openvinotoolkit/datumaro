@@ -19,63 +19,63 @@ from ..util.project import load_project, parse_full_revpath
 def build_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(help="Updates dataset from another one",
         description="""
-        Updates items of the first dataset with items from the second one.
-
+        Updates items of the first dataset with items from the second one.|n
+        |n
         By default, datasets are updated in-place. The '-o/--output-dir'
         option can be used to specify another output directory. When
         updating in-place, use the '--overwrite' parameter along with the
         '--save-images' export option (in-place updates fail by default
-        to prevent data loss).
-
+        to prevent data loss).|n
+        |n
         Unlike the regular project data source joining, the datasets are not
         required to have the same labels. The labels from the "patch"
         dataset are projected onto the labels of the patched dataset,
         so only the annotations with the matching labels are used, i.e.
         all the annotations having unknown labels are ignored. Currently,
         this command doesn't allow to update the label information in the
-        patched dataset.
-
+        patched dataset.|n
+        |n
         The command supports passing extra exporting options for the output
         dataset. The extra options should be passed after the main arguments
         and after the '--' separator. Particularly, this is useful to include
-        images in the output dataset with '--save-images'.
-
+        images in the output dataset with '--save-images'.|n
+        |n
         This command can be applied to the current project targets or
         arbitrary datasets outside a project. Note that if the target dataset
         is read-only (e.g. if it is a project, stage or a cache entry),
-        the output directory must be provided.
-
+        the output directory must be provided.|n
+        |n
         This command has the following invocation syntax:
-        - %(prog)s <target dataset revpath> <patch dataset revpath>
-
+        - %(prog)s <target dataset revpath> <patch dataset revpath>|n
+        |n
         <revpath> - either a dataset path or a revision path. The full
-        syntax is:
-        - Dataset paths:
-          - <dataset path>[ :<format> ]
-        - Revision paths:
-          - <project path> [ @<rev> ] [ :<target> ]
-          - <rev> [ :<target> ]
-          - <target>
-
+        syntax is:|n
+        - Dataset paths:|n
+        |s|s- <dataset path>[ :<format> ]|n
+        - Revision paths:|n
+        |s|s- <project path> [ @<rev> ] [ :<target> ]|n
+        |s|s- <rev> [ :<target> ]|n
+        |s|s- <target>|n
+        |n
         The current project (-p/--project) is also used as a context for
         plugins, so it can be useful for dataset paths having custom formats.
-        When not specified, the current project's working tree is used.
-
-        Examples:
-        - Update a VOC-like dataset with COCO-like annotations:
-          %(prog)s --overwrite dataset1/:voc dataset2/:coco -- --save-images
-
-        - Generate a patched dataset, based on a project:
-          %(prog)s -o patched_proj1/ proj1/ proj2/
-
-        - Update the "source1" source in the current project with a dataset:
-          %(prog)s -p proj/ --overwrite source1 path/to/dataset2:coco
-
-        - Generate a patched source from a previous revision and a dataset:
-          %(prog)s -o new_src2/ HEAD~2:source-2 path/to/dataset2:yolo
-
-        - Update a dataset in a custom format, described in a project plugin:
-          %(prog)s -p proj/ --overwrite dataset/:my_format dataset2/:coco
+        When not specified, the current project's working tree is used.|n
+        |n
+        Examples:|n
+        - Update a VOC-like dataset with COCO-like annotations:|n
+        |s|s%(prog)s --overwrite dataset1/:voc dataset2/:coco -- --save-images|n
+        |n
+        - Generate a patched dataset, based on a project:|n
+        |s|s%(prog)s -o patched_proj1/ proj1/ proj2/|n
+        |n
+        - Update the "source1" source in the current project with a dataset:|n
+        |s|s%(prog)s -p proj/ --overwrite source1 path/to/dataset2:coco|n
+        |n
+        - Generate a patched source from a previous revision and a dataset:|n
+        |s|s%(prog)s -o new_src2/ HEAD~2:source-2 path/to/dataset2:yolo|n
+        |n
+        - Update a dataset in a custom format, described in a project plugin:|n
+        |s|s%(prog)s -p proj/ --overwrite dataset/:my_format dataset2/:coco
         """,
         formatter_class=MultilineFormatter)
 

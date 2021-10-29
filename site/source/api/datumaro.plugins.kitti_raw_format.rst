@@ -1,5 +1,5 @@
-:mod:`kitti` --- KITTI raw format package
-===========================================
+:mod:`kitti_raw` --- KITTI raw format package
+=============================================
 
 Submodules
 ----------

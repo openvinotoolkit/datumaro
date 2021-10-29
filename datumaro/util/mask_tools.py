@@ -15,8 +15,8 @@ def generate_colormap(length=256, include_background=True):
     Generates colors using PASCAL VOC algorithm.
 
     If include_background is True, the result will include the item
-    "0: (0, 0, 0)", which is typically used as a background color.
-    Otherwise, indices will start from 0, but (0, 0, 0) is not included.
+        "0: (0, 0, 0)", which is typically used as a background color.
+        Otherwise, indices will start from 0, but (0, 0, 0) is not included.
 
     Returns index -> (R, G, B) mapping.
     """
@@ -165,7 +165,7 @@ def mask_to_polygons(mask, area_threshold=1):
     Args:
         mask: a 2d binary mask
         tolerance: maximum distance from original points of
-        a polygon to the approximated ones
+            a polygon to the approximated ones
         area_threshold: minimal area of generated polygons
 
     Returns:
@@ -208,10 +208,10 @@ def crop_covered_segments(segments, width, height,
         width: width of the image
         height: height of the image
         iou_threshold: IoU threshold for objects to be counted as intersected
-        By default is set to 0 to process any intersected objects
+            By default is set to 0 to process any intersected objects
         ratio_tolerance: an IoU "handicap" value for a situation
-        when an object is (almost) fully covered by another one and we
-        don't want make a "hole" in the background object
+            when an object is (almost) fully covered by another one and we
+            don't want make a "hole" in the background object
         area_threshold: minimal area of included segments
 
     Returns:

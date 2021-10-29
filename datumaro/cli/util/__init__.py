@@ -12,8 +12,8 @@ def add_subparser(subparsers, name, builder):
 
 class MultilineFormatter(argparse.HelpFormatter):
     """
-    Keeps line breaks introduced with \'\\n\' separator
-    and spaces introduced with \'\ \'.
+    Keeps line breaks introduced with '|n' separator
+    and spaces introduced with '|s'.
     """
 
     def __init__(self, keep_natural=False, **kwargs):
@@ -22,9 +22,9 @@ class MultilineFormatter(argparse.HelpFormatter):
 
     def _fill_text(self, text, width, indent):
         text = self._whitespace_matcher.sub(' ', text).strip()
-        text = text.replace(' ', ' ')
+        text = text.replace('|s', ' ')
 
-        paragraphs = text.split('\n ')
+        paragraphs = text.split('|n ')
         if self._keep_natural:
             paragraphs = sum((p.split('\n ') for p in paragraphs), [])
 
