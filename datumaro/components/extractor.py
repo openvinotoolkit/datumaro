@@ -31,7 +31,7 @@ for _name in [
 
 DEFAULT_SUBSET_NAME = 'default'
 
-@attrs
+@attrs(order=False)
 class DatasetItem:
     id: str = attrib(converter=lambda x: str(x).replace('\\', '/'),
         validator=not_empty)
