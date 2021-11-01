@@ -6,7 +6,7 @@ from contextlib import contextmanager
 from copy import copy
 from enum import Enum, auto
 from typing import (
-    Any, Dict, Iterable, Iterator, List, Optional, Tuple, Type, Union,
+    Any, Callable, Dict, Iterable, Iterator, List, Optional, Tuple, Type, Union,
 )
 import inspect
 import logging as log
@@ -607,8 +607,8 @@ class Dataset(IDataset):
 
     @classmethod
     def from_iterable(cls, iterable: Iterable[DatasetItem],
-            categories: Union[CategoriesInfo, List[str]] = None,
-            env: Environment = None):
+            categories: Union[CategoriesInfo, List[str], None] = None,
+            env: Optional[Environment] = None) -> 'Dataset':
         if isinstance(categories, list):
             categories = { AnnotationType.label:
                 LabelCategories.from_iterable(categories)
@@ -632,7 +632,7 @@ class Dataset(IDataset):
 
     @staticmethod
     def from_extractors(*sources: IDataset,
-            env: Environment = None) -> 'Dataset':
+            env: Optional[Environment] = None) -> 'Dataset':
         if len(sources) == 1:
             source = sources[0]
         else:
@@ -644,8 +644,9 @@ class Dataset(IDataset):
 
         return Dataset(source=source, env=env)
 
-    def __init__(self, source: IDataset = None,
-            categories: CategoriesInfo = None, env: Environment = None):
+    def __init__(self, source: Optional[IDataset] = None,
+            categories: Optional[CategoriesInfo] = None,
+            env: Optional[Environment] = None) -> None:
         super().__init__()
 
         assert env is None or isinstance(env, Environment), env
@@ -660,28 +661,29 @@ class Dataset(IDataset):
         self._source_path = None
         self._options = {}
 
-    def define_categories(self, categories: Dict):
+    def define_categories(self, categories: CategoriesInfo) -> None:
         self._data.define_categories(categories)
 
-    def init_cache(self):
+    def init_cache(self) -> None:
         self._data.init_cache()
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[DatasetItem]:
         yield from self._data
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._data)
 
-    def get_subset(self, name):
+    def get_subset(self, name) -> DatasetSubset:
         return DatasetSubset(self, name)
 
-    def subsets(self):
+    def subsets(self) -> Dict[str, DatasetSubset]:
         return { k: self.get_subset(k) for k in self._data.subsets() }
 
-    def categories(self):
+    def categories(self) -> CategoriesInfo:
         return self._data.categories()
 
-    def get(self, id, subset=None):
+    def get(self, id: str, subset: Optional[str] = None) \
+            -> Optional[DatasetItem]:
         return self._data.get(id, subset)
 
     def __contains__(self, x: Union[DatasetItem, str, Tuple[str, str]]) -> bool:
@@ -691,7 +693,8 @@ class Dataset(IDataset):
             x = [x]
         return self.get(*x) is not None
 
-    def put(self, item, id=None, subset=None):
+    def put(self, item: DatasetItem, id: Optional[str] = None,
+            subset: Optional[str] = None) -> None:
         overrides = {}
         if id is not None:
             overrides['id'] = id
@@ -702,7 +705,7 @@ class Dataset(IDataset):
 
         self._data.put(item)
 
-    def remove(self, id, subset=None):
+    def remove(self, id: str, subset: Optional[str] = None) -> None:
         self._data.remove(id, subset)
 
     def filter(self, expr: str, filter_annotations: bool = False,
@@ -762,7 +765,7 @@ class Dataset(IDataset):
             raise TypeError("Unexpected 'model' argument type: %s" % \
                 type(model))
 
-    def select(self, pred):
+    def select(self, pred: Callable[[DatasetItem], bool]) -> 'Dataset':
         class _DatasetFilter(ItemTransform):
             def transform_item(self, item):
                 if pred(item):
@@ -809,7 +812,7 @@ class Dataset(IDataset):
         return bool(self._source_path) and bool(self._format)
 
     def bind(self, path: str, format: Optional[str] = None, *,
-            options: Optional[Dict[str, Any]] = None):
+            options: Optional[Dict[str, Any]] = None) -> None:
         """
         Binds the dataset to a speific directory.
         Allows to set default saving parameters.
@@ -826,7 +829,8 @@ class Dataset(IDataset):
         self._data.flush_changes()
 
     @scoped
-    def export(self, save_dir: str, format, **kwargs):
+    def export(self, save_dir: str, format: Union[str, Type[Extractor]],
+            **kwargs) -> None:
         if not save_dir:
             raise ValueError("Dataset export path is not specified")
 
@@ -851,7 +855,7 @@ class Dataset(IDataset):
         else:
             converter.patch(self, self.get_patch(), save_dir=save_dir, **kwargs)
 
-    def save(self, save_dir: str = None, **kwargs):
+    def save(self, save_dir: Optional[str] = None, **kwargs) -> None:
         options = dict(self._options)
         options.update(kwargs)
 
@@ -863,8 +867,8 @@ class Dataset(IDataset):
         return cls.import_from(path, format=DEFAULT_FORMAT, **kwargs)
 
     @classmethod
-    def import_from(cls, path: str, format: str = None, env: Environment = None,
-            **kwargs) -> 'Dataset':
+    def import_from(cls, path: str, format: Optional[str] = None,
+            env: Optional[Environment] = None, **kwargs) -> 'Dataset':
         from datumaro.components.config_model import Source
 
         if env is None:
@@ -899,7 +903,7 @@ class Dataset(IDataset):
         return dataset
 
     @staticmethod
-    def detect(path: str, env: Environment = None) -> str:
+    def detect(path: str, env: Optional[Environment] = None) -> str:
         if env is None:
             env = Environment()
 
@@ -911,7 +915,7 @@ class Dataset(IDataset):
         return matches[0]
 
 @contextmanager
-def eager_mode(new_mode=True, dataset: Dataset = None):
+def eager_mode(new_mode: bool = True, dataset: Optional[Dataset] = None) -> None:
     if dataset is not None:
         old_mode = dataset.eager
 
