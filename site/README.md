@@ -46,31 +46,35 @@ you also need to get local copies of the theme’s own submodules:
 
 #### API documentation
 
-API documentation is generated using `Sphinx` with a theme [`Read the Docs`](https://docs.readthedocs.io/en/stable/intro/getting-started-with-sphinx.html).
+API documentation is generated using `Sphinx` with a theme
+[`Read the Docs`](https://docs.readthedocs.io/en/stable/intro/getting-started-with-sphinx.html).
 The `Read the Docs` theme is added as a submodule.
 Install Sphinx ([learn more](https://www.sphinx-doc.org/en/master/index.html)).
 
     pip install -U Sphinx
 
 If you want to add API documentation for third-party modules,
-used the `intersphinx` extension, for proper operation, install the required modules.
+used the `intersphinx` extension, for proper operation,
+install the required modules.
 Learn more about [`intersphinx`](https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html).
 
     cd <your local directory>/datumaro/
     pip install -r requirements.txt
 
-Documentation is generated automatically from `rst` files located
-in `site/source/api` using [`sphinx-autodoc`](https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html).
+Documentation is generated automatically from `rst`
+files located in `site/source/api` using
+[`sphinx-autodoc`](https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html).
 
     sphinx-build -a -n site/source site/static/api
 
-To describe new modules, you can generate the `rst` files
-using the [`sphinx-apidoc`](https://www.sphinx-doc.org/en/master/man/sphinx-apidoc.html).
+To describe new modules, you can generate the `rst` files using the
+[`sphinx-apidoc`](https://www.sphinx-doc.org/en/master/man/sphinx-apidoc.html).
 
     sphinx-apidoc -d 1 -o site/source/api datumaro
 
 Sphinx generates documentation in html format in `site/static/api`.
-After generating the documentation API, you can generate a site with documentation.
+After generating the documentation API,
+you can generate a site with documentation.
 
 #### Site generation
 
