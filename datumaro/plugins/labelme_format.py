@@ -273,8 +273,6 @@ class LabelMeExtractor(Extractor):
 
 
 class LabelMeImporter(Importer):
-    EXTRACTOR = 'label_me'
-
     @classmethod
     def find_sources(cls, path):
         subsets = []
@@ -283,7 +281,9 @@ class LabelMeImporter(Importer):
 
         try:
             next(iglob(osp.join(path, '**', '*.xml'), recursive=True))
-            subsets.append({'url': osp.normpath(path), 'format': cls.EXTRACTOR})
+            subsets.append({
+                'url': osp.normpath(path), 'format': LabelMeExtractor.NAME,
+            })
         except StopIteration:
             pass
         return subsets

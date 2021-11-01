@@ -7,7 +7,7 @@ weight: 27
 
 There are few ways to extend and customize Datumaro behavior, which is
 supported by plugins. Check [our contribution guide](/docs/contributing) for
-details on plugin implementation. In general, a plugin is a Python code file.
+details on plugin implementation. In general, a plugin is a Python module.
 It must be put into a plugin directory:
 - `<project_dir>/.datumaro/plugins` for project-specific plugins
 - `<datumaro_dir>/plugins` for global plugins

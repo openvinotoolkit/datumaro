@@ -3,17 +3,17 @@
 # SPDX-License-Identifier: MIT
 
 from functools import partial
-from glob import glob
 from typing import (
     Callable, Dict, Generic, Iterable, Iterator, Optional, Type, TypeVar,
 )
+import glob
+import importlib
 import inspect
 import logging as log
-import os
 import os.path as osp
 
 from datumaro.components.cli_plugin import CliPlugin, plugin_types
-from datumaro.util.os_util import import_foreign_module
+from datumaro.util.os_util import import_foreign_module, split_path
 
 T = TypeVar('T')
 
@@ -51,9 +51,8 @@ class PluginRegistry(Registry[Type[CliPlugin]]):
         for v in values:
             if self.filter and not self.filter(v):
                 continue
-            name = CliPlugin._get_name(v)
 
-            self.register(name, v)
+            self.register(v.NAME, v)
 
 class Environment:
     _builtin_plugins = None
@@ -114,26 +113,29 @@ class Environment:
     @staticmethod
     def _find_plugins(plugins_dir):
         plugins = []
-        if not osp.exists(plugins_dir):
-            return plugins
 
-        for plugin_name in os.listdir(plugins_dir):
-            p = osp.join(plugins_dir, plugin_name)
-            if osp.isfile(p) and p.endswith('.py'):
-                plugins.append((plugins_dir, plugin_name, None))
-            elif osp.isdir(p):
-                plugins += [(plugins_dir,
-                        osp.splitext(plugin_name)[0] + '.' + osp.basename(p),
-                        osp.splitext(plugin_name)[0]
-                    )
-                    for p in glob(osp.join(p, '*.py'))]
+        for pattern in ('*.py', '*/*.py'):
+            for path in glob.glob(
+                    osp.join(glob.escape(plugins_dir), pattern)):
+                if not osp.isfile(path):
+                    continue
+
+                path_rel = osp.relpath(path, plugins_dir)
+                name_parts = split_path(osp.splitext(path_rel)[0])
+
+                # a module with a dot in the name won't load correctly
+                if any('.' in part for part in name_parts):
+                    log.warning(
+                        "Python file '%s' in directory '%s' can't be imported "
+                        "due to a dot in the name; skipping.",
+                        path_rel, plugins_dir)
+                    continue
+                plugins.append('.'.join(name_parts))
+
         return plugins
 
     @classmethod
-    def _import_module(cls, module_dir, module_name, types, package=None):
-        module = import_foreign_module(osp.splitext(module_name)[0], module_dir,
-            package=package)
-
+    def _get_plugin_exports(cls, module, types):
         exports = []
         if hasattr(module, 'exports'):
             exports = module.exports
@@ -149,16 +151,14 @@ class Environment:
         return exports
 
     @classmethod
-    def _load_plugins(cls, plugins_dir, types=None):
+    def _load_plugins(cls, module_names, *, importer, types=None):
         types = tuple(types or plugin_types())
 
-        plugins = cls._find_plugins(plugins_dir)
-
         all_exports = []
-        for module_dir, module_name, package in plugins:
+        for module_name in module_names:
             try:
-                exports = cls._import_module(module_dir, module_name, types,
-                    package)
+                module = importer(module_name)
+                exports = cls._get_plugin_exports(module, types)
             except Exception as e:
                 module_search_error = ModuleNotFoundError
 
@@ -182,16 +182,18 @@ class Environment:
     @classmethod
     def _load_builtin_plugins(cls):
         if cls._builtin_plugins is None:
-            plugins_dir = osp.join(
-                __file__[: __file__.rfind(osp.join('datumaro', 'components'))],
-                osp.join('datumaro', 'plugins')
-            )
-            assert osp.isdir(plugins_dir), plugins_dir
-            cls._builtin_plugins = cls._load_plugins(plugins_dir)
+            import datumaro.plugins
+            plugins_dir = osp.dirname(datumaro.plugins.__file__)
+            module_names = [datumaro.plugins.__name__ + '.' + name
+                for name in cls._find_plugins(plugins_dir)]
+            cls._builtin_plugins = cls._load_plugins(module_names,
+                importer=importlib.import_module)
         return cls._builtin_plugins
 
     def load_plugins(self, plugins_dir):
-        plugins = self._load_plugins(plugins_dir)
+        module_names = self._find_plugins(plugins_dir)
+        plugins = self._load_plugins(module_names,
+            importer=partial(import_foreign_module, path=plugins_dir))
         self._register_plugins(plugins)
 
     def _register_builtin_plugins(self):
