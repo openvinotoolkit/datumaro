@@ -17,6 +17,8 @@ API Documentation Contents
    :glob:
 
    /*
+   /api/setup
+   /api/datum
 
 **CLI**
 

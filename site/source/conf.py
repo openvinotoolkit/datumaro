@@ -12,6 +12,7 @@
 
 import os
 import sys
+
 sys.path.insert(0, os.path.abspath('../..'))
 
 
@@ -33,8 +34,8 @@ release = '0.2'
 extensions = [
     'sphinx.ext.autodoc',  # Core library for html generation from docstrings
     'sphinx.ext.intersphinx', # Link to other projects documentation
-    'myst_parser', # Markdown files reader
     'sphinx.ext.viewcode', # Find the source files
+    'sphinx.ext.autosummary', # Generates function/method/attribute summary lists
 ]
 autosummary_generate = True  # Turn on sphinx.ext.autosummary
 
