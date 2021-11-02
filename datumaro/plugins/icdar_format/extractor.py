@@ -12,6 +12,7 @@ from datumaro.components.annotation import (
     Bbox, Caption, Mask, MaskCategories, Polygon,
 )
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
+from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.util.image import find_images
 from datumaro.util.mask_tools import lazy_mask
 
@@ -261,6 +262,10 @@ class IcdarWordRecognitionImporter(Importer):
         return cls._find_sources_recursive(path, '.txt', 'icdar_word_recognition')
 
 class IcdarTextLocalizationImporter(Importer):
+    @classmethod
+    def detect(cls, context: FormatDetectionContext) -> None:
+        context.require_file('**/gt_*.txt')
+
     @classmethod
     def find_sources(cls, path):
         return cls._find_sources_recursive(path, '', 'icdar_text_localization')

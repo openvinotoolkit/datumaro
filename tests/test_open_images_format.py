@@ -13,6 +13,7 @@ from datumaro.components.annotation import (
     AnnotationType, Bbox, Label, LabelCategories, Mask,
 )
 from datumaro.components.dataset import Dataset
+from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
 from datumaro.plugins.open_images_format import (
     OpenImagesConverter, OpenImagesImporter,
@@ -318,5 +319,7 @@ class OpenImagesImporterTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_274)
     def test_can_detect(self):
-        self.assertTrue(OpenImagesImporter.detect(DUMMY_DATASET_DIR_V6))
-        self.assertTrue(OpenImagesImporter.detect(DUMMY_DATASET_DIR_V5))
+        detected_formats = Environment().detect_dataset(DUMMY_DATASET_DIR_V6)
+        self.assertIn(OpenImagesImporter.NAME, detected_formats)
+        detected_formats = Environment().detect_dataset(DUMMY_DATASET_DIR_V5)
+        self.assertIn(OpenImagesImporter.NAME, detected_formats)

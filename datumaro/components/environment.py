@@ -13,6 +13,9 @@ import logging as log
 import os.path as osp
 
 from datumaro.components.cli_plugin import CliPlugin, plugin_types
+from datumaro.components.format_detection import (
+    FormatRequirementsUnmet, apply_format_detector,
+)
 from datumaro.util.os_util import import_foreign_module, split_path
 
 T = TypeVar('T')
@@ -229,17 +232,30 @@ class Environment:
         return name in self.importers or name in self.extractors
 
     def detect_dataset(self, path):
+        max_confidence = 0
         matches = []
 
         for format_name, importer in self.importers.items.items():
             log.debug("Checking '%s' format...", format_name)
             try:
-                match = importer.detect(path)
-                if match:
-                    log.debug("format matched")
+                new_confidence = apply_format_detector(path, importer.detect)
+            except FormatRequirementsUnmet as cf:
+                log.debug("Format did not match")
+                if len(cf.failed_alternatives) > 1:
+                    log.debug("None of the following requirements were met:")
+                else:
+                    log.debug("The following requirement was not met:")
+
+                for req in cf.failed_alternatives:
+                    log.debug("  %s", req)
+            else:
+                log.debug("Format matched with confidence %d", new_confidence)
+
+                # keep only matches with the highest confidence
+                if new_confidence > max_confidence:
+                    matches = [format_name]
+                    max_confidence = new_confidence
+                elif new_confidence == max_confidence:
                     matches.append(format_name)
-            except NotImplementedError:
-                log.debug("Format '%s' does not support auto detection.",
-                    format_name)
 
         return matches

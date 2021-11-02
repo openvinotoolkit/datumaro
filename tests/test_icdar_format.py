@@ -5,6 +5,7 @@ import os.path as osp
 import numpy as np
 
 from datumaro.components.annotation import Bbox, Caption, Mask, Polygon
+from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
 from datumaro.components.project import Dataset
 from datumaro.plugins.icdar_format.converter import (
@@ -27,18 +28,21 @@ DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'icdar_dataset')
 class IcdarImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_word_recognition(self):
-        self.assertTrue(IcdarWordRecognitionImporter.detect(
-            osp.join(DUMMY_DATASET_DIR, 'word_recognition')))
+        detected_formats = Environment().detect_dataset(
+            osp.join(DUMMY_DATASET_DIR, 'word_recognition'))
+        self.assertIn(IcdarWordRecognitionImporter.NAME, detected_formats)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_text_localization(self):
-        self.assertTrue(IcdarTextLocalizationImporter.detect(
-            osp.join(DUMMY_DATASET_DIR, 'text_localization')))
+        detected_formats = Environment().detect_dataset(
+            osp.join(DUMMY_DATASET_DIR, 'text_localization'))
+        self.assertEqual([IcdarTextLocalizationImporter.NAME], detected_formats)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_text_segmentation(self):
-        self.assertTrue(IcdarTextSegmentationImporter.detect(
-            osp.join(DUMMY_DATASET_DIR, 'text_segmentation')))
+        detected_formats = Environment().detect_dataset(
+            osp.join(DUMMY_DATASET_DIR, 'text_segmentation'))
+        self.assertIn(IcdarTextSegmentationImporter.NAME, detected_formats)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_captions(self):

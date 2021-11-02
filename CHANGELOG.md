@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/509>)
 - Allowed annotation files with arbitrary names in COCO
   (<https://github.com/openvinotoolkit/datumaro/pull/509>)
+- The `icdar_text_localization` format is no longer detected in every directory
+  (<https://github.com/openvinotoolkit/datumaro/pull/531>)
 
 ### Deprecated
 - TBD
