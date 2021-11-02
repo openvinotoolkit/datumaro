@@ -693,9 +693,9 @@ class _InstanceSpecificSplit(_TaskSpecificSplit):
     to the specified ratio, keeping the initial class distribution.|n
     |n
     Notes:|n
-    - Each image is expected to have one or more annotations.|n
-    - Only bbox annotations are considered in detection task.|n
-    - Mask or Polygon annotations are considered in segmentation task.|n
+    |s|s- Each image is expected to have one or more annotations.|n
+    |s|s- Only bbox annotations are considered in detection task.|n
+    |s|s- Mask or Polygon annotations are considered in segmentation task.|n
     |n
     Example: split dataset so that each object class annotations were split|n
     |s|s|s|sin the specified ratio between subsets|n

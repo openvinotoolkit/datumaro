@@ -20,7 +20,6 @@ datumaro.cli.util.project module
    :members:
    :private-members:
    :special-members:
-   :inherited-members:
 
 Module contents
 ---------------

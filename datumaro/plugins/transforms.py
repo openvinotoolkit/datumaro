@@ -322,7 +322,7 @@ class RandomSplit(Transform, CliPlugin):
     It is expected that item ids are unique and subset ratios sum up to 1.|n
     |n
     Example:|n
-    |s|s%(prog)s --subset train:.67 --subset test:.33
+    |s|s|s|s%(prog)s --subset train:.67 --subset test:.33
     """
 
     # avoid https://bugs.python.org/issue16399
@@ -410,10 +410,10 @@ class Rename(ItemTransform, CliPlugin):
     contain string.format tokens with 'item' object available.|n
     |n
     Examples:|n
-    - Replace 'pattern' with 'replacement':|n
-    |s|srename -e '|pattern|replacement|'|n
-    - Remove 'frame_' from item ids:|n
-    |s|srename -e '|frame_(\d+)|\1|'
+    |s|s- Replace 'pattern' with 'replacement':|n
+    |s|s|s|srename -e '|pattern|replacement|'|n
+    |s|s- Remove 'frame_' from item ids:|n
+    |s|s|s|srename -e '|frame_(\d+)|\1|'
     """
 
     @classmethod
@@ -441,22 +441,22 @@ class RemapLabels(ItemTransform, CliPlugin):
     Changes labels in the dataset.|n
     |n
     A label can be:|n
-    - renamed (and joined with existing) -|n
-    |s|swhen specified '--label <old_name>:<new_name>'|n
-    - deleted - when specified '--label <name>:' or default action is 'delete'|n
-    |s|sand the label is not mentioned in the list. When a label|n
-    |s|sis deleted, all the associated annotations are removed|n
-    - kept unchanged - when specified '--label <name>:<name>'|n
-    |s|sor default action is 'keep' and the label is not mentioned in the list|n
+    |s|s- renamed (and joined with existing) -|n
+    |s|s|s|swhen specified '--label <old_name>:<new_name>'|n
+    |s|s- deleted - when specified '--label <name>:' or default action is 'delete'|n
+    |s|s|s|sand the label is not mentioned in the list. When a label|n
+    |s|s|s|sis deleted, all the associated annotations are removed|n
+    |s|s- kept unchanged - when specified '--label <name>:<name>'|n
+    |s|s|s|sor default action is 'keep' and the label is not mentioned in the list|n
     Annotations with no label are managed by the default action policy.|n
     |n
     Examples:|n
-    - Remove the 'person' label (and corresponding annotations):|n
-    |s|s%(prog)s -l person: --default keep|n
-    - Rename 'person' to 'pedestrian' and 'human' to 'pedestrian', join:|n
-    |s|s%(prog)s -l person:pedestrian -l human:pedestrian --default keep|n
-    - Rename 'person' to 'car' and 'cat' to 'dog', keep 'bus', remove others:|n
-    |s|s%(prog)s -l person:car -l bus:bus -l cat:dog --default delete
+    |s|s- Remove the 'person' label (and corresponding annotations):|n
+    |s|s|s|s%(prog)s -l person: --default keep|n
+    |s|s- Rename 'person' to 'pedestrian' and 'human' to 'pedestrian', join:|n
+    |s|s|s|s%(prog)s -l person:pedestrian -l human:pedestrian --default keep|n
+    |s|s- Rename 'person' to 'car' and 'cat' to 'dog', keep 'bus', remove others:|n
+    |s|s|s|s%(prog)s -l person:car -l bus:bus -l cat:dog --default delete
     """
 
     class DefaultAction(Enum):
@@ -594,8 +594,8 @@ class ProjectLabels(ItemTransform):
     Useful for merging similar datasets, whose labels need to be aligned.|n
     |n
     Examples:|n
-    - Align the source dataset labels to [person, cat, dog]:|n
-    |s|s%(prog)s -l person -l cat -l dog
+    |s|s- Align the source dataset labels to [person, cat, dog]:|n
+    |s|s|s|s%(prog)s -l person -l cat -l dog
     """
 
     @classmethod
