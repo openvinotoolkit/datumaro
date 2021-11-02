@@ -2,7 +2,8 @@
 #
 # SPDX-License-Identifier: MIT
 
-from glob import iglob
+import csv
+import glob
 import logging as log
 import os.path as osp
 
@@ -13,7 +14,7 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.components.format_detection import FormatDetectionContext
-from datumaro.util.image import find_images
+from datumaro.util.image import IMAGE_EXTENSIONS, find_images
 from datumaro.util.mask_tools import lazy_mask
 
 from .format import IcdarPath, IcdarTask
@@ -97,7 +98,8 @@ class _IcdarExtractor(SourceExtractor):
         else:
             images = {}
 
-        for path in iglob(osp.join(self._path, '**', '*.txt'), recursive=True):
+        for path in glob.iglob(
+                osp.join(self._path, '**', '*.txt'), recursive=True):
             item_id = osp.splitext(osp.relpath(path, self._path))[0]
             if osp.basename(item_id).startswith('gt_'):
                 item_id = osp.join(osp.dirname(item_id), osp.basename(item_id)[3:])
@@ -165,7 +167,8 @@ class _IcdarExtractor(SourceExtractor):
         else:
             images = {}
 
-        for path in iglob(osp.join(self._path, '**', '*.txt'), recursive=True):
+        for path in glob.iglob(
+                osp.join(self._path, '**', '*.txt'), recursive=True):
             item_id = osp.splitext(osp.relpath(path, self._path))[0]
             item_id = item_id.replace('\\', '/')
             if item_id.endswith('_GT'):
@@ -258,6 +261,20 @@ class IcdarTextSegmentationExtractor(_IcdarExtractor):
 
 class IcdarWordRecognitionImporter(Importer):
     @classmethod
+    def detect(cls, context: FormatDetectionContext) -> None:
+        annot_path = context.require_file('*/gt.txt')
+
+        with context.probe_text_file(
+            annot_path, 'must be a ICDAR-like annotation file',
+        ) as f:
+            reader = csv.reader(f,
+                doublequote=False, escapechar='\\', skipinitialspace=True)
+            fields = next(reader)
+            if len(fields) != 2: raise Exception
+            if osp.splitext(fields[0])[1] not in IMAGE_EXTENSIONS:
+                raise Exception
+
+    @classmethod
     def find_sources(cls, path):
         return cls._find_sources_recursive(path, '.txt', 'icdar_word_recognition')
 
@@ -271,6 +288,12 @@ class IcdarTextLocalizationImporter(Importer):
         return cls._find_sources_recursive(path, '', 'icdar_text_localization')
 
 class IcdarTextSegmentationImporter(Importer):
+    @classmethod
+    def detect(cls, context: FormatDetectionContext) -> None:
+        gt_txt_path = context.require_file('**/*_GT.txt')
+        gt_bmp_path = osp.splitext(gt_txt_path)[0] + '.bmp'
+        context.require_file(glob.escape(gt_bmp_path))
+
     @classmethod
     def find_sources(cls, path):
         return cls._find_sources_recursive(path, '', 'icdar_text_segmentation')

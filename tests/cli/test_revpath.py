@@ -1,13 +1,8 @@
 from unittest.case import TestCase
 import os.path as osp
 
-from datumaro.cli.util.project import (
-    WrongRevpathError, parse_full_revpath, split_local_revpath,
-)
+from datumaro.cli.util.project import parse_full_revpath, split_local_revpath
 from datumaro.components.dataset import DEFAULT_FORMAT, Dataset, IDataset
-from datumaro.components.errors import (
-    MultipleFormatsMatchError, ProjectNotFoundError, UnknownTargetError,
-)
 from datumaro.components.extractor import DatasetItem
 from datumaro.components.project import Project
 from datumaro.util.scope import scope_add, scoped
@@ -95,12 +90,11 @@ class TestRevpath(TestCase):
             self.assertEqual(None, project)
 
         with self.subTest("dataset (in context)"):
-            with self.assertRaises(WrongRevpathError) as cm:
-                parse_full_revpath(dataset_url, proj)
-            self.assertEqual(
-                {UnknownTargetError, MultipleFormatsMatchError},
-                set(type(e) for e in cm.exception.problems)
-            )
+            dataset, project = parse_full_revpath(dataset_url, proj)
+            if project:
+                scope_add(project)
+            self.assertTrue(isinstance(dataset, IDataset))
+            self.assertEqual(None, project)
 
         with self.subTest("dataset format (in context)"):
             dataset, project = parse_full_revpath(
@@ -111,12 +105,11 @@ class TestRevpath(TestCase):
             self.assertEqual(None, project)
 
         with self.subTest("dataset (no context)"):
-            with self.assertRaises(WrongRevpathError) as cm:
-                parse_full_revpath(dataset_url)
-            self.assertEqual(
-                {ProjectNotFoundError, MultipleFormatsMatchError},
-                set(type(e) for e in cm.exception.problems)
-            )
+            dataset, project = parse_full_revpath(dataset_url)
+            if project:
+                scope_add(project)
+            self.assertTrue(isinstance(dataset, IDataset))
+            self.assertEqual(None, project)
 
         with self.subTest("dataset format (no context)"):
             dataset, project = parse_full_revpath(f"{dataset_url}:datumaro")
