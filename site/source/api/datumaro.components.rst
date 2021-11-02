@@ -16,7 +16,21 @@ datumaro.components.annotation module
 -------------------------------------
 
 .. automodule:: datumaro.components.annotation
+   :members: Annotation
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+.. autoclass:: datumaro.components.annotation.AnnotationType
    :members:
+   :undoc-members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+.. automodule:: datumaro.components.annotation
+   :members:
+   :exclude-members: Annotation, AnnotationType
    :private-members:
    :special-members:
    :show-inheritance:
@@ -142,6 +156,27 @@ Module contents
 ---------------
 
 .. automodule:: datumaro.components
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+Algorithms package
+******************
+
+datumaro.components.algorithms.rise module
+------------------------------------------
+
+.. automodule:: datumaro.components.algorithms.rise
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: datumaro.components.algorithms
    :members:
    :private-members:
    :special-members:

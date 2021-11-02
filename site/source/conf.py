@@ -32,6 +32,7 @@ release = '0.2'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    'sphinxcontrib.napoleon',
     'sphinx.ext.autodoc',  # Core library for html generation from docstrings
     'sphinx.ext.intersphinx', # Link to other projects documentation
     'sphinx.ext.viewcode', # Find the source files
@@ -75,3 +76,19 @@ html_css_files = ['custom.css' ]
 
 # -- Extension configuration -------------------------------------------------
 autodoc_docstring_signature = True
+
+# Napoleon settings
+napoleon_google_docstring = True
+napoleon_numpy_docstring = True
+napoleon_include_init_with_doc = True
+napoleon_include_private_with_doc = True
+napoleon_include_special_with_doc = True
+napoleon_use_admonition_for_examples = False
+napoleon_use_admonition_for_notes = False
+napoleon_use_admonition_for_references = False
+napoleon_use_ivar = True
+napoleon_use_param = True
+napoleon_use_rtype = True
+napoleon_preprocess_types = True
+napoleon_type_aliases = None
+napoleon_attr_annotations = True

@@ -239,3 +239,483 @@ Module contents
    :private-members:
    :special-members:
    :show-inheritance:
+
+Accuracy checker plugin package
+===============================
+
+datumaro.plugins.accuracy\_checker\_plugin.launcher module
+----------------------------------------------------------
+
+.. automodule:: datumaro.plugins.accuracy_checker_plugin.launcher
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: datumaro.plugins.accuracy_checker_plugin
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+COCO format package
+===================
+
+datumaro.plugins.coco\_format.converter module
+----------------------------------------------
+
+.. automodule:: datumaro.plugins.coco_format.converter
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+datumaro.plugins.coco\_format.extractor module
+----------------------------------------------
+
+.. automodule:: datumaro.plugins.coco_format.extractor
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+datumaro.plugins.coco\_format.format module
+-------------------------------------------
+
+.. automodule:: datumaro.plugins.coco_format.format
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+datumaro.plugins.coco\_format.importer module
+---------------------------------------------
+
+.. automodule:: datumaro.plugins.coco_format.importer
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: datumaro.plugins.coco_format
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+CVAT format package
+===================
+
+datumaro.plugins.cvat\_format.converter module
+----------------------------------------------
+
+.. automodule:: datumaro.plugins.cvat_format.converter
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+datumaro.plugins.cvat\_format.extractor module
+----------------------------------------------
+
+.. automodule:: datumaro.plugins.cvat_format.extractor
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+datumaro.plugins.cvat\_format.format module
+-------------------------------------------
+
+.. automodule:: datumaro.plugins.cvat_format.format
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: datumaro.plugins.cvat_format
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+Datumaro format package
+=======================
+
+datumaro.plugins.datumaro\_format.converter module
+--------------------------------------------------
+
+.. automodule:: datumaro.plugins.datumaro_format.converter
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+datumaro.plugins.datumaro\_format.extractor module
+--------------------------------------------------
+
+.. automodule:: datumaro.plugins.datumaro_format.extractor
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+datumaro.plugins.datumaro\_format.format module
+-----------------------------------------------
+
+.. automodule:: datumaro.plugins.datumaro_format.format
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: datumaro.plugins.datumaro_format
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+ICDAR format package
+====================
+
+datumaro.plugins.icdar\_format.converter module
+-----------------------------------------------
+
+.. automodule:: datumaro.plugins.icdar_format.converter
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+datumaro.plugins.icdar\_format.extractor module
+-----------------------------------------------
+
+.. automodule:: datumaro.plugins.icdar_format.extractor
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+datumaro.plugins.icdar\_format.format module
+--------------------------------------------
+
+.. automodule:: datumaro.plugins.icdar_format.format
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: datumaro.plugins.icdar_format
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+KITTI format package
+====================
+
+datumaro.plugins.kitti\_format.converter module
+-----------------------------------------------
+
+.. automodule:: datumaro.plugins.kitti_format.converter
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+datumaro.plugins.kitti\_format.extractor module
+-----------------------------------------------
+
+.. automodule:: datumaro.plugins.kitti_format.extractor
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+datumaro.plugins.kitti\_format.format module
+--------------------------------------------
+
+.. automodule:: datumaro.plugins.kitti_format.format
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+datumaro.plugins.kitti\_format.importer module
+----------------------------------------------
+
+.. automodule:: datumaro.plugins.kitti_format.importer
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: datumaro.plugins.kitti_format
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+KITTI raw format package
+========================
+
+datumaro.plugins.kitti\_raw\_format.converter module
+----------------------------------------------------
+
+.. automodule:: datumaro.plugins.kitti_raw_format.converter
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+datumaro.plugins.kitti\_raw\_format.extractor module
+----------------------------------------------------
+
+.. automodule:: datumaro.plugins.kitti_raw_format.extractor
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+datumaro.plugins.kitti\_raw\_format.format module
+-------------------------------------------------
+
+.. automodule:: datumaro.plugins.kitti_raw_format.format
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: datumaro.plugins.kitti_raw_format
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+OpenVino plugin package
+=======================
+
+datumaro.plugins.openvino\_plugin.launcher module
+-------------------------------------------------
+
+.. automodule:: datumaro.plugins.openvino_plugin.launcher
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: datumaro.plugins.openvino_plugin
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+Sampler package
+===============
+
+datumaro.plugins.sampler.sampler module
+---------------------------------------
+
+.. automodule:: datumaro.plugins.sampler.sampler
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: datumaro.plugins.sampler
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+sly pointcloud format package
+=============================
+
+datumaro.plugins.sly\_pointcloud\_format.converter module
+---------------------------------------------------------
+
+.. automodule:: datumaro.plugins.sly_pointcloud_format.converter
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+datumaro.plugins.sly\_pointcloud\_format.extractor module
+---------------------------------------------------------
+
+.. automodule:: datumaro.plugins.sly_pointcloud_format.extractor
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+datumaro.plugins.sly\_pointcloud\_format.format module
+------------------------------------------------------
+
+.. automodule:: datumaro.plugins.sly_pointcloud_format.format
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: datumaro.plugins.sly_pointcloud_format
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+tf detection API format package
+===============================
+
+datumaro.plugins.tf\_detection\_api\_format.converter module
+------------------------------------------------------------
+
+.. automodule:: datumaro.plugins.tf_detection_api_format.converter
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+datumaro.plugins.tf\_detection\_api\_format.extractor module
+------------------------------------------------------------
+
+.. automodule:: datumaro.plugins.tf_detection_api_format.extractor
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+datumaro.plugins.tf\_detection\_api\_format.format module
+---------------------------------------------------------
+
+.. automodule:: datumaro.plugins.tf_detection_api_format.format
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: datumaro.plugins.tf_detection_api_format
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+VOC format package
+==================
+
+datumaro.plugins.voc\_format.converter module
+---------------------------------------------
+
+.. automodule:: datumaro.plugins.voc_format.converter
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+datumaro.plugins.voc\_format.extractor module
+---------------------------------------------
+
+.. automodule:: datumaro.plugins.voc_format.extractor
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+datumaro.plugins.voc\_format.format module
+------------------------------------------
+
+.. automodule:: datumaro.plugins.voc_format.format
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+datumaro.plugins.voc\_format.importer module
+--------------------------------------------
+
+.. automodule:: datumaro.plugins.voc_format.importer
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: datumaro.plugins.voc_format
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+YOLO format package
+===================
+
+datumaro.plugins.yolo\_format.converter module
+----------------------------------------------
+
+.. automodule:: datumaro.plugins.yolo_format.converter
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+datumaro.plugins.yolo\_format.extractor module
+----------------------------------------------
+
+.. automodule:: datumaro.plugins.yolo_format.extractor
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+datumaro.plugins.yolo\_format.format module
+-------------------------------------------
+
+.. automodule:: datumaro.plugins.yolo_format.format
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: datumaro.plugins.yolo_format
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:

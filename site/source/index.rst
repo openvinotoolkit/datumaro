@@ -34,7 +34,7 @@ API Documentation Contents
    :maxdepth: 1
    :glob:
 
-   /api/datumaro.components*
+   /api/datumaro.components
 
 **Plugins**
 
@@ -42,7 +42,7 @@ API Documentation Contents
    :maxdepth: 1
    :glob:
 
-   /api/datumaro.plugins*
+   /api/datumaro.plugins
 
 **Utilities**
 
