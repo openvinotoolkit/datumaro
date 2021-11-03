@@ -99,4 +99,3 @@ class MapillaryVistasInstancesImporter(MapillaryVistasImporter):
 class MapillaryVistasPanopticImporter(MapillaryVistasImporter):
     _TASK = MapillaryVistasTask.panoptic
     _TASKS = { _TASK: MapillaryVistasImporter._TASKS[_TASK] }
-
