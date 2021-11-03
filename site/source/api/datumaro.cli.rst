@@ -1,8 +1,7 @@
-CLI package
-===========
+CLI
+###
 
-Subpackages
------------
+**Subpackages**
 
 .. toctree::
    :maxdepth: 1
@@ -11,8 +10,7 @@ Subpackages
    datumaro.cli.contexts
    datumaro.cli.util
 
-Module contents
----------------
+**Module contents**
 
 .. automodule:: datumaro.cli
    :members:

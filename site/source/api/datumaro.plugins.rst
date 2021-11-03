@@ -1,8 +1,7 @@
-Plugins package
-===============
+Plugins
+#######
 
-Subpackages
------------
+**Subpackages**
 
 .. toctree::
    :maxdepth: 1
@@ -21,8 +20,8 @@ Subpackages
    datumaro.plugins.voc_format
    datumaro.plugins.yolo_format
 
-Submodules
-----------
+Plugins package
+===============
 
 datumaro.plugins.ade20k2017\_format module
 ------------------------------------------

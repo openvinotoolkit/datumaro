@@ -1,16 +1,15 @@
-Components package
-==================
+Components
+##########
 
-Subpackages
------------
+**Subpackages**
 
 .. toctree::
    :maxdepth: 1
 
    datumaro.components.algorithms
 
-Submodules
-----------
+Components package
+==================
 
 datumaro.components.annotation module
 -------------------------------------

@@ -1,8 +1,5 @@
-Utilities package
-=================
-
-Submodules
-----------
+Utilities
+#########
 
 datumaro.util.annotation\_util module
 -------------------------------------
