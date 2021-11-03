@@ -159,4 +159,5 @@ dataset
   {{< /tab >}}
 {{< /tabpane >}}
 
-See examples of annotation files in [test assets](https://github.com/openvinotoolkit/datumaro/blob/develop/tests/assets/mappilary_vistas_dataset).
+See examples of annotation files in
+[test assets](https://github.com/openvinotoolkit/datumaro/blob/develop/tests/assets/mappilary_vistas_dataset).
