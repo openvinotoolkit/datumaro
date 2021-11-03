@@ -76,3 +76,4 @@ html_css_files = ['custom.css' ]
 
 # -- Extension configuration -------------------------------------------------
 autodoc_docstring_signature = True
+autodoc_member_order = 'bysource'

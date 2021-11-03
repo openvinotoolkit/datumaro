@@ -45,7 +45,14 @@ datumaro.plugins.ade20k2020\_format module
 datumaro.plugins.camvid\_format module
 --------------------------------------
 
-.. automodule:: datumaro.plugins.camvid_format
+.. autoclass:: datumaro.plugins.camvid_format.CamvidExtractor
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+.. autoclass:: datumaro.plugins.camvid_format.LabelmapType
+   :undoc-members:
    :members:
    :private-members:
    :special-members:
@@ -63,7 +70,14 @@ datumaro.plugins.cifar\_format module
 datumaro.plugins.cityscapes\_format module
 ------------------------------------------
 
-.. automodule:: datumaro.plugins.cityscapes_format
+.. autoclass:: datumaro.plugins.cityscapes_format.CityscapesExtractor
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+.. autoclass:: datumaro.plugins.cityscapes_format.LabelmapType
+   :undoc-members:
    :members:
    :private-members:
    :special-members:
@@ -81,7 +95,14 @@ datumaro.plugins.image\_dir\_format module
 datumaro.plugins.image\_zip\_format module
 ------------------------------------------
 
-.. automodule:: datumaro.plugins.image_zip_format
+.. autoclass:: datumaro.plugins.image_zip_format.Compression
+   :undoc-members:
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+.. autoclass:: datumaro.plugins.image_zip_format.ImageZipExtractor
    :members:
    :private-members:
    :special-members:
@@ -100,6 +121,14 @@ datumaro.plugins.imagenet\_txt\_format module
 ---------------------------------------------
 
 .. automodule:: datumaro.plugins.imagenet_txt_format
+   :members:
+   :exclude-members: _LabelsSource
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+.. autoclass:: datumaro.plugins.imagenet_txt_format._LabelsSource
+   :undoc-members:
    :members:
    :private-members:
    :special-members:
@@ -163,7 +192,14 @@ datumaro.plugins.mot\_format module
 datumaro.plugins.mots\_format module
 ------------------------------------
 
-.. automodule:: datumaro.plugins.mots_format
+.. autoclass:: datumaro.plugins.mots_format.MotsLabels
+   :undoc-members:
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+.. autoclass:: datumaro.plugins.mots_format.MotsPngExtractor
    :members:
    :private-members:
    :special-members:
@@ -173,6 +209,13 @@ datumaro.plugins.ndr module
 ---------------------------
 
 .. automodule:: datumaro.plugins.ndr
+   :members: Algorithm, OverSamplingMethod, UnderSamplingMethod
+   :undoc-members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+.. autoclass:: datumaro.plugins.ndr.NDR
    :members:
    :private-members:
    :special-members:
@@ -190,8 +233,16 @@ datumaro.plugins.open\_images\_format module
 datumaro.plugins.splitter module
 --------------------------------
 
+.. autoclass:: datumaro.plugins.splitter.SplitTask
+   :undoc-members:
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
 .. automodule:: datumaro.plugins.splitter
    :members:
+   :exclude-members: SplitTask
    :private-members:
    :special-members:
    :show-inheritance:
@@ -201,6 +252,20 @@ datumaro.plugins.transforms module
 
 .. automodule:: datumaro.plugins.transforms
    :members:
+   :exclude-members: RemapLabels, ProjectLabels, AnnsToLabels, BboxValuesDecrement
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+.. automodule:: datumaro.plugins.transforms.RemapLabels
+   :members:
+   :undoc-members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+.. automodule:: datumaro.plugins.transforms.RemapLabels
+   :members: ProjectLabels, AnnsToLabels, BboxValuesDecrement
    :private-members:
    :special-members:
    :show-inheritance:
@@ -269,6 +334,7 @@ datumaro.plugins.coco\_format.converter module
 ----------------------------------------------
 
 .. automodule:: datumaro.plugins.coco_format.converter
+   :undoc-members:
    :members:
    :private-members:
    :special-members:
@@ -287,6 +353,7 @@ datumaro.plugins.coco\_format.format module
 -------------------------------------------
 
 .. automodule:: datumaro.plugins.coco_format.format
+   :undoc-members:
    :members:
    :private-members:
    :special-members:
@@ -414,6 +481,7 @@ datumaro.plugins.icdar\_format.format module
 
 .. automodule:: datumaro.plugins.icdar_format.format
    :members:
+   :undoc-members:
    :private-members:
    :special-members:
    :show-inheritance:
@@ -435,6 +503,7 @@ datumaro.plugins.kitti\_format.converter module
 
 .. automodule:: datumaro.plugins.kitti_format.converter
    :members:
+   :undoc-members:
    :private-members:
    :special-members:
    :show-inheritance:
@@ -453,6 +522,7 @@ datumaro.plugins.kitti\_format.format module
 
 .. automodule:: datumaro.plugins.kitti_format.format
    :members:
+   :undoc-members:
    :private-members:
    :special-members:
    :show-inheritance:
@@ -500,6 +570,7 @@ datumaro.plugins.kitti\_raw\_format.format module
 -------------------------------------------------
 
 .. automodule:: datumaro.plugins.kitti_raw_format.format
+   :undoc-members:
    :members:
    :private-members:
    :special-members:
@@ -642,6 +713,7 @@ datumaro.plugins.voc\_format.converter module
 
 .. automodule:: datumaro.plugins.voc_format.converter
    :members:
+   :undoc-members:
    :private-members:
    :special-members:
    :show-inheritance:
@@ -660,6 +732,7 @@ datumaro.plugins.voc\_format.format module
 
 .. automodule:: datumaro.plugins.voc_format.format
    :members:
+   :undoc-members:
    :private-members:
    :special-members:
    :show-inheritance:

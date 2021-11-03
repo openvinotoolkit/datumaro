@@ -25,8 +25,16 @@ datumaro.util.attrs\_util module
 datumaro.util.image module
 --------------------------
 
+.. autoclass:: datumaro.util.image._IMAGE_BACKENDS
+   :members:
+   :undoc-members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
 .. automodule:: datumaro.util.image
    :members:
+   :exclude-members: _IMAGE_BACKENDS
    :private-members:
    :special-members:
    :show-inheritance:
@@ -97,8 +105,16 @@ datumaro.util.telemetry\_utils module
 datumaro.util.test\_utils module
 --------------------------------
 
+.. autoclass:: datumaro.util.test_utils.Dimensions
+   :members:
+   :undoc-members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
 .. automodule:: datumaro.util.test_utils
    :members:
+   :exclude-members: Dimensions
    :private-members:
    :special-members:
    :show-inheritance:

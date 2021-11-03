@@ -30,7 +30,21 @@ datumaro.components.annotation module
 
 .. automodule:: datumaro.components.annotation
    :members:
-   :exclude-members: Annotation, AnnotationType
+   :exclude-members: Annotation, AnnotationType, Points, PointsCategories, PolyLine, Polygon, RleMask, _Shape,
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+.. autoclass:: datumaro.components.annotation.Points
+   :members:
+   :undoc-members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+.. automodule:: datumaro.components.annotation
+   :members:
+   :exclude-members: Annotation, AnnotationType, Points
    :private-members:
    :special-members:
    :show-inheritance:
@@ -76,6 +90,7 @@ datumaro.components.dataset module
 
 .. automodule:: datumaro.components.dataset
    :members:
+   :undoc-members:
    :private-members:
    :special-members:
    :show-inheritance:
@@ -137,8 +152,28 @@ datumaro.components.operations module
 datumaro.components.project module
 ----------------------------------
 
-.. automodule:: datumaro.components.project
+.. autoclass:: datumaro.components.project.BuildStageType
    :members:
+   :undoc-members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+.. autoclass:: datumaro.components.project.CrudProxy
+   :members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+.. automodule:: datumaro.components.project
+   :members: DiffStatus, IgnoreMode
+   :undoc-members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+.. automodule:: datumaro.components.project
+   :members: ProjectBuildTargets, ProjectSources, _DataSourceBase
    :private-members:
    :special-members:
    :show-inheritance:
@@ -148,6 +183,7 @@ datumaro.components.validator module
 
 .. automodule:: datumaro.components.validator
    :members:
+   :undoc-members:
    :private-members:
    :special-members:
    :show-inheritance:

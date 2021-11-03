@@ -73,6 +73,7 @@ datumaro.cli.commands.diff module
 
 .. automodule:: datumaro.cli.commands.diff
    :members:
+   :undoc-members:
    :private-members:
    :special-members:
    :show-inheritance:
