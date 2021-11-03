@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/509>)
 - The `icdar_text_localization` format is no longer detected in every directory
   (<https://github.com/openvinotoolkit/datumaro/pull/531>)
+- Update pycocotools version to 2.0.2
+  (<https://github.com/openvinotoolkit/datumaro/pull/534>)
 
 ### Deprecated
 - TBD
