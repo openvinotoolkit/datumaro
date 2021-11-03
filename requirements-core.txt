@@ -15,7 +15,7 @@ typing_extensions>=3.7.4.3
 # Using a previous version allows to force package rebuilding.
 #
 # https://github.com/openvinotoolkit/datumaro/issues/253
-pycocotools>=2.0.0,!=2.0.2; platform_system != "Windows"
+pycocotools>=2.0.2; platform_system != "Windows"
 
 pycocotools-windows; platform_system == "Windows"
 PyYAML>=5.3.1
