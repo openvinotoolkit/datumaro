@@ -61,8 +61,8 @@ Learn more about [`intersphinx`](https://www.sphinx-doc.org/en/master/usage/exte
     cd <your local directory>/datumaro/
     pip install -r requirements.txt
 
-Documentation is generated automatically from `rst` files and comments contained in the source code,
-files located in `site/source/api` using
+Documentation is generated automatically from `rst` files and comments
+contained in the source code, files located in `site/source/api` using
 [`sphinx-autodoc`](https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html).
 Comments in the source code should be in the format [reST](https://www.sphinx-doc.org/en/master/index.html),
 [Google](https://github.com/google/styleguide/blob/gh-pages/pyguide.md#38-comments-and-docstrings) or
