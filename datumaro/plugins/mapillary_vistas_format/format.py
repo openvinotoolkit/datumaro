@@ -2,11 +2,15 @@
 #
 # SPDX-License-Identifier: MIT
 
-from datumaro.components.annotation import AnnotationType, LabelCategories, MaskCategories
-from datumaro.util.mask_tools import generate_colormap
-from enum import Enum, auto
 from collections import OrderedDict
+from enum import Enum, auto
 import json
+
+from datumaro.components.annotation import (
+    AnnotationType, LabelCategories, MaskCategories,
+)
+from datumaro.util.mask_tools import generate_colormap
+
 
 def parse_config_file(config_path):
     label_map = OrderedDict([])
