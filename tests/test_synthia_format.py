@@ -9,7 +9,8 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import DatasetItem
-from datumaro.plugins.synthia_format import SynthiaImporter, SynthiaLabelMap, SynthiaColorMap
+import datumaro.plugins.synthia_format as Synthia
+from datumaro.plugins.synthia_format import SynthiaImporter
 from datumaro.util.test_utils import compare_datasets
 
 from .requirements import Requirements, mark_requirement
@@ -57,12 +58,7 @@ class SynthiaImporterTest(TestCase):
                         rotation=[-3.14, -3.14, -3.14], group=1)
                 ],
             )
-        ], categories={
-            AnnotationType.label: LabelCategories.from_iterable(
-                i for i in SynthiaLabelMap.values()
-            ),
-            AnnotationType.mask: MaskCategories(SynthiaColorMap),
-        })
+        ], categories=Synthia.make_cityscapes_categories())
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'synthia')
 

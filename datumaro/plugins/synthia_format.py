@@ -10,7 +10,7 @@ from attr import attributes
 from collections import OrderedDict
 
 from datumaro.components.annotation import (
-    AnnotationType, Bbox, Cuboid3d, Label, LabelCategories, MaskCategories, Points, PointsCategories,
+    AnnotationType, Bbox, Cuboid3d, Label, LabelCategories, MaskCategories, Points, PointsCategories, Mask
 )
 from datumaro.components.errors import DatasetImportError
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
@@ -32,39 +32,99 @@ class SynthiaPath:
     SUBSETS = {'0': 'train', '1': 'val', '2': 'test'}
     BBOXES_HEADER = 'image_id x_1 y_1 width height'
 
-SynthiaLabelMap = {
-    0: 'Void',
-    1: 'Sky',
-    2: 'Building',
-    3: 'Road',
-    4: 'Sidewalk',
-    5: 'Fence',
-    6: 'Vegetation',
-    7: 'Pole',
-    8: 'Car',
-    9: 'TrafficSign',
-    10: 'Pedestrian',
-    11: 'Bicycle',
-    12: 'Lanemarking',
-    15: 'TrafficLight',
-}
+# SynthiaLabelMap = {
+#     0: 'Void',
+#     1: 'Sky',
+#     2: 'Building',
+#     3: 'Road',
+#     4: 'Sidewalk',
+#     5: 'Fence',
+#     6: 'Vegetation',
+#     7: 'Pole',
+#     8: 'Car',
+#     9: 'TrafficSign',
+#     10: 'Pedestrian',
+#     11: 'Bicycle',
+#     12: 'Lanemarking',
+#     15: 'TrafficLight',
+# }
 
-SynthiaColorMap = {
-    0: (0, 0, 0),
-    1: (128, 128, 128),
-    2: (128, 0, 0),
-    3: (128, 64, 128),
-    4: (0, 0, 192),
-    5: (64, 64, 128),
-    6: (128, 128, 0),
-    7: (192, 192, 128),
-    8: (64, 0, 128),
-    9: (192, 128, 128),
-    10: (64, 64, 0),
-    11: (0, 128, 192),
-    12: (0, 172, 0),
-    15: (0, 128, 128),
-}
+# SynthiaColorMap = {
+#     0: (0, 0, 0),
+#     1: (128, 128, 128),
+#     2: (128, 0, 0),
+#     3: (128, 64, 128),
+#     4: (0, 0, 192),
+#     5: (64, 64, 128),
+#     6: (128, 128, 0),
+#     7: (192, 192, 128),
+#     8: (64, 0, 128),
+#     9: (192, 128, 128),
+#     10: (64, 64, 0),
+#     11: (0, 128, 192),
+#     12: (0, 172, 0),
+#     15: (0, 128, 128),
+# }
+
+SynthiaLabelMap = OrderedDict([
+    ('Void', (0, 0, 0)),
+    ('Road', (128, 64, 128)),
+    ('Sidewalk', (244, 35, 232)),
+    ('Building', (70, 70, 70)),
+    ('Wall', (102, 102, 156)),
+    ('Fence', (190, 153, 153)),
+    ('Pole', (153, 153, 153)),
+    ('TrafficLight', (250, 170, 30)),
+    ('TrafficSign', (220, 220, 0)),
+    ('Vegetation', (107, 142, 35)),
+    ('Terrain', (152, 251, 152)),
+    ('Sky', (70, 130, 180)),
+    ('Pedestrian', (220, 20, 60)),
+    ('Rider', (255, 0, 0)),
+    ('Car', (0, 0, 142)),
+    ('Truck', (0, 0, 70)),
+    ('Bus', (0, 60, 100)),
+    ('Train', (0, 80, 100)),
+    ('Motorcycle', (0, 0, 230)),
+    ('Bicycle', (119, 11, 32)),
+    ('Lanemarking', (0, 0, 142)),
+    ('licenseplate', (0, 0, 142)),
+])
+
+
+def make_cityscapes_categories(label_map=None):
+    if label_map is None:
+        label_map = SynthiaLabelMap
+
+    # There must always be a label with color (0, 0, 0) at index 0
+    bg_label = find(label_map.items(), lambda x: x[1] == (0, 0, 0))
+    if bg_label is not None:
+        bg_label = bg_label[0]
+    else:
+        bg_label = 'background'
+        if bg_label not in label_map:
+            has_colors = any(v is not None for v in label_map.values())
+            color = (0, 0, 0) if has_colors else None
+            label_map[bg_label] = color
+    label_map.move_to_end(bg_label, last=False)
+
+    categories = {}
+    label_categories = LabelCategories()
+    for label in label_map:
+        label_categories.add(label)
+    categories[AnnotationType.label] = label_categories
+
+    has_colors = any(v is not None for v in label_map.values())
+    if not has_colors: # generate new colors
+        colormap = generate_colormap(len(label_map))
+    else: # only copy defined colors
+        label_id = lambda label: label_categories.find(label)[0]
+        colormap = { label_id(name): (desc[0], desc[1], desc[2])
+            for name, desc in label_map.items() }
+    mask_categories = MaskCategories(colormap)
+    mask_categories.inverse_colormap # pylint: disable=pointless-statement
+    categories[AnnotationType.mask] = mask_categories
+    return categories
 
 def parse_label_map(path):
     if not path:
@@ -92,17 +152,6 @@ def parse_label_map(path):
                 raise ValueError("Label '%s' is already defined" % name)
 
             label_map[name] = color
-
-    bg_label = find(label_map.items(), lambda x: x[1] == (0, 0, 0))
-    if bg_label is not None:
-        bg_label = bg_label[0]
-    else:
-        bg_label = 'background'
-        if bg_label not in label_map:
-            has_colors = any(v is not None for v in label_map.values())
-            color = (0, 0, 0) if has_colors else None
-            label_map[bg_label] = color
-    label_map.move_to_end(bg_label, last=False)
     return label_map
 
 class SynthiaExtractor(SourceExtractor):
@@ -116,23 +165,14 @@ class SynthiaExtractor(SourceExtractor):
         self._items = list(self._load_items(path).values())
 
     def _load_categories(self, path):
-        label_categories = LabelCategories()
-        if osp.isfile(osp.join(path, 'labelmap.txt')):
-            label_map = parse_label_map(osp.join(path, 'labelmap.txt'))
-
-            for label in label_map:
-                label_categories.add(label)
-
-            label_id = lambda label: label_categories.find(label)[0]
-            colormap = { label_id(name): (desc[0], desc[1], desc[2])
-                for name, desc in label_map.items() if desc }
+        label_map = None
+        label_map_path = osp.join(path, 'labels.txt')
+        if osp.isfile(label_map_path):
+            label_map = parse_label_map(label_map_path)
         else:
-            for label in SynthiaLabelMap.values():
-                label_categories.add(label)
-            colormap = SynthiaColorMap
-        mask_categories = MaskCategories(colormap)
-        return {AnnotationType.label: label_categories,
-            AnnotationType.mask: mask_categories}
+            label_map = SynthiaLabelMap
+        self._labels = [label for label in label_map]
+        return make_cityscapes_categories(label_map)
 
     def _load_items(self, root_dir):
         items = {}
@@ -172,7 +212,25 @@ class SynthiaExtractor(SourceExtractor):
                         items[item_id] = DatasetItem(id=item_id, subset=self._subset, image=images.get(item_id),
                             annotations=annotations)
 
+            for gt_image in find_images(osp.join(osp.dirname(dir_), 'SemSeg')):
+                item_id = osp.join(osp.basename(osp.dirname(osp.dirname(gt_image))),
+                    osp.splitext(osp.basename(gt_image))[0])
+                annotations = items[item_id].annotations
+                instances_mask = load_image(gt_image, dtype=np.uint8)
+                segm_ids = np.unique(instances_mask[:,:,2])
+                # print(np.unique(instances_mask[:,:,0]))
+                # print(np.unique(instances_mask[:,:,1]))
+                # print(np.unique(instances_mask[:,:,2]))
+                for segm_id in segm_ids:
+                    annotations.append(Mask(
+                        image=self._lazy_extract_mask(instances_mask, segm_id),
+                        label=segm_id))
+
         return items
+
+    @staticmethod
+    def _lazy_extract_mask(mask, c):
+        return lambda: mask == c
 
 class SynthiaImporter(Importer):
     @classmethod
