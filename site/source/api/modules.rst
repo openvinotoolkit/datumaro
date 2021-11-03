@@ -7,4 +7,3 @@ datumaro
    datum
    datumaro
    setup
-   tests

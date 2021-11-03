@@ -1,5 +1,5 @@
-:mod:`cli` --- CLI package
-==========================
+CLI package
+===========
 
 Subpackages
 -----------

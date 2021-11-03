@@ -1,5 +1,5 @@
-:mod:`components` --- Components package
-========================================
+Components package
+==================
 
 Subpackages
 -----------

@@ -1,5 +1,5 @@
-:mod:`datum` --- datum
-======================
+datum
+=====
 
 .. automodule:: datum
    :members:

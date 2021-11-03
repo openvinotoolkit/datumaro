@@ -1,5 +1,5 @@
-:mod:`plugins` --- Plugins package
-==================================
+Plugins package
+===============
 
 Subpackages
 -----------
