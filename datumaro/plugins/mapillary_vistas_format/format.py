@@ -19,8 +19,6 @@ def parse_config_file(config_path):
         try:
             for label in config['labels']:
                 label_map[label['name']] = tuple(map(int, label['color']))
-        except KeyError as keyexc:
-            raise keyexc('Config file %s has incorrect structure' % config_path)
     return label_map
 
 def make_mapillary_instance_categories(label_map):
