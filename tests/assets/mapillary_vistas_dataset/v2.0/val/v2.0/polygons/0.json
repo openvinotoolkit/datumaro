@@ -1,0 +1,1 @@
+{"heigth": 5, "width": 5, "objects": [{"id": 0, "label": "animal--bird", "polygon": [[0, 0, 1, 0, 2, 0, 2, 4, 0, 4]]}, {"id": 1, "label": "construction--barrier--separator", "polygon": [[3, 0, 4, 0, 4, 1, 4, 4, 3, 4]]}], "annotation_date": ""}
