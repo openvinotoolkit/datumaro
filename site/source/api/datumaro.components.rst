@@ -162,7 +162,7 @@ Module contents
    :show-inheritance:
 
 Algorithms package
-******************
+==================
 
 datumaro.components.algorithms.rise module
 ------------------------------------------
