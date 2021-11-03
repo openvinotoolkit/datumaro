@@ -268,7 +268,6 @@ class MapillaryVistasImporterTest(TestCase):
             AnnotationType.mask: mask_cat
         })
 
-        pass
         imported_dataset = Dataset.import_from(DUMMY_DATASET_V2_0,
             'mapillary_vistas_panoptic', keep_original_category_ids=True)
 
