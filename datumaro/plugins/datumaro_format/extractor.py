@@ -196,7 +196,8 @@ class DatumaroImporter(Importer):
         annot_file = context.require_file('annotations/*.json')
 
         with context.probe_text_file(
-            annot_file, "must be a Datumaro annotation file",
+            annot_file, "must be a JSON object with \"categories\" "
+                "and \"items\" keys",
         ) as f:
             contents = json.load(f)
             if not {'categories', 'items'} <= contents.keys():

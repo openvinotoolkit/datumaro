@@ -180,7 +180,7 @@ class Ade20k2020Importer(Importer):
         annot_path = context.require_file('*/**/*.json')
 
         with context.probe_text_file(
-            annot_path, "must be an ADE20K JSON annotation file",
+            annot_path, "must be a JSON object with an \"annotation\" key",
         ) as f:
             contents = json.load(f)
             if not isinstance(contents, dict):

@@ -321,7 +321,7 @@ class CvatImporter(Importer):
         annot_file = context.require_file('*.xml')
 
         with context.probe_text_file(
-            annot_file, "must be a CVAT annotation file",
+            annot_file, "must be an XML file with an \"annotations\" root element",
         ) as f:
             _, root_elem = next(ElementTree.iterparse(f, events=('start',)))
             if root_elem.tag != 'annotations':
