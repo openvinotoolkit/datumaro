@@ -30,9 +30,11 @@ datum create
 datum add -f mapillary_vistas ./dataset
 ```
 
-> Note: the directory with dataset should be subdirectory of the project directory.
+> Note: the directory with dataset should be subdirectory of the
+> project directory.
 
-> Note: there is no opportunity to import both instance and panoptic masks for one dataset.
+> Note: there is no opportunity to import both instance and panoptic
+> masks for one dataset.
 
 Use one of subformats (`mapillary_vistas_instances`, `mapillary_vistas_panoptic`),
 if your dataset contains both panoptic and instance masks:
@@ -58,10 +60,11 @@ Example of using extra options:
 datum add -f mapillary_vistas ./dataset -- --use-original-config
 ```
 Mapillary Vistas dataset has two versions: v1.2, v2.0.
-They differ in the number of classes, the name of the classes, supported types of
-annotations, and the names of the directory with annotations.
+They differ in the number of classes, the name of the classes, supported types
+of annotations, and the names of the directory with annotations.
 So, the directory with dataset should have one of these structures:
 
+<!--lint disable fenced-code-flag-->
 {{< tabpane >}}
   {{< tab header="v1.2">}}
 dataset
@@ -102,7 +105,7 @@ dataset
 │       │   ├── <image_name2>.png
 │       │   ├── ...
 │       ├── panoptic # directory with panoptic masks and panoptic config file
-│       │   ├── panoptic_2020.json # config file with description of classes and annotation objects
+│       │   ├── panoptic_2020.json # description of classes and annotations
 │       │   ├── <image_name1>.png
 │       │   ├── <image_name2>.png
 │       │   ├── ...
@@ -148,7 +151,7 @@ dataset
     │   ├── <image_name2>.png
     │   ├── ...
     ├── panoptic # directory with panoptic masks and panoptic config file
-    │   ├── panoptic_2020.json # config file with description of classes and annotation objects
+    │   ├── panoptic_2020.json # description of classes and annotation objects
     │   ├── <image_name1>.png
     │   ├── <image_name2>.png
     │   ├── ...
