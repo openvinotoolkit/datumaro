@@ -38,7 +38,7 @@ def make_mapillary_instance_categories(label_map):
         }
 
     mask_cat = MaskCategories(colormap)
-    mask_cat.inverse_colormap
+    mask_cat.inverse_colormap # pylint: disable=pointless-statement
 
     return {
         AnnotationType.label: label_cat,

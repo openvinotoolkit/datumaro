@@ -98,7 +98,7 @@ class _MapillaryVistasExtractor(SourceExtractor):
 
         self._label_map = label_map
         mask_cat = MaskCategories(color_map)
-        mask_cat.inverse_colormap
+        mask_cat.inverse_colormap # pylint: disable=pointless-statement
 
         return {
             AnnotationType.label:label_cat,
@@ -164,7 +164,6 @@ class _MapillaryVistasExtractor(SourceExtractor):
     def _load_instances_items(self):
         items = {}
 
-        count = 0
         instances_dir = osp.join(self._annotations_dir, MapillaryVistasPath.INSTANCES_DIR)
         for instance_path in find_images(instances_dir, recursive=True):
             item_id = osp.splitext(osp.relpath(instance_path, instances_dir))[0]
