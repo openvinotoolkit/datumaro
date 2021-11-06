@@ -124,7 +124,6 @@ class ByteImage(Image):
             *,
             path: Optional[str] = None,
             ext: Optional[str] = None,
-            decoder: Optional[Callable[[bytes], np.ndarray]] = None,
             size: Optional[Tuple[int, int]] = None):
         if not isinstance(data, bytes):
             assert path or callable(data), "Image can not be empty"
@@ -132,12 +131,8 @@ class ByteImage(Image):
             if path and osp.isfile(path) or data:
                 data = lazy_image(path, loader=data)
 
-        if decoder is None:
-            decoder = decode_image
-        assert callable(decoder)
-
         super().__init__(path=path, size=size,
-            data=lambda _: decoder(self.get_bytes()))
+            data=lambda _: decode_image(self.get_bytes()))
         if data is None:
             # We don't expect decoder to produce images from nothing,
             # otherwise using this class makes no sense. We undefine
