@@ -26,7 +26,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/534>)
 
 ### Deprecated
-- TBD
+- Using `Image`, `ByteImage` from `datumaro.util.image` - these classes
+  are moved to `datumaro.components.media`
+  (<https://github.com/openvinotoolkit/datumaro/pull/538>)
 
 ### Removed
 - TBD
