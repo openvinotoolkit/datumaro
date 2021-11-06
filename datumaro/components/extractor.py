@@ -3,9 +3,12 @@
 # SPDX-License-Identifier: MIT
 
 from glob import iglob
-from typing import Any, Callable, Dict, Iterable, List, Optional
+from typing import (
+    Any, Callable, Dict, Iterable, List, Optional, Type, TypeVar, Union, cast,
+)
 import os
 import os.path as osp
+import warnings
 
 from attr import attrib, attrs
 import attr
@@ -19,7 +22,7 @@ from datumaro.components.errors import DatasetNotFoundError
 from datumaro.components.format_detection import (
     FormatDetectionConfidence, FormatDetectionContext,
 )
-from datumaro.components.media import Image
+from datumaro.components.media import Image, MediaElement, PointCloud
 from datumaro.util import is_method_redefined
 from datumaro.util.attrs_util import default_if_none, not_empty
 
@@ -34,59 +37,110 @@ for _name in [
 
 DEFAULT_SUBSET_NAME = 'default'
 
-@attrs(order=False)
+T = TypeVar('T', bound=MediaElement)
+
+@attrs(order=False, init=False)
 class DatasetItem:
     id: str = attrib(converter=lambda x: str(x).replace('\\', '/'),
         validator=not_empty)
-    annotations: List[Annotation] = attrib(
-        factory=list, validator=default_if_none(list))
+
     subset: str = attrib(converter=lambda v: v or DEFAULT_SUBSET_NAME,
         default=None)
 
-    # TODO: introduce "media" field with type info. Replace image and pcd.
-    image: Optional[Image] = attrib(default=None)
-    # TODO: introduce pcd type like Image
-    point_cloud: Optional[str] = attrib(
-        converter=lambda x: str(x).replace('\\', '/') if x else None,
-        default=None)
-    related_images: List[Image] = attrib(default=None)
+    media: Optional[MediaElement] = attrib(default=None,
+        validator=attr.validators.optional(
+            attr.validators.instance_of(MediaElement)))
 
-    def __attrs_post_init__(self):
-        if (self.has_image and self.has_point_cloud):
-            raise ValueError("Can't set both image and point cloud info")
-        if self.related_images and not self.has_point_cloud:
-            raise ValueError("Related images require point cloud")
-
-    def _image_converter(image):
-        if callable(image) or isinstance(image, np.ndarray):
-            image = Image(data=image)
-        elif isinstance(image, str):
-            image = Image(path=image)
-        assert image is None or isinstance(image, Image), type(image)
-        return image
-    image.converter = _image_converter
-
-    def _related_image_converter(images):
-        return list(map(__class__._image_converter, images or []))
-    related_images.converter = _related_image_converter
-
-    @point_cloud.validator
-    def _point_cloud_validator(self, attribute, pcd):
-        assert pcd is None or isinstance(pcd, str), type(pcd)
+    annotations: List[Annotation] = attrib(
+        factory=list, validator=default_if_none(list))
 
     attributes: Dict[str, Any] = attrib(
         factory=dict, validator=default_if_none(dict))
 
-    @property
-    def has_image(self):
-        return self.image is not None
-
-    @property
-    def has_point_cloud(self):
-        return self.point_cloud is not None
-
     def wrap(item, **kwargs):
         return attr.evolve(item, **kwargs)
+
+    def media_as(self, t: Type[T]) -> T:
+        assert issubclass(t, MediaElement)
+        return cast(t, self.media)
+
+    def __init__(self, id: str, subset: Optional[str] = None,
+            media: Union[str, MediaElement, None] = None,
+            annotations: Optional[List[Annotation]] = None,
+            attributes: Dict[str, Any] = None,
+            image=None, point_cloud=None, related_images=None):
+        if image is not None:
+            warnings.warn("image is deprecated and will be "
+                "removed in future. Use media instead.",
+                DeprecationWarning)
+            if isinstance(image, str):
+                image = Image(path=image)
+            elif isinstance(image, np.ndarray) or callable(image):
+                image = Image(data=image)
+            assert isinstance(image, Image)
+            media = image
+        elif point_cloud is not None:
+            warnings.warn("point_cloud is deprecated and will be "
+                "removed in future. Use media instead.",
+                DeprecationWarning)
+            if related_images is not None:
+                warnings.warn("related_images is deprecated and will be "
+                    "removed in future. Use media instead.",
+                    DeprecationWarning)
+            if isinstance(point_cloud, str):
+                point_cloud = PointCloud(path=point_cloud,
+                    extra_images=related_images)
+            assert isinstance(point_cloud, PointCloud)
+            media = point_cloud
+
+        self.__attrs_init__(id=id, subset=subset, media=media,
+            annotations=annotations, attributes=attributes)
+
+    # Deprecated. Provided for backward compatibility.
+    @property
+    def image(self) -> Optional[Image]:
+        warnings.warn("DatasetItem.image is deprecated and will be "
+            "removed in future. Use .media and .media_as() instead.",
+            DeprecationWarning)
+        if not isinstance(self.media, Image):
+            return None
+        return self.media_as(Image)
+
+    # Deprecated. Provided for backward compatibility.
+    @property
+    def point_cloud(self) -> Optional[str]:
+        warnings.warn("DatasetItem.point_cloud is deprecated and will be "
+            "removed in future. Use .media and .media_as() instead.",
+            DeprecationWarning)
+        if not isinstance(self.media, PointCloud):
+            return None
+        return self.media_as(PointCloud).path
+
+    # Deprecated. Provided for backward compatibility.
+    @property
+    def related_images(self) -> List[Image]:
+        warnings.warn("DatasetItem.related_images is deprecated and will be "
+            "removed in future. Use .media and .media_as() instead.",
+            DeprecationWarning)
+        if not isinstance(self.media, PointCloud):
+            return []
+        return self.media_as(PointCloud).extra_images
+
+    # Deprecated. Provided for backward compatibility.
+    @property
+    def has_image(self):
+        warnings.warn("DatasetItem.has_image is deprecated and will be "
+            "removed in future. Use .media and .media_as() instead.",
+            DeprecationWarning)
+        return isinstance(self.media, Image)
+
+    # Deprecated. Provided for backward compatibility.
+    @property
+    def has_point_cloud(self):
+        warnings.warn("DatasetItem.has_point_cloud is deprecated and will be "
+            "removed in future. Use .media and .media_as() instead.",
+            DeprecationWarning)
+        return isinstance(self.media, PointCloud)
 
 
 CategoriesInfo = Dict[AnnotationType, Categories]

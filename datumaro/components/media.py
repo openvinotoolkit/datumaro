@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-from typing import Callable, Optional, Tuple, Union
+from typing import Callable, List, Optional, Tuple, Union
 import os
 import os.path as osp
 import shutil
@@ -183,3 +183,19 @@ class ByteImage(Image):
                 f.write(self.get_bytes())
         else:
             save_image(path, self.data)
+
+class PointCloud(MediaElement):
+    def __init__(self, path: str,
+            extra_images: Optional[List[Union[
+                str, Image, np.ndarray, Callable[[str], np.ndarray]
+            ]]] = None):
+        self.path = path
+
+        self.extra_images: List[Image] = []
+        for image in extra_images or []:
+            assert isinstance(image, (str, Image, np.ndarray)) or callable(image)
+            if isinstance(image, str):
+                image = Image(path=image)
+            elif isinstance(image, np.ndarray) or callable(image):
+                image = Image(data=image)
+            self.extra_images.append(image)
