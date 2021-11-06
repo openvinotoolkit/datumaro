@@ -4,15 +4,19 @@
 
 from enum import Enum, auto
 from io import BytesIO
-from typing import Callable, Dict, Iterable, Iterator, Tuple, Union
+from typing import Any, Callable, Dict, Iterable, Iterator, Tuple, Union
 import importlib
 import os
 import os.path as osp
 import shlex
 import weakref
 
-from numpy.typing import DTypeLike
 import numpy as np
+
+try:
+    from numpy.typing import DTypeLike
+except ImportError:
+    DTypeLike = Any
 
 
 class _IMAGE_BACKENDS(Enum):
