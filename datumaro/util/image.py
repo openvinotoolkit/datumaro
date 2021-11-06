@@ -239,7 +239,7 @@ class lazy_image:
 
     @staticmethod
     def _get_cache(cache):
-        if cache is None:
+        if cache is None or cache is True:
             cache = ImageCache.get_instance()
         elif cache is False:
             return None
