@@ -7,17 +7,18 @@ import os
 import os.path as osp
 import shutil
 
-from attr import attrs
+from attr import attrib, attrs
 import numpy as np
 
+from datumaro.util.attrs_util import not_empty
 from datumaro.util.image import (
     _image_loading_errors, decode_image, lazy_image, save_image,
 )
 
 
-@attrs(auto_attribs=True)
+@attrs
 class MediaElement:
-    path: str
+    path: str = attrib(validator=not_empty)
     "Path to the media file"
 
 class Image(MediaElement):
