@@ -28,9 +28,9 @@ from datumaro.components.errors import (
     DatasetError, RepeatedItemError, UndefinedLabel,
 )
 from datumaro.components.extractor import DatasetItem, Extractor, Importer
+from datumaro.components.media import Image
 from datumaro.components.validator import Severity
 from datumaro.util.annotation_util import find_instances
-from datumaro.components.media import Image
 from datumaro.util.image import (
     DEFAULT_IMAGE_META_FILE_NAME, find_images, lazy_image, load_image,
     load_image_meta_file, save_image, save_image_meta_file,

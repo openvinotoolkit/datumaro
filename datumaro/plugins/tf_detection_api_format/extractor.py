@@ -11,8 +11,8 @@ import numpy as np
 from datumaro.components.annotation import (
     AnnotationType, Bbox, LabelCategories, Mask,
 )
-from datumaro.components.media import ByteImage
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
+from datumaro.components.media import ByteImage
 from datumaro.util.image import decode_image, lazy_image
 from datumaro.util.tf_util import import_tf as _import_tf
 

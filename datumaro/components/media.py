@@ -2,16 +2,18 @@
 #
 # SPDX-License-Identifier: MIT
 
-from attr import attrs
-
 from typing import Callable, Optional, Tuple, Union
 import os
 import os.path as osp
 import shutil
 
+from attr import attrs
 import numpy as np
 
-from datumaro.util.image import lazy_image, _image_loading_errors, save_image, decode_image
+from datumaro.util.image import (
+    _image_loading_errors, decode_image, lazy_image, save_image,
+)
+
 
 @attrs(auto_attribs=True)
 class MediaElement:

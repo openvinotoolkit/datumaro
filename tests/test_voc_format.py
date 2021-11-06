@@ -12,6 +12,7 @@ from datumaro.components.annotation import (
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem, Extractor
+from datumaro.components.media import Image
 from datumaro.plugins.voc_format.converter import (
     VocActionConverter, VocClassificationConverter, VocConverter,
     VocDetectionConverter, VocLayoutConverter, VocSegmentationConverter,
@@ -20,7 +21,6 @@ from datumaro.plugins.voc_format.importer import (
     VocActionImporter, VocClassificationImporter, VocDetectionImporter,
     VocImporter, VocLayoutImporter, VocSegmentationImporter,
 )
-from datumaro.components.media import Image
 from datumaro.util.mask_tools import load_mask
 from datumaro.util.test_utils import (
     TestDir, compare_datasets, test_save_and_load,

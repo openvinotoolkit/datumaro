@@ -5,8 +5,8 @@ import numpy as np
 
 from datumaro.components.media import ByteImage, Image
 from datumaro.util.image import (
-    encode_image, lazy_image, load_image,
-    load_image_meta_file, save_image, save_image_meta_file,
+    encode_image, lazy_image, load_image, load_image_meta_file, save_image,
+    save_image_meta_file,
 )
 from datumaro.util.image_cache import ImageCache
 from datumaro.util.test_utils import TestDir

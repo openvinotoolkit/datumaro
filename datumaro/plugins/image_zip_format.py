@@ -11,7 +11,6 @@ import os.path as osp
 from datumaro.components.converter import Converter
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.components.media import ByteImage
-
 from datumaro.util import parse_str_enum_value
 from datumaro.util.image import IMAGE_EXTENSIONS, encode_image
 
