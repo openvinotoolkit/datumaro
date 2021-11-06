@@ -5,17 +5,17 @@
 from enum import Enum, auto
 from io import BytesIO
 from typing import (
-    Any, Callable, Dict, Iterable, Iterator, Optional, Tuple, Union,
+    Any, Callable, Dict, Iterable, Iterator, Tuple, Union,
 )
 import importlib
 import os
 import os.path as osp
 import shlex
-import shutil
 import weakref
 
 import numpy as np
 
+from numpy.typing import DTypeLike
 
 class _IMAGE_BACKENDS(Enum):
     cv2 = auto()
@@ -30,11 +30,11 @@ except ModuleNotFoundError:
     _IMAGE_BACKEND = _IMAGE_BACKENDS.PIL
     _image_loading_errors = (*_image_loading_errors, PIL.UnidentifiedImageError)
 
-from datumaro.util.image_cache import ImageCache as _ImageCache
+from datumaro.util.image_cache import ImageCache
 from datumaro.util.os_util import walk
 
 
-def load_image(path, dtype=np.float32):
+def load_image(path: str, dtype: DTypeLike = np.float32):
     """
     Reads an image in the HWC Grayscale/BGR(A) float [0; 255] format.
     """
@@ -62,7 +62,8 @@ def load_image(path, dtype=np.float32):
         assert image.shape[2] in {3, 4}
     return image
 
-def save_image(path, image, create_dir=False, dtype=np.uint8, **kwargs):
+def save_image(path: str, image: np.ndarray, create_dir: bool = False,
+        dtype: DTypeLike = np.uint8, **kwargs) -> None:
     # NOTE: Check destination path for existence
     # OpenCV silently fails if target directory does not exist
     dst_dir = osp.dirname(path)
@@ -107,7 +108,8 @@ def save_image(path, image, create_dir=False, dtype=np.uint8, **kwargs):
     else:
         raise NotImplementedError()
 
-def encode_image(image, ext, dtype=np.uint8, **kwargs):
+def encode_image(image: np.ndarray, ext: str, dtype: DTypeLike = np.uint8,
+        **kwargs) -> bytes:
     if not kwargs:
         kwargs = {}
 
@@ -150,7 +152,8 @@ def encode_image(image, ext, dtype=np.uint8, **kwargs):
     else:
         raise NotImplementedError()
 
-def decode_image(image_bytes, dtype=np.float32):
+def decode_image(image_bytes: bytes,
+        dtype: DTypeLike = np.float32) -> np.ndarray:
     if _IMAGE_BACKEND == _IMAGE_BACKENDS.cv2:
         import cv2
         image = np.frombuffer(image_bytes, dtype=np.uint8)
@@ -170,7 +173,8 @@ def decode_image(image_bytes, dtype=np.float32):
         assert image.shape[2] in {3, 4}
     return image
 
-IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.jpe', '.jp2',
+IMAGE_EXTENSIONS = {
+    '.jpg', '.jpeg', '.jpe', '.jp2',
     '.png', '.bmp', '.dib', '.tif', '.tiff', '.tga', '.webp', '.pfm',
     '.sr', '.ras', '.exr', '.hdr', '.pic',
     '.pbm', '.pgm', '.ppm', '.pxm', '.pnm',
@@ -201,13 +205,14 @@ def find_images(dirpath: str, exts: Union[str, Iterable[str]] = None,
 
             yield osp.join(d, filename)
 
-def is_image(path: str):
+def is_image(path: str) -> bool:
     trunk, ext = osp.splitext(osp.basename(path))
     return trunk and ext.lower() in IMAGE_EXTENSIONS and \
         osp.isfile(path)
 
 class lazy_image:
-    def __init__(self, path, loader=None, cache=None):
+    def __init__(self, path: str, loader: Callable[[str], np.ndarray] = None,
+            cache: Union[None, bool, ImageCache] = None):
         if loader is None:
             loader = load_image
         self._path = path
@@ -217,10 +222,10 @@ class lazy_image:
         # - False: do not cache
         # - None: use the global cache
         # - object: an object to be used as cache
-        assert cache in {None, False} or isinstance(cache, object)
+        assert cache is None or isinstance(cache, (object, bool))
         self._cache = cache
 
-    def __call__(self):
+    def __call__(self) -> np.ndarray:
         image = None
         cache_key = weakref.ref(self)
 
@@ -237,164 +242,12 @@ class lazy_image:
     @staticmethod
     def _get_cache(cache):
         if cache is None:
-            cache = _ImageCache.get_instance()
-        elif cache == False:
+            cache = ImageCache.get_instance()
+        elif cache is False:
             return None
         return cache
 
-class Image:
-    def __init__(self, data: Union[None, Callable, np.ndarray] = None,
-            path: Optional[str] = None, loader: Optional[Callable] = None,
-            size: Optional[Tuple[int, int]] = None, cache: Any = None):
-        assert size is None or len(size) == 2, size
-        if size is not None:
-            assert len(size) == 2 and 0 < size[0] and 0 < size[1], size
-            size = tuple(map(int, size))
-        self._size = size # (H, W)
-
-        assert path is None or isinstance(path, str), path
-        if path is None:
-            path = ''
-        elif path:
-            path = osp.abspath(path).replace('\\', '/')
-        self._path = path
-
-        assert data is not None or path or loader, "Image can not be empty"
-        if data is not None:
-            assert callable(data) or isinstance(data, np.ndarray), type(data)
-        if data is None and (path or loader):
-            if osp.isfile(path) or loader:
-                data = lazy_image(path, loader=loader, cache=cache)
-        self._data = data
-
-        if not self._size and isinstance(data, np.ndarray):
-            self._size = data.shape[:2]
-
-    @property
-    def path(self) -> str:
-        return self._path
-
-    @property
-    def ext(self) -> str:
-        return osp.splitext(osp.basename(self.path))[1]
-
-    @property
-    def data(self) -> np.ndarray:
-        if callable(self._data):
-            data = self._data()
-        else:
-            data = self._data
-
-        if self._size is None and data is not None:
-            self._size =  tuple(map(int, data.shape[:2]))
-        return data
-
-    @property
-    def has_data(self) -> bool:
-        return self._data is not None
-
-    @property
-    def has_size(self) -> bool:
-        return self._size is not None or isinstance(self._data, np.ndarray)
-
-    @property
-    def size(self) -> Optional[Tuple[int, int]]:
-        "Returns (H, W)"
-
-        if self._size is None:
-            try:
-                data = self.data
-            except _image_loading_errors:
-                return None
-            if data is not None:
-                self._size = tuple(map(int, data.shape[:2]))
-        return self._size
-
-    def __eq__(self, other):
-        if isinstance(other, np.ndarray):
-            return self.has_data and np.array_equal(self.data, other)
-
-        if not isinstance(other, __class__):
-            return False
-        return \
-            (np.array_equal(self.size, other.size)) and \
-            (self.has_data == other.has_data) and \
-            (self.has_data and np.array_equal(self.data, other.data) or \
-                not self.has_data)
-
-    def save(self, path):
-        cur_path = osp.abspath(self.path)
-        path = osp.abspath(path)
-
-        cur_ext = self.ext.lower()
-        new_ext = osp.splitext(osp.basename(path))[1].lower()
-
-        os.makedirs(osp.dirname(path), exist_ok=True)
-        if cur_ext == new_ext and osp.isfile(cur_path):
-            if cur_path != path:
-                shutil.copyfile(cur_path, path)
-        else:
-            save_image(path, self.data)
-
-class ByteImage(Image):
-    def __init__(self, data=None, path=None, ext=None, cache=None, size=None):
-        loader = None
-        if data is not None:
-            if callable(data) and not isinstance(data, lazy_image):
-                data = lazy_image(path, loader=data, cache=cache)
-            loader = lambda _: decode_image(self.get_bytes())
-
-        super().__init__(path=path, size=size, loader=loader, cache=cache)
-        if data is None and loader is None:
-            # unset defaults for regular images
-            # to avoid random file reading to bytes
-            self._data = None
-
-        self._bytes_data = data
-        if ext:
-            ext = ext.lower()
-            if not ext.startswith('.'):
-                ext = '.' + ext
-        self._ext = ext
-
-    def get_bytes(self):
-        if callable(self._bytes_data):
-            return self._bytes_data()
-        return self._bytes_data
-
-    @property
-    def ext(self):
-        if self._ext:
-            return self._ext
-        return super().ext
-
-    def __eq__(self, other):
-        if not isinstance(other, __class__):
-            return super().__eq__(other)
-        return \
-            (np.array_equal(self.size, other.size)) and \
-            (self.has_data == other.has_data) and \
-            (self.has_data and self.get_bytes() == other.get_bytes() or \
-                not self.has_data)
-
-    def save(self, path):
-        cur_path = osp.abspath(self.path)
-        path = osp.abspath(path)
-
-        cur_ext = self.ext.lower()
-        new_ext = osp.splitext(osp.basename(path))[1].lower()
-
-        os.makedirs(osp.dirname(path), exist_ok=True)
-        if cur_ext == new_ext and osp.isfile(cur_path):
-            if cur_path != path:
-                shutil.copyfile(cur_path, path)
-        elif cur_ext == new_ext:
-            with open(path, 'wb') as f:
-                f.write(self.get_bytes())
-        else:
-            save_image(path, self.data)
-
-ImageMeta = Dict[str, Tuple[int, int]]
+ImageMeta = Dict[str, Tuple[int, int]] # filename, height, width
 
 DEFAULT_IMAGE_META_FILE_NAME = 'images.meta'
 
