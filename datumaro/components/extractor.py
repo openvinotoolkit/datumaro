@@ -21,7 +21,7 @@ from datumaro.components.format_detection import (
 )
 from datumaro.util import is_method_redefined
 from datumaro.util.attrs_util import default_if_none, not_empty
-from datumaro.util.image import Image
+from datumaro.components.media import Image
 
 # Re-export some names from .annotation for backwards compatibility.
 import datumaro.components.annotation # isort:skip

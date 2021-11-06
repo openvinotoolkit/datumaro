@@ -20,7 +20,7 @@ from datumaro.plugins.voc_format.importer import (
     VocActionImporter, VocClassificationImporter, VocDetectionImporter,
     VocImporter, VocLayoutImporter, VocSegmentationImporter,
 )
-from datumaro.util.image import Image
+from datumaro.components.media import Image
 from datumaro.util.mask_tools import load_mask
 from datumaro.util.test_utils import (
     TestDir, compare_datasets, test_save_and_load,

@@ -10,8 +10,9 @@ from datumaro.components.annotation import AnnotationType, Bbox, LabelCategories
 from datumaro.components.extractor import (
     DatasetItem, Extractor, Importer, SourceExtractor,
 )
+from datumaro.components.media import Image
 from datumaro.util.image import (
-    DEFAULT_IMAGE_META_FILE_NAME, Image, load_image_meta_file,
+    DEFAULT_IMAGE_META_FILE_NAME, load_image_meta_file,
 )
 from datumaro.util.os_util import split_path
 

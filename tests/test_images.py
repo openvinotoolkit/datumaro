@@ -3,8 +3,9 @@ import os.path as osp
 
 import numpy as np
 
+from datumaro.components.media import ByteImage, Image
 from datumaro.util.image import (
-    ByteImage, Image, encode_image, lazy_image, load_image,
+    encode_image, lazy_image, load_image,
     load_image_meta_file, save_image, save_image_meta_file,
 )
 from datumaro.util.image_cache import ImageCache
@@ -13,7 +14,7 @@ from datumaro.util.test_utils import TestDir
 from .requirements import Requirements, mark_requirement
 
 
-class LazyImageTest(TestCase):
+class ImageCacheTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_cache_works(self):
         with TestDir() as test_dir:
@@ -27,7 +28,6 @@ class LazyImageTest(TestCase):
             non_caching_loader = lazy_image(image_path, cache=False)
             self.assertFalse(non_caching_loader() is non_caching_loader())
 
-class ImageCacheTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_cache_fifo_displacement(self):
         capacity = 2
@@ -49,9 +49,16 @@ class ImageCacheTest(TestCase):
     def test_global_cache_is_accessible(self):
         loader = lazy_image(None, loader=lambda p: object())
 
-        ImageCache.get_instance().clear()
         self.assertTrue(loader() is loader())
         self.assertEqual(ImageCache.get_instance().size(), 1)
+
+    def setUp(self) -> None:
+        ImageCache.get_instance().clear()
+        return super().setUp()
+
+    def tearDown(self) -> None:
+        ImageCache.get_instance().clear()
+        return super().tearDown()
 
 class ImageTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -75,11 +82,11 @@ class ImageTest(TestCase):
                 { 'data': image },
                 { 'data': image, 'path': path },
                 { 'data': image, 'path': path, 'size': (2, 4) },
-                { 'data': image, 'path': path, 'loader': load_image, 'size': (2, 4) },
+                { 'data': lambda p: image },
+                { 'data': lambda p: image, 'path': 'somepath' },
                 { 'path': path },
-                { 'path': path, 'loader': load_image },
-                { 'path': 'somepath', 'loader': lambda p: image },
-                { 'loader': lambda p: image },
+                { 'path': path, 'data': load_image },
+                { 'path': path, 'data': load_image, 'size': (2, 4) },
                 { 'path': path, 'size': (2, 4) },
             ]:
                 with self.subTest(**args):

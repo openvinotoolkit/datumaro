@@ -7,7 +7,7 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.extractor import DatasetItem
 from datumaro.components.project import Dataset
-from datumaro.util.image import Image
+from datumaro.components.media import Image
 
 try:
     import pandas as pd

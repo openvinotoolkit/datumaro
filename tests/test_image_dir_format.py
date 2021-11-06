@@ -7,7 +7,8 @@ import numpy as np
 from datumaro.components.extractor import DatasetItem
 from datumaro.components.project import Dataset
 from datumaro.plugins.image_dir_format import ImageDirConverter
-from datumaro.util.image import Image, save_image
+from datumaro.components.media import Image
+from datumaro.util.image import save_image
 from datumaro.util.test_utils import (
     TestDir, compare_datasets, test_save_and_load,
 )

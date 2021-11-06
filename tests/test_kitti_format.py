@@ -19,7 +19,7 @@ from datumaro.plugins.kitti_format.format import (
 from datumaro.plugins.kitti_format.importer import (
     KittiDetectionImporter, KittiImporter, KittiSegmentationImporter,
 )
-from datumaro.util.image import Image
+from datumaro.components.media import Image
 from datumaro.util.test_utils import (
     TestDir, compare_datasets, test_save_and_load,
 )

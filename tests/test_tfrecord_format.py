@@ -11,7 +11,8 @@ from datumaro.components.annotation import (
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
-from datumaro.util.image import ByteImage, Image, encode_image
+from datumaro.components.media import ByteImage, Image
+from datumaro.util.image import encode_image
 from datumaro.util.test_utils import (
     TestDir, compare_datasets, test_save_and_load,
 )

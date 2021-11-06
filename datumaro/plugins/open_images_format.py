@@ -30,8 +30,9 @@ from datumaro.components.errors import (
 from datumaro.components.extractor import DatasetItem, Extractor, Importer
 from datumaro.components.validator import Severity
 from datumaro.util.annotation_util import find_instances
+from datumaro.components.media import Image
 from datumaro.util.image import (
-    DEFAULT_IMAGE_META_FILE_NAME, Image, find_images, lazy_image, load_image,
+    DEFAULT_IMAGE_META_FILE_NAME, find_images, lazy_image, load_image,
     load_image_meta_file, save_image, save_image_meta_file,
 )
 from datumaro.util.os_util import make_file_name, split_path

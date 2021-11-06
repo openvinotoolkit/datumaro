@@ -23,7 +23,7 @@ from datumaro.plugins.coco_format.importer import (
     CocoInstancesImporter, CocoLabelsImporter, CocoPanopticImporter,
     CocoPersonKeypointsImporter, CocoStuffImporter,
 )
-from datumaro.util.image import Image
+from datumaro.components.media import Image
 from datumaro.util.test_utils import (
     TestDir, compare_datasets, test_save_and_load,
 )

@@ -12,7 +12,7 @@ from datumaro.components.extractor import DatasetItem
 from datumaro.plugins.vgg_face2_format import (
     VggFace2Converter, VggFace2Importer,
 )
-from datumaro.util.image import Image
+from datumaro.components.media import Image
 from datumaro.util.test_utils import TestDir, compare_datasets
 
 from .requirements import Requirements, mark_requirement

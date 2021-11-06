@@ -16,7 +16,7 @@ from datumaro.plugins.icdar_format.extractor import (
     IcdarTextLocalizationImporter, IcdarTextSegmentationImporter,
     IcdarWordRecognitionImporter,
 )
-from datumaro.util.image import Image
+from datumaro.components.media import Image
 from datumaro.util.test_utils import (
     TestDir, compare_datasets, test_save_and_load,
 )
