@@ -4,7 +4,7 @@
 
 from enum import Enum, auto
 from io import BytesIO
-from typing import Any, Callable, Dict, Iterable, Iterator, Tuple, Union
+from typing import Callable, Dict, Iterable, Iterator, Tuple, Union
 import importlib
 import os
 import os.path as osp
