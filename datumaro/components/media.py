@@ -15,10 +15,24 @@ from datumaro.util.image import (
 )
 
 
-@attrs(auto_attribs=True)
 class MediaElement:
-    path: str
-    "Path to the media file"
+    def __init__(self, path: str) -> None:
+        self._path = path
+
+    @property
+    def path(self) -> str:
+        "Path to the media file"
+        return self._path
+
+    @property
+    def ext(self) -> str:
+        "Image file extension"
+        return osp.splitext(osp.basename(self.path))[1]
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, __class__):
+            return False
+        return self._path == other._path
 
 class Image(MediaElement):
     def __init__(self,
@@ -47,16 +61,6 @@ class Image(MediaElement):
             if path and osp.isfile(path) or data:
                 data = lazy_image(path, loader=data)
         self._data = data
-
-    @property
-    def path(self) -> str:
-        "Path to the media file"
-        return self._path
-
-    @property
-    def ext(self) -> str:
-        "Image file extension"
-        return osp.splitext(osp.basename(self.path))[1]
 
     @property
     def data(self) -> np.ndarray:
@@ -97,7 +101,7 @@ class Image(MediaElement):
             return self.has_data and np.array_equal(self.data, other)
 
         if not isinstance(other, __class__):
-            return False
+            return super().__eq__(other)
         return \
             (np.array_equal(self.size, other.size)) and \
             (self.has_data == other.has_data) and \
