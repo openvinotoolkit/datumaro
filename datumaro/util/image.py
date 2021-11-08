@@ -32,10 +32,11 @@ except ModuleNotFoundError:
     _IMAGE_BACKEND = _IMAGE_BACKENDS.PIL
     _image_loading_errors = (*_image_loading_errors, PIL.UnidentifiedImageError)
 
+import warnings
+
 from datumaro.util.image_cache import ImageCache
 from datumaro.util.os_util import walk
 
-import warnings
 
 def __getattr__(name: str):
     if name in {'Image', 'ByteImage'}:
