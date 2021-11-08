@@ -7,7 +7,6 @@ import os
 import os.path as osp
 import shutil
 
-from attr import attrs
 import numpy as np
 
 from datumaro.util.image import (
@@ -21,12 +20,12 @@ class MediaElement:
 
     @property
     def path(self) -> str:
-        "Path to the media file"
+        """Path to the media file"""
         return self._path
 
     @property
     def ext(self) -> str:
-        "Image file extension"
+        """Image file extension"""
         return osp.splitext(osp.basename(self.path))[1]
 
     def __eq__(self, other: object) -> bool:
@@ -64,7 +63,7 @@ class Image(MediaElement):
 
     @property
     def data(self) -> np.ndarray:
-        "Image data in BGR HWC [0; 255] (float) format"
+        """Image data in BGR HWC [0; 255] (float) format"""
 
         if callable(self._data):
             data = self._data()
@@ -85,7 +84,7 @@ class Image(MediaElement):
 
     @property
     def size(self) -> Optional[Tuple[int, int]]:
-        "Returns (H, W)"
+        """Returns (H, W)"""
 
         if self._size is None:
             try:
