@@ -22,7 +22,7 @@ class ImageCacheTest(TestCase):
             image_path = osp.join(test_dir, 'image.jpg')
             save_image(image_path, image)
 
-            caching_loader = lazy_image(image_path, cache=None)
+            caching_loader = lazy_image(image_path, cache=True)
             self.assertTrue(caching_loader() is caching_loader())
 
             non_caching_loader = lazy_image(image_path, cache=False)
