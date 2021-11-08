@@ -40,7 +40,7 @@ def __getattr__(name: str):
 
         import datumaro.components.annotation as annotation
         return getattr(annotation, name)
-    raise AttributeError
+    raise AttributeError(f"module {__name__} has no attribute {name}")
 
 DEFAULT_SUBSET_NAME = 'default'
 
