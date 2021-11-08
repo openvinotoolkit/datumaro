@@ -47,7 +47,7 @@ def __getattr__(name: str):
 
         import datumaro.components.media as media_module
         return getattr(media_module, name)
-    raise AttributeError
+    raise AttributeError(f"module {__name__} has no attribute {name}")
 
 def load_image(path: str, dtype: DTypeLike = np.float32):
     """
