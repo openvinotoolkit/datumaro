@@ -10,6 +10,7 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 
+from logging import fatal
 import os
 import sys
 
@@ -78,8 +79,7 @@ autodoc_docstring_signature = True
 autodoc_member_order = 'bysource'
 
 def skip_member(app, what, name, obj, skip, options):
-    if name == "_*" :
-        return True
+    return name.startswith('_')
 
 def replace(app, what, name, obj, options, lines):
     for i in range(len(lines)):
