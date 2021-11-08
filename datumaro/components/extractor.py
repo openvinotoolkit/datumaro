@@ -72,7 +72,7 @@ class DatasetItem:
         if image is not None:
             warnings.warn("image is deprecated and will be "
                 "removed in future. Use media instead.",
-                DeprecationWarning)
+                DeprecationWarning, stacklevel=2)
             if isinstance(image, str):
                 image = Image(path=image)
             elif isinstance(image, np.ndarray) or callable(image):
@@ -82,11 +82,11 @@ class DatasetItem:
         elif point_cloud is not None:
             warnings.warn("point_cloud is deprecated and will be "
                 "removed in future. Use media instead.",
-                DeprecationWarning)
+                DeprecationWarning, stacklevel=2)
             if related_images is not None:
                 warnings.warn("related_images is deprecated and will be "
                     "removed in future. Use media instead.",
-                    DeprecationWarning)
+                    DeprecationWarning, stacklevel=2)
             if isinstance(point_cloud, str):
                 point_cloud = PointCloud(path=point_cloud,
                     extra_images=related_images)
@@ -101,7 +101,7 @@ class DatasetItem:
     def image(self) -> Optional[Image]:
         warnings.warn("DatasetItem.image is deprecated and will be "
             "removed in future. Use .media and .media_as() instead.",
-            DeprecationWarning)
+            DeprecationWarning, stacklevel=2)
         if not isinstance(self.media, Image):
             return None
         return self.media_as(Image)
@@ -111,7 +111,7 @@ class DatasetItem:
     def point_cloud(self) -> Optional[str]:
         warnings.warn("DatasetItem.point_cloud is deprecated and will be "
             "removed in future. Use .media and .media_as() instead.",
-            DeprecationWarning)
+            DeprecationWarning, stacklevel=2)
         if not isinstance(self.media, PointCloud):
             return None
         return self.media_as(PointCloud).path
@@ -121,7 +121,7 @@ class DatasetItem:
     def related_images(self) -> List[Image]:
         warnings.warn("DatasetItem.related_images is deprecated and will be "
             "removed in future. Use .media and .media_as() instead.",
-            DeprecationWarning)
+            DeprecationWarning, stacklevel=2)
         if not isinstance(self.media, PointCloud):
             return []
         return self.media_as(PointCloud).extra_images
@@ -131,7 +131,7 @@ class DatasetItem:
     def has_image(self):
         warnings.warn("DatasetItem.has_image is deprecated and will be "
             "removed in future. Use .media and .media_as() instead.",
-            DeprecationWarning)
+            DeprecationWarning, stacklevel=2)
         return isinstance(self.media, Image)
 
     # Deprecated. Provided for backward compatibility.
@@ -139,7 +139,7 @@ class DatasetItem:
     def has_point_cloud(self):
         warnings.warn("DatasetItem.has_point_cloud is deprecated and will be "
             "removed in future. Use .media and .media_as() instead.",
-            DeprecationWarning)
+            DeprecationWarning, stacklevel=2)
         return isinstance(self.media, PointCloud)
 
 

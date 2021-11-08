@@ -6,6 +6,7 @@ import argparse
 import logging as log
 import os.path as osp
 import sys
+import warnings
 
 from ..util.telemetry_utils import (
     close_telemetry_session, init_telemetry_session,
@@ -38,6 +39,10 @@ class _LogManager:
 
         log.basicConfig(format='%(asctime)s %(levelname)s: %(message)s',
             level=args.loglevel)
+
+        # Suppress own deprecation warnings
+        warnings.filterwarnings('ignore', category=DeprecationWarning,
+            module=r'datumaro\..*')
 
     @staticmethod
     def _define_loglevel_option(parser):
