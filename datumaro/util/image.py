@@ -4,7 +4,9 @@
 
 from enum import Enum, auto
 from io import BytesIO
-from typing import Any, Callable, Dict, Iterable, Iterator, Tuple, Union
+from typing import (
+    Any, Callable, Dict, Iterable, Iterator, Optional, Tuple, Union,
+)
 import importlib
 import os
 import os.path as osp
@@ -227,24 +229,27 @@ def is_image(path: str) -> bool:
 
 class lazy_image:
     def __init__(self, path: str, loader: Callable[[str], np.ndarray] = None,
-            cache: Union[None, bool, ImageCache] = None):
+            cache: Union[bool, ImageCache] = True) -> None:
+        """
+        Cache:
+        - False: do not cache
+        - True: use the global cache
+        - ImageCache instance: an object to be used as cache
+        """
+
         if loader is None:
             loader = load_image
         self._path = path
         self._loader = loader
 
-        # Cache:
-        # - False: do not cache
-        # - None: use the global cache
-        # - object: an object to be used as cache
-        assert cache is None or isinstance(cache, (object, bool))
+        assert isinstance(cache, (ImageCache, bool))
         self._cache = cache
 
     def __call__(self) -> np.ndarray:
         image = None
         cache_key = weakref.ref(self)
 
-        cache = self._get_cache(self._cache)
+        cache = self._get_cache()
         if cache is not None:
             image = cache.get(cache_key)
 
@@ -254,12 +259,13 @@ class lazy_image:
                 cache.push(cache_key, image)
         return image
 
-    @staticmethod
-    def _get_cache(cache):
-        if cache is None or cache is True:
+    def _get_cache(self) -> Optional[ImageCache]:
+        if self._cache is True:
             cache = ImageCache.get_instance()
-        elif cache is False:
-            return None
+        elif self._cache is False:
+            cache = None
+        else:
+            cache = self._cache
         return cache
 
 ImageMeta = Dict[str, Tuple[int, int]] # filename, height, width
