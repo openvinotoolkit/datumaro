@@ -35,6 +35,17 @@ except ModuleNotFoundError:
 from datumaro.util.image_cache import ImageCache
 from datumaro.util.os_util import walk
 
+import warnings
+
+def __getattr__(name: str):
+    if name in {'Image', 'ByteImage'}:
+        warnings.warn(f"Using {name} from 'util.image' is deprecated, "
+            "the class is moved to 'components.media'", DeprecationWarning,
+            stacklevel=2)
+
+        import datumaro.components.media as media_module
+        return getattr(media_module, name)
+    raise AttributeError
 
 def load_image(path: str, dtype: DTypeLike = np.float32):
     """
