@@ -182,12 +182,18 @@ datumaro.plugins.mot\_format module
 -----------------------------------
 
 .. automodule:: datumaro.plugins.mot_format
-   :members:
+   :members: MotLabel
    :undoc-members:
    :private-members:
    :special-members:
    :show-inheritance:
 
+.. automodule:: datumaro.plugins.mot_format
+   :members:
+   :exclude-members: MotLabel
+   :private-members:
+   :special-members:
+   :show-inheritance:
 datumaro.plugins.mots\_format module
 ------------------------------------
 
@@ -198,8 +204,9 @@ datumaro.plugins.mots\_format module
    :special-members:
    :show-inheritance:
 
-.. autoclass:: datumaro.plugins.mots_format.MotsPngExtractor
+.. autoclass:: datumaro.plugins.mots_format
    :members:
+   :exclude-members: MotsLabels
    :private-members:
    :special-members:
    :show-inheritance:
@@ -214,8 +221,9 @@ datumaro.plugins.ndr module
    :special-members:
    :show-inheritance:
 
-.. autoclass:: datumaro.plugins.ndr.NDR
+.. autoclass:: datumaro.plugins.ndr
    :members:
+   :exclude-members: Algorithm, OverSamplingMethod, UnderSamplingMethod
    :private-members:
    :special-members:
    :show-inheritance:
@@ -232,9 +240,9 @@ datumaro.plugins.open\_images\_format module
 datumaro.plugins.splitter module
 --------------------------------
 
-.. autoclass:: datumaro.plugins.splitter.SplitTask
+.. autoclass:: datumaro.plugins.splitter
+   :members: SplitTask
    :undoc-members:
-   :members:
    :private-members:
    :special-members:
    :show-inheritance:
@@ -296,14 +304,6 @@ datumaro.plugins.widerface\_format module
    :special-members:
    :show-inheritance:
 
-Module contents
----------------
-
-.. automodule:: datumaro.plugins
-   :members:
-   :private-members:
-   :special-members:
-   :show-inheritance:
 
 Accuracy checker plugin package
 ===============================
@@ -333,8 +333,15 @@ datumaro.plugins.coco\_format.converter module
 ----------------------------------------------
 
 .. automodule:: datumaro.plugins.coco_format.converter
+   :members: SegmentationMode
    :undoc-members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+.. automodule:: datumaro.plugins.coco_format.converter
    :members:
+   :exclude-members: SegmentationMode
    :private-members:
    :special-members:
    :show-inheritance:
@@ -730,10 +737,17 @@ datumaro.plugins.voc\_format.format module
 ------------------------------------------
 
 .. automodule:: datumaro.plugins.voc_format.format
-   :members:
+   :members: CocoTask
    :undoc-members:
    :private-members:
    :special-members:
+   :show-inheritance:
+
+.. automodule:: datumaro.plugins.voc_format.format
+   :members:
+   :exclude-members: CocoTask
+   :private-members:
+   :special-members:   :special-members:
    :show-inheritance:
 
 datumaro.plugins.voc\_format.importer module
@@ -742,7 +756,7 @@ datumaro.plugins.voc\_format.importer module
 .. automodule:: datumaro.plugins.voc_format.importer
    :members:
    :private-members:
-   :special-members:
+   :special-members:   :special-members:
    :show-inheritance:
 
 Module contents

@@ -36,7 +36,8 @@ datumaro.components.annotation module
 
 .. autoclass:: datumaro.components.annotation.Points
    :members:
-   :undoc-members:
+   :undoc-members: Visibility
+   :exclude-members:
    :private-members:
    :special-members:
    :show-inheritance:
@@ -88,7 +89,7 @@ datumaro.components.dataset module
 ----------------------------------
 
 .. automodule:: datumaro.components.dataset
-   :members:
+   :members: ItemStatus
    :undoc-members:
    :private-members:
    :special-members:

@@ -36,7 +36,6 @@ extensions = [
     'sphinx.ext.autodoc',  # Core library for html generation from docstrings
     'sphinx.ext.intersphinx', # Link to other projects documentation
     'sphinx.ext.viewcode', # Find the source files
-    'sphinx.ext.autosummary', # Generates function/method/attribute summary lists
 ]
 autosummary_generate = True  # Turn on sphinx.ext.autosummary
 
@@ -77,3 +76,17 @@ html_css_files = ['custom.css' ]
 # -- Extension configuration -------------------------------------------------
 autodoc_docstring_signature = True
 autodoc_member_order = 'bysource'
+
+def skip_member(app, what, name, obj, skip, options):
+    if name == "_*" :
+        return True
+
+def replace(app, what, name, obj, options, lines):
+    for i in range(len(lines)):
+        if not "'|n'" in lines[i]:
+            if not "'|s'" in lines[i]:
+                lines[i] = lines[i].replace("|n", "\n").replace("|s", "  ")
+
+def setup(app):
+    app.connect('autodoc-skip-member', skip_member)
+    app.connect('autodoc-process-docstring', replace)
