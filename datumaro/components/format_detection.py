@@ -126,22 +126,22 @@ class FormatDetectionContext:
         unspecified which one of them is returned.
         """
 
-        requirement_str = \
+        requirement_desc = \
             f"dataset must contain a file matching pattern \"{pattern}\""
 
         if not self._is_path_within_root(pattern):
-            self.fail(requirement_str)
+            self.fail(requirement_desc)
 
         pattern_abs = osp.join(glob.escape(self._root_path), pattern)
         for path in glob.iglob(pattern_abs, recursive=True):
             if osp.isfile(path):
                 return osp.relpath(path, self._root_path)
 
-        self.fail(requirement_str)
+        self.fail(requirement_desc)
 
     @contextlib.contextmanager
     def probe_text_file(
-        self, path: str, requirement_str: str,
+        self, path: str, requirement_desc: str,
     ) -> Iterator[TextIO]:
         """
         Returns a context manager that can be used to place a requirement on
@@ -163,14 +163,14 @@ class FormatDetectionContext:
         requirement being unmet, that exception is reraised and the new
         requirement is abandoned.
 
-        `requirement_str` must be a human-readable statement describing the
+        `requirement_desc` must be a human-readable statement describing the
         requirement.
         """
 
-        requirement_str_full = f"{path}: {requirement_str}"
+        requirement_desc_full = f"{path}: {requirement_desc}"
 
         if not self._is_path_within_root(path):
-            self.fail(requirement_str_full)
+            self.fail(requirement_desc_full)
 
         try:
             with open(osp.join(self._root_path, path), encoding='utf-8') as f:
@@ -178,7 +178,7 @@ class FormatDetectionContext:
         except FormatRequirementsUnmet:
             raise
         except Exception:
-            self.fail(requirement_str_full)
+            self.fail(requirement_desc_full)
 
 
 FormatDetector = Callable[
