@@ -14,6 +14,7 @@ import weakref
 import numpy as np
 
 try:
+    # Introduced in 1.20
     from numpy.typing import DTypeLike
 except ImportError:
     DTypeLike = Any
