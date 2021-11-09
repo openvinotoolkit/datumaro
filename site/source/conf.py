@@ -79,7 +79,8 @@ autodoc_docstring_signature = True
 autodoc_member_order = 'bysource'
 
 def skip_member(app, what, name, obj, skip, options):
-    return name.startswith('_')
+    if 'undoc-members' in options:
+        return name.startswith('_')
 
 def replace(app, what, name, obj, options, lines):
     for i in range(len(lines)):
