@@ -5,10 +5,6 @@ Setup
 
    Return a version of the Datumaro
 
-.. py:function:: setup.parse_requirements(filename=CORE_REQUIREMENTS_FILE)
-
-   Get a list of required modules
-
 .. py:function:: setup.parse_requirements
 
    Parsing a list from a text file
@@ -27,7 +23,7 @@ Setup
 
 .. py:function:: setup.setuptools.setup
 
-   Installation of the Datumaro with use module :mod:`setuptools.setup`
+   Installation Datumaro with use module :mod:`setuptools.setup`
 
    :param name: name of the package.
 
