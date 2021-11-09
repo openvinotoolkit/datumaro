@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Import for CelebA dataset format.
   (<https://github.com/openvinotoolkit/datumaro/pull/484>)
+- Import for SYNTHIA dataset format.
+  (<https://github.com/openvinotoolkit/datumaro/pull/532>)
 
 ### Changed
 - File `people.txt` became optional in LFW
