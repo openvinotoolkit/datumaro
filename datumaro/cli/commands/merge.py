@@ -10,10 +10,12 @@ import os
 import os.path as osp
 
 from datumaro.components.dataset import DEFAULT_FORMAT
+from datumaro.components.environment import Environment
 from datumaro.components.errors import (
     DatasetMergeError, DatasetQualityError, ProjectNotFoundError,
 )
 from datumaro.components.operations import IntersectMerge
+from datumaro.components.project import ProjectBuildTargets
 from datumaro.util.scope import scope_add, scoped
 
 from ..util import MultilineFormatter
@@ -78,6 +80,8 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     def _group(s):
         return s.split(',')
 
+    parser.add_argument('_positionals', nargs=argparse.REMAINDER,
+        help=argparse.SUPPRESS) # workaround for -- eaten by positionals
     parser.add_argument('targets', nargs='+',
         help="Target dataset revpaths (repeatable)")
     parser.add_argument('-iou', '--iou-thresh', default=0.25, type=float,
@@ -97,8 +101,14 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         help="Output directory (default: generate a new one)")
     parser.add_argument('--overwrite', action='store_true',
         help="Overwrite existing files in the save directory")
+    parser.add_argument('-f', '--format', default=DEFAULT_FORMAT,
+        help="Output format (default: %(default)s)")
     parser.add_argument('-p', '--project', dest='project_dir',
         help="Directory of the 'current' project (default: current dir)")
+    parser.add_argument('extra_args', nargs=argparse.REMAINDER,
+        help="Additional arguments for converter (pass '-- -h' for help). "
+            "Must be specified after the main command arguments and after "
+            "the '--' separator")
     parser.set_defaults(command=merge_command)
 
     return parser
@@ -110,6 +120,20 @@ def get_sensitive_args():
 
 @scoped
 def merge_command(args):
+    has_sep = '--' in args._positionals
+    if has_sep:
+        pos = args._positionals.index('--')
+        if pos == 0:
+            raise argparse.ArgumentError(None,
+                message="Expected at least 1 target argument")
+    else:
+        pos = 1
+    args.target = (args._positionals[:pos] or \
+        [ProjectBuildTargets.MAIN_TARGET])[0]
+    args.extra_args = args._positionals[pos + has_sep:]
+
+    show_plugin_help = '-h' in args.extra_args or '--help' in args.extra_args
+
     dst_dir = args.dst_dir
     if dst_dir:
         if not args.overwrite and osp.isdir(dst_dir) and os.listdir(dst_dir):
@@ -123,8 +147,21 @@ def merge_command(args):
     try:
         project = scope_add(load_project(args.project_dir))
     except ProjectNotFoundError:
-        if args.project_dir:
+        if not show_plugin_help and args.project_dir:
             raise
+
+    if project is not None:
+        env = project.env
+    else:
+        env = Environment()
+
+    try:
+        converter = env.converters[args.format]
+    except KeyError:
+        raise CliException("Converter for format '%s' is not found" % \
+            args.format)
+
+    export_args = converter.parse_cmdline(args.extra_args)
 
     source_datasets = []
     try:
@@ -144,7 +181,8 @@ def merge_command(args):
         output_conf_thresh=args.output_conf_thresh, quorum=args.quorum
     ))
     merged_dataset = merger(source_datasets)
-    merged_dataset.export(save_dir=dst_dir, format=DEFAULT_FORMAT)
+
+    merged_dataset.export(save_dir=dst_dir, format=converter, **export_args)
 
     report_path = osp.join(dst_dir, 'merge_report.json')
     save_merge_report(merger, report_path)
