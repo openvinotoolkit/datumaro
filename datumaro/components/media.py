@@ -25,11 +25,12 @@ class MediaElement:
 
     @property
     def ext(self) -> str:
-        """Image file extension"""
+        """Media file extension"""
         return osp.splitext(osp.basename(self.path))[1]
 
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, __class__):
+        # We need to compare exactly with this type
+        if type(other) is not __class__: # pylint: disable=unidiomatic-typecheck
             return False
         return self._path == other._path
 
@@ -100,7 +101,7 @@ class Image(MediaElement):
             return self.has_data and np.array_equal(self.data, other)
 
         if not isinstance(other, __class__):
-            return super().__eq__(other)
+            return False
         return \
             (np.array_equal(self.size, other.size)) and \
             (self.has_data == other.has_data) and \
@@ -160,15 +161,6 @@ class ByteImage(Image):
         if self._ext:
             return self._ext
         return super().ext
-
-    def __eq__(self, other):
-        if not isinstance(other, __class__):
-            return super().__eq__(other)
-        return \
-            (np.array_equal(self.size, other.size)) and \
-            (self.has_data == other.has_data) and \
-            (self.has_data and self.get_bytes() == other.get_bytes() or \
-                not self.has_data)
 
     def save(self, path):
         cur_path = osp.abspath(self.path)
