@@ -7,7 +7,6 @@ import numpy as np
 from datumaro.components.annotation import Mask
 from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import DatasetItem
-from datumaro.plugins.synthia_format import SynthiaImporter
 from datumaro.util.test_utils import compare_datasets
 import datumaro.plugins.synthia_format as Synthia
 
@@ -57,7 +56,3 @@ class SynthiaImporterTest(TestCase):
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'synthia')
 
         compare_datasets(self, expected_dataset, dataset, require_images=True)
-
-    @mark_requirement(Requirements.DATUM_497)
-    def test_can_detect(self):
-        self.assertTrue(SynthiaImporter.detect(DUMMY_DATASET_DIR))
