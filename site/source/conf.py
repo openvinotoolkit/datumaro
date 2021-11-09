@@ -83,7 +83,7 @@ def skip_member(app, what, name, obj, skip, options):
         return name.startswith('_')
 
 def replace(app, what, name, obj, options, lines):
-    for i in range(len(lines)):
+    for i, value in enumerate(lines):
         if not "'|n'" in lines[i]:
             if not "'|s'" in lines[i]:
                 lines[i] = lines[i].replace("|n", "\n").replace("|s", "  ")

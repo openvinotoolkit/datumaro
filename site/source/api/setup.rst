@@ -31,7 +31,7 @@ Setup
    :param author: project author.
    :param author_email: author email.
    :param description: description of the package.
-   :param long_description: readme file opened :func:`setup.open`.
+   :param long_description: text file opened with function :func:`setup.open`.
    :param long_description_content_type: type of the long decription.
    :param url: main package url.
    :param packages:
@@ -46,7 +46,8 @@ Setup
    :param extras_require:
       sets the require by `tf`, `tf-gpu`, `default`. Parameter `default`
       сan be set to a variable :data:`DEFAULT_REQUIREMENTS`.
-   :param entry_points: point in a program where the execution of a program begins,
+   :param entry_points:
+      point in a program where the execution of a program begins,
       and where the program has access to command line arguments.
    :param include_package_data: include package data
 
