@@ -28,11 +28,10 @@ from ..util.project import (
 def build_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(help="Merge few projects",
         description="""
-        Merges multiple datasets into one and produces a new
-        dataset in the default format. This can be useful if you
-        have few annotations and wish to merge them,
-        taking into consideration potential overlaps and conflicts.
-        This command can try to find a common ground by voting or
+        Merges multiple datasets into one and produces a new dataset.
+        The command can be useful if you have few annotations and wish
+        to merge them, taking into consideration potential overlaps and
+        conflicts. This command can try to find common ground by voting or
         return a list of conflicts.|n
         |n
         This command has multiple forms:|n
@@ -57,6 +56,13 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         The current project (-p/--project) is used as a context for plugins.
         It can be useful for dataset paths in targets. When not specified,
         the current project's working tree is used.|n
+        |n
+        The output format can be specified with the '-f/--format' option.
+        Each dataset format has its own export
+        options, which are passed after the '--' separator (see examples),
+        pass '-- -h' for more info. If not stated otherwise, by default
+        only annotations are exported, to include images pass
+        '--save-images' parameter.|n
         |n
         Examples:|n
         - Merge annotations from 3 (or more) annotators:|n

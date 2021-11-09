@@ -62,12 +62,18 @@ This command has multiple forms:
   Note that the current project is not included in the list of merged
   sources automatically.
 
+The command supports passing extra exporting options for the output
+dataset. The format can be specified with the `-f/--format` option.
+Extra options should be passed after the main arguments
+and after the `--` separator. Particularly, this is useful to include
+images in the output dataset with `--save-images`.
+
 Usage:
 ``` bash
 datum merge [-h] [-iou IOU_THRESH] [-oconf OUTPUT_CONF_THRESH]
   [--quorum QUORUM] [-g GROUPS] [-o DST_DIR] [--overwrite]
-  [-p PROJECT_DIR]
-  target [target ...]
+  [-p PROJECT_DIR] [-f FORMAT]
+  target [target ...] [-- EXTRA_FORMAT_ARGS]
 ```
 
 Parameters:
@@ -85,9 +91,12 @@ Parameters:
   is created in the current directory.
 - `--overwrite` - Allows to overwrite existing files in the output directory,
   when it is specified and is not empty.
+- `-f, --format` (string) - Output format. The default format is `datumaro`.
 - `-p, --project` (string) - Directory of the project to operate on
   (default: current directory).
 - `-h, --help` - Print the help message and exit.
+- `-- <extra format args>` - Additional arguments for the format writer
+  (use `-- -h` for help). Must be specified after the main command arguments.
 
 
 Examples:
