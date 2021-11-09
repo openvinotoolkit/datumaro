@@ -8,8 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[Unreleased\]
 ### Added
-- Import for CelebA dataset format.
+- CelebA dataset format (Import-only)
   (<https://github.com/openvinotoolkit/datumaro/pull/484>)
+- Mapillary Vistas dataset format (Import-only)
+  (<https://github.com/openvinotoolkit/datumaro/pull/537>)
 
 ### Changed
 - File `people.txt` became optional in LFW
