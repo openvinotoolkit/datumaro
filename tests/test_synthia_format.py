@@ -17,7 +17,7 @@ DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets',
     'synthia_dataset')
 
 class SynthiaImporterTest(TestCase):
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @mark_requirement(Requirements.DATUM_497)
     def test_can_import(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='Stereo_Left/Omni_B/000000',
@@ -58,6 +58,6 @@ class SynthiaImporterTest(TestCase):
 
         compare_datasets(self, expected_dataset, dataset, require_images=True)
 
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @mark_requirement(Requirements.DATUM_497)
     def test_can_detect(self):
         self.assertTrue(SynthiaImporter.detect(DUMMY_DATASET_DIR))
