@@ -121,7 +121,6 @@ class SynthiaExtractor(SourceExtractor):
         return make_categories(label_map)
 
     def _load_items(self, root_dir):
-
         image_dir = osp.join(root_dir, 'RGB')
         if osp.isdir(image_dir):
             images = {
@@ -138,6 +137,7 @@ class SynthiaExtractor(SourceExtractor):
             gt_images = find_images(gt_dir, recursive=True)
             for gt_img in gt_images:
                 item_id = osp.splitext(osp.relpath(gt_img, gt_dir))[0].replace('\\', '/')
+
                 anno = []
                 instances_mask = load_image(gt_img, dtype=np.uint16)[:,:,2]
                 segm_ids = np.unique(instances_mask)
@@ -145,6 +145,7 @@ class SynthiaExtractor(SourceExtractor):
                     anno.append(Mask(
                         image=self._lazy_extract_mask(instances_mask, segm_id),
                         label=segm_id))
+
                 items[item_id] = DatasetItem(id=item_id, image=images[item_id],
                     annotations=anno)
         return items
