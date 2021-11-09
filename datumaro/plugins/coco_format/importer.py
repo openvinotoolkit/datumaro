@@ -7,6 +7,9 @@ import logging as log
 import os.path as osp
 
 from datumaro.components.extractor import DEFAULT_SUBSET_NAME, Importer
+from datumaro.components.format_detection import (
+    FormatDetectionConfidence, FormatDetectionContext,
+)
 from datumaro.plugins.coco_format.extractor import (
     CocoCaptionsExtractor, CocoImageInfoExtractor, CocoInstancesExtractor,
     CocoLabelsExtractor, CocoPanopticExtractor, CocoPersonKeypointsExtractor,
@@ -38,9 +41,14 @@ class CocoImporter(Importer):
         return parser
 
     @classmethod
-    def detect(cls, path):
+    def detect(
+        cls, context: FormatDetectionContext,
+    ) -> FormatDetectionConfidence:
         with logging_disabled(log.WARN):
-            return len(cls.find_sources(path)) != 0
+            if not cls.find_sources(context.root_path):
+                context.fail("specific requirement information unavailable")
+
+        return FormatDetectionConfidence.LOW
 
     def __call__(self, path, **extra_params):
         subsets = self.find_sources(path)
@@ -92,8 +100,7 @@ class CocoImporter(Importer):
             if len(cls._TASKS) == 1:
                 return {'': { next(iter(cls._TASKS)): path }}
 
-            if path.endswith('.json'):
-                subset_paths = [path]
+            subset_paths = [path] if path.endswith('.json') else []
         else:
             subset_paths = glob(osp.join(path, '**', '*_*.json'),
                 recursive=True)

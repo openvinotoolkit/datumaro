@@ -105,6 +105,9 @@ class MotsPngExtractor(SourceExtractor):
 class MotsImporter(Importer):
     @classmethod
     def find_sources(cls, path):
+        if not osp.isdir(path):
+            return []
+
         subsets = MotsPngExtractor.detect_dataset(path)
         if not subsets:
             for p in os.listdir(path):

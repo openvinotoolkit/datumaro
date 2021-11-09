@@ -3,47 +3,54 @@
 # SPDX-License-Identifier: MIT
 
 from functools import partial
-from typing import Iterable
+from typing import (
+    Callable, Dict, Generic, Iterable, Iterator, Optional, Type, TypeVar,
+)
 import glob
 import importlib
 import inspect
 import logging as log
 import os.path as osp
 
-from datumaro.components.cli_plugin import plugin_types
+from datumaro.components.cli_plugin import CliPlugin, plugin_types
+from datumaro.components.format_detection import (
+    FormatRequirementsUnmet, apply_format_detector,
+)
 from datumaro.util.os_util import import_foreign_module, split_path
 
+T = TypeVar('T')
 
-class Registry:
+class Registry(Generic[T]):
     def __init__(self):
-        self.items = {}
+        self.items: Dict[str, T] = {}
 
-    def register(self, name, value):
+    def register(self, name: str, value: T) -> T:
         self.items[name] = value
         return value
 
-    def unregister(self, name):
+    def unregister(self, name: str) -> Optional[T]:
         return self.items.pop(name, None)
 
-    def get(self, key):
+    def get(self, key: str):
         """Returns a class or a factory function"""
         return self.items[key]
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: str) -> T:
         return self.get(key)
 
-    def __contains__(self, key):
+    def __contains__(self, key) -> bool:
         return key in self.items
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[T]:
         return iter(self.items)
 
-class PluginRegistry(Registry):
-    def __init__(self, filter=None): #pylint: disable=redefined-builtin
+class PluginRegistry(Registry[Type[CliPlugin]]):
+    def __init__(self, filter: Callable[[Type[CliPlugin]], bool] = None): \
+            #pylint: disable=redefined-builtin
         super().__init__()
         self.filter = filter
 
-    def batch_register(self, values: Iterable):
+    def batch_register(self, values: Iterable[CliPlugin]):
         for v in values:
             if self.filter and not self.filter(v):
                 continue
@@ -225,17 +232,30 @@ class Environment:
         return name in self.importers or name in self.extractors
 
     def detect_dataset(self, path):
+        max_confidence = 0
         matches = []
 
         for format_name, importer in self.importers.items.items():
             log.debug("Checking '%s' format...", format_name)
             try:
-                match = importer.detect(path)
-                if match:
-                    log.debug("format matched")
+                new_confidence = apply_format_detector(path, importer.detect)
+            except FormatRequirementsUnmet as cf:
+                log.debug("Format did not match")
+                if len(cf.failed_alternatives) > 1:
+                    log.debug("None of the following requirements were met:")
+                else:
+                    log.debug("The following requirement was not met:")
+
+                for req in cf.failed_alternatives:
+                    log.debug("  %s", req)
+            else:
+                log.debug("Format matched with confidence %d", new_confidence)
+
+                # keep only matches with the highest confidence
+                if new_confidence > max_confidence:
+                    matches = [format_name]
+                    max_confidence = new_confidence
+                elif new_confidence == max_confidence:
                     matches.append(format_name)
-            except NotImplementedError:
-                log.debug("Format '%s' does not support auto detection.",
-                    format_name)
 
         return matches

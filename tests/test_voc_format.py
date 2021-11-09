@@ -10,6 +10,7 @@ from datumaro.components.annotation import (
     AnnotationType, Bbox, Label, LabelCategories, Mask, MaskCategories,
 )
 from datumaro.components.dataset import Dataset
+from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem, Extractor
 from datumaro.plugins.voc_format.converter import (
     VocActionConverter, VocClassificationConverter, VocConverter,
@@ -347,23 +348,14 @@ class VocImportTest(TestCase):
             (DUMMY_DATASET_DIR, VocSegmentationImporter),
             (DUMMY_DATASET_DIR, VocLayoutImporter),
             (DUMMY_DATASET_DIR, VocActionImporter),
-
-            # Subsets of subformats
-            (osp.join(DUMMY_DATASET_DIR, 'ImageSets', 'Main', 'train.txt'),
-                VocClassificationImporter),
-            (osp.join(DUMMY_DATASET_DIR, 'ImageSets', 'Main', 'train.txt'),
-                VocDetectionImporter),
-            (osp.join(DUMMY_DATASET_DIR, 'ImageSets', 'Segmentation', 'train.txt'),
-                VocSegmentationImporter),
-            (osp.join(DUMMY_DATASET_DIR, 'ImageSets', 'Layout', 'train.txt'),
-                VocLayoutImporter),
-            (osp.join(DUMMY_DATASET_DIR, 'ImageSets', 'Action', 'train.txt'),
-                VocActionImporter),
         ]
+
+        env = Environment()
 
         for path, subtask in matrix:
             with self.subTest(path=path, task=subtask):
-                self.assertTrue(subtask.detect(path))
+                detected_formats = env.detect_dataset(path)
+                self.assertIn(subtask.NAME, detected_formats)
 
 
 class VocConverterTest(TestCase):

@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[Unreleased\]
 ### Added
+- Import for CelebA dataset format.
+  (<https://github.com/openvinotoolkit/datumaro/pull/484>)
 
 ### Changed
 - File `people.txt` became optional in LFW
@@ -18,6 +20,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/509>)
 - Allowed annotation files with arbitrary names in COCO
   (<https://github.com/openvinotoolkit/datumaro/pull/509>)
+- The `icdar_text_localization` format is no longer detected in every directory
+  (<https://github.com/openvinotoolkit/datumaro/pull/531>)
+- Update pycocotools version to 2.0.2
+  (<https://github.com/openvinotoolkit/datumaro/pull/534>)
 
 ### Deprecated
 - TBD
@@ -26,7 +32,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - TBD
 
 ### Fixed
-- TBD
+- Unhandled exception when a file is specified as the source for a COCO or
+  MOTS dataset
+  (<https://github.com/openvinotoolkit/datumaro/pull/530>)
 
 ### Security
 - TBD

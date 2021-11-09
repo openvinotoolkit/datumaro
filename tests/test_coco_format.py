@@ -11,6 +11,7 @@ from datumaro.components.annotation import (
     PointsCategories, Polygon,
 )
 from datumaro.components.dataset import Dataset
+from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
 from datumaro.plugins.coco_format.converter import (
     CocoCaptionsConverter, CocoConverter, CocoImageInfoConverter,
@@ -545,27 +546,14 @@ class CocoImporterTest(TestCase):
             (dataset_dir, CocoCaptionsImporter),
             (dataset_dir, CocoImageInfoImporter),
             (dataset_dir, CocoPersonKeypointsImporter),
-
-            # Subsets of subformats
-            (osp.join(dataset_dir, 'annotations', 'labels_train.json'),
-                CocoLabelsImporter),
-            (osp.join(dataset_dir, 'annotations', 'instances_train.json'),
-                CocoInstancesImporter),
-            (osp.join(dataset_dir, 'annotations', 'panoptic_train.json'),
-                CocoPanopticImporter),
-            (osp.join(dataset_dir, 'annotations', 'stuff_train.json'),
-                CocoStuffImporter),
-            (osp.join(dataset_dir, 'annotations', 'captions_train.json'),
-                CocoCaptionsImporter),
-            (osp.join(dataset_dir, 'annotations', 'image_info_train.json'),
-                CocoImageInfoImporter),
-            (osp.join(dataset_dir, 'annotations', 'person_keypoints_train.json'),
-                CocoPersonKeypointsImporter),
         ]
+
+        env = Environment()
 
         for path, subtask in matrix:
             with self.subTest(path=path, task=subtask):
-                self.assertTrue(subtask.detect(path))
+                detected_formats = env.detect_dataset(path)
+                self.assertIn(subtask.NAME, detected_formats)
 
 class CocoConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,

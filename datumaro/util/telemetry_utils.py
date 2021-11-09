@@ -108,7 +108,10 @@ def _cleanup_stacktrace():
     return exc_type.__name__, ''.join(tb_lines)
 
 def init_telemetry_session(app_name, app_version):
-    telemetry = tm.Telemetry(app_name=app_name, app_version=app_version)
+    telemetry = tm.Telemetry(
+        app_name=app_name,
+        app_version=app_version,
+        tid='UA-17808594-29')
     telemetry.start_session('dm')
     send_version_info(telemetry, app_version)
 

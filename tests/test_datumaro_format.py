@@ -9,6 +9,7 @@ from datumaro.components.annotation import (
     AnnotationType, Bbox, Caption, Cuboid3d, Label, LabelCategories, Mask,
     MaskCategories, Points, PointsCategories, Polygon, PolyLine,
 )
+from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
 from datumaro.components.project import Dataset
 from datumaro.plugins.datumaro_format.converter import DatumaroConverter
@@ -115,7 +116,8 @@ class DatumaroConverterTest(TestCase):
         with TestDir() as test_dir:
             DatumaroConverter.convert(self.test_dataset, save_dir=test_dir)
 
-            self.assertTrue(DatumaroImporter.detect(test_dir))
+            detected_formats = Environment().detect_dataset(test_dir)
+            self.assertIn(DatumaroImporter.NAME, detected_formats)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_relative_paths(self):
