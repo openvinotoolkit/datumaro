@@ -152,15 +152,23 @@ datumaro.components.operations module
 datumaro.components.project module
 ----------------------------------
 
-.. autoclass:: datumaro.components.project.BuildStageType
+.. automodule:: datumaro.components.project
    :members:
+   :undoc-members:
+   :exclude-members: BuildStageType, CrudProxy, DiffStatus, IgnoreMode, ProjectBuildTargets, ProjectSources, _DataSourceBase
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+.. automodule:: datumaro.components.project
+   :members: BuildStageType
    :undoc-members:
    :private-members:
    :special-members:
    :show-inheritance:
 
-.. autoclass:: datumaro.components.project.CrudProxy
-   :members:
+.. automodule:: datumaro.components.project
+   :members: CrudProxy
    :private-members:
    :special-members:
    :show-inheritance:

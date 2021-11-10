@@ -10,7 +10,6 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 
-from logging import fatal
 import os
 import sys
 
@@ -83,10 +82,10 @@ def skip_member(app, what, name, obj, skip, options):
         return name.startswith('_')
 
 def replace(app, what, name, obj, options, lines):
-    for i, value in enumerate(lines):
+    for i, line in enumerate(lines):
         if not "'|n'" in lines[i]:
             if not "'|s'" in lines[i]:
-                lines[i] = lines[i].replace("|n", "\n").replace("|s", "  ")
+                lines[i] = lines[i].replace("|n", "\n").replace("|s", " ")
 
 def setup(app):
     app.connect('autodoc-skip-member', skip_member)

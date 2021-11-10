@@ -3,27 +3,27 @@ Setup
 
 .. py:function:: setup.find_version(project_dir=None)
 
-   Return a version of the Datumaro
+   Return a version of the Datumaro.
 
 .. py:function:: setup.parse_requirements
 
-   Parsing a list from a text file
+   Parsing a requirements list from a text file.
 
 .. py:data:: DEFAULT_REQUIREMENTS
 
-   Variable containing a list of default required packages
+   Variable containing a list of default required packages.
 
 .. py:data:: CORE_REQUIREMENTS
 
-   Variable containing a list of core required packages
+   Variable containing a list of core required packages.
 
 .. py:function:: setup.open
 
-   Sets the :data:`long_description` variable to contain the path to the package description file
+   Sets the :data:`long_description` variable to contain the path to the package description file.
 
 .. py:function:: setup.setuptools.setup
 
-   Installation Datumaro with use module :mod:`setuptools.setup`
+   Installation Datumaro with use module :mod:`setuptools.setup`.
 
    :param name: name of the package.
 
@@ -49,10 +49,10 @@ Setup
    :param entry_points:
       point in a program where the execution of a program begins,
       and where the program has access to command line arguments.
-   :param include_package_data: include package data
+   :param include_package_data: include package data.
 
 Description of third-party modules
-----------------------------------
+**********************************
 
 .. automodule:: setuptools
    :members: setup, find_packages
