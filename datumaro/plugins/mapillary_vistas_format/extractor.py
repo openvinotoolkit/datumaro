@@ -14,7 +14,8 @@ from datumaro.components.annotation import (
     Polygon,
 )
 from datumaro.components.extractor import DatasetItem, SourceExtractor
-from datumaro.util.image import Image, find_images, lazy_image, load_image
+from datumaro.components.media import Image
+from datumaro.util.image import find_images, lazy_image, load_image
 from datumaro.util.mask_tools import bgr2index
 
 from .format import (
