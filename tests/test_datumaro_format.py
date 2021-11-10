@@ -117,7 +117,7 @@ class DatumaroConverterTest(TestCase):
             DatumaroConverter.convert(self.test_dataset, save_dir=test_dir)
 
             detected_formats = Environment().detect_dataset(test_dir)
-            self.assertIn(DatumaroImporter.NAME, detected_formats)
+            self.assertEqual([DatumaroImporter.NAME], detected_formats)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_relative_paths(self):

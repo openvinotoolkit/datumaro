@@ -4,7 +4,9 @@
 
 from enum import Enum, auto
 from io import BytesIO
-from typing import Any, Callable, Dict, Iterable, Iterator, Tuple, Union
+from typing import (
+    Any, Callable, Dict, Iterable, Iterator, Optional, Tuple, Union,
+)
 import importlib
 import os
 import os.path as osp
@@ -14,6 +16,7 @@ import weakref
 import numpy as np
 
 try:
+    # Introduced in 1.20
     from numpy.typing import DTypeLike
 except ImportError:
     DTypeLike = Any
@@ -32,9 +35,21 @@ except ModuleNotFoundError:
     _IMAGE_BACKEND = _IMAGE_BACKENDS.PIL
     _image_loading_errors = (*_image_loading_errors, PIL.UnidentifiedImageError)
 
+import warnings
+
 from datumaro.util.image_cache import ImageCache
 from datumaro.util.os_util import walk
 
+
+def __getattr__(name: str):
+    if name in {'Image', 'ByteImage'}:
+        warnings.warn(f"Using {name} from 'util.image' is deprecated, "
+            "the class is moved to 'components.media'", DeprecationWarning,
+            stacklevel=2)
+
+        import datumaro.components.media as media_module
+        return getattr(media_module, name)
+    raise AttributeError(f"module {__name__} has no attribute {name}")
 
 def load_image(path: str, dtype: DTypeLike = np.float32):
     """
@@ -214,24 +229,27 @@ def is_image(path: str) -> bool:
 
 class lazy_image:
     def __init__(self, path: str, loader: Callable[[str], np.ndarray] = None,
-            cache: Union[None, bool, ImageCache] = None):
+            cache: Union[bool, ImageCache] = True) -> None:
+        """
+        Cache:
+        - False: do not cache
+        - True: use the global cache
+        - ImageCache instance: an object to be used as cache
+        """
+
         if loader is None:
             loader = load_image
         self._path = path
         self._loader = loader
 
-        # Cache:
-        # - False: do not cache
-        # - None: use the global cache
-        # - object: an object to be used as cache
-        assert cache is None or isinstance(cache, (object, bool))
+        assert isinstance(cache, (ImageCache, bool))
         self._cache = cache
 
     def __call__(self) -> np.ndarray:
         image = None
         cache_key = weakref.ref(self)
 
-        cache = self._get_cache(self._cache)
+        cache = self._get_cache()
         if cache is not None:
             image = cache.get(cache_key)
 
@@ -241,12 +259,13 @@ class lazy_image:
                 cache.push(cache_key, image)
         return image
 
-    @staticmethod
-    def _get_cache(cache):
-        if cache is None or cache is True:
+    def _get_cache(self) -> Optional[ImageCache]:
+        if self._cache is True:
             cache = ImageCache.get_instance()
-        elif cache is False:
-            return None
+        elif self._cache is False:
+            cache = None
+        else:
+            cache = self._cache
         return cache
 
 ImageMeta = Dict[str, Tuple[int, int]] # filename, height, width

@@ -7,19 +7,33 @@ import os
 import os.path as osp
 import shutil
 
-from attr import attrib, attrs
 import numpy as np
 
-from datumaro.util.attrs_util import not_empty
 from datumaro.util.image import (
     _image_loading_errors, decode_image, lazy_image, save_image,
 )
 
 
-@attrs
 class MediaElement:
-    path: str = attrib(validator=not_empty)
-    "Path to the media file"
+    def __init__(self, path: str) -> None:
+        assert path, "Path can't be empty"
+        self._path = path
+
+    @property
+    def path(self) -> str:
+        """Path to the media file"""
+        return self._path
+
+    @property
+    def ext(self) -> str:
+        """Media file extension"""
+        return osp.splitext(osp.basename(self.path))[1]
+
+    def __eq__(self, other: object) -> bool:
+        # We need to compare exactly with this type
+        if type(other) is not __class__: # pylint: disable=unidiomatic-typecheck
+            return False
+        return self._path == other._path
 
 class Image(MediaElement):
     def __init__(self,
@@ -50,18 +64,8 @@ class Image(MediaElement):
         self._data = data
 
     @property
-    def path(self) -> str:
-        "Path to the media file"
-        return self._path
-
-    @property
-    def ext(self) -> str:
-        "Image file extension"
-        return osp.splitext(osp.basename(self.path))[1]
-
-    @property
     def data(self) -> np.ndarray:
-        "Image data in BGR HWC [0; 255] (float) format"
+        """Image data in BGR HWC [0; 255] (float) format"""
 
         if callable(self._data):
             data = self._data()
@@ -82,7 +86,7 @@ class Image(MediaElement):
 
     @property
     def size(self) -> Optional[Tuple[int, int]]:
-        "Returns (H, W)"
+        """Returns (H, W)"""
 
         if self._size is None:
             try:
@@ -158,15 +162,6 @@ class ByteImage(Image):
         if self._ext:
             return self._ext
         return super().ext
-
-    def __eq__(self, other):
-        if not isinstance(other, __class__):
-            return super().__eq__(other)
-        return \
-            (np.array_equal(self.size, other.size)) and \
-            (self.has_data == other.has_data) and \
-            (self.has_data and self.get_bytes() == other.get_bytes() or \
-                not self.has_data)
 
     def save(self, path):
         cur_path = osp.abspath(self.path)

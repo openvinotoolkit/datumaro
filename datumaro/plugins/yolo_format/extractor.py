@@ -10,6 +10,7 @@ from datumaro.components.annotation import AnnotationType, Bbox, LabelCategories
 from datumaro.components.extractor import (
     DatasetItem, Extractor, Importer, SourceExtractor,
 )
+from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.media import Image
 from datumaro.util.image import (
     DEFAULT_IMAGE_META_FILE_NAME, load_image_meta_file,
@@ -192,6 +193,10 @@ class YoloExtractor(SourceExtractor):
         return self._subsets[name]
 
 class YoloImporter(Importer):
+    @classmethod
+    def detect(cls, context: FormatDetectionContext) -> None:
+        context.require_file('obj.data')
+
     @classmethod
     def find_sources(cls, path):
         return cls._find_sources_recursive(path, '.data', 'yolo')

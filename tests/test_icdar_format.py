@@ -30,7 +30,7 @@ class IcdarImporterTest(TestCase):
     def test_can_detect_word_recognition(self):
         detected_formats = Environment().detect_dataset(
             osp.join(DUMMY_DATASET_DIR, 'word_recognition'))
-        self.assertIn(IcdarWordRecognitionImporter.NAME, detected_formats)
+        self.assertEqual([IcdarWordRecognitionImporter.NAME], detected_formats)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_text_localization(self):
@@ -42,7 +42,7 @@ class IcdarImporterTest(TestCase):
     def test_can_detect_text_segmentation(self):
         detected_formats = Environment().detect_dataset(
             osp.join(DUMMY_DATASET_DIR, 'text_segmentation'))
-        self.assertIn(IcdarTextSegmentationImporter.NAME, detected_formats)
+        self.assertEqual([IcdarTextSegmentationImporter.NAME], detected_formats)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_captions(self):
