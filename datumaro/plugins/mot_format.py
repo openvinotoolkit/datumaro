@@ -16,8 +16,9 @@ import os.path as osp
 from datumaro.components.annotation import AnnotationType, Bbox, LabelCategories
 from datumaro.components.converter import Converter
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
+from datumaro.components.media import Image
 from datumaro.util import cast
-from datumaro.util.image import Image, find_images
+from datumaro.util.image import find_images
 
 MotLabel = Enum('MotLabel', [
     ('pedestrian', 1),

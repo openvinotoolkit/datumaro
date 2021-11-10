@@ -9,8 +9,8 @@ from datumaro.components.annotation import Label
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
+from datumaro.components.media import Image
 from datumaro.plugins.cifar_format import CifarConverter, CifarImporter
-from datumaro.util.image import Image
 from datumaro.util.test_utils import TestDir, compare_datasets
 
 from .requirements import Requirements, mark_requirement

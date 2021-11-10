@@ -11,7 +11,7 @@ from datumaro.components.annotation import (
     AnnotationType, Bbox, Label, LabelCategories, Points, Polygon, PolyLine,
 )
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
-from datumaro.util.image import Image
+from datumaro.components.media import Image
 
 from .format import CvatPath
 

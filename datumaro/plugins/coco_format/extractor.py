@@ -17,7 +17,8 @@ from datumaro.components.annotation import (
 from datumaro.components.extractor import (
     DEFAULT_SUBSET_NAME, DatasetItem, SourceExtractor,
 )
-from datumaro.util.image import Image, lazy_image, load_image
+from datumaro.components.media import Image
+from datumaro.util.image import lazy_image, load_image
 from datumaro.util.mask_tools import bgr2index
 from datumaro.util.os_util import suppress_output
 

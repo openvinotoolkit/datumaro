@@ -10,7 +10,7 @@ from datumaro.components.annotation import (
     MaskCategories, Points, PointsCategories, Polygon, PolyLine, RleMask,
 )
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
-from datumaro.util.image import Image
+from datumaro.components.media import Image
 
 from .format import DatumaroPath
 

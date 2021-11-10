@@ -13,6 +13,7 @@ from datumaro.components.annotation import (
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
+from datumaro.components.media import Image
 from datumaro.plugins.coco_format.converter import (
     CocoCaptionsConverter, CocoConverter, CocoImageInfoConverter,
     CocoInstancesConverter, CocoLabelsConverter, CocoPanopticConverter,
@@ -23,7 +24,6 @@ from datumaro.plugins.coco_format.importer import (
     CocoInstancesImporter, CocoLabelsImporter, CocoPanopticImporter,
     CocoPersonKeypointsImporter, CocoStuffImporter,
 )
-from datumaro.util.image import Image
 from datumaro.util.test_utils import (
     TestDir, compare_datasets, test_save_and_load,
 )

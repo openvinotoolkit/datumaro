@@ -17,8 +17,9 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.converter import Converter
 from datumaro.components.extractor import DatasetItem, Extractor, Importer
+from datumaro.components.media import Image
 from datumaro.util import cast, escape, unescape
-from datumaro.util.image import Image, save_image
+from datumaro.util.image import save_image
 from datumaro.util.mask_tools import find_mask_bbox, load_mask
 from datumaro.util.os_util import split_path
 

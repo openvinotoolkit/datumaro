@@ -12,10 +12,10 @@ from datumaro.components.annotation import (
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem, Extractor
+from datumaro.components.media import Image
 from datumaro.plugins.cityscapes_format import (
     CityscapesConverter, CityscapesImporter,
 )
-from datumaro.util.image import Image
 from datumaro.util.test_utils import (
     IGNORE_ALL, TestDir, compare_datasets, test_save_and_load,
 )

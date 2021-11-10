@@ -11,10 +11,10 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
+from datumaro.components.media import Image
 from datumaro.components.project import Dataset
 from datumaro.plugins.datumaro_format.converter import DatumaroConverter
 from datumaro.plugins.datumaro_format.extractor import DatumaroImporter
-from datumaro.util.image import Image
 from datumaro.util.mask_tools import generate_colormap
 from datumaro.util.test_utils import (
     Dimensions, TestDir, compare_datasets_strict, test_save_and_load,
