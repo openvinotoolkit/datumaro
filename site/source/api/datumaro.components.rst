@@ -15,36 +15,8 @@ datumaro.components.annotation module
 -------------------------------------
 
 .. automodule:: datumaro.components.annotation
-   :members: Annotation
-   :private-members:
-   :special-members:
-   :show-inheritance:
-
-.. autoclass:: datumaro.components.annotation.AnnotationType
    :members:
-   :undoc-members:
-   :private-members:
-   :special-members:
-   :show-inheritance:
-
-.. automodule:: datumaro.components.annotation
-   :members:
-   :exclude-members: Annotation, AnnotationType, Points, PointsCategories, PolyLine, Polygon, RleMask, _Shape,
-   :private-members:
-   :special-members:
-   :show-inheritance:
-
-.. autoclass:: datumaro.components.annotation.Points
-   :members:
-   :undoc-members: Visibility
-   :exclude-members:
-   :private-members:
-   :special-members:
-   :show-inheritance:
-
-.. automodule:: datumaro.components.annotation
-   :members:
-   :exclude-members: Annotation, AnnotationType, Points
+   :undoc-members: AnnotationType
    :private-members:
    :special-members:
    :show-inheritance:
@@ -89,8 +61,8 @@ datumaro.components.dataset module
 ----------------------------------
 
 .. automodule:: datumaro.components.dataset
-   :members: ItemStatus
-   :undoc-members:
+   :members:
+   :undoc-members: ItemStatus
    :private-members:
    :special-members:
    :show-inheritance:
@@ -154,34 +126,7 @@ datumaro.components.project module
 
 .. automodule:: datumaro.components.project
    :members:
-   :undoc-members:
-   :exclude-members: BuildStageType, CrudProxy, DiffStatus, IgnoreMode, ProjectBuildTargets, ProjectSources, _DataSourceBase
-   :private-members:
-   :special-members:
-   :show-inheritance:
-
-.. automodule:: datumaro.components.project
-   :members: BuildStageType
-   :undoc-members:
-   :private-members:
-   :special-members:
-   :show-inheritance:
-
-.. automodule:: datumaro.components.project
-   :members: CrudProxy
-   :private-members:
-   :special-members:
-   :show-inheritance:
-
-.. automodule:: datumaro.components.project
-   :members: DiffStatus, IgnoreMode
-   :undoc-members:
-   :private-members:
-   :special-members:
-   :show-inheritance:
-
-.. automodule:: datumaro.components.project
-   :members: ProjectBuildTargets, ProjectSources, _DataSourceBase
+   :undoc-members: BuildStageType, DiffStatus, IgnoreMode
    :private-members:
    :special-members:
    :show-inheritance:

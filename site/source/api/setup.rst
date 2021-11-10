@@ -1,5 +1,7 @@
 Setup
 =====
+.. automodule:: .setup
+   :members:
 
 .. py:function:: setup.find_version(project_dir=None)
 
