@@ -18,7 +18,6 @@ API Documentation Contents
 
    /*
    /api/setup
-   /api/datum
 
 .. toctree::
    :maxdepth: 2
@@ -39,7 +38,7 @@ API Documentation Contents
    /api/datumaro.plugins
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :glob:
 
    /api/datumaro.util*

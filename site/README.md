@@ -79,6 +79,25 @@ Sphinx generates documentation in html format in `site/static/api`.
 After generating the documentation API,
 you can generate a site with documentation.
 
+##### Working with API documentation
+
+In `rst` files you can used a few directives:
+- `.. automodule::`- for automatic generation of comments on docstring
+    ([another directives](https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html?highlight=private#directives))
+- `:members:` - mandatory directive for displaying members. The order of
+    members within the directive will correspond to the source code.
+- `:undoc-memebers:` - members that have no comments in the source code
+- `:exclude-members:` - excludes the members listed after the directive
+- `:private-members:` - private members
+- `:special-members:` - special members
+- `:show-inheritance:` - showing inheritance
+
+After the directive you can specify the members that should be displayed.
+
+If can used `|n` and `|s` in the source code comments they will be replaced by `\n` and space accordingly.
+
+Participants starting with `_` do not have comments are not displayed.
+
 #### Site generation
 
 To build and preview your site locally, use:
