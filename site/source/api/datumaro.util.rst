@@ -22,8 +22,8 @@ datumaro.util.attrs\_util module
 datumaro.util.image module
 --------------------------
 
-.. autoclass:: datumaro.util.image._IMAGE_BACKENDS
-   :members:
+.. autoclass:: datumaro.util.image
+   :members: _IMAGE_BACKENDS
    :undoc-members:
    :private-members:
    :special-members:
@@ -102,8 +102,8 @@ datumaro.util.telemetry\_utils module
 datumaro.util.test\_utils module
 --------------------------------
 
-.. autoclass:: datumaro.util.test_utils.Dimensions
-   :members:
+.. autoclass:: datumaro.util.test_utils
+   :members: Dimensions
    :undoc-members:
    :private-members:
    :special-members:

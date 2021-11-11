@@ -70,8 +70,15 @@ datumaro.cli.commands.diff module
 ---------------------------------
 
 .. automodule:: datumaro.cli.commands.diff
+   :members: ComparisonMethod
+   :undoc-members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+.. automodule:: datumaro.cli.commands.diff
    :members:
-   :undoc-members: ComparisonMethod
+   :exclude-members:: ComparisonMethod
    :private-members:
    :special-members:
    :show-inheritance:
@@ -218,7 +225,8 @@ Module contents
 ---------------
 
 .. automodule:: datumaro.cli.contexts.project
-   :members: build_export_parser
+   :members: FilterModes
+   :undoc-members:
    :private-members:
    :special-members:
    :show-inheritance:

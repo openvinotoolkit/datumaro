@@ -15,8 +15,15 @@ datumaro.components.annotation module
 -------------------------------------
 
 .. automodule:: datumaro.components.annotation
+   :members: AnnotationType
+   :undoc-members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+.. automodule:: datumaro.components.annotation
    :members:
-   :undoc-members: AnnotationType
+   :exclude-members: AnnotationType
    :private-members:
    :special-members:
    :show-inheritance:
@@ -61,11 +68,19 @@ datumaro.components.dataset module
 ----------------------------------
 
 .. automodule:: datumaro.components.dataset
-   :members:
-   :undoc-members: ItemStatus
+   :members: ItemStatus
+   :undoc-members:
    :private-members:
    :special-members:
    :show-inheritance:
+
+.. automodule:: datumaro.components.dataset
+   :members:
+   :exclude-members: ItemStatus
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
 
 datumaro.components.dataset\_filter module
 ------------------------------------------
@@ -125,8 +140,15 @@ datumaro.components.project module
 ----------------------------------
 
 .. automodule:: datumaro.components.project
+   :members: BuildStageType, DiffStatus, IgnoreMode
+   :undoc-members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+.. automodule:: datumaro.components.project
    :members:
-   :undoc-members: BuildStageType, DiffStatus, IgnoreMode
+   :exclude-members: BuildStageType, DiffStatus, IgnoreMode
    :private-members:
    :special-members:
    :show-inheritance:
@@ -143,9 +165,16 @@ datumaro.components.validator module
 
 Module contents
 ---------------
+.. automodule:: datumaro.components
+   :members: Severity TaskType
+   :undoc-members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
 
 .. automodule:: datumaro.components
    :members:
+   :exclude-members: Severity TaskType
    :private-members:
    :special-members:
    :show-inheritance:

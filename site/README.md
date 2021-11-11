@@ -83,14 +83,14 @@ you can generate a site with documentation.
 
 In `rst` files you can used a few directives:
 - `.. automodule::`- for automatic generation of comments on docstring
-    ([another directives](https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html?highlight=private#directives))
+    ([another directives](https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html?highlight=private#directives)).
 - `:members:` - mandatory directive for displaying members. The order of
     members within the directive will correspond to the source code.
-- `:undoc-memebers:` - members that have no comments in the source code
-- `:exclude-members:` - excludes the members listed after the directive
-- `:private-members:` - private members
-- `:special-members:` - special members
-- `:show-inheritance:` - showing inheritance
+- `:undoc-memebers:` - if this directive is present, participants who do not have comments will also be displayed.
+- `:exclude-members:` - excludes the members listed after the directive.
+- `:private-members:` - private members.
+- `:special-members:` - special members.
+- `:show-inheritance:` - showing inheritance.
 
 After the directive you can specify the members that should be displayed.
 

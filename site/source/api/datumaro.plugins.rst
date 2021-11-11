@@ -45,8 +45,15 @@ datumaro.plugins.camvid\_format module
 --------------------------------------
 
 .. automodule:: datumaro.plugins.camvid_format
+   :members: LabelmapType
+   :undoc-members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+.. automodule:: datumaro.plugins.camvid_format
    :members:
-   :undoc-members: LabelmapType
+   :exclude-members: LabelmapType
    :private-members:
    :special-members:
    :show-inheritance:
@@ -64,8 +71,15 @@ datumaro.plugins.cityscapes\_format module
 ------------------------------------------
 
 .. automodule:: datumaro.plugins.cityscapes_format
+   :members: LabelmapType
+   :undoc-members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+.. automodule:: datumaro.plugins.cityscapes_format
    :members:
-   :undoc-members: LabelmapType
+   :exclude-members: LabelmapType
    :private-members:
    :special-members:
    :show-inheritance:
@@ -83,8 +97,15 @@ datumaro.plugins.image\_zip\_format module
 ------------------------------------------
 
 .. automodule:: datumaro.plugins.image_zip_format
+   :members: Compression
+   :undoc-members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+.. automodule:: datumaro.plugins.image_zip_format
    :members:
-   :undoc-members: Compression
+   :exclude-members: Compression
    :private-members:
    :special-members:
    :show-inheritance:
@@ -102,8 +123,15 @@ datumaro.plugins.imagenet\_txt\_format module
 ---------------------------------------------
 
 .. automodule:: datumaro.plugins.imagenet_txt_format
+   :members: _LabelsSource
+   :undoc-members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+.. automodule:: datumaro.plugins.imagenet_txt_format
    :members:
-   :undoc-members: _LabelsSource
+   :exclude-members: _LabelsSource
    :private-members:
    :special-members:
    :show-inheritance:
@@ -157,8 +185,15 @@ datumaro.plugins.mot\_format module
 -----------------------------------
 
 .. automodule:: datumaro.plugins.mot_format
+   :members: MotLabel
+   :undoc-members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+.. automodule:: datumaro.plugins.mot_format
    :members:
-   :undoc-members: MotLabel
+   :exclude-members: MotLabel
    :private-members:
    :special-members:
    :show-inheritance:
@@ -167,8 +202,15 @@ datumaro.plugins.mots\_format module
 ------------------------------------
 
 .. autoclass:: datumaro.plugins.mots_format
+   :members: MotsLabels
+   :undoc-members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+.. autoclass:: datumaro.plugins.mots_format
    :members:
-   :undoc-members: MotsLabels
+   :exclude-members: MotsLabels
    :private-members:
    :special-members:
    :show-inheritance:
@@ -177,8 +219,15 @@ datumaro.plugins.ndr module
 ---------------------------
 
 .. automodule:: datumaro.plugins.ndr
+   :members: Algorithm, OverSamplingMethod, UnderSamplingMethod
+   :undoc-members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+.. automodule:: datumaro.plugins.ndr
    :members:
-   :undoc-members: Algorithm, OverSamplingMethod, UnderSamplingMethod
+   :exclude-members: Algorithm, OverSamplingMethod, UnderSamplingMethod
    :private-members:
    :special-members:
    :show-inheritance:
@@ -196,8 +245,15 @@ datumaro.plugins.splitter module
 --------------------------------
 
 .. automodule:: datumaro.plugins.splitter
+   :members: SplitTask
+   :undoc-members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+.. automodule:: datumaro.plugins.splitter
    :members:
-   :undoc-members: SplitTask
+   :exclude-members: SplitTask
    :private-members:
    :special-members:
    :show-inheritance:
@@ -206,8 +262,15 @@ datumaro.plugins.transforms module
 ----------------------------------
 
 .. automodule:: datumaro.plugins.transforms
+   :members: RemapLabels, ProjectLabels, AnnsToLabels, BboxValuesDecrement
+   :undoc-members:
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+.. automodule:: datumaro.plugins.transforms
    :members:
-   :undoc-members: RemapLabels, ProjectLabels, AnnsToLabels, BboxValuesDecrement
+   :exclude-members: RemapLabels, ProjectLabels, AnnsToLabels, BboxValuesDecrement
    :private-members:
    :special-members:
    :show-inheritance:
@@ -268,8 +331,15 @@ datumaro.plugins.coco\_format.converter module
 ----------------------------------------------
 
 .. automodule:: datumaro.plugins.coco_format.converter
+   :members: SegmentationMode
+   :undoc-members: SegmentationMode
+   :private-members:
+   :special-members:
+   :show-inheritance:
+
+.. automodule:: datumaro.plugins.coco_format.converter
    :members:
-   :undoc-members:  SegmentationMode
+   :exclude-members: SegmentationMode
    :private-members:
    :special-members:
    :show-inheritance:
