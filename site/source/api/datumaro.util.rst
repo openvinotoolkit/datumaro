@@ -1,7 +1,7 @@
 Utilities
 #########
 
-datumaro.util.annotation\_util module
+Annotation\_util module
 -------------------------------------
 
 .. automodule:: datumaro.util.annotation_util
@@ -10,7 +10,7 @@ datumaro.util.annotation\_util module
    :special-members:
    :show-inheritance:
 
-datumaro.util.attrs\_util module
+Attrs\_util module
 --------------------------------
 
 .. automodule:: datumaro.util.attrs_util
@@ -19,7 +19,7 @@ datumaro.util.attrs\_util module
    :special-members:
    :show-inheritance:
 
-datumaro.util.image module
+Image module
 --------------------------
 
 .. autoclass:: datumaro.util.image
@@ -36,7 +36,7 @@ datumaro.util.image module
    :special-members:
    :show-inheritance:
 
-datumaro.util.image\_cache module
+Image\_cache module
 ---------------------------------
 
 .. automodule:: datumaro.util.image_cache
@@ -45,7 +45,7 @@ datumaro.util.image\_cache module
    :special-members:
    :show-inheritance:
 
-datumaro.util.log\_utils module
+Log\_utils module
 -------------------------------
 
 .. automodule:: datumaro.util.log_utils
@@ -54,7 +54,7 @@ datumaro.util.log\_utils module
    :special-members:
    :show-inheritance:
 
-datumaro.util.mask\_tools module
+Mask\_tools module
 --------------------------------
 
 .. automodule:: datumaro.util.mask_tools
@@ -63,7 +63,7 @@ datumaro.util.mask\_tools module
    :special-members:
    :show-inheritance:
 
-datumaro.util.os\_util module
+OS\_util module
 -----------------------------
 
 .. automodule:: datumaro.util.os_util
@@ -72,7 +72,7 @@ datumaro.util.os\_util module
    :special-members:
    :show-inheritance:
 
-datumaro.util.scope module
+Scope module
 --------------------------
 
 .. automodule:: datumaro.util.scope
@@ -81,7 +81,7 @@ datumaro.util.scope module
    :special-members:
    :show-inheritance:
 
-datumaro.util.telemetry\_stub module
+Telemetry\_stub module
 ------------------------------------
 
 .. automodule:: datumaro.util.telemetry_stub
@@ -90,7 +90,7 @@ datumaro.util.telemetry\_stub module
    :special-members:
    :show-inheritance:
 
-datumaro.util.telemetry\_utils module
+Telemetry\_utils module
 -------------------------------------
 
 .. automodule:: datumaro.util.telemetry_utils
@@ -99,7 +99,7 @@ datumaro.util.telemetry\_utils module
    :special-members:
    :show-inheritance:
 
-datumaro.util.test\_utils module
+Test\_utils module
 --------------------------------
 
 .. autoclass:: datumaro.util.test_utils
@@ -116,7 +116,7 @@ datumaro.util.test\_utils module
    :special-members:
    :show-inheritance:
 
-datumaro.util.tf\_util module
+Tf\_util module
 -----------------------------
 
 .. automodule:: datumaro.util.tf_util

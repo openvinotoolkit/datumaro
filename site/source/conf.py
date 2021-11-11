@@ -32,7 +32,7 @@ release = '0.2'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.napoleon',
+    'sphinx.ext.napoleon', # Support for NumPy and Google style docstrings
     'sphinx.ext.autodoc',  # Core library for html generation from docstrings
     'sphinx.ext.intersphinx', # Link to other projects documentation
     'sphinx.ext.viewcode', # Find the source files
