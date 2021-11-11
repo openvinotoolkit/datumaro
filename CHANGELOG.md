@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/484>)
 - Mapillary Vistas dataset format (Import-only)
   (<https://github.com/openvinotoolkit/datumaro/pull/537>)
+- Datumaro can now be installed on Windows on Python 3.9
+  (<https://github.com/openvinotoolkit/datumaro/pull/547>)
 
 ### Changed
 - File `people.txt` became optional in LFW
