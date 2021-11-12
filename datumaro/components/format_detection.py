@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 from enum import IntEnum
-from typing import Callable, Iterator, Optional, Sequence, TextIO
+from typing import Callable, Iterator, List, Optional, Sequence, TextIO
 import contextlib
 import glob
 import os.path as osp
@@ -53,9 +53,6 @@ class FormatRequirementsUnmet(Exception):
     methods.
     """
 
-    # Note: it's currently impossible for an exception with more than one
-    # alternative to be raised; but that will change once support for
-    # alternative requirements in FormatDetectionContext is implemented.
     def __init__(self, failed_alternatives: Sequence[str]) -> None:
         assert failed_alternatives
         self.failed_alternatives = tuple(failed_alternatives)
@@ -73,8 +70,21 @@ class FormatDetectionContext:
     met, the return value depends on the method.
     """
 
+    class _AlternativesContext:
+        failed_alternatives: List[str]
+        had_successful_alternatives: bool
+
+        def __init__(self) -> None:
+            self.failed_alternatives = []
+            self.had_successful_alternatives = False
+
+    # This points to an _AlternativesContext when and only when the detector
+    # is directly within an `alternatives` block.
+    _alternatives_context: Optional[_AlternativesContext]
+
     def __init__(self, root_path: str) -> None:
         self._root_path = root_path
+        self._alternatives_context = None
 
     @property
     def root_path(self) -> str:
@@ -106,11 +116,17 @@ class FormatDetectionContext:
 
         return True
 
+    def _start_requirement(self) -> None:
+        assert not self._alternatives_context, \
+            "checks can't be done directly within `alternatives` blocks"
+
     def fail(self, requirement: str) -> NoReturn:
         """
         Places a requirement that is never met. `requirement` must contain
         a human-readable description of the requirement.
         """
+        self._start_requirement()
+
         raise FormatRequirementsUnmet((requirement,))
 
     def require_file(self, pattern: str) -> str:
@@ -125,6 +141,8 @@ class FormatDetectionContext:
         match the pattern is returned. If there are multiple such files, it's
         unspecified which one of them is returned.
         """
+
+        self._start_requirement()
 
         requirement_desc = \
             f"dataset must contain a file matching pattern \"{pattern}\""
@@ -167,6 +185,8 @@ class FormatDetectionContext:
         requirement.
         """
 
+        self._start_requirement()
+
         requirement_desc_full = f"{path}: {requirement_desc}"
 
         if not self._is_path_within_root(path):
@@ -179,6 +199,80 @@ class FormatDetectionContext:
             raise
         except Exception:
             self.fail(requirement_desc_full)
+
+    @contextlib.contextmanager
+    def alternatives(self) -> Iterator[None]:
+        """
+        Returns a context manager that can be used to place a requirement that
+        is considered met if at least one of several alternative sets of
+        requirements is met.
+        To do so, use a `with` statement, with the alternative sets of
+        requirements represented as nested `with` statements using the context
+        manager returned by `alternative`:
+
+            with context.alternatives():
+                with context.alternative():
+                    # place requirements from alternative set 1 here
+                with context.alternative():
+                    # place requirements from alternative set 2 here
+                ...
+
+        The contents of all `with context.alternative()` blocks will be
+        executed, even if an alternative that is met is found early.
+
+        Requirements must not be placed directly within a
+        `with context.alternatives()` block.
+        """
+
+        self._start_requirement()
+
+        self._alternatives_context = self._AlternativesContext()
+
+        try:
+            yield
+
+            # If at least one `alternative` block succeeded,
+            # then the `alternatives` block succeeds.
+            if self._alternatives_context.had_successful_alternatives:
+                return
+
+            # If no alternatives succeeded, and none failed, then there were
+            # no alternatives at all.
+            assert self._alternatives_context.failed_alternatives, \
+                "an `alternatives` block must contain " \
+                "at least one `alternative` block"
+
+            raise FormatRequirementsUnmet(
+                self._alternatives_context.failed_alternatives)
+        finally:
+            self._alternatives_context = None
+
+    @contextlib.contextmanager
+    def alternative(self) -> Iterator[None]:
+        """
+        Returns a context manager that can be used in combination with
+        `alternatives` to define alternative requirements. See the documentation
+        for `alternatives` for more details.
+
+        Must only be used directly within a `with context.requirements()` block.
+        """
+
+        assert self._alternatives_context, \
+            "An `alternative` block must be directly within " \
+            "an `alternatives` block"
+
+        saved_alternatives_context = self._alternatives_context
+        self._alternatives_context = None
+
+        try:
+            yield
+        except FormatRequirementsUnmet as e:
+            saved_alternatives_context.failed_alternatives.extend(
+                e.failed_alternatives)
+        else:
+            saved_alternatives_context.had_successful_alternatives = True
+        finally:
+            self._alternatives_context = saved_alternatives_context
 
 
 FormatDetector = Callable[
