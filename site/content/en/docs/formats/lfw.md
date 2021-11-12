@@ -99,3 +99,26 @@ datum export -f vgg_face2 -o ./output_dir2
 
 > Note: some formats have extra export options. For particular format see the
 > [docs](/docs/formats/) to get information about it.
+
+## Export dataset to the LFW format
+
+With Datumaro you can export dataset that has `Label` or/and `Points`
+annotations to the LFW format, example:
+
+```
+# Converting VGG Face2 dataset into the LFW format
+datum convert -if vgg_face2 -i ./voc_dataset \
+    -f lfw -o ./output_dir
+
+
+# Export dataaset to the LFW format through the Datumaro project:
+datum create
+datum import -f voc_classification ./vgg_dataset
+datum export -f lfw ./output_dir -- --save-images --image-ext png
+```
+
+Available extra export options for LFW dataset format:
+- `--save-images` allow to export dataset with saving images.
+  (by default `False`)
+- `--image-ext IMAGE_EXT` allow to specify image extension
+  for exporting dataset (by default - keep original)
