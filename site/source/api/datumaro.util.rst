@@ -2,7 +2,7 @@ Utilities
 #########
 
 Annotation\_util module
--------------------------------------
+-----------------------
 
 .. automodule:: datumaro.util.annotation_util
    :members:
@@ -11,7 +11,7 @@ Annotation\_util module
    :show-inheritance:
 
 Attrs\_util module
---------------------------------
+------------------
 
 .. automodule:: datumaro.util.attrs_util
    :members:
@@ -20,9 +20,9 @@ Attrs\_util module
    :show-inheritance:
 
 Image module
---------------------------
+------------
 
-.. autoclass:: datumaro.util.image
+.. automodule:: datumaro.util.image
    :members: _IMAGE_BACKENDS
    :undoc-members:
    :private-members:
@@ -37,7 +37,7 @@ Image module
    :show-inheritance:
 
 Image\_cache module
----------------------------------
+-------------------
 
 .. automodule:: datumaro.util.image_cache
    :members:
@@ -46,7 +46,7 @@ Image\_cache module
    :show-inheritance:
 
 Log\_utils module
--------------------------------
+-----------------
 
 .. automodule:: datumaro.util.log_utils
    :members:
@@ -55,7 +55,7 @@ Log\_utils module
    :show-inheritance:
 
 Mask\_tools module
---------------------------------
+------------------
 
 .. automodule:: datumaro.util.mask_tools
    :members:
@@ -64,7 +64,7 @@ Mask\_tools module
    :show-inheritance:
 
 OS\_util module
------------------------------
+---------------
 
 .. automodule:: datumaro.util.os_util
    :members:
@@ -73,7 +73,7 @@ OS\_util module
    :show-inheritance:
 
 Scope module
---------------------------
+------------
 
 .. automodule:: datumaro.util.scope
    :members:
@@ -82,7 +82,7 @@ Scope module
    :show-inheritance:
 
 Telemetry\_stub module
-------------------------------------
+----------------------
 
 .. automodule:: datumaro.util.telemetry_stub
    :members:
@@ -91,7 +91,7 @@ Telemetry\_stub module
    :show-inheritance:
 
 Telemetry\_utils module
--------------------------------------
+-----------------------
 
 .. automodule:: datumaro.util.telemetry_utils
    :members:
@@ -100,9 +100,9 @@ Telemetry\_utils module
    :show-inheritance:
 
 Test\_utils module
---------------------------------
+------------------
 
-.. autoclass:: datumaro.util.test_utils
+.. automodule:: datumaro.util.test_utils
    :members: Dimensions
    :undoc-members:
    :private-members:
@@ -117,7 +117,7 @@ Test\_utils module
    :show-inheritance:
 
 Tf\_util module
------------------------------
+---------------
 
 .. automodule:: datumaro.util.tf_util
    :members:
