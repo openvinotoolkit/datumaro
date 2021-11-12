@@ -68,7 +68,7 @@ def build_import_parser(parser_ctor=argparse.ArgumentParser):
             "a path to subset, subtask, or a specific file in URL.")
     parser.add_argument('--no-check', action='store_true',
         help="Don't try to read the source after importing")
-    parser.add_argument('-p', '--project', dest='project_dir', default='.',
+    parser.add_argument('-p', '--project', dest='project_dir',
         help="Directory of the project to operate on (default: current dir)")
     parser.add_argument('extra_args', nargs=argparse.REMAINDER,
         help="Additional arguments for extractor (pass '-- -h' for help). "
@@ -275,7 +275,7 @@ def build_remove_parser(parser_ctor=argparse.ArgumentParser):
     parser.add_argument('--keep-data', action='store_true',
         help="Do not remove source data from the working directory, remove "
             "only project metainfo.")
-    parser.add_argument('-p', '--project', dest='project_dir', default='.',
+    parser.add_argument('-p', '--project', dest='project_dir',
         help="Directory of the project to operate on (default: current dir)")
     parser.set_defaults(command=remove_command)
 
@@ -309,7 +309,7 @@ def build_info_parser(parser_ctor=argparse.ArgumentParser):
         help="Source name")
     parser.add_argument('-v', '--verbose', action='store_true',
         help="Show details")
-    parser.add_argument('-p', '--project', dest='project_dir', default='.',
+    parser.add_argument('-p', '--project', dest='project_dir',
         help="Directory of the project to operate on (default: current dir)")
     parser.set_defaults(command=info_command)
 

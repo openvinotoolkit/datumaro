@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MIT
 
-from collections import defaultdict
 import logging as log
 import os.path as osp
 
@@ -13,9 +12,9 @@ from datumaro.components.annotation import (
     AnnotationType, Bbox, CompiledMask, Label, Mask,
 )
 from datumaro.components.extractor import DatasetItem, SourceExtractor
-from datumaro.util.image import Image, find_images
+from datumaro.components.media import Image
+from datumaro.util.image import find_images
 from datumaro.util.mask_tools import invert_colormap, lazy_mask
-from datumaro.util.os_util import dir_items
 
 from .format import (
     VocInstColormap, VocPath, VocTask, make_voc_categories, parse_label_map,
@@ -81,7 +80,7 @@ class VocClassificationExtractor(_VocExtractor):
         super().__init__(path, VocTask.classification)
 
     def __iter__(self):
-        raw_anns = self._load_annotations()
+        annotations = self._load_annotations()
 
         image_dir = osp.join(self._dataset_dir, VocPath.IMAGES_DIR)
         if osp.isdir(image_dir):
@@ -94,29 +93,24 @@ class VocClassificationExtractor(_VocExtractor):
 
         for item_id in self._items:
             log.debug("Reading item '%s'" % item_id)
-            anns = self._parse_annotations(raw_anns, item_id)
             yield DatasetItem(id=item_id, subset=self._subset,
-                image=images.get(item_id), annotations=anns)
+                image=images.get(item_id), annotations=annotations.get(item_id))
 
     def _load_annotations(self):
-        annotations = defaultdict(list)
+        annotations = {}
         task_dir = osp.dirname(self._path)
-        anno_files = [s for s in dir_items(task_dir, '.txt')
-            if s.endswith('_' + osp.basename(self._path))]
-        for ann_filename in anno_files:
-            with open(osp.join(task_dir, ann_filename), encoding='utf-8') as f:
-                label = ann_filename[:ann_filename.rfind('_')]
-                label_id = self._get_label_id(label)
+        for label_id, label in enumerate(self._categories[AnnotationType.label]):
+            ann_file = osp.join(task_dir, f'{label.name}_{self._subset}.txt')
+            if not osp.isfile(ann_file):
+                continue
+
+            with open(ann_file, encoding='utf-8') as f:
                 for line in f:
                     item, present = line.rsplit(maxsplit=1)
                     if present == '1':
-                        annotations[item].append(label_id)
+                        annotations.setdefault(item, []).append(Label(label_id))
 
-        return dict(annotations)
-
-    @staticmethod
-    def _parse_annotations(raw_anns, item_id):
-        return [Label(label_id) for label_id in raw_anns.get(item_id, [])]
+        return annotations
 
 class _VocXmlExtractor(_VocExtractor):
     def __init__(self, path, task):
@@ -298,8 +292,9 @@ class VocSegmentationExtractor(_VocExtractor):
         if instances_mask is not None:
             compiled_mask = CompiledMask(class_mask, instances_mask)
 
+            label_cat = self._categories[AnnotationType.label]
+
             if class_mask is not None:
-                label_cat = self._categories[AnnotationType.label]
                 instance_labels = compiled_mask.get_instance_labels()
             else:
                 instance_labels = {i: None

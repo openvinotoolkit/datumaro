@@ -14,6 +14,7 @@ from datumaro.components.annotation import (
     AnnotationType, CompiledMask, LabelCategories, Mask,
 )
 from datumaro.components.extractor import DatasetItem, Extractor, Importer
+from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.util.image import (
     IMAGE_EXTENSIONS, find_images, lazy_image, load_image,
 )
@@ -141,9 +142,15 @@ class Ade20k2017Extractor(Extractor):
 
 class Ade20k2017Importer(Importer):
     @classmethod
+    def detect(cls, context: FormatDetectionContext) -> None:
+        context.require_file('*/**/*_atr.txt')
+
+    @classmethod
     def find_sources(cls, path):
         for i in range(5):
             for i in glob.iglob(osp.join(path, *('*' * i))):
                     if osp.splitext(i)[1].lower() in IMAGE_EXTENSIONS:
-                        return [{'url': path, 'format': 'ade20k2017'}]
+                        return [{
+                            'url': path, 'format': Ade20k2017Extractor.NAME,
+                        }]
         return []

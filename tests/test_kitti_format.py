@@ -9,7 +9,9 @@ from datumaro.components.annotation import (
     AnnotationType, Bbox, LabelCategories, Mask,
 )
 from datumaro.components.dataset import Dataset
+from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem, Extractor
+from datumaro.components.media import Image
 from datumaro.plugins.kitti_format.converter import KittiConverter
 from datumaro.plugins.kitti_format.format import (
     KittiLabelMap, KittiPath, KittiTask, make_kitti_categories, parse_label_map,
@@ -18,7 +20,6 @@ from datumaro.plugins.kitti_format.format import (
 from datumaro.plugins.kitti_format.importer import (
     KittiDetectionImporter, KittiImporter, KittiSegmentationImporter,
 )
-from datumaro.util.image import Image
 from datumaro.util.test_utils import (
     TestDir, compare_datasets, test_save_and_load,
 )
@@ -127,9 +128,12 @@ class KittiImportTest(TestCase):
                 KittiSegmentationImporter),
         ]
 
+        env = Environment()
+
         for path, subtask in matrix:
             with self.subTest(path=path, task=subtask):
-                self.assertTrue(subtask.detect(path))
+                detected_formats = env.detect_dataset(path)
+                self.assertIn(subtask.NAME, detected_formats)
 
 
 class TestExtractorBase(Extractor):

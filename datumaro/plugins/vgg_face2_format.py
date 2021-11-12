@@ -163,12 +163,16 @@ class VggFace2Importer(Importer):
         if osp.isdir(path):
             annotation_dir = osp.join(path, VggFace2Path.ANNOTATION_DIR)
             if osp.isdir(annotation_dir):
-                return [{'url': annotation_dir, 'format': 'vgg_face2'}]
+                return [{
+                    'url': annotation_dir, 'format': VggFace2Extractor.NAME,
+                }]
         elif osp.isfile(path):
             if (osp.basename(path).startswith(VggFace2Path.LANDMARKS_FILE) or \
                         osp.basename(path).startswith(VggFace2Path.BBOXES_FILE)) and \
                     path.endswith('.csv'):
-                return [{'url': path, 'format': 'vgg_face2'}]
+                return [{
+                    'url': path, 'format': VggFace2Extractor.NAME,
+                }]
         return []
 
 class VggFace2Converter(Converter):

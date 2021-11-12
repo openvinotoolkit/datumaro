@@ -17,7 +17,8 @@ from datumaro.components.annotation import (
 from datumaro.components.extractor import (
     DEFAULT_SUBSET_NAME, DatasetItem, SourceExtractor,
 )
-from datumaro.util.image import Image, lazy_image, load_image
+from datumaro.components.media import Image
+from datumaro.util.image import lazy_image, load_image
 from datumaro.util.mask_tools import bgr2index
 from datumaro.util.os_util import suppress_output
 
@@ -33,8 +34,9 @@ class _CocoExtractor(SourceExtractor):
         assert osp.isfile(path), path
 
         if not subset:
-            subset = osp.splitext(osp.basename(path))[0].rsplit('_', maxsplit=1)
-            subset = subset[1] if len(subset) == 2 else None
+            parts = osp.splitext(osp.basename(path))[0].split(task.name + '_',
+                maxsplit=1)
+            subset = parts[1] if len(parts) == 2 else None
         super().__init__(subset=subset)
 
         rootpath = ''

@@ -1,13 +1,16 @@
 from unittest import TestCase
+import os
 import os.path as osp
+import shutil
 
 import numpy as np
 
 from datumaro.components.annotation import Label, Points
 from datumaro.components.dataset import Dataset
+from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
+from datumaro.components.media import Image
 from datumaro.plugins.lfw_format import LfwConverter, LfwImporter
-from datumaro.util.image import Image
 from datumaro.util.test_utils import TestDir, compare_datasets
 
 from .requirements import Requirements, mark_requirement
@@ -184,11 +187,13 @@ class LfwFormatTest(TestCase):
         dataset = Dataset.from_iterable([
             DatasetItem(id='a/1', image=Image(
                 path='a/1.JPEG', data=np.zeros((4, 3, 3))),
+                annotations=[Label(0)]
             ),
             DatasetItem(id='b/c/d/2', image=Image(
                 path='b/c/d/2.bmp', data=np.zeros((3, 4, 3))),
+                annotations=[Label(1)]
             ),
-        ], categories=[])
+        ], categories=['name0', 'name1'])
 
         with TestDir() as test_dir:
             LfwConverter.convert(dataset, test_dir, save_images=True)
@@ -201,7 +206,8 @@ DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'lfw_dataset')
 class LfwImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect(self):
-        self.assertTrue(LfwImporter.detect(DUMMY_DATASET_DIR))
+        detected_formats = Environment().detect_dataset(DUMMY_DATASET_DIR)
+        self.assertIn(LfwImporter.NAME, detected_formats)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import(self):
@@ -237,3 +243,43 @@ class LfwImporterTest(TestCase):
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'lfw')
 
         compare_datasets(self, expected_dataset, dataset)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_import_without_people_file(self):
+        expected_dataset = Dataset.from_iterable([
+            DatasetItem(id='name0_0001', subset='test',
+                image=np.ones((2, 5, 3)),
+                annotations=[
+                    Label(0, attributes={
+                        'negative_pairs': ['name1/name1_0001',
+                            'name1/name1_0002']
+                    }),
+                    Points([0, 4, 3, 3, 2, 2, 1, 0, 3, 0], label=0),
+                ]
+            ),
+            DatasetItem(id='name1_0001', subset='test',
+                image=np.ones((2, 5, 3)),
+                annotations=[
+                    Label(1, attributes={
+                        'positive_pairs': ['name1/name1_0002'],
+                    }),
+                    Points([1, 6, 4, 6, 3, 3, 2, 1, 4, 1], label=1),
+                ]
+            ),
+            DatasetItem(id='name1_0002', subset='test',
+                image=np.ones((2, 5, 3)),
+                annotations=[
+                    Label(1),
+                    Points([0, 5, 3, 5, 2, 2, 1, 0, 3, 0], label=1),
+                ]
+            ),
+        ], categories=['name0', 'name1'])
+
+        with TestDir() as test_dir:
+            dataset_path = osp.join(test_dir, 'dataset')
+            shutil.copytree(DUMMY_DATASET_DIR, dataset_path)
+            os.remove(osp.join(dataset_path, 'test', 'annotations', 'people.txt'))
+
+            dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'lfw')
+
+            compare_datasets(self, expected_dataset, dataset)

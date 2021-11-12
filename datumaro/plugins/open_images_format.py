@@ -28,10 +28,11 @@ from datumaro.components.errors import (
     DatasetError, RepeatedItemError, UndefinedLabel,
 )
 from datumaro.components.extractor import DatasetItem, Extractor, Importer
+from datumaro.components.media import Image
 from datumaro.components.validator import Severity
 from datumaro.util.annotation_util import find_instances
 from datumaro.util.image import (
-    DEFAULT_IMAGE_META_FILE_NAME, Image, find_images, lazy_image, load_image,
+    DEFAULT_IMAGE_META_FILE_NAME, find_images, lazy_image, load_image,
     load_image_meta_file, save_image, save_image_meta_file,
 )
 from datumaro.util.os_util import make_file_name, split_path
@@ -85,6 +86,7 @@ class OpenImagesPath:
         '*-images-with-labels-with-rotation.csv',
     )
     V5_CLASS_DESCRIPTION_FILE_NAME = 'class-descriptions.csv'
+    V5_CLASS_DESCRIPTION_BBOX_FILE_NAME = 'class-descriptions-boxable.csv'
     HIERARCHY_FILE_NAME = 'bbox_labels_600_hierarchy.json'
 
     LABEL_DESCRIPTION_FILE_SUFFIX = '-annotations-human-imagelabels.csv'
@@ -204,6 +206,21 @@ class OpenImagesExtractor(Extractor):
     def _load_categories(self):
         label_categories = LabelCategories()
 
+        class_desc_patterns = [
+            'oidv*-class-descriptions.csv',
+            OpenImagesPath.V5_CLASS_DESCRIPTION_BBOX_FILE_NAME,
+            OpenImagesPath.V5_CLASS_DESCRIPTION_FILE_NAME,
+        ]
+
+        class_desc_files = [file for pattern in class_desc_patterns
+            for file in self._glob_annotations(pattern)]
+
+        if not class_desc_files:
+            raise FileNotFoundError("Can't find class description file, the "
+                "annotations directory does't contain any of these files: %s" %
+                ', '.join(class_desc_patterns)
+            )
+
         # In OID v6, the class description file is prefixed with `oidv6-`, whereas
         # in the previous versions, it isn't. We try to find it regardless.
         # We use a wildcard so that if, say, OID v7 is released in the future with
@@ -211,14 +228,11 @@ class OpenImagesExtractor(Extractor):
         # If the file doesn't exist with either name, we'll fail trying to open
         # `class-descriptions.csv`.
 
-        annotation_name = [
-            *self._glob_annotations('oidv*-class-descriptions.csv'),
-            OpenImagesPath.V5_CLASS_DESCRIPTION_FILE_NAME,
-        ][0]
-
+        annotation_name = class_desc_files[0]
         with self._open_csv_annotation(annotation_name) as class_description_reader:
             # Prior to OID v6, this file didn't contain a header row.
-            if annotation_name == OpenImagesPath.V5_CLASS_DESCRIPTION_FILE_NAME:
+            if annotation_name in {OpenImagesPath.V5_CLASS_DESCRIPTION_BBOX_FILE_NAME,
+                    OpenImagesPath.V5_CLASS_DESCRIPTION_FILE_NAME}:
                 class_description_reader.fieldnames = ('LabelName', 'DisplayName')
 
             for class_description in class_description_reader:
@@ -256,7 +270,7 @@ class OpenImagesExtractor(Extractor):
     def _load_items(self):
         images_dir = osp.join(self._dataset_dir, OpenImagesPath.IMAGES_DIR)
 
-        image_paths_by_id = {
+        self._image_paths_by_id = {
             # the first component of `path_parts` is the subset name
             '/'.join(path_parts[1:]): path
             for path in find_images(images_dir, recursive=True)
@@ -281,19 +295,11 @@ class OpenImagesExtractor(Extractor):
                         raise UnsupportedSubsetNameError(
                             item_id=image_id, subset=subset)
 
-                    image_path = image_paths_by_id.get(image_id)
+                    if image_id in items_by_id:
+                        log.warning('Item %s is repeated' % image_id)
+                        continue
 
-                    image = None
-                    if image_path is not None:
-                        image = Image(
-                            path=image_path, size=self._image_meta.get(image_id),
-                        )
-
-                    items_by_id[image_id] = DatasetItem(
-                        id=image_id,
-                        image=image,
-                        subset=subset,
-                    )
+                    items_by_id[image_id] = self._add_item(image_id, subset)
 
         # It's preferable to load the combined image description file,
         # because it contains descriptions for training images without human-annotated labels
@@ -307,11 +313,27 @@ class OpenImagesExtractor(Extractor):
                 for path in self._glob_annotations(pattern):
                     load_from(path)
 
-        self._items.extend(items_by_id.values())
-
         self._load_labels(items_by_id)
         normalized_coords = self._load_bboxes(items_by_id)
         self._load_masks(items_by_id, normalized_coords)
+
+    def _add_item(self, item_id, subset):
+        image_path = self._image_paths_by_id.get(item_id)
+        image = None
+        if image_path is None:
+            log.warning("Can't find image for item: %s. "
+                "It should be in the '%s' directory" % (item_id,
+                    OpenImagesPath.IMAGES_DIR))
+        else:
+            image = Image(path=image_path, size=self._image_meta.get(item_id))
+
+        item = DatasetItem(id=item_id, image=image, subset=subset)
+        self._items.append(item)
+        return item
+
+    def _get_subset_name(self, filename):
+        parts = filename.split('-')
+        return parts[1] if parts[0] == 'oidv6' else parts[0]
 
     def _load_labels(self, items_by_id):
         label_categories = self._categories[AnnotationType.label]
@@ -324,7 +346,12 @@ class OpenImagesExtractor(Extractor):
             with self._open_csv_annotation(label_path) as label_reader:
                 for label_description in label_reader:
                     image_id = label_description['ImageID']
-                    item = items_by_id[image_id]
+                    item = items_by_id.get(image_id)
+                    if item is None:
+                        item = items_by_id.setdefault(
+                            image_id, self._add_item(image_id,
+                                self._get_subset_name(label_path))
+                        )
 
                     confidence = float(label_description['Confidence'])
 
@@ -353,7 +380,13 @@ class OpenImagesExtractor(Extractor):
             with self._open_csv_annotation(bbox_path) as bbox_reader:
                 for bbox_description in bbox_reader:
                     image_id = bbox_description['ImageID']
-                    item = items_by_id[image_id]
+                    item = items_by_id.get(image_id)
+                    if item is None:
+                        item = items_by_id.setdefault(
+                            image_id, self._add_item(image_id,
+                                self._get_subset_name(bbox_path))
+                        )
+
 
                     label_name = bbox_description['LabelName']
                     label_index, _ = label_categories.find(label_name)
@@ -428,7 +461,13 @@ class OpenImagesExtractor(Extractor):
                             mask_path=mask_path)
 
                     image_id = mask_description['ImageID']
-                    item = items_by_id[image_id]
+                    item = items_by_id.get(image_id)
+                    if item is None:
+                        item = items_by_id.setdefault(
+                            image_id, self._add_item(image_id,
+                                self._get_subset_name(mask_path))
+                        )
+
 
                     label_name = mask_description['LabelName']
                     label_index, _ = label_categories.find(label_name)
@@ -518,10 +557,13 @@ class OpenImagesImporter(Importer):
         for pattern in [
             OpenImagesPath.FULL_IMAGE_DESCRIPTION_FILE_NAME,
             *OpenImagesPath.SUBSET_IMAGE_DESCRIPTION_FILE_PATTERNS,
+            '*' + OpenImagesPath.LABEL_DESCRIPTION_FILE_SUFFIX,
+            '*' + OpenImagesPath.BBOX_DESCRIPTION_FILE_SUFFIX,
+            '*' + OpenImagesPath.MASK_DESCRIPTION_FILE_SUFFIX,
         ]:
             if glob.glob(osp.join(glob.escape(path),
                     OpenImagesPath.ANNOTATIONS_DIR, pattern)):
-                return [{'url': path, 'format': 'open_images'}]
+                return [{'url': path, 'format': OpenImagesExtractor.NAME}]
 
         return []
 

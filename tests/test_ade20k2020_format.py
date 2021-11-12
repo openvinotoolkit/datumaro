@@ -11,6 +11,7 @@ from datumaro.components.annotation import (
     AnnotationType, LabelCategories, Mask, Polygon,
 )
 from datumaro.components.dataset import Dataset, DatasetItem
+from datumaro.components.environment import Environment
 from datumaro.plugins.ade20k2020_format import Ade20k2020Importer
 from datumaro.util.test_utils import compare_datasets
 
@@ -21,7 +22,8 @@ DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'ade20k2020_datase
 class Ade20k2020ImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_399)
     def test_can_detect(self):
-        self.assertTrue(Ade20k2020Importer.detect(DUMMY_DATASET_DIR))
+        detected_formats = Environment().detect_dataset(DUMMY_DATASET_DIR)
+        self.assertEqual([Ade20k2020Importer.NAME], detected_formats)
 
     @mark_requirement(Requirements.DATUM_399)
     def test_can_import(self):

@@ -10,9 +10,10 @@ from datumaro.components.annotation import (
     AnnotationType, LabelCategories, Mask, MaskCategories,
 )
 from datumaro.components.dataset import Dataset
+from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem, Extractor
+from datumaro.components.media import Image
 from datumaro.plugins.camvid_format import CamvidConverter, CamvidImporter
-from datumaro.util.image import Image
 from datumaro.util.test_utils import (
     TestDir, compare_datasets, test_save_and_load,
 )
@@ -84,7 +85,8 @@ class CamvidImportTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_camvid(self):
-        self.assertTrue(CamvidImporter.detect(DUMMY_DATASET_DIR))
+        detected_formats = Environment().detect_dataset(DUMMY_DATASET_DIR)
+        self.assertIn(CamvidImporter.NAME, detected_formats)
 
 class CamvidConverterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)

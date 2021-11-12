@@ -4,22 +4,21 @@ on:
     branches:
       - 'master'
   pull_request:
-    branches:
-      - '*'
+    types: [edited, ready_for_review, opened, synchronize, reopened]
 defaults:
   run:
     shell: bash
 jobs:
   build_and_test:
+    if: |
+      github.event.pull_request.draft == false &&
+      !startsWith(github.event.pull_request.title, '[WIP]') &&
+      !startsWith(github.event.pull_request.title, '[Dependent]')
     strategy:
       fail-fast: false
       matrix:
         os: ['macos-10.15', 'ubuntu-20.04', 'windows-2016']
         python-version: ['3.6', '3.7', '3.8', '3.9']
-        exclude:
-        # pycocotools-windows doesn't have a wheel for Python 3.9
-        - os: windows-2016
-          python-version: 3.9
     name: build and test (${{ matrix.os }}, Python ${{ matrix.python-version }})
     runs-on: ${{ matrix.os }}
     steps:

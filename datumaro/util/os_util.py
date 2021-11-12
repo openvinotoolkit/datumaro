@@ -41,13 +41,13 @@ def check_instruction_set(instruction):
             shell=True).decode('utf-8') # nosec
     )
 
-def import_foreign_module(name, path, package=None):
+def import_foreign_module(name, path):
     module = None
     default_path = sys.path.copy()
     try:
         sys.path = [ osp.abspath(path), ] + default_path
         sys.modules.pop(name, None) # remove from cache
-        module = importlib.import_module(name, package=package)
+        module = importlib.import_module(name)
         sys.modules.pop(name) # remove from cache
     finally:
         sys.path = default_path

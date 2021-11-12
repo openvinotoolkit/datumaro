@@ -10,7 +10,8 @@ from datumaro.components.annotation import (
     MaskCategories, Points, PointsCategories, Polygon, PolyLine, RleMask,
 )
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
-from datumaro.util.image import Image
+from datumaro.components.format_detection import FormatDetectionContext
+from datumaro.components.media import Image
 
 from .format import DatumaroPath
 
@@ -190,6 +191,18 @@ class DatumaroExtractor(SourceExtractor):
         return loaded
 
 class DatumaroImporter(Importer):
+    @classmethod
+    def detect(cls, context: FormatDetectionContext) -> None:
+        annot_file = context.require_file('annotations/*.json')
+
+        with context.probe_text_file(
+            annot_file, "must be a JSON object with \"categories\" "
+                "and \"items\" keys",
+        ) as f:
+            contents = json.load(f)
+            if not {'categories', 'items'} <= contents.keys():
+                raise Exception
+
     @classmethod
     def find_sources(cls, path):
         return cls._find_sources_recursive(path, '.json', 'datumaro',

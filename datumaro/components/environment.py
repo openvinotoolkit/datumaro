@@ -3,53 +3,59 @@
 # SPDX-License-Identifier: MIT
 
 from functools import partial
-from glob import glob
-from typing import Iterable
+from typing import (
+    Callable, Dict, Generic, Iterable, Iterator, Optional, Type, TypeVar,
+)
+import glob
+import importlib
 import inspect
 import logging as log
-import os
 import os.path as osp
 
 from datumaro.components.cli_plugin import CliPlugin, plugin_types
-from datumaro.util.os_util import import_foreign_module
+from datumaro.components.format_detection import (
+    FormatRequirementsUnmet, apply_format_detector,
+)
+from datumaro.util.os_util import import_foreign_module, split_path
 
+T = TypeVar('T')
 
-class Registry:
+class Registry(Generic[T]):
     def __init__(self):
-        self.items = {}
+        self.items: Dict[str, T] = {}
 
-    def register(self, name, value):
+    def register(self, name: str, value: T) -> T:
         self.items[name] = value
         return value
 
-    def unregister(self, name):
+    def unregister(self, name: str) -> Optional[T]:
         return self.items.pop(name, None)
 
-    def get(self, key):
+    def get(self, key: str):
         """Returns a class or a factory function"""
         return self.items[key]
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: str) -> T:
         return self.get(key)
 
-    def __contains__(self, key):
+    def __contains__(self, key) -> bool:
         return key in self.items
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[T]:
         return iter(self.items)
 
-class PluginRegistry(Registry):
-    def __init__(self, filter=None): #pylint: disable=redefined-builtin
+class PluginRegistry(Registry[Type[CliPlugin]]):
+    def __init__(self, filter: Callable[[Type[CliPlugin]], bool] = None): \
+            #pylint: disable=redefined-builtin
         super().__init__()
         self.filter = filter
 
-    def batch_register(self, values: Iterable):
+    def batch_register(self, values: Iterable[CliPlugin]):
         for v in values:
             if self.filter and not self.filter(v):
                 continue
-            name = CliPlugin._get_name(v)
 
-            self.register(name, v)
+            self.register(v.NAME, v)
 
 class Environment:
     _builtin_plugins = None
@@ -110,26 +116,29 @@ class Environment:
     @staticmethod
     def _find_plugins(plugins_dir):
         plugins = []
-        if not osp.exists(plugins_dir):
-            return plugins
 
-        for plugin_name in os.listdir(plugins_dir):
-            p = osp.join(plugins_dir, plugin_name)
-            if osp.isfile(p) and p.endswith('.py'):
-                plugins.append((plugins_dir, plugin_name, None))
-            elif osp.isdir(p):
-                plugins += [(plugins_dir,
-                        osp.splitext(plugin_name)[0] + '.' + osp.basename(p),
-                        osp.splitext(plugin_name)[0]
-                    )
-                    for p in glob(osp.join(p, '*.py'))]
+        for pattern in ('*.py', '*/*.py'):
+            for path in glob.glob(
+                    osp.join(glob.escape(plugins_dir), pattern)):
+                if not osp.isfile(path):
+                    continue
+
+                path_rel = osp.relpath(path, plugins_dir)
+                name_parts = split_path(osp.splitext(path_rel)[0])
+
+                # a module with a dot in the name won't load correctly
+                if any('.' in part for part in name_parts):
+                    log.warning(
+                        "Python file '%s' in directory '%s' can't be imported "
+                        "due to a dot in the name; skipping.",
+                        path_rel, plugins_dir)
+                    continue
+                plugins.append('.'.join(name_parts))
+
         return plugins
 
     @classmethod
-    def _import_module(cls, module_dir, module_name, types, package=None):
-        module = import_foreign_module(osp.splitext(module_name)[0], module_dir,
-            package=package)
-
+    def _get_plugin_exports(cls, module, types):
         exports = []
         if hasattr(module, 'exports'):
             exports = module.exports
@@ -145,16 +154,14 @@ class Environment:
         return exports
 
     @classmethod
-    def _load_plugins(cls, plugins_dir, types=None):
+    def _load_plugins(cls, module_names, *, importer, types=None):
         types = tuple(types or plugin_types())
 
-        plugins = cls._find_plugins(plugins_dir)
-
         all_exports = []
-        for module_dir, module_name, package in plugins:
+        for module_name in module_names:
             try:
-                exports = cls._import_module(module_dir, module_name, types,
-                    package)
+                module = importer(module_name)
+                exports = cls._get_plugin_exports(module, types)
             except Exception as e:
                 module_search_error = ModuleNotFoundError
 
@@ -178,16 +185,18 @@ class Environment:
     @classmethod
     def _load_builtin_plugins(cls):
         if cls._builtin_plugins is None:
-            plugins_dir = osp.join(
-                __file__[: __file__.rfind(osp.join('datumaro', 'components'))],
-                osp.join('datumaro', 'plugins')
-            )
-            assert osp.isdir(plugins_dir), plugins_dir
-            cls._builtin_plugins = cls._load_plugins(plugins_dir)
+            import datumaro.plugins
+            plugins_dir = osp.dirname(datumaro.plugins.__file__)
+            module_names = [datumaro.plugins.__name__ + '.' + name
+                for name in cls._find_plugins(plugins_dir)]
+            cls._builtin_plugins = cls._load_plugins(module_names,
+                importer=importlib.import_module)
         return cls._builtin_plugins
 
     def load_plugins(self, plugins_dir):
-        plugins = self._load_plugins(plugins_dir)
+        module_names = self._find_plugins(plugins_dir)
+        plugins = self._load_plugins(module_names,
+            importer=partial(import_foreign_module, path=plugins_dir))
         self._register_plugins(plugins)
 
     def _register_builtin_plugins(self):
@@ -223,17 +232,30 @@ class Environment:
         return name in self.importers or name in self.extractors
 
     def detect_dataset(self, path):
+        max_confidence = 0
         matches = []
 
         for format_name, importer in self.importers.items.items():
             log.debug("Checking '%s' format...", format_name)
             try:
-                match = importer.detect(path)
-                if match:
-                    log.debug("format matched")
+                new_confidence = apply_format_detector(path, importer.detect)
+            except FormatRequirementsUnmet as cf:
+                log.debug("Format did not match")
+                if len(cf.failed_alternatives) > 1:
+                    log.debug("None of the following requirements were met:")
+                else:
+                    log.debug("The following requirement was not met:")
+
+                for req in cf.failed_alternatives:
+                    log.debug("  %s", req)
+            else:
+                log.debug("Format matched with confidence %d", new_confidence)
+
+                # keep only matches with the highest confidence
+                if new_confidence > max_confidence:
+                    matches = [format_name]
+                    max_confidence = new_confidence
+                elif new_confidence == max_confidence:
                     matches.append(format_name)
-            except NotImplementedError:
-                log.debug("Format '%s' does not support auto detection.",
-                    format_name)
 
         return matches
