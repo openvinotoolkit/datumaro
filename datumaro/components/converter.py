@@ -8,6 +8,8 @@ import logging as log
 import os
 import os.path as osp
 import shutil
+from datumaro.components.annotation import AnnotationType
+import json
 
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.dataset import DatasetPatch
@@ -19,6 +21,7 @@ from datumaro.util.scope import on_error_do, scoped
 
 class Converter(CliPlugin):
     DEFAULT_IMAGE_EXT = None
+    DATASET_META_FILE = 'dataset_meta_file.json'
 
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
@@ -28,6 +31,8 @@ class Converter(CliPlugin):
         parser.add_argument('--image-ext', default=None,
             help="Image extension (default: keep or use format default%s)" % \
                 (' ' + cls.DEFAULT_IMAGE_EXT if cls.DEFAULT_IMAGE_EXT else ''))
+        parser.add_argument('--save-meta-file',
+            help="Save dataset meta file (default: %(default)s)")
 
         return parser
 
@@ -144,3 +149,22 @@ class Converter(CliPlugin):
         if item.point_cloud and osp.isfile(item.point_cloud):
             if item.point_cloud != path:
                 shutil.copyfile(item.point_cloud, path)
+
+    def _save_meta_file(self, path):
+        categories = self._extractor.categories()
+        dataset_meta = {}
+
+        label_map = {}
+        for i, label in enumerate(categories[AnnotationType.label]):
+            label_map[str(i)] = label.name
+        dataset_meta['label_map'] = label_map
+
+        if categories.get(AnnotationType.mask, 0):
+            segmentation_colors = []
+            for color in categories[AnnotationType.mask].colormap:
+                segmentation_colors.append(color)
+
+        meta_file = osp.join(path, self.DATASET_META_FILE)
+
+        with open(meta_file, 'w') as f:
+            json.dump(dataset_meta, f)
