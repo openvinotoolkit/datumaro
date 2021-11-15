@@ -11,6 +11,7 @@ from datumaro.components.annotation import (
     AnnotationType, Cuboid3d, LabelCategories,
 )
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
+from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.util import cast
 from datumaro.util.image import find_images
 
@@ -258,6 +259,23 @@ class KittiRawExtractor(SourceExtractor):
 
 
 class KittiRawImporter(Importer):
+    @classmethod
+    def detect(cls, context: FormatDetectionContext) -> None:
+        annot_file = context.require_file('*.xml')
+
+        with context.probe_text_file(
+            annot_file, "must be a KITTI-like annotation file",
+        ) as f:
+            parser = ET.iterparse(f, events=('start',))
+
+            _, elem = next(parser)
+            if elem.tag != 'boost_serialization':
+                raise Exception
+
+            _, elem = next(parser)
+            if elem.tag != 'tracklets':
+                raise Exception
+
     @classmethod
     def find_sources(cls, path):
         return cls._find_sources_recursive(path, '.xml', 'kitti_raw')

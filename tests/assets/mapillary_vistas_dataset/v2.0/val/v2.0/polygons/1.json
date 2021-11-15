@@ -1,0 +1,1 @@
+{"heigth": 5, "width": 5, "objects": [{"id": 0, "label": "object--vehicle--bicycle", "polygon": [[0, 0, 1, 0, 1, 4, 4, 0, 0, 0]]}, {"id": 1, "label": "construction--barrier--separator", "polygon": [[2, 0, 2, 1, 2, 2, 2, 3, 2, 4]]}, {"id": 2, "label": "object--vehicle--bicycle", "polygon": [[3, 0, 4, 0, 4, 4, 3, 4, 3, 0]]}], "annotation_date": ""}
