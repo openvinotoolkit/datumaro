@@ -11,7 +11,6 @@ from datumaro.components.annotation import (
     AnnotationType, LabelCategories, Mask, MaskCategories,
 )
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
-from datumaro.util import find
 from datumaro.util.image import find_images, load_image
 from datumaro.util.mask_tools import generate_colormap
 
