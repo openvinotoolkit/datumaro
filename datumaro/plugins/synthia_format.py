@@ -20,7 +20,7 @@ class SynthiaPath:
     IMAGES_DIR = 'RGB'
     LABELS_SEGM_DIR = 'GT/LABELS'
 
-SynthiaLabelMap = OrderedDict([
+SYNTHIA_LABEL_MAP = OrderedDict([
     ('Void', (0, 0, 0)),
     ('Sky', (128, 128, 128)),
     ('Building', (128, 0, 0)),
@@ -40,19 +40,7 @@ SynthiaLabelMap = OrderedDict([
 
 def make_categories(label_map=None):
     if label_map is None:
-        label_map = SynthiaLabelMap
-
-    # There must always be a label with color (0, 0, 0) at index 0
-    bg_label = find(label_map.items(), lambda x: x[1] == (0, 0, 0))
-    if bg_label is not None:
-        bg_label = bg_label[0]
-    else:
-        bg_label = 'background'
-        if bg_label not in label_map:
-            has_colors = any(v is not None for v in label_map.values())
-            color = (0, 0, 0) if has_colors else None
-            label_map[bg_label] = color
-    label_map.move_to_end(bg_label, last=False)
+        label_map = SYNTHIA_LABEL_MAP
 
     categories = {}
     label_categories = LabelCategories()
@@ -64,32 +52,28 @@ def make_categories(label_map=None):
     if not has_colors: # generate new colors
         colormap = generate_colormap(len(label_map))
     else: # only copy defined colors
-        label_id = lambda label: label_categories.find(label)[0]
-        colormap = { label_id(name): (desc[0], desc[1], desc[2])
-            for name, desc in label_map.items() }
+        colormap = { label_id: (desc[0], desc[1], desc[2])
+            for label_id, desc in enumerate(label_map.values()) }
     mask_categories = MaskCategories(colormap)
     mask_categories.inverse_colormap # pylint: disable=pointless-statement
     categories[AnnotationType.mask] = mask_categories
     return categories
 
 def parse_label_map(path):
-    if not path:
-        return None
-
     label_map = OrderedDict()
     with open(path, 'r', encoding='utf-8') as f:
         for line in f:
             # skip empty and commented lines
             line = line.strip()
-            if not line or line and line[0] == '#':
+            if not line or line[0] == '#':
                 continue
 
             # color, name
-            label_desc = line.strip().split()
+            label_desc = line.split()
 
             if 2 < len(label_desc):
                 name = label_desc[3]
-                color = tuple([int(c) for c in label_desc[:-1]])
+                color = tuple([int(c) for c in label_desc[:3]])
             else:
                 name = label_desc[0]
                 color = None
@@ -111,17 +95,15 @@ class SynthiaExtractor(SourceExtractor):
         self._items = list(self._load_items(path).values())
 
     def _load_categories(self, path):
-        label_map = None
         label_map_path = osp.join(path, 'labels.txt')
         if osp.isfile(label_map_path):
             label_map = parse_label_map(label_map_path)
         else:
-            label_map = SynthiaLabelMap
-        self._labels = [label for label in label_map]
+            label_map = SYNTHIA_LABEL_MAP
         return make_categories(label_map)
 
     def _load_items(self, root_dir):
-        image_dir = osp.join(root_dir, 'RGB')
+        image_dir = osp.join(root_dir, SynthiaPath.IMAGES_DIR)
         if osp.isdir(image_dir):
             images = {
                 osp.splitext(osp.relpath(p, image_dir))[0].replace('\\', '/'): p

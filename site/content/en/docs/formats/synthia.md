@@ -66,16 +66,15 @@ dataset/
 
 - `RGB` folder containing standard RGB images used for training.
 - `GT/LABELS` folder containing containing PNG files (one per image).
-  Annotations are given in two channels. The first channel contains
-  the class of that pixel. The second channel contains the unique ID
-  of the instance for those objects that are dynamic (cars, pedestrians, etc.).
+  Annotations are given in tree channels. The third channel contains
+  the class of that pixel.
 
 Also present in the original dataset:
 - `GT/COLOR` folder containing png files (one per image).
   Annotations are given using a color representation.
 - `Depth` folder containing unsigned short images. Depth is encoded
   in any of the 3 channels in centimetres as an ushort.
-  But this information can be obtained from the instance segmentation.
+But this information can be obtained from the instance segmentation.
 
 
 ## Export to other formats
