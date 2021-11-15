@@ -11,7 +11,7 @@ The original SYNTHIA dataset is available
 [here](https://synthia-dataset.net).
 
 Supported annotation types:
-- `Masks`
+- `Mask`
 
 ## Import SYNTHIA dataset
 
@@ -64,19 +64,18 @@ dataset/
         └── ...
 ```
 
-- RGB folder containing standard RGB images used for training.
-- GT/LABELS folder containing containing png files (one per image).
-Annotations are given in two channels. The first channel contains
-the class of that pixel (see the table below). The second channel
-contains the unique ID of the instance for those objects
-that are dynamic (cars, pedestrians, etc.).
+- `RGB` folder containing standard RGB images used for training.
+- `GT/LABELS` folder containing containing PNG files (one per image).
+  Annotations are given in two channels. The first channel contains
+  the class of that pixel. The second channel contains the unique ID
+  of the instance for those objects that are dynamic (cars, pedestrians, etc.).
 
 Also present in the original dataset:
-- GT/COLOR folder containing png files (one per image).
-Annotations are given using a color representation.
-- Depth folder containing unsigned short images. Depth is encoded
-in any of the 3 channels in centimetres as an ushort.
-But this information can be obtained from the instance segmentation.
+- `GT/COLOR` folder containing png files (one per image).
+  Annotations are given using a color representation.
+- `Depth` folder containing unsigned short images. Depth is encoded
+  in any of the 3 channels in centimetres as an ushort.
+  But this information can be obtained from the instance segmentation.
 
 
 ## Export to other formats
