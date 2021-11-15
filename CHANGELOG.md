@@ -17,9 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The following formats can now be detected unambiguously:
   `ade20k2017`, `ade20k2020`, `cvat`, `datumaro`, `icdar_text_localization`,
   `icdar_text_segmentation`, `icdar_word_recognition`, `kitti_raw`, `label_me`,
-  `mot_seq`, `yolo`
+  `lfw`, `mot_seq`, `open_images`, `vgg_face2`, `widerface`, `yolo`
   (<https://github.com/openvinotoolkit/datumaro/pull/531>,
-  <https://github.com/openvinotoolkit/datumaro/pull/536>)
+  <https://github.com/openvinotoolkit/datumaro/pull/536>,
+  <https://github.com/openvinotoolkit/datumaro/pull/550>)
 
 ### Deprecated
 - Using `Image`, `ByteImage` from `datumaro.util.image` - these classes
