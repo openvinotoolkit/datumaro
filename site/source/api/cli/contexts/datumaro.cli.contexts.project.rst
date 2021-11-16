@@ -1,4 +1,4 @@
-Project package
+project package
 ===============
 
 diff module
