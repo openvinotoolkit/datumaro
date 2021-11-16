@@ -6,6 +6,35 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## \[Unreleased\]
+### Added
+- Mapillary Vistas dataset format (Import-only)
+  (<https://github.com/openvinotoolkit/datumaro/pull/537>)
+- Datumaro can now be installed on Windows on Python 3.9
+  (<https://github.com/openvinotoolkit/datumaro/pull/547>)
+
+### Changed
+- The following formats can now be detected unambiguously:
+  `ade20k2017`, `ade20k2020`, `cvat`, `datumaro`, `icdar_text_localization`,
+  `icdar_text_segmentation`, `icdar_word_recognition`, `kitti_raw`, `label_me`,
+  `mot_seq`, `yolo`
+  (<https://github.com/openvinotoolkit/datumaro/pull/531>,
+  <https://github.com/openvinotoolkit/datumaro/pull/536>)
+
+### Deprecated
+- Using `Image`, `ByteImage` from `datumaro.util.image` - these classes
+  are moved to `datumaro.components.media`
+  (<https://github.com/openvinotoolkit/datumaro/pull/538>)
+
+### Removed
+- TBD
+
+### Fixed
+- TBD
+
+### Security
+- TBD
+
 ## 16/11/2021 - Release v0.2.1
 ### Added
 - Import for CelebA dataset format.

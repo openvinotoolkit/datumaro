@@ -7,6 +7,7 @@ import numpy as np
 from datumaro.components.annotation import Bbox, Caption, Mask, Polygon
 from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
+from datumaro.components.media import Image
 from datumaro.components.project import Dataset
 from datumaro.plugins.icdar_format.converter import (
     IcdarTextLocalizationConverter, IcdarTextSegmentationConverter,
@@ -16,7 +17,6 @@ from datumaro.plugins.icdar_format.extractor import (
     IcdarTextLocalizationImporter, IcdarTextSegmentationImporter,
     IcdarWordRecognitionImporter,
 )
-from datumaro.util.image import Image
 from datumaro.util.test_utils import (
     TestDir, compare_datasets, test_save_and_load,
 )
@@ -30,7 +30,7 @@ class IcdarImporterTest(TestCase):
     def test_can_detect_word_recognition(self):
         detected_formats = Environment().detect_dataset(
             osp.join(DUMMY_DATASET_DIR, 'word_recognition'))
-        self.assertIn(IcdarWordRecognitionImporter.NAME, detected_formats)
+        self.assertEqual([IcdarWordRecognitionImporter.NAME], detected_formats)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_text_localization(self):
@@ -42,7 +42,7 @@ class IcdarImporterTest(TestCase):
     def test_can_detect_text_segmentation(self):
         detected_formats = Environment().detect_dataset(
             osp.join(DUMMY_DATASET_DIR, 'text_segmentation'))
-        self.assertIn(IcdarTextSegmentationImporter.NAME, detected_formats)
+        self.assertEqual([IcdarTextSegmentationImporter.NAME], detected_formats)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_captions(self):

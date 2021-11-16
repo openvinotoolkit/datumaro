@@ -12,7 +12,7 @@ import shutil
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.dataset import DatasetPatch
 from datumaro.components.extractor import DatasetItem
-from datumaro.util.image import Image
+from datumaro.components.media import Image
 from datumaro.util.os_util import rmtree
 from datumaro.util.scope import on_error_do, scoped
 
