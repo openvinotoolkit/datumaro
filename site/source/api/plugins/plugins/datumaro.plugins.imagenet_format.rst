@@ -1,5 +1,5 @@
-datumaro.plugins.imagenet\_format module
-----------------------------------------
+imagenet\_format module
+-----------------------
 
 .. automodule:: datumaro.plugins.imagenet_format
    :members:

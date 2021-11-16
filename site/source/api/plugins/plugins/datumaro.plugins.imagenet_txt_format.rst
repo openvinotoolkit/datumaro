@@ -1,5 +1,5 @@
-datumaro.plugins.imagenet\_txt\_format module
----------------------------------------------
+imagenet\_txt\_format module
+----------------------------
 
 .. automodule:: datumaro.plugins.imagenet_txt_format
    :members: _LabelsSource
