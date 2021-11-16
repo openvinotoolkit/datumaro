@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
-## 14/10/2021 - Release v0.2
+## 16/11/2021 - Release v0.2.1
 ### Added
 - Import for CelebA dataset format.
   (<https://github.com/openvinotoolkit/datumaro/pull/484>)
@@ -22,7 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/509>)
 - The `icdar_text_localization` format is no longer detected in every directory
   (<https://github.com/openvinotoolkit/datumaro/pull/531>)
-- Update pycocotools version to 2.0.2
+- Updated `pycocotools` version to 2.0.2
   (<https://github.com/openvinotoolkit/datumaro/pull/534>)
 
 ### Deprecated
