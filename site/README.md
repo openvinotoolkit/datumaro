@@ -53,14 +53,6 @@ Install Sphinx ([learn more](https://www.sphinx-doc.org/en/master/index.html)).
 
     pip install -U Sphinx
 
-If you want to add API documentation for third-party modules,
-use the `intersphinx` extension, for proper operation,
-install the required modules.
-Learn more about [`intersphinx`](https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html).
-
-    cd <your local directory>/datumaro/
-    pip install -r requirements.txt
-
 Documentation is generated automatically from `rst` files and comments
 contained in the source code, files located in `site/source/api` using
 [`sphinx-autodoc`](https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html).
@@ -70,14 +62,24 @@ Comments in the source code should be in the format [reST](https://www.sphinx-do
 
     sphinx-build -a -n site/source site/static/api
 
+Sphinx generates documentation in html format in `site/static/api`.
+After generating the documentation API,
+you can [generate a site with documentation](#site-generation).
+
+##### Generation options
+
+If you want to add API documentation for third-party modules,
+use the `intersphinx` extension, for proper operation,
+install the required modules.
+Learn more about [`intersphinx`](https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html).
+
+    cd <your local directory>/datumaro/
+    pip install -r requirements.txt
+
 To describe new modules, you can generate the `rst` files using the
 [`sphinx-apidoc`](https://www.sphinx-doc.org/en/master/man/sphinx-apidoc.html).
 
     sphinx-apidoc -d 1 -o site/source/api datumaro
-
-Sphinx generates documentation in html format in `site/static/api`.
-After generating the documentation API,
-you can generate a site with documentation.
 
 ##### Working with API documentation
 
