@@ -36,7 +36,7 @@ class MotsPngExtractor(SourceExtractor):
     @staticmethod
     def detect_dataset(path):
         if osp.isdir(osp.join(path, MotsPath.MASKS_DIR)):
-            return [{'url': path, 'format': 'mots_png'}]
+            return [{'url': path, 'format': MotsPngExtractor.NAME}]
         return []
 
     def __init__(self, path, subset=None):
@@ -105,6 +105,9 @@ class MotsPngExtractor(SourceExtractor):
 class MotsImporter(Importer):
     @classmethod
     def find_sources(cls, path):
+        if not osp.isdir(path):
+            return []
+
         subsets = MotsPngExtractor.detect_dataset(path)
         if not subsets:
             for p in os.listdir(path):

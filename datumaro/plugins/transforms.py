@@ -226,7 +226,7 @@ class MasksToPolygons(ItemTransform, CliPlugin):
                     log.debug("[%s]: item %s: "
                         "Mask conversion to polygons resulted in too "
                         "small polygons, which were discarded" % \
-                        (self._get_name(__class__), item.id))
+                        (self.NAME, item.id))
                 annotations.extend(polygons)
             else:
                 annotations.append(ann)

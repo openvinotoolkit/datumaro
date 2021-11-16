@@ -1,0 +1,7 @@
+5
+lefteye_x lefteye_y righteye_x righteye_y nose_x nose_y leftmouth_x leftmouth_y rightmouth_x rightmouth_y
+000001.jpg 165  184  244  176  196  249  194  271  266  260
+000002.jpg 140  204  220  204  168  254  146  289  226  289
+000003.jpg 244  104  264  105  263  121  235  134  251  140
+000004.jpg 796  539  984  539  930  687  762  756  915  756
+000005.jpg 273  169  328  161  298  172  283  208  323  207

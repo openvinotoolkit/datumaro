@@ -29,11 +29,14 @@ def remove_plugin_type(s):
         s = s.replace('_' + t, '')
     return s
 
+class _PluginNameDescriptor:
+    def __get__(self, obj, objtype=None):
+        if not objtype:
+            objtype = type(obj)
+        return remove_plugin_type(to_snake_case(objtype.__name__))
+
 class CliPlugin:
-    @staticmethod
-    def _get_name(cls):
-        return getattr(cls, 'NAME',
-            remove_plugin_type(to_snake_case(cls.__name__)))
+    NAME = _PluginNameDescriptor()
 
     @staticmethod
     def _get_doc(cls):
@@ -46,7 +49,7 @@ class CliPlugin:
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
         args = {
-            'prog': cls._get_name(cls),
+            'prog': cls.NAME,
             'description': cls._get_doc(cls),
             'formatter_class': MultilineFormatter,
         }

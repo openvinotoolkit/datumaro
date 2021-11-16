@@ -7,6 +7,7 @@ from datumaro.components.annotation import (
     AnnotationType, Bbox, Label, LabelCategories, Points,
 )
 from datumaro.components.dataset import Dataset
+from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
 from datumaro.plugins.vgg_face2_format import (
     VggFace2Converter, VggFace2Importer,
@@ -187,7 +188,8 @@ DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'vgg_face2_dataset
 class VggFace2ImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect(self):
-        self.assertTrue(VggFace2Importer.detect(DUMMY_DATASET_DIR))
+        detected_formats = Environment().detect_dataset(DUMMY_DATASET_DIR)
+        self.assertIn(VggFace2Importer.NAME, detected_formats)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import(self):

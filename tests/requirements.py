@@ -26,6 +26,7 @@ class Requirements:
     DATUM_280 = "Support KITTI dataset formats"
     DATUM_283 = "Create cli tests for testing convert command for VOC format"
     DATUM_399 = "Implement import for ADE20K dataset"
+    DATUM_475 = "Support import for CelebA dataset"
 
     # GitHub issues (bugs)
     # https://github.com/openvinotoolkit/datumaro/issues

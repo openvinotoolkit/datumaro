@@ -9,6 +9,7 @@ from datumaro.components.annotation import (
     AnnotationType, Bbox, LabelCategories, Mask,
 )
 from datumaro.components.dataset import Dataset
+from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
 from datumaro.util.image import ByteImage, Image, encode_image
 from datumaro.util.test_utils import (
@@ -259,7 +260,8 @@ DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__),
 class TfrecordImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect(self):
-        self.assertTrue(TfDetectionApiImporter.detect(DUMMY_DATASET_DIR))
+        detected_formats = Environment().detect_dataset(DUMMY_DATASET_DIR)
+        self.assertIn(TfDetectionApiImporter.NAME, detected_formats)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import(self):
