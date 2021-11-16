@@ -118,7 +118,7 @@ class FormatDetectionContext:
 
     def _start_requirement(self) -> None:
         assert not self._alternatives_context, \
-            "checks can't be done directly within `alternatives` blocks"
+            "checks can't be done directly within 'alternatives' blocks"
 
     def fail(self, requirement: str) -> NoReturn:
         """
@@ -239,8 +239,8 @@ class FormatDetectionContext:
             # If no alternatives succeeded, and none failed, then there were
             # no alternatives at all.
             assert self._alternatives_context.failed_alternatives, \
-                "an `alternatives` block must contain " \
-                "at least one `alternative` block"
+                "an 'alternatives' block must contain " \
+                "at least one 'alternative' block"
 
             raise FormatRequirementsUnmet(
                 self._alternatives_context.failed_alternatives)
@@ -258,8 +258,8 @@ class FormatDetectionContext:
         """
 
         assert self._alternatives_context, \
-            "An `alternative` block must be directly within " \
-            "an `alternatives` block"
+            "An 'alternative' block must be directly within " \
+            "an 'alternatives' block"
 
         saved_alternatives_context = self._alternatives_context
         self._alternatives_context = None
