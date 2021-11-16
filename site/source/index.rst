@@ -16,32 +16,10 @@ API Documentation Contents
    :maxdepth: 1
    :glob:
 
-   /*
-   /api/setup
-
-.. toctree::
-   :maxdepth: 2
-   :glob:
-
-   /api/datumaro.cli*
-
-.. toctree::
-   :maxdepth: 2
-   :glob:
-
-   /api/datumaro.components
-
-.. toctree::
-   :maxdepth: 2
-   :glob:
-
-   /api/datumaro.plugins
-
-.. toctree::
-   :maxdepth: 2
-   :glob:
-
-   /api/datumaro.util*
+   /api/cli/*
+   /api/components/*
+   /api/plugins/*
+   /api/util/util/util.rst
 
 Navigation
 **********

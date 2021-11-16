@@ -470,21 +470,21 @@ class _ReidentificationSplit(_TaskSpecificSplit):
     In this task, the test set should consist of images of unseen
     people or objects during the training phase. |n
     This function splits a dataset in the following way:|n
-    1. Splits the dataset into 'train + val' and 'test' sets|n
-    |s|sbased on person or object ID.|n
-    2. Splits 'test' set into 'test-gallery' and 'test-query' sets|n
-    |s|sin class-wise manner.|n
-    3. Splits the 'train + val' set into 'train' and 'val' sets|n
-    |s|sin the same way.|n
+    |s|s1. Splits the dataset into 'train + val' and 'test' sets|n
+    |s|s|s|sbased on person or object ID.|n
+    |s|s2. Splits 'test' set into 'test-gallery' and 'test-query' sets|n
+    |s|s|s|sin class-wise manner.|n
+    |s|s3. Splits the 'train + val' set into 'train' and 'val' sets|n
+    |s|s|s|sin the same way.|n
     The final subsets would be
     'train', 'val', 'test-gallery' and 'test-query'. |n
     |n
     Notes:|n
-    - Each image is expected to have a single Label. Unlabeled or multi-labeled
-      images will be split into 'not-supported'.|n
-    - Object ID can be described by Label, or by attribute (--attr parameter)|n
-    - The splits of the test set are controlled by '--query' parameter. |n
-    |s|sGallery ratio would be 1.0 - query.|n
+    |s|s- Each image is expected to have a single Label. Unlabeled or multi-labeled
+    |s|s  images will be split into 'not-supported'.|n
+    |s|s- Object ID can be described by Label, or by attribute (--attr parameter)|n
+    |s|s- The splits of the test set are controlled by '--query' parameter. |n
+    |s|s|s|sGallery ratio would be 1.0 - query.|n
     |n
     Example: split a dataset in the specified ratio, split the test set|n
     |s|s|s|sinto gallery and query in 1:1 ratio|n

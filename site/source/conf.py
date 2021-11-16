@@ -34,10 +34,8 @@ release = '0.2'
 extensions = [
     'sphinx.ext.napoleon', # Support for NumPy and Google style docstrings
     'sphinx.ext.autodoc',  # Core library for html generation from docstrings
-    'sphinx.ext.intersphinx', # Link to other projects documentation
     'sphinx.ext.viewcode', # Find the source files
 ]
-autosummary_generate = True  # Turn on sphinx.ext.autosummary
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates',

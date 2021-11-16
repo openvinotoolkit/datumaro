@@ -98,7 +98,7 @@ After the directive you can specify the members that should be displayed.
 If can used `|n` and `|s` in the source code comments they will
 be replaced by `\n` and space accordingly.
 
-Participants starting with `_` do not have comments are not displayed.
+Members starting with `_` do not have comments are not displayed.
 
 #### Site generation
 
