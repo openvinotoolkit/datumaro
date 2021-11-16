@@ -1,4 +1,3 @@
-Cython>=0.27.3 # include before pycocotools
 -r requirements-core.txt --no-binary=pycocotools # https://github.com/openvinotoolkit/datumaro/issues/253
 -r requirements-default.txt
 
