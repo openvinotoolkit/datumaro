@@ -1,7 +1,7 @@
-config module
--------------
+config_model module
+-------------------
 
-.. automodule:: datumaro.components.config
+.. automodule:: datumaro.components.config_model
    :members:
    :private-members:
    :special-members:

@@ -1,4 +1,4 @@
-import\_ module
+import module
 ---------------
 
 .. automodule:: datumaro.cli.commands.import_
