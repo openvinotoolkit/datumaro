@@ -132,12 +132,12 @@ class FormatDetectionTest(TestCase):
             ('abcde',))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_alternatives_success(self):
+    def test_require_any_success(self):
         alternatives_executed = set()
 
         def detect(context):
             nonlocal alternatives_executed
-            with context.alternatives():
+            with context.require_any():
                 with context.alternative():
                     alternatives_executed.add(1)
                     context.fail('bad alternative 1')
@@ -154,9 +154,9 @@ class FormatDetectionTest(TestCase):
         self.assertEqual(alternatives_executed, {1, 2, 3})
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_alternatives_failure(self):
+    def test_require_any_failure(self):
         def detect(context):
-            with context.alternatives():
+            with context.require_any():
                 with context.alternative():
                     context.fail('bad alternative 1')
                 with context.alternative():

@@ -161,7 +161,7 @@ class VggFace2Extractor(Extractor):
 class VggFace2Importer(Importer):
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> None:
-        with context.alternatives():
+        with context.require_any():
             for prefix in (
                 VggFace2Path.BBOXES_FILE, VggFace2Path.LANDMARKS_FILE
             ):

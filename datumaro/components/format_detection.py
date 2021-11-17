@@ -70,7 +70,7 @@ class FormatDetectionContext:
     met, the return value depends on the method.
     """
 
-    class _AlternativesContext:
+    class _OneOrMoreContext:
         failed_alternatives: List[str]
         had_successful_alternatives: bool
 
@@ -78,13 +78,13 @@ class FormatDetectionContext:
             self.failed_alternatives = []
             self.had_successful_alternatives = False
 
-    # This points to an _AlternativesContext when and only when the detector
-    # is directly within an `alternatives` block.
-    _alternatives_context: Optional[_AlternativesContext]
+    # This points to a `_OneOrMoreContext` when and only when the detector
+    # is directly within a `require_any` block.
+    _one_or_more_context: Optional[_OneOrMoreContext]
 
     def __init__(self, root_path: str) -> None:
         self._root_path = root_path
-        self._alternatives_context = None
+        self._one_or_more_context = None
 
     @property
     def root_path(self) -> str:
@@ -117,9 +117,9 @@ class FormatDetectionContext:
         return True
 
     def _start_requirement(self, req_type: str) -> None:
-        assert not self._alternatives_context, \
+        assert not self._one_or_more_context, \
             f"a requirement ({req_type}) can't be placed directly within " \
-            "an 'alternatives' block"
+            "a 'require_any' block"
 
     def fail(self, requirement: str) -> NoReturn:
         """
@@ -202,7 +202,7 @@ class FormatDetectionContext:
             self.fail(requirement_desc_full)
 
     @contextlib.contextmanager
-    def alternatives(self) -> Iterator[None]:
+    def require_any(self) -> Iterator[None]:
         """
         Returns a context manager that can be used to place a requirement that
         is considered met if at least one of several alternative sets of
@@ -211,7 +211,7 @@ class FormatDetectionContext:
         requirements represented as nested `with` statements using the context
         manager returned by `alternative`:
 
-            with context.alternatives():
+            with context.require_any():
                 with context.alternative():
                     # place requirements from alternative set 1 here
                 with context.alternative():
@@ -222,58 +222,58 @@ class FormatDetectionContext:
         executed, even if an alternative that is met is found early.
 
         Requirements must not be placed directly within a
-        `with context.alternatives()` block.
+        `with context.require_any()` block.
         """
 
-        self._start_requirement("alternatives")
+        self._start_requirement("require_any")
 
-        self._alternatives_context = self._AlternativesContext()
+        self._one_or_more_context = self._OneOrMoreContext()
 
         try:
             yield
 
             # If at least one `alternative` block succeeded,
-            # then the `alternatives` block succeeds.
-            if self._alternatives_context.had_successful_alternatives:
+            # then the `require_any` block succeeds.
+            if self._one_or_more_context.had_successful_alternatives:
                 return
 
             # If no alternatives succeeded, and none failed, then there were
             # no alternatives at all.
-            assert self._alternatives_context.failed_alternatives, \
-                "an 'alternatives' block must contain " \
+            assert self._one_or_more_context.failed_alternatives, \
+                "a 'require_any' block must contain " \
                 "at least one 'alternative' block"
 
             raise FormatRequirementsUnmet(
-                self._alternatives_context.failed_alternatives)
+                self._one_or_more_context.failed_alternatives)
         finally:
-            self._alternatives_context = None
+            self._one_or_more_context = None
 
     @contextlib.contextmanager
     def alternative(self) -> Iterator[None]:
         """
         Returns a context manager that can be used in combination with
-        `alternatives` to define alternative requirements. See the documentation
-        for `alternatives` for more details.
+        `require_any` to define alternative requirements. See the
+        documentation for `require_any` for more details.
 
         Must only be used directly within a `with context.requirements()` block.
         """
 
-        assert self._alternatives_context, \
+        assert self._one_or_more_context, \
             "An 'alternative' block must be directly within " \
-            "an 'alternatives' block"
+            "a 'require_any' block"
 
-        saved_alternatives_context = self._alternatives_context
-        self._alternatives_context = None
+        saved_one_or_more_context = self._one_or_more_context
+        self._one_or_more_context = None
 
         try:
             yield
         except FormatRequirementsUnmet as e:
-            saved_alternatives_context.failed_alternatives.extend(
+            saved_one_or_more_context.failed_alternatives.extend(
                 e.failed_alternatives)
         else:
-            saved_alternatives_context.had_successful_alternatives = True
+            saved_one_or_more_context.had_successful_alternatives = True
         finally:
-            self._alternatives_context = saved_alternatives_context
+            self._one_or_more_context = saved_one_or_more_context
 
 
 FormatDetector = Callable[

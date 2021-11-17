@@ -563,7 +563,7 @@ class OpenImagesImporter(Importer):
 
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> None:
-        with context.alternatives():
+        with context.require_any():
             for pattern in cls.POSSIBLE_ANNOTATION_PATTERNS:
                 with context.alternative():
                     context.require_file(
