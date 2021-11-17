@@ -270,6 +270,8 @@ class _VideoFrameIterator(Iterator[VideoFrame]):
                     v = self.__next__()
             except StopIteration as e:
                 raise IndexError() from e
+        else:
+            v = VideoFrame(video=self, index=self._pos)
 
         return v
 
@@ -329,7 +331,7 @@ class Video(MediaElement, Iterable[VideoFrame]):
                 yield VideoFrame(video=self, index=index)
         else:
             # Need to decode to iterate over frames
-            return iter(self._get_iterator())
+            yield from self._get_iterator()
 
     @property
     def frame_count(self) -> Optional[int]:
@@ -339,7 +341,7 @@ class Video(MediaElement, Iterable[VideoFrame]):
 
         The count is affected by the frame filtering options of the object.
         """
-        return self._length
+        return self._get_length()
 
     @property
     def frame_size(self) -> Tuple[int, int]:
