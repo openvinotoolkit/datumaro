@@ -8,7 +8,7 @@ import os.path as osp
 from datumaro.components.annotation import AnnotationType, CompiledMask
 from datumaro.components.converter import Converter
 from datumaro.util.image import save_image
-from datumaro.util.mask_tools import paint_mask
+from datumaro.util.mask_tools import paint_mask, generate_colormap
 
 from .format import IcdarPath
 
@@ -82,10 +82,11 @@ class IcdarTextSegmentationConverter(Converter):
         annotation = ''
         colormap = [(255, 255, 255)]
         anns = [a for a in item.annotations if a.type == AnnotationType.mask]
+        gen_colormap = generate_colormap(len(anns), False)
         if anns:
             anns = sorted(anns, key=lambda a: int(a.attributes.get('index', 0)))
             group = anns[0].group
-            for ann in anns:
+            for i, ann in enumerate(anns):
                 if ann.group != group or (not ann.group and anns[0].group != 0):
                     annotation += '\n'
                 text = ''
@@ -94,15 +95,11 @@ class IcdarTextSegmentationConverter(Converter):
                         text = ann.attributes['text']
                     if text == ' ':
                         annotation += '#'
-                    if 'color' in ann.attributes and \
-                            len(ann.attributes['color'].split()) == 3:
-                        color = ann.attributes['color'].split()
-                        colormap.append(
-                            (int(color[0]), int(color[1]), int(color[2])))
-                        annotation += ' '.join(p for p in color)
-                    else:
-                        raise Exception("Item %s: a mask must have "
-                            "an RGB color attribute, e.g. '10 7 50'" % item.id)
+                    color = ann.attributes.get('color', '').split()
+                    color = tuple(map(int, color)) if len(color) == 3 \
+                        else gen_colormap.pop(i)
+                    colormap.append(color)
+                    annotation += ' '.join(str(p) for p in color)
                     if 'center' in ann.attributes:
                         annotation += ' %s' % ann.attributes['center']
                     else:
