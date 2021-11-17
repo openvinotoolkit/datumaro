@@ -467,7 +467,11 @@ class DatasetStorage(IDataset):
     def __len__(self) -> int:
         if self._length is None:
             if self._is_unchanged_wrapper and \
-                    is_method_redefined('__len__', SourceExtractor, self._source):
+                    is_method_redefined('__len__', Extractor, self._source):
+                # Allow to use optimized versions of __len__() if source
+                # has them. The default implementation just iterates over
+                # the items, so using it won't give any benefits comparing
+                # to initializing the cache.
                 self._length = len(self._source)
             else:
                 self.init_cache()
