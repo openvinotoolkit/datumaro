@@ -5,7 +5,9 @@ import cv2
 import numpy as np
 import pytest
 
-from datumaro.components.media import Video
+from datumaro.components.dataset import Dataset
+from datumaro.components.environment import Environment
+from datumaro.components.media import Video, VideoFrame
 from datumaro.util.scope import on_exit_do, scoped
 from datumaro.util.test_utils import TestDir
 
@@ -111,3 +113,40 @@ class VideoTest:
             assert idx == frame.index
 
         assert 4 == video.frame_count
+
+class VideoFramesExtractorTest:
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_load(self, fxt_sample_video):
+        dataset = Dataset.import_from(fxt_sample_video, 'video_frames')
+
+        assert 4 == len(dataset)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_load_with_custom_frame_names(self, fxt_sample_video):
+        dataset = Dataset.import_from(fxt_sample_video, 'video_frames',
+            name_pattern='custom_name-%03d')
+
+        for idx, item in enumerate(dataset):
+            assert item.id == 'custom_name-%03d' % idx
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_load_with_custom_subset(self, fxt_sample_video):
+        dataset = Dataset.import_from(fxt_sample_video, 'video_frames',
+            subset='custom')
+
+        for item in dataset:
+            assert item.subset == 'custom'
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_provide_frame_data(self, fxt_sample_video):
+        dataset = Dataset.import_from(fxt_sample_video, 'video_frames')
+
+        for item in dataset:
+            assert isinstance(item.image, VideoFrame)
+            video = item.image.video
+            assert item.image == np.ones((*video.frame_size, 3)) * 255
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_detect(self, fxt_sample_video):
+        assert 'video_frames' in Environment().detect_dataset(
+            osp.dirname(fxt_sample_video))

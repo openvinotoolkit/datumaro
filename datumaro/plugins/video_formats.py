@@ -8,8 +8,20 @@ import os.path as osp
 from datumaro.components.extractor import (
     DEFAULT_SUBSET_NAME, DatasetItem, Extractor, Importer,
 )
+from datumaro.components.format_detection import (
+    FormatDetectionConfidence, FormatDetectionContext,
+)
 from datumaro.components.media import Video
+from datumaro.util.os_util import find_files
 
+# Taken from https://en.wikipedia.org/wiki/Comparison_of_video_container_formats
+# An extension does not define file contents, but it can be a good file filter
+VIDEO_EXTENSIONS = [
+    '3gp', '3g2', 'asf', 'wmv', 'avi', 'divx',
+    'evo', 'f4v', 'flv', 'mkv', 'mk3d', 'mp4', 'mpg', 'mpeg',
+    'm2p', 'ps', 'ts', 'm2ts', 'mxf', 'ogg', 'ogv', 'ogx',
+    'mov', 'qt', 'rmvb', 'vob', 'webm'
+]
 
 class VideoFramesImporter(Importer):
     @classmethod
@@ -23,10 +35,21 @@ class VideoFramesImporter(Importer):
         return parser
 
     @classmethod
+    def detect(cls, context: FormatDetectionContext) -> None:
+        try:
+            next(find_files(context.root_path, VIDEO_EXTENSIONS,
+                recursive=True))
+            return FormatDetectionConfidence.LOW
+        except StopIteration:
+            context.fail("No video files found in '%s'. "
+                "Checked extensions: %s" %
+                (context.root_path, ', '.join(VIDEO_EXTENSIONS)))
+
+    @classmethod
     def find_sources(cls, path):
         if not osp.isfile(path):
             return []
-        return [{ 'url': path, 'format': 'video_frames' }]
+        return [{ 'url': path, 'format': VideoFramesExtractor.NAME }]
 
 class VideoFramesExtractor(Extractor):
     def __init__(self, url: str, *,
@@ -46,7 +69,7 @@ class VideoFramesExtractor(Extractor):
     def __iter__(self):
         for frame in self._reader:
             yield DatasetItem(id=self._name_pattern % frame.index,
-                subset=self._subset, media=frame)
+                subset=self._subset, image=frame)
 
     def get(self, id, subset=None):
         assert subset == self._subset, '%s != %s' % (subset, self._subset)
