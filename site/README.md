@@ -132,9 +132,9 @@ Then you can build a website in the "public" folder:
 
 [Read more](https://www.docsy.dev/docs/getting-started/)
 
-### Update the submodules
+### Update the submodule of the docsy theme
 
-To update the submodules you need to have a repository clone.
+To update the submodule of the docsy theme you need to have a repository clone.
 While in the repository folder,
 use the git command:
 
