@@ -142,9 +142,8 @@ class VideoFramesExtractorTest:
         dataset = Dataset.import_from(fxt_sample_video, 'video_frames')
 
         for item in dataset:
-            assert isinstance(item.image, VideoFrame)
-            video = item.image.video
-            assert item.image == np.ones((*video.frame_size, 3)) * 255
+            video = item.media_as(VideoFrame).video
+            assert item.media == np.ones((*video.frame_size, 3)) * 255
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect(self, fxt_sample_video):
