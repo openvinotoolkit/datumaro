@@ -116,16 +116,17 @@ class FormatDetectionContext:
 
         return True
 
-    def _start_requirement(self) -> None:
+    def _start_requirement(self, req_type: str) -> None:
         assert not self._alternatives_context, \
-            "checks can't be done directly within 'alternatives' blocks"
+            f"a requirement ({req_type}) can't be placed directly within " \
+            "an 'alternatives' block"
 
     def fail(self, requirement: str) -> NoReturn:
         """
         Places a requirement that is never met. `requirement` must contain
         a human-readable description of the requirement.
         """
-        self._start_requirement()
+        self._start_requirement("fail")
 
         raise FormatRequirementsUnmet((requirement,))
 
@@ -142,7 +143,7 @@ class FormatDetectionContext:
         unspecified which one of them is returned.
         """
 
-        self._start_requirement()
+        self._start_requirement("require_file")
 
         requirement_desc = \
             f"dataset must contain a file matching pattern \"{pattern}\""
@@ -185,7 +186,7 @@ class FormatDetectionContext:
         requirement.
         """
 
-        self._start_requirement()
+        self._start_requirement("probe_text_file")
 
         requirement_desc_full = f"{path}: {requirement_desc}"
 
@@ -224,7 +225,7 @@ class FormatDetectionContext:
         `with context.alternatives()` block.
         """
 
-        self._start_requirement()
+        self._start_requirement("alternatives")
 
         self._alternatives_context = self._AlternativesContext()
 
