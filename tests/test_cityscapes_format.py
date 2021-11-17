@@ -16,6 +16,7 @@ from datumaro.plugins.cityscapes_format import (
     CityscapesConverter, CityscapesImporter,
 )
 from datumaro.util.image import Image
+from datumaro.util.meta_file_util import parse_meta_file, save_meta_by_label_map
 from datumaro.util.test_utils import (
     IGNORE_ALL, TestDir, compare_datasets, test_save_and_load,
 )
@@ -32,10 +33,8 @@ class CityscapesFormatTest(TestCase):
         src_label_map = Cityscapes.CityscapesLabelMap
 
         with TestDir() as test_dir:
-            file_path = osp.join(test_dir, 'label_colors.txt')
-
-            Cityscapes.write_label_map(file_path, src_label_map)
-            dst_label_map = Cityscapes.parse_label_map(file_path)
+            save_meta_by_label_map(test_dir, src_label_map)
+            dst_label_map = parse_meta_file(test_dir)
 
             self.assertEqual(src_label_map, dst_label_map)
 
@@ -257,9 +256,9 @@ class CityscapesConverterTest(TestCase):
 
             def categories(self):
                 label_map = OrderedDict()
-                label_map['background'] = None
-                label_map['a'] = None
-                label_map['b'] = None
+                label_map['background'] = [None, [], []]
+                label_map['a'] = [None, [], []]
+                label_map['b'] = [None, [], []]
                 return Cityscapes.make_cityscapes_categories(label_map)
 
         with TestDir() as test_dir:
@@ -280,9 +279,9 @@ class CityscapesConverterTest(TestCase):
 
             def categories(self):
                 label_map = OrderedDict()
-                label_map['background'] = (0, 0, 0)
-                label_map['label_1'] = (1, 2, 3)
-                label_map['label_2'] = (3, 2, 1)
+                label_map['background'] = [(0, 0, 0), [], []]
+                label_map['label_1'] = [(1, 2, 3), [], []]
+                label_map['label_2'] = [(3, 2, 1), [], []]
                 return Cityscapes.make_cityscapes_categories(label_map)
 
         class DstExtractor(TestExtractorBase):
@@ -298,9 +297,9 @@ class CityscapesConverterTest(TestCase):
 
             def categories(self):
                 label_map = OrderedDict()
-                label_map['background'] = (0, 0, 0)
-                label_map['label_1'] = (1, 2, 3)
-                label_map['label_2'] = (3, 2, 1)
+                label_map['background'] = [(0, 0, 0), [], []]
+                label_map['label_1'] = [(1, 2, 3), [], []]
+                label_map['label_2'] = [(3, 2, 1), [], []]
                 return Cityscapes.make_cityscapes_categories(label_map)
 
         with TestDir() as test_dir:
@@ -329,8 +328,8 @@ class CityscapesConverterTest(TestCase):
 
             def categories(self):
                 label_map = OrderedDict()
-                label_map['a'] = None
-                label_map['b'] = None
+                label_map['a'] = [None, [], []]
+                label_map['b'] = [None, [], []]
                 return Cityscapes.make_cityscapes_categories(label_map)
 
         with TestDir() as test_dir:
@@ -354,8 +353,8 @@ class CityscapesConverterTest(TestCase):
                     Mask(np.ones((2, 2)), label=1, id=1)
                 ]),
         ], categories=Cityscapes.make_cityscapes_categories(OrderedDict([
-            ('a', src_mask_cat.colormap[0]),
-            ('b', src_mask_cat.colormap[1]),
+            ('a', (src_mask_cat.colormap[0], [], [])),
+            ('b', (src_mask_cat.colormap[1], [], [])),
         ])))
 
         with TestDir() as path:

@@ -14,6 +14,7 @@ from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.converter import Converter
 from datumaro.components.errors import DatasetImportError
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
+from datumaro.util.meta_file_util import is_meta_file, parse_meta_file
 
 
 class ImagenetTxtPath:
@@ -37,9 +38,10 @@ class ImagenetTxtExtractor(SourceExtractor):
             subset = osp.splitext(osp.basename(path))[0]
         super().__init__(subset=subset)
 
+        root_dir = osp.dirname(path)
         if not image_dir:
             image_dir = ImagenetTxtPath.IMAGE_DIR
-        self.image_dir = osp.join(osp.dirname(path), image_dir)
+        self.image_dir = osp.join(root_dir, image_dir)
 
         self._generate_labels = False
 
@@ -50,8 +52,11 @@ class ImagenetTxtExtractor(SourceExtractor):
                 labels = ()
                 self._generate_labels = True
             elif labels_source == _LabelsSource.file:
-                labels = self._parse_labels(
-                    osp.join(osp.dirname(path), labels_file))
+                if is_meta_file(root_dir):
+                    labels = list(parse_meta_file(root_dir).keys())
+                else:
+                    labels = self._parse_labels(
+                        osp.join(root_dir, labels_file))
             else:
                 assert False, "Unhandled labels source %s" % labels_source
         else:
@@ -177,9 +182,4 @@ class ImagenetTxtConverter(Converter):
             with open(annotation_file, 'w', encoding='utf-8') as f:
                 f.write(annotation)
 
-        labels_file = osp.join(subset_dir, ImagenetTxtPath.LABELS_FILE)
-        with open(labels_file, 'w', encoding='utf-8') as f:
-            f.writelines(l.name + '\n'
-                for l in extractor.categories().get(
-                    AnnotationType.label, LabelCategories())
-            )
+        self._save_meta(subset_dir)

@@ -22,10 +22,10 @@ from datumaro.util import find, str_to_bool
 from datumaro.util.annotation_util import make_label_id_mapping
 from datumaro.util.image import save_image
 from datumaro.util.mask_tools import paint_mask, remap_mask
+from datumaro.util.meta_file_util import parse_meta_file, save_meta_by_label_map
 
 from .format import (
     VocInstColormap, VocPath, VocTask, make_voc_categories, make_voc_label_map,
-    parse_label_map, write_label_map,
 )
 
 
@@ -125,7 +125,7 @@ class VocConverter(Converter):
     def apply(self):
         self.make_dirs()
         self.save_subsets()
-        self.save_label_map()
+        save_meta_by_label_map(self._save_dir, self._label_map)
 
     def make_dirs(self):
         save_dir = self._save_dir
@@ -529,10 +529,6 @@ class VocConverter(Converter):
             mask = paint_mask(mask, colormap)
         save_image(path, mask, create_dir=True)
 
-    def save_label_map(self):
-        path = osp.join(self._save_dir, VocPath.LABELMAP_FILE)
-        write_label_map(path, self._label_map)
-
     def _load_categories(self, label_map_source):
         if label_map_source == LabelmapType.voc.name:
             # use the default VOC colormap
@@ -562,7 +558,7 @@ class VocConverter(Converter):
                 sorted(label_map_source.items(), key=lambda e: e[0]))
 
         elif isinstance(label_map_source, str) and osp.isfile(label_map_source):
-            label_map = parse_label_map(label_map_source)
+            label_map = parse_meta_file(label_map_source)
 
         else:
             raise Exception("Wrong labelmap specified: '%s', "

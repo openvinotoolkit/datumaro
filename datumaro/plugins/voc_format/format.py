@@ -116,61 +116,6 @@ def make_voc_label_map():
     label_map[VocLabel.person.name][2] = [a.name for a in VocAction]
     return label_map
 
-def parse_label_map(path):
-    if not path:
-        return None
-
-    label_map = OrderedDict()
-    with open(path, 'r', encoding='utf-8') as f:
-        for line in f:
-            # skip empty and commented lines
-            line = line.strip()
-            if not line or line and line[0] == '#':
-                continue
-
-            # name, color, parts, actions
-            label_desc = line.strip().split(':')
-            name = label_desc[0]
-
-            if name in label_map:
-                raise ValueError("Label '%s' is already defined" % name)
-
-            if 1 < len(label_desc) and len(label_desc[1]) != 0:
-                color = label_desc[1].split(',')
-                assert len(color) == 3, \
-                    "Label '%s' has wrong color, expected 'r,g,b', got '%s'" % \
-                    (name, color)
-                color = tuple([int(c) for c in color])
-            else:
-                color = None
-
-            if 2 < len(label_desc) and len(label_desc[2]) != 0:
-                parts = label_desc[2].split(',')
-            else:
-                parts = []
-
-            if 3 < len(label_desc) and len(label_desc[3]) != 0:
-                actions = label_desc[3].split(',')
-            else:
-                actions = []
-
-            label_map[name] = [color, parts, actions]
-    return label_map
-
-def write_label_map(path, label_map):
-    with open(path, 'w', encoding='utf-8') as f:
-        f.write('# label:color_rgb:parts:actions\n')
-        for label_name, label_desc in label_map.items():
-            if label_desc[0]:
-                color_rgb = ','.join(str(c) for c in label_desc[0])
-            else:
-                color_rgb = ''
-
-            parts = ','.join(str(p) for p in label_desc[1])
-            actions = ','.join(str(a) for a in label_desc[2])
-
-            f.write('%s\n' % ':'.join([label_name, color_rgb, parts, actions]))
-
 def make_voc_categories(label_map=None):
     if label_map is None:
         label_map = make_voc_label_map()

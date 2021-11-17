@@ -4,16 +4,17 @@
 
 from tempfile import mkdtemp
 from typing import Union
+import json
 import logging as log
 import os
 import os.path as osp
 import shutil
-from datumaro.components.annotation import AnnotationType
-import json
 
+from datumaro.components.annotation import AnnotationType
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.dataset import DatasetPatch
 from datumaro.components.extractor import DatasetItem
+from datumaro.util import find
 from datumaro.util.image import Image
 from datumaro.util.os_util import rmtree
 from datumaro.util.scope import on_error_do, scoped
@@ -21,7 +22,7 @@ from datumaro.util.scope import on_error_do, scoped
 
 class Converter(CliPlugin):
     DEFAULT_IMAGE_EXT = None
-    DATASET_META_FILE = 'dataset_meta_file.json'
+    DATASET_META_FILE = 'dataset_meta.json'
 
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
@@ -31,8 +32,6 @@ class Converter(CliPlugin):
         parser.add_argument('--image-ext', default=None,
             help="Image extension (default: keep or use format default%s)" % \
                 (' ' + cls.DEFAULT_IMAGE_EXT if cls.DEFAULT_IMAGE_EXT else ''))
-        parser.add_argument('--save-meta-file',
-            help="Save dataset meta file (default: %(default)s)")
 
         return parser
 
@@ -150,9 +149,10 @@ class Converter(CliPlugin):
             if item.point_cloud != path:
                 shutil.copyfile(item.point_cloud, path)
 
-    def _save_meta_file(self, path):
-        categories = self._extractor.categories()
+    def _save_meta(self, path):
         dataset_meta = {}
+
+        categories = self._extractor.categories()
 
         label_map = {}
         for i, label in enumerate(categories[AnnotationType.label]):
@@ -160,9 +160,15 @@ class Converter(CliPlugin):
         dataset_meta['label_map'] = label_map
 
         if categories.get(AnnotationType.mask, 0):
+            bg_label = find(categories[AnnotationType.mask].colormap.items(),
+                lambda x: x[1] == (0, 0, 0))
+            if bg_label is not None:
+                dataset_meta['background_label'] = str(bg_label[0])
+
             segmentation_colors = []
-            for color in categories[AnnotationType.mask].colormap:
-                segmentation_colors.append(color)
+            for color in categories[AnnotationType.mask].colormap.values():
+                segmentation_colors.append([int(color[0]), int(color[1]), int(color[2])])
+            dataset_meta['segmentation_colors'] = segmentation_colors
 
         meta_file = osp.join(path, self.DATASET_META_FILE)
 

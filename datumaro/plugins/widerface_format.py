@@ -12,6 +12,7 @@ from datumaro.components.annotation import (
 from datumaro.components.converter import Converter
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.util import str_to_bool
+from datumaro.util.meta_file_util import is_meta_file, parse_meta_file
 
 
 class WiderFacePath:
@@ -19,7 +20,6 @@ class WiderFacePath:
     ANNOTATIONS_DIR = 'wider_face_split'
     IMAGES_DIR = 'images'
     SUBSET_DIR = 'WIDER_'
-    LABELS_FILE = 'labels.txt'
     IMAGES_DIR_NO_LABEL = 'no_label'
     BBOX_ATTRIBUTES = ['blur', 'expression', 'illumination',
         'occluded', 'pose', 'invalid']
@@ -43,11 +43,10 @@ class WiderFaceExtractor(SourceExtractor):
 
     def _load_categories(self):
         label_cat = LabelCategories()
-        path = osp.join(self._dataset_dir, WiderFacePath.LABELS_FILE)
-        if osp.isfile(path):
-            with open(path, encoding='utf-8') as labels_file:
-                for line in labels_file:
-                    label_cat.add(line.strip())
+        if is_meta_file(self._dataset_dir):
+            labels = parse_meta_file(self._dataset_dir).keys()
+            for label in labels:
+                label_cat.add(label)
         else:
             label_cat.add(WiderFacePath.DEFAULT_LABEL)
             subset_path = osp.join(self._dataset_dir,
@@ -150,11 +149,9 @@ class WiderFaceConverter(Converter):
         save_dir = self._save_dir
         os.makedirs(save_dir, exist_ok=True)
 
-        label_categories = self._extractor.categories()[AnnotationType.label]
+        self._save_meta(save_dir)
 
-        labels_path = osp.join(save_dir, WiderFacePath.LABELS_FILE)
-        with open(labels_path, 'w', encoding='utf-8') as f:
-            f.write('\n'.join(label.name for label in label_categories))
+        label_categories = self._extractor.categories()[AnnotationType.label]
 
         for subset_name, subset in self._extractor.subsets().items():
             subset_dir = osp.join(save_dir,

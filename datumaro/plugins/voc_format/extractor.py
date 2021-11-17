@@ -14,10 +14,9 @@ from datumaro.components.annotation import (
 from datumaro.components.extractor import DatasetItem, SourceExtractor
 from datumaro.util.image import Image, find_images
 from datumaro.util.mask_tools import invert_colormap, lazy_mask
+from datumaro.util.meta_file_util import is_meta_file, parse_meta_file
 
-from .format import (
-    VocInstColormap, VocPath, VocTask, make_voc_categories, parse_label_map,
-)
+from .format import VocInstColormap, VocPath, VocTask, make_voc_categories
 
 _inverse_inst_colormap = invert_colormap(VocInstColormap)
 
@@ -47,12 +46,11 @@ class _VocExtractor(SourceExtractor):
         assert label_id is not None, label
         return label_id
 
-    @staticmethod
-    def _load_categories(dataset_path):
+    def _load_categories(self, dataset_path):
         label_map = None
-        label_map_path = osp.join(dataset_path, VocPath.LABELMAP_FILE)
-        if osp.isfile(label_map_path):
-            label_map = parse_label_map(label_map_path)
+        if (is_meta_file(dataset_path)):
+            label_map = parse_meta_file(dataset_path)
+
         return make_voc_categories(label_map)
 
     def _load_subset_list(self, subset_path):
