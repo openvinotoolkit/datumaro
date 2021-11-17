@@ -52,6 +52,7 @@ The `Read the Docs` theme is added as a submodule.
 Install Sphinx ([learn more](https://www.sphinx-doc.org/en/master/index.html)).
 
     pip install -U Sphinx
+    pip install sphinx-rtd-theme==1.0.0
 
 Documentation is generated automatically from `rst` files and comments
 contained in the source code, files located in `site/source/api` using
@@ -79,7 +80,7 @@ Learn more about [`intersphinx`](https://www.sphinx-doc.org/en/master/usage/exte
 To describe new modules, you can generate the `rst` files using the
 [`sphinx-apidoc`](https://www.sphinx-doc.org/en/master/man/sphinx-apidoc.html).
 
-    sphinx-apidoc -d 1 -o site/source/api datumaro
+    sphinx-apidoc -d 2 -o site/source/api datumaro
 
 ##### Working with API documentation
 
@@ -138,14 +139,6 @@ While in the repository folder,
 use the git command:
 
     git submodule update --remote
-
-To update a specific submodule, for example `docsy` use:
-
-    git submodule update --remote site/themes/docsy
-
-and for update submodule `Read the Docs` use:
-
-    git submodule update --remote site/source/_themes
 
 Add and then commit the change to project:
 
