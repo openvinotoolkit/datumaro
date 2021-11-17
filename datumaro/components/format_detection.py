@@ -3,7 +3,8 @@
 # SPDX-License-Identifier: MIT
 
 from enum import IntEnum
-from typing import Callable, Optional, Sequence
+from typing import Callable, Iterator, Optional, Sequence, TextIO
+import contextlib
 import glob
 import os.path as osp
 
@@ -84,6 +85,27 @@ class FormatDetectionContext:
         """
         return self._root_path
 
+    def _is_path_within_root(self, path: str) -> bool:
+        """
+        Checks that `path` is a relative path and does not attempt to leave
+        the dataset root by using `..` segments.
+
+        Requirement-placing methods that use this to verify their arguments
+        should raise a FormatRequirementsUnmet rather than a "hard" error like
+        AssertionError if False is returned. The reason is that the path passed
+        by the detector might not have been hardcoded, and instead might have
+        been acquired from another file in the dataset. In that case, an invalid
+        pattern signifies a problem with the dataset, not with the detector.
+        """
+        if osp.isabs(path) or osp.splitdrive(path)[0]:
+            return False
+
+        path = osp.normpath(path)
+        if path.startswith('..' + osp.sep):
+            return False
+
+        return True
+
     def fail(self, requirement: str) -> NoReturn:
         """
         Places a requirement that is never met. `requirement` must contain
@@ -104,26 +126,60 @@ class FormatDetectionContext:
         unspecified which one of them is returned.
         """
 
-        requirement_str = \
+        requirement_desc = \
             f"dataset must contain a file matching pattern \"{pattern}\""
 
-        # These pattern checks raise a FormatRequirementsUnmet rather than an
-        # AssertionError, because the detector might have gotten the pattern
-        # from another file in the dataset. In that case, an invalid pattern
-        # signifies a problem with the dataset, rather than with the detector.
-        if osp.isabs(pattern) or osp.splitdrive(pattern)[0]:
-            self.fail(requirement_str)
-
-        pattern = osp.normpath(pattern)
-        if pattern.startswith('..' + osp.sep):
-            self.fail(requirement_str)
+        if not self._is_path_within_root(pattern):
+            self.fail(requirement_desc)
 
         pattern_abs = osp.join(glob.escape(self._root_path), pattern)
         for path in glob.iglob(pattern_abs, recursive=True):
             if osp.isfile(path):
                 return osp.relpath(path, self._root_path)
 
-        self.fail(requirement_str)
+        self.fail(requirement_desc)
+
+    @contextlib.contextmanager
+    def probe_text_file(
+        self, path: str, requirement_desc: str,
+    ) -> Iterator[TextIO]:
+        """
+        Returns a context manager that can be used to place a requirement on
+        the contents of the file referred to by `path`. To do so, you must
+        enter and exit this context manager (typically, by using the `with`
+        statement). On entering, the file is opened for reading in text mode and
+        the resulting file object is returned. On exiting, the file object is
+        closed.
+
+        The requirement that is placed by doing this is considered met if all
+        of the following are true:
+
+        * `path` is a relative path that refers to a file within the dataset
+          root.
+        * The file is opened successfully.
+        * The context is exited without an exception.
+
+        If the context is exited with an exception that was produced by another
+        requirement being unmet, that exception is reraised and the new
+        requirement is abandoned.
+
+        `requirement_desc` must be a human-readable statement describing the
+        requirement.
+        """
+
+        requirement_desc_full = f"{path}: {requirement_desc}"
+
+        if not self._is_path_within_root(path):
+            self.fail(requirement_desc_full)
+
+        try:
+            with open(osp.join(self._root_path, path), encoding='utf-8') as f:
+                yield f
+        except FormatRequirementsUnmet:
+            raise
+        except Exception:
+            self.fail(requirement_desc_full)
+
 
 FormatDetector = Callable[
     [FormatDetectionContext],

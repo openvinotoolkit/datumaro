@@ -17,8 +17,10 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.converter import Converter
 from datumaro.components.extractor import DatasetItem, Extractor, Importer
+from datumaro.components.format_detection import FormatDetectionContext
+from datumaro.components.media import Image
 from datumaro.util import cast, escape, unescape
-from datumaro.util.image import Image, save_image
+from datumaro.util.image import save_image
 from datumaro.util.mask_tools import find_mask_bbox, load_mask
 from datumaro.util.os_util import split_path
 
@@ -273,6 +275,34 @@ class LabelMeExtractor(Extractor):
 
 
 class LabelMeImporter(Importer):
+    @classmethod
+    def detect(cls, context: FormatDetectionContext) -> None:
+        annot_file = context.require_file('**/*.xml')
+
+        with context.probe_text_file(
+            annot_file, "must be a LabelMe annotation file",
+        ) as f:
+            elem_parents = []
+
+            for event, elem in ElementTree.iterparse(f, events=('start', 'end')):
+                if event == 'start':
+                    if elem_parents == [] and elem.tag != 'annotation':
+                        raise Exception
+
+                    if elem_parents == ['annotation', 'object'] \
+                            and elem.tag in {'polygon', 'segm'}:
+                        return
+
+                    elem_parents.append(elem.tag)
+                elif event == 'end':
+                    elem_parents.pop()
+
+                    if elem_parents == ['annotation'] and elem.tag == 'object':
+                        # If we got here, then we found an object with no
+                        # polygon and no mask, so it's probably the wrong
+                        # format.
+                        raise Exception
+
     @classmethod
     def find_sources(cls, path):
         subsets = []

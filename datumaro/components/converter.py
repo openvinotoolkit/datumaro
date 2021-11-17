@@ -14,8 +14,8 @@ from datumaro.components.annotation import AnnotationType
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.dataset import DatasetPatch
 from datumaro.components.extractor import DatasetItem
+from datumaro.components.media import Image
 from datumaro.util import find
-from datumaro.util.image import Image
 from datumaro.util.os_util import rmtree
 from datumaro.util.scope import on_error_do, scoped
 
