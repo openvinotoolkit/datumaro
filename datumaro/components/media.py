@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-from typing import Callable, Iterable, Iterator, Optional, Tuple, Union, List
+from typing import Callable, Iterable, Iterator, List, Optional, Tuple, Union
 import os
 import os.path as osp
 import shutil
