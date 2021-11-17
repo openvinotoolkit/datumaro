@@ -8,7 +8,7 @@ import os.path as osp
 from datumaro.components.annotation import AnnotationType, CompiledMask
 from datumaro.components.converter import Converter
 from datumaro.util.image import save_image
-from datumaro.util.mask_tools import paint_mask, generate_colormap
+from datumaro.util.mask_tools import generate_colormap, paint_mask
 
 from .format import IcdarPath
 
