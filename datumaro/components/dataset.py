@@ -25,7 +25,7 @@ from datumaro.components.errors import (
 )
 from datumaro.components.extractor import (
     DEFAULT_SUBSET_NAME, CategoriesInfo, DatasetItem, Extractor, IExtractor,
-    ItemTransform, SourceExtractor, Transform,
+    ItemTransform, Transform,
 )
 from datumaro.plugins.transforms import ProjectLabels
 from datumaro.util import is_method_redefined
