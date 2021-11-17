@@ -15,6 +15,7 @@ import sys
 
 sys.path.insert(0, os.path.abspath('../..'))
 
+from datumaro.version import VERSION
 
 # -- Project information -----------------------------------------------------
 
@@ -23,7 +24,7 @@ copyright = '2021, Intel'
 author = 'Intel'
 
 # The full version, including alpha/beta/rc tags
-release = '0.2'
+release = VERSION
 
 
 # -- General configuration ---------------------------------------------------
