@@ -1,4 +1,4 @@
-# Copyright (C) 2020 Intel Corporation
+# Copyright (C) 2020-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -11,6 +11,7 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.converter import Converter
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
+from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.util.image import find_images
 
 
@@ -172,6 +173,11 @@ class LfwExtractor(SourceExtractor):
         return image, item_id
 
 class LfwImporter(Importer):
+    @classmethod
+    def detect(cls, context: FormatDetectionContext) -> None:
+        context.require_file(
+            f'*/{LfwPath.ANNOTATION_DIR}/{LfwPath.PAIRS_FILE}')
+
     @classmethod
     def find_sources(cls, path):
         base, ext = osp.splitext(LfwPath.PAIRS_FILE)
