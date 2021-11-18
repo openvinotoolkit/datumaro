@@ -29,6 +29,16 @@ class SynthiaImporterTest(TestCase):
         self.assertEqual([Synthia.SynthiaImporter.NAME], detected_formats)
 
     @mark_requirement(Requirements.DATUM_497)
+    def test_can_detect_with_colored_masks(self):
+        detected_formats = Environment().detect_dataset(DUMMY_SEM_SEGM_DATASET_DIR)
+        self.assertEqual([Synthia.SynthiaImporter.NAME], detected_formats)
+
+    @mark_requirement(Requirements.DATUM_497)
+    def test_can_detect_with_custom_labelmap(self):
+        detected_formats = Environment().detect_dataset(DUMMY_DATASET_DIR_CUSTOM_LABELMAP)
+        self.assertEqual([Synthia.SynthiaImporter.NAME], detected_formats)
+
+    @mark_requirement(Requirements.DATUM_497)
     def test_can_import(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='Stereo_Left/Omni_B/000000',
@@ -71,7 +81,7 @@ class SynthiaImporterTest(TestCase):
 
 
     @mark_requirement(Requirements.DATUM_497)
-    def test_can_import_by_color_masks(self):
+    def test_can_import_with_colored_masks(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='Stereo_Left/Omni_F/000000',
                 image=np.ones((1, 5, 3)),
@@ -97,7 +107,7 @@ class SynthiaImporterTest(TestCase):
         compare_datasets(self, expected_dataset, dataset, require_images=True)
 
     @mark_requirement(Requirements.DATUM_497)
-    def test_can_import_by_color_masks(self):
+    def test_can_import_with_custom_labelmap(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='Stereo_Left/Omni_F/000000',
                 image=np.ones((1, 5, 3)),
