@@ -11,6 +11,7 @@ from datumaro.components.annotation import (
     AnnotationType, LabelCategories, Mask, MaskCategories,
 )
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
+# from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.util.image import find_images, load_image
 from datumaro.util.mask_tools import generate_colormap, lazy_mask
 
@@ -19,6 +20,7 @@ class SynthiaPath:
     IMAGES_DIR = 'RGB'
     LABELS_SEGM_DIR = 'GT/LABELS'
     SEMANTIC_SEGM_DIR = 'GT/COLOR'
+    LABELMAP_FILE = 'label_colors.txt'
 
 SYNTHIA_LABEL_MAP = OrderedDict([
     ('Void', (0, 0, 0)),
@@ -96,7 +98,7 @@ class SynthiaExtractor(SourceExtractor):
         self._items = list(self._load_items(path).values())
 
     def _load_categories(self, path):
-        label_map_path = osp.join(path, 'labels.txt')
+        label_map_path = osp.join(path, SynthiaPath.LABELMAP_FILE)
         if osp.isfile(label_map_path):
             label_map = parse_label_map(label_map_path)
         else:
@@ -159,6 +161,16 @@ class SynthiaExtractor(SourceExtractor):
         return lambda: mask == c
 
 class SynthiaImporter(Importer):
+    # @classmethod
+    # def detect(cls, context: FormatDetectionContext) -> None:
+    #     with context.require_one_or_more():
+    #         for prefix in (
+    #             SynthiaPath.IMAGES_DIR, SynthiaPath.LABELS_SEGM_DIR, SynthiaPath.SEMANTIC_SEGM_DIR
+    #         ):
+    #             with context.alternative():
+    #                 context.require_file(
+    #                     f'{prefix}/*.png')
+
     @classmethod
     def find_sources(cls, path):
         return [{'url': path, 'format': 'synthia'}]

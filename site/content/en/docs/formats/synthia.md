@@ -66,7 +66,7 @@ dataset/
 
 - `RGB` folder containing standard RGB images used for training.
 - `GT/LABELS` folder containing containing PNG files (one per image).
-  Annotations are given in tree channels. The third channel contains
+  Annotations are given in three channels. The third channel contains
   the class of that pixel.
 
 Also present in the original dataset:
