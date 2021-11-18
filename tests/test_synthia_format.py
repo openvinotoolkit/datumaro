@@ -23,10 +23,10 @@ DUMMY_DATASET_DIR_CUSTOM_LABELMAP = osp.join(osp.dirname(__file__),
     'assets', 'synthia_dataset', 'synthia_dataset_3')
 
 class SynthiaImporterTest(TestCase):
-    # @mark_requirement(Requirements.DATUM_497)
-    # def test_can_detect(self):
-    #     detected_formats = Environment().detect_dataset(DUMMY_INST_SEGM_DATASET_DIR)
-    #     self.assertEqual([Synthia.SynthiaImporter.NAME], detected_formats)
+    @mark_requirement(Requirements.DATUM_497)
+    def test_can_detect(self):
+        detected_formats = Environment().detect_dataset(DUMMY_INST_SEGM_DATASET_DIR)
+        self.assertEqual([Synthia.SynthiaImporter.NAME], detected_formats)
 
     @mark_requirement(Requirements.DATUM_497)
     def test_can_import(self):

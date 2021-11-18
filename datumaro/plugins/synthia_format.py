@@ -11,7 +11,7 @@ from datumaro.components.annotation import (
     AnnotationType, LabelCategories, Mask, MaskCategories,
 )
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
-# from datumaro.components.format_detection import FormatDetectionContext
+from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.util.image import find_images, load_image
 from datumaro.util.mask_tools import generate_colormap, lazy_mask
 
@@ -161,15 +161,14 @@ class SynthiaExtractor(SourceExtractor):
         return lambda: mask == c
 
 class SynthiaImporter(Importer):
-    # @classmethod
-    # def detect(cls, context: FormatDetectionContext) -> None:
-    #     with context.require_one_or_more():
-    #         for prefix in (
-    #             SynthiaPath.IMAGES_DIR, SynthiaPath.LABELS_SEGM_DIR, SynthiaPath.SEMANTIC_SEGM_DIR
-    #         ):
-    #             with context.alternative():
-    #                 context.require_file(
-    #                     f'{prefix}/*.png')
+    @classmethod
+    def detect(cls, context: FormatDetectionContext) -> None:
+        with context.require_any():
+            for prefix in (
+                SynthiaPath.IMAGES_DIR, SynthiaPath.LABELS_SEGM_DIR, SynthiaPath.SEMANTIC_SEGM_DIR
+            ):
+                with context.alternative():
+                    context.require_file(f'{prefix}/**/*.png')
 
     @classmethod
     def find_sources(cls, path):
