@@ -28,6 +28,7 @@ from datumaro.components.errors import (
     DatasetError, RepeatedItemError, UndefinedLabel,
 )
 from datumaro.components.extractor import DatasetItem, Extractor, Importer
+from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.media import Image
 from datumaro.components.validator import Severity
 from datumaro.util.annotation_util import find_instances
@@ -552,15 +553,25 @@ class OpenImagesExtractor(Extractor):
         return resized.astype(bool)
 
 class OpenImagesImporter(Importer):
+    POSSIBLE_ANNOTATION_PATTERNS = (
+        OpenImagesPath.FULL_IMAGE_DESCRIPTION_FILE_NAME,
+        *OpenImagesPath.SUBSET_IMAGE_DESCRIPTION_FILE_PATTERNS,
+        '*' + OpenImagesPath.LABEL_DESCRIPTION_FILE_SUFFIX,
+        '*' + OpenImagesPath.BBOX_DESCRIPTION_FILE_SUFFIX,
+        '*' + OpenImagesPath.MASK_DESCRIPTION_FILE_SUFFIX,
+    )
+
+    @classmethod
+    def detect(cls, context: FormatDetectionContext) -> None:
+        with context.require_any():
+            for pattern in cls.POSSIBLE_ANNOTATION_PATTERNS:
+                with context.alternative():
+                    context.require_file(
+                        f'{OpenImagesPath.ANNOTATIONS_DIR}/{pattern}')
+
     @classmethod
     def find_sources(cls, path):
-        for pattern in [
-            OpenImagesPath.FULL_IMAGE_DESCRIPTION_FILE_NAME,
-            *OpenImagesPath.SUBSET_IMAGE_DESCRIPTION_FILE_PATTERNS,
-            '*' + OpenImagesPath.LABEL_DESCRIPTION_FILE_SUFFIX,
-            '*' + OpenImagesPath.BBOX_DESCRIPTION_FILE_SUFFIX,
-            '*' + OpenImagesPath.MASK_DESCRIPTION_FILE_SUFFIX,
-        ]:
+        for pattern in cls.POSSIBLE_ANNOTATION_PATTERNS:
             if glob.glob(osp.join(glob.escape(path),
                     OpenImagesPath.ANNOTATIONS_DIR, pattern)):
                 return [{'url': path, 'format': OpenImagesExtractor.NAME}]
