@@ -36,6 +36,7 @@ extensions = [
     'sphinx.ext.napoleon', # Support for NumPy and Google style docstrings
     'sphinx.ext.autodoc',  # Core library for html generation from docstrings
     'sphinx.ext.viewcode', # Find the source files
+    'sphinx_rtd_theme', # Theme extension
 ]
 
 # Add any paths that contain templates here, relative to this directory.
