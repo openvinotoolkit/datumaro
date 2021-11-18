@@ -15,7 +15,7 @@ from datumaro.components.extractor import DatasetItem, Extractor
 from datumaro.components.media import Image
 from datumaro.plugins.camvid_format import CamvidConverter, CamvidImporter
 from datumaro.util.test_utils import (
-    TestDir, compare_datasets, check_save_and_load,
+    TestDir, check_save_and_load, compare_datasets,
 )
 import datumaro.plugins.camvid_format as Camvid
 

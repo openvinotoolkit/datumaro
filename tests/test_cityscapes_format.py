@@ -17,7 +17,7 @@ from datumaro.plugins.cityscapes_format import (
     CityscapesConverter, CityscapesImporter,
 )
 from datumaro.util.test_utils import (
-    IGNORE_ALL, TestDir, compare_datasets, check_save_and_load,
+    IGNORE_ALL, TestDir, check_save_and_load, compare_datasets,
 )
 import datumaro.plugins.cityscapes_format as Cityscapes
 

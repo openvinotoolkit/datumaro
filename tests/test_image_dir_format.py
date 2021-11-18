@@ -10,7 +10,7 @@ from datumaro.components.project import Dataset
 from datumaro.plugins.image_dir_format import ImageDirConverter
 from datumaro.util.image import save_image
 from datumaro.util.test_utils import (
-    TestDir, compare_datasets, check_save_and_load,
+    TestDir, check_save_and_load, compare_datasets,
 )
 
 from .requirements import Requirements, mark_requirement

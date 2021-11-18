@@ -14,7 +14,7 @@ from datumaro.components.extractor import DatasetItem
 from datumaro.components.media import ByteImage, Image
 from datumaro.util.image import encode_image
 from datumaro.util.test_utils import (
-    TestDir, compare_datasets, check_save_and_load,
+    TestDir, check_save_and_load, compare_datasets,
 )
 from datumaro.util.tf_util import check_import
 

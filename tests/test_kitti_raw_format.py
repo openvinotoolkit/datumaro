@@ -12,7 +12,7 @@ from datumaro.components.project import Dataset
 from datumaro.plugins.kitti_raw_format.converter import KittiRawConverter
 from datumaro.plugins.kitti_raw_format.extractor import KittiRawImporter
 from datumaro.util.test_utils import (
-    Dimensions, TestDir, compare_datasets_3d, check_save_and_load,
+    Dimensions, TestDir, check_save_and_load, compare_datasets_3d,
 )
 
 from tests.requirements import Requirements, mark_requirement

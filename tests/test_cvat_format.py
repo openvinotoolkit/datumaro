@@ -15,7 +15,7 @@ from datumaro.components.media import Image
 from datumaro.plugins.cvat_format.converter import CvatConverter
 from datumaro.plugins.cvat_format.extractor import CvatImporter
 from datumaro.util.test_utils import (
-    TestDir, compare_datasets, check_save_and_load,
+    TestDir, check_save_and_load, compare_datasets,
 )
 
 from .requirements import Requirements, mark_requirement

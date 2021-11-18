@@ -12,7 +12,7 @@ from datumaro.components.extractor import DatasetItem
 from datumaro.components.media import Image
 from datumaro.plugins.labelme_format import LabelMeConverter, LabelMeImporter
 from datumaro.util.test_utils import (
-    TestDir, compare_datasets, check_save_and_load,
+    TestDir, check_save_and_load, compare_datasets,
 )
 
 from .requirements import Requirements, mark_requirement

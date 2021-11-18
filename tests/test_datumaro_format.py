@@ -17,7 +17,7 @@ from datumaro.plugins.datumaro_format.converter import DatumaroConverter
 from datumaro.plugins.datumaro_format.extractor import DatumaroImporter
 from datumaro.util.mask_tools import generate_colormap
 from datumaro.util.test_utils import (
-    Dimensions, TestDir, compare_datasets_strict, check_save_and_load,
+    Dimensions, TestDir, check_save_and_load, compare_datasets_strict,
 )
 
 from .requirements import Requirements, mark_requirement

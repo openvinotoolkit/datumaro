@@ -16,7 +16,7 @@ from datumaro.plugins.sly_pointcloud_format.extractor import (
     SuperviselyPointCloudImporter,
 )
 from datumaro.util.test_utils import (
-    Dimensions, TestDir, compare_datasets_3d, check_save_and_load,
+    Dimensions, TestDir, check_save_and_load, compare_datasets_3d,
 )
 
 from .requirements import Requirements, mark_requirement
