@@ -4,7 +4,9 @@ import os.path as osp
 
 import numpy as np
 
-from datumaro.components.annotation import AnnotationType, LabelCategories, Mask, MaskCategories
+from datumaro.components.annotation import (
+    AnnotationType, LabelCategories, Mask, MaskCategories,
+)
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
@@ -44,33 +46,45 @@ class SynthiaImporterTest(TestCase):
             DatasetItem(id='Stereo_Left/Omni_B/000000',
                 image=np.ones((1, 5, 3)),
                 annotations=[
-                    Mask(np.array([[1, 1, 0, 0, 0]]), label=1),
-                    Mask(np.array([[0, 0, 1, 1, 1]]), label=10),
+                    Mask(np.array([[1, 1, 0, 0, 0]]), label=1,
+                        attributes={'dynamic_object': False}),
+                    Mask(np.array([[0, 0, 1, 1, 1]]), label=10,
+                        attributes={'dynamic_object': True}),
                 ],
             ),
             DatasetItem(id='Stereo_Left/Omni_B/000001',
                 image=np.ones((1, 5, 3)),
                 annotations=[
-                    Mask(np.array([[1, 0, 0, 0, 0]]), label=8),
-                    Mask(np.array([[0, 1, 1, 0, 0]]), label=11),
-                    Mask(np.array([[0, 0, 0, 1, 1]]), label=3),
+                    Mask(np.array([[1, 0, 0, 0, 0]]), label=8,
+                        attributes={'dynamic_object': True}),
+                    Mask(np.array([[0, 1, 1, 0, 0]]), label=11,
+                        attributes={'dynamic_object': True}),
+                    Mask(np.array([[0, 0, 0, 1, 1]]), label=3,
+                        attributes={'dynamic_object': False}),
                 ],
             ),
             DatasetItem(id='Stereo_Left/Omni_F/000000',
                 image=np.ones((1, 5, 3)),
                 annotations=[
-                    Mask(np.array([[1, 1, 0, 0, 0]]), label=1),
-                    Mask(np.array([[0, 0, 1, 1, 0]]), label=2),
-                    Mask(np.array([[0, 0, 0, 0, 1]]), label=3),
+                    Mask(np.array([[1, 1, 0, 0, 0]]), label=1,
+                        attributes={'dynamic_object': False}),
+                    Mask(np.array([[0, 0, 1, 1, 0]]), label=2,
+                        attributes={'dynamic_object': False}),
+                    Mask(np.array([[0, 0, 0, 0, 1]]), label=3,
+                        attributes={'dynamic_object': False}),
                 ],
             ),
             DatasetItem(id='Stereo_Left/Omni_F/000001',
                 image=np.ones((1, 5, 3)),
                 annotations=[
-                    Mask(np.array([[1, 0, 0, 0, 0]]), label=1),
-                    Mask(np.array([[0, 1, 0, 0, 0]]), label=2),
-                    Mask(np.array([[0, 0, 1, 1, 0]]), label=15),
-                    Mask(np.array([[0, 0, 0, 0, 1]]), label=3),
+                    Mask(np.array([[1, 0, 0, 0, 0]]), label=1,
+                        attributes={'dynamic_object': False}),
+                    Mask(np.array([[0, 1, 0, 0, 0]]), label=2,
+                        attributes={'dynamic_object': False}),
+                    Mask(np.array([[0, 0, 1, 1, 0]]), label=15,
+                        attributes={'dynamic_object': False}),
+                    Mask(np.array([[0, 0, 0, 0, 1]]), label=3,
+                        attributes={'dynamic_object': False}),
                 ],
             )
         ], categories=Synthia.make_categories())

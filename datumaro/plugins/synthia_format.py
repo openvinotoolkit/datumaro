@@ -4,6 +4,7 @@
 
 from collections import OrderedDict
 import os.path as osp
+from attr import attrib
 
 import numpy as np
 
@@ -124,12 +125,17 @@ class SynthiaExtractor(SourceExtractor):
                 item_id = osp.splitext(osp.relpath(gt_img, inst_dir))[0].replace('\\', '/')
 
                 anno = []
-                instances_mask = load_image(gt_img, dtype=np.uint16)[:,:,2]
+                instances_mask = load_image(gt_img, dtype=np.uint16)
+                dynamic_objects = np.unique(instances_mask[:,:,1])
+                instances_mask = instances_mask[:,:,2]
                 segm_ids = np.unique(instances_mask)
                 for segm_id in segm_ids:
+                    attr = { 'dynamic_object': False }
+                    if segm_id in dynamic_objects:
+                        attr['dynamic_object'] = True
                     anno.append(Mask(
                         image=self._lazy_extract_mask(instances_mask, segm_id),
-                        label=segm_id))
+                        label=segm_id, attributes=attr))
 
                 items[item_id] = DatasetItem(id=item_id, image=images[item_id],
                     annotations=anno)
