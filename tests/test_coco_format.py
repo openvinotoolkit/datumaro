@@ -25,7 +25,7 @@ from datumaro.plugins.coco_format.importer import (
     CocoPersonKeypointsImporter, CocoStuffImporter,
 )
 from datumaro.util.test_utils import (
-    TestDir, compare_datasets, test_save_and_load,
+    TestDir, compare_datasets, check_save_and_load,
 )
 
 from .requirements import Requirements, mark_requirement
@@ -558,7 +558,7 @@ class CocoImporterTest(TestCase):
 class CocoConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None, **kwargs):
-        return test_save_and_load(self, source_dataset, converter, test_dir,
+        return check_save_and_load(self, source_dataset, converter, test_dir,
             importer='coco',
             target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 

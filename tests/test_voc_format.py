@@ -23,7 +23,7 @@ from datumaro.plugins.voc_format.importer import (
 )
 from datumaro.util.mask_tools import load_mask
 from datumaro.util.test_utils import (
-    TestDir, compare_datasets, test_save_and_load,
+    TestDir, compare_datasets, check_save_and_load,
 )
 import datumaro.plugins.voc_format.format as VOC
 
@@ -361,7 +361,7 @@ class VocImportTest(TestCase):
 class VocConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None, **kwargs):
-        return test_save_and_load(self, source_dataset, converter, test_dir,
+        return check_save_and_load(self, source_dataset, converter, test_dir,
             importer='voc',
             target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 

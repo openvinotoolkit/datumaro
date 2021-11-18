@@ -17,7 +17,7 @@ from datumaro.plugins.datumaro_format.converter import DatumaroConverter
 from datumaro.plugins.datumaro_format.extractor import DatumaroImporter
 from datumaro.util.mask_tools import generate_colormap
 from datumaro.util.test_utils import (
-    Dimensions, TestDir, compare_datasets_strict, test_save_and_load,
+    Dimensions, TestDir, compare_datasets_strict, check_save_and_load,
 )
 
 from .requirements import Requirements, mark_requirement
@@ -27,7 +27,7 @@ class DatumaroConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None,
             compare=compare_datasets_strict, **kwargs):
-        return test_save_and_load(self, source_dataset, converter, test_dir,
+        return check_save_and_load(self, source_dataset, converter, test_dir,
             importer='datumaro',
             target_dataset=target_dataset, importer_args=importer_args,
             compare=compare, **kwargs)
