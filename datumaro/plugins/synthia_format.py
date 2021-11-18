@@ -4,7 +4,6 @@
 
 from collections import OrderedDict
 import os.path as osp
-from attr import attrib
 
 import numpy as np
 
@@ -37,8 +36,8 @@ SYNTHIA_LABEL_MAP = OrderedDict([
     ('Pedestrian', (64, 64, 0)),
     ('Bicycle', (0, 128, 192)),
     ('Lanemarking', (0, 172, 0)),
-    ('Reserved', (0, 0, 0)),
-    ('Reserved', (0, 0, 0)),
+    ('Reserved_1', (0, 0, 0)),
+    ('Reserved_2', (0, 0, 0)),
     ('TrafficLight', (0, 128, 128)),
 ])
 
