@@ -121,14 +121,14 @@ class FormatDetectionContext:
             f"a requirement ({req_type}) can't be placed directly within " \
             "a 'require_any' block"
 
-    def fail(self, requirement: str) -> NoReturn:
+    def fail(self, requirement_desc: str) -> NoReturn:
         """
-        Places a requirement that is never met. `requirement` must contain
+        Places a requirement that is never met. `requirement_desc` must contain
         a human-readable description of the requirement.
         """
         self._start_requirement("fail")
 
-        raise FormatRequirementsUnmet((requirement,))
+        raise FormatRequirementsUnmet((requirement_desc,))
 
     def require_file(self, pattern: str) -> str:
         """
