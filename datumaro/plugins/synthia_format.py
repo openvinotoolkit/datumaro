@@ -12,12 +12,13 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.util.image import find_images, load_image
-from datumaro.util.mask_tools import generate_colormap
+from datumaro.util.mask_tools import generate_colormap, lazy_mask
 
 
 class SynthiaPath:
     IMAGES_DIR = 'RGB'
     LABELS_SEGM_DIR = 'GT/LABELS'
+    SEMANTIC_SEGM_DIR = 'GT/COLOR'
 
 SYNTHIA_LABEL_MAP = OrderedDict([
     ('Void', (0, 0, 0)),
@@ -29,11 +30,12 @@ SYNTHIA_LABEL_MAP = OrderedDict([
     ('Vegetation', (128, 128, 0)),
     ('Pole', (192, 192, 128)),
     ('Car', (64, 0, 128)),
-    ('Truck', (0, 0, 70)),
     ('TrafficSign', (192, 128, 128)),
     ('Pedestrian', (64, 64, 0)),
     ('Bicycle', (0, 128, 192)),
     ('Lanemarking', (0, 172, 0)),
+    ('Reserved', (0, 0, 0)),
+    ('Reserved', (0, 0, 0)),
     ('TrafficLight', (0, 128, 128)),
 ])
 
@@ -113,11 +115,11 @@ class SynthiaExtractor(SourceExtractor):
 
         items = {}
 
-        gt_dir = osp.join(root_dir, SynthiaPath.LABELS_SEGM_DIR)
-        if osp.isdir(gt_dir):
-            gt_images = find_images(gt_dir, recursive=True)
+        inst_dir = osp.join(root_dir, SynthiaPath.LABELS_SEGM_DIR)
+        if osp.isdir(inst_dir):
+            gt_images = find_images(inst_dir, recursive=True)
             for gt_img in gt_images:
-                item_id = osp.splitext(osp.relpath(gt_img, gt_dir))[0].replace('\\', '/')
+                item_id = osp.splitext(osp.relpath(gt_img, inst_dir))[0].replace('\\', '/')
 
                 anno = []
                 instances_mask = load_image(gt_img, dtype=np.uint16)[:,:,2]
@@ -129,6 +131,27 @@ class SynthiaExtractor(SourceExtractor):
 
                 items[item_id] = DatasetItem(id=item_id, image=images[item_id],
                     annotations=anno)
+
+        elif osp.isdir(osp.join(root_dir, SynthiaPath.SEMANTIC_SEGM_DIR)):
+            gt_dir = osp.join(root_dir, SynthiaPath.SEMANTIC_SEGM_DIR)
+            gt_images = find_images(gt_dir, recursive=True)
+            for gt_img in gt_images:
+                item_id = osp.splitext(osp.relpath(gt_img, gt_dir))[0].replace('\\', '/')
+
+                anno = []
+                inverse_cls_colormap = \
+                    self._categories[AnnotationType.mask].inverse_colormap
+                class_mask = lazy_mask(gt_img, inverse_cls_colormap)
+                class_mask = class_mask()
+                classes = np.unique(class_mask)
+                for label_id in classes:
+                    anno.append(Mask(image=self._lazy_extract_mask(class_mask, label_id),
+                        label=label_id))
+
+                items[item_id] = DatasetItem(id=item_id, image=images[item_id],
+                    annotations=anno)
+
+
         return items
 
     @staticmethod
