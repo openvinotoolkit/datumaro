@@ -15,14 +15,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - The following formats can now be detected unambiguously:
-  `ade20k2017`, `ade20k2020`, `coco`, `cvat`, `datumaro`,
+  `ade20k2017`, `ade20k2020`, `camvid`, `coco`, `cvat`, `datumaro`,
   `icdar_text_localization`, `icdar_text_segmentation`,
-  `icdar_word_recognition`, `kitti_raw`, `label_me`, `lfw`, `mot_seq`,
-  `open_images`, `vgg_face2`, `voc`, `widerface`, `yolo`
+  `icdar_word_recognition`, `imagenet_txt`, `kitti_raw`, `label_me`, `lfw`,
+  `mot_seq`, `open_images`, `vgg_face2`, `voc`, `widerface`, `yolo`
   (<https://github.com/openvinotoolkit/datumaro/pull/531>,
   <https://github.com/openvinotoolkit/datumaro/pull/536>,
   <https://github.com/openvinotoolkit/datumaro/pull/550>,
-  <https://github.com/openvinotoolkit/datumaro/pull/557>)
+  <https://github.com/openvinotoolkit/datumaro/pull/557>,
+  <https://github.com/openvinotoolkit/datumaro/pull/558>)
 
 ### Deprecated
 - Using `Image`, `ByteImage` from `datumaro.util.image` - these classes
