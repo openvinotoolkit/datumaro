@@ -80,9 +80,10 @@ def skip_member(app, what, name, obj, skip, options):
 
 def replace(app, what, name, obj, options, lines):
     for i, line in enumerate(lines):
-        if not "'|n'" in lines[i]:
-            if not "'|s'" in lines[i]:
-                lines[i] = lines[i].replace("|n", "\n").replace("|s", " ")
+        if line:
+            if not "'|n'" in lines[i]:
+                if not "'|s'" in lines[i]:
+                    lines[i] = lines[i].replace("|n", "\n").replace("|s", " ")
 
 def setup(app):
     app.connect('autodoc-skip-member', skip_member)
