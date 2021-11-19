@@ -33,6 +33,18 @@ class CityscapesFormatTest(TestCase):
         src_label_map = Cityscapes.CityscapesLabelMap
 
         with TestDir() as test_dir:
+            file_path = osp.join(test_dir, 'label_colors.txt')
+
+            Cityscapes.write_label_map(file_path, src_label_map)
+            dst_label_map = Cityscapes.parse_label_map(file_path)
+
+            self.assertEqual(src_label_map, dst_label_map)
+
+    @mark_requirement(Requirements.DATUM_267)
+    def test_can_write_and_parse_dataset_meta_file(self):
+        src_label_map = Cityscapes.CityscapesLabelMap
+
+        with TestDir() as test_dir:
             save_meta_by_label_map(test_dir, src_label_map)
             dst_label_map = parse_meta_file(test_dir)
 
@@ -265,6 +277,39 @@ class CityscapesConverterTest(TestCase):
             self._test_save_and_load(source_dataset,
                 partial(CityscapesConverter.convert, label_map='source',
                     save_images=True), test_dir, target_dataset=DstExtractor())
+
+    @mark_requirement(Requirements.DATUM_267)
+    def test_dataset_with_save_dataset_meta_file(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, image=np.ones((1, 5, 3)), annotations=[
+                Mask(np.array([[1, 0, 0, 1, 1]]), label=0),
+                Mask(np.array([[0, 1, 1, 0, 0]]), label=1),
+            ]),
+        ], categories=['a', 'b'])
+
+        class DstExtractor(TestExtractorBase):
+            def __iter__(self):
+                yield DatasetItem(id=1, image=np.ones((1, 5, 3)), annotations=[
+                    Mask(np.array([[1, 0, 0, 1, 1]]),
+                        attributes={'is_crowd': False}, id=1,
+                        label=self._label('a')),
+                    Mask(np.array([[0, 1, 1, 0, 0]]),
+                        attributes={'is_crowd': False}, id=2,
+                        label=self._label('b')),
+                ])
+
+            def categories(self):
+                label_map = OrderedDict()
+                label_map['background'] = [None, [], []]
+                label_map['a'] = [None, [], []]
+                label_map['b'] = [None, [], []]
+                return Cityscapes.make_cityscapes_categories(label_map)
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(source_dataset,
+                partial(CityscapesConverter.convert, label_map='source',
+                    save_images=True, save_dataset_meta=True), test_dir,
+                    target_dataset=DstExtractor())
 
     @mark_requirement(Requirements.DATUM_267)
     def test_dataset_with_source_labelmap_defined(self):

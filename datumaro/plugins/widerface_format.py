@@ -20,6 +20,7 @@ class WiderFacePath:
     ANNOTATIONS_DIR = 'wider_face_split'
     IMAGES_DIR = 'images'
     SUBSET_DIR = 'WIDER_'
+    LABELS_FILE = 'labels.txt'
     IMAGES_DIR_NO_LABEL = 'no_label'
     BBOX_ATTRIBUTES = ['blur', 'expression', 'illumination',
         'occluded', 'pose', 'invalid']
@@ -47,6 +48,12 @@ class WiderFaceExtractor(SourceExtractor):
             labels = parse_meta_file(self._dataset_dir).keys()
             for label in labels:
                 label_cat.add(label)
+        elif osp.isfile(osp.join(self._dataset_dir,
+                WiderFacePath.LABELS_FILE)):
+            path = osp.join(self._dataset_dir, WiderFacePath.LABELS_FILE)
+            with open(path, encoding='utf-8') as labels_file:
+                for line in labels_file:
+                    label_cat.add(line.strip())
         else:
             label_cat.add(WiderFacePath.DEFAULT_LABEL)
             subset_path = osp.join(self._dataset_dir,
@@ -149,9 +156,14 @@ class WiderFaceConverter(Converter):
         save_dir = self._save_dir
         os.makedirs(save_dir, exist_ok=True)
 
-        self._save_meta(save_dir)
-
         label_categories = self._extractor.categories()[AnnotationType.label]
+
+        if self._save_dataset_meta:
+            self._save_meta(save_dir)
+        else:
+            labels_path = osp.join(save_dir, WiderFacePath.LABELS_FILE)
+            with open(labels_path, 'w', encoding='utf-8') as f:
+                f.write('\n'.join(label.name for label in label_categories))
 
         for subset_name, subset in self._extractor.subsets().items():
             subset_dir = osp.join(save_dir,

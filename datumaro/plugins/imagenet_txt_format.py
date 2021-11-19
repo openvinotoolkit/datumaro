@@ -182,4 +182,12 @@ class ImagenetTxtConverter(Converter):
             with open(annotation_file, 'w', encoding='utf-8') as f:
                 f.write(annotation)
 
-        self._save_meta(subset_dir)
+        if self._save_dataset_meta:
+            self._save_meta(subset_dir)
+        else:
+            labels_file = osp.join(subset_dir, ImagenetTxtPath.LABELS_FILE)
+            with open(labels_file, 'w', encoding='utf-8') as f:
+                f.writelines(l.name + '\n'
+                    for l in extractor.categories().get(
+                        AnnotationType.label, LabelCategories())
+                )

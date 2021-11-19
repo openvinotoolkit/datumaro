@@ -109,6 +109,43 @@ def make_cityscapes_categories(label_map=None):
 
     return categories
 
+def parse_label_map(path):
+    if not path:
+        return None
+
+    label_map = OrderedDict()
+    with open(path, 'r', encoding='utf-8') as f:
+        for line in f:
+            # skip empty and commented lines
+            line = line.strip()
+            if not line or line and line[0] == '#':
+                continue
+
+            # color, name
+            label_desc = line.strip().split()
+
+            if 2 < len(label_desc):
+                name = label_desc[3]
+                color = tuple([int(c) for c in label_desc[:-1]])
+            else:
+                name = label_desc[0]
+                color = None
+
+            if name in label_map:
+                raise ValueError("Label '%s' is already defined" % name)
+
+            label_map[name] = [color, [], []]
+    return label_map
+
+def write_label_map(path, label_map):
+    with open(path, 'w', encoding='utf-8') as f:
+        for label_name, label_desc in label_map.items():
+            if label_desc[0]:
+                color_rgb = ' '.join(str(c) for c in label_desc[0])
+            else:
+                color_rgb = ''
+            f.write('%s %s\n' % (color_rgb, label_name))
+
 class CityscapesExtractor(SourceExtractor):
     def __init__(self, path, subset=None):
         assert osp.isdir(path), path
@@ -142,7 +179,12 @@ class CityscapesExtractor(SourceExtractor):
         if is_meta_file(path):
             label_map = parse_meta_file(path)
         else:
-            label_map = CityscapesLabelMap
+            label_map_path = osp.join(path, CityscapesPath.LABELMAP_FILE)
+            if osp.isfile(label_map_path):
+                label_map = parse_label_map(label_map_path)
+            else:
+                label_map = CityscapesLabelMap
+
         self._labels = [label for label in label_map]
         return make_cityscapes_categories(label_map)
 
@@ -304,7 +346,11 @@ class CityscapesConverter(Converter):
         labels = self._extractor.categories()[AnnotationType.label]
         if len(self._label_map) > len(labels):
             self._label_map.pop('background')
-        save_meta_by_label_map(self._save_dir, self._label_map)
+        if self._save_dataset_meta:
+            save_meta_by_label_map(self._save_dir, self._label_map)
+        else:
+            path = osp.join(self._save_dir, CityscapesPath.LABELMAP_FILE)
+            write_label_map(path, self._label_map)
 
     def _load_categories(self, label_map_source):
         if label_map_source == LabelmapType.cityscapes.name:

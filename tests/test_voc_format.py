@@ -68,6 +68,20 @@ class VocFormatTest(TestCase):
         src_label_map['ww'] = [(10, 20, 30), [], ['act3']]
 
         with TestDir() as test_dir:
+            file_path = osp.join(test_dir, 'test.txt')
+
+            VOC.write_label_map(file_path, src_label_map)
+            dst_label_map = VOC.parse_label_map(file_path)
+
+            self.assertEqual(src_label_map, dst_label_map)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_write_and_parse_dataset_meta_file(self):
+        src_label_map = VOC.make_voc_label_map()
+        src_label_map['qq'] = [None, ['part1', 'part2'], ['act1', 'act2']]
+        src_label_map['ww'] = [(10, 20, 30), [], ['act3']]
+
+        with TestDir() as test_dir:
             save_meta_by_label_map(test_dir, src_label_map)
             dst_label_map = parse_meta_file(test_dir)
 
@@ -813,6 +827,46 @@ class VocConverterTest(TestCase):
             self._test_save_and_load(SrcExtractor(),
                 partial(VocConverter.convert, label_map='source'),
                 test_dir, target_dataset=DstExtractor())
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_dataset_with_save_dataset_meta_file(self):
+        class SrcExtractor(TestExtractorBase):
+            def __iter__(self):
+                yield DatasetItem(id=1, annotations=[
+                    Bbox(2, 3, 4, 5, label=0, id=1),
+                ])
+
+            def categories(self):
+                label_map = OrderedDict()
+                label_map['label_1'] = [(1, 2, 3), [], []]
+                label_map['background'] = [(0, 0, 0), [], []] # can be not 0
+                label_map['label_2'] = [(3, 2, 1), [], []]
+                return VOC.make_voc_categories(label_map)
+
+        class DstExtractor(TestExtractorBase):
+            def __iter__(self):
+                yield DatasetItem(id=1, annotations=[
+                    Bbox(2, 3, 4, 5, label=self._label('label_1'),
+                        id=1, group=1, attributes={
+                            'truncated': False,
+                            'difficult': False,
+                            'occluded': False,
+                        }
+                    ),
+                ])
+
+            def categories(self):
+                label_map = OrderedDict()
+                label_map['background'] = [(0, 0, 0), [], []]
+                label_map['label_1'] = [(1, 2, 3), [], []]
+                label_map['label_2'] = [(3, 2, 1), [], []]
+                return VOC.make_voc_categories(label_map)
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(SrcExtractor(),
+                partial(VocConverter.convert, label_map='source',
+                save_dataset_meta=True), test_dir,
+                target_dataset=DstExtractor())
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_dataset_with_fixed_labelmap(self):
