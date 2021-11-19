@@ -3,8 +3,11 @@
 # SPDX-License-Identifier: MIT
 
 from enum import IntEnum
-from typing import Callable, Iterator, List, Optional, Sequence, TextIO
+from typing import (
+    Callable, Collection, Iterator, List, Optional, Sequence, TextIO, Union,
+)
 import contextlib
+import fnmatch
 import glob
 import os.path as osp
 
@@ -130,7 +133,9 @@ class FormatDetectionContext:
 
         raise FormatRequirementsUnmet((requirement_desc,))
 
-    def require_file(self, pattern: str) -> str:
+    def require_file(self, pattern: str, *,
+        exclude_fnames: Union[str, Collection[str]] = (),
+    ) -> str:
         """
         Places the requirement that the dataset contains at least one file whose
         relative path matches the given pattern. The pattern must be a glob-like
@@ -141,12 +146,24 @@ class FormatDetectionContext:
         If the requirement is met, the relative path to one of the files that
         match the pattern is returned. If there are multiple such files, it's
         unspecified which one of them is returned.
+
+        `exclude_fnames` must be a collection of patterns or a single pattern.
+        If at least one pattern is supplied, then the placed requirement is
+        narrowed to only accept files with names that match none of these
+        patterns.
         """
 
         self._start_requirement("require_file")
 
+        if isinstance(exclude_fnames, str):
+            exclude_fnames = (exclude_fnames,)
+
         requirement_desc = \
             f"dataset must contain a file matching pattern \"{pattern}\""
+
+        if exclude_fnames:
+            requirement_desc += ' (but not named ' + \
+                ', '.join(f'"{e}"' for e in exclude_fnames) + ')'
 
         if not self._is_path_within_root(pattern):
             self.fail(requirement_desc)
@@ -154,6 +171,15 @@ class FormatDetectionContext:
         pattern_abs = osp.join(glob.escape(self._root_path), pattern)
         for path in glob.iglob(pattern_abs, recursive=True):
             if osp.isfile(path):
+                # Ideally, we should provide a way to filter out whole paths,
+                # not just file names. However, there is no easy way to match an
+                # entire path with a pattern (fnmatch is unsuitable, because
+                # it lets '*' match a slash, which can lead to spurious matches
+                # and is not how glob works).
+                if any(fnmatch.fnmatch(osp.basename(path), pat)
+                        for pat in exclude_fnames):
+                    continue
+
                 return osp.relpath(path, self._root_path)
 
         self.fail(requirement_desc)

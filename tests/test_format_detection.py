@@ -76,6 +76,38 @@ class FormatDetectionTest(TestCase):
         self.assertIn('*/*', result.exception.failed_alternatives[0])
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_require_file_exclude_fname_one(self):
+        with open(osp.join(self._dataset_root, 'foobar.txt'), 'w'):
+            pass
+
+        def detect(context):
+            context.require_file('foobar.*', exclude_fnames='*.txt')
+
+        with self.assertRaises(FormatRequirementsUnmet) as result:
+            apply_format_detector(self._dataset_root, detect)
+
+        self.assertEqual(len(result.exception.failed_alternatives), 1)
+        self.assertIn('foobar.*', result.exception.failed_alternatives[0])
+        self.assertIn('*.txt', result.exception.failed_alternatives[0])
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_require_file_exclude_fname_many(self):
+        for ext in ('txt', 'lst'):
+            with open(osp.join(self._dataset_root, f'foobar.{ext}'), 'w'):
+                pass
+
+        def detect(context):
+            context.require_file('foobar.*', exclude_fnames=('*.txt', '*.lst'))
+
+        with self.assertRaises(FormatRequirementsUnmet) as result:
+            apply_format_detector(self._dataset_root, detect)
+
+        self.assertEqual(len(result.exception.failed_alternatives), 1)
+        self.assertIn('foobar.*', result.exception.failed_alternatives[0])
+        self.assertIn('*.txt', result.exception.failed_alternatives[0])
+        self.assertIn('*.lst', result.exception.failed_alternatives[0])
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_probe_text_file_success(self):
         with open(osp.join(self._dataset_root, 'foobar.txt'), 'w') as f:
             print('123', file=f)
