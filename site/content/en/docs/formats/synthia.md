@@ -92,7 +92,7 @@ dataset/
   Annotations are given using a color representation.
 
 When importing a dataset, only `GT/LABELS` folder will be used.
-If it is missing, `GT/COLOR` folder will be used
+If it is missing, `GT/COLOR` folder will be used.
 
 The original dataset also contains depth information, but Datumaro
 does not currently support it.
