@@ -10,6 +10,8 @@ weight: 1
 The original SYNTHIA dataset is available
 [here](https://synthia-dataset.net).
 
+Datumaro supports all SYNTHIA formats except SYNTHIA-AL.
+
 Supported annotation types:
 - `Mask`
 
