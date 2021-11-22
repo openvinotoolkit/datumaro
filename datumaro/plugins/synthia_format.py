@@ -124,16 +124,16 @@ class SynthiaExtractor(SourceExtractor):
                 item_id = osp.splitext(osp.relpath(gt_img, inst_dir))[0].replace('\\', '/')
 
                 anno = []
-                instances_mask = load_image(gt_img, dtype=np.uint16)
-                dynamic_objects = np.unique(instances_mask[:,:,1])
-                instances_mask = instances_mask[:,:,2]
-                segm_ids = np.unique(instances_mask)
+                labels_mask = load_image(gt_img, dtype=np.uint16)
+                dynamic_objects = np.unique(labels_mask[:,:,1])
+                labels_mask = labels_mask[:,:,2]
+                segm_ids = np.unique(labels_mask)
                 for segm_id in segm_ids:
                     attr = { 'dynamic_object': False }
                     if segm_id in dynamic_objects:
                         attr['dynamic_object'] = True
                     anno.append(Mask(
-                        image=self._lazy_extract_mask(instances_mask, segm_id),
+                        image=self._lazy_extract_mask(labels_mask, segm_id),
                         label=segm_id, attributes=attr))
 
                 items[item_id] = DatasetItem(id=item_id, image=images[item_id],
@@ -148,11 +148,11 @@ class SynthiaExtractor(SourceExtractor):
                 anno = []
                 inverse_cls_colormap = \
                     self._categories[AnnotationType.mask].inverse_colormap
-                class_mask = lazy_mask(gt_img, inverse_cls_colormap)
-                class_mask = class_mask()
-                classes = np.unique(class_mask)
+                color_mask = lazy_mask(gt_img, inverse_cls_colormap)
+                color_mask = color_mask()
+                classes = np.unique(color_mask)
                 for label_id in classes:
-                    anno.append(Mask(image=self._lazy_extract_mask(class_mask, label_id),
+                    anno.append(Mask(image=self._lazy_extract_mask(color_mask, label_id),
                         label=label_id))
 
                 items[item_id] = DatasetItem(id=item_id, image=images[item_id],

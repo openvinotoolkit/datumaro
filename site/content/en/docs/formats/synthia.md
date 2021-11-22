@@ -14,7 +14,7 @@ Supported annotation types:
 - `Mask`
 
 Supported annotation attributes:
-- `dynamic object` (boolean): whether the object moving
+- `dynamic_object` (boolean): whether the object moving
 
 ## Import SYNTHIA dataset
 
@@ -83,10 +83,14 @@ dataset/
 - `RGB` folder containing standard RGB images used for training.
 - `GT/LABELS` folder containing containing PNG files (one per image).
   Annotations are given in three channels. The red channel contains
-  the class of that pixel. The green channel contains the unique ID
-  of the instance for those objects that are dynamic (cars, pedestrians, etc.)
+  the class of that pixel. The green channel contains the class only
+  for those objects that are dynamic (cars, pedestrians, etc.),
+  otherwise it contains `0`.
 - `GT/COLOR` folder containing png files (one per image).
   Annotations are given using a color representation.
+
+When importing a dataset, only `GT/LABELS` folder will be used.
+If it is missing, `GT/COLOR` folder will be used
 
 The original dataset also contains depth information, but Datumaro
 does not currently support it.

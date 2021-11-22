@@ -15,24 +15,24 @@ import datumaro.plugins.synthia_format as Synthia
 
 from .requirements import Requirements, mark_requirement
 
-DUMMY_INST_SEGM_DATASET_DIR = osp.join(osp.dirname(__file__),
-    'assets', 'synthia_dataset', 'synthia_dataset_1')
+DUMMY_LABELS_SEGM_DATASET_DIR = osp.join(osp.dirname(__file__),
+    'assets', 'synthia_dataset', 'labels_segm_dataset')
 
-DUMMY_SEM_SEGM_DATASET_DIR = osp.join(osp.dirname(__file__),
-    'assets', 'synthia_dataset', 'synthia_dataset_2')
+DUMMY_COLOR_SEGM_DATASET_DIR = osp.join(osp.dirname(__file__),
+    'assets', 'synthia_dataset', 'color_segm_dataset')
 
 DUMMY_DATASET_DIR_CUSTOM_LABELMAP = osp.join(osp.dirname(__file__),
-    'assets', 'synthia_dataset', 'synthia_dataset_3')
+    'assets', 'synthia_dataset', 'dataset_with_custom_labelmap')
 
 class SynthiaImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_497)
     def test_can_detect(self):
-        detected_formats = Environment().detect_dataset(DUMMY_INST_SEGM_DATASET_DIR)
+        detected_formats = Environment().detect_dataset(DUMMY_LABELS_SEGM_DATASET_DIR)
         self.assertEqual([Synthia.SynthiaImporter.NAME], detected_formats)
 
     @mark_requirement(Requirements.DATUM_497)
     def test_can_detect_with_colored_masks(self):
-        detected_formats = Environment().detect_dataset(DUMMY_SEM_SEGM_DATASET_DIR)
+        detected_formats = Environment().detect_dataset(DUMMY_COLOR_SEGM_DATASET_DIR)
         self.assertEqual([Synthia.SynthiaImporter.NAME], detected_formats)
 
     @mark_requirement(Requirements.DATUM_497)
@@ -89,7 +89,7 @@ class SynthiaImporterTest(TestCase):
             )
         ], categories=Synthia.make_categories())
 
-        dataset = Dataset.import_from(DUMMY_INST_SEGM_DATASET_DIR, 'synthia')
+        dataset = Dataset.import_from(DUMMY_LABELS_SEGM_DATASET_DIR, 'synthia')
 
         compare_datasets(self, expected_dataset, dataset, require_images=True)
 
@@ -116,7 +116,7 @@ class SynthiaImporterTest(TestCase):
             )
         ], categories=Synthia.make_categories())
 
-        dataset = Dataset.import_from(DUMMY_SEM_SEGM_DATASET_DIR, 'synthia')
+        dataset = Dataset.import_from(DUMMY_COLOR_SEGM_DATASET_DIR, 'synthia')
 
         compare_datasets(self, expected_dataset, dataset, require_images=True)
 
