@@ -130,7 +130,7 @@ class SynthiaExtractor(SourceExtractor):
                 segm_ids = np.unique(labels_mask)
                 for segm_id in segm_ids:
                     attr = { 'dynamic_object': False }
-                    if segm_id in dynamic_objects:
+                    if segm_id != 0 and segm_id in dynamic_objects:
                         attr['dynamic_object'] = True
                     anno.append(Mask(
                         image=self._lazy_extract_mask(labels_mask, segm_id),
