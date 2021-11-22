@@ -153,7 +153,7 @@ class Converter(CliPlugin):
             if item.point_cloud != path:
                 shutil.copyfile(item.point_cloud, path)
 
-    def _save_meta(self, path):
+    def _save_meta_by_categories(self, path):
         dataset_meta = {}
 
         categories = self._extractor.categories()
@@ -174,7 +174,9 @@ class Converter(CliPlugin):
                 segmentation_colors.append([int(color[0]), int(color[1]), int(color[2])])
             dataset_meta['segmentation_colors'] = segmentation_colors
 
-        meta_file = osp.join(path, self.DATASET_META_FILE)
+        meta_file = path
+        if osp.isdir(path):
+            meta_file = osp.join(path, self.DATASET_META_FILE)
 
         with open(meta_file, 'w') as f:
             json.dump(dataset_meta, f)

@@ -22,7 +22,9 @@ from datumaro.util import find, str_to_bool
 from datumaro.util.annotation_util import make_label_id_mapping
 from datumaro.util.image import save_image
 from datumaro.util.mask_tools import paint_mask, remap_mask
-from datumaro.util.meta_file_util import is_meta_file, parse_meta_file, save_meta_by_label_map
+from datumaro.util.meta_file_util import (
+    is_meta_file, parse_meta_file, save_meta_by_labelmap,
+)
 
 from .format import (
     VocInstColormap, VocPath, VocTask, make_voc_categories, make_voc_label_map,
@@ -126,7 +128,7 @@ class VocConverter(Converter):
     def apply(self):
         self.make_dirs()
         self.save_subsets()
-        save_meta_by_label_map(self._save_dir, self._label_map)
+        save_meta_by_labelmap(self._save_dir, self._label_map)
 
     def make_dirs(self):
         save_dir = self._save_dir
@@ -532,7 +534,7 @@ class VocConverter(Converter):
 
     def save_label_map(self):
         if self._save_dataset_meta:
-            save_meta_by_label_map(self._save_dir, self._label_map)
+            save_meta_by_labelmap(self._save_dir, self._label_map)
         else:
             path = osp.join(self._save_dir, VocPath.LABELMAP_FILE)
             write_label_map(path, self._label_map)
@@ -566,7 +568,7 @@ class VocConverter(Converter):
                 sorted(label_map_source.items(), key=lambda e: e[0]))
 
         elif isinstance(label_map_source, str) and osp.isfile(label_map_source):
-            if is_meta_file(osp.join(label_map_source)):
+            if is_meta_file(label_map_source):
                 label_map = parse_meta_file(label_map_source)
             else:
                 label_map = parse_label_map(label_map_source)

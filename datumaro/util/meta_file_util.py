@@ -36,9 +36,12 @@ def parse_meta_file(path):
     return label_map
 
 def is_meta_file(path):
+    if osp.isfile(path):
+        return osp.splitext(osp.basename(path))[1] == '.json'
+
     return osp.isfile(osp.join(path, DATASET_META_FILE))
 
-def save_meta_by_label_map(path, format_label_map):
+def save_meta_by_labelmap(path, format_label_map):
     dataset_meta = {}
 
     label_map = {}
