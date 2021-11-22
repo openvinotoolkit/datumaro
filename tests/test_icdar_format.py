@@ -330,9 +330,12 @@ class IcdarConverterTest(TestCase):
             DatasetItem(id='1', subset='train',
                 image=np.ones((10, 15, 3)), annotations=[
                     Mask(image=np.array([[0, 0, 0, 1, 1]]), group=1,
-                        attributes={'index': 1, 'text': 'j', 'center': '0 3'}),
+                        attributes={'index': 1, 'text': 'j', 'center': '0 3',
+                            'color': '0 128 0'}),
                     Mask(image=np.array([[0, 1, 1, 0, 0]]), group=1,
                         attributes={'index': 0, 'text': 'F', 'center': '0 1'}),
+                    Mask(image=np.array([[1, 0, 0, 0, 0]]), group=1,
+                        attributes={'index': 2, 'text': 'i', 'center': '0 2'}),
                 ]),
         ])
 
@@ -345,6 +348,9 @@ class IcdarConverterTest(TestCase):
                     Mask(image=np.array([[0, 1, 1, 0, 0]]), group=1,
                         attributes={'index': 0, 'text': 'F', 'center': '0 1',
                             'color': '128 0 0'}),
+                    Mask(image=np.array([[1, 0, 0, 0, 0]]), group=1,
+                        attributes={'index': 2, 'text': 'i', 'center': '0 2',
+                            'color': '128 128 0'}),
                 ]),
         ])
 

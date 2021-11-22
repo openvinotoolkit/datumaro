@@ -82,29 +82,28 @@ class IcdarTextSegmentationConverter(Converter):
         annotation = ''
         colormap = [(255, 255, 255)]
         anns = [a for a in item.annotations if a.type == AnnotationType.mask]
-        gen_colormap = generate_colormap(len(anns), False)
+        color_bank = iter(generate_colormap(len(anns), False).values())
         if anns:
             anns = sorted(anns, key=lambda a: int(a.attributes.get('index', 0)))
             group = anns[0].group
             for i, ann in enumerate(anns):
+                text = ''
+                text = ann.attributes.get('text', '')
+                color = ann.attributes.get('color', '').split()
+                color = tuple(map(int, color))
+                if len(color) != 3:
+                    color = next(color_bank)
+                    while color in colormap:
+                        color = next(color_bank)
+                colormap.append(color)
+                bbox = ann.get_bbox()
+
                 if ann.group != group or (not ann.group and anns[0].group != 0):
                     annotation += '\n'
-                text = ''
-                if ann.attributes:
-                    if 'text' in ann.attributes:
-                        text = ann.attributes['text']
-                    if text == ' ':
-                        annotation += '#'
-                    color = ann.attributes.get('color', '').split()
-                    color = tuple(map(int, color)) if len(color) == 3 \
-                        else gen_colormap.pop(i)
-                    colormap.append(color)
-                    annotation += ' '.join(str(p) for p in color)
-                    if 'center' in ann.attributes:
-                        annotation += ' %s' % ann.attributes['center']
-                    else:
-                        annotation += ' - -'
-                bbox = ann.get_bbox()
+                if text == ' ':
+                    annotation += '#'
+                annotation += ' '.join(str(p) for p in color)
+                annotation += ' %s' % ann.attributes.get('center', '- -')
                 annotation += ' %s %s %s %s' % (bbox[0], bbox[1],
                     bbox[0] + bbox[2], bbox[1] + bbox[3])
                 annotation += ' \"%s\"' % text
