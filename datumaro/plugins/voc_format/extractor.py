@@ -15,7 +15,7 @@ from datumaro.components.extractor import DatasetItem, SourceExtractor
 from datumaro.components.media import Image
 from datumaro.util.image import find_images
 from datumaro.util.mask_tools import invert_colormap, lazy_mask
-from datumaro.util.meta_file_util import is_meta_file
+from datumaro.util.meta_file_util import is_meta_file_in_dir
 
 from .format import (
     VocInstColormap, VocPath, VocTask, make_voc_categories, parse_label_map,
@@ -52,7 +52,7 @@ class _VocExtractor(SourceExtractor):
 
     def _load_categories(self, dataset_path):
         label_map = None
-        if is_meta_file(dataset_path):
+        if is_meta_file_in_dir(dataset_path):
             label_map = parse_meta_file(dataset_path)
         else:
             label_map_path = osp.join(dataset_path, VocPath.LABELMAP_FILE)

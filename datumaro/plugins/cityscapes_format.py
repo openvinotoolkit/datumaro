@@ -21,45 +21,45 @@ from datumaro.util.annotation_util import make_label_id_mapping
 from datumaro.util.image import find_images, load_image, save_image
 from datumaro.util.mask_tools import generate_colormap, paint_mask
 from datumaro.util.meta_file_util import (
-    is_meta_file, parse_meta_file, save_meta_by_labelmap,
+    is_meta_file, is_meta_file_in_dir, parse_meta_file, save_meta_file,
 )
 
 CityscapesLabelMap = OrderedDict([
-    ('unlabeled', [(0, 0, 0), [], []]),
-    ('egovehicle', [(0, 0, 0), [], []]),
-    ('rectificationborder', [(0, 0, 0), [], []]),
-    ('outofroi', [(0, 0, 0), [], []]),
-    ('static', [(0, 0, 0), [], []]),
-    ('dynamic', [(111, 74, 0), [], []]),
-    ('ground', [(81, 0, 81), [], []]),
-    ('road', [(128, 64, 128), [], []]),
-    ('sidewalk', [(244, 35, 232), [], []]),
-    ('parking', [(250, 170, 160), [], []]),
-    ('railtrack', [(230, 150, 140), [], []]),
-    ('building', [(70, 70, 70), [], []]),
-    ('wall', [(102, 102, 156), [], []]),
-    ('fence', [(190, 153, 153), [], []]),
-    ('guardrail', [(180, 165, 180), [], []]),
-    ('bridge', [(150, 100, 100), [], []]),
-    ('tunnel', [(150, 120, 90), [], []]),
-    ('pole', [(153, 153, 153), [], []]),
-    ('polegroup', [(153, 153, 153), [], []]),
-    ('trafficlight', [(250, 170, 30), [], []]),
-    ('trafficsign', [(220, 220, 0), [], []]),
-    ('vegetation', [(107, 142, 35), [], []]),
-    ('terrain', [(152, 251, 152), [], []]),
-    ('sky', [(70, 130, 180), [], []]),
-    ('person', [(220, 20, 60), [], []]),
-    ('rider', [(255, 0, 0), [], []]),
-    ('car', [(0, 0, 142), [], []]),
-    ('truck', [(0, 0, 70), [], []]),
-    ('bus', [(0, 60, 100), [], []]),
-    ('caravan', [(0, 0, 90), [], []]),
-    ('trailer', [(0, 0, 110), [], []]),
-    ('train', [(0, 80, 100), [], []]),
-    ('motorcycle', [(0, 0, 230), [], []]),
-    ('bicycle', [(119, 11, 32), [], []]),
-    ('licenseplate', [(0, 0, 142), [], []]),
+    ('unlabeled', (0, 0, 0)),
+    ('egovehicle', (0, 0, 0)),
+    ('rectificationborder', (0, 0, 0)),
+    ('outofroi', (0, 0, 0)),
+    ('static', (0, 0, 0)),
+    ('dynamic', (111, 74, 0)),
+    ('ground', (81, 0, 81)),
+    ('road', (128, 64, 128)),
+    ('sidewalk', (244, 35, 232)),
+    ('parking', (250, 170, 160)),
+    ('railtrack', (230, 150, 140)),
+    ('building', (70, 70, 70)),
+    ('wall', (102, 102, 156)),
+    ('fence', (190, 153, 153)),
+    ('guardrail', (180, 165, 180)),
+    ('bridge', (150, 100, 100)),
+    ('tunnel', (150, 120, 90)),
+    ('pole', (153, 153, 153)),
+    ('polegroup', (153, 153, 153)),
+    ('trafficlight', (250, 170, 30)),
+    ('trafficsign', (220, 220, 0)),
+    ('vegetation', (107, 142, 35)),
+    ('terrain', (152, 251, 152)),
+    ('sky', (70, 130, 180)),
+    ('person', (220, 20, 60)),
+    ('rider', (255, 0, 0)),
+    ('car', (0, 0, 142)),
+    ('truck', (0, 0, 70)),
+    ('bus', (0, 60, 100)),
+    ('caravan', (0, 0, 90)),
+    ('trailer', (0, 0, 110)),
+    ('train', (0, 80, 100)),
+    ('motorcycle', (0, 0, 230)),
+    ('bicycle', (119, 11, 32)),
+    ('licenseplate', (0, 0, 142)),
 ])
 
 class CityscapesPath:
@@ -79,15 +79,15 @@ def make_cityscapes_categories(label_map=None):
         label_map = CityscapesLabelMap
 
     # There must always be a label with color (0, 0, 0) at index 0
-    bg_label = find(label_map.items(), lambda x: x[1][0] == (0, 0, 0))
+    bg_label = find(label_map.items(), lambda x: x[1] == (0, 0, 0))
     if bg_label is not None:
         bg_label = bg_label[0]
     else:
         bg_label = 'background'
         if bg_label not in label_map:
-            has_colors = any(v[0] is not None for v in label_map.values())
+            has_colors = any(v is not None for v in label_map.values())
             color = (0, 0, 0) if has_colors else None
-            label_map[bg_label] = [color, [], []]
+            label_map[bg_label] = color
     label_map.move_to_end(bg_label, last=False)
 
     categories = {}
@@ -96,17 +96,16 @@ def make_cityscapes_categories(label_map=None):
         label_categories.add(label)
     categories[AnnotationType.label] = label_categories
 
-    has_colors = any(v[0] is not None for v in label_map.values())
+    has_colors = any(v is not None for v in label_map.values())
     if not has_colors: # generate new colors
         colormap = generate_colormap(len(label_map))
     else: # only copy defined colors
         label_id = lambda label: label_categories.find(label)[0]
-        colormap = { label_id(name): desc[0]
-            for name, desc in label_map.items() if desc[0] is not None }
+        colormap = { label_id(name): (desc[0], desc[1], desc[2])
+            for name, desc in label_map.items() }
     mask_categories = MaskCategories(colormap)
     mask_categories.inverse_colormap # pylint: disable=pointless-statement
     categories[AnnotationType.mask] = mask_categories
-
     return categories
 
 def parse_label_map(path):
@@ -134,14 +133,14 @@ def parse_label_map(path):
             if name in label_map:
                 raise ValueError("Label '%s' is already defined" % name)
 
-            label_map[name] = [color, [], []]
+            label_map[name] = color
     return label_map
 
 def write_label_map(path, label_map):
     with open(path, 'w', encoding='utf-8') as f:
         for label_name, label_desc in label_map.items():
-            if label_desc[0]:
-                color_rgb = ' '.join(str(c) for c in label_desc[0])
+            if label_desc:
+                color_rgb = ' '.join(str(c) for c in label_desc)
             else:
                 color_rgb = ''
             f.write('%s %s\n' % (color_rgb, label_name))
@@ -176,7 +175,7 @@ class CityscapesExtractor(SourceExtractor):
 
     def _load_categories(self, path):
         label_map = None
-        if is_meta_file(path):
+        if is_meta_file_in_dir(path):
             label_map = parse_meta_file(path)
         else:
             label_map_path = osp.join(path, CityscapesPath.LABELMAP_FILE)
@@ -343,12 +342,13 @@ class CityscapesConverter(Converter):
         self.save_label_map()
 
     def save_label_map(self):
-        labels = self._extractor.categories()[AnnotationType.label]
-        if len(self._label_map) > len(labels):
-            self._label_map.pop('background')
         if self._save_dataset_meta:
-            save_meta_by_labelmap(self._save_dir, self._label_map)
+            save_meta_file(self._save_dir, self._extractor.categories())
         else:
+            labels = self._extractor.categories()[AnnotationType.label]
+            if len(self._label_map) > len(labels):
+                self._label_map.pop('background')
+
             path = osp.join(self._save_dir, CityscapesPath.LABELMAP_FILE)
             write_label_map(path, self._label_map)
 
@@ -362,7 +362,7 @@ class CityscapesConverter(Converter):
             # generate colormap for input labels
             labels = self._extractor.categories() \
                 .get(AnnotationType.label, LabelCategories())
-            label_map = OrderedDict((item.name, (None, [], []))
+            label_map = OrderedDict((item.name, None)
                 for item in labels.items)
 
         elif label_map_source == LabelmapType.source.name and \
@@ -374,7 +374,7 @@ class CityscapesConverter(Converter):
             for idx, item in enumerate(labels.items):
                 color = colors.colormap.get(idx)
                 if color is not None:
-                    label_map[item.name] = [color, [], []]
+                    label_map[item.name] = color
 
         elif isinstance(label_map_source, dict):
             label_map = OrderedDict(

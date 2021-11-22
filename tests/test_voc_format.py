@@ -851,8 +851,8 @@ class VocConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(SrcExtractor(),
                 partial(VocConverter.convert, label_map='source',
-                save_dataset_meta=True), test_dir,
-                target_dataset=DstExtractor())
+                    save_dataset_meta=True), test_dir,
+                    target_dataset=DstExtractor())
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_dataset_with_fixed_labelmap(self):

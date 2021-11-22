@@ -15,7 +15,9 @@ from datumaro.components.converter import Converter
 from datumaro.components.errors import DatasetImportError
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.components.format_detection import FormatDetectionContext
-from datumaro.util.meta_file_util import is_meta_file, parse_meta_file
+from datumaro.util.meta_file_util import (
+    is_meta_file_in_dir, parse_meta_file, save_meta_file,
+)
 
 
 class ImagenetTxtPath:
@@ -72,7 +74,7 @@ class ImagenetTxtExtractor(SourceExtractor):
                 labels = ()
                 self._generate_labels = True
             elif labels_source == _LabelsSource.file:
-                if is_meta_file(root_dir):
+                if is_meta_file_in_dir(root_dir):
                     labels = list(parse_meta_file(root_dir).keys())
                 else:
                     labels = self._parse_labels(
@@ -206,7 +208,7 @@ class ImagenetTxtConverter(Converter):
                 f.write(annotation)
 
         if self._save_dataset_meta:
-            self._save_meta_by_categories(subset_dir)
+            save_meta_file(subset_dir, self._extractor.categories())
         else:
             labels_file = osp.join(subset_dir, ImagenetTxtPath.LABELS_FILE)
             with open(labels_file, 'w', encoding='utf-8') as f:
