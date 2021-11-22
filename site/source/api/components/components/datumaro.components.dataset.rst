@@ -8,9 +8,8 @@ dataset module
    :special-members:
    :show-inheritance:
 
-.. automodule:: datumaro.components.dataset
-   :members:
-   :exclude-members: ItemStatus
+.. automodule:: datumaro.components.dataset.Dataset
+   :members: update, transform, bind
    :private-members:
    :special-members:
    :show-inheritance:
