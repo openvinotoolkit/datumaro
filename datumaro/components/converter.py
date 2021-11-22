@@ -4,7 +4,6 @@
 
 from tempfile import mkdtemp
 from typing import Union
-import json
 import logging as log
 import os
 import os.path as osp
