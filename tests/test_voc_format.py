@@ -19,7 +19,6 @@ from datumaro.plugins.voc_format.converter import (
 )
 from datumaro.plugins.voc_format.importer import VocImporter
 from datumaro.util.mask_tools import load_mask
-from datumaro.util.meta_file_util import parse_meta_file, save_meta_by_labelmap
 from datumaro.util.test_utils import (
     TestDir, compare_datasets, test_save_and_load,
 )
@@ -79,8 +78,8 @@ class VocFormatTest(TestCase):
         src_label_map['ww'] = [(10, 20, 30), [], ['act3']]
 
         with TestDir() as test_dir:
-            save_meta_by_labelmap(test_dir, src_label_map)
-            dst_label_map = parse_meta_file(test_dir)
+            VOC.write_meta_file(test_dir, src_label_map)
+            dst_label_map = VOC.parse_meta_file(test_dir)
 
             self.assertEqual(src_label_map, dst_label_map)
 
