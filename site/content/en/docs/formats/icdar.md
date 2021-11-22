@@ -19,24 +19,24 @@ Original dataset contains the following subformats:
 
 Supported types of annotations:
 - ICDAR word recognition
-    - `Caption`
+  - `Caption`
 - ICDAR text localization
-    - `Polygon`, `Bbox`
+  - `Polygon`, `Bbox`
 - ICDAR text segmentation
-    - `Mask`
+  - `Mask`
 
 Supported attributes:
 - ICDAR text localization
-    - `text`: transcription of text is inside a `Polygon`/`Bbox`.
+  - `text`: transcription of text is inside a `Polygon`/`Bbox`.
 - ICDAR text segmentation
-    - `index`: identifier of the annotation object, which is encoded in the mask
-      and coincides with the line number in which the description
-      of this object is written;
-    - `text`: transcription of text is inside a `Mask`;
-    - `color`: RGB values of the color corresponding text in the mask image
-      (three numbers separated by space);
-    - `center`: coordinates of the center of text
-      (two numbers separated by space).
+  - `index`: identifier of the annotation object, which is encoded in the mask
+    and coincides with the line number in which the description
+    of this object is written;
+  - `text`: transcription of text is inside a `Mask`;
+  - `color`: RGB values of the color corresponding text in the mask image
+    (three numbers separated by space);
+  - `center`: coordinates of the center of text
+    (two numbers separated by space).
 
 ## Import ICDAR dataset
 
@@ -56,6 +56,7 @@ data2 = Dataset.import_from('text_segmentation_path', 'icdar_text_segmentation')
 data3 = Dataset.import_from('word_recognition_path', 'icdar_word_recognition')
 ```
 Dataset with ICDAR dataset should have the following structure:
+
 For `icdar_word_recognition`
 ```
 <dataset_path>/
@@ -122,7 +123,7 @@ datum export -f label_me -o ./export_dir -- --save-images
 With Datumaro you can also convert your dataset to one of the ICDAR formats,
 but to get expected result, the source dataset should contain required
 attributes, described in previous section.
-> Note: in case with `icdar_text_segmentation` format if your dataset contains
+> Note: in case with `icdar_text_segmentation` format, if your dataset contains
 > masks without attribute `color` then it will be generated automatically.
 
 Available extra export options for ICDAR dataset formats:
