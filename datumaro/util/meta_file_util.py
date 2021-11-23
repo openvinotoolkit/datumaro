@@ -14,7 +14,7 @@ DATASET_META_FILE = 'dataset_meta.json'
 def is_meta_file(path):
     return osp.splitext(osp.basename(path))[1] == '.json'
 
-def is_meta_file_in_dir(path):
+def has_meta_file(path):
     return osp.isfile(osp.join(path, DATASET_META_FILE))
 
 def parse_meta_file(path):

@@ -14,7 +14,7 @@ from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.util import str_to_bool
 from datumaro.util.meta_file_util import (
-    is_meta_file_in_dir, parse_meta_file, save_meta_file,
+    has_meta_file, parse_meta_file, save_meta_file,
 )
 
 
@@ -47,7 +47,7 @@ class WiderFaceExtractor(SourceExtractor):
 
     def _load_categories(self):
         label_cat = LabelCategories()
-        if is_meta_file_in_dir(self._dataset_dir):
+        if has_meta_file(self._dataset_dir):
             labels = parse_meta_file(self._dataset_dir).keys()
             for label in labels:
                 label_cat.add(label)

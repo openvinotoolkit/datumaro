@@ -22,7 +22,7 @@ from datumaro.util import find, str_to_bool
 from datumaro.util.annotation_util import make_label_id_mapping
 from datumaro.util.image import save_image
 from datumaro.util.mask_tools import paint_mask, remap_mask
-from datumaro.util.meta_file_util import is_meta_file_in_dir
+from datumaro.util.meta_file_util import has_meta_file
 
 from .format import (
     VocInstColormap, VocPath, VocTask, make_voc_categories, make_voc_label_map,
@@ -566,7 +566,7 @@ class VocConverter(Converter):
                 sorted(label_map_source.items(), key=lambda e: e[0]))
 
         elif isinstance(label_map_source, str) and osp.isfile(label_map_source):
-            if is_meta_file_in_dir(label_map_source):
+            if has_meta_file(label_map_source):
                 label_map = parse_meta_file(label_map_source)
             else:
                 label_map = parse_label_map(label_map_source)
