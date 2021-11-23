@@ -21,7 +21,7 @@ from datumaro.util.annotation_util import make_label_id_mapping
 from datumaro.util.image import find_images, load_image, save_image
 from datumaro.util.mask_tools import generate_colormap, paint_mask
 from datumaro.util.meta_file_util import (
-    is_meta_file, has_meta_file, parse_meta_file, save_meta_file,
+    has_meta_file, is_meta_file, parse_meta_file, save_meta_file,
 )
 
 CityscapesLabelMap = OrderedDict([
