@@ -53,7 +53,7 @@ class VideoTest:
         for idx, frame in enumerate(video):
             assert frame.size == video.frame_size
             assert frame.index == idx
-            assert id(frame.video) == id(video)
+            assert frame.video is video
             assert frame == np.ones((*video.frame_size, 3)) * 255
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
