@@ -1,16 +1,16 @@
-.. Datumaro API documentation documentation master file, created by
-   sphinx-quickstart on Fri Oct 22 20:11:30 2021.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 Welcome to Datumaro API documentation!
 ######################################
 
 This API Dataset Management Framework Documentation (Datumaro).
 
+The Datumaro API provides access to functions for building composite datasets
+and re-iterate through them, create and maintain datasets,
+store datasets, and so on.
+This Documentation should point you toward the right
+Datumaro integration process.
 
-API Documentation Contents
-**************************
+Contents
+********
 
 .. toctree::
    :maxdepth: 1
