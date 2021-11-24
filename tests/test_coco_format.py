@@ -21,7 +21,7 @@ from datumaro.plugins.coco_format.converter import (
 )
 from datumaro.plugins.coco_format.importer import CocoImporter
 from datumaro.util.test_utils import (
-    TestDir, compare_datasets, check_save_and_load,
+    TestDir, check_save_and_load, compare_datasets,
 )
 
 from .requirements import Requirements, mark_requirement

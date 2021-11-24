@@ -20,7 +20,7 @@ from datumaro.plugins.voc_format.converter import (
 from datumaro.plugins.voc_format.importer import VocImporter
 from datumaro.util.mask_tools import load_mask
 from datumaro.util.test_utils import (
-    TestDir, compare_datasets, check_save_and_load,
+    TestDir, check_save_and_load, compare_datasets,
 )
 import datumaro.plugins.voc_format.format as VOC
 
