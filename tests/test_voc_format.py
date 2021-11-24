@@ -17,10 +17,13 @@ from datumaro.plugins.voc_format.converter import (
     VocActionConverter, VocClassificationConverter, VocConverter,
     VocDetectionConverter, VocLayoutConverter, VocSegmentationConverter,
 )
-from datumaro.plugins.voc_format.importer import VocImporter
+from datumaro.plugins.voc_format.importer import (
+    VocActionImporter, VocClassificationImporter, VocDetectionImporter,
+    VocImporter, VocLayoutImporter, VocSegmentationImporter,
+)
 from datumaro.util.mask_tools import load_mask
 from datumaro.util.test_utils import (
-    TestDir, compare_datasets, test_save_and_load,
+    TestDir, check_save_and_load, compare_datasets,
 )
 import datumaro.plugins.voc_format.format as VOC
 
@@ -81,8 +84,6 @@ class TestExtractorBase(Extractor):
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'voc_dataset',
     'voc_dataset1')
-DUMMY_DATASET2_DIR = osp.join(osp.dirname(__file__), 'assets', 'voc_dataset',
-    'voc_dataset2')
 
 class VocImportTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -337,18 +338,30 @@ class VocImportTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_voc(self):
+        matrix = [
+            # Whole dataset
+            (DUMMY_DATASET_DIR, VocImporter),
+
+            # Subformats
+            (DUMMY_DATASET_DIR, VocClassificationImporter),
+            (DUMMY_DATASET_DIR, VocDetectionImporter),
+            (DUMMY_DATASET_DIR, VocSegmentationImporter),
+            (DUMMY_DATASET_DIR, VocLayoutImporter),
+            (DUMMY_DATASET_DIR, VocActionImporter),
+        ]
+
         env = Environment()
 
-        for path in [DUMMY_DATASET_DIR, DUMMY_DATASET2_DIR]:
-            with self.subTest(path=path):
+        for path, subtask in matrix:
+            with self.subTest(path=path, task=subtask):
                 detected_formats = env.detect_dataset(path)
-                self.assertEqual([VocImporter.NAME], detected_formats)
+                self.assertIn(subtask.NAME, detected_formats)
 
 
 class VocConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None, **kwargs):
-        return test_save_and_load(self, source_dataset, converter, test_dir,
+        return check_save_and_load(self, source_dataset, converter, test_dir,
             importer='voc',
             target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 

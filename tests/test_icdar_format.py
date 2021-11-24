@@ -18,7 +18,7 @@ from datumaro.plugins.icdar_format.extractor import (
     IcdarWordRecognitionImporter,
 )
 from datumaro.util.test_utils import (
-    TestDir, compare_datasets, test_save_and_load,
+    TestDir, check_save_and_load, compare_datasets,
 )
 
 from .requirements import Requirements, mark_requirement
@@ -126,7 +126,7 @@ class IcdarImporterTest(TestCase):
 class IcdarConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir, importer,
             target_dataset=None, importer_args=None, **kwargs):
-        return test_save_and_load(self, source_dataset, converter, test_dir,
+        return check_save_and_load(self, source_dataset, converter, test_dir,
             importer,
             target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 

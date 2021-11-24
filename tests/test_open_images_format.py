@@ -320,6 +320,6 @@ class OpenImagesImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_274)
     def test_can_detect(self):
         detected_formats = Environment().detect_dataset(DUMMY_DATASET_DIR_V6)
-        self.assertEqual([OpenImagesImporter.NAME], detected_formats)
+        self.assertIn(OpenImagesImporter.NAME, detected_formats)
         detected_formats = Environment().detect_dataset(DUMMY_DATASET_DIR_V5)
-        self.assertEqual([OpenImagesImporter.NAME], detected_formats)
+        self.assertIn(OpenImagesImporter.NAME, detected_formats)
