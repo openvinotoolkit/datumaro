@@ -7,6 +7,7 @@ import os.path as osp
 
 from datumaro.components.annotation import AnnotationType, CompiledMask
 from datumaro.components.converter import Converter
+from datumaro.components.errors import DatumaroError
 from datumaro.util.image import save_image
 from datumaro.util.mask_tools import generate_colormap, paint_mask
 
@@ -80,22 +81,35 @@ class IcdarTextSegmentationConverter(Converter):
                 subdir=osp.join(subset_name, IcdarPath.IMAGES_DIR))
 
         annotation = ''
-        colormap = [(255, 255, 255)]
+
         anns = [a for a in item.annotations if a.type == AnnotationType.mask]
-        color_bank = iter(generate_colormap(len(anns), False).values())
+
+        color_bank = iter(generate_colormap(len(anns),
+            include_background=False).values())
+        colormap = [(255, 255, 255)]
+        used_colors = set(colormap)
+
         if anns:
             anns = sorted(anns, key=lambda a: int(a.attributes.get('index', 0)))
             group = anns[0].group
             for i, ann in enumerate(anns):
-                text = ''
-                text = ann.attributes.get('text', '')
-                color = ann.attributes.get('color', '').split()
-                color = tuple(map(int, color))
-                if len(color) != 3:
+                # Assign new color if it is not defined
+                color = ann.attributes.get('color', '')
+                if color:
+                    color = color.split()
+                    if len(color) != 3:
+                        raise DatumaroError(
+                            "Item %s: mask #%s has invalid color" % (item.id, i))
+
+                    color = tuple(map(int, color))
+                else:
                     color = next(color_bank)
-                    while color in colormap:
+                    while color in used_colors:
                         color = next(color_bank)
                 colormap.append(color)
+                used_colors.add(color)
+
+                text = ann.attributes.get('text', '')
                 bbox = ann.get_bbox()
 
                 if ann.group != group or (not ann.group and anns[0].group != 0):
