@@ -15,7 +15,7 @@ from datumaro.components.extractor import DatasetItem, Extractor
 from datumaro.components.media import Image
 from datumaro.plugins.camvid_format import CamvidConverter, CamvidImporter
 from datumaro.util.test_utils import (
-    TestDir, compare_datasets, test_save_and_load,
+    TestDir, check_save_and_load, compare_datasets,
 )
 import datumaro.plugins.camvid_format as Camvid
 
@@ -92,7 +92,7 @@ class CamvidConverterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None, **kwargs):
-        return test_save_and_load(self, source_dataset, converter, test_dir,
+        return check_save_and_load(self, source_dataset, converter, test_dir,
             importer='camvid',
             target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
