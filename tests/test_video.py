@@ -111,3 +111,12 @@ class VideoTest:
             assert idx == frame.index
 
         assert 4 == video.frame_count
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_can_open_lazily(self):
+        with TestDir() as test_dir:
+            video = Video(osp.join(test_dir, 'path.mp4'))
+
+            assert osp.join(test_dir, 'path.mp4') == video.path
+            assert 'mp4' == video.ext
