@@ -11,6 +11,7 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.converter import Converter
 from datumaro.components.extractor import DatasetItem, Extractor, Importer
+from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.util.image import find_images
 
 
@@ -158,6 +159,16 @@ class VggFace2Extractor(Extractor):
         return items
 
 class VggFace2Importer(Importer):
+    @classmethod
+    def detect(cls, context: FormatDetectionContext) -> None:
+        with context.require_any():
+            for prefix in (
+                VggFace2Path.BBOXES_FILE, VggFace2Path.LANDMARKS_FILE
+            ):
+                with context.alternative():
+                    context.require_file(
+                        f'{VggFace2Path.ANNOTATION_DIR}/{prefix}*.csv')
+
     @classmethod
     def find_sources(cls, path):
         if osp.isdir(path):

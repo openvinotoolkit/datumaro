@@ -73,6 +73,10 @@ List of supported formats:
   - [Format specification](https://docs.supervise.ly/data-organization/00_ann_format_navi)
   - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/sly_pointcloud_dataset)
   - [Format documentation](/docs/formats/sly_pointcloud)
+- SYNTHIA (`segmentation`)
+  - [Format specification](https://synthia-dataset.net/)
+  - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/synthia_dataset)
+  - [Format documentation](/docs/formats/synthia)
 - CVAT
   - [Format specification](https://openvinotoolkit.github.io/cvat/docs/manual/advanced/xml_format)
   - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/cvat_dataset)
