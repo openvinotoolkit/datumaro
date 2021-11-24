@@ -22,9 +22,10 @@ def make_sample_video(path, frames=4, frame_size=(10, 20), fps=25.0):
         fps=float(fps), fourcc=cv2.VideoWriter_fourcc(*'MJPG'))
     on_exit_do(writer.release)
 
-    for _ in range(frames):
+    for i in range(frames):
         # Apparently, only uint8 values are supported, but not floats
-        writer.write(np.ones((*frame_size, 3), dtype=np.uint8) * 255)
+        # Colors are compressed, but grayscale colors suffer no loss
+        writer.write(np.ones((*frame_size, 3), dtype=np.uint8) * i)
 
 @pytest.fixture(scope='module')
 def fxt_sample_video():
@@ -54,7 +55,7 @@ class VideoTest:
             assert frame.size == video.frame_size
             assert frame.index == idx
             assert frame.video is video
-            assert frame == np.ones((*video.frame_size, 3)) * 255
+            assert frame == np.ones((*video.frame_size, 3)) * idx
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
@@ -65,7 +66,7 @@ class VideoTest:
         for idx in {1, 3, 2, 0, 3}:
             frame = video[idx]
             assert frame.index == idx
-            assert frame == np.ones((*video.frame_size, 3)) * 255
+            assert frame == np.ones((*video.frame_size, 3)) * idx
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
@@ -119,4 +120,4 @@ class VideoTest:
             video = Video(osp.join(test_dir, 'path.mp4'))
 
             assert osp.join(test_dir, 'path.mp4') == video.path
-            assert 'mp4' == video.ext
+            assert '.mp4' == video.ext
