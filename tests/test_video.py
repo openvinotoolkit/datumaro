@@ -55,7 +55,8 @@ class VideoTest:
             assert frame.size == video.frame_size
             assert frame.index == idx
             assert frame.video is video
-            assert frame == np.ones((*video.frame_size, 3)) * idx
+            assert np.array_equal(frame.data,
+                np.ones((*video.frame_size, 3)) * idx)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
@@ -66,7 +67,8 @@ class VideoTest:
         for idx in {1, 3, 2, 0, 3}:
             frame = video[idx]
             assert frame.index == idx
-            assert frame == np.ones((*video.frame_size, 3)) * idx
+            assert np.array_equal(frame.data,
+                np.ones((*video.frame_size, 3)) * idx)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
