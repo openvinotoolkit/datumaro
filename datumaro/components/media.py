@@ -340,11 +340,29 @@ class Video(MediaElement, Iterable[VideoFrame]):
     def frame_count(self) -> Optional[int]:
         """
         Returns frame count, if video provides such information.
-        Note that not all videos provide length / duration metainfo.
 
-        The count is affected by the frame filtering options of the object.
+        Note that not all videos provide length / duration metainfo, so the
+        result may be undefined.
+
+        Also note, that information may be inaccurate because of variable
+        FPS in video or incorrect metainfo. The count is only guaranteed to
+        be valid after video is completely read once.
+
+        The count is affected by the frame filtering options of the object,
+        i.e. start frame, end frame and frame step.
         """
-        return self._get_length()
+
+        if self._length is None:
+            end_frame = self._get_end_frame()
+
+            length = None
+            if end_frame is not None:
+                length = (end_frame - self._start_frame) // self._step
+                assert 0 < length
+
+            self._length = length
+
+        return self._length
 
     @property
     def frame_size(self) -> Tuple[int, int]:
@@ -370,12 +388,12 @@ class Video(MediaElement, Iterable[VideoFrame]):
         # Note that this information can be invalid or inaccurate
         # due to variable frame rate
         # https://stackoverflow.com/a/47796468
-        video_length = container.get(cv2.CAP_PROP_FRAME_COUNT)
-        if video_length:
-            video_length = int(video_length)
+        frame_count = reader.get(cv2.CAP_PROP_FRAME_COUNT)
+        if frame_count:
+            frame_count = int(frame_count)
         else:
-            video_length = None
-        return video_length
+            frame_count = None
+        return frame_count
 
     def _get_end_frame(self):
         if self._end_frame is not None and self._frame_count is not None:
@@ -384,19 +402,6 @@ class Video(MediaElement, Iterable[VideoFrame]):
             end_frame = self._end_frame or self._frame_count
 
         return end_frame
-
-    def _get_length(self):
-        if self._length is None:
-            end_frame = self._get_end_frame()
-
-            length = None
-            if end_frame is not None:
-                length = (end_frame - self._start_frame) // self._step
-                assert 0 < length
-
-            self._length = length
-
-        return self._length
 
     def _includes_frame(self, i):
         end_frame = self._get_end_frame()
