@@ -8,10 +8,10 @@ from datumaro.components.annotation import Bbox, Label
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
+from datumaro.components.media import Image
 from datumaro.plugins.widerface_format import (
     WiderFaceConverter, WiderFaceImporter,
 )
-from datumaro.util.image import Image
 from datumaro.util.test_utils import IGNORE_ALL, TestDir, compare_datasets
 
 from .requirements import Requirements, mark_requirement
@@ -214,7 +214,7 @@ class WiderFaceImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect(self):
         detected_formats = Environment().detect_dataset(DUMMY_DATASET_DIR)
-        self.assertIn(WiderFaceImporter.NAME, detected_formats)
+        self.assertEqual([WiderFaceImporter.NAME], detected_formats)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import(self):

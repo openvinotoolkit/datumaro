@@ -15,6 +15,7 @@ from datumaro.components.annotation import (
     AnnotationType, CompiledMask, LabelCategories, Mask, Polygon,
 )
 from datumaro.components.extractor import DatasetItem, Extractor, Importer
+from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.util.image import (
     IMAGE_EXTENSIONS, find_images, lazy_image, load_image,
 )
@@ -174,6 +175,19 @@ class Ade20k2020Extractor(Extractor):
         return mask
 
 class Ade20k2020Importer(Importer):
+    @classmethod
+    def detect(cls, context: FormatDetectionContext) -> None:
+        annot_path = context.require_file('*/**/*.json')
+
+        with context.probe_text_file(
+            annot_path, "must be a JSON object with an \"annotation\" key",
+        ) as f:
+            contents = json.load(f)
+            if not isinstance(contents, dict):
+                raise Exception
+            if 'annotation' not in contents:
+                raise Exception
+
     @classmethod
     def find_sources(cls, path):
         for i in range(5):

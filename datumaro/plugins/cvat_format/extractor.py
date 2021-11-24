@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2020 Intel Corporation
+# Copyright (C) 2019-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -11,7 +11,8 @@ from datumaro.components.annotation import (
     AnnotationType, Bbox, Label, LabelCategories, Points, Polygon, PolyLine,
 )
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
-from datumaro.util.image import Image
+from datumaro.components.format_detection import FormatDetectionContext
+from datumaro.components.media import Image
 
 from .format import CvatPath
 
@@ -315,6 +316,17 @@ class CvatExtractor(SourceExtractor):
         return parsed
 
 class CvatImporter(Importer):
+    @classmethod
+    def detect(cls, context: FormatDetectionContext) -> None:
+        annot_file = context.require_file('*.xml')
+
+        with context.probe_text_file(
+            annot_file, "must be an XML file with an \"annotations\" root element",
+        ) as f:
+            _, root_elem = next(ElementTree.iterparse(f, events=('start',)))
+            if root_elem.tag != 'annotations':
+                raise Exception
+
     @classmethod
     def find_sources(cls, path):
         return cls._find_sources_recursive(path, '.xml', 'cvat')

@@ -12,10 +12,11 @@ import string
 
 from datumaro.components.annotation import AnnotationType, LabelCategories
 from datumaro.components.converter import Converter
+from datumaro.components.media import ByteImage
 from datumaro.util.annotation_util import (
     find_group_leader, find_instances, max_bbox,
 )
-from datumaro.util.image import ByteImage, encode_image
+from datumaro.util.image import encode_image
 from datumaro.util.mask_tools import merge_masks
 from datumaro.util.tf_util import import_tf as _import_tf
 

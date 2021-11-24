@@ -11,6 +11,7 @@ from datumaro.components.annotation import (
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem, Extractor
+from datumaro.components.media import Image
 from datumaro.plugins.kitti_format.converter import KittiConverter
 from datumaro.plugins.kitti_format.format import (
     KittiLabelMap, KittiPath, KittiTask, make_kitti_categories, parse_label_map,
@@ -19,9 +20,8 @@ from datumaro.plugins.kitti_format.format import (
 from datumaro.plugins.kitti_format.importer import (
     KittiDetectionImporter, KittiImporter, KittiSegmentationImporter,
 )
-from datumaro.util.image import Image
 from datumaro.util.test_utils import (
-    TestDir, compare_datasets, test_save_and_load,
+    TestDir, check_save_and_load, compare_datasets,
 )
 
 from .requirements import Requirements, mark_requirement
@@ -146,7 +146,7 @@ class TestExtractorBase(Extractor):
 class KittiConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None, **kwargs):
-        return test_save_and_load(self, source_dataset, converter, test_dir,
+        return check_save_and_load(self, source_dataset, converter, test_dir,
             importer='kitti',
             target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 

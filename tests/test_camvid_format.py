@@ -12,10 +12,10 @@ from datumaro.components.annotation import (
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem, Extractor
+from datumaro.components.media import Image
 from datumaro.plugins.camvid_format import CamvidConverter, CamvidImporter
-from datumaro.util.image import Image
 from datumaro.util.test_utils import (
-    TestDir, compare_datasets, test_save_and_load,
+    TestDir, check_save_and_load, compare_datasets,
 )
 import datumaro.plugins.camvid_format as Camvid
 
@@ -86,13 +86,13 @@ class CamvidImportTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_camvid(self):
         detected_formats = Environment().detect_dataset(DUMMY_DATASET_DIR)
-        self.assertIn(CamvidImporter.NAME, detected_formats)
+        self.assertEqual([CamvidImporter.NAME], detected_formats)
 
 class CamvidConverterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None, **kwargs):
-        return test_save_and_load(self, source_dataset, converter, test_dir,
+        return check_save_and_load(self, source_dataset, converter, test_dir,
             importer='camvid',
             target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 

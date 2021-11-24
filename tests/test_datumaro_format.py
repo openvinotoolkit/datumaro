@@ -11,13 +11,13 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
+from datumaro.components.media import Image
 from datumaro.components.project import Dataset
 from datumaro.plugins.datumaro_format.converter import DatumaroConverter
 from datumaro.plugins.datumaro_format.extractor import DatumaroImporter
-from datumaro.util.image import Image
 from datumaro.util.mask_tools import generate_colormap
 from datumaro.util.test_utils import (
-    Dimensions, TestDir, compare_datasets_strict, test_save_and_load,
+    Dimensions, TestDir, check_save_and_load, compare_datasets_strict,
 )
 
 from .requirements import Requirements, mark_requirement
@@ -27,7 +27,7 @@ class DatumaroConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None,
             compare=compare_datasets_strict, **kwargs):
-        return test_save_and_load(self, source_dataset, converter, test_dir,
+        return check_save_and_load(self, source_dataset, converter, test_dir,
             importer='datumaro',
             target_dataset=target_dataset, importer_args=importer_args,
             compare=compare, **kwargs)
@@ -117,7 +117,7 @@ class DatumaroConverterTest(TestCase):
             DatumaroConverter.convert(self.test_dataset, save_dir=test_dir)
 
             detected_formats = Environment().detect_dataset(test_dir)
-            self.assertIn(DatumaroImporter.NAME, detected_formats)
+            self.assertEqual([DatumaroImporter.NAME], detected_formats)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_relative_paths(self):
