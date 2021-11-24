@@ -18,6 +18,11 @@ to merge labels and adjust the annotations in the resulting dataset.
 In Datumaro, it can be done with the `merge` command. This command merges 2
 or more datasets and checks annotations for errors.
 
+> In simple cases, when dataset images are not intersected and new
+> labels are not added, the recommended way of merging is using
+> [the `patch` command](/docs/user-manual/command-reference/patch/).
+> It will offer better performance and provide the same results.
+
 Datasets are merged by items, and item annotations are merged by finding the
 unique ones across datasets. Annotations are matched between matching dataset
 items by distance. Spatial annotations are compared by the applicable distance

@@ -34,6 +34,11 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         conflicts. This command can try to find common ground by voting or
         return a list of conflicts.|n
         |n
+        In simple cases, when dataset images are not intersected and new
+        labels are not added, the recommended way of merging is using the
+        "patch" command. It will offer better performance and provide the same
+        results.|n
+        |n
         This command has multiple forms:|n
         1) %(prog)s <revpath>|n
         2) %(prog)s <revpath> <revpath> ...|n
