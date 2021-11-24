@@ -28,6 +28,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   <https://github.com/openvinotoolkit/datumaro/pull/558>)
 - Allowed Pytest-native tests
   (<https://github.com/openvinotoolkit/datumaro/pull/563>)
+- Allowed export options in the `datum merge` command
+  (<https://github.com/openvinotoolkit/datumaro/pull/545>)
 
 ### Deprecated
 - Using `Image`, `ByteImage` from `datumaro.util.image` - these classes
@@ -61,8 +63,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/531>)
 - Updated `pycocotools` version to 2.0.2
   (<https://github.com/openvinotoolkit/datumaro/pull/534>)
-- Allowed export options in the `datum merge` command
-  (<https://github.com/openvinotoolkit/datumaro/pull/545>)
 
 ### Deprecated
 - TBD
