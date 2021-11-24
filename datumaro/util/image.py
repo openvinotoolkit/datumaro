@@ -197,7 +197,7 @@ IMAGE_EXTENSIONS = {
 
 def find_images(dirpath: str, exts: Union[str, Iterable[str]] = None,
         recursive: bool = False, max_depth: int = None) -> Iterator[str]:
-    yield from find_files(dirpath, exts=exts or IMAGE_EXTENSIONS,
+    return find_files(dirpath, exts=exts or IMAGE_EXTENSIONS,
         recursive=recursive, max_depth=max_depth)
 
 def is_image(path: str) -> bool:
