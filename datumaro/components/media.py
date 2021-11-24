@@ -285,12 +285,12 @@ class Video(MediaElement, Iterable[VideoFrame]):
             end_frame: Optional[int] = None) -> None:
         super().__init__(path)
 
-        if not end_frame:
+        if end_frame:
             assert start_frame < end_frame
         assert 0 < step
-        self._step = int(step)
-        self._start_frame = int(start_frame)
-        self._end_frame = int(end_frame) if end_frame else None
+        self._step = step
+        self._start_frame = start_frame
+        self._end_frame = end_frame or None
 
         self._reader = None
         self._iterator: Optional[_VideoFrameIterator] = None
