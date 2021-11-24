@@ -26,7 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/531>)
 - Update pycocotools version to 2.0.2
   (<https://github.com/openvinotoolkit/datumaro/pull/534>)
-- Allowed export ofptions in the `datum merge` command
+- Allowed export options in the `datum merge` command
   (<https://github.com/openvinotoolkit/datumaro/pull/545>)
 
 ### Deprecated
