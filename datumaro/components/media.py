@@ -230,15 +230,15 @@ class _VideoFrameIterator(Iterator[VideoFrame]):
             self._pos += 1
             if self._video._includes_frame(self._pos):
                 self._current_frame_data = frame.astype(float)
-                yield VideoFrame(self, index=self._pos)
+                yield self._make_frame(index=self._pos)
 
             success, frame = cap.read()
 
         if self._video._frame_count is None:
             self._video._frame_count = self._pos + 1
 
-    def __iter__(self):
-        return self
+    def _make_frame(self, index) -> VideoFrame:
+        return VideoFrame(self._video, index=index)
 
     def __next__(self):
         return next(self._iterator)
@@ -271,7 +271,7 @@ class _VideoFrameIterator(Iterator[VideoFrame]):
             except StopIteration as e:
                 raise IndexError() from e
         else:
-            v = VideoFrame(video=self, index=self._pos)
+            v = self._make_frame(index=self._pos)
 
         return v
 
