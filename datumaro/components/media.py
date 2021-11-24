@@ -366,6 +366,8 @@ class Video(MediaElement, Iterable[VideoFrame]):
 
     @property
     def frame_size(self) -> Tuple[int, int]:
+        """Returns (H, W)"""
+
         if self._frame_size is None:
             self._frame_size = self._get_frame_size()
         return self._frame_size
