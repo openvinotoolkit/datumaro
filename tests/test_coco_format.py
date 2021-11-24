@@ -19,13 +19,9 @@ from datumaro.plugins.coco_format.converter import (
     CocoInstancesConverter, CocoLabelsConverter, CocoPanopticConverter,
     CocoPersonKeypointsConverter, CocoStuffConverter,
 )
-from datumaro.plugins.coco_format.importer import (
-    CocoCaptionsImporter, CocoImageInfoImporter, CocoImporter,
-    CocoInstancesImporter, CocoLabelsImporter, CocoPanopticImporter,
-    CocoPersonKeypointsImporter, CocoStuffImporter,
-)
+from datumaro.plugins.coco_format.importer import CocoImporter
 from datumaro.util.test_utils import (
-    TestDir, check_save_and_load, compare_datasets,
+    TestDir, compare_datasets, check_save_and_load,
 )
 
 from .requirements import Requirements, mark_requirement
@@ -533,27 +529,25 @@ class CocoImporterTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect(self):
-        dataset_dir = osp.join(DUMMY_DATASET_DIR, 'coco')
-        matrix = [
-            # Whole dataset
-            (dataset_dir, CocoImporter),
-
-            # Subformats
-            (dataset_dir, CocoLabelsImporter),
-            (dataset_dir, CocoInstancesImporter),
-            (dataset_dir, CocoPanopticImporter),
-            (dataset_dir, CocoStuffImporter),
-            (dataset_dir, CocoCaptionsImporter),
-            (dataset_dir, CocoImageInfoImporter),
-            (dataset_dir, CocoPersonKeypointsImporter),
+        subdirs = [
+            'coco',
+            'coco_captions',
+            'coco_image_info',
+            'coco_instances',
+            'coco_labels',
+            'coco_panoptic',
+            'coco_person_keypoints',
+            'coco_stuff',
         ]
 
         env = Environment()
 
-        for path, subtask in matrix:
-            with self.subTest(path=path, task=subtask):
-                detected_formats = env.detect_dataset(path)
-                self.assertIn(subtask.NAME, detected_formats)
+        for subdir in subdirs:
+            with self.subTest(subdir=subdir):
+                dataset_dir = osp.join(DUMMY_DATASET_DIR, subdir)
+
+                detected_formats = env.detect_dataset(dataset_dir)
+                self.assertEqual([CocoImporter.NAME], detected_formats)
 
 class CocoConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
