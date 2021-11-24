@@ -38,7 +38,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - TBD
 
 ### Fixed
-- TBD
+- Bug #560: import issue with MOT dataset when using seqinfo.ini file
+  (<https://github.com/openvinotoolkit/datumaro/pull/564>)
 
 ### Security
 - TBD

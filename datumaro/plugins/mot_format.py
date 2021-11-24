@@ -122,7 +122,7 @@ class MotSeqExtractor(SourceExtractor):
         items = OrderedDict()
 
         if self._seq_info:
-            for frame_id in range(self._seq_info['seqlength']):
+            for frame_id in range(1, self._seq_info['seqlength'] + 1):  # base-1 frame ids
                 items[frame_id] = DatasetItem(
                     id=frame_id,
                     subset=self._subset,
