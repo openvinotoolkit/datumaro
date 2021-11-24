@@ -285,12 +285,9 @@ class Video(MediaElement, Iterable[VideoFrame]):
             end_frame: Optional[int] = None) -> None:
         super().__init__(path)
 
-        self._iterator = None
-        self._frame_size: Optional[Tuple[int, int]] = None
-
-        self._container = None
-        self._reset()
-
+        if not end_frame:
+            assert start_frame < end_frame
+        assert 0 < step
         self._step = int(step)
         self._start_frame = int(start_frame)
         self._end_frame = int(end_frame) if end_frame else None
