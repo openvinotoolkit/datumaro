@@ -203,18 +203,18 @@ class _VideoFrameIterator(Iterator[VideoFrame]):
     """
     Provides sequential access to the video frames.
     """
+    _video: 'Video'
+    _iterator: Iterator[VideoFrame]
+    _pos: int
+    _current_frame_data: Optional[np.ndarray]
 
     def __init__(self, video: 'Video'):
-        self._video: 'Video' = video
-        self._iterator: Iterator[VideoFrame] = None
-        self._pos: int = -1
-        self._current_frame_data: Optional[np.ndarray] = None
-
+        self._video = video
         self._reset()
 
     def _reset(self):
-        self._video._reset()
-        self._iterator = self._decode(self._video._get_container())
+        self._video._reset_reader()
+        self._iterator = self._decode(self._video._get_reader())
         self._pos = -1
         self._current_frame_data = None
 
