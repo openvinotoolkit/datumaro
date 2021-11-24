@@ -292,16 +292,22 @@ class Video(MediaElement, Iterable[VideoFrame]):
         self._start_frame = int(start_frame)
         self._end_frame = int(end_frame) if end_frame else None
 
-        self._frame_count = self._get_frame_count(self._container)
+        self._reader = None
+        self._iterator: Optional[_VideoFrameIterator] = None
+        self._frame_size: Optional[Tuple[int, int]] = None
+
+        self._frame_count = None
+        if osp.isfile(self._path):
+            self._frame_count = self._get_frame_count(self._get_reader())
+
         self._length = None
-        self._get_length()
 
     def close(self):
         self._iterator = None
 
-        if self._container is not None:
-            self._container.release()
-            self._container = None
+        if self._reader is not None:
+            self._reader.release()
+            self._reader = None
 
     def __getitem__(self, idx: int) -> VideoFrame:
         if not self._includes_frame(idx):
@@ -347,8 +353,8 @@ class Video(MediaElement, Iterable[VideoFrame]):
         return self._frame_size
 
     def _get_frame_size(self) -> Tuple[int, int]:
-        w = self._container.get(cv2.CAP_PROP_FRAME_WIDTH)
-        h = self._container.get(cv2.CAP_PROP_FRAME_HEIGHT)
+        w = self._reader.get(cv2.CAP_PROP_FRAME_WIDTH)
+        h = self._reader.get(cv2.CAP_PROP_FRAME_HEIGHT)
 
         if h and w:
             frame_size = (int(h), int(w))
@@ -359,7 +365,7 @@ class Video(MediaElement, Iterable[VideoFrame]):
         return frame_size
 
     @staticmethod
-    def _get_frame_count(container) -> Optional[int]:
+    def _get_frame_count(reader) -> Optional[int]:
         # Not all videos provide length / duration metainfo
         # Note that this information can be invalid or inaccurate
         # due to variable frame rate
@@ -406,19 +412,16 @@ class Video(MediaElement, Iterable[VideoFrame]):
             self._iterator = _VideoFrameIterator(self)
         return self._iterator
 
-    def _get_container(self):
-        if self._container is None:
-            self._reset()
-        return self._container
+    def _get_reader(self):
+        if self._reader is None:
+            self._reset_reader()
+        return self._reader
 
-    def _open(self):
-        return cv2.VideoCapture(self._path)
-
-    def _reset(self):
-        if self._container is not None:
-            self._container.release()
-        self._container = self._open()
-        assert self._container.isOpened()
+    def _reset_reader(self):
+        if self._reader is not None:
+            self._reader.release()
+        self._reader = cv2.VideoCapture(self._path)
+        assert self._reader.isOpened()
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, __class__):
