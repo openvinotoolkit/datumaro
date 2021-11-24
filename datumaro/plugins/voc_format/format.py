@@ -14,6 +14,7 @@ from datumaro.components.annotation import (
     AnnotationType, LabelCategories, MaskCategories,
 )
 from datumaro.util import find
+from datumaro.util.meta_file_util import get_meta_file
 
 
 class VocTask(Enum):
@@ -101,7 +102,6 @@ class VocPath:
     IMAGE_EXT = '.jpg'
     SEGM_EXT = '.png'
     LABELMAP_FILE = 'labelmap.txt'
-    DATASET_META_FILE = 'dataset_meta.json'
 
     TASK_DIR = {
         VocTask.classification: 'Main',
@@ -163,8 +163,8 @@ def parse_label_map(path):
 
 def parse_meta_file(path):
     meta_file = path
-    if (osp.isdir(path)):
-        meta_file = osp.join(path, VocPath.DATASET_META_FILE)
+    if osp.isdir(path):
+        meta_file = get_meta_file(path)
 
     with open(meta_file) as f:
         dataset_meta = json.load(f)
@@ -208,21 +208,18 @@ def write_meta_file(path, label_map):
     parts = {}
     actions = {}
 
-    i = 0
-    for label_name, label_desc in label_map.items():
+    for i, (label_name, label_desc) in enumerate(label_map.items()):
         labels[str(i)] = label_name
 
-        segmentation_colors.append([int(label_desc[0][0]), int(label_desc[0][1]), int(label_desc[0][2])]
+        segmentation_colors.append(
+            [int(label_desc[0][0]), int(label_desc[0][1]), int(label_desc[0][2])]
             if label_desc[0] != None else None)
 
-        if not isinstance(label_desc, tuple) and \
-                label_desc[1] is not None and 0 < len(label_desc[1]):
+        if not isinstance(label_desc, tuple):
             parts[str(i)] = label_desc[1]
 
-        if not isinstance(label_desc, tuple) and \
-                label_desc[2] is not None and 0 < len(label_desc[2]):
+        if not isinstance(label_desc, tuple):
             actions[str(i)] = label_desc[2]
-        i += 1
 
     dataset_meta['label_map'] = labels
 
@@ -239,7 +236,7 @@ def write_meta_file(path, label_map):
     if any(actions):
         dataset_meta['actions'] = actions
 
-    meta_file = osp.join(path, VocPath.DATASET_META_FILE)
+    meta_file = get_meta_file(path)
 
     with open(meta_file, 'w') as f:
         json.dump(dataset_meta, f)

@@ -853,6 +853,7 @@ class VocConverterTest(TestCase):
                 partial(VocConverter.convert, label_map='source',
                     save_dataset_meta=True), test_dir,
                     target_dataset=DstExtractor())
+            self.assertTrue(osp.isfile(osp.join(test_dir, 'dataset_meta.json')))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_dataset_with_fixed_labelmap(self):

@@ -15,12 +15,15 @@ def is_meta_file(path):
     return osp.splitext(osp.basename(path))[1] == '.json'
 
 def has_meta_file(path):
-    return osp.isfile(osp.join(path, DATASET_META_FILE))
+    return osp.isfile(get_meta_file(path))
+
+def get_meta_file(path):
+    return osp.join(path, DATASET_META_FILE)
 
 def parse_meta_file(path):
     meta_file = path
-    if (osp.isdir(path)):
-        meta_file = osp.join(path, DATASET_META_FILE)
+    if osp.isdir(path):
+        meta_file = get_meta_file(path)
 
     with open(meta_file) as f:
         dataset_meta = json.load(f)
@@ -44,7 +47,7 @@ def save_meta_file(path, categories):
         label_map[str(i)] = label.name
     dataset_meta['label_map'] = label_map
 
-    if categories.get(AnnotationType.mask, 0):
+    if categories.get(AnnotationType.mask):
         bg_label = find(categories[AnnotationType.mask].colormap.items(),
             lambda x: x[1] == (0, 0, 0))
         if bg_label is not None:
@@ -57,7 +60,7 @@ def save_meta_file(path, categories):
 
     meta_file = path
     if osp.isdir(path):
-        meta_file = osp.join(path, DATASET_META_FILE)
+        meta_file = get_meta_file(path)
 
     with open(meta_file, 'w') as f:
         json.dump(dataset_meta, f)

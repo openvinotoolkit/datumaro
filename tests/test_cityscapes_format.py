@@ -311,6 +311,7 @@ class CityscapesConverterTest(TestCase):
                 partial(CityscapesConverter.convert, label_map='source',
                     save_images=True, save_dataset_meta=True), test_dir,
                     target_dataset=DstExtractor())
+            self.assertTrue(osp.isfile(osp.join(test_dir, 'dataset_meta.json')))
 
     @mark_requirement(Requirements.DATUM_267)
     def test_dataset_with_source_labelmap_defined(self):

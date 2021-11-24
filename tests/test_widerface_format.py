@@ -131,7 +131,7 @@ class WiderFaceFormatTest(TestCase):
                 save_dataset_meta=True)
             parsed_dataset = Dataset.import_from(test_dir, 'wider_face')
 
-            self.assertFalse(osp.isfile(osp.join(test_dir, 'datase_meta.json')))
+            self.assertTrue(osp.isfile(osp.join(test_dir, 'dataset_meta.json')))
             compare_datasets(self, source_dataset, parsed_dataset)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
