@@ -18,7 +18,7 @@ from datumaro.components.operations import IntersectMerge
 from datumaro.components.project import ProjectBuildTargets
 from datumaro.util.scope import scope_add, scoped
 
-from ..util import MultilineFormatter
+from ..util import MultilineFormatter, join_cli_args
 from ..util.errors import CliException
 from ..util.project import (
     generate_next_file_name, load_project, parse_full_revpath,
@@ -131,6 +131,9 @@ def get_sensitive_args():
 
 @scoped
 def merge_command(args):
+    # Workaround. Required positionals consume positionals from the end
+    args._positionals += join_cli_args(args, 'targets', 'extra_args')
+
     has_sep = '--' in args._positionals
     if has_sep:
         pos = args._positionals.index('--')
@@ -138,9 +141,8 @@ def merge_command(args):
             raise argparse.ArgumentError(None,
                 message="Expected at least 1 target argument")
     else:
-        pos = 1
-    args.target = (args._positionals[:pos] or \
-        [ProjectBuildTargets.MAIN_TARGET])[0]
+        pos = len(args._positionals)
+    args.targets = args._positionals[:pos] or [ProjectBuildTargets.MAIN_TARGET]
     args.extra_args = args._positionals[pos + has_sep:]
 
     show_plugin_help = '-h' in args.extra_args or '--help' in args.extra_args
@@ -158,7 +160,7 @@ def merge_command(args):
     try:
         project = scope_add(load_project(args.project_dir))
     except ProjectNotFoundError:
-        if not show_plugin_help and args.project_dir:
+        if not show_plugin_help and len(args.targets) == 1 and args.project_dir:
             raise
 
     if project is not None:

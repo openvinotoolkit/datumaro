@@ -63,8 +63,8 @@ class MergeTest(TestCase):
                 project.import_source('source', dataset2_url, 'voc')
 
             result_dir = osp.join(test_dir, 'cmp_result')
-            run(self, 'merge', dataset1_url + ':coco', '-o', result_dir,
-                '-p', proj_dir)
+            run(self, 'merge', '-o', result_dir, '-p', proj_dir,
+                dataset1_url + ':coco')
 
             compare_datasets(self, expected, Dataset.load(result_dir),
                 require_images=True)
@@ -112,8 +112,8 @@ class MergeTest(TestCase):
             dataset2.export(dataset2_url, 'voc', save_images=True)
 
             result_dir = osp.join(test_dir, 'cmp_result')
-            run(self, 'merge', dataset2_url + ':voc', dataset1_url + ':coco',
-                '-o', result_dir)
+            run(self, 'merge', '-o', result_dir,
+                dataset2_url + ':voc', dataset1_url + ':coco')
 
             compare_datasets(self, expected, Dataset.load(result_dir),
                 require_images=True)
