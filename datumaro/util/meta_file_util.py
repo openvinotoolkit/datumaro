@@ -6,7 +6,6 @@ from collections import OrderedDict
 import json
 import os.path as osp
 
-
 DATASET_META_FILE = 'dataset_meta.json'
 
 def is_meta_file(path):
