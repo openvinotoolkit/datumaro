@@ -1,4 +1,3 @@
-from unittest import mock
 import os.path as osp
 
 import cv2
@@ -42,7 +41,7 @@ class VideoTest:
         video = Video(fxt_sample_video)
         on_exit_do(video.close)
 
-        assert 4 == video.frame_count
+        assert None == video.length
         assert (4, 6) == video.frame_size
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -76,7 +75,8 @@ class VideoTest:
         video = Video(fxt_sample_video, step=2)
         on_exit_do(video.close)
 
-        assert 2 == video.frame_count
+        for idx, frame in enumerate(video):
+            assert 2 * idx == frame.index
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
@@ -84,7 +84,6 @@ class VideoTest:
         video = Video(fxt_sample_video, start_frame=1)
         on_exit_do(video.close)
 
-        assert 3 == video.frame_count
         assert 1 == next(iter(video)).index
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -97,23 +96,23 @@ class VideoTest:
         for last_frame in video:
             pass
 
-        assert 2 == video.frame_count
+        assert 2 == video.length
         assert 1 == last_frame.index
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
     def test_can_init_frame_count_lazily(self, fxt_sample_video):
-        with mock.patch.object(Video, '_get_frame_count',
-                mock.MagicMock(return_value=None)):
-            video = Video(fxt_sample_video)
+        video = Video(fxt_sample_video)
         on_exit_do(video.close)
 
-        assert None == video.frame_count
+        assert None == video.length
+        assert 4 == video.est_frame_count
 
         for idx, frame in enumerate(video):
             assert idx == frame.index
 
-        assert 4 == video.frame_count
+        assert 4 == video.length
+        assert 4 == video.est_frame_count
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped

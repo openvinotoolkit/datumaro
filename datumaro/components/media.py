@@ -297,9 +297,6 @@ class Video(MediaElement, Iterable[VideoFrame]):
         self._frame_size: Optional[Tuple[int, int]] = None
 
         self._frame_count = None
-        if osp.isfile(self._path):
-            self._frame_count = self._get_frame_count(self._get_reader())
-
         self._length = None
 
     def close(self):
@@ -337,7 +334,18 @@ class Video(MediaElement, Iterable[VideoFrame]):
             yield from self._get_iterator()
 
     @property
-    def frame_count(self) -> Optional[int]:
+    def est_frame_count(self) -> Optional[int]:
+        """
+        Returns estimated frame count in the video file.
+        """
+
+        est_count = self._frame_count
+        if est_count is None:
+            est_count = self._get_est_frame_count(self._get_reader())
+        return est_count
+
+    @property
+    def length(self) -> Optional[int]:
         """
         Returns frame count, if video provides such information.
 
@@ -373,8 +381,9 @@ class Video(MediaElement, Iterable[VideoFrame]):
         return self._frame_size
 
     def _get_frame_size(self) -> Tuple[int, int]:
-        w = self._reader.get(cv2.CAP_PROP_FRAME_WIDTH)
-        h = self._reader.get(cv2.CAP_PROP_FRAME_HEIGHT)
+        cap = self._get_reader()
+        w = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
+        h = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
 
         if h and w:
             frame_size = (int(h), int(w))
@@ -385,11 +394,16 @@ class Video(MediaElement, Iterable[VideoFrame]):
         return frame_size
 
     @staticmethod
-    def _get_frame_count(reader) -> Optional[int]:
-        # Not all videos provide length / duration metainfo
-        # Note that this information can be invalid or inaccurate
-        # due to variable frame rate
+    def _get_est_frame_count(reader) -> Optional[int]:
+        # We don't provide frame count unless we have a reliable source of
+        # this information.
+        # - Not all videos provide length / duration metainfo
+        # - We can get an estimation based on metadata, but it
+        #   can be invalid or inaccurate due to variable frame rate
+        #   or fractional values rounded up. Relying on the value will give
+        #   errors during requesting frames.
         # https://stackoverflow.com/a/47796468
+
         frame_count = reader.get(cv2.CAP_PROP_FRAME_COUNT)
         if frame_count:
             frame_count = int(frame_count)
