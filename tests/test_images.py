@@ -91,11 +91,9 @@ class ImageTest(TestCase):
             ]:
                 with self.subTest(**args):
                     img = Image(**args)
-                    # pylint: disable=pointless-statement
                     self.assertTrue(img.has_data)
-                    self.assertEqual(img, image)
+                    np.testing.assert_array_equal(img.data, image)
                     self.assertEqual(img.size, tuple(image.shape[:2]))
-                    # pylint: enable=pointless-statement
 
 class BytesImageTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -130,7 +128,7 @@ class BytesImageTest(TestCase):
                     # pylint: disable=pointless-statement
                     self.assertEqual('data' in args, img.has_data)
                     if img.has_data:
-                        self.assertEqual(img, image)
+                        np.testing.assert_array_equal(img.data, image)
                         self.assertEqual(img.get_bytes(), image_bytes)
                     img.size
                     if 'size' in args:

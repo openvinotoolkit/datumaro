@@ -97,9 +97,6 @@ class Image(MediaElement):
         return self._size
 
     def __eq__(self, other):
-        if isinstance(other, np.ndarray):
-            return self.has_data and np.array_equal(self.data, other)
-
         if not isinstance(other, __class__):
             return False
         return \
