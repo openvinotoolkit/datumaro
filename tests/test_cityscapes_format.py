@@ -16,7 +16,7 @@ from datumaro.components.media import Image
 from datumaro.plugins.cityscapes_format import (
     CityscapesConverter, CityscapesImporter,
 )
-from datumaro.util.meta_file_util import parse_meta_file, save_meta_file
+from datumaro.util.meta_file_util import parse_meta_file
 from datumaro.util.test_utils import (
     IGNORE_ALL, TestDir, compare_datasets, test_save_and_load,
 )
@@ -45,8 +45,11 @@ class CityscapesFormatTest(TestCase):
         src_label_map = Cityscapes.CityscapesLabelMap
 
         with TestDir() as test_dir:
-            save_meta_file(test_dir,
-                Cityscapes.make_cityscapes_categories(src_label_map))
+            source_dataset = Dataset.from_iterable([],
+                categories=Cityscapes.make_cityscapes_categories(src_label_map))
+
+            CityscapesConverter.convert(source_dataset, test_dir,
+                save_dataset_meta=True)
             dst_label_map = parse_meta_file(test_dir)
 
             self.assertEqual(src_label_map, dst_label_map)

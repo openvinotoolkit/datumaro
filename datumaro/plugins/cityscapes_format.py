@@ -21,7 +21,7 @@ from datumaro.util.annotation_util import make_label_id_mapping
 from datumaro.util.image import find_images, load_image, save_image
 from datumaro.util.mask_tools import generate_colormap, paint_mask
 from datumaro.util.meta_file_util import (
-    has_meta_file, is_meta_file, parse_meta_file, save_meta_file,
+    has_meta_file, is_meta_file, parse_meta_file,
 )
 
 CityscapesLabelMap = OrderedDict([
@@ -343,7 +343,7 @@ class CityscapesConverter(Converter):
 
     def save_label_map(self):
         if self._save_dataset_meta:
-            save_meta_file(self._save_dir, self._extractor.categories())
+            self._save_meta_file(self._save_dir)
         else:
             labels = self._extractor.categories()[AnnotationType.label]
             if len(self._label_map) > len(labels):

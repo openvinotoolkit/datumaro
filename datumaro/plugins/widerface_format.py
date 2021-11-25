@@ -13,9 +13,7 @@ from datumaro.components.converter import Converter
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.util import str_to_bool
-from datumaro.util.meta_file_util import (
-    has_meta_file, parse_meta_file, save_meta_file,
-)
+from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
 
 class WiderFacePath:
@@ -166,7 +164,7 @@ class WiderFaceConverter(Converter):
         label_categories = self._extractor.categories()[AnnotationType.label]
 
         if self._save_dataset_meta:
-           save_meta_file(save_dir, self._extractor.categories())
+           self._save_meta_file(save_dir)
         else:
             labels_path = osp.join(save_dir, WiderFacePath.LABELS_FILE)
             with open(labels_path, 'w', encoding='utf-8') as f:
