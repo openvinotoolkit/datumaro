@@ -18,7 +18,7 @@ to merge labels and adjust the annotations in the resulting dataset.
 In Datumaro, it can be done with the `merge` command. This command merges 2
 or more datasets and checks annotations for errors.
 
-> In simple cases, when dataset images are not intersected and new
+> In simple cases, when dataset images do not intersect and new
 > labels are not added, the recommended way of merging is using
 > [the `patch` command](/docs/user-manual/command-reference/patch/).
 > It will offer better performance and provide the same results.
@@ -134,3 +134,6 @@ Merge the current working tree and a dataset:
 
 Merge a source from a previous revision and a dataset:
 `datum merge HEAD~2:source-2 path/to/dataset2:yolo`
+
+Merge datasets and save in different format:
+`datum merge -f voc dataset1/:yolo path2/:coco -- --save-images`

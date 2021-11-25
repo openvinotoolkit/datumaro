@@ -34,7 +34,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         conflicts. This command can try to find common ground by voting or
         return a list of conflicts.|n
         |n
-        In simple cases, when dataset images are not intersected and new
+        In simple cases, when dataset images do not intersect and new
         labels are not added, the recommended way of merging is using the
         "patch" command. It will offer better performance and provide the same
         results.|n
@@ -66,7 +66,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         Each dataset format has its own export
         options, which are passed after the '--' separator (see examples),
         pass '-- -h' for more info. If not stated otherwise, by default
-        only annotations are exported, to include images pass
+        only annotations are exported; to include images pass
         '--save-images' parameter.|n
         |n
         Examples:|n
@@ -85,6 +85,9 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         |n
         - Merge a source from a previous revision and a dataset:|n
         |s|s%(prog)s HEAD~2:source-2 path/to/dataset2:yolo
+        |n
+        - Merge datasets and save in different format:|n
+        |s|s%(prog)s -f voc dataset1/:yolo path2/:coco -- --save-images
         """,
         formatter_class=MultilineFormatter)
 
