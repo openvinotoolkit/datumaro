@@ -28,6 +28,7 @@ class Requirements:
     DATUM_399 = "Implement import for ADE20K dataset"
     DATUM_475 = "Support import for CelebA dataset"
     DATUM_497 = "Support import for SYNTHIA dataset"
+    DATUM_542 = "Images missing after merging two datasets"
 
     # GitHub issues (bugs)
     # https://github.com/openvinotoolkit/datumaro/issues
