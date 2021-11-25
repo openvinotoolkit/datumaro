@@ -323,3 +323,38 @@ class IcdarConverterTest(TestCase):
             self._test_save_and_load(expected_dataset,
                 partial(IcdarWordRecognitionConverter.convert, save_images=True),
                 test_dir, 'icdar_word_recognition')
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_save_and_load_segm_wo_color_attribute(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id='1', subset='train',
+                image=np.ones((10, 15, 3)), annotations=[
+                    Mask(image=np.array([[0, 0, 0, 1, 1]]), group=1,
+                        attributes={'index': 1, 'text': 'j', 'center': '0 3',
+                            'color': '0 128 0'}),
+                    Mask(image=np.array([[0, 1, 1, 0, 0]]), group=1,
+                        attributes={'index': 0, 'text': 'F', 'center': '0 1'}),
+                    Mask(image=np.array([[1, 0, 0, 0, 0]]), group=1,
+                        attributes={'index': 2, 'text': 'i', 'center': '0 2'}),
+                ]),
+        ])
+
+        expected_dataset = Dataset.from_iterable([
+            DatasetItem(id='1', subset='train',
+                image=np.ones((10, 15, 3)), annotations=[
+                    Mask(image=np.array([[0, 0, 0, 1, 1]]), group=1,
+                        attributes={'index': 1, 'text': 'j', 'center': '0 3',
+                            'color': '0 128 0'}),
+                    Mask(image=np.array([[0, 1, 1, 0, 0]]), group=1,
+                        attributes={'index': 0, 'text': 'F', 'center': '0 1',
+                            'color': '128 0 0'}),
+                    Mask(image=np.array([[1, 0, 0, 0, 0]]), group=1,
+                        attributes={'index': 2, 'text': 'i', 'center': '0 2',
+                            'color': '128 128 0'}),
+                ]),
+        ])
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(source_dataset,
+                partial(IcdarTextSegmentationConverter.convert, save_images=True),
+                test_dir, 'icdar_text_segmentation', expected_dataset)

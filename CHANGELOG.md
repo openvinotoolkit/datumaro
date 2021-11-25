@@ -40,7 +40,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - TBD
 
 ### Fixed
-- TBD
+- Bug #560: import issue with MOT dataset when using seqinfo.ini file
+  (<https://github.com/openvinotoolkit/datumaro/pull/564>)
 
 ### Security
 - TBD
@@ -74,7 +75,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Unhandled exception when a file is specified as the source for a COCO or
   MOTS dataset
   (<https://github.com/openvinotoolkit/datumaro/pull/530>)
-
+- Exporting dataset without `color` attribute into the
+  `icdar_text_segmentation` format
+  (<https://github.com/openvinotoolkit/datumaro/pull/556>)
 ### Security
 - TBD
 
