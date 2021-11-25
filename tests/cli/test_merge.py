@@ -62,9 +62,9 @@ class MergeTest(TestCase):
             with Project.init(proj_dir) as project:
                 project.import_source('source', dataset2_url, 'voc')
 
-            result_dir = osp.join(test_dir, 'cmp_result')
-            run(self, 'merge', dataset1_url + ':coco', '-o', result_dir,
-                '-p', proj_dir)
+            result_dir = osp.join(test_dir, 'result')
+            run(self, 'merge', '-o', result_dir, '-p', proj_dir,
+                dataset1_url + ':coco')
 
             compare_datasets(self, expected, Dataset.load(result_dir),
                 require_images=True)
@@ -111,9 +111,51 @@ class MergeTest(TestCase):
             dataset1.export(dataset1_url, 'coco', save_images=True)
             dataset2.export(dataset2_url, 'voc', save_images=True)
 
-            result_dir = osp.join(test_dir, 'cmp_result')
-            run(self, 'merge', dataset2_url + ':voc', dataset1_url + ':coco',
-                '-o', result_dir)
+            result_dir = osp.join(test_dir, 'result')
+            run(self, 'merge', '-o', result_dir,
+                dataset2_url + ':voc', dataset1_url + ':coco')
 
             compare_datasets(self, expected, Dataset.load(result_dir),
+                require_images=True)
+
+    @mark_requirement(Requirements.DATUM_542)
+    def test_can_save_in_another_format(self):
+        dataset1 = Dataset.from_iterable([
+            DatasetItem(id=100, subset='train', image=np.ones((10, 6, 3)),
+                annotations=[
+                    Bbox(1, 2, 3, 3, label=0),
+                ]),
+        ], categories=['a', 'b'])
+
+        dataset2 = Dataset.from_iterable([
+            DatasetItem(id=100, subset='train', image=np.ones((10, 6, 3)),
+                annotations=[
+                    Bbox(1, 2, 3, 4, label=1),
+                    Bbox(5, 6, 2, 3, label=2),
+                ]),
+        ], categories=['a', 'b', 'c'])
+
+        expected =  Dataset.from_iterable([
+            DatasetItem(id=100, subset='train', image=np.ones((10, 6, 3)),
+                annotations=[
+                    Bbox(1, 2, 3, 4, label=2),
+                    Bbox(5, 6, 2, 3, label=3),
+                    Bbox(1, 2, 3, 3, label=1),
+                ]),
+        ], categories=['background', 'a', 'b', 'c'])
+
+        with TestDir() as test_dir:
+            dataset1_url = osp.join(test_dir, 'dataset1')
+            dataset2_url = osp.join(test_dir, 'dataset2')
+
+            dataset1.export(dataset1_url, 'coco', save_images=True)
+            dataset2.export(dataset2_url, 'voc', save_images=True)
+
+            result_dir = osp.join(test_dir, 'result')
+            run(self, 'merge', '-o', result_dir, '-f', 'yolo',
+                dataset2_url + ':voc', dataset1_url + ':coco',
+                '--', '--save-images')
+
+            compare_datasets(self, expected,
+                Dataset.import_from(result_dir, 'yolo'),
                 require_images=True)
