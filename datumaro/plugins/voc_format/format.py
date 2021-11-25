@@ -215,11 +215,8 @@ def write_meta_file(path, label_map):
             [int(label_desc[0][0]), int(label_desc[0][1]), int(label_desc[0][2])]
             if label_desc[0] != None else None)
 
-        if not isinstance(label_desc, tuple):
-            parts[str(i)] = label_desc[1]
-
-        if not isinstance(label_desc, tuple):
-            actions[str(i)] = label_desc[2]
+        parts[str(i)] = label_desc[1]
+        actions[str(i)] = label_desc[2]
 
     dataset_meta['label_map'] = labels
 

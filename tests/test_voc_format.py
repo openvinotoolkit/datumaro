@@ -816,17 +816,19 @@ class VocConverterTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_dataset_with_save_dataset_meta_file(self):
+        label_map = OrderedDict([
+            ('background', [(0, 0, 0), [], []]),
+            ('label_1', [(1, 2, 3), ['part1', 'part2'], ['act1', 'act2']]),
+            ('label_2', [(3, 2, 1), ['part3'], []])
+        ])
+
         class SrcExtractor(TestExtractorBase):
             def __iter__(self):
                 yield DatasetItem(id=1, annotations=[
-                    Bbox(2, 3, 4, 5, label=0, id=1),
+                    Bbox(2, 3, 4, 5, label=1, id=1),
                 ])
 
             def categories(self):
-                label_map = OrderedDict()
-                label_map['label_1'] = [(1, 2, 3), [], []]
-                label_map['background'] = [(0, 0, 0), [], []] # can be not 0
-                label_map['label_2'] = [(3, 2, 1), [], []]
                 return VOC.make_voc_categories(label_map)
 
         class DstExtractor(TestExtractorBase):
@@ -834,6 +836,8 @@ class VocConverterTest(TestCase):
                 yield DatasetItem(id=1, annotations=[
                     Bbox(2, 3, 4, 5, label=self._label('label_1'),
                         id=1, group=1, attributes={
+                            'act1': False,
+                            'act2': False,
                             'truncated': False,
                             'difficult': False,
                             'occluded': False,
@@ -842,15 +846,11 @@ class VocConverterTest(TestCase):
                 ])
 
             def categories(self):
-                label_map = OrderedDict()
-                label_map['background'] = [(0, 0, 0), [], []]
-                label_map['label_1'] = [(1, 2, 3), [], []]
-                label_map['label_2'] = [(3, 2, 1), [], []]
                 return VOC.make_voc_categories(label_map)
 
         with TestDir() as test_dir:
             self._test_save_and_load(SrcExtractor(),
-                partial(VocConverter.convert, label_map='source',
+                partial(VocConverter.convert, label_map=label_map,
                     save_dataset_meta=True), test_dir,
                     target_dataset=DstExtractor())
             self.assertTrue(osp.isfile(osp.join(test_dir, 'dataset_meta.json')))
