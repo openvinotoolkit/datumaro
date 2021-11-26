@@ -15,9 +15,12 @@ from datumaro.util.test_utils import compare_datasets
 from .requirements import Requirements, mark_requirement
 
 DUMMY_ALIGN_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets',
-    'align_celeba_dataset',)
+    'align_celeba_dataset', 'dataset')
+DUMMY_ALIGN_DATASET_DIR_WITH_META_FILE = osp.join(osp.dirname(__file__),
+    'assets', 'align_celeba_dataset', 'dataset_with_meta_file')
 
 class AlignCelebaImporterTest(TestCase):
+    @mark_requirement(Requirements.DATUM_475)
     def test_can_import(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='000001', subset='train',
@@ -76,6 +79,36 @@ class AlignCelebaImporterTest(TestCase):
         })
 
         dataset = Dataset.import_from(DUMMY_ALIGN_DATASET_DIR, 'align_celeba')
+
+        compare_datasets(self, expected_dataset, dataset, require_images=True)
+
+    @mark_requirement(Requirements.DATUM_475)
+    def test_can_import_with_meta_file(self):
+        expected_dataset = Dataset.from_iterable([
+            DatasetItem(id='000001', subset='train',
+                image=np.ones((3, 4, 3)),
+                annotations=[Label(1)]
+            ),
+            DatasetItem(id='000002', subset='train',
+                image=np.ones((3, 4, 3)),
+                annotations=[Label(3)]
+            ),
+            DatasetItem(id='000003', subset='val',
+                image=np.ones((3, 4, 3)),
+                annotations=[Label(0)]
+            ),
+            DatasetItem(id='000004', subset='test',
+                image=np.ones((3, 4, 3)),
+                annotations=[Label(2)]
+            ),
+            DatasetItem(id='000005', subset='test',
+                image=np.ones((3, 4, 3)),
+                annotations=[Label(6)]
+            )
+        ], categories=[f'class-{i}' for i in range(7)])
+
+        dataset = Dataset.import_from(DUMMY_ALIGN_DATASET_DIR_WITH_META_FILE,
+            'align_celeba')
 
         compare_datasets(self, expected_dataset, dataset, require_images=True)
 
