@@ -17,6 +17,7 @@ from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.util import cast
+from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
 
 class RestrictedUnpickler(pickle.Unpickler):
@@ -65,6 +66,10 @@ class CifarExtractor(SourceExtractor):
         self._items = list(self._load_items(path).values())
 
     def _load_categories(self, path):
+        if has_meta_file(path):
+            return { AnnotationType.label: LabelCategories().
+                from_iterable(list(parse_meta_file(path).keys())) }
+
         label_cat = LabelCategories()
 
         meta_file = osp.join(path, CifarPath.META_10_FILE)
@@ -174,6 +179,9 @@ class CifarConverter(Converter):
 
     def apply(self):
         os.makedirs(self._save_dir, exist_ok=True)
+
+        if self._save_dataset_meta:
+            self._save_meta_file(self._save_dir)
 
         label_categories = self._extractor.categories()[AnnotationType.label]
         label_names = []
