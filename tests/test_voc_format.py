@@ -10,19 +10,17 @@ from datumaro.components.annotation import (
     AnnotationType, Bbox, Label, LabelCategories, Mask, MaskCategories,
 )
 from datumaro.components.dataset import Dataset
+from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem, Extractor
+from datumaro.components.media import Image
 from datumaro.plugins.voc_format.converter import (
     VocActionConverter, VocClassificationConverter, VocConverter,
     VocDetectionConverter, VocLayoutConverter, VocSegmentationConverter,
 )
-from datumaro.plugins.voc_format.importer import (
-    VocActionImporter, VocClassificationImporter, VocDetectionImporter,
-    VocImporter, VocLayoutImporter, VocSegmentationImporter,
-)
-from datumaro.util.image import Image
+from datumaro.plugins.voc_format.importer import VocImporter
 from datumaro.util.mask_tools import load_mask
 from datumaro.util.test_utils import (
-    TestDir, compare_datasets, test_save_and_load,
+    TestDir, check_save_and_load, compare_datasets,
 )
 import datumaro.plugins.voc_format.format as VOC
 
@@ -73,6 +71,18 @@ class VocFormatTest(TestCase):
 
             self.assertEqual(src_label_map, dst_label_map)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_write_and_parse_dataset_meta_file(self):
+        src_label_map = VOC.make_voc_label_map()
+        src_label_map['qq'] = [None, ['part1', 'part2'], ['act1', 'act2']]
+        src_label_map['ww'] = [(10, 20, 30), [], ['act3']]
+
+        with TestDir() as test_dir:
+            VOC.write_meta_file(test_dir, src_label_map)
+            dst_label_map = VOC.parse_meta_file(test_dir)
+
+            self.assertEqual(src_label_map, dst_label_map)
+
 class TestExtractorBase(Extractor):
     def _label(self, voc_label):
         return self.categories()[AnnotationType.label].find(voc_label)[0]
@@ -83,6 +93,8 @@ class TestExtractorBase(Extractor):
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'voc_dataset',
     'voc_dataset1')
+DUMMY_DATASET2_DIR = osp.join(osp.dirname(__file__), 'assets', 'voc_dataset',
+    'voc_dataset2')
 
 class VocImportTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -337,39 +349,18 @@ class VocImportTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_voc(self):
-        matrix = [
-            # Whole dataset
-            (DUMMY_DATASET_DIR, VocImporter),
+        env = Environment()
 
-            # Subformats
-            (DUMMY_DATASET_DIR, VocClassificationImporter),
-            (DUMMY_DATASET_DIR, VocDetectionImporter),
-            (DUMMY_DATASET_DIR, VocSegmentationImporter),
-            (DUMMY_DATASET_DIR, VocLayoutImporter),
-            (DUMMY_DATASET_DIR, VocActionImporter),
-
-            # Subsets of subformats
-            (osp.join(DUMMY_DATASET_DIR, 'ImageSets', 'Main', 'train.txt'),
-                VocClassificationImporter),
-            (osp.join(DUMMY_DATASET_DIR, 'ImageSets', 'Main', 'train.txt'),
-                VocDetectionImporter),
-            (osp.join(DUMMY_DATASET_DIR, 'ImageSets', 'Segmentation', 'train.txt'),
-                VocSegmentationImporter),
-            (osp.join(DUMMY_DATASET_DIR, 'ImageSets', 'Layout', 'train.txt'),
-                VocLayoutImporter),
-            (osp.join(DUMMY_DATASET_DIR, 'ImageSets', 'Action', 'train.txt'),
-                VocActionImporter),
-        ]
-
-        for path, subtask in matrix:
-            with self.subTest(path=path, task=subtask):
-                self.assertTrue(subtask.detect(path))
+        for path in [DUMMY_DATASET_DIR, DUMMY_DATASET2_DIR]:
+            with self.subTest(path=path):
+                detected_formats = env.detect_dataset(path)
+                self.assertEqual([VocImporter.NAME], detected_formats)
 
 
 class VocConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None, **kwargs):
-        return test_save_and_load(self, source_dataset, converter, test_dir,
+        return check_save_and_load(self, source_dataset, converter, test_dir,
             importer='voc',
             target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
@@ -822,6 +813,47 @@ class VocConverterTest(TestCase):
             self._test_save_and_load(SrcExtractor(),
                 partial(VocConverter.convert, label_map='source'),
                 test_dir, target_dataset=DstExtractor())
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_dataset_with_save_dataset_meta_file(self):
+        label_map = OrderedDict([
+            ('background', [(0, 0, 0), [], []]),
+            ('label_1', [(1, 2, 3), ['part1', 'part2'], ['act1', 'act2']]),
+            ('label_2', [(3, 2, 1), ['part3'], []])
+        ])
+
+        class SrcExtractor(TestExtractorBase):
+            def __iter__(self):
+                yield DatasetItem(id=1, annotations=[
+                    Bbox(2, 3, 4, 5, label=1, id=1),
+                ])
+
+            def categories(self):
+                return VOC.make_voc_categories(label_map)
+
+        class DstExtractor(TestExtractorBase):
+            def __iter__(self):
+                yield DatasetItem(id=1, annotations=[
+                    Bbox(2, 3, 4, 5, label=self._label('label_1'),
+                        id=1, group=1, attributes={
+                            'act1': False,
+                            'act2': False,
+                            'truncated': False,
+                            'difficult': False,
+                            'occluded': False,
+                        }
+                    ),
+                ])
+
+            def categories(self):
+                return VOC.make_voc_categories(label_map)
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(SrcExtractor(),
+                partial(VocConverter.convert, label_map=label_map,
+                    save_dataset_meta=True), test_dir,
+                    target_dataset=DstExtractor())
+            self.assertTrue(osp.isfile(osp.join(test_dir, 'dataset_meta.json')))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_dataset_with_fixed_labelmap(self):

@@ -1,4 +1,4 @@
-# Copyright (C) 2020 Intel Corporation
+# Copyright (C) 2020-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -11,7 +11,9 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.converter import Converter
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
+from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.util import str_to_bool
+from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
 
 class WiderFacePath:
@@ -43,8 +45,13 @@ class WiderFaceExtractor(SourceExtractor):
 
     def _load_categories(self):
         label_cat = LabelCategories()
-        path = osp.join(self._dataset_dir, WiderFacePath.LABELS_FILE)
-        if osp.isfile(path):
+        if has_meta_file(self._dataset_dir):
+            labels = parse_meta_file(self._dataset_dir).keys()
+            for label in labels:
+                label_cat.add(label)
+        elif osp.isfile(osp.join(self._dataset_dir,
+                WiderFacePath.LABELS_FILE)):
+            path = osp.join(self._dataset_dir, WiderFacePath.LABELS_FILE)
             with open(path, encoding='utf-8') as labels_file:
                 for line in labels_file:
                     label_cat.add(line.strip())
@@ -139,6 +146,10 @@ class WiderFaceExtractor(SourceExtractor):
 
 class WiderFaceImporter(Importer):
     @classmethod
+    def detect(cls, context: FormatDetectionContext) -> None:
+        context.require_file(f'{WiderFacePath.ANNOTATIONS_DIR}/*.txt')
+
+    @classmethod
     def find_sources(cls, path):
         return cls._find_sources_recursive(path, '.txt', 'wider_face',
             dirname=WiderFacePath.ANNOTATIONS_DIR)
@@ -152,9 +163,12 @@ class WiderFaceConverter(Converter):
 
         label_categories = self._extractor.categories()[AnnotationType.label]
 
-        labels_path = osp.join(save_dir, WiderFacePath.LABELS_FILE)
-        with open(labels_path, 'w', encoding='utf-8') as f:
-            f.write('\n'.join(label.name for label in label_categories))
+        if self._save_dataset_meta:
+           self._save_meta_file(save_dir)
+        else:
+            labels_path = osp.join(save_dir, WiderFacePath.LABELS_FILE)
+            with open(labels_path, 'w', encoding='utf-8') as f:
+                f.write('\n'.join(label.name for label in label_categories))
 
         for subset_name, subset in self._extractor.subsets().items():
             subset_dir = osp.join(save_dir,

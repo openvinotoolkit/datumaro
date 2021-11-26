@@ -11,20 +11,17 @@ from datumaro.components.annotation import (
     PointsCategories, Polygon,
 )
 from datumaro.components.dataset import Dataset
+from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
+from datumaro.components.media import Image
 from datumaro.plugins.coco_format.converter import (
     CocoCaptionsConverter, CocoConverter, CocoImageInfoConverter,
     CocoInstancesConverter, CocoLabelsConverter, CocoPanopticConverter,
     CocoPersonKeypointsConverter, CocoStuffConverter,
 )
-from datumaro.plugins.coco_format.importer import (
-    CocoCaptionsImporter, CocoImageInfoImporter, CocoImporter,
-    CocoInstancesImporter, CocoLabelsImporter, CocoPanopticImporter,
-    CocoPersonKeypointsImporter, CocoStuffImporter,
-)
-from datumaro.util.image import Image
+from datumaro.plugins.coco_format.importer import CocoImporter
 from datumaro.util.test_utils import (
-    TestDir, compare_datasets, test_save_and_load,
+    TestDir, check_save_and_load, compare_datasets,
 )
 
 from .requirements import Requirements, mark_requirement
@@ -532,45 +529,30 @@ class CocoImporterTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect(self):
-        dataset_dir = osp.join(DUMMY_DATASET_DIR, 'coco')
-        matrix = [
-            # Whole dataset
-            (dataset_dir, CocoImporter),
-
-            # Subformats
-            (dataset_dir, CocoLabelsImporter),
-            (dataset_dir, CocoInstancesImporter),
-            (dataset_dir, CocoPanopticImporter),
-            (dataset_dir, CocoStuffImporter),
-            (dataset_dir, CocoCaptionsImporter),
-            (dataset_dir, CocoImageInfoImporter),
-            (dataset_dir, CocoPersonKeypointsImporter),
-
-            # Subsets of subformats
-            (osp.join(dataset_dir, 'annotations', 'labels_train.json'),
-                CocoLabelsImporter),
-            (osp.join(dataset_dir, 'annotations', 'instances_train.json'),
-                CocoInstancesImporter),
-            (osp.join(dataset_dir, 'annotations', 'panoptic_train.json'),
-                CocoPanopticImporter),
-            (osp.join(dataset_dir, 'annotations', 'stuff_train.json'),
-                CocoStuffImporter),
-            (osp.join(dataset_dir, 'annotations', 'captions_train.json'),
-                CocoCaptionsImporter),
-            (osp.join(dataset_dir, 'annotations', 'image_info_train.json'),
-                CocoImageInfoImporter),
-            (osp.join(dataset_dir, 'annotations', 'person_keypoints_train.json'),
-                CocoPersonKeypointsImporter),
+        subdirs = [
+            'coco',
+            'coco_captions',
+            'coco_image_info',
+            'coco_instances',
+            'coco_labels',
+            'coco_panoptic',
+            'coco_person_keypoints',
+            'coco_stuff',
         ]
 
-        for path, subtask in matrix:
-            with self.subTest(path=path, task=subtask):
-                self.assertTrue(subtask.detect(path))
+        env = Environment()
+
+        for subdir in subdirs:
+            with self.subTest(subdir=subdir):
+                dataset_dir = osp.join(DUMMY_DATASET_DIR, subdir)
+
+                detected_formats = env.detect_dataset(dataset_dir)
+                self.assertEqual([CocoImporter.NAME], detected_formats)
 
 class CocoConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None, **kwargs):
-        return test_save_and_load(self, source_dataset, converter, test_dir,
+        return check_save_and_load(self, source_dataset, converter, test_dir,
             importer='coco',
             target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 

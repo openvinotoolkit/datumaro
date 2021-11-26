@@ -12,7 +12,8 @@ import shutil
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.dataset import DatasetPatch
 from datumaro.components.extractor import DatasetItem
-from datumaro.util.image import Image
+from datumaro.components.media import Image
+from datumaro.util.meta_file_util import save_meta_file
 from datumaro.util.os_util import rmtree
 from datumaro.util.scope import on_error_do, scoped
 
@@ -28,6 +29,8 @@ class Converter(CliPlugin):
         parser.add_argument('--image-ext', default=None,
             help="Image extension (default: keep or use format default%s)" % \
                 (' ' + cls.DEFAULT_IMAGE_EXT if cls.DEFAULT_IMAGE_EXT else ''))
+        parser.add_argument('--save-dataset-meta', action='store_true',
+            help="Save dataset meta file (default: %(default)s)")
 
         return parser
 
@@ -70,7 +73,7 @@ class Converter(CliPlugin):
         raise NotImplementedError("Should be implemented in a subclass")
 
     def __init__(self, extractor, save_dir, save_images=False,
-            image_ext=None, default_image_ext=None):
+            image_ext=None, default_image_ext=None, save_dataset_meta=False):
         default_image_ext = default_image_ext or self.DEFAULT_IMAGE_EXT
         assert default_image_ext
         self._default_image_ext = default_image_ext
@@ -80,6 +83,8 @@ class Converter(CliPlugin):
 
         self._extractor = extractor
         self._save_dir = save_dir
+
+        self._save_dataset_meta = save_dataset_meta
 
         # TODO: refactor this variable.
         # Can be used by a subclass to store the current patch info
@@ -144,3 +149,6 @@ class Converter(CliPlugin):
         if item.point_cloud and osp.isfile(item.point_cloud):
             if item.point_cloud != path:
                 shutil.copyfile(item.point_cloud, path)
+
+    def _save_meta_file(self, path):
+        save_meta_file(path, self._extractor.categories())

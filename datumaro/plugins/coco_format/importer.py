@@ -7,12 +7,14 @@ import logging as log
 import os.path as osp
 
 from datumaro.components.extractor import DEFAULT_SUBSET_NAME, Importer
+from datumaro.components.format_detection import (
+    FormatDetectionConfidence, FormatDetectionContext,
+)
 from datumaro.plugins.coco_format.extractor import (
     CocoCaptionsExtractor, CocoImageInfoExtractor, CocoInstancesExtractor,
     CocoLabelsExtractor, CocoPanopticExtractor, CocoPersonKeypointsExtractor,
     CocoStuffExtractor,
 )
-from datumaro.util.log_utils import logging_disabled
 
 from .format import CocoTask
 
@@ -38,9 +40,20 @@ class CocoImporter(Importer):
         return parser
 
     @classmethod
-    def detect(cls, path):
-        with logging_disabled(log.WARN):
-            return len(cls.find_sources(path)) != 0
+    def detect(
+        cls, context: FormatDetectionContext,
+    ) -> FormatDetectionConfidence:
+        # The `coco` format is inherently ambiguous with `coco_instances`,
+        # `coco_stuff`, etc. To remove the ambiguity (and thus make it possible
+        # to use autodetection with the COCO dataset), disable autodetection
+        # for the single-task formats.
+        if len(cls._TASKS) == 1:
+            context.fail('this format cannot be autodetected')
+
+        with context.require_any():
+            for task in cls._TASKS.keys():
+                with context.alternative():
+                    context.require_file(f'annotations/{task.name}_*.json')
 
     def __call__(self, path, **extra_params):
         subsets = self.find_sources(path)

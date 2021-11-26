@@ -10,13 +10,15 @@ from datumaro.components.annotation import (
     AnnotationType, LabelCategories, Mask, MaskCategories,
 )
 from datumaro.components.dataset import Dataset
+from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem, Extractor
+from datumaro.components.media import Image
 from datumaro.plugins.cityscapes_format import (
     CityscapesConverter, CityscapesImporter,
 )
-from datumaro.util.image import Image
+from datumaro.util.meta_file_util import parse_meta_file
 from datumaro.util.test_utils import (
-    IGNORE_ALL, TestDir, compare_datasets, test_save_and_load,
+    IGNORE_ALL, TestDir, check_save_and_load, compare_datasets,
 )
 import datumaro.plugins.cityscapes_format as Cityscapes
 
@@ -35,6 +37,20 @@ class CityscapesFormatTest(TestCase):
 
             Cityscapes.write_label_map(file_path, src_label_map)
             dst_label_map = Cityscapes.parse_label_map(file_path)
+
+            self.assertEqual(src_label_map, dst_label_map)
+
+    @mark_requirement(Requirements.DATUM_267)
+    def test_can_write_and_parse_dataset_meta_file(self):
+        src_label_map = Cityscapes.CityscapesLabelMap
+
+        with TestDir() as test_dir:
+            source_dataset = Dataset.from_iterable([],
+                categories=Cityscapes.make_cityscapes_categories(src_label_map))
+
+            CityscapesConverter.convert(source_dataset, test_dir,
+                save_dataset_meta=True)
+            dst_label_map = parse_meta_file(test_dir)
 
             self.assertEqual(src_label_map, dst_label_map)
 
@@ -95,7 +111,8 @@ class CityscapesImportTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_267)
     def test_can_detect_cityscapes(self):
-        self.assertTrue(CityscapesImporter.detect(DUMMY_DATASET_DIR))
+        detected_formats = Environment().detect_dataset(DUMMY_DATASET_DIR)
+        self.assertIn(CityscapesImporter.NAME, detected_formats)
 
 
 class TestExtractorBase(Extractor):
@@ -108,7 +125,7 @@ class TestExtractorBase(Extractor):
 class CityscapesConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None, **kwargs):
-        return test_save_and_load(self, source_dataset, converter, test_dir,
+        return check_save_and_load(self, source_dataset, converter, test_dir,
             importer='cityscapes',
             target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
@@ -264,6 +281,40 @@ class CityscapesConverterTest(TestCase):
             self._test_save_and_load(source_dataset,
                 partial(CityscapesConverter.convert, label_map='source',
                     save_images=True), test_dir, target_dataset=DstExtractor())
+
+    @mark_requirement(Requirements.DATUM_267)
+    def test_dataset_with_save_dataset_meta_file(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, image=np.ones((1, 5, 3)), annotations=[
+                Mask(np.array([[1, 0, 0, 1, 1]]), label=0),
+                Mask(np.array([[0, 1, 1, 0, 0]]), label=1),
+            ]),
+        ], categories=['a', 'b'])
+
+        class DstExtractor(TestExtractorBase):
+            def __iter__(self):
+                yield DatasetItem(id=1, image=np.ones((1, 5, 3)), annotations=[
+                    Mask(np.array([[1, 0, 0, 1, 1]]),
+                        attributes={'is_crowd': False}, id=1,
+                        label=self._label('a')),
+                    Mask(np.array([[0, 1, 1, 0, 0]]),
+                        attributes={'is_crowd': False}, id=2,
+                        label=self._label('b')),
+                ])
+
+            def categories(self):
+                label_map = OrderedDict()
+                label_map['background'] = None
+                label_map['a'] = None
+                label_map['b'] = None
+                return Cityscapes.make_cityscapes_categories(label_map)
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(source_dataset,
+                partial(CityscapesConverter.convert, label_map='source',
+                    save_images=True, save_dataset_meta=True), test_dir,
+                    target_dataset=DstExtractor())
+            self.assertTrue(osp.isfile(osp.join(test_dir, 'dataset_meta.json')))
 
     @mark_requirement(Requirements.DATUM_267)
     def test_dataset_with_source_labelmap_defined(self):

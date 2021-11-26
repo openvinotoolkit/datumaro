@@ -222,7 +222,7 @@ def compare_datasets_3d(test, expected: IDataset, actual: IDataset,
             item_b.annotations.remove(ann_b) # avoid repeats
 
 
-def test_save_and_load(test, source_dataset, converter, test_dir, importer,
+def check_save_and_load(test, source_dataset, converter, test_dir, importer,
         target_dataset=None, importer_args=None, compare=None, **kwargs):
     converter(source_dataset, test_dir)
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2020 Intel Corporation
+# Copyright (C) 2020-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -16,8 +16,10 @@ import os.path as osp
 from datumaro.components.annotation import AnnotationType, Bbox, LabelCategories
 from datumaro.components.converter import Converter
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
+from datumaro.components.format_detection import FormatDetectionContext
+from datumaro.components.media import Image
 from datumaro.util import cast
-from datumaro.util.image import Image, find_images
+from datumaro.util.image import find_images
 
 MotLabel = Enum('MotLabel', [
     ('pedestrian', 1),
@@ -120,7 +122,7 @@ class MotSeqExtractor(SourceExtractor):
         items = OrderedDict()
 
         if self._seq_info:
-            for frame_id in range(self._seq_info['seqlength']):
+            for frame_id in range(1, self._seq_info['seqlength'] + 1):  # base-1 frame ids
                 items[frame_id] = DatasetItem(
                     id=frame_id,
                     subset=self._subset,
@@ -198,6 +200,10 @@ class MotSeqExtractor(SourceExtractor):
         assert set(seq_info) == {'name', 'imdir', 'framerate', 'seqlength', 'imwidth', 'imheight', 'imext'}, seq_info
 
 class MotSeqImporter(Importer):
+    @classmethod
+    def detect(cls, context: FormatDetectionContext) -> None:
+        context.require_file('gt/gt.txt')
+
     @classmethod
     def find_sources(cls, path):
         return cls._find_sources_recursive(path, '.txt', 'mot_seq',

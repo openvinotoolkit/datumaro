@@ -21,6 +21,12 @@ from datumaro.util import parse_str_enum_value
 
 
 class _TaskValidator(Validator, CliPlugin):
+    DEFAULT_FEW_SAMPLES_THR = 1
+    DEFAULT_IMBALANCE_RATIO_THR = 50
+    DEFAULT_FAR_FROM_MEAN_THR = 5
+    DEFAULT_DOMINANCE_RATIO_THR = 0.8
+    DEFAULT_TOPK_BINS = 0.1
+
     # statistics templates
     numerical_stat_template = {
         'items_far_from_mean': {},
@@ -49,25 +55,26 @@ class _TaskValidator(Validator, CliPlugin):
     def build_cmdline_parser(cls, **kwargs):
         parser = super().build_cmdline_parser(**kwargs)
         parser.add_argument('-fs', '--few-samples-thr',
-            default=1, type=int,
+            default=cls.DEFAULT_FEW_SAMPLES_THR, type=int,
             help="Threshold for giving a warning for minimum number of "
                 "samples per class (default: %(default)s)")
         parser.add_argument('-ir', '--imbalance-ratio-thr',
-            default=50, type=int,
+            default=cls.DEFAULT_IMBALANCE_RATIO_THR, type=int,
             help="Threshold for giving data imbalance warning. "
                 "IR(imbalance ratio) = majority/minority "
                 "(default: %(default)s)")
         parser.add_argument('-m', '--far-from-mean-thr',
-            default=5.0, type=float,
+            default=cls.DEFAULT_FAR_FROM_MEAN_THR, type=float,
             help="Threshold for giving a warning that data is far from mean. "
                 "A constant used to define mean +/- k * standard deviation "
                 "(default: %(default)s)")
         parser.add_argument('-dr', '--dominance-ratio-thr',
-            default=0.8, type=float,
+            default=cls.DEFAULT_DOMINANCE_RATIO_THR, type=float,
             help="Threshold for giving a warning for bounding box imbalance. "
                 "Dominace_ratio = ratio of Top-k bin to total in histogram "
                 "(default: %(default)s)")
-        parser.add_argument('-k', '--topk-bins', default=0.1, type=float,
+        parser.add_argument('-k', '--topk-bins',
+            default=cls.DEFAULT_TOPK_BINS, type=float,
             help="Ratio of bins with the highest number of data "
                 "to total bins in the histogram. A value in the range [0, 1] "
                 "(default: %(default)s)")
@@ -109,6 +116,21 @@ class _TaskValidator(Validator, CliPlugin):
         elif self.task_type == TaskType.segmentation:
             self.ann_types = {AnnotationType.mask, AnnotationType.polygon}
             self.str_ann_type = "mask or polygon"
+
+        if few_samples_thr is None:
+            few_samples_thr = self.DEFAULT_FEW_SAMPLES_THR
+
+        if imbalance_ratio_thr is None:
+            imbalance_ratio_thr = self.DEFAULT_IMBALANCE_RATIO_THR
+
+        if far_from_mean_thr is None:
+            far_from_mean_thr = self.DEFAULT_FAR_FROM_MEAN_THR
+
+        if dominance_ratio_thr is None:
+            dominance_ratio_thr = self.DEFAULT_DOMINANCE_RATIO_THR
+
+        if topk_bins is None:
+            topk_bins = self.DEFAULT_TOPK_BINS
 
         self.few_samples_thr = few_samples_thr
         self.imbalance_ratio_thr = imbalance_ratio_thr
@@ -552,8 +574,8 @@ class ClassificationValidator(_TaskValidator):
     A specific validator class for classification task.
     """
 
-    def __init__(self, few_samples_thr, imbalance_ratio_thr,
-            far_from_mean_thr, dominance_ratio_thr, topk_bins):
+    def __init__(self, few_samples_thr=None, imbalance_ratio_thr=None,
+            far_from_mean_thr=None, dominance_ratio_thr=None, topk_bins=None):
         super().__init__(task_type=TaskType.classification,
             few_samples_thr=few_samples_thr,
             imbalance_ratio_thr=imbalance_ratio_thr,
@@ -657,8 +679,8 @@ class DetectionValidator(_TaskValidator):
     A specific validator class for detection task.
     """
 
-    def __init__(self, few_samples_thr, imbalance_ratio_thr,
-            far_from_mean_thr, dominance_ratio_thr, topk_bins):
+    def __init__(self, few_samples_thr=None, imbalance_ratio_thr=None,
+            far_from_mean_thr=None, dominance_ratio_thr=None, topk_bins=None):
         super().__init__(task_type=TaskType.detection,
             few_samples_thr=few_samples_thr,
             imbalance_ratio_thr=imbalance_ratio_thr,
@@ -943,8 +965,8 @@ class SegmentationValidator(_TaskValidator):
     A specific validator class for (instance) segmentation task.
     """
 
-    def __init__(self, few_samples_thr, imbalance_ratio_thr,
-            far_from_mean_thr, dominance_ratio_thr, topk_bins):
+    def __init__(self, few_samples_thr=None, imbalance_ratio_thr=None,
+            far_from_mean_thr=None, dominance_ratio_thr=None, topk_bins=None):
         super().__init__(task_type=TaskType.segmentation,
             few_samples_thr=few_samples_thr,
             imbalance_ratio_thr=imbalance_ratio_thr,

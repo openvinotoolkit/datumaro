@@ -5,11 +5,12 @@ import os.path as osp
 import numpy as np
 
 from datumaro.components.extractor import DatasetItem
+from datumaro.components.media import Image
 from datumaro.components.project import Dataset
 from datumaro.plugins.image_dir_format import ImageDirConverter
-from datumaro.util.image import Image, save_image
+from datumaro.util.image import save_image
 from datumaro.util.test_utils import (
-    TestDir, compare_datasets, test_save_and_load,
+    TestDir, check_save_and_load, compare_datasets,
 )
 
 from .requirements import Requirements, mark_requirement
@@ -24,7 +25,7 @@ class ImageDirFormatTest(TestCase):
         ])
 
         with TestDir() as test_dir:
-            test_save_and_load(self, dataset, ImageDirConverter.convert,
+            check_save_and_load(self, dataset, ImageDirConverter.convert,
                 test_dir, importer='image_dir', require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -36,7 +37,7 @@ class ImageDirFormatTest(TestCase):
         ])
 
         with TestDir() as test_dir:
-            test_save_and_load(self, dataset, ImageDirConverter.convert,
+            check_save_and_load(self, dataset, ImageDirConverter.convert,
                 test_dir, importer='image_dir')
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -46,7 +47,7 @@ class ImageDirFormatTest(TestCase):
         ])
 
         with TestDir() as test_dir:
-            test_save_and_load(self, dataset, ImageDirConverter.convert,
+            check_save_and_load(self, dataset, ImageDirConverter.convert,
                 test_dir, importer='image_dir')
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -59,7 +60,7 @@ class ImageDirFormatTest(TestCase):
         ])
 
         with TestDir() as test_dir:
-            test_save_and_load(self, dataset, ImageDirConverter.convert,
+            check_save_and_load(self, dataset, ImageDirConverter.convert,
                 test_dir, importer='image_dir', require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)

@@ -6,6 +6,7 @@ import os.path as osp
 from datumaro.components.annotation import (
     AnnotationType, Cuboid3d, LabelCategories,
 )
+from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
 from datumaro.components.project import Dataset
 from datumaro.plugins.sly_pointcloud_format.converter import (
@@ -15,7 +16,7 @@ from datumaro.plugins.sly_pointcloud_format.extractor import (
     SuperviselyPointCloudImporter,
 )
 from datumaro.util.test_utils import (
-    Dimensions, TestDir, compare_datasets_3d, test_save_and_load,
+    Dimensions, TestDir, check_save_and_load, compare_datasets_3d,
 )
 
 from .requirements import Requirements, mark_requirement
@@ -27,7 +28,8 @@ DUMMY_DATASET_DIR = osp.join(osp.dirname(
 class SuperviselyPointcloudImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect(self):
-        self.assertTrue(SuperviselyPointCloudImporter.detect(DUMMY_DATASET_DIR))
+        detected_formats = Environment().detect_dataset(DUMMY_DATASET_DIR)
+        self.assertIn(SuperviselyPointCloudImporter.NAME, detected_formats)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_load(self):
@@ -91,7 +93,7 @@ class PointCloudConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None, **kwargs):
         kwargs.setdefault('dimension', Dimensions.dim_3d)
-        return test_save_and_load(self, source_dataset, converter, test_dir,
+        return check_save_and_load(self, source_dataset, converter, test_dir,
             importer='sly_pointcloud', target_dataset=target_dataset,
             importer_args=importer_args, **kwargs)
 

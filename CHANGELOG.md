@@ -8,6 +8,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[Unreleased\]
 ### Added
+- Mapillary Vistas dataset format (Import-only)
+  (<https://github.com/openvinotoolkit/datumaro/pull/537>)
+- Datumaro can now be installed on Windows on Python 3.9
+  (<https://github.com/openvinotoolkit/datumaro/pull/547>)
+- Import for SYNTHIA dataset format
+  (<https://github.com/openvinotoolkit/datumaro/pull/532>)
+- Support for Accuracy Checker dataset meta files in formats
+  (<https://github.com/openvinotoolkit/datumaro/pull/553>)
+
+### Changed
+- The following formats can now be detected unambiguously:
+  `ade20k2017`, `ade20k2020`, `camvid`, `coco`, `cvat`, `datumaro`,
+  `icdar_text_localization`, `icdar_text_segmentation`,
+  `icdar_word_recognition`, `imagenet_txt`, `kitti_raw`, `label_me`, `lfw`,
+  `mot_seq`, `open_images`, `vgg_face2`, `voc`, `widerface`, `yolo`
+  (<https://github.com/openvinotoolkit/datumaro/pull/531>,
+  <https://github.com/openvinotoolkit/datumaro/pull/536>,
+  <https://github.com/openvinotoolkit/datumaro/pull/550>,
+  <https://github.com/openvinotoolkit/datumaro/pull/557>,
+  <https://github.com/openvinotoolkit/datumaro/pull/558>)
+- Allowed Pytest-native tests
+  (<https://github.com/openvinotoolkit/datumaro/pull/563>)
+- Allowed export options in the `datum merge` command
+  (<https://github.com/openvinotoolkit/datumaro/pull/545>)
+
+### Deprecated
+- Using `Image`, `ByteImage` from `datumaro.util.image` - these classes
+  are moved to `datumaro.components.media`
+  (<https://github.com/openvinotoolkit/datumaro/pull/538>)
+
+### Removed
+- TBD
+
+### Fixed
+- Bug #560: import issue with MOT dataset when using seqinfo.ini file
+  (<https://github.com/openvinotoolkit/datumaro/pull/564>)
+
+### Security
+- TBD
+
+## 16/11/2021 - Release v0.2.1
+### Added
 - Import for CelebA dataset format.
   (<https://github.com/openvinotoolkit/datumaro/pull/484>)
 
@@ -20,6 +62,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/509>)
 - Allowed annotation files with arbitrary names in COCO
   (<https://github.com/openvinotoolkit/datumaro/pull/509>)
+- The `icdar_text_localization` format is no longer detected in every directory
+  (<https://github.com/openvinotoolkit/datumaro/pull/531>)
+- Updated `pycocotools` version to 2.0.2
+  (<https://github.com/openvinotoolkit/datumaro/pull/534>)
 
 ### Deprecated
 - TBD
@@ -31,7 +77,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Unhandled exception when a file is specified as the source for a COCO or
   MOTS dataset
   (<https://github.com/openvinotoolkit/datumaro/pull/530>)
-
+- Exporting dataset without `color` attribute into the
+  `icdar_text_segmentation` format
+  (<https://github.com/openvinotoolkit/datumaro/pull/556>)
 ### Security
 - TBD
 

@@ -1,0 +1,5 @@
+0 0 0 background
+0 0 64 sky
+0 128 128 building
+128 0 64 person
+0 192 128 road

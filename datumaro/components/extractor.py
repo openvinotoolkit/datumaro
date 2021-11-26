@@ -16,9 +16,12 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.errors import DatasetNotFoundError
+from datumaro.components.format_detection import (
+    FormatDetectionConfidence, FormatDetectionContext,
+)
+from datumaro.components.media import Image
 from datumaro.util import is_method_redefined
 from datumaro.util.attrs_util import default_if_none, not_empty
-from datumaro.util.image import Image
 
 # Re-export some names from .annotation for backwards compatibility.
 import datumaro.components.annotation # isort:skip
@@ -31,7 +34,7 @@ for _name in [
 
 DEFAULT_SUBSET_NAME = 'default'
 
-@attrs
+@attrs(order=False)
 class DatasetItem:
     id: str = attrib(converter=lambda x: str(x).replace('\\', '/'),
         validator=not_empty)
@@ -209,11 +212,13 @@ class SourceExtractor(Extractor):
 
 class Importer(CliPlugin):
     @classmethod
-    def detect(cls, path):
-        if not path or not osp.exists(path):
-            return False
+    def detect(
+        cls, context: FormatDetectionContext,
+    ) -> Optional[FormatDetectionConfidence]:
+        if not cls.find_sources_with_params(context.root_path):
+            context.fail("specific requirement information unavailable")
 
-        return len(cls.find_sources_with_params(path)) != 0
+        return FormatDetectionConfidence.LOW
 
     @classmethod
     def find_sources(cls, path) -> List[Dict]:

@@ -5,12 +5,16 @@
 from collections import OrderedDict
 from enum import Enum, auto
 from itertools import chain
+import json
+import os.path as osp
 
 import numpy as np
 
 from datumaro.components.annotation import (
     AnnotationType, LabelCategories, MaskCategories,
 )
+from datumaro.util import find
+from datumaro.util.meta_file_util import get_meta_file
 
 
 class VocTask(Enum):
@@ -157,6 +161,33 @@ def parse_label_map(path):
             label_map[name] = [color, parts, actions]
     return label_map
 
+def parse_meta_file(path):
+    meta_file = path
+    if osp.isdir(path):
+        meta_file = get_meta_file(path)
+
+    with open(meta_file) as f:
+        dataset_meta = json.load(f)
+
+    label_map = OrderedDict()
+    parts = dataset_meta.get('parts', {})
+    actions = dataset_meta.get('actions', {})
+
+    for i, label in enumerate(dataset_meta.get('labels', [])):
+        label_map[label] = [None, parts.get(str(i), []), actions.get(str(i), [])]
+
+    colors = dataset_meta.get('segmentation_colors', [])
+
+    for i, label in enumerate(dataset_meta.get('label_map', {}).values()):
+        if label not in label_map:
+            label_map[label] = [None, [], []]
+
+        if any(colors) and colors[i] is not None:
+            label_map[label][0] = tuple(colors[i])
+
+
+    return label_map
+
 def write_label_map(path, label_map):
     with open(path, 'w', encoding='utf-8') as f:
         f.write('# label:color_rgb:parts:actions\n')
@@ -170,6 +201,47 @@ def write_label_map(path, label_map):
             actions = ','.join(str(a) for a in label_desc[2])
 
             f.write('%s\n' % ':'.join([label_name, color_rgb, parts, actions]))
+
+def write_meta_file(path, label_map):
+    dataset_meta = {}
+
+    labels = []
+    labels_dict = {}
+    segmentation_colors = []
+    parts = {}
+    actions = {}
+
+    for i, (label_name, label_desc) in enumerate(label_map.items()):
+        labels.append(label_name)
+        if label_desc[0]:
+            labels_dict[str(i)] = label_name
+            segmentation_colors.append(
+                [int(label_desc[0][0]), int(label_desc[0][1]), int(label_desc[0][2])])
+
+        parts[str(i)] = label_desc[1]
+        actions[str(i)] = label_desc[2]
+
+    dataset_meta['labels'] = labels
+
+    if any(segmentation_colors):
+        dataset_meta['label_map'] = labels_dict
+        dataset_meta['segmentation_colors'] = segmentation_colors
+
+        bg_label = find(label_map.items(), lambda x: x[1] == (0, 0, 0))
+        if bg_label is not None:
+            dataset_meta['background_label'] = str(bg_label[0])
+
+    if any(parts):
+        dataset_meta['parts'] = parts
+
+    if any(actions):
+        dataset_meta['actions'] = actions
+
+    meta_file = get_meta_file(path)
+
+    with open(meta_file, 'w') as f:
+        json.dump(dataset_meta, f)
+
 
 def make_voc_categories(label_map=None):
     if label_map is None:

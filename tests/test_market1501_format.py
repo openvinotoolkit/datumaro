@@ -4,11 +4,12 @@ import os.path as osp
 import numpy as np
 
 from datumaro.components.dataset import Dataset
+from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
+from datumaro.components.media import Image
 from datumaro.plugins.market1501_format import (
     Market1501Converter, Market1501Importer,
 )
-from datumaro.util.image import Image
 from datumaro.util.test_utils import TestDir, compare_datasets
 
 from .requirements import Requirements, mark_requirement
@@ -169,7 +170,8 @@ DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'market1501_datase
 class Market1501ImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect(self):
-        self.assertTrue(Market1501Importer.detect(DUMMY_DATASET_DIR))
+        detected_formats = Environment().detect_dataset(DUMMY_DATASET_DIR)
+        self.assertIn(Market1501Importer.NAME, detected_formats)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import(self):
