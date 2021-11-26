@@ -20,6 +20,9 @@ from datumaro.util import find
 from datumaro.util.annotation_util import make_label_id_mapping
 from datumaro.util.image import find_images, load_image, save_image
 from datumaro.util.mask_tools import generate_colormap, paint_mask
+from datumaro.util.meta_file_util import (
+    has_meta_file, is_meta_file, parse_meta_file,
+)
 
 CityscapesLabelMap = OrderedDict([
     ('unlabeled', (0, 0, 0)),
@@ -172,11 +175,15 @@ class CityscapesExtractor(SourceExtractor):
 
     def _load_categories(self, path):
         label_map = None
-        label_map_path = osp.join(path, CityscapesPath.LABELMAP_FILE)
-        if osp.isfile(label_map_path):
-            label_map = parse_label_map(label_map_path)
+        if has_meta_file(path):
+            label_map = parse_meta_file(path)
         else:
-            label_map = CityscapesLabelMap
+            label_map_path = osp.join(path, CityscapesPath.LABELMAP_FILE)
+            if osp.isfile(label_map_path):
+                label_map = parse_label_map(label_map_path)
+            else:
+                label_map = CityscapesLabelMap
+
         self._labels = [label for label in label_map]
         return make_cityscapes_categories(label_map)
 
@@ -335,11 +342,15 @@ class CityscapesConverter(Converter):
         self.save_label_map()
 
     def save_label_map(self):
-        path = osp.join(self._save_dir, CityscapesPath.LABELMAP_FILE)
-        labels = self._extractor.categories()[AnnotationType.label]
-        if len(self._label_map) > len(labels):
-            self._label_map.pop('background')
-        write_label_map(path, self._label_map)
+        if self._save_dataset_meta:
+            self._save_meta_file(self._save_dir)
+        else:
+            labels = self._extractor.categories()[AnnotationType.label]
+            if len(self._label_map) > len(labels):
+                self._label_map.pop('background')
+
+            path = osp.join(self._save_dir, CityscapesPath.LABELMAP_FILE)
+            write_label_map(path, self._label_map)
 
     def _load_categories(self, label_map_source):
         if label_map_source == LabelmapType.cityscapes.name:
@@ -370,7 +381,10 @@ class CityscapesConverter(Converter):
                 sorted(label_map_source.items(), key=lambda e: e[0]))
 
         elif isinstance(label_map_source, str) and osp.isfile(label_map_source):
-            label_map = parse_label_map(label_map_source)
+            if is_meta_file(label_map_source):
+                label_map = parse_meta_file(label_map_source)
+            else:
+                label_map = parse_label_map(label_map_source)
 
         else:
             raise Exception("Wrong labelmap specified, "

@@ -12,8 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/537>)
 - Datumaro can now be installed on Windows on Python 3.9
   (<https://github.com/openvinotoolkit/datumaro/pull/547>)
-- Import for SYNTHIA dataset format.
+- Import for SYNTHIA dataset format
   (<https://github.com/openvinotoolkit/datumaro/pull/532>)
+- Support for Accuracy Checker dataset meta files in formats
+  (<https://github.com/openvinotoolkit/datumaro/pull/553>)
 
 ### Changed
 - The following formats can now be detected unambiguously:
