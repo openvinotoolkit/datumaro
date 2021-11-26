@@ -74,9 +74,20 @@ html_css_files = ['custom.css', ]
 autodoc_docstring_signature = True
 autodoc_member_order = 'bysource'
 
+# member to be included
+include_member_list = [
+    '__init__',
+    '__iter__',
+    '__eq__',
+    '__len__',
+    '__contains__',
+    '__getitem__',
+]
+
 def skip_member(app, what, name, obj, skip, options):
     if 'undoc-members' in options:
-        return name.startswith('_')
+        if all(name != a for a in include_member_list) == True:
+            return name.startswith('_')
 
 def replace(app, what, name, obj, options, lines):
     for i, line in enumerate(lines):

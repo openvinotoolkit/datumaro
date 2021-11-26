@@ -1,9 +1,9 @@
-launcher module
----------------
+environment module
+------------------
 
-.. automodule:: datumaro.components.launcher
+.. automodule:: datumaro.components.environment
 
-   .. autoclass:: Launcher
+   .. autoclass:: Environment
       :members:
       :private-members:
       :special-members:
@@ -11,8 +11,10 @@ launcher module
 
       .. automethod:: __init__
 
-   .. autoclass:: ModelTransform
+   .. autoclass:: PluginRegistry
       :members:
       :private-members:
       :special-members:
       :show-inheritance:
+
+      .. automethod:: __init__
