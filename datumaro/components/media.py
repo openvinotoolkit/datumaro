@@ -296,6 +296,14 @@ class Video(MediaElement, Iterable[VideoFrame]):
         self._iterator: Optional[_VideoFrameIterator] = None
         self._frame_size: Optional[Tuple[int, int]] = None
 
+        # We don't provide frame count unless we have a reliable source of
+        # this information.
+        # - Not all videos provide length / duration metainfo
+        # - We can get an estimation based on metadata, but it
+        #   can be invalid or inaccurate due to variable frame rate
+        #   or fractional values rounded up. Relying on the value will give
+        #   errors during requesting frames.
+        # https://stackoverflow.com/a/47796468
         self._frame_count = None
         self._length = None
 
@@ -332,17 +340,6 @@ class Video(MediaElement, Iterable[VideoFrame]):
         else:
             # Need to decode to iterate over frames
             yield from self._get_iterator()
-
-    @property
-    def est_frame_count(self) -> Optional[int]:
-        """
-        Returns estimated frame count in the video file.
-        """
-
-        est_count = self._frame_count
-        if est_count is None:
-            est_count = self._get_est_frame_count(self._get_reader())
-        return est_count
 
     @property
     def length(self) -> Optional[int]:
@@ -393,23 +390,6 @@ class Video(MediaElement, Iterable[VideoFrame]):
 
         return frame_size
 
-    @staticmethod
-    def _get_est_frame_count(reader) -> Optional[int]:
-        # We don't provide frame count unless we have a reliable source of
-        # this information.
-        # - Not all videos provide length / duration metainfo
-        # - We can get an estimation based on metadata, but it
-        #   can be invalid or inaccurate due to variable frame rate
-        #   or fractional values rounded up. Relying on the value will give
-        #   errors during requesting frames.
-        # https://stackoverflow.com/a/47796468
-
-        frame_count = reader.get(cv2.CAP_PROP_FRAME_COUNT)
-        if frame_count:
-            frame_count = int(frame_count)
-        else:
-            frame_count = None
-        return frame_count
 
     def _get_end_frame(self):
         if self._end_frame is not None and self._frame_count is not None:

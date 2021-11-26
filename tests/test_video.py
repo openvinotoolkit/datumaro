@@ -106,13 +106,11 @@ class VideoTest:
         on_exit_do(video.close)
 
         assert None == video.length
-        assert 4 == video.est_frame_count
 
         for idx, frame in enumerate(video):
             assert idx == frame.index
 
         assert 4 == video.length
-        assert 4 == video.est_frame_count
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
