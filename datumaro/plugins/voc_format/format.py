@@ -170,19 +170,24 @@ def parse_meta_file(path):
         dataset_meta = json.load(f)
 
     label_map = OrderedDict()
-    colors = dataset_meta.get('segmentation_colors', [])
     parts = dataset_meta.get('parts', {})
     actions = dataset_meta.get('actions', {})
 
-    for i, label in dataset_meta.get('label_map').items():
-        label_map[label] = []
-        label_map[label].append(None)
+    for i, label in enumerate(dataset_meta.get('labels', [])):
+        label_map[label] = [None, [], []]
 
-        if any(colors) and colors[int(i)] is not None:
-            label_map[label][0] = tuple(colors[int(i)])
+        label_map[label][1] = parts.get(str(i), [])
+        label_map[label][2] = actions.get(str(i), [])
 
-        label_map[label].append(parts.get(i, []))
-        label_map[label].append(actions.get(i, []))
+    colors = dataset_meta.get('segmentation_colors', [])
+
+    for i, label in enumerate(dataset_meta.get('label_map', {}).values()):
+        if label not in label_map:
+            label_map[label] = [None, [], []]
+
+        if any(colors) and colors[i] is not None:
+            label_map[label][0] = tuple(colors[i])
+
 
     return label_map
 
@@ -203,29 +208,31 @@ def write_label_map(path, label_map):
 def write_meta_file(path, label_map):
     dataset_meta = {}
 
-    labels = {}
+    labels = []
+    labels_dict = {}
     segmentation_colors = []
     parts = {}
     actions = {}
 
     for i, (label_name, label_desc) in enumerate(label_map.items()):
-        labels[str(i)] = label_name
-
-        segmentation_colors.append(
-            [int(label_desc[0][0]), int(label_desc[0][1]), int(label_desc[0][2])]
-            if label_desc[0] != None else None)
+        labels.append(label_name)
+        if label_desc[0]:
+            labels_dict[str(i)] = label_name
+            segmentation_colors.append(
+                [int(label_desc[0][0]), int(label_desc[0][1]), int(label_desc[0][2])])
 
         parts[str(i)] = label_desc[1]
         actions[str(i)] = label_desc[2]
 
-    dataset_meta['label_map'] = labels
+    dataset_meta['labels'] = labels
 
     if any(segmentation_colors):
+        dataset_meta['label_map'] = labels_dict
+        dataset_meta['segmentation_colors'] = segmentation_colors
+
         bg_label = find(label_map.items(), lambda x: x[1] == (0, 0, 0))
         if bg_label is not None:
             dataset_meta['background_label'] = str(bg_label[0])
-
-        dataset_meta['segmentation_colors'] = segmentation_colors
 
     if any(parts):
         dataset_meta['parts'] = parts
