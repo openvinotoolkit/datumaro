@@ -174,10 +174,7 @@ def parse_meta_file(path):
     actions = dataset_meta.get('actions', {})
 
     for i, label in enumerate(dataset_meta.get('labels', [])):
-        label_map[label] = [None, [], []]
-
-        label_map[label][1] = parts.get(str(i), [])
-        label_map[label][2] = actions.get(str(i), [])
+        label_map[label] = [None, parts.get(str(i), []), actions.get(str(i), [])]
 
     colors = dataset_meta.get('segmentation_colors', [])
 
