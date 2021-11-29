@@ -14,6 +14,7 @@ from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.util.image import find_images, load_image
 from datumaro.util.mask_tools import generate_colormap, lazy_mask
+from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
 
 class SynthiaPath:
@@ -98,6 +99,8 @@ class SynthiaExtractor(SourceExtractor):
         self._items = list(self._load_items(path).values())
 
     def _load_categories(self, path):
+        if has_meta_file(path):
+            return make_categories(parse_meta_file(path))
         label_map_path = osp.join(path, SynthiaPath.LABELMAP_FILE)
         if osp.isfile(label_map_path):
             label_map = parse_label_map(label_map_path)
