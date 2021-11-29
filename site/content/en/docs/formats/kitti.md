@@ -48,7 +48,6 @@ KITTI detection dataset directory should have the following structure:
 <!--lint disable fenced-code-flag-->
 ```
 └─ Dataset/
-    ├── label_colors.txt # optional, color map for non-original segmentation labels
     ├── testing/
     │   └── image_2/
     │       ├── <name_1>.<img_ext>
