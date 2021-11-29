@@ -278,4 +278,3 @@ errors module
    .. autoclass:: FarFromAttrMean
       :members:
       :show-inheritance:
-
