@@ -1,0 +1,5 @@
+{
+"label_map": {"0": "background", "1": "sky", "2": "building", "3": "person", "4": "road"},
+"background_label": "0",
+"segmentation_colors": [[0, 0, 0], [0, 0, 64], [0, 128, 128], [128, 0, 64], [0, 192, 128]]
+}
