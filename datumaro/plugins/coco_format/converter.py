@@ -651,9 +651,6 @@ class CocoConverter(Converter):
     def apply(self):
         self._make_dirs()
 
-        if self._save_dataset_meta:
-            self._save_meta_file(self._save_dir)
-
         for subset_name, subset in self._extractor.subsets().items():
             task_converters = self._make_task_converters()
             for task_conv in task_converters.values():
