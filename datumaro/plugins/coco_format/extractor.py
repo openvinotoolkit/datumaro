@@ -20,7 +20,6 @@ from datumaro.components.extractor import (
 from datumaro.components.media import Image
 from datumaro.util.image import lazy_image, load_image
 from datumaro.util.mask_tools import bgr2index
-from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 from datumaro.util.os_util import suppress_output
 
 from .format import CocoPath, CocoTask
