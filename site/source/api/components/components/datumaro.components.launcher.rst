@@ -6,7 +6,6 @@ launcher module
    .. autoclass:: Launcher
       :members:
       :private-members:
-      :special-members:
       :show-inheritance:
 
       .. automethod:: __init__
@@ -14,5 +13,6 @@ launcher module
    .. autoclass:: ModelTransform
       :members:
       :private-members:
-      :special-members:
       :show-inheritance:
+
+      .. automethod:: __init__

@@ -11,15 +11,15 @@ operations module
       :members:
       :show-inheritance:
 
-      .. py:function:: merge
+      .. automethod:: merge
 
-      .. py:function:: merge_items
+      .. automethod:: merge_items
 
-      .. py:function:: merge_images
+      .. automethod:: merge_images
 
-      .. py:function:: merge_anno
+      .. automethod:: merge_anno
 
-      .. py:function:: merge_categories
+      .. automethod:: merge_categories
 
    .. autoclass:: IntersectMerge
       :members:
@@ -29,7 +29,7 @@ operations module
 
          .. py:data:: attrib
 
-         .. py:function:: add_item_error
+         .. automethod:: add_item_error
 
          **Indexes:**
 
@@ -52,7 +52,7 @@ operations module
 
          .. py:data:: _categories = attrib(init=False)  merged categories
 
-      .. py:function:: _find_cluster_groups(clusters)
+      .. automethod:: _find_cluster_groups(clusters)
 
          Find segment groups in the cluster group.
          And also find adjacent clusters after all the segment groups
@@ -81,7 +81,7 @@ operations module
       :members:
       :show-inheritance:
 
-      .. autofunction:: match_annotations(self, sources)
+      .. py:function:: match_annotations(self, sources)
 
          Match segments in sources, pairwise.
          Join all segments into matching clusters.
@@ -95,13 +95,11 @@ operations module
    .. autoclass:: mean_std
       :members:
       :private-members:
-      :special-members:
       :show-inheritance:
 
    .. autoclass:: StatsCounter
       :members:
       :private-members:
-      :special-members:
       :show-inheritance:
 
       Implements online parallel computation of sample variance
@@ -116,7 +114,7 @@ operations module
 
       .. py:function:: get_label
 
-      .. py:data:: total_pixels
+      .. py:function:: total_pixels
 
          numpy.sum might be faster, but could overflow with large datasets.
          Python's int can transparently mutate to be of indefinite precision (long)
@@ -125,14 +123,12 @@ operations module
       :members:
       :undoc-members:
       :private-members:
-      :special-members:
       :show-inheritance:
 
    .. autoclass:: ExactComparator
       :members:
       :undoc-members:
       :private-members:
-      :special-members:
       :show-inheritance:
 
    .. autofunction:: match_classes

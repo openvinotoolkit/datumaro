@@ -6,45 +6,42 @@ media module
    .. autoclass:: MediaElement
       :members:
       :private-members:
-      :special-members:
       :show-inheritance:
 
-      .. py:function:: __init__
+      .. automethod:: __init__
 
-      .. py:function:: path
+      .. automethod:: path
 
-      .. py:function:: ext
+      .. automethod:: ext
 
-      .. py:function:: __eq__
+      .. automethod:: __eq__
 
    .. autoclass:: Image
       :members:
       :private-members:
-      :special-members:
       :show-inheritance:
 
-      .. py:function:: __init__
+      .. automethod:: __init__
 
-      .. py:function:: data
+      .. automethod:: data
 
-      .. py:function:: has_data
+      .. automethod:: has_data
 
-      .. py:function:: has_size
+      .. automethod:: has_size
 
-      .. py:function:: size
+      .. automethod:: size
 
-      .. py:function:: __eq__
+      .. automethod:: __eq__
 
-      .. py:function:: save
+      .. automethod:: save
 
    .. autoclass:: ByteImage
       :members:
       :private-members:
-      :special-members:
       :show-inheritance:
 
-      .. py:function:: __init__
+      .. automethod:: __init__
 
-      .. py:function:: get_bytes
+      .. automethod:: get_bytes
 
-      .. py:function:: save
+      .. automethod:: save

@@ -2,7 +2,13 @@ errors module
 -------------
 
 .. automodule:: datumaro.cli.util.errors
-   :members:
-   :private-members:
-   :special-members:
-   :show-inheritance:
+
+   .. autoclass:: CliException
+      :members:
+      :private-members:
+      :show-inheritance:
+
+   .. autoclass:: WrongRevpathError
+      :members:
+      :private-members:
+      :show-inheritance:

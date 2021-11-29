@@ -6,13 +6,11 @@ extractor module
    .. autoclass:: DatasetItem
       :members:
       :private-members:
-      :special-members:
       :show-inheritance:
 
    .. autoclass:: IExtractor
       :members:
       :private-members:
-      :special-members:
       :show-inheritance:
 
    .. autoclass:: Extractor

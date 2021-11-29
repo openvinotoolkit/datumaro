@@ -11,8 +11,9 @@ project module
    .. autoclass:: ProjectSources
       :members:
       :private-members:
-      :special-members:
       :show-inheritance:
+
+      .. autofunction:: __init__
 
    .. autoclass:: BuildStageType
       :members:
@@ -23,16 +24,16 @@ project module
       :members:
       :undoc-members:
       :private-members:
-      :special-members:
       :show-inheritance:
 
       .. automethod:: _get_subgraph
+
+      .. autofunction:: __init__
 
    .. autoclass:: ProjectBuilder
       :members:
       :undoc-members:
       :private-members:
-      :special-members:
       :show-inheritance:
 
       .. automethod:: _init_pipeline
@@ -40,34 +41,16 @@ project module
    .. autoclass:: ProjectBuildTargets
       :members:
       :private-members:
-      :special-members:
       :show-inheritance:
 
    .. autoclass:: GitWrapper
       :members:
       :private-members:
-      :special-members:
       :show-inheritance:
-
-   .. autoclass:: Revision
-      :members:
-      :undoc-members:
-      :private-members:
-      :special-members:
-      :show-inheritance:
-
-   .. py:data:: Revision = NewType('Revision', str)
-
-      a commit hash or a named reference
-
-   .. py:data:: ObjectId = NewType('ObjectId', str)
-
-      a commit or an object hash
 
    .. autoclass:: Tree
       :members:
       :private-members:
-      :special-members:
       :show-inheritance:
 
       can be:
@@ -79,8 +62,15 @@ project module
       :undoc-members:
       :show-inheritance:
 
+   .. py:data:: Revision = NewType('Revision', str)
+
+      a commit hash or a named reference
+
+   .. py:data:: ObjectId = NewType('ObjectId', str)
+
+      a commit or an object hash
+
    .. autoclass:: Project
       :members:
       :private-members:
-      :special-members:
       :show-inheritance:
