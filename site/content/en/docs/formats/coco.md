@@ -81,6 +81,7 @@ A COCO dataset directory should have the following structure:
 <!--lint disable fenced-code-flag-->
 ```
 └─ Dataset/
+    ├── dataset_meta.json # a list of non-format labels (optional)
     ├── images/
     │   ├── train/
     │   │   ├── <image_name1.ext>
@@ -100,6 +101,7 @@ For the panoptic task, a dataset directory should have the following structure:
 <!--lint disable fenced-code-flag-->
 ```
 └─ Dataset/
+    ├── dataset_meta.json # a list of non-format labels (optional)
     ├── images/
     │   ├── train/
     │   │   ├── <image_name1.ext>
@@ -146,6 +148,9 @@ Notes:
 - COCO categories can have any integer ids, however, Datumaro will count
   annotation category id 0 as "not specified". This does not contradict
   the original annotations, because they have category indices starting from 1.
+
+To add unformatted classes, you can use `dataset_meta.json`.
+Information about `dataset_meta.json` can be found [here](/docs/user_manual/supported_formats/#dataset-meta-file).
 
 ## Export to other formats
 

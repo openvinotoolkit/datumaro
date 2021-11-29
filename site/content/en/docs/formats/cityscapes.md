@@ -35,8 +35,8 @@ Cityscapes dataset directory should have the following structure:
 <!--lint disable fenced-code-flag-->
 ```
 └─ Dataset/
-    ├── dataset_meta.json # a list of non-Pascal labels (optional)
-    ├── label_colors.txt # a list of non-Pascal labels in other format (optional)
+    ├── dataset_meta.json # a list of non-Cityscapes labels (optional)
+    ├── label_colors.txt # a list of non-Cityscapes labels in other format (optional)
     ├── imgsFine/
     │   ├── leftImg8bit
     │   │   ├── <split: train,val, ...>
@@ -130,7 +130,7 @@ Extra options for exporting to Cityscapes format:
   (by default `False`)
 - `--image-ext IMAGE_EXT` allow to specify image extension
   for exporting dataset (by default - keep original or use `.png`, if none)
-- `--save-meta-file` - allow to export dataset with saving dataset meta
+- `--save-dataset-meta` - allow to export dataset with saving dataset meta
   file (by default `False`)
 - `--label_map` allow to define a custom colormap. Example:
 

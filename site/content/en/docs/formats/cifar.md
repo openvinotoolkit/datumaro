@@ -46,6 +46,7 @@ CIFAR-10 dataset directory should have the following structure:
 <!--lint disable fenced-code-flag-->
 ```
 └─ Dataset/
+    ├── dataset_meta.json # a list of non-format labels (optional)
     ├── batches.meta
     ├── <subset_name1>
     ├── <subset_name2>
@@ -57,6 +58,7 @@ CIFAR-100 dataset directory should have the following structure:
 <!--lint disable fenced-code-flag-->
 ```
 └─ Dataset/
+    ├── dataset_meta.json # a list of non-format labels (optional)
     ├── meta
     ├── <subset_name1>
     ├── <subset_name2>
@@ -99,6 +101,9 @@ CIFAR-100:
     'fine_labels': list of integers
     'coarse_labels': list of integers
 ```
+
+To add unformatted classes, you can use `dataset_meta.json`.
+Information about `dataset_meta.json` can be found [here](/docs/user_manual/supported_formats/#dataset-meta-file).
 
 ## Export to other formats
 
@@ -147,6 +152,8 @@ Extra options for exporting to CIFAR format:
   (by default `False`)
 - `--image-ext <IMAGE_EXT>` allow to specify image extension
   for exporting the dataset (by default `.png`)
+- `--save-dataset-meta` - allow to export dataset with saving dataset meta
+  file (by default `False`)
 
 The format (CIFAR-10 or CIFAR-100) in which the dataset will be
 exported depends on the presence of superclasses in the `LabelCategories`.

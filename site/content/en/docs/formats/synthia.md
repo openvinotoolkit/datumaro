@@ -40,6 +40,7 @@ SYNTHIA dataset directory should have the following structure:
 <!--lint disable fenced-code-flag-->
 ```
 dataset/
+├── dataset_meta.json # a list of non-format labels (optional)
 ├── GT/
 │   ├── COLOR/
 │   │   ├── Stereo_Left/
@@ -97,6 +98,8 @@ If it is missing, `GT/COLOR` folder will be used.
 The original dataset also contains depth information, but Datumaro
 does not currently support it.
 
+To add unformatted classes, you can use `dataset_meta.json`.
+Information about `dataset_meta.json` can be found [here](/docs/user_manual/supported_formats/#dataset-meta-file).
 
 ## Export to other formats
 

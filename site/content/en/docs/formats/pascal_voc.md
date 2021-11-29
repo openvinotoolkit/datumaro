@@ -202,7 +202,7 @@ Extra options for exporting to Pascal VOC format:
   (by default `False`)
 - `--image-ext IMAGE_EXT` - allow to specify image extension
   for exporting dataset (by default use original or `.jpg` if none)
-- `--save-meta-file` - allow to export dataset with saving dataset meta
+- `--save-dataset-meta` - allow to export dataset with saving dataset meta
   file (by default `False`)
 - `--apply-colormap APPLY_COLORMAP` - allow to use colormap for class
   and instance masks (by default `True`)
