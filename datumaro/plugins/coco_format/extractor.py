@@ -20,6 +20,7 @@ from datumaro.components.extractor import (
 from datumaro.components.media import Image
 from datumaro.util.image import lazy_image, load_image
 from datumaro.util.mask_tools import bgr2index
+from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 from datumaro.util.os_util import suppress_output
 
 from .format import CocoPath, CocoTask
@@ -52,7 +53,12 @@ class _CocoExtractor(SourceExtractor):
 
         self._merge_instance_polygons = merge_instance_polygons
 
-        if self._task == CocoTask.panoptic:
+        if self._task in [CocoTask.instances, CocoTask.labels,
+                CocoTask.panoptic, CocoTask.stuff] and \
+                has_meta_file(rootpath):
+            self._categories = { AnnotationType.label: LabelCategories().
+                from_iterable(list(parse_meta_file(rootpath).keys())) }
+        elif self._task == CocoTask.panoptic:
             #panoptic is not added to pycocotools
             panoptic_config = self._load_panoptic_config(path)
             panoptic_images = osp.splitext(path)[0]
