@@ -11,7 +11,6 @@ from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
 from datumaro.components.media import Image
 from datumaro.plugins.cifar_format import CifarConverter, CifarImporter
-from datumaro.util.meta_file_util import save_meta_file
 from datumaro.util.test_utils import TestDir, compare_datasets
 
 from .requirements import Requirements, mark_requirement
