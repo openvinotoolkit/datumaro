@@ -48,6 +48,7 @@ KITTI segmentation dataset directory should have the following structure:
 <!--lint disable fenced-code-flag-->
 ```
 └─ Dataset/
+    ├── dataset_meta.json # a list of non-format labels (optional)
     ├── label_colors.txt # optional, color map for non-original segmentation labels
     ├── testing/
     │   └── image_2/
@@ -76,6 +77,12 @@ KITTI segmentation dataset directory should have the following structure:
             ├── <name_2>.png
             └── ...
 ```
+
+To add unformatted classes, you can use `dataset_meta.json` and `label_colors.txt`.
+If the `dataset_meta.json` is not represented in the dataset, then
+`label_colors.txt` will be imported if possible.
+
+Information about `dataset_meta.json` can be found [here](/docs/user_manual/supported_formats/#dataset-meta-file).
 
 You can import a dataset for specific tasks
 of KITTI dataset instead of the whole dataset,
@@ -134,6 +141,8 @@ Extra options for exporting to KITTI format:
   (by default `False`)
 - `--image-ext IMAGE_EXT` allow to specify image extension
   for exporting dataset (by default - keep original or use `.png`, if none)
+- `--save-dataset-meta` - allow to export dataset with saving dataset meta
+  file (by default `False`)
 - `--apply-colormap APPLY_COLORMAP` allow to use colormap for class masks
   (in folder `semantic_rgb`, by default `True`)
 - `--label_map` allow to define a custom colormap. Example:
