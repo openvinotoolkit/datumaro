@@ -218,7 +218,7 @@ class CifarFormatTest(TestCase):
                 Dataset.import_from(test_dir, 'cifar')
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_save_and_load_with_metafile(self):
+    def test_can_save_and_load_with_meta_file(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='image_2', subset='test',
                 image=np.ones((32, 32, 3)),
@@ -238,6 +238,7 @@ class CifarFormatTest(TestCase):
                 save_dataset_meta=True)
             parsed_dataset = Dataset.import_from(test_dir, 'cifar')
 
+            self.assertTrue(osp.isfile(osp.join(test_dir, 'dataset_meta.json')))
             compare_datasets(self, source_dataset, parsed_dataset,
                 require_images=True)
 
