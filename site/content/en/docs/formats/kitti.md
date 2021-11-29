@@ -43,6 +43,28 @@ datum import --format kitti <path/to/dataset>
 It is possible to specify project name and project directory. Run
 `datum create --help` for more information.
 
+KITTI detection dataset directory should have the following structure:
+
+<!--lint disable fenced-code-flag-->
+```
+└─ Dataset/
+    ├── label_colors.txt # optional, color map for non-original segmentation labels
+    ├── testing/
+    │   └── image_2/
+    │       ├── <name_1>.<img_ext>
+    │       ├── <name_2>.<img_ext>
+    │       └── ...
+    └── training/
+        ├── image_2/ # left color camera images
+        │   ├── <name_1>.<img_ext>
+        │   ├── <name_2>.<img_ext>
+        │   └── ...
+        └─── label_2/ # left color camera label files
+            ├── <name_1>.txt
+            ├── <name_2>.txt
+            └── ...
+```
+
 KITTI segmentation dataset directory should have the following structure:
 
 <!--lint disable fenced-code-flag-->
