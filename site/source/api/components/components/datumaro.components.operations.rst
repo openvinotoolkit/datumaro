@@ -61,6 +61,22 @@ operations module
 
    .. autofunction:: match_segments
 
+      .. py:data:: a_matches = -np.ones(len(a_segms), dtype=int)
+
+         indices of b_segms matched to a bboxes
+
+      .. py:data:: b_matches = -np.ones(len(b_segms), dtype=int)
+
+         indices of a_segms matched to b bboxes
+
+      .. py:data:: matches = []
+
+         matches: boxes we succeeded to match completely
+
+      .. py:data:: mispred = []
+
+         mispred: boxes we succeeded to match, having label mismatch
+
    .. autoclass:: _ShapeMatcher(AnnotationMatcher)
       :members:
       :show-inheritance:
@@ -94,15 +110,26 @@ operations module
 
    .. autofunction:: compute_image_statistics
 
+      .. py:function:: _extractor_stats
+
    .. autofunction:: compute_ann_statistics
 
+      .. py:function:: get_label
+
+      .. py:data:: total_pixels
+
+         numpy.sum might be faster, but could overflow with large datasets.
+         Python's int can transparently mutate to be of indefinite precision (long)
+
    .. autoclass:: DistanceComparator
+      :members:
       :undoc-members:
       :private-members:
       :special-members:
       :show-inheritance:
 
    .. autoclass:: ExactComparator
+      :members:
       :undoc-members:
       :private-members:
       :special-members:
