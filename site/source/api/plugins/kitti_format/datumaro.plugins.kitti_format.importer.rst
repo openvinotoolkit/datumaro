@@ -1,8 +1,9 @@
-Module contents
+importer module
 ---------------
 
-.. automodule:: datumaro.util
+.. automodule:: datumaro.plugins.kitti_format.importer
    :members:
+   :undoc-members:
    :private-members:
    :special-members:
    :show-inheritance:

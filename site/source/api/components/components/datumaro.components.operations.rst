@@ -9,6 +9,9 @@ operations module
 
    .. autoclass:: ExactMerge
       :members:
+      :undoc-members:
+      :private-members:
+      :special-members:
       :show-inheritance:
 
       .. automethod:: merge
@@ -23,6 +26,9 @@ operations module
 
    .. autoclass:: IntersectMerge
       :members:
+      :undoc-members:
+      :private-members:
+      :special-members:
       :show-inheritance:
 
          **Error trackers:**
@@ -79,8 +85,10 @@ operations module
 
    .. autoclass:: _ShapeMatcher(AnnotationMatcher)
       :members:
+      :undoc-members:
+      :private-members:
+      :special-members:
       :show-inheritance:
-
       .. py:function:: match_annotations(self, sources)
 
          Match segments in sources, pairwise.
@@ -88,18 +96,24 @@ operations module
 
    .. autoclass:: LineMatcher(_ShapeMatcher)
       :members:
+      :undoc-members:
+      :private-members:
+      :special-members:
       :show-inheritance:
-
       Compute inter-line area, normalize by common bbox
 
    .. autoclass:: mean_std
       :members:
+      :undoc-members:
       :private-members:
+      :special-members:
       :show-inheritance:
 
    .. autoclass:: StatsCounter
       :members:
+      :undoc-members:
       :private-members:
+      :special-members:
       :show-inheritance:
 
       Implements online parallel computation of sample variance
@@ -123,12 +137,14 @@ operations module
       :members:
       :undoc-members:
       :private-members:
+      :special-members:
       :show-inheritance:
 
    .. autoclass:: ExactComparator
       :members:
       :undoc-members:
       :private-members:
+      :special-members:
       :show-inheritance:
 
    .. autofunction:: match_classes

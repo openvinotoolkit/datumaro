@@ -73,8 +73,15 @@ html_css_files = ['custom.css', ]
 # -- Extension configuration -------------------------------------------------
 autodoc_docstring_signature = True
 autodoc_member_order = 'bysource'
+# autodoc_default_options = { # The default options for autodoc directives.
+#     'members': None, # Include all members.
+#     'undoc-members': None, # Showing undoc-members.
+#     'private-members': None, # Include all private-members.
+#     'special-members': None, # Include all special-members.
+#     'show-inheritance': True, # Showing inheritance.
+# }
 
-# Members to be included
+# Members to be included.
 include_members_list = [
     '__init__',
     '__iter__',
@@ -85,9 +92,8 @@ include_members_list = [
 ]
 
 def skip_member(app, what, name, obj, skip, options):
-    if 'undoc-members' in options:
-        if all(name != a for a in include_members_list) == True:
-            return name.startswith('_')
+    if all(name != a for a in include_members_list) == True:
+        return name.startswith('_')
 
 def replace(app, what, name, obj, options, lines):
     for i, line in enumerate(lines):

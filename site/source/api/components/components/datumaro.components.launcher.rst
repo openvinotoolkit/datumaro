@@ -5,14 +5,15 @@ launcher module
 
    .. autoclass:: Launcher
       :members:
+      :undoc-members:
       :private-members:
+      :special-members:
       :show-inheritance:
-
-      .. automethod:: __init__
 
    .. autoclass:: ModelTransform
       :members:
+      :undoc-members:
       :private-members:
+      :special-members:
       :show-inheritance:
 
-      .. automethod:: __init__

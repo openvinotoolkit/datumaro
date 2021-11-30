@@ -5,7 +5,7 @@ dataset module
 
    .. py:data:: IDataset = IExtractor
 
-   .. autoclass:: ItemStatus(Enum)
+   .. autoclass:: ItemStatus
       :members:
       :undoc-members:
       :show-inheritance:
@@ -22,18 +22,19 @@ dataset module
 
    .. autoclass:: DatasetSubset
       :members:
-      :no-undoc-members:
+      :undoc-members:
       :private-members:
       :special-members:
       :show-inheritance:
 
    .. autoclass:: DatasetStorage
       :members:
+      :undoc-members:
       :private-members:
       :special-members:
       :show-inheritance:
 
-      .. automethod:: _iter_init_cache(self)
+      .. automethod:: _iter_init_cache
 
          Merges the source, source transforms and patch, caches the result
          and provides an iterator for the resulting item sequence.
@@ -51,8 +52,9 @@ dataset module
 
    .. autoclass:: Dataset
       :members:
+      :undoc-members:
       :private-members:
       :special-members:
       :show-inheritance:
 
-   .. py:function:: eager_mode(new_mode: bool = True, dataset: Optional[Dataset] = None)
+   .. py:function:: eager_mode
