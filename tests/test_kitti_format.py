@@ -568,14 +568,17 @@ class KittiConverterTest(TestCase):
             DatasetItem(id='1_2', subset='test',
                 image=np.ones((10, 10, 3)), annotations=[
                 Bbox(0, 1, 2, 2, label=0, id=0,
-                    attributes={'truncated': False, 'occluded': False}),
+                    attributes={'truncated': False, 'occluded': False,
+                        'score': 1.0}),
             ]),
             DatasetItem(id='1_3', subset='test',
                 image=np.ones((10, 10, 3)), annotations=[
                 Bbox(0, 0, 2, 2, label=1, id=0,
-                    attributes={'truncated': True, 'occluded': False}),
+                    attributes={'truncated': True, 'occluded': False,
+                        'score': 1.0}),
                 Bbox(6, 2, 3, 4, label=1, id=1,
-                    attributes={'truncated': False, 'occluded': True}),
+                    attributes={'truncated': False, 'occluded': True,
+                        'score': 1.0}),
             ]),
         ], categories=['label_0', 'label_1'])
 
