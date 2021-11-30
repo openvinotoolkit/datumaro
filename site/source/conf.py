@@ -73,13 +73,6 @@ html_css_files = ['custom.css', ]
 # -- Extension configuration -------------------------------------------------
 autodoc_docstring_signature = True
 autodoc_member_order = 'bysource'
-# autodoc_default_options = { # The default options for autodoc directives.
-#     'members': None, # Include all members.
-#     'undoc-members': None, # Showing undoc-members.
-#     'private-members': None, # Include all private-members.
-#     'special-members': None, # Include all special-members.
-#     'show-inheritance': True, # Showing inheritance.
-# }
 
 # Members to be included.
 include_members_list = [
