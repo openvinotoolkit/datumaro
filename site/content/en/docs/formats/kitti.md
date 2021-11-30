@@ -26,6 +26,7 @@ Supported annotation attributes:
   the object does not correspond to the full extent of the object
 - `occluded` (boolean) - indicates that a significant portion of the object
   within the bounding box is occluded by another object
+- `score` (float) - indicates confidence in detection
 
 ## Import KITTI dataset
 
@@ -42,6 +43,27 @@ datum import --format kitti <path/to/dataset>
 
 It is possible to specify project name and project directory. Run
 `datum create --help` for more information.
+
+KITTI detection dataset directory should have the following structure:
+
+<!--lint disable fenced-code-flag-->
+```
+└─ Dataset/
+    ├── testing/
+    │   └── image_2/
+    │       ├── <name_1>.<img_ext>
+    │       ├── <name_2>.<img_ext>
+    │       └── ...
+    └── training/
+        ├── image_2/ # left color camera images
+        │   ├── <name_1>.<img_ext>
+        │   ├── <name_2>.<img_ext>
+        │   └── ...
+        └─── label_2/ # left color camera label files
+            ├── <name_1>.txt
+            ├── <name_2>.txt
+            └── ...
+```
 
 KITTI segmentation dataset directory should have the following structure:
 
