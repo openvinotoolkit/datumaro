@@ -100,7 +100,7 @@ class _KittiExtractor(SourceExtractor):
 
                 for line_idx, line in enumerate(lines):
                     line = line.split()
-                    assert len(line) == 15
+                    assert len(line) == 15 or len(line) == 16
 
                     x1, y1 = float(line[4]), float(line[5])
                     x2, y2 = float(line[6]), float(line[7])
@@ -108,6 +108,9 @@ class _KittiExtractor(SourceExtractor):
                     attributes = {}
                     attributes['truncated'] = float(line[1]) != 0
                     attributes['occluded']  = int(line[2]) != 0
+
+                    if len(line) == 16:
+                        attributes['score'] = float(line[15])
 
                     label_id = self.categories()[
                         AnnotationType.label].find(line[0])[0]

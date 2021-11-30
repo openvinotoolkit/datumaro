@@ -134,7 +134,7 @@ class KittiConverter(Converter):
                     os.makedirs(osp.dirname(labels_file), exist_ok=True)
                     with open(labels_file, 'w', encoding='utf-8') as f:
                         for bbox in bboxes:
-                            label_line = [-1] * 15
+                            label_line = [-1] * 16
                             label_line[0] = self.get_label(bbox.label)
                             label_line[1] = cast(bbox.attributes.get('truncated'),
                                 float, KittiPath.DEFAULT_TRUNCATED)
@@ -142,6 +142,9 @@ class KittiConverter(Converter):
                                 int, KittiPath.DEFAULT_OCCLUDED)
                             x, y, h, w = bbox.get_bbox()
                             label_line[4:8] = x, y, x + h, y + w
+
+                            label_line[15] = cast(bbox.attributes.get('score'),
+                                float, KittiPath.DEFAULT_SCORE)
 
                             label_line = ' '.join(str(v) for v in label_line)
                             f.write('%s\n' % label_line)

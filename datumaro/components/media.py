@@ -2,11 +2,12 @@
 #
 # SPDX-License-Identifier: MIT
 
-from typing import Callable, Optional, Tuple, Union
+from typing import Callable, Iterable, Iterator, Optional, Tuple, Union
 import os
 import os.path as osp
 import shutil
 
+import cv2
 import numpy as np
 
 from datumaro.util.image import (
@@ -175,3 +176,256 @@ class ByteImage(Image):
                 f.write(self.get_bytes())
         else:
             save_image(path, self.data)
+
+class VideoFrame(Image):
+    def __init__(self, video: 'Video', index: int):
+        self._video = video
+        self._index = index
+
+        super().__init__(lambda _: self._video.get_frame_data(self._index))
+
+    @property
+    def size(self) -> Tuple[int, int]:
+        return self._video.frame_size
+
+    @property
+    def index(self) -> int:
+        return self._index
+
+    @property
+    def video(self) -> 'Video':
+        return self._video
+
+class _VideoFrameIterator(Iterator[VideoFrame]):
+    """
+    Provides sequential access to the video frames.
+    """
+    _video: 'Video'
+    _iterator: Iterator[VideoFrame]
+    _pos: int
+    _current_frame_data: Optional[np.ndarray]
+
+    def __init__(self, video: 'Video'):
+        self._video = video
+        self._reset()
+
+    def _reset(self):
+        self._video._reset_reader()
+        self._iterator = self._decode(self._video._get_reader())
+        self._pos = -1
+        self._current_frame_data = None
+
+    def _decode(self, cap) -> Iterator[VideoFrame]:
+        """
+        Decodes video frames using opencv
+        """
+
+        self._pos = -1
+
+        success, frame = cap.read()
+        while success:
+            self._pos += 1
+            if self._video._includes_frame(self._pos):
+                self._current_frame_data = frame.astype(float)
+                yield self._make_frame(index=self._pos)
+
+            success, frame = cap.read()
+
+        if self._video._frame_count is None:
+            self._video._frame_count = self._pos + 1
+
+    def _make_frame(self, index) -> VideoFrame:
+        return VideoFrame(self._video, index=index)
+
+    def __next__(self):
+        return next(self._iterator)
+
+    def __getitem__(self, idx: int) -> VideoFrame:
+        if not self._video._includes_frame(idx):
+            raise IndexError(f"Video doesn't contain frame #{idx}.")
+
+        return self._navigate_to(idx)
+
+    def get_frame_data(self, idx: int) -> np.ndarray:
+        self._navigate_to(idx)
+        return self._current_frame_data
+
+    def _navigate_to(self, idx: int) -> VideoFrame:
+        """
+        Iterates over frames to the required position.
+        """
+
+        if idx < 0:
+            raise IndexError()
+
+        if idx < self._pos:
+            self._reset()
+
+        if self._pos < idx:
+            try:
+                while self._pos < idx:
+                    v = self.__next__()
+            except StopIteration as e:
+                raise IndexError() from e
+        else:
+            v = self._make_frame(index=self._pos)
+
+        return v
+
+class Video(MediaElement, Iterable[VideoFrame]):
+    """
+    Provides random access to the video frames.
+    """
+
+    def __init__(self, path: str, *,
+            step: int = 1, start_frame: int = 0,
+            end_frame: Optional[int] = None) -> None:
+        super().__init__(path)
+
+        if end_frame:
+            assert start_frame < end_frame
+        assert 0 < step
+        self._step = step
+        self._start_frame = start_frame
+        self._end_frame = end_frame or None
+
+        self._reader = None
+        self._iterator: Optional[_VideoFrameIterator] = None
+        self._frame_size: Optional[Tuple[int, int]] = None
+
+        # We don't provide frame count unless we have a reliable source of
+        # this information.
+        # - Not all videos provide length / duration metainfo
+        # - We can get an estimation based on metadata, but it
+        #   can be invalid or inaccurate due to variable frame rate
+        #   or fractional values rounded up. Relying on the value will give
+        #   errors during requesting frames.
+        # https://stackoverflow.com/a/47796468
+        self._frame_count = None
+        self._length = None
+
+    def close(self):
+        self._iterator = None
+
+        if self._reader is not None:
+            self._reader.release()
+            self._reader = None
+
+    def __getitem__(self, idx: int) -> VideoFrame:
+        if not self._includes_frame(idx):
+            raise IndexError(f"Video doesn't contain frame #{idx}.")
+
+        return self._get_iterator()[idx]
+
+    def get_frame_data(self, idx: int) -> VideoFrame:
+        if not self._includes_frame(idx):
+            raise IndexError(f"Video doesn't contain frame #{idx}.")
+
+        return self._get_iterator().get_frame_data(idx)
+
+    def __iter__(self) -> Iterator[VideoFrame]:
+        """
+        Iterates over frames lazily, if possible.
+        """
+
+        if self._frame_count is not None:
+            # Decoding is not necessary to get frame pointers
+            # However, it can be inacurrate
+            end_frame = self._get_end_frame()
+            for index in range(self._start_frame, end_frame, self._step):
+                yield VideoFrame(video=self, index=index)
+        else:
+            # Need to decode to iterate over frames
+            yield from self._get_iterator()
+
+    @property
+    def length(self) -> Optional[int]:
+        """
+        Returns frame count, if video provides such information.
+
+        Note that not all videos provide length / duration metainfo, so the
+        result may be undefined.
+
+        Also note, that information may be inaccurate because of variable
+        FPS in video or incorrect metainfo. The count is only guaranteed to
+        be valid after video is completely read once.
+
+        The count is affected by the frame filtering options of the object,
+        i.e. start frame, end frame and frame step.
+        """
+
+        if self._length is None:
+            end_frame = self._get_end_frame()
+
+            length = None
+            if end_frame is not None:
+                length = (end_frame - self._start_frame) // self._step
+                assert 0 < length
+
+            self._length = length
+
+        return self._length
+
+    @property
+    def frame_size(self) -> Tuple[int, int]:
+        """Returns (H, W)"""
+
+        if self._frame_size is None:
+            self._frame_size = self._get_frame_size()
+        return self._frame_size
+
+    def _get_frame_size(self) -> Tuple[int, int]:
+        cap = self._get_reader()
+        w = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
+        h = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+
+        if h and w:
+            frame_size = (int(h), int(w))
+        else:
+            image = next(self._get_iterator()).data
+            frame_size = image.shape[0:2]
+
+        return frame_size
+
+
+    def _get_end_frame(self):
+        if self._end_frame is not None and self._frame_count is not None:
+            end_frame = min(self._end_frame, self._frame_count)
+        else:
+            end_frame = self._end_frame or self._frame_count
+
+        return end_frame
+
+    def _includes_frame(self, i):
+        end_frame = self._get_end_frame()
+        if self._start_frame <= i:
+            if (i - self._start_frame) % self._step == 0:
+                if end_frame is None or i < end_frame:
+                    return True
+
+        return False
+
+    def _get_iterator(self):
+        if self._iterator is None:
+            self._iterator = _VideoFrameIterator(self)
+        return self._iterator
+
+    def _get_reader(self):
+        if self._reader is None:
+            self._reset_reader()
+        return self._reader
+
+    def _reset_reader(self):
+        if self._reader is not None:
+            self._reader.release()
+        self._reader = cv2.VideoCapture(self._path)
+        assert self._reader.isOpened()
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, __class__):
+            return False
+
+        return self.path == other.path and \
+            self._start_frame == other._start_frame and \
+            self._step == other._step and \
+            self._end_frame == other._end_frame

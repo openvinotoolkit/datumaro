@@ -198,14 +198,17 @@ class KittiConverterTest(TestCase):
             DatasetItem(id='1_2', subset='test',
                 image=np.ones((10, 10, 3)), annotations=[
                 Bbox(0, 1, 2, 2, label=0, id=0,
-                    attributes={'truncated': False, 'occluded': False}),
+                    attributes={'truncated': False, 'occluded': False,
+                        'score': 1.0}),
             ]),
             DatasetItem(id='1_3', subset='test',
                 image=np.ones((10, 10, 3)), annotations=[
                 Bbox(0, 0, 2, 2, label=1, id=0,
-                    attributes={'truncated': True, 'occluded': False}),
+                    attributes={'truncated': True, 'occluded': False,
+                        'score': 1.0}),
                 Bbox(6, 2, 3, 4, label=1, id=1,
-                    attributes={'truncated': False, 'occluded': True}),
+                    attributes={'truncated': False, 'occluded': True,
+                        'score': 1.0}),
             ]),
         ], categories=['label_0', 'label_1'])
 
@@ -477,7 +480,8 @@ class KittiConverterTest(TestCase):
             DatasetItem(id='b', subset='val', image=np.ones((5, 5, 3)),
                 annotations=[
                     Bbox(0, 0, 3, 3, label=0, attributes={
-                        'truncated': True, 'occluded': False
+                        'truncated': True, 'occluded': False,
+                        'score': 0.9
                     })
                 ])
         ], categories=['label_0'])
@@ -532,6 +536,31 @@ class KittiConverterTest(TestCase):
                 partial(KittiConverter.convert, tasks=KittiTask.segmentation,
                     label_map=source_label_map), test_dir,
                     target_dataset=expected_dataset)
+
+    @mark_requirement(Requirements.DATUM_280)
+    def test_can_save_detection_with_score_attribute(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id='1_2', subset='test',
+                image=np.ones((10, 10, 3)), annotations=[
+                Bbox(0, 1, 2, 2, label=0, id=0,
+                    attributes={'truncated': False, 'occluded': False,
+                        'score': 0.78}),
+            ]),
+            DatasetItem(id='1_3', subset='test',
+                image=np.ones((10, 10, 3)), annotations=[
+                Bbox(0, 0, 2, 2, label=1, id=0,
+                    attributes={'truncated': True, 'occluded': False,
+                        'score': 0.8}),
+                Bbox(6, 2, 3, 4, label=1, id=1,
+                    attributes={'truncated': False, 'occluded': True,
+                        'score': 0.67}),
+            ]),
+        ], categories=['label_0', 'label_1'])
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(source_dataset,
+                partial(KittiConverter.convert,
+                save_images=True, tasks=KittiTask.detection), test_dir)
 
     @mark_requirement(Requirements.DATUM_280)
     def test_can_save_detection_with_meta_file(self):
