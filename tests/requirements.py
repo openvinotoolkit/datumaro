@@ -41,6 +41,7 @@ class Requirements:
     DATUM_BUG_425 = "Bug: concatenation for the different types in COCO format"
     DATUM_BUG_466 = "Can't correct import Open Images dataset without images"
     DATUM_BUG_470 = "Cannot to import Cityscapes dataset without images"
+    DATUM_BUG_560 = "Reading MOT dataset with seqinfo produces 0-based indexing in frames"
 
 
 class SkipMessages:
