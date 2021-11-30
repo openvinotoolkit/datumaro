@@ -68,11 +68,10 @@ Annotated files description:
   is the instance ID. If a certain annotation describes multiple instances,
   then the pixels have the regular ID of that class
 
-To add unformatted classes, you can use `dataset_meta.json` and `label_colors.txt`.
+To add custom classes, you can use [`dataset_meta.json`](/docs/user_manual/supported_formats/#dataset-meta-file)
+and `label_colors.txt`.
 If the `dataset_meta.json` is not represented in the dataset, then
 `label_colors.txt` will be imported if possible.
-
-Information about `dataset_meta.json` can be found [here](/docs/user_manual/supported_formats/#dataset-meta-file).
 
 In `label_colors.txt` you can define custom color map and non-cityscapes labels,
 for example:

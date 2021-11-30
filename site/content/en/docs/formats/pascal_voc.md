@@ -108,11 +108,10 @@ These directories contain `.txt` files with a list of images in a subset,
 the subset name is the same as the `.txt` file name. Subset names can be
 arbitrary.
 
-To add unformatted classes, you can use `dataset_meta.json` and `label_map.txt`.
+To add custom classes, you can use [`dataset_meta.json`](/docs/user_manual/supported_formats/#dataset-meta-file)
+and `label_map.txt`.
 If the `dataset_meta.json` is not represented in the dataset, then
 `label_map.txt` will be imported if possible.
-
-Information about `dataset_meta.json` can be found [here](/docs/user_manual/supported_formats/#dataset-meta-file).
 
 In `label_map.txt` you can define custom color map and non-pascal labels,
 for example:

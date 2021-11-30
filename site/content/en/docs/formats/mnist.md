@@ -87,11 +87,10 @@ MNIST in CSV dataset directory should have the following structure:
     └── mnist_train.csv
 ```
 
-To add unformatted classes, you can use `dataset_meta.json` and `labels.txt`.
+To add custom classes, you can use [`dataset_meta.json`](/docs/user_manual/supported_formats/#dataset-meta-file)
+and `labels.txt`.
 If the `dataset_meta.json` is not represented in the dataset, then
 `labels.txt` will be imported if possible.
-
-Information about `dataset_meta.json` can be found [here](/docs/user_manual/supported_formats/#dataset-meta-file).
 
 For example, `labels.txt` for Fashion MNIST the following contents:
 

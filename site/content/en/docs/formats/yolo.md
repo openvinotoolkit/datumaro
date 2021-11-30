@@ -98,8 +98,7 @@ Here `x_center`, `y_center`, `width`, and `height` are relative to the image's
 width and height. The `x_center` and `y_center` are center of rectangle
 (are not top-left corner).
 
-To add unformatted classes, you can use `dataset_meta.json`.
-Information about `dataset_meta.json` can be found [here](/docs/user_manual/supported_formats/#dataset-meta-file).
+To add custom classes, you can use [`dataset_meta.json`](/docs/user_manual/supported_formats/#dataset-meta-file).
 
 ## Export to other formats
 
