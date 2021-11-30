@@ -35,8 +35,8 @@ Cityscapes dataset directory should have the following structure:
 <!--lint disable fenced-code-flag-->
 ```
 └─ Dataset/
-    ├── dataset_meta.json # a list of non-Pascal labels (optional)
-    ├── label_colors.txt # a list of non-Pascal labels in other format (optional)
+    ├── dataset_meta.json # a list of non-Cityscapes labels (optional)
+    ├── label_colors.txt # a list of non-Cityscapes labels in other format (optional)
     ├── imgsFine/
     │   ├── leftImg8bit
     │   │   ├── <split: train,val, ...>
@@ -68,11 +68,10 @@ Annotated files description:
   is the instance ID. If a certain annotation describes multiple instances,
   then the pixels have the regular ID of that class
 
-To add unformatted classes, you can use `dataset_meta.json` and `label_colors.txt`.
+To add custom classes, you can use [`dataset_meta.json`](/docs/user_manual/supported_formats/#dataset-meta-file)
+and `label_colors.txt`.
 If the `dataset_meta.json` is not represented in the dataset, then
 `label_colors.txt` will be imported if possible.
-
-Information about `dataset_meta.json` can be found [here](/docs/user_manual/supported_formats/#dataset-meta-file).
 
 In `label_colors.txt` you can define custom color map and non-cityscapes labels,
 for example:
@@ -130,7 +129,7 @@ Extra options for exporting to Cityscapes format:
   (by default `False`)
 - `--image-ext IMAGE_EXT` allow to specify image extension
   for exporting dataset (by default - keep original or use `.png`, if none)
-- `--save-meta-file` - allow to export dataset with saving dataset meta
+- `--save-dataset-meta` - allow to export dataset with saving dataset meta
   file (by default `False`)
 - `--label_map` allow to define a custom colormap. Example:
 

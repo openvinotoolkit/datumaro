@@ -12,6 +12,7 @@ from datumaro.components.extractor import (
     AnnotationType, DatasetItem, SourceExtractor,
 )
 from datumaro.util.image import find_images, load_image
+from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
 from .format import (
     KittiLabelMap, KittiPath, KittiTask, make_kitti_categories, parse_label_map,
@@ -36,15 +37,23 @@ class _KittiExtractor(SourceExtractor):
         if self._task == KittiTask.segmentation:
             return self._load_categories_segmentation(path)
         elif self._task == KittiTask.detection:
+            if has_meta_file(path):
+                return { AnnotationType.label: LabelCategories().
+                    from_iterable(list(parse_meta_file(path).keys())) }
+
             return {AnnotationType.label: LabelCategories()}
 
     def _load_categories_segmentation(self, path):
         label_map = None
-        label_map_path = osp.join(path, KittiPath.LABELMAP_FILE)
-        if osp.isfile(label_map_path):
-            label_map = parse_label_map(label_map_path)
+        if has_meta_file(path):
+            label_map = parse_meta_file(path)
         else:
-            label_map = KittiLabelMap
+            label_map_path = osp.join(path, KittiPath.LABELMAP_FILE)
+            if osp.isfile(label_map_path):
+                label_map = parse_label_map(label_map_path)
+            else:
+                label_map = KittiLabelMap
+
         self._labels = [label for label in label_map]
         return make_kitti_categories(label_map)
 

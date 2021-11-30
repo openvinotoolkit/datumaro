@@ -20,6 +20,7 @@ from datumaro.plugins.kitti_format.format import (
 from datumaro.plugins.kitti_format.importer import (
     KittiDetectionImporter, KittiImporter, KittiSegmentationImporter,
 )
+from datumaro.util.meta_file_util import parse_meta_file
 from datumaro.util.test_utils import (
     TestDir, check_save_and_load, compare_datasets,
 )
@@ -40,6 +41,20 @@ class KittiFormatTest(TestCase):
 
             write_label_map(file_path, src_label_map)
             dst_label_map = parse_label_map(file_path)
+
+            self.assertEqual(src_label_map, dst_label_map)
+
+    @mark_requirement(Requirements.DATUM_280)
+    def test_can_write_and_parse_dataset_meta_file(self):
+        src_label_map = KittiLabelMap
+
+        with TestDir() as test_dir:
+            source_dataset = Dataset.from_iterable([],
+                categories=make_kitti_categories(src_label_map))
+
+            KittiConverter.convert(source_dataset, test_dir,
+                save_dataset_meta=True)
+            dst_label_map = parse_meta_file(test_dir)
 
             self.assertEqual(src_label_map, dst_label_map)
 
@@ -546,3 +561,72 @@ class KittiConverterTest(TestCase):
             self._test_save_and_load(source_dataset,
                 partial(KittiConverter.convert,
                 save_images=True, tasks=KittiTask.detection), test_dir)
+
+    @mark_requirement(Requirements.DATUM_280)
+    def test_can_save_detection_with_meta_file(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id='1_2', subset='test',
+                image=np.ones((10, 10, 3)), annotations=[
+                Bbox(0, 1, 2, 2, label=0, id=0,
+                    attributes={'truncated': False, 'occluded': False,
+                        'score': 1.0}),
+            ]),
+            DatasetItem(id='1_3', subset='test',
+                image=np.ones((10, 10, 3)), annotations=[
+                Bbox(0, 0, 2, 2, label=1, id=0,
+                    attributes={'truncated': True, 'occluded': False,
+                        'score': 1.0}),
+                Bbox(6, 2, 3, 4, label=1, id=1,
+                    attributes={'truncated': False, 'occluded': True,
+                        'score': 1.0}),
+            ]),
+        ], categories=['label_0', 'label_1'])
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(source_dataset,
+                partial(KittiConverter.convert,
+                save_images=True, save_dataset_meta=True,
+                tasks=KittiTask.detection), test_dir)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_save_segmentation_with_meta_file(self):
+        class SrcExtractor(TestExtractorBase):
+            def __iter__(self):
+                yield DatasetItem(id=1, image=np.ones((1, 5, 3)), annotations=[
+                    Mask(image=np.array([[1, 0, 0, 1, 1]]), label=1, id=1,
+                        attributes={'is_crowd': False}),
+                    Mask(image=np.array([[0, 1, 1, 0, 0]]), label=2, id=2,
+                        attributes={'is_crowd': False}),
+                ])
+
+            def categories(self):
+                label_map = OrderedDict()
+                label_map['background'] = (0, 0, 0)
+                label_map['label_1'] = (1, 2, 3)
+                label_map['label_2'] = (3, 2, 1)
+                return make_kitti_categories(label_map)
+
+        class DstExtractor(TestExtractorBase):
+            def __iter__(self):
+                yield DatasetItem(id=1, image=np.ones((1, 5, 3)), annotations=[
+                    Mask(image=np.array([[1, 0, 0, 1, 1]]),
+                        attributes={'is_crowd': False}, id=1,
+                        label=self._label('label_1')),
+                    Mask(image=np.array([[0, 1, 1, 0, 0]]),
+                        attributes={'is_crowd': False}, id=2,
+                        label=self._label('label_2')),
+                ])
+
+            def categories(self):
+                label_map = OrderedDict()
+                label_map['background'] = (0, 0, 0)
+                label_map['label_1'] = (1, 2, 3)
+                label_map['label_2'] = (3, 2, 1)
+                return make_kitti_categories(label_map)
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(SrcExtractor(),
+                partial(KittiConverter.convert, label_map='source',
+                save_images=True, save_dataset_meta=True), test_dir,
+                target_dataset=DstExtractor())
+            self.assertTrue(osp.isfile(osp.join(test_dir, 'dataset_meta.json')))
