@@ -16,4 +16,3 @@ launcher module
       :private-members:
       :special-members:
       :show-inheritance:
-
