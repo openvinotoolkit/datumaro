@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/532>)
 - Support for Accuracy Checker dataset meta files in formats
   (<https://github.com/openvinotoolkit/datumaro/pull/553>)
-- More information about detection to KITTI documentation
+- Support of `score` attribute in KITTI detetion
   (<https://github.com/openvinotoolkit/datumaro/pull/571>)
 
 ### Changed
