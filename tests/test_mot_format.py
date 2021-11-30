@@ -157,11 +157,13 @@ class MotConverterTest(TestCase):
                 partial(MotSeqGtConverter.convert, save_images=True),
                 test_dir, require_images=True)
 
-DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'mot_dataset')
-DUMMY_SEQINFO_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'mot_seqinfo_dataset')
+DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets',
+    'mot_dataset', 'mot_seq')
+DUMMY_SEQINFO_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets',
+    'mot_dataset', 'mot_seq_with_seqinfo')
 
 class MotImporterTest(TestCase):
-    def define_expected_dataset(self):
+    def _define_expected_dataset(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id=1,
                 image=np.ones((16, 16, 3)),
@@ -173,10 +175,7 @@ class MotImporterTest(TestCase):
                     }),
                 ]
             ),
-        ], categories={
-            AnnotationType.label: LabelCategories.from_iterable(
-                'label_' + str(label) for label in range(10)),
-        })
+        ], categories=['label_' + str(label) for label in range(10)])
 
         return expected_dataset
 
@@ -187,15 +186,15 @@ class MotImporterTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import(self):
-        expected_dataset = self.define_expected_dataset()
+        expected_dataset = self._define_expected_dataset()
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'mot_seq')
 
         compare_datasets(self, expected_dataset, dataset)
 
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @mark_requirement(Requirements.DATUM_BUG_560)
     def test_can_import_seqinfo(self):
-        expected_dataset = self.define_expected_dataset()
+        expected_dataset = self._define_expected_dataset()
 
         dataset = Dataset.import_from(DUMMY_SEQINFO_DATASET_DIR, 'mot_seq')
 
