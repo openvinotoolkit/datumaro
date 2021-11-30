@@ -26,6 +26,7 @@ Supported annotation attributes:
   the object does not correspond to the full extent of the object
 - `occluded` (boolean) - indicates that a significant portion of the object
   within the bounding box is occluded by another object
+- `score` (float) - indicates confidence in detection
 
 ## Import KITTI dataset
 
