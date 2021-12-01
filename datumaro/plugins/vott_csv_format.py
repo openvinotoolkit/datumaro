@@ -12,14 +12,14 @@ from datumaro.util.image import find_images
 
 
 class VottCsvPath:
-    IMAGES_DIR = 'images'
+    ANNO_FILE_SUFFIX = '-export.csv'
 
 class VottCsvExtractor(SourceExtractor):
     def __init__(self, path):
         if not osp.isfile(path):
             raise FileNotFoundError("Can't read annotation file '%s'" % path)
 
-        super().__init__(subset=osp.splitext(osp.basename(path))[0])
+        super().__init__(subset=osp.splitext(osp.basename(path))[0].split('-')[0])
 
         self._categories = { AnnotationType.label: LabelCategories() }
         self._items = list(self._load_items(path).values())
@@ -27,8 +27,7 @@ class VottCsvExtractor(SourceExtractor):
     def _load_items(self, path):
         items = {}
 
-        image_dir = osp.join(osp.dirname(path), VottCsvPath.IMAGES_DIR, self._subset)
-
+        image_dir = osp.dirname(path)
         if osp.isdir(image_dir):
             images = {
                 osp.splitext(osp.relpath(p, image_dir))[0].replace('\\', '/'): p
@@ -71,4 +70,4 @@ class VottCsvImporter(Importer):
 
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> None:
-        context.require_file(f'*.csv')
+        context.require_file(f'*%s' % VottCsvPath.ANNO_FILE_SUFFIX)

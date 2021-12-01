@@ -1,0 +1,206 @@
+{
+    "name": "test",
+    "videoSettings": {
+        "frameExtractionRate": 15
+    },
+    "tags": [
+        {
+            "name": "animal",
+            "color": "#5db300"
+        },
+        {
+            "name": "dog",
+            "color": "#e81123"
+        },
+        {
+            "name": "person",
+            "color": "#6917aa"
+        }
+    ],
+    "useSecurityToken": true,
+    "securityToken": "test Token",
+    "id": "0OPxbBiQE",
+    "activeLearningSettings": {
+        "autoDetect": false,
+        "predictTag": true,
+        "modelPathType": "coco"
+    },
+    "version": "2.2.0",
+    "lastVisitedAssetId": "0d3de147fea94f1797f9d012acad9666",
+    "assets": {
+        "0d3de147fea94f1797f9d012acad9666": {
+            "asset": {
+                "format": "jpg",
+                "id": "0d3de147fea94f1797f9d012acad9666",
+                "name": "img0001.jpg",
+                "path": "tests/assets/vott_json_dataset/img0001.jpg",
+                "size": {
+                    "width": 5,
+                    "height": 5
+                },
+                "state": 1,
+                "type": 1
+            },
+            "regions": [
+                {
+                    "id": "BsO3zj9bn",
+                    "type": "RECTANGLE",
+                    "tags": [
+                        "animal"
+                    ],
+                    "boundingBox": {
+                        "height": 2,
+                        "width": 10,
+                        "left": 5,
+                        "top": 10
+                    },
+                    "points": [
+                        {
+                            "x": 5,
+                            "y": 10
+                        },
+                        {
+                            "x": 15,
+                            "y": 10
+                        },
+                        {
+                            "x": 15,
+                            "y": 12
+                        },
+                        {
+                            "x": 5,
+                            "y": 12
+                        }
+                    ]
+                }
+            ],
+            "version": "2.2.0"
+        },
+        "b482849bcc1cc84684805cfe02ecb30c": {
+            "asset": {
+                "format": "jpeg",
+                "id": "b482849bcc1cc84684805cfe02ecb30c",
+                "name": "img0002.jpg",
+                "path": "tests/assets/vott_json_dataset/img0002.jpg",
+                "size": {
+                    "width": 5,
+                    "height": 5
+                },
+                "state": 2,
+                "type": 1
+            },
+            "regions": [
+                {
+                    "id": "BsO3zj9bn",
+                    "type": "RECTANGLE",
+                    "tags": [
+                        "animal", "dog"
+                    ],
+                    "boundingBox": {
+                        "height": 20.5,
+                        "width": 10.2,
+                        "left": 11.5,
+                        "top": 12
+                    },
+                    "points": [
+                        {
+                            "x": 11.5,
+                            "y": 12
+                        },
+                        {
+                            "x": 21.7,
+                            "y": 12
+                        },
+                        {
+                            "x": 21.7,
+                            "y": 32.5
+                        },
+                        {
+                            "x": 11.5,
+                            "y": 32.5
+                        }
+                    ]
+                }
+            ],
+            "version": "2.2.0"
+        },
+        "50fef05a87e49b8d77ad8e01c5a86909": {
+            "asset": {
+                "format": "jpeg",
+                "id": "50fef05a87e49b8d77ad8e01c5a86909",
+                "name": "img0003.jpg",
+                "path": "tests/assets/vott_json_dataset/img0003.jpg",
+                "size": {
+                    "width": 5,
+                    "height": 5
+                },
+                "state": 2,
+                "type": 1
+            },
+            "regions": [
+                {
+                    "id": "35t9mf-Zr",
+                    "type": "RECTANGLE",
+                    "tags": [
+                    ],
+                    "boundingBox": {
+                        "height": 4.7,
+                        "width": 3.3,
+                        "left": 6.7,
+                        "top": 10.3
+                    },
+                    "points": [
+                        {
+                            "x": 6.7,
+                            "y": 10.3
+                        },
+                        {
+                            "x": 10,
+                            "y": 10.3
+                        },
+                        {
+                            "x": 10,
+                            "y": 15
+                        },
+                        {
+                            "x": 6.7,
+                            "y": 15
+                        }
+                    ]
+                },
+                {
+                    "id": "sO4m1DtTZ",
+                    "type": "RECTANGLE",
+                    "tags": [
+                        "person"
+                    ],
+                    "boundingBox": {
+                        "height": 43.4,
+                        "width": 31.9,
+                        "left": 13.7,
+                        "top": 20.2
+                    },
+                    "points": [
+                        {
+                            "x": 13.7,
+                            "y": 20.2
+                        },
+                        {
+                            "x": 45.6,
+                            "y": 20.2
+                        },
+                        {
+                            "x": 45.6,
+                            "y": 63.6
+                        },
+                        {
+                            "x": 13.7,
+                            "y": 63.6
+                        }
+                    ]
+                }
+            ],
+            "version": "2.2.0"
+        }
+    }
+}
