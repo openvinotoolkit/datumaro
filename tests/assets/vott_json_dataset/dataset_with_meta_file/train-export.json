@@ -33,7 +33,7 @@
                 "format": "jpg",
                 "id": "0d3de147f",
                 "name": "img0001.jpg",
-                "path": "tests/assets/vott_json_dataset/img0001.jpg",
+                "path": "tests/assets/vott_json_dataset/dataset_with_meta_file/img0001.jpg",
                 "size": {
                     "width": 5,
                     "height": 5
@@ -81,7 +81,7 @@
                 "format": "jpeg",
                 "id": "b482849bc",
                 "name": "img0002.jpg",
-                "path": "tests/assets/vott_json_dataset/img0002.jpg",
+                "path": "tests/assets/vott_json_dataset/dataset_with_meta_file/img0002.jpg",
                 "size": {
                     "width": 5,
                     "height": 5
@@ -94,7 +94,7 @@
                     "id": "mosw0b97K",
                     "type": "RECTANGLE",
                     "tags": [
-                        "animal", "dog"
+                        "dog"
                     ],
                     "boundingBox": {
                         "height": 20.5,
@@ -129,7 +129,7 @@
                 "format": "jpeg",
                 "id": "50fef05a8",
                 "name": "img0003.jpg",
-                "path": "tests/assets/vott_json_dataset/img0003.jpg",
+                "path": "tests/assets/vott_json_dataset/dataset_with_meta_file/img0003.jpg",
                 "size": {
                     "width": 5,
                     "height": 5

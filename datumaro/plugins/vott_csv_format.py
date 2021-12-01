@@ -9,6 +9,7 @@ from datumaro.components.annotation import AnnotationType, Bbox, LabelCategories
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.util.image import find_images
+from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
 
 class VottCsvPath:
@@ -22,6 +23,10 @@ class VottCsvExtractor(SourceExtractor):
         super().__init__(subset=osp.splitext(osp.basename(path))[0].split('-')[0])
 
         self._categories = { AnnotationType.label: LabelCategories() }
+        if has_meta_file(path):
+            self._categories = { AnnotationType.label: LabelCategories().
+                from_iterable(list(parse_meta_file(path).keys())) }
+
         self._items = list(self._load_items(path).values())
 
     def _load_items(self, path):
