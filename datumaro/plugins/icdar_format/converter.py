@@ -7,8 +7,9 @@ import os.path as osp
 
 from datumaro.components.annotation import AnnotationType, CompiledMask
 from datumaro.components.converter import Converter
+from datumaro.components.errors import DatumaroError
 from datumaro.util.image import save_image
-from datumaro.util.mask_tools import paint_mask
+from datumaro.util.mask_tools import generate_colormap, paint_mask
 
 from .format import IcdarPath
 
@@ -80,34 +81,43 @@ class IcdarTextSegmentationConverter(Converter):
                 subdir=osp.join(subset_name, IcdarPath.IMAGES_DIR))
 
         annotation = ''
-        colormap = [(255, 255, 255)]
+
         anns = [a for a in item.annotations if a.type == AnnotationType.mask]
+
+        color_bank = iter(generate_colormap(len(anns),
+            include_background=False).values())
+        colormap = [(255, 255, 255)]
+        used_colors = set(colormap)
+
         if anns:
             anns = sorted(anns, key=lambda a: int(a.attributes.get('index', 0)))
             group = anns[0].group
-            for ann in anns:
+            for i, ann in enumerate(anns):
+                # Assign new color if it is not defined
+                color = ann.attributes.get('color', '')
+                if color:
+                    color = color.split()
+                    if len(color) != 3:
+                        raise DatumaroError(
+                            "Item %s: mask #%s has invalid color" % (item.id, i))
+
+                    color = tuple(map(int, color))
+                else:
+                    color = next(color_bank)
+                    while color in used_colors:
+                        color = next(color_bank)
+                colormap.append(color)
+                used_colors.add(color)
+
+                text = ann.attributes.get('text', '')
+                bbox = ann.get_bbox()
+
                 if ann.group != group or (not ann.group and anns[0].group != 0):
                     annotation += '\n'
-                text = ''
-                if ann.attributes:
-                    if 'text' in ann.attributes:
-                        text = ann.attributes['text']
-                    if text == ' ':
-                        annotation += '#'
-                    if 'color' in ann.attributes and \
-                            len(ann.attributes['color'].split()) == 3:
-                        color = ann.attributes['color'].split()
-                        colormap.append(
-                            (int(color[0]), int(color[1]), int(color[2])))
-                        annotation += ' '.join(p for p in color)
-                    else:
-                        raise Exception("Item %s: a mask must have "
-                            "an RGB color attribute, e.g. '10 7 50'" % item.id)
-                    if 'center' in ann.attributes:
-                        annotation += ' %s' % ann.attributes['center']
-                    else:
-                        annotation += ' - -'
-                bbox = ann.get_bbox()
+                if text == ' ':
+                    annotation += '#'
+                annotation += ' '.join(str(p) for p in color)
+                annotation += ' %s' % ann.attributes.get('center', '- -')
                 annotation += ' %s %s %s %s' % (bbox[0], bbox[1],
                     bbox[0] + bbox[2], bbox[1] + bbox[3])
                 annotation += ' \"%s\"' % text

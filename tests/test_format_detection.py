@@ -28,7 +28,7 @@ class FormatDetectionTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_root_path(self):
-        provided_root: str
+        provided_root = None
         def detect(context):
             nonlocal provided_root
             provided_root = context.root_path
@@ -51,7 +51,7 @@ class FormatDetectionTest(TestCase):
         with open(osp.join(self._dataset_root, 'foobar.txt'), 'w'):
             pass
 
-        selected_file: str
+        selected_file = None
         def detect(context):
             nonlocal selected_file
             selected_file = context.require_file('**/[fg]oo*.t?t')

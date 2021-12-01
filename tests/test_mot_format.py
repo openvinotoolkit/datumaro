@@ -11,7 +11,7 @@ from datumaro.components.extractor import DatasetItem
 from datumaro.components.media import Image
 from datumaro.plugins.mot_format import MotSeqGtConverter, MotSeqImporter
 from datumaro.util.test_utils import (
-    TestDir, compare_datasets, test_save_and_load,
+    TestDir, check_save_and_load, compare_datasets,
 )
 
 from .requirements import Requirements, mark_requirement
@@ -20,7 +20,7 @@ from .requirements import Requirements, mark_requirement
 class MotConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None, **kwargs):
-        return test_save_and_load(self, source_dataset, converter, test_dir,
+        return check_save_and_load(self, source_dataset, converter, test_dir,
             importer='mot_seq',
             target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
@@ -157,16 +157,13 @@ class MotConverterTest(TestCase):
                 partial(MotSeqGtConverter.convert, save_images=True),
                 test_dir, require_images=True)
 
-DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'mot_dataset')
+DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets',
+    'mot_dataset', 'mot_seq')
+DUMMY_SEQINFO_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets',
+    'mot_dataset', 'mot_seq_with_seqinfo')
 
 class MotImporterTest(TestCase):
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_detect(self):
-        detected_formats = Environment().detect_dataset(DUMMY_DATASET_DIR)
-        self.assertEqual([MotSeqImporter.NAME], detected_formats)
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_import(self):
+    def _define_expected_dataset(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id=1,
                 image=np.ones((16, 16, 3)),
@@ -178,11 +175,27 @@ class MotImporterTest(TestCase):
                     }),
                 ]
             ),
-        ], categories={
-            AnnotationType.label: LabelCategories.from_iterable(
-                'label_' + str(label) for label in range(10)),
-        })
+        ], categories=['label_' + str(label) for label in range(10)])
+
+        return expected_dataset
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_detect(self):
+        detected_formats = Environment().detect_dataset(DUMMY_DATASET_DIR)
+        self.assertEqual([MotSeqImporter.NAME], detected_formats)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_import(self):
+        expected_dataset = self._define_expected_dataset()
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'mot_seq')
+
+        compare_datasets(self, expected_dataset, dataset)
+
+    @mark_requirement(Requirements.DATUM_BUG_560)
+    def test_can_import_seqinfo(self):
+        expected_dataset = self._define_expected_dataset()
+
+        dataset = Dataset.import_from(DUMMY_SEQINFO_DATASET_DIR, 'mot_seq')
 
         compare_datasets(self, expected_dataset, dataset)

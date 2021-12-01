@@ -12,7 +12,7 @@ from datumaro.components.project import Dataset
 from datumaro.plugins.kitti_raw_format.converter import KittiRawConverter
 from datumaro.plugins.kitti_raw_format.extractor import KittiRawImporter
 from datumaro.util.test_utils import (
-    Dimensions, TestDir, compare_datasets_3d, test_save_and_load,
+    Dimensions, TestDir, check_save_and_load, compare_datasets_3d,
 )
 
 from tests.requirements import Requirements, mark_requirement
@@ -102,7 +102,7 @@ class KittiRawConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None, **kwargs):
         kwargs.setdefault('dimension', Dimensions.dim_3d)
-        return test_save_and_load(self, source_dataset, converter, test_dir,
+        return check_save_and_load(self, source_dataset, converter, test_dir,
             importer='kitti_raw', target_dataset=target_dataset,
             importer_args=importer_args, **kwargs)
 

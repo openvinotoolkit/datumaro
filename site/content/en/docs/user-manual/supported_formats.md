@@ -115,3 +115,22 @@ List of supported formats:
 Datumaro does not separate datasets by tasks like classification, detection
 etc. Instead, datasets can have any annotations. When a dataset is exported
 in a specific format, only relevant annotations are exported.
+
+### Dataset meta info file <a id="dataset-meta-file"></a>
+
+It is possible to use classes that are not original to the format.
+To do this, use `dataset_meta.json`.
+
+```
+{
+"label_map": {"0": "background", "1": "car", "2": "person"},
+"segmentation_colors": [[0, 0, 0], [255, 0, 0], [0, 0, 255]],
+"background_label": "0"
+}
+```
+
+- `label_map` is a dictionary where the class ID is the key and
+  the class name is the value.
+- `segmentation_colors` is a list of channel-wise values for each class.
+  This is only necessary for the segmentation task.
+- `background_label` is a background label ID in the dataset.
