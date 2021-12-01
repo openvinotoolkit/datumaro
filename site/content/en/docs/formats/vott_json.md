@@ -7,9 +7,10 @@ weight: 1
 
 ## Format specification
 
-[VoTT](https://github.com/microsoft/VoTT) (Visual Object Tagging Tool) is an open source annotation tool
-released by Microsoft.
-[VoTT JSON](https://roboflow.com/formats/vott-json) is a personal format for exporting.
+[VoTT](https://github.com/microsoft/VoTT) (Visual Object Tagging Tool) is
+an open source annotation tool released by Microsoft.
+[VoTT JSON](https://roboflow.com/formats/vott-json) is a personal format
+for exporting.
 
 Supported annotation types:
 - `Bbox`
