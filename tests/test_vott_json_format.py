@@ -19,24 +19,32 @@ class VottJsonImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_475)
     def test_can_import(self):
         expected_dataset = Dataset.from_iterable([
-            DatasetItem(id='0d3de147fea94f1797f9d012acad9666',
+            DatasetItem(id='img0001',
                 subset='train', image=np.ones((5, 5, 3)),
+                attributes={'id': '0d3de147f'},
                 annotations=[
-                    Bbox(5, 10, 10, 2, label=0)
+                    Bbox(5, 10, 10, 2, label=0,
+                        attributes={'id': 'BsO3zj9bn'})
                 ]
             ),
-            DatasetItem(id='b482849bcc1cc84684805cfe02ecb30c',
+            DatasetItem(id='img0002',
                 subset='train', image=np.ones((5, 5, 3)),
+                attributes={'id': 'b482849bc'},
                 annotations=[
-                    Bbox(11.5, 12, 10.2, 20.5, label=0),
-                    Bbox(11.5, 12, 10.2, 20.5, label=1),
+                    Bbox(11.5, 12, 10.2, 20.5, label=0,
+                        attributes={'id': 'mosw0b97K'}),
+                    Bbox(11.5, 12, 10.2, 20.5, label=1,
+                        attributes={'id': 'mosw0b97K'})
                 ]
             ),
-            DatasetItem(id='50fef05a87e49b8d77ad8e01c5a86909',
+            DatasetItem(id='img0003',
                 subset='train', image=np.ones((5, 5, 3)),
+                attributes={'id': '50fef05a8'},
                 annotations=[
-                    Bbox(6.7, 10.3, 3.3, 4.7),
-                    Bbox(13.7, 20.2, 31.9, 43.4, label=2),
+                    Bbox(6.7, 10.3, 3.3, 4.7,
+                        attributes={'id': '35t9mf-Zr'}),
+                    Bbox(13.7, 20.2, 31.9, 43.4, label=2,
+                        attributes={'id': 'sO4m1DtTZ'})
                 ]
             )
         ], categories=['animal', 'dog', 'person'])

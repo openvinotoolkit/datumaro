@@ -37,7 +37,8 @@ class VottJsonExtractor(SourceExtractor):
             if label_name:
                 label_categories.add(label_name)
 
-        for item_id, asset in anno_dict.get('assets', {}).items():
+        for id, asset in anno_dict.get('assets', {}).items():
+            item_id = osp.splitext(asset.get('asset').get('name'))[0]
             annotations = []
             for region in asset.get('regions', []):
                 tags = region.get('tags', [])
@@ -45,7 +46,8 @@ class VottJsonExtractor(SourceExtractor):
                     bbox = region['boundingBox']
                     if bbox:
                         annotations.append(Bbox(float(bbox['left']), float(bbox['top']),
-                            float(bbox['width']), float(bbox['height'])))
+                            float(bbox['width']), float(bbox['height']),
+                            attributes={'id': region.get('id')}))
 
                 for tag in region.get('tags', []):
                     label_idx = label_categories.find(tag)[0]
@@ -55,10 +57,12 @@ class VottJsonExtractor(SourceExtractor):
                     bbox = region['boundingBox']
                     if bbox:
                         annotations.append(Bbox(float(bbox['left']), float(bbox['top']),
-                            float(bbox['width']), float(bbox['height']), label=label_idx))
+                            float(bbox['width']), float(bbox['height']), label=label_idx,
+                            attributes={'id': region.get('id')}))
 
-            items[item_id] = DatasetItem(id=item_id, subset=self._subset,
-                image=Image(path=osp.normpath(asset.get('asset').get('path'))), annotations=annotations)
+            items[item_id] = DatasetItem(id=item_id, subset=self._subset, attributes={'id': id},
+                image=Image(path=osp.normpath(asset.get('asset').get('path'))),
+                annotations=annotations)
 
         return items
 

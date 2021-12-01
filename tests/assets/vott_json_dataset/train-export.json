@@ -28,10 +28,10 @@
     "version": "2.2.0",
     "lastVisitedAssetId": "0d3de147fea94f1797f9d012acad9666",
     "assets": {
-        "0d3de147fea94f1797f9d012acad9666": {
+        "0d3de147f": {
             "asset": {
                 "format": "jpg",
-                "id": "0d3de147fea94f1797f9d012acad9666",
+                "id": "0d3de147f",
                 "name": "img0001.jpg",
                 "path": "tests/assets/vott_json_dataset/img0001.jpg",
                 "size": {
@@ -76,10 +76,10 @@
             ],
             "version": "2.2.0"
         },
-        "b482849bcc1cc84684805cfe02ecb30c": {
+        "b482849bc": {
             "asset": {
                 "format": "jpeg",
-                "id": "b482849bcc1cc84684805cfe02ecb30c",
+                "id": "b482849bc",
                 "name": "img0002.jpg",
                 "path": "tests/assets/vott_json_dataset/img0002.jpg",
                 "size": {
@@ -91,7 +91,7 @@
             },
             "regions": [
                 {
-                    "id": "BsO3zj9bn",
+                    "id": "mosw0b97K",
                     "type": "RECTANGLE",
                     "tags": [
                         "animal", "dog"
@@ -124,10 +124,10 @@
             ],
             "version": "2.2.0"
         },
-        "50fef05a87e49b8d77ad8e01c5a86909": {
+        "50fef05a8": {
             "asset": {
                 "format": "jpeg",
-                "id": "50fef05a87e49b8d77ad8e01c5a86909",
+                "id": "50fef05a8",
                 "name": "img0003.jpg",
                 "path": "tests/assets/vott_json_dataset/img0003.jpg",
                 "size": {
