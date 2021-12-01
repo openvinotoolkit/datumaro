@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 from glob import iglob
-from typing import Any, Callable, Dict, Iterable, List, Optional
+from typing import Any, Callable, Dict, Iterator, List, Optional
 import os
 import os.path as osp
 
@@ -92,7 +92,7 @@ class DatasetItem:
 CategoriesInfo = Dict[AnnotationType, Categories]
 
 class IExtractor:
-    def __iter__(self) -> Iterable[DatasetItem]:
+    def __iter__(self) -> Iterator[DatasetItem]:
         raise NotImplementedError()
 
     def __len__(self) -> int:

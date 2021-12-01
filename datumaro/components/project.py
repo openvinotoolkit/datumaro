@@ -5,8 +5,8 @@
 from contextlib import ExitStack, suppress
 from enum import Enum, auto
 from typing import (
-    Any, Dict, Generic, Iterable, List, NewType, Optional, Tuple, TypeVar,
-    Union,
+    Any, Dict, Generic, Iterable, Iterator, List, NewType, Optional, Tuple,
+    TypeVar, Union,
 )
 import json
 import logging as log
@@ -181,7 +181,7 @@ class CrudProxy(Generic[CrudEntry]):
             -> Union[None, T, CrudEntry]:
         return self._data.get(name, default)
 
-    def __iter__(self) -> Iterable[CrudEntry]:
+    def __iter__(self) -> Iterator[CrudEntry]:
         return iter(self._data.keys())
 
     def items(self) -> Iterable[Tuple[str, CrudEntry]]:
