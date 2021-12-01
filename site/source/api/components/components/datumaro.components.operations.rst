@@ -3,9 +3,20 @@ operations module
 
 .. automodule:: datumaro.components.operations
 
+   .. autofunction:: get_ann_type
+
    .. autofunction:: match_annotations_equal
 
    .. autofunction:: merge_annotations_equal
+
+   .. autofunction:: merge_categories
+
+   .. autoclass:: MergingStrategy
+      :members:
+      :undoc-members:
+      :private-members:
+      :special-members:
+      :show-inheritance:
 
    .. autoclass:: ExactMerge
       :members:
@@ -31,76 +42,208 @@ operations module
       :special-members:
       :show-inheritance:
 
-         **Error trackers:**
+      .. autoclass:: Conf
+         .. py:data:: pairwise_dist = attrib(converter=float, default=0.5)
+                        sigma = attrib(converter=list, factory=list)
 
-         .. py:data:: attrib
+         .. py:data:: output_conf_thresh = attrib(converter=float, default=0)
+                        quorum = attrib(converter=int, default=0)
+                        ignored_attributes = attrib(converter=set, factory=set)
 
-         .. automethod:: add_item_error
+      **Error trackers:**
 
-         **Indexes:**
+      .. py:data:: attrib
 
-         .. py:data:: _dataset_map
+      .. automethod:: add_item_error
 
-            id(dataset) -> (dataset, index)
+      **Indexes:**
 
-         .. py:data:: _item_map
+      .. py:data:: _dataset_map
 
-            id(item) -> (item, id(dataset))
+         id(dataset) -> (dataset, index)
 
-         .. py:data:: _ann_map
+      .. py:data:: _item_map
 
-            id(ann) -> (ann, id(item))
+         id(item) -> (item, id(dataset))
 
-         .. py:data:: _item_id
-         .. py:data:: _item
+      .. py:data:: _ann_map
 
-         **Misc.**
+         id(ann) -> (ann, id(item))
 
-         .. py:data:: _categories = attrib(init=False)  merged categories
+      .. py:data:: _item_id
+      .. py:data:: _item
 
-      .. automethod:: _find_cluster_groups(clusters)
+      **Misc.**
 
-         Find segment groups in the cluster group.
-         And also find adjacent clusters after all the segment groups
-         in this cluster group have been found.
-         Annotation without a group will be skipped.
+      .. py:data:: _categories = attrib(init=False)  merged categories
+
+      .. autofunction:: get_ann_source
+
+      .. autofunction:: merge_items
+
+      .. autofunction:: merge_annotations
+
+      .. autofunction:: match_items
+
+   .. autoclass:: AnnotationMatcher
+
+   .. autoclass:: LabelMatcher
+
+   .. autoclass:: _ShapeMatcher
+      :members:
+      :undoc-members:
+      :private-members:
+      :special-members:
+      :show-inheritance:
+
+      .. py:data:: pairwise_dist = attrib(converter=float, default=0.9)
+                     cluster_dist = attrib(converter=float, default=-1.0)
+
+      .. autofunction:: match_annotations
+
+      .. autofunction:: distance
+
+      .. autofunction:: label_matcher
+
+   .. autoclass:: BboxMatcher
+      :members:
+      :undoc-members:
+      :private-members:
+      :special-members:
+      :show-inheritance:
+
+   .. autoclass:: PolygonMatcher
+      :members:
+      :undoc-members:
+      :private-members:
+      :special-members:
+      :show-inheritance:
+
+   .. autoclass:: MaskMatcher
+      :members:
+      :undoc-members:
+      :private-members:
+      :special-members:
+      :show-inheritance:
+
+   .. autoclass:: PointsMatcher
+      :members:
+      :undoc-members:
+      :private-members:
+      :special-members:
+      :show-inheritance:
+
+      .. py:data:: sigma: Optional[list] = attrib(default=None)
+                     instance_map = attrib(converter=dict)
+
+   .. autoclass:: LineMatcher
+      :members:
+      :undoc-members:
+      :private-members:
+      :special-members:
+      :show-inheritance:
+
+   .. autoclass:: CaptionsMatcher
+      :members:
+      :undoc-members:
+      :private-members:
+      :special-members:
+      :show-inheritance:
+
+   .. autoclass:: Cuboid3dMatcher
+      :members:
+      :undoc-members:
+      :private-members:
+      :special-members:
+      :show-inheritance:
+
+   .. autoclass:: AnnotationMerger
+      :members:
+      :undoc-members:
+      :private-members:
+      :special-members:
+      :show-inheritance:
+
+   .. autoclass:: LabelMerger
+      :members:
+      :undoc-members:
+      :private-members:
+      :special-members:
+      :show-inheritance:
+
+      .. py:data:: quorum = attrib(converter=int, default=0)
+
+   .. autoclass:: _ShapeMerger
+      :members:
+      :undoc-members:
+      :private-members:
+      :special-members:
+      :show-inheritance:
+
+      .. py:data:: quorum = attrib(converter=int, default=0)
+
+   .. autoclass:: BboxMerger
+      :members:
+      :undoc-members:
+      :private-members:
+      :special-members:
+      :show-inheritance:
+
+   .. autoclass:: PolygonMerger
+      :members:
+      :undoc-members:
+      :private-members:
+      :special-members:
+      :show-inheritance:
+
+   .. autoclass:: MaskMerger
+      :members:
+      :undoc-members:
+      :private-members:
+      :special-members:
+      :show-inheritance:
+
+   .. autoclass:: PointsMerger
+      :members:
+      :undoc-members:
+      :private-members:
+      :special-members:
+      :show-inheritance:
+
+   .. autoclass:: LineMerger
+      :members:
+      :undoc-members:
+      :private-members:
+      :special-members:
+      :show-inheritance:
+
+   .. autoclass:: CaptionsMerger
+      :members:
+      :undoc-members:
+      :private-members:
+      :special-members:
+      :show-inheritance:
+
+   .. autoclass:: Cuboid3dMerger
+      :members:
+      :undoc-members:
+      :private-members:
+      :special-members:
+      :show-inheritance:
 
    .. autofunction:: match_segments
 
       .. py:data:: a_matches = -np.ones(len(a_segms), dtype=int)
+                   b_matches = -np.ones(len(b_segms), dtype=int)
 
          indices of b_segms matched to a bboxes
-
-      .. py:data:: b_matches = -np.ones(len(b_segms), dtype=int)
-
          indices of a_segms matched to b bboxes
 
       .. py:data:: matches = []
+                   mispred = []
 
          matches: boxes we succeeded to match completely
-
-      .. py:data:: mispred = []
-
          mispred: boxes we succeeded to match, having label mismatch
-
-   .. autoclass:: _ShapeMatcher(AnnotationMatcher)
-      :members:
-      :undoc-members:
-      :private-members:
-      :special-members:
-      :show-inheritance:
-      .. py:function:: match_annotations(self, sources)
-
-         Match segments in sources, pairwise.
-         Join all segments into matching clusters.
-
-   .. autoclass:: LineMatcher(_ShapeMatcher)
-      :members:
-      :undoc-members:
-      :private-members:
-      :special-members:
-      :show-inheritance:
-      Compute inter-line area, normalize by common bbox
 
    .. autoclass:: mean_std
       :members:
@@ -122,8 +265,6 @@ operations module
 
    .. autofunction:: compute_image_statistics
 
-      .. py:function:: _extractor_stats
-
    .. autofunction:: compute_ann_statistics
 
       .. py:function:: get_label
@@ -140,6 +281,15 @@ operations module
       :special-members:
       :show-inheritance:
 
+      .. py:data:: iou_threshold = attrib(converter=float, default=0.5)
+
+
+   .. autofunction:: match_items_by_id
+   .. autofunction:: match_items_by_image_hash
+   .. autofunction:: find_unique_images
+
+   .. autofunction:: match_classes
+
    .. autoclass:: ExactComparator
       :members:
       :undoc-members:
@@ -147,12 +297,10 @@ operations module
       :special-members:
       :show-inheritance:
 
-   .. autofunction:: match_classes
-
-   .. autofunction:: find_unique_images
-
-   .. autofunction:: match_items_by_image_hash
-
-   .. autofunction:: match_items_by_id
-
-   .. autofunction:: merge_categories
+      .. py:data:: match_images: bool = attrib(kw_only=True, default=False)
+                   ignored_fields = attrib(kw_only=True,
+                      factory=set, validator=default_if_none(set))
+                   ignored_attrs = attrib(kw_only=True,
+                      factory=set, validator=default_if_none(set))
+                   ignored_item_attrs = attrib(kw_only=True,
+                      factory=set, validator=default_if_none(set))

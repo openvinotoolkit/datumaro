@@ -12,3 +12,5 @@ errors module
       :members:
       :private-members:
       :show-inheritance:
+
+         .. py:data:: problems = attrib()

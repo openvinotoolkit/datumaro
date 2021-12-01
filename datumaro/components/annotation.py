@@ -51,7 +51,7 @@ class Annotation:
     # There are some established names for common attributes like:
     # - "occluded" (bool)
     # - "visible" (bool)
-    # Possible dataset attributes can be descibed in Categories.attributes.
+    # Possible dataset attributes can be described in Categories.attributes.
     attributes: Dict[str, Any] = attrib(
         factory=dict, validator=default_if_none(dict))
 
@@ -78,7 +78,7 @@ class Categories:
     label attributes etc.
     """
 
-    # Describes the list of possible annotation-type specific attrbutes
+    # Describes the list of possible annotation-type specific attributes
     # in a dataset.
     attributes: Set[str] = attrib(
         factory=set, validator=default_if_none(set), eq=False)

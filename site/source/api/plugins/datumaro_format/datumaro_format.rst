@@ -1,4 +1,4 @@
-Datumaro format package
+datumaro format package
 =======================
 
 .. toctree::

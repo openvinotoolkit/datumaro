@@ -5,6 +5,20 @@ dataset module
 
    .. py:data:: IDataset = IExtractor
 
+   .. autoclass:: DatasetItemStorage
+      :members:
+      :undoc-members:
+      :private-members:
+      :special-members:
+      :show-inheritance:
+
+   .. autoclass:: DatasetItemStorageDatasetView
+      :members:
+      :undoc-members:
+      :private-members:
+      :special-members:
+      :show-inheritance:
+
    .. autoclass:: ItemStatus
       :members:
       :undoc-members:

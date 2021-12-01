@@ -1,4 +1,4 @@
-Accuracy checker plugin package
+accuracy checker plugin package
 ===============================
 
 .. toctree::
