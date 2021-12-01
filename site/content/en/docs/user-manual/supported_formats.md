@@ -100,6 +100,14 @@ List of supported formats:
   - [Format specification](https://mmlab.ie.cuhk.edu.hk/projects/CelebA.html)
   - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/align_celeba_dataset)
   - [Format documentation](/docs/formats/align_celeba)
+- VoTT CSV (`detection`)
+  - [Format specification](https://github.com/microsoft/VoTT)
+  - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/vott_csv_dataset)
+  - [Format documentation](/docs/formats/vott_csv)
+- VoTT JSON (`detection`)
+  - [Format specification](https://github.com/microsoft/VoTT)
+  - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/vott_json_dataset)
+  - [Format documentation](/docs/formats/vott_json)
 
 ### Supported annotation types <a id="annotation-types"></a>
 
