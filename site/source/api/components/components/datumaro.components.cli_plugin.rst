@@ -7,13 +7,6 @@ cli\_plugin module
 
    .. autofunction:: remove_plugin_type
 
-   .. autoclass:: _PluginNameDescriptor
-      :members:
-      :undoc-members:
-      :private-members:
-      :special-members:
-      :show-inheritance:
-
    .. autoclass:: CliPlugin
       :members:
       :undoc-members:

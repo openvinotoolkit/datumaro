@@ -31,6 +31,13 @@ extractor module
       :special-members:
       :show-inheritance:
 
+   .. autoclass:: Importer
+      :members:
+      :undoc-members:
+      :private-members:
+      :special-members:
+      :show-inheritance:
+
    .. autoclass:: Transform
       :members:
       :undoc-members:
@@ -39,13 +46,6 @@ extractor module
       :show-inheritance:
 
    .. autoclass:: ItemTransform
-      :members:
-      :undoc-members:
-      :private-members:
-      :special-members:
-      :show-inheritance:
-
-   .. autoclass:: Importer
       :members:
       :undoc-members:
       :private-members:
