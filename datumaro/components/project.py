@@ -998,9 +998,9 @@ class GitWrapper:
         Compares working directory and index.
 
         Parameters:
-            - paths - an iterable of paths to compare, a git.Tree, or None.
+            paths: an iterable of paths to compare, a git.Tree, or None.
                 When None, uses all the paths from HEAD.
-            - base_dir - a base path for paths. Paths will be prepended by this.
+            base_dir: a base path for paths. Paths will be prepended by this.
                 When None or '', uses repo root. Can be useful, if index contains
                 displaced paths, which needs to be mapped on real paths.
 
@@ -2007,16 +2007,16 @@ class Project:
         in datasets.
 
         Parameters:
-            - name (str) - Name of the new source
-            - url (str) - URL of the new source. A path to a file or directory
-            - format (str) - Dataset format
-            - options (dict) - Options for the format Extractor
-            - no_cache (bool) - Don't put a copy of files into the project cache.
+            name (str): Name of the new source
+            url (str): URL of the new source. A path to a file or directory
+            format (str): Dataset format
+            options (dict): Options for the format Extractor
+            no_cache (bool): Don't put a copy of files into the project cache.
                 Can be used to reduce project cache size.
-            - no_hash (bool) - Don't compute source data hash. Implies "no_cache".
+            no_hash (bool): Don't compute source data hash. Implies "no_cache".
                 Useful to reduce import time at the cost of disabled data
                 integrity checks.
-            - rpath (str) - Used to specify a relative path to the dataset
+            rpath (str): Used to specify a relative path to the dataset
                 inside of the directory pointed by URL.
 
         Returns: the new source config
@@ -2112,10 +2112,10 @@ class Project:
         in datasets.
 
         Parameters:
-            - url (str) - URL of the new source. A path to a file or directory
-            - format (str) - Dataset format
-            - options (dict) - Options for the format Extractor
-            - rpath (str) - Used to specify a relative path to the dataset
+            url (str): URL of the new source. A path to a file or directory
+            format (str): Dataset format
+            options (dict): Options for the format Extractor
+            rpath (str): Used to specify a relative path to the dataset
                 inside of the directory pointed by URL.
 
         Returns: the name and the config of the new source

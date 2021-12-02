@@ -38,6 +38,8 @@ extractor module
       :special-members:
       :show-inheritance:
 
+      .. automethod:: _find_sources_recursive
+
    .. autoclass:: Transform
       :members:
       :undoc-members:

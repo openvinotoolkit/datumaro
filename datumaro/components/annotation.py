@@ -342,10 +342,10 @@ class CompiledMask:
         z_order (ascending) prior to merging.
 
         Parameters:
-            - instance_ids - Instance id values for the produced instance mask.
-            By default, mask positions are used.
-            - instance_labels - Instance label id values for the produced class
-            mask. By default, mask labels are used.
+            instance_ids: Instance id values for the produced instance mask.
+                By default, mask positions are used.
+            instance_labels: Instance label id values for the produced class
+                mask. By default, mask labels are used.
         """
 
         from datumaro.util.mask_tools import make_index_mask

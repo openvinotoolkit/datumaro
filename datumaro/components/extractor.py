@@ -257,15 +257,15 @@ class Importer(CliPlugin):
         Supposed to be used, and to be the only call in subclasses.
 
         Parameters:
-            - path - a directory or file path, where sources need to be found.
-            - ext - file extension to match. To match directories,
+            path: a directory or file path, where sources need to be found.
+            ext: file extension to match. To match directories,
                 set this parameter to None or ''. Comparison is case-independent,
                 a starting dot is not required.
-            - extractor_name - the name of the associated Extractor type
-            - filename - a glob pattern for file names
-            - dirname - a glob pattern for filename prefixes
-            - file_filter - a callable (abspath: str) -> bool, to filter paths found
-            - max_depth - the maximum depth for recursive search.
+            extractor_name: the name of the associated Extractor type
+            filename: a glob pattern for file names
+            dirname: a glob pattern for filename prefixes
+            file_filter: a callable (abspath: str) -> bool, to filter paths found
+            max_depth: the maximum depth for recursive search.
 
         Returns: a list of source configurations
             (i.e. Extractor type names and c-tor parameters)
