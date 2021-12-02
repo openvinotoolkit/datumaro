@@ -5,3 +5,4 @@ OpenVino plugin package
    :glob:
 
    /api/plugins/openvino_plugin/*
+   /api/plugins/openvino_plugin/samples/samples.rst

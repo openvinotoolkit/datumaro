@@ -1,7 +1,7 @@
-sampler module
+entropy module
 --------------
 
-.. automodule:: datumaro.plugins.sampler.sampler
+.. automodule:: datumaro.plugins.sampler.algorithm.entropy
    :members:
    :undoc-members:
    :show-inheritance:
