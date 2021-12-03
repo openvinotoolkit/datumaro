@@ -1,9 +1,8 @@
 representation module
 ---------------------
 
-.. automodule:: datumaro.datumaro.plugins.accuracy_checker_plugin.details.representation
-   :members:
-   :undoc-members:
-   :private-members:
-   :special-members:
-   :show-inheritance:
+.. py:function:: datumaro.plugins.accuracy_checker_plugin.details.representation.import_predictions(predictions)
+
+    Convert Accuracy checker predictions to Datumaro annotations
+
+.. py:function:: datumaro.plugins.accuracy_checker_plugin.details.representation.import_prediction(pred)

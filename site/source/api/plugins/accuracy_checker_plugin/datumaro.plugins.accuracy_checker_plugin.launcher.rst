@@ -1,11 +1,14 @@
 launcher module
 ---------------
 
-.. automodule:: datumaro.plugins.accuracy_checker_plugin.launcher
+.. py:class:: datumaro.plugins.accuracy_checker_plugin.launcher.AcLauncher(Launcher, CliPlugin)
 
-    .. autoclass:: AcLauncher
-        :members:
-        :undoc-members:
-        :private-members:
-        :special-members:
-        :show-inheritance:
+    Generic model launcher with Accuracy Checker backend.
+
+    .. py:classmethod:: build_cmdline_parser(cls, **kwargs)
+
+    .. method:: __init__(self, config, model_dir=None)
+
+    .. method:: launch(self, inputs)
+
+    .. method:: categories(self)
