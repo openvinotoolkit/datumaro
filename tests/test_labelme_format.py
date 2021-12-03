@@ -180,6 +180,34 @@ class LabelMeConverterTest(TestCase):
             self.assertEqual(os.listdir(osp.join(test_dir, 'default')), ['dir'])
             self.assertEqual(set(os.listdir(xml_dirpath)), {'a.xml', 'a.JPEG'})
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_save_and_load_with_meta_file(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id='sub/dir3/1', image=np.ones((3, 4, 3)), annotations=[
+                Mask(np.array([
+                        [0, 1, 1, 0],
+                        [0, 1, 1, 0],
+                        [0, 0, 0, 0],
+                    ]), label=1, attributes={
+                        'occluded': False, 'username': 'user'
+                    }
+                )
+            ]),
+
+            DatasetItem(id='subdir3/1', subset='a', image=np.ones((5, 4, 3)),
+                annotations=[
+                    Bbox(1, 2, 3, 4, label=0, attributes={
+                        'occluded': False, 'username': 'user'
+                    })
+                ])
+        ], categories=['label1', 'label2'])
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(source_dataset,
+                partial(LabelMeConverter.convert, save_images=True,
+                    save_dataset_meta=True),
+                test_dir, require_images=True)
+
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'labelme_dataset')
 
 class LabelMeImporterTest(TestCase):
