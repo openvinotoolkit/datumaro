@@ -12,4 +12,3 @@ ac module
    .. py:method:: launch(self, inputs)
 
    .. py:method:: categories(self)
-
