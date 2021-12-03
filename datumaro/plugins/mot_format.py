@@ -20,6 +20,7 @@ from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.media import Image
 from datumaro.util import cast
 from datumaro.util.image import find_images
+from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
 MotLabel = Enum('MotLabel', [
     ('pedestrian', 1),
@@ -87,6 +88,8 @@ class MotSeqExtractor(SourceExtractor):
                 is_gt = True
         self._is_gt = is_gt
 
+        if has_meta_file(seq_root):
+            labels = list(parse_meta_file(seq_root).keys())
         if labels is None:
             labels = osp.join(osp.dirname(path), MotPath.LABELS_FILE)
             if not osp.isfile(labels):
@@ -264,8 +267,11 @@ class MotSeqGtConverter(Converter):
                     else:
                         log.debug("Item '%s' has no image", item.id)
 
-        labels_file = osp.join(anno_dir, MotPath.LABELS_FILE)
-        with open(labels_file, 'w', encoding='utf-8') as f:
-            f.write('\n'.join(l.name
-                for l in extractor.categories()[AnnotationType.label])
-            )
+        if self._save_dataset_meta:
+           self._save_meta_file(self._save_dir)
+        else:
+            labels_file = osp.join(anno_dir, MotPath.LABELS_FILE)
+            with open(labels_file, 'w', encoding='utf-8') as f:
+                f.write('\n'.join(l.name
+                    for l in extractor.categories()[AnnotationType.label])
+                )

@@ -128,6 +128,24 @@ class MotsPngConverterTest(TestCase):
                 partial(MotsPngConverter.convert, save_images=True),
                 test_dir, require_images=True)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_save_and_load_with_meta_file(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, subset='a', image=np.ones((5, 1)), annotations=[
+                Mask(np.array([[1, 1, 0, 0, 0]]), label=0,
+                    attributes={'track_id': 3}),
+                Mask(np.array([[0, 0, 1, 1, 1]]), label=1,
+                    attributes={'track_id': 3}),
+            ]),
+        ], categories=['label_0', 'label_1'])
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(source_dataset,
+                partial(MotsPngConverter.convert, save_images=True,
+                    save_dataset_meta=True),
+                test_dir, require_images=True)
+            self.assertTrue(osp.isfile(osp.join(test_dir, 'dataset_meta.json')))
+
 class MotsImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect(self):
