@@ -66,7 +66,7 @@ class VottJsonExtractor(SourceExtractor):
                             attributes={'id': region.get('id')}))
 
             items[item_id] = DatasetItem(id=item_id, subset=self._subset, attributes={'id': id},
-                image=Image(path=osp.normpath(asset.get('asset').get('path'))),
+                image=Image(path=osp.join(osp.dirname(path), asset.get('asset').get('path'))),
                 annotations=annotations)
 
         return items
