@@ -13,6 +13,7 @@ from datumaro.components.converter import Converter
 from datumaro.components.extractor import DatasetItem, Extractor, Importer
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.util.image import find_images
+from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
 
 class VggFace2Path:
@@ -64,8 +65,13 @@ class VggFace2Extractor(Extractor):
 
     def _load_categories(self):
         label_cat = LabelCategories()
-        path = osp.join(self._dataset_dir, VggFace2Path.LABELS_FILE)
-        if osp.isfile(path):
+        if has_meta_file(self._dataset_dir):
+            labels = parse_meta_file(self._dataset_dir).keys()
+            for label in labels:
+                label_cat.add(label)
+        elif osp.isfile(osp.join(self._dataset_dir,
+                VggFace2Path.LABELS_FILE)):
+            path = osp.join(self._dataset_dir, VggFace2Path.LABELS_FILE)
             with open(path, encoding='utf-8') as labels_file:
                 lines = [s.strip() for s in labels_file]
             for line in lines:
@@ -199,15 +205,18 @@ class VggFace2Converter(Converter):
         save_dir = self._save_dir
         os.makedirs(save_dir, exist_ok=True)
 
-        labels_path = osp.join(save_dir, VggFace2Path.LABELS_FILE)
-        labels_file = ''
-        for label in self._extractor.categories()[AnnotationType.label]:
-            labels_file += '%s' % label.name
-            if label.parent:
-                labels_file += ' %s' % label.parent
-            labels_file += '\n'
-        with open(labels_path, 'w', encoding='utf-8') as f:
-            f.write(labels_file)
+        if self._save_dataset_meta:
+           self._save_meta_file(save_dir)
+        else:
+            labels_path = osp.join(save_dir, VggFace2Path.LABELS_FILE)
+            labels_file = ''
+            for label in self._extractor.categories()[AnnotationType.label]:
+                labels_file += '%s' % label.name
+                if label.parent:
+                    labels_file += ' %s' % label.parent
+                labels_file += '\n'
+            with open(labels_path, 'w', encoding='utf-8') as f:
+                f.write(labels_file)
 
         label_categories = self._extractor.categories()[AnnotationType.label]
 

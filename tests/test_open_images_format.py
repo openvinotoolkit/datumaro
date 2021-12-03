@@ -202,6 +202,29 @@ class OpenImagesFormatTest(TestCase):
 
             compare_datasets(self, dataset, parsed_dataset)
 
+    @mark_requirement(Requirements.DATUM_274)
+    def test_can_save_and_load_with_meta_file(self):
+        dataset = Dataset.from_iterable([
+            DatasetItem(id='a', image=np.ones((5, 5, 3)),
+                annotations=[
+                    Bbox(1, 2, 3, 4, label=0, group=1, attributes={'score': 1.0}),
+                    Mask(label=1, group=0, image=np.ones((5, 5)),
+                        attributes={'box_id': '00000000'})
+                ]
+            )
+        ], categories=['label_0', 'label_1'])
+
+        with TestDir() as test_dir:
+            OpenImagesConverter.convert(dataset, test_dir,
+                save_images=True, save_dataset_meta=True)
+
+            parsed_dataset = Dataset.import_from(test_dir, 'open_images')
+
+            self.assertTrue(osp.isfile(osp.join(test_dir, 'dataset_meta.json')))
+            compare_datasets(self, dataset, parsed_dataset,
+                require_images=True)
+
+
 ASSETS_DIR = osp.join(osp.dirname(__file__), 'assets')
 
 DUMMY_DATASET_DIR_V6 = osp.join(ASSETS_DIR, 'open_images_dataset/v6')
