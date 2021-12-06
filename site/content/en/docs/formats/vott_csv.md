@@ -9,7 +9,7 @@ weight: 1
 
 [VoTT](https://github.com/microsoft/VoTT) (Visual Object Tagging Tool) is
 an open source annotation tool released by Microsoft.
-[VoTT CSV](https://roboflow.com/formats/vott-csv) is a personal formats
+[VoTT CSV](https://roboflow.com/formats/vott-csv) is a personal format
 for exporting.
 
 Supported annotation types:
@@ -37,7 +37,7 @@ VoTT CSV dataset directory should have the following structure:
 <!--lint disable fenced-code-flag-->
 ```
 dataset/
-├── dataset_meta.json # a list of non-format labels (optional)
+├── dataset_meta.json # a list of custom labels (optional)
 ├── img0001.jpg
 ├── img0002.jpg
 ├── img0003.jpg

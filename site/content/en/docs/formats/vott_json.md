@@ -37,7 +37,7 @@ VoTT JSON dataset directory should have the following structure:
 <!--lint disable fenced-code-flag-->
 ```
 dataset/
-├── dataset_meta.json # a list of non-format labels (optional)
+├── dataset_meta.json # a list of custom labels (optional)
 ├── img0001.jpg
 ├── img0002.jpg
 ├── img0003.jpg
