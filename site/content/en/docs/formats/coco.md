@@ -131,7 +131,7 @@ task-specific formats instead of plain `coco`: `coco_captions`,
 `coco_person_keypoints`, `coco_stuff`. In this case all items of the
 dataset will be added to the `default` subset.
 
-To add custom classes, you can use [`dataset_meta.json`](/docs/user_manual/supported_formats/#dataset-meta-file).
+To add custom classes for the panoptic task, you can use [`dataset_meta.json`](/docs/user_manual/supported_formats/#dataset-meta-file).
 
 You can import a dataset for one or several tasks
 instead of the whole dataset. This option also allows to import annotation
