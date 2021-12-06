@@ -20,7 +20,8 @@ class VottJsonExtractor(SourceExtractor):
         if not osp.isfile(path):
             raise FileNotFoundError("Can't read annotation file '%s'" % path)
 
-        super().__init__(subset=osp.splitext(osp.basename(path))[0].split('-')[0])
+        super().__init__(subset=osp.splitext(osp.basename(path))[0].
+            rsplit('-', maxsplit=1)[0])
 
         self._categories = { AnnotationType.label: LabelCategories() }
         if has_meta_file(path):
