@@ -20,7 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/571>)
 - Support for Accuracy Checker dataset meta files in formats
   (<https://github.com/openvinotoolkit/datumaro/pull/553>,
-  <https://github.com/openvinotoolkit/datumaro/pull/569>)
+  <https://github.com/openvinotoolkit/datumaro/pull/569>,
+  <https://github.com/openvinotoolkit/datumaro/pull/575>)
 
 ### Changed
 - The following formats can now be detected unambiguously:
