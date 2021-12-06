@@ -20,7 +20,6 @@ from datumaro.plugins.coco_format.converter import (
     CocoPersonKeypointsConverter, CocoStuffConverter,
 )
 from datumaro.plugins.coco_format.importer import CocoImporter
-from datumaro.util.meta_file_util import save_meta_file
 from datumaro.util.test_utils import (
     TestDir, check_save_and_load, compare_datasets,
 )
