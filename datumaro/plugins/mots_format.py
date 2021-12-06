@@ -47,7 +47,7 @@ class MotsPngExtractor(SourceExtractor):
         self._anno_dir = osp.join(path, MotsPath.MASKS_DIR)
         if has_meta_file(path):
             self._categories = { AnnotationType.label: LabelCategories().
-                from_iterable(list(parse_meta_file(path).keys())) }
+                from_iterable(parse_meta_file(path).keys()) }
         else:
             self._categories = self._parse_categories(
                 osp.join(self._anno_dir, MotsPath.LABELS_FILE))

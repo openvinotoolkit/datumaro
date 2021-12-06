@@ -174,7 +174,7 @@ class YoloExtractor(SourceExtractor):
     def _load_categories(names_path):
         if has_meta_file(osp.dirname(names_path)):
             return LabelCategories().from_iterable(
-                list(parse_meta_file(osp.dirname(names_path)).keys()))
+                parse_meta_file(osp.dirname(names_path)).keys())
 
         label_categories = LabelCategories()
 

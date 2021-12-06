@@ -46,7 +46,7 @@ class MnistExtractor(SourceExtractor):
     def _load_categories(self):
         if has_meta_file(self._dataset_dir):
             return { AnnotationType.label: LabelCategories().
-                from_iterable(list(parse_meta_file(self._dataset_dir).keys())) }
+                from_iterable(parse_meta_file(self._dataset_dir).keys()) }
 
         label_cat = LabelCategories()
 

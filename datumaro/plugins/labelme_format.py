@@ -58,7 +58,7 @@ class LabelMeExtractor(Extractor):
         if has_meta_file(dataset_root):
             categories = { AnnotationType.label:
                 LabelCategories(attributes={ 'occluded', 'username' }).
-                from_iterable(list(parse_meta_file(dataset_root).keys())) }
+                from_iterable(parse_meta_file(dataset_root).keys()) }
         else:
             categories = { AnnotationType.label:
                 LabelCategories(attributes={ 'occluded', 'username' })

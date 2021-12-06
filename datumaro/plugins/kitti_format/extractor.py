@@ -39,7 +39,7 @@ class _KittiExtractor(SourceExtractor):
         elif self._task == KittiTask.detection:
             if has_meta_file(path):
                 return { AnnotationType.label: LabelCategories().
-                    from_iterable(list(parse_meta_file(path).keys())) }
+                    from_iterable(parse_meta_file(path).keys()) }
 
             return {AnnotationType.label: LabelCategories()}
 

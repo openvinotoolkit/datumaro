@@ -33,7 +33,7 @@ class CelebaExtractor(SourceExtractor):
         self._categories = { AnnotationType.label: LabelCategories() }
         if has_meta_file(path):
             self._categories = { AnnotationType.label: LabelCategories().
-                from_iterable(list(parse_meta_file(path).keys())) }
+                from_iterable(parse_meta_file(path).keys()) }
 
         self._items = list(self._load_items(path).values())
 

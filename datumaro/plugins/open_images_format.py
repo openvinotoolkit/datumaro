@@ -185,7 +185,7 @@ class OpenImagesExtractor(Extractor):
 
         if has_meta_file(path):
             self._categories = { AnnotationType.label: LabelCategories().
-                from_iterable(list(parse_meta_file(path).keys())) }
+                from_iterable(parse_meta_file(path).keys()) }
         else:
             self._load_categories()
         self._load_items()

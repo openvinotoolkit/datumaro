@@ -73,7 +73,7 @@ class ImagenetTxtExtractor(SourceExtractor):
                 self._generate_labels = True
             elif labels_source == _LabelsSource.file:
                 if has_meta_file(root_dir):
-                    labels = list(parse_meta_file(root_dir).keys())
+                    labels = parse_meta_file(root_dir).keys()
                 else:
                     labels = self._parse_labels(
                         osp.join(root_dir, labels_file))

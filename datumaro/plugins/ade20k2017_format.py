@@ -46,7 +46,7 @@ class Ade20k2017Extractor(Extractor):
 
         if has_meta_file(self._path):
             self._categories =  { AnnotationType.label: LabelCategories().
-                from_iterable(list(parse_meta_file(self._path).keys())) }
+                from_iterable(parse_meta_file(self._path).keys()) }
 
         for subset in self._subsets:
             self._load_items(subset)
