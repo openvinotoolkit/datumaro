@@ -20,6 +20,7 @@ from datumaro.components.extractor import (
 from datumaro.components.media import Image
 from datumaro.util.image import lazy_image, load_image
 from datumaro.util.mask_tools import bgr2index
+from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 from datumaro.util.os_util import suppress_output
 
 from .format import CocoPath, CocoTask
@@ -57,10 +58,14 @@ class _CocoExtractor(SourceExtractor):
             panoptic_config = self._load_panoptic_config(path)
             panoptic_images = osp.splitext(path)[0]
 
-            self._load_label_categories(
-                panoptic_config['categories'],
-                keep_original_ids=keep_original_category_ids,
-            )
+            if has_meta_file(rootpath):
+                self._categories =  { AnnotationType.label: LabelCategories().
+                    from_iterable(parse_meta_file(rootpath).keys()) }
+            else:
+                self._load_label_categories(
+                    panoptic_config['categories'],
+                    keep_original_ids=keep_original_category_ids,
+                )
 
             self._items = list(self._load_panoptic_items(panoptic_config,
                 panoptic_images).values())

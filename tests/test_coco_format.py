@@ -20,6 +20,7 @@ from datumaro.plugins.coco_format.converter import (
     CocoPersonKeypointsConverter, CocoStuffConverter,
 )
 from datumaro.plugins.coco_format.importer import CocoImporter
+from datumaro.util.meta_file_util import save_meta_file
 from datumaro.util.test_utils import (
     TestDir, check_save_and_load, compare_datasets,
 )
@@ -1285,3 +1286,39 @@ class CocoConverterTest(TestCase):
             self._test_save_and_load(source_dataset,
                  partial(CocoInstancesConverter.convert),
                  test_dir, target_dataset=target_dataset)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_save_and_load_panoptic_with_meta_file(self):
+        dataset = Dataset.from_iterable([
+            DatasetItem(id=1, subset='train', image=np.ones((4, 4, 3)),
+                annotations=[
+                    Mask(image=np.array([
+                            [0, 1, 0, 0],
+                            [0, 1, 0, 0],
+                            [0, 1, 1, 1],
+                            [0, 0, 0, 0]
+                        ]),
+                        attributes={ 'is_crowd': False },
+                        label=4, group=3, id=3),
+                ], attributes={'id': 1}),
+
+            DatasetItem(id=2, subset='val', image=np.ones((5, 5, 3)),
+                annotations=[
+                    Mask(image=np.array([
+                            [0, 0, 0, 0, 1],
+                            [0, 0, 0, 0, 1],
+                            [0, 0, 0, 0, 1],
+                            [0, 0, 0, 0, 1],
+                            [0, 0, 0, 0, 1]
+                        ]),
+                        attributes={ 'is_crowd': False },
+                        label=2, group=2, id=2),
+                ], attributes={'id': 2}),
+            ], categories=[str(i) for i in range(10)])
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(dataset,
+                partial(CocoPanopticConverter.convert, save_images=True,
+                    save_dataset_meta=True),
+                test_dir, require_images=True)
+            self.assertTrue(osp.isfile(osp.join(test_dir, 'dataset_meta.json')))
