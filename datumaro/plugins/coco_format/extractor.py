@@ -50,6 +50,7 @@ class _CocoExtractor(SourceExtractor):
                 images_dir = osp.join(images_dir, subset or DEFAULT_SUBSET_NAME)
         self._images_dir = images_dir
         self._task = task
+        self._rootpath = rootpath
 
         self._merge_instance_polygons = merge_instance_polygons
 
@@ -58,14 +59,10 @@ class _CocoExtractor(SourceExtractor):
             panoptic_config = self._load_panoptic_config(path)
             panoptic_images = osp.splitext(path)[0]
 
-            if has_meta_file(rootpath):
-                self._categories =  { AnnotationType.label: LabelCategories().
-                    from_iterable(parse_meta_file(rootpath).keys()) }
-            else:
-                self._load_label_categories(
-                    panoptic_config['categories'],
-                    keep_original_ids=keep_original_category_ids,
-                )
+            self._load_label_categories(
+                panoptic_config['categories'],
+                keep_original_ids=keep_original_category_ids,
+            )
 
             self._items = list(self._load_panoptic_items(panoptic_config,
                 panoptic_images).values())
@@ -108,6 +105,13 @@ class _CocoExtractor(SourceExtractor):
 
 
     def _load_label_categories(self, raw_cats, *, keep_original_ids):
+        if has_meta_file(self._rootpath):
+            labels = parse_meta_file(self._rootpath).keys()
+            self._categories =  { AnnotationType.label: LabelCategories().
+                from_iterable(labels) }
+            self._label_map = { (i + 1): label for i, label in enumerate(labels) }
+            return
+
         categories = LabelCategories()
         label_map = {}
 

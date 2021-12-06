@@ -1321,3 +1321,38 @@ class CocoConverterTest(TestCase):
                     save_dataset_meta=True),
                 test_dir, require_images=True)
             self.assertTrue(osp.isfile(osp.join(test_dir, 'dataset_meta.json')))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_save_and_load_stuff_with_meta_file(self):
+        dataset = Dataset.from_iterable([
+            DatasetItem(id=1, subset='train', image=np.ones((4, 4, 3)),
+                annotations=[
+                    Mask(np.array([
+                            [0, 1, 0, 0],
+                            [0, 1, 0, 0],
+                            [0, 1, 1, 1],
+                            [0, 0, 0, 0]],
+                        ),
+                        attributes={ 'is_crowd': False },
+                        label=4, group=3, id=3),
+                ], attributes={'id': 2}),
+
+            DatasetItem(id=2, subset='val', image=np.ones((4, 4, 3)),
+                annotations=[
+                    Mask(np.array([
+                            [0, 0, 0, 0],
+                            [1, 1, 1, 0],
+                            [1, 1, 0, 0],
+                            [0, 0, 0, 0]],
+                        ),
+                        attributes={ 'is_crowd': False },
+                        label=4, group=3, id=3),
+                ], attributes={'id': 1}),
+            ], categories=[str(i) for i in range(10)])
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(dataset,
+                partial(CocoPanopticConverter.convert, save_images=True,
+                    save_dataset_meta=True),
+                test_dir, require_images=True)
+            self.assertTrue(osp.isfile(osp.join(test_dir, 'dataset_meta.json')))
