@@ -433,6 +433,9 @@ class KittiRawConverter(Converter):
     def apply(self):
         os.makedirs(self._save_dir, exist_ok=True)
 
+        if self._save_dataset_meta:
+            self._save_meta_file(self._save_dir)
+
         if 1 < len(self._extractor.subsets()):
             log.warning("Kitti RAW format supports only a single "
                 "subset. Subset information will be ignored on export.")

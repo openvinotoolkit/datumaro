@@ -207,6 +207,7 @@ class LabelMeConverterTest(TestCase):
                 partial(LabelMeConverter.convert, save_images=True,
                     save_dataset_meta=True),
                 test_dir, require_images=True)
+            self.assertTrue(osp.isfile(osp.join(test_dir, 'dataset_meta.json')))
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'labelme_dataset')
 
