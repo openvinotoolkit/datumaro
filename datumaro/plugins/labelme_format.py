@@ -22,8 +22,8 @@ from datumaro.components.media import Image
 from datumaro.util import cast, escape, unescape
 from datumaro.util.image import save_image
 from datumaro.util.mask_tools import find_mask_bbox, load_mask
-from datumaro.util.os_util import split_path
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
+from datumaro.util.os_util import split_path
 
 
 class LabelMePath:
