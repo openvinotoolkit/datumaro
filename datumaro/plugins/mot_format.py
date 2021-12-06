@@ -89,7 +89,7 @@ class MotSeqExtractor(SourceExtractor):
         self._is_gt = is_gt
 
         if has_meta_file(seq_root):
-            labels = parse_meta_file(seq_root).keys()
+            labels = list(parse_meta_file(seq_root).keys())
         if labels is None:
             labels = osp.join(osp.dirname(path), MotPath.LABELS_FILE)
             if not osp.isfile(labels):
