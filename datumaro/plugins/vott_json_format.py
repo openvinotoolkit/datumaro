@@ -79,4 +79,4 @@ class VottJsonImporter(Importer):
 
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> None:
-        context.require_file(f'*%s' % VottJsonPath.ANNO_FILE_SUFFIX)
+        context.require_file('*' + VottJsonPath.ANNO_FILE_SUFFIX)
