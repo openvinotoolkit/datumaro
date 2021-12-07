@@ -349,9 +349,23 @@ def apply_format_detector(
 
     return detector(context) or FormatDetectionConfidence.MEDIUM
 
+class FormatDetectionProgressReporter:
+    def report_unmet_requirements(self,
+        format_name: str,
+        format_requirements_unmet: FormatRequirementsUnmet,
+    ):
+        pass
+
+    def report_insufficient_confidence(self,
+        format_name: str,
+        format_with_more_confidence: str,
+    ):
+        pass
+
 def detect_dataset_format(
     detectors: Iterable[Tuple[str, FormatDetector]],
     path: str,
+    reporter: FormatDetectionProgressReporter,
 ) -> Sequence[str]:
     """TODO"""
 
@@ -366,6 +380,7 @@ def detect_dataset_format(
         try:
             new_confidence = apply_format_detector(path, detector)
         except FormatRequirementsUnmet as cf:
+            reporter.report_unmet_requirements(format_name, cf)
             for line in cf.generate_message():
                 log.debug(line)
         else:
@@ -373,9 +388,17 @@ def detect_dataset_format(
 
             # keep only matches with the highest confidence
             if new_confidence > max_confidence:
+                for match in matches:
+                    reporter.report_insufficient_confidence(
+                        match, format_name)
+
                 matches = [format_name]
                 max_confidence = new_confidence
             elif new_confidence == max_confidence:
                 matches.append(format_name)
+            else: # new confidence is less than max
+                reporter.report_insufficient_confidence(
+                    format_name, matches[0])
+
 
     return matches
