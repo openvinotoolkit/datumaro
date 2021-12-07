@@ -93,10 +93,10 @@ class VottJsonImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_475)
     def test_can_detect(self):
         detected_formats = Environment().detect_dataset(DUMMY_DATASET_DIR)
-        self.assertIn(VottJsonImporter.NAME, detected_formats)
+        self.assertEqual([VottJsonImporter.NAME], detected_formats)
 
     @mark_requirement(Requirements.DATUM_475)
     def test_can_detect_with_meta_file(self):
         detected_formats = \
             Environment().detect_dataset(DUMMY_DATASET_DIR_WITH_META_FILE)
-        self.assertIn(VottJsonImporter.NAME, detected_formats)
+        self.assertEqual([VottJsonImporter.NAME], detected_formats)

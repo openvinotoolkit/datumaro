@@ -9,8 +9,8 @@ weight: 1
 
 [VoTT](https://github.com/microsoft/VoTT) (Visual Object Tagging Tool) is
 an open source annotation tool released by Microsoft.
-[VoTT CSV](https://roboflow.com/formats/vott-csv) is a personal format
-for exporting.
+[VoTT CSV](https://roboflow.com/formats/vott-csv) is the format used by VoTT
+when the user exports a project and selects "CSV" as the export format.
 
 Supported annotation types:
 - `Bbox`

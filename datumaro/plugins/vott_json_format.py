@@ -23,10 +23,11 @@ class VottJsonExtractor(SourceExtractor):
         super().__init__(subset=osp.splitext(osp.basename(path))[0].
             rsplit('-', maxsplit=1)[0])
 
-        self._categories = { AnnotationType.label: LabelCategories() }
         if has_meta_file(path):
             self._categories = { AnnotationType.label: LabelCategories.
                 from_iterable(parse_meta_file(path).keys()) }
+        else:
+            self._categories = { AnnotationType.label: LabelCategories() }
 
         self._items = list(self._load_items(path).values())
 
@@ -40,8 +41,9 @@ class VottJsonExtractor(SourceExtractor):
         tags = anno_dict.get('tags', [])
         for label in tags:
             label_name = label.get('name')
-            if label_name:
-                label_categories.add(label_name)
+            label_idx = label_categories.find(label_name)[0]
+            if label_idx is None:
+                label_idx = label_categories.add(label_name)
 
         for id, asset in anno_dict.get('assets', {}).items():
             item_id = osp.splitext(asset.get('asset', {}).get('name'))[0]

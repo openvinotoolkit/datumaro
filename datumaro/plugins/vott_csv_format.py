@@ -23,7 +23,6 @@ class VottCsvExtractor(SourceExtractor):
         super().__init__(subset=osp.splitext(osp.basename(path))[0].
             rsplit('-', maxsplit=1)[0])
 
-        self._categories = { AnnotationType.label: LabelCategories() }
         if has_meta_file(path):
             self._categories = { AnnotationType.label: LabelCategories.
                 from_iterable(parse_meta_file(path).keys()) }
@@ -38,7 +37,7 @@ class VottCsvExtractor(SourceExtractor):
         label_categories = self._categories[AnnotationType.label]
 
         with open(path, encoding='utf-8') as content:
-            for row in list(csv.DictReader(content)):
+            for row in csv.DictReader(content):
                 item_id = osp.splitext(row['image'])[0]
 
                 if item_id not in items:
@@ -46,18 +45,24 @@ class VottCsvExtractor(SourceExtractor):
                         image=Image(path=osp.join(osp.dirname(path), row['image'])))
 
                 annotations = items[item_id].annotations
-                if len(row) == 6:
-                    label_name = row['label']
+
+                label_name = row.get('label')
+                x_min = row.get('xmin')
+                y_min = row.get('ymin')
+                x_max = row.get('xmax')
+                y_max = row.get('ymax')
+
+                if label_name and x_min and y_min and x_max and y_max:
                     label_idx = label_categories.find(label_name)[0]
                     if label_idx is None:
                         label_idx = label_categories.add(label_name)
 
-                    x = float(row['xmin'])
-                    y = float(row['ymin'])
-                    w = float(row['xmax']) - x
-                    h = float(row['ymax']) - y
+                    x_min = float(x_min)
+                    y_min = float(y_min)
+                    w = float(x_max) - x_min
+                    h = float(y_max) - y_min
 
-                    annotations.append(Bbox(x, y, w, h, label=label_idx))
+                    annotations.append(Bbox(x_min, y_min, w, h, label=label_idx))
 
         return items
 
