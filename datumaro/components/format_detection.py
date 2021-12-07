@@ -4,12 +4,13 @@
 
 from enum import IntEnum
 from typing import (
-    Callable, Collection, Iterator, List, NoReturn, Optional, Sequence, TextIO,
-    Union,
+    Callable, Collection, Iterable, Iterator, List, NoReturn, Optional,
+    Sequence, TextIO, Tuple, Union,
 )
 import contextlib
 import fnmatch
 import glob
+import logging as log
 import os.path as osp
 
 
@@ -58,6 +59,22 @@ class FormatRequirementsUnmet(Exception):
     def __init__(self, failed_alternatives: Sequence[str]) -> None:
         assert failed_alternatives
         self.failed_alternatives = tuple(failed_alternatives)
+
+    def generate_message(self) -> Sequence[str]:
+        """
+        Generate a human-readable description of the exception as a sequence
+        of text lines.
+        """
+        lines = []
+
+        if len(self.failed_alternatives) > 1:
+            lines.append("None of the following requirements were met:")
+        else:
+            lines.append("The following requirement was not met:")
+
+        lines.extend('  ' + req for req in self.failed_alternatives)
+
+        return lines
 
 class FormatDetectionContext:
     """
@@ -331,3 +348,34 @@ def apply_format_detector(
         context.fail(f"root path {dataset_root_path} must refer to a directory")
 
     return detector(context) or FormatDetectionConfidence.MEDIUM
+
+def detect_dataset_format(
+    detectors: Iterable[Tuple[str, FormatDetector]],
+    path: str,
+) -> Sequence[str]:
+    """TODO"""
+
+    if not osp.exists(path):
+        raise FileNotFoundError(f"Path {path} doesn't exist")
+
+    max_confidence = 0
+    matches = []
+
+    for format_name, detector in detectors:
+        log.debug("Checking '%s' format...", format_name)
+        try:
+            new_confidence = apply_format_detector(path, detector)
+        except FormatRequirementsUnmet as cf:
+            for line in cf.generate_message():
+                log.debug(line)
+        else:
+            log.debug("Format matched with confidence %d", new_confidence)
+
+            # keep only matches with the highest confidence
+            if new_confidence > max_confidence:
+                matches = [format_name]
+                max_confidence = new_confidence
+            elif new_confidence == max_confidence:
+                matches.append(format_name)
+
+    return matches
