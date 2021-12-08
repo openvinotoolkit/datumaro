@@ -43,29 +43,29 @@ def parse_meta_file(path):
     return label_map
 
 def save_meta_file(path, categories):
-        dataset_meta = {}
+    dataset_meta = {}
 
-        labels = [label.name for label in categories[AnnotationType.label]]
-        dataset_meta['labels'] = labels
+    labels = [label.name for label in categories[AnnotationType.label]]
+    dataset_meta['labels'] = labels
 
-        if categories.get(AnnotationType.mask):
-            label_map = {}
-            segmentation_colors = []
-            for i, color in categories[AnnotationType.mask].colormap.items():
-                if color:
-                    segmentation_colors.append([int(color[0]), int(color[1]), int(color[2])])
-                    label_map[str(i)] = labels[i]
-            dataset_meta['label_map'] = label_map
-            dataset_meta['segmentation_colors'] = segmentation_colors
+    if categories.get(AnnotationType.mask):
+        label_map = {}
+        segmentation_colors = []
+        for i, color in categories[AnnotationType.mask].colormap.items():
+            if color:
+                segmentation_colors.append([int(color[0]), int(color[1]), int(color[2])])
+                label_map[str(i)] = labels[i]
+        dataset_meta['label_map'] = label_map
+        dataset_meta['segmentation_colors'] = segmentation_colors
 
-            bg_label = find(categories[AnnotationType.mask].colormap.items(),
-                lambda x: x[1] == (0, 0, 0))
-            if bg_label is not None:
-                dataset_meta['background_label'] = str(bg_label[0])
+        bg_label = find(categories[AnnotationType.mask].colormap.items(),
+            lambda x: x[1] == (0, 0, 0))
+        if bg_label is not None:
+            dataset_meta['background_label'] = str(bg_label[0])
 
-        meta_file = path
-        if osp.isdir(path):
-            meta_file = get_meta_file(path)
+    meta_file = path
+    if osp.isdir(path):
+        meta_file = get_meta_file(path)
 
-        with open(meta_file, 'w') as f:
-            json.dump(dataset_meta, f)
+    with open(meta_file, 'w') as f:
+        json.dump(dataset_meta, f)
