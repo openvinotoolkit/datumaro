@@ -268,7 +268,7 @@ class MotSeqGtConverter(Converter):
                         log.debug("Item '%s' has no image", item.id)
 
         if self._save_dataset_meta:
-           self._save_meta_file(self._save_dir)
+            self._save_meta_file(self._save_dir)
         else:
             labels_file = osp.join(anno_dir, MotPath.LABELS_FILE)
             with open(labels_file, 'w', encoding='utf-8') as f:

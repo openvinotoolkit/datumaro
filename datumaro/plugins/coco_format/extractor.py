@@ -107,7 +107,7 @@ class _CocoExtractor(SourceExtractor):
     def _load_label_categories(self, raw_cats, *, keep_original_ids):
         if has_meta_file(self._rootpath):
             labels = parse_meta_file(self._rootpath).keys()
-            self._categories =  { AnnotationType.label: LabelCategories().
+            self._categories =  { AnnotationType.label: LabelCategories.
                 from_iterable(labels) }
             self._label_map = { (i + 1): label for i, label in enumerate(labels) }
             return
