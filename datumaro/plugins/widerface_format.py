@@ -164,7 +164,7 @@ class WiderFaceConverter(Converter):
         label_categories = self._extractor.categories()[AnnotationType.label]
 
         if self._save_dataset_meta:
-           self._save_meta_file(save_dir)
+            self._save_meta_file(save_dir)
         else:
             labels_path = osp.join(save_dir, WiderFacePath.LABELS_FILE)
             with open(labels_path, 'w', encoding='utf-8') as f:

@@ -139,6 +139,7 @@ enable=
     W0221, # arguments-differ
     W0222, # signature-differs
     W0233, # non-parent-init-called
+    W0311, # bad-indentation
     W0404, # reimported
     W0410, # misplaced-future
     W0601, # global-variable-undefined
