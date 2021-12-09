@@ -3,7 +3,7 @@ name: Github pages
 on:
   push:
     branches:
-      - develop-tmp
+      - develop
 
 jobs:
   deploy:
