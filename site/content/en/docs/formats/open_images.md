@@ -151,6 +151,7 @@ Open Images dataset directory should have the following structure:
 
 ```
 └─ Dataset/
+    ├── dataset_meta.json # a list of custom labels (optional)
     ├── annotations/
     │   └── bbox_labels_600_hierarchy.json
     │   └── image_ids_and_rotation.csv  # optional
@@ -190,6 +191,8 @@ The mask images must be extracted from the ZIP archives linked above.
 
 To use per-subset image description files instead of `image_ids_and_rotation.csv`,
 place them in the `annotations` subdirectory.
+
+To add custom classes, you can use [`dataset_meta.json`](/docs/user_manual/supported_formats/#dataset-meta-file).
 
 ### Creating an image metadata file
 
@@ -272,6 +275,8 @@ Extra options for exporting to the Open Images format:
 - `--image-ext IMAGE_EXT` - save image files with the specified extension
   when exporting the dataset (by default, uses the original extension
   or `.jpg` if there isn't one)
+- `--save-dataset-meta` - allow to export dataset with saving dataset meta
+  file (by default `False`)
 
 ## Examples
 

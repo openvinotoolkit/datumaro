@@ -22,6 +22,7 @@ from datumaro.components.media import Image
 from datumaro.util import cast, escape, unescape
 from datumaro.util.image import save_image
 from datumaro.util.mask_tools import find_mask_bbox, load_mask
+from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 from datumaro.util.os_util import split_path
 
 
@@ -53,9 +54,15 @@ class LabelMeExtractor(Extractor):
     def _parse(self, dataset_root):
         items = []
         subsets = set()
-        categories = { AnnotationType.label:
-            LabelCategories(attributes={ 'occluded', 'username' })
-        }
+
+        if has_meta_file(dataset_root):
+            categories = { AnnotationType.label:
+                LabelCategories(attributes={ 'occluded', 'username' }).
+                    from_iterable(parse_meta_file(dataset_root).keys()) }
+        else:
+            categories = { AnnotationType.label:
+                LabelCategories(attributes={ 'occluded', 'username' })
+            }
 
         for xml_path in sorted(
                 glob(osp.join(dataset_root, '**', '*.xml'), recursive=True)):
@@ -323,6 +330,11 @@ class LabelMeConverter(Converter):
     DEFAULT_IMAGE_EXT = LabelMePath.IMAGE_EXT
 
     def apply(self):
+        os.makedirs(self._save_dir, exist_ok=True)
+
+        if self._save_dataset_meta:
+            self._save_meta_file(self._save_dir)
+
         for subset_name, subset in self._extractor.subsets().items():
             subset_dir = osp.join(self._save_dir, subset_name)
             os.makedirs(subset_dir, exist_ok=True)
