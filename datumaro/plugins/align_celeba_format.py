@@ -55,7 +55,7 @@ class AlignCelebaExtractor(SourceExtractor):
         label_categories = self._categories[AnnotationType.label]
 
         labels_path = osp.join(root_dir, AlignCelebaPath.LABELS_FILE)
-        if (not osp.isfile(labels_path)):
+        if not osp.isfile(labels_path):
             raise DatasetImportError("File '%s': was not found" % labels_path)
 
         with open(labels_path, encoding='utf-8') as f:
