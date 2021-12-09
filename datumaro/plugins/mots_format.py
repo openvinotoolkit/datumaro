@@ -46,7 +46,7 @@ class MotsPngExtractor(SourceExtractor):
         self._images_dir = osp.join(path, 'images')
         self._anno_dir = osp.join(path, MotsPath.MASKS_DIR)
         if has_meta_file(path):
-            self._categories = { AnnotationType.label: LabelCategories().
+            self._categories = { AnnotationType.label: LabelCategories.
                 from_iterable(parse_meta_file(path).keys()) }
         else:
             self._categories = self._parse_categories(
@@ -130,7 +130,7 @@ class MotsPngConverter(Converter):
         os.makedirs(self._save_dir, exist_ok=True)
 
         if self._save_dataset_meta:
-           self._save_meta_file(self._save_dir)
+            self._save_meta_file(self._save_dir)
 
         for subset_name, subset in self._extractor.subsets().items():
             subset_dir = osp.join(self._save_dir, subset_name)

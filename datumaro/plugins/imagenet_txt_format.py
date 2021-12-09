@@ -92,7 +92,7 @@ class ImagenetTxtExtractor(SourceExtractor):
             return [s.strip() for s in labels_file]
 
     def _load_categories(self, labels):
-        return { AnnotationType.label: LabelCategories().from_iterable(labels) }
+        return { AnnotationType.label: LabelCategories.from_iterable(labels) }
 
     def _load_items(self, path):
         items = {}

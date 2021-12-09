@@ -333,7 +333,7 @@ class LabelMeConverter(Converter):
         os.makedirs(self._save_dir, exist_ok=True)
 
         if self._save_dataset_meta:
-           self._save_meta_file(self._save_dir)
+            self._save_meta_file(self._save_dir)
 
         for subset_name, subset in self._extractor.subsets().items():
             subset_dir = osp.join(self._save_dir, subset_name)

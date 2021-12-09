@@ -46,7 +46,7 @@ class LfwExtractor(SourceExtractor):
 
     def _load_categories(self, path):
         if has_meta_file(self._dataset_dir):
-            return { AnnotationType.label: LabelCategories().
+            return { AnnotationType.label: LabelCategories.
                 from_iterable(parse_meta_file(self._dataset_dir).keys()) }
 
         label_cat = LabelCategories()

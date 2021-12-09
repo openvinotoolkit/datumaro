@@ -139,7 +139,7 @@ class KittiRawExtractor(SourceExtractor):
         common_attrs = ['occluded']
 
         if has_meta_file(path):
-            categories =  { AnnotationType.label: LabelCategories().
+            categories =  { AnnotationType.label: LabelCategories.
                 from_iterable(parse_meta_file(path).keys()) }
         else:
             label_cat = LabelCategories(attributes=common_attrs)
