@@ -230,9 +230,9 @@ def make_label_id_mapping(
 
     Returns:
       function to map labels: src id -> dst id
-      dict: src id -> dst id
-      dict: src id -> src label
-      dict: dst id -> dst label
+        dict: src id -> dst id
+        dict: src id -> src label
+        dict: dst id -> dst label
     """
 
     source_labels = { id: label.name

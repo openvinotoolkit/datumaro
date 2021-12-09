@@ -51,7 +51,7 @@ class Annotation:
     # There are some established names for common attributes like:
     # - "occluded" (bool)
     # - "visible" (bool)
-    # Possible dataset attributes can be descibed in Categories.attributes.
+    # Possible dataset attributes can be described in Categories.attributes.
     attributes: Dict[str, Any] = attrib(
         factory=dict, validator=default_if_none(dict))
 
@@ -78,7 +78,7 @@ class Categories:
     label attributes etc.
     """
 
-    # Describes the list of possible annotation-type specific attrbutes
+    # Describes the list of possible annotation-type specific attributes
     # in a dataset.
     attributes: Set[str] = attrib(
         factory=set, validator=default_if_none(set), eq=False)
@@ -107,9 +107,9 @@ class LabelCategories(Categories):
 
         Args:
             iterable: This iterable object can be:
-            - a list of str - will be interpreted as list of Category names
-            - a list of positional arguments - will generate Categories
-              with these arguments
+                - a list of str - will be interpreted as list of Category names
+                - a list of positional arguments - will generate Categories
+                with these arguments
 
         Returns: a LabelCategories object
         """
@@ -342,10 +342,10 @@ class CompiledMask:
         z_order (ascending) prior to merging.
 
         Parameters:
-        - instance_ids - Instance id values for the produced instance mask.
-          By default, mask positions are used.
-        - instance_labels - Instance label id values for the produced class
-          mask. By default, mask labels are used.
+            instance_ids: Instance id values for the produced instance mask.
+                By default, mask positions are used.
+            instance_labels: Instance label id values for the produced class
+                mask. By default, mask labels are used.
         """
 
         from datumaro.util.mask_tools import make_index_mask
@@ -660,9 +660,9 @@ class PointsCategories(Categories):
         Create PointsCategories from an iterable.
 
         Args:
-          - iterable - An Iterable with the following elements:
-            - a label id
-            - a list of positional arguments for Categories
+            - iterable - An Iterable with the following elements:
+                - a label id
+                - a list of positional arguments for Categories
 
         Returns:
             PointsCategories: PointsCategories object

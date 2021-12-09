@@ -326,9 +326,9 @@ class _InstancesConverter(_TaskConverter):
                 log.warning("Item '%s': failed to convert attribute "
                     "'score': %e" % (item.id, e))
         if self._context._allow_attributes:
-                attrs = self._convert_attributes(ann)
-                if attrs:
-                    elem['attributes'] = attrs
+            attrs = self._convert_attributes(ann)
+            if attrs:
+                elem['attributes'] = attrs
 
         return elem
 

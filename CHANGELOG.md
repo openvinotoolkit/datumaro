@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/553>,
   <https://github.com/openvinotoolkit/datumaro/pull/569>,
   <https://github.com/openvinotoolkit/datumaro/pull/575>)
+- Import for VoTT dataset format
+  (<https://github.com/openvinotoolkit/datumaro/pull/573>)
 
 ### Changed
 - The following formats can now be detected unambiguously:
