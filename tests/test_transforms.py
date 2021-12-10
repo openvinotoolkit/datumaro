@@ -566,3 +566,49 @@ class TransformsTest(TestCase):
         actual = transforms.BboxValuesDecrement(src_dataset)
 
         compare_datasets(self, dst_dataset, actual)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_resize(self):
+        small_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, image=np.zeros((4, 4)), annotations=[
+                Label(1),
+                Bbox(1, 1, 2, 2, label=2),
+                Polygon([1, 1, 1, 2, 2, 2, 2, 1], label=1),
+                PolyLine([1, 1, 1, 2, 2, 2, 2, 1], label=2),
+                Points([1, 1, 1, 2, 2, 2, 2, 1], label=2),
+                Mask(np.array([
+                    [0, 0, 1, 1],
+                    [1, 0, 0, 1],
+                    [0, 1, 1, 0],
+                    [1, 1, 0, 0],
+                ]))
+            ])
+        ], categories=['a', 'b', 'c'])
+
+        big_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, image=np.zeros((8, 8)), annotations=[
+                Label(1),
+                Bbox(2, 2, 4, 4, label=2),
+                Polygon([2, 2, 2, 4, 4, 4, 4, 2], label=1),
+                PolyLine([2, 2, 2, 4, 4, 4, 4, 2], label=2),
+                Points([2, 2, 2, 4, 4, 4, 4, 2], label=2),
+                Mask(np.array([
+                    [0, 0, 0, 0, 1, 1, 1, 1],
+                    [0, 0, 0, 0, 1, 1, 1, 1],
+                    [1, 1, 0, 0, 0, 0, 1, 1],
+                    [1, 1, 0, 0, 0, 0, 1, 1],
+                    [0, 0, 1, 1, 1, 1, 0, 0],
+                    [0, 0, 1, 1, 1, 1, 0, 0],
+                    [1, 1, 1, 1, 0, 0, 0, 0],
+                    [1, 1, 1, 1, 0, 0, 0, 0],
+                ]))
+            ])
+        ], categories=['a', 'b', 'c'])
+
+        with self.subTest('upscale'):
+            actual = transforms.ResizeTransform(small_dataset, width=8, height=8)
+            compare_datasets(self, big_dataset, actual)
+
+        with self.subTest('downscale'):
+            actual = transforms.ResizeTransform(big_dataset, width=4, height=4)
+            compare_datasets(self, small_dataset, actual)

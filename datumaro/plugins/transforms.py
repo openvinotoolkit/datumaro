@@ -12,17 +12,19 @@ import os.path as osp
 import random
 import re
 
+import cv2
+import numpy as np
 import pycocotools.mask as mask_utils
 
 from datumaro.components.annotation import (
-    AnnotationType, Bbox, Label, LabelCategories, MaskCategories,
-    PointsCategories, Polygon, RleMask,
+    AnnotationType, Bbox, Label, LabelCategories, Mask, MaskCategories, Points,
+    PointsCategories, Polygon, PolyLine, RleMask,
 )
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.extractor import (
     DEFAULT_SUBSET_NAME, IExtractor, ItemTransform, Transform,
 )
-from datumaro.util import NOTSET, parse_str_enum_value
+from datumaro.util import NOTSET, parse_str_enum_value, take_by
 from datumaro.util.annotation_util import find_group_leader, find_instances
 import datumaro.util.mask_tools as mask_tools
 
@@ -734,3 +736,82 @@ class BboxValuesDecrement(ItemTransform, CliPlugin):
                 label=bbox.label, attributes=bbox.attributes))
 
         return item.wrap(annotations=annotations)
+
+class ResizeTransform(ItemTransform):
+    """
+    Resizes images and annotations in the dataset to the specified size.
+    Supports upscaling, downscaling and mixed variants.|n
+    |n
+    Examples:|n
+    - Resize all images to 256x256 size|n
+    |s|s%(prog)s -dw 256 -dh 256
+    """
+
+    @classmethod
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument('-dw', '--width', type=int,
+            help="Destination image width")
+        parser.add_argument('-dh', '--height', type=int,
+            help="Destination image height")
+        return parser
+
+    def __init__(self, extractor: IExtractor, width, height) -> None:
+        super().__init__(extractor)
+
+        assert width > 0 and height > 0
+        self._width = width
+        self._height = height
+
+    def transform_item(self, item):
+        if not item.has_image:
+            raise Exception("Image info is required for this transform")
+
+        h, w = item.image.size
+        xscale = self._width / float(w)
+        yscale = self._height / float(h)
+
+        if item.image.has_data:
+            method = cv2.INTER_LINEAR if (xscale * yscale) < 1 \
+                else cv2.INTER_LANCZOS4
+            image = item.image.data / 255.0
+            resized_image = cv2.resize(image, (0, 0),
+                fx=xscale, fy=yscale, interpolation=method)
+
+        resized_annotations = []
+        for ann in item.annotations:
+            if isinstance(ann, Bbox):
+                resized_annotations.append(ann.wrap(
+                    x=ann.x * xscale,
+                    y=ann.y * yscale,
+                    w=ann.w * xscale,
+                    h=ann.h * yscale,
+                ))
+            elif isinstance(ann, (Polygon, Points, PolyLine)):
+                resized_annotations.append(ann.wrap(
+                    points=[p
+                        for t in ((x * xscale, y * yscale)
+                            for x, y in take_by(ann.points, 2)
+                        )
+                        for p in t
+                    ]
+                ))
+            elif isinstance(ann, Mask):
+                # Can use only NEAREST for masks,
+                # because we can't have interpolated values
+                rescaled_mask = cv2.resize(ann.image.astype(np.float32), (0, 0),
+                    fx=xscale, fy=yscale,
+                    interpolation=cv2.INTER_NEAREST).astype(np.uint8)
+
+                if isinstance(ann, RleMask):
+                    rle = mask_tools.mask_to_rle(rescaled_mask)
+                    resized_annotations.append(ann.wrap(
+                        rle=mask_utils.frPyObjects(rle, *rle['size'])))
+                else:
+                    resized_annotations.append(ann.wrap(image=rescaled_mask))
+            else:
+                resized_annotations.append(ann)
+
+        return self.wrap_item(item,
+            image=resized_image,
+            annotations=resized_annotations)
