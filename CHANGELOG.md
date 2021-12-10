@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/553>)
 - Support of `score` attribute in KITTI detetion
   (<https://github.com/openvinotoolkit/datumaro/pull/571>)
+- Image resizing transform
+  (<https://github.com/openvinotoolkit/datumaro/pull/581>)
 
 ### Changed
 - The following formats can now be detected unambiguously:
