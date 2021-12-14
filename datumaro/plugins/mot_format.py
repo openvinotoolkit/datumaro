@@ -249,7 +249,7 @@ class MotSeqGtConverter(Converter):
                         'y': anno.y,
                         'w': anno.w,
                         'h': anno.h,
-                        'confidence': int(anno.attributes.get('ignored') != True),
+                        'confidence': int(anno.attributes.get('ignored') is not True),
                         'class_id': 1 + cast(anno.label, int, -2),
                         'visibility': float(
                             anno.attributes.get('visibility',

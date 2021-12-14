@@ -369,7 +369,7 @@ class KittiRawConverter(Converter):
                     "state": PoseStates.LABELED.value,
                     "occlusion": occlusion.value,
                     "occlusion_kf": \
-                        int(ann.attributes.get("keyframe", False) == True),
+                        int(ann.attributes.get("keyframe", False) is True),
                     "truncation": truncation.value,
                     "amt_occlusion": -1,
                     "amt_border_l": -1,

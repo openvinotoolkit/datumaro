@@ -87,13 +87,13 @@ class CifarExtractor(SourceExtractor):
             with open(meta_file, 'rb') as labels_file:
                 data = PickleLoader.restricted_load(labels_file)
             labels = data.get('label_names')
-            if labels != None:
+            if labels is not None:
                 for label in labels:
                     label_cat.add(label)
             else:
                 labels = data.get('fine_label_names')
                 self._coarse_labels = data.get('coarse_label_names', [])
-                if labels != None:
+                if labels is not None:
                     for label in labels:
                         label_cat.add(label)
         else:
@@ -135,9 +135,9 @@ class CifarExtractor(SourceExtractor):
         for i, (filename, label) in enumerate(zip(filenames, labels)):
             item_id = osp.splitext(filename)[0]
             annotations = []
-            if label != None:
+            if label is not None:
                 annotations.append(Label(label))
-                if 0 < len(coarse_labels) and coarse_labels[i] != None and \
+                if 0 < len(coarse_labels) and coarse_labels[i] is not None and \
                         label_cat[label].parent == '':
                     label_cat[label].parent = \
                         self._coarse_labels[coarse_labels[i]]

@@ -89,7 +89,7 @@ class LfwExtractor(SourceExtractor):
                     if 1 < len(objects):
                         label_name = objects[0]
                         label = get_label_id(label_name)
-                        if label != None:
+                        if label is not None:
                             annotations.append(Label(label))
                             item_id = item_id[len(label_name) + 1:]
                     if item_id not in items:
@@ -153,7 +153,7 @@ class LfwExtractor(SourceExtractor):
                     if 1 < len(objects):
                         label_name = objects[0]
                         label = get_label_id(label_name)
-                        if label != None:
+                        if label is not None:
                             item_id = item_id[len(label_name) + 1:]
                     if item_id not in items:
                         items[item_id] = DatasetItem(id=item_id, subset=self._subset,
@@ -222,7 +222,7 @@ class LfwConverter(Converter):
                         subdir=osp.join(subdir, label_name)
                     self._save_image(item, subdir=subdir)
 
-                if label != None:
+                if label is not None:
                     person1 = label_name
                     num1 = item.id
                     if num1.startswith(person1):

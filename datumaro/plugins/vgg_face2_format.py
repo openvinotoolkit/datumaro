@@ -226,7 +226,7 @@ class VggFace2Converter(Converter):
                 item_parts = item.id.split('/')
                 if item.has_image and self._save_images:
                     labels = set(p.label for p in item.annotations
-                        if getattr(p, 'label') != None)
+                        if getattr(p, 'label') is not None)
                     if labels:
                         for label in labels:
                             image_dir = label_categories[label].name

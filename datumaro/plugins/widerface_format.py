@@ -99,7 +99,7 @@ class WiderFaceExtractor(SourceExtractor):
                     label_name = label_name.split('--')[1]
                 if label_name != WiderFacePath.IMAGES_DIR_NO_LABEL:
                     label = label_categories.find(label_name)[0]
-                    if label != None:
+                    if label is not None:
                         annotations.append(Label(label=label))
                 item_id = item_id[len(item_id.split('/')[0]) + 1:]
 
@@ -121,7 +121,7 @@ class WiderFaceExtractor(SourceExtractor):
                     if len(bbox_list) == 5 or len(bbox_list) == 11:
                         label_name = bbox_list[-1]
                         label = label_categories.find(label_name)[0]
-                    if label == None and len(label_categories) == 0:
+                    if label is None and len(label_categories) == 0:
                         label_categories.add(WiderFacePath.DEFAULT_LABEL)
                         label = label_categories.find(WiderFacePath.DEFAULT_LABEL)[0]
 
