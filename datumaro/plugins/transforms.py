@@ -17,8 +17,8 @@ import numpy as np
 import pycocotools.mask as mask_utils
 
 from datumaro.components.annotation import (
-    AnnotationType, Bbox, Label, LabelCategories, Mask, MaskCategories, Points,
-    PointsCategories, Polygon, PolyLine, RleMask,
+    AnnotationType, Bbox, Caption, Label, LabelCategories, Mask, MaskCategories,
+    Points, PointsCategories, Polygon, PolyLine, RleMask,
 )
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.extractor import (
@@ -756,7 +756,7 @@ class ResizeTransform(ItemTransform):
             help="Destination image height")
         return parser
 
-    def __init__(self, extractor: IExtractor, width, height) -> None:
+    def __init__(self, extractor: IExtractor, width: int, height: int) -> None:
         super().__init__(extractor)
 
         assert width > 0 and height > 0
@@ -772,11 +772,12 @@ class ResizeTransform(ItemTransform):
         yscale = self._height / float(h)
 
         if item.image.has_data:
-            method = cv2.INTER_LINEAR if (xscale * yscale) < 1 \
-                else cv2.INTER_LANCZOS4
+            # LANCZOS4 is preferable for upscaling, but it works quite slow
+            method = cv2.INTER_AREA if (xscale * yscale) < 1 \
+                else cv2.INTER_CUBIC
             image = item.image.data / 255.0
-            resized_image = cv2.resize(image, (0, 0),
-                fx=xscale, fy=yscale, interpolation=method)
+            resized_image = cv2.resize(image, (self._width, self._height),
+                interpolation=method)
 
         resized_annotations = []
         for ann in item.annotations:
@@ -799,8 +800,8 @@ class ResizeTransform(ItemTransform):
             elif isinstance(ann, Mask):
                 # Can use only NEAREST for masks,
                 # because we can't have interpolated values
-                rescaled_mask = cv2.resize(ann.image.astype(np.float32), (0, 0),
-                    fx=xscale, fy=yscale,
+                rescaled_mask = cv2.resize(ann.image.astype(np.float32),
+                    (self._width, self._height),
                     interpolation=cv2.INTER_NEAREST).astype(np.uint8)
 
                 if isinstance(ann, RleMask):
@@ -809,8 +810,10 @@ class ResizeTransform(ItemTransform):
                         rle=mask_utils.frPyObjects(rle, *rle['size'])))
                 else:
                     resized_annotations.append(ann.wrap(image=rescaled_mask))
-            else:
+            elif isinstance(ann, (Caption, Label)):
                 resized_annotations.append(ann)
+            else:
+                assert False, f"Unknown annotation type {type(ann)}"
 
         return self.wrap_item(item,
             image=resized_image,
