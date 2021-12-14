@@ -68,7 +68,8 @@ MNIST dataset directory should have the following structure:
 <!--lint disable fenced-code-flag-->
 ```
 └─ Dataset/
-    ├── labels.txt # list of non-digit labels (optional)
+    ├── dataset_meta.json # a list of non-format labels (optional)
+    ├── labels.txt # a list of non-digit labels  in other format (optional)
     ├── t10k-images-idx3-ubyte.gz
     ├── t10k-labels-idx1-ubyte.gz
     ├── train-images-idx3-ubyte.gz
@@ -80,14 +81,18 @@ MNIST in CSV dataset directory should have the following structure:
 <!--lint disable fenced-code-flag-->
 ```
 └─ Dataset/
-    ├── labels.txt # list of non-digit labels (optional)
+    ├── dataset_meta.json # a list of non-format labels (optional)
+    ├── labels.txt # a list of non-digit labels  in other format (optional)
     ├── mnist_test.csv
     └── mnist_train.csv
 ```
 
-If the dataset needs non-digit labels, you need to add the `labels.txt`
-to the dataset folder. For example, `labels.txt` for Fashion MNIST the
-following contents:
+To add custom classes, you can use [`dataset_meta.json`](/docs/user_manual/supported_formats/#dataset-meta-file)
+and `labels.txt`.
+If the `dataset_meta.json` is not represented in the dataset, then
+`labels.txt` will be imported if possible.
+
+For example, `labels.txt` for Fashion MNIST the following contents:
 
 <!--lint disable fenced-code-flag-->
 ```
@@ -150,6 +155,8 @@ Extra options for exporting to MNIST format:
   (by default `False`)
 - `--image-ext <IMAGE_EXT>` allow to specify image extension
   for exporting dataset (by default `.png`)
+- `--save-dataset-meta` - allow to export dataset with saving dataset meta
+  file (by default `False`)
 
 These commands also work for MNIST in CSV if you use `mnist_csv` instead of `mnist`.
 

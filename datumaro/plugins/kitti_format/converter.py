@@ -18,6 +18,7 @@ from datumaro.util import cast, parse_str_enum_value, str_to_bool
 from datumaro.util.annotation_util import make_label_id_mapping
 from datumaro.util.image import save_image
 from datumaro.util.mask_tools import paint_mask
+from datumaro.util.meta_file_util import is_meta_file, parse_meta_file
 
 from .format import (
     KittiLabelMap, KittiPath, KittiTask, make_kitti_categories, parse_label_map,
@@ -156,8 +157,11 @@ class KittiConverter(Converter):
             categories()[AnnotationType.label].items[label_id].name
 
     def save_label_map(self):
-        path = osp.join(self._save_dir, KittiPath.LABELMAP_FILE)
-        write_label_map(path, self._label_map)
+        if self._save_dataset_meta:
+            self._save_meta_file(self._save_dir)
+        else:
+            path = osp.join(self._save_dir, KittiPath.LABELMAP_FILE)
+            write_label_map(path, self._label_map)
 
     def _load_categories(self, label_map_source):
         if label_map_source == LabelmapType.kitti.name:
@@ -188,7 +192,10 @@ class KittiConverter(Converter):
                 sorted(label_map_source.items(), key=lambda e: e[0]))
 
         elif isinstance(label_map_source, str) and osp.isfile(label_map_source):
-            label_map = parse_label_map(label_map_source)
+            if is_meta_file(label_map_source):
+                label_map = parse_meta_file(label_map_source)
+            else:
+                label_map = parse_label_map(label_map_source)
 
         else:
             raise Exception("Wrong labelmap specified, "

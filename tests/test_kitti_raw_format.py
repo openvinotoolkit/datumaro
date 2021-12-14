@@ -440,3 +440,59 @@ class KittiRawConverterTest(TestCase):
                 osp.join(path, 'image_00', 'data'))))
             self.assertEqual({'frame2.pcd'}, set(os.listdir(
                 osp.join(path, 'velodyne_points', 'data'))))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_save_and_load_with_meta_file(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id='0000000000',
+                annotations=[
+                    Cuboid3d(position=[13.54, -9.41, 0.24], label=0,
+                        attributes={'occluded': False, 'track_id': 1})
+                ],
+                point_cloud=self.pcd1, related_images=[self.image1],
+                attributes={'frame': 0}
+            ),
+
+            DatasetItem(id='0000000001',
+                annotations=[
+                    Cuboid3d(position=[1.4, 2.1, 1.4], label=1,
+                        attributes={'track_id': 2})
+                ],
+            )
+        ], categories=['cat', 'dog'])
+
+        with TestDir() as test_dir:
+            target_label_cat = LabelCategories(attributes={'occluded'})
+            target_label_cat.add('cat')
+            target_label_cat.add('dog')
+
+            target_dataset = Dataset.from_iterable([
+                DatasetItem(id='0000000000',
+                    annotations=[
+                        Cuboid3d(position=[13.54, -9.41, 0.24], label=0,
+                            attributes={
+                                'occluded': False, 'track_id': 1})
+                    ],
+                    point_cloud=osp.join(test_dir,
+                        'velodyne_points', 'data', '0000000000.pcd'),
+                    related_images=[osp.join(test_dir,
+                        'image_00', 'data', '0000000000.png')
+                    ],
+                    attributes={'frame': 0}
+                ),
+
+                DatasetItem(id='0000000001',
+                    annotations=[
+                        Cuboid3d(position=[1.4, 2.1, 1.4], label=1,
+                            attributes={'occluded': False, 'track_id': 2})
+                    ],
+                    attributes={'frame': 1}
+                )
+            ], categories={AnnotationType.label: target_label_cat})
+
+            self._test_save_and_load(source_dataset,
+                partial(KittiRawConverter.convert, save_images=True,
+                    save_dataset_meta=True),
+                test_dir, target_dataset=target_dataset,
+                require_point_cloud=True)
+            self.assertTrue(osp.isfile(osp.join(test_dir, 'dataset_meta.json')))

@@ -13,6 +13,7 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.converter import Converter
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
+from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
 
 class MnistPath:
@@ -43,6 +44,10 @@ class MnistExtractor(SourceExtractor):
         self._items = list(self._load_items(path).values())
 
     def _load_categories(self):
+        if has_meta_file(self._dataset_dir):
+            return { AnnotationType.label: LabelCategories.
+                from_iterable(parse_meta_file(self._dataset_dir).keys()) }
+
         label_cat = LabelCategories()
 
         labels_file = osp.join(self._dataset_dir, 'labels.txt')
@@ -116,6 +121,9 @@ class MnistConverter(Converter):
 
     def apply(self):
         os.makedirs(self._save_dir, exist_ok=True)
+        if self._save_dataset_meta:
+            self._save_meta_file(self._save_dir)
+
         for subset_name, subset in self._extractor.subsets().items():
             labels = []
             images = np.array([])

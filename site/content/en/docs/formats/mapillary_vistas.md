@@ -68,6 +68,7 @@ So, the directory with dataset should have one of these structures:
 {{< tabpane >}}
   {{< tab header="v1.2">}}
 dataset
+├── dataset_meta.json # a list of custom labels (optional)
 ├── config_v1.2.json # config file with description of classes (id, color, name)
 ├── <subset_name1>
 │   ├── images
@@ -161,6 +162,8 @@ dataset
         ├── ...
   {{< /tab >}}
 {{< /tabpane >}}
+
+To add custom classes, you can use [`dataset_meta.json`](/docs/user_manual/supported_formats/#dataset-meta-file).
 
 See examples of annotation files in
 [test assets](https://github.com/openvinotoolkit/datumaro/blob/develop/tests/assets/mappilary_vistas_dataset).

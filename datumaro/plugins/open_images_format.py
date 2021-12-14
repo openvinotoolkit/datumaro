@@ -36,6 +36,7 @@ from datumaro.util.image import (
     DEFAULT_IMAGE_META_FILE_NAME, find_images, lazy_image, load_image,
     load_image_meta_file, save_image, save_image_meta_file,
 )
+from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 from datumaro.util.os_util import make_file_name, split_path
 
 # A regex to check whether a string can be used as a "normal" path
@@ -182,7 +183,11 @@ class OpenImagesExtractor(Extractor):
             except FileNotFoundError:
                 self._image_meta = {}
 
-        self._load_categories()
+        if has_meta_file(path):
+            self._categories = { AnnotationType.label: LabelCategories.
+                from_iterable(parse_meta_file(path).keys()) }
+        else:
+            self._load_categories()
         self._load_items()
 
     def __iter__(self):
@@ -697,6 +702,9 @@ class OpenImagesConverter(Converter):
         self._save_subsets(annotation_writer)
 
     def _save_categories(self, annotation_writer):
+        if self._save_dataset_meta:
+            self._save_meta_file(self._save_dir)
+
         with annotation_writer.open_csv(
             OpenImagesPath.V5_CLASS_DESCRIPTION_FILE_NAME, ['LabelName', 'DisplayName'],
             # no header, since we're saving it in the V5 format

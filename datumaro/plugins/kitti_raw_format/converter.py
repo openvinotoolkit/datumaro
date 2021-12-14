@@ -369,7 +369,7 @@ class KittiRawConverter(Converter):
                     "state": PoseStates.LABELED.value,
                     "occlusion": occlusion.value,
                     "occlusion_kf": \
-                        int(ann.attributes.get("keyframe", False) == True),
+                        int(ann.attributes.get("keyframe", False) is True),
                     "truncation": truncation.value,
                     "amt_occlusion": -1,
                     "amt_border_l": -1,
@@ -432,6 +432,9 @@ class KittiRawConverter(Converter):
 
     def apply(self):
         os.makedirs(self._save_dir, exist_ok=True)
+
+        if self._save_dataset_meta:
+            self._save_meta_file(self._save_dir)
 
         if 1 < len(self._extractor.subsets()):
             log.warning("Kitti RAW format supports only a single "

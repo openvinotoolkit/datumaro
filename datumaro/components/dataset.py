@@ -451,7 +451,7 @@ class DatasetStorage(IDataset):
             self._flush_changes = False
             self._updated_items = {}
 
-    def __iter__(self) -> Iterable[DatasetItem]:
+    def __iter__(self) -> Iterator[DatasetItem]:
         if self._is_unchanged_wrapper:
             yield from self._iter_init_cache()
         else:

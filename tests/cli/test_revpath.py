@@ -138,8 +138,8 @@ class TestRevpath(TestCase):
         assets_dir = osp.join(osp.dirname(__file__), '../assets')
         os.makedirs(annotation_dir)
         for asset in [
-            'ade20k2017_dataset/training/street/1_atr.txt',
-            'ade20k2020_dataset/training/street/1.json',
+            'ade20k2017_dataset/dataset/training/street/1_atr.txt',
+            'ade20k2020_dataset/dataset/training/street/1.json',
         ]:
             shutil.copy(osp.join(assets_dir, asset), annotation_dir)
 

@@ -157,11 +157,46 @@ class MotConverterTest(TestCase):
                 partial(MotSeqGtConverter.convert, save_images=True),
                 test_dir, require_images=True)
 
-DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'mot_dataset')
-DUMMY_SEQINFO_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'mot_seqinfo_dataset')
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_save_and_load_with_meta_file(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id=1,
+                image=np.ones((16, 16, 3)),
+                annotations=[
+                    Bbox(0, 4, 4, 8, label=0, attributes={
+                        'occluded': True,
+                        'visibility': 0.0,
+                        'ignored': False,
+                    }),
+                ]
+            ),
+
+            DatasetItem(id=2,
+                image=np.ones((8, 8, 3)),
+                annotations=[
+                    Bbox(1, 2, 4, 2, label=1, attributes={
+                        'occluded': False,
+                        'visibility': 1.0,
+                        'ignored': False,
+                    }),
+                ]
+            ),
+        ], categories=['label_0', 'label_1'])
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(source_dataset,
+                partial(MotSeqGtConverter.convert, save_images=True,
+                    save_dataset_meta=True),
+                test_dir, require_images=True)
+            self.assertTrue(osp.isfile(osp.join(test_dir, 'dataset_meta.json')))
+
+DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets',
+    'mot_dataset', 'mot_seq')
+DUMMY_SEQINFO_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets',
+    'mot_dataset', 'mot_seq_with_seqinfo')
 
 class MotImporterTest(TestCase):
-    def define_expected_dataset(self):
+    def _define_expected_dataset(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id=1,
                 image=np.ones((16, 16, 3)),
@@ -173,10 +208,7 @@ class MotImporterTest(TestCase):
                     }),
                 ]
             ),
-        ], categories={
-            AnnotationType.label: LabelCategories.from_iterable(
-                'label_' + str(label) for label in range(10)),
-        })
+        ], categories=['label_' + str(label) for label in range(10)])
 
         return expected_dataset
 
@@ -187,15 +219,15 @@ class MotImporterTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import(self):
-        expected_dataset = self.define_expected_dataset()
+        expected_dataset = self._define_expected_dataset()
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'mot_seq')
 
         compare_datasets(self, expected_dataset, dataset)
 
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @mark_requirement(Requirements.DATUM_BUG_560)
     def test_can_import_seqinfo(self):
-        expected_dataset = self.define_expected_dataset()
+        expected_dataset = self._define_expected_dataset()
 
         dataset = Dataset.import_from(DUMMY_SEQINFO_DATASET_DIR, 'mot_seq')
 

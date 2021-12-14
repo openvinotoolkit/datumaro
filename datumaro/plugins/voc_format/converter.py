@@ -274,7 +274,7 @@ class VocConverter(Converter):
                             present = 0
                             if action in attr:
                                 present = _convert_attr(action, attr,
-                                    lambda v: int(v == True), 0)
+                                    lambda v: int(v is True), 0)
                                 ET.SubElement(actions_elem, action).text = \
                                     '%d' % present
 

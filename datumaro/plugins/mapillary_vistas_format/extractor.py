@@ -17,6 +17,7 @@ from datumaro.components.extractor import DatasetItem, SourceExtractor
 from datumaro.components.media import Image
 from datumaro.util.image import find_images, lazy_image, load_image
 from datumaro.util.mask_tools import bgr2index
+from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
 from .format import (
     MapillaryVistasLabelMaps, MapillaryVistasPath, MapillaryVistasTask,
@@ -56,7 +57,11 @@ class _MapillaryVistasExtractor(SourceExtractor):
         self._task = task
 
         if self._task == MapillaryVistasTask.instances:
-            self._categories = self._load_instances_categories()
+            if has_meta_file(path):
+                self._categories = make_mapillary_instance_categories(
+                    parse_meta_file(path))
+            else:
+                self._categories = self._load_instances_categories()
             self._items = self._load_instances_items()
         else:
             panoptic_config = self._load_panoptic_config(self._annotations_dir)

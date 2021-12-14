@@ -32,7 +32,9 @@ jobs:
 
       - name: Build docs
         run: |
-          pip install gitpython packaging toml
+          pip install gitpython packaging toml Sphinx==4.2.0 sphinx-rtd-theme==1.0.0
+          pip install -r requirements.txt
+          sphinx-build -a -n site/source site/static/api
           python site/build_docs.py
 
       - name: Deploy

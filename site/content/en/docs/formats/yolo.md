@@ -35,6 +35,7 @@ YOLO dataset directory should have the following structure:
 ```
 └─ yolo_dataset/
    │
+   ├── dataset_meta.json # a list of non-format labels (optional)
    ├── obj.names  # file with list of classes
    ├── obj.data   # file with dataset information
    ├── train.txt  # list of image paths in train subset
@@ -96,6 +97,8 @@ for images:
 Here `x_center`, `y_center`, `width`, and `height` are relative to the image's
 width and height. The `x_center` and `y_center` are center of rectangle
 (are not top-left corner).
+
+To add custom classes, you can use [`dataset_meta.json`](/docs/user_manual/supported_formats/#dataset-meta-file).
 
 ## Export to other formats
 

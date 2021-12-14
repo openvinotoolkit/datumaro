@@ -54,10 +54,12 @@ disable=all
 # multiple time (only on the command line, not in the configuration file where
 # it should appear only once). See also the "--disable" option for examples.
 enable=
+    C0121, # singleton-comparison
     C0123, # unidiomatic-typecheck
     C0200, # consider-using-enumerate
     C0303, # trailing-whitespace
     C0304, # missing-final-newline
+    C0325, # superfluous-parens
 
     E0001, # syntax-error
     E0100, # init-is-generator
@@ -139,6 +141,8 @@ enable=
     W0221, # arguments-differ
     W0222, # signature-differs
     W0233, # non-parent-init-called
+    W0301, # unnecessary-semicolon
+    W0311, # bad-indentation
     W0404, # reimported
     W0410, # misplaced-future
     W0601, # global-variable-undefined
