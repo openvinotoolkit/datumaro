@@ -813,7 +813,7 @@ class ResizeTransform(ItemTransform):
             elif isinstance(ann, (Caption, Label)):
                 resized_annotations.append(ann)
             else:
-                assert False, f"Unknown annotation type {type(ann)}"
+                assert False, f"Unexpected annotation type {type(ann)}"
 
         return self.wrap_item(item,
             image=resized_image,
