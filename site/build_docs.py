@@ -7,6 +7,8 @@
 from pathlib import Path
 import shutil
 import subprocess
+import tarfile
+import tempfile
 
 from packaging import version
 import git
@@ -37,14 +39,21 @@ def generate_versioning_config(filename, versions, url_prefix=''):
         for v in versions:
             write_version_item(f, v, '{}/{}'.format(url_prefix, v))
 
-def git_checkout(tagname, repo_root):
-    docs_dir = repo_root / 'site/content/en/docs'
-    shutil.rmtree(docs_dir)
-    repo.git.checkout(tagname, '--', 'site/content/en/docs')
+def git_checkout(tagname, repo, temp_dir):
+    subdirs = ['site/content/en/docs']
     if version.Version(tagname) != MINIMUM_VERSION:
-        images_dir = repo_root / 'site/content/en/images'
-        shutil.rmtree(images_dir)
-        repo.git.checkout(tagname, '--', 'site/content/en/images')
+        subdirs.append('site/content/en/images')
+
+    for subdir in subdirs:
+        shutil.rmtree(temp_dir / subdir)
+
+        with tempfile.TemporaryFile() as archive:
+            # `git checkout` doesn't work for this, as it modifies the index.
+            # `git restore` would work, but it's only available since Git 2.23.
+            repo.git.archive(tagname, '--', subdir, output_stream=archive)
+            archive.seek(0)
+            with tarfile.open(fileobj=archive) as tar:
+                tar.extractall(temp_dir)
 
 def change_version_menu_toml(filename, version):
     data = toml.load(filename)
@@ -54,31 +63,36 @@ def change_version_menu_toml(filename, version):
         toml.dump(data, f)
 
 def generate_docs(repo, output_dir, tags):
-    def run_hugo(content_loc, destination_dir):
-        subprocess.run([ # nosec
-                'hugo',
-                '--destination',
-                str(destination_dir),
-                '--config',
-                'config.toml,versioning.toml',
-            ],
-            cwd=content_loc,
-            check=True,
-        )
-
     repo_root = Path(repo.working_tree_dir)
-    content_loc = repo_root / 'site'
-    versioning_toml_path = content_loc / 'versioning.toml'
 
-    generate_versioning_config(versioning_toml_path, (t.name for t in tags))
-    change_version_menu_toml(versioning_toml_path, 'develop')
-    run_hugo(content_loc, output_dir)
+    with tempfile.TemporaryDirectory() as temp_dir:
+        content_loc = Path(temp_dir, 'site')
+        shutil.copytree(repo_root / 'site', content_loc, symlinks=True)
 
-    generate_versioning_config(versioning_toml_path, (t.name for t in tags), '/..')
-    for tag in tags:
-        git_checkout(tag.name, repo_root)
-        change_version_menu_toml(versioning_toml_path, tag.name)
-        run_hugo(content_loc, output_dir / tag.name)
+        def run_hugo(destination_dir):
+            subprocess.run([ # nosec
+                    'hugo',
+                    '--destination',
+                    str(destination_dir),
+                    '--config',
+                    'config.toml,versioning.toml',
+                ],
+                cwd=content_loc,
+                check=True,
+            )
+
+        versioning_toml_path = content_loc / 'versioning.toml'
+
+        generate_versioning_config(versioning_toml_path, (t.name for t in tags))
+        change_version_menu_toml(versioning_toml_path, 'develop')
+        run_hugo(output_dir)
+
+        generate_versioning_config(versioning_toml_path, (t.name for t in tags),
+            '/..')
+        for tag in tags:
+            git_checkout(tag.name, repo, Path(temp_dir))
+            change_version_menu_toml(versioning_toml_path, tag.name)
+            run_hugo(output_dir / tag.name)
 
 if __name__ == "__main__":
     repo_root = Path(__file__).resolve().parents[1]
