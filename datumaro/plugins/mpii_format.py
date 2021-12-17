@@ -52,14 +52,12 @@ class MpiiExtractor(SourceExtractor):
 
         vis_path = osp.join(root_dir, MpiiPath.VISIBILITY_FILE)
         if osp.isfile(vis_path):
-            c = np.load(vis_path)
             visibility = np.load(vis_path).T
         else:
             visibility = []
 
         pos_gt_path = osp.join(root_dir, MpiiPath.POS_GT_FILE)
         if osp.isfile(pos_gt_path):
-            r = np.load(pos_gt_path)
             gt_pose = np.transpose(np.load(pos_gt_path), (2, 0, 1))
         else:
             gt_pose = []
