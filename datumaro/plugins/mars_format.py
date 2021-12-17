@@ -119,4 +119,3 @@ class MarsImporter(Importer):
                 return [{'url': path, 'format': 'mars'}]
             except StopIteration:
                 continue
-
