@@ -12,15 +12,16 @@ from packaging import version
 import git
 import toml
 
-MINIMUM_VERSION='0.1.11' # the initial version for the documentation site
+ # the initial version for the documentation site
+MINIMUM_VERSION = version.Version('0.1.11')
 
 def prepare_tags(repo):
     tags = {}
     for tag in repo.tags:
         tag_version = version.parse(tag.name)
-        if tag_version >= version.Version(MINIMUM_VERSION) and not tag_version.is_prerelease:
+        if tag_version >= MINIMUM_VERSION and not tag_version.is_prerelease:
             release_version = (tag_version.major, tag_version.minor)
-            if not release_version in tags or tag_version > version.parse(tags[release_version].name):
+            if release_version not in tags or tag_version > version.parse(tags[release_version].name):
                 tags[release_version] = tag
 
     return tags.values()
@@ -40,7 +41,7 @@ def git_checkout(tagname, cwd):
     docs_dir = os.path.join(cwd, 'site', 'content', 'en', 'docs')
     shutil.rmtree(docs_dir)
     repo.git.checkout(tagname, '--', 'site/content/en/docs')
-    if tagname != "v0.1.11":
+    if version.Version(tagname) != MINIMUM_VERSION:
         images_dir = os.path.join(cwd, 'site', 'content', 'en', 'images')
         shutil.rmtree(images_dir)
         repo.git.checkout(tagname, '--', 'site/content/en/images')
@@ -83,8 +84,8 @@ def generate_docs(repo, output_dir, tags):
 
 if __name__ == "__main__":
     repo_root = os.getcwd()
-    repo = git.Repo(repo_root)
-    output_dir = os.path.join(repo_root, 'public')
+    with git.Repo(repo_root) as repo:
+        output_dir = os.path.join(repo_root, 'public')
 
-    tags = prepare_tags(repo)
-    generate_docs(repo, output_dir, tags)
+        tags = prepare_tags(repo)
+        generate_docs(repo, output_dir, tags)
