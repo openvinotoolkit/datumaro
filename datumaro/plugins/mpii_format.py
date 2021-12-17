@@ -76,7 +76,7 @@ class MpiiExtractor(SourceExtractor):
                     if np.size(visibility):
                         vis = visibility[i]
                     else:
-                        vis = np.ones(len(points) // 2)
+                        vis = np.ones(len(points) // 2, dtype=np.int8)
                 else:
                     keypoints = np.array(ann.get('joint_self'))
                     keypoints = keypoints.reshape(keypoints.shape[0] * keypoints.shape[1])
