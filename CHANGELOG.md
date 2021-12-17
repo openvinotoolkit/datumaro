@@ -26,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/573>)
 - Image resizing transform
   (<https://github.com/openvinotoolkit/datumaro/pull/581>)
+- Import for MPII Human Pose Dataset
+  (<https://github.com/openvinotoolkit/datumaro/pull/584>)
 
 ### Changed
 - The following formats can now be detected unambiguously:
