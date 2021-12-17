@@ -98,12 +98,18 @@ def download_command(args):
     dst_dir = osp.abspath(dst_dir)
 
     log.info("Downloading the dataset")
-    if TFDS_EXTRACTOR_AVAILABLE and args.dataset_id.startswith('tfds:'):
-        tfds_ds_name = args.dataset_id[5:]
-        if tfds_ds_name in AVAILABLE_TFDS_DATASETS:
-            extractor = make_tfds_extractor(tfds_ds_name)
+    if args.dataset_id.startswith('tfds:'):
+        if TFDS_EXTRACTOR_AVAILABLE:
+            tfds_ds_name = args.dataset_id[5:]
+            if tfds_ds_name in AVAILABLE_TFDS_DATASETS:
+                extractor = make_tfds_extractor(tfds_ds_name)
+            else:
+                raise CliException(f"Unsupported TFDS dataset '{tfds_ds_name}'")
         else:
-            raise CliException(f"Unsupported TFDS dataset '{tfds_ds_name}'")
+            raise CliException(
+                "TFDS datasets are not available, because TFDS and/or "
+                    "TensorFlow are not installed.\n"
+                "You can install them with: pip install datumaro[tf,tfds]")
     else:
         raise CliException(f"Unknown dataset ID '{args.dataset_id}'")
 
