@@ -63,6 +63,7 @@ def generate_docs(repo, output_dir, tags):
                 'config.toml,versioning.toml',
             ],
             cwd=content_loc,
+            check=True,
         )
 
     repo_root = Path(repo.working_tree_dir)
