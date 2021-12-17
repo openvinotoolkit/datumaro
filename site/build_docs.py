@@ -4,7 +4,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-import os
+from pathlib import Path
 import shutil
 import subprocess
 
@@ -37,12 +37,12 @@ def generate_versioning_config(filename, versions, url_prefix=''):
         for v in versions:
             write_version_item(f, v, '{}/{}'.format(url_prefix, v))
 
-def git_checkout(tagname, cwd):
-    docs_dir = os.path.join(cwd, 'site', 'content', 'en', 'docs')
+def git_checkout(tagname, repo_root):
+    docs_dir = repo_root / 'site/content/en/docs'
     shutil.rmtree(docs_dir)
     repo.git.checkout(tagname, '--', 'site/content/en/docs')
     if version.Version(tagname) != MINIMUM_VERSION:
-        images_dir = os.path.join(cwd, 'site', 'content', 'en', 'images')
+        images_dir = repo_root / 'site/content/en/images'
         shutil.rmtree(images_dir)
         repo.git.checkout(tagname, '--', 'site/content/en/images')
 
@@ -58,31 +58,29 @@ def generate_docs(repo, output_dir, tags):
         subprocess.run([ # nosec
                 'hugo',
                 '--destination',
-                destination_dir,
+                str(destination_dir),
                 '--config',
                 'config.toml,versioning.toml',
             ],
             cwd=content_loc,
         )
 
-    cwd = repo.working_tree_dir
-    content_loc = os.path.join(cwd, 'site')
+    repo_root = Path(repo.working_tree_dir)
+    content_loc = repo_root / 'site'
+    versioning_toml_path = content_loc / 'versioning.toml'
 
-    generate_versioning_config(os.path.join(cwd, 'site', 'versioning.toml'), (t.name for t in tags))
-    change_version_menu_toml(os.path.join(cwd, 'site', 'versioning.toml'), 'develop')
+    generate_versioning_config(versioning_toml_path, (t.name for t in tags))
+    change_version_menu_toml(versioning_toml_path, 'develop')
     run_hugo(content_loc, output_dir)
 
-    generate_versioning_config(os.path.join(cwd, 'site', 'versioning.toml'), (t.name for t in tags), '/..')
+    generate_versioning_config(versioning_toml_path, (t.name for t in tags), '/..')
     for tag in tags:
-        git_checkout(tag.name, cwd)
-        destination_dir = os.path.join(output_dir, tag.name)
-        change_version_menu_toml(os.path.join(cwd, 'site', 'versioning.toml'), tag.name)
-        run_hugo(content_loc, destination_dir)
+        git_checkout(tag.name, repo_root)
+        change_version_menu_toml(versioning_toml_path, tag.name)
+        run_hugo(content_loc, output_dir / tag.name)
 
 if __name__ == "__main__":
-    repo_root = os.getcwd()
+    repo_root = Path(__file__).resolve().parents[1]
     with git.Repo(repo_root) as repo:
-        output_dir = os.path.join(repo_root, 'public')
-
         tags = prepare_tags(repo)
-        generate_docs(repo, output_dir, tags)
+        generate_docs(repo, repo_root / 'public', tags)
