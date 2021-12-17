@@ -67,8 +67,6 @@ def generate_docs(repo, output_dir, tags):
 
     cwd = repo.working_tree_dir
     content_loc = os.path.join(cwd, 'site')
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
 
     generate_versioning_config(os.path.join(cwd, 'site', 'versioning.toml'), (t.name for t in tags))
     change_version_menu_toml(os.path.join(cwd, 'site', 'versioning.toml'), 'develop')
@@ -79,7 +77,6 @@ def generate_docs(repo, output_dir, tags):
         git_checkout(tag.name, cwd)
         destination_dir = os.path.join(output_dir, tag.name)
         change_version_menu_toml(os.path.join(cwd, 'site', 'versioning.toml'), tag.name)
-        os.makedirs(destination_dir)
         run_hugo(content_loc, destination_dir)
 
 if __name__ == "__main__":
