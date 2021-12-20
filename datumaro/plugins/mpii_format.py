@@ -77,10 +77,10 @@ class MpiiExtractor(SourceExtractor):
 
         with open(path) as f:
             for i, ann in enumerate(json.load(f)):
-                item_id = osp.splitext(ann.get('img_paths'))[0]
+                item_id = osp.splitext(ann.get('img_paths', ''))[0]
 
                 center = ann.get('objpos')
-                scale = float(ann.get('scale_provided'))
+                scale = float(ann.get('scale_provided', 0))
 
                 if np.size(gt_pose):
                     points = gt_pose[i]
@@ -106,8 +106,10 @@ class MpiiExtractor(SourceExtractor):
 
                 if np.size(headboxes):
                     bbox = headboxes[:, :, i]
+                    annotations[0].group = 1
                     annotations.append(Bbox(bbox[0][0], bbox[0][1],
-                        bbox[1][0] - bbox[0][0], bbox[1][1] - bbox[0][1]))
+                        bbox[1][0] - bbox[0][0], bbox[1][1] - bbox[0][1],
+                        group=1))
 
 
                 items[item_id] = DatasetItem(id=item_id, subset=self._subset,
