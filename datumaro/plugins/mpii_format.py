@@ -21,11 +21,24 @@ class MpiiPath:
     VISIBILITY_FILE = 'jnt_visible.npy'
     POS_GT_FILE = 'mpii_pos_gt.npy'
 
-MpiiPointsCategories = [(0, ['r_ankle']), (1, ['r_knee']), (2, ['r_hip']),
-    (3, ['l_hip']), (4, ['l_knee']), (5, ['l_ankle']), (6, ['pelvis']),
-    (7, ['thorax']), (8, ['upper_neck']), (9, ['head top']), (10, ['r_wrist']),
-    (11, ['r_elbow']), (12, ['r_shoulder']), (13, ['l_shoulder']),
-    (14, ['l_elbow']), (15, ['l_wrist'])]
+MpiiPointsCategories = [
+    (0, ['r_ankle']),
+    (1, ['r_knee']),
+    (2, ['r_hip']),
+    (3, ['l_hip']),
+    (4, ['l_knee']),
+    (5, ['l_ankle']),
+    (6, ['pelvis']),
+    (7, ['thorax']),
+    (8, ['upper_neck']),
+    (9, ['head top']),
+    (10, ['r_wrist']),
+    (11, ['r_elbow']),
+    (12, ['r_shoulder']),
+    (13, ['l_shoulder']),
+    (14, ['l_elbow']),
+    (15, ['l_wrist'])
+]
 
 class MpiiExtractor(SourceExtractor):
     def __init__(self, path):
