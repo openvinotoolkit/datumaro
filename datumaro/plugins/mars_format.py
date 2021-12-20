@@ -81,8 +81,6 @@ class MarsExtractor(Extractor):
                 items.append(DatasetItem(id=osp.splitext(image_name)[0],
                     image=Image(path=osp.join(path, label, image_name)),
                     annotations=[Label(label=label_id, attributes={
-                            'is_distractors': pedestrian_id == '0000',
-                            'is_junk': pedestrian_id == '00-1',
                             'pedestrian_id': pedestrian_id,
                             'camera_id': image_name[5],
                             'track_id': image_name[7:11],

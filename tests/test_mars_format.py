@@ -24,8 +24,6 @@ class MarsImporterTest(TestCase):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='0001C1T0001F001', image=np.ones((10, 10, 3)),
                 subset='train', annotations=[Label(label=2, attributes={
-                    'is_distractors': False,
-                    'is_junk': False,
                     'pedestrian_id': '0001',
                     'camera_id': '1',
                     'track_id': '0001',
@@ -33,8 +31,6 @@ class MarsImporterTest(TestCase):
             ),
             DatasetItem(id='0000C6T0101F001', image=np.ones((10, 10, 3)),
                 subset='train', annotations=[Label(label=1, attributes={
-                    'is_distractors': True,
-                    'is_junk': False,
                     'pedestrian_id': '0000',
                     'camera_id': '6',
                     'track_id': '0101',
@@ -42,8 +38,6 @@ class MarsImporterTest(TestCase):
             ),
             DatasetItem(id='00-1C2T0081F201', image=np.ones((10, 10, 3)),
                 subset='test', annotations=[Label(label=0, attributes={
-                    'is_distractors': False,
-                    'is_junk': True,
                     'pedestrian_id': '00-1',
                     'camera_id': '2',
                     'track_id': '0081',

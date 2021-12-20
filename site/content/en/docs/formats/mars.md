@@ -16,9 +16,6 @@ Supported types of annotations:
 - `Label`
 
 Required attributes:
-- `is_distractors` (bool): True when image with distractors,
-    which negatively affect retrieval accuracy
-- `is_junk`: True for junk image which do not affect retrieval accuracy;
 - `pedestrian_id`: four-digit number in format `%04d`;
 - `camera_id`: one-digit number;
 - `track_id`: four-digit number in format `%04d`;
