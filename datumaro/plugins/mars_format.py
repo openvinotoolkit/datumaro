@@ -67,9 +67,9 @@ class MarsExtractor(Extractor):
 
                 if not fnmatch.fnmatch(image_name,
                         label + MarsPath.IMAGE_NAME_POSTFIX):
-                    log.warning(f'The image {image_path} will be skip because '
-                        'it has incorrect name. See the docs to get more info '
-                        f'pattern {label + MarsPath.IMAGE_NAME_POSTFIX}')
+                    log.warning(f'The image {image_path} will be skipped '
+                        'because it has incorrect name. See the docs to get '
+                        'more information')
                     continue
 
                 if pedestrian_id != label:
