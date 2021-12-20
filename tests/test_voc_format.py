@@ -358,7 +358,7 @@ class VocImportTest(TestCase):
                 detected_formats = env.detect_dataset(path)
                 self.assertEqual([VocImporter.NAME], detected_formats)
 
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @mark_requirement(Requirements.DATUM_BUG_583)
     def test_can_import_voc_dataset_with_empty_lines_in_subset_lists(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='2007_000001', subset='train',
