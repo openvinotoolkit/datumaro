@@ -26,7 +26,7 @@ To use a proxy for downloading, configure it with the conventional
 Usage:
 
 ``` bash
-datum download [-h] -i DATASET_ID -f OUTPUT_FORMAT [-o DST_DIR] [--overwrite]
+datum download [-h] -i DATASET_ID [-f OUTPUT_FORMAT] [-o DST_DIR] [--overwrite]
   [-- EXTRA_EXPORT_ARGS]
 ```
 
@@ -34,7 +34,8 @@ Parameters:
 
 - `-h`, `--help` - Print the help message and exit.
 - `-i`, `--dataset-id` (string) - ID of the dataset to download.
-- `-f`, `--output-format` (string) - Output format.
+- `-f`, `--output-format` (string) - Output format. By default, the format
+  of the original dataset is used.
 - `-o, --output-dir` (string) - Output directory. By default, a subdirectory
   in the current directory is used.
 - `--overwrite` - Allows overwriting existing files in the output directory,

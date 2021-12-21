@@ -4,9 +4,10 @@ import numpy as np
 
 from datumaro.components.annotation import Bbox, Label
 from datumaro.components.dataset import Dataset
+from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
 from datumaro.components.extractor_tfds import (
-    TFDS_EXTRACTOR_AVAILABLE, make_tfds_extractor,
+    AVAILABLE_TFDS_DATASETS, TFDS_EXTRACTOR_AVAILABLE, make_tfds_extractor,
 )
 from datumaro.util.image import encode_image
 from datumaro.util.test_utils import compare_datasets, mock_tfds_data
@@ -15,6 +16,14 @@ from tests.requirements import Requirements, mark_requirement
 
 if TFDS_EXTRACTOR_AVAILABLE:
     import tensorflow_datasets as tfds
+
+class TfdsDatasetsTest(TestCase):
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_metadata(self):
+        env = Environment()
+
+        for metadata in AVAILABLE_TFDS_DATASETS.values():
+            assert metadata.default_converter_name in env.converters
 
 @skipIf(not TFDS_EXTRACTOR_AVAILABLE, reason="TFDS is not installed")
 class TfdsExtractorTest(TestCase):

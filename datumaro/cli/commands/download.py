@@ -46,8 +46,8 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         Supported output formats: {}|n
         |n
         Examples:|n
-        - Download the MNIST dataset, saving it in the ImageNet text format:|n
-        |s|s%(prog)s -i tfds:mnist -f imagenet_txt -- --save-images|n
+        - Download the MNIST dataset:|n
+        |s|s%(prog)s -i tfds:mnist -- --save-images|n
         |n
         - Download the VOC 2012 dataset, saving only the annotations in the COCO
           format into a specific directory:|n
@@ -57,8 +57,8 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
 
     parser.add_argument('-i', '--dataset-id', required=True,
         help="Which dataset to download")
-    parser.add_argument('-f', '--output-format', required=True,
-        help="Output format")
+    parser.add_argument('-f', '--output-format',
+        help="Output format (default: original format of the dataset)")
     parser.add_argument('-o', '--output-dir', dest='dst_dir',
         help="Directory to save output (default: a subdir in the current one)")
     parser.add_argument('--overwrite', action='store_true',
@@ -78,8 +78,25 @@ def get_sensitive_args():
 def download_command(args):
     env = Environment()
 
+    if args.dataset_id.startswith('tfds:'):
+        if TFDS_EXTRACTOR_AVAILABLE:
+            tfds_ds_name = args.dataset_id[5:]
+            tfds_ds_metadata = AVAILABLE_TFDS_DATASETS.get(tfds_ds_name)
+            if tfds_ds_metadata:
+                default_converter_name = tfds_ds_metadata.default_converter_name
+                extractor_factory = lambda: make_tfds_extractor(tfds_ds_name)
+            else:
+                raise CliException(f"Unsupported TFDS dataset '{tfds_ds_name}'")
+        else:
+            raise CliException(
+                "TFDS datasets are not available, because TFDS and/or "
+                    "TensorFlow are not installed.\n"
+                "You can install them with: pip install datumaro[tf,tfds]")
+    else:
+        raise CliException(f"Unknown dataset ID '{args.dataset_id}'")
+
     try:
-        converter = env.converters[args.output_format]
+        converter = env.converters[args.output_format or default_converter_name]
     except KeyError:
         raise CliException("Converter for format '%s' is not found" %
             args.output_format)
@@ -98,20 +115,7 @@ def download_command(args):
     dst_dir = osp.abspath(dst_dir)
 
     log.info("Downloading the dataset")
-    if args.dataset_id.startswith('tfds:'):
-        if TFDS_EXTRACTOR_AVAILABLE:
-            tfds_ds_name = args.dataset_id[5:]
-            if tfds_ds_name in AVAILABLE_TFDS_DATASETS:
-                extractor = make_tfds_extractor(tfds_ds_name)
-            else:
-                raise CliException(f"Unsupported TFDS dataset '{tfds_ds_name}'")
-        else:
-            raise CliException(
-                "TFDS datasets are not available, because TFDS and/or "
-                    "TensorFlow are not installed.\n"
-                "You can install them with: pip install datumaro[tf,tfds]")
-    else:
-        raise CliException(f"Unknown dataset ID '{args.dataset_id}'")
+    extractor = extractor_factory()
 
     log.info("Exporting the dataset")
     converter.convert(extractor, dst_dir,

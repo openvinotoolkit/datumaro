@@ -20,6 +20,19 @@ class DownloadTest(TestCase):
             expected_dataset = Dataset(make_tfds_extractor('mnist'))
 
             run(self, 'download',
+                '-i', 'tfds:mnist', '-o', test_dir,
+                '--', '--save-images')
+
+            actual_dataset = Dataset.import_from(test_dir, 'mnist')
+            compare_datasets(self, expected_dataset, actual_dataset,
+                require_images=True)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_download_custom_format(self):
+        with TestDir() as test_dir, mock_tfds_data():
+            expected_dataset = Dataset(make_tfds_extractor('mnist'))
+
+            run(self, 'download',
                 '-i', 'tfds:mnist', '-f', 'datumaro', '-o', test_dir,
                 '--', '--save-images')
 

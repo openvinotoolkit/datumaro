@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 from typing import (
-    Any, Callable, Dict, Iterator, Optional, Sequence, Set, Tuple, Union,
+    Any, Callable, Dict, Iterator, Mapping, Optional, Sequence, Tuple, Union,
 )
 import itertools
 import logging as log
@@ -31,16 +31,22 @@ else:
     TFDS_EXTRACTOR_AVAILABLE = True
 
 @attrs(auto_attribs=True)
+class TfdsDatasetMetadata:
+    default_converter_name: str
+
+@attrs(auto_attribs=True)
 class _TfdsAdapter:
-    metadata_transformers: Sequence[
+    category_transformers: Sequence[
         Callable[['tfds.core.DatasetBuilder', CategoriesInfo], None]]
     data_transformers: Sequence[Callable[[Any, DatasetItem], None]]
     id_generator: Callable[[Any], str] = attrib(default=None, kw_only=True)
 
-    def transform_metadata(self,
+    metadata: TfdsDatasetMetadata
+
+    def transform_categories(self,
         tfds_builder: 'tfds.core.DatasetBuilder', categories: CategoriesInfo,
     ) -> None:
-        for t in self.metadata_transformers:
+        for t in self.category_transformers:
             t(tfds_builder, categories)
 
     def transform_data(self, tfds_example: Any, item: DatasetItem) -> None:
@@ -142,24 +148,26 @@ class _GenerateIdFromFilenameFeature:
         return osp.splitext(file_name)[0]
 
 _MNIST_ADAPTER = _TfdsAdapter(
-    metadata_transformers=[_SetLabelCategoriesFromClassLabelFeature('label')],
+    category_transformers=[_SetLabelCategoriesFromClassLabelFeature('label')],
     data_transformers=[
         _SetImageFromImageFeature('image'),
         _AddLabelFromClassLabelFeature('label'),
     ],
+    metadata=TfdsDatasetMetadata(default_converter_name='mnist'),
 )
 
 _CIFAR_ADAPTER = _TfdsAdapter(
-    metadata_transformers=[_SetLabelCategoriesFromClassLabelFeature('label')],
+    category_transformers=[_SetLabelCategoriesFromClassLabelFeature('label')],
     data_transformers=[
         _SetImageFromImageFeature('image'),
         _AddLabelFromClassLabelFeature('label'),
     ],
     id_generator=_GenerateIdFromTextFeature('id'),
+    metadata=TfdsDatasetMetadata(default_converter_name='cifar'),
 )
 
 _VOC_ADAPTER = _TfdsAdapter(
-    metadata_transformers=[_SetLabelCategoriesFromClassLabelFeature(
+    category_transformers=[_SetLabelCategoriesFromClassLabelFeature(
         ('objects', 'feature', 'label'))],
     data_transformers=[
         _SetImageFromImageFeature('image',
@@ -167,6 +175,7 @@ _VOC_ADAPTER = _TfdsAdapter(
         _AddObjectsFromFeature('objects', 'bbox', label_member='label')
     ],
     id_generator=_GenerateIdFromFilenameFeature('image/filename'),
+    metadata=TfdsDatasetMetadata(default_converter_name='voc'),
 )
 
 _TFDS_ADAPTERS = {
@@ -229,7 +238,7 @@ class _TfdsExtractor(IExtractor):
         tfds_ds_info = tfds_builder.info
 
         self._categories = {}
-        self._adapter.transform_metadata(tfds_builder, self._categories)
+        self._adapter.transform_categories(tfds_builder, self._categories)
 
         tfds_decoders = {}
         for tfds_feature_name, tfds_fc in tfds_ds_info.features.items():
@@ -274,7 +283,9 @@ class _TfdsExtractor(IExtractor):
             return None
         return self._split_extractors[subset].get(id)
 
-AVAILABLE_TFDS_DATASETS: Set[str] = _TFDS_ADAPTERS.keys()
+AVAILABLE_TFDS_DATASETS: Mapping[str, TfdsDatasetMetadata] = {
+    name: adapter.metadata for name, adapter in _TFDS_ADAPTERS.items()
+}
 
 def make_tfds_extractor(tfds_ds_name: str) -> IExtractor:
     return _TfdsExtractor(tfds_ds_name)
