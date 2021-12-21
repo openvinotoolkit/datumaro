@@ -28,8 +28,8 @@ from datumaro.components.errors import (
 from datumaro.components.extractor import CategoriesInfo
 from datumaro.util import filter_dict, find
 from datumaro.util.annotation_util import (
-    OKS, bbox_iou, find_instances, max_bbox, mean_bbox, segment_iou,
-    smooth_line,
+    OKS, approximate_line, bbox_iou, find_instances, max_bbox, mean_bbox,
+    segment_iou,
 )
 from datumaro.util.attrs_util import default_if_none, ensure_cls
 
@@ -767,21 +767,33 @@ class PointsMatcher(_ShapeMatcher):
 class LineMatcher(_ShapeMatcher):
     @staticmethod
     def distance(a, b):
+        # Compute inter-line area by using the Trapezoid formulae
+        # https://en.wikipedia.org/wiki/Trapezoidal_rule
+        # Normalize by common bbox and get the bbox fill ratio
+        # Call this ratio the "distance"
+
         a_bbox = a.get_bbox()
         b_bbox = b.get_bbox()
         bbox = max_bbox([a_bbox, b_bbox])
-        area = bbox[2] * bbox[3]
-        if not area:
+        box_area = bbox[2] * bbox[3]
+        if not box_area:
             return 1
 
-        # compute inter-line area, normalize by common bbox
-        point_count = max(max(len(a.points) // 2, len(b.points) // 2), 5)
-        a, sa = smooth_line(a.points, point_count)
-        b, sb = smooth_line(b.points, point_count)
+        def _approx(line, segments):
+            if len(line) // 2 == segments + 1:
+                return np.reshape(line, (-1, 2))
+            else:
+                return approximate_line(line, segments=segments)
+        segments = max(max(len(a.points) // 2, len(b.points) // 2), 5) - 1
+
+        a = _approx(a.points, segments)
+        b = _approx(b.points, segments)
         dists = np.linalg.norm(a - b, axis=1)
-        dists = (dists[:-1] + dists[1:]) * 0.5
-        s = np.sum(dists) * 0.5 * (sa + sb) / area
-        return abs(1 - s)
+        dists = dists[:-1] + dists[1:]
+        a_steps = np.linalg.norm(a[1:] - a[:-1], axis=1)
+        b_steps = np.linalg.norm(b[1:] - b[:-1], axis=1)
+        area = np.dot(dists, a_steps + b_steps) * 0.5 * 0.5 / box_area
+        return abs(1 - area)
 
 @attrs
 class CaptionsMatcher(AnnotationMatcher):

@@ -178,11 +178,18 @@ def OKS(a, b, sigma=None, bbox=None, scale=None):
     dists = np.linalg.norm(p1 - p2, axis=1)
     return np.sum(np.exp(-(dists ** 2) / (2 * scale * (2 * sigma) ** 2)))
 
-def smooth_line(points, segments):
-    assert 2 <= len(points) // 2 and len(points) % 2 == 0
+def approximate_line(points: np.ndarray, segments: int) -> np.ndarray:
+    """
+    Approximates a 2d line to the required number of segments. Points are
+    distributed uniformly across the resulting line.
 
-    if len(points) // 2 == segments:
-        return points
+    Returns:
+      new_points (ndarray): a flat array of new line point coordinates.
+        The shape is [segments, 2], the layout is [[x0, y0], [x1, y1], ...].
+    """
+
+    assert 2 <= len(points) // 2 and len(points) % 2 == 0
+    assert 0 < segments
 
     points = list(points)
     if len(points) == 2:
@@ -213,7 +220,7 @@ def smooth_line(points, segments):
 
         new_points[new_segment] = prev_p * (1 - r) + next_p * r
 
-    return new_points, step
+    return new_points
 
 def make_label_id_mapping(
         src_labels: LabelCategories, dst_labels: LabelCategories,
@@ -225,14 +232,14 @@ def make_label_id_mapping(
             Dict[int, str]
         ]:
     """
-    Maps label ids from source to destination. Fallback is used for missing
+    Maps label ids from source to destination. Fallback id is used for missing
     labels.
 
     Returns:
-      function to map labels: src id -> dst id
-        dict: src id -> dst id
-        dict: src id -> src label
-        dict: dst id -> dst label
+      map_id (callable): src id -> dst id
+      id_mapping (dict): src id -> dst id
+      src_labels (dict): src id -> src label
+      dst_labels (dict): dst id -> dst label
     """
 
     source_labels = { id: label.name
