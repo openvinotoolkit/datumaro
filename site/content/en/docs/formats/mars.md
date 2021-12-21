@@ -7,10 +7,10 @@ weight: 14
 
 ## Format specification
 
-MARS is a dataset for and motion analysis and person identification task,
+MARS is a dataset for the motion analysis and person identification task,
 and this dataset it's extension of Market-1501 dataset format.
 MARS dataset is available for downloading
-[here](http://zheng-lab.cecs.anu.edu.au/Project/project_mars.html)
+[here](https://zheng-lab.cecs.anu.edu.au/Project/project_mars.html)
 
 Supported types of annotations:
 - `Label`
@@ -60,12 +60,12 @@ mars_dataset
 ├── ...
 ```
 
-All images in MARS dataset has strict convention of naming:
+All images in MARS dataset follow a strict convention of naming:
 ```
 xxxxCxTxxxxFxxx.jpg
 ```
 - the first four digits indicate the pedestrian's number;
-- digits after `C` indicate the camera id;
+- digit after `C` indicates the camera id;
 - four digits after `T` indicate the track id for this pedestrian;
 - three digits after `F` indicate the frame id with this track
 
