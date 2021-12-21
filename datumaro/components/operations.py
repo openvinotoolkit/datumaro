@@ -401,8 +401,7 @@ class IntersectMerge(MergingStrategy):
 
         label_cat = self._merge_label_categories(sources)
         if label_cat is None:
-            return dst_categories
-
+            label_cat = LabelCategories()
         dst_categories[AnnotationType.label] = label_cat
 
         points_cat = self._merge_point_categories(sources, label_cat)
