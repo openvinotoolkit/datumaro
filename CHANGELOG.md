@@ -47,6 +47,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Using `Image`, `ByteImage` from `datumaro.util.image` - these classes
   are moved to `datumaro.components.media`
   (<https://github.com/openvinotoolkit/datumaro/pull/538>)
+- Using `smooth_line` from `datumaro.util.annotation_util` - the function
+  is renamed to `approximate_line` and has updated interface
+  (<https://github.com/openvinotoolkit/datumaro/pull/592>)
 
 ### Removed
 - Equality comparison support between `datumaro.components.media.Image`
@@ -58,6 +61,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/564>)
 - Empty lines in VOC subset lists are not ignored
   (<https://github.com/openvinotoolkit/datumaro/pull/587>)
+- Fails in multimerge when lines are not approximated and when there are no
+  label categories (<https://github.com/openvinotoolkit/datumaro/pull/592>)
 
 ### Security
 - TBD
