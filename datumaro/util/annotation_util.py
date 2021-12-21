@@ -13,6 +13,7 @@ from datumaro.components.annotation import (
 )
 from datumaro.util.mask_tools import mask_to_rle
 
+
 def __getattr__(name: str):
     if name == 'smooth_line':
         import warnings
