@@ -20,6 +20,9 @@ do as follows:
 pip install datumaro[tf,tfds]
 ```
 
+To use a proxy for downloading, configure it with the conventional
+[curl environment variables](https://everything.curl.dev/usingcurl/proxies/env).
+
 Usage:
 
 ``` bash
