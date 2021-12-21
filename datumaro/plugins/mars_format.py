@@ -7,9 +7,7 @@ import logging as log
 import os
 import os.path as osp
 
-from datumaro.components.annotation import (
-    AnnotationType, Bbox, LabelCategories,
-)
+from datumaro.components.annotation import AnnotationType, Bbox, LabelCategories
 from datumaro.components.dataset import DatasetItem
 from datumaro.components.extractor import Extractor, Importer
 from datumaro.components.format_detection import FormatDetectionContext
