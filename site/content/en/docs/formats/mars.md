@@ -16,8 +16,10 @@ Supported types of annotations:
 - `Bbox`
 
 Required attributes:
-- `camera_id` (int): one-digit number;
-- `track_id` (int): four-digit number;
+- `camera_id` (int): one-digit number that represent ID of camera that took
+  the image (original dataset has totally 6 cameras);
+- `track_id` (int): four-digit number that represent ID of the track with
+  the particular pedestrian;
 - `frame_id` (int): three-digit number, that mean number of
   frame within this track. For the tracks, their names are accumulated
   for each ID, but for frames, they start from "0001" in each track.
