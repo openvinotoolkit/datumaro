@@ -8,14 +8,15 @@ weight: 1
 ## Format specification
 
 The original MPII Human Pose Dataset is available
-[here](http://human-pose.mpi-inf.mpg.de/#overview).
+[here](http://human-pose.mpi-inf.mpg.de).
 
 Supported annotation types:
 - `Bbox`
 - `Points`
 
 Supported attributes:
-- `center` (list)
+- `center` (a list with two coordinates of the center point
+  of the object)
 - `scale` (float)
 
 ## Import MPII Human Pose Dataset
@@ -56,7 +57,7 @@ dataset/
 
 ## Export to other formats
 
-Datumaro can convert a MPII Human Pose Dataset into any other format
+Datumaro can convert an MPII Human Pose Dataset into any other format
 [Datumaro supports](/docs/user-manual/supported_formats/).
 To get the expected result, convert the dataset to a format
 that supports bounding boxes or points.
