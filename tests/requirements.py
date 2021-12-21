@@ -43,6 +43,7 @@ class Requirements:
     DATUM_BUG_466 = "Can't correct import Open Images dataset without images"
     DATUM_BUG_470 = "Cannot to import Cityscapes dataset without images"
     DATUM_BUG_560 = "Reading MOT dataset with seqinfo produces 0-based indexing in frames"
+    DATUM_BUG_583 = "Empty lines in VOC subset lists are not ignored"
 
 
 class SkipMessages:

@@ -65,6 +65,10 @@ class _VocExtractor(SourceExtractor):
         subset_list = []
         with open(subset_path, encoding='utf-8') as f:
             for line in f:
+                line = line.strip()
+                if not line or line and line[0] == '#':
+                    continue
+
                 if self._task == VocTask.person_layout:
                     objects = line.split('\"')
                     if 1 < len(objects):
@@ -111,6 +115,10 @@ class VocClassificationExtractor(_VocExtractor):
 
             with open(ann_file, encoding='utf-8') as f:
                 for line in f:
+                    line = line.strip()
+                    if not line or line and line[0] == '#':
+                        continue
+
                     item, present = line.rsplit(maxsplit=1)
                     if present == '1':
                         annotations.setdefault(item, []).append(Label(label_id))

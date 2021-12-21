@@ -95,6 +95,8 @@ DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'voc_dataset',
     'voc_dataset1')
 DUMMY_DATASET2_DIR = osp.join(osp.dirname(__file__), 'assets', 'voc_dataset',
     'voc_dataset2')
+DUMMY_DATASET3_DIR = osp.join(osp.dirname(__file__), 'assets', 'voc_dataset',
+    'voc_dataset3')
 
 class VocImportTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -355,6 +357,40 @@ class VocImportTest(TestCase):
             with self.subTest(path=path):
                 detected_formats = env.detect_dataset(path)
                 self.assertEqual([VocImporter.NAME], detected_formats)
+
+    @mark_requirement(Requirements.DATUM_BUG_583)
+    def test_can_import_voc_dataset_with_empty_lines_in_subset_lists(self):
+        expected_dataset = Dataset.from_iterable([
+            DatasetItem(id='2007_000001', subset='train',
+                image=np.ones((10, 20, 3)),
+                annotations=[
+                    Bbox(1.0, 2.0, 2.0, 2.0, label=8, id=1, group=1,
+                        attributes={
+                            'difficult': False,
+                            'truncated': True,
+                            'occluded': False,
+                            'pose': 'Unspecified'
+                        }
+                    )
+                ])
+        ], categories=VOC.make_voc_categories())
+
+        rpath = osp.join('ImageSets', 'Main', 'train.txt')
+        matrix = [
+            ('voc_detection', '', ''),
+            ('voc_detection', 'train', rpath),
+        ]
+        for format, subset, path in matrix:
+            with self.subTest(format=format, subset=subset, path=path):
+                if subset:
+                    expected = expected_dataset.get_subset(subset)
+                else:
+                    expected = expected_dataset
+
+                actual = Dataset.import_from(osp.join(DUMMY_DATASET3_DIR, path),
+                    format)
+
+                compare_datasets(self, expected, actual, require_images=True)
 
 
 class VocConverterTest(TestCase):
