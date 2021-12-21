@@ -13,13 +13,12 @@ MARS dataset is available for downloading
 [here](https://zheng-lab.cecs.anu.edu.au/Project/project_mars.html)
 
 Supported types of annotations:
-- `Label`
+- `Bbox`
 
 Required attributes:
-- `pedestrian_id`: four-digit number in format `%04d`;
-- `camera_id`: one-digit number;
-- `track_id`: four-digit number in format `%04d`;
-- `frame_id`: three-digit number in format `%03d`, that mean number of
+- `camera_id` (int): one-digit number;
+- `track_id` (int): four-digit number;
+- `frame_id` (int): three-digit number, that mean number of
   frame within this track. For the tracks, their names are accumulated
   for each ID, but for frames, they start from "0001" in each track.
 
@@ -67,7 +66,7 @@ xxxxCxTxxxxFxxx.jpg
 - the first four digits indicate the pedestrian's number;
 - digit after `C` indicates the camera id;
 - four digits after `T` indicate the track id for this pedestrian;
-- three digits after `F` indicate the frame id with this track
+- three digits after `F` indicate the frame id with this track.
 
 > Note: there are two specific pedestrian IDs 0000 and 00-1
-> which indicate distracting images and unwanted images respectively
+> which indicate distracting images and unwanted images respectively.

@@ -8,7 +8,7 @@ import os
 import os.path as osp
 
 from datumaro.components.annotation import (
-    AnnotationType, Label, LabelCategories,
+    AnnotationType, Bbox, LabelCategories,
 )
 from datumaro.components.dataset import DatasetItem
 from datumaro.components.extractor import Extractor, Importer
@@ -78,15 +78,15 @@ class MarsExtractor(Extractor):
                         f'the directory name: {label}')
                     continue
 
+                image = Image(path=image_path)
+                width, height = image.size
                 items.append(DatasetItem(id=osp.splitext(image_name)[0],
-                    image=Image(path=osp.join(path, label, image_name)),
-                    annotations=[Label(label=label_id, attributes={
-                            'pedestrian_id': pedestrian_id,
-                            'camera_id': image_name[5],
-                            'track_id': image_name[7:11],
-                            'frame_id': image_name[12:15]
-                        })
-                    ], subset=subset)
+                    image=image, subset=subset,
+                    annotations=[Bbox(0, 0, width, height, label=label_id)],
+                    attributes={'camera_id': int(image_name[5]),
+                            'track_id': int(image_name[7:11]),
+                            'frame_id': int(image_name[12:15])
+                    })
                 )
 
         return items
