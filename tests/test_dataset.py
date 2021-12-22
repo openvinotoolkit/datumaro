@@ -1048,6 +1048,33 @@ class DatasetTest(TestCase):
         self.assertEqual(iter_called, 2)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_use_extractor_len_when_simple_wrapper(self):
+        class TestExtractor(Extractor):
+            def __iter__(self):
+                yield from [ DatasetItem(1), ]
+
+            def __len__(self):
+                return 42
+
+        dataset = Dataset(TestExtractor())
+
+        self.assertEqual(42, len(dataset))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_cant_use_extractor_len_when_not_simple_wrapper(self):
+        class TestExtractor(Extractor):
+            def __iter__(self):
+                yield from [ DatasetItem(1), ]
+
+            def __len__(self):
+                return 42
+
+        dataset = Dataset(TestExtractor())
+        dataset.transform('reindex')
+
+        self.assertEqual(1, len(dataset))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_raises_when_repeated_items_in_source(self):
         dataset = Dataset.from_iterable([DatasetItem(0), DatasetItem(0)])
 
