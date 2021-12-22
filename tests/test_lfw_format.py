@@ -201,13 +201,53 @@ class LfwFormatTest(TestCase):
 
             compare_datasets(self, dataset, parsed_dataset, require_images=True)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_save_and_load_with_meta_file(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id='name0_0001', subset='test',
+                image=np.ones((2, 5, 3)),
+                annotations=[Label(0, attributes={
+                    'positive_pairs': ['name0/name0_0002']
+                })]
+            ),
+            DatasetItem(id='name0_0002', subset='test',
+                image=np.ones((2, 5, 3)),
+                annotations=[Label(0, attributes={
+                    'positive_pairs': ['name0/name0_0001'],
+                    'negative_pairs': ['name1/name1_0001']
+                })]
+            ),
+            DatasetItem(id='name1_0001', subset='test',
+                image=np.ones((2, 5, 3)),
+                annotations=[Label(1, attributes={
+                    'positive_pairs': ['name1/name1_0002']
+                })]
+            ),
+            DatasetItem(id='name1_0002', subset='test',
+                image=np.ones((2, 5, 3)),
+                annotations=[Label(1, attributes={
+                    'positive_pairs': ['name1/name1_0002'],
+                    'negative_pairs': ['name0/name0_0001']
+                })]
+            ),
+        ], categories=['name0', 'name1'])
+
+        with TestDir() as test_dir:
+            LfwConverter.convert(source_dataset, test_dir,
+                save_images=True, save_dataset_meta=True)
+            parsed_dataset = Dataset.import_from(test_dir, 'lfw')
+
+            self.assertTrue(osp.isfile(osp.join(test_dir, 'dataset_meta.json')))
+            compare_datasets(self, source_dataset, parsed_dataset,
+                require_images=True)
+
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'lfw_dataset')
 
 class LfwImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect(self):
         detected_formats = Environment().detect_dataset(DUMMY_DATASET_DIR)
-        self.assertIn(LfwImporter.NAME, detected_formats)
+        self.assertEqual([LfwImporter.NAME], detected_formats)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import(self):

@@ -111,7 +111,7 @@ class Market1501Converter(Converter):
 
             for item in subset:
                 image_name = item.id
-                if Market1501Path.PATTERN.search(image_name) == None:
+                if Market1501Path.PATTERN.search(image_name) is None:
                     if 'person_id' in item.attributes and \
                             'camera_id' in item.attributes:
                         image_pattern = '{:04d}_c{}s1_000000_00{}'

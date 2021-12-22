@@ -1,19 +1,17 @@
-from unittest import mock
 import os.path as osp
 
 import cv2
 import numpy as np
 import pytest
 
-from datumaro.components.dataset import Dataset
-from datumaro.components.environment import Environment
-from datumaro.components.media import Video, VideoFrame
+from datumaro.components.media import Video
 from datumaro.util.scope import on_exit_do, scoped
 from datumaro.util.test_utils import TestDir
 
 from .requirements import Requirements, mark_requirement
 
 
+@scoped
 def make_sample_video(path, frames=4, frame_size=(10, 20), fps=25.0):
     """
     frame_size is (H, W), only even sides
@@ -21,12 +19,12 @@ def make_sample_video(path, frames=4, frame_size=(10, 20), fps=25.0):
 
     writer = cv2.VideoWriter(path, frameSize=tuple(frame_size[::-1]),
         fps=float(fps), fourcc=cv2.VideoWriter_fourcc(*'MJPG'))
+    on_exit_do(writer.release)
 
-    for _ in range(frames):
+    for i in range(frames):
         # Apparently, only uint8 values are supported, but not floats
-        writer.write(np.ones((*frame_size, 3), dtype=np.uint8) * 255)
-
-    writer.release()
+        # Colors are compressed, but grayscale colors suffer no loss
+        writer.write(np.ones((*frame_size, 3), dtype=np.uint8) * i)
 
 @pytest.fixture(scope='module')
 def fxt_sample_video():
@@ -43,7 +41,7 @@ class VideoTest:
         video = Video(fxt_sample_video)
         on_exit_do(video.close)
 
-        assert 4 == video.frame_count
+        assert None is video.length
         assert (4, 6) == video.frame_size
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -55,8 +53,9 @@ class VideoTest:
         for idx, frame in enumerate(video):
             assert frame.size == video.frame_size
             assert frame.index == idx
-            assert id(frame.video) == id(video)
-            assert frame == np.ones((*video.frame_size, 3)) * 255
+            assert frame.video is video
+            assert np.array_equal(frame.data,
+                np.ones((*video.frame_size, 3)) * idx)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
@@ -67,7 +66,8 @@ class VideoTest:
         for idx in {1, 3, 2, 0, 3}:
             frame = video[idx]
             assert frame.index == idx
-            assert frame == np.ones((*video.frame_size, 3)) * 255
+            assert np.array_equal(frame.data,
+                np.ones((*video.frame_size, 3)) * idx)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
@@ -75,7 +75,8 @@ class VideoTest:
         video = Video(fxt_sample_video, step=2)
         on_exit_do(video.close)
 
-        assert 2 == video.frame_count
+        for idx, frame in enumerate(video):
+            assert 2 * idx == frame.index
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
@@ -83,7 +84,6 @@ class VideoTest:
         video = Video(fxt_sample_video, start_frame=1)
         on_exit_do(video.close)
 
-        assert 3 == video.frame_count
         assert 1 == next(iter(video)).index
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -96,56 +96,27 @@ class VideoTest:
         for last_frame in video:
             pass
 
-        assert 2 == video.frame_count
+        assert 2 == video.length
         assert 1 == last_frame.index
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
     def test_can_init_frame_count_lazily(self, fxt_sample_video):
-        with mock.patch.object(Video, '_get_frame_count',
-                mock.MagicMock(return_value=None)):
-            video = Video(fxt_sample_video)
+        video = Video(fxt_sample_video)
         on_exit_do(video.close)
 
-        assert None == video.frame_count
+        assert None is video.length
 
         for idx, frame in enumerate(video):
             assert idx == frame.index
 
-        assert 4 == video.frame_count
-
-class VideoFramesExtractorTest:
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_load(self, fxt_sample_video):
-        dataset = Dataset.import_from(fxt_sample_video, 'video_frames')
-
-        assert 4 == len(dataset)
+        assert 4 == video.length
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_load_with_custom_frame_names(self, fxt_sample_video):
-        dataset = Dataset.import_from(fxt_sample_video, 'video_frames',
-            name_pattern='custom_name-%03d')
+    @scoped
+    def test_can_open_lazily(self):
+        with TestDir() as test_dir:
+            video = Video(osp.join(test_dir, 'path.mp4'))
 
-        for idx, item in enumerate(dataset):
-            assert item.id == 'custom_name-%03d' % idx
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_load_with_custom_subset(self, fxt_sample_video):
-        dataset = Dataset.import_from(fxt_sample_video, 'video_frames',
-            subset='custom')
-
-        for item in dataset:
-            assert item.subset == 'custom'
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_provide_frame_data(self, fxt_sample_video):
-        dataset = Dataset.import_from(fxt_sample_video, 'video_frames')
-
-        for item in dataset:
-            video = item.media_as(VideoFrame).video
-            assert item.media == np.ones((*video.frame_size, 3)) * 255
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_detect(self, fxt_sample_video):
-        assert 'video_frames' in Environment().detect_dataset(
-            osp.dirname(fxt_sample_video))
+            assert osp.join(test_dir, 'path.mp4') == video.path
+            assert '.mp4' == video.ext

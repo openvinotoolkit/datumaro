@@ -16,7 +16,7 @@ from datumaro.plugins.sly_pointcloud_format.extractor import (
     SuperviselyPointCloudImporter,
 )
 from datumaro.util.test_utils import (
-    Dimensions, TestDir, compare_datasets_3d, test_save_and_load,
+    Dimensions, TestDir, check_save_and_load, compare_datasets_3d,
 )
 
 from .requirements import Requirements, mark_requirement
@@ -93,7 +93,7 @@ class PointCloudConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None, **kwargs):
         kwargs.setdefault('dimension', Dimensions.dim_3d)
-        return test_save_and_load(self, source_dataset, converter, test_dir,
+        return check_save_and_load(self, source_dataset, converter, test_dir,
             importer='sly_pointcloud', target_dataset=target_dataset,
             importer_args=importer_args, **kwargs)
 

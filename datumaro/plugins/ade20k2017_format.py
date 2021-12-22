@@ -18,6 +18,7 @@ from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.util.image import (
     IMAGE_EXTENSIONS, find_images, lazy_image, load_image,
 )
+from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
 
 class Ade20k2017Path:
@@ -31,7 +32,9 @@ class Ade20k2017Extractor(Extractor):
         if not osp.isdir(path):
             raise FileNotFoundError("Can't read dataset directory '%s'" % path)
 
-        subsets = os.listdir(path)
+        # exclude dataset meta file
+        subsets = [subset for subset in os.listdir(path)
+            if osp.splitext(subset)[-1] != '.json']
         if len(subsets) < 1:
             raise FileNotFoundError("Can't read subsets in directory '%s'" % path)
 
@@ -40,6 +43,10 @@ class Ade20k2017Extractor(Extractor):
 
         self._items = []
         self._categories  = {}
+
+        if has_meta_file(self._path):
+            self._categories =  { AnnotationType.label: LabelCategories.
+                from_iterable(parse_meta_file(self._path).keys()) }
 
         for subset in self._subsets:
             self._load_items(subset)
@@ -149,8 +156,8 @@ class Ade20k2017Importer(Importer):
     def find_sources(cls, path):
         for i in range(5):
             for i in glob.iglob(osp.join(path, *('*' * i))):
-                    if osp.splitext(i)[1].lower() in IMAGE_EXTENSIONS:
-                        return [{
-                            'url': path, 'format': Ade20k2017Extractor.NAME,
-                        }]
+                if osp.splitext(i)[1].lower() in IMAGE_EXTENSIONS:
+                    return [{
+                        'url': path, 'format': Ade20k2017Extractor.NAME,
+                    }]
         return []

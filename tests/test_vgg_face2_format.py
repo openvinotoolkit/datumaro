@@ -183,6 +183,35 @@ class VggFace2FormatTest(TestCase):
 
             compare_datasets(self, dataset, parsed_dataset, require_images=True)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_save_and_load_with_meta_file(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id='class_0/1', subset='train', image=np.ones((8, 8, 3)),
+                annotations=[
+                    Bbox(0, 2, 4, 2, label=0),
+                    Points([3.2, 3.12, 4.11, 3.2, 2.11,
+                        2.5, 3.5, 2.11, 3.8, 2.13], label=0),
+                ]
+            ),
+            DatasetItem(id='class_1/2', subset='train', image=np.ones((10, 10, 3)),
+                annotations=[
+                    Points([4.23, 4.32, 5.34, 4.45, 3.54,
+                        3.56, 4.52, 3.51, 4.78, 3.34], label=1),
+                ]
+            )
+        ], categories={
+            AnnotationType.label: LabelCategories.from_iterable(
+                [('class_%s' % i) for i in range(5)]),
+        })
+
+        with TestDir() as test_dir:
+            VggFace2Converter.convert(source_dataset, test_dir, save_images=True,
+                save_dataset_meta=True)
+            parsed_dataset = Dataset.import_from(test_dir, 'vgg_face2')
+
+            self.assertTrue(osp.isfile(osp.join(test_dir, 'dataset_meta.json')))
+            compare_datasets(self, source_dataset, parsed_dataset)
+
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'vgg_face2_dataset')
 
 class VggFace2ImporterTest(TestCase):

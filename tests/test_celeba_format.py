@@ -15,7 +15,9 @@ from datumaro.util.test_utils import compare_datasets
 from .requirements import Requirements, mark_requirement
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets',
-    'celeba_dataset')
+    'celeba_dataset', 'dataset')
+DUMMY_DATASET_DIR_WITH_META_FILE = osp.join(osp.dirname(__file__),
+    'assets', 'celeba_dataset', 'dataset_with_meta_file')
 
 class CelebaImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_475)
@@ -82,6 +84,36 @@ class CelebaImporterTest(TestCase):
         })
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'celeba')
+
+        compare_datasets(self, expected_dataset, dataset, require_images=True)
+
+    @mark_requirement(Requirements.DATUM_475)
+    def test_can_import_with_meta_file(self):
+        expected_dataset = Dataset.from_iterable([
+            DatasetItem(id='000001', subset='train',
+                image=np.ones((3, 4, 3)),
+                annotations=[Label(1)]
+            ),
+            DatasetItem(id='000002', subset='train',
+                image=np.ones((3, 4, 3)),
+                annotations=[Label(3)]
+            ),
+            DatasetItem(id='000003', subset='val',
+                image=np.ones((3, 4, 3)),
+                annotations=[Label(0)]
+            ),
+            DatasetItem(id='000004', subset='test',
+                image=np.ones((3, 4, 3)),
+                annotations=[Label(2)]
+            ),
+            DatasetItem(id='000005', subset='test',
+                image=np.ones((3, 4, 3)),
+                annotations=[Label(6)]
+            )
+        ], categories=[f'class-{i}' for i in range(7)])
+
+        dataset = Dataset.import_from(DUMMY_DATASET_DIR_WITH_META_FILE,
+            'celeba')
 
         compare_datasets(self, expected_dataset, dataset, require_images=True)
 

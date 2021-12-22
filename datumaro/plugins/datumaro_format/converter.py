@@ -179,9 +179,9 @@ class _SubsetWriter:
                 np.require(obj.image, dtype=np.uint8, requirements='F'))
 
         if isinstance(rle['counts'], str):
-           counts = rle['counts']
+            counts = rle['counts']
         else:
-           counts = rle['counts'].decode('ascii')
+            counts = rle['counts'].decode('ascii')
 
         converted.update({
             'label_id': cast(obj.label, int),

@@ -27,6 +27,8 @@ class Requirements:
     DATUM_283 = "Create cli tests for testing convert command for VOC format"
     DATUM_399 = "Implement import for ADE20K dataset"
     DATUM_475 = "Support import for CelebA dataset"
+    DATUM_497 = "Support import for SYNTHIA dataset"
+    DATUM_542 = "Images missing after merging two datasets"
 
     # GitHub issues (bugs)
     # https://github.com/openvinotoolkit/datumaro/issues
@@ -39,6 +41,8 @@ class Requirements:
     DATUM_BUG_425 = "Bug: concatenation for the different types in COCO format"
     DATUM_BUG_466 = "Can't correct import Open Images dataset without images"
     DATUM_BUG_470 = "Cannot to import Cityscapes dataset without images"
+    DATUM_BUG_560 = "Reading MOT dataset with seqinfo produces 0-based indexing in frames"
+    DATUM_BUG_583 = "Empty lines in VOC subset lists are not ignored"
 
 
 class SkipMessages:

@@ -210,9 +210,9 @@ class lazy_image:
             cache: Union[bool, ImageCache] = True) -> None:
         """
         Cache:
-        - False: do not cache
-        - True: use the global cache
-        - ImageCache instance: an object to be used as cache
+            - False: do not cache
+            - True: use the global cache
+            - ImageCache instance: an object to be used as cache
         """
 
         if loader is None:

@@ -12,17 +12,19 @@ import os.path as osp
 import random
 import re
 
+import cv2
+import numpy as np
 import pycocotools.mask as mask_utils
 
 from datumaro.components.annotation import (
-    AnnotationType, Bbox, Label, LabelCategories, MaskCategories,
-    PointsCategories, Polygon, RleMask,
+    AnnotationType, Bbox, Caption, Label, LabelCategories, Mask, MaskCategories,
+    Points, PointsCategories, Polygon, PolyLine, RleMask,
 )
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.extractor import (
     DEFAULT_SUBSET_NAME, IExtractor, ItemTransform, Transform,
 )
-from datumaro.util import NOTSET, parse_str_enum_value
+from datumaro.util import NOTSET, parse_str_enum_value, take_by
 from datumaro.util.annotation_util import find_group_leader, find_instances
 import datumaro.util.mask_tools as mask_tools
 
@@ -322,7 +324,7 @@ class RandomSplit(Transform, CliPlugin):
     It is expected that item ids are unique and subset ratios sum up to 1.|n
     |n
     Example:|n
-    |s|s%(prog)s --subset train:.67 --subset test:.33
+    |s|s|s|s%(prog)s --subset train:.67 --subset test:.33
     """
 
     # avoid https://bugs.python.org/issue16399
@@ -410,10 +412,10 @@ class Rename(ItemTransform, CliPlugin):
     contain string.format tokens with 'item' object available.|n
     |n
     Examples:|n
-    - Replace 'pattern' with 'replacement':|n
-    |s|srename -e '|pattern|replacement|'|n
-    - Remove 'frame_' from item ids:|n
-    |s|srename -e '|frame_(\d+)|\1|'
+    |s|s- Replace 'pattern' with 'replacement':|n
+    |s|s|s|srename -e '|pattern|replacement|'|n
+    |s|s- Remove 'frame_' from item ids:|n
+    |s|s|s|srename -e '|frame_(\d+)|\1|'
     """
 
     @classmethod
@@ -441,22 +443,22 @@ class RemapLabels(ItemTransform, CliPlugin):
     Changes labels in the dataset.|n
     |n
     A label can be:|n
-    - renamed (and joined with existing) -|n
-    |s|swhen specified '--label <old_name>:<new_name>'|n
-    - deleted - when specified '--label <name>:' or default action is 'delete'|n
-    |s|sand the label is not mentioned in the list. When a label|n
-    |s|sis deleted, all the associated annotations are removed|n
-    - kept unchanged - when specified '--label <name>:<name>'|n
-    |s|sor default action is 'keep' and the label is not mentioned in the list|n
+    |s|s- renamed (and joined with existing) -|n
+    |s|s|s|swhen specified '--label <old_name>:<new_name>'|n
+    |s|s- deleted - when specified '--label <name>:' or default action is 'delete'|n
+    |s|s|s|sand the label is not mentioned in the list. When a label|n
+    |s|s|s|sis deleted, all the associated annotations are removed|n
+    |s|s- kept unchanged - when specified '--label <name>:<name>'|n
+    |s|s|s|sor default action is 'keep' and the label is not mentioned in the list|n
     Annotations with no label are managed by the default action policy.|n
     |n
     Examples:|n
-    - Remove the 'person' label (and corresponding annotations):|n
-    |s|s%(prog)s -l person: --default keep|n
-    - Rename 'person' to 'pedestrian' and 'human' to 'pedestrian', join:|n
-    |s|s%(prog)s -l person:pedestrian -l human:pedestrian --default keep|n
-    - Rename 'person' to 'car' and 'cat' to 'dog', keep 'bus', remove others:|n
-    |s|s%(prog)s -l person:car -l bus:bus -l cat:dog --default delete
+    |s|s- Remove the 'person' label (and corresponding annotations):|n
+    |s|s|s|s%(prog)s -l person: --default keep|n
+    |s|s- Rename 'person' to 'pedestrian' and 'human' to 'pedestrian', join:|n
+    |s|s|s|s%(prog)s -l person:pedestrian -l human:pedestrian --default keep|n
+    |s|s- Rename 'person' to 'car' and 'cat' to 'dog', keep 'bus', remove others:|n
+    |s|s|s|s%(prog)s -l person:car -l bus:bus -l cat:dog --default delete
     """
 
     class DefaultAction(Enum):
@@ -594,8 +596,8 @@ class ProjectLabels(ItemTransform):
     Useful for merging similar datasets, whose labels need to be aligned.|n
     |n
     Examples:|n
-    - Align the source dataset labels to [person, cat, dog]:|n
-    |s|s%(prog)s -l person -l cat -l dog
+    |s|s- Align the source dataset labels to [person, cat, dog]:|n
+    |s|s|s|s%(prog)s -l person -l cat -l dog
     """
 
     @classmethod
@@ -711,7 +713,7 @@ class AnnsToLabels(ItemTransform, CliPlugin):
 
     def transform_item(self, item):
         labels = set(p.label for p in item.annotations
-            if getattr(p, 'label') != None)
+            if getattr(p, 'label') is not None)
         annotations = []
         for label in labels:
             annotations.append(Label(label=label))
@@ -734,3 +736,85 @@ class BboxValuesDecrement(ItemTransform, CliPlugin):
                 label=bbox.label, attributes=bbox.attributes))
 
         return item.wrap(annotations=annotations)
+
+class ResizeTransform(ItemTransform):
+    """
+    Resizes images and annotations in the dataset to the specified size.
+    Supports upscaling, downscaling and mixed variants.|n
+    |n
+    Examples:|n
+    - Resize all images to 256x256 size|n
+    |s|s%(prog)s -dw 256 -dh 256
+    """
+
+    @classmethod
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument('-dw', '--width', type=int,
+            help="Destination image width")
+        parser.add_argument('-dh', '--height', type=int,
+            help="Destination image height")
+        return parser
+
+    def __init__(self, extractor: IExtractor, width: int, height: int) -> None:
+        super().__init__(extractor)
+
+        assert width > 0 and height > 0
+        self._width = width
+        self._height = height
+
+    def transform_item(self, item):
+        if not item.has_image:
+            raise Exception("Image info is required for this transform")
+
+        h, w = item.image.size
+        xscale = self._width / float(w)
+        yscale = self._height / float(h)
+
+        if item.image.has_data:
+            # LANCZOS4 is preferable for upscaling, but it works quite slow
+            method = cv2.INTER_AREA if (xscale * yscale) < 1 \
+                else cv2.INTER_CUBIC
+            image = item.image.data / 255.0
+            resized_image = cv2.resize(image, (self._width, self._height),
+                interpolation=method)
+
+        resized_annotations = []
+        for ann in item.annotations:
+            if isinstance(ann, Bbox):
+                resized_annotations.append(ann.wrap(
+                    x=ann.x * xscale,
+                    y=ann.y * yscale,
+                    w=ann.w * xscale,
+                    h=ann.h * yscale,
+                ))
+            elif isinstance(ann, (Polygon, Points, PolyLine)):
+                resized_annotations.append(ann.wrap(
+                    points=[p
+                        for t in ((x * xscale, y * yscale)
+                            for x, y in take_by(ann.points, 2)
+                        )
+                        for p in t
+                    ]
+                ))
+            elif isinstance(ann, Mask):
+                # Can use only NEAREST for masks,
+                # because we can't have interpolated values
+                rescaled_mask = cv2.resize(ann.image.astype(np.float32),
+                    (self._width, self._height),
+                    interpolation=cv2.INTER_NEAREST).astype(np.uint8)
+
+                if isinstance(ann, RleMask):
+                    rle = mask_tools.mask_to_rle(rescaled_mask)
+                    resized_annotations.append(ann.wrap(
+                        rle=mask_utils.frPyObjects(rle, *rle['size'])))
+                else:
+                    resized_annotations.append(ann.wrap(image=rescaled_mask))
+            elif isinstance(ann, (Caption, Label)):
+                resized_annotations.append(ann)
+            else:
+                assert False, f"Unexpected annotation type {type(ann)}"
+
+        return self.wrap_item(item,
+            image=resized_image,
+            annotations=resized_annotations)

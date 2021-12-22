@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-from typing import Callable, Iterable, Iterator, List, Optional, Tuple, Union
+from typing import Callable, Iterable, Iterator, Optional, Tuple, Union
 import os
 import os.path as osp
 import shutil
@@ -17,7 +17,6 @@ from datumaro.util.image import (
 
 class MediaElement:
     def __init__(self, path: str) -> None:
-        assert path, "Path can't be empty"
         self._path = path
 
     @property
@@ -99,9 +98,6 @@ class Image(MediaElement):
         return self._size
 
     def __eq__(self, other):
-        if isinstance(other, np.ndarray):
-            return self.has_data and np.array_equal(self.data, other)
-
         if not isinstance(other, __class__):
             return False
         return \
@@ -204,18 +200,18 @@ class _VideoFrameIterator(Iterator[VideoFrame]):
     """
     Provides sequential access to the video frames.
     """
+    _video: 'Video'
+    _iterator: Iterator[VideoFrame]
+    _pos: int
+    _current_frame_data: Optional[np.ndarray]
 
     def __init__(self, video: 'Video'):
-        self._video: 'Video' = video
-        self._iterator: Iterator[VideoFrame] = None
-        self._pos: int = -1
-        self._current_frame_data: Optional[np.ndarray] = None
-
+        self._video = video
         self._reset()
 
     def _reset(self):
-        self._video._reset()
-        self._iterator = self._decode(self._video._get_container())
+        self._video._reset_reader()
+        self._iterator = self._decode(self._video._get_reader())
         self._pos = -1
         self._current_frame_data = None
 
@@ -231,15 +227,15 @@ class _VideoFrameIterator(Iterator[VideoFrame]):
             self._pos += 1
             if self._video._includes_frame(self._pos):
                 self._current_frame_data = frame.astype(float)
-                yield VideoFrame(self, index=self._pos)
+                yield self._make_frame(index=self._pos)
 
             success, frame = cap.read()
 
         if self._video._frame_count is None:
             self._video._frame_count = self._pos + 1
 
-    def __iter__(self):
-        return self
+    def _make_frame(self, index) -> VideoFrame:
+        return VideoFrame(self._video, index=index)
 
     def __next__(self):
         return next(self._iterator)
@@ -272,7 +268,7 @@ class _VideoFrameIterator(Iterator[VideoFrame]):
             except StopIteration as e:
                 raise IndexError() from e
         else:
-            v = VideoFrame(video=self, index=self._pos)
+            v = self._make_frame(index=self._pos)
 
         return v
 
@@ -286,26 +282,34 @@ class Video(MediaElement, Iterable[VideoFrame]):
             end_frame: Optional[int] = None) -> None:
         super().__init__(path)
 
-        self._iterator = None
+        if end_frame:
+            assert start_frame < end_frame
+        assert 0 < step
+        self._step = step
+        self._start_frame = start_frame
+        self._end_frame = end_frame or None
+
+        self._reader = None
+        self._iterator: Optional[_VideoFrameIterator] = None
         self._frame_size: Optional[Tuple[int, int]] = None
 
-        self._container = None
-        self._reset()
-
-        self._step = int(step)
-        self._start_frame = int(start_frame)
-        self._end_frame = int(end_frame) if end_frame else None
-
-        self._frame_count = self._get_frame_count(self._container)
+        # We don't provide frame count unless we have a reliable source of
+        # this information.
+        # - Not all videos provide length / duration metainfo
+        # - We can get an estimation based on metadata, but it
+        #   can be invalid or inaccurate due to variable frame rate
+        #   or fractional values rounded up. Relying on the value will give
+        #   errors during requesting frames.
+        # https://stackoverflow.com/a/47796468
+        self._frame_count = None
         self._length = None
-        self._get_length()
 
     def close(self):
         self._iterator = None
 
-        if self._container is not None:
-            self._container.release()
-            self._container = None
+        if self._reader is not None:
+            self._reader.release()
+            self._reader = None
 
     def __getitem__(self, idx: int) -> VideoFrame:
         if not self._includes_frame(idx):
@@ -335,55 +339,21 @@ class Video(MediaElement, Iterable[VideoFrame]):
             yield from self._get_iterator()
 
     @property
-    def frame_count(self) -> Optional[int]:
+    def length(self) -> Optional[int]:
         """
         Returns frame count, if video provides such information.
-        Note that not all videos provide length / duration metainfo.
 
-        The count is affected by the frame filtering options of the object.
+        Note that not all videos provide length / duration metainfo, so the
+        result may be undefined.
+
+        Also note, that information may be inaccurate because of variable
+        FPS in video or incorrect metainfo. The count is only guaranteed to
+        be valid after video is completely read once.
+
+        The count is affected by the frame filtering options of the object,
+        i.e. start frame, end frame and frame step.
         """
-        return self._get_length()
 
-    @property
-    def frame_size(self) -> Tuple[int, int]:
-        if self._frame_size is None:
-            self._frame_size = self._get_frame_size()
-        return self._frame_size
-
-    def _get_frame_size(self) -> Tuple[int, int]:
-        w = self._container.get(cv2.CAP_PROP_FRAME_WIDTH)
-        h = self._container.get(cv2.CAP_PROP_FRAME_HEIGHT)
-
-        if h and w:
-            frame_size = (int(h), int(w))
-        else:
-            image = next(self._get_iterator()).data
-            frame_size = image.shape[0:2]
-
-        return frame_size
-
-    @staticmethod
-    def _get_frame_count(container) -> Optional[int]:
-        # Not all videos provide length / duration metainfo
-        # Note that this information can be invalid or inaccurate
-        # due to variable frame rate
-        # https://stackoverflow.com/a/47796468
-        video_length = container.get(cv2.CAP_PROP_FRAME_COUNT)
-        if video_length:
-            video_length = int(video_length)
-        else:
-            video_length = None
-        return video_length
-
-    def _get_end_frame(self):
-        if self._end_frame is not None and self._frame_count is not None:
-            end_frame = min(self._end_frame, self._frame_count)
-        else:
-            end_frame = self._end_frame or self._frame_count
-
-        return end_frame
-
-    def _get_length(self):
         if self._length is None:
             end_frame = self._get_end_frame()
 
@@ -395,6 +365,36 @@ class Video(MediaElement, Iterable[VideoFrame]):
             self._length = length
 
         return self._length
+
+    @property
+    def frame_size(self) -> Tuple[int, int]:
+        """Returns (H, W)"""
+
+        if self._frame_size is None:
+            self._frame_size = self._get_frame_size()
+        return self._frame_size
+
+    def _get_frame_size(self) -> Tuple[int, int]:
+        cap = self._get_reader()
+        w = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
+        h = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+
+        if h and w:
+            frame_size = (int(h), int(w))
+        else:
+            image = next(self._get_iterator()).data
+            frame_size = image.shape[0:2]
+
+        return frame_size
+
+
+    def _get_end_frame(self):
+        if self._end_frame is not None and self._frame_count is not None:
+            end_frame = min(self._end_frame, self._frame_count)
+        else:
+            end_frame = self._end_frame or self._frame_count
+
+        return end_frame
 
     def _includes_frame(self, i):
         end_frame = self._get_end_frame()
@@ -410,19 +410,16 @@ class Video(MediaElement, Iterable[VideoFrame]):
             self._iterator = _VideoFrameIterator(self)
         return self._iterator
 
-    def _get_container(self):
-        if self._container is None:
-            self._reset()
-        return self._container
+    def _get_reader(self):
+        if self._reader is None:
+            self._reset_reader()
+        return self._reader
 
-    def _open(self):
-        return cv2.VideoCapture(self._path)
-
-    def _reset(self):
-        if self._container is not None:
-            self._container.release()
-        self._container = self._open()
-        assert self._container.isOpened()
+    def _reset_reader(self):
+        if self._reader is not None:
+            self._reader.release()
+        self._reader = cv2.VideoCapture(self._path)
+        assert self._reader.isOpened()
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, __class__):
@@ -432,19 +429,3 @@ class Video(MediaElement, Iterable[VideoFrame]):
             self._start_frame == other._start_frame and \
             self._step == other._step and \
             self._end_frame == other._end_frame
-
-class PointCloud(MediaElement):
-    def __init__(self, path: str,
-            extra_images: Optional[List[Union[
-                str, Image, np.ndarray, Callable[[str], np.ndarray]
-            ]]] = None):
-        self.path = path
-
-        self.extra_images: List[Image] = []
-        for image in extra_images or []:
-            assert isinstance(image, (str, Image, np.ndarray)) or callable(image)
-            if isinstance(image, str):
-                image = Image(path=image)
-            elif isinstance(image, np.ndarray) or callable(image):
-                image = Image(data=image)
-            self.extra_images.append(image)
