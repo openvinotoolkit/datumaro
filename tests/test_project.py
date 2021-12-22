@@ -935,10 +935,10 @@ class ProjectTest(TestCase):
         os.makedirs(plugin_dir)
         with open(osp.join(plugin_dir, '__init__.py'), 'w') as f:
             f.write(textwrap.dedent("""
-                from datumaro.components.extractor import (SourceExtractor,
+                from datumaro.components.extractor import (Extractor,
                     DatasetItem)
 
-                class MyExtractor(SourceExtractor):
+                class MyExtractor(Extractor):
                     def __iter__(self):
                         yield from [
                             DatasetItem('1'),
