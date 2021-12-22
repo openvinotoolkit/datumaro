@@ -193,8 +193,13 @@ def approximate_line(points: np.ndarray, segments: int) -> np.ndarray:
     Approximates a 2d line to the required number of segments. Points are
     distributed uniformly across the resulting line.
 
+    Args:
+      points (ndarray): an array of line point coordinates.
+        The shape is [points * 2] (flat), the layout is [x0, y0, x1, y1, ...].
+      segments (int): the required numebr of segments in the resulting line.
+
     Returns:
-      new_points (ndarray): a flat array of new line point coordinates.
+      new_points (ndarray): an array of new line point coordinates.
         The shape is [segments, 2], the layout is [[x0, y0], [x1, y1], ...].
     """
 
