@@ -209,13 +209,13 @@ def approximate_line(points: Sequence[float], segments: int) -> np.ndarray:
     distributed uniformly across the resulting line.
 
     Args:
-      points (ndarray): an array of line point coordinates.
-        The shape is [points * 2] (flat), the layout is [x0, y0, x1, y1, ...].
+      points (Sequence): an array of line point coordinates.
+        The size is [points * 2], the layout is [x0, y0, x1, y1, ...].
       segments (int): the required numebr of segments in the resulting line.
 
     Returns:
       new_points (ndarray): an array of new line point coordinates.
-        The shape is [segments, 2], the layout is [[x0, y0], [x1, y1], ...].
+        The size is [(segments + 1) * 2], the layout is [x0, y0, x1, y1, ...].
     """
 
     assert 2 <= len(points) // 2 and len(points) % 2 == 0
@@ -250,7 +250,7 @@ def approximate_line(points: Sequence[float], segments: int) -> np.ndarray:
 
         new_points[new_segment] = prev_p * (1 - r) + next_p * r
 
-    return new_points
+    return np.reshape(new_points, (-1, ))
 
 def make_label_id_mapping(
         src_labels: LabelCategories, dst_labels: LabelCategories,
