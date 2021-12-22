@@ -16,16 +16,6 @@ from datumaro.components.annotation import (
 from datumaro.util.mask_tools import mask_to_rle
 
 
-def __getattr__(name: str):
-    if name == 'smooth_line':
-        import warnings
-        warnings.warn(f"Using {name} from '{__package__}' is deprecated, "
-            "the function is renamed to 'approximate_line'", DeprecationWarning,
-            stacklevel=2)
-
-        return approximate_line
-    raise AttributeError
-
 def find_instances(instance_anns):
     instance_anns = sorted(instance_anns, key=lambda a: a.group)
     ann_groups = []
