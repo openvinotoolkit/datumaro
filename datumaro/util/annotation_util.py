@@ -205,8 +205,8 @@ def OKS(a, b, sigma=None, bbox=None, scale=None):
 
 def approximate_line(points: Sequence[float], segments: int) -> np.ndarray:
     """
-    Approximates a 2d line to the required number of segments. Points are
-    distributed uniformly across the resulting line.
+    Approximates a 2d line to the required number of segments. The new points
+    are distributed uniformly across the input line.
 
     Args:
       points (Sequence): an array of line point coordinates.
