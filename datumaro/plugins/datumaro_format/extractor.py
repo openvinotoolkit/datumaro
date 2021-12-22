@@ -11,7 +11,7 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.components.format_detection import FormatDetectionContext
-from datumaro.components.media import Image, MediaElement
+from datumaro.components.media import Image
 
 from .format import DatumaroPath
 
@@ -118,16 +118,10 @@ class DatumaroExtractor(SourceExtractor):
                     for ri in ri_info
                 ]
 
-            media_desc = item_desc.get('media')
-            if not (image or point_cloud) and media_desc and \
-                    media_desc.get('path'):
-                media = MediaElement(path=media_desc.get('path'))
-
             annotations = self._load_annotations(item_desc)
 
             item = DatasetItem(id=item_id, subset=self._subset,
-                annotations=annotations, media=media,
-                image=image, point_cloud=point_cloud,
+                annotations=annotations, image=image, point_cloud=point_cloud,
                 related_images=related_images, attributes=item_desc.get('attr'))
 
             items.append(item)

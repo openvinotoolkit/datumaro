@@ -20,7 +20,6 @@ from datumaro.components.annotation import (
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.extractor import DEFAULT_SUBSET_NAME, DatasetItem
-from datumaro.components.media import Image, MediaElement, PointCloud
 from datumaro.util import cast
 
 from .format import DatumaroPath
@@ -47,7 +46,7 @@ class _SubsetWriter:
     def is_empty(self):
         return not self.items
 
-    def add_item(self, item: DatasetItem):
+    def add_item(self, item):
         annotations = []
         item_desc = {
             'id': item.id,
@@ -57,9 +56,8 @@ class _SubsetWriter:
         if item.attributes:
             item_desc['attr'] = item.attributes
 
-        if isinstance(item, Image):
-            image = item.media_as(Image)
-            path = image.path
+        if item.has_image:
+            path = item.image.path
             if self._context._save_images:
                 path = self._context._make_image_filename(item)
                 self._context._save_image(item,
@@ -70,9 +68,9 @@ class _SubsetWriter:
             }
             if item.image.has_size: # avoid occasional loading
                 item_desc['image']['size'] = item.image.size
-        elif isinstance(item, PointCloud):
-            pcd = item.media_as(PointCloud)
-            path = pcd.path
+
+        if item.has_point_cloud:
+            path = item.point_cloud
             if self._context._save_images:
                 path = self._context._make_pcd_filename(item)
                 self._context._save_point_cloud(item,
@@ -82,14 +80,15 @@ class _SubsetWriter:
                 'path': path
             }
 
-            images = sorted(pcd.extra_images, key=lambda v: v.path)
+        if item.related_images:
+            images = sorted(item.related_images, key=lambda i: i.path)
             if self._context._save_images:
                 related_images = []
                 for i, img in enumerate(images):
                     ri_desc = {}
 
-                    # Images can have completely the same names or don't
-                    # have them at all, so we just rename them
+                    # Images can have completely the same names or don't have
+                    # them at all, so we just rename them
                     ri_desc['path'] = \
                         f'image_{i}{self._context._find_image_ext(img)}'
 
@@ -102,14 +101,7 @@ class _SubsetWriter:
             else:
                 related_images = [{'path': img.path} for img in images]
 
-            if related_images:
-                item_desc['related_images'] = related_images
-
-        if isinstance(item.media, MediaElement):
-            item_desc['media'] = {
-                'path': item.media.path,
-                'type': type(item.media.type)
-            }
+            item_desc['related_images'] = related_images
 
         self.items.append(item_desc)
 

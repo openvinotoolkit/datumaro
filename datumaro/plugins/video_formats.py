@@ -69,7 +69,7 @@ class VideoFramesExtractor(Extractor):
     def __iter__(self):
         for frame in self._reader:
             yield DatasetItem(id=self._name_pattern % frame.index,
-                subset=self._subset, media=frame)
+                subset=self._subset, image=frame)
 
     def get(self, id, subset=None):
         assert subset == self._subset, '%s != %s' % (subset, self._subset)
