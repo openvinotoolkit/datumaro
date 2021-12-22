@@ -92,7 +92,7 @@ class MpiiExtractor(SourceExtractor):
             for i, ann in enumerate(json.load(f)):
                 item_id = osp.splitext(ann.get('img_paths', ''))[0]
 
-                center = ann.get('objpos')
+                center = ann.get('objpos', [])
                 scale = float(ann.get('scale_provided', 0))
 
                 if np.size(gt_pose):
@@ -104,7 +104,7 @@ class MpiiExtractor(SourceExtractor):
                     else:
                         vis = np.ones(len(points) // 2, dtype=np.int8)
                 else:
-                    keypoints = np.array(ann.get('joint_self'))
+                    keypoints = np.array(ann.get('joint_self', []))
                     keypoints = keypoints.reshape(keypoints.shape[0] * keypoints.shape[1])
                     points = [p for i, p in enumerate(keypoints) if i % 3 != 2]
 
@@ -126,7 +126,7 @@ class MpiiExtractor(SourceExtractor):
 
 
                 items[item_id] = DatasetItem(id=item_id, subset=self._subset,
-                    image=Image(path=osp.join(root_dir, ann.get('img_paths'))),
+                    image=Image(path=osp.join(root_dir, ann.get('img_paths', ''))),
                     annotations=annotations)
 
         return items

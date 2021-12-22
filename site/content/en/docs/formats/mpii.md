@@ -21,8 +21,9 @@ Supported attributes:
 
 ## Import MPII Human Pose Dataset
 
-Datumaro does not support `MATLAB` annotation files. Instead,
-`JSON` and `NUMPY` files are supported.
+The original MPII Human Pose Dataset has `MATLAB` annotation files.
+Datumaro does not support these files. Instead, `JSON` and `NUMPY`
+files are supported.
 
 A Datumaro project with a MPII Human Pose Dataset source can be
 created in the following way:
