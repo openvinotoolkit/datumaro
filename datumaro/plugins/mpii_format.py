@@ -96,8 +96,7 @@ class MpiiExtractor(SourceExtractor):
                 scale = float(ann.get('scale_provided', 0))
 
                 if np.size(gt_pose):
-                    points = gt_pose[i]
-                    points = points.reshape(points.shape[0] * points.shape[1])
+                    points = gt_pose[i].ravel()
 
                     if np.size(visibility):
                         vis = visibility[i]
@@ -105,10 +104,9 @@ class MpiiExtractor(SourceExtractor):
                         vis = np.ones(len(points) // 2, dtype=np.int8)
                 else:
                     keypoints = np.array(ann.get('joint_self', []))
-                    keypoints = keypoints.reshape(keypoints.shape[0] * keypoints.shape[1])
-                    points = [p for i, p in enumerate(keypoints) if i % 3 != 2]
+                    points = keypoints[:, 0:2].ravel()
 
-                    vis = keypoints[2::3]
+                    vis = keypoints[:, 2]
                     if np.size(visibility):
                         vis = visibility[i]
 
