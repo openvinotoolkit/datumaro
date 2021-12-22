@@ -784,7 +784,7 @@ class LineMatcher(_ShapeMatcher):
                 return np.reshape(line, (-1, 2))
             else:
                 return approximate_line(line, segments=segments)
-        segments = max(max(len(a.points) // 2, len(b.points) // 2), 5) - 1
+        segments = max(len(a.points) // 2, len(b.points) // 2, 5) - 1
 
         a = _approx(a.points, segments)
         b = _approx(b.points, segments)
