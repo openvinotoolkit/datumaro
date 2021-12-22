@@ -7,7 +7,9 @@ import os.path as osp
 
 import numpy as np
 
-from datumaro.components.annotation import Bbox, Points, PointsCategories
+from datumaro.components.annotation import (
+    Bbox, LabelCategories, Points, PointsCategories,
+)
 from datumaro.components.extractor import (
     AnnotationType, DatasetItem, Importer, SourceExtractor,
 )
@@ -21,24 +23,12 @@ class MpiiPath:
     VISIBILITY_FILE = 'jnt_visible.npy'
     POS_GT_FILE = 'mpii_pos_gt.npy'
 
-MpiiPointsCategories = [
-    (0, ['r_ankle']),
-    (1, ['r_knee']),
-    (2, ['r_hip']),
-    (3, ['l_hip']),
-    (4, ['l_knee']),
-    (5, ['l_ankle']),
-    (6, ['pelvis']),
-    (7, ['thorax']),
-    (8, ['upper_neck']),
-    (9, ['head top']),
-    (10, ['r_wrist']),
-    (11, ['r_elbow']),
-    (12, ['r_shoulder']),
-    (13, ['l_shoulder']),
-    (14, ['l_elbow']),
-    (15, ['l_wrist'])
-]
+MPII_POINTS_LABELS = ['r_ankle', 'r_knee', 'r_hip', 'l_hip', 'l_knee', 'l_ankle',
+            'pelvis', 'thorax', 'upper_neck', 'head top', 'r_wrist',
+            'r_elbow', 'r_shoulder', 'l_shoulder', 'l_elbow', 'l_wrist'],
+MPI_POINTS_JOINTS = [(0, 1), (1, 2), (2, 6), (3, 4), (3, 6), (4, 5), (6, 7), (7, 8),
+            (8, 9), (8, 12), (8, 13), (10, 11), (11, 12), (13, 14), (14, 15)]
+
 
 class MpiiExtractor(SourceExtractor):
     def __init__(self, path):
@@ -47,8 +37,11 @@ class MpiiExtractor(SourceExtractor):
 
         super().__init__()
 
-        self._categories = { AnnotationType.points:
-            PointsCategories.from_iterable(MpiiPointsCategories) }
+        self._categories = {
+            AnnotationType.label: LabelCategories.from_iterable(['human']),
+            AnnotationType.points: PointsCategories.from_iterable(
+                [(0, MPII_POINTS_LABELS, MPI_POINTS_JOINTS)])
+        }
 
         self._items = list(self._load_items(path).values())
 

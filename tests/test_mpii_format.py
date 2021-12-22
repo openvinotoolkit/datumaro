@@ -3,11 +3,15 @@ import os.path as osp
 
 import numpy as np
 
-from datumaro.components.annotation import Bbox, Points, PointsCategories
+from datumaro.components.annotation import (
+    Bbox, LabelCategories, Points, PointsCategories,
+)
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
 from datumaro.components.extractor import AnnotationType, DatasetItem
-from datumaro.plugins.mpii_format import MpiiImporter, MpiiPointsCategories
+from datumaro.plugins.mpii_format import (
+    MPI_POINTS_JOINTS, MPII_POINTS_LABELS, MpiiImporter,
+)
 from datumaro.util.test_utils import compare_datasets
 
 from .requirements import Requirements, mark_requirement
@@ -61,7 +65,9 @@ class MpiiImporterTest(TestCase):
                 ]
             )
         ], categories={
-            AnnotationType.points: PointsCategories.from_iterable(MpiiPointsCategories)
+            AnnotationType.label: LabelCategories.from_iterable(['human']),
+            AnnotationType.points: PointsCategories.from_iterable(
+                [(0, MPII_POINTS_LABELS, MPI_POINTS_JOINTS)])
         })
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR_WITH_NUMPY_FILES, 'mpii')
@@ -105,7 +111,9 @@ class MpiiImporterTest(TestCase):
                 ]
             )
         ], categories={
-            AnnotationType.points: PointsCategories.from_iterable(MpiiPointsCategories)
+            AnnotationType.label: LabelCategories.from_iterable(['human']),
+            AnnotationType.points: PointsCategories.from_iterable(
+                [(0, MPII_POINTS_LABELS, MPI_POINTS_JOINTS)])
         })
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR_WO_NUMPY_FILES, 'mpii')
