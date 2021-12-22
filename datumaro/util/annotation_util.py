@@ -3,7 +3,9 @@
 # SPDX-License-Identifier: MIT
 
 from itertools import groupby
-from typing import Callable, Dict, Optional, Tuple, Union
+from typing import (
+    Callable, Dict, Iterable, NewType, Optional, Sequence, Tuple, Union,
+)
 
 from typing_extensions import Literal
 import numpy as np
@@ -38,13 +40,28 @@ def find_instances(instance_anns):
 def find_group_leader(group):
     return max(group, key=lambda x: x.get_area())
 
-def _get_bbox(ann):
+BboxCoords = Tuple[float, float, float, float]
+Shape = NewType('Shape', _Shape)
+SpatialAnnotation = Union[Shape, Mask]
+
+def _get_bbox(ann: Union[Sequence, SpatialAnnotation]) -> BboxCoords:
     if isinstance(ann, (_Shape, Mask)):
         return ann.get_bbox()
-    else:
+    elif hasattr(ann, '__len__') and len(ann) == 4:
         return ann
+    else:
+        raise ValueError("The value of type '%s' can't be treated as a "
+            "bounding box" % type(ann))
 
-def max_bbox(annotations):
+def max_bbox(annotations: Iterable[Union[BboxCoords, SpatialAnnotation]]) \
+        -> BboxCoords:
+    """
+    Computes the maximum bbox for the set of spatial annotations and boxes.
+
+    Returns:
+      bbox (tuple): (x, y, w, h)
+    """
+
     boxes = [_get_bbox(ann) for ann in annotations]
     x0 = min((b[0] for b in boxes), default=0)
     y0 = min((b[1] for b in boxes), default=0)
@@ -52,7 +69,15 @@ def max_bbox(annotations):
     y1 = max((b[1] + b[3] for b in boxes), default=0)
     return [x0, y0, x1 - x0, y1 - y0]
 
-def mean_bbox(annotations):
+def mean_bbox(annotations: Iterable[Union[BboxCoords, SpatialAnnotation]]) \
+        -> BboxCoords:
+    """
+    Computes the mean bbox for the set of spatial annotations and boxes.
+
+    Returns:
+      bbox (tuple): (x, y, w, h)
+    """
+
     le = len(annotations)
     boxes = [_get_bbox(ann) for ann in annotations]
     mlb = sum(b[0] for b in boxes) / le
@@ -188,7 +213,7 @@ def OKS(a, b, sigma=None, bbox=None, scale=None):
     dists = np.linalg.norm(p1 - p2, axis=1)
     return np.sum(np.exp(-(dists ** 2) / (2 * scale * (2 * sigma) ** 2)))
 
-def approximate_line(points: np.ndarray, segments: int) -> np.ndarray:
+def approximate_line(points: Sequence[float], segments: int) -> np.ndarray:
     """
     Approximates a 2d line to the required number of segments. Points are
     distributed uniformly across the resulting line.
