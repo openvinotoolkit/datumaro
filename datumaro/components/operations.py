@@ -772,9 +772,8 @@ class LineMatcher(_ShapeMatcher):
         # Normalize by common bbox and get the bbox fill ratio
         # Call this ratio the "distance"
 
-        a_bbox = a.get_bbox()
-        b_bbox = b.get_bbox()
-        bbox = max_bbox([a_bbox, b_bbox])
+        # The box area is an early-exit filter for non-intersected figures
+        bbox = max_bbox([a, b])
         box_area = bbox[2] * bbox[3]
         if not box_area:
             return 1
@@ -792,7 +791,22 @@ class LineMatcher(_ShapeMatcher):
         dists = dists[:-1] + dists[1:]
         a_steps = np.linalg.norm(a[1:] - a[:-1], axis=1)
         b_steps = np.linalg.norm(b[1:] - b[:-1], axis=1)
-        area = np.dot(dists, a_steps + b_steps) * 0.5 * 0.5 / box_area
+
+        # For the common bbox we can't use
+        # - the AABB (axis-alinged bbox) of a point set
+        # - the exterior of a point set
+        # - the convex hull of a point set
+        # because these soultions won't be correctly normalized.
+        # The lines can have multiple self-intersections, which can give
+        # the inter-line area more than internal area of the options above,
+        # producing the value of the distance outside of the [0; 1] range.
+        #
+        # Instead, we can compute the upper boundary for the inter-line
+        # area based on the maximum point distance and line length.
+        max_area = np.max(dists) * max(np.sum(a_steps), np.sum(b_steps))
+
+        area = np.dot(dists, a_steps + b_steps) * 0.5 * 0.5 / max_area
+
         return abs(1 - area)
 
 @attrs
