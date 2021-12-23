@@ -64,7 +64,7 @@ Pascal VOC dataset directory should have the following structure:
 ```
 └─ Dataset/
    ├── dataset_meta.json # a list of non-Pascal labels (optional)
-   ├── label_map.txt # or a list of non-Pascal labels in other format (optional)
+   ├── labelmap.txt # or a list of non-Pascal labels in other format (optional)
    │
    ├── Annotations/
    │     ├── ann1.xml # Pascal VOC format annotation file
@@ -109,11 +109,11 @@ the subset name is the same as the `.txt` file name. Subset names can be
 arbitrary.
 
 To add custom classes, you can use [`dataset_meta.json`](/docs/user_manual/supported_formats/#dataset-meta-file)
-and `label_map.txt`.
+and `labelmap.txt`.
 If the `dataset_meta.json` is not represented in the dataset, then
-`label_map.txt` will be imported if possible.
+`labelmap.txt` will be imported if possible.
 
-In `label_map.txt` you can define custom color map and non-pascal labels,
+In `labelmap.txt` you can define custom color map and non-pascal labels,
 for example:
 
 ```

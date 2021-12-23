@@ -28,6 +28,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/581>)
 - Command to download public datasets
   (<https://github.com/openvinotoolkit/datumaro/pull/582>)
+- Extension autodetection in `ByteImage`
+  (<https://github.com/openvinotoolkit/datumaro/pull/595>)
 
 ### Changed
 - The following formats can now be detected unambiguously:
@@ -44,6 +46,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/563>)
 - Allowed export options in the `datum merge` command
   (<https://github.com/openvinotoolkit/datumaro/pull/545>)
+- `smooth_line` from `datumaro.util.annotation_util` - the function
+  is renamed to `approximate_line` and has updated interface
+  (<https://github.com/openvinotoolkit/datumaro/pull/592>)
 
 ### Deprecated
 - Using `Image`, `ByteImage` from `datumaro.util.image` - these classes
@@ -58,6 +63,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Bug #560: import issue with MOT dataset when using seqinfo.ini file
   (<https://github.com/openvinotoolkit/datumaro/pull/564>)
+- Empty lines in VOC subset lists are not ignored
+  (<https://github.com/openvinotoolkit/datumaro/pull/587>)
+- Fails in multimerge when lines are not approximated and when there are no
+  label categories (<https://github.com/openvinotoolkit/datumaro/pull/592>)
 
 ### Security
 - TBD
