@@ -22,6 +22,7 @@ weight: 3
 - [Command reference](./command-reference)
   - [Convert](./command-reference/convert)
   - [Create](./command-reference/create)
+  - [Download](./command-reference/download)
   - [Import](./command-reference/sources/#source-import)
   - [Export](./command-reference/export)
   - [Add](./command-reference/sources/#source-add)
