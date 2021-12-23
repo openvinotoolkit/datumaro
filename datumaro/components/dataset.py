@@ -467,6 +467,7 @@ class DatasetStorage(IDataset):
     def __len__(self) -> int:
         if self._length is None:
             if self._is_unchanged_wrapper and \
+                    isinstance(self._source, Extractor) and \
                     is_method_redefined('__len__', Extractor, self._source):
                 # Allow to use optimized versions of __len__() if the source
                 # has them. The default implementation just iterates over
