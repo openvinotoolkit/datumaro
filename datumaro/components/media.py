@@ -6,6 +6,7 @@ from typing import Callable, Iterable, Iterator, Optional, Tuple, Union
 import os
 import os.path as osp
 import shutil
+import weakref
 
 import cv2
 import numpy as np
@@ -304,6 +305,9 @@ class Video(MediaElement, Iterable[VideoFrame]):
         self._frame_count = None
         self._length = None
 
+        from .media_manager import MediaManager
+        MediaManager.get_instance().push(weakref.ref(self), self)
+
     def close(self):
         self._iterator = None
 
@@ -429,3 +433,7 @@ class Video(MediaElement, Iterable[VideoFrame]):
             self._start_frame == other._start_frame and \
             self._step == other._step and \
             self._end_frame == other._end_frame
+
+    def __hash__(self):
+        # Required for caching
+        return hash((self._path, self._step, self._start_frame, self._end_frame))
