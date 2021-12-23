@@ -95,11 +95,13 @@ def download_command(args):
     else:
         raise CliException(f"Unknown dataset ID '{args.dataset_id}'")
 
+    output_format = args.output_format or default_converter_name
+
     try:
-        converter = env.converters[args.output_format or default_converter_name]
+        converter = env.converters[output_format]
     except KeyError:
         raise CliException("Converter for format '%s' is not found" %
-            args.output_format)
+            output_format)
     extra_args = converter.parse_cmdline(args.extra_args)
 
     dst_dir = args.dst_dir
@@ -110,7 +112,7 @@ def download_command(args):
     else:
         dst_dir = generate_next_file_name('%s-%s' % (
             make_file_name(args.dataset_id),
-            make_file_name(args.output_format),
+            make_file_name(output_format),
         ))
     dst_dir = osp.abspath(dst_dir)
 
@@ -121,5 +123,4 @@ def download_command(args):
     converter.convert(extractor, dst_dir,
         default_image_ext='.png', **extra_args)
 
-    log.info("Dataset exported to '%s' as '%s'" % \
-        (dst_dir, args.output_format))
+    log.info("Dataset exported to '%s' as '%s'" % (dst_dir, output_format))
