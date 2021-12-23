@@ -1,14 +1,14 @@
+from unittest import TestCase
 import os.path as osp
 
 import cv2
 import numpy as np
 import pytest
 
-from unittest import TestCase
-
 from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import DatasetItem
 from datumaro.components.media import Video
+from datumaro.components.media_manager import MediaManager
 from datumaro.util.scope import on_exit_do, scoped
 from datumaro.util.test_utils import TestDir, compare_datasets
 
@@ -138,41 +138,6 @@ class VideoExtractorTest:
 
         actual = Dataset.import_from(fxt_sample_video, 'video_frames',
             subset='train', name_pattern='frame_%03d')
-        # on_exit_do(MediaManager.release())
+        on_exit_do(MediaManager.get_instance().clear)
 
         compare_datasets(TestCase(), expected, actual)
-
-
-# We need to release the opened resources somehow to release file handles and
-# close the program normally.
-#
-# Options:
-#
-# A. Require converter to open all the media resources.
-# - Dataset (IExtractor) just provides media access metainfo
-# - Dataset (IExtractor) must provide the list of all media resources
-# - Each resource has to provide means for loading and releasing
-# - All converters require changes and special handling for different media
-# sources.
-# - Resource management is explicit
-# - Resources are managed safely and effectively
-#
-# Problems:
-# - Too much burden on plugins. Media reporting and resource management takes
-# too much efforts in this solution. Extractors and Converters all need to
-# bother with this.
-#
-#
-# B. Introduce Media Resource Manager, which contains all the opened
-# media resources.
-# - No code modifications in converters
-# - All (or specific) resources are released by request
-# - The system can manage the number or opened resources to control memory load
-# (maybe, just extend Image Cache?)
-# - Resource management is implicit for the user
-#
-# Problems:
-# - The moment we need to release resources is debatable and needs
-# investigation for each operation (however, it's just about the caching,
-# so it's unlikely to make the system unstable)
-#
