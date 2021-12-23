@@ -64,7 +64,7 @@ class VideoFramesExtractor(Extractor):
         self._name_pattern = name_pattern
         self._reader = Video(url, step=step,
             start_frame=start_frame, end_frame=end_frame)
-        self._length = self._reader.frame_count
+        self._length = self._reader.length
 
     def __iter__(self):
         for frame in self._reader:
