@@ -27,9 +27,9 @@ SPDX-License-Identifier: MIT
 }
 
 .rst-versions .rst-current-version {
-  background-color: #30638e !important;
+  background-color: #30638e;
 }
 
 .rst-versions {
-  background: #21425e !important;
+  background: #21425e;
 }
