@@ -34,7 +34,7 @@ class MpiiJsonImporterTest(TestCase):
                             185.0, 693.0, 240.0, 688.0, 313.0],
                         [1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
                         attributes={'center': [594.000,257.000], 'scale': 3.021},
-                        group=1),
+                        label=0, group=1),
                     Bbox(615, 218.65, 288.4, 286.95, group=1)
                 ]
             ),
@@ -47,7 +47,7 @@ class MpiiJsonImporterTest(TestCase):
                             215.0, 723.0, 270.0, 718.0, 343.0],
                         [1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
                         attributes={'center': [624.000,287.000], 'scale': 3.7},
-                        group=1),
+                        label=0, group=1),
                     Bbox(101.1, 33.3, 113.9, 81.4, group=1)
                 ]
             ),
@@ -60,7 +60,7 @@ class MpiiJsonImporterTest(TestCase):
                             155.0, 663.0, 210.0, 658.0, 283.0],
                         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1],
                         attributes={'center': [564.000,227.000], 'scale': 3.2},
-                        group=1),
+                        label=0, group=1),
                     Bbox(313.3, 512.43, 220.7, 121.57, group=1)
                 ]
             )
@@ -85,7 +85,8 @@ class MpiiJsonImporterTest(TestCase):
                             606.0, 217.0, 553.0, 161.0, 601.0, 167.0, 692.0,
                             185.0, 693.0, 240.0, 688.0, 313.0],
                         [1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                        attributes={'center': [594.000,257.000], 'scale': 3.021})
+                        attributes={'center': [594.000,257.000], 'scale': 3.021},
+                        label=0)
                 ]
             ),
             DatasetItem(id='000000002', image=np.ones((5, 5, 3)),
@@ -96,7 +97,8 @@ class MpiiJsonImporterTest(TestCase):
                             636.0, 247.0, 583.0, 191.0, 631.0, 197.0, 722.0,
                             215.0, 723.0, 270.0, 718.0, 343.0],
                         [1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                        attributes={'center': [624.000,287.000], 'scale': 3.7})
+                        attributes={'center': [624.000,287.000], 'scale': 3.7},
+                        label=0)
                 ]
             ),
             DatasetItem(id='000000003', image=np.ones((5, 5, 3)),
@@ -107,7 +109,8 @@ class MpiiJsonImporterTest(TestCase):
                             576.0, 187.0, 532.0, 131.0, 571.0, 137.0, 662.0,
                             155.0, 663.0, 210.0, 658.0, 283.0],
                         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1],
-                        attributes={'center': [564.000,227.000], 'scale': 3.2})
+                        attributes={'center': [564.000,227.000], 'scale': 3.2},
+                        label=0)
                 ]
             )
         ], categories={

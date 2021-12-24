@@ -112,15 +112,15 @@ class MpiiJsonExtractor(SourceExtractor):
 
                 vis = [int(val) for val in vis]
 
-                annotations = [Points(points, vis, attributes={'center': center,
-                    'scale': scale})]
+                annotations = [Points(points, vis, label=0,
+                    attributes={'center': center, 'scale': scale})]
 
                 if np.size(headboxes):
                     bbox = headboxes[:, :, i]
                     annotations[0].group = 1
                     annotations.append(Bbox(bbox[0][0], bbox[0][1],
                         bbox[1][0] - bbox[0][0], bbox[1][1] - bbox[0][1],
-                        group=1))
+                        label=0, group=1))
 
 
                 items[item_id] = DatasetItem(id=item_id, subset=self._subset,
