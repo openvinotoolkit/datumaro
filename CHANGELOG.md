@@ -6,10 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
-## \[Unreleased\]
+## 24/12/2021 - Release v0.2.2
 ### Added
 - Video reading API
   (<https://github.com/openvinotoolkit/datumaro/pull/521>)
+- Python API documentation
+  (<https://github.com/openvinotoolkit/datumaro/pull/526>)
 - Mapillary Vistas dataset format (Import-only)
   (<https://github.com/openvinotoolkit/datumaro/pull/537>)
 - Datumaro can now be installed on Windows on Python 3.9
