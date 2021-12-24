@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 from glob import iglob
-from typing import Any, Callable, Dict, Iterable, List, Optional
+from typing import Any, Callable, Dict, Iterator, List, Optional
 import os
 import os.path as osp
 
@@ -19,9 +19,9 @@ from datumaro.components.errors import DatasetNotFoundError
 from datumaro.components.format_detection import (
     FormatDetectionConfidence, FormatDetectionContext,
 )
+from datumaro.components.media import Image
 from datumaro.util import is_method_redefined
 from datumaro.util.attrs_util import default_if_none, not_empty
-from datumaro.util.image import Image
 
 # Re-export some names from .annotation for backwards compatibility.
 import datumaro.components.annotation # isort:skip
@@ -92,7 +92,7 @@ class DatasetItem:
 CategoriesInfo = Dict[AnnotationType, Categories]
 
 class IExtractor:
-    def __iter__(self) -> Iterable[DatasetItem]:
+    def __iter__(self) -> Iterator[DatasetItem]:
         raise NotImplementedError()
 
     def __len__(self) -> int:
@@ -257,15 +257,15 @@ class Importer(CliPlugin):
         Supposed to be used, and to be the only call in subclasses.
 
         Parameters:
-        - path - a directory or file path, where sources need to be found.
-        - ext - file extension to match. To match directories,
-            set this parameter to None or ''. Comparison is case-independent,
-            a starting dot is not required.
-        - extractor_name - the name of the associated Extractor type
-        - filename - a glob pattern for file names
-        - dirname - a glob pattern for filename prefixes
-        - file_filter - a callable (abspath: str) -> bool, to filter paths found
-        - max_depth - the maximum depth for recursive search.
+            path: a directory or file path, where sources need to be found.
+            ext: file extension to match. To match directories,
+                set this parameter to None or ''. Comparison is case-independent,
+                a starting dot is not required.
+            extractor_name: the name of the associated Extractor type
+            filename: a glob pattern for file names
+            dirname: a glob pattern for filename prefixes
+            file_filter: a callable (abspath: str) -> bool, to filter paths found
+            max_depth: the maximum depth for recursive search.
 
         Returns: a list of source configurations
             (i.e. Extractor type names and c-tor parameters)

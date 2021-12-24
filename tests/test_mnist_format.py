@@ -9,8 +9,8 @@ from datumaro.components.annotation import (
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
+from datumaro.components.media import Image
 from datumaro.plugins.mnist_format import MnistConverter, MnistImporter
-from datumaro.util.image import Image
 from datumaro.util.test_utils import TestDir, compare_datasets
 
 from .requirements import Requirements, mark_requirement
@@ -157,6 +157,34 @@ class MnistFormatTest(TestCase):
             parsed_dataset = Dataset.import_from(test_dir, 'mnist')
 
             compare_datasets(self, dataset, parsed_dataset,
+                require_images=True)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_save_and_load_with_meta_file(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id=0, subset='test',
+                image=np.ones((28, 28)),
+                annotations=[Label(0)]
+            ),
+            DatasetItem(id=1, subset='test',
+                image=np.ones((28, 28))
+            ),
+            DatasetItem(id=2, subset='test',
+                image=np.ones((28, 28)),
+                annotations=[Label(1)]
+            )
+        ], categories={
+            AnnotationType.label: LabelCategories.from_iterable(
+                str(label) for label in range(10)),
+        })
+
+        with TestDir() as test_dir:
+            MnistConverter.convert(source_dataset, test_dir, save_images=True,
+                save_dataset_meta=True)
+            parsed_dataset = Dataset.import_from(test_dir, 'mnist')
+
+            self.assertTrue(osp.isfile(osp.join(test_dir, 'dataset_meta.json')))
+            compare_datasets(self, source_dataset, parsed_dataset,
                 require_images=True)
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'mnist_dataset')

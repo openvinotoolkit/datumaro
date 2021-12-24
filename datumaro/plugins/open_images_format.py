@@ -28,12 +28,15 @@ from datumaro.components.errors import (
     DatasetError, RepeatedItemError, UndefinedLabel,
 )
 from datumaro.components.extractor import DatasetItem, Extractor, Importer
+from datumaro.components.format_detection import FormatDetectionContext
+from datumaro.components.media import Image
 from datumaro.components.validator import Severity
 from datumaro.util.annotation_util import find_instances
 from datumaro.util.image import (
-    DEFAULT_IMAGE_META_FILE_NAME, Image, find_images, lazy_image, load_image,
+    DEFAULT_IMAGE_META_FILE_NAME, find_images, lazy_image, load_image,
     load_image_meta_file, save_image, save_image_meta_file,
 )
+from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 from datumaro.util.os_util import make_file_name, split_path
 
 # A regex to check whether a string can be used as a "normal" path
@@ -180,7 +183,11 @@ class OpenImagesExtractor(Extractor):
             except FileNotFoundError:
                 self._image_meta = {}
 
-        self._load_categories()
+        if has_meta_file(path):
+            self._categories = { AnnotationType.label: LabelCategories.
+                from_iterable(parse_meta_file(path).keys()) }
+        else:
+            self._load_categories()
         self._load_items()
 
     def __iter__(self):
@@ -551,15 +558,25 @@ class OpenImagesExtractor(Extractor):
         return resized.astype(bool)
 
 class OpenImagesImporter(Importer):
+    POSSIBLE_ANNOTATION_PATTERNS = (
+        OpenImagesPath.FULL_IMAGE_DESCRIPTION_FILE_NAME,
+        *OpenImagesPath.SUBSET_IMAGE_DESCRIPTION_FILE_PATTERNS,
+        '*' + OpenImagesPath.LABEL_DESCRIPTION_FILE_SUFFIX,
+        '*' + OpenImagesPath.BBOX_DESCRIPTION_FILE_SUFFIX,
+        '*' + OpenImagesPath.MASK_DESCRIPTION_FILE_SUFFIX,
+    )
+
+    @classmethod
+    def detect(cls, context: FormatDetectionContext) -> None:
+        with context.require_any():
+            for pattern in cls.POSSIBLE_ANNOTATION_PATTERNS:
+                with context.alternative():
+                    context.require_file(
+                        f'{OpenImagesPath.ANNOTATIONS_DIR}/{pattern}')
+
     @classmethod
     def find_sources(cls, path):
-        for pattern in [
-            OpenImagesPath.FULL_IMAGE_DESCRIPTION_FILE_NAME,
-            *OpenImagesPath.SUBSET_IMAGE_DESCRIPTION_FILE_PATTERNS,
-            '*' + OpenImagesPath.LABEL_DESCRIPTION_FILE_SUFFIX,
-            '*' + OpenImagesPath.BBOX_DESCRIPTION_FILE_SUFFIX,
-            '*' + OpenImagesPath.MASK_DESCRIPTION_FILE_SUFFIX,
-        ]:
+        for pattern in cls.POSSIBLE_ANNOTATION_PATTERNS:
             if glob.glob(osp.join(glob.escape(path),
                     OpenImagesPath.ANNOTATIONS_DIR, pattern)):
                 return [{'url': path, 'format': OpenImagesExtractor.NAME}]
@@ -685,6 +702,9 @@ class OpenImagesConverter(Converter):
         self._save_subsets(annotation_writer)
 
     def _save_categories(self, annotation_writer):
+        if self._save_dataset_meta:
+            self._save_meta_file(self._save_dir)
+
         with annotation_writer.open_csv(
             OpenImagesPath.V5_CLASS_DESCRIPTION_FILE_NAME, ['LabelName', 'DisplayName'],
             # no header, since we're saving it in the V5 format

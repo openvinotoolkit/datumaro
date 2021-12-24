@@ -10,9 +10,9 @@ from datumaro.components.annotation import (
     Points, PointsCategories, Polygon, PolyLine,
 )
 from datumaro.components.extractor import DatasetItem
+from datumaro.components.media import Image
 from datumaro.components.operations import DistanceComparator
 from datumaro.components.project import Dataset
-from datumaro.util.image import Image
 from datumaro.util.test_utils import TestDir
 from datumaro.util.test_utils import run_datum as run
 

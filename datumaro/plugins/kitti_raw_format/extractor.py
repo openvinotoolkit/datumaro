@@ -11,8 +11,10 @@ from datumaro.components.annotation import (
     AnnotationType, Cuboid3d, LabelCategories,
 )
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
+from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.util import cast
 from datumaro.util.image import find_images
+from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
 from .format import KittiRawPath, OcclusionStates, TruncationStates
 
@@ -135,11 +137,16 @@ class KittiRawExtractor(SourceExtractor):
 
         special_attrs = KittiRawPath.SPECIAL_ATTRS
         common_attrs = ['occluded']
-        label_cat = LabelCategories(attributes=common_attrs)
-        for label, attrs in sorted(labels.items(), key=lambda e: e[0]):
-            label_cat.add(label, attributes=set(attrs) - special_attrs)
 
-        categories = {AnnotationType.label: label_cat}
+        if has_meta_file(path):
+            categories =  { AnnotationType.label: LabelCategories.
+                from_iterable(parse_meta_file(path).keys()) }
+        else:
+            label_cat = LabelCategories(attributes=common_attrs)
+            for label, attrs in sorted(labels.items(), key=lambda e: e[0]):
+                label_cat.add(label, attributes=set(attrs) - special_attrs)
+
+            categories = {AnnotationType.label: label_cat}
 
         items = {}
         for idx, track in enumerate(tracks):
@@ -258,6 +265,23 @@ class KittiRawExtractor(SourceExtractor):
 
 
 class KittiRawImporter(Importer):
+    @classmethod
+    def detect(cls, context: FormatDetectionContext) -> None:
+        annot_file = context.require_file('*.xml')
+
+        with context.probe_text_file(
+            annot_file, "must be a KITTI-like annotation file",
+        ) as f:
+            parser = ET.iterparse(f, events=('start',))
+
+            _, elem = next(parser)
+            if elem.tag != 'boost_serialization':
+                raise Exception
+
+            _, elem = next(parser)
+            if elem.tag != 'tracklets':
+                raise Exception
+
     @classmethod
     def find_sources(cls, path):
         return cls._find_sources_recursive(path, '.xml', 'kitti_raw')

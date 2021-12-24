@@ -10,9 +10,12 @@ from datumaro.components.annotation import AnnotationType, Bbox, LabelCategories
 from datumaro.components.extractor import (
     DatasetItem, Extractor, Importer, SourceExtractor,
 )
+from datumaro.components.format_detection import FormatDetectionContext
+from datumaro.components.media import Image
 from datumaro.util.image import (
-    DEFAULT_IMAGE_META_FILE_NAME, Image, load_image_meta_file,
+    DEFAULT_IMAGE_META_FILE_NAME, load_image_meta_file,
 )
+from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 from datumaro.util.os_util import split_path
 
 from .format import YoloPath
@@ -169,6 +172,10 @@ class YoloExtractor(SourceExtractor):
 
     @staticmethod
     def _load_categories(names_path):
+        if has_meta_file(osp.dirname(names_path)):
+            return LabelCategories.from_iterable(
+                parse_meta_file(osp.dirname(names_path)).keys())
+
         label_categories = LabelCategories()
 
         with open(names_path, 'r', encoding='utf-8') as f:
@@ -191,6 +198,10 @@ class YoloExtractor(SourceExtractor):
         return self._subsets[name]
 
 class YoloImporter(Importer):
+    @classmethod
+    def detect(cls, context: FormatDetectionContext) -> None:
+        context.require_file('obj.data')
+
     @classmethod
     def find_sources(cls, path):
         return cls._find_sources_recursive(path, '.data', 'yolo')

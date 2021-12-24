@@ -63,7 +63,8 @@ Pascal VOC dataset directory should have the following structure:
 <!--lint disable fenced-code-flag-->
 ```
 └─ Dataset/
-   ├── label_map.txt # a list of non-Pascal labels (optional)
+   ├── dataset_meta.json # a list of non-Pascal labels (optional)
+   ├── labelmap.txt # or a list of non-Pascal labels in other format (optional)
    │
    ├── Annotations/
    │     ├── ann1.xml # Pascal VOC format annotation file
@@ -107,7 +108,12 @@ These directories contain `.txt` files with a list of images in a subset,
 the subset name is the same as the `.txt` file name. Subset names can be
 arbitrary.
 
-In `label_map.txt` you can define custom color map and non-pascal labels,
+To add custom classes, you can use [`dataset_meta.json`](/docs/user_manual/supported_formats/#dataset-meta-file)
+and `labelmap.txt`.
+If the `dataset_meta.json` is not represented in the dataset, then
+`labelmap.txt` will be imported if possible.
+
+In `labelmap.txt` you can define custom color map and non-pascal labels,
 for example:
 
 ```
@@ -195,6 +201,8 @@ Extra options for exporting to Pascal VOC format:
   (by default `False`)
 - `--image-ext IMAGE_EXT` - allow to specify image extension
   for exporting dataset (by default use original or `.jpg` if none)
+- `--save-dataset-meta` - allow to export dataset with saving dataset meta
+  file (by default `False`)
 - `--apply-colormap APPLY_COLORMAP` - allow to use colormap for class
   and instance masks (by default `True`)
 - `--allow-attributes ALLOW_ATTRIBUTES` - allow export of attributes

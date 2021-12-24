@@ -12,11 +12,14 @@ from datumaro.components.annotation import (
     AnnotationType, Bbox, CompiledMask, Label, Mask,
 )
 from datumaro.components.extractor import DatasetItem, SourceExtractor
-from datumaro.util.image import Image, find_images
+from datumaro.components.media import Image
+from datumaro.util.image import find_images
 from datumaro.util.mask_tools import invert_colormap, lazy_mask
+from datumaro.util.meta_file_util import has_meta_file
 
 from .format import (
     VocInstColormap, VocPath, VocTask, make_voc_categories, parse_label_map,
+    parse_meta_file,
 )
 
 _inverse_inst_colormap = invert_colormap(VocInstColormap)
@@ -47,18 +50,25 @@ class _VocExtractor(SourceExtractor):
         assert label_id is not None, label
         return label_id
 
-    @staticmethod
-    def _load_categories(dataset_path):
+    def _load_categories(self, dataset_path):
         label_map = None
-        label_map_path = osp.join(dataset_path, VocPath.LABELMAP_FILE)
-        if osp.isfile(label_map_path):
-            label_map = parse_label_map(label_map_path)
+        if has_meta_file(dataset_path):
+            label_map = parse_meta_file(dataset_path)
+        else:
+            label_map_path = osp.join(dataset_path, VocPath.LABELMAP_FILE)
+            if osp.isfile(label_map_path):
+                label_map = parse_label_map(label_map_path)
+
         return make_voc_categories(label_map)
 
     def _load_subset_list(self, subset_path):
         subset_list = []
         with open(subset_path, encoding='utf-8') as f:
             for line in f:
+                line = line.strip()
+                if not line or line and line[0] == '#':
+                    continue
+
                 if self._task == VocTask.person_layout:
                     objects = line.split('\"')
                     if 1 < len(objects):
@@ -105,6 +115,10 @@ class VocClassificationExtractor(_VocExtractor):
 
             with open(ann_file, encoding='utf-8') as f:
                 for line in f:
+                    line = line.strip()
+                    if not line or line and line[0] == '#':
+                        continue
+
                     item, present = line.rsplit(maxsplit=1)
                     if present == '1':
                         annotations.setdefault(item, []).append(Label(label_id))

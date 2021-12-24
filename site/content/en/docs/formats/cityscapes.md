@@ -35,6 +35,8 @@ Cityscapes dataset directory should have the following structure:
 <!--lint disable fenced-code-flag-->
 ```
 └─ Dataset/
+    ├── dataset_meta.json # a list of non-Cityscapes labels (optional)
+    ├── label_colors.txt # a list of non-Cityscapes labels in other format (optional)
     ├── imgsFine/
     │   ├── leftImg8bit
     │   │   ├── <split: train,val, ...>
@@ -65,6 +67,19 @@ Annotated files description:
   of a division by 1000 of each ID provides class ID, the remainder
   is the instance ID. If a certain annotation describes multiple instances,
   then the pixels have the regular ID of that class
+
+To add custom classes, you can use [`dataset_meta.json`](/docs/user_manual/supported_formats/#dataset-meta-file)
+and `label_colors.txt`.
+If the `dataset_meta.json` is not represented in the dataset, then
+`label_colors.txt` will be imported if possible.
+
+In `label_colors.txt` you can define custom color map and non-cityscapes labels,
+for example:
+
+```
+# label_colors [color_rgb name]
+0 124 134 elephant
+```
 
 To make sure that the selected dataset has been added to the project, you can
 run `datum project info`, which will display the project information.
@@ -114,6 +129,8 @@ Extra options for exporting to Cityscapes format:
   (by default `False`)
 - `--image-ext IMAGE_EXT` allow to specify image extension
   for exporting dataset (by default - keep original or use `.png`, if none)
+- `--save-dataset-meta` - allow to export dataset with saving dataset meta
+  file (by default `False`)
 - `--label_map` allow to define a custom colormap. Example:
 
 ``` bash

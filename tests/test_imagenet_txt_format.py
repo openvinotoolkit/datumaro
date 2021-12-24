@@ -9,10 +9,10 @@ from datumaro.components.annotation import (
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
+from datumaro.components.media import Image
 from datumaro.plugins.imagenet_txt_format import (
     ImagenetTxtConverter, ImagenetTxtImporter,
 )
-from datumaro.util.image import Image
 from datumaro.util.test_utils import TestDir, compare_datasets
 
 from .requirements import Requirements, mark_requirement
@@ -56,6 +56,26 @@ class ImagenetTxtFormatTest(TestCase):
 
             parsed_dataset = Dataset.import_from(test_dir, 'imagenet_txt')
 
+            compare_datasets(self, source_dataset, parsed_dataset)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_dataset_with_save_dataset_meta_file(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id='1', subset='train',
+                annotations=[Label(0)]
+            ),
+            DatasetItem(id='2', subset='train',
+                annotations=[Label(1)]
+            ),
+        ], categories=['label_0', 'label_1'])
+
+        with TestDir() as test_dir:
+            ImagenetTxtConverter.convert(source_dataset, test_dir,
+                save_images=False, save_dataset_meta=True)
+
+            parsed_dataset = Dataset.import_from(test_dir, 'imagenet_txt')
+
+            self.assertTrue(osp.isfile(osp.join(test_dir, 'dataset_meta.json')))
             compare_datasets(self, source_dataset, parsed_dataset)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -200,4 +220,4 @@ class ImagenetTxtImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_imagenet(self):
         detected_formats = Environment().detect_dataset(DUMMY_DATASET_DIR)
-        self.assertIn(ImagenetTxtImporter.NAME, detected_formats)
+        self.assertEqual([ImagenetTxtImporter.NAME], detected_formats)

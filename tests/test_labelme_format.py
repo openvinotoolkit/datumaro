@@ -9,10 +9,10 @@ from datumaro.components.annotation import Bbox, Mask, Polygon
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
+from datumaro.components.media import Image
 from datumaro.plugins.labelme_format import LabelMeConverter, LabelMeImporter
-from datumaro.util.image import Image
 from datumaro.util.test_utils import (
-    TestDir, compare_datasets, test_save_and_load,
+    TestDir, check_save_and_load, compare_datasets,
 )
 
 from .requirements import Requirements, mark_requirement
@@ -21,7 +21,7 @@ from .requirements import Requirements, mark_requirement
 class LabelMeConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None, **kwargs):
-        return test_save_and_load(self, source_dataset, converter, test_dir,
+        return check_save_and_load(self, source_dataset, converter, test_dir,
             importer='label_me',
             target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
@@ -180,13 +180,42 @@ class LabelMeConverterTest(TestCase):
             self.assertEqual(os.listdir(osp.join(test_dir, 'default')), ['dir'])
             self.assertEqual(set(os.listdir(xml_dirpath)), {'a.xml', 'a.JPEG'})
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_save_and_load_with_meta_file(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id='sub/dir3/1', image=np.ones((3, 4, 3)), annotations=[
+                Mask(np.array([
+                        [0, 1, 1, 0],
+                        [0, 1, 1, 0],
+                        [0, 0, 0, 0],
+                    ]), label=1, attributes={
+                        'occluded': False, 'username': 'user'
+                    }
+                )
+            ]),
+
+            DatasetItem(id='subdir3/1', subset='a', image=np.ones((5, 4, 3)),
+                annotations=[
+                    Bbox(1, 2, 3, 4, label=0, attributes={
+                        'occluded': False, 'username': 'user'
+                    })
+                ])
+        ], categories=['label1', 'label2'])
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(source_dataset,
+                partial(LabelMeConverter.convert, save_images=True,
+                    save_dataset_meta=True),
+                test_dir, require_images=True)
+            self.assertTrue(osp.isfile(osp.join(test_dir, 'dataset_meta.json')))
+
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'labelme_dataset')
 
 class LabelMeImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect(self):
         detected_formats = Environment().detect_dataset(DUMMY_DATASET_DIR)
-        self.assertIn(LabelMeImporter.NAME, detected_formats)
+        self.assertEqual([LabelMeImporter.NAME], detected_formats)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import(self):

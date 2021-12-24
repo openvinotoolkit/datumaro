@@ -15,9 +15,11 @@ from datumaro.components.annotation import (
     AnnotationType, CompiledMask, LabelCategories, Mask, Polygon,
 )
 from datumaro.components.extractor import DatasetItem, Extractor, Importer
+from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.util.image import (
     IMAGE_EXTENSIONS, find_images, lazy_image, load_image,
 )
+from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
 
 class Ade20k2020Path:
@@ -32,7 +34,9 @@ class Ade20k2020Extractor(Extractor):
         if not osp.isdir(path):
             raise FileNotFoundError("Can't read dataset directory '%s'" % path)
 
-        subsets = os.listdir(path)
+        # exclude dataset meta file
+        subsets = [subset for subset in os.listdir(path)
+            if osp.splitext(subset)[-1] != '.json']
         if len(subsets) < 1:
             raise FileNotFoundError("Can't read subsets in directory '%s'" % path)
 
@@ -41,6 +45,10 @@ class Ade20k2020Extractor(Extractor):
 
         self._items = []
         self._categories  = {}
+
+        if has_meta_file(self._path):
+            self._categories =  { AnnotationType.label: LabelCategories.
+                from_iterable(parse_meta_file(self._path).keys()) }
 
         for subset in self._subsets:
             self._load_items(subset)
@@ -175,11 +183,24 @@ class Ade20k2020Extractor(Extractor):
 
 class Ade20k2020Importer(Importer):
     @classmethod
+    def detect(cls, context: FormatDetectionContext) -> None:
+        annot_path = context.require_file('*/**/*.json')
+
+        with context.probe_text_file(
+            annot_path, "must be a JSON object with an \"annotation\" key",
+        ) as f:
+            contents = json.load(f)
+            if not isinstance(contents, dict):
+                raise Exception
+            if 'annotation' not in contents:
+                raise Exception
+
+    @classmethod
     def find_sources(cls, path):
         for i in range(5):
             for i in glob.iglob(osp.join(path, *('*' * i))):
-                    if osp.splitext(i)[1].lower() in IMAGE_EXTENSIONS:
-                        return [{
-                            'url': path, 'format': Ade20k2020Extractor.NAME,
-                        }]
+                if osp.splitext(i)[1].lower() in IMAGE_EXTENSIONS:
+                    return [{
+                        'url': path, 'format': Ade20k2020Extractor.NAME,
+                    }]
         return []

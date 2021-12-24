@@ -17,9 +17,12 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.converter import Converter
 from datumaro.components.extractor import DatasetItem, Extractor, Importer
+from datumaro.components.format_detection import FormatDetectionContext
+from datumaro.components.media import Image
 from datumaro.util import cast, escape, unescape
-from datumaro.util.image import Image, save_image
+from datumaro.util.image import save_image
 from datumaro.util.mask_tools import find_mask_bbox, load_mask
+from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 from datumaro.util.os_util import split_path
 
 
@@ -51,9 +54,15 @@ class LabelMeExtractor(Extractor):
     def _parse(self, dataset_root):
         items = []
         subsets = set()
-        categories = { AnnotationType.label:
-            LabelCategories(attributes={ 'occluded', 'username' })
-        }
+
+        if has_meta_file(dataset_root):
+            categories = { AnnotationType.label:
+                LabelCategories(attributes={ 'occluded', 'username' }).
+                    from_iterable(parse_meta_file(dataset_root).keys()) }
+        else:
+            categories = { AnnotationType.label:
+                LabelCategories(attributes={ 'occluded', 'username' })
+            }
 
         for xml_path in sorted(
                 glob(osp.join(dataset_root, '**', '*.xml'), recursive=True)):
@@ -274,6 +283,34 @@ class LabelMeExtractor(Extractor):
 
 class LabelMeImporter(Importer):
     @classmethod
+    def detect(cls, context: FormatDetectionContext) -> None:
+        annot_file = context.require_file('**/*.xml')
+
+        with context.probe_text_file(
+            annot_file, "must be a LabelMe annotation file",
+        ) as f:
+            elem_parents = []
+
+            for event, elem in ElementTree.iterparse(f, events=('start', 'end')):
+                if event == 'start':
+                    if elem_parents == [] and elem.tag != 'annotation':
+                        raise Exception
+
+                    if elem_parents == ['annotation', 'object'] \
+                            and elem.tag in {'polygon', 'segm'}:
+                        return
+
+                    elem_parents.append(elem.tag)
+                elif event == 'end':
+                    elem_parents.pop()
+
+                    if elem_parents == ['annotation'] and elem.tag == 'object':
+                        # If we got here, then we found an object with no
+                        # polygon and no mask, so it's probably the wrong
+                        # format.
+                        raise Exception
+
+    @classmethod
     def find_sources(cls, path):
         subsets = []
         if not osp.isdir(path):
@@ -293,6 +330,11 @@ class LabelMeConverter(Converter):
     DEFAULT_IMAGE_EXT = LabelMePath.IMAGE_EXT
 
     def apply(self):
+        os.makedirs(self._save_dir, exist_ok=True)
+
+        if self._save_dataset_meta:
+            self._save_meta_file(self._save_dir)
+
         for subset_name, subset in self._extractor.subsets().items():
             subset_dir = osp.join(self._save_dir, subset_name)
             os.makedirs(subset_dir, exist_ok=True)
@@ -347,7 +389,7 @@ class LabelMeConverter(Converter):
             ET.SubElement(obj_elem, 'deleted').text = '0'
             ET.SubElement(obj_elem, 'verified').text = '0'
             ET.SubElement(obj_elem, 'occluded').text = \
-                'yes' if ann.attributes.get('occluded') == True else 'no'
+                'yes' if ann.attributes.get('occluded') is True else 'no'
             ET.SubElement(obj_elem, 'date').text = ''
             ET.SubElement(obj_elem, 'id').text = str(obj_id)
 

@@ -1,10 +1,11 @@
-# Copyright (C) 2019-2020 Intel Corporation
+# Copyright (C) 2019-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 import os.path as osp
 
 from datumaro.components.extractor import Importer
+from datumaro.components.format_detection import FormatDetectionContext
 
 from .format import VocPath, VocTask
 
@@ -17,6 +18,22 @@ class VocImporter(Importer):
         VocTask.person_layout: ('voc_layout', 'Layout'),
         VocTask.action_classification: ('voc_action', 'Action'),
     }
+
+    @classmethod
+    def detect(cls, context: FormatDetectionContext) -> None:
+        # The `voc` format is inherently ambiguous with `voc_classification`,
+        # `voc_detection`, etc. To remove the ambiguity (and thus make it
+        # possible to use autodetection with the VOC datasets), disable
+        # autodetection for the single-task formats.
+        if len(cls._TASKS) == 1:
+            context.fail('this format cannot be autodetected')
+
+        with context.require_any():
+            task_dirs = {task_dir for _, task_dir in cls._TASKS.values()}
+            for task_dir in sorted(task_dirs):
+                with context.alternative():
+                    context.require_file(
+                        osp.join(VocPath.SUBSETS_DIR, task_dir, '*.txt'))
 
     @classmethod
     def find_sources(cls, path):

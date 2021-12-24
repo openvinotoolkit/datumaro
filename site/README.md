@@ -44,6 +44,68 @@ you also need to get local copies of the theme’s own submodules:
 
     git submodule update --init --recursive
 
+#### API documentation
+
+API documentation is generated using `Sphinx` with a theme
+[`Read the Docs`](https://docs.readthedocs.io/en/stable/intro/getting-started-with-sphinx.html).
+The `Read the Docs` theme is added as a submodule.
+Install Sphinx ([learn more](https://www.sphinx-doc.org/en/master/index.html)).
+
+    pip install -U Sphinx
+    pip install sphinx-rtd-theme==1.0.0
+
+Documentation is generated automatically from `rst` files and comments
+contained in the source code, files located in `site/source/api` using
+[`sphinx-autodoc`](https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html).
+Comments in the source code should be in the format [reST](https://www.sphinx-doc.org/en/master/index.html),
+[Google](https://github.com/google/styleguide/blob/gh-pages/pyguide.md#38-comments-and-docstrings) or
+[Numpydoc](https://numpydoc.readthedocs.io/en/latest/format.html#).
+
+    sphinx-build -a -n site/source site/static/api
+
+Sphinx generates documentation in html format in `site/static/api`.
+After generating the documentation API,
+you can [generate a site with documentation](#site-generation).
+
+##### Generation options
+
+If you want to add API documentation for third-party modules,
+use the `intersphinx` extension, for proper operation,
+install the required modules.
+Learn more about [`intersphinx`](https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html).
+
+    cd <your local directory>/datumaro/
+    pip install -r requirements.txt
+
+To describe new modules, you can generate the `rst` files using the
+[`sphinx-apidoc`](https://www.sphinx-doc.org/en/master/man/sphinx-apidoc.html).
+
+    sphinx-apidoc -d 2 -o site/source/api datumaro
+
+##### Working with API documentation
+
+In `rst` files you can used a few directives:
+- `.. automodule::`- for automatic generation of comments on docstring
+    ([another directives](https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html?highlight=private#directives)).
+- `:members:` - mandatory directive for displaying members. The order of
+    members within the directive will correspond to the source code.
+- `:undoc-memebers:` - if this directive is present,
+    participants who do not have comments will also be displayed.
+- `:exclude-members:` - excludes the members listed after the directive.
+- `:private-members:` - private members.
+- `:special-members:` - special members.
+- `:show-inheritance:` - showing inheritance.
+
+After the directive you can specify the members that should be displayed.
+
+If can used `|n` and `|s` in the source code comments they will
+be replaced by `\n` and space accordingly.
+
+Members starting with `_` do not have comments are not displayed,
+except for the list of `include_members_list` located in `conf.py`.
+
+#### Site generation
+
 To build and preview your site locally, use:
 
     cd <your local directory>/datumaro/site/

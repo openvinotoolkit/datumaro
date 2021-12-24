@@ -1,4 +1,4 @@
-# Copyright (C) 2020 Intel Corporation
+# Copyright (C) 2020-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -16,8 +16,11 @@ import os.path as osp
 from datumaro.components.annotation import AnnotationType, Bbox, LabelCategories
 from datumaro.components.converter import Converter
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
+from datumaro.components.format_detection import FormatDetectionContext
+from datumaro.components.media import Image
 from datumaro.util import cast
-from datumaro.util.image import Image, find_images
+from datumaro.util.image import find_images
+from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
 MotLabel = Enum('MotLabel', [
     ('pedestrian', 1),
@@ -85,6 +88,8 @@ class MotSeqExtractor(SourceExtractor):
                 is_gt = True
         self._is_gt = is_gt
 
+        if has_meta_file(seq_root):
+            labels = list(parse_meta_file(seq_root).keys())
         if labels is None:
             labels = osp.join(osp.dirname(path), MotPath.LABELS_FILE)
             if not osp.isfile(labels):
@@ -120,7 +125,7 @@ class MotSeqExtractor(SourceExtractor):
         items = OrderedDict()
 
         if self._seq_info:
-            for frame_id in range(self._seq_info['seqlength']):
+            for frame_id in range(1, self._seq_info['seqlength'] + 1):  # base-1 frame ids
                 items[frame_id] = DatasetItem(
                     id=frame_id,
                     subset=self._subset,
@@ -199,6 +204,10 @@ class MotSeqExtractor(SourceExtractor):
 
 class MotSeqImporter(Importer):
     @classmethod
+    def detect(cls, context: FormatDetectionContext) -> None:
+        context.require_file('gt/gt.txt')
+
+    @classmethod
     def find_sources(cls, path):
         return cls._find_sources_recursive(path, '.txt', 'mot_seq',
             dirname='gt', filename=osp.splitext(MotPath.GT_FILENAME)[0])
@@ -240,7 +249,7 @@ class MotSeqGtConverter(Converter):
                         'y': anno.y,
                         'w': anno.w,
                         'h': anno.h,
-                        'confidence': int(anno.attributes.get('ignored') != True),
+                        'confidence': int(anno.attributes.get('ignored') is not True),
                         'class_id': 1 + cast(anno.label, int, -2),
                         'visibility': float(
                             anno.attributes.get('visibility',
@@ -258,8 +267,11 @@ class MotSeqGtConverter(Converter):
                     else:
                         log.debug("Item '%s' has no image", item.id)
 
-        labels_file = osp.join(anno_dir, MotPath.LABELS_FILE)
-        with open(labels_file, 'w', encoding='utf-8') as f:
-            f.write('\n'.join(l.name
-                for l in extractor.categories()[AnnotationType.label])
-            )
+        if self._save_dataset_meta:
+            self._save_meta_file(self._save_dir)
+        else:
+            labels_file = osp.join(anno_dir, MotPath.LABELS_FILE)
+            with open(labels_file, 'w', encoding='utf-8') as f:
+                f.write('\n'.join(l.name
+                    for l in extractor.categories()[AnnotationType.label])
+                )

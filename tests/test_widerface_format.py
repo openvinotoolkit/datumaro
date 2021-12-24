@@ -8,10 +8,10 @@ from datumaro.components.annotation import Bbox, Label
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
+from datumaro.components.media import Image
 from datumaro.plugins.widerface_format import (
     WiderFaceConverter, WiderFaceImporter,
 )
-from datumaro.util.image import Image
 from datumaro.util.test_utils import IGNORE_ALL, TestDir, compare_datasets
 
 from .requirements import Requirements, mark_requirement
@@ -111,6 +111,27 @@ class WiderFaceFormatTest(TestCase):
             WiderFaceConverter.convert(source_dataset, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'wider_face')
 
+            compare_datasets(self, source_dataset, parsed_dataset)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_dataset_with_save_dataset_meta_file(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id='a/b/1', image=np.ones((8, 8, 3)),
+                subset='train', annotations=[
+                    Bbox(0, 2, 4, 2, label=2),
+                    Bbox(0, 1, 2, 3, label=1, attributes={
+                        'blur': '2', 'expression': '0', 'illumination': '0',
+                        'occluded': '0', 'pose': '2', 'invalid': '0'}),
+                ]
+            ),
+        ], categories=['face', 'label_0', 'label_1'])
+
+        with TestDir() as test_dir:
+            WiderFaceConverter.convert(source_dataset, test_dir, save_images=True,
+                save_dataset_meta=True)
+            parsed_dataset = Dataset.import_from(test_dir, 'wider_face')
+
+            self.assertTrue(osp.isfile(osp.join(test_dir, 'dataset_meta.json')))
             compare_datasets(self, source_dataset, parsed_dataset)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -214,7 +235,7 @@ class WiderFaceImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect(self):
         detected_formats = Environment().detect_dataset(DUMMY_DATASET_DIR)
-        self.assertIn(WiderFaceImporter.NAME, detected_formats)
+        self.assertEqual([WiderFaceImporter.NAME], detected_formats)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import(self):

@@ -11,9 +11,10 @@ from datumaro.components.annotation import (
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
-from datumaro.util.image import ByteImage, Image, encode_image
+from datumaro.components.media import ByteImage, Image
+from datumaro.util.image import encode_image
 from datumaro.util.test_utils import (
-    TestDir, compare_datasets, test_save_and_load,
+    TestDir, check_save_and_load, compare_datasets,
 )
 from datumaro.util.tf_util import check_import
 
@@ -46,7 +47,7 @@ except ImportError:
 class TfrecordConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None, **kwargs):
-        return test_save_and_load(self, source_dataset, converter, test_dir,
+        return check_save_and_load(self, source_dataset, converter, test_dir,
             importer='tf_detection_api',
             target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 

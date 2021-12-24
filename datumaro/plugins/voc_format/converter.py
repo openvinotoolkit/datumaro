@@ -22,10 +22,11 @@ from datumaro.util import find, str_to_bool
 from datumaro.util.annotation_util import make_label_id_mapping
 from datumaro.util.image import save_image
 from datumaro.util.mask_tools import paint_mask, remap_mask
+from datumaro.util.meta_file_util import has_meta_file
 
 from .format import (
     VocInstColormap, VocPath, VocTask, make_voc_categories, make_voc_label_map,
-    parse_label_map, write_label_map,
+    parse_label_map, parse_meta_file, write_label_map, write_meta_file,
 )
 
 
@@ -273,7 +274,7 @@ class VocConverter(Converter):
                             present = 0
                             if action in attr:
                                 present = _convert_attr(action, attr,
-                                    lambda v: int(v == True), 0)
+                                    lambda v: int(v is True), 0)
                                 ET.SubElement(actions_elem, action).text = \
                                     '%d' % present
 
@@ -530,8 +531,11 @@ class VocConverter(Converter):
         save_image(path, mask, create_dir=True)
 
     def save_label_map(self):
-        path = osp.join(self._save_dir, VocPath.LABELMAP_FILE)
-        write_label_map(path, self._label_map)
+        if self._save_dataset_meta:
+            write_meta_file(self._save_dir, self._label_map)
+        else:
+            path = osp.join(self._save_dir, VocPath.LABELMAP_FILE)
+            write_label_map(path, self._label_map)
 
     def _load_categories(self, label_map_source):
         if label_map_source == LabelmapType.voc.name:
@@ -562,7 +566,10 @@ class VocConverter(Converter):
                 sorted(label_map_source.items(), key=lambda e: e[0]))
 
         elif isinstance(label_map_source, str) and osp.isfile(label_map_source):
-            label_map = parse_label_map(label_map_source)
+            if has_meta_file(label_map_source):
+                label_map = parse_meta_file(label_map_source)
+            else:
+                label_map = parse_label_map(label_map_source)
 
         else:
             raise Exception("Wrong labelmap specified: '%s', "

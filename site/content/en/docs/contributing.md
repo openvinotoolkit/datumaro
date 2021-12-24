@@ -125,8 +125,7 @@ pre-generated files for tests can be stored in the `tests/assets/` directory.
 CLI tests are separated from the core tests, they are stored in the
 `tests/cli/` directory.
 
-Currently, we use [`pytest`](https://docs.pytest.org/) for testing, but we
-also compatible with `unittest`.
+Currently, we use [`pytest`](https://docs.pytest.org/) for testing.
 
 To run tests use:
 

@@ -1,0 +1,40 @@
+{
+    "labels": [
+        {
+            "color": [
+                10,
+                50,
+                90
+            ],
+            "instances": true,
+            "readable": "Bird",
+            "name": "animal--bird",
+            "evaluate": true
+        },
+        {
+            "color": [
+                20,
+                30,
+                80
+            ],
+            "instances": true,
+            "readable": "Curb",
+            "name": "construction--barrier--curb",
+            "evaluate": true
+        },
+        {
+            "color": [
+                30,
+                70,
+                40
+            ],
+            "instances": true,
+            "readable": "Person",
+            "name": "human--person",
+            "evaluate": true
+        }
+    ],
+    "version": "1.1",
+    "mapping": "public",
+    "folder_structure": ""
+}

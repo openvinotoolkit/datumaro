@@ -1,5 +1,7 @@
 from unittest.case import TestCase
+import os
 import os.path as osp
+import shutil
 
 from datumaro.cli.util.project import (
     WrongRevpathError, parse_full_revpath, split_local_revpath,
@@ -95,12 +97,11 @@ class TestRevpath(TestCase):
             self.assertEqual(None, project)
 
         with self.subTest("dataset (in context)"):
-            with self.assertRaises(WrongRevpathError) as cm:
-                parse_full_revpath(dataset_url, proj)
-            self.assertEqual(
-                {UnknownTargetError, MultipleFormatsMatchError},
-                set(type(e) for e in cm.exception.problems)
-            )
+            dataset, project = parse_full_revpath(dataset_url, proj)
+            if project:
+                scope_add(project)
+            self.assertTrue(isinstance(dataset, IDataset))
+            self.assertEqual(None, project)
 
         with self.subTest("dataset format (in context)"):
             dataset, project = parse_full_revpath(
@@ -111,12 +112,11 @@ class TestRevpath(TestCase):
             self.assertEqual(None, project)
 
         with self.subTest("dataset (no context)"):
-            with self.assertRaises(WrongRevpathError) as cm:
-                parse_full_revpath(dataset_url)
-            self.assertEqual(
-                {ProjectNotFoundError, MultipleFormatsMatchError},
-                set(type(e) for e in cm.exception.problems)
-            )
+            dataset, project = parse_full_revpath(dataset_url)
+            if project:
+                scope_add(project)
+            self.assertTrue(isinstance(dataset, IDataset))
+            self.assertEqual(None, project)
 
         with self.subTest("dataset format (no context)"):
             dataset, project = parse_full_revpath(f"{dataset_url}:datumaro")
@@ -124,6 +124,43 @@ class TestRevpath(TestCase):
                 scope_add(project)
             self.assertTrue(isinstance(dataset, IDataset))
             self.assertEqual(None, project)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_ambiguous_format(self):
+        test_dir = scope_add(TestDir())
+
+        dataset_url = osp.join(test_dir, 'source')
+
+        # create an ambiguous dataset by merging annotations from
+        # datasets in different formats
+        annotation_dir = osp.join(dataset_url, 'training/street')
+        assets_dir = osp.join(osp.dirname(__file__), '../assets')
+        os.makedirs(annotation_dir)
+        for asset in [
+            'ade20k2017_dataset/dataset/training/street/1_atr.txt',
+            'ade20k2020_dataset/dataset/training/street/1.json',
+        ]:
+            shutil.copy(osp.join(assets_dir, asset), annotation_dir)
+
+        with self.subTest("no context"):
+            with self.assertRaises(WrongRevpathError) as cm:
+                parse_full_revpath(dataset_url)
+            self.assertEqual(
+                {ProjectNotFoundError, MultipleFormatsMatchError},
+                set(type(e) for e in cm.exception.problems)
+            )
+
+        proj_dir = osp.join(test_dir, 'proj')
+        proj = scope_add(Project.init(proj_dir))
+
+        with self.subTest("in context"):
+            with self.assertRaises(WrongRevpathError) as cm:
+                parse_full_revpath(dataset_url, proj)
+            self.assertEqual(
+                {UnknownTargetError, MultipleFormatsMatchError},
+                set(type(e) for e in cm.exception.problems)
+            )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_split_local_revpath(self):

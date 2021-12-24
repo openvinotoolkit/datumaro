@@ -41,6 +41,7 @@ KITTI Raw dataset directory should have the following structure:
 <!--lint disable fenced-code-flag-->
 ```
 └─ Dataset/
+    ├── dataset_meta.json # a list of custom labels (optional)
     ├── image_00/ # optional, aligned images from different cameras
     │   └── data/
     │       ├── <name1.ext>
@@ -69,6 +70,8 @@ provides an option to use a special index file to allow this.
 46 relative/path/to/name2/from/data
 ...
 ```
+
+To add custom classes, you can use [`dataset_meta.json`](/docs/user_manual/supported_formats/#dataset-meta-file).
 
 A Datumaro project with a KITTI source can be created in the following way:
 

@@ -35,6 +35,9 @@ class YoloConverter(Converter):
 
         os.makedirs(save_dir, exist_ok=True)
 
+        if self._save_dataset_meta:
+            self._save_meta_file(self._save_dir)
+
         label_categories = extractor.categories()[AnnotationType.label]
         label_ids = {label.name: idx
             for idx, label in enumerate(label_categories.items)}
