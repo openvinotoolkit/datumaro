@@ -9,19 +9,19 @@ from datumaro.components.annotation import (
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
 from datumaro.components.extractor import AnnotationType, DatasetItem
-from datumaro.plugins.mpii_format import (
-    MPI_POINTS_JOINTS, MPII_POINTS_LABELS, MpiiImporter,
+from datumaro.plugins.mpii_json_format import (
+    MPI_POINTS_JOINTS, MPII_POINTS_LABELS, MpiiJsonImporter,
 )
 from datumaro.util.test_utils import compare_datasets
 
 from .requirements import Requirements, mark_requirement
 
 DUMMY_DATASET_DIR_WITH_NUMPY_FILES = osp.join(osp.dirname(__file__), 'assets',
-    'mpii_dataset', 'dataset_with_numpy_files')
+    'mpii_json_dataset', 'dataset_with_numpy_files')
 DUMMY_DATASET_DIR_WO_NUMPY_FILES = osp.join(osp.dirname(__file__), 'assets',
-    'mpii_dataset', 'dataset_wo_numpy_files')
+    'mpii_json_dataset', 'dataset_wo_numpy_files')
 
-class MpiiImporterTest(TestCase):
+class MpiiJsonImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_580)
     def test_can_import_dataset_witn_numpy_files(self):
         expected_dataset = Dataset.from_iterable([
@@ -70,7 +70,7 @@ class MpiiImporterTest(TestCase):
                 [(0, MPII_POINTS_LABELS, MPI_POINTS_JOINTS)])
         })
 
-        dataset = Dataset.import_from(DUMMY_DATASET_DIR_WITH_NUMPY_FILES, 'mpii')
+        dataset = Dataset.import_from(DUMMY_DATASET_DIR_WITH_NUMPY_FILES, 'mpii_json')
 
         compare_datasets(self, expected_dataset, dataset, require_images=True)
 
@@ -116,7 +116,7 @@ class MpiiImporterTest(TestCase):
                 [(0, MPII_POINTS_LABELS, MPI_POINTS_JOINTS)])
         })
 
-        dataset = Dataset.import_from(DUMMY_DATASET_DIR_WO_NUMPY_FILES, 'mpii')
+        dataset = Dataset.import_from(DUMMY_DATASET_DIR_WO_NUMPY_FILES, 'mpii_json')
 
         compare_datasets(self, expected_dataset, dataset, require_images=True)
 
@@ -124,10 +124,10 @@ class MpiiImporterTest(TestCase):
     def test_can_detect_dataset_with_numpy_files(self):
         detected_formats = Environment().detect_dataset(
             DUMMY_DATASET_DIR_WITH_NUMPY_FILES)
-        self.assertEqual([MpiiImporter.NAME], detected_formats)
+        self.assertEqual([MpiiJsonImporter.NAME], detected_formats)
 
     @mark_requirement(Requirements.DATUM_580)
     def test_can_detect_dataset_wo_numpy_files(self):
         detected_formats = Environment().detect_dataset(
             DUMMY_DATASET_DIR_WO_NUMPY_FILES)
-        self.assertEqual([MpiiImporter.NAME], detected_formats)
+        self.assertEqual([MpiiJsonImporter.NAME], detected_formats)
