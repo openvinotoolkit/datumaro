@@ -82,7 +82,8 @@ class MpiiExtractor(SourceExtractor):
                         x2 = None
                         y1 = None
                         y2 = None
-                        points = None
+                        keypoints = {}
+                        is_visible = {}
                         attributes = {}
                         for anno_mat in val._fieldnames:
                             anno = val.__dict__[anno_mat]
@@ -98,10 +99,12 @@ class MpiiExtractor(SourceExtractor):
                                 not isinstance(anno.__dict__['point'],
                                                spio.matlab.mio5_params.mat_struct):
 
-                                points = [0] * 32
-                                for i, point in enumerate(anno.__dict__['point']):
-                                    points[2 * i] = point.__dict__['x']
-                                    points[2 * i + 1] = point.__dict__['y']
+                                for point in anno.__dict__['point']:
+                                    point_id = point.__dict__['id']
+                                    keypoints[point_id] = [point.__dict__['x'], point.__dict__['y']]
+                                    is_visible[point_id] = point.__dict__['is_visible']
+                                    if not isinstance(is_visible[point_id], int):
+                                        is_visible[point_id] = 1
 
                             elif anno_mat == 'x1' and \
                                     (isinstance(anno, float) or isinstance(anno, int)):
@@ -119,14 +122,23 @@ class MpiiExtractor(SourceExtractor):
                                     (isinstance(anno, float) or isinstance(anno, int)):
                                 y2 = anno
 
-                        if points:
-                            annotations.append(Points(points, label=0,
+                        if keypoints:
+                            points = [0] * (2 * len(keypoints))
+                            vis = [0] * len(keypoints)
+
+                            keypoints = sorted(keypoints.items(), key=lambda x: x[0])
+                            for i, (key, point) in enumerate(keypoints):
+                                points[2 * i] = point[0]
+                                points[2 * i + 1] = point[1]
+                                vis[i] = is_visible.get(key, 1)
+
+                            annotations.append(Points(points, vis, label=0,
                                 attributes=attributes))
 
                         if x1 is not None and x2 is not None \
                             and y1 is not None and y2 is not None:
                             group = 0
-                            if points:
+                            if keypoints:
                                 group = group_num
                                 group_num +=1
                                 annotations[-1].group = group
