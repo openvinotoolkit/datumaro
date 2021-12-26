@@ -4,6 +4,7 @@
 
 import json
 import os.path as osp
+import attr
 
 import numpy as np
 
@@ -122,6 +123,40 @@ class MpiiJsonExtractor(SourceExtractor):
                         bbox[1][0] - bbox[0][0], bbox[1][1] - bbox[0][1],
                         label=0, group=1))
 
+                joint_others = ann.get('joint_others')
+                if joint_others:
+                    group_num = annotations[-1].group
+                    if group_num != 0:
+                        group_num += 1
+                    else:
+                        group_num = 0
+
+                    num_others = int(ann.get('numOtherPeople', 1))
+                    center = ann.get('objpos_other', [])
+                    scale = ann.get('scale_provided_other', 0)
+
+                    if num_others == 1:
+                        center = [center]
+                        scale = [scale]
+
+                    for i in range(num_others):
+                        keypoints = np.array(joint_others[16 * i : 16 * (i + 1)])
+                        points = keypoints[:, 0:2].ravel()
+                        vis = keypoints[:, 2]
+                        vis = [int(val) for val in vis]
+
+
+                        attributes = {}
+                        if i < len(center):
+                            attributes['center'] = center[i]
+                        if i < len(scale):
+                            attributes['scale'] = scale[i]
+
+                        annotations.append(Points(points, vis, label=0,
+                            group=group_num, attributes=attributes))
+
+                        if group_num != 0:
+                            group_num +=1
 
                 items[item_id] = DatasetItem(id=item_id, subset=self._subset,
                     image=Image(path=osp.join(root_dir, ann.get('img_paths', ''))),
