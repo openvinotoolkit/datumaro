@@ -104,7 +104,7 @@ class MpiiJsonImporterTest(TestCase):
                             185.0, 693.0, 240.0, 688.0, 313.0],
                         [1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
                         attributes={'center': [594.000, 257.000], 'scale': 3.021},
-                        label=0)
+                        label=0, group=1)
                 ]
             ),
             DatasetItem(id='000000002', image=np.ones((5, 5, 3)),
@@ -116,7 +116,7 @@ class MpiiJsonImporterTest(TestCase):
                             215.0, 723.0, 270.0, 718.0, 343.0],
                         [1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
                         attributes={'center': [624.000, 287.000], 'scale': 3.7},
-                        label=0)
+                        label=0, group=1)
                 ]
             ),
             DatasetItem(id='000000003', image=np.ones((5, 5, 3)),
@@ -128,7 +128,7 @@ class MpiiJsonImporterTest(TestCase):
                             155.0, 663.0, 210.0, 658.0, 283.0],
                         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1],
                         attributes={'center': [564.000, 227.000], 'scale': 3.2},
-                        label=0)
+                        label=0, group=1)
                 ]
             )
         ], categories={

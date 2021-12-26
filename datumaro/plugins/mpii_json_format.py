@@ -112,24 +112,21 @@ class MpiiJsonExtractor(SourceExtractor):
 
                 vis = [int(val) for val in vis]
 
-                annotations = [Points(points, vis, label=0,
+                group_num = 1
+
+                annotations = [Points(points, vis, label=0, group=group_num,
                     attributes={'center': center, 'scale': scale})]
 
                 if np.size(headboxes):
                     bbox = headboxes[:, :, i]
-                    annotations[0].group = 1
                     annotations.append(Bbox(bbox[0][0], bbox[0][1],
                         bbox[1][0] - bbox[0][0], bbox[1][1] - bbox[0][1],
-                        label=0, group=1))
+                        label=0, group=group_num))
+
+                group_num += 1
 
                 joint_others = ann.get('joint_others')
                 if joint_others:
-                    group_num = annotations[-1].group
-                    if group_num != 0:
-                        group_num += 1
-                    else:
-                        group_num = 0
-
                     num_others = int(ann.get('numOtherPeople', 1))
                     center = ann.get('objpos_other', [])
                     scale = ann.get('scale_provided_other', 0)
@@ -154,8 +151,7 @@ class MpiiJsonExtractor(SourceExtractor):
                         annotations.append(Points(points, vis, label=0,
                             group=group_num, attributes=attributes))
 
-                        if group_num != 0:
-                            group_num +=1
+                        group_num +=1
 
                 items[item_id] = DatasetItem(id=item_id, subset=self._subset,
                     image=Image(path=osp.join(root_dir, ann.get('img_paths', ''))),

@@ -132,19 +132,16 @@ class MpiiExtractor(SourceExtractor):
                                 points[2 * i + 1] = point[1]
                                 vis[i] = is_visible.get(key, 1)
 
-                            annotations.append(Points(points, vis, label=0,
+                            annotations.append(Points(points, vis, label=0, group=group_num,
                                 attributes=attributes))
 
                         if x1 is not None and x2 is not None \
                             and y1 is not None and y2 is not None:
-                            group = 0
-                            if keypoints:
-                                group = group_num
-                                group_num +=1
-                                annotations[-1].group = group
 
                             annotations.append(Bbox(x1, y1, x2 - x1, y2 - y1,
-                                label=0, group=group))
+                                label=0, group=group_num))
+
+                        group_num += 1
 
             item_id = osp.splitext(image)[0]
 
