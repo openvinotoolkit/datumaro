@@ -28,8 +28,8 @@ from datumaro.components.errors import (
 from datumaro.components.extractor import CategoriesInfo
 from datumaro.util import filter_dict, find
 from datumaro.util.annotation_util import (
-    OKS, bbox_iou, find_instances, max_bbox, mean_bbox, segment_iou,
-    smooth_line,
+    OKS, approximate_line, bbox_iou, find_instances, max_bbox, mean_bbox,
+    segment_iou,
 )
 from datumaro.util.attrs_util import default_if_none, ensure_cls
 
@@ -401,8 +401,7 @@ class IntersectMerge(MergingStrategy):
 
         label_cat = self._merge_label_categories(sources)
         if label_cat is None:
-            return dst_categories
-
+            label_cat = LabelCategories()
         dst_categories[AnnotationType.label] = label_cat
 
         points_cat = self._merge_point_categories(sources, label_cat)
@@ -768,21 +767,46 @@ class PointsMatcher(_ShapeMatcher):
 class LineMatcher(_ShapeMatcher):
     @staticmethod
     def distance(a, b):
-        a_bbox = a.get_bbox()
-        b_bbox = b.get_bbox()
-        bbox = max_bbox([a_bbox, b_bbox])
-        area = bbox[2] * bbox[3]
-        if not area:
+        # Compute inter-line area by using the Trapezoid formulae
+        # https://en.wikipedia.org/wiki/Trapezoidal_rule
+        # Normalize by common bbox and get the bbox fill ratio
+        # Call this ratio the "distance"
+
+        # The box area is an early-exit filter for non-intersected figures
+        bbox = max_bbox([a, b])
+        box_area = bbox[2] * bbox[3]
+        if not box_area:
             return 1
 
-        # compute inter-line area, normalize by common bbox
-        point_count = max(max(len(a.points) // 2, len(b.points) // 2), 5)
-        a, sa = smooth_line(a.points, point_count)
-        b, sb = smooth_line(b.points, point_count)
+        def _approx(line, segments):
+            if len(line) // 2 != segments + 1:
+                line = approximate_line(line, segments=segments)
+            return np.reshape(line, (-1, 2))
+        segments = max(len(a.points) // 2, len(b.points) // 2, 5) - 1
+
+        a = _approx(a.points, segments)
+        b = _approx(b.points, segments)
         dists = np.linalg.norm(a - b, axis=1)
-        dists = (dists[:-1] + dists[1:]) * 0.5
-        s = np.sum(dists) * 0.5 * (sa + sb) / area
-        return abs(1 - s)
+        dists = dists[:-1] + dists[1:]
+        a_steps = np.linalg.norm(a[1:] - a[:-1], axis=1)
+        b_steps = np.linalg.norm(b[1:] - b[:-1], axis=1)
+
+        # For the common bbox we can't use
+        # - the AABB (axis-alinged bbox) of a point set
+        # - the exterior of a point set
+        # - the convex hull of a point set
+        # because these soultions won't be correctly normalized.
+        # The lines can have multiple self-intersections, which can give
+        # the inter-line area more than internal area of the options above,
+        # producing the value of the distance outside of the [0; 1] range.
+        #
+        # Instead, we can compute the upper boundary for the inter-line
+        # area based on the maximum point distance and line length.
+        max_area = np.max(dists) * max(np.sum(a_steps), np.sum(b_steps))
+
+        area = np.dot(dists, a_steps + b_steps) * 0.5 * 0.5 / max_area
+
+        return abs(1 - area)
 
 @attrs
 class CaptionsMatcher(AnnotationMatcher):

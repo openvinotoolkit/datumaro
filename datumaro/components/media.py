@@ -121,6 +121,12 @@ class Image(MediaElement):
             save_image(path, self.data)
 
 class ByteImage(Image):
+    _FORMAT_MAGICS = (
+        (b'\x89PNG\r\n\x1a\n', '.png'),
+        (b'\xff\xd8\xff', '.jpg'),
+        (b'BM', '.bmp'),
+    )
+
     def __init__(self,
             data: Union[bytes, Callable[[str], bytes], None] = None,
             *,
@@ -147,7 +153,17 @@ class ByteImage(Image):
             ext = ext.lower()
             if not ext.startswith('.'):
                 ext = '.' + ext
+        elif path is None and isinstance(data, bytes):
+            ext = self._guess_ext(data)
         self._ext = ext
+
+    @classmethod
+    def _guess_ext(cls, data: bytes) -> Optional[str]:
+        return next(
+            (ext for magic, ext in cls._FORMAT_MAGICS
+                if data.startswith(magic)),
+            None,
+        )
 
     def get_bytes(self):
         if callable(self._bytes_data):

@@ -5,11 +5,13 @@
 from enum import Enum, auto
 from glob import glob
 from typing import Collection, Optional, Union
+import contextlib
 import inspect
 import os
 import os.path as osp
 import tempfile
 import unittest
+import unittest.mock
 
 from typing_extensions import Literal
 
@@ -263,3 +265,37 @@ def compare_dirs(test, expected: str, actual: str):
 def run_datum(test, *args, expected_code=0):
     from datumaro.cli.__main__ import main
     test.assertEqual(expected_code, main(args), str(args))
+
+@contextlib.contextmanager
+def mock_tfds_data(example=None):
+    import tensorflow as tf
+    import tensorflow_datasets as tfds
+
+    NUM_EXAMPLES = 1
+
+    if example:
+        def as_dataset(self, *args, **kwargs):
+            return tf.data.Dataset.from_tensors(example)
+    else:
+        as_dataset = None
+
+    with tfds.testing.mock_data(num_examples=NUM_EXAMPLES, as_dataset_fn=as_dataset):
+        # The mock version of DatasetBuilder.__init__ installed by mock_data
+        # doesn't initialize split info, which TfdsExtractor needs to function.
+        # So we mock it again to fix that. See also TFDS feature request at
+        # <https://github.com/tensorflow/datasets/issues/3631>.
+        original_init = tfds.core.DatasetBuilder.__init__
+
+        def new_init(self, **kwargs):
+            original_init(self, **kwargs)
+            self.info.set_splits(
+                tfds.core.SplitDict([
+                    tfds.core.SplitInfo(
+                        name="train", shard_lengths=[NUM_EXAMPLES],
+                        num_bytes=1234),
+                ], dataset_name=self.name),
+            )
+
+        with unittest.mock.patch(
+            'tensorflow_datasets.core.DatasetBuilder.__init__', new_init):
+            yield
