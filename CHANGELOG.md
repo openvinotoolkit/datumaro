@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/582>)
 - Extension autodetection in `ByteImage`
   (<https://github.com/openvinotoolkit/datumaro/pull/595>)
+- Import for MPII Human Pose Dataset
+  (<https://github.com/openvinotoolkit/datumaro/pull/584>)
 
 ### Changed
 - `smooth_line` from `datumaro.util.annotation_util` - the function
@@ -53,8 +55,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/573>)
 - Image resizing transform
   (<https://github.com/openvinotoolkit/datumaro/pull/581>)
-- Import for MPII Human Pose Dataset
-  (<https://github.com/openvinotoolkit/datumaro/pull/584>)
 
 ### Changed
 - The following formats can now be detected unambiguously:
