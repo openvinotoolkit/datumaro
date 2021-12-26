@@ -111,6 +111,7 @@ List of supported formats:
 - MPII Human Pose Dataset (`detection`, `pose estimation`)
   - [Format specification](http://human-pose.mpi-inf.mpg.de)
   - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/mpii_dataset)
+  - [Dataset example (JSON and NUMPY annotation files)](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/mpii_json_dataset)
   - [Format documentation](/docs/formats/mpii)
 
 ### Supported annotation types <a id="annotation-types"></a>
