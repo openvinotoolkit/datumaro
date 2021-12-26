@@ -4,7 +4,6 @@
 
 import json
 import os.path as osp
-import attr
 
 import numpy as np
 
