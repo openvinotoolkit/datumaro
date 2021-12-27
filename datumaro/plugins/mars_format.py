@@ -7,7 +7,7 @@ import logging as log
 import os
 import os.path as osp
 
-from datumaro.components.annotation import AnnotationType, Bbox, LabelCategories
+from datumaro.components.annotation import AnnotationType, Bbox, LabelCategories, Label
 from datumaro.components.dataset import DatasetItem
 from datumaro.components.extractor import Extractor, Importer
 from datumaro.components.format_detection import FormatDetectionContext
@@ -61,13 +61,12 @@ class MarsExtractor(Extractor):
             label_id = self._categories[AnnotationType.label].find(label)[0]
             for image_path in find_images(osp.join(path, label)):
                 image_name = osp.basename(image_path)
+                item_id = osp.splitext(image_name)[0]
                 pedestrian_id = image_name[0:4]
 
                 if not fnmatch.fnmatch(image_name,
                         label + MarsPath.IMAGE_NAME_POSTFIX):
-                    log.warning(f'The image {image_path} will be skipped '
-                        'because it has incorrect name. See the docs to get '
-                        'more information')
+                    items.append(DatasetItem(id=item_id, image=image_path))
                     continue
 
                 if pedestrian_id != label:
@@ -76,14 +75,12 @@ class MarsExtractor(Extractor):
                         f'the directory name: {label}')
                     continue
 
-                image = Image(path=image_path)
-                width, height = image.size
-                items.append(DatasetItem(id=osp.splitext(image_name)[0],
-                    image=image, subset=subset,
-                    annotations=[Bbox(0, 0, width, height, label=label_id)],
-                    attributes={'camera_id': int(image_name[5]),
-                            'track_id': int(image_name[7:11]),
-                            'frame_id': int(image_name[12:15])
+                items.append(DatasetItem(id=item_id, image=image_path,
+                    subset=subset, annotations=[Label(label=label_id)],
+                    attributes={'person_id': pedestrian_id,
+                        'camera_id': int(image_name[5]),
+                        'track_id': int(image_name[7:11]),
+                        'frame_id': int(image_name[12:15])
                     })
                 )
 
