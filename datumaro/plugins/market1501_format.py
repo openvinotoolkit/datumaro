@@ -8,7 +8,7 @@ import os.path as osp
 import re
 
 from datumaro.components.converter import Converter
-from datumaro.components.extractor import DatasetItem, Importer, Extractor
+from datumaro.components.extractor import DatasetItem, Extractor, Importer
 from datumaro.util.image import find_images
 
 
