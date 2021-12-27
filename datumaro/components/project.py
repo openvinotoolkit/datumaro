@@ -39,6 +39,7 @@ from datumaro.components.errors import (
     UnsavedChangesError, VcsError,
 )
 from datumaro.components.launcher import Launcher
+from datumaro.components.media_manager import MediaManager
 from datumaro.util import find, parse_str_enum_value
 from datumaro.util.log_utils import catch_logs, logging_disabled
 from datumaro.util.os_util import (
@@ -574,7 +575,10 @@ class ProjectBuilder:
     @staticmethod
     def _validate_pipeline(pipeline: Pipeline):
         graph = pipeline._graph
-        if len(graph) == 0:
+        if len(graph) == 0 or len(graph) == 1 and next(iter(graph.nodes)) == \
+                ProjectBuildTargets.make_target_name(
+                    ProjectBuildTargets.MAIN_TARGET,
+                    ProjectBuildTargets.BASE_STAGE):
             raise EmptyPipelineError()
 
         head = pipeline.head
@@ -1652,6 +1656,8 @@ class Project:
         return project
 
     def close(self):
+        MediaManager.get_instance().clear()
+
         if self._dvc:
             self._dvc.close()
             self._dvc = None
@@ -1854,6 +1860,8 @@ class Project:
     def remove_cache_obj(self, ref: Union[Revision, ObjectId]):
         if self.readonly:
             raise ReadonlyProjectError()
+
+        MediaManager.get_instance().clear()
 
         obj_type, obj_hash = self._parse_ref(ref)
 
@@ -2186,6 +2194,8 @@ class Project:
         if name not in self.working_tree.sources and not force:
             raise UnknownSourceError(name)
 
+        MediaManager.get_instance().clear()
+
         self.working_tree.sources.remove(name)
 
         data_dir = self.source_data_dir(name)
@@ -2306,6 +2316,8 @@ class Project:
             sources = set(sources)
 
         rev = rev or 'HEAD'
+
+        MediaManager.get_instance().clear()
 
         if sources:
             rev_tree = self.get_rev(rev)
@@ -2527,6 +2539,8 @@ class Project:
 
         if name in self.models:
             raise KeyError("Unknown model '%s'" % name)
+
+        MediaManager.get_instance().clear()
 
         data_dir = self.model_data_dir(name)
         if osp.isdir(data_dir):
