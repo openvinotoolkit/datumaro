@@ -9,7 +9,8 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import DatasetItem
 from datumaro.components.media import Video
 from datumaro.components.media_manager import MediaManager
-from datumaro.util.scope import on_exit_do, scoped
+from datumaro.components.project import Project
+from datumaro.util.scope import Scope, on_exit_do, scope_add, scoped
 from datumaro.util.test_utils import TestDir, compare_datasets
 
 from .requirements import Requirements, mark_requirement
@@ -141,3 +142,63 @@ class VideoExtractorTest:
         on_exit_do(MediaManager.get_instance().clear)
 
         compare_datasets(TestCase(), expected, actual)
+
+class ProjectTest:
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_release_resources_on_exit(self, fxt_sample_video):
+        with Scope() as scope:
+            test_dir = scope.add(TestDir())
+
+            project = scope.add(Project.init(test_dir))
+
+            project.import_source('src', osp.dirname(fxt_sample_video),
+                'video_frames', rpath=osp.basename(fxt_sample_video))
+
+            assert len(project.working_tree.make_dataset()) == 4
+        assert not osp.exists(test_dir)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_can_release_resources_on_remove(self, fxt_sample_video):
+        test_dir = scope_add(TestDir())
+
+        project = scope_add(Project.init(test_dir))
+
+        project.import_source('src', osp.dirname(fxt_sample_video),
+            'video_frames', rpath=osp.basename(fxt_sample_video))
+        project.commit('commit 1')
+
+        assert len(project.working_tree.make_dataset()) == 4
+        assert osp.isdir(osp.join(test_dir, 'src'))
+
+        project.remove_source('src', keep_data=False)
+
+        assert not osp.exists(osp.join(test_dir, 'src'))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_can_release_resources_on_checkout(self, fxt_sample_video):
+        test_dir = scope_add(TestDir())
+
+        project = scope_add(Project.init(test_dir))
+
+        src_url = osp.join(test_dir, 'src')
+        src = Dataset.from_iterable([
+            DatasetItem(1),
+        ], categories=['a'])
+        src.save(src_url)
+        project.add_source(src_url, 'datumaro')
+        project.commit('commit 1')
+
+        project.remove_source('src', keep_data=False)
+
+        project.import_source('src', osp.dirname(fxt_sample_video),
+            'video_frames', rpath=osp.basename(fxt_sample_video))
+        project.commit('commit 2')
+
+        assert len(project.working_tree.make_dataset()) == 4
+        assert osp.isdir(osp.join(test_dir, 'src'))
+
+        project.checkout('HEAD~1')
+
+        assert len(project.working_tree.make_dataset()) == 1
