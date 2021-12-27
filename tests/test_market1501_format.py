@@ -101,13 +101,13 @@ class Market1501FormatTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         expected = Dataset.from_iterable([
-            DatasetItem(id='0001_c1s1_0000_00', image=Image(
-                    path='0001_c1s1_0000_00.JPEG', data=np.zeros((4, 3, 3))),
+            DatasetItem(id='c/0001_c1s1_000000_00', image=Image(
+                    path='c/0001_c1s1_0000_00.JPEG', data=np.zeros((4, 3, 3))),
                 attributes={'camera_id': 0, 'person_id': '0001', 'track_id': 1,
                     'frame_id': 0, 'bbox_id': 0, 'query': False}
             ),
-            DatasetItem(id='0002_c2s2_0001_00', image=Image(
-                    path='0002_c2s2_0001_00.bmp', data=np.zeros((3, 4, 3))),
+            DatasetItem(id='a/b/0002_c2s2_000001_00', image=Image(
+                    path='a/b/0002_c2s2_0001_00.bmp', data=np.zeros((3, 4, 3))),
                 attributes={'camera_id': 1, 'person_id': '0002', 'track_id': 2,
                     'frame_id': 1, 'bbox_id': 0, 'query': False}
             ),
