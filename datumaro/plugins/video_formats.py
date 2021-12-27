@@ -27,11 +27,18 @@ class VideoFramesImporter(Importer):
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
         parser = super().build_cmdline_parser(**kwargs)
-        parser.add_argument('--subset')
-        parser.add_argument('-p', '--name-pattern', default='%06d')
-        parser.add_argument('-s', '--step', type=int, default=1)
-        parser.add_argument('-b', '--start-frame', type=int, default=0)
-        parser.add_argument('-e', '--end-frame', type=int, default=None)
+        parser.add_argument('--subset',
+            help="The name of the subset for the produced dataset items "
+                "(default: none)")
+        parser.add_argument('-p', '--name-pattern', default='%06d',
+            help="The name pattern for the produced dataset items "
+                "(default: %(default)s).")
+        parser.add_argument('-s', '--step', type=int, default=1,
+            help="Frame step (default: %(default)s)")
+        parser.add_argument('-b', '--start-frame', type=int, default=0,
+            help="Starting frame (default: %(default)s)")
+        parser.add_argument('-e', '--end-frame', type=int, default=None,
+            help="Finishing frame (default: %(default)s)")
         return parser
 
     @classmethod
@@ -64,11 +71,11 @@ class VideoFramesExtractor(Extractor):
         self._name_pattern = name_pattern
         self._reader = Video(url, step=step,
             start_frame=start_frame, end_frame=end_frame)
-        self._length = self._reader.length
+        self._length = self._reader.length # NOTE: the value is often incorrect
 
     def __iter__(self):
         for frame in self._reader:
-            yield DatasetItem(id=self._name_pattern % frame.index,
+            yield DatasetItem(id=self._name_pattern % (frame.index, ),
                 subset=self._subset, image=frame)
 
     def get(self, id, subset=None):
