@@ -7,7 +7,7 @@ import os.path as osp
 
 import numpy as np
 
-from datumaro.components.annotation import Bbox
+from datumaro.components.annotation import Label
 from datumaro.components.dataset import Dataset, DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.plugins.mars_format import MarsImporter
@@ -23,16 +23,19 @@ class MarsImporterTest(TestCase):
     def test_can_import(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='0001C1T0001F001', image=np.ones((10, 10, 3)),
-                subset='train', annotations=[Bbox(0, 0, 10, 10, label=2)],
-                attributes={'camera_id': 1, 'track_id': 1, 'frame_id': 1}
+                subset='train', annotations=[Label(label=2)],
+                attributes={'person_id': '0001', 'camera_id': 1, 'track_id': 1,
+                    'frame_id': 1}
             ),
             DatasetItem(id='0000C6T0101F001', image=np.ones((10, 10, 3)),
-                subset='train', annotations=[Bbox(0, 0, 10, 10, label=1)],
-                attributes={'camera_id': 6, 'track_id': 101, 'frame_id': 1}
+                subset='train', annotations=[Label(label=1)],
+                attributes={'person_id': '0000', 'camera_id': 6, 'track_id': 101,
+                    'frame_id': 1}
             ),
             DatasetItem(id='00-1C2T0081F201', image=np.ones((10, 10, 3)),
-                subset='test', annotations=[Bbox(0, 0, 10, 10, label=0)],
-                attributes={'camera_id': 2, 'track_id': 81, 'frame_id': 201}
+                subset='test', annotations=[Label(label=0)],
+                attributes={'person_id': '00-1', 'camera_id': 2, 'track_id': 81,
+                    'frame_id': 201}
             ),
         ], categories=['00-1', '0000', '0001'])
 
