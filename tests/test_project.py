@@ -10,10 +10,11 @@ from datumaro.components.annotation import Bbox, Label
 from datumaro.components.config_model import Model, Source
 from datumaro.components.dataset import DEFAULT_FORMAT, Dataset
 from datumaro.components.errors import (
-    DatasetMergeError, EmptyCommitError, ForeignChangesError,
-    MismatchingObjectError, MissingObjectError, MissingSourceHashError,
-    OldProjectError, PathOutsideSourceError, ReadonlyProjectError,
-    SourceExistsError, SourceUrlInsideProjectError, UnexpectedUrlError,
+    DatasetMergeError, EmptyCommitError, EmptyPipelineError,
+    ForeignChangesError, MismatchingObjectError, MissingObjectError,
+    MissingSourceHashError, OldProjectError, PathOutsideSourceError,
+    ReadonlyProjectError, SourceExistsError, SourceUrlInsideProjectError,
+    UnexpectedUrlError, UnknownTargetError,
 )
 from datumaro.components.extractor import DatasetItem, Extractor, ItemTransform
 from datumaro.components.launcher import Launcher
@@ -550,6 +551,26 @@ class ProjectTest(TestCase):
         self.assertEqual(DEFAULT_FORMAT, built_dataset.format)
         self.assertEqual(project.source_data_dir('s1'),
             built_dataset.data_path)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_cant_make_dataset_from_empty_project(self):
+        test_dir = scope_add(TestDir())
+
+        project = scope_add(Project.init(osp.join(test_dir, 'proj')))
+
+        with self.assertRaises(EmptyPipelineError):
+            project.working_tree.make_dataset()
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_cant_make_dataset_from_unknown_target(self):
+        test_dir = scope_add(TestDir())
+
+        project = scope_add(Project.init(osp.join(test_dir, 'proj')))
+
+        with self.assertRaises(UnknownTargetError):
+            project.working_tree.make_dataset('s1')
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
