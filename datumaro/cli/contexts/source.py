@@ -102,7 +102,7 @@ def import_command(args):
     try:
         project = scope_add(load_project(args.project_dir))
     except ProjectNotFoundError:
-        if not show_plugin_help and args.project_dir:
+        if not show_plugin_help:
             raise
 
     if project is not None:
@@ -229,7 +229,7 @@ def add_command(args):
     try:
         project = scope_add(load_project(args.project_dir))
     except ProjectNotFoundError:
-        if not show_plugin_help and args.project_dir:
+        if not show_plugin_help:
             raise
 
     if project is not None:
