@@ -25,3 +25,11 @@ SPDX-License-Identifier: MIT
 .wy-dropdown-menu > dd > a:hover {
   color: #30638e;
 }
+
+.rst-versions .rst-current-version {
+  background-color: #30638e;
+}
+
+.rst-versions {
+  background: #21425e;
+}
