@@ -28,6 +28,7 @@ flowchart LR
     p===migrate:::hideclass
     p===info:::hideclass
   d====str1[create]:::filloneclass
+  d====str1[download]:::filloneclass
   d====str2[import]:::filloneclass
   d====str3[export]:::filloneclass
   d====str4[add]:::filloneclass
