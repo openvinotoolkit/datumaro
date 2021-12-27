@@ -10,7 +10,9 @@ from datumaro.components.environment import Environment
 from datumaro.components.errors import ProjectNotFoundError
 from datumaro.util.scope import on_error_do, scope_add, scoped
 
-from ..util import MultilineFormatter, add_subparser, join_cli_args
+from ..util import (
+    MultilineFormatter, add_subparser, join_cli_args, show_video_import_warning,
+)
 from ..util.errors import CliException
 from ..util.project import generate_next_name, load_project
 
@@ -130,6 +132,9 @@ def import_command(args):
             list(project.working_tree.sources) + os.listdir(),
             'source', sep='-', default='1')
 
+    if fmt == 'video_frames':
+        show_video_import_warning()
+
     project.import_source(name, url=args.url, format=args.format,
         options=extra_args, no_cache=True, no_hash=True, rpath=args.rpath)
     on_error_do(project.remove_source, name, ignore_errors=True,
@@ -247,6 +252,9 @@ def add_command(args):
             " by providing an Extractor and Importer plugins" % fmt)
 
     extra_args = arg_parser.parse_cmdline(args.extra_args)
+
+    if fmt == 'video_frames':
+        show_video_import_warning()
 
     name, _ = project.add_source(args.path,
         format=args.format, options=extra_args, rpath=args.rpath)
