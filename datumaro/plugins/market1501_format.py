@@ -128,13 +128,14 @@ class Market1501Converter(Converter):
                 image_name = item.id
                 pid = item.attributes.get('person_id')
                 match = Market1501Path.PATTERN.fullmatch(item.id)
-                if not match and pid is not None:
+                if not match and pid:
                     cid = int(item.attributes.get('camera_id', 0)) + 1
                     tid = int(item.attributes.get('track_id', 1))
                     bbid = int(item.attributes.get('bbox_id', 0))
                     fid = int(item.attributes.get('frame_id',
                         max(used_frames.get((pid, cid, tid), [-1])) + 1))
-                    image_name = f'{pid}_c{cid}s{tid}_{fid:06d}_{bbid:02d}'
+                    image_name = osp.join(osp.dirname(image_name),
+                        f'{pid}_c{cid}s{tid}_{fid:06d}_{bbid:02d}')
 
                 image_path = self._make_image_filename(item,
                     name=image_name, subdir=dirname)
