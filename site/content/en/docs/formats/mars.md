@@ -7,8 +7,7 @@ weight: 14
 
 ## Format specification
 
-MARS is a dataset for the motion analysis and person identification task,
-and this dataset it's extension of Market-1501 dataset format.
+MARS is a dataset for the motion analysis and person identification task.
 MARS dataset is available for downloading
 [here](https://zheng-lab.cecs.anu.edu.au/Project/project_mars.html)
 
