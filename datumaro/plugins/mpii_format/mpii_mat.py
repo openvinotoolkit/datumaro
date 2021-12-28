@@ -9,7 +9,6 @@ import scipy.io as spio
 from datumaro.components.annotation import (
     Bbox, LabelCategories, Points, PointsCategories,
 )
-from datumaro.components.errors import DatasetImportError
 from datumaro.components.extractor import (
     AnnotationType, DatasetItem, Importer, SourceExtractor,
 )
