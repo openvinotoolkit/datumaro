@@ -59,6 +59,7 @@ def _get_known_contexts():
         ('project', contexts.project, "Actions with projects"),
         ('source', contexts.source, "Actions with data sources"),
         ('model', contexts.model, "Actions with models"),
+        ('util', contexts.util, "Auxillary tools and utilities"),
     ]
 
 def _get_known_commands():

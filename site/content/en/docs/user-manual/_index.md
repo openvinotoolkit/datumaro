@@ -51,6 +51,8 @@ weight: 3
   - Projects:
     - [Migrate](./command-reference/projects/#project-migrate)
     - [Info](./command-reference/projects/#project-info)
+  - Utilities:
+    - [Split Video](./command-reference/util/#split-video)
 - [Extending](./extending)
   - [Builtin plugins](./extending/#builtin-plugins)
   - [Dataset Formats](./extending/#dataset-formats)
