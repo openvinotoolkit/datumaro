@@ -3,7 +3,9 @@
 # SPDX-License-Identifier: MIT
 
 from itertools import groupby
-from typing import Callable, Dict, Optional, Tuple, Union
+from typing import (
+    Callable, Dict, Iterable, NewType, Optional, Sequence, Tuple, Union,
+)
 
 from typing_extensions import Literal
 import numpy as np
@@ -28,13 +30,28 @@ def find_instances(instance_anns):
 def find_group_leader(group):
     return max(group, key=lambda x: x.get_area())
 
-def _get_bbox(ann):
+BboxCoords = Tuple[float, float, float, float]
+Shape = NewType('Shape', _Shape)
+SpatialAnnotation = Union[Shape, Mask]
+
+def _get_bbox(ann: Union[Sequence, SpatialAnnotation]) -> BboxCoords:
     if isinstance(ann, (_Shape, Mask)):
         return ann.get_bbox()
-    else:
+    elif hasattr(ann, '__len__') and len(ann) == 4:
         return ann
+    else:
+        raise ValueError("The value of type '%s' can't be treated as a "
+            "bounding box" % type(ann))
 
-def max_bbox(annotations):
+def max_bbox(annotations: Iterable[Union[BboxCoords, SpatialAnnotation]]) \
+        -> BboxCoords:
+    """
+    Computes the maximum bbox for the set of spatial annotations and boxes.
+
+    Returns:
+      bbox (tuple): (x, y, w, h)
+    """
+
     boxes = [_get_bbox(ann) for ann in annotations]
     x0 = min((b[0] for b in boxes), default=0)
     y0 = min((b[1] for b in boxes), default=0)
@@ -42,7 +59,15 @@ def max_bbox(annotations):
     y1 = max((b[1] + b[3] for b in boxes), default=0)
     return [x0, y0, x1 - x0, y1 - y0]
 
-def mean_bbox(annotations):
+def mean_bbox(annotations: Iterable[Union[BboxCoords, SpatialAnnotation]]) \
+        -> BboxCoords:
+    """
+    Computes the mean bbox for the set of spatial annotations and boxes.
+
+    Returns:
+      bbox (tuple): (x, y, w, h)
+    """
+
     le = len(annotations)
     boxes = [_get_bbox(ann) for ann in annotations]
     mlb = sum(b[0] for b in boxes) / le
@@ -178,11 +203,23 @@ def OKS(a, b, sigma=None, bbox=None, scale=None):
     dists = np.linalg.norm(p1 - p2, axis=1)
     return np.sum(np.exp(-(dists ** 2) / (2 * scale * (2 * sigma) ** 2)))
 
-def smooth_line(points, segments):
-    assert 2 <= len(points) // 2 and len(points) % 2 == 0
+def approximate_line(points: Sequence[float], segments: int) -> np.ndarray:
+    """
+    Approximates a 2d line to the required number of segments. The new points
+    are distributed uniformly across the input line.
 
-    if len(points) // 2 == segments:
-        return points
+    Args:
+      points (Sequence): an array of line point coordinates.
+        The size is [points * 2], the layout is [x0, y0, x1, y1, ...].
+      segments (int): the required numebr of segments in the resulting line.
+
+    Returns:
+      new_points (ndarray): an array of new line point coordinates.
+        The size is [(segments + 1) * 2], the layout is [x0, y0, x1, y1, ...].
+    """
+
+    assert 2 <= len(points) // 2 and len(points) % 2 == 0
+    assert 0 < segments
 
     points = list(points)
     if len(points) == 2:
@@ -213,7 +250,7 @@ def smooth_line(points, segments):
 
         new_points[new_segment] = prev_p * (1 - r) + next_p * r
 
-    return new_points, step
+    return np.reshape(new_points, (-1, ))
 
 def make_label_id_mapping(
         src_labels: LabelCategories, dst_labels: LabelCategories,
@@ -225,14 +262,14 @@ def make_label_id_mapping(
             Dict[int, str]
         ]:
     """
-    Maps label ids from source to destination. Fallback is used for missing
+    Maps label ids from source to destination. Fallback id is used for missing
     labels.
 
     Returns:
-      function to map labels: src id -> dst id
-        dict: src id -> dst id
-        dict: src id -> src label
-        dict: dst id -> dst label
+      map_id (callable): src id -> dst id
+      id_mapping (dict): src id -> dst id
+      src_labels (dict): src id -> src label
+      dst_labels (dict): dst id -> dst label
     """
 
     source_labels = { id: label.name

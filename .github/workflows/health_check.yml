@@ -19,7 +19,7 @@ jobs:
       - name: Installing dependencies
         run: |
           pip install tensorflow pytest pytest-cov
-          pip install -e .[default]
+          pip install -e .[default,tfds]
       - name: Code instrumentation
         run: |
           pytest -v --cov --cov-report xml:coverage.xml

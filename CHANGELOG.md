@@ -8,8 +8,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[Unreleased\]
 ### Added
+- Command to download public datasets
+  (<https://github.com/openvinotoolkit/datumaro/pull/582>)
+- Extension autodetection in `ByteImage`
+  (<https://github.com/openvinotoolkit/datumaro/pull/595>)
+
+### Changed
+- `smooth_line` from `datumaro.util.annotation_util` - the function
+  is renamed to `approximate_line` and has updated interface
+  (<https://github.com/openvinotoolkit/datumaro/pull/592>)
+
+### Deprecated
+- TBD
+
+### Removed
+- TBD
+
+### Fixed
+- Fails in multimerge when lines are not approximated and when there are no
+  label categories (<https://github.com/openvinotoolkit/datumaro/pull/592>)
+
+### Security
+- TBD
+
+## 24/12/2021 - Release v0.2.2
+### Added
 - Video reading API
   (<https://github.com/openvinotoolkit/datumaro/pull/521>)
+- Python API documentation
+  (<https://github.com/openvinotoolkit/datumaro/pull/526>)
 - Mapillary Vistas dataset format (Import-only)
   (<https://github.com/openvinotoolkit/datumaro/pull/537>)
 - Datumaro can now be installed on Windows on Python 3.9
@@ -56,6 +83,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Bug #560: import issue with MOT dataset when using seqinfo.ini file
   (<https://github.com/openvinotoolkit/datumaro/pull/564>)
+- Empty lines in VOC subset lists are not ignored
+  (<https://github.com/openvinotoolkit/datumaro/pull/587>)
 
 ### Security
 - TBD
