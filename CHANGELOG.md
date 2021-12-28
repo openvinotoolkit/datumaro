@@ -12,7 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/582>)
 - Extension autodetection in `ByteImage`
   (<https://github.com/openvinotoolkit/datumaro/pull/595>)
-- Add MARS format (import only)
+- MPII Human Pose Dataset (import-only) (.mat and .json)
+  (<https://github.com/openvinotoolkit/datumaro/pull/584>)
+- MARS format (import-only)
   (<https://github.com/openvinotoolkit/datumaro/pull/585>)
 
 ### Changed
