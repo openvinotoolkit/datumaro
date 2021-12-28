@@ -9,7 +9,7 @@ from datumaro.components.annotation import (
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
 from datumaro.components.extractor import AnnotationType, DatasetItem
-from datumaro.plugins.mpii_format import (
+from datumaro.plugins.mpii_format.mpii_mat import (
     MPII_POINTS_JOINTS, MPII_POINTS_LABELS, MpiiImporter,
 )
 from datumaro.util.test_utils import compare_datasets

@@ -16,7 +16,7 @@ from datumaro.components.extractor import (
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.media import Image
 
-from .mpii_format import MPII_POINTS_JOINTS, MPII_POINTS_LABELS
+from .format import MPII_POINTS_JOINTS, MPII_POINTS_LABELS
 
 
 class MpiiJsonPath:
