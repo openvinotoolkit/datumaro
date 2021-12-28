@@ -90,34 +90,34 @@ class MpiiExtractor(SourceExtractor):
                 if isinstance(scale, float):
                     attributes['scale'] = scale
 
-                objpos = getattr(val, 'objpos')
+                objpos = getattr(val, 'objpos', None)
                 if isinstance(objpos, spio.matlab.mio5_params.mat_struct):
                     attributes['center'] = [getattr(objpos, 'x', 0), getattr(objpos, 'y', 0)]
 
-                annopoints = getattr(val, 'annopoints')
+                annopoints = getattr(val, 'annopoints', None)
                 if isinstance(annopoints, spio.matlab.mio5_params.mat_struct) and \
                         not isinstance(getattr(annopoints, 'point'),
                             spio.matlab.mio5_params.mat_struct):
                     for point in getattr(annopoints, 'point'):
                         point_id = getattr(point, 'id')
-                        keypoints[point_id] = [getattr(point, 'x'), getattr(point, 'y')]
-                        is_visible[point_id] = getattr(point, 'is_visible')
+                        keypoints[point_id] = [getattr(point, 'x', 0), getattr(point, 'y', 0)]
+                        is_visible[point_id] = getattr(point, 'is_visible', 1)
                         if not isinstance(is_visible[point_id], int):
                             is_visible[point_id] = 1
 
-                x1 = getattr(val, 'x1')
+                x1 = getattr(val, 'x1', None)
                 if not (isinstance(x1, float) or isinstance(x1, int)):
                     x1 = None
 
-                x2 = getattr(val, 'x2')
+                x2 = getattr(val, 'x2', None)
                 if not (isinstance(x2, float) or isinstance(x2, int)):
                     x2 = None
 
-                y1 = getattr(val, 'y1')
+                y1 = getattr(val, 'y1', None)
                 if not (isinstance(y1, float) or isinstance(y1, int)):
                     y1 = None
 
-                y2 = getattr(val, 'y2')
+                y2 = getattr(val, 'y2', None)
                 if not (isinstance(y2, float) or isinstance(y2, int)):
                     y2 = None
 

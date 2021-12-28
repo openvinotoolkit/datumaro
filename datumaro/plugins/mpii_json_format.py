@@ -74,19 +74,19 @@ class MpiiJsonExtractor(SourceExtractor):
         if osp.isfile(hb_path):
             headboxes = np.load(hb_path)
         else:
-            headboxes = []
+            headboxes = np.array([[[]]])
 
         vis_path = osp.join(root_dir, MpiiJsonPath.VISIBILITY_FILE)
         if osp.isfile(vis_path):
             visibility = np.load(vis_path).T
         else:
-            visibility = []
+            visibility = np.array([])
 
         pos_gt_path = osp.join(root_dir, MpiiJsonPath.POS_GT_FILE)
         if osp.isfile(pos_gt_path):
             gt_pose = np.transpose(np.load(pos_gt_path), (2, 0, 1))
         else:
-            gt_pose = []
+            gt_pose = np.array([])
 
         with open(path) as f:
             for i, ann in enumerate(json.load(f)):
@@ -95,10 +95,10 @@ class MpiiJsonExtractor(SourceExtractor):
                 center = ann.get('objpos', [])
                 scale = float(ann.get('scale_provided', 0))
 
-                if np.size(gt_pose):
+                if i < gt_pose.shape[0]:
                     points = gt_pose[i].ravel()
 
-                    if np.size(visibility):
+                    if i < visibility.shape[0]:
                         vis = visibility[i]
                     else:
                         vis = np.ones(len(points) // 2, dtype=np.int8)
@@ -107,7 +107,7 @@ class MpiiJsonExtractor(SourceExtractor):
                     points = keypoints[:, 0:2].ravel()
 
                     vis = keypoints[:, 2]
-                    if np.size(visibility):
+                    if i < visibility.shape[0]:
                         vis = visibility[i]
 
                 vis = [int(val) for val in vis]
@@ -117,7 +117,7 @@ class MpiiJsonExtractor(SourceExtractor):
                 annotations = [Points(points, vis, label=0, group=group_num,
                     attributes={'center': center, 'scale': scale})]
 
-                if np.size(headboxes):
+                if i < headboxes.shape[2]:
                     bbox = headboxes[:, :, i]
                     annotations.append(Bbox(bbox[0][0], bbox[0][1],
                         bbox[1][0] - bbox[0][0], bbox[1][1] - bbox[0][1],
@@ -134,9 +134,10 @@ class MpiiJsonExtractor(SourceExtractor):
                     if num_others == 1:
                         center = [center]
                         scale = [scale]
+                        joint_others = [joint_others]
 
                     for i in range(num_others):
-                        keypoints = np.array(joint_others[16 * i : 16 * (i + 1)])
+                        keypoints = np.array(joint_others[i])
                         points = keypoints[:, 0:2].ravel()
                         vis = keypoints[:, 2]
                         vis = [int(val) for val in vis]
