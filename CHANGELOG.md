@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/582>)
 - Extension autodetection in `ByteImage`
   (<https://github.com/openvinotoolkit/datumaro/pull/595>)
+- Add MARS format (import only)
+  (<https://github.com/openvinotoolkit/datumaro/pull/585>)
 
 ### Changed
 - `smooth_line` from `datumaro.util.annotation_util` - the function
