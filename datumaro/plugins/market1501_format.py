@@ -3,13 +3,12 @@
 # SPDX-License-Identifier: MIT
 
 from distutils.util import strtobool
-from itertools import chain
 import os
 import os.path as osp
 import re
 
 from datumaro.components.converter import Converter
-from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
+from datumaro.components.extractor import DatasetItem, Extractor, Importer
 from datumaro.util.image import find_images
 
 
@@ -17,123 +16,136 @@ class Market1501Path:
     QUERY_DIR = 'query'
     BBOX_DIR = 'bounding_box_'
     IMAGE_EXT = '.jpg'
-    PATTERN = re.compile(r'^(-?\d+)_c(\d+)(?:s\d+_\d+_00(.*))?')
+    PATTERN = re.compile(r'^(-?\d+)_c(\d+)s(\d+)_(\d+)_(\d+)(.*)')
     LIST_PREFIX = 'images_'
     UNKNOWN_ID = -1
+    ATTRIBUTES = ['person_id', 'camera_id', 'track_id', 'frame_id', 'bbox_id']
 
-class Market1501Extractor(SourceExtractor):
-    def __init__(self, path, subset=None):
+class Market1501Extractor(Extractor):
+    def __init__(self, path):
         if not osp.isdir(path):
             raise NotADirectoryError(
                 "Can't open folder with annotation files '%s'" % path)
 
-        if not subset:
-            subset = ''
-            for p in os.listdir(path):
-                pf = osp.join(path, p)
-
-                if p.startswith(Market1501Path.BBOX_DIR) and osp.isdir(pf):
-                    subset = p.replace(Market1501Path.BBOX_DIR, '')
-                    break
-
-                if p.startswith(Market1501Path.LIST_PREFIX) and osp.isfile(pf):
-                    subset = p.replace(Market1501Path.LIST_PREFIX, '')
-                    subset = osp.splitext(subset)[0]
-                    break
-        super().__init__(subset=subset)
-
         self._path = path
-        self._items = list(self._load_items(path).values())
+        super().__init__()
 
-    def _load_items(self, rootdir):
+        subsets = {}
+        for p in os.listdir(path):
+            pf = osp.join(path, p)
+
+            if p.startswith(Market1501Path.BBOX_DIR) and osp.isdir(pf):
+                subset = p.replace(Market1501Path.BBOX_DIR, '')
+                subsets[subset] = pf
+
+            if p.startswith(Market1501Path.LIST_PREFIX) and osp.isfile(pf):
+                subset = p.replace(Market1501Path.LIST_PREFIX, '')
+                subset = osp.splitext(subset)[0]
+                subsets[subset] = pf
+
+            if p.startswith(Market1501Path.QUERY_DIR) and osp.isdir(pf):
+                subset = Market1501Path.QUERY_DIR
+                subsets[subset] = pf
+
+        self._items = []
+        for subset, subset_path in subsets.items():
+            self._items.extend(list(
+                self._load_items(subset, subset_path).values()))
+
+    def __iter__(self):
+        yield from self._items
+
+    def _load_items(self, subset, subset_path):
         items = {}
 
         paths = []
-        anno_file = osp.join(rootdir,
-            Market1501Path.LIST_PREFIX + self._subset + '.txt')
-        if osp.isfile(anno_file):
-            with open(anno_file, encoding='utf-8') as f:
+        if osp.isfile(subset_path):
+            with open(subset_path, encoding='utf-8') as f:
                 for line in f:
-                    paths.append(osp.join(rootdir, line.strip()))
+                    paths.append(osp.join(self._path, line.strip()))
         else:
-            paths = list(chain(
-                find_images(osp.join(rootdir,
-                        Market1501Path.QUERY_DIR),
-                    recursive=True),
-                find_images(osp.join(rootdir,
-                        Market1501Path.BBOX_DIR + self._subset),
-                    recursive=True),
-            ))
+            paths = list(find_images(subset_path, recursive=True))
 
-        for image_path in paths:
+        for image_path in sorted(paths):
             item_id = osp.splitext(osp.normpath(image_path))[0]
             if osp.isabs(image_path):
-                item_id = osp.relpath(item_id, rootdir)
-            subdir, item_id = item_id.split(os.sep, maxsplit=1)
+                item_id = osp.relpath(item_id, self._path)
+            item_id = item_id.split(osp.sep, maxsplit=1)[1]
 
-            pid = Market1501Path.UNKNOWN_ID
-            camid = Market1501Path.UNKNOWN_ID
+            attributes = {}
             search = Market1501Path.PATTERN.search(osp.basename(item_id))
             if search:
-                pid, camid = map(int, search.groups()[0:2])
-                camid -= 1 # make ids 0-based
-                custom_name = search.groups()[2]
+                attribute_values = search.groups()[0:5]
+                attributes = {
+                    'person_id': attribute_values[0],
+                    'camera_id': int(attribute_values[1]) - 1,
+                    'track_id': int(attribute_values[2]),
+                    'frame_id': int(attribute_values[3]),
+                    'bbox_id': int(attribute_values[4]),
+                    'query': subset == Market1501Path.QUERY_DIR
+                }
+
+                custom_name = search.groups()[5]
                 if custom_name:
                     item_id = osp.join(osp.dirname(item_id), custom_name)
 
             item = items.get(item_id)
             if item is None:
-                item = DatasetItem(id=item_id, subset=self._subset,
-                    image=image_path)
+                item = DatasetItem(id=item_id, subset=subset, image=image_path,
+                    attributes=attributes)
                 items[item_id] = item
 
-            if pid != Market1501Path.UNKNOWN_ID or \
-                    camid != Market1501Path.UNKNOWN_ID:
-                attributes = item.attributes
-                attributes['query'] = subdir == Market1501Path.QUERY_DIR
-                attributes['person_id'] = pid
-                attributes['camera_id'] = camid
         return items
 
 class Market1501Importer(Importer):
     @classmethod
     def find_sources(cls, path):
-        if not osp.isdir(path):
-            return []
-        return [{ 'url': path, 'format': Market1501Extractor.NAME }]
+        for dirname in os.listdir(path):
+            if dirname.startswith((Market1501Path.BBOX_DIR,
+                    Market1501Path.QUERY_DIR, Market1501Path.LIST_PREFIX)):
+                return [{'url': path, 'format': Market1501Extractor.NAME}]
 
 class Market1501Converter(Converter):
     DEFAULT_IMAGE_EXT = Market1501Path.IMAGE_EXT
 
+    def _make_dir_name(self, item):
+        dirname = Market1501Path.BBOX_DIR + item.subset
+        query = item.attributes.get('query')
+        if query is not None and isinstance(query, str):
+            query = strtobool(query)
+        if query:
+            dirname = Market1501Path.QUERY_DIR
+        return dirname
+
     def apply(self):
         for subset_name, subset in self._extractor.subsets().items():
             annotation = ''
+            used_frames = {}
 
             for item in subset:
-                image_name = item.id
-                if Market1501Path.PATTERN.search(image_name) is None:
-                    if 'person_id' in item.attributes and \
-                            'camera_id' in item.attributes:
-                        image_pattern = '{:04d}_c{}s1_000000_00{}'
-                        pid = int(item.attributes['person_id'])
-                        camid = int(item.attributes['camera_id']) + 1
-                        dirname, basename = osp.split(item.id)
-                        image_name = osp.join(dirname,
-                            image_pattern.format(pid, camid, basename))
+                dirname = self._make_dir_name(item)
 
-                dirname = Market1501Path.BBOX_DIR + subset_name
-                if 'query' in item.attributes:
-                    query = item.attributes.get('query')
-                    if isinstance(query, str):
-                        query = strtobool(query)
-                    if query:
-                        dirname = Market1501Path.QUERY_DIR
+                image_name = item.id
+                pid = item.attributes.get('person_id')
+                match = Market1501Path.PATTERN.fullmatch(item.id)
+                if not match and pid:
+                    cid = int(item.attributes.get('camera_id', 0)) + 1
+                    tid = int(item.attributes.get('track_id', 1))
+                    bbid = int(item.attributes.get('bbox_id', 0))
+                    fid = int(item.attributes.get('frame_id',
+                        max(used_frames.get((pid, cid, tid), [-1])) + 1))
+                    image_name = osp.join(osp.dirname(image_name),
+                        f'{pid}_c{cid}s{tid}_{fid:06d}_{bbid:02d}')
 
                 image_path = self._make_image_filename(item,
                     name=image_name, subdir=dirname)
                 if self._save_images and item.has_image:
                     self._save_image(item, osp.join(self._save_dir, image_path))
 
+                attrs = Market1501Path.PATTERN.search(image_name)
+                if attrs:
+                    attrs = attrs.groups()
+                    used_frames.setdefault(attrs[0:2], []).append(int(attrs[3]))
                 annotation += '%s\n' % image_path
 
             annotation_file = osp.join(self._save_dir,
