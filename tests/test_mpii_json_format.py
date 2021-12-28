@@ -33,7 +33,7 @@ class MpiiJsonImporterTest(TestCase):
                             606.0, 217.0, 553.0, 161.0, 601.0, 167.0, 692.0,
                             185.0, 693.0, 240.0, 688.0, 313.0],
                         [1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                        attributes={'center': [594.000, 257.000], 'scale': 3.021},
+                        attributes={'center': [594.0, 257.0], 'scale': 3.021},
                         label=0, group=1),
                     Bbox(615, 218.65, 288.4, 286.95, label=0, group=1)
                 ]
@@ -46,7 +46,7 @@ class MpiiJsonImporterTest(TestCase):
                             636.0, 247.0, 583.0, 191.0, 631.0, 197.0, 722.0,
                             215.0, 723.0, 270.0, 718.0, 343.0],
                         [1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                        attributes={'center': [624.000, 287.000], 'scale': 3.7},
+                        attributes={'center': [624.0, 287.0], 'scale': 3.7},
                         label=0, group=1),
                     Bbox(101.1, 33.3, 113.9, 81.4, label=0, group=1)
                 ]
@@ -59,7 +59,7 @@ class MpiiJsonImporterTest(TestCase):
                             576.0, 187.0, 532.0, 131.0, 571.0, 137.0, 662.0,
                             155.0, 663.0, 210.0, 658.0, 283.0],
                         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1],
-                        attributes={'center': [564.000, 227.000], 'scale': 3.2},
+                        attributes={'center': [564.0, 227.0], 'scale': 3.2},
                         label=0, group=1),
                     Bbox(313.3, 512.43, 220.7, 121.57, label=0, group=1),
 
@@ -69,7 +69,7 @@ class MpiiJsonImporterTest(TestCase):
                             476.0, 87.0, 432.0, 31.0, 471.0, 37.0, 562.0,
                             55.0, 563.0, 110.0, 558.0, 183.0],
                         [1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1],
-                        attributes={'center': [464.000, 127.000], 'scale': 2.65},
+                        attributes={'center': [464.0, 127.0], 'scale': 2.65},
                         label=0, group=2),
 
                     Points([690.0, 464.0, 686.0, 339.0, 633.0, 255.0, 717.0,
@@ -78,7 +78,7 @@ class MpiiJsonImporterTest(TestCase):
                             676.0, 287.0, 632.0, 231.0, 671.0, 237.0, 762.0,
                             255.0, 763.0, 310.0, 758.0, 383.0],
                         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1],
-                        attributes={'center': [664.000, 327.000], 'scale': 3.9},
+                        attributes={'center': [664.0, 327.0], 'scale': 3.9},
                         label=0, group=3)
                 ]
             )
@@ -103,7 +103,7 @@ class MpiiJsonImporterTest(TestCase):
                             606.0, 217.0, 553.0, 161.0, 601.0, 167.0, 692.0,
                             185.0, 693.0, 240.0, 688.0, 313.0],
                         [1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                        attributes={'center': [594.000, 257.000], 'scale': 3.021},
+                        attributes={'center': [594.0, 257.0], 'scale': 3.021},
                         label=0, group=1)
                 ]
             ),
@@ -115,7 +115,7 @@ class MpiiJsonImporterTest(TestCase):
                             636.0, 247.0, 583.0, 191.0, 631.0, 197.0, 722.0,
                             215.0, 723.0, 270.0, 718.0, 343.0],
                         [1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                        attributes={'center': [624.000, 287.000], 'scale': 3.7},
+                        attributes={'center': [624.0, 287.0], 'scale': 3.7},
                         label=0, group=1)
                 ]
             ),
@@ -127,7 +127,7 @@ class MpiiJsonImporterTest(TestCase):
                             576.0, 187.0, 532.0, 131.0, 571.0, 137.0, 662.0,
                             155.0, 663.0, 210.0, 658.0, 283.0],
                         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1],
-                        attributes={'center': [564.000, 227.000], 'scale': 3.2},
+                        attributes={'center': [564.0, 227.0], 'scale': 3.2},
                         label=0, group=1)
                 ]
             )

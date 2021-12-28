@@ -62,86 +62,85 @@ class MpiiExtractor(SourceExtractor):
         root_dir = osp.dirname(path)
 
         data = spio.loadmat(path, struct_as_record=False, squeeze_me=True).get('RELEASE', {})
-        data = data.__dict__['annolist']
+        data = getattr(data, 'annolist', [])
 
         for item in data:
             image = ''
             annotations = []
             group_num = 1
-            for mat_val in item._fieldnames:
-                values = item.__dict__[mat_val]
 
-                if mat_val == 'image':
-                    image = values.__dict__['name']
+            image = getattr(item, 'image', '')
+            if isinstance(image, spio.matlab.mio5_params.mat_struct):
+                image = getattr(image, 'name', '')
 
-                elif mat_val == 'annorect':
-                    if isinstance(values, spio.matlab.mio5_params.mat_struct):
-                        values = [values]
-                    for val in values:
-                        x1 = None
-                        x2 = None
-                        y1 = None
-                        y2 = None
-                        keypoints = {}
-                        is_visible = {}
-                        attributes = {}
-                        for anno_mat in val._fieldnames:
-                            anno = val.__dict__[anno_mat]
-                            if anno_mat == 'scale' and isinstance(anno, float):
-                                attributes['scale'] = anno
+            values = getattr(item, 'annorect', [])
+            if isinstance(values, spio.matlab.mio5_params.mat_struct):
+                values = [values]
 
-                            elif anno_mat == 'objpos' and \
-                                    isinstance(anno, spio.matlab.mio5_params.mat_struct):
-                                attributes['center'] = [anno.__dict__['x'], anno.__dict__['y']]
+            for val in values:
+                x1 = None
+                x2 = None
+                y1 = None
+                y2 = None
+                keypoints = {}
+                is_visible = {}
+                attributes = {}
 
-                            elif anno_mat == 'annopoints' and \
-                                isinstance(anno, spio.matlab.mio5_params.mat_struct) and \
-                                not isinstance(anno.__dict__['point'],
-                                               spio.matlab.mio5_params.mat_struct):
+                scale = getattr(val, 'scale', 0.0)
+                if isinstance(scale, float):
+                    attributes['scale'] = scale
 
-                                for point in anno.__dict__['point']:
-                                    point_id = point.__dict__['id']
-                                    keypoints[point_id] = [point.__dict__['x'], point.__dict__['y']]
-                                    is_visible[point_id] = point.__dict__['is_visible']
-                                    if not isinstance(is_visible[point_id], int):
-                                        is_visible[point_id] = 1
+                objpos = getattr(val, 'objpos')
+                if isinstance(objpos, spio.matlab.mio5_params.mat_struct):
+                    attributes['center'] = [getattr(objpos, 'x', 0), getattr(objpos, 'y', 0)]
 
-                            elif anno_mat == 'x1' and \
-                                    (isinstance(anno, float) or isinstance(anno, int)):
-                                x1 = anno
+                annopoints = getattr(val, 'annopoints')
+                if isinstance(annopoints, spio.matlab.mio5_params.mat_struct) and \
+                        not isinstance(getattr(annopoints, 'point'),
+                            spio.matlab.mio5_params.mat_struct):
+                    for point in getattr(annopoints, 'point'):
+                        point_id = getattr(point, 'id')
+                        keypoints[point_id] = [getattr(point, 'x'), getattr(point, 'y')]
+                        is_visible[point_id] = getattr(point, 'is_visible')
+                        if not isinstance(is_visible[point_id], int):
+                            is_visible[point_id] = 1
 
-                            elif anno_mat == 'x2' and \
-                                    (isinstance(anno, float) or isinstance(anno, int)):
-                                x2 = anno
+                x1 = getattr(val, 'x1')
+                if not (isinstance(x1, float) or isinstance(x1, int)):
+                    x1 = None
 
-                            elif anno_mat == 'y1' and \
-                                    (isinstance(anno, float) or isinstance(anno, int)):
-                                y1 = anno
+                x2 = getattr(val, 'x2')
+                if not (isinstance(x2, float) or isinstance(x2, int)):
+                    x2 = None
 
-                            elif anno_mat == 'y2' and \
-                                    (isinstance(anno, float) or isinstance(anno, int)):
-                                y2 = anno
+                y1 = getattr(val, 'y1')
+                if not (isinstance(y1, float) or isinstance(y1, int)):
+                    y1 = None
 
-                        if keypoints:
-                            points = [0] * (2 * len(keypoints))
-                            vis = [0] * len(keypoints)
+                y2 = getattr(val, 'y2')
+                if not (isinstance(y2, float) or isinstance(y2, int)):
+                    y2 = None
 
-                            keypoints = sorted(keypoints.items(), key=lambda x: x[0])
-                            for i, (key, point) in enumerate(keypoints):
-                                points[2 * i] = point[0]
-                                points[2 * i + 1] = point[1]
-                                vis[i] = is_visible.get(key, 1)
+                if keypoints:
+                    points = [0] * (2 * len(keypoints))
+                    vis = [0] * len(keypoints)
 
-                            annotations.append(Points(points, vis, label=0, group=group_num,
-                                attributes=attributes))
+                    keypoints = sorted(keypoints.items(), key=lambda x: x[0])
+                    for i, (key, point) in enumerate(keypoints):
+                        points[2 * i] = point[0]
+                        points[2 * i + 1] = point[1]
+                        vis[i] = is_visible.get(key, 1)
 
-                        if x1 is not None and x2 is not None \
-                            and y1 is not None and y2 is not None:
+                    annotations.append(Points(points, vis, label=0, group=group_num,
+                        attributes=attributes))
 
-                            annotations.append(Bbox(x1, y1, x2 - x1, y2 - y1,
-                                label=0, group=group_num))
+                if x1 is not None and x2 is not None \
+                        and y1 is not None and y2 is not None:
 
-                        group_num += 1
+                    annotations.append(Bbox(x1, y1, x2 - x1, y2 - y1,
+                        label=0, group=group_num))
+
+                group_num += 1
 
             item_id = osp.splitext(image)[0]
 
