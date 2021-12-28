@@ -51,15 +51,12 @@ class MpiiExtractor(SourceExtractor):
             image = getattr(item, 'image', '')
             if isinstance(image, spio.matlab.mio5_params.mat_struct):
                 image = getattr(image, 'name', '')
-            else:
-                raise DatasetImportError("The item '%s' has not "
-                    "information about the image" % item)
 
-            values = getattr(item, 'annorect', [])
-            if isinstance(values, spio.matlab.mio5_params.mat_struct):
-                values = [values]
+            anno_values = getattr(item, 'annorect', [])
+            if isinstance(anno_values, spio.matlab.mio5_params.mat_struct):
+                anno_values = [anno_values]
 
-            for val in values:
+            for val in anno_values:
                 x1 = None
                 x2 = None
                 y1 = None
@@ -74,7 +71,9 @@ class MpiiExtractor(SourceExtractor):
 
                 objpos = getattr(val, 'objpos', None)
                 if isinstance(objpos, spio.matlab.mio5_params.mat_struct):
-                    attributes['center'] = [getattr(objpos, 'x', 0), getattr(objpos, 'y', 0)]
+                    attributes['center'] = [
+                        getattr(objpos, 'x', 0), getattr(objpos, 'y', 0)
+                    ]
 
                 annopoints = getattr(val, 'annopoints', None)
                 if isinstance(annopoints, spio.matlab.mio5_params.mat_struct) and \
@@ -82,7 +81,9 @@ class MpiiExtractor(SourceExtractor):
                             spio.matlab.mio5_params.mat_struct):
                     for point in getattr(annopoints, 'point'):
                         point_id = getattr(point, 'id')
-                        keypoints[point_id] = [getattr(point, 'x', 0), getattr(point, 'y', 0)]
+                        keypoints[point_id] = [
+                            getattr(point, 'x', 0), getattr(point, 'y', 0)
+                        ]
                         is_visible[point_id] = getattr(point, 'is_visible', 1)
                         if not isinstance(is_visible[point_id], int):
                             is_visible[point_id] = 1
@@ -113,8 +114,8 @@ class MpiiExtractor(SourceExtractor):
                         points[2 * i + 1] = point[1]
                         vis[i] = is_visible.get(key, 1)
 
-                    annotations.append(Points(points, vis, label=0, group=group_num,
-                        attributes=attributes))
+                    annotations.append(Points(points, vis, label=0,
+                        group=group_num, attributes=attributes))
 
                 if x1 is not None and x2 is not None \
                         and y1 is not None and y2 is not None:
