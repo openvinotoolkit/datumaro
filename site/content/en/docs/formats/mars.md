@@ -15,6 +15,7 @@ Supported types of annotations:
 - `Bbox`
 
 Required attributes:
+- `person_id` (str): four-digit number that represent ID of pedestrian;
 - `camera_id` (int): one-digit number that represent ID of camera that took
   the image (original dataset has totally 6 cameras);
 - `track_id` (int): four-digit number that represent ID of the track with
