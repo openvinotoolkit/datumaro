@@ -15,6 +15,7 @@ from datumaro.components.extractor import (
 )
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.media import Image
+from .mpii_format import MPII_POINTS_JOINTS, MPII_POINTS_LABELS
 
 
 class MpiiJsonPath:
@@ -22,33 +23,6 @@ class MpiiJsonPath:
     HEADBOXES_FILE = 'mpii_headboxes.npy'
     VISIBILITY_FILE = 'jnt_visible.npy'
     POS_GT_FILE = 'mpii_pos_gt.npy'
-
-MPII_POINTS_LABELS = [
-    'r_ankle',
-    'r_knee',
-    'r_hip',
-    'l_hip',
-    'l_knee',
-    'l_ankle',
-    'pelvis',
-    'thorax',
-    'upper_neck',
-    'head top',
-    'r_wrist',
-    'r_elbow',
-    'r_shoulder',
-    'l_shoulder',
-    'l_elbow',
-    'l_wrist'
-]
-
-MPI_POINTS_JOINTS = [
-    (0, 1), (1, 2), (2, 6), (3, 4),
-    (3, 6), (4, 5), (6, 7), (7, 8),
-    (8, 9), (8, 12), (8, 13), (10, 11),
-    (11, 12), (13, 14), (14, 15)
-]
-
 
 class MpiiJsonExtractor(SourceExtractor):
     def __init__(self, path):
@@ -60,7 +34,7 @@ class MpiiJsonExtractor(SourceExtractor):
         self._categories = {
             AnnotationType.label: LabelCategories.from_iterable(['human']),
             AnnotationType.points: PointsCategories.from_iterable(
-                [(0, MPII_POINTS_LABELS, MPI_POINTS_JOINTS)])
+                [(0, MPII_POINTS_LABELS, MPII_POINTS_JOINTS)])
         }
 
         self._items = list(self._load_items(path).values())

@@ -10,7 +10,7 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
 from datumaro.components.extractor import AnnotationType, DatasetItem
 from datumaro.plugins.mpii_json_format import (
-    MPI_POINTS_JOINTS, MPII_POINTS_LABELS, MpiiJsonImporter,
+    MPII_POINTS_JOINTS, MPII_POINTS_LABELS, MpiiJsonImporter,
 )
 from datumaro.util.test_utils import compare_datasets
 
@@ -85,7 +85,7 @@ class MpiiJsonImporterTest(TestCase):
         ], categories={
             AnnotationType.label: LabelCategories.from_iterable(['human']),
             AnnotationType.points: PointsCategories.from_iterable(
-                [(0, MPII_POINTS_LABELS, MPI_POINTS_JOINTS)])
+                [(0, MPII_POINTS_LABELS, MPII_POINTS_JOINTS)])
         })
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR_WITH_NUMPY_FILES, 'mpii_json')
@@ -134,7 +134,7 @@ class MpiiJsonImporterTest(TestCase):
         ], categories={
             AnnotationType.label: LabelCategories.from_iterable(['human']),
             AnnotationType.points: PointsCategories.from_iterable(
-                [(0, MPII_POINTS_LABELS, MPI_POINTS_JOINTS)])
+                [(0, MPII_POINTS_LABELS, MPII_POINTS_JOINTS)])
         })
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR_WO_NUMPY_FILES, 'mpii_json')

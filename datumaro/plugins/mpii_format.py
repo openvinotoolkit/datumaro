@@ -9,6 +9,7 @@ import scipy.io as spio
 from datumaro.components.annotation import (
     Bbox, LabelCategories, Points, PointsCategories,
 )
+from datumaro.components.errors import DatasetImportError
 from datumaro.components.extractor import (
     AnnotationType, DatasetItem, Importer, SourceExtractor,
 )
@@ -34,7 +35,7 @@ MPII_POINTS_LABELS = [
     'l_wrist'
 ]
 
-MPI_POINTS_JOINTS = [
+MPII_POINTS_JOINTS = [
     (0, 1), (1, 2), (2, 6), (3, 4),
     (3, 6), (4, 5), (6, 7), (7, 8),
     (8, 9), (8, 12), (8, 13), (10, 11),
@@ -51,7 +52,7 @@ class MpiiExtractor(SourceExtractor):
         self._categories = {
             AnnotationType.label: LabelCategories.from_iterable(['human']),
             AnnotationType.points: PointsCategories.from_iterable(
-                [(0, MPII_POINTS_LABELS, MPI_POINTS_JOINTS)])
+                [(0, MPII_POINTS_LABELS, MPII_POINTS_JOINTS)])
         }
 
         self._items = list(self._load_items(path).values())
@@ -61,7 +62,8 @@ class MpiiExtractor(SourceExtractor):
 
         root_dir = osp.dirname(path)
 
-        data = spio.loadmat(path, struct_as_record=False, squeeze_me=True).get('RELEASE', {})
+        data = spio.loadmat(path, struct_as_record=False,
+            squeeze_me=True).get('RELEASE', {})
         data = getattr(data, 'annolist', [])
 
         for item in data:
@@ -72,6 +74,9 @@ class MpiiExtractor(SourceExtractor):
             image = getattr(item, 'image', '')
             if isinstance(image, spio.matlab.mio5_params.mat_struct):
                 image = getattr(image, 'name', '')
+            else:
+                raise DatasetImportError("The item '%s' has not "
+                    "information about the image" % item)
 
             values = getattr(item, 'annorect', [])
             if isinstance(values, spio.matlab.mio5_params.mat_struct):
@@ -106,19 +111,19 @@ class MpiiExtractor(SourceExtractor):
                             is_visible[point_id] = 1
 
                 x1 = getattr(val, 'x1', None)
-                if not (isinstance(x1, float) or isinstance(x1, int)):
+                if not isinstance(x1, (int, float)):
                     x1 = None
 
                 x2 = getattr(val, 'x2', None)
-                if not (isinstance(x2, float) or isinstance(x2, int)):
+                if not isinstance(x2, (int, float)):
                     x2 = None
 
                 y1 = getattr(val, 'y1', None)
-                if not (isinstance(y1, float) or isinstance(y1, int)):
+                if not isinstance(y1, (int, float)):
                     y1 = None
 
                 y2 = getattr(val, 'y2', None)
-                if not (isinstance(y2, float) or isinstance(y2, int)):
+                if not isinstance(y2, (int, float)):
                     y2 = None
 
                 if keypoints:
