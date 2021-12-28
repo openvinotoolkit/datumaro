@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Ability to import a video as frames and to split a video into frames with
   the `datum util split_video` command
   (<https://github.com/openvinotoolkit/datumaro/pull/555>)
+- MPII Human Pose Dataset (import-only) (.mat and .json)
+  (<https://github.com/openvinotoolkit/datumaro/pull/584>)
+- MARS format (import-only)
+  (<https://github.com/openvinotoolkit/datumaro/pull/585>)
 
 ### Changed
 - `smooth_line` from `datumaro.util.annotation_util` - the function

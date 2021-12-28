@@ -20,28 +20,19 @@ class Market1501FormatTest(TestCase):
     def test_can_save_and_load(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='0001_c2s3_000001_00',
-                subset='test', image=np.ones((2, 5, 3)),
-                attributes = {
-                    'camera_id': 1,
-                    'person_id': 1,
-                    'query': True
-                }
+                subset='query', image=np.ones((2, 5, 3)),
+                attributes = {'camera_id': 1, 'person_id': '0001', 'track_id': 3,
+                    'frame_id': 1, 'bbox_id': 0, 'query': True}
             ),
             DatasetItem(id='0002_c4s2_000002_00',
                 subset='test', image=np.ones((2, 5, 3)),
-                attributes = {
-                    'camera_id': 3,
-                    'person_id': 2,
-                    'query': False
-                }
+                attributes = {'camera_id': 3, 'person_id': '0002', 'track_id': 2,
+                    'frame_id': 2, 'bbox_id': 0, 'query': False}
             ),
             DatasetItem(id='0001_c1s1_000003_00',
                 subset='test', image=np.ones((2, 5, 3)),
-                attributes = {
-                    'camera_id': 0,
-                    'person_id': 1,
-                    'query': False
-                }
+                attributes = {'camera_id': 0, 'person_id': '0001', 'track_id': 1,
+                    'frame_id': 3, 'bbox_id': 0, 'query': False}
             ),
         ])
 
@@ -56,11 +47,8 @@ class Market1501FormatTest(TestCase):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='0001_c2s3_000001_00',
                 image=np.ones((2, 5, 3)),
-                attributes = {
-                    'camera_id': 1,
-                    'person_id': 1,
-                    'query': True
-                }
+                attributes = {'camera_id': 1, 'person_id': '0001', 'track_id': 3,
+                    'frame_id': 1, 'bbox_id': 0, 'query': False}
             ),
         ])
 
@@ -75,11 +63,15 @@ class Market1501FormatTest(TestCase):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='кириллица с пробелом',
                 image=np.ones((2, 5, 3)),
-                attributes = {
-                    'camera_id': 1,
-                    'person_id': 1,
-                    'query': True
-                }
+                attributes = {'camera_id': 0, 'person_id': '0001', 'query': False}
+            ),
+        ])
+
+        expected_dataset = Dataset.from_iterable([
+            DatasetItem(id='0001_c1s1_000000_00',
+                image=np.ones((2, 5, 3)),
+                attributes = {'camera_id': 0, 'person_id': '0001', 'track_id': 1,
+                    'frame_id': 0, 'bbox_id': 0, 'query': False}
             ),
         ])
 
@@ -87,27 +79,16 @@ class Market1501FormatTest(TestCase):
             Market1501Converter.convert(source_dataset, test_dir, save_images=True)
             parsed_dataset = Dataset.import_from(test_dir, 'market1501')
 
-            compare_datasets(self, source_dataset, parsed_dataset,
+            compare_datasets(self, expected_dataset, parsed_dataset,
                 require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_no_save_images(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='0001_c2s3_000001_00',
-                subset='test', image=np.ones((2, 5, 3)),
-                attributes = {
-                    'camera_id': 1,
-                    'person_id': 1,
-                    'query': True
-                }
-            ),
-            DatasetItem(id='test1',
-                subset='test', image=np.ones((2, 5, 3)),
-                attributes = {
-                    'camera_id': 1,
-                    'person_id': 2,
-                    'query': False
-                }
+                subset='query', image=np.ones((2, 5, 3)),
+                attributes = {'camera_id': 1, 'person_id': '0001', 'track_id': 3,
+                    'frame_id': 1, 'bbox_id': 0, 'query': True}
             ),
         ])
 
@@ -120,20 +101,16 @@ class Market1501FormatTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         expected = Dataset.from_iterable([
-            DatasetItem(id='q/1', image=Image(
-                    path='q/1.JPEG', data=np.zeros((4, 3, 3))),
-                attributes={
-                    'camera_id': 1,
-                    'person_id': 1,
-                    'query': False
-                }),
-            DatasetItem(id='a/b/c/2', image=Image(
-                    path='a/b/c/2.bmp', data=np.zeros((3, 4, 3))),
-                attributes={
-                    'camera_id': 1,
-                    'person_id': 2,
-                    'query': True
-                }),
+            DatasetItem(id='c/0001_c1s1_000000_00', image=Image(
+                    path='c/0001_c1s1_0000_00.JPEG', data=np.zeros((4, 3, 3))),
+                attributes={'camera_id': 0, 'person_id': '0001', 'track_id': 1,
+                    'frame_id': 0, 'bbox_id': 0, 'query': False}
+            ),
+            DatasetItem(id='a/b/0002_c2s2_000001_00', image=Image(
+                    path='a/b/0002_c2s2_0001_00.bmp', data=np.zeros((3, 4, 3))),
+                attributes={'camera_id': 1, 'person_id': '0002', 'track_id': 2,
+                    'frame_id': 1, 'bbox_id': 0, 'query': False}
+            ),
         ])
 
         with TestDir() as test_dir:
@@ -148,14 +125,6 @@ class Market1501FormatTest(TestCase):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='test1',
                 subset='test', image=np.ones((2, 5, 3)),
-            ),
-            DatasetItem(id='test2',
-                subset='test', image=np.ones((2, 5, 3)),
-                attributes={
-                    'camera_id': 1,
-                    'person_id': -1,
-                    'query': True
-                }
             ),
         ])
 
@@ -177,23 +146,21 @@ class Market1501ImporterTest(TestCase):
     def test_can_import(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='0001_c2s3_000111_00',
-                subset='test', image=np.ones((2, 5, 3)),
-                attributes = {
-                    'camera_id': 1,
-                    'person_id': 1,
-                    'query': True
-                }
+                subset='query', image=np.ones((2, 5, 3)),
+                attributes = {'camera_id': 1, 'person_id': '0001', 'track_id': 3,
+                    'frame_id': 111, 'bbox_id': 0, 'query': True}
             ),
             DatasetItem(id='0001_c1s1_001051_00',
                 subset='test', image=np.ones((2, 5, 3)),
-                attributes = {
-                    'camera_id': 0,
-                    'person_id': 1,
-                    'query': False
-                }
+                attributes = {'camera_id': 0, 'person_id': '0001', 'track_id': 1,
+                    'frame_id': 1051, 'bbox_id': 0, 'query': False}
+            ),
+            DatasetItem(id='0002_c1s3_000151_00',
+                subset='train', image=np.ones((2, 5, 3)),
+                attributes = {'camera_id': 0, 'person_id': '0002', 'track_id': 3,
+                    'frame_id': 151, 'bbox_id': 0, 'query': False}
             ),
         ])
-
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'market1501')
 
         compare_datasets(self, expected_dataset, dataset)
