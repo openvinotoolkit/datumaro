@@ -19,6 +19,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `smooth_line` from `datumaro.util.annotation_util` - the function
   is renamed to `approximate_line` and has updated interface
   (<https://github.com/openvinotoolkit/datumaro/pull/592>)
+- Allowed direct file paths in `datum import`. Such sources are imported like
+  when the `rpath` parameter is specified, however, only the selected path
+  is copied into the project
+  (<https://github.com/openvinotoolkit/datumaro/pull/555>)
 
 ### Deprecated
 - TBD
