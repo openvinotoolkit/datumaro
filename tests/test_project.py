@@ -114,7 +114,7 @@ class ProjectTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
-    def test_can_import_local_source(self):
+    def test_can_import_local_dir_source(self):
         test_dir = scope_add(TestDir())
         source_base_url = osp.join(test_dir, 'test_repo')
         source_file_path = osp.join(source_base_url, 'x', 'y.txt')
@@ -128,6 +128,29 @@ class ProjectTest(TestCase):
         source = project.working_tree.sources['s1']
         self.assertEqual('fmt', source.format)
         compare_dirs(self, source_base_url, project.source_data_dir('s1'))
+        with open(osp.join(test_dir, 'proj', '.gitignore')) as f:
+            self.assertTrue('/s1' in [line.strip() for line in f])
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_can_import_local_file_source(self):
+        # In this variant, we copy and read just the file specified
+
+        test_dir = scope_add(TestDir())
+        source_url = osp.join(test_dir, 'f.txt')
+        os.makedirs(osp.dirname(source_url), exist_ok=True)
+        with open(source_url, 'w') as f:
+            f.write('hello')
+
+        project = scope_add(Project.init(osp.join(test_dir, 'proj')))
+        project.import_source('s1', url=source_url, format='fmt')
+
+        source = project.working_tree.sources['s1']
+        self.assertEqual('fmt', source.format)
+        self.assertEqual('f.txt', source.path)
+
+        self.assertEqual({'f.txt'},
+            set(os.listdir(project.source_data_dir('s1'))))
         with open(osp.join(test_dir, 'proj', '.gitignore')) as f:
             self.assertTrue('/s1' in [line.strip() for line in f])
 

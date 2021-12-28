@@ -2065,6 +2065,8 @@ class Project:
                         "specified by source URL: '%s', '%s'" % (rpath, url))
 
                 rpath = osp.relpath(rpath, url)
+            elif osp.isfile(url):
+                rpath = osp.basename(url)
         else:
             rpath = None
 
@@ -2120,7 +2122,7 @@ class Project:
         in datasets.
 
         Parameters:
-            url (str): URL of the new source. A path to a file or directory
+            url (str): URL of the new source. A path to a directory
             format (str): Dataset format
             options (dict): Options for the format Extractor
             rpath (str): Used to specify a relative path to the dataset
