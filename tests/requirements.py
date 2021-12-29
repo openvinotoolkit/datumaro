@@ -44,6 +44,7 @@ class Requirements:
     DATUM_BUG_470 = "Cannot to import Cityscapes dataset without images"
     DATUM_BUG_560 = "Reading MOT dataset with seqinfo produces 0-based indexing in frames"
     DATUM_BUG_583 = "Empty lines in VOC subset lists are not ignored"
+    DATUM_BUG_289 = "Cannot convert LabelMe dataset, that has no subsets"
 
 
 class SkipMessages:

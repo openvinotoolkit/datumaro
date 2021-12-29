@@ -303,3 +303,95 @@ class LabelMeImporterTest(TestCase):
 
         parsed = Dataset.import_from(DUMMY_DATASET_DIR, 'label_me')
         compare_datasets(self, expected=target_dataset, actual=parsed)
+
+    @mark_requirement(Requirements.DATUM_BUG_289)
+    def test_can_convert(self):
+        img1 = np.ones((77, 102, 3)) * 255
+        img1[6:32, 7:41] = 0
+
+        mask1 = np.zeros((77, 102), dtype=int)
+        mask1[67:69, 58:63] = 1
+
+        mask2 = np.zeros((77, 102), dtype=int)
+        mask2[13:25, 54:71] = [
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+            [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+            [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+            [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+            [0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0],
+            [0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0],
+            [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0],
+            [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0],
+            [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0],
+            [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        ]
+
+        target_dataset = Dataset.from_iterable([
+            DatasetItem(id='example_folder/img1', image=img1,
+                annotations=[
+                    Polygon([43, 34, 45, 34, 45, 37, 43, 37],
+                        label=0, id=0,
+                        attributes={
+                            'occluded': False,
+                            'username': 'admin'
+                        }
+                    ),
+                    Mask(mask1, label=1, id=1,
+                        attributes={
+                            'occluded': False,
+                            'username': 'brussell'
+                        }
+                    ),
+                    Polygon([30, 12, 42, 21, 24, 26, 15, 22, 18, 14, 22, 12, 27, 12],
+                        label=2, group=2, id=2,
+                        attributes={
+                            'a1': True,
+                            'occluded': True,
+                            'username': 'anonymous'
+                        }
+                    ),
+                    Polygon([35, 21, 43, 22, 40, 28, 28, 31, 31, 22, 32, 25],
+                        label=3, group=2, id=3,
+                        attributes={
+                            'kj': True,
+                            'occluded': False,
+                            'username': 'anonymous'
+                        }
+                    ),
+                    Bbox(13, 19, 10, 11, label=4, group=2, id=4,
+                        attributes={
+                            'hg': True,
+                            'occluded': True,
+                            'username': 'anonymous'
+                        }
+                    ),
+                    Mask(mask2, label=5, group=1, id=5,
+                        attributes={
+                            'd': True,
+                            'occluded': False,
+                            'username': 'anonymous'
+                        }
+                    ),
+                    Polygon([64, 21, 74, 24, 72, 32, 62, 34, 60, 27, 62, 22],
+                        label=6, group=1, id=6,
+                        attributes={
+                            'gfd lkj lkj hi': True,
+                            'occluded': False,
+                            'username': 'anonymous'
+                        }
+                    ),
+                ]
+            ),
+        ], categories=[
+            'window', 'license plate', 'o1', 'q1', 'b1', 'm1', 'hg',
+        ])
+
+        source_dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'label_me')
+        with TestDir() as test_dir:
+            LabelMeConverter.convert(source_dataset, test_dir, save_images=True)
+            parsed_dataset = Dataset.import_from(test_dir, 'label_me')
+
+            compare_datasets(self, source_dataset, parsed_dataset,
+                require_images=True)
