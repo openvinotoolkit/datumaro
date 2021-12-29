@@ -12,9 +12,9 @@ the repository with some information and sample data of Vgg Face 2 is available
 [here](https://github.com/ox-vgg/vgg_face2)
 
 Supported types of annotations:
-  - `Bbox`
-  - `Points`
-  - `Label`
+- `Bbox`
+- `Points`
+- `Label`
 
 Dataset is not support any attributes for annotations objects.
 
