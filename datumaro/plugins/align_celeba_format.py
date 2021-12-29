@@ -10,6 +10,7 @@ from datumaro.components.annotation import (
 from datumaro.components.errors import DatasetImportError
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.util.image import find_images
+from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
 
 class AlignCelebaPath:
@@ -32,6 +33,10 @@ class AlignCelebaExtractor(SourceExtractor):
         self._anno_dir = osp.dirname(path)
 
         self._categories = { AnnotationType.label: LabelCategories() }
+        if has_meta_file(path):
+            self._categories = { AnnotationType.label: LabelCategories.
+                from_iterable(parse_meta_file(path).keys()) }
+
         self._items = list(self._load_items(path).values())
 
     def _load_items(self, root_dir):
@@ -50,7 +55,7 @@ class AlignCelebaExtractor(SourceExtractor):
         label_categories = self._categories[AnnotationType.label]
 
         labels_path = osp.join(root_dir, AlignCelebaPath.LABELS_FILE)
-        if (not osp.isfile(labels_path)):
+        if not osp.isfile(labels_path):
             raise DatasetImportError("File '%s': was not found" % labels_path)
 
         with open(labels_path, encoding='utf-8') as f:

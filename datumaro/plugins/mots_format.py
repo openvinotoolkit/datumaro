@@ -17,6 +17,7 @@ from datumaro.components.converter import Converter
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.util.image import find_images, load_image, save_image
 from datumaro.util.mask_tools import merge_masks
+from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
 
 class MotsPath:
@@ -44,8 +45,12 @@ class MotsPngExtractor(SourceExtractor):
         super().__init__(subset=subset)
         self._images_dir = osp.join(path, 'images')
         self._anno_dir = osp.join(path, MotsPath.MASKS_DIR)
-        self._categories = self._parse_categories(
-            osp.join(self._anno_dir, MotsPath.LABELS_FILE))
+        if has_meta_file(path):
+            self._categories = { AnnotationType.label: LabelCategories.
+                from_iterable(parse_meta_file(path).keys()) }
+        else:
+            self._categories = self._parse_categories(
+                osp.join(self._anno_dir, MotsPath.LABELS_FILE))
         self._items = self._parse_items()
 
     def _parse_categories(self, path):
@@ -122,6 +127,11 @@ class MotsPngConverter(Converter):
     DEFAULT_IMAGE_EXT = MotsPath.IMAGE_EXT
 
     def apply(self):
+        os.makedirs(self._save_dir, exist_ok=True)
+
+        if self._save_dataset_meta:
+            self._save_meta_file(self._save_dir)
+
         for subset_name, subset in self._extractor.subsets().items():
             subset_dir = osp.join(self._save_dir, subset_name)
             image_dir = osp.join(subset_dir, MotsPath.IMAGE_DIR)

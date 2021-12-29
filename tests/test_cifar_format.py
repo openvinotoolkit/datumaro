@@ -216,6 +216,30 @@ class CifarFormatTest(TestCase):
             with self.assertRaisesRegex(pickle.UnpicklingError, "Global"):
                 Dataset.import_from(test_dir, 'cifar')
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_save_and_load_with_meta_file(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id='image_2', subset='test',
+                image=np.ones((32, 32, 3)),
+                annotations=[Label(0)]
+            ),
+            DatasetItem(id='image_3', subset='test',
+                image=np.ones((32, 32, 3))
+            ),
+            DatasetItem(id='image_4', subset='test',
+                image=np.ones((32, 32, 3)),
+                annotations=[Label(1)]
+            )
+        ], categories=['label_0', 'label_1'])
+
+        with TestDir() as test_dir:
+            CifarConverter.convert(source_dataset, test_dir, save_images=True,
+                save_dataset_meta=True)
+            parsed_dataset = Dataset.import_from(test_dir, 'cifar')
+
+            self.assertTrue(osp.isfile(osp.join(test_dir, 'dataset_meta.json')))
+            compare_datasets(self, source_dataset, parsed_dataset,
+                require_images=True)
 
 DUMMY_10_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets',
     'cifar10_dataset')

@@ -67,6 +67,7 @@ class KittiPath:
 
     DEFAULT_TRUNCATED = 0.0 # 0% truncated
     DEFAULT_OCCLUDED = 0    # fully visible
+    DEFAULT_SCORE = 1.0
 
 
 def make_kitti_categories(label_map=None):

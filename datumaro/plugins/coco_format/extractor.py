@@ -20,6 +20,7 @@ from datumaro.components.extractor import (
 from datumaro.components.media import Image
 from datumaro.util.image import lazy_image, load_image
 from datumaro.util.mask_tools import bgr2index
+from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 from datumaro.util.os_util import suppress_output
 
 from .format import CocoPath, CocoTask
@@ -49,6 +50,7 @@ class _CocoExtractor(SourceExtractor):
                 images_dir = osp.join(images_dir, subset or DEFAULT_SUBSET_NAME)
         self._images_dir = images_dir
         self._task = task
+        self._rootpath = rootpath
 
         self._merge_instance_polygons = merge_instance_polygons
 
@@ -103,6 +105,13 @@ class _CocoExtractor(SourceExtractor):
 
 
     def _load_label_categories(self, raw_cats, *, keep_original_ids):
+        if has_meta_file(self._rootpath):
+            labels = parse_meta_file(self._rootpath).keys()
+            self._categories =  { AnnotationType.label: LabelCategories.
+                from_iterable(labels) }
+            self._label_map = { (i + 1): label for i, label in enumerate(labels) }
+            return
+
         categories = LabelCategories()
         label_map = {}
 

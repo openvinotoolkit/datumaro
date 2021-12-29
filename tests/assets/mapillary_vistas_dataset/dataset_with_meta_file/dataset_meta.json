@@ -1,0 +1,4 @@
+{
+"label_map": {"0": "animal--bird", "1": "construction--barrier--curb", "2": "human--person"},
+"segmentation_colors": [[10, 50, 90], [20, 30, 80], [30, 70, 40]]
+}

@@ -27,10 +27,10 @@ display on the sidebar), the description and the tags:
 
 ### Start site localy
 
-To start the site locally, you need a recent [extended version hugo](https://github.com/gohugoio/hugo/releases)
+To start the site locally, you need a recent [extended version hugo](https://github.com/gohugoio/hugo/releases)
 (recommend version 0.75.0 or later).
 Open the most recent release and scroll down until you find
-a list of Extended versions. [Read more](https://gohugo.io/getting-started/installing/#quick-install)
+a list of Extended versions. [Read more](https://gohugo.io/getting-started/installing/#quick-install)
 
 Add a path to "hugo" in the "Path" environment variable.
 
@@ -39,17 +39,87 @@ using a git command:
 
     git clone --branch <branchname> <remote-repo-url>
 
-If you want to build and/or serve your site locally,
+If you want to build and/or serve your site locally,
 you also need to get local copies of the theme’s own submodules:
 
     git submodule update --init --recursive
+
+#### API documentation
+
+API documentation is generated using `Sphinx` with a theme
+[`Read the Docs`](https://docs.readthedocs.io/en/stable/intro/getting-started-with-sphinx.html).
+The `Read the Docs` theme is added as a submodule.
+Install Sphinx ([learn more](https://www.sphinx-doc.org/en/master/index.html)).
+
+    pip install Sphinx==4.2.0 sphinx-rtd-theme==1.0.0
+    pip install git+https://github.com/pytorch-ignite/sphinxcontrib-versioning.git@a1a1a94ca80a0233f0df3eaf9876812484901e76
+
+Documentation is generated automatically from `rst` files and comments
+contained in the source code, files located in `site/source/api` using
+[`sphinx-autodoc`](https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html).
+Comments in the source code should be in the format [reST](https://www.sphinx-doc.org/en/master/index.html),
+[Google](https://github.com/google/styleguide/blob/gh-pages/pyguide.md#38-comments-and-docstrings) or
+[Numpydoc](https://numpydoc.readthedocs.io/en/latest/format.html#).
+
+For generation only latest version
+
+    sphinx-build -a -n site/source site/static/api
+
+For generation documentation with versioning
+
+    sphinx-versioning -l site\source\conf.py build -r develop -w develop site\source site\static\api
+
+Sphinx generates documentation in the html format to the `site/static/api`.
+After generating the documentation API,
+you can [generate a site with documentation](#site-generation).
+
+##### Generation options
+
+If you want to add API documentation for third-party modules,
+use the `intersphinx` extension, for proper operation,
+install the required modules.
+Learn more about [`intersphinx`](https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html).
+
+    cd <your local directory>/datumaro/
+    pip install -r requirements.txt
+
+To describe new modules, you can generate the `rst` files using the
+[`sphinx-apidoc`](https://www.sphinx-doc.org/en/master/man/sphinx-apidoc.html).
+
+    sphinx-apidoc -d 2 -o site/source/api datumaro
+
+##### Working with API documentation
+
+In `rst` files you can used a few directives:
+- `.. automodule::`- for automatic generation of comments on docstring
+    ([another directives](https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html?highlight=private#directives)).
+- `:members:` - mandatory directive for displaying members. The order of
+    members within the directive will correspond to the source code.
+- `:undoc-memebers:` - if this directive is present,
+    participants who do not have comments will also be displayed.
+- `:exclude-members:` - excludes the members listed after the directive.
+- `:private-members:` - private members.
+- `:special-members:` - special members.
+- `:show-inheritance:` - showing inheritance.
+
+After the directive you can specify the members that should be displayed.
+
+###### Features
+
+If can used `|n` and `|s` in the source code comments they will
+be replaced by `\n` and space accordingly.
+
+Members starting with `_` are not displayed,
+except for the list of `include_members_list` located in `site/source/conf.py`.
+
+#### Site generation
 
 To build and preview your site locally, use:
 
     cd <your local directory>/datumaro/site/
     hugo server
 
-By default, your site will be available at <http://localhost:1313/docs/>.
+By default, your site will be available at <http://localhost:1313/docs/>.
 
 Instead of a "hugo server" command, you can use the "hugo" command
 that generates the site into a "public" folder.

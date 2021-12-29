@@ -11,7 +11,7 @@ from datumaro.components.extractor import DatasetItem
 from datumaro.components.media import Image
 from datumaro.plugins.mots_format import MotsImporter, MotsPngConverter
 from datumaro.util.test_utils import (
-    TestDir, compare_datasets, test_save_and_load,
+    TestDir, check_save_and_load, compare_datasets,
 )
 
 from .requirements import Requirements, mark_requirement
@@ -22,7 +22,7 @@ DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'mots_dataset')
 class MotsPngConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None, **kwargs):
-        return test_save_and_load(self, source_dataset, converter, test_dir,
+        return check_save_and_load(self, source_dataset, converter, test_dir,
             importer='mots',
             target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
@@ -127,6 +127,24 @@ class MotsPngConverterTest(TestCase):
             self._test_save_and_load(expected,
                 partial(MotsPngConverter.convert, save_images=True),
                 test_dir, require_images=True)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_save_and_load_with_meta_file(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id=1, subset='a', image=np.ones((5, 1)), annotations=[
+                Mask(np.array([[1, 1, 0, 0, 0]]), label=0,
+                    attributes={'track_id': 3}),
+                Mask(np.array([[0, 0, 1, 1, 1]]), label=1,
+                    attributes={'track_id': 3}),
+            ]),
+        ], categories=['label_0', 'label_1'])
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(source_dataset,
+                partial(MotsPngConverter.convert, save_images=True,
+                    save_dataset_meta=True),
+                test_dir, require_images=True)
+            self.assertTrue(osp.isfile(osp.join(test_dir, 'dataset_meta.json')))
 
 class MotsImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)

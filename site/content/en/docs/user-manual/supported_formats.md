@@ -73,6 +73,10 @@ List of supported formats:
   - [Format specification](https://docs.supervise.ly/data-organization/00_ann_format_navi)
   - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/sly_pointcloud_dataset)
   - [Format documentation](/docs/formats/sly_pointcloud)
+- SYNTHIA (`segmentation`)
+  - [Format specification](https://synthia-dataset.net/)
+  - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/synthia_dataset)
+  - [Format documentation](/docs/formats/synthia)
 - CVAT
   - [Format specification](https://openvinotoolkit.github.io/cvat/docs/manual/advanced/xml_format)
   - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/cvat_dataset)
@@ -96,6 +100,14 @@ List of supported formats:
   - [Format specification](https://mmlab.ie.cuhk.edu.hk/projects/CelebA.html)
   - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/align_celeba_dataset)
   - [Format documentation](/docs/formats/align_celeba)
+- VoTT CSV (`detection`)
+  - [Format specification](https://github.com/microsoft/VoTT)
+  - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/vott_csv_dataset)
+  - [Format documentation](/docs/formats/vott_csv)
+- VoTT JSON (`detection`)
+  - [Format specification](https://github.com/microsoft/VoTT)
+  - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/vott_json_dataset)
+  - [Format documentation](/docs/formats/vott_json)
 
 ### Supported annotation types <a id="annotation-types"></a>
 
@@ -111,3 +123,22 @@ List of supported formats:
 Datumaro does not separate datasets by tasks like classification, detection
 etc. Instead, datasets can have any annotations. When a dataset is exported
 in a specific format, only relevant annotations are exported.
+
+### Dataset meta info file <a id="dataset-meta-file"></a>
+
+It is possible to use classes that are not original to the format.
+To do this, use `dataset_meta.json`.
+
+```
+{
+"label_map": {"0": "background", "1": "car", "2": "person"},
+"segmentation_colors": [[0, 0, 0], [255, 0, 0], [0, 0, 255]],
+"background_label": "0"
+}
+```
+
+- `label_map` is a dictionary where the class ID is the key and
+  the class name is the value.
+- `segmentation_colors` is a list of channel-wise values for each class.
+  This is only necessary for the segmentation task.
+- `background_label` is a background label ID in the dataset.

@@ -81,6 +81,7 @@ A COCO dataset directory should have the following structure:
 <!--lint disable fenced-code-flag-->
 ```
 └─ Dataset/
+    ├── dataset_meta.json # a list of custom labels (optional)
     ├── images/
     │   ├── train/
     │   │   ├── <image_name1.ext>
@@ -100,6 +101,7 @@ For the panoptic task, a dataset directory should have the following structure:
 <!--lint disable fenced-code-flag-->
 ```
 └─ Dataset/
+    ├── dataset_meta.json # a list of custom labels (optional)
     ├── images/
     │   ├── train/
     │   │   ├── <image_name1.ext>
@@ -129,6 +131,8 @@ task-specific formats instead of plain `coco`: `coco_captions`,
 `coco_image_info`, `coco_instances`, `coco_labels`, `coco_panoptic`,
 `coco_person_keypoints`, `coco_stuff`. In this case all items of the
 dataset will be added to the `default` subset.
+
+To add custom classes, you can use [`dataset_meta.json`](/docs/user_manual/supported_formats/#dataset-meta-file).
 
 You can import a dataset for one or several tasks
 instead of the whole dataset. This option also allows to import annotation
@@ -191,6 +195,8 @@ Extra options for exporting to COCO format:
   (by default `False`)
 - `--image-ext IMAGE_EXT` allow to specify image extension
   for exporting dataset (by default - keep original or use `.jpg`, if none)
+- `--save-dataset-meta` - allow to export dataset with saving dataset meta
+  file (by default `False`)
 - `--segmentation-mode MODE` allow to specify save mode for instance
   segmentation:
   - 'guess': guess the mode for each instance

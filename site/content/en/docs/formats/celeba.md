@@ -48,6 +48,7 @@ CelebA dataset directory should have the following structure:
 <!--lint disable fenced-code-flag-->
 ```
 dataset/
+├── dataset_meta.json # a list of non-format labels (optional)
 ├── Anno/
 │   ├── identity_CelebA.txt
 │   ├── list_attr_celeba.txt
@@ -70,6 +71,8 @@ attributes, bounding boxes, landmarks and subsets respectively
 
 The original CelebA dataset stores images in a .7z archive. The archive
 needs to be unpacked before importing.
+
+To add custom classes, you can use [`dataset_meta.json`](/docs/user_manual/supported_formats/#dataset-meta-file).
 
 ## Export to other formats
 

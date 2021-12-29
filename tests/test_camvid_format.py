@@ -14,8 +14,9 @@ from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem, Extractor
 from datumaro.components.media import Image
 from datumaro.plugins.camvid_format import CamvidConverter, CamvidImporter
+from datumaro.util.meta_file_util import parse_meta_file
 from datumaro.util.test_utils import (
-    TestDir, compare_datasets, test_save_and_load,
+    TestDir, check_save_and_load, compare_datasets,
 )
 import datumaro.plugins.camvid_format as Camvid
 
@@ -31,6 +32,20 @@ class CamvidFormatTest(TestCase):
             file_path = osp.join(test_dir, 'label_colors.txt')
             Camvid.write_label_map(file_path, src_label_map)
             dst_label_map = Camvid.parse_label_map(file_path)
+
+            self.assertEqual(src_label_map, dst_label_map)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_write_and_parse_meta_file(self):
+        src_label_map = Camvid.CamvidLabelMap
+
+        with TestDir() as test_dir:
+            source_dataset = Dataset.from_iterable([],
+                categories=Camvid.make_camvid_categories(src_label_map))
+
+            CamvidConverter.convert(source_dataset, test_dir,
+                save_dataset_meta=True)
+            dst_label_map = parse_meta_file(test_dir)
 
             self.assertEqual(src_label_map, dst_label_map)
 
@@ -86,13 +101,13 @@ class CamvidImportTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_camvid(self):
         detected_formats = Environment().detect_dataset(DUMMY_DATASET_DIR)
-        self.assertIn(CamvidImporter.NAME, detected_formats)
+        self.assertEqual([CamvidImporter.NAME], detected_formats)
 
 class CamvidConverterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None, **kwargs):
-        return test_save_and_load(self, source_dataset, converter, test_dir,
+        return check_save_and_load(self, source_dataset, converter, test_dir,
             importer='camvid',
             target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
@@ -371,3 +386,42 @@ class CamvidConverterTest(TestCase):
                 set(os.listdir(osp.join(path, 'a'))))
             compare_datasets(self, expected, Dataset.import_from(path, 'camvid'),
                 require_images=True)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_dataset_with_meta_file(self):
+        class SrcExtractor(TestExtractorBase):
+            def __iter__(self):
+                yield DatasetItem(id=1, image=np.ones((1, 5, 3)), annotations=[
+                    Mask(image=np.array([[1, 1, 0, 1, 0]]), label=1),
+                    Mask(image=np.array([[0, 0, 1, 0, 1]]), label=2),
+                ])
+
+            def categories(self):
+                label_map = OrderedDict()
+                label_map['background'] = (0, 0, 0)
+                label_map['label_1'] = (1, 2, 3)
+                label_map['label_2'] = (3, 2, 1)
+                return Camvid.make_camvid_categories(label_map)
+
+        class DstExtractor(TestExtractorBase):
+            def __iter__(self):
+                yield DatasetItem(id=1, image=np.ones((1, 5, 3)), annotations=[
+                    Mask(image=np.array([[1, 1, 0, 1, 0]]),
+                        label=self._label('label_1')),
+                    Mask(image=np.array([[0, 0, 1, 0, 1]]),
+                        label=self._label('label_2')),
+                ])
+
+            def categories(self):
+                label_map = OrderedDict()
+                label_map['background'] = (0, 0, 0)
+                label_map['label_1'] = (1, 2, 3)
+                label_map['label_2'] = (3, 2, 1)
+                return Camvid.make_camvid_categories(label_map)
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(SrcExtractor(),
+                partial(CamvidConverter.convert, label_map='source',
+                    save_dataset_meta=True),
+                test_dir, target_dataset=DstExtractor())
+            self.assertTrue(osp.isfile(osp.join(test_dir, 'dataset_meta.json')))

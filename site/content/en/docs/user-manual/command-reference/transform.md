@@ -89,6 +89,7 @@ Basic dataset item manipulations:
 - `reindex` - Renames dataset items with numbers
 - `ndr` - Removes duplicated images from dataset
 - `sampler` - Runs inference and leaves only the most representative images
+- `resize` - Resizes images and annotations in the dataset
 
 Subset manipulations:
 - `random_split` - Splits dataset into subsets randomly
@@ -206,3 +207,9 @@ datum transform -t ndr -- \
   -e random \
   -u uniform
 ```
+
+- Resize dataset images and annotations. Supports upscaling, downscaling
+and mixed variants.
+
+```
+datum transform -t resize -- -dw 256 -dh 256

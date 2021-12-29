@@ -215,7 +215,7 @@ class _InstancesConverter(_TaskConverter):
         polygons = [p.points for p in polygons]
 
         if self._context._segmentation_mode == SegmentationMode.guess:
-            use_masks = True == leader.attributes.get('is_crowd',
+            use_masks = True is leader.attributes.get('is_crowd',
                 find(masks, lambda x: x.label == leader.label) is not None)
         elif self._context._segmentation_mode == SegmentationMode.polygons:
             use_masks = False
@@ -326,9 +326,9 @@ class _InstancesConverter(_TaskConverter):
                 log.warning("Item '%s': failed to convert attribute "
                     "'score': %e" % (item.id, e))
         if self._context._allow_attributes:
-                attrs = self._convert_attributes(ann)
-                if attrs:
-                    elem['attributes'] = attrs
+            attrs = self._convert_attributes(ann)
+            if attrs:
+                elem['attributes'] = attrs
 
         return elem
 
@@ -650,6 +650,9 @@ class CocoConverter(Converter):
 
     def apply(self):
         self._make_dirs()
+
+        if self._save_dataset_meta:
+            self._save_meta_file(self._save_dir)
 
         for subset_name, subset in self._extractor.subsets().items():
             task_converters = self._make_task_converters()

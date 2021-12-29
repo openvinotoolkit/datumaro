@@ -10,7 +10,7 @@ import numpy as np
 from datumaro.util.image import lazy_image, load_image
 
 
-def generate_colormap(length=256, include_background=True):
+def generate_colormap(length=256, *, include_background=True):
     """
     Generates colors using PASCAL VOC algorithm.
 

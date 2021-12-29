@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 from enum import Enum, auto
-from typing import Iterable, Optional, Union
+from typing import Iterable, Optional, Sequence, Tuple, Union
 import os
 import os.path as osp
 
@@ -14,6 +14,8 @@ from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.converter import Converter
 from datumaro.components.errors import DatasetImportError
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
+from datumaro.components.format_detection import FormatDetectionContext
+from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
 
 class ImagenetTxtPath:
@@ -23,6 +25,25 @@ class ImagenetTxtPath:
 class _LabelsSource(Enum):
     file = auto()
     generate = auto()
+
+def _parse_annotation_line(line: str) -> Tuple[str, str, Sequence[int]]:
+    item = line.split('\"')
+    if 1 < len(item):
+        if len(item) == 3:
+            item_id = item[1]
+            item = item[2].split()
+            image = item_id + item[0]
+            label_ids = [int(id) for id in item[1:]]
+        else:
+            raise Exception("Line %s: unexpected number "
+                "of quotes in filename" % line)
+    else:
+        item = line.split()
+        item_id = osp.splitext(item[0])[0]
+        image = item[0]
+        label_ids = [int(id) for id in item[1:]]
+
+    return item_id, image, label_ids
 
 class ImagenetTxtExtractor(SourceExtractor):
     def __init__(self, path: str, *,
@@ -37,9 +58,10 @@ class ImagenetTxtExtractor(SourceExtractor):
             subset = osp.splitext(osp.basename(path))[0]
         super().__init__(subset=subset)
 
+        root_dir = osp.dirname(path)
         if not image_dir:
             image_dir = ImagenetTxtPath.IMAGE_DIR
-        self.image_dir = osp.join(osp.dirname(path), image_dir)
+        self.image_dir = osp.join(root_dir, image_dir)
 
         self._generate_labels = False
 
@@ -50,8 +72,11 @@ class ImagenetTxtExtractor(SourceExtractor):
                 labels = ()
                 self._generate_labels = True
             elif labels_source == _LabelsSource.file:
-                labels = self._parse_labels(
-                    osp.join(osp.dirname(path), labels_file))
+                if has_meta_file(root_dir):
+                    labels = parse_meta_file(root_dir).keys()
+                else:
+                    labels = self._parse_labels(
+                        osp.join(root_dir, labels_file))
             else:
                 assert False, "Unhandled labels source %s" % labels_source
         else:
@@ -67,28 +92,14 @@ class ImagenetTxtExtractor(SourceExtractor):
             return [s.strip() for s in labels_file]
 
     def _load_categories(self, labels):
-        return { AnnotationType.label: LabelCategories().from_iterable(labels) }
+        return { AnnotationType.label: LabelCategories.from_iterable(labels) }
 
     def _load_items(self, path):
         items = {}
 
         with open(path, encoding='utf-8') as f:
             for line in f:
-                item = line.split('\"')
-                if 1 < len(item):
-                    if len(item) == 3:
-                        item_id = item[1]
-                        item = item[2].split()
-                        image = item_id + item[0]
-                        label_ids = [int(id) for id in item[1:]]
-                    else:
-                        raise Exception("Line %s: unexpected number "
-                            "of quotes in filename" % line)
-                else:
-                    item = line.split()
-                    item_id = osp.splitext(item[0])[0]
-                    image = item[0]
-                    label_ids = [int(id) for id in item[1:]]
+                item_id, image, label_ids = _parse_annotation_line(line)
 
                 anno = []
                 label_categories = self._categories[AnnotationType.label]
@@ -115,6 +126,23 @@ class ImagenetTxtExtractor(SourceExtractor):
 
 
 class ImagenetTxtImporter(Importer, CliPlugin):
+    @classmethod
+    def detect(cls, context: FormatDetectionContext) -> None:
+        annot_path = context.require_file('*.txt',
+            exclude_fnames=ImagenetTxtPath.LABELS_FILE)
+
+        with context.probe_text_file(
+            annot_path,
+            "must be an ImageNet-like annotation file",
+        ) as f:
+            for line in f:
+                _, _, label_ids = _parse_annotation_line(line)
+                if label_ids: break
+            else:
+                # If there are no labels in the entire file, it's probably
+                # not actually an ImageNet file.
+                raise Exception
+
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
         parser = super().build_cmdline_parser(**kwargs)
@@ -177,9 +205,12 @@ class ImagenetTxtConverter(Converter):
             with open(annotation_file, 'w', encoding='utf-8') as f:
                 f.write(annotation)
 
-        labels_file = osp.join(subset_dir, ImagenetTxtPath.LABELS_FILE)
-        with open(labels_file, 'w', encoding='utf-8') as f:
-            f.writelines(l.name + '\n'
-                for l in extractor.categories().get(
-                    AnnotationType.label, LabelCategories())
-            )
+        if self._save_dataset_meta:
+            self._save_meta_file(subset_dir)
+        else:
+            labels_file = osp.join(subset_dir, ImagenetTxtPath.LABELS_FILE)
+            with open(labels_file, 'w', encoding='utf-8') as f:
+                f.writelines(l.name + '\n'
+                    for l in extractor.categories().get(
+                        AnnotationType.label, LabelCategories())
+                )
