@@ -113,8 +113,8 @@ datum convert -if vgg_face2 -i ./voc_dataset \
 
 # Export dataaset to the LFW format through the Datumaro project:
 datum create
-datum import -f voc_classification ./vgg_dataset
-datum export -f lfw ./output_dir -- --save-images --image-ext png
+datum import -f voc_classification ../vgg_dataset
+datum export -f lfw -o ./output_dir -- --save-images --image-ext png
 ```
 
 Available extra export options for LFW dataset format:
