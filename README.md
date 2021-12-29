@@ -27,6 +27,7 @@ CVAT annotations                             ---> Publication, statistics etc.
 [(Back to top)](#dataset-management-framework-datumaro)
 
 - Dataset reading, writing, conversion in any direction.
+  - [CelebA](https://mmlab.ie.cuhk.edu.hk/projects/CelebA.html) (`classification`, `detection`, `landmarks`)
   - [CIFAR-10/100](https://www.cs.toronto.edu/~kriz/cifar.html) (`classification`)
   - [Cityscapes](https://www.cityscapes-dataset.com/)
   - [COCO](http://cocodataset.org/#format-data) (`image_info`, `instances`, `person_keypoints`, `captions`, `labels`, `panoptic`, `stuff`)
