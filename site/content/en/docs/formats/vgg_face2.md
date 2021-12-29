@@ -1,6 +1,6 @@
 ---
-title: 'VoTT CSV'
-linkTitle: 'VoTT CSV'
+title: 'Vgg Face2 CSV'
+linkTitle: 'Vgg Face2 CSV'
 description: ''
 weight: 24
 ---
@@ -18,7 +18,7 @@ Supported types of annotations:
 
 Dataset is not support any attributes for annotations objects.
 
-## Import Vgg Face 2 dataset
+## Import Vgg Face2 dataset
 
 A Datumaro project with a Vgg Face 2 dataset can be created
 in the following way:
@@ -74,7 +74,7 @@ vgg_face2_dataset/
     ├── ...
 ```
 
-## Exporting Vgg Face 2 dataset
+## Exporting Vgg Face2 dataset
 
 Datumaro can convert a Vgg Face2 dataset into any other format
 [Datumaro supports](/docs/user-manual/supported_formats/).
