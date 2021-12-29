@@ -26,28 +26,21 @@ CVAT annotations                             ---> Publication, statistics etc.
 
 [(Back to top)](#dataset-management-framework-datumaro)
 
-- Dataset reading, writing, conversion in any direction. [Supported formats](https://openvinotoolkit.github.io/datumaro/docs/user-manual/supported_formats):
-  - [COCO](http://cocodataset.org/#format-data) (`image_info`, `instances`, `person_keypoints`, `captions`, `labels`, `panoptic`, `stuff`)
-  - [PASCAL VOC](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/htmldoc/index.html) (`classification`, `detection`, `segmentation`, `action_classification`, `person_layout`)
-  - [YOLO](https://github.com/AlexeyAB/darknet#how-to-train-pascal-voc-data) (`bboxes`)
-  - [TF Detection API](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/using_your_own_dataset.md) (`bboxes`, `masks`)
-  - [WIDER Face](http://shuoyang1213.me/WIDERFACE/) (`bboxes`)
-  - [VGGFace2](https://github.com/ox-vgg/vgg_face2) (`landmarks`, `bboxes`)
-  - [MOT sequences](https://arxiv.org/pdf/1906.04567.pdf)
-  - [MOTS PNG](https://www.vision.rwth-aachen.de/page/mots)
-  - [ImageNet](http://image-net.org/)
+- Dataset reading, writing, conversion in any direction.
   - [CIFAR-10/100](https://www.cs.toronto.edu/~kriz/cifar.html) (`classification`)
-  - [MNIST](http://yann.lecun.com/exdb/mnist/) (`classification`)
-  - [MNIST in CSV](https://pjreddie.com/projects/mnist-in-csv/) (`classification`)
-  - [CamVid](http://mi.eng.cam.ac.uk/research/projects/VideoRec/CamVid/)
   - [Cityscapes](https://www.cityscapes-dataset.com/)
-  - [Kitti](http://www.cvlibs.net/datasets/kitti/index.php) (`segmentation`, `detection`, `3D raw` / `velodyne points`)
-  - [Supervisely](https://docs.supervise.ly/data-organization/00_ann_format_navi) (`point cloud`)
+  - [COCO](http://cocodataset.org/#format-data) (`image_info`, `instances`, `person_keypoints`, `captions`, `labels`, `panoptic`, `stuff`)
   - [CVAT](https://openvinotoolkit.github.io/cvat/docs/manual/advanced/xml_format)
+  - [ImageNet](http://image-net.org/)
+  - [Kitti](http://www.cvlibs.net/datasets/kitti/index.php) (`segmentation`, `detection`, `3D raw` / `velodyne points`)
   - [LabelMe](http://labelme.csail.mit.edu/Release3.0)
-  - [ICDAR13/15](https://rrc.cvc.uab.es/?ch=2) (`word_recognition`, `text_localization`, `text_segmentation`)
-  - [Market-1501](https://www.aitribune.com/dataset/2018051063) (`person re-identification`)
-  - [LFW](http://vis-www.cs.umass.edu/lfw/) (`classification`, `person re-identification`, `landmarks`)
+  - [MNIST](http://yann.lecun.com/exdb/mnist/) (`classification`)
+  - [Open Images](https://storage.googleapis.com/openimages/web/download.html)
+  - [PASCAL VOC](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/htmldoc/index.html) (`classification`, `detection`, `segmentation`, `action_classification`, `person_layout`)
+  - [TF Detection API](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/using_your_own_dataset.md) (`bboxes`, `masks`)
+  - [YOLO](https://github.com/AlexeyAB/darknet#how-to-train-pascal-voc-data) (`bboxes`)
+
+  Other formats and documentation for them can be found [here](https://openvinotoolkit.github.io/datumaro/docs/user-manual/supported_formats).
 - Dataset building
   - Merging multiple datasets into one
   - Dataset filtering by a custom criteria:
