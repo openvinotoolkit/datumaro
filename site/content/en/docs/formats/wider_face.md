@@ -16,25 +16,25 @@ Supported types of annotation:
 
 Supported attributes for bboxes:
 - `blur`:
-    - 0 face without blur;
-    - 1 face with normal blur;
-    - 2 face with heavy blur.
+  - 0 face without blur;
+  - 1 face with normal blur;
+  - 2 face with heavy blur.
 - `expression`:
-    - 0 face with typical expression;
-    - 1 face with exaggerate expression.
+  - 0 face with typical expression;
+  - 1 face with exaggerate expression.
 - `illumination`:
-    - 0 image contains normal illumination;
-    - 1 image contains extreme illumination.
+  - 0 image contains normal illumination;
+  - 1 image contains extreme illumination.
 - `pose`:
-    - 0 pose is typical;
-    - 1 pose is atypical.
+  - 0 pose is typical;
+  - 1 pose is atypical.
 - `invalid`:
-    - 0 image is valid;
-    - 1 image is invalid.
+  - 0 image is valid;
+  - 1 image is invalid.
 - `occluded`:
-    - 0 face without occlusion;
-    - 1 face with partial occlusion;
-    - 2 face with heavy occlusion.
+  - 0 face without occlusion;
+  - 1 face with partial occlusion;
+  - 2 face with heavy occlusion.
 
 
 ## Import WIDER Face dataset
