@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `smooth_line` from `datumaro.util.annotation_util` - the function
   is renamed to `approximate_line` and has updated interface
   (<https://github.com/openvinotoolkit/datumaro/pull/592>)
+- Sorted formats in `supported_formats.md` and left the most popular
+  formats in `README.md` (<https://github.com/openvinotoolkit/datumaro/pull/598>)
 
 ### Deprecated
 - TBD
