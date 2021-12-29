@@ -12,7 +12,7 @@ These commands are specific for Data Sources. Read more about them [here](/docs/
 Datasets can be added to a Datumaro project with the `import` command,
 which adds a dataset link into the project and downloads (or copies)
 the dataset. If you need to add a dataset already copied into the project,
-use the [`add`](./sources#source-add) command.
+use the [`add`](#source-add) command.
 
 Dataset format readers can provide some additional import options. To pass
 such options, use the `--` separator after the main command arguments.
@@ -77,7 +77,7 @@ datum export -f tf_detection_api -- --save-images
 
 Existing datasets can be added to a Datumaro project with the `add` command.
 The command adds a project-local directory as a data source in the project.
-Unlike the [`import`](./sources#source-import)
+Unlike the [`import`](#source-import)
 command, it does not copy datasets and only works with local directories.
 The source name is defined by the directory name.
 
