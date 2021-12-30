@@ -36,6 +36,7 @@ class Requirements:
     DATUM_BUG_219 = "Return format is not uniform"
     DATUM_BUG_257 = "Dataset.filter doesn't count removed items"
     DATUM_BUG_259 = "Dataset.filter fails on merged datasets"
+    DATUM_BUG_289 = "Cannot convert LabelMe dataset, that has no subsets"
     DATUM_BUG_314 = "Unsuccessful remap_labels"
     DATUM_BUG_402 = "Troubles running 'remap_labels' on ProjectDataset"
     DATUM_BUG_404 = "custom importer/extractor not loading"
