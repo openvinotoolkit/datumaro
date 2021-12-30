@@ -27,7 +27,6 @@ CVAT annotations                             ---> Publication, statistics etc.
 [(Back to top)](#dataset-management-framework-datumaro)
 
 - Dataset reading, writing, conversion in any direction.
-  - [CelebA](https://mmlab.ie.cuhk.edu.hk/projects/CelebA.html) (`classification`, `detection`, `landmarks`)
   - [CIFAR-10/100](https://www.cs.toronto.edu/~kriz/cifar.html) (`classification`)
   - [Cityscapes](https://www.cityscapes-dataset.com/)
   - [COCO](http://cocodataset.org/#format-data) (`image_info`, `instances`, `person_keypoints`, `captions`, `labels`, `panoptic`, `stuff`)
@@ -35,6 +34,7 @@ CVAT annotations                             ---> Publication, statistics etc.
   - [ImageNet](http://image-net.org/)
   - [Kitti](http://www.cvlibs.net/datasets/kitti/index.php) (`segmentation`, `detection`, `3D raw` / `velodyne points`)
   - [LabelMe](http://labelme.csail.mit.edu/Release3.0)
+  - [LFW](http://vis-www.cs.umass.edu/lfw/) (`classification`, `person re-identification`, `landmarks`)
   - [MNIST](http://yann.lecun.com/exdb/mnist/) (`classification`)
   - [Open Images](https://storage.googleapis.com/openimages/web/download.html)
   - [PASCAL VOC](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/htmldoc/index.html) (`classification`, `detection`, `segmentation`, `action_classification`, `person_layout`)
