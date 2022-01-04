@@ -26,9 +26,9 @@ dataset. The extra options should be passed after the main arguments
 and after the `--` separator. Particularly, this is useful to include
 images in the output dataset with `--save-images`.
 
-This command can only be applied to the datasets inside a project, 
+This command can only be applied to the datasets inside a project,
 make sure the patch dataset is inside the target project directory.
-Note that if the target dataset 
+Note that if the target dataset
 is read-only (e.g. if it is a project, stage or a cache entry),
 the output directory must be provided.
 
