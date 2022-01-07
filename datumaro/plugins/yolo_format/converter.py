@@ -74,7 +74,7 @@ class YoloConverter(Converter):
                         self._save_image(item, osp.join(subset_dir, image_name))
                     else:
                         log.warning("Item '%s' has no image" % item.id)
-                image_paths[item.id] = osp.join('data',
+                image_paths[item.id] = osp.join(
                     osp.basename(subset_dir), image_name)
 
                 yolo_annotation = ''
@@ -110,9 +110,9 @@ class YoloConverter(Converter):
 
             for subset_name, subset_list_name in subset_lists.items():
                 f.write('%s = %s\n' % (subset_name,
-                    osp.join('data', subset_list_name)))
+                    osp.join(subset_list_name)))
 
-            f.write('names = %s\n' % osp.join('data', 'obj.names'))
+            f.write('names = %s\n' % osp.join('obj.names'))
             f.write('backup = backup/\n')
 
     @classmethod
