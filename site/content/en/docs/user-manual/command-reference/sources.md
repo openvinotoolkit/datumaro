@@ -125,6 +125,29 @@ datum add -f cvat dataset2/train.xml
 datum export -f yolo -- --save-images
 ```
 
+Example: use add command to add dataset into datumaro project
+
+folder structuer:
+
+``` bash
+my_datumaro_proj/
+├─ .datumaro/
+├─ .dvc/
+├─ my_new_coco/
+│  ├─ images/
+│     ├─ image1.jpg
+│     ├─ ...
+│  ├─ annotations/
+│     ├─ coco_annotation.json
+├─ .dvcignore
+├─ .gitignore
+``` 
+
+``` bash
+# type this commane in my_datumaro_proj's parent directory
+datum add -f coco  -p my_datumaro_proj /home/my_datumaro_proj/my_new_coco
+``` 
+
 ### Remove Datasets <a id="source-remove"></a>
 
 To remove a data source from a project, use the `remove` command.
