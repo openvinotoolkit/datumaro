@@ -87,7 +87,9 @@ formats using CLI:
 datum create
 datum import -f celeba <path/to/dataset>
 datum export -f imagenet_txt -o ./save_dir -- --save-images
-# or
+```
+or
+``` bash
 datum convert -if celeba -i <path/to/dataset> \
     -f imagenet_txt -o <output/dir> -- --save-images
 ```

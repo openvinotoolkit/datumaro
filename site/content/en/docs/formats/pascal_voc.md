@@ -116,7 +116,7 @@ If the `dataset_meta.json` is not represented in the dataset, then
 In `labelmap.txt` you can define custom color map and non-pascal labels,
 for example:
 
-```
+``` txt
 # label_map [label : color_rgb : parts : actions]
 helicopter:::
 elephant:0:124:134:head,ear,foot:
@@ -129,7 +129,7 @@ have arbitrary, but different, colors. If there are gaps in the used
 color indices in the annotations, they must be filled with arbitrary
 dummy labels. Example:
 
-```
+``` txt
 car:0,128,0:: # color index 0
 aeroplane:10,10,128:: # color index 1
 _dummy2:2,2,2:: # filler for color index 2
@@ -168,9 +168,10 @@ There are several ways to convert a Pascal VOC dataset to other dataset formats:
 datum create
 datum import -f voc <path/to/voc>
 datum export -f coco -o <output/dir>
-# or
+```
+or
+``` bash
 datum convert -if voc -i <path/to/voc> -f coco -o <output/dir>
-
 ```
 
 Or, using Python API:
@@ -189,7 +190,8 @@ There are several ways to convert an existing dataset to Pascal VOC format:
 ``` bash
 # export dataset into Pascal VOC format (classification) from existing project
 datum export -p <path/to/project> -f voc -o <output/dir> -- --tasks classification
-
+```
+``` bash
 # converting to Pascal VOC format from other format
 datum convert -if imagenet -i <path/to/dataset> \
     -f voc -o <output/dir> \
@@ -223,8 +225,9 @@ datum export -f voc -- --tasks detection,classification
 # cat:0,0,255::
 # person:255,0,0:head:
 datum export -f voc_segmentation -- --label-map mycolormap.txt
-
-# or you can use original voc colomap:
+```
+or you can use original voc colomap:
+``` bash
 datum export -f voc_segmentation -- --label-map voc
 ```
 

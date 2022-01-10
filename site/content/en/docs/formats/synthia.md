@@ -113,7 +113,9 @@ formats using CLI:
 datum create
 datum import -f synthia <path/to/dataset>
 datum export -f voc -o <output/dir> -- --save-images
-# or
+```
+or
+``` bash
 datum convert -if synthia -i <path/to/dataset> \
     -f voc -o <output/dir> -- --save-images
 ```

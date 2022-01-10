@@ -131,7 +131,9 @@ There are several ways to convert a KITTI dataset to other dataset formats:
 datum create
 datum import -f kitti <path/to/kitti>
 datum export -f cityscapes -o <output/dir>
-# or
+```
+or
+``` bash
 datum convert -if kitti -i <path/to/kitti> -f cityscapes -o <output/dir>
 ```
 
@@ -152,6 +154,8 @@ There are several ways to convert a dataset to KITTI format:
 # export dataset into KITTI format from existing project
 datum export -p <path/to/project> -f kitti -o <output/dir> \
     -- --save-images
+```
+``` bash
 # converting to KITTI format from other format
 datum convert -if cityscapes -i <path/to/dataset> \
     -f kitti -o <output/dir> -- --save-images
@@ -175,7 +179,9 @@ Extra options for exporting to KITTI format:
 #...
 datum export -f kitti -- --label-map mycolormap.txt
 
-# or you can use original kitti colomap:
+```
+or you can use original kitti colomap:
+``` bash
 datum export -f kitti -- --label-map kitti
 ```
 - `--tasks TASKS` allow to specify tasks for export dataset,

@@ -164,7 +164,9 @@ using CLI:
 datum create
 datum import -f coco <path/to/coco>
 datum export -f voc -o <output/dir>
-# or
+```
+or
+``` bash
 datum convert -if coco -i <path/to/coco> -f voc -o <output/dir>
 ```
 
@@ -185,6 +187,8 @@ There are several ways to convert a dataset to COCO format:
 # export dataset into COCO format from existing project
 datum export -p <path/to/project> -f coco -o <output/dir> \
     -- --save-images
+```
+``` bash
 # converting to COCO format from other format
 datum convert -if voc -i <path/to/dataset> \
     -f coco -o <output/dir> -- --save-images

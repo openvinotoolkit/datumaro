@@ -40,7 +40,9 @@ Use one of subformats (`mapillary_vistas_instances`, `mapillary_vistas_panoptic`
 if your dataset contains both panoptic and instance masks:
 ```bash
 datum add -f mapillary_vistas_instances ./dataset
-# or
+```
+or
+``` bash
 datum add -f mapillary_vistas_panoptic ./dataset
 ```
 

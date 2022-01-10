@@ -85,7 +85,8 @@ to the Market-1501 format, example:
 # Converting MARS dataset into the Market-1501
 datum convert -if mars -i ./mars_dataset \
     -f market1501 -o ./output_dir
-
+```
+``` bash
 # Export dataaset to the Market-1501 format through the Datumaro project:
 datum create
 datum add -f mars ../mars

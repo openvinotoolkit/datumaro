@@ -209,7 +209,7 @@ and record it in an image metadata file.
 This file must be placed at `annotations/images.meta`,
 and must contain one line per image, with the following structure:
 
-```
+``` bash
 <ID> <height> <width>
 ```
 
@@ -241,7 +241,9 @@ There are several ways to convert OID to other dataset formats:
 datum create
 datum import -f open_images <path/to/open_images>
 datum export -f cvat -o <output/dir>
-# or
+```
+or
+``` bash
 datum convert -if open_images -i <path/to/open_images> -f cvat -o <output/dir>
 ```
 
@@ -262,7 +264,8 @@ There are several ways to convert an existing dataset to the Open Images format:
 # export dataset into Open Images format from existing project
 datum export -p <path/to/project> -f open_images -o <output/dir> \
   -- --save_images
-
+```
+``` bash
 # convert a dataset in another format to the Open Images format
 datum convert -if imagenet -i <path/to/dataset> \
     -f open_images -o <output/dir> \
