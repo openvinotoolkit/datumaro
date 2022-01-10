@@ -19,8 +19,8 @@ The original ImageNet dataset contains about 1.2M images and information
 about class name for each image. Datumaro supports two versions of ImageNet
 format: `imagenet` and `imagenet_txt`. The `imagenet_txt` format assumes storing
 information about the class of the image in `*.txt` files. And `imagenet` format
-assumes storing information about the class of the image in the name of directory
-where is this image stored.
+assumes storing information about the class of the image in the name of
+directory where is this image stored.
 
 ## Import ImageNet dataset
 
