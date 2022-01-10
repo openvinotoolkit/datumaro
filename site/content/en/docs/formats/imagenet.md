@@ -84,9 +84,9 @@ Datumaro has few import options for `imagenet_txt` format, to apply them
 use the `--` after the main command argument.
 
 `imagenet_txt` import options:
-- `--labels` {`file`, `generate`}: allow to specify where to get label descriptions
-  from (use `file` to load from the file specified by `--labels-file`;
-  `generate` to create generic ones)
+- `--labels` {`file`, `generate`}: allow to specify where to get label
+  descriptions from (use `file` to load from the file specified 
+  by `--labels-file`; `generate` to create generic ones)
 - `--labels-file` allow to specify path to the file with label descriptions
   ("synsets.txt")
 
