@@ -88,7 +88,7 @@ details {
 
 @media (max-width: 991px) {
   details {
-      max-width: 100% !important;
+    max-width: 100% !important;
   }
 }
 
@@ -100,8 +100,8 @@ li > details {
   max-width: 80%;
 }
 
-.highlight > .code-toolbar,
 details > summary > .code-toolbar,
-details > .code-toolbar {
+details > .code-toolbar,
+.highlight > .code-toolbar {
   max-width: 100%;
 }
