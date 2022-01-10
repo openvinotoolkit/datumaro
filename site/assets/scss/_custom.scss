@@ -100,8 +100,8 @@ li > details {
   max-width: 80%;
 }
 
-details > summary > .code-toolbar,
 details > .code-toolbar,
+details > summary > .code-toolbar,
 .highlight > .code-toolbar {
   max-width: 100%;
 }
