@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `smooth_line` from `datumaro.util.annotation_util` - the function
   is renamed to `approximate_line` and has updated interface
   (<https://github.com/openvinotoolkit/datumaro/pull/592>)
+- The `pycocotools` dependency lower bound is raised to `2.0.4`.
+  (<https://github.com/openvinotoolkit/datumaro/pull/449>)
 
 ### Deprecated
 - TBD
