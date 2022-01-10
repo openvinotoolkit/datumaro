@@ -16,7 +16,7 @@ Supported types of annotations:
 - `Points`
 - `Label`
 
-Dataset is not support any attributes for annotations objects.
+Format doesn't support any attributes for annotations objects.
 
 ## Import Vgg Face2 dataset
 
@@ -28,10 +28,9 @@ datum create
 datum import -f vgg_face2 <path_to_dataset>
 ```
 
-> Note: <path_to_dataset> should not be a subdirectory of directory with
-> Datumaro project, see more information about it in the
-> [docs](/docs/user-manual/command-reference/sources/#source-add).
-
+> Note: if you use `datum import` then <path_to_dataset> should not be a
+> subdirectory of directory with Datumaro project, see more information about
+> it in the [docs](/docs/user-manual/command-reference/sources/#source-add).
 
 And you can also load Vgg Face 2 through the Python API:
 
@@ -74,7 +73,7 @@ vgg_face2_dataset/
     ├── ...
 ```
 
-## Exporting Vgg Face2 dataset
+## Export Vgg Face2 dataset
 
 Datumaro can convert a Vgg Face2 dataset into any other format
 [Datumaro supports](/docs/user-manual/supported_formats/).
@@ -108,7 +107,7 @@ vgg_face2_dataset.export('<output_dir>', format='open_images', save_images=True)
 > Note: some formats have extra export options. For particular format see the
 > [docs](/docs/formats/) to get information about it.
 
-## Exporting dataset into the Vgg Face2 format
+## Export dataset to the Vgg Face2 format
 
 If you have dataset in some format and want to convert this dataset
 into the Vgg Face2, ensure that this dataset contains `Bbox` or/and `Points`
