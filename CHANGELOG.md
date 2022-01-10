@@ -31,6 +31,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fails in multimerge when lines are not approximated and when there are no
   label categories (<https://github.com/openvinotoolkit/datumaro/pull/592>)
+- Cannot convert LabelMe dataset, that has no subsets
+  (<https://github.com/openvinotoolkit/datumaro/pull/600>)
 - Saving (overwiriting) a dataset in a project when rpath is used
   (<https://github.com/openvinotoolkit/datumaro/pull/613>)
 
