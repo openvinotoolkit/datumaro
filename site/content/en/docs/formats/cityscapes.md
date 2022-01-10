@@ -68,7 +68,7 @@ Annotated files description:
   is the instance ID. If a certain annotation describes multiple instances,
   then the pixels have the regular ID of that class
 
-To add custom classes, you can use [`dataset_meta.json`](/docs/user_manual/supported_formats/#dataset-meta-file)
+To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats/#dataset-meta-file)
 and `label_colors.txt`.
 If the `dataset_meta.json` is not represented in the dataset, then
 `label_colors.txt` will be imported if possible.

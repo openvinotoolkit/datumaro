@@ -71,7 +71,7 @@ provides an option to use a special index file to allow this.
 ...
 ```
 
-To add custom classes, you can use [`dataset_meta.json`](/docs/user_manual/supported_formats/#dataset-meta-file).
+To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats/#dataset-meta-file).
 
 A Datumaro project with a KITTI source can be created in the following way:
 

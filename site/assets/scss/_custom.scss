@@ -71,3 +71,37 @@
 html {
   scroll-padding-top: 70px; /* height of sticky header */
 }
+
+/* Code blocks */
+
+div.code-toolbar .toolbar {
+  padding-right: 0.6em;
+}
+
+pre[class*="language-"] {
+  background: #f8f9fa !important;
+}
+
+details {
+  max-width: 80%;
+}
+
+@media (max-width: 991px) {
+  details {
+      max-width: 100% !important;
+  }
+}
+
+li > details {
+  max-width: 100%;
+}
+
+.code-toolbar {
+  max-width: 80%;
+}
+
+.highlight > .code-toolbar,
+details > summary > .code-toolbar,
+details > .code-toolbar {
+  max-width: 100%;
+}

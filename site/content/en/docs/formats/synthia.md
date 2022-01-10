@@ -98,7 +98,7 @@ If it is missing, `GT/COLOR` folder will be used.
 The original dataset also contains depth information, but Datumaro
 does not currently support it.
 
-To add custom classes, you can use [`dataset_meta.json`](/docs/user_manual/supported_formats/#dataset-meta-file).
+To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats/#dataset-meta-file).
 
 ## Export to other formats
 
