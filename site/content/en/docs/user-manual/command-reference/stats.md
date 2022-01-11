@@ -35,7 +35,7 @@ Sample output:
 
 <details>
 
-```
+``` json
 {
     "annotations": {
         "labels": {

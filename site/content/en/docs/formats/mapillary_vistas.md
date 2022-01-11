@@ -40,7 +40,9 @@ Use one of subformats (`mapillary_vistas_instances`, `mapillary_vistas_panoptic`
 if your dataset contains both panoptic and instance masks:
 ```bash
 datum add -f mapillary_vistas_instances ./dataset
-# or
+```
+or
+``` bash
 datum add -f mapillary_vistas_panoptic ./dataset
 ```
 
@@ -163,7 +165,7 @@ dataset
   {{< /tab >}}
 {{< /tabpane >}}
 
-To add custom classes, you can use [`dataset_meta.json`](/docs/user_manual/supported_formats/#dataset-meta-file).
+To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats/#dataset-meta-file).
 
 See examples of annotation files in
-[test assets](https://github.com/openvinotoolkit/datumaro/blob/develop/tests/assets/mappilary_vistas_dataset).
+[test assets](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/mapillary_vistas_dataset).

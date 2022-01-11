@@ -87,7 +87,7 @@ MNIST in CSV dataset directory should have the following structure:
     └── mnist_train.csv
 ```
 
-To add custom classes, you can use [`dataset_meta.json`](/docs/user_manual/supported_formats/#dataset-meta-file)
+To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats/#dataset-meta-file)
 and `labels.txt`.
 If the `dataset_meta.json` is not represented in the dataset, then
 `labels.txt` will be imported if possible.
@@ -121,7 +121,9 @@ There are several ways to convert a MNIST dataset to other dataset formats:
 datum create
 datum import -f mnist <path/to/mnist>
 datum export -f imagenet -o <output/dir>
-# or
+```
+or
+``` bash
 datum convert -if mnist -i <path/to/mnist> -f imagenet -o <output/dir>
 ```
 
@@ -145,6 +147,8 @@ There are several ways to convert a dataset to MNIST format:
 # export dataset into MNIST format from existing project
 datum export -p <path/to/project> -f mnist -o <output/dir> \
     -- --save-images
+```
+``` bash
 # converting to MNIST format from other format
 datum convert -if imagenet -i <path/to/dataset> \
     -f mnist -o <output/dir> -- --save-images

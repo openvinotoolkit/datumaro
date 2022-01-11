@@ -28,13 +28,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - TBD
 
 ### Removed
-- TBD
+- Official support of Python 3.6 (due to it's EOL)
+  (<https://github.com/openvinotoolkit/datumaro/pull/617>)
 
 ### Fixed
 - Fails in multimerge when lines are not approximated and when there are no
   label categories (<https://github.com/openvinotoolkit/datumaro/pull/592>)
 - Cannot convert LabelMe dataset, that has no subsets
   (<https://github.com/openvinotoolkit/datumaro/pull/600>)
+- Saving (overwriting) a dataset in a project when rpath is used
+  (<https://github.com/openvinotoolkit/datumaro/pull/613>)
 - Memory overuse in the `Resize` transform
   (<https://github.com/openvinotoolkit/datumaro/issues/607>)
 - Invalid image pixels produced by the `Resize` transform
