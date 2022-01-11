@@ -1001,7 +1001,7 @@ def match_segments(a_segms, b_segms, distance=segment_iou, dist_thresh=1.0,
 
     return matches, mispred, a_unmatched, b_unmatched
 
-def mean_std(dataset):
+def mean_std(dataset: IDataset):
     """
     Computes unbiased mean and std. dev. for dataset images, channel-wise.
     """
@@ -1046,26 +1046,48 @@ class StatsCounter:
     # Implements online parallel computation of sample variance
     # https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Parallel_algorithm
 
-    # Needed do avoid catastrophic cancellation in floating point computations
     @staticmethod
     def pairwise_stats(count_a, mean_a, var_a, count_b, mean_b, var_b):
+        """
+        Computes vector mean and variance.
+
+        Needed do avoid catastrophic cancellation in floating point computations
+
+        Returns:
+            A tuple (total count, mean, variance)
+        """
+
+        # allow long arithmetics
+        count_a = int(count_a)
+        count_b = int(count_b)
+
         delta = mean_b - mean_a
         m_a = var_a * (count_a - 1)
         m_b = var_b * (count_b - 1)
-        M2 = m_a + m_b + delta ** 2 * count_a * count_b / (count_a + count_b)
+        M2 = m_a + m_b + delta ** 2 * (count_a * count_b / (count_a + count_b))
+
         return (
             count_a + count_b,
             mean_a * 0.5 + mean_b * 0.5,
             M2 / (count_a + count_b - 1)
         )
 
-    # stats = float array of shape N, 2 * d, d = dimensions of values
-    # count = integer array of shape N
-    # mean_accessor = function(idx, stats) to retrieve element mean
-    # variance_accessor = function(idx, stats) to retrieve element variance
-    # Recursively computes total count, mean and variance, does O(log(N)) calls
     @staticmethod
     def compute_stats(stats, counts, mean_accessor, variance_accessor):
+        """
+        Recursively computes total count, mean and variance,
+        does O(log(N)) calls.
+
+        Args:
+            stats (float array of shape N, 2 * d, d = dimensions of values)
+            count (integer array of shape N)
+            mean_accessor (function(idx, stats)) to retrieve element mean
+            variance_accessor (function(idx, stats)) to retrieve element variance
+
+        Returns:
+            A tuple (total count, mean, variance)
+        """
+
         m = mean_accessor
         v = variance_accessor
         n = len(stats)
@@ -1082,7 +1104,7 @@ class StatsCounter:
             *__class__.compute_stats(stats[h:], counts[h:], m, v)
             )
 
-def compute_image_statistics(dataset):
+def compute_image_statistics(dataset: IDataset):
     stats = {
         'dataset': {},
         'subsets': {}
@@ -1116,15 +1138,19 @@ def compute_image_statistics(dataset):
 
     stats['dataset'].update(_extractor_stats(dataset))
 
-    subsets = dataset.subsets() or [None]
-    if subsets and 0 < len([s for s in subsets if s]):
-        for subset_name in subsets:
-            stats['subsets'][subset_name] = _extractor_stats(
-                dataset.get_subset(subset_name))
+    subsets = dataset.subsets()
+    if subsets and 0 < len(subsets):
+        if len(subsets) == 1:
+            # can reuse the data computed
+            stats['subsets'][next(iter(subsets))] = stats['dataset']
+        else:
+            for subset_name in subsets:
+                stats['subsets'][subset_name] = _extractor_stats(
+                    dataset.get_subset(subset_name))
 
     return stats
 
-def compute_ann_statistics(dataset):
+def compute_ann_statistics(dataset: IDataset):
     labels = dataset.categories().get(AnnotationType.label, LabelCategories())
     def get_label(ann):
         return labels.items[ann.label].name if ann.label is not None else None
