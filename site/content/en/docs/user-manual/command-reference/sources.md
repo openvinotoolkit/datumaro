@@ -129,7 +129,7 @@ Example: add an existing dataset into a project, avoid data copying
 
 To add a dataset, we need to have it inside the project directory:
 
-\```bash
+```bash
 proj/
 ├─ .datumaro/
 ├─ .dvc/
@@ -140,14 +140,14 @@ proj/
 │  └─ annotations/
 │     └─ coco_annotation.json
 ├─ .dvcignore
-├─ .gitignore
-\``` 
+└─ .gitignore
+``` 
 
-\```bash
-datum create -o proj/
-mv ~/my_coco/ proj/my_coco/ # move the dataset into the project directory
-datum add -p proj/ -f coco proj/my_coco/
-\``` 
+``` bash
+datum create -o proj/  
+mv ~/my_coco/ proj/my_coco/ # move the dataset into the project directory  
+datum add -p proj/ -f coco proj/my_coco/  
+```
 
 ### Remove Datasets <a id="source-remove"></a>
 
