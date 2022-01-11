@@ -35,6 +35,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   label categories (<https://github.com/openvinotoolkit/datumaro/pull/592>)
 - Cannot convert LabelMe dataset, that has no subsets
   (<https://github.com/openvinotoolkit/datumaro/pull/600>)
+- Memory overuse in the `Resize` transform
+  (<https://github.com/openvinotoolkit/datumaro/issues/607>)
+- Invalid image pixels produced by the `Resize` transform
+  (<https://github.com/openvinotoolkit/datumaro/issues/618>)
 
 ### Security
 - TBD
