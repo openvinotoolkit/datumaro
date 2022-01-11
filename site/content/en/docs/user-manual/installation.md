@@ -24,7 +24,8 @@ Install:
 ``` bash
 # From PyPI:
 pip install datumaro[default]
-
+```
+``` bash
 # From the GitHub repository:
 pip install 'git+https://github.com/openvinotoolkit/datumaro[default]'
 ```

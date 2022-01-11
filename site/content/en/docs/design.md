@@ -82,7 +82,7 @@ extending CVAT UI capabilities regarding task and project operations.
 It should be capable of downloading and processing data from CVAT.
 
 <!--lint disable fenced-code-flag-->
-```lang-none
+```
         User
           |
           v

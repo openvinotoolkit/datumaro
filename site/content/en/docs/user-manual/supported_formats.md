@@ -160,7 +160,7 @@ in a specific format, only relevant annotations are exported.
 It is possible to use classes that are not original to the format.
 To do this, use `dataset_meta.json`.
 
-```
+```json
 {
 "label_map": {"0": "background", "1": "car", "2": "person"},
 "segmentation_colors": [[0, 0, 0], [255, 0, 0], [0, 0, 255]],

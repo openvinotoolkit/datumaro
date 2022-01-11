@@ -131,7 +131,9 @@ To run tests use:
 
 ``` bash
 pytest -v
-# or
+```
+or
+``` bash
 python -m pytest -v
 ```
 

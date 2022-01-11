@@ -28,11 +28,17 @@ The plugin depends on TensorFlow, which can be installed with `pip`:
 
 ``` bash
 pip install tensorflow
-# or
+```
+or
+``` bash
 pip install tensorflow-gpu
-# or
+```
+or
+``` bash
 pip install datumaro[tf]
-# or
+```
+or
+``` bash
 pip install datumaro[tf-gpu]
 ```
 
