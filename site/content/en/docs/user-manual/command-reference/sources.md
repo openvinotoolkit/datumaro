@@ -144,9 +144,9 @@ proj/
 ``` 
 
 ``` bash
-datum create -o proj/  
-mv ~/my_coco/ proj/my_coco/ # move the dataset into the project directory  
-datum add -p proj/ -f coco proj/my_coco/  
+datum create -o proj/
+mv ~/my_coco/ proj/my_coco/ # move the dataset into the project directory
+datum add -p proj/ -f coco proj/my_coco/
 ```
 
 ### Remove Datasets <a id="source-remove"></a>
