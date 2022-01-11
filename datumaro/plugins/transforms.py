@@ -764,6 +764,22 @@ class ResizeTransform(ItemTransform):
         self._width = width
         self._height = height
 
+    def _lazy_resize_image(self, image, new_size, method):
+        def _resize_image(_):
+            resized_image = cv2.resize(image.data / 255.0, new_size,
+                interpolation=method)
+            return resized_image * 255.0
+        return _resize_image
+
+    def _lazy_resize_mask(self, mask, new_size):
+        def _resize_image():
+            # Can use only NEAREST for masks,
+            # because we can't have interpolated values
+            rescaled_mask = cv2.resize(mask.image.astype(np.float32),
+                new_size, interpolation=cv2.INTER_NEAREST)
+            return rescaled_mask.astype(np.uint8)
+        return _resize_image
+
     def transform_item(self, item):
         if not item.has_image:
             raise DatumaroError("Item %s: image info is required for this "
@@ -773,14 +789,15 @@ class ResizeTransform(ItemTransform):
         xscale = self._width / float(w)
         yscale = self._height / float(h)
 
+        new_size = (self._width, self._height)
+
         if item.image.has_data:
             # LANCZOS4 is preferable for upscaling, but it works quite slow
             method = cv2.INTER_AREA if (xscale * yscale) < 1 \
                 else cv2.INTER_CUBIC
-            image = item.image.data / 255.0
-            resized_image = cv2.resize(image, (self._width, self._height),
-                interpolation=method)
-            resized_image *= 255.0
+            resized_image = self._lazy_resize_image(item.image, new_size, method)
+        else:
+            resized_image = None
 
         resized_annotations = []
         for ann in item.annotations:
@@ -801,18 +818,8 @@ class ResizeTransform(ItemTransform):
                     ]
                 ))
             elif isinstance(ann, Mask):
-                # Can use only NEAREST for masks,
-                # because we can't have interpolated values
-                rescaled_mask = cv2.resize(ann.image.astype(np.float32),
-                    (self._width, self._height),
-                    interpolation=cv2.INTER_NEAREST).astype(np.uint8)
-
-                if isinstance(ann, RleMask):
-                    rle = mask_tools.mask_to_rle(rescaled_mask)
-                    resized_annotations.append(ann.wrap(
-                        rle=mask_utils.frPyObjects(rle, *rle['size'])))
-                else:
-                    resized_annotations.append(ann.wrap(image=rescaled_mask))
+                rescaled_mask = self._lazy_resize_mask(ann, new_size)
+                resized_annotations.append(ann.wrap(image=rescaled_mask))
             elif isinstance(ann, (Caption, Label)):
                 resized_annotations.append(ann)
             else:
