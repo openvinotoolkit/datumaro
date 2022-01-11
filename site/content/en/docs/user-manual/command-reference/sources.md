@@ -125,28 +125,29 @@ datum add -f cvat dataset2/train.xml
 datum export -f yolo -- --save-images
 ```
 
-Example: use add command to add dataset into datumaro project
+Example: add an existing dataset into a project, avoid data copying
 
-folder structuer:
+To add a dataset, we need to have it inside the project directory:
 
-``` bash
-my_datumaro_proj/
+\```bash
+proj/
 ├─ .datumaro/
 ├─ .dvc/
-├─ my_new_coco/
-│  ├─ images/
+├─ my_coco/
+│  └─ images/
 │     ├─ image1.jpg
-│     ├─ ...
-│  ├─ annotations/
-│     ├─ coco_annotation.json
+│     └─ ...
+│  └─ annotations/
+│     └─ coco_annotation.json
 ├─ .dvcignore
 ├─ .gitignore
-``` 
+\``` 
 
-``` bash
-# type this commane in my_datumaro_proj's parent directory
-datum add -f coco  -p my_datumaro_proj /home/my_datumaro_proj/my_new_coco
-``` 
+\```bash
+datum create -o proj/
+mv ~/my_coco/ proj/my_coco/ # move the dataset into the project directory
+datum add -p proj/ -f coco proj/my_coco/
+\``` 
 
 ### Remove Datasets <a id="source-remove"></a>
 
