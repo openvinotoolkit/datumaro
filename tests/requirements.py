@@ -29,12 +29,14 @@ class Requirements:
     DATUM_475 = "Support import for CelebA dataset"
     DATUM_497 = "Support import for SYNTHIA dataset"
     DATUM_542 = "Images missing after merging two datasets"
+    DATUM_580 = "Import for MPII Human Pose Dataset"
 
     # GitHub issues (bugs)
     # https://github.com/openvinotoolkit/datumaro/issues
     DATUM_BUG_219 = "Return format is not uniform"
     DATUM_BUG_257 = "Dataset.filter doesn't count removed items"
     DATUM_BUG_259 = "Dataset.filter fails on merged datasets"
+    DATUM_BUG_289 = "Cannot convert LabelMe dataset, that has no subsets"
     DATUM_BUG_314 = "Unsuccessful remap_labels"
     DATUM_BUG_402 = "Troubles running 'remap_labels' on ProjectDataset"
     DATUM_BUG_404 = "custom importer/extractor not loading"
@@ -43,6 +45,7 @@ class Requirements:
     DATUM_BUG_470 = "Cannot to import Cityscapes dataset without images"
     DATUM_BUG_560 = "Reading MOT dataset with seqinfo produces 0-based indexing in frames"
     DATUM_BUG_583 = "Empty lines in VOC subset lists are not ignored"
+    DATUM_BUG_602 = "Patch command example error"
 
 
 class SkipMessages:

@@ -1,6 +1,8 @@
-# Copyright (C) 2019-2021 Intel Corporation
+# Copyright (C) 2019-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
+
+from __future__ import annotations
 
 from glob import iglob
 from typing import Any, Callable, Dict, Iterator, List, Literal, Optional, Union
@@ -101,10 +103,10 @@ class IExtractor:
     def __bool__(self): # avoid __len__ use for truth checking
         return True
 
-    def subsets(self) -> Dict[str, 'IExtractor']:
+    def subsets(self) -> Dict[str, IExtractor]:
         raise NotImplementedError()
 
-    def get_subset(self, name) -> 'IExtractor':
+    def get_subset(self, name) -> IExtractor:
         raise NotImplementedError()
 
     def categories(self) -> CategoriesInfo:

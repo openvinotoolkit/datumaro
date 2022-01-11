@@ -388,6 +388,32 @@ class TestMultimerge(TestCase):
                 key=lambda e: len(e.sources))
         )
 
+    @mark_requirement(Requirements.DATUM_BUG_219)
+    def test_can_match_lines_when_line_not_approximated(self):
+        source0 = Dataset.from_iterable([
+            DatasetItem(1, annotations=[
+                PolyLine([1, 1, 2, 1, 3, 5, 5, 5, 8, 3]),
+            ]),
+        ])
+
+        source1 = Dataset.from_iterable([
+            DatasetItem(1, annotations=[
+                PolyLine([1, 1, 8, 3]),
+            ]),
+        ])
+
+        expected = Dataset.from_iterable([
+            DatasetItem(1, annotations=[
+                PolyLine([1, 1, 2, 1, 3, 5, 5, 5, 8, 3]),
+            ]),
+        ], categories=[])
+
+        merger = IntersectMerge(conf={'quorum': 1, 'pairwise_dist': 0.1})
+        merged = merger([source0, source1])
+
+        compare_datasets(self, expected, merged, ignored_attrs={'score'})
+        self.assertEqual(0, len(merger.errors))
+
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_attributes(self):
         source0 = Dataset.from_iterable([

@@ -303,3 +303,13 @@ class LabelMeImporterTest(TestCase):
 
         parsed = Dataset.import_from(DUMMY_DATASET_DIR, 'label_me')
         compare_datasets(self, expected=target_dataset, actual=parsed)
+
+    @mark_requirement(Requirements.DATUM_BUG_289)
+    def test_can_convert(self):
+        source_dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'label_me')
+        with TestDir() as test_dir:
+            LabelMeConverter.convert(source_dataset, test_dir, save_images=True)
+            parsed_dataset = Dataset.import_from(test_dir, 'label_me')
+
+            compare_datasets(self, source_dataset, parsed_dataset,
+                require_images=True)

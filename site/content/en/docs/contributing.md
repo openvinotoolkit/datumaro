@@ -14,7 +14,7 @@ weight: 50
 
 ### Prerequisites
 
-- Python (3.6+)
+- Python (3.7+)
 
 ``` bash
 git clone https://github.com/openvinotoolkit/datumaro
@@ -131,7 +131,9 @@ To run tests use:
 
 ``` bash
 pytest -v
-# or
+```
+or
+``` bash
 python -m pytest -v
 ```
 

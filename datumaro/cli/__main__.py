@@ -78,6 +78,7 @@ def _get_known_commands():
 
         ("", None, ''),
         ("Dataset operations:", None, ''),
+        ('download', commands.download, "Download a publicly available dataset"),
         ('export', commands.export, "Export dataset in some format"),
         ('filter', commands.filter, "Filter dataset items"),
         ('transform', commands.transform, "Modify dataset items"),

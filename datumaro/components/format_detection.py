@@ -1,17 +1,16 @@
-# Copyright (C) 2021 Intel Corporation
+# Copyright (C) 2021-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 from enum import IntEnum
 from typing import (
-    Callable, Collection, Iterator, List, Optional, Sequence, TextIO, Union,
+    Callable, Collection, Iterator, List, NoReturn, Optional, Sequence, TextIO,
+    Union,
 )
 import contextlib
 import fnmatch
 import glob
 import os.path as osp
-
-from typing_extensions import NoReturn
 
 
 class FormatDetectionConfidence(IntEnum):

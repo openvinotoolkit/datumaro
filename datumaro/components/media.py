@@ -1,6 +1,8 @@
-# Copyright (C) 2021 Intel Corporation
+# Copyright (C) 2021-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
+
+from __future__ import annotations
 
 from typing import Callable, Iterable, Iterator, Optional, Tuple, Union
 import os
@@ -121,6 +123,12 @@ class Image(MediaElement):
             save_image(path, self.data)
 
 class ByteImage(Image):
+    _FORMAT_MAGICS = (
+        (b'\x89PNG\r\n\x1a\n', '.png'),
+        (b'\xff\xd8\xff', '.jpg'),
+        (b'BM', '.bmp'),
+    )
+
     def __init__(self,
             data: Union[bytes, Callable[[str], bytes], None] = None,
             *,
@@ -147,7 +155,17 @@ class ByteImage(Image):
             ext = ext.lower()
             if not ext.startswith('.'):
                 ext = '.' + ext
+        elif path is None and isinstance(data, bytes):
+            ext = self._guess_ext(data)
         self._ext = ext
+
+    @classmethod
+    def _guess_ext(cls, data: bytes) -> Optional[str]:
+        return next(
+            (ext for magic, ext in cls._FORMAT_MAGICS
+                if data.startswith(magic)),
+            None,
+        )
 
     def get_bytes(self):
         if callable(self._bytes_data):
@@ -178,7 +196,7 @@ class ByteImage(Image):
             save_image(path, self.data)
 
 class VideoFrame(Image):
-    def __init__(self, video: 'Video', index: int):
+    def __init__(self, video: Video, index: int):
         self._video = video
         self._index = index
 
@@ -193,19 +211,19 @@ class VideoFrame(Image):
         return self._index
 
     @property
-    def video(self) -> 'Video':
+    def video(self) -> Video:
         return self._video
 
 class _VideoFrameIterator(Iterator[VideoFrame]):
     """
     Provides sequential access to the video frames.
     """
-    _video: 'Video'
+    _video: Video
     _iterator: Iterator[VideoFrame]
     _pos: int
     _current_frame_data: Optional[np.ndarray]
 
-    def __init__(self, video: 'Video'):
+    def __init__(self, video: Video):
         self._video = video
         self._reset()
 
