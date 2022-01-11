@@ -33,7 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   label categories (<https://github.com/openvinotoolkit/datumaro/pull/592>)
 - Cannot convert LabelMe dataset, that has no subsets
   (<https://github.com/openvinotoolkit/datumaro/pull/600>)
-- Saving (overwiriting) a dataset in a project when rpath is used
+- Saving (overwriting) a dataset in a project when rpath is used
   (<https://github.com/openvinotoolkit/datumaro/pull/613>)
 
 ### Security
