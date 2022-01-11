@@ -1,6 +1,8 @@
-# Copyright (C) 2021 Intel Corporation
+# Copyright (C) 2021-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
+
+from __future__ import annotations
 
 from enum import Enum, auto
 from itertools import zip_longest
@@ -101,7 +103,7 @@ class LabelCategories(Categories):
         Tuple[str],
         Tuple[str, str],
         Tuple[str, str, List[str]],
-    ]]) -> 'LabelCategories':
+    ]]) -> LabelCategories:
         """
         Creates a LabelCategories from iterable.
 
@@ -180,7 +182,7 @@ class MaskCategories(Categories):
 
     @classmethod
     def generate(cls, size: int = 255, include_background: bool = True) \
-            -> 'MaskCategories':
+            -> MaskCategories:
         """
         Generates MaskCategories with the specified size.
 
@@ -336,7 +338,7 @@ class CompiledMask:
     @staticmethod
     def from_instance_masks(instance_masks: Iterable[Mask],
             instance_ids: Optional[Iterable[int]] = None,
-            instance_labels: Optional[Iterable[int]] = None) -> 'CompiledMask':
+            instance_labels: Optional[Iterable[int]] = None) -> CompiledMask:
         """
         Joins instance masks into a single mask. Masks are sorted by
         z_order (ascending) prior to merging.
@@ -655,7 +657,7 @@ class PointsCategories(Categories):
     def from_iterable(cls, iterable: Union[
         Tuple[int, List[str]],
         Tuple[int, List[str], Set[Tuple[int, int]]],
-    ]) -> 'PointsCategories':
+    ]) -> PointsCategories:
         """
         Create PointsCategories from an iterable.
 

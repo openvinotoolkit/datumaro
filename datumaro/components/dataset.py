@@ -1,6 +1,8 @@
-# Copyright (C) 2020-2021 Intel Corporation
+# Copyright (C) 2020-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
+
+from __future__ import annotations
 
 from contextlib import contextmanager
 from copy import copy
@@ -105,7 +107,7 @@ class DatasetItemStorage:
 
 class DatasetItemStorageDatasetView(IDataset):
     class Subset(IDataset):
-        def __init__(self, parent: 'DatasetItemStorageDatasetView', name: str):
+        def __init__(self, parent: DatasetItemStorageDatasetView, name: str):
             super().__init__()
             self.parent = parent
             self.name = name
@@ -182,7 +184,7 @@ class DatasetPatch:
     class DatasetPatchWrapper(DatasetItemStorageDatasetView):
         # The purpose of this class is to indicate that the input dataset is
         # a patch and autofill patch info in Converter
-        def __init__(self, patch: 'DatasetPatch', parent: IDataset):
+        def __init__(self, patch: DatasetPatch, parent: IDataset):
             super().__init__(patch.data, parent.categories())
             self.patch = patch
 
@@ -212,7 +214,7 @@ class DatasetPatch:
         return __class__.DatasetPatchWrapper(self, parent)
 
 class DatasetSubset(IDataset): # non-owning view
-    def __init__(self, parent: 'Dataset', name: str):
+    def __init__(self, parent: Dataset, name: str):
         super().__init__()
         self.parent = parent
         self.name = name
@@ -249,7 +251,7 @@ class DatasetSubset(IDataset): # non-owning view
     def categories(self):
         return self.parent.categories()
 
-    def as_dataset(self) -> 'Dataset':
+    def as_dataset(self) -> Dataset:
         return Dataset.from_extractors(self, env=self.parent.env)
 
 
@@ -608,7 +610,7 @@ class Dataset(IDataset):
     @classmethod
     def from_iterable(cls, iterable: Iterable[DatasetItem],
             categories: Union[CategoriesInfo, List[str], None] = None,
-            env: Optional[Environment] = None) -> 'Dataset':
+            env: Optional[Environment] = None) -> Dataset:
         if isinstance(categories, list):
             categories = { AnnotationType.label:
                 LabelCategories.from_iterable(categories)
@@ -632,7 +634,7 @@ class Dataset(IDataset):
 
     @staticmethod
     def from_extractors(*sources: IDataset,
-            env: Optional[Environment] = None) -> 'Dataset':
+            env: Optional[Environment] = None) -> Dataset:
         if len(sources) == 1:
             source = sources[0]
         else:
@@ -709,7 +711,7 @@ class Dataset(IDataset):
         self._data.remove(id, subset)
 
     def filter(self, expr: str, filter_annotations: bool = False,
-            remove_empty: bool = False) -> 'Dataset':
+            remove_empty: bool = False) -> Dataset:
         if filter_annotations:
             return self.transform(XPathAnnotationsFilter, expr, remove_empty)
         else:
@@ -717,7 +719,7 @@ class Dataset(IDataset):
 
     def update(self,
             source: Union[DatasetPatch, IExtractor, Iterable[DatasetItem]]) \
-                -> 'Dataset':
+                -> Dataset:
         """
         Updates items of the current dataset from another dataset or an
         iterable (the source). Items from the source overwrite matching
@@ -734,7 +736,7 @@ class Dataset(IDataset):
         return self
 
     def transform(self, method: Union[str, Type[Transform]],
-            *args, **kwargs) -> 'Dataset':
+            *args, **kwargs) -> Dataset:
         """
         Applies some function to dataset items.
         """
@@ -754,7 +756,7 @@ class Dataset(IDataset):
 
         return self
 
-    def run_model(self, model, batch_size=1) -> 'Dataset':
+    def run_model(self, model, batch_size=1) -> Dataset:
         from datumaro.components.launcher import Launcher, ModelTransform
         if isinstance(model, Launcher):
             return self.transform(ModelTransform, launcher=model,
@@ -765,7 +767,7 @@ class Dataset(IDataset):
             raise TypeError("Unexpected 'model' argument type: %s" % \
                 type(model))
 
-    def select(self, pred: Callable[[DatasetItem], bool]) -> 'Dataset':
+    def select(self, pred: Callable[[DatasetItem], bool]) -> Dataset:
         class _DatasetFilter(ItemTransform):
             def transform_item(self, item):
                 if pred(item):
@@ -863,12 +865,12 @@ class Dataset(IDataset):
             format=self._format, **options)
 
     @classmethod
-    def load(cls, path: str, **kwargs) -> 'Dataset':
+    def load(cls, path: str, **kwargs) -> Dataset:
         return cls.import_from(path, format=DEFAULT_FORMAT, **kwargs)
 
     @classmethod
     def import_from(cls, path: str, format: Optional[str] = None,
-            env: Optional[Environment] = None, **kwargs) -> 'Dataset':
+            env: Optional[Environment] = None, **kwargs) -> Dataset:
         from datumaro.components.config_model import Source
 
         if env is None:
