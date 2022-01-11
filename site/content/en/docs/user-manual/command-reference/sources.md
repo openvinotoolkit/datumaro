@@ -141,7 +141,7 @@ proj/
 │     └─ coco_annotation.json
 ├─ .dvcignore
 └─ .gitignore
-``` 
+```
 
 ``` bash
 datum create -o proj/
