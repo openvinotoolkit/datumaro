@@ -21,6 +21,7 @@ from datumaro.components.annotation import (
     Points, PointsCategories, Polygon, PolyLine, RleMask,
 )
 from datumaro.components.cli_plugin import CliPlugin
+from datumaro.components.errors import DatumaroError
 from datumaro.components.extractor import (
     DEFAULT_SUBSET_NAME, IExtractor, ItemTransform, Transform,
 )
@@ -765,7 +766,8 @@ class ResizeTransform(ItemTransform):
 
     def transform_item(self, item):
         if not item.has_image:
-            raise Exception("Image info is required for this transform")
+            raise DatumaroError("Item %s: image info is required for this "
+                "transform" % (item.id, ))
 
         h, w = item.image.size
         xscale = self._width / float(w)
@@ -778,6 +780,7 @@ class ResizeTransform(ItemTransform):
             image = item.image.data / 255.0
             resized_image = cv2.resize(image, (self._width, self._height),
                 interpolation=method)
+            resized_image *= 255.0
 
         resized_annotations = []
         for ann in item.annotations:

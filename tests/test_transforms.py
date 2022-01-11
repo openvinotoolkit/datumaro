@@ -570,7 +570,7 @@ class TransformsTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_resize(self):
         small_dataset = Dataset.from_iterable([
-            DatasetItem(id=1, image=np.zeros((4, 4)), annotations=[
+            DatasetItem(id=1, image=np.ones((4, 4)), annotations=[
                 Label(1),
                 Bbox(1, 1, 2, 2, label=2),
                 Polygon([1, 1, 1, 2, 2, 2, 2, 1], label=1),
@@ -586,7 +586,7 @@ class TransformsTest(TestCase):
         ], categories=['a', 'b', 'c'])
 
         big_dataset = Dataset.from_iterable([
-            DatasetItem(id=1, image=np.zeros((8, 8)), annotations=[
+            DatasetItem(id=1, image=np.ones((8, 8)), annotations=[
                 Label(1),
                 Bbox(2, 2, 4, 4, label=2),
                 Polygon([2, 2, 2, 4, 4, 4, 4, 2], label=1),
