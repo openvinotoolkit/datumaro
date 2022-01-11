@@ -22,14 +22,14 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.extractor import (
-    DEFAULT_SUBSET_NAME, IExtractor, ItemTransform, Transform,
+    DEFAULT_SUBSET_NAME, IExtractor, InplaceTransform, ItemTransform, Transform,
 )
 from datumaro.util import NOTSET, parse_str_enum_value, take_by
 from datumaro.util.annotation_util import find_group_leader, find_instances
 import datumaro.util.mask_tools as mask_tools
 
 
-class CropCoveredSegments(ItemTransform, CliPlugin):
+class CropCoveredSegments(InplaceTransform, CliPlugin):
     def transform_item(self, item):
         annotations = []
         segments = []
@@ -92,7 +92,7 @@ class CropCoveredSegments(ItemTransform, CliPlugin):
         max_gid = max(anns, default=0, key=lambda x: x.group)
         return max_gid + 1
 
-class MergeInstanceSegments(ItemTransform, CliPlugin):
+class MergeInstanceSegments(InplaceTransform, CliPlugin):
     """
     Replaces instance masks and, optionally, polygons with a single mask.
     """
@@ -176,7 +176,7 @@ class MergeInstanceSegments(ItemTransform, CliPlugin):
         return find_instances(a for a in annotations
             if a.type in {AnnotationType.polygon, AnnotationType.mask})
 
-class PolygonsToMasks(ItemTransform, CliPlugin):
+class PolygonsToMasks(InplaceTransform, CliPlugin):
     def transform_item(self, item):
         annotations = []
         for ann in item.annotations:
@@ -197,7 +197,7 @@ class PolygonsToMasks(ItemTransform, CliPlugin):
         return RleMask(rle=rle, label=polygon.label, z_order=polygon.z_order,
             id=polygon.id, attributes=polygon.attributes, group=polygon.group)
 
-class BoxesToMasks(ItemTransform, CliPlugin):
+class BoxesToMasks(InplaceTransform, CliPlugin):
     def transform_item(self, item):
         annotations = []
         for ann in item.annotations:
@@ -218,7 +218,7 @@ class BoxesToMasks(ItemTransform, CliPlugin):
         return RleMask(rle=rle, label=bbox.label, z_order=bbox.z_order,
             id=bbox.id, attributes=bbox.attributes, group=bbox.group)
 
-class MasksToPolygons(ItemTransform, CliPlugin):
+class MasksToPolygons(InplaceTransform, CliPlugin):
     def transform_item(self, item):
         annotations = []
         for ann in item.annotations:
@@ -245,7 +245,7 @@ class MasksToPolygons(ItemTransform, CliPlugin):
             for p in polygons
         ]
 
-class ShapesToBoxes(ItemTransform, CliPlugin):
+class ShapesToBoxes(InplaceTransform, CliPlugin):
     def transform_item(self, item):
         annotations = []
         for ann in item.annotations:
@@ -273,8 +273,7 @@ class Reindex(Transform, CliPlugin):
         return parser
 
     def __init__(self, extractor, start=1):
-        super().__init__(extractor)
-        self._length = 'parent'
+        super().__init__(extractor, length='parent')
         self._start = start
 
     def __iter__(self):
@@ -438,7 +437,7 @@ class Rename(ItemTransform, CliPlugin):
         return self.wrap_item(item, id=self._re.sub(self._sub, item.id) \
             .format(item=item))
 
-class RemapLabels(ItemTransform, CliPlugin):
+class RemapLabels(InplaceTransform, CliPlugin):
     """
     Changes labels in the dataset.|n
     |n
@@ -582,7 +581,7 @@ class RemapLabels(ItemTransform, CliPlugin):
                 annotations.append(ann.wrap())
         return item.wrap(annotations=annotations)
 
-class ProjectLabels(ItemTransform):
+class ProjectLabels(InplaceTransform):
     """
     Changes the order of labels in the dataset from the existing
     to the desired one, removes unknown labels and adds new labels.
@@ -705,7 +704,7 @@ class ProjectLabels(ItemTransform):
                 annotations.append(ann.wrap())
         return item.wrap(annotations=annotations)
 
-class AnnsToLabels(ItemTransform, CliPlugin):
+class AnnsToLabels(InplaceTransform, CliPlugin):
     """
     Collects all labels from annotations (of all types) and
     transforms them into a set of annotations of type Label
@@ -720,7 +719,7 @@ class AnnsToLabels(ItemTransform, CliPlugin):
 
         return item.wrap(annotations=annotations)
 
-class BboxValuesDecrement(ItemTransform, CliPlugin):
+class BboxValuesDecrement(InplaceTransform, CliPlugin):
     """
     Subtracts one from the coordinates of bounding boxes
     """
@@ -737,7 +736,7 @@ class BboxValuesDecrement(ItemTransform, CliPlugin):
 
         return item.wrap(annotations=annotations)
 
-class ResizeTransform(ItemTransform):
+class ResizeTransform(InplaceTransform):
     """
     Resizes images and annotations in the dataset to the specified size.
     Supports upscaling, downscaling and mixed variants.|n

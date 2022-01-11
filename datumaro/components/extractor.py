@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 from glob import iglob
-from typing import Any, Callable, Dict, Iterator, List, Optional
+from typing import Any, Callable, Dict, Iterator, List, Literal, Optional, Union
 import os
 import os.path as osp
 
@@ -297,13 +297,17 @@ class Transform(ExtractorBase, CliPlugin):
     A base class for dataset transformations that change dataset items
     or their annotations.
     """
+    INHERIT_LENGTH = 'parent'
 
     @staticmethod
     def wrap_item(item, **kwargs):
         return item.wrap(**kwargs)
 
-    def __init__(self, extractor: IExtractor):
-        super().__init__()
+    def __init__(self, extractor: IExtractor,
+            length: Union[int, None, Literal['parent']] = None):
+        assert isinstance(length, int) or \
+            length in {None, __class__.INHERIT_LENGTH}
+        super().__init__(length=length)
 
         self._extractor = extractor
 
@@ -316,10 +320,9 @@ class Transform(ExtractorBase, CliPlugin):
         return super().subsets()
 
     def __len__(self):
-        assert self._length in {None, 'parent'} or isinstance(self._length, int)
         if self._length is None and \
                     not is_method_redefined('__iter__', Transform, self) \
-                or self._length == 'parent':
+                or self._length == __class__.INHERIT_LENGTH:
             self._length = len(self._extractor)
         return super().__len__()
 
@@ -339,3 +342,24 @@ class ItemTransform(Transform):
             item = self.transform_item(item)
             if item is not None:
                 yield item
+
+class InplaceTransform(ItemTransform):
+    def __init__(self, extractor: IExtractor):
+        super().__init__(extractor=extractor, length=__class__.INHERIT_LENGTH)
+
+    def transform_item(self, item: DatasetItem) -> DatasetItem:
+        """
+        Returns a modified input item.
+
+        This function must not change item id or subset. Unlike ItemTransform,
+        it can't remove the item by returning None.
+        """
+
+        raise NotImplementedError()
+
+    def __iter__(self):
+        for item in self._extractor:
+            old_id = (item.id, item.subset)
+            new_item = self.transform_item(item)
+            assert new_item and (new_item.id, new_item.subset) == old_id
+            yield new_item

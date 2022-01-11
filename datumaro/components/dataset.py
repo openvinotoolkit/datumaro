@@ -25,7 +25,7 @@ from datumaro.components.errors import (
 )
 from datumaro.components.extractor import (
     DEFAULT_SUBSET_NAME, CategoriesInfo, DatasetItem, Extractor, IExtractor,
-    ItemTransform, Transform,
+    InplaceTransform, ItemTransform, Transform,
 )
 from datumaro.plugins.transforms import ProjectLabels
 from datumaro.util import is_method_redefined
@@ -284,8 +284,18 @@ class DatasetStorage(IDataset):
 
     @property
     def _is_unchanged_wrapper(self) -> bool:
+        """
+        Indicates that the dataset is a pure wrapper around the source
+        """
         return self._source is not None and self._storage.is_empty() and \
             not self._transforms
+
+    @property
+    def _is_inplace_transformer(self) -> bool:
+        """
+        Indicates that merging won't affect item number.
+        """
+        return all(issubclass(t[0], InplaceTransform) for t in self._transforms)
 
     def init_cache(self):
         if not self.is_cache_initialized():
@@ -453,6 +463,9 @@ class DatasetStorage(IDataset):
 
     def __iter__(self) -> Iterator[DatasetItem]:
         if self._is_unchanged_wrapper:
+            yield from self._source
+        elif ((self._source is not None) ^ (not self._storage.is_empty())) and \
+                self._is_inplace_transformer:
             yield from self._iter_init_cache()
         else:
             yield from self._merged()
@@ -460,19 +473,24 @@ class DatasetStorage(IDataset):
     def _merged(self) -> IDataset:
         if self._is_unchanged_wrapper:
             return self._source
-        elif self._source is not None:
+        elif not self.is_cache_initialized():
             self.init_cache()
         return DatasetItemStorageDatasetView(self._storage, self._categories)
 
     def __len__(self) -> int:
         if self._length is None:
-            if self._is_unchanged_wrapper and \
-                    isinstance(self._source, Extractor) and \
-                    is_method_redefined('__len__', Extractor, self._source):
-                # Allow to use optimized versions of __len__() if the source
-                # has them. The default implementation just iterates over
-                # the items, so using it won't give any benefits comparing
-                # to initializing the cache.
+            # Allow to use optimized versions of __len__() if the source
+            # provides them. The default implementation just iterates over
+            # the items, so using it won't give any significant benefits
+            # comparing to initializing the cache. The cache may hit
+            # the memory, though, but it is a general problem, which should
+            # be considered on another level.
+            if self._source is not None and self._storage.is_empty() and \
+                    self._is_inplace_transformer and \
+                    isinstance(self._source, Extractor) and ( \
+                        is_method_redefined('__len__', Extractor, self._source) or \
+                        self._source._length is not None
+                    ):
                 self._length = len(self._source)
             else:
                 self.init_cache()
