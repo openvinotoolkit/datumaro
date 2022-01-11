@@ -7,7 +7,7 @@ weight: 1
 
 ### Dependencies
 
-- Python (3.6+)
+- Python (3.7+)
 - Optional: OpenVINO, TensorFlow, PyTorch, MxNet, Caffe, Accuracy Checker
 
 ### Installation steps
