@@ -54,11 +54,19 @@ class ProjectSourceDataset(IDataset):
             readonly: bool = False):
         config = tree.sources[source]
 
+        rpath = path
         if config.path:
-            path = osp.join(path, config.path)
+            rpath = osp.join(path, config.path)
 
-        self.__dict__['_dataset'] = Dataset.import_from(path,
+        dataset = Dataset.import_from(rpath,
             env=tree.env, format=config.format, **config.options)
+
+        # Using rpath won't allow to save directly with .save() when a file
+        # path is specified. Dataset doesn't know the root location and if
+        # it exists at all, but in a project, we do.
+        dataset.bind(path, format=dataset.format, options=dataset.options)
+
+        self.__dict__['_dataset'] = dataset
 
         self.__dict__['_config'] = config
         self.__dict__['_readonly'] = readonly
