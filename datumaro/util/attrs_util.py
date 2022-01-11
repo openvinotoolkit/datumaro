@@ -22,13 +22,7 @@ def default_if_none(conv):
                 value = default
         else:
             dst_type = None
-            if attribute.type and inspect.isclass(attribute.type) and \
-                    not hasattr(attribute.type, '__origin__'):
-                #       ^^^^^^^
-                # Disallow Generics in python 3.6
-                # Can be dropped with 3.6 support. Generics canot be used
-                # in isinstance() checks.
-
+            if attribute.type and inspect.isclass(attribute.type):
                 dst_type = attribute.type
             elif conv and inspect.isclass(conv):
                 dst_type = conv
