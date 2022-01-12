@@ -1,6 +1,8 @@
-# Copyright (C) 2021 Intel Corporation
+# Copyright (C) 2021-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
+
+from __future__ import annotations
 
 from typing import Callable, Iterable, Iterator, Optional, Tuple, Union
 import os
@@ -194,7 +196,7 @@ class ByteImage(Image):
             save_image(path, self.data)
 
 class VideoFrame(Image):
-    def __init__(self, video: 'Video', index: int):
+    def __init__(self, video: Video, index: int):
         self._video = video
         self._index = index
 
@@ -209,19 +211,19 @@ class VideoFrame(Image):
         return self._index
 
     @property
-    def video(self) -> 'Video':
+    def video(self) -> Video:
         return self._video
 
 class _VideoFrameIterator(Iterator[VideoFrame]):
     """
     Provides sequential access to the video frames.
     """
-    _video: 'Video'
+    _video: Video
     _iterator: Iterator[VideoFrame]
     _pos: int
     _current_frame_data: Optional[np.ndarray]
 
-    def __init__(self, video: 'Video'):
+    def __init__(self, video: Video):
         self._video = video
         self._reset()
 

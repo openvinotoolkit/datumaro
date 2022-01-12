@@ -211,5 +211,6 @@ datum transform -t ndr -- \
 - Resize dataset images and annotations. Supports upscaling, downscaling
 and mixed variants.
 
-```
+```bash
 datum transform -t resize -- -dw 256 -dh 256
+```

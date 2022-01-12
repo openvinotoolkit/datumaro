@@ -68,7 +68,7 @@ Annotated files description:
   is the instance ID. If a certain annotation describes multiple instances,
   then the pixels have the regular ID of that class
 
-To add custom classes, you can use [`dataset_meta.json`](/docs/user_manual/supported_formats/#dataset-meta-file)
+To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats/#dataset-meta-file)
 and `label_colors.txt`.
 If the `dataset_meta.json` is not represented in the dataset, then
 `label_colors.txt` will be imported if possible.
@@ -97,7 +97,9 @@ formats using CLI:
 datum create
 datum import -f cityscapes <path/to/cityscapes>
 datum export -f voc -o <output/dir>
-# or
+```
+or
+``` bash
 datum convert -if cityscapes -i <path/to/cityscapes> \
     -f voc -o <output/dir> -- --save-images
 ```
@@ -119,6 +121,8 @@ There are several ways to convert a dataset to Cityscapes format:
 # export dataset into Cityscapes format from existing project
 datum export -p <path/to/project> -f cityscapes -o <output/dir> \
     -- --save-images
+```
+``` bash
 # converting to Cityscapes format from other format
 datum convert -if voc -i <path/to/dataset> \
     -f cityscapes -o <output/dir> -- --save-images
@@ -139,8 +143,9 @@ Extra options for exporting to Cityscapes format:
 # 255 0 0 person
 #...
 datum export -f cityscapes -- --label-map mycolormap.txt
-
-# or you can use original cityscapes colomap:
+```
+or you can use original cityscapes colomap:
+``` bash
 datum export -f cityscapes -- --label-map cityscapes
 ```
 

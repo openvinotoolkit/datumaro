@@ -7,7 +7,7 @@ weight: 1
 
 ### Dependencies
 
-- Python (3.6+)
+- Python (3.7+)
 - Optional: OpenVINO, TensorFlow, PyTorch, MxNet, Caffe, Accuracy Checker
 
 ### Installation steps
@@ -24,7 +24,8 @@ Install:
 ``` bash
 # From PyPI:
 pip install datumaro[default]
-
+```
+``` bash
 # From the GitHub repository:
 pip install 'git+https://github.com/openvinotoolkit/datumaro[default]'
 ```
