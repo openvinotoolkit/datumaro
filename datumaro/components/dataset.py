@@ -12,6 +12,7 @@ import inspect
 import logging as log
 import os
 import os.path as osp
+import glob
 
 from datumaro.components.annotation import AnnotationType, LabelCategories
 from datumaro.components.dataset_filter import (
@@ -903,16 +904,25 @@ class Dataset(IDataset):
         return dataset
 
     @staticmethod
-    def detect(path: str, env: Optional[Environment] = None) -> str:
+    def detect(path: str, env: Optional[Environment] = None,
+            depth: Optional[int] = 2) -> str:
         if env is None:
             env = Environment()
 
-        matches = env.detect_dataset(path)
+        for _ in range(depth):
+            matches = env.detect_dataset(path)
+            if matches and len(matches) == 1:
+                return matches[0]
+
+            paths = glob.glob(osp.join(path, '*'))
+            if len(paths) != 1 or not osp.isdir(paths[0]):
+                break
+            path = paths[0]
+
         if not matches:
             raise NoMatchingFormatsError()
         if 1 < len(matches):
             raise MultipleFormatsMatchError(matches)
-        return matches[0]
 
 @contextmanager
 def eager_mode(new_mode: bool = True, dataset: Optional[Dataset] = None) -> None:
