@@ -29,7 +29,7 @@ class MediaElement:
 
     @property
     def ext(self) -> str:
-        """Media file extension (without dot)"""
+        """Media file extension (with the leading dot)"""
         return osp.splitext(osp.basename(self.path))[1]
 
     def __eq__(self, other: object) -> bool:
@@ -68,7 +68,6 @@ class Image(MediaElement):
                 ext = '.' + ext
             ext = ext.lower()
             assert ext in IMAGE_EXTENSIONS, f"Unknown image extension '{ext}'"
-            ext = ext.lstrip('.')
         else:
             ext = None
         self._ext = ext
@@ -90,7 +89,7 @@ class Image(MediaElement):
             data = self._data
 
         if self._size is None and data is not None:
-            self._size =  tuple(map(int, data.shape[:2]))
+            self._size = tuple(map(int, data.shape[:2]))
         return data
 
     @property
@@ -117,7 +116,7 @@ class Image(MediaElement):
     @property
     def ext(self) -> str:
         """Media file extension"""
-        if self._ext:
+        if self._ext is not None:
             return self._ext
         else:
             return osp.splitext(osp.basename(self.path))[1]
