@@ -13,7 +13,7 @@ class DatumaroComponent:
 
 
 class Requirements:
-    # Please, maintain the ordering when add new lines
+    # Please, maintain the ordering when adding new lines
 
     # Exact requirements
     DATUM_GENERAL_REQ = "Datumaro general requirement"
