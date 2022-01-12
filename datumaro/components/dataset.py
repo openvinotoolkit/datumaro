@@ -474,7 +474,7 @@ class DatasetStorage(IDataset):
     def _merged(self) -> IDataset:
         if self._is_unchanged_wrapper:
             return self._source
-        elif not self.is_cache_initialized():
+        elif self._source is not None:
             self.init_cache()
         return DatasetItemStorageDatasetView(self._storage, self._categories)
 
