@@ -769,7 +769,8 @@ class ResizeTransform(ItemTransform):
             resized_image = cv2.resize(image.data / 255.0, new_size,
                 interpolation=method)
             return resized_image * 255.0
-        return _resize_image
+
+        return Image(_resize_image, ext=image.ext, size=new_size[::-1])
 
     def _lazy_resize_mask(self, mask, new_size):
         def _resize_image():
