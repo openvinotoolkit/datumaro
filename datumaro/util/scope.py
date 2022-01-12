@@ -1,6 +1,8 @@
-# Copyright (C) 2021 Intel Corporation
+# Copyright (C) 2021-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
+
+from __future__ import annotations
 
 from contextlib import ExitStack, contextmanager
 from functools import partial, wraps
@@ -95,7 +97,7 @@ class Scope:
     def close(self):
         self.__exit__(None, None, None)
 
-    def __enter__(self) -> 'Scope':
+    def __enter__(self) -> Scope:
         return self
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
@@ -106,7 +108,7 @@ class Scope:
         self._stack.pop_all() # prevent issues on repetitive calls
 
     @classmethod
-    def current(cls) -> 'Scope':
+    def current(cls) -> Scope:
         return cls._thread_locals.current
 
     @contextmanager

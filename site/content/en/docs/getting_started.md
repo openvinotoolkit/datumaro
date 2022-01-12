@@ -12,7 +12,7 @@ To read about the design concept and features of Datumaro, go to the [design sec
 
 ### Dependencies
 
-- Python (3.6+)
+- Python (3.7+)
 - Optional: OpenVINO, TensorFlow, PyTorch, MxNet, Caffe, Accuracy Checker
 
 Optionally, create a virtual environment:
