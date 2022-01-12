@@ -67,7 +67,6 @@ class Image(MediaElement):
             if not ext.startswith('.'):
                 ext = '.' + ext
             ext = ext.lower()
-            assert ext in IMAGE_EXTENSIONS, f"Unknown image extension '{ext}'"
         else:
             ext = None
         self._ext = ext

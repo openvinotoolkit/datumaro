@@ -104,10 +104,6 @@ class ImageTest(TestCase):
             with self.assertRaisesRegex(Exception, "can not be empty"):
                 Image(ext='jpg', size=(1, 2))
 
-        with self.subTest('unsupported extension'):
-            with self.assertRaisesRegex(Exception, "Unknown image extension"):
-                Image(data=lambda p: None, ext='someext')
-
         with self.subTest('either path or ext'):
             with self.assertRaisesRegex(Exception, "both 'path' and 'ext'"):
                 Image(path='somepath', ext='someext')
