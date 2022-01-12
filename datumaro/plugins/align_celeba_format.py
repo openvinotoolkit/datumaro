@@ -136,6 +136,8 @@ class AlignCelebaExtractor(SourceExtractor):
 
         subset_path = osp.join(root_dir, AlignCelebaPath.SUBSETS_FILE)
         if osp.isfile(subset_path):
+            self._subsets.clear()
+
             with open(subset_path, encoding='utf-8') as f:
                 for line in f:
                     item_id, item_ann = self.split_annotation(line)
@@ -148,9 +150,7 @@ class AlignCelebaExtractor(SourceExtractor):
 
                     items[item_id].subset = subset
 
-                    if 'default' in self._subsets:
-                        self._subsets.pop()
-                    self._subsets.append(subset)
+                    self._subsets.add(subset)
 
         return items
 

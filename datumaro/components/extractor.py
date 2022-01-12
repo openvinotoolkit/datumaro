@@ -6,7 +6,8 @@ from __future__ import annotations
 
 from glob import iglob
 from typing import (
-    Any, Callable, Dict, Iterable, Iterator, List, Literal, Optional, Union,
+    Any, Callable, Dict, Iterable, Iterator, List, Literal, Optional, Set,
+    Union,
 )
 import os
 import os.path as osp
@@ -120,11 +121,11 @@ class IExtractor:
 class ExtractorBase(IExtractor):
     def __init__(self, length: Optional[int] = None,
             subsets: Optional[Iterable[str]] = None) -> None:
-        self._length = length
+        self._length: Optional[int] = length
 
         if subsets is not None:
             subsets = set(subsets)
-        self._subsets = subsets
+        self._subsets: Optional[Set[str]] = subsets
 
     def _init_cache(self):
         subsets = set()
