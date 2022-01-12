@@ -380,7 +380,7 @@ class InplaceTransform(ItemTransform):
     - do not remove them
     - do not modify item's is and subset info
 
-    Having such guarantees allow to make various optimizations in the code.
+    Having such guarantees allows to make various optimizations in the code.
     In this case, we always know that the dataset size won't change and item
     ids won't be modified.
     """
