@@ -5,7 +5,9 @@
 from __future__ import annotations
 
 from glob import iglob
-from typing import Any, Callable, Dict, Iterator, List, Literal, Optional, Union
+from typing import (
+    Any, Callable, Dict, Iterable, Iterator, List, Literal, Optional, Union,
+)
 import os
 import os.path as osp
 
@@ -116,8 +118,12 @@ class IExtractor:
         raise NotImplementedError()
 
 class ExtractorBase(IExtractor):
-    def __init__(self, length=None, subsets=None):
+    def __init__(self, length: Optional[int] = None,
+            subsets: Optional[Iterable[str]] = None) -> None:
         self._length = length
+
+        if subsets is not None:
+            subsets = set(subsets)
         self._subsets = subsets
 
     def _init_cache(self):
@@ -298,33 +304,45 @@ class Transform(ExtractorBase, CliPlugin):
     """
     A base class for dataset transformations that change dataset items
     or their annotations.
+
+    Transformations are supposed to be lazy and must produce stable results
+    across different runs on the same inputs.
     """
-    INHERIT_LENGTH = 'parent'
+    INHERIT = 'parent'
 
     @staticmethod
     def wrap_item(item, **kwargs):
+        """
+        A convenience method to return modified copies of dataset items.
+        """
         return item.wrap(**kwargs)
 
     def __init__(self, extractor: IExtractor,
-            length: Union[int, None, Literal['parent']] = None):
-        assert isinstance(length, int) or \
-            length in {None, __class__.INHERIT_LENGTH}
-        super().__init__(length=length)
+            length: Union[int, None, Literal['parent']] = None,
+            subsets: Union[Iterable[str], None, Literal['parent']] = None):
+        assert length in {None, __class__.INHERIT} or isinstance(length, int)
 
+        if subsets not in {None, __class__.INHERIT}:
+            subsets = set(subsets)
+
+        self._length = length
+        self._subsets = subsets
         self._extractor = extractor
 
     def categories(self):
         return self._extractor.categories()
 
     def subsets(self):
-        if self._subsets is None:
+        if self._subsets is None and \
+                    not is_method_redefined('__iter__', Transform, self) \
+                or self._subsets == __class__.INHERIT:
             self._subsets = set(self._extractor.subsets())
         return super().subsets()
 
     def __len__(self):
         if self._length is None and \
                     not is_method_redefined('__iter__', Transform, self) \
-                or self._length == __class__.INHERIT_LENGTH:
+                or self._length == __class__.INHERIT:
             self._length = len(self._extractor)
         return super().__len__()
 
@@ -367,7 +385,7 @@ class InplaceTransform(ItemTransform):
     """
 
     def __init__(self, extractor: IExtractor):
-        super().__init__(extractor=extractor, length=__class__.INHERIT_LENGTH)
+        super().__init__(extractor=extractor, length=__class__.INHERIT)
 
     def transform_item(self, item: DatasetItem) -> DatasetItem:
         """
