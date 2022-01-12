@@ -8,11 +8,11 @@ from enum import Enum, auto
 from typing import (
     Any, Callable, Dict, Iterable, Iterator, List, Optional, Tuple, Type, Union,
 )
+import glob
 import inspect
 import logging as log
 import os
 import os.path as osp
-import glob
 
 from datumaro.components.annotation import AnnotationType, LabelCategories
 from datumaro.components.dataset_filter import (
