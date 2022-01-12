@@ -344,6 +344,23 @@ class DatasetTest(TestCase):
         compare_datasets(self, expected, actual)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_transform_when_filled_explicitly(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(id=1, attributes={'qq': 1}),
+        ])
+
+        class TestTransform(ItemTransform):
+            def transform_item(self, item):
+                return self.wrap_item(item, attributes={'qq': 1})
+
+        dataset = Dataset()
+        dataset.put(DatasetItem(id=1))
+
+        actual = dataset.transform(TestTransform)
+
+        compare_datasets(self, expected, actual)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_join_annotations(self):
         a = Dataset.from_iterable([
             DatasetItem(id=1, subset='train', annotations=[

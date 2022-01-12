@@ -466,8 +466,7 @@ class DatasetStorage(IDataset):
     def __iter__(self) -> Iterator[DatasetItem]:
         if self._is_unchanged_wrapper:
             yield from self._source
-        elif ((self._source is not None) ^ (not self._storage.is_empty())) and \
-                self._is_inplace_transformer:
+        elif self._source is not None and self._is_inplace_transformer:
             yield from self._iter_init_cache()
         else:
             yield from self._merged()
