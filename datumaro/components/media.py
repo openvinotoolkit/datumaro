@@ -13,8 +13,7 @@ import cv2
 import numpy as np
 
 from datumaro.util.image import (
-    IMAGE_EXTENSIONS, _image_loading_errors, decode_image, lazy_image,
-    save_image,
+    _image_loading_errors, decode_image, lazy_image, save_image,
 )
 
 
