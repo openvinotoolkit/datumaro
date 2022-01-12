@@ -367,7 +367,16 @@ def detect_dataset_format(
     path: str,
     reporter: FormatDetectionProgressReporter,
 ) -> Sequence[str]:
-    """TODO"""
+    """
+    Determines which format(s) the dataset at the specified path belongs to.
+
+    `detectors` is a list of (name, detector) tuples. The function applies all
+    of the detectors to the path, and returns all names for which the
+    corresponding detector matched. If a detector returns matches with less
+    confidence than another detector, then the corresponding name is omitted.
+
+    For formats that are rejected, `reporter` is used to report the reason why.
+    """
 
     if not osp.exists(path):
         raise FileNotFoundError(f"Path {path} doesn't exist")
