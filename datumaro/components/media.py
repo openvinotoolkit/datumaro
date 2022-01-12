@@ -13,7 +13,8 @@ import cv2
 import numpy as np
 
 from datumaro.util.image import (
-    _image_loading_errors, decode_image, lazy_image, save_image,
+    IMAGE_EXTENSIONS, _image_loading_errors, decode_image, lazy_image,
+    save_image,
 )
 
 
@@ -28,7 +29,7 @@ class MediaElement:
 
     @property
     def ext(self) -> str:
-        """Media file extension"""
+        """Media file extension (without dot)"""
         return osp.splitext(osp.basename(self.path))[1]
 
     def __eq__(self, other: object) -> bool:
@@ -42,6 +43,7 @@ class Image(MediaElement):
             data: Union[np.ndarray, Callable[[str], np.ndarray], None] = None,
             *,
             path: Optional[str] = None,
+            ext: Optional[str] = None,
             size: Optional[Tuple[int, int]] = None):
         assert size is None or len(size) == 2, size
         if size is not None:
@@ -57,6 +59,19 @@ class Image(MediaElement):
         elif path:
             path = osp.abspath(path).replace('\\', '/')
         self._path = path
+
+        assert ext is None or isinstance(ext, str), ext
+        if ext:
+            assert not path, "Can't specify both 'path' and 'ext' for image"
+
+            if not ext.startswith('.'):
+                ext = '.' + ext
+            ext = ext.lower()
+            assert ext in IMAGE_EXTENSIONS, f"Unknown image extension '{ext}'"
+            ext = ext.lstrip('.')
+        else:
+            ext = None
+        self._ext = ext
 
         if not isinstance(data, np.ndarray):
             assert path or callable(data), "Image can not be empty"
@@ -98,6 +113,14 @@ class Image(MediaElement):
             if data is not None:
                 self._size = tuple(map(int, data.shape[:2]))
         return self._size
+
+    @property
+    def ext(self) -> str:
+        """Media file extension"""
+        if self._ext:
+            return self._ext
+        else:
+            return osp.splitext(osp.basename(self.path))[1]
 
     def __eq__(self, other):
         if not isinstance(other, __class__):
@@ -141,7 +164,12 @@ class ByteImage(Image):
             if path and osp.isfile(path) or data:
                 data = lazy_image(path, loader=data)
 
-        super().__init__(path=path, size=size,
+        self._bytes_data = data
+
+        if ext is None and path is None and isinstance(data, bytes):
+            ext = self._guess_ext(data)
+
+        super().__init__(path=path, ext=ext, size=size,
             data=lambda _: decode_image(self.get_bytes()))
         if data is None:
             # We don't expect decoder to produce images from nothing,
@@ -149,15 +177,6 @@ class ByteImage(Image):
             # data to avoid using default image loader for loading binaries
             # from the path, when no data is provided.
             self._data = None
-
-        self._bytes_data = data
-        if ext:
-            ext = ext.lower()
-            if not ext.startswith('.'):
-                ext = '.' + ext
-        elif path is None and isinstance(data, bytes):
-            ext = self._guess_ext(data)
-        self._ext = ext
 
     @classmethod
     def _guess_ext(cls, data: bytes) -> Optional[str]:
@@ -171,12 +190,6 @@ class ByteImage(Image):
         if callable(self._bytes_data):
             return self._bytes_data()
         return self._bytes_data
-
-    @property
-    def ext(self):
-        if self._ext:
-            return self._ext
-        return super().ext
 
     def save(self, path):
         cur_path = osp.abspath(self.path)
