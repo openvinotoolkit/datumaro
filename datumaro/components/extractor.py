@@ -329,12 +329,21 @@ class Transform(ExtractorBase, CliPlugin):
         return super().__len__()
 
 class ItemTransform(Transform):
+    """
+    A base class for dataset transformations that only affect a single
+    dataset item. Having such guarantees allows to stack these transforms,
+    allowing to make optimizations.
+    """
+
     def transform_item(self, item: DatasetItem) -> Optional[DatasetItem]:
         """
         Returns a modified copy of the input item.
 
         Avoid changing and returning the input item, because it can lead to
         unexpected problems. Use wrap_item() or item.wrap() to simplify copying.
+
+        This method can modify item id and subset, and it can remove the item
+        from the dataset by returning None.
         """
 
         raise NotImplementedError()
@@ -346,6 +355,17 @@ class ItemTransform(Transform):
                 yield item
 
 class InplaceTransform(ItemTransform):
+    """
+    A base class for transformations that only modify dataset item contents,
+    but:
+    - do not remove them
+    - do not modify item's is and subset info
+
+    Having such guarantees allow to make various optimizations in the code.
+    In this case, we always know that the dataset size won't change and item
+    ids won't be modified.
+    """
+
     def __init__(self, extractor: IExtractor):
         super().__init__(extractor=extractor, length=__class__.INHERIT_LENGTH)
 
