@@ -8,12 +8,13 @@ from datumaro.components.annotation import (
     PointsCategories, Polygon, PolyLine,
 )
 from datumaro.components.extractor import DatasetItem
+from datumaro.components.media import Image
 from datumaro.components.project import Dataset
 from datumaro.util.test_utils import compare_datasets
 import datumaro.plugins.transforms as transforms
 import datumaro.util.mask_tools as mask_tools
 
-from .requirements import Requirements, mark_requirement
+from .requirements import Requirements, mark_bug, mark_requirement
 
 
 class TransformsTest(TestCase):
@@ -568,9 +569,10 @@ class TransformsTest(TestCase):
         compare_datasets(self, dst_dataset, actual)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @mark_bug(Requirements.DATUM_BUG_618)
     def test_can_resize(self):
         small_dataset = Dataset.from_iterable([
-            DatasetItem(id=1, image=np.ones((4, 4)), annotations=[
+            DatasetItem(id=i, image=np.ones((4, 4)) * i, annotations=[
                 Label(1),
                 Bbox(1, 1, 2, 2, label=2),
                 Polygon([1, 1, 1, 2, 2, 2, 2, 1], label=1),
@@ -582,11 +584,11 @@ class TransformsTest(TestCase):
                     [0, 1, 1, 0],
                     [1, 1, 0, 0],
                 ]))
-            ])
+            ]) for i in range(3)
         ], categories=['a', 'b', 'c'])
 
         big_dataset = Dataset.from_iterable([
-            DatasetItem(id=1, image=np.ones((8, 8)), annotations=[
+            DatasetItem(id=i, image=np.ones((8, 8)) * i, annotations=[
                 Label(1),
                 Bbox(2, 2, 4, 4, label=2),
                 Polygon([2, 2, 2, 4, 4, 4, 4, 2], label=1),
@@ -602,7 +604,7 @@ class TransformsTest(TestCase):
                     [1, 1, 1, 1, 0, 0, 0, 0],
                     [1, 1, 1, 1, 0, 0, 0, 0],
                 ]))
-            ])
+            ]) for i in range(3)
         ], categories=['a', 'b', 'c'])
 
         with self.subTest('upscale'):
@@ -612,3 +614,17 @@ class TransformsTest(TestCase):
         with self.subTest('downscale'):
             actual = transforms.ResizeTransform(big_dataset, width=4, height=4)
             compare_datasets(self, small_dataset, actual)
+
+    @mark_bug(Requirements.DATUM_BUG_606)
+    def test_can_keep_image_ext_on_resize(self):
+        expected = Image(np.ones((8, 8)), ext='jpg')
+
+        dataset = Dataset.from_iterable([
+            DatasetItem(id=1, image=Image(np.ones((4, 4)), ext='jpg'))
+        ])
+
+        dataset.transform('resize', width=8, height=8)
+
+        actual = dataset.get('1').image
+        self.assertEqual(actual.ext, expected.ext)
+        self.assertTrue(np.array_equal(actual.data, expected.data))
