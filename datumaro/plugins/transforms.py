@@ -273,7 +273,8 @@ class Reindex(Transform, CliPlugin):
         return parser
 
     def __init__(self, extractor, start=1):
-        super().__init__(extractor, length='parent')
+        super().__init__(extractor,
+            length=__class__.INHERIT, subsets=__class__.INHERIT)
         self._start = start
 
     def __iter__(self):
@@ -310,7 +311,7 @@ class MapSubsets(ItemTransform, CliPlugin):
             counts = Counter(mapping.get(s, s) or DEFAULT_SUBSET_NAME
                 for s in extractor.subsets())
             if all(c == 1 for c in counts.values()):
-                self._length = 'parent'
+                self._length = __class__.INHERIT
             self._subsets = set(counts)
 
     def transform_item(self, item):
@@ -348,7 +349,7 @@ class RandomSplit(Transform, CliPlugin):
         return parser
 
     def __init__(self, extractor, splits, seed=None):
-        super().__init__(extractor)
+        super().__init__(extractor, length=__class__.INHERIT)
 
         if splits is None:
             splits = self._default_split
@@ -381,7 +382,6 @@ class RandomSplit(Transform, CliPlugin):
         self._parts = parts
 
         self._subsets = set(s[0] for s in splits)
-        self._length = 'parent'
 
     def _find_split(self, index):
         for subset_indices, subset in self._parts:
@@ -394,6 +394,9 @@ class RandomSplit(Transform, CliPlugin):
             yield self.wrap_item(item, subset=self._find_split(i))
 
 class IdFromImageName(ItemTransform, CliPlugin):
+    def __init__(self, extractor: IExtractor):
+        super().__init__(extractor, subsets=__class__.INHERIT)
+
     def transform_item(self, item):
         if item.has_image and item.image.path:
             name = osp.splitext(osp.basename(item.image.path))[0]
@@ -425,7 +428,7 @@ class Rename(ItemTransform, CliPlugin):
         return parser
 
     def __init__(self, extractor, regex):
-        super().__init__(extractor)
+        super().__init__(extractor, subsets=__class__.INHERIT)
 
         assert regex and isinstance(regex, str)
         parts = regex.split(regex[0], maxsplit=3)

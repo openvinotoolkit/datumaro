@@ -385,7 +385,8 @@ class InplaceTransform(ItemTransform):
     """
 
     def __init__(self, extractor: IExtractor):
-        super().__init__(extractor=extractor, length=__class__.INHERIT)
+        super().__init__(extractor=extractor,
+            length=__class__.INHERIT, subsets=__class__.INHERIT)
 
     def transform_item(self, item: DatasetItem) -> DatasetItem:
         """
