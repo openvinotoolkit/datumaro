@@ -25,6 +25,7 @@ from datumaro.components.errors import DatumaroError
 from datumaro.components.extractor import (
     DEFAULT_SUBSET_NAME, IExtractor, ItemTransform, Transform,
 )
+from datumaro.components.media import Image
 from datumaro.util import NOTSET, parse_str_enum_value, take_by
 from datumaro.util.annotation_util import find_group_leader, find_instances
 import datumaro.util.mask_tools as mask_tools
@@ -764,15 +765,26 @@ class ResizeTransform(ItemTransform):
         self._width = width
         self._height = height
 
-    def _lazy_resize_image(self, image, new_size, method):
+    @staticmethod
+    def _lazy_resize_image(image, new_size):
         def _resize_image(_):
+            h, w = image.size
+            xscale = new_size[0] / float(w)
+            yscale = new_size[1] / float(h)
+
+            # LANCZOS4 is preferable for upscaling, but it works quite slow
+            method = cv2.INTER_AREA if (xscale * yscale) < 1 \
+                else cv2.INTER_CUBIC
+
             resized_image = cv2.resize(image.data / 255.0, new_size,
                 interpolation=method)
-            return resized_image * 255.0
+            resized_image *= 255.0
+            return resized_image
 
         return Image(_resize_image, ext=image.ext, size=new_size[::-1])
 
-    def _lazy_resize_mask(self, mask, new_size):
+    @staticmethod
+    def _lazy_resize_mask(mask, new_size):
         def _resize_image():
             # Can use only NEAREST for masks,
             # because we can't have interpolated values
@@ -792,13 +804,9 @@ class ResizeTransform(ItemTransform):
 
         new_size = (self._width, self._height)
 
+        resized_image = None
         if item.image.has_data:
-            # LANCZOS4 is preferable for upscaling, but it works quite slow
-            method = cv2.INTER_AREA if (xscale * yscale) < 1 \
-                else cv2.INTER_CUBIC
-            resized_image = self._lazy_resize_image(item.image, new_size, method)
-        else:
-            resized_image = None
+            resized_image = self._lazy_resize_image(item.image, new_size)
 
         resized_annotations = []
         for ann in item.annotations:
