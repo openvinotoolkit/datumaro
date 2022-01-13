@@ -132,7 +132,7 @@ task-specific formats instead of plain `coco`: `coco_captions`,
 `coco_person_keypoints`, `coco_stuff`. In this case all items of the
 dataset will be added to the `default` subset.
 
-To add custom classes, you can use [`dataset_meta.json`](/docs/user_manual/supported_formats/#dataset-meta-file).
+To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats/#dataset-meta-file).
 
 You can import a dataset for one or several tasks
 instead of the whole dataset. This option also allows to import annotation
@@ -164,7 +164,9 @@ using CLI:
 datum create
 datum import -f coco <path/to/coco>
 datum export -f voc -o <output/dir>
-# or
+```
+or
+``` bash
 datum convert -if coco -i <path/to/coco> -f voc -o <output/dir>
 ```
 
@@ -185,6 +187,8 @@ There are several ways to convert a dataset to COCO format:
 # export dataset into COCO format from existing project
 datum export -p <path/to/project> -f coco -o <output/dir> \
     -- --save-images
+```
+``` bash
 # converting to COCO format from other format
 datum convert -if voc -i <path/to/dataset> \
     -f coco -o <output/dir> -- --save-images

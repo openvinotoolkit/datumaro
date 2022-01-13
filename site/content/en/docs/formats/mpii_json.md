@@ -66,7 +66,9 @@ to other dataset formats using CLI:
 datum create
 datum import -f mpii_json <path/to/dataset>
 datum export -f voc -o ./save_dir -- --save-images
-# or
+```
+or
+``` bash
 datum convert -if mpii_json -i <path/to/dataset> \
     -f voc -o <output/dir> -- --save-images
 ```

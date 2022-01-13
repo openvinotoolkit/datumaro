@@ -1,6 +1,8 @@
-# Copyright (C) 2021 Intel Corporation
+# Copyright (C) 2021-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
+
+from __future__ import annotations
 
 from typing import (
     Any, Callable, Dict, Iterator, Mapping, Optional, Sequence, Tuple, Union,
@@ -44,7 +46,7 @@ class _TfdsAdapter:
     metadata: TfdsDatasetMetadata
 
     def transform_categories(self,
-        tfds_builder: 'tfds.core.DatasetBuilder', categories: CategoriesInfo,
+        tfds_builder: tfds.core.DatasetBuilder, categories: CategoriesInfo,
     ) -> None:
         for t in self.category_transformers:
             t(tfds_builder, categories)
@@ -58,7 +60,7 @@ class _SetLabelCategoriesFromClassLabelFeature:
     feature_path: Union[str, Tuple[str, ...]]
 
     def __call__(self,
-        tfds_builder: 'tfds.core.DatasetBuilder', categories: CategoriesInfo,
+        tfds_builder: tfds.core.DatasetBuilder, categories: CategoriesInfo,
     ) -> None:
         assert AnnotationType.label not in categories
         if isinstance(self.feature_path, str):
@@ -186,9 +188,9 @@ _TFDS_ADAPTERS = {
 }
 
 class _TfdsSplitExtractor(IExtractor):
-    def __init__(self, parent: '_TfdsExtractor',
-        tfds_split: 'tf.data.Dataset',
-        tfds_split_info: 'tfds.core.SplitInfo',
+    def __init__(self, parent: _TfdsExtractor,
+        tfds_split: tf.data.Dataset,
+        tfds_split_info: tfds.core.SplitInfo,
     ):
         self._parent = parent
         self._tfds_split = tfds_split
