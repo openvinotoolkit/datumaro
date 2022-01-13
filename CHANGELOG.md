@@ -38,6 +38,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/600>)
 - Saving (overwriting) a dataset in a project when rpath is used
   (<https://github.com/openvinotoolkit/datumaro/pull/613>)
+- Output image extension preserving in the `Resize` transform
+  (<https://github.com/openvinotoolkit/datumaro/issues/606>)
+- Memory overuse in the `Resize` transform
+  (<https://github.com/openvinotoolkit/datumaro/issues/607>)
+- Invalid image pixels produced by the `Resize` transform
+  (<https://github.com/openvinotoolkit/datumaro/issues/618>)
 
 ### Security
 - TBD
