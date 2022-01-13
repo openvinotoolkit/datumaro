@@ -11,7 +11,7 @@ from datumaro.components.extractor import DEFAULT_SUBSET_NAME, DatasetItem
 from datumaro.components.operations import (
     FailedAttrVotingError, IntersectMerge, NoMatchingAnnError,
     NoMatchingItemError, WrongGroupError, compute_ann_statistics,
-    find_unique_images, mean_std,
+    compute_image_statistics, find_unique_images, mean_std,
 )
 from datumaro.util.test_utils import compare_datasets
 
@@ -26,7 +26,7 @@ class TestOperations(TestCase):
 
         dataset = Dataset.from_iterable([
             DatasetItem(id=i, image=np.random.normal(
-                expected_mean, expected_std, size=(w, h, 3))
+                expected_mean, expected_std, size=(h, w, 3))
             )
             for i, (w, h) in enumerate([
                 (3000, 100), (800, 600), (400, 200), (700, 300)
@@ -39,6 +39,22 @@ class TestOperations(TestCase):
             self.assertAlmostEqual(em, am, places=0)
         for estd, astd in zip(expected_std, actual_std):
             self.assertAlmostEqual(estd, astd, places=0)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_image_stats(self):
+        expected_mean = [100, 50, 150]
+        expected_std = [20, 50, 10]
+
+        dataset = Dataset.from_iterable([
+            DatasetItem(id=i, image=np.random.normal(
+                expected_mean, expected_std, size=(h, w, 3))
+            )
+            for i, (w, h) in enumerate([
+                (3000, 100), (800, 600), (400, 200), (700, 300)
+            ])
+        ])
+
+        actual = compute_image_statistics(dataset)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_stats(self):

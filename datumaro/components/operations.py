@@ -25,7 +25,7 @@ from datumaro.components.errors import (
     FailedAttrVotingError, FailedLabelVotingError, MismatchingImageInfoError,
     NoMatchingAnnError, NoMatchingItemError, WrongGroupError,
 )
-from datumaro.components.extractor import CategoriesInfo
+from datumaro.components.extractor import CategoriesInfo, DatasetItem
 from datumaro.util import filter_dict, find
 from datumaro.util.annotation_util import (
     OKS, approximate_line, bbox_iou, find_instances, max_bbox, mean_bbox,
@@ -1039,10 +1039,57 @@ def mean_std(dataset: IDataset):
         (counts / (counts - 1))[:, np.newaxis],
         out=stats[:, 1])
 
-    _, mean, var = StatsCounter().compute_stats(stats, counts, mean, var)
+    _, mean, var = _StatsCounter().compute_stats(stats, counts, mean, var)
     return mean * 255, np.sqrt(var) * 255
 
-class StatsCounter:
+class MeanStdCounter:
+    def __init__(self, dataset: IDataset):
+        self._stats = {} # (id, subset) -> (pixel count, mean vec, std vec)
+
+    def accumulate(self, item: DatasetItem):
+        size = item.image.size
+        if size is None:
+            log.warning("Item %s: can't detect image size, "
+                "the image will be skipped from pixel statistics", item.id)
+            return
+        count = np.prod(item.image.size)
+
+        image = item.image.data
+        if len(image.shape) == 2:
+            image = image[:, :, np.newaxis]
+        else:
+            image = image[:, :, :3]
+        # opencv is much faster than numpy here
+        mean, std = cv2.meanStdDev(image.astype(np.double) / 255)
+
+        self._stats[(item.id, item.subset)] = (count, mean, std)
+
+    def get_result(self):
+        n = len(self._stats)
+
+        if n == 0:
+            return [0, 0, 0], [0, 0, 0]
+
+        counts = np.empty(n, dtype=np.uint32)
+        stats = np.empty((n, 2, 3), dtype=np.double)
+
+        for i, v in enumerate(self._stats.values()):
+            counts[i] = v[0]
+            stats[i][0] = v[1].reshape(-1)
+            stats[i][1] = v[2].reshape(-1)
+
+        mean = lambda i, s: s[i][0]
+        var = lambda i, s: s[i][1]
+
+        # make variance unbiased
+        np.multiply(np.square(stats[:, 1]),
+            (counts / (counts - 1))[:, np.newaxis],
+            out=stats[:, 1])
+
+        _, mean, var = _StatsCounter().compute_stats(stats, counts, mean, var)
+        return mean * 255, np.sqrt(var) * 255
+
+class _StatsCounter:
     # Implements online parallel computation of sample variance
     # https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Parallel_algorithm
 
@@ -1110,24 +1157,27 @@ def compute_image_statistics(dataset: IDataset):
         'subsets': {}
     }
 
-    def _extractor_stats(extractor):
-        available = True
-        for item in extractor:
-            if not (item.has_image and item.image.has_data):
-                available = False
-                log.warning("Item %s has no image, it will be excluded from "
-                    "image stats", item.id)
-                break
+    counter = MeanStdCounter(dataset)
+    for item in dataset:
+        counter.accumulate(item)
+
+    def _extractor_stats(subset_name, extractor):
+        sub_counter = MeanStdCounter(extractor)
+        sub_counter._stats = {k: v for k, v in counter._stats.items()
+            if subset_name and k[1] == subset_name or not subset_name}
+
+        available = len(sub_counter._stats) != 0
 
         stats = {
             'images count': len(extractor),
         }
 
         if available:
-            mean, std = mean_std(extractor)
+            mean, std = sub_counter.get_result()
+
             stats.update({
-                'image mean': [float(n) for n in mean[::-1]],
-                'image std': [float(n) for n in std[::-1]],
+                'image mean': [float(v) for v in mean[::-1]],
+                'image std': [float(v) for v in std[::-1]],
             })
         else:
             stats.update({
@@ -1136,7 +1186,7 @@ def compute_image_statistics(dataset: IDataset):
             })
         return stats
 
-    stats['dataset'].update(_extractor_stats(dataset))
+    stats['dataset'].update(_extractor_stats('', dataset))
 
     subsets = dataset.subsets()
     if subsets and 0 < len(subsets):
@@ -1145,7 +1195,7 @@ def compute_image_statistics(dataset: IDataset):
             stats['subsets'][next(iter(subsets))] = stats['dataset']
         else:
             for subset_name in subsets:
-                stats['subsets'][subset_name] = _extractor_stats(
+                stats['subsets'][subset_name] = _extractor_stats(subset_name,
                     dataset.get_subset(subset_name))
 
     return stats
