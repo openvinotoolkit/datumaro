@@ -917,9 +917,10 @@ class Dataset(IDataset):
                 return matches[0]
 
             paths = glob.glob(osp.join(path, '*'))
-            if len(paths) != 1 or not osp.isdir(paths[0]):
+            path = '' if len(paths) != 1 else paths[0]
+            ignore_dirs = {'__MSOSX', '__MACOSX'}
+            if not osp.isdir(path) or osp.basename(path) in ignore_dirs:
                 break
-            path = paths[0]
 
         if not matches:
             raise NoMatchingFormatsError()
