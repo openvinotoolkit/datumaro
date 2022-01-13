@@ -13,7 +13,7 @@ pycocotools>=2.0.4; platform_system != "Windows" or python_version >= '3.9'
 pycocotools-windows; platform_system == "Windows" and python_version < '3.9'
 PyYAML>=5.3.1
 
-# OpenVINO telemetry library
+# A library to send the telemetry data from the OpenVINO toolkit components.
 openvino-telemetry>=2022.1.0
 
 # 2.3 has an unlisted dependency on PyTorch, which we don't need
