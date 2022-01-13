@@ -617,13 +617,13 @@ class TransformsTest(TestCase):
 
     @mark_bug(Requirements.DATUM_BUG_606)
     def test_can_keep_image_ext_on_resize(self):
-        expected = Image(np.ones((8, 8)), ext='jpg')
+        expected = Image(np.ones((8, 4)), ext='jpg')
 
         dataset = Dataset.from_iterable([
-            DatasetItem(id=1, image=Image(np.ones((4, 4)), ext='jpg'))
+            DatasetItem(id=1, image=Image(np.ones((4, 2)), ext='jpg'))
         ])
 
-        dataset.transform('resize', width=8, height=8)
+        dataset.transform('resize', width=4, height=8)
 
         actual = dataset.get('1').image
         self.assertEqual(actual.ext, expected.ext)

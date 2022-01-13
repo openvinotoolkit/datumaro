@@ -769,19 +769,19 @@ class ResizeTransform(ItemTransform):
     def _lazy_resize_image(image, new_size):
         def _resize_image(_):
             h, w = image.size
-            xscale = new_size[0] / float(w)
-            yscale = new_size[1] / float(h)
+            yscale = new_size[0] / float(h)
+            xscale = new_size[1] / float(w)
 
             # LANCZOS4 is preferable for upscaling, but it works quite slow
             method = cv2.INTER_AREA if (xscale * yscale) < 1 \
                 else cv2.INTER_CUBIC
 
-            resized_image = cv2.resize(image.data / 255.0, new_size,
+            resized_image = cv2.resize(image.data / 255.0, new_size[::-1],
                 interpolation=method)
             resized_image *= 255.0
             return resized_image
 
-        return Image(_resize_image, ext=image.ext, size=new_size[::-1])
+        return Image(_resize_image, ext=image.ext, size=new_size)
 
     @staticmethod
     def _lazy_resize_mask(mask, new_size):
@@ -789,7 +789,7 @@ class ResizeTransform(ItemTransform):
             # Can use only NEAREST for masks,
             # because we can't have interpolated values
             rescaled_mask = cv2.resize(mask.image.astype(np.float32),
-                new_size, interpolation=cv2.INTER_NEAREST)
+                new_size[::-1], interpolation=cv2.INTER_NEAREST)
             return rescaled_mask.astype(np.uint8)
         return _resize_image
 
@@ -802,7 +802,7 @@ class ResizeTransform(ItemTransform):
         xscale = self._width / float(w)
         yscale = self._height / float(h)
 
-        new_size = (self._width, self._height)
+        new_size = (self._height, self._width)
 
         resized_image = None
         if item.image.has_data:
