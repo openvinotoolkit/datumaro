@@ -1126,12 +1126,13 @@ class _MeanStdCounter:
 
 def compute_image_statistics(dataset: IDataset):
     stats = {
-        'dataset': {},
+        'dataset': {
+            'images count': 0,
+            'unique images count': 0,
+            'repeated images count': 0,
+            'repeated images': [], # [[id1, id2], [id3, id4, id5], ...]
+        },
         'subsets': {},
-        'images count': 0,
-        'unique images count': 0,
-        'repeated images count': 0,
-        'repeated images': [], # [[id1, id2], [id3, id4, id5], ...]
     }
 
     stats_counter = _MeanStdCounter()
@@ -1140,15 +1141,6 @@ def compute_image_statistics(dataset: IDataset):
     for item in dataset:
         stats_counter.accumulate(item)
         unique_counter.process_item(item)
-
-    unique_items = unique_counter.get_result()
-    repeated_items = [sorted(g) for g in unique_items.values() if 1 < len(g)]
-
-    stats.update({
-        'unique images count': len(unique_items),
-        'repeated images count': len(repeated_items),
-        'repeated images': repeated_items, # [[id1, id2], [id3, id4, id5], ...]
-    })
 
     def _extractor_stats(subset_name, extractor):
         sub_counter = _MeanStdCounter()
@@ -1175,17 +1167,19 @@ def compute_image_statistics(dataset: IDataset):
             })
         return stats
 
-    stats['dataset'].update(_extractor_stats('', dataset))
+    for subset_name in dataset.subsets():
+        stats['subsets'][subset_name] = _extractor_stats(subset_name,
+            dataset.get_subset(subset_name))
 
-    subsets = dataset.subsets()
-    if subsets and 0 < len(subsets):
-        if len(subsets) == 1:
-            # can reuse the data computed
-            stats['subsets'][next(iter(subsets))] = stats['dataset']
-        else:
-            for subset_name in subsets:
-                stats['subsets'][subset_name] = _extractor_stats(subset_name,
-                    dataset.get_subset(subset_name))
+    unique_items = unique_counter.get_result()
+    repeated_items = [sorted(g) for g in unique_items.values() if 1 < len(g)]
+
+    stats['dataset'].update({
+        'images count': len(dataset),
+        'unique images count': len(unique_items),
+        'repeated images count': len(repeated_items),
+        'repeated images': repeated_items, # [[id1, id2], [id3, id4, id5], ...]
+    })
 
     return stats
 
@@ -1195,6 +1189,7 @@ def compute_ann_statistics(dataset: IDataset):
         return labels.items[ann.label].name if ann.label is not None else None
 
     stats = {
+        'images count': 0,
         'annotations count': 0,
         'unannotated images count': 0,
         'unannotated images': [],
@@ -1262,6 +1257,8 @@ def compute_ann_statistics(dataset: IDataset):
                 attrs_stat['values present'].add(str(value))
                 attrs_stat['distribution'] \
                     .setdefault(str(value), [0, 0])[0] += 1
+
+    stats['images count'] = len(dataset)
 
     stats['annotations count'] = sum(t['count'] for t in
         stats['annotations by type'].values())

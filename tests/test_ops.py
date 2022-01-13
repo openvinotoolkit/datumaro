@@ -53,8 +53,25 @@ class TestOperations(TestCase):
                 (3000, 100), (800, 600), (400, 200), (700, 300)
             ])
         ])
+        dataset.put(dataset.get('1'), id='5', subset='train')
 
         actual = compute_image_statistics(dataset)
+
+        self.assertEqual(actual['dataset'], {
+            'images count': 5,
+            'unique images count': 4,
+            'repeated images count': 1,
+            'repeated images': [[('1', 'default'), ('5', 'train')]],
+        })
+        self.assertEqual(actual['subsets']['default']['images count'], 4)
+        self.assertEqual(actual['subsets']['train']['images count'], 1)
+
+        actual_mean = actual['subsets']['default']['image mean'][::-1]
+        actual_std = actual['subsets']['default']['image std'][::-1]
+        for em, am in zip(expected_mean, actual_mean):
+            self.assertAlmostEqual(em, am, places=0)
+        for estd, astd in zip(expected_std, actual_std):
+            self.assertAlmostEqual(estd, astd, places=0)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_stats(self):
@@ -89,9 +106,6 @@ class TestOperations(TestCase):
 
         expected = {
             'images count': 4,
-            'unique images count': 3,
-            'repeated images count': 1,
-            'repeated images': [[('2', 'default'), ('2.2', 'default')]],
             'annotations count': 10,
             'unannotated images count': 2,
             'unannotated images': ['3', '2.2'],
