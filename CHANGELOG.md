@@ -24,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The `pycocotools` dependency lower bound is raised to `2.0.4`.
   (<https://github.com/openvinotoolkit/datumaro/pull/449>)
 - OpenVINO telemetry library 2022.1.0 from PyPI.
-  (<>)
+  (<https://github.com/openvinotoolkit/datumaro/pull/625>)
 
 ### Deprecated
 - TBD
