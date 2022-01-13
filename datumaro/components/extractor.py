@@ -349,9 +349,9 @@ class Transform(ExtractorBase, CliPlugin):
 
 class ItemTransform(Transform):
     """
-    A base class for dataset transformations that only affect a single
-    dataset item. Having such guarantees allows to stack these transforms,
-    allowing to make optimizations.
+    A base class for dataset transformations that can be expressed as
+    a function of a single dataset item. Having such guarantees allows to
+    stack these transforms, allowing to make optimizations.
     """
 
     def transform_item(self, item: DatasetItem) -> Optional[DatasetItem]:
@@ -373,7 +373,7 @@ class ItemTransform(Transform):
             if item is not None:
                 yield item
 
-class InplaceTransform(ItemTransform):
+class LocalTransform(ItemTransform):
     """
     A base class for transformations that only modify dataset item contents,
     but:

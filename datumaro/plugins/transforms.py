@@ -20,16 +20,15 @@ from datumaro.components.annotation import (
     AnnotationType, Bbox, Caption, Label, LabelCategories, Mask, MaskCategories,
     Points, PointsCategories, Polygon, PolyLine, RleMask,
 )
-from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.extractor import (
-    DEFAULT_SUBSET_NAME, IExtractor, InplaceTransform, ItemTransform, Transform,
+    DEFAULT_SUBSET_NAME, IExtractor, ItemTransform, LocalTransform, Transform,
 )
 from datumaro.util import NOTSET, parse_str_enum_value, take_by
 from datumaro.util.annotation_util import find_group_leader, find_instances
 import datumaro.util.mask_tools as mask_tools
 
 
-class CropCoveredSegments(InplaceTransform, CliPlugin):
+class CropCoveredSegments(LocalTransform):
     def transform_item(self, item):
         annotations = []
         segments = []
@@ -92,7 +91,7 @@ class CropCoveredSegments(InplaceTransform, CliPlugin):
         max_gid = max(anns, default=0, key=lambda x: x.group)
         return max_gid + 1
 
-class MergeInstanceSegments(InplaceTransform, CliPlugin):
+class MergeInstanceSegments(LocalTransform):
     """
     Replaces instance masks and, optionally, polygons with a single mask.
     """
@@ -176,7 +175,7 @@ class MergeInstanceSegments(InplaceTransform, CliPlugin):
         return find_instances(a for a in annotations
             if a.type in {AnnotationType.polygon, AnnotationType.mask})
 
-class PolygonsToMasks(InplaceTransform, CliPlugin):
+class PolygonsToMasks(LocalTransform):
     def transform_item(self, item):
         annotations = []
         for ann in item.annotations:
@@ -197,7 +196,7 @@ class PolygonsToMasks(InplaceTransform, CliPlugin):
         return RleMask(rle=rle, label=polygon.label, z_order=polygon.z_order,
             id=polygon.id, attributes=polygon.attributes, group=polygon.group)
 
-class BoxesToMasks(InplaceTransform, CliPlugin):
+class BoxesToMasks(LocalTransform):
     def transform_item(self, item):
         annotations = []
         for ann in item.annotations:
@@ -218,7 +217,7 @@ class BoxesToMasks(InplaceTransform, CliPlugin):
         return RleMask(rle=rle, label=bbox.label, z_order=bbox.z_order,
             id=bbox.id, attributes=bbox.attributes, group=bbox.group)
 
-class MasksToPolygons(InplaceTransform, CliPlugin):
+class MasksToPolygons(LocalTransform):
     def transform_item(self, item):
         annotations = []
         for ann in item.annotations:
@@ -245,7 +244,7 @@ class MasksToPolygons(InplaceTransform, CliPlugin):
             for p in polygons
         ]
 
-class ShapesToBoxes(InplaceTransform, CliPlugin):
+class ShapesToBoxes(LocalTransform):
     def transform_item(self, item):
         annotations = []
         for ann in item.annotations:
@@ -264,7 +263,7 @@ class ShapesToBoxes(InplaceTransform, CliPlugin):
         return Bbox(*bbox, label=shape.label, z_order=shape.z_order,
             id=shape.id, attributes=shape.attributes, group=shape.group)
 
-class Reindex(Transform, CliPlugin):
+class Reindex(Transform):
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
         parser = super().build_cmdline_parser(**kwargs)
@@ -281,7 +280,7 @@ class Reindex(Transform, CliPlugin):
         for i, item in enumerate(self._extractor):
             yield self.wrap_item(item, id=i + self._start)
 
-class MapSubsets(ItemTransform, CliPlugin):
+class MapSubsets(ItemTransform):
     @staticmethod
     def _mapping_arg(s):
         parts = s.split(':')
@@ -318,7 +317,7 @@ class MapSubsets(ItemTransform, CliPlugin):
         return self.wrap_item(item,
             subset=self._mapping.get(item.subset, item.subset))
 
-class RandomSplit(Transform, CliPlugin):
+class RandomSplit(Transform):
     """
     Joins all subsets into one and splits the result into few parts.
     It is expected that item ids are unique and subset ratios sum up to 1.|n
@@ -393,7 +392,7 @@ class RandomSplit(Transform, CliPlugin):
         for i, item in enumerate(self._extractor):
             yield self.wrap_item(item, subset=self._find_split(i))
 
-class IdFromImageName(ItemTransform, CliPlugin):
+class IdFromImageName(ItemTransform):
     def __init__(self, extractor: IExtractor):
         super().__init__(extractor, subsets=__class__.INHERIT)
 
@@ -406,7 +405,7 @@ class IdFromImageName(ItemTransform, CliPlugin):
                 "item has no image info" % item.id)
             return item
 
-class Rename(ItemTransform, CliPlugin):
+class Rename(ItemTransform):
     r"""
     Renames items in the dataset. Supports regular expressions.
     The first character in the expression is a delimiter for
@@ -440,7 +439,7 @@ class Rename(ItemTransform, CliPlugin):
         return self.wrap_item(item, id=self._re.sub(self._sub, item.id) \
             .format(item=item))
 
-class RemapLabels(InplaceTransform, CliPlugin):
+class RemapLabels(LocalTransform):
     """
     Changes labels in the dataset.|n
     |n
@@ -584,7 +583,7 @@ class RemapLabels(InplaceTransform, CliPlugin):
                 annotations.append(ann.wrap())
         return item.wrap(annotations=annotations)
 
-class ProjectLabels(InplaceTransform):
+class ProjectLabels(LocalTransform):
     """
     Changes the order of labels in the dataset from the existing
     to the desired one, removes unknown labels and adds new labels.
@@ -707,7 +706,7 @@ class ProjectLabels(InplaceTransform):
                 annotations.append(ann.wrap())
         return item.wrap(annotations=annotations)
 
-class AnnsToLabels(InplaceTransform, CliPlugin):
+class AnnsToLabels(LocalTransform):
     """
     Collects all labels from annotations (of all types) and
     transforms them into a set of annotations of type Label
@@ -722,7 +721,7 @@ class AnnsToLabels(InplaceTransform, CliPlugin):
 
         return item.wrap(annotations=annotations)
 
-class BboxValuesDecrement(InplaceTransform, CliPlugin):
+class BboxValuesDecrement(LocalTransform):
     """
     Subtracts one from the coordinates of bounding boxes
     """
@@ -739,7 +738,7 @@ class BboxValuesDecrement(InplaceTransform, CliPlugin):
 
         return item.wrap(annotations=annotations)
 
-class ResizeTransform(InplaceTransform):
+class ResizeTransform(LocalTransform):
     """
     Resizes images and annotations in the dataset to the specified size.
     Supports upscaling, downscaling and mixed variants.|n

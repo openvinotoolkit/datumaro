@@ -27,7 +27,7 @@ from datumaro.components.errors import (
 )
 from datumaro.components.extractor import (
     DEFAULT_SUBSET_NAME, CategoriesInfo, DatasetItem, Extractor, IExtractor,
-    InplaceTransform, ItemTransform, Transform,
+    ItemTransform, LocalTransform, Transform,
 )
 from datumaro.plugins.transforms import ProjectLabels
 from datumaro.util import is_method_redefined
@@ -297,7 +297,7 @@ class DatasetStorage(IDataset):
         """
         Indicates that merging won't affect item number.
         """
-        return all(issubclass(t[0], InplaceTransform) for t in self._transforms)
+        return all(issubclass(t[0], LocalTransform) for t in self._transforms)
 
     def init_cache(self):
         if not self.is_cache_initialized():
