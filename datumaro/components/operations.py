@@ -4,7 +4,7 @@
 
 from collections import OrderedDict
 from copy import deepcopy
-from typing import Callable, Optional
+from typing import Callable, Dict, Optional, Set, Tuple
 from unittest import TestCase
 import hashlib
 import logging as log
@@ -1002,48 +1002,19 @@ def match_segments(a_segms, b_segms, distance=segment_iou, dist_thresh=1.0,
     return matches, mispred, a_unmatched, b_unmatched
 
 def mean_std(dataset: IDataset):
+    counter = _MeanStdCounter()
+
+    for item in dataset:
+        counter.accumulate(item)
+
+    return counter.get_result()
+
+class _MeanStdCounter:
     """
     Computes unbiased mean and std. dev. for dataset images, channel-wise.
     """
-    # Use an online algorithm to:
-    # - handle different image sizes
-    # - avoid cancellation problem
-    if len(dataset) == 0:
-        return [0, 0, 0], [0, 0, 0]
 
-    stats = np.empty((len(dataset), 2, 3), dtype=np.double)
-    counts = np.empty(len(dataset), dtype=np.uint32)
-
-    mean = lambda i, s: s[i][0]
-    var = lambda i, s: s[i][1]
-
-    for i, item in enumerate(dataset):
-        size = item.image.size
-        if size is None:
-            log.warning("Item %s: can't detect image size, "
-                "the image will be skipped from pixel statistics", item.id)
-            continue
-        counts[i] = np.prod(item.image.size)
-
-        image = item.image.data
-        if len(image.shape) == 2:
-            image = image[:, :, np.newaxis]
-        else:
-            image = image[:, :, :3]
-        # opencv is much faster than numpy here
-        cv2.meanStdDev(image.astype(np.double) / 255,
-            mean=mean(i, stats), stddev=var(i, stats))
-
-    # make variance unbiased
-    np.multiply(np.square(stats[:, 1]),
-        (counts / (counts - 1))[:, np.newaxis],
-        out=stats[:, 1])
-
-    _, mean, var = _StatsCounter().compute_stats(stats, counts, mean, var)
-    return mean * 255, np.sqrt(var) * 255
-
-class MeanStdCounter:
-    def __init__(self, dataset: IDataset):
+    def __init__(self):
         self._stats = {} # (id, subset) -> (pixel count, mean vec, std vec)
 
     def accumulate(self, item: DatasetItem):
@@ -1064,7 +1035,8 @@ class MeanStdCounter:
 
         self._stats[(item.id, item.subset)] = (count, mean, std)
 
-    def get_result(self):
+    def get_result(self) -> \
+            Tuple[Tuple[float, float, float], Tuple[float, float, float]]:
         n = len(self._stats)
 
         if n == 0:
@@ -1086,15 +1058,16 @@ class MeanStdCounter:
             (counts / (counts - 1))[:, np.newaxis],
             out=stats[:, 1])
 
-        _, mean, var = _StatsCounter().compute_stats(stats, counts, mean, var)
+        # Use an online algorithm to:
+        # - handle different image sizes
+        # - avoid cancellation problem
+        _, mean, var = self._compute_stats(stats, counts, mean, var)
         return mean * 255, np.sqrt(var) * 255
 
-class _StatsCounter:
     # Implements online parallel computation of sample variance
     # https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Parallel_algorithm
-
     @staticmethod
-    def pairwise_stats(count_a, mean_a, var_a, count_b, mean_b, var_b):
+    def _pairwise_stats(count_a, mean_a, var_a, count_b, mean_b, var_b):
         """
         Computes vector mean and variance.
 
@@ -1120,7 +1093,7 @@ class _StatsCounter:
         )
 
     @staticmethod
-    def compute_stats(stats, counts, mean_accessor, variance_accessor):
+    def _compute_stats(stats, counts, mean_accessor, variance_accessor):
         """
         Recursively computes total count, mean and variance,
         does O(log(N)) calls.
@@ -1141,29 +1114,45 @@ class _StatsCounter:
         if n == 1:
             return counts[0], m(0, stats), v(0, stats)
         if n == 2:
-            return __class__.pairwise_stats(
+            return __class__._pairwise_stats(
                 counts[0], m(0, stats), v(0, stats),
                 counts[1], m(1, stats), v(1, stats)
                 )
         h = n // 2
-        return __class__.pairwise_stats(
-            *__class__.compute_stats(stats[:h], counts[:h], m, v),
-            *__class__.compute_stats(stats[h:], counts[h:], m, v)
+        return __class__._pairwise_stats(
+            *__class__._compute_stats(stats[:h], counts[:h], m, v),
+            *__class__._compute_stats(stats[h:], counts[h:], m, v)
             )
 
 def compute_image_statistics(dataset: IDataset):
     stats = {
         'dataset': {},
-        'subsets': {}
+        'subsets': {},
+        'images count': 0,
+        'unique images count': 0,
+        'repeated images count': 0,
+        'repeated images': [], # [[id1, id2], [id3, id4, id5], ...]
     }
 
-    counter = MeanStdCounter(dataset)
+    stats_counter = _MeanStdCounter()
+    unique_counter = _ItemMatcher()
+
     for item in dataset:
-        counter.accumulate(item)
+        stats_counter.accumulate(item)
+        unique_counter.process_item(item)
+
+    unique_items = unique_counter.get_result()
+    repeated_items = [sorted(g) for g in unique_items.values() if 1 < len(g)]
+
+    stats.update({
+        'unique images count': len(unique_items),
+        'repeated images count': len(repeated_items),
+        'repeated images': repeated_items, # [[id1, id2], [id3, id4, id5], ...]
+    })
 
     def _extractor_stats(subset_name, extractor):
-        sub_counter = MeanStdCounter(extractor)
-        sub_counter._stats = {k: v for k, v in counter._stats.items()
+        sub_counter = _MeanStdCounter()
+        sub_counter._stats = {k: v for k, v in stats_counter._stats.items()
             if subset_name and k[1] == subset_name or not subset_name}
 
         available = len(sub_counter._stats) != 0
@@ -1205,14 +1194,7 @@ def compute_ann_statistics(dataset: IDataset):
     def get_label(ann):
         return labels.items[ann.label].name if ann.label is not None else None
 
-    unique_images = find_unique_images(dataset)
-    repeated_images = [sorted(g) for g in unique_images.values() if 1 < len(g)]
-
     stats = {
-        'images count': len(dataset),
-        'unique images count': len(unique_images),
-        'repeated images count': len(repeated_images),
-        'repeated images': repeated_images, # [[id1, id2], [id3, id4, id5], ...]
         'annotations count': 0,
         'unannotated images count': 0,
         'unannotated images': [],
@@ -1420,8 +1402,9 @@ def match_items_by_image_hash(a: IDataset, b: IDataset):
 
     return matches, a_unmatched, b_unmatched
 
-def find_unique_images(dataset: IDataset, item_hash: Optional[Callable] = None):
-    def _default_hash(item):
+class _ItemMatcher:
+    @staticmethod
+    def _default_item_hash(item: DatasetItem):
         if not item.image or not item.image.has_data:
             if item.image and item.image.path:
                 return hash(item.image.path)
@@ -1429,19 +1412,31 @@ def find_unique_images(dataset: IDataset, item_hash: Optional[Callable] = None):
             log.warning("Item (%s, %s) has no image "
                 "info, counted as unique", item.id, item.subset)
             return None
+
         # Disable B303:md5, because the hash is not used in a security context
         return hashlib.md5(item.image.data.tobytes()).hexdigest() # nosec
 
-    if item_hash is None:
-        item_hash = _default_hash
+    def __init__(self, item_hash: Optional[Callable] = None):
+        self._hash = item_hash or self._default_item_hash
 
-    unique = {}
-    for item in dataset:
-        h = item_hash(item)
+        # hash -> [(id, subset), ...]
+        self._unique: Dict[str, Set[Tuple[str, str]]] = {}
+
+    def process_item(self, item: DatasetItem):
+        h = self._hash(item)
         if h is None:
             h = str(id(item)) # anything unique
-        unique.setdefault(h, set()).add((item.id, item.subset))
-    return unique
+
+        self._unique.setdefault(h, set()).add((item.id, item.subset))
+
+    def get_result(self):
+        return self._unique
+
+def find_unique_images(dataset: IDataset, item_hash: Optional[Callable] = None):
+    matcher = _ItemMatcher(item_hash=item_hash)
+    for item in dataset:
+        matcher.process_item(item)
+    return matcher.get_result()
 
 def match_classes(a: CategoriesInfo, b: CategoriesInfo):
     a_label_cat = a.get(AnnotationType.label, LabelCategories())
