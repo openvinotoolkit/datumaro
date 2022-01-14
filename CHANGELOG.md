@@ -8,13 +8,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[Unreleased\]
 ### Added
+- Ability to import a video as frames with the `video_frames` format and
+  to split a video into frames with the `datum util split_video` command
+  (<https://github.com/openvinotoolkit/datumaro/pull/555>)
+- `--subset` parameter in the `image_dir` format
+  (<https://github.com/openvinotoolkit/datumaro/pull/555>)
+- `MediaManager` API to control loaded media resources at runtime
+  (<https://github.com/openvinotoolkit/datumaro/pull/555>)
 - Command to download public datasets
   (<https://github.com/openvinotoolkit/datumaro/pull/582>)
 - Extension autodetection in `ByteImage`
   (<https://github.com/openvinotoolkit/datumaro/pull/595>)
-- Ability to import a video as frames and to split a video into frames with
-  the `datum util split_video` command
-  (<https://github.com/openvinotoolkit/datumaro/pull/555>)
 - MPII Human Pose Dataset (import-only) (.mat and .json)
   (<https://github.com/openvinotoolkit/datumaro/pull/584>)
 - MARS format (import-only)
@@ -41,6 +45,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/617>)
 
 ### Fixed
+- Prohibited calling `add`, `import` and `export` commands without a project
+  (<https://github.com/openvinotoolkit/datumaro/pull/555>)
+- Calling `make_dataset` on empty project tree now produces the error properly
+  (<https://github.com/openvinotoolkit/datumaro/pull/555>)
 - Fails in multimerge when lines are not approximated and when there are no
   label categories (<https://github.com/openvinotoolkit/datumaro/pull/592>)
 - Cannot convert LabelMe dataset, that has no subsets
