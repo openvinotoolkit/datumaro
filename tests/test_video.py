@@ -35,7 +35,7 @@ def make_sample_video(path, frames=4, frame_size=(10, 20), fps=25.0):
 def fxt_sample_video():
     with TestDir() as test_dir:
         video_path = osp.join(test_dir, 'video.avi')
-        make_sample_video(video_path, frame_size=(4, 6))
+        make_sample_video(video_path, frame_size=(4, 6), frames=4)
 
         yield video_path
 
@@ -131,6 +131,8 @@ class VideoExtractorTest:
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
     def test_can_read_frames(self, fxt_sample_video):
+        on_exit_do(MediaManager.get_instance().clear)
+
         expected = Dataset.from_iterable([
             DatasetItem('frame_%03d' % i, subset='train',
                 image=np.ones((4, 6, 3)) * i)
@@ -139,7 +141,6 @@ class VideoExtractorTest:
 
         actual = Dataset.import_from(fxt_sample_video, 'video_frames',
             subset='train', name_pattern='frame_%03d')
-        on_exit_do(MediaManager.get_instance().clear)
 
         compare_datasets(TestCase(), expected, actual)
 
