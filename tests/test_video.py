@@ -144,6 +144,25 @@ class VideoExtractorTest:
 
         compare_datasets(TestCase(), expected, actual)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_can_split_and_load(self, fxt_sample_video):
+        test_dir = scope_add(TestDir())
+        on_exit_do(MediaManager.get_instance().clear)
+
+        expected = Dataset.from_iterable([
+            DatasetItem('frame_%06d' % i, image=np.ones((4, 6, 3)) * i)
+            for i in range(4)
+        ])
+
+        dataset = Dataset.import_from(fxt_sample_video, 'video_frames',
+            start_frame=0, end_frame=4, name_pattern='frame_%06d')
+        dataset.export(format='image_dir', save_dir=test_dir,
+            image_ext='.jpg')
+
+        actual = Dataset.import_from(test_dir, 'image_dir')
+        compare_datasets(TestCase(), expected, actual)
+
 class ProjectTest:
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_release_resources_on_exit(self, fxt_sample_video):
