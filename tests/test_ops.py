@@ -186,9 +186,6 @@ class TestOperations(TestCase):
 
         expected = {
             'images count': 2,
-            'unique images count': 2,
-            'repeated images count': 0,
-            'repeated images': [],
             'annotations count': 0,
             'unannotated images count': 2,
             'unannotated images': ['1', '3'],
