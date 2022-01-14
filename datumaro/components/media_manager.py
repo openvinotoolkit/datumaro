@@ -36,6 +36,7 @@
 # so it's unlikely to make the system unstable)
 
 from collections import OrderedDict
+import sys
 
 _instance = None
 
@@ -55,7 +56,9 @@ class MediaManager:
 
     def push(self, key, media):
         if self.capacity <= len(self.items):
-            self.items.popitem(last=True)
+            _, v = self.items.popitem(last=True)
+            if hasattr(v, 'close') and sys.getrefcount(v) <= 2:
+                v.close()
         self.items[key] = media
 
     def get(self, key):
