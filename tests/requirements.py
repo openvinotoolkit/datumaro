@@ -30,6 +30,7 @@ class Requirements:
     DATUM_497 = "Support import for SYNTHIA dataset"
     DATUM_542 = "Images missing after merging two datasets"
     DATUM_580 = "Import for MPII Human Pose Dataset"
+    DATUM_616 = "Import for BraTS dataset"
 
     # GitHub issues (bugs)
     # https://github.com/openvinotoolkit/datumaro/issues
