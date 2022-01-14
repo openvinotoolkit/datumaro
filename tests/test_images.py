@@ -82,8 +82,11 @@ class ImageTest(TestCase):
                 { 'data': image },
                 { 'data': image, 'path': path },
                 { 'data': image, 'path': path, 'size': (2, 4) },
+                { 'data': image, 'ext': 'png' },
+                { 'data': image, 'ext': 'png', 'size': (2, 4) },
                 { 'data': lambda p: image },
                 { 'data': lambda p: image, 'path': 'somepath' },
+                { 'data': lambda p: image, 'ext': 'jpg' },
                 { 'path': path },
                 { 'path': path, 'data': load_image },
                 { 'path': path, 'data': load_image, 'size': (2, 4) },
@@ -94,6 +97,16 @@ class ImageTest(TestCase):
                     self.assertTrue(img.has_data)
                     np.testing.assert_array_equal(img.data, image)
                     self.assertEqual(img.size, tuple(image.shape[:2]))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_ctor_errors(self):
+        with self.subTest('no data specified'):
+            with self.assertRaisesRegex(Exception, "can not be empty"):
+                Image(ext='jpg', size=(1, 2))
+
+        with self.subTest('either path or ext'):
+            with self.assertRaisesRegex(Exception, "both 'path' and 'ext'"):
+                Image(path='somepath', ext='someext')
 
 class BytesImageTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
