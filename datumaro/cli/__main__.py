@@ -25,12 +25,8 @@ _log_levels = {
     'critical': log.CRITICAL
 }
 
-def _loglevel(name):
-    if name in _log_levels:
-        return _log_levels[name]
-    else:
-        raise argparse.ArgumentError(None, message="Unknown loglevel '%s'. "
-            "Available: %s" % (name, ', '.join(_log_levels)))
+def loglevel(name):
+    return _log_levels[name]
 
 class _LogManager:
     @classmethod
@@ -41,11 +37,11 @@ class _LogManager:
         args, _ = parser.parse_known_args(args)
 
         log.basicConfig(format='%(asctime)s %(levelname)s: %(message)s',
-            level=args.loglevel, force=True)
+            level=args.loglevel)
 
     @staticmethod
     def _define_loglevel_option(parser):
-        parser.add_argument('--loglevel', type=_loglevel, default='info',
+        parser.add_argument('--loglevel', type=loglevel, default='info',
             help="Logging level (options: %s; default: %s)" % \
                 (', '.join(_log_levels.keys()), "%(default)s"))
         return parser

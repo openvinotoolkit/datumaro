@@ -42,8 +42,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/600>)
 - Saving (overwriting) a dataset in a project when rpath is used
   (<https://github.com/openvinotoolkit/datumaro/pull/613>)
-- `--loglevel` option in CLI now properly affects output
-  (<https://github.com/openvinotoolkit/datumaro/pull/621>)
 - Numeric warnings that sometimes occurred in `stats` command
   (e.g. <https://github.com/openvinotoolkit/datumaro/issues/607>)
   (<https://github.com/openvinotoolkit/datumaro/pull/621>)
