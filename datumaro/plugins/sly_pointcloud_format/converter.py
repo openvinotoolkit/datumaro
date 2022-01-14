@@ -1,9 +1,11 @@
-# Copyright (C) 2021 Intel Corporation
+# Copyright (C) 2021-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 # The format is described here:
 # https://docs.supervise.ly/data-organization/00_ann_format_navi
+
+from __future__ import annotations
 
 from datetime import datetime
 import json
@@ -24,7 +26,7 @@ from .format import PointCloudPath
 
 class _SuperviselyPointCloudDumper:
     def __init__(self, extractor: IExtractor,
-            context: 'SuperviselyPointCloudConverter'):
+            context: SuperviselyPointCloudConverter):
         self._extractor = extractor
         self._context = context
 

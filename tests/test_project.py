@@ -1156,6 +1156,28 @@ class ProjectTest(TestCase):
         with self.assertRaises(MissingSourceHashError):
             project.working_tree.make_dataset('source1.root')
 
+    @mark_requirement(Requirements.DATUM_BUG_602)
+    @scoped
+    def test_can_save_local_source_with_relpath(self):
+        test_dir = scope_add(TestDir())
+        source_url = osp.join(test_dir, 'source')
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(0, subset='a', image=np.ones((2, 3, 3)),
+                annotations=[ Bbox(1, 2, 3, 4, label=0) ]),
+            DatasetItem(1, subset='b', image=np.zeros((10, 20, 3)),
+                annotations=[ Bbox(1, 2, 3, 4, label=1) ]),
+        ], categories=['a', 'b'])
+        source_dataset.save(source_url, save_images=True)
+
+        project = scope_add(Project.init(osp.join(test_dir, 'proj')))
+        project.import_source('s1', url=source_url, format=DEFAULT_FORMAT,
+            rpath=osp.join('annotations', 'b.json'))
+
+        read_dataset = project.working_tree.make_dataset('s1')
+        self.assertEqual(read_dataset.data_path, project.source_data_dir('s1'))
+
+        read_dataset.save()
+
 class BackwardCompatibilityTests_v0_1(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped

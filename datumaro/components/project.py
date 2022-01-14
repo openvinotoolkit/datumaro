@@ -1,6 +1,8 @@
-# Copyright (C) 2019-2021 Intel Corporation
+# Copyright (C) 2019-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
+
+from __future__ import annotations
 
 from contextlib import ExitStack, suppress
 from enum import Enum, auto
@@ -49,15 +51,23 @@ from datumaro.util.scope import on_error_do, scope_add, scoped
 
 
 class ProjectSourceDataset(IDataset):
-    def __init__(self, path: str, tree: 'Tree', source: str,
+    def __init__(self, path: str, tree: Tree, source: str,
             readonly: bool = False):
         config = tree.sources[source]
 
+        rpath = path
         if config.path:
-            path = osp.join(path, config.path)
+            rpath = osp.join(path, config.path)
 
-        self.__dict__['_dataset'] = Dataset.import_from(path,
+        dataset = Dataset.import_from(rpath,
             env=tree.env, format=config.format, **config.options)
+
+        # Using rpath won't allow to save directly with .save() when a file
+        # path is specified. Dataset doesn't know the root location and if
+        # it exists at all, but in a project, we do.
+        dataset.bind(path, format=dataset.format, options=dataset.options)
+
+        self.__dict__['_dataset'] = dataset
 
         self.__dict__['_config'] = config
         self.__dict__['_readonly'] = readonly
@@ -192,7 +202,7 @@ class CrudProxy(Generic[CrudEntry]):
         return name in self._data
 
 class _DataSourceBase(CrudProxy[Source]):
-    def __init__(self, tree: 'Tree', config_field: str):
+    def __init__(self, tree: Tree, config_field: str):
         self._tree = tree
         self._field = config_field
 
@@ -210,7 +220,7 @@ class _DataSourceBase(CrudProxy[Source]):
         self._data.remove(name)
 
 class ProjectSources(_DataSourceBase):
-    def __init__(self, tree: 'Tree'):
+    def __init__(self, tree: Tree):
         super().__init__(tree, 'sources')
 
     def __getitem__(self, name):
@@ -298,13 +308,13 @@ class Pipeline:
         """
         return graph.subgraph(nx.ancestors(graph, target) | {target})
 
-    def get_slice(self, target) -> 'Pipeline':
+    def get_slice(self, target) -> Pipeline:
         pipeline = Pipeline()
         pipeline._graph = self._get_subgraph(self._graph, target).copy()
         return pipeline
 
 class ProjectBuilder:
-    def __init__(self, project: 'Project', tree: 'Tree'):
+    def __init__(self, project: Project, tree: Tree):
         self._project = project
         self._tree = tree
 
@@ -667,7 +677,7 @@ class ProjectBuildTargets(CrudProxy[BuildTarget]):
     MAIN_TARGET = 'project'
     BASE_STAGE = 'root'
 
-    def __init__(self, tree: 'Tree'):
+    def __init__(self, tree: Tree):
         self._tree = tree
 
     @property
@@ -1357,9 +1367,9 @@ class Tree:
     # - attached to the work dir
     # - attached to a revision
 
-    def __init__(self, project: 'Project',
+    def __init__(self, project: Project,
             config: Union[None, Dict, Config, TreeConfig] = None,
-            rev: Union[None, 'Revision'] = None):
+            rev: Union[None, Revision] = None):
         assert isinstance(project, Project)
         assert not rev or project.is_ref(rev), rev
 
@@ -1383,7 +1393,7 @@ class Tree:
         os.makedirs(osp.dirname(path), exist_ok=True)
         self._config.dump(path)
 
-    def clone(self) -> 'Tree':
+    def clone(self) -> Tree:
         return Tree(self._project, TreeConfig(self.config), self._rev)
 
     @property
@@ -1403,7 +1413,7 @@ class Tree:
         return self._project.env
 
     @property
-    def rev(self) -> Union[None, 'Revision']:
+    def rev(self) -> Union[None, Revision]:
         return self._rev
 
     def make_pipeline(self, target: Optional[str] = None) -> Pipeline:
@@ -1626,7 +1636,7 @@ class Project:
 
     @classmethod
     @scoped
-    def init(cls, path) -> 'Project':
+    def init(cls, path) -> Project:
         existing_project = cls.find_project_dir(path)
         if existing_project:
             raise ProjectAlreadyExists(path)
