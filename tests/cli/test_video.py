@@ -12,7 +12,7 @@ from tests.test_video import make_sample_video
 
 class VideoTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_display_video_import_warining_in_import(self):
+    def test_can_display_video_import_warning_in_import(self):
         with TestDir() as test_dir:
             video_dir = osp.join(test_dir, 'src')
             os.makedirs(video_dir)
@@ -29,7 +29,7 @@ class VideoTest(TestCase):
                 '\n'.join(capture.output))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_display_video_import_warining_in_add(self):
+    def test_can_display_video_import_warning_in_add(self):
         with TestDir() as test_dir:
             proj_dir = osp.join(test_dir, 'proj')
             run(self, 'create', '-o', proj_dir)
