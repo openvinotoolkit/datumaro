@@ -804,7 +804,7 @@ class LineMatcher(_ShapeMatcher):
         # area based on the maximum point distance and line length.
         max_area = np.max(dists) * max(np.sum(a_steps), np.sum(b_steps))
 
-        area = np.dot(dists, a_steps + b_steps) * 0.5 * 0.5 / max_area
+        area = np.dot(dists, a_steps + b_steps) * 0.5 * 0.5 / max(max_area, 1.0)
 
         return abs(1 - area)
 
