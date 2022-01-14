@@ -1,6 +1,4 @@
 from unittest import TestCase
-import os
-import os.path as osp
 
 import numpy as np
 
@@ -8,10 +6,7 @@ from datumaro.components.extractor import DatasetItem
 from datumaro.components.media import Image
 from datumaro.components.project import Dataset
 from datumaro.plugins.image_dir_format import ImageDirConverter
-from datumaro.util.image import save_image
-from datumaro.util.test_utils import (
-    TestDir, check_save_and_load, compare_datasets,
-)
+from datumaro.util.test_utils import TestDir, check_save_and_load
 
 from .requirements import Requirements, mark_requirement
 
@@ -62,19 +57,3 @@ class ImageDirFormatTest(TestCase):
         with TestDir() as test_dir:
             check_save_and_load(self, dataset, ImageDirConverter.convert,
                 test_dir, importer='image_dir', require_images=True)
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_save_and_load_image_with_custom_extension(self):
-        expected = Dataset.from_iterable([
-            DatasetItem(id='a/3', image=Image(path='a/3.qq',
-                data=np.zeros((3, 4, 3)))),
-        ])
-
-        with TestDir() as test_dir:
-            image_path = osp.join(test_dir, 'a', '3.jpg')
-            save_image(image_path, expected.get('a/3').image.data,
-                create_dir=True)
-            os.rename(image_path, osp.join(test_dir, 'a', '3.qq'))
-
-            actual = Dataset.import_from(test_dir, 'image_dir', exts='qq')
-            compare_datasets(self, expected, actual, require_images=True)

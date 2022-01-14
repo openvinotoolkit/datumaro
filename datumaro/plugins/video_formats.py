@@ -24,6 +24,10 @@ VIDEO_EXTENSIONS = [
 ]
 
 class VideoFramesImporter(Importer):
+    """
+    Reads video frames as a dataset.
+    """
+
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
         parser = super().build_cmdline_parser(**kwargs)
