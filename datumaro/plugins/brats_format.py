@@ -8,21 +8,14 @@ import os.path as osp
 import nibabel as nib
 import numpy as np
 
-from datumaro.components.annotation import (
-    AnnotationType, Bbox, Label, LabelCategories, Mask, Points,
-    PointsCategories,
-)
-from datumaro.components.errors import DatasetImportError
+from datumaro.components.annotation import AnnotationType, LabelCategories, Mask
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.components.format_detection import FormatDetectionContext
-from datumaro.util.image import find_images
-from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
 
 class BratsPath:
     IMAGES_DIR = 'images'
-    MASKS_DIR = 'labels'
-    LABELS_FILE = 'labels'
+    LABELS = 'labels'
 
 
 class BratsExtractor(SourceExtractor):
@@ -45,7 +38,7 @@ class BratsExtractor(SourceExtractor):
     def _load_categories(self):
         label_cat = LabelCategories()
 
-        labels_path = osp.join(self._root_dir, BratsPath.LABELS_FILE)
+        labels_path = osp.join(self._root_dir, BratsPath.LABELS)
         if osp.isfile(labels_path):
             with open(labels_path, encoding='utf-8') as f:
                 for line in f:
@@ -63,7 +56,7 @@ class BratsExtractor(SourceExtractor):
 
                 items[item_id] = DatasetItem(id=item_id, image=data[:,:,i])
 
-        masks_dir = osp.join(self._root_dir, BratsPath.MASKS_DIR + self._subset_suffix)
+        masks_dir = osp.join(self._root_dir, BratsPath.LABELS + self._subset_suffix)
         for mask in glob.glob(osp.join(masks_dir, '*.nii.gz')):
             data = nib.load(mask).get_fdata()
             for i in range(data.shape[2]):
