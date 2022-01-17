@@ -614,6 +614,12 @@ def build_stats_parser(parser_ctor=argparse.ArgumentParser):
 
     parser.add_argument('target', default='project', nargs='?',
         help="Target dataset revpath (default: project)")
+    parser.add_argument('-s', '--subset',
+        help="Compute stats only for a specific subset")
+    parser.add_argument('--image-stats', type=str_to_bool, default=True,
+        help="Compute image mean and std (default: %(default)s)")
+    parser.add_argument('--ann-stats', type=str_to_bool, default=True,
+        help="Compute annotation statistics (default: %(default)s)")
     parser.add_argument('-p', '--project', dest='project_dir',
         help="Directory of the project to operate on (default: current dir)")
     parser.set_defaults(command=stats_command)
@@ -638,9 +644,14 @@ def stats_command(args):
     if target_project:
         scope_add(target_project)
 
+    if args.subset:
+        dataset = dataset.get_subset(args.subset)
+
     stats = {}
-    stats.update(compute_image_statistics(dataset))
-    stats.update(compute_ann_statistics(dataset))
+    if args.image_stats:
+        stats.update(compute_image_statistics(dataset))
+    if args.ann_stats:
+        stats.update(compute_ann_statistics(dataset))
 
     dst_file = generate_next_file_name('statistics', ext='.json')
     log.info("Writing project statistics to '%s'" % dst_file)
