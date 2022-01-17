@@ -23,6 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/592>)
 - The `pycocotools` dependency lower bound is raised to `2.0.4`.
   (<https://github.com/openvinotoolkit/datumaro/pull/449>)
+- Improved `stats` performance, added new filtering parameters,
+  image stats (`unique`, `repeated`) moved to the `dataset` section,
+  removed `mean` and `std` from the `dataset` section
+  (<https://github.com/openvinotoolkit/datumaro/pull/621>)
 - OpenVINO telemetry library 2022.1.0 from PyPI.
   (<https://github.com/openvinotoolkit/datumaro/pull/625>)
 
@@ -46,6 +50,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/issues/607>)
 - Invalid image pixels produced by the `Resize` transform
   (<https://github.com/openvinotoolkit/datumaro/issues/618>)
+- Numeric warnings that sometimes occurred in `stats` command
+  (e.g. <https://github.com/openvinotoolkit/datumaro/issues/607>)
+  (<https://github.com/openvinotoolkit/datumaro/pull/621>)
 
 ### Security
 - TBD
