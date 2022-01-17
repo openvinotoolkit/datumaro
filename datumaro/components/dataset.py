@@ -911,6 +911,9 @@ class Dataset(IDataset):
         if env is None:
             env = Environment()
 
+        if not osp.exists(path):
+            raise FileNotFoundError(path)
+
         for _ in range(depth):
             matches = env.detect_dataset(path)
             if matches and len(matches) == 1:
