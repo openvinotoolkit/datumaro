@@ -51,6 +51,8 @@ weight: 3
     - [Add](./command-reference/sources/#source-add)
     - [Import](./command-reference/sources/#source-import)
     - [Remove](./command-reference/sources/#source-remove)
+  - Utilities:
+    - [Split Video](./command-reference/util/#split-video)
 - [Extending](./extending)
   - [Builtin plugins](./extending/#builtin-plugins)
   - [Dataset Formats](./extending/#dataset-formats)
