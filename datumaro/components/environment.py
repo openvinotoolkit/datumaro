@@ -235,6 +235,9 @@ class Environment:
         max_confidence = 0
         matches = []
 
+        if not osp.exists(path):
+            raise FileNotFoundError(f"Path {path} doesn't exist")
+
         for format_name, importer in self.importers.items.items():
             log.debug("Checking '%s' format...", format_name)
             try:

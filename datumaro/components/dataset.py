@@ -10,6 +10,7 @@ from enum import Enum, auto
 from typing import (
     Any, Callable, Dict, Iterable, Iterator, List, Optional, Tuple, Type, Union,
 )
+import glob
 import inspect
 import logging as log
 import os
@@ -905,16 +906,29 @@ class Dataset(IDataset):
         return dataset
 
     @staticmethod
-    def detect(path: str, env: Optional[Environment] = None) -> str:
+    def detect(path: str, env: Optional[Environment] = None,
+            depth: Optional[int] = 1) -> str:
         if env is None:
             env = Environment()
 
-        matches = env.detect_dataset(path)
+        if depth < 0:
+            raise ValueError("Depth cannot be less than zero")
+
+        for _ in range(depth + 1):
+            matches = env.detect_dataset(path)
+            if matches and len(matches) == 1:
+                return matches[0]
+
+            paths = glob.glob(osp.join(path, '*'))
+            path = '' if len(paths) != 1 else paths[0]
+            ignore_dirs = {'__MSOSX', '__MACOSX'}
+            if not osp.isdir(path) or osp.basename(path) in ignore_dirs:
+                break
+
         if not matches:
             raise NoMatchingFormatsError()
         if 1 < len(matches):
             raise MultipleFormatsMatchError(matches)
-        return matches[0]
 
 @contextmanager
 def eager_mode(new_mode: bool = True, dataset: Optional[Dataset] = None) -> None:
