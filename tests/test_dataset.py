@@ -186,7 +186,7 @@ class DatasetTest(TestCase):
             dataset_path = osp.join(test_dir, 'a', 'b')
             dataset.export(dataset_path, 'coco', save_images=True)
 
-            detected_format = Dataset.detect(test_dir)
+            detected_format = Dataset.detect(test_dir, depth=2)
 
             self.assertEqual('coco', detected_format)
 
