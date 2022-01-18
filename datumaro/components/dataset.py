@@ -907,14 +907,14 @@ class Dataset(IDataset):
 
     @staticmethod
     def detect(path: str, env: Optional[Environment] = None,
-            depth: Optional[int] = 2) -> str:
+            depth: Optional[int] = 1) -> str:
         if env is None:
             env = Environment()
 
-        if not osp.exists(path):
-            raise FileNotFoundError(path)
+        if depth < 0:
+            raise ValueError("Depth cannot be less than zero")
 
-        for _ in range(depth):
+        for _ in range(depth + 1):
             matches = env.detect_dataset(path)
             if matches and len(matches) == 1:
                 return matches[0]
