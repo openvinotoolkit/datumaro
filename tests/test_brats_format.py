@@ -26,8 +26,8 @@ class BratsImporterTest(TestCase):
             DatasetItem(id='BRATS_001',
                 image=np.ones((1, 5, 2, 3)),
                 annotations=[
-                    Mask(np.array([[[1, 1], [1, 0], [0, 0], [0, 0], [0, 0]]]), label=1),
                     Mask(np.array([[[0, 0], [0, 1], [1, 1], [1, 0], [1, 0]]]), label=0),
+                    Mask(np.array([[[1, 1], [1, 0], [0, 0], [0, 0], [0, 0]]]), label=1),
                     Mask(np.array([[[0, 0], [0, 0], [0, 0], [0, 1], [0, 1]]]), label=2),
                 ],
             ),

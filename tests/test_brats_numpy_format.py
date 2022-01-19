@@ -26,8 +26,8 @@ class BratsNumpyImporterTest(TestCase):
             DatasetItem(id='HGG_val0',
                 image=np.ones((1, 5, 2, 3)),
                 annotations=[
-                    Mask(np.array([[[1, 1], [1, 0], [0, 0], [0, 0], [0, 0]]]), label=1),
                     Mask(np.array([[[0, 0], [0, 1], [1, 1], [1, 0], [1, 0]]]), label=0),
+                    Mask(np.array([[[1, 1], [1, 0], [0, 0], [0, 0], [0, 0]]]), label=1),
                     Mask(np.array([[[0, 0], [0, 0], [0, 0], [0, 1], [0, 1]]]), label=2),
                     Cuboid3d(position=[1, 1, 1], rotation=[2, 2, 2])
                 ],
@@ -35,8 +35,8 @@ class BratsNumpyImporterTest(TestCase):
             DatasetItem(id='HGG_val1',
                 image=np.ones((1, 5, 2, 3)),
                 annotations=[
-                    Mask(np.array([[[1, 1], [0, 1], [0, 0], [0, 0], [1, 0]]]), label=1),
                     Mask(np.array([[[0, 0], [1, 0], [1, 1], [1, 1], [0, 0]]]), label=0),
+                    Mask(np.array([[[1, 1], [0, 1], [0, 0], [0, 0], [1, 0]]]), label=1),
                     Mask(np.array([[[0, 0], [0, 0], [0, 0], [0, 0], [0, 1]]]), label=3),
                     Cuboid3d(position=[0, 0, 0], rotation=[1, 1, 1])
                 ],

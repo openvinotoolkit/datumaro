@@ -16,7 +16,8 @@ Supported annotation types:
 
 ## Import BraTS Numpy dataset
 
-A Datumaro project with a BraTS Numpy source can be created in the following way:
+A Datumaro project with a BraTS Numpy source can be created
+in the following way:
 
 ```bash
 datum create
