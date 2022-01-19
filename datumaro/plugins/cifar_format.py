@@ -8,7 +8,6 @@ import os.path as osp
 import pickle  # nosec - disable B403:import_pickle check - fixed
 
 import numpy as np
-import numpy.core.multiarray
 
 from datumaro.components.annotation import (
     AnnotationType, Label, LabelCategories,
