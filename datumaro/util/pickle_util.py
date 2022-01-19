@@ -3,7 +3,9 @@
 # SPDX-License-Identifier: MIT
 
 import pickle  # nosec - disable B403:import_pickle check - fixed
+
 import numpy.core.multiarray
+
 
 class RestrictedUnpickler(pickle.Unpickler):
     def find_class(self, module, name):
