@@ -3,6 +3,7 @@ defusedxml>=0.7.0
 lxml>=4.4.1
 matplotlib>=3.3.1
 networkx>=2.5
+nibabel==3.2.1
 numpy>=1.17.3
 Pillow>=6.1.0
 ruamel.yaml>=0.17.0
