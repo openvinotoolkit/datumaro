@@ -3,37 +3,16 @@
 # SPDX-License-Identifier: MIT
 
 import os.path as osp
-import pickle  # nosec - disable B403:import_pickle check - fixed
 
 import numpy as np
-import numpy.core.multiarray
 
 from datumaro.components.annotation import (
     AnnotationType, Cuboid3d, LabelCategories, Mask,
 )
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.components.format_detection import FormatDetectionContext
+from datumaro.util.pickle_util import PickleLoader
 
-
-class RestrictedUnpickler(pickle.Unpickler):
-    def find_class(self, module, name):
-        if module == "numpy.core.multiarray" and \
-                name in PickleLoader.safe_numpy:
-            return getattr(numpy.core.multiarray, name)
-        elif module == 'numpy' and name in PickleLoader.safe_numpy:
-            return getattr(numpy, name)
-        raise pickle.UnpicklingError("Global '%s.%s' is forbidden"
-            % (module, name))
-
-class PickleLoader():
-    safe_numpy = {
-        'dtype',
-        'ndarray',
-        '_reconstruct',
-    }
-
-    def restricted_load(s):
-        return RestrictedUnpickler(s, encoding='latin1').load()
 
 class BratsNumpyPath:
     IDS_FILE = 'val_ids.p'
