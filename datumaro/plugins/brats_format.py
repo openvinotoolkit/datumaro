@@ -1,4 +1,4 @@
-# Copyright (C) 2021 Intel Corporation
+# Copyright (C) 2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -16,7 +16,6 @@ from datumaro.components.format_detection import FormatDetectionContext
 class BratsPath:
     IMAGES_DIR = 'images'
     LABELS = 'labels'
-
 
 class BratsExtractor(SourceExtractor):
     def __init__(self, path):
@@ -51,27 +50,27 @@ class BratsExtractor(SourceExtractor):
 
         for image in glob.glob(osp.join(path, '*.nii.gz')):
             data = nib.load(image).get_fdata()
-            for i in range(data.shape[2]):
-                item_id = '%s_%s' % (osp.splitext(osp.splitext(osp.basename(image))[0])[0], i)
 
-                items[item_id] = DatasetItem(id=item_id, image=data[:,:,i])
+            item_id = osp.splitext(osp.splitext(osp.basename(image))[0])[0]
+
+            items[item_id] = DatasetItem(id=item_id, image=data)
 
         masks_dir = osp.join(self._root_dir, BratsPath.LABELS + self._subset_suffix)
         for mask in glob.glob(osp.join(masks_dir, '*.nii.gz')):
             data = nib.load(mask).get_fdata()
-            for i in range(data.shape[2]):
-                item_id = '%s_%s' % (osp.splitext(osp.splitext(osp.basename(image))[0])[0], i)
 
-                if item_id not in items:
-                    items[item_id] = DatasetItem(id=item_id)
+            item_id = osp.splitext(osp.splitext(osp.basename(image))[0])[0]
 
-                anno = []
-                classes = np.unique(data[:,:,i])
-                for class_id in classes:
-                    anno.append(Mask(image=self._lazy_extract_mask(data[:,:,i], class_id),
-                        label=class_id))
+            if item_id not in items:
+                items[item_id] = DatasetItem(id=item_id)
 
-                items[item_id].annotations = anno
+            anno = []
+            classes = np.unique(data)
+            for class_id in classes:
+                anno.append(Mask(image=self._lazy_extract_mask(data, class_id),
+                    label=class_id))
+
+            items[item_id].annotations = anno
 
         return items
 
