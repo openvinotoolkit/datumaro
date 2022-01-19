@@ -158,6 +158,47 @@ class DatasetTest(TestCase):
             self.assertEqual(DEFAULT_FORMAT, detected_format)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_detect_with_nested_folder(self):
+        env = Environment()
+        env.importers.items = {DEFAULT_FORMAT: env.importers[DEFAULT_FORMAT]}
+        env.extractors.items = {DEFAULT_FORMAT: env.extractors[DEFAULT_FORMAT]}
+
+        dataset = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[ Label(2) ]),
+        ], categories=['a', 'b', 'c'])
+
+        with TestDir() as test_dir:
+            dataset_path = osp.join(test_dir, 'a')
+            dataset.save(dataset_path)
+
+            detected_format = Dataset.detect(test_dir, env=env)
+
+            self.assertEqual(DEFAULT_FORMAT, detected_format)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_detect_with_nested_folder_and_multiply_matches(self):
+        dataset = Dataset.from_iterable([
+            DatasetItem(id=1, image=np.ones((3, 3, 3)),
+                annotations=[ Label(2) ]),
+        ], categories=['a', 'b', 'c'])
+
+        with TestDir() as test_dir:
+            dataset_path = osp.join(test_dir, 'a', 'b')
+            dataset.export(dataset_path, 'coco', save_images=True)
+
+            detected_format = Dataset.detect(test_dir, depth=2)
+
+            self.assertEqual('coco', detected_format)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_cannot_detect_for_non_existent_path(self):
+        with TestDir() as test_dir:
+            dataset_path = osp.join(test_dir, 'a')
+
+            with self.assertRaises(FileNotFoundError):
+                Dataset.detect(dataset_path)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_and_import(self):
         env = Environment()
         env.importers.items = {DEFAULT_FORMAT: env.importers[DEFAULT_FORMAT]}

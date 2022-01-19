@@ -11,6 +11,7 @@ import importlib
 import os
 import os.path as osp
 import shlex
+import warnings
 import weakref
 
 import numpy as np
@@ -20,7 +21,6 @@ try:
     from numpy.typing import DTypeLike
 except ImportError:
     DTypeLike = Any
-
 
 class _IMAGE_BACKENDS(Enum):
     cv2 = auto()
@@ -35,10 +35,8 @@ except ModuleNotFoundError:
     _IMAGE_BACKEND = _IMAGE_BACKENDS.PIL
     _image_loading_errors = (*_image_loading_errors, PIL.UnidentifiedImageError)
 
-import warnings
-
 from datumaro.util.image_cache import ImageCache
-from datumaro.util.os_util import walk
+from datumaro.util.os_util import find_files
 
 
 def __getattr__(name: str):
@@ -199,28 +197,8 @@ IMAGE_EXTENSIONS = {
 
 def find_images(dirpath: str, exts: Union[str, Iterable[str]] = None,
         recursive: bool = False, max_depth: int = None) -> Iterator[str]:
-    if isinstance(exts, str):
-        exts = {'.' + exts.lower().lstrip('.')}
-    elif exts is None:
-        exts = IMAGE_EXTENSIONS
-    else:
-        exts = {'.' + e.lower().lstrip('.') for e in exts}
-
-    def _check_image_ext(filename: str):
-        dotpos = filename.rfind('.')
-        if 0 < dotpos: # exclude '.ext' cases too
-            ext = filename[dotpos:].lower()
-            if ext in exts:
-                return True
-        return False
-
-    for d, _, filenames in walk(dirpath,
-            max_depth=max_depth if recursive else 0):
-        for filename in filenames:
-            if not _check_image_ext(filename):
-                continue
-
-            yield osp.join(d, filename)
+    yield from find_files(dirpath, exts=exts or IMAGE_EXTENSIONS,
+        recursive=recursive, max_depth=max_depth)
 
 def is_image(path: str) -> bool:
     trunk, ext = osp.splitext(osp.basename(path))

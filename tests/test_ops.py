@@ -11,7 +11,7 @@ from datumaro.components.extractor import DEFAULT_SUBSET_NAME, DatasetItem
 from datumaro.components.operations import (
     FailedAttrVotingError, IntersectMerge, NoMatchingAnnError,
     NoMatchingItemError, WrongGroupError, compute_ann_statistics,
-    find_unique_images, mean_std,
+    compute_image_statistics, find_unique_images, mean_std,
 )
 from datumaro.util.test_utils import compare_datasets
 
@@ -26,7 +26,7 @@ class TestOperations(TestCase):
 
         dataset = Dataset.from_iterable([
             DatasetItem(id=i, image=np.random.normal(
-                expected_mean, expected_std, size=(w, h, 3))
+                expected_mean, expected_std, size=(h, w, 3))
             )
             for i, (w, h) in enumerate([
                 (3000, 100), (800, 600), (400, 200), (700, 300)
@@ -35,6 +35,39 @@ class TestOperations(TestCase):
 
         actual_mean, actual_std = mean_std(dataset)
 
+        for em, am in zip(expected_mean, actual_mean):
+            self.assertAlmostEqual(em, am, places=0)
+        for estd, astd in zip(expected_std, actual_std):
+            self.assertAlmostEqual(estd, astd, places=0)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_image_stats(self):
+        expected_mean = [100, 50, 150]
+        expected_std = [20, 50, 10]
+
+        dataset = Dataset.from_iterable([
+            DatasetItem(id=i, image=np.random.normal(
+                expected_mean, expected_std, size=(h, w, 3))
+            )
+            for i, (w, h) in enumerate([
+                (3000, 100), (800, 600), (400, 200), (700, 300)
+            ])
+        ])
+        dataset.put(dataset.get('1'), id='5', subset='train')
+
+        actual = compute_image_statistics(dataset)
+
+        self.assertEqual(actual['dataset'], {
+            'images count': 5,
+            'unique images count': 4,
+            'repeated images count': 1,
+            'repeated images': [[('1', 'default'), ('5', 'train')]],
+        })
+        self.assertEqual(actual['subsets']['default']['images count'], 4)
+        self.assertEqual(actual['subsets']['train']['images count'], 1)
+
+        actual_mean = actual['subsets']['default']['image mean'][::-1]
+        actual_std = actual['subsets']['default']['image std'][::-1]
         for em, am in zip(expected_mean, actual_mean):
             self.assertAlmostEqual(em, am, places=0)
         for estd, astd in zip(expected_std, actual_std):
@@ -73,9 +106,6 @@ class TestOperations(TestCase):
 
         expected = {
             'images count': 4,
-            'unique images count': 3,
-            'repeated images count': 1,
-            'repeated images': [[('2', 'default'), ('2.2', 'default')]],
             'annotations count': 10,
             'unannotated images count': 2,
             'unannotated images': ['3', '2.2'],
@@ -156,9 +186,6 @@ class TestOperations(TestCase):
 
         expected = {
             'images count': 2,
-            'unique images count': 2,
-            'repeated images count': 0,
-            'repeated images': [],
             'annotations count': 0,
             'unannotated images count': 2,
             'unannotated images': ['1', '3'],

@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[Unreleased\]
 ### Added
+- Ability to import a video as frames with the `video_frames` format and
+  to split a video into frames with the `datum util split_video` command
+  (<https://github.com/openvinotoolkit/datumaro/pull/555>)
+- `--subset` parameter in the `image_dir` format
+  (<https://github.com/openvinotoolkit/datumaro/pull/555>)
+- `MediaManager` API to control loaded media resources at runtime
+  (<https://github.com/openvinotoolkit/datumaro/pull/555>)
 - Command to download public datasets
   (<https://github.com/openvinotoolkit/datumaro/pull/582>)
 - Extension autodetection in `ByteImage`
@@ -18,11 +25,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/585>)
 
 ### Changed
+- The `pycocotools` dependency lower bound is raised to `2.0.4`.
+  (<https://github.com/openvinotoolkit/datumaro/pull/449>)
+- Allowed direct file paths in `datum import`. Such sources are imported like
+  when the `rpath` parameter is specified, however, only the selected path
+  is copied into the project
+  (<https://github.com/openvinotoolkit/datumaro/pull/555>)
 - `smooth_line` from `datumaro.util.annotation_util` - the function
   is renamed to `approximate_line` and has updated interface
   (<https://github.com/openvinotoolkit/datumaro/pull/592>)
-- The `pycocotools` dependency lower bound is raised to `2.0.4`.
-  (<https://github.com/openvinotoolkit/datumaro/pull/449>)
+- Improved `stats` performance, added new filtering parameters,
+  image stats (`unique`, `repeated`) moved to the `dataset` section,
+  removed `mean` and `std` from the `dataset` section
+  (<https://github.com/openvinotoolkit/datumaro/pull/621>)
+- OpenVINO telemetry library 2022.1.0 from PyPI.
+  (<https://github.com/openvinotoolkit/datumaro/pull/625>)
 
 ### Deprecated
 - TBD
@@ -32,12 +49,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/617>)
 
 ### Fixed
+- Prohibited calling `add`, `import` and `export` commands without a project
+  (<https://github.com/openvinotoolkit/datumaro/pull/555>)
+- Calling `make_dataset` on empty project tree now produces the error properly
+  (<https://github.com/openvinotoolkit/datumaro/pull/555>)
 - Fails in multimerge when lines are not approximated and when there are no
   label categories (<https://github.com/openvinotoolkit/datumaro/pull/592>)
 - Cannot convert LabelMe dataset, that has no subsets
   (<https://github.com/openvinotoolkit/datumaro/pull/600>)
 - Saving (overwriting) a dataset in a project when rpath is used
   (<https://github.com/openvinotoolkit/datumaro/pull/613>)
+- Output image extension preserving in the `Resize` transform
+  (<https://github.com/openvinotoolkit/datumaro/issues/606>)
+- Memory overuse in the `Resize` transform
+  (<https://github.com/openvinotoolkit/datumaro/issues/607>)
+- Invalid image pixels produced by the `Resize` transform
+  (<https://github.com/openvinotoolkit/datumaro/issues/618>)
+- Numeric warnings that sometimes occurred in `stats` command
+  (e.g. <https://github.com/openvinotoolkit/datumaro/issues/607>)
+  (<https://github.com/openvinotoolkit/datumaro/pull/621>)
 
 ### Security
 - TBD

@@ -13,6 +13,8 @@ class DatumaroComponent:
 
 
 class Requirements:
+    # Please, maintain the ordering when adding new lines
+
     # Exact requirements
     DATUM_GENERAL_REQ = "Datumaro general requirement"
     DATUM_TELEMETRY = "Datumaro telemetry requirement"
@@ -47,6 +49,8 @@ class Requirements:
     DATUM_BUG_560 = "Reading MOT dataset with seqinfo produces 0-based indexing in frames"
     DATUM_BUG_583 = "Empty lines in VOC subset lists are not ignored"
     DATUM_BUG_602 = "Patch command example error"
+    DATUM_BUG_606 = "transform with resize also changed the image extension from .jpg to .png"
+    DATUM_BUG_618 = "ResizeTransform returns broken image pixels"
 
 
 class SkipMessages:
