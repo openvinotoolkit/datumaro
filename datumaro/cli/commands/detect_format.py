@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+from typing import Sequence
 import argparse
 import json
 
@@ -10,8 +11,7 @@ from datumaro.cli.util.project import load_project
 from datumaro.components.environment import Environment
 from datumaro.components.errors import ProjectNotFoundError
 from datumaro.components.format_detection import (
-    FormatDetectionProgressReporter, FormatRequirementsUnmet,
-    detect_dataset_format,
+    RejectionReason, detect_dataset_format,
 )
 from datumaro.util.scope import scope_add, scoped
 
@@ -57,33 +57,6 @@ def get_sensitive_args():
         detect_format_command: ['url'],
     }
 
-class _RecordingProgressReporter(FormatDetectionProgressReporter):
-    def __init__(self, report: dict):
-        self._rejected_formats = {}
-        report['rejected_formats'] = self._rejected_formats
-
-    def report_unmet_requirements(self,
-        format_name: str,
-        format_requirements_unmet: FormatRequirementsUnmet,
-    ):
-        self._rejected_formats[format_name] = {
-            'reason': 'unmet_requirements',
-            'message': format_requirements_unmet.generate_message(),
-        }
-
-    def report_insufficient_confidence(self,
-        format_name: str,
-        format_with_more_confidence: str,
-    ):
-        self._rejected_formats[format_name] = {
-            'reason': 'insufficient_confidence',
-            'message': [
-                f"Another format ({format_with_more_confidence}) "
-                    "was matched with more confidence",
-            ],
-        }
-
-
 @scoped
 def detect_format_command(args):
     project = None
@@ -98,13 +71,21 @@ def detect_format_command(args):
     else:
         env = Environment()
 
-    report = {}
+    report = {'rejected_formats': {}}
+
+    def rejection_callback(
+        format_name: str, reason: RejectionReason, human_message: Sequence[str],
+    ):
+        report['rejected_formats'][format_name] = {
+            'reason': reason.name,
+            'message': human_message,
+        }
 
     detected_formats = detect_dataset_format(
         ((format_name, importer.detect)
             for format_name, importer in env.importers.items.items()),
         args.url,
-        _RecordingProgressReporter(report),
+        rejection_callback=rejection_callback,
     )
     report['detected_formats'] = detected_formats
 

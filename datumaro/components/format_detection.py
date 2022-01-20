@@ -2,9 +2,9 @@
 #
 # SPDX-License-Identifier: MIT
 
-from enum import IntEnum
+from enum import Enum, IntEnum, auto
 from typing import (
-    Callable, Collection, Iterable, Iterator, List, NoReturn, Optional,
+    Any, Callable, Collection, Iterable, Iterator, List, NoReturn, Optional,
     Sequence, TextIO, Tuple, Union,
 )
 import contextlib
@@ -12,6 +12,8 @@ import fnmatch
 import glob
 import logging as log
 import os.path as osp
+
+from typing_extensions import Protocol
 
 
 class FormatDetectionConfidence(IntEnum):
@@ -349,23 +351,21 @@ def apply_format_detector(
 
     return detector(context) or FormatDetectionConfidence.MEDIUM
 
-class FormatDetectionProgressReporter:
-    def report_unmet_requirements(self,
-        format_name: str,
-        format_requirements_unmet: FormatRequirementsUnmet,
-    ):
-        pass
+class RejectionReason(Enum):
+    unmet_requirements = auto()
+    insufficient_confidence = auto()
 
-    def report_insufficient_confidence(self,
-        format_name: str,
-        format_with_more_confidence: str,
-    ):
-        pass
+class RejectionCallback(Protocol):
+    def __call__(self,
+        format_name: str, reason: RejectionReason, human_message: Sequence[str],
+    ) -> Any:
+        ...
 
 def detect_dataset_format(
     detectors: Iterable[Tuple[str, FormatDetector]],
     path: str,
-    reporter: FormatDetectionProgressReporter,
+    *,
+    rejection_callback: Optional[RejectionCallback] = None,
 ) -> Sequence[str]:
     """
     Determines which format(s) the dataset at the specified path belongs to.
@@ -375,11 +375,24 @@ def detect_dataset_format(
     corresponding detector matched. If a detector returns matches with less
     confidence than another detector, then the corresponding name is omitted.
 
-    For formats that are rejected, `reporter` is used to report the reason why.
+    For formats that are rejected, `rejection_callback`, if not `None`,
+    is called to report the reason why.
     """
 
     if not osp.exists(path):
         raise FileNotFoundError(f"Path {path} doesn't exist")
+
+    def report_insufficient_confidence(
+        format_name: str,
+        format_with_more_confidence: str,
+    ):
+        if rejection_callback:
+            rejection_callback(
+                format_name, RejectionReason.insufficient_confidence, [
+                    f"Another format ({format_with_more_confidence}) "
+                        "was matched with more confidence",
+                ]
+            )
 
     max_confidence = 0
     matches = []
@@ -389,8 +402,12 @@ def detect_dataset_format(
         try:
             new_confidence = apply_format_detector(path, detector)
         except FormatRequirementsUnmet as cf:
-            reporter.report_unmet_requirements(format_name, cf)
-            for line in cf.generate_message():
+            human_message = cf.generate_message()
+            if rejection_callback:
+                rejection_callback(
+                    format_name, RejectionReason.unmet_requirements,
+                    human_message)
+            for line in human_message:
                 log.debug(line)
         else:
             log.debug("Format matched with confidence %d", new_confidence)
@@ -398,16 +415,14 @@ def detect_dataset_format(
             # keep only matches with the highest confidence
             if new_confidence > max_confidence:
                 for match in matches:
-                    reporter.report_insufficient_confidence(
-                        match, format_name)
+                    report_insufficient_confidence(match, format_name)
 
                 matches = [format_name]
                 max_confidence = new_confidence
             elif new_confidence == max_confidence:
                 matches.append(format_name)
             else: # new confidence is less than max
-                reporter.report_insufficient_confidence(
-                    format_name, matches[0])
+                report_insufficient_confidence(format_name, matches[0])
 
 
     return matches

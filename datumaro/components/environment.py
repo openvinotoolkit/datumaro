@@ -13,9 +13,7 @@ import logging as log
 import os.path as osp
 
 from datumaro.components.cli_plugin import CliPlugin, plugin_types
-from datumaro.components.format_detection import (
-    FormatDetectionProgressReporter, detect_dataset_format,
-)
+from datumaro.components.format_detection import detect_dataset_format
 from datumaro.util.os_util import import_foreign_module, split_path
 
 T = TypeVar('T')
@@ -236,5 +234,4 @@ class Environment:
             ((format_name, importer.detect)
                 for format_name, importer in self.importers.items.items()),
             path,
-            FormatDetectionProgressReporter(),
         )
