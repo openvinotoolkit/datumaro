@@ -1,8 +1,7 @@
 ---
 title: 'Run model inference explanation (explain)'
-linkTitle: 'Explain'
+linkTitle: 'explain'
 description: ''
-weight: 22
 ---
 
 Runs an explainable AI algorithm for a model.

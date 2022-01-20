@@ -1,8 +1,7 @@
 ---
 title: 'Download datasets'
-linkTitle: 'Download'
+linkTitle: 'download'
 description: ''
-weight: 7
 ---
 
 This command downloads a publicly available dataset and saves it to a local

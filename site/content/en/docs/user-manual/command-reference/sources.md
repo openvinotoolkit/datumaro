@@ -1,8 +1,7 @@
 ---
 title: 'Sources'
-linkTitle: 'Sources'
+linkTitle: 'source (context)'
 description: ''
-weight: 26
 ---
 
 These commands are specific for Data Sources. Read more about them [here](/docs/user-manual/how_to_use_datumaro#data-sources).

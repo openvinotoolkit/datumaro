@@ -1,8 +1,7 @@
 ---
 title: 'Get Project Statistics'
-linkTitle: 'Statistics'
+linkTitle: 'stats'
 description: ''
-weight: 16
 ---
 
 This command computes various project statistics, such as:

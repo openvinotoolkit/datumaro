@@ -1,8 +1,7 @@
 ---
 title: 'Transform Dataset'
-linkTitle: 'Transform'
+linkTitle: 'transform'
 description: ''
-weight: 18
 ---
 
 Often datasets need to be modified during preparation for model training and
