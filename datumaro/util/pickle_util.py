@@ -17,7 +17,7 @@ class RestrictedUnpickler(pickle.Unpickler):
         raise pickle.UnpicklingError("Global '%s.%s' is forbidden"
             % (module, name))
 
-class PickleLoader():
+class PickleLoader:
     safe_numpy = {
         'dtype',
         'ndarray',

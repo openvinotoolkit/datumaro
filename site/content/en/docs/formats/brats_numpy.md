@@ -51,7 +51,7 @@ dataset/
 
 Datumaro can convert a BraTS Numpy dataset into any other format [Datumaro supports](/docs/user-manual/supported_formats/).
 To get the expected result, convert the dataset to a format
-that supports segmentation masks.
+that supports segmentation masks or cuboids.
 
 There are several ways to convert a BraTS Numpy dataset to other dataset
 formats using CLI:
