@@ -11,41 +11,41 @@ weight: 6
 %%{init { 'theme':'neutral' }}%%
 flowchart LR
   d(("#0009; datum #0009;")):::mainclass
-  s(source):::nofillclass
   m(model):::nofillclass
   p(project):::nofillclass
+  s(source):::nofillclass
 
-  d===s
-    s===id1[add]:::hideclass
-    s===id2[remove]:::hideclass
-    s===id3[info]:::hideclass
   d===m
-    m===id4[add]:::hideclass
-    m===id5[remove]:::hideclass
-    m===id6[run]:::hideclass
-    m===id7[info]:::hideclass
+    m===m_add[add]:::hideclass
+    m===m_info[info]:::hideclass
+    m===m_remove[remove]:::hideclass
+    m===m_run[run]:::hideclass
   d===p
-    p===migrate:::hideclass
-    p===info:::hideclass
-  d====str1[create]:::filloneclass
-  d====str1[download]:::filloneclass
-  d====str2[import]:::filloneclass
-  d====str3[export]:::filloneclass
-  d====str4[add]:::filloneclass
-  d====str5[remove]:::filloneclass
-  d====str6[info]:::filloneclass
-  d====str7[transform]:::filltwoclass
-  d====str8[filter]:::filltwoclass
-  d====str9[diff]:::fillthreeclass
-  d====str10[merge]:::fillthreeclass
-  d====str11[patch]:::fillthreeclass
-  d====str12[validate]:::fillthreeclass
-  d====str13[explain]:::fillthreeclass
-  d====str14[stats]:::fillthreeclass
-  d====str15[commit]:::fillfourclass
-  d====str16[checkout]:::fillfourclass
-  d====str17[status]:::fillfourclass
-  d====str18[log]:::fillfourclass
+    p===p_info[info]:::hideclass
+    p===p_migrate[migrate]:::hideclass
+  d===s
+    s===s_add[add]:::hideclass
+    s===s_info[info]:::hideclass
+    s===s_remove[remove]:::hideclass
+  d====_add[add]:::filloneclass
+  d====_create[create]:::filloneclass
+  d====_download[download]:::filloneclass
+  d====_export[export]:::filloneclass
+  d====_import[import]:::filloneclass
+  d====_info[info]:::filloneclass
+  d====_remove[remove]:::filloneclass
+  d====_filter[filter]:::filltwoclass
+  d====_transform[transform]:::filltwoclass
+  d====_diff[diff]:::fillthreeclass
+  d====_explain[explain]:::fillthreeclass
+  d====_merge[merge]:::fillthreeclass
+  d====_patch[patch]:::fillthreeclass
+  d====_stats[stats]:::fillthreeclass
+  d====_validate[validate]:::fillthreeclass
+  d====_checkout[checkout]:::fillfourclass
+  d====_commit[commit]:::fillfourclass
+  d====_log[log]:::fillfourclass
+  d====_status[status]:::fillfourclass
 
   classDef nofillclass fill-opacity:0;
   classDef hideclass fill-opacity:0,stroke-opacity:0;
