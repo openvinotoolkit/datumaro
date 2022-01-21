@@ -18,5 +18,4 @@ from .components.hl_ops import *  # pylint: disable=redefined-builtin
 from .components.launcher import Launcher, ModelTransform
 from .components.media import *
 from .components.validator import Validator
-
 from .version import VERSION
