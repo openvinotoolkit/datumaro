@@ -110,6 +110,48 @@ class CityscapesImportTest(TestCase):
         compare_datasets(self, source_dataset, parsed_dataset)
 
     @mark_requirement(Requirements.DATUM_267)
+    def test_can_import_with_train_label_map(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id='defaultcity/defaultcity_000001_000031',
+                subset='test',
+                image=np.ones((1, 5, 3)),
+                annotations=[
+                    Mask(np.array([[1, 1, 0, 0, 0]]), label=0),
+                    Mask(np.array([[0, 0, 1, 1, 1]]), label=15),
+                ]
+            ),
+            DatasetItem(id='defaultcity/defaultcity_000001_000032',
+                subset='test',
+                image=np.ones((1, 5, 3)),
+                annotations=[
+                    Mask(np.array([[1, 1, 0, 0, 0]]), label=17),
+                    Mask(np.array([[0, 0, 1, 0, 0]]), label=4),
+                    Mask(np.array([[0, 0, 0, 1, 1]]), label=0),
+                ]
+            ),
+            DatasetItem(id='defaultcity/defaultcity_000002_000045',
+                subset='train',
+                image=np.ones((1, 5, 3)),
+                annotations=[
+                    Mask(np.array([[1, 1, 0, 1, 1]]), label=0),
+                    Mask(np.array([[0, 0, 1, 0, 0]]), label=12),
+                ]
+            ),
+            DatasetItem(id='defaultcity/defaultcity_000001_000019',
+                subset = 'val',
+                image=np.ones((1, 5, 3)),
+                annotations=[
+                    Mask(np.array([[1, 1, 1, 1, 1]]), label=0),
+                ]
+            ),
+        ], categories=Cityscapes.make_cityscapes_categories(use_train_label_map=True))
+
+        parsed_dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'cityscapes',
+            load_color_masks=True, use_train_label_map=True)
+
+        compare_datasets(self, source_dataset, parsed_dataset)
+
+    @mark_requirement(Requirements.DATUM_267)
     def test_can_detect_cityscapes(self):
         detected_formats = Environment().detect_dataset(DUMMY_DATASET_DIR)
         self.assertIn(CityscapesImporter.NAME, detected_formats)

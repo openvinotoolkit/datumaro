@@ -19,12 +19,35 @@ from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.util import find
 from datumaro.util.annotation_util import make_label_id_mapping
 from datumaro.util.image import find_images, load_image, save_image
-from datumaro.util.mask_tools import generate_colormap, paint_mask
+from datumaro.util.mask_tools import generate_colormap, lazy_mask, paint_mask
 from datumaro.util.meta_file_util import (
     has_meta_file, is_meta_file, parse_meta_file,
 )
 
-CityscapesLabelMap = OrderedDict([
+TRAIN_CITYSCAPES_LABEL_MAP = OrderedDict([
+    ('background', (0, 0, 0)),
+    ('road', (128, 64, 128)),
+    ('sidewalk', (244, 35, 232)),
+    ('building', (70, 70, 70)),
+    ('wall', (102, 102, 156)),
+    ('fence', (190, 153, 153)),
+    ('pole', (153, 153, 153)),
+    ('trafficlight', (250, 170, 30)),
+    ('trafficsign', (220, 220, 0)),
+    ('vegetation', (107, 142, 35)),
+    ('terrain', (152, 251, 152)),
+    ('sky', (70, 130, 180)),
+    ('person', (220, 20, 60)),
+    ('rider', (255, 0, 0)),
+    ('car', (0, 0, 142)),
+    ('truck', (0, 0, 70)),
+    ('bus', (0, 60, 100)),
+    ('train', (0, 80, 100)),
+    ('motorcycle', (0, 0, 230)),
+    ('bicycle', (119, 11, 32)),
+])
+
+CITYSCAPES_LABEl_MAP = OrderedDict([
     ('unlabeled', (0, 0, 0)),
     ('egovehicle', (0, 0, 0)),
     ('rectificationborder', (0, 0, 0)),
@@ -70,13 +93,17 @@ class CityscapesPath:
     INSTANCES_IMAGE = '_instanceIds.png'
     GT_INSTANCE_MASK_SUFFIX = '_' + GT_FINE_DIR + INSTANCES_IMAGE
     COLOR_IMAGE = '_color.png'
+    GT_COLOR_MASK_SUFFIX = '_' + GT_FINE_DIR + COLOR_IMAGE
     LABELIDS_IMAGE = '_labelIds.png'
 
     LABELMAP_FILE = 'label_colors.txt'
 
-def make_cityscapes_categories(label_map=None):
+def make_cityscapes_categories(label_map=None, use_train_label_map=False):
     if label_map is None:
-        label_map = CityscapesLabelMap
+        if use_train_label_map:
+            label_map = TRAIN_CITYSCAPES_LABEL_MAP
+        else:
+            label_map = CITYSCAPES_LABEl_MAP
 
     # There must always be a label with color (0, 0, 0) at index 0
     bg_label = find(label_map.items(), lambda x: x[1] == (0, 0, 0))
@@ -146,7 +173,7 @@ def write_label_map(path, label_map):
             f.write('%s %s\n' % (color_rgb, label_name))
 
 class CityscapesExtractor(SourceExtractor):
-    def __init__(self, path, subset=None):
+    def __init__(self, path, subset=None, load_color_masks=False, use_train_label_map=False):
         assert osp.isdir(path), path
 
         if not subset:
@@ -167,6 +194,8 @@ class CityscapesExtractor(SourceExtractor):
         self._subset = subset
         self._images_dir = images_dir
         self._gt_anns_dir = annotations_dir
+        self._load_color_masks = load_color_masks
+        self._use_train_label_map = use_train_label_map
 
         super().__init__(subset=subset)
 
@@ -182,7 +211,10 @@ class CityscapesExtractor(SourceExtractor):
             if osp.isfile(label_map_path):
                 label_map = parse_label_map(label_map_path)
             else:
-                label_map = CityscapesLabelMap
+                if self._use_train_label_map:
+                    label_map = TRAIN_CITYSCAPES_LABEL_MAP
+                else:
+                    label_map = CITYSCAPES_LABEl_MAP
 
         self._labels = [label for label in label_map]
         return make_cityscapes_categories(label_map)
@@ -191,9 +223,8 @@ class CityscapesExtractor(SourceExtractor):
         return osp.relpath(osp.splitext(path)[0], self._images_dir) \
             .replace('_' + CityscapesPath.ORIGINAL_IMAGE_DIR, '')
 
-    def _get_id_from_mask_path(self, path):
-        return osp.relpath(path, self._gt_anns_dir) \
-            .replace(CityscapesPath.GT_INSTANCE_MASK_SUFFIX, '')
+    def _get_id_from_mask_path(self, path, suffix):
+        return osp.relpath(path, self._gt_anns_dir).replace(suffix, '')
 
     def _load_items(self):
         items = {}
@@ -205,33 +236,56 @@ class CityscapesExtractor(SourceExtractor):
                 for p in find_images(self._images_dir, recursive=True)
             }
 
-        for mask_path in find_images(self._gt_anns_dir, recursive=True):
-            if not mask_path.endswith(CityscapesPath.GT_INSTANCE_MASK_SUFFIX):
-                continue
+        if self._load_color_masks:
+            for mask_path in find_images(self._gt_anns_dir, recursive=True):
+                if not mask_path.endswith(CityscapesPath.GT_COLOR_MASK_SUFFIX):
+                    continue
 
-            item_id = self._get_id_from_mask_path(mask_path)
+                item_id = self._get_id_from_mask_path(mask_path,
+                    CityscapesPath.GT_COLOR_MASK_SUFFIX)
 
-            anns = []
-            instances_mask = load_image(mask_path, dtype=np.int32)
-            segm_ids = np.unique(instances_mask)
-            for segm_id in segm_ids:
-                # either is_crowd or ann_id should be set
-                if segm_id < 1000:
-                    label_id = segm_id
-                    is_crowd = True
-                    ann_id = None
-                else:
-                    label_id = segm_id // 1000
-                    is_crowd = False
-                    ann_id = segm_id % 1000
-                anns.append(Mask(
-                    image=self._lazy_extract_mask(instances_mask, segm_id),
-                    label=label_id, id=ann_id,
-                    attributes = { 'is_crowd': is_crowd }))
+                anns = []
+                color_mask = lazy_mask(mask_path,
+                    self._categories[AnnotationType.mask].inverse_colormap)
+                color_mask = color_mask() # loading mask through cache
+                segm_ids = np.unique(color_mask)
+                for segm_id in segm_ids:
+                    anns.append(Mask(
+                        image=self._lazy_extract_mask(color_mask, segm_id),
+                        label=segm_id))
 
-            items[item_id] = DatasetItem(id=item_id, subset=self._subset,
-                image=image_path_by_id.pop(item_id, None),
-                annotations=anns)
+                items[item_id] = DatasetItem(id=item_id, subset=self._subset,
+                    image=image_path_by_id.pop(item_id, None),
+                    annotations=anns)
+        else:
+            for mask_path in find_images(self._gt_anns_dir, recursive=True):
+                if not mask_path.endswith(CityscapesPath.GT_INSTANCE_MASK_SUFFIX):
+                    continue
+
+                item_id = self._get_id_from_mask_path(mask_path,
+                    CityscapesPath.GT_INSTANCE_MASK_SUFFIX)
+
+                anns = []
+                instances_mask = load_image(mask_path, dtype=np.int32)
+                segm_ids = np.unique(instances_mask)
+                for segm_id in segm_ids:
+                    # either is_crowd or ann_id should be set
+                    if segm_id < 1000:
+                        label_id = segm_id
+                        is_crowd = True
+                        ann_id = None
+                    else:
+                        label_id = segm_id // 1000
+                        is_crowd = False
+                        ann_id = segm_id % 1000
+                    anns.append(Mask(
+                        image=self._lazy_extract_mask(instances_mask, segm_id),
+                        label=label_id, id=ann_id,
+                        attributes = { 'is_crowd': is_crowd }))
+
+                items[item_id] = DatasetItem(id=item_id, subset=self._subset,
+                    image=image_path_by_id.pop(item_id, None),
+                    annotations=anns)
 
         for item_id, path in image_path_by_id.items():
             items[item_id] = DatasetItem(id=item_id, subset=self._subset,
@@ -244,6 +298,15 @@ class CityscapesExtractor(SourceExtractor):
         return lambda: mask == c
 
 class CityscapesImporter(Importer):
+    @classmethod
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument('--load-color-masks', action='store_true',
+            help="Load color masks (default: %(default)s)")
+        parser.add_argument('--use-train-label-map', action='store_true',
+            help="Use train label map (default: %(default)s)")
+        return parser
+
     @classmethod
     def find_sources(cls, path):
         sources = cls._find_sources_recursive(path, '', 'cityscapes',
@@ -355,7 +418,7 @@ class CityscapesConverter(Converter):
     def _load_categories(self, label_map_source):
         if label_map_source == LabelmapType.cityscapes.name:
             # use the default Cityscapes colormap
-            label_map = CityscapesLabelMap
+            label_map = CITYSCAPES_LABEl_MAP
 
         elif label_map_source == LabelmapType.source.name and \
                 AnnotationType.mask not in self._extractor.categories():
