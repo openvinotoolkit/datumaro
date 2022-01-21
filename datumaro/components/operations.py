@@ -4,7 +4,7 @@
 
 from collections import OrderedDict
 from copy import deepcopy
-from typing import Callable, Dict, Optional, Set, Tuple
+from typing import Callable, Dict, Iterable, List, Optional, Set, Tuple
 from unittest import TestCase
 import hashlib
 import logging as log
@@ -15,7 +15,7 @@ import cv2
 import numpy as np
 
 from datumaro.components.annotation import (
-    AnnotationType, Bbox, Label, LabelCategories, MaskCategories,
+    Annotation, AnnotationType, Bbox, Label, LabelCategories, MaskCategories,
     PointsCategories,
 )
 from datumaro.components.cli_plugin import CliPlugin
@@ -26,6 +26,7 @@ from datumaro.components.errors import (
     NoMatchingAnnError, NoMatchingItemError, WrongGroupError,
 )
 from datumaro.components.extractor import CategoriesInfo, DatasetItem
+from datumaro.components.media import Image
 from datumaro.util import filter_dict, find
 from datumaro.util.annotation_util import (
     OKS, approximate_line, bbox_iou, find_instances, max_bbox, mean_bbox,
@@ -86,8 +87,18 @@ class MergingStrategy(CliPlugin):
         raise NotImplementedError()
 
 class ExactMerge:
+    """
+    Merges few datasets using the "simple" algorithm:
+
+    - items are matched by (id, subset) pairs
+    - matching items share the data available (nothing + nothing = nothing,
+        nothing + something = something, something A + something B = conflict)
+    - annotations are matched by value and shared
+    - in case of conflicts, throws an error
+    """
+
     @classmethod
-    def merge(cls, *sources):
+    def merge(cls, *sources: IDataset) -> DatasetItemStorage:
         items = DatasetItemStorage()
         for source_idx, source in enumerate(sources):
             for item in source:
@@ -103,14 +114,17 @@ class ExactMerge:
         return items
 
     @classmethod
-    def merge_items(cls, existing_item, current_item):
+    def merge_items(cls, existing_item: DatasetItem,
+            current_item: DatasetItem) -> DatasetItem:
         return existing_item.wrap(
             image=cls.merge_images(existing_item, current_item),
             annotations=cls.merge_anno(
                 existing_item.annotations, current_item.annotations))
 
     @staticmethod
-    def merge_images(existing_item, current_item):
+    def merge_images(existing_item: DatasetItem,
+            current_item: DatasetItem) -> Image:
+
         image = None
         if existing_item.has_image and current_item.has_image:
             if existing_item.image.has_data:
@@ -139,11 +153,12 @@ class ExactMerge:
         return image
 
     @staticmethod
-    def merge_anno(a, b):
+    def merge_anno(a: Iterable[Annotation], b: Iterable[Annotation]) \
+            -> List[Annotation]:
         return merge_annotations_equal(a, b)
 
     @staticmethod
-    def merge_categories(sources):
+    def merge_categories(sources: Iterable[IDataset]) -> CategoriesInfo:
         return merge_categories(sources)
 
 @attrs
