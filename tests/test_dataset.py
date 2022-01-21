@@ -23,6 +23,7 @@ from datumaro.components.errors import (
 from datumaro.components.extractor import (
     DEFAULT_SUBSET_NAME, DatasetItem, Extractor, ItemTransform, Transform,
 )
+from datumaro.components.hl_ops import detect, export, filter, merge, transform
 from datumaro.components.launcher import Launcher
 from datumaro.components.media import Image
 from datumaro.util.test_utils import TestDir, compare_datasets
@@ -1571,3 +1572,93 @@ class DatasetFilterTest(TestCase):
             '/item/annotation[label_id = 2]', remove_empty=True)
 
         compare_datasets(self, expected, filtered)
+
+
+class TestHLOps(TestCase):
+    def test_can_transform(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(0, subset='train')
+        ], categories=['cat', 'dog'])
+
+        dataset = Dataset.from_iterable([
+            DatasetItem(10, subset='train')
+        ], categories=['cat', 'dog'])
+
+        actual = transform(dataset, 'reindex', start=0)
+
+        compare_datasets(self, expected, actual)
+
+    def test_can_filter_items(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(0, subset='train')
+        ], categories=['cat', 'dog'])
+
+        dataset = Dataset.from_iterable([
+            DatasetItem(0, subset='train'),
+            DatasetItem(1, subset='train')
+        ], categories=['cat', 'dog'])
+
+        actual = filter(dataset, '/item[id=0]')
+
+        compare_datasets(self, expected, actual)
+
+    def test_can_filter_annotations(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(0, subset='train', annotations=[
+                Label(0, id=1)
+            ])
+        ], categories=['cat', 'dog'])
+
+        dataset = Dataset.from_iterable([
+            DatasetItem(0, subset='train', annotations=[
+                Label(0, id=0),
+                Label(0, id=1),
+            ]),
+            DatasetItem(1, subset='train')
+        ], categories=['cat', 'dog'])
+
+        actual = filter(dataset, '/item/annotation[id=1]',
+            filter_annotations=True, remove_empty=True)
+
+        compare_datasets(self, expected, actual)
+
+    def test_can_merge(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(0, subset='train'),
+            DatasetItem(1, subset='train')
+        ], categories=['cat', 'dog'])
+
+        dataset_a = Dataset.from_iterable([
+            DatasetItem(0, subset='train'),
+        ], categories=['cat', 'dog'])
+
+        dataset_b = Dataset.from_iterable([
+            DatasetItem(1, subset='train')
+        ], categories=['cat', 'dog'])
+
+        actual = merge(dataset_a, dataset_b)
+
+        compare_datasets(self, expected, actual)
+
+    def test_can_export(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(0, subset='train'),
+            DatasetItem(1, subset='train')
+        ], categories=['cat', 'dog'])
+
+        dataset = Dataset.from_iterable([
+            DatasetItem(0, subset='train'),
+            DatasetItem(1, subset='train')
+        ], categories=['cat', 'dog'])
+
+        with TestDir() as test_dir:
+            export(dataset, test_dir, 'datumaro')
+            actual = Dataset.load(test_dir)
+
+            compare_datasets(self, expected, actual)
+
+    def test_can_detect(self):
+        self.assertEqual('coco',
+            detect(osp.join(osp.dirname(__file__),
+                'assets', 'coco_dataset', 'coco'))
+        )
