@@ -1,8 +1,7 @@
 ---
 title: 'Print dataset info'
-linkTitle: 'Info'
+linkTitle: 'info'
 description: ''
-weight: 15
 ---
 
 This command outputs high level dataset information such as sample count,

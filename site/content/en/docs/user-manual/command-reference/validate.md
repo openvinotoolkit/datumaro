@@ -1,8 +1,7 @@
 ---
 title: 'Validate Dataset'
-linkTitle: 'Validate'
+linkTitle: 'validate'
 description: ''
-weight: 17
 ---
 
 This command inspects annotations with respect to the task type

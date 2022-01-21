@@ -1,8 +1,7 @@
 ---
 title: 'Patch Datasets'
-linkTitle: 'Patch'
+linkTitle: 'patch'
 description: ''
-weight: 13
 ---
 
 Updates items of the first dataset with items from the second one.

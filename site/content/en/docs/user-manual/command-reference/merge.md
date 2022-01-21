@@ -1,8 +1,7 @@
 ---
 title: 'Merge Datasets'
-linkTitle: 'Merge'
+linkTitle: 'merge'
 description: ''
-weight: 13
 ---
 
 Consider the following task: there is a set of images (the original dataset)
