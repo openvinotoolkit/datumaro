@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import Callable, Iterable, Iterator, Optional, Tuple, Union
+from typing import Callable, Iterable, Iterator, List, Optional, Tuple, Union
 import os
 import os.path as osp
 import shutil
@@ -20,6 +20,7 @@ from datumaro.util.image import (
 
 class MediaElement:
     def __init__(self, path: str) -> None:
+        assert path, "Path can't be empty"
         self._path = path
 
     @property
@@ -465,3 +466,18 @@ class Video(MediaElement, Iterable[VideoFrame]):
     def __hash__(self):
         # Required for caching
         return hash((self._path, self._step, self._start_frame, self._end_frame))
+class PointCloud(MediaElement):
+    def __init__(self, path: str,
+            extra_images: Optional[List[Union[
+                str, Image, np.ndarray, Callable[[str], np.ndarray]
+            ]]] = None):
+        self.path = path
+
+        self.extra_images: List[Image] = []
+        for image in extra_images or []:
+            assert isinstance(image, (str, Image, np.ndarray)) or callable(image)
+            if isinstance(image, str):
+                image = Image(path=image)
+            elif isinstance(image, np.ndarray) or callable(image):
+                image = Image(data=image)
+            self.extra_images.append(image)
