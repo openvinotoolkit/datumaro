@@ -4,7 +4,7 @@
 
 from functools import partial
 from typing import (
-    Callable, Dict, Generic, Iterable, Iterator, Optional, Type, TypeVar,
+    Callable, Dict, Generic, Iterable, Iterator, List, Optional, Type, TypeVar,
 )
 import glob
 import importlib
@@ -231,7 +231,7 @@ class Environment:
     def is_format_known(self, name):
         return name in self.importers or name in self.extractors
 
-    def detect_dataset(self, path):
+    def detect_dataset(self, path) -> List[str]:
         max_confidence = 0
         matches = []
 
