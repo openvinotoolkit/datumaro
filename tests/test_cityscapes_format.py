@@ -30,7 +30,7 @@ DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets',
 class CityscapesFormatTest(TestCase):
     @mark_requirement(Requirements.DATUM_267)
     def test_can_write_and_parse_labelmap(self):
-        src_label_map = Cityscapes.CityscapesLabelMap
+        src_label_map = Cityscapes.CITYSCAPES_LABEl_MAP
 
         with TestDir() as test_dir:
             file_path = osp.join(test_dir, 'label_colors.txt')
@@ -42,7 +42,7 @@ class CityscapesFormatTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_267)
     def test_can_write_and_parse_dataset_meta_file(self):
-        src_label_map = Cityscapes.CityscapesLabelMap
+        src_label_map = Cityscapes.CITYSCAPES_LABEl_MAP
 
         with TestDir() as test_dir:
             source_dataset = Dataset.from_iterable([],
