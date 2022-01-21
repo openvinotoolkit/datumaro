@@ -68,7 +68,8 @@ dataset.select(lambda item: len(item.annotations) != 0)
 
 # change dataset labels
 dataset.transform('remap_labels',
-  {'cat': 'dog', # rename cat to dog
+  mapping={
+    'cat': 'dog', # rename cat to dog
     'truck': 'car', # rename truck to car
     'person': '', # remove this label
   }, default='delete') # remove everything else

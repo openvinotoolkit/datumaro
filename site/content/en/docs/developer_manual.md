@@ -288,10 +288,10 @@ dataset = dm.Dataset.import_from(src_dir, 'voc')
 
 # Load an existing project, save the dataset in some project-specific format
 project = Project('project/')
-project.env.converters.get('custom_format').convert(dataset, save_dir=dst_dir)
+project.env.converters['custom_format'].convert(dataset, save_dir=dst_dir)
 
 # Save the dataset in some built-in format
-Environment().converters.get('yolo').convert(dataset, save_dir=dst_dir)
+Environment().converters['yolo'].convert(dataset, save_dir=dst_dir)
 YoloConverter.convert(dataset, save_dir=dst_dir)
 ```
 
