@@ -23,10 +23,10 @@ from datumaro.components.errors import (
 from datumaro.components.extractor import (
     DEFAULT_SUBSET_NAME, DatasetItem, Extractor, ItemTransform, Transform,
 )
-import datumaro.components.hl_ops as hlops
 from datumaro.components.launcher import Launcher
 from datumaro.components.media import Image
 from datumaro.util.test_utils import TestDir, compare_datasets
+import datumaro.components.hl_ops as hlops
 
 from .requirements import Requirements, mark_requirement
 
