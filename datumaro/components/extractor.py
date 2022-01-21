@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+from glob import iglob
 from typing import (
     Any, Callable, Dict, Iterable, Iterator, List, Optional, Type, TypeVar,
     Union, cast,

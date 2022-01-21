@@ -11,6 +11,7 @@ import numpy as np
 from datumaro.components.annotation import AnnotationType, LabelCategories, Mask
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.components.format_detection import FormatDetectionContext
+from datumaro.components.media import PointCloud
 
 
 class BratsPath:
@@ -53,7 +54,12 @@ class BratsExtractor(SourceExtractor):
 
             item_id = osp.splitext(osp.splitext(osp.basename(image))[0])[0]
 
-            items[item_id] = DatasetItem(id=item_id, image=data)
+            images = [0] * data.shape[2]
+            for i in range(data.shape[2]):
+                images[i] = data[:,:,i]
+
+            items[item_id] = DatasetItem(id=item_id, subset=self._subset,
+                media=PointCloud(image, images))
 
         masks_dir = osp.join(self._root_dir, BratsPath.LABELS + self._subset_suffix)
         for mask in glob.glob(osp.join(masks_dir, '*.nii.gz')):

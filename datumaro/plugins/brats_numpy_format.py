@@ -11,6 +11,7 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.components.format_detection import FormatDetectionContext
+from datumaro.components.media import PointCloud
 from datumaro.util.pickle_util import PickleLoader
 
 
@@ -58,9 +59,14 @@ class BratsNumpyExtractor(SourceExtractor):
 
         for i, item_id in enumerate(ids):
             data_file = osp.join(self._root_dir, item_id + BratsNumpyPath.DATA_SUFFIX + '.npy')
-            image = None
+            media = None
             if osp.isfile(data_file):
-                image = np.load(data_file)[0].transpose()
+                data = np.load(data_file)[0].transpose()
+                images = [0] * data.shape[2]
+                for j in range(data.shape[2]):
+                    images[j] = data[:,:,i]
+
+                media = PointCloud(data_file, images)
 
             anno = []
             label_file = osp.join(self._root_dir, item_id + BratsNumpyPath.LABEL_SUFFIX + '.npy')
@@ -76,7 +82,7 @@ class BratsNumpyExtractor(SourceExtractor):
                 box = boxes[i]
                 anno.append(Cuboid3d(position=list(box[0]), rotation=list(box[1])))
 
-            items[item_id] = DatasetItem(id=item_id, image=image, annotations=anno)
+            items[item_id] = DatasetItem(id=item_id, media=media, annotations=anno)
 
         return items
 

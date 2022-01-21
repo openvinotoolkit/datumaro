@@ -7,6 +7,7 @@ from datumaro.components.annotation import Cuboid3d, Mask
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
+from datumaro.components.media import PointCloud
 from datumaro.plugins.brats_numpy_format import BratsNumpyImporter
 from datumaro.util.test_utils import compare_datasets
 
@@ -24,7 +25,8 @@ class BratsNumpyImporterTest(TestCase):
     def test_can_import(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='HGG_val0',
-                image=np.ones((1, 5, 2, 3)),
+                media=PointCloud(osp.join(DUMMY_DATASET_DIR, 'HGG_val0_data_cropped.npy'),
+                    [np.ones((1, 5, 3))] * 2),
                 annotations=[
                     Mask(np.array([[[0, 0], [0, 1], [1, 1], [1, 0], [1, 0]]]), label=0),
                     Mask(np.array([[[1, 1], [1, 0], [0, 0], [0, 0], [0, 0]]]), label=1),
@@ -33,7 +35,8 @@ class BratsNumpyImporterTest(TestCase):
                 ],
             ),
             DatasetItem(id='HGG_val1',
-                image=np.ones((1, 5, 2, 3)),
+                media=PointCloud(osp.join(DUMMY_DATASET_DIR, 'HGG_val1_data_cropped.npy'),
+                    [np.ones((1, 5, 3))] * 2),
                 annotations=[
                     Mask(np.array([[[0, 0], [1, 0], [1, 1], [1, 1], [0, 0]]]), label=0),
                     Mask(np.array([[[1, 1], [0, 1], [0, 0], [0, 0], [1, 0]]]), label=1),
