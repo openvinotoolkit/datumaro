@@ -33,7 +33,7 @@ def transform(dataset: IDataset, method: Union[str, Transform], *,
     produced = method(dataset, **kwargs)
     return Dataset.from_extractors(produced, env=env)
 
-def filter(dataset: IDataset, expr: str, *,
+def filter(dataset: IDataset, expr: str, *, #pylint: disable=redefined-builtin
         filter_annotations: bool = False,
         remove_empty: bool = False) -> IDataset:
     if filter_annotations:
