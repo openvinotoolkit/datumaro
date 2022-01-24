@@ -1,3 +1,4 @@
 include README.md
 include requirements-core.txt
 include requirements-default.txt
+include 3rd-party.txt
