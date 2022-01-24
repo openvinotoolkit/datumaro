@@ -358,7 +358,7 @@ class RejectionCallback(Protocol):
         ...
 
 def detect_dataset_format(
-    detectors: Iterable[Tuple[str, FormatDetector]],
+    formats: Iterable[Tuple[str, FormatDetector]],
     path: str,
     *,
     rejection_callback: Optional[RejectionCallback] = None,
@@ -366,13 +366,22 @@ def detect_dataset_format(
     """
     Determines which format(s) the dataset at the specified path belongs to.
 
-    `detectors` is a list of (name, detector) tuples. The function applies all
-    of the detectors to the path, and returns all names for which the
-    corresponding detector matched. If a detector returns matches with less
-    confidence than another detector, then the corresponding name is omitted.
+    The function applies each supplied detector to the given patch and decides
+    whether the corresponding format is detected or rejected. A format may be
+    rejected if the detector fails or if it succeeds with less confidence than
+    another detector (other rejection reasons might be added in the future).
 
-    For formats that are rejected, `rejection_callback`, if not `None`,
-    is called to report the reason why.
+    Args:
+        `formats` - The formats to be considered. Each element of the
+            iterable must be a tuple of a format name and a `FormatDetector`
+            instance.
+
+        `path` - the filesystem path to the dataset to be analyzed.
+
+        `rejection_callback` - Unless `None`, called for every rejected format
+            to report the reason it was rejected.
+
+    Returns: a sequence of detected format names.
     """
 
     if not osp.exists(path):
@@ -392,7 +401,7 @@ def detect_dataset_format(
     max_confidence = 0
     matches = []
 
-    for format_name, detector in detectors:
+    for format_name, detector in formats:
         log.debug("Checking '%s' format...", format_name)
         try:
             new_confidence = apply_format_detector(path, detector)
