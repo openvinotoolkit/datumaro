@@ -12,6 +12,7 @@ import os.path as osp
 import tempfile
 import unittest
 import unittest.mock
+import numpy as np
 
 from typing_extensions import Literal
 
@@ -155,7 +156,7 @@ def compare_datasets(test, expected: IDataset, actual: IDataset,
                 test.assertEqual(item_a.image, item_b.image, item_a.id)
 
             elif item_a.media and item_b.media:
-                test.assertEqual(item_a.media.data, item_b.media.data, item_a.id)
+                np.array_equal(item_a.media.data, item_b.media.data, item_a.id)
 
         test.assertEqual(len(item_a.annotations), len(item_b.annotations),
             item_a.id)
