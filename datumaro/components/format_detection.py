@@ -405,8 +405,8 @@ def detect_dataset_format(
         log.debug("Checking '%s' format...", format_name)
         try:
             new_confidence = apply_format_detector(path, detector)
-        except FormatRequirementsUnmet as cf:
-            human_message = str(cf)
+        except FormatRequirementsUnmet as ex:
+            human_message = str(ex)
             if rejection_callback:
                 rejection_callback(
                     format_name, RejectionReason.unmet_requirements,
