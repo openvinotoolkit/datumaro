@@ -11,12 +11,13 @@ import numpy as np
 from datumaro.components.annotation import AnnotationType, LabelCategories, Mask
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.components.format_detection import FormatDetectionContext
-from datumaro.components.media import PointCloud
+from datumaro.components.media import MultiframeImage
 
 
 class BratsPath:
     IMAGES_DIR = 'images'
     LABELS = 'labels'
+    DATA_EXT = '.nii.gz'
 
 class BratsExtractor(SourceExtractor):
     def __init__(self, path):
@@ -49,23 +50,23 @@ class BratsExtractor(SourceExtractor):
     def _load_items(self, path):
         items = {}
 
-        for image in glob.glob(osp.join(path, '*.nii.gz')):
-            data = nib.load(image).get_fdata()
+        for image_path in glob.glob(osp.join(path, f'*{BratsPath.DATA_EXT}')):
+            data = nib.load(image_path).get_fdata()
 
-            item_id = osp.splitext(osp.splitext(osp.basename(image))[0])[0]
+            item_id = osp.basename(image_path)[: - len(BratsPath.DATA_EXT)]
 
             images = [0] * data.shape[2]
             for i in range(data.shape[2]):
                 images[i] = data[:,:,i]
 
             items[item_id] = DatasetItem(id=item_id, subset=self._subset,
-                media=PointCloud(image, images))
+                media=MultiframeImage(images, image_path))
 
         masks_dir = osp.join(self._root_dir, BratsPath.LABELS + self._subset_suffix)
-        for mask in glob.glob(osp.join(masks_dir, '*.nii.gz')):
+        for mask in glob.glob(osp.join(masks_dir, f'*{BratsPath.DATA_EXT}')):
             data = nib.load(mask).get_fdata()
 
-            item_id = osp.splitext(osp.splitext(osp.basename(image))[0])[0]
+            item_id = osp.basename(image_path)[: - len(BratsPath.DATA_EXT)]
 
             if item_id not in items:
                 items[item_id] = DatasetItem(id=item_id)
@@ -89,7 +90,7 @@ class BratsImporter(Importer):
     def detect(cls, context: FormatDetectionContext) -> None:
         with context.require_any():
             with context.alternative():
-                context.require_file('*/*.nii.gz')
+                context.require_file(f'*/*{BratsPath.DATA_EXT}')
 
     @classmethod
     def find_sources(cls, path):

@@ -11,7 +11,7 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.components.format_detection import FormatDetectionContext
-from datumaro.components.media import PointCloud
+from datumaro.components.media import MultiframeImage
 from datumaro.util.pickle_util import PickleLoader
 
 
@@ -58,20 +58,20 @@ class BratsNumpyExtractor(SourceExtractor):
                 boxes = PickleLoader.restricted_load(f)
 
         for i, item_id in enumerate(ids):
-            data_file = osp.join(self._root_dir, item_id + BratsNumpyPath.DATA_SUFFIX + '.npy')
+            image_path = osp.join(self._root_dir, item_id + BratsNumpyPath.DATA_SUFFIX + '.npy')
             media = None
-            if osp.isfile(data_file):
-                data = np.load(data_file)[0].transpose()
+            if osp.isfile(image_path):
+                data = np.load(image_path)[0].transpose()
                 images = [0] * data.shape[2]
                 for j in range(data.shape[2]):
                     images[j] = data[:,:,i]
 
-                media = PointCloud(data_file, images)
+                media = MultiframeImage(images, image_path)
 
             anno = []
-            label_file = osp.join(self._root_dir, item_id + BratsNumpyPath.LABEL_SUFFIX + '.npy')
-            if osp.isfile(label_file):
-                mask = np.load(label_file)[0].transpose()
+            mask_path = osp.join(self._root_dir, item_id + BratsNumpyPath.LABEL_SUFFIX + '.npy')
+            if osp.isfile(mask_path):
+                mask = np.load(mask_path)[0].transpose()
                 classes = np.unique(mask)
 
                 for class_id in classes:

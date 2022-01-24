@@ -148,10 +148,15 @@ def compare_datasets(test, expected: IDataset, actual: IDataset,
         elif not ignored_attrs:
             test.assertEqual(item_a.attributes, item_b.attributes, item_a.id)
 
-        if (require_images and item_a.has_image and item_a.image.has_data) or \
-                item_a.has_image and item_a.image.has_data and \
-                item_b.has_image and item_b.image.has_data:
-            test.assertEqual(item_a.image, item_b.image, item_a.id)
+        if require_images:
+            if (item_a.has_image and item_a.image.has_data) or \
+                    item_a.has_image and item_a.image.has_data and \
+                    item_b.has_image and item_b.image.has_data:
+                test.assertEqual(item_a.image, item_b.image, item_a.id)
+
+            elif item_a.media and item_b.media:
+                test.assertEqual(item_a.media.data, item_b.media.data, item_a.id)
+
         test.assertEqual(len(item_a.annotations), len(item_b.annotations),
             item_a.id)
         for ann_a in item_a.annotations:
