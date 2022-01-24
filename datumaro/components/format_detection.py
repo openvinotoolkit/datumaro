@@ -62,11 +62,7 @@ class FormatRequirementsUnmet(Exception):
         assert failed_alternatives
         self.failed_alternatives = tuple(failed_alternatives)
 
-    def generate_message(self) -> Sequence[str]:
-        """
-        Generate a human-readable description of the exception as a sequence
-        of text lines.
-        """
+    def __str__(self) -> str:
         lines = []
 
         if len(self.failed_alternatives) > 1:
@@ -76,7 +72,7 @@ class FormatRequirementsUnmet(Exception):
 
         lines.extend('  ' + req for req in self.failed_alternatives)
 
-        return lines
+        return '\n'.join(lines)
 
 class FormatDetectionContext:
     """
@@ -357,7 +353,7 @@ class RejectionReason(Enum):
 
 class RejectionCallback(Protocol):
     def __call__(self,
-        format_name: str, reason: RejectionReason, human_message: Sequence[str],
+        format_name: str, reason: RejectionReason, human_message: str,
     ) -> Any:
         ...
 
@@ -388,10 +384,9 @@ def detect_dataset_format(
     ):
         if rejection_callback:
             rejection_callback(
-                format_name, RejectionReason.insufficient_confidence, [
-                    f"Another format ({format_with_more_confidence}) "
-                        "was matched with more confidence",
-                ]
+                format_name, RejectionReason.insufficient_confidence,
+                f"Another format ({format_with_more_confidence}) "
+                    "was matched with more confidence",
             )
 
     max_confidence = 0
@@ -402,13 +397,12 @@ def detect_dataset_format(
         try:
             new_confidence = apply_format_detector(path, detector)
         except FormatRequirementsUnmet as cf:
-            human_message = cf.generate_message()
+            human_message = str(cf)
             if rejection_callback:
                 rejection_callback(
                     format_name, RejectionReason.unmet_requirements,
                     human_message)
-            for line in human_message:
-                log.debug(line)
+            log.debug(human_message)
         else:
             log.debug("Format matched with confidence %d", new_confidence)
 

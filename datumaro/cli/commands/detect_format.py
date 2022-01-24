@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MIT
 
-from typing import Sequence
 import argparse
 import json
 
@@ -74,7 +73,7 @@ def detect_format_command(args):
     report = {'rejected_formats': {}}
 
     def rejection_callback(
-        format_name: str, reason: RejectionReason, human_message: Sequence[str],
+        format_name: str, reason: RejectionReason, human_message: str,
     ):
         report['rejected_formats'][format_name] = {
             'reason': reason.name,
@@ -109,7 +108,7 @@ def detect_format_command(args):
                 report['rejected_formats'].items()
             ):
                 print(f"{format_name}:")
-                for line in rejection['message']:
+                for line in rejection['message'].split('\n'):
                     print(f"  {line}")
         else:
             print("No formats were rejected.")

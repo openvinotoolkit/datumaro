@@ -98,10 +98,8 @@ class DetectFormatTest(TestCase):
         self.assertIn('reason', ade20k2020_rejection)
         self.assertEqual(ade20k2020_rejection['reason'], 'unmet_requirements')
         self.assertIn('message', ade20k2020_rejection)
-        self.assertIsInstance(ade20k2020_rejection['message'], list)
-
-        self.assertTrue(any(
-            '*/**/*.json' in line for line in ade20k2020_rejection['message']))
+        self.assertIsInstance(ade20k2020_rejection['message'], str)
+        self.assertTrue('*/**/*.json' in ade20k2020_rejection['message'])
 
         self.assertIn('image_dir', report['rejected_formats'])
         image_dir_rejection = report['rejected_formats']['image_dir']
@@ -110,4 +108,4 @@ class DetectFormatTest(TestCase):
         self.assertEqual(image_dir_rejection['reason'],
             'insufficient_confidence')
         self.assertIn('message', image_dir_rejection)
-        self.assertIsInstance(image_dir_rejection['message'], list)
+        self.assertIsInstance(image_dir_rejection['message'], str)
