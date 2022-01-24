@@ -2,7 +2,8 @@ from unittest import TestCase
 import os.path as osp
 
 from datumaro.components.format_detection import (
-    FormatDetectionConfidence, FormatRequirementsUnmet, apply_format_detector,
+    FormatDetectionConfidence, FormatRequirementsUnmet, RejectionReason,
+    apply_format_detector, detect_dataset_format,
 )
 from datumaro.util.test_utils import TestDir
 
@@ -15,6 +16,7 @@ class FormatDetectionTest(TestCase):
         self._dataset_root = test_dir_context.__enter__()
         self.addCleanup(test_dir_context.__exit__, None, None, None)
 
+class ApplyFormatDetectorTest(FormatDetectionTest):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_empty_detector(self):
         result = apply_format_detector(self._dataset_root, lambda c: None)
@@ -199,3 +201,50 @@ class FormatDetectionTest(TestCase):
 
         self.assertEqual(result.exception.failed_alternatives,
             ('bad alternative 1', 'bad alternative 2'))
+
+class DetectDatasetFormat(FormatDetectionTest):
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_no_input_formats(self):
+        detected_datasets = detect_dataset_format((), self._dataset_root)
+        self.assertEqual(detected_datasets, [])
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_general_case(self):
+        formats = [
+            # aaa should be rejected after bbb is checked
+            ("aaa", lambda context: FormatDetectionConfidence.LOW),
+            ("bbb", lambda context: None),
+            ("ccc", lambda context: context.fail("test unmet requirement")),
+            # ddd should be rejected immediately
+            ("ddd", lambda context: FormatDetectionConfidence.LOW),
+            ("eee", lambda context: None),
+        ]
+
+        rejected_formats = {}
+
+        def rejection_callback(format, reason, message):
+            rejected_formats[format] = (reason, message)
+
+        detected_datasets = detect_dataset_format(formats, self._dataset_root,
+            rejection_callback=rejection_callback)
+
+        self.assertEqual(set(detected_datasets), {"bbb", "eee"})
+
+        self.assertEqual(rejected_formats.keys(), {"aaa", "ccc", "ddd"})
+        for name in ("aaa", "ddd"):
+            self.assertEqual(rejected_formats[name][0],
+                RejectionReason.insufficient_confidence)
+
+        self.assertEqual(rejected_formats["ccc"][0],
+            RejectionReason.unmet_requirements)
+        self.assertIn("test unmet requirement", rejected_formats["ccc"][1])
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_no_callback(self):
+        formats = [
+            ("bbb", lambda context: None),
+            ("ccc", lambda context: context.fail("test unmet requirement")),
+        ]
+
+        detected_datasets = detect_dataset_format(formats, self._dataset_root)
+        self.assertEqual(detected_datasets, ["bbb"])
