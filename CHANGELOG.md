@@ -23,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/584>)
 - MARS format (import-only)
   (<https://github.com/openvinotoolkit/datumaro/pull/585>)
-- BraTS format (import-only) (.npy and .nii)
+- BraTS format (import-only) (.npy and .nii.gz)
   (<https://github.com/openvinotoolkit/datumaro/pull/628>)
 
 ### Changed
