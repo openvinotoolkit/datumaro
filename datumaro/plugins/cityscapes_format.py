@@ -302,7 +302,8 @@ class CityscapesImporter(Importer):
     def build_cmdline_parser(cls, **kwargs):
         parser = super().build_cmdline_parser(**kwargs)
         parser.add_argument('--load-color-masks', action='store_true',
-            help="Load color masks (default: %(default)s)")
+            help="Load colored masks instead of instance " \
+                "(default: %(default)s)")
         parser.add_argument('--use-train-label-map', action='store_true',
             help="Use train label map (default: %(default)s)")
         return parser
