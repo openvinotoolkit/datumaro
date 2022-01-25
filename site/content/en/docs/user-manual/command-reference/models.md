@@ -1,8 +1,7 @@
 ---
 title: 'Models'
-linkTitle: 'Models'
+linkTitle: 'model (context)'
 description: ''
-weight: 22
 ---
 
 ### Register model <a id="model-add"></a>
