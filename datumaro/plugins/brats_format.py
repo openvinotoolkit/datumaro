@@ -60,7 +60,7 @@ class BratsExtractor(SourceExtractor):
                 images[i] = data[:,:,i]
 
             items[item_id] = DatasetItem(id=item_id, subset=self._subset,
-                media=MultiframeImage(images, image_path))
+                media=MultiframeImage(images, path=image_path))
 
         masks_dir = osp.join(self._root_dir, BratsPath.LABELS + self._subset_suffix)
         for mask in glob.glob(osp.join(masks_dir, f'*{BratsPath.DATA_EXT}')):

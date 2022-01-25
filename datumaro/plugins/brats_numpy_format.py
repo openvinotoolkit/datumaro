@@ -66,7 +66,7 @@ class BratsNumpyExtractor(SourceExtractor):
                 for j in range(data.shape[2]):
                     images[j] = data[:,:,i]
 
-                media = MultiframeImage(images, image_path)
+                media = MultiframeImage(images, path=image_path)
 
             anno = []
             mask_path = osp.join(self._root_dir, item_id + BratsNumpyPath.LABEL_SUFFIX + '.npy')
