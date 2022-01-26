@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2021 Intel Corporation
+# Copyright (C) 2020-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -13,9 +13,7 @@ import logging as log
 import os.path as osp
 
 from datumaro.components.cli_plugin import CliPlugin, plugin_types
-from datumaro.components.format_detection import (
-    FormatRequirementsUnmet, apply_format_detector,
-)
+from datumaro.components.format_detection import detect_dataset_format
 from datumaro.util.os_util import import_foreign_module, split_path
 
 T = TypeVar('T')
@@ -231,34 +229,9 @@ class Environment:
     def is_format_known(self, name):
         return name in self.importers or name in self.extractors
 
-    def detect_dataset(self, path) -> List[str]:
-        max_confidence = 0
-        matches = []
-
-        if not osp.exists(path):
-            raise FileNotFoundError(f"Path {path} doesn't exist")
-
-        for format_name, importer in self.importers.items.items():
-            log.debug("Checking '%s' format...", format_name)
-            try:
-                new_confidence = apply_format_detector(path, importer.detect)
-            except FormatRequirementsUnmet as cf:
-                log.debug("Format did not match")
-                if len(cf.failed_alternatives) > 1:
-                    log.debug("None of the following requirements were met:")
-                else:
-                    log.debug("The following requirement was not met:")
-
-                for req in cf.failed_alternatives:
-                    log.debug("  %s", req)
-            else:
-                log.debug("Format matched with confidence %d", new_confidence)
-
-                # keep only matches with the highest confidence
-                if new_confidence > max_confidence:
-                    matches = [format_name]
-                    max_confidence = new_confidence
-                elif new_confidence == max_confidence:
-                    matches.append(format_name)
-
-        return matches
+    def detect_dataset(self, path):
+        return detect_dataset_format(
+            ((format_name, importer.detect)
+                for format_name, importer in self.importers.items.items()),
+            path,
+        )
