@@ -48,9 +48,7 @@ def transform(dataset: IDataset, method: Union[str, Type[Transform]], *,
             env = Environment()
         method = env.transforms[method]
 
-    if inspect.isclass(method) and issubclass(method, Transform):
-        pass
-    else:
+    if not (inspect.isclass(method) and issubclass(method, Transform)):
         raise TypeError("Unexpected 'method' argument type: %s" % \
             type(method))
 
@@ -104,7 +102,8 @@ def merge(*datasets: IDataset) -> IDataset:
     return DatasetItemStorageDatasetView(ExactMerge.merge(*datasets),
         categories=categories)
 
-def run_model(dataset: IDataset, model: Union[Launcher, ModelTransform], *,
+def run_model(dataset: IDataset,
+        model: Union[Launcher, Type[ModelTransform]], *,
         batch_size: int = 1, **kwargs) -> IDataset:
     """
     Applies a model to dataset items' media and produces a dataset with
@@ -124,7 +123,7 @@ def run_model(dataset: IDataset, model: Union[Launcher, ModelTransform], *,
     if isinstance(model, Launcher):
         return transform(dataset, ModelTransform, launcher=model,
             batch_size=batch_size, **kwargs)
-    elif isinstance(model, ModelTransform):
+    elif inspect.isclass(model) and issubclass(model, ModelTransform):
         return transform(dataset, model,
             batch_size=batch_size, **kwargs)
     else:
@@ -154,9 +153,7 @@ def export(dataset: IDataset, path: str,
     else:
         converter = format
 
-    if inspect.isclass(converter) and issubclass(converter, Converter):
-        pass
-    else:
+    if not (inspect.isclass(converter) and issubclass(converter, Converter)):
         raise TypeError("Unexpected 'format' argument type: %s" % \
             type(converter))
 

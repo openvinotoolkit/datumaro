@@ -779,9 +779,7 @@ class Dataset(IDataset):
         if isinstance(method, str):
             method = self.env.transforms[method]
 
-        if inspect.isclass(method) and issubclass(method, Transform):
-            pass
-        else:
+        if not (inspect.isclass(method) and issubclass(method, Transform)):
             raise TypeError("Unexpected 'method' argument type: %s" % \
                 type(method))
 
@@ -791,8 +789,8 @@ class Dataset(IDataset):
 
         return self
 
-    def run_model(self, model: Union[Launcher, ModelTransform],
-            batch_size: int = 1) -> Dataset:
+    def run_model(self, model: Union[Launcher, Type[ModelTransform]], *,
+            batch_size: int = 1, **kwargs) -> Dataset:
         """
         Applies a model to dataset items' media and produces a dataset with
         media and annotations.
@@ -808,9 +806,9 @@ class Dataset(IDataset):
 
         if isinstance(model, Launcher):
             return self.transform(ModelTransform, launcher=model,
-                batch_size=batch_size)
-        elif isinstance(model, ModelTransform):
-            return self.transform(model, batch_size=batch_size)
+                batch_size=batch_size, **kwargs)
+        elif inspect.isclass(model) and isinstance(model, ModelTransform):
+            return self.transform(model, batch_size=batch_size, **kwargs)
         else:
             raise TypeError("Unexpected 'model' argument type: %s" % \
                 type(model))
@@ -902,9 +900,7 @@ class Dataset(IDataset):
         else:
             converter = format
 
-        if inspect.isclass(converter) and issubclass(converter, Converter):
-            pass
-        else:
+        if not (inspect.isclass(converter) and issubclass(converter, Converter)):
             raise TypeError("Unexpected 'format' argument type: %s" % \
                 type(converter))
 
