@@ -116,32 +116,32 @@ class CityscapesImportTest(TestCase):
                 subset='test',
                 image=np.ones((1, 5, 3)),
                 annotations=[
-                    Mask(np.array([[1, 1, 0, 0, 0]]), label=0),
-                    Mask(np.array([[0, 0, 1, 1, 1]]), label=15),
+                    Mask(np.array([[1, 1, 0, 0, 0]]), label=19),
+                    Mask(np.array([[0, 0, 1, 1, 1]]), label=14),
                 ]
             ),
             DatasetItem(id='defaultcity/defaultcity_000001_000032',
                 subset='test',
                 image=np.ones((1, 5, 3)),
                 annotations=[
-                    Mask(np.array([[1, 1, 0, 0, 0]]), label=17),
-                    Mask(np.array([[0, 0, 1, 0, 0]]), label=4),
-                    Mask(np.array([[0, 0, 0, 1, 1]]), label=0),
+                    Mask(np.array([[1, 1, 0, 0, 0]]), label=16),
+                    Mask(np.array([[0, 0, 1, 0, 0]]), label=3),
+                    Mask(np.array([[0, 0, 0, 1, 1]]), label=19),
                 ]
             ),
             DatasetItem(id='defaultcity/defaultcity_000002_000045',
                 subset='train',
                 image=np.ones((1, 5, 3)),
                 annotations=[
-                    Mask(np.array([[1, 1, 0, 1, 1]]), label=0),
-                    Mask(np.array([[0, 0, 1, 0, 0]]), label=12),
+                    Mask(np.array([[1, 1, 0, 1, 1]]), label=19),
+                    Mask(np.array([[0, 0, 1, 0, 0]]), label=11),
                 ]
             ),
             DatasetItem(id='defaultcity/defaultcity_000001_000019',
                 subset = 'val',
                 image=np.ones((1, 5, 3)),
                 annotations=[
-                    Mask(np.array([[1, 1, 1, 1, 1]]), label=0),
+                    Mask(np.array([[1, 1, 1, 1, 1]]), label=19),
                 ]
             ),
         ], categories=Cityscapes.make_cityscapes_categories(use_train_label_map=True))

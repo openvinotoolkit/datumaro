@@ -25,7 +25,6 @@ from datumaro.util.meta_file_util import (
 )
 
 TRAIN_CITYSCAPES_LABEL_MAP = OrderedDict([
-    ('background', (0, 0, 0)),
     ('road', (128, 64, 128)),
     ('sidewalk', (244, 35, 232)),
     ('building', (70, 70, 70)),
@@ -45,6 +44,7 @@ TRAIN_CITYSCAPES_LABEL_MAP = OrderedDict([
     ('train', (0, 80, 100)),
     ('motorcycle', (0, 0, 230)),
     ('bicycle', (119, 11, 32)),
+    ('background', (0, 0, 0)),
 ])
 
 CITYSCAPES_LABEl_MAP = OrderedDict([
@@ -107,15 +107,13 @@ def make_cityscapes_categories(label_map=None, use_train_label_map=False):
 
     # There must always be a label with color (0, 0, 0) at index 0
     bg_label = find(label_map.items(), lambda x: x[1] == (0, 0, 0))
-    if bg_label is not None:
-        bg_label = bg_label[0]
-    else:
+    if bg_label is None:
         bg_label = 'background'
         if bg_label not in label_map:
             has_colors = any(v is not None for v in label_map.values())
             color = (0, 0, 0) if has_colors else None
             label_map[bg_label] = color
-    label_map.move_to_end(bg_label, last=False)
+        label_map.move_to_end(bg_label, last=False)
 
     categories = {}
     label_categories = LabelCategories()
