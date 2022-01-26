@@ -26,7 +26,7 @@ from datumaro.components.extractor import (
 from datumaro.components.launcher import Launcher
 from datumaro.components.media import Image
 from datumaro.util.test_utils import TestDir, compare_datasets
-import datumaro.components.hl_ops as hlops
+import datumaro.components.hl_ops as hl_ops
 
 from .requirements import Requirements, mark_requirement
 
@@ -1584,7 +1584,7 @@ class TestHLOps(TestCase):
             DatasetItem(10, subset='train')
         ], categories=['cat', 'dog'])
 
-        actual = hlops.transform(dataset, 'reindex', start=0)
+        actual = hl_ops.transform(dataset, 'reindex', start=0)
 
         compare_datasets(self, expected, actual)
 
@@ -1598,7 +1598,7 @@ class TestHLOps(TestCase):
             DatasetItem(1, subset='train')
         ], categories=['cat', 'dog'])
 
-        actual = hlops.filter(dataset, '/item[id=0]')
+        actual = hl_ops.filter(dataset, '/item[id=0]')
 
         compare_datasets(self, expected, actual)
 
@@ -1617,7 +1617,7 @@ class TestHLOps(TestCase):
             DatasetItem(1, subset='train')
         ], categories=['cat', 'dog'])
 
-        actual = hlops.filter(dataset, '/item/annotation[id=1]',
+        actual = hl_ops.filter(dataset, '/item/annotation[id=1]',
             filter_annotations=True, remove_empty=True)
 
         compare_datasets(self, expected, actual)
@@ -1636,7 +1636,7 @@ class TestHLOps(TestCase):
             DatasetItem(1, subset='train')
         ], categories=['cat', 'dog'])
 
-        actual = hlops.merge(dataset_a, dataset_b)
+        actual = hl_ops.merge(dataset_a, dataset_b)
 
         compare_datasets(self, expected, actual)
 
@@ -1652,13 +1652,13 @@ class TestHLOps(TestCase):
         ], categories=['cat', 'dog'])
 
         with TestDir() as test_dir:
-            hlops.export(dataset, test_dir, 'datumaro')
+            hl_ops.export(dataset, test_dir, 'datumaro')
             actual = Dataset.load(test_dir)
 
             compare_datasets(self, expected, actual)
 
     def test_can_detect(self):
         self.assertEqual('coco',
-            hlops.detect(osp.join(osp.dirname(__file__),
+            hl_ops.detect(osp.join(osp.dirname(__file__),
                 'assets', 'coco_dataset', 'coco'))
         )

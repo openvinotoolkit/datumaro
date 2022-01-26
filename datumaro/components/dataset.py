@@ -17,6 +17,7 @@ import os
 import os.path as osp
 
 from datumaro.components.annotation import AnnotationType, LabelCategories
+from datumaro.components.converter import Converter
 from datumaro.components.dataset_filter import (
     XPathAnnotationsFilter, XPathDatasetFilter,
 )
@@ -30,6 +31,7 @@ from datumaro.components.extractor import (
     DEFAULT_SUBSET_NAME, CategoriesInfo, DatasetItem, Extractor, IExtractor,
     ItemTransform, Transform,
 )
+from datumaro.components.launcher import Launcher, ModelTransform
 from datumaro.plugins.transforms import ProjectLabels
 from datumaro.util import is_method_redefined
 from datumaro.util.log_utils import logging_disabled
@@ -714,21 +716,21 @@ class Dataset(IDataset):
     def filter(self, expr: str, filter_annotations: bool = False,
             remove_empty: bool = False) -> Dataset:
         """
-        Filters-out some dataset items or annotations, using a custom filter
+        Filters out some dataset items or annotations, using a custom filter
         expression.
 
         Results are stored in-place. Modifications are applied lazily.
 
         Args:
-            expr (str) - XPath-formatted filter expression
-                (e.g. "/item[subset = 'train']",
-                "/item/annotation[label = 'cat']")
-            filter_annotations (bool) - Indicates if the filter should be
+            expr - XPath-formatted filter expression
+                (e.g. `/item[subset = 'train']`,
+                `/item/annotation[label = 'cat']`)
+            filter_annotations - Indicates if the filter should be
                 applied to items or annotations
-            remove_empty (bool) - When filtering annotations, allows to
+            remove_empty - When filtering annotations, allows to
                 exclude empty items from the resulting dataset
 
-        Returns: a lazy-computible wrapper around the input dataset
+        Returns: self
         """
 
         if filter_annotations:
@@ -738,8 +740,8 @@ class Dataset(IDataset):
             return self.transform(XPathDatasetFilter, xpath=expr)
 
     def update(self,
-            source: Union[DatasetPatch, IExtractor, Iterable[DatasetItem]]) \
-                -> Dataset:
+            source: Union[DatasetPatch, IExtractor, Iterable[DatasetItem]]
+    ) -> Dataset:
         """
         Updates items of the current dataset from another dataset or an
         iterable (the source). Items from the source overwrite matching
@@ -766,11 +768,10 @@ class Dataset(IDataset):
         Results are stored in-place. Modifications are applied lazily.
 
         Args:
-            method (str or Transform) - The transformation function to be
-                applied to the dataset. If a string is passed, it is treated
-                as a plugin name, which is searched for in
-                the dataset environment
-            **kwargs - Optional parameters for the transformation
+            method - The transformation to be applied to the dataset.
+                If a string is passed, it is treated as a plugin name,
+                which is searched for in the dataset environment
+            **kwargs - Parameters for the transformation
 
         Returns: self
         """
@@ -790,22 +791,21 @@ class Dataset(IDataset):
 
         return self
 
-    def run_model(self, model, batch_size=1) -> Dataset:
+    def run_model(self, model: Union[Launcher, ModelTransform],
+            batch_size: int = 1) -> Dataset:
         """
         Applies a model to dataset items' media and produces a dataset with
         media and annotations.
 
         Args:
-            model (Launcher or Modeltransform) - The model to be
-                applied to the dataset.
-            batch_size (int) - The number of dataset items, processed
+            model - The model to be applied to the dataset
+            batch_size - The number of dataset items processed
                 simultaneously by the model
-            **kwargs - Optional parameters for the model
+            **kwargs - Parameters for the model
 
         Returns: self
         """
 
-        from datumaro.components.launcher import Launcher, ModelTransform
         if isinstance(model, Launcher):
             return self.transform(ModelTransform, launcher=model,
                 batch_size=batch_size)
@@ -879,16 +879,17 @@ class Dataset(IDataset):
         self._data.flush_changes()
 
     @scoped
-    def export(self, save_dir: str, format: Union[str, Type[Extractor]],
+    def export(self, save_dir: str, format: Union[str, Type[Converter]],
             **kwargs) -> None:
         """
-        Saves the input dataset in some format.
+        Saves the dataset in some format.
 
         Args:
-            format (str or Converter) - The desired output format.
+            save_dir - The output directory
+            format - The desired output format.
                 If a string is passed, it is treated as a plugin name,
                 which is searched for in the dataset environment.
-            **kwargs - Optional parameters for the export format
+            **kwargs - Parameters for the export format
         """
 
         if not save_dir:
@@ -900,6 +901,12 @@ class Dataset(IDataset):
             converter = self.env.converters[format]
         else:
             converter = format
+
+        if inspect.isclass(converter) and issubclass(converter, Converter):
+            pass
+        else:
+            raise TypeError("Unexpected 'format' argument type: %s" % \
+                type(converter))
 
         save_dir = osp.abspath(save_dir)
         if not osp.exists(save_dir):
@@ -968,11 +975,14 @@ class Dataset(IDataset):
         """
         Attempts to detect dataset format of a given directory.
 
+        This function tries to detect a single format and fails if it's not
+        possible. Check Environment.detect_dataset() for a function that
+        reports status for each format checked.
+
         Args:
-            path (str) - The directory to check
-            depth (int) - The maximum depth for recursive search
-            env (Environment) - A plugin collection. If not set, the default one
-                is used
+            path - The directory to check
+            depth - The maximum depth for recursive search
+            env - A plugin collection. If not set, the built-in plugins are used
         """
 
         if env is None:
