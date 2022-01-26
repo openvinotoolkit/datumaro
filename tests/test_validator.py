@@ -9,6 +9,7 @@ import numpy as np
 
 from datumaro.components.annotation import Bbox, Label, Mask, Polygon
 from datumaro.components.dataset import Dataset, DatasetItem
+from datumaro.components.environment import Environment
 from datumaro.components.errors import (
     AttributeDefinedButNotFound, FarFromAttrMean, FarFromLabelMean,
     FewSamplesInAttribute, FewSamplesInLabel, ImbalancedAttribute,
@@ -26,7 +27,7 @@ from datumaro.plugins.validators import (
 from .requirements import Requirements, mark_requirement
 
 
-class TestValidatorTemplate(TestCase):
+class _TestValidatorBase(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.dataset = Dataset.from_iterable([
@@ -115,12 +116,17 @@ class TestValidatorTemplate(TestCase):
             for i in range(2)])
 
 
-class TestBaseValidator(TestValidatorTemplate):
+class TestBaseValidator(_TestValidatorBase):
     @classmethod
     def setUpClass(cls):
         cls.validator = _TaskValidator(task_type=TaskType.classification,
             few_samples_thr=1, imbalance_ratio_thr=50, far_from_mean_thr=5.0,
             dominance_ratio_thr=0.8, topk_bins=0.1)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_has_enum_entries_in_environment(self):
+        for key in TaskType._member_names_:
+            self.assertTrue(key in Environment().validators.items, key)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_generate_reports(self):
@@ -367,7 +373,7 @@ class TestBaseValidator(TestValidatorTemplate):
             self.assertTrue(len(actual_reports) == 0)
 
 
-class TestClassificationValidator(TestValidatorTemplate):
+class TestClassificationValidator(_TestValidatorBase):
     @classmethod
     def setUpClass(cls):
         cls.validator = ClassificationValidator(few_samples_thr=1,
@@ -397,7 +403,7 @@ class TestClassificationValidator(TestValidatorTemplate):
         self.assertIsInstance(actual_reports[0], MultiLabelAnnotations)
 
 
-class TestDetectionValidator(TestValidatorTemplate):
+class TestDetectionValidator(_TestValidatorBase):
     @classmethod
     def setUpClass(cls):
         cls.validator = DetectionValidator(few_samples_thr=1,
@@ -564,7 +570,7 @@ class TestDetectionValidator(TestValidatorTemplate):
         self.assertIsInstance(actual_reports[0], FarFromAttrMean)
 
 
-class TestSegmentationValidator(TestValidatorTemplate):
+class TestSegmentationValidator(_TestValidatorBase):
     @classmethod
     def setUpClass(cls):
         cls.validator = SegmentationValidator(few_samples_thr=1,
@@ -714,7 +720,7 @@ class TestSegmentationValidator(TestValidatorTemplate):
         self.assertIsInstance(actual_reports[0], FarFromAttrMean)
 
 
-class TestValidateAnnotations(TestValidatorTemplate):
+class TestValidateAnnotations(_TestValidatorBase):
 
     extra_args = {
             'few_samples_thr': 1,

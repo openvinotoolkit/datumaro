@@ -178,7 +178,7 @@ def validate(dataset: IDataset, task: Union[str, TaskType], *,
     Returns: a dictionary with validation results
     """
 
-    task = parse_str_enum_value(task, TaskType).name.lower()
+    task = parse_str_enum_value(task, TaskType).name
 
     if env is None:
         env = Environment()
