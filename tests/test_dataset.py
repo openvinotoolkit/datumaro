@@ -1656,9 +1656,3 @@ class TestHLOps(TestCase):
             actual = Dataset.load(test_dir)
 
             compare_datasets(self, expected, actual)
-
-    def test_can_detect(self):
-        self.assertEqual('coco',
-            hl_ops.detect(osp.join(osp.dirname(__file__),
-                'assets', 'coco_dataset', 'coco'))
-        )
