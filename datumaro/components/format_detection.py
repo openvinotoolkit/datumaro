@@ -2,15 +2,18 @@
 #
 # SPDX-License-Identifier: MIT
 
-from enum import IntEnum
+from enum import Enum, IntEnum, auto
 from typing import (
-    Callable, Collection, Iterator, List, NoReturn, Optional, Sequence, TextIO,
-    Union,
+    Any, Callable, Collection, Iterable, Iterator, List, NoReturn, Optional,
+    Sequence, TextIO, Tuple, Union,
 )
 import contextlib
 import fnmatch
 import glob
+import logging as log
 import os.path as osp
+
+from typing_extensions import Protocol
 
 
 class FormatDetectionConfidence(IntEnum):
@@ -58,6 +61,18 @@ class FormatRequirementsUnmet(Exception):
     def __init__(self, failed_alternatives: Sequence[str]) -> None:
         assert failed_alternatives
         self.failed_alternatives = tuple(failed_alternatives)
+
+    def __str__(self) -> str:
+        lines = []
+
+        if len(self.failed_alternatives) > 1:
+            lines.append("None of the following requirements were met:")
+        else:
+            lines.append("The following requirement was not met:")
+
+        lines.extend('  ' + req for req in self.failed_alternatives)
+
+        return '\n'.join(lines)
 
 class FormatDetectionContext:
     """
@@ -331,3 +346,86 @@ def apply_format_detector(
         context.fail(f"root path {dataset_root_path} must refer to a directory")
 
     return detector(context) or FormatDetectionConfidence.MEDIUM
+
+class RejectionReason(Enum):
+    unmet_requirements = auto()
+    insufficient_confidence = auto()
+
+class RejectionCallback(Protocol):
+    def __call__(self,
+        format_name: str, reason: RejectionReason, human_message: str,
+    ) -> Any:
+        ...
+
+def detect_dataset_format(
+    formats: Iterable[Tuple[str, FormatDetector]],
+    path: str,
+    *,
+    rejection_callback: Optional[RejectionCallback] = None,
+) -> Sequence[str]:
+    """
+    Determines which format(s) the dataset at the specified path belongs to.
+
+    The function applies each supplied detector to the given patch and decides
+    whether the corresponding format is detected or rejected. A format may be
+    rejected if the detector fails or if it succeeds with less confidence than
+    another detector (other rejection reasons might be added in the future).
+
+    Args:
+        `formats` - The formats to be considered. Each element of the
+            iterable must be a tuple of a format name and a `FormatDetector`
+            instance.
+
+        `path` - the filesystem path to the dataset to be analyzed.
+
+        `rejection_callback` - Unless `None`, called for every rejected format
+            to report the reason it was rejected.
+
+    Returns: a sequence of detected format names.
+    """
+
+    if not osp.exists(path):
+        raise FileNotFoundError(f"Path {path} doesn't exist")
+
+    def report_insufficient_confidence(
+        format_name: str,
+        format_with_more_confidence: str,
+    ):
+        if rejection_callback:
+            rejection_callback(
+                format_name, RejectionReason.insufficient_confidence,
+                f"Another format ({format_with_more_confidence}) "
+                    "was matched with more confidence",
+            )
+
+    max_confidence = 0
+    matches = []
+
+    for format_name, detector in formats:
+        log.debug("Checking '%s' format...", format_name)
+        try:
+            new_confidence = apply_format_detector(path, detector)
+        except FormatRequirementsUnmet as ex:
+            human_message = str(ex)
+            if rejection_callback:
+                rejection_callback(
+                    format_name, RejectionReason.unmet_requirements,
+                    human_message)
+            log.debug(human_message)
+        else:
+            log.debug("Format matched with confidence %d", new_confidence)
+
+            # keep only matches with the highest confidence
+            if new_confidence > max_confidence:
+                for match in matches:
+                    report_insufficient_confidence(match, format_name)
+
+                matches = [format_name]
+                max_confidence = new_confidence
+            elif new_confidence == max_confidence:
+                matches.append(format_name)
+            else: # new confidence is less than max
+                report_insufficient_confidence(format_name, matches[0])
+
+
+    return matches
