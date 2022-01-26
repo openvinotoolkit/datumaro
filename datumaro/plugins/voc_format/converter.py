@@ -586,7 +586,7 @@ class VocConverter(Converter):
                 has_colors = any(v[0] is not None for v in label_map.values())
                 color = (0, 0, 0) if has_colors else None
                 label_map[bg_label] = [color, [], []]
-            label_map.move_to_end(bg_label, last=False)
+        label_map.move_to_end(bg_label, last=False)
 
         self._categories = make_voc_categories(label_map)
 
