@@ -4,7 +4,7 @@
 
 from collections import OrderedDict
 from copy import deepcopy
-from typing import Callable, Dict, Optional, Set, Tuple
+from typing import Callable, Dict, Iterable, List, Optional, Set, Tuple
 from unittest import TestCase
 import hashlib
 import logging as log
@@ -15,17 +15,19 @@ import cv2
 import numpy as np
 
 from datumaro.components.annotation import (
-    AnnotationType, Bbox, Label, LabelCategories, MaskCategories,
+    Annotation, AnnotationType, Bbox, Label, LabelCategories, MaskCategories,
     PointsCategories,
 )
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.dataset import Dataset, DatasetItemStorage, IDataset
 from datumaro.components.errors import (
     AnnotationsTooCloseError, ConflictingCategoriesError, DatasetMergeError,
-    FailedAttrVotingError, FailedLabelVotingError, MismatchingImageInfoError,
-    NoMatchingAnnError, NoMatchingItemError, WrongGroupError,
+    FailedAttrVotingError, FailedLabelVotingError, MismatchingAttributesError,
+    MismatchingImageInfoError, MismatchingImagePathError, NoMatchingAnnError,
+    NoMatchingItemError, WrongGroupError,
 )
 from datumaro.components.extractor import CategoriesInfo, DatasetItem
+from datumaro.components.media import Image
 from datumaro.util import filter_dict, find
 from datumaro.util.annotation_util import (
     OKS, approximate_line, bbox_iou, find_instances, max_bbox, mean_bbox,
@@ -106,40 +108,95 @@ class ExactMerge:
     def merge_items(cls, existing_item, current_item):
         return existing_item.wrap(
             image=cls.merge_images(existing_item, current_item),
+            attributes=cls.merge_attrs(
+                existing_item.attributes, current_item.attributes,
+                item_id=(existing_item.id, existing_item.subset)),
             annotations=cls.merge_anno(
                 existing_item.annotations, current_item.annotations))
 
     @staticmethod
-    def merge_images(existing_item, current_item):
+    def merge_attrs(a: Dict, b: Dict,
+            item_id: Optional[Tuple[str, str]] = None) -> Dict:
+        merged = {}
+
+        for name in set(a) | set(b):
+            a_val = a.get(name, None)
+            b_val = b.get(name, None)
+
+            if name not in a:
+                m_val = b_val
+            elif name not in b:
+                m_val = a_val
+            elif a_val != b_val:
+                raise MismatchingAttributesError(item_id, name, a_val, b_val)
+            else:
+                m_val = a_val
+
+            merged[name] = m_val
+
+        return merged
+
+    @staticmethod
+    def merge_images(item_a: DatasetItem, item_b: DatasetItem) -> Image:
         image = None
-        if existing_item.has_image and current_item.has_image:
-            if existing_item.image.has_data:
-                image = existing_item.image
-            else:
-                image = current_item.image
 
-            if existing_item.image.path != current_item.image.path:
-                if not existing_item.image.path:
-                    image._path = current_item.image.path
+        if item_a.has_image and item_b.has_image:
+            if item_a.image.path and item_b.image.path and \
+                    item_a.image.path != item_b.image.path and \
+                    item_a.image.has_data is item_b.image.has_data:
+                # We use has_data as a replacement for path existence check
+                # - If only one image has data, we'll use it. The other
+                #   one is just a path metainfo, which is not significant
+                #   in this case.
+                # - If both images have data or both don't, we need
+                #   to compare paths.
+                #
+                # Different paths can aclually point to the same file,
+                # but it's not the case we'd like to allow here to be
+                # a "simple" merging strategy used for extractor joining
+                raise MismatchingImagePathError(
+                    (item_a.id, item_a.subset),
+                    item_a.image.path, item_b.image.path)
 
-            if all([existing_item.image._size, current_item.image._size]):
-                if existing_item.image._size != current_item.image._size:
-                    raise MismatchingImageInfoError(
-                        (existing_item.id, existing_item.subset),
-                        existing_item.image._size, current_item.image._size)
-            elif existing_item.image._size:
-                image._size = existing_item.image._size
+            if item_a.image.has_size and item_b.image.has_size and \
+                    item_a.image.size != item_b.image.size:
+                raise MismatchingImageInfoError(
+                    (item_a.id, item_a.subset),
+                    item_a.image.size, item_b.image.size)
+
+            # Avoid direct comparison here for better performance
+            # If there are 2 "data-only" images, they won't be compared and
+            # we just use the first one
+            if item_a.image.has_data:
+                image = item_a.image
+            elif item_b.image.has_data:
+                image = item_b.image
+            elif item_a.image.path:
+                image = item_a.image
+            elif item_b.image.path:
+                image = item_b.image
+            elif item_a.image.has_size:
+                image = item_a.image
+            elif item_b.image.has_size:
+                image = item_b.image
             else:
-                image._size = current_item.image._size
-        elif existing_item.has_image:
-            image = existing_item.image
+                image = item_a.image
+
+            if not image.has_data or not image.has_size:
+                if item_a.image._size:
+                    image._size = item_a.image._size
+                elif item_b.image._size:
+                    image._size = item_b.image._size
+        elif item_a.has_image:
+            image = item_a.image
         else:
-            image = current_item.image
+            image = item_b.image
 
         return image
 
     @staticmethod
-    def merge_anno(a, b):
+    def merge_anno(a: Iterable[Annotation],
+            b: Iterable[Annotation]) -> List[Annotation]:
         return merge_annotations_equal(a, b)
 
     @staticmethod

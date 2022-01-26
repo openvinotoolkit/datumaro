@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: MIT
 
+from typing import Any, Optional, Tuple
+
 from attr import attrib, attrs
 
 
@@ -223,13 +225,34 @@ setattr(DatasetMergeError, '__init__', DatasetMergeError._my__init__)
 
 @attrs
 class MismatchingImageInfoError(DatasetMergeError):
-    item_id = attrib()
-    a = attrib()
-    b = attrib()
+    item_id: Optional[Tuple[str, str]] = attrib()
+    a: int = attrib()
+    b: int = attrib()
 
     def __str__(self):
         return "Item %s: mismatching image size info: %s vs %s" % \
             (self.item_id, self.a, self.b)
+
+@attrs
+class MismatchingImagePathError(DatasetMergeError):
+    item_id: Optional[Tuple[str, str]] = attrib()
+    a: str = attrib()
+    b: str = attrib()
+
+    def __str__(self):
+        return "Item %s: mismatching image path info: %s vs %s" % \
+            (self.item_id, self.a, self.b)
+
+@attrs
+class MismatchingAttributesError(DatasetMergeError):
+    item_id: Optional[Tuple[str, str]] = attrib()
+    key: str = attrib()
+    a: Any = attrib()
+    b: Any = attrib()
+
+    def __str__(self):
+        return "Item %s: mismatching image attribute %s: %s vs %s" % \
+            (self.item_id or '', self.key, self.a, self.b)
 
 class ConflictingCategoriesError(DatasetMergeError):
     pass
