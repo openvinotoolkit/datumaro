@@ -173,7 +173,7 @@ def validate(dataset: IDataset, task: Union[str, TaskType], *,
         dataset - The dataset to check
         task - Target task type - classification, detection etc.
         env - A plugin collection. If not set, the built-in plugins are used
-        **kwargs - Optional arguments for the validator
+        **kwargs - Parameters for the validator
 
     Returns: a dictionary with validation results
     """
