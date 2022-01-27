@@ -14,15 +14,16 @@ try:
 
     from datumaro.plugins.sampler.algorithm.entropy import \
         SampleEntropy as entropy
-    from datumaro.plugins.sampler.sampler import Sampler
+    from datumaro.plugins.sampler.relevancy_sampler import RelevancySampler
     has_libs = True
 except ImportError:
     has_libs = False
+
 from .requirements import Requirements, mark_requirement
 
 
 @skipIf(not has_libs, "pandas library is not available")
-class SamplerTest(TestCase):
+class TestRelevancySampler(TestCase):
     @staticmethod
     def _get_probs(out_range=False):
         probs = []
@@ -97,7 +98,7 @@ class SamplerTest(TestCase):
         num_sample = 5
 
         with self.subTest("Top-K method"):
-            result = Sampler(
+            result = RelevancySampler(
                 source,
                 algorithm="entropy",
                 input_subset="train",
@@ -117,7 +118,7 @@ class SamplerTest(TestCase):
             self.assertEqual(sorted(topk_result), topk_expected_result)
 
         with self.subTest("Low-K method"):
-            result = Sampler(
+            result = RelevancySampler(
                 source,
                 algorithm="entropy",
                 input_subset="train",
@@ -137,7 +138,7 @@ class SamplerTest(TestCase):
             self.assertEqual(sorted(lowk_result), lowk_expected_result)
 
         with self.subTest("Rand-K method"):
-            result = Sampler(
+            result = RelevancySampler(
                 source,
                 algorithm="entropy",
                 input_subset="train",
@@ -154,7 +155,7 @@ class SamplerTest(TestCase):
             )
 
         with self.subTest("Mix-K method"):
-            result = Sampler(
+            result = RelevancySampler(
                 source,
                 algorithm="entropy",
                 input_subset="train",
@@ -173,7 +174,7 @@ class SamplerTest(TestCase):
             mixk_result = list(map(int, result.result["ImageID"].to_list()))
             self.assertEqual(sorted(mixk_result), mixk_expected_result)
 
-            result = Sampler(
+            result = RelevancySampler(
                 source,
                 algorithm="entropy",
                 input_subset="train",
@@ -193,7 +194,7 @@ class SamplerTest(TestCase):
             self.assertEqual(sorted(mixk_result), mixk_expected_result)
 
         with self.subTest("Randtop-K method"):
-            result = Sampler(
+            result = RelevancySampler(
                 source,
                 algorithm="entropy",
                 input_subset="train",
@@ -224,7 +225,7 @@ class SamplerTest(TestCase):
         with self.subTest("Not found"):
             with self.assertRaisesRegex(Exception, "Unknown subset"):
                 subset = "hello"
-                result = Sampler(
+                result = RelevancySampler(
                     source,
                     algorithm="entropy",
                     input_subset=subset,
@@ -237,9 +238,9 @@ class SamplerTest(TestCase):
                 result = iter(result)
                 next(result)
 
-            with self.assertRaisesRegex(Exception, "Unknown algorithm"):
+            with self.assertRaisesRegex(Exception, "Unknown element"):
                 algorithm = "hello"
-                result = Sampler(
+                result = RelevancySampler(
                     source,
                     algorithm=algorithm,
                     input_subset="train",
@@ -252,9 +253,9 @@ class SamplerTest(TestCase):
                 result = iter(result)
                 next(result)
 
-            with self.assertRaisesRegex(Exception, "Unknown sampling method"):
+            with self.assertRaisesRegex(Exception, "Unknown element"):
                 sampling_method = "hello"
-                result = Sampler(
+                result = RelevancySampler(
                     source,
                     algorithm="entropy",
                     input_subset="train",
@@ -270,7 +271,7 @@ class SamplerTest(TestCase):
         with self.subTest("Invalid Value"):
             with self.assertRaisesRegex(Exception, "Invalid value"):
                 k = 0
-                result = Sampler(
+                result = RelevancySampler(
                     source,
                     algorithm="entropy",
                     input_subset="train",
@@ -285,7 +286,7 @@ class SamplerTest(TestCase):
 
             with self.assertRaisesRegex(Exception, "Invalid value"):
                 k = -1
-                result = Sampler(
+                result = RelevancySampler(
                     source,
                     algorithm="entropy",
                     input_subset="train",
@@ -300,7 +301,7 @@ class SamplerTest(TestCase):
 
             with self.assertRaisesRegex(Exception, "Invalid value"):
                 k = "string"
-                result = Sampler(
+                result = RelevancySampler(
                     source,
                     algorithm="entropy",
                     input_subset="train",
@@ -315,7 +316,7 @@ class SamplerTest(TestCase):
 
             with self.assertRaisesRegex(Exception, "extension"):
                 output_file = "string.xml"
-                result = Sampler(
+                result = RelevancySampler(
                     source,
                     algorithm="entropy",
                     input_subset="train",
@@ -391,7 +392,7 @@ class SamplerTest(TestCase):
 
             source = self._generate_classification_dataset(config)
             with self.assertRaisesRegex(Exception, "Unknown subset"):
-                result = Sampler(
+                result = RelevancySampler(
                     source,
                     algorithm="entropy",
                     input_subset="train",
@@ -413,7 +414,7 @@ class SamplerTest(TestCase):
 
             source = self._generate_classification_dataset(config, empty_scores=True)
             with self.assertRaisesRegex(Exception, "ClassProbability"):
-                result = Sampler(
+                result = RelevancySampler(
                     source,
                     algorithm="entropy",
                     input_subset="train",
@@ -437,7 +438,7 @@ class SamplerTest(TestCase):
                 config, empty_scores=False, out_range=True
             )
             with self.assertRaisesRegex(Exception, "Invalid data"):
-                result = Sampler(
+                result = RelevancySampler(
                     source,
                     algorithm="entropy",
                     input_subset="train",
@@ -459,7 +460,7 @@ class SamplerTest(TestCase):
 
             source = self._generate_classification_dataset(config, no_attr=True)
             with self.assertRaisesRegex(Exception, "does not have 'scores'"):
-                result = Sampler(
+                result = RelevancySampler(
                     source,
                     algorithm="entropy",
                     input_subset="train",
@@ -481,7 +482,7 @@ class SamplerTest(TestCase):
 
             source = self._generate_classification_dataset(config, no_img=True)
             with self.assertRaisesRegex(Exception, "does not have image info"):
-                result = Sampler(
+                result = RelevancySampler(
                     source,
                     algorithm="entropy",
                     input_subset="train",
@@ -509,7 +510,7 @@ class SamplerTest(TestCase):
             num_sample = 500
             sampling_method = "topk"
 
-            result = Sampler(
+            result = RelevancySampler(
                 source,
                 algorithm="entropy",
                 input_subset="train",
@@ -525,7 +526,7 @@ class SamplerTest(TestCase):
             num_sample = 500
             sampling_method = "lowk"
 
-            result = Sampler(
+            result = RelevancySampler(
                 source,
                 algorithm="entropy",
                 input_subset="train",
@@ -541,7 +542,7 @@ class SamplerTest(TestCase):
             num_sample = 500
             sampling_method = "randk"
 
-            result = Sampler(
+            result = RelevancySampler(
                 source,
                 algorithm="entropy",
                 input_subset="train",
@@ -557,7 +558,7 @@ class SamplerTest(TestCase):
             num_sample = 500
             sampling_method = "mixk"
 
-            result = Sampler(
+            result = RelevancySampler(
                 source,
                 algorithm="entropy",
                 input_subset="train",
@@ -573,7 +574,7 @@ class SamplerTest(TestCase):
             num_sample = 500
             sampling_method = "randtopk"
 
-            result = Sampler(
+            result = RelevancySampler(
                 source,
                 algorithm="entropy",
                 input_subset="train",
@@ -589,7 +590,7 @@ class SamplerTest(TestCase):
             num_sample = 10
             sampling_method = "topk"
 
-            result = Sampler(
+            result = RelevancySampler(
                 source,
                 algorithm="entropy",
                 input_subset="train",
@@ -605,7 +606,7 @@ class SamplerTest(TestCase):
             num_sample = 10
             sampling_method = "lowk"
 
-            result = Sampler(
+            result = RelevancySampler(
                 source,
                 algorithm="entropy",
                 input_subset="train",
@@ -621,7 +622,7 @@ class SamplerTest(TestCase):
             num_sample = 10
             sampling_method = "randk"
 
-            result = Sampler(
+            result = RelevancySampler(
                 source,
                 algorithm="entropy",
                 input_subset="train",
@@ -637,7 +638,7 @@ class SamplerTest(TestCase):
             num_sample = 10
             sampling_method = "mixk"
 
-            result = Sampler(
+            result = RelevancySampler(
                 source,
                 algorithm="entropy",
                 input_subset="train",
@@ -653,7 +654,7 @@ class SamplerTest(TestCase):
             num_sample = 10
             sampling_method = "randtopk"
 
-            result = Sampler(
+            result = RelevancySampler(
                 source,
                 algorithm="entropy",
                 input_subset="train",
@@ -667,7 +668,7 @@ class SamplerTest(TestCase):
 
             num_sample = 9
 
-            result = Sampler(
+            result = RelevancySampler(
                 source,
                 algorithm="entropy",
                 input_subset="train",
@@ -697,7 +698,7 @@ class SamplerTest(TestCase):
             num_sample = 3
             sample_subset_name = "sample"
 
-            result = Sampler(
+            result = RelevancySampler(
                 source,
                 algorithm="entropy",
                 input_subset="train",
@@ -713,7 +714,7 @@ class SamplerTest(TestCase):
                 len(result.get_subset("train")), num_pre_train_subset - num_sample
             )
 
-            result = Sampler(
+            result = RelevancySampler(
                 result,
                 algorithm="entropy",
                 input_subset="train",
@@ -729,7 +730,7 @@ class SamplerTest(TestCase):
                 len(result.get_subset("train")), num_pre_train_subset - num_sample * 2
             )
 
-            result = Sampler(
+            result = RelevancySampler(
                 result,
                 algorithm="entropy",
                 input_subset="train",
@@ -748,7 +749,7 @@ class SamplerTest(TestCase):
         with self.subTest("Same Subset, 2, 3, 4 sampling"):
             sample_subset_name = "sample"
 
-            result = Sampler(
+            result = RelevancySampler(
                 source,
                 algorithm="entropy",
                 input_subset="train",
@@ -762,7 +763,7 @@ class SamplerTest(TestCase):
             self.assertEqual(len(result.get_subset("sample")), 2)
             self.assertEqual(len(result.get_subset("train")), num_pre_train_subset - 2)
 
-            result = Sampler(
+            result = RelevancySampler(
                 result,
                 algorithm="entropy",
                 input_subset="train",
@@ -776,7 +777,7 @@ class SamplerTest(TestCase):
             self.assertEqual(len(result.get_subset("sample")), 5)
             self.assertEqual(len(result.get_subset("train")), num_pre_train_subset - 5)
 
-            result = Sampler(
+            result = RelevancySampler(
                 result,
                 algorithm="entropy",
                 input_subset="train",
@@ -794,7 +795,7 @@ class SamplerTest(TestCase):
             num_sample = 3
             sample_subset_name = "sample"
 
-            result = Sampler(
+            result = RelevancySampler(
                 source,
                 algorithm="entropy",
                 input_subset="train",
@@ -810,7 +811,7 @@ class SamplerTest(TestCase):
                 len(result.get_subset("train")), num_pre_train_subset - num_sample
             )
 
-            result = Sampler(
+            result = RelevancySampler(
                 result,
                 algorithm="entropy",
                 input_subset="val",
@@ -826,7 +827,7 @@ class SamplerTest(TestCase):
                 len(result.get_subset("val")), num_pre_val_subset - num_sample
             )
 
-            result = Sampler(
+            result = RelevancySampler(
                 result,
                 algorithm="entropy",
                 input_subset="test",
@@ -845,7 +846,7 @@ class SamplerTest(TestCase):
         with self.subTest("Different Subset, 2, 3, 4 sampling"):
             sample_subset_name = "sample"
 
-            result = Sampler(
+            result = RelevancySampler(
                 source,
                 algorithm="entropy",
                 input_subset="train",
@@ -859,7 +860,7 @@ class SamplerTest(TestCase):
             self.assertEqual(len(result.get_subset("sample")), 2)
             self.assertEqual(len(result.get_subset("train")), num_pre_train_subset - 2)
 
-            result = Sampler(
+            result = RelevancySampler(
                 result,
                 algorithm="entropy",
                 input_subset="val",
@@ -873,7 +874,7 @@ class SamplerTest(TestCase):
             self.assertEqual(len(result.get_subset("sample")), 5)
             self.assertEqual(len(result.get_subset("val")), num_pre_val_subset - 3)
 
-            result = Sampler(
+            result = RelevancySampler(
                 result,
                 algorithm="entropy",
                 input_subset="test",
@@ -904,7 +905,7 @@ class SamplerTest(TestCase):
         with self.subTest("Same Subset, Same number of datas 3times"):
             num_sample = 3
 
-            result = Sampler(
+            result = RelevancySampler(
                 source,
                 algorithm="entropy",
                 input_subset="train",
@@ -920,7 +921,7 @@ class SamplerTest(TestCase):
                 len(result.get_subset("train")), num_pre_train_subset - num_sample
             )
 
-            result = Sampler(
+            result = RelevancySampler(
                 result,
                 algorithm="entropy",
                 input_subset="train",
@@ -937,7 +938,7 @@ class SamplerTest(TestCase):
                 len(result.get_subset("train")), num_pre_train_subset - num_sample * 2
             )
 
-            result = Sampler(
+            result = RelevancySampler(
                 result,
                 algorithm="entropy",
                 input_subset="train",
@@ -956,7 +957,7 @@ class SamplerTest(TestCase):
             )
 
         with self.subTest("Same Subset, 2, 3, 4 sampling"):
-            result = Sampler(
+            result = RelevancySampler(
                 source,
                 algorithm="entropy",
                 input_subset="train",
@@ -970,7 +971,7 @@ class SamplerTest(TestCase):
             self.assertEqual(len(result.get_subset("sample1")), 2)
             self.assertEqual(len(result.get_subset("train")), num_pre_train_subset - 2)
 
-            result = Sampler(
+            result = RelevancySampler(
                 result,
                 algorithm="entropy",
                 input_subset="train",
@@ -985,7 +986,7 @@ class SamplerTest(TestCase):
             self.assertEqual(len(result.get_subset("sample2")), 3)
             self.assertEqual(len(result.get_subset("train")), num_pre_train_subset - 5)
 
-            result = Sampler(
+            result = RelevancySampler(
                 result,
                 algorithm="entropy",
                 input_subset="train",
@@ -1004,7 +1005,7 @@ class SamplerTest(TestCase):
         with self.subTest("Different Subset, Same number of datas 3times"):
             num_sample = 3
 
-            result = Sampler(
+            result = RelevancySampler(
                 source,
                 algorithm="entropy",
                 input_subset="train",
@@ -1020,7 +1021,7 @@ class SamplerTest(TestCase):
                 len(result.get_subset("train")), num_pre_train_subset - num_sample
             )
 
-            result = Sampler(
+            result = RelevancySampler(
                 result,
                 algorithm="entropy",
                 input_subset="val",
@@ -1037,7 +1038,7 @@ class SamplerTest(TestCase):
                 len(result.get_subset("val")), num_pre_val_subset - num_sample
             )
 
-            result = Sampler(
+            result = RelevancySampler(
                 result,
                 algorithm="entropy",
                 input_subset="test",
@@ -1056,7 +1057,7 @@ class SamplerTest(TestCase):
             )
 
         with self.subTest("Different Subset, 2, 3, 4 sampling"):
-            result = Sampler(
+            result = RelevancySampler(
                 source,
                 algorithm="entropy",
                 input_subset="train",
@@ -1070,7 +1071,7 @@ class SamplerTest(TestCase):
             self.assertEqual(len(result.get_subset("sample1")), 2)
             self.assertEqual(len(result.get_subset("train")), num_pre_train_subset - 2)
 
-            result = Sampler(
+            result = RelevancySampler(
                 result,
                 algorithm="entropy",
                 input_subset="val",
@@ -1085,7 +1086,7 @@ class SamplerTest(TestCase):
             self.assertEqual(len(result.get_subset("sample2")), 3)
             self.assertEqual(len(result.get_subset("val")), num_pre_val_subset - 3)
 
-            result = Sampler(
+            result = RelevancySampler(
                 result,
                 algorithm="entropy",
                 input_subset="test",
@@ -1105,4 +1106,5 @@ class SamplerTest(TestCase):
     def test_sampler_parser(self):
         from argparse import ArgumentParser
 
-        assert isinstance(Sampler.build_cmdline_parser(), ArgumentParser)
+        assert isinstance(RelevancySampler.build_cmdline_parser(), ArgumentParser)
+
