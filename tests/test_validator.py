@@ -125,8 +125,9 @@ class TestBaseValidator(_TestValidatorBase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_has_enum_entries_in_environment(self):
-        for key in TaskType._member_names_:
-            self.assertTrue(key in Environment().validators.items, key)
+        env = Environment()
+        for key in TaskType.__members__:
+            self.assertIn(key, env.validators.items)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_generate_reports(self):
