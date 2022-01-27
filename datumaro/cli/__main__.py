@@ -80,6 +80,8 @@ def _get_known_commands():
         ("", None, ''),
         ("Dataset operations:", None, ''),
         ('convert', commands.convert, "Convert dataset between formats"),
+        ('detect-format', commands.detect_format,
+            "Detect the format of a dataset"),
         ('diff', commands.diff, "Compare datasets"),
         ('download', commands.download, "Download a publicly available dataset"),
         ('explain', commands.explain, "Run Explainable AI algorithm for model"),
