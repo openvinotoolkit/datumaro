@@ -65,9 +65,9 @@ def unpaint_mask(painted_mask, inverse_colormap=None):
                 (a >> 16) & 255, (a >> 8) & 255, a & 255
             )
     else:
-        map_fn = lambda a: inverse_colormap.get((
+        map_fn = lambda a: inverse_colormap[(
                 (a >> 16) & 255, (a >> 8) & 255, a & 255
-            ), 0)
+            )]
 
     painted_mask = painted_mask.astype(int)
     painted_mask = painted_mask[:, :, 0] + \

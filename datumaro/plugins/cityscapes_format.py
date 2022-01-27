@@ -20,7 +20,7 @@ from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.util import find
 from datumaro.util.annotation_util import make_label_id_mapping
 from datumaro.util.image import find_images, load_image, save_image
-from datumaro.util.mask_tools import generate_colormap, lazy_mask, paint_mask
+from datumaro.util.mask_tools import generate_colormap, paint_mask
 from datumaro.util.meta_file_util import (
     has_meta_file, is_meta_file, parse_meta_file,
 )
@@ -94,10 +94,8 @@ class CityscapesPath:
     INSTANCES_IMAGE = '_instanceIds.png'
     GT_INSTANCE_MASK_SUFFIX = '_' + GT_FINE_DIR + INSTANCES_IMAGE
     COLOR_IMAGE = '_color.png'
-    GT_COLOR_MASK_SUFFIX = '_' + GT_FINE_DIR + COLOR_IMAGE
     LABELIDS_IMAGE = '_labelIds.png'
-    LABEL_TRAIN_IDS_IMAGE = '_labelTrainIds.png'
-    LABEl_TRAIN_IDS_SUFFIX = '_' + GT_FINE_DIR + LABEL_TRAIN_IDS_IMAGE
+    LABEl_TRAIN_IDS_SUFFIX = '_' + GT_FINE_DIR + '_labelTrainIds.png'
 
     LABELMAP_FILE = 'label_colors.txt'
 

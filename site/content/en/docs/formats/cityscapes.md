@@ -30,10 +30,6 @@ datum create
 datum import --format cityscapes <path/to/dataset>
 ```
 
-Extra options for Cityscapes import:
-- `--load-color-masks` allow to load colored masks instead of instance
-  (by default `False`)
-- `--use-train-label-map` - allow to use train label map (by default `False`)
 
 Cityscapes dataset directory should have the following structure:
 
