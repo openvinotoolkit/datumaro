@@ -25,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/585>)
 - Command to detect the format of a dataset
   (<https://github.com/openvinotoolkit/datumaro/pull/576>)
-- `load-color-masks` and `use-train-label-map` arguments to Cityscapes import
+- Reading specific annotation files for train dataset in Cityscapes
   (<https://github.com/openvinotoolkit/datumaro/pull/632>)
 
 ### Changed
