@@ -65,8 +65,8 @@ class ImageTest(TestCase):
     def test_lazy_image_shape(self):
         data = np.ones((5, 6, 3))
 
-        image_lazy = Image(data=data, size=(2, 4))
-        image_eager = Image(data=data)
+        image_lazy = Image(data=lambda _: data, size=(2, 4))
+        image_eager = Image(data=lambda _: data)
 
         self.assertEqual((2, 4), image_lazy.size)
         self.assertEqual((5, 6), image_eager.size)
