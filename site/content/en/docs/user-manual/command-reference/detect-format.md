@@ -26,7 +26,7 @@ The format of the machine-readable report is as follows:
     "rejected_formats": {
         "rejected-format-name-1": {
             "reason": <reason-code>,
-            "message": ["message line 1", "message line 2", ...]
+            "message": "line 1\nline 2\n...\nline N"
         },
         "rejected-format-name-2": ...,
         ...
