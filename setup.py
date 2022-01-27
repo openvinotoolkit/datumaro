@@ -71,7 +71,7 @@ setuptools.setup(
     install_requires=CORE_REQUIREMENTS,
     extras_require={
         'tf': ['tensorflow'],
-        'tfds': ['tensorflow-datasets!=4.5.0'],
+        'tfds': ['tensorflow-datasets!=4.5.0'], # 4.5.0 fails on Windows, https://github.com/tensorflow/datasets/issues/3709
         'tf-gpu': ['tensorflow-gpu'],
         'default': DEFAULT_REQUIREMENTS,
     },
