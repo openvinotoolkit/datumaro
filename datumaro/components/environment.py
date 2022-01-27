@@ -4,7 +4,7 @@
 
 from functools import partial
 from typing import (
-    Callable, Dict, Generic, Iterable, Iterator, List, Optional, Type, TypeVar,
+    Callable, Dict, Generic, Iterable, Iterator, Optional, Type, TypeVar,
 )
 import glob
 import importlib
