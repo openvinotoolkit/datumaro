@@ -44,7 +44,25 @@ class Image(MediaElement):
             *,
             path: Optional[str] = None,
             ext: Optional[str] = None,
-            size: Optional[Tuple[int, int]] = None):
+            size: Optional[Tuple[int, int]] = None) -> None:
+        """
+        Creates an image.
+
+        Any combinations of the `data`, `path` and `size` arguments are
+        possible, but at least one of them must be provided.
+        The `ext` parameter cannot be used as a single argument for
+        construction.
+
+        Args:
+            data - Image pixels or a function to retrieve them. The expected
+                image shape is (H, W [, C]). If a function is provided,
+                it must accept image path as the first argument.
+            path - Image path
+            ext - Image extension. Cannot be used together with `path`. It is
+                useful for saving with a custom extension.
+            size - A pair (H, W), which represents image size.
+        """
+
         assert size is None or len(size) == 2, size
         if size is not None:
             assert len(size) == 2 and 0 < size[0] and 0 < size[1], size
@@ -102,6 +120,7 @@ class Image(MediaElement):
 
     @property
     def has_size(self) -> bool:
+        """Indicates that size info is cached and won't require image loading"""
         return self._size is not None or isinstance(self._data, np.ndarray)
 
     @property
