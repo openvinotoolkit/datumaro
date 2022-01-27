@@ -25,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/449>)
 
 ### Deprecated
-- TBD
+- Python 3.6 support
 
 ### Removed
 - TBD
