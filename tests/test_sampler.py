@@ -1,4 +1,5 @@
 from collections import defaultdict
+from typing import Dict
 from unittest import TestCase, skipIf
 import csv
 
@@ -8,6 +9,8 @@ from datumaro.components.annotation import (
 from datumaro.components.extractor import DatasetItem
 from datumaro.components.media import Image
 from datumaro.components.project import Dataset
+from datumaro.plugins.sampler.random_sampler import RandomSampler
+from datumaro.util.test_utils import compare_datasets_strict
 
 try:
     import pandas as pd
@@ -1108,3 +1111,63 @@ class TestRelevancySampler(TestCase):
 
         assert isinstance(RelevancySampler.build_cmdline_parser(), ArgumentParser)
 
+
+class TestRandomSampler(TestCase):
+    @staticmethod
+    def _make_dataset(config: Dict[str, int]):
+        return Dataset.from_iterable([
+            DatasetItem(i, subset=subset)
+            for subset, subset_size in config.items()
+            for i in range(subset_size)
+        ])
+
+    def test_can_sample_when_no_subsets(self):
+        n = 10
+        source = self._make_dataset({None: n})
+
+        for k in [5, 10, 15]:
+            with self.subTest(k=k):
+                actual = RandomSampler(source, k)
+
+                self.assertEqual(min(k, n), len(actual))
+
+    def test_can_sample_when_has_subsets(self):
+        n = 10
+        source = self._make_dataset({'a': 7, 'b': 3})
+
+        for k in [5, 10, 15]:
+            with self.subTest(k=k):
+                actual = RandomSampler(source, k)
+
+                self.assertEqual(min(k, n), len(actual))
+
+    def test_can_sample_when_subset_selected(self):
+        source = self._make_dataset({'a': 7, 'b': 3})
+
+        s = 'a'
+        for k in [5, 7, 15]:
+            with self.subTest(k=k, s=s):
+                actual = RandomSampler(source, k, subset=s)
+
+                self.assertEqual(min(k, len(source.get_subset(s))),
+                    len(actual.get_subset(s)))
+                compare_datasets_strict(self,
+                    source.get_subset('b'), actual.get_subset('b'))
+
+    def test_can_reproduce_sequence(self):
+        source = self._make_dataset({'a': 7, 'b': 3})
+
+        seed = 42
+        actual1 = RandomSampler(source, 5, seed=seed)
+        actual2 = RandomSampler(source, 5, seed=seed)
+
+        compare_datasets_strict(self, actual1, actual2)
+
+    def test_can_change_sequence(self):
+        source = self._make_dataset({'a': 7, 'b': 3})
+
+        actual1 = RandomSampler(source, 5, seed=1)
+        actual2 = RandomSampler(source, 5, seed=2)
+
+        with self.assertRaises(AssertionError):
+            compare_datasets_strict(self, actual1, actual2)
