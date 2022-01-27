@@ -30,7 +30,6 @@ datum create
 datum import --format cityscapes <path/to/dataset>
 ```
 
-
 Cityscapes dataset directory should have the following structure:
 
 <!--lint disable fenced-code-flag-->

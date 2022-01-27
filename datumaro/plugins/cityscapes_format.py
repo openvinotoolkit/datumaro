@@ -198,13 +198,15 @@ class CityscapesExtractor(SourceExtractor):
 
         self._items = list(self._load_items().values())
 
-    def _load_categories(self, path, label_map=CITYSCAPES_LABEL_MAP):
+    def _load_categories(self, path, label_map=None):
         if has_meta_file(path):
             label_map = parse_meta_file(path)
         else:
             label_map_path = osp.join(path, CityscapesPath.LABELMAP_FILE)
             if osp.isfile(label_map_path):
                 label_map = parse_label_map(label_map_path)
+            elif label_map is None:
+                label_map = CITYSCAPES_LABEL_MAP
 
         self._labels = [label for label in label_map]
         return make_cityscapes_categories(label_map)
