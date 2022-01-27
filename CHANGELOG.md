@@ -23,6 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/584>)
 - MARS format (import-only)
   (<https://github.com/openvinotoolkit/datumaro/pull/585>)
+- Random sampling transform to create smaller datasets
+  (<https://github.com/openvinotoolkit/datumaro/pull/636>)
 
 ### Changed
 - The `pycocotools` dependency lower bound is raised to `2.0.4`.
