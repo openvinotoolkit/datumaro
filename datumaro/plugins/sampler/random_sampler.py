@@ -6,20 +6,31 @@ from random import Random
 from typing import Optional
 
 from datumaro.components.cli_plugin import CliPlugin
-from datumaro.components.extractor import (
-    DEFAULT_SUBSET_NAME, IExtractor, Transform,
-)
+from datumaro.components.extractor import IExtractor, Transform
 
 
 class RandomSampler(Transform, CliPlugin):
+    """
+    Sampler that keeps no more than required number of items in the dataset.|n
+    |n
+    Notes:|n
+    - Items are selected uniformly|n
+    - Requesting a sample larger than the number of all images will
+    return all images|n
+    |n
+    Example: select subset of 20 images randomly|n
+    |s|s%(prog)s -k 20 |n
+    Example: select subset of 20 images, modify only 'train' subset|n
+    |s|s%(prog)s -k 20 -s train |n
+    """
+
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
         parser = super().build_cmdline_parser(**kwargs)
         parser.add_argument('-k', '--count', type=int, required=True,
             help="Maximum number of items to sample")
         parser.add_argument('-s', '--subset', default=None,
-            help="Subset to sample from "
-                "(default: consider everything a single subset)")
+            help="Limit changes to this subset (default: affect all dataset)")
         parser.add_argument('--seed', type=int,
             help="Initial value for random number generator")
         return parser
