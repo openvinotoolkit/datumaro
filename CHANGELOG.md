@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/555>)
 - Command to detect the format of a dataset
   (<https://github.com/openvinotoolkit/datumaro/pull/576>)
+- Random sampling transform to create smaller datasets
+  (<https://github.com/openvinotoolkit/datumaro/pull/636>)
 
 ### Changed
 - Allowed direct file paths in `datum import`. Such sources are imported like
