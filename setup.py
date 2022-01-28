@@ -1,5 +1,4 @@
-
-# Copyright (C) 2019-2021 Intel Corporation
+# Copyright (C) 2019-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -71,7 +70,7 @@ setuptools.setup(
     install_requires=CORE_REQUIREMENTS,
     extras_require={
         'tf': ['tensorflow'],
-        'tfds': ['tensorflow-datasets'],
+        'tfds': ['tensorflow-datasets!=4.5.0'], # 4.5.0 fails on Windows, https://github.com/tensorflow/datasets/issues/3709
         'tf-gpu': ['tensorflow-gpu'],
         'default': DEFAULT_REQUIREMENTS,
     },
