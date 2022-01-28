@@ -154,7 +154,8 @@ class CityscapesImportTest(TestCase):
                         attributes={'is_crowd': True}),
                 ]
             ),
-        ], categories=Cityscapes.make_cityscapes_categories(label_map=TRAIN_CITYSCAPES_LABEL_MAP))
+        ], categories=Cityscapes.make_cityscapes_categories(
+            label_map=TRAIN_CITYSCAPES_LABEL_MAP))
 
         parsed_dataset = Dataset.import_from(DUMMY_TRAIN_DATASET_DIR, 'cityscapes')
 

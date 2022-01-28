@@ -202,11 +202,12 @@ class CityscapesExtractor(SourceExtractor):
             label_map_path = osp.join(path, CityscapesPath.LABELMAP_FILE)
             if osp.isfile(label_map_path):
                 label_map = parse_label_map(label_map_path)
-            elif label_map is None:
-                if use_train_label_map:
-                    label_map = TRAIN_CITYSCAPES_LABEL_MAP
-                else:
-                    label_map = CITYSCAPES_LABEL_MAP
+
+        if label_map is None:
+            if use_train_label_map:
+                label_map = TRAIN_CITYSCAPES_LABEL_MAP
+            else:
+                label_map = CITYSCAPES_LABEL_MAP
 
         self._labels = [label for label in label_map]
         return make_cityscapes_categories(label_map)
@@ -264,12 +265,9 @@ class CityscapesExtractor(SourceExtractor):
             items[item_id] = DatasetItem(id=item_id, subset=self._subset,
                 image=path)
 
-        if mask_suffix is CityscapesPath.LABEL_TRAIN_IDS_SUFFIX:
-            self._categories = self._load_categories(self._path,
-                use_train_label_map=True)
-        else:
-            self._categories = self._load_categories(self._path)
-
+        self._categories = self._load_categories(self._path,
+            use_train_label_map= \
+                mask_suffix is CityscapesPath.LABEL_TRAIN_IDS_SUFFIX)
         return items
 
     @staticmethod
