@@ -22,7 +22,7 @@ def prepare_tags(repo):
     for tag in repo.tags:
         tag_version = version.parse(tag.name)
         if tag_version >= MINIMUM_VERSION and not tag_version.is_prerelease:
-            release_version = (tag_version.major, tag_version.minor)
+            release_version = (tag_version.major, tag_version.minor, tag_version.micro)
             if release_version not in tags or tag_version > version.parse(tags[release_version].name):
                 tags[release_version] = tag
 
