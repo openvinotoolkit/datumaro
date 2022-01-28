@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/576>)
 - Reading specific annotation files for train dataset in Cityscapes
   (<https://github.com/openvinotoolkit/datumaro/pull/632>)
+- Random sampling transform to create smaller datasets
+  (<https://github.com/openvinotoolkit/datumaro/pull/636>)
 
 ### Changed
 - Allowed direct file paths in `datum import`. Such sources are imported like
