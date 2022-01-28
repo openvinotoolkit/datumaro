@@ -137,6 +137,21 @@ class BytesImageTest(TestCase):
                         self.assertEqual(img.ext, args.get('ext', '.png'))
                     # pylint: enable=pointless-statement
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_ext_detection(self):
+        image_data = np.zeros((3, 4))
+
+        for ext in ('.bmp', '.jpg', '.png'):
+            with self.subTest(ext=ext):
+                image = ByteImage(data=encode_image(image_data, ext))
+                self.assertEqual(image.ext, ext)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_ext_detection_failure(self):
+        image_bytes = b'\xff' * 10 # invalid image
+        image = ByteImage(data=image_bytes)
+        self.assertEqual(image.ext, '')
+
 class ImageMetaTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_loading(self):

@@ -108,6 +108,14 @@ List of supported formats:
   - [Format specification](https://github.com/microsoft/VoTT)
   - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/vott_json_dataset)
   - [Format documentation](/docs/formats/vott_json)
+- MPII Human Pose Dataset (`detection`, `pose estimation`)
+  - [Format specification](http://human-pose.mpi-inf.mpg.de)
+  - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/mpii_dataset)
+  - [Format documentation](/docs/formats/mpii)
+- MPII Human Pose Dataset (JSON) (`detection`, `pose estimation`)
+  - [Format specification](http://human-pose.mpi-inf.mpg.de)
+  - [Dataset example](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/mpii_json_dataset)
+  - [Format documentation](/docs/formats/mpii_json)
 
 ### Supported annotation types <a id="annotation-types"></a>
 

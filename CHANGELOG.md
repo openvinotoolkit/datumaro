@@ -6,6 +6,39 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## \[Unreleased\]
+### Added
+- Command to download public datasets
+  (<https://github.com/openvinotoolkit/datumaro/pull/582>)
+- Extension autodetection in `ByteImage`
+  (<https://github.com/openvinotoolkit/datumaro/pull/595>)
+- MPII Human Pose Dataset (import-only) (.mat and .json)
+  (<https://github.com/openvinotoolkit/datumaro/pull/584>)
+- MARS format (import-only)
+  (<https://github.com/openvinotoolkit/datumaro/pull/585>)
+
+### Changed
+- `smooth_line` from `datumaro.util.annotation_util` - the function
+  is renamed to `approximate_line` and has updated interface
+  (<https://github.com/openvinotoolkit/datumaro/pull/592>)
+- The `pycocotools` dependency lower bound is raised to `2.0.4`.
+  (<https://github.com/openvinotoolkit/datumaro/pull/449>)
+
+### Deprecated
+- Python 3.6 support
+
+### Removed
+- TBD
+
+### Fixed
+- Fails in multimerge when lines are not approximated and when there are no
+  label categories (<https://github.com/openvinotoolkit/datumaro/pull/592>)
+- Cannot convert LabelMe dataset, that has no subsets
+  (<https://github.com/openvinotoolkit/datumaro/pull/600>)
+
+### Security
+- TBD
+
 ## 24/12/2021 - Release v0.2.2
 ### Added
 - Video reading API

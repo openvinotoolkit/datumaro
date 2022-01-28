@@ -12,7 +12,7 @@ These commands are specific for Data Sources. Read more about them [here](/docs/
 Datasets can be added to a Datumaro project with the `import` command,
 which adds a dataset link into the project and downloads (or copies)
 the dataset. If you need to add a dataset already copied into the project,
-use the [`add`](./sources#source-add) command.
+use the [`add`](#source-add) command.
 
 Dataset format readers can provide some additional import options. To pass
 such options, use the `--` separator after the main command arguments.
@@ -77,7 +77,7 @@ datum export -f tf_detection_api -- --save-images
 
 Existing datasets can be added to a Datumaro project with the `add` command.
 The command adds a project-local directory as a data source in the project.
-Unlike the [`import`](./sources#source-import)
+Unlike the [`import`](#source-import)
 command, it does not copy datasets and only works with local directories.
 The source name is defined by the directory name.
 
@@ -123,6 +123,30 @@ datum create
 datum add -f coco -r annotations/instances_train.json dataset1/
 datum add -f cvat dataset2/train.xml
 datum export -f yolo -- --save-images
+```
+
+Example: add an existing dataset into a project, avoid data copying
+
+To add a dataset, we need to have it inside the project directory:
+
+```bash
+proj/
+├─ .datumaro/
+├─ .dvc/
+├─ my_coco/
+│  └─ images/
+│     ├─ image1.jpg
+│     └─ ...
+│  └─ annotations/
+│     └─ coco_annotation.json
+├─ .dvcignore
+└─ .gitignore
+```
+
+``` bash
+datum create -o proj/
+mv ~/my_coco/ proj/my_coco/ # move the dataset into the project directory
+datum add -p proj/ -f coco proj/my_coco/
 ```
 
 ### Remove Datasets <a id="source-remove"></a>

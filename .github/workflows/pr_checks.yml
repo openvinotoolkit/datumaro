@@ -29,8 +29,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Installing dependencies
         run: |
-          pip install tensorflow pytest
-          pip install -e .[default]
+          pip install -e '.[default,tf,tfds]' pytest
       - name: Unit testing
         run: |
           pytest -v

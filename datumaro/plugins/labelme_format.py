@@ -95,7 +95,7 @@ class LabelMeExtractor(Extractor):
 
             items.append(DatasetItem(id=item_id, subset=subset,
                 image=image, annotations=annotations))
-            subsets.add(subset)
+            subsets.add(items[-1].subset)
         return items, categories, subsets
 
     def _escape(s):
