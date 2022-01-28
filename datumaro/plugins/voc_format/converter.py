@@ -576,7 +576,6 @@ class VocConverter(Converter):
                 "expected one of %s or a file path" % \
                 (label_map_source, ', '.join(t.name for t in LabelmapType)))
 
-        # There must always be a label with color (0, 0, 0) at index 0
         bg_label = find(label_map.items(), lambda x: x[1][0] == (0, 0, 0))
         if bg_label is None:
             bg_label = 'background'

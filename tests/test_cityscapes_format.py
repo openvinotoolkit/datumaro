@@ -14,7 +14,7 @@ from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem, Extractor
 from datumaro.components.media import Image
 from datumaro.plugins.cityscapes_format import (
-    CityscapesConverter, CityscapesImporter,
+    TRAIN_CITYSCAPES_LABEL_MAP, CityscapesConverter, CityscapesImporter,
 )
 from datumaro.util.meta_file_util import parse_meta_file
 from datumaro.util.test_utils import (
@@ -154,7 +154,7 @@ class CityscapesImportTest(TestCase):
                         attributes={'is_crowd': True}),
                 ]
             ),
-        ], categories=Cityscapes.make_cityscapes_categories(use_train_label_map=True))
+        ], categories=Cityscapes.make_cityscapes_categories(label_map=TRAIN_CITYSCAPES_LABEL_MAP))
 
         parsed_dataset = Dataset.import_from(DUMMY_TRAIN_DATASET_DIR, 'cityscapes')
 

@@ -95,18 +95,14 @@ class CityscapesPath:
     GT_INSTANCE_MASK_SUFFIX = '_' + GT_FINE_DIR + INSTANCES_IMAGE
     COLOR_IMAGE = '_color.png'
     LABELIDS_IMAGE = '_labelIds.png'
-    LABEl_TRAIN_IDS_SUFFIX = '_' + GT_FINE_DIR + '_labelTrainIds.png'
+    LABEL_TRAIN_IDS_SUFFIX = '_' + GT_FINE_DIR + '_labelTrainIds.png'
 
     LABELMAP_FILE = 'label_colors.txt'
 
-def make_cityscapes_categories(label_map=None, use_train_label_map=False):
+def make_cityscapes_categories(label_map=None):
     if label_map is None:
-        if use_train_label_map:
-            label_map = TRAIN_CITYSCAPES_LABEL_MAP
-        else:
-            label_map = CITYSCAPES_LABEL_MAP
+        label_map = CITYSCAPES_LABEL_MAP
 
-    # There must always be a label with color (0, 0, 0) at index 0
     bg_label = find(label_map.items(), lambda x: x[1] == (0, 0, 0))
     if bg_label is None:
         bg_label = 'background'
@@ -198,7 +194,8 @@ class CityscapesExtractor(SourceExtractor):
 
         self._items = list(self._load_items().values())
 
-    def _load_categories(self, path, label_map=None):
+    def _load_categories(self, path, use_train_label_map=False):
+        label_map = None
         if has_meta_file(path):
             label_map = parse_meta_file(path)
         else:
@@ -206,7 +203,10 @@ class CityscapesExtractor(SourceExtractor):
             if osp.isfile(label_map_path):
                 label_map = parse_label_map(label_map_path)
             elif label_map is None:
-                label_map = CITYSCAPES_LABEL_MAP
+                if use_train_label_map:
+                    label_map = TRAIN_CITYSCAPES_LABEL_MAP
+                else:
+                    label_map = CITYSCAPES_LABEL_MAP
 
         self._labels = [label for label in label_map]
         return make_cityscapes_categories(label_map)
@@ -228,10 +228,12 @@ class CityscapesExtractor(SourceExtractor):
                 for p in find_images(self._images_dir, recursive=True)
             }
 
-        masks = glob.glob(osp.join(self._gt_anns_dir,'**', '*' + CityscapesPath.LABEl_TRAIN_IDS_SUFFIX), recursive=True)
-        mask_suffix = CityscapesPath.LABEl_TRAIN_IDS_SUFFIX
+        masks = glob.glob(osp.join(self._gt_anns_dir, '**',
+            f'*{CityscapesPath.LABEL_TRAIN_IDS_SUFFIX}'), recursive=True)
+        mask_suffix = CityscapesPath.LABEL_TRAIN_IDS_SUFFIX
         if not masks:
-            masks = glob.glob(osp.join(self._gt_anns_dir, '**', '*' + CityscapesPath.GT_INSTANCE_MASK_SUFFIX), recursive=True)
+            masks = glob.glob(osp.join(self._gt_anns_dir, '**',
+                f'*{CityscapesPath.GT_INSTANCE_MASK_SUFFIX}'), recursive=True)
             mask_suffix = CityscapesPath.GT_INSTANCE_MASK_SUFFIX
         for mask_path in masks:
             item_id = self._get_id_from_mask_path(mask_path, mask_suffix)
@@ -262,12 +264,11 @@ class CityscapesExtractor(SourceExtractor):
             items[item_id] = DatasetItem(id=item_id, subset=self._subset,
                 image=path)
 
-        if mask_suffix is CityscapesPath.LABEl_TRAIN_IDS_SUFFIX:
+        if mask_suffix is CityscapesPath.LABEL_TRAIN_IDS_SUFFIX:
             self._categories = self._load_categories(self._path,
-                label_map=TRAIN_CITYSCAPES_LABEL_MAP)
+                use_train_label_map=True)
         else:
-            self._categories = self._load_categories(self._path,
-                label_map=CITYSCAPES_LABEL_MAP)
+            self._categories = self._load_categories(self._path)
 
         return items
 
