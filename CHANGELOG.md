@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
-## \[Unreleased\]
+## 28/01/2022 - Release v0.2.3
 ### Added
 - Ability to import a video as frames with the `video_frames` format and
   to split a video into frames with the `datum util split_video` command
@@ -44,7 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/625>)
 
 ### Deprecated
-- TBD
+- Python 3.6 support
 
 ### Removed
 - Official support of Python 3.6 (due to it's EOL)
