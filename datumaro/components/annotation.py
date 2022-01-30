@@ -61,9 +61,6 @@ class Annotation:
     # single object. The value of 0 means there is no group.
     group: int = field(default=NO_GROUP, validator=default_if_none(int))
 
-    def __attrs_post_init__(self):
-        assert isinstance(self.type, AnnotationType)
-
     @property
     def type(self) -> AnnotationType:
         return self._type # must be set in subclasses
