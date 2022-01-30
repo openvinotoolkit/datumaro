@@ -71,7 +71,7 @@ class Image(MediaElement):
         if not isinstance(data, np.ndarray):
             assert path or callable(data), "Image can not be empty"
             assert data is None or callable(data)
-            if path and (data or osp.isfile(path)):
+            if data or path and osp.isfile(path):
                 data = lazy_image(path, loader=data)
         self._data = data
 
