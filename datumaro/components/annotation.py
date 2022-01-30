@@ -32,7 +32,7 @@ COORDINATE_ROUNDING_DIGITS = 2
 
 NO_GROUP = 0
 
-@attrs(kw_only=True, order=False)
+@attrs(slots=True, kw_only=True, order=False)
 class Annotation:
     """
     A base annotation class.
@@ -72,7 +72,7 @@ class Annotation:
         "Returns a modified copy of the object"
         return attr.evolve(self, **kwargs)
 
-@attrs(kw_only=True, order=False)
+@attrs(slots=True, kw_only=True, order=False)
 class Categories:
     """
     A base class for annotation metainfo. It is supposed to include
@@ -85,9 +85,9 @@ class Categories:
     attributes: Set[str] = attrib(
         factory=set, validator=default_if_none(set), eq=False)
 
-@attrs(order=False)
+@attrs(slots=True, order=False)
 class LabelCategories(Categories):
-    @attrs(order=False)
+    @attrs(slots=True, order=False)
     class Category:
         name: str = attrib(converter=str, validator=not_empty)
         parent: str = attrib(default='', validator=default_if_none(str))
@@ -166,7 +166,7 @@ class LabelCategories(Categories):
     def __iter__(self) -> Iterator[Category]:
         return iter(self.items)
 
-@attrs(order=False)
+@attrs(slots=True, order=False)
 class Label(Annotation):
     _type = AnnotationType.label
     label: int = attrib(converter=int)
@@ -174,7 +174,7 @@ class Label(Annotation):
 RgbColor = Tuple[int, int, int]
 Colormap = Dict[int, RgbColor]
 
-@attrs(eq=False, order=False)
+@attrs(slots=True, eq=False, order=False)
 class MaskCategories(Categories):
     """
     Describes a color map for segmentation masks.
@@ -229,7 +229,7 @@ class MaskCategories(Categories):
 BinaryMaskImage = np.ndarray # 2d array of type bool
 IndexMaskImage = np.ndarray # 2d array of type int
 
-@attrs(eq=False, order=False)
+@attrs(slots=True, eq=False, order=False)
 class Mask(Annotation):
     """
     Represents a 2d single-instance binary segmentation mask.
@@ -297,7 +297,7 @@ class Mask(Annotation):
             (self.z_order == other.z_order) and \
             (np.array_equal(self.image, other.image))
 
-@attrs(eq=False, order=False)
+@attrs(slots=True, eq=False, order=False)
 class RleMask(Mask):
     """
     An RLE-encoded instance segmentation mask.
@@ -467,7 +467,7 @@ class CompiledMask:
     def lazy_extract(self, instance_id: int) -> Callable[[], IndexMaskImage]:
         return lambda: self.extract(instance_id)
 
-@attrs(order=False)
+@attrs(slots=True, order=False)
 class _Shape(Annotation):
     # Flattened list of point coordinates
     points: List[float] = attrib(converter=lambda x:
@@ -497,7 +497,7 @@ class _Shape(Annotation):
         y1 = max(ys)
         return [x0, y0, x1 - x0, y1 - y0]
 
-@attrs(order=False)
+@attrs(slots=True, order=False)
 class PolyLine(_Shape):
     _type = AnnotationType.polyline
 
@@ -508,7 +508,7 @@ class PolyLine(_Shape):
         return 0
 
 
-@attrs(init=False, order=False)
+@attrs(slots=True, init=False, order=False)
 class Cuboid3d(Annotation):
     _type = AnnotationType.cuboid_3d
     _points: List[float] = attrib(default=None)
@@ -567,7 +567,7 @@ class Cuboid3d(Annotation):
             [round(p, COORDINATE_ROUNDING_DIGITS) for p in value]
 
 
-@attrs(order=False)
+@attrs(slots=True, order=False)
 class Polygon(_Shape):
     _type = AnnotationType.polygon
 
@@ -584,7 +584,7 @@ class Polygon(_Shape):
         area = mask_utils.area(rle)[0]
         return area
 
-@attrs(init=False, order=False)
+@attrs(slots=True, init=False, order=False)
 class Bbox(_Shape):
     _type = AnnotationType.bbox
 
@@ -633,13 +633,13 @@ class Bbox(_Shape):
         return attr.evolve(item, **d)
 
 
-@attrs(order=False)
+@attrs(slots=True, order=False)
 class PointsCategories(Categories):
     """
     Describes (key-)point metainfo such as point names and joints.
     """
 
-    @attrs(order=False)
+    @attrs(slots=True, order=False)
     class Category:
         # Names for specific points, e.g. eye, hose, mouth etc.
         # These labels are not required to be in LabelCategories
@@ -693,7 +693,7 @@ class PointsCategories(Categories):
         return len(self.items)
 
 
-@attrs(order=False)
+@attrs(slots=True, order=False)
 class Points(_Shape):
     """
     Represents an ordered set of points.
@@ -736,7 +736,7 @@ class Points(_Shape):
         y1 = max(ys, default=0)
         return [x0, y0, x1 - x0, y1 - y0]
 
-@attrs(order=False)
+@attrs(slots=True, order=False)
 class Caption(Annotation):
     """
     Represents arbitrary text annotations.
