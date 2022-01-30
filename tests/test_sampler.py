@@ -1,4 +1,7 @@
-from collections import defaultdict
+from __future__ import annotations
+
+from collections import Counter, defaultdict
+from itertools import product
 from typing import Dict
 from unittest import TestCase, skipIf
 import csv
@@ -8,9 +11,12 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.extractor import DatasetItem
 from datumaro.components.media import Image
+from datumaro.components.operations import compute_ann_statistics
 from datumaro.components.project import Dataset
-from datumaro.plugins.sampler.random_sampler import RandomSampler
-from datumaro.util.test_utils import compare_datasets_strict
+from datumaro.plugins.sampler.random_sampler import (
+    LabelRandomSampler, RandomSampler,
+)
+from datumaro.util.test_utils import compare_datasets, compare_datasets_strict
 
 try:
     import pandas as pd
@@ -1168,6 +1174,116 @@ class TestRandomSampler(TestCase):
 
         actual1 = RandomSampler(source, 5, seed=1)
         actual2 = RandomSampler(source, 5, seed=2)
+
+        with self.assertRaises(AssertionError):
+            compare_datasets_strict(self, actual1, actual2)
+
+class TestLabelRandomSampler(TestCase):
+    def test_can_sample_with_common_count(self):
+        source = Dataset.from_iterable([
+            DatasetItem(i, subset=s, annotations=[Label(l)])
+            for i, (s, l, _) in enumerate(product(
+                ['a', 'b'], [0, 1, 2], [0, 1, 2]))
+        ], categories=['a', 'b', 'c'])
+
+        actual = LabelRandomSampler(source, count=2)
+
+        counts_a = Counter(a.label
+            for item in actual.get_subset('a')
+            for a in item.annotations)
+        counts_b = Counter(a.label
+            for item in actual.get_subset('b')
+            for a in item.annotations)
+        self.assertEqual(set(counts_a.values()), {2})
+        self.assertEqual(set(counts_b.values()), {2})
+
+    def test_can_sample_with_selective_count(self):
+        source = Dataset.from_iterable([
+            DatasetItem(i, subset=s, annotations=[Label(l)])
+            for i, (s, l, _) in enumerate(product(
+                ['a', 'b'], [0, 1, 2], [0, 1, 2]))
+        ], categories=['a', 'b', 'c'])
+
+        actual = LabelRandomSampler(source, count=2,
+            label_counts={'a': 0, 'b': 1})
+
+        counts_a = Counter(a.label
+            for item in actual.get_subset('a')
+            for a in item.annotations)
+        counts_b = Counter(a.label
+            for item in actual.get_subset('b')
+            for a in item.annotations)
+        self.assertEqual(counts_a, {
+            actual.categories()[AnnotationType.label].find('b')[0]: 1,
+            actual.categories()[AnnotationType.label].find('c')[0]: 2
+        })
+        self.assertEqual(counts_b, {
+            actual.categories()[AnnotationType.label].find('b')[0]: 1,
+            actual.categories()[AnnotationType.label].find('c')[0]: 2
+        })
+
+    def test_can_change_output_labels(self):
+        expected = Dataset.from_iterable([], categories=['a'])
+
+        source = Dataset.from_iterable([], categories=['a', 'b', 'c'])
+        actual = LabelRandomSampler(source, label_counts={'a': 1, 'b': 0})
+
+        compare_datasets(self, expected, actual)
+
+    def test_can_reiterate_sequence(self):
+        source = Dataset.from_iterable([
+            DatasetItem('1', subset='a', annotations=[Label(0), Label(1)]),
+            DatasetItem('2', subset='a', annotations=[Label(1)]),
+            DatasetItem('3', subset='a', annotations=[Label(2)]),
+            DatasetItem('4', subset='a', annotations=[Label(1), Label(2)]),
+            DatasetItem('5', subset='b', annotations=[Label(0)]),
+            DatasetItem('6', subset='b', annotations=[Label(0), Label(2)]),
+            DatasetItem('7', subset='b', annotations=[Label(1), Label(2)]),
+            DatasetItem('8', subset='b', annotations=[Label(2)]),
+        ], categories=['a', 'b', 'c'])
+
+        transformed = LabelRandomSampler(source, count=2)
+
+        actual1 = Dataset.from_extractors(transformed)
+        actual1.init_cache()
+
+        actual2 = Dataset.from_extractors(transformed)
+        actual2.init_cache()
+
+        compare_datasets_strict(self, actual1, actual2)
+
+    def test_can_reproduce_sequence(self):
+        source = Dataset.from_iterable([
+            DatasetItem('1', subset='a', annotations=[Label(0), Label(1)]),
+            DatasetItem('2', subset='a', annotations=[Label(1)]),
+            DatasetItem('3', subset='a', annotations=[Label(2)]),
+            DatasetItem('4', subset='a', annotations=[Label(1), Label(2)]),
+            DatasetItem('5', subset='b', annotations=[Label(0)]),
+            DatasetItem('6', subset='b', annotations=[Label(0), Label(2)]),
+            DatasetItem('7', subset='b', annotations=[Label(1), Label(2)]),
+            DatasetItem('8', subset='b', annotations=[Label(2)]),
+        ], categories=['a', 'b', 'c'])
+
+        seed = 42
+        actual1 = LabelRandomSampler(source, count=2, seed=seed)
+        actual2 = LabelRandomSampler(source, count=2, seed=seed)
+
+        compare_datasets_strict(self, actual1, actual2)
+
+    def test_can_change_sequence(self):
+        source = Dataset.from_iterable([
+            DatasetItem('1', subset='a', annotations=[Label(0), Label(1)]),
+            DatasetItem('2', subset='a', annotations=[Label(1)]),
+            DatasetItem('3', subset='a', annotations=[Label(2)]),
+            DatasetItem('4', subset='a', annotations=[Label(1), Label(2)]),
+            DatasetItem('5', subset='b', annotations=[Label(0)]),
+            DatasetItem('6', subset='b', annotations=[Label(0), Label(2)]),
+            DatasetItem('7', subset='b', annotations=[Label(1), Label(2)]),
+            DatasetItem('8', subset='b', annotations=[Label(2)]),
+        ], categories=['a', 'b', 'c'])
+
+        actual1 = LabelRandomSampler(source, count=2, seed=1)
+        actual2 = LabelRandomSampler(source, count=2, seed=2)
 
         with self.assertRaises(AssertionError):
             compare_datasets_strict(self, actual1, actual2)

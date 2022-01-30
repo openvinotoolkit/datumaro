@@ -2,11 +2,15 @@
 #
 # SPDX-License-Identifier: MIT
 
+from collections import defaultdict
 from random import Random
-from typing import Optional
+from typing import List, Mapping, Optional, Tuple
+import argparse
 
+from datumaro.components.annotation import AnnotationType
 from datumaro.components.cli_plugin import CliPlugin
-from datumaro.components.extractor import IExtractor, Transform
+from datumaro.components.extractor import DatasetItem, IExtractor, Transform
+from datumaro.util import cast
 
 
 class RandomSampler(Transform, CliPlugin):
@@ -83,3 +87,117 @@ class RandomSampler(Transform, CliPlugin):
                             return
 
                 i += 1
+
+class LabelRandomSampler(Transform, CliPlugin):
+    """
+    Sampler that keeps at least the required number of annotations of
+    each class in the dataset for each subset separately.|n
+    |n
+    Consider using the "stats" command to get class distribution in
+    the dataset.|n
+    |n
+    Notes:|n
+    - Items can contain annotations of several selected classes
+    (e.g. 3 bounding boxes per image). The number of annotations in the
+    resulting dataset varies between max(class counts) and sum(class counts)|n
+    - If the input dataset does not has enough class annotations, the result
+    will contain only what is available|n
+    - Items are selected uniformly|n
+    - For reasons above, the resulting class distribution in the dataset may
+    not be the same as requested|n
+    - The resulting dataset will only keep annotations for
+    classes with specified count > 0|n
+    |n
+    Example: select at least 5 annotations of each class randomly|n
+    |s|s%(prog)s -k 5 |n
+    Example: select at least 5 images with "cat" annotations and 3 "person"|n
+    |s|s%(prog)s -l "cat:5" -l "person:3" |n
+    """
+
+    @staticmethod
+    def _parse_label_count(s: str) -> Tuple[str, int]:
+        label, count = s.split(':', maxsplit=1)
+        count = cast(count, int, default=None)
+
+        if not label:
+            raise argparse.ArgumentError(None, "Class name cannot be empty")
+        if count is None or count < 0:
+            raise argparse.ArgumentError(None,
+                f"Class '{label}' count is invalid")
+
+        return label, count
+
+    @classmethod
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument('-k', '--count', type=int, required=True,
+            help="Minimum number of annotations of each class")
+        parser.add_argument('-l', '--label', dest='label_counts',
+            action='append', type=cls._parse_label_count,
+            help="Minimum number of annotations of a specific class. "
+                "Overrides the global setting for a class. "
+                "The format is 'label_name:count' (repeatable)")
+        parser.add_argument('--seed', type=int,
+            help="Initial value for random number generator")
+        return parser
+
+    def __init__(self, extractor: IExtractor, *,
+            count: Optional[int] = None,
+            label_counts: Optional[Mapping[str, int]] = None,
+            seed: Optional[int] = None):
+        from datumaro.plugins.transforms import ProjectLabels
+
+        count = count or 0
+        label_counts = dict(label_counts or {})
+        assert count or any(label_counts.values())
+
+        new_labels = {}
+        for label in extractor.categories()[AnnotationType.label]:
+            label_count = label_counts.get(label.name, count)
+            if label_count:
+                new_labels[label.name] = label_count
+        self._label_counts = { idx: count
+            for idx, count in enumerate(new_labels.values()) }
+        super().__init__(ProjectLabels(extractor, new_labels.keys()))
+
+        self._seed = seed
+
+        # for repeated calls
+        self._selected_items: List[DatasetItem] = None
+
+    def __iter__(self):
+        if self._selected_items is not None:
+            yield from self._selected_items
+            return
+
+        # Uses the reservoir sampling algorithm for each class
+        # https://en.wikipedia.org/wiki/Reservoir_sampling
+
+        def _make_bucket():
+            # label -> bucket
+            return { label: [] for label in self._label_counts }
+        buckets = defaultdict(_make_bucket) # subset -> subset_buckets
+
+        rng = Random(self._seed)
+
+        for i, item in enumerate(self._extractor):
+            labels = set(getattr(ann, 'label', None)
+                for ann in item.annotations)
+            labels.discard(None)
+            for label in labels:
+                if len(buckets[item.subset][label]) < self._label_counts[label]:
+                    buckets[item.subset][label].append(item)
+                else:
+                    j = rng.randint(1, i)
+                    if j <= self._label_counts[label]:
+                        buckets[item.subset][label][j - 1] = item
+
+        selected_items = {}
+        for subset_buckets in buckets.values():
+            for label_bucket in subset_buckets.values():
+                for item in label_bucket:
+                    if item:
+                        selected_items.setdefault((item.id, item.subset), item)
+
+        self._selected_items = selected_items.values()
+        yield from self._selected_items

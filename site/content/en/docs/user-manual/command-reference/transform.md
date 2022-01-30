@@ -90,6 +90,7 @@ Basic dataset item manipulations:
 - `relevancy_sampler` - Leaves only the most important images
   (requires model inference results)
 - `random_sampler` - Leaves no more than k items from the dataset randomly
+- `label_random_sampler` - Leaves at least k images with annotations per class
 - `resize` - Resizes images and annotations in the dataset
 
 Subset manipulations:
@@ -171,10 +172,27 @@ datum transform -t rename -- -e '|frame_(\d+)|\\1|'
 ```
 
 - Create a dataset with data subset selected randomly. Tries to keep
-  original item distribution by subsets
+original item distribution by subsets
 
 ``` bash
 datum transform -t random_sampler -- -k 1000
+```
+
+- Create a dataset with data subset selected randomly, so that each class has
+at least k images with annotations. Each subset is processed independently.
+
+``` bash
+datum transform -t label_random_sampler -- -k 10
+```
+
+Separate classes can have diferent requirements:
+
+``` bash
+datum transform -t label_random_sampler -- \
+  -l cat:20 \ # keep 20 images with cats
+  -l dog:5 \ # keep 5 images with dogs
+  -l car:0 \ # remove car annotations
+  -k 10 # for remaining classes
 ```
 
 - Create a dataset from K the most hard items for a model. The dataset will
