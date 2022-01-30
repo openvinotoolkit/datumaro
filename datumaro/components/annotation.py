@@ -133,7 +133,7 @@ class LabelCategories(Categories):
         self._indices = indices
 
     def add(self, name: str, parent: Optional[str] = None,
-            attributes: Optional[Dict[str, Any]] = None) -> int:
+            attributes: Optional[Set[str]] = None) -> int:
         assert name
         assert name not in self._indices, name
 
