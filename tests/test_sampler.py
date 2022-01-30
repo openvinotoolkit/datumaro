@@ -11,7 +11,6 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.extractor import DatasetItem
 from datumaro.components.media import Image
-from datumaro.components.operations import compute_ann_statistics
 from datumaro.components.project import Dataset
 from datumaro.plugins.sampler.random_sampler import (
     LabelRandomSampler, RandomSampler,
