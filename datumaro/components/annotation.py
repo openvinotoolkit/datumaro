@@ -566,7 +566,6 @@ class Polygon(_Shape):
     _type = AnnotationType.polygon
 
     def __attrs_post_init__(self):
-        super().__attrs_post_init__()
         # keep the message on a single line to produce informative output
         assert len(self.points) % 2 == 0 and 3 <= len(self.points) // 2, "Wrong polygon points: %s" % self.points
 
@@ -713,7 +712,6 @@ class Points(_Shape):
         self.visibility = visibility
 
     def __attrs_post_init__(self):
-        super().__attrs_post_init__()
         assert len(self.points) % 2 == 0, self.points
 
     def get_area(self):
