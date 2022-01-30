@@ -467,8 +467,8 @@ class CompiledMask:
 @attrs(slots=True, order=False)
 class _Shape(Annotation):
     # Flattened list of point coordinates
-    points: List[float] = field(converter=lambda x:
-        [round(p, COORDINATE_ROUNDING_DIGITS) for p in x])
+    points: List[float] = field(converter=lambda x: \
+        np.round(x, COORDINATE_ROUNDING_DIGITS).tolist())
 
     label: Optional[int] = field(converter=attr.converters.optional(int),
         default=None, kw_only=True)
@@ -518,7 +518,7 @@ class Cuboid3d(Annotation):
             points = [0, 0, 0,  0, 0, 0,  1, 1, 1]
         else:
             assert len(points) == 3 + 3 + 3, points
-            points = [round(p, COORDINATE_ROUNDING_DIGITS) for p in points]
+            points = np.round(points, COORDINATE_ROUNDING_DIGITS).tolist()
         self._points = points
 
     def __init__(self, position, rotation=None, scale=None, **kwargs):
@@ -540,8 +540,7 @@ class Cuboid3d(Annotation):
         # TODO: fix the issue with separate coordinate rounding:
         # self.position[0] = 12.345676
         # - the number assigned won't be rounded.
-        self.position[:] = \
-            [round(p, COORDINATE_ROUNDING_DIGITS) for p in value]
+        self.position[:] = np.round(value, COORDINATE_ROUNDING_DIGITS).tolist()
 
     @property
     def rotation(self):
@@ -550,8 +549,7 @@ class Cuboid3d(Annotation):
 
     @rotation.setter
     def _set_rotation(self, value):
-        self.rotation[:] = \
-            [round(p, COORDINATE_ROUNDING_DIGITS) for p in value]
+        self.rotation[:] = np.round(value, COORDINATE_ROUNDING_DIGITS).tolist()
 
     @property
     def scale(self):
@@ -560,8 +558,7 @@ class Cuboid3d(Annotation):
 
     @scale.setter
     def _set_scale(self, value):
-        self.scale[:] = \
-            [round(p, COORDINATE_ROUNDING_DIGITS) for p in value]
+        self.scale[:] = np.round(value, COORDINATE_ROUNDING_DIGITS).tolist()
 
 
 @attrs(slots=True, order=False)
