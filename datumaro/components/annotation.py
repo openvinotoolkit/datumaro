@@ -10,7 +10,7 @@ from typing import (
     Any, Callable, Dict, Iterable, Iterator, List, Optional, Set, Tuple, Union,
 )
 
-from attr import attrib, attrs
+from attr import attrs, field
 from typing_extensions import Literal
 import attr
 import numpy as np
@@ -43,7 +43,7 @@ class Annotation:
 
     # Describes an identifier of the annotation
     # Is not required to be unique within DatasetItem annotations or dataset
-    id: int = attrib(default=0, validator=default_if_none(int))
+    id: int = field(default=0, validator=default_if_none(int))
 
     # Arbitrary annotation-specific attributes. Typically, includes
     # metainfo and properties that are not covered by other fields.
@@ -54,12 +54,12 @@ class Annotation:
     # - "occluded" (bool)
     # - "visible" (bool)
     # Possible dataset attributes can be described in Categories.attributes.
-    attributes: Dict[str, Any] = attrib(
+    attributes: Dict[str, Any] = field(
         factory=dict, validator=default_if_none(dict))
 
     # Annotations can be grouped, which means they describe parts of a
     # single object. The value of 0 means there is no group.
-    group: int = attrib(default=NO_GROUP, validator=default_if_none(int))
+    group: int = field(default=NO_GROUP, validator=default_if_none(int))
 
     def __attrs_post_init__(self):
         assert isinstance(self.type, AnnotationType)
@@ -82,20 +82,20 @@ class Categories:
 
     # Describes the list of possible annotation-type specific attributes
     # in a dataset.
-    attributes: Set[str] = attrib(
+    attributes: Set[str] = field(
         factory=set, validator=default_if_none(set), eq=False)
 
 @attrs(slots=True, order=False)
 class LabelCategories(Categories):
     @attrs(slots=True, order=False)
     class Category:
-        name: str = attrib(converter=str, validator=not_empty)
-        parent: str = attrib(default='', validator=default_if_none(str))
-        attributes: Set[str] = attrib(
+        name: str = field(converter=str, validator=not_empty)
+        parent: str = field(default='', validator=default_if_none(str))
+        attributes: Set[str] = field(
             factory=set, validator=default_if_none(set))
 
-    items: List[str] = attrib(factory=list, validator=default_if_none(list))
-    _indices: Dict[str, int] = attrib(factory=dict, init=False, eq=False)
+    items: List[str] = field(factory=list, validator=default_if_none(list))
+    _indices: Dict[str, int] = field(factory=dict, init=False, eq=False)
 
     @classmethod
     def from_iterable(cls, iterable: Iterable[Union[
@@ -169,7 +169,7 @@ class LabelCategories(Categories):
 @attrs(slots=True, order=False)
 class Label(Annotation):
     _type = AnnotationType.label
-    label: int = attrib(converter=int)
+    label: int = field(converter=int)
 
 RgbColor = Tuple[int, int, int]
 Colormap = Dict[int, RgbColor]
@@ -193,9 +193,9 @@ class MaskCategories(Categories):
         return cls(generate_colormap(size,
             include_background=include_background))
 
-    colormap: Colormap = attrib(
+    colormap: Colormap = field(
         factory=dict, validator=default_if_none(dict))
-    _inverse_colormap: Optional[Dict[RgbColor, int]] = attrib(
+    _inverse_colormap: Optional[Dict[RgbColor, int]] = field(
         default=None, validator=attr.validators.optional(dict))
 
     @property
@@ -236,10 +236,10 @@ class Mask(Annotation):
     """
 
     _type = AnnotationType.mask
-    _image = attrib()
-    label: Optional[int] = attrib(
+    _image = field()
+    label: Optional[int] = field(
         converter=attr.converters.optional(int), default=None, kw_only=True)
-    z_order: int = attrib(
+    z_order: int = field(
         default=0, validator=default_if_none(int), kw_only=True)
 
     def __attrs_post_init__(self):
@@ -303,9 +303,9 @@ class RleMask(Mask):
     An RLE-encoded instance segmentation mask.
     """
 
-    rle = attrib() # uses pycocotools RLE representation
+    rle = field() # uses pycocotools RLE representation
 
-    _image = attrib(init=False, default=attr.Factory(
+    _image = field(init=False, default=attr.Factory(
         lambda self: self._lazy_decode(self.rle),
         takes_self=True))
 
@@ -470,13 +470,13 @@ class CompiledMask:
 @attrs(slots=True, order=False)
 class _Shape(Annotation):
     # Flattened list of point coordinates
-    points: List[float] = attrib(converter=lambda x:
+    points: List[float] = field(converter=lambda x:
         [round(p, COORDINATE_ROUNDING_DIGITS) for p in x])
 
-    label: Optional[int] = attrib(converter=attr.converters.optional(int),
+    label: Optional[int] = field(converter=attr.converters.optional(int),
         default=None, kw_only=True)
 
-    z_order: int = attrib(default=0, validator=default_if_none(int),
+    z_order: int = field(default=0, validator=default_if_none(int),
         kw_only=True)
 
     def get_area(self):
@@ -511,8 +511,8 @@ class PolyLine(_Shape):
 @attrs(slots=True, init=False, order=False)
 class Cuboid3d(Annotation):
     _type = AnnotationType.cuboid_3d
-    _points: List[float] = attrib(default=None)
-    label: Optional[int] = attrib(converter=attr.converters.optional(int),
+    _points: List[float] = field(default=None)
+    label: Optional[int] = field(converter=attr.converters.optional(int),
         default=None, kw_only=True)
 
     @_points.validator
@@ -643,14 +643,14 @@ class PointsCategories(Categories):
     class Category:
         # Names for specific points, e.g. eye, hose, mouth etc.
         # These labels are not required to be in LabelCategories
-        labels: List[str] = attrib(
+        labels: List[str] = field(
             factory=list, validator=default_if_none(list))
 
         # Pairs of connected point indices
-        joints: Set[Tuple[int, int]] = attrib(
+        joints: Set[Tuple[int, int]] = field(
             factory=set, validator=default_if_none(set))
 
-    items: Dict[int, Category] = attrib(
+    items: Dict[int, Category] = field(
         factory=dict, validator=default_if_none(dict))
 
     @classmethod
@@ -706,7 +706,7 @@ class Points(_Shape):
 
     _type = AnnotationType.points
 
-    visibility: List[bool] = attrib(default=None)
+    visibility: List[bool] = field(default=None)
     @visibility.validator
     def _visibility_validator(self, attribute, visibility):
         if visibility is None:
@@ -743,4 +743,4 @@ class Caption(Annotation):
     """
 
     _type = AnnotationType.caption
-    caption: str = attrib(converter=str)
+    caption: str = field(converter=str)
