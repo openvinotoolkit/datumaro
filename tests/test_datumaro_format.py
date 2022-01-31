@@ -252,8 +252,8 @@ class DatumaroConverterTest(TestCase):
             dataset.save(path, save_images=True)
 
             dataset.filter('/item[id >= 2]')
-            dataset.transform('random_split', (('train', 0.5), ('test', 0.5)),
-                seed=42)
+            dataset.transform('random_split',
+                splits=(('train', 0.5), ('test', 0.5)), seed=42)
             dataset.save(save_images=True)
 
             self.assertEqual(

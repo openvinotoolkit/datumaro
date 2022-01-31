@@ -10,7 +10,6 @@ import os.path as osp
 import shutil
 
 from datumaro.components.cli_plugin import CliPlugin
-from datumaro.components.dataset import DatasetPatch
 from datumaro.components.extractor import DatasetItem
 from datumaro.components.media import Image
 from datumaro.util.meta_file_util import save_meta_file
@@ -88,6 +87,7 @@ class Converter(CliPlugin):
 
         # TODO: refactor this variable.
         # Can be used by a subclass to store the current patch info
+        from datumaro.components.dataset import DatasetPatch
         if isinstance(extractor, DatasetPatch.DatasetPatchWrapper):
             self._patch = extractor.patch
         else:
