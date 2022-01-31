@@ -1,4 +1,4 @@
-attrs>=21.1.0
+attrs>=21.3.0
 defusedxml>=0.7.0
 lxml>=4.4.1
 matplotlib>=3.3.1
