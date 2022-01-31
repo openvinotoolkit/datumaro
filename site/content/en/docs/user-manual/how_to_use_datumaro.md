@@ -18,11 +18,9 @@ python datum.py --help
 As a Python library:
 
 ``` python
-from datumaro.components.project import Project
-from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import Label, Bbox, DatasetItem
+import datumaro as dm
 ...
-dataset = Dataset.import_from(path, format)
+dataset = dm.Dataset.import_from(path, format)
 ...
 ```
 

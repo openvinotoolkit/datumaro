@@ -17,6 +17,7 @@ import os
 import os.path as osp
 
 from datumaro.components.annotation import AnnotationType, LabelCategories
+from datumaro.components.converter import Converter
 from datumaro.components.dataset_filter import (
     XPathAnnotationsFilter, XPathDatasetFilter,
 )
@@ -30,6 +31,7 @@ from datumaro.components.extractor import (
     DEFAULT_SUBSET_NAME, CategoriesInfo, DatasetItem, Extractor, IExtractor,
     ItemTransform, Transform,
 )
+from datumaro.components.launcher import Launcher, ModelTransform
 from datumaro.plugins.transforms import ProjectLabels
 from datumaro.util import is_method_redefined
 from datumaro.util.log_utils import logging_disabled
@@ -606,7 +608,7 @@ class DatasetStorage(IDataset):
                 self.put(item)
 
 class Dataset(IDataset):
-    _global_eager = False
+    _global_eager: bool = False
 
     @classmethod
     def from_iterable(cls, iterable: Iterable[DatasetItem],
@@ -647,7 +649,7 @@ class Dataset(IDataset):
 
         return Dataset(source=source, env=env)
 
-    def __init__(self, source: Optional[IDataset] = None,
+    def __init__(self, source: Optional[IDataset] = None, *,
             categories: Optional[CategoriesInfo] = None,
             env: Optional[Environment] = None) -> None:
         super().__init__()
@@ -713,14 +715,33 @@ class Dataset(IDataset):
 
     def filter(self, expr: str, filter_annotations: bool = False,
             remove_empty: bool = False) -> Dataset:
+        """
+        Filters out some dataset items or annotations, using a custom filter
+        expression.
+
+        Results are stored in-place. Modifications are applied lazily.
+
+        Args:
+            expr - XPath-formatted filter expression
+                (e.g. `/item[subset = 'train']`,
+                `/item/annotation[label = 'cat']`)
+            filter_annotations - Indicates if the filter should be
+                applied to items or annotations
+            remove_empty - When filtering annotations, allows to
+                exclude empty items from the resulting dataset
+
+        Returns: self
+        """
+
         if filter_annotations:
-            return self.transform(XPathAnnotationsFilter, expr, remove_empty)
+            return self.transform(XPathAnnotationsFilter,
+                xpath=expr, remove_empty=remove_empty)
         else:
-            return self.transform(XPathDatasetFilter, expr)
+            return self.transform(XPathDatasetFilter, xpath=expr)
 
     def update(self,
-            source: Union[DatasetPatch, IExtractor, Iterable[DatasetItem]]) \
-                -> Dataset:
+            source: Union[DatasetPatch, IExtractor, Iterable[DatasetItem]]
+    ) -> Dataset:
         """
         Updates items of the current dataset from another dataset or an
         iterable (the source). Items from the source overwrite matching
@@ -732,38 +753,62 @@ class Dataset(IDataset):
         If the source is a dataset, labels are matched. If the labels match,
         but the order is different, the annotation labels will be remapped to
         the current dataset label order during updating.
+
+        Returns: self
         """
+
         self._data.update(source)
         return self
 
     def transform(self, method: Union[str, Type[Transform]],
-            *args, **kwargs) -> Dataset:
+            **kwargs) -> Dataset:
         """
         Applies some function to dataset items.
+
+        Results are stored in-place. Modifications are applied lazily.
+
+        Args:
+            method - The transformation to be applied to the dataset.
+                If a string is passed, it is treated as a plugin name,
+                which is searched for in the dataset environment
+            **kwargs - Parameters for the transformation
+
+        Returns: self
         """
 
         if isinstance(method, str):
             method = self.env.transforms[method]
 
-        if inspect.isclass(method) and issubclass(method, Transform):
-            pass
-        else:
+        if not (inspect.isclass(method) and issubclass(method, Transform)):
             raise TypeError("Unexpected 'method' argument type: %s" % \
                 type(method))
 
-        self._data.transform(method, *args, **kwargs)
+        self._data.transform(method, **kwargs)
         if self.is_eager:
             self.init_cache()
 
         return self
 
-    def run_model(self, model, batch_size=1) -> Dataset:
-        from datumaro.components.launcher import Launcher, ModelTransform
+    def run_model(self, model: Union[Launcher, Type[ModelTransform]], *,
+            batch_size: int = 1, **kwargs) -> Dataset:
+        """
+        Applies a model to dataset items' media and produces a dataset with
+        media and annotations.
+
+        Args:
+            model - The model to be applied to the dataset
+            batch_size - The number of dataset items processed
+                simultaneously by the model
+            **kwargs - Parameters for the model
+
+        Returns: self
+        """
+
         if isinstance(model, Launcher):
             return self.transform(ModelTransform, launcher=model,
-                batch_size=batch_size)
-        elif isinstance(model, ModelTransform):
-            return self.transform(model, batch_size=batch_size)
+                batch_size=batch_size, **kwargs)
+        elif inspect.isclass(model) and isinstance(model, ModelTransform):
+            return self.transform(model, batch_size=batch_size, **kwargs)
         else:
             raise TypeError("Unexpected 'model' argument type: %s" % \
                 type(model))
@@ -832,8 +877,19 @@ class Dataset(IDataset):
         self._data.flush_changes()
 
     @scoped
-    def export(self, save_dir: str, format: Union[str, Type[Extractor]],
+    def export(self, save_dir: str, format: Union[str, Type[Converter]],
             **kwargs) -> None:
+        """
+        Saves the dataset in some format.
+
+        Args:
+            save_dir - The output directory
+            format - The desired output format.
+                If a string is passed, it is treated as a plugin name,
+                which is searched for in the dataset environment.
+            **kwargs - Parameters for the export format
+        """
+
         if not save_dir:
             raise ValueError("Dataset export path is not specified")
 
@@ -843,6 +899,10 @@ class Dataset(IDataset):
             converter = self.env.converters[format]
         else:
             converter = format
+
+        if not (inspect.isclass(converter) and issubclass(converter, Converter)):
+            raise TypeError("Unexpected 'format' argument type: %s" % \
+                type(converter))
 
         save_dir = osp.abspath(save_dir)
         if not osp.exists(save_dir):
@@ -870,7 +930,7 @@ class Dataset(IDataset):
         return cls.import_from(path, format=DEFAULT_FORMAT, **kwargs)
 
     @classmethod
-    def import_from(cls, path: str, format: Optional[str] = None,
+    def import_from(cls, path: str, format: Optional[str] = None, *,
             env: Optional[Environment] = None, **kwargs) -> Dataset:
         from datumaro.components.config_model import Source
 
@@ -878,7 +938,7 @@ class Dataset(IDataset):
             env = Environment()
 
         if not format:
-            format = cls.detect(path, env)
+            format = cls.detect(path, env=env)
 
         # TODO: remove importers, put this logic into extractors
         if format in env.importers:
@@ -906,8 +966,21 @@ class Dataset(IDataset):
         return dataset
 
     @staticmethod
-    def detect(path: str, env: Optional[Environment] = None,
-            depth: Optional[int] = 1) -> str:
+    def detect(path: str, *,
+            env: Optional[Environment] = None, depth: int = 1) -> str:
+        """
+        Attempts to detect dataset format of a given directory.
+
+        This function tries to detect a single format and fails if it's not
+        possible. Check Environment.detect_dataset() for a function that
+        reports status for each format checked.
+
+        Args:
+            path - The directory to check
+            depth - The maximum depth for recursive search
+            env - A plugin collection. If not set, the built-in plugins are used
+        """
+
         if env is None:
             env = Environment()
 
@@ -929,6 +1002,7 @@ class Dataset(IDataset):
             raise NoMatchingFormatsError()
         if 1 < len(matches):
             raise MultipleFormatsMatchError(matches)
+
 
 @contextmanager
 def eager_mode(new_mode: bool = True, dataset: Optional[Dataset] = None) -> None:
