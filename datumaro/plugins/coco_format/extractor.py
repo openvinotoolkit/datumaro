@@ -205,7 +205,7 @@ class _CocoExtractor(SourceExtractor):
         mask = bgr2index(mask)
         return mask
 
-    @define(on_setattr=False)
+    @define
     class _lazy_merged_mask:
         segmentation: Any
         h: int
