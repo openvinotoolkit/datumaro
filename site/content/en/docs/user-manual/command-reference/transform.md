@@ -87,7 +87,9 @@ Basic dataset item manipulations:
 - `id_from_image_name` - Renames dataset items to their image filenames
 - `reindex` - Renames dataset items with numbers
 - `ndr` - Removes duplicated images from dataset
-- `sampler` - Runs inference and leaves only the most representative images
+- `relevancy_sampler` - Leaves only the most important images
+  (requires model inference results)
+- `random_sampler` - Leaves no more than k items from the dataset randomly
 - `resize` - Resizes images and annotations in the dataset
 
 Subset manipulations:
@@ -168,6 +170,13 @@ datum transform -t rename -- -e '|pattern|replacement|'
 datum transform -t rename -- -e '|frame_(\d+)|\\1|'
 ```
 
+- Create a dataset with data subset selected randomly. Tries to keep
+  original item distribution by subsets
+
+``` bash
+datum transform -t random_sampler -- -k 1000
+```
+
 - Create a dataset from K the most hard items for a model. The dataset will
 be split into the `sampled` and `unsampled` subsets, based on the model
 confidence, which is stored in the `scores` annotation attribute.
@@ -181,7 +190,7 @@ There are five methods of sampling (the `-m/--method` option):
   the topk among them.
 
 ``` bash
-datum transform -t sampler -- \
+datum transform -t relevancy_sampler -- \
   -a entropy \
   -i train \
   -o sampled \

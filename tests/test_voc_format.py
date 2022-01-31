@@ -840,8 +840,8 @@ class VocConverterTest(TestCase):
 
             def categories(self):
                 label_map = OrderedDict()
-                label_map['background'] = [(0, 0, 0), [], []]
                 label_map['label_1'] = [(1, 2, 3), [], []]
+                label_map['background'] = [(0, 0, 0), [], []]
                 label_map['label_2'] = [(3, 2, 1), [], []]
                 return VOC.make_voc_categories(label_map)
 
