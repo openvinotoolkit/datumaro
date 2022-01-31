@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/555>)
 - Command to detect the format of a dataset
   (<https://github.com/openvinotoolkit/datumaro/pull/576>)
+- More comfortable access to library API via `import datumaro`
+  (<https://github.com/openvinotoolkit/datumaro/pull/630>)
+- CLI command-like free functions (`export`, `transform`, ...)
+  (<https://github.com/openvinotoolkit/datumaro/pull/630>)
 - Reading specific annotation files for train dataset in Cityscapes
   (<https://github.com/openvinotoolkit/datumaro/pull/632>)
 - Random sampling transform to create smaller datasets
@@ -40,6 +44,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Official support of Python 3.6 (due to it's EOL)
   (<https://github.com/openvinotoolkit/datumaro/pull/617>)
+- Backward compatibility annotation symbols in `components.extractor`
+  (<https://github.com/openvinotoolkit/datumaro/pull/630>)
 
 ### Fixed
 - Prohibited calling `add`, `import` and `export` commands without a project

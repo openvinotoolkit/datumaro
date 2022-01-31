@@ -25,15 +25,6 @@ from datumaro.components.media import Image
 from datumaro.util import is_method_redefined
 from datumaro.util.attrs_util import default_if_none, not_empty
 
-# Re-export some names from .annotation for backwards compatibility.
-import datumaro.components.annotation # isort:skip
-for _name in [
-    'Annotation', 'AnnotationType', 'Bbox', 'Caption', 'Categories',
-    'CompiledMask', 'Cuboid3d', 'Label', 'LabelCategories', 'Mask',
-    'MaskCategories', 'Points', 'PointsCategories', 'Polygon', 'RleMask',
-]:
-    globals()[_name] = getattr(datumaro.components.annotation, _name)
-
 DEFAULT_SUBSET_NAME = 'default'
 
 @attrs(slots=True, order=False)
@@ -115,7 +106,7 @@ class IExtractor:
     def get(self, id, subset=None) -> Optional[DatasetItem]:
         raise NotImplementedError()
 
-class ExtractorBase(IExtractor):
+class _ExtractorBase(IExtractor):
     def __init__(self, length=None, subsets=None):
         self._length = length
         self._subsets = subsets
@@ -161,7 +152,7 @@ class ExtractorBase(IExtractor):
         return method(self, *args, **kwargs)
 
     def select(self, pred):
-        class _DatasetFilter(ExtractorBase):
+        class _DatasetFilter(_ExtractorBase):
             def __iter__(_):
                 return filter(pred, iter(self))
             def categories(_):
@@ -179,7 +170,7 @@ class ExtractorBase(IExtractor):
                 return item
         return None
 
-class Extractor(ExtractorBase, CliPlugin):
+class Extractor(_ExtractorBase, CliPlugin):
     """
     A base class for user-defined and built-in extractors.
     Should be used in cases, where SourceExtractor is not enough,
@@ -294,7 +285,7 @@ class Importer(CliPlugin):
                     break
         return sources
 
-class Transform(ExtractorBase, CliPlugin):
+class Transform(_ExtractorBase, CliPlugin):
     """
     A base class for dataset transformations that change dataset items
     or their annotations.
