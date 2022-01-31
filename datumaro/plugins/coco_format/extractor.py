@@ -66,7 +66,6 @@ class _CocoExtractor(SourceExtractor):
         )
 
         if self._task == CocoTask.panoptic:
-            #panoptic is not added to pycocotools
             self._items = self._load_panoptic_items(json_data,
                 mask_dir=osp.splitext(path)[0])
         else:
