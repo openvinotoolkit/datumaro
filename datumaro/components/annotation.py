@@ -10,7 +10,7 @@ from typing import (
     Any, Callable, Dict, Iterable, Iterator, List, Optional, Set, Tuple, Union,
 )
 
-from attr import attrs, field
+from attr import asdict, attrs, field
 from typing_extensions import Literal
 import attr
 import numpy as np
@@ -64,6 +64,10 @@ class Annotation:
     @property
     def type(self) -> AnnotationType:
         return self._type # must be set in subclasses
+
+    def as_dict(self) -> Dict[str, Any]:
+        "Returns a dictionary { field_name: value }"
+        return asdict(self)
 
     def wrap(self, **kwargs):
         "Returns a modified copy of the object"
