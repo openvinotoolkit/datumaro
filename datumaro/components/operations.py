@@ -4,7 +4,7 @@
 
 from collections import OrderedDict
 from copy import deepcopy
-from typing import Callable, Dict, Iterable, List, Optional, Set, Tuple
+from typing import Any, Callable, Dict, Iterable, List, Optional, Set, Tuple
 from unittest import TestCase
 import hashlib
 import logging as log
@@ -107,7 +107,7 @@ class ExactMerge:
                 existing_item = items.get(item.id, item.subset)
                 if existing_item is not None:
                     try:
-                        item = cls.merge_items(existing_item, item)
+                        item = cls._merge_items(existing_item, item)
                     except DatasetMergeError as e:
                         e.sources = set(range(source_idx))
                         raise e
@@ -116,19 +116,19 @@ class ExactMerge:
         return items
 
     @classmethod
-    def merge_items(cls, existing_item: DatasetItem,
+    def _merge_items(cls, existing_item: DatasetItem,
             current_item: DatasetItem) -> DatasetItem:
         return existing_item.wrap(
-            image=cls.merge_images(existing_item, current_item),
-            attributes=cls.merge_attrs(
+            image=cls._merge_images(existing_item, current_item),
+            attributes=cls._merge_attrs(
                 existing_item.attributes, current_item.attributes,
                 item_id=(existing_item.id, existing_item.subset)),
-            annotations=cls.merge_anno(
+            annotations=cls._merge_anno(
                 existing_item.annotations, current_item.annotations))
 
     @staticmethod
-    def merge_attrs(a: Dict, b: Dict,
-            item_id: Optional[Tuple[str, str]] = None) -> Dict:
+    def _merge_attrs(a: Dict[str, Any], b: Dict[str, Any],
+            item_id: Tuple[str, str]) -> Dict:
         merged = {}
 
         for name in set(a) | set(b):
@@ -149,7 +149,7 @@ class ExactMerge:
         return merged
 
     @staticmethod
-    def merge_images(item_a: DatasetItem, item_b: DatasetItem) -> Image:
+    def _merge_images(item_a: DatasetItem, item_b: DatasetItem) -> Image:
         image = None
 
         if item_a.has_image and item_b.has_image:
@@ -207,7 +207,7 @@ class ExactMerge:
         return image
 
     @staticmethod
-    def merge_anno(a: Iterable[Annotation], b: Iterable[Annotation]) \
+    def _merge_anno(a: Iterable[Annotation], b: Iterable[Annotation]) \
             -> List[Annotation]:
         return merge_annotations_equal(a, b)
 
