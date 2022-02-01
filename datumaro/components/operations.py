@@ -189,7 +189,7 @@ class ExactMerge:
             elif item_b.image.has_size:
                 image = item_b.image
             else:
-                image = item_a.image
+                assert False, "Unknown image field combination"
 
             if not image.has_data or not image.has_size:
                 if item_a.image._size:
