@@ -1,7 +1,7 @@
 sampler module
 --------------
 
-.. automodule:: datumaro.plugins.sampler.sampler
+.. automodule:: datumaro.plugins.sampler.RandomSampler
    :members:
    :undoc-members:
    :show-inheritance:

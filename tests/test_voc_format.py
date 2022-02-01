@@ -840,8 +840,8 @@ class VocConverterTest(TestCase):
 
             def categories(self):
                 label_map = OrderedDict()
-                label_map['background'] = [(0, 0, 0), [], []]
                 label_map['label_1'] = [(1, 2, 3), [], []]
+                label_map['background'] = [(0, 0, 0), [], []]
                 label_map['label_2'] = [(3, 2, 1), [], []]
                 return VOC.make_voc_categories(label_map)
 
@@ -1150,8 +1150,8 @@ class VocConverterTest(TestCase):
             dataset.export(path, 'voc', save_images=True)
 
             dataset.filter('/item[id >= 3]')
-            dataset.transform('random_split', (('train', 0.5), ('test', 0.5)),
-                seed=42)
+            dataset.transform('random_split',
+                splits=(('train', 0.5), ('test', 0.5)), seed=42)
             dataset.save(save_images=True)
 
             self.assertEqual({'3.xml', '4.xml'},

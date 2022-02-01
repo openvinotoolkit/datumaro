@@ -88,8 +88,19 @@ class MergingStrategy(CliPlugin):
         raise NotImplementedError()
 
 class ExactMerge:
+    """
+    Merges several datasets using the "simple" algorithm:
+    - items are matched by (id, subset) pairs
+    - matching items share the media info available:
+        - nothing + nothing = nothing
+        - nothing + something = something
+        - something A + something B = conflict
+    - annotations are matched by value and shared
+    - in case of conflicts, throws an error
+    """
+
     @classmethod
-    def merge(cls, *sources):
+    def merge(cls, *sources: IDataset) -> DatasetItemStorage:
         items = DatasetItemStorage()
         for source_idx, source in enumerate(sources):
             for item in source:
@@ -105,7 +116,8 @@ class ExactMerge:
         return items
 
     @classmethod
-    def merge_items(cls, existing_item, current_item):
+    def merge_items(cls, existing_item: DatasetItem,
+            current_item: DatasetItem) -> DatasetItem:
         return existing_item.wrap(
             image=cls.merge_images(existing_item, current_item),
             attributes=cls.merge_attrs(
@@ -195,12 +207,12 @@ class ExactMerge:
         return image
 
     @staticmethod
-    def merge_anno(a: Iterable[Annotation],
-            b: Iterable[Annotation]) -> List[Annotation]:
+    def merge_anno(a: Iterable[Annotation], b: Iterable[Annotation]) \
+            -> List[Annotation]:
         return merge_annotations_equal(a, b)
 
     @staticmethod
-    def merge_categories(sources):
+    def merge_categories(sources: Iterable[IDataset]) -> CategoriesInfo:
         return merge_categories(sources)
 
 @attrs
