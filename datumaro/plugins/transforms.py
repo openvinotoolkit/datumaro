@@ -32,6 +32,14 @@ import datumaro.util.mask_tools as mask_tools
 
 
 class CropCoveredSegments(ItemTransform, CliPlugin):
+    """
+    Sorts polygons and masks ("segments") according to `z_order`,
+    crops covered areas of underlying segments. If a segment is split
+    into several independent parts, produces the corresponding number of
+    separate annotations joined into a group. Produces polygons and masks
+    as they were originally.
+    """
+
     def transform_item(self, item):
         annotations = []
         segments = []
@@ -97,6 +105,9 @@ class CropCoveredSegments(ItemTransform, CliPlugin):
 class MergeInstanceSegments(ItemTransform, CliPlugin):
     """
     Replaces instance masks and, optionally, polygons with a single mask.
+    A group of annotations with the same group id is considered an "instance".
+    The largest annotation in the group is considered the group "head", so the
+    resulting mask takes properties from that annotation.
     """
 
     @classmethod
@@ -267,6 +278,10 @@ class ShapesToBoxes(ItemTransform, CliPlugin):
             id=shape.id, attributes=shape.attributes, group=shape.group)
 
 class Reindex(Transform, CliPlugin):
+    """
+    Assigns sequential indices to dataset items.
+    """
+
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
         parser = super().build_cmdline_parser(**kwargs)
@@ -284,6 +299,10 @@ class Reindex(Transform, CliPlugin):
             yield self.wrap_item(item, id=i + self._start)
 
 class MapSubsets(ItemTransform, CliPlugin):
+    """
+    Renames subsets in the dataset.
+    """
+
     @staticmethod
     def _mapping_arg(s):
         parts = s.split(':')
@@ -397,6 +416,10 @@ class RandomSplit(Transform, CliPlugin):
             yield self.wrap_item(item, subset=self._find_split(i))
 
 class IdFromImageName(ItemTransform, CliPlugin):
+    """
+    Renames items in the dataset using image file name (without extension).
+    """
+
     def transform_item(self, item):
         if item.has_image and item.image.path:
             name = osp.splitext(osp.basename(item.image.path))[0]
@@ -424,7 +447,8 @@ class Rename(ItemTransform, CliPlugin):
     def build_cmdline_parser(cls, **kwargs):
         parser = super().build_cmdline_parser(**kwargs)
         parser.add_argument('-e', '--regex',
-            help="Regex for renaming.")
+            help="Regex for renaming in the form "
+                "'<sep><search><sep><replacement><sep>'")
         return parser
 
     def __init__(self, extractor, regex):

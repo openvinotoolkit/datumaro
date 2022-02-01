@@ -21,7 +21,7 @@ class RandomSampler(Transform, CliPlugin):
     Example: select subset of 20 images randomly|n
     |s|s%(prog)s -k 20 |n
     Example: select subset of 20 images, modify only 'train' subset|n
-    |s|s%(prog)s -k 20 -s train |n
+    |s|s%(prog)s -k 20 -s train
     """
 
     @classmethod
