@@ -26,7 +26,7 @@ class ReadonlyProjectError(VcsError):
     def __str__(self):
         return "Can't change a read-only project"
 
-@define
+@define(auto_exc=False)
 class UnknownRefError(VcsError):
     ref = field()
 
@@ -39,7 +39,7 @@ class MissingObjectError(VcsError):
 class MismatchingObjectError(VcsError):
     pass
 
-@define
+@define(auto_exc=False)
 class UnsavedChangesError(VcsError):
     paths = field()
 
@@ -99,14 +99,14 @@ class OldProjectError(DatumaroError):
             """
 
 
-@define
+@define(auto_exc=False)
 class ProjectNotFoundError(DatumaroError):
     path = field()
 
     def __str__(self):
         return f"Can't find project at '{self.path}'"
 
-@define
+@define(auto_exc=False)
 class ProjectAlreadyExists(DatumaroError):
     path = field()
 
@@ -114,21 +114,21 @@ class ProjectAlreadyExists(DatumaroError):
         return f"Can't create project: a project already exists " \
             f"at '{self.path}'"
 
-@define
+@define(auto_exc=False)
 class UnknownSourceError(DatumaroError):
     name = field()
 
     def __str__(self):
         return f"Unknown source '{self.name}'"
 
-@define
+@define(auto_exc=False)
 class UnknownTargetError(DatumaroError):
     name = field()
 
     def __str__(self):
         return f"Unknown target '{self.name}'"
 
-@define
+@define(auto_exc=False)
 class UnknownFormatError(DatumaroError):
     format = field()
 
@@ -137,7 +137,7 @@ class UnknownFormatError(DatumaroError):
             "available, add the corresponding Extractor implementation " \
             "to the environment"
 
-@define
+@define(auto_exc=False)
 class SourceExistsError(DatumaroError):
     name = field()
 
@@ -148,14 +148,14 @@ class SourceExistsError(DatumaroError):
 class DatasetImportError(DatumaroError):
     pass
 
-@define
+@define(auto_exc=False)
 class DatasetNotFoundError(DatasetImportError):
     path = field()
 
     def __str__(self):
         return f"Failed to find dataset at '{self.path}'"
 
-@define
+@define(auto_exc=False)
 class MultipleFormatsMatchError(DatasetImportError):
     formats = field()
 
@@ -176,7 +176,7 @@ class CategoriesRedefinedError(DatasetError):
     def __str__(self):
         return "Categories can only be set once for a dataset"
 
-@define
+@define(auto_exc=False)
 class RepeatedItemError(DatasetError):
     item_id = field()
 
@@ -187,7 +187,7 @@ class RepeatedItemError(DatasetError):
 class DatasetQualityError(DatasetError):
     pass
 
-@define
+@define(auto_exc=False)
 class AnnotationsTooCloseError(DatasetQualityError):
     item_id = field()
     a = field()
@@ -198,7 +198,7 @@ class AnnotationsTooCloseError(DatasetQualityError):
         return "Item %s: annotations are too close: %s, %s, distance = %s" % \
             (self.item_id, self.a, self.b, self.distance)
 
-@define
+@define(auto_exc=False)
 class WrongGroupError(DatasetQualityError):
     item_id = field()
     found = field(converter=set)
@@ -211,7 +211,7 @@ class WrongGroupError(DatasetQualityError):
             (self.item_id, self.found, self.expected, self.group)
 
 
-@define(init=False)
+@define(auto_exc=False, init=False)
 class DatasetMergeError(DatasetError):
     sources = field(converter=set, factory=set, kw_only=True)
 
@@ -223,7 +223,7 @@ class DatasetMergeError(DatasetError):
 # when __init__ is defined directly
 setattr(DatasetMergeError, '__init__', DatasetMergeError._my__init__)
 
-@define
+@define(auto_exc=False)
 class MismatchingImageInfoError(DatasetMergeError):
     item_id: Tuple[str, str]
     a: Tuple[int, int]
@@ -233,7 +233,7 @@ class MismatchingImageInfoError(DatasetMergeError):
         return "Item %s: mismatching image size info: %s vs %s" % \
             (self.item_id, self.a, self.b)
 
-@define
+@define(auto_exc=False)
 class MismatchingImagePathError(DatasetMergeError):
     item_id: Tuple[str, str]
     a: str
@@ -243,7 +243,7 @@ class MismatchingImagePathError(DatasetMergeError):
         return "Item %s: mismatching image path info: %s vs %s" % \
             (self.item_id, self.a, self.b)
 
-@define
+@define(auto_exc=False)
 class MismatchingAttributesError(DatasetMergeError):
     item_id: Tuple[str, str]
     key: str
@@ -257,7 +257,7 @@ class MismatchingAttributesError(DatasetMergeError):
 class ConflictingCategoriesError(DatasetMergeError):
     pass
 
-@define
+@define(auto_exc=False)
 class NoMatchingAnnError(DatasetMergeError):
     item_id = field()
     ann = field()
@@ -267,7 +267,7 @@ class NoMatchingAnnError(DatasetMergeError):
             "in sources %s, annotation is %s" % \
             (self.item_id, self.sources, self.ann)
 
-@define
+@define(auto_exc=False)
 class NoMatchingItemError(DatasetMergeError):
     item_id = field()
 
@@ -275,7 +275,7 @@ class NoMatchingItemError(DatasetMergeError):
         return "Item %s: can't find matching item in sources %s" % \
             (self.item_id, self.sources)
 
-@define
+@define(auto_exc=False)
 class FailedLabelVotingError(DatasetMergeError):
     item_id = field()
     votes = field()
@@ -286,7 +286,7 @@ class FailedLabelVotingError(DatasetMergeError):
             (self.item_id, 'for ann %s' % self.ann if self.ann else '',
             self.votes, self.sources)
 
-@define
+@define(auto_exc=False)
 class FailedAttrVotingError(DatasetMergeError):
     item_id = field()
     attr = field()
@@ -298,7 +298,7 @@ class FailedAttrVotingError(DatasetMergeError):
             "for ann %s, votes %s, sources %s" % \
             (self.item_id, self.ann, self.votes, self.sources)
 
-@define
+@define(auto_exc=False)
 class DatasetValidationError(DatumaroError):
     severity = field()
 
@@ -310,7 +310,7 @@ class DatasetValidationError(DatumaroError):
         }
 
 
-@define
+@define(auto_exc=False)
 class DatasetItemValidationError(DatasetValidationError):
     item_id = field()
     subset = field()
@@ -321,14 +321,14 @@ class DatasetItemValidationError(DatasetValidationError):
         dict_repr['subset'] = self.subset
         return dict_repr
 
-@define
+@define(auto_exc=False)
 class MissingLabelCategories(DatasetValidationError):
     def __str__(self):
         return "Metadata (ex. LabelCategories) should be defined" \
             " to validate a dataset."
 
 
-@define
+@define(auto_exc=False)
 class MissingAnnotation(DatasetItemValidationError):
     ann_type = field()
 
@@ -336,12 +336,12 @@ class MissingAnnotation(DatasetItemValidationError):
         return f"Item needs '{self.ann_type}' annotation(s), " \
             "but not found."
 
-@define
+@define(auto_exc=False)
 class MultiLabelAnnotations(DatasetItemValidationError):
     def __str__(self):
         return 'Item needs a single label but multiple labels are found.'
 
-@define
+@define(auto_exc=False)
 class MissingAttribute(DatasetItemValidationError):
     label_name = field()
     attr_name = field()
@@ -350,7 +350,7 @@ class MissingAttribute(DatasetItemValidationError):
         return f"Item needs the attribute '{self.attr_name}' " \
             f"for the label '{self.label_name}'."
 
-@define
+@define(auto_exc=False)
 class UndefinedLabel(DatasetItemValidationError):
     label_name = field()
 
@@ -358,7 +358,7 @@ class UndefinedLabel(DatasetItemValidationError):
         return f"Item has the label '{self.label_name}' which " \
             "is not defined in metadata."
 
-@define
+@define(auto_exc=False)
 class UndefinedAttribute(DatasetItemValidationError):
     label_name = field()
     attr_name = field()
@@ -367,7 +367,7 @@ class UndefinedAttribute(DatasetItemValidationError):
         return f"Item has the attribute '{self.attr_name}' for the " \
             f"label '{self.label_name}' which is not defined in metadata."
 
-@define
+@define(auto_exc=False)
 class LabelDefinedButNotFound(DatasetValidationError):
     label_name = field()
 
@@ -375,7 +375,7 @@ class LabelDefinedButNotFound(DatasetValidationError):
         return f"The label '{self.label_name}' is defined in " \
                 "metadata, but not found in the dataset."
 
-@define
+@define(auto_exc=False)
 class AttributeDefinedButNotFound(DatasetValidationError):
     label_name = field()
     attr_name = field()
@@ -385,14 +385,14 @@ class AttributeDefinedButNotFound(DatasetValidationError):
             f"'{self.label_name}' is defined in metadata, but not " \
             "found in the dataset."
 
-@define
+@define(auto_exc=False)
 class OnlyOneLabel(DatasetValidationError):
     label_name = field()
 
     def __str__(self):
         return f"The dataset has only one label '{self.label_name}'."
 
-@define
+@define(auto_exc=False)
 class OnlyOneAttributeValue(DatasetValidationError):
     label_name = field()
     attr_name = field()
@@ -403,7 +403,7 @@ class OnlyOneAttributeValue(DatasetValidationError):
             f"'{self.value}' for the attribute '{self.attr_name}' for the " \
             f"label '{self.label_name}'."
 
-@define
+@define(auto_exc=False)
 class FewSamplesInLabel(DatasetValidationError):
     label_name = field()
     count = field()
@@ -412,7 +412,7 @@ class FewSamplesInLabel(DatasetValidationError):
         return f"The number of samples in the label '{self.label_name}'" \
             f" might be too low. Found '{self.count}' samples."
 
-@define
+@define(auto_exc=False)
 class FewSamplesInAttribute(DatasetValidationError):
     label_name = field()
     attr_name = field()
@@ -425,12 +425,12 @@ class FewSamplesInAttribute(DatasetValidationError):
             f"'{self.label_name}' might be too low. " \
             f"Found '{self.count}' samples."
 
-@define
+@define(auto_exc=False)
 class ImbalancedLabels(DatasetValidationError):
     def __str__(self):
         return 'There is an imbalance in the label distribution.'
 
-@define
+@define(auto_exc=False)
 class ImbalancedAttribute(DatasetValidationError):
     label_name = field()
     attr_name = field()
@@ -439,7 +439,7 @@ class ImbalancedAttribute(DatasetValidationError):
         return "There is an imbalance in the distribution of attribute" \
             f" '{self. attr_name}' for the label '{self.label_name}'."
 
-@define
+@define(auto_exc=False)
 class ImbalancedDistInLabel(DatasetValidationError):
     label_name = field()
     prop = field()
@@ -448,7 +448,7 @@ class ImbalancedDistInLabel(DatasetValidationError):
         return f"Values of '{self.prop}' are not evenly " \
                 f"distributed for '{self.label_name}' label."
 
-@define
+@define(auto_exc=False)
 class ImbalancedDistInAttribute(DatasetValidationError):
     label_name = field()
     attr_name = field()
@@ -460,7 +460,7 @@ class ImbalancedDistInAttribute(DatasetValidationError):
             f"distributed for '{self.attr_name}' = '{self.attr_value}' for " \
             f"the '{self.label_name}' label."
 
-@define
+@define(auto_exc=False)
 class NegativeLength(DatasetItemValidationError):
     ann_id = field()
     prop = field()
@@ -471,7 +471,7 @@ class NegativeLength(DatasetItemValidationError):
             "the item should have a positive value of " \
             f"'{self.prop}' but got '{self.val}'."
 
-@define
+@define(auto_exc=False)
 class InvalidValue(DatasetItemValidationError):
     ann_id = field()
     prop = field()
@@ -481,7 +481,7 @@ class InvalidValue(DatasetItemValidationError):
             'the item has an inf or a NaN value of ' \
             f"'{self.prop}'."
 
-@define
+@define(auto_exc=False)
 class FarFromLabelMean(DatasetItemValidationError):
     label_name = field()
     ann_id = field()
@@ -495,7 +495,7 @@ class FarFromLabelMean(DatasetItemValidationError):
             "is too far from the label average. (mean of " \
             f"'{self.label_name}' label: {self.mean}, got '{self.val}')."
 
-@define
+@define(auto_exc=False)
 class FarFromAttrMean(DatasetItemValidationError):
     label_name = field()
     ann_id = field()
