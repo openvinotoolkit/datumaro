@@ -69,14 +69,12 @@ class Image(MediaElement):
             size = tuple(map(int, size))
         self._size = size # (H, W)
 
-        assert path is None or isinstance(path, str), path
         if path is None:
             path = ''
         elif path:
-            path = osp.abspath(path).replace('\\', '/')
+            path = path.replace('\\', '/')
         self._path = path
 
-        assert ext is None or isinstance(ext, str), ext
         if ext:
             assert not path, "Can't specify both 'path' and 'ext' for image"
 
@@ -89,8 +87,8 @@ class Image(MediaElement):
 
         if not isinstance(data, np.ndarray):
             assert path or callable(data) or size, "Image can not be empty"
-            assert data is None or callable(data) or size
-            if path and osp.isfile(path) or data:
+            assert data is None or callable(data)
+            if data or path and osp.isfile(path):
                 data = lazy_image(path, loader=data)
         self._data = data
 
