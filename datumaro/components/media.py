@@ -48,8 +48,8 @@ class Image(MediaElement):
         """
         Creates an image.
 
-        Any combinations of the `data`, `path` and `size` arguments are
-        possible, but at least one of them must be provided.
+        Any combination of the `data`, `path` and `size` is possible,
+        but at least one of these arguments must be provided.
         The `ext` parameter cannot be used as a single argument for
         construction.
 
@@ -58,8 +58,9 @@ class Image(MediaElement):
                 image shape is (H, W [, C]). If a function is provided,
                 it must accept image path as the first argument.
             path - Image path
-            ext - Image extension. Cannot be used together with `path`. It is
-                useful for saving with a custom extension.
+            ext - Image extension. Cannot be used together with `path`. It can
+                be used for saving with a custom extension - in that case,
+                the image need to have the `data` and `ext` fields defined.
             size - A pair (H, W), which represents image size.
         """
 
