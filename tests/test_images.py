@@ -62,14 +62,12 @@ class ImageCacheTest(TestCase):
 
 class ImageTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_lazy_image_shape(self):
+    def test_can_report_cached_size(self):
         data = np.ones((5, 6, 3))
 
-        image_lazy = Image(data=lambda _: data, size=(2, 4))
-        image_eager = Image(data=lambda _: data)
+        image = Image(data=lambda _: data, size=(2, 4))
 
-        self.assertEqual((2, 4), image_lazy.size)
-        self.assertEqual((5, 6), image_eager.size)
+        self.assertEqual((2, 4), image.size)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_ctors(self):
@@ -138,7 +136,6 @@ class BytesImageTest(TestCase):
                 { 'data': image_bytes, 'path': path, 'size': (2, 4) },
                 { 'data': image_bytes, 'path': path, 'size': (2, 4) },
                 { 'path': path },
-                { 'path': path, 'size': (2, 4) },
                 { 'path': path, 'size': (2, 4) },
             ]:
                 with self.subTest(**args):

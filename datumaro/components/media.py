@@ -67,14 +67,7 @@ class Image(MediaElement):
         if size is not None:
             assert len(size) == 2 and 0 < size[0] and 0 < size[1], size
             size = tuple(map(int, size))
-
         self._size = size # (H, W)
-
-        if isinstance(data, np.ndarray):
-            if not self._size:
-                self._size = data.shape[:2]
-            else:
-                assert self._size == data.shape[:2]
 
         assert path is None or isinstance(path, str), path
         if path is None:
