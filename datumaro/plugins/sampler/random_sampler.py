@@ -135,7 +135,7 @@ class LabelRandomSampler(Transform, CliPlugin):
         parser.add_argument('-l', '--label', dest='label_counts',
             action='append', type=cls._parse_label_count,
             help="Minimum number of annotations of a specific class. "
-                "Overrides the global setting for a class. "
+                "Overrides the `-k/--count` setting for the class. "
                 "The format is 'label_name:count' (repeatable)")
         parser.add_argument('--seed', type=int,
             help="Initial value for random number generator")
