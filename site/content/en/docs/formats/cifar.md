@@ -127,11 +127,14 @@ datum convert -if cifar -i <path/to/dataset> \
 Or, using Python API:
 
 ```python
-from datumaro.components.dataset import Dataset
+from datumaro import Dataset
 
 dataset = Dataset.import_from('<path/to/dataset>', 'cifar')
 dataset.export('save_dir', 'imagenet', save_images=True)
 ```
+
+Links to API documentation:
+- [Dataset.import_from]
 
 ## Export to CIFAR
 
@@ -172,9 +175,7 @@ particular problems with CIFAR dataset:
 ### Example 1. How to create a custom CIFAR-like dataset
 
 ```python
-from datumaro.components.annotation import Label
-from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import DatasetItem
+from datumaro import Label, Dataset, DatasetItem
 
 dataset = Dataset.from_iterable([
     DatasetItem(id=0, image=np.ones((32, 32, 3)),
@@ -188,6 +189,11 @@ dataset = Dataset.from_iterable([
 
 dataset.export('./dataset', format='cifar')
 ```
+
+Links to API documentation:
+- [Dataset.from_iterable]
+- [DatasetItem]
+- [Label]
 
 ### Example 2. How to filter and convert a CIFAR dataset to ImageNet
 
@@ -204,3 +210,8 @@ datum convert --input-format cifar --input-path <path/to/cifar> \
 
 Examples of using this format from the code can be found in
 [the format tests](https://github.com/openvinotoolkit/datumaro/blob/develop/tests/test_cifar_format.py)
+
+[Dataset.import_from]: /api/api/components/components/datumaro.components.dataset.html#datumaro.components.dataset.Dataset.import_from
+[Dataset.from_iterable]: /api/api/components/components/datumaro.components.dataset.html#datumaro.components.dataset.Dataset.from_iterable
+[DatasetItem]: /api/api/components/components/datumaro.components.extractor.html#datumaro.components.extractor.DatasetItem
+[Label]: /api/api/components/components/datumaro.components.annotation.html#datumaro.components.annotation.Label

@@ -177,11 +177,14 @@ datum convert -if voc -i <path/to/voc> -f coco -o <output/dir>
 Or, using Python API:
 
 ```python
-from datumaro.components.dataset import Dataset
+from datumaro import Dataset
 
 dataset = Dataset.import_from('<path/to/dataset>', 'voc')
 dataset.export('save_dir', 'coco', save_images=True)
 ```
+
+Links to API documentation:
+- [Dataset.import_from]
 
 ## Export to Pascal VOC
 
@@ -263,9 +266,7 @@ datum export -p project -f voc -- --label-map voc --save-images
 ### Example 2. How to create a custom dataset
 
 ```python
-from datumaro.components.annotation import Bbox, Polygon, Label
-from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import DatasetItem
+from datumaro import Bbox, Polygon, Label, Dataset, DatasetItem
 from datumaro.util.image import Image
 
 dataset = Dataset.from_iterable([
@@ -291,12 +292,20 @@ lion:255,128,0::
 """
 ```
 
+Links to API documentation:
+- [Dataset.from_iterable]
+- [Bbox]
+- [Polygon]
+- [Label]
+- [Dataset]
+- [DatasetItem]
+
 ### Example 3. Load, filter and convert from code
 Load Pascal VOC dataset, and export train subset with items
 which has `jumping` attribute:
 
 ```python
-from datumaro.components.dataset import Dataset
+from datumaro import Dataset
 
 dataset = Dataset.import_from('./VOC2012', format='voc')
 
@@ -313,11 +322,13 @@ train_dataset.select(only_jumping)
 train_dataset.export('./jumping_label_me', format='label_me', save_images=True)
 ```
 
+Links to API documentation:
+- [Dataset.import_from]
+
 ### Example 4. Get information about items in Pascal VOC 2012 dataset for segmentation task:
 
 ```python
-from datumaro.components.annotation import AnnotationType
-from datumaro.components.dataset import Dataset
+from datumaro import AnnotationType, Dataset
 
 dataset = Dataset.import_from('./VOC2012', format='voc')
 
@@ -335,9 +346,22 @@ for subset_name, subset in dataset.subsets().items():
         print(item.id, subset_name, end=";")
 ```
 
+Links to API documentation:
+- [Dataset.import_from]
+- [AnnotationType]
+
 After executing this code, we can see that there are 5826 images
 in Pascal VOC 2012 has for segmentation task and this result is the same as the
 [official documentation](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/dbstats.html)
 
 Examples of using this format from the code can be found in
 [tests](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/test_voc_format.py)
+
+[Dataset.import_from]: /api/api/components/components/datumaro.components.dataset.html#datumaro.components.dataset.Dataset.import_from
+[AnnotationType]: /api/api/components/components/datumaro.components.annotation.html#datumaro.components.annotation.AnnotationType
+[Dataset.from_iterable]: /api/api/components/components/datumaro.components.dataset.html#datumaro.components.dataset.Dataset.from_iterable
+[Bbox]: /api/api/components/components/datumaro.components.annotation.html#datumaro.components.annotation.Bbox
+[Polygon]: /api/api/components/components/datumaro.components.annotation.html#datumaro.components.annotation.Polygon
+[Label]: /api/api/components/components/datumaro.components.annotation.html#datumaro.components.annotation.Label
+[Dataset]: /api/api/components/components/datumaro.components.dataset.html
+[DatasetItem]: /api/api/components/components/datumaro.components.extractor.html#datumaro.components.extractor.DatasetItem

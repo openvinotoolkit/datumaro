@@ -181,6 +181,10 @@ project.close()
   ], categories=['cat', 'dog'])
   dataset.export('test_dataset/', 'coco')
   ```
+  Links to API documentation:
+  - [dm.Dataset](/api/api/components/components/datumaro.components.dataset.html#datumaro.components.dataset.Dataset)
+  - [dm.DatasetItem](/api/api/components/components/datumaro.components.extractor.html#datumaro.components.extractor.DatasetItem)
+  - [dm.Bbox](/api/api/components/components/datumaro.components.annotation.html#datumaro.components.annotation.Bbox)
 
 <!--lint enable list-item-bullet-indent-->
 <!--lint enable list-item-indent-->

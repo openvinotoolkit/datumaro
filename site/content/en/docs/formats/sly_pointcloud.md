@@ -104,11 +104,14 @@ datum convert -if sly_pointcloud -i <path/to/sly_pcd/> -f kitti_raw
 Or, using Python API:
 
 ```python
-from datumaro.components.dataset import Dataset
+from datumaro import Dataset
 
 dataset = Dataset.import_from('<path/to/dataset>', 'sly_pointcloud')
 dataset.export('save_dir', 'kitti_raw', save_images=True)
 ```
+
+Links to API documentation:
+- [Dataset.import_from]
 
 ## Export to Supervisely Point Cloud
 
@@ -155,9 +158,7 @@ datum convert -if sly_pointcloud -i ../sly_pcd/ \
 ### Example 3. Create a custom dataset
 
 ``` python
-from datumaro.components.annotation import Cuboid3d
-from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import DatasetItem
+from datumaro import Cuboid3d, Dataset, DatasetItem
 
 dataset = Dataset.from_iterable([
     DatasetItem(id='frame_1',
@@ -189,5 +190,15 @@ dataset.export('my_dataset/', format='sly_pointcloud', save_images=True,
     allow_undeclared_attrs=True)
 ```
 
+Links to API documentation:
+- [Dataset]
+- [Cuboid3d]
+- [DatasetItem]
+
 Examples of using this format from the code can be found in
 [the format tests](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/test_sly_pointcloud_format.py)
+
+[Dataset.import_from]: /api/api/components/components/datumaro.components.dataset.html#datumaro.components.dataset.Dataset.import_from
+[Dataset]: /api/api/components/components/datumaro.components.dataset.html
+[DatasetItem]: /api/api/components/components/datumaro.components.extractor.html#datumaro.components.extractor.DatasetItem
+[Cuboid3d]: /api/api/components/components/datumaro.components.annotation.html#datumaro.components.annotation.Cuboid3d

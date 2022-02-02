@@ -94,6 +94,9 @@ def get_categories():
     return { AnnotationType.label: label_categories }
 ```
 
+Links to API documentation:
+- [datumaro.components.extractor](/api/api/components/components/datumaro.components.extractor.html)
+
 ### Remove Models <a id="model-remove"></a>
 
 

@@ -107,11 +107,14 @@ datum convert -if cityscapes -i <path/to/cityscapes> \
 Or, using Python API:
 
 ```python
-from datumaro.components.dataset import Dataset
+from datumaro import Dataset
 
 dataset = Dataset.import_from('<path/to/dataset>', 'cityscapes')
 dataset.export('save_dir', 'voc', save_images=True)
 ```
+
+Links to API documentation:
+- [Dataset.import_from]
 
 ## Export to Cityscapes
 
@@ -172,9 +175,7 @@ datum export -p project -o dataset/ -f voc -- --save-images
 
 ```python
 import numpy as np
-from datumaro.components.annotation import Mask
-from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import DatasetItem
+from datumaro import Mask, Dataset, DatasetItem
 
 import datumaro.plugins.cityscapes_format as Cityscapes
 
@@ -198,5 +199,17 @@ dataset = Dataset.from_iterable([
 dataset.export('./dataset', format='cityscapes')
 ```
 
+Links to API documentation:
+- [Dataset.from_iterable]
+- [Mask]
+- [Dataset]
+- [DatasetItem]
+
 Examples of using this format from the code can be found in
 [the format tests](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/test_cityscapes_format.py)
+
+[Dataset.import_from]: /api/api/components/components/datumaro.components.dataset.html#datumaro.components.dataset.Dataset.import_from
+[Dataset.from_iterable]: /api/api/components/components/datumaro.components.dataset.html#datumaro.components.dataset.Dataset.from_iterable
+[Mask]: /api/api/components/components/datumaro.components.annotation.html#datumaro.components.annotation.Mask
+[Dataset]: /api/api/components/components/datumaro.components.dataset.html
+[DatasetItem]: /api/api/components/components/datumaro.components.extractor.html#datumaro.components.extractor.DatasetItem

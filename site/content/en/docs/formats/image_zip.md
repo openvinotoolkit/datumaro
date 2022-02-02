@@ -66,11 +66,14 @@ datum export -p project -f coco -o ./new_dir -- --save-images
 Or, using Python API:
 
 ```python
-from datumaro.components.dataset import Dataset
+from datumaro import Dataset
 
 dataset = Dataset.import_from('<path/to/dataset>', 'image_zip')
 dataset.export('save_dir', 'coco', save_images=True)
 ```
+
+Links to API documentation:
+- [Dataset.import_from]
 
 ## Export an unannotated dataset to a zip archive
 
@@ -98,3 +101,5 @@ Extra options for exporting to image_zip format:
 
 Examples of using this format from the code can be found in
 [the format tests](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/test_image_zip_format.py)
+
+[Dataset.import_from]: /api/api/components/components/datumaro.components.dataset.html#datumaro.components.dataset.Dataset.import_from

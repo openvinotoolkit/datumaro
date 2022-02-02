@@ -123,11 +123,15 @@ datum convert -if yolo -i <path/to/dataset> \
 Or, using Python API:
 
 ```python
-from datumaro.components.dataset import Dataset
+from datumaro import Dataset
 
 dataset = Dataset.import_from('<path/to/dataset>', 'yolo')
 dataset.export('save_dir', 'coco_instances', save_images=True)
 ```
+
+
+Links to API documentation:
+- [Dataset.import_from]
 
 ## Export to YOLO format
 
@@ -174,9 +178,7 @@ datum export -p project -f yolo -o ./yolo_without_cats
 ### Example 3. Create a custom dataset in YOLO format
 ```python
 import numpy as np
-from datumaro.components.annotation import Bbox
-from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import DatasetItem
+from datumaro import Bbox, Dataset, DatasetItem
 
 dataset = Dataset.from_iterable([
     DatasetItem(id='image_001', subset='train',
@@ -197,14 +199,19 @@ dataset = Dataset.from_iterable([
 dataset.export('../yolo_dataset', format='yolo', save_images=True)
 ```
 
+Links to API documentation:
+- [Dataset.from_iterable]
+- [Bbox]
+- [Dataset]
+- [DatasetItem]
+
 ### Example 4. Get information about objects on each image
 
 If you only want information about label names for each
 image, then you can get it from code:
 
 ```python
-from datumaro.components.annotation import AnnotationType
-from datumaro.components.dataset import Dataset
+from datumaro import AnnotationType, Dataset
 
 dataset = Dataset.import_from('./yolo_dataset', format='yolo')
 cats = dataset.categories()[AnnotationType.label]
@@ -214,9 +221,19 @@ for item in dataset:
         print(item.id, cats[ann.label].name)
 ```
 
+Links to API documentation:
+- [AnnotationType]
+- [Dataset]
+
 And If you want complete information about each item you can run:
 ```bash
 datum create -o project
 datum import -p project -f yolo ./yolo_dataset
 datum filter -p project --dry-run -e '/item'
 ```
+
+[Dataset.from_iterable]: /api/api/components/components/datumaro.components.dataset.html#datumaro.components.dataset.Dataset.from_iterable
+[Dataset]: /api/api/components/components/datumaro.components.dataset.html
+[DatasetItem]: /api/api/components/components/datumaro.components.extractor.html#datumaro.components.extractor.DatasetItem
+[Bbox]: /api/api/components/components/datumaro.components.annotation.html#datumaro.components.annotation.Bbox
+[AnnotationType]: /api/api/components/components/datumaro.components.annotation.html#datumaro.components.annotation.AnnotationType

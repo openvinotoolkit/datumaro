@@ -32,10 +32,13 @@ datum import --format mpii <path/to/dataset>
 It is also possible to import the dataset using Python API:
 
 ```python
-from datumaro.components.dataset import Dataset
+from datumaro import Dataset
 
 mpii_dataset = Dataset.import_from('<path/to/dataset>', 'mpii')
 ```
+
+Links to API documentation:
+- [Dataset.import_from]
 
 MPII Human Pose Dataset directory should have the following structure:
 
@@ -73,13 +76,18 @@ datum convert -if mpii -i <path/to/dataset> \
 Or, using Python API:
 
 ```python
-from datumaro.components.dataset import Dataset
+from datumaro import Dataset
 
 dataset = Dataset.import_from('<path/to/dataset>', 'mpii')
 dataset.export('save_dir', 'voc')
 ```
 
+Links to API documentation:
+- [Dataset.import_from]
+
 ## Examples
 
 Examples of using this format from the code can be found in
 [the format tests](https://github.com/openvinotoolkit/datumaro/blob/develop/tests/test_mpii_format.py)
+
+[Dataset.import_from]: /api/api/components/components/datumaro.components.dataset.html#datumaro.components.dataset.Dataset.import_from
