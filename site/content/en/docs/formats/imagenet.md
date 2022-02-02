@@ -46,7 +46,7 @@ from datumaro import Dataset
 dataset = Dataset.import_from('<path_to_dataset>', format='imagenet_txt')
 ```
 
-Links to API documentation:
+*Links to API documentation:*
 - [Dataset.import_from][]
 
 For successful importing of ImageNet dataset the input directory with dataset
@@ -121,7 +121,7 @@ imagenet_dataset = Dataset.import_from('<path_to_dataset', format='imagenet')
 imagenet_dataset.export('<output_dir>', format='vgg_face2', save_images=True)
 ```
 
-Links to API documentation:
+*Links to API documentation:*
 - [Dataset.import_from][]
 
 > Note: some formats have extra export options. For particular format see the

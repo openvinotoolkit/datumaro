@@ -72,7 +72,7 @@ dataset = Dataset.import_from('<path/to/dataset>', 'image_zip')
 dataset.export('save_dir', 'coco', save_images=True)
 ```
 
-Links to API documentation:
+*Links to API documentation:*
 - [Dataset.import_from][]
 
 ## Export an unannotated dataset to a zip archive

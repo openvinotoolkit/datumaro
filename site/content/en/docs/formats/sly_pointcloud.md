@@ -110,7 +110,7 @@ dataset = Dataset.import_from('<path/to/dataset>', 'sly_pointcloud')
 dataset.export('save_dir', 'kitti_raw', save_images=True)
 ```
 
-Links to API documentation:
+*Links to API documentation:*
 - [Dataset.import_from][]
 
 ## Export to Supervisely Point Cloud
@@ -190,7 +190,7 @@ dataset.export('my_dataset/', format='sly_pointcloud', save_images=True,
     allow_undeclared_attrs=True)
 ```
 
-Links to API documentation:
+*Links to API documentation:*
 - [Dataset][]
 - [Cuboid3d][]
 - [DatasetItem][]

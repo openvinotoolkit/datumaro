@@ -37,7 +37,7 @@ from datumaro import Dataset
 mpii_dataset = Dataset.import_from('<path/to/dataset>', 'mpii_json')
 ```
 
-Links to API documentation:
+*Links to API documentation:*
 - [Dataset.import_from][]
 
 MPII Human Pose Dataset (JSON) directory should have the following structure:
@@ -85,7 +85,7 @@ dataset = Dataset.import_from('<path/to/dataset>', 'mpii_json')
 dataset.export('save_dir', 'voc')
 ```
 
-Links to API documentation:
+*Links to API documentation:*
 - [Dataset.import_from][]
 
 ## Examples

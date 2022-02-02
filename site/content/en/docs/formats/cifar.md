@@ -133,7 +133,7 @@ dataset = Dataset.import_from('<path/to/dataset>', 'cifar')
 dataset.export('save_dir', 'imagenet', save_images=True)
 ```
 
-Links to API documentation:
+*Links to API documentation:*
 - [Dataset.import_from][]
 
 ## Export to CIFAR
@@ -190,7 +190,7 @@ dataset = Dataset.from_iterable([
 dataset.export('./dataset', format='cifar')
 ```
 
-Links to API documentation:
+*Links to API documentation:*
 - [Dataset.from_iterable][]
 - [DatasetItem][]
 - [Label][]

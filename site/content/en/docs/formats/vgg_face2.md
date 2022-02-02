@@ -40,7 +40,7 @@ from datumaro import Dataset
 dataset = Dataset.import_from('<path_to_dataset>', format='vgg_face2')
 ```
 
-Links to API documentation:
+*Links to API documentation:*
 - [Dataset.import_from][]
 
 For successful importing of Vgg Face2 face the input directory with dataset
@@ -107,7 +107,7 @@ vgg_face2_dataset = Dataset.import_from('<path_to_dataset', format='vgg_face2')
 vgg_face2_dataset.export('<output_dir>', format='open_images', save_images=True)
 ```
 
-Links to API documentation:
+*Links to API documentation:*
 - [Dataset.import_from][]
 
 > Note: some formats have extra export options. For particular format see the

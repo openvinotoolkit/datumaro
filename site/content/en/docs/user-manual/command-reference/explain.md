@@ -142,5 +142,5 @@ def process_outputs(inputs, outputs):
     return results
 ```
 
-Links to API documentation:
+*Links to API documentation:*
 - [datumaro.components.extractor](/api/api/components/components/datumaro.components.extractor.html)

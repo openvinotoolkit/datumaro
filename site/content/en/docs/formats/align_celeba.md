@@ -43,7 +43,7 @@ from datumaro import Dataset
 align_celeba_dataset = Dataset.import_from('<path/to/dataset>', 'align_celeba')
 ```
 
-Links to API documentation:
+*Links to API documentation:*
 - [Dataset.import_from][]
 
 Align CelebA dataset directory should have the following structure:
@@ -104,7 +104,7 @@ dataset = Dataset.import_from('<path/to/dataset>', 'align_celeba')
 dataset.export('save_dir', 'voc')
 ```
 
-Links to API documentation:
+*Links to API documentation:*
 - [Dataset.import_from][]
 
 ## Examples

@@ -32,7 +32,7 @@ from datumaro import Dataset
 vott_csv_dataset = Dataset.import_from('<path/to/dataset>', 'vott_csv')
 ```
 
-Links to API documentation:
+*Links to API documentation:*
 - [Dataset.import_from][]
 
 VoTT CSV dataset directory should have the following structure:
@@ -82,7 +82,7 @@ dataset = Dataset.import_from('<path/to/dataset>', 'vott_csv')
 dataset.export('save_dir', 'voc')
 ```
 
-Links to API documentation:
+*Links to API documentation:*
 - [Dataset.import_from][]
 
 ## Examples

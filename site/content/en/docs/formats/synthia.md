@@ -35,7 +35,7 @@ from datumaro import Dataset
 synthia_dataset = Dataset.import_from('<path/to/dataset>', 'synthia')
 ```
 
-Links to API documentation:
+*Links to API documentation:*
 - [Dataset.import_from][]
 
 SYNTHIA dataset directory should have the following structure:
@@ -132,7 +132,7 @@ dataset = Dataset.import_from('<path/to/dataset>', 'synthia')
 dataset.export('save_dir', 'voc')
 ```
 
-Links to API documentation:
+*Links to API documentation:*
 - [Dataset.import_from][]
 
 ## Examples

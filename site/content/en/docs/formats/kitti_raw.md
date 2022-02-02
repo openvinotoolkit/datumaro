@@ -115,7 +115,7 @@ dataset = Dataset.import_from('<path/to/dataset>', 'kitti_raw')
 dataset.export('save_dir', 'sly_pointcloud', save_images=True)
 ```
 
-Links to API documentation:
+*Links to API documentation:*
 - [Dataset.import_from][]
 
 ## Export to KITTI Raw
@@ -184,7 +184,7 @@ dataset = Dataset.from_iterable([
 dataset.export('my_dataset/', format='kitti_raw', save_images=True)
 ```
 
-Links to API documentation:
+*Links to API documentation:*
 - [Dataset.from_iterable][]
 - [Cuboid3d][]
 - [Dataset][]

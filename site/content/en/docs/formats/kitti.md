@@ -146,7 +146,7 @@ dataset = Dataset.import_from('<path/to/dataset>', 'kitti')
 dataset.export('save_dir', 'cityscapes', save_images=True)
 ```
 
-Links to API documentation:
+*Links to API documentation:*
 - [Dataset.import_from][]
 
 ## Export to KITTI
@@ -244,7 +244,7 @@ dataset = Dataset.from_iterable([
 dataset.export('./dataset', format='kitti')
 ```
 
-Links to API documentation:
+*Links to API documentation:*
 - [Dataset.from_iterable][]
 - [Mask][]
 - [Dataset][]

@@ -183,7 +183,7 @@ dataset = Dataset.import_from('<path/to/dataset>', 'voc')
 dataset.export('save_dir', 'coco', save_images=True)
 ```
 
-Links to API documentation:
+*Links to API documentation:*
 - [Dataset.import_from][]
 
 ## Export to Pascal VOC
@@ -292,7 +292,7 @@ lion:255,128,0::
 """
 ```
 
-Links to API documentation:
+*Links to API documentation:*
 - [Dataset.from_iterable][]
 - [Bbox][]
 - [Polygon][]
@@ -322,7 +322,7 @@ train_dataset.select(only_jumping)
 train_dataset.export('./jumping_label_me', format='label_me', save_images=True)
 ```
 
-Links to API documentation:
+*Links to API documentation:*
 - [Dataset.import_from][]
 
 ### Example 4. Get information about items in Pascal VOC 2012 dataset for segmentation task:
@@ -346,7 +346,7 @@ for subset_name, subset in dataset.subsets().items():
         print(item.id, subset_name, end=";")
 ```
 
-Links to API documentation:
+*Links to API documentation:*
 - [Dataset.import_from][]
 - [AnnotationType][]
 

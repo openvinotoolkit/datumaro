@@ -113,7 +113,7 @@ dataset = Dataset.import_from('<path/to/dataset>', 'cityscapes')
 dataset.export('save_dir', 'voc', save_images=True)
 ```
 
-Links to API documentation:
+*Links to API documentation:*
 - [Dataset.import_from][]
 
 ## Export to Cityscapes
@@ -199,7 +199,7 @@ dataset = Dataset.from_iterable([
 dataset.export('./dataset', format='cityscapes')
 ```
 
-Links to API documentation:
+*Links to API documentation:*
 - [Dataset.from_iterable][]
 - [Mask][]
 - [Dataset][]
