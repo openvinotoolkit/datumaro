@@ -295,7 +295,7 @@ Environment().converters['yolo'].convert(dataset, save_dir=dst_dir)
 YoloConverter.convert(dataset, save_dir=dst_dir)
 ```
 
-*Links to API documentation:*
+_Links to API documentation:_
 - [dm.Dataset.import_from](/api/api/components/components/datumaro.components.dataset.html#datumaro.components.dataset.Dataset.import_from)
 
 ### Writing a plugin

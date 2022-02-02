@@ -55,7 +55,7 @@ data1 = Dataset.import_from('text_localization_path', 'icdar_text_localization')
 data2 = Dataset.import_from('text_segmentation_path', 'icdar_text_segmentation')
 data3 = Dataset.import_from('word_recognition_path', 'icdar_word_recognition')
 ```
-*Links to API documentation:*
+_Links to API documentation:_
 - [Dataset.import_from][]
 
 Dataset with ICDAR dataset should have the following structure:

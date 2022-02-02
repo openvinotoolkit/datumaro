@@ -54,7 +54,7 @@ from datumaro import Dataset
 dataset = Dataset.import_from('<path_to_dataset>', 'market1501')
 ```
 
-*Links to API documentation:*
+_Links to API documentation:_
 - [Dataset.import_from][]
 
 For successful importing the Market-1501 dataset, the directory with it

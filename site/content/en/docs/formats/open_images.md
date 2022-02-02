@@ -256,7 +256,7 @@ dataset = Dataset.import_from('<path/to/dataset>', 'open_images')
 dataset.export('save_dir', 'cvat', save_images=True)
 ```
 
-*Links to API documentation:*
+_Links to API documentation:_
 - [Dataset.import_from][]
 
 ## Export to Open Images
@@ -326,7 +326,7 @@ dataset = Dataset.from_iterable([
 dataset.export('./dataset', format='open_images')
 ```
 
-*Links to API documentation:*
+_Links to API documentation:_
 - [Dataset.import_from][]
 - [DatasetItem][]
 - [Dataset][]

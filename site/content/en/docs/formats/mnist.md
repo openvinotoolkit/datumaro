@@ -136,7 +136,7 @@ dataset = Dataset.import_from('<path/to/dataset>', 'mnist')
 dataset.export('save_dir', 'imagenet', save_images=True)
 ```
 
-*Links to API documentation:*
+_Links to API documentation:_
 - [Dataset.import_from][]
 
 These steps also will work for MNIST in CSV, if you use `mnist_csv`
@@ -193,7 +193,7 @@ dataset = Dataset.from_iterable([
 dataset.export('./dataset', format='mnist')
 ```
 
-*Links to API documentation:*
+_Links to API documentation:_
 - [Dataset.from_iterable][]
 - [DatasetItem][]
 - [Label][]

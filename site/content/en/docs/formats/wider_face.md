@@ -106,7 +106,7 @@ dataset = Dataset.import_from('<path_to_wider_face', 'wider_face')
 dataset.export('output_dir', 'open_images', save_images=True)
 ```
 
-*Links to API documentation:*
+_Links to API documentation:_
 - [Dataset.import_from][]
 
 > Note: some formats have extra export options. For particular format see the

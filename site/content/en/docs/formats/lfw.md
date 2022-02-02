@@ -47,7 +47,7 @@ from datumaro import Dataset
 lfw_dataset = Dataset.import_from('<path_to_lfw_dataset>', 'lfw')
 ```
 
-*Links to API documentation:*
+_Links to API documentation:_
 - [Dataset.import_from][]
 
 For successful importing the LFW dataset, the directory with it

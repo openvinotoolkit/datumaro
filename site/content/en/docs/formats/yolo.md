@@ -130,7 +130,7 @@ dataset.export('save_dir', 'coco_instances', save_images=True)
 ```
 
 
-*Links to API documentation:*
+_Links to API documentation:_
 - [Dataset.import_from][]
 
 ## Export to YOLO format
@@ -199,7 +199,7 @@ dataset = Dataset.from_iterable([
 dataset.export('../yolo_dataset', format='yolo', save_images=True)
 ```
 
-*Links to API documentation:*
+_Links to API documentation:_
 - [Dataset.from_iterable][]
 - [Bbox][]
 - [Dataset][]
@@ -221,7 +221,7 @@ for item in dataset:
         print(item.id, cats[ann.label].name)
 ```
 
-*Links to API documentation:*
+_Links to API documentation:_
 - [AnnotationType][]
 - [Dataset][]
 
