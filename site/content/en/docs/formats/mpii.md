@@ -38,7 +38,7 @@ mpii_dataset = Dataset.import_from('<path/to/dataset>', 'mpii')
 ```
 
 Links to API documentation:
-- [Dataset.import_from]
+- [Dataset.import_from][]
 
 MPII Human Pose Dataset directory should have the following structure:
 
@@ -83,7 +83,7 @@ dataset.export('save_dir', 'voc')
 ```
 
 Links to API documentation:
-- [Dataset.import_from]
+- [Dataset.import_from][]
 
 ## Examples
 

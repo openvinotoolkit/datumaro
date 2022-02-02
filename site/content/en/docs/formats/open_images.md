@@ -250,14 +250,14 @@ datum convert -if open_images -i <path/to/open_images> -f cvat -o <output/dir>
 Or, using Python API:
 
 ```python
-from datumaro.components.dataset import Dataset
+from datumaro import Dataset
 
 dataset = Dataset.import_from('<path/to/dataset>', 'open_images')
 dataset.export('save_dir', 'cvat', save_images=True)
 ```
 
 Links to API documentation:
-- [dm.Dataset.import_from]
+- [Dataset.import_from][]
 
 ## Export to Open Images
 
@@ -327,12 +327,12 @@ dataset.export('./dataset', format='open_images')
 ```
 
 Links to API documentation:
-- [Dataset.import_from]
-- [DatasetItem]
-- [Dataset]
-- [AnnotationType]
-- [Label]
-- [LabelCategories]
+- [Dataset.import_from][]
+- [DatasetItem][]
+- [Dataset][]
+- [AnnotationType][]
+- [Label][]
+- [LabelCategories][]
 
 Examples of using this format from the code can be found in
 [the format tests](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/test_open_images_format.py).

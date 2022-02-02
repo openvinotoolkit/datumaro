@@ -180,7 +180,7 @@ dataset.export('save_dir', 'voc', save_images=True)
 ```
 
 Links to API documentation:
-- [Dataset.import_from]
+- [Dataset.import_from][]
 
 ## Export to COCO
 
@@ -280,15 +280,15 @@ dataset.export('./dataset', format='coco_panoptic')
 ```
 
 Links to API documentation:
-- [Dataset.from_iterable]
-- [Mask]
-- [Dataset]
-- [DatasetItem]
+- [Dataset.from_iterable][]
+- [Mask][]
+- [Dataset][]
+- [DatasetItem][]
 
 Examples of using this format from the code can be found in
 [the format tests](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/test_coco_format.py)
 
-[import_from]: /api/api/components/components/datumaro.components.dataset.html#datumaro.components.dataset.Dataset.import_from
+[Dataset.import_from]: /api/api/components/components/datumaro.components.dataset.html#datumaro.components.dataset.Dataset.import_from
 [Dataset.from_iterable]: /api/api/components/components/datumaro.components.dataset.html#datumaro.components.dataset.Dataset.from_iterable
 [Mask]: /api/api/components/components/datumaro.components.annotation.html#datumaro.components.annotation.Mask
 [Dataset]: /api/api/components/components/datumaro.components.dataset.html

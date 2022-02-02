@@ -134,7 +134,7 @@ dataset.export('save_dir', 'imagenet', save_images=True)
 ```
 
 Links to API documentation:
-- [Dataset.import_from]
+- [Dataset.import_from][]
 
 ## Export to CIFAR
 
@@ -191,9 +191,9 @@ dataset.export('./dataset', format='cifar')
 ```
 
 Links to API documentation:
-- [Dataset.from_iterable]
-- [DatasetItem]
-- [Label]
+- [Dataset.from_iterable][]
+- [DatasetItem][]
+- [Label][]
 
 ### Example 2. How to filter and convert a CIFAR dataset to ImageNet
 

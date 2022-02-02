@@ -131,7 +131,7 @@ dataset.export('save_dir', 'coco_instances', save_images=True)
 
 
 Links to API documentation:
-- [Dataset.import_from]
+- [Dataset.import_from][]
 
 ## Export to YOLO format
 
@@ -200,10 +200,10 @@ dataset.export('../yolo_dataset', format='yolo', save_images=True)
 ```
 
 Links to API documentation:
-- [Dataset.from_iterable]
-- [Bbox]
-- [Dataset]
-- [DatasetItem]
+- [Dataset.from_iterable][]
+- [Bbox][]
+- [Dataset][]
+- [DatasetItem][]
 
 ### Example 4. Get information about objects on each image
 
@@ -222,8 +222,8 @@ for item in dataset:
 ```
 
 Links to API documentation:
-- [AnnotationType]
-- [Dataset]
+- [AnnotationType][]
+- [Dataset][]
 
 And If you want complete information about each item you can run:
 ```bash
@@ -232,6 +232,7 @@ datum import -p project -f yolo ./yolo_dataset
 datum filter -p project --dry-run -e '/item'
 ```
 
+[Dataset.import_from]: /api/api/components/components/datumaro.components.dataset.html#datumaro.components.dataset.Dataset.import_from
 [Dataset.from_iterable]: /api/api/components/components/datumaro.components.dataset.html#datumaro.components.dataset.Dataset.from_iterable
 [Dataset]: /api/api/components/components/datumaro.components.dataset.html
 [DatasetItem]: /api/api/components/components/datumaro.components.extractor.html#datumaro.components.extractor.DatasetItem

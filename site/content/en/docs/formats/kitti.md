@@ -147,7 +147,7 @@ dataset.export('save_dir', 'cityscapes', save_images=True)
 ```
 
 Links to API documentation:
-- [Dataset.import_from]
+- [Dataset.import_from][]
 
 ## Export to KITTI
 
@@ -245,10 +245,10 @@ dataset.export('./dataset', format='kitti')
 ```
 
 Links to API documentation:
-- [Dataset.from_iterable]
-- [Mask]
-- [Dataset]
-- [DatasetItem]
+- [Dataset.from_iterable][]
+- [Mask][]
+- [Dataset][]
+- [DatasetItem][]
 
 Examples of using this format from the code can be found in
 [the format tests](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/test_kitti_format.py)

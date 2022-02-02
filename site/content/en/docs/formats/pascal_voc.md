@@ -184,7 +184,7 @@ dataset.export('save_dir', 'coco', save_images=True)
 ```
 
 Links to API documentation:
-- [Dataset.import_from]
+- [Dataset.import_from][]
 
 ## Export to Pascal VOC
 
@@ -293,12 +293,12 @@ lion:255,128,0::
 ```
 
 Links to API documentation:
-- [Dataset.from_iterable]
-- [Bbox]
-- [Polygon]
-- [Label]
-- [Dataset]
-- [DatasetItem]
+- [Dataset.from_iterable][]
+- [Bbox][]
+- [Polygon][]
+- [Label][]
+- [Dataset][]
+- [DatasetItem][]
 
 ### Example 3. Load, filter and convert from code
 Load Pascal VOC dataset, and export train subset with items
@@ -323,7 +323,7 @@ train_dataset.export('./jumping_label_me', format='label_me', save_images=True)
 ```
 
 Links to API documentation:
-- [Dataset.import_from]
+- [Dataset.import_from][]
 
 ### Example 4. Get information about items in Pascal VOC 2012 dataset for segmentation task:
 
@@ -347,8 +347,8 @@ for subset_name, subset in dataset.subsets().items():
 ```
 
 Links to API documentation:
-- [Dataset.import_from]
-- [AnnotationType]
+- [Dataset.import_from][]
+- [AnnotationType][]
 
 After executing this code, we can see that there are 5826 images
 in Pascal VOC 2012 has for segmentation task and this result is the same as the

@@ -107,7 +107,7 @@ dataset.export('output_dir', 'open_images', save_images=True)
 ```
 
 Links to API documentation:
-- [Dataset.import_from]
+- [Dataset.import_from][]
 
 > Note: some formats have extra export options. For particular format see the
 > [docs](/docs/formats/) to get information about it.

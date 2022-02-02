@@ -111,7 +111,7 @@ dataset.export('save_dir', 'kitti_raw', save_images=True)
 ```
 
 Links to API documentation:
-- [Dataset.import_from]
+- [Dataset.import_from][]
 
 ## Export to Supervisely Point Cloud
 
@@ -191,9 +191,9 @@ dataset.export('my_dataset/', format='sly_pointcloud', save_images=True,
 ```
 
 Links to API documentation:
-- [Dataset]
-- [Cuboid3d]
-- [DatasetItem]
+- [Dataset][]
+- [Cuboid3d][]
+- [DatasetItem][]
 
 Examples of using this format from the code can be found in
 [the format tests](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/test_sly_pointcloud_format.py)

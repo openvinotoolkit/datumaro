@@ -33,7 +33,7 @@ vott_csv_dataset = Dataset.import_from('<path/to/dataset>', 'vott_csv')
 ```
 
 Links to API documentation:
-- [Dataset.import_from]
+- [Dataset.import_from][]
 
 VoTT CSV dataset directory should have the following structure:
 
@@ -83,7 +83,7 @@ dataset.export('save_dir', 'voc')
 ```
 
 Links to API documentation:
-- [Dataset.import_from]
+- [Dataset.import_from][]
 
 ## Examples
 

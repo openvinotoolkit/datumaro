@@ -116,7 +116,7 @@ dataset.export('save_dir', 'sly_pointcloud', save_images=True)
 ```
 
 Links to API documentation:
-- [Dataset.import_from]
+- [Dataset.import_from][]
 
 ## Export to KITTI Raw
 
@@ -185,10 +185,10 @@ dataset.export('my_dataset/', format='kitti_raw', save_images=True)
 ```
 
 Links to API documentation:
-- [Dataset.from_iterable]
-- [Cuboid3d]
-- [Dataset]
-- [DatasetItem]
+- [Dataset.from_iterable][]
+- [Cuboid3d][]
+- [Dataset][]
+- [DatasetItem][]
 
 Examples of using this format from the code can be found in
 [the format tests](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/test_kitti_raw_format.py)

@@ -55,7 +55,7 @@ dataset = Dataset.import_from('<path_to_dataset>', 'market1501')
 ```
 
 Links to API documentation:
-- [Dataset.import_from]
+- [Dataset.import_from][]
 
 For successful importing the Market-1501 dataset, the directory with it
 should has the following structure:

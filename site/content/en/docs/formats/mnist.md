@@ -137,7 +137,7 @@ dataset.export('save_dir', 'imagenet', save_images=True)
 ```
 
 Links to API documentation:
-- [Dataset.import_from]
+- [Dataset.import_from][]
 
 These steps also will work for MNIST in CSV, if you use `mnist_csv`
 instead of `mnist`.
@@ -194,9 +194,9 @@ dataset.export('./dataset', format='mnist')
 ```
 
 Links to API documentation:
-- [Dataset.from_iterable]
-- [DatasetItem]
-- [Label]
+- [Dataset.from_iterable][]
+- [DatasetItem][]
+- [Label][]
 
 ### Example 2. How to filter and convert a MNIST dataset to ImageNet
 

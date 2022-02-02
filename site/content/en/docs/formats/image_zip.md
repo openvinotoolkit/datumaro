@@ -73,7 +73,7 @@ dataset.export('save_dir', 'coco', save_images=True)
 ```
 
 Links to API documentation:
-- [Dataset.import_from]
+- [Dataset.import_from][]
 
 ## Export an unannotated dataset to a zip archive
 
