@@ -530,7 +530,9 @@ Remove the `person` label (and corresponding annotations):
 datum transform -t remap_labels -- -l person: --default keep
 ```
 
-Rename `person` to `pedestrian` and `human` to `pedestrian`, join:
+Rename `person` to `pedestrian` and `human` to `pedestrian`, join annotations
+that had different classes under the same class id for `pedestrian`,
+don't touch other classes:
 ```bash
 datum transform -t remap_labels -- \
   -l person:pedestrian -l human:pedestrian --default keep
