@@ -3,14 +3,14 @@ annotation module
 
 .. automodule:: datumaro.components.annotation
 
-   .. py:data:: NO_GROUP = 0
-
    .. autoclass:: AnnotationType
       :members:
       :undoc-members:
       :private-members:
       :special-members:
       :show-inheritance:
+
+   .. py:data:: NO_GROUP = 0
 
    .. autoclass:: Annotation
       :members: type, wrap, __eq__, __init__
@@ -52,10 +52,6 @@ annotation module
 
             .. py:data:: attributes: Set[str]
 
-   .. py:data:: RgbColor = Tuple[int, int, int]
-   .. py:data:: Colormap = Dict[int, RgbColor]
-   .. py:data:: CompiledMaskImage = np.ndarray
-
    .. autoclass:: LabelCategories
       :members: from_iterable, add, find, __getitem__, __contains__, __len__, __iter__, __eq__, __init__
       :undoc-members:
@@ -87,6 +83,9 @@ annotation module
 
       .. py:data:: label: int
 
+   .. py:data:: RgbColor = Tuple[int, int, int]
+   .. py:data:: Colormap = Dict[int, RgbColor]
+
    .. autoclass:: MaskCategories
       :members: inverse_colormap, __contains__, __getitem__, __len__, __eq__, __init__
       :undoc-members:
@@ -97,6 +96,10 @@ annotation module
       .. automethod:: generate
 
          .. py:data:: colormap: Colormap
+
+
+   .. py:data:: BinaryMaskImage = np.ndarray
+   .. py:data:: IndexMaskImage = np.ndarray
 
    .. autoclass:: Mask
       :members: image, as_class_mask, as_instance_mask, get_area, get_bbox, paint, __eq__, __init__
@@ -122,6 +125,8 @@ annotation module
       .. py:data:: CompiledMaskImage
 
          2d of integers (of different precision)
+
+   .. py:data:: CompiledMaskImage = np.ndarray
 
    .. autoclass:: CompiledMask
       :members:
@@ -171,9 +176,6 @@ annotation module
       .. automethod:: _Shape.get_area(self)
 
       .. automethod:: _Shape.get_bbox(self)
-
-   .. py:data:: BinaryMaskImage = np.ndarray
-   .. py:data:: IndexMaskImage = np.ndarray
 
    .. autoclass:: PointsCategories
       :members:
