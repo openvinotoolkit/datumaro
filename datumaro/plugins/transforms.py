@@ -440,7 +440,9 @@ class Rename(ItemTransform, CliPlugin):
     |s|s- Replace 'pattern' with 'replacement':|n
     |s|s|s|srename -e '|pattern|replacement|'|n
     |s|s- Remove 'frame_' from item ids:|n
-    |s|s|s|srename -e '|frame_(\d+)|\1|'
+    |s|s|s|srename -e '|^frame_||'|n
+    |s|s- Rename by regex:|n
+    |s|s|s|srename -e '|frame_(\d+)_extra|{item.subset}_id_\\1|'
     """
 
     @classmethod

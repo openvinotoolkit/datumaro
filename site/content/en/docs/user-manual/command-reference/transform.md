@@ -77,7 +77,7 @@ datum transform -t random_split --overwrite path/to/dataset:voc
 ``` bash
 datum create <...>
 datum import <...> -n source-1
-datum transform -t rename source-1 -- -e '|frame_(\d+)|\\1|'
+datum transform -t rename source-1 -- -e '|^frame_||'
 ```
 
 #### Built-in transforms <a id="builtin-transforms"></a>
@@ -151,7 +151,17 @@ datum transform -t rename -- -e '|pattern|replacement|'
 
 Remove the `frame_` prefix from item ids:
 ```bash
-datum transform -t rename -- -e '|frame_(\d+)|\1|'
+datum transform -t rename -- -e '|^frame_|\\1|'
+```
+
+Collect images from subdirectories into the base image directory using regex:
+```bash
+datum transform -t rename -- -e '|^((.+[/\\])*)?(.+)$|\2|'
+```
+
+Add subset prefix to images:
+```bash
+datum transform -t rename -- -e '|(.*)|{item.subset}_\1|'
 ```
 
 ##### `id_from_image_name` <a id="id_from_image_name-transform"></a>
@@ -505,7 +515,7 @@ Changes labels in the dataset.
 
 A label can be:
 - renamed (and joined with existing) -
-  when specified `--label <old_name>:<new_name>`
+  when `--label <old_name>:<new_name>` is specified
 - deleted - when specified `--label <name>:` or default action is `delete`
   and the label is not mentioned in the list. When a label
   is deleted, all the associated annotations are removed
