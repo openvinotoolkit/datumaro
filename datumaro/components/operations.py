@@ -35,9 +35,6 @@ from datumaro.util.annotation_util import (
 from datumaro.util.attrs_util import default_if_none, ensure_cls
 
 
-def get_ann_type(anns, t):
-    return [a for a in anns if a.type == t]
-
 def match_annotations_equal(a, b):
     matches = []
     a_unmatched = a[:]
@@ -1336,7 +1333,7 @@ class DistanceComparator:
 
     @staticmethod
     def _get_ann_type(t, item):
-        return get_ann_type(item.annotations, t)
+        return [a for a in item.annotations if a.type == t]
 
     def match_labels(self, item_a, item_b):
         a_labels = set(a.label for a in
@@ -1528,8 +1525,8 @@ class ExactComparator:
         ignored_fields = self.ignored_fields
         ignored_attrs = self.ignored_attrs
 
-        a_fields = { k: None for k in vars(a) if k in ignored_fields }
-        b_fields = { k: None for k in vars(b) if k in ignored_fields }
+        a_fields = { k: None for k in a.as_dict() if k in ignored_fields }
+        b_fields = { k: None for k in b.as_dict() if k in ignored_fields }
         if 'attributes' not in ignored_fields:
             a_fields['attributes'] = filter_dict(a.attributes, ignored_attrs)
             b_fields['attributes'] = filter_dict(b.attributes, ignored_attrs)

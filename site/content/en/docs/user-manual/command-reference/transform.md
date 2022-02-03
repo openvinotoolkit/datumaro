@@ -93,6 +93,8 @@ Basic dataset item manipulations:
   (requires model inference results)
 - [`random_sampler`](#random_sampler-transform) - Leaves no more than k items
   from the dataset randomly
+- [`label_random_sampler`](#label_random_sampler-transform) - Leaves at least
+  k images with annotations per class
 - [`resize`](#resize-transform) - Resizes images and annotations in the dataset
 
 Subset manipulations:
@@ -222,16 +224,6 @@ datum transform -t ndr -- \
   --under_sample uniform
 ```
 
-
-``` bash
-datum transform -t ndr -- \
-  -w train \
-  -a gradient \
-  -k 100 \
-  -e random \
-  -u uniform
-```
-
 ##### `relevancy_sampler` <a id="relevancy_sampler-transform"></a>
 
 Sampler that analyzes model inference results on the dataset
@@ -324,6 +316,54 @@ datum transform -t random_sampler -- -k 20
 Select subset of 20 images, modify only `train` subset
 ```bash
 datum transform -t random_sampler -- -k 20 -s train
+```
+
+##### `random_label_sampler` <a id="random_label_sampler-transform"></a>
+
+Sampler that keeps at least the required number of annotations of
+each class in the dataset for each subset separately.
+
+Consider using the "stats" command to get class distribution in the dataset.
+
+Notes:
+- Items can contain annotations of several selected classes
+  (e.g. 3 bounding boxes per image). The number of annotations in the
+  resulting dataset varies between `max(class counts)` and `sum(class counts)`
+- If the input dataset does not has enough class annotations, the result
+  will contain only what is available
+- Items are selected uniformly
+- For reasons above, the resulting class distribution in the dataset may
+  not be the same as requested
+- The resulting dataset will only keep annotations for classes with
+  specified `count` > 0
+
+Usage:
+```bash
+label_random_sampler [-h] -k COUNT [-l LABEL_COUNTS] [--seed SEED]
+```
+
+Optional arguments:
+- `-h`, `--help` (flag) - Show this help message and exit
+- `-k`, `--count` (int) - Minimum number of annotations of each class
+- `-l`, `--label` (str; repeatable) - Minimum number of annotations of
+  a specific class. Overrides the `-k/--count` setting for the class.
+  The format is `<label_name>:<count>`
+- `--seed` (int) - Initial value for random number generator
+
+Examples:
+Select a dataset with at least 10 images of each class:
+``` bash
+datum transform -t label_random_sampler -- -k 10
+```
+
+Select a dataset with at least 20 `cat` images, 5 `dog`, 0 `car` and 10 of each
+unmentioned class:
+``` bash
+datum transform -t label_random_sampler -- \
+  -l cat:20 \ # keep 20 images with cats
+  -l dog:5 \ # keep 5 images with dogs
+  -l car:0 \ # remove car annotations
+  -k 10 # for remaining classes
 ```
 
 ##### `resize` <a id="resize-transform"></a>
