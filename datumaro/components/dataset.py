@@ -964,9 +964,21 @@ class Dataset(IDataset):
             if ctx:
                 extractors_kwargs['ctx'] = ctx
 
-            extractors.append(env.make_extractor(
-                src_conf.format, src_conf.url, **extractors_kwargs
-            ))
+            try:
+                extractors.append(env.make_extractor(
+                    src_conf.format, src_conf.url, **extractors_kwargs
+                ))
+            except TypeError as e:
+                if "unexpected keyword argument 'ctx'" in str(e):
+                    log.debug("It seems that '%s' extractor "
+                        "does not support progress and error reporting, "
+                        "it will be disabled", src_conf.format)
+                    extractors_kwargs.pop('ctx')
+                    extractors.append(env.make_extractor(
+                        src_conf.format, src_conf.url, **extractors_kwargs
+                    ))
+                else:
+                    raise
 
         dataset = cls.from_extractors(*extractors, env=env)
         dataset._source_path = path

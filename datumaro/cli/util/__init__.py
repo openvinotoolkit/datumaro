@@ -88,7 +88,7 @@ class CliProgressReporter(ProgressReporter):
         self._tqdm = None
 
     def start(self, total: int, *, desc: Optional[str] = None):
-        self._tqdm = tqdm(total=total, desc=desc)
+        self._tqdm = tqdm(total=total, desc=desc, leave=False)
 
     def finish(self):
         if self._tqdm is not None:

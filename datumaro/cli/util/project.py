@@ -10,6 +10,7 @@ from datumaro.cli.util.errors import WrongRevpathError
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
 from datumaro.components.errors import DatumaroError, ProjectNotFoundError
+from datumaro.components.extractor import ImportContext
 from datumaro.components.project import Project, Revision
 from datumaro.util.os_util import generate_next_name
 from datumaro.util.scope import on_error_do, scoped
@@ -28,8 +29,10 @@ def generate_next_file_name(basename, basedir='.', sep='.', ext=''):
 
     return generate_next_name(os.listdir(basedir), basename, sep, ext)
 
-def parse_dataset_pathspec(s: str,
-        env: Optional[Environment] = None) -> Dataset:
+def parse_dataset_pathspec(s: str, *,
+        env: Optional[Environment] = None,
+        ctx: Optional[ImportContext] = None
+    ) -> Dataset:
     """
     Parses Dataset paths. The syntax is:
         - <dataset path>[ :<format> ]
@@ -47,7 +50,7 @@ def parse_dataset_pathspec(s: str,
 
     path = match["dataset_path"]
     format = match["format"]
-    return Dataset.import_from(path, format, env=env)
+    return Dataset.import_from(path, format, env=env, ctx=ctx)
 
 @scoped
 def parse_revspec(s: str, ctx_project: Optional[Project] = None) \
@@ -104,8 +107,9 @@ def parse_revspec(s: str, ctx_project: Optional[Project] = None) \
     tree = project.get_rev(rev)
     return tree.make_dataset(source), target_project
 
-def parse_full_revpath(s: str, ctx_project: Optional[Project] = None) \
-        -> Tuple[Dataset, Optional[Project]]:
+def parse_full_revpath(s: str, ctx_project: Optional[Project] = None, *,
+        ctx: Optional[ImportContext] = None,
+) -> Tuple[Dataset, Optional[Project]]:
     """
     revpath - either a Dataset path or a Revision path.
 
@@ -125,7 +129,7 @@ def parse_full_revpath(s: str, ctx_project: Optional[Project] = None) \
         errors.append(e)
 
     try:
-        return parse_dataset_pathspec(s, env=env), None
+        return parse_dataset_pathspec(s, env=env, ctx=ctx), None
     except (DatumaroError, OSError) as e:
         errors.append(e)
 

@@ -7,10 +7,10 @@ import argparse
 from datumaro.components.errors import (
     DatasetMergeError, MissingObjectError, ProjectNotFoundError,
 )
-from datumaro.components.extractor import AnnotationType
+from datumaro.components.extractor import AnnotationType, ImportContext
 from datumaro.util.scope import scope_add, scoped
 
-from ..util import MultilineFormatter
+from ..util import CliProgressReporter, MultilineFormatter
 from ..util.project import load_project, parse_full_revpath
 
 
@@ -71,8 +71,11 @@ def info_command(args):
             raise
 
     try:
+        ctx = ImportContext(progress_reporter=CliProgressReporter())
+
         # TODO: avoid computing working tree hashes
-        dataset, target_project = parse_full_revpath(args.target, project)
+        dataset, target_project = parse_full_revpath(args.target, project,
+            ctx=ctx)
         if target_project:
             scope_add(target_project)
     except DatasetMergeError as e:

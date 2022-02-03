@@ -222,6 +222,8 @@ class ProgressReporter:
 
             yield elem
 
+        self.report_status(i)
+
         self.finish()
 
 class ErrorPolicy:
@@ -240,8 +242,8 @@ class ErrorPolicy:
 
 @define(eq=False)
 class ImportContext:
-    progress_reporter: ProgressReporter
-    error_policy: ErrorPolicy
+    progress_reporter: Optional[ProgressReporter] = None
+    error_policy: Optional[ErrorPolicy] = None
 
 class Extractor(_ExtractorBase, CliPlugin):
     """

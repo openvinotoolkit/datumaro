@@ -36,6 +36,7 @@ class _CocoExtractor(SourceExtractor):
         merge_instance_polygons=False,
         subset=None,
         keep_original_category_ids=False,
+        **kwargs
     ):
         assert osp.isfile(path), path
 
@@ -43,7 +44,7 @@ class _CocoExtractor(SourceExtractor):
             parts = osp.splitext(osp.basename(path))[0].split(task.name + '_',
                 maxsplit=1)
             subset = parts[1] if len(parts) == 2 else None
-        super().__init__(subset=subset)
+        super().__init__(subset=subset, **kwargs)
 
         rootpath = ''
         if path.endswith(osp.join(CocoPath.ANNOTATIONS_DIR, osp.basename(path))):
@@ -135,7 +136,8 @@ class _CocoExtractor(SourceExtractor):
         items = {}
 
         img_infos = {}
-        for img_info in json_data['images']:
+        for img_info in self._with_progress(json_data['images'],
+                desc='Parsing image info'):
             img_id = img_info['id']
             img_infos[img_id] = img_info
 
@@ -153,7 +155,8 @@ class _CocoExtractor(SourceExtractor):
                 annotations=[],
                 attributes={'id': img_id})
 
-        for ann in json_data['annotations']:
+        for ann in self._with_progress(json_data['annotations'],
+                desc='Parsing annotations'):
             items[ann['image_id']].annotations += \
                 self._load_annotations(ann, img_infos[ann['image_id']])
 
@@ -163,7 +166,8 @@ class _CocoExtractor(SourceExtractor):
         items = {}
 
         img_infos = {}
-        for img_info in json_data['images']:
+        for img_info in self._with_progress(json_data['images'],
+                desc='Parsing image info'):
             img_id = img_info['id']
             img_infos[img_id] = img_info
 
@@ -181,7 +185,8 @@ class _CocoExtractor(SourceExtractor):
                 annotations=[],
                 attributes={'id': img_id})
 
-        for ann in json_data['annotations']:
+        for ann in self._with_progress(json_data['annotations'],
+                desc='Parsing annotations'):
             # For the panoptic task, each annotation struct is a per-image
             # annotation rather than a per-object annotation.
             anns = items[ann['image_id']].annotations
