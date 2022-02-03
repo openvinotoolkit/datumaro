@@ -35,9 +35,8 @@ class CropCoveredSegments(ItemTransform, CliPlugin):
     """
     Sorts polygons and masks ("segments") according to `z_order`,
     crops covered areas of underlying segments. If a segment is split
-    into several independent parts, produces the corresponding number of
-    separate annotations joined into a group. Produces polygons and masks
-    as they were originally.
+    into several independent parts by the segments above, produces
+    the corresponding number of separate annotations joined into a group.
     """
 
     def transform_item(self, item):
