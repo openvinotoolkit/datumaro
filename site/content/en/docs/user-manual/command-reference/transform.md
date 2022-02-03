@@ -565,14 +565,9 @@ Optional arguments:
 - `-l`, `--label` (str; repeatable) - Label name (ordered)
 
 Examples:
-Align the source dataset labels to \[`person`, `cat`, `dog`\]:
-```
-datum transform -t project_labels -- -l person -l cat -l dog
-```
-
-Set dataset labels to {`person`, `cat`, `dog`}, remove others, add missing.
-Original labels (can be any): `cat`, `dog`, `elephant`, `human`
-New labels: `person` (added), `cat` (kept), `dog` (kept)
+Set dataset labels to \[`person`, `cat`, `dog`\], remove others, add missing.
+Original labels (for example): `cat`, `dog`, `elephant`, `human`.
+New labels: `person` (added), `cat` (kept), `dog` (kept).
 ``` bash
 datum transform -t project_labels -- -l person -l cat -l dog
 ```
