@@ -4,6 +4,8 @@
 
 from collections import OrderedDict
 from enum import Enum, auto
+from typing import Optional, Tuple
+import glob
 import logging as log
 import os
 import os.path as osp
@@ -16,10 +18,15 @@ from datumaro.components.annotation import (
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
+from datumaro.components.format_detection import FormatDetectionContext
+from datumaro.components.media import Image
 from datumaro.util import find, str_to_bool
 from datumaro.util.annotation_util import make_label_id_mapping
 from datumaro.util.image import save_image
 from datumaro.util.mask_tools import generate_colormap, lazy_mask, paint_mask
+from datumaro.util.meta_file_util import (
+    has_meta_file, is_meta_file, parse_meta_file,
+)
 
 CamvidLabelMap = OrderedDict([
     ('Void', (0, 0, 0)),
@@ -134,6 +141,23 @@ def make_camvid_categories(label_map=None):
     categories[AnnotationType.mask] = mask_categories
     return categories
 
+def _parse_annotation_line(line: str) -> Tuple[str, Optional[str]]:
+    line = line.strip()
+    objects = line.split('\"')
+    if 1 < len(objects):
+        if len(objects) == 5:
+            objects[0] = objects[1]
+            objects[1] = objects[3]
+        else:
+            raise Exception("Line %s: unexpected number "
+                "of quotes in filename" % line)
+    else:
+        objects = line.split()
+
+    if len(objects) > 1:
+        return objects[0], objects[1].lstrip('/')
+    else:
+        return objects[0], None
 
 class CamvidExtractor(SourceExtractor):
     def __init__(self, path, subset=None):
@@ -150,11 +174,14 @@ class CamvidExtractor(SourceExtractor):
 
     def _load_categories(self, path):
         label_map = None
-        label_map_path = osp.join(path, CamvidPath.LABELMAP_FILE)
-        if osp.isfile(label_map_path):
-            label_map = parse_label_map(label_map_path)
+        if has_meta_file(path):
+            label_map = parse_meta_file(path)
         else:
-            label_map = CamvidLabelMap
+            label_map_path = osp.join(path, CamvidPath.LABELMAP_FILE)
+            if osp.isfile(label_map_path):
+                label_map = parse_label_map(label_map_path)
+            else:
+                label_map = CamvidLabelMap
         self._labels = [label for label in label_map]
         return make_camvid_categories(label_map)
 
@@ -167,25 +194,13 @@ class CamvidExtractor(SourceExtractor):
 
         with open(path, encoding='utf-8') as f:
             for line in f:
-                line = line.strip()
-                objects = line.split('\"')
-                if 1 < len(objects):
-                    if len(objects) == 5:
-                        objects[0] = objects[1]
-                        objects[1] = objects[3]
-                    else:
-                        raise Exception("Line %s: unexpected number "
-                            "of quotes in filename" % line)
-                else:
-                    objects = line.split()
-                image = objects[0]
+                image, gt = _parse_annotation_line(line)
                 item_id = osp.splitext(osp.join(*image.split('/')[2:]))[0]
                 image_path = osp.join(self._dataset_dir, image.lstrip('/'))
 
                 item_annotations = []
-                if 1 < len(objects):
-                    gt = objects[1]
-                    gt_path = osp.join(self._dataset_dir, gt.lstrip('/'))
+                if gt is not None:
+                    gt_path = osp.join(self._dataset_dir, gt)
                     mask = lazy_mask(gt_path,
                         self._categories[AnnotationType.mask].inverse_colormap)
                     mask = mask() # loading mask through cache
@@ -198,7 +213,7 @@ class CamvidExtractor(SourceExtractor):
                                 Mask(image=image, label=label_id))
 
                 items[item_id] = DatasetItem(id=item_id, subset=self._subset,
-                    image=image_path, annotations=item_annotations)
+                    media=Image(path=image_path), annotations=item_annotations)
 
         return items
 
@@ -208,6 +223,25 @@ class CamvidExtractor(SourceExtractor):
 
 
 class CamvidImporter(Importer):
+    @classmethod
+    def detect(cls, context: FormatDetectionContext) -> None:
+        annot_path = context.require_file('*.txt',
+            exclude_fnames=CamvidPath.LABELMAP_FILE)
+
+        with context.probe_text_file(
+            annot_path, 'must be a CamVid-like annotation file',
+        ) as f:
+            for line in f:
+                _, mask_path = _parse_annotation_line(line)
+                if mask_path is not None:
+                    break
+            else:
+                # If there are no masks in the entire file, it's probably
+                # not actually a CamVid file.
+                raise Exception
+
+        context.require_file(glob.escape(mask_path))
+
     @classmethod
     def find_sources(cls, path):
         return cls._find_sources_recursive(path, '.txt', 'camvid',
@@ -260,7 +294,7 @@ class CamvidConverter(Converter):
             segm_list = {}
             for item in subset:
                 image_path = self._make_image_filename(item, subdir=subset_name)
-                if self._save_images:
+                if self._save_media:
                     self._save_image(item, osp.join(self._save_dir, image_path))
 
                 masks = [a for a in item.annotations
@@ -308,11 +342,14 @@ class CamvidConverter(Converter):
                 f.write('%s %s\n' % (image_path, mask_path))
 
     def save_label_map(self):
-        path = osp.join(self._save_dir, CamvidPath.LABELMAP_FILE)
-        labels = self._extractor.categories()[AnnotationType.label]
-        if len(self._label_map) > len(labels):
-            self._label_map.pop('background')
-        write_label_map(path, self._label_map)
+        if self._save_dataset_meta:
+            self._save_meta_file(self._save_dir)
+        else:
+            path = osp.join(self._save_dir, CamvidPath.LABELMAP_FILE)
+            labels = self._extractor.categories()[AnnotationType.label]
+            if len(self._label_map) > len(labels):
+                self._label_map.pop('background')
+            write_label_map(path, self._label_map)
 
     def _load_categories(self, label_map_source):
         if label_map_source == LabelmapType.camvid.name:
@@ -343,7 +380,10 @@ class CamvidConverter(Converter):
                 sorted(label_map_source.items(), key=lambda e: e[0]))
 
         elif isinstance(label_map_source, str) and osp.isfile(label_map_source):
-            label_map = parse_label_map(label_map_source)
+            if is_meta_file(label_map_source):
+                label_map = parse_meta_file(label_map_source)
+            else:
+                label_map = parse_label_map(label_map_source)
 
         else:
             raise Exception("Wrong labelmap specified, "
@@ -391,7 +431,7 @@ class CamvidConverter(Converter):
             else:
                 item = DatasetItem(item_id, subset=subset)
 
-            if not (status == ItemStatus.removed or not item.has_image):
+            if not (status == ItemStatus.removed or not item.media):
                 continue
 
             image_path = osp.join(save_dir,

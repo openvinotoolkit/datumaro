@@ -1,12 +1,14 @@
-# Copyright (C) 2019-2021 Intel Corporation
+# Copyright (C) 2019-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
+
+from __future__ import annotations
 
 from contextlib import ExitStack, suppress
 from enum import Enum, auto
 from typing import (
-    Any, Dict, Generic, Iterable, List, NewType, Optional, Tuple, TypeVar,
-    Union,
+    Any, Dict, Generic, Iterable, Iterator, List, NewType, Optional, Tuple,
+    TypeVar, Union,
 )
 import json
 import logging as log
@@ -39,6 +41,7 @@ from datumaro.components.errors import (
     UnsavedChangesError, VcsError,
 )
 from datumaro.components.launcher import Launcher
+from datumaro.components.media_manager import MediaManager
 from datumaro.util import find, parse_str_enum_value
 from datumaro.util.log_utils import catch_logs, logging_disabled
 from datumaro.util.os_util import (
@@ -48,15 +51,23 @@ from datumaro.util.scope import on_error_do, scope_add, scoped
 
 
 class ProjectSourceDataset(IDataset):
-    def __init__(self, path: str, tree: 'Tree', source: str,
+    def __init__(self, path: str, tree: Tree, source: str,
             readonly: bool = False):
         config = tree.sources[source]
 
+        rpath = path
         if config.path:
-            path = osp.join(path, config.path)
+            rpath = osp.join(path, config.path)
 
-        self.__dict__['_dataset'] = Dataset.import_from(path,
+        dataset = Dataset.import_from(rpath,
             env=tree.env, format=config.format, **config.options)
+
+        # Using rpath won't allow to save directly with .save() when a file
+        # path is specified. Dataset doesn't know the root location and if
+        # it exists at all, but in a project, we do.
+        dataset.bind(path, format=dataset.format, options=dataset.options)
+
+        self.__dict__['_dataset'] = dataset
 
         self.__dict__['_config'] = config
         self.__dict__['_readonly'] = readonly
@@ -181,7 +192,7 @@ class CrudProxy(Generic[CrudEntry]):
             -> Union[None, T, CrudEntry]:
         return self._data.get(name, default)
 
-    def __iter__(self) -> Iterable[CrudEntry]:
+    def __iter__(self) -> Iterator[CrudEntry]:
         return iter(self._data.keys())
 
     def items(self) -> Iterable[Tuple[str, CrudEntry]]:
@@ -191,7 +202,7 @@ class CrudProxy(Generic[CrudEntry]):
         return name in self._data
 
 class _DataSourceBase(CrudProxy[Source]):
-    def __init__(self, tree: 'Tree', config_field: str):
+    def __init__(self, tree: Tree, config_field: str):
         self._tree = tree
         self._field = config_field
 
@@ -209,7 +220,7 @@ class _DataSourceBase(CrudProxy[Source]):
         self._data.remove(name)
 
 class ProjectSources(_DataSourceBase):
-    def __init__(self, tree: 'Tree'):
+    def __init__(self, tree: Tree):
         super().__init__(tree, 'sources')
 
     def __getitem__(self, name):
@@ -297,13 +308,13 @@ class Pipeline:
         """
         return graph.subgraph(nx.ancestors(graph, target) | {target})
 
-    def get_slice(self, target) -> 'Pipeline':
+    def get_slice(self, target) -> Pipeline:
         pipeline = Pipeline()
         pipeline._graph = self._get_subgraph(self._graph, target).copy()
         return pipeline
 
 class ProjectBuilder:
-    def __init__(self, project: 'Project', tree: 'Tree'):
+    def __init__(self, project: Project, tree: Tree):
         self._project = project
         self._tree = tree
 
@@ -574,7 +585,10 @@ class ProjectBuilder:
     @staticmethod
     def _validate_pipeline(pipeline: Pipeline):
         graph = pipeline._graph
-        if len(graph) == 0:
+        if len(graph) == 0 or len(graph) == 1 and next(iter(graph.nodes)) == \
+                ProjectBuildTargets.make_target_name(
+                    ProjectBuildTargets.MAIN_TARGET,
+                    ProjectBuildTargets.BASE_STAGE):
             raise EmptyPipelineError()
 
         head = pipeline.head
@@ -663,7 +677,7 @@ class ProjectBuildTargets(CrudProxy[BuildTarget]):
     MAIN_TARGET = 'project'
     BASE_STAGE = 'root'
 
-    def __init__(self, tree: 'Tree'):
+    def __init__(self, tree: Tree):
         self._tree = tree
 
     @property
@@ -998,18 +1012,18 @@ class GitWrapper:
         Compares working directory and index.
 
         Parameters:
-        - paths - an iterable of paths to compare, a git.Tree, or None.
-            When None, uses all the paths from HEAD.
-        - base_dir - a base path for paths. Paths will be prepended by this.
-            When None or '', uses repo root. Can be useful, if index contains
-            displaced paths, which needs to be mapped on real paths.
+            paths: an iterable of paths to compare, a git.Tree, or None.
+                When None, uses all the paths from HEAD.
+            base_dir: a base path for paths. Paths will be prepended by this.
+                When None or '', uses repo root. Can be useful, if index contains
+                displaced paths, which needs to be mapped on real paths.
 
         The statuses are:
-        - "A" for added paths
-        - "D" for deleted paths
-        - "R" for renamed paths
-        - "M" for paths with modified data
-        - "T" for changed in the type paths
+            - "A" for added paths
+            - "D" for deleted paths
+            - "R" for renamed paths
+            - "M" for paths with modified data
+            - "T" for changed in the type paths
 
         Returns: { abspath(base_dir + path): status }
         """
@@ -1353,9 +1367,9 @@ class Tree:
     # - attached to the work dir
     # - attached to a revision
 
-    def __init__(self, project: 'Project',
+    def __init__(self, project: Project,
             config: Union[None, Dict, Config, TreeConfig] = None,
-            rev: Union[None, 'Revision'] = None):
+            rev: Union[None, Revision] = None):
         assert isinstance(project, Project)
         assert not rev or project.is_ref(rev), rev
 
@@ -1379,7 +1393,7 @@ class Tree:
         os.makedirs(osp.dirname(path), exist_ok=True)
         self._config.dump(path)
 
-    def clone(self) -> 'Tree':
+    def clone(self) -> Tree:
         return Tree(self._project, TreeConfig(self.config), self._rev)
 
     @property
@@ -1399,7 +1413,7 @@ class Tree:
         return self._project.env
 
     @property
-    def rev(self) -> Union[None, 'Revision']:
+    def rev(self) -> Union[None, Revision]:
         return self._rev
 
     def make_pipeline(self, target: Optional[str] = None) -> Pipeline:
@@ -1622,7 +1636,7 @@ class Project:
 
     @classmethod
     @scoped
-    def init(cls, path) -> 'Project':
+    def init(cls, path) -> Project:
         existing_project = cls.find_project_dir(path)
         if existing_project:
             raise ProjectAlreadyExists(path)
@@ -1652,6 +1666,8 @@ class Project:
         return project
 
     def close(self):
+        MediaManager.get_instance().clear()
+
         if self._dvc:
             self._dvc.close()
             self._dvc = None
@@ -1715,8 +1731,8 @@ class Project:
     def get_rev(self, rev: Union[None, Revision]) -> Tree:
         """
         Reference conventions:
-        - None or "" - working dir
-        - "<40 symbols>" - revision hash
+            - None or "" - working dir
+            - "<40 symbols>" - revision hash
         """
 
         obj_type, obj_hash = self._parse_ref(rev)
@@ -1854,6 +1870,8 @@ class Project:
     def remove_cache_obj(self, ref: Union[Revision, ObjectId]):
         if self.readonly:
             raise ReadonlyProjectError()
+
+        MediaManager.get_instance().clear()
 
         obj_type, obj_hash = self._parse_ref(ref)
 
@@ -2007,17 +2025,17 @@ class Project:
         in datasets.
 
         Parameters:
-        - name (str) - Name of the new source
-        - url (str) - URL of the new source. A path to a file or directory
-        - format (str) - Dataset format
-        - options (dict) - Options for the format Extractor
-        - no_cache (bool) - Don't put a copy of files into the project cache.
-            Can be used to reduce project cache size.
-        - no_hash (bool) - Don't compute source data hash. Implies "no_cache".
-            Useful to reduce import time at the cost of disabled data
-            integrity checks.
-        - rpath (str) - Used to specify a relative path to the dataset
-            inside of the directory pointed by URL.
+            name (str): Name of the new source
+            url (str): URL of the new source. A path to a file or directory
+            format (str): Dataset format
+            options (dict): Options for the format Extractor
+            no_cache (bool): Don't put a copy of files into the project cache.
+                Can be used to reduce project cache size.
+            no_hash (bool): Don't compute source data hash. Implies "no_cache".
+                Useful to reduce import time at the cost of disabled data
+                integrity checks.
+            rpath (str): Used to specify a relative path to the dataset
+                inside of the directory pointed by URL.
 
         Returns: the new source config
         """
@@ -2057,6 +2075,8 @@ class Project:
                         "specified by source URL: '%s', '%s'" % (rpath, url))
 
                 rpath = osp.relpath(rpath, url)
+            elif osp.isfile(url):
+                rpath = osp.basename(url)
         else:
             rpath = None
 
@@ -2112,11 +2132,11 @@ class Project:
         in datasets.
 
         Parameters:
-        - url (str) - URL of the new source. A path to a file or directory
-        - format (str) - Dataset format
-        - options (dict) - Options for the format Extractor
-        - rpath (str) - Used to specify a relative path to the dataset
-            inside of the directory pointed by URL.
+            url (str): URL of the new source. A path to a directory
+            format (str): Dataset format
+            options (dict): Options for the format Extractor
+            rpath (str): Used to specify a relative path to the dataset
+                inside of the directory pointed by URL.
 
         Returns: the name and the config of the new source
         """
@@ -2176,8 +2196,8 @@ class Project:
             force: bool = False, keep_data: bool = True):
         """
         Options:
-        - force (bool) - ignores errors and tries to wipe remaining data
-        - keep_data (bool) - leaves source data untouched
+            - force (bool) - ignores errors and tries to wipe remaining data
+            - keep_data (bool) - leaves source data untouched
         """
 
         if self.readonly:
@@ -2185,6 +2205,8 @@ class Project:
 
         if name not in self.working_tree.sources and not force:
             raise UnknownSourceError(name)
+
+        MediaManager.get_instance().clear()
 
         self.working_tree.sources.remove(name)
 
@@ -2214,10 +2236,10 @@ class Project:
         Creates a new commit. Moves the HEAD pointer to the new commit.
 
         Options:
-        - no_cache (bool) - don't put added dataset data into cache,
-            store only metainfo. Can be used to reduce storage size.
-        - allow_empty (bool) - allow commits with no changes.
-        - allow_foreign (bool) - allow commits with changes made not by Datumaro.
+            - no_cache (bool) - don't put added dataset data into cache,
+                store only metainfo. Can be used to reduce storage size.
+            - allow_empty (bool) - allow commits with no changes.
+            - allow_foreign (bool) - allow commits with changes made not by Datumaro.
 
         Returns: the new commit hash
         """
@@ -2292,7 +2314,7 @@ class Project:
         By default, uses the current (HEAD) revision.
 
         Options:
-        - force (bool) - ignore unsaved changes. By default, an error is raised
+            - force (bool) - ignore unsaved changes. By default, an error is raised
         """
 
         if self.readonly:
@@ -2306,6 +2328,8 @@ class Project:
             sources = set(sources)
 
         rev = rev or 'HEAD'
+
+        MediaManager.get_instance().clear()
 
         if sources:
             rev_tree = self.get_rev(rev)
@@ -2527,6 +2551,8 @@ class Project:
 
         if name in self.models:
             raise KeyError("Unknown model '%s'" % name)
+
+        MediaManager.get_instance().clear()
 
         data_dir = self.model_data_dir(name)
         if osp.isdir(data_dir):

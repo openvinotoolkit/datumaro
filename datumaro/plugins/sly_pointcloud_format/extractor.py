@@ -10,6 +10,7 @@ from datumaro.components.annotation import (
     AnnotationType, Cuboid3d, LabelCategories,
 )
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
+from datumaro.components.media import PointCloud
 from datumaro.util.image import find_images
 
 from .format import PointCloudPath
@@ -169,7 +170,7 @@ class SuperviselyPointCloudExtractor(SourceExtractor):
                 related_images = find_images(related_images_dir)
 
             parsed[frame_id] = DatasetItem(id=name, subset=self._subset,
-                point_cloud=pcd_path, related_images=related_images,
+                media=PointCloud(pcd_path, extra_images=related_images),
                 annotations=frame_desc.get('annotations'),
                 attributes={'frame': int(frame_id), **frame_desc['attributes']})
 

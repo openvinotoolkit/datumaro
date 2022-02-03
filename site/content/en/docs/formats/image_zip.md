@@ -60,7 +60,7 @@ For example:
 ```bash
 datum create -o project
 datum import -p project -f image_zip ./images.zip
-datum export -p project -f coco -o ./new_dir -- --save-images
+datum export -p project -f coco -o ./new_dir -- --save-media
 ```
 
 Or, using Python API:
@@ -69,7 +69,7 @@ Or, using Python API:
 from datumaro.components.dataset import Dataset
 
 dataset = Dataset.import_from('<path/to/dataset>', 'image_zip')
-dataset.export('save_dir', 'coco', save_images=True)
+dataset.export('save_dir', 'coco', save_media=True)
 ```
 
 ## Export an unannotated dataset to a zip archive
@@ -82,7 +82,7 @@ datum export -p project -f image_zip -- --name voc_images.zip
 ```
 
 Extra options for exporting to image_zip format:
-- `--save-images` allow to export dataset with saving images
+- `--save-media` allow to export dataset with saving media files
   (default: `False`)
 - `--image-ext <IMAGE_EXT>` allow to specify image extension
   for exporting dataset (default: use original or `.jpg`, if none)

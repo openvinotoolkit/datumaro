@@ -5,16 +5,19 @@
 from enum import Enum, auto
 from glob import glob
 from typing import Collection, Optional, Union
+import contextlib
 import inspect
 import os
 import os.path as osp
 import tempfile
 import unittest
+import unittest.mock
 
 from typing_extensions import Literal
 
 from datumaro.components.annotation import AnnotationType
 from datumaro.components.dataset import Dataset, IDataset
+from datumaro.components.media import Image, PointCloud
 from datumaro.util import filter_dict, find
 from datumaro.util.os_util import rmfile, rmtree
 
@@ -146,10 +149,11 @@ def compare_datasets(test, expected: IDataset, actual: IDataset,
         elif not ignored_attrs:
             test.assertEqual(item_a.attributes, item_b.attributes, item_a.id)
 
-        if (require_images and item_a.has_image and item_a.image.has_data) or \
-                item_a.has_image and item_a.image.has_data and \
-                item_b.has_image and item_b.image.has_data:
-            test.assertEqual(item_a.image, item_b.image, item_a.id)
+        if require_images and item_a.media and item_b.media:
+            if isinstance(item_a.media, Image):
+                test.assertEqual(item_a.media, item_b.media, item_a.id)
+            elif isinstance(item_a.media, PointCloud):
+                test.assertEqual(item_a.media.extra_images, item_b.media.extra_images, item_a.id)
         test.assertEqual(len(item_a.annotations), len(item_b.annotations),
             item_a.id)
         for ann_a in item_a.annotations:
@@ -201,12 +205,12 @@ def compare_datasets_3d(test, expected: IDataset, actual: IDataset,
         elif not ignored_attrs:
             test.assertEqual(item_a.attributes, item_b.attributes, item_a.id)
 
-        if (require_point_cloud and item_a.has_point_cloud) or \
-                (item_a.has_point_cloud and item_b.has_point_cloud):
-            test.assertEqual(item_a.point_cloud, item_b.point_cloud, item_a.id)
+        if (require_point_cloud and item_a.media) or \
+                (item_a.media and item_b.media):
+            test.assertEqual(item_a.media.path, item_b.media.path, item_a.id)
             test.assertEqual(
-                set(img.path for img in item_a.related_images),
-                set(img.path for img in item_b.related_images),
+                set(img.path for img in item_a.media.extra_images),
+                set(img.path for img in item_b.media.extra_images),
                 item_a.id)
         test.assertEqual(len(item_a.annotations), len(item_b.annotations))
         for ann_a in item_a.annotations:
@@ -222,7 +226,7 @@ def compare_datasets_3d(test, expected: IDataset, actual: IDataset,
             item_b.annotations.remove(ann_b) # avoid repeats
 
 
-def test_save_and_load(test, source_dataset, converter, test_dir, importer,
+def check_save_and_load(test, source_dataset, converter, test_dir, importer,
         target_dataset=None, importer_args=None, compare=None, **kwargs):
     converter(source_dataset, test_dir)
 
@@ -263,3 +267,37 @@ def compare_dirs(test, expected: str, actual: str):
 def run_datum(test, *args, expected_code=0):
     from datumaro.cli.__main__ import main
     test.assertEqual(expected_code, main(args), str(args))
+
+@contextlib.contextmanager
+def mock_tfds_data(example=None):
+    import tensorflow as tf
+    import tensorflow_datasets as tfds
+
+    NUM_EXAMPLES = 1
+
+    if example:
+        def as_dataset(self, *args, **kwargs):
+            return tf.data.Dataset.from_tensors(example)
+    else:
+        as_dataset = None
+
+    with tfds.testing.mock_data(num_examples=NUM_EXAMPLES, as_dataset_fn=as_dataset):
+        # The mock version of DatasetBuilder.__init__ installed by mock_data
+        # doesn't initialize split info, which TfdsExtractor needs to function.
+        # So we mock it again to fix that. See also TFDS feature request at
+        # <https://github.com/tensorflow/datasets/issues/3631>.
+        original_init = tfds.core.DatasetBuilder.__init__
+
+        def new_init(self, **kwargs):
+            original_init(self, **kwargs)
+            self.info.set_splits(
+                tfds.core.SplitDict([
+                    tfds.core.SplitInfo(
+                        name="train", shard_lengths=[NUM_EXAMPLES],
+                        num_bytes=1234),
+                ], dataset_name=self.name),
+            )
+
+        with unittest.mock.patch(
+            'tensorflow_datasets.core.DatasetBuilder.__init__', new_init):
+            yield

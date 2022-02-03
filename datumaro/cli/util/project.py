@@ -32,7 +32,7 @@ def parse_dataset_pathspec(s: str,
         env: Optional[Environment] = None) -> Dataset:
     """
     Parses Dataset paths. The syntax is:
-    - <dataset path>[ :<format> ]
+        - <dataset path>[ :<format> ]
 
     Returns: a dataset from the parsed path
     """
@@ -54,13 +54,13 @@ def parse_revspec(s: str, ctx_project: Optional[Project] = None) \
         -> Tuple[Dataset, Project]:
     """
     Parses Revision paths. The syntax is:
-    - <project path> [ @<rev> ] [ :<target> ]
-    - <rev> [ :<target> ]
-    - <target>
+        - <project path> [ @<rev> ] [ :<target> ]
+        - <rev> [ :<target> ]
+        - <target>
     The second and the third forms assume an existing "current" project.
 
     Returns: the dataset and the project from the parsed path.
-      The project is only returned when specified in the revpath.
+        The project is only returned when specified in the revpath.
     """
 
     match = re.fullmatch(r"""
@@ -120,12 +120,12 @@ def parse_full_revpath(s: str, ctx_project: Optional[Project] = None) \
 
     errors = []
     try:
-        return parse_dataset_pathspec(s, env=env), None
+        return parse_revspec(s, ctx_project=ctx_project)
     except (DatumaroError, OSError) as e:
         errors.append(e)
 
     try:
-        return parse_revspec(s, ctx_project=ctx_project)
+        return parse_dataset_pathspec(s, env=env), None
     except (DatumaroError, OSError) as e:
         errors.append(e)
 
@@ -137,7 +137,7 @@ def split_local_revpath(revpath: str) -> Tuple[Revision, str]:
 
     A local revpath is a path to a revision withing the current project.
     The syntax is:
-    - [ <revision> : ] [ <target> ]
+        - [ <revision> : ] [ <target> ]
     At least one part must be present.
 
     Returns: (revision, build target)

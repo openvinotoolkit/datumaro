@@ -63,7 +63,8 @@ Pascal VOC dataset directory should have the following structure:
 <!--lint disable fenced-code-flag-->
 ```
 └─ Dataset/
-   ├── label_map.txt # a list of non-Pascal labels (optional)
+   ├── dataset_meta.json # a list of non-Pascal labels (optional)
+   ├── labelmap.txt # or a list of non-Pascal labels in other format (optional)
    │
    ├── Annotations/
    │     ├── ann1.xml # Pascal VOC format annotation file
@@ -107,10 +108,15 @@ These directories contain `.txt` files with a list of images in a subset,
 the subset name is the same as the `.txt` file name. Subset names can be
 arbitrary.
 
-In `label_map.txt` you can define custom color map and non-pascal labels,
+To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats/#dataset-meta-file)
+and `labelmap.txt`.
+If the `dataset_meta.json` is not represented in the dataset, then
+`labelmap.txt` will be imported if possible.
+
+In `labelmap.txt` you can define custom color map and non-pascal labels,
 for example:
 
-```
+``` txt
 # label_map [label : color_rgb : parts : actions]
 helicopter:::
 elephant:0:124:134:head,ear,foot:
@@ -123,7 +129,7 @@ have arbitrary, but different, colors. If there are gaps in the used
 color indices in the annotations, they must be filled with arbitrary
 dummy labels. Example:
 
-```
+``` txt
 car:0,128,0:: # color index 0
 aeroplane:10,10,128:: # color index 1
 _dummy2:2,2,2:: # filler for color index 2
@@ -162,9 +168,10 @@ There are several ways to convert a Pascal VOC dataset to other dataset formats:
 datum create
 datum import -f voc <path/to/voc>
 datum export -f coco -o <output/dir>
-# or
+```
+or
+``` bash
 datum convert -if voc -i <path/to/voc> -f coco -o <output/dir>
-
 ```
 
 Or, using Python API:
@@ -173,7 +180,7 @@ Or, using Python API:
 from datumaro.components.dataset import Dataset
 
 dataset = Dataset.import_from('<path/to/dataset>', 'voc')
-dataset.export('save_dir', 'coco', save_images=True)
+dataset.export('save_dir', 'coco', save_media=True)
 ```
 
 ## Export to Pascal VOC
@@ -183,18 +190,21 @@ There are several ways to convert an existing dataset to Pascal VOC format:
 ``` bash
 # export dataset into Pascal VOC format (classification) from existing project
 datum export -p <path/to/project> -f voc -o <output/dir> -- --tasks classification
-
+```
+``` bash
 # converting to Pascal VOC format from other format
 datum convert -if imagenet -i <path/to/dataset> \
     -f voc -o <output/dir> \
-    -- --label_map voc --save-images
+    -- --label_map voc --save-media
 ```
 
 Extra options for exporting to Pascal VOC format:
-- `--save-images` - allow to export dataset with saving images
+- `--save-media` - allow to export dataset with saving media files
   (by default `False`)
 - `--image-ext IMAGE_EXT` - allow to specify image extension
   for exporting dataset (by default use original or `.jpg` if none)
+- `--save-dataset-meta` - allow to export dataset with saving dataset meta
+  file (by default `False`)
 - `--apply-colormap APPLY_COLORMAP` - allow to use colormap for class
   and instance masks (by default `True`)
 - `--allow-attributes ALLOW_ATTRIBUTES` - allow export of attributes
@@ -215,8 +225,9 @@ datum export -f voc -- --tasks detection,classification
 # cat:0,0,255::
 # person:255,0,0:head:
 datum export -f voc_segmentation -- --label-map mycolormap.txt
-
-# or you can use original voc colomap:
+```
+or you can use original voc colomap:
+``` bash
 datum export -f voc_segmentation -- --label-map voc
 ```
 
@@ -246,7 +257,7 @@ datum stats -p project # check statisctics.json -> repeated images
 datum transform -p project -t ndr -- -w trainval -k 2500
 datum filter -p project -e '/item[subset="trainval"]'
 datum transform -p project -t random_split -- -s train:.8 -s val:.2
-datum export -p project -f voc -- --label-map voc --save-images
+datum export -p project -f voc -- --label-map voc --save-media
 ```
 
 ### Example 2. How to create a custom dataset
@@ -299,7 +310,7 @@ def only_jumping(item):
 
 train_dataset.select(only_jumping)
 
-train_dataset.export('./jumping_label_me', format='label_me', save_images=True)
+train_dataset.export('./jumping_label_me', format='label_me', save_media=True)
 ```
 
 ### Example 4. Get information about items in Pascal VOC 2012 dataset for segmentation task:

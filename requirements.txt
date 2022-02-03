@@ -1,12 +1,7 @@
-Cython>=0.27.3 # include before pycocotools
--r requirements-core.txt --no-binary=pycocotools # https://github.com/openvinotoolkit/datumaro/issues/253
+-r requirements-core.txt
 -r requirements-default.txt
 
 opencv-python-headless>=4.1.0.25
-
-# Move to the core list once released on pip
-# OpenVINO telemetry library
-openvino-telemetry @ git+https://github.com/openvinotoolkit/telemetry.git@master#egg=openvino-telemetry
 
 # testing
 pytest>=5.3.5

@@ -30,7 +30,7 @@ class ModelTransform(Transform):
 
     def __iter__(self):
         for batch in take_by(self._extractor, self._batch_size):
-            inputs = np.array([np.atleast_3d(item.image.data)
+            inputs = np.array([np.atleast_3d(item.media.data)
                 for item in batch])
             inference = self._launcher.launch(inputs)
 

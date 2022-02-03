@@ -1,6 +1,8 @@
-# Copyright (C) 2021 Intel Corporation
+# Copyright (C) 2021-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
+
+from __future__ import annotations
 
 from enum import Enum, auto
 from itertools import zip_longest
@@ -8,7 +10,7 @@ from typing import (
     Any, Callable, Dict, Iterable, Iterator, List, Optional, Set, Tuple, Union,
 )
 
-from attr import attrib, attrs
+from attr import asdict, attrs, field
 from typing_extensions import Literal
 import attr
 import numpy as np
@@ -30,7 +32,7 @@ COORDINATE_ROUNDING_DIGITS = 2
 
 NO_GROUP = 0
 
-@attrs(kw_only=True, order=False)
+@attrs(slots=True, kw_only=True, order=False)
 class Annotation:
     """
     A base annotation class.
@@ -41,7 +43,7 @@ class Annotation:
 
     # Describes an identifier of the annotation
     # Is not required to be unique within DatasetItem annotations or dataset
-    id: int = attrib(default=0, validator=default_if_none(int))
+    id: int = field(default=0, validator=default_if_none(int))
 
     # Arbitrary annotation-specific attributes. Typically, includes
     # metainfo and properties that are not covered by other fields.
@@ -51,26 +53,27 @@ class Annotation:
     # There are some established names for common attributes like:
     # - "occluded" (bool)
     # - "visible" (bool)
-    # Possible dataset attributes can be descibed in Categories.attributes.
-    attributes: Dict[str, Any] = attrib(
+    # Possible dataset attributes can be described in Categories.attributes.
+    attributes: Dict[str, Any] = field(
         factory=dict, validator=default_if_none(dict))
 
     # Annotations can be grouped, which means they describe parts of a
     # single object. The value of 0 means there is no group.
-    group: int = attrib(default=NO_GROUP, validator=default_if_none(int))
-
-    def __attrs_post_init__(self):
-        assert isinstance(self.type, AnnotationType)
+    group: int = field(default=NO_GROUP, validator=default_if_none(int))
 
     @property
     def type(self) -> AnnotationType:
         return self._type # must be set in subclasses
 
+    def as_dict(self) -> Dict[str, Any]:
+        "Returns a dictionary { field_name: value }"
+        return asdict(self)
+
     def wrap(self, **kwargs):
         "Returns a modified copy of the object"
         return attr.evolve(self, **kwargs)
 
-@attrs(kw_only=True, order=False)
+@attrs(slots=True, kw_only=True, order=False)
 class Categories:
     """
     A base class for annotation metainfo. It is supposed to include
@@ -78,22 +81,22 @@ class Categories:
     label attributes etc.
     """
 
-    # Describes the list of possible annotation-type specific attrbutes
+    # Describes the list of possible annotation-type specific attributes
     # in a dataset.
-    attributes: Set[str] = attrib(
+    attributes: Set[str] = field(
         factory=set, validator=default_if_none(set), eq=False)
 
-@attrs(order=False)
+@attrs(slots=True, order=False)
 class LabelCategories(Categories):
-    @attrs(order=False)
+    @attrs(slots=True, order=False)
     class Category:
-        name: str = attrib(converter=str, validator=not_empty)
-        parent: str = attrib(default='', validator=default_if_none(str))
-        attributes: Set[str] = attrib(
+        name: str = field(converter=str, validator=not_empty)
+        parent: str = field(default='', validator=default_if_none(str))
+        attributes: Set[str] = field(
             factory=set, validator=default_if_none(set))
 
-    items: List[str] = attrib(factory=list, validator=default_if_none(list))
-    _indices: Dict[str, int] = attrib(factory=dict, init=False, eq=False)
+    items: List[str] = field(factory=list, validator=default_if_none(list))
+    _indices: Dict[str, int] = field(factory=dict, init=False, eq=False)
 
     @classmethod
     def from_iterable(cls, iterable: Iterable[Union[
@@ -101,15 +104,15 @@ class LabelCategories(Categories):
         Tuple[str],
         Tuple[str, str],
         Tuple[str, str, List[str]],
-    ]]) -> 'LabelCategories':
+    ]]) -> LabelCategories:
         """
         Creates a LabelCategories from iterable.
 
         Args:
             iterable: This iterable object can be:
-            - a list of str - will be interpreted as list of Category names
-            - a list of positional arguments - will generate Categories
-              with these arguments
+                - a list of str - will be interpreted as list of Category names
+                - a list of positional arguments - will generate Categories
+                with these arguments
 
         Returns: a LabelCategories object
         """
@@ -134,7 +137,7 @@ class LabelCategories(Categories):
         self._indices = indices
 
     def add(self, name: str, parent: Optional[str] = None,
-            attributes: Optional[Dict[str, Any]] = None) -> int:
+            attributes: Optional[Set[str]] = None) -> int:
         assert name
         assert name not in self._indices, name
 
@@ -164,15 +167,15 @@ class LabelCategories(Categories):
     def __iter__(self) -> Iterator[Category]:
         return iter(self.items)
 
-@attrs(order=False)
+@attrs(slots=True, order=False)
 class Label(Annotation):
     _type = AnnotationType.label
-    label: int = attrib(converter=int)
+    label: int = field(converter=int)
 
 RgbColor = Tuple[int, int, int]
 Colormap = Dict[int, RgbColor]
 
-@attrs(eq=False, order=False)
+@attrs(slots=True, eq=False, order=False)
 class MaskCategories(Categories):
     """
     Describes a color map for segmentation masks.
@@ -180,7 +183,7 @@ class MaskCategories(Categories):
 
     @classmethod
     def generate(cls, size: int = 255, include_background: bool = True) \
-            -> 'MaskCategories':
+            -> MaskCategories:
         """
         Generates MaskCategories with the specified size.
 
@@ -191,9 +194,9 @@ class MaskCategories(Categories):
         return cls(generate_colormap(size,
             include_background=include_background))
 
-    colormap: Colormap = attrib(
+    colormap: Colormap = field(
         factory=dict, validator=default_if_none(dict))
-    _inverse_colormap: Optional[Dict[RgbColor, int]] = attrib(
+    _inverse_colormap: Optional[Dict[RgbColor, int]] = field(
         default=None, validator=attr.validators.optional(dict))
 
     @property
@@ -227,17 +230,17 @@ class MaskCategories(Categories):
 BinaryMaskImage = np.ndarray # 2d array of type bool
 IndexMaskImage = np.ndarray # 2d array of type int
 
-@attrs(eq=False, order=False)
+@attrs(slots=True, eq=False, order=False)
 class Mask(Annotation):
     """
     Represents a 2d single-instance binary segmentation mask.
     """
 
     _type = AnnotationType.mask
-    _image = attrib()
-    label: Optional[int] = attrib(
+    _image = field()
+    label: Optional[int] = field(
         converter=attr.converters.optional(int), default=None, kw_only=True)
-    z_order: int = attrib(
+    z_order: int = field(
         default=0, validator=default_if_none(int), kw_only=True)
 
     def __attrs_post_init__(self):
@@ -246,9 +249,10 @@ class Mask(Annotation):
 
     @property
     def image(self) -> BinaryMaskImage:
-        if callable(self._image):
-            return self._image()
-        return self._image
+        image = self._image
+        if callable(image):
+            image = image()
+        return image
 
     def as_class_mask(self, label_id: Optional[int] = None) -> IndexMaskImage:
         """
@@ -295,22 +299,31 @@ class Mask(Annotation):
             (self.z_order == other.z_order) and \
             (np.array_equal(self.image, other.image))
 
-@attrs(eq=False, order=False)
+@attrs(slots=True, eq=False, order=False)
 class RleMask(Mask):
     """
     An RLE-encoded instance segmentation mask.
     """
 
-    rle = attrib() # uses pycocotools RLE representation
+    _rle = field() # uses pycocotools RLE representation
 
-    _image = attrib(init=False, default=attr.Factory(
-        lambda self: self._lazy_decode(self.rle),
-        takes_self=True))
+    _image = field(init=False, default=None)
+
+    @property
+    def image(self) -> BinaryMaskImage:
+        return self._decode(self.rle)
+
+    @property
+    def rle(self):
+        rle = self._rle
+        if callable(rle):
+            rle = rle()
+        return rle
 
     @staticmethod
-    def _lazy_decode(rle):
+    def _decode(rle):
         from pycocotools import mask as mask_utils
-        return lambda: mask_utils.decode(rle)
+        return mask_utils.decode(rle)
 
     def get_area(self) -> int:
         from pycocotools import mask as mask_utils
@@ -336,16 +349,16 @@ class CompiledMask:
     @staticmethod
     def from_instance_masks(instance_masks: Iterable[Mask],
             instance_ids: Optional[Iterable[int]] = None,
-            instance_labels: Optional[Iterable[int]] = None) -> 'CompiledMask':
+            instance_labels: Optional[Iterable[int]] = None) -> CompiledMask:
         """
         Joins instance masks into a single mask. Masks are sorted by
         z_order (ascending) prior to merging.
 
         Parameters:
-        - instance_ids - Instance id values for the produced instance mask.
-          By default, mask positions are used.
-        - instance_labels - Instance label id values for the produced class
-          mask. By default, mask labels are used.
+            instance_ids: Instance id values for the produced instance mask.
+                By default, mask positions are used.
+            instance_labels: Instance label id values for the produced class
+                mask. By default, mask labels are used.
         """
 
         from datumaro.util.mask_tools import make_index_mask
@@ -465,16 +478,16 @@ class CompiledMask:
     def lazy_extract(self, instance_id: int) -> Callable[[], IndexMaskImage]:
         return lambda: self.extract(instance_id)
 
-@attrs(order=False)
+@attrs(slots=True, order=False)
 class _Shape(Annotation):
     # Flattened list of point coordinates
-    points: List[float] = attrib(converter=lambda x:
-        [round(p, COORDINATE_ROUNDING_DIGITS) for p in x])
+    points: List[float] = field(converter=lambda x: \
+        np.around(x, COORDINATE_ROUNDING_DIGITS).tolist())
 
-    label: Optional[int] = attrib(converter=attr.converters.optional(int),
+    label: Optional[int] = field(converter=attr.converters.optional(int),
         default=None, kw_only=True)
 
-    z_order: int = attrib(default=0, validator=default_if_none(int),
+    z_order: int = field(default=0, validator=default_if_none(int),
         kw_only=True)
 
     def get_area(self):
@@ -495,7 +508,7 @@ class _Shape(Annotation):
         y1 = max(ys)
         return [x0, y0, x1 - x0, y1 - y0]
 
-@attrs(order=False)
+@attrs(slots=True, order=False)
 class PolyLine(_Shape):
     _type = AnnotationType.polyline
 
@@ -506,11 +519,11 @@ class PolyLine(_Shape):
         return 0
 
 
-@attrs(init=False, order=False)
+@attrs(slots=True, init=False, order=False)
 class Cuboid3d(Annotation):
     _type = AnnotationType.cuboid_3d
-    _points: List[float] = attrib(default=None)
-    label: Optional[int] = attrib(converter=attr.converters.optional(int),
+    _points: List[float] = field(default=None)
+    label: Optional[int] = field(converter=attr.converters.optional(int),
         default=None, kw_only=True)
 
     @_points.validator
@@ -519,7 +532,7 @@ class Cuboid3d(Annotation):
             points = [0, 0, 0,  0, 0, 0,  1, 1, 1]
         else:
             assert len(points) == 3 + 3 + 3, points
-            points = [round(p, COORDINATE_ROUNDING_DIGITS) for p in points]
+            points = np.around(points, COORDINATE_ROUNDING_DIGITS).tolist()
         self._points = points
 
     def __init__(self, position, rotation=None, scale=None, **kwargs):
@@ -541,8 +554,7 @@ class Cuboid3d(Annotation):
         # TODO: fix the issue with separate coordinate rounding:
         # self.position[0] = 12.345676
         # - the number assigned won't be rounded.
-        self.position[:] = \
-            [round(p, COORDINATE_ROUNDING_DIGITS) for p in value]
+        self.position[:] = np.around(value, COORDINATE_ROUNDING_DIGITS).tolist()
 
     @property
     def rotation(self):
@@ -551,8 +563,7 @@ class Cuboid3d(Annotation):
 
     @rotation.setter
     def _set_rotation(self, value):
-        self.rotation[:] = \
-            [round(p, COORDINATE_ROUNDING_DIGITS) for p in value]
+        self.rotation[:] = np.around(value, COORDINATE_ROUNDING_DIGITS).tolist()
 
     @property
     def scale(self):
@@ -561,16 +572,14 @@ class Cuboid3d(Annotation):
 
     @scale.setter
     def _set_scale(self, value):
-        self.scale[:] = \
-            [round(p, COORDINATE_ROUNDING_DIGITS) for p in value]
+        self.scale[:] = np.around(value, COORDINATE_ROUNDING_DIGITS).tolist()
 
 
-@attrs(order=False)
+@attrs(slots=True, order=False)
 class Polygon(_Shape):
     _type = AnnotationType.polygon
 
     def __attrs_post_init__(self):
-        super().__attrs_post_init__()
         # keep the message on a single line to produce informative output
         assert len(self.points) % 2 == 0 and 3 <= len(self.points) // 2, "Wrong polygon points: %s" % self.points
 
@@ -582,7 +591,7 @@ class Polygon(_Shape):
         area = mask_utils.area(rle)[0]
         return area
 
-@attrs(init=False, order=False)
+@attrs(slots=True, init=False, order=False)
 class Bbox(_Shape):
     _type = AnnotationType.bbox
 
@@ -631,38 +640,38 @@ class Bbox(_Shape):
         return attr.evolve(item, **d)
 
 
-@attrs(order=False)
+@attrs(slots=True, order=False)
 class PointsCategories(Categories):
     """
     Describes (key-)point metainfo such as point names and joints.
     """
 
-    @attrs(order=False)
+    @attrs(slots=True, order=False)
     class Category:
         # Names for specific points, e.g. eye, hose, mouth etc.
         # These labels are not required to be in LabelCategories
-        labels: List[str] = attrib(
+        labels: List[str] = field(
             factory=list, validator=default_if_none(list))
 
         # Pairs of connected point indices
-        joints: Set[Tuple[int, int]] = attrib(
+        joints: Set[Tuple[int, int]] = field(
             factory=set, validator=default_if_none(set))
 
-    items: Dict[int, Category] = attrib(
+    items: Dict[int, Category] = field(
         factory=dict, validator=default_if_none(dict))
 
     @classmethod
     def from_iterable(cls, iterable: Union[
         Tuple[int, List[str]],
         Tuple[int, List[str], Set[Tuple[int, int]]],
-    ]) -> 'PointsCategories':
+    ]) -> PointsCategories:
         """
         Create PointsCategories from an iterable.
 
         Args:
-          - iterable - An Iterable with the following elements:
-            - a label id
-            - a list of positional arguments for Categories
+            - iterable - An Iterable with the following elements:
+                - a label id
+                - a list of positional arguments for Categories
 
         Returns:
             PointsCategories: PointsCategories object
@@ -691,7 +700,7 @@ class PointsCategories(Categories):
         return len(self.items)
 
 
-@attrs(order=False)
+@attrs(slots=True, order=False)
 class Points(_Shape):
     """
     Represents an ordered set of points.
@@ -704,7 +713,7 @@ class Points(_Shape):
 
     _type = AnnotationType.points
 
-    visibility: List[bool] = attrib(default=None)
+    visibility: List[bool] = field(default=None)
     @visibility.validator
     def _visibility_validator(self, attribute, visibility):
         if visibility is None:
@@ -717,7 +726,6 @@ class Points(_Shape):
         self.visibility = visibility
 
     def __attrs_post_init__(self):
-        super().__attrs_post_init__()
         assert len(self.points) % 2 == 0, self.points
 
     def get_area(self):
@@ -734,11 +742,11 @@ class Points(_Shape):
         y1 = max(ys, default=0)
         return [x0, y0, x1 - x0, y1 - y0]
 
-@attrs(order=False)
+@attrs(slots=True, order=False)
 class Caption(Annotation):
     """
     Represents arbitrary text annotations.
     """
 
     _type = AnnotationType.caption
-    caption: str = attrib(converter=str)
+    caption: str = field(converter=str)

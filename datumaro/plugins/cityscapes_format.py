@@ -4,6 +4,7 @@
 
 from collections import OrderedDict
 from enum import Enum, auto
+import glob
 import logging as log
 import os
 import os.path as osp
@@ -16,12 +17,39 @@ from datumaro.components.annotation import (
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
+from datumaro.components.media import Image
 from datumaro.util import find
 from datumaro.util.annotation_util import make_label_id_mapping
 from datumaro.util.image import find_images, load_image, save_image
 from datumaro.util.mask_tools import generate_colormap, paint_mask
+from datumaro.util.meta_file_util import (
+    has_meta_file, is_meta_file, parse_meta_file,
+)
 
-CityscapesLabelMap = OrderedDict([
+TRAIN_CITYSCAPES_LABEL_MAP = OrderedDict([
+    ('road', (128, 64, 128)),
+    ('sidewalk', (244, 35, 232)),
+    ('building', (70, 70, 70)),
+    ('wall', (102, 102, 156)),
+    ('fence', (190, 153, 153)),
+    ('pole', (153, 153, 153)),
+    ('trafficlight', (250, 170, 30)),
+    ('trafficsign', (220, 220, 0)),
+    ('vegetation', (107, 142, 35)),
+    ('terrain', (152, 251, 152)),
+    ('sky', (70, 130, 180)),
+    ('person', (220, 20, 60)),
+    ('rider', (255, 0, 0)),
+    ('car', (0, 0, 142)),
+    ('truck', (0, 0, 70)),
+    ('bus', (0, 60, 100)),
+    ('train', (0, 80, 100)),
+    ('motorcycle', (0, 0, 230)),
+    ('bicycle', (119, 11, 32)),
+    ('background', (0, 0, 0)),
+])
+
+CITYSCAPES_LABEL_MAP = OrderedDict([
     ('unlabeled', (0, 0, 0)),
     ('egovehicle', (0, 0, 0)),
     ('rectificationborder', (0, 0, 0)),
@@ -68,24 +96,22 @@ class CityscapesPath:
     GT_INSTANCE_MASK_SUFFIX = '_' + GT_FINE_DIR + INSTANCES_IMAGE
     COLOR_IMAGE = '_color.png'
     LABELIDS_IMAGE = '_labelIds.png'
+    LABEL_TRAIN_IDS_SUFFIX = '_' + GT_FINE_DIR + '_labelTrainIds.png'
 
     LABELMAP_FILE = 'label_colors.txt'
 
 def make_cityscapes_categories(label_map=None):
     if label_map is None:
-        label_map = CityscapesLabelMap
+        label_map = CITYSCAPES_LABEL_MAP
 
-    # There must always be a label with color (0, 0, 0) at index 0
     bg_label = find(label_map.items(), lambda x: x[1] == (0, 0, 0))
-    if bg_label is not None:
-        bg_label = bg_label[0]
-    else:
+    if bg_label is None:
         bg_label = 'background'
         if bg_label not in label_map:
             has_colors = any(v is not None for v in label_map.values())
             color = (0, 0, 0) if has_colors else None
             label_map[bg_label] = color
-    label_map.move_to_end(bg_label, last=False)
+        label_map.move_to_end(bg_label, last=False)
 
     categories = {}
     label_categories = LabelCategories()
@@ -167,16 +193,23 @@ class CityscapesExtractor(SourceExtractor):
 
         super().__init__(subset=subset)
 
-        self._categories = self._load_categories(self._path)
         self._items = list(self._load_items().values())
 
-    def _load_categories(self, path):
+    def _load_categories(self, path, use_train_label_map=False):
         label_map = None
-        label_map_path = osp.join(path, CityscapesPath.LABELMAP_FILE)
-        if osp.isfile(label_map_path):
-            label_map = parse_label_map(label_map_path)
+        if has_meta_file(path):
+            label_map = parse_meta_file(path)
         else:
-            label_map = CityscapesLabelMap
+            label_map_path = osp.join(path, CityscapesPath.LABELMAP_FILE)
+            if osp.isfile(label_map_path):
+                label_map = parse_label_map(label_map_path)
+
+        if label_map is None:
+            if use_train_label_map:
+                label_map = TRAIN_CITYSCAPES_LABEL_MAP
+            else:
+                label_map = CITYSCAPES_LABEL_MAP
+
         self._labels = [label for label in label_map]
         return make_cityscapes_categories(label_map)
 
@@ -184,9 +217,8 @@ class CityscapesExtractor(SourceExtractor):
         return osp.relpath(osp.splitext(path)[0], self._images_dir) \
             .replace('_' + CityscapesPath.ORIGINAL_IMAGE_DIR, '')
 
-    def _get_id_from_mask_path(self, path):
-        return osp.relpath(path, self._gt_anns_dir) \
-            .replace(CityscapesPath.GT_INSTANCE_MASK_SUFFIX, '')
+    def _get_id_from_mask_path(self, path, suffix):
+        return osp.relpath(path, self._gt_anns_dir).replace(suffix, '')
 
     def _load_items(self):
         items = {}
@@ -198,11 +230,15 @@ class CityscapesExtractor(SourceExtractor):
                 for p in find_images(self._images_dir, recursive=True)
             }
 
-        for mask_path in find_images(self._gt_anns_dir, recursive=True):
-            if not mask_path.endswith(CityscapesPath.GT_INSTANCE_MASK_SUFFIX):
-                continue
-
-            item_id = self._get_id_from_mask_path(mask_path)
+        masks = glob.glob(osp.join(self._gt_anns_dir, '**',
+            f'*{CityscapesPath.LABEL_TRAIN_IDS_SUFFIX}'), recursive=True)
+        mask_suffix = CityscapesPath.LABEL_TRAIN_IDS_SUFFIX
+        if not masks:
+            masks = glob.glob(osp.join(self._gt_anns_dir, '**',
+                f'*{CityscapesPath.GT_INSTANCE_MASK_SUFFIX}'), recursive=True)
+            mask_suffix = CityscapesPath.GT_INSTANCE_MASK_SUFFIX
+        for mask_path in masks:
+            item_id = self._get_id_from_mask_path(mask_path, mask_suffix)
 
             anns = []
             instances_mask = load_image(mask_path, dtype=np.int32)
@@ -222,14 +258,21 @@ class CityscapesExtractor(SourceExtractor):
                     label=label_id, id=ann_id,
                     attributes = { 'is_crowd': is_crowd }))
 
+            image = None
+            image_path = image_path_by_id.pop(item_id, None)
+            if image_path:
+                image = Image(path=image_path)
+
             items[item_id] = DatasetItem(id=item_id, subset=self._subset,
-                image=image_path_by_id.pop(item_id, None),
-                annotations=anns)
+                media=image, annotations=anns)
 
         for item_id, path in image_path_by_id.items():
             items[item_id] = DatasetItem(id=item_id, subset=self._subset,
-                image=path)
+                media=Image(path=path))
 
+        self._categories = self._load_categories(self._path,
+            use_train_label_map= \
+                mask_suffix is CityscapesPath.LABEL_TRAIN_IDS_SUFFIX)
         return items
 
     @staticmethod
@@ -295,7 +338,7 @@ class CityscapesConverter(Converter):
                     CityscapesPath.ORIGINAL_IMAGE_DIR, subset_name,
                     item.id + CityscapesPath.ORIGINAL_IMAGE + \
                         self._find_image_ext(item))
-                if self._save_images:
+                if self._save_media:
                     self._save_image(item, osp.join(self._save_dir, image_path))
 
                 masks = [a for a in item.annotations
@@ -335,16 +378,20 @@ class CityscapesConverter(Converter):
         self.save_label_map()
 
     def save_label_map(self):
-        path = osp.join(self._save_dir, CityscapesPath.LABELMAP_FILE)
-        labels = self._extractor.categories()[AnnotationType.label]
-        if len(self._label_map) > len(labels):
-            self._label_map.pop('background')
-        write_label_map(path, self._label_map)
+        if self._save_dataset_meta:
+            self._save_meta_file(self._save_dir)
+        else:
+            labels = self._extractor.categories()[AnnotationType.label]
+            if len(self._label_map) > len(labels):
+                self._label_map.pop('background')
+
+            path = osp.join(self._save_dir, CityscapesPath.LABELMAP_FILE)
+            write_label_map(path, self._label_map)
 
     def _load_categories(self, label_map_source):
         if label_map_source == LabelmapType.cityscapes.name:
             # use the default Cityscapes colormap
-            label_map = CityscapesLabelMap
+            label_map = CITYSCAPES_LABEL_MAP
 
         elif label_map_source == LabelmapType.source.name and \
                 AnnotationType.mask not in self._extractor.categories():
@@ -370,7 +417,10 @@ class CityscapesConverter(Converter):
                 sorted(label_map_source.items(), key=lambda e: e[0]))
 
         elif isinstance(label_map_source, str) and osp.isfile(label_map_source):
-            label_map = parse_label_map(label_map_source)
+            if is_meta_file(label_map_source):
+                label_map = parse_meta_file(label_map_source)
+            else:
+                label_map = parse_label_map(label_map_source)
 
         else:
             raise Exception("Wrong labelmap specified, "
@@ -426,8 +476,7 @@ class CityscapesConverter(Converter):
             else:
                 item = DatasetItem(item_id, subset=subset)
 
-            if not (status == ItemStatus.removed or \
-                    not item.has_image and not item.has_point_cloud):
+            if not (status == ItemStatus.removed or not item.media):
                 continue
 
             image_path = osp.join(save_dir, CityscapesPath.IMGS_FINE_DIR,

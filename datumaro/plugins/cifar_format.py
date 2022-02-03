@@ -16,7 +16,9 @@ from datumaro.components.annotation import (
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
+from datumaro.components.media import Image
 from datumaro.util import cast
+from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
 
 class RestrictedUnpickler(pickle.Unpickler):
@@ -65,6 +67,10 @@ class CifarExtractor(SourceExtractor):
         self._items = list(self._load_items(path).values())
 
     def _load_categories(self, path):
+        if has_meta_file(path):
+            return { AnnotationType.label: LabelCategories.
+                from_iterable(parse_meta_file(path).keys()) }
+
         label_cat = LabelCategories()
 
         meta_file = osp.join(path, CifarPath.META_10_FILE)
@@ -82,13 +88,13 @@ class CifarExtractor(SourceExtractor):
             with open(meta_file, 'rb') as labels_file:
                 data = PickleLoader.restricted_load(labels_file)
             labels = data.get('label_names')
-            if labels != None:
+            if labels is not None:
                 for label in labels:
                     label_cat.add(label)
             else:
                 labels = data.get('fine_label_names')
                 self._coarse_labels = data.get('coarse_label_names', [])
-                if labels != None:
+                if labels is not None:
                     for label in labels:
                         label_cat.add(label)
         else:
@@ -130,9 +136,9 @@ class CifarExtractor(SourceExtractor):
         for i, (filename, label) in enumerate(zip(filenames, labels)):
             item_id = osp.splitext(filename)[0]
             annotations = []
-            if label != None:
+            if label is not None:
                 annotations.append(Label(label))
-                if 0 < len(coarse_labels) and coarse_labels[i] != None and \
+                if 0 < len(coarse_labels) and coarse_labels[i] is not None and \
                         label_cat[label].parent == '':
                     label_cat[label].parent = \
                         self._coarse_labels[coarse_labels[i]]
@@ -149,8 +155,11 @@ class CifarExtractor(SourceExtractor):
                         .reshape(3, CifarPath.IMAGE_SIZE, CifarPath.IMAGE_SIZE)
                     image = np.transpose(image, (1, 2, 0))
 
+            if image is not None:
+                image = Image(data=image)
+
             items[item_id] = DatasetItem(id=item_id, subset=self._subset,
-                image=image, annotations=annotations)
+                media=image, annotations=annotations)
 
         return items
 
@@ -174,6 +183,9 @@ class CifarConverter(Converter):
 
     def apply(self):
         os.makedirs(self._save_dir, exist_ok=True)
+
+        if self._save_dataset_meta:
+            self._save_meta_file(self._save_dir)
 
         label_categories = self._extractor.categories()[AnnotationType.label]
         label_names = []
@@ -216,8 +228,8 @@ class CifarConverter(Converter):
                     labels.append(None)
                     coarse_labels.append(None)
 
-                if self._save_images and item.has_image:
-                    image = item.image
+                if self._save_media and item.media:
+                    image = item.media
                     if not image.has_data:
                         data.append(None)
                     else:

@@ -46,6 +46,7 @@ CIFAR-10 dataset directory should have the following structure:
 <!--lint disable fenced-code-flag-->
 ```
 └─ Dataset/
+    ├── dataset_meta.json # a list of non-format labels (optional)
     ├── batches.meta
     ├── <subset_name1>
     ├── <subset_name2>
@@ -57,6 +58,7 @@ CIFAR-100 dataset directory should have the following structure:
 <!--lint disable fenced-code-flag-->
 ```
 └─ Dataset/
+    ├── dataset_meta.json # a list of non-format labels (optional)
     ├── meta
     ├── <subset_name1>
     ├── <subset_name2>
@@ -100,6 +102,8 @@ CIFAR-100:
     'coarse_labels': list of integers
 ```
 
+To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats/#dataset-meta-file).
+
 ## Export to other formats
 
 Datumaro can convert a CIFAR dataset into any other format [Datumaro supports](/docs/user-manual/supported_formats).
@@ -113,9 +117,11 @@ formats using CLI:
 datum create
 datum import -f cifar <path/to/cifar>
 datum export -f imagenet -o <output/dir>
-# or
+```
+or
+``` bash
 datum convert -if cifar -i <path/to/dataset> \
-    -f imagenet -o <output/dir> -- --save-images
+    -f imagenet -o <output/dir> -- --save-media
 ```
 
 Or, using Python API:
@@ -124,7 +130,7 @@ Or, using Python API:
 from datumaro.components.dataset import Dataset
 
 dataset = Dataset.import_from('<path/to/dataset>', 'cifar')
-dataset.export('save_dir', 'imagenet', save_images=True)
+dataset.export('save_dir', 'imagenet', save_media=True)
 ```
 
 ## Export to CIFAR
@@ -134,19 +140,22 @@ There are several ways to convert a dataset to CIFAR format:
 ``` bash
 # export dataset into CIFAR format from existing project
 datum export -p <path/to/project> -f cifar -o <output/dir> \
-    -- --save-images
-
+    -- --save-media
+```
+``` bash
 # converting to CIFAR format from other format
 datum convert -if imagenet -i <path/to/dataset> \
-    -f cifar -o <output/dir> -- --save-images
+    -f cifar -o <output/dir> -- --save-media
 ```
 
 Extra options for exporting to CIFAR format:
 
-- `--save-images` allow to export dataset with saving images
+- `--save-media` allow to export dataset with saving media files
   (by default `False`)
 - `--image-ext <IMAGE_EXT>` allow to specify image extension
   for exporting the dataset (by default `.png`)
+- `--save-dataset-meta` - allow to export dataset with saving dataset meta
+  file (by default `False`)
 
 The format (CIFAR-10 or CIFAR-100) in which the dataset will be
 exported depends on the presence of superclasses in the `LabelCategories`.

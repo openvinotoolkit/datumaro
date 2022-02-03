@@ -28,6 +28,7 @@ from datumaro.components.errors import (
     DatasetError, RepeatedItemError, UndefinedLabel,
 )
 from datumaro.components.extractor import DatasetItem, Extractor, Importer
+from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.media import Image
 from datumaro.components.validator import Severity
 from datumaro.util.annotation_util import find_instances
@@ -35,6 +36,7 @@ from datumaro.util.image import (
     DEFAULT_IMAGE_META_FILE_NAME, find_images, lazy_image, load_image,
     load_image_meta_file, save_image, save_image_meta_file,
 )
+from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 from datumaro.util.os_util import make_file_name, split_path
 
 # A regex to check whether a string can be used as a "normal" path
@@ -181,7 +183,11 @@ class OpenImagesExtractor(Extractor):
             except FileNotFoundError:
                 self._image_meta = {}
 
-        self._load_categories()
+        if has_meta_file(path):
+            self._categories = { AnnotationType.label: LabelCategories.
+                from_iterable(parse_meta_file(path).keys()) }
+        else:
+            self._load_categories()
         self._load_items()
 
     def __iter__(self):
@@ -327,7 +333,7 @@ class OpenImagesExtractor(Extractor):
         else:
             image = Image(path=image_path, size=self._image_meta.get(item_id))
 
-        item = DatasetItem(id=item_id, image=image, subset=subset)
+        item = DatasetItem(id=item_id, media=image, subset=subset)
         self._items.append(item)
         return item
 
@@ -395,8 +401,8 @@ class OpenImagesExtractor(Extractor):
                             item_id=item.id, subset=item.subset,
                             label_name=label_name, severity=Severity.error)
 
-                    if item.has_image and item.image.size is not None:
-                        height, width = item.image.size
+                    if item.media and item.media.size is not None:
+                        height, width = item.media.size
                     elif self._image_meta.get(item.id):
                         height, width = self._image_meta[item.id]
                     else:
@@ -476,8 +482,8 @@ class OpenImagesExtractor(Extractor):
                             item_id=item.id, subset=item.subset,
                             label_name=label_name, severity=Severity.error)
 
-                    if item.has_image and item.image.has_size:
-                        image_size = item.image.size
+                    if item.media and item.media.has_size:
+                        image_size = item.media.size
                     elif self._image_meta.get(item.id):
                         image_size = self._image_meta.get(item.id)
                     else:
@@ -552,15 +558,25 @@ class OpenImagesExtractor(Extractor):
         return resized.astype(bool)
 
 class OpenImagesImporter(Importer):
+    POSSIBLE_ANNOTATION_PATTERNS = (
+        OpenImagesPath.FULL_IMAGE_DESCRIPTION_FILE_NAME,
+        *OpenImagesPath.SUBSET_IMAGE_DESCRIPTION_FILE_PATTERNS,
+        '*' + OpenImagesPath.LABEL_DESCRIPTION_FILE_SUFFIX,
+        '*' + OpenImagesPath.BBOX_DESCRIPTION_FILE_SUFFIX,
+        '*' + OpenImagesPath.MASK_DESCRIPTION_FILE_SUFFIX,
+    )
+
+    @classmethod
+    def detect(cls, context: FormatDetectionContext) -> None:
+        with context.require_any():
+            for pattern in cls.POSSIBLE_ANNOTATION_PATTERNS:
+                with context.alternative():
+                    context.require_file(
+                        f'{OpenImagesPath.ANNOTATIONS_DIR}/{pattern}')
+
     @classmethod
     def find_sources(cls, path):
-        for pattern in [
-            OpenImagesPath.FULL_IMAGE_DESCRIPTION_FILE_NAME,
-            *OpenImagesPath.SUBSET_IMAGE_DESCRIPTION_FILE_PATTERNS,
-            '*' + OpenImagesPath.LABEL_DESCRIPTION_FILE_SUFFIX,
-            '*' + OpenImagesPath.BBOX_DESCRIPTION_FILE_SUFFIX,
-            '*' + OpenImagesPath.MASK_DESCRIPTION_FILE_SUFFIX,
-        ]:
+        for pattern in cls.POSSIBLE_ANNOTATION_PATTERNS:
             if glob.glob(osp.join(glob.escape(path),
                     OpenImagesPath.ANNOTATIONS_DIR, pattern)):
                 return [{'url': path, 'format': OpenImagesExtractor.NAME}]
@@ -686,6 +702,9 @@ class OpenImagesConverter(Converter):
         self._save_subsets(annotation_writer)
 
     def _save_categories(self, annotation_writer):
+        if self._save_dataset_meta:
+            self._save_meta_file(self._save_dir)
+
         with annotation_writer.open_csv(
             OpenImagesPath.V5_CLASS_DESCRIPTION_FILE_NAME, ['LabelName', 'DisplayName'],
             # no header, since we're saving it in the V5 format
@@ -777,8 +796,8 @@ class OpenImagesConverter(Converter):
                         'ImageID': item.id, 'Subset': subset_name,
                     })
 
-                    if self._save_images:
-                        if item.has_image:
+                    if self._save_media:
+                        if item.media:
                             self._save_image(item, subdir=osp.join(
                                 OpenImagesPath.IMAGES_DIR, subset_name))
                         else:
@@ -831,9 +850,9 @@ class OpenImagesConverter(Converter):
                         'Confidence': str(annotation.attributes.get('score', 1)),
                     })
                 elif annotation.type is AnnotationType.bbox:
-                    if item.has_image and item.image.size is not None:
-                        image_meta[item.id] = item.image.size
-                        height, width = item.image.size
+                    if item.media and item.media.size is not None:
+                        image_meta[item.id] = item.media.size
+                        height, width = item.media.size
                     else:
                         log.warning(
                             "Can't encode box for item '%s' due to missing image file",
@@ -878,9 +897,9 @@ class OpenImagesConverter(Converter):
                     box_coords = {}
 
                     if instance_box is not None:
-                        if item.has_image and item.image.size is not None:
-                            image_meta[item.id] = item.image.size
-                            height, width = item.image.size
+                        if item.media and item.media.size is not None:
+                            image_meta[item.id] = item.media.size
+                            height, width = item.media.size
 
                             box_coords = {
                                 'BoxXMin': instance_box.x / width,

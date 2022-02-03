@@ -162,7 +162,7 @@ def export_command(args):
     try:
         project = scope_add(load_project(args.project_dir))
     except ProjectNotFoundError:
-        if not show_plugin_help and args.project_dir:
+        if not show_plugin_help:
             raise
 
     if project is not None:
@@ -374,10 +374,10 @@ def filter_command(args):
 
                 # Source might be missing in the working dir, so we specify
                 # the output directory.
-                # We specify save_images here as a heuristic. It can probably
+                # We specify save_media here as a heuristic. It can probably
                 # be improved by checking if there are images in the dataset
                 # directory.
-                dataset.save(project.source_data_dir(target), save_images=True)
+                dataset.save(project.source_data_dir(target), save_media=True)
 
             log.info("Finished")
         else:
@@ -392,7 +392,7 @@ def filter_command(args):
             dst_dir = osp.abspath(dst_dir)
 
             dataset.filter(filter_expr, *filter_args)
-            dataset.save(dst_dir, save_images=True)
+            dataset.save(dst_dir, save_media=True)
 
             log.info("Results have been saved to '%s'" % dst_dir)
 
@@ -560,10 +560,10 @@ def transform_command(args):
 
                 # Source might be missing in the working dir, so we specify
                 # the output directory
-                # We specify save_images here as a heuristic. It can probably
+                # We specify save_media here as a heuristic. It can probably
                 # be improved by checking if there are images in the dataset
                 # directory.
-                dataset.save(project.source_data_dir(target), save_images=True)
+                dataset.save(project.source_data_dir(target), save_media=True)
 
             log.info("Finished")
         else:
@@ -578,7 +578,7 @@ def transform_command(args):
             dst_dir = osp.abspath(dst_dir)
 
             dataset.transform(args.transform, **extra_args)
-            dataset.save(dst_dir, save_images=True)
+            dataset.save(dst_dir, save_media=True)
 
             log.info("Results have been saved to '%s'" % dst_dir)
 
@@ -614,6 +614,12 @@ def build_stats_parser(parser_ctor=argparse.ArgumentParser):
 
     parser.add_argument('target', default='project', nargs='?',
         help="Target dataset revpath (default: project)")
+    parser.add_argument('-s', '--subset',
+        help="Compute stats only for a specific subset")
+    parser.add_argument('--image-stats', type=str_to_bool, default=True,
+        help="Compute image mean and std (default: %(default)s)")
+    parser.add_argument('--ann-stats', type=str_to_bool, default=True,
+        help="Compute annotation statistics (default: %(default)s)")
     parser.add_argument('-p', '--project', dest='project_dir',
         help="Directory of the project to operate on (default: current dir)")
     parser.set_defaults(command=stats_command)
@@ -638,9 +644,14 @@ def stats_command(args):
     if target_project:
         scope_add(target_project)
 
+    if args.subset:
+        dataset = dataset.get_subset(args.subset)
+
     stats = {}
-    stats.update(compute_image_statistics(dataset))
-    stats.update(compute_ann_statistics(dataset))
+    if args.image_stats:
+        stats.update(compute_image_statistics(dataset))
+    if args.ann_stats:
+        stats.update(compute_ann_statistics(dataset))
 
     dst_file = generate_next_file_name('statistics', ext='.json')
     log.info("Writing project statistics to '%s'" % dst_file)

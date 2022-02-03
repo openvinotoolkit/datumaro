@@ -17,6 +17,7 @@ from datumaro.components.extractor import DatasetItem, SourceExtractor
 from datumaro.components.media import Image
 from datumaro.util.image import find_images, lazy_image, load_image
 from datumaro.util.mask_tools import bgr2index
+from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
 from .format import (
     MapillaryVistasLabelMaps, MapillaryVistasPath, MapillaryVistasTask,
@@ -56,7 +57,11 @@ class _MapillaryVistasExtractor(SourceExtractor):
         self._task = task
 
         if self._task == MapillaryVistasTask.instances:
-            self._categories = self._load_instances_categories()
+            if has_meta_file(path):
+                self._categories = make_mapillary_instance_categories(
+                    parse_meta_file(path))
+            else:
+                self._categories = self._load_instances_categories()
             self._items = self._load_instances_items()
         else:
             panoptic_config = self._load_panoptic_config(self._annotations_dir)
@@ -142,7 +147,7 @@ class _MapillaryVistasExtractor(SourceExtractor):
                     group=segment_id, attributes=attributes))
 
             items[item_id] = DatasetItem(id=item_id, subset=self._subset,
-                annotations=annotations, image=image)
+                annotations=annotations, media=image)
 
         self._load_polygons(items)
         return items.values()
@@ -207,10 +212,10 @@ class _MapillaryVistasExtractor(SourceExtractor):
             item_id = osp.splitext(osp.relpath(image_path, self._images_dir))[0]
             image = Image(path=image_path)
             if item_id in items:
-                items[item_id].image = image
+                items[item_id].media = image
             else:
                 items[item_id] = DatasetItem(id=item_id, subset=self._subset,
-                    image=image)
+                    media=image)
 
         self._load_polygons(items)
         return items.values()
@@ -228,7 +233,7 @@ class _MapillaryVistasExtractor(SourceExtractor):
 
             image_size = self._get_image_size(item_info)
             if image_size and item.has_image:
-                item.image = Image(path=item.image.path, size=image_size)
+                item.media = Image(path=item.image.path, size=image_size)
 
             polygons = item_info['objects']
             annotations = []

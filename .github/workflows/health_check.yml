@@ -8,7 +8,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.6', '3.7', '3.8', '3.9']
+        python-version: ['3.7', '3.8', '3.9']
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -18,13 +18,12 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Installing dependencies
         run: |
-          pip install tensorflow pytest pytest-cov
-          pip install -e .[default]
+          pip install -e '.[default,tf,tfds]' pytest pytest-cov
       - name: Code instrumentation
         run: |
           pytest -v --cov --cov-report xml:coverage.xml
           datum -h
       - name: Sending coverage results
-        if: matrix.python-version == '3.6'
+        if: matrix.python-version == '3.7'
         run: |
           bash <(curl -Ls https://coverage.codacy.com/get.sh) report -r coverage.xml -t ${{ secrets.CODACY_PROJECT_TOKEN }}

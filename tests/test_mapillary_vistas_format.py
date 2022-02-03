@@ -8,6 +8,7 @@ from datumaro.components.annotation import (
     AnnotationType, LabelCategories, Mask, MaskCategories, Polygon,
 )
 from datumaro.components.dataset import Dataset, DatasetItem
+from datumaro.components.media import Image
 from datumaro.plugins.mapillary_vistas_format.format import (
     MapillaryVistasLabelMaps, make_mapillary_instance_categories,
 )
@@ -19,7 +20,8 @@ DUMMY_DATASET_V1_2 = osp.join(osp.dirname(__file__), 'assets',
     'mapillary_vistas_dataset', 'v1.2')
 DUMMY_DATASET_V2_0 = osp.join(osp.dirname(__file__), 'assets',
     'mapillary_vistas_dataset', 'v2.0')
-
+DUMMY_DATASET_WITH_META_FILE = osp.join(osp.dirname(__file__),
+    'assets', 'mapillary_vistas_dataset', 'dataset_with_meta_file')
 
 class MapillaryVistasImporterTest(TestCase):
 
@@ -38,16 +40,16 @@ class MapillaryVistasImporterTest(TestCase):
                 Mask(image=np.array([[1, 1, 0, 0, 0]] * 5), label=0),
                 Mask(image=np.array([[0, 0, 1, 1, 0]] * 5), label=1),
                 Mask(image=np.array([[0, 0, 0, 0, 1]] * 5), label=2)
-            ], image=np.ones((5, 5, 3))),
+            ], media=Image(data=np.ones((5, 5, 3)))),
             DatasetItem(id='1', subset='train', annotations=[
                 Mask(image=np.array([[1, 1, 0, 0, 0]] * 5), label=0, id=0),
                 Mask(image=np.array([[0, 0, 0, 0, 1]] * 5), label=0, id=1),
                 Mask(image=np.array([[0, 0, 1, 1, 0]] * 5), label=1, id=0),
-            ], image=np.ones((5, 5, 3))),
+            ], media=Image(data=np.ones((5, 5, 3)))),
             DatasetItem(id='2', subset='train', annotations=[
                 Mask(image=np.array([[1, 1, 0, 1, 1]] * 5), label=1),
                 Mask(image=np.array([[0, 0, 1, 0, 0]] * 5), label=2),
-            ], image=np.ones((5, 5, 3))),
+            ], media=Image(data=np.ones((5, 5, 3)))),
         ], categories={
             AnnotationType.label: label_cat,
             AnnotationType.mask: mask_cat
@@ -67,7 +69,7 @@ class MapillaryVistasImporterTest(TestCase):
                 Mask(image=np.array([[1, 1, 0, 0, 0]] * 5), label=0),
                 Mask(image=np.array([[0, 0, 1, 1, 0]] * 5), label=1),
                 Mask(image=np.array([[0, 0, 0, 0, 1]] * 5), label=2)
-            ], image=np.ones((5, 5, 3))),
+            ], media=Image(data=np.ones((5, 5, 3)))),
         ], categories=make_mapillary_instance_categories(
             MapillaryVistasLabelMaps['v1.2']))
 
@@ -118,7 +120,7 @@ class MapillaryVistasImporterTest(TestCase):
                 Mask(image=np.array([[0, 0, 0, 1, 1]] * 5), id=0, label=1),
                 Polygon(points=[0, 0, 1, 0, 2, 0, 2, 4, 0, 4], label=0),
                 Polygon(points=[3, 0, 4, 0, 4, 1, 4, 4, 3, 4], label=1),
-            ], image=np.ones((5, 5, 3))),
+            ], media=Image(data=np.ones((5, 5, 3)))),
             DatasetItem(id='1', subset='val', annotations=[
                 Mask(image=np.array([[0, 0, 1, 0, 0]] * 5), id=0, label=1),
                 Mask(image=np.array([[1, 1, 0, 0, 0]] * 5), id=0, label=2),
@@ -126,7 +128,7 @@ class MapillaryVistasImporterTest(TestCase):
                 Polygon(points=[2, 0, 2, 1, 2, 2, 2, 3, 2, 4], label=1),
                 Polygon(points=[0, 0, 1, 0, 1, 4, 4, 0, 0, 0], label=2),
                 Polygon(points=[3, 0, 4, 0, 4, 4, 3, 4, 3, 0], label=2),
-            ], image=np.ones((5, 5, 3))),
+            ], media=Image(data=np.ones((5, 5, 3)))),
             DatasetItem(id='2', subset='train', annotations=[
                 Mask(image=np.array([[1, 0, 0, 0, 0]] * 5), id=0, label=0),
                 Mask(image=np.array([[0, 0, 1, 0, 0]] * 5), id=1, label=0),
@@ -138,7 +140,7 @@ class MapillaryVistasImporterTest(TestCase):
                 Polygon(points=[4, 0, 4, 1, 4, 2, 4, 3, 4, 4], label=0),
                 Polygon(points=[1, 0, 1, 1, 1, 2, 1, 3, 1, 4], label=1),
                 Polygon(points=[3, 0, 3, 1, 3, 2, 3, 3, 3, 4], label=1),
-            ], image=np.ones((5, 5, 3))),
+            ], media=Image(data=np.ones((5, 5, 3)))),
         ], categories={
             AnnotationType.label: label_cat,
             AnnotationType.mask: mask_cat
@@ -172,7 +174,7 @@ class MapillaryVistasImporterTest(TestCase):
                     label=1, attributes={'is_crowd': False}),
                 Polygon(points=[0, 0, 1, 0, 2, 0, 2, 4, 0, 4], label=0),
                 Polygon(points=[3, 0, 4, 0, 4, 1, 4, 4, 3, 4], label=1),
-            ], image=np.ones((5, 5, 3))),
+            ], media=Image(data=np.ones((5, 5, 3)))),
             DatasetItem(id='1', subset='val', annotations=[
                 Mask(image=np.array([[1, 1, 0, 0, 0]] * 5), id=1, group=1,
                     label=2, attributes={'is_crowd': False}),
@@ -183,7 +185,7 @@ class MapillaryVistasImporterTest(TestCase):
                 Polygon(points=[2, 0, 2, 1, 2, 2, 2, 3, 2, 4], label=1),
                 Polygon(points=[0, 0, 1, 0, 1, 4, 4, 0, 0, 0], label=2),
                 Polygon(points=[3, 0, 4, 0, 4, 4, 3, 4, 3, 0], label=2),
-            ], image=np.ones((5, 5, 3))),
+            ], media=Image(data=np.ones((5, 5, 3)))),
             DatasetItem(id='2', subset='train', annotations=[
                 Mask(image=np.array([[1, 0, 0, 0, 0]] * 5), id=1, group=1,
                     label=0, attributes={'is_crowd': False}),
@@ -200,7 +202,7 @@ class MapillaryVistasImporterTest(TestCase):
                 Polygon(points=[4, 0, 4, 1, 4, 2, 4, 3, 4, 4], label=0),
                 Polygon(points=[1, 0, 1, 1, 1, 2, 1, 3, 1, 4], label=1),
                 Polygon(points=[3, 0, 3, 1, 3, 2, 3, 3, 3, 4], label=1),
-            ], image=np.ones((5, 5, 3))),
+            ], media=Image(data=np.ones((5, 5, 3)))),
         ], categories={
             AnnotationType.label: label_cat,
             AnnotationType.mask: mask_cat
@@ -234,7 +236,7 @@ class MapillaryVistasImporterTest(TestCase):
                     label=10, attributes={'is_crowd': False}),
                 Polygon(points=[0, 0, 1, 0, 2, 0, 2, 4, 0, 4], label=1),
                 Polygon(points=[3, 0, 4, 0, 4, 1, 4, 4, 3, 4], label=10),
-            ], image=np.ones((5, 5, 3))),
+            ], media=Image(data=np.ones((5, 5, 3)))),
             DatasetItem(id='1', subset='val', annotations=[
                 Mask(image=np.array([[1, 1, 0, 0, 0]] * 5), id=1, group=1,
                     label=100, attributes={'is_crowd': False}),
@@ -245,7 +247,7 @@ class MapillaryVistasImporterTest(TestCase):
                 Polygon(points=[2, 0, 2, 1, 2, 2, 2, 3, 2, 4], label=10),
                 Polygon(points=[0, 0, 1, 0, 1, 4, 4, 0, 0, 0], label=100),
                 Polygon(points=[3, 0, 4, 0, 4, 4, 3, 4, 3, 0], label=100),
-            ], image=np.ones((5, 5, 3))),
+            ], media=Image(data=np.ones((5, 5, 3)))),
             DatasetItem(id='2', subset='train', annotations=[
                 Mask(image=np.array([[1, 0, 0, 0, 0]] * 5), id=1, group=1,
                     label=1, attributes={'is_crowd': False}),
@@ -262,7 +264,7 @@ class MapillaryVistasImporterTest(TestCase):
                 Polygon(points=[4, 0, 4, 1, 4, 2, 4, 3, 4, 4], label=1),
                 Polygon(points=[1, 0, 1, 1, 1, 2, 1, 3, 1, 4], label=10),
                 Polygon(points=[3, 0, 3, 1, 3, 2, 3, 3, 3, 4], label=10),
-            ], image=np.ones((5, 5, 3))),
+            ], media=Image(data=np.ones((5, 5, 3)))),
         ], categories={
             AnnotationType.label: label_cat,
             AnnotationType.mask: mask_cat
@@ -321,3 +323,35 @@ class MapillaryVistasImporterTest(TestCase):
 
             compare_datasets(self, expected_dataset, imported_dataset,
                 require_images=True)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_import_with_meta_file(self):
+        label_cat = LabelCategories.from_iterable(['animal--bird',
+            'construction--barrier--curb', 'human--person'])
+        mask_cat = MaskCategories({
+            0: (10, 50, 90),
+            1: (20, 30, 80),
+            2: (30, 70, 40)
+        })
+
+        expected_dataset = Dataset.from_iterable([
+            DatasetItem(id='1', subset='train', annotations=[
+                Mask(image=np.array([[1, 1, 0, 0, 0]] * 5), label=0, id=0),
+                Mask(image=np.array([[0, 0, 0, 0, 1]] * 5), label=0, id=1),
+                Mask(image=np.array([[0, 0, 1, 1, 0]] * 5), label=1, id=0),
+            ], media=Image(data=np.ones((5, 5, 3)))),
+            DatasetItem(id='2', subset='train', annotations=[
+                Mask(image=np.array([[1, 1, 0, 1, 1]] * 5), label=1),
+                Mask(image=np.array([[0, 0, 1, 0, 0]] * 5), label=2),
+            ], media=Image(data=np.ones((5, 5, 3)))),
+        ], categories={
+            AnnotationType.label: label_cat,
+            AnnotationType.mask: mask_cat
+        })
+
+
+        imported_dataset = Dataset.import_from(DUMMY_DATASET_WITH_META_FILE,
+            'mapillary_vistas')
+
+        compare_datasets(self, expected_dataset, imported_dataset,
+            require_images=True)

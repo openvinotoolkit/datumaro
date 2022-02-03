@@ -22,6 +22,7 @@ from datumaro.components.media import Image
 from datumaro.util import cast, escape, unescape
 from datumaro.util.image import save_image
 from datumaro.util.mask_tools import find_mask_bbox, load_mask
+from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 from datumaro.util.os_util import split_path
 
 
@@ -53,9 +54,15 @@ class LabelMeExtractor(Extractor):
     def _parse(self, dataset_root):
         items = []
         subsets = set()
-        categories = { AnnotationType.label:
-            LabelCategories(attributes={ 'occluded', 'username' })
-        }
+
+        if has_meta_file(dataset_root):
+            categories = { AnnotationType.label:
+                LabelCategories(attributes={ 'occluded', 'username' }).
+                    from_iterable(parse_meta_file(dataset_root).keys()) }
+        else:
+            categories = { AnnotationType.label:
+                LabelCategories(attributes={ 'occluded', 'username' })
+            }
 
         for xml_path in sorted(
                 glob(osp.join(dataset_root, '**', '*.xml'), recursive=True)):
@@ -87,8 +94,8 @@ class LabelMeExtractor(Extractor):
                 osp.join(dataset_root, subset), categories)
 
             items.append(DatasetItem(id=item_id, subset=subset,
-                image=image, annotations=annotations))
-            subsets.add(subset)
+                media=image, annotations=annotations))
+            subsets.add(items[-1].subset)
         return items, categories, subsets
 
     def _escape(s):
@@ -323,6 +330,11 @@ class LabelMeConverter(Converter):
     DEFAULT_IMAGE_EXT = LabelMePath.IMAGE_EXT
 
     def apply(self):
+        os.makedirs(self._save_dir, exist_ok=True)
+
+        if self._save_dataset_meta:
+            self._save_meta_file(self._save_dir)
+
         for subset_name, subset in self._extractor.subsets().items():
             subset_dir = osp.join(self._save_dir, subset_name)
             os.makedirs(subset_dir, exist_ok=True)
@@ -344,8 +356,8 @@ class LabelMeConverter(Converter):
         log.debug("Converting item '%s'", item.id)
 
         image_filename = self._make_image_filename(item)
-        if self._save_images:
-            if item.has_image and item.image.has_data:
+        if self._save_media:
+            if item.media and item.media.has_data:
                 self._save_image(item, osp.join(subset_dir, image_filename))
             else:
                 log.debug("Item '%s' has no image", item.id)
@@ -358,9 +370,9 @@ class LabelMeConverter(Converter):
         ET.SubElement(source_elem, 'sourceImage').text = ''
         ET.SubElement(source_elem, 'sourceAnnotation').text = 'Datumaro'
 
-        if item.has_image:
+        if item.media:
             image_elem = ET.SubElement(root_elem, 'imagesize')
-            image_size = item.image.size
+            image_size = item.media.size
             ET.SubElement(image_elem, 'nrows').text = str(image_size[0])
             ET.SubElement(image_elem, 'ncols').text = str(image_size[1])
 
@@ -377,7 +389,7 @@ class LabelMeConverter(Converter):
             ET.SubElement(obj_elem, 'deleted').text = '0'
             ET.SubElement(obj_elem, 'verified').text = '0'
             ET.SubElement(obj_elem, 'occluded').text = \
-                'yes' if ann.attributes.get('occluded') == True else 'no'
+                'yes' if ann.attributes.get('occluded') is True else 'no'
             ET.SubElement(obj_elem, 'date').text = ''
             ET.SubElement(obj_elem, 'id').text = str(obj_id)
 

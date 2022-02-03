@@ -26,6 +26,7 @@ from datumaro.components.extractor import (
 from datumaro.components.launcher import Launcher
 from datumaro.components.media import Image
 from datumaro.util.test_utils import TestDir, compare_datasets
+import datumaro.components.hl_ops as hl_ops
 
 from .requirements import Requirements, mark_requirement
 
@@ -158,6 +159,47 @@ class DatasetTest(TestCase):
             self.assertEqual(DEFAULT_FORMAT, detected_format)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_detect_with_nested_folder(self):
+        env = Environment()
+        env.importers.items = {DEFAULT_FORMAT: env.importers[DEFAULT_FORMAT]}
+        env.extractors.items = {DEFAULT_FORMAT: env.extractors[DEFAULT_FORMAT]}
+
+        dataset = Dataset.from_iterable([
+            DatasetItem(id=1, annotations=[ Label(2) ]),
+        ], categories=['a', 'b', 'c'])
+
+        with TestDir() as test_dir:
+            dataset_path = osp.join(test_dir, 'a')
+            dataset.save(dataset_path)
+
+            detected_format = Dataset.detect(test_dir, env=env)
+
+            self.assertEqual(DEFAULT_FORMAT, detected_format)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_detect_with_nested_folder_and_multiply_matches(self):
+        dataset = Dataset.from_iterable([
+            DatasetItem(id=1, media=Image(data=np.ones((3, 3, 3))),
+                annotations=[ Label(2) ]),
+        ], categories=['a', 'b', 'c'])
+
+        with TestDir() as test_dir:
+            dataset_path = osp.join(test_dir, 'a', 'b')
+            dataset.export(dataset_path, 'coco', save_media=True)
+
+            detected_format = Dataset.detect(test_dir, depth=2)
+
+            self.assertEqual('coco', detected_format)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_cannot_detect_for_non_existent_path(self):
+        with TestDir() as test_dir:
+            dataset_path = osp.join(test_dir, 'a')
+
+            with self.assertRaises(FileNotFoundError):
+                Dataset.detect(dataset_path)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_and_import(self):
         env = Environment()
         env.importers.items = {DEFAULT_FORMAT: env.importers[DEFAULT_FORMAT]}
@@ -258,11 +300,11 @@ class DatasetTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_remember_export_options(self):
         dataset = Dataset.from_iterable([
-            DatasetItem(id=1, image=np.ones((1, 2, 3))),
+            DatasetItem(id=1, media=Image(data=np.ones((1, 2, 3)))),
         ], categories=['a'])
 
         with TestDir() as test_dir:
-            dataset.save(test_dir, save_images=True)
+            dataset.save(test_dir, save_media=True)
             dataset.put(dataset.get(1)) # mark the item modified for patching
 
             image_path = osp.join(test_dir, 'images', 'default', '1.jpg')
@@ -270,7 +312,7 @@ class DatasetTest(TestCase):
 
             dataset.save(test_dir)
 
-            self.assertEqual({'save_images': True}, dataset.options)
+            self.assertEqual({'save_media': True}, dataset.options)
             self.assertTrue(osp.isfile(image_path))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -1170,7 +1212,7 @@ class DatasetTest(TestCase):
             called = True
 
         dataset = Dataset.from_iterable([
-            DatasetItem(1, image=test_loader)
+            DatasetItem(1, media=Image(data=test_loader))
         ])
 
         with TestDir() as test_dir:
@@ -1183,21 +1225,21 @@ class DatasetTest(TestCase):
         expected = Dataset.from_iterable([], categories=['c', 'b'])
         dataset = Dataset.from_iterable([], categories=['a', 'b'])
 
-        actual = dataset.transform('remap_labels', {'a': 'c'})
+        actual = dataset.transform('remap_labels', mapping={'a': 'c'})
 
         compare_datasets(self, expected, actual)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_run_model(self):
         dataset = Dataset.from_iterable([
-            DatasetItem(i, image=np.array([i]))
+            DatasetItem(i, media=Image(data=np.array([i])))
             for i in range(5)
         ], categories=['label'])
 
         batch_size = 3
 
         expected = Dataset.from_iterable([
-            DatasetItem(i, image=np.array([i]), annotations=[
+            DatasetItem(i, media=Image(data=np.array([i])), annotations=[
                 Label(0, attributes={ 'idx': i % batch_size, 'data': i })
             ])
             for i in range(5)
@@ -1302,8 +1344,8 @@ class DatasetTest(TestCase):
                             self._save_dir, name + '.txt'), 'w') as f:
                         f.write('\n')
 
-                    if self._save_images and \
-                            item.has_image and item.image.has_data:
+                    if self._save_media and \
+                            item.media and item.media.has_data:
                         self._save_image(item, name=name)
 
         env = Environment()
@@ -1311,16 +1353,19 @@ class DatasetTest(TestCase):
 
         with TestDir() as path:
             dataset = Dataset.from_iterable([
-                DatasetItem(1, subset='train', image=np.ones((2, 4, 3))),
+                DatasetItem(1, subset='train',
+                    media=Image(data=np.ones((2, 4, 3)))),
                 DatasetItem(2, subset='train',
-                    image=Image(path='2.jpg', size=(3, 2))),
-                DatasetItem(3, subset='valid', image=np.ones((2, 2, 3))),
+                    media=Image(path='2.jpg', size=(3, 2))),
+                DatasetItem(3, subset='valid',
+                    media=Image(data=np.ones((2, 2, 3)))),
             ], categories=[], env=env)
-            dataset.export(path, 'test', save_images=True)
+            dataset.export(path, 'test', save_media=True)
 
-            dataset.put(DatasetItem(2, subset='train', image=np.ones((3, 2, 3))))
+            dataset.put(DatasetItem(2, subset='train',
+                media=Image(data=np.ones((3, 2, 3)))))
             dataset.remove(3, 'valid')
-            dataset.save(save_images=True)
+            dataset.save(save_media=True)
 
             self.assertEqual({
                     'train_1.txt', 'train_1.jpg',
@@ -1427,11 +1472,11 @@ class DatasetItemTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_ctors_with_image():
         for args in [
-            { 'id': 0, 'image': None },
-            { 'id': 0, 'image': 'path.jpg' },
-            { 'id': 0, 'image': np.array([1, 2, 3]) },
-            { 'id': 0, 'image': lambda f: np.array([1, 2, 3]) },
-            { 'id': 0, 'image': Image(data=np.array([1, 2, 3])) },
+            { 'id': 0, 'media': None },
+            { 'id': 0, 'media': Image(path='path.jpg') },
+            { 'id': 0, 'media': Image(data=np.array([1, 2, 3])) },
+            { 'id': 0, 'media': Image(data=lambda f: np.array([1, 2, 3])) },
+            { 'id': 0, 'media': Image(data=np.array([1, 2, 3])) },
         ]:
             DatasetItem(**args)
 
@@ -1441,7 +1486,7 @@ class DatasetFilterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_item_representations():
         item = DatasetItem(id=1, subset='subset',
-            image=np.ones((5, 4, 3)),
+            media=Image(data=np.ones((5, 4, 3))),
             annotations=[
                 Label(0, attributes={'a1': 1, 'a2': '2'}, id=1, group=2),
                 Caption('hello', id=1),
@@ -1530,3 +1575,87 @@ class DatasetFilterTest(TestCase):
             '/item/annotation[label_id = 2]', remove_empty=True)
 
         compare_datasets(self, expected, filtered)
+
+
+class TestHLOps(TestCase):
+    def test_can_transform(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(0, subset='train')
+        ], categories=['cat', 'dog'])
+
+        dataset = Dataset.from_iterable([
+            DatasetItem(10, subset='train')
+        ], categories=['cat', 'dog'])
+
+        actual = hl_ops.transform(dataset, 'reindex', start=0)
+
+        compare_datasets(self, expected, actual)
+
+    def test_can_filter_items(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(0, subset='train')
+        ], categories=['cat', 'dog'])
+
+        dataset = Dataset.from_iterable([
+            DatasetItem(0, subset='train'),
+            DatasetItem(1, subset='train')
+        ], categories=['cat', 'dog'])
+
+        actual = hl_ops.filter(dataset, '/item[id=0]')
+
+        compare_datasets(self, expected, actual)
+
+    def test_can_filter_annotations(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(0, subset='train', annotations=[
+                Label(0, id=1)
+            ])
+        ], categories=['cat', 'dog'])
+
+        dataset = Dataset.from_iterable([
+            DatasetItem(0, subset='train', annotations=[
+                Label(0, id=0),
+                Label(0, id=1),
+            ]),
+            DatasetItem(1, subset='train')
+        ], categories=['cat', 'dog'])
+
+        actual = hl_ops.filter(dataset, '/item/annotation[id=1]',
+            filter_annotations=True, remove_empty=True)
+
+        compare_datasets(self, expected, actual)
+
+    def test_can_merge(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(0, subset='train'),
+            DatasetItem(1, subset='train')
+        ], categories=['cat', 'dog'])
+
+        dataset_a = Dataset.from_iterable([
+            DatasetItem(0, subset='train'),
+        ], categories=['cat', 'dog'])
+
+        dataset_b = Dataset.from_iterable([
+            DatasetItem(1, subset='train')
+        ], categories=['cat', 'dog'])
+
+        actual = hl_ops.merge(dataset_a, dataset_b)
+
+        compare_datasets(self, expected, actual)
+
+    def test_can_export(self):
+        expected = Dataset.from_iterable([
+            DatasetItem(0, subset='train'),
+            DatasetItem(1, subset='train')
+        ], categories=['cat', 'dog'])
+
+        dataset = Dataset.from_iterable([
+            DatasetItem(0, subset='train'),
+            DatasetItem(1, subset='train')
+        ], categories=['cat', 'dog'])
+
+        with TestDir() as test_dir:
+            hl_ops.export(dataset, test_dir, 'datumaro')
+            actual = Dataset.load(test_dir)
+
+            compare_datasets(self, expected, actual)

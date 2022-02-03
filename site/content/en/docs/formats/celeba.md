@@ -48,6 +48,7 @@ CelebA dataset directory should have the following structure:
 <!--lint disable fenced-code-flag-->
 ```
 dataset/
+├── dataset_meta.json # a list of non-format labels (optional)
 ├── Anno/
 │   ├── identity_CelebA.txt
 │   ├── list_attr_celeba.txt
@@ -71,6 +72,8 @@ attributes, bounding boxes, landmarks and subsets respectively
 The original CelebA dataset stores images in a .7z archive. The archive
 needs to be unpacked before importing.
 
+To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats/#dataset-meta-file).
+
 ## Export to other formats
 
 Datumaro can convert a CelebA dataset into any other format [Datumaro supports](/docs/user-manual/supported_formats/).
@@ -83,10 +86,12 @@ formats using CLI:
 ```bash
 datum create
 datum import -f celeba <path/to/dataset>
-datum export -f imagenet_txt -o ./save_dir -- --save-images
-# or
+datum export -f imagenet_txt -o ./save_dir -- --save-media
+```
+or
+``` bash
 datum convert -if celeba -i <path/to/dataset> \
-    -f imagenet_txt -o <output/dir> -- --save-images
+    -f imagenet_txt -o <output/dir> -- --save-media
 ```
 
 Or, using Python API:

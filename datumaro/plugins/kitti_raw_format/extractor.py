@@ -12,8 +12,10 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.components.format_detection import FormatDetectionContext
+from datumaro.components.media import PointCloud
 from datumaro.util import cast
 from datumaro.util.image import find_images
+from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
 from .format import KittiRawPath, OcclusionStates, TruncationStates
 
@@ -136,11 +138,16 @@ class KittiRawExtractor(SourceExtractor):
 
         special_attrs = KittiRawPath.SPECIAL_ATTRS
         common_attrs = ['occluded']
-        label_cat = LabelCategories(attributes=common_attrs)
-        for label, attrs in sorted(labels.items(), key=lambda e: e[0]):
-            label_cat.add(label, attributes=set(attrs) - special_attrs)
 
-        categories = {AnnotationType.label: label_cat}
+        if has_meta_file(path):
+            categories =  { AnnotationType.label: LabelCategories.
+                from_iterable(parse_meta_file(path).keys()) }
+        else:
+            label_cat = LabelCategories(attributes=common_attrs)
+            for label, attrs in sorted(labels.items(), key=lambda e: e[0]):
+                label_cat.add(label, attributes=set(attrs) - special_attrs)
+
+            categories = {AnnotationType.label: label_cat}
 
         items = {}
         for idx, track in enumerate(tracks):
@@ -239,9 +246,8 @@ class KittiRawExtractor(SourceExtractor):
         for frame_id, item_desc in parsed.items():
             name = name_mapping.get(frame_id, '%010d' % int(frame_id))
             items[frame_id] = DatasetItem(id=name, subset=self._subset,
-                point_cloud=osp.join(self._rootdir,
-                    KittiRawPath.PCD_DIR, name + '.pcd'),
-                related_images=sorted(images.get(name, [])),
+                media=PointCloud(osp.join(self._rootdir, KittiRawPath.PCD_DIR,
+                    name + '.pcd'), extra_images=sorted(images.get(name, []))),
                 annotations=item_desc.get('annotations'),
                 attributes={'frame': int(frame_id)})
 
@@ -250,9 +256,8 @@ class KittiRawExtractor(SourceExtractor):
                 continue
 
             items[frame_id] = DatasetItem(id=name, subset=self._subset,
-                point_cloud=osp.join(self._rootdir,
-                    KittiRawPath.PCD_DIR, name + '.pcd'),
-                related_images=sorted(images.get(name, [])),
+                media=PointCloud(osp.join(self._rootdir, KittiRawPath.PCD_DIR,
+                    name + '.pcd'), extra_images=sorted(images.get(name, []))),
                 attributes={'frame': int(frame_id)})
 
         return items

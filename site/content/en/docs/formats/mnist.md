@@ -68,7 +68,8 @@ MNIST dataset directory should have the following structure:
 <!--lint disable fenced-code-flag-->
 ```
 └─ Dataset/
-    ├── labels.txt # list of non-digit labels (optional)
+    ├── dataset_meta.json # a list of non-format labels (optional)
+    ├── labels.txt # a list of non-digit labels  in other format (optional)
     ├── t10k-images-idx3-ubyte.gz
     ├── t10k-labels-idx1-ubyte.gz
     ├── train-images-idx3-ubyte.gz
@@ -80,14 +81,18 @@ MNIST in CSV dataset directory should have the following structure:
 <!--lint disable fenced-code-flag-->
 ```
 └─ Dataset/
-    ├── labels.txt # list of non-digit labels (optional)
+    ├── dataset_meta.json # a list of non-format labels (optional)
+    ├── labels.txt # a list of non-digit labels  in other format (optional)
     ├── mnist_test.csv
     └── mnist_train.csv
 ```
 
-If the dataset needs non-digit labels, you need to add the `labels.txt`
-to the dataset folder. For example, `labels.txt` for Fashion MNIST the
-following contents:
+To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats/#dataset-meta-file)
+and `labels.txt`.
+If the `dataset_meta.json` is not represented in the dataset, then
+`labels.txt` will be imported if possible.
+
+For example, `labels.txt` for Fashion MNIST the following contents:
 
 <!--lint disable fenced-code-flag-->
 ```
@@ -116,7 +121,9 @@ There are several ways to convert a MNIST dataset to other dataset formats:
 datum create
 datum import -f mnist <path/to/mnist>
 datum export -f imagenet -o <output/dir>
-# or
+```
+or
+``` bash
 datum convert -if mnist -i <path/to/mnist> -f imagenet -o <output/dir>
 ```
 
@@ -126,7 +133,7 @@ Or, using Python API:
 from datumaro.components.dataset import Dataset
 
 dataset = Dataset.import_from('<path/to/dataset>', 'mnist')
-dataset.export('save_dir', 'imagenet', save_images=True)
+dataset.export('save_dir', 'imagenet', save_media=True)
 ```
 
 These steps also will work for MNIST in CSV, if you use `mnist_csv`
@@ -139,17 +146,21 @@ There are several ways to convert a dataset to MNIST format:
 ``` bash
 # export dataset into MNIST format from existing project
 datum export -p <path/to/project> -f mnist -o <output/dir> \
-    -- --save-images
+    -- --save-media
+```
+``` bash
 # converting to MNIST format from other format
 datum convert -if imagenet -i <path/to/dataset> \
-    -f mnist -o <output/dir> -- --save-images
+    -f mnist -o <output/dir> -- --save-media
 ```
 
 Extra options for exporting to MNIST format:
-- `--save-images` allow to export dataset with saving images
+- `--save-media` allow to export dataset with saving media files
   (by default `False`)
 - `--image-ext <IMAGE_EXT>` allow to specify image extension
   for exporting dataset (by default `.png`)
+- `--save-dataset-meta` - allow to export dataset with saving dataset meta
+  file (by default `False`)
 
 These commands also work for MNIST in CSV if you use `mnist_csv` instead of `mnist`.
 

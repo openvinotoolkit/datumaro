@@ -15,7 +15,7 @@ from datumaro.components.media import Image
 from datumaro.plugins.cvat_format.converter import CvatConverter
 from datumaro.plugins.cvat_format.extractor import CvatImporter
 from datumaro.util.test_utils import (
-    TestDir, compare_datasets, test_save_and_load,
+    TestDir, check_save_and_load, compare_datasets,
 )
 
 from .requirements import Requirements, mark_requirement
@@ -41,7 +41,7 @@ class CvatImporterTest(TestCase):
     def test_can_load_image(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='img0', subset='train',
-                image=np.ones((8, 8, 3)),
+                media=Image(data=np.ones((8, 8, 3))),
                 annotations=[
                     Bbox(0, 2, 4, 2, label=0, z_order=1,
                         attributes={
@@ -52,7 +52,7 @@ class CvatImporterTest(TestCase):
                         attributes={'occluded': False}),
                 ], attributes={'frame': 0}),
             DatasetItem(id='img1', subset='train',
-                image=np.ones((10, 10, 3)),
+                media=Image(data=np.ones((10, 10, 3))),
                 annotations=[
                     Polygon([1, 2, 3, 4, 6, 5], z_order=1,
                         attributes={'occluded': False}),
@@ -74,7 +74,7 @@ class CvatImporterTest(TestCase):
     def test_can_load_video(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='frame_000010', subset='annotations',
-                image=255 * np.ones((20, 25, 3)),
+                media=Image(data=255 * np.ones((20, 25, 3))),
                 annotations=[
                     Bbox(3, 4, 7, 1, label=2,
                         id=0,
@@ -93,7 +93,7 @@ class CvatImporterTest(TestCase):
                         }),
                 ], attributes={'frame': 10}),
             DatasetItem(id='frame_000013', subset='annotations',
-                image=255 * np.ones((20, 25, 3)),
+                media=Image(data=255 * np.ones((20, 25, 3))),
                 annotations=[
                     Bbox(7, 6, 7, 2, label=2,
                         id=0,
@@ -120,7 +120,7 @@ class CvatImporterTest(TestCase):
                         }),
                 ], attributes={'frame': 13}),
             DatasetItem(id='frame_000016', subset='annotations',
-                image=Image(path='frame_0000016.png', size=(20, 25)),
+                media=Image(path='frame_0000016.png', size=(20, 25)),
                 annotations=[
                     Bbox(8, 7, 6, 10, label=2,
                         id=0,
@@ -153,7 +153,7 @@ class CvatImporterTest(TestCase):
 class CvatConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None, **kwargs):
-        return test_save_and_load(self, source_dataset, converter, test_dir,
+        return check_save_and_load(self, source_dataset, converter, test_dir,
             importer='cvat',
             target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
@@ -165,7 +165,8 @@ class CvatConverterTest(TestCase):
         src_label_cat.items[2].attributes.update(['a1', 'a2', 'empty'])
 
         source_dataset = Dataset.from_iterable([
-            DatasetItem(id=0, subset='s1', image=np.zeros((5, 10, 3)),
+            DatasetItem(id=0, subset='s1',
+                media=Image(data=np.zeros((5, 10, 3))),
                 annotations=[
                     Polygon([0, 0, 4, 0, 4, 4],
                         label=1, group=4,
@@ -187,7 +188,8 @@ class CvatConverterTest(TestCase):
                 ]
             ),
 
-            DatasetItem(id=2, subset='s2', image=np.ones((5, 10, 3)),
+            DatasetItem(id=2, subset='s2',
+                media=Image(data=np.zeros((5, 10, 3))),
                 annotations=[
                     Polygon([0, 0, 4, 0, 4, 4], z_order=1,
                         label=3, group=4,
@@ -196,7 +198,7 @@ class CvatConverterTest(TestCase):
                 ]
             ),
 
-            DatasetItem(id=3, subset='s3', image=Image(
+            DatasetItem(id=3, subset='s3', media=Image(
                 path='3.jpg', size=(2, 4))),
         ], categories={ AnnotationType.label: src_label_cat })
 
@@ -206,7 +208,8 @@ class CvatConverterTest(TestCase):
             target_label_cat.add(str(i), attributes={'common'})
         target_label_cat.items[2].attributes.update(['a1', 'a2', 'empty', 'common'])
         target_dataset = Dataset.from_iterable([
-            DatasetItem(id=0, subset='s1', image=np.zeros((5, 10, 3)),
+            DatasetItem(id=0, subset='s1',
+                media=Image(data=np.zeros((5, 10, 3))),
                 annotations=[
                     Polygon([0, 0, 4, 0, 4, 4],
                         label=1, group=4,
@@ -230,7 +233,8 @@ class CvatConverterTest(TestCase):
                 ], attributes={'frame': 1}
             ),
 
-            DatasetItem(id=2, subset='s2', image=np.ones((5, 10, 3)),
+            DatasetItem(id=2, subset='s2',
+                media=Image(data=np.zeros((5, 10, 3))),
                 annotations=[
                     Polygon([0, 0, 4, 0, 4, 4], z_order=1,
                         label=3, group=4,
@@ -238,14 +242,14 @@ class CvatConverterTest(TestCase):
                 ], attributes={'frame': 0}
             ),
 
-            DatasetItem(id=3, subset='s3', image=Image(
+            DatasetItem(id=3, subset='s3', media=Image(
                     path='3.jpg', size=(2, 4)),
                 attributes={'frame': 0}),
         ], categories={ AnnotationType.label: target_label_cat })
 
         with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
-                partial(CvatConverter.convert, save_images=True), test_dir,
+                partial(CvatConverter.convert, save_media=True), test_dir,
                 target_dataset=target_dataset)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -275,23 +279,27 @@ class CvatConverterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_relative_paths(self):
         source_dataset = Dataset.from_iterable([
-            DatasetItem(id='1', image=np.ones((4, 2, 3))),
-            DatasetItem(id='subdir1/1', image=np.ones((2, 6, 3))),
-            DatasetItem(id='subdir2/1', image=np.ones((5, 4, 3))),
+            DatasetItem(id='1', media=Image(data=np.ones((4, 2, 3)))),
+            DatasetItem(id='subdir1/1',
+                media=Image(data=np.ones((2, 6, 3)))),
+            DatasetItem(id='subdir2/1',
+                media=Image(data=np.ones((5, 4, 3)))),
         ])
 
         target_dataset = Dataset.from_iterable([
-            DatasetItem(id='1', image=np.ones((4, 2, 3)),
+            DatasetItem(id='1', media=Image(data=np.ones((4, 2, 3))),
                 attributes={'frame': 0}),
-            DatasetItem(id='subdir1/1', image=np.ones((2, 6, 3)),
+            DatasetItem(id='subdir1/1',
+                media=Image(data=np.ones((2, 6, 3))),
                 attributes={'frame': 1}),
-            DatasetItem(id='subdir2/1', image=np.ones((5, 4, 3)),
+            DatasetItem(id='subdir2/1',
+                media=Image(data=np.ones((5, 4, 3))),
                 attributes={'frame': 2}),
         ], categories=[])
 
         with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
-                partial(CvatConverter.convert, save_images=True), test_dir,
+                partial(CvatConverter.convert, save_media=True), test_dir,
                 target_dataset=target_dataset, require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -302,8 +310,8 @@ class CvatConverterTest(TestCase):
         label_categories.items[2].attributes.update(['a1', 'a2', 'empty'])
 
         source_dataset = Dataset.from_iterable([
-            DatasetItem(id='кириллица с пробелом',
-                subset='s1', image=np.zeros((5, 10, 3)),
+            DatasetItem(id='кириллица с пробелом', subset='s1',
+                media=Image(data=np.ones((5, 10, 3))),
                 annotations=[
                     Label(1),
                 ]
@@ -313,8 +321,8 @@ class CvatConverterTest(TestCase):
         })
 
         target_dataset = Dataset.from_iterable([
-            DatasetItem(id='кириллица с пробелом',
-                subset='s1', image=np.zeros((5, 10, 3)),
+            DatasetItem(id='кириллица с пробелом', subset='s1',
+                media=Image(data=np.ones((5, 10, 3))),
                 annotations=[
                     Label(1),
                 ], attributes={'frame': 0}
@@ -325,21 +333,21 @@ class CvatConverterTest(TestCase):
 
         with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
-                partial(CvatConverter.convert, save_images=True), test_dir,
+                partial(CvatConverter.convert, save_media=True), test_dir,
                 target_dataset=target_dataset, require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         expected = Dataset.from_iterable([
-            DatasetItem('q/1', image=Image(path='q/1.JPEG',
+            DatasetItem('q/1', media=Image(path='q/1.JPEG',
                 data=np.zeros((4, 3, 3))), attributes={'frame': 1}),
-            DatasetItem('a/b/c/2', image=Image(path='a/b/c/2.bmp',
+            DatasetItem('a/b/c/2', media=Image(path='a/b/c/2.bmp',
                 data=np.zeros((3, 4, 3))), attributes={'frame': 2}),
         ], categories=[])
 
         with TestDir() as test_dir:
             self._test_save_and_load(expected,
-                partial(CvatConverter.convert, save_images=True),
+                partial(CvatConverter.convert, save_media=True),
                 test_dir, require_images=True)
             self.assertTrue(osp.isfile(
                 osp.join(test_dir, 'images', 'q', '1.JPEG')))
@@ -349,7 +357,8 @@ class CvatConverterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_preserve_frame_ids(self):
         expected_dataset = Dataset.from_iterable([
-            DatasetItem(id='some/name1', image=np.ones((4, 2, 3)),
+            DatasetItem(id='some/name1',
+                media=Image(data=np.ones((4, 2, 3))),
                 attributes={'frame': 40}),
         ], categories=[])
 
@@ -360,12 +369,14 @@ class CvatConverterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_reindex(self):
         source_dataset = Dataset.from_iterable([
-            DatasetItem(id='some/name1', image=np.ones((4, 2, 3)),
+            DatasetItem(id='some/name1',
+                media=Image(data=np.ones((4, 2, 3))),
                 attributes={'frame': 40}),
         ])
 
         expected_dataset = Dataset.from_iterable([
-            DatasetItem(id='some/name1', image=np.ones((4, 2, 3)),
+            DatasetItem(id='some/name1',
+                media=Image(data=np.ones((4, 2, 3))),
                 attributes={'frame': 0}),
         ], categories=[])
 
@@ -378,7 +389,8 @@ class CvatConverterTest(TestCase):
     def test_inplace_save_writes_only_updated_data(self):
         expected = Dataset.from_iterable([
             DatasetItem(1, subset='a'),
-            DatasetItem(2, subset='a', image=np.ones((3, 2, 3))),
+            DatasetItem(2, subset='a',
+                media=Image(data=np.ones((3, 2, 3)))),
 
             DatasetItem(2, subset='b'),
         ], categories=[])
@@ -388,13 +400,15 @@ class CvatConverterTest(TestCase):
             dataset = Dataset.from_iterable([
                 DatasetItem(1, subset='a'),
                 DatasetItem(2, subset='b'),
-                DatasetItem(3, subset='c', image=np.ones((2, 2, 3))),
+                DatasetItem(3, subset='c',
+                    media=Image(data=np.ones((3, 2, 3)))),
             ])
-            dataset.export(path, 'cvat', save_images=True)
+            dataset.export(path, 'cvat', save_media=True)
 
-            dataset.put(DatasetItem(2, subset='a', image=np.ones((3, 2, 3))))
+            dataset.put(DatasetItem(2, subset='a',
+                media=Image(data=np.ones((3, 2, 3)))))
             dataset.remove(3, 'c')
-            dataset.save(save_images=True)
+            dataset.save(save_media=True)
 
             self.assertEqual({'a.xml', 'b.xml', 'images'},
                 set(os.listdir(path)))

@@ -1,14 +1,19 @@
-# Copyright (C) 2021 Intel Corporation
+# Copyright (C) 2021-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
-from enum import IntEnum
-from typing import Callable, Iterator, Optional, Sequence, TextIO
+from enum import Enum, IntEnum, auto
+from typing import (
+    Any, Callable, Collection, Iterable, Iterator, List, NoReturn, Optional,
+    Sequence, TextIO, Tuple, Union,
+)
 import contextlib
+import fnmatch
 import glob
+import logging as log
 import os.path as osp
 
-from typing_extensions import NoReturn
+from typing_extensions import Protocol
 
 
 class FormatDetectionConfidence(IntEnum):
@@ -53,12 +58,21 @@ class FormatRequirementsUnmet(Exception):
     methods.
     """
 
-    # Note: it's currently impossible for an exception with more than one
-    # alternative to be raised; but that will change once support for
-    # alternative requirements in FormatDetectionContext is implemented.
     def __init__(self, failed_alternatives: Sequence[str]) -> None:
         assert failed_alternatives
         self.failed_alternatives = tuple(failed_alternatives)
+
+    def __str__(self) -> str:
+        lines = []
+
+        if len(self.failed_alternatives) > 1:
+            lines.append("None of the following requirements were met:")
+        else:
+            lines.append("The following requirement was not met:")
+
+        lines.extend('  ' + req for req in self.failed_alternatives)
+
+        return '\n'.join(lines)
 
 class FormatDetectionContext:
     """
@@ -73,8 +87,21 @@ class FormatDetectionContext:
     met, the return value depends on the method.
     """
 
+    class _OneOrMoreContext:
+        failed_alternatives: List[str]
+        had_successful_alternatives: bool
+
+        def __init__(self) -> None:
+            self.failed_alternatives = []
+            self.had_successful_alternatives = False
+
+    # This points to a `_OneOrMoreContext` when and only when the detector
+    # is directly within a `require_any` block.
+    _one_or_more_context: Optional[_OneOrMoreContext]
+
     def __init__(self, root_path: str) -> None:
         self._root_path = root_path
+        self._one_or_more_context = None
 
     @property
     def root_path(self) -> str:
@@ -106,14 +133,23 @@ class FormatDetectionContext:
 
         return True
 
-    def fail(self, requirement: str) -> NoReturn:
+    def _start_requirement(self, req_type: str) -> None:
+        assert not self._one_or_more_context, \
+            f"a requirement ({req_type}) can't be placed directly within " \
+            "a 'require_any' block"
+
+    def fail(self, requirement_desc: str) -> NoReturn:
         """
-        Places a requirement that is never met. `requirement` must contain
+        Places a requirement that is never met. `requirement_desc` must contain
         a human-readable description of the requirement.
         """
-        raise FormatRequirementsUnmet((requirement,))
+        self._start_requirement("fail")
 
-    def require_file(self, pattern: str) -> str:
+        raise FormatRequirementsUnmet((requirement_desc,))
+
+    def require_file(self, pattern: str, *,
+        exclude_fnames: Union[str, Collection[str]] = (),
+    ) -> str:
         """
         Places the requirement that the dataset contains at least one file whose
         relative path matches the given pattern. The pattern must be a glob-like
@@ -124,10 +160,24 @@ class FormatDetectionContext:
         If the requirement is met, the relative path to one of the files that
         match the pattern is returned. If there are multiple such files, it's
         unspecified which one of them is returned.
+
+        `exclude_fnames` must be a collection of patterns or a single pattern.
+        If at least one pattern is supplied, then the placed requirement is
+        narrowed to only accept files with names that match none of these
+        patterns.
         """
+
+        self._start_requirement("require_file")
+
+        if isinstance(exclude_fnames, str):
+            exclude_fnames = (exclude_fnames,)
 
         requirement_desc = \
             f"dataset must contain a file matching pattern \"{pattern}\""
+
+        if exclude_fnames:
+            requirement_desc += ' (but not named ' + \
+                ', '.join(f'"{e}"' for e in exclude_fnames) + ')'
 
         if not self._is_path_within_root(pattern):
             self.fail(requirement_desc)
@@ -135,6 +185,15 @@ class FormatDetectionContext:
         pattern_abs = osp.join(glob.escape(self._root_path), pattern)
         for path in glob.iglob(pattern_abs, recursive=True):
             if osp.isfile(path):
+                # Ideally, we should provide a way to filter out whole paths,
+                # not just file names. However, there is no easy way to match an
+                # entire path with a pattern (fnmatch is unsuitable, because
+                # it lets '*' match a slash, which can lead to spurious matches
+                # and is not how glob works).
+                if any(fnmatch.fnmatch(osp.basename(path), pat)
+                        for pat in exclude_fnames):
+                    continue
+
                 return osp.relpath(path, self._root_path)
 
         self.fail(requirement_desc)
@@ -167,6 +226,8 @@ class FormatDetectionContext:
         requirement.
         """
 
+        self._start_requirement("probe_text_file")
+
         requirement_desc_full = f"{path}: {requirement_desc}"
 
         if not self._is_path_within_root(path):
@@ -179,6 +240,80 @@ class FormatDetectionContext:
             raise
         except Exception:
             self.fail(requirement_desc_full)
+
+    @contextlib.contextmanager
+    def require_any(self) -> Iterator[None]:
+        """
+        Returns a context manager that can be used to place a requirement that
+        is considered met if at least one of several alternative sets of
+        requirements is met.
+        To do so, use a `with` statement, with the alternative sets of
+        requirements represented as nested `with` statements using the context
+        manager returned by `alternative`:
+
+            with context.require_any():
+                with context.alternative():
+                    # place requirements from alternative set 1 here
+                with context.alternative():
+                    # place requirements from alternative set 2 here
+                ...
+
+        The contents of all `with context.alternative()` blocks will be
+        executed, even if an alternative that is met is found early.
+
+        Requirements must not be placed directly within a
+        `with context.require_any()` block.
+        """
+
+        self._start_requirement("require_any")
+
+        self._one_or_more_context = self._OneOrMoreContext()
+
+        try:
+            yield
+
+            # If at least one `alternative` block succeeded,
+            # then the `require_any` block succeeds.
+            if self._one_or_more_context.had_successful_alternatives:
+                return
+
+            # If no alternatives succeeded, and none failed, then there were
+            # no alternatives at all.
+            assert self._one_or_more_context.failed_alternatives, \
+                "a 'require_any' block must contain " \
+                "at least one 'alternative' block"
+
+            raise FormatRequirementsUnmet(
+                self._one_or_more_context.failed_alternatives)
+        finally:
+            self._one_or_more_context = None
+
+    @contextlib.contextmanager
+    def alternative(self) -> Iterator[None]:
+        """
+        Returns a context manager that can be used in combination with
+        `require_any` to define alternative requirements. See the
+        documentation for `require_any` for more details.
+
+        Must only be used directly within a `with context.requirements()` block.
+        """
+
+        assert self._one_or_more_context, \
+            "An 'alternative' block must be directly within " \
+            "a 'require_any' block"
+
+        saved_one_or_more_context = self._one_or_more_context
+        self._one_or_more_context = None
+
+        try:
+            yield
+        except FormatRequirementsUnmet as e:
+            saved_one_or_more_context.failed_alternatives.extend(
+                e.failed_alternatives)
+        else:
+            saved_one_or_more_context.had_successful_alternatives = True
+        finally:
+            self._one_or_more_context = saved_one_or_more_context
 
 
 FormatDetector = Callable[
@@ -211,3 +346,86 @@ def apply_format_detector(
         context.fail(f"root path {dataset_root_path} must refer to a directory")
 
     return detector(context) or FormatDetectionConfidence.MEDIUM
+
+class RejectionReason(Enum):
+    unmet_requirements = auto()
+    insufficient_confidence = auto()
+
+class RejectionCallback(Protocol):
+    def __call__(self,
+        format_name: str, reason: RejectionReason, human_message: str,
+    ) -> Any:
+        ...
+
+def detect_dataset_format(
+    formats: Iterable[Tuple[str, FormatDetector]],
+    path: str,
+    *,
+    rejection_callback: Optional[RejectionCallback] = None,
+) -> Sequence[str]:
+    """
+    Determines which format(s) the dataset at the specified path belongs to.
+
+    The function applies each supplied detector to the given patch and decides
+    whether the corresponding format is detected or rejected. A format may be
+    rejected if the detector fails or if it succeeds with less confidence than
+    another detector (other rejection reasons might be added in the future).
+
+    Args:
+        `formats` - The formats to be considered. Each element of the
+            iterable must be a tuple of a format name and a `FormatDetector`
+            instance.
+
+        `path` - the filesystem path to the dataset to be analyzed.
+
+        `rejection_callback` - Unless `None`, called for every rejected format
+            to report the reason it was rejected.
+
+    Returns: a sequence of detected format names.
+    """
+
+    if not osp.exists(path):
+        raise FileNotFoundError(f"Path {path} doesn't exist")
+
+    def report_insufficient_confidence(
+        format_name: str,
+        format_with_more_confidence: str,
+    ):
+        if rejection_callback:
+            rejection_callback(
+                format_name, RejectionReason.insufficient_confidence,
+                f"Another format ({format_with_more_confidence}) "
+                    "was matched with more confidence",
+            )
+
+    max_confidence = 0
+    matches = []
+
+    for format_name, detector in formats:
+        log.debug("Checking '%s' format...", format_name)
+        try:
+            new_confidence = apply_format_detector(path, detector)
+        except FormatRequirementsUnmet as ex:
+            human_message = str(ex)
+            if rejection_callback:
+                rejection_callback(
+                    format_name, RejectionReason.unmet_requirements,
+                    human_message)
+            log.debug(human_message)
+        else:
+            log.debug("Format matched with confidence %d", new_confidence)
+
+            # keep only matches with the highest confidence
+            if new_confidence > max_confidence:
+                for match in matches:
+                    report_insufficient_confidence(match, format_name)
+
+                matches = [format_name]
+                max_confidence = new_confidence
+            elif new_confidence == max_confidence:
+                matches.append(format_name)
+            else: # new confidence is less than max
+                report_insufficient_confidence(format_name, matches[0])
+
+
+    return matches

@@ -7,6 +7,7 @@ import numpy as np
 from datumaro.components.annotation import Bbox, Label
 from datumaro.components.dataset import DEFAULT_FORMAT, Dataset
 from datumaro.components.extractor import DatasetItem
+from datumaro.components.media import Image
 from datumaro.components.project import Project
 from datumaro.util.scope import scope_add, scoped
 from datumaro.util.test_utils import TestDir, compare_datasets, compare_dirs
@@ -95,11 +96,11 @@ class ProjectIntegrationScenarios(TestCase):
             result_dir = osp.join(project_dir, 'result')
 
             Dataset.from_iterable([
-                DatasetItem(0, image=np.ones((1, 2, 3)), annotations=[
+                DatasetItem(0, media=Image(data=np.ones((1, 2, 3))), annotations=[
                     Bbox(1, 1, 1, 1, label=0),
                     Bbox(2, 2, 2, 2, label=1),
                 ])
-            ], categories=['a', 'b']).save(dataset_dir, save_images=True)
+            ], categories=['a', 'b']).save(dataset_dir, save_media=True)
 
             run(self, 'create', '-o', project_dir)
             run(self, 'import', '-p', project_dir, '-f', 'datumaro', dataset_dir)
@@ -117,7 +118,7 @@ class ProjectIntegrationScenarios(TestCase):
                 '-o', result_dir, 'source-1', '--', '--save-images')
             parsed = Dataset.import_from(result_dir, 'coco')
             compare_datasets(self, Dataset.from_iterable([
-                DatasetItem(0, image=np.ones((1, 2, 3)),
+                DatasetItem(0, media=Image(data=np.ones((1, 2, 3))),
                     annotations=[
                         Bbox(2, 2, 2, 2, label=1,
                             group=1, id=1, attributes={'is_crowd': False}),
@@ -130,7 +131,7 @@ class ProjectIntegrationScenarios(TestCase):
                 '-o', result_dir, '--', '--save-images')
             parsed = Dataset.import_from(result_dir, 'coco')
             compare_datasets(self, Dataset.from_iterable([
-                DatasetItem(0, image=np.ones((1, 2, 3)), annotations=[
+                DatasetItem(0, media=Image(data=np.ones((1, 2, 3))), annotations=[
                     Bbox(1, 1, 1, 1, label=0,
                         group=1, id=1, attributes={'is_crowd': False}),
                     Bbox(2, 2, 2, 2, label=1,

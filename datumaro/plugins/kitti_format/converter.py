@@ -18,6 +18,7 @@ from datumaro.util import cast, parse_str_enum_value, str_to_bool
 from datumaro.util.annotation_util import make_label_id_mapping
 from datumaro.util.image import save_image
 from datumaro.util.mask_tools import paint_mask
+from datumaro.util.meta_file_util import is_meta_file, parse_meta_file
 
 from .format import (
     KittiLabelMap, KittiPath, KittiTask, make_kitti_categories, parse_label_map,
@@ -94,7 +95,7 @@ class KittiConverter(Converter):
                     KittiPath.INSTANCES_DIR), exist_ok=True)
 
             for item in subset:
-                if self._save_images:
+                if self._save_media:
                     self._save_image(item,
                         subdir=osp.join(subset_name, KittiPath.IMAGES_DIR))
 
@@ -133,7 +134,7 @@ class KittiConverter(Converter):
                     os.makedirs(osp.dirname(labels_file), exist_ok=True)
                     with open(labels_file, 'w', encoding='utf-8') as f:
                         for bbox in bboxes:
-                            label_line = [-1] * 15
+                            label_line = [-1] * 16
                             label_line[0] = self.get_label(bbox.label)
                             label_line[1] = cast(bbox.attributes.get('truncated'),
                                 float, KittiPath.DEFAULT_TRUNCATED)
@@ -141,6 +142,9 @@ class KittiConverter(Converter):
                                 int, KittiPath.DEFAULT_OCCLUDED)
                             x, y, h, w = bbox.get_bbox()
                             label_line[4:8] = x, y, x + h, y + w
+
+                            label_line[15] = cast(bbox.attributes.get('score'),
+                                float, KittiPath.DEFAULT_SCORE)
 
                             label_line = ' '.join(str(v) for v in label_line)
                             f.write('%s\n' % label_line)
@@ -153,8 +157,11 @@ class KittiConverter(Converter):
             categories()[AnnotationType.label].items[label_id].name
 
     def save_label_map(self):
-        path = osp.join(self._save_dir, KittiPath.LABELMAP_FILE)
-        write_label_map(path, self._label_map)
+        if self._save_dataset_meta:
+            self._save_meta_file(self._save_dir)
+        else:
+            path = osp.join(self._save_dir, KittiPath.LABELMAP_FILE)
+            write_label_map(path, self._label_map)
 
     def _load_categories(self, label_map_source):
         if label_map_source == LabelmapType.kitti.name:
@@ -185,7 +192,10 @@ class KittiConverter(Converter):
                 sorted(label_map_source.items(), key=lambda e: e[0]))
 
         elif isinstance(label_map_source, str) and osp.isfile(label_map_source):
-            label_map = parse_label_map(label_map_source)
+            if is_meta_file(label_map_source):
+                label_map = parse_meta_file(label_map_source)
+            else:
+                label_map = parse_label_map(label_map_source)
 
         else:
             raise Exception("Wrong labelmap specified, "

@@ -18,11 +18,9 @@ python datum.py --help
 As a Python library:
 
 ``` python
-from datumaro.components.project import Project
-from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import Label, Bbox, DatasetItem
+import datumaro as dm
 ...
-dataset = Dataset.import_from(path, format)
+dataset = dm.Dataset.import_from(path, format)
 ...
 ```
 
@@ -104,7 +102,7 @@ to use Datumaro from the command-line:
 
 - Create a Datumaro project and operate on it:
   - Create an empty project with [`create`](/docs/user-manual/command-reference/create)
-  - Import existing datasets with [`import`](/docs/user-manual/command-reference/import)
+  - Import existing datasets with [`import`](/docs/user-manual/command-reference/sources#source-import)
   - Modify the project with [`transform`](/docs/user-manual/command-reference/transform) and [`filter`](/docs/user-manual/command-reference/filter)
   - Create new revisions of the project with
     [`commit`](/docs/user-manual/command-reference/commit), navigate over

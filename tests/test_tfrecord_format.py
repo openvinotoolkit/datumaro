@@ -14,7 +14,7 @@ from datumaro.components.extractor import DatasetItem
 from datumaro.components.media import ByteImage, Image
 from datumaro.util.image import encode_image
 from datumaro.util.test_utils import (
-    TestDir, compare_datasets, test_save_and_load,
+    TestDir, check_save_and_load, compare_datasets,
 )
 from datumaro.util.tf_util import check_import
 
@@ -47,7 +47,7 @@ except ImportError:
 class TfrecordConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None, **kwargs):
-        return test_save_and_load(self, source_dataset, converter, test_dir,
+        return check_save_and_load(self, source_dataset, converter, test_dir,
             importer='tf_detection_api',
             target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
@@ -70,7 +70,7 @@ class TfrecordConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 test_dataset,
-                partial(TfDetectionApiConverter.convert, save_images=True),
+                partial(TfDetectionApiConverter.convert, save_media=True),
                 test_dir)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -130,7 +130,7 @@ class TfrecordConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 test_dataset,
-                partial(TfDetectionApiConverter.convert, save_images=True),
+                partial(TfDetectionApiConverter.convert, save_media=True),
                 test_dir)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -152,7 +152,7 @@ class TfrecordConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 test_dataset,
-                partial(TfDetectionApiConverter.convert, save_images=True),
+                partial(TfDetectionApiConverter.convert, save_media=True),
                 test_dir)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -185,7 +185,7 @@ class TfrecordConverterTest(TestCase):
 
         with TestDir() as test_dir:
             self._test_save_and_load(test_dataset,
-                partial(TfDetectionApiConverter.convert, save_images=True),
+                partial(TfDetectionApiConverter.convert, save_media=True),
                 test_dir, require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -201,7 +201,7 @@ class TfrecordConverterTest(TestCase):
 
         with TestDir() as test_dir:
             self._test_save_and_load(dataset,
-                partial(TfDetectionApiConverter.convert, save_images=True),
+                partial(TfDetectionApiConverter.convert, save_media=True),
                 test_dir, require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -213,14 +213,14 @@ class TfrecordConverterTest(TestCase):
                 DatasetItem(2, subset='b', image=np.ones((2, 4, 3))),
                 DatasetItem(3, subset='c', image=np.ones((2, 5, 3))),
             ])
-            dataset.export(path, 'tf_detection_api', save_images=True)
+            dataset.export(path, 'tf_detection_api', save_media=True)
             os.unlink(osp.join(path, 'a.tfrecord'))
             os.unlink(osp.join(path, 'b.tfrecord'))
             os.unlink(osp.join(path, 'c.tfrecord'))
 
             dataset.put(DatasetItem(2, subset='a', image=np.ones((3, 2, 3))))
             dataset.remove(3, 'c')
-            dataset.save(save_images=True)
+            dataset.save(save_media=True)
 
             self.assertTrue(osp.isfile(osp.join(path, 'a.tfrecord')))
             self.assertFalse(osp.isfile(osp.join(path, 'b.tfrecord')))

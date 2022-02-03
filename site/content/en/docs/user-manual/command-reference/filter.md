@@ -1,8 +1,7 @@
 ---
 title: 'Filter datasets'
-linkTitle: 'Filter'
+linkTitle: 'filter'
 description: ''
-weight: 12
 ---
 
 This command allows to extract a sub-dataset from a dataset. The new dataset

@@ -1,4 +1,4 @@
-# Copyright (C) 2020 Intel Corporation
+# Copyright (C) 2020-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -11,7 +11,10 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.converter import Converter
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
+from datumaro.components.format_detection import FormatDetectionContext
+from datumaro.components.media import Image
 from datumaro.util.image import find_images
+from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
 
 class LfwPath:
@@ -43,6 +46,10 @@ class LfwExtractor(SourceExtractor):
         self._items = list(self._load_items(path).values())
 
     def _load_categories(self, path):
+        if has_meta_file(self._dataset_dir):
+            return { AnnotationType.label: LabelCategories.
+                from_iterable(parse_meta_file(self._dataset_dir).keys()) }
+
         label_cat = LabelCategories()
         if osp.isfile(path):
             with open(path, encoding='utf-8') as labels_file:
@@ -83,12 +90,17 @@ class LfwExtractor(SourceExtractor):
                     if 1 < len(objects):
                         label_name = objects[0]
                         label = get_label_id(label_name)
-                        if label != None:
+                        if label is not None:
                             annotations.append(Label(label))
                             item_id = item_id[len(label_name) + 1:]
                     if item_id not in items:
+                        image_path = images.get(image)
+                        image = None
+                        if image_path:
+                            image = Image(path=image_path)
+
                         items[item_id] = DatasetItem(id=item_id, subset=self._subset,
-                            image=images.get(image), annotations=annotations)
+                            media=image, annotations=annotations)
                 elif len(pair) == 3:
                     image1, id1 = self.get_image_name(pair[0], pair[1])
                     image2, id2 = self.get_image_name(pair[0], pair[2])
@@ -97,13 +109,25 @@ class LfwExtractor(SourceExtractor):
                     if id1 not in items:
                         annotations = []
                         annotations.append(Label(label))
+
+                        image = None
+                        image_path = images.get(image1)
+                        if image_path:
+                            image = Image(path=image_path)
+
                         items[id1] = DatasetItem(id=id1, subset=self._subset,
-                            image=images.get(image1), annotations=annotations)
+                            media=image, annotations=annotations)
                     if id2 not in items:
                         annotations = []
                         annotations.append(Label(label))
+
+                        image = None
+                        image_path = images.get(image2)
+                        if image_path:
+                            image = Image(path=image_path)
+
                         items[id2] = DatasetItem(id=id2, subset=self._subset,
-                            image=images.get(image2), annotations=annotations)
+                            media=image, annotations=annotations)
 
                     # pairs form a directed graph
                     if not items[id1].annotations[0].attributes.get('positive_pairs'):
@@ -121,15 +145,27 @@ class LfwExtractor(SourceExtractor):
                         annotations = []
                         label = get_label_id(pair[0])
                         annotations.append(Label(label))
+
+                        image = None
+                        image_path = images.get(image1)
+                        if image_path:
+                            image = Image(path=image_path)
+
                         items[id1] = DatasetItem(id=id1, subset=self._subset,
-                            image=images.get(image1), annotations=annotations)
+                            media=image, annotations=annotations)
                     if id2 not in items:
                         annotations = []
                         if pair[2] != '-':
                             label = get_label_id(pair[2])
                             annotations.append(Label(label))
+
+                        image = None
+                        image_path = images.get(image2)
+                        if image_path:
+                            image = Image(path=image_path)
+
                         items[id2] = DatasetItem(id=id2, subset=self._subset,
-                            image=images.get(image2), annotations=annotations)
+                            media=image, annotations=annotations)
 
                     # pairs form a directed graph
                     if not items[id1].annotations[0].attributes.get('negative_pairs'):
@@ -147,7 +183,7 @@ class LfwExtractor(SourceExtractor):
                     if 1 < len(objects):
                         label_name = objects[0]
                         label = get_label_id(label_name)
-                        if label != None:
+                        if label is not None:
                             item_id = item_id[len(label_name) + 1:]
                     if item_id not in items:
                         items[item_id] = DatasetItem(id=item_id, subset=self._subset,
@@ -173,6 +209,11 @@ class LfwExtractor(SourceExtractor):
 
 class LfwImporter(Importer):
     @classmethod
+    def detect(cls, context: FormatDetectionContext) -> None:
+        context.require_file(
+            f'*/{LfwPath.ANNOTATION_DIR}/{LfwPath.PAIRS_FILE}')
+
+    @classmethod
     def find_sources(cls, path):
         base, ext = osp.splitext(LfwPath.PAIRS_FILE)
         return cls._find_sources_recursive(path, ext, 'lfw', filename=base,
@@ -182,6 +223,10 @@ class LfwConverter(Converter):
     DEFAULT_IMAGE_EXT = LfwPath.IMAGE_EXT
 
     def apply(self):
+        os.makedirs(self._save_dir, exist_ok=True)
+        if self._save_dataset_meta:
+            self._save_meta_file(self._save_dir)
+
         for subset_name, subset in self._extractor.subsets().items():
             label_categories = self._extractor.categories()[AnnotationType.label]
             labels = {label.name: 0 for label in label_categories}
@@ -201,13 +246,13 @@ class LfwConverter(Converter):
                     label_name = label_categories[anns[0].label].name
                     labels[label_name] += 1
 
-                if self._save_images and item.has_image:
+                if self._save_media and item.media:
                     subdir=osp.join(subset_name, LfwPath.IMAGES_DIR)
                     if label_name:
                         subdir=osp.join(subdir, label_name)
                     self._save_image(item, subdir=subdir)
 
-                if label != None:
+                if label is not None:
                     person1 = label_name
                     num1 = item.id
                     if num1.startswith(person1):

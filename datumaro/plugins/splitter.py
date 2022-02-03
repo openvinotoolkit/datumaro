@@ -43,25 +43,25 @@ class Split(Transform, CliPlugin):
     In this task, the test set should consist of images of unseen
     people or objects during the training phase. |n
     This function splits a dataset in the following way:|n
-    1. Splits the dataset into 'train + val' and 'test' sets|n
-    |s|sbased on person or object ID.|n
-    2. Splits 'test' set into 'test-gallery' and 'test-query' sets|n
-    |s|sin class-wise manner.|n
-    3. Splits the 'train + val' set into 'train' and 'val' sets|n
-    |s|sin the same way.|n
+    |s|s1. Splits the dataset into 'train + val' and 'test' sets|n
+    |s|s|s|sbased on person or object ID.|n
+    |s|s2. Splits 'test' set into 'test-gallery' and 'test-query' sets|n
+    |s|s|s|sin class-wise manner.|n
+    |s|s3. Splits the 'train + val' set into 'train' and 'val' sets|n
+    |s|s|s|sin the same way.|n
     The final subsets would be
     'train', 'val', 'test-gallery' and 'test-query'. |n
     |n
     Notes:|n
-    - Each image is expected to have only one Annotation. Unlabeled or
-    multi-labeled images will be split into subsets randomly. |n
-    - If Labels also have attributes, also splits by attribute values.|n
-    - If there is not enough images in some class or attributes group,
-    the split ratio can't be guaranteed.|n
-    In reidentification task, |n
-    - Object ID can be described by Label, or by attribute (--attr parameter)|n
-    - The splits of the test set are controlled by '--query' parameter |n
-    |s|sGallery ratio would be 1.0 - query.|n
+    |s|s- Each image is expected to have only one Annotation. Unlabeled or
+    |s|s|s|smulti-labeled images will be split into subsets randomly. |n
+    |s|s- If Labels also have attributes, also splits by attribute values.|n
+    |s|s- If there is not enough images in some class or attributes group,
+    |s|s|s|sthe split ratio can't be guaranteed.|n
+    |s|s|s|sIn reidentification task, |n
+    |s|s- Object ID can be described by Label, or by attribute (--attr parameter)|n
+    |s|s- The splits of the test set are controlled by '--query' parameter |n
+    |s|s|s|sGallery ratio would be 1.0 - query.|n
     |n
     Example:|n
     |s|s%(prog)s -t classification --subset train:.5 --subset val:.2 --subset test:.3 |n
@@ -470,21 +470,21 @@ class _ReidentificationSplit(_TaskSpecificSplit):
     In this task, the test set should consist of images of unseen
     people or objects during the training phase. |n
     This function splits a dataset in the following way:|n
-    1. Splits the dataset into 'train + val' and 'test' sets|n
-    |s|sbased on person or object ID.|n
-    2. Splits 'test' set into 'test-gallery' and 'test-query' sets|n
-    |s|sin class-wise manner.|n
-    3. Splits the 'train + val' set into 'train' and 'val' sets|n
-    |s|sin the same way.|n
+    |s|s1. Splits the dataset into 'train + val' and 'test' sets|n
+    |s|s|s|sbased on person or object ID.|n
+    |s|s2. Splits 'test' set into 'test-gallery' and 'test-query' sets|n
+    |s|s|s|sin class-wise manner.|n
+    |s|s3. Splits the 'train + val' set into 'train' and 'val' sets|n
+    |s|s|s|sin the same way.|n
     The final subsets would be
     'train', 'val', 'test-gallery' and 'test-query'. |n
     |n
     Notes:|n
-    - Each image is expected to have a single Label. Unlabeled or multi-labeled
-      images will be split into 'not-supported'.|n
-    - Object ID can be described by Label, or by attribute (--attr parameter)|n
-    - The splits of the test set are controlled by '--query' parameter. |n
-    |s|sGallery ratio would be 1.0 - query.|n
+    |s|s- Each image is expected to have a single Label. Unlabeled or multi-labeled
+    |s|s  images will be split into 'not-supported'.|n
+    |s|s- Object ID can be described by Label, or by attribute (--attr parameter)|n
+    |s|s- The splits of the test set are controlled by '--query' parameter. |n
+    |s|s|s|sGallery ratio would be 1.0 - query.|n
     |n
     Example: split a dataset in the specified ratio, split the test set|n
     |s|s|s|sinto gallery and query in 1:1 ratio|n
@@ -693,9 +693,9 @@ class _InstanceSpecificSplit(_TaskSpecificSplit):
     to the specified ratio, keeping the initial class distribution.|n
     |n
     Notes:|n
-    - Each image is expected to have one or more annotations.|n
-    - Only bbox annotations are considered in detection task.|n
-    - Mask or Polygon annotations are considered in segmentation task.|n
+    |s|s- Each image is expected to have one or more annotations.|n
+    |s|s- Only bbox annotations are considered in detection task.|n
+    |s|s- Mask or Polygon annotations are considered in segmentation task.|n
     |n
     Example: split dataset so that each object class annotations were split|n
     |s|s|s|sin the specified ratio between subsets|n

@@ -9,6 +9,7 @@ import numpy as np
 
 from datumaro.components.annotation import Bbox, Label, Mask, Polygon
 from datumaro.components.dataset import Dataset, DatasetItem
+from datumaro.components.environment import Environment
 from datumaro.components.errors import (
     AttributeDefinedButNotFound, FarFromAttrMean, FarFromLabelMean,
     FewSamplesInAttribute, FewSamplesInLabel, ImbalancedAttribute,
@@ -17,6 +18,7 @@ from datumaro.components.errors import (
     MissingLabelCategories, MultiLabelAnnotations, NegativeLength,
     OnlyOneAttributeValue, OnlyOneLabel, UndefinedAttribute, UndefinedLabel,
 )
+from datumaro.components.media import Image
 from datumaro.components.validator import TaskType
 from datumaro.plugins.validators import (
     ClassificationValidator, DetectionValidator, SegmentationValidator,
@@ -26,101 +28,121 @@ from datumaro.plugins.validators import (
 from .requirements import Requirements, mark_requirement
 
 
-class TestValidatorTemplate(TestCase):
+class _TestValidatorBase(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.dataset = Dataset.from_iterable([
-            DatasetItem(id=1, image=np.ones((5, 5, 3)), annotations=[
-                Label(1, id=0, attributes={'a': 1, 'b': 7, }),
-                Bbox(1, 2, 3, 4, id=1, label=0, attributes={
-                    'a': 1, 'b': 2,
-                }),
-                Mask(id=2, label=0, attributes={'a': 1, 'b': 2},
-                    image=np.array([[0, 0, 0, 0, 0],
-                                    [0, 0, 1, 1, 1],
-                                    [0, 0, 1, 1, 1],
-                                    [0, 0, 1, 1, 1],
-                                    [0, 0, 1, 1, 1],
-                ])),
-            ]),
-            DatasetItem(id=2, image=np.ones((2, 4, 3)), annotations=[
-                Label(2, id=0, attributes={'a': 2, 'b': 2, }),
-                Bbox(2, 3, 1, 4, id=1, label=0, attributes={
-                    'a': 1, 'b': 1,
-                }),
-                Mask(id=2, label=0, attributes={'a': 1, 'b': 1},
-                     image=np.array([[1, 1, 1, 1], [0, 0, 0, 0]])
-                ),
-            ]),
+            DatasetItem(id=1, media=Image(data=np.ones((5, 5, 3))),
+                annotations=[
+                    Label(1, id=0, attributes={'a': 1, 'b': 7, }),
+                    Bbox(1, 2, 3, 4, id=1, label=0, attributes={
+                        'a': 1, 'b': 2,
+                    }),
+                    Mask(id=2, label=0, attributes={'a': 1, 'b': 2},
+                        image=np.array([[0, 0, 0, 0, 0],
+                                        [0, 0, 1, 1, 1],
+                                        [0, 0, 1, 1, 1],
+                                        [0, 0, 1, 1, 1],
+                                        [0, 0, 1, 1, 1],
+                    ])),
+                ]
+            ),
+            DatasetItem(id=2, media=Image(data=np.ones((2, 4, 3))),
+                annotations=[
+                    Label(2, id=0, attributes={'a': 2, 'b': 2, }),
+                    Bbox(2, 3, 1, 4, id=1, label=0, attributes={
+                        'a': 1, 'b': 1,
+                    }),
+                    Mask(id=2, label=0, attributes={'a': 1, 'b': 1},
+                        image=np.array([[1, 1, 1, 1], [0, 0, 0, 0]])
+                    ),
+                ]
+            ),
             DatasetItem(id=3),
-            DatasetItem(id=4, image=np.ones((2, 4, 3)), annotations=[
-                Label(0, id=0, attributes={'b': 4, }),
-                Label(1, id=1, attributes={'a': 11, 'b': 7, }),
-                Bbox(1, 3, 2, 4, id=2, label=0, attributes={
-                    'a': 2, 'b': 1,
-                }),
-                Bbox(3, 1, 4, 2, id=3, label=0, attributes={
-                    'a': 2, 'b': 2,
-                }),
-                Polygon([1, 3, 1, 5, 5, 5, 5, 3], label=0, id=4,
-                        attributes={'a': 2, 'b': 2,
-                }),
-                Polygon([3, 1, 3, 5, 5, 5, 5, 1], label=1, id=5,
-                        attributes={'a': 2, 'b': 1,
-                }),
-            ]),
-            DatasetItem(id=5, image=np.ones((2, 4, 3)), annotations=[
-                Label(0, id=0, attributes={'a': 20, 'b': 10, }),
-                Bbox(1, 2, 3, 4, id=1, label=1, attributes={
-                    'a': 1, 'b': 1,
-                }),
-                Polygon([1, 2, 1, 5, 5, 5, 5, 2], label=1, id=2,
-                        attributes={'a': 1, 'b': 1,
-                }),
-            ]),
-            DatasetItem(id=6, image=np.ones((2, 4, 3)), annotations=[
-                Label(1, id=0, attributes={'a': 11, 'b': 2, 'c': 3, }),
-                Bbox(2, 3, 4, 1, id=1, label=1, attributes={
-                    'a': 2, 'b': 2,
-                }),
-                Mask(id=2, label=1, attributes={'a': 2, 'b': 2},
-                    image=np.array([[1, 0, 0],
-                                    [1, 0, 0],
-                                    [1, 0, 0],
-                                    [1, 0, 0],
-                ])),
-            ]),
-            DatasetItem(id=7, image=np.ones((2, 4, 3)), annotations=[
-                Label(1, id=0, attributes={'a': 1, 'b': 2, 'c': 5, }),
-                Bbox(1, 2, 3, 4, id=1, label=2, attributes={
-                    'a': 1, 'b': 2,
-                }),
-                Polygon([1, 2, 1, 5, 5, 5, 5, 2], label=2, id=2,
-                    attributes={'a': 1, 'b': 2,
-                }),
-            ]),
-            DatasetItem(id=8, image=np.ones((2, 4, 3)), annotations=[
-                Label(2, id=0, attributes={'a': 7, 'b': 9, 'c': 5, }),
-                Bbox(2, 1, 3, 4, id=1, label=2, attributes={
-                    'a': 2, 'b': 1,
-                }),
-                Mask(id=2, label=2, attributes={'a': 2, 'b': 1},
-                    image=np.array([[1, 1, 1],
-                                    [1, 1, 1],
-                                    [1, 1, 1],
-                                    [1, 1, 1],
-                ])),
-            ]),
+            DatasetItem(id=4, media=Image(data=np.ones((2, 4, 3))),
+                annotations=[
+                    Label(0, id=0, attributes={'b': 4, }),
+                    Label(1, id=1, attributes={'a': 11, 'b': 7, }),
+                    Bbox(1, 3, 2, 4, id=2, label=0, attributes={
+                        'a': 2, 'b': 1,
+                    }),
+                    Bbox(3, 1, 4, 2, id=3, label=0, attributes={
+                        'a': 2, 'b': 2,
+                    }),
+                    Polygon([1, 3, 1, 5, 5, 5, 5, 3], label=0, id=4,
+                            attributes={'a': 2, 'b': 2,
+                    }),
+                    Polygon([3, 1, 3, 5, 5, 5, 5, 1], label=1, id=5,
+                            attributes={'a': 2, 'b': 1,
+                    }),
+                ]
+            ),
+            DatasetItem(id=5, media=Image(data=np.ones((2, 4, 3))),
+                annotations=[
+                    Label(0, id=0, attributes={'a': 20, 'b': 10, }),
+                    Bbox(1, 2, 3, 4, id=1, label=1, attributes={
+                        'a': 1, 'b': 1,
+                    }),
+                    Polygon([1, 2, 1, 5, 5, 5, 5, 2], label=1, id=2,
+                            attributes={'a': 1, 'b': 1,
+                    }),
+                ]
+            ),
+            DatasetItem(id=6, media=Image(data=np.ones((2, 4, 3))),
+                annotations=[
+                    Label(1, id=0, attributes={'a': 11, 'b': 2, 'c': 3, }),
+                    Bbox(2, 3, 4, 1, id=1, label=1, attributes={
+                        'a': 2, 'b': 2,
+                    }),
+                    Mask(id=2, label=1, attributes={'a': 2, 'b': 2},
+                        image=np.array([[1, 0, 0],
+                                        [1, 0, 0],
+                                        [1, 0, 0],
+                                        [1, 0, 0],
+                    ])),
+                ]
+            ),
+            DatasetItem(id=7, media=Image(data=np.ones((2, 4, 3))),
+                annotations=[
+                    Label(1, id=0, attributes={'a': 1, 'b': 2, 'c': 5, }),
+                    Bbox(1, 2, 3, 4, id=1, label=2, attributes={
+                        'a': 1, 'b': 2,
+                    }),
+                    Polygon([1, 2, 1, 5, 5, 5, 5, 2], label=2, id=2,
+                        attributes={'a': 1, 'b': 2,
+                    }),
+                ]
+            ),
+            DatasetItem(id=8, media=Image(data=np.ones((2, 4, 3))),
+                annotations=[
+                    Label(2, id=0, attributes={'a': 7, 'b': 9, 'c': 5, }),
+                    Bbox(2, 1, 3, 4, id=1, label=2, attributes={
+                        'a': 2, 'b': 1,
+                    }),
+                    Mask(id=2, label=2, attributes={'a': 2, 'b': 1},
+                        image=np.array([[1, 1, 1],
+                                        [1, 1, 1],
+                                        [1, 1, 1],
+                                        [1, 1, 1],
+                    ])),
+                ]
+            ),
         ], categories=[[f'label_{i}', None, {'a', 'b', }]
             for i in range(2)])
 
 
-class TestBaseValidator(TestValidatorTemplate):
+class TestBaseValidator(_TestValidatorBase):
     @classmethod
     def setUpClass(cls):
         cls.validator = _TaskValidator(task_type=TaskType.classification,
             few_samples_thr=1, imbalance_ratio_thr=50, far_from_mean_thr=5.0,
             dominance_ratio_thr=0.8, topk_bins=0.1)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_has_enum_entries_in_environment(self):
+        env = Environment()
+        for key in TaskType.__members__:
+            self.assertIn(key, env.validators.items)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_generate_reports(self):
@@ -367,7 +389,7 @@ class TestBaseValidator(TestValidatorTemplate):
             self.assertTrue(len(actual_reports) == 0)
 
 
-class TestClassificationValidator(TestValidatorTemplate):
+class TestClassificationValidator(_TestValidatorBase):
     @classmethod
     def setUpClass(cls):
         cls.validator = ClassificationValidator(few_samples_thr=1,
@@ -397,7 +419,7 @@ class TestClassificationValidator(TestValidatorTemplate):
         self.assertIsInstance(actual_reports[0], MultiLabelAnnotations)
 
 
-class TestDetectionValidator(TestValidatorTemplate):
+class TestDetectionValidator(_TestValidatorBase):
     @classmethod
     def setUpClass(cls):
         cls.validator = DetectionValidator(few_samples_thr=1,
@@ -564,7 +586,7 @@ class TestDetectionValidator(TestValidatorTemplate):
         self.assertIsInstance(actual_reports[0], FarFromAttrMean)
 
 
-class TestSegmentationValidator(TestValidatorTemplate):
+class TestSegmentationValidator(_TestValidatorBase):
     @classmethod
     def setUpClass(cls):
         cls.validator = SegmentationValidator(few_samples_thr=1,
@@ -714,7 +736,7 @@ class TestSegmentationValidator(TestValidatorTemplate):
         self.assertIsInstance(actual_reports[0], FarFromAttrMean)
 
 
-class TestValidateAnnotations(TestValidatorTemplate):
+class TestValidateAnnotations(_TestValidatorBase):
 
     extra_args = {
             'few_samples_thr': 1,

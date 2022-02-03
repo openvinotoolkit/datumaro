@@ -151,6 +151,7 @@ Open Images dataset directory should have the following structure:
 
 ```
 └─ Dataset/
+    ├── dataset_meta.json # a list of custom labels (optional)
     ├── annotations/
     │   └── bbox_labels_600_hierarchy.json
     │   └── image_ids_and_rotation.csv  # optional
@@ -191,6 +192,8 @@ The mask images must be extracted from the ZIP archives linked above.
 To use per-subset image description files instead of `image_ids_and_rotation.csv`,
 place them in the `annotations` subdirectory.
 
+To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats/#dataset-meta-file).
+
 ### Creating an image metadata file
 
 To load bounding box and segmentation mask annotations,
@@ -206,7 +209,7 @@ and record it in an image metadata file.
 This file must be placed at `annotations/images.meta`,
 and must contain one line per image, with the following structure:
 
-```
+``` bash
 <ID> <height> <width>
 ```
 
@@ -238,7 +241,9 @@ There are several ways to convert OID to other dataset formats:
 datum create
 datum import -f open_images <path/to/open_images>
 datum export -f cvat -o <output/dir>
-# or
+```
+or
+``` bash
 datum convert -if open_images -i <path/to/open_images> -f cvat -o <output/dir>
 ```
 
@@ -248,7 +253,7 @@ Or, using Python API:
 from datumaro.components.dataset import Dataset
 
 dataset = Dataset.import_from('<path/to/dataset>', 'open_images')
-dataset.export('save_dir', 'cvat', save_images=True)
+dataset.export('save_dir', 'cvat', save_media=True)
 ```
 
 ## Export to Open Images
@@ -258,20 +263,23 @@ There are several ways to convert an existing dataset to the Open Images format:
 ``` bash
 # export dataset into Open Images format from existing project
 datum export -p <path/to/project> -f open_images -o <output/dir> \
-  -- --save_images
-
+  -- --save_media
+```
+``` bash
 # convert a dataset in another format to the Open Images format
 datum convert -if imagenet -i <path/to/dataset> \
     -f open_images -o <output/dir> \
-    -- --save-images
+    -- --save-media
 ```
 
 Extra options for exporting to the Open Images format:
-- `--save-images` - save image files when exporting the dataset
+- `--save-media` - save media files when exporting the dataset
   (by default, `False`)
 - `--image-ext IMAGE_EXT` - save image files with the specified extension
   when exporting the dataset (by default, uses the original extension
   or `.jpg` if there isn't one)
+- `--save-dataset-meta` - allow to export dataset with saving dataset meta
+  file (by default `False`)
 
 ## Examples
 
@@ -289,7 +297,7 @@ particular problems with the Open Images dataset:
 datum create -o project
 datum import -p project -f open_images ./open-images-dataset/
 datum stats -p project
-datum export -p project -f cvat -- --save-images
+datum export -p project -f cvat -- --save-media
 ```
 
 ### Example 2. Create a custom OID-like dataset

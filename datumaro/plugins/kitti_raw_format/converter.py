@@ -369,7 +369,7 @@ class KittiRawConverter(Converter):
                     "state": PoseStates.LABELED.value,
                     "occlusion": occlusion.value,
                     "occlusion_kf": \
-                        int(ann.attributes.get("keyframe", False) == True),
+                        int(ann.attributes.get("keyframe", False) is True),
                     "truncation": truncation.value,
                     "amt_occlusion": -1,
                     "amt_border_l": -1,
@@ -414,16 +414,17 @@ class KittiRawConverter(Converter):
         if not self._reindex:
             index = cast(item.attributes.get('frame'), int, index)
 
-        if self._save_images:
-            if item.has_point_cloud:
+        if self._save_media:
+            if item.media:
                 self._save_point_cloud(item, subdir=KittiRawPath.PCD_DIR)
 
-            images = sorted(item.related_images, key=lambda img: img.path)
-            for i, image in enumerate(images):
-                if image.has_data:
-                    image.save(osp.join(self._save_dir,
-                        KittiRawPath.IMG_DIR_PREFIX + ('%02d' % i), 'data',
-                        item.id + self._find_image_ext(image)))
+            if item.media:
+                images = sorted(item.media.extra_images, key=lambda img: img.path)
+                for i, image in enumerate(images):
+                    if image.has_data:
+                        image.save(osp.join(self._save_dir,
+                            KittiRawPath.IMG_DIR_PREFIX + ('%02d' % i), 'data',
+                            item.id + self._find_image_ext(image)))
 
         else:
             log.debug("Item '%s' has no image info", item.id)
@@ -432,6 +433,9 @@ class KittiRawConverter(Converter):
 
     def apply(self):
         os.makedirs(self._save_dir, exist_ok=True)
+
+        if self._save_dataset_meta:
+            self._save_meta_file(self._save_dir)
 
         if 1 < len(self._extractor.subsets()):
             log.warning("Kitti RAW format supports only a single "
@@ -455,7 +459,7 @@ class KittiRawConverter(Converter):
             else:
                 item = DatasetItem(item_id, subset=subset)
 
-            if not (status == ItemStatus.removed or not item.has_point_cloud):
+            if not (status == ItemStatus.removed or not item.media):
                 continue
 
             pcd_path = osp.join(pcd_dir, conv._make_pcd_filename(item))

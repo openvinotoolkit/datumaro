@@ -8,12 +8,13 @@ from datumaro.components.annotation import (
     PointsCategories, Polygon, PolyLine,
 )
 from datumaro.components.extractor import DatasetItem
+from datumaro.components.media import Image
 from datumaro.components.project import Dataset
 from datumaro.util.test_utils import compare_datasets
 import datumaro.plugins.transforms as transforms
 import datumaro.util.mask_tools as mask_tools
 
-from .requirements import Requirements, mark_requirement
+from .requirements import Requirements, mark_bug, mark_requirement
 
 
 class TransformsTest(TestCase):
@@ -37,23 +38,27 @@ class TransformsTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_mask_to_polygons(self):
         source = Dataset.from_iterable([
-            DatasetItem(id=1, image=np.zeros((5, 10, 3)), annotations=[
-                Mask(np.array([
-                        [0, 1, 1, 1, 0, 1, 1, 1, 1, 0],
-                        [0, 0, 1, 1, 0, 1, 1, 1, 0, 0],
-                        [0, 0, 0, 1, 0, 1, 1, 0, 0, 0],
-                        [0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
-                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    ]),
-                ),
-            ]),
+            DatasetItem(id=1, media=Image(data=np.zeros((5, 10, 3))),
+                annotations=[
+                    Mask(np.array([
+                            [0, 1, 1, 1, 0, 1, 1, 1, 1, 0],
+                            [0, 0, 1, 1, 0, 1, 1, 1, 0, 0],
+                            [0, 0, 0, 1, 0, 1, 1, 0, 0, 0],
+                            [0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+                            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        ]),
+                    ),
+                ]
+            ),
         ])
 
         expected = Dataset.from_iterable([
-            DatasetItem(id=1, image=np.zeros((5, 10, 3)), annotations=[
-                Polygon([1, 0, 3, 2, 3, 0, 1, 0]),
-                Polygon([5, 0, 5, 3, 8, 0, 5, 0]),
-            ]),
+            DatasetItem(id=1, media=Image(data=np.zeros((5, 10, 3))),
+                annotations=[
+                    Polygon([1, 0, 3, 2, 3, 0, 1, 0]),
+                    Polygon([5, 0, 5, 3, 8, 0, 5, 0]),
+                ]
+            ),
         ])
 
         actual = transforms.MasksToPolygons(source)
@@ -62,18 +67,20 @@ class TransformsTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_mask_to_polygons_small_polygons_message(self):
         source_dataset = Dataset.from_iterable([
-            DatasetItem(id=1, image=np.zeros((5, 10, 3)), annotations=[
-                Mask(np.array([
-                        [0, 0, 0],
-                        [0, 1, 0],
-                        [0, 0, 0],
-                    ]),
-                ),
-            ]),
+            DatasetItem(id=1, media=Image(data=np.zeros((5, 10, 3))),
+                annotations=[
+                    Mask(np.array([
+                            [0, 0, 0],
+                            [0, 1, 0],
+                            [0, 0, 0],
+                        ]),
+                    ),
+                ]
+            ),
         ])
 
         target_dataset = Dataset.from_iterable([
-            DatasetItem(id=1, image=np.zeros((5, 10, 3))), ])
+            DatasetItem(id=1, media=Image(data=np.zeros((5, 10, 3)))), ])
 
         with self.assertLogs(level=log.DEBUG) as logs:
             actual = transforms.MasksToPolygons(source_dataset)
@@ -84,31 +91,35 @@ class TransformsTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_polygons_to_masks(self):
         source_dataset = Dataset.from_iterable([
-            DatasetItem(id=1, image=np.zeros((5, 10, 3)), annotations=[
-                Polygon([0, 0, 4, 0, 4, 4]),
-                Polygon([5, 0, 9, 0, 5, 5]),
-            ]),
+            DatasetItem(id=1, media=Image(data=np.zeros((5, 10, 3))),
+                annotations=[
+                    Polygon([0, 0, 4, 0, 4, 4]),
+                    Polygon([5, 0, 9, 0, 5, 5]),
+                ]
+            ),
         ])
 
         target_dataset = Dataset.from_iterable([
-            DatasetItem(id=1, image=np.zeros((5, 10, 3)), annotations=[
-                Mask(np.array([
-                        [0, 0, 0, 0, 0, 1, 1, 1, 1, 0],
-                        [0, 0, 0, 0, 0, 1, 1, 1, 0, 0],
-                        [0, 0, 0, 0, 0, 1, 1, 0, 0, 0],
-                        [0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
-                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    ]),
-                ),
-                Mask(np.array([
-                        [0, 1, 1, 1, 0, 0, 0, 0, 0, 0],
-                        [0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
-                        [0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
-                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    ]),
-                ),
-            ]),
+            DatasetItem(id=1, media=Image(data=np.zeros((5, 10, 3))),
+                annotations=[
+                    Mask(np.array([
+                            [0, 0, 0, 0, 0, 1, 1, 1, 1, 0],
+                            [0, 0, 0, 0, 0, 1, 1, 1, 0, 0],
+                            [0, 0, 0, 0, 0, 1, 1, 0, 0, 0],
+                            [0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+                            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        ]),
+                    ),
+                    Mask(np.array([
+                            [0, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+                            [0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
+                            [0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+                            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        ]),
+                    ),
+                ]
+            ),
         ])
 
         actual = transforms.PolygonsToMasks(source_dataset)
@@ -117,30 +128,34 @@ class TransformsTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_crop_covered_segments(self):
         source_dataset = Dataset.from_iterable([
-            DatasetItem(id=1, image=np.zeros((5, 5, 3)), annotations=[
-                # The mask is partially covered by the polygon
-                Mask(np.array([
-                        [0, 0, 1, 1, 1],
-                        [0, 0, 1, 1, 1],
-                        [1, 1, 1, 1, 1],
-                        [1, 1, 1, 0, 0],
-                        [1, 1, 1, 0, 0]],
-                    ), z_order=0),
-                Polygon([1, 1, 4, 1, 4, 4, 1, 4], z_order=1),
-            ]),
+            DatasetItem(id=1, media=Image(data=np.zeros((5, 5, 3))),
+                annotations=[
+                    # The mask is partially covered by the polygon
+                    Mask(np.array([
+                            [0, 0, 1, 1, 1],
+                            [0, 0, 1, 1, 1],
+                            [1, 1, 1, 1, 1],
+                            [1, 1, 1, 0, 0],
+                            [1, 1, 1, 0, 0]],
+                        ), z_order=0),
+                    Polygon([1, 1, 4, 1, 4, 4, 1, 4], z_order=1),
+                ]
+            ),
         ])
 
         target_dataset = Dataset.from_iterable([
-            DatasetItem(id=1, image=np.zeros((5, 5, 3)), annotations=[
-                Mask(np.array([
-                        [0, 0, 1, 1, 1],
-                        [0, 0, 0, 0, 1],
-                        [1, 0, 0, 0, 1],
-                        [1, 0, 0, 0, 0],
-                        [1, 1, 1, 0, 0]],
-                    ), z_order=0),
-                Polygon([1, 1, 4, 1, 4, 4, 1, 4], z_order=1),
-            ]),
+            DatasetItem(id=1, media=Image(data=np.zeros((5, 5, 3))),
+                annotations=[
+                    Mask(np.array([
+                            [0, 0, 1, 1, 1],
+                            [0, 0, 0, 0, 1],
+                            [1, 0, 0, 0, 1],
+                            [1, 0, 0, 0, 0],
+                            [1, 1, 1, 0, 0]],
+                        ), z_order=0),
+                    Polygon([1, 1, 4, 1, 4, 4, 1, 4], z_order=1),
+                ]
+            ),
         ])
 
         actual = transforms.CropCoveredSegments(source_dataset)
@@ -149,7 +164,7 @@ class TransformsTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_merge_instance_segments(self):
         source_dataset = Dataset.from_iterable([
-            DatasetItem(id=1, image=np.zeros((5, 5, 3)),
+            DatasetItem(id=1, media=Image(data=np.zeros((5, 5, 3))),
                 annotations=[
                     Mask(np.array([
                             [0, 0, 1, 1, 1],
@@ -168,7 +183,7 @@ class TransformsTest(TestCase):
         ])
 
         target_dataset = Dataset.from_iterable([
-            DatasetItem(id=1, image=np.zeros((5, 5, 3)),
+            DatasetItem(id=1, media=Image(data=np.zeros((5, 5, 3))),
                 annotations=[
                     Mask(np.array([
                             [0, 0, 1, 1, 1],
@@ -215,7 +230,7 @@ class TransformsTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_shapes_to_boxes(self):
         source_dataset = Dataset.from_iterable([
-            DatasetItem(id=1, image=np.zeros((5, 5, 3)),
+            DatasetItem(id=1, media=Image(data=np.zeros((5, 5, 3))),
                 annotations=[
                     Mask(np.array([
                             [0, 0, 1, 1, 1],
@@ -232,7 +247,7 @@ class TransformsTest(TestCase):
         ])
 
         target_dataset = Dataset.from_iterable([
-            DatasetItem(id=1, image=np.zeros((5, 5, 3)),
+            DatasetItem(id=1, media=Image(data=np.zeros((5, 5, 3))),
                 annotations=[
                     Bbox(0, 0, 4, 4, id=1),
                     Bbox(1, 1, 3, 3, id=2),
@@ -248,11 +263,11 @@ class TransformsTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_id_from_image(self):
         source_dataset = Dataset.from_iterable([
-            DatasetItem(id=1, image='path.jpg'),
+            DatasetItem(id=1, media=Image(path='path.jpg')),
             DatasetItem(id=2),
         ])
         target_dataset = Dataset.from_iterable([
-            DatasetItem(id='path', image='path.jpg'),
+            DatasetItem(id='path', media=Image(path='path.jpg')),
             DatasetItem(id=2),
         ])
 
@@ -262,7 +277,7 @@ class TransformsTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_boxes_to_masks(self):
         source_dataset = Dataset.from_iterable([
-            DatasetItem(id=1, image=np.zeros((5, 5, 3)),
+            DatasetItem(id=1, media=Image(data=np.zeros((5, 5, 3))),
                 annotations=[
                     Bbox(0, 0, 3, 3, z_order=1),
                     Bbox(0, 0, 3, 1, z_order=2),
@@ -272,7 +287,7 @@ class TransformsTest(TestCase):
         ])
 
         target_dataset = Dataset.from_iterable([
-            DatasetItem(id=1, image=np.zeros((5, 5, 3)),
+            DatasetItem(id=1, media=Image(data=np.zeros((5, 5, 3))),
                 annotations=[
                     Mask(np.array([
                             [1, 1, 1, 0, 0],
@@ -566,3 +581,64 @@ class TransformsTest(TestCase):
         actual = transforms.BboxValuesDecrement(src_dataset)
 
         compare_datasets(self, dst_dataset, actual)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @mark_bug(Requirements.DATUM_BUG_618)
+    def test_can_resize(self):
+        small_dataset = Dataset.from_iterable([
+            DatasetItem(id=i, media=Image(data=np.ones((4, 4)) * i), annotations=[
+                Label(1),
+                Bbox(1, 1, 2, 2, label=2),
+                Polygon([1, 1, 1, 2, 2, 2, 2, 1], label=1),
+                PolyLine([1, 1, 1, 2, 2, 2, 2, 1], label=2),
+                Points([1, 1, 1, 2, 2, 2, 2, 1], label=2),
+                Mask(np.array([
+                    [0, 0, 1, 1],
+                    [1, 0, 0, 1],
+                    [0, 1, 1, 0],
+                    [1, 1, 0, 0],
+                ]))
+            ]) for i in range(3)
+        ], categories=['a', 'b', 'c'])
+
+        big_dataset = Dataset.from_iterable([
+            DatasetItem(id=i, media=Image(data=np.ones((8, 8)) * i), annotations=[
+                Label(1),
+                Bbox(2, 2, 4, 4, label=2),
+                Polygon([2, 2, 2, 4, 4, 4, 4, 2], label=1),
+                PolyLine([2, 2, 2, 4, 4, 4, 4, 2], label=2),
+                Points([2, 2, 2, 4, 4, 4, 4, 2], label=2),
+                Mask(np.array([
+                    [0, 0, 0, 0, 1, 1, 1, 1],
+                    [0, 0, 0, 0, 1, 1, 1, 1],
+                    [1, 1, 0, 0, 0, 0, 1, 1],
+                    [1, 1, 0, 0, 0, 0, 1, 1],
+                    [0, 0, 1, 1, 1, 1, 0, 0],
+                    [0, 0, 1, 1, 1, 1, 0, 0],
+                    [1, 1, 1, 1, 0, 0, 0, 0],
+                    [1, 1, 1, 1, 0, 0, 0, 0],
+                ]))
+            ]) for i in range(3)
+        ], categories=['a', 'b', 'c'])
+
+        with self.subTest('upscale'):
+            actual = transforms.ResizeTransform(small_dataset, width=8, height=8)
+            compare_datasets(self, big_dataset, actual)
+
+        with self.subTest('downscale'):
+            actual = transforms.ResizeTransform(big_dataset, width=4, height=4)
+            compare_datasets(self, small_dataset, actual)
+
+    @mark_bug(Requirements.DATUM_BUG_606)
+    def test_can_keep_image_ext_on_resize(self):
+        expected = Image(np.ones((8, 4)), ext='jpg')
+
+        dataset = Dataset.from_iterable([
+            DatasetItem(id=1, media=Image(np.ones((4, 2)), ext='jpg'))
+        ])
+
+        dataset.transform('resize', width=4, height=8)
+
+        actual = dataset.get('1').media
+        self.assertEqual(actual.ext, expected.ext)
+        self.assertTrue(np.array_equal(actual.data, expected.data))

@@ -1,16 +1,19 @@
-# Copyright (C) 2019-2021 Intel Corporation
+# Copyright (C) 2019-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
+from __future__ import annotations
+
 from glob import iglob
 from typing import (
-    Any, Callable, Dict, Iterable, List, Optional, Type, TypeVar, Union, cast,
+    Any, Callable, Dict, Iterable, Iterator, List, Optional, Type, TypeVar,
+    Union, cast,
 )
 import os
 import os.path as osp
 import warnings
 
-from attr import attrib, attrs
+from attr import attrib, attrs, field
 import attr
 import numpy as np
 
@@ -48,7 +51,7 @@ T = TypeVar('T', bound=MediaElement)
 
 @attrs(order=False, init=False)
 class DatasetItem:
-    id: str = attrib(converter=lambda x: str(x).replace('\\', '/'),
+    id: str = field(converter=lambda x: str(x).replace('\\', '/'),
         validator=not_empty)
 
     subset: str = attrib(converter=lambda v: v or DEFAULT_SUBSET_NAME,
@@ -61,7 +64,7 @@ class DatasetItem:
     annotations: List[Annotation] = attrib(
         factory=list, validator=default_if_none(list))
 
-    attributes: Dict[str, Any] = attrib(
+    attributes: Dict[str, Any] = field(
         factory=dict, validator=default_if_none(dict))
 
     def wrap(item, **kwargs):
@@ -153,7 +156,7 @@ class DatasetItem:
 CategoriesInfo = Dict[AnnotationType, Categories]
 
 class IExtractor:
-    def __iter__(self) -> Iterable[DatasetItem]:
+    def __iter__(self) -> Iterator[DatasetItem]:
         raise NotImplementedError()
 
     def __len__(self) -> int:
@@ -162,10 +165,10 @@ class IExtractor:
     def __bool__(self): # avoid __len__ use for truth checking
         return True
 
-    def subsets(self) -> Dict[str, 'IExtractor']:
+    def subsets(self) -> Dict[str, IExtractor]:
         raise NotImplementedError()
 
-    def get_subset(self, name) -> 'IExtractor':
+    def get_subset(self, name) -> IExtractor:
         raise NotImplementedError()
 
     def categories(self) -> CategoriesInfo:
@@ -174,7 +177,7 @@ class IExtractor:
     def get(self, id, subset=None) -> Optional[DatasetItem]:
         raise NotImplementedError()
 
-class ExtractorBase(IExtractor):
+class _ExtractorBase(IExtractor):
     def __init__(self, length=None, subsets=None):
         self._length = length
         self._subsets = subsets
@@ -220,7 +223,7 @@ class ExtractorBase(IExtractor):
         return method(self, *args, **kwargs)
 
     def select(self, pred):
-        class _DatasetFilter(ExtractorBase):
+        class _DatasetFilter(_ExtractorBase):
             def __iter__(_):
                 return filter(pred, iter(self))
             def categories(_):
@@ -238,7 +241,7 @@ class ExtractorBase(IExtractor):
                 return item
         return None
 
-class Extractor(ExtractorBase, CliPlugin):
+class Extractor(_ExtractorBase, CliPlugin):
     """
     A base class for user-defined and built-in extractors.
     Should be used in cases, where SourceExtractor is not enough,
@@ -318,15 +321,15 @@ class Importer(CliPlugin):
         Supposed to be used, and to be the only call in subclasses.
 
         Parameters:
-        - path - a directory or file path, where sources need to be found.
-        - ext - file extension to match. To match directories,
-            set this parameter to None or ''. Comparison is case-independent,
-            a starting dot is not required.
-        - extractor_name - the name of the associated Extractor type
-        - filename - a glob pattern for file names
-        - dirname - a glob pattern for filename prefixes
-        - file_filter - a callable (abspath: str) -> bool, to filter paths found
-        - max_depth - the maximum depth for recursive search.
+            path: a directory or file path, where sources need to be found.
+            ext: file extension to match. To match directories,
+                set this parameter to None or ''. Comparison is case-independent,
+                a starting dot is not required.
+            extractor_name: the name of the associated Extractor type
+            filename: a glob pattern for file names
+            dirname: a glob pattern for filename prefixes
+            file_filter: a callable (abspath: str) -> bool, to filter paths found
+            max_depth: the maximum depth for recursive search.
 
         Returns: a list of source configurations
             (i.e. Extractor type names and c-tor parameters)
@@ -353,7 +356,7 @@ class Importer(CliPlugin):
                     break
         return sources
 
-class Transform(ExtractorBase, CliPlugin):
+class Transform(_ExtractorBase, CliPlugin):
     """
     A base class for dataset transformations that change dataset items
     or their annotations.

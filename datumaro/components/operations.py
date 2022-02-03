@@ -4,7 +4,7 @@
 
 from collections import OrderedDict
 from copy import deepcopy
-from typing import Callable, Optional
+from typing import Callable, Dict, Iterable, List, Optional, Set, Tuple
 from unittest import TestCase
 import hashlib
 import logging as log
@@ -15,7 +15,7 @@ import cv2
 import numpy as np
 
 from datumaro.components.annotation import (
-    AnnotationType, Bbox, Label, LabelCategories, MaskCategories,
+    Annotation, AnnotationType, Bbox, Label, LabelCategories, MaskCategories,
     PointsCategories,
 )
 from datumaro.components.cli_plugin import CliPlugin
@@ -25,17 +25,15 @@ from datumaro.components.errors import (
     FailedAttrVotingError, FailedLabelVotingError, MismatchingImageInfoError,
     NoMatchingAnnError, NoMatchingItemError, WrongGroupError,
 )
-from datumaro.components.extractor import CategoriesInfo
+from datumaro.components.extractor import CategoriesInfo, DatasetItem
+from datumaro.components.media import Image
 from datumaro.util import filter_dict, find
 from datumaro.util.annotation_util import (
-    OKS, bbox_iou, find_instances, max_bbox, mean_bbox, segment_iou,
-    smooth_line,
+    OKS, approximate_line, bbox_iou, find_instances, max_bbox, mean_bbox,
+    segment_iou,
 )
 from datumaro.util.attrs_util import default_if_none, ensure_cls
 
-
-def get_ann_type(anns, t):
-    return [a for a in anns if a.type == t]
 
 def match_annotations_equal(a, b):
     matches = []
@@ -86,8 +84,19 @@ class MergingStrategy(CliPlugin):
         raise NotImplementedError()
 
 class ExactMerge:
+    """
+    Merges several datasets using the "simple" algorithm:
+    - items are matched by (id, subset) pairs
+    - matching items share the media info available:
+        - nothing + nothing = nothing
+        - nothing + something = something
+        - something A + something B = conflict
+    - annotations are matched by value and shared
+    - in case of conflicts, throws an error
+    """
+
     @classmethod
-    def merge(cls, *sources):
+    def merge(cls, *sources: IDataset) -> DatasetItemStorage:
         items = DatasetItemStorage()
         for source_idx, source in enumerate(sources):
             for item in source:
@@ -103,47 +112,51 @@ class ExactMerge:
         return items
 
     @classmethod
-    def merge_items(cls, existing_item, current_item):
+    def merge_items(cls, existing_item: DatasetItem,
+            current_item: DatasetItem) -> DatasetItem:
         return existing_item.wrap(
             image=cls.merge_images(existing_item, current_item),
             annotations=cls.merge_anno(
                 existing_item.annotations, current_item.annotations))
 
     @staticmethod
-    def merge_images(existing_item, current_item):
+    def merge_images(existing_item: DatasetItem,
+            current_item: DatasetItem) -> Image:
+
         image = None
-        if existing_item.has_image and current_item.has_image:
-            if existing_item.image.has_data:
-                image = existing_item.image
+        if existing_item.media and current_item.media:
+            if existing_item.media.has_data:
+                image = existing_item.media
             else:
-                image = current_item.image
+                image = current_item.media
 
-            if existing_item.image.path != current_item.image.path:
-                if not existing_item.image.path:
-                    image._path = current_item.image.path
+            if existing_item.media.path != current_item.media.path:
+                if not existing_item.media.path:
+                    image._path = current_item.media.path
 
-            if all([existing_item.image._size, current_item.image._size]):
-                if existing_item.image._size != current_item.image._size:
+            if all([existing_item.media._size, current_item.media._size]):
+                if existing_item.media._size != current_item.media._size:
                     raise MismatchingImageInfoError(
                         (existing_item.id, existing_item.subset),
-                        existing_item.image._size, current_item.image._size)
-            elif existing_item.image._size:
-                image._size = existing_item.image._size
+                        existing_item.media._size, current_item.media._size)
+            elif existing_item.media._size:
+                image._size = existing_item.media._size
             else:
-                image._size = current_item.image._size
-        elif existing_item.has_image:
-            image = existing_item.image
+                image._size = current_item.media._size
+        elif existing_item.media:
+            image = existing_item.media
         else:
-            image = current_item.image
+            image = current_item.media
 
         return image
 
     @staticmethod
-    def merge_anno(a, b):
+    def merge_anno(a: Iterable[Annotation], b: Iterable[Annotation]) \
+            -> List[Annotation]:
         return merge_annotations_equal(a, b)
 
     @staticmethod
-    def merge_categories(sources):
+    def merge_categories(sources: Iterable[IDataset]) -> CategoriesInfo:
         return merge_categories(sources)
 
 @attrs
@@ -401,8 +414,7 @@ class IntersectMerge(MergingStrategy):
 
         label_cat = self._merge_label_categories(sources)
         if label_cat is None:
-            return dst_categories
-
+            label_cat = LabelCategories()
         dst_categories[AnnotationType.label] = label_cat
 
         points_cat = self._merge_point_categories(sources, label_cat)
@@ -768,21 +780,46 @@ class PointsMatcher(_ShapeMatcher):
 class LineMatcher(_ShapeMatcher):
     @staticmethod
     def distance(a, b):
-        a_bbox = a.get_bbox()
-        b_bbox = b.get_bbox()
-        bbox = max_bbox([a_bbox, b_bbox])
-        area = bbox[2] * bbox[3]
-        if not area:
+        # Compute inter-line area by using the Trapezoid formulae
+        # https://en.wikipedia.org/wiki/Trapezoidal_rule
+        # Normalize by common bbox and get the bbox fill ratio
+        # Call this ratio the "distance"
+
+        # The box area is an early-exit filter for non-intersected figures
+        bbox = max_bbox([a, b])
+        box_area = bbox[2] * bbox[3]
+        if not box_area:
             return 1
 
-        # compute inter-line area, normalize by common bbox
-        point_count = max(max(len(a.points) // 2, len(b.points) // 2), 5)
-        a, sa = smooth_line(a.points, point_count)
-        b, sb = smooth_line(b.points, point_count)
+        def _approx(line, segments):
+            if len(line) // 2 != segments + 1:
+                line = approximate_line(line, segments=segments)
+            return np.reshape(line, (-1, 2))
+        segments = max(len(a.points) // 2, len(b.points) // 2, 5) - 1
+
+        a = _approx(a.points, segments)
+        b = _approx(b.points, segments)
         dists = np.linalg.norm(a - b, axis=1)
-        dists = (dists[:-1] + dists[1:]) * 0.5
-        s = np.sum(dists) * 0.5 * (sa + sb) / area
-        return abs(1 - s)
+        dists = dists[:-1] + dists[1:]
+        a_steps = np.linalg.norm(a[1:] - a[:-1], axis=1)
+        b_steps = np.linalg.norm(b[1:] - b[:-1], axis=1)
+
+        # For the common bbox we can't use
+        # - the AABB (axis-alinged bbox) of a point set
+        # - the exterior of a point set
+        # - the convex hull of a point set
+        # because these soultions won't be correctly normalized.
+        # The lines can have multiple self-intersections, which can give
+        # the inter-line area more than internal area of the options above,
+        # producing the value of the distance outside of the [0; 1] range.
+        #
+        # Instead, we can compute the upper boundary for the inter-line
+        # area based on the maximum point distance and line length.
+        max_area = np.max(dists) * max(np.sum(a_steps), np.sum(b_steps))
+
+        area = np.dot(dists, a_steps + b_steps) * 0.5 * 0.5 / max(max_area, 1.0)
+
+        return abs(1 - area)
 
 @attrs
 class CaptionsMatcher(AnnotationMatcher):
@@ -977,111 +1014,164 @@ def match_segments(a_segms, b_segms, distance=segment_iou, dist_thresh=1.0,
 
     return matches, mispred, a_unmatched, b_unmatched
 
-def mean_std(dataset):
+def mean_std(dataset: IDataset):
+    counter = _MeanStdCounter()
+
+    for item in dataset:
+        counter.accumulate(item)
+
+    return counter.get_result()
+
+class _MeanStdCounter:
     """
     Computes unbiased mean and std. dev. for dataset images, channel-wise.
     """
-    # Use an online algorithm to:
-    # - handle different image sizes
-    # - avoid cancellation problem
-    if len(dataset) == 0:
-        return [0, 0, 0], [0, 0, 0]
 
-    stats = np.empty((len(dataset), 2, 3), dtype=np.double)
-    counts = np.empty(len(dataset), dtype=np.uint32)
+    def __init__(self):
+        self._stats = {} # (id, subset) -> (pixel count, mean vec, std vec)
 
-    mean = lambda i, s: s[i][0]
-    var = lambda i, s: s[i][1]
-
-    for i, item in enumerate(dataset):
-        size = item.image.size
+    def accumulate(self, item: DatasetItem):
+        size = item.media.size
         if size is None:
             log.warning("Item %s: can't detect image size, "
                 "the image will be skipped from pixel statistics", item.id)
-            continue
-        counts[i] = np.prod(item.image.size)
+            return
+        count = np.prod(item.media.size)
 
-        image = item.image.data
+        image = item.media.data
         if len(image.shape) == 2:
             image = image[:, :, np.newaxis]
         else:
             image = image[:, :, :3]
         # opencv is much faster than numpy here
-        cv2.meanStdDev(image.astype(np.double) / 255,
-            mean=mean(i, stats), stddev=var(i, stats))
+        mean, std = cv2.meanStdDev(image.astype(np.double) / 255)
 
-    # make variance unbiased
-    np.multiply(np.square(stats[:, 1]),
-        (counts / (counts - 1))[:, np.newaxis],
-        out=stats[:, 1])
+        self._stats[(item.id, item.subset)] = (count, mean, std)
 
-    _, mean, var = StatsCounter().compute_stats(stats, counts, mean, var)
-    return mean * 255, np.sqrt(var) * 255
+    def get_result(self) -> \
+            Tuple[Tuple[float, float, float], Tuple[float, float, float]]:
+        n = len(self._stats)
 
-class StatsCounter:
+        if n == 0:
+            return [0, 0, 0], [0, 0, 0]
+
+        counts = np.empty(n, dtype=np.uint32)
+        stats = np.empty((n, 2, 3), dtype=np.double)
+
+        for i, v in enumerate(self._stats.values()):
+            counts[i] = v[0]
+            stats[i][0] = v[1].reshape(-1)
+            stats[i][1] = v[2].reshape(-1)
+
+        mean = lambda i, s: s[i][0]
+        var = lambda i, s: s[i][1]
+
+        # make variance unbiased
+        np.multiply(np.square(stats[:, 1]),
+            (counts / (counts - 1))[:, np.newaxis],
+            out=stats[:, 1])
+
+        # Use an online algorithm to:
+        # - handle different image sizes
+        # - avoid cancellation problem
+        _, mean, var = self._compute_stats(stats, counts, mean, var)
+        return mean * 255, np.sqrt(var) * 255
+
     # Implements online parallel computation of sample variance
     # https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Parallel_algorithm
-
-    # Needed do avoid catastrophic cancellation in floating point computations
     @staticmethod
-    def pairwise_stats(count_a, mean_a, var_a, count_b, mean_b, var_b):
+    def _pairwise_stats(count_a, mean_a, var_a, count_b, mean_b, var_b):
+        """
+        Computes vector mean and variance.
+
+        Needed do avoid catastrophic cancellation in floating point computations
+
+        Returns:
+            A tuple (total count, mean, variance)
+        """
+
+        # allow long arithmetics
+        count_a = int(count_a)
+        count_b = int(count_b)
+
         delta = mean_b - mean_a
         m_a = var_a * (count_a - 1)
         m_b = var_b * (count_b - 1)
-        M2 = m_a + m_b + delta ** 2 * count_a * count_b / (count_a + count_b)
+        M2 = m_a + m_b + delta ** 2 * (count_a * count_b / (count_a + count_b))
+
         return (
             count_a + count_b,
             mean_a * 0.5 + mean_b * 0.5,
             M2 / (count_a + count_b - 1)
         )
 
-    # stats = float array of shape N, 2 * d, d = dimensions of values
-    # count = integer array of shape N
-    # mean_accessor = function(idx, stats) to retrieve element mean
-    # variance_accessor = function(idx, stats) to retrieve element variance
-    # Recursively computes total count, mean and variance, does O(log(N)) calls
     @staticmethod
-    def compute_stats(stats, counts, mean_accessor, variance_accessor):
+    def _compute_stats(stats, counts, mean_accessor, variance_accessor):
+        """
+        Recursively computes total count, mean and variance,
+        does O(log(N)) calls.
+
+        Args:
+            stats (float array of shape N, 2 * d, d = dimensions of values)
+            count (integer array of shape N)
+            mean_accessor (function(idx, stats)) to retrieve element mean
+            variance_accessor (function(idx, stats)) to retrieve element variance
+
+        Returns:
+            A tuple (total count, mean, variance)
+        """
+
         m = mean_accessor
         v = variance_accessor
         n = len(stats)
         if n == 1:
             return counts[0], m(0, stats), v(0, stats)
         if n == 2:
-            return __class__.pairwise_stats(
+            return __class__._pairwise_stats(
                 counts[0], m(0, stats), v(0, stats),
                 counts[1], m(1, stats), v(1, stats)
                 )
         h = n // 2
-        return __class__.pairwise_stats(
-            *__class__.compute_stats(stats[:h], counts[:h], m, v),
-            *__class__.compute_stats(stats[h:], counts[h:], m, v)
+        return __class__._pairwise_stats(
+            *__class__._compute_stats(stats[:h], counts[:h], m, v),
+            *__class__._compute_stats(stats[h:], counts[h:], m, v)
             )
 
-def compute_image_statistics(dataset):
+def compute_image_statistics(dataset: IDataset):
     stats = {
-        'dataset': {},
-        'subsets': {}
+        'dataset': {
+            'images count': 0,
+            'unique images count': 0,
+            'repeated images count': 0,
+            'repeated images': [], # [[id1, id2], [id3, id4, id5], ...]
+        },
+        'subsets': {},
     }
 
-    def _extractor_stats(extractor):
-        available = True
-        for item in extractor:
-            if not (item.has_image and item.image.has_data):
-                available = False
-                log.warning("Item %s has no image, it will be excluded from "
-                    "image stats", item.id)
-                break
+    stats_counter = _MeanStdCounter()
+    unique_counter = _ItemMatcher()
+
+    for item in dataset:
+        stats_counter.accumulate(item)
+        unique_counter.process_item(item)
+
+    def _extractor_stats(subset_name, extractor):
+        sub_counter = _MeanStdCounter()
+        sub_counter._stats = {k: v for k, v in stats_counter._stats.items()
+            if subset_name and k[1] == subset_name or not subset_name}
+
+        available = len(sub_counter._stats) != 0
 
         stats = {
             'images count': len(extractor),
         }
 
         if available:
-            mean, std = mean_std(extractor)
+            mean, std = sub_counter.get_result()
+
             stats.update({
-                'image mean': [float(n) for n in mean[::-1]],
-                'image std': [float(n) for n in std[::-1]],
+                'image mean': [float(v) for v in mean[::-1]],
+                'image std': [float(v) for v in std[::-1]],
             })
         else:
             stats.update({
@@ -1090,29 +1180,29 @@ def compute_image_statistics(dataset):
             })
         return stats
 
-    stats['dataset'].update(_extractor_stats(dataset))
+    for subset_name in dataset.subsets():
+        stats['subsets'][subset_name] = _extractor_stats(subset_name,
+            dataset.get_subset(subset_name))
 
-    subsets = dataset.subsets() or [None]
-    if subsets and 0 < len([s for s in subsets if s]):
-        for subset_name in subsets:
-            stats['subsets'][subset_name] = _extractor_stats(
-                dataset.get_subset(subset_name))
+    unique_items = unique_counter.get_result()
+    repeated_items = [sorted(g) for g in unique_items.values() if 1 < len(g)]
+
+    stats['dataset'].update({
+        'images count': len(dataset),
+        'unique images count': len(unique_items),
+        'repeated images count': len(repeated_items),
+        'repeated images': repeated_items, # [[id1, id2], [id3, id4, id5], ...]
+    })
 
     return stats
 
-def compute_ann_statistics(dataset):
+def compute_ann_statistics(dataset: IDataset):
     labels = dataset.categories().get(AnnotationType.label, LabelCategories())
     def get_label(ann):
         return labels.items[ann.label].name if ann.label is not None else None
 
-    unique_images = find_unique_images(dataset)
-    repeated_images = [sorted(g) for g in unique_images.values() if 1 < len(g)]
-
     stats = {
-        'images count': len(dataset),
-        'unique images count': len(unique_images),
-        'repeated images count': len(repeated_images),
-        'repeated images': repeated_images, # [[id1, id2], [id3, id4, id5], ...]
+        'images count': 0,
         'annotations count': 0,
         'unannotated images count': 0,
         'unannotated images': [],
@@ -1181,6 +1271,8 @@ def compute_ann_statistics(dataset):
                 attrs_stat['distribution'] \
                     .setdefault(str(value), [0, 0])[0] += 1
 
+    stats['images count'] = len(dataset)
+
     stats['annotations count'] = sum(t['count'] for t in
         stats['annotations by type'].values())
     stats['unannotated images count'] = len(stats['unannotated images'])
@@ -1241,7 +1333,7 @@ class DistanceComparator:
 
     @staticmethod
     def _get_ann_type(t, item):
-        return get_ann_type(item.annotations, t)
+        return [a for a in item.annotations if a.type == t]
 
     def match_labels(self, item_a, item_b):
         a_labels = set(a.label for a in
@@ -1320,28 +1412,41 @@ def match_items_by_image_hash(a: IDataset, b: IDataset):
 
     return matches, a_unmatched, b_unmatched
 
-def find_unique_images(dataset: IDataset, item_hash: Optional[Callable] = None):
-    def _default_hash(item):
-        if not item.image or not item.image.has_data:
-            if item.image and item.image.path:
-                return hash(item.image.path)
+class _ItemMatcher:
+    @staticmethod
+    def _default_item_hash(item: DatasetItem):
+        if not item.media or not item.media.has_data:
+            if item.media and item.media.path:
+                return hash(item.media.path)
 
             log.warning("Item (%s, %s) has no image "
                 "info, counted as unique", item.id, item.subset)
             return None
+
         # Disable B303:md5, because the hash is not used in a security context
-        return hashlib.md5(item.image.data.tobytes()).hexdigest() # nosec
+        return hashlib.md5(item.media.data.tobytes()).hexdigest() # nosec
 
-    if item_hash is None:
-        item_hash = _default_hash
+    def __init__(self, item_hash: Optional[Callable] = None):
+        self._hash = item_hash or self._default_item_hash
 
-    unique = {}
-    for item in dataset:
-        h = item_hash(item)
+        # hash -> [(id, subset), ...]
+        self._unique: Dict[str, Set[Tuple[str, str]]] = {}
+
+    def process_item(self, item: DatasetItem):
+        h = self._hash(item)
         if h is None:
             h = str(id(item)) # anything unique
-        unique.setdefault(h, set()).add((item.id, item.subset))
-    return unique
+
+        self._unique.setdefault(h, set()).add((item.id, item.subset))
+
+    def get_result(self):
+        return self._unique
+
+def find_unique_images(dataset: IDataset, item_hash: Optional[Callable] = None):
+    matcher = _ItemMatcher(item_hash=item_hash)
+    for item in dataset:
+        matcher.process_item(item)
+    return matcher.get_result()
 
 def match_classes(a: CategoriesInfo, b: CategoriesInfo):
     a_label_cat = a.get(AnnotationType.label, LabelCategories())
@@ -1420,8 +1525,8 @@ class ExactComparator:
         ignored_fields = self.ignored_fields
         ignored_attrs = self.ignored_attrs
 
-        a_fields = { k: None for k in vars(a) if k in ignored_fields }
-        b_fields = { k: None for k in vars(b) if k in ignored_fields }
+        a_fields = { k: None for k in a.as_dict() if k in ignored_fields }
+        b_fields = { k: None for k in b.as_dict() if k in ignored_fields }
         if 'attributes' not in ignored_fields:
             a_fields['attributes'] = filter_dict(a.attributes, ignored_attrs)
             b_fields['attributes'] = filter_dict(b.attributes, ignored_attrs)

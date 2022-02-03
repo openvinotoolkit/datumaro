@@ -21,20 +21,20 @@ class CifarFormatTest(TestCase):
     def test_can_save_and_load(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='image_2', subset='test',
-                image=np.ones((32, 32, 3)),
+                media=Image(data=np.ones((32, 32, 3))),
                 annotations=[Label(0)]
             ),
             DatasetItem(id='image_3', subset='test',
-                image=np.ones((32, 32, 3))
+                media=Image(data=np.ones((32, 32, 3)))
             ),
             DatasetItem(id='image_4', subset='test',
-                image=np.ones((32, 32, 3)),
+                media=Image(data=np.ones((32, 32, 3))),
                 annotations=[Label(1)]
             )
         ], categories=['label_0', 'label_1'])
 
         with TestDir() as test_dir:
-            CifarConverter.convert(source_dataset, test_dir, save_images=True)
+            CifarConverter.convert(source_dataset, test_dir, save_media=True)
             parsed_dataset = Dataset.import_from(test_dir, 'cifar')
 
             compare_datasets(self, source_dataset, parsed_dataset,
@@ -52,7 +52,7 @@ class CifarFormatTest(TestCase):
         ], categories=['x', 'y'])
 
         with TestDir() as test_dir:
-            CifarConverter.convert(source_dataset, test_dir, save_images=False)
+            CifarConverter.convert(source_dataset, test_dir, save_media=False)
             parsed_dataset = Dataset.import_from(test_dir, 'cifar')
 
             compare_datasets(self, source_dataset, parsed_dataset,
@@ -62,17 +62,17 @@ class CifarFormatTest(TestCase):
     def test_can_save_and_load_with_different_image_size(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='image_1',
-                image=np.ones((10, 8, 3)),
+                media=Image(data=np.ones((10, 8, 3))),
                 annotations=[Label(0)]
             ),
             DatasetItem(id='image_2',
-                image=np.ones((32, 32, 3)),
+                media=Image(data=np.ones((32, 32, 3))),
                 annotations=[Label(1)]
             ),
         ], categories=['dog', 'cat'])
 
         with TestDir() as test_dir:
-            CifarConverter.convert(source_dataset, test_dir, save_images=True)
+            CifarConverter.convert(source_dataset, test_dir, save_media=True)
             parsed_dataset = Dataset.import_from(test_dir, 'cifar')
 
             compare_datasets(self, source_dataset, parsed_dataset,
@@ -82,13 +82,13 @@ class CifarFormatTest(TestCase):
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id="кириллица с пробелом",
-                image=np.ones((32, 32, 3)),
+                media=Image(data=np.ones((32, 32, 3))),
                 annotations=[Label(0)]
             ),
         ], categories=['label_0'])
 
         with TestDir() as test_dir:
-            CifarConverter.convert(source_dataset, test_dir, save_images=True)
+            CifarConverter.convert(source_dataset, test_dir, save_media=True)
             parsed_dataset = Dataset.import_from(test_dir, 'cifar')
 
             compare_datasets(self, source_dataset, parsed_dataset,
@@ -98,13 +98,13 @@ class CifarFormatTest(TestCase):
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id='q/1',
-                image=Image(path='q/1.JPEG', data=np.zeros((32, 32, 3)))),
+                media=Image(path='q/1.JPEG', data=np.zeros((32, 32, 3)))),
             DatasetItem(id='a/b/c/2',
-                image=Image(path='a/b/c/2.bmp', data=np.zeros((32, 32, 3)))),
+                media=Image(path='a/b/c/2.bmp', data=np.zeros((32, 32, 3)))),
         ], categories=[])
 
         with TestDir() as test_dir:
-            CifarConverter.convert(dataset, test_dir, save_images=True)
+            CifarConverter.convert(dataset, test_dir, save_media=True)
             parsed_dataset = Dataset.import_from(test_dir, 'cifar')
 
             compare_datasets(self, dataset, parsed_dataset,
@@ -118,7 +118,7 @@ class CifarFormatTest(TestCase):
         ], categories=['label_0'])
 
         with TestDir() as test_dir:
-            CifarConverter.convert(dataset, test_dir, save_images=True)
+            CifarConverter.convert(dataset, test_dir, save_media=True)
             parsed_dataset = Dataset.import_from(test_dir, 'cifar')
 
             compare_datasets(self, dataset, parsed_dataset,
@@ -127,33 +127,40 @@ class CifarFormatTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_inplace_save_writes_only_updated_data(self):
         expected = Dataset.from_iterable([
-            DatasetItem(1, subset='a', image=np.ones((2, 1, 3)),
+            DatasetItem(1, subset='a',
+                media=Image(data=np.ones((2, 1, 3))),
                 annotations=[ Label(0) ]),
-            DatasetItem(2, subset='a', image=np.ones((3, 2, 3)),
+            DatasetItem(2, subset='a',
+                media=Image(data=np.ones((3, 2, 3))),
                 annotations=[ Label(1) ]),
 
-            DatasetItem(2, subset='b', image=np.ones((2, 2, 3)),
+            DatasetItem(2, subset='b',
+                media=Image(data=np.ones((2, 2, 3))),
                 annotations=[ Label(1) ]),
         ], categories=['a', 'b', 'c', 'd'])
 
         dataset = Dataset.from_iterable([
-            DatasetItem(1, subset='a', image=np.ones((2, 1, 3)),
+            DatasetItem(1, subset='a',
+                media=Image(data=np.ones((2, 1, 3))),
                 annotations=[ Label(0) ]),
 
-            DatasetItem(2, subset='b', image=np.ones((2, 2, 3)),
+            DatasetItem(2, subset='b',
+                media=Image(data=np.ones((2, 2, 3))),
                 annotations=[ Label(1) ]),
 
-            DatasetItem(3, subset='c', image=np.ones((2, 3, 3)),
+            DatasetItem(3, subset='c',
+                media=Image(data=np.ones((2, 3, 3))),
                 annotations=[ Label(2) ]),
         ], categories=['a', 'b', 'c', 'd'])
 
         with TestDir() as path:
-            dataset.export(path, 'cifar', save_images=True)
+            dataset.export(path, 'cifar', save_media=True)
 
-            dataset.put(DatasetItem(2, subset='a', image=np.ones((3, 2, 3)),
+            dataset.put(DatasetItem(2, subset='a',
+                media=Image(data=np.ones((3, 2, 3))),
                 annotations=[ Label(1) ]))
             dataset.remove(3, 'c')
-            dataset.save(save_images=True)
+            dataset.save(save_media=True)
 
             self.assertEqual({'a', 'b', 'batches.meta'},
                 set(os.listdir(path)))
@@ -164,14 +171,14 @@ class CifarFormatTest(TestCase):
     def test_can_save_and_load_cifar100(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='image_2', subset='test',
-                image=np.ones((32, 32, 3)),
+                media=Image(data=np.ones((32, 32, 3))),
                 annotations=[Label(0)]
             ),
             DatasetItem(id='image_3', subset='test',
-                image=np.ones((32, 32, 3))
+                media=Image(data=np.ones((32, 32, 3)))
             ),
             DatasetItem(id='image_4', subset='test',
-                image=np.ones((32, 32, 3)),
+                media=Image(data=np.ones((32, 32, 3))),
                 annotations=[Label(1)]
             )
         ], categories=[
@@ -180,7 +187,7 @@ class CifarFormatTest(TestCase):
         ])
 
         with TestDir() as test_dir:
-            CifarConverter.convert(source_dataset, test_dir, save_images=True)
+            CifarConverter.convert(source_dataset, test_dir, save_media=True)
             parsed_dataset = Dataset.import_from(test_dir, 'cifar')
 
             compare_datasets(self, source_dataset, parsed_dataset,
@@ -201,7 +208,7 @@ class CifarFormatTest(TestCase):
         ])
 
         with TestDir() as test_dir:
-            CifarConverter.convert(source_dataset, test_dir, save_images=False)
+            CifarConverter.convert(source_dataset, test_dir, save_media=False)
             parsed_dataset = Dataset.import_from(test_dir, 'cifar')
 
             compare_datasets(self, source_dataset, parsed_dataset,
@@ -216,6 +223,30 @@ class CifarFormatTest(TestCase):
             with self.assertRaisesRegex(pickle.UnpicklingError, "Global"):
                 Dataset.import_from(test_dir, 'cifar')
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_save_and_load_with_meta_file(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id='image_2', subset='test',
+                media=Image(data=np.ones((32, 32, 3))),
+                annotations=[Label(0)]
+            ),
+            DatasetItem(id='image_3', subset='test',
+                media=Image(data=np.ones((32, 32, 3)))
+            ),
+            DatasetItem(id='image_4', subset='test',
+                media=Image(data=np.ones((32, 32, 3))),
+                annotations=[Label(1)]
+            )
+        ], categories=['label_0', 'label_1'])
+
+        with TestDir() as test_dir:
+            CifarConverter.convert(source_dataset, test_dir, save_media=True,
+                save_dataset_meta=True)
+            parsed_dataset = Dataset.import_from(test_dir, 'cifar')
+
+            self.assertTrue(osp.isfile(osp.join(test_dir, 'dataset_meta.json')))
+            compare_datasets(self, source_dataset, parsed_dataset,
+                require_images=True)
 
 DUMMY_10_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets',
     'cifar10_dataset')
@@ -228,24 +259,24 @@ class CifarImporterTest(TestCase):
     def test_can_import_10(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='image_1', subset='data_batch_1',
-                image=np.ones((32, 32, 3)),
+                media=Image(data=np.ones((32, 32, 3))),
                 annotations=[Label(0)]
             ),
             DatasetItem(id='image_2', subset='test_batch',
-                image=np.ones((32, 32, 3)),
+                media=Image(data=np.ones((32, 32, 3))),
                 annotations=[Label(1)]
             ),
             DatasetItem(id='image_3', subset='test_batch',
-                image=np.ones((32, 32, 3)),
+                media=Image(data=np.ones((32, 32, 3))),
                 annotations=[Label(3)]
             ),
             DatasetItem(id='image_4', subset='test_batch',
-                image=np.ones((32, 32, 3)),
+                media=Image(data=np.ones((32, 32, 3))),
                 annotations=[Label(2)]
             ),
             DatasetItem(id='image_5', subset='test_batch',
-                image=np.array([[[1, 2, 3], [4, 5, 6]],
-                                [[1, 2, 3], [4, 5, 6]]]),
+                media=Image(data=np.array([[[1, 2, 3], [4, 5, 6]],
+                                           [[1, 2, 3], [4, 5, 6]]])),
                 annotations=[Label(3)]
             )
         ], categories=['airplane', 'automobile', 'bird', 'cat'])
@@ -266,29 +297,29 @@ class CifarImporterTest(TestCase):
         # This should be normal on practice.
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='image_1', subset='train',
-                image=np.ones((7, 8, 3)),
+                media=Image(data=np.ones((7, 8, 3))),
                 annotations=[Label(0)]
             ),
             DatasetItem(id='image_2', subset='train',
-                image=np.ones((4, 5, 3)),
+                media=Image(data=np.ones((4, 5, 3))),
                 annotations=[Label(1)]
             ),
             DatasetItem(id='image_3', subset='train',
-                image=np.ones((4, 5, 3)),
+                media=Image(data=np.ones((4, 5, 3))),
                 annotations=[Label(2)]
             ),
 
             DatasetItem(id='image_1', subset='test',
-                image=np.ones((32, 32, 3)),
+                media=Image(data=np.ones((32, 32, 3))),
                 annotations=[Label(0)]
             ),
             DatasetItem(id='image_2', subset='test',
-                image=np.ones((32, 32, 3)),
+                media=Image(data=np.ones((32, 32, 3))),
                 annotations=[Label(1)]
             ),
             DatasetItem(id='image_3', subset='test',
-                image=np.array([[[1, 2, 3], [4, 5, 6]],
-                                [[1, 2, 3], [4, 5, 6]]]),
+                media=Image(data=np.array([[[1, 2, 3], [4, 5, 6]],
+                                           [[1, 2, 3], [4, 5, 6]]])),
                 annotations=[Label(2)]
             )
         ], categories=[

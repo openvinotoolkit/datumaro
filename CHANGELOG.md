@@ -8,10 +8,162 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[Unreleased\]
 ### Added
-- CelebA dataset format (Import-only)
-  (<https://github.com/openvinotoolkit/datumaro/pull/484>)
+- Ability to import a video as frames with the `video_frames` format and
+  to split a video into frames with the `datum util split_video` command
+  (<https://github.com/openvinotoolkit/datumaro/pull/555>)
+- `--subset` parameter in the `image_dir` format
+  (<https://github.com/openvinotoolkit/datumaro/pull/555>)
+- `MediaManager` API to control loaded media resources at runtime
+  (<https://github.com/openvinotoolkit/datumaro/pull/555>)
+- Command to detect the format of a dataset
+  (<https://github.com/openvinotoolkit/datumaro/pull/576>)
+- More comfortable access to library API via `import datumaro`
+  (<https://github.com/openvinotoolkit/datumaro/pull/630>)
+- CLI command-like free functions (`export`, `transform`, ...)
+  (<https://github.com/openvinotoolkit/datumaro/pull/630>)
+- Reading specific annotation files for train dataset in Cityscapes
+  (<https://github.com/openvinotoolkit/datumaro/pull/632>)
+- Random sampling transforms (`random_sampler`, `label_random_sampler`)
+  to create smaller datasets from bigger ones
+  (<https://github.com/openvinotoolkit/datumaro/pull/636>,
+   <https://github.com/openvinotoolkit/datumaro/pull/640>)
+
+### Changed
+- Allowed direct file paths in `datum import`. Such sources are imported like
+  when the `rpath` parameter is specified, however, only the selected path
+  is copied into the project
+  (<https://github.com/openvinotoolkit/datumaro/pull/555>)
+- Improved `stats` performance, added new filtering parameters,
+  image stats (`unique`, `repeated`) moved to the `dataset` section,
+  removed `mean` and `std` from the `dataset` section
+  (<https://github.com/openvinotoolkit/datumaro/pull/621>)
+- OpenVINO telemetry library 2022.1.0 from PyPI.
+  (<https://github.com/openvinotoolkit/datumaro/pull/625>)
+
+### Deprecated
+- TBD
+
+### Removed
+- Official support of Python 3.6 (due to it's EOL)
+  (<https://github.com/openvinotoolkit/datumaro/pull/617>)
+- Backward compatibility annotation symbols in `components.extractor`
+  (<https://github.com/openvinotoolkit/datumaro/pull/630>)
+
+### Fixed
+- Prohibited calling `add`, `import` and `export` commands without a project
+  (<https://github.com/openvinotoolkit/datumaro/pull/555>)
+- Calling `make_dataset` on empty project tree now produces the error properly
+  (<https://github.com/openvinotoolkit/datumaro/pull/555>)
+- Saving (overwriting) a dataset in a project when rpath is used
+  (<https://github.com/openvinotoolkit/datumaro/pull/613>)
+- Output image extension preserving in the `Resize` transform
+  (<https://github.com/openvinotoolkit/datumaro/issues/606>)
+- Memory overuse in the `Resize` transform
+  (<https://github.com/openvinotoolkit/datumaro/issues/607>)
+- Invalid image pixels produced by the `Resize` transform
+  (<https://github.com/openvinotoolkit/datumaro/issues/618>)
+- Numeric warnings that sometimes occurred in `stats` command
+  (e.g. <https://github.com/openvinotoolkit/datumaro/issues/607>)
+  (<https://github.com/openvinotoolkit/datumaro/pull/621>)
+
+### Security
+- TBD
+
+## 28/01/2022 - Release v0.2.3
+### Added
+- Command to download public datasets
+  (<https://github.com/openvinotoolkit/datumaro/pull/582>)
+- Extension autodetection in `ByteImage`
+  (<https://github.com/openvinotoolkit/datumaro/pull/595>)
+- MPII Human Pose Dataset (import-only) (.mat and .json)
+  (<https://github.com/openvinotoolkit/datumaro/pull/584>)
+- MARS format (import-only)
+  (<https://github.com/openvinotoolkit/datumaro/pull/585>)
+
+### Changed
+- The `pycocotools` dependency lower bound is raised to `2.0.4`.
+  (<https://github.com/openvinotoolkit/datumaro/pull/449>)
+- `smooth_line` from `datumaro.util.annotation_util` - the function
+  is renamed to `approximate_line` and has updated interface
+  (<https://github.com/openvinotoolkit/datumaro/pull/592>)
+
+### Deprecated
+- Python 3.6 support
+
+### Removed
+- TBD
+
+### Fixed
+- Fails in multimerge when lines are not approximated and when there are no
+  label categories (<https://github.com/openvinotoolkit/datumaro/pull/592>)
+- Cannot convert LabelMe dataset, that has no subsets
+  (<https://github.com/openvinotoolkit/datumaro/pull/600>)
+
+### Security
+- TBD
+
+## 24/12/2021 - Release v0.2.2
+### Added
+- Video reading API
+  (<https://github.com/openvinotoolkit/datumaro/pull/521>)
+- Python API documentation
+  (<https://github.com/openvinotoolkit/datumaro/pull/526>)
 - Mapillary Vistas dataset format (Import-only)
   (<https://github.com/openvinotoolkit/datumaro/pull/537>)
+- Datumaro can now be installed on Windows on Python 3.9
+  (<https://github.com/openvinotoolkit/datumaro/pull/547>)
+- Import for SYNTHIA dataset format
+  (<https://github.com/openvinotoolkit/datumaro/pull/532>)
+- Support of `score` attribute in KITTI detetion
+  (<https://github.com/openvinotoolkit/datumaro/pull/571>)
+- Support for Accuracy Checker dataset meta files in formats
+  (<https://github.com/openvinotoolkit/datumaro/pull/553>,
+  <https://github.com/openvinotoolkit/datumaro/pull/569>,
+  <https://github.com/openvinotoolkit/datumaro/pull/575>)
+- Import for VoTT dataset format
+  (<https://github.com/openvinotoolkit/datumaro/pull/573>)
+- Image resizing transform
+  (<https://github.com/openvinotoolkit/datumaro/pull/581>)
+
+### Changed
+- The following formats can now be detected unambiguously:
+  `ade20k2017`, `ade20k2020`, `camvid`, `coco`, `cvat`, `datumaro`,
+  `icdar_text_localization`, `icdar_text_segmentation`,
+  `icdar_word_recognition`, `imagenet_txt`, `kitti_raw`, `label_me`, `lfw`,
+  `mot_seq`, `open_images`, `vgg_face2`, `voc`, `widerface`, `yolo`
+  (<https://github.com/openvinotoolkit/datumaro/pull/531>,
+  <https://github.com/openvinotoolkit/datumaro/pull/536>,
+  <https://github.com/openvinotoolkit/datumaro/pull/550>,
+  <https://github.com/openvinotoolkit/datumaro/pull/557>,
+  <https://github.com/openvinotoolkit/datumaro/pull/558>)
+- Allowed Pytest-native tests
+  (<https://github.com/openvinotoolkit/datumaro/pull/563>)
+- Allowed export options in the `datum merge` command
+  (<https://github.com/openvinotoolkit/datumaro/pull/545>)
+
+### Deprecated
+- Using `Image`, `ByteImage` from `datumaro.util.image` - these classes
+  are moved to `datumaro.components.media`
+  (<https://github.com/openvinotoolkit/datumaro/pull/538>)
+
+### Removed
+- Equality comparison support between `datumaro.components.media.Image`
+  and `numpy.ndarray`
+  (<https://github.com/openvinotoolkit/datumaro/pull/568>)
+
+### Fixed
+- Bug #560: import issue with MOT dataset when using seqinfo.ini file
+  (<https://github.com/openvinotoolkit/datumaro/pull/564>)
+- Empty lines in VOC subset lists are not ignored
+  (<https://github.com/openvinotoolkit/datumaro/pull/587>)
+
+### Security
+- TBD
+
+## 16/11/2021 - Release v0.2.1
+### Added
+- Import for CelebA dataset format.
+  (<https://github.com/openvinotoolkit/datumaro/pull/484>)
 
 ### Changed
 - File `people.txt` became optional in LFW
@@ -24,13 +176,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/509>)
 - The `icdar_text_localization` format is no longer detected in every directory
   (<https://github.com/openvinotoolkit/datumaro/pull/531>)
-- Update pycocotools version to 2.0.2
+- Updated `pycocotools` version to 2.0.2
   (<https://github.com/openvinotoolkit/datumaro/pull/534>)
 
 ### Deprecated
-- Using `Image`, `ByteImage` from `datumaro.util.image` - these classes
-  are moved to `datumaro.components.media`
-  (<https://github.com/openvinotoolkit/datumaro/pull/538>)
+- TBD
 
 ### Removed
 - TBD
@@ -39,7 +189,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Unhandled exception when a file is specified as the source for a COCO or
   MOTS dataset
   (<https://github.com/openvinotoolkit/datumaro/pull/530>)
-
+- Exporting dataset without `color` attribute into the
+  `icdar_text_segmentation` format
+  (<https://github.com/openvinotoolkit/datumaro/pull/556>)
 ### Security
 - TBD
 

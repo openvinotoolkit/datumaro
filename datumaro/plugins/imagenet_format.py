@@ -11,6 +11,7 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.converter import Converter
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
+from datumaro.components.media import Image
 from datumaro.util.image import find_images
 
 
@@ -44,7 +45,7 @@ class ImagenetExtractor(SourceExtractor):
             item = items.get(item_id)
             if item is None:
                 item = DatasetItem(id=item_id, subset=self._subset,
-                    image=image_path)
+                    media=Image(path=image_path))
                 items[item_id] = item
             annotations = item.annotations
 

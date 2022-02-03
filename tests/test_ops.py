@@ -8,10 +8,11 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.dataset import Dataset
 from datumaro.components.extractor import DEFAULT_SUBSET_NAME, DatasetItem
+from datumaro.components.media import Image
 from datumaro.components.operations import (
     FailedAttrVotingError, IntersectMerge, NoMatchingAnnError,
     NoMatchingItemError, WrongGroupError, compute_ann_statistics,
-    find_unique_images, mean_std,
+    compute_image_statistics, find_unique_images, mean_std,
 )
 from datumaro.util.test_utils import compare_datasets
 
@@ -25,9 +26,9 @@ class TestOperations(TestCase):
         expected_std = [20, 50, 10]
 
         dataset = Dataset.from_iterable([
-            DatasetItem(id=i, image=np.random.normal(
-                expected_mean, expected_std, size=(w, h, 3))
-            )
+            DatasetItem(id=i, media=Image(data=np.random.normal(
+                expected_mean, expected_std, size=(h, w, 3))
+            ))
             for i, (w, h) in enumerate([
                 (3000, 100), (800, 600), (400, 200), (700, 300)
             ])
@@ -41,41 +42,75 @@ class TestOperations(TestCase):
             self.assertAlmostEqual(estd, astd, places=0)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_image_stats(self):
+        expected_mean = [100, 50, 150]
+        expected_std = [20, 50, 10]
+
+        dataset = Dataset.from_iterable([
+            DatasetItem(id=i, media=Image(data=np.random.normal(
+                expected_mean, expected_std, size=(h, w, 3)))
+            )
+            for i, (w, h) in enumerate([
+                (3000, 100), (800, 600), (400, 200), (700, 300)
+            ])
+        ])
+        dataset.put(dataset.get('1'), id='5', subset='train')
+
+        actual = compute_image_statistics(dataset)
+
+        self.assertEqual(actual['dataset'], {
+            'images count': 5,
+            'unique images count': 4,
+            'repeated images count': 1,
+            'repeated images': [[('1', 'default'), ('5', 'train')]],
+        })
+        self.assertEqual(actual['subsets']['default']['images count'], 4)
+        self.assertEqual(actual['subsets']['train']['images count'], 1)
+
+        actual_mean = actual['subsets']['default']['image mean'][::-1]
+        actual_std = actual['subsets']['default']['image std'][::-1]
+        for em, am in zip(expected_mean, actual_mean):
+            self.assertAlmostEqual(em, am, places=0)
+        for estd, astd in zip(expected_std, actual_std):
+            self.assertAlmostEqual(estd, astd, places=0)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_stats(self):
         dataset = Dataset.from_iterable([
-            DatasetItem(id=1, image=np.ones((5, 5, 3)), annotations=[
-                Caption('hello'),
-                Caption('world'),
-                Label(2, attributes={ 'x': 1, 'y': '2', }),
-                Bbox(1, 2, 2, 2, label=2, attributes={ 'score': 0.5, }),
-                Bbox(5, 6, 2, 2, attributes={
-                    'x': 1, 'y': '3', 'occluded': True,
-                }),
-                Points([1, 2, 2, 0, 1, 1], label=0),
-                Mask(label=3, image=np.array([
-                    [0, 0, 1, 1, 1],
-                    [0, 0, 1, 1, 1],
-                    [0, 0, 1, 1, 1],
-                    [0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0],
-                ])),
-            ]),
-            DatasetItem(id=2, image=np.ones((2, 4, 3)), annotations=[
-                Label(2, attributes={ 'x': 2, 'y': '2', }),
-                Bbox(1, 2, 2, 2, label=3, attributes={ 'score': 0.5, }),
-                Bbox(5, 6, 2, 2, attributes={
-                    'x': 2, 'y': '3', 'occluded': False,
-                }),
+            DatasetItem(id=1, media=Image(data=np.ones((5, 5, 3))),
+                annotations=[
+                    Caption('hello'),
+                    Caption('world'),
+                    Label(2, attributes={ 'x': 1, 'y': '2', }),
+                    Bbox(1, 2, 2, 2, label=2, attributes={ 'score': 0.5, }),
+                    Bbox(5, 6, 2, 2, attributes={
+                        'x': 1, 'y': '3', 'occluded': True,
+                    }),
+                    Points([1, 2, 2, 0, 1, 1], label=0),
+                    Mask(label=3, image=np.array([
+                        [0, 0, 1, 1, 1],
+                        [0, 0, 1, 1, 1],
+                        [0, 0, 1, 1, 1],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                    ])),
+                ]
+            ),
+            DatasetItem(id=2, media=Image(data=np.ones((2, 4, 3))),
+                annotations=[
+                    Label(2, attributes={ 'x': 2, 'y': '2', }),
+                    Bbox(1, 2, 2, 2, label=3, attributes={ 'score': 0.5, }),
+                    Bbox(5, 6, 2, 2, attributes={
+                        'x': 2, 'y': '3', 'occluded': False,
+                    }
+                ),
             ]),
             DatasetItem(id=3),
-            DatasetItem(id='2.2', image=np.ones((2, 4, 3))),
+            DatasetItem(id='2.2', media=Image(data=np.ones((2, 4, 3)))),
         ], categories=['label_%s' % i for i in range(4)])
 
         expected = {
             'images count': 4,
-            'unique images count': 3,
-            'repeated images count': 1,
-            'repeated images': [[('2', 'default'), ('2.2', 'default')]],
             'annotations count': 10,
             'unannotated images count': 2,
             'unannotated images': ['3', '2.2'],
@@ -156,9 +191,6 @@ class TestOperations(TestCase):
 
         expected = {
             'images count': 2,
-            'unique images count': 2,
-            'repeated images count': 0,
-            'repeated images': [],
             'annotations count': 0,
             'unannotated images count': 2,
             'unannotated images': ['1', '3'],
@@ -210,12 +242,12 @@ class TestOperations(TestCase):
 
         dataset = Dataset.from_iterable([
             # no image data, but the same path
-            DatasetItem(1, subset='a', image='1.jpg'),
-            DatasetItem(1, subset='b', image='1.jpg'),
+            DatasetItem(1, subset='a', media=Image(path='1.jpg')),
+            DatasetItem(1, subset='b', media=Image(path='1.jpg')),
 
             # same images
-            DatasetItem(2, image=np.array([1])),
-            DatasetItem(3, image=np.array([1])),
+            DatasetItem(2, media=Image(data=np.array([1]))),
+            DatasetItem(3, media=Image(data=np.array([1]))),
 
             # no image is always a unique image
             DatasetItem(4),
@@ -387,6 +419,32 @@ class TestMultimerge(TestCase):
                     if isinstance(e, NoMatchingAnnError)),
                 key=lambda e: len(e.sources))
         )
+
+    @mark_requirement(Requirements.DATUM_BUG_219)
+    def test_can_match_lines_when_line_not_approximated(self):
+        source0 = Dataset.from_iterable([
+            DatasetItem(1, annotations=[
+                PolyLine([1, 1, 2, 1, 3, 5, 5, 5, 8, 3]),
+            ]),
+        ])
+
+        source1 = Dataset.from_iterable([
+            DatasetItem(1, annotations=[
+                PolyLine([1, 1, 8, 3]),
+            ]),
+        ])
+
+        expected = Dataset.from_iterable([
+            DatasetItem(1, annotations=[
+                PolyLine([1, 1, 2, 1, 3, 5, 5, 5, 8, 3]),
+            ]),
+        ], categories=[])
+
+        merger = IntersectMerge(conf={'quorum': 1, 'pairwise_dist': 0.1})
+        merged = merger([source0, source1])
+
+        compare_datasets(self, expected, merged, ignored_attrs={'score'})
+        self.assertEqual(0, len(merger.errors))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_attributes(self):

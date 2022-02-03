@@ -11,7 +11,7 @@ from datumaro.components.extractor import DatasetItem
 from datumaro.components.media import Image
 from datumaro.plugins.mot_format import MotSeqGtConverter, MotSeqImporter
 from datumaro.util.test_utils import (
-    TestDir, compare_datasets, test_save_and_load,
+    TestDir, check_save_and_load, compare_datasets,
 )
 
 from .requirements import Requirements, mark_requirement
@@ -20,7 +20,7 @@ from .requirements import Requirements, mark_requirement
 class MotConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None, **kwargs):
-        return test_save_and_load(self, source_dataset, converter, test_dir,
+        return check_save_and_load(self, source_dataset, converter, test_dir,
             importer='mot_seq',
             target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
@@ -28,7 +28,7 @@ class MotConverterTest(TestCase):
     def test_can_save_bboxes(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1, subset='train',
-                image=np.ones((16, 16, 3)),
+                media=Image(data=np.ones((16, 16, 3))),
                 annotations=[
                     Bbox(0, 4, 4, 8, label=2, attributes={
                         'occluded': True,
@@ -43,14 +43,14 @@ class MotConverterTest(TestCase):
             ),
 
             DatasetItem(id=2, subset='val',
-                image=np.ones((8, 8, 3)),
+                media=Image(data=np.ones((8, 8, 3))),
                 annotations=[
                     Bbox(1, 2, 4, 2, label=3),
                 ]
             ),
 
             DatasetItem(id=3, subset='test',
-                image=np.ones((5, 4, 3)) * 3,
+                media=Image(data=np.ones((5, 4, 3)) * 3),
             ),
         ], categories={
             AnnotationType.label: LabelCategories.from_iterable(
@@ -59,7 +59,7 @@ class MotConverterTest(TestCase):
 
         target_dataset = Dataset.from_iterable([
             DatasetItem(id=1,
-                image=np.ones((16, 16, 3)),
+                media=Image(data=np.ones((16, 16, 3))),
                 annotations=[
                     Bbox(0, 4, 4, 8, label=2, attributes={
                         'occluded': True,
@@ -80,7 +80,7 @@ class MotConverterTest(TestCase):
             ),
 
             DatasetItem(id=2,
-                image=np.ones((8, 8, 3)),
+                media=Image(data=np.ones((8, 8, 3))),
                 annotations=[
                     Bbox(1, 2, 4, 2, label=3, attributes={
                         'occluded': False,
@@ -91,7 +91,7 @@ class MotConverterTest(TestCase):
             ),
 
             DatasetItem(id=3,
-                image=np.ones((5, 4, 3)) * 3,
+                media=Image(data=np.ones((5, 4, 3)) * 3),
             ),
         ], categories={
             AnnotationType.label: LabelCategories.from_iterable(
@@ -100,14 +100,14 @@ class MotConverterTest(TestCase):
 
         with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
-                partial(MotSeqGtConverter.convert, save_images=True),
+                partial(MotSeqGtConverter.convert, save_media=True),
                 test_dir, target_dataset=target_dataset, require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_save_and_load_with_no_save_images(self):
+    def test_can_save_and_load_with_no_save_media(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id=1,
-                image=np.ones((16, 16, 3)),
+                media=Image(data=np.ones((16, 16, 3))),
                 annotations=[
                     Bbox(0, 4, 4, 8, label=0, attributes={
                         'occluded': True,
@@ -118,7 +118,7 @@ class MotConverterTest(TestCase):
             ),
 
             DatasetItem(id=2,
-                image=np.ones((8, 8, 3)),
+                media=Image(data=np.ones((8, 8, 3))),
                 annotations=[
                     Bbox(1, 2, 4, 2, label=1, attributes={
                         'occluded': False,
@@ -131,13 +131,13 @@ class MotConverterTest(TestCase):
 
         with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
-                partial(MotSeqGtConverter.convert, save_images=False),
+                partial(MotSeqGtConverter.convert, save_media=False),
                 test_dir)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         expected = Dataset.from_iterable([
-            DatasetItem('1', image=Image(
+            DatasetItem('1', media=Image(
                 path='1.JPEG', data=np.zeros((4, 3, 3))),
                 annotations=[
                     Bbox(0, 4, 4, 8, label=0, attributes={
@@ -147,29 +147,59 @@ class MotConverterTest(TestCase):
                     }),
                 ]
             ),
-            DatasetItem('2', image=Image(
+            DatasetItem('2', media=Image(
                 path='2.bmp', data=np.zeros((3, 4, 3))),
             ),
         ], categories=['a'])
 
         with TestDir() as test_dir:
             self._test_save_and_load(expected,
-                partial(MotSeqGtConverter.convert, save_images=True),
+                partial(MotSeqGtConverter.convert, save_media=True),
                 test_dir, require_images=True)
 
-DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'mot_dataset')
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_save_and_load_with_meta_file(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id=1,
+                media=Image(data=np.ones((16, 16, 3))),
+                annotations=[
+                    Bbox(0, 4, 4, 8, label=0, attributes={
+                        'occluded': True,
+                        'visibility': 0.0,
+                        'ignored': False,
+                    }),
+                ]
+            ),
+
+            DatasetItem(id=2,
+                media=Image(data=np.ones((8, 8, 3))),
+                annotations=[
+                    Bbox(1, 2, 4, 2, label=1, attributes={
+                        'occluded': False,
+                        'visibility': 1.0,
+                        'ignored': False,
+                    }),
+                ]
+            ),
+        ], categories=['label_0', 'label_1'])
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(source_dataset,
+                partial(MotSeqGtConverter.convert, save_media=True,
+                    save_dataset_meta=True),
+                test_dir, require_images=True)
+            self.assertTrue(osp.isfile(osp.join(test_dir, 'dataset_meta.json')))
+
+DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets',
+    'mot_dataset', 'mot_seq')
+DUMMY_SEQINFO_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets',
+    'mot_dataset', 'mot_seq_with_seqinfo')
 
 class MotImporterTest(TestCase):
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_detect(self):
-        detected_formats = Environment().detect_dataset(DUMMY_DATASET_DIR)
-        self.assertEqual([MotSeqImporter.NAME], detected_formats)
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_import(self):
+    def _define_expected_dataset(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id=1,
-                image=np.ones((16, 16, 3)),
+                media=Image(data=np.ones((16, 16, 3))),
                 annotations=[
                     Bbox(0, 4, 4, 8, label=2, attributes={
                         'occluded': False,
@@ -178,11 +208,27 @@ class MotImporterTest(TestCase):
                     }),
                 ]
             ),
-        ], categories={
-            AnnotationType.label: LabelCategories.from_iterable(
-                'label_' + str(label) for label in range(10)),
-        })
+        ], categories=['label_' + str(label) for label in range(10)])
+
+        return expected_dataset
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_detect(self):
+        detected_formats = Environment().detect_dataset(DUMMY_DATASET_DIR)
+        self.assertEqual([MotSeqImporter.NAME], detected_formats)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_import(self):
+        expected_dataset = self._define_expected_dataset()
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'mot_seq')
+
+        compare_datasets(self, expected_dataset, dataset)
+
+    @mark_requirement(Requirements.DATUM_BUG_560)
+    def test_can_import_seqinfo(self):
+        expected_dataset = self._define_expected_dataset()
+
+        dataset = Dataset.import_from(DUMMY_SEQINFO_DATASET_DIR, 'mot_seq')
 
         compare_datasets(self, expected_dataset, dataset)

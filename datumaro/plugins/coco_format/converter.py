@@ -68,8 +68,8 @@ class _TaskConverter:
     def save_image_info(self, item, filename):
         h = 0
         w = 0
-        if item.has_image and item.image.size:
-            h, w = item.image.size
+        if item.media and item.media.size:
+            h, w = item.media.size
 
         self._data['images'].append({
             'id': self._get_image_id(item),
@@ -215,7 +215,7 @@ class _InstancesConverter(_TaskConverter):
         polygons = [p.points for p in polygons]
 
         if self._context._segmentation_mode == SegmentationMode.guess:
-            use_masks = True == leader.attributes.get('is_crowd',
+            use_masks = True is leader.attributes.get('is_crowd',
                 find(masks, lambda x: x.label == leader.label) is not None)
         elif self._context._segmentation_mode == SegmentationMode.polygons:
             use_masks = False
@@ -262,11 +262,11 @@ class _InstancesConverter(_TaskConverter):
         if not instances:
             return
 
-        if not item.has_image or not item.image.size:
+        if not item.media or not item.media.size:
             log.warning("Item '%s': skipping writing instances "
                 "since no image info available" % item.id)
             return
-        h, w = item.image.size
+        h, w = item.media.size
         instances = [self.find_instance_parts(i, w, h) for i in instances]
 
         if self._context._crop_covered:
@@ -291,8 +291,8 @@ class _InstancesConverter(_TaskConverter):
 
         area = 0
         if segmentation:
-            if item.has_image and item.image.size:
-                h, w = item.image.size
+            if item.media and item.media.size:
+                h, w = item.media.size
             else:
                 # Here we can guess the image size as
                 # it is only needed for the area computation
@@ -326,9 +326,9 @@ class _InstancesConverter(_TaskConverter):
                 log.warning("Item '%s': failed to convert attribute "
                     "'score': %e" % (item.id, e))
         if self._context._allow_attributes:
-                attrs = self._convert_attributes(ann)
-                if attrs:
-                    elem['attributes'] = attrs
+            attrs = self._convert_attributes(ann)
+            if attrs:
+                elem['attributes'] = attrs
 
         return elem
 
@@ -473,7 +473,7 @@ class _PanopticConverter(_TaskConverter):
             })
 
     def save_annotations(self, item):
-        if not item.has_image:
+        if not item.media:
             return
 
         ann_filename = item.id + CocoPath.PANOPTIC_EXT
@@ -651,6 +651,9 @@ class CocoConverter(Converter):
     def apply(self):
         self._make_dirs()
 
+        if self._save_dataset_meta:
+            self._save_meta_file(self._save_dir)
+
         for subset_name, subset in self._extractor.subsets().items():
             task_converters = self._make_task_converters()
             for task_conv in task_converters.values():
@@ -659,8 +662,8 @@ class CocoConverter(Converter):
                 self._make_segmentation_dir(subset_name)
 
             for item in subset:
-                if self._save_images:
-                    if item.has_image:
+                if self._save_media:
+                    if item.media:
                         self._save_image(item, subdir=osp.join(self._images_dir,
                             '' if self._merge_images else subset_name))
                     else:
@@ -700,7 +703,7 @@ class CocoConverter(Converter):
             else:
                 item = DatasetItem(item_id, subset=subset)
 
-            if not (status == ItemStatus.removed or not item.has_image):
+            if not (status == ItemStatus.removed or not item.media):
                 continue
 
             # Converter supports saving in separate dirs and common image dir

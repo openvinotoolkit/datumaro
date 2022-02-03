@@ -1,9 +1,11 @@
-# Copyright (C) 2021 Intel Corporation
+# Copyright (C) 2021-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 # The format is described here:
 # https://docs.supervise.ly/data-organization/00_ann_format_navi
+
+from __future__ import annotations
 
 from datetime import datetime
 import json
@@ -24,7 +26,7 @@ from .format import PointCloudPath
 
 class _SuperviselyPointCloudDumper:
     def __init__(self, extractor: IExtractor,
-            context: 'SuperviselyPointCloudConverter'):
+            context: SuperviselyPointCloudConverter):
         self._extractor = extractor
         self._context = context
 
@@ -60,7 +62,7 @@ class _SuperviselyPointCloudDumper:
     def _write_related_images(self, item):
         img_dir = self._related_images_dir
 
-        for img in item.related_images:
+        for img in item.media.extra_images:
             name = osp.splitext(osp.basename(img.path))[0]
             img_path = osp.join(img_dir, item.id + '_pcd',
                 name + self._find_image_ext(img))
@@ -349,13 +351,13 @@ class _SuperviselyPointCloudDumper:
         self._init_meta()
 
         for item in self._context._extractor:
-            if self._context._save_images:
-                if item.has_point_cloud:
+            if self._context._save_media:
+                if item.media:
                     self._write_pcd(item)
                 else:
                     log.debug("Item '%s' has no point cloud info", item.id)
 
-                if item.related_images:
+                if item.media and item.media.extra_images:
                     self._write_related_images(item)
                 else:
                     log.debug("Item '%s' has no related images info", item.id)
@@ -405,7 +407,7 @@ class SuperviselyPointCloudConverter(Converter):
             else:
                 item = DatasetItem(item_id, subset=subset)
 
-            if not (status == ItemStatus.removed or not item.has_point_cloud):
+            if not (status == ItemStatus.removed or not item.media):
                 continue
 
             pcd_name = conv._make_pcd_filename(item)

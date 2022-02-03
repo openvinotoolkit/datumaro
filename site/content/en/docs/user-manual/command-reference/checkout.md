@@ -1,8 +1,7 @@
 ---
 title: 'Checkout'
-linkTitle: 'Checkout'
+linkTitle: 'checkout'
 description: ''
-weight: 19
 ---
 
 This command allows to restore a specific project revision in the project

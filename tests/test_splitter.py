@@ -6,6 +6,7 @@ from datumaro.components.annotation import (
     AnnotationType, Bbox, Label, LabelCategories, Mask, Polygon,
 )
 from datumaro.components.extractor import DatasetItem
+from datumaro.components.media import Image
 from datumaro.components.operations import compute_ann_statistics
 from datumaro.components.project import Dataset
 import datumaro.plugins.splitter as splitter
@@ -47,7 +48,7 @@ class SplitterTest(TestCase):
                                 idx,
                                 subset=self._get_subset(idx),
                                 annotations=[Label(label_id, attributes=attributes)],
-                                image=np.ones((1, 1, 3)),
+                                media=Image(data=np.ones((1, 1, 3))),
                             )
                         )
             else:
@@ -58,7 +59,7 @@ class SplitterTest(TestCase):
                             idx,
                             subset=self._get_subset(idx),
                             annotations=[Label(label_id)],
-                            image=np.ones((1, 1, 3)),
+                            media=Image(data=np.ones((1, 1, 3))),
                         )
                     )
         categories = {AnnotationType.label: label_cat}

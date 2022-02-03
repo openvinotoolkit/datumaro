@@ -1,8 +1,7 @@
 ---
 title: 'Get Project Statistics'
-linkTitle: 'Statistics'
+linkTitle: 'stats'
 description: ''
-weight: 16
 ---
 
 This command computes various project statistics, such as:
@@ -21,6 +20,9 @@ Parameters:
 - `<target>` (string) - Target
   [source revpath](/docs/user-manual/how_to_use_datumaro/#revpath).
   By default, computes statistics of the merged dataset.
+- `-s, --subset` (string) - Compute stats only for a specific subset
+- `--image-stats` (bool) - Compute image mean and std (default: True)
+- `--ann-stats` (bool) - Compute annotation statistics (default: True)
 - `-p, --project` (string) - Directory of the project to operate on
   (default: current directory).
 - `-h, --help` - Print the help message and exit.
@@ -35,7 +37,7 @@ Sample output:
 
 <details>
 
-```
+``` json
 {
     "annotations": {
         "labels": {
@@ -260,21 +262,6 @@ Sample output:
         }
     },
     "annotations count": 2038,
-    "dataset": {
-        "image mean": [
-            107.06903686941979,
-            79.12831698580979,
-            52.95829558185416
-        ],
-        "image std": [
-            49.40237673503467,
-            43.29600731496902,
-            35.47373007603151
-        ],
-        "images count": 100
-    },
-    "images count": 100,
-    "subsets": {},
     "unannotated images": [
         "img00051",
         "img00052",
@@ -283,13 +270,33 @@ Sample output:
         "img00055",
     ],
     "unannotated images count": 5,
-    "unique images count": 97,
-    "repeating images count": 3,
-    "repeating images": [
-        [("img00057", "default"), ("img00058", "default")],
-        [("img00059", "default"), ("img00060", "default")],
-        [("img00061", "default"), ("img00062", "default")],
-    ],
+
+    "dataset": {
+        "images count": 100,
+        "unique images count": 97,
+        "repeated images count": 3,
+        "repeated images": [
+            [["img00057", "default"], ["img00058", "default"]],
+            [["img00059", "default"], ["img00060", "default"]],
+            [["img00061", "default"], ["img00062", "default"]],
+        ],
+    },
+    "subsets": {
+        "default": {
+            "images count": 100,
+            "image mean": [
+                107.06903686941979,
+                79.12831698580979,
+                52.95829558185416
+            ],
+            "image std": [
+                49.40237673503467,
+                43.29600731496902,
+                35.47373007603151
+            ],
+
+        }
+    },
 }
 ```
 

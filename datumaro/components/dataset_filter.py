@@ -12,6 +12,7 @@ from datumaro.components.annotation import (
     PolyLine,
 )
 from datumaro.components.extractor import ItemTransform
+from datumaro.components.media import Image
 
 
 class DatasetItemEncoder:
@@ -21,8 +22,8 @@ class DatasetItemEncoder:
         ET.SubElement(item_elem, 'id').text = str(item.id)
         ET.SubElement(item_elem, 'subset').text = str(item.subset)
 
-        image = item.image
-        if image is not None:
+        image = item.media
+        if image and isinstance(image, Image):
             item_elem.append(cls.encode_image(image))
 
         for ann in item.annotations:

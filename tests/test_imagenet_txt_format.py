@@ -25,7 +25,8 @@ class ImagenetTxtFormatTest(TestCase):
             DatasetItem(id='1', subset='train',
                 annotations=[Label(0)]
             ),
-            DatasetItem(id='2', subset='train', image=np.zeros((8, 8, 3)),
+            DatasetItem(id='2', subset='train',
+                media=Image(data=np.zeros((8, 8, 3))),
                 annotations=[Label(1)]
             ),
         ], categories={
@@ -35,7 +36,7 @@ class ImagenetTxtFormatTest(TestCase):
 
         with TestDir() as test_dir:
             ImagenetTxtConverter.convert(source_dataset, test_dir,
-                save_images=True)
+                save_media=True)
 
             parsed_dataset = Dataset.import_from(test_dir, 'imagenet_txt')
 
@@ -43,7 +44,7 @@ class ImagenetTxtFormatTest(TestCase):
                 require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_save_and_load_with_no_save_images(self):
+    def test_can_save_and_load_with_no_save_media(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='1', subset='train',
                 annotations=[Label(0)]
@@ -52,10 +53,30 @@ class ImagenetTxtFormatTest(TestCase):
 
         with TestDir() as test_dir:
             ImagenetTxtConverter.convert(source_dataset, test_dir,
-                save_images=False)
+                save_media=False)
 
             parsed_dataset = Dataset.import_from(test_dir, 'imagenet_txt')
 
+            compare_datasets(self, source_dataset, parsed_dataset)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_dataset_with_save_dataset_meta_file(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id='1', subset='train',
+                annotations=[Label(0)]
+            ),
+            DatasetItem(id='2', subset='train',
+                annotations=[Label(1)]
+            ),
+        ], categories=['label_0', 'label_1'])
+
+        with TestDir() as test_dir:
+            ImagenetTxtConverter.convert(source_dataset, test_dir,
+                save_dataset_meta=True)
+
+            parsed_dataset = Dataset.import_from(test_dir, 'imagenet_txt')
+
+            self.assertTrue(osp.isfile(osp.join(test_dir, 'dataset_meta.json')))
             compare_datasets(self, source_dataset, parsed_dataset)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -64,7 +85,8 @@ class ImagenetTxtFormatTest(TestCase):
             DatasetItem(id='1', subset='train',
                 annotations=[Label(1), Label(2), Label(3)]
             ),
-            DatasetItem(id='2', subset='train', image=np.zeros((2, 8, 3)),
+            DatasetItem(id='2', subset='train',
+                media=Image(data=np.zeros((2, 8, 3))),
             ),
         ], categories={
             AnnotationType.label: LabelCategories.from_iterable(
@@ -73,7 +95,7 @@ class ImagenetTxtFormatTest(TestCase):
 
         with TestDir() as test_dir:
             ImagenetTxtConverter.convert(source_dataset, test_dir,
-                save_images=True)
+                save_media=True)
 
             parsed_dataset = Dataset.import_from(test_dir, 'imagenet_txt')
 
@@ -83,7 +105,7 @@ class ImagenetTxtFormatTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_no_subsets(self):
         source_dataset = Dataset.from_iterable([
-            DatasetItem(id='a/b/c', image=np.zeros((8, 4, 3)),
+            DatasetItem(id='a/b/c', media=Image(data=np.zeros((8, 4, 3))),
                 annotations=[Label(1)]
             ),
         ], categories={
@@ -93,7 +115,7 @@ class ImagenetTxtFormatTest(TestCase):
 
         with TestDir() as test_dir:
             ImagenetTxtConverter.convert(source_dataset, test_dir,
-                save_images=True)
+                save_media=True)
 
             parsed_dataset = Dataset.import_from(test_dir, 'imagenet_txt')
 
@@ -104,7 +126,7 @@ class ImagenetTxtFormatTest(TestCase):
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         dataset = Dataset.from_iterable([
             DatasetItem(id="кириллица с пробелом",
-                image=np.ones((8, 8, 3)),
+                media=Image(data=np.zeros((8, 8, 3))),
                 annotations=[Label(0), Label(1)]
             ),
         ], categories={
@@ -113,7 +135,7 @@ class ImagenetTxtFormatTest(TestCase):
         })
 
         with TestDir() as test_dir:
-            ImagenetTxtConverter.convert(dataset, test_dir, save_images=True)
+            ImagenetTxtConverter.convert(dataset, test_dir, save_media=True)
 
             parsed_dataset = Dataset.import_from(test_dir, 'imagenet_txt')
 
@@ -123,14 +145,14 @@ class ImagenetTxtFormatTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         dataset = Dataset.from_iterable([
-            DatasetItem(id='a/1', image=Image(path='a/1.JPEG',
+            DatasetItem(id='a/1', media=Image(path='a/1.JPEG',
                 data=np.zeros((4, 3, 3)))),
-            DatasetItem(id='b/c/d/2', image=Image(path='b/c/d/2.bmp',
+            DatasetItem(id='b/c/d/2', media=Image(path='b/c/d/2.bmp',
                 data=np.zeros((3, 4, 3)))),
         ], categories=[])
 
         with TestDir() as test_dir:
-            ImagenetTxtConverter.convert(dataset, test_dir, save_images=True)
+            ImagenetTxtConverter.convert(dataset, test_dir, save_media=True)
 
             parsed_dataset = Dataset.import_from(test_dir, 'imagenet_txt')
 
@@ -148,10 +170,12 @@ class ImagenetTxtImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import(self):
         expected_dataset = Dataset.from_iterable([
-            DatasetItem(id='1', subset='train', image=np.zeros((8, 6, 3)),
+            DatasetItem(id='1', subset='train',
+                media=Image(data=np.zeros((8, 6, 3))),
                 annotations=[Label(0)]
             ),
-            DatasetItem(id='2', subset='train', image=np.zeros((2, 8, 3)),
+            DatasetItem(id='2', subset='train',
+                media=Image(data=np.zeros((2, 8, 3))),
                 annotations=[Label(5)]
             ),
             DatasetItem(id='3', subset='train',
@@ -200,4 +224,4 @@ class ImagenetTxtImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_imagenet(self):
         detected_formats = Environment().detect_dataset(DUMMY_DATASET_DIR)
-        self.assertIn(ImagenetTxtImporter.NAME, detected_formats)
+        self.assertEqual([ImagenetTxtImporter.NAME], detected_formats)

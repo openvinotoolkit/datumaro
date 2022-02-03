@@ -15,7 +15,6 @@ from datumaro.plugins.coco_format.extractor import (
     CocoLabelsExtractor, CocoPanopticExtractor, CocoPersonKeypointsExtractor,
     CocoStuffExtractor,
 )
-from datumaro.util.log_utils import logging_disabled
 
 from .format import CocoTask
 
@@ -44,11 +43,17 @@ class CocoImporter(Importer):
     def detect(
         cls, context: FormatDetectionContext,
     ) -> FormatDetectionConfidence:
-        with logging_disabled(log.WARN):
-            if not cls.find_sources(context.root_path):
-                context.fail("specific requirement information unavailable")
+        # The `coco` format is inherently ambiguous with `coco_instances`,
+        # `coco_stuff`, etc. To remove the ambiguity (and thus make it possible
+        # to use autodetection with the COCO dataset), disable autodetection
+        # for the single-task formats.
+        if len(cls._TASKS) == 1:
+            context.fail('this format cannot be autodetected')
 
-        return FormatDetectionConfidence.LOW
+        with context.require_any():
+            for task in cls._TASKS.keys():
+                with context.alternative():
+                    context.require_file(f'annotations/{task.name}_*.json')
 
     def __call__(self, path, **extra_params):
         subsets = self.find_sources(path)

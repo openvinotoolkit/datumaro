@@ -10,9 +10,9 @@ import os.path as osp
 import shutil
 
 from datumaro.components.cli_plugin import CliPlugin
-from datumaro.components.dataset import DatasetPatch
 from datumaro.components.extractor import DatasetItem
 from datumaro.components.media import Image
+from datumaro.util.meta_file_util import save_meta_file
 from datumaro.util.os_util import rmtree
 from datumaro.util.scope import on_error_do, scoped
 
@@ -25,9 +25,13 @@ class Converter(CliPlugin):
         parser = super().build_cmdline_parser(**kwargs)
         parser.add_argument('--save-images', action='store_true',
             help="Save images (default: %(default)s)")
+        parser.add_argument('--save-media', action='store_true',
+            help="Save media (default: %(default)s)")
         parser.add_argument('--image-ext', default=None,
             help="Image extension (default: keep or use format default%s)" % \
                 (' ' + cls.DEFAULT_IMAGE_EXT if cls.DEFAULT_IMAGE_EXT else ''))
+        parser.add_argument('--save-dataset-meta', action='store_true',
+            help="Save dataset meta file (default: %(default)s)")
 
         return parser
 
@@ -69,20 +73,23 @@ class Converter(CliPlugin):
     def apply(self):
         raise NotImplementedError("Should be implemented in a subclass")
 
-    def __init__(self, extractor, save_dir, save_images=False,
-            image_ext=None, default_image_ext=None):
+    def __init__(self, extractor, save_dir, save_images=False, save_media=False,
+            image_ext=None, default_image_ext=None, save_dataset_meta=False):
         default_image_ext = default_image_ext or self.DEFAULT_IMAGE_EXT
         assert default_image_ext
         self._default_image_ext = default_image_ext
 
-        self._save_images = save_images
+        self._save_media = save_media or save_images
         self._image_ext = image_ext
 
         self._extractor = extractor
         self._save_dir = save_dir
 
+        self._save_dataset_meta = save_dataset_meta
+
         # TODO: refactor this variable.
         # Can be used by a subclass to store the current patch info
+        from datumaro.components.dataset import DatasetPatch
         if isinstance(extractor, DatasetPatch.DatasetPatchWrapper):
             self._patch = extractor.patch
         else:
@@ -91,8 +98,8 @@ class Converter(CliPlugin):
     def _find_image_ext(self, item: Union[DatasetItem, Image]):
         src_ext = None
 
-        if isinstance(item, DatasetItem) and item.has_image:
-            src_ext = item.image.ext
+        if isinstance(item, DatasetItem) and item.media:
+            src_ext = item.media.ext
         elif isinstance(item, Image):
             src_ext = item.ext
 
@@ -115,7 +122,7 @@ class Converter(CliPlugin):
         assert not ((subdir or name or basedir) and path), \
             "Can't use both subdir or name or basedir and path arguments"
 
-        if not item.has_image or not item.image.has_data:
+        if not item.media or not item.media.has_data:
             log.warning("Item '%s' has no image", item.id)
             return
 
@@ -124,14 +131,14 @@ class Converter(CliPlugin):
             self._make_image_filename(item, name=name, subdir=subdir))
         path = osp.abspath(path)
 
-        item.image.save(path)
+        item.media.save(path)
 
     def _save_point_cloud(self, item=None, path=None, *,
             name=None, subdir=None, basedir=None):
         assert not ((subdir or name or basedir) and path), \
             "Can't use both subdir or name or basedir and path arguments"
 
-        if not item.point_cloud:
+        if not item.media:
             log.warning("Item '%s' has no pcd", item.id)
             return
 
@@ -141,6 +148,9 @@ class Converter(CliPlugin):
         path = osp.abspath(path)
 
         os.makedirs(osp.dirname(path), exist_ok=True)
-        if item.point_cloud and osp.isfile(item.point_cloud):
-            if item.point_cloud != path:
-                shutil.copyfile(item.point_cloud, path)
+        if item.media and osp.isfile(item.media.path):
+            if item.media.path != path:
+                shutil.copyfile(item.media.path, path)
+
+    def _save_meta_file(self, path):
+        save_meta_file(path, self._extractor.categories())

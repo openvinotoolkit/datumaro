@@ -48,6 +48,7 @@ Align CelebA dataset directory should have the following structure:
 <!--lint disable fenced-code-flag-->
 ```
 dataset/
+├── dataset_meta.json # a list of non-format labels (optional)
 ├── Anno/
 │   ├── identity_CelebA.txt
 │   ├── list_attr_celeba.txt
@@ -69,6 +70,8 @@ landmarks and subsets respectively (optional).
 The original CelebA dataset stores images in a .7z archive. The archive
 needs to be unpacked before importing.
 
+To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats/#dataset-meta-file).
+
 ## Export to other formats
 
 Datumaro can convert an align CelebA dataset into any other format [Datumaro supports](/docs/user-manual/supported_formats/).
@@ -81,10 +84,12 @@ formats using CLI:
 ```bash
 datum create
 datum import -f align_celeba <path/to/dataset>
-datum export -f imagenet_txt -o ./save_dir -- --save-images
-# or
+datum export -f imagenet_txt -o ./save_dir -- --save-media
+```
+or
+``` bash
 datum convert -if align_celeba -i <path/to/dataset> \
-    -f imagenet_txt -o <output/dir> -- --save-images
+    -f imagenet_txt -o <output/dir> -- --save-media
 ```
 
 Or, using Python API:

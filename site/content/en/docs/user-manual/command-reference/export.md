@@ -1,8 +1,7 @@
 ---
 title: 'Export Datasets'
-linkTitle: 'Export'
+linkTitle: 'export'
 description: ''
-weight: 11
 ---
 
 This command exports a project or a source as a dataset in some format.

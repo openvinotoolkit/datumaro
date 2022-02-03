@@ -6,6 +6,7 @@ import numpy as np
 
 from datumaro.components.annotation import Bbox, Label, Mask
 from datumaro.components.dataset import Dataset, DatasetItem
+from datumaro.components.media import Image
 from datumaro.util.test_utils import TestDir, compare_datasets
 from datumaro.util.test_utils import run_datum as run
 import datumaro.plugins.voc_format.format as VOC
@@ -110,7 +111,8 @@ class VocIntegrationScenarios(TestCase):
         label_map.move_to_end('background', last=False)
 
         expected_dataset = Dataset.from_iterable([
-            DatasetItem(id='1', subset='train', image=np.ones((10, 15, 3)),
+            DatasetItem(id='1', subset='train',
+                media=Image(data=np.ones((10, 15, 3))),
                 annotations=[
                     Bbox(0.0, 2.0, 4.0, 2.0,
                         attributes={
@@ -169,7 +171,7 @@ class VocIntegrationScenarios(TestCase):
 
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='1', subset='default',
-                image=np.ones((16, 16, 3)),
+                media=Image(data=np.ones((16, 16, 3))),
                 annotations=[
                     Bbox(0.0, 4.0, 4.0, 8.0,
                         attributes={
@@ -219,7 +221,7 @@ class VocIntegrationScenarios(TestCase):
                 subset='default', annotations=[Label(i)])
                 for i, label in enumerate(labels)
             ] + [DatasetItem(id='no_label/2007_000002', subset='default',
-                   image=np.ones((10, 20, 3)))
+                   media=Image(data=np.ones((10, 20, 3))))
             ], categories=labels
         )
 
@@ -237,7 +239,7 @@ class VocIntegrationScenarios(TestCase):
     def test_can_save_and_load_voc_dataset(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='2007_000001', subset='train',
-                image=np.ones((10, 20, 3)),
+                media=Image(data=np.ones((10, 20, 3))),
                 annotations=[Label(i) for i in range(22) if i % 2 == 1] + [
                     Bbox(4.0, 5.0, 2.0, 2.0, label=15, id=1, group=1,
                         attributes={
@@ -263,7 +265,7 @@ class VocIntegrationScenarios(TestCase):
                 ]),
 
             DatasetItem(id='2007_000002', subset='test',
-               image=np.ones((10, 20, 3)))
+               media=Image(data=np.ones((10, 20, 3))))
         ], categories=VOC.make_voc_categories())
 
         voc_dir = osp.join(DUMMY_DATASETS_DIR, 'voc_dataset1')
@@ -275,7 +277,7 @@ class VocIntegrationScenarios(TestCase):
     def test_can_save_and_load_voc_layout_dataset(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='2007_000001', subset='train',
-                image=np.ones((10, 20, 3)),
+                media=Image(data=np.ones((10, 20, 3))),
                 annotations=[
                     Bbox(4.0, 5.0, 2.0, 2.0, label=15, id=1, group=1,
                         attributes={
@@ -292,7 +294,7 @@ class VocIntegrationScenarios(TestCase):
                 ]),
 
             DatasetItem(id='2007_000002', subset='test',
-                image=np.ones((10, 20, 3))),
+                media=Image(data=np.ones((10, 20, 3))))
         ], categories=VOC.make_voc_categories())
 
         dataset_dir = osp.join(DUMMY_DATASETS_DIR, 'voc_dataset1')
@@ -317,11 +319,11 @@ class VocIntegrationScenarios(TestCase):
     def test_can_save_and_load_voc_classification_dataset(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='2007_000001', subset='train',
-                image=np.ones((10, 20, 3)),
+                media=Image(data=np.ones((10, 20, 3))),
                 annotations=[Label(i) for i in range(22) if i % 2 == 1]),
 
             DatasetItem(id='2007_000002', subset='test',
-                image=np.ones((10, 20, 3))),
+                media=Image(data=np.ones((10, 20, 3)))),
         ], categories=VOC.make_voc_categories())
 
         dataset_dir = osp.join(DUMMY_DATASETS_DIR, 'voc_dataset1')
@@ -345,7 +347,7 @@ class VocIntegrationScenarios(TestCase):
     def test_can_save_and_load_voc_detection_dataset(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='2007_000001', subset='train',
-                image=np.ones((10, 20, 3)),
+                media=Image(data=np.ones((10, 20, 3))),
                 annotations=[
                     Bbox(4.0, 5.0, 2.0, 2.0, label=15, id=2, group=2,
                         attributes={
@@ -369,7 +371,7 @@ class VocIntegrationScenarios(TestCase):
                 ]),
 
             DatasetItem(id='2007_000002', subset='test',
-                image=np.ones((10, 20, 3))),
+                media=Image(data=np.ones((10, 20, 3)))),
         ], categories=VOC.make_voc_categories())
 
         dataset_dir = osp.join(DUMMY_DATASETS_DIR, 'voc_dataset1')
@@ -393,13 +395,13 @@ class VocIntegrationScenarios(TestCase):
     def test_can_save_and_load_voc_segmentation_dataset(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='2007_000001', subset='train',
-                image=np.ones((10, 20, 3)),
+                media=Image(data=np.ones((10, 20, 3))),
                 annotations=[
                     Mask(image=np.ones([10, 20]), label=2, group=1)
                 ]),
 
             DatasetItem(id='2007_000002', subset='test',
-                image=np.ones((10, 20, 3))),
+                media=Image(data=np.ones((10, 20, 3)))),
         ], categories=VOC.make_voc_categories())
 
         dataset_dir = osp.join(DUMMY_DATASETS_DIR, 'voc_dataset1')
@@ -424,7 +426,7 @@ class VocIntegrationScenarios(TestCase):
     def test_can_save_and_load_voc_action_dataset(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='2007_000001', subset='train',
-                image=np.ones((10, 20, 3)),
+                media=Image(data=np.ones((10, 20, 3))),
                 annotations=[
                     Bbox(4.0, 5.0, 2.0, 2.0, label=15, id=1, group=1,
                         attributes={
@@ -440,7 +442,7 @@ class VocIntegrationScenarios(TestCase):
                 ]),
 
             DatasetItem(id='2007_000002', subset='test',
-                image=np.ones((10, 20, 3))),
+                media=Image(data=np.ones((10, 20, 3)))),
         ], categories=VOC.make_voc_categories())
 
         dataset_dir = osp.join(DUMMY_DATASETS_DIR, 'voc_dataset1')
@@ -465,7 +467,7 @@ class VocIntegrationScenarios(TestCase):
     def test_label_projection_with_masks(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='2007_000001', subset='train',
-                image=np.ones((10, 20, 3)),
+                media=Image(data=np.ones((10, 20, 3))),
                 annotations=[
                     Bbox(1, 2, 2, 2, label=3,
                         attributes={
@@ -480,7 +482,7 @@ class VocIntegrationScenarios(TestCase):
             ),
 
             DatasetItem(id='2007_000002', subset='test',
-                image=np.ones((10, 20, 3))),
+                media=Image(data=np.ones((10, 20, 3)))),
         ], categories=VOC.make_voc_categories({
             'background': [(0, 0, 0), [], []], # Added on export
             'a': [(128, 0, 0), [], []], # Generated by the transform

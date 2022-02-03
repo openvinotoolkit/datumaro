@@ -8,6 +8,7 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
+from datumaro.components.media import PointCloud
 from datumaro.components.project import Dataset
 from datumaro.plugins.sly_pointcloud_format.converter import (
     SuperviselyPointCloudConverter,
@@ -16,7 +17,7 @@ from datumaro.plugins.sly_pointcloud_format.extractor import (
     SuperviselyPointCloudImporter,
 )
 from datumaro.util.test_utils import (
-    Dimensions, TestDir, compare_datasets_3d, test_save_and_load,
+    Dimensions, TestDir, check_save_and_load, compare_datasets_3d,
 )
 
 from .requirements import Requirements, mark_requirement
@@ -58,7 +59,7 @@ class SuperviselyPointcloudImporterTest(TestCase):
                         attributes={'track_id': 231831,
                             'tag1': 'v12', 'tag3': ''}),
                 ],
-                point_cloud=pcd1, related_images=[image1],
+                media=PointCloud(pcd1, extra_images=[image1]),
                 attributes={'frame': 0, 'description': '',
                     'tag1': '25dsd', 'tag2': 65}
             ),
@@ -69,7 +70,7 @@ class SuperviselyPointcloudImporterTest(TestCase):
                         position=[0.59, 14.41, -0.61],
                         attributes={'track_id': 36, 'tag1': '', 'tag3': ''})
                 ],
-                point_cloud=pcd2, related_images=[image2],
+                media=PointCloud(pcd2, extra_images=[image2]),
                 attributes={'frame': 1, 'description': ''}
             ),
         ], categories={AnnotationType.label: label_cat})
@@ -93,7 +94,7 @@ class PointCloudConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None, **kwargs):
         kwargs.setdefault('dimension', Dimensions.dim_3d)
-        return test_save_and_load(self, source_dataset, converter, test_dir,
+        return check_save_and_load(self, source_dataset, converter, test_dir,
             importer='sly_pointcloud', target_dataset=target_dataset,
             importer_args=importer_args, **kwargs)
 
@@ -114,7 +115,7 @@ class PointCloudConverterTest(TestCase):
                         position=[318.19, 974.65, 1.29],
                         attributes={'occluded': True, 'track_id': 2}),
                 ],
-                point_cloud=self.pcd1,
+                media=PointCloud(self.pcd1),
                 attributes={'frame': 0, 'description': 'zzz'}
             ),
 
@@ -124,7 +125,7 @@ class PointCloudConverterTest(TestCase):
                         position=[23.04, 8.75, -0.78],
                         attributes={'occluded': False, 'track_id': 2})
                 ],
-                point_cloud=self.pcd2, related_images=[self.image2],
+                media=PointCloud(self.pcd2, extra_images=[self.image2]),
                 attributes={'frame': 1}
             ),
         ], categories={ AnnotationType.label: src_label_cat })
@@ -146,8 +147,8 @@ class PointCloudConverterTest(TestCase):
                             position=[318.19, 974.65, 1.29],
                             attributes={'occluded': True, 'track_id': 2}),
                     ],
-                    point_cloud=osp.join(test_dir,
-                        'ds0', 'pointcloud', 'frame_1.pcd'),
+                    media=PointCloud(osp.join(test_dir,
+                        'ds0', 'pointcloud', 'frame_1.pcd')),
                     attributes={'frame': 0, 'description': 'zzz'}),
 
                 DatasetItem(id='frm2',
@@ -156,16 +157,16 @@ class PointCloudConverterTest(TestCase):
                             position=[23.04, 8.75, -0.78],
                             attributes={'occluded': False, 'track_id': 2}),
                     ],
-                    point_cloud=osp.join(test_dir,
-                        'ds0', 'pointcloud', 'frm2.pcd'),
-                    related_images=[osp.join(test_dir,
-                        'ds0', 'related_images', 'frm2_pcd', 'img1.png')
-                    ],
+                    media=PointCloud(osp.join(test_dir,
+                            'ds0', 'pointcloud', 'frm2.pcd'),
+                        extra_images=[osp.join(test_dir,
+                            'ds0', 'related_images', 'frm2_pcd', 'img1.png')
+                    ]),
                     attributes={'frame': 1, 'description': ''})
             ], categories={ AnnotationType.label: target_label_cat })
 
             self._test_save_and_load(source_dataset,
-                partial(SuperviselyPointCloudConverter.convert, save_images=True),
+                partial(SuperviselyPointCloudConverter.convert, save_media=True),
                 test_dir, target_dataset=target_dataset,
                 require_point_cloud=True)
 
@@ -213,7 +214,7 @@ class PointCloudConverterTest(TestCase):
 
         with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
-                partial(SuperviselyPointCloudConverter.convert, save_images=True,
+                partial(SuperviselyPointCloudConverter.convert, save_media=True,
                     allow_undeclared_attrs=True),
                 test_dir, ignored_attrs=['description'])
 
@@ -243,7 +244,7 @@ class PointCloudConverterTest(TestCase):
 
         with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
-                partial(SuperviselyPointCloudConverter.convert, save_images=True),
+                partial(SuperviselyPointCloudConverter.convert, save_media=True),
                 test_dir, target_dataset=target_dataset,
                 ignored_attrs=['description'])
 
@@ -251,7 +252,7 @@ class PointCloudConverterTest(TestCase):
     def test_have_arbitrary_item_ids(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='a/b/c235',
-                point_cloud=self.pcd1, related_images=[self.image1],
+                media=PointCloud(self.pcd1, extra_images=[self.image1]),
                 attributes={'frame': 20}),
         ])
 
@@ -262,12 +263,12 @@ class PointCloudConverterTest(TestCase):
                 'a', 'b', 'c235_pcd', 'img2.png')
             target_dataset = Dataset.from_iterable([
                 DatasetItem(id='a/b/c235',
-                    point_cloud=pcd_path, related_images=[img_path],
+                    media=PointCloud(pcd_path, extra_images=[img_path]),
                     attributes={'frame': 20}),
             ], categories=[])
 
             self._test_save_and_load(source_dataset,
-                partial(SuperviselyPointCloudConverter.convert, save_images=True),
+                partial(SuperviselyPointCloudConverter.convert, save_media=True),
                 test_dir, target_dataset=target_dataset,
                 ignored_attrs={'description'}, require_point_cloud=True)
 
@@ -287,21 +288,21 @@ class PointCloudConverterTest(TestCase):
                         Cuboid3d(id=215,
                             position=[320.59, 979.48, 1.03], label=0)
                     ],
-                    point_cloud=self.pcd1, related_images=[self.image1],
+                    media=PointCloud(self.pcd1, extra_images=[self.image1]),
                     attributes={'frame': 0})
             ], categories=['car', 'bus'])
-            dataset.export(path, 'sly_pointcloud', save_images=True)
+            dataset.export(path, 'sly_pointcloud', save_media=True)
 
             dataset.put(DatasetItem(id='frame2',
                 annotations=[
                     Cuboid3d(id=216, position=[0.59, 14.41, -0.61], label=1)
                 ],
-                point_cloud=self.pcd2, related_images=[self.image2],
+                media=PointCloud(self.pcd2, extra_images=[self.image2]),
                 attributes={'frame': 1})
             )
 
             dataset.remove('frame1')
-            dataset.save(save_images=True)
+            dataset.save(save_media=True)
 
             self.assertEqual({'frame2.pcd.json'},
                 set(os.listdir(osp.join(path, 'ds0', 'ann'))))

@@ -12,7 +12,7 @@ from datumaro.components.extractor import DatasetItem
 from datumaro.components.media import Image
 from datumaro.plugins.labelme_format import LabelMeConverter, LabelMeImporter
 from datumaro.util.test_utils import (
-    TestDir, compare_datasets, test_save_and_load,
+    TestDir, check_save_and_load, compare_datasets,
 )
 
 from .requirements import Requirements, mark_requirement
@@ -21,7 +21,7 @@ from .requirements import Requirements, mark_requirement
 class LabelMeConverterTest(TestCase):
     def _test_save_and_load(self, source_dataset, converter, test_dir,
             target_dataset=None, importer_args=None, **kwargs):
-        return test_save_and_load(self, source_dataset, converter, test_dir,
+        return check_save_and_load(self, source_dataset, converter, test_dir,
             importer='label_me',
             target_dataset=target_dataset, importer_args=importer_args, **kwargs)
 
@@ -29,7 +29,7 @@ class LabelMeConverterTest(TestCase):
     def test_can_save_and_load(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='dir1/1', subset='train',
-                image=np.ones((16, 16, 3)),
+                media=Image(data=np.ones((16, 16, 3))),
                 annotations=[
                     Bbox(0, 4, 4, 8, label=2, group=2),
                     Polygon([0, 4, 4, 4, 5, 6], label=3, attributes={
@@ -52,7 +52,7 @@ class LabelMeConverterTest(TestCase):
 
         target_dataset = Dataset.from_iterable([
             DatasetItem(id='dir1/1', subset='train',
-                image=np.ones((16, 16, 3)),
+                media=Image(data=np.ones((16, 16, 3))),
                 annotations=[
                     Bbox(0, 4, 4, 8, label=0, group=2, id=0,
                         attributes={
@@ -89,35 +89,35 @@ class LabelMeConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 source_dataset,
-                partial(LabelMeConverter.convert, save_images=True),
+                partial(LabelMeConverter.convert, save_media=True),
                 test_dir, target_dataset=target_dataset, require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         dataset = Dataset.from_iterable([
-            DatasetItem(id='a/1', image=Image(path='a/1.JPEG',
+            DatasetItem(id='a/1', media=Image(path='a/1.JPEG',
                 data=np.zeros((4, 3, 3)))),
-            DatasetItem(id='b/c/d/2', image=Image(path='b/c/d/2.bmp',
+            DatasetItem(id='b/c/d/2', media=Image(path='b/c/d/2.bmp',
                 data=np.zeros((3, 4, 3)))),
         ], categories=[])
 
         with TestDir() as test_dir:
             self._test_save_and_load(dataset,
-                partial(LabelMeConverter.convert, save_images=True),
+                partial(LabelMeConverter.convert, save_media=True),
                 test_dir, require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         source_dataset = Dataset.from_iterable([
             DatasetItem(id='кириллица с пробелом', subset='train',
-                image=np.ones((16, 16, 3)),
+                media=Image(data=np.ones((16, 16, 3))),
                 annotations=[ Polygon([0, 4, 4, 4, 5, 6], label=3) ]
             ),
         ], categories=['label_' + str(label) for label in range(10)])
 
         target_dataset = Dataset.from_iterable([
             DatasetItem(id='кириллица с пробелом', subset='train',
-                image=np.ones((16, 16, 3)),
+                media=Image(data=np.ones((16, 16, 3))),
                 annotations=[
                     Polygon([0, 4, 4, 4, 5, 6], label=0, id=0,
                         attributes={ 'occluded': False, 'username': '' }
@@ -129,17 +129,66 @@ class LabelMeConverterTest(TestCase):
         with TestDir() as test_dir:
             self._test_save_and_load(
                 source_dataset,
-                partial(LabelMeConverter.convert, save_images=True),
+                partial(LabelMeConverter.convert, save_media=True),
                 test_dir, target_dataset=target_dataset, require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_relative_paths(self):
         source_dataset = Dataset.from_iterable([
-            DatasetItem(id='1', image=np.ones((4, 2, 3))),
-            DatasetItem(id='subdir1/1', image=np.ones((2, 6, 3))),
-            DatasetItem(id='subdir2/1', image=np.ones((5, 4, 3))),
+            DatasetItem(id='1', media=Image(data=np.ones((4, 2, 3)))),
+            DatasetItem(id='subdir1/1', media=Image(data=np.ones((2, 6, 3)))),
+            DatasetItem(id='subdir2/1', media=Image(data=np.ones((5, 4, 3)))),
 
-            DatasetItem(id='sub/dir3/1', image=np.ones((3, 4, 3)), annotations=[
+            DatasetItem(id='sub/dir3/1', media=Image(data=np.ones((3, 4, 3))),
+                annotations=[
+                    Mask(np.array([
+                            [0, 1, 1, 0],
+                            [0, 1, 1, 0],
+                            [0, 0, 0, 0],
+                        ]), label=1, attributes={
+                            'occluded': False, 'username': 'user'
+                        }
+                    )
+                ]
+            ),
+
+            DatasetItem(id='subdir3/1', subset='a',
+                media=Image(data=np.ones((5, 4, 3))),
+                annotations=[
+                    Bbox(1, 2, 3, 4, label=0, attributes={
+                        'occluded': False, 'username': 'user'
+                    })
+                ]),
+            DatasetItem(id='subdir3/1', subset='b',
+                media=Image(data=np.ones((4, 4, 3))))
+        ], categories=['label1', 'label2'])
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(source_dataset,
+                partial(LabelMeConverter.convert, save_media=True),
+                test_dir, require_images=True)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_save_dataset_to_correct_dir_with_correct_filename(self):
+        dataset = Dataset.from_iterable([
+            DatasetItem(id='dir/a', media=Image(path='dir/a.JPEG',
+                data=np.zeros((4, 3, 3)))),
+        ], categories=[])
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(dataset,
+                partial(LabelMeConverter.convert, save_media=True),
+                test_dir, require_images=True)
+
+            xml_dirpath = osp.join(test_dir, 'default/dir')
+            self.assertEqual(os.listdir(osp.join(test_dir, 'default')), ['dir'])
+            self.assertEqual(set(os.listdir(xml_dirpath)), {'a.xml', 'a.JPEG'})
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_save_and_load_with_meta_file(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id='sub/dir3/1',
+                media=Image(data=np.ones((3, 4, 3))), annotations=[
                 Mask(np.array([
                         [0, 1, 1, 0],
                         [0, 1, 1, 0],
@@ -150,35 +199,21 @@ class LabelMeConverterTest(TestCase):
                 )
             ]),
 
-            DatasetItem(id='subdir3/1', subset='a', image=np.ones((5, 4, 3)),
+            DatasetItem(id='subdir3/1', subset='a',
+                media=Image(data=np.ones((5, 4, 3))),
                 annotations=[
                     Bbox(1, 2, 3, 4, label=0, attributes={
                         'occluded': False, 'username': 'user'
                     })
-                ]),
-            DatasetItem(id='subdir3/1', subset='b', image=np.ones((4, 4, 3))),
+                ])
         ], categories=['label1', 'label2'])
 
         with TestDir() as test_dir:
             self._test_save_and_load(source_dataset,
-                partial(LabelMeConverter.convert, save_images=True),
+                partial(LabelMeConverter.convert, save_media=True,
+                    save_dataset_meta=True),
                 test_dir, require_images=True)
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_save_dataset_to_correct_dir_with_correct_filename(self):
-        dataset = Dataset.from_iterable([
-            DatasetItem(id='dir/a', image=Image(path='dir/a.JPEG',
-                data=np.zeros((4, 3, 3)))),
-        ], categories=[])
-
-        with TestDir() as test_dir:
-            self._test_save_and_load(dataset,
-                partial(LabelMeConverter.convert, save_images=True),
-                test_dir, require_images=True)
-
-            xml_dirpath = osp.join(test_dir, 'default/dir')
-            self.assertEqual(os.listdir(osp.join(test_dir, 'default')), ['dir'])
-            self.assertEqual(set(os.listdir(xml_dirpath)), {'a.xml', 'a.JPEG'})
+            self.assertTrue(osp.isfile(osp.join(test_dir, 'dataset_meta.json')))
 
 DUMMY_DATASET_DIR = osp.join(osp.dirname(__file__), 'assets', 'labelme_dataset')
 
@@ -213,7 +248,7 @@ class LabelMeImporterTest(TestCase):
         ]
 
         target_dataset = Dataset.from_iterable([
-            DatasetItem(id='example_folder/img1', image=img1,
+            DatasetItem(id='example_folder/img1', media=Image(data=img1),
                 annotations=[
                     Polygon([43, 34, 45, 34, 45, 37, 43, 37],
                         label=0, id=0,
@@ -274,3 +309,13 @@ class LabelMeImporterTest(TestCase):
 
         parsed = Dataset.import_from(DUMMY_DATASET_DIR, 'label_me')
         compare_datasets(self, expected=target_dataset, actual=parsed)
+
+    @mark_requirement(Requirements.DATUM_BUG_289)
+    def test_can_convert(self):
+        source_dataset = Dataset.import_from(DUMMY_DATASET_DIR, 'label_me')
+        with TestDir() as test_dir:
+            LabelMeConverter.convert(source_dataset, test_dir, save_media=True)
+            parsed_dataset = Dataset.import_from(test_dir, 'label_me')
+
+            compare_datasets(self, source_dataset, parsed_dataset,
+                require_images=True)

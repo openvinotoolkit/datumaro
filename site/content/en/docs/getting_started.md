@@ -12,7 +12,7 @@ To read about the design concept and features of Datumaro, go to the [design sec
 
 ### Dependencies
 
-- Python (3.6+)
+- Python (3.7+)
 - Optional: OpenVINO, TensorFlow, PyTorch, MxNet, Caffe, Accuracy Checker
 
 Optionally, create a virtual environment:
@@ -55,7 +55,7 @@ reading, exporting and iteration capabilities, simplifying integration of custom
 formats and providing high performance operations:
 
 ``` python
-from datumaro.components.project import Project
+from datumaro.project import Project
 
 # load a Datumaro project
 project = Project('directory')
@@ -68,7 +68,8 @@ dataset.select(lambda item: len(item.annotations) != 0)
 
 # change dataset labels
 dataset.transform('remap_labels',
-  {'cat': 'dog', # rename cat to dog
+  mapping={
+    'cat': 'dog', # rename cat to dog
     'truck': 'car', # rename truck to car
     'person': '', # remove this label
   }, default='delete') # remove everything else
@@ -167,16 +168,13 @@ project.close()
 - Create a custom COCO-like dataset:
   ```python
   import numpy as np
-  from datumaro.components.annotation import (
-    AnnotationType, Bbox, LabelCategories,
-  )
-  from datumaro.components.extractor import DatasetItem
-  from datumaro.components.dataset import Dataset
+  import datumaro as dm
 
-  dataset = Dataset([
-    DatasetItem(id=0, image=np.ones((5, 5, 3)),
+  dataset = dm.Dataset([
+    dm.DatasetItem(id='image1', subset='train',
+      image=np.ones((5, 5, 3)),
       annotations=[
-        Bbox(1, 2, 3, 4, label=0),
+        dm.Bbox(1, 2, 3, 4, label=0),
       ]
     ),
     # ...

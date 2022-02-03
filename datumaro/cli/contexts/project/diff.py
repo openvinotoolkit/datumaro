@@ -243,11 +243,11 @@ class DiffVisualizer:
         _, mispred, a_unmatched, b_unmatched = diff
 
         if 0 < len(a_unmatched) + len(b_unmatched) + len(mispred):
-            if not item_a.has_image or not item_a.image.has_data:
+            if not item_a.media:
                 log.warning("Item %s: item has no image data, "
                     "it will be skipped" % (item_a.id))
                 return
-            img_a = item_a.image.data.copy()
+            img_a = item_a.media.data.copy()
             img_b = img_a.copy()
             for a_bbox, b_bbox in mispred:
                 self.draw_bbox(img_a, a_bbox, self.get_a_label(a_bbox.label),

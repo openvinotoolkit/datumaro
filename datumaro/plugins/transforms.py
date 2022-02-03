@@ -12,17 +12,21 @@ import os.path as osp
 import random
 import re
 
+import cv2
+import numpy as np
 import pycocotools.mask as mask_utils
 
 from datumaro.components.annotation import (
-    AnnotationType, Bbox, Label, LabelCategories, MaskCategories,
-    PointsCategories, Polygon, RleMask,
+    AnnotationType, Bbox, Caption, Label, LabelCategories, Mask, MaskCategories,
+    Points, PointsCategories, Polygon, PolyLine, RleMask,
 )
 from datumaro.components.cli_plugin import CliPlugin
+from datumaro.components.errors import DatumaroError
 from datumaro.components.extractor import (
     DEFAULT_SUBSET_NAME, IExtractor, ItemTransform, Transform,
 )
-from datumaro.util import NOTSET, parse_str_enum_value
+from datumaro.components.media import Image
+from datumaro.util import NOTSET, parse_str_enum_value, take_by
 from datumaro.util.annotation_util import find_group_leader, find_instances
 import datumaro.util.mask_tools as mask_tools
 
@@ -39,9 +43,9 @@ class CropCoveredSegments(ItemTransform, CliPlugin):
         if not segments:
             return item
 
-        if not item.has_image:
+        if not item.media:
             raise Exception("Image info is required for this transform")
-        h, w = item.image.size
+        h, w = item.media.size
         segments = self.crop_segments(segments, w, h)
 
         annotations += segments
@@ -118,9 +122,9 @@ class MergeInstanceSegments(ItemTransform, CliPlugin):
         if not segments:
             return item
 
-        if not item.has_image:
+        if not item.media:
             raise Exception("Image info is required for this transform")
-        h, w = item.image.size
+        h, w = item.media.size
         instances = self.find_instances(segments)
         segments = [self.merge_segments(i, w, h, self._include_polygons)
             for i in instances]
@@ -179,9 +183,9 @@ class PolygonsToMasks(ItemTransform, CliPlugin):
         annotations = []
         for ann in item.annotations:
             if ann.type == AnnotationType.polygon:
-                if not item.has_image:
+                if not item.media:
                     raise Exception("Image info is required for this transform")
-                h, w = item.image.size
+                h, w = item.media.size
                 annotations.append(self.convert_polygon(ann, h, w))
             else:
                 annotations.append(ann)
@@ -200,9 +204,9 @@ class BoxesToMasks(ItemTransform, CliPlugin):
         annotations = []
         for ann in item.annotations:
             if ann.type == AnnotationType.bbox:
-                if not item.has_image:
+                if not item.media:
                     raise Exception("Image info is required for this transform")
-                h, w = item.image.size
+                h, w = item.media.size
                 annotations.append(self.convert_bbox(ann, h, w))
             else:
                 annotations.append(ann)
@@ -322,7 +326,7 @@ class RandomSplit(Transform, CliPlugin):
     It is expected that item ids are unique and subset ratios sum up to 1.|n
     |n
     Example:|n
-    |s|s%(prog)s --subset train:.67 --subset test:.33
+    |s|s|s|s%(prog)s --subset train:.67 --subset test:.33
     """
 
     # avoid https://bugs.python.org/issue16399
@@ -394,8 +398,8 @@ class RandomSplit(Transform, CliPlugin):
 
 class IdFromImageName(ItemTransform, CliPlugin):
     def transform_item(self, item):
-        if item.has_image and item.image.path:
-            name = osp.splitext(osp.basename(item.image.path))[0]
+        if item.media and item.media.path:
+            name = osp.splitext(osp.basename(item.media.path))[0]
             return self.wrap_item(item, id=name)
         else:
             log.debug("Can't change item id for item '%s': "
@@ -410,10 +414,10 @@ class Rename(ItemTransform, CliPlugin):
     contain string.format tokens with 'item' object available.|n
     |n
     Examples:|n
-    - Replace 'pattern' with 'replacement':|n
-    |s|srename -e '|pattern|replacement|'|n
-    - Remove 'frame_' from item ids:|n
-    |s|srename -e '|frame_(\d+)|\1|'
+    |s|s- Replace 'pattern' with 'replacement':|n
+    |s|s|s|srename -e '|pattern|replacement|'|n
+    |s|s- Remove 'frame_' from item ids:|n
+    |s|s|s|srename -e '|frame_(\d+)|\1|'
     """
 
     @classmethod
@@ -441,22 +445,22 @@ class RemapLabels(ItemTransform, CliPlugin):
     Changes labels in the dataset.|n
     |n
     A label can be:|n
-    - renamed (and joined with existing) -|n
-    |s|swhen specified '--label <old_name>:<new_name>'|n
-    - deleted - when specified '--label <name>:' or default action is 'delete'|n
-    |s|sand the label is not mentioned in the list. When a label|n
-    |s|sis deleted, all the associated annotations are removed|n
-    - kept unchanged - when specified '--label <name>:<name>'|n
-    |s|sor default action is 'keep' and the label is not mentioned in the list|n
+    |s|s- renamed (and joined with existing) -|n
+    |s|s|s|swhen specified '--label <old_name>:<new_name>'|n
+    |s|s- deleted - when specified '--label <name>:' or default action is 'delete'|n
+    |s|s|s|sand the label is not mentioned in the list. When a label|n
+    |s|s|s|sis deleted, all the associated annotations are removed|n
+    |s|s- kept unchanged - when specified '--label <name>:<name>'|n
+    |s|s|s|sor default action is 'keep' and the label is not mentioned in the list|n
     Annotations with no label are managed by the default action policy.|n
     |n
     Examples:|n
-    - Remove the 'person' label (and corresponding annotations):|n
-    |s|s%(prog)s -l person: --default keep|n
-    - Rename 'person' to 'pedestrian' and 'human' to 'pedestrian', join:|n
-    |s|s%(prog)s -l person:pedestrian -l human:pedestrian --default keep|n
-    - Rename 'person' to 'car' and 'cat' to 'dog', keep 'bus', remove others:|n
-    |s|s%(prog)s -l person:car -l bus:bus -l cat:dog --default delete
+    |s|s- Remove the 'person' label (and corresponding annotations):|n
+    |s|s|s|s%(prog)s -l person: --default keep|n
+    |s|s- Rename 'person' to 'pedestrian' and 'human' to 'pedestrian', join:|n
+    |s|s|s|s%(prog)s -l person:pedestrian -l human:pedestrian --default keep|n
+    |s|s- Rename 'person' to 'car' and 'cat' to 'dog', keep 'bus', remove others:|n
+    |s|s|s|s%(prog)s -l person:car -l bus:bus -l cat:dog --default delete
     """
 
     class DefaultAction(Enum):
@@ -594,8 +598,8 @@ class ProjectLabels(ItemTransform):
     Useful for merging similar datasets, whose labels need to be aligned.|n
     |n
     Examples:|n
-    - Align the source dataset labels to [person, cat, dog]:|n
-    |s|s%(prog)s -l person -l cat -l dog
+    |s|s- Align the source dataset labels to [person, cat, dog]:|n
+    |s|s|s|s%(prog)s -l person -l cat -l dog
     """
 
     @classmethod
@@ -711,7 +715,7 @@ class AnnsToLabels(ItemTransform, CliPlugin):
 
     def transform_item(self, item):
         labels = set(p.label for p in item.annotations
-            if getattr(p, 'label') != None)
+            if getattr(p, 'label') is not None)
         annotations = []
         for label in labels:
             annotations.append(Label(label=label))
@@ -734,3 +738,102 @@ class BboxValuesDecrement(ItemTransform, CliPlugin):
                 label=bbox.label, attributes=bbox.attributes))
 
         return item.wrap(annotations=annotations)
+
+class ResizeTransform(ItemTransform):
+    """
+    Resizes images and annotations in the dataset to the specified size.
+    Supports upscaling, downscaling and mixed variants.|n
+    |n
+    Examples:|n
+    - Resize all images to 256x256 size|n
+    |s|s%(prog)s -dw 256 -dh 256
+    """
+
+    @classmethod
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument('-dw', '--width', type=int,
+            help="Destination image width")
+        parser.add_argument('-dh', '--height', type=int,
+            help="Destination image height")
+        return parser
+
+    def __init__(self, extractor: IExtractor, width: int, height: int) -> None:
+        super().__init__(extractor)
+
+        assert width > 0 and height > 0
+        self._width = width
+        self._height = height
+
+    @staticmethod
+    def _lazy_resize_image(image, new_size):
+        def _resize_image(_):
+            h, w = image.size
+            yscale = new_size[0] / float(h)
+            xscale = new_size[1] / float(w)
+
+            # LANCZOS4 is preferable for upscaling, but it works quite slow
+            method = cv2.INTER_AREA if (xscale * yscale) < 1 \
+                else cv2.INTER_CUBIC
+
+            resized_image = cv2.resize(image.data / 255.0, new_size[::-1],
+                interpolation=method)
+            resized_image *= 255.0
+            return resized_image
+
+        return Image(_resize_image, ext=image.ext, size=new_size)
+
+    @staticmethod
+    def _lazy_resize_mask(mask, new_size):
+        def _resize_image():
+            # Can use only NEAREST for masks,
+            # because we can't have interpolated values
+            rescaled_mask = cv2.resize(mask.image.astype(np.float32),
+                new_size[::-1], interpolation=cv2.INTER_NEAREST)
+            return rescaled_mask.astype(np.uint8)
+        return _resize_image
+
+    def transform_item(self, item):
+        if not item.media:
+            raise DatumaroError("Item %s: image info is required for this "
+                "transform" % (item.id, ))
+
+        h, w = item.media.size
+        xscale = self._width / float(w)
+        yscale = self._height / float(h)
+
+        new_size = (self._height, self._width)
+
+        resized_image = None
+        if item.media.has_data:
+            resized_image = self._lazy_resize_image(item.media, new_size)
+
+        resized_annotations = []
+        for ann in item.annotations:
+            if isinstance(ann, Bbox):
+                resized_annotations.append(ann.wrap(
+                    x=ann.x * xscale,
+                    y=ann.y * yscale,
+                    w=ann.w * xscale,
+                    h=ann.h * yscale,
+                ))
+            elif isinstance(ann, (Polygon, Points, PolyLine)):
+                resized_annotations.append(ann.wrap(
+                    points=[p
+                        for t in ((x * xscale, y * yscale)
+                            for x, y in take_by(ann.points, 2)
+                        )
+                        for p in t
+                    ]
+                ))
+            elif isinstance(ann, Mask):
+                rescaled_mask = self._lazy_resize_mask(ann, new_size)
+                resized_annotations.append(ann.wrap(image=rescaled_mask))
+            elif isinstance(ann, (Caption, Label)):
+                resized_annotations.append(ann)
+            else:
+                assert False, f"Unexpected annotation type {type(ann)}"
+
+        return self.wrap_item(item,
+            image=resized_image,
+            annotations=resized_annotations)

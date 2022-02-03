@@ -158,9 +158,9 @@ class NDR(Transform, CliPlugin):
         having_image = []
         all_imgs = []
         for item in working_subset:
-            if item.image.has_data:
+            if item.media.has_data:
                 having_image.append(item)
-                img = item.image.data
+                img = item.media.data
                 # Not handle empty image, as utils/image.py if check empty
                 if len(img.shape) == 2:
                     img = np.stack((img,)*3, axis=-1)

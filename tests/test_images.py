@@ -82,8 +82,11 @@ class ImageTest(TestCase):
                 { 'data': image },
                 { 'data': image, 'path': path },
                 { 'data': image, 'path': path, 'size': (2, 4) },
+                { 'data': image, 'ext': 'png' },
+                { 'data': image, 'ext': 'png', 'size': (2, 4) },
                 { 'data': lambda p: image },
                 { 'data': lambda p: image, 'path': 'somepath' },
+                { 'data': lambda p: image, 'ext': 'jpg' },
                 { 'path': path },
                 { 'path': path, 'data': load_image },
                 { 'path': path, 'data': load_image, 'size': (2, 4) },
@@ -91,11 +94,19 @@ class ImageTest(TestCase):
             ]:
                 with self.subTest(**args):
                     img = Image(**args)
-                    # pylint: disable=pointless-statement
                     self.assertTrue(img.has_data)
-                    self.assertEqual(img, image)
+                    np.testing.assert_array_equal(img.data, image)
                     self.assertEqual(img.size, tuple(image.shape[:2]))
-                    # pylint: enable=pointless-statement
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_ctor_errors(self):
+        with self.subTest('no data specified'):
+            with self.assertRaisesRegex(Exception, "can not be empty"):
+                Image(ext='jpg', size=(1, 2))
+
+        with self.subTest('either path or ext'):
+            with self.assertRaisesRegex(Exception, "both 'path' and 'ext'"):
+                Image(path='somepath', ext='someext')
 
 class BytesImageTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -130,7 +141,7 @@ class BytesImageTest(TestCase):
                     # pylint: disable=pointless-statement
                     self.assertEqual('data' in args, img.has_data)
                     if img.has_data:
-                        self.assertEqual(img, image)
+                        np.testing.assert_array_equal(img.data, image)
                         self.assertEqual(img.get_bytes(), image_bytes)
                     img.size
                     if 'size' in args:
@@ -138,6 +149,21 @@ class BytesImageTest(TestCase):
                     if 'ext' in args or 'path' in args:
                         self.assertEqual(img.ext, args.get('ext', '.png'))
                     # pylint: enable=pointless-statement
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_ext_detection(self):
+        image_data = np.zeros((3, 4))
+
+        for ext in ('.bmp', '.jpg', '.png'):
+            with self.subTest(ext=ext):
+                image = ByteImage(data=encode_image(image_data, ext))
+                self.assertEqual(image.ext, ext)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_ext_detection_failure(self):
+        image_bytes = b'\xff' * 10 # invalid image
+        image = ByteImage(data=image_bytes)
+        self.assertEqual(image.ext, '')
 
 class ImageMetaTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)

@@ -11,7 +11,9 @@ from datumaro.components.annotation import Bbox, LabelCategories, Mask
 from datumaro.components.extractor import (
     AnnotationType, DatasetItem, SourceExtractor,
 )
+from datumaro.components.media import Image
 from datumaro.util.image import find_images, load_image
+from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
 from .format import (
     KittiLabelMap, KittiPath, KittiTask, make_kitti_categories, parse_label_map,
@@ -36,15 +38,23 @@ class _KittiExtractor(SourceExtractor):
         if self._task == KittiTask.segmentation:
             return self._load_categories_segmentation(path)
         elif self._task == KittiTask.detection:
+            if has_meta_file(path):
+                return { AnnotationType.label: LabelCategories.
+                    from_iterable(parse_meta_file(path).keys()) }
+
             return {AnnotationType.label: LabelCategories()}
 
     def _load_categories_segmentation(self, path):
         label_map = None
-        label_map_path = osp.join(path, KittiPath.LABELMAP_FILE)
-        if osp.isfile(label_map_path):
-            label_map = parse_label_map(label_map_path)
+        if has_meta_file(path):
+            label_map = parse_meta_file(path)
         else:
-            label_map = KittiLabelMap
+            label_map_path = osp.join(path, KittiPath.LABELMAP_FILE)
+            if osp.isfile(label_map_path):
+                label_map = parse_label_map(label_map_path)
+            else:
+                label_map = KittiLabelMap
+
         self._labels = [label for label in label_map]
         return make_kitti_categories(label_map)
 
@@ -75,9 +85,13 @@ class _KittiExtractor(SourceExtractor):
                         label=semantic_id, id=ann_id,
                         attributes={ 'is_crowd': isCrowd }))
 
+                image = None
+                image_path = image_path_by_id.pop(item_id, None)
+                if image_path:
+                    image = Image(path=image_path)
+
                 items[item_id] = DatasetItem(id=item_id, annotations=anns,
-                    image=image_path_by_id.pop(item_id, None),
-                    subset=self._subset)
+                    media=image, subset=self._subset)
 
         det_dir = osp.join(self._path, KittiPath.LABELS_DIR)
         if self._task == KittiTask.detection:
@@ -91,7 +105,7 @@ class _KittiExtractor(SourceExtractor):
 
                 for line_idx, line in enumerate(lines):
                     line = line.split()
-                    assert len(line) == 15
+                    assert len(line) == 15 or len(line) == 16
 
                     x1, y1 = float(line[4]), float(line[5])
                     x2, y2 = float(line[6]), float(line[7])
@@ -99,6 +113,9 @@ class _KittiExtractor(SourceExtractor):
                     attributes = {}
                     attributes['truncated'] = float(line[1]) != 0
                     attributes['occluded']  = int(line[2]) != 0
+
+                    if len(line) == 16:
+                        attributes['score'] = float(line[15])
 
                     label_id = self.categories()[
                         AnnotationType.label].find(line[0])[0]
@@ -111,13 +128,17 @@ class _KittiExtractor(SourceExtractor):
                             attributes=attributes, label=label_id,
                         ))
 
+                image = None
+                image_path = image_path_by_id.pop(item_id, None)
+                if image_path:
+                    image = Image(path=image_path)
+
                 items[item_id] = DatasetItem(id=item_id, annotations=anns,
-                    image=image_path_by_id.pop(item_id, None),
-                    subset=self._subset)
+                    media=image, subset=self._subset)
 
         for item_id, image_path in image_path_by_id.items():
             items[item_id] = DatasetItem(id=item_id, subset=self._subset,
-                image=image_path)
+                media=Image(path=image_path))
 
         return items
 

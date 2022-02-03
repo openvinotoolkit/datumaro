@@ -35,6 +35,9 @@ class YoloConverter(Converter):
 
         os.makedirs(save_dir, exist_ok=True)
 
+        if self._save_dataset_meta:
+            self._save_meta_file(self._save_dir)
+
         label_categories = extractor.categories()[AnnotationType.label]
         label_ids = {label.name: idx
             for idx, label in enumerate(label_categories.items)}
@@ -60,14 +63,14 @@ class YoloConverter(Converter):
             image_paths = OrderedDict()
 
             for item in subset:
-                if not item.has_image:
+                if not item.media:
                     raise Exception("Failed to export item '%s': "
                         "item has no image info" % item.id)
-                height, width = item.image.size
+                height, width = item.media.size
 
                 image_name = self._make_image_filename(item)
-                if self._save_images:
-                    if item.has_image and item.image.has_data:
+                if self._save_media:
+                    if item.media:
                         self._save_image(item, osp.join(subset_dir, image_name))
                     else:
                         log.warning("Item '%s' has no image" % item.id)
@@ -124,7 +127,7 @@ class YoloConverter(Converter):
             else:
                 item = DatasetItem(item_id, subset=subset)
 
-            if not (status == ItemStatus.removed or not item.has_image):
+            if not (status == ItemStatus.removed or not item.media):
                 continue
 
             if subset == DEFAULT_SUBSET_NAME:

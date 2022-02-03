@@ -170,14 +170,14 @@ class _SubsetWriter:
         image_info = OrderedDict([ ("id", str(index)), ])
         filename = self._context._make_image_filename(item)
         image_info["name"] = filename
-        if item.has_image:
-            size = item.image.size
+        if item.media:
+            size = item.media.size
             if size:
                 h, w = size
                 image_info["width"] = str(w)
                 image_info["height"] = str(h)
 
-            if self._context._save_images:
+            if self._context._save_media:
                 self._context._save_image(item,
                     osp.join(self._context._images_dir, filename))
         else:
@@ -406,7 +406,7 @@ class CvatConverter(Converter):
             else:
                 item = DatasetItem(item_id, subset=subset)
 
-            if not (status == ItemStatus.removed or not item.has_image):
+            if not (status == ItemStatus.removed or not item.media):
                 ids_to_remove[item_id] = (item, False)
             else:
                 ids_to_remove.setdefault(item_id, (item, True))

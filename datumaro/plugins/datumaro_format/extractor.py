@@ -11,7 +11,7 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.components.format_detection import FormatDetectionContext
-from datumaro.components.media import Image, MediaElement
+from datumaro.components.media import Image, MediaElement, PointCloud
 
 from .format import DatumaroPath
 
@@ -86,7 +86,7 @@ class DatumaroExtractor(SourceExtractor):
         for item_desc in parsed['items']:
             item_id = item_desc['id']
 
-            image = None
+            media = None
             image_info = item_desc.get('image')
             if image_info:
                 image_filename = image_info.get('path') or \
@@ -99,27 +99,28 @@ class DatumaroExtractor(SourceExtractor):
                     if osp.isfile(old_image_path):
                         image_path = old_image_path
 
-                image = Image(path=image_path, size=image_info.get('size'))
+                media = Image(path=image_path, size=image_info.get('size'))
 
-            point_cloud = None
             pcd_info = item_desc.get('point_cloud')
-            if pcd_info:
+            if not media and pcd_info:
                 pcd_path = pcd_info.get('path')
                 point_cloud = osp.join(self._pcd_dir, self._subset, pcd_path)
 
-            related_images = None
-            ri_info = item_desc.get('related_images')
-            if ri_info:
-                related_images = [
-                    Image(size=ri.get('size'),
-                        path=osp.join(self._related_images_dir, self._subset,
-                            item_id, ri.get('path'))
-                    )
-                    for ri in ri_info
-                ]
+                related_images = None
+                ri_info = item_desc.get('related_images')
+                if ri_info:
+                    related_images = [
+                        Image(size=ri.get('size'),
+                            path=osp.join(self._related_images_dir, self._subset,
+                                item_id, ri.get('path'))
+                        )
+                        for ri in ri_info
+                    ]
+
+                media = PointCloud(point_cloud, extra_images=related_images)
 
             media_desc = item_desc.get('media')
-            if not (image or point_cloud) and media_desc and \
+            if not media and media_desc and \
                     media_desc.get('path'):
                 media = MediaElement(path=media_desc.get('path'))
 
@@ -127,8 +128,7 @@ class DatumaroExtractor(SourceExtractor):
 
             item = DatasetItem(id=item_id, subset=self._subset,
                 annotations=annotations, media=media,
-                image=image, point_cloud=point_cloud,
-                related_images=related_images, attributes=item_desc.get('attr'))
+                attributes=item_desc.get('attr'))
 
             items.append(item)
 

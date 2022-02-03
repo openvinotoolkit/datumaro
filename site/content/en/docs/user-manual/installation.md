@@ -7,7 +7,7 @@ weight: 1
 
 ### Dependencies
 
-- Python (3.6+)
+- Python (3.7+)
 - Optional: OpenVINO, TensorFlow, PyTorch, MxNet, Caffe, Accuracy Checker
 
 ### Installation steps
@@ -24,7 +24,8 @@ Install:
 ``` bash
 # From PyPI:
 pip install datumaro[default]
-
+```
+``` bash
 # From the GitHub repository:
 pip install 'git+https://github.com/openvinotoolkit/datumaro[default]'
 ```
@@ -60,20 +61,6 @@ plugin dependencies in the [plugins](/docs/user-manual/extending) section.
   ```
   This option can't be covered by extras due to Python packaging system
   limitations.
-
-- Although Datumaro excludes `pycocotools` of version 2.0.2 in
-  requirements, it works with this version perfectly fine. The
-  reason for such requirement is binary incompatibility of the `numpy`
-  dependency in the `TensorFlow` and `pycocotools` binary packages,
-  and the current workaround forces this package to be build from sources
-  on most platforms
-  (see [#253](https://github.com/openvinotoolkit/datumaro/issues/253)).
-  If you need to use 2.0.2, make sure it is linked with the same version
-  of `numpy` as `TensorFlow` by reinstalling the package:
-  ``` bash
-  pip uninstall pycocotools
-  pip install pycocotools --no-binary=pycocotools
-  ```
 
 - When installing directly from the repository, you can change the
   installation branch with `...@<branch_name>`. Also use `--force-reinstall`

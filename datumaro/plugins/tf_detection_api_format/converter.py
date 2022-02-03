@@ -174,7 +174,7 @@ class TfDetectionApiConverter(Converter):
             'image/format': bytes_feature(b''),
             'image/key/sha256': bytes_feature(b''),
         })
-        if self._save_images:
+        if self._save_media:
             if item.has_image and item.image.has_data:
                 buffer, fmt = self._save_image(item, filename)
                 key = hashlib.sha256(buffer).hexdigest()

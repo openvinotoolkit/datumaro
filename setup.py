@@ -1,5 +1,4 @@
-
-# Copyright (C) 2019-2021 Intel Corporation
+# Copyright (C) 2019-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -52,10 +51,6 @@ DEFAULT_REQUIREMENTS = parse_requirements(DEFAULT_REQUIREMENTS_FILE)
 with open('README.md', 'r') as fh:
     long_description = fh.read()
 
-setuptools.dist.Distribution().fetch_build_eggs([
-    'Cython>=0.27.3' # required for pycocotools and others, if need to compile
-])
-
 setuptools.setup(
     name="datumaro",
     version=find_version(here),
@@ -71,10 +66,11 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    python_requires='>=3.6',
+    python_requires='>=3.7',
     install_requires=CORE_REQUIREMENTS,
     extras_require={
         'tf': ['tensorflow'],
+        'tfds': ['tensorflow-datasets!=4.5.0,!=4.5.1'], # 4.5.0 fails on Windows, https://github.com/tensorflow/datasets/issues/3709
         'tf-gpu': ['tensorflow-gpu'],
         'default': DEFAULT_REQUIREMENTS,
     },

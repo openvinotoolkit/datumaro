@@ -1,8 +1,7 @@
 ---
 title: 'Merge Datasets'
-linkTitle: 'Merge'
+linkTitle: 'merge'
 description: ''
-weight: 13
 ---
 
 Consider the following task: there is a set of images (the original dataset)
@@ -17,6 +16,11 @@ to merge labels and adjust the annotations in the resulting dataset.
 
 In Datumaro, it can be done with the `merge` command. This command merges 2
 or more datasets and checks annotations for errors.
+
+> In simple cases, when dataset images do not intersect and new
+> labels are not added, the recommended way of merging is using
+> [the `patch` command](/docs/user-manual/command-reference/patch/).
+> It will offer better performance and provide the same results.
 
 Datasets are merged by items, and item annotations are merged by finding the
 unique ones across datasets. Annotations are matched between matching dataset
@@ -62,12 +66,18 @@ This command has multiple forms:
   Note that the current project is not included in the list of merged
   sources automatically.
 
+The command supports passing extra exporting options for the output
+dataset. The format can be specified with the `-f/--format` option.
+Extra options should be passed after the main arguments
+and after the `--` separator. Particularly, this is useful to include
+images in the output dataset with `--save-images`.
+
 Usage:
 ``` bash
 datum merge [-h] [-iou IOU_THRESH] [-oconf OUTPUT_CONF_THRESH]
   [--quorum QUORUM] [-g GROUPS] [-o DST_DIR] [--overwrite]
-  [-p PROJECT_DIR]
-  target [target ...]
+  [-p PROJECT_DIR] [-f FORMAT]
+  target [target ...] [-- EXTRA_FORMAT_ARGS]
 ```
 
 Parameters:
@@ -85,9 +95,12 @@ Parameters:
   is created in the current directory.
 - `--overwrite` - Allows to overwrite existing files in the output directory,
   when it is specified and is not empty.
+- `-f, --format` (string) - Output format. The default format is `datumaro`.
 - `-p, --project` (string) - Directory of the project to operate on
   (default: current directory).
 - `-h, --help` - Print the help message and exit.
+- `-- <extra format args>` - Additional arguments for the format writer
+  (use `-- -h` for help). Must be specified after the main command arguments.
 
 
 Examples:
@@ -120,3 +133,6 @@ Merge the current working tree and a dataset:
 
 Merge a source from a previous revision and a dataset:
 `datum merge HEAD~2:source-2 path/to/dataset2:yolo`
+
+Merge datasets and save in different format:
+`datum merge -f voc dataset1/:yolo path2/:coco -- --save-images`

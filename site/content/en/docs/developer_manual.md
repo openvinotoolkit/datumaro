@@ -16,7 +16,7 @@ all of this.
 
 Basic library usage and data flow:
 
-```lang-none
+```
 Extractors -> Dataset -> Converter
                  |
              Filtration
@@ -43,9 +43,7 @@ Datumaro has a number of dataset and annotation features:
 - various annotation operations
 
 ```python
-from datumaro.components.annotation import Bbox, Polygon
-from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import DatasetItem
+from datumaro import Bbox, Polygon, Dataset, DatasetItem
 
 # Import and export a dataset
 dataset = Dataset.import_from('src/dir', 'voc')
@@ -127,9 +125,7 @@ reduce the amount of disk writes. Changes can be flushed with
 `flush_changes()`.
 
 ```python
-from datumaro.components.annotation import Bbox, Polygon
-from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import DatasetItem
+from datumaro import Bbox, Polygon, Dataset, DatasetItem
 
 # create a dataset directly from items
 dataset1 = Dataset.from_iterable([
@@ -284,18 +280,18 @@ A plugin can be used either via the `Environment` class instance,
 or by regular module importing:
 
 ```python
-from datumaro.components.project import Environment, Project
+import datumaro as dm
 from datumaro.plugins.yolo_format.converter import YoloConverter
 
 # Import a dataset
-dataset = Environment().make_importer('voc')(src_dir).make_dataset()
+dataset = dm.Dataset.import_from(src_dir, 'voc')
 
 # Load an existing project, save the dataset in some project-specific format
-project = Project.load('project/dir')
-project.env.converters.get('custom_format').convert(dataset, save_dir=dst_dir)
+project = Project('project/')
+project.env.converters['custom_format'].convert(dataset, save_dir=dst_dir)
 
 # Save the dataset in some built-in format
-Environment().converters.get('yolo').convert(dataset, save_dir=dst_dir)
+Environment().converters['yolo'].convert(dataset, save_dir=dst_dir)
 YoloConverter.convert(dataset, save_dir=dst_dir)
 ```
 
@@ -306,9 +302,7 @@ starting with `_` are not exported by default. To export a symbol,
 inherit it from one of the special classes:
 
 ```python
-from datumaro.components.extractor import Importer, Extractor, Transform
-from datumaro.components.launcher import Launcher
-from datumaro.components.converter import Converter
+from datumaro import Importer, Extractor, Transform, Launcher, Converter
 ```
 
 The `exports` list of the module can be used to override default behaviour:
@@ -321,11 +315,11 @@ exports = [MyComponent2] # exports only MyComponent2
 There is also an additional class to modify plugin appearance in command line:
 
 ```python
-from datumaro.components.cli_plugin import CliPlugin
+from datumaro import CliPlugin
 
 class MyPlugin(Converter, CliPlugin):
   """
-    Optional documentation text, which will appear in command-line help
+  Optional documentation text, which will appear in command-line help
   """
 
   NAME = 'optional_custom_plugin_name'
@@ -353,10 +347,10 @@ datumaro/plugins/
 `my_plugin1/file2.py` contents:
 
 ```python
-from datumaro.components.extractor import Transform, CliPlugin
+from datumaro import Transform
 from .file1 import something, useful
 
-class MyTransform(Transform, CliPlugin):
+class MyTransform(Transform):
     NAME = "custom_name" # could be generated automatically
 
     """
@@ -380,7 +374,7 @@ class MyTransform(Transform, CliPlugin):
 `my_plugin2.py` contents:
 
 ```python
-from datumaro.components.extractor import Extractor
+from datumaro import Extractor
 
 class MyFormat: ...
 class _MyFormatConverter(Converter): ...

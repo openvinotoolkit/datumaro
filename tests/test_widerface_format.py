@@ -21,7 +21,8 @@ class WiderFaceFormatTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load(self):
         source_dataset = Dataset.from_iterable([
-            DatasetItem(id='1', subset='train', image=np.ones((8, 8, 3)),
+            DatasetItem(id='1', subset='train',
+                media=Image(data=np.ones((8, 8, 3))),
                 annotations=[
                     Bbox(0, 2, 4, 2, label=0),
                     Bbox(0, 1, 2, 3, label=0, attributes={
@@ -30,7 +31,8 @@ class WiderFaceFormatTest(TestCase):
                     Label(1),
                 ]
             ),
-            DatasetItem(id='2', subset='train', image=np.ones((10, 10, 3)),
+            DatasetItem(id='2', subset='train',
+                media=Image(data=np.ones((10, 10, 3))),
                 annotations=[
                     Bbox(0, 2, 4, 2, label=0, attributes={
                         'blur': '2', 'expression': '0', 'illumination': '1',
@@ -45,7 +47,8 @@ class WiderFaceFormatTest(TestCase):
                 ]
             ),
 
-            DatasetItem(id='3', subset='val', image=np.ones((8, 8, 3)),
+            DatasetItem(id='3', subset='val',
+                media=Image(data=np.ones((8, 8, 3))),
                 annotations=[
                     Bbox(0, 1.1, 5.3, 2.1, label=0, attributes={
                         'blur': '2', 'expression': '1', 'illumination': '0',
@@ -61,21 +64,23 @@ class WiderFaceFormatTest(TestCase):
                 ]
             ),
 
-            DatasetItem(id='4', subset='val', image=np.ones((8, 8, 3))),
+            DatasetItem(id='4', subset='val',
+                media=Image(data=np.ones((8, 8, 3))))
         ], categories=['face', 'label_0', 'label_1'])
 
         with TestDir() as test_dir:
             WiderFaceConverter.convert(source_dataset, test_dir,
-                save_images=True)
+                save_media=True)
             parsed_dataset = Dataset.import_from(test_dir, 'wider_face')
 
             compare_datasets(self, source_dataset, parsed_dataset,
                 require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_save_and_load_with_no_save_images(self):
+    def test_can_save_and_load_with_no_save_media(self):
         source_dataset = Dataset.from_iterable([
-            DatasetItem(id='1', subset='train', image=np.ones((8, 8, 3)),
+            DatasetItem(id='1', subset='train',
+                media=Image(data=np.ones((8, 8, 3))),
                 annotations=[
                     Bbox(0, 2, 4, 2, label=1),
                     Bbox(0, 1, 2, 3, label=0, attributes={
@@ -88,7 +93,7 @@ class WiderFaceFormatTest(TestCase):
 
         with TestDir() as test_dir:
             WiderFaceConverter.convert(source_dataset, test_dir,
-                save_images=False)
+                save_media=False)
             parsed_dataset = Dataset.import_from(test_dir, 'wider_face')
 
             compare_datasets(self, source_dataset, parsed_dataset)
@@ -97,7 +102,7 @@ class WiderFaceFormatTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_no_subsets(self):
         source_dataset = Dataset.from_iterable([
-            DatasetItem(id='a/b/1', image=np.ones((8, 8, 3)),
+            DatasetItem(id='a/b/1', media=Image(data=np.ones((8, 8, 3))),
                 annotations=[
                     Bbox(0, 2, 4, 2, label=2),
                     Bbox(0, 1, 2, 3, label=1, attributes={
@@ -108,15 +113,38 @@ class WiderFaceFormatTest(TestCase):
         ], categories=['face', 'label_0', 'label_1'])
 
         with TestDir() as test_dir:
-            WiderFaceConverter.convert(source_dataset, test_dir, save_images=True)
+            WiderFaceConverter.convert(source_dataset, test_dir, save_media=True)
             parsed_dataset = Dataset.import_from(test_dir, 'wider_face')
 
             compare_datasets(self, source_dataset, parsed_dataset)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_dataset_with_save_dataset_meta_file(self):
+        source_dataset = Dataset.from_iterable([
+            DatasetItem(id='a/b/1', subset='train',
+                media=Image(data=np.ones((8, 8, 3))),
+                annotations=[
+                    Bbox(0, 2, 4, 2, label=2),
+                    Bbox(0, 1, 2, 3, label=1, attributes={
+                        'blur': '2', 'expression': '0', 'illumination': '0',
+                        'occluded': '0', 'pose': '2', 'invalid': '0'}),
+                ]
+            ),
+        ], categories=['face', 'label_0', 'label_1'])
+
+        with TestDir() as test_dir:
+            WiderFaceConverter.convert(source_dataset, test_dir, save_media=True,
+                save_dataset_meta=True)
+            parsed_dataset = Dataset.import_from(test_dir, 'wider_face')
+
+            self.assertTrue(osp.isfile(osp.join(test_dir, 'dataset_meta.json')))
+            compare_datasets(self, source_dataset, parsed_dataset)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_cyrillic_and_spaces_in_filename(self):
         source_dataset = Dataset.from_iterable([
-            DatasetItem(id='кириллица с пробелом', image=np.ones((8, 8, 3)),
+            DatasetItem(id='кириллица с пробелом',
+                media=Image(data=np.ones((8, 8, 3))),
                 annotations=[
                     Bbox(0, 1, 2, 3, label=0, attributes = {
                         'blur': '2', 'expression': '0', 'illumination': '0',
@@ -126,7 +154,7 @@ class WiderFaceFormatTest(TestCase):
         ], categories=['face'])
 
         with TestDir() as test_dir:
-            WiderFaceConverter.convert(source_dataset, test_dir, save_images=True)
+            WiderFaceConverter.convert(source_dataset, test_dir, save_media=True)
             parsed_dataset = Dataset.import_from(test_dir, 'wider_face')
 
             compare_datasets(self, source_dataset, parsed_dataset,
@@ -135,7 +163,7 @@ class WiderFaceFormatTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_dataset_with_non_widerface_attributes(self):
         source_dataset = Dataset.from_iterable([
-            DatasetItem(id='a/b/1', image=np.ones((8, 8, 3)),
+            DatasetItem(id='a/b/1', media=Image(data=np.ones((8, 8, 3))),
                 annotations=[
                     Bbox(0, 2, 4, 2, label=0),
                     Bbox(0, 1, 2, 3, label=0, attributes={
@@ -148,7 +176,7 @@ class WiderFaceFormatTest(TestCase):
         ], categories=['face'])
 
         target_dataset = Dataset.from_iterable([
-            DatasetItem(id='a/b/1', image=np.ones((8, 8, 3)),
+            DatasetItem(id='a/b/1', media=Image(data=np.ones((8, 8, 3))),
                 annotations=[
                     Bbox(0, 2, 4, 2, label=0),
                     Bbox(0, 1, 2, 3, label=0, attributes={
@@ -159,7 +187,7 @@ class WiderFaceFormatTest(TestCase):
         ], categories=['face'])
 
         with TestDir() as test_dir:
-            WiderFaceConverter.convert(source_dataset, test_dir, save_images=True)
+            WiderFaceConverter.convert(source_dataset, test_dir, save_media=True)
             parsed_dataset = Dataset.import_from(test_dir, 'wider_face')
 
             compare_datasets(self, target_dataset, parsed_dataset)
@@ -167,14 +195,14 @@ class WiderFaceFormatTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_save_and_load_image_with_arbitrary_extension(self):
         dataset = Dataset.from_iterable([
-            DatasetItem('q/1', image=Image(path='q/1.JPEG',
+            DatasetItem('q/1', media=Image(path='q/1.JPEG',
                 data=np.zeros((4, 3, 3)))),
-            DatasetItem('a/b/c/2', image=Image(path='a/b/c/2.bmp',
+            DatasetItem('a/b/c/2', media=Image(path='a/b/c/2.bmp',
                 data=np.zeros((3, 4, 3)))),
         ], categories=[])
 
         with TestDir() as test_dir:
-            WiderFaceConverter.convert(dataset, test_dir, save_images=True)
+            WiderFaceConverter.convert(dataset, test_dir, save_media=True)
             parsed_dataset = Dataset.import_from(test_dir, 'wider_face')
 
             compare_datasets(self, dataset, parsed_dataset, require_images=True)
@@ -182,22 +210,23 @@ class WiderFaceFormatTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_inplace_save_writes_only_updated_data(self):
         expected = Dataset.from_iterable([
-            DatasetItem(1, subset='train', image=np.ones((2, 4, 3))),
-            DatasetItem(2, subset='train', image=np.ones((3, 2, 3))),
+            DatasetItem(1, subset='train', media=Image(data=np.ones((2, 4, 3)))),
+            DatasetItem(2, subset='train', media=Image(data=np.ones((3, 2, 3)))),
         ], categories=[])
 
         with TestDir() as path:
             dataset = Dataset.from_iterable([
-                DatasetItem(1, subset='train', image=np.ones((2, 4, 3))),
+                DatasetItem(1, subset='train', media=Image(data=np.ones((2, 4, 3)))),
                 DatasetItem(2, subset='train',
-                    image=Image(path='2.jpg', size=(3, 2))),
-                DatasetItem(3, subset='valid', image=np.ones((2, 2, 3))),
+                    media=Image(path='2.jpg', size=(3, 2))),
+                DatasetItem(3, subset='valid', media=Image(data=np.ones((2, 2, 3)))),
             ], categories=[])
-            dataset.export(path, 'wider_face', save_images=True)
+            dataset.export(path, 'wider_face', save_media=True)
 
-            dataset.put(DatasetItem(2, subset='train', image=np.ones((3, 2, 3))))
+            dataset.put(DatasetItem(2, subset='train',
+                media=Image(data=np.ones((3, 2, 3)))))
             dataset.remove(3, 'valid')
-            dataset.save(save_images=True)
+            dataset.save(save_media=True)
 
             self.assertEqual({'1.jpg', '2.jpg'},
                 set(os.listdir(osp.join(path,
@@ -214,13 +243,13 @@ class WiderFaceImporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect(self):
         detected_formats = Environment().detect_dataset(DUMMY_DATASET_DIR)
-        self.assertIn(WiderFaceImporter.NAME, detected_formats)
+        self.assertEqual([WiderFaceImporter.NAME], detected_formats)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import(self):
         expected_dataset = Dataset.from_iterable([
             DatasetItem(id='0_Parade_image_01', subset='train',
-                image=np.ones((10, 15, 3)),
+                media=Image(data=np.ones((10, 15, 3))),
                 annotations=[
                     Bbox(1, 2, 2, 2, attributes={
                         'blur': '0', 'expression': '0', 'illumination': '0',
@@ -229,7 +258,7 @@ class WiderFaceImporterTest(TestCase):
                 ]
             ),
             DatasetItem(id='1_Handshaking_image_02', subset='train',
-                image=np.ones((10, 15, 3)),
+                media=Image(data=np.ones((10, 15, 3))),
                 annotations=[
                     Bbox(1, 1, 2, 2, attributes={
                         'blur': '0', 'expression': '0', 'illumination': '1',
@@ -241,7 +270,7 @@ class WiderFaceImporterTest(TestCase):
                 ]
             ),
             DatasetItem(id='0_Parade_image_03', subset='val',
-                image=np.ones((10, 15, 3)),
+                media=Image(data=np.ones((10, 15, 3))),
                 annotations=[
                     Bbox(0, 0, 1, 1, attributes={
                         'blur': '2', 'expression': '0', 'illumination': '0',

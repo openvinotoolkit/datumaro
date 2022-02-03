@@ -22,10 +22,11 @@ from datumaro.util import find, str_to_bool
 from datumaro.util.annotation_util import make_label_id_mapping
 from datumaro.util.image import save_image
 from datumaro.util.mask_tools import paint_mask, remap_mask
+from datumaro.util.meta_file_util import has_meta_file
 
 from .format import (
     VocInstColormap, VocPath, VocTask, make_voc_categories, make_voc_label_map,
-    parse_label_map, write_label_map,
+    parse_label_map, parse_meta_file, write_label_map, write_meta_file,
 )
 
 
@@ -178,8 +179,8 @@ class VocConverter(Converter):
                 log.debug("Converting item '%s'", item.id)
 
                 image_filename = self._make_image_filename(item)
-                if self._save_images:
-                    if item.has_image and item.image.has_data:
+                if self._save_media:
+                    if item.media:
                         self._save_image(item,
                             osp.join(self._images_dir, image_filename))
                     else:
@@ -211,8 +212,8 @@ class VocConverter(Converter):
                     ET.SubElement(source_elem, 'annotation').text = 'Unknown'
                     ET.SubElement(source_elem, 'image').text = 'Unknown'
 
-                    if item.has_image and item.image.has_size:
-                        h, w = item.image.size
+                    if item.media and item.media.has_data:
+                        h, w = item.media.size
                         size_elem = ET.SubElement(root_elem, 'size')
                         ET.SubElement(size_elem, 'width').text = str(w)
                         ET.SubElement(size_elem, 'height').text = str(h)
@@ -273,7 +274,7 @@ class VocConverter(Converter):
                             present = 0
                             if action in attr:
                                 present = _convert_attr(action, attr,
-                                    lambda v: int(v == True), 0)
+                                    lambda v: int(v is True), 0)
                                 ET.SubElement(actions_elem, action).text = \
                                     '%d' % present
 
@@ -530,8 +531,11 @@ class VocConverter(Converter):
         save_image(path, mask, create_dir=True)
 
     def save_label_map(self):
-        path = osp.join(self._save_dir, VocPath.LABELMAP_FILE)
-        write_label_map(path, self._label_map)
+        if self._save_dataset_meta:
+            write_meta_file(self._save_dir, self._label_map)
+        else:
+            path = osp.join(self._save_dir, VocPath.LABELMAP_FILE)
+            write_label_map(path, self._label_map)
 
     def _load_categories(self, label_map_source):
         if label_map_source == LabelmapType.voc.name:
@@ -562,24 +566,24 @@ class VocConverter(Converter):
                 sorted(label_map_source.items(), key=lambda e: e[0]))
 
         elif isinstance(label_map_source, str) and osp.isfile(label_map_source):
-            label_map = parse_label_map(label_map_source)
+            if has_meta_file(label_map_source):
+                label_map = parse_meta_file(label_map_source)
+            else:
+                label_map = parse_label_map(label_map_source)
 
         else:
             raise Exception("Wrong labelmap specified: '%s', "
                 "expected one of %s or a file path" % \
                 (label_map_source, ', '.join(t.name for t in LabelmapType)))
 
-        # There must always be a label with color (0, 0, 0) at index 0
         bg_label = find(label_map.items(), lambda x: x[1][0] == (0, 0, 0))
-        if bg_label is not None:
-            bg_label = bg_label[0]
-        else:
+        if bg_label is None:
             bg_label = 'background'
             if bg_label not in label_map:
                 has_colors = any(v[0] is not None for v in label_map.values())
                 color = (0, 0, 0) if has_colors else None
                 label_map[bg_label] = [color, [], []]
-        label_map.move_to_end(bg_label, last=False)
+            label_map.move_to_end(bg_label, last=False)
 
         self._categories = make_voc_categories(label_map)
 
@@ -664,7 +668,7 @@ class VocConverter(Converter):
             else:
                 item = DatasetItem(item_id, subset=subset)
 
-            if not (status == ItemStatus.removed or not item.has_image):
+            if not (status == ItemStatus.removed or not item.media):
                 ids_to_remove[item_id] = (item, False)
             else:
                 ids_to_remove.setdefault(item_id, (item, True))

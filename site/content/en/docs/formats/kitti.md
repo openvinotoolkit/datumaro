@@ -15,7 +15,7 @@ Supported tasks / formats:
   The format specification is available in `README.md` [here](https://s3.eu-central-1.amazonaws.com/avg-kitti/devkit_object.zip).
 - [Segmentation](http://www.cvlibs.net/datasets/kitti/eval_semseg.php?benchmark=semantics2015) - `kitti_segmentation`
   The format specification is available in `README.md` [here](https://s3.eu-central-1.amazonaws.com/avg-kitti/devkit_semantics.zip).
-- Raw 3D / Velodyne Points - described [here](/formats/kitti_raw)
+- Raw 3D / Velodyne Points - described [here](/docs/formats/kitti_raw)
 
 Supported annotation types:
 - `Bbox` (object detection)
@@ -26,6 +26,7 @@ Supported annotation attributes:
   the object does not correspond to the full extent of the object
 - `occluded` (boolean) - indicates that a significant portion of the object
   within the bounding box is occluded by another object
+- `score` (float) - indicates confidence in detection
 
 ## Import KITTI dataset
 
@@ -43,11 +44,33 @@ datum import --format kitti <path/to/dataset>
 It is possible to specify project name and project directory. Run
 `datum create --help` for more information.
 
+KITTI detection dataset directory should have the following structure:
+
+<!--lint disable fenced-code-flag-->
+```
+└─ Dataset/
+    ├── testing/
+    │   └── image_2/
+    │       ├── <name_1>.<img_ext>
+    │       ├── <name_2>.<img_ext>
+    │       └── ...
+    └── training/
+        ├── image_2/ # left color camera images
+        │   ├── <name_1>.<img_ext>
+        │   ├── <name_2>.<img_ext>
+        │   └── ...
+        └─── label_2/ # left color camera label files
+            ├── <name_1>.txt
+            ├── <name_2>.txt
+            └── ...
+```
+
 KITTI segmentation dataset directory should have the following structure:
 
 <!--lint disable fenced-code-flag-->
 ```
 └─ Dataset/
+    ├── dataset_meta.json # a list of non-format labels (optional)
     ├── label_colors.txt # optional, color map for non-original segmentation labels
     ├── testing/
     │   └── image_2/
@@ -77,6 +100,11 @@ KITTI segmentation dataset directory should have the following structure:
             └── ...
 ```
 
+To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats/#dataset-meta-file)
+and `label_colors.txt`.
+If the `dataset_meta.json` is not represented in the dataset, then
+`label_colors.txt` will be imported if possible.
+
 You can import a dataset for specific tasks
 of KITTI dataset instead of the whole dataset,
 for example:
@@ -103,7 +131,9 @@ There are several ways to convert a KITTI dataset to other dataset formats:
 datum create
 datum import -f kitti <path/to/kitti>
 datum export -f cityscapes -o <output/dir>
-# or
+```
+or
+``` bash
 datum convert -if kitti -i <path/to/kitti> -f cityscapes -o <output/dir>
 ```
 
@@ -113,7 +143,7 @@ Or, using Python API:
 from datumaro.components.dataset import Dataset
 
 dataset = Dataset.import_from('<path/to/dataset>', 'kitti')
-dataset.export('save_dir', 'cityscapes', save_images=True)
+dataset.export('save_dir', 'cityscapes', save_media=True)
 ```
 
 ## Export to KITTI
@@ -123,17 +153,21 @@ There are several ways to convert a dataset to KITTI format:
 ``` bash
 # export dataset into KITTI format from existing project
 datum export -p <path/to/project> -f kitti -o <output/dir> \
-    -- --save-images
+    -- --save-media
+```
+``` bash
 # converting to KITTI format from other format
 datum convert -if cityscapes -i <path/to/dataset> \
-    -f kitti -o <output/dir> -- --save-images
+    -f kitti -o <output/dir> -- --save-media
 ```
 
 Extra options for exporting to KITTI format:
-- `--save-images` allow to export dataset with saving images
+- `--save-media` allow to export dataset with saving media files
   (by default `False`)
 - `--image-ext IMAGE_EXT` allow to specify image extension
   for exporting dataset (by default - keep original or use `.png`, if none)
+- `--save-dataset-meta` - allow to export dataset with saving dataset meta
+  file (by default `False`)
 - `--apply-colormap APPLY_COLORMAP` allow to use colormap for class masks
   (in folder `semantic_rgb`, by default `True`)
 - `--label_map` allow to define a custom colormap. Example:
@@ -145,7 +179,9 @@ Extra options for exporting to KITTI format:
 #...
 datum export -f kitti -- --label-map mycolormap.txt
 
-# or you can use original kitti colomap:
+```
+or you can use original kitti colomap:
+``` bash
 datum export -f kitti -- --label-map kitti
 ```
 - `--tasks TASKS` allow to specify tasks for export dataset,
@@ -173,7 +209,7 @@ particular problems with KITTI dataset:
 datum create -o project
 datum import -p project -f kitti ./KITTI/
 datum stats -p project
-datum export -p project -f cityscapes -- --save-images
+datum export -p project -f cityscapes -- --save-media
 ```
 
 ### Example 2. How to create a custom KITTI-like dataset

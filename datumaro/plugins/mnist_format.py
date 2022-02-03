@@ -13,6 +13,8 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.converter import Converter
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
+from datumaro.components.media import Image
+from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
 
 class MnistPath:
@@ -43,6 +45,10 @@ class MnistExtractor(SourceExtractor):
         self._items = list(self._load_items(path).values())
 
     def _load_categories(self):
+        if has_meta_file(self._dataset_dir):
+            return { AnnotationType.label: LabelCategories.
+                from_iterable(parse_meta_file(self._dataset_dir).keys()) }
+
         label_cat = LabelCategories()
 
         labels_file = osp.join(self._dataset_dir, 'labels.txt')
@@ -98,11 +104,14 @@ class MnistExtractor(SourceExtractor):
                 else:
                     image = images[i].reshape(MnistPath.IMAGE_SIZE, MnistPath.IMAGE_SIZE)
 
+            if image is not None:
+                image = Image(data=image)
+
             if 0 < len(meta) and (len(meta[i]) == 1 or len(meta[i]) == 3):
                 i = meta[i][0]
 
             items[i] = DatasetItem(id=i, subset=self._subset,
-                image=image, annotations=annotations)
+                media=image, annotations=annotations)
         return items
 
 class MnistImporter(Importer):
@@ -116,6 +125,9 @@ class MnistConverter(Converter):
 
     def apply(self):
         os.makedirs(self._save_dir, exist_ok=True)
+        if self._save_dataset_meta:
+            self._save_meta_file(self._save_dir)
+
         for subset_name, subset in self._extractor.subsets().items():
             labels = []
             images = np.array([])
@@ -132,8 +144,8 @@ class MnistConverter(Converter):
                 if item.id != str(len(labels) - 1):
                     item_ids[len(labels) - 1] = item.id
 
-                if item.has_image and self._save_images:
-                    image = item.image
+                if item.media and self._save_media:
+                    image = item.media
                     if not image.has_data:
                         image_sizes[len(images) - 1] = [0, 0]
                     else:

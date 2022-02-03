@@ -41,6 +41,7 @@ KITTI Raw dataset directory should have the following structure:
 <!--lint disable fenced-code-flag-->
 ```
 └─ Dataset/
+    ├── dataset_meta.json # a list of custom labels (optional)
     ├── image_00/ # optional, aligned images from different cameras
     │   └── data/
     │       ├── <name1.ext>
@@ -70,6 +71,8 @@ provides an option to use a special index file to allow this.
 ...
 ```
 
+To add custom classes, you can use [`dataset_meta.json`](/docs/user-manual/supported_formats/#dataset-meta-file).
+
 A Datumaro project with a KITTI source can be created in the following way:
 
 ```bash
@@ -97,7 +100,9 @@ There are several ways to convert a KITTI Raw dataset to other dataset formats:
 datum create
 datum import -f kitti_raw <path/to/kitti_raw>
 datum export -f sly_pointcloud -o <output/dir>
-# or
+```
+or
+``` bash
 datum convert -if kitti_raw -i <path/to/kitti_raw> -f sly_pointcloud
 ```
 
@@ -107,7 +112,7 @@ Or, using Python API:
 from datumaro.components.dataset import Dataset
 
 dataset = Dataset.import_from('<path/to/dataset>', 'kitti_raw')
-dataset.export('save_dir', 'sly_pointcloud', save_images=True)
+dataset.export('save_dir', 'sly_pointcloud', save_media=True)
 ```
 
 ## Export to KITTI Raw
@@ -117,14 +122,16 @@ There are several ways to convert a dataset to KITTI Raw format:
 ``` bash
 # export dataset into KITTI Raw format from existing project
 datum export -p <path/to/project> -f kitti_raw -o <output/dir> \
-    -- --save-images
+    -- --save-media
+```
+``` bash
 # converting to KITTI Raw format from other format
 datum convert -if sly_pointcloud -i <path/to/dataset> \
-    -f kitti_raw -o <output/dir> -- --save-images --reindex
+    -f kitti_raw -o <output/dir> -- --save-media --reindex
 ```
 
 Extra options for exporting to KITTI Raw format:
-- `--save-images` allow to export dataset with saving images. This will
+- `--save-media` allow to export dataset with saving media files. This will
   include point clouds and related images (by default `False`)
 - `--image-ext IMAGE_EXT` allow to specify image extension
   for exporting dataset (by default - keep original or use `.png`, if none)
@@ -148,7 +155,7 @@ datum stats -p project
 
 ``` bash
 datum convert -if sly_pointcloud -i ../sly_pcd/ \
-    -f kitti_raw -o my_kitti/ -- --save-images --allow-attrs
+    -f kitti_raw -o my_kitti/ -- --save-media --allow-attrs
 ```
 
 ### Example 3. Create a custom dataset
@@ -173,7 +180,7 @@ dataset = Dataset.from_iterable([
   ),
 ], categories=['cat', 'dog'])
 
-dataset.export('my_dataset/', format='kitti_raw', save_images=True)
+dataset.export('my_dataset/', format='kitti_raw', save_media=True)
 ```
 
 Examples of using this format from the code can be found in
