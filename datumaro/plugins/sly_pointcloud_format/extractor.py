@@ -1,10 +1,11 @@
-# Copyright (C) 2021 Intel Corporation
+# Copyright (C) 2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 from glob import iglob
-import json
 import os.path as osp
+
+import orjson
 
 from datumaro.components.annotation import (
     AnnotationType, Cuboid3d, LabelCategories,
@@ -35,13 +36,11 @@ class SuperviselyPointCloudExtractor(SourceExtractor):
 
     @classmethod
     def _parse(cls, rootpath):
-        with open(osp.join(rootpath, PointCloudPath.KEY_ID_FILE),
-                encoding='utf-8') as f:
-            mapping = json.load(f)
+        with open(osp.join(rootpath, PointCloudPath.KEY_ID_FILE), 'rb') as f:
+            mapping = orjson.loads(f.read())
 
-        with open(osp.join(rootpath, PointCloudPath.META_FILE),
-                encoding='utf-8') as f:
-            meta = json.load(f)
+        with open(osp.join(rootpath, PointCloudPath.META_FILE), 'rb') as f:
+            meta = orjson.loads(f.read())
 
         label_cat = LabelCategories()
         for label in meta.get('classes', []):
@@ -92,8 +91,8 @@ class SuperviselyPointCloudExtractor(SourceExtractor):
             PointCloudPath.BASE_DIR, PointCloudPath.ANNNOTATION_DIR)
         items = {}
         for ann_file in iglob(osp.join(ann_dir, '**', '*.json'), recursive=True):
-            with open(ann_file, encoding='utf-8') as f:
-                ann_data = json.load(f)
+            with open(ann_file, 'rb') as f:
+                ann_data = orjson.loads(f.read())
 
             objects = {}
             for obj in ann_data['objects']:

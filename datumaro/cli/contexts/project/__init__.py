@@ -1,15 +1,15 @@
-# Copyright (C) 2019-2021 Intel Corporation
+# Copyright (C) 2019-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 from enum import Enum
 import argparse
-import json
 import logging as log
 import os
 import os.path as osp
 
 import numpy as np
+import orjson
 
 from datumaro.components.dataset_filter import DatasetItemEncoder
 from datumaro.components.environment import Environment
@@ -655,8 +655,9 @@ def stats_command(args):
 
     dst_file = generate_next_file_name('statistics', ext='.json')
     log.info("Writing project statistics to '%s'" % dst_file)
-    with open(dst_file, 'w', encoding='utf-8') as f:
-        json.dump(stats, f, indent=4, sort_keys=True)
+    with open(dst_file, 'wb') as f:
+        f.write(orjson.dumps(stats,
+            option=orjson.OPT_INDENT_2 | orjson.OPT_SORT_KEYS))
 
 def build_info_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(help="Get project info",
@@ -827,10 +828,6 @@ def validate_command(args):
     validator = validator_type(**extra_args)
     report = validator.validate(dataset)
 
-    def numpy_encoder(obj):
-        if isinstance(obj, np.generic):
-            return obj.item()
-
     def _make_serializable(d):
         for key, val in list(d.items()):
             # tuple key to str
@@ -845,8 +842,9 @@ def validate_command(args):
     dst_file = generate_next_file_name(dst_file_name, ext='.json')
     log.info("Writing project validation results to '%s'" % dst_file)
     with open(dst_file, 'w', encoding='utf-8') as f:
-        json.dump(report, f, indent=4, sort_keys=True,
-                  default=numpy_encoder)
+        f.write(orjson.dumps(report,
+            option=orjson.OPT_INDENT_2 | orjson.OPT_SORT_KEYS | \
+                orjson.OPT_SERIALIZE_NUMPY))
 
 def build_migrate_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(help="Migrate project",

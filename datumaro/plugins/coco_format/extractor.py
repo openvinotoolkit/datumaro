@@ -3,11 +3,11 @@
 # SPDX-License-Identifier: MIT
 
 from typing import Any
-import json
 import logging as log
 import os.path as osp
 
 from attrs import define
+import orjson
 import pycocotools.mask as mask_utils
 
 from datumaro.components.annotation import (
@@ -129,7 +129,7 @@ class _CocoExtractor(SourceExtractor):
     @staticmethod
     def _load_json(path):
         with open(path, 'rb') as f:
-            return json.loads(f.read())
+            return orjson.loads(f.read())
 
     def _load_items(self, json_data):
         items = {}

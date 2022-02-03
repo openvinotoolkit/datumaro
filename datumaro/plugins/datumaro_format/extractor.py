@@ -1,9 +1,10 @@
-# Copyright (C) 2019-2021 Intel Corporation
+# Copyright (C) 2019-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
-import json
 import os.path as osp
+
+import orjson
 
 from datumaro.components.annotation import (
     AnnotationType, Bbox, Caption, Cuboid3d, Label, LabelCategories,
@@ -41,8 +42,8 @@ class DatumaroExtractor(SourceExtractor):
 
         super().__init__(subset=osp.splitext(osp.basename(path))[0])
 
-        with open(path, 'r', encoding='utf-8') as f:
-            parsed_anns = json.load(f)
+        with open(path, 'rb') as f:
+            parsed_anns = orjson.loads(f.read())
         self._categories = self._load_categories(parsed_anns)
         self._items = self._load_items(parsed_anns)
 
@@ -199,7 +200,7 @@ class DatumaroImporter(Importer):
             annot_file, "must be a JSON object with \"categories\" "
                 "and \"items\" keys",
         ) as f:
-            contents = json.load(f)
+            contents = orjson.loads(f.read())
             if not {'categories', 'items'} <= contents.keys():
                 raise Exception
 

@@ -1,13 +1,14 @@
-# Copyright (C) 2019-2021 Intel Corporation
+# Copyright (C) 2019-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 from enum import Enum, auto
 import argparse
-import json
 import logging as log
 import os
 import os.path as osp
+
+import orjson
 
 from datumaro.components.errors import ProjectNotFoundError
 from datumaro.components.operations import DistanceComparator, ExactComparator
@@ -202,8 +203,9 @@ def diff_command(args):
         output_file = osp.join(dst_dir,
             generate_next_file_name('diff', ext='.json', basedir=dst_dir))
         log.info("Saving diff to '%s'" % output_file)
-        with open(output_file, 'w') as f:
-            json.dump(output, f, indent=4, sort_keys=True)
+        with open(output_file, 'wb') as f:
+            f.write(orjson.dumps(output,
+                option=orjson.OPT_SORT_KEYS | orjson.OPT_INDENT_2))
 
         print("Found:")
         print("The first project has %s unmatched items" % len(a_extra))

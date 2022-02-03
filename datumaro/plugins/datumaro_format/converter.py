@@ -1,15 +1,15 @@
-# Copyright (C) 2019-2021 Intel Corporation
+# Copyright (C) 2019-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 # pylint: disable=no-self-use
 
-import json
 import os
 import os.path as osp
 import shutil
 
 import numpy as np
+import orjson
 import pycocotools.mask as mask_utils
 
 from datumaro.components.annotation import (
@@ -139,8 +139,8 @@ class _SubsetWriter:
             self.categories[ann_type.name] = converted_desc
 
     def write(self, ann_file):
-        with open(ann_file, 'w', encoding='utf-8') as f:
-            json.dump(self._data, f, ensure_ascii=False)
+        with open(ann_file, 'wb') as f:
+            f.write(orjson.dumps(self._data))
 
     def _convert_annotation(self, obj):
         assert isinstance(obj, Annotation)

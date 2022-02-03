@@ -1,11 +1,11 @@
-# Copyright (C) 2021 Intel Corporation
+# Copyright (C) 2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
-import json
 import os.path as osp
 
 import numpy as np
+import orjson
 
 from datumaro.components.annotation import (
     Bbox, LabelCategories, Points, PointsCategories,
@@ -63,8 +63,8 @@ class MpiiJsonExtractor(SourceExtractor):
         else:
             gt_pose = np.array([])
 
-        with open(path) as f:
-            for i, ann in enumerate(json.load(f)):
+        with open(path, 'rb') as f:
+            for i, ann in enumerate(orjson.loads(f.read())):
                 item_id = osp.splitext(ann.get('img_paths', ''))[0]
 
                 center = ann.get('objpos', [])

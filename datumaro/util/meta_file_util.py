@@ -1,10 +1,11 @@
-# Copyright (C) 2021 Intel Corporation
+# Copyright (C) 2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 from collections import OrderedDict
-import json
 import os.path as osp
+
+import orjson
 
 from datumaro.components.annotation import AnnotationType
 from datumaro.util import find
@@ -25,8 +26,8 @@ def parse_meta_file(path):
     if osp.isdir(path):
         meta_file = get_meta_file(path)
 
-    with open(meta_file) as f:
-        dataset_meta = json.load(f)
+    with open(meta_file, 'rb') as f:
+        dataset_meta = orjson.loads(f.read())
 
     label_map = OrderedDict()
 
@@ -67,5 +68,5 @@ def save_meta_file(path, categories):
     if osp.isdir(path):
         meta_file = get_meta_file(path)
 
-    with open(meta_file, 'w') as f:
-        json.dump(dataset_meta, f)
+    with open(meta_file, 'wb') as f:
+        f.write(orjson.dumps(dataset_meta))

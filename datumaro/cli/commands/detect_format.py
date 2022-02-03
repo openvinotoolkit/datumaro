@@ -3,7 +3,8 @@
 # SPDX-License-Identifier: MIT
 
 import argparse
-import json
+
+import orjson
 
 from datumaro.cli.util import MultilineFormatter
 from datumaro.cli.util.project import load_project
@@ -114,5 +115,5 @@ def detect_format_command(args):
             print("No formats were rejected.")
 
     if args.json_report:
-        with open(args.json_report, 'w', encoding='UTF-8') as report_file:
-            json.dump(report, report_file, indent=4)
+        with open(args.json_report, 'wb') as report_file:
+            report_file.write(orjson.dumps(report, option=orjson.OPT_INDENT_2))

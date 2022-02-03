@@ -1,14 +1,14 @@
-# Copyright (C) 2019-2021 Intel Corporation
+# Copyright (C) 2019-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 from collections import OrderedDict
 from enum import Enum, auto
 from itertools import chain
-import json
 import os.path as osp
 
 import numpy as np
+import orjson
 
 from datumaro.components.annotation import (
     AnnotationType, LabelCategories, MaskCategories,
@@ -166,8 +166,8 @@ def parse_meta_file(path):
     if osp.isdir(path):
         meta_file = get_meta_file(path)
 
-    with open(meta_file) as f:
-        dataset_meta = json.load(f)
+    with open(meta_file, 'rb') as f:
+        dataset_meta = orjson.loads(f.read())
 
     label_map = OrderedDict()
     parts = dataset_meta.get('parts', {})
@@ -239,8 +239,8 @@ def write_meta_file(path, label_map):
 
     meta_file = get_meta_file(path)
 
-    with open(meta_file, 'w') as f:
-        json.dump(dataset_meta, f)
+    with open(meta_file, 'wb') as f:
+        f.write(orjson.dumps(dataset_meta))
 
 
 def make_voc_categories(label_map=None):

@@ -1,9 +1,10 @@
-# Copyright (C) 2021 Intel Corporation
+# Copyright (C) 2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
-import json
 import os.path as osp
+
+import orjson
 
 from datumaro.components.annotation import AnnotationType, Bbox, LabelCategories
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
@@ -34,8 +35,8 @@ class VottJsonExtractor(SourceExtractor):
     def _load_items(self, path):
         items = {}
 
-        with open(path) as f:
-            anno_dict = json.load(f)
+        with open(path, 'rb') as f:
+            anno_dict = orjson.loads(f.read())
 
         label_categories = self._categories[AnnotationType.label]
         tags = anno_dict.get('tags', [])
@@ -53,7 +54,8 @@ class VottJsonExtractor(SourceExtractor):
                 if not tags:
                     bbox = region.get('boundingBox', {})
                     if bbox:
-                        annotations.append(Bbox(float(bbox['left']), float(bbox['top']),
+                        annotations.append(Bbox(
+                            float(bbox['left']), float(bbox['top']),
                             float(bbox['width']), float(bbox['height']),
                             attributes={'id': region.get('id')}))
 
@@ -64,12 +66,16 @@ class VottJsonExtractor(SourceExtractor):
 
                     bbox = region.get('boundingBox', {})
                     if bbox:
-                        annotations.append(Bbox(float(bbox['left']), float(bbox['top']),
-                            float(bbox['width']), float(bbox['height']), label=label_idx,
+                        annotations.append(Bbox(
+                            float(bbox['left']), float(bbox['top']),
+                            float(bbox['width']), float(bbox['height']),
+                            label=label_idx,
                             attributes={'id': region.get('id')}))
 
-            items[item_id] = DatasetItem(id=item_id, subset=self._subset, attributes={'id': id},
-                image=Image(path=osp.join(osp.dirname(path), asset.get('asset', {}).get('path'))),
+            items[item_id] = DatasetItem(id=item_id, subset=self._subset,
+                attributes={'id': id},
+                image=Image(path=osp.join(osp.dirname(path),
+                    asset.get('asset', {}).get('path'))),
                 annotations=annotations)
 
         return items

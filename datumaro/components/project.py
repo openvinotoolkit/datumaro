@@ -10,7 +10,6 @@ from typing import (
     Any, Dict, Generic, Iterable, Iterator, List, NewType, Optional, Tuple,
     TypeVar, Union,
 )
-import json
 import logging as log
 import os
 import os.path as osp
@@ -20,6 +19,7 @@ import tempfile
 import unittest.mock
 
 import networkx as nx
+import orjson
 import ruamel.yaml as yaml
 
 from datumaro.components.config import Config
@@ -1267,8 +1267,8 @@ class DvcWrapper:
             return False
 
         if obj_hash.endswith(self.DIR_HASH_SUFFIX):
-            with open(path) as f:
-                objects = json.load(f)
+            with open(path, 'rb') as f:
+                objects = orjson.loads(f.read())
             for entry in objects:
                 if not osp.isfile(self.obj_path(entry['md5'])):
                     return False
@@ -1337,8 +1337,8 @@ class DvcWrapper:
         if not osp.isfile(src):
             raise UnknownRefError(obj_hash)
 
-        with open(src) as f:
-            src_meta = json.load(f)
+        with open(src, 'rb') as f:
+            src_meta = orjson.loads(f.read())
         for entry in src_meta:
             _copy_obj(self.obj_path(entry['md5']),
                 osp.join(dst_dir, entry['relpath']), link=allow_links)
@@ -1354,7 +1354,7 @@ class DvcWrapper:
             raise UnknownRefError(obj_hash)
 
         with open(src) as f:
-            src_meta = json.load(f)
+            src_meta = orjson.loads(f.read())
         for entry in src_meta:
             entry_path = self.obj_path(entry['md5'])
             if osp.isfile(entry_path):

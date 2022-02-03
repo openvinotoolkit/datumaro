@@ -1,15 +1,15 @@
-# Copyright (C) 2020-2021 Intel Corporation
+# Copyright (C) 2020-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 import glob
-import json
 import logging as log
 import os
 import os.path as osp
 import re
 
 import numpy as np
+import orjson
 
 from datumaro.components.annotation import (
     AnnotationType, CompiledMask, LabelCategories, Mask, Polygon,
@@ -142,7 +142,7 @@ class Ade20k2020Extractor(Extractor):
                 for image %s" % path)
 
         with open(json_path, 'r', encoding='latin-1') as f:
-            item_objects = json.load(f)['annotation']['object']
+            item_objects = orjson.loads(f.read())['annotation']['object']
             for obj in item_objects:
                 polygon_points = []
                 for x, y in zip(obj['polygon']['x'], obj['polygon']['y']):
@@ -189,7 +189,7 @@ class Ade20k2020Importer(Importer):
         with context.probe_text_file(
             annot_path, "must be a JSON object with an \"annotation\" key",
         ) as f:
-            contents = json.load(f)
+            contents = orjson.loads(f.read())
             if not isinstance(contents, dict):
                 raise Exception
             if 'annotation' not in contents:
