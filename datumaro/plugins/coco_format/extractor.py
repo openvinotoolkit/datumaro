@@ -67,10 +67,8 @@ class _CocoExtractor(SourceExtractor):
         )
 
         if self._task == CocoTask.panoptic:
-            self._items = self._load_panoptic_items(json_data,
-                mask_dir=osp.splitext(path)[0])
-        else:
-            self._items = self._load_items(json_data)
+            self._mask_dir = osp.splitext(path)[0]
+        self._items = self._load_items(json_data)
 
     def __iter__(self):
         yield from self._items.values()
@@ -155,42 +153,23 @@ class _CocoExtractor(SourceExtractor):
                 annotations=[],
                 attributes={'id': img_id})
 
-        for ann in self._with_progress(json_data['annotations'],
-                desc='Parsing annotations'):
-            items[ann['image_id']].annotations += \
-                self._load_annotations(ann, img_infos[ann['image_id']])
+        if self._task is not CocoTask.panoptic:
+            for ann in self._with_progress(json_data['annotations'],
+                    desc='Parsing annotations'):
+                items[ann['image_id']].annotations += \
+                    self._load_annotations(ann, img_infos[ann['image_id']])
+        else:
+            self._load_panoptic_ann(items, json_data)
 
         return items
 
-    def _load_panoptic_items(self, json_data, mask_dir):
-        items = {}
-
-        img_infos = {}
-        for img_info in self._with_progress(json_data['images'],
-                desc='Parsing image info'):
-            img_id = img_info['id']
-            img_infos[img_id] = img_info
-
-            if img_info.get('height') and img_info.get('width'):
-                image_size = (img_info['height'], img_info['width'])
-            else:
-                image_size = None
-
-            items[img_id] = DatasetItem(
-                id=osp.splitext(img_info['file_name'])[0],
-                subset=self._subset,
-                image=Image(
-                    path=osp.join(self._images_dir, img_info['file_name']),
-                    size=image_size),
-                annotations=[],
-                attributes={'id': img_id})
-
+    def _load_panoptic_ann(self, items, json_data):
         for ann in self._with_progress(json_data['annotations'],
                 desc='Parsing annotations'):
             # For the panoptic task, each annotation struct is a per-image
             # annotation rather than a per-object annotation.
             anns = items[ann['image_id']].annotations
-            mask_path = osp.join(mask_dir, ann['file_name'])
+            mask_path = osp.join(self._mask_dir, ann['file_name'])
             mask = lazy_image(mask_path, loader=self._load_pan_mask)
             mask = CompiledMask(instance_mask=mask)
             for segm_info in ann['segments_info']:
@@ -200,8 +179,6 @@ class _CocoExtractor(SourceExtractor):
                 anns.append(Mask(image=mask.lazy_extract(segm_id),
                     label=cat_id, id=segm_id,
                     group=segm_id, attributes=attributes))
-
-        return items
 
     @staticmethod
     def _load_pan_mask(path):
