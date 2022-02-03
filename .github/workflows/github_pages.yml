@@ -32,7 +32,7 @@ jobs:
 
       - name: Build docs
         run: |
-          pip install gitpython packaging toml Sphinx==4.2.0 sphinx-rtd-theme==1.0.0
+          pip install gitpython packaging toml Sphinx==4.2.0 sphinx-rtd-theme==1.0.0 sphinx-copybutton==0.4.0
           pip install -r requirements.txt
           pip install git+https://github.com/pytorch-ignite/sphinxcontrib-versioning.git@a1a1a94ca80a0233f0df3eaf9876812484901e76
           sphinx-versioning -l site/source/conf.py build -r develop -w develop site/source site/static/api

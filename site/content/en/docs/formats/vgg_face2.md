@@ -40,9 +40,6 @@ from datumaro import Dataset
 dataset = Dataset.import_from('<path_to_dataset>', format='vgg_face2')
 ```
 
-_Links to API documentation:_
-- [Dataset.import_from][]
-
 For successful importing of Vgg Face2 face the input directory with dataset
 should has the following structure:
 
@@ -107,9 +104,6 @@ vgg_face2_dataset = Dataset.import_from('<path_to_dataset', format='vgg_face2')
 vgg_face2_dataset.export('<output_dir>', format='open_images', save_images=True)
 ```
 
-_Links to API documentation:_
-- [Dataset.import_from][]
-
 > Note: some formats have extra export options. For particular format see the
 > [docs](/docs/formats/) to get information about it.
 
@@ -141,5 +135,3 @@ Extra options for exporting to Vgg Face2 format:
   for exporting the dataset (by default `.png`)
 - `--save-dataset-meta` - allow to export dataset with saving dataset meta
   file (by default `False`)
-
-[Dataset.import_from]: /api/api/components/components/datumaro.components.dataset.html#datumaro.components.dataset.Dataset.import_from

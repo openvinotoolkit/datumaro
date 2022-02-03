@@ -24,9 +24,6 @@ dataset = dm.Dataset.import_from(path, format)
 ...
 ```
 
-_Links to API documentation:_
-- [dm.Dataset.import_from](/api/api/components/components/datumaro.components.dataset.html#datumaro.components.dataset.Dataset.import_from)
-
 ### Glossary
 
 - Basic concepts:

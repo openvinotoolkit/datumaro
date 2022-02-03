@@ -3,6 +3,8 @@ annotation module
 
 .. automodule:: datumaro.components.annotation
 
+   .. py:data:: NO_GROUP = 0
+
    .. autoclass:: AnnotationType
       :members:
       :undoc-members:
@@ -49,6 +51,10 @@ annotation module
          Describes the list of possible annotation-type specific attributes in a dataset.
 
             .. py:data:: attributes: Set[str]
+
+   .. py:data:: RgbColor = Tuple[int, int, int]
+   .. py:data:: Colormap = Dict[int, RgbColor]
+   .. py:data:: CompiledMaskImage = np.ndarray
 
    .. autoclass:: LabelCategories
       :members: from_iterable, add, find, __getitem__, __contains__, __len__, __iter__, __eq__, __init__
@@ -165,6 +171,9 @@ annotation module
       .. automethod:: _Shape.get_area(self)
 
       .. automethod:: _Shape.get_bbox(self)
+
+   .. py:data:: BinaryMaskImage = np.ndarray
+   .. py:data:: IndexMaskImage = np.ndarray
 
    .. autoclass:: PointsCategories
       :members:

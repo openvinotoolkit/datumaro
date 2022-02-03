@@ -43,9 +43,6 @@ from datumaro import Dataset
 celeba_dataset = Dataset.import_from('<path/to/dataset>', 'celeba')
 ```
 
-_Links to API documentation:_
-- [Dataset.import_from][]
-
 CelebA dataset directory should have the following structure:
 
 <!--lint disable fenced-code-flag-->
@@ -106,12 +103,7 @@ dataset = Dataset.import_from('<path/to/dataset>', 'celeba')
 dataset.export('save_dir', 'voc')
 ```
 
-_Links to API documentation:_
-- [Dataset.import_from][]
-
 ## Examples
 
 Examples of using this format from the code can be found in
 [the format tests](https://github.com/openvinotoolkit/datumaro/blob/develop/tests/test_celeba_format.py)
-
-[Dataset.import_from]: /api/api/components/components/datumaro.components.dataset.html#datumaro.components.dataset.Dataset.import_from

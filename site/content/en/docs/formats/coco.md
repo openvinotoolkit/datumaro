@@ -179,9 +179,6 @@ dataset = Dataset.import_from('<path/to/dataset>', 'coco')
 dataset.export('save_dir', 'voc', save_images=True)
 ```
 
-_Links to API documentation:_
-- [Dataset.import_from][]
-
 ## Export to COCO
 
 There are several ways to convert a dataset to COCO format:
@@ -279,17 +276,5 @@ dataset = Dataset.from_iterable([
 dataset.export('./dataset', format='coco_panoptic')
 ```
 
-_Links to API documentation:_
-- [Dataset.from_iterable][]
-- [Mask][]
-- [Dataset][]
-- [DatasetItem][]
-
 Examples of using this format from the code can be found in
 [the format tests](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/test_coco_format.py)
-
-[Dataset.import_from]: /api/api/components/components/datumaro.components.dataset.html#datumaro.components.dataset.Dataset.import_from
-[Dataset.from_iterable]: /api/api/components/components/datumaro.components.dataset.html#datumaro.components.dataset.Dataset.from_iterable
-[Mask]: /api/api/components/components/datumaro.components.annotation.html#datumaro.components.annotation.Mask
-[Dataset]: /api/api/components/components/datumaro.components.dataset.html
-[DatasetItem]: /api/api/components/components/datumaro.components.extractor.html#datumaro.components.extractor.DatasetItem

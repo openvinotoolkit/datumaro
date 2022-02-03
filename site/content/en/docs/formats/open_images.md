@@ -256,9 +256,6 @@ dataset = Dataset.import_from('<path/to/dataset>', 'open_images')
 dataset.export('save_dir', 'cvat', save_images=True)
 ```
 
-_Links to API documentation:_
-- [Dataset.import_from][]
-
 ## Export to Open Images
 
 There are several ways to convert an existing dataset to the Open Images format:
@@ -326,20 +323,5 @@ dataset = Dataset.from_iterable([
 dataset.export('./dataset', format='open_images')
 ```
 
-_Links to API documentation:_
-- [Dataset.import_from][]
-- [DatasetItem][]
-- [Dataset][]
-- [AnnotationType][]
-- [Label][]
-- [LabelCategories][]
-
 Examples of using this format from the code can be found in
 [the format tests](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/test_open_images_format.py).
-
-[Dataset.import_from]: /api/api/components/components/datumaro.components.dataset.html#datumaro.components.dataset.Dataset.import_from
-[DatasetItem]: /api/api/components/components/datumaro.components.extractor.html#datumaro.components.extractor.DatasetItem
-[Dataset]: /api/api/components/components/datumaro.components.dataset.html
-[AnnotationType]: /api/api/components/components/datumaro.components.annotation.html#datumaro.components.annotation.AnnotationType
-[Label]: /api/api/components/components/datumaro.components.annotation.html#datumaro.components.annotation.Label
-[LabelCategories]: /api/api/components/components/datumaro.components.annotation.html#datumaro.components.annotation.LabelCategories

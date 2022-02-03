@@ -32,9 +32,6 @@ from datumaro import Dataset
 vott_csv_dataset = Dataset.import_from('<path/to/dataset>', 'vott_csv')
 ```
 
-_Links to API documentation:_
-- [Dataset.import_from][]
-
 VoTT CSV dataset directory should have the following structure:
 
 <!--lint disable fenced-code-flag-->
@@ -82,12 +79,7 @@ dataset = Dataset.import_from('<path/to/dataset>', 'vott_csv')
 dataset.export('save_dir', 'voc')
 ```
 
-_Links to API documentation:_
-- [Dataset.import_from][]
-
 ## Examples
 
 Examples of using this format from the code can be found in
 [VoTT CSV tests](https://github.com/openvinotoolkit/datumaro/blob/develop/tests/test_vott_csv_format.py).
-
-[Dataset.import_from]: /api/api/components/components/datumaro.components.dataset.html#datumaro.components.dataset.Dataset.import_from

@@ -106,9 +106,6 @@ dataset = Dataset.import_from('<path_to_wider_face', 'wider_face')
 dataset.export('output_dir', 'open_images', save_images=True)
 ```
 
-_Links to API documentation:_
-- [Dataset.import_from][]
-
 > Note: some formats have extra export options. For particular format see the
 > [docs](/docs/formats/) to get information about it.
 
@@ -131,5 +128,3 @@ Available extra export options for WIDER Face dataset format:
   (by default `False`)
 - `--image-ext IMAGE_EXT` allow to specify image extension
   for exporting dataset (by default - keep original)
-
-[Dataset.import_from]: /api/api/components/components/datumaro.components.dataset.html#datumaro.components.dataset.Dataset.import_from

@@ -129,10 +129,6 @@ dataset = Dataset.import_from('<path/to/dataset>', 'yolo')
 dataset.export('save_dir', 'coco_instances', save_images=True)
 ```
 
-
-_Links to API documentation:_
-- [Dataset.import_from][]
-
 ## Export to YOLO format
 
 Datumaro can convert an existing dataset to YOLO format,
@@ -199,12 +195,6 @@ dataset = Dataset.from_iterable([
 dataset.export('../yolo_dataset', format='yolo', save_images=True)
 ```
 
-_Links to API documentation:_
-- [Dataset.from_iterable][]
-- [Bbox][]
-- [Dataset][]
-- [DatasetItem][]
-
 ### Example 4. Get information about objects on each image
 
 If you only want information about label names for each
@@ -221,20 +211,9 @@ for item in dataset:
         print(item.id, cats[ann.label].name)
 ```
 
-_Links to API documentation:_
-- [AnnotationType][]
-- [Dataset][]
-
 And If you want complete information about each item you can run:
 ```bash
 datum create -o project
 datum import -p project -f yolo ./yolo_dataset
 datum filter -p project --dry-run -e '/item'
 ```
-
-[Dataset.import_from]: /api/api/components/components/datumaro.components.dataset.html#datumaro.components.dataset.Dataset.import_from
-[Dataset.from_iterable]: /api/api/components/components/datumaro.components.dataset.html#datumaro.components.dataset.Dataset.from_iterable
-[Dataset]: /api/api/components/components/datumaro.components.dataset.html
-[DatasetItem]: /api/api/components/components/datumaro.components.extractor.html#datumaro.components.extractor.DatasetItem
-[Bbox]: /api/api/components/components/datumaro.components.annotation.html#datumaro.components.annotation.Bbox
-[AnnotationType]: /api/api/components/components/datumaro.components.annotation.html#datumaro.components.annotation.AnnotationType

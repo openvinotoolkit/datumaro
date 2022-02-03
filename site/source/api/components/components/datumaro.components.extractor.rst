@@ -3,12 +3,16 @@ extractor module
 
 .. automodule:: datumaro.components.extractor
 
+   .. py:data:: DEFAULT_SUBSET_NAME = 'default'
+
    .. autoclass:: DatasetItem
       :members:
       :undoc-members:
       :private-members:
       :special-members:
       :show-inheritance:
+
+   .. py:data:: CategoriesInfo = Dict[AnnotationType, Categories]
 
    .. autoclass:: IExtractor
       :members:

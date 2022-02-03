@@ -85,6 +85,8 @@ dataset.export('dst/dir', 'coco')
 project.close()
 ```
 
+[List of components](/api/api/datumaro.html) with the comfortable importing.
+
 > Check our [developer manual](/docs/developer_manual/) for additional
   information.
 
@@ -181,10 +183,6 @@ project.close()
   ], categories=['cat', 'dog'])
   dataset.export('test_dataset/', 'coco')
   ```
-  _Links to API documentation:_
-  - [dm.Dataset](/api/api/components/components/datumaro.components.dataset.html#datumaro.components.dataset.Dataset)
-  - [dm.DatasetItem](/api/api/components/components/datumaro.components.extractor.html#datumaro.components.extractor.DatasetItem)
-  - [dm.Bbox](/api/api/components/components/datumaro.components.annotation.html#datumaro.components.annotation.Bbox)
 
 <!--lint enable list-item-bullet-indent-->
 <!--lint enable list-item-indent-->

@@ -35,9 +35,6 @@ from datumaro import Dataset
 synthia_dataset = Dataset.import_from('<path/to/dataset>', 'synthia')
 ```
 
-_Links to API documentation:_
-- [Dataset.import_from][]
-
 SYNTHIA dataset directory should have the following structure:
 
 <!--lint disable fenced-code-flag-->
@@ -132,12 +129,7 @@ dataset = Dataset.import_from('<path/to/dataset>', 'synthia')
 dataset.export('save_dir', 'voc')
 ```
 
-_Links to API documentation:_
-- [Dataset.import_from][]
-
 ## Examples
 
 Examples of using this format from the code can be found in
 [the format tests](https://github.com/openvinotoolkit/datumaro/blob/develop/tests/test_synthia_format.py)
-
-[Dataset.import_from]: /api/api/components/components/datumaro.components.dataset.html#datumaro.components.dataset.Dataset.import_from

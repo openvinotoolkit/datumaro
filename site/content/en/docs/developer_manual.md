@@ -295,9 +295,6 @@ Environment().converters['yolo'].convert(dataset, save_dir=dst_dir)
 YoloConverter.convert(dataset, save_dir=dst_dir)
 ```
 
-_Links to API documentation:_
-- [dm.Dataset.import_from](/api/api/components/components/datumaro.components.dataset.html#datumaro.components.dataset.Dataset.import_from)
-
 ### Writing a plugin
 
 A plugin is a Python module with any name, which exports some symbols. Symbols,

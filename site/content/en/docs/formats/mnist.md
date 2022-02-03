@@ -136,9 +136,6 @@ dataset = Dataset.import_from('<path/to/dataset>', 'mnist')
 dataset.export('save_dir', 'imagenet', save_images=True)
 ```
 
-_Links to API documentation:_
-- [Dataset.import_from][]
-
 These steps also will work for MNIST in CSV, if you use `mnist_csv`
 instead of `mnist`.
 
@@ -193,11 +190,6 @@ dataset = Dataset.from_iterable([
 dataset.export('./dataset', format='mnist')
 ```
 
-_Links to API documentation:_
-- [Dataset.from_iterable][]
-- [DatasetItem][]
-- [Label][]
-
 ### Example 2. How to filter and convert a MNIST dataset to ImageNet
 
 Convert MNIST dataset to ImageNet format, keep only images with `3` class
@@ -214,8 +206,3 @@ datum convert --input-format mnist --input-path <path/to/mnist> \
 
 Examples of using this format from the code can be found in
 the [binary format tests](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/test_mnist_format.py) and [csv format tests](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/test_mnist_csv_format.py)
-
-[Dataset.import_from]: /api/api/components/components/datumaro.components.dataset.html#datumaro.components.dataset.Dataset.import_from
-[Dataset.from_iterable]: /api/api/components/components/datumaro.components.dataset.html#datumaro.components.dataset.Dataset.from_iterable
-[DatasetItem]: /api/api/components/components/datumaro.components.extractor.html#datumaro.components.extractor.DatasetItem
-[Label]: /api/api/components/components/datumaro.components.annotation.html#datumaro.components.annotation.Label

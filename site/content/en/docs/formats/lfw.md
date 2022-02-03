@@ -47,9 +47,6 @@ from datumaro import Dataset
 lfw_dataset = Dataset.import_from('<path_to_lfw_dataset>', 'lfw')
 ```
 
-_Links to API documentation:_
-- [Dataset.import_from][]
-
 For successful importing the LFW dataset, the directory with it
 should has the following structure:
 
@@ -125,5 +122,3 @@ Available extra export options for LFW dataset format:
   (by default `False`)
 - `--image-ext IMAGE_EXT` allow to specify image extension
   for exporting dataset (by default - keep original)
-
-[Dataset.import_from]: /api/api/components/components/datumaro.components.dataset.html#datumaro.components.dataset.Dataset.import_from

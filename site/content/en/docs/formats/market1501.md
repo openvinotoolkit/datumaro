@@ -54,9 +54,6 @@ from datumaro import Dataset
 dataset = Dataset.import_from('<path_to_dataset>', 'market1501')
 ```
 
-_Links to API documentation:_
-- [Dataset.import_from][]
-
 For successful importing the Market-1501 dataset, the directory with it
 should has the following structure:
 
@@ -104,5 +101,3 @@ Available extra export options for Market-1501 dataset format:
   (by default `False`)
 - `--image-ext IMAGE_EXT` allow to specify image extension
   for exporting dataset (by default - keep original)
-
-[Dataset.import_from]: /api/api/components/components/datumaro.components.dataset.html#datumaro.components.dataset.Dataset.import_from

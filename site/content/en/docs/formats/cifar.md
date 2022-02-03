@@ -133,9 +133,6 @@ dataset = Dataset.import_from('<path/to/dataset>', 'cifar')
 dataset.export('save_dir', 'imagenet', save_images=True)
 ```
 
-_Links to API documentation:_
-- [Dataset.import_from][]
-
 ## Export to CIFAR
 
 There are several ways to convert a dataset to CIFAR format:
@@ -190,11 +187,6 @@ dataset = Dataset.from_iterable([
 dataset.export('./dataset', format='cifar')
 ```
 
-_Links to API documentation:_
-- [Dataset.from_iterable][]
-- [DatasetItem][]
-- [Label][]
-
 ### Example 2. How to filter and convert a CIFAR dataset to ImageNet
 
 Convert a CIFAR dataset to ImageNet format, keep only images with the
@@ -210,8 +202,3 @@ datum convert --input-format cifar --input-path <path/to/cifar> \
 
 Examples of using this format from the code can be found in
 [the format tests](https://github.com/openvinotoolkit/datumaro/blob/develop/tests/test_cifar_format.py)
-
-[Dataset.import_from]: /api/api/components/components/datumaro.components.dataset.html#datumaro.components.dataset.Dataset.import_from
-[Dataset.from_iterable]: /api/api/components/components/datumaro.components.dataset.html#datumaro.components.dataset.Dataset.from_iterable
-[DatasetItem]: /api/api/components/components/datumaro.components.extractor.html#datumaro.components.extractor.DatasetItem
-[Label]: /api/api/components/components/datumaro.components.annotation.html#datumaro.components.annotation.Label

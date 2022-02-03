@@ -110,9 +110,6 @@ dataset = Dataset.import_from('<path/to/dataset>', 'sly_pointcloud')
 dataset.export('save_dir', 'kitti_raw', save_images=True)
 ```
 
-_Links to API documentation:_
-- [Dataset.import_from][]
-
 ## Export to Supervisely Point Cloud
 
 There are several ways to convert a dataset to Supervisely Point Cloud format:
@@ -190,15 +187,5 @@ dataset.export('my_dataset/', format='sly_pointcloud', save_images=True,
     allow_undeclared_attrs=True)
 ```
 
-_Links to API documentation:_
-- [Dataset][]
-- [Cuboid3d][]
-- [DatasetItem][]
-
 Examples of using this format from the code can be found in
 [the format tests](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/test_sly_pointcloud_format.py)
-
-[Dataset.import_from]: /api/api/components/components/datumaro.components.dataset.html#datumaro.components.dataset.Dataset.import_from
-[Dataset]: /api/api/components/components/datumaro.components.dataset.html
-[DatasetItem]: /api/api/components/components/datumaro.components.extractor.html#datumaro.components.extractor.DatasetItem
-[Cuboid3d]: /api/api/components/components/datumaro.components.annotation.html#datumaro.components.annotation.Cuboid3d

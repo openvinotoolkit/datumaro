@@ -115,9 +115,6 @@ dataset = Dataset.import_from('<path/to/dataset>', 'kitti_raw')
 dataset.export('save_dir', 'sly_pointcloud', save_images=True)
 ```
 
-_Links to API documentation:_
-- [Dataset.import_from][]
-
 ## Export to KITTI Raw
 
 There are several ways to convert a dataset to KITTI Raw format:
@@ -184,17 +181,5 @@ dataset = Dataset.from_iterable([
 dataset.export('my_dataset/', format='kitti_raw', save_images=True)
 ```
 
-_Links to API documentation:_
-- [Dataset.from_iterable][]
-- [Cuboid3d][]
-- [Dataset][]
-- [DatasetItem][]
-
 Examples of using this format from the code can be found in
 [the format tests](https://github.com/openvinotoolkit/datumaro/tree/develop/tests/test_kitti_raw_format.py)
-
-[Dataset.import_from]: /api/api/components/components/datumaro.components.dataset.html#datumaro.components.dataset.Dataset.import_from
-[Dataset.from_iterable]: /api/api/components/components/datumaro.components.dataset.html#datumaro.components.dataset.Dataset.from_iterable
-[Cuboid3d]: /api/api/components/components/datumaro.components.annotation.html#datumaro.components.annotation.Cuboid3d
-[Dataset]: /api/api/components/components/datumaro.components.dataset.html
-[DatasetItem]: /api/api/components/components/datumaro.components.extractor.html#datumaro.components.extractor.DatasetItem

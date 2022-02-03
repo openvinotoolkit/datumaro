@@ -55,8 +55,6 @@ data1 = Dataset.import_from('text_localization_path', 'icdar_text_localization')
 data2 = Dataset.import_from('text_segmentation_path', 'icdar_text_segmentation')
 data3 = Dataset.import_from('word_recognition_path', 'icdar_word_recognition')
 ```
-_Links to API documentation:_
-- [Dataset.import_from][]
 
 Dataset with ICDAR dataset should have the following structure:
 
@@ -135,5 +133,3 @@ Available extra export options for ICDAR dataset formats:
   (by default `False`)
 - `--image-ext IMAGE_EXT` allow to specify image extension
   for exporting dataset (by default - keep original)
-
-[Dataset.import_from]: /api/api/components/components/datumaro.components.dataset.html#datumaro.components.dataset.Dataset.import_from
