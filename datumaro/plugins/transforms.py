@@ -279,7 +279,7 @@ class ShapesToBoxes(ItemTransform, CliPlugin):
 
 class Reindex(Transform, CliPlugin):
     """
-    Assigns sequential indices to dataset items.
+    Replaces dataset item IDs with sequential indices.
     """
 
     @classmethod

@@ -131,7 +131,7 @@ Annotation manipulations:
 Renames items in the dataset. Supports regular expressions.
 The first character in the expression is a delimiter for
 the pattern and replacement parts. Replacement part can also
-contain `string.format` tokens with `item` object available.
+contain `str.format` tokens with `item` object available.
 
 Usage:
 ``` bash
@@ -178,7 +178,7 @@ Optional arguments:
 
 ##### `reindex` <a id="reindex-transform"></a>
 
-Assigns sequential indices to dataset items.
+Replaces dataset item IDs with sequential indices.
 
 Usage:
 ```bash
