@@ -146,6 +146,12 @@ class SourceExistsError(DatumaroError):
 class DatasetImportError(DatumaroError):
     pass
 
+class ItemImportError(DatasetImportError):
+    pass
+
+class AnnotationImportError(ItemImportError):
+    pass
+
 @attrs
 class DatasetNotFoundError(DatasetImportError):
     path = attrib()

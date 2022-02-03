@@ -29,7 +29,7 @@ from datumaro.components.errors import (
 )
 from datumaro.components.extractor import (
     DEFAULT_SUBSET_NAME, CategoriesInfo, DatasetItem, Extractor, IExtractor,
-    ItemTransform, Transform,
+    ImportContext, ItemTransform, Transform,
 )
 from datumaro.components.launcher import Launcher, ModelTransform
 from datumaro.plugins.transforms import ProjectLabels
@@ -930,8 +930,11 @@ class Dataset(IDataset):
         return cls.import_from(path, format=DEFAULT_FORMAT, **kwargs)
 
     @classmethod
-    def import_from(cls, path: str, format: Optional[str] = None, *,
-            env: Optional[Environment] = None, **kwargs) -> Dataset:
+    def import_from(cls, path: str,
+            format: Optional[str] = None, *,
+            env: Optional[Environment] = None,
+            ctx: Optional[ImportContext] = None,
+            **kwargs) -> Dataset:
         from datumaro.components.config_model import Source
 
         if env is None:
@@ -956,8 +959,13 @@ class Dataset(IDataset):
         for src_conf in detected_sources:
             if not isinstance(src_conf, Source):
                 src_conf = Source(src_conf)
+
+            extractors_kwargs = dict(src_conf.options)
+            if ctx:
+                extractors_kwargs['ctx'] = ctx
+
             extractors.append(env.make_extractor(
-                src_conf.format, src_conf.url, **src_conf.options
+                src_conf.format, src_conf.url, **extractors_kwargs
             ))
 
         dataset = cls.from_extractors(*extractors, env=env)

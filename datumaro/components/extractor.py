@@ -4,12 +4,17 @@
 
 from __future__ import annotations
 
+from enum import Enum, auto
 from glob import iglob
-from typing import Any, Callable, Dict, Iterator, List, Optional
+from typing import (
+    Any, Callable, Dict, Iterable, Iterator, List, NoReturn, Optional, TypeVar,
+    Union,
+)
+import math
 import os
 import os.path as osp
 
-from attr import attrs, field
+from attr import attrs, define, field
 import attr
 import numpy as np
 
@@ -17,7 +22,9 @@ from datumaro.components.annotation import (
     Annotation, AnnotationType, Categories,
 )
 from datumaro.components.cli_plugin import CliPlugin
-from datumaro.components.errors import DatasetNotFoundError
+from datumaro.components.errors import (
+    AnnotationImportError, DatasetNotFoundError, DatumaroError, ItemImportError,
+)
 from datumaro.components.format_detection import (
     FormatDetectionConfidence, FormatDetectionContext,
 )
@@ -107,7 +114,7 @@ class IExtractor:
         raise NotImplementedError()
 
 class _ExtractorBase(IExtractor):
-    def __init__(self, length=None, subsets=None):
+    def __init__(self, *, length=None, subsets=None):
         self._length = length
         self._subsets = subsets
 
@@ -170,6 +177,72 @@ class _ExtractorBase(IExtractor):
                 return item
         return None
 
+T = TypeVar('T')
+
+class _ImportFail(DatumaroError):
+    pass
+
+class ItemErrorAction(Enum):
+    skip_item = auto()
+
+class AnnotationErrorAction(Enum):
+    skip_item = auto()
+    skip_annotation = auto()
+
+class ProgressReporter:
+    def get_frequency(self) -> float:
+        raise NotImplementedError
+
+    def start(self, total: int, *, desc: Optional[str] = None):
+        raise NotImplementedError
+
+    def report_status(self, progress: int):
+        raise NotImplementedError
+
+    def finish(self):
+        raise NotImplementedError
+
+    def iter(self, iterable: Iterable[T], *,
+            total: Optional[int] = None,
+            desc: Optional[str]
+    ) -> Iterable[T]:
+        if total is None:
+            if hasattr(iterable, '__len__'):
+                total = len(iterable)
+
+        self.start(total, desc=desc)
+
+        if total:
+            display_step = math.ceil(total * self.get_frequency())
+        else:
+            display_step = None
+        for i, elem in enumerate(iterable):
+            if not total or i % display_step == 0:
+                self.report_status(i)
+
+            yield elem
+
+        self.finish()
+
+class ErrorPolicy:
+    def report_item_error(self,
+            error: ItemImportError
+    ) -> Union[ItemErrorAction, NoReturn]:
+        raise NotImplementedError
+
+    def report_annotation_error(self,
+            error: AnnotationImportError
+    ) -> Union[AnnotationErrorAction, NoReturn]:
+        raise NotImplementedError
+
+    def fail(self, error: Exception) -> NoReturn:
+        raise _ImportFail from error
+
+@define(eq=False)
+class ImportContext:
+    progress_reporter: ProgressReporter
+    error_policy: ErrorPolicy
+
 class Extractor(_ExtractorBase, CliPlugin):
     """
     A base class for user-defined and built-in extractors.
@@ -177,15 +250,41 @@ class Extractor(_ExtractorBase, CliPlugin):
     or its use makes problems with performance, implementation etc.
     """
 
+    def __init__(self, *, length=None, subsets=None,
+            ctx: Optional[ImportContext] = None):
+        super().__init__(length=length, subsets=subsets)
+        self._ctx = ctx
+
+    def _with_progress(self, iterable: Iterable[T], *,
+            total: Optional[int] = None,
+            desc: Optional[str] = None
+    ) -> Iterable[T]:
+        if self._ctx and self._ctx.progress_reporter:
+            yield from self._ctx.progress_reporter.iter(iterable,
+                total=total, desc=desc)
+        else:
+            yield from iterable
+
+    def _report_item_error(self, error: ItemImportError):
+        if self._ctx and self._ctx.error_policy:
+            return self._ctx.error_policy.report_annotation_error(error)
+        raise _ImportFail from error
+
+    def _report_annotation_error(self, error: AnnotationImportError):
+        if self._ctx and self._ctx.error_policy:
+            return self._ctx.error_policy.report_item_error(error)
+        raise _ImportFail from error
+
 class SourceExtractor(Extractor):
     """
     A base class for simple, single-subset extractors.
     Should be used by default for user-defined extractors.
     """
 
-    def __init__(self, length=None, subset=None):
+    def __init__(self, *, length=None, subset=None,
+            ctx: Optional[ImportContext] = None):
         self._subset = subset or DEFAULT_SUBSET_NAME
-        super().__init__(length=length, subsets=[self._subset])
+        super().__init__(length=length, subsets=[self._subset], ctx=ctx)
 
         self._categories = {}
         self._items = []

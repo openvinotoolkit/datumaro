@@ -1,11 +1,15 @@
-# Copyright (C) 2019-2021 Intel Corporation
+# Copyright (C) 2019-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
-from typing import Iterable, List
+from typing import Iterable, List, Optional
 import argparse
 import logging as log
 import textwrap
+
+from tqdm import tqdm
+
+from datumaro.components.extractor import ProgressReporter
 
 
 def add_subparser(subparsers, name, builder):
@@ -78,3 +82,22 @@ def show_video_import_warning():
         "If you need stable results, consider splitting the video "
         "manually using instructions at: "
         "https://openvinotoolkit.github.io/datumaro/docs/user-manual/media_formats/")
+
+class CliProgressReporter(ProgressReporter):
+    def __init__(self):
+        self._tqdm = None
+
+    def start(self, total: int, *, desc: Optional[str] = None):
+        self._tqdm = tqdm(total=total, desc=desc)
+
+    def finish(self):
+        if self._tqdm is not None:
+            self._tqdm.close()
+
+    def report_status(self, progress: int):
+        diff = progress - self._tqdm.n
+        if diff:
+            self._tqdm.update(diff)
+
+    def get_frequency(self) -> float:
+        return 0.01

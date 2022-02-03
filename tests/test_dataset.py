@@ -1,4 +1,5 @@
-from unittest import TestCase
+from typing import Optional
+from unittest import TestCase, mock
 import os
 import os.path as osp
 
@@ -17,11 +18,14 @@ from datumaro.components.dataset_filter import (
 )
 from datumaro.components.environment import Environment
 from datumaro.components.errors import (
-    ConflictingCategoriesError, DatasetNotFoundError, MultipleFormatsMatchError,
-    NoMatchingFormatsError, RepeatedItemError, UnknownFormatError,
+    AnnotationImportError, ConflictingCategoriesError, DatasetNotFoundError,
+    ItemImportError, MultipleFormatsMatchError, NoMatchingFormatsError,
+    RepeatedItemError, UnknownFormatError,
 )
 from datumaro.components.extractor import (
-    DEFAULT_SUBSET_NAME, DatasetItem, Extractor, ItemTransform, Transform,
+    DEFAULT_SUBSET_NAME, AnnotationErrorAction, DatasetItem, ErrorPolicy,
+    Extractor, ImportContext, ItemErrorAction, ItemTransform, ProgressReporter,
+    SourceExtractor, Transform,
 )
 from datumaro.components.launcher import Launcher
 from datumaro.components.media import Image
@@ -1455,6 +1459,75 @@ class DatasetTest(TestCase):
         dataset.update(patch)
 
         compare_datasets(self, expected, dataset, ignored_attrs='*')
+
+    @mark_requirement(Requirements.DATUM_PROGRESS_REPORTING)
+    def test_can_report_progress_from_extractor(self):
+        class TestExtractor(SourceExtractor):
+            def __init__(self, url: str, *, ctx: Optional[ImportContext] = None):
+                super().__init__(ctx=ctx)
+                list(self._with_progress([None] * 5, desc='loading images'))
+
+        class TestProgressReporter(ProgressReporter):
+            pass
+        progress_reporter = TestProgressReporter()
+        progress_reporter.get_frequency = mock.MagicMock(return_value=0.1)
+        progress_reporter.start = mock.MagicMock()
+        progress_reporter.report_status = mock.MagicMock()
+        progress_reporter.finish = mock.MagicMock()
+
+        ctx = ImportContext(progress_reporter, None)
+
+        env = Environment()
+        env.importers.items.clear()
+        env.extractors.items['test'] = TestExtractor
+
+        dataset = Dataset.import_from('', 'test', ctx=ctx, env=env)
+        dataset.init_cache()
+
+        progress_reporter.get_frequency.assert_called()
+        progress_reporter.start.assert_called()
+        progress_reporter.report_status.assert_called()
+        progress_reporter.finish.assert_called()
+
+    @mark_requirement(Requirements.DATUM_PROGRESS_REPORTING)
+    def test_can_report_errors_from_extractor(self):
+        class TestExtractor(SourceExtractor):
+            def __init__(self, url: str, *,
+                    ctx: Optional[ImportContext] = None,
+                    auto_labels: bool = True):
+                super().__init__(ctx=ctx)
+
+                action = self._report_annotation_error(AnnotationImportError())
+                if action is AnnotationErrorAction.skip_item:
+                    pass
+                elif action is AnnotationErrorAction.skip_annotation:
+                    pass
+                else:
+                    assert False
+
+                action = self._report_item_error(ItemImportError())
+                if action is ItemErrorAction.skip_item:
+                    pass
+                else:
+                    assert False
+
+        env = Environment()
+        env.importers.items.clear()
+        env.extractors.items['test'] = TestExtractor
+
+        class TestErrorPolicy(ErrorPolicy):
+            pass
+        error_policy = TestErrorPolicy()
+        error_policy.report_item_error = mock.MagicMock(
+            return_value=AnnotationErrorAction.skip_annotation)
+        error_policy.report_annotation_error = mock.MagicMock(
+            return_value=ItemErrorAction.skip_item)
+
+        ctx = ImportContext(None, error_policy)
+        Dataset.import_from('', 'test', ctx=ctx, env=env)
+
+        error_policy.report_item_error.assert_called()
+        error_policy.report_annotation_error.assert_called()
 
 
 class DatasetItemTest(TestCase):

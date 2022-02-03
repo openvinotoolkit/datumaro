@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2021 Intel Corporation
+# Copyright (C) 2020-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -6,7 +6,6 @@ from typing import List, Type
 import argparse
 import logging as log
 
-from datumaro.cli.util import MultilineFormatter
 from datumaro.util import to_snake_case
 
 _plugin_types = None
@@ -48,6 +47,7 @@ class CliPlugin:
 
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
+        from datumaro.cli.util import MultilineFormatter
         args = {
             'prog': cls.NAME,
             'description': cls._get_doc(cls),
