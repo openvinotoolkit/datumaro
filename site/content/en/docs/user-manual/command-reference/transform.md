@@ -518,10 +518,10 @@ Changes labels in the dataset.
 A label can be:
 - renamed (and joined with existing) -
   when `--label <old_name>:<new_name>` is specified
-- deleted - when specified `--label <name>:` or default action is `delete`
+- deleted - when `--label <name>:` is specified, or default action is `delete`
   and the label is not mentioned in the list. When a label
   is deleted, all the associated annotations are removed
-- kept unchanged - when specified `--label <name>:<name>`
+- kept unchanged - when `--label <name>:<name>` is specified,
   or default action is `keep` and the label is not mentioned in the list
 Annotations with no label are managed by the default action policy.
 

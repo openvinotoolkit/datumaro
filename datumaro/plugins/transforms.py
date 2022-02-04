@@ -472,10 +472,10 @@ class RemapLabels(ItemTransform, CliPlugin):
     |n
     A label can be:|n
     |s|s- renamed (and joined with existing) -|n
-    |s|s|s|swhen specified '--label <old_name>:<new_name>'|n
-    |s|s- deleted - when specified '--label <name>:' or default action is 'delete'|n
-    |s|s|s|sand the label is not mentioned in the list. When a label|n
-    |s|s|s|sis deleted, all the associated annotations are removed|n
+    |s|s|s|swhen '--label <old_name>:<new_name>' is specified|n
+    |s|s- deleted - when '--label <name>:' is specified, or default action |n
+    |s|s|s|sis 'delete' and the label is not mentioned in the list. |n
+    |s|s|s|sWhen a label is deleted, all the associated annotations are removed|n
     |s|s- kept unchanged - when specified '--label <name>:<name>'|n
     |s|s|s|sor default action is 'keep' and the label is not mentioned in the list|n
     Annotations with no label are managed by the default action policy.|n
