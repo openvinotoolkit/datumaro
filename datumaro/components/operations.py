@@ -128,7 +128,7 @@ class ExactMerge:
             item_id: Tuple[str, str]) -> Dict:
         merged = {}
 
-        for name in set(a) | set(b):
+        for name in a.keys() | b.keys():
             a_val = a.get(name, None)
             b_val = b.get(name, None)
 
