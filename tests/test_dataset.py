@@ -23,9 +23,9 @@ from datumaro.components.errors import (
     RepeatedItemError, UnknownFormatError,
 )
 from datumaro.components.extractor import (
-    DEFAULT_SUBSET_NAME, AnnotationErrorAction, DatasetItem, ErrorPolicy,
-    Extractor, ImportContext, ItemErrorAction, ItemTransform, ProgressReporter,
-    SourceExtractor, Transform,
+    DEFAULT_SUBSET_NAME, AnnotationImportErrorAction, DatasetItem, Extractor,
+    ImportContext, ImportErrorPolicy, ItemImportErrorAction, ItemTransform,
+    ProgressReporter, SourceExtractor, Transform,
 )
 from datumaro.components.launcher import Launcher
 from datumaro.components.media import Image
@@ -1498,15 +1498,15 @@ class DatasetTest(TestCase):
                 super().__init__(ctx=ctx)
 
                 action = self._report_annotation_error(AnnotationImportError())
-                if action is AnnotationErrorAction.skip_item:
+                if action is AnnotationImportErrorAction.skip_item:
                     pass
-                elif action is AnnotationErrorAction.skip_annotation:
+                elif action is AnnotationImportErrorAction.skip_annotation:
                     pass
                 else:
                     assert False
 
                 action = self._report_item_error(ItemImportError())
-                if action is ItemErrorAction.skip_item:
+                if action is ItemImportErrorAction.skip_item:
                     pass
                 else:
                     assert False
@@ -1515,13 +1515,13 @@ class DatasetTest(TestCase):
         env.importers.items.clear()
         env.extractors.items['test'] = TestExtractor
 
-        class TestErrorPolicy(ErrorPolicy):
+        class TestErrorPolicy(ImportErrorPolicy):
             pass
         error_policy = TestErrorPolicy()
         error_policy.report_item_error = mock.MagicMock(
-            return_value=AnnotationErrorAction.skip_annotation)
+            return_value=AnnotationImportErrorAction.skip_annotation)
         error_policy.report_annotation_error = mock.MagicMock(
-            return_value=ItemErrorAction.skip_item)
+            return_value=ItemImportErrorAction.skip_item)
 
         ctx = ImportContext(None, error_policy)
         Dataset.import_from('', 'test', ctx=ctx, env=env)

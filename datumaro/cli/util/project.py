@@ -10,7 +10,8 @@ from datumaro.cli.util.errors import WrongRevpathError
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
 from datumaro.components.errors import DatumaroError, ProjectNotFoundError
-from datumaro.components.extractor import ImportContext
+from datumaro.components.extractor import ImportErrorPolicy
+from datumaro.components.progress_reporting import ProgressReporter
 from datumaro.components.project import Project, Revision
 from datumaro.util.os_util import generate_next_name
 from datumaro.util.scope import on_error_do, scoped
@@ -31,7 +32,8 @@ def generate_next_file_name(basename, basedir='.', sep='.', ext=''):
 
 def parse_dataset_pathspec(s: str, *,
         env: Optional[Environment] = None,
-        ctx: Optional[ImportContext] = None
+        progress_reporter: Optional[ProgressReporter] = None,
+        error_policy: Optional[ImportErrorPolicy] = None,
     ) -> Dataset:
     """
     Parses Dataset paths. The syntax is:
@@ -50,7 +52,8 @@ def parse_dataset_pathspec(s: str, *,
 
     path = match["dataset_path"]
     format = match["format"]
-    return Dataset.import_from(path, format, env=env, ctx=ctx)
+    return Dataset.import_from(path, format, env=env,
+        progress_reporter=progress_reporter, error_policy=error_policy)
 
 @scoped
 def parse_revspec(s: str, ctx_project: Optional[Project] = None) \
@@ -108,7 +111,8 @@ def parse_revspec(s: str, ctx_project: Optional[Project] = None) \
     return tree.make_dataset(source), target_project
 
 def parse_full_revpath(s: str, ctx_project: Optional[Project] = None, *,
-        ctx: Optional[ImportContext] = None,
+    progress_reporter: Optional[ProgressReporter] = None,
+    error_policy: Optional[ImportErrorPolicy] = None,
 ) -> Tuple[Dataset, Optional[Project]]:
     """
     revpath - either a Dataset path or a Revision path.
@@ -129,7 +133,11 @@ def parse_full_revpath(s: str, ctx_project: Optional[Project] = None, *,
         errors.append(e)
 
     try:
-        return parse_dataset_pathspec(s, env=env, ctx=ctx), None
+        dataset = parse_dataset_pathspec(s, env=env,
+            progress_reporter=progress_reporter,
+            error_policy=error_policy
+        )
+        return dataset, None
     except (DatumaroError, OSError) as e:
         errors.append(e)
 

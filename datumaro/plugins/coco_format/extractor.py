@@ -14,8 +14,12 @@ from datumaro.components.annotation import (
     AnnotationType, Bbox, Caption, CompiledMask, Label, LabelCategories, Mask,
     Points, PointsCategories, Polygon, RleMask,
 )
+from datumaro.components.errors import (
+    AnnotationImportError, DatumaroError, ItemImportError,
+)
 from datumaro.components.extractor import (
-    DEFAULT_SUBSET_NAME, DatasetItem, SourceExtractor,
+    DEFAULT_SUBSET_NAME, AnnotationImportErrorAction, DatasetItem,
+    ItemImportErrorAction, SourceExtractor,
 )
 from datumaro.components.media import Image
 from datumaro.util import take_by
@@ -136,28 +140,38 @@ class _CocoExtractor(SourceExtractor):
         img_infos = {}
         for img_info in self._with_progress(json_data['images'],
                 desc='Parsing image info'):
-            img_id = img_info['id']
-            img_infos[img_id] = img_info
+            try:
+                img_id = img_info['id']
+                img_infos[img_id] = img_info
 
-            if img_info.get('height') and img_info.get('width'):
-                image_size = (img_info['height'], img_info['width'])
-            else:
-                image_size = None
+                if img_info.get('height') and img_info.get('width'):
+                    image_size = (img_info['height'], img_info['width'])
+                else:
+                    image_size = None
 
-            items[img_id] = DatasetItem(
-                id=osp.splitext(img_info['file_name'])[0],
-                subset=self._subset,
-                image=Image(
-                    path=osp.join(self._images_dir, img_info['file_name']),
-                    size=image_size),
-                annotations=[],
-                attributes={'id': img_id})
+                items[img_id] = DatasetItem(
+                    id='', # osp.splitext(img_info['file_name'])[0],
+                    subset=self._subset,
+                    image=Image(
+                        path=osp.join(self._images_dir, img_info['file_name']),
+                        size=image_size),
+                    annotations=[],
+                    attributes={'id': img_id})
+            except Exception as e:
+                error_action = self._report_item_error(e, item=img_id)
+                if error_action is ItemImportErrorAction.skip_item:
+                    continue
 
         if self._task is not CocoTask.panoptic:
             for ann in self._with_progress(json_data['annotations'],
                     desc='Parsing annotations'):
-                items[ann['image_id']].annotations += \
-                    self._load_annotations(ann, img_infos[ann['image_id']])
+                try:
+                    items[ann['image_id']].annotations += \
+                        self._load_annotations(ann, img_infos[ann['image_id']])
+                except Exception as e:
+                    error_action = self._report_annotation_error(e, item=img_id)
+                    if error_action is AnnotationImportErrorAction.skip_item:
+                        continue
         else:
             self._load_panoptic_ann(items, json_data)
 

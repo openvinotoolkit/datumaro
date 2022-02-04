@@ -661,7 +661,8 @@ class CocoConverter(Converter):
             if CocoTask.panoptic in task_converters:
                 self._make_segmentation_dir(subset_name)
 
-            for item in subset:
+            for item in self._with_progress(subset,
+                    desc=f'Exporting {subset_name}'):
                 if self._save_images:
                     if item.has_image:
                         self._save_image(item, subdir=osp.join(self._images_dir,

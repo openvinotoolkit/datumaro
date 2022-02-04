@@ -8,12 +8,14 @@ import os
 import os.path as osp
 
 from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import ImportContext
 from datumaro.components.project import Environment
 from datumaro.util.os_util import make_file_name
 
 from ..contexts.project import FilterModes
-from ..util import CliProgressReporter, MultilineFormatter
+from ..util import (
+    CliProgressReporter, MultilineFormatter, RelaxedExportErrorPolicy,
+    RelaxedImportErrorPolicy,
+)
 from ..util.errors import CliException
 from ..util.project import generate_next_file_name
 
@@ -115,13 +117,17 @@ def convert_command(args):
             (osp.basename(source), make_file_name(args.output_format)))
     dst_dir = osp.abspath(dst_dir)
 
-    ctx = ImportContext(progress_reporter=CliProgressReporter())
-    dataset = Dataset.import_from(source, fmt, ctx=ctx)
+    dataset = Dataset.import_from(source, fmt,
+        progress_reporter=CliProgressReporter(),
+        error_policy=RelaxedImportErrorPolicy())
 
     log.info("Exporting the dataset")
     if args.filter:
         dataset = dataset.filter(args.filter, **filter_args)
-    dataset.export(format=args.output_format, save_dir=dst_dir, **extra_args)
+
+    dataset.export(format=args.output_format, save_dir=dst_dir, **extra_args,
+        progress_reporter=CliProgressReporter(),
+        error_policy=RelaxedExportErrorPolicy())
 
     log.info("Dataset exported to '%s' as '%s'" % \
         (dst_dir, args.output_format))

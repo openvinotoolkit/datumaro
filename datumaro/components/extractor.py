@@ -10,7 +10,6 @@ from typing import (
     Any, Callable, Dict, Iterable, Iterator, List, NoReturn, Optional, TypeVar,
     Union,
 )
-import math
 import os
 import os.path as osp
 
@@ -29,6 +28,7 @@ from datumaro.components.format_detection import (
     FormatDetectionConfidence, FormatDetectionContext,
 )
 from datumaro.components.media import Image
+from datumaro.components.progress_reporting import ProgressReporter
 from datumaro.util import is_method_redefined
 from datumaro.util.attrs_util import default_if_none, not_empty
 
@@ -182,59 +182,22 @@ T = TypeVar('T')
 class _ImportFail(DatumaroError):
     pass
 
-class ItemErrorAction(Enum):
+class ItemImportErrorAction(Enum):
     skip_item = auto()
 
-class AnnotationErrorAction(Enum):
+class AnnotationImportErrorAction(Enum):
     skip_item = auto()
     skip_annotation = auto()
 
-class ProgressReporter:
-    def get_frequency(self) -> float:
-        raise NotImplementedError
-
-    def start(self, total: int, *, desc: Optional[str] = None):
-        raise NotImplementedError
-
-    def report_status(self, progress: int):
-        raise NotImplementedError
-
-    def finish(self):
-        raise NotImplementedError
-
-    def iter(self, iterable: Iterable[T], *,
-            total: Optional[int] = None,
-            desc: Optional[str]
-    ) -> Iterable[T]:
-        if total is None:
-            if hasattr(iterable, '__len__'):
-                total = len(iterable)
-
-        self.start(total, desc=desc)
-
-        if total:
-            display_step = math.ceil(total * self.get_frequency())
-        else:
-            display_step = None
-        for i, elem in enumerate(iterable):
-            if not total or i % display_step == 0:
-                self.report_status(i)
-
-            yield elem
-
-        self.report_status(i)
-
-        self.finish()
-
-class ErrorPolicy:
+class ImportErrorPolicy:
     def report_item_error(self,
             error: ItemImportError
-    ) -> Union[ItemErrorAction, NoReturn]:
+    ) -> Union[ItemImportErrorAction, NoReturn]:
         raise NotImplementedError
 
     def report_annotation_error(self,
             error: AnnotationImportError
-    ) -> Union[AnnotationErrorAction, NoReturn]:
+    ) -> Union[AnnotationImportErrorAction, NoReturn]:
         raise NotImplementedError
 
     def fail(self, error: Exception) -> NoReturn:
@@ -243,7 +206,7 @@ class ErrorPolicy:
 @define(eq=False)
 class ImportContext:
     progress_reporter: Optional[ProgressReporter] = None
-    error_policy: Optional[ErrorPolicy] = None
+    error_policy: Optional[ImportErrorPolicy] = None
 
 class Extractor(_ExtractorBase, CliPlugin):
     """
@@ -267,14 +230,18 @@ class Extractor(_ExtractorBase, CliPlugin):
         else:
             yield from iterable
 
-    def _report_item_error(self, error: ItemImportError):
+    def _report_item_error(self, error: DatumaroError, item: str):
         if self._ctx and self._ctx.error_policy:
-            return self._ctx.error_policy.report_annotation_error(error)
+            ie = ItemImportError(item)
+            ie.__cause__ = error
+            return self._ctx.error_policy.report_item_error(ie)
         raise _ImportFail from error
 
-    def _report_annotation_error(self, error: AnnotationImportError):
+    def _report_annotation_error(self, error: DatumaroError, item: str):
         if self._ctx and self._ctx.error_policy:
-            return self._ctx.error_policy.report_item_error(error)
+            ae = AnnotationImportError(item)
+            ae.__cause__ = error
+            return self._ctx.error_policy.report_annotation_error(ae)
         raise _ImportFail from error
 
 class SourceExtractor(Extractor):

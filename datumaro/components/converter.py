@@ -2,20 +2,57 @@
 #
 # SPDX-License-Identifier: MIT
 
+from enum import Enum, auto
 from tempfile import mkdtemp
-from typing import Union
+from typing import Iterable, NoReturn, Optional, TypeVar, Union
 import logging as log
 import os
 import os.path as osp
 import shutil
 
+from attrs import define
+
 from datumaro.components.cli_plugin import CliPlugin
+from datumaro.components.errors import (
+    AnnotationExportError, DatumaroError, ItemExportError,
+)
 from datumaro.components.extractor import DatasetItem
 from datumaro.components.media import Image
+from datumaro.components.progress_reporting import ProgressReporter
 from datumaro.util.meta_file_util import save_meta_file
 from datumaro.util.os_util import rmtree
 from datumaro.util.scope import on_error_do, scoped
 
+T = TypeVar('T')
+
+class _ExportFail(DatumaroError):
+    pass
+
+class ItemExportErrorAction(Enum):
+    skip_item = auto()
+
+class AnnotationExportErrorAction(Enum):
+    skip_item = auto()
+    skip_annotation = auto()
+
+class ExportErrorPolicy:
+    def report_item_error(self,
+            error: ItemExportError
+    ) -> Union[ItemExportErrorAction, NoReturn]:
+        raise NotImplementedError
+
+    def report_annotation_error(self,
+            error: AnnotationExportError
+    ) -> Union[AnnotationExportErrorAction, NoReturn]:
+        raise NotImplementedError
+
+    def fail(self, error: Exception) -> NoReturn:
+        raise _ExportFail from error
+
+@define(eq=False)
+class ExportContext:
+    progress_reporter: Optional[ProgressReporter] = None
+    error_policy: Optional[ExportErrorPolicy] = None
 
 class Converter(CliPlugin):
     DEFAULT_IMAGE_EXT = None
@@ -72,7 +109,8 @@ class Converter(CliPlugin):
         raise NotImplementedError("Should be implemented in a subclass")
 
     def __init__(self, extractor, save_dir, save_images=False,
-            image_ext=None, default_image_ext=None, save_dataset_meta=False):
+            image_ext=None, default_image_ext=None, save_dataset_meta=False,
+            ctx: Optional[ExportContext] = None):
         default_image_ext = default_image_ext or self.DEFAULT_IMAGE_EXT
         assert default_image_ext
         self._default_image_ext = default_image_ext
@@ -92,6 +130,8 @@ class Converter(CliPlugin):
             self._patch = extractor.patch
         else:
             self._patch = None
+
+        self._ctx = ctx
 
     def _find_image_ext(self, item: Union[DatasetItem, Image]):
         src_ext = None
@@ -152,3 +192,23 @@ class Converter(CliPlugin):
 
     def _save_meta_file(self, path):
         save_meta_file(path, self._extractor.categories())
+
+    def _with_progress(self, iterable: Iterable[T], *,
+            total: Optional[int] = None,
+            desc: Optional[str] = None
+    ) -> Iterable[T]:
+        if self._ctx and self._ctx.progress_reporter:
+            yield from self._ctx.progress_reporter.iter(iterable,
+                total=total, desc=desc)
+        else:
+            yield from iterable
+
+    def _report_item_error(self, error: ItemExportError):
+        if self._ctx and self._ctx.error_policy:
+            return self._ctx.error_policy.report_item_error(error)
+        raise _ExportFail from error
+
+    def _report_annotation_error(self, error: AnnotationExportError):
+        if self._ctx and self._ctx.error_policy:
+            return self._ctx.error_policy.report_annotation_error(error)
+        raise _ExportFail from error

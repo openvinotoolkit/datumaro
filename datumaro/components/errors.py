@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2021 Intel Corporation
+# Copyright (C) 2020-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -141,6 +141,16 @@ class SourceExistsError(DatumaroError):
 
     def __str__(self):
         return f"Source '{self.name}' already exists"
+
+
+class DatasetExportError(DatumaroError):
+    pass
+
+class ItemExportError(DatasetExportError):
+    pass
+
+class AnnotationExportError(ItemExportError):
+    pass
 
 
 class DatasetImportError(DatumaroError):

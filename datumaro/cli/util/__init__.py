@@ -9,7 +9,13 @@ import textwrap
 
 from tqdm import tqdm
 
-from datumaro.components.extractor import ProgressReporter
+from datumaro.components.converter import (
+    AnnotationExportErrorAction, ExportErrorPolicy, ItemExportErrorAction,
+)
+from datumaro.components.extractor import (
+    AnnotationImportErrorAction, ImportErrorPolicy, ItemImportErrorAction,
+)
+from datumaro.components.progress_reporting import ProgressReporter
 
 
 def add_subparser(subparsers, name, builder):
@@ -101,3 +107,22 @@ class CliProgressReporter(ProgressReporter):
 
     def get_frequency(self) -> float:
         return 0.01
+
+class RelaxedImportErrorPolicy(ImportErrorPolicy):
+    def report_item_error(self, error):
+        raise error
+        log.warning('Failed to import item: %s', error)
+        return ItemImportErrorAction.skip_item
+
+    def report_annotation_error(self, error):
+        log.warning('Failed to import annotation: %s', error)
+        return AnnotationImportErrorAction.skip_annotation
+
+class RelaxedExportErrorPolicy(ExportErrorPolicy):
+    def report_item_error(self, error):
+        log.warning('Failed to export item: %s', error)
+        return ItemExportErrorAction.skip_item
+
+    def report_annotation_error(self, error):
+        log.warning('Failed to export annotation: %s', error)
+        return AnnotationExportErrorAction.skip_annotation
