@@ -241,18 +241,18 @@ datum transform -t ndr -- \
 Sampler that analyzes model inference results on the dataset
 and picks the most relevant samples for training.
 
-Creates a dataset from K the most hard items for a model. The whole dataset
-or a single subset will be split into the `sampled` and `unsampled` subsets,
-based on the model confidence The dataset **must** contain model confidence
-values in the `scores` attributes of annotations.
+Creates a dataset from the `-k/--count` hardest items for a model.
+The whole dataset or a single subset will be split into the `sampled`
+and `unsampled` subsets based on the model confidence. The dataset
+**must** contain model confidence values in the `scores` attributes
+of annotations.
 
 There are five methods of sampling (the `-m/--method` option):
-- `topk` - Return the k with high uncertainty data
-- `lowk` - Return the k with low uncertainty data
-- `randk` - Return the random k data
-- `mixk` - Return half to topk method and the rest to lowk method
-- `randtopk` - First, select 3 times the number of k randomly, and return
-  the topk among them.
+- `topk` - Return the k items with high uncertainty data
+- `lowk` - Return the k items with low uncertainty data
+- `randk` - Return random k items
+- `mixk` - Return a half using topk, and the other half using lowk method
+- `randtopk` - Select 3*k items randomly, and return the topk among them
 
 Notes:
 - Each image's inference result must contain the probability for
