@@ -177,11 +177,7 @@ datum convert -if voc -i <path/to/voc> -f coco -o <output/dir>
 Or, using Python API:
 
 ```python
-<<<<<<< HEAD
-from datumaro import Dataset
-=======
 import datumaro as dm
->>>>>>> upstream/develop
 
 dataset = dm.Dataset.import_from('<path/to/dataset>', 'voc')
 dataset.export('save_dir', 'coco', save_images=True)

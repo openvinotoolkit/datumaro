@@ -173,9 +173,9 @@ datum convert -if coco -i <path/to/coco> -f voc -o <output/dir>
 Or, using Python API:
 
 ```python
-from datumaro import Dataset
+import datumaro as dm
 
-dataset = Dataset.import_from('<path/to/dataset>', 'coco')
+dataset = dm.Dataset.import_from('<path/to/dataset>', 'coco')
 dataset.export('save_dir', 'voc', save_images=True)
 ```
 
@@ -257,17 +257,17 @@ datum export -p project -f voc -- --save-images
 
 ```python
 import numpy as np
-from datumaro import Mask, Dataset, DatasetItem
+import datumaro as dm
 
-dataset = Dataset.from_iterable([
-  DatasetItem(id='000000000001',
+dataset = dm.Dataset.from_iterable([
+  dm.DatasetItem(id='000000000001',
     image=np.ones((1, 5, 3)),
     subset='val',
     attributes={'id': 40},
     annotations=[
-      Mask(image=np.array([[0, 0, 1, 1, 0]]), label=3,
+      dm.Mask(image=np.array([[0, 0, 1, 1, 0]]), label=3,
         id=7, group=7, attributes={'is_crowd': False}),
-      Mask(image=np.array([[0, 1, 0, 0, 1]]), label=1,
+      dm.Mask(image=np.array([[0, 1, 0, 0, 1]]), label=1,
         id=20, group=20, attributes={'is_crowd': True}),
     ]
   ),

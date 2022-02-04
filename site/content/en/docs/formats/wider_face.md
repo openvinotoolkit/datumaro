@@ -96,9 +96,9 @@ datum export -f voc -o <output_dir> -- -save-images
 
 Export WIDER Face dataset using Python API:
 ```python
-from datumaro import Dataset
+import datumaro as dm
 
-dataset = Dataset.import_from('<path_to_wider_face', 'wider_face')
+dataset = dm.Dataset.import_from('<path_to_wider_face', 'wider_face')
 
 # Here you can perform some transformation using dataset.transform or
 # dataset.filter

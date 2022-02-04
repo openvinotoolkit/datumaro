@@ -41,9 +41,9 @@ datum import -f imagenet_txt <path_to_dataset>
 Load ImageNet dataset through the Python API:
 
 ```python
-from datumaro import Dataset
+import datumaro as dm
 
-dataset = Dataset.import_from('<path_to_dataset>', format='imagenet_txt')
+dataset = dm.Dataset.import_from('<path_to_dataset>', format='imagenet_txt')
 ```
 
 For successful importing of ImageNet dataset the input directory with dataset
@@ -111,9 +111,9 @@ datum export -f open_images -o <output_dir>
 And also you can convert your ImageNet dataset using Python API
 
 ```python
-from datumaro import Dataset
+import datumaro as dm
 
-imagenet_dataset = Dataset.import_from('<path_to_dataset', format='imagenet')
+imagenet_dataset = dm.Dataset.import_from('<path_to_dataset', format='imagenet')
 
 imagenet_dataset.export('<output_dir>', format='vgg_face2', save_images=True)
 ```

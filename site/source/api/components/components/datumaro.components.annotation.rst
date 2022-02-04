@@ -98,8 +98,8 @@ annotation module
          .. py:data:: colormap: Colormap
 
 
-   .. py:data:: BinaryMaskImage = np.ndarray
-   .. py:data:: IndexMaskImage = np.ndarray
+   .. autodata:: BinaryMaskImage = np.ndarray
+   .. autodata:: IndexMaskImage = np.ndarray
 
    .. autoclass:: Mask
       :members: image, as_class_mask, as_instance_mask, get_area, get_bbox, paint, __eq__, __init__
@@ -126,7 +126,7 @@ annotation module
 
          2d of integers (of different precision)
 
-   .. py:data:: CompiledMaskImage = np.ndarray
+   .. autodata:: CompiledMaskImage = np.ndarray
 
    .. autoclass:: CompiledMask
       :members:

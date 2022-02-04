@@ -123,9 +123,9 @@ datum convert -if yolo -i <path/to/dataset> \
 Or, using Python API:
 
 ```python
-from datumaro import Dataset
+import datumaro as dm
 
-dataset = Dataset.import_from('<path/to/dataset>', 'yolo')
+dataset = dm.Dataset.import_from('<path/to/dataset>', 'yolo')
 dataset.export('save_dir', 'coco_instances', save_images=True)
 ```
 
@@ -174,20 +174,20 @@ datum export -p project -f yolo -o ./yolo_without_cats
 ### Example 3. Create a custom dataset in YOLO format
 ```python
 import numpy as np
-from datumaro import Bbox, Dataset, DatasetItem
+import datumaro as dm
 
-dataset = Dataset.from_iterable([
-    DatasetItem(id='image_001', subset='train',
+dataset = dm.Dataset.from_iterable([
+    dm.DatasetItem(id='image_001', subset='train',
         image=np.ones((20, 20, 3)),
         annotations=[
-            Bbox(3.0, 1.0, 8.0, 5.0, label=1),
-            Bbox(1.0, 1.0, 10.0, 1.0, label=2)
+            dm.Bbox(3.0, 1.0, 8.0, 5.0, label=1),
+            dm.Bbox(1.0, 1.0, 10.0, 1.0, label=2)
         ]
     ),
-    DatasetItem(id='image_002', subset='train',
+    dm.DatasetItem(id='image_002', subset='train',
         image=np.ones((15, 10, 3)),
         annotations=[
-            Bbox(4.0, 4.0, 4.0, 4.0, label=3)
+            dm.Bbox(4.0, 4.0, 4.0, 4.0, label=3)
         ]
     )
 ], categories=['house', 'bridge', 'crosswalk', 'traffic_light'])
@@ -201,10 +201,10 @@ If you only want information about label names for each
 image, then you can get it from code:
 
 ```python
-from datumaro import AnnotationType, Dataset
+import datumaro as dm
 
-dataset = Dataset.import_from('./yolo_dataset', format='yolo')
-cats = dataset.categories()[AnnotationType.label]
+dataset = dm.Dataset.import_from('./yolo_dataset', format='yolo')
+cats = dataset.categories()[dm.AnnotationType.label]
 
 for item in dataset:
     for ann in item.annotations:

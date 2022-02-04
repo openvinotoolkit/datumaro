@@ -35,9 +35,9 @@ datum import -f vgg_face2 <path_to_dataset>
 And you can also load Vgg Face 2 through the Python API:
 
 ```python
-from datumaro import Dataset
+import datumaro as dm
 
-dataset = Dataset.import_from('<path_to_dataset>', format='vgg_face2')
+dataset = dm.Dataset.import_from('<path_to_dataset>', format='vgg_face2')
 ```
 
 For successful importing of Vgg Face2 face the input directory with dataset
@@ -97,9 +97,9 @@ datum export -f yolo -o <output_dir>
 And also you can convert your Vgg Face2 dataset using Python API
 
 ```python
-from datumaro import Dataset
+import datumaro as dm
 
-vgg_face2_dataset = Dataset.import_from('<path_to_dataset', format='vgg_face2')
+vgg_face2_dataset = dm.Dataset.import_from('<path_to_dataset', format='vgg_face2')
 
 vgg_face2_dataset.export('<output_dir>', format='open_images', save_images=True)
 ```

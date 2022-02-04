@@ -42,9 +42,9 @@ See more information about adding datasets to the project in the
 
 Also you can import LFW dataset from Python API:
 ```python
-from datumaro import Dataset
+import datumaro as dm
 
-lfw_dataset = Dataset.import_from('<path_to_lfw_dataset>', 'lfw')
+lfw_dataset = dm.Dataset.import_from('<path_to_lfw_dataset>', 'lfw')
 ```
 
 For successful importing the LFW dataset, the directory with it

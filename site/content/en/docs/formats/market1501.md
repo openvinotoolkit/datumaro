@@ -50,8 +50,8 @@ See more information about adding datasets to the project in the
 Or you can import Market-1501 using Python API:
 
 ```python
-from datumaro import Dataset
-dataset = Dataset.import_from('<path_to_dataset>', 'market1501')
+import datumaro as dm
+dataset = dm.Dataset.import_from('<path_to_dataset>', 'market1501')
 ```
 
 For successful importing the Market-1501 dataset, the directory with it

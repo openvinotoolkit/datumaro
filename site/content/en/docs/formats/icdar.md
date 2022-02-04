@@ -50,12 +50,11 @@ datum import -f icdar_word_recognition <word_recognition_dataset>
 ```
 - With Python API
 ```python
-from datumaro import Dataset
-data1 = Dataset.import_from('text_localization_path', 'icdar_text_localization')
-data2 = Dataset.import_from('text_segmentation_path', 'icdar_text_segmentation')
-data3 = Dataset.import_from('word_recognition_path', 'icdar_word_recognition')
+import datumaro as dm
+data1 = dm.Dataset.import_from('text_localization_path', 'icdar_text_localization')
+data2 = dm.Dataset.import_from('text_segmentation_path', 'icdar_text_segmentation')
+data3 = dm.Dataset.import_from('word_recognition_path', 'icdar_word_recognition')
 ```
-
 Dataset with ICDAR dataset should have the following structure:
 
 For `icdar_word_recognition`
