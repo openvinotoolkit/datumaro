@@ -17,7 +17,9 @@ from datumaro.components.dataset_filter import (
 )
 from datumaro.components.environment import Environment
 from datumaro.components.errors import (
-    ConflictingCategoriesError, DatasetNotFoundError, MultipleFormatsMatchError,
+    ConflictingCategoriesError, DatasetNotFoundError,
+    MismatchingAttributesError, MismatchingImageInfoError,
+    MismatchingImagePathError, MultipleFormatsMatchError,
     NoMatchingFormatsError, RepeatedItemError, UnknownFormatError,
 )
 from datumaro.components.extractor import (
@@ -391,14 +393,14 @@ class DatasetTest(TestCase):
             DatasetItem(id=1, subset='train', annotations=[
                 Label(1, id=3),
                 Label(2, attributes={ 'x': 1 }),
-            ])
+            ], attributes={'x': 1, 'y': 2})
         ], categories=['a', 'b', 'c', 'd'])
 
         b = Dataset.from_iterable([
             DatasetItem(id=1, subset='train', annotations=[
                 Label(2, attributes={ 'x': 1 }),
                 Label(3, id=4),
-            ])
+            ], attributes={'z': 3, 'y': 2})
         ], categories=['a', 'b', 'c', 'd'])
 
         expected = Dataset.from_iterable([
@@ -406,7 +408,7 @@ class DatasetTest(TestCase):
                 Label(1, id=3),
                 Label(2, attributes={ 'x': 1 }),
                 Label(3, id=4),
-            ])
+            ], attributes={'x': 1, 'y': 2, 'z': 3})
         ], categories=['a', 'b', 'c', 'd'])
 
         merged = Dataset.from_extractors(a, b)
@@ -419,6 +421,42 @@ class DatasetTest(TestCase):
         s2 = Dataset.from_iterable([], categories=['b', 'a'])
 
         with self.assertRaises(ConflictingCategoriesError):
+            Dataset.from_extractors(s1, s2)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_cant_join_different_image_info(self):
+        s1 = Dataset.from_iterable([
+            DatasetItem(1, image=Image(path='1.png', size=(2, 4)))
+        ])
+        s2 = Dataset.from_iterable([
+            DatasetItem(1, image=Image(path='1.png', size=(4, 2)))
+        ])
+
+        with self.assertRaises(MismatchingImageInfoError):
+            Dataset.from_extractors(s1, s2)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_cant_join_different_images(self):
+        s1 = Dataset.from_iterable([
+            DatasetItem(1, image=Image(path='1.png'))
+        ])
+        s2 = Dataset.from_iterable([
+            DatasetItem(1, image=Image(path='2.png'))
+        ])
+
+        with self.assertRaises(MismatchingImagePathError):
+            Dataset.from_extractors(s1, s2)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_cant_join_different_attrs(self):
+        s1 = Dataset.from_iterable([
+            DatasetItem(1, attributes={'x': 1})
+        ])
+        s2 = Dataset.from_iterable([
+            DatasetItem(1, attributes={'x': 2})
+        ])
+
+        with self.assertRaises(MismatchingAttributesError):
             Dataset.from_extractors(s1, s2)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)

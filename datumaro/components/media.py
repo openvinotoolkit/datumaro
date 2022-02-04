@@ -44,13 +44,31 @@ class Image(MediaElement):
             *,
             path: Optional[str] = None,
             ext: Optional[str] = None,
-            size: Optional[Tuple[int, int]] = None):
+            size: Optional[Tuple[int, int]] = None) -> None:
+        """
+        Creates an image.
+
+        Any combination of the `data`, `path` and `size` is possible,
+        but at least one of these arguments must be provided.
+        The `ext` parameter cannot be used as a single argument for
+        construction.
+
+        Args:
+            data - Image pixels or a function to retrieve them. The expected
+                image shape is (H, W [, C]). If a function is provided,
+                it must accept image path as the first argument.
+            path - Image path
+            ext - Image extension. Cannot be used together with `path`. It can
+                be used for saving with a custom extension - in that case,
+                the image need to have the `data` and `ext` fields defined.
+            size - A pair (H, W), which represents image size.
+        """
+
+        assert size is None or len(size) == 2, size
         if size is not None:
             assert len(size) == 2 and 0 < size[0] and 0 < size[1], size
             size = tuple(map(int, size))
         self._size = size # (H, W)
-        if not self._size and isinstance(data, np.ndarray):
-            self._size = data.shape[:2]
 
         if path is None:
             path = ''
@@ -69,7 +87,7 @@ class Image(MediaElement):
         self._ext = ext
 
         if not isinstance(data, np.ndarray):
-            assert path or callable(data), "Image can not be empty"
+            assert path or callable(data) or size, "Image can not be empty"
             assert data is None or callable(data)
             if data or path and osp.isfile(path):
                 data = lazy_image(path, loader=data)
@@ -94,6 +112,7 @@ class Image(MediaElement):
 
     @property
     def has_size(self) -> bool:
+        """Indicates that size info is cached and won't require image loading"""
         return self._size is not None or isinstance(self._data, np.ndarray)
 
     @property
