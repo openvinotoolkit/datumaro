@@ -177,9 +177,13 @@ datum convert -if voc -i <path/to/voc> -f coco -o <output/dir>
 Or, using Python API:
 
 ```python
+<<<<<<< HEAD
 from datumaro import Dataset
+=======
+import datumaro as dm
+>>>>>>> upstream/develop
 
-dataset = Dataset.import_from('<path/to/dataset>', 'voc')
+dataset = dm.Dataset.import_from('<path/to/dataset>', 'voc')
 dataset.export('save_dir', 'coco', save_images=True)
 ```
 
@@ -263,30 +267,31 @@ datum export -p project -f voc -- --label-map voc --save-images
 ### Example 2. How to create a custom dataset
 
 ```python
-from datumaro import Bbox, Polygon, Label, Dataset, DatasetItem
-from datumaro.util.image import Image
+import datumaro as dm
 
-dataset = Dataset.from_iterable([
-    DatasetItem(id='image1', image=Image(path='image1.jpg', size=(10, 20)),
-       annotations=[Label(3),
-           Bbox(1.0, 1.0, 10.0, 8.0, label=0, attributes={'difficult': True, 'running': True}),
-           Polygon([1, 2, 3, 2, 4, 4], label=2, attributes={'occluded': True}),
-           Polygon([6, 7, 8, 8, 9, 7, 9, 6], label=2),
+dataset = dm.Dataset.from_iterable([
+    dm.DatasetItem(id='image1', image=dm.Image(path='image1.jpg', size=(10, 20)),
+        annotations=[
+            dm.Label(3),
+            dm.Bbox(1.0, 1.0, 10.0, 8.0, label=0, attributes={'difficult': True, 'running': True}),
+            dm.Polygon([1, 2, 3, 2, 4, 4], label=2, attributes={'occluded': True}),
+            dm.Polygon([6, 7, 8, 8, 9, 7, 9, 6], label=2),
         ]
     ),
 ], categories=['person', 'sky', 'water', 'lion'])
 
 dataset.transform('polygons_to_masks')
 dataset.export('./mydataset', format='voc', label_map='my_labelmap.txt')
+```
 
-"""
-my_labelmap.txt:
+`my_labelmap.txt` has the following contents:
+
+```
 # label:color_rgb:parts:actions
 person:0,0,255:hand,foot:jumping,running
 sky:128,0,0::
 water:0,128,0::
 lion:255,128,0::
-"""
 ```
 
 ### Example 3. Load, filter and convert from code
@@ -294,9 +299,9 @@ Load Pascal VOC dataset, and export train subset with items
 which has `jumping` attribute:
 
 ```python
-from datumaro import Dataset
+import datumaro as dm
 
-dataset = Dataset.import_from('./VOC2012', format='voc')
+dataset = dm.Dataset.import_from('./VOC2012', format='voc')
 
 train_dataset = dataset.get_subset('train').as_dataset()
 
@@ -314,13 +319,13 @@ train_dataset.export('./jumping_label_me', format='label_me', save_images=True)
 ### Example 4. Get information about items in Pascal VOC 2012 dataset for segmentation task:
 
 ```python
-from datumaro import AnnotationType, Dataset
+import datumaro as dm
 
-dataset = Dataset.import_from('./VOC2012', format='voc')
+dataset = dm.Dataset.import_from('./VOC2012', format='voc')
 
 def has_mask(item):
     for ann in item.annotations:
-        if ann.type == AnnotationType.mask:
+        if ann.type == dm.AnnotationType.mask:
             return True
     return False
 

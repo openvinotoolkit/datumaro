@@ -9,7 +9,7 @@ from typing import Any, Callable, Dict, Iterator, List, Optional
 import os
 import os.path as osp
 
-from attr import attrib, attrs
+from attr import attrs, field
 import attr
 import numpy as np
 
@@ -27,22 +27,22 @@ from datumaro.util.attrs_util import default_if_none, not_empty
 
 DEFAULT_SUBSET_NAME = 'default'
 
-@attrs(order=False)
+@attrs(slots=True, order=False)
 class DatasetItem:
-    id: str = attrib(converter=lambda x: str(x).replace('\\', '/'),
+    id: str = field(converter=lambda x: str(x).replace('\\', '/'),
         validator=not_empty)
-    annotations: List[Annotation] = attrib(
+    annotations: List[Annotation] = field(
         factory=list, validator=default_if_none(list))
-    subset: str = attrib(converter=lambda v: v or DEFAULT_SUBSET_NAME,
+    subset: str = field(converter=lambda v: v or DEFAULT_SUBSET_NAME,
         default=None)
 
     # TODO: introduce "media" field with type info. Replace image and pcd.
-    image: Optional[Image] = attrib(default=None)
+    image: Optional[Image] = field(default=None)
     # TODO: introduce pcd type like Image
-    point_cloud: Optional[str] = attrib(
+    point_cloud: Optional[str] = field(
         converter=lambda x: str(x).replace('\\', '/') if x else None,
         default=None)
-    related_images: List[Image] = attrib(default=None)
+    related_images: List[Image] = field(default=None)
 
     def __attrs_post_init__(self):
         if (self.has_image and self.has_point_cloud):
@@ -67,7 +67,7 @@ class DatasetItem:
     def _point_cloud_validator(self, attribute, pcd):
         assert pcd is None or isinstance(pcd, str), type(pcd)
 
-    attributes: Dict[str, Any] = attrib(
+    attributes: Dict[str, Any] = field(
         factory=dict, validator=default_if_none(dict))
 
     @property

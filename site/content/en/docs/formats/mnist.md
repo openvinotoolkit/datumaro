@@ -130,9 +130,9 @@ datum convert -if mnist -i <path/to/mnist> -f imagenet -o <output/dir>
 Or, using Python API:
 
 ```python
-from datumaro.components.dataset import Dataset
+import datumaro as dm
 
-dataset = Dataset.import_from('<path/to/dataset>', 'mnist')
+dataset = dm.Dataset.import_from('<path/to/dataset>', 'mnist')
 dataset.export('save_dir', 'imagenet', save_images=True)
 ```
 
@@ -176,15 +176,16 @@ particular problems with MNIST dataset:
 ### Example 1. How to create a custom MNIST-like dataset
 
 ```python
-from datumaro import Label, Dataset, DatasetItem
+import numpy as np
+import datumaro as dm
 
-dataset = Dataset.from_iterable([
-  DatasetItem(id=0, image=np.ones((28, 28)),
-    annotations=[Label(2)]
-  ),
-  DatasetItem(id=1, image=np.ones((28, 28)),
-    annotations=[Label(7)]
-  )
+dataset = dm.Dataset.from_iterable([
+    dm.DatasetItem(id=0, image=np.ones((28, 28)),
+        annotations=[dm.Label(2)]
+    ),
+    dm.DatasetItem(id=1, image=np.ones((28, 28)),
+        annotations=[dm.Label(7)]
+    )
 ], categories=[str(label) for label in range(10)])
 
 dataset.export('./dataset', format='mnist')

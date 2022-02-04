@@ -125,20 +125,20 @@ reduce the amount of disk writes. Changes can be flushed with
 `flush_changes()`.
 
 ```python
-from datumaro import Bbox, Polygon, Dataset, DatasetItem
+from datumaro import Bbox, Label, Polygon, Dataset, DatasetItem
 
 # create a dataset directly from items
 dataset1 = Dataset.from_iterable([
-  DatasetItem(id='image1', annotations=[
-    Bbox(x=1, y=2, w=3, h=4, label=1),
-    Polygon([1, 2, 3, 2, 4, 4], label=2),
-  ]),
+    DatasetItem(id='image1', annotations=[
+        Bbox(x=1, y=2, w=3, h=4, label=1),
+        Polygon([1, 2, 3, 2, 4, 4], label=2),
+    ]),
 ], categories=['cat', 'dog', 'person', 'truck'])
 
 dataset2 = Dataset(categories=dataset1.categories())
 dataset2.put(DatasetItem(id='image2', annotations=[
-  Label(label=3),
-  Bbox(x=2, y=0, w=3, h=1, label=2)
+    Label(label=3),
+    Bbox(x=2, y=0, w=3, h=1, label=2)
 ]))
 
 # create a dataset from other datasets
@@ -149,19 +149,21 @@ dataset.select(lambda item: len(item.annotations) != 0)
 
 # change dataset labels
 dataset.transform('remap_labels',
-  {'cat': 'dog', # rename cat to dog
-    'truck': 'car', # rename truck to car
-    'person': '', # remove this label
-  }, default='delete')
+    {
+        'cat': 'dog', # rename cat to dog
+        'truck': 'car', # rename truck to car
+        'person': '', # remove this label
+    },
+    default='delete')
 
 # iterate over elements
 for item in dataset:
-  print(item.id, item.annotations)
+    print(item.id, item.annotations)
 
 # iterate over subsets as Datasets
 for subset_name, subset in dataset.subsets().items():
-  for item in subset:
-    print(item.id, item.annotations)
+    for item in subset:
+        print(item.id, item.annotations)
 ```
 
 #### Dataset merging <a id="merging"></a>
@@ -287,11 +289,11 @@ from datumaro.plugins.yolo_format.converter import YoloConverter
 dataset = dm.Dataset.import_from(src_dir, 'voc')
 
 # Load an existing project, save the dataset in some project-specific format
-project = Project('project/')
+project = dm.project.Project('project/')
 project.env.converters['custom_format'].convert(dataset, save_dir=dst_dir)
 
 # Save the dataset in some built-in format
-Environment().converters['yolo'].convert(dataset, save_dir=dst_dir)
+dm.Environment().converters['yolo'].convert(dataset, save_dir=dst_dir)
 YoloConverter.convert(dataset, save_dir=dst_dir)
 ```
 
@@ -315,20 +317,20 @@ exports = [MyComponent2] # exports only MyComponent2
 There is also an additional class to modify plugin appearance in command line:
 
 ```python
-from datumaro import CliPlugin
+from datumaro import Converter
 
-class MyPlugin(Converter, CliPlugin):
-  """
-  Optional documentation text, which will appear in command-line help
-  """
+class MyPlugin(Converter):
+    """
+    Optional documentation text, which will appear in command-line help
+    """
 
-  NAME = 'optional_custom_plugin_name'
+    NAME = 'optional_custom_plugin_name'
 
-  def build_cmdline_parser(self, **kwargs):
-    parser = super().build_cmdline_parser(**kwargs)
-    # set up argparse.ArgumentParser instance
-    # the parsed args are supposed to be used as invocation options
-    return parser
+    def build_cmdline_parser(self, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+        # set up argparse.ArgumentParser instance
+        # the parsed args are supposed to be used as invocation options
+        return parser
 ```
 
 #### Plugin example
@@ -374,7 +376,7 @@ class MyTransform(Transform):
 `my_plugin2.py` contents:
 
 ```python
-from datumaro import Extractor
+from datumaro import Converter, Extractor
 
 class MyFormat: ...
 class _MyFormatConverter(Converter): ...
