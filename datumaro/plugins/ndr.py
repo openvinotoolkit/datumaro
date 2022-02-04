@@ -30,15 +30,17 @@ class NDR(Transform, CliPlugin):
     """
     Removes near-duplicated images in subset|n
     |n
-    Remove duplicated images from a dataset. Keep at most N resulting images.|n
+    Remove duplicated images from a dataset. Keep at most `-k/--num_cut`
+    resulting images.|n
     |n
-    Available sampling options (the `-e` parameter):|n
+    Available oversampling policies (the `-e` parameter):|n
     - `random` - sample from removed data randomly|n
-    - `similarity` - sample from removed data with ascending|N
+    - `similarity` - sample from removed data with ascending similarity score|n
     |n
-    Available sampling methods (the `-u` parameter):|n
+    Available undersampling policies (the `-u` parameter):|n
     - `uniform` - sample data with uniform distribution|n
-    - `inverse` - sample data with reciprocal of the number|n
+    - `inverse` - sample data with reciprocal of the number of number of|n
+    |s|sitems with the same similarity|n
     |n
     Example: apply NDR, return no more than 100 images|n
     |s|s%(prog)s|n
@@ -65,12 +67,12 @@ class NDR(Transform, CliPlugin):
         parser.add_argument('-e', '--over_sample',
             default=OverSamplingMethod.random.name,
             choices=[method.name for method in OverSamplingMethod],
-            help="The strategy to use when num_cut is bigger "
+            help="The policy to use when num_cut is bigger "
                 "than result length (default: %(default)s)")
         parser.add_argument('-u', '--under_sample',
             default=UnderSamplingMethod.uniform.name,
             choices=[method.name for method in UnderSamplingMethod],
-            help="The strategy to use when num_cut is smaller "
+            help="The policy to use when num_cut is smaller "
                 "than result length (default: %(default)s)")
         parser.add_argument('-s', '--seed', type=int, help="Random seed")
         return parser

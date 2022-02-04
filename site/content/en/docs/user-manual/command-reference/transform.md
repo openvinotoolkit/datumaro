@@ -193,15 +193,17 @@ Optional arguments:
 
 Removes near-duplicated images in subset.
 
-Remove duplicated images from a dataset. Keep at most N resulting images.
+Remove duplicated images from a dataset. Keep at most `-k/--num_cut`
+resulting images.
 
-Available sampling options (the `-e` parameter):
+Available oversampling policies (the `-e` parameter):
 - `random` - sample from removed data randomly
-- `similarity` - sample from removed data with ascending
+- `similarity` - sample from removed data with ascending similarity score
 
-Available sampling methods (the `-u` parameter):
+Available undersampling policies (the `-u` parameter):
 - `uniform` - sample data with uniform distribution
-- `inverse` - sample data with reciprocal of the number
+- `inverse` - sample data with reciprocal of the number of number of
+  items with the same similarity
 
 Usage:
 ```bash
@@ -218,9 +220,9 @@ Optional arguments:
 - `-a`, `--algorithm` (one of: `gradient`) - Name of the algorithm to
   use (default: `gradient`)
 - `-k`, `--num_cut` (int) - Maximum output dataset size
-- `-e`, `--over_sample` (one of: `random`, `similarity`) - The  strategy to use
+- `-e`, `--over_sample` (one of: `random`, `similarity`) - The policy to use
   when `num_cut` is bigger than result length (default: `random`)
-- `-u`, `--under_sample` (one of: `uniform`, `inverse`) - The strategy to use
+- `-u`, `--under_sample` (one of: `uniform`, `inverse`) - The policy to use
   when `num_cut` is smaller than result length (default: `uniform`)
 - `-s`, `--seed` (int) - Random seed
 
