@@ -3,7 +3,7 @@ extractor module
 
 .. automodule:: datumaro.components.extractor
 
-   .. py:data:: DEFAULT_SUBSET_NAME = 'default'
+   .. autodata:: DEFAULT_SUBSET_NAME
 
    .. autoclass:: DatasetItem
       :members:
@@ -12,7 +12,7 @@ extractor module
       :special-members:
       :show-inheritance:
 
-   .. py:data:: CategoriesInfo = Dict[AnnotationType, Categories]
+   .. autodata:: CategoriesInfo
 
    .. autoclass:: IExtractor
       :members:

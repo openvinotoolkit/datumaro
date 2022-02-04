@@ -1,7 +1,7 @@
 Datumaro
 ########
 
-For external use, the recommended way to call Datumaro API is:
+The recommended way to use Datumaro API is:
 
 .. code-block:: python
 
@@ -9,86 +9,86 @@ For external use, the recommended way to call Datumaro API is:
 
 Once you can use the components:
 
-* **dm.annotation** :mod:`datumaro.components.annotation`
-    * **dm.NO_GROUP**
-    * **dm.Annotation** :class:`datumaro.components.annotation.Annotation`
-    * **dm.AnnotationType** :class:`datumaro.components.annotation.AnnotationType`
-    * **dm.Bbox** :class:`datumaro.components.annotation.Bbox`
-    * **dm.BinaryMaskImage**
-    * **dm.Caption** :class:`datumaro.components.annotation.Caption`
-    * **dm.Categories** :class:`datumaro.components.annotation.Categories`
-    * **dm.Colormap** :class:`datumaro.components.annotation.Colormap`
-    * **dm.CompiledMask** :class:`datumaro.components.annotation.CompiledMask`
-    * **dm.CompiledMaskImage**
-    * **dm.Cuboid3d** :class:`datumaro.components.annotation.Cuboid3d`
-    * **dm.IndexMaskImage**
-    * **dm.Label** :class:`datumaro.components.annotation.Label`
-    * **dm.LabelCategories** :class:`datumaro.components.annotation.LabelCategories`
-    * **dm.Mask** :class:`datumaro.components.annotation.Mask`
-    * **dm.MaskCategories** :class:`datumaro.components.annotation.MaskCategories`
-    * **dm.Points** :class:`datumaro.components.annotation.Points`
-    * **dm.PointsCategories** :class:`datumaro.components.annotation.PointsCategories`
-    * **dm.Polygon** :class:`datumaro.components.annotation.Polygon`
-    * **dm.PolyLine** :class:`datumaro.components.annotation.PolyLine`
-    * **dm.RgbColor**
-    * **dm.RleMask** :class:`datumaro.components.annotation.RleMask`
+* :mod:`dm.annotation <datumaro.components.annotation>`
+    * :attr:`dm.NO_GROUP <datumaro.components.annotation.NO_GROUP>`
+    * :class:`dm.Annotation <datumaro.components.annotation.Annotation>`
+    * :class:`dm.AnnotationType <datumaro.components.annotation.AnnotationType>`
+    * :class:`dm.Bbox <datumaro.components.annotation.Bbox>`
+    * :class:`dm.BinaryMaskImage  <datumaro.components.annotation.BinaryMaskImage>`
+    * :class:`dm.Caption <datumaro.components.annotation.Caption>`
+    * :class:`dm.Categories <datumaro.components.annotation.Categories>`
+    * :class:`dm.Colormap <datumaro.components.annotation.Colormap>`
+    * :class:`dm.CompiledMask <datumaro.components.annotation.CompiledMask>`
+    * :class:`dm.CompiledMaskImage <datumaro.components.annotation.CompiledMaskImage>`
+    * :class:`dm.Cuboid3d <datumaro.components.annotation.Cuboid3d>`
+    * :class:`dm.IndexMaskImage <datumaro.components.annotation.IndexMaskImage>`
+    * :class:`dm.Label <datumaro.components.annotation.Label>`
+    * :class:`dm.LabelCategories <datumaro.components.annotation.LabelCategories>`
+    * :class:`dm.Mask <datumaro.components.annotation.Mask>`
+    * :class:`dm.MaskCategories <datumaro.components.annotation.MaskCategories>`
+    * :class:`dm.Points <datumaro.components.annotation.Points>`
+    * :class:`dm.PointsCategories <datumaro.components.annotation.PointsCategories>`
+    * :class:`dm.Polygon <datumaro.components.annotation.Polygon>`
+    * :class:`dm.PolyLine <datumaro.components.annotation.PolyLine>`
+    * :class:`dm.RgbColor <datumaro.components.annotation.RgbColor>`
+    * :class:`dm.RleMask <datumaro.components.annotation.RleMask>>`
 
-* **dm.errors** :mod:`datumaro.components.errors`
+* :mod:`dm.errors <datumaro.components.errors>`
 
-* **dm.operations** :mod:`datumaro.components.operations`
+* :mod:`dm.operations <datumaro.components.operations>`
 
-* **dm.project** :mod:`datumaro.components.project`
+* :mod:`dm.project <datumaro.components.project>`
 
-* **dm.cli_plugin** :mod:`datumaro.components.cli_plugin`
-    * **dm.CliPlugin** :class:`datumaro.components.cli_plugin.CliPlugin`
+* :mod:`dm.cli_plugin <datumaro.components.cli_plugin>`
+    * :class:`dm.CliPlugin <datumaro.components.cli_plugin.CliPlugin>`
 
-* **dm.converter** :mod:`datumaro.components.converter`
-    * **dm.Converter** :class:`datumaro.components.converter.Converter`
+* :mod:`dm.converter <datumaro.components.converter>`
+    * :class:`dm.Converter <datumaro.components.converter.Converter>`
 
-* **dm.dataset** :mod:`datumaro.components.dataset`
-    * **dm.Dataset** :class:`datumaro.components.dataset.Dataset`
-    * **dm.DatasetPatch** :class:`datumaro.components.dataset.DatasetPatch`
-    * **dm.DatasetSubset** :class:`datumaro.components.dataset.DatasetSubset`
-    * **dm.IDataset**
-    * **dm.ItemStatus** :class:`datumaro.components.dataset.ItemStatus`
-    * **dm.eager_mode** :func:`datumaro.components.dataset.eager_mode`
+* :mod:`dm.dataset <datumaro.components.dataset>`
+    * :class:`dm.Dataset <datumaro.components.dataset.Dataset>`
+    * :class:`dm.DatasetPatch <datumaro.components.dataset.DatasetPatch>`
+    * :class:`dm.DatasetSubset <datumaro.components.dataset.DatasetSubset>`
+    * :class:`dm.IDataset <datumaro.components.dataset.IDataset>`
+    * :class:`dm.ItemStatus <datumaro.components.dataset.ItemStatus>`
+    * :func:`dm.eager_mode <datumaro.components.dataset.eager_mode>`
 
-* **dm.environment** :mod:`datumaro.components.environment`
-    * **dm.Environment** :class:`datumaro.components.environment.Environment`
-    * **dm.PluginRegistry** :class:`datumaro.components.environment.PluginRegistry`
+* :mod:`dm.environment <datumaro.components.environment>`
+    * :class:`dm.Environment <datumaro.components.environment.Environment>`
+    * :class:`dm.PluginRegistry <datumaro.components.environment.PluginRegistry>`
 
-* **dm.extractor** :mod:`datumaro.components.extractor`
-    * **dm.DEFAULT_SUBSET_NAME**
-    * **dm.CategoriesInfo**
-    * **dm.DatasetItem** :class:`datumaro.components.extractor.DatasetItem`
-    * **dm.Extractor** :class:`datumaro.components.extractor.Extractor`
-    * **dm.IExtractor** :class:`datumaro.components.extractor.IExtractor`
-    * **dm.Importer** :class:`datumaro.components.extractor.Importer`
-    * **dm.ItemTransform** :class:`datumaro.components.extractor.ItemTransform`
-    * **dm.SourceExtractor** :class:`datumaro.components.extractor.SourceExtractor`
-    * **dm.Transform** :class:`datumaro.components.extractor.Transform`
+* :mod:`dm.extractor <datumaro.components.extractor>`
+    * :class:`dm.DEFAULT_SUBSET_NAME <datumaro.components.extractor.DEFAULT_SUBSET_NAME>`
+    * :class:`dm.CategoriesInfo <datumaro.components.extractor.CategoriesInfo>`
+    * :class:`dm.DatasetItem <datumaro.components.extractor.DatasetItem>`
+    * :class:`dm.Extractor <datumaro.components.extractor.Extractor>`
+    * :class:`dm.IExtractor <datumaro.components.extractor.IExtractor>`
+    * :class:`dm.Importer <datumaro.components.extractor.Importer>`
+    * :class:`dm.ItemTransform <datumaro.components.extractor.ItemTransform>`
+    * :class:`dm.SourceExtractor <datumaro.components.extractor.SourceExtractor>`
+    * :class:`dm.Transform <datumaro.components.extractor.Transform>`
 
-* **dm.hl_ops** :class:`datumaro.components.hl_ops`
-    * **dm.export** :func:`datumaro.components.hl_ops.export`
-    * **dm.filter** :func:`datumaro.components.hl_ops.filter`
-    * **dm.merge** :func:`datumaro.components.hl_ops.merge`
-    * **dm.run_model** :func:`datumaro.components.hl_ops.run_model`
-    * **dm.transform** :func:`datumaro.components.hl_ops.transform`
-    * **dm.validate** :func:`datumaro.components.hl_ops.validate`
+* :class:`dm.hl_ops <datumaro.components.hl_ops>`
+    * :func:`dm.export <datumaro.components.hl_ops.export>`
+    * :func:`dm.filter <datumaro.components.hl_ops.filter>`
+    * :func:`dm.merge <datumaro.components.hl_ops.merge>`
+    * :func:`dm.run_model <datumaro.components.hl_ops.run_model>`
+    * :func:`dm.transform <datumaro.components.hl_ops.transform>`
+    * :func:`dm.validate <datumaro.components.hl_ops.validate>`
 
-* **dm.launcher** :mod:`datumaro.components.launcher`
-    * **dm.Launcher** :class:`datumaro.components.launcher.Launcher`
-    * **dm.ModelTransform** :class:`datumaro.components.launcher.ModelTransform`
+* :mod:`dm.launcher <datumaro.components.launcher>`
+    * :class:`dm.Launcher <datumaro.components.launcher.Launcher>`
+    * :class:`dm.ModelTransform <datumaro.components.launcher.ModelTransform>`
 
-* **dm.media** :mod:`datumaro.components.media`
-    * **dm.ByteImage** :class:`datumaro.components.media.ByteImage`
-    * **dm.Image** :class:`datumaro.components.media.Image`
-    * **dm.MediaElement** :class:`datumaro.components.media.MediaElement`
-    * **dm.Video** :class:`datumaro.components.media.Video`
-    * **dm.VideoFrame** :class:`datumaro.components.media.VideoFrame`
+* :mod:`dm.media <datumaro.components.media>`
+    * :class:`dm.ByteImage <datumaro.components.media.ByteImage>`
+    * :class:`dm.Image <datumaro.components.media.Image>`
+    * :class:`dm.MediaElement <datumaro.components.media.MediaElement>`
+    * :class:`dm.Video <datumaro.components.media.Video>`
+    * :class:`dm.VideoFrame <datumaro.components.media.VideoFrame>`
 
-* **dm.media_manager** :mod:`datumaro.components.media_manager`
-    * **dm.MediaManager** :class:`datumaro.components.media_manager.MediaManager`
+* :mod:`dm.media_manager <datumaro.components.media_manager>`
+    * :class:`dm.MediaManager <datumaro.components.media_manager.MediaManager>`
 
-* **dm.validator** :mod:`datumaro.components.validator`
-    * **dm.Validator** :class:`datumaro.components.validator.Validator`
+* :mod:`dm.validator <datumaro.components.validator>`
+    * :class:`dm.Validator <datumaro.components.validator.Validator>`
