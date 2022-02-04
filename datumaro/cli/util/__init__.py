@@ -13,7 +13,7 @@ from datumaro.components.converter import (
     AnnotationExportErrorAction, ExportErrorPolicy, ItemExportErrorAction,
 )
 from datumaro.components.extractor import (
-    AnnotationImportErrorAction, ImportErrorPolicy, ItemImportErrorAction,
+    ImportErrorPolicy, ItemImportErrorAction,
 )
 from datumaro.components.progress_reporting import ProgressReporter
 
@@ -106,17 +106,16 @@ class CliProgressReporter(ProgressReporter):
             self._tqdm.update(diff)
 
     def get_frequency(self) -> float:
-        return 0.01
+        return 0.001
 
 class RelaxedImportErrorPolicy(ImportErrorPolicy):
     def report_item_error(self, error):
-        raise error
         log.warning('Failed to import item: %s', error)
         return ItemImportErrorAction.skip_item
 
     def report_annotation_error(self, error):
         log.warning('Failed to import annotation: %s', error)
-        return AnnotationImportErrorAction.skip_annotation
+        return ItemImportErrorAction.skip
 
 class RelaxedExportErrorPolicy(ExportErrorPolicy):
     def report_item_error(self, error):

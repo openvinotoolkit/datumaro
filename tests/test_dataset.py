@@ -1500,13 +1500,13 @@ class DatasetTest(TestCase):
                 action = self._report_annotation_error(AnnotationImportError())
                 if action is AnnotationImportErrorAction.skip_item:
                     pass
-                elif action is AnnotationImportErrorAction.skip_annotation:
+                elif action is AnnotationImportErrorAction.skip:
                     pass
                 else:
                     assert False
 
                 action = self._report_item_error(ItemImportError())
-                if action is ItemImportErrorAction.skip_item:
+                if action is ItemImportErrorAction.skip:
                     pass
                 else:
                     assert False
@@ -1519,9 +1519,9 @@ class DatasetTest(TestCase):
             pass
         error_policy = TestErrorPolicy()
         error_policy.report_item_error = mock.MagicMock(
-            return_value=AnnotationImportErrorAction.skip_annotation)
+            return_value=AnnotationImportErrorAction.skip)
         error_policy.report_annotation_error = mock.MagicMock(
-            return_value=ItemImportErrorAction.skip_item)
+            return_value=ItemImportErrorAction.skip)
 
         ctx = ImportContext(None, error_policy)
         Dataset.import_from('', 'test', ctx=ctx, env=env)

@@ -183,11 +183,7 @@ class _ImportFail(DatumaroError):
     pass
 
 class ItemImportErrorAction(Enum):
-    skip_item = auto()
-
-class AnnotationImportErrorAction(Enum):
-    skip_item = auto()
-    skip_annotation = auto()
+    skip = auto()
 
 class ImportErrorPolicy:
     def report_item_error(self,
@@ -197,7 +193,7 @@ class ImportErrorPolicy:
 
     def report_annotation_error(self,
             error: AnnotationImportError
-    ) -> Union[AnnotationImportErrorAction, NoReturn]:
+    ) -> Union[ItemImportErrorAction, NoReturn]:
         raise NotImplementedError
 
     def fail(self, error: Exception) -> NoReturn:
