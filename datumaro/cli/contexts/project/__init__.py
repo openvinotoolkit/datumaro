@@ -14,6 +14,7 @@ import numpy as np
 from datumaro.components.dataset_filter import DatasetItemEncoder
 from datumaro.components.environment import Environment
 from datumaro.components.errors import MigrationError, ProjectNotFoundError
+from datumaro.components.extractor import ImportContext
 from datumaro.components.operations import (
     compute_ann_statistics, compute_image_statistics,
 )
@@ -23,7 +24,7 @@ from datumaro.util import str_to_bool
 from datumaro.util.os_util import make_file_name
 from datumaro.util.scope import scope_add, scoped
 
-from ...util import MultilineFormatter, add_subparser
+from ...util import CliProgressReporter, MultilineFormatter, add_subparser
 from ...util.errors import CliException
 from ...util.project import (
     generate_next_file_name, load_project, parse_full_revpath,
@@ -331,7 +332,8 @@ def filter_command(args):
     filter_expr = args.filter
 
     if args.dry_run:
-        dataset, _project = parse_full_revpath(args.target, project)
+        ctx = ImportContext(progress_reporter=CliProgressReporter())
+        dataset, _project = parse_full_revpath(args.target, project, ctx=ctx)
         if _project:
             scope_add(_project)
 
@@ -381,7 +383,8 @@ def filter_command(args):
 
             log.info("Finished")
         else:
-            dataset, _project = parse_full_revpath(args.target, project)
+            ctx = ImportContext(progress_reporter=CliProgressReporter())
+            dataset, _project = parse_full_revpath(args.target, project, ctx=ctx)
             if _project:
                 scope_add(_project)
 
@@ -567,7 +570,8 @@ def transform_command(args):
 
             log.info("Finished")
         else:
-            dataset, _project = parse_full_revpath(args.target, project)
+            ctx = ImportContext(progress_reporter=CliProgressReporter())
+            dataset, _project = parse_full_revpath(args.target, project, ctx=ctx)
             if _project:
                 scope_add(_project)
 
@@ -640,7 +644,8 @@ def stats_command(args):
         if args.project_dir:
             raise
 
-    dataset, target_project = parse_full_revpath(args.target, project)
+    ctx = ImportContext(progress_reporter=CliProgressReporter())
+    dataset, target_project = parse_full_revpath(args.target, project, ctx=ctx)
     if target_project:
         scope_add(target_project)
 
@@ -815,7 +820,8 @@ def validate_command(args):
 
     extra_args = validator_type.parse_cmdline(args.extra_args)
 
-    dataset, target_project = parse_full_revpath(args.target, project)
+    ctx = ImportContext(progress_reporter=CliProgressReporter())
+    dataset, target_project = parse_full_revpath(args.target, project, ctx=ctx)
     if target_project:
         scope_add(target_project)
 

@@ -9,9 +9,10 @@ import os.path as osp
 
 from datumaro.components.environment import Environment
 from datumaro.components.errors import ProjectNotFoundError
+from datumaro.components.extractor import ImportContext
 from datumaro.util.scope import scope_add, scoped
 
-from ..util import MultilineFormatter
+from ..util import CliProgressReporter, MultilineFormatter
 from ..util.errors import CliException
 from ..util.project import load_project, parse_full_revpath
 
@@ -115,7 +116,8 @@ def patch_command(args):
     else:
         env = Environment()
 
-    target_dataset, _project = parse_full_revpath(args.target, project)
+    ctx = ImportContext(progress_reporter=CliProgressReporter())
+    target_dataset, _project = parse_full_revpath(args.target, project, ctx=ctx)
     if _project is not None:
         scope_add(_project)
 

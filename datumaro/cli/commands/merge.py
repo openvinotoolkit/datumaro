@@ -14,11 +14,12 @@ from datumaro.components.environment import Environment
 from datumaro.components.errors import (
     DatasetMergeError, DatasetQualityError, ProjectNotFoundError,
 )
+from datumaro.components.extractor import ImportContext
 from datumaro.components.operations import IntersectMerge
 from datumaro.components.project import ProjectBuildTargets
 from datumaro.util.scope import scope_add, scoped
 
-from ..util import MultilineFormatter, join_cli_args
+from ..util import CliProgressReporter, MultilineFormatter, join_cli_args
 from ..util.errors import CliException
 from ..util.project import (
     generate_next_file_name, load_project, parse_full_revpath,
@@ -181,11 +182,13 @@ def merge_command(args):
 
     source_datasets = []
     try:
+        ctx = ImportContext(progress_reporter=CliProgressReporter())
         if len(args.targets) == 1:
             source_datasets.append(project.working_tree.make_dataset())
 
         for t in args.targets:
-            target_dataset, target_project = parse_full_revpath(t, project)
+            target_dataset, target_project = parse_full_revpath(t, project,
+                ctx=ctx)
             if target_project:
                 scope_add(target_project)
             source_datasets.append(target_dataset)
