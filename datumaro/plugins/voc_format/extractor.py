@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2021 Intel Corporation
+# Copyright (C) 2019-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -25,13 +25,13 @@ from .format import (
 _inverse_inst_colormap = invert_colormap(VocInstColormap)
 
 class _VocExtractor(SourceExtractor):
-    def __init__(self, path, task):
+    def __init__(self, path, task, **kwargs):
         assert osp.isfile(path), path
         self._path = path
         self._dataset_dir = osp.dirname(osp.dirname(osp.dirname(path)))
         self._task = task
 
-        super().__init__(subset=osp.splitext(osp.basename(path))[0])
+        super().__init__(subset=osp.splitext(osp.basename(path))[0], **kwargs)
 
         self._categories = self._load_categories(self._dataset_dir)
 
@@ -85,8 +85,8 @@ class _VocExtractor(SourceExtractor):
             return subset_list
 
 class VocClassificationExtractor(_VocExtractor):
-    def __init__(self, path):
-        super().__init__(path, VocTask.classification)
+    def __init__(self, path, **kwargs):
+        super().__init__(path, VocTask.classification, **kwargs)
 
     def __iter__(self):
         annotations = self._load_annotations()
@@ -100,7 +100,7 @@ class VocClassificationExtractor(_VocExtractor):
         else:
             images = {}
 
-        for item_id in self._items:
+        for item_id in self._with_progress(self._items, desc="Parsing items"):
             log.debug("Reading item '%s'" % item_id)
             yield DatasetItem(id=item_id, subset=self._subset,
                 image=images.get(item_id), annotations=annotations.get(item_id))
@@ -126,13 +126,13 @@ class VocClassificationExtractor(_VocExtractor):
         return annotations
 
 class _VocXmlExtractor(_VocExtractor):
-    def __init__(self, path, task):
-        super().__init__(path, task)
+    def __init__(self, path, task, **kwargs):
+        super().__init__(path, task, **kwargs)
 
     def __iter__(self):
         anno_dir = osp.join(self._dataset_dir, VocPath.ANNOTATIONS_DIR)
 
-        for item_id in self._items:
+        for item_id in self._with_progress(self._items, desc="Parsing items"):
             log.debug("Reading item '%s'" % item_id)
             image = item_id + VocPath.IMAGE_EXT
             height, width = 0, 0
@@ -250,20 +250,20 @@ class _VocXmlExtractor(_VocExtractor):
         return [xmin, ymin, xmax - xmin, ymax - ymin]
 
 class VocDetectionExtractor(_VocXmlExtractor):
-    def __init__(self, path):
-        super().__init__(path, task=VocTask.detection)
+    def __init__(self, path, **kwargs):
+        super().__init__(path, task=VocTask.detection, **kwargs)
 
 class VocLayoutExtractor(_VocXmlExtractor):
-    def __init__(self, path):
-        super().__init__(path, task=VocTask.person_layout)
+    def __init__(self, path, **kwargs):
+        super().__init__(path, task=VocTask.person_layout, **kwargs)
 
 class VocActionExtractor(_VocXmlExtractor):
-    def __init__(self, path):
-        super().__init__(path, task=VocTask.action_classification)
+    def __init__(self, path, **kwargs):
+        super().__init__(path, task=VocTask.action_classification, **kwargs)
 
 class VocSegmentationExtractor(_VocExtractor):
-    def __init__(self, path):
-        super().__init__(path, task=VocTask.segmentation)
+    def __init__(self, path, **kwargs):
+        super().__init__(path, task=VocTask.segmentation, **kwargs)
 
     def __iter__(self):
         image_dir = osp.join(self._dataset_dir, VocPath.IMAGES_DIR)
@@ -275,7 +275,7 @@ class VocSegmentationExtractor(_VocExtractor):
         else:
             images = {}
 
-        for item_id in self._items:
+        for item_id in self._with_progress(self._items, desc="Parsing items"):
             log.debug("Reading item '%s'" % item_id)
             anns = self._load_annotations(item_id)
             yield DatasetItem(id=item_id, subset=self._subset,
