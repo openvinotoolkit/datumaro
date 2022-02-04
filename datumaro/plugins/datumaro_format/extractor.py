@@ -4,8 +4,6 @@
 
 import os.path as osp
 
-import orjson
-
 from datumaro.components.annotation import (
     AnnotationType, Bbox, Caption, Cuboid3d, Label, LabelCategories,
     MaskCategories, Points, PointsCategories, Polygon, PolyLine, RleMask,
@@ -13,6 +11,7 @@ from datumaro.components.annotation import (
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.media import Image
+from datumaro.util import parse_json, parse_json_file
 
 from .format import DatumaroPath
 
@@ -42,8 +41,7 @@ class DatumaroExtractor(SourceExtractor):
 
         super().__init__(subset=osp.splitext(osp.basename(path))[0])
 
-        with open(path, 'rb') as f:
-            parsed_anns = orjson.loads(f.read())
+        parsed_anns = parse_json_file(path)
         self._categories = self._load_categories(parsed_anns)
         self._items = self._load_items(parsed_anns)
 
@@ -200,7 +198,7 @@ class DatumaroImporter(Importer):
             annot_file, "must be a JSON object with \"categories\" "
                 "and \"items\" keys",
         ) as f:
-            contents = orjson.loads(f.read())
+            contents = parse_json(f.read())
             if not {'categories', 'items'} <= contents.keys():
                 raise Exception
 

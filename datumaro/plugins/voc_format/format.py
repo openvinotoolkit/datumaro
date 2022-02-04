@@ -8,12 +8,11 @@ from itertools import chain
 import os.path as osp
 
 import numpy as np
-import orjson
 
 from datumaro.components.annotation import (
     AnnotationType, LabelCategories, MaskCategories,
 )
-from datumaro.util import find
+from datumaro.util import dump_json_file, find, parse_json_file
 from datumaro.util.meta_file_util import get_meta_file
 
 
@@ -162,12 +161,12 @@ def parse_label_map(path):
     return label_map
 
 def parse_meta_file(path):
+    # Uses custom format with extra fields
     meta_file = path
     if osp.isdir(path):
         meta_file = get_meta_file(path)
 
-    with open(meta_file, 'rb') as f:
-        dataset_meta = orjson.loads(f.read())
+    dataset_meta = parse_json_file(meta_file)
 
     label_map = OrderedDict()
     parts = dataset_meta.get('parts', {})
@@ -203,6 +202,7 @@ def write_label_map(path, label_map):
             f.write('%s\n' % ':'.join([label_name, color_rgb, parts, actions]))
 
 def write_meta_file(path, label_map):
+    # Uses custom format with extra fields
     dataset_meta = {}
 
     labels = []
@@ -237,10 +237,7 @@ def write_meta_file(path, label_map):
     if any(actions):
         dataset_meta['actions'] = actions
 
-    meta_file = get_meta_file(path)
-
-    with open(meta_file, 'wb') as f:
-        f.write(orjson.dumps(dataset_meta))
+    dump_json_file(get_meta_file(path), dataset_meta)
 
 
 def make_voc_categories(label_map=None):

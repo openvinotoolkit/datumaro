@@ -9,13 +9,13 @@ import os.path as osp
 import re
 
 import numpy as np
-import orjson
 
 from datumaro.components.annotation import (
     AnnotationType, CompiledMask, LabelCategories, Mask, Polygon,
 )
 from datumaro.components.extractor import DatasetItem, Extractor, Importer
 from datumaro.components.format_detection import FormatDetectionContext
+from datumaro.util import parse_json
 from datumaro.util.image import (
     IMAGE_EXTENSIONS, find_images, lazy_image, load_image,
 )
@@ -142,7 +142,7 @@ class Ade20k2020Extractor(Extractor):
                 for image %s" % path)
 
         with open(json_path, 'r', encoding='latin-1') as f:
-            item_objects = orjson.loads(f.read())['annotation']['object']
+            item_objects = parse_json(f.read())['annotation']['object']
             for obj in item_objects:
                 polygon_points = []
                 for x, y in zip(obj['polygon']['x'], obj['polygon']['y']):
@@ -189,7 +189,7 @@ class Ade20k2020Importer(Importer):
         with context.probe_text_file(
             annot_path, "must be a JSON object with an \"annotation\" key",
         ) as f:
-            contents = orjson.loads(f.read())
+            contents = parse_json(f.read())
             if not isinstance(contents, dict):
                 raise Exception
             if 'annotation' not in contents:

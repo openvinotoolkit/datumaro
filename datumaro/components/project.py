@@ -19,7 +19,6 @@ import tempfile
 import unittest.mock
 
 import networkx as nx
-import orjson
 import ruamel.yaml as yaml
 
 from datumaro.components.config import Config
@@ -42,7 +41,7 @@ from datumaro.components.errors import (
 )
 from datumaro.components.launcher import Launcher
 from datumaro.components.media_manager import MediaManager
-from datumaro.util import find, parse_str_enum_value
+from datumaro.util import find, parse_json_file, parse_str_enum_value
 from datumaro.util.log_utils import catch_logs, logging_disabled
 from datumaro.util.os_util import (
     copytree, generate_next_name, is_subpath, make_file_name, rmfile, rmtree,
@@ -1267,8 +1266,7 @@ class DvcWrapper:
             return False
 
         if obj_hash.endswith(self.DIR_HASH_SUFFIX):
-            with open(path, 'rb') as f:
-                objects = orjson.loads(f.read())
+            objects = parse_json_file(path)
             for entry in objects:
                 if not osp.isfile(self.obj_path(entry['md5'])):
                     return False
@@ -1337,8 +1335,7 @@ class DvcWrapper:
         if not osp.isfile(src):
             raise UnknownRefError(obj_hash)
 
-        with open(src, 'rb') as f:
-            src_meta = orjson.loads(f.read())
+        src_meta = parse_json_file(src)
         for entry in src_meta:
             _copy_obj(self.obj_path(entry['md5']),
                 osp.join(dst_dir, entry['relpath']), link=allow_links)
@@ -1353,8 +1350,7 @@ class DvcWrapper:
         if not osp.isfile(src):
             raise UnknownRefError(obj_hash)
 
-        with open(src) as f:
-            src_meta = orjson.loads(f.read())
+        src_meta = parse_json_file(src)
         for entry in src_meta:
             entry_path = self.obj_path(entry['md5'])
             if osp.isfile(entry_path):

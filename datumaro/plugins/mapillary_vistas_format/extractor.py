@@ -7,7 +7,6 @@ import os
 import os.path as osp
 
 import numpy as np
-import orjson
 
 from datumaro.components.annotation import (
     AnnotationType, CompiledMask, LabelCategories, Mask, MaskCategories,
@@ -15,6 +14,7 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.extractor import DatasetItem, SourceExtractor
 from datumaro.components.media import Image
+from datumaro.util import parse_json_file
 from datumaro.util.image import find_images, lazy_image, load_image
 from datumaro.util.mask_tools import bgr2index
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
@@ -79,8 +79,7 @@ class _MapillaryVistasExtractor(SourceExtractor):
             raise FileNotFoundError("Can't find panoptic config file: '%s' at '%s'"
                % (MapillaryVistasPath.PANOPTIC_CONFIG, panoptic_config_path))
 
-        with open(panoptic_config_path, 'rb') as f:
-            return orjson.loads(f.read())
+        return parse_json_file(panoptic_config_path)
 
     def _load_panoptic_categories(self, categories_info, keep_original_ids):
         label_cat = LabelCategories()
@@ -228,8 +227,7 @@ class _MapillaryVistasExtractor(SourceExtractor):
             item_id = osp.splitext(osp.relpath(item_path, polygons_dir))[0]
             item = items.get(item_id)
             item_info = {}
-            with open(item_path, 'rb') as f:
-                item_info = orjson.loads(f.read())
+            item_info = parse_json_file(item_path)
 
             image_size = self._get_image_size(item_info)
             if image_size and item.has_image:

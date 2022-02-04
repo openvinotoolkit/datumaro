@@ -4,8 +4,6 @@
 
 import argparse
 
-import orjson
-
 from datumaro.cli.util import MultilineFormatter
 from datumaro.cli.util.project import load_project
 from datumaro.components.environment import Environment
@@ -13,6 +11,7 @@ from datumaro.components.errors import ProjectNotFoundError
 from datumaro.components.format_detection import (
     RejectionReason, detect_dataset_format,
 )
+from datumaro.util import dump_json_file
 from datumaro.util.scope import scope_add, scoped
 
 
@@ -115,5 +114,4 @@ def detect_format_command(args):
             print("No formats were rejected.")
 
     if args.json_report:
-        with open(args.json_report, 'wb') as report_file:
-            report_file.write(orjson.dumps(report, option=orjson.OPT_INDENT_2))
+        dump_json_file(args.json_report, report, indent=True)

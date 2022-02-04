@@ -8,9 +8,6 @@ import logging as log
 import os
 import os.path as osp
 
-import numpy as np
-import orjson
-
 from datumaro.components.dataset_filter import DatasetItemEncoder
 from datumaro.components.environment import Environment
 from datumaro.components.errors import MigrationError, ProjectNotFoundError
@@ -19,7 +16,7 @@ from datumaro.components.operations import (
 )
 from datumaro.components.project import Project, ProjectBuildTargets
 from datumaro.components.validator import TaskType
-from datumaro.util import str_to_bool
+from datumaro.util import dump_json_file, str_to_bool
 from datumaro.util.os_util import make_file_name
 from datumaro.util.scope import scope_add, scoped
 
@@ -655,9 +652,7 @@ def stats_command(args):
 
     dst_file = generate_next_file_name('statistics', ext='.json')
     log.info("Writing project statistics to '%s'" % dst_file)
-    with open(dst_file, 'wb') as f:
-        f.write(orjson.dumps(stats,
-            option=orjson.OPT_INDENT_2 | orjson.OPT_SORT_KEYS))
+    dump_json_file(dst_file, stats, indent=True)
 
 def build_info_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(help="Get project info",
@@ -841,10 +836,7 @@ def validate_command(args):
 
     dst_file = generate_next_file_name(dst_file_name, ext='.json')
     log.info("Writing project validation results to '%s'" % dst_file)
-    with open(dst_file, 'w', encoding='utf-8') as f:
-        f.write(orjson.dumps(report,
-            option=orjson.OPT_INDENT_2 | orjson.OPT_SORT_KEYS | \
-                orjson.OPT_SERIALIZE_NUMPY))
+    dump_json_file(dst_file, report, indent=True, allow_numpy=True)
 
 def build_migrate_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(help="Migrate project",

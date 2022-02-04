@@ -5,7 +5,6 @@
 import os.path as osp
 
 import numpy as np
-import orjson
 
 from datumaro.components.annotation import (
     Bbox, LabelCategories, Points, PointsCategories,
@@ -15,6 +14,7 @@ from datumaro.components.extractor import (
 )
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.media import Image
+from datumaro.util import parse_json_file
 
 from .format import MPII_POINTS_JOINTS, MPII_POINTS_LABELS
 
@@ -63,75 +63,74 @@ class MpiiJsonExtractor(SourceExtractor):
         else:
             gt_pose = np.array([])
 
-        with open(path, 'rb') as f:
-            for i, ann in enumerate(orjson.loads(f.read())):
-                item_id = osp.splitext(ann.get('img_paths', ''))[0]
+        for i, ann in enumerate(parse_json_file(path)):
+            item_id = osp.splitext(ann.get('img_paths', ''))[0]
 
-                center = ann.get('objpos', [])
-                scale = float(ann.get('scale_provided', 0))
+            center = ann.get('objpos', [])
+            scale = float(ann.get('scale_provided', 0))
 
-                if i < gt_pose.shape[0]:
-                    points = gt_pose[i].ravel()
+            if i < gt_pose.shape[0]:
+                points = gt_pose[i].ravel()
 
-                    if i < visibility.shape[0]:
-                        vis = visibility[i]
-                    else:
-                        vis = np.ones(len(points) // 2, dtype=np.int8)
+                if i < visibility.shape[0]:
+                    vis = visibility[i]
                 else:
-                    keypoints = np.array(ann.get('joint_self', []))
+                    vis = np.ones(len(points) // 2, dtype=np.int8)
+            else:
+                keypoints = np.array(ann.get('joint_self', []))
+                points = keypoints[:, 0:2].ravel()
+
+                vis = keypoints[:, 2]
+                if i < visibility.shape[0]:
+                    vis = visibility[i]
+
+            vis = [int(val) for val in vis]
+
+            group_num = 1
+
+            annotations = [Points(points, vis, label=0, group=group_num,
+                attributes={'center': center, 'scale': scale})]
+
+            if i < headboxes.shape[2]:
+                bbox = headboxes[:, :, i]
+                annotations.append(Bbox(bbox[0][0], bbox[0][1],
+                    bbox[1][0] - bbox[0][0], bbox[1][1] - bbox[0][1],
+                    label=0, group=group_num))
+
+            group_num += 1
+
+            joint_others = ann.get('joint_others')
+            if joint_others:
+                num_others = int(ann.get('numOtherPeople', 1))
+                center = ann.get('objpos_other', [])
+                scale = ann.get('scale_provided_other', 0)
+
+                if num_others == 1:
+                    center = [center]
+                    scale = [scale]
+                    joint_others = [joint_others]
+
+                for i in range(num_others):
+                    keypoints = np.array(joint_others[i])
                     points = keypoints[:, 0:2].ravel()
-
                     vis = keypoints[:, 2]
-                    if i < visibility.shape[0]:
-                        vis = visibility[i]
-
-                vis = [int(val) for val in vis]
-
-                group_num = 1
-
-                annotations = [Points(points, vis, label=0, group=group_num,
-                    attributes={'center': center, 'scale': scale})]
-
-                if i < headboxes.shape[2]:
-                    bbox = headboxes[:, :, i]
-                    annotations.append(Bbox(bbox[0][0], bbox[0][1],
-                        bbox[1][0] - bbox[0][0], bbox[1][1] - bbox[0][1],
-                        label=0, group=group_num))
-
-                group_num += 1
-
-                joint_others = ann.get('joint_others')
-                if joint_others:
-                    num_others = int(ann.get('numOtherPeople', 1))
-                    center = ann.get('objpos_other', [])
-                    scale = ann.get('scale_provided_other', 0)
-
-                    if num_others == 1:
-                        center = [center]
-                        scale = [scale]
-                        joint_others = [joint_others]
-
-                    for i in range(num_others):
-                        keypoints = np.array(joint_others[i])
-                        points = keypoints[:, 0:2].ravel()
-                        vis = keypoints[:, 2]
-                        vis = [int(val) for val in vis]
+                    vis = [int(val) for val in vis]
 
 
-                        attributes = {}
-                        if i < len(center):
-                            attributes['center'] = center[i]
-                        if i < len(scale):
-                            attributes['scale'] = scale[i]
+                    attributes = {}
+                    if i < len(center):
+                        attributes['center'] = center[i]
+                    if i < len(scale):
+                        attributes['scale'] = scale[i]
 
-                        annotations.append(Points(points, vis, label=0,
-                            group=group_num, attributes=attributes))
+                    annotations.append(Points(points, vis, label=0,
+                        group=group_num, attributes=attributes))
 
-                        group_num +=1
+                    group_num +=1
 
-                items[item_id] = DatasetItem(id=item_id, subset=self._subset,
-                    image=Image(path=osp.join(root_dir, ann.get('img_paths', ''))),
-                    annotations=annotations)
+            items[item_id] = DatasetItem(id=item_id, subset=self._subset,
+                image=Image(path=osp.join(root_dir, ann.get('img_paths', ''))),
+                annotations=annotations)
 
         return items
 

@@ -8,10 +8,9 @@ import logging as log
 import os
 import os.path as osp
 
-import orjson
-
 from datumaro.components.errors import ProjectNotFoundError
 from datumaro.components.operations import DistanceComparator, ExactComparator
+from datumaro.util import dump_json_file
 from datumaro.util.os_util import rmtree
 from datumaro.util.scope import on_error_do, scope_add, scoped
 
@@ -203,9 +202,7 @@ def diff_command(args):
         output_file = osp.join(dst_dir,
             generate_next_file_name('diff', ext='.json', basedir=dst_dir))
         log.info("Saving diff to '%s'" % output_file)
-        with open(output_file, 'wb') as f:
-            f.write(orjson.dumps(output,
-                option=orjson.OPT_SORT_KEYS | orjson.OPT_INDENT_2))
+        dump_json_file(output_file, output, indent=True)
 
         print("Found:")
         print("The first project has %s unmatched items" % len(a_extra))

@@ -5,10 +5,8 @@
 from collections import OrderedDict
 import os.path as osp
 
-import orjson
-
 from datumaro.components.annotation import AnnotationType
-from datumaro.util import find
+from datumaro.util import dump_json_file, find, parse_json_file
 
 DATASET_META_FILE = 'dataset_meta.json'
 
@@ -26,8 +24,7 @@ def parse_meta_file(path):
     if osp.isdir(path):
         meta_file = get_meta_file(path)
 
-    with open(meta_file, 'rb') as f:
-        dataset_meta = orjson.loads(f.read())
+    dataset_meta = parse_json_file(meta_file)
 
     label_map = OrderedDict()
 
@@ -68,5 +65,4 @@ def save_meta_file(path, categories):
     if osp.isdir(path):
         meta_file = get_meta_file(path)
 
-    with open(meta_file, 'wb') as f:
-        f.write(orjson.dumps(dataset_meta))
+    dump_json_file(meta_file, dataset_meta, indent=True)

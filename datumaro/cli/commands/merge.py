@@ -8,8 +8,6 @@ import logging as log
 import os
 import os.path as osp
 
-import orjson
-
 from datumaro.components.dataset import DEFAULT_FORMAT
 from datumaro.components.environment import Environment
 from datumaro.components.errors import (
@@ -17,6 +15,7 @@ from datumaro.components.errors import (
 )
 from datumaro.components.operations import IntersectMerge
 from datumaro.components.project import ProjectBuildTargets
+from datumaro.util import dump_json_file
 from datumaro.util.scope import scope_add, scoped
 
 from ..util import MultilineFormatter, join_cli_args
@@ -230,5 +229,4 @@ def save_merge_report(merger, path):
         ('All errors', all_errors),
     ])
 
-    with open(path, 'wb') as f:
-        f.write(orjson.dumps(errors, option=orjson.OPT_INDENT_2))
+    dump_json_file(path, errors, indent=True)

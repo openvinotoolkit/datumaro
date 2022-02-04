@@ -4,12 +4,11 @@
 
 import os.path as osp
 
-import orjson
-
 from datumaro.components.annotation import AnnotationType, Bbox, LabelCategories
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.media import Image
+from datumaro.util import parse_json_file
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
 
@@ -33,10 +32,7 @@ class VottJsonExtractor(SourceExtractor):
         self._items = list(self._load_items(path).values())
 
     def _load_items(self, path):
-        items = {}
-
-        with open(path, 'rb') as f:
-            anno_dict = orjson.loads(f.read())
+        anno_dict = parse_json_file(path)
 
         label_categories = self._categories[AnnotationType.label]
         tags = anno_dict.get('tags', [])
@@ -46,6 +42,7 @@ class VottJsonExtractor(SourceExtractor):
             if label_idx is None:
                 label_idx = label_categories.add(label_name)
 
+        items = {}
         for id, asset in anno_dict.get('assets', {}).items():
             item_id = osp.splitext(asset.get('asset', {}).get('name'))[0]
             annotations = []

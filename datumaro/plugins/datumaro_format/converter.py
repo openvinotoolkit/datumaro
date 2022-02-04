@@ -9,7 +9,6 @@ import os.path as osp
 import shutil
 
 import numpy as np
-import orjson
 import pycocotools.mask as mask_utils
 
 from datumaro.components.annotation import (
@@ -20,7 +19,7 @@ from datumaro.components.annotation import (
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.extractor import DEFAULT_SUBSET_NAME, DatasetItem
-from datumaro.util import cast
+from datumaro.util import cast, dump_json_file
 
 from .format import DatumaroPath
 
@@ -139,8 +138,7 @@ class _SubsetWriter:
             self.categories[ann_type.name] = converted_desc
 
     def write(self, ann_file):
-        with open(ann_file, 'wb') as f:
-            f.write(orjson.dumps(self._data))
+        dump_json_file(ann_file, self._data)
 
     def _convert_annotation(self, obj):
         assert isinstance(obj, Annotation)
