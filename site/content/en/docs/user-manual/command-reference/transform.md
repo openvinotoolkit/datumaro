@@ -249,8 +249,8 @@ and `unsampled` subsets based on the model confidence. The dataset
 of annotations.
 
 There are five methods of sampling (the `-m/--method` option):
-- `topk` - Return the k items with high uncertainty data
-- `lowk` - Return the k items with low uncertainty data
+- `topk` - Return the k items with the highest uncertainty data
+- `lowk` - Return the k items with the lowest uncertainty data
 - `randk` - Return random k items
 - `mixk` - Return a half using topk, and the other half using lowk method
 - `randtopk` - Select 3*k items randomly, and return the topk among them

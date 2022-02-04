@@ -26,8 +26,8 @@ class RelevancySampler(Transform, CliPlugin):
     values in the `scores` attributes of annotations.|n
     |n
     There are five methods of sampling (the `-m/--method` option):|n
-    - `topk` - Return the k items with high uncertainty data|n
-    - `lowk` - Return the k items with low uncertainty data|n
+    - `topk` - Return the k items with the highest uncertainty data|n
+    - `lowk` - Return the k items with the lowest uncertainty data|n
     - `randk` - Return random k items|n
     - `mixk` - Return a half using topk, and the other half using lowk method|n
     - `randtopk` - Select 3*k items randomly, and return the topk among them|n
