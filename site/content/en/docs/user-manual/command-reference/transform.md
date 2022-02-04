@@ -151,7 +151,7 @@ datum transform -t rename -- -e '|pattern|replacement|'
 
 Remove the `frame_` prefix from item ids:
 ```bash
-datum transform -t rename -- -e '|^frame_|\\1|'
+datum transform -t rename -- -e '|^frame_|\1|'
 ```
 
 Collect images from subdirectories into the base image directory using regex:
