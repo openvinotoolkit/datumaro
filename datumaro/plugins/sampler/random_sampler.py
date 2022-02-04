@@ -25,7 +25,7 @@ class RandomSampler(Transform, CliPlugin):
     Example: select subset of 20 images randomly|n
     |s|s%(prog)s -k 20 |n
     Example: select subset of 20 images, modify only 'train' subset|n
-    |s|s%(prog)s -k 20 -s train |n
+    |s|s%(prog)s -k 20 -s train
     """
 
     @classmethod
@@ -111,7 +111,7 @@ class LabelRandomSampler(Transform, CliPlugin):
     Example: select at least 5 annotations of each class randomly|n
     |s|s%(prog)s -k 5 |n
     Example: select at least 5 images with "cat" annotations and 3 "person"|n
-    |s|s%(prog)s -l "cat:5" -l "person:3" |n
+    |s|s%(prog)s -l "cat:5" -l "person:3"
     """
 
     @staticmethod
