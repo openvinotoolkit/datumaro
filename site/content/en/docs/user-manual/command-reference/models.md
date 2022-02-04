@@ -54,7 +54,7 @@ You can find OpenVINO model interpreter samples in
 `datumaro/plugins/openvino/samples` ([instruction](/docs/plugins/openvino_plugin)).
 
 ``` python
-from datumaro.components.extractor import *
+import datumaro as dm
 
 max_det = 10
 conf_thresh = 0.1
@@ -68,7 +68,7 @@ def process_outputs(inputs, outputs):
         input_height, input_width = input.shape[:2]
         detections = output[0]
         image_results = []
-        for i, det in enumerate(detections):
+        for det in detections:
             label = int(det[1])
             conf = float(det[2])
             if conf <= conf_thresh:
@@ -78,7 +78,7 @@ def process_outputs(inputs, outputs):
             y = max(int(det[4] * input_height), 0)
             w = min(int(det[5] * input_width - x), input_width)
             h = min(int(det[6] * input_height - y), input_height)
-            image_results.append(Bbox(x, y, w, h,
+            image_results.append(dm.Bbox(x, y, w, h,
                 label=label, attributes={'score': conf} ))
 
             results.append(image_results[:max_det])
@@ -88,10 +88,10 @@ def process_outputs(inputs, outputs):
 def get_categories():
     # Optionally, provide output categories - label map etc.
     # Example:
-    label_categories = LabelCategories()
+    label_categories = dm.LabelCategories()
     label_categories.add('person')
     label_categories.add('car')
-    return { AnnotationType.label: label_categories }
+    return { dm.AnnotationType.label: label_categories }
 ```
 
 ### Remove Models <a id="model-remove"></a>
