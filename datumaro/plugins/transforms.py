@@ -433,7 +433,7 @@ class Rename(ItemTransform, CliPlugin):
     Renames items in the dataset. Supports regular expressions.
     The first character in the expression is a delimiter for
     the pattern and replacement parts. Replacement part can also
-    contain string.format replacement fields with the `item`
+    contain `str.format` replacement fields with the `item`
     (of type `DatasetItem`) object available.|n
     |n
     Examples:|n

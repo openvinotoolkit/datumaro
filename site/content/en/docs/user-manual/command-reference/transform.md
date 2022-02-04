@@ -131,7 +131,8 @@ Annotation manipulations:
 Renames items in the dataset. Supports regular expressions.
 The first character in the expression is a delimiter for
 the pattern and replacement parts. Replacement part can also
-contain `str.format` tokens with `item` object available.
+contain `str.format` replacement fields with the `item`
+(of type `DatasetItem`) object available.
 
 Usage:
 ``` bash
