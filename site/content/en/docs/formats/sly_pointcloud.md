@@ -104,9 +104,9 @@ datum convert -if sly_pointcloud -i <path/to/sly_pcd/> -f kitti_raw
 Or, using Python API:
 
 ```python
-from datumaro.components.dataset import Dataset
+import datumaro as dm
 
-dataset = Dataset.import_from('<path/to/dataset>', 'sly_pointcloud')
+dataset = dm.Dataset.import_from('<path/to/dataset>', 'sly_pointcloud')
 dataset.export('save_dir', 'kitti_raw', save_images=True)
 ```
 
@@ -155,18 +155,16 @@ datum convert -if sly_pointcloud -i ../sly_pcd/ \
 ### Example 3. Create a custom dataset
 
 ``` python
-from datumaro.components.annotation import Cuboid3d
-from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import DatasetItem
+import datumaro as dm
 
-dataset = Dataset.from_iterable([
-    DatasetItem(id='frame_1',
+dataset = dm.Dataset.from_iterable([
+    dm.DatasetItem(id='frame_1',
         annotations=[
-            Cuboid3d(id=206, label=0,
+            dm.Cuboid3d(id=206, label=0,
                 position=[320.86, 979.18, 1.04],
                 attributes={'occluded': False, 'track_id': 1, 'x': 1}),
 
-            Cuboid3d(id=207, label=1,
+            dm.Cuboid3d(id=207, label=1,
                 position=[318.19, 974.65, 1.29],
                 attributes={'occluded': True, 'track_id': 2}),
         ],
@@ -174,9 +172,9 @@ dataset = Dataset.from_iterable([
         attributes={'frame': 0, 'description': 'zzz'}
     ),
 
-    DatasetItem(id='frm2',
+    dm.DatasetItem(id='frm2',
         annotations=[
-            Cuboid3d(id=208, label=1,
+            dm.Cuboid3d(id=208, label=1,
                 position=[23.04, 8.75, -0.78],
                 attributes={'occluded': False, 'track_id': 2})
         ],

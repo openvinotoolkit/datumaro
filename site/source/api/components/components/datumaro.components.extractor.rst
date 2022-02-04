@@ -3,12 +3,16 @@ extractor module
 
 .. automodule:: datumaro.components.extractor
 
+   .. autodata:: DEFAULT_SUBSET_NAME
+
    .. autoclass:: DatasetItem
       :members:
       :undoc-members:
       :private-members:
       :special-members:
       :show-inheritance:
+
+   .. autodata:: CategoriesInfo
 
    .. autoclass:: IExtractor
       :members:
