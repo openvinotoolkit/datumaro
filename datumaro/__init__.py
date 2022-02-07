@@ -2,10 +2,9 @@
 #
 # SPDX-License-Identifier: MIT
 
-import datumaro.components.errors as errors
-import datumaro.components.operations as ops
-import datumaro.components.project as project
-
+from . import errors as errors
+from . import ops as ops
+from . import project as project
 from .components.annotation import (
     NO_GROUP, Annotation, AnnotationType, Bbox, BinaryMaskImage, Caption,
     Categories, Colormap, CompiledMask, CompiledMaskImage, Cuboid3d,
