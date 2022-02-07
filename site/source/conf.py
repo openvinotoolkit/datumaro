@@ -93,7 +93,9 @@ def replace(app, what, name, obj, options, lines):
         if line:
             if not "'|n'" in lines[i]:
                 if not "'|s'" in lines[i]:
+                    prog = str('%(prog)s')
                     lines[i] = lines[i].replace("|n", "\n").replace("|s", " ")
+                    lines[i] = lines[i].replace(prog, name.split('.')[-1])
 
 def setup(app):
     app.connect('autodoc-skip-member', skip_member)

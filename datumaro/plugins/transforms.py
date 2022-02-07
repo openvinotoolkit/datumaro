@@ -344,6 +344,8 @@ class RandomSplit(Transform, CliPlugin):
     It is expected that item ids are unique and subset ratios sum up to 1.|n
     |n
     Example:|n
+    .. code-block::
+
     |s|s|s|s%(prog)s --subset train:.67 --subset test:.33
     """
 
@@ -438,10 +440,16 @@ class Rename(ItemTransform, CliPlugin):
     |n
     Examples:|n
     |s|s- Replace 'pattern' with 'replacement':|n
+    |s|s.. code-block::
+
     |s|s|s|srename -e '|pattern|replacement|'|n
     |s|s- Remove 'frame_' from item ids:|n
+    |s|s.. code-block::
+
     |s|s|s|srename -e '|^frame_||'|n
     |s|s- Rename by regex:|n
+    |s|s.. code-block::
+
     |s|s|s|srename -e '|frame_(\d+)_extra|{item.subset}_id_\1|'
     """
 
@@ -482,10 +490,16 @@ class RemapLabels(ItemTransform, CliPlugin):
     |n
     Examples:|n
     |s|s- Remove the 'person' label (and corresponding annotations):|n
+    |s|s.. code-block::
+
     |s|s|s|s%(prog)s -l person: --default keep|n
     |s|s- Rename 'person' to 'pedestrian' and 'human' to 'pedestrian', join:|n
+    |s|s.. code-block::
+
     |s|s|s|s%(prog)s -l person:pedestrian -l human:pedestrian --default keep|n
     |s|s- Rename 'person' to 'car' and 'cat' to 'dog', keep 'bus', remove others:|n
+    |s|s.. code-block::
+
     |s|s|s|s%(prog)s -l person:car -l bus:bus -l cat:dog --default delete
     """
 
@@ -625,6 +639,8 @@ class ProjectLabels(ItemTransform):
     |n
     Examples:|n
     |s|s- Align the source dataset labels to [person, cat, dog]:|n
+    |s|s.. code-block::
+
     |s|s|s|s%(prog)s -l person -l cat -l dog
     """
 
@@ -771,8 +787,10 @@ class ResizeTransform(ItemTransform):
     Supports upscaling, downscaling and mixed variants.|n
     |n
     Examples:|n
-    - Resize all images to 256x256 size|n
-    |s|s%(prog)s -dw 256 -dh 256
+        - Resize all images to 256x256 size|n
+        .. code-block::
+
+        |s|s%(prog)s -dw 256 -dh 256
     """
 
     @classmethod

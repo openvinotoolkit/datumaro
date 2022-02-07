@@ -26,22 +26,24 @@ class RelevancySampler(Transform, CliPlugin):
     values in the `scores` attributes of annotations.|n
     |n
     There are five methods of sampling (the `-m/--method` option):|n
-    - `topk` - Return the k items with the highest uncertainty data|n
-    - `lowk` - Return the k items with the lowest uncertainty data|n
-    - `randk` - Return random k items|n
-    - `mixk` - Return a half using topk, and the other half using lowk method|n
-    - `randtopk` - Select 3*k items randomly, and return the topk among them|n
+    |s|s- `topk` - Return the k items with the highest uncertainty data|n
+    |s|s- `lowk` - Return the k items with the lowest uncertainty data|n
+    |s|s- `randk` - Return random k items|n
+    |s|s- `mixk` - Return a half using topk, and the other half using lowk method|n
+    |s|s- `randtopk` - Select 3*k items randomly, and return the topk among them|n
     |n
     Notes:|n
-    - Each image's inference result must contain the probability for
-    all classes.|n
-    - Requesting a sample larger than the number of all images will
-    return all images.|n
+    |s|s- Each image's inference result must contain the probability for
+        all classes.|n
+    |s|s- Requesting a sample larger than the number of all images will
+        return all images.|n
     |n
     Example: select the most relevant data subset of 20 images |n
     |s|sbased on model certainty, put the result into 'sample' subset
     |s|sand put all the rest into 'unsampled' subset, use 'train' subset |n
     |s|sas input. |n
+    .. code-block::
+
     |s|s%(prog)s \ |n
     |s|s|s|s--algorithm entropy \ |n
     |s|s|s|s--subset_name train \ |n

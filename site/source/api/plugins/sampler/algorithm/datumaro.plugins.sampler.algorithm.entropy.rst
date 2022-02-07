@@ -6,3 +6,4 @@ entropy module
    :undoc-members:
    :show-inheritance:
    :private-members:
+   :special-members:

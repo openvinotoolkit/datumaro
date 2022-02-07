@@ -18,9 +18,9 @@ class RandomSampler(Transform, CliPlugin):
     Sampler that keeps no more than required number of items in the dataset.|n
     |n
     Notes:|n
-    - Items are selected uniformly|n
-    - Requesting a sample larger than the number of all images will
-    return all images|n
+    |s|s- Items are selected uniformly|n|n
+    |s|s- Requesting a sample larger than the number of all images will
+        return all images|n
     |n
     Example: select subset of 20 images randomly|n
     |s|s%(prog)s -k 20 |n
@@ -97,16 +97,16 @@ class LabelRandomSampler(Transform, CliPlugin):
     the dataset.|n
     |n
     Notes:|n
-    - Items can contain annotations of several selected classes
-    (e.g. 3 bounding boxes per image). The number of annotations in the
-    resulting dataset varies between max(class counts) and sum(class counts)|n
-    - If the input dataset does not has enough class annotations, the result
-    will contain only what is available|n
-    - Items are selected uniformly|n
-    - For reasons above, the resulting class distribution in the dataset may
-    not be the same as requested|n
-    - The resulting dataset will only keep annotations for
-    classes with specified count > 0|n
+    |s|s- Items can contain annotations of several selected classes
+        (e.g. 3 bounding boxes per image). The number of annotations in the
+        resulting dataset varies between max(class counts) and sum(class counts)|n
+    |s|s- If the input dataset does not has enough class annotations, the result
+        will contain only what is available|n
+    |s|s- Items are selected uniformly|n
+    |s|s- For reasons above, the resulting class distribution in the dataset may
+        not be the same as requested|n
+    |s|s- The resulting dataset will only keep annotations for
+        classes with specified count > 0|n
     |n
     Example: select at least 5 annotations of each class randomly|n
     |s|s%(prog)s -k 5 |n

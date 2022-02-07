@@ -21,12 +21,17 @@ class SampleEntropy(InferenceResultAnalyzer):
     def __init__(self, data, inference):
         """
         Constructor function
+
         Args:
+
             data: Receive the data format in pd.DataFrame format.
-                    ImageID is an essential element for data.
+                  ImageID is an essential element for data.
+
             inference:
-                    Receive the inference format in the form of pd.DataFrame.
-                    ImageID and ClassProbability are essential for inferences.
+
+                Receive the inference format in the form of pd.DataFrame.
+
+                ImageID and ClassProbability are essential for inferences.
         """
         super().__init__(data, inference)
 
@@ -53,12 +58,14 @@ class SampleEntropy(InferenceResultAnalyzer):
         """
         A function that extracts sample data and returns it.
         Args:
+
             method:
-                - 'topk': It extracts the k sample data with the
-                    highest uncertainty.
-                - 'lowk':  It extracts the k sample data with the
-                    lowest uncertainty.
-                - 'randomk': Extract and return random k sample data.
+                - 'topk' - It extracts the k sample data with the
+                  highest uncertainty.
+                - 'lowk' - It extracts the k sample data with the
+                  lowest uncertainty.
+                - 'randomk' - Extract and return random k sample data.
+
             k: number of sample data
             n: Parameters to be used in the randtopk method, Variable to first
                 extract data of multiple n of k.

@@ -64,11 +64,15 @@ class Split(Transform, CliPlugin):
     |s|s|s|sGallery ratio would be 1.0 - query.|n
     |n
     Example:|n
+    .. code-block::
+
     |s|s%(prog)s -t classification --subset train:.5 --subset val:.2 --subset test:.3 |n
     |s|s%(prog)s -t detection --subset train:.5 --subset val:.2 --subset test:.3 |n
     |s|s%(prog)s -t segmentation --subset train:.5 --subset val:.2 --subset test:.3 |n
     |s|s%(prog)s -t reid --subset train:.5 --subset val:.2 --subset test:.3 --query .5 |n
     Example: use 'person_id' attribute for splitting|n
+    .. code-block::
+
     |s|s%(prog)s --attr person_id
     """
 
@@ -471,11 +475,11 @@ class _ReidentificationSplit(_TaskSpecificSplit):
     people or objects during the training phase. |n
     This function splits a dataset in the following way:|n
     |s|s1. Splits the dataset into 'train + val' and 'test' sets|n
-    |s|s|s|sbased on person or object ID.|n
+    |s|sbased on person or object ID.|n
     |s|s2. Splits 'test' set into 'test-gallery' and 'test-query' sets|n
-    |s|s|s|sin class-wise manner.|n
+    |s|sin class-wise manner.|n
     |s|s3. Splits the 'train + val' set into 'train' and 'val' sets|n
-    |s|s|s|sin the same way.|n
+    |s|sin the same way.|n
     The final subsets would be
     'train', 'val', 'test-gallery' and 'test-query'. |n
     |n
@@ -487,7 +491,9 @@ class _ReidentificationSplit(_TaskSpecificSplit):
     |s|s|s|sGallery ratio would be 1.0 - query.|n
     |n
     Example: split a dataset in the specified ratio, split the test set|n
-    |s|s|s|sinto gallery and query in 1:1 ratio|n
+    into gallery and query in 1:1 ratio|n
+    .. code-block::
+
     |s|s%(prog)s -t reidentification --subset train:.5 --subset val:.2 --subset test:.3 --query .5|n
     Example: use 'person_id' attribute for splitting|n
     |s|s%(prog)s --attr person_id
@@ -698,7 +704,9 @@ class _InstanceSpecificSplit(_TaskSpecificSplit):
     |s|s- Mask or Polygon annotations are considered in segmentation task.|n
     |n
     Example: split dataset so that each object class annotations were split|n
-    |s|s|s|sin the specified ratio between subsets|n
+    |s|sin the specified ratio between subsets|n
+    .. code-block::
+
     |s|s%(prog)s -t detection --subset train:.5 --subset val:.2 --subset test:.3 |n
     |s|s%(prog)s -t segmentation --subset train:.5 --subset val:.2 --subset test:.3
     """
