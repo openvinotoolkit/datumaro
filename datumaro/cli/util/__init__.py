@@ -9,12 +9,8 @@ import textwrap
 
 from tqdm import tqdm
 
-from datumaro.components.converter import (
-    AnnotationExportErrorAction, ExportErrorPolicy, ItemExportErrorAction,
-)
-from datumaro.components.extractor import (
-    ImportErrorPolicy, ItemImportErrorAction,
-)
+from datumaro.components.converter import ExportErrorPolicy
+from datumaro.components.extractor import ImportErrorPolicy
 from datumaro.components.progress_reporting import ProgressReporter
 
 
@@ -111,17 +107,13 @@ class CliProgressReporter(ProgressReporter):
 class RelaxedImportErrorPolicy(ImportErrorPolicy):
     def report_item_error(self, error):
         log.warning('Failed to import item: %s', error)
-        return ItemImportErrorAction.skip_item
 
     def report_annotation_error(self, error):
         log.warning('Failed to import annotation: %s', error)
-        return ItemImportErrorAction.skip
 
 class RelaxedExportErrorPolicy(ExportErrorPolicy):
     def report_item_error(self, error):
         log.warning('Failed to export item: %s', error)
-        return ItemExportErrorAction.skip_item
 
     def report_annotation_error(self, error):
         log.warning('Failed to export annotation: %s', error)
-        return AnnotationExportErrorAction.skip_annotation

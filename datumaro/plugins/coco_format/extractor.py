@@ -14,7 +14,7 @@ from datumaro.components.annotation import (
     Points, PointsCategories, Polygon, RleMask,
 )
 from datumaro.components.extractor import (
-    DEFAULT_SUBSET_NAME, DatasetItem, ItemImportErrorAction, SourceExtractor,
+    DEFAULT_SUBSET_NAME, DatasetItem, SourceExtractor,
 )
 from datumaro.components.media import Image
 from datumaro.util import parse_json_file, take_by
@@ -148,9 +148,8 @@ class _CocoExtractor(SourceExtractor):
                     annotations=[],
                     attributes={'id': img_id})
             except Exception as e:
-                error_action = self._report_item_error(e, item=img_id)
-                if error_action is ItemImportErrorAction.skip:
-                    continue
+                self._report_item_error(e, item_id=(img_id, self._subset))
+                continue
 
         if self._task is not CocoTask.panoptic:
             for ann in self._with_progress(json_data['annotations'],
@@ -159,9 +158,9 @@ class _CocoExtractor(SourceExtractor):
                     items[ann['image_id']].annotations += \
                         self._load_annotations(ann, img_infos[ann['image_id']])
                 except Exception as e:
-                    error_action = self._report_annotation_error(e, item=img_id)
-                    if error_action is ItemImportErrorAction.skip:
-                        continue
+                    self._report_annotation_error(e,
+                        item_id=(img_id, self._subset))
+                    continue
         else:
             self._load_panoptic_ann(items, json_data)
 

@@ -1,10 +1,9 @@
-# Copyright (C) 2019-2021 Intel Corporation
+# Copyright (C) 2019-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
-from enum import Enum, auto
 from tempfile import mkdtemp
-from typing import Iterable, NoReturn, Optional, TypeVar, Union
+from typing import Iterable, NoReturn, Optional, Tuple, TypeVar, Union
 import logging as log
 import os
 import os.path as osp
@@ -28,22 +27,24 @@ T = TypeVar('T')
 class _ExportFail(DatumaroError):
     pass
 
-class ItemExportErrorAction(Enum):
-    skip_item = auto()
-
-class AnnotationExportErrorAction(Enum):
-    skip_item = auto()
-    skip_annotation = auto()
-
 class ExportErrorPolicy:
-    def report_item_error(self,
-            error: ItemExportError
-    ) -> Union[ItemExportErrorAction, NoReturn]:
+    def report_item_error(self, error: ItemExportError) -> Optional[NoReturn]:
+        """
+        Allows to report a problem with a dataset item.
+
+        This function must either call fail() or return. If this function
+        returns, the converter must skip the item.
+        """
         raise NotImplementedError
 
     def report_annotation_error(self,
-            error: AnnotationExportError
-    ) -> Union[AnnotationExportErrorAction, NoReturn]:
+            error: AnnotationExportError) -> Optional[NoReturn]:
+        """
+        Allows to report a problem with a dataset item annotation.
+
+        This function must either call fail() or return. If this function
+        returns, the converter must skip the annotation.
+        """
         raise NotImplementedError
 
     def fail(self, error: Exception) -> NoReturn:
@@ -203,12 +204,18 @@ class Converter(CliPlugin):
         else:
             yield from iterable
 
-    def _report_item_error(self, error: ItemExportError):
+    def _report_item_error(self, error: Exception, *,
+            item_id: Tuple[str, str]) -> Optional[NoReturn]:
         if self._ctx and self._ctx.error_policy:
-            return self._ctx.error_policy.report_item_error(error)
+            ie = ItemExportError(item_id)
+            ie.__cause__ = error
+            return self._ctx.error_policy.report_item_error(ie)
         raise _ExportFail from error
 
-    def _report_annotation_error(self, error: AnnotationExportError):
+    def _report_annotation_error(self, error: Exception, *,
+            item_id: Tuple[str, str]) -> Optional[NoReturn]:
         if self._ctx and self._ctx.error_policy:
-            return self._ctx.error_policy.report_annotation_error(error)
+            ie = AnnotationExportError(item_id)
+            ie.__cause__ = error
+            return self._ctx.error_policy.report_annotation_error(ie)
         raise _ExportFail from error

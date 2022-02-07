@@ -4,11 +4,10 @@
 
 from __future__ import annotations
 
-from enum import Enum, auto
 from glob import iglob
 from typing import (
-    Any, Callable, Dict, Iterable, Iterator, List, NoReturn, Optional, TypeVar,
-    Union,
+    Any, Callable, Dict, Iterable, Iterator, List, NoReturn, Optional, Tuple,
+    TypeVar,
 )
 import os
 import os.path as osp
@@ -182,18 +181,24 @@ T = TypeVar('T')
 class _ImportFail(DatumaroError):
     pass
 
-class ItemImportErrorAction(Enum):
-    skip = auto()
-
 class ImportErrorPolicy:
-    def report_item_error(self,
-            error: ItemImportError
-    ) -> Union[ItemImportErrorAction, NoReturn]:
+    def report_item_error(self, error: ItemImportError) -> Optional[NoReturn]:
+        """
+        Allows to report a problem with a dataset item.
+
+        This function must either call fail() or return. If this function
+        returns, the extractor must skip the item.
+        """
         raise NotImplementedError
 
     def report_annotation_error(self,
-            error: AnnotationImportError
-    ) -> Union[ItemImportErrorAction, NoReturn]:
+            error: AnnotationImportError) -> Optional[NoReturn]:
+        """
+        Allows to report a problem with a dataset item annotation.
+
+        This function must either call fail() or return. If this function
+        returns, the extractor must skip the annotation.
+        """
         raise NotImplementedError
 
     def fail(self, error: Exception) -> NoReturn:
@@ -226,18 +231,20 @@ class Extractor(_ExtractorBase, CliPlugin):
         else:
             yield from iterable
 
-    def _report_item_error(self, error: DatumaroError, item: str):
+    def _report_item_error(self, error: Exception, *,
+            item_id: Tuple[str, str]) -> Optional[NoReturn]:
         if self._ctx and self._ctx.error_policy:
-            ie = ItemImportError(item)
+            ie = ItemImportError(item_id)
             ie.__cause__ = error
             return self._ctx.error_policy.report_item_error(ie)
         raise _ImportFail from error
 
-    def _report_annotation_error(self, error: DatumaroError, item: str):
+    def _report_annotation_error(self, error: Exception, *,
+            item_id: Tuple[str, str]) -> Optional[NoReturn]:
         if self._ctx and self._ctx.error_policy:
-            ae = AnnotationImportError(item)
-            ae.__cause__ = error
-            return self._ctx.error_policy.report_annotation_error(ae)
+            ie = AnnotationImportError(item_id)
+            ie.__cause__ = error
+            return self._ctx.error_policy.report_annotation_error(ie)
         raise _ImportFail from error
 
 class SourceExtractor(Extractor):
