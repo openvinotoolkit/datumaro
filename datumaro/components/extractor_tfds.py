@@ -168,6 +168,16 @@ _CIFAR_ADAPTER = _TfdsAdapter(
     metadata=TfdsDatasetMetadata(default_converter_name='cifar'),
 )
 
+_IMAGENET_ADAPTER = _TfdsAdapter(
+    category_transformers=[_SetLabelCategoriesFromClassLabelFeature('label')],
+    data_transformers=[
+        _SetImageFromImageFeature('image', filename_feature_name='file_name'),
+        _AddLabelFromClassLabelFeature('label'),
+    ],
+    id_generator=_GenerateIdFromFilenameFeature('file_name'),
+    metadata=TfdsDatasetMetadata(default_converter_name='imagenet_txt'),
+)
+
 _VOC_ADAPTER = _TfdsAdapter(
     category_transformers=[_SetLabelCategoriesFromClassLabelFeature(
         ('objects', 'feature', 'label'))],
@@ -183,6 +193,7 @@ _VOC_ADAPTER = _TfdsAdapter(
 _TFDS_ADAPTERS = {
     'cifar10': _CIFAR_ADAPTER,
     'cifar100': _CIFAR_ADAPTER,
+    'imagenet_v2': _IMAGENET_ADAPTER,
     'mnist': _MNIST_ADAPTER,
     'voc/2012': _VOC_ADAPTER,
 }
