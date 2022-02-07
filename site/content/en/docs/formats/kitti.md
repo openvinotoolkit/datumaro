@@ -140,9 +140,9 @@ datum convert -if kitti -i <path/to/kitti> -f cityscapes -o <output/dir>
 Or, using Python API:
 
 ```python
-from datumaro.components.dataset import Dataset
+import datumaro as dm
 
-dataset = Dataset.import_from('<path/to/dataset>', 'kitti')
+dataset = dm.Dataset.import_from('<path/to/dataset>', 'kitti')
 dataset.export('save_dir', 'cityscapes', save_images=True)
 ```
 
@@ -216,9 +216,7 @@ datum export -p project -f cityscapes -- --save-images
 
 ```python
 import numpy as np
-from datumaro.components.annotation import Mask
-from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import DatasetItem
+import datumaro as dm
 
 import datumaro.plugins.kitti_format as KITTI
 
@@ -228,13 +226,13 @@ label_map['label_1'] = (1, 2, 3)
 label_map['label_2'] = (3, 2, 1)
 categories = KITTI.make_kitti_categories(label_map)
 
-dataset = Dataset.from_iterable([
-  DatasetItem(id=1,
+dataset = dm.Dataset.from_iterable([
+  dm.DatasetItem(id=1,
     image=np.ones((1, 5, 3)),
     annotations=[
-      Mask(image=np.array([[1, 0, 0, 1, 1]]), label=1, id=0,
+      dm.Mask(image=np.array([[1, 0, 0, 1, 1]]), label=1, id=0,
         attributes={'is_crowd': False}),
-      Mask(image=np.array([[0, 1, 1, 0, 0]]), label=2, id=0,
+      dm.Mask(image=np.array([[0, 1, 1, 0, 0]]), label=2, id=0,
         attributes={'is_crowd': False}),
     ]
   ),

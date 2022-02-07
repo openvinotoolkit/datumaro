@@ -10,6 +10,8 @@ annotation module
       :special-members:
       :show-inheritance:
 
+   .. autodata:: NO_GROUP
+
    .. autoclass:: Annotation
       :members: type, wrap, __eq__, __init__
       :undoc-members:
@@ -81,6 +83,9 @@ annotation module
 
       .. py:data:: label: int
 
+   .. autodata:: RgbColor
+   .. autodata:: Colormap
+
    .. autoclass:: MaskCategories
       :members: inverse_colormap, __contains__, __getitem__, __len__, __eq__, __init__
       :undoc-members:
@@ -91,6 +96,10 @@ annotation module
       .. automethod:: generate
 
          .. py:data:: colormap: Colormap
+
+
+   .. autodata:: BinaryMaskImage = np.ndarray
+   .. autodata:: IndexMaskImage = np.ndarray
 
    .. autoclass:: Mask
       :members: image, as_class_mask, as_instance_mask, get_area, get_bbox, paint, __eq__, __init__
@@ -116,6 +125,8 @@ annotation module
       .. py:data:: CompiledMaskImage
 
          2d of integers (of different precision)
+
+   .. autodata:: CompiledMaskImage = np.ndarray
 
    .. autoclass:: CompiledMask
       :members:

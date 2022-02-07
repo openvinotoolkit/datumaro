@@ -1,10 +1,9 @@
-# Copyright (C) 2020-2021 Intel Corporation
+# Copyright (C) 2020-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 from enum import Enum, auto
 from itertools import chain, groupby
-import json
 import logging as log
 import os
 import os.path as osp
@@ -17,7 +16,7 @@ from datumaro.components.annotation import (
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.extractor import DatasetItem
-from datumaro.util import cast, find, str_to_bool
+from datumaro.util import cast, dump_json_file, find, str_to_bool
 from datumaro.util.image import save_image
 import datumaro.util.annotation_util as anno_tools
 import datumaro.util.mask_tools as mask_tools
@@ -95,8 +94,7 @@ class _TaskConverter:
                 ann['id'] = next_id
                 next_id += 1
 
-        with open(path, 'w', encoding='utf-8') as outfile:
-            json.dump(self._data, outfile, ensure_ascii=False)
+        dump_json_file(path, self._data)
 
     @property
     def annotations(self):
@@ -456,8 +454,7 @@ class _StuffConverter(_InstancesConverter):
 
 class _PanopticConverter(_TaskConverter):
     def write(self, path):
-        with open(path, 'w', encoding='utf-8') as outfile:
-            json.dump(self._data, outfile, ensure_ascii=False)
+        dump_json_file(path, self._data)
 
     def save_categories(self, dataset):
         label_categories = dataset.categories().get(AnnotationType.label)

@@ -3,7 +3,7 @@ dataset module
 
 .. automodule:: datumaro.components.dataset
 
-   .. py:data:: IDataset = IExtractor
+   .. autodata:: IDataset
 
    .. autoclass:: DatasetItemStorage
       :members:
@@ -71,4 +71,4 @@ dataset module
       :special-members:
       :show-inheritance:
 
-   .. py:function:: eager_mode
+   .. autofunction:: eager_mode

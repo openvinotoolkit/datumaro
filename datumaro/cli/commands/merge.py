@@ -1,10 +1,9 @@
-# Copyright (C) 2020-2021 Intel Corporation
+# Copyright (C) 2020-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 from collections import OrderedDict
 import argparse
-import json
 import logging as log
 import os
 import os.path as osp
@@ -17,6 +16,7 @@ from datumaro.components.errors import (
 from datumaro.components.extractor import ImportContext
 from datumaro.components.operations import IntersectMerge
 from datumaro.components.project import ProjectBuildTargets
+from datumaro.util import dump_json_file
 from datumaro.util.scope import scope_add, scoped
 
 from ..util import CliProgressReporter, MultilineFormatter, join_cli_args
@@ -221,7 +221,7 @@ def save_merge_report(merger, path):
             item_errors[str(e.item_id)] = item_errors.get(str(e.item_id), 0) + 1
         elif isinstance(e, DatasetMergeError):
             for s in e.sources:
-                source_errors[s] = source_errors.get(s, 0) + 1
+                source_errors[str(s)] = source_errors.get(s, 0) + 1
             item_errors[str(e.item_id)] = item_errors.get(str(e.item_id), 0) + 1
 
         all_errors.append(str(e))
@@ -232,5 +232,4 @@ def save_merge_report(merger, path):
         ('All errors', all_errors),
     ])
 
-    with open(path, 'w', encoding='utf-8') as f:
-        json.dump(errors, f, indent=4)
+    dump_json_file(path, errors, indent=True)

@@ -68,15 +68,16 @@ dataset.select(lambda item: len(item.annotations) != 0)
 
 # change dataset labels
 dataset.transform('remap_labels',
-  mapping={
-    'cat': 'dog', # rename cat to dog
-    'truck': 'car', # rename truck to car
-    'person': '', # remove this label
-  }, default='delete') # remove everything else
+    mapping={
+        'cat': 'dog', # rename cat to dog
+        'truck': 'car', # rename truck to car
+        'person': '', # remove this label
+    },
+    default='delete') # remove everything else
 
 # iterate over dataset elements
 for item in dataset:
-  print(item.id, item.annotations)
+    print(item.id, item.annotations)
 
 # export the resulting dataset in COCO format
 dataset.export('dst/dir', 'coco')
@@ -84,6 +85,8 @@ dataset.export('dst/dir', 'coco')
 # optionally, release the project resources
 project.close()
 ```
+
+[List of components](/api/api/datumaro.html) with the comfortable importing.
 
 > Check our [developer manual](/docs/developer_manual/) for additional
   information.
