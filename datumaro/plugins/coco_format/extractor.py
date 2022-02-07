@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: MIT
 
 from typing import Any
-import json
 import logging as log
 import os.path as osp
 
@@ -18,7 +17,7 @@ from datumaro.components.extractor import (
     DEFAULT_SUBSET_NAME, DatasetItem, SourceExtractor,
 )
 from datumaro.components.media import Image
-from datumaro.util import take_by
+from datumaro.util import parse_json_file, take_by
 from datumaro.util.image import lazy_image, load_image
 from datumaro.util.mask_tools import bgr2index
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
@@ -59,7 +58,7 @@ class _CocoExtractor(SourceExtractor):
 
         self._merge_instance_polygons = merge_instance_polygons
 
-        json_data = self._load_json(path)
+        json_data = parse_json_file(path)
         self._label_map = {} # coco_id -> dm_id
         self._load_categories(json_data,
             keep_original_ids=keep_original_category_ids,
@@ -125,11 +124,6 @@ class _CocoExtractor(SourceExtractor):
             )
 
         self._categories[AnnotationType.points] = categories
-
-    @staticmethod
-    def _load_json(path):
-        with open(path, 'rb') as f:
-            return json.loads(f.read())
 
     def _load_items(self, json_data):
         items = {}
