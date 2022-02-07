@@ -23,8 +23,14 @@ class RandomSampler(Transform, CliPlugin):
         return all images|n
     |n
     Example: select subset of 20 images randomly|n
+
+    .. code-block::
+
     |s|s%(prog)s -k 20 |n
     Example: select subset of 20 images, modify only 'train' subset|n
+
+    .. code-block::
+
     |s|s%(prog)s -k 20 -s train
     """
 
@@ -109,8 +115,14 @@ class LabelRandomSampler(Transform, CliPlugin):
         classes with specified count > 0|n
     |n
     Example: select at least 5 annotations of each class randomly|n
+
+    .. code-block::
+
     |s|s%(prog)s -k 5 |n
     Example: select at least 5 images with "cat" annotations and 3 "person"|n
+
+    .. code-block::
+
     |s|s%(prog)s -l "cat:5" -l "person:3"
     """
 

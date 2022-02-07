@@ -64,6 +64,7 @@ class Split(Transform, CliPlugin):
     |s|s|s|sGallery ratio would be 1.0 - query.|n
     |n
     Example:|n
+
     .. code-block::
 
     |s|s%(prog)s -t classification --subset train:.5 --subset val:.2 --subset test:.3 |n
@@ -71,6 +72,7 @@ class Split(Transform, CliPlugin):
     |s|s%(prog)s -t segmentation --subset train:.5 --subset val:.2 --subset test:.3 |n
     |s|s%(prog)s -t reid --subset train:.5 --subset val:.2 --subset test:.3 --query .5 |n
     Example: use 'person_id' attribute for splitting|n
+
     .. code-block::
 
     |s|s%(prog)s --attr person_id
@@ -421,6 +423,9 @@ class _ClassificationSplit(_TaskSpecificSplit):
       the split ratio can't be guaranteed.|n
     |n
     Example:|n
+
+    .. code-block::
+
     |s|s%(prog)s -t classification --subset train:.5 --subset val:.2 --subset test:.3
     """
 
@@ -492,10 +497,14 @@ class _ReidentificationSplit(_TaskSpecificSplit):
     |n
     Example: split a dataset in the specified ratio, split the test set|n
     into gallery and query in 1:1 ratio|n
+
     .. code-block::
 
     |s|s%(prog)s -t reidentification --subset train:.5 --subset val:.2 --subset test:.3 --query .5|n
     Example: use 'person_id' attribute for splitting|n
+
+    .. code-block::
+
     |s|s%(prog)s --attr person_id
     """
 
