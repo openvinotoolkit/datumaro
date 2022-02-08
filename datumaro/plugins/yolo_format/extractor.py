@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2021 Intel Corporation
+# Copyright (C) 2019-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -39,8 +39,8 @@ class YoloExtractor(SourceExtractor):
         def categories(self):
             return self._parent.categories()
 
-    def __init__(self, config_path, image_info=None):
-        super().__init__()
+    def __init__(self, config_path, image_info=None, **kwargs):
+        super().__init__(**kwargs)
 
         if not osp.isfile(config_path):
             raise Exception("Can't read dataset descriptor file '%s'" %
@@ -187,8 +187,9 @@ class YoloExtractor(SourceExtractor):
         return label_categories
 
     def __iter__(self):
-        for subset in self._subsets.values():
-            for item in subset:
+        for subset_name, subset in self._subsets.items():
+            for item in self._with_progress(subset,
+                    desc=f"Parsing '{subset_name}'"):
                 yield item
 
     def __len__(self):

@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2021 Intel Corporation
+# Copyright (C) 2019-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -62,7 +62,8 @@ class YoloConverter(Converter):
 
             image_paths = OrderedDict()
 
-            for item in subset:
+            for item in self._with_progress(subset,
+                    desc=f"Exporting '{subset_name}'"):
                 if not item.has_image:
                     raise Exception("Failed to export item '%s': "
                         "item has no image info" % item.id)
