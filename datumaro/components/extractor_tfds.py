@@ -11,7 +11,7 @@ import itertools
 import logging as log
 import os.path as osp
 
-from attr import attrib, attrs
+from attrs import field, frozen
 
 from datumaro.components.annotation import (
     AnnotationType, Bbox, Label, LabelCategories,
@@ -32,16 +32,16 @@ except ImportError:
 else:
     TFDS_EXTRACTOR_AVAILABLE = True
 
-@attrs(auto_attribs=True)
+@frozen
 class TfdsDatasetMetadata:
     default_converter_name: str
 
-@attrs(auto_attribs=True)
+@frozen
 class _TfdsAdapter:
     category_transformers: Sequence[
         Callable[['tfds.core.DatasetBuilder', CategoriesInfo], None]]
     data_transformers: Sequence[Callable[[Any, DatasetItem], None]]
-    id_generator: Callable[[Any], str] = attrib(default=None, kw_only=True)
+    id_generator: Callable[[Any], str] = field(default=None, kw_only=True)
 
     metadata: TfdsDatasetMetadata
 
@@ -55,7 +55,7 @@ class _TfdsAdapter:
         for t in self.data_transformers:
             t(tfds_example, item)
 
-@attrs(auto_attribs=True)
+@frozen
 class _SetLabelCategoriesFromClassLabelFeature:
     feature_path: Union[str, Tuple[str, ...]]
 
@@ -83,10 +83,10 @@ class _SetLabelCategoriesFromClassLabelFeature:
         categories[AnnotationType.label] = LabelCategories.from_iterable(
             feature_connector.names)
 
-@attrs(auto_attribs=True)
+@frozen
 class _SetImageFromImageFeature:
     feature_name: str
-    filename_feature_name: Optional[str] = attrib(default=None)
+    filename_feature_name: Optional[str] = field(default=None)
 
     def __call__(self, tfds_example: Any, item: DatasetItem) -> None:
         if self.filename_feature_name:
@@ -98,7 +98,7 @@ class _SetImageFromImageFeature:
         item.image = ByteImage(data=tfds_example[self.feature_name].numpy(),
             path=filename)
 
-@attrs(auto_attribs=True)
+@frozen
 class _AddLabelFromClassLabelFeature:
     feature_name: str
 
@@ -107,11 +107,11 @@ class _AddLabelFromClassLabelFeature:
             Label(tfds_example[self.feature_name].numpy()),
         )
 
-@attrs(auto_attribs=True)
+@frozen
 class _AddObjectsFromFeature:
     feature_name: str
     bbox_member: str
-    label_member: Optional[str] = attrib(default=None, kw_only=True)
+    label_member: Optional[str] = field(default=None, kw_only=True)
 
     def __call__(self, tfds_example: Any, item: DatasetItem) -> None:
         tfds_objects = tfds_example[self.feature_name]
@@ -134,14 +134,14 @@ class _AddObjectsFromFeature:
             if tfds_labels is not None:
                 item.annotations[-1].label = tfds_labels[i].numpy()
 
-@attrs(auto_attribs=True)
+@frozen
 class _GenerateIdFromTextFeature:
     feature_name: str
 
     def __call__(self, tfds_example: Any) -> str:
         return tfds_example[self.feature_name].numpy().decode('UTF-8')
 
-@attrs(auto_attribs=True)
+@frozen
 class _GenerateIdFromFilenameFeature:
     feature_name: str
 
@@ -168,6 +168,16 @@ _CIFAR_ADAPTER = _TfdsAdapter(
     metadata=TfdsDatasetMetadata(default_converter_name='cifar'),
 )
 
+_IMAGENET_ADAPTER = _TfdsAdapter(
+    category_transformers=[_SetLabelCategoriesFromClassLabelFeature('label')],
+    data_transformers=[
+        _SetImageFromImageFeature('image', filename_feature_name='file_name'),
+        _AddLabelFromClassLabelFeature('label'),
+    ],
+    id_generator=_GenerateIdFromFilenameFeature('file_name'),
+    metadata=TfdsDatasetMetadata(default_converter_name='imagenet_txt'),
+)
+
 _VOC_ADAPTER = _TfdsAdapter(
     category_transformers=[_SetLabelCategoriesFromClassLabelFeature(
         ('objects', 'feature', 'label'))],
@@ -183,6 +193,7 @@ _VOC_ADAPTER = _TfdsAdapter(
 _TFDS_ADAPTERS = {
     'cifar10': _CIFAR_ADAPTER,
     'cifar100': _CIFAR_ADAPTER,
+    'imagenet_v2': _IMAGENET_ADAPTER,
     'mnist': _MNIST_ADAPTER,
     'voc/2012': _VOC_ADAPTER,
 }

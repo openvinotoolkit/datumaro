@@ -1,4 +1,5 @@
 from unittest.case import TestCase, skipIf
+import os.path as osp
 
 import numpy as np
 
@@ -9,7 +10,8 @@ from datumaro.components.extractor import DatasetItem
 from datumaro.components.extractor_tfds import (
     AVAILABLE_TFDS_DATASETS, TFDS_EXTRACTOR_AVAILABLE, make_tfds_extractor,
 )
-from datumaro.util.image import encode_image
+from datumaro.components.media import Image
+from datumaro.util.image import decode_image, encode_image
 from datumaro.util.test_utils import compare_datasets, mock_tfds_data
 
 from tests.requirements import Requirements, mark_requirement
@@ -97,6 +99,38 @@ class TfdsExtractorTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_extract_cifar100(self):
         self._test_can_extract_cifar('cifar100')
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_extract_imagenet_v2(self):
+        with mock_tfds_data():
+            tfds_ds, tfds_info = tfds.load(
+                'imagenet_v2', split='train', with_info=True,
+                # We can't let TFDS decode the image for us, because:
+                # a) imagenet_v2 produces JPEG-encoded images;
+                # b) TFDS decodes them via TensorFlow;
+                # c) Datumaro decodes them via OpenCV.
+                # So for the decoded results to match, we have to decode
+                # them via OpenCV as well.
+                decoders={'image': tfds.decode.SkipDecoding()})
+            tfds_example = next(iter(tfds_ds))
+
+            example_file_name = tfds_example['file_name'].numpy().decode('UTF-8')
+
+            expected_dataset = Dataset.from_iterable([
+                DatasetItem(id=osp.splitext(example_file_name)[0], subset='train',
+                    image=Image(
+                        data=decode_image(tfds_example['image'].numpy()),
+                        path=example_file_name,
+                    ),
+                    annotations=[Label(tfds_example['label'].numpy())],
+                ),
+            ], categories=tfds_info.features['label'].names)
+
+            extractor = make_tfds_extractor('imagenet_v2')
+            actual_dataset = Dataset(extractor)
+
+            compare_datasets(self, expected_dataset, actual_dataset,
+                require_images=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_extract_voc(self):
