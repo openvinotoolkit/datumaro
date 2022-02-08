@@ -233,7 +233,8 @@ class Extractor(_ExtractorBase, CliPlugin):
 
     def _report_item_error(self, error: Exception, *,
             item_id: Tuple[str, str]) -> Optional[NoReturn]:
-        if self._ctx and self._ctx.error_policy:
+        if self._ctx and self._ctx.error_policy and \
+                not isinstance(error, _ImportFail):
             ie = ItemImportError(item_id)
             ie.__cause__ = error
             return self._ctx.error_policy.report_item_error(ie)
@@ -241,7 +242,8 @@ class Extractor(_ExtractorBase, CliPlugin):
 
     def _report_annotation_error(self, error: Exception, *,
             item_id: Tuple[str, str]) -> Optional[NoReturn]:
-        if self._ctx and self._ctx.error_policy:
+        if self._ctx and self._ctx.error_policy and \
+                not isinstance(error, _ImportFail):
             ie = AnnotationImportError(item_id)
             ie.__cause__ = error
             return self._ctx.error_policy.report_annotation_error(ie)

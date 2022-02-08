@@ -206,7 +206,8 @@ class Converter(CliPlugin):
 
     def _report_item_error(self, error: Exception, *,
             item_id: Tuple[str, str]) -> Optional[NoReturn]:
-        if self._ctx and self._ctx.error_policy:
+        if self._ctx and self._ctx.error_policy and \
+                not isinstance(error, _ExportFail):
             ie = ItemExportError(item_id)
             ie.__cause__ = error
             return self._ctx.error_policy.report_item_error(ie)
@@ -214,7 +215,8 @@ class Converter(CliPlugin):
 
     def _report_annotation_error(self, error: Exception, *,
             item_id: Tuple[str, str]) -> Optional[NoReturn]:
-        if self._ctx and self._ctx.error_policy:
+        if self._ctx and self._ctx.error_policy and \
+                not isinstance(error, _ExportFail):
             ie = AnnotationExportError(item_id)
             ie.__cause__ = error
             return self._ctx.error_policy.report_annotation_error(ie)
