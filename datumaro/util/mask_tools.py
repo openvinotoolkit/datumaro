@@ -85,6 +85,7 @@ def paint_mask(mask, colormap=None):
     Applies colormap to index mask
 
     mask: HW(C) [0; max_index] mask
+
     colormap: index -> (R, G, B)
     """
     check_is_mask(mask)
@@ -301,6 +302,7 @@ def merge_masks(masks, start=None):
         a generator.
 
         Inputs: a sequence of index masks or (binary mask, index) pairs
+
         Outputs: an index mask
     """
     if start is not None:

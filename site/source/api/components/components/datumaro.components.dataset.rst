@@ -59,6 +59,7 @@ dataset module
          Cases:
             1. Has source and patch
             2. Has source, transforms and patch
+
                a. Transforms affect only an item (i.e. they are local)
                b. Transforms affect whole dataset
 

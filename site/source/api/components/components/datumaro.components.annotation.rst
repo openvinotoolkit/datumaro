@@ -122,9 +122,9 @@ annotation module
 
          uses pycocotools RLE representation
 
-      .. py:data:: CompiledMaskImage
+   .. py:data:: CompiledMaskImage
 
-         2d of integers (of different precision)
+      2d of integers (of different precision)
 
    .. autodata:: CompiledMaskImage = np.ndarray
 

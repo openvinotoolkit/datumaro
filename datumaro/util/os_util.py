@@ -212,8 +212,11 @@ def generate_next_name(names: Iterable[str], basename: str,
 
     Inputs:
         name_abc
+
         name_base
+
         name_base1
+
         name_base5
 
     Basename: name_base

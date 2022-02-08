@@ -23,8 +23,8 @@ def expand(array, axis=None):
 class RISE:
     """
     Implements RISE: Randomized Input Sampling for
-    Explanation of Black-box Models algorithm
-    See explanations at: https://arxiv.org/pdf/1806.07421.pdf
+    explanation of Black-box Models algorithm
+    see explanations at: https://arxiv.org/pdf/1806.07421.pdf
     """
 
     def __init__(self, model,
