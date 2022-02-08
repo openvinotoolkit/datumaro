@@ -5,12 +5,12 @@
 from collections import OrderedDict, defaultdict
 from enum import Enum, auto
 from itertools import chain
+from typing import Dict, Optional, Set
 import logging as log
 import os
 import os.path as osp
-from typing import Dict, Optional, Set
-from attrs import define, field
 
+from attrs import define, field
 # Disable B410: import_lxml - the library is used for writing
 from lxml import etree as ET  # nosec
 

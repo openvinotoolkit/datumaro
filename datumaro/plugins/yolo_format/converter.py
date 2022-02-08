@@ -65,7 +65,7 @@ class YoloConverter(Converter):
             for item in self._with_progress(subset,
                     desc=f"Exporting '{subset_name}'"):
                 try:
-                    if not item.has_image or not item.image.has_data:
+                    if not item.has_image or not (item.image.has_data or item.image.has_size):
                         raise Exception("Failed to export item '%s': "
                             "item has no image info" % item.id)
                     height, width = item.image.size

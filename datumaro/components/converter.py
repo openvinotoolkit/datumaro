@@ -15,7 +15,7 @@ from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.errors import (
     AnnotationExportError, DatumaroError, ItemExportError,
 )
-from datumaro.components.extractor import DatasetItem
+from datumaro.components.extractor import DatasetItem, IExtractor
 from datumaro.components.media import Image
 from datumaro.components.progress_reporting import ProgressReporter
 from datumaro.util.meta_file_util import save_meta_file
@@ -109,8 +109,11 @@ class Converter(CliPlugin):
     def apply(self):
         raise NotImplementedError("Should be implemented in a subclass")
 
-    def __init__(self, extractor, save_dir, save_images=False,
-            image_ext=None, default_image_ext=None, save_dataset_meta=False,
+    def __init__(self, extractor: IExtractor, save_dir: str, *,
+            save_images: bool = False,
+            image_ext: Optional[str] = None,
+            default_image_ext: Optional[str] = None,
+            save_dataset_meta: bool = False,
             ctx: Optional[ExportContext] = None):
         default_image_ext = default_image_ext or self.DEFAULT_IMAGE_EXT
         assert default_image_ext
