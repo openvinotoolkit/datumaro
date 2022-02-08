@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2021 Intel Corporation
+# Copyright (C) 2020-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -175,7 +175,8 @@ class VocConverter(Converter):
             layout_list = OrderedDict()
             segm_list = OrderedDict()
 
-            for item in subset:
+            for item in self._with_progress(subset,
+                    desc=f"Exporting '{subset_name}'"):
                 log.debug("Converting item '%s'", item.id)
 
                 image_filename = self._make_image_filename(item)
