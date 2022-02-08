@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 import argparse
+from enum import Enum, auto
 import logging as log
 import os.path as osp
 import sys
@@ -16,6 +17,8 @@ from ..version import VERSION
 from . import commands, contexts
 from .util import add_subparser
 from .util.errors import CliException
+from datumaro.util import str_to_bool
+
 
 _log_levels = {
     'debug': log.DEBUG,
@@ -46,6 +49,14 @@ class _LogManager:
                 (', '.join(_log_levels.keys()), "%(default)s"))
         return parser
 
+class ErrorPolicy(Enum):
+    # primary
+    fail = auto()
+    skip = auto()
+
+    # shortcuts
+    f = fail
+    s = skip
 
 def _make_subcommands_help(commands, help_line_start=0):
     desc = ""
@@ -115,6 +126,14 @@ def make_parser():
 
     parser.add_argument('--version', action='version', version=VERSION)
     _LogManager._define_loglevel_option(parser)
+    parser.add_argument('--ui', type=str_to_bool, default='on',
+        dest='allow_ui',
+        help="Allows to turn user interaction on and off. "
+            "Useful in automation scripts (default: %(default)s)")
+    parser.add_argument('--ep', '--error-policy', choices=['fail', 'skip'],
+        default='fail', dest='error_policy',
+        help="Allows to control dataset error handling policy "
+            "(default: %(default)s)")
 
     known_contexts = _get_known_contexts()
     known_commands = _get_known_commands()

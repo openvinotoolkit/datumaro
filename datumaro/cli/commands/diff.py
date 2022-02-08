@@ -16,7 +16,7 @@ from datumaro.util.os_util import rmtree
 from datumaro.util.scope import on_error_do, scope_add, scoped
 
 from ..contexts.project.diff import DiffVisualizer
-from ..util import CliProgressReporter, MultilineFormatter
+from ..util import CliProgressReporter, MultilineFormatter, RelaxedImportErrorPolicy
 from ..util.errors import CliException
 from ..util.project import (
     generate_next_file_name, load_project, parse_full_revpath,
@@ -161,22 +161,29 @@ def diff_command(args):
             raise
 
     try:
-        ctx = ImportContext(progress_reporter=CliProgressReporter())
+        progress_reporter = CliProgressReporter()
+        error_policy = RelaxedImportErrorPolicy()
 
         if not args.second_target:
             first_dataset = project.working_tree.make_dataset()
             second_dataset, target_project = \
-                parse_full_revpath(args.first_target, project, ctx=ctx)
+                parse_full_revpath(args.first_target, project,
+                    progress_reporter=progress_reporter,
+                    error_policy=error_policy)
             if target_project:
                 scope_add(target_project)
         else:
             first_dataset, target_project = \
-                parse_full_revpath(args.first_target, project, ctx=ctx)
+                parse_full_revpath(args.first_target, project,
+                    progress_reporter=progress_reporter,
+                    error_policy=error_policy)
             if target_project:
                 scope_add(target_project)
 
             second_dataset, target_project = \
-                parse_full_revpath(args.second_target, project, ctx=ctx)
+                parse_full_revpath(args.second_target, project,
+                    progress_reporter=progress_reporter,
+                    error_policy=error_policy)
             if target_project:
                 scope_add(target_project)
     except Exception as e:

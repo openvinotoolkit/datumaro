@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-from enum import Enum
+from enum import Enum, auto
 import argparse
 import logging as log
 import os
@@ -30,16 +30,16 @@ from ...util.project import (
 
 class FilterModes(Enum):
     # primary
-    items = 1
-    annotations = 2
-    items_annotations = 3
+    items = auto()
+    annotations = auto()
+    items_annotations = auto()
 
     # shortcuts
-    i = 1
-    a = 2
-    i_a = 3
-    a_i = 3
-    annotations_items = 3
+    i = items
+    a = annotations
+    i_a = items_annotations
+    a_i = items_annotations
+    annotations_items = items_annotations
 
     @staticmethod
     def parse(s):

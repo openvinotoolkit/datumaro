@@ -31,10 +31,10 @@ def generate_next_file_name(basename, basedir='.', sep='.', ext=''):
     return generate_next_name(os.listdir(basedir), basename, sep, ext)
 
 def parse_dataset_pathspec(s: str, *,
-        env: Optional[Environment] = None,
-        progress_reporter: Optional[ProgressReporter] = None,
-        error_policy: Optional[ImportErrorPolicy] = None,
-    ) -> Dataset:
+    env: Optional[Environment] = None,
+    progress_reporter: Optional[ProgressReporter] = None,
+    error_policy: Optional[ImportErrorPolicy] = None,
+) -> Dataset:
     """
     Parses Dataset paths. The syntax is:
         - <dataset path>[ :<format> ]
