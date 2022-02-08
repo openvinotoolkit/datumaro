@@ -149,7 +149,6 @@ class _CocoExtractor(SourceExtractor):
                     attributes={'id': img_id})
             except Exception as e:
                 self._report_item_error(e, item_id=(img_id, self._subset))
-                continue
 
         if self._task is not CocoTask.panoptic:
             for ann in self._with_progress(json_data['annotations'],
@@ -162,7 +161,6 @@ class _CocoExtractor(SourceExtractor):
                 except Exception as e:
                     self._report_annotation_error(e,
                         item_id=(img_id, self._subset))
-                    continue
         else:
             for ann in self._with_progress(json_data['annotations'],
                     desc='Parsing annotations'):
@@ -173,7 +171,6 @@ class _CocoExtractor(SourceExtractor):
                 except Exception as e:
                     self._report_annotation_error(e,
                         item_id=(img_id, self._subset))
-                    continue
 
         return items
 
