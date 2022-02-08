@@ -145,7 +145,23 @@ class SourceExistsError(DatumaroError):
         return f"Source '{self.name}' already exists"
 
 
+class DatasetExportError(DatumaroError):
+    pass
+
+class ItemExportError(DatasetExportError):
+    pass
+
+class AnnotationExportError(ItemExportError):
+    pass
+
+
 class DatasetImportError(DatumaroError):
+    pass
+
+class ItemImportError(DatasetImportError):
+    pass
+
+class AnnotationImportError(ItemImportError):
     pass
 
 @define(auto_exc=False)
@@ -168,6 +184,7 @@ class NoMatchingFormatsError(DatasetImportError):
     def __str__(self):
         return "Failed to detect dataset format automatically: " \
             "no matching formats found"
+
 
 class DatasetError(DatumaroError):
     pass

@@ -17,7 +17,9 @@ import os
 import os.path as osp
 
 from datumaro.components.annotation import AnnotationType, LabelCategories
-from datumaro.components.converter import Converter
+from datumaro.components.converter import (
+    Converter, ExportContext, ExportErrorPolicy,
+)
 from datumaro.components.dataset_filter import (
     XPathAnnotationsFilter, XPathDatasetFilter,
 )
@@ -29,9 +31,10 @@ from datumaro.components.errors import (
 )
 from datumaro.components.extractor import (
     DEFAULT_SUBSET_NAME, CategoriesInfo, DatasetItem, Extractor, IExtractor,
-    ItemTransform, Transform,
+    ImportContext, ImportErrorPolicy, ItemTransform, Transform,
 )
 from datumaro.components.launcher import Launcher, ModelTransform
+from datumaro.components.progress_reporting import ProgressReporter
 from datumaro.plugins.transforms import ProjectLabels
 from datumaro.util import is_method_redefined
 from datumaro.util.log_utils import logging_disabled
@@ -877,7 +880,9 @@ class Dataset(IDataset):
         self._data.flush_changes()
 
     @scoped
-    def export(self, save_dir: str, format: Union[str, Type[Converter]],
+    def export(self, save_dir: str, format: Union[str, Type[Converter]], *,
+            progress_reporter: Optional[ProgressReporter] = None,
+            error_policy: Optional[ExportErrorPolicy] = None,
             **kwargs) -> None:
         """
         Saves the dataset in some format.
@@ -887,7 +892,9 @@ class Dataset(IDataset):
             format - The desired output format.
                 If a string is passed, it is treated as a plugin name,
                 which is searched for in the dataset environment.
-            **kwargs - Parameters for the export format
+            progress_reporter - An object to report progress
+            error_policy - An object to report format-related errors
+            **kwargs - Parameters for the format
         """
 
         if not save_dir:
@@ -910,13 +917,42 @@ class Dataset(IDataset):
             inplace = False
         os.makedirs(save_dir, exist_ok=True)
 
+        if error_policy is not None or progress_reporter is not None:
+            assert 'ctx' not in kwargs
+            kwargs['ctx'] = ExportContext(progress_reporter=progress_reporter,
+                error_policy=error_policy)
+
         if not inplace:
-            converter.convert(self, save_dir=save_dir, **kwargs)
+            try:
+                converter.convert(self, save_dir=save_dir, **kwargs)
+            except TypeError as e:
+                if "unexpected keyword argument 'ctx'" in str(e):
+                    log.debug("It seems that '%s' converter "
+                        "does not support progress and error reporting, "
+                        "it will be disabled", format)
+                    kwargs.pop('ctx')
+                    converter.convert(self, self.get_patch(), save_dir=save_dir,
+                        **kwargs)
+                else:
+                    raise
+
             if not self.is_bound:
                 self.bind(save_dir, format, options=copy(kwargs))
                 self.flush_changes()
         else:
-            converter.patch(self, self.get_patch(), save_dir=save_dir, **kwargs)
+            try:
+                converter.patch(self, self.get_patch(), save_dir=save_dir,
+                    **kwargs)
+            except TypeError as e:
+                if "unexpected keyword argument 'ctx'" in str(e):
+                    log.debug("It seems that '%s' converter "
+                        "does not support progress and error reporting, "
+                        "it will be disabled", format)
+                    kwargs.pop('ctx')
+                    converter.patch(self, self.get_patch(), save_dir=save_dir,
+                        **kwargs)
+                else:
+                    raise
 
     def save(self, save_dir: Optional[str] = None, **kwargs) -> None:
         options = dict(self._options)
@@ -931,7 +967,25 @@ class Dataset(IDataset):
 
     @classmethod
     def import_from(cls, path: str, format: Optional[str] = None, *,
-            env: Optional[Environment] = None, **kwargs) -> Dataset:
+            env: Optional[Environment] = None,
+            progress_reporter: Optional[ProgressReporter] = None,
+            error_policy: Optional[ImportErrorPolicy] = None,
+            **kwargs) -> Dataset:
+        """
+        Creates a `Dataset` instance from a dataset on the disk.
+
+        Args:
+            path - The input file or directory path
+            format - Dataset format.
+                If a string is passed, it is treated as a plugin name,
+                which is searched for in the `env` plugin context.
+                If not set, will try to detect automatically,
+                using the `env` plugin context.
+            env - A plugin collection. If not set, the built-in plugins are used
+            progress_reporter - An object to report progress
+            error_policy - An object to report format-related errors
+            **kwargs - Parameters for the format
+        """
         from datumaro.components.config_model import Source
 
         if env is None:
@@ -952,13 +1006,36 @@ class Dataset(IDataset):
         else:
             raise UnknownFormatError(format)
 
+        ctx = None
+        if error_policy is not None or progress_reporter is not None:
+            ctx = ImportContext(progress_reporter=progress_reporter,
+                error_policy=error_policy)
+
         extractors = []
         for src_conf in detected_sources:
             if not isinstance(src_conf, Source):
                 src_conf = Source(src_conf)
-            extractors.append(env.make_extractor(
-                src_conf.format, src_conf.url, **src_conf.options
-            ))
+
+            extractor_kwargs = dict(src_conf.options)
+            if ctx:
+                assert 'ctx' not in extractor_kwargs
+                extractor_kwargs['ctx'] = ctx
+
+            try:
+                extractors.append(env.make_extractor(
+                    src_conf.format, src_conf.url, **extractor_kwargs
+                ))
+            except TypeError as e:
+                if "unexpected keyword argument 'ctx'" in str(e):
+                    log.debug("It seems that '%s' extractor "
+                        "does not support progress and error reporting, "
+                        "it will be disabled", src_conf.format)
+                    extractor_kwargs.pop('ctx')
+                    extractors.append(env.make_extractor(
+                        src_conf.format, src_conf.url, **extractor_kwargs
+                    ))
+                else:
+                    raise
 
         dataset = cls.from_extractors(*extractors, env=env)
         dataset._source_path = path

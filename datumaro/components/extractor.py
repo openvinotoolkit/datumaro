@@ -5,11 +5,14 @@
 from __future__ import annotations
 
 from glob import iglob
-from typing import Any, Callable, Dict, Iterator, List, Optional
+from typing import (
+    Any, Callable, Dict, Iterable, Iterator, List, NoReturn, Optional, Tuple,
+    TypeVar,
+)
 import os
 import os.path as osp
 
-from attr import attrs, field
+from attr import attrs, define, field
 import attr
 import numpy as np
 
@@ -17,11 +20,14 @@ from datumaro.components.annotation import (
     Annotation, AnnotationType, Categories,
 )
 from datumaro.components.cli_plugin import CliPlugin
-from datumaro.components.errors import DatasetNotFoundError
+from datumaro.components.errors import (
+    AnnotationImportError, DatasetNotFoundError, DatumaroError, ItemImportError,
+)
 from datumaro.components.format_detection import (
     FormatDetectionConfidence, FormatDetectionContext,
 )
 from datumaro.components.media import Image
+from datumaro.components.progress_reporting import ProgressReporter
 from datumaro.util import is_method_redefined
 from datumaro.util.attrs_util import default_if_none, not_empty
 
@@ -107,7 +113,7 @@ class IExtractor:
         raise NotImplementedError()
 
 class _ExtractorBase(IExtractor):
-    def __init__(self, length=None, subsets=None):
+    def __init__(self, *, length=None, subsets=None):
         self._length = length
         self._subsets = subsets
 
@@ -170,6 +176,39 @@ class _ExtractorBase(IExtractor):
                 return item
         return None
 
+T = TypeVar('T')
+
+class _ImportFail(DatumaroError):
+    pass
+
+class ImportErrorPolicy:
+    def report_item_error(self, error: ItemImportError) -> Optional[NoReturn]:
+        """
+        Allows to report a problem with a dataset item.
+
+        This function must either call fail() or return. If this function
+        returns, the extractor must skip the item.
+        """
+        raise NotImplementedError
+
+    def report_annotation_error(self,
+            error: AnnotationImportError) -> Optional[NoReturn]:
+        """
+        Allows to report a problem with a dataset item annotation.
+
+        This function must either call fail() or return. If this function
+        returns, the extractor must skip the annotation.
+        """
+        raise NotImplementedError
+
+    def fail(self, error: Exception) -> NoReturn:
+        raise _ImportFail from error
+
+@define(eq=False)
+class ImportContext:
+    progress_reporter: Optional[ProgressReporter] = None
+    error_policy: Optional[ImportErrorPolicy] = None
+
 class Extractor(_ExtractorBase, CliPlugin):
     """
     A base class for user-defined and built-in extractors.
@@ -177,15 +216,47 @@ class Extractor(_ExtractorBase, CliPlugin):
     or its use makes problems with performance, implementation etc.
     """
 
+    def __init__(self, *, length=None, subsets=None,
+            ctx: Optional[ImportContext] = None):
+        super().__init__(length=length, subsets=subsets)
+        self._ctx = ctx
+
+    def _with_progress(self, iterable: Iterable[T], *,
+            total: Optional[int] = None,
+            desc: Optional[str] = None
+    ) -> Iterable[T]:
+        if self._ctx and self._ctx.progress_reporter:
+            yield from self._ctx.progress_reporter.iter(iterable,
+                total=total, desc=desc)
+        else:
+            yield from iterable
+
+    def _report_item_error(self, error: Exception, *,
+            item_id: Tuple[str, str]) -> Optional[NoReturn]:
+        if self._ctx and self._ctx.error_policy:
+            ie = ItemImportError(item_id)
+            ie.__cause__ = error
+            return self._ctx.error_policy.report_item_error(ie)
+        raise _ImportFail from error
+
+    def _report_annotation_error(self, error: Exception, *,
+            item_id: Tuple[str, str]) -> Optional[NoReturn]:
+        if self._ctx and self._ctx.error_policy:
+            ie = AnnotationImportError(item_id)
+            ie.__cause__ = error
+            return self._ctx.error_policy.report_annotation_error(ie)
+        raise _ImportFail from error
+
 class SourceExtractor(Extractor):
     """
     A base class for simple, single-subset extractors.
     Should be used by default for user-defined extractors.
     """
 
-    def __init__(self, length=None, subset=None):
+    def __init__(self, *, length=None, subset=None,
+            ctx: Optional[ImportContext] = None):
         self._subset = subset or DEFAULT_SUBSET_NAME
-        super().__init__(length=length, subsets=[self._subset])
+        super().__init__(length=length, subsets=[self._subset], ctx=ctx)
 
         self._categories = {}
         self._items = []
