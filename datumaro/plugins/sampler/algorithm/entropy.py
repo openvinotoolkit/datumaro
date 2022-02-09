@@ -57,15 +57,14 @@ class SampleEntropy(InferenceResultAnalyzer):
     def get_sample(self, method: str, k: int, n: int = 3) -> pd.DataFrame:
         """
         A function that extracts sample data and returns it.
-        Args:
 
+        Args:
             method:
                 - 'topk' - It extracts the k sample data with the
                   highest uncertainty.
                 - 'lowk' - It extracts the k sample data with the
                   lowest uncertainty.
                 - 'randomk' - Extract and return random k sample data.
-
             k: number of sample data
             n: Parameters to be used in the randtopk method, Variable to first
                 extract data of multiple n of k.

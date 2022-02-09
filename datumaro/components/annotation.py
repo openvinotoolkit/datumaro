@@ -672,6 +672,7 @@ class PointsCategories(Categories):
 
         Args:
             - iterable - An Iterable with the following elements:
+
                 - a label id
                 - a list of positional arguments for Categories
 

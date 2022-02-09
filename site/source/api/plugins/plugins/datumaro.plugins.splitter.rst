@@ -24,6 +24,10 @@ splitter module
       :special-members:
       :show-inheritance:
 
+      .. automethod:: _group_by_attr
+
+      .. automethod:: _split_unlabeled
+
    .. autoclass:: _ClassificationSplit
       :members:
       :undoc-members:

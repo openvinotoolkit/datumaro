@@ -54,14 +54,14 @@ class Image(MediaElement):
         construction.
 
         Args:
-            data - Image pixels or a function to retrieve them. The expected
+            data: Image pixels or a function to retrieve them. The expected
                 image shape is (H, W [, C]). If a function is provided,
                 it must accept image path as the first argument.
-            path - Image path
-            ext - Image extension. Cannot be used together with `path`. It can
+            path: Image path
+            ext: Image extension. Cannot be used together with `path`. It can
                 be used for saving with a custom extension - in that case,
                 the image need to have the `data` and `ext` fields defined.
-            size - A pair (H, W), which represents image size.
+            size: A pair (H, W), which represents image size.
         """
 
         assert size is None or len(size) == 2, size
