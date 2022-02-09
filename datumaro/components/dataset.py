@@ -892,7 +892,9 @@ class Dataset(IDataset):
             format - The desired output format.
                 If a string is passed, it is treated as a plugin name,
                 which is searched for in the dataset environment.
-            **kwargs - Parameters for the export format
+            progress_reporter - An object to report progress
+            error_policy - An object to report format-related errors
+            **kwargs - Parameters for the format
         """
 
         if not save_dir:
@@ -969,6 +971,21 @@ class Dataset(IDataset):
             progress_reporter: Optional[ProgressReporter] = None,
             error_policy: Optional[ImportErrorPolicy] = None,
             **kwargs) -> Dataset:
+        """
+        Creates a `Dataset` instance from a dataset on the disk.
+
+        Args:
+            path - The input file or directory path
+            format - Dataset format.
+                If a string is passed, it is treated as a plugin name,
+                which is searched for in the `env` plugin context.
+                If not set, will try to detect automatically,
+                using the `env` plugin context.
+            env - A plugin collection. If not set, the built-in plugins are used
+            progress_reporter - An object to report progress
+            error_policy - An object to report format-related errors
+            **kwargs - Parameters for the format
+        """
         from datumaro.components.config_model import Source
 
         if env is None:

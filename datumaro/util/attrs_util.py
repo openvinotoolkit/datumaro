@@ -1,10 +1,10 @@
-# Copyright (C) 2020-2021 Intel Corporation
+# Copyright (C) 2020-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 import inspect
 
-import attr
+import attrs
 
 
 def not_empty(inst, attribute, x):
@@ -16,7 +16,7 @@ def default_if_none(conv):
         if value is None:
             if callable(default):
                 value = default()
-            elif isinstance(default, attr.Factory):
+            elif isinstance(default, attrs.Factory):
                 value = default.factory()
             else:
                 value = default

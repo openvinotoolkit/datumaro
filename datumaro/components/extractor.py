@@ -6,8 +6,8 @@ from __future__ import annotations
 
 from glob import iglob
 from typing import (
-    Any, Callable, Dict, Iterable, Iterator, List, NoReturn, Optional, Tuple,
-    TypeVar,
+    Any, Callable, Container, Dict, Iterable, Iterator, List, NoReturn,
+    Optional, Tuple, TypeVar,
 )
 import os
 import os.path as osp
@@ -216,7 +216,9 @@ class Extractor(_ExtractorBase, CliPlugin):
     or its use makes problems with performance, implementation etc.
     """
 
-    def __init__(self, *, length=None, subsets=None,
+    def __init__(self, *,
+            length: Optional[int] = None,
+            subsets: Optional[Container[str]] = None,
             ctx: Optional[ImportContext] = None):
         super().__init__(length=length, subsets=subsets)
         self._ctx = ctx
@@ -233,7 +235,8 @@ class Extractor(_ExtractorBase, CliPlugin):
 
     def _report_item_error(self, error: Exception, *,
             item_id: Tuple[str, str]) -> Optional[NoReturn]:
-        if self._ctx and self._ctx.error_policy:
+        if self._ctx and self._ctx.error_policy and \
+                not isinstance(error, _ImportFail):
             ie = ItemImportError(item_id)
             ie.__cause__ = error
             return self._ctx.error_policy.report_item_error(ie)
@@ -241,7 +244,8 @@ class Extractor(_ExtractorBase, CliPlugin):
 
     def _report_annotation_error(self, error: Exception, *,
             item_id: Tuple[str, str]) -> Optional[NoReturn]:
-        if self._ctx and self._ctx.error_policy:
+        if self._ctx and self._ctx.error_policy and \
+                not isinstance(error, _ImportFail):
             ie = AnnotationImportError(item_id)
             ie.__cause__ = error
             return self._ctx.error_policy.report_annotation_error(ie)

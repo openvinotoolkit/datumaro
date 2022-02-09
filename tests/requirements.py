@@ -1,10 +1,10 @@
-# Copyright (C) 2021 Intel Corporation
+# Copyright (C) 2021-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 import typing
 
-from attr import attrs
+from attrs import frozen
 import pytest
 
 
@@ -59,7 +59,7 @@ class SkipMessages:
     NOT_IMPLEMENTED = "NOT IMPLEMENTED"
 
 
-@attrs(auto_attribs=True)
+@frozen
 class _CombinedDecorator:
     decorators: typing.List[typing.Callable]
 

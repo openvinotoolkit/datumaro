@@ -149,39 +149,49 @@ class _CocoExtractor(SourceExtractor):
                     attributes={'id': img_id})
             except Exception as e:
                 self._report_item_error(e, item_id=(img_id, self._subset))
-                continue
 
         if self._task is not CocoTask.panoptic:
             for ann in self._with_progress(json_data['annotations'],
                     desc="Parsing annotations"):
+                img_id = None
                 try:
-                    items[ann['image_id']].annotations += \
-                        self._load_annotations(ann, img_infos[ann['image_id']])
+                    img_id = ann['image_id']
+                    self._load_annotations(ann, img_infos[img_id],
+                        parsed_annotations=items[img_id].annotations)
                 except Exception as e:
                     self._report_annotation_error(e,
                         item_id=(img_id, self._subset))
-                    continue
         else:
-            self._load_panoptic_ann(items, json_data)
+            for ann in self._with_progress(json_data['annotations'],
+                    desc='Parsing annotations'):
+                img_id = None
+                try:
+                    img_id = ann['image_id']
+                    self._load_panoptic_ann(ann, items[img_id].annotations)
+                except Exception as e:
+                    self._report_annotation_error(e,
+                        item_id=(img_id, self._subset))
 
         return items
 
-    def _load_panoptic_ann(self, items, json_data):
-        for ann in self._with_progress(json_data['annotations'],
-                desc='Parsing annotations'):
-            # For the panoptic task, each annotation struct is a per-image
-            # annotation rather than a per-object annotation.
-            anns = items[ann['image_id']].annotations
-            mask_path = osp.join(self._mask_dir, ann['file_name'])
-            mask = lazy_image(mask_path, loader=self._load_pan_mask)
-            mask = CompiledMask(instance_mask=mask)
-            for segm_info in ann['segments_info']:
-                cat_id = self._get_label_id(segm_info)
-                segm_id = segm_info['id']
-                attributes = { 'is_crowd': bool(segm_info['iscrowd']) }
-                anns.append(Mask(image=mask.lazy_extract(segm_id),
-                    label=cat_id, id=segm_id,
-                    group=segm_id, attributes=attributes))
+    def _load_panoptic_ann(self, ann, parsed_annotations=None):
+        if parsed_annotations is None:
+            parsed_annotations = []
+
+        # For the panoptic task, each annotation struct is a per-image
+        # annotation rather than a per-object annotation.
+        mask_path = osp.join(self._mask_dir, ann['file_name'])
+        mask = lazy_image(mask_path, loader=self._load_pan_mask)
+        mask = CompiledMask(instance_mask=mask)
+        for segm_info in ann['segments_info']:
+            cat_id = self._get_label_id(segm_info)
+            segm_id = segm_info['id']
+            attributes = { 'is_crowd': bool(segm_info['iscrowd']) }
+            parsed_annotations.append(Mask(image=mask.lazy_extract(segm_id),
+                label=cat_id, id=segm_id,
+                group=segm_id, attributes=attributes))
+
+        return parsed_annotations
 
     @staticmethod
     def _load_pan_mask(path):
@@ -204,8 +214,9 @@ class _CocoExtractor(SourceExtractor):
             return None
         return self._label_map[ann['category_id']]
 
-    def _load_annotations(self, ann, image_info=None):
-        parsed_annotations = []
+    def _load_annotations(self, ann, image_info=None, parsed_annotations=None):
+        if parsed_annotations is None:
+            parsed_annotations = []
 
         ann_id = ann['id']
 

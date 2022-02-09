@@ -185,6 +185,7 @@ class NoMatchingFormatsError(DatasetImportError):
         return "Failed to detect dataset format automatically: " \
             "no matching formats found"
 
+
 class DatasetError(DatumaroError):
     pass
 

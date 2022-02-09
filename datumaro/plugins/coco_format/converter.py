@@ -660,16 +660,25 @@ class CocoConverter(Converter):
 
             for item in self._with_progress(subset,
                     desc=f'Exporting {subset_name}'):
-                if self._save_images:
-                    if item.has_image:
-                        self._save_image(item, subdir=osp.join(self._images_dir,
-                            '' if self._merge_images else subset_name))
-                    else:
-                        log.debug("Item '%s' has no image info", item.id)
-                for task_conv in task_converters.values():
-                    task_conv.save_image_info(item,
-                        self._make_image_filename(item))
-                    task_conv.save_annotations(item)
+                try:
+                    if self._save_images:
+                        if item.has_image:
+                            self._save_image(item, subdir=osp.join(
+                                self._images_dir,
+                                '' if self._merge_images else subset_name))
+                        else:
+                            log.debug("Item '%s' has no image info", item.id)
+
+                    for task_conv in task_converters.values():
+                        try:
+                            task_conv.save_image_info(item,
+                                self._make_image_filename(item))
+                            task_conv.save_annotations(item)
+                        except Exception as e:
+                            self._report_annotation_error(e,
+                                item_id=(item.id, item.subset))
+                except Exception as e:
+                    self._report_item_error(e, item_id=(item.id, item.subset))
 
             for task, task_conv in task_converters.items():
                 ann_file = osp.join(self._ann_dir,

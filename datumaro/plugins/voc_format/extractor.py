@@ -100,7 +100,8 @@ class VocClassificationExtractor(_VocExtractor):
         else:
             images = {}
 
-        for item_id in self._with_progress(self._items, desc="Parsing items"):
+        for item_id in self._with_progress(self._items,
+                desc=f"Parsing labels in '{self._subset}'"):
             log.debug("Reading item '%s'" % item_id)
             yield DatasetItem(id=item_id, subset=self._subset,
                 image=images.get(item_id), annotations=annotations.get(item_id))
@@ -116,7 +117,7 @@ class VocClassificationExtractor(_VocExtractor):
             with open(ann_file, encoding='utf-8') as f:
                 for line in f:
                     line = line.strip()
-                    if not line or line and line[0] == '#':
+                    if not line or line[0] == '#':
                         continue
 
                     item, present = line.rsplit(maxsplit=1)
@@ -126,9 +127,6 @@ class VocClassificationExtractor(_VocExtractor):
         return annotations
 
 class _VocXmlExtractor(_VocExtractor):
-    def __init__(self, path, task, **kwargs):
-        super().__init__(path, task, **kwargs)
-
     def __iter__(self):
         image_dir = osp.join(self._dataset_dir, VocPath.IMAGES_DIR)
         if osp.isdir(image_dir):
@@ -141,34 +139,38 @@ class _VocXmlExtractor(_VocExtractor):
 
         anno_dir = osp.join(self._dataset_dir, VocPath.ANNOTATIONS_DIR)
 
-        for item_id in self._with_progress(self._items, desc="Parsing items"):
+        for item_id in self._with_progress(self._items,
+                desc=f"Parsing boxes in '{self._subset}'"):
             log.debug("Reading item '%s'" % item_id)
             size = None
 
-            anns = []
-            ann_file = osp.join(anno_dir, item_id + '.xml')
-            if osp.isfile(ann_file):
-                root_elem = ElementTree.parse(ann_file)
-                height = root_elem.find('size/height')
-                if height is not None:
-                    height = int(height.text)
-                width = root_elem.find('size/width')
-                if width is not None:
-                    width = int(width.text)
-                if height and width:
-                    size = (height, width)
-                filename_elem = root_elem.find('filename')
-                if filename_elem is not None:
-                    image = osp.join(image_dir, filename_elem.text)
-                anns = self._parse_annotations(root_elem)
-            else:
-                image = images.pop(item_id, None)
+            try:
+                anns = []
+                ann_file = osp.join(anno_dir, item_id + '.xml')
+                if osp.isfile(ann_file):
+                    root_elem = ElementTree.parse(ann_file)
+                    height = root_elem.find('size/height')
+                    if height is not None:
+                        height = int(height.text)
+                    width = root_elem.find('size/width')
+                    if width is not None:
+                        width = int(width.text)
+                    if height and width:
+                        size = (height, width)
+                    filename_elem = root_elem.find('filename')
+                    if filename_elem is not None:
+                        image = osp.join(image_dir, filename_elem.text)
+                    anns = self._parse_annotations(root_elem)
+                else:
+                    image = images.pop(item_id, None)
 
-            if image or size:
-                image = Image(path=image, size=size)
+                if image or size:
+                    image = Image(path=image, size=size)
 
-            yield DatasetItem(id=item_id, subset=self._subset,
-                image=image, annotations=anns)
+                yield DatasetItem(id=item_id, subset=self._subset,
+                    image=image, annotations=anns)
+            except Exception as e:
+                self._report_item_error(e, item_id=(item_id, self._subset))
 
     def _parse_annotations(self, root_elem):
         item_annotations = []
@@ -286,11 +288,16 @@ class VocSegmentationExtractor(_VocExtractor):
         else:
             images = {}
 
-        for item_id in self._with_progress(self._items, desc="Parsing items"):
+        for item_id in self._with_progress(self._items,
+                desc=f"Parsing segmentation in '{self._subset}'"):
             log.debug("Reading item '%s'" % item_id)
-            anns = self._load_annotations(item_id)
-            yield DatasetItem(id=item_id, subset=self._subset,
-                image=images.get(item_id), annotations=anns)
+
+            try:
+                yield DatasetItem(id=item_id, subset=self._subset,
+                    image=images.get(item_id),
+                    annotations=self._load_annotations(item_id))
+            except Exception as e:
+                self._report_item_error(e, item_id=(item_id, self._subset))
 
     @staticmethod
     def _lazy_extract_mask(mask, c):

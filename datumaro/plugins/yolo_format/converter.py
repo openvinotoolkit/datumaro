@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2021 Intel Corporation
+# Copyright (C) 2019-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -7,7 +7,7 @@ import logging as log
 import os
 import os.path as osp
 
-from datumaro.components.annotation import AnnotationType
+from datumaro.components.annotation import AnnotationType, Bbox
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.extractor import DEFAULT_SUBSET_NAME, DatasetItem
@@ -62,36 +62,39 @@ class YoloConverter(Converter):
 
             image_paths = OrderedDict()
 
-            for item in subset:
-                if not item.has_image:
-                    raise Exception("Failed to export item '%s': "
-                        "item has no image info" % item.id)
-                height, width = item.image.size
+            for item in self._with_progress(subset,
+                    desc=f"Exporting '{subset_name}'"):
+                try:
+                    if not item.has_image or not (item.image.has_data or item.image.has_size):
+                        raise Exception("Failed to export item '%s': "
+                            "item has no image info" % item.id)
+                    height, width = item.image.size
 
-                image_name = self._make_image_filename(item)
-                if self._save_images:
-                    if item.has_image and item.image.has_data:
-                        self._save_image(item, osp.join(subset_dir, image_name))
-                    else:
-                        log.warning("Item '%s' has no image" % item.id)
-                image_paths[item.id] = osp.join('data',
-                    osp.basename(subset_dir), image_name)
+                    image_name = self._make_image_filename(item)
+                    if self._save_images:
+                        if item.has_image and item.image.has_data:
+                            self._save_image(item,
+                                osp.join(subset_dir, image_name))
+                        else:
+                            log.warning("Item '%s' has no image" % item.id)
+                    image_paths[item.id] = osp.join('data',
+                        osp.basename(subset_dir), image_name)
 
-                yolo_annotation = ''
-                for bbox in item.annotations:
-                    if bbox.type is not AnnotationType.bbox:
-                        continue
-                    if bbox.label is None:
-                        continue
+                    yolo_annotation = ''
+                    for bbox in item.annotations:
+                        if not isinstance(bbox, Bbox) or bbox.label is None:
+                            continue
 
-                    yolo_bb = _make_yolo_bbox((width, height), bbox.points)
-                    yolo_bb = ' '.join('%.6f' % p for p in yolo_bb)
-                    yolo_annotation += '%s %s\n' % (bbox.label, yolo_bb)
+                        yolo_bb = _make_yolo_bbox((width, height), bbox.points)
+                        yolo_bb = ' '.join('%.6f' % p for p in yolo_bb)
+                        yolo_annotation += '%s %s\n' % (bbox.label, yolo_bb)
 
-                annotation_path = osp.join(subset_dir, '%s.txt' % item.id)
-                os.makedirs(osp.dirname(annotation_path), exist_ok=True)
-                with open(annotation_path, 'w', encoding='utf-8') as f:
-                    f.write(yolo_annotation)
+                    annotation_path = osp.join(subset_dir, '%s.txt' % item.id)
+                    os.makedirs(osp.dirname(annotation_path), exist_ok=True)
+                    with open(annotation_path, 'w', encoding='utf-8') as f:
+                        f.write(yolo_annotation)
+                except Exception as e:
+                    self._report_item_error(e, item_id=(item.id, item.subset))
 
             subset_list_name = '%s.txt' % subset_name
             subset_list_path = osp.join(save_dir, subset_list_name)
