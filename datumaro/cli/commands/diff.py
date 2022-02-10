@@ -16,7 +16,7 @@ from datumaro.util.scope import on_error_do, scope_add, scoped
 
 from ..contexts.project.diff import DiffVisualizer
 from ..util import (
-    CliProgressReporter, MultilineFormatter, RelaxedImportErrorPolicy,
+    MultilineFormatter, make_import_error_policy, make_progress_reporter,
 )
 from ..util.errors import CliException
 from ..util.project import (
@@ -162,8 +162,8 @@ def diff_command(args):
             raise
 
     try:
-        progress_reporter = CliProgressReporter()
-        error_policy = RelaxedImportErrorPolicy()
+        progress_reporter = make_progress_reporter(cli_args=args)
+        error_policy = make_import_error_policy(cli_args=args)
 
         if not args.second_target:
             first_dataset = project.working_tree.make_dataset()

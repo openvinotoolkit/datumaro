@@ -73,12 +73,10 @@ def info_command(args):
             raise
 
     try:
-        progress_reporter = make_progress_reporter(cli_args=args)
-        error_policy = make_import_error_policy(cli_args=args)
-
         # TODO: avoid computing working tree hashes
         dataset, target_project = parse_full_revpath(args.target, project,
-            progress_reporter=progress_reporter, error_policy=error_policy)
+            progress_reporter=make_progress_reporter(cli_args=args),
+            error_policy=make_import_error_policy(cli_args=args))
         if target_project:
             scope_add(target_project)
     except DatasetMergeError as e:
