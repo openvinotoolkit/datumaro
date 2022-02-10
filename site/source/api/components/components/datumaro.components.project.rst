@@ -73,4 +73,5 @@ project module
    .. autoclass:: Project
       :members:
       :private-members:
+      :special-members:
       :show-inheritance:
