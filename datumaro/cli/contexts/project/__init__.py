@@ -11,7 +11,6 @@ import os.path as osp
 from datumaro.components.dataset_filter import DatasetItemEncoder
 from datumaro.components.environment import Environment
 from datumaro.components.errors import MigrationError, ProjectNotFoundError
-from datumaro.components.extractor import ImportContext
 from datumaro.components.operations import (
     compute_ann_statistics, compute_image_statistics,
 )
@@ -21,7 +20,10 @@ from datumaro.util import dump_json_file, str_to_bool
 from datumaro.util.os_util import make_file_name
 from datumaro.util.scope import scope_add, scoped
 
-from ...util import CliProgressReporter, MultilineFormatter, add_subparser
+from ...util import (
+    MultilineFormatter, add_subparser, make_export_error_policy,
+    make_import_error_policy, make_progress_reporter,
+)
 from ...util.errors import CliException
 from ...util.project import (
     generate_next_file_name, load_project, parse_full_revpath,
@@ -198,7 +200,9 @@ def export_command(args):
 
     log.info("Exporting...")
 
-    dataset.export(save_dir=dst_dir, format=converter, **extra_args)
+    dataset.export(save_dir=dst_dir, format=converter, **extra_args,
+        progress_reporter=make_progress_reporter(cli_args=args),
+        error_policy=make_export_error_policy(cli_args=args))
 
     log.info("Results have been saved to '%s'" % dst_dir)
 
@@ -329,8 +333,9 @@ def filter_command(args):
     filter_expr = args.filter
 
     if args.dry_run:
-        ctx = ImportContext(progress_reporter=CliProgressReporter())
-        dataset, _project = parse_full_revpath(args.target, project, ctx=ctx)
+        dataset, _project = parse_full_revpath(args.target, project,
+            progress_reporter=make_progress_reporter(cli_args=args),
+            error_policy=make_import_error_policy(cli_args=args))
         if _project:
             scope_add(_project)
 
@@ -380,8 +385,11 @@ def filter_command(args):
 
             log.info("Finished")
         else:
-            ctx = ImportContext(progress_reporter=CliProgressReporter())
-            dataset, _project = parse_full_revpath(args.target, project, ctx=ctx)
+            progress_reporter = make_progress_reporter(cli_args=args)
+
+            dataset, _project = parse_full_revpath(args.target, project,
+                progress_reporter=progress_reporter,
+                error_policy=make_import_error_policy(cli_args=args))
             if _project:
                 scope_add(_project)
 
@@ -392,7 +400,9 @@ def filter_command(args):
             dst_dir = osp.abspath(dst_dir)
 
             dataset.filter(filter_expr, *filter_args)
-            dataset.save(dst_dir, save_images=True)
+            dataset.save(dst_dir, save_images=True,
+                progress_reporter=progress_reporter,
+                error_policy=make_export_error_policy(cli_args=args))
 
             log.info("Results have been saved to '%s'" % dst_dir)
 
@@ -567,8 +577,11 @@ def transform_command(args):
 
             log.info("Finished")
         else:
-            ctx = ImportContext(progress_reporter=CliProgressReporter())
-            dataset, _project = parse_full_revpath(args.target, project, ctx=ctx)
+            progress_reporter=make_progress_reporter(cli_args=args)
+
+            dataset, _project = parse_full_revpath(args.target, project,
+                progress_reporter=progress_reporter,
+                error_policy=make_import_error_policy(cli_args=args))
             if _project:
                 scope_add(_project)
 
@@ -579,7 +592,9 @@ def transform_command(args):
             dst_dir = osp.abspath(dst_dir)
 
             dataset.transform(args.transform, **extra_args)
-            dataset.save(dst_dir, save_images=True)
+            dataset.save(dst_dir, save_images=True,
+                progress_reporter=progress_reporter,
+                error_policy=make_export_error_policy(cli_args=args))
 
             log.info("Results have been saved to '%s'" % dst_dir)
 
@@ -641,8 +656,9 @@ def stats_command(args):
         if args.project_dir:
             raise
 
-    ctx = ImportContext(progress_reporter=CliProgressReporter())
-    dataset, target_project = parse_full_revpath(args.target, project, ctx=ctx)
+    dataset, target_project = parse_full_revpath(args.target, project,
+        progress_reporter=make_import_error_policy(cli_args=args),
+        error_policy=make_import_error_policy(cli_args=args))
     if target_project:
         scope_add(target_project)
 
@@ -816,8 +832,9 @@ def validate_command(args):
 
     extra_args = validator_type.parse_cmdline(args.extra_args)
 
-    ctx = ImportContext(progress_reporter=CliProgressReporter())
-    dataset, target_project = parse_full_revpath(args.target, project, ctx=ctx)
+    dataset, target_project = parse_full_revpath(args.target, project,
+        progress_reporter=make_progress_reporter(cli_args=args),
+        error_policy=make_import_error_policy(cli_args=args))
     if target_project:
         scope_add(target_project)
 

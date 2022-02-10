@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+from enum import Enum, auto
 from typing import Iterable, List, Optional
 import argparse
 import logging as log
@@ -117,3 +118,23 @@ class RelaxedExportErrorPolicy(ExportErrorPolicy):
 
     def report_annotation_error(self, error):
         log.warning('Failed to export annotation: %s', error)
+
+class ErrorPolicy(Enum):
+    # primary
+    fail = auto()
+    skip = auto()
+
+def make_progress_reporter(*, cli_args):
+    if cli_args.allow_ui:
+        return CliProgressReporter()
+    return None
+
+def make_import_error_policy(*, cli_args):
+    if cli_args.error_policy is ErrorPolicy.skip:
+        return RelaxedImportErrorPolicy()
+    return None
+
+def make_export_error_policy(*, cli_args):
+    if cli_args.error_policy is ErrorPolicy.skip:
+        return RelaxedExportErrorPolicy()
+    return None

@@ -9,14 +9,15 @@ import os
 import os.path as osp
 
 from datumaro.components.errors import ProjectNotFoundError
-from datumaro.components.extractor import ImportContext
 from datumaro.components.operations import DistanceComparator, ExactComparator
 from datumaro.util import dump_json_file
 from datumaro.util.os_util import rmtree
 from datumaro.util.scope import on_error_do, scope_add, scoped
 
 from ..contexts.project.diff import DiffVisualizer
-from ..util import CliProgressReporter, MultilineFormatter, RelaxedImportErrorPolicy
+from ..util import (
+    CliProgressReporter, MultilineFormatter, RelaxedImportErrorPolicy,
+)
 from ..util.errors import CliException
 from ..util.project import (
     generate_next_file_name, load_project, parse_full_revpath,

@@ -2,11 +2,13 @@
 #
 # SPDX-License-Identifier: MIT
 
+from functools import partial
 import argparse
-from enum import Enum, auto
 import logging as log
 import os.path as osp
 import sys
+
+from datumaro.util import parse_str_enum_value, str_to_bool
 
 from ..util.telemetry_utils import (
     close_telemetry_session, init_telemetry_session,
@@ -15,10 +17,8 @@ from ..util.telemetry_utils import (
 )
 from ..version import VERSION
 from . import commands, contexts
-from .util import add_subparser
+from .util import ErrorPolicy, add_subparser
 from .util.errors import CliException
-from datumaro.util import str_to_bool
-
 
 _log_levels = {
     'debug': log.DEBUG,
@@ -48,15 +48,6 @@ class _LogManager:
             help="Logging level (options: %s; default: %s)" % \
                 (', '.join(_log_levels.keys()), "%(default)s"))
         return parser
-
-class ErrorPolicy(Enum):
-    # primary
-    fail = auto()
-    skip = auto()
-
-    # shortcuts
-    f = fail
-    s = skip
 
 def _make_subcommands_help(commands, help_line_start=0):
     desc = ""
@@ -130,10 +121,12 @@ def make_parser():
         dest='allow_ui',
         help="Allows to turn user interaction on and off. "
             "Useful in automation scripts (default: %(default)s)")
-    parser.add_argument('--ep', '--error-policy', choices=['fail', 'skip'],
-        default='fail', dest='error_policy',
+    parser.add_argument('--ep', '--error-policy',
+        default=ErrorPolicy.fail.name, dest='error_policy',
+        type=partial(parse_str_enum_value, enum_class=ErrorPolicy),
         help="Allows to control dataset error handling policy "
-            "(default: %(default)s)")
+            f"(one of {', '.join(ErrorPolicy.__members__)}; "
+            "default: %(default)s)")
 
     known_contexts = _get_known_contexts()
     known_commands = _get_known_commands()
