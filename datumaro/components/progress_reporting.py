@@ -22,11 +22,22 @@ class ProgressReporter:
 
     def iter(self, iterable: Iterable[T], *,
             total: Optional[int] = None,
-            desc: Optional[str]
+            desc: Optional[str] = None
     ) -> Iterable[T]:
-        if total is None:
-            if hasattr(iterable, '__len__'):
-                total = len(iterable)
+        """
+        Traverses the iterable and reports progress simultaneously.
+
+        Starts and finishes the progress bar automatically.
+
+        Args:
+            iterable - An iterable to be traversed
+            total - The expected number of iterations. If not provided, will
+              try to use iterable.__len__.
+            desc - The status message
+
+        Returns:
+            An iterable over elements of the input sequence
+        """
 
         self.start(total, desc=desc)
 
