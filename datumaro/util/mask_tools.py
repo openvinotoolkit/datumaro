@@ -217,7 +217,9 @@ def crop_covered_segments(segments, width, height,
 
     Returns:
         A list of input segments' parts (in the same order as input):
+
             [
+
                 [[x1,y1, x2,y2 ...], ...], # input segment #0 parts
                 mask1, # input segment #1 mask (if source segment is mask)
                 [], # when source segment is too small
