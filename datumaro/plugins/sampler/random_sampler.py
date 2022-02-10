@@ -18,7 +18,7 @@ class RandomSampler(Transform, CliPlugin):
     Sampler that keeps no more than required number of items in the dataset.|n
     |n
     Notes:|n
-    |s|s- Items are selected uniformly|n|n
+    |s|s- Items are selected uniformly|n
     |s|s- Requesting a sample larger than the number of all images will
         return all images|n
     |n

@@ -344,6 +344,7 @@ class RandomSplit(Transform, CliPlugin):
     It is expected that item ids are unique and subset ratios sum up to 1.|n
     |n
     Example:|n
+
     .. code-block::
 
     |s|s|s|s%(prog)s --subset train:.67 --subset test:.33

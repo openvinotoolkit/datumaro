@@ -373,13 +373,13 @@ def detect_dataset_format(
     another detector (other rejection reasons might be added in the future).
 
     Args:
-        formats: The formats to be considered. Each element of the
+        `formats`: The formats to be considered. Each element of the
             iterable must be a tuple of a format name and a `FormatDetector`
             instance.
 
-        path: the filesystem path to the dataset to be analyzed.
+        `path`: the filesystem path to the dataset to be analyzed.
 
-        rejection_callback: Unless `None`, called for every rejected format
+        `rejection_callback`: Unless `None`, called for every rejected format
             to report the reason it was rejected.
 
     Returns: a sequence of detected format names.
