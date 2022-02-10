@@ -1,2 +1,5 @@
 dvc>=2.7.0
 GitPython>=3.1.18,!=3.1.25 # https://github.com/openvinotoolkit/datumaro/issues/612
+
+# A library to send the telemetry data from the OpenVINO toolkit components.
+openvino-telemetry>=2022.1.0

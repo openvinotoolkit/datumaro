@@ -112,6 +112,8 @@ class _AddObjectsFromFeature:
     feature_name: str
     bbox_member: str
     label_member: Optional[str] = field(default=None, kw_only=True)
+    attribute_members: Optional[Tuple[str, ...]] = field(
+        default=(), kw_only=True)
 
     def __call__(self, tfds_example: Any, item: DatasetItem) -> None:
         tfds_objects = tfds_example[self.feature_name]
@@ -123,16 +125,37 @@ class _AddObjectsFromFeature:
             tfds_labels = tfds_objects[self.label_member]
             assert tfds_labels.shape[0] == num_objects
 
+        for attribute_member in self.attribute_members:
+            assert tfds_objects[attribute_member].shape[0] == num_objects
+
         for i in range(num_objects):
             norm_ymin, norm_xmin, norm_ymax, norm_xmax = tfds_bboxes[i].numpy()
-            item.annotations.append(Bbox(
+
+            new_bbox = Bbox(
                 x=norm_xmin * item.image.size[1],
                 y=norm_ymin * item.image.size[0],
                 w=(norm_xmax - norm_xmin) * item.image.size[1],
                 h=(norm_ymax - norm_ymin) * item.image.size[0],
-            ))
+            )
+
             if tfds_labels is not None:
-                item.annotations[-1].label = tfds_labels[i].numpy()
+                new_bbox.label = tfds_labels[i].numpy()
+
+            for attribute_member in self.attribute_members:
+                new_bbox.attributes[attribute_member] = \
+                    tfds_objects[attribute_member][i].numpy()
+
+            item.annotations.append(new_bbox)
+
+
+@frozen
+class _SetAttributeFromFeature:
+    feature_name: str
+    attribute_name: str
+
+    def __call__(self, tfds_example: Any, item: DatasetItem) -> None:
+        item.attributes[self.attribute_name] = \
+            tfds_example[self.feature_name].numpy()
 
 @frozen
 class _GenerateIdFromTextFeature:
@@ -168,6 +191,21 @@ _CIFAR_ADAPTER = _TfdsAdapter(
     metadata=TfdsDatasetMetadata(default_converter_name='cifar'),
 )
 
+_COCO_ADAPTER = _TfdsAdapter(
+    category_transformers=[_SetLabelCategoriesFromClassLabelFeature(
+        ('objects', 'feature', 'label'))],
+    data_transformers=[
+        _SetImageFromImageFeature('image',
+            filename_feature_name='image/filename'),
+        _AddObjectsFromFeature(
+            'objects', 'bbox', label_member='label',
+            attribute_members=('is_crowd',)),
+        _SetAttributeFromFeature('image/id', 'id'),
+    ],
+    id_generator=_GenerateIdFromFilenameFeature('image/filename'),
+    metadata=TfdsDatasetMetadata(default_converter_name='coco_instances'),
+)
+
 _IMAGENET_ADAPTER = _TfdsAdapter(
     category_transformers=[_SetLabelCategoriesFromClassLabelFeature('label')],
     data_transformers=[
@@ -193,6 +231,7 @@ _VOC_ADAPTER = _TfdsAdapter(
 _TFDS_ADAPTERS = {
     'cifar10': _CIFAR_ADAPTER,
     'cifar100': _CIFAR_ADAPTER,
+    'coco/2014': _COCO_ADAPTER,
     'imagenet_v2': _IMAGENET_ADAPTER,
     'mnist': _MNIST_ADAPTER,
     'voc/2012': _VOC_ADAPTER,

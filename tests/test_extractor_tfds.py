@@ -101,6 +101,41 @@ class TfdsExtractorTest(TestCase):
         self._test_can_extract_cifar('cifar100')
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_extract_coco(self):
+        tfds_example = {
+            'image': encode_image(np.ones((20, 10)), '.png'),
+            'image/filename': 'test.png',
+            'image/id': 123,
+            'objects': {
+                'bbox': [[0.1, 0.2, 0.3, 0.4]],
+                'label': [5],
+                'is_crowd': [True],
+            }
+        }
+
+        with mock_tfds_data(example=tfds_example):
+            tfds_info = tfds.builder('coco/2014').info
+
+            expected_dataset = Dataset.from_iterable([
+                DatasetItem(
+                    id='test',
+                    subset='train',
+                    image=np.ones((20, 10)),
+                    annotations=[
+                        Bbox(2, 2, 2, 4, label=5,
+                            attributes={'is_crowd': True}),
+                    ],
+                    attributes={'id': 123},
+                ),
+            ], categories=tfds_info.features['objects'].feature['label'].names)
+
+            extractor = make_tfds_extractor('coco/2014')
+            actual_dataset = Dataset(extractor)
+
+            compare_datasets(self, expected_dataset, actual_dataset,
+                require_images=True)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_extract_imagenet_v2(self):
         with mock_tfds_data():
             tfds_ds, tfds_info = tfds.load(
