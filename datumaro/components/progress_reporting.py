@@ -11,15 +11,23 @@ T = TypeVar('T')
 
 class ProgressReporter:
     def get_frequency(self) -> float:
+        """
+        Returns reporting frequency.
+
+        For example, 0.1 would mean every 10%.
+        """
         raise NotImplementedError
 
     def start(self, total: int, *, desc: Optional[str] = None):
+        """Initializes a progress bar"""
         raise NotImplementedError
 
     def report_status(self, progress: int):
+        """Updates a progress bar"""
         raise NotImplementedError
 
     def finish(self):
+        """Closes a progress bar"""
         raise NotImplementedError
 
     @scoped
