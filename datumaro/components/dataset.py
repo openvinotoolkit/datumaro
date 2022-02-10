@@ -770,7 +770,7 @@ class Dataset(IDataset):
         Args:
             method: The transformation to be applied to the dataset.
                 If a string is passed, it is treated as a plugin name,
-                which is searched for in the dataset environment
+                which is searched for in the dataset environment.
             **kwargs: Parameters for the transformation
 
         Returns: self

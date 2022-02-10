@@ -22,7 +22,7 @@ annotation module
          Describes an identifier of the annotation.
          Is not required to be unique within DatasetItem annotations or dataset.
 
-            .. py:decorator:: id: int
+            .. py:data:: id: int
 
          Arbitrary annotation-specific attributes. Typically, includes
          metainfo and properties that are not covered by other fields.
@@ -122,11 +122,9 @@ annotation module
 
          uses pycocotools RLE representation
 
-   .. py:data:: CompiledMaskImage
+   .. py:data:: CompiledMaskImage = np.ndarray
 
       2d of integers (of different precision)
-
-   .. autodata:: CompiledMaskImage = np.ndarray
 
    .. autoclass:: CompiledMask
       :members:

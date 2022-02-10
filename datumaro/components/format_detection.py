@@ -250,6 +250,7 @@ class FormatDetectionContext:
         To do so, use a `with` statement, with the alternative sets of
         requirements represented as nested `with` statements using the context
         manager returned by `alternative`:
+
         .. codeblock::
 
             with context.require_any():

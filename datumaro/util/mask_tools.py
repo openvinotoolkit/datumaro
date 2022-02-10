@@ -15,8 +15,8 @@ def generate_colormap(length=256, *, include_background=True):
     Generates colors using PASCAL VOC algorithm.
 
     If include_background is True, the result will include the item
-        "0: (0, 0, 0)", which is typically used as a background color.
-        Otherwise, indices will start from 0, but (0, 0, 0) is not included.
+    "0: (0, 0, 0)", which is typically used as a background color.
+    Otherwise, indices will start from 0, but (0, 0, 0) is not included.
 
     Returns index -> (R, G, B) mapping.
     """
