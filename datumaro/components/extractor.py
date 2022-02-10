@@ -257,7 +257,9 @@ class SourceExtractor(Extractor):
     Should be used by default for user-defined extractors.
     """
 
-    def __init__(self, *, length=None, subset=None,
+    def __init__(self, *,
+            length: Optional[int] = None,
+            subset: Optional[str] = None,
             ctx: Optional[ImportContext] = None):
         self._subset = subset or DEFAULT_SUBSET_NAME
         super().__init__(length=length, subsets=[self._subset], ctx=ctx)
