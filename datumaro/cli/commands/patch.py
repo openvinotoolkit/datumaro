@@ -11,10 +11,7 @@ from datumaro.components.environment import Environment
 from datumaro.components.errors import ProjectNotFoundError
 from datumaro.util.scope import scope_add, scoped
 
-from ..util import (
-    MultilineFormatter, make_export_error_policy, make_import_error_policy,
-    make_progress_reporter,
-)
+from ..util import MultilineFormatter, make_cli_context
 from ..util.errors import CliException
 from ..util.project import load_project, parse_full_revpath
 
@@ -118,9 +115,11 @@ def patch_command(args):
     else:
         env = Environment()
 
-    progress_reporter = make_progress_reporter(cli_args=args)
+    cli_ctx = make_cli_context(args)
+
     target_dataset, _project = parse_full_revpath(args.target, project,
-        error_policy=make_import_error_policy(cli_args=args))
+        progress_reporter=cli_ctx.progress_reporter,
+        error_policy=cli_ctx.import_error_policy)
     if _project is not None:
         scope_add(_project)
 
@@ -131,6 +130,8 @@ def patch_command(args):
             args.format)
 
     extra_args = converter.parse_cmdline(args.extra_args)
+
+    cli_ctx = make_cli_context(args)
 
     dst_dir = args.dst_dir or target_dataset.data_path
     if not args.overwrite and osp.isdir(dst_dir) and os.listdir(dst_dir):
@@ -145,8 +146,8 @@ def patch_command(args):
     target_dataset.update(patch_dataset)
 
     target_dataset.save(save_dir=dst_dir, **extra_args,
-        progress_reporter=progress_reporter,
-        error_policy=make_export_error_policy(cli_args=args))
+        progress_reporter=cli_ctx.progress_reporter,
+        error_policy=cli_ctx.export_error_policy)
 
     log.info("Patched dataset has been saved to '%s'" % dst_dir)
 

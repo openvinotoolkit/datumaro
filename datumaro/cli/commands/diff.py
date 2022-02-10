@@ -15,9 +15,7 @@ from datumaro.util.os_util import rmtree
 from datumaro.util.scope import on_error_do, scope_add, scoped
 
 from ..contexts.project.diff import DiffVisualizer
-from ..util import (
-    MultilineFormatter, make_import_error_policy, make_progress_reporter,
-)
+from ..util import MultilineFormatter, make_cli_context
 from ..util.errors import CliException
 from ..util.project import (
     generate_next_file_name, load_project, parse_full_revpath,
@@ -161,30 +159,29 @@ def diff_command(args):
         if args.project_dir:
             raise
 
-    try:
-        progress_reporter = make_progress_reporter(cli_args=args)
-        error_policy = make_import_error_policy(cli_args=args)
+    cli_ctx = make_cli_context(args)
 
+    try:
         if not args.second_target:
             first_dataset = project.working_tree.make_dataset()
             second_dataset, target_project = \
                 parse_full_revpath(args.first_target, project,
-                    progress_reporter=progress_reporter,
-                    error_policy=error_policy)
+                    progress_reporter=cli_ctx.progress_reporter,
+                    error_policy=cli_ctx.import_error_policy)
             if target_project:
                 scope_add(target_project)
         else:
             first_dataset, target_project = \
                 parse_full_revpath(args.first_target, project,
-                    progress_reporter=progress_reporter,
-                    error_policy=error_policy)
+                    progress_reporter=cli_ctx.progress_reporter,
+                    error_policy=cli_ctx.import_error_policy)
             if target_project:
                 scope_add(target_project)
 
             second_dataset, target_project = \
                 parse_full_revpath(args.second_target, project,
-                    progress_reporter=progress_reporter,
-                    error_policy=error_policy)
+                    progress_reporter=cli_ctx.progress_reporter,
+                    error_policy=cli_ctx.import_error_policy)
             if target_project:
                 scope_add(target_project)
     except Exception as e:

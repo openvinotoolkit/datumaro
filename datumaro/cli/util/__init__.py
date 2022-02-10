@@ -8,6 +8,7 @@ import argparse
 import logging as log
 import textwrap
 
+from attrs import define
 from tqdm import tqdm
 
 from datumaro.components.converter import ExportErrorPolicy
@@ -124,17 +125,22 @@ class ErrorPolicy(Enum):
     fail = auto()
     skip = auto()
 
-def make_progress_reporter(*, cli_args):
+@define
+class CliContext:
+    progress_reporter: Optional[ProgressReporter] = None
+    import_error_policy: Optional[ImportErrorPolicy] = None
+    export_error_policy: Optional[ExportErrorPolicy] = None
+
+def make_cli_context(cli_args) -> CliContext:
+    ctx = CliContext()
+
     if cli_args.allow_ui:
-        return CliProgressReporter()
-    return None
+        ctx.progress_reporter = CliProgressReporter()
 
-def make_import_error_policy(*, cli_args):
     if cli_args.error_policy is ErrorPolicy.skip:
-        return RelaxedImportErrorPolicy()
-    return None
+        ctx.import_error_policy = RelaxedImportErrorPolicy()
 
-def make_export_error_policy(*, cli_args):
     if cli_args.error_policy is ErrorPolicy.skip:
-        return RelaxedExportErrorPolicy()
-    return None
+        ctx.export_error_policy = RelaxedExportErrorPolicy()
+
+    return ctx

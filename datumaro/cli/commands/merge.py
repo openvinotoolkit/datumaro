@@ -18,10 +18,7 @@ from datumaro.components.project import ProjectBuildTargets
 from datumaro.util import dump_json_file
 from datumaro.util.scope import scope_add, scoped
 
-from ..util import (
-    MultilineFormatter, join_cli_args, make_export_error_policy,
-    make_import_error_policy, make_progress_reporter,
-)
+from ..util import MultilineFormatter, join_cli_args, make_cli_context
 from ..util.errors import CliException
 from ..util.project import (
     generate_next_file_name, load_project, parse_full_revpath,
@@ -182,17 +179,17 @@ def merge_command(args):
 
     export_args = converter.parse_cmdline(args.extra_args)
 
+    cli_ctx = make_cli_context(args)
+
     source_datasets = []
     try:
-        progress_reporter = make_progress_reporter(cli_args=args)
-        error_policy = make_import_error_policy(cli_args=args)
-
         if len(args.targets) == 1:
             source_datasets.append(project.working_tree.make_dataset())
 
         for t in args.targets:
             target_dataset, target_project = parse_full_revpath(t, project,
-                progress_reporter=progress_reporter, error_policy=error_policy)
+                progress_reporter=cli_ctx.progress_reporter,
+                error_policy=cli_ctx.import_error_policy)
             if target_project:
                 scope_add(target_project)
             source_datasets.append(target_dataset)
@@ -206,8 +203,8 @@ def merge_command(args):
     merged_dataset = merger(source_datasets)
 
     merged_dataset.export(save_dir=dst_dir, format=converter, **export_args,
-        progress_reporter=progress_reporter,
-        error_policy=make_export_error_policy(cli_args=args))
+        progress_reporter=cli_ctx.progress_reporter,
+        error_policy=cli_ctx.export_error_policy)
 
     report_path = osp.join(dst_dir, 'merge_report.json')
     save_merge_report(merger, report_path)

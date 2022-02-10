@@ -10,9 +10,7 @@ import os.path as osp
 from datumaro.util.image import is_image, load_image, save_image
 from datumaro.util.scope import scope_add, scoped
 
-from ..util import (
-    MultilineFormatter, make_import_error_policy, make_progress_reporter,
-)
+from ..util import MultilineFormatter, make_cli_context
 from ..util.project import load_project, parse_full_revpath
 
 
@@ -177,10 +175,11 @@ def explain_command(args):
             cv2.waitKey(0)
 
     else:
+        cli_ctx = make_cli_context(args)
         dataset, target_project = \
             parse_full_revpath(args.target or 'project', project,
-                progress_reporter=make_progress_reporter(cli_args=args),
-                error_policy=make_import_error_policy(cli_args=args))
+                progress_reporter=cli_ctx.progress_reporter,
+                error_policy=cli_ctx.import_error_policy)
         if target_project:
             scope_add(target_project)
 

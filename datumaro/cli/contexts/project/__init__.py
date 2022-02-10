@@ -20,10 +20,7 @@ from datumaro.util import dump_json_file, str_to_bool
 from datumaro.util.os_util import make_file_name
 from datumaro.util.scope import scope_add, scoped
 
-from ...util import (
-    MultilineFormatter, add_subparser, make_export_error_policy,
-    make_import_error_policy, make_progress_reporter,
-)
+from ...util import MultilineFormatter, add_subparser, make_cli_context
 from ...util.errors import CliException
 from ...util.project import (
     generate_next_file_name, load_project, parse_full_revpath,
@@ -200,9 +197,10 @@ def export_command(args):
 
     log.info("Exporting...")
 
+    cli_ctx = make_cli_context(args)
     dataset.export(save_dir=dst_dir, format=converter, **extra_args,
-        progress_reporter=make_progress_reporter(cli_args=args),
-        error_policy=make_export_error_policy(cli_args=args))
+        progress_reporter=cli_ctx.progress_reporter,
+        error_policy=cli_ctx.export_error_policy)
 
     log.info("Results have been saved to '%s'" % dst_dir)
 
@@ -333,9 +331,10 @@ def filter_command(args):
     filter_expr = args.filter
 
     if args.dry_run:
+        cli_ctx = make_cli_context(args)
         dataset, _project = parse_full_revpath(args.target, project,
-            progress_reporter=make_progress_reporter(cli_args=args),
-            error_policy=make_import_error_policy(cli_args=args))
+            progress_reporter=cli_ctx.progress_reporter,
+            error_policy=cli_ctx.import_error_policy)
         if _project:
             scope_add(_project)
 
@@ -385,11 +384,11 @@ def filter_command(args):
 
             log.info("Finished")
         else:
-            progress_reporter = make_progress_reporter(cli_args=args)
+            cli_ctx = make_cli_context(args)
 
             dataset, _project = parse_full_revpath(args.target, project,
-                progress_reporter=progress_reporter,
-                error_policy=make_import_error_policy(cli_args=args))
+                progress_reporter=cli_ctx.progress_reporter,
+                error_policy=cli_ctx.import_error_policy)
             if _project:
                 scope_add(_project)
 
@@ -401,8 +400,8 @@ def filter_command(args):
 
             dataset.filter(filter_expr, *filter_args)
             dataset.save(dst_dir, save_images=True,
-                progress_reporter=progress_reporter,
-                error_policy=make_export_error_policy(cli_args=args))
+                progress_reporter=cli_ctx.progress_reporter,
+                error_policy=cli_ctx.export_error_policy)
 
             log.info("Results have been saved to '%s'" % dst_dir)
 
@@ -577,11 +576,11 @@ def transform_command(args):
 
             log.info("Finished")
         else:
-            progress_reporter=make_progress_reporter(cli_args=args)
+            cli_ctx = make_cli_context(args)
 
             dataset, _project = parse_full_revpath(args.target, project,
-                progress_reporter=progress_reporter,
-                error_policy=make_import_error_policy(cli_args=args))
+                progress_reporter=cli_ctx.progress_reporter,
+                error_policy=cli_ctx.import_error_policy)
             if _project:
                 scope_add(_project)
 
@@ -593,8 +592,8 @@ def transform_command(args):
 
             dataset.transform(args.transform, **extra_args)
             dataset.save(dst_dir, save_images=True,
-                progress_reporter=progress_reporter,
-                error_policy=make_export_error_policy(cli_args=args))
+                progress_reporter=cli_ctx.progress_reporter,
+                error_policy=cli_ctx.export_error_policy)
 
             log.info("Results have been saved to '%s'" % dst_dir)
 
@@ -656,9 +655,11 @@ def stats_command(args):
         if args.project_dir:
             raise
 
+    cli_ctx = make_cli_context(args)
+
     dataset, target_project = parse_full_revpath(args.target, project,
-        progress_reporter=make_import_error_policy(cli_args=args),
-        error_policy=make_import_error_policy(cli_args=args))
+        progress_reporter=cli_ctx.progress_reporter,
+        error_policy=cli_ctx.import_error_policy)
     if target_project:
         scope_add(target_project)
 
@@ -832,9 +833,11 @@ def validate_command(args):
 
     extra_args = validator_type.parse_cmdline(args.extra_args)
 
+    cli_ctx = make_cli_context(args)
+
     dataset, target_project = parse_full_revpath(args.target, project,
-        progress_reporter=make_progress_reporter(cli_args=args),
-        error_policy=make_import_error_policy(cli_args=args))
+        progress_reporter=cli_ctx.progress_reporter,
+        error_policy=cli_ctx.import_error_policy)
     if target_project:
         scope_add(target_project)
 
