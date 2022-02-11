@@ -218,9 +218,9 @@ class FailingImportErrorPolicy(ImportErrorPolicy):
 @define(eq=False)
 class ImportContext:
     progress_reporter: ProgressReporter = field(default=None,
-        converter=attr.converters.default_if_none(NullProgressReporter))
+        converter=attr.converters.default_if_none(factory=NullProgressReporter))
     error_policy: ImportErrorPolicy = field(default=None,
-        converter=attr.converters.default_if_none(FailingImportErrorPolicy))
+        converter=attr.converters.default_if_none(factory=FailingImportErrorPolicy))
 
 class NullImportContext(ImportContext):
     pass

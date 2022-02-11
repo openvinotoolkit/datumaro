@@ -923,21 +923,23 @@ class Dataset(IDataset):
         has_ctx_args = progress_reporter is not None or error_policy is not None
 
         assert 'ctx' not in kwargs
-        kwargs['ctx'] = ExportContext(progress_reporter=progress_reporter,
+        converter_kwargs = copy(kwargs)
+        converter_kwargs['ctx'] = ExportContext(
+            progress_reporter=progress_reporter,
             error_policy=error_policy)
 
         if not inplace:
             try:
-                converter.convert(self, save_dir=save_dir, **kwargs)
+                converter.convert(self, save_dir=save_dir, **converter_kwargs)
             except TypeError as e:
-                if has_ctx_args and \
-                        "unexpected keyword argument 'ctx'" in str(e):
-                    warnings.warn("It seems that '%s' converter "
-                        "does not support progress and error reporting, "
-                        "it will be disabled" % format, DeprecationWarning)
-                    kwargs.pop('ctx')
+                if "unexpected keyword argument 'ctx'" in str(e):
+                    if has_ctx_args:
+                        warnings.warn("It seems that '%s' converter "
+                            "does not support progress and error reporting, "
+                            "it will be disabled" % format, DeprecationWarning)
+                    converter_kwargs.pop('ctx')
                     converter.convert(self, self.get_patch(), save_dir=save_dir,
-                        **kwargs)
+                        **converter_kwargs)
                 else:
                     raise
 
@@ -947,16 +949,16 @@ class Dataset(IDataset):
         else:
             try:
                 converter.patch(self, self.get_patch(), save_dir=save_dir,
-                    **kwargs)
+                    **converter_kwargs)
             except TypeError as e:
-                if has_ctx_args and \
-                        "unexpected keyword argument 'ctx'" in str(e):
-                    warnings.warn("It seems that '%s' converter "
-                        "does not support progress and error reporting, "
-                        "it will be disabled" % format, DeprecationWarning)
-                    kwargs.pop('ctx')
+                if "unexpected keyword argument 'ctx'" in str(e):
+                    if has_ctx_args:
+                        warnings.warn("It seems that '%s' converter "
+                            "does not support progress and error reporting, "
+                            "it will be disabled" % format, DeprecationWarning)
+                    converter_kwargs.pop('ctx')
                     converter.patch(self, self.get_patch(), save_dir=save_dir,
-                        **kwargs)
+                        **converter_kwargs)
                 else:
                     raise
 
@@ -1037,12 +1039,12 @@ class Dataset(IDataset):
                     src_conf.format, src_conf.url, **extractor_kwargs
                 ))
             except TypeError as e:
-                if has_ctx_args and \
-                        "unexpected keyword argument 'ctx'" in str(e):
-                    warnings.warn("It seems that '%s' extractor "
-                        "does not support progress and error reporting, "
-                        "it will be disabled" % src_conf.format,
-                        DeprecationWarning)
+                if "unexpected keyword argument 'ctx'" in str(e):
+                    if has_ctx_args:
+                        warnings.warn("It seems that '%s' extractor "
+                            "does not support progress and error reporting, "
+                            "it will be disabled" % src_conf.format,
+                            DeprecationWarning)
                     extractor_kwargs.pop('ctx')
                     extractors.append(env.make_extractor(
                         src_conf.format, src_conf.url, **extractor_kwargs

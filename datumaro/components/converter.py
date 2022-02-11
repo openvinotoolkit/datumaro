@@ -10,6 +10,7 @@ import os.path as osp
 import shutil
 
 from attrs import define, field
+import attr
 
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.errors import (
@@ -63,8 +64,10 @@ class FailingExportErrorPolicy(ExportErrorPolicy):
 
 @define(eq=False)
 class ExportContext:
-    progress_reporter: ProgressReporter = field(factory=NullProgressReporter)
-    error_policy: ExportErrorPolicy = field(factory=FailingExportErrorPolicy)
+    progress_reporter: ProgressReporter = field(default=None,
+        converter=attr.converters.default_if_none(factory=NullProgressReporter))
+    error_policy: ExportErrorPolicy = field(default=None,
+        converter=attr.converters.default_if_none(factory=FailingExportErrorPolicy))
 
 class NullExportContext(ExportContext):
     pass

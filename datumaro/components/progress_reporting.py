@@ -58,15 +58,11 @@ class ProgressReporter:
             if total:
                 display_step = math.ceil(total * self.get_frequency())
 
-            i = 0
             for i, elem in enumerate(iterable):
                 if not total or i % display_step == 0:
                     self.report_status(i)
 
                 yield elem
-
-            if i:
-                self.report_status(i)
         finally:
             self.finish()
 
