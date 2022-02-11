@@ -265,6 +265,21 @@ class VocConverter(Converter):
                 self.save_segm_lists(subset_name, segm_list)
 
     def _write_xml_objects(self, item, image_filename, bboxes, has_masks):
+        objects_with_parts = []
+        objects_with_actions = defaultdict(dict)
+
+        main_bboxes = []
+        layout_bboxes = []
+        for bbox in bboxes:
+            label = self.get_label(bbox.label)
+            if self._is_part(label):
+                layout_bboxes.append(bbox)
+            elif self._is_label(label):
+                main_bboxes.append(bbox)
+
+        if not main_bboxes:
+            return objects_with_parts, objects_with_actions
+
         root_elem = ET.Element('annotation')
         if '_' in item.id:
             folder = item.id[ : item.id.find('_')]
@@ -286,18 +301,6 @@ class VocConverter(Converter):
             ET.SubElement(size_elem, 'depth').text = ''
 
         ET.SubElement(root_elem, 'segmented').text = str(int(has_masks))
-
-        objects_with_parts = []
-        objects_with_actions = defaultdict(dict)
-
-        main_bboxes = []
-        layout_bboxes = []
-        for bbox in bboxes:
-            label = self.get_label(bbox.label)
-            if self._is_part(label):
-                layout_bboxes.append(bbox)
-            elif self._is_label(label):
-                main_bboxes.append(bbox)
 
         for new_obj_id, obj in enumerate(main_bboxes):
             attr = obj.attributes
