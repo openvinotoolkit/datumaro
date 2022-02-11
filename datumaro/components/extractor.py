@@ -182,7 +182,7 @@ class _ImportFail(DatumaroError):
     pass
 
 class ImportErrorPolicy:
-    def report_item_error(self, error: ItemImportError) -> Optional[NoReturn]:
+    def report_item_error(self, error: ItemImportError):
         """
         Allows to report a problem with a dataset item.
 
@@ -191,8 +191,7 @@ class ImportErrorPolicy:
         """
         raise NotImplementedError
 
-    def report_annotation_error(self,
-            error: AnnotationImportError) -> Optional[NoReturn]:
+    def report_annotation_error(self, error: AnnotationImportError):
         """
         Allows to report a problem with a dataset item annotation.
 
@@ -234,7 +233,13 @@ class Extractor(_ExtractorBase, CliPlugin):
             yield from iterable
 
     def _report_item_error(self, error: Exception, *,
-            item_id: Tuple[str, str]) -> Optional[NoReturn]:
+            item_id: Tuple[str, str]):
+        """
+        Allows to report a problem with a dataset item.
+
+        This function must either fail or return. If this function
+        returns, the extractor must skip the item.
+        """
         if self._ctx and self._ctx.error_policy and \
                 not isinstance(error, _ImportFail):
             ie = ItemImportError(item_id)
@@ -243,7 +248,13 @@ class Extractor(_ExtractorBase, CliPlugin):
         raise _ImportFail from error
 
     def _report_annotation_error(self, error: Exception, *,
-            item_id: Tuple[str, str]) -> Optional[NoReturn]:
+            item_id: Tuple[str, str]):
+        """
+        Allows to report a problem with a dataset item annotation.
+
+        This function must either fail or return. If this function
+        returns, the extractor must skip the item.
+        """
         if self._ctx and self._ctx.error_policy and \
                 not isinstance(error, _ImportFail):
             ie = AnnotationImportError(item_id)

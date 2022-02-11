@@ -28,7 +28,7 @@ class _ExportFail(DatumaroError):
     pass
 
 class ExportErrorPolicy:
-    def report_item_error(self, error: ItemExportError) -> Optional[NoReturn]:
+    def report_item_error(self, error: ItemExportError):
         """
         Allows to report a problem with a dataset item.
 
@@ -37,8 +37,7 @@ class ExportErrorPolicy:
         """
         raise NotImplementedError
 
-    def report_annotation_error(self,
-            error: AnnotationExportError) -> Optional[NoReturn]:
+    def report_annotation_error(self, error: AnnotationExportError):
         """
         Allows to report a problem with a dataset item annotation.
 
@@ -208,7 +207,13 @@ class Converter(CliPlugin):
             yield from iterable
 
     def _report_item_error(self, error: Exception, *,
-            item_id: Tuple[str, str]) -> Optional[NoReturn]:
+            item_id: Tuple[str, str]):
+        """
+        Allows to report a problem with a dataset item.
+
+        This function must either fail or return. If this function
+        returns, the converter must skip the item.
+        """
         if self._ctx and self._ctx.error_policy and \
                 not isinstance(error, _ExportFail):
             ie = ItemExportError(item_id)
@@ -217,7 +222,13 @@ class Converter(CliPlugin):
         raise _ExportFail from error
 
     def _report_annotation_error(self, error: Exception, *,
-            item_id: Tuple[str, str]) -> Optional[NoReturn]:
+            item_id: Tuple[str, str]):
+        """
+        Allows to report a problem with a dataset item annotation.
+
+        This function must either fail or return. If this function
+        returns, the converter must skip the item.
+        """
         if self._ctx and self._ctx.error_policy and \
                 not isinstance(error, _ExportFail):
             ie = AnnotationExportError(item_id)
