@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 from collections import OrderedDict
+from typing import Dict
 import os.path as osp
 import re
 
@@ -96,7 +97,7 @@ class YoloExtractor(SourceExtractor):
                 )
             subsets[subset_name] = subset
 
-        self._subsets = subsets
+        self._subsets: Dict[str, YoloExtractor.Subset] = subsets
 
         self._categories = {
             AnnotationType.label:
@@ -187,9 +188,10 @@ class YoloExtractor(SourceExtractor):
         return label_categories
 
     def __iter__(self):
-        for subset_name, subset in self._subsets.items():
-            for item in self._with_progress(subset,
-                    desc=f"Parsing '{subset_name}'"):
+        subsets = self._subsets
+        pbars = self._ctx.progress_reporter.split(len(subsets))
+        for pbar, (subset_name, subset) in zip(pbars, subsets.items()):
+            for item in pbar.iter(subset, desc=f"Parsing '{subset_name}'"):
                 yield item
 
     def __len__(self):

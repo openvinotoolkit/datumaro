@@ -3,13 +3,13 @@
 # SPDX-License-Identifier: MIT
 
 from tempfile import mkdtemp
-from typing import Iterable, NoReturn, Optional, Tuple, TypeVar, Union
+from typing import NoReturn, Optional, Tuple, TypeVar, Union
 import logging as log
 import os
 import os.path as osp
 import shutil
 
-from attrs import define
+from attrs import define, field
 
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.errors import (
@@ -17,7 +17,9 @@ from datumaro.components.errors import (
 )
 from datumaro.components.extractor import DatasetItem, IExtractor
 from datumaro.components.media import Image
-from datumaro.components.progress_reporting import ProgressReporter
+from datumaro.components.progress_reporting import (
+    NullProgressReporter, ProgressReporter,
+)
 from datumaro.util.meta_file_util import save_meta_file
 from datumaro.util.os_util import rmtree
 from datumaro.util.scope import on_error_do, scoped
@@ -49,10 +51,23 @@ class ExportErrorPolicy:
     def fail(self, error: Exception) -> NoReturn:
         raise _ExportFail from error
 
+class FailingExportErrorPolicy(ExportErrorPolicy):
+    def report_item_error(self, error: ItemExportError):
+        self.fail(error)
+
+    def report_annotation_error(self, error: AnnotationExportError):
+        self.fail(error)
+
+    def fail(self, error: Exception) -> NoReturn:
+        raise _ExportFail from error
+
 @define(eq=False)
 class ExportContext:
-    progress_reporter: Optional[ProgressReporter] = None
-    error_policy: Optional[ExportErrorPolicy] = None
+    progress_reporter: ProgressReporter = field(factory=NullProgressReporter)
+    error_policy: ExportErrorPolicy = field(factory=FailingExportErrorPolicy)
+
+class NullExportContext(ExportContext):
+    pass
 
 class Converter(CliPlugin):
     DEFAULT_IMAGE_EXT = None
@@ -134,7 +149,9 @@ class Converter(CliPlugin):
         else:
             self._patch = None
 
-        self._ctx = ctx
+        if ctx is None:
+            ctx = NullExportContext()
+        self._ctx: ExportContext = ctx
 
     def _find_image_ext(self, item: Union[DatasetItem, Image]):
         src_ext = None
@@ -195,16 +212,6 @@ class Converter(CliPlugin):
 
     def _save_meta_file(self, path):
         save_meta_file(path, self._extractor.categories())
-
-    def _with_progress(self, iterable: Iterable[T], *,
-            total: Optional[int] = None,
-            desc: Optional[str] = None
-    ) -> Iterable[T]:
-        if self._ctx and self._ctx.progress_reporter:
-            yield from self._ctx.progress_reporter.iter(iterable,
-                total=total, desc=desc)
-        else:
-            yield from iterable
 
     def _report_item_error(self, error: Exception, *,
             item_id: Tuple[str, str]):

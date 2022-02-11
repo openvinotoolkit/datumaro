@@ -125,10 +125,10 @@ class _CocoExtractor(SourceExtractor):
         self._categories[AnnotationType.points] = categories
 
     def _load_items(self, json_data):
+        pbars = self._ctx.progress_reporter.split(2)
         items = {}
-
         img_infos = {}
-        for img_info in self._with_progress(json_data['images'],
+        for img_info in pbars[0].iter(json_data['images'],
                 desc="Parsing image info"):
             img_id = None
             try:
@@ -152,7 +152,7 @@ class _CocoExtractor(SourceExtractor):
                 self._report_item_error(e, item_id=(img_id, self._subset))
 
         if self._task is not CocoTask.panoptic:
-            for ann in self._with_progress(json_data['annotations'],
+            for ann in pbars[1].iter(json_data['annotations'],
                     desc="Parsing annotations"):
                 img_id = None
                 try:
@@ -163,7 +163,7 @@ class _CocoExtractor(SourceExtractor):
                     self._report_annotation_error(e,
                         item_id=(img_id, self._subset))
         else:
-            for ann in self._with_progress(json_data['annotations'],
+            for ann in pbars[1].iter(json_data['annotations'],
                     desc='Parsing annotations'):
                 img_id = None
                 try:

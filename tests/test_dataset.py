@@ -1502,7 +1502,8 @@ class DatasetTest(TestCase):
                 super().__init__(**kwargs)
 
             def __iter__(self):
-                list(self._with_progress([None] * 5, desc='loading images'))
+                list(self._ctx.progress_reporter.iter(
+                    [None] * 5, desc='loading images'))
                 yield from []
 
         class TestProgressReporter(ProgressReporter):
@@ -1562,7 +1563,8 @@ class DatasetTest(TestCase):
             DEFAULT_IMAGE_EXT = '.jpg'
 
             def apply(self):
-                list(self._with_progress([None] * 5, desc='loading images'))
+                list(self._ctx.progress_reporter.iter(
+                    [None] * 5, desc='loading images'))
 
         class TestProgressReporter(ProgressReporter):
             pass

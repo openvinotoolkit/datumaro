@@ -6,8 +6,8 @@ from __future__ import annotations
 
 from glob import iglob
 from typing import (
-    Any, Callable, Dict, Iterable, Iterator, List, NoReturn, Optional, Sequence,
-    Tuple, TypeVar,
+    Any, Callable, Dict, Iterator, List, NoReturn, Optional, Sequence, Tuple,
+    TypeVar,
 )
 import os
 import os.path as osp
@@ -27,7 +27,9 @@ from datumaro.components.format_detection import (
     FormatDetectionConfidence, FormatDetectionContext,
 )
 from datumaro.components.media import Image
-from datumaro.components.progress_reporting import ProgressReporter
+from datumaro.components.progress_reporting import (
+    NullProgressReporter, ProgressReporter,
+)
 from datumaro.util import is_method_redefined
 from datumaro.util.attrs_util import default_if_none, not_empty
 
@@ -203,10 +205,25 @@ class ImportErrorPolicy:
     def fail(self, error: Exception) -> NoReturn:
         raise _ImportFail from error
 
+class FailingImportErrorPolicy(ImportErrorPolicy):
+    def report_item_error(self, error: ItemImportError):
+        self.fail(error)
+
+    def report_annotation_error(self, error: AnnotationImportError):
+        self.fail(error)
+
+    def fail(self, error: Exception) -> NoReturn:
+        raise _ImportFail from error
+
 @define(eq=False)
 class ImportContext:
-    progress_reporter: Optional[ProgressReporter] = None
-    error_policy: Optional[ImportErrorPolicy] = None
+    progress_reporter: ProgressReporter = field(default=None,
+        converter=attr.converters.default_if_none(NullProgressReporter))
+    error_policy: ImportErrorPolicy = field(default=None,
+        converter=attr.converters.default_if_none(FailingImportErrorPolicy))
+
+class NullImportContext(ImportContext):
+    pass
 
 class Extractor(_ExtractorBase, CliPlugin):
     """
@@ -220,17 +237,10 @@ class Extractor(_ExtractorBase, CliPlugin):
             subsets: Optional[Sequence[str]] = None,
             ctx: Optional[ImportContext] = None):
         super().__init__(length=length, subsets=subsets)
-        self._ctx = ctx
 
-    def _with_progress(self, iterable: Iterable[T], *,
-            total: Optional[int] = None,
-            desc: Optional[str] = None
-    ) -> Iterable[T]:
-        if self._ctx and self._ctx.progress_reporter:
-            yield from self._ctx.progress_reporter.iter(iterable,
-                total=total, desc=desc)
-        else:
-            yield from iterable
+        if ctx is None:
+            ctx = NullImportContext()
+        self._ctx: ImportContext = ctx
 
     def _report_item_error(self, error: Exception, *,
             item_id: Tuple[str, str]):

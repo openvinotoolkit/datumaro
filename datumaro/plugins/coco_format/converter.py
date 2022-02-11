@@ -651,15 +651,16 @@ class CocoConverter(Converter):
         if self._save_dataset_meta:
             self._save_meta_file(self._save_dir)
 
-        for subset_name, subset in self._extractor.subsets().items():
+        subsets = self._extractor.subsets()
+        pbars = self._ctx.progress_reporter.split(len(subsets))
+        for pbar, (subset_name, subset) in zip(pbars, subsets.items()):
             task_converters = self._make_task_converters()
             for task_conv in task_converters.values():
                 task_conv.save_categories(subset)
             if CocoTask.panoptic in task_converters:
                 self._make_segmentation_dir(subset_name)
 
-            for item in self._with_progress(subset,
-                    desc=f'Exporting {subset_name}'):
+            for item in pbar.iter(subset, desc=f'Exporting {subset_name}'):
                 try:
                     if self._save_images:
                         if item.has_image:

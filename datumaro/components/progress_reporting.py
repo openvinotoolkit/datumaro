@@ -2,7 +2,9 @@
 #
 # SPDX-License-Identifier: MIT
 
-from typing import Iterable, Optional, TypeVar
+from __future__ import annotations
+
+from typing import Iterable, Optional, Tuple, TypeVar
 import math
 
 T = TypeVar('T')
@@ -38,10 +40,10 @@ class ProgressReporter:
         Starts and finishes the progress bar automatically.
 
         Args:
-            iterable - An iterable to be traversed
-            total - The expected number of iterations. If not provided, will
+            iterable: An iterable to be traversed
+            total: The expected number of iterations. If not provided, will
               try to use iterable.__len__.
-            desc - The status message
+            desc: The status message
 
         Returns:
             An iterable over elements of the input sequence
@@ -67,3 +69,29 @@ class ProgressReporter:
                 self.report_status(i)
         finally:
             self.finish()
+
+    def split(self, count: int) -> Tuple[ProgressReporter, ...]:
+        """Splits the progress bar into few parts"""
+        raise NotImplementedError
+
+class NullProgressReporter(ProgressReporter):
+    def get_frequency(self) -> float:
+        return 0
+
+    def start(self, total: int, *, desc: Optional[str] = None):
+        pass
+
+    def report_status(self, progress: int):
+        pass
+
+    def finish(self):
+        pass
+
+    def iter(self, iterable: Iterable[T], *,
+            total: Optional[int] = None,
+            desc: Optional[str] = None
+    ) -> Iterable[T]:
+        yield from iterable
+
+    def split(self, count: int) -> Tuple[ProgressReporter]:
+        return (self, ) * count
