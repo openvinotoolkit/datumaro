@@ -358,13 +358,11 @@ class VocConverter(Converter):
                 if len(attrs_elem):
                     obj_elem.append(attrs_elem)
 
-        if self._tasks & {VocTask.detection, VocTask.person_layout,
-                            VocTask.action_classification}:
-            ann_path = osp.join(self._ann_dir, item.id + '.xml')
-            os.makedirs(osp.dirname(ann_path), exist_ok=True)
-            with open(ann_path, 'w', encoding='utf-8') as f:
-                f.write(ET.tostring(root_elem,
-                    encoding='unicode', pretty_print=True))
+        ann_path = osp.join(self._ann_dir, item.id + '.xml')
+        os.makedirs(osp.dirname(ann_path), exist_ok=True)
+        with open(ann_path, 'w', encoding='utf-8') as f:
+            f.write(ET.tostring(root_elem,
+                encoding='unicode', pretty_print=True))
 
         return objects_with_parts, objects_with_actions
 
