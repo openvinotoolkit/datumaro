@@ -130,6 +130,7 @@ class _CocoExtractor(SourceExtractor):
         img_infos = {}
         for img_info in self._with_progress(json_data['images'],
                 desc="Parsing image info"):
+            img_id = None
             try:
                 img_id = img_info['id']
                 img_infos[img_id] = img_info
