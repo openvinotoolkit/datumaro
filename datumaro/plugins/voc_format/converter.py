@@ -199,110 +199,9 @@ class VocConverter(Converter):
 
                 if self._tasks & {VocTask.detection, VocTask.person_layout,
                         VocTask.action_classification}:
-                    root_elem = ET.Element('annotation')
-                    if '_' in item.id:
-                        folder = item.id[ : item.id.find('_')]
-                    else:
-                        folder = ''
-                    ET.SubElement(root_elem, 'folder').text = folder
-                    ET.SubElement(root_elem, 'filename').text = image_filename
-
-                    source_elem = ET.SubElement(root_elem, 'source')
-                    ET.SubElement(source_elem, 'database').text = 'Unknown'
-                    ET.SubElement(source_elem, 'annotation').text = 'Unknown'
-                    ET.SubElement(source_elem, 'image').text = 'Unknown'
-
-                    if item.has_image and item.image.has_size:
-                        h, w = item.image.size
-                        size_elem = ET.SubElement(root_elem, 'size')
-                        ET.SubElement(size_elem, 'width').text = str(w)
-                        ET.SubElement(size_elem, 'height').text = str(h)
-                        ET.SubElement(size_elem, 'depth').text = ''
-
-                    item_segmented = 0 < len(masks)
-                    ET.SubElement(root_elem, 'segmented').text = \
-                        str(int(item_segmented))
-
-                    objects_with_parts = []
-                    objects_with_actions = defaultdict(dict)
-
-                    main_bboxes = []
-                    layout_bboxes = []
-                    for bbox in bboxes:
-                        label = self.get_label(bbox.label)
-                        if self._is_part(label):
-                            layout_bboxes.append(bbox)
-                        elif self._is_label(label):
-                            main_bboxes.append(bbox)
-
-                    for new_obj_id, obj in enumerate(main_bboxes):
-                        attr = obj.attributes
-
-                        obj_elem = ET.SubElement(root_elem, 'object')
-
-                        obj_label = self.get_label(obj.label)
-                        ET.SubElement(obj_elem, 'name').text = obj_label
-
-                        if 'pose' in attr:
-                            ET.SubElement(obj_elem, 'pose').text = \
-                                str(attr['pose'])
-
-                        ET.SubElement(obj_elem, 'truncated').text = \
-                            '%d' % _convert_attr('truncated', attr, int, 0)
-                        ET.SubElement(obj_elem, 'occluded').text = \
-                            '%d' % _convert_attr('occluded', attr, int, 0)
-                        ET.SubElement(obj_elem, 'difficult').text = \
-                            '%d' % _convert_attr('difficult', attr, int, 0)
-
-                        bbox = obj.get_bbox()
-                        if bbox is not None:
-                            _write_xml_bbox(bbox, obj_elem)
-
-                        for part_bbox in filter(
-                                lambda x: obj.group and obj.group == x.group,
-                                layout_bboxes):
-                            part_elem = ET.SubElement(obj_elem, 'part')
-                            ET.SubElement(part_elem, 'name').text = \
-                                self.get_label(part_bbox.label)
-                            _write_xml_bbox(part_bbox.get_bbox(), part_elem)
-
-                            objects_with_parts.append(new_obj_id)
-
-                        label_actions = self._get_actions(obj_label)
-                        actions_elem = ET.Element('actions')
-                        for action in label_actions:
-                            present = 0
-                            if action in attr:
-                                present = _convert_attr(action, attr,
-                                    lambda v: int(v is True), 0)
-                                ET.SubElement(actions_elem, action).text = \
-                                    '%d' % present
-
-                            objects_with_actions[new_obj_id][action] = present
-                        if len(actions_elem) != 0:
-                            obj_elem.append(actions_elem)
-
-                        if self._allow_attributes:
-                            native_attrs = set(self.BUILTIN_ATTRS)
-                            native_attrs.update(label_actions)
-
-                            attrs_elem = ET.Element('attributes')
-                            for k, v in attr.items():
-                                if k in native_attrs:
-                                    continue
-                                attr_elem = ET.SubElement(attrs_elem, 'attribute')
-                                ET.SubElement(attr_elem, 'name').text = str(k)
-                                ET.SubElement(attr_elem, 'value').text = str(v)
-                            if len(attrs_elem):
-                                obj_elem.append(attrs_elem)
-
-                    if self._tasks & {VocTask.detection, VocTask.person_layout,
-                            VocTask.action_classification}:
-                        ann_path = osp.join(self._ann_dir, item.id + '.xml')
-                        os.makedirs(osp.dirname(ann_path), exist_ok=True)
-                        with open(ann_path, 'w', encoding='utf-8') as f:
-                            f.write(ET.tostring(root_elem,
-                                encoding='unicode', pretty_print=True))
+                    objects_with_parts, objects_with_actions = \
+                        self._write_xml_objects(
+                            item, image_filename, bboxes, bool(masks))
 
                     clsdet_list[item.id] = True
 
@@ -364,6 +263,110 @@ class VocConverter(Converter):
                 self.save_layout_lists(subset_name, layout_list)
             if self._tasks & {VocTask.segmentation}:
                 self.save_segm_lists(subset_name, segm_list)
+
+    def _write_xml_objects(self, item, image_filename, bboxes, has_masks):
+        root_elem = ET.Element('annotation')
+        if '_' in item.id:
+            folder = item.id[ : item.id.find('_')]
+        else:
+            folder = ''
+        ET.SubElement(root_elem, 'folder').text = folder
+        ET.SubElement(root_elem, 'filename').text = image_filename
+
+        source_elem = ET.SubElement(root_elem, 'source')
+        ET.SubElement(source_elem, 'database').text = 'Unknown'
+        ET.SubElement(source_elem, 'annotation').text = 'Unknown'
+        ET.SubElement(source_elem, 'image').text = 'Unknown'
+
+        if item.has_image and item.image.has_size:
+            h, w = item.image.size
+            size_elem = ET.SubElement(root_elem, 'size')
+            ET.SubElement(size_elem, 'width').text = str(w)
+            ET.SubElement(size_elem, 'height').text = str(h)
+            ET.SubElement(size_elem, 'depth').text = ''
+
+        ET.SubElement(root_elem, 'segmented').text = str(int(has_masks))
+
+        objects_with_parts = []
+        objects_with_actions = defaultdict(dict)
+
+        main_bboxes = []
+        layout_bboxes = []
+        for bbox in bboxes:
+            label = self.get_label(bbox.label)
+            if self._is_part(label):
+                layout_bboxes.append(bbox)
+            elif self._is_label(label):
+                main_bboxes.append(bbox)
+
+        for new_obj_id, obj in enumerate(main_bboxes):
+            attr = obj.attributes
+
+            obj_elem = ET.SubElement(root_elem, 'object')
+
+            obj_label = self.get_label(obj.label)
+            ET.SubElement(obj_elem, 'name').text = obj_label
+
+            if 'pose' in attr:
+                ET.SubElement(obj_elem, 'pose').text = str(attr['pose'])
+
+            ET.SubElement(obj_elem, 'truncated').text = \
+                '%d' % _convert_attr('truncated', attr, int, 0)
+            ET.SubElement(obj_elem, 'occluded').text = \
+                '%d' % _convert_attr('occluded', attr, int, 0)
+            ET.SubElement(obj_elem, 'difficult').text = \
+                '%d' % _convert_attr('difficult', attr, int, 0)
+
+            bbox = obj.get_bbox()
+            if bbox is not None:
+                _write_xml_bbox(bbox, obj_elem)
+
+            for part_bbox in filter(
+                lambda x: obj.group and obj.group == x.group, layout_bboxes,
+            ):
+                part_elem = ET.SubElement(obj_elem, 'part')
+                ET.SubElement(part_elem, 'name').text = \
+                    self.get_label(part_bbox.label)
+                _write_xml_bbox(part_bbox.get_bbox(), part_elem)
+
+                objects_with_parts.append(new_obj_id)
+
+            label_actions = self._get_actions(obj_label)
+            actions_elem = ET.Element('actions')
+            for action in label_actions:
+                present = 0
+                if action in attr:
+                    present = _convert_attr(action, attr,
+                        lambda v: int(v is True), 0)
+                    ET.SubElement(actions_elem, action).text = '%d' % present
+
+                objects_with_actions[new_obj_id][action] = present
+            if len(actions_elem) != 0:
+                obj_elem.append(actions_elem)
+
+            if self._allow_attributes:
+                native_attrs = set(self.BUILTIN_ATTRS)
+                native_attrs.update(label_actions)
+
+                attrs_elem = ET.Element('attributes')
+                for k, v in attr.items():
+                    if k in native_attrs:
+                        continue
+                    attr_elem = ET.SubElement(attrs_elem, 'attribute')
+                    ET.SubElement(attr_elem, 'name').text = str(k)
+                    ET.SubElement(attr_elem, 'value').text = str(v)
+                if len(attrs_elem):
+                    obj_elem.append(attrs_elem)
+
+        if self._tasks & {VocTask.detection, VocTask.person_layout,
+                            VocTask.action_classification}:
+            ann_path = osp.join(self._ann_dir, item.id + '.xml')
+            os.makedirs(osp.dirname(ann_path), exist_ok=True)
+            with open(ann_path, 'w', encoding='utf-8') as f:
+                f.write(ET.tostring(root_elem,
+                    encoding='unicode', pretty_print=True))
+
+        return objects_with_parts, objects_with_actions
 
     @staticmethod
     def _get_filtered_lines(path, patch, subset, items=None):
