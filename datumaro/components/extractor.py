@@ -6,8 +6,8 @@ from __future__ import annotations
 
 from glob import iglob
 from typing import (
-    Any, Callable, Container, Dict, Iterable, Iterator, List, NoReturn,
-    Optional, Tuple, TypeVar,
+    Any, Callable, Dict, Iterable, Iterator, List, NoReturn, Optional, Sequence,
+    Tuple, TypeVar,
 )
 import os
 import os.path as osp
@@ -218,7 +218,7 @@ class Extractor(_ExtractorBase, CliPlugin):
 
     def __init__(self, *,
             length: Optional[int] = None,
-            subsets: Optional[Container[str]] = None,
+            subsets: Optional[Sequence[str]] = None,
             ctx: Optional[ImportContext] = None):
         super().__init__(length=length, subsets=subsets)
         self._ctx = ctx
