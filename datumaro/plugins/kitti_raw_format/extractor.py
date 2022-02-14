@@ -29,7 +29,7 @@ class KittiRawExtractor(SourceExtractor):
         assert osp.isfile(path), path
         self._rootdir = osp.dirname(path)
 
-        super().__init__(subset=subset)
+        super().__init__(subset=subset, media_type=PointCloud)
 
         items, categories = self._parse(path)
         self._items = list(self._load_items(items).values())

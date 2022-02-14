@@ -11,7 +11,7 @@ from datumaro.components.extractor import (
 from datumaro.components.format_detection import (
     FormatDetectionConfidence, FormatDetectionContext,
 )
-from datumaro.components.media import Video
+from datumaro.components.media import Video, VideoFrame
 from datumaro.util.os_util import find_files
 
 # Taken from https://en.wikipedia.org/wiki/Comparison_of_video_container_formats
@@ -68,7 +68,7 @@ class VideoFramesExtractor(Extractor):
             step: int = 1, start_frame: int = 0,
             end_frame: Optional[int] = None) -> None:
         self._subset = subset or DEFAULT_SUBSET_NAME
-        super().__init__(subsets=[self._subset])
+        super().__init__(subsets=[self._subset], media_type=VideoFrame)
 
         assert osp.isfile(url), url
 

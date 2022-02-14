@@ -28,7 +28,7 @@ class SuperviselyPointCloudExtractor(SourceExtractor):
         rootdir = osp.abspath(osp.dirname(path))
         self._rootdir = rootdir
 
-        super().__init__(subset=subset)
+        super().__init__(subset=subset, media_type=PointCloud)
 
         items, categories = self._parse(rootdir)
         self._items = list(self._load_items(items).values())

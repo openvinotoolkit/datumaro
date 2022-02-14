@@ -178,9 +178,10 @@ class IExtractor:
         raise NotImplementedError()
 
 class _ExtractorBase(IExtractor):
-    def __init__(self, length=None, subsets=None):
+    def __init__(self, length=None, subsets=None, media_type=Image):
         self._length = length
         self._subsets = subsets
+        self._media_type = media_type
 
     def _init_cache(self):
         subsets = set()
@@ -241,6 +242,9 @@ class _ExtractorBase(IExtractor):
                 return item
         return None
 
+    def media_type(self):
+        return self._media_type
+
 class Extractor(_ExtractorBase, CliPlugin):
     """
     A base class for user-defined and built-in extractors.
@@ -254,9 +258,11 @@ class SourceExtractor(Extractor):
     Should be used by default for user-defined extractors.
     """
 
-    def __init__(self, length=None, subset=None):
+    def __init__(self, length=None, subset=None, media_type=Image):
         self._subset = subset or DEFAULT_SUBSET_NAME
-        super().__init__(length=length, subsets=[self._subset])
+        self._media_type = media_type
+        super().__init__(length=length, subsets=[self._subset],
+            media_type=media_type)
 
         self._categories = {}
         self._items = []
@@ -273,6 +279,9 @@ class SourceExtractor(Extractor):
     def get(self, id, subset=None):
         assert subset == self._subset, '%s != %s' % (subset, self._subset)
         return super().get(id, subset or self._subset)
+
+    def media_type(self):
+        return self._media_type
 
 class Importer(CliPlugin):
     @classmethod

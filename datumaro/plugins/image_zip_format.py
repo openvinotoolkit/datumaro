@@ -27,7 +27,7 @@ class ImageZipPath:
 
 class ImageZipExtractor(SourceExtractor):
     def __init__(self, url, subset=None):
-        super().__init__(subset=subset)
+        super().__init__(subset=subset, media_type=ByteImage)
 
         assert url.endswith('.zip'), url
 

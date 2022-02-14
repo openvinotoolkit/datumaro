@@ -100,6 +100,7 @@ class DatumaroExtractor(SourceExtractor):
                         image_path = old_image_path
 
                 media = Image(path=image_path, size=image_info.get('size'))
+                self._media_type = Image
 
             pcd_info = item_desc.get('point_cloud')
             if not media and pcd_info:
@@ -118,11 +119,13 @@ class DatumaroExtractor(SourceExtractor):
                     ]
 
                 media = PointCloud(point_cloud, extra_images=related_images)
+                self._media_type = PointCloud
 
             media_desc = item_desc.get('media')
             if not media and media_desc and \
                     media_desc.get('path'):
                 media = MediaElement(path=media_desc.get('path'))
+                self._media_type = MediaElement
 
             annotations = self._load_annotations(item_desc)
 

@@ -23,7 +23,7 @@ from datumaro.components.dataset_filter import (
 )
 from datumaro.components.environment import Environment
 from datumaro.components.errors import (
-    CategoriesRedefinedError, ConflictingCategoriesError,
+    CategoriesRedefinedError, ConflictingCategoriesError, MediaTypeError,
     MultipleFormatsMatchError, NoMatchingFormatsError, RepeatedItemError,
     UnknownFormatError,
 )
@@ -956,9 +956,11 @@ class Dataset(IDataset):
         for src_conf in detected_sources:
             if not isinstance(src_conf, Source):
                 src_conf = Source(src_conf)
-            extractors.append(env.make_extractor(
+            extractor = env.make_extractor(
                 src_conf.format, src_conf.url, **src_conf.options
-            ))
+            )
+            cls.check_media_type(extractor)
+            extractors.append(extractor)
 
         dataset = cls.from_extractors(*extractors, env=env)
         dataset._source_path = path
@@ -1003,6 +1005,13 @@ class Dataset(IDataset):
         if 1 < len(matches):
             raise MultipleFormatsMatchError(matches)
 
+    @classmethod
+    def check_media_type(cls, source: IDataset):
+        for item in source:
+            if item.media is not None and \
+                    type(item.media) is not source.media_type():
+                raise MediaTypeError("Dataset elements must have a '%s' " \
+                    "media type" % source.media_type())
 
 @contextmanager
 def eager_mode(new_mode: bool = True, dataset: Optional[Dataset] = None) -> None:

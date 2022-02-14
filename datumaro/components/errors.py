@@ -170,6 +170,9 @@ class NoMatchingFormatsError(DatasetImportError):
 class DatasetError(DatumaroError):
     pass
 
+class MediaTypeError(DatumaroError):
+    pass
+
 class CategoriesRedefinedError(DatasetError):
     def __str__(self):
         return "Categories can only be set once for a dataset"
