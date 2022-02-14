@@ -12,7 +12,7 @@ import string
 
 from datumaro.components.annotation import AnnotationType, LabelCategories
 from datumaro.components.converter import Converter
-from datumaro.components.media import ByteImage
+from datumaro.components.media import ByteImage, Image
 from datumaro.util.annotation_util import (
     find_group_leader, find_instances, max_bbox,
 )
@@ -159,10 +159,10 @@ class TfDetectionApiConverter(Converter):
         filename = self._make_image_filename(item)
         features['image/filename'] = bytes_feature(filename.encode('utf-8'))
 
-        if not item.has_image:
+        if not isinstance(item.media, Image):
             raise Exception("Failed to export dataset item '%s': "
                 "item has no image info" % item.id)
-        height, width = item.image.size
+        height, width = item.media.size
 
         features.update({
             'image/height': int64_feature(height),
@@ -175,7 +175,7 @@ class TfDetectionApiConverter(Converter):
             'image/key/sha256': bytes_feature(b''),
         })
         if self._save_media:
-            if item.has_image and item.image.has_data:
+            if isinstance(item.media, Image) and item.media.has_data:
                 buffer, fmt = self._save_image(item, filename)
                 key = hashlib.sha256(buffer).hexdigest()
 
@@ -197,7 +197,7 @@ class TfDetectionApiConverter(Converter):
         return tf_example
 
     def _save_image(self, item, path=None): # pylint: disable=arguments-differ
-        src_ext = item.image.ext.lower()
+        src_ext = item.media.ext.lower()
         dst_ext = osp.splitext(osp.basename(path))[1].lower()
         fmt = DetectionApiPath.IMAGE_EXT_FORMAT.get(dst_ext, '')
         if not fmt:
@@ -205,10 +205,10 @@ class TfDetectionApiConverter(Converter):
                 "image extension, the corresponding field will be empty." % \
                 (item.id, dst_ext))
 
-        if src_ext == dst_ext and isinstance(item.image, ByteImage):
-            buffer = item.image.get_bytes()
+        if src_ext == dst_ext and isinstance(item.media, ByteImage):
+            buffer = item.media.get_bytes()
         else:
-            buffer = encode_image(item.image.data, dst_ext)
+            buffer = encode_image(item.media.data, dst_ext)
         return buffer, fmt
 
     @classmethod

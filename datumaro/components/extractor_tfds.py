@@ -95,7 +95,7 @@ class _SetImageFromImageFeature:
         else:
             filename = None
 
-        item.image = ByteImage(data=tfds_example[self.feature_name].numpy(),
+        item.media = ByteImage(data=tfds_example[self.feature_name].numpy(),
             path=filename)
 
 @frozen
@@ -132,10 +132,10 @@ class _AddObjectsFromFeature:
             norm_ymin, norm_xmin, norm_ymax, norm_xmax = tfds_bboxes[i].numpy()
 
             new_bbox = Bbox(
-                x=norm_xmin * item.image.size[1],
-                y=norm_ymin * item.image.size[0],
-                w=(norm_xmax - norm_xmin) * item.image.size[1],
-                h=(norm_ymax - norm_ymin) * item.image.size[0],
+                x=norm_xmin * item.media.size[1],
+                y=norm_ymin * item.media.size[0],
+                w=(norm_xmax - norm_xmin) * item.media.size[1],
+                h=(norm_ymax - norm_ymin) * item.media.size[0],
             )
 
             if tfds_labels is not None:

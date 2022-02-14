@@ -60,7 +60,7 @@ class TfdsExtractorTest(TestCase):
 
             expected_dataset = Dataset.from_iterable([
                 DatasetItem(id='0', subset='train',
-                    image=tfds_example['image'].numpy().squeeze(axis=2),
+                    media=Image(data=tfds_example['image'].numpy().squeeze(axis=2)),
                     annotations=[Label(tfds_example['label'].numpy())],
                 ),
             ], categories=tfds_info.features['label'].names)
@@ -81,7 +81,7 @@ class TfdsExtractorTest(TestCase):
                 DatasetItem(
                     id=tfds_example['id'].numpy().decode('UTF-8'),
                     subset='train',
-                    image=tfds_example['image'].numpy()[..., ::-1],
+                    media=Image(data=tfds_example['image'].numpy()[..., ::-1]),
                     annotations=[Label(tfds_example['label'].numpy())],
                 ),
             ], categories=tfds_info.features['label'].names)
@@ -120,7 +120,7 @@ class TfdsExtractorTest(TestCase):
                 DatasetItem(
                     id='test',
                     subset='train',
-                    image=np.ones((20, 10)),
+                    media=Image(data=np.ones((20, 10))),
                     annotations=[
                         Bbox(2, 2, 2, 4, label=5,
                             attributes={'is_crowd': True}),
@@ -153,7 +153,7 @@ class TfdsExtractorTest(TestCase):
 
             expected_dataset = Dataset.from_iterable([
                 DatasetItem(id=osp.splitext(example_file_name)[0], subset='train',
-                    image=Image(
+                    media=Image(
                         data=decode_image(tfds_example['image'].numpy()),
                         path=example_file_name,
                     ),
@@ -187,7 +187,7 @@ class TfdsExtractorTest(TestCase):
                 DatasetItem(
                     id='test',
                     subset='train',
-                    image=np.ones((20, 10)),
+                    media=Image(data=np.ones((20, 10))),
                     annotations=[
                         Bbox(2, 2, 2, 4, label=5),
                     ],
