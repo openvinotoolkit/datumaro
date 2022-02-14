@@ -861,5 +861,5 @@ class ResizeTransform(ItemTransform):
                 assert False, f"Unexpected annotation type {type(ann)}"
 
         return self.wrap_item(item,
-            image=resized_image,
+            media=resized_image,
             annotations=resized_annotations)
