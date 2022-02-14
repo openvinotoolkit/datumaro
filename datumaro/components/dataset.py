@@ -923,6 +923,9 @@ class Dataset(IDataset):
 
         has_ctx_args = progress_reporter is not None or error_policy is not None
 
+        if not progress_reporter:
+            progress_reporter = NullProgressReporter()
+
         assert 'ctx' not in kwargs
         converter_kwargs = copy(kwargs)
         converter_kwargs['ctx'] = ExportContext(
@@ -972,6 +975,8 @@ class Dataset(IDataset):
         self.bind(save_dir, format, options=copy(kwargs))
         self.flush_changes()
 
+        progress_reporter.close()
+
     def save(self, save_dir: Optional[str] = None, **kwargs) -> None:
         options = dict(self._options)
         options.update(kwargs)
@@ -983,8 +988,8 @@ class Dataset(IDataset):
     def load(cls, path: str, **kwargs) -> Dataset:
         return cls.import_from(path, format=DEFAULT_FORMAT, **kwargs)
 
-    @scoped
     @classmethod
+    @scoped
     def import_from(cls, path: str, format: Optional[str] = None, *,
             env: Optional[Environment] = None,
             progress_reporter: Optional[ProgressReporter] = None,

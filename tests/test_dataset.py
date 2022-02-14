@@ -1546,12 +1546,14 @@ class DatasetTest(TestCase):
                 yield from []
 
         class TestProgressReporter(ProgressReporter):
-            pass
+            def split(self, n):
+                return (self, ) * n
+
         progress_reporter = TestProgressReporter()
         progress_reporter.get_frequency = mock.MagicMock(return_value=0.1)
-        progress_reporter.start = mock.MagicMock()
+        progress_reporter.init = mock.MagicMock()
         progress_reporter.report_status = mock.MagicMock()
-        progress_reporter.finish = mock.MagicMock()
+        progress_reporter.close = mock.MagicMock()
 
         env = Environment()
         env.importers.items.clear()
@@ -1561,9 +1563,9 @@ class DatasetTest(TestCase):
             progress_reporter=progress_reporter)
 
         progress_reporter.get_frequency.assert_called()
-        progress_reporter.start.assert_called()
+        progress_reporter.init.assert_called()
         progress_reporter.report_status.assert_called()
-        progress_reporter.finish.assert_called()
+        progress_reporter.close.assert_called()
 
     @mark_requirement(Requirements.DATUM_PROGRESS_REPORTING)
     def test_can_report_progress_from_extractor_multiple_pbars(self):
@@ -1584,12 +1586,16 @@ class DatasetTest(TestCase):
             def init(self, *args, **kwargs):
                 pass
 
+            def close(self):
+                pass
+
+            def split(self, n):
+                return tuple(TestProgressReporter() for _ in range(n))
+
             iter = mock.MagicMock()
 
         progress_reporter = TestProgressReporter()
-        progress_reporter.split = mock.MagicMock(wraps=lambda n: \
-            tuple(TestProgressReporter() for _ in range(n)))
-        progress_reporter.close = mock.MagicMock()
+        progress_reporter.split = mock.MagicMock(TestProgressReporter.split)
 
         env = Environment()
         env.importers.items.clear()
@@ -1644,18 +1650,18 @@ class DatasetTest(TestCase):
             pass
         progress_reporter = TestProgressReporter()
         progress_reporter.get_frequency = mock.MagicMock(return_value=0.1)
-        progress_reporter.start = mock.MagicMock()
+        progress_reporter.init = mock.MagicMock()
         progress_reporter.report_status = mock.MagicMock()
-        progress_reporter.finish = mock.MagicMock()
+        progress_reporter.close = mock.MagicMock()
 
         with TestDir() as test_dir:
             Dataset().export(test_dir, TestConverter,
                 progress_reporter=progress_reporter)
 
         progress_reporter.get_frequency.assert_called()
-        progress_reporter.start.assert_called()
+        progress_reporter.init.assert_called()
         progress_reporter.report_status.assert_called()
-        progress_reporter.finish.assert_called()
+        progress_reporter.close.assert_called()
 
     @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
     def test_can_report_errors_from_converter(self):
