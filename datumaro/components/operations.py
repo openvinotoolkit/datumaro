@@ -116,7 +116,7 @@ class ExactMerge:
     def _merge_items(cls, existing_item: DatasetItem,
             current_item: DatasetItem) -> DatasetItem:
         return existing_item.wrap(
-            image=cls._merge_images(existing_item, current_item),
+            media=cls._merge_images(existing_item, current_item),
             attributes=cls._merge_attrs(
                 existing_item.attributes, current_item.attributes,
                 item_id=(existing_item.id, existing_item.subset)),

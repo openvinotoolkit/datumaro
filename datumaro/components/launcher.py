@@ -49,7 +49,7 @@ class ModelTransform(Transform):
         return self._extractor.categories()
 
     def transform_item(self, item):
-        inputs = np.expand_dims(item.image, axis=0)
+        inputs = np.expand_dims(item.media, axis=0)
         annotations = self._launcher.launch(inputs)[0]
         return self.wrap_item(item, annotations=annotations)
 
