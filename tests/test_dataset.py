@@ -23,11 +23,13 @@ from datumaro.components.errors import (
     NoMatchingFormatsError, RepeatedItemError, UnknownFormatError,
 )
 from datumaro.components.extractor import (
-    DEFAULT_SUBSET_NAME, DatasetItem, Extractor, ImportErrorPolicy,
-    ItemTransform, ProgressReporter, SourceExtractor, Transform,
+    DEFAULT_SUBSET_NAME, DatasetItem, Extractor, FailingImportErrorPolicy,
+    ImportErrorPolicy, ItemTransform, ProgressReporter, SourceExtractor,
+    Transform,
 )
 from datumaro.components.launcher import Launcher
 from datumaro.components.media import Image
+from datumaro.components.progress_reporting import NullProgressReporter
 from datumaro.util.test_utils import TestDir, compare_datasets
 import datumaro.components.hl_ops as hl_ops
 
@@ -1496,6 +1498,42 @@ class DatasetTest(TestCase):
         compare_datasets(self, expected, dataset, ignored_attrs='*')
 
     @mark_requirement(Requirements.DATUM_PROGRESS_REPORTING)
+    def test_progress_reporter_implies_eager_mode(self):
+        class TestExtractor(SourceExtractor):
+            def __init__(self, url, **kwargs):
+                super().__init__(**kwargs)
+
+            def __iter__(self):
+                yield DatasetItem('1')
+
+        env = Environment()
+        env.importers.items.clear()
+        env.extractors.items['test'] = TestExtractor
+
+        dataset = Dataset.import_from('', 'test', env=env,
+            progress_reporter=NullProgressReporter())
+
+        self.assertTrue(dataset.is_cache_initialized)
+
+    @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
+    def test_error_reporter_implies_eager_mode(self):
+        class TestExtractor(SourceExtractor):
+            def __init__(self, url, **kwargs):
+                super().__init__(**kwargs)
+
+            def __iter__(self):
+                yield DatasetItem('1')
+
+        env = Environment()
+        env.importers.items.clear()
+        env.extractors.items['test'] = TestExtractor
+
+        dataset = Dataset.import_from('', 'test', env=env,
+            error_policy=FailingImportErrorPolicy())
+
+        self.assertTrue(dataset.is_cache_initialized)
+
+    @mark_requirement(Requirements.DATUM_PROGRESS_REPORTING)
     def test_can_report_progress_from_extractor(self):
         class TestExtractor(SourceExtractor):
             def __init__(self, url, **kwargs):
@@ -1518,9 +1556,8 @@ class DatasetTest(TestCase):
         env.importers.items.clear()
         env.extractors.items['test'] = TestExtractor
 
-        dataset = Dataset.import_from('', 'test', env=env,
+        Dataset.import_from('', 'test', env=env,
             progress_reporter=progress_reporter)
-        dataset.init_cache()
 
         progress_reporter.get_frequency.assert_called()
         progress_reporter.start.assert_called()
@@ -1536,8 +1573,10 @@ class DatasetTest(TestCase):
             def __iter__(self):
                 class TestError(Exception):
                     pass
-                self._report_annotation_error(TestError(), item_id=('0', 'a'))
-                self._report_item_error(TestError(), item_id=('0', 'a'))
+                self._ctx.error_policy.report_item_error(TestError(),
+                    item_id=('0', 'a'))
+                self._ctx.error_policy.report_annotation_error(TestError(),
+                    item_id=('0', 'a'))
                 yield from []
 
         env = Environment()
@@ -1550,9 +1589,8 @@ class DatasetTest(TestCase):
         error_policy.report_item_error = mock.MagicMock()
         error_policy.report_annotation_error = mock.MagicMock()
 
-        dataset = Dataset.import_from('', 'test', env=env,
+        Dataset.import_from('', 'test', env=env,
             error_policy=error_policy)
-        dataset.init_cache()
 
         error_policy.report_item_error.assert_called()
         error_policy.report_annotation_error.assert_called()
@@ -1591,8 +1629,10 @@ class DatasetTest(TestCase):
             def apply(self):
                 class TestError(Exception):
                     pass
-                self._report_annotation_error(TestError(), item_id=('0', 'a'))
-                self._report_item_error(TestError(), item_id=('0', 'a'))
+                self._ctx.error_policy.report_item_error(TestError(),
+                    item_id=('0', 'a'))
+                self._ctx.error_policy.report_annotation_error(TestError(),
+                    item_id=('0', 'a'))
 
         class TestErrorPolicy(ImportErrorPolicy):
             pass

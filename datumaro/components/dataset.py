@@ -18,8 +18,9 @@ import os.path as osp
 import warnings
 
 from datumaro.components.annotation import AnnotationType, LabelCategories
+from datumaro.components.config_model import Source
 from datumaro.components.converter import (
-    Converter, ExportContext, ExportErrorPolicy,
+    Converter, ExportContext, ExportErrorPolicy, _ExportFail,
 )
 from datumaro.components.dataset_filter import (
     XPathAnnotationsFilter, XPathDatasetFilter,
@@ -32,7 +33,7 @@ from datumaro.components.errors import (
 )
 from datumaro.components.extractor import (
     DEFAULT_SUBSET_NAME, CategoriesInfo, DatasetItem, Extractor, IExtractor,
-    ImportContext, ImportErrorPolicy, ItemTransform, Transform,
+    ImportContext, ImportErrorPolicy, ItemTransform, Transform, _ImportFail,
 )
 from datumaro.components.launcher import Launcher, ModelTransform
 from datumaro.components.progress_reporting import (
@@ -928,39 +929,48 @@ class Dataset(IDataset):
             progress_reporter=progress_reporter,
             error_policy=error_policy)
 
-        if not inplace:
-            try:
-                converter.convert(self, save_dir=save_dir, **converter_kwargs)
-            except TypeError as e:
-                if "unexpected keyword argument 'ctx'" in str(e):
-                    if has_ctx_args:
-                        warnings.warn("It seems that '%s' converter "
-                            "does not support progress and error reporting, "
-                            "it will be disabled" % format, DeprecationWarning)
-                    converter_kwargs.pop('ctx')
-                    converter.convert(self, self.get_patch(), save_dir=save_dir,
+        try:
+            if not inplace:
+                try:
+                    converter.convert(self, save_dir=save_dir,
                         **converter_kwargs)
-                else:
-                    raise
+                except TypeError as e:
+                    # TODO: for backward compatibility. To be removed after 0.3
+                    if "unexpected keyword argument 'ctx'" not in str(e):
+                        raise
 
-            if not self.is_bound:
-                self.bind(save_dir, format, options=copy(kwargs))
-                self.flush_changes()
-        else:
-            try:
-                converter.patch(self, self.get_patch(), save_dir=save_dir,
-                    **converter_kwargs)
-            except TypeError as e:
-                if "unexpected keyword argument 'ctx'" in str(e):
                     if has_ctx_args:
                         warnings.warn("It seems that '%s' converter "
                             "does not support progress and error reporting, "
-                            "it will be disabled" % format, DeprecationWarning)
+                            "it will be disabled" % format,
+                            DeprecationWarning)
                     converter_kwargs.pop('ctx')
+
+                    converter.convert(self, save_dir=save_dir,
+                        **converter_kwargs)
+            else:
+                try:
                     converter.patch(self, self.get_patch(), save_dir=save_dir,
                         **converter_kwargs)
-                else:
-                    raise
+                except TypeError as e:
+                    # TODO: for backward compatibility. To be removed after 0.3
+                    if "unexpected keyword argument 'ctx'" not in str(e):
+                        raise
+
+                    if has_ctx_args:
+                        warnings.warn("It seems that '%s' converter "
+                            "does not support progress and error reporting, "
+                            "it will be disabled" % format,
+                            DeprecationWarning)
+                    converter_kwargs.pop('ctx')
+
+                    converter.patch(self, self.get_patch(), save_dir=save_dir,
+                        **converter_kwargs)
+        except _ExportFail as e:
+            raise e.__cause__
+
+        self.bind(save_dir, format, options=copy(kwargs))
+        self.flush_changes()
 
     def save(self, save_dir: Optional[str] = None, **kwargs) -> None:
         options = dict(self._options)
@@ -990,11 +1000,12 @@ class Dataset(IDataset):
                 If not set, will try to detect automatically,
                 using the `env` plugin context.
             env - A plugin collection. If not set, the built-in plugins are used
-            progress_reporter - An object to report progress
-            error_policy - An object to report format-related errors
+            progress_reporter - An object to report progress.
+                Implies earger loading.
+            error_policy - An object to report format-related errors.
+                Implies earger loading.
             **kwargs - Parameters for the format
         """
-        from datumaro.components.config_model import Source
 
         if env is None:
             env = Environment()
@@ -1014,7 +1025,12 @@ class Dataset(IDataset):
         else:
             raise UnknownFormatError(format)
 
+        # TODO: probably, should not be available in lazy mode, because it
+        # becomes unreliable and error-prone. For progress reporting it
+        # makes little sense, because loading stage is spread over other
+        # operations. Error reporting is going to be unreliable.
         has_ctx_args = progress_reporter is not None or error_policy is not None
+        eager = has_ctx_args
 
         if not progress_reporter:
             progress_reporter = NullProgressReporter()
@@ -1023,38 +1039,48 @@ class Dataset(IDataset):
         else:
             pbars = [progress_reporter]
 
-        extractors = []
-        for src_conf, pbar in zip(detected_sources, pbars):
-            if not isinstance(src_conf, Source):
-                src_conf = Source(src_conf)
+        try:
+            extractors = []
+            for src_conf, pbar in zip(detected_sources, pbars):
+                if not isinstance(src_conf, Source):
+                    src_conf = Source(src_conf)
 
-            extractor_kwargs = dict(src_conf.options)
+                extractor_kwargs = dict(src_conf.options)
 
-            assert 'ctx' not in extractor_kwargs
-            extractor_kwargs['ctx'] = ImportContext(progress_reporter=pbar,
-                error_policy=error_policy)
+                assert 'ctx' not in extractor_kwargs
+                extractor_kwargs['ctx'] = ImportContext(
+                    progress_reporter=pbar,
+                    error_policy=error_policy)
 
-            try:
-                extractors.append(env.make_extractor(
-                    src_conf.format, src_conf.url, **extractor_kwargs
-                ))
-            except TypeError as e:
-                if "unexpected keyword argument 'ctx'" in str(e):
+                try:
+                    extractors.append(env.make_extractor(
+                        src_conf.format, src_conf.url, **extractor_kwargs
+                    ))
+                except TypeError as e:
+                    # TODO: for backward compatibility. To be removed after 0.3
+                    if "unexpected keyword argument 'ctx'" not in str(e):
+                        raise
+
                     if has_ctx_args:
                         warnings.warn("It seems that '%s' extractor "
                             "does not support progress and error reporting, "
                             "it will be disabled" % src_conf.format,
                             DeprecationWarning)
                     extractor_kwargs.pop('ctx')
+
                     extractors.append(env.make_extractor(
                         src_conf.format, src_conf.url, **extractor_kwargs
                     ))
-                else:
-                    raise
 
-        dataset = cls.from_extractors(*extractors, env=env)
+            dataset = cls.from_extractors(*extractors, env=env)
+            if eager:
+                dataset.init_cache()
+        except _ImportFail as e:
+            raise e.__cause__
+
         dataset._source_path = path
         dataset._format = format
+
         return dataset
 
     @staticmethod

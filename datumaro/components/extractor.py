@@ -184,36 +184,51 @@ class _ImportFail(DatumaroError):
     pass
 
 class ImportErrorPolicy:
-    def report_item_error(self, error: ItemImportError):
+    def report_item_error(self, error: Exception, *,
+            item_id: Tuple[str, str]):
         """
         Allows to report a problem with a dataset item.
-
-        This function must either call fail() or return. If this function
-        returns, the extractor must skip the item.
+        If this function returns, the extractor must skip the item.
         """
-        raise NotImplementedError
 
-    def report_annotation_error(self, error: AnnotationImportError):
+        if not isinstance(error, _ImportFail):
+            ie = ItemImportError(item_id)
+            ie.__cause__ = error
+            return self._handle_item_error(ie)
+        else:
+            raise error
+
+    def report_annotation_error(self, error: Exception, *,
+            item_id: Tuple[str, str]):
         """
         Allows to report a problem with a dataset item annotation.
-
-        This function must either call fail() or return. If this function
-        returns, the extractor must skip the annotation.
+        If this function returns, the extractor must skip the item.
         """
-        raise NotImplementedError
+
+        if not isinstance(error, _ImportFail):
+            ie = AnnotationImportError(item_id)
+            ie.__cause__ = error
+            return self._handle_annotation_error(ie)
+        else:
+            raise error
+
+    def _handle_item_error(self, error: ItemImportError):
+        """This function must either call fail() or return."""
+        raise NotImplementedError("Must be defined in the subclass")
+
+    def _handle_annotation_error(self, error: AnnotationImportError):
+        """This function must either call fail() or return."""
+        raise NotImplementedError("Must be defined in the subclass")
 
     def fail(self, error: Exception) -> NoReturn:
         raise _ImportFail from error
 
 class FailingImportErrorPolicy(ImportErrorPolicy):
-    def report_item_error(self, error: ItemImportError):
+    def _handle_item_error(self, error: ItemImportError):
         self.fail(error)
 
-    def report_annotation_error(self, error: AnnotationImportError):
+    def _handle_annotation_error(self, error: AnnotationImportError):
         self.fail(error)
-
-    def fail(self, error: Exception) -> NoReturn:
-        raise _ImportFail from error
 
 @define(eq=False)
 class ImportContext:
@@ -241,36 +256,6 @@ class Extractor(_ExtractorBase, CliPlugin):
         if ctx is None:
             ctx = NullImportContext()
         self._ctx: ImportContext = ctx
-
-    def _report_item_error(self, error: Exception, *,
-            item_id: Tuple[str, str]):
-        """
-        Allows to report a problem with a dataset item.
-
-        This function must either fail or return. If this function
-        returns, the extractor must skip the item.
-        """
-        if self._ctx and self._ctx.error_policy and \
-                not isinstance(error, _ImportFail):
-            ie = ItemImportError(item_id)
-            ie.__cause__ = error
-            return self._ctx.error_policy.report_item_error(ie)
-        raise _ImportFail from error
-
-    def _report_annotation_error(self, error: Exception, *,
-            item_id: Tuple[str, str]):
-        """
-        Allows to report a problem with a dataset item annotation.
-
-        This function must either fail or return. If this function
-        returns, the extractor must skip the item.
-        """
-        if self._ctx and self._ctx.error_policy and \
-                not isinstance(error, _ImportFail):
-            ie = AnnotationImportError(item_id)
-            ie.__cause__ = error
-            return self._ctx.error_policy.report_annotation_error(ie)
-        raise _ImportFail from error
 
 class SourceExtractor(Extractor):
     """
