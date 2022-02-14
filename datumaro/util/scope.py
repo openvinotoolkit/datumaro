@@ -88,6 +88,15 @@ class Scope:
 
         return self._stack.enter_context(cm)
 
+    def add_many(self, *cms: ContextManager[T]) -> Tuple[T, ...]:
+        """
+        Enters few context managers and adds them to the exit stack.
+
+        Returns: cm.__enter__() result
+        """
+
+        return tuple(self._stack.enter_context(cm) for cm in cms)
+
     def enable(self):
         self.enabled = True
 
@@ -151,3 +160,6 @@ def on_exit_do(callback, *args, ignore_errors=False, kwargs=None):
 
 def scope_add(cm: ContextManager[T]) -> T:
     return Scope.current().add(cm)
+
+def scope_add_many(*cms: ContextManager[T]) -> Tuple[T, ...]:
+    return Scope.current().add_many(*cms)
