@@ -6,8 +6,7 @@ from __future__ import annotations
 
 from glob import iglob
 from typing import (
-    Any, Callable, Dict, Iterable, Iterator, List, Optional, Type, TypeVar,
-    Union, cast,
+    Any, Callable, Dict, Iterator, List, Optional, Type, TypeVar, Union, cast,
 )
 import os
 import os.path as osp

@@ -1008,8 +1008,7 @@ class Dataset(IDataset):
     @classmethod
     def check_media_type(cls, source: IDataset):
         for item in source:
-            if item.media is not None and \
-                    type(item.media) is not source.media_type():
+            if item.media and not isinstance(item.media, source.media_type()):
                 raise MediaTypeError("Dataset elements must have a '%s' " \
                     "media type" % source.media_type())
 
