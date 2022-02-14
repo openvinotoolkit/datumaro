@@ -4,12 +4,32 @@
 
 from __future__ import annotations
 
-from typing import Iterable, Optional, Tuple, TypeVar
+from typing import ContextManager, Iterable, Optional, Tuple, TypeVar
 import math
 
 T = TypeVar('T')
 
-class ProgressReporter:
+class ProgressReporter(ContextManager['ProgressReporter']):
+    """
+    Only one set of methods must be called:
+    - init - report_status - close
+    - iter - close
+    - split
+
+    Must be close()-d after use, can be used as a context manager.
+    Must not be reused after closing.
+    """
+
+    def close(self):
+        """Closes the progress bar"""
+        raise NotImplementedError
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type=None, exc_value=None, traceback=None):
+        self.close()
+
     def get_frequency(self) -> float:
         """
         Returns reporting frequency.
@@ -18,16 +38,12 @@ class ProgressReporter:
         """
         raise NotImplementedError
 
-    def start(self, total: int, *, desc: Optional[str] = None):
-        """Initializes a progress bar"""
+    def init(self, total: int, *, desc: Optional[str] = None):
+        """Initializes the progress bar"""
         raise NotImplementedError
 
     def report_status(self, progress: int):
-        """Updates a progress bar"""
-        raise NotImplementedError
-
-    def finish(self):
-        """Closes a progress bar"""
+        """Updates the progress bar"""
         raise NotImplementedError
 
     def iter(self, iterable: Iterable[T], *,
@@ -37,7 +53,7 @@ class ProgressReporter:
         """
         Traverses the iterable and reports progress simultaneously.
 
-        Starts and finishes the progress bar automatically.
+        Starts the progress bar automatically.
 
         Args:
             iterable: An iterable to be traversed
@@ -52,35 +68,32 @@ class ProgressReporter:
         if total is None and hasattr(iterable, '__len__'):
             total = len(iterable)
 
-        self.start(total, desc=desc)
+        self.init(total, desc=desc)
 
-        try:
-            if total:
-                display_step = math.ceil(total * self.get_frequency())
+        if total:
+            display_step = math.ceil(total * self.get_frequency())
 
-            for i, elem in enumerate(iterable):
-                if not total or i % display_step == 0:
-                    self.report_status(i)
+        for i, elem in enumerate(iterable):
+            if not total or i % display_step == 0:
+                self.report_status(i)
 
-                yield elem
-        finally:
-            self.finish()
+            yield elem
 
     def split(self, count: int) -> Tuple[ProgressReporter, ...]:
-        """Splits the progress bar into few parts"""
+        """Splits the progress bar into few independent parts"""
         raise NotImplementedError
 
 class NullProgressReporter(ProgressReporter):
     def get_frequency(self) -> float:
         return 0
 
-    def start(self, total: int, *, desc: Optional[str] = None):
+    def init(self, total: int, *, desc: Optional[str] = None):
         pass
 
     def report_status(self, progress: int):
         pass
 
-    def finish(self):
+    def close(self):
         pass
 
     def iter(self, iterable: Iterable[T], *,
