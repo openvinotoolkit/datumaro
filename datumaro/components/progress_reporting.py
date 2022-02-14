@@ -80,7 +80,10 @@ class ProgressReporter(ContextManager['ProgressReporter']):
             yield elem
 
     def split(self, count: int) -> Tuple[ProgressReporter, ...]:
-        """Splits the progress bar into few independent parts"""
+        """
+        Splits the progress bar into few independent parts
+        In case of 0 must return an empty tuple.
+        """
         raise NotImplementedError
 
 class NullProgressReporter(ProgressReporter):

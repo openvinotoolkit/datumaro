@@ -18,6 +18,7 @@ from datumaro.util.image import (
 )
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 from datumaro.util.os_util import split_path
+from datumaro.util.scope import Scope, scoped
 
 from .format import YoloPath
 
@@ -187,9 +188,10 @@ class YoloExtractor(SourceExtractor):
 
         return label_categories
 
-    def __iter__(self):
+    @scoped(arg_name='scope') # pylint: disable=no-value-for-parameter
+    def __iter__(self, *, scope: Scope = None):
         subsets = self._subsets
-        pbars = self._ctx.progress_reporter.split(len(subsets))
+        pbars = scope.add_many(*self._ctx.progress_reporter.split(len(subsets)))
         for pbar, (subset_name, subset) in zip(pbars, subsets.items()):
             for item in pbar.iter(subset, desc=f"Parsing '{subset_name}'"):
                 yield item

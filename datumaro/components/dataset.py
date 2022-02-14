@@ -43,7 +43,7 @@ from datumaro.plugins.transforms import ProjectLabels
 from datumaro.util import is_method_redefined
 from datumaro.util.log_utils import logging_disabled
 from datumaro.util.os_util import rmtree
-from datumaro.util.scope import on_error_do, scoped
+from datumaro.util.scope import on_error_do, scope_add_many, scoped
 
 DEFAULT_FORMAT = 'datumaro'
 
@@ -983,6 +983,7 @@ class Dataset(IDataset):
     def load(cls, path: str, **kwargs) -> Dataset:
         return cls.import_from(path, format=DEFAULT_FORMAT, **kwargs)
 
+    @scoped
     @classmethod
     def import_from(cls, path: str, format: Optional[str] = None, *,
             env: Optional[Environment] = None,
@@ -1034,10 +1035,7 @@ class Dataset(IDataset):
 
         if not progress_reporter:
             progress_reporter = NullProgressReporter()
-        if 1 < len(detected_sources):
-            pbars = progress_reporter.split(len(detected_sources))
-        else:
-            pbars = [progress_reporter]
+        pbars = scope_add_many(*progress_reporter.split(len(detected_sources)))
 
         try:
             extractors = []

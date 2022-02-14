@@ -25,6 +25,7 @@ from datumaro.util.annotation_util import make_label_id_mapping
 from datumaro.util.image import save_image
 from datumaro.util.mask_tools import paint_mask, remap_mask
 from datumaro.util.meta_file_util import has_meta_file
+from datumaro.util.scope import scope_add_many, scoped
 
 from .format import (
     VocInstColormap, VocPath, VocTask, make_voc_categories, make_voc_label_map,
@@ -58,6 +59,14 @@ def _write_xml_bbox(bbox, parent_elem):
 class LabelmapType(Enum):
     voc = auto()
     source = auto()
+
+@define
+class _SubsetLists:
+    class_lists: Dict[str, Optional[Set[int]]] = field(factory=dict)
+    clsdet_list: Dict[str, Optional[bool]] = field(factory=dict)
+    action_list: Dict[str, Optional[Dict[str, int]]] = field(factory=dict)
+    layout_list: Dict[str, Optional[int]] = field(factory=dict)
+    segm_list: Dict[str, Optional[bool]] = field(factory=dict)
 
 class VocConverter(Converter):
     DEFAULT_IMAGE_EXT = VocPath.IMAGE_EXT
@@ -165,23 +174,18 @@ class VocConverter(Converter):
         self._inst_dir = inst_dir
         self._images_dir = images_dir
 
-    @define
-    class _Lists:
-        class_lists: Dict[str, Optional[Set[int]]] = field(factory=dict)
-        clsdet_list: Dict[str, Optional[bool]] = field(factory=dict)
-        action_list: Dict[str, Optional[Dict[str, int]]] = field(factory=dict)
-        layout_list: Dict[str, Optional[int]] = field(factory=dict)
-        segm_list: Dict[str, Optional[bool]] = field(factory=dict)
-
     def get_label(self, label_id):
         return self._extractor. \
             categories()[AnnotationType.label].items[label_id].name
 
+    @scoped
     def save_subsets(self):
-        for subset_name, subset in self._extractor.subsets().items():
-            lists = self._Lists()
+        subsets = self._extractor.subsets()
+        pbars = scope_add_many(self._ctx.progress_reporter.split(len(subsets)))
+        for pbar, (subset_name, subset) in zip(pbars, subsets.items()):
+            lists = _SubsetLists()
 
-            for item in self._with_progress(subset,
+            for item in pbar.iter(subset,
                     desc=f"Exporting '{subset_name}'"):
                 log.debug("Converting item '%s'", item.id)
 
@@ -212,7 +216,7 @@ class VocConverter(Converter):
                 self.save_segm_lists(subset_name, lists.segm_list)
 
     def _export_annotations(self, item: DatasetItem, *,
-            image_filename: str, lists: _Lists):
+            image_filename: str, lists: _SubsetLists):
         labels = []
         bboxes = []
         masks = []

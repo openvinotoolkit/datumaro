@@ -11,6 +11,7 @@ from datumaro.components.annotation import AnnotationType, Bbox
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.extractor import DEFAULT_SUBSET_NAME, DatasetItem
+from datumaro.util.scope import scope_add_many, scoped
 
 from .format import YoloPath
 
@@ -29,6 +30,7 @@ class YoloConverter(Converter):
     # https://github.com/AlexeyAB/darknet#how-to-train-to-detect-your-custom-objects
     DEFAULT_IMAGE_EXT = '.jpg'
 
+    @scoped
     def apply(self):
         extractor = self._extractor
         save_dir = self._save_dir
@@ -48,7 +50,7 @@ class YoloConverter(Converter):
         subset_lists = OrderedDict()
 
         subsets = self._extractor.subsets()
-        pbars = self._ctx.progress_reporter.split(len(subsets))
+        pbars = scope_add_many(*self._ctx.progress_reporter.split(len(subsets)))
         for (subset_name, subset), pbar in zip(subsets.items(), pbars):
             if not subset_name or subset_name == DEFAULT_SUBSET_NAME:
                 subset_name = YoloPath.DEFAULT_SUBSET_NAME

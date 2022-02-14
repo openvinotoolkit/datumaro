@@ -21,6 +21,7 @@ from datumaro.util import parse_json_file, take_by
 from datumaro.util.image import lazy_image, load_image
 from datumaro.util.mask_tools import bgr2index
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
+from datumaro.util.scope import scope_add_many, scoped
 
 from .format import CocoPath, CocoTask
 
@@ -124,8 +125,9 @@ class _CocoExtractor(SourceExtractor):
 
         self._categories[AnnotationType.points] = categories
 
+    @scoped
     def _load_items(self, json_data):
-        pbars = self._ctx.progress_reporter.split(2)
+        pbars = scope_add_many(*self._ctx.progress_reporter.split(2))
         items = {}
         img_infos = {}
         for img_info in pbars[0].iter(json_data['images'],
