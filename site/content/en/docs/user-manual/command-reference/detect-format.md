@@ -36,6 +36,9 @@ The format of the machine-readable report is as follows:
 
 The `<reason-code>` can be one of:
 
+- `"detection_unsupported"`: the corresponding format does not support
+  detection.
+
 - `"insufficient_confidence"`: the dataset matched the corresponding format,
   but it matched at least one other format better.
 
