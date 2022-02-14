@@ -19,6 +19,19 @@ class RelevancySampler(Transform, CliPlugin):
     Sampler that analyzes model inference results on the dataset |n
     and picks the best sample for training.|n
     |n
+    Creates a dataset from the `-k/--count` hardest items for a model.
+    The whole dataset or a single subset will be split into the `sampled`
+    and `unsampled` subsets based on the model confidence.
+    The dataset **must** contain model confidence
+    values in the `scores` attributes of annotations.|n
+    |n
+    There are five methods of sampling (the `-m/--method` option):|n
+    - `topk` - Return the k items with the highest uncertainty data|n
+    - `lowk` - Return the k items with the lowest uncertainty data|n
+    - `randk` - Return random k items|n
+    - `mixk` - Return a half using topk, and the other half using lowk method|n
+    - `randtopk` - Select 3*k items randomly, and return the topk among them|n
+    |n
     Notes:|n
     - Each image's inference result must contain the probability for
     all classes.|n
@@ -59,7 +72,7 @@ class RelevancySampler(Transform, CliPlugin):
             help="Sampling method (one of {}; default: %(default)s)".format(
                 ', '.join(t.name for t in SamplingMethod)))
         parser.add_argument('-d', '--output_file',
-            help="A .csv file path to dump sampling results file path")
+            help="A .csv file path to dump sampling results")
         return parser
 
     def __init__(self, extractor: IExtractor,

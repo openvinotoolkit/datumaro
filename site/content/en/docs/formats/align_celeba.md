@@ -38,9 +38,9 @@ datum import --format align_celeba <path/to/dataset>
 It is also possible to import the dataset using Python API:
 
 ```python
-from datumaro.components.dataset import Dataset
+import datumaro as dm
 
-align_celeba_dataset = Dataset.import_from('<path/to/dataset>', 'align_celeba')
+align_celeba_dataset = dm.Dataset.import_from('<path/to/dataset>', 'align_celeba')
 ```
 
 Align CelebA dataset directory should have the following structure:
@@ -95,9 +95,9 @@ datum convert -if align_celeba -i <path/to/dataset> \
 Or, using Python API:
 
 ```python
-from datumaro.components.dataset import Dataset
+import datumaro as dm
 
-dataset = Dataset.import_from('<path/to/dataset>', 'align_celeba')
+dataset = dm.Dataset.import_from('<path/to/dataset>', 'align_celeba')
 dataset.export('save_dir', 'voc')
 ```
 

@@ -27,6 +27,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   to create smaller datasets from bigger ones
   (<https://github.com/openvinotoolkit/datumaro/pull/636>,
    <https://github.com/openvinotoolkit/datumaro/pull/640>)
+- Support for downloading the ImageNetV2 and COCO datasets
+  (<https://github.com/openvinotoolkit/datumaro/pull/653>,
+   <https://github.com/openvinotoolkit/datumaro/pull/659>)
 
 ### Changed
 - Allowed direct file paths in `datum import`. Such sources are imported like
@@ -39,6 +42,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/621>)
 - OpenVINO telemetry library 2022.1.0 from PyPI.
   (<https://github.com/openvinotoolkit/datumaro/pull/625>)
+- Allowed `Image` creation from just `size` info
+  (<https://github.com/openvinotoolkit/datumaro/pull/634>)
+- Added image search in VOC XML-based subformats
+  (<https://github.com/openvinotoolkit/datumaro/pull/634>)
+- Added image path equality checks in simple merge, when applicable
+  (<https://github.com/openvinotoolkit/datumaro/pull/634>)
 
 ### Deprecated
 - TBD
@@ -65,6 +74,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Numeric warnings that sometimes occurred in `stats` command
   (e.g. <https://github.com/openvinotoolkit/datumaro/issues/607>)
   (<https://github.com/openvinotoolkit/datumaro/pull/621>)
+- Added missing item attribute merging in simple merge
+  (<https://github.com/openvinotoolkit/datumaro/pull/634>)
 
 ### Security
 - TBD

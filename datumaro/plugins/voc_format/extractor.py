@@ -134,12 +134,20 @@ class _VocXmlExtractor(_VocExtractor):
         super().__init__(path, task)
 
     def __iter__(self):
+        image_dir = osp.join(self._dataset_dir, VocPath.IMAGES_DIR)
+        if osp.isdir(image_dir):
+            images = {
+                osp.splitext(osp.relpath(p, image_dir))[0].replace('\\', '/'): p
+                for p in find_images(image_dir, recursive=True)
+            }
+        else:
+            images = {}
+
         anno_dir = osp.join(self._dataset_dir, VocPath.ANNOTATIONS_DIR)
 
         for item_id in self._items:
             log.debug("Reading item '%s'" % item_id)
-            image = item_id + VocPath.IMAGE_EXT
-            height, width = 0, 0
+            size = None
 
             anns = []
             ann_file = osp.join(anno_dir, item_id + '.xml')
@@ -151,16 +159,17 @@ class _VocXmlExtractor(_VocExtractor):
                 width = root_elem.find('size/width')
                 if width is not None:
                     width = int(width.text)
+                if height and width:
+                    size = (height, width)
                 filename_elem = root_elem.find('filename')
                 if filename_elem is not None:
-                    image = filename_elem.text
+                    image = osp.join(image_dir, filename_elem.text)
                 anns = self._parse_annotations(root_elem)
-
-            image = osp.join(self._dataset_dir, VocPath.IMAGES_DIR, image)
-            if height and width:
-                image = Image(path=image, size=(height, width))
             else:
-                image = Image(path=image)
+                image = images.pop(item_id, None)
+
+            if image or size:
+                image = Image(path=image, size=size)
 
             yield DatasetItem(id=item_id, subset=self._subset,
                 media=image, annotations=anns)

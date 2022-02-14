@@ -4,7 +4,7 @@
 
 from collections import OrderedDict
 from copy import deepcopy
-from typing import Callable, Dict, Iterable, List, Optional, Set, Tuple
+from typing import Any, Callable, Dict, Iterable, List, Optional, Set, Tuple
 from unittest import TestCase
 import hashlib
 import logging as log
@@ -22,11 +22,12 @@ from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.dataset import Dataset, DatasetItemStorage, IDataset
 from datumaro.components.errors import (
     AnnotationsTooCloseError, ConflictingCategoriesError, DatasetMergeError,
-    FailedAttrVotingError, FailedLabelVotingError, MismatchingImageInfoError,
-    NoMatchingAnnError, NoMatchingItemError, WrongGroupError,
+    FailedAttrVotingError, FailedLabelVotingError, MismatchingAttributesError,
+    MismatchingImageInfoError, MismatchingImagePathError, NoMatchingAnnError,
+    NoMatchingItemError, WrongGroupError,
 )
 from datumaro.components.extractor import CategoriesInfo, DatasetItem
-from datumaro.components.media import Image
+from datumaro.components.media import ByteImage, Image
 from datumaro.util import filter_dict, find
 from datumaro.util.annotation_util import (
     OKS, approximate_line, bbox_iou, find_instances, max_bbox, mean_bbox,
@@ -103,7 +104,7 @@ class ExactMerge:
                 existing_item = items.get(item.id, item.subset)
                 if existing_item is not None:
                     try:
-                        item = cls.merge_items(existing_item, item)
+                        item = cls._merge_items(existing_item, item)
                     except DatasetMergeError as e:
                         e.sources = set(range(source_idx))
                         raise e
@@ -112,46 +113,98 @@ class ExactMerge:
         return items
 
     @classmethod
-    def merge_items(cls, existing_item: DatasetItem,
+    def _merge_items(cls, existing_item: DatasetItem,
             current_item: DatasetItem) -> DatasetItem:
         return existing_item.wrap(
-            image=cls.merge_images(existing_item, current_item),
-            annotations=cls.merge_anno(
+            image=cls._merge_images(existing_item, current_item),
+            attributes=cls._merge_attrs(
+                existing_item.attributes, current_item.attributes,
+                item_id=(existing_item.id, existing_item.subset)),
+            annotations=cls._merge_anno(
                 existing_item.annotations, current_item.annotations))
 
     @staticmethod
-    def merge_images(existing_item: DatasetItem,
-            current_item: DatasetItem) -> Image:
+    def _merge_attrs(a: Dict[str, Any], b: Dict[str, Any],
+            item_id: Tuple[str, str]) -> Dict:
+        merged = {}
 
+        for name in a.keys() | b.keys():
+            a_val = a.get(name, None)
+            b_val = b.get(name, None)
+
+            if name not in a:
+                m_val = b_val
+            elif name not in b:
+                m_val = a_val
+            elif a_val != b_val:
+                raise MismatchingAttributesError(item_id, name, a_val, b_val)
+            else:
+                m_val = a_val
+
+            merged[name] = m_val
+
+        return merged
+
+    @staticmethod
+    def _merge_images(item_a: DatasetItem, item_b: DatasetItem) -> Image:
         image = None
-        if existing_item.media and current_item.media:
-            if existing_item.media.has_data:
-                image = existing_item.media
-            else:
-                image = current_item.media
 
-            if existing_item.media.path != current_item.media.path:
-                if not existing_item.media.path:
-                    image._path = current_item.media.path
+        if isinstance(item_a.media, Image) and isinstance(item_b.media, Image):
+            if item_a.media.path and item_b.media.path and \
+                    item_a.media.path != item_b.media.path and \
+                    item_a.media.has_data is item_b.media.has_data:
+                # We use has_data as a replacement for path existence check
+                # - If only one image has data, we'll use it. The other
+                #   one is just a path metainfo, which is not significant
+                #   in this case.
+                # - If both images have data or both don't, we need
+                #   to compare paths.
+                #
+                # Different paths can aclually point to the same file,
+                # but it's not the case we'd like to allow here to be
+                # a "simple" merging strategy used for extractor joining
+                raise MismatchingImagePathError(
+                    (item_a.id, item_a.subset),
+                    item_a.media.path, item_b.media.path)
 
-            if all([existing_item.media._size, current_item.media._size]):
-                if existing_item.media._size != current_item.media._size:
-                    raise MismatchingImageInfoError(
-                        (existing_item.id, existing_item.subset),
-                        existing_item.media._size, current_item.media._size)
-            elif existing_item.media._size:
-                image._size = existing_item.media._size
+            if item_a.media.has_size and item_b.media.has_size and \
+                    item_a.media.size != item_b.media.size:
+                raise MismatchingImageInfoError(
+                    (item_a.id, item_a.subset),
+                    item_a.media.size, item_b.media.size)
+
+            # Avoid direct comparison here for better performance
+            # If there are 2 "data-only" images, they won't be compared and
+            # we just use the first one
+            if item_a.media.has_data:
+                image = item_a.media
+            elif item_b.media.has_data:
+                image = item_b.media
+            elif item_a.media.path:
+                image = item_a.media
+            elif item_b.media.path:
+                image = item_b.media
+            elif item_a.media.has_size:
+                image = item_a.media
+            elif item_b.media.has_size:
+                image = item_b.media
             else:
-                image._size = current_item.media._size
-        elif existing_item.media:
-            image = existing_item.media
+                assert False, "Unknown image field combination"
+
+            if not image.has_data or not image.has_size:
+                if item_a.media._size:
+                    image._size = item_a.media._size
+                elif item_b.media._size:
+                    image._size = item_b.media._size
+        elif isinstance(item_a.media, Image):
+            image = item_a.media
         else:
-            image = current_item.media
+            image = item_b.media
 
         return image
 
     @staticmethod
-    def merge_anno(a: Iterable[Annotation], b: Iterable[Annotation]) \
+    def _merge_anno(a: Iterable[Annotation], b: Iterable[Annotation]) \
             -> List[Annotation]:
         return merge_annotations_equal(a, b)
 

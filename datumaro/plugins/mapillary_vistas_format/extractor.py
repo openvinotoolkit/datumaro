@@ -1,8 +1,7 @@
-# Copyright (C) 2021 Intel Corporation
+# Copyright (C) 2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 import glob
-import json
 import logging as log
 import os
 import os.path as osp
@@ -15,6 +14,7 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.extractor import DatasetItem, SourceExtractor
 from datumaro.components.media import Image
+from datumaro.util import parse_json_file
 from datumaro.util.image import find_images, lazy_image, load_image
 from datumaro.util.mask_tools import bgr2index
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
@@ -79,8 +79,7 @@ class _MapillaryVistasExtractor(SourceExtractor):
             raise FileNotFoundError("Can't find panoptic config file: '%s' at '%s'"
                % (MapillaryVistasPath.PANOPTIC_CONFIG, panoptic_config_path))
 
-        with open(panoptic_config_path, 'r', encoding='utf-8') as f:
-            return json.load(f)
+        return parse_json_file(panoptic_config_path)
 
     def _load_panoptic_categories(self, categories_info, keep_original_ids):
         label_cat = LabelCategories()
@@ -228,8 +227,7 @@ class _MapillaryVistasExtractor(SourceExtractor):
             item_id = osp.splitext(osp.relpath(item_path, polygons_dir))[0]
             item = items.get(item_id)
             item_info = {}
-            with open(item_path, 'r', encoding='utf-8') as f:
-                item_info = json.load(f)
+            item_info = parse_json_file(item_path)
 
             image_size = self._get_image_size(item_info)
             if image_size and item.has_image:

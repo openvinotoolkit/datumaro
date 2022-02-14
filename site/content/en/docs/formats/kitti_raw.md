@@ -109,9 +109,9 @@ datum convert -if kitti_raw -i <path/to/kitti_raw> -f sly_pointcloud
 Or, using Python API:
 
 ```python
-from datumaro.components.dataset import Dataset
+import datumaro as dm
 
-dataset = Dataset.import_from('<path/to/dataset>', 'kitti_raw')
+dataset = dm.Dataset.import_from('<path/to/dataset>', 'kitti_raw')
 dataset.export('save_dir', 'sly_pointcloud', save_media=True)
 ```
 
@@ -161,23 +161,22 @@ datum convert -if sly_pointcloud -i ../sly_pcd/ \
 ### Example 3. Create a custom dataset
 
 ``` python
-from datumaro.components.annotation import Cuboid3d
-from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import DatasetItem
+import numpy as np
+import datumaro as dm
 
-dataset = Dataset.from_iterable([
-  DatasetItem(id='some/name/qq',
-    annotations=[
-      Cuboid3d(position=[13.54, -9.41, 0.24], label=0,
-        attributes={'occluded': False, 'track_id': 1}),
+dataset = dm.Dataset.from_iterable([
+    dm.DatasetItem(id='some/name/qq',
+        annotations=[
+            dm.Cuboid3d(position=[13.54, -9.41, 0.24], label=0,
+                attributes={'occluded': False, 'track_id': 1}),
 
-      Cuboid3d(position=[3.4, -2.11, 4.4], label=1,
-        attributes={'occluded': True, 'track_id': 2})
-    ],
-    pcd='path/to/pcd1.pcd',
-    related_images=[np.ones((10, 10)), 'path/to/image2.png', 'image3.jpg'],
-    attributes={'frame': 0}
-  ),
+            dm.Cuboid3d(position=[3.4, -2.11, 4.4], label=1,
+                attributes={'occluded': True, 'track_id': 2})
+        ],
+        pcd='path/to/pcd1.pcd',
+        related_images=[np.ones((10, 10)), 'path/to/image2.png', 'image3.jpg'],
+        attributes={'frame': 0}
+    ),
 ], categories=['cat', 'dog'])
 
 dataset.export('my_dataset/', format='kitti_raw', save_media=True)

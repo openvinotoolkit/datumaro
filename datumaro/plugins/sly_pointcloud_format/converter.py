@@ -8,7 +8,6 @@
 from __future__ import annotations
 
 from datetime import datetime
-import json
 import logging as log
 import os
 import os.path as osp
@@ -19,7 +18,7 @@ from datumaro.components.annotation import AnnotationType, LabelCategories
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
 from datumaro.components.extractor import DatasetItem, IExtractor
-from datumaro.util import cast
+from datumaro.util import cast, dump_json_file
 
 from .format import PointCloudPath
 
@@ -79,9 +78,8 @@ class _SuperviselyPointCloudDumper:
                 }
             }
 
-            with open(osp.join(img_dir, img_path + '.json'),
-                    'w', encoding='utf-8') as f:
-                json.dump(img_data, f, ensure_ascii=False, indent=4)
+            dump_json_file(osp.join(img_dir, img_path + '.json'), img_data,
+                indent=True)
 
     def _write_pcd(self, item):
         self._context._save_point_cloud(item, basedir=self._point_cloud_dir)
@@ -93,9 +91,8 @@ class _SuperviselyPointCloudDumper:
             tag['classes'] = list(tag['classes'])
         self._meta_data['tags'] = list(self._tag_meta.values())
 
-        with open(osp.join(self._save_dir, PointCloudPath.META_FILE),
-                'w', encoding='utf-8') as f:
-            json.dump(self._meta_data, f, ensure_ascii=False, indent=4)
+        dump_json_file(osp.join(self._save_dir, PointCloudPath.META_FILE),
+            self._meta_data, indent=True)
 
     def _write_key_id(self):
         objects = self._objects
@@ -103,9 +100,8 @@ class _SuperviselyPointCloudDumper:
 
         key_id_data['objects'] = { v: k for k, v in objects.items() }
 
-        with open(osp.join(self._save_dir, PointCloudPath.KEY_ID_FILE),
-                'w', encoding='utf-8') as f:
-            json.dump(key_id_data, f, ensure_ascii=False, indent=4)
+        dump_json_file(osp.join(self._save_dir, PointCloudPath.KEY_ID_FILE),
+            key_id_data, indent=True)
 
     def _write_item_annotations(self, item):
         key_id_data = self._key_id_data
@@ -132,8 +128,7 @@ class _SuperviselyPointCloudDumper:
 
         ann_path = osp.join(self._ann_dir, item.id + '.pcd.json')
         os.makedirs(osp.dirname(ann_path), exist_ok=True)
-        with open(ann_path,'w', encoding='utf-8') as f:
-            json.dump(item_ann_data, f, ensure_ascii=False, indent=4)
+        dump_json_file(ann_path, item_ann_data, indent=True)
 
     def _export_item_attributes(self, item, item_ann_data, item_user_info):
         for attr_name, attr_value in item.attributes.items():

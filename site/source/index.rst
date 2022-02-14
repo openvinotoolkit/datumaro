@@ -16,6 +16,7 @@ Contents
    :maxdepth: 1
    :glob:
 
+   /api/datumaro.rst
    /api/cli/*
    /api/components/*
    /api/plugins/*

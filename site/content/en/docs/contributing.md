@@ -163,7 +163,8 @@ They can be overridden for a specific test:
 ```python
 import pytest
 
-    @pytest.mark.proirity_low
+class MyTests(TestCase):
+    @pytest.mark.priority_low
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_my_requirement(self):
         ... do stuff ...

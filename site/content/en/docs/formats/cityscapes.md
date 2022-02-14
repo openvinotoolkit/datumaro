@@ -107,9 +107,9 @@ datum convert -if cityscapes -i <path/to/cityscapes> \
 Or, using Python API:
 
 ```python
-from datumaro.components.dataset import Dataset
+import datumaro as dm
 
-dataset = Dataset.import_from('<path/to/dataset>', 'cityscapes')
+dataset = dm.Dataset.import_from('<path/to/dataset>', 'cityscapes')
 dataset.export('save_dir', 'voc', save_media=True)
 ```
 
@@ -171,11 +171,10 @@ datum export -p project -o dataset/ -f voc -- --save-media
 ### Example 2. Create a custom Cityscapes-like dataset
 
 ```python
-import numpy as np
-from datumaro.components.annotation import Mask
-from datumaro.components.dataset import Dataset
-from datumaro.components.extractor import DatasetItem
+from collections import OrderedDict
 
+import numpy as np
+import datumaro as dm
 import datumaro.plugins.cityscapes_format as Cityscapes
 
 label_map = OrderedDict()
@@ -184,15 +183,15 @@ label_map['label_1'] = (1, 2, 3)
 label_map['label_2'] = (3, 2, 1)
 categories = Cityscapes.make_cityscapes_categories(label_map)
 
-dataset = Dataset.from_iterable([
-  DatasetItem(id=1,
-    image=np.ones((1, 5, 3)),
-    annotations=[
-      Mask(image=np.array([[1, 0, 0, 1, 1]]), label=1),
-      Mask(image=np.array([[0, 1, 1, 0, 0]]), label=2, id=2,
-        attributes={'is_crowd': False}),
-    ]
-  ),
+dataset = dm.Dataset.from_iterable([
+    dm.DatasetItem(id=1,
+        image=np.ones((1, 5, 3)),
+        annotations=[
+            dm.Mask(image=np.array([[1, 0, 0, 1, 1]]), label=1),
+            dm.Mask(image=np.array([[0, 1, 1, 0, 0]]), label=2, id=2,
+                attributes={'is_crowd': False}),
+        ]
+    ),
 ], categories=categories)
 
 dataset.export('./dataset', format='cityscapes')
