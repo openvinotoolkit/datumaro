@@ -25,12 +25,10 @@ class SampleEntropy(InferenceResultAnalyzer):
         Args:
 
             data: Receive the data format in pd.DataFrame format.
-                  ImageID is an essential element for data.
+                    ImageID is an essential element for data.
 
             inference:
-
                 Receive the inference format in the form of pd.DataFrame.
-
                 ImageID and ClassProbability are essential for inferences.
         """
         super().__init__(data, inference)
@@ -109,7 +107,7 @@ class SampleEntropy(InferenceResultAnalyzer):
             method:
                 - 'mixk': Return top-k and low-k halves based on uncertainty.
                 - 'randomtopk': Randomly extract n*k and return k
-                    with high uncertainty.
+                  with high uncertainty.
             k: number of sample data
             n: Number to extract n * k from total data according to n,
                 and top-k from it

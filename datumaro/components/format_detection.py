@@ -251,7 +251,7 @@ class FormatDetectionContext:
         requirements represented as nested `with` statements using the context
         manager returned by `alternative`:
 
-        .. codeblock::
+        .. code-block::
 
             with context.require_any():
                 with context.alternative():

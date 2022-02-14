@@ -11,6 +11,7 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 
 import os
+import re
 import sys
 
 sys.path.insert(0, os.path.abspath('../..'))
@@ -91,11 +92,12 @@ def skip_member(app, what, name, obj, skip, options):
 def replace(app, what, name, obj, options, lines):
     for i, line in enumerate(lines):
         if line:
+            prog = str('%(prog)s')
+            prog_name = re.sub(r'([A-Z])', r'_\1', name.split('.')[-1])[1:]
+            lines[i] = lines[i].replace(prog, prog_name.lower())
             if not "'|n'" in lines[i]:
                 if not "'|s'" in lines[i]:
-                    prog = str('%(prog)s')
                     lines[i] = lines[i].replace("|n", "\n").replace("|s", " ")
-                    lines[i] = lines[i].replace(prog, name.split('.')[-1])
 
 def setup(app):
     app.connect('autodoc-skip-member', skip_member)
