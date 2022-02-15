@@ -1546,8 +1546,8 @@ class DatasetTest(TestCase):
                 yield from []
 
         class TestProgressReporter(ProgressReporter):
-            def split(self, n):
-                return (self, ) * n
+            def split(self, count):
+                return (self, ) * count
 
         progress_reporter = TestProgressReporter()
         progress_reporter.get_frequency = mock.MagicMock(return_value=0.1)
@@ -1589,8 +1589,8 @@ class DatasetTest(TestCase):
             def close(self):
                 pass
 
-            def split(self, n):
-                return tuple(TestProgressReporter() for _ in range(n))
+            def split(self, count):
+                return tuple(TestProgressReporter() for _ in range(count))
 
             iter = mock.MagicMock()
 
