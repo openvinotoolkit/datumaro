@@ -96,6 +96,11 @@ Basic dataset item manipulations:
 - [`label_random_sampler`](#label_random_sampler-transform) - Leaves at least
   k images with annotations per class
 - [`resize`](#resize-transform) - Resizes images and annotations in the dataset
+- [`delete_image`](#delete_image-transform) - Deletes images with annotation errors
+- [`delete_annotation`](#delete_annotation-transform) - Deletes annotations with 
+  annotation errors
+- [`delete_attribute`](#delete_attribute-transform) - Deletes attriutes with 
+  annotation errors
 
 Subset manipulations:
 - [`random_split`](#random_split-transform) - Splits dataset into subsets
