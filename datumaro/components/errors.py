@@ -150,6 +150,10 @@ class DatasetExportError(DatumaroError):
 
 @define(auto_exc=False)
 class ItemExportError(DatasetExportError):
+    """
+    Represents additional item error info. The error itself is supposed to be
+    in the `__cause__` member.
+    """
     item_id: Tuple[str, str]
 
     def __str__(self):
@@ -164,6 +168,11 @@ class DatasetImportError(DatumaroError):
 
 @define(auto_exc=False)
 class ItemImportError(DatasetImportError):
+    """
+    Represents additional item error info. The error itself is supposed to be
+    in the `__cause__` member.
+    """
+
     item_id: Tuple[str, str]
 
     def __str__(self):
