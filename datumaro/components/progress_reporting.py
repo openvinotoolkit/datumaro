@@ -30,7 +30,8 @@ class ProgressReporter(ContextManager['ProgressReporter']):
     def __exit__(self, exc_type=None, exc_value=None, traceback=None):
         self.close()
 
-    def get_frequency(self) -> float:
+    @property
+    def frequency(self) -> float:
         """
         Returns reporting frequency.
 
@@ -71,7 +72,7 @@ class ProgressReporter(ContextManager['ProgressReporter']):
         self.init(total, desc=desc)
 
         if total:
-            display_step = math.ceil(total * self.get_frequency())
+            display_step = math.ceil(total * self.frequency)
 
         for i, elem in enumerate(iterable):
             if not total or i % display_step == 0:
@@ -87,7 +88,8 @@ class ProgressReporter(ContextManager['ProgressReporter']):
         raise NotImplementedError
 
 class NullProgressReporter(ProgressReporter):
-    def get_frequency(self) -> float:
+    @property
+    def frequency(self) -> float:
         return 0
 
     def init(self, total: int, *, desc: Optional[str] = None):
