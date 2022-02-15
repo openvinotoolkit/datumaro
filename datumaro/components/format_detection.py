@@ -43,7 +43,17 @@ class FormatDetectionConfidence(IntEnum):
 # * It makes sure that every confidence level is a true value.
 assert all(level > 0 for level in FormatDetectionConfidence)
 
-class FormatRequirementsUnmet(Exception):
+class RejectionReason(Enum):
+    unmet_requirements = auto()
+    insufficient_confidence = auto()
+    detection_unsupported = auto()
+
+class _FormatRejected(Exception):
+    @property
+    def reason(self) -> RejectionReason:
+        raise NotImplementedError
+
+class FormatRequirementsUnmet(_FormatRejected):
     """
     Represents a situation where a dataset does not meet the requirements
     of a given dataset format.
@@ -73,6 +83,26 @@ class FormatRequirementsUnmet(Exception):
         lines.extend('  ' + req for req in self.failed_alternatives)
 
         return '\n'.join(lines)
+
+    @property
+    def reason(self) -> RejectionReason:
+        return RejectionReason.unmet_requirements
+
+class FormatDetectionUnsupported(_FormatRejected):
+    """
+    Represents a situation where detection is attempted with a format that
+    does not support it.
+
+    Must not be constructed or raised directly; use
+    `FormatDetectionContext.raise_unsupported` instead.
+    """
+
+    def __str__(self) -> str:
+        return "Detection for this format is unsupported"
+
+    @property
+    def reason(self) -> RejectionReason:
+        return RejectionReason.detection_unsupported
 
 class FormatDetectionContext:
     """
@@ -137,6 +167,14 @@ class FormatDetectionContext:
         assert not self._one_or_more_context, \
             f"a requirement ({req_type}) can't be placed directly within " \
             "a 'require_any' block"
+
+    def raise_unsupported(self) -> NoReturn:
+        """
+        Raises a `FormatDetectionUnsupported` exception to signal that the
+        current format does not support detection.
+        """
+
+        raise FormatDetectionUnsupported
 
     def fail(self, requirement_desc: str) -> NoReturn:
         """
@@ -236,7 +274,7 @@ class FormatDetectionContext:
         try:
             with open(osp.join(self._root_path, path), encoding='utf-8') as f:
                 yield f
-        except FormatRequirementsUnmet:
+        except _FormatRejected:
             raise
         except Exception:
             self.fail(requirement_desc_full)
@@ -326,10 +364,14 @@ The callback receives an instance of `FormatDetectionContext` and must call
 methods on that instance to place requirements that the dataset must meet
 in order for it to be considered as belonging to the format.
 
-Must return the level of confidence in the dataset belonging to the format
-(or `None`, which is equivalent to the `MEDIUM` level)
-or terminate via a `FormatRequirementsUnmet` exception raised by one of
-the `FormatDetectionContext` methods.
+Must terminate in one of the following ways:
+
+* by returning the level of confidence in the dataset belonging to the format
+  (or `None`, which is equivalent to the `MEDIUM` level);
+* by raising a `FormatRequirementsUnmet` exception via one of
+  the `FormatDetectionContext` methods;
+* by raising a `FormatDetectionUnsupported` exception via
+  `FormatDetectionContext.raise_unsupported`.
 """
 
 def apply_format_detector(
@@ -338,7 +380,8 @@ def apply_format_detector(
     """
     Checks whether the dataset located at `dataset_root_path` belongs to the
     format detected by `detector`. If it does, returns the confidence level
-    of the detection. Otherwise, raises a `FormatRequirementsUnmet` exception.
+    of the detection. Otherwise, terminates with the exception that was raised
+    by the detector.
     """
     context = FormatDetectionContext(dataset_root_path)
 
@@ -346,10 +389,6 @@ def apply_format_detector(
         context.fail(f"root path {dataset_root_path} must refer to a directory")
 
     return detector(context) or FormatDetectionConfidence.MEDIUM
-
-class RejectionReason(Enum):
-    unmet_requirements = auto()
-    insufficient_confidence = auto()
 
 class RejectionCallback(Protocol):
     def __call__(self,
@@ -405,12 +444,10 @@ def detect_dataset_format(
         log.debug("Checking '%s' format...", format_name)
         try:
             new_confidence = apply_format_detector(path, detector)
-        except FormatRequirementsUnmet as ex:
+        except _FormatRejected as ex:
             human_message = str(ex)
             if rejection_callback:
-                rejection_callback(
-                    format_name, RejectionReason.unmet_requirements,
-                    human_message)
+                rejection_callback(format_name, ex.reason, human_message)
             log.debug(human_message)
         else:
             log.debug("Format matched with confidence %d", new_confidence)

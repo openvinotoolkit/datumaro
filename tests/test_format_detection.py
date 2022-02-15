@@ -2,8 +2,9 @@ from unittest import TestCase
 import os.path as osp
 
 from datumaro.components.format_detection import (
-    FormatDetectionConfidence, FormatRequirementsUnmet, RejectionReason,
-    apply_format_detector, detect_dataset_format,
+    FormatDetectionConfidence, FormatDetectionUnsupported,
+    FormatRequirementsUnmet, RejectionReason, apply_format_detector,
+    detect_dataset_format,
 )
 from datumaro.util.test_utils import TestDir
 
@@ -202,6 +203,14 @@ class ApplyFormatDetectorTest(FormatDetectionTest):
         self.assertEqual(result.exception.failed_alternatives,
             ('bad alternative 1', 'bad alternative 2'))
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_raise_unsupported(self):
+        def detect(context):
+            context.raise_unsupported()
+
+        with self.assertRaises(FormatDetectionUnsupported):
+            apply_format_detector(self._dataset_root, detect)
+
 class DetectDatasetFormat(FormatDetectionTest):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_no_input_formats(self):
@@ -218,6 +227,7 @@ class DetectDatasetFormat(FormatDetectionTest):
             # ddd should be rejected immediately
             ("ddd", lambda context: FormatDetectionConfidence.LOW),
             ("eee", lambda context: None),
+            ("fff", lambda context: context.raise_unsupported()),
         ]
 
         rejected_formats = {}
@@ -230,7 +240,8 @@ class DetectDatasetFormat(FormatDetectionTest):
 
         self.assertEqual(set(detected_datasets), {"bbb", "eee"})
 
-        self.assertEqual(rejected_formats.keys(), {"aaa", "ccc", "ddd"})
+        self.assertEqual(rejected_formats.keys(), {"aaa", "ccc", "ddd", "fff"})
+
         for name in ("aaa", "ddd"):
             self.assertEqual(rejected_formats[name][0],
                 RejectionReason.insufficient_confidence)
@@ -238,6 +249,9 @@ class DetectDatasetFormat(FormatDetectionTest):
         self.assertEqual(rejected_formats["ccc"][0],
             RejectionReason.unmet_requirements)
         self.assertIn("test unmet requirement", rejected_formats["ccc"][1])
+
+        self.assertEqual(rejected_formats["fff"][0],
+            RejectionReason.detection_unsupported)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_no_callback(self):

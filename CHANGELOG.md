@@ -30,6 +30,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for downloading the ImageNetV2 and COCO datasets
   (<https://github.com/openvinotoolkit/datumaro/pull/653>,
    <https://github.com/openvinotoolkit/datumaro/pull/659>)
+- A way for formats to signal that they don't support detection
+  (<https://github.com/openvinotoolkit/datumaro/pull/665>)
 
 ### Changed
 - Allowed direct file paths in `datum import`. Such sources are imported like
