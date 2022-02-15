@@ -207,6 +207,25 @@ class FormatDetectionContext:
 
         self._start_requirement("require_file")
 
+        return next(self._require_files_iter(
+            pattern, exclude_fnames=exclude_fnames))
+
+    def require_files(self, pattern: str, *,
+        exclude_fnames: Union[str, Collection[str]] = (),
+    ) -> List[str]:
+        """
+        Same as `require_file`, but returns all matching paths in alphabetical
+        order.
+        """
+
+        self._start_requirement("require_files")
+
+        return sorted(self._require_files_iter(
+            pattern, exclude_fnames=exclude_fnames))
+
+    def _require_files_iter(self, pattern: str, *,
+        exclude_fnames: Union[str, Collection[str]] = (),
+    ) -> Iterator[str]:
         if isinstance(exclude_fnames, str):
             exclude_fnames = (exclude_fnames,)
 
@@ -221,6 +240,7 @@ class FormatDetectionContext:
             self.fail(requirement_desc)
 
         pattern_abs = osp.join(glob.escape(self._root_path), pattern)
+        none_found = True
         for path in glob.iglob(pattern_abs, recursive=True):
             if osp.isfile(path):
                 # Ideally, we should provide a way to filter out whole paths,
@@ -232,9 +252,11 @@ class FormatDetectionContext:
                         for pat in exclude_fnames):
                     continue
 
-                return osp.relpath(path, self._root_path)
+                yield osp.relpath(path, self._root_path)
+                none_found = False
 
-        self.fail(requirement_desc)
+        if none_found:
+            self.fail(requirement_desc)
 
     @contextlib.contextmanager
     def probe_text_file(

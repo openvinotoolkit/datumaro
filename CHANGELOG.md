@@ -78,6 +78,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/621>)
 - Added missing item attribute merging in simple merge
   (<https://github.com/openvinotoolkit/datumaro/pull/634>)
+- Inability to disambiguate VOC from LabelMe in some cases
+  (<https://github.com/openvinotoolkit/datumaro/issues/658>)
 
 ### Security
 - TBD

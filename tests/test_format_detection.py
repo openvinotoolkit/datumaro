@@ -19,7 +19,7 @@ class FormatDetectionTest(TestCase):
 
 class ApplyFormatDetectorTest(FormatDetectionTest):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_empty_detector(self):
+    def test_default_result(self):
         result = apply_format_detector(self._dataset_root, lambda c: None)
         self.assertEqual(result, FormatDetectionConfidence.MEDIUM)
 
@@ -59,9 +59,8 @@ class ApplyFormatDetectorTest(FormatDetectionTest):
             nonlocal selected_file
             selected_file = context.require_file('**/[fg]oo*.t?t')
 
-        result = apply_format_detector(self._dataset_root, detect)
+        apply_format_detector(self._dataset_root, detect)
 
-        self.assertEqual(result, FormatDetectionConfidence.MEDIUM)
         self.assertEqual(selected_file, 'foobar.txt')
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -111,6 +110,33 @@ class ApplyFormatDetectorTest(FormatDetectionTest):
         self.assertIn('*.lst', result.exception.failed_alternatives[0])
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_require_files_success(self):
+        for stem in 'cba':
+            with open(osp.join(self._dataset_root, f'{stem}.txt'), 'w'):
+                pass
+
+        selected_files = []
+
+        def detect(context):
+            selected_files.extend(
+                context.require_files('*.txt', exclude_fnames='b.txt'))
+
+        apply_format_detector(self._dataset_root, detect)
+
+        self.assertEqual(selected_files, ['a.txt', 'c.txt'])
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_require_files_failure(self):
+        def detect(context):
+            context.require_files('*.txt')
+
+        with self.assertRaises(FormatRequirementsUnmet) as result:
+            apply_format_detector(self._dataset_root, detect)
+
+        self.assertEqual(len(result.exception.failed_alternatives), 1)
+        self.assertIn('*.txt', result.exception.failed_alternatives[0])
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_probe_text_file_success(self):
         with open(osp.join(self._dataset_root, 'foobar.txt'), 'w') as f:
             print('123', file=f)
@@ -120,9 +146,7 @@ class ApplyFormatDetectorTest(FormatDetectionTest):
                 if next(f) != '123\n':
                     raise Exception
 
-        result = apply_format_detector(self._dataset_root, detect)
-
-        self.assertEqual(result, FormatDetectionConfidence.MEDIUM)
+        apply_format_detector(self._dataset_root, detect)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_probe_text_file_failure_bad_file(self):
@@ -183,9 +207,8 @@ class ApplyFormatDetectorTest(FormatDetectionTest):
                     alternatives_executed.add(3)
                     context.fail('bad alternative 3')
 
-        result = apply_format_detector(self._dataset_root, detect)
+        apply_format_detector(self._dataset_root, detect)
 
-        self.assertEqual(result, FormatDetectionConfidence.MEDIUM)
         self.assertEqual(alternatives_executed, {1, 2, 3})
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
