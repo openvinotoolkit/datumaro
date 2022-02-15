@@ -148,6 +148,7 @@ class SourceExistsError(DatumaroError):
 class DatasetExportError(DatumaroError):
     pass
 
+@define(auto_exc=False)
 class ItemExportError(DatasetExportError):
     item_id: Tuple[str, str]
 
