@@ -42,6 +42,7 @@ class RelevancySampler(Transform, CliPlugin):
     |s|sbased on model certainty, put the result into 'sample' subset
     |s|sand put all the rest into 'unsampled' subset, use 'train' subset |n
     |s|sas input. |n
+
     .. code-block::
 
     |s|s%(prog)s \ |n

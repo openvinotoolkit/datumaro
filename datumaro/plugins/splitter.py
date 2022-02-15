@@ -44,11 +44,14 @@ class Split(Transform, CliPlugin):
     people or objects during the training phase. |n
     This function splits a dataset in the following way:|n
     |s|s1. Splits the dataset into 'train + val' and 'test' sets|n
-    |s|s|s|sbased on person or object ID.|n
+    |s|sbased on person or object ID.|n
+
     |s|s2. Splits 'test' set into 'test-gallery' and 'test-query' sets|n
-    |s|s|s|sin class-wise manner.|n
+    |s|sin class-wise manner.|n
+
     |s|s3. Splits the 'train + val' set into 'train' and 'val' sets|n
-    |s|s|s|sin the same way.|n
+    |s|sin the same way.|n
+
     The final subsets would be
     'train', 'val', 'test-gallery' and 'test-query'. |n
     |n
@@ -416,11 +419,11 @@ class _ClassificationSplit(_TaskSpecificSplit):
     distribution.|n
     |n
     Notes:|n
-    - Each image is expected to have only one Label. Unlabeled or
-      multi-labeled images will be split into subsets randomly. |n
-    - If Labels also have attributes, also splits by attribute values.|n
-    - If there is not enough images in some class or attributes group,
-      the split ratio can't be guaranteed.|n
+    |s|s- Each image is expected to have only one Label. Unlabeled or
+    |s|s  multi-labeled images will be split into subsets randomly. |n
+    |s|s- If Labels also have attributes, also splits by attribute values.|n
+    |s|s- If there is not enough images in some class or attributes group,
+    |s|s  the split ratio can't be guaranteed.|n
     |n
     Example:|n
 
@@ -481,10 +484,13 @@ class _ReidentificationSplit(_TaskSpecificSplit):
     This function splits a dataset in the following way:|n
     |s|s1. Splits the dataset into 'train + val' and 'test' sets|n
     |s|sbased on person or object ID.|n
+
     |s|s2. Splits 'test' set into 'test-gallery' and 'test-query' sets|n
     |s|sin class-wise manner.|n
+
     |s|s3. Splits the 'train + val' set into 'train' and 'val' sets|n
     |s|sin the same way.|n
+
     The final subsets would be
     'train', 'val', 'test-gallery' and 'test-query'. |n
     |n
@@ -713,7 +719,8 @@ class _InstanceSpecificSplit(_TaskSpecificSplit):
     |s|s- Mask or Polygon annotations are considered in segmentation task.|n
     |n
     Example: split dataset so that each object class annotations were split|n
-    |s|sin the specified ratio between subsets|n
+    in the specified ratio between subsets|n
+
     .. code-block::
 
     |s|s%(prog)s -t detection --subset train:.5 --subset val:.2 --subset test:.3 |n

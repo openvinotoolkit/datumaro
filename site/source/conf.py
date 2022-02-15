@@ -90,11 +90,15 @@ def skip_member(app, what, name, obj, skip, options):
         return name.startswith('_')
 
 def replace(app, what, name, obj, options, lines):
+    names = re.sub(r'([A-Z])', r' \1', name.replace('_', '').split('.')[-1]).split()
+    for n, a in enumerate(names):
+        if a.lower() in name.split('.')[-2]:
+            names.pop(n)
+    prog_name = '_'.join(names).lower()
     for i, line in enumerate(lines):
         if line:
             prog = str('%(prog)s')
-            prog_name = re.sub(r'([A-Z])', r'_\1', name.split('.')[-1])[1:]
-            lines[i] = lines[i].replace(prog, prog_name.lower())
+            lines[i] = lines[i].replace(prog, prog_name)
             if not "'|n'" in lines[i]:
                 if not "'|s'" in lines[i]:
                     lines[i] = lines[i].replace("|n", "\n").replace("|s", " ")

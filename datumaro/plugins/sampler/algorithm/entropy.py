@@ -26,7 +26,6 @@ class SampleEntropy(InferenceResultAnalyzer):
 
             data: Receive the data format in pd.DataFrame format.
                     ImageID is an essential element for data.
-
             inference:
                 Receive the inference format in the form of pd.DataFrame.
                 ImageID and ClassProbability are essential for inferences.
