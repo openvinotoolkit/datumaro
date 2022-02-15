@@ -484,10 +484,7 @@ class Video(MediaElement, Iterable[VideoFrame]):
         return hash((self._path, self._step, self._start_frame, self._end_frame))
 
 class PointCloud(MediaElement):
-    def __init__(self, path: str,
-            extra_images: Optional[List[Union[
-                str, Image, np.ndarray, Callable[[str], np.ndarray]
-            ]]] = None):
+    def __init__(self, path: str, extra_images: Optional[List[Image]] = None):
         self._path = path
 
         self.extra_images: List[Image] = []

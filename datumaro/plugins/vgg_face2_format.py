@@ -123,10 +123,9 @@ class VggFace2Extractor(Extractor):
                     label = _get_label(item_id)
 
                 if item_id not in items:
-                    image = None
-                    image_path = images.get(row['NAME_ID'])
-                    if image_path:
-                        image = Image(path=image_path)
+                    image = images.get(row['NAME_ID'])
+                    if image:
+                        image = Image(path=image)
                     items[item_id] = DatasetItem(id=item_id, subset=subset,
                         media=image)
 
@@ -155,10 +154,9 @@ class VggFace2Extractor(Extractor):
                     label = _get_label(item_id)
 
                 if item_id not in items:
-                    image = None
-                    image_path = images.get(row['NAME_ID'])
-                    if image_path:
-                        image = Image(path=image_path)
+                    image = images.get(row['NAME_ID'])
+                    if image:
+                        image = Image(path=image)
                     items[item_id] = DatasetItem(id=item_id, subset=subset,
                         media=image)
 

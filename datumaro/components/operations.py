@@ -4,7 +4,9 @@
 
 from collections import OrderedDict
 from copy import deepcopy
-from typing import Any, Callable, Dict, Iterable, List, Optional, Set, Tuple
+from typing import (
+    Any, Callable, Dict, Iterable, List, Optional, Set, Tuple, Union,
+)
 from unittest import TestCase
 import hashlib
 import logging as log
@@ -27,7 +29,9 @@ from datumaro.components.errors import (
     NoMatchingItemError, WrongGroupError,
 )
 from datumaro.components.extractor import CategoriesInfo, DatasetItem
-from datumaro.components.media import Image
+from datumaro.components.media import (
+    ByteImage, Image, MediaElement, PointCloud, Video, VideoFrame,
+)
 from datumaro.util import filter_dict, find
 from datumaro.util.annotation_util import (
     OKS, approximate_line, bbox_iou, find_instances, max_bbox, mean_bbox,
@@ -116,7 +120,7 @@ class ExactMerge:
     def _merge_items(cls, existing_item: DatasetItem,
             current_item: DatasetItem) -> DatasetItem:
         return existing_item.wrap(
-            media=cls._merge_images(existing_item, current_item),
+            media=cls._merge_media(existing_item, current_item),
             attributes=cls._merge_attrs(
                 existing_item.attributes, current_item.attributes,
                 item_id=(existing_item.id, existing_item.subset)),
@@ -145,11 +149,44 @@ class ExactMerge:
 
         return merged
 
-    @staticmethod
-    def _merge_images(item_a: DatasetItem, item_b: DatasetItem) -> Image:
-        image = None
+    @classmethod
+    def _merge_media(cls, item_a: DatasetItem, item_b: DatasetItem) \
+            -> Union[ByteImage, Image, PointCloud, Video, VideoFrame]:
+        if isinstance(item_a.media, Image) or isinstance(item_b.media, Image) or \
+                isinstance(item_a.media, ByteImage) or isinstance(item_b.media, ByteImage) or \
+                isinstance(item_a.media, VideoFrame) or isinstance(item_b.media, VideoFrame):
+            media = cls._merge_images(item_a, item_b)
+        else:
+            if isinstance(item_a.media, PointCloud) and isinstance(item_b.media, PointCloud) or \
+                    isinstance(item_a.media, MediaElement) and isinstance(item_b.media, MediaElement) or \
+                    isinstance(item_a.media, Video) and isinstance(item_b.media, Video):
+                if item_a.media.path and item_b.media.path and \
+                        item_a.media.path != item_b.media.path:
+                    raise MismatchingImagePathError(
+                        (item_a.id, item_a.subset),
+                        item_a.media.path, item_b.media.path)
 
-        if isinstance(item_a.media, Image) and isinstance(item_b.media, Image):
+                if item_a.media.path:
+                    media = item_a.media
+                else:
+                    media = item_b.media
+
+            elif isinstance(item_a.media, MediaElement) or \
+                    isinstance(item_a.media, PointCloud) or \
+                    isinstance(item_a.media, Video):
+                media = item_a.media
+            else:
+                media = item_b.media
+
+        return media
+
+    @staticmethod
+    def _merge_images(item_a: DatasetItem, item_b: DatasetItem) -> Union[ByteImage, Image, VideoFrame]:
+        media = None
+
+        if isinstance(item_a.media, Image) and isinstance(item_b.media, Image) or \
+                isinstance(item_a.media, ByteImage) and isinstance(item_b.media, ByteImage) or \
+                isinstance(item_a.media, VideoFrame) and isinstance(item_b.media, VideoFrame):
             if item_a.media.path and item_b.media.path and \
                     item_a.media.path != item_b.media.path and \
                     item_a.media.has_data is item_b.media.has_data:
@@ -177,31 +214,32 @@ class ExactMerge:
             # If there are 2 "data-only" images, they won't be compared and
             # we just use the first one
             if item_a.media.has_data:
-                image = item_a.media
+                media = item_a.media
             elif item_b.media.has_data:
-                image = item_b.media
+                media = item_b.media
             elif item_a.media.path:
-                image = item_a.media
+                media = item_a.media
             elif item_b.media.path:
-                image = item_b.media
+                media = item_b.media
             elif item_a.media.has_size:
-                image = item_a.media
+                media = item_a.media
             elif item_b.media.has_size:
-                image = item_b.media
+                media = item_b.media
             else:
                 assert False, "Unknown image field combination"
 
-            if not image.has_data or not image.has_size:
+            if not media.has_data or not media.has_size:
                 if item_a.media._size:
-                    image._size = item_a.media._size
+                    media._size = item_a.media._size
                 elif item_b.media._size:
-                    image._size = item_b.media._size
-        elif isinstance(item_a.media, Image):
-            image = item_a.media
+                    media._size = item_b.media._size
+        elif isinstance(item_a.media, Image) or isinstance(item_a.media, ByteImage) or \
+                isinstance(item_a.media, VideoFrame):
+            media = item_a.media
         else:
-            image = item_b.media
+            media = item_b.media
 
-        return image
+        return media
 
     @staticmethod
     def _merge_anno(a: Iterable[Annotation], b: Iterable[Annotation]) \

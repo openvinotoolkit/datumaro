@@ -158,13 +158,13 @@ class MergeTest(TestCase):
             dataset1_url = osp.join(test_dir, 'dataset1')
             dataset2_url = osp.join(test_dir, 'dataset2')
 
-            dataset1.export(dataset1_url, 'coco', save_images=True)
-            dataset2.export(dataset2_url, 'voc', save_images=True)
+            dataset1.export(dataset1_url, 'coco', save_media=True)
+            dataset2.export(dataset2_url, 'voc', save_media=True)
 
             result_dir = osp.join(test_dir, 'result')
             run(self, 'merge', '-o', result_dir, '-f', 'yolo',
                 dataset2_url + ':voc', dataset1_url + ':coco',
-                '--', '--save-images')
+                '--', '--save-media')
 
             compare_datasets(self, expected,
                 Dataset.import_from(result_dir, 'yolo'),

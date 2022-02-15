@@ -78,10 +78,9 @@ class MotsPngExtractor(SourceExtractor):
 
         for p in sorted(iglob(self._anno_dir + '/**/*.png', recursive=True)):
             item_id = osp.splitext(osp.relpath(p, self._anno_dir))[0]
-            image = None
-            image_path = images.get(item_id)
-            if image_path:
-                image = Image(path=image_path)
+            image = images.get(item_id)
+            if image:
+                image = Image(path=image)
             items.append(DatasetItem(id=item_id, subset=self._subset,
                 media=image, annotations=self._parse_annotations(p)))
         return items

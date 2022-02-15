@@ -14,6 +14,8 @@ import warnings
 import cv2
 import numpy as np
 
+from datumaro.components.media import Image
+
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     import tensorboardX as tb
@@ -243,7 +245,7 @@ class DiffVisualizer:
         _, mispred, a_unmatched, b_unmatched = diff
 
         if 0 < len(a_unmatched) + len(b_unmatched) + len(mispred):
-            if not item_a.media:
+            if not item_a.media or not isinstance(item_a.media, Image):
                 log.warning("Item %s: item has no image data, "
                     "it will be skipped" % (item_a.id))
                 return

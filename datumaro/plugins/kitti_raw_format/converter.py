@@ -414,7 +414,7 @@ class KittiRawConverter(Converter):
         if not self._reindex:
             index = cast(item.attributes.get('frame'), int, index)
 
-        if self._save_media:
+        if self._save_media and item.media:
             if item.media:
                 self._save_point_cloud(item, subdir=KittiRawPath.PCD_DIR)
 
@@ -426,7 +426,7 @@ class KittiRawConverter(Converter):
                             KittiRawPath.IMG_DIR_PREFIX + ('%02d' % i), 'data',
                             item.id + self._find_image_ext(image)))
 
-        else:
+        elif self._save_media and not item.media:
             log.debug("Item '%s' has no image info", item.id)
 
         return index

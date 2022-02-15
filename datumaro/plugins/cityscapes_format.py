@@ -258,10 +258,9 @@ class CityscapesExtractor(SourceExtractor):
                     label=label_id, id=ann_id,
                     attributes = { 'is_crowd': is_crowd }))
 
-            image = None
-            image_path = image_path_by_id.pop(item_id, None)
-            if image_path:
-                image = Image(path=image_path)
+            image = image_path_by_id.pop(item_id, None)
+            if image:
+                image = Image(path=image)
 
             items[item_id] = DatasetItem(id=item_id, subset=self._subset,
                 media=image, annotations=anns)

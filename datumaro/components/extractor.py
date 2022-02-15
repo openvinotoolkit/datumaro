@@ -12,7 +12,7 @@ import os
 import os.path as osp
 import warnings
 
-from attr import attrib, attrs, field
+from attr import attrs, field
 import attr
 import numpy as np
 
@@ -28,22 +28,6 @@ from datumaro.components.media import Image, MediaElement, PointCloud
 from datumaro.util import is_method_redefined
 from datumaro.util.attrs_util import default_if_none, not_empty
 
-
-def __getattr__(name: str):
-    if name in {
-        'Annotation', 'AnnotationType', 'Bbox', 'Caption', 'Categories',
-        'CompiledMask', 'Cuboid3d', 'Label', 'LabelCategories', 'Mask',
-        'MaskCategories', 'Points', 'PointsCategories', 'Polygon', 'RleMask',
-    }:
-        warnings.warn(f"Using {name} from {__package__} is deprecated and "
-            "will be removed in future. The class is moved to "
-            "'datumaro.components.annotation'",
-            DeprecationWarning, stacklevel=2)
-
-        import datumaro.components.annotation as annotation
-        return getattr(annotation, name)
-    raise AttributeError(f"module {__name__} has no attribute {name}")
-
 DEFAULT_SUBSET_NAME = 'default'
 
 T = TypeVar('T', bound=MediaElement)
@@ -53,14 +37,14 @@ class DatasetItem:
     id: str = field(converter=lambda x: str(x).replace('\\', '/'),
         validator=not_empty)
 
-    subset: str = attrib(converter=lambda v: v or DEFAULT_SUBSET_NAME,
+    subset: str = field(converter=lambda v: v or DEFAULT_SUBSET_NAME,
         default=None)
 
-    media: Optional[MediaElement] = attrib(default=None,
+    media: Optional[MediaElement] = field(default=None,
         validator=attr.validators.optional(
             attr.validators.instance_of(MediaElement)))
 
-    annotations: List[Annotation] = attrib(
+    annotations: List[Annotation] = field(
         factory=list, validator=default_if_none(list))
 
     attributes: Dict[str, Any] = field(
@@ -174,6 +158,9 @@ class IExtractor:
         raise NotImplementedError()
 
     def get(self, id, subset=None) -> Optional[DatasetItem]:
+        raise NotImplementedError()
+
+    def media_type(self) -> Type:
         raise NotImplementedError()
 
 class _ExtractorBase(IExtractor):

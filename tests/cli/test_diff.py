@@ -31,7 +31,7 @@ class DiffTest(TestCase):
 
         dataset1 = Dataset.from_iterable([
             DatasetItem(id=100, subset='train',
-            media=Image(data=np.ones((10, 6, 3))),
+                media=Image(data=np.ones((10, 6, 3))),
                 annotations=[
                     Caption('hello', id=1),
                     Caption('world', id=2, group=5),

@@ -23,7 +23,7 @@ class DatasetItemEncoder:
         ET.SubElement(item_elem, 'subset').text = str(item.subset)
 
         image = item.media
-        if image and isinstance(image, Image):
+        if isinstance(image, Image):
             item_elem.append(cls.encode_image(image))
 
         for ann in item.annotations:

@@ -8,6 +8,7 @@ import logging as log
 import os
 import os.path as osp
 import shutil
+import warnings
 
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.extractor import DatasetItem
@@ -78,6 +79,11 @@ class Converter(CliPlugin):
         default_image_ext = default_image_ext or self.DEFAULT_IMAGE_EXT
         assert default_image_ext
         self._default_image_ext = default_image_ext
+
+        if save_images:
+            warnings.warn("'save-images' is deprecated and will be "
+                "removed in future. Use 'save-media' instead.",
+                DeprecationWarning, stacklevel=2)
 
         self._save_media = save_media or save_images
         self._image_ext = image_ext

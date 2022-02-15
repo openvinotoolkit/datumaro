@@ -69,10 +69,9 @@ class AlignCelebaExtractor(SourceExtractor):
                         label_categories.add('class-%d' % len(label_categories))
                     anno.append(Label(label))
 
-                image = None
-                image_path = images.get(item_id)
-                if image_path:
-                    image = Image(path=image_path)
+                image = images.get(item_id)
+                if image:
+                    image = Image(path=image)
 
                 items[item_id] = DatasetItem(id=item_id,
                     media=image, annotations=anno)

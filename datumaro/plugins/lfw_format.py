@@ -94,10 +94,9 @@ class LfwExtractor(SourceExtractor):
                             annotations.append(Label(label))
                             item_id = item_id[len(label_name) + 1:]
                     if item_id not in items:
-                        image_path = images.get(image)
-                        image = None
-                        if image_path:
-                            image = Image(path=image_path)
+                        image = images.get(item_id)
+                        if image:
+                            image = Image(path=image)
 
                         items[item_id] = DatasetItem(id=item_id, subset=self._subset,
                             media=image, annotations=annotations)

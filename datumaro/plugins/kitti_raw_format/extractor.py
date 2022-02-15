@@ -246,8 +246,9 @@ class KittiRawExtractor(SourceExtractor):
         for frame_id, item_desc in parsed.items():
             name = name_mapping.get(frame_id, '%010d' % int(frame_id))
             items[frame_id] = DatasetItem(id=name, subset=self._subset,
-                media=PointCloud(osp.join(self._rootdir, KittiRawPath.PCD_DIR,
-                    name + '.pcd'), extra_images=sorted(images.get(name, []))),
+                media=PointCloud(
+                    osp.join(self._rootdir, KittiRawPath.PCD_DIR, name + '.pcd'),
+                    extra_images=sorted(images.get(name, []))),
                 annotations=item_desc.get('annotations'),
                 attributes={'frame': int(frame_id)})
 
@@ -256,8 +257,9 @@ class KittiRawExtractor(SourceExtractor):
                 continue
 
             items[frame_id] = DatasetItem(id=name, subset=self._subset,
-                media=PointCloud(osp.join(self._rootdir, KittiRawPath.PCD_DIR,
-                    name + '.pcd'), extra_images=sorted(images.get(name, []))),
+                media=PointCloud(
+                    osp.join(self._rootdir, KittiRawPath.PCD_DIR, name + '.pcd'),
+                    extra_images=sorted(images.get(name, []))),
                 attributes={'frame': int(frame_id)})
 
         return items

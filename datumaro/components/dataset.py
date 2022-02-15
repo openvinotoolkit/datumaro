@@ -959,7 +959,7 @@ class Dataset(IDataset):
             extractor = env.make_extractor(
                 src_conf.format, src_conf.url, **src_conf.options
             )
-            cls.check_media_type(extractor)
+            cls._check_media_type(extractor)
             extractors.append(extractor)
 
         dataset = cls.from_extractors(*extractors, env=env)
@@ -1006,7 +1006,7 @@ class Dataset(IDataset):
             raise MultipleFormatsMatchError(matches)
 
     @classmethod
-    def check_media_type(cls, source: IDataset):
+    def _check_media_type(cls, source: IDataset):
         for item in source:
             if item.media and not isinstance(item.media, source.media_type()):
                 raise MediaTypeError("Dataset elements must have a '%s' " \

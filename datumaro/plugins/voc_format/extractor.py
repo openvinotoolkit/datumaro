@@ -102,10 +102,9 @@ class VocClassificationExtractor(_VocExtractor):
 
         for item_id in self._items:
             log.debug("Reading item '%s'" % item_id)
-            image_path = images.get(item_id)
-            image = None
-            if image_path:
-                image = Image(path=image_path)
+            image = images.get(item_id)
+            if image:
+                image = Image(path=image)
             yield DatasetItem(id=item_id, subset=self._subset,
                 media=image, annotations=annotations.get(item_id))
 
@@ -293,10 +292,9 @@ class VocSegmentationExtractor(_VocExtractor):
         for item_id in self._items:
             log.debug("Reading item '%s'" % item_id)
             anns = self._load_annotations(item_id)
-            image_path = images.get(item_id)
-            image = None
-            if image_path:
-                image = Image(path=image_path)
+            image = images.get(item_id)
+            if image:
+                image = Image(path=image)
             yield DatasetItem(id=item_id, subset=self._subset,
                 media=image, annotations=anns)
 
