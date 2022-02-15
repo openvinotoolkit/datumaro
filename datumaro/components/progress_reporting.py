@@ -31,9 +31,9 @@ class ProgressReporter(ContextManager['ProgressReporter']):
         self.close()
 
     @property
-    def frequency(self) -> float:
+    def period(self) -> float:
         """
-        Returns reporting frequency.
+        Returns reporting period.
 
         For example, 0.1 would mean every 10%.
         """
@@ -72,7 +72,7 @@ class ProgressReporter(ContextManager['ProgressReporter']):
         self.init(total, desc=desc)
 
         if total:
-            display_step = math.ceil(total * self.frequency)
+            display_step = math.ceil(total * self.period)
 
         for i, elem in enumerate(iterable):
             if not total or i % display_step == 0:
@@ -89,7 +89,7 @@ class ProgressReporter(ContextManager['ProgressReporter']):
 
 class NullProgressReporter(ProgressReporter):
     @property
-    def frequency(self) -> float:
+    def period(self) -> float:
         return 0
 
     def init(self, total: int, *, desc: Optional[str] = None):

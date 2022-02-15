@@ -1550,8 +1550,8 @@ class DatasetTest(TestCase):
                 return (self, ) * count
 
         progress_reporter = TestProgressReporter()
-        freq_mock = mock.PropertyMock(return_value=0.1)
-        type(progress_reporter).frequency = freq_mock
+        period_mock = mock.PropertyMock(return_value=0.1)
+        type(progress_reporter).period = period_mock
         progress_reporter.init = mock.MagicMock()
         progress_reporter.report_status = mock.MagicMock()
         progress_reporter.close = mock.MagicMock()
@@ -1563,7 +1563,7 @@ class DatasetTest(TestCase):
         Dataset.import_from('', 'test', env=env,
             progress_reporter=progress_reporter)
 
-        freq_mock.assert_called_once()
+        period_mock.assert_called_once()
         progress_reporter.init.assert_called_once()
         progress_reporter.report_status.assert_called()
         progress_reporter.close.assert_called_once()
@@ -1650,8 +1650,8 @@ class DatasetTest(TestCase):
         class TestProgressReporter(ProgressReporter):
             pass
         progress_reporter = TestProgressReporter()
-        freq_mock = mock.PropertyMock(return_value=0.1)
-        type(progress_reporter).frequency = freq_mock
+        period_mock = mock.PropertyMock(return_value=0.1)
+        type(progress_reporter).period = period_mock
         progress_reporter.init = mock.MagicMock()
         progress_reporter.report_status = mock.MagicMock()
         progress_reporter.close = mock.MagicMock()
@@ -1660,7 +1660,7 @@ class DatasetTest(TestCase):
             Dataset().export(test_dir, TestConverter,
                 progress_reporter=progress_reporter)
 
-        freq_mock.assert_called_once()
+        period_mock.assert_called_once()
         progress_reporter.init.assert_called_once()
         progress_reporter.report_status.assert_called()
         progress_reporter.close.assert_called_once()
