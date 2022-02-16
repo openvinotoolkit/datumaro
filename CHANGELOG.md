@@ -30,8 +30,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for downloading the ImageNetV2 and COCO datasets
   (<https://github.com/openvinotoolkit/datumaro/pull/653>,
    <https://github.com/openvinotoolkit/datumaro/pull/659>)
-- Delete transforms (`delete_image`, `delete_annotation`, `delete_attribute`)
-  to delete specific images/annoations/attributes from dataset by their ids.
+- A way for formats to signal that they don't support detection
+  (<https://github.com/openvinotoolkit/datumaro/pull/665>)
+- Deletion transforms (`delete_images`, `delete_annotations`, `delete_attributes`)
+  to delete specific images/annoations/attributes from dataset
   (https://github.com/openvinotoolkit/datumaro/pull/666)
 
 ### Changed
@@ -79,6 +81,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/621>)
 - Added missing item attribute merging in simple merge
   (<https://github.com/openvinotoolkit/datumaro/pull/634>)
+- Inability to disambiguate VOC from LabelMe in some cases
+  (<https://github.com/openvinotoolkit/datumaro/issues/658>)
 
 ### Security
 - TBD

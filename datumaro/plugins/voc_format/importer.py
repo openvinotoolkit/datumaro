@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2021 Intel Corporation
+# Copyright (C) 2019-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -26,7 +26,7 @@ class VocImporter(Importer):
         # possible to use autodetection with the VOC datasets), disable
         # autodetection for the single-task formats.
         if len(cls._TASKS) == 1:
-            context.fail('this format cannot be autodetected')
+            context.raise_unsupported()
 
         with context.require_any():
             task_dirs = {task_dir for _, task_dir in cls._TASKS.values()}
