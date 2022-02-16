@@ -32,9 +32,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    <https://github.com/openvinotoolkit/datumaro/pull/659>)
 - A way for formats to signal that they don't support detection
   (<https://github.com/openvinotoolkit/datumaro/pull/665>)
-- Deletion transforms (`delete_images`, `delete_annotations`, `delete_attributes`)
-  to delete specific images/annoations/attributes from dataset
-  (https://github.com/openvinotoolkit/datumaro/pull/666)
+- Removal transforms to remove items/annoations/attributes from dataset
+  (`remove_items`, `remove_annotations`, `remove_attributes`)
+  (<https://github.com/openvinotoolkit/datumaro/pull/670>)
 
 ### Changed
 - Allowed direct file paths in `datum import`. Such sources are imported like
