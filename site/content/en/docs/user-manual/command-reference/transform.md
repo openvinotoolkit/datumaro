@@ -461,9 +461,9 @@ Optional arguments:
   removes all attributes (repeatable)
 
 Examples:
-Delete 'person' attributes from dataset by '2010_001705:train' id.
+Delete 'occluded' attributes from dataset by '2010_001705:train' id.
 ```
-datum transform -t delete_attribute -- --id '2010_001705:train --attr 'person'
+datum transform -t delete_attribute -- --id '2010_001705:train --attr 'occluded'
 ```
 
 ##### `random_split` <a id="random_split-transform"></a>
