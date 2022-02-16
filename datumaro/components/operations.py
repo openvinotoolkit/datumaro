@@ -25,8 +25,8 @@ from datumaro.components.dataset import Dataset, DatasetItemStorage, IDataset
 from datumaro.components.errors import (
     AnnotationsTooCloseError, ConflictingCategoriesError, DatasetMergeError,
     FailedAttrVotingError, FailedLabelVotingError, MismatchingAttributesError,
-    MismatchingImageInfoError, MismatchingMediaError, MismatchingMediaPathError, NoMatchingAnnError,
-    NoMatchingItemError, WrongGroupError,
+    MismatchingImageInfoError, MismatchingMediaError, MismatchingMediaPathError,
+    NoMatchingAnnError, NoMatchingItemError, WrongGroupError,
 )
 from datumaro.components.extractor import CategoriesInfo, DatasetItem
 from datumaro.components.media import (
