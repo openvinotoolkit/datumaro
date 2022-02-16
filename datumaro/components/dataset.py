@@ -293,6 +293,7 @@ class DatasetStorage(IDataset):
             not self._transforms
 
     def init_cache(self):
+        self._check_media_type()
         if not self.is_cache_initialized():
             for _ in self._iter_init_cache(): pass
 
@@ -606,6 +607,13 @@ class DatasetStorage(IDataset):
         else:
             for item in source:
                 self.put(item)
+
+    def _check_media_type(self):
+        source = self._source
+        for item in source:
+            if item.media and not isinstance(item.media, source.media_type()):
+                raise MediaTypeError("Dataset elements must have a '%s' " \
+                    "media type" % source.media_type())
 
 class Dataset(IDataset):
     _global_eager: bool = False
@@ -959,7 +967,6 @@ class Dataset(IDataset):
             extractor = env.make_extractor(
                 src_conf.format, src_conf.url, **src_conf.options
             )
-            cls._check_media_type(extractor)
             extractors.append(extractor)
 
         dataset = cls.from_extractors(*extractors, env=env)
@@ -1004,13 +1011,6 @@ class Dataset(IDataset):
             raise NoMatchingFormatsError()
         if 1 < len(matches):
             raise MultipleFormatsMatchError(matches)
-
-    @classmethod
-    def _check_media_type(cls, source: IDataset):
-        for item in source:
-            if item.media and not isinstance(item.media, source.media_type()):
-                raise MediaTypeError("Dataset elements must have a '%s' " \
-                    "media type" % source.media_type())
 
 @contextmanager
 def eager_mode(new_mode: bool = True, dataset: Optional[Dataset] = None) -> None:
